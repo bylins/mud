@@ -35,7 +35,7 @@
 #include "spells.h"
 #include "screen.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "im.h"
 #include "skills.h"
 #include "features.hpp"
@@ -46,10 +46,10 @@
 #include "room.hpp"
 #include "genchar.h"
 #include "sets_drop.hpp"
-#include "olc.h"
+#include "olc/olc.h"
 #include "logger.hpp"
 #include "utils.h"
-#include "msdp.constants.hpp"
+#include "msdp/msdp.constants.hpp"
 
 #include <unordered_set>
 
@@ -2055,7 +2055,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		// если хп пробиты - уходим
 		if (MOB_FLAGGED(ch, MOB_EADECREASE))
 			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < i * GET_REAL_MAX_HIT(ch))
-				return;		
+				return;
 		exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::MOB_ADD);
 	}
 }

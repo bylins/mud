@@ -15,7 +15,7 @@
 #include "dps.hpp"
 #include "map.hpp"
 #include "reset_stats.hpp"
-#include "boards.types.hpp"
+#include "boards/boards.types.hpp"
 #include "quest.hpp"
 #include "stigmas.hpp"
 #include "cmd/mercenary.h"
@@ -55,7 +55,7 @@ public:
 
 	room_rnum get_from_room() const;
 	void set_from_room(room_rnum was_in_room);
-	
+
 	void remort();
 	void reset();
 
@@ -222,8 +222,8 @@ private:
 	// список зон, где чар умер и в каком количестве
 	std::map<int, int> count_death_zone;
 	// время, когда были выполнены все дейлики
-	time_t time_daily;	
-	// сколько дней подряд выполнялись дейлики 
+	time_t time_daily;
+	// сколько дней подряд выполнялись дейлики
 	int count_daily_quest;
 	// Отметка о том, в каких городах был наш чар
 	boost::dynamic_bitset<size_t> cities;

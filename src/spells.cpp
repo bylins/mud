@@ -27,7 +27,7 @@
 #include "db.h"
 #include "deathtrap.hpp"
 #include "depot.hpp"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/mobact.hpp"
 #include "fightsystem/pk.h"

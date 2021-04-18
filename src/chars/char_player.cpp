@@ -7,16 +7,16 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "db.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "handler.h"
-#include "boards.h"
+#include "boards/boards.h"
 #include "file_crc.hpp"
 #include "spells.h"
 #include "constants.h"
 #include "skills.h"
 #include "ignores.loader.hpp"
 #include "im.h"
-#include "olc.h"
+#include "olc/olc.h"
 #include "comm.h"
 #include "fightsystem/pk.h"
 #include "diskio.h"
@@ -992,17 +992,17 @@ void Player::save_char()
 
     std::map<int, MERCDATA>::iterator it = this->charmeeHistory.begin();
 	// перечень чармисов кудеса и купца
-	if (this->charmeeHistory.size() > 0 && 
+	if (this->charmeeHistory.size() > 0 &&
 		(this->get_class() == CLASS_CHARMMAGE || this->get_class() == CLASS_MERCHANT || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (;it!= this->charmeeHistory.end(); ++it)
 		{
-			fprintf(saved, "%d %d %d %d %d %d\n" , 
-							it->first, 
-							it->second.CharmedCount, 
-							it->second.spentGold, 
-							it->second.deathCount, 
-							it->second.currRemortAvail, 
+			fprintf(saved, "%d %d %d %d %d %d\n" ,
+							it->first,
+							it->second.CharmedCount,
+							it->second.spentGold,
+							it->second.deathCount,
+							it->second.currRemortAvail,
 							it->second.isFavorite);
 		}
 		fprintf(saved, "0 0 0 0 0 0\n");// терминирующая строчка
@@ -2094,7 +2094,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			else if (!strcmp(tag, "TrcL")) {
 				sscanf(line, "%d %d", &num, &num2);
 				today_torc_.first = num;
-				today_torc_.second = num2; 
+				today_torc_.second = num2;
 			}
 			else if (!strcmp(tag, "Tglo")) {
 				this->setGloryRespecTime(static_cast<time_t>(num));

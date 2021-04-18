@@ -3,8 +3,8 @@
 #include "spells.h"
 #include "utils.h"
 #include "logger.hpp"
-#include "msdp.hpp"
-#include "msdp.constants.hpp"
+#include "msdp/msdp.hpp"
+#include "msdp/msdp.constants.hpp"
 
 void asciiflag_conv(const char *flag, void *to)
 {
@@ -216,7 +216,7 @@ const char* nothing_string = "ничего";
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
-	
+
 	long nr = 0;
 	int fail = 0;
 	int plane = 0;
@@ -1013,7 +1013,7 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_DARK] = "APPLY_RESIST_DARK";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_VIEW_DT] = "APPLY_VIEW_DT";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_EXP] = "APPLY_PERCENT_EXP";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_DAM] = "APPLY_PERCENT_DAM";	
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_DAM] = "APPLY_PERCENT_DAM";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_SPELL_BLINK] = "APPLY_SPELL_BLINK";
 	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
 	for (const auto& i : EApplyLocation_name_by_value) {

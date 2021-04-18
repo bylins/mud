@@ -17,7 +17,7 @@
 #include "handler.h"
 #include "db.h"
 #include "screen.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "auction.h"
 #include "privilege.hpp"
 #include "chars/char.hpp"
@@ -75,7 +75,7 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 	}
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);  
+		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
@@ -977,7 +977,7 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 
 			act(buf, FALSE, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
-			
+
 			if (COLOR_LEV(i->character) >= C_NRM)
 			{
 				send_to_char(KNRM, i->character.get());
@@ -1068,7 +1068,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (i = descriptor_list; i; i = i->next)
 	{
-		if (STATE(i) == CON_PLAYING) 
+		if (STATE(i) == CON_PLAYING)
 		{
 			if ((IS_IMMORTAL(i->character.get())
 					|| (GET_GOD_FLAG(i->character.get(), GF_DEMIGOD)

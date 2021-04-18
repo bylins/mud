@@ -17,7 +17,7 @@
 #include "interpreter.h"
 #include "spells.h"
 #include "screen.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "constants.h"
 #include "im.h"
 #include "features.hpp"

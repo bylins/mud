@@ -26,7 +26,7 @@
 #include "db.h"
 #include "screen.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "fightsystem/pk.h"
 #include "features.hpp"
 #include "im.h"
@@ -1632,7 +1632,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	// Say phrase ?
 	if (cast_phrase[spellnum][GET_RELIGION(ch)] == nullptr){
 		sprintf(buf, "[ERROR]: say_spell: для спелла %d не объявлена cast_phrase", spellnum);
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);			
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
 	if (IS_NPC(ch)) {
@@ -1662,14 +1662,14 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		}
 	}
 	else {
-		//если включен режим без повторов (подавление ехо) не показываем	
+		//если включен режим без повторов (подавление ехо) не показываем
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) {
 			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
 				send_to_char(OK, ch);
 		}
 		else {
 			if (IS_SET(SpINFO.routines, MAG_WARCRY))
-				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n", 
+				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
 					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
 			else
 				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
@@ -2290,13 +2290,13 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 					char tmpname[MAX_INPUT_LENGTH];
 					char *tmp = tmpname;
 					strcpy(tmp, t);
-					tnum = get_number(&tmp); // возвращает 1, если первая цель					
+					tnum = get_number(&tmp); // возвращает 1, если первая цель
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
 						if (isname(tmp, k->follower->get_pc_name())) {
 							if (++fnum == tnum) {// нашли!!
 								*tch = k->follower;
-								return TRUE;								
+								return TRUE;
 							}
 						}
 					}
@@ -2858,7 +2858,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 
 // Может-ли кастер зачитать заклинание если на нем эфект !смирение!?
 // одиночная цель - запрет агро
-// 
+//
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL)){
 		ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
 				 IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS);
@@ -2903,11 +2903,11 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
 		MemQ_remember(ch, spell_subst);
 	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов
-	if (IS_NPC(ch)) 
+	if (IS_NPC(ch))
 		GET_CASTER(ch) -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 	if (!IS_NPC(ch))
 		affect_total(ch);
-	
+
 	return (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)));
 }
 
@@ -3050,7 +3050,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	{
 		if (GET_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
 				|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
-				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) 
+				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 		{
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
@@ -4907,7 +4907,7 @@ void mag_assign_spells(void)
 	spello(SPELL_PRISMATICAURA, "призматическая аура", "prismatic aura", 85, 70, 4,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //139
-	spello(SPELL_EVILESS, "силы зла", "eviless", 150, 130, 5, 
+	spello(SPELL_EVILESS, "силы зла", "eviless", 150, 130, 5,
 		   POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | MAG_POINTS, 3, STYPE_DARK);
 //140
 	spello(SPELL_AIR_AURA, "воздушная аура", "air aura",

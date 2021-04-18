@@ -5,7 +5,7 @@
 #ifndef ROOM_HPP_INCLUDED
 #define ROOM_HPP_INCLUDED
 
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "obj.hpp"
 #include "constants.h"
 #include "structs.h"

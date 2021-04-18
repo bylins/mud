@@ -14,7 +14,7 @@
 #include "db.h"
 #include "olc.h"
 #include "handler.h"
-#include "dg_olc.h"
+#include "dg_script/dg_olc.h"
 #include "constants.h"
 #include "features.hpp"
 #include "im.h"

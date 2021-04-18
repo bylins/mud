@@ -21,7 +21,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-#include "olc.h"
+#include "olc/olc.h"
 #include "chars/char.hpp"
 #include "room.hpp"
 #include "spells.h"
@@ -1466,7 +1466,7 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 
 			break;
 		}
-				
+
 		if (!TRIGGER_CHECK(t, WTRIG_COMMAND))
 		{
 			continue;
