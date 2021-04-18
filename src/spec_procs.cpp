@@ -25,7 +25,7 @@
 #include "constants.h"
 #include "db.h"
 #include "depot.hpp"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"

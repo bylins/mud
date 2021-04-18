@@ -1,5 +1,5 @@
 /**************************************************************************
-*  File: dg_olc.cpp                                      Part of Bylins   *
+*  File: dg_olc.h.cpp                                      Part of Bylins   *
 *  Usage: trig edit from olc functions                                    *
 *                                                                         *
 *  Usage: this source file is used in extending Oasis style OLC for       *
@@ -19,7 +19,7 @@
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
-#include "olc.h"
+#include "olc/olc.h"
 #include "dg_event.h"
 #include "chars/char.hpp"
 #include "room.hpp"
@@ -614,13 +614,13 @@ void trigedit_create_index(int znum, const char *type)
 
 	if (!(oldfile = fopen(old_name, "r")))
 	{
-		sprintf(buf1, "SYSERR: DG_OLC: Failed to open %s", buf);
+		sprintf(buf1, "SYSERR: TRIGEDIT: Failed to open %s", buf);
 		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
 	}
 	else if (!(newfile = fopen(new_name, "w")))
 	{
-		sprintf(buf1, "SYSERR: DG_OLC: Failed to open %s", buf);
+		sprintf(buf1, "SYSERR: TRIGEDIT: Failed to open %s", buf);
 		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
 	}

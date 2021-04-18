@@ -19,7 +19,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-#include "olc.h"
+#include "olc/olc.h"
 #include "im.h"
 #include "features.hpp"
 #include "chars/char.hpp"
@@ -669,7 +669,7 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// суб команда make
 	// Выковать можно клинок и доспех (щит) умения разные. название одно
 	// Сварить отвар
-	// Сшить одежду 
+	// Сшить одежду
 	if ((subcmd == MAKE_WEAR) && (!ch->get_skill(SKILL_MAKE_WEAR))) {
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;
@@ -1591,7 +1591,7 @@ float MakeRecept::count_mort_requred(OBJ_DATA * obj)
 	const int AFF_BLINK_MOD = 10;
 
 	result = 0.0;
-	
+
 	float total_weight = 0.0;
 
 	// аффекты APPLY_x
@@ -1682,7 +1682,7 @@ float MakeRecept::count_mort_requred(OBJ_DATA * obj)
 		}
 	}
 	if (total_weight < 1) return result;
-	
+
 		result = ceil(pow(total_weight, 1/SQRT_MOD));
 
 	return result;
@@ -1764,7 +1764,7 @@ float MakeRecept::count_affect_weight(int num, int mod)
 void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt)
 {
 	int i, j;
-	//ставим именительные именительные падежи в алиасы 
+	//ставим именительные именительные падежи в алиасы
 	sprintf(buf, "%s %s %s %s",
 		GET_OBJ_PNAME(obj, 0).c_str(),
 		GET_OBJ_PNAME(ingrs[0], 1).c_str(),
@@ -1800,8 +1800,8 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 		}
 	}
 	obj->set_is_rename(true); // ставим флаг что объект переименован
-	
-	
+
+
 	auto temp_flags = obj->get_affect_flags();
 	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
 	obj->set_affect_flags(temp_flags);
@@ -2113,14 +2113,14 @@ int MakeRecept::make(CHAR_DATA * ch)
 			train_skill(ch, skill, skill_info[skill].max_percent, 0);
 		}
 	}
-	*/ 
+	*/
 	train_skill(ch, skill, skill_info[skill].max_percent, 0);
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
 	{
 		for (i = 0; i < ingr_cnt; i++)
 		{
-			if (skill == SKILL_MAKE_WEAR && i == 0) //для шитья всегда раскраиваем шкуру 
+			if (skill == SKILL_MAKE_WEAR && i == 0) //для шитья всегда раскраиваем шкуру
 			{
 				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[0]);
 				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
@@ -2340,7 +2340,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// больше переноситься 0
 	// переносим доп аффекты ...+мудра +ловка и т.п.
 	if (skill == SKILL_MAKE_WEAR)
-	{ 
+	{
 		make_object(ch, obj.get(), ingrs, ingr_cnt );
 		make_value_wear(ch, obj.get(), ingrs);
 	}
@@ -2562,7 +2562,7 @@ void MakeRecept::add_rnd_skills(CHAR_DATA* /*ch*/, OBJ_DATA * obj_from, OBJ_DATA
 //		sprintf(buf, "Всего умений %d копируем из них случайное под N %d.\r\n", i, rskill);
 //		send_to_char(buf,  ch);
 		for (const auto& it : skills)
-		{	
+		{
 			if (z == rskill) // ставим рандомную умелку
 			{
 				skill_num = it.first;

@@ -10,7 +10,7 @@
 #include "im.h"
 #include "handler.h"
 #include "interpreter.h"
-#include "boards.h"
+#include "boards/boards.h"
 #include "privilege.hpp"
 #include "skills.h"
 #include "constants.h"
@@ -25,9 +25,9 @@
 #include "house.h"
 #include "help.hpp"
 #include "utils.h"
-#include "msdp.constants.hpp"
+#include "msdp/msdp.constants.hpp"
 #include "backtrace.hpp"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "zone.table.hpp"
 
 #include <boost/format.hpp>
@@ -2292,7 +2292,7 @@ void CHAR_DATA::inc_restore_timer(int num)
 	}
 }
 
-//метод передачи отладочного сообщения: 
+//метод передачи отладочного сообщения:
 //имморталу, тестеру или кодеру
 //остальные параметры - функция printf
 void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...)
@@ -2310,11 +2310,11 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 
 	if (to_impl &&
 		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
-		needSend = true;	
-	if (!needSend && to_coder && 
+		needSend = true;
+	if (!needSend && to_coder &&
 		(PRF_FLAGGED(this, PRF_CODERINFO) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_CODERINFO)))))
 		needSend = true;
-	if (!needSend && to_tester && 
+	if (!needSend && to_tester &&
 		(PRF_FLAGGED(this, PRF_TESTER) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_TESTER)))))
 	   	needSend = true;
 	if (!needSend)
@@ -2333,9 +2333,9 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
-	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру	
+	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру
 	send_to_char(tmpbuf, IS_CHARMICE(this)? this->get_master() : this);
-} 
+}
 
 bool CHAR_DATA::have_mind() const {
     if (!AFF_FLAGGED(this, EAffectFlag::AFF_CHARM) && !IS_HORSE(this))

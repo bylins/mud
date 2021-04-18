@@ -23,8 +23,8 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "house.h"
-#include "boards.constants.hpp"
-#include "boards.h"
+#include "boards/boards.constants.hpp"
+#include "boards/boards.h"
 #include "chars/char.hpp"
 #include "room.hpp"
 #include "noob.hpp"
@@ -68,7 +68,7 @@ void ASSIGNMOB(mob_vnum mob, int fname(CHAR_DATA*, void*, int, char*))
 			clear_mob_charm(&mob_proto[rnum]);
 		}
 	}
-	else 
+	else
 	{
 		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
 	}

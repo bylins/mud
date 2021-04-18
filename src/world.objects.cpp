@@ -3,7 +3,7 @@
 #include "object.prototypes.hpp"
 #include "db.h"
 #include "liquid.hpp"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "utils.h"
 #include "global.objects.hpp"
 

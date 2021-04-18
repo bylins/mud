@@ -26,7 +26,7 @@
 #include "db.h"
 #include "screen.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "fightsystem/pk.h"
 #include "features.hpp"
 #include "im.h"

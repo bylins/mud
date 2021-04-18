@@ -9,7 +9,7 @@
 #include "chars/char.hpp"
 #include "comm.h"
 #include "handler.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "im.h"
 #include "room.hpp"
 #include "pugixml.hpp"
@@ -354,7 +354,7 @@ void init_obj_list()
 						}
 					}
 				}
-				//create_clone_miniset(obj_vnum);				
+				//create_clone_miniset(obj_vnum);
 			}
 		}
 		else
@@ -655,7 +655,7 @@ void filter_dupe_names()
 			if (!good || k->type == -1)
 			{
 				continue;
-			}			
+			}
 			if (k->type == GROUP_MOB
 				&& mob_proto[k->rnum].get_level() < MIN_GROUP_MOB_LVL)
 			{
@@ -673,9 +673,9 @@ void filter_dupe_names()
 			{
 				continue;
 			}
-			
 
-			
+
+
 
 			// пока только уникальные мобы
 			k->miw = calc_max_in_world(k->rnum);
@@ -683,7 +683,7 @@ void filter_dupe_names()
 			{
 				continue;
 			}
-			
+
 
 			vnum = mob_index[k->rnum].vnum;
 			level = mob_proto[k->rnum].get_level();
@@ -1070,7 +1070,7 @@ bool load_unique_mobs()
 		vnum = Parse::attr_int(node, "vnum");
 		level = Parse::attr_int(node, "level");
 		unique_mobs.insert(std::make_pair(vnum, level));
-	}	
+	}
 	return true;
 }
 

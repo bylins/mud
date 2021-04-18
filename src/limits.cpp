@@ -23,7 +23,7 @@
 #include "screen.h"
 #include "interpreter.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "house.h"
 #include "constants.h"
 #include "exchange.h"
@@ -1548,7 +1548,7 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 	}
 	else if (where == 2 && obj->get_in_obj())
 	{
-		snprintf(buf1, 128, "в %s%s", 
+		snprintf(buf1, 128, "в %s%s",
 				obj->get_in_obj()->get_PName(5).c_str(),
 				char_get_custom_label(obj->get_in_obj(), charmee->get_master()).c_str());
 	}

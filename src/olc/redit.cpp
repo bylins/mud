@@ -12,7 +12,7 @@
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
-#include "dg_olc.h"
+#include "dg_script/dg_olc.h"
 #include "constants.h"
 #include "im.h"
 #include "description.h"
@@ -475,7 +475,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	{
 		strcat(buf2, " (Выход скрыт)");
 	}
-	
+
 	get_char_cols(d->character.get());
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)

@@ -12,7 +12,7 @@
 #include "chars/char.hpp"
 #include "comm.h"
 #include "handler.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "im.h"
 #include "room.hpp"
 #include "pugixml.hpp"
@@ -53,7 +53,7 @@ struct global_drop
 	int count_mob;  // после каждых убитых в сумме мобов, заданного левела, будет падать дроп
 	int mobs; // убито подходящих мобов
 	int rnum; // рнум шмотки, если vnum валидный
-	int day_start; // начиная с какого дня (игрового) шмотка может выпасть с моба и ... 
+	int day_start; // начиная с какого дня (игрового) шмотка может выпасть с моба и ...
 	int day_end; // ... кончая тем днем, после которого, шмотка перестанет выпадать из моба
 	int race_mob; // тип моба, с которого падает данная шмотка (-1 все)
 	int chance; // процент выпадения (1..1000)
@@ -176,7 +176,7 @@ void init()
 			list_mobs.push_back(Parse::attr_int(node_, "vnum"));
 		}
 		table_drop tmp(list_mobs, chance, count_mobs, vnum_obj);
-		tables_drop.push_back(tmp);			
+		tables_drop.push_back(tmp);
 	}
 	for (pugi::xml_node node = node_list.child("freedrop_obj"); node; node = node.next_sibling("freedrop_obj"))
 	{
@@ -211,8 +211,8 @@ void init()
 		int count_mob = Parse::attr_int(node, "count_mob");
 		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
 		int day_end = Parse::attr_int_t(node, "day_end");
-		int race_mob = Parse::attr_int_t(node, "race_mob"); 
-		int chance = Parse::attr_int_t(node, "chance"); 
+		int race_mob = Parse::attr_int_t(node, "race_mob");
+		int chance = Parse::attr_int_t(node, "chance");
 		if (chance == -1)
 			chance = 1000;
 		if (day_start == -1)
@@ -221,7 +221,7 @@ void init()
 			day_end = 360;
 		if (race_mob == -1)
 			race_mob = -1; // -1 для всех рас
-	
+
 		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH,
@@ -232,7 +232,7 @@ void init()
 		}
 		snprintf(buf, MAX_STRING_LENGTH,
 					"GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, count_mob=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, chance=%d)",
-					obj_vnum, mob_lvl, count_mob, max_mob_lvl, day_start, day_end, race_mob, chance); 
+					obj_vnum, mob_lvl, count_mob, max_mob_lvl, day_start, day_end, race_mob, chance);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
@@ -356,7 +356,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	for (size_t i = 0; i < tables_drop.size(); i++)
 	{
 		if (tables_drop[i].check_mob(GET_MOB_VNUM(mob)))
-		{			
+		{
 			int rnum;
 			if ((rnum = real_object(tables_drop[i].get_vnum())) < 0)
 			{
@@ -373,7 +373,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	}
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
-		if (GET_LEVEL(mob) >= i->mob_lvl 				   
+		if (GET_LEVEL(mob) >= i->mob_lvl
 		    &&	(!i->max_mob_lvl
 				|| GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
 		    && ((i->race_mob < 0)
@@ -382,7 +382,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 		    && (i->day_start <= day && i->day_end >= day)			// временной промежуток
 		    && (!NPC_FLAGGED(mob, NPC_FREEDROP))  //не падают из фридропа
 		    && (!mob->has_master()
-				|| IS_NPC(mob->get_master()))) // не чармис	
+				|| IS_NPC(mob->get_master()))) // не чармис
 
 		{
 			++(i->mobs);
@@ -392,7 +392,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				if (obj_rnum == -1)
 				{
 					i->mobs = 0;
-					continue;					
+					continue;
 				}
 				if (number(1, 1000) <= i->chance
 					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)

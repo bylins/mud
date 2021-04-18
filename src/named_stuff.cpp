@@ -13,7 +13,7 @@
 #include "db.h"
 #include "handler.h"
 #include "house.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "pugixml.hpp"
 #include "logger.hpp"
 #include "utils.h"
@@ -336,7 +336,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 void nedit_menu(CHAR_DATA * ch)
 {
 	std::ostringstream out;
-	
+
 	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: " << (real_object(ch->desc->cur_vnum) ? obj_proto[real_object(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rнеизвестно&n") << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
 	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (0 == ch->desc->named_obj->can_clan ? 0 : 1) << "\r\n";
@@ -407,7 +407,7 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 								&& uid == it->second->uid)
 							|| (uid == -1
 								&& it->first >= first
-								&& it->first <= last))  
+								&& it->first <= last))
 						{
 							if (found == 0)
 							{
@@ -529,7 +529,7 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 				{
 					ch->desc->named_obj = tmp_node;
 					STATE(ch->desc) = CON_NAMED_STUFF;
-					
+
 					nedit_menu(ch);
 					return;
 				}

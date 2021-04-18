@@ -9,7 +9,7 @@
 #include "object.prototypes.hpp"
 #include "parse.hpp"
 #include "handler.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "screen.h"
 #include "celebrates.hpp"
 #include "fightsystem/pk.h"
@@ -486,7 +486,7 @@ bool CObjectPrototype::has_skills() const
 
 void CObjectPrototype::set_timer(int timer)
 {
-	m_timer = MAX(0, timer);	
+	m_timer = MAX(0, timer);
 }
 
 int CObjectPrototype::get_timer() const
@@ -557,12 +557,12 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 	int enchant_count = 0;
 
     // 8 мортов (скил магия света 125)
-    if (skill > 100 && skill <= 125) 
+    if (skill > 100 && skill <= 125)
 	{
 		enchant_count = 1;
 	}
     // 12 мортов (скил магия света 160)
-	else if (skill <= 160) 
+	else if (skill <= 160)
 	{
 		enchant_count = 2;
 	}
@@ -635,7 +635,7 @@ bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
 	const auto obj_original = world_objects.create_from_prototype_by_rnum(rnum);
 	const auto old_rnum = get_rnum();
 	//const auto old_rnum = rnum;
-	
+
 	copy_from(obj_original.get());
 
 	const auto proto_script_copy = OBJ_DATA::triggers_list_t(obj_proto.proto_script(rnum));
@@ -656,7 +656,7 @@ void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
 	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
 	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
-	
+
 	//Копируем имя по падежам
 	for (i = 0; i < NUM_PADS; i++)
 		set_PName(i, src->get_PName(i));
@@ -808,7 +808,7 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 	}
 }
 
-float CObjectPrototype::show_mort_req() 
+float CObjectPrototype::show_mort_req()
 {
 	return count_mort_requred(this);
 }
@@ -892,7 +892,7 @@ int CObjectPrototype::get_auto_mort_req() const
 	{
 		return 3;
 	}
-	
+
 
 	return 0;
 }
@@ -1943,7 +1943,7 @@ namespace SetSystem
 			}
 		}
 		else
-		{			
+		{
 			if (house_find_set_item(ch, vnum_list))
 			{
 				return false;

@@ -19,7 +19,7 @@
 #include "utils.h"
 #include "db.h"
 #include "olc.h"
-#include "dg_olc.h"
+#include "dg_script/dg_olc.h"
 #include "im.h"
 #include "features.hpp"
 #include "depot.hpp"
@@ -148,25 +148,25 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 		fullUpdate = false;*/
 
 	//если объект не зависит от прототипа
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO)) 
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO))
 		fullUpdate = false;
 	//если объект изменен кодом
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED))
 		fullUpdate = false;
-	
+
 	if (!fullUpdate) {
 		//тут можно вставить изменение объекта ограниченное
 		//в obj лежит объект, в olc_proto лежит прототип
 		return;
 	}
 
-	
-	// Сохраняю текущую игровую информацию	
+
+	// Сохраняю текущую игровую информацию
 	OBJ_DATA tmp(*obj);
-	
+
 	// Копируем информацию из прототипа
 	*obj = *olc_proto;
-	
+
 	//Восстанавливаем падежи если объект поренеймлен
 	if (tmp.get_is_rename()) {
 		obj->copy_name_from(&tmp);
@@ -223,7 +223,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 		obj->set_extra_flag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
 	}
 	//восстанавливаем метки, если они были
-	if (tmp.get_custom_label()){  
+	if (tmp.get_custom_label()){
 		obj->set_custom_label(new custom_label());
 		obj->get_custom_label()->label_text = str_dup(tmp.get_custom_label()->label_text);
 		obj->get_custom_label()->author = tmp.get_custom_label()->author;
@@ -808,14 +808,14 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 		// * Values 2 and 3 are unused, jump to 4...Odd.
 		oedit_disp_val4_menu(d);
 		break;
-	
+
 	case OBJ_DATA::ITEM_MONEY:
 		sprintf(buf,
 				"%s0%s) %sКуны\r\n"
 				"%s1%s) %sСлава\r\n"
 				"%s2%s) %sГривны\r\n"
 				"%s3%s) %sСнежинки\r\n"
-				"%sВыберите тип валюты : ", 
+				"%sВыберите тип валюты : ",
 					grn, nrm, yel,
 					grn, nrm, yel,
 					grn, nrm, yel,
@@ -866,7 +866,7 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 	case OBJ_DATA::ITEM_MATERIAL:
 		send_to_char("Введите VNUM прототипа: ", d->character.get());
 		break;
-	
+
 	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
 		send_to_char("Объем колчана: ", d->character.get());
 		break;
@@ -1337,7 +1337,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf1);
 	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",",4);
 
-	snprintf(buf, MAX_STRING_LENGTH, 
+	snprintf(buf, MAX_STRING_LENGTH,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -1369,7 +1369,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf1);
 	obj->get_no_flags().sprintbits(no_bits, buf2, ",");
-	snprintf(buf, MAX_STRING_LENGTH, 
+	snprintf(buf, MAX_STRING_LENGTH,
 		"%sC%s) Одевается  : %s%s\r\n"
 		"%sD%s) Неудобен    : %s%s\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character.get());
@@ -1377,7 +1377,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	obj->get_anti_flags().sprintbits(anti_bits, buf1, ",",4);
 	obj->get_affect_flags().sprintbits(weapon_affects, buf2, ",",4);
 	const size_t gender = static_cast<size_t>(to_underlying(GET_OBJ_SEX(obj)));
-	snprintf(buf, MAX_STRING_LENGTH, 
+	snprintf(buf, MAX_STRING_LENGTH,
 		"%sE%s) Запрещен    : %s%s\r\n"
 		"%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
 		"%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
@@ -2187,9 +2187,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					oedit_disp_menu(d);
 					return;
 				}
-				if (number <= 0 
-					|| number >= MAX_FEATS 
-					|| !feat_info[number].name 
+				if (number <= 0
+					|| number >= MAX_FEATS
+					|| !feat_info[number].name
 					|| *feat_info[number].name == '!')
 				{
 					send_to_char("Неизвестная способность, повторите.\r\n", d->character.get());

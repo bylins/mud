@@ -16,8 +16,8 @@
 
 #include "config.hpp"
 
-#include "boards.changelog.loaders.hpp"
-#include "boards.constants.hpp"
+#include "boards/boards.changelog.loaders.hpp"
+#include "boards/boards.constants.hpp"
 #include "utils.h"
 #include "chars/char.hpp"
 

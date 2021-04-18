@@ -22,7 +22,7 @@
 #include "constants.h"
 #include "db.h"
 #include "depot.hpp"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
 #include "handler.h"
@@ -1465,7 +1465,7 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj) {
 	if (NPC_FLAGGED(vict, NPC_NOTAKEITEMS)) {
 		act("$N не нуждается в ваших подачках, своего барахла навалом.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
-	} 
+	}
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 		act("Вы не можете передать $o3!", FALSE, ch, obj, 0, TO_CHAR);
 		return;
@@ -1647,7 +1647,7 @@ void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (!ch->carrying)
 				send_to_char("У вас ведь ничего нет.\r\n", ch);
 			else
-			{ 
+			{
 				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{

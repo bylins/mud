@@ -3,7 +3,7 @@
 #include "logger.hpp"
 #include "handler.h"
 #include "screen.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "skills.h"
 #include "magic.h"
 #include "pk.h"
@@ -3873,7 +3873,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0) {
 		set_battle_pos(victim);
 	}
-	
+
 	// дышащий моб может оглушить, и нанесёт физ.дамаг!!
 	if (type == ESkill::SKILL_UNDEF) {
 		ESpell spellnum;
@@ -3901,7 +3901,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
             return;
 		}
 	}
-		
+
 	//go_autoassist(ch);
 
 	// старт инициализации полей для удара
@@ -4271,7 +4271,7 @@ OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, FightSystem::AttType AttackType)
 
 // Обработка доп.атак
 void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon)
-{	
+{
 	if (!ch || ch->purged()){
 		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
@@ -4280,7 +4280,7 @@ void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon)
 	performIronWindAttacks (ch, weapon);
 
 	OBJ_DATA *wielded = NULL;
-	
+
 	wielded = GetUsedWeapon(ch, weapon);
 	if (wielded
 			&& !GET_EQ(ch, WEAR_SHIELD)
@@ -4298,7 +4298,7 @@ void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon)
 			addshot_damage(ch, type, weapon);
 		}
 	}
-	
+
 	hit(ch, ch->get_fighting(), type, weapon);
 }
 
