@@ -261,14 +261,12 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         }
         catch (boost::bad_lexical_cast&) {}
 
-        if(!*arg || times < 0)
-        {
-            const auto cost = calc_hire_price(ch, helpee);
-            sprintf(buf,
-                    "$n сказал$g вам : \"Один час моих услуг стоит %d %s\".\r\n",
-                    cost, desc_count(cost, WHAT_MONEYu));
-            act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-            return;
+	if(!*arg || times <= 0){
+		const auto cost = calc_hire_price(ch, helpee);
+		sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %d %s\".\r\n",
+			cost, desc_count(cost, WHAT_MONEYu));
+		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+		return;
         }
 
         if (k && helpee != k->follower) {
