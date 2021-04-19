@@ -28,7 +28,7 @@ extern const char *attach_name[];
 #define DG_NO_TRIG         256	// don't check act trigger   //
 
 // mob trigger types //
-#define MTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //						
+#define MTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //
 #define MTRIG_RANDOM           (1 << 1)	// checked randomly           //
 #define MTRIG_COMMAND          (1 << 2)	// character types a command  //
 #define MTRIG_SPEECH           (1 << 3)	// a char says a word/phrase  //
@@ -374,8 +374,8 @@ void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);
 void script_log(const char *msg, LogMode type = LogMode::OFF );//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(TRIG_DATA * trig, const char *msg, LogMode type = LogMode::OFF);
 
-using obj2trigers_t = std::unordered_map<obj_rnum, std::list<rnum_t>>;
-extern obj2trigers_t& obj2trigers;
+using obj2triggers_t = std::unordered_map<obj_vnum, std::list<trg_vnum>>;
+extern obj2triggers_t& obj2triggers;
 
 class GlobalTriggersStorage
 {
@@ -385,20 +385,20 @@ public:
 	void add(TRIG_DATA* trigger);
 	void remove(TRIG_DATA* trigger);
 	void shift_rnums_from(const rnum_t rnum);
-	bool has_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.find(rnum) != m_rnum2trigers_set.end(); }
-	const auto& get_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.at(rnum); }
+	bool has_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2triggers_set.find(rnum) != m_rnum2triggers_set.end(); }
+	const auto& get_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2triggers_set.at(rnum); }
 	void register_remove_observer(TRIG_DATA* trigger, const TriggerEventObserver::shared_ptr& observer);
 	void unregister_remove_observer(TRIG_DATA* trigger, const TriggerEventObserver::shared_ptr& observer);
 
 private:
 	using triggers_set_t = std::unordered_set<TRIG_DATA*>;
 	using storage_t = triggers_set_t;
-	using rnum2trigers_set_t = std::unordered_map<rnum_t, triggers_set_t>;
+	using rnum2triggers_set_t = std::unordered_map<rnum_t, triggers_set_t>;
 	using observers_set_t = std::unordered_set<TriggerEventObserver::shared_ptr>;
 	using observers_t = std::unordered_map<TRIG_DATA*, observers_set_t>;
 
 	storage_t m_triggers;
-	rnum2trigers_set_t m_rnum2trigers_set;
+	rnum2triggers_set_t m_rnum2triggers_set;
 	observers_t m_observers;
 };
 

@@ -1256,12 +1256,14 @@ typedef int room_vnum;	// A room's vnum type //
 typedef int obj_vnum;	// An object's vnum type //
 typedef int mob_vnum;	// A mob's vnum type //
 typedef int zone_vnum;	// A virtual zone number.  //
+typedef int trg_vnum;	// A virtual trigger number.  //
 
 using rnum_t = int;
 typedef rnum_t room_rnum;	// A room's real (internal) number type //
 typedef rnum_t obj_rnum;	// An object's real (internal) num type //
 typedef rnum_t mob_rnum;	// A mobile's real (internal) num type //
 typedef rnum_t zone_rnum;	// A zone's real (array index) number. //
+typedef rnum_t trg_rnum;	// A trigger's real (array index) number. //
 
 /**
 ** \brief Unpacks flags from string #flag into flags array #to

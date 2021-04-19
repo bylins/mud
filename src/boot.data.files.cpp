@@ -337,13 +337,13 @@ void TriggersFile::read_entry(const int nr)
 	parse_trigger(nr);
 }
 
-void TriggersFile::parse_trigger(int nr)
+void TriggersFile::parse_trigger(int vnum)
 {
 	int t[2], k;
 
 	char line[256], flags[256];
 
-	sprintf(buf2, "trig vnum %d", nr);
+	sprintf(buf2, "trig vnum %d", vnum);
 	std::string name(fread_string());
 	get_line(file(), line);
 
@@ -351,10 +351,8 @@ void TriggersFile::parse_trigger(int nr)
 	k = sscanf(line, "%d %s %d", &attach_type, flags, t);
 
 	if (0 > attach_type
-			|| 2 < attach_type)
-	{
-		log("ERROR: Script with VNUM %d has attach_type %d. Read from line '%s'.",
-				nr, attach_type, line);
+			|| 2 < attach_type) {
+		log("ERROR: Script with VNUM %d has attach_type %d. Read from line '%s'.", vnum, attach_type, line);
 		attach_type = 0;
 	}
 
@@ -387,20 +385,22 @@ void TriggersFile::parse_trigger(int nr)
 			std::smatch match;
 			if(std::regex_search(line, match, *m_load_obj_exp))
 			{
-				obj_rnum obj_num = std::stoi(match.str(1));
-				const auto tlist_it = obj2trigers.find(obj_num);
-				if(tlist_it != obj2trigers.end())
+				obj_vnum obj_num = std::stoi(match.str(1));
+				const auto tlist_it = obj2triggers.find(obj_num);
+				if(tlist_it != obj2triggers.end())
 				{
-					const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), top_of_trigt);
+					//const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), top_of_trigt);
+					const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), vnum);
 					if(trig_f == tlist_it->second.end())
 					{
-						tlist_it->second.push_back(top_of_trigt);
+						//tlist_it->second.push_back(top_of_trigt);
+						tlist_it->second.push_back(vnum);
 					}
 				}
 				else
 				{
-					std::list<rnum_t> tlist = { top_of_trigt };
-					obj2trigers.emplace(obj_num, tlist);
+					std::list<trg_vnum> tlist = { vnum };
+					obj2triggers.emplace(obj_num, tlist);
 				}
 			}
 		}
@@ -412,12 +412,12 @@ void TriggersFile::parse_trigger(int nr)
 	if (indlev > 0)
 	{
 		char tmp[MAX_INPUT_LENGTH];
-		snprintf(tmp, sizeof(tmp), "Positive indent-level on trigger #%d end.", nr);
+		snprintf(tmp, sizeof(tmp), "Positive indent-level on trigger #%d end.", vnum);
 		log("%s", tmp);
 		Boards::dg_script_text += tmp + std::string("\r\n");
 	}
 
-	add_trig_index_entry(nr, trig);
+	add_trig_index_entry(vnum, trig);
 }
 
 class WorldFile : public DiscreteFile

@@ -38,7 +38,7 @@ namespace
 		zone_table_t zone_table;
 		DailyQuestMap daily_quests;
 		Strengthening strengthening;
-		obj2trigers_t obj2trigers;
+		obj2triggers_t obj2triggers;
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -191,9 +191,9 @@ Strengthening& GlobalObjects::strengthening()
     return global_objects().strengthening;
 }
 
-obj2trigers_t& GlobalObjects::obj_trigers()
+obj2triggers_t& GlobalObjects::obj_triggers()
 {
-	return global_objects().obj2trigers;
+	return global_objects().obj2triggers;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
