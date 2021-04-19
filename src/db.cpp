@@ -3784,15 +3784,7 @@ int vnum_obj_trig(char *searchname, CHAR_DATA * ch) {
 	int num;
 	if ((num = atoi(searchname)) == 0) {
 		return 0;
-	} /*
-	try
-	{
-		 num = boost::lexical_cast<int>(searchname);
 	}
-	catch(boost::bad_lexical_cast&)
-	{
-		return 0;
-	} */
 
 	const auto trigger = obj2triggers.find(num);
 	if(trigger == obj2triggers.end()) {
