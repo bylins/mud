@@ -3,7 +3,7 @@
 #include "core/affect_data.h"
 #include "mobact.hpp"
 #include "obj.hpp"
-#include "skills/flee.h"
+#include "cmd/flee.h"
 #include "chars/world.characters.hpp"
 #include "fight.h"
 #include "fight.penalties.hpp"
