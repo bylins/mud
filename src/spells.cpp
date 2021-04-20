@@ -58,7 +58,6 @@
 #include <vector>
 
 extern room_rnum r_mortal_start_room;
-
 extern DESCRIPTOR_DATA *descriptor_list;
 extern const char *material_name[];
 extern const char *weapon_affects[];
@@ -1247,7 +1246,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	if (fullness < 30)
 		return;
 	sprinttype(obj->get_material(), material_name, buf2);
-	snprintf(buf, MAX_STRING_LENGTH, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, obj->get_maximum_durability(), obj->get_current_durability());
+	snprintf(buf, MAX_STRING_LENGTH, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, 
+		obj->get_maximum_durability(), obj->get_current_durability());
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
