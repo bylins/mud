@@ -68,7 +68,7 @@
 #include "skills/block.h"
 #include "skills/chopoff.h"
 #include "skills/disarm.h"
-#include "skills/flee.h"
+#include "cmd/flee.h"
 #include "skills/ironwind.h"
 #include "skills/kick.h"
 #include "skills/manadrain.h"

@@ -1,4 +1,4 @@
-#include "skills/flee.h"
+#include "cmd/flee.h"
 #include "act.movement.hpp"
 #include "random.hpp"
 #include <math.h>

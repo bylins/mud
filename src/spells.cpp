@@ -47,7 +47,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "skills.h"
-#include "skills/flee.h"
+#include "cmd/flee.h"
 #include "skills/townportal.h"
 #include "structs.h"
 #include "sysdep.h"

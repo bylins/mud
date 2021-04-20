@@ -3922,6 +3922,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		if (ch->purged() || victim->purged()) {
 			return;
 		}
+		auto skillnum = get_magic_skill_number_by_spell(SPELL_CLOUD_OF_ARROWS);
+		train_skill(ch, skillnum, skill_info[skillnum].max_percent, victim);
 	}
 
 	// вычисление хитролов/ац

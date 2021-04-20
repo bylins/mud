@@ -2781,18 +2781,13 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		return (0);
 	}
 
-	// add by Pereplut: если цель уйдет из клетки в случае кастинга в бою (с лагом) - то
-	// не будет кастоваться на соседние клетки, в случае если закл не глобальный
 	if (tch && ch && IN_ROOM(tch) != ch->in_room) {
 		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
-			send_to_char("Цель заклинания не доступна.\r\n", ch);
+			send_to_char("Цель заклинания недоступна.\r\n", ch);
 			return (0);
 		}
 	}
 
-// Может-ли кастер зачитать заклинание если на нем эфект !смирение!?
-// одиночная цель - запрет агро
-//
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL)){
 		ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
 				 IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS);
@@ -2802,9 +2797,6 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 				return FALSE;	// нельзя злые кастовать
 			}
 		}
-		// начинаю проверять условия каста
-		// Для добрых заклинаний - проверка на противника цели
-		// Для злых заклинаний - проверка на цель
 		for (const auto ch_vict : world[ch->in_room]->people) {
 			if (SpINFO.violent) {
 				if (ch_vict == tch) {
@@ -2821,7 +2813,6 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		}
 	}
 
-	//тренируем магические компетенции
 	skillnum = get_magic_skill_number_by_spell(spellnum);
 	if (skillnum != SKILL_INVALID && skillnum != SKILL_UNDEF) {
 		train_skill(ch, skillnum, skill_info[skillnum].max_percent, tch);

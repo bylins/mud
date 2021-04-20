@@ -173,7 +173,7 @@ set(SOURCES
 		src/zone.table.cpp
 		src/strengthening.cpp
 		src/skills/backstab.cpp
-		src/skills/flee.cpp
+		src/cmd/flee.cpp
 		src/skills/bash.cpp
 		src/skills/stun.cpp
 		src/skills/resque.cpp
@@ -385,7 +385,7 @@ set(HEADERS
 		src/debug.utils.hpp
 		src/stigmas.hpp
 		src/zone.table.hpp
-		src/skills/flee.h
+		src/cmd/flee.h
 		src/skills/backstab.h
 		src/skills/bash.h
 		src/skills/stun.h
