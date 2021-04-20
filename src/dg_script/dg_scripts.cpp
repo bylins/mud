@@ -185,7 +185,7 @@ GlobalTriggersStorage::~GlobalTriggersStorage()
 void GlobalTriggersStorage::add(TRIG_DATA* trigger)
 {
 	m_triggers.insert(trigger);
-	m_rnum2trigers_set[trigger->get_rnum()].insert(trigger);
+	m_rnum2triggers_set[trigger->get_rnum()].insert(trigger);
 }
 
 void GlobalTriggersStorage::remove(TRIG_DATA* trigger)
@@ -204,7 +204,7 @@ void GlobalTriggersStorage::remove(TRIG_DATA* trigger)
 
 	// then erase trigger
 	m_triggers.erase(trigger);
-	m_rnum2trigers_set[trigger->get_rnum()].erase(trigger);
+	m_rnum2triggers_set[trigger->get_rnum()].erase(trigger);
 }
 
 void GlobalTriggersStorage::shift_rnums_from(const rnum_t rnum)
@@ -251,7 +251,7 @@ void GlobalTriggersStorage::unregister_remove_observer(TRIG_DATA* trigger, const
 	}
 }
 
-obj2trigers_t& obj2trigers = GlobalObjects::obj_trigers();
+obj2triggers_t& obj2triggers = GlobalObjects::obj_triggers();
 GlobalTriggersStorage& trigger_list = GlobalObjects::trigger_list();	// all attached triggers
 
 int trgvar_in_room(int vnum)

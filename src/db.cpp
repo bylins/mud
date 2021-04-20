@@ -3780,28 +3780,21 @@ int vnum_room(char *searchname, CHAR_DATA * ch)
 	return (found);
 }
 
-int vnum_obj_trig(char *searchname, CHAR_DATA * ch)
-{
+int vnum_obj_trig(char *searchname, CHAR_DATA * ch) {
 	int num;
-	try
-	{
-		 num = boost::lexical_cast<int>(searchname);
-	}
-	catch(boost::bad_lexical_cast&)
-	{
+	if ((num = atoi(searchname)) == 0) {
 		return 0;
 	}
 
-	const auto trigs = obj2trigers.find(num);
-	if(trigs == obj2trigers.end())
-	{
+	const auto trigger = obj2triggers.find(num);
+	if(trigger == obj2triggers.end()) {
 		return 0;
 	}
 
 	int found = 0;
-	for(const auto& t : trigs->second)
-	{
-		sprintf(buf, "%3d. [%5d] %s\r\n", ++found, trig_index[t]->vnum, trig_index[t]->proto->get_name().c_str());
+	for(const auto& t : trigger->second) {
+		trg_rnum rnum = real_trigger(t);
+		sprintf(buf, "%3d. [%5d] %s\r\n", ++found, trig_index[rnum]->vnum, trig_index[rnum]->proto->get_name().c_str());
 		send_to_char(buf, ch);
 	}
 

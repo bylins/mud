@@ -1,7 +1,7 @@
 /* ************************************************************************
 *  File: dg_handler.cpp                                    Part of Bylins *
 *                                                                         *
-*  Usage: This file contains some trigers handle functions                *
+*  Usage: This file contains some triggers handle functions               *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
 *                                                                         *
@@ -28,7 +28,7 @@
 #include "sysdep.h"
 #include "conf.h"
 
-// remove a single trigger from a mob/obj/room 
+// remove a single trigger from a mob/obj/room
 void extract_trigger(TRIG_DATA* trig)
 {
 	if (GET_TRIG_WAIT(trig))
@@ -41,7 +41,7 @@ void extract_trigger(TRIG_DATA* trig)
 
 	trig_index[trig->get_rnum()]->number--;
 
-	// walk the trigger list and remove this one 
+	// walk the trigger list and remove this one
 	trigger_list.remove(trig);
 
 	trig->clear_var_list();
@@ -49,13 +49,13 @@ void extract_trigger(TRIG_DATA* trig)
 	delete trig;
 }
 
-// remove all triggers from a mob/obj/room 
+// remove all triggers from a mob/obj/room
 void extract_script(SCRIPT_DATA * sc)
 {
 	sc->trig_list.clear();
 }
 
-// erase the script memory of a mob 
+// erase the script memory of a mob
 void extract_script_mem(struct script_memory *sc)
 {
 	struct script_memory *next;
@@ -69,7 +69,7 @@ void extract_script_mem(struct script_memory *sc)
 	}
 }
 
-// perhaps not the best place for this, but I didn't want a new file 
+// perhaps not the best place for this, but I didn't want a new file
 const char * skill_percent(TRIG_DATA* trig, CHAR_DATA * ch, char *skill)
 {
 	static char retval[256];
@@ -96,7 +96,7 @@ const char * skill_percent(TRIG_DATA* trig, CHAR_DATA * ch, char *skill)
 	{
 		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
 		trig_log(trig, buf2);
-	}                                                                                      
+	}
 	return ("0");
 }
 

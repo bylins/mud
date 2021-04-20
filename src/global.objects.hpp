@@ -59,7 +59,7 @@ public:
 	static PlayersIndex& player_table();
 	static DailyQuestMap& daily_quests();
 	static Strengthening& strengthening();
-	static obj2trigers_t& obj_trigers();
+	static obj2triggers_t& obj_triggers();
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__
