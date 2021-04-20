@@ -4476,7 +4476,7 @@ void mag_assign_spells(void)
 	spello(SPELL_PROT_FROM_EVIL, "защита от тьмы", "protect evil", 60, 45, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
 //35
-	spello(SPELL_REMOVE_CURSE, "снять проклятье", "remove curse",
+	spello(SPELL_REMOVE_CURSE, "снять проклятие", "remove curse",
 		   50, 40, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_SELF | TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE,
 		   MAG_UNAFFECTS | MAG_ALTER_OBJS | NPC_UNAFFECT_NPC, 0, STYPE_LIGHT);
@@ -4686,7 +4686,7 @@ void mag_assign_spells(void)
 		   100, 90, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 3, STYPE_DARK);
 //93
-	spello(SPELL_MASS_CURSE, "массовое проклятье", "mass curse", 140, 120, 2,
+	spello(SPELL_MASS_CURSE, "массовое проклятие", "mass curse", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
 //94
 	spello(SPELL_ARMAGEDDON, "суд богов", "armageddon", 150, 130, 5,
@@ -4701,7 +4701,7 @@ void mag_assign_spells(void)
 	spello(SPELL_REFRESH, "восстановление", "refresh",
 		   80, 60, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_POINTS, 0,  STYPE_LIFE);
 //98
-	spello(SPELL_STUNNING, "каменное проклятье", "stunning", 150, 140, 1,
+	spello(SPELL_STUNNING, "каменное проклятие", "stunning", 150, 140, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE, 15, STYPE_EARTH);
 
 //99

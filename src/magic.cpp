@@ -1628,8 +1628,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 				choice_stunning -= GET_REMORT(ch) * 15;
 			if (number(1, 999) > choice_stunning)
 			{
-				act("Ваше каменное проклятье отшибло сознание у $N1.", FALSE, ch, 0, victim, TO_CHAR);
-				act("Каменное проклятье $n1 отшибло сознание у $N1.", FALSE, ch, 0, victim, TO_NOTVICT);
+				act("Ваше каменное проклятие отшибло сознание у $N1.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Каменное проклятие $n1 отшибло сознание у $N1.", FALSE, ch, 0, victim, TO_NOTVICT);
 				act("У вас отшибло сознание, вам очень плохо...", FALSE, ch, 0, victim, TO_VICT);
 				GET_POS(victim) = POS_STUNNED;
 				WAIT_STATE(victim, adice * PULSE_VIOLENCE);
