@@ -628,11 +628,9 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt = 0)
     strcat(buf, "\r\n");
     send_to_char(buf, ch);
     sprinttype(j->get_material(), material_name, buf2);
-	std::stringstream buffer;
-	buffer << "Материал : " << buf2 << ", макс.прочность : " << j->get_maximum_durability() << ", тек.прочность : "
-	<< j->get_current_durability();
-//	sprintf(buf, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, j->get_maximum_durability(), j->get_current_durability());
-	send_to_char(buffer.str(), ch);
+	snprintf(buf, MAX_STRING_LENGTH, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", 
+		    buf2, j->get_maximum_durability(), j->get_current_durability());
+	send_to_char(buf, ch);
 
     send_to_char("Неудобства : ", ch);
     j->get_no_flags().sprintbits(no_bits, buf, ",", 4);
