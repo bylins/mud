@@ -1781,9 +1781,10 @@ bool ZoneFile::load_zone() {
 		}
 		size_t digits = full_file_name().find_first_of( "1234567890" );
 		if( digits <= full_file_name().size()) {
-			if (zone.number != atoi(full_file_name().c_str() + digits))
+			if (zone.number != atoi(full_file_name().c_str() + digits)) {
 				log("SYSERR: файл %s содержит неверный номер зоны %d", full_file_name().c_str(), zone.number);
-			exit(1);
+				exit(1);
+			}
 		}
 		if (2 == count) {
 			if (0 == strcmp(type, "static")) {

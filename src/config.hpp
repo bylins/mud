@@ -83,11 +83,6 @@ public:
 		m_umask(from.m_umask)
 	{
 	}
-	~CLogInfo() {
-		if (nullptr != m_handle) {
-			fflush(m_handle);
-		}
-	}
 
 	bool open();
 
