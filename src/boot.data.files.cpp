@@ -1783,7 +1783,7 @@ bool ZoneFile::load_zone() {
 		if( digits <= full_file_name().size()) {
 			if (zone.number != atoi(full_file_name().c_str() + digits))
 				log("SYSERR: файл %s содержит неверный номер зоны %d", full_file_name().c_str(), zone.number);
-//			exit(1); из-за асана ну флушится строка в сислог
+			exit(1);
 		}
 		if (2 == count) {
 			if (0 == strcmp(type, "static")) {
