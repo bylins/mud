@@ -1,7 +1,7 @@
 #ifndef BYLINS_RETREAT_H
 #define BYLINS_RETREAT_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void do_retreat(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 

@@ -1,7 +1,7 @@
 #ifndef BYLINS_HIRE_H
 #define BYLINS_HIRE_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 #define MAXPRICE 9999999
 

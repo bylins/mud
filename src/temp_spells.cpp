@@ -4,6 +4,7 @@
 #include "screen.h"
 #include "utils.h"
 #include "handler.h"
+#include "spells.info.h"
 
 namespace Temporary_Spells
 {
@@ -45,7 +46,7 @@ namespace Temporary_Spells
 	{
 		time_t now = time(0);
 		for (const auto& ch : character_list)
-		{                                 
+		{
 			if (IS_NPC(ch)
 				|| IS_IMMORTAL(ch))
 			{

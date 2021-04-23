@@ -17,6 +17,7 @@
 #include "obj.hpp"
 #include "chars/char.hpp"
 #include "room.hpp"
+#include "spells.info.h"
 
 #include <cstdlib>
 
@@ -45,7 +46,6 @@ const int TIME_SPELL_RUNE_LABEL = 300;
 #define SpINFO spell_info[spellnum]
 
 bool is_room_forbidden(ROOM_DATA * room);
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ = NULL);
 void mobile_affect_update(void);
 void player_affect_update(void);
 void print_rune_log();

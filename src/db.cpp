@@ -27,7 +27,7 @@
 #include "chars/char.hpp"
 #include "chars/player_races.hpp"
 #include "chars/world.characters.hpp"
-#include "class.hpp"
+#include "classes/class.hpp"
 #include "cmd/follow.h"
 #include "corpse.hpp"
 #include "deathtrap.hpp"
@@ -69,6 +69,9 @@
 #include "top.h"
 #include "utils.h"
 #include "world.objects.hpp"
+#include "classes/constants.hpp"
+#include "skills.info.h"
+#include "spells.info.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -125,7 +128,6 @@ void load_class_limit();
 int global_uid = 0;
 
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
-extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 PlayersIndex& player_table = GlobalObjects::player_table();	// index to plr file
 
 bool player_exists(const long id) { return player_table.player_exists(id); }
@@ -215,7 +217,8 @@ void load_guardians();
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages(void);
-void mag_assign_spells(void);
+void initSpells(void);
+void initSkills(void);
 void sort_commands(void);
 void Read_Invalid_List(void);
 int find_name(const char *name);
@@ -2593,7 +2596,11 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading spell definitions");
 	log("Loading spell definitions.");
-	mag_assign_spells();
+	initSpells();
+
+	boot_profiler.next_step("Loading skill definitions");
+	log("Loading skill definitions.");
+	initSkills();
 
 	boot_profiler.next_step("Loading feature definitions");
 	log("Loading feature definitions.");

@@ -35,6 +35,7 @@
 #include "utils.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
+#include "skills.info.h"
 
 extern const char *dirs[];
 
@@ -811,7 +812,7 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
         {
             trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
         }
-		else 
+		else
 		{
 			sprintf(buf, "wskillturn: несоответсвие устанавливаемого умения классу игрока");
 			wld_log(room, buf);

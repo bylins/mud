@@ -12,6 +12,7 @@
 #define _IM_H_
 
 #include "structs.h"
+#include "classes/constants.hpp"
 
 class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct ROOM_DATA;	//

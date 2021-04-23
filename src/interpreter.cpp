@@ -28,7 +28,13 @@
 #include "cmd/order.h"
 #include "cmd/retreat.h"
 #include "cmd/telegram.h"
-#include "skills/track.h"
+#include "cmd/learn.h"
+#include "cmd/forget.h"
+#include "cmd/memorize.h"
+#include "cmd/flee.h"
+#include "cmd/create.h"
+#include "cmd/mixture.h"
+#include "cmd/cast.h"
 #include "comm.h"
 #include "constants.h"
 #include "craft/craft.commands.hpp"
@@ -68,7 +74,6 @@
 #include "skills/block.h"
 #include "skills/chopoff.h"
 #include "skills/disarm.h"
-#include "skills/flee.h"
 #include "skills/ironwind.h"
 #include "skills/kick.h"
 #include "skills/manadrain.h"
@@ -80,11 +85,14 @@
 #include "skills/stun.h"
 #include "skills/stupor.h"
 #include "skills/throw.h"
+#include "skills/track.h"
 #include "skills/turnundead.h"
+#include "skills/warcry.h"
 #include "spells.h"
 #include "time.h"
 #include "title.hpp"
 #include "top.h"
+#include "skills.info.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -278,7 +286,7 @@ void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_statistic(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_memorize(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_learn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_purge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -361,7 +369,7 @@ void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_looking(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_ident(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_identify(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_armored(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -555,7 +563,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"замолчать", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},
 	{"заморозить", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
 	{"занятость", POS_DEAD, do_check_occupation, LVL_GOD, 0, 0},
-	{"запомнить", POS_RESTING, do_remember, 0, 0, 0},
+	{"запомнить", POS_RESTING, do_memorize, 0, 0, 0},
 	{"запереть", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
 	{"запрет", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
 	{"заснуть", POS_SLEEPING, do_sleep, 0, 0, -1},
@@ -563,7 +571,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"заставить", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
 	{"затоптать", POS_STANDING, do_extinguish, 0, 0, 0},
 	{"заточить", POS_RESTING, do_upgrade, 0, 0, 500},
-	{"заучить", POS_RESTING, do_remember, 0, 0, 0},
+	{"заучить", POS_RESTING, do_memorize, 0, 0, 0},
 	{"зачитать", POS_RESTING, do_use, 0, SCMD_RECITE, 500},
 	{"зачаровать", POS_STANDING, do_spell_capable, 1, 0, 0},
 	{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
@@ -633,7 +641,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"оглядеться", POS_RESTING, do_sides, 0, 0, 0},
 	{"оглушить", POS_FIGHTING, do_stupor, 0, 0, -1},
 	{"одеть", POS_RESTING, do_wear, 0, 0, 500},
-	{"опознать", POS_RESTING, do_ident, 0, 0, 500},
+	{"опознать", POS_RESTING, do_identify, 0, 0, 500},
 	{"опохмелиться", POS_RESTING, do_drunkoff, 0, 0, -1},
 	{"опечатк", POS_DEAD, do_quit, 0, 0, 0},
 	{"опечатка", POS_DEAD, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},

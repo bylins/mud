@@ -133,6 +133,9 @@ enum ESkill: int
 	// не забываем указывать максимальный номер скилла
 	MAX_SKILL_NUM = SKILL_INDEFINITE
 };
+
+#define KNOW_SKILL  1
+
 inline bool is_magic_skill(int skill)
 {
 	if (skill >= SKILL_AIR_MAGIC && skill <= SKILL_LIFE_MAGIC)

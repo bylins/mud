@@ -43,7 +43,8 @@ set(SOURCES
 		src/celebrates.cpp
 		src/chars/char.cpp
 		src/chars/char_player.cpp
-		src/class.cpp
+		src/classes/class.cpp
+		src/classes/spell.slots.cpp
 		src/color.cpp
 		src/comm.cpp
 		src/command.shutdown.cpp
@@ -139,11 +140,13 @@ set(SOURCES
 		src/shop_ext.cpp
 		src/shutdown.parameters.cpp
 		src/skills.cpp
+		src/skills.info.cpp
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
 		src/spell_parser.cpp
 		src/spells.cpp
+		src/spells.info.cpp
 		src/structs.cpp
 		src/structs.cpp
 		src/stuff.cpp
@@ -173,7 +176,6 @@ set(SOURCES
 		src/zone.table.cpp
 		src/strengthening.cpp
 		src/skills/backstab.cpp
-		src/skills/flee.cpp
 		src/skills/bash.cpp
 		src/skills/stun.cpp
 		src/skills/resque.cpp
@@ -192,6 +194,8 @@ set(SOURCES
 		src/skills/turnundead.cpp
 		src/skills/townportal.cpp
 		src/skills/manadrain.cpp
+		src/skills/warcry.cpp
+		src/skills/identify.cpp
 		src/chars/mount.cpp
 		src/fightsystem/assist.cpp
 		src/fightsystem/start.fight.cpp
@@ -202,17 +206,30 @@ set(SOURCES
 		src/cmd/mercenary.cpp
         src/core/affect_data.cpp
 		src/skills/track.cpp
+		src/cmd/flee.cpp
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
 		src/cmd.wiz/stat.cpp
+		src/cmd/learn.cpp
+		src/cmd/forget.cpp
+		src/cmd/memorize.cpp
+		src/cmd/create.cpp
+		src/cmd/mixture.cpp
+		src/cmd/cast.cpp
         src/cmd/follow.cpp )
 
 set(HEADERS
+		src/cmd/flee.h
 		src/cmd/follow.h
+		src/cmd/learn.h
+		src/cmd/forget.h
+		src/cmd/create.h
+		src/cmd/memorize.h
 		src/cmd.wiz/stat.h
 		src/cmd/telegram.h
 		src/cmd/hire.h
-		src/cmd/telegram.h
+		src/cmd/mixture.h
+		src/cmd/cast.h
 		src/core/affect_data.h
 		src/skills/track.h
 		src/fightsystem/common.h
@@ -233,6 +250,8 @@ set(HEADERS
 		src/skills/throw.h
 		src/skills/ironwind.h
 		src/skills/disarm.h
+		src/skills/warcry.h
+		src/skills/identify.h
 		src/act.movement.hpp
 		src/strengthening.hpp
 		src/ability.constants.hpp
@@ -281,7 +300,8 @@ set(HEADERS
 		src/chars/char.hpp
 		src/char_obj_utils.inl
 		src/chars/char_player.hpp
-		src/class.hpp
+		src/classes/class.hpp
+		src/classes/spell.slots.hpp
 		src/comm.h
 		src/command.shutdown.hpp
 		src/commands.hpp
@@ -369,9 +389,11 @@ set(HEADERS
 		src/shop_ext.hpp
 		src/shutdown.parameters.hpp
 		src/skills.h
+		src/skills.info.h
 		src/spam.hpp
 		src/spell_parser.hpp
 		src/spells.h
+		src/spells.info.h
 		src/structs.h
 		src/stuff.hpp
 		src/sysdep.h
@@ -385,7 +407,6 @@ set(HEADERS
 		src/debug.utils.hpp
 		src/stigmas.hpp
 		src/zone.table.hpp
-		src/skills/flee.h
 		src/skills/backstab.h
 		src/skills/bash.h
 		src/skills/stun.h

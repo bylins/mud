@@ -6,6 +6,7 @@
 #include "fightsystem/fight_hit.hpp"
 #include "handler.h"
 #include "spells.h"
+#include "skills.info.h"
 
 // ************** PROTECT PROCEDURES
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict) {

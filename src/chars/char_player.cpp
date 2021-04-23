@@ -33,6 +33,8 @@
 #include "accounts.hpp"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
+#include "skills.info.h"
+#include "spells.info.h"
 
 #include <boost/lexical_cast.hpp>
 

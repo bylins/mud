@@ -13,6 +13,7 @@
 
 #include "skills.h"
 #include "structs.h"	// there was defined type "byte" if it had been missing
+#include "classes/constants.hpp"
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
@@ -392,7 +393,7 @@ enum ESpell: int
  	SPELL_GAS_BREATH = 244,        // магическое дыхание
  	SPELL_FROST_BREATH = 245,      // магическое дыхание
  	SPELL_ACID_BREATH = 246,       // магическое дыхание
- 	SPELL_LIGHTNING_BREATH = 247,  // магическое дыхание	
+ 	SPELL_LIGHTNING_BREATH = 247,  // магическое дыхание
 	SPELLS_COUNT = 	SPELL_LIGHTNING_BREATH    // Counter corresponds to the last value because we count spells from 1.
 };
 
@@ -494,90 +495,11 @@ template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
 #define TAR_ROOM_DIR	(1 << 12) // Цель комната в каком-то направлении от чара//
 #define TAR_ROOM_WORLD	(1 << 13) // Цель какая-то комната в мире//
 
-struct spell_info_type
-{
-	byte min_position;	// Position for caster   //
-	int mana_min;		// Min amount of mana used by a spell (highest lev) //
-	int mana_max;		// Max amount of mana used by a spell (lowest lev) //
-	int mana_change;	// Change in mana used by spell from lev to lev //
-	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
-	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
-	int slot_forc[NUM_PLAYER_CLASSES][NUM_KIN];
-	int class_change[NUM_PLAYER_CLASSES][NUM_KIN];
-	long danger;
-	long routines;
-	byte violent;
-	int targets;		// See below for use with TAR_XXX  //
-	byte spell_class;
-	const char *name;
-	const char *syn;
-};
-
-#define KNOW_SKILL  1
-
-struct skill_info_type
-{
-	byte min_position;	// Position for caster //
-	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
-	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
-	int level_decrement[NUM_PLAYER_CLASSES][NUM_KIN];
-	long int k_improve[NUM_PLAYER_CLASSES][NUM_KIN];
-	int classknow[NUM_PLAYER_CLASSES][NUM_KIN];
-	int max_percent;
-	const char *name;
-	const char *shortName;
-};
-
-struct spell_create_item
-{
-	std::array<int, 3> items;
-	int rnumber;
-	int min_caster_level;	// Понятно из названия :)
-};
-
-struct spell_create_type
-{
-	struct spell_create_item wand;
-	struct spell_create_item scroll;
-	struct spell_create_item potion;
-	struct spell_create_item items;
-	struct spell_create_item runes;
-};
-
-
-
-/* Possible Targets:
-
-   bit 0 : IGNORE TARGET
-   bit 1 : PC/NPC in room
-   bit 2 : PC/NPC in world
-   bit 3 : Object held
-   bit 4 : Object in inventory
-   bit 5 : Object in room
-   bit 6 : Object in world
-   bit 7 : If fighting, and no argument, select tar_char as self
-   bit 8 : If fighting, and no argument, select tar_char as victim (fighting)
-   bit 9 : If no argument, select self, if argument check that it IS self.
-
-*/
-
-#define SPELL_TYPE_SPELL   0
-#define SPELL_TYPE_POTION  1
-#define SPELL_TYPE_WAND    2
-#define SPELL_TYPE_STAFF   3
-#define SPELL_TYPE_SCROLL  4
-
-
-// Attacktypes with grammar
-
 struct attack_hit_type
 {
 	const char *singular;
 	const char *plural;
 };
-
-extern struct spell_info_type spell_info[];
-extern struct skill_info_type skill_info[];
 
 #define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict);
 
@@ -622,12 +544,7 @@ namespace RoomSpells {
 } // namespace RoomSpells
 
 // other prototypes //
-void mspell_remort(char *name , int spell, int kin , int chclass, int remort);
-void mspell_level(char *name , int spell, int kin , int chclass, int level);
-void mspell_slot(char *name , int spell, int kin , int chclass, int slot);
-void mspell_change(char *name, int spell, int kin, int chclass, int modifier);
 void init_spell_levels(void);
-const char *feat_name(int num);
 const char *skill_name(int num);
 const char *spell_name(int num);
 int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
@@ -636,6 +553,9 @@ bool can_get_spell(CHAR_DATA *ch, int spellnum);
 int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 ESkill get_magic_skill_number_by_spell(int spellnum);
+int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
+int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ = NULL);
+
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;

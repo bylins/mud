@@ -55,11 +55,15 @@
 #include "sysdep.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
+#include "classes/spell.slots.hpp"
+#include "classes/constants.hpp"
+#include "spells.info.h"
 
 #include <math.h>
 #include <unordered_set>
 #include <sstream>
 
+using PlayerClass::slot_for_char;
 
 // local functions //
 int apply_ac(CHAR_DATA * ch, int eq_pos);
@@ -70,7 +74,6 @@ bool is_wear_light(CHAR_DATA *ch);
 
 // external functions //
 void perform_drop_gold(CHAR_DATA * ch, int amount);
-int slot_for_char(CHAR_DATA * ch, int i);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);

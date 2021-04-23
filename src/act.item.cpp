@@ -46,8 +46,9 @@
 #include "char_obj_utils.inl"
 #include "global.objects.hpp"
 #include "strengthening.hpp"
-#include <boost/format.hpp>
+#include "skills.info.h"
 
+#include <boost/format.hpp>
 
 // extern variables
 extern CHAR_DATA *mob_proto;

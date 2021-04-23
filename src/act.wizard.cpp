@@ -77,6 +77,8 @@
 #include "utils.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
+#include "classes/constants.hpp"
+#include "spells.info.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -111,7 +113,7 @@ extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
 // for chars
 extern const char *pc_class_types[];
-extern struct spell_info_type spell_info[];
+extern struct spellInfo_t spell_info[];
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect);	// to avoid inclusion of utils.h
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

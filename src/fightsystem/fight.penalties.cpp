@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "chars/char.hpp"
+#include "classes/constants.hpp"
 
 int GroupPenaltyCalculator::get() const
 {

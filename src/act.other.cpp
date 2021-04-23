@@ -49,6 +49,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "world.objects.hpp"
+#include "skills.info.h"
 
 #include <sys/stat.h>
 #include <sstream>

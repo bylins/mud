@@ -5,6 +5,7 @@
 */
 
 #include "ability.rollsystem.hpp"
+#include "skills.info.h"
 
 #include "random.hpp"
 

@@ -27,19 +27,22 @@
 #include "modify.h"
 #include "AffectHandler.hpp"
 #include "corpse.hpp"
+#include "classes/constants.hpp"
+#include "skills.info.h"
+#include "fightsystem/mobact.hpp"
+#include "fightsystem/fight_hit.hpp"
 
-#include <boost/format.hpp>
 #include <iomanip>
 
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct spell_create_type spell_create[];
 extern int interpolate(int min_value, int pulse);
+extern int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
 byte extend_saving_throws(int class_num, int type, int level);
 int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
-int slot_for_char(CHAR_DATA * ch, int slotnum);
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
 
 bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
@@ -772,493 +775,6 @@ float func_koef_modif(int spellnum, int percent)
 	return 0;
 }
 
-
-
-/*
- *  mag_materials:
- *  Checks for up to 3 vnums (spell reagents) in the player's inventory.
- *
- * No spells implemented in Circle 3.0 use mag_materials, but you can use
- * it to implement your own spells which require ingredients (i.e., some
- * heal spell which requires a rare herb or some such.)
- */
-bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
-{
-	int num = 0;
-
-	if (spelltype == SPELL_RUNES
-		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT)
-	{
-		return false;
-	}
-
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
-	{
-		if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
-			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype != SPELL_RUNES))
-		{
-			return false;
-		}
-	}
-
-	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
-		&& GET_OBJ_VAL(obj, 2) <= 0)
-	{
-		return false;
-	}
-
-	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG))
-	{
-		num = 0;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG1s))
-			num += 1;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG2s))
-			num += 2;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG4s))
-			num += 4;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG8s))
-			num += 8;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG16s))
-			num += 16;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG32s))
-			num += 32;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG64s))
-			num += 64;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG128s))
-			num += 128;
-		if (GET_OBJ_VAL(obj, 3) + num - 5 * GET_REMORT(ch) >= time(nullptr))
-			return false;
-	}
-
-	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
-	{
-		num = 0;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL1))
-			num += 1;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL2))
-			num += 2;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL4))
-			num += 4;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL8))
-			num += 8;
-		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL16))
-			num += 16;
-		if (GET_LEVEL(ch) + GET_REMORT(ch) < num)
-			return false;
-	}
-
-	return true;
-}
-
-std::map<int /* vnum */, int /* count */> rune_list;
-
-void add_rune_stats(CHAR_DATA *ch, int vnum, int spelltype)
-{
-	if (IS_NPC(ch) || SPELL_RUNES != spelltype)
-	{
-		return;
-	}
-	std::map<int, int>::iterator i = rune_list.find(vnum);
-	if (rune_list.end() != i)
-	{
-		i->second += 1;
-	}
-	else
-	{
-		rune_list[vnum] = 1;
-	}
-}
-
-void print_rune_stats(CHAR_DATA *ch)
-{
-	if (!IS_GRGOD(ch))
-	{
-		send_to_char(ch, "Только для иммов 33+.\r\n");
-		return;
-	}
-
-	std::multimap<int, int> tmp_list;
-	for (std::map<int, int>::const_iterator i = rune_list.begin(),
-		iend = rune_list.end(); i != iend; ++i)
-	{
-		tmp_list.insert(std::make_pair(i->second, i->first));
-	}
-	std::string out(
-		"Rune stats:\r\n"
-		"vnum -> count\r\n"
-		"--------------\r\n");
-	for (std::multimap<int, int>::const_reverse_iterator i = tmp_list.rbegin(),
-		iend = tmp_list.rend(); i != iend; ++i)
-	{
-		out += boost::str(boost::format("%1% -> %2%\r\n") % i->second % i->first);
-	}
-	send_to_char(out, ch);
-}
-
-void print_rune_log()
-{
-	for (std::map<int, int>::const_iterator i = rune_list.begin(),
-		iend = rune_list.end(); i != iend; ++i)
-	{
-		log("RuneUsed: %d %d", i->first, i->second);
-	}
-}
-
-void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
-{
-	int extract = FALSE;
-	if (!obj)
-	{
-		return;
-	}
-
-	obj->set_val(3, time(nullptr));
-
-	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES))
-	{
-		obj->dec_val(2);
-		if (GET_OBJ_VAL(obj, 2) <= 0
-			&& IS_SET(GET_OBJ_SKILL(obj), ITEM_DECAY_EMPTY))
-		{
-			extract = TRUE;
-		}
-	}
-	else if (spelltype != SPELL_RUNES)
-	{
-		extract = TRUE;
-	}
-
-	if (extract)
-	{
-		if (spelltype == SPELL_RUNES)
-		{
-			snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U у вас в руках.",
-					 char_get_custom_label(obj, ch).c_str());
-			act(buf, FALSE, ch, obj, 0, TO_CHAR);
-		}
-		obj_from_char(obj);
-		extract_obj(obj);
-	}
-}
-
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ)
-{
-	OBJ_DATA *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
-	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
-	int create = 0, obj_num = -1, percent = 0, num = 0;
-	ESkill skillnum = SKILL_INVALID;
-	struct spell_create_item *items;
-
-	if (spellnum <= 0
-		|| spellnum > MAX_SPELLS)
-	{
-		return (FALSE);
-	}
-	if (spelltype == SPELL_ITEMS)
-	{
-		items = &spell_create[spellnum].items;
-	}
-	else if (spelltype == SPELL_POTION)
-	{
-		items = &spell_create[spellnum].potion;
-		skillnum = SKILL_CREATE_POTION;
-		create = 1;
-	}
-	else if (spelltype == SPELL_WAND)
-	{
-		items = &spell_create[spellnum].wand;
-		skillnum = SKILL_CREATE_WAND;
-		create = 1;
-	}
-	else if (spelltype == SPELL_SCROLL)
-	{
-		items = &spell_create[spellnum].scroll;
-		skillnum = SKILL_CREATE_SCROLL;
-		create = 1;
-	}
-	else if (spelltype == SPELL_RUNES)
-	{
-		items = &spell_create[spellnum].runes;
-	}
-	else
-	{
-		return (FALSE);
-	}
-
-	if (((spelltype == SPELL_RUNES || spelltype == SPELL_ITEMS) &&
-			(item3 = items->rnumber) +
-			(item0 = items->items[0]) +
-			(item1 = items->items[1]) +
-			(item2 = items->items[2]) < -3)
-		|| ((spelltype == SPELL_SCROLL
-			|| spelltype == SPELL_WAND
-			|| spelltype == SPELL_POTION)
-				&& ((obj_num = items->rnumber) < 0
-					|| (item0 = items->items[0]) + (item1 = items->items[1])
-						+ (item2 = items->items[2]) < -2)))
-	{
-		return (FALSE);
-	}
-
-	const int item0_rnum = item0 >= 0 ? real_object(item0) : -1;
-	const int item1_rnum = item1 >= 0 ? real_object(item1) : -1;
-	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
-	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
-
-	for (auto obj = ch->carrying; obj; obj = obj->get_next_content())
-	{
-		if (item0 >= 0 && item0_rnum >= 0
-			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
-			&& mag_item_ok(ch, obj, spelltype))
-		{
-			obj0 = obj;
-			item0 = -2;
-			objo = obj0;
-			num++;
-		}
-		else if (item1 >= 0 && item1_rnum >= 0
-			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item1_rnum], 1)
-			&& mag_item_ok(ch, obj, spelltype))
-		{
-			obj1 = obj;
-			item1 = -2;
-			objo = obj1;
-			num++;
-		}
-		else if (item2 >= 0 && item2_rnum >= 0
-			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item2_rnum], 1)
-			&& mag_item_ok(ch, obj, spelltype))
-		{
-			obj2 = obj;
-			item2 = -2;
-			objo = obj2;
-			num++;
-		}
-		else if (item3 >= 0 && item3_rnum >= 0
-			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item3_rnum], 1)
-			&& mag_item_ok(ch, obj, spelltype))
-		{
-			obj3 = obj;
-			item3 = -2;
-			objo = obj3;
-			num++;
-		}
-	}
-
-	if (!objo ||
-			(items->items[0] >= 0 && item0 >= 0) ||
-			(items->items[1] >= 0 && item1 >= 0) ||
-			(items->items[2] >= 0 && item2 >= 0) || (items->rnumber >= 0 && item3 >= 0))
-	{
-		return (FALSE);
-	}
-
-	if (extract)
-	{
-		if (spelltype == SPELL_RUNES)
-		{
-			strcpy(buf, "Вы сложили ");
-		}
-		else
-		{
-			strcpy(buf, "Вы взяли ");
-		}
-
-		OBJ_DATA::shared_ptr obj;
-		if (create)
-		{
-			obj = world_objects.create_from_prototype_by_vnum(obj_num);
-			if (!obj)
-			{
-				return FALSE;
-			}
-			else
-			{
-				percent = number(1, 100);
-				if (skillnum > 0
-					&& percent > train_skill(ch, skillnum, percent, 0))
-				{
-					percent = -1;
-				}
-			}
-		}
-
-		if (item0 == -2)
-		{
-			strcat(buf, CCWHT(ch, C_NRM));
-			strcat(buf, obj0->get_PName(3).c_str());
-			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
-		}
-
-		if (item1 == -2)
-		{
-			strcat(buf, CCWHT(ch, C_NRM));
-			strcat(buf, obj1->get_PName(3).c_str());
-			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spelltype);
-		}
-
-		if (item2 == -2)
-		{
-			strcat(buf, CCWHT(ch, C_NRM));
-			strcat(buf, obj2->get_PName(3).c_str());
-			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spelltype);
-		}
-
-		if (item3 == -2)
-		{
-			strcat(buf, CCWHT(ch, C_NRM));
-			strcat(buf, obj3->get_PName(3).c_str());
-			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spelltype);
-		}
-
-		strcat(buf, CCNRM(ch, C_NRM));
-
-		if (create)
-		{
-			if (percent >= 0)
-			{
-				strcat(buf, " и создали $o3.");
-				act(buf, FALSE, ch, obj.get(), 0, TO_CHAR);
-				act("$n создал$g $o3.", FALSE, ch, obj.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
-				obj_to_char(obj.get(), ch);
-			}
-			else
-			{
-				strcat(buf, " и попытались создать $o3.\r\n" "Ничего не вышло.");
-				act(buf, FALSE, ch, obj.get(), 0, TO_CHAR);
-				extract_obj(obj.get());
-			}
-		}
-		else
-		{
-			if (spelltype == SPELL_ITEMS)
-			{
-				strcat(buf, "и создали магическую смесь.\r\n");
-				act(buf, FALSE, ch, 0, 0, TO_CHAR);
-				act("$n смешал$g что-то в своей ноше.\r\n"
-					"Вы почувствовали резкий запах.", TRUE, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			}
-			else if (spelltype == SPELL_RUNES)
-			{
-				sprintf(buf + strlen(buf),
-					"котор%s вспыхнул%s ярким светом.%s",
-					num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
-					PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
-				act(buf, FALSE, ch, 0, 0, TO_CHAR);
-				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
-					TRUE, ch, nullptr, nullptr, TO_ROOM);
-				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
-					spell_name(spellnum),
-					(targ && targ != ch ? " на " : ""),
-					(targ && targ != ch ? GET_PAD(targ, 1) : ""));
-				act(buf, TRUE, ch, nullptr, nullptr, TO_ARENA_LISTEN);
-				auto skillnum = get_magic_skill_number_by_spell(spellnum);
-				if (skillnum > 0)
-				{
-					train_skill(ch, skillnum, skill_info[skillnum].max_percent, 0);
-				}
-			}
-		}
-		extract_item(ch, obj0, spelltype);
-		extract_item(ch, obj1, spelltype);
-		extract_item(ch, obj2, spelltype);
-		extract_item(ch, obj3, spelltype);
-	}
-	return (TRUE);
-}
-
-int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe)
-{
-	int item0 = -1, item1 = -1, item2 = -1, obj_num = -1;
-	struct spell_create_item *items;
-
-	if (spellnum <= 0 || spellnum > MAX_SPELLS)
-		return (FALSE);
-	if (spelltype == SPELL_ITEMS)
-	{
-		items = &spell_create[spellnum].items;
-	}
-	else if (spelltype == SPELL_POTION)
-	{
-		items = &spell_create[spellnum].potion;
-	}
-	else if (spelltype == SPELL_WAND)
-	{
-		items = &spell_create[spellnum].wand;
-	}
-	else if (spelltype == SPELL_SCROLL)
-	{
-		items = &spell_create[spellnum].scroll;
-	}
-	else if (spelltype == SPELL_RUNES)
-	{
-		items = &spell_create[spellnum].runes;
-	}
-	else
-		return (FALSE);
-
-	if (((obj_num = real_object(items->rnumber)) < 0 &&
-			spelltype != SPELL_ITEMS && spelltype != SPELL_RUNES) ||
-			((item0 = real_object(items->items[0])) +
-			 (item1 = real_object(items->items[1])) + (item2 = real_object(items->items[2])) < -2))
-	{
-		if (showrecipe)
-			send_to_char("Боги хранят в секрете этот рецепт.\n\r", ch);
-		return (FALSE);
-	}
-
-	if (!showrecipe)
-		return (TRUE);
-	else
-	{
-		strcpy(buf, "Вам потребуется :\r\n");
-		if (item0 >= 0)
-		{
-			strcat(buf, CCIRED(ch, C_NRM));
-			strcat(buf, obj_proto[item0]->get_PName(0).c_str());
-			strcat(buf, "\r\n");
-		}
-		if (item1 >= 0)
-		{
-			strcat(buf, CCIYEL(ch, C_NRM));
-			strcat(buf, obj_proto[item1]->get_PName(0).c_str());
-			strcat(buf, "\r\n");
-		}
-		if (item2 >= 0)
-		{
-			strcat(buf, CCIGRN(ch, C_NRM));
-			strcat(buf, obj_proto[item2]->get_PName(0).c_str());
-			strcat(buf, "\r\n");
-		}
-		if (obj_num >= 0 && (spelltype == SPELL_ITEMS || spelltype == SPELL_RUNES))
-		{
-			strcat(buf, CCIBLU(ch, C_NRM));
-			strcat(buf, obj_proto[obj_num]->get_PName(0).c_str());
-			strcat(buf, "\r\n");
-		}
-
-		strcat(buf, CCNRM(ch, C_NRM));
-		if (spelltype == SPELL_ITEMS || spelltype == SPELL_RUNES)
-		{
-			strcat(buf, "для создания магии '");
-			strcat(buf, spell_name(spellnum));
-			strcat(buf, "'.");
-		}
-		else
-		{
-			strcat(buf, "для создания ");
-			strcat(buf, obj_proto[obj_num]->get_PName(1).c_str());
-		}
-		act(buf, FALSE, ch, 0, 0, TO_CHAR);
-	}
-
-	return (TRUE);
-}
-
 int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam) {
 	if (IS_NPC(ch)) {
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
@@ -1293,7 +809,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	if (!pk_agro_action(ch, victim))
 		return (0);
-	
+
 	log("[MAG DAMAGE] %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
 	// Magic glass
 	if ((spellnum != SPELL_LIGHTNING_BREATH && spellnum != SPELL_FIRE_BREATH && spellnum != SPELL_GAS_BREATH && spellnum != SPELL_ACID_BREATH)
@@ -1321,7 +837,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
 			act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
 			act("Густая тень вокруг вас поглотила магию $n1.", FALSE, ch, 0, victim, TO_VICT);
-			log("[MAG DAMAGE] Мантия  - поглощение урона: %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);			
+			log("[MAG DAMAGE] Мантия  - поглощение урона: %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
 			return (0);
 		}
 	}
@@ -1999,7 +1515,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			{
 				dmg.flags.set(FightSystem::NO_FLEE_DMG);
 			}
-			rand = dmg.process(ch, victim);	
+			rand = dmg.process(ch, victim);
 		}
 	}
 	return rand;
@@ -2180,7 +1696,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 	}
 
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && ch != victim && SpINFO.violent 
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && ch != victim && SpINFO.violent
 		&& number(1, 999) <= GET_AR(victim) * 10)
 	{
 		send_to_char(NOEFFECT, ch);
@@ -3359,7 +2875,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			tmpaf.location = EApplyLocation::APPLY_NONE;
 			tmpaf.battleflag = 0;
 			tmpaf.bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
-			affect_to_char(ch, tmpaf);			
+			affect_to_char(ch, tmpaf);
 		}
 		to_vict = "Черное облако покрыло вас.";
 		to_room = "Черное облако покрыло $n3 с головы до пят.";
@@ -3998,7 +3514,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	if (success) {
 		// вот некрасиво же тут это делать...
-		if (spellnum == SPELL_POISON)	
+		if (spellnum == SPELL_POISON)
 			victim->Poisoner = GET_ID(ch);
 		if (to_vict != nullptr)
 			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
@@ -4517,13 +4033,13 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int)
 {
-	int hit = 0; //если выставить больше нуля, то лечит 
+	int hit = 0; //если выставить больше нуля, то лечит
 	int move = 0; //если выставить больше нуля, то реген хп
 	bool extraHealing = false; //если true, то лечит сверх макс.хп
 
 	if (victim == nullptr)	{
 		log("MAG_POINTS: Ошибка! Не указана цель, спелл spellnum: %d!\r\n", spellnum);
-		return 0;		
+		return 0;
 	}
 
 	switch (spellnum)
@@ -4556,17 +4072,17 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int)
 		extraHealing = true;
 		hit = dice(10, level / 3) + level;
 		send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
-		break;				
+		break;
 	case SPELL_EVILESS:
 	//лечим только умертвия-чармисы
 		if (!IS_NPC(victim) || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE))
 			return 1;
-	//при рекасте - не лечим		
+	//при рекасте - не лечим
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_EVILESS)){
 			hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
 			affect_from_char(ch, SPELL_EVILESS); //сбрасываем аффект с хозяина
 		}
-		break;		
+		break;
 	case SPELL_REFRESH:
 	case SPELL_GROUP_REFRESH:
 		move = GET_REAL_MAX_MOVE(victim) - GET_MOVE(victim);
@@ -5143,6 +4659,68 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 //******************************************************************************
 //******************************************************************************
 
+int check_mobile_list(CHAR_DATA * ch)
+{
+	for (const auto& vict : character_list)
+	{
+		if (vict.get() == ch)
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
+{
+	if (caster == victim)
+		return;
+
+	if (!check_mobile_list(victim) || !SpINFO.violent)
+		return;
+
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM) ||
+			AFF_FLAGGED(victim, EAffectFlag::AFF_SLEEP) ||
+			AFF_FLAGGED(victim, EAffectFlag::AFF_BLIND) ||
+			AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT) ||
+			AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT) || AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD) || IS_HORSE(victim))
+		return;
+
+	if (IS_NPC(caster)
+			&& GET_MOB_RNUM(caster) == real_mobile(DG_CASTER_PROXY))
+		return;
+
+	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && IN_ROOM(victim) == IN_ROOM(caster))
+	{
+		if (IS_NPC(victim))
+			attack_best(victim, caster);
+		else
+			hit(victim, caster, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+	}
+	else if (CAN_SEE(victim, caster) && !IS_NPC(caster) && IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY))
+	{
+		mobRemember(victim, caster);
+	}
+
+	if (caster->purged())
+	{
+		return;
+	}
+	if (!CAN_SEE(victim, caster) && (GET_REAL_INT(victim) > 25 || GET_REAL_INT(victim) > number(10, 25)))
+	{
+		if (!AFF_FLAGGED(victim, EAffectFlag::AFF_DETECT_INVIS)
+				&& GET_SPELL_MEM(victim, SPELL_DETECT_INVIS) > 0)
+			cast_spell(victim, victim, 0, 0, SPELL_DETECT_INVIS,  SPELL_DETECT_INVIS);
+		else if (!AFF_FLAGGED(victim, EAffectFlag::AFF_SENSE_LIFE)
+				 && GET_SPELL_MEM(victim, SPELL_SENSE_LIFE) > 0)
+			cast_spell(victim, victim, 0, 0, SPELL_SENSE_LIFE, SPELL_SENSE_LIFE);
+		else if (!AFF_FLAGGED(victim, EAffectFlag::AFF_INFRAVISION)
+				 && GET_SPELL_MEM(victim, SPELL_LIGHT) > 0)
+			cast_spell(victim, victim, 0, 0, SPELL_LIGHT, SPELL_LIGHT);
+	}
+}
+
 // Применение заклинания к одной цели
 //---------------------------------------------------------
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int savetype)
@@ -5222,7 +4800,7 @@ const spl_message mag_messages[] =
 	 "Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше..",
 	 "Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда.",
 	 nullptr,
-	 0.0, 20, 2, 1, 20, 3, 0},	
+	 0.0, 20, 2, 1, 20, 3, 0},
 	{SPELL_MASS_BLINDNESS,
 	 "У вас над головой возникла яркая вспышка, которая ослепила все живое.",
 	 "Вдруг над головой $n1 возникла яркая вспышка.",

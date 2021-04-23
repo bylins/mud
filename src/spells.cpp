@@ -47,15 +47,19 @@
 #include "room.hpp"
 #include "screen.h"
 #include "skills.h"
-#include "skills/flee.h"
+#include "cmd/flee.h"
 #include "skills/townportal.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
+#include "skills.info.h"
+#include "spells.info.h"
 
 #include <math.h>
 #include <vector>
+
+#include <boost/format.hpp>
 
 extern room_rnum r_mortal_start_room;
 
@@ -65,11 +69,8 @@ extern const char *weapon_affects[];
 extern TIME_INFO_DATA time_info;
 extern int cmd_tell;
 extern char cast_argument[MAX_INPUT_LENGTH];
-extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-// added by WorM  опознание магических ингров 2011.05.21
 extern im_type *imtypes;
 extern int top_imtypes;
-//end by WorM
 
 ESkill get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
@@ -3020,6 +3021,491 @@ ESpell ITEM_BY_NAME(const std::string& name)
 		init_ESpell_ITEM_NAMES();
 	}
 	return ESpell_value_by_name.at(name);
+}
+
+std::map<int /* vnum */, int /* count */> rune_list;
+
+void add_rune_stats(CHAR_DATA *ch, int vnum, int spelltype)
+{
+	if (IS_NPC(ch) || SPELL_RUNES != spelltype)
+	{
+		return;
+	}
+	std::map<int, int>::iterator i = rune_list.find(vnum);
+	if (rune_list.end() != i)
+	{
+		i->second += 1;
+	}
+	else
+	{
+		rune_list[vnum] = 1;
+	}
+}
+
+void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
+{
+	int extract = FALSE;
+	if (!obj)
+	{
+		return;
+	}
+
+	obj->set_val(3, time(nullptr));
+
+	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES))
+	{
+		obj->dec_val(2);
+		if (GET_OBJ_VAL(obj, 2) <= 0
+			&& IS_SET(GET_OBJ_SKILL(obj), ITEM_DECAY_EMPTY))
+		{
+			extract = TRUE;
+		}
+	}
+	else if (spelltype != SPELL_RUNES)
+	{
+		extract = TRUE;
+	}
+
+	if (extract)
+	{
+		if (spelltype == SPELL_RUNES)
+		{
+			snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U у вас в руках.",
+					 char_get_custom_label(obj, ch).c_str());
+			act(buf, FALSE, ch, obj, 0, TO_CHAR);
+		}
+		obj_from_char(obj);
+		extract_obj(obj);
+	}
+}
+
+int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe)
+{
+	int item0 = -1, item1 = -1, item2 = -1, obj_num = -1;
+	struct spell_create_item *items;
+
+	if (spellnum <= 0 || spellnum > MAX_SPELLS)
+		return (FALSE);
+	if (spelltype == SPELL_ITEMS)
+	{
+		items = &spell_create[spellnum].items;
+	}
+	else if (spelltype == SPELL_POTION)
+	{
+		items = &spell_create[spellnum].potion;
+	}
+	else if (spelltype == SPELL_WAND)
+	{
+		items = &spell_create[spellnum].wand;
+	}
+	else if (spelltype == SPELL_SCROLL)
+	{
+		items = &spell_create[spellnum].scroll;
+	}
+	else if (spelltype == SPELL_RUNES)
+	{
+		items = &spell_create[spellnum].runes;
+	}
+	else
+		return (FALSE);
+
+	if (((obj_num = real_object(items->rnumber)) < 0 &&
+			spelltype != SPELL_ITEMS && spelltype != SPELL_RUNES) ||
+			((item0 = real_object(items->items[0])) +
+			 (item1 = real_object(items->items[1])) + (item2 = real_object(items->items[2])) < -2))
+	{
+		if (showrecipe)
+			send_to_char("Боги хранят в секрете этот рецепт.\n\r", ch);
+		return (FALSE);
+	}
+
+	if (!showrecipe)
+		return (TRUE);
+	else
+	{
+		strcpy(buf, "Вам потребуется :\r\n");
+		if (item0 >= 0)
+		{
+			strcat(buf, CCIRED(ch, C_NRM));
+			strcat(buf, obj_proto[item0]->get_PName(0).c_str());
+			strcat(buf, "\r\n");
+		}
+		if (item1 >= 0)
+		{
+			strcat(buf, CCIYEL(ch, C_NRM));
+			strcat(buf, obj_proto[item1]->get_PName(0).c_str());
+			strcat(buf, "\r\n");
+		}
+		if (item2 >= 0)
+		{
+			strcat(buf, CCIGRN(ch, C_NRM));
+			strcat(buf, obj_proto[item2]->get_PName(0).c_str());
+			strcat(buf, "\r\n");
+		}
+		if (obj_num >= 0 && (spelltype == SPELL_ITEMS || spelltype == SPELL_RUNES))
+		{
+			strcat(buf, CCIBLU(ch, C_NRM));
+			strcat(buf, obj_proto[obj_num]->get_PName(0).c_str());
+			strcat(buf, "\r\n");
+		}
+
+		strcat(buf, CCNRM(ch, C_NRM));
+		if (spelltype == SPELL_ITEMS || spelltype == SPELL_RUNES)
+		{
+			strcat(buf, "для создания магии '");
+			strcat(buf, spell_name(spellnum));
+			strcat(buf, "'.");
+		}
+		else
+		{
+			strcat(buf, "для создания ");
+			strcat(buf, obj_proto[obj_num]->get_PName(1).c_str());
+		}
+		act(buf, FALSE, ch, 0, 0, TO_CHAR);
+	}
+
+	return (TRUE);
+}
+
+/*
+ *  mag_materials:
+ *  Checks for up to 3 vnums (spell reagents) in the player's inventory.
+ *
+ * No spells implemented in Circle 3.0 use mag_materials, but you can use
+ * it to implement your own spells which require ingredients (i.e., some
+ * heal spell which requires a rare herb or some such.)
+ */
+bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
+{
+	int num = 0;
+
+	if (spelltype == SPELL_RUNES
+		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT)
+	{
+		return false;
+	}
+
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
+	{
+		if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
+			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype != SPELL_RUNES))
+		{
+			return false;
+		}
+	}
+
+	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
+		&& GET_OBJ_VAL(obj, 2) <= 0)
+	{
+		return false;
+	}
+
+	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG))
+	{
+		num = 0;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG1s))
+			num += 1;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG2s))
+			num += 2;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG4s))
+			num += 4;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG8s))
+			num += 8;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG16s))
+			num += 16;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG32s))
+			num += 32;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG64s))
+			num += 64;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG128s))
+			num += 128;
+		if (GET_OBJ_VAL(obj, 3) + num - 5 * GET_REMORT(ch) >= time(nullptr))
+			return false;
+	}
+
+	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
+	{
+		num = 0;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL1))
+			num += 1;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL2))
+			num += 2;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL4))
+			num += 4;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL8))
+			num += 8;
+		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL16))
+			num += 16;
+		if (GET_LEVEL(ch) + GET_REMORT(ch) < num)
+			return false;
+	}
+
+	return true;
+}
+
+int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ)
+{
+	OBJ_DATA *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
+	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
+	int create = 0, obj_num = -1, percent = 0, num = 0;
+	ESkill skillnum = SKILL_INVALID;
+	struct spell_create_item *items;
+
+	if (spellnum <= 0
+		|| spellnum > MAX_SPELLS)
+	{
+		return (FALSE);
+	}
+	if (spelltype == SPELL_ITEMS)
+	{
+		items = &spell_create[spellnum].items;
+	}
+	else if (spelltype == SPELL_POTION)
+	{
+		items = &spell_create[spellnum].potion;
+		skillnum = SKILL_CREATE_POTION;
+		create = 1;
+	}
+	else if (spelltype == SPELL_WAND)
+	{
+		items = &spell_create[spellnum].wand;
+		skillnum = SKILL_CREATE_WAND;
+		create = 1;
+	}
+	else if (spelltype == SPELL_SCROLL)
+	{
+		items = &spell_create[spellnum].scroll;
+		skillnum = SKILL_CREATE_SCROLL;
+		create = 1;
+	}
+	else if (spelltype == SPELL_RUNES)
+	{
+		items = &spell_create[spellnum].runes;
+	}
+	else
+	{
+		return (FALSE);
+	}
+
+	if (((spelltype == SPELL_RUNES || spelltype == SPELL_ITEMS) &&
+			(item3 = items->rnumber) +
+			(item0 = items->items[0]) +
+			(item1 = items->items[1]) +
+			(item2 = items->items[2]) < -3)
+		|| ((spelltype == SPELL_SCROLL
+			|| spelltype == SPELL_WAND
+			|| spelltype == SPELL_POTION)
+				&& ((obj_num = items->rnumber) < 0
+					|| (item0 = items->items[0]) + (item1 = items->items[1])
+						+ (item2 = items->items[2]) < -2)))
+	{
+		return (FALSE);
+	}
+
+	const int item0_rnum = item0 >= 0 ? real_object(item0) : -1;
+	const int item1_rnum = item1 >= 0 ? real_object(item1) : -1;
+	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
+	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
+
+	for (auto obj = ch->carrying; obj; obj = obj->get_next_content())
+	{
+		if (item0 >= 0 && item0_rnum >= 0
+			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
+			&& mag_item_ok(ch, obj, spelltype))
+		{
+			obj0 = obj;
+			item0 = -2;
+			objo = obj0;
+			num++;
+		}
+		else if (item1 >= 0 && item1_rnum >= 0
+			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item1_rnum], 1)
+			&& mag_item_ok(ch, obj, spelltype))
+		{
+			obj1 = obj;
+			item1 = -2;
+			objo = obj1;
+			num++;
+		}
+		else if (item2 >= 0 && item2_rnum >= 0
+			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item2_rnum], 1)
+			&& mag_item_ok(ch, obj, spelltype))
+		{
+			obj2 = obj;
+			item2 = -2;
+			objo = obj2;
+			num++;
+		}
+		else if (item3 >= 0 && item3_rnum >= 0
+			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item3_rnum], 1)
+			&& mag_item_ok(ch, obj, spelltype))
+		{
+			obj3 = obj;
+			item3 = -2;
+			objo = obj3;
+			num++;
+		}
+	}
+
+	if (!objo ||
+			(items->items[0] >= 0 && item0 >= 0) ||
+			(items->items[1] >= 0 && item1 >= 0) ||
+			(items->items[2] >= 0 && item2 >= 0) || (items->rnumber >= 0 && item3 >= 0))
+	{
+		return (FALSE);
+	}
+
+	if (extract)
+	{
+		if (spelltype == SPELL_RUNES)
+		{
+			strcpy(buf, "Вы сложили ");
+		}
+		else
+		{
+			strcpy(buf, "Вы взяли ");
+		}
+
+		OBJ_DATA::shared_ptr obj;
+		if (create)
+		{
+			obj = world_objects.create_from_prototype_by_vnum(obj_num);
+			if (!obj)
+			{
+				return FALSE;
+			}
+			else
+			{
+				percent = number(1, 100);
+				if (skillnum > 0
+					&& percent > train_skill(ch, skillnum, percent, 0))
+				{
+					percent = -1;
+				}
+			}
+		}
+
+		if (item0 == -2)
+		{
+			strcat(buf, CCWHT(ch, C_NRM));
+			strcat(buf, obj0->get_PName(3).c_str());
+			strcat(buf, ", ");
+			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
+		}
+
+		if (item1 == -2)
+		{
+			strcat(buf, CCWHT(ch, C_NRM));
+			strcat(buf, obj1->get_PName(3).c_str());
+			strcat(buf, ", ");
+			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spelltype);
+		}
+
+		if (item2 == -2)
+		{
+			strcat(buf, CCWHT(ch, C_NRM));
+			strcat(buf, obj2->get_PName(3).c_str());
+			strcat(buf, ", ");
+			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spelltype);
+		}
+
+		if (item3 == -2)
+		{
+			strcat(buf, CCWHT(ch, C_NRM));
+			strcat(buf, obj3->get_PName(3).c_str());
+			strcat(buf, ", ");
+			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spelltype);
+		}
+
+		strcat(buf, CCNRM(ch, C_NRM));
+
+		if (create)
+		{
+			if (percent >= 0)
+			{
+				strcat(buf, " и создали $o3.");
+				act(buf, FALSE, ch, obj.get(), 0, TO_CHAR);
+				act("$n создал$g $o3.", FALSE, ch, obj.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
+				obj_to_char(obj.get(), ch);
+			}
+			else
+			{
+				strcat(buf, " и попытались создать $o3.\r\n" "Ничего не вышло.");
+				act(buf, FALSE, ch, obj.get(), 0, TO_CHAR);
+				extract_obj(obj.get());
+			}
+		}
+		else
+		{
+			if (spelltype == SPELL_ITEMS)
+			{
+				strcat(buf, "и создали магическую смесь.\r\n");
+				act(buf, FALSE, ch, 0, 0, TO_CHAR);
+				act("$n смешал$g что-то в своей ноше.\r\n"
+					"Вы почувствовали резкий запах.", TRUE, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+			}
+			else if (spelltype == SPELL_RUNES)
+			{
+				sprintf(buf + strlen(buf),
+					"котор%s вспыхнул%s ярким светом.%s",
+					num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
+					PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
+				act(buf, FALSE, ch, 0, 0, TO_CHAR);
+				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
+					TRUE, ch, nullptr, nullptr, TO_ROOM);
+				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
+					spell_name(spellnum),
+					(targ && targ != ch ? " на " : ""),
+					(targ && targ != ch ? GET_PAD(targ, 1) : ""));
+				act(buf, TRUE, ch, nullptr, nullptr, TO_ARENA_LISTEN);
+				auto skillnum = get_magic_skill_number_by_spell(spellnum);
+				if (skillnum > 0)
+				{
+					train_skill(ch, skillnum, skill_info[skillnum].max_percent, 0);
+				}
+			}
+		}
+		extract_item(ch, obj0, spelltype);
+		extract_item(ch, obj1, spelltype);
+		extract_item(ch, obj2, spelltype);
+		extract_item(ch, obj3, spelltype);
+	}
+	return (TRUE);
+}
+
+void print_rune_stats(CHAR_DATA *ch)
+{
+	if (!IS_GRGOD(ch))
+	{
+		send_to_char(ch, "Только для иммов 33+.\r\n");
+		return;
+	}
+
+	std::multimap<int, int> tmp_list;
+	for (std::map<int, int>::const_iterator i = rune_list.begin(),
+		iend = rune_list.end(); i != iend; ++i)
+	{
+		tmp_list.insert(std::make_pair(i->second, i->first));
+	}
+	std::string out(
+		"Rune stats:\r\n"
+		"vnum -> count\r\n"
+		"--------------\r\n");
+	for (std::multimap<int, int>::const_reverse_iterator i = tmp_list.rbegin(),
+		iend = tmp_list.rend(); i != iend; ++i)
+	{
+		out += boost::str(boost::format("%1% -> %2%\r\n") % i->second % i->first);
+	}
+	send_to_char(out, ch);
+}
+
+void print_rune_log()
+{
+	for (std::map<int, int>::const_iterator i = rune_list.begin(),
+		iend = rune_list.end(); i != iend; ++i)
+	{
+		log("RuneUsed: %d %d", i->first, i->second);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

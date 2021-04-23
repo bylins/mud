@@ -35,6 +35,8 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "skills.info.h"
+#include "spells.info.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>

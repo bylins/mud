@@ -1,7 +1,7 @@
 #ifndef BYLINS_STUN_H
 #define BYLINS_STUN_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict);
 void do_stun(CHAR_DATA* ch, char* argument, int, int);

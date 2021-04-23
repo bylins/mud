@@ -1,7 +1,7 @@
 #ifndef BYLINS_PARRY_H
 #define BYLINS_PARRY_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void do_multyparry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 void do_parry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

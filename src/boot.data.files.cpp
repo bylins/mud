@@ -14,6 +14,7 @@
 #include "dg_script/dg_db_scripts.hpp"
 #include "zone.table.hpp"
 #include "utils.h"
+#include "spells.info.h"
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string.hpp>

@@ -1,7 +1,7 @@
 #ifndef BYLINS_STYLES_H
 #define BYLINS_STYLES_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void go_touch(CHAR_DATA * ch, CHAR_DATA * vict);
 void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

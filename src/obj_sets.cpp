@@ -22,6 +22,7 @@
 #include "spells.h"
 #include "help.hpp"
 #include "sets_drop.hpp"
+#include "classes/constants.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -682,7 +683,7 @@ void save()
 std::set<int> vnum_list_add(int vnum)
 {
 	list_vnum.clear();
-	size_t idx = setidx_by_objvnum(vnum); 
+	size_t idx = setidx_by_objvnum(vnum);
 
 	if (static_cast<size_t>(-1) == idx)
 	{
@@ -697,7 +698,7 @@ std::set<int> vnum_list_add(int vnum)
 			list_vnum.insert(k->first);
 		}
 	}
-	
+
 	return list_vnum;
 }
 

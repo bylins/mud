@@ -1679,10 +1679,6 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	return FALSE;
 }
 
-//WorM: добавил для работы can_get_spell
-//extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-//#define SpINFO spell_info[num]
-// sets str to be the value of var.field
 void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char* var, char* field, char* subfield, char* str)
 {
 	struct trig_var_data *vd = NULL;

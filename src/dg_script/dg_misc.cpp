@@ -25,18 +25,15 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "logger.hpp"
-
-// copied from spell_parser.c:
-#define SINFO spell_info[spellnum]
+#include "spells.info.h"
 
 extern const char *item_types[];
 extern const char *apply_types[];
 extern const char *affected_bits[];
-
-#define SpINFO spell_info[spellnum]
 extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];
+
 extern int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min, int max);
 /*
  * Функция осуществляет поиск цели для DG_CAST
@@ -75,34 +72,34 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 			what_sky = 5 + (what_sky >> 1);
 	}
 
-	if (IS_SET(SpINFO.targets, TAR_IGNORE))
+	if (IS_SET(spell_info[spellnum].targets, TAR_IGNORE))
 		return TRUE;
 
-	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
+	if (IS_SET(spell_info[spellnum].targets, TAR_ROOM_THIS))
 		return TRUE;
 
 	if (*t)
 	{
-		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM))
+		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_ROOM))
 		{
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL)
 			{
-//            if (SpINFO.violent && !check_pkill(ch,*tch,t))
+//            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return FALSE;
 				return TRUE;
 			}
 		}
-		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
+		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_WORLD))
 		{
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL)
 			{
-//            if (SpINFO.violent && !check_pkill(ch,*tch,t))
+//            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return FALSE;
 				return TRUE;
 			}
 		}
 
-		if (IS_SET(SpINFO.targets, TAR_OBJ_INV))
+		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_INV))
 		{
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != NULL)
 			{
@@ -110,7 +107,7 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 			}
 		}
 
-		if (IS_SET(SpINFO.targets, TAR_OBJ_EQUIP))
+		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_EQUIP))
 		{
 			int i;
 			for (i = 0; i < NUM_WEARS; i++)
@@ -123,29 +120,29 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 			}
 		}
 
-		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))
+		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_ROOM))
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != NULL)
 				return TRUE;
 
-		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
+		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_WORLD))
 			if ((*tobj = get_obj_vis(ch, t)) != NULL)
 				return TRUE;
 	}
 	else
 	{
-		if (IS_SET(SpINFO.targets, TAR_FIGHT_SELF))
+		if (IS_SET(spell_info[spellnum].targets, TAR_FIGHT_SELF))
 			if (ch->get_fighting() != NULL)
 			{
 				*tch = ch;
 				return TRUE;
 			}
-		if (IS_SET(SpINFO.targets, TAR_FIGHT_VICT))
+		if (IS_SET(spell_info[spellnum].targets, TAR_FIGHT_VICT))
 			if (ch->get_fighting() != NULL)
 			{
 				*tch = ch->get_fighting();
 				return TRUE;
 			}
-		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent)
+		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_ROOM) && !spell_info[spellnum].violent)
 		{
 			*tch = ch;
 			return TRUE;
@@ -216,14 +213,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		trig_log(trig, buf2);
 		return;
 	}
-/*
-	if (IS_SET(SINFO.routines, MAG_GROUPS))
-	{
-		sprintf(buf2, "dg_cast: group spells not permitted (%s)", cmd);
-		trig_log(trig, buf2);
-		return;
-	}
-*/
+
 	if (!caster) {
 		caster = read_mobile(DG_CASTER_PROXY, VIRTUAL);
 		if (!caster) {
@@ -264,7 +254,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		IN_ROOM(caster) = real_room(caster_room->number);
 	}
 	if (type == OBJ_TRIGGER){
-	sprintf(buf2, "dg_cast OBJ_TRIGGER: имя кастера: %s, его уровень: %d, его морты: %d, закл: %s.", GET_NAME(caster), 
+	sprintf(buf2, "dg_cast OBJ_TRIGGER: имя кастера: %s, его уровень: %d, его морты: %d, закл: %s.", GET_NAME(caster),
 		GET_LEVEL(caster), GET_REMORT(caster), spell_info[spellnum].name);
 	trig_log(trig, buf2);
 	}

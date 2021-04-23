@@ -688,6 +688,18 @@ void determineFeaturesSpecification(void) {
 	initializeFeature(MULTI_CAST_FEAT, "изощренные чары", NORMAL_FTYPE, TRUE, feat_app);
 }
 
+const char *feat_name(int num) {
+	if (num > 0 && num < MAX_FEATS) {
+		return (feat_info[num].name);
+	} else {
+		if (num == -1) {
+			return "UNUSED";
+		} else {
+			return "UNDEFINED";
+		}
+	}
+}
+
 bool can_use_feat(const CHAR_DATA *ch, int feat) {
 	if (feat_info[feat].alwaysAvailable) {
 		return true;
@@ -1169,10 +1181,14 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 }
 
-int slot_for_char(CHAR_DATA * ch, int i);
+#include "classes/spell.slots.hpp" // удалить после вырезания do_spell_capable
+#include "spells.info.h"
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона
 void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+
+	using PlayerClass::slot_for_char;
+
 	struct timed_type timed;
 
 	if (!IS_IMPL(ch) && (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT)))

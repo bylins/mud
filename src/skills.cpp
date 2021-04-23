@@ -29,6 +29,8 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "classes/constants.hpp"
+#include "skills.info.h"
 
 #include <sstream>
 

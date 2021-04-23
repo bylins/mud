@@ -11,6 +11,7 @@
 #include "chars/char.hpp"
 #include "conf.h"
 #include "screen.h"
+#include "classes/constants.hpp"
 
 #include <sstream>
 #include <iomanip>
@@ -86,7 +87,7 @@ std::string print_class_exp(CHAR_DATA *ch)
 {
 	auto tmp_array = class_exp;
 
-	std::sort(tmp_array.begin(), tmp_array.end(), 
+	std::sort(tmp_array.begin(), tmp_array.end(),
 		[](const class_exp_node& lhs, const class_exp_node& rhs)
 	{
 		return lhs.exp > rhs.exp;
@@ -124,7 +125,7 @@ void log_class_exp()
 	log("Saving class exp stats.");
 	auto tmp_array = class_exp;
 
-	std::sort(tmp_array.begin(), tmp_array.end(), 
+	std::sort(tmp_array.begin(), tmp_array.end(),
 		[](const class_exp_node& lhs, const class_exp_node& rhs)
 	{
 		return lhs.exp > rhs.exp;
@@ -309,10 +310,10 @@ void show_stats(CHAR_DATA *ch)
 
 	out << "\r\n" << "  Количество убитых мобов по месяцам:";
 	for (auto i = kill_stats.begin(); i != kill_stats.end(); ++i)
-	{                                                                            
+	{
 		out << " " << std::setw(2) << std::setfill('0') << i->first << ":" << i->second;
 	}
-                
+
 	out << "\r\n";
 	send_to_char(out.str(), ch);
 }

@@ -8,6 +8,7 @@
 #include "handler.h"
 #include "spells.h"
 #include "protect.h"
+#include "skills.info.h"
 
 using  namespace FightSystem;
 

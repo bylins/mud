@@ -23,7 +23,7 @@ namespace ActionTargeting {
 	extern const FilterType isCorrectFriend;
 	extern const FilterType isCorrectVictim;
 
-	bool isNotCorrectSingleVictim(CHAR_DATA* actor, CHAR_DATA* target, char* arg);
+	bool isIncorrectVictim(CHAR_DATA* actor, CHAR_DATA* target, char* arg);
 
 	class TargetsRosterType {
 	protected:

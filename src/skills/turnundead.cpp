@@ -8,7 +8,7 @@
 #include "ability.rollsystem.hpp"
 #include "handler.h"
 #include "spells.h"
-#include "flee.h"
+#include "cmd/flee.h"
 
 using  namespace FightSystem;
 using  namespace AbilitySystem;

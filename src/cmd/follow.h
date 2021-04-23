@@ -1,7 +1,7 @@
 #ifndef BYLINS_FOLLOW_H
 #define BYLINS_FOLLOW_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 bool stop_follower(CHAR_DATA * ch, int mode);

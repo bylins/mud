@@ -281,10 +281,6 @@ struct alias_data
 #define SCMD_ECHO 0
 #define SCMD_EMOTE   1
 
-// do_mixture
-#define SCMD_ITEMS      0
-#define SCMD_RUNES      1
-
 //. do_olc .
 #define SCMD_OLC_REDIT  0
 #define SCMD_OLC_OEDIT  1
@@ -292,8 +288,6 @@ struct alias_data
 #define SCMD_OLC_MEDIT  3
 #define SCMD_OLC_TRIGEDIT  4
 #define SCMD_OLC_SAVEINFO  5
-
-#define SCMD_RECIPE        1
 
 //. do_liblist .
 #define SCMD_OLIST      0

@@ -12,6 +12,7 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
+#include "classes/constants.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

@@ -36,6 +36,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "temp_spells.hpp"
+#include "skills.info.h"
 
 #include <algorithm>
 #include <stack>
@@ -50,8 +51,6 @@ trigger_to_owners_map_t owner_trig;
 extern int top_of_trigt;
 
 extern INDEX_DATA *mob_index;
-
-int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
 // TODO: Get rid of me
 char* dirty_indent_trigger(char* cmd , int* level)

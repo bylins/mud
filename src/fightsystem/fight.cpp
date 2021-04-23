@@ -50,6 +50,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "msdp/msdp.constants.hpp"
+#include "spells.info.h"
 
 #include <unordered_set>
 

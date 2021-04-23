@@ -35,6 +35,7 @@
 #include "utils.h"
 #include "world.objects.hpp"
 #include "skills/townportal.h"
+#include "skills.info.h"
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA * obj);
@@ -58,11 +59,11 @@ struct obj_command_info
 	int subcmd;
 };
 
-// do_osend 
+// do_osend
 #define SCMD_OSEND         0
 #define SCMD_OECHOAROUND   1
 
-// attaches object name and vnum to msg and sends it to script_log 
+// attaches object name and vnum to msg and sends it to script_log
 void obj_log(OBJ_DATA * obj, const char *msg, LogMode type = LogMode::OFF)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
@@ -71,7 +72,7 @@ void obj_log(OBJ_DATA * obj, const char *msg, LogMode type = LogMode::OFF)
 	script_log(buf, type);
 }
 
-// returns the real room number that the object or object's carrier is in 
+// returns the real room number that the object or object's carrier is in
 int obj_room(OBJ_DATA * obj)
 {
 	if (obj->get_in_room() != NOWHERE)
@@ -96,7 +97,7 @@ int obj_room(OBJ_DATA * obj)
 	}
 }
 
-// returns the real room number, or NOWHERE if not found or invalid 
+// returns the real room number, or NOWHERE if not found or invalid
 int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 {
 	char roomstr[MAX_INPUT_LENGTH];
@@ -161,7 +162,7 @@ void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
-// Object commands 
+// Object commands
 void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
@@ -311,7 +312,7 @@ void do_osend(OBJ_DATA *obj, char *argument, int/* cmd*/, int subcmd)
 		obj_log(obj, "no target found for osend");
 }
 
-// increases the target's exp 
+// increases the target's exp
 void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
@@ -338,7 +339,7 @@ void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-// set the object's timer value 
+// set the object's timer value
 void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -355,9 +356,9 @@ void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-// transform into a different object 
-// note: this shouldn't be used with containers unless both objects 
-// are containers! 
+// transform into a different object
+// note: this shouldn't be used with containers unless both objects
+// are containers!
 void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -406,7 +407,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-// purge all objects an npcs in room, or specified object or mob 
+// purge all objects an npcs in room, or specified object or mob
 void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
@@ -747,23 +748,23 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		std::string buffer;
 		switch (fd)
 		{
-		case 1:	// description 
+		case 1:	// description
 			exit->general_description = std::string(value) + "\r\n";
 			break;
 
-		case 2:	// flags       
+		case 2:	// flags
 			asciiflag_conv(value, &exit->exit_info);
 			break;
 
-		case 3:	// key         
+		case 3:	// key
 			exit->key = atoi(value);
 			break;
 
-		case 4:	// name        
+		case 4:	// name
 			exit->set_keywords(value);
 			break;
 
-		case 5:	// room        
+		case 5:	// room
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
 			{
 				exit->to_room(to_room);
@@ -774,7 +775,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			break;
 
-		case 6:	// lock - сложность замка         
+		case 6:	// lock - сложность замка
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))
 				exit->lock_complexity = lock;

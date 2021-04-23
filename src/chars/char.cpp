@@ -29,6 +29,7 @@
 #include "backtrace.hpp"
 #include "dg_script/dg_scripts.h"
 #include "zone.table.hpp"
+#include "skills.info.h"
 
 #include <boost/format.hpp>
 

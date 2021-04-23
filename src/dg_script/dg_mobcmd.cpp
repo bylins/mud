@@ -46,11 +46,12 @@
 #include "sysdep.h"
 #include "world.objects.hpp"
 #include "skills/townportal.h"
+#include "skills.info.h"
 
 struct mob_command_info
 {
 	const char *command;
-	byte minimum_position;	
+	byte minimum_position;
 	typedef void(*handler_f)(CHAR_DATA* ch, char *argument, int cmd, int subcmd);
 	handler_f command_pointer;
 	int subcmd;				///< Subcommand. See SCMD_* constants.
@@ -1083,23 +1084,23 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		std::string buffer;
 		switch (fd)
 		{
-		case 1:	// description 
+		case 1:	// description
 			exit->general_description = std::string(value) + "\r\n";
 			break;
 
-		case 2:	// flags       
+		case 2:	// flags
 			asciiflag_conv(value, &exit->exit_info);
 			break;
 
-		case 3:	// key         
+		case 3:	// key
 			exit->key = atoi(value);
 			break;
 
-		case 4:	// name        
+		case 4:	// name
 			exit->set_keywords(value);
 			break;
 
-		case 5:	// room        
+		case 5:	// room
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
 			{
 				exit->to_room(to_room);
@@ -1110,7 +1111,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			break;
 
-		case 6:	// lock - сложность замка         
+		case 6:	// lock - сложность замка
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))
 				exit->lock_complexity = lock;
@@ -1121,7 +1122,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-// increases spells & skills 
+// increases spells & skills
 const char *skill_name(int num);
 const char *spell_name(int num);
 int fix_name_and_find_spell_num(char *name);
@@ -1256,7 +1257,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         {
             trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
         }
-		else 
+		else
 		{
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
 			mob_log(ch, buf);

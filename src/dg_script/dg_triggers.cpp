@@ -29,6 +29,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "spells.info.h"
 
 #include <boost/lexical_cast.hpp>
 

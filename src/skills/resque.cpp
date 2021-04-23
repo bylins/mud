@@ -6,6 +6,7 @@
 #include "fightsystem/fight_hit.hpp"
 #include "handler.h"
 #include "spells.h"
+#include "skills.info.h"
 
 using  namespace FightSystem;
 

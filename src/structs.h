@@ -256,51 +256,6 @@ E ITEM_BY_NAME(const std::string& name)
 template <typename E>
 inline E ITEM_BY_NAME(const char* name) { return ITEM_BY_NAME<E>(std::string(name)); }
 
-// char and mob-related defines ***************************************
-
-// PC classes //
-enum
-{
-	CLASS_UNDEFINED = -1,
-	CLASS_CLERIC = 0,
-	CLASS_BATTLEMAGE,
-	CLASS_THIEF,
-	CLASS_WARRIOR,
-	CLASS_ASSASINE,
-	CLASS_GUARD,
-	CLASS_CHARMMAGE,
-	CLASS_DEFENDERMAGE,
-	CLASS_NECROMANCER,
-	CLASS_PALADINE,
-	CLASS_RANGER,
-	CLASS_SMITH,
-	CLASS_MERCHANT,
-	CLASS_DRUID,
-	NUM_PLAYER_CLASSES,
-	PLAYER_CLASS_NEXT = NUM_PLAYER_CLASSES,
-	CLASS_MOB = 20,
-	NPC_CLASS_BASE = 100,
-	NPC_CLASS_LAST = 107
-};
-
-#define MASK_BATTLEMAGE   (1 << CLASS_BATTLEMAGE)
-#define MASK_CLERIC       (1 << CLASS_CLERIC)
-#define MASK_THIEF        (1 << CLASS_THIEF)
-#define MASK_WARRIOR      (1 << CLASS_WARRIOR)
-#define MASK_ASSASINE     (1 << CLASS_ASSASINE)
-#define MASK_GUARD        (1 << CLASS_GUARD)
-#define MASK_DEFENDERMAGE (1 << CLASS_DEFENDERMAGE)
-#define MASK_CHARMMAGE    (1 << CLASS_CHARMMAGE)
-#define MASK_NECROMANCER  (1 << CLASS_NECROMANCER)
-#define MASK_PALADINE     (1 << CLASS_PALADINE)
-#define MASK_RANGER       (1 << CLASS_RANGER)
-#define MASK_SMITH        (1 << CLASS_SMITH)
-#define MASK_MERCHANT     (1 << CLASS_MERCHANT)
-#define MASK_DRUID        (1 << CLASS_DRUID)
-
-#define MASK_MAGES        (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER)
-#define MASK_CASTER       (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER | MASK_CLERIC | MASK_DRUID)
-
 typedef int8_t sbyte;
 typedef uint8_t ubyte;
 typedef int16_t sh_int;
@@ -478,7 +433,7 @@ extern const religion_names_t religion_name;
 #define MOB_GUARDIAN         (INT_ONE | (1 << 21)) //Polud моб-стражник, ставится программно, берется из файла guards.xml
 #define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22)) // игнорирует печать
 #define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // не дает экспу за удары
-#define MOB_NOHAMER          (INT_ONE | (1 << 24)) // нельзя оглушить богатырским молотом
+#define MOB_NOMIGHTHIT          (INT_ONE | (1 << 24)) // нельзя оглушить богатырским молотом
 #define MOB_GHOST            (INT_ONE | (1 << 25)) // Используется для ментальной тени
 #define MOB_PLAYER_SUMMON    (INT_ONE | (1 << 26)) // Моб является суммоном игрока (ангел, тень, храны, трупы, умки)
 

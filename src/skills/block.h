@@ -1,7 +1,7 @@
 #ifndef BYLINS_BLOCK_H
 #define BYLINS_BLOCK_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void do_block(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 
