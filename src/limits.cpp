@@ -41,7 +41,7 @@
 #include "fightsystem/fight.h"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"

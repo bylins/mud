@@ -17,17 +17,6 @@
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
-#define DEFAULT_STAFF_LVL	12
-#define DEFAULT_WAND_LVL	12
-
-#define CAST_SPELL	0
-#define CAST_POTION	1
-#define CAST_WAND	2
-#define CAST_STAFF	3
-#define CAST_SCROLL	4
-#define CAST_ITEMS  5
-#define CAST_RUNES  6
-
 // *******************************
 // * Spells type                 *
 // *******************************
@@ -532,16 +521,6 @@ void spell_mental_shadow(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *
 int fix_name_and_find_spell_num(char *name);
 
 bool catch_bloody_corpse(OBJ_DATA * l);
-
-namespace RoomSpells {
-
-	extern std::list<ROOM_DATA*> aff_room_list;
-	void showAffectedRooms(CHAR_DATA *ch);
-	int imposeSpellToRoom(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
-	ROOM_DATA * findAffectedRoom(long id, int spellnum);
-	int getUniqueAffectDuration(long casterID, int spellnum);
-
-} // namespace RoomSpells
 
 // other prototypes //
 void init_spell_levels(void);

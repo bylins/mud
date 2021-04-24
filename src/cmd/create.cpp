@@ -3,7 +3,7 @@
 #include "im.h"
 #include "spells.h"
 #include "comm.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "handler.h"
 
 void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)

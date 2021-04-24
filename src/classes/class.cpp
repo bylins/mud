@@ -24,7 +24,7 @@
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "interpreter.h"

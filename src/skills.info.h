@@ -18,4 +18,6 @@ struct skillInfo_t {
 
 extern struct skillInfo_t skill_info[];
 
+const char *skill_name(int num);
+
 #endif //__SKILLS_INFO__

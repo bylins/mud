@@ -99,6 +99,9 @@ set(SOURCES
 		src/liquid.cpp
 		src/logger.cpp
 		src/magic.cpp
+		src/magic.rooms.cpp
+		src/magic.items.cpp
+		src/magic.utils.cpp
 		src/mail.cpp
 		src/map.cpp
 		src/meat.maker.cpp
@@ -144,7 +147,6 @@ set(SOURCES
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
-		src/spell_parser.cpp
 		src/spells.cpp
 		src/spells.info.cpp
 		src/structs.cpp
@@ -216,6 +218,7 @@ set(SOURCES
 		src/cmd/create.cpp
 		src/cmd/mixture.cpp
 		src/cmd/cast.cpp
+		src/cmd/employ.cpp
         src/cmd/follow.cpp )
 
 set(HEADERS
@@ -230,6 +233,7 @@ set(HEADERS
 		src/cmd/hire.h
 		src/cmd/mixture.h
 		src/cmd/cast.h
+		src/cmd/employ.h
 		src/core/affect_data.h
 		src/skills/track.h
 		src/fightsystem/common.h
@@ -351,6 +355,9 @@ set(HEADERS
 		src/liquid.hpp
 		src/logger.hpp
 		src/magic.h
+		src/magic.rooms.hpp
+		src/magic.items.h
+		src/magic.utils.hpp
 		src/mail.h
 		src/map.hpp
 		src/meat.maker.hpp
@@ -391,7 +398,6 @@ set(HEADERS
 		src/skills.h
 		src/skills.info.h
 		src/spam.hpp
-		src/spell_parser.hpp
 		src/spells.h
 		src/spells.info.h
 		src/structs.h
@@ -407,10 +413,6 @@ set(HEADERS
 		src/debug.utils.hpp
 		src/stigmas.hpp
 		src/zone.table.hpp
-<<<<<<< HEAD
-=======
-		src/cmd/flee.h
->>>>>>> master
 		src/skills/backstab.h
 		src/skills/bash.h
 		src/skills/stun.h

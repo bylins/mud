@@ -44,5 +44,6 @@ extern struct spellInfo_t spell_info[];
 extern struct spell_create_type spell_create[];
 
 void initSpells(void);
+const char *spell_name(int num);
 
 #endif //__SPELLS_INFO__

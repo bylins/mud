@@ -28,7 +28,7 @@
 #include "logger.hpp"
 #include "bonus.h"
 #include "backtrace.hpp"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "zone.table.hpp"

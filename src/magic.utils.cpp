@@ -12,11 +12,10 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 
 #include "skills/stun.h"
 
-#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "spells.h"
 #include "skills.h"
@@ -42,6 +41,7 @@
 #include "conf.h"
 #include "skills.info.h"
 #include "spells.info.h"
+#include "magic.rooms.hpp"
 
 #include <vector>
 
@@ -50,8 +50,6 @@ char cast_argument[MAX_STRING_LENGTH];
 
 #define SpINFO spell_info[spellnum]
 #define SkINFO skill_info[skillnum]
-// Во сколько раз манакост манакастеров меньше манакоста НЕманакастеров
-#define DRUID_MANA_COST_MODIFIER 0.5
 
 extern int what_sky;
 
@@ -74,73 +72,6 @@ int spell_create_level(const CHAR_DATA* ch, int spellnum)
 	else if (can_use_feat(ch, RUNE_NEWBIE_FEAT))
 		required_level -= 1;
 	return required_level;
-}
-
-//	Коэффициент изменения мема относительно скилла магии.
-int koef_skill_magic(int percent_skill)
-{
-//	Выделяем процент на который меняется мем
-	return ((800 - percent_skill) / 8);
-
-//	return 0;
-}
-
-int mag_manacost(const CHAR_DATA* ch, int spellnum)
-{
-	int mana_cost;
-
-	if (IS_IMMORTAL(ch))
-	{
-		return 1;
-	}
-
-//	Мем рунных профессий(на сегодня только волхвы)
-	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum))
-	{
-		const auto result = static_cast<int>(DRUID_MANA_COST_MODIFIER
-			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
-			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
-			* 60
-			* MAX(SpINFO.mana_max
-				- (SpINFO.mana_change
-					* (GET_LEVEL(ch)
-						- spell_create[spellnum].runes.min_caster_level)),
-				SpINFO.mana_min));
-
-		//Зависимости в таблице несколько корявые, поэтому изменение пустим в обратную сторону
-		return result;
-	};
-
-//	Мем всех остальных
-	if (!IS_MANA_CASTER(ch)
-		&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
-		&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch))
-	{
-		mana_cost = MAX(SpINFO.mana_max
-			- (SpINFO.mana_change
-				* (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))),
-			SpINFO.mana_min);
-
-		if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0)
-		{
-			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int)GET_CLASS(ch)][(int)GET_KIN(ch)]))) / 100;
-		}
-		else
-		{
-			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])));
-		}
-
-//		Меняем мем на коэффициент скилла магии
-		if ((GET_CLASS(ch) == CLASS_DRUID)
-			|| (GET_CLASS(ch) == CLASS_PALADINE)
-			|| (GET_CLASS(ch) == CLASS_MERCHANT))
-		{
-			return mana_cost;
-		}
-		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
-	};
-
-	return 99999;
 }
 
 // say_spell erodes buf, buf1, buf2
@@ -281,26 +212,6 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
  * a valid spell/skill number.  A typical for() loop would not need to use
  * this because you can guarantee > 0 and <= TOP_SPELL_DEFINE.
  */
-
-const char *skill_name(int num)
-{
-	if (num > 0 && num <= MAX_SPELLS)
-		return (skill_info[num].name);
-	else if (num == -1)
-		return "UNUSED";
-	else
-		return "UNDEFINED";
-}
-
-const char *spell_name(int num)
-{
-	if (num > 0 && num <= TOP_SPELL_DEFINE)
-		return (spell_info[num].name);
-	else if (num == -1)
-		return "UNUSED";
-	else
-		return "UNDEFINED";
-}
 
 template <typename T>
 void fix_name(T& name)
@@ -565,21 +476,6 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	return mag_single_target(level, caster, cvict, ovict, spellnum, SAVING_STABILITY);
 }
 
-/*
- * mag_objectmagic: This is the entry-point for all magic items.  This should
- * only be called by the 'quaff', 'use', 'recite', etc. routines.
- *
- * For reference, object values 0-3:
- * staff  - [0] level   [1] max charges [2] num charges [3] spell num
- * wand   - [0] level   [1] max charges [2] num charges [3] spell num
- * scroll - [0] level   [1] spell num   [2] spell num   [3] spell num
- * potion - [0] level   [1] spell num   [2] spell num   [3] spell num
- *
- * Staves and wands will default to level 14 if the level is not specified;
- * the DikuMUD format did not specify staff and wand levels in the world
- * files (this is a CircleMUD enhancement).
- */
-
 const char *what_sky_type[] = { "пасмурно",
 								"cloudless",
 								"облачно",
@@ -755,225 +651,6 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 				? "ЧТО" : "КОГО");
 	send_to_char(buf, ch);
 	return FALSE;
-}
-
-void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
-{
-	int i, spellnum;
-	int level;
-	CHAR_DATA *tch = nullptr;
-	OBJ_DATA *tobj = nullptr;
-	ROOM_DATA *troom = nullptr;
-
-	one_argument(argument, cast_argument);
-	level = GET_OBJ_VAL(obj, 0);
-	if (level == 0)
-	{
-		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF)
-		{
-			level = DEFAULT_STAFF_LVL;
-		}
-		else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND)
-		{
-			level = DEFAULT_WAND_LVL;
-		}
-	}
-
-	if (obj->get_extra_flag(EExtraFlag::ITEM_TIMEDLVL))
-	{
-		int proto_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
-		if (proto_timer != 0)
-		{
-			level -= level * (proto_timer - obj->get_timer()) / proto_timer;
-		}
-	}
-
-	switch (GET_OBJ_TYPE(obj))
-	{
-	case OBJ_DATA::ITEM_STAFF:
-		if (!obj->get_action_description().empty())
-		{
-			act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_CHAR);
-			act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-		}
-		else
-		{
-			act("Вы ударили $o4 о землю.", FALSE, ch, obj, 0, TO_CHAR);
-			act("$n ударил$g $o4 о землю.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-		}
-
-		if (GET_OBJ_VAL(obj, 2) <= 0)
-		{
-			send_to_char("Похоже, кончились заряды :)\r\n", ch);
-			act("И ничего не случилось.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-		}
-		else
-		{
-			obj->dec_val(2);
-			WAIT_STATE(ch, PULSE_VIOLENCE);
-			if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS))
-			{
-				call_magic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
-			}
-			else
-			{
-				const auto people_copy = world[ch->in_room]->people;
-				for (const auto tch : people_copy)
-				{
-					if (ch != tch)
-					{
-						call_magic(ch, tch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
-					}
-				}
-			}
-		}
-
-		break;
-
-	case OBJ_DATA::ITEM_WAND:
-		spellnum = GET_OBJ_VAL(obj, 3);
-
-		if (GET_OBJ_VAL(obj, 2) <= 0) {
-			send_to_char("Похоже, магия кончилась.\r\n", ch);
-			return;
-		}
-
-		if (!*argument) {
-			if (!IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES)) {
-				tch = ch;
-			}
-		} else {
-			if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom)) {
-				return;
-			}
-		}
-
-		if (tch) {
-			if (tch == ch) {
-				if (!obj->get_action_description().empty()) {
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
-				} else {
-					act("Вы указали $o4 на себя.", FALSE, ch, obj, 0, TO_CHAR);
-					act("$n указал$g $o4 на себя.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-				}
-			} else {
-				if (!obj->get_action_description().empty()) {
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
-				} else {
-					act("Вы ткнули $o4 в $N3.", FALSE, ch, obj, tch, TO_CHAR);
-					act("$N указал$G $o4 на вас.", FALSE, tch, obj, ch, TO_CHAR);
-					act("$n ткнул$g $o4 в $N3.", TRUE, ch, obj, tch, TO_NOTVICT | TO_ARENA_LISTEN);
-				}
-			}
-		}
-		else if (tobj) {
-			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, tobj, TO_CHAR);
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
-			} else {
-				act("Вы прикоснулись $o4 к $O2.", FALSE, ch, obj, tobj, TO_CHAR);
-				act("$n прикоснул$u $o4 к $O2.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
-			}
-		}
-		else {
-			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
-			}
-			else {
-				act("Вы обвели $o4 вокруг комнаты.", FALSE, ch, obj, nullptr, TO_CHAR);
-				act("$n обвел$g $o4 вокруг комнаты.", TRUE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			}
-		}
-
-		obj->dec_val(2);
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-		call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
-		break;
-
-	case OBJ_DATA::ITEM_SCROLL:
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-		{
-			send_to_char("Вы немы, как рыба.\r\n", ch);
-			return;
-		}
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-		{
-			send_to_char("Вы ослеплены.\r\n", ch);
-			return;
-		}
-
-		spellnum = GET_OBJ_VAL(obj, 1);
-		if (!*argument)
-			tch = ch;
-		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
-			return;
-
-		if (!obj->get_action_description().empty())
-		{
-			act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_CHAR);
-			act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-		}
-		else
-		{
-			act("Вы зачитали $o3, котор$W рассыпался в прах.", TRUE, ch, obj, 0, TO_CHAR);
-			act("$n зачитал$g $o3.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-		}
-
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-		for (i = 1; i <= 3; i++)
-		{
-			if (call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0)
-			{
-				break;
-			}
-		}
-
-		if (obj != nullptr)
-		{
-			extract_obj(obj);
-		}
-		break;
-
-	case OBJ_DATA::ITEM_POTION:
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-		{
-			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
-			return;
-		}
-		tch = ch;
-		if (!obj->get_action_description().empty())
-		{
-			act(obj->get_action_description().c_str(), TRUE, ch, obj, nullptr, TO_CHAR);
-			act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-		}
-		else
-		{
-			act("Вы осушили $o3.", FALSE, ch, obj, nullptr, TO_CHAR);
-			act("$n осушил$g $o3.", TRUE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-		}
-
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-		for (i = 1; i <= 3; i++)
-		{
-			if (call_magic(ch, ch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0)
-			{
-				break;
-			}
-		}
-
-		if (obj != nullptr)
-		{
-			extract_obj(obj);
-		}
-		break;
-
-	default:
-		log("SYSERR: Unknown object_type %d in mag_objectmagic.", GET_OBJ_TYPE(obj));
-		break;
-	}
 }
 
 /*

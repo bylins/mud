@@ -8,7 +8,7 @@
 #include "classes/spell.slots.hpp"
 #include "spells.h"
 
-#include "spell_parser.hpp" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
+#include "magic.utils.hpp" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
 
 using PlayerClass::slot_for_char;
 

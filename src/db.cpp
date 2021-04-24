@@ -70,6 +70,7 @@
 #include "utils.h"
 #include "world.objects.hpp"
 #include "classes/constants.hpp"
+#include "magic.rooms.hpp"
 #include "skills.info.h"
 #include "spells.info.h"
 
@@ -5356,15 +5357,8 @@ bool is_empty(zone_rnum zone_nr)
 		return false;
 	}
 
-//Проверим, нет ли в зоне метки для врат, чтоб не абузили.
-    for (auto it = RoomSpells::aff_room_list.begin(); it != RoomSpells::aff_room_list.end(); ++it)
-	{
-		if ((*it)->zone == zone_nr
-			&& find_room_affect(*it, SPELL_RUNE_LABEL) != (*it)->affected.end())
-		{
-			// если в зоне метка
-			return false;
-		}
+	if (RoomSpells::isZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
+		return false;
 	}
 
 	return true;

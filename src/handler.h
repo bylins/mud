@@ -46,15 +46,6 @@ void timed_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_skill(CHAR_DATA * ch, int skill);
 void decreaseFeatTimer(CHAR_DATA * ch, int featureID);
 
-// Обработка аффектов комнат//
-void affect_room_total(ROOM_DATA * room);
-void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add);
-void affect_to_room(ROOM_DATA * room, const AFFECT_DATA<ERoomApplyLocation>& af);
-void removeAffectFromRoom(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& af);
-ROOM_DATA::room_affects_list_t::iterator find_room_affect(ROOM_DATA* room, int type);
-void affect_room_join_fspell(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af);
-void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
-
 // utility //
 char *money_desc(int amount, int padis);
 OBJ_DATA::shared_ptr create_money(int amount);
@@ -182,6 +173,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 
 
 // mem queue //
+int mag_manacost(const CHAR_DATA* ch, int spellnum);
 void MemQ_init(CHAR_DATA * ch);
 void MemQ_flush(CHAR_DATA * ch);
 int MemQ_learn(CHAR_DATA * ch);

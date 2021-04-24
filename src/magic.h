@@ -40,9 +40,6 @@ const int MOB_FIREKEEPER = 3022;
 
 const int MAX_SPELL_AFFECTS = 16; // change it if you need more
 
-//таймеры для спеллов, которые должны тикать, только если кастер помер или вышел
-const int TIME_SPELL_RUNE_LABEL = 300;
-
 #define SpINFO spell_info[spellnum]
 
 bool is_room_forbidden(ROOM_DATA * room);
@@ -65,11 +62,8 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int type);
 int mag_creations(int level, CHAR_DATA * ch, int spellnum);
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int casttype);
-void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument);
 
-namespace RoomSpells {
-	void room_affect_update(void);
-}
+bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
 
 #endif
 

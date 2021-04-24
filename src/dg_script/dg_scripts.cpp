@@ -33,7 +33,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "named_stuff.hpp"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "noob.hpp"

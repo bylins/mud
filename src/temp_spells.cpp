@@ -1,5 +1,5 @@
 #include "temp_spells.hpp"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "chars/world.characters.hpp"
 #include "screen.h"
 #include "utils.h"

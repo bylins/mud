@@ -272,11 +272,6 @@ struct alias_data
 #define SCMD_SIP  3
 #define SCMD_DEVOUR 4
 
-// do_use
-#define SCMD_USE  0
-#define SCMD_QUAFF   1
-#define SCMD_RECITE  2
-
 // do_echo
 #define SCMD_ECHO 0
 #define SCMD_EMOTE   1

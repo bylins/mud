@@ -2,7 +2,7 @@
 
 #include "handler.h"
 #include "screen.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "skills.info.h"
 #include "spells.info.h"
 

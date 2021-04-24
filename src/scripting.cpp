@@ -21,7 +21,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "obj.hpp"
 #include "db.h"
 #include "cache.hpp"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "handler.h"
 #include "constants.h"

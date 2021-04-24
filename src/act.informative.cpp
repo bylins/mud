@@ -63,6 +63,7 @@
 #include "conf.h"
 #include "classes/constants.hpp"
 #include "skills.info.h"
+#include "magic.rooms.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>

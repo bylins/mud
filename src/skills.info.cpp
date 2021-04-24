@@ -1,12 +1,26 @@
 #include "skills.info.h"
 
 const char *unused_skillname = "!UNUSED!";
+const char *unidentified_skillname = "!UNIDENTIFIED!";
 
 struct skillInfo_t skill_info[MAX_SKILL_NUM + 1];
 
+const char *skill_name(int num);
 void unused_skill(int skill);
 void initSkill(int skill, const char *name, const char *shortName, int max_percent);
 void initSkills(void);
+
+const char *skill_name(int num) {
+	if (num > 0 && num <= MAX_SKILL_NUM) {
+		return (skill_info[num].name);
+	} else {
+		if (num == -1) {
+			return unused_skillname;
+		} else {
+			return unidentified_skillname;
+		}
+	}
+}
 
 void initUnusedSkill(int skill) {
 	int i, j;

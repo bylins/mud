@@ -28,7 +28,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "skills.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"

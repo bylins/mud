@@ -1,7 +1,7 @@
 #include "mixture.h"
 
 #include "spells.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "handler.h"
 #include "privilege.hpp"
 #include "spells.info.h"

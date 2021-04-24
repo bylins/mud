@@ -18,7 +18,7 @@
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "dg_event.h"
 #include "im.h"

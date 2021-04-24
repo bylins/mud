@@ -7,32 +7,12 @@
 #include "comm.h"
 #include "skills.h"
 #include "spells.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "features.hpp"
 #include "classes/spell.slots.hpp"
 #include "spells.info.h"
 #include "handler.h"
 #include "screen.h"
-
-/*
-#include "object.prototypes.hpp"
-#include "db.h"
-#include "constants.h"
-#include "dg_script/dg_scripts.h"
-#include "fightsystem/pk.h"
-#include "name_list.hpp"
-#include "depot.hpp"
-#include "parcel.hpp"
-#include "magic.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
-#include "chars/world.characters.hpp"
-#include "logger.hpp"
-#include "sysdep.h"
-#include "conf.h"
-#include "fightsystem/mobact.hpp"
-#include "skills.info.h"
-*/
 
 /*
  * do_cast is the entry point for PC-casted spells.  It parses the arguments,

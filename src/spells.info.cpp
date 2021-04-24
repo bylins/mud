@@ -13,6 +13,20 @@ void initSpell(int spl, const char *name, const char *syn,
 	   int max_mana, int min_mana, int mana_change,
 	   int minpos, int targets, int violent, int routines, int danger, int spell_class);
 void initSpells(void);
+const char *spell_name(int num);
+
+
+const char *spell_name(int num) {
+	if (num > 0 && num <= TOP_SPELL_DEFINE) {
+		return (spell_info[num].name);
+	} else {
+		if (num == -1) {
+			return unused_spellname;
+		} else {
+			return "UNDEFINED";
+		}
+	}
+}
 
 void initUnusedSpell(int spl) {
 	int i, j;
