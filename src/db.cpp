@@ -6014,6 +6014,7 @@ void entrycount(char *name, const bool find_id /*= true*/)
 				element.level = GET_LEVEL(short_ch);
 				element.remorts = short_ch->get_remort();
 				element.timer = NULL;
+				element.plr_class = short_ch->get_class();
 				if (PLR_FLAGS(short_ch).get(PLR_DELETED))
 				{
 					element.last_logon = -1;
@@ -6749,6 +6750,7 @@ player_index_element::player_index_element(const int id, const char* name):
 	unique(0),
 	level(0),
 	remorts(0),
+	plr_class(0),
 	last_logon(0),
 	activity(0),
 	timer(nullptr),
