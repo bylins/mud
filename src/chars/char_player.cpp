@@ -1049,6 +1049,7 @@ void Player::save_char()
 			free(player_table[i].mail);
 		player_table[i].mail = str_dup(GET_EMAIL(this));
 		player_table[i].unique = GET_UNIQUE(this);
+		player_table[i].plr_class = get_class();
 		//end by WorM
 	}
 }

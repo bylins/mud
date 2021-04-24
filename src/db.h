@@ -203,6 +203,7 @@ public:
 	int unique;
 	int level;
 	int remorts;
+	int plr_class;
 	int last_logon;
 	int activity;		// When player be saved and checked
 	save_info *timer;

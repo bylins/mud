@@ -2504,18 +2504,7 @@ void inspecting()
 		if (*buf1 || mail_found)
 		{
 			const auto& player = player_table[it->second->pos];
-			CHAR_DATA * victim;
-				for (const auto i : character_list) {
-                                if (IS_NPC(i))
-                                        continue;
-                                if (GET_IDNUM(i) == player.id()) {
-                                        victim = i.get();
-                                        break;
-                                }
-                        }
-                        if(victim) {
-                                sprinttype(victim->get_class(), pc_class_types, smallBuf);
-                        }
+			sprinttype(player.plr_class, pc_class_types, smallBuf);
 			mytime = player_table[it->second->pos].last_logon;
 			sprintf(buf, "--------------------\r\nИмя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d, Remort %d, Проф: %s.\r\n",
 				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
