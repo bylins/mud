@@ -28,15 +28,19 @@
 #include "logger.hpp"
 #include "bonus.h"
 #include "backtrace.hpp"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "zone.table.hpp"
 #include "chars/char_player.hpp"
 #include "mob_stat.hpp"
-#include <math.h>
+#include "classes/constants.hpp"
+#include "spells.info.h"
 
+#include <math.h>
 #include <algorithm>
+
+//using namespace PlayerClass;
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount);
@@ -44,7 +48,6 @@ int level_exp(CHAR_DATA * ch, int chlevel);
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
-int slot_for_char(CHAR_DATA * ch, int i);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 extern int material_value[];
@@ -399,9 +402,11 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 	raw_kill(ch, killer);
 }
 
-
+#include "classes/spell.slots.hpp"
 void forget_all_spells(CHAR_DATA *ch)
 {
+	using PlayerClass::slot_for_char;
+
 	GET_MEM_COMPLETED(ch) = 0;
 	int slots[MAX_SLOT];
 	int max_slot = 0;

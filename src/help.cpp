@@ -18,6 +18,8 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
+#include "classes/constants.hpp"
+#include "skills.info.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>

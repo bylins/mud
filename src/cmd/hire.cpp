@@ -4,7 +4,7 @@
 #include "handler.h"
 #include "screen.h"
 #include <boost/lexical_cast.hpp>
-
+/*
 int max_stats2[][6] =
         // Str Dex Int Wis Con Cha //
         { {14, 13, 24, 25, 15, 10},	// Лекарь //
@@ -40,7 +40,7 @@ int min_stats2[][6] =
           {18, 14, 10, 10, 14, 13},	// Купец //
           {15, 10, 19, 15, 12, 12}	// Волхв //
         };
-
+*/
 //Функции для модифицированного чарма
 float get_damage_per_round(CHAR_DATA * victim)
 {

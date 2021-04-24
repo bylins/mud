@@ -50,6 +50,8 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "msdp/msdp.constants.hpp"
+#include "spells.info.h"
+#include "magic.items.h"
 
 #include <unordered_set>
 
@@ -1276,7 +1278,7 @@ void mob_casting(CHAR_DATA * ch)
 				if (GET_OBJ_VAL(item, 2) > 0
 					&& GET_OBJ_VAL(item, 3) == spellnum)
 				{
-					mag_objectmagic(ch, item, GET_NAME(victim));
+					employMagicItem(ch, item, GET_NAME(victim));
 					return;
 				}
 				break;
@@ -1296,7 +1298,7 @@ void mob_casting(CHAR_DATA * ch)
 						{
 							victim = ch;
 						}
-						mag_objectmagic(victim, item, GET_NAME(victim));
+						employMagicItem(victim, item, GET_NAME(victim));
 						return;
 					}
 				}
@@ -1307,7 +1309,7 @@ void mob_casting(CHAR_DATA * ch)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
 					{
-						mag_objectmagic(ch, item, GET_NAME(victim));
+						employMagicItem(ch, item, GET_NAME(victim));
 						return;
 					}
 				}

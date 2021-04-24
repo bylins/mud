@@ -13,6 +13,7 @@
 #include "skills.h"
 #include "structs.h"
 #include "conf.h"
+#include "classes/constants.hpp"
 
 #include <array>
 #include <bitset>
@@ -213,6 +214,7 @@ const short MAX_FEAT_AFFECT	= 5;
 
 extern struct FeatureInfoType feat_info[MAX_FEATS];
 
+const char *feat_name(int num);
 int getModifier(int feat, int location);
 int find_feat_num(const char *name, bool alias = false);
 void determineFeaturesSpecification(void);

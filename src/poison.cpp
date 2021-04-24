@@ -17,6 +17,7 @@
 #include "skills.h"
 #include "room.hpp"
 #include "fightsystem/fight.h"
+#include "skills.info.h"
 
 extern int interpolate(int min_value, int pulse);
 

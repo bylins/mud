@@ -1,7 +1,7 @@
 #ifndef BYLINS_KICK_H
 #define BYLINS_KICK_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void go_kick(CHAR_DATA * ch, CHAR_DATA * vict);
 void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

@@ -17,7 +17,7 @@ namespace ActionTargeting {
 		isCorrectSingleFriend нет, потому что не имеется дружественных ареакастов
 		Если таковые вводить - стоит добавить
 	*/
-	bool isNotCorrectSingleVictim(CHAR_DATA *actor, CHAR_DATA *target, char* arg) {
+	bool isIncorrectVictim(CHAR_DATA *actor, CHAR_DATA *target, char* arg) {
 		if (actor == target) {
 			return true;
 		}

@@ -63,6 +63,7 @@
 #include "zone.table.hpp"
 #include "db.h"
 #include "utils.h"
+#include "skills.info.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"

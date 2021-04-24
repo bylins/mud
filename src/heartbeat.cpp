@@ -22,6 +22,7 @@
 #include "mob_stat.hpp"
 #include "weather.hpp"
 #include "magic.h"
+#include "magic.rooms.hpp"
 #include "objsave.h"
 #include "limits.hpp"
 #include "fightsystem/mobact.hpp"

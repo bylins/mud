@@ -21,11 +21,12 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "obj.hpp"
 #include "db.h"
 #include "cache.hpp"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "handler.h"
 #include "constants.h"
 #include "modify.h"
+#include "spells.info.h"
 
 // Required because pyconfig.h defines ssize_t by himself
 #if defined(ssize_t)
@@ -1890,7 +1891,7 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(MOB_GUARDIAN);
     DEFINE_CONSTANT(MOB_IGNORE_FORBIDDEN);
     DEFINE_CONSTANT(MOB_NO_BATTLE_EXP);
-    DEFINE_CONSTANT(MOB_NOHAMER);
+    DEFINE_CONSTANT(MOB_NOMIGHTHIT);
     DEFINE_CONSTANT(MOB_GHOST);
     DEFINE_CONSTANT(MOB_FIREBREATH);
     DEFINE_CONSTANT(MOB_GASBREATH);

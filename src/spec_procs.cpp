@@ -37,15 +37,20 @@
 #include "obj.hpp"
 #include "screen.h"
 #include "skills.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "temp_spells.hpp"
+#include "classes/constants.hpp"
+#include "skills.info.h"
+#include "spells.info.h"
 
 #include <cmath>
 #include <boost/algorithm/string.hpp>
 #include <string>
+
+//using namespace ClassPlayer;
 
 //   external vars
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -68,7 +73,6 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter = NULL);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
-int slot_for_char(CHAR_DATA * ch, int i);
 int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int guild(CHAR_DATA *ch, void *me, int cmd, char* argument);
@@ -547,9 +551,11 @@ const char *spells_color(int spellnum )
    смогли посмотреть заклинания которые они могут колдовать
    на своем уровне, но на которые у них нет необходимых предметов
    при параметре TRUE */
-
+#include "classes/spell.slots.hpp"
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 {
+	using PlayerClass::slot_for_char;
+
 	char names[MAX_SLOT][MAX_STRING_LENGTH];
 	std::string time_str;
 	int slots[MAX_SLOT], i, max_slot = 0, slot_num, is_full, gcount = 0, can_cast = 1;

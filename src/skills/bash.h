@@ -1,7 +1,7 @@
 #ifndef BYLINS_BASH_H
 #define BYLINS_BASH_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);

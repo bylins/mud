@@ -46,8 +46,9 @@
 #include "char_obj_utils.inl"
 #include "global.objects.hpp"
 #include "strengthening.hpp"
-#include <boost/format.hpp>
+#include "skills.info.h"
 
+#include <boost/format.hpp>
 
 // extern variables
 extern CHAR_DATA *mob_proto;
@@ -3040,6 +3041,7 @@ void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+#include "magic.rooms.hpp"
 void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *caster;
@@ -3145,7 +3147,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					send_to_char(buf, caster);
 				}
 			}
-			removeAffectFromRoom(world[ch->in_room], aff_i);
+			RoomSpells::removeAffectFromRoom(world[ch->in_room], aff_i);
 			lag = 3;
 		}
 		else

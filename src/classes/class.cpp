@@ -24,7 +24,7 @@
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "interpreter.h"
@@ -47,6 +47,8 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "skills.info.h"
+#include "spells.info.h"
 
 #include <iostream>
 
@@ -68,6 +70,9 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int level_exp(CHAR_DATA * ch, int level);
 byte extend_saving_throws(int class_num, int type, int level);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
+void mspell_level(char *name, int spell, int kin, int chclass, int level);
+void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
+void mspell_change(char *name, int spell, int kin, int chclass, int class_change);
 extern bool char_to_pk_clan(CHAR_DATA *ch);
 // Names first
 
@@ -2551,8 +2556,11 @@ void load_skills()
  * which classes, and the minimum level the character must be to use
  * the spell or skill.
  */
+ #include "classes/spell.slots.hpp"
 void init_spell_levels(void)
 {
+	using PlayerClass::mspell_slot;
+
 	FILE *magic;
 	char line1[256], line2[256], line3[256], name[256];
 	int i[15], j, sp_num;
@@ -3467,6 +3475,101 @@ int level_exp(CHAR_DATA * ch, int level)
 	 */
 	log("SYSERR: XP tables not set up correctly in class.c!");
 	return 123456;
+}
+
+void mspell_remort(char *name, int spell, int kin, int chclass, int remort)
+{
+	int bad = 0;
+
+	if (spell < 0 || spell > TOP_SPELL_DEFINE)
+	{
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, TOP_SPELL_DEFINE);
+		return;
+	}
+	if (kin < 0 || kin >= NUM_KIN)
+	{
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+		bad = 1;
+	}
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
+	{
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+		bad = 1;
+	}
+	if (remort < 0 || remort > MAX_REMORT)
+	{
+		log("SYSERR: assigning '%s' to illegal remort %d/%d.", skill_name(spell), remort, MAX_REMORT);
+		bad = 1;
+	}
+	if (!bad)
+	{
+		spell_info[spell].min_remort[chclass][kin] = remort;
+		log("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
+	}
+}
+
+void mspell_level(char *name, int spell, int kin, int chclass, int level)
+{
+	int bad = 0;
+
+	if (spell < 0 || spell > TOP_SPELL_DEFINE)
+	{
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, TOP_SPELL_DEFINE);
+		return;
+	}
+
+	if (kin < 0 || kin >= NUM_KIN)
+	{
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+		bad = 1;
+	}
+
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
+	{
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+		bad = 1;
+	}
+
+	if (level < 1 || level > LVL_IMPL)
+	{
+		log("SYSERR: assigning '%s' to illegal level %d/%d.", skill_name(spell), level, LVL_IMPL);
+		bad = 1;
+	}
+
+	if (!bad)
+	{
+		spell_info[spell].min_level[chclass][kin] = level;
+		log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
+	}
+}
+
+void mspell_change(char *name, int spell, int kin, int chclass, int class_change)
+{
+	int bad = 0;
+
+	if (spell < 0 || spell > TOP_SPELL_DEFINE)
+	{
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, TOP_SPELL_DEFINE);
+		return;
+	}
+
+	if (kin < 0 || kin >= NUM_KIN)
+	{
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+		bad = 1;
+	}
+
+	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES)
+	{
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+		bad = 1;
+	}
+	if (!bad)
+	{
+		spell_info[spell].class_change[chclass][kin] = class_change;
+		log("MODIFIER set '%s' kin '%d' classes %d value %d", name, kin, chclass, class_change);
+
+	}
 }
 
 GroupPenalties grouping;	///< TODO: get rid of this global variable.

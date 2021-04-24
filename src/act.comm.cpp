@@ -59,8 +59,6 @@ void do_write(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_page(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_pray_gods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-// shapirus
 void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
@@ -78,14 +76,6 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-
-	/* Непонятно нафига! Если захотят спамить - спамить все равно будут!
-	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-	{
-		send_to_char(SOUNDPROOF, ch);
-		return;
-	}
-	*/
 
 	if (!*argument)
 		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);

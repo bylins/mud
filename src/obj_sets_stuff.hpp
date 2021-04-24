@@ -10,6 +10,7 @@
 #include "structs.h"
 #include "interpreter.h"
 #include "chars/char_player.hpp"
+#include "classes/constants.hpp"
 
 #include <array>
 #include <string>

@@ -16,6 +16,8 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "char_obj_utils.inl"
+#include "skills.info.h"
+#include "spells.info.h"
 
 #include <boost/format.hpp>
 

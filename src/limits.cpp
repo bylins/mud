@@ -41,20 +41,22 @@
 #include "fightsystem/fight.h"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "classes/spell.slots.hpp"
+#include "spells.info.h"
 
 #include <boost/format.hpp>
 
+using PlayerClass::max_slots;
+
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
-
 extern room_rnum r_unreg_start_room;
-
 extern CHAR_DATA *mob_proto;
 
 extern DESCRIPTOR_DATA *descriptor_list;

@@ -3,6 +3,7 @@
 #include "modify.h"
 #include "handler.h"
 #include "spells.h"
+#include "magic.rooms.hpp"
 #include "fightsystem/pk.h"
 
 namespace OneWayPortal
@@ -85,9 +86,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg)
             return;
         }
 
-        const auto& room = world[ch->in_room];
-        const auto room_affect_i = find_room_affect(room, SPELL_RUNE_LABEL);
-        if (room_affect_i != room->affected.end()) {
+		if (RoomSpells::isRoomAffected(world[ch->in_room], SPELL_RUNE_LABEL)) {
             send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
             return;
         }

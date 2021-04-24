@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "structs.h"
 #include "conf.h"
+#include "classes/constants.hpp"
 
 #include <array>
 #include <vector>

@@ -3,8 +3,10 @@
 *  ************************************************************************/
 
 #include "track.h"
+
 #include "graph.h"
 #include "handler.h"
+#include "skills.info.h"
 
 
 const char *track_when[] = { "совсем свежие",
@@ -103,7 +105,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     if (!check_moves(ch, can_use_feat(ch, TRACKER_FEAT) ? TRACK_MOVES / 2 : TRACK_MOVES))
         return;
 
-    calc_track = CALC_TRACK(ch, NULL);
+    calc_track = calculate_skill(ch, SKILL_TRACK, 0);
     act("Похоже, $n кого-то выслеживает.", FALSE, ch, 0, 0, TO_ROOM);
     one_argument(argument, arg);
 

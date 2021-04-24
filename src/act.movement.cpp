@@ -40,6 +40,8 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "random.hpp"
+#include "skills.info.h"
+
 #include <cmath>
 
 // external functs

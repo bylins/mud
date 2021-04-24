@@ -31,11 +31,11 @@
 #include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "skills.info.h"
+
 #include <cmath>
 
-#define SpINFO   spell_info[spellnum]
 extern int material_value[];
-int slot_for_char(CHAR_DATA * ch, int i);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 
 constexpr auto WEAR_TAKE = to_underlying(EWearFlag::ITEM_WEAR_TAKE);

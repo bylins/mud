@@ -5,7 +5,7 @@
 #ifndef BYLINS_MANADRAIN_H
 #define BYLINS_MANADRAIN_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 

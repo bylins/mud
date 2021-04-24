@@ -55,12 +55,15 @@
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
 #include "char_obj_utils.inl"
-#include "class.hpp"
+#include "classes/class.hpp"
 #include "zone.table.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "bonus.h"
 #include "conf.h"
+#include "classes/constants.hpp"
+#include "skills.info.h"
+#include "magic.rooms.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -5930,7 +5933,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 	}
 
-	snprintf(buf, MAX_STRING_LENGTH, 
+	snprintf(buf, MAX_STRING_LENGTH,
 			" Автовыходы    : %-3s     "
 			" Краткий режим : %-3s     "
 			" Сжатый режим  : %-3s \r\n"

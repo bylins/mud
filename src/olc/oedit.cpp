@@ -35,6 +35,8 @@
 #include "sets_drop.hpp"
 #include "obj.hpp"
 #include "zone.table.hpp"
+#include "skills.info.h"
+#include "spells.info.h"
 
 #include <array>
 #include <vector>
@@ -53,7 +55,7 @@ extern const char *weapon_affects[];
 extern const char *material_name[];
 extern const char *ingradient_bits[];
 extern const char *magic_container_bits[];
-extern struct spell_info_type spell_info[];
+extern struct spellInfo_t spell_info[];
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_imrecipes;
 extern void extract_obj(OBJ_DATA * obj);

@@ -14,6 +14,7 @@
 #include "mobact.hpp"
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
+#include "skills.info.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -2982,7 +2983,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		send_to_char(buf, ch);
 		lag = 3;
 		dam = 0;
-	} else if (MOB_FLAGGED(victim, MOB_NOHAMER)) {
+	} else if (MOB_FLAGGED(victim, MOB_NOMIGHTHIT)) {
 		sprintf(buf, "&c&qНа других надо силу проверять!&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 1;

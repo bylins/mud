@@ -1,7 +1,7 @@
 #ifndef BYLINS_THROW_H
 #define BYLINS_THROW_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void go_throw(CHAR_DATA * ch, CHAR_DATA * victim);
 void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd);

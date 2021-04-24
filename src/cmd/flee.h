@@ -1,7 +1,7 @@
 #ifndef BYLINS_FLEE_H
 #define BYLINS_FLEE_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
 
 void go_flee(CHAR_DATA* ch);
 void do_flee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

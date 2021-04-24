@@ -8,6 +8,7 @@
 #include "spells.h"
 #include "random.hpp"
 #include "screen.h"
+#include "skills.info.h"
 
 using  namespace FightSystem;
 

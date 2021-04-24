@@ -3,13 +3,15 @@
 #include "affect_data.h"
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
-#include "class.hpp"
+#include "classes/class.hpp"
 #include "cmd/follow.h"
 #include "deathtrap.hpp"
 #include "handler.h"
 #include "magic.h"
 #include "poison.hpp"
 #include "spells.h"
+#include "classes/constants.hpp"
+#include "spells.info.h"
 
 bool no_bad_affects(OBJ_DATA *obj)
 {

@@ -49,17 +49,22 @@
 #include "room.hpp"
 #include "screen.h"
 #include "skills.h"
-#include "spell_parser.hpp"
+#include "magic.utils.hpp"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
+#include "classes/spell.slots.hpp"
+#include "classes/constants.hpp"
+#include "spells.info.h"
+#include "magic.rooms.hpp"
 
 #include <math.h>
 #include <unordered_set>
 #include <sstream>
 
+using PlayerClass::slot_for_char;
 
 // local functions //
 int apply_ac(CHAR_DATA * ch, int eq_pos);
@@ -70,7 +75,6 @@ bool is_wear_light(CHAR_DATA *ch);
 
 // external functions //
 void perform_drop_gold(CHAR_DATA * ch, int amount);
-int slot_for_char(CHAR_DATA * ch, int i);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -184,82 +188,6 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	}*/
 }
 
-
-void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add)
-{
-	if (add)
-	{
-		ROOM_AFF_FLAGS(room).set(bitv);
-	}
-	else
-	{
-		ROOM_AFF_FLAGS(room).unset(bitv);
-		mod = -mod;
-	}
-
-	switch (loc)
-	{
-	case APPLY_ROOM_NONE:
-		break;
-	case APPLY_ROOM_POISON:
-		// Увеличиваем загаженность от аффекта вызываемого SPELL_POISONED_FOG
-		// Хотя это сделанно скорее для примера пока не обрабатывается вообще
-		GET_ROOM_ADD_POISON(room) += mod;
-		break;
-	default:
-		log("SYSERR: Unknown room apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
-		break;
-
-	}			// switch
-}
-
-// Тут осуществляется апдейт аффектов влияющих на комнату
-void affect_room_total(ROOM_DATA * room)
-{
-	// А че тут надо делать пересуммирование аффектов от заклов.
-	/* Вобщем все комнаты имеют (вроде как базовую и
-	   добавочную характеристику) если скажем ввести
-	   возможность устанавливать степень зараженности комнтаы
-	   в OLC , то дополнительное загаживание только будет вносить
-	   + но не обнулять это значение. */
-
-	// обнуляем все добавочные характеристики
-	memset(&room->add_property, 0 , sizeof(room_property_data));
-
-	// перенакладываем аффекты
-	for (const auto& af : room->affected)
-	{
-		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
-	}
-}
-
-
-
-/* Намазываем аффект на комнату.
-  Автоматически ставим нузные флаги */
-void affect_to_room(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af)
-{
-	AFFECT_DATA<ERoomApplyLocation>::shared_ptr new_affect(new AFFECT_DATA<ERoomApplyLocation>(af));
-
-	room->affected.push_front(new_affect);
-
-	affect_room_modify(room, af.location, af.modifier, af.bitvector, TRUE);
-	affect_room_total(room);
-}
-
-
-
-void removeAffectFromRoom(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect) {
-	if (room->affected.empty()) {
-		log("ERROR: Attempt to remove affect from no affected room!");
-		return;
-	}
-	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, FALSE);
-	room->affected.erase(affect);
-	affect_room_total(room);
-}
-
-
 /*
  * Return TRUE if a char is affected by a spell (SPELL_XXX),
  * FALSE indicates not affected.
@@ -288,21 +216,6 @@ bool affected_by_spell(CHAR_DATA* ch, int type)
 	}
 
 	return (FALSE);
-}
-// Проверяем а не висит ли на комнате закла ужо
-//bool room_affected_by_spell(ROOM_DATA * room, int type)
-ROOM_DATA::room_affects_list_t::iterator find_room_affect(ROOM_DATA* room, int type)
-{
-	for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i)
-	{
-		const auto affect = *affect_i;
-		if (affect->type == type)
-		{
-			return affect_i;
-		}
-	}
-
-	return room->affected.end();
 }
 
 void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
@@ -334,86 +247,6 @@ void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 		affect_to_char(ch, af);
 	}
 }
-
-void affect_room_join_fspell(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af)
-{
-	bool found = FALSE;
-
-	for (const auto& hjp : room->affected)
-	{
-		if (hjp->type == af.type
-			&& hjp->location == af.location)
-		{
-			if (hjp->modifier < af.modifier)
-			{
-				hjp->modifier = af.modifier;
-			}
-
-			if (hjp->duration < af.duration)
-			{
-				hjp->duration = af.duration;
-			}
-
-			affect_room_total(room);
-			found = true;
-			break;
-		}
-	}
-
-	if (!found)
-	{
-		affect_to_room(room, af);
-	}
-}
-
-void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
-{
-	bool found = false;
-
-	if (af.location)
-	{
-		for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i)
-		{
-			const auto& affect = *affect_i;
-			if (affect->type == af.type
-				&& affect->location == af.location)
-			{
-				if (add_dur)
-				{
-					af.duration += affect->duration;
-				}
-
-				if (avg_dur)
-				{
-					af.duration /= 2;
-				}
-
-				if (add_mod)
-				{
-					af.modifier += affect->modifier;
-				}
-
-				if (avg_mod)
-				{
-					af.modifier /= 2;
-				}
-
-				removeAffectFromRoom(room, affect_i);
-				affect_to_room(room, af);
-
-				found = true;
-				break;
-			}
-		}
-	}
-
-	if (!found)
-	{
-		affect_to_room(room, af);
-	}
-}
-
-
 
 void decreaseFeatTimer(CHAR_DATA * ch, int featureID) {
 	for (struct timed_type* skj = ch->timed_feat; skj; skj = skj->next) {
@@ -551,7 +384,7 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 		return;
 	}
 
-	const auto affect_on_room = find_room_affect(world[room], SPELL_HYPNOTIC_PATTERN);
+	const auto affect_on_room = RoomSpells::findRoomAffect(world[room], SPELL_HYPNOTIC_PATTERN);
 	if (affect_on_room != world[room]->affected.end())
 	{
 		CHAR_DATA *caster = find_char((*affect_on_room)->caster_id);
@@ -3502,7 +3335,76 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 }
 
 //********************************************************************
-// Работа с очередью мема
+// Работа с очередью мема (Svent TODO: вынести в отдельный модуль)
+
+#define DRUID_MANA_COST_MODIFIER 0.5
+
+//	Коэффициент изменения мема относительно скилла магии.
+int koef_skill_magic(int percent_skill)
+{
+//	Выделяем процент на который меняется мем
+	return ((800 - percent_skill) / 8);
+
+//	return 0;
+}
+
+int mag_manacost(const CHAR_DATA* ch, int spellnum)
+{
+	int mana_cost;
+
+	if (IS_IMMORTAL(ch))
+	{
+		return 1;
+	}
+
+//	Мем рунных профессий(на сегодня только волхвы)
+	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum))
+	{
+		const auto result = static_cast<int>(DRUID_MANA_COST_MODIFIER
+			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
+			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
+			* 60
+			* MAX(SpINFO.mana_max
+				- (SpINFO.mana_change
+					* (GET_LEVEL(ch)
+						- spell_create[spellnum].runes.min_caster_level)),
+				SpINFO.mana_min));
+
+		//Зависимости в таблице несколько корявые, поэтому изменение пустим в обратную сторону
+		return result;
+	};
+
+//	Мем всех остальных
+	if (!IS_MANA_CASTER(ch)
+		&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
+		&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch))
+	{
+		mana_cost = MAX(SpINFO.mana_max
+			- (SpINFO.mana_change
+				* (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))),
+			SpINFO.mana_min);
+
+		if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0)
+		{
+			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int)GET_CLASS(ch)][(int)GET_KIN(ch)]))) / 100;
+		}
+		else
+		{
+			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])));
+		}
+
+//		Меняем мем на коэффициент скилла магии
+		if ((GET_CLASS(ch) == CLASS_DRUID)
+			|| (GET_CLASS(ch) == CLASS_PALADINE)
+			|| (GET_CLASS(ch) == CLASS_MERCHANT))
+		{
+			return mana_cost;
+		}
+		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
+	};
+
+	return 99999;
+}
 
 void MemQ_init(CHAR_DATA * ch)
 {
@@ -3786,10 +3688,10 @@ void remove_rune_label(CHAR_DATA *ch)
 	ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room)
 	{
-		const auto aff = find_room_affect(label_room, SPELL_RUNE_LABEL);
+		const auto aff = RoomSpells::findRoomAffect(label_room, SPELL_RUNE_LABEL);
 		if (aff != label_room->affected.end())
 		{
-			removeAffectFromRoom(label_room, aff);
+			RoomSpells::removeAffectFromRoom(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);
 		}
 	}

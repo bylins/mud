@@ -77,6 +77,9 @@
 #include "utils.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
+#include "classes/constants.hpp"
+#include "spells.info.h"
+#include "magic.rooms.hpp"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -111,7 +114,7 @@ extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
 // for chars
 extern const char *pc_class_types[];
-extern struct spell_info_type spell_info[];
+extern struct spellInfo_t spell_info[];
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect);	// to avoid inclusion of utils.h
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -944,21 +947,9 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	int rnum_start, rnum_stop;
 	bool found = false;
 	CHAR_DATA *caster;
-	//Проверим, нет ли в зоне метки для врат, чтоб не абузили.
-	for (auto it = RoomSpells::aff_room_list.begin(); it != RoomSpells::aff_room_list.end(); ++it)
-	{
-		const auto aff = find_room_affect(*it, SPELL_RUNE_LABEL);
-		if (((*it)->zone == zone_nr)
-			&& aff != (*it)->affected.end())
-		{
-			// если в зоне метка
-			caster = find_char((*aff)->caster_id);
-			if (caster)
-			{
-				sprintf(buf2, "В зоне vnum:%d клетка vnum: %d находится рунная метка игрока: %s.\r\n", zone_table[zone_nr].number, (*it)->number, GET_NAME(caster));
-				send_to_char(buf2, ch);
-			}
-		}
+
+	if (RoomSpells::isZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
+		send_to_char("В зоне имеется рунная метка.\r\n", ch);
 	}
 
 	for (i = descriptor_list; i; i = i->next)

@@ -48,6 +48,7 @@
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
+#include "magic.rooms.hpp"
 
 
 // external structs
@@ -854,7 +855,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 			if (affect_it->get()->type == SPELL_RUNE_LABEL && (affect_it != room->affected.end()))
 			{
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-				removeAffectFromRoom(world[ch->in_room], affect_it);
+				RoomSpells::removeAffectFromRoom(world[ch->in_room], affect_it);
 				break;
 			}
 		}
