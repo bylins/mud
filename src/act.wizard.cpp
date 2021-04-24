@@ -2504,8 +2504,9 @@ void inspecting()
 		if (*buf1 || mail_found)
 		{
 			const auto& player = player_table[it->second->pos];
+			sprinttype(player.plr_class, pc_class_types, smallBuf);
 			mytime = player_table[it->second->pos].last_logon;
-			sprintf(buf, "--------------------\r\nИмя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d/%d.\r\n",
+			sprintf(buf, "--------------------\r\nИмя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d, Remort %d, Проф: %s.\r\n",
 				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
 				player.name(),
 				CCNRM(ch, C_SPR),
@@ -2513,7 +2514,7 @@ void inspecting()
 				player.mail,
 				(mail_found ? CCNRM(ch, C_SPR) : ""),
 				rustime(localtime(&mytime)),
-				player.level, player.remorts);
+				player.level, player.remorts, smallBuf);
 			it->second->out += buf;
 			it->second->out += buf2;
 			it->second->out += buf1;
