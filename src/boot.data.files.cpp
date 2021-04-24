@@ -1749,8 +1749,7 @@ private:
 
 int ZoneFile::s_zone_number = 0;
 
-bool ZoneFile::load_zone()
-{
+bool ZoneFile::load_zone() {
 	auto& zone = zone_table[s_zone_number];
 
 	constexpr std::size_t BUFFER_SIZE = 256;
@@ -1772,38 +1771,35 @@ bool ZoneFile::load_zone()
 	zone.group = false;
 	zone.count_reset = 0;
 	zone.traffic = 0;
-
 	get_line(file(), buf);
 
-	auto result = false;
-	{
+	auto result = false; { 
 		char type[BUFFER_SIZE];
 		const auto count = sscanf(buf, "#%d %s", &zone.number, type);
-		if (count < 1)
-		{
+		if (count < 1) {
 			log("SYSERR: Format error in %s, line 1", full_file_name().c_str());
 			exit(1);
 		}
-
-		if (2 == count)
-		{
-			if (0 == strcmp(type, "static"))
-			{
+		size_t digits = full_file_name().find_first_of( "1234567890" );
+		if( digits <= full_file_name().size()) {
+			if (zone.number != atoi(full_file_name().c_str() + digits)) {
+				log("SYSERR: файл %s содержит неверный номер зоны %d", full_file_name().c_str(), zone.number);
+				exit(1);
+			}
+		}
+		if (2 == count) {
+			if (0 == strcmp(type, "static")) {
 				result = load_regular_zone();
 			}
-			else if (0 == strcmp(type, "generated"))
-			{
+			else if (0 == strcmp(type, "generated")) {
 				result = load_generated_zone();
 			}
 		}
-		else
-		{
+		else {
 			result = load_regular_zone();
 		}
 	}
-
 	s_zone_number++;
-
 	return result;
 }
 

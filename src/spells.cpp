@@ -62,7 +62,6 @@
 #include <boost/format.hpp>
 
 extern room_rnum r_mortal_start_room;
-
 extern DESCRIPTOR_DATA *descriptor_list;
 extern const char *material_name[];
 extern const char *weapon_affects[];
@@ -1248,7 +1247,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	if (fullness < 30)
 		return;
 	sprinttype(obj->get_material(), material_name, buf2);
-	sprintf(buf, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, obj->get_maximum_durability(), obj->get_current_durability());
+	snprintf(buf, MAX_STRING_LENGTH, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, 
+		obj->get_maximum_durability(), obj->get_current_durability());
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
@@ -1439,7 +1439,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	case OBJ_DATA::ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
-		sprintf(buf, "%s\r\n", buf2);
+		snprintf(buf, MAX_STRING_LENGTH, "%s\r\n", buf2);
 		send_to_char(buf, ch);
 
 		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES))
@@ -1719,7 +1719,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 				send_to_char(CCIRED(ch, C_NRM), ch);
 			}
 			sprinttype(aff->location, apply_types, buf2);
-			sprintf(buf, "   %s изменяет на %s%d\r\n", buf2, aff->modifier > 0 ? "+" : "", aff->modifier);
+			snprintf(buf, MAX_STRING_LENGTH, "   %s изменяет на %s%d\r\n", buf2, aff->modifier > 0 ? "+" : "", aff->modifier);
 			send_to_char(buf, ch);
 		}
 	}
@@ -1728,7 +1728,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCICYN(ch, C_NRM), ch);
 	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
-	sprintf(buf, "%s\r\n", buf2);
+	snprintf(buf, MAX_STRING_LENGTH, "%s\r\n", buf2);
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }

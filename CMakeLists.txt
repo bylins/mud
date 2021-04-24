@@ -407,6 +407,10 @@ set(HEADERS
 		src/debug.utils.hpp
 		src/stigmas.hpp
 		src/zone.table.hpp
+<<<<<<< HEAD
+=======
+		src/cmd/flee.h
+>>>>>>> master
 		src/skills/backstab.h
 		src/skills/bash.h
 		src/skills/stun.h

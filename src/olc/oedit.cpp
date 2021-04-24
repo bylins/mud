@@ -446,7 +446,7 @@ void oedit_disp_container_flags_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH,
 			"%s1%s) Закрываем\r\n"
 			"%s2%s) Нельзя взломать\r\n"
 			"%s3%s) Закрыт\r\n"
@@ -467,7 +467,7 @@ void oedit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH,
 		"Меню экстрадескрипторов\r\n"
 		"%s1%s) Ключ: %s%s\r\n"
 		"%s2%s) Описание:\r\n%s%s\r\n"
@@ -495,7 +495,7 @@ void oedit_disp_prompt_apply_menu(DESCRIPTOR_DATA * d)
 		if (OLC_OBJ(d)->get_affected(counter).modifier)
 		{
 			sprinttype(OLC_OBJ(d)->get_affected(counter).location, apply_types, buf2);
-			sprintf(buf, " %s%d%s) %+d to %s\r\n", grn, counter + 1, nrm,
+			snprintf(buf, MAX_STRING_LENGTH, " %s%d%s) %+d to %s\r\n", grn, counter + 1, nrm,
 				OLC_OBJ(d)->get_affected(counter).modifier, buf2);
 			send_to_char(buf, d->character.get());
 		}
@@ -656,8 +656,7 @@ void oedit_disp_feats_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d)
-{
+void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d) {
 	int columns = 0, counter;
 
 	get_char_cols(d->character.get());
@@ -665,24 +664,20 @@ void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d)
 	send_to_char("[H[J", d->character);
 #endif
 	int percent;
-	for (counter = 1; counter <= MAX_SKILL_NUM; ++counter)
-	{
-		if (!skill_info[counter].name || *skill_info[counter].name == '!')
-		{
+	for (counter = 1; counter <= MAX_SKILL_NUM; ++counter) {
+		if (!skill_info[counter].name || *skill_info[counter].name == '!') {
 			continue;
 		}
 
 		percent = OLC_OBJ(d)->get_skill(counter);
-		if (percent != 0)
-		{
+		if (percent != 0) {
 			sprintf(buf1, "%s[%3d]%s", cyn, percent, nrm);
 		}
-		else
-		{
+		else {
 			strcpy(buf1, "     ");
 		}
-		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-				skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, MAX_STRING_LENGTH, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+			skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
@@ -1032,10 +1027,8 @@ void oedit_disp_extra_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
-	{
-		if (*extra_bits[counter] == '\n')
-		{
+	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++) {
+		if (*extra_bits[counter] == '\n') {
 			plane++;
 			c = 'a' - 1;
 			continue;
@@ -1045,13 +1038,14 @@ void oedit_disp_extra_menu(DESCRIPTOR_DATA * d)
 		else
 			c++;
 
-		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
+		sprintf(buf, "%s%c%d%s) %-30.30s %s", grn, c, plane, nrm,
 				extra_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 
 	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", 5);
-	sprintf(buf, "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, 
+		"\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг: (помеченное '*' пользоваться вдумчиво. 0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1082,7 +1076,7 @@ void oedit_disp_anti_menu(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, ",", 5);
-	sprintf(buf, "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1113,7 +1107,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, ",", 5);
-	sprintf(buf, "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1144,8 +1138,7 @@ void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags)
 		send_to_char(buf, d->character.get());
 	}
 	flags.sprintbits(weapon_affects, buf1, ",", 5);
-	sprintf(buf,
-		"\r\nНакладываемые аффекты : %s%s%s\r\n"
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nНакладываемые аффекты : %s%s%s\r\n"
 		"Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
@@ -1171,7 +1164,7 @@ void oedit_disp_wear_menu(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	sprintbit(GET_OBJ_WEAR(OLC_OBJ(d)), wear_bits, buf1);
-	sprintf(buf, "\r\nМожет быть одет : %s%s%s\r\n" "Выберите позицию (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nМожет быть одет : %s%s%s\r\n" "Выберите позицию (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1209,7 +1202,7 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), ingradient_bits, buf1);
-	sprintf(buf, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1226,7 +1219,7 @@ void oedit_disp_magic_container_menu(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), magic_container_bits, buf1);
-	sprintf(buf, "\r\nТип контейнера : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nТип контейнера : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
