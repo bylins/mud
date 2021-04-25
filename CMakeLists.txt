@@ -198,6 +198,7 @@ set(SOURCES
 		src/skills/manadrain.cpp
 		src/skills/warcry.cpp
 		src/skills/identify.cpp
+		src/skills/relocate.cpp
 		src/chars/mount.cpp
 		src/fightsystem/assist.cpp
 		src/fightsystem/start.fight.cpp
@@ -258,6 +259,7 @@ set(HEADERS
 		src/skills/disarm.h
 		src/skills/warcry.h
 		src/skills/identify.h
+		src/skills/relocate.h
 		src/act.movement.hpp
 		src/strengthening.hpp
 		src/ability.constants.hpp
