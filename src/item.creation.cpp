@@ -1786,15 +1786,15 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 			obj->set_short_description(buf);
 			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
 			{
-				sprintf(buf2, "Брошенный %s лежит тут.", buf);
+				snprintf(buf2, MAX_STRING_LENGTH, "Брошенный %s лежит тут.", buf);
 			}
 			else if (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
 			{
-				sprintf(buf2, "Брошенная %s лежит тут.", buf);
+				snprintf(buf2, MAX_STRING_LENGTH, "Брошенная %s лежит тут.", buf);
 			}
 			else if (GET_OBJ_SEX(obj) == ESex::SEX_POLY)
 			{
-				sprintf(buf2, "Брошенные %s лежат тут.", buf);
+				snprintf(buf2, MAX_STRING_LENGTH, "Брошенные %s лежат тут.", buf);
 			}
 			obj->set_description(buf2); // описание на земле
 		}

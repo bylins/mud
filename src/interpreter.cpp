@@ -90,6 +90,7 @@
 #include "skills/track.h"
 #include "skills/turnundead.h"
 #include "skills/warcry.h"
+#include "skills/relocate.h"
 #include "spells.h"
 #include "time.h"
 #include "title.hpp"

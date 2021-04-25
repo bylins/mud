@@ -476,7 +476,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	}
 
 	get_char_cols(d->character.get());
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -548,7 +548,7 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	OLC_ROOM(d)->flags_sprint(buf1, ",", true);
-	sprintf(buf, "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = REDIT_FLAGS;
 }
@@ -581,7 +581,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 
 	room->flags_sprint(buf1, ",");
 	sprinttype(room->sector_type, sector_types, buf2);
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif

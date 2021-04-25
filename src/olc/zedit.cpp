@@ -910,7 +910,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 		// Build the display buffer for this command
 		if ((show_all && start <= counter && stop > counter) || (!show_all && hl))
 		{
-			sprintf(buf1, "%s%d - %s%s%s\r\n", nrm, counter, hl ? iyel : yel,
+			snprintf(buf1, MAX_STRING_LENGTH, "%s%d - %s%s%s\r\n", nrm, counter, hl ? iyel : yel,
 					if_flag_text(item->cmd.if_flag), buf2);
 			strcat(buf, buf1);
 		}
@@ -930,7 +930,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 // the main menu
 void zedit_disp_menu(DESCRIPTOR_DATA * d)
 {
-	char *buf = (char *) malloc(32 * 1024);
+//	char *buf = (char *) malloc(32 * 1024);
 	char *type1_zones = (char *) malloc(1024);
 	char *type2_zones = (char *) malloc(1024);
 	int i;
@@ -942,7 +942,6 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 		sprintf(type2_zones, "%s %d", type2_zones, OLC_ZONE(d)->typeB_list[i]);
 
 	get_char_cols(d->character.get());
-	sprintf(buf1, "%sТЕСТИРУЕТСЯ%s", ired, yel);
 
 	// Menu header
 	sprintf(buf,
@@ -966,28 +965,29 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, yel, OLC_ZONE(d)->comment ? OLC_ZONE(d)->comment : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->location ? OLC_ZONE(d)->location : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->description ? OLC_ZONE(d)->description : "<NONE!>",
-	grn, nrm, yel, OLC_ZONE(d)->author ? OLC_ZONE(d)->author : "<NONE!>",
+			grn, nrm, yel, OLC_ZONE(d)->author ? OLC_ZONE(d)->author : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->level,
 			grn, nrm, yel, zone_types[OLC_ZONE(d)->type].name,
 			grn, nrm, yel, OLC_ZONE(d)->lifespan,
 			grn, nrm, yel, OLC_ZONE(d)->top,
 			grn, nrm, yel, OLC_ZONE(d)->reset_mode ? ((OLC_ZONE(d)->reset_mode == 1) ? "Если в зоне нет игроков." : ((OLC_ZONE(d)->reset_mode == 3) ? "Общая очистка(комплекс зон)." : "Обычная очистка(даже если есть игроки).")) : "Никогда не очищается",
 			grn, nrm, yel, OLC_ZONE(d)->reset_idle ? "Да" : "Нет", nrm);
-	if (OLC_ZONE(d)->reset_mode == 3)
-{
-		sprintf(buf, "%s%sA%s) Зоны первого типа       : %s%s%s\r\n"
-				"%sB%s) Зоны второго типа       : %s%s%s\r\n", buf,
+	send_to_char(buf, d->character.get());
+	if (OLC_ZONE(d)->reset_mode == 3) {
+		snprintf(buf, MAX_STRING_LENGTH, "%sA%s) Зоны первого типа       : %s%s%s\r\n"
+				"%sB%s) Зоны второго типа       : %s%s%s\r\n",
 				grn, nrm, ired, type1_zones, nrm, grn, nrm, grn, type2_zones, nrm);
+		send_to_char(buf, d->character.get());
 	}
-	sprintf(buf, "%s%sT%s) Режим       : %s%s%s\r\n", buf,
-			grn, nrm, yel, OLC_ZONE(d)->under_construction ? buf1 : "подключена", nrm);
-
-	sprintf(buf, "%s%sG%s) Оптимальное число игроков  : %s%d%s\r\n", buf,
+	snprintf(buf, MAX_STRING_LENGTH, "%sT%s) Режим            : %s%s%s\r\n",
+			grn, nrm, yel, OLC_ZONE(d)->under_construction ? "ТЕСТИРУЕТСЯ" : "подключена", nrm);
+	send_to_char(buf, d->character.get());
+	snprintf(buf, MAX_STRING_LENGTH, "%sG%s) Оптимальное число игроков  : %s%d%s\r\n",
 			grn, nrm, yel, OLC_ZONE(d)->group, nrm);
-
+	send_to_char(buf, d->character.get());
 	// Print the commands into display buffer.
 	zedit_disp_commands(d, buf);
-
+	send_to_char(buf, d->character.get());
 	// Finish off menu
 	if (d->olc->bitmask & OLC_BM_SHOWALLCMD)
 	{
@@ -1016,9 +1016,7 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 				"%sX%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 	}
 
-	strcat(buf, buf1);
-	send_to_char(buf, d->character.get());
-	free(buf);
+	send_to_char(buf1, d->character.get());
 	free(type1_zones);
 	free(type2_zones);
 
