@@ -102,10 +102,13 @@ using std::bitset;
 #define GREAT_AIMING_ATTACK_FEAT	79  //улучшенная прицельная атака
 #define DOUBLESHOT_FEAT			80  //двойной выстрел
 #define PORTER_FEAT			81  //тяжеловоз
-#define RUNE_NEWBIE_FEAT		82  //толкователь рун
+#define SECRET_RUNES_FEAT		82  //тайные руны
+/*
+Удалены, номера можно использовать.
 #define RUNE_USER_FEAT			83  //тайные руны
 #define RUNE_MASTER_FEAT		84  //заветные руны
 #define RUNE_ULTIMATE_FEAT		85  //руны богов
+*/
 #define TO_FIT_ITEM_FEAT		86  //подгонка
 #define TO_FIT_CLOTHCES_FEAT		87  //перешить
 #define STRENGTH_CONCETRATION_FEAT	88 // концентрация силы

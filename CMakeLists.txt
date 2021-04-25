@@ -212,6 +212,7 @@ set(SOURCES
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
 		src/cmd.wiz/stat.cpp
+		src/cmd.wiz/godtest.cpp
 		src/cmd/learn.cpp
 		src/cmd/forget.cpp
 		src/cmd/memorize.cpp
@@ -229,6 +230,7 @@ set(HEADERS
 		src/cmd/create.h
 		src/cmd/memorize.h
 		src/cmd.wiz/stat.h
+		src/cmd.wiz/godtest.h
 		src/cmd/telegram.h
 		src/cmd/hire.h
 		src/cmd/mixture.h
