@@ -841,7 +841,7 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 		show_type = 1;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", filter, arg2);
 		}
 		if (*multifilter)
 		{
@@ -854,7 +854,7 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 		show_type = 2;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", filter, arg2);
 		}
 		if (*multifilter)
 		{
@@ -967,7 +967,7 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	}
 
 	if (!ignore_filter && EXCHANGE_FILTER(ch))
-		sprintf(multifilter, "%s %s", EXCHANGE_FILTER(ch), filter);
+		snprintf(multifilter, MAX_STRING_LENGTH, "%s %s", EXCHANGE_FILTER(ch), filter);
 	else
 		strcpy(multifilter, filter);
 
@@ -1042,12 +1042,12 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 
 	if (EXCHANGE_FILTER(ch))
 	{
-		sprintf(tmpbuf, "Ваш старый фильтр: %s. Новый фильтр: %s.\r\n",
+		snprintf(tmpbuf, MAX_INPUT_LENGTH, "Ваш старый фильтр: %s. Новый фильтр: %s.\r\n",
 			EXCHANGE_FILTER(ch), filter);
 	}
 	else
 	{
-		sprintf(tmpbuf, "Ваш новый фильтр: %s.\r\n", filter);
+		snprintf(tmpbuf, MAX_INPUT_LENGTH,"Ваш новый фильтр: %s.\r\n", filter);
 	}
 	send_to_char(tmpbuf, ch);
 
@@ -1584,7 +1584,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 						}
 						if (drsdice < 0)
 							negative = !negative;
-						sprintf(buf, "%s %s%d", buf2, negative ? "-" : "+", abs(drsdice));
+						snprintf(buf, MAX_STRING_LENGTH, "%s %s%d", buf2, negative ? "-" : "+", abs(drsdice));
 						found = true;
 						break;
 					}
@@ -1596,12 +1596,13 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 				}
 				else
 				{
-					sprintf(tmpbuf, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
+					snprintf(tmpbuf, MAX_INPUT_LENGTH, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
 				}
 			}
 			else  // end by WorM
 			{
-				sprintf(tmpbuf, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
+				snprintf(tmpbuf, MAX_INPUT_LENGTH, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), 
+					GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
 			}
 		}
 		else if (is_dig_stone(GET_EXCHANGE_ITEM(j))

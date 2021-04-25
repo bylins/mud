@@ -2185,14 +2185,13 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 
 	send_to_char(CCICYN(ch, C_NRM), ch);
 
-	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
-	{
+	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
 		// иммам рандомная * во флагах ломает мапер грят
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ROOM_BFS_MARK) ? true : false;
 		GET_ROOM(ch->in_room)->unset_flag(ROOM_BFS_MARK);
 
 		GET_ROOM(ch->in_room)->flags_sprint(buf, ";");
-		sprintf(buf2, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
+		snprintf(buf2, MAX_STRING_LENGTH, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
 		send_to_char(buf2, ch);
 
 		if (has_flag)
@@ -2678,7 +2677,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 						&& obj->get_val(3) == 1 ? "(отравленной)" : "";
 					amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 					sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, buf2);
-					sprintf(buf, "Наполнен%s %s%s%s жидкостью.\r\n", GET_OBJ_SUF_6(obj), fullness[amt], buf2, msg);
+					snprintf(buf, MAX_STRING_LENGTH, "Наполнен%s %s%s%s жидкостью.\r\n", GET_OBJ_SUF_6(obj), fullness[amt], buf2, msg);
 				}
 				send_to_char(buf, ch);
 			}
@@ -5497,9 +5496,9 @@ void sendWhoami(CHAR_DATA *ch) {
         const char * by_rank = god_level < LVL_IMMORT ?  by_rank_privileged : by_rank_god;
 
         if (NAME_GOD(ch) < 1000)
-            sprintf(buf, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
+            snprintf(buf, MAX_STRING_LENGTH, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
         else
-            sprintf(buf, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
+            snprintf(buf, MAX_STRING_LENGTH, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
         send_to_char(buf, ch);
     }
     sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(ch));
@@ -6200,7 +6199,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			(mod + 1) / SECS_PER_MUD_HOUR
 				? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
 				: sprintf(buf2, "(менее часа)");
-			sprintf(buf, "%s%s%-21s %-12s%s ",
+			snprintf(buf, MAX_STRING_LENGTH, "%s%s%-21s %-12s%s ",
 					*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
 			*buf2 = '\0';
@@ -6243,10 +6242,8 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			send_to_char(strcat(buf, "\r\n"), ch);
 		}
 // отображение наград
-		for (const auto& aff : ch->affected)
-		{
-		    if (aff->type == SPELL_SOLOBONUS)
-		    {
+		for (const auto& aff : ch->affected) {
+			if (aff->type == SPELL_SOLOBONUS) {
 				int mod;
 				if (aff->battleflag == AF_PULSEDEC)
 				{
@@ -6259,15 +6256,15 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 				(mod + 1) / SECS_PER_MUD_HOUR
 					? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
 					: sprintf(buf2, "(менее часа)");
-			    sprintf(buf, "Заклинание : %s%-21s %-12s%s ", CCICYN(ch, C_NRM),  "награда",  buf2, CCNRM(ch, C_NRM));
-			    *buf2 = '\0';
-			    if (aff->modifier)
-			    {
-				    sprintf(buf2, "%s%-3d к параметру: %s%s%s",(aff->modifier > 0)? "+": "",  aff->modifier, CCIRED(ch, C_NRM), apply_types[(int) aff->location], CCNRM(ch, C_NRM));
-				    strcat(buf, buf2);
-			    }
-			    send_to_char(strcat(buf, "\r\n"), ch);
-		    }
+				snprintf(buf, MAX_STRING_LENGTH, "Заклинание : %s%-21s %-12s%s ", CCICYN(ch, C_NRM),  "награда",  buf2, CCNRM(ch, C_NRM));
+				*buf2 = '\0';
+				if (aff->modifier) {
+					sprintf(buf2, "%s%-3d к параметру: %s%s%s",(aff->modifier > 0)? "+": "", 
+					aff->modifier, CCIRED(ch, C_NRM), apply_types[(int) aff->location], CCNRM(ch, C_NRM));
+					strcat(buf, buf2);
+				}
+				send_to_char(strcat(buf, "\r\n"), ch);
+			}
 		}
 	}
 

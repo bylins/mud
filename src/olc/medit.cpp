@@ -1061,7 +1061,7 @@ void medit_disp_features(DESCRIPTOR_DATA * d)
 			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
 		else
 			strcpy(buf1, "     ");
-		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf, MAX_STRING_LENGTH, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 			feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
@@ -1156,7 +1156,7 @@ void medit_disp_skills(DESCRIPTOR_DATA * d)
 			strcpy(buf1, "     ");
 		}
 
-		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf,MAX_STRING_LENGTH, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 			skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
@@ -1186,7 +1186,7 @@ void medit_disp_spells(DESCRIPTOR_DATA * d)
 		{
 			strcpy(buf1, "     ");
 		}
-		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf, MAX_STRING_LENGTH, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 			spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
@@ -1220,7 +1220,7 @@ void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 5);
-	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1250,7 +1250,7 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",",5);
-	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH,"\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1282,7 +1282,7 @@ void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 5);
-	sprintf(buf, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1344,7 +1344,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 
 	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",",4);
 	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",",4);
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH,
 		"%sP%s) Положение     : %s%s\r\n"
 		"%sR%s) По умолчанию  : %s%s\r\n"
 		"%sT%s) Тип атаки     : %s%s\r\n"
@@ -1380,7 +1380,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		roles_str += "нет";
 	}
 
-	sprintf(buf, "%sW%s) Флаги   (NPC) : %s%s\r\n"
+	snprintf(buf, MAX_STRING_LENGTH, "%sW%s) Флаги   (NPC) : %s%s\r\n"
 		"%sY%s) Destination: %s%s\r\n"
 		"%sZ%s) Помогают   : %s%s\r\n"
 		"%sА%s) Умения     : \r\n"
