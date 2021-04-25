@@ -224,7 +224,7 @@ extern struct olc_save_info *olc_save_list;
 #define REDIT_EXTRADESC_MENU 		14
 #define REDIT_EXTRADESC_KEY 		15
 #define REDIT_EXTRADESC_DESCRIPTION 	16
-#define	REDIT_ING				17
+// #define	REDIT_ING				17 UNUSED!
 #define REDIT_LOCK_COMPLEXITY	18
 
 // * Submodes of ZEDIT connectedness.
@@ -272,7 +272,7 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_AFF_FLAGS		11
 #define MEDIT_CONFIRM_SAVESTRING	12
 #define MEDIT_NPC_FLAGS		13
-#define MEDIT_ING			14
+//#define MEDIT_ING			14 UNUSED!
 #define MEDIT_DLIST_MENU	15
 #define MEDIT_DLIST_ADD		16
 #define MEDIT_DLIST_DEL		17

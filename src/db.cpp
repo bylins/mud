@@ -6273,8 +6273,6 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	*dst->proto_script = *src->proto_script;
-
-	im_inglist_copy(&dst->ing_list, src->ing_list);
 }
 
 void room_free(ROOM_DATA * room)
@@ -6308,13 +6306,6 @@ void room_free(ROOM_DATA * room)
 
 	// Скрипт
 	room->cleanup_script();
-
-	if (room->ing_list)
-	{
-		free(room->ing_list);
-		room->ing_list = NULL;
-	}
-
 	room->affected.clear();
 }
 

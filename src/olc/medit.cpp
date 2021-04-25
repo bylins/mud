@@ -155,7 +155,6 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
    mob_specials.Questor - странно, т.к. похоже всегда NULL
    скрипт=NULL и прототипы
    помощники
-   ing_list
 
 --*/
 {
@@ -190,7 +189,6 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	auto proto_script_old = new OBJ_DATA::triggers_list_t(*src->proto_script);
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;
-	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
 	// для name_list
 	dst->set_serial_num(tmp.get_serial_num());
@@ -247,11 +245,6 @@ void medit_mobile_free(CHAR_DATA * mob)
 
 	// Скрипт уже NULL
 
-	if (mob->ing_list)
-	{
-		free(mob->ing_list);
-		mob->ing_list = NULL;
-	}
 	if (mob->dl_list)
 	{
 		delete(mob->dl_list);
@@ -757,8 +750,6 @@ void medit_save_to_disk(int zone_num)
 			fprintf(mob_file, "E\n");
 
 			script_save_to_disk(mob_file, mob, MOB_TRIGGER);
-
-			im_inglist_save_to_disk(mob_file, mob->ing_list);
 
 			// Сохраняем список в файл
 			if (mob->dl_list)
@@ -1391,7 +1382,6 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sМ%s) Дополнительные атаки: [%s%4d%s]\r\n"
 		"%sХ%s) Реморты: [%s%4d%s]\r\n"
 		"%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
-		"%sО%s) Ингредиенты: %s%s\r\n"
 		"%sП%s) Загружаемые объекты: %s%s\r\n"
 		"%sР%s) Роли моба: %s%s\r\n"
 		"%sС%s) Резисты:\r\n"
@@ -1420,7 +1410,6 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, mob->mob_specials.ExtraAttack, nrm,
 		grn, nrm, cyn, mob->get_remort(), nrm,
 		grn, nrm, cyn, mob->mob_specials.LikeWork, nrm,
-		grn, nrm, cyn, mob->ing_list ? "Есть" : "Нет",
 		grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
 		grn, nrm, cyn, roles_str.c_str(),
 		grn, nrm,
@@ -1899,12 +1888,6 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'Н':
 			send_to_char(d->character.get(), "\r\nВведите новое значение от 0 до 100%% :");
 			OLC_MODE(d) = MEDIT_LIKE;
-			return;
-
-		case 'о':
-		case 'О':
-			OLC_MODE(d) = MEDIT_ING;
-			xedit_disp_ing(d, OLC_MOB(d)->ing_list);
 			return;
 
 		case 'п':
@@ -2579,16 +2562,6 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MEDIT_LIKE:
 		OLC_MOB(d)->mob_specials.LikeWork = MIN(100, MAX(0, atoi(arg)));
 		break;
-
-	case MEDIT_ING:
-		if (!xparse_ing(d, &OLC_MOB(d)->ing_list, arg))
-		{
-			medit_disp_menu(d);
-			return;
-		}
-		OLC_VAL(d) = 1;
-		xedit_disp_ing(d, OLC_MOB(d)->ing_list);
-		return;
 
 	case MEDIT_DLIST_MENU:
 		if (*arg)

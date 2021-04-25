@@ -109,7 +109,6 @@ struct ROOM_DATA
 	long pkPenterUnique; //Постановщик пенты по мести
 
 	int holes;		// Дырки для камне - копателей //
-	int *ing_list;		// загружаемые ингредиенты //
 
 	// Параметры которые грузяться из файла (по крайней мере так планируется)
 	struct room_property_data	base_property;

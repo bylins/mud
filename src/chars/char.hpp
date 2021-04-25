@@ -814,7 +814,6 @@ public:
 
 	int Poisoner;
 
-	int *ing_list;		//загружаемые в труп ингредиенты
 	load_list *dl_list;	// загружаемые в труп предметы
 	bool agrobd;		// показывает, агробд или нет
 

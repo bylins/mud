@@ -530,7 +530,6 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 	world[room_nr]->fires = 0;
 	world[room_nr]->gdark = 0;
 	world[room_nr]->glight = 0;
-	world[room_nr]->ing_list = NULL;	// ингредиентов нет
 	world[room_nr]->proto_script.reset(new OBJ_DATA::triggers_list_t());
 
 	for (i = 0; i < NUM_OF_DIRS; i++)
@@ -580,7 +579,6 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 
 		case 'S':	// end of room
 					// DG triggers -- script is defined after the end of the room 'T'
-					// Ингредиентная магия -- 'I'
 			do
 			{
 				letter = fread_letter(file());
@@ -588,9 +586,9 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 				switch (letter)
 				{
 				case 'I':
-					get_line(file(), line);
-					im_parse(&(world[room_nr]->ing_list), line + 1);
+					get_line(file(), line); //оставлено для совместимости, удалить после пересохранения комнат
 					break;
+
 				case 'T':
 					dg_read_trigger(world[room_nr], WLD_TRIGGER);
 					break;
@@ -1246,9 +1244,8 @@ void MobileFile::parse_mobile(const int nr)
 		ungetc(letter, file());
 		switch (letter)
 		{
-		case 'I':
+		case 'I': // Оставлено для совместимости со старым форматиом (с ингредиентами в файлах зон).
 			get_line(file(), line);
-			im_parse(&mob_proto[i].ing_list, line + 1);
 			break;
 
 		case 'L':
@@ -1773,7 +1770,7 @@ bool ZoneFile::load_zone() {
 	zone.traffic = 0;
 	get_line(file(), buf);
 
-	auto result = false; { 
+	auto result = false; {
 		char type[BUFFER_SIZE];
 		const auto count = sscanf(buf, "#%d %s", &zone.number, type);
 		if (count < 1) {
