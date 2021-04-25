@@ -22,6 +22,7 @@
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
 #include "cmd.wiz/stat.h"
+#include "cmd.wiz/godtest.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "cmd/mercenary.h"

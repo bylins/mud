@@ -473,13 +473,15 @@ void determineFeaturesSpecification(void) {
 //81
 	initializeFeature(PORTER_FEAT, "тяжеловоз", NORMAL_FTYPE, TRUE, feat_app);
 //82
-	initializeFeature(RUNE_NEWBIE_FEAT, "толкователь рун", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SECRET_RUNES_FEAT, "тайные руны", NORMAL_FTYPE, TRUE, feat_app);
+/*
 //83
 	initializeFeature(RUNE_USER_FEAT, "тайные руны", NORMAL_FTYPE, TRUE, feat_app);
 //84
 	initializeFeature(RUNE_MASTER_FEAT, "заветные руны", NORMAL_FTYPE, TRUE, feat_app);
 //85
 	initializeFeature(RUNE_ULTIMATE_FEAT, "руны богов", NORMAL_FTYPE, TRUE, feat_app);
+	*/
 //86
 	initializeFeature(TO_FIT_ITEM_FEAT, "переделать", NORMAL_FTYPE, TRUE, feat_app);
 //87
@@ -866,15 +868,6 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 		break;
 	case DOUBLESHOT_FEAT:
 		return (HAVE_FEAT(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_BOWS) > 39);
-		break;
-	case RUNE_USER_FEAT:
-		return (HAVE_FEAT(ch, RUNE_NEWBIE_FEAT));
-		break;
-	case RUNE_MASTER_FEAT:
-		return (HAVE_FEAT(ch, RUNE_USER_FEAT));
-		break;
-	case RUNE_ULTIMATE_FEAT:
-		return (HAVE_FEAT(ch, RUNE_MASTER_FEAT));
 		break;
 	case MASTER_JEWELER_FEAT:
 		return (ch->get_skill(SKILL_INSERTGEM) > 59);

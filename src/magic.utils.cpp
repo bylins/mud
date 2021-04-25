@@ -17,31 +17,27 @@
 #include "skills/stun.h"
 
 #include "obj.hpp"
+#include "chars/char.hpp"
+#include "room.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "handler.h"
 #include "comm.h"
-#include "db.h"
 #include "screen.h"
 #include "constants.h"
-#include "dg_script/dg_scripts.h"
 #include "fightsystem/pk.h"
 #include "features.hpp"
-#include "chars/char.hpp"
 #include "name_list.hpp"
 #include "depot.hpp"
 #include "parcel.hpp"
-#include "room.hpp"
 #include "magic.h"
-#include "fightsystem/fight.h"
 #include "chars/world.characters.hpp"
 #include "logger.hpp"
 #include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
 #include "skills.info.h"
 #include "spells.info.h"
 #include "magic.rooms.hpp"
+#include "db.h"
 
 #include <vector>
 
@@ -60,18 +56,15 @@ int get_zone_rooms(int, int *, int *);
 int spell_create_level(const CHAR_DATA* ch, int spellnum)
 {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
-	// дабы у простых игроков не отображлись иммовские заклы
+
 	if (required_level >= LVL_GOD)
 		return required_level;
-	if (can_use_feat(ch, RUNE_ULTIMATE_FEAT))
-		required_level -= 6;
-	else if (can_use_feat(ch, RUNE_MASTER_FEAT))
-		required_level -= 4;
-	else if (can_use_feat(ch, RUNE_USER_FEAT))
-		required_level -= 2;
-	else if (can_use_feat(ch, RUNE_NEWBIE_FEAT))
-		required_level -= 1;
-	return required_level;
+	if (can_use_feat(ch, SECRET_RUNES_FEAT)) {
+		int remort = ch->get_remort();
+		required_level -= MIN(8, MAX(0, ((remort - 8)/3)*2 + (remort > 7 && remort < 11 ? 1 : 0)));
+	}
+
+	return MAX(1, required_level);
 }
 
 // say_spell erodes buf, buf1, buf2
