@@ -429,7 +429,6 @@ void CHAR_DATA::zero_init()
 	BattleCounter = 0;
 	round_counter = 0;
 	Poisoner = 0;
-	ing_list = 0;
 	dl_list = 0;
 	agrobd = false;
 

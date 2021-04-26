@@ -951,6 +951,7 @@ void init_im(void)
 
 // Просматривает строку line и добавляет загружаемые ингрединенты
 // Формат строки: <номер>:<вер-ть>
+// Не используется, т.к. ингредиенты перенесены в конфиг зон и мобов в misc
 void im_parse(int **ing_list, char *line)
 {
 	int local_count = 0;
@@ -1026,9 +1027,6 @@ void im_parse(int **ing_list, char *line)
 	*ing_list = res;
 }
 
-//MZ.load
-// Перезагрузка комнаты
-// Убрать старые ингредиенты, загрузить новые
 void im_reset_room(ROOM_DATA * room, int level, int type)
 {
 	OBJ_DATA *o, *next;
@@ -1088,7 +1086,6 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 		}
 	}
 }
-//-MZ.load
 
 extern MobRaceListType mobraces_list;
 
@@ -1131,10 +1128,7 @@ OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special)
 		ingr_to_load_list[2*j] = -1;
 		return try_make_ingr(ingr_to_load_list, vnum, prob_default);
 	}
-	else if (mob_proto[GET_MOB_RNUM(mob)].ing_list)
-	{
-		return try_make_ingr(mob_proto[GET_MOB_RNUM(mob)].ing_list, vnum, prob_special);
-	}
+
 	return NULL;
 }
 
@@ -1911,6 +1905,8 @@ void im_inglist_copy(int **pdst, int *src)
 	return;
 }
 
+// Данная функция в настоящий момент не используется,
+// потому что конфиг ингредиентов вынесен из файлов мобов и комнат.
 void im_inglist_save_to_disk(FILE * f, int *ping)
 {
 	char str[128];
@@ -2001,6 +1997,9 @@ void trg_recipeadd(CHAR_DATA * ch, int rid, int recipediff)
 
 void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
+	send_to_char("Команда отГлючена.\r\n", ch);
+	return;
+/*
 	int zone, i, rnum;
 	int *ping;
 	char *str;
@@ -2072,6 +2071,7 @@ void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		page_string(ch->desc, buf, 1);
 	}
+	*/
 }
 
 

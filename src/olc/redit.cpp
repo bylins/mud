@@ -405,7 +405,6 @@ void redit_save_to_disk(int zone_num)
 			}
 			fprintf(fp, "S\n");
 			script_save_to_disk(fp, room, WLD_TRIGGER);
-			im_inglist_save_to_disk(fp, room->ing_list);
 		}
 	}
 	// * Write final line and close.
@@ -598,7 +597,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 		"%s9%s) Вверху      : %s%d\r\n"
 		"%sA%s) Внизу       : %s%d\r\n"
 		"%sB%s) Меню экстраописаний\r\n"
-		"%sН%s) Ингредиенты : %s%s\r\n"
+//		"%sН%s) Ингредиенты : %s%s\r\n"
 		"%sS%s) Скрипты     : %s%s\r\n"
 		"%sQ%s) Quit\r\n"
 		"Ваш выбор : ",
@@ -619,8 +618,6 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn,
 		room->dir_option[DOWN] && room->dir_option[DOWN]->to_room() != NOWHERE ? world[room->dir_option[DOWN]->to_room()]-> number : NOWHERE,
 		grn, nrm, grn, nrm, cyn,
-		room->ing_list ? "Есть" : "Нет",
-		grn, nrm, cyn,
 		!room->proto_script->empty() ? "Set." : "Not Set.",
 		grn, nrm);
 	send_to_char(buf, d->character.get());
@@ -754,14 +751,6 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_DESC(d) = OLC_ROOM(d)->ex_description;
 			redit_disp_extradesc_menu(d);
 			break;
-
-		case 'h':
-		case 'H':
-		case 'н':
-		case 'Н':
-			OLC_MODE(d) = REDIT_ING;
-			xedit_disp_ing(d, OLC_ROOM(d)->ing_list);
-			return;
 
 		case 's':
 		case 'S':
@@ -996,16 +985,6 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		break;
-
-	case REDIT_ING:
-		if (!xparse_ing(d, &OLC_ROOM(d)->ing_list, arg))
-		{
-			redit_disp_menu(d);
-			return;
-		}
-		OLC_VAL(d) = 1;
-		xedit_disp_ing(d, OLC_ROOM(d)->ing_list);
-		return;
 
 	default:
 		// * We should never get here.

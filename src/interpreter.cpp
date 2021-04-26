@@ -381,7 +381,6 @@ void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_townportal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -817,7 +816,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"осписок", POS_DEAD, do_liblist, 0, SCMD_OLIST, 0},
 	{"ксписок", POS_DEAD, do_liblist, 0, SCMD_RLIST, 0},
 	{"зсписок", POS_DEAD, do_liblist, 0, SCMD_ZLIST, 0},
-	{"исписок", POS_DEAD, do_imlist, LVL_GOD, 0, 0},
 
 	{"'", POS_RESTING, do_say, 0, 0, -1},
 	{":", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},

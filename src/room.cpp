@@ -103,7 +103,6 @@ ROOM_DATA::ROOM_DATA(): number(0),
 	portal_time(0),
 	pkPenterUnique(0),
 	holes(0),
-	ing_list(nullptr),
 	poison(0)
 {
 	for (auto i = 0; i < NUM_OF_DIRS; ++i)
@@ -120,8 +119,6 @@ ROOM_DATA::~ROOM_DATA()
 {
 	if (name != nullptr)
 		free(name);
-	if (ing_list != nullptr)
-		free(ing_list);
 }
 
 CHAR_DATA* ROOM_DATA::first_character() const

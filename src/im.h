@@ -122,7 +122,6 @@ int im_get_type_by_name(char *name, int mode);
 OBJ_DATA *load_ingredient(int index, int power, int rnum);
 int im_ing_dump(int *ping, char *s);
 void im_inglist_copy(int **pdst, int *src);
-void im_inglist_save_to_disk(FILE * f, int *ping);
 void im_extract_ing(int **pdst, int num);
 int im_get_char_rskill_count(CHAR_DATA * ch);
 void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff);
