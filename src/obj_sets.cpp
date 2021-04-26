@@ -366,11 +366,11 @@ void init_global_msg()
 	}
 	if (global_msg.room_on_msg.empty())
 	{
-		global_msg.room_on_msg = "&W$o0 $n1 засветил$U мягким сиянием.&n";
+		global_msg.room_on_msg = "&W$O0 $n1 засветил$U мягким сиянием.&n";
 	}
 	if (global_msg.room_off_msg.empty())
 	{
-		global_msg.room_off_msg = "&WСияние $o1 $n1 медленно угасло.&n";
+		global_msg.room_off_msg = "&WСияние $O1 $n1 медленно угасло.&n";
 	}
 }
 
