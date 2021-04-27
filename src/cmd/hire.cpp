@@ -3,44 +3,13 @@
 #include "cmd/follow.h"
 #include "handler.h"
 #include "screen.h"
-#include <boost/lexical_cast.hpp>
-/*
-int max_stats2[][6] =
-        // Str Dex Int Wis Con Cha //
-        { {14, 13, 24, 25, 15, 10},	// Лекарь //
-          {14, 12, 25, 23, 13, 16},	// Колдун //
-          {19, 25, 12, 12, 17, 16},	// Вор //
-          {25, 11, 15, 15, 25, 10},	// Богатырь //
-          {22, 24, 14, 14, 17, 12},	// Наемник //
-          {23, 17, 14, 14, 23, 12},	// Дружинник //
-          {14, 12, 25, 23, 13, 16},	// Кудесник //
-          {14, 12, 25, 23, 13, 16},	// Волшебник //
-          {15, 13, 25, 23, 14, 12},	// Чернокнижник //
-          {22, 13, 16, 19, 18, 17},	// Витязь //
-          {25, 21, 16, 16, 18, 16},	// Охотник //
-          {25, 17, 13, 15, 20, 16},	// Кузнец //
-          {21, 17, 14, 13, 20, 17},	// Купец //
-          {18, 12, 24, 18, 15, 12}	// Волхв //
-        };
 
-int min_stats2[][6] =
-        // Str Dex Int Wis Con Cha //
-        { {11, 10, 19, 20, 12, 10},	// Лекарь //
-          {10,  9, 20, 18, 10, 13},	// Колдун //
-          {16, 22,  9,  9, 14, 13},	// Вор //
-          {21,  8, 11, 11, 22, 10},	// Богатырь //
-          {17, 19, 11, 11, 14, 12},	// Наемник //
-          {20, 14, 10, 10, 17, 12},	// Дружинник //
-          {10,  9, 20, 18, 10, 13},	// Кудесник //
-          {10,  9, 20, 18, 10, 13},	// Волшебник //
-          { 9,  9, 20, 20, 11, 10},	// Чернокнижник //
-          {19, 10, 12, 15, 14, 13},	// Витязь //
-          {19, 15, 11, 11, 14, 11},	// Охотник //
-          {20, 14, 10, 11, 14, 12},	// Кузнец //
-          {18, 14, 10, 10, 14, 13},	// Купец //
-          {15, 10, 19, 15, 12, 12}	// Волхв //
-        };
-*/
+#include <algorithm>
+
+constexpr short MAX_HIRE_TIME = 10080/2;
+constexpr long MAX_HIRE_PRICE = LONG_MAX/(MAX_HIRE_TIME +  1);
+//constexpr long MAX_HIRE_PRICE = sizeof(long)*CHAR_BIT/(MAX_HIRE_TIME*2);
+
 //Функции для модифицированного чарма
 float get_damage_per_round(CHAR_DATA * victim)
 {
@@ -73,12 +42,10 @@ float calc_cha_for_hire(CHAR_DATA * victim)
     }
     i = POSI(i);
     needed_cha = i - 1 + (reformed_hp - cha_app[i - 1].charms) / (cha_app[i].charms - cha_app[i - 1].charms);
-//sprintf(buf,"check: charms = %d   rhp = %f\r\n",cha_app[i].charms,reformed_hp);
-//act(buf,FALSE,victim,0,0,TO_ROOM);
     return VPOSI<float>(needed_cha, 1.0, 50.0);
 }
 
-int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
+long calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     float price = 0; // стоимость найма
     int m_str = victim->get_str() * 20;
     int m_int = victim->get_int() * 20;
@@ -145,12 +112,13 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     hirePoints =  hirePoints * 5 * GET_LEVEL(ch);
 
     int min_price = MAX((m_dr / 300 * GET_LEVEL(victim)), (GET_LEVEL(victim) *5));
-    int finalPrice = MAX(min_price, (int)ceil(price - hirePoints));
+    long finalPrice = MAX(min_price, (int)ceil(price - hirePoints));
 
     ch->send_to_TC(true, true, true,
                    "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
                    rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, price, finalPrice);
-    return finalPrice;
+    //return finalPrice;
+    return std::min(finalPrice, MAX_HIRE_PRICE);
 }
 
 int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
@@ -251,133 +219,130 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         send_to_char("Следование по кругу запрещено.\r\n", ch);
     else
     {
+    	// Вы издеваетесь? Блок else на три экрана, реально?
+    	// Svent TODO: Вынести проверку на корректность чармиса в отдельную функицю.
         char isbank[MAX_STRING_LENGTH];
         two_arguments(argument, arg, isbank);
 
-        int times = -1;
-        try
-        {
-            times = boost::lexical_cast<int>(arg);
-        }
-        catch (boost::bad_lexical_cast&) {}
+		unsigned int times = 0;
+		times = atoi(arg);
+		if(!*arg || times == 0){
+			const auto cost = calc_hire_price(ch, helpee);
+			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
+				cost, desc_count(cost, WHAT_MONEYu));
+			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			return;
+		}
 
-	if(!*arg || times <= 0){
-		const auto cost = calc_hire_price(ch, helpee);
-		sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %d %s\".\r\n",
-			cost, desc_count(cost, WHAT_MONEYu));
-		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-		return;
-        }
+		if (k && helpee != k->follower) {
+			act("Вы уже наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+			return;
+		}
 
-        if (k && helpee != k->follower) {
-            act("Вы уже наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
-            return;
-        }
+		if (times > MAX_HIRE_TIME) {
+			send_to_char("Пожизненный найм запрещен!\r\n", ch);
+			times = MAX_HIRE_TIME;
+		}
 
-        auto hire_price = calc_hire_price(ch, helpee);
+		auto hire_price = calc_hire_price(ch, helpee);
+		auto cost = times * hire_price;
 
-        const auto cost = times * hire_price;
+		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
+			(isname(isbank, "банк bank") && cost > ch->get_bank())) {
+			sprintf(buf,
+					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
+					times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
+			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			return;
+		}
 
-        if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
-            (isname(isbank, "банк bank") && cost > ch->get_bank()))
-        {
-            sprintf(buf,
-                    "$n сказал$g вам : \" Мои услуги за %d %s стоят %d %s - это тебе не по карману.\"",
-                    times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
-            act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-            return;
-        }
+		if (helpee->has_master() && helpee->get_master() != ch) {
+			if (stop_follower(helpee, SF_MASTERDIE)) {
+				return;
+			}
+		}
+		if (MOB_FLAGGED(helpee, MOB_NOGROUP))
+				MOB_FLAGS(helpee).unset(MOB_NOGROUP);
 
-        if (helpee->has_master()
-            && helpee->get_master() != ch)
-        {
-            if (stop_follower(helpee, SF_MASTERDIE))
-            {
-                return;
-            }
-        }
-	if (MOB_FLAGGED(helpee, MOB_NOGROUP))
-		    MOB_FLAGS(helpee).unset(MOB_NOGROUP);
+			AFFECT_DATA<EApplyLocation> af;
+			if (!(k && k->follower == helpee)) {
+				ch->add_follower(helpee);
+				af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+			}
+			else {
+				auto aff = k->follower->affected.begin();
+				for (; aff != k->follower->affected.end(); ++aff)
+				{
+					if ((*aff)->type == SPELL_CHARM)
+					{
+						break;
+					}
+				}
 
-        AFFECT_DATA<EApplyLocation> af;
-        if (!(k && k->follower == helpee)) {
-            ch->add_follower(helpee);
-            af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
-        }
-        else {
-            auto aff = k->follower->affected.begin();
-            for (; aff != k->follower->affected.end(); ++aff)
-            {
-                if ((*aff)->type == SPELL_CHARM)
-                {
-                    break;
-                }
-            }
+				if (aff != k->follower->affected.end())
+				{
+					af.duration = (*aff)->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+				}
+			}
 
-            if (aff != k->follower->affected.end())
-            {
-                af.duration = (*aff)->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
-            }
-        }
+			affect_from_char(helpee, SPELL_CHARM);
 
-        affect_from_char(helpee, SPELL_CHARM);
+			if (!WAITLESS(ch))
+			{
+				if (isname(isbank, "банк bank"))
+				{
+					ch->remove_bank(cost);
+					helpee->mob_specials.hire_price = -hire_price;
+				}
+				else
+				{
+					ch->remove_gold(cost);
+					helpee->mob_specials.hire_price = hire_price;
+				}
+			}
 
-        if (!WAITLESS(ch))
-        {
-            if (isname(isbank, "банк bank"))
-            {
-                ch->remove_bank(cost);
-                helpee->mob_specials.hire_price = -hire_price;
-            }
-            else
-            {
-                ch->remove_gold(cost);
-                helpee->mob_specials.hire_price = hire_price;
-            }
-        }
+			af.type = SPELL_CHARM;
+			af.modifier = 0;
+			af.location = APPLY_NONE;
+			af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
+			af.battleflag = 0;
+			affect_to_char(helpee, af);
 
-        af.type = SPELL_CHARM;
-        af.modifier = 0;
-        af.location = APPLY_NONE;
-        af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
-        af.battleflag = 0;
-        affect_to_char(helpee, af);
+			af.type = SPELL_CHARM;
+			af.modifier = 0;
+			af.location = APPLY_NONE;
+			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+			af.battleflag = 0;
+			affect_to_char(helpee, af);
 
-        af.type = SPELL_CHARM;
-        af.modifier = 0;
-        af.location = APPLY_NONE;
-        af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
-        af.battleflag = 0;
-        affect_to_char(helpee, af);
+			sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
+			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 
-        sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
-        act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			if (IS_NPC(helpee))
+			{
+				for (auto i = 0; i < NUM_WEARS; i++)
+				{
+					if (GET_EQ(helpee, i))
+					{
+						if (!remove_otrigger(GET_EQ(helpee, i), helpee))
+							continue;
 
-        if (IS_NPC(helpee))
-        {
-            for (auto i = 0; i < NUM_WEARS; i++)
-            {
-                if (GET_EQ(helpee, i))
-                {
-                    if (!remove_otrigger(GET_EQ(helpee, i), helpee))
-                        continue;
+						act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
+						act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
+						obj_to_char(unequip_char(helpee, i | 0x40), helpee);
+					}
+				}
 
-                    act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
-                    act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
-                    obj_to_char(unequip_char(helpee, i | 0x40), helpee);
-                }
-            }
+				MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
+				MOB_FLAGS(helpee).unset(MOB_SPEC);
+				PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
+				MOB_FLAGS(helpee).set(MOB_NOTRAIN);
+				helpee->set_skill(SKILL_PUNCTUAL, 0);
+				ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
 
-            MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
-            MOB_FLAGS(helpee).unset(MOB_SPEC);
-            PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
-            MOB_FLAGS(helpee).set(MOB_NOTRAIN);
-            helpee->set_skill(SKILL_PUNCTUAL, 0);
-            ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
-
-            Crash_crashsave(ch);
-            ch->save_char();
-        }
+				Crash_crashsave(ch);
+				ch->save_char();
+			}
     }
 }
 
