@@ -2706,7 +2706,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	// ЗБ
-	if (victim == ch && AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD))
+	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD))
 	{
 		if (skill_num == SKILL_BASH)
 		{
