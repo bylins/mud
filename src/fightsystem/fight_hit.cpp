@@ -2083,22 +2083,6 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 
 bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	// защита богов
-	if (dam && AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD))
-	{
-		if (skill_num == SKILL_BASH)
-		{
-			skill_message(dam, ch, victim, msg_num);
-		}
-		act("Магический кокон полностью поглотил удар $N1.",
-			FALSE, victim, 0, ch, TO_CHAR);
-		act("Магический кокон вокруг $N1 полностью поглотил ваш удар.",
-			FALSE, ch, 0, victim, TO_CHAR);
-		act("Магический кокон вокруг $N1 полностью поглотил удар $n1.",
-			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		return true;
-	}
-
 	if (dam <= 0)
 	{
 		return false;
@@ -2721,7 +2705,19 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dam = ResultDam;
 	}
 
-	// зб, щиты, броня, поглощение
+	// ЗБ
+	if (victim == ch && AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD))
+	{
+		if (skill_num == SKILL_BASH)
+		{
+			skill_message(dam, ch, victim, msg_num);
+		}
+		act("Магический кокон полностью поглотил удар $N1.", FALSE, victim, 0, ch, TO_CHAR);
+		act("Магический кокон вокруг $N1 полностью поглотил ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Магический кокон вокруг $N1 полностью поглотил удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+		return 0;
+	}
+	// щиты, броня, поглощение
 	if (victim != ch) {
 		bool shield_full_absorb = magic_shields_dam(ch, victim);
 		// сначала броня
