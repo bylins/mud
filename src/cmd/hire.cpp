@@ -8,7 +8,6 @@
 
 constexpr short MAX_HIRE_TIME = 10080/2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX/(MAX_HIRE_TIME +  1);
-//constexpr long MAX_HIRE_PRICE = sizeof(long)*CHAR_BIT/(MAX_HIRE_TIME*2);
 
 //Функции для модифицированного чарма
 float get_damage_per_round(CHAR_DATA * victim)
@@ -117,7 +116,6 @@ long calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     ch->send_to_TC(true, true, true,
                    "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
                    rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, price, finalPrice);
-    //return finalPrice;
     return std::min(finalPrice, MAX_HIRE_PRICE);
 }
 
@@ -245,7 +243,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		auto hire_price = calc_hire_price(ch, helpee);
-		auto cost = times * hire_price;
+		long cost = std::abs(times*hire_price);
 
 		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
 			(isname(isbank, "банк bank") && cost > ch->get_bank())) {
