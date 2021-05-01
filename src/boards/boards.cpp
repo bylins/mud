@@ -1059,6 +1059,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		&& (PLR_FLAGGED(ch, PLR_HELLED)
 			|| PLR_FLAGGED(ch, PLR_NAMED)
 			|| PLR_FLAGGED(ch, PLR_DUMB)
+			|| PLR_FLAGGED(ch, PLR_MUTE)
 			|| lvl_no_write(ch))
 		&& (board->get_type() != CLAN_BOARD && board->get_type() != CLANNEWS_BOARD))
 	{
