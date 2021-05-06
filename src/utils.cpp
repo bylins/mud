@@ -588,15 +588,12 @@ int get_line(FILE * fl, char *buf)
 	char temp[256];
 	auto lines = 0;
 
-	do
-	{
+	do {
 		fgets(temp, 256, fl);
 
-		if (feof(fl))
-		{
+		if (feof(fl)) {
 			return 0;
 		}
-
 		lines++;
 	}
 	while (*temp == '*' || *temp == '\n');
