@@ -62,7 +62,7 @@ namespace AbilitySystem {
 		virtual inline float calculateAbilityDamageFactor();
 		virtual inline float calculateDegreeOfSuccessDamageFactor();
 		virtual inline float calculateSituationalDamageFactor();
-		virtual void trainBaseSkill() = 0;
+		virtual void trainBaseSkill(bool success) = 0;
 
 	public:
 		bool isSuccess() {return _success;};
@@ -81,7 +81,7 @@ namespace AbilitySystem {
 	protected:
 		CHAR_DATA *_rival;
 
-		void trainBaseSkill();
+		void trainBaseSkill(bool success);
 		short calculateTargetRating();
 		short calculatBaseSkillRating();
 		short calculateDicerollBonus();
