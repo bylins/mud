@@ -658,7 +658,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error)
 			}
 			else
 			{
-				sprintf(buf, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
+				snprintf(buf, MAX_STRING_LENGTH, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
 					read_line, buffer);
 				mudlog(buf, NRM, LVL_GRGOD, ERRLOG, TRUE);
 			}
@@ -2350,7 +2350,7 @@ int Crash_load(CHAR_DATA * ch)
 
 		if (error)
 		{
-			sprintf(buf, "WARNING: Error #%d reading item vnum #%d num #%d from %s.", error, obj->get_vnum(), i, fname);
+			snprintf(buf, MAX_STRING_LENGTH, "WARNING: Error #%d reading item vnum #%d num #%d from %s.", error, obj->get_vnum(), i, fname);
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		}
 
@@ -2903,7 +2903,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		std::ofstream file(fname);
 		if (!file.is_open())
 		{
-			sprintf(buf, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
+			snprintf(buf, MAX_STRING_LENGTH, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 			Crash_delete_files(iplayer);
 			return FALSE;
@@ -3023,7 +3023,7 @@ int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj)
 void Crash_report_rent_item(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj, int count, int factor, int equip, int recursive)
 {
 	static char buf[256];
-	char bf[80], bf2[7];
+	char bf[80], bf2[12];
 
 	if (obj)
 	{
