@@ -20,6 +20,9 @@
 
 #include <map>
 
+extern const byte  kSkillCapOnZeroRemort;
+extern const byte  kSkillCapBonusPerRemort;
+
 class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 enum ExtraAttackEnumType {
@@ -134,12 +137,6 @@ enum ESkill : int {
 
 #define KNOW_SKILL  1
 
-inline bool is_magic_skill(int skill) {
-  if (skill >= SKILL_AIR_MAGIC && skill <= SKILL_LIFE_MAGIC)
-    return true;
-  else
-    return false;
-}
 template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
@@ -147,21 +144,21 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item);
 
 extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
 
-int skill_message(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, std::string add = "");
+int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, std::string add = "");
 
-int calculate_skill(CHAR_DATA *ch, const ESkill skill_no, CHAR_DATA *vict);
-void improve_skill(CHAR_DATA *ch, const ESkill skill_no, int success, CHAR_DATA *victim);
-void train_skill(CHAR_DATA *ch, const ESkill skill_no, bool success, CHAR_DATA *vict);
+int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict);
+void ImproveSkill(CHAR_DATA *ch, const ESkill skill, int success, CHAR_DATA *victim);
+void TrainSkill(CHAR_DATA *ch, const ESkill skill, bool success, CHAR_DATA *vict);
 
 int min_skill_level(CHAR_DATA *ch, int skill);
 int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl);
-bool can_get_skill(CHAR_DATA *ch, int skill);
+bool IsAbleToGetSkill(CHAR_DATA *ch, int skill);
 bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
-int find_weapon_focus_by_skill(ESkill skill);
-int find_weapon_master_by_skill(ESkill skill);
-
-const short bonusSkillPointsPerRemort = 5;
-const short baseSkillLevel = 80;//базовый уровень умения, если не задано явно
+int FindWeaponMasterBySkill(ESkill skill);
+int CalcSkillRemortCap(const CHAR_DATA* ch);
+int CalcSkillSoftCap(const CHAR_DATA *ch);
+int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill);
+int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill);
 
 // ГОРНОЕ ДЕЛО
 
@@ -243,7 +240,7 @@ struct skillvariables_insgem {
   int timer_minus_percent;
 };
 
-int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim);
+int CalcAwakeMod(CHAR_DATA *killer, CHAR_DATA *victim);
 
 /*
     В перспективе описанный далее класс должен будет содержать

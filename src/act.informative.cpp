@@ -2004,9 +2004,9 @@ void look_in_direction(CHAR_DATA *ch, int dir, int info_is) {
         send_to_char("&R&q", ch);
         count = 0;
         for (const auto tch : world[rdata->to_room()]->people) {
-          percent = number(1, skill_info[SKILL_LOOKING].max_percent);
-          probe = calculate_skill(ch, SKILL_LOOKING, tch);
-          train_skill(ch, SKILL_LOOKING, probe >= percent, tch);
+          percent = number(1, skill_info[SKILL_LOOKING].fail_percent);
+          probe = CalcCurrentSkill(ch, SKILL_LOOKING, tch);
+          TrainSkill(ch, SKILL_LOOKING, probe >= percent, tch);
           if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
               && (percent < 100 || IS_IMMORTAL(ch))) {
             // Если моб не вещь и смотрящий не им
@@ -2056,9 +2056,9 @@ void hear_in_direction(CHAR_DATA *ch, int dir, int info_is) {
     send_to_char(buf, ch);
     count = 0;
     for (const auto tch : world[rdata->to_room()]->people) {
-      percent = number(1, skill_info[SKILL_HEARING].max_percent);
-      probe = calculate_skill(ch, SKILL_HEARING, tch);
-      train_skill(ch, SKILL_HEARING, probe >= percent, tch);
+      percent = number(1, skill_info[SKILL_HEARING].fail_percent);
+      probe = CalcCurrentSkill(ch, SKILL_HEARING, tch);
+      TrainSkill(ch, SKILL_HEARING, probe >= percent, tch);
       // Если сражаются то слышем только борьбу.
       if (tch->get_fighting()) {
         if (IS_NPC(tch)) {
@@ -2439,9 +2439,9 @@ bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd) {
     look_at_char(found_char, ch);
     if (ch != found_char) {
       if (subcmd == SCMD_LOOK_HIDE && ch->get_skill(SKILL_LOOK_HIDE) > 0) {
-        fnum = number(1, skill_info[SKILL_LOOK_HIDE].max_percent);
-        found = calculate_skill(ch, SKILL_LOOK_HIDE, found_char);
-        train_skill(ch, SKILL_LOOK_HIDE, found < fnum, found_char);
+        fnum = number(1, skill_info[SKILL_LOOK_HIDE].fail_percent);
+        found = CalcCurrentSkill(ch, SKILL_LOOK_HIDE, found_char);
+        TrainSkill(ch, SKILL_LOOK_HIDE, found < fnum, found_char);
         if (!WAITLESS(ch))
           WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
         if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
@@ -2503,7 +2503,7 @@ void skip_hide_on_look(CHAR_DATA *ch) {
   if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) &&
       ((!ch->get_skill(SKILL_LOOK_HIDE) ||
           ((number(1, 100) -
-              calculate_skill(ch, SKILL_LOOK_HIDE, 0) - 2 * (ch->get_wis() - 9)) > 0)))) {
+              CalcCurrentSkill(ch, SKILL_LOOK_HIDE, 0) - 2 * (ch->get_wis() - 9)) > 0)))) {
     affect_from_char(ch, SPELL_HIDE);
     if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
       send_to_char("Вы прекратили прятаться.\r\n", ch);

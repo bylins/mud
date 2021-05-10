@@ -161,7 +161,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		//log("[DO_CAST->AFFECT_TOTAL] Start");
 		affect_total(ch);
 		//log("[DO_CAST->AFFECT_TOTAL] Stop");
-		if (!tch || !skill_message(0, ch, tch, spellnum))
+		if (!tch || !SendSkillMessages(0, ch, tch, spellnum))
 			send_to_char("Вы не смогли сосредоточиться!\r\n", ch);
 	}
 	else  		// cast spell returns 1 on success; subtract mana & set waitstate

@@ -40,8 +40,8 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
   if (!pk_agro_action(ch, vict))
     return;
 
-  int percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
-  int prob = calculate_skill(ch, SKILL_CHOPOFF, vict);
+  int percent = number(1, skill_info[SKILL_CHOPOFF].fail_percent);
+  int prob = CalcCurrentSkill(ch, SKILL_CHOPOFF, vict);
 
   if (check_spell_on_player(ch, SPELL_WEB)) {
     prob /= 3;
@@ -58,7 +58,7 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
     prob = 0;
 
   bool skillFail = percent > prob;
-  train_skill(ch, SKILL_CHOPOFF, !skillFail, vict);
+  TrainSkill(ch, SKILL_CHOPOFF, !skillFail, vict);
   if (skillFail) {
     sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
     act(buf, FALSE, ch, 0, vict, TO_CHAR);

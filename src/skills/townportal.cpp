@@ -105,7 +105,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg)
         }
 
         // Открываем пентаграмму в комнату rnum //
-        improve_skill(ch, SKILL_TOWNPORTAL, 1, NULL);
+      ImproveSkill(ch, SKILL_TOWNPORTAL, 1, NULL);
         ROOM_DATA* from_room = world[ch->in_room];
         from_room->portal_room = real_room(port->vnum);
         from_room->portal_time = 1;

@@ -137,7 +137,7 @@ short AbilityRollType::calculateActorRating() {
 
 //TODO: убрать обертку после изменения системы прокачки скиллов
 void AgainstRivalRollType::trainBaseSkill(bool success) {
-  train_skill(_actor, _baseSkill, success, _rival);
+  TrainSkill(_actor, _baseSkill, success, _rival);
 };
 
 short AgainstRivalRollType::calculateTargetRating() {
@@ -146,7 +146,7 @@ short AgainstRivalRollType::calculateTargetRating() {
 
 //TODO: избавиться от target в calculate_skill и убрать обертку
 short AgainstRivalRollType::calculatBaseSkillRating() {
-  return (calculate_skill(_actor, _baseSkill, _rival) / SKILL_RATING_DIVIDER);
+  return (CalcCurrentSkill(_actor, _baseSkill, _rival) / SKILL_RATING_DIVIDER);
 };
 
 //TODO: Избавиться от таргета в ситуационном бонусе, он там не нужен

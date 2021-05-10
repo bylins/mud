@@ -119,7 +119,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		if (!spell_use_success(ch, tch, SAVING_NONE, spellnum))
 		{
 			WAIT_STATE(ch, PULSE_VIOLENCE);
-			if (!tch || !skill_message(0, ch, tch, spellnum))
+			if (!tch || !SendSkillMessages(0, ch, tch, spellnum))
 			{
 				if (subcmd == SCMD_ITEMS)
 					send_to_char("Вы неправильно смешали ингредиенты!\r\n", ch);

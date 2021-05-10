@@ -93,8 +93,8 @@ void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
     return;
   }
 
-  percent = number(1, skill_info[SKILL_BACKSTAB].max_percent - GET_REMORT(ch) * 2);
-  prob = calculate_skill(ch, SKILL_BACKSTAB, vict);
+  percent = number(1, skill_info[SKILL_BACKSTAB].fail_percent - GET_REMORT(ch) * 2);
+  prob = CalcCurrentSkill(ch, SKILL_BACKSTAB, vict);
 
   if (can_use_feat(ch, SHADOW_STRIKE_FEAT)) {
     prob = prob + prob * 20 / 100;
@@ -114,7 +114,7 @@ void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
   if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE))
     prob = 0;
   bool success = percent > prob;
-  train_skill(ch, SKILL_BACKSTAB, success, vict);
+  TrainSkill(ch, SKILL_BACKSTAB, success, vict);
   if (!success) {
     Damage dmg(SkillDmg(SKILL_BACKSTAB), ZERO_DMG, PHYS_DMG);
     dmg.process(ch, vict);

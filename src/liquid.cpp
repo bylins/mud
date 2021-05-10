@@ -716,9 +716,9 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? getModifier(DRUNKARD_FEAT, FEAT_TIMER) : 12;
   timed_to_char(ch, &timed);
 
-  percent = number(1, skill_info[SKILL_DRUNKOFF].max_percent);
-  prob = calculate_skill(ch, SKILL_DRUNKOFF, nullptr);
-  train_skill(ch, SKILL_DRUNKOFF, percent <= prob, nullptr);
+  percent = number(1, skill_info[SKILL_DRUNKOFF].fail_percent);
+  prob = CalcCurrentSkill(ch, SKILL_DRUNKOFF, nullptr);
+  TrainSkill(ch, SKILL_DRUNKOFF, percent <= prob, nullptr);
   amount = MIN(amount, GET_OBJ_VAL(obj, 1));
   weight = MIN(amount, GET_OBJ_WEIGHT(obj));
   weight_change_object(obj, -weight);    // Subtract amount //

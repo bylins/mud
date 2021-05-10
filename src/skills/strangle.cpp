@@ -36,12 +36,12 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 
   act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, nullptr, vict, TO_CHAR);
 
-  int prob = calculate_skill(ch, SKILL_STRANGLE, vict);
+  int prob = CalcCurrentSkill(ch, SKILL_STRANGLE, vict);
   int delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
-  int percent = number(1, skill_info[SKILL_STRANGLE].max_percent);
+  int percent = number(1, skill_info[SKILL_STRANGLE].fail_percent);
 
   bool success = percent <= prob;
-  train_skill(ch, SKILL_STRANGLE, success, vict);
+  TrainSkill(ch, SKILL_STRANGLE, success, vict);
   if (!success) {
     Damage dmg(SkillDmg(SKILL_STRANGLE), ZERO_DMG, PHYS_DMG);
     dmg.flags.set(IGNORE_ARMOR);

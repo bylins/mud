@@ -35,16 +35,16 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch) {
         return;
     }
 
-    int percent = number(1, skill_info[SKILL_RESCUE].max_percent);
-    int prob = calculate_skill(ch, SKILL_RESCUE, tmp_ch);
-    improve_skill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
+    int percent = number(1, skill_info[SKILL_RESCUE].fail_percent);
+    int prob = CalcCurrentSkill(ch, SKILL_RESCUE, tmp_ch);
+  ImproveSkill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
 
     if (GET_GOD_FLAG(ch, GF_GODSLIKE))
         prob = percent;
     if (GET_GOD_FLAG(ch, GF_GODSCURSE))
         prob = 0;
 
-    if (percent != skill_info[SKILL_RESCUE].max_percent && percent > prob) {
+    if (percent != skill_info[SKILL_RESCUE].fail_percent && percent > prob) {
         act("Вы безуспешно пытались спасти $N3.", FALSE, ch, 0, vict, TO_CHAR);
         //set_wait(ch, 1, FALSE);
         ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, PULSE_VIOLENCE);

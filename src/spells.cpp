@@ -1565,15 +1565,15 @@ void mort_show_char_values(CHAR_DATA *victim, CHAR_DATA *ch, int fullness) {
 
 void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
   if (obj) {
-    mort_show_obj_values(obj, ch, calculate_skill(ch, SKILL_IDENTIFY, nullptr));
-    train_skill(ch, SKILL_IDENTIFY, true, nullptr);
+    mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, SKILL_IDENTIFY, nullptr));
+    TrainSkill(ch, SKILL_IDENTIFY, true, nullptr);
   } else if (victim) {
     if (GET_LEVEL(victim) < 3) {
       send_to_char("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
       return;
     }
-    mort_show_char_values(victim, ch, calculate_skill(ch, SKILL_IDENTIFY, victim));
-    train_skill(ch, SKILL_IDENTIFY, true, victim);
+    mort_show_char_values(victim, ch, CalcCurrentSkill(ch, SKILL_IDENTIFY, victim));
+    TrainSkill(ch, SKILL_IDENTIFY, true, victim);
   }
 }
 
@@ -3103,8 +3103,8 @@ int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, 
       if (!obj) {
         return FALSE;
       } else {
-        percent = number(1, skill_info[skillnum].max_percent);
-        auto prob = calculate_skill(ch, skillnum, nullptr);
+        percent = number(1, skill_info[skillnum].fail_percent);
+        auto prob = CalcCurrentSkill(ch, skillnum, nullptr);
 
         if (skillnum > 0
             && percent > prob) {
@@ -3175,7 +3175,7 @@ int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, 
         act(buf, TRUE, ch, nullptr, nullptr, TO_ARENA_LISTEN);
         auto skillnum = get_magic_skill_number_by_spell(spellnum);
         if (skillnum > 0) {
-          train_skill(ch, skillnum, true, nullptr);
+          TrainSkill(ch, skillnum, true, nullptr);
         }
       }
     }

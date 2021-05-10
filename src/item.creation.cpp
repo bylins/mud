@@ -665,9 +665,9 @@ void go_create_weapon(CHAR_DATA *ch, OBJ_DATA *obj, int obj_type, ESkill skill) 
       return;
     }
     skill = created_item[obj_type].skill;
-    percent = number(1, skill_info[skill].max_percent);
-    prob = calculate_skill(ch, skill, nullptr);
-    train_skill(ch, skill, true, nullptr);
+    percent = number(1, skill_info[skill].fail_percent);
+    prob = CalcCurrentSkill(ch, skill, nullptr);
+    TrainSkill(ch, skill, true, nullptr);
     weight = MIN(GET_OBJ_WEIGHT(obj) - 2, GET_OBJ_WEIGHT(obj) * prob / percent);
   }
   if (weight < created_item[obj_type].min_weight) {
@@ -721,12 +721,12 @@ void go_create_weapon(CHAR_DATA *ch, OBJ_DATA *obj, int obj_type, ESkill skill) 
           tobj->set_maximum_durability(
               MAX(20000, 35000 / 100 * ch->get_skill(skill) - number(0, 35000 / 100 * 25)) / 100);
           tobj->set_current_durability(GET_OBJ_MAX(tobj));
-          percent = number(1, skill_info[skill].max_percent);
-          prob = calculate_skill(ch, skill, 0);
+          percent = number(1, skill_info[skill].fail_percent);
+          prob = CalcCurrentSkill(ch, skill, 0);
           ndice = MAX(2, MIN(4, prob / percent));
           ndice += GET_OBJ_WEIGHT(tobj) / 10;
-          percent = number(1, skill_info[skill].max_percent);
-          prob = calculate_skill(ch, skill, 0);
+          percent = number(1, skill_info[skill].fail_percent);
+          prob = CalcCurrentSkill(ch, skill, 0);
           sdice = MAX(2, MIN(5, prob / percent));
           sdice += GET_OBJ_WEIGHT(tobj) / 10;
           tobj->set_val(1, ndice);
@@ -790,11 +790,11 @@ void go_create_weapon(CHAR_DATA *ch, OBJ_DATA *obj, int obj_type, ESkill skill) 
           tobj->set_maximum_durability(
               MAX(20000, 10000 / 100 * ch->get_skill(skill) - number(0, 15000 / 100 * 25)) / 100);
           tobj->set_current_durability(GET_OBJ_MAX(tobj));
-          percent = number(1, skill_info[skill].max_percent);
-          prob = calculate_skill(ch, skill, 0);
+          percent = number(1, skill_info[skill].fail_percent);
+          prob = CalcCurrentSkill(ch, skill, 0);
           ndice = MAX(2, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 10, prob / percent));
-          percent = number(1, skill_info[skill].max_percent);
-          prob = calculate_skill(ch, skill, 0);
+          percent = number(1, skill_info[skill].fail_percent);
+          prob = CalcCurrentSkill(ch, skill, 0);
           sdice = MAX(1, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 15, prob / percent));
           tobj->set_val(0, ndice);
           tobj->set_val(1, sdice);
@@ -1776,7 +1776,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
     }
   }
 
-  train_skill(ch, skill, !make_fail, nullptr);
+  TrainSkill(ch, skill, !make_fail, nullptr);
   // 4. Считаем сколько материала треба.
   if (!make_fail) {
     for (i = 0; i < ingr_cnt; i++) {
@@ -1797,7 +1797,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
       if (get_ingr_lev(ingrs[i]) == -1)
         continue;    // Компонент не ингр. пропускаем.
       craft_weight = parts[i].min_weight + number(0, (parts[i].min_weight / 3) + 1);
-      j = number(0, 100) - calculate_skill(ch, skill, 0);
+      j = number(0, 100) - CalcCurrentSkill(ch, skill, 0);
       if ((j >= 20) && (j < 50))
         craft_weight += parts[i].min_weight * number(1, 2);
       else if (j > 50)
@@ -2014,7 +2014,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
   // Ставим метку если все хорошо.
   if ((GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT
       && GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING)
-      && (number(1, 100) - calculate_skill(ch, skill, 0) < 0)) {
+      && (number(1, 100) - CalcCurrentSkill(ch, skill, 0) < 0)) {
     act(tagging.c_str(), FALSE, ch, obj.get(), 0, TO_CHAR);
     // Прибавляем в экстра описание строчку.
     char *tagchar = format_act(itemtag.c_str(), ch, obj.get(), 0);
@@ -2127,12 +2127,12 @@ int MakeRecept::stat_modify(CHAR_DATA *ch, int value, float devider) {
   if (devider <= 0) {
     return res;
   }
-  skill_prc = calculate_skill(ch, skill, 0);
-  delta = (int) ((float) (skill_prc - number(0, skill_info[skill].max_percent)));
+  skill_prc = CalcCurrentSkill(ch, skill, 0);
+  delta = (int) ((float) (skill_prc - number(0, skill_info[skill].fail_percent)));
   if (delta > 0) {
-    delta = (value / 2) * delta / skill_info[skill].max_percent / devider;
+    delta = (value / 2) * delta / skill_info[skill].fail_percent / devider;
   } else {
-    delta = (value / 4) * delta / skill_info[skill].max_percent / devider;
+    delta = (value / 4) * delta / skill_info[skill].fail_percent / devider;
   }
   res += (int) delta;
   // Если параметр завалили то возвращаем 1;
@@ -2178,7 +2178,7 @@ int MakeRecept::add_flags(CHAR_DATA *ch, FLAG_DATA *base_flag, const FLAG_DATA *
   int tmpprob;
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 32; j++) {
-      tmpprob = number(0, 200) - calculate_skill(ch, skill, 0);
+      tmpprob = number(0, 200) - CalcCurrentSkill(ch, skill, 0);
       if ((add_flag->get_plane(i) & (1 << j)) && (tmpprob < 0)) {
         base_flag->set_flag(i, 1 << j);
       }

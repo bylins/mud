@@ -179,15 +179,15 @@ int skip_hiding(CHAR_DATA *ch, CHAR_DATA *vict) {
       EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
     } else if (affected_by_spell(ch, SPELL_HIDE)) {
       percent = number(1, 82 + GET_REAL_INT(vict));
-      prob = calculate_skill(ch, SKILL_HIDE, vict);
+      prob = CalcCurrentSkill(ch, SKILL_HIDE, vict);
       if (percent > prob) {
         affect_from_char(ch, SPELL_HIDE);
         if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
-          improve_skill(ch, SKILL_HIDE, FALSE, vict);
+          ImproveSkill(ch, SKILL_HIDE, FALSE, vict);
           act("Вы не сумели остаться незаметным.", FALSE, ch, 0, vict, TO_CHAR);
         }
       } else {
-        improve_skill(ch, SKILL_HIDE, TRUE, vict);
+        ImproveSkill(ch, SKILL_HIDE, TRUE, vict);
         act("Вам удалось остаться незаметным.\r\n", FALSE, ch, 0, vict, TO_CHAR);
         return (TRUE);
       }
@@ -210,15 +210,15 @@ int skip_camouflage(CHAR_DATA *ch, CHAR_DATA *vict) {
       EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
     } else if (affected_by_spell(ch, SPELL_CAMOUFLAGE)) {
       percent = number(1, 82 + GET_REAL_INT(vict));
-      prob = calculate_skill(ch, SKILL_CAMOUFLAGE, vict);
+      prob = CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, vict);
       if (percent > prob) {
         affect_from_char(ch, SPELL_CAMOUFLAGE);
         if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)) {
-          improve_skill(ch, SKILL_CAMOUFLAGE, FALSE, vict);
+          ImproveSkill(ch, SKILL_CAMOUFLAGE, FALSE, vict);
           act("Вы не сумели правильно замаскироваться.", FALSE, ch, 0, vict, TO_CHAR);
         }
       } else {
-        improve_skill(ch, SKILL_CAMOUFLAGE, TRUE, vict);
+        ImproveSkill(ch, SKILL_CAMOUFLAGE, TRUE, vict);
         act("Ваша маскировка оказалась на высоте.\r\n", FALSE, ch, 0, vict, TO_CHAR);
         return (TRUE);
       }
@@ -248,7 +248,7 @@ int skip_sneaking(CHAR_DATA *ch, CHAR_DATA *vict) {
                        (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112)
                            + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1))
                            + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
-      prob = calculate_skill(ch, SKILL_SNEAK, vict);
+      prob = CalcCurrentSkill(ch, SKILL_SNEAK, vict);
 
       int catch_level = (GET_LEVEL(vict) - GET_LEVEL(ch));
       if (catch_level > 5) {
@@ -263,11 +263,11 @@ int skip_sneaking(CHAR_DATA *ch, CHAR_DATA *vict) {
         if (affected_by_spell(ch, SPELL_HIDE))
           affect_from_char(ch, SPELL_HIDE);
         if (!AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
-          improve_skill(ch, SKILL_SNEAK, FALSE, vict);
+          ImproveSkill(ch, SKILL_SNEAK, FALSE, vict);
           act("Вы не сумели пробраться незаметно.", FALSE, ch, 0, vict, TO_CHAR);
         }
       } else {
-        improve_skill(ch, SKILL_SNEAK, TRUE, vict);
+        ImproveSkill(ch, SKILL_SNEAK, TRUE, vict);
         act("Вам удалось прокрасться незаметно.\r\n", FALSE, ch, 0, vict, TO_CHAR);
         return (TRUE);
       }
@@ -634,24 +634,24 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
   if (!IS_IMMORTAL(ch) && !IS_NPC(ch))
     GET_MOVE(ch) -= calculate_move_cost(ch, dir);
 
-  i = skill_info[SKILL_SNEAK].max_percent;
+  i = skill_info[SKILL_SNEAK].fail_percent;
   if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) && !is_flee) {
     if (IS_NPC(ch))
       invis = 1;
     else if (awake_sneak(ch)) {
       affect_from_char(ch, SPELL_SNEAK);
-    } else if (!affected_by_spell(ch, SPELL_SNEAK) || calculate_skill(ch, SKILL_SNEAK, 0) >= number(1, i))
+    } else if (!affected_by_spell(ch, SPELL_SNEAK) || CalcCurrentSkill(ch, SKILL_SNEAK, 0) >= number(1, i))
       invis = 1;
   }
 
-  i = skill_info[SKILL_CAMOUFLAGE].max_percent;
+  i = skill_info[SKILL_CAMOUFLAGE].fail_percent;
   if (AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE) && !is_flee) {
     if (IS_NPC(ch))
       invis = 1;
     else if (awake_camouflage(ch)) {
       affect_from_char(ch, SPELL_CAMOUFLAGE);
     } else if (!affected_by_spell(ch, SPELL_CAMOUFLAGE) ||
-        calculate_skill(ch, SKILL_CAMOUFLAGE, 0) >= number(1, i))
+        CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, 0) >= number(1, i))
       invis = 1;
   }
 
@@ -723,7 +723,7 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
 
   if (!IS_NPC(ch) && IS_BITS(ch->track_dirs, dir)) {
     send_to_char("Вы двинулись по следу.\r\n", ch);
-    improve_skill(ch, SKILL_TRACK, TRUE, 0);
+    ImproveSkill(ch, SKILL_TRACK, TRUE, 0);
   }
 
   char_from_room(ch);
@@ -1022,8 +1022,8 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     af.location = EApplyLocation::APPLY_NONE;
     af.modifier = 0;
     af.duration = 1;
-    const int calculated_skill = calculate_skill(ch, SKILL_SNEAK, 0);
-    const int chance = number(1, skill_info[SKILL_SNEAK].max_percent);
+    const int calculated_skill = CalcCurrentSkill(ch, SKILL_SNEAK, 0);
+    const int chance = number(1, skill_info[SKILL_SNEAK].fail_percent);
     af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlag::AFF_SNEAK) : 0;
     af.battleflag = 0;
     affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
@@ -1357,10 +1357,10 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 
 int ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int scmd) {
   int pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
-  int prob = number(1, skill_info[SKILL_PICK_LOCK].max_percent);
+  int prob = number(1, skill_info[SKILL_PICK_LOCK].fail_percent);
 
   if (scmd == SCMD_PICK) {
-    auto percent = calculate_skill(ch, SKILL_PICK_LOCK, nullptr);
+    auto percent = CalcCurrentSkill(ch, SKILL_PICK_LOCK, nullptr);
     if (pickproof)
       send_to_char("Вы никогда не сможете взломать ЭТО.\r\n", ch);
     else if (!check_moves(ch, PICKLOCK_MOVES));
@@ -1371,7 +1371,7 @@ int ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int scm
       //если скилл больше сложности на 10 и более - даже трениться на таком замке нельзя
     else if ((ch->get_skill(SKILL_PICK_LOCK) - DOOR_LOCK_COMPLEX(ch, obj, door) <= 10) && (prob > percent)) {
       send_to_char("Взломщик из вас пока еще никудышний.\r\n", ch);
-      train_skill(ch, SKILL_PICK_LOCK, false, nullptr);
+      TrainSkill(ch, SKILL_PICK_LOCK, false, nullptr);
     } else if (get_pick_chance(ch->get_skill(SKILL_PICK_LOCK), DOOR_LOCK_COMPLEX(ch, obj, door)) < number(1, 10)) {
       send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
       if (obj) {

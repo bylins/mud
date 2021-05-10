@@ -55,9 +55,9 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
     skill = ch->get_skill(SKILL_MANADRAIN);
 
-    percent = number(1, skill_info[SKILL_MANADRAIN].max_percent);
+    percent = number(1, skill_info[SKILL_MANADRAIN].fail_percent);
     prob = MAX(20, 90 - 5 * MAX(0, GET_LEVEL(vict) - GET_LEVEL(ch)));
-    improve_skill(ch, SKILL_MANADRAIN, percent > prob, vict);
+  ImproveSkill(ch, SKILL_MANADRAIN, percent > prob, vict);
 
     Damage manadrainDamage(SkillDmg(SKILL_MANADRAIN), ZERO_DMG, MAGE_DMG);
     manadrainDamage.magic_type = STYPE_DARK;

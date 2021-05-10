@@ -59,7 +59,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int) {
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
     timed_type timed;
     if (GET_SKILL(ch, SKILL_STUN) < 150) {
-        improve_skill(ch, SKILL_STUN, TRUE, vict);
+      ImproveSkill(ch, SKILL_STUN, TRUE, vict);
         timed.skill = SKILL_STUN;
         timed.time = 7;
         timed_to_char(ch, &timed);
@@ -77,12 +77,12 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
     //float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
     //(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 
-    int percent = number(1, skill_info[SKILL_STUN].max_percent);
-    int prob = calculate_skill(ch, SKILL_STUN, vict);
+    int percent = number(1, skill_info[SKILL_STUN].fail_percent);
+    int prob = CalcCurrentSkill(ch, SKILL_STUN, vict);
 
     if (percent > prob)
     {
-        improve_skill(ch, SKILL_STUN, FALSE, vict);
+      ImproveSkill(ch, SKILL_STUN, FALSE, vict);
         act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
         act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
         act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -90,7 +90,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 //			dmg.process(ch, vict);
         set_hit(ch, vict);
     } else {
-        improve_skill(ch, SKILL_STUN, TRUE, vict);
+      ImproveSkill(ch, SKILL_STUN, TRUE, vict);
         if (GET_EQ(ch, WEAR_BOTHS) && GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS) {
             act("Точным выстрелом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
             act("Точный выстрел $N1 повалил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);

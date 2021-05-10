@@ -127,7 +127,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
       timed_to_char(ch, &timed);
       GET_MOVE(ch) -= spell_info[spellnum].mana_max;
     }
-    train_skill(ch, SKILL_WARCRY, true, tch);
+    TrainSkill(ch, SKILL_WARCRY, true, tch);
   }
 }
 

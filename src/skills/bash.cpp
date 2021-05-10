@@ -42,8 +42,8 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
 
   vict = try_protect(vict, ch);
 
-  int percent = number(1, skill_info[SKILL_BASH].max_percent);
-  int prob = calculate_skill(ch, SKILL_BASH, vict);
+  int percent = number(1, skill_info[SKILL_BASH].fail_percent);
+  int prob = CalcCurrentSkill(ch, SKILL_BASH, vict);
 
   if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, GF_GODSCURSE)) {
     prob = percent;
@@ -52,7 +52,7 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
     prob = 0;
   }
   bool success = percent <= prob;
-  train_skill(ch, SKILL_BASH, success, vict);
+  TrainSkill(ch, SKILL_BASH, success, vict);
   if (!success) {
     Damage dmg(SkillDmg(SKILL_BASH), ZERO_DMG, PHYS_DMG);
     dmg.process(ch, vict);
@@ -87,10 +87,10 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
         send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
       else {
         int range, prob2;
-        range = number(1, skill_info[SKILL_BLOCK].max_percent);
-        prob2 = calculate_skill(vict, SKILL_BLOCK, ch);
+        range = number(1, skill_info[SKILL_BLOCK].fail_percent);
+        prob2 = CalcCurrentSkill(vict, SKILL_BLOCK, ch);
         bool success2 = prob2 >= range;
-        train_skill(vict, SKILL_BLOCK, success2, ch);
+        TrainSkill(vict, SKILL_BLOCK, success2, ch);
         if (!success2) {
           act("Вы не смогли блокировать попытку $N1 сбить вас.",
               FALSE, vict, 0, ch, TO_CHAR);

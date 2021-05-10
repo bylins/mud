@@ -25,8 +25,8 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 
   vict = try_protect(vict, ch);
 
-  int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].max_percent);
-  int prob = calculate_skill(ch, SKILL_KICK, vict);
+  int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].fail_percent);
+  int prob = CalcCurrentSkill(ch, SKILL_KICK, vict);
   if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_MOB_HOLD(vict)) {
     prob = percent;
   }
@@ -39,7 +39,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
   }
 
   bool success = percent <= prob;
-  train_skill(ch, SKILL_KICK, success, vict);
+  TrainSkill(ch, SKILL_KICK, success, vict);
   if (!success) {
     Damage dmg(SkillDmg(SKILL_KICK), ZERO_DMG, PHYS_DMG);
     dmg.process(ch, vict);

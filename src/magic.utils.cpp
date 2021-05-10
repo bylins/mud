@@ -671,7 +671,7 @@ int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, 
 
   skillnum = get_magic_skill_number_by_spell(spellnum);
   if (skillnum != SKILL_INVALID && skillnum != SKILL_UNDEF) {
-    train_skill(ch, skillnum, true, tch);
+    TrainSkill(ch, skillnum, true, tch);
   }
   // Комнату тут в say_spell не обрабатываем - будет сказал "что-то"
   say_spell(ch, spellnum, tch, tobj);

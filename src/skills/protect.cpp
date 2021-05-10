@@ -126,13 +126,13 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch) {
             }
 
             protect = true;
-            percent = number(1, skill_info[SKILL_PROTECT].max_percent);
-            prob = calculate_skill(vict, SKILL_PROTECT, victim);
+            percent = number(1, skill_info[SKILL_PROTECT].fail_percent);
+            prob = CalcCurrentSkill(vict, SKILL_PROTECT, victim);
             prob = prob * 8 / 10;
             if (vict->haveCooldown(SKILL_PROTECT)) {
                 prob /= 2;
             };
-            improve_skill(vict, SKILL_PROTECT, prob >= percent, ch);
+          ImproveSkill(vict, SKILL_PROTECT, prob >= percent, ch);
 
             if (GET_GOD_FLAG(vict, GF_GODSCURSE))
                 prob = 0;

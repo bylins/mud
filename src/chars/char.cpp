@@ -53,18 +53,18 @@ void check_purged(const CHAR_DATA *ch, const char *fnc)
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 	}
 }
-
-int normalize_skill(int percent, int skill)
+// \TODO: И зачем это тут?
+int normalize_skill(int percent, ESkill skill)
 {
-	const static int KMinSkillPercent = 0;
-	const static int KMaxSkillPercent = CAP_SKILLS;
+	const static int kMinSkillPercent = 0;
+	const static int kMaxSkillPercent = skill_info[skill].cap;
 
-	if (percent < KMinSkillPercent)
-		percent = KMinSkillPercent;
+	if (percent < kMinSkillPercent)
+		percent = kMinSkillPercent;
 	else
 	{
-		if (percent > KMaxSkillPercent && !is_magic_skill(skill))
-			percent = KMaxSkillPercent;
+		if (percent > kMaxSkillPercent)
+			percent = kMaxSkillPercent;
 	}
 	return percent;
 }
@@ -613,7 +613,8 @@ int CHAR_DATA::get_skill(const ESkill skill_num) const
 	{
 		skill -= skill * GET_POISON(this) / 100;
 	}
-	return normalize_skill(skill, skill_num);
+	//return normalize_skill(skill, skill_num);
+	return std::clamp(skill, 0, skill_info[skill_num].cap);
 }
 
 // * Скилл со шмоток.
@@ -653,7 +654,8 @@ int CHAR_DATA::get_inborn_skill(const ESkill skill_num) {
 	if (Privilege::check_skills(this))	{
 		CharSkillsType::iterator it = skills.find(skill_num);
 		if (it != skills.end()) {
-			return normalize_skill(it->second.skillLevel, skill_num);
+			//return normalize_skill(it->second.skillLevel, skill_num);
+            return std::clamp(it->second.skillLevel, 0, skill_info[skill_num].cap);
 		}
 	}
 	return 0;
@@ -661,7 +663,8 @@ int CHAR_DATA::get_inborn_skill(const ESkill skill_num) {
 
 int CHAR_DATA::get_trained_skill(const ESkill skill_num) const {
 	if (Privilege::check_skills(this)) {
-		return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
+		//return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
+        return std::clamp(current_morph_->get_trained_skill(skill_num), 0, skill_info[skill_num].cap);
 	}
 	return 0;
 }
@@ -714,7 +717,7 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
 
 void CHAR_DATA::set_skill(short remort) {
 	int skill;
-	int maxSkillLevel = baseSkillLevel + remort*bonusSkillPointsPerRemort;
+	int maxSkillLevel = kSkillCapOnZeroRemort + remort*kSkillCapBonusPerRemort;
 	for (auto it = skills.begin(); it != skills.end(); it++) {
 		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
 		if (skill > maxSkillLevel) {
@@ -1957,7 +1960,7 @@ void CHAR_DATA::reset_morph()
 	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), TRUE, this, 0, 0, TO_ROOM);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(SKILL_MORPH, (MIN(MAX_EXP_PERCENT + GET_REMORT(this) * 5, value)));
+	this->set_morphed_skill(SKILL_MORPH, (MIN(kSkillCapOnZeroRemort + GET_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 
