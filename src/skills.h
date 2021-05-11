@@ -160,6 +160,8 @@ int CalcSkillSoftCap(const CHAR_DATA *ch);
 int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill);
 int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill);
 
+void SendSkillBalanceMsg (CHAR_DATA* ch, const char* skill_name, int percent, int prob, bool success);
+
 // ГОРНОЕ ДЕЛО
 
 #define DIG_DFLT_HOLE_MAX_DEEP        10

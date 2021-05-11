@@ -42,6 +42,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 
   bool success = percent <= prob;
   TrainSkill(ch, SKILL_STRANGLE, success, vict);
+  SendSkillBalanceMsg(ch, skill_info[SKILL_STRANGLE].name, percent, prob, success);
   if (!success) {
     Damage dmg(SkillDmg(SKILL_STRANGLE), ZERO_DMG, PHYS_DMG);
     dmg.flags.set(IGNORE_ARMOR);

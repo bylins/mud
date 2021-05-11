@@ -6,7 +6,6 @@
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/start.fight.h"
 #include "handler.h"
-#include "spells.h"
 #include "protect.h"
 #include "skills.info.h"
 
@@ -86,14 +85,14 @@ void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
     return;
 
   if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch)) {
-    act("Вы заметили, что $N попытал$u вас заколоть!", FALSE, vict, 0, ch, TO_CHAR);
-    act("$n заметил$g вашу попытку заколоть $s!", FALSE, vict, 0, ch, TO_VICT);
-    act("$n заметил$g попытку $N1 заколоть $s!", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+    act("Вы заметили, что $N попытал$u вас заколоть!", FALSE, vict, nullptr, ch, TO_CHAR);
+    act("$n заметил$g вашу попытку заколоть $s!", FALSE, vict, nullptr, ch, TO_VICT);
+    act("$n заметил$g попытку $N1 заколоть $s!", FALSE, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
     set_hit(vict, ch);
     return;
   }
 
-  percent = number(1, skill_info[SKILL_BACKSTAB].fail_percent - GET_REMORT(ch) * 2);
+  percent = number(1, skill_info[SKILL_BACKSTAB].fail_percent);
   prob = CalcCurrentSkill(ch, SKILL_BACKSTAB, vict);
 
   if (can_use_feat(ch, SHADOW_STRIKE_FEAT)) {
@@ -113,8 +112,10 @@ void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
     prob = percent;
   if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE))
     prob = 0;
-  bool success = percent > prob;
+  bool success = percent <= prob;
   TrainSkill(ch, SKILL_BACKSTAB, success, vict);
+
+  SendSkillBalanceMsg(ch, skill_info[SKILL_BACKSTAB].name, percent, prob, success);
   if (!success) {
     Damage dmg(SkillDmg(SKILL_BACKSTAB), ZERO_DMG, PHYS_DMG);
     dmg.process(ch, vict);

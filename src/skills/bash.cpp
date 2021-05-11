@@ -53,6 +53,8 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
   }
   bool success = percent <= prob;
   TrainSkill(ch, SKILL_BASH, success, vict);
+
+  SendSkillBalanceMsg(ch, skill_info[SKILL_BASH].name, percent, prob, success);
   if (!success) {
     Damage dmg(SkillDmg(SKILL_BASH), ZERO_DMG, PHYS_DMG);
     dmg.process(ch, vict);

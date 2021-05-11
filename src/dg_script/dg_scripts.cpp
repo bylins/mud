@@ -2326,7 +2326,7 @@ void find_replacement(void *go,
     } else if (!str_cmp(field, "maxskill")) {
       const ESkill skillnum = fix_name_and_find_skill_num(subfield);
       if (skillnum > 0) {
-        sprintf(str, "%d", CalcSkillMinCap(c, skillnum));
+        sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
       } else {
         strcpy(str, "0");
       }

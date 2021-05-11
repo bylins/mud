@@ -1460,6 +1460,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *d
     int prob = CalcCurrentSkill(victim, SKILL_PARRY, ch);
     prob = prob * 100 / range;
     TrainSkill(victim, SKILL_PARRY, prob < 100, ch);
+    SendSkillBalanceMsg(ch, skill_info[SKILL_PARRY].name, range, prob, prob >= 70);
     if (prob < 70
         || ((skill == SKILL_BOWS || hit_type == FightSystem::type_maul)
             && !IS_IMMORTAL(victim)
@@ -1525,6 +1526,7 @@ void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, i
     }
 
     TrainSkill(victim, SKILL_MULTYPARRY, prob >= 50, ch);
+    SendSkillBalanceMsg(ch, skill_info[SKILL_MULTYPARRY].name, range, prob, prob >= 50);
     if (prob < 50) {
       act("Вы не смогли отбить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
       act("$N не сумел$G отбить вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
@@ -1559,9 +1561,10 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
   } else {
     int range = number(1, skill_info[SKILL_BLOCK].fail_percent);
     int prob = CalcCurrentSkill(victim, SKILL_BLOCK, ch);
-    TrainSkill(victim, SKILL_BLOCK, prob > 99, ch);
     prob = prob * 100 / range;
     BATTLECNTR(victim)++;
+    TrainSkill(victim, SKILL_BLOCK, prob > 99, ch);
+    SendSkillBalanceMsg(ch, skill_info[SKILL_BLOCK].name, range, prob, prob > 99);
     if (prob < 100) {
       act("Вы не смогли отразить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
       act("$N не сумел$G отразить вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
@@ -2609,6 +2612,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
     prob = 0;
   }
 
+  SendSkillBalanceMsg(ch, skill_info[SKILL_MIGHTHIT].name, percent, prob, percent <= prob);
   if (percent > prob || dam == 0) {
     sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
     send_to_char(buf, ch);
@@ -2691,6 +2695,7 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
   int percent = number(1, skill_info[SKILL_STUPOR].fail_percent);
   int prob = CalcCurrentSkill(ch, SKILL_STUPOR, victim);
   TrainSkill(ch, SKILL_STUPOR, prob >= percent, victim);
+  SendSkillBalanceMsg(ch, skill_info[SKILL_STUPOR].name, percent, prob, prob >= percent);
   int lag = 0;
 
   if (GET_MOB_HOLD(victim)) {

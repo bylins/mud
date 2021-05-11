@@ -63,7 +63,7 @@ void InitSkills(void) {
   }
 
   InitSingleSkill(SKILL_GLOBAL_COOLDOWN, "!глобальная задержка", "ОЗ", 1, 1);
-  InitSingleSkill(SKILL_BACKSTAB, "заколоть", "Зк", 180, 200);
+  InitSingleSkill(SKILL_BACKSTAB, "заколоть", "Зк", 180, 1000);
   InitSingleSkill(SKILL_BASH, "сбить", "Сб", 200, 200);
   InitSingleSkill(SKILL_HIDE, "спрятаться", "Сп", 100, 200);
   InitSingleSkill(SKILL_KICK, "пнуть", "Пн", 100, 200);

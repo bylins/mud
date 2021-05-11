@@ -40,6 +40,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 
   bool success = percent <= prob;
   TrainSkill(ch, SKILL_KICK, success, vict);
+  SendSkillBalanceMsg(ch, skill_info[SKILL_KICK].name, percent, prob, success);
   if (!success) {
     Damage dmg(SkillDmg(SKILL_KICK), ZERO_DMG, PHYS_DMG);
     dmg.process(ch, vict);

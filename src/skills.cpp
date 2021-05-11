@@ -1225,19 +1225,14 @@ int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict) {
   else
     total_percent = MIN(MAX(0, total_percent), max_percent);
 
-  ch->send_to_TC(false,
-                 true,
-                 true,
-                 "&CП: %s, Ц:  %s, Скилл: %d. Итог.скилл = %d, fail_limit = %d, Morale = %d, Bonus == %d, Сейвы цели = %d, Моди.цели = %d&n\r\n",
-                 ch ? GET_NAME(ch) : "NULL",
+  ch->send_to_TC(false, true, true,
+                 "&CTarget: %s, BaseSkill: %d, Bonus: %d, TargetSave = %d, TargetMod: %d, TotalSkill: %d&n\r\n",
                  vict ? GET_NAME(vict) : "NULL",
-                 skill,
-                 total_percent,
-                 fail_limit,
-                 luck,
+                 base_percent,
                  bonus,
                  victim_sav,
-                 victim_modi / 2);
+                 victim_modi / 2,
+                 total_percent);
   return (total_percent);
 }
 
@@ -1427,6 +1422,14 @@ int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill) {
 
 int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill) {
   return std::min(CalcSkillSoftCap(ch), skill_info[skill].cap);
+}
+
+// \TODO Не забыть убрать после ребаланса умений
+void SendSkillBalanceMsg (CHAR_DATA* ch, const char* skill_name, int percent, int prob, bool success) {
+  std::stringstream buffer;
+  buffer << "&C" << "Skill: " << skill_name
+         << " Percent: " << percent << " Prob: " << prob << " Success: " << success << "&n" << std::endl;
+  ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
 //  Реализация класса Skill

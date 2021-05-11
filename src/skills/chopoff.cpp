@@ -57,9 +57,10 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
       vict->ahorse() || GET_POS(vict) < POS_FIGHTING || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
     prob = 0;
 
-  bool skillFail = percent > prob;
-  TrainSkill(ch, SKILL_CHOPOFF, !skillFail, vict);
-  if (skillFail) {
+  bool success = percent <= prob;
+  TrainSkill(ch, SKILL_CHOPOFF, success, vict);
+  SendSkillBalanceMsg(ch, skill_info[SKILL_CHOPOFF].name, percent, prob, success);
+  if (!success) {
     sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
     act(buf, FALSE, ch, 0, vict, TO_CHAR);
     act("$n попытал$u подсечь вас, но упал$g сам$g.", FALSE, ch, 0, vict, TO_VICT);
@@ -111,7 +112,7 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
     set_hit(vict, ch);
   }
 
-  if (skillFail) {
+  if (!success) {
     set_wait(ch, prob, FALSE);
   } else {
     setSkillCooldownInFight(ch, SKILL_CHOPOFF, prob);

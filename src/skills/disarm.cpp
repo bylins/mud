@@ -47,6 +47,7 @@ void go_disarm(CHAR_DATA *ch, CHAR_DATA *vict) {
 
   bool success = percent <= prob;
   TrainSkill(ch, SKILL_DISARM, success, vict);
+  SendSkillBalanceMsg(ch, skill_info[SKILL_DISARM].name, percent, prob, success);
   if (!success || GET_EQ(vict, pos)->get_extra_flag(EExtraFlag::ITEM_NODISARM)) {
     send_to_char(ch, "%sВы не сумели обезоружить %s...%s\r\n", CCWHT(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
     prob = 3;
