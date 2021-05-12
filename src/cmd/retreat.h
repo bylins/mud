@@ -3,6 +3,6 @@
 
 class CHAR_DATA;
 
-void do_retreat(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
+void do_retreat(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_RETREAT_H

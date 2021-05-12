@@ -90,7 +90,7 @@ void go_stun(CHAR_DATA *ch, CHAR_DATA *vict) {
     act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
     act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
     act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.",
-        true, ch,  nullptr, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+        true, ch, nullptr, vict, TO_NOTVICT | TO_ARENA_LISTEN);
     set_hit(ch, vict);
   } else {
     if (GET_EQ(ch, WEAR_BOTHS) && GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS) {

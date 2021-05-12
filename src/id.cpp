@@ -1,7 +1,6 @@
 #include "id.hpp"
 
-MaxID::MaxID() : m_value(MOBOBJ_ID_BASE)
-{
+MaxID::MaxID() : m_value(MOBOBJ_ID_BASE) {
 }
 
 MaxID max_id;

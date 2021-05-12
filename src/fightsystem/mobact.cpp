@@ -25,7 +25,7 @@
 #include "skills/track.h"
 
 #include "core/affect_data.h"
-#include "ability.rollsystem.hpp"
+#include "abilities/abilities_rollsystem.h"
 #include "action.targeting.hpp"
 #include "act.movement.hpp"
 #include "features.hpp"

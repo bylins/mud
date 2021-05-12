@@ -9,7 +9,7 @@
 
 #include "features.hpp"
 
-#include "ability.constants.hpp"
+#include "abilities/abilities_constants.h"
 #include "action.targeting.hpp"
 #include "logger.hpp"
 #include "obj.hpp"

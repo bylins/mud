@@ -13,7 +13,7 @@ set(SOURCES
 		src/influxdb.cpp
 		src/heartbeat.cpp
 		src/heartbeat.commands.cpp
-		src/ability.rollsystem.cpp
+		src/abilities/abilities_rollsystem.cpp
 		src/chars/accounts.cpp
 		src/action.targeting.cpp
 		src/act.comm.cpp
@@ -262,8 +262,8 @@ set(HEADERS
 		src/skills/relocate.h
 		src/act.movement.hpp
 		src/strengthening.hpp
-		src/ability.constants.hpp
-		src/ability.rollsystem.hpp
+		src/abilities/abilities_constants.h
+		src/abilities/abilities_rollsystem.h
 		src/chars/mount.h
 		src/chars/accounts.hpp
 		src/action.targeting.hpp

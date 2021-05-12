@@ -6,19 +6,17 @@
 #include <iostream>
 #include <memory>
 
-namespace Boards
-{
-	class ChangeLogLoader
-	{
-	public:
-		using shared_ptr = std::shared_ptr<ChangeLogLoader>;
+namespace Boards {
+class ChangeLogLoader {
+ public:
+  using shared_ptr = std::shared_ptr<ChangeLogLoader>;
 
-		virtual ~ChangeLogLoader() {}
+  virtual ~ChangeLogLoader() {}
 
-		virtual bool load(std::istream& is) = 0;
+  virtual bool load(std::istream &is) = 0;
 
-		static shared_ptr create(const std::string& kind, const Board::shared_ptr board);
-	};
+  static shared_ptr create(const std::string &kind, const Board::shared_ptr board);
+};
 }
 
 #endif // __BOARDS_CHANGELOG_LOADERS_HPP__

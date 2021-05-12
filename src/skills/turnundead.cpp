@@ -5,7 +5,7 @@
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/common.h"
 #include "action.targeting.hpp"
-#include "ability.rollsystem.hpp"
+#include "abilities/abilities_rollsystem.h"
 #include "handler.h"
 #include "spells.h"
 #include "cmd/flee.h"
