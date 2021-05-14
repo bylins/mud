@@ -1356,7 +1356,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	STRING_LENGTH(this) = 80;
 	STRING_WIDTH(this) = 30;
 	NAME_ID_GOD(this) = 0;
-	GET_OLC_ZONE(this) = 0;
+	GET_OLC_ZONE(this) = -1;
 	this->player_data.time.played = 0;
 	GET_LOADROOM(this) = NOWHERE;
 	GET_RELIGION(this) = 1;
@@ -1798,7 +1798,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			break;
 
 		case 'O':
-			if (!strcmp(tag, "Olc "))
+			if (!strcmp(tag, "Olc ") && (num > 0))
 				GET_OLC_ZONE(this) = num;
 			break;
 
