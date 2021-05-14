@@ -2490,8 +2490,7 @@ void inspecting()
 			}
 		}
 
-		if (*buf1 || mail_found)
-		{
+		if (*buf1 || mail_found) {
 			const auto& player = player_table[it->second->pos];
 			sprinttype(player.plr_class, pc_class_types, smallBuf);
 			mytime = player_table[it->second->pos].last_logon;
@@ -2621,10 +2620,19 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		d_vict = DescByUID(req->unique);
 		req->mail = str_dup(player_table[i].mail);
 		time_t tmp_time = player_table[i].last_logon;
+
 		sprintf(buf, "Персонаж: %s%s%s e-mail: %s&S%s&s%s Last: %s%s%s from IP: %s%s%s\r\n", (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
 			player_table[i].name(), CCNRM(ch, C_SPR), CCWHT(ch, C_SPR), req->mail, CCNRM(ch, C_SPR),
 			CCWHT(ch, C_SPR), rustime(localtime(&tmp_time)), CCNRM(ch, C_SPR),
 			CCWHT(ch, C_SPR), player_table[i].last_ip, CCNRM(ch, C_SPR));
+
+		sprinttype(player_table[i].plr_class, pc_class_types, smallBuf);
+		time_t mytime = player_table[i].last_logon;
+		sprintf(buf1, "Last: %s. Level %d, Remort %d, Проф: %s.\r\n",
+			rustime(localtime(&mytime)),
+			player_table[i].level, player_table[i].remorts, smallBuf);
+		strcat(buf, buf1);
+
 		if (req->fullsearch)
 		{
 			CHAR_DATA::shared_ptr vict;
