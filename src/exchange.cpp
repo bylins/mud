@@ -781,7 +781,7 @@ bool correct_filter_length(CHAR_DATA *ch, const char *str)
 int exchange_offers(CHAR_DATA * ch, char *arg)
 {
 //влом байты считать. Если кто хочет оптимизировать, посчитайте точно.
-	char filter[MAX_STRING_LENGTH];
+	char filter[MAX_INPUT_LENGTH];
 	char multifilter[MAX_STRING_LENGTH];
 	short int show_type;
 	bool ignore_filter;
@@ -828,7 +828,7 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 		show_type = 0;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "И%s", arg2);
+			snprintf(filter, MAX_STRING_LENGTH, "И%s", arg2);
 		}
 		if (*multifilter)
 		{
@@ -839,9 +839,9 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	else if (is_abbrev(arg1, "мои") || is_abbrev(arg1, "mine"))
 	{
 		show_type = 1;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
-		{
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", filter, arg2);
+		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
+			sprintf(buf, "%s", filter);
+			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
 		}
 		if (*multifilter)
 		{
@@ -852,9 +852,9 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	else if (is_abbrev(arg1, "руны") || is_abbrev(arg1, "runes"))
 	{
 		show_type = 2;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
-		{
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", filter, arg2);
+		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
+			sprintf(buf, "%s", filter);
+			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
 		}
 		if (*multifilter)
 		{
@@ -865,9 +865,9 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	else if (is_abbrev(arg1, "броня") || is_abbrev(arg1, "armor"))
 	{
 		show_type = 3;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
+		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
+			sprintf(buf, "%s", filter);
+			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
 		}
 		if (*multifilter)
 		{
@@ -878,9 +878,9 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	else if (is_abbrev(arg1, "оружие") || is_abbrev(arg1, "weapons"))
 	{
 		show_type = 4;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
+		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
+			sprintf(buf, "%s", filter);
+			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
 		}
 		if (*multifilter)
 		{
@@ -891,25 +891,24 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	else if (is_abbrev(arg1, "книги") || is_abbrev(arg1, "books"))
 	{
 		show_type = 5;
-		if ((*arg2) && (*arg2 != '*'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
+		if ((*arg2) && (*arg2 != '*')) {
+			sprintf(buf, "%s", filter);
+			snprintf(filter, MAX_STRING_LENGTH,"%s И%s", buf, arg2);
 		}
 	}
 	else if (is_abbrev(arg1, "ингредиенты") || is_abbrev(arg1, "ingradients"))
 	{
 		show_type = 6;
-		if ((*arg2) && (*arg2 != '*'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
+		if ((*arg2) && (*arg2 != '*')) {
+			sprintf(buf, "%s", filter);
+			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
 		}
 	}
 	else if (is_abbrev(arg1, "прочие") || is_abbrev(arg1, "other"))
 	{
 		show_type = 7;
-		if ((*arg2) && (*arg2 != '*'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
+		if ((*arg2) && (*arg2 != '*')) {
+			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
 		}
 	}
 	else if (is_abbrev(arg1, "последние") || is_abbrev(arg1, "last"))
@@ -944,21 +943,18 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 		}
 	}
 */
-	else if (is_abbrev(arg1, "аффект") || is_abbrev(arg1, "affect"))
-	{
-		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2
-			&& GET_LEVEL(ch) < LVL_IMPL)
-		{
+	else if (is_abbrev(arg1, "аффект") || is_abbrev(arg1, "affect")) {
+		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GET_LEVEL(ch) < LVL_IMPL) {
 			send_to_char("У вас не хватит на это денег!\r\n", ch);
 			return 0;
 		}
-		if (*arg2 == '\0')
-		{
+		if (*arg2 == '\0') {
 			send_to_char("Пустое имя аффекта!\r\n", ch);
 			return 0;
 		}
 		show_type = 11;
-		sprintf(filter, "%s А%s", filter, arg2);
+		sprintf(buf, "%s", filter);
+		snprintf(filter, MAX_STRING_LENGTH, "%s А%s", buf, arg2);
 	}
 	else
 	{

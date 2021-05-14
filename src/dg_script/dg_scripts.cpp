@@ -3349,7 +3349,7 @@ int process_foreach_begin(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA
   }
 
   add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
-  sprintf(value, "%s%s", name, FOREACH_LIST_GUID);
+  snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
   add_var_cntx(&GET_TRIG_VARS(trig), value, list_str, 0);
 
   strcat(name, FOREACH_LIST_POS_GUID);
@@ -3371,10 +3371,10 @@ int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *tri
     return 0;
   }
 
-  sprintf(value, "%s%s", name, FOREACH_LIST_GUID);
+  snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
   const auto var_list = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
-  sprintf(value, "%s%s", name, FOREACH_LIST_POS_GUID);
+  snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_POS_GUID);
   const auto var_list_pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
   if (!var_list || !var_list_pos) {
@@ -3386,10 +3386,10 @@ int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *tri
   if (!p || !*p) {
     remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
 
-    sprintf(value, "%s%s", name, FOREACH_LIST_GUID);
+    snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
     remove_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
-    sprintf(value, "%s%s", name, FOREACH_LIST_POS_GUID);
+    snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_POS_GUID);
     remove_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
     return 0;
@@ -3969,14 +3969,15 @@ int process_run(void *go, SCRIPT_DATA **sc, TRIG_DATA **trig, int type, char *cm
 
   return (TRUE);
 }
-CHAR_DATA *dg_caster_owner_obj(OBJ_DATA *obj) {
 
-  if (obj->get_carried_by()) {
-    return obj->get_carried_by();
-  }
-  if (obj->get_worn_by()) {
-    return obj->get_worn_by();
-  }
+CHAR_DATA *dg_caster_owner_obj(OBJ_DATA *obj) {
+	if (obj->get_carried_by()) {
+		return obj->get_carried_by();
+	}
+	if (obj->get_worn_by()) {
+		return obj->get_worn_by();
+	}
+	return nullptr;
 }
 
 ROOM_DATA *dg_room_of_obj(OBJ_DATA *obj) {
@@ -4298,7 +4299,7 @@ void process_remote(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
     vd = find_var_cntx(&(sc->global_vars), var, sc->context);
 
   if (!vd) {
-    sprintf(buf2, "local var '%s' not found in remote call", buf);
+    snprintf(buf2, MAX_STRING_LENGTH, "local var '%s' not found in remote call", buf);
     trig_log(trig, buf2);
     return;
   }
@@ -4309,7 +4310,7 @@ void process_remote(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 //		std::stringstream buffer;
 //		buffer << "remote: illegal uid " << buf2;
 //		sprintf(buf, buffer.str());
-    sprintf(buf, "remote: illegal uid '%s'", buf2);
+    snprintf(buf, MAX_STRING_LENGTH, "remote: illegal uid '%s'", buf2);
     trig_log(trig, buf);
     return;
   }
@@ -4435,7 +4436,7 @@ void process_rdelete(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
   // find the target script from the uid number
   uid = atoi(buf2 + 1);
   if (uid <= 0) {
-    sprintf(buf, "rdelete: illegal uid '%s'", buf2);
+    snprintf(buf, MAX_STRING_LENGTH, "rdelete: illegal uid '%s'", buf2);
     trig_log(trig, buf);
     return;
   }

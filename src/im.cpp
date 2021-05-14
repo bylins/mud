@@ -515,7 +515,7 @@ void init_im(void) {
         TypeListSetSingle(&imtypes[top_imtypes].tlst, top_imtypes);
         continue;
       }
-      sprintf(text, "[IM] Invalid type : '%s'", tmp);
+      snprintf(text, sizeof(text), "[IM] Invalid type : '%s'", tmp);
       imlog(NRM, text);
     } else if (!strn_cmp(tmp, "МЕТАТИП", 7)) {
       if (sscanf(tmp, "%s %d %s %s", dummy, &id, name, tlist) == 4) {
@@ -529,7 +529,7 @@ void init_im(void) {
         for (p = strtok(tlist, ","); p; p = strtok(NULL, ",")) {
           int i = im_get_type_by_name(p, 1);    // поиск любого типа
           if (i == -1) {
-            sprintf(text, "[IM] Invalid type name : '%s'", p);
+            snprintf(text, sizeof(text), "[IM] Invalid type name : '%s'", p);
             imlog(NRM, text);
             continue;
           }
@@ -537,7 +537,7 @@ void init_im(void) {
         }
         continue;
       }
-      sprintf(text, "[IM] Invalid metatype : %s", tmp);
+      snprintf(text, sizeof(text), "[IM] Invalid metatype : %s", tmp);
       imlog(NRM, text);
     } else if (!strn_cmp(tmp, "ВИД", 3)) {
       int power, sex;
@@ -582,7 +582,7 @@ void init_im(void) {
         if (*tmp == '~')
           break;
       if (*tmp != '~') {
-        sprintf(text, "[IM] Invalid inrgedient : '%s'", tmp);
+        snprintf(text, sizeof(text), "[IM] Invalid inrgedient : '%s'", tmp);
         imlog(NRM, text);
       }
     } else if (!strn_cmp(tmp, "РЕЦЕПТ", 6)) {
@@ -716,11 +716,11 @@ void init_im(void) {
         if (*tmp == '~')
           continue;
       }
-      sprintf(text, "[IM] Invalid recipe : '%s'", tmp);
+      snprintf(text, sizeof(text), "[IM] Invalid recipe : '%s'", tmp);
       imlog(NRM, text);
     } else {
       if (*tmp) {
-        sprintf(text, "[IM] Unrecognized command : '%s'", tmp);
+        snprintf(text, sizeof(text), "[IM] Unrecognized command : '%s'", tmp);
         imlog(NRM, text);
       }
     }
@@ -956,7 +956,7 @@ OBJ_DATA *try_make_ingr(int *ing_list, int vnum, int max_prob) {
   return NULL;
 }
 
-OBJ_DATA *try_make_ingr(CHAR_DATA *mob, int prob_default, int prob_special) {
+OBJ_DATA *try_make_ingr(CHAR_DATA *mob, int prob_default) {
   MobRaceListType::iterator it = mobraces_list.find(GET_RACE(mob));
   const int vnum = GET_MOB_VNUM(mob);
   if (it != mobraces_list.end()) {
@@ -1212,7 +1212,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA *ch, char *argument, int *count) {
     }
     o = get_obj_in_list_vis(ch, name, ch->carrying);
     if (!o) {
-      sprintf(buf, "У вас нет %s.\r\n", name);
+      snprintf(buf, MAX_STRING_LENGTH, "У вас нет %s.\r\n", name);
       break;
     }
     if (GET_OBJ_TYPE(o) != OBJ_DATA::ITEM_MING) {
@@ -1737,7 +1737,7 @@ void trg_recipeadd(CHAR_DATA *ch, int rid, int recipediff) {
   send_to_char(buf, ch);
 }
 
-void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_imlist(CHAR_DATA *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
   send_to_char("Команда отГлючена.\r\n", ch);
   return;
 /*

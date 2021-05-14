@@ -204,7 +204,7 @@ void trigedit_disp_types(DESCRIPTOR_DATA * d)
 	}
 
 	sprintbit(GET_TRIG_TYPE(OLC_TRIG(d)), types, buf1, 2);
-	sprintf(buf, "\r\nCurrent types : %s%s%s\r\nEnter type (0 to quit) : ", cyn, buf1, nrm);
+	snprintf(buf, MAX_STRING_LENGTH, "\r\nCurrent types : %s%s%s\r\nEnter type (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -522,7 +522,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 
 	if (!(trig_file = fopen(fname, "w")))
 	{
-		sprintf(logbuf, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
+		snprintf(logbuf, MAX_INPUT_LENGTH, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
 		mudlog(logbuf, BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 		return;
 	}
@@ -614,13 +614,13 @@ void trigedit_create_index(int znum, const char *type)
 
 	if (!(oldfile = fopen(old_name, "r")))
 	{
-		sprintf(buf1, "SYSERR: TRIGEDIT: Failed to open %s", buf);
+		snprintf(buf1, MAX_STRING_LENGTH, "SYSERR: TRIGEDIT: Failed to open %s", buf);
 		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
 	}
 	else if (!(newfile = fopen(new_name, "w")))
 	{
-		sprintf(buf1, "SYSERR: TRIGEDIT: Failed to open %s", buf);
+		snprintf(buf1, MAX_STRING_LENGTH, "SYSERR: TRIGEDIT: Failed to open %s", buf);
 		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
 	}

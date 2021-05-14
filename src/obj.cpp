@@ -1468,7 +1468,7 @@ std::string print_obj_affects(const obj_affected_type &affect)
 		negative = false;
 	}
 
-	sprintf(buf, "%s%s%s%s%s%d%s\r\n",
+	snprintf(buf, MAX_STRING_LENGTH, "%s%s%s%s%s%d%s\r\n",
 		KCYN, buf2, KNRM,
 		KCYN, (negative ? " ухудшает на " : " улучшает на "),
 		abs(affect.modifier), KNRM);
@@ -1496,7 +1496,7 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
 	{
 		negative = false;
 	}
-	sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
+	snprintf(buf, MAX_STRING_LENGTH, "   %s%s%s%s%s%d%s\r\n",
 		CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM),
 		negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));

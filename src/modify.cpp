@@ -395,7 +395,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
             i++;
             total_len++;
             pos++;
-            sprintf(buf, "%s%4d:\r\n", buf, (i - 1));
+	    sprintf(buf1, "%s", buf);
+            snprintf(buf, MAX_STRING_LENGTH, "%s%4d:\r\n", buf1, (i - 1));
             strncat(buf, beginning, pos - beginning);
             beginning = pos;
           }
