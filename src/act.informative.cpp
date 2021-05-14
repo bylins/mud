@@ -1706,8 +1706,8 @@ void show_room_affects(CHAR_DATA *ch, const char *name_affects[], const char *na
   for (const auto &af : world[ch->in_room]->affected) {
     switch (af->bitvector) {
       case AFF_ROOM_LIGHT:                    // 1 << 0
-        if (!IS_SET(bitvector, AFF_ROOM_LIGHT)) {
-          if (af->caster_id == ch->id && *name_self_affects[0] != '\0') {
+		if (!IS_SET(bitvector, AFF_ROOM_LIGHT)) {
+			if (af->caster_id == ch->id && *name_self_affects[0] != '\0') {
             buffer << name_self_affects[0] << "\r\n";
           } else if (*name_affects[0] != '\0') {
             buffer << name_affects[0] << "\r\n";

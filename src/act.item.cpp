@@ -2616,12 +2616,11 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
             TO_ROOM | TO_ARENA_LISTEN);
 
         const auto &aff = *aff_i;
-        if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
-        {
+        if (GET_ID(ch) != aff->caster_id) { //чел стирает не свою метку - вай, нехорошо
           //Ищем кастера по миру
           caster = find_char(aff->caster_id);
           //Если кастер онлайн - выдаем деятелю БД как за воровство
-          if (caster) {
+        if (caster && !same_group(ch, caster)) {
             pk_thiefs_action(ch, caster);
             sprintf(buf,
                     "Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n",
