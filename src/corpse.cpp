@@ -582,7 +582,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	//Polud привязываем загрузку ингров к расе (типу) моба
 	if (IS_NPC(ch) && GET_RACE(ch) > NPC_RACE_BASIC && !NPC_FLAGGED(ch, NPC_NOINGRDROP) && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
 	{
-		OBJ_DATA* ingr = try_make_ingr(ch, 1000, 100);
+		OBJ_DATA* ingr = try_make_ingr(ch, 1000);
 		if (ingr)
 		{
 			obj_to_obj(ingr, corpse.get());
