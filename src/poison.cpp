@@ -214,8 +214,8 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 // * Крит при отравлении с пушек.
 void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
     AFFECT_DATA<EApplyLocation> af;
-	int percent = number(1, skill_info[SKILL_POISONED].max_percent * 3);
-	int prob = calculate_skill(ch, SKILL_POISONED, vict);
+	int percent = number(1, skill_info[SKILL_POISONED].fail_percent * 3);
+	int prob = CalcCurrentSkill(ch, SKILL_POISONED, vict);
 	if (prob >= percent) {
 		switch (number(1, 5)) {
 		case 1:
@@ -368,7 +368,7 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	if (number(1, 200) <= 25
 		|| (!GET_AF_BATTLE(vict, EAF_FIRST_POISON) && !AFF_FLAGGED(vict, EAffectFlag::AFF_POISON)))
 	{
-		improve_skill(ch, SKILL_POISONED, TRUE, vict);
+      ImproveSkill(ch, SKILL_POISONED, TRUE, vict);
 		if (weap_poison_vict(ch, vict, spell_num))
 		{
 			if (spell_num == SPELL_ACONITUM_POISON)

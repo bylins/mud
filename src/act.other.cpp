@@ -384,8 +384,8 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	send_to_char("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
-	percent = number(1, skill_info[SKILL_SNEAK].max_percent);
-	prob = calculate_skill(ch, SKILL_SNEAK, 0);
+	percent = number(1, skill_info[SKILL_SNEAK].fail_percent);
+	prob = CalcCurrentSkill(ch, SKILL_SNEAK, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_SNEAK;
@@ -448,8 +448,8 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 
 	send_to_char("Вы начали усиленно маскироваться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	percent = number(1, skill_info[SKILL_CAMOUFLAGE].max_percent);
-	prob = calculate_skill(ch, SKILL_CAMOUFLAGE, 0);
+	percent = number(1, skill_info[SKILL_CAMOUFLAGE].fail_percent);
+	prob = CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAMOUFLAGE;
@@ -514,8 +514,8 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	send_to_char("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
-	percent = number(1, skill_info[SKILL_HIDE].max_percent);
-	prob = calculate_skill(ch, SKILL_HIDE, 0);
+	percent = number(1, skill_info[SKILL_HIDE].fail_percent);
+	prob = CalcCurrentSkill(ch, SKILL_HIDE, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_HIDE;
@@ -557,7 +557,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 	}
 
 	// 101% is a complete failure
-	percent = number(1, skill_info[SKILL_STEAL].max_percent);
+	percent = number(1, skill_info[SKILL_STEAL].fail_percent);
 
 	if (WAITLESS(ch) || (GET_POS(vict) <= POS_SLEEPING && !AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP)))
 		success = 1;	// ALWAYS SUCCESS, unless heavy object.
@@ -633,7 +633,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				return;
 			}
 			percent += GET_OBJ_WEIGHT(obj);	// Make heavy harder
-			prob = calculate_skill(ch, SKILL_STEAL, vict);
+			prob = CalcCurrentSkill(ch, SKILL_STEAL, vict);
 
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 				prob += 5;
@@ -670,12 +670,12 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				}
 			}
 			if (CAN_SEE(vict, ch) && AWAKE(vict))
-				improve_skill(ch, SKILL_STEAL, 0, vict);
+              ImproveSkill(ch, SKILL_STEAL, 0, vict);
 		}
 	}
 	else  		// Steal some coins
 	{
-		prob = calculate_skill(ch, SKILL_STEAL, vict);
+		prob = CalcCurrentSkill(ch, SKILL_STEAL, vict);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 			prob += 5;
 		if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP))
@@ -735,7 +735,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			}
 		}
 		if (CAN_SEE(vict, ch) && AWAKE(vict))
-			improve_skill(ch, SKILL_STEAL, 0, vict);
+          ImproveSkill(ch, SKILL_STEAL, 0, vict);
 	}
 	if (!WAITLESS(ch) && ohoh)
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
@@ -881,7 +881,7 @@ void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	timed.skill = SKILL_COURAGE;
 	timed.time = 6;
 	timed_to_char(ch, &timed);
-	prob = calculate_skill(ch, SKILL_COURAGE, 0) / 20;
+	prob = CalcCurrentSkill(ch, SKILL_COURAGE, 0) / 20;
 	AFFECT_DATA<EApplyLocation> af[4];
 	af[0].type = SPELL_COURAGE;
 	af[0].duration = pc_duration(ch, 3, 0, 0, 0, 0);
@@ -3223,13 +3223,13 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	percent = number(1, skill_info[SKILL_DIG].max_percent);
+	percent = number(1, skill_info[SKILL_DIG].fail_percent);
 	prob = ch->get_skill(SKILL_DIG);
 	old_int = ch->get_int();
 	old_wis = ch->get_wis();
 	ch->set_int(ch->get_int() + 14 - MAX(14, GET_REAL_INT(ch)));
 	ch->set_wis(ch->get_wis() + 14 - MAX(14, GET_REAL_WIS(ch)));
-	improve_skill(ch, SKILL_DIG, 0, 0);
+  ImproveSkill(ch, SKILL_DIG, 0, 0);
 	ch->set_int(old_int);
 	ch->set_wis(old_wis);
 
@@ -3432,7 +3432,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	}
 
-	percent = number(1, skill_info[SKILL_INSERTGEM].max_percent);
+	percent = number(1, skill_info[SKILL_INSERTGEM].fail_percent);
 	prob = ch->get_skill(SKILL_INSERTGEM);
 
 	WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -3458,7 +3458,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (!*arg3)
 	{
-		improve_skill(ch, SKILL_INSERTGEM, 0, 0);
+      ImproveSkill(ch, SKILL_INSERTGEM, 0, 0);
 
 		if (percent > prob / insgem_vars.prob_divide)
 		{
@@ -3505,7 +3505,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			return;
 		}
 
-		improve_skill(ch, SKILL_INSERTGEM, 0, 0);
+      ImproveSkill(ch, SKILL_INSERTGEM, 0, 0);
 
 		//успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
 		if (number(1, ch->get_skill(SKILL_INSERTGEM)) > (ch->get_skill(SKILL_INSERTGEM) - 50))

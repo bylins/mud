@@ -1122,8 +1122,8 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 		{
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK))
 			{
-				remove_hide = number(1, skill_info[SKILL_SNEAK].max_percent) >
-					calculate_skill(ch, SKILL_SNEAK, 0);
+				remove_hide = number(1, skill_info[SKILL_SNEAK].fail_percent) >
+                    CalcCurrentSkill(ch, SKILL_SNEAK, 0);
 			}
 			else
 			{
@@ -1137,7 +1137,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 		}
 		else if (percent > 0)
 		{
-			remove_hide = number(1, percent) > calculate_skill(ch, SKILL_HIDE, 0);
+			remove_hide = number(1, percent) > CalcCurrentSkill(ch, SKILL_HIDE, 0);
 		}
 
 		if (remove_hide)

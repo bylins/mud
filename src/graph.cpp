@@ -171,12 +171,12 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	int percent, dir, skill = calculate_skill(ch, SKILL_SENSE, victim);
+	int percent, dir, skill = CalcCurrentSkill(ch, SKILL_SENSE, victim);
 
 	skill = skill - MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
 	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEL(ch)) * 5);
 	skill = MAX(0, skill);
-	percent = number(0, skill_info[SKILL_SENSE].max_percent);
+	percent = number(0, skill_info[SKILL_SENSE].fail_percent);
 	if (percent > skill)
 	{
 		int tries = 10;
@@ -250,7 +250,7 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		strcpy(buf, "Ваши чувства молчат.");
 		break;
 	default:		// Success!
-		improve_skill(ch, SKILL_SENSE, TRUE, vict);
+      ImproveSkill(ch, SKILL_SENSE, TRUE, vict);
 		sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
 		break;
 	}

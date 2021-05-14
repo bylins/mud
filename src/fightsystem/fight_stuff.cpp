@@ -253,7 +253,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 			&& killer->get_master()->get_skill(SKILL_LEADERSHIP) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->get_master()))
 		{
-			improve_skill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
+          ImproveSkill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
 		}
 		else if (IS_NPC(killer) // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
@@ -265,7 +265,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master()))
 			{
-				improve_skill(killer->get_master()->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
+              ImproveSkill(killer->get_master()->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
 			}
 		}
 	}

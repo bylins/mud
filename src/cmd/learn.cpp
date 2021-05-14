@@ -201,7 +201,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 		// апгрейд скилла до макс.скилла плеера (без макса в книге)
 		if (GET_OBJ_VAL(obj, 3) <= 0
-			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= MAX_EXP_PERCENT + GET_REMORT(ch) * 5)
+			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= kSkillCapOnZeroRemort + GET_REMORT(ch) * 5)
 		{
 			book_upgrd_fail_message(ch, obj);
 			return;
@@ -277,7 +277,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				}
 				else
 				{
-					ch->set_skill(skill, MIN(left_skill_level, MAX_EXP_PERCENT + GET_REMORT(ch) * 5));
+					ch->set_skill(skill, MIN(left_skill_level, kSkillCapOnZeroRemort + GET_REMORT(ch) * 5));
 				}
 			}
 			break;

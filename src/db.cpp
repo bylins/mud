@@ -219,7 +219,7 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages(void);
 void initSpells(void);
-void initSkills(void);
+void InitSkills(void);
 void sort_commands(void);
 void Read_Invalid_List(void);
 int find_name(const char *name);
@@ -2601,7 +2601,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading skill definitions");
 	log("Loading skill definitions.");
-	initSkills();
+  InitSkills();
 
 	boot_profiler.next_step("Loading feature definitions");
 	log("Loading feature definitions.");
