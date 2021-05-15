@@ -145,8 +145,8 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 		if (new_object->get_type() == OBJ_DATA::ITEM_DRINKCON)
 		{
 			if (new_object->get_val(1)
-				&& new_object->get_val(2))
-			{
+				&& new_object->get_val(2)) {
+				name_from_drinkcon(new_object.get());
 				name_to_drinkcon(new_object.get(), new_object->get_val(2));
 			}
 		}
