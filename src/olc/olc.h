@@ -59,6 +59,7 @@
 void strip_string(char *);
 void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type);
 void get_char_cols(CHAR_DATA * ch);
+void disp_planes_values(DESCRIPTOR_DATA * d, const char *names[], short num_column);
 void olc_add_to_save_list(int zone, byte type);
 void olc_remove_from_save_list(int zone, byte type);
 

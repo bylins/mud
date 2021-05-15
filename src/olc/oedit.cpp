@@ -1018,125 +1018,30 @@ void oedit_disp_type_menu(DESCRIPTOR_DATA * d)
 }
 
 // * Object extra flags.
-void oedit_disp_extra_menu(DESCRIPTOR_DATA * d)
-{
-	int counter, columns = 0, plane = 0;
-	char c;
-
-	get_char_cols(d->character.get());
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++) {
-		if (*extra_bits[counter] == '\n') {
-			plane++;
-			c = 'a' - 1;
-			continue;
-		}
-		else if (c == 'z')
-			c = 'A';
-		else
-			c++;
-
-		sprintf(buf, "%s%c%d%s) %-30.30s %s", grn, c, plane, nrm,
-				extra_bits[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
-	}
-
+void oedit_disp_extra_menu(DESCRIPTOR_DATA * d) {
+	disp_planes_values(d, extra_bits, 2);
 	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", 5);
 	snprintf(buf, MAX_STRING_LENGTH, 
 		"\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг: (помеченное '*' пользоваться вдумчиво. 0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_anti_menu(DESCRIPTOR_DATA * d)
-{
-	int counter, columns = 0, plane = 0;
-	char c;
-
-	get_char_cols(d->character.get());
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
-	{
-		if (*anti_bits[counter] == '\n')
-		{
-			plane++;
-			c = 'a' - 1;
-			continue;
-		}
-		else if (c == 'z')
-			c = 'A';
-		else
-			c++;
-
-		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-				anti_bits[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
-	}
+void oedit_disp_anti_menu(DESCRIPTOR_DATA * d) {
+	disp_planes_values(d, anti_bits, 2);
 	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, ",", 5);
 	snprintf(buf, MAX_STRING_LENGTH, "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_no_menu(DESCRIPTOR_DATA * d)
-{
-	int counter, columns = 0, plane = 0;
-	char c;
-
-	get_char_cols(d->character.get());
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
-	{
-		if (*no_bits[counter] == '\n')
-		{
-			plane++;
-			c = 'a' - 1;
-			continue;
-		}
-		else if (c == 'z')
-			c = 'A';
-		else
-			c++;
-
-		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-				no_bits[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
-	}
+void oedit_disp_no_menu(DESCRIPTOR_DATA * d) {
+	disp_planes_values(d, no_bits, 2);
 	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, ",", 5);
 	snprintf(buf, MAX_STRING_LENGTH, "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
-void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags)
-{
-	int counter, columns = 0, plane = 0;
-	char c;
-
-	get_char_cols(d->character.get());
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
-	{
-		if (*weapon_affects[counter] == '\n')
-		{
-			plane++;
-			c = 'a' - 1;
-			continue;
-		}
-		else if (c == 'z')
-			c = 'A';
-		else
-			c++;
-
-		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-				weapon_affects[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
-	}
+void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags) {
+	disp_planes_values(d, weapon_affects, 2);
 	flags.sprintbits(weapon_affects, buf1, ",", 5);
 	snprintf(buf, MAX_STRING_LENGTH, "\r\nНакладываемые аффекты : %s%s%s\r\n"
 		"Выберите аффект (0 - выход) : ", cyn, buf1, nrm);

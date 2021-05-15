@@ -1185,93 +1185,23 @@ void medit_disp_spells(DESCRIPTOR_DATA * d)
 }
 
 // * Display mob-flags menu.
-void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
-{
-	int columns = 0, plane = 0, counter;
-	char c;
-
-	get_char_cols(d->character.get());
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
-	{
-		if (*action_bits[counter] == '\n')
-		{
-			plane++;
-			c = 'a' - 1;
-			continue;
-		}
-		else if (c == 'z')
-			c = 'A';
-		else
-			c++;
-		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-			action_bits[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
-	}
+void medit_disp_mob_flags(DESCRIPTOR_DATA * d) {
+	disp_planes_values(d, action_bits, 2);
 	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 5);
 	snprintf(buf, MAX_STRING_LENGTH, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
-void medit_disp_npc_flags(DESCRIPTOR_DATA * d)
-{
-	int columns = 0, plane = 0, counter;
-	char c;
-
-	get_char_cols(d->character.get());
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
-	{
-		if (*function_bits[counter] == '\n')
-		{
-			plane++;
-			c = 'a' - 1;
-			continue;
-		}
-		else if (c == 'z')
-			c = 'A';
-		else
-			c++;
-		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-			function_bits[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
-	}
+void medit_disp_npc_flags(DESCRIPTOR_DATA * d) {
+	disp_planes_values(d, function_bits, 2);
 	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",",5);
 	snprintf(buf, MAX_STRING_LENGTH,"\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
 // * Display affection flags menu.
-void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
-{
-	int columns = 0, plane = 0, counter;
-	char c;
-
-	get_char_cols(d->character.get());
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
-	{
-		if (*affected_bits[counter] == '\n')
-		{
-			plane++;
-			c = 'a' - 1;
-			continue;
-		}
-		else if (c == 'z')
-			c = 'A';
-		else
-			c++;
-
-		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-			affected_bits[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
-	}
+void medit_disp_aff_flags(DESCRIPTOR_DATA * d) {
+	disp_planes_values(d, affected_bits, 2);
 	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 5);
 	snprintf(buf, MAX_STRING_LENGTH, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
