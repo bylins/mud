@@ -452,6 +452,24 @@ void get_char_cols(CHAR_DATA * ch)
 	iyel = CCIYEL(ch, C_NRM);
 	ired = CCIRED(ch, C_NRM);
 }
+void disp_planes_values(DESCRIPTOR_DATA * d, const char *names[], short num_column) {
+	int counter, column = 0, plane = 0;
+	char c;
+	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++) {
+		if (*names[counter] == '\n') {
+			plane++;
+			c  = 'a' - 1;
+			continue;
+		}
+		else if (c == 'z') {
+			c = 'A';
+		}
+		else
+			c++;
+		sprintf(buf, "&g%c%d&n) %-30.30s %s", c, plane, names[counter], !(++column % num_column) ? "\r\n" : "");
+		send_to_char(buf, d->character.get());
+	}
+}
 
 /*
  * This procedure removes the '\r\n' from a string so that it may be

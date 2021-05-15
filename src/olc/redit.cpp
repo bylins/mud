@@ -429,15 +429,10 @@ void redit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 	auto extra_desc = OLC_DESC(d);
 
 	sprintf(buf,
-#if defined(CLEAR_SCREEN)
-		"[H[J"
-#endif
-		"%s1%s) Ключ: %s%s\r\n"
-		"%s2%s) Описание:\r\n%s%s\r\n"
-		"%s3%s) Следующее описание: ",
-		grn, nrm, yel,
-		extra_desc->keyword ? extra_desc->keyword : "<NONE>", grn, nrm,
-		yel, extra_desc->description ? extra_desc->description : "<NONE>", grn, nrm);
+		"&g1&n) Ключ: &y%s\r\n"
+		"&g2&n) Описание:\r\n&y%s\r\n"
+		"&g3&n) Следующее описание: ",
+		extra_desc->keyword ? extra_desc->keyword : "<NONE>", extra_desc->description ? extra_desc->description : "<NONE>");
 
 	strcat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n");
 	strcat(buf, "Enter choice (0 to quit) : ");
@@ -521,32 +516,8 @@ void redit_disp_exit_flag_menu(DESCRIPTOR_DATA * d)
 }
 
 // * For room flags.
-void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
-{
-	int counter, columns = 0, plane = 0;
-	char c;
-
-	get_char_cols(d->character.get());
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
-	{
-		if (*room_bits[counter] == '\n')
-		{
-			plane++;
-			c = 'a' - 1;
-			continue;
-		}
-		else if (c == 'z')
-			c = 'A';
-		else
-			c++;
-
-		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-				room_bits[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character.get());
-	}
+void redit_disp_flag_menu(DESCRIPTOR_DATA * d) {
+	disp_planes_values(d, room_bits, 2);
 	OLC_ROOM(d)->flags_sprint(buf1, ",", true);
 	snprintf(buf, MAX_STRING_LENGTH, "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
