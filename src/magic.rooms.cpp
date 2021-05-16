@@ -460,8 +460,8 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spel
 		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_RUNE_LABEL;
 		af[0].must_handled = false;
-		accum_duration = TRUE;
-		update_spell = FALSE;
+		accum_duration = FALSE;
+		update_spell = TRUE;
 		only_one = TRUE;
 		to_char = "Вы начертали свое имя рунами на земле и произнесли заклинание.";
 		to_room = "$n начертил$g на земле несколько рун и произнес$q заклинание.";

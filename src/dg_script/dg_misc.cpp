@@ -253,11 +253,12 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 
 		IN_ROOM(caster) = real_room(caster_room->number);
 	}
-	if (type == OBJ_TRIGGER){
+/*	if (type == OBJ_TRIGGER){
 	sprintf(buf2, "dg_cast OBJ_TRIGGER: имя кастера: %s, его уровень: %d, его морты: %d, закл: %s.", GET_NAME(caster),
 		GET_LEVEL(caster), GET_REMORT(caster), spell_info[spellnum].name);
 	trig_log(trig, buf2);
 	}
+*/
 	// Find the target
 	if (t != NULL)
 		one_argument(t, arg);
