@@ -135,8 +135,8 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	OLC_VAL(d) = 0;
 }
 
-// * Обновление данных у конкретной шмотки (для update_online_objects).
-void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
+// * Обновление данных у конкретной шмотки
+void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj)
 {
 	// Итак, нашел объект
 	// Внимание! Таймер объекта, его состояние и т.д. обновятся!
@@ -167,7 +167,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	OBJ_DATA tmp(*obj);
 
 	// Копируем информацию из прототипа
-	*obj = *olc_proto;
+	*obj = *olc_obj;
 
 	//Восстанавливаем падежи если объект поренеймлен
 	if (tmp.get_is_rename()) {
@@ -238,14 +238,12 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.
-void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
-{
-	world_objects.foreach_with_rnum(robj_num, [&](const OBJ_DATA::shared_ptr& object)
-	{
-		olc_update_object(robj_num, object.get(), olc_proto);
+void olc_update_objects(int robj_num, OBJ_DATA *olc_obj) {
+	world_objects.foreach_with_rnum(robj_num, [&](const OBJ_DATA::shared_ptr& object) {
+		olc_update_object(robj_num, object.get(), olc_obj);
 	});
-	Depot::olc_update_from_proto(robj_num, olc_proto);
-	Parcel::olc_update_from_proto(robj_num, olc_proto);
+	Depot::olc_update_from_proto(robj_num, olc_obj);
+	Parcel::olc_update_from_proto(robj_num, olc_obj);
 }
 
 //------------------------------------------------------------------------
@@ -540,7 +538,7 @@ void show_apply_olc(DESCRIPTOR_DATA *d)
 	for (counter = 0; counter < NUM_APPLIES; counter++)
 	{
 		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
-				apply_types[counter], !(++columns % 2) ? "\r\n" : "");
+				apply_types[counter], !(++columns % 3) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("\r\nЧто добавляем (0 - выход) : ", d->character.get());

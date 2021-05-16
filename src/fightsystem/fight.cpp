@@ -2186,7 +2186,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	{
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 		{
-			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::OFFHAND);
+			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::MAIN_HAND);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
