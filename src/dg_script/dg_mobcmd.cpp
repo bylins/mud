@@ -23,7 +23,7 @@
  *  $Revision$                                                   *
  ***************************************************************************/
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "cmd/follow.h"
 #include "comm.h"
 #include "conf.h"
@@ -46,7 +46,7 @@
 #include "sysdep.h"
 #include "world.objects.hpp"
 #include "skills/townportal.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 struct mob_command_info
 {

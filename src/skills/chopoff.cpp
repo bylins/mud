@@ -8,7 +8,7 @@
 #include "spells.h"
 #include "random.hpp"
 #include "screen.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 using namespace FightSystem;
 
@@ -40,7 +40,7 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
   if (!pk_agro_action(ch, vict))
     return;
 
-  int percent = number(1, skill_info[SKILL_CHOPOFF].fail_percent);
+  int percent = number(1, skill_info[SKILL_CHOPOFF].difficulty);
   int prob = CalcCurrentSkill(ch, SKILL_CHOPOFF, vict);
 
   if (check_spell_on_player(ch, SPELL_WEB)) {

@@ -7,7 +7,7 @@
 #include "fightsystem/start.fight.h"
 #include "handler.h"
 #include "protect.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 using namespace FightSystem;
 
@@ -92,7 +92,7 @@ void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
     return;
   }
 
-  percent = number(1, skill_info[SKILL_BACKSTAB].fail_percent);
+  percent = number(1, skill_info[SKILL_BACKSTAB].difficulty);
   prob = CalcCurrentSkill(ch, SKILL_BACKSTAB, vict);
 
   if (can_use_feat(ch, SHADOW_STRIKE_FEAT)) {

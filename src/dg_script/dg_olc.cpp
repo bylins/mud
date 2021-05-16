@@ -21,7 +21,7 @@
 #include "db.h"
 #include "olc/olc.h"
 #include "dg_event.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "room.hpp"
 #include "zone.table.hpp"
 #include "logger.hpp"

@@ -22,7 +22,7 @@
 #include "diskio.h"
 #include "interpreter.h"
 #include "genchar.h"
-#include "AffectHandler.hpp"
+#include "affects/affects_handler.h"
 #include "player_races.hpp"
 #include "morph.hpp"
 #include "features.hpp"
@@ -30,10 +30,10 @@
 #include "ext_money.hpp"
 #include "temp_spells.hpp"
 #include "conf.h"
-#include "accounts.hpp"
+#include "accounts.h"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 #include <boost/lexical_cast.hpp>

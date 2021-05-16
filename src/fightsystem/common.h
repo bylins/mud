@@ -1,7 +1,7 @@
 #ifndef BYLINS_COMMON_H
 #define BYLINS_COMMON_H
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 
 inline bool dontCanAct(CHAR_DATA *ch) {
     return (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT));

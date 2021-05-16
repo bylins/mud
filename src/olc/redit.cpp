@@ -17,7 +17,7 @@
 #include "im.h"
 #include "description.h"
 #include "deathtrap.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 #include "room.hpp"
 #include "house.h"

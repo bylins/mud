@@ -12,14 +12,14 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "act.wizard.hpp"
+#include "act.wizard.h"
 
-#include "action.targeting.hpp"
-#include "ban.hpp"
-#include "birth_places.hpp"
+#include "action_targeting.h"
+#include "cmd.wiz/ban.h"
+#include "birthplaces.h"
 #include "celebrates.hpp"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 #include "chars/player_races.hpp"
 #include "chars/world.characters.hpp"

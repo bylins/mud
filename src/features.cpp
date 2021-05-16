@@ -10,7 +10,7 @@
 #include "features.hpp"
 
 #include "abilities/abilities_constants.h"
-#include "action.targeting.hpp"
+#include "action_targeting.h"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "handler.h"
@@ -18,7 +18,7 @@
 #include "db.h"
 #include "interpreter.h"
 #include "spells.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/player_races.hpp"
 #include "room.hpp"
 #include "screen.h"
@@ -35,8 +35,6 @@
 #include <boost/algorithm/string/trim_all.hpp>
 
 #include <string>
-
-using namespace AbilitySystemConstants;
 
 extern const char *unused_spellname;
 
@@ -98,7 +96,7 @@ int find_feat_num(const char *name, bool alias)
 }
 
 void initializeFeature(int featureNum, const char *name, int type, bool can_up_slot, CFeatArray app,
-		 short dicerollBonus = MAX_ABILITY_DICEROLL_BONUS, ESkill baseSkill = SKILL_INVALID,
+		 short dicerollBonus = abilities::kMaxAbilityDicerollBonus, ESkill baseSkill = SKILL_INVALID,
 		 short oppositeSaving = SAVING_STABILITY)
 {
 	int i, j;
@@ -149,10 +147,10 @@ void initializeFeatureByDefault(int featureNum)
 	feat_info[featureNum].baseDamageBonusPercent = 0;
 	feat_info[featureNum].degreeOfSuccessDamagePercent = 5;
 	feat_info[featureNum].oppositeSaving = SAVING_STABILITY;
-	feat_info[featureNum].dicerollBonus = MAX_ABILITY_DICEROLL_BONUS;
+	feat_info[featureNum].dicerollBonus = abilities::kMaxAbilityDicerollBonus;
 	feat_info[featureNum].baseSkill = SKILL_INVALID;
-	feat_info[featureNum].criticalFailThreshold = DEFAULT_CRITICAL_FAIL_THRESHOLD;
-	feat_info[featureNum].criticalSuccessThreshold = DEFAULT_CRITICAL_SUCCESS_THRESHOLD;
+	feat_info[featureNum].criticalFailThreshold = abilities::kDefaultCriticalFailThreshold;
+	feat_info[featureNum].criticalSuccessThreshold = abilities::kDefaultCriticalSuccessThreshold;
 
 	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
 		feat_info[featureNum].affected[i].location = APPLY_NONE;
@@ -1556,9 +1554,9 @@ short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /*
 	int skirmishers = roster.count([](CHAR_DATA* ch){return PRF_FLAGGED(ch, PRF_SKIRMISHER);});
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
-		return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_FACTOR - 40;
+		return (skirmishers*2 - uncoveredSquadMembers)*abilities::kSituationableFactor - 40;
 	};
-	return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_FACTOR;
+	return (skirmishers*2 - uncoveredSquadMembers)*abilities::kSituationableFactor;
 };
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -17,7 +17,7 @@
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "comm.h"
 #include "constants.h"
 #include "db.h"
@@ -46,7 +46,7 @@
 #include "char_obj_utils.inl"
 #include "global.objects.hpp"
 #include "strengthening.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <boost/format.hpp>
 
@@ -2292,7 +2292,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
   }
 
-  percent = number(1, skill_info[SKILL_UPGRADE].fail_percent);
+  percent = number(1, skill_info[SKILL_UPGRADE].difficulty);
   prob = CalcCurrentSkill(ch, SKILL_UPGRADE, nullptr);
   TrainSkill(ch, SKILL_UPGRADE, percent <= prob, nullptr);
   if (obj->get_timer() == 0) // не ждем рассыпания на тике
@@ -2414,7 +2414,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
       return;
   }
 
-  percent = number(1, skill_info[SKILL_ARMORED].fail_percent);
+  percent = number(1, skill_info[SKILL_ARMORED].difficulty);
   prob = CalcCurrentSkill(ch, SKILL_ARMORED, nullptr);
   TrainSkill(ch, SKILL_ARMORED, percent <= prob, nullptr);
   add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_LEVEL(ch) + 4) / 5);
@@ -2519,7 +2519,7 @@ void do_fire(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
   if (!check_moves(ch, FIRE_MOVES))
     return;
 
-  percent = number(1, skill_info[SKILL_FIRE].fail_percent);
+  percent = number(1, skill_info[SKILL_FIRE].difficulty);
   prob = CalcCurrentSkill(ch, SKILL_FIRE, 0);
   if (percent > prob) {
     send_to_char("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
@@ -2680,7 +2680,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     return;
   }
 
-  int percent = number(1, skill_info[SKILL_AID].fail_percent);
+  int percent = number(1, skill_info[SKILL_AID].difficulty);
   int prob = CalcCurrentSkill(ch, SKILL_AID, vict);
 
   if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE)) {
@@ -2880,7 +2880,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     return;
   }
 
-  prob = number(1, skill_info[SKILL_REPAIR].fail_percent);
+  prob = number(1, skill_info[SKILL_REPAIR].difficulty);
   percent = CalcCurrentSkill(ch, SKILL_REPAIR, nullptr);
   TrainSkill(ch, SKILL_REPAIR, prob <= percent, nullptr);
   if (prob > percent) {
@@ -3031,7 +3031,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     return;
   }
 
-  const auto prob = number(1, skill_info[SKILL_MAKEFOOD].fail_percent);
+  const auto prob = number(1, skill_info[SKILL_MAKEFOOD].difficulty);
   const auto percent = CalcCurrentSkill(ch, SKILL_MAKEFOOD, mob)
       + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
   TrainSkill(ch, SKILL_MAKEFOOD, percent <= prob, mob);

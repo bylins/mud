@@ -7,7 +7,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "comm.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "interpreter.h"
 #include "db.h"
 #include "handler.h"

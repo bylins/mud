@@ -9,7 +9,7 @@
 #include "db.h"
 #include "logger.hpp"
 #include "utils.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "comm.h"
 #include "handler.h"
 #include "dg_script/dg_scripts.h"

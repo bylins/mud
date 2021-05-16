@@ -22,7 +22,7 @@
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "room.hpp"
 
 // extern variables

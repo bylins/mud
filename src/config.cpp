@@ -19,7 +19,7 @@
 #include "boards/boards.changelog.loaders.hpp"
 #include "boards/boards.constants.hpp"
 #include "utils.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 
 #if CIRCLE_UNIX
 #include <sys/stat.h>

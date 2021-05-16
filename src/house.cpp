@@ -20,7 +20,7 @@
 #include "skills.h"
 #include "spells.h"
 #include "privilege.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 #include "modify.h"
 #include "room.hpp"

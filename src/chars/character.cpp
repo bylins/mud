@@ -26,10 +26,10 @@
 #include "help.hpp"
 #include "utils.h"
 #include "msdp/msdp.constants.hpp"
-#include "backtrace.hpp"
+#include "backtrace.h"
 #include "dg_script/dg_scripts.h"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <boost/format.hpp>
 
@@ -49,19 +49,6 @@ void check_purged(const CHAR_DATA *ch, const char *fnc) {
     log("SYSERR: Using purged character (%s).", fnc);
     debug::backtrace(runtime_config.logs(SYSLOG).handle());
   }
-}
-// \TODO: И зачем это тут?
-int normalize_skill(int percent, ESkill skill) {
-  const static int kMinSkillPercent = 0;
-  const static int kMaxSkillPercent = skill_info[skill].cap;
-
-  if (percent < kMinSkillPercent)
-    percent = kMinSkillPercent;
-  else {
-    if (percent > kMaxSkillPercent)
-      percent = kMaxSkillPercent;
-  }
-  return percent;
 }
 } // namespace
 
@@ -549,7 +536,6 @@ int CHAR_DATA::get_skill(const ESkill skill_num) const {
   if (AFF_FLAGGED(this, EAffectFlag::AFF_SKILLS_REDUCE)) {
     skill -= skill * GET_POISON(this) / 100;
   }
-  //return normalize_skill(skill, skill_num);
   return std::clamp(skill, 0, skill_info[skill_num].cap);
 }
 
@@ -586,7 +572,6 @@ int CHAR_DATA::get_inborn_skill(const ESkill skill_num) {
   if (Privilege::check_skills(this)) {
     CharSkillsType::iterator it = skills.find(skill_num);
     if (it != skills.end()) {
-      //return normalize_skill(it->second.skillLevel, skill_num);
       return std::clamp(it->second.skillLevel, 0, skill_info[skill_num].cap);
     }
   }
@@ -595,7 +580,6 @@ int CHAR_DATA::get_inborn_skill(const ESkill skill_num) {
 
 int CHAR_DATA::get_trained_skill(const ESkill skill_num) const {
   if (Privilege::check_skills(this)) {
-    //return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
     return std::clamp(current_morph_->get_trained_skill(skill_num), 0, skill_info[skill_num].cap);
   }
   return 0;

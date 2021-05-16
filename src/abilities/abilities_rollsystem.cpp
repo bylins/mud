@@ -5,13 +5,11 @@
 */
 
 #include "abilities_rollsystem.h"
-#include "skills.info.h"
-
 #include "random.hpp"
 
-namespace AbilitySystem {
+#include <algorithm>
 
-using namespace AbilitySystemConstants;
+namespace abilities {
 
 void AgainstRivalRollType::initialize(CHAR_DATA *abilityActor, int usedAbility, CHAR_DATA *abilityVictim) {
   _rival = abilityVictim;
@@ -32,7 +30,7 @@ void AbilityRollType::initialize(CHAR_DATA *abilityActor, int usedAbility) {
 void AbilityRollType::performAbilityTest() {
   _actorRating = calculateActorRating();
   short targetRating = calculateTargetRating();
-  short diceRoll = number(1, MAIN_DICE_SIZE);
+  short diceRoll = number(1, kMainDiceSize);
   short difficulty = _actorRating - targetRating;
   short rollResult = difficulty - diceRoll;
   processingResult(rollResult, diceRoll);
@@ -78,10 +76,10 @@ void AbilityRollType::sendDenyMessageToActor() {
 };
 
 void AbilityRollType::processingResult(short result, short diceRoll) {
-  _success = (result >= SUCCESS_THRESHOLD);
-  _degreeOfSuccess = result / DEGREE_DIVIDER;
-  _degreeOfSuccess = MIN(_degreeOfSuccess, MAX_SUCCESS_DEGREE);
-  _degreeOfSuccess = MAX(_degreeOfSuccess, MAX_FAIL_DEGREE);
+  _success = (result >= kSuccessThreshold);
+  _degreeOfSuccess = result / kDegreeDivider;
+  _degreeOfSuccess = std::min(_degreeOfSuccess, kMaxSuccessDegree);
+  _degreeOfSuccess = std::min(_degreeOfSuccess, kMaxFailDegree);
   if (_success) {
     _criticalSuccess = revealCriticalSuccess(diceRoll);
   } else {
@@ -130,7 +128,7 @@ bool AgainstRivalRollType::isActorMoraleFailure() {
 // TODO: переделать на static, чтобы иметь возможность считать рейтинги, к примеру, при наложении аффектов
 short AbilityRollType::calculateActorRating() {
   short baseSkillRating = calculatBaseSkillRating();
-  short baseParameterRating = _ability->getBaseParameter(_actor) / PARAMETER_RATING_DIVIDER;
+  short baseParameterRating = _ability->getBaseParameter(_actor) / kParameterRatingDivider;
   short dicerollBonus = calculateDicerollBonus();
   return (baseSkillRating + baseParameterRating + dicerollBonus);
 };
@@ -146,7 +144,7 @@ short AgainstRivalRollType::calculateTargetRating() {
 
 //TODO: избавиться от target в calculate_skill и убрать обертку
 short AgainstRivalRollType::calculatBaseSkillRating() {
-  return (CalcCurrentSkill(_actor, _baseSkill, _rival) / SKILL_RATING_DIVIDER);
+  return (CalcCurrentSkill(_actor, _baseSkill, _rival) / kSkillRatingDivider);
 };
 
 //TODO: Избавиться от таргета в ситуационном бонусе, он там не нужен
@@ -203,14 +201,14 @@ bool TechniqueRollType::isSuitableItem(const TechniqueItem &techniqueItem) {
 //	TODO: Привести подсчет дамага к одному знаменателю с несколькими возможными точками входа.
 int AbilityRollType::calculateBaseDamage() {
   short abilityBaseParameter = _ability->getBaseParameter(_actor);
-  short dicePool = GET_SKILL(_actor, _baseSkill) / DAMAGE_DICEPOOL_SKILL_DIVIDER;
+  short dicePool = GET_SKILL(_actor, _baseSkill) / kDamageDicepoolSkillDivider;
   dicePool = MIN(dicePool, abilityBaseParameter);
-  return dice(MAX(1, dicePool), DAMAGE_DICE_SIZE);
+  return dice(MAX(1, dicePool), kDamageDiceSize);
 };
 
 int AbilityRollType::calculateAddDamage() {
   short dicePool = _ability->getEffectParameter(_actor);
-  short diceSize = DAMAGE_DICE_SIZE;
+  short diceSize = kDamageDiceSize;
   return dice(dicePool, diceSize);
 }
 
@@ -246,6 +244,6 @@ int TechniqueRollType::calculateDamage() {
   return damage;
 };
 
-}; // namespace AbilitySystem
+}; // namespace abilities
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

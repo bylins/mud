@@ -4,14 +4,14 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/common.h"
-#include "action.targeting.hpp"
+#include "action_targeting.h"
 #include "abilities/abilities_rollsystem.h"
 #include "handler.h"
 #include "spells.h"
 #include "cmd/flee.h"
 
 using  namespace FightSystem;
-using  namespace AbilitySystem;
+using  namespace abilities;
 
 void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
 

@@ -10,7 +10,7 @@
 #include "liquid.hpp"
 
 #include "obj.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "char_obj_utils.inl"
 #include "db.h"
 #include "comm.h"
@@ -20,7 +20,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "features.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <cmath>
 
@@ -716,7 +716,7 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? getModifier(DRUNKARD_FEAT, FEAT_TIMER) : 12;
   timed_to_char(ch, &timed);
 
-  percent = number(1, skill_info[SKILL_DRUNKOFF].fail_percent);
+  percent = number(1, skill_info[SKILL_DRUNKOFF].difficulty);
   prob = CalcCurrentSkill(ch, SKILL_DRUNKOFF, nullptr);
   TrainSkill(ch, SKILL_DRUNKOFF, percent <= prob, nullptr);
   amount = MIN(amount, GET_OBJ_VAL(obj, 1));

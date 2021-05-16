@@ -16,7 +16,7 @@
 #include "db.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "parcel.hpp"
 #include "chars/char_player.hpp"
 #include "named_stuff.hpp"

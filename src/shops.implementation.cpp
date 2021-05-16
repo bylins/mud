@@ -4,7 +4,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "liquid.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "ext_money.hpp"

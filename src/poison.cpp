@@ -7,7 +7,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "obj.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "spells.h"
 #include "liquid.hpp"
 #include "screen.h"
@@ -17,7 +17,7 @@
 #include "skills.h"
 #include "room.hpp"
 #include "fightsystem/fight.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 extern int interpolate(int min_value, int pulse);
 
@@ -214,7 +214,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 // * Крит при отравлении с пушек.
 void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
     AFFECT_DATA<EApplyLocation> af;
-	int percent = number(1, skill_info[SKILL_POISONED].fail_percent * 3);
+	int percent = number(1, skill_info[SKILL_POISONED].difficulty * 3);
 	int prob = CalcCurrentSkill(ch, SKILL_POISONED, vict);
 	if (prob >= percent) {
 		switch (number(1, 5)) {

@@ -40,7 +40,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "random.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
@@ -62,7 +62,7 @@
 #include "bonus.h"
 #include "conf.h"
 #include "classes/constants.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "magic.rooms.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -2004,7 +2004,7 @@ void look_in_direction(CHAR_DATA *ch, int dir, int info_is) {
         send_to_char("&R&q", ch);
         count = 0;
         for (const auto tch : world[rdata->to_room()]->people) {
-          percent = number(1, skill_info[SKILL_LOOKING].fail_percent);
+          percent = number(1, skill_info[SKILL_LOOKING].difficulty);
           probe = CalcCurrentSkill(ch, SKILL_LOOKING, tch);
           TrainSkill(ch, SKILL_LOOKING, probe >= percent, tch);
           if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
@@ -2056,7 +2056,7 @@ void hear_in_direction(CHAR_DATA *ch, int dir, int info_is) {
     send_to_char(buf, ch);
     count = 0;
     for (const auto tch : world[rdata->to_room()]->people) {
-      percent = number(1, skill_info[SKILL_HEARING].fail_percent);
+      percent = number(1, skill_info[SKILL_HEARING].difficulty);
       probe = CalcCurrentSkill(ch, SKILL_HEARING, tch);
       TrainSkill(ch, SKILL_HEARING, probe >= percent, tch);
       // Если сражаются то слышем только борьбу.
@@ -2439,7 +2439,7 @@ bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd) {
     look_at_char(found_char, ch);
     if (ch != found_char) {
       if (subcmd == SCMD_LOOK_HIDE && ch->get_skill(SKILL_LOOK_HIDE) > 0) {
-        fnum = number(1, skill_info[SKILL_LOOK_HIDE].fail_percent);
+        fnum = number(1, skill_info[SKILL_LOOK_HIDE].difficulty);
         found = CalcCurrentSkill(ch, SKILL_LOOK_HIDE, found_char);
         TrainSkill(ch, SKILL_LOOK_HIDE, found < fnum, found_char);
         if (!WAITLESS(ch))

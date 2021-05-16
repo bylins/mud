@@ -25,7 +25,7 @@
 #include "skills.h"
 #include "im.h"
 #include "features.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "interpreter.h"
 #include "room.hpp"
 #include "magic.h"
@@ -36,7 +36,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "temp_spells.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <algorithm>
 #include <stack>

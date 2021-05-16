@@ -13,7 +13,7 @@
 #include "screen.h"
 #include "comm.h"
 #include "privilege.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "modify.h"
 #include "room.hpp"
 #include "handler.h"

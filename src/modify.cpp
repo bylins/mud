@@ -27,7 +27,7 @@
 #include "features.hpp"
 #include "house.h"
 #include "privilege.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "skills.h"
 #include "genchar.h"
 #include "logger.hpp"
@@ -35,7 +35,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 #include <boost/algorithm/string.hpp>

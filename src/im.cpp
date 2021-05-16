@@ -23,7 +23,7 @@
 #include "constants.h"
 #include "screen.h"
 #include "features.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "modify.h"
 #include "room.hpp"
 #include "logger.hpp"

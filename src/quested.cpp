@@ -4,7 +4,7 @@
 
 #include "quested.hpp"
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "utils.h"
 
 #include <boost/algorithm/string/predicate.hpp>

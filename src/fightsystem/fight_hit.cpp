@@ -14,7 +14,7 @@
 #include "mobact.hpp"
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -887,19 +887,19 @@ void addshot_damage(CHAR_DATA *ch, ESkill type, FightSystem::AttType weapon) {
   // а для скилла до сотни все остается как было
   prob = MIN(100, prob);
 
-  int percent = number(1, skill_info[SKILL_ADDSHOT].fail_percent);
+  int percent = number(1, skill_info[SKILL_ADDSHOT].difficulty);
   // 1й доп - не более 100% при скилее 100+
   if (prob * sit_mod >= percent / 2)
     hit(ch, ch->get_fighting(), type, weapon);
-  percent = number(1, skill_info[SKILL_ADDSHOT].fail_percent);
+  percent = number(1, skill_info[SKILL_ADDSHOT].difficulty);
   // 2й доп - 60% при скилле 100, до 100% при максимуме скилла и дексы
   if ((prob * 3 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->get_fighting())
     hit(ch, ch->get_fighting(), type, weapon);
-  percent = number(1, skill_info[SKILL_ADDSHOT].fail_percent);
+  percent = number(1, skill_info[SKILL_ADDSHOT].difficulty);
   // 3й доп - 30% при скилле 100, до 70% при максимуме скилла и дексы (при 5+ мортов)
   if ((prob * 3 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
     hit(ch, ch->get_fighting(), type, weapon);
-  percent = number(1, skill_info[SKILL_ADDSHOT].fail_percent);
+  percent = number(1, skill_info[SKILL_ADDSHOT].difficulty);
   // 4й доп - 20% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
   if ((prob + dex_mod * 100) * remort_mod * sit_mod > percent * 5 / 2 && ch->get_fighting())
     hit(ch, ch->get_fighting(), type, weapon);
@@ -1378,7 +1378,7 @@ void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam) {
       && (IS_IMMORTAL(vict) || IS_NPC(vict)
           || !(GET_EQ(vict, WEAR_WIELD) || GET_EQ(vict, WEAR_BOTHS)))
       && GET_POS(vict) > POS_SLEEPING) {
-    int percent = number(1, skill_info[SKILL_TOUCH].fail_percent);
+    int percent = number(1, skill_info[SKILL_TOUCH].difficulty);
     int prob = CalcCurrentSkill(vict, SKILL_TOUCH, ch);
     TrainSkill(vict, SKILL_TOUCH, prob >= percent, ch);
     if (IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)) {
@@ -1409,7 +1409,7 @@ void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam) {
 }
 
 void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
-  int range = number(1, skill_info[SKILL_DEVIATE].fail_percent);
+  int range = number(1, skill_info[SKILL_DEVIATE].difficulty);
   int prob = CalcCurrentSkill(victim, SKILL_DEVIATE, ch);
   if (GET_GOD_FLAG(victim, GF_GODSCURSE)) {
     prob = 0;
@@ -1456,7 +1456,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *d
     send_to_char("У вас нечем отклонить атаку противника\r\n", victim);
     CLR_AF_BATTLE(victim, EAF_PARRY);
   } else {
-    int range = number(1, skill_info[SKILL_PARRY].fail_percent);
+    int range = number(1, skill_info[SKILL_PARRY].difficulty);
     int prob = CalcCurrentSkill(victim, SKILL_PARRY, ch);
     prob = prob * 100 / range;
     TrainSkill(victim, SKILL_PARRY, prob < 100, ch);
@@ -1512,7 +1512,7 @@ void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, i
     send_to_char("У вас нечем отклонять атаки противников\r\n", victim);
   } else {
     int range = number(1,
-                       skill_info[SKILL_MULTYPARRY].fail_percent) + 15 * BATTLECNTR(victim);
+                       skill_info[SKILL_MULTYPARRY].difficulty) + 15 * BATTLECNTR(victim);
     int prob = CalcCurrentSkill(victim, SKILL_MULTYPARRY, ch);
     prob = prob * 100 / range;
 
@@ -1559,7 +1559,7 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
       || IS_IMMORTAL(victim))) {
     send_to_char("У вас нечем отразить атаку противника\r\n", victim);
   } else {
-    int range = number(1, skill_info[SKILL_BLOCK].fail_percent);
+    int range = number(1, skill_info[SKILL_BLOCK].difficulty);
     int prob = CalcCurrentSkill(victim, SKILL_BLOCK, ch);
     prob = prob * 100 / range;
     BATTLECNTR(victim)++;
@@ -2599,7 +2599,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 }
 
 void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
-  int percent = number(1, skill_info[SKILL_MIGHTHIT].fail_percent);
+  int percent = number(1, skill_info[SKILL_MIGHTHIT].difficulty);
   int prob = CalcCurrentSkill(ch, SKILL_MIGHTHIT, victim);
   TrainSkill(ch, SKILL_MIGHTHIT, percent <= prob, victim);
   int lag = 0, might = 0;
@@ -2692,7 +2692,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 }
 
 void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
-  int percent = number(1, skill_info[SKILL_STUPOR].fail_percent);
+  int percent = number(1, skill_info[SKILL_STUPOR].difficulty);
   int prob = CalcCurrentSkill(ch, SKILL_STUPOR, victim);
   TrainSkill(ch, SKILL_STUPOR, prob >= percent, victim);
   SendSkillBalanceMsg(ch, skill_info[SKILL_STUPOR].name, percent, prob, prob >= percent);
@@ -2870,7 +2870,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim) {
   //* обработка SKILL_NOPARRYHIT //
   if (skill_num == TYPE_UNDEFINED && ch->get_skill(SKILL_NOPARRYHIT)) {
     int tmp_skill = CalcCurrentSkill(ch, SKILL_NOPARRYHIT, victim);
-    bool success = tmp_skill >= number(1, skill_info[SKILL_NOPARRYHIT].fail_percent);
+    bool success = tmp_skill >= number(1, skill_info[SKILL_NOPARRYHIT].difficulty);
     TrainSkill(ch, SKILL_NOPARRYHIT, success, victim);
     if (success) {
       hit_no_parry = true;
@@ -3058,13 +3058,13 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
       && skill_num != SKILL_BACKSTAB
       && !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
       && !IS_NPC(ch)) {
-    calc_thaco += (skill_info[SKILL_SHIT].fail_percent - CalcCurrentSkill(ch, SKILL_SHIT, victim) / 10);
+    calc_thaco += (skill_info[SKILL_SHIT].difficulty - CalcCurrentSkill(ch, SKILL_SHIT, victim) / 10);
     TrainSkill(ch, SKILL_SHIT, true, victim);
   }
 
   // courage
   if (affected_by_spell(ch, SPELL_COURAGE)) {
-    int range = number(1, skill_info[SKILL_COURAGE].fail_percent + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
+    int range = number(1, skill_info[SKILL_COURAGE].difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
     int prob = CalcCurrentSkill(ch, SKILL_COURAGE, victim);
     TrainSkill(ch, SKILL_COURAGE, prob > range, victim);
     if (prob > range) {
@@ -3109,7 +3109,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
       && !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
       && !GET_MOB_HOLD(victim)) {
     bool success = CalcCurrentSkill(ch, SKILL_AWAKE, victim)
-        >= number(1, skill_info[SKILL_AWAKE].fail_percent);
+        >= number(1, skill_info[SKILL_AWAKE].difficulty);
     if (success) {
       // > и зачем так? кто балансом занимается поправте.
       // воткнул мин. разницу, чтобы анализаторы не ругались
@@ -3139,7 +3139,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch) {
       && skill_num != SKILL_BACKSTAB
       && !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
       && !IS_NPC(ch)) {
-    calc_thaco += (skill_info[SKILL_SHIT].fail_percent - ch->get_skill(SKILL_SHIT)) / 10;
+    calc_thaco += (skill_info[SKILL_SHIT].difficulty - ch->get_skill(SKILL_SHIT)) / 10;
   }
 
   // courage
@@ -3151,7 +3151,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch) {
   // Horse modifier for attacker
   if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB && ch->ahorse()) {
     int prob = ch->get_skill(SKILL_HORSE);
-    int range = skill_info[SKILL_HORSE].fail_percent / 2;
+    int range = skill_info[SKILL_HORSE].difficulty / 2;
 
     dam += ((prob + 19) / 10);
 
@@ -3683,14 +3683,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
   if (GET_AF_BATTLE(ch, EAF_PUNCTUAL) && GET_PUNCTUAL_WAIT(ch) <= 0 && GET_WAIT(ch) <= 0
       && (hit_params.diceroll >= 18 - GET_MOB_HOLD(victim))) {
     int percent = CalcCurrentSkill(ch, SKILL_PUNCTUAL, victim);
-    bool success = percent >= number(1, skill_info[SKILL_PUNCTUAL].fail_percent);
+    bool success = percent >= number(1, skill_info[SKILL_PUNCTUAL].difficulty);
     TrainSkill(ch, SKILL_PUNCTUAL, success, victim);
     if (!PUNCTUAL_WAITLESS(ch)) {
       PUNCTUAL_WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
     }
     if (success
         && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
-            || percent >= skill_info[SKILL_PUNCTUAL].fail_percent)) {
+            || percent >= skill_info[SKILL_PUNCTUAL].difficulty)) {
       if (!MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL)) {
         hit_params.set_flag(FightSystem::CRIT_HIT);
         // CRIT_HIT и так щиты игнорит, но для порядку

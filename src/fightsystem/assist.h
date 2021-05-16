@@ -1,7 +1,7 @@
 #ifndef BYLINS_ASSIST_H
 #define BYLINS_ASSIST_H
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 
 void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 

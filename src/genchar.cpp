@@ -21,7 +21,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "spells.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 #include "db.h"
 

@@ -15,7 +15,7 @@
 #include "magic.h"
 
 #include "cmd/hire.h"
-#include "action.targeting.hpp"
+#include "action_targeting.h"
 #include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
@@ -25,10 +25,10 @@
 #include "fightsystem/fight.h"
 #include "random.hpp"
 #include "modify.h"
-#include "AffectHandler.hpp"
+#include "affects/affects_handler.h"
 #include "corpse.hpp"
 #include "classes/constants.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "fightsystem/mobact.hpp"
 #include "fightsystem/fight_hit.hpp"
 

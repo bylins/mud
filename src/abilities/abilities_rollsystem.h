@@ -9,14 +9,14 @@
 */
 
 #include "abilities_constants.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "fightsystem/fight_constants.hpp"
 #include "features.hpp"
 #include "skills.h"
 
 #include <string>
 
-namespace AbilitySystem {
+namespace abilities {
 
 	class AbilityRollType {
 	protected:
@@ -116,7 +116,7 @@ namespace AbilitySystem {
 			{};
 	};
 
-}; //namespace AbilitySystem
+}; //namespace abilities
 
 #endif // _ABILITYROLL_INTERFACE_HPP_INCLUDED_
 

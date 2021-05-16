@@ -2,7 +2,7 @@
 
 #include "obj.hpp"
 #include "room.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "handler.h"
 #include "object.prototypes.hpp"
 #include "spells.info.h"

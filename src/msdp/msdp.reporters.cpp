@@ -3,7 +3,7 @@
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "magic.h"
 #include "msdp.constants.hpp"
 #include "zone.table.hpp"

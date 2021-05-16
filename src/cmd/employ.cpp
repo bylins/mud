@@ -3,7 +3,7 @@
 #include "../comm.h"
 #include "../structs.h"
 #include "../features.hpp"
-#include "../chars/char.hpp"
+#include "../chars/character.h"
 #include "../interpreter.h"
 #include "../handler.h"
 #include "../magic.items.h"

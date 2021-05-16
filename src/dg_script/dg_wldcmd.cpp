@@ -9,7 +9,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "cmd/follow.h"
 #include "comm.h"
 #include "conf.h"
@@ -35,7 +35,7 @@
 #include "utils.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 extern const char *dirs[];
 

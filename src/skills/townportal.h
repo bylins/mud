@@ -1,7 +1,7 @@
 #ifndef BYLINS_TOWNPORTAL_H
 #define BYLINS_TOWNPORTAL_H
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 
 void spell_townportal(CHAR_DATA *ch, char *arg);
 

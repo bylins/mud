@@ -3,14 +3,14 @@
 
 #include "noob.hpp"
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "obj.hpp"
 #include "db.h"
 #include "comm.h"
 #include "pugixml.hpp"
 #include "parse.hpp"
 #include "room.hpp"
-#include "birth_places.hpp"
+#include "birthplaces.h"
 #include "handler.h"
 #include "skills.h"
 #include "logger.hpp"

@@ -5,7 +5,7 @@
 #include "screen.h"
 #include "top.h"
 #include "glory_const.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "classes/constants.hpp"
 
 #include <boost/algorithm/string.hpp>

@@ -24,10 +24,10 @@
 #include "skills/protect.h"
 #include "skills/track.h"
 
-#include "core/affect_data.h"
+#include "affects/affect_data.h"
 #include "abilities/abilities_rollsystem.h"
-#include "action.targeting.hpp"
-#include "act.movement.hpp"
+#include "action_targeting.h"
+#include "act.movement.h"
 #include "features.hpp"
 #include "chars/world.characters.hpp"
 #include "world.objects.hpp"
@@ -39,7 +39,7 @@
 #include "skills.h"
 #include "fightsystem/pk.h"
 #include "random.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "house.h"
 #include "room.hpp"
 #include "fightsystem/fight.h"
@@ -321,7 +321,7 @@ CHAR_DATA* selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 		return initialVictim;
 	}
 
-	AbilitySystem::AgainstRivalRollType abilityRoll;
+	abilities::AgainstRivalRollType abilityRoll;
 	abilityRoll.initialize(leader, TACTICIAN_FEAT, assaulter);
 	bool tacticianFail = !abilityRoll.isSuccess();
 	abilityRoll.initialize(newVictim, SKIRMISHER_FEAT, assaulter);

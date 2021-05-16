@@ -18,7 +18,7 @@
 #include "constants.h"
 #include "features.hpp"
 #include "im.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
@@ -31,7 +31,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 #include <boost/format.hpp>

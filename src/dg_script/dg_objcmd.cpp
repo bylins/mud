@@ -9,7 +9,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "cmd/follow.h"
 #include "comm.h"
 #include "conf.h"
@@ -35,7 +35,7 @@
 #include "utils.h"
 #include "world.objects.hpp"
 #include "skills/townportal.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA * obj);

@@ -12,44 +12,44 @@
 #define _SPELLS_H_
 
 #include "skills.h"
-#include "structs.h"	// there was defined type "byte" if it had been missing
+#include "structs.h"    // there was defined type "byte" if it had been missing
 #include "classes/constants.hpp"
 
-struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 // *******************************
 // * Spells type                 *
 // *******************************
 
-#define MTYPE_NEUTRAL		(1 << 0)
-#define MTYPE_AGGRESSIVE	(1 << 1)
+#define MTYPE_NEUTRAL        (1 << 0)
+#define MTYPE_AGGRESSIVE    (1 << 1)
 
 // *******************************
 // * Spells class                *
 // *******************************
 
-#define STYPE_NEUTRAL	0
-#define STYPE_AIR	1
-#define STYPE_FIRE	2
-#define STYPE_WATER	3
-#define STYPE_EARTH	4
-#define STYPE_LIGHT	6
-#define STYPE_DARK	7
-#define STYPE_MIND	8
-#define STYPE_LIFE	9
+#define STYPE_NEUTRAL    0
+#define STYPE_AIR    1
+#define STYPE_FIRE    2
+#define STYPE_WATER    3
+#define STYPE_EARTH    4
+#define STYPE_LIGHT    6
+#define STYPE_DARK    7
+#define STYPE_MIND    8
+#define STYPE_LIFE    9
 
-#define MAG_DAMAGE	    	(1 << 0)
-#define MAG_AFFECTS	    	(1 << 1)
-#define MAG_UNAFFECTS		(1 << 2)
-#define MAG_POINTS	    	(1 << 3)
-#define MAG_ALTER_OBJS		(1 << 4)
-#define MAG_GROUPS	    	(1 << 5)
-#define MAG_MASSES	    	(1 << 6)
-#define MAG_AREAS	    	(1 << 7)
-#define MAG_SUMMONS	    	(1 << 8)
-#define MAG_CREATIONS		(1 << 9)
-#define MAG_MANUAL	    	(1 << 10)
-#define MAG_WARCRY		(1 << 11)
+#define MAG_DAMAGE            (1 << 0)
+#define MAG_AFFECTS            (1 << 1)
+#define MAG_UNAFFECTS        (1 << 2)
+#define MAG_POINTS            (1 << 3)
+#define MAG_ALTER_OBJS        (1 << 4)
+#define MAG_GROUPS            (1 << 5)
+#define MAG_MASSES            (1 << 6)
+#define MAG_AREAS            (1 << 7)
+#define MAG_SUMMONS            (1 << 8)
+#define MAG_CREATIONS        (1 << 9)
+#define MAG_MANUAL            (1 << 10)
+#define MAG_WARCRY        (1 << 11)
 #define MAG_NEED_CONTROL    (1 << 12) //Маг должен "контролировать" это заклинание
 // А чего это тут дырка Ж)
 #define NPC_DAMAGE_PC           (1 << 16)
@@ -60,7 +60,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define NPC_UNAFFECT_NPC        (1 << 21)
 #define NPC_UNAFFECT_NPC_CASTER (1 << 22)
 #define NPC_DUMMY               (1 << 23)
-#define MAG_ROOM	        (1 << 24)
+#define MAG_ROOM            (1 << 24)
 // Данный флаг используется для указания где
 // чар может находиться чтобы аффекты от закла продолжали действовать
 #define MAG_CASTER_INROOM       (1 << 25) // Аффект от этого спелла действует пока кастер в комнате //
@@ -92,7 +92,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define EAF_FIRST_POISON (1 << 21) // отравление цели первый раз за бой
 
 #define TYPE_UNDEFINED              -1
-#define SPELL_RESERVED_DBC          0	// SKILL NUMBER ZERO -- RESERVED //
+#define SPELL_RESERVED_DBC          0    // SKILL NUMBER ZERO -- RESERVED //
 
 // PLAYER SPELLS TYPES //
 #define   SPELL_KNOW   (1 << 0)
@@ -104,8 +104,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define   SPELL_RUNES  (1 << 6)
 
 /// Flags for ingredient items (ITEM_INGREDIENT)
-enum EIngredientFlag
-{
+enum EIngredientFlag {
 	ITEM_RUNES = 1 << 0,
 	ITEM_CHECK_USES = 1 << 1,
 	ITEM_CHECK_LAG = 1 << 2,
@@ -113,8 +112,10 @@ enum EIngredientFlag
 	ITEM_DECAY_EMPTY = 1 << 4
 };
 
-template <> EIngredientFlag ITEM_BY_NAME<EIngredientFlag>(const std::string& name);
-template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item);
+template<>
+EIngredientFlag ITEM_BY_NAME<EIngredientFlag>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item);
 
 #define   MI_LAG1s       (1 << 0)
 #define   MI_LAG2s       (1 << 1)
@@ -131,60 +132,59 @@ template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFl
 #define   MI_LEVEL16     (1 << 12)
 
 // PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS //
-enum ESpell: int
-{
+enum ESpell : int {
 	SPELL_NO_SPELL = 0,
-	SPELL_ARMOR = 1,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_TELEPORT = 2,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_BLESS = 3,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_BLINDNESS = 4,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_BURNING_HANDS = 5,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CALL_LIGHTNING = 6,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CHARM = 7,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CHILL_TOUCH = 8,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CLONE = 9,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_COLOR_SPRAY = 10,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CONTROL_WEATHER = 11,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CREATE_FOOD = 12,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CREATE_WATER = 13,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CURE_BLIND = 14,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CURE_CRITIC = 15,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CURE_LIGHT = 16,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_CURSE = 17,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_DETECT_ALIGN = 18,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_DETECT_INVIS = 19,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_DETECT_MAGIC = 20,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_DETECT_POISON = 21,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_DISPEL_EVIL = 22,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_EARTHQUAKE = 23,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_ENCHANT_WEAPON = 24,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_ENERGY_DRAIN = 25,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_FIREBALL = 26,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_HARM = 27,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_HEAL = 28,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_INVISIBLE = 29,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_LIGHTNING_BOLT = 30,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_LOCATE_OBJECT = 31,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_MAGIC_MISSILE = 32,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_POISON = 33,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_PROT_FROM_EVIL = 34,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_REMOVE_CURSE = 35,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_SANCTUARY = 36,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_SHOCKING_GRASP = 37,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_SLEEP = 38,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_STRENGTH = 39,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_SUMMON = 40,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_PATRONAGE = 41,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_WORD_OF_RECALL = 42,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_REMOVE_POISON = 43,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_SENSE_LIFE = 44,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_ANIMATE_DEAD = 45,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_DISPEL_GOOD = 46,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_GROUP_ARMOR = 47,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_GROUP_HEAL = 48,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_GROUP_RECALL = 49,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_INFRAVISION = 50,	// Reserved Skill[] DO NOT CHANGE //
-	SPELL_WATERWALK = 51,	// Reserved Skill[] DO NOT CHANGE //
+	SPELL_ARMOR = 1,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_TELEPORT = 2,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_BLESS = 3,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_BLINDNESS = 4,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_BURNING_HANDS = 5,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CALL_LIGHTNING = 6,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CHARM = 7,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CHILL_TOUCH = 8,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CLONE = 9,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_COLOR_SPRAY = 10,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CONTROL_WEATHER = 11,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CREATE_FOOD = 12,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CREATE_WATER = 13,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CURE_BLIND = 14,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CURE_CRITIC = 15,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CURE_LIGHT = 16,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_CURSE = 17,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_DETECT_ALIGN = 18,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_DETECT_INVIS = 19,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_DETECT_MAGIC = 20,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_DETECT_POISON = 21,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_DISPEL_EVIL = 22,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_EARTHQUAKE = 23,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_ENCHANT_WEAPON = 24,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_ENERGY_DRAIN = 25,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_FIREBALL = 26,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_HARM = 27,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_HEAL = 28,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_INVISIBLE = 29,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_LIGHTNING_BOLT = 30,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_LOCATE_OBJECT = 31,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_MAGIC_MISSILE = 32,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_POISON = 33,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_PROT_FROM_EVIL = 34,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_REMOVE_CURSE = 35,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_SANCTUARY = 36,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_SHOCKING_GRASP = 37,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_SLEEP = 38,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_STRENGTH = 39,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_SUMMON = 40,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_PATRONAGE = 41,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_WORD_OF_RECALL = 42,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_REMOVE_POISON = 43,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_SENSE_LIFE = 44,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_ANIMATE_DEAD = 45,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_DISPEL_GOOD = 46,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_GROUP_ARMOR = 47,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_GROUP_HEAL = 48,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_GROUP_RECALL = 49,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_INFRAVISION = 50,    // Reserved Skill[] DO NOT CHANGE //
+	SPELL_WATERWALK = 51,    // Reserved Skill[] DO NOT CHANGE //
 
 	// Insert new spells here, up to MAX_SPELLS //
 	SPELL_CURE_SERIOUS = 52,
@@ -291,19 +291,19 @@ enum ESpell: int
 	SPELL_SONICWAVE = 153,
 	SPELL_HOLYSTRIKE = 154,
 	SPELL_ANGEL = 155,
-	SPELL_MASS_FEAR = 156,	// Added by Niker //
+	SPELL_MASS_FEAR = 156,    // Added by Niker //
 	SPELL_FASCINATION = 157,
 	SPELL_CRYING = 158,
-	SPELL_OBLIVION = 159,	// Забвение. Dalim //
-	SPELL_BURDEN_OF_TIME = 160,	// Бремя времени. Dalim //
+	SPELL_OBLIVION = 159,    // Забвение. Dalim //
+	SPELL_BURDEN_OF_TIME = 160,    // Бремя времени. Dalim //
 	SPELL_GROUP_REFRESH = 161,
-	SPELL_PEACEFUL = 162,	// Усмирение. dzMUDiST //
+	SPELL_PEACEFUL = 162,    // Усмирение. dzMUDiST //
 	SPELL_MAGICBATTLE = 163,
 	SPELL_BERSERK = 164,
 	SPELL_STONEBONES = 165,
-	SPELL_ROOM_LIGHT = 166,	// Закл освящения комнаты //
-	SPELL_POISONED_FOG = 167,	// Закл отравленного тумана //
-	SPELL_THUNDERSTORM = 168,	// Закл отравленного тумана //
+	SPELL_ROOM_LIGHT = 166,    // Закл освящения комнаты //
+	SPELL_POISONED_FOG = 167,    // Закл отравленного тумана //
+	SPELL_THUNDERSTORM = 168,    // Закл отравленного тумана //
 	SPELL_LIGHT_WALK = 169,
 	SPELL_FAILURE = 170,
 	SPELL_CLANPRAY = 171,
@@ -338,12 +338,12 @@ enum ESpell: int
 	SPELL_HYPNOTIC_PATTERN = 200,
 	SPELL_SOLOBONUS = 201,
 	SPELL_VAMPIRE = 202,
-	SPELLS_RESTORATION = 203,	//очистка магических афектов
-	SPELL_AURA_DEATH = 204,	// аура смерти верховного лича
-	SPELL_RECOVERY = 205,	// исцеление нежити
-	SPELL_MASS_RECOVERY = 206,	// масовое исцеление нежити
-	SPELL_AURA_EVIL = 207,	// аура зла для всей нежити в группе
-	SPELL_MENTAL_SHADOW = 208,	// ментальная тень
+	SPELLS_RESTORATION = 203,    //очистка магических афектов
+	SPELL_AURA_DEATH = 204,    // аура смерти верховного лича
+	SPELL_RECOVERY = 205,    // исцеление нежити
+	SPELL_MASS_RECOVERY = 206,    // масовое исцеление нежити
+	SPELL_AURA_EVIL = 207,    // аура зла для всей нежити в группе
+	SPELL_MENTAL_SHADOW = 208,    // ментальная тень
 	SPELL_EVARDS_BLACK_TENTACLES = 209, //навьи руки
 	SPELL_WHIRLWIND = 210, //вихрь
 	SPELL_INDRIKS_TEETH = 211, //зубы индрика
@@ -378,45 +378,44 @@ enum ESpell: int
 	SPELL_WC_PHYSDAMAGE = 240, // + дам
 	SPELL_MASS_FAILURE = 241, // взор Велеса (массовая недоля)
 	SPELL_MASS_NOFLEE = 242, // западня (массовое сковывание)
- 	SPELL_FIRE_BREATH = 243,       // магическое дыхание
- 	SPELL_GAS_BREATH = 244,        // магическое дыхание
- 	SPELL_FROST_BREATH = 245,      // магическое дыхание
- 	SPELL_ACID_BREATH = 246,       // магическое дыхание
- 	SPELL_LIGHTNING_BREATH = 247,  // магическое дыхание
-	SPELLS_COUNT = 	SPELL_LIGHTNING_BREATH    // Counter corresponds to the last value because we count spells from 1.
+	SPELL_FIRE_BREATH = 243,       // магическое дыхание
+	SPELL_GAS_BREATH = 244,        // магическое дыхание
+	SPELL_FROST_BREATH = 245,      // магическое дыхание
+	SPELL_ACID_BREATH = 246,       // магическое дыхание
+	SPELL_LIGHTNING_BREATH = 247,  // магическое дыхание
+	SPELLS_COUNT = SPELL_LIGHTNING_BREATH    // Counter corresponds to the last value because we count spells from 1.
 };
 
-class spell_wear_off_msg_t: public std::array<const char*, SPELLS_COUNT + 1>
-{
-	private:
-		static constexpr std::size_t MESSAGE_BUFFER_LENGTH = 128;
-		static char MESSAGE_BUFFER[MESSAGE_BUFFER_LENGTH];
+class spell_wear_off_msg_t : public std::array<const char *, SPELLS_COUNT + 1> {
+ private:
+	static constexpr std::size_t MESSAGE_BUFFER_LENGTH = 128;
+	static char MESSAGE_BUFFER[MESSAGE_BUFFER_LENGTH];
 
-		using parent_t = std::array<const char*, SPELLS_COUNT + 1>;
-		using parent_t::operator[];
+	using parent_t = std::array<const char *, SPELLS_COUNT + 1>;
+	using parent_t::operator[];
 
-	public:
-		const static char* DEFAULT_MESSAGE;
+ public:
+	const static char *DEFAULT_MESSAGE;
 
-		value_type operator[](size_type index) const
-		{
-			if (size() > index && nullptr != parent_t::operator[](index))
-			{
-				return parent_t::operator[](index);
-			}
-
-			::snprintf(MESSAGE_BUFFER, MESSAGE_BUFFER_LENGTH, DEFAULT_MESSAGE, index);
-			return MESSAGE_BUFFER;
+	value_type operator[](size_type index) const {
+		if (size() > index && nullptr != parent_t::operator[](index)) {
+			return parent_t::operator[](index);
 		}
+
+		::snprintf(MESSAGE_BUFFER, MESSAGE_BUFFER_LENGTH, DEFAULT_MESSAGE, index);
+		return MESSAGE_BUFFER;
+	}
 };
 extern const spell_wear_off_msg_t spell_wear_off_msg;
 
-typedef std::array<const char*, 2> cast_phrase_t;
+typedef std::array<const char *, 2> cast_phrase_t;
 typedef std::array<cast_phrase_t, SPELLS_COUNT + 1> cast_phrases_t;
 extern const cast_phrases_t cast_phrase;
 
-template <> ESpell ITEM_BY_NAME<ESpell>(const std::string& name);
-template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
+template<>
+ESpell ITEM_BY_NAME<ESpell>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
 
 #define MAX_SLOT 13
 
@@ -429,9 +428,9 @@ template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
  */
 
 #define SPELL_IDENTIFY               351
-#define SPELL_QUEST		     357	// Spell for dg_affect using
+#define SPELL_QUEST             357    // Spell for dg_affect using
 
-#define TOP_SPELL_DEFINE	     399
+#define TOP_SPELL_DEFINE         399
 // NEW NPC/OBJECT SPELLS can be inserted here up to 299
 
 
@@ -462,35 +461,27 @@ template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
 #define TYPE_ROOMDEATH               498
 #define TYPE_SUFFERING               499
 
-#define SAVING_WILL       0
-#define SAVING_CRITICAL   1
-#define SAVING_STABILITY  2
-#define SAVING_REFLEX     3
-#define SAVING_COUNT      4
-#define SAVING_NONE	5 //Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.
-
 #define TAR_IGNORE      (1 << 0)
 #define TAR_CHAR_ROOM   (1 << 1)
 #define TAR_CHAR_WORLD  (1 << 2) // не ищет мобов при касте чарами (призвать/переместиться/переход)
 #define TAR_FIGHT_SELF  (1 << 3)
 #define TAR_FIGHT_VICT  (1 << 4)
-#define TAR_SELF_ONLY   (1 << 5)	// Only a check, use with i.e. TAR_CHAR_ROOM //
-#define TAR_NOT_SELF   	(1 << 6)	// Only a check, use with i.e. TAR_CHAR_ROOM //
+#define TAR_SELF_ONLY   (1 << 5)    // Only a check, use with i.e. TAR_CHAR_ROOM //
+#define TAR_NOT_SELF    (1 << 6)    // Only a check, use with i.e. TAR_CHAR_ROOM //
 #define TAR_OBJ_INV     (1 << 7)
 #define TAR_OBJ_ROOM    (1 << 8)
 #define TAR_OBJ_WORLD   (1 << 9)
-#define TAR_OBJ_EQUIP	(1 << 10)
-#define TAR_ROOM_THIS	(1 << 11) // Цель комната в которой сидит чар//
-#define TAR_ROOM_DIR	(1 << 12) // Цель комната в каком-то направлении от чара//
-#define TAR_ROOM_WORLD	(1 << 13) // Цель какая-то комната в мире//
+#define TAR_OBJ_EQUIP    (1 << 10)
+#define TAR_ROOM_THIS    (1 << 11) // Цель комната в которой сидит чар//
+#define TAR_ROOM_DIR    (1 << 12) // Цель комната в каком-то направлении от чара//
+#define TAR_ROOM_WORLD    (1 << 13) // Цель какая-то комната в мире//
 
-struct attack_hit_type
-{
+struct attack_hit_type {
 	const char *singular;
 	const char *plural;
 };
 
-#define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict);
+#define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
 void spell_create_water(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_recall(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
@@ -520,7 +511,7 @@ void spell_mental_shadow(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *
 
 int fix_name_and_find_spell_num(char *name);
 
-bool catch_bloody_corpse(OBJ_DATA * l);
+bool catch_bloody_corpse(OBJ_DATA *l);
 
 // other prototypes //
 void init_spell_levels(void);
@@ -532,24 +523,22 @@ bool can_get_spell(CHAR_DATA *ch, int spellnum);
 int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 ESkill get_magic_skill_number_by_spell(int spellnum);
-int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ = NULL);
-
+int check_recipe_values(CHAR_DATA *ch, int spellnum, int spelltype, int showrecipe);
+int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, const CHAR_DATA *targ = NULL);
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;
 
-namespace SpellUsage
-{
-	extern bool isActive;
-	extern time_t start;
-	void AddSpellStat(int charClass, int spellNum);
-	void save();
-	void clear();
+namespace SpellUsage {
+extern bool isActive;
+extern time_t start;
+void AddSpellStat(int charClass, int spellNum);
+void save();
+void clear();
 };
 //-Polud
 
-#define CALC_SUCCESS(modi,perc)         ((modi)-100+(perc))
+#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
 
 const int HOURS_PER_WARCRY = 4;
 const int HOURS_PER_TURN_UNDEAD = 8;

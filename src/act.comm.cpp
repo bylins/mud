@@ -20,7 +20,7 @@
 #include "dg_script/dg_scripts.h"
 #include "auction.h"
 #include "privilege.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 #include "remember.hpp"
 #include "house.h"

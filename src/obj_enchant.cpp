@@ -9,7 +9,7 @@
 #include "utils.h"
 #include "screen.h"
 #include "db.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "constants.h"
 #include "spells.h"
 

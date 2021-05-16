@@ -10,7 +10,7 @@
 #include "constants.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "core/affect_data.h"
+#include "affects/affect_data.h"
 
 class EXIT_DATA
 {

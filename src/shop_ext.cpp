@@ -8,7 +8,7 @@
 #include "boot.constants.hpp"
 #include "object.prototypes.hpp"
 #include "chars/world.characters.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "db.h"
 #include "handler.h"
 #include "house.h"

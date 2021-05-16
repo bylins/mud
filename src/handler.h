@@ -17,7 +17,7 @@
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "structs.h"	// there was defined type "byte" if it had been missing
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.

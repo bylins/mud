@@ -3,7 +3,7 @@
 #include "handler.h"
 #include "screen.h"
 #include "magic.utils.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 #include <boost/tokenizer.hpp>

@@ -1,7 +1,7 @@
 #include "command.shutdown.hpp"
 
 #include "logger.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "utils.h"

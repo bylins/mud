@@ -2,7 +2,7 @@
 #define __CONFIG_HPP__
 
 #include "blocking.queue.hpp"
-#include "birth_places.hpp"
+#include "birthplaces.h"
 #include "structs.h"
 
 #include <cstdio>

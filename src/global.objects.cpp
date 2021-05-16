@@ -1,6 +1,6 @@
 #include "global.objects.hpp"
 
-#include "ban.hpp"
+#include "cmd.wiz/ban.h"
 
 namespace
 {

@@ -8,7 +8,7 @@
 #include "pugixml.hpp"
 #include "db.h"
 #include "parse.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "conf.h"
 #include "screen.h"
 #include "classes/constants.hpp"

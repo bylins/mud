@@ -6,7 +6,7 @@
 #include "fightsystem/fight_hit.hpp"
 #include "handler.h"
 #include "spells.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 // ************** PROTECT PROCEDURES
 void go_protect(CHAR_DATA *ch, CHAR_DATA *vict) {
@@ -131,7 +131,7 @@ CHAR_DATA *try_protect(CHAR_DATA *victim, CHAR_DATA *ch) {
       }
 
       protect = true;
-      percent = number(1, skill_info[SKILL_PROTECT].fail_percent);
+      percent = number(1, skill_info[SKILL_PROTECT].difficulty);
       prob = CalcCurrentSkill(vict, SKILL_PROTECT, victim);
       prob = prob * 8 / 10;
       if (vict->haveCooldown(SKILL_PROTECT)) {

@@ -13,7 +13,7 @@
 #include <ctime>
 #include <memory>
 #include <unordered_map>
-#include "chars/char.hpp"
+#include "chars/character.h"
 
 struct DQuest {
   int id;

@@ -1,7 +1,7 @@
 #include "relocate.h"
 
 #include "../features.hpp"
-#include "../chars/char.hpp"
+#include "../chars/character.h"
 #include "../house.h"
 #include "../comm.h"
 #include "../screen.h"

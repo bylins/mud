@@ -14,7 +14,7 @@
 #ifndef _PK_H_
 #define _PK_H_
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 
 #include <string>
 

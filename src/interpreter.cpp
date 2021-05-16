@@ -15,10 +15,10 @@
 
 #include "interpreter.h"
 
-#include "act.movement.hpp"
-#include "ban.hpp"
+#include "act.movement.h"
+#include "cmd.wiz/ban.h"
 #include "boards/boards.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
 #include "cmd.wiz/stat.h"
@@ -95,13 +95,13 @@
 #include "time.h"
 #include "title.hpp"
 #include "top.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
 #include "chars/player_races.hpp"
-#include "birth_places.hpp"
+#include "birthplaces.h"
 #include "help.hpp"
 #include "map.hpp"
 #include "ext_money.hpp"
@@ -116,7 +116,7 @@
 #include "bonus.h"
 #include "debug.utils.hpp"
 #include "global.objects.hpp"
-#include "chars/accounts.hpp"
+#include "chars/accounts.h"
 #include "fightsystem/pk.h"
 
 #include <boost/lexical_cast.hpp>
@@ -1122,7 +1122,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 		{
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK))
 			{
-				remove_hide = number(1, skill_info[SKILL_SNEAK].fail_percent) >
+				remove_hide = number(1, skill_info[SKILL_SNEAK].difficulty) >
                     CalcCurrentSkill(ch, SKILL_SNEAK, 0);
 			}
 			else

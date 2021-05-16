@@ -6,7 +6,7 @@
 #include "spells.h"
 #include "handler.h"
 #include "protect.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 using namespace FightSystem;
 
@@ -25,7 +25,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 
   vict = try_protect(vict, ch);
 
-  int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].fail_percent);
+  int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].difficulty);
   int prob = CalcCurrentSkill(ch, SKILL_KICK, vict);
   if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_MOB_HOLD(vict)) {
     prob = percent;

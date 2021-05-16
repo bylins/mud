@@ -42,7 +42,7 @@
 #include "house.h"
 #include "olc/olc.h"
 #include "screen.h"
-#include "ban.hpp"
+#include "cmd.wiz/ban.h"
 #include "exchange.h"
 #include "title.hpp"
 #include "depot.hpp"
@@ -63,7 +63,7 @@
 #include "zone.table.hpp"
 #include "db.h"
 #include "utils.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"

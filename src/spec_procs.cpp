@@ -12,9 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "act.movement.hpp"
+#include "act.movement.h"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 #include "chars/mount.h"
 #include "chars/player_races.hpp"
@@ -43,7 +43,7 @@
 #include "sysdep.h"
 #include "temp_spells.hpp"
 #include "classes/constants.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 #include <cmath>

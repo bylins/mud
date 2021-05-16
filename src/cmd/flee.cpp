@@ -1,6 +1,6 @@
 #include "flee.h"
 
-#include "act.movement.hpp"
+#include "act.movement.h"
 #include "random.hpp"
 
 #include <math.h>

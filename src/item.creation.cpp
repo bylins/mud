@@ -22,7 +22,7 @@
 #include "olc/olc.h"
 #include "im.h"
 #include "features.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "modify.h"
 #include "room.hpp"
 #include "fightsystem/fight.h"
@@ -31,7 +31,7 @@
 #include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <cmath>
 
@@ -665,7 +665,7 @@ void go_create_weapon(CHAR_DATA *ch, OBJ_DATA *obj, int obj_type, ESkill skill) 
       return;
     }
     skill = created_item[obj_type].skill;
-    percent = number(1, skill_info[skill].fail_percent);
+    percent = number(1, skill_info[skill].difficulty);
     prob = CalcCurrentSkill(ch, skill, nullptr);
     TrainSkill(ch, skill, true, nullptr);
     weight = MIN(GET_OBJ_WEIGHT(obj) - 2, GET_OBJ_WEIGHT(obj) * prob / percent);
@@ -721,11 +721,11 @@ void go_create_weapon(CHAR_DATA *ch, OBJ_DATA *obj, int obj_type, ESkill skill) 
           tobj->set_maximum_durability(
               MAX(20000, 35000 / 100 * ch->get_skill(skill) - number(0, 35000 / 100 * 25)) / 100);
           tobj->set_current_durability(GET_OBJ_MAX(tobj));
-          percent = number(1, skill_info[skill].fail_percent);
+          percent = number(1, skill_info[skill].difficulty);
           prob = CalcCurrentSkill(ch, skill, 0);
           ndice = MAX(2, MIN(4, prob / percent));
           ndice += GET_OBJ_WEIGHT(tobj) / 10;
-          percent = number(1, skill_info[skill].fail_percent);
+          percent = number(1, skill_info[skill].difficulty);
           prob = CalcCurrentSkill(ch, skill, 0);
           sdice = MAX(2, MIN(5, prob / percent));
           sdice += GET_OBJ_WEIGHT(tobj) / 10;
@@ -790,10 +790,10 @@ void go_create_weapon(CHAR_DATA *ch, OBJ_DATA *obj, int obj_type, ESkill skill) 
           tobj->set_maximum_durability(
               MAX(20000, 10000 / 100 * ch->get_skill(skill) - number(0, 15000 / 100 * 25)) / 100);
           tobj->set_current_durability(GET_OBJ_MAX(tobj));
-          percent = number(1, skill_info[skill].fail_percent);
+          percent = number(1, skill_info[skill].difficulty);
           prob = CalcCurrentSkill(ch, skill, 0);
           ndice = MAX(2, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 10, prob / percent));
-          percent = number(1, skill_info[skill].fail_percent);
+          percent = number(1, skill_info[skill].difficulty);
           prob = CalcCurrentSkill(ch, skill, 0);
           sdice = MAX(1, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 15, prob / percent));
           tobj->set_val(0, ndice);
@@ -2128,11 +2128,11 @@ int MakeRecept::stat_modify(CHAR_DATA *ch, int value, float devider) {
     return res;
   }
   skill_prc = CalcCurrentSkill(ch, skill, 0);
-  delta = (int) ((float) (skill_prc - number(0, skill_info[skill].fail_percent)));
+  delta = (int) ((float) (skill_prc - number(0, skill_info[skill].difficulty)));
   if (delta > 0) {
-    delta = (value / 2) * delta / skill_info[skill].fail_percent / devider;
+    delta = (value / 2) * delta / skill_info[skill].difficulty / devider;
   } else {
-    delta = (value / 4) * delta / skill_info[skill].fail_percent / devider;
+    delta = (value / 4) * delta / skill_info[skill].difficulty / devider;
   }
   res += (int) delta;
   // Если параметр завалили то возвращаем 1;

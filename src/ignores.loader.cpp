@@ -2,7 +2,7 @@
 
 #include "logger.hpp"
 #include "ignores.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 
 #include <boost/algorithm/string.hpp>
 class IgnoreParser

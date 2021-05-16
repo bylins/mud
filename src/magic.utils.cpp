@@ -17,7 +17,7 @@
 #include "skills/stun.h"
 
 #include "obj.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "room.hpp"
 #include "spells.h"
 #include "skills.h"
@@ -34,7 +34,7 @@
 #include "chars/world.characters.hpp"
 #include "logger.hpp"
 #include "structs.h"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 #include "magic.rooms.hpp"
 #include "db.h"

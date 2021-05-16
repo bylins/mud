@@ -25,7 +25,7 @@
 #include "house.h"
 #include "im.h"
 #include "depot.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "liquid.hpp"
 #include "file_crc.hpp"
 #include "named_stuff.hpp"

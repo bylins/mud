@@ -6,7 +6,7 @@
 #include "fightsystem/fight_hit.hpp"
 #include "handler.h"
 #include "spells.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 using namespace FightSystem;
 
@@ -34,7 +34,7 @@ void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
     return;
   }
 
-  int percent = number(1, skill_info[SKILL_RESCUE].fail_percent);
+  int percent = number(1, skill_info[SKILL_RESCUE].difficulty);
   int prob = CalcCurrentSkill(ch, SKILL_RESCUE, tmp_ch);
   ImproveSkill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
 

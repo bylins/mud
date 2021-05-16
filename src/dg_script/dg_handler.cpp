@@ -23,7 +23,7 @@
 #include "dg_event.h"
 #include "im.h"
 #include "features.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

@@ -1,6 +1,6 @@
 #include "identify.h"
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "obj.hpp"
 #include "comm.h"
 #include "skills.h"

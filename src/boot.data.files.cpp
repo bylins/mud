@@ -9,7 +9,7 @@
 #include "room.hpp"
 #include "description.h"
 #include "im.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "help.hpp"
 #include "dg_script/dg_db_scripts.hpp"
 #include "zone.table.hpp"

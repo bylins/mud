@@ -5,7 +5,7 @@
 #include "name_list.hpp"
 
 #include "obj.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "handler.h"
 #include "interpreter.h"
 #include "utils.h"

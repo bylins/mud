@@ -1,6 +1,6 @@
 #include "stat.h"
 
-#include "ban.hpp"
+#include "ban.h"
 #include "chars/char_player.hpp"
 #include "chars/player_races.hpp"
 #include "char_obj_utils.inl"
@@ -19,7 +19,7 @@
 #include "modify.h"
 #include "utils.h"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 void do_statip(CHAR_DATA * ch, CHAR_DATA * k)

@@ -9,7 +9,7 @@
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "genchar.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "db.h"
 #include "screen.h"
 #include "comm.h"

@@ -16,7 +16,7 @@
 #include "db.h"
 #include "auction.h"
 #include "constants.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "room.hpp"
 #include "named_stuff.hpp"
 #include "fightsystem/pk.h"

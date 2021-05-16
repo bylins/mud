@@ -7,7 +7,7 @@
 #include "handler.h"
 #include "magic.utils.hpp"
 #include "spells.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "comm.h"
 #include "skills.h"
 #include "db.h"

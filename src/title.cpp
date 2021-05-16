@@ -15,7 +15,7 @@
 #include "fightsystem/pk.h"
 #include "privilege.hpp"
 #include "handler.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/char_player.hpp"
 
 #include <boost/algorithm/string.hpp>

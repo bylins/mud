@@ -23,7 +23,7 @@
 #include "im.h"
 #include "features.hpp"
 #include "depot.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "house.h"
 #include "skills.h"
 #include "parcel.hpp"
@@ -35,7 +35,7 @@
 #include "sets_drop.hpp"
 #include "obj.hpp"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 #include <array>

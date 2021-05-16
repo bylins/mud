@@ -1,6 +1,6 @@
 // Part of Bylins http://www.mud.ru
 
-#include "core/affect_data.h"
+#include "affects/affect_data.h"
 #include "mobact.hpp"
 #include "obj.hpp"
 #include "cmd/flee.h"
@@ -8,7 +8,7 @@
 #include "fight.h"
 #include "fight.penalties.hpp"
 #include "fight_hit.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "skills.h"
 #include "handler.h"
 #include "db.h"
@@ -27,7 +27,7 @@
 #include "mob_stat.hpp"
 #include "logger.hpp"
 #include "bonus.h"
-#include "backtrace.hpp"
+#include "backtrace.h"
 #include "magic.utils.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"

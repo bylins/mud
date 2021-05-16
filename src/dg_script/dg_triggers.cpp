@@ -22,7 +22,7 @@
 #include "handler.h"
 #include "db.h"
 #include "olc/olc.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "room.hpp"
 #include "spells.h"
 #include "utils.h"

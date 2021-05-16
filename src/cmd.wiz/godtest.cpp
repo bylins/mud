@@ -1,6 +1,6 @@
 #include "godtest.h"
 
-#include "../chars/char.hpp"
+#include "../chars/character.h"
 #include "../modify.h"
 
 #include <sstream>

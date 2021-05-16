@@ -9,7 +9,7 @@
 #include "spells.h"
 #include "handler.h"
 #include "house.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "corpse.hpp"
 #include "room.hpp"
 #include "fightsystem/fight.h"
@@ -20,7 +20,7 @@
 
 #include <list>
 #include <algorithm>
-#include "act.movement.hpp"
+#include "act.movement.h"
 
 extern void death_cry(CHAR_DATA * ch, CHAR_DATA * killer);
 

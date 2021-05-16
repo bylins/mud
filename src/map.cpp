@@ -4,7 +4,7 @@
 
 #include "map.hpp"
 
-#include "act.movement.hpp"
+#include "act.movement.h"
 #include "obj.hpp"
 #include "screen.h"
 #include "room.hpp"

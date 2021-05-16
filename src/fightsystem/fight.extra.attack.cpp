@@ -1,6 +1,6 @@
 #include "fight.extra.attack.hpp"
 
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "spells.h"
 #include "utils.h"
 

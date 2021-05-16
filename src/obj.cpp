@@ -14,7 +14,7 @@
 #include "celebrates.hpp"
 #include "fightsystem/pk.h"
 #include "cache.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "depot.hpp"
 #include "constants.h"
 #include "db.h"

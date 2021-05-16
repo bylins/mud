@@ -15,7 +15,7 @@
 #define _MAGIC_H_
 
 #include "obj.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "room.hpp"
 #include "spells.info.h"
 

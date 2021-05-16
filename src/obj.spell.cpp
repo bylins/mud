@@ -8,7 +8,7 @@
 #include "comm.h"
 #include "screen.h"
 #include "poison.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "db.h"
 #include "room.hpp"
 #include "logger.hpp"
@@ -16,7 +16,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "char_obj_utils.inl"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 #include <boost/format.hpp>

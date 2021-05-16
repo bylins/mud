@@ -14,9 +14,9 @@
 
 #include "spells.h"
 
-#include "birth_places.hpp"
+#include "birthplaces.h"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "chars/world.characters.hpp"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
@@ -53,7 +53,7 @@
 #include "sysdep.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "spells.info.h"
 
 #include <math.h>
@@ -3103,7 +3103,7 @@ int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, 
       if (!obj) {
         return FALSE;
       } else {
-        percent = number(1, skill_info[skillnum].fail_percent);
+        percent = number(1, skill_info[skillnum].difficulty);
         auto prob = CalcCurrentSkill(ch, skillnum, nullptr);
 
         if (skillnum > 0

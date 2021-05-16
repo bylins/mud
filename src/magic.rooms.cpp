@@ -6,7 +6,7 @@
 #include "modify.h"
 #include "db.h"
 #include "utils.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "magic.utils.hpp"
 #include "magic.h" //Включено ради material_component_processing, который надо, по-хлорошему, вообще в отдеьный модуль.
 

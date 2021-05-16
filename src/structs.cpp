@@ -1,5 +1,5 @@
 #include "structs.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "spells.h"
 #include "utils.h"
 #include "logger.hpp"

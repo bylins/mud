@@ -1,5 +1,5 @@
 #include "throw.h"
-#include "action.targeting.hpp"
+#include "action_targeting.h"
 #include "abilities/abilities_rollsystem.h"
 
 #include "fightsystem/pk.h"
@@ -11,7 +11,7 @@
 #include "fightsystem/common.h"
 
 using namespace FightSystem;
-using namespace AbilitySystem;
+using namespace abilities;
 
 // ************* THROW PROCEDURES
 
@@ -28,7 +28,8 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
   uint32_t mobNoFlag = MOB_DELETE;
 
   switch (GET_OBJ_SKILL(weapon)) {
-    case SKILL_SPADES:mobNoFlag = MOB_NOBASH;
+    case SKILL_SPADES:
+      mobNoFlag = MOB_NOBASH;
       featureID = SHADOW_SPEAR_FEAT;
       to_char = "Попадание копья повалило $n3 наземь.";
       to_vict = "Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
@@ -43,7 +44,8 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
       });
       break;
     case SKILL_SHORTS:
-    case SKILL_PICK:mobNoFlag = MOB_NOSIELENCE;
+    case SKILL_PICK:
+      mobNoFlag = MOB_NOSIELENCE;
       featureID = SHADOW_DAGGER_FEAT;
       to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
       to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
@@ -57,7 +59,8 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
         affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
       });
       break;
-    case SKILL_CLUBS:mobNoFlag = MOB_NOSTUPOR;
+    case SKILL_CLUBS:
+      mobNoFlag = MOB_NOSTUPOR;
       featureID = SHADOW_CLUB_FEAT;
       to_char = "Попадание булавы ошеломило $n3.";
       to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";

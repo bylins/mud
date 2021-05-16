@@ -11,7 +11,7 @@
 #include "db.h"
 #include "interpreter.h"
 #include "comm.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
