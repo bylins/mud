@@ -119,10 +119,6 @@ namespace commands
 		{
 			handler = &Shutdown::die;
 		}
-		else if (!str_cmp(m_argument_buffer, "pause") && 0 < m_timeout)
-		{
-			handler = &Shutdown::pause;
-		}
 		else if (!str_cmp(m_argument_buffer, "now"))
 		{
 			handler = &Shutdown::shutdown_now;
@@ -147,7 +143,7 @@ namespace commands
 	}
 
 	char const *Shutdown::HELP_MESSAGE =
-		"Формат команды shutdown [reboot|die|pause] кол-во секунд\r\n"
+		"Формат команды shutdown [reboot|die] кол-во секунд\r\n"
 		"               shutdown schedule кол-во минут\r\n"
 		"               shutdown now|cancel|schedule";
 }
