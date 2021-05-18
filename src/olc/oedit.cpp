@@ -166,7 +166,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj)
 	// Сохраняю текущую игровую информацию
 	OBJ_DATA tmp(*obj);
 
-	// Копируем информацию из прототипа
+	// Копируем все поля из отредактированного нами объекта OLC_OBJ
 	*obj = *olc_obj;
 
 	//Восстанавливаем падежи если объект поренеймлен
@@ -174,9 +174,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj)
 		obj->copy_name_from(&tmp);
 		obj->set_is_rename(true);
 	}
-
+	// меняем на значения из шмоток в текущем мире
 	obj->clear_proto_script();
-	// Восстанавливаю игровую информацию
 	obj->set_uid(tmp.get_uid());
 	obj->set_id(tmp.get_id()); // аук работает не по рнум а по id объекта, поэтому вернем и его
 	obj->set_in_room(tmp.get_in_room());
@@ -195,8 +194,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj)
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
 	obj->set_current_durability(GET_OBJ_CUR(&tmp));
-//	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
-	if (obj->get_timer() > tmp.get_timer())
+//	если таймер шмота в текущем мире меньше чем установленный, восстанавливаем его.
+	if (olc_obj->get_timer() < tmp.get_timer())
 	{
 		obj->set_timer(tmp.get_timer());
 	}
