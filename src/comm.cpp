@@ -701,18 +701,8 @@ int main_function(int argc, char **argv)
 	plant_magic(buf2);
 	plant_magic(arg);
 
-#ifdef CIRCLE_MACINTOSH
-	/*
-	 * ccommand() calls the command line/io redirection dialog box from
-	 * Codewarriors's SIOUX library
-	 */
-	argc = ccommand(&argv);
-	// Initialize the GUSI library calls.
-	GUSIDefaultSetup();
-#endif
-
 	port = DFLT_PORT;
-	dir = DFLT_DIR;
+	dir = lib;
 
 	runtime_config.load();
 
@@ -736,19 +726,6 @@ int main_function(int argc, char **argv)
 				exit(1);
 			}
 			break;
-
-		case 'd':
-			if (*(argv[pos] + 2))
-				dir = argv[pos] + 2;
-			else if (++pos < argc)
-				dir = argv[pos];
-			else
-			{
-				puts("SYSERR: Directory arg expected after option -d.");
-				exit(1);
-			}
-			break;
-
 		case 'c':
 			scheck = 1;
 			puts("Syntax check mode enabled.");
@@ -766,9 +743,8 @@ int main_function(int argc, char **argv)
 
 		case 'h':
 			// From: Anil Mahajan <amahajan@proxicom.com>
-			printf("Usage: %s [-c] [-q] [-r] [-s] [-d pathname] [port #] [-D msdp]\n"
+			printf("Usage: %s [-c] [-q] [-r] [-s] [port #] [-D msdp]\n"
 				"  -c             Enable syntax check mode.\n"
-				"  -d <directory> Specify library directory (defaults to 'lib').\n"
 				"  -h             Print this command line argument help.\n"
 				"  -o <file>      Write log to <file> instead of stderr.\n"
 				"  -r             Restrict MUD -- no new players allowed.\n"
@@ -786,7 +762,7 @@ int main_function(int argc, char **argv)
 	{
 		if (!a_isdigit(*argv[pos]))
 		{
-			printf("Usage: %s [-c] [-q] [-r] [-s] [-d pathname] [port #] [-D msdp]\n", argv[0]);
+			printf("Usage: %s [-c] [-q] [-r] [-s] [port #] [-D msdp]\n", argv[0]);
 			exit(1);
 		}
 		else if ((port = atoi(argv[pos])) <= 1024)
