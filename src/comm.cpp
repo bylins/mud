@@ -702,7 +702,7 @@ int main_function(int argc, char **argv)
 	plant_magic(arg);
 
 	port = DFLT_PORT;
-	dir = lib;
+	dir = "lib";
 
 	runtime_config.load();
 
