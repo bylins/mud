@@ -195,7 +195,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj)
 	obj->set_serial_num(tmp.get_serial_num());
 	obj->set_current_durability(GET_OBJ_CUR(&tmp));
 //	если таймер шмота в текущем мире меньше чем установленный, восстанавливаем его.
-	if (olc_obj->get_timer() < tmp.get_timer())
+	if (tmp.get_timer() < olc_obj->get_timer())
 	{
 		obj->set_timer(tmp.get_timer());
 	}
