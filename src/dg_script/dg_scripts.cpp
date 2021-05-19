@@ -1969,8 +1969,7 @@ void find_replacement(void *go,
       sprintf(str, "%d", GET_MAX_MANA(c));
     else if (!str_cmp(field, "move")) {
       if (!IS_NPC(c))
-        GET_MOVE(c) =
-            (sh_int) MAX(0, gm_char_field(c, field, subfield, (long) GET_MOVE(c)));
+        GET_MOVE(c) = MAX(0, gm_char_field(c, field, subfield, GET_MOVE(c)));
       sprintf(str, "%d", GET_MOVE(c));
     } else if (!str_cmp(field, "maxmove")) {
       //GET_MAX_MOVE(c) = (sh_int) MAX(1,gm_char_field(c,field,subfield,(long)GET_MAX_MOVE(c)));
