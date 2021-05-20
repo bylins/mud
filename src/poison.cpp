@@ -215,7 +215,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
     AFFECT_DATA<EApplyLocation> af;
 	int percent = number(1, skill_info[SKILL_POISONED].difficulty * 3);
-	int prob = CalcCurrentSkill(ch, SKILL_POISONED, vict);
+	int prob = CalculateCurrentSkill(ch, SKILL_POISONED, vict);
 	if (prob >= percent) {
 		switch (number(1, 5)) {
 		case 1:

@@ -11,8 +11,8 @@ struct SkillInfoType {
 	int level_decrement[NUM_PLAYER_CLASSES][NUM_KIN];
 	long int k_improve[NUM_PLAYER_CLASSES][NUM_KIN];
 	int classknow[NUM_PLAYER_CLASSES][NUM_KIN];
-	int save_type;
 	int difficulty;
+	int save_type;
 	int cap;
 	const char *name;
 	const char *shortName;

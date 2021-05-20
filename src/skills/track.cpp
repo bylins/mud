@@ -58,7 +58,7 @@ int go_track(CHAR_DATA *ch, CHAR_DATA *victim, const ESkill skill_no) {
   {
     percent = MIN(99, number(0, GET_REMORT(victim)) + percent);
   }
-  if (percent > CalcCurrentSkill(ch, skill_no, victim)) {
+  if (percent > CalculateCurrentSkill(ch, skill_no, victim)) {
     int tries = 10;
     // Find a random direction. :)
     do {
@@ -91,7 +91,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   if (!check_moves(ch, can_use_feat(ch, TRACKER_FEAT) ? TRACK_MOVES / 2 : TRACK_MOVES))
     return;
 
-  calc_track = CalcCurrentSkill(ch, SKILL_TRACK, 0);
+  calc_track = CalculateCurrentSkill(ch, SKILL_TRACK, 0);
   act("Похоже, $n кого-то выслеживает.", FALSE, ch, 0, 0, TO_ROOM);
   one_argument(argument, arg);
 
@@ -235,7 +235,7 @@ void do_hidetrack(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
   if (!check_moves(ch, can_use_feat(ch, STEALTHY_FEAT) ? HIDETRACK_MOVES / 2 : HIDETRACK_MOVES))
     return;
   percent = number(1, skill_info[SKILL_HIDETRACK].difficulty);
-  prob = CalcCurrentSkill(ch, SKILL_HIDETRACK, 0);
+  prob = CalculateCurrentSkill(ch, SKILL_HIDETRACK, 0);
   if (percent > prob) {
     send_to_char("Вы безуспешно попытались замести свои следы.\r\n", ch);
     if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))

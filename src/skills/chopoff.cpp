@@ -41,7 +41,7 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
     return;
 
   int percent = number(1, skill_info[SKILL_CHOPOFF].difficulty);
-  int prob = CalcCurrentSkill(ch, SKILL_CHOPOFF, vict);
+  int prob = CalculateCurrentSkill(ch, SKILL_CHOPOFF, vict);
 
   if (check_spell_on_player(ch, SPELL_WEB)) {
     prob /= 3;

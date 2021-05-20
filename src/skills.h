@@ -145,6 +145,12 @@ enum ESkill : int {
 
 #define KNOW_SKILL  1
 
+struct SkillRollResult {
+	bool success = true;
+	bool critical = false;
+	short degree = 0;
+};
+
 template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
@@ -154,9 +160,9 @@ extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
 
 int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, std::string add = "");
 
-int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict);
-void ImproveSkill(CHAR_DATA *ch, const ESkill skill, int success, CHAR_DATA *victim);
-void TrainSkill(CHAR_DATA *ch, const ESkill skill, bool success, CHAR_DATA *vict);
+int CalculateCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict);
+void ImproveSkill(CHAR_DATA *ch, ESkill skill, int success, CHAR_DATA *victim);
+void TrainSkill(CHAR_DATA *ch, ESkill skill, bool success, CHAR_DATA *vict);
 
 int min_skill_level(CHAR_DATA *ch, int skill);
 int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl);
@@ -165,9 +171,9 @@ bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 int FindWeaponMasterBySkill(ESkill skill);
 int CalcSkillRemortCap(const CHAR_DATA *ch);
 int CalcSkillSoftCap(const CHAR_DATA *ch);
-int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill);
-int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill);
-
+int CalcSkillHardCap(const CHAR_DATA *ch, ESkill skill);
+int CalcSkillMinCap(const CHAR_DATA *ch, ESkill skill);
+SkillRollResult MakeSkillTest(CHAR_DATA *ch, ESkill skill_id, CHAR_DATA *vict);
 void SendSkillBalanceMsg(CHAR_DATA *ch, const char *skill_name, int percent, int prob, bool success);
 
 // ГОРНОЕ ДЕЛО
@@ -250,15 +256,8 @@ struct skillvariables_insgem {
 	int timer_minus_percent;
 };
 
-int CalcAwakeMod(CHAR_DATA *killer, CHAR_DATA *victim);
+int CalculateSkillAwakeModifier(CHAR_DATA *killer, CHAR_DATA *victim);
 
-struct DicepoolRollResultType {
-	unsigned short top_rolls = 0;
-	unsigned short successes = 0;
-	unsigned short failures = 0;
-
-	int GetSucessesAmount() const {return top_rolls + successes;};
-};
 
 /*
     В перспективе описанный далее класс должен будет содержать

@@ -717,7 +717,7 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   timed_to_char(ch, &timed);
 
   percent = number(1, skill_info[SKILL_DRUNKOFF].difficulty);
-  prob = CalcCurrentSkill(ch, SKILL_DRUNKOFF, nullptr);
+  prob = CalculateCurrentSkill(ch, SKILL_DRUNKOFF, nullptr);
   TrainSkill(ch, SKILL_DRUNKOFF, percent <= prob, nullptr);
   amount = MIN(amount, GET_OBJ_VAL(obj, 1));
   weight = MIN(amount, GET_OBJ_WEIGHT(obj));

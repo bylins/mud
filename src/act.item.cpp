@@ -2293,7 +2293,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   }
 
   percent = number(1, skill_info[SKILL_UPGRADE].difficulty);
-  prob = CalcCurrentSkill(ch, SKILL_UPGRADE, nullptr);
+  prob = CalculateCurrentSkill(ch, SKILL_UPGRADE, nullptr);
   TrainSkill(ch, SKILL_UPGRADE, percent <= prob, nullptr);
   if (obj->get_timer() == 0) // не ждем рассыпания на тике
   {
@@ -2415,7 +2415,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   }
 
   percent = number(1, skill_info[SKILL_ARMORED].difficulty);
-  prob = CalcCurrentSkill(ch, SKILL_ARMORED, nullptr);
+  prob = CalculateCurrentSkill(ch, SKILL_ARMORED, nullptr);
   TrainSkill(ch, SKILL_ARMORED, percent <= prob, nullptr);
   add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_LEVEL(ch) + 4) / 5);
   if (percent > prob
@@ -2520,7 +2520,7 @@ void do_fire(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
     return;
 
   percent = number(1, skill_info[SKILL_FIRE].difficulty);
-  prob = CalcCurrentSkill(ch, SKILL_FIRE, 0);
+  prob = CalculateCurrentSkill(ch, SKILL_FIRE, 0);
   if (percent > prob) {
     send_to_char("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
     return;
@@ -2681,7 +2681,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   }
 
   int percent = number(1, skill_info[SKILL_AID].difficulty);
-  int prob = CalcCurrentSkill(ch, SKILL_AID, vict);
+  int prob = CalculateCurrentSkill(ch, SKILL_AID, vict);
 
   if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE)) {
     percent = prob;
@@ -2705,7 +2705,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
         GET_HIT(vict) += add;
       } else {
-        percent = CalcCurrentSkill(ch, SKILL_AID, vict);
+        percent = CalculateCurrentSkill(ch, SKILL_AID, vict);
         prob = GET_LEVEL(ch) * percent * 0.5;
         send_to_char(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GET_LEVEL(vict), prob, percent);
         GET_HIT(vict) += prob;
@@ -2881,7 +2881,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   }
 
   prob = number(1, skill_info[SKILL_REPAIR].difficulty);
-  percent = CalcCurrentSkill(ch, SKILL_REPAIR, nullptr);
+  percent = CalculateCurrentSkill(ch, SKILL_REPAIR, nullptr);
   TrainSkill(ch, SKILL_REPAIR, prob <= percent, nullptr);
   if (prob > percent) {
 //Polos.repair_bug
@@ -3032,7 +3032,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   }
 
   const auto prob = number(1, skill_info[SKILL_MAKEFOOD].difficulty);
-  const auto percent = CalcCurrentSkill(ch, SKILL_MAKEFOOD, mob)
+  const auto percent = CalculateCurrentSkill(ch, SKILL_MAKEFOOD, mob)
       + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
   TrainSkill(ch, SKILL_MAKEFOOD, percent <= prob, mob);
 

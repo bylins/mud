@@ -171,7 +171,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	int percent, dir, skill = CalcCurrentSkill(ch, SKILL_SENSE, victim);
+	int percent, dir, skill = CalculateCurrentSkill(ch, SKILL_SENSE, victim);
 
 	skill = skill - MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
 	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEL(ch)) * 5);

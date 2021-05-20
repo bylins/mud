@@ -179,7 +179,7 @@ int skip_hiding(CHAR_DATA *ch, CHAR_DATA *vict) {
       EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
     } else if (affected_by_spell(ch, SPELL_HIDE)) {
       percent = number(1, 82 + GET_REAL_INT(vict));
-      prob = CalcCurrentSkill(ch, SKILL_HIDE, vict);
+      prob = CalculateCurrentSkill(ch, SKILL_HIDE, vict);
       if (percent > prob) {
         affect_from_char(ch, SPELL_HIDE);
         if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
@@ -210,7 +210,7 @@ int skip_camouflage(CHAR_DATA *ch, CHAR_DATA *vict) {
       EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
     } else if (affected_by_spell(ch, SPELL_CAMOUFLAGE)) {
       percent = number(1, 82 + GET_REAL_INT(vict));
-      prob = CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, vict);
+      prob = CalculateCurrentSkill(ch, SKILL_CAMOUFLAGE, vict);
       if (percent > prob) {
         affect_from_char(ch, SPELL_CAMOUFLAGE);
         if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)) {
@@ -248,7 +248,7 @@ int skip_sneaking(CHAR_DATA *ch, CHAR_DATA *vict) {
                        (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112)
                            + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1))
                            + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
-      prob = CalcCurrentSkill(ch, SKILL_SNEAK, vict);
+      prob = CalculateCurrentSkill(ch, SKILL_SNEAK, vict);
 
       int catch_level = (GET_LEVEL(vict) - GET_LEVEL(ch));
       if (catch_level > 5) {
@@ -640,7 +640,7 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
       invis = 1;
     else if (awake_sneak(ch)) {
       affect_from_char(ch, SPELL_SNEAK);
-    } else if (!affected_by_spell(ch, SPELL_SNEAK) || CalcCurrentSkill(ch, SKILL_SNEAK, 0) >= number(1, i))
+    } else if (!affected_by_spell(ch, SPELL_SNEAK) || CalculateCurrentSkill(ch, SKILL_SNEAK, 0) >= number(1, i))
       invis = 1;
   }
 
@@ -651,7 +651,7 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
     else if (awake_camouflage(ch)) {
       affect_from_char(ch, SPELL_CAMOUFLAGE);
     } else if (!affected_by_spell(ch, SPELL_CAMOUFLAGE) ||
-        CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, 0) >= number(1, i))
+		CalculateCurrentSkill(ch, SKILL_CAMOUFLAGE, 0) >= number(1, i))
       invis = 1;
   }
 
@@ -1022,7 +1022,7 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     af.location = EApplyLocation::APPLY_NONE;
     af.modifier = 0;
     af.duration = 1;
-    const int calculated_skill = CalcCurrentSkill(ch, SKILL_SNEAK, 0);
+    const int calculated_skill = CalculateCurrentSkill(ch, SKILL_SNEAK, 0);
     const int chance = number(1, skill_info[SKILL_SNEAK].difficulty);
     af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlag::AFF_SNEAK) : 0;
     af.battleflag = 0;
@@ -1360,7 +1360,7 @@ int ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int scm
   int prob = number(1, skill_info[SKILL_PICK_LOCK].difficulty);
 
   if (scmd == SCMD_PICK) {
-    auto percent = CalcCurrentSkill(ch, SKILL_PICK_LOCK, nullptr);
+    auto percent = CalculateCurrentSkill(ch, SKILL_PICK_LOCK, nullptr);
     if (pickproof)
       send_to_char("Вы никогда не сможете взломать ЭТО.\r\n", ch);
     else if (!check_moves(ch, PICKLOCK_MOVES));

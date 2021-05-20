@@ -35,7 +35,7 @@ void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
   }
 
   int percent = number(1, skill_info[SKILL_RESCUE].difficulty);
-  int prob = CalcCurrentSkill(ch, SKILL_RESCUE, tmp_ch);
+  int prob = CalculateCurrentSkill(ch, SKILL_RESCUE, tmp_ch);
   ImproveSkill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
 
   if (GET_GOD_FLAG(ch, GF_GODSLIKE))

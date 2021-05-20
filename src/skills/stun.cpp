@@ -82,7 +82,7 @@ void go_stun(CHAR_DATA *ch, CHAR_DATA *vict) {
   //(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 
   int percent = number(1, skill_info[SKILL_STUN].difficulty);
-  int prob = CalcCurrentSkill(ch, SKILL_STUN, vict);
+  int prob = CalculateCurrentSkill(ch, SKILL_STUN, vict);
   bool success = percent <= prob;
   TrainSkill(ch, SKILL_STUN, success, vict);
   SendSkillBalanceMsg(ch, skill_info[SKILL_STUN].name, percent, prob, success);

@@ -862,7 +862,7 @@ void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim) {
 * У чармисов 100% и 60% без остальных допов.
 */
 void addshot_damage(CHAR_DATA *ch, ESkill type, FightSystem::AttType weapon) {
-  int prob = CalcCurrentSkill(ch, SKILL_ADDSHOT, ch->get_fighting());
+  int prob = CalculateCurrentSkill(ch, SKILL_ADDSHOT, ch->get_fighting());
   TrainSkill(ch, SKILL_ADDSHOT, true, ch->get_fighting());
   // ловка роляет только выше 21 (стартовый максимум охота) и до 50
   // поставим кап в 50 ловки для допвыстрела
@@ -1379,7 +1379,7 @@ void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam) {
           || !(GET_EQ(vict, WEAR_WIELD) || GET_EQ(vict, WEAR_BOTHS)))
       && GET_POS(vict) > POS_SLEEPING) {
     int percent = number(1, skill_info[SKILL_TOUCH].difficulty);
-    int prob = CalcCurrentSkill(vict, SKILL_TOUCH, ch);
+    int prob = CalculateCurrentSkill(vict, SKILL_TOUCH, ch);
     TrainSkill(vict, SKILL_TOUCH, prob >= percent, ch);
     if (IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)) {
       percent = prob;
@@ -1410,7 +1410,7 @@ void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam) {
 
 void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
   int range = number(1, skill_info[SKILL_DEVIATE].difficulty);
-  int prob = CalcCurrentSkill(victim, SKILL_DEVIATE, ch);
+  int prob = CalculateCurrentSkill(victim, SKILL_DEVIATE, ch);
   if (GET_GOD_FLAG(victim, GF_GODSCURSE)) {
     prob = 0;
   }
@@ -1457,7 +1457,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *d
     CLR_AF_BATTLE(victim, EAF_PARRY);
   } else {
     int range = number(1, skill_info[SKILL_PARRY].difficulty);
-    int prob = CalcCurrentSkill(victim, SKILL_PARRY, ch);
+    int prob = CalculateCurrentSkill(victim, SKILL_PARRY, ch);
     prob = prob * 100 / range;
     TrainSkill(victim, SKILL_PARRY, prob < 100, ch);
     SendSkillBalanceMsg(ch, skill_info[SKILL_PARRY].name, range, prob, prob >= 70);
@@ -1513,7 +1513,7 @@ void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, i
   } else {
     int range = number(1,
                        skill_info[SKILL_MULTYPARRY].difficulty) + 15 * BATTLECNTR(victim);
-    int prob = CalcCurrentSkill(victim, SKILL_MULTYPARRY, ch);
+    int prob = CalculateCurrentSkill(victim, SKILL_MULTYPARRY, ch);
     prob = prob * 100 / range;
 
     if ((skill == SKILL_BOWS || hit_type == FightSystem::type_maul)
@@ -1560,7 +1560,7 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
     send_to_char("У вас нечем отразить атаку противника\r\n", victim);
   } else {
     int range = number(1, skill_info[SKILL_BLOCK].difficulty);
-    int prob = CalcCurrentSkill(victim, SKILL_BLOCK, ch);
+    int prob = CalculateCurrentSkill(victim, SKILL_BLOCK, ch);
     prob = prob * 100 / range;
     BATTLECNTR(victim)++;
     TrainSkill(victim, SKILL_BLOCK, prob > 99, ch);
@@ -2600,7 +2600,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 
 void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
   int percent = number(1, skill_info[SKILL_MIGHTHIT].difficulty);
-  int prob = CalcCurrentSkill(ch, SKILL_MIGHTHIT, victim);
+  int prob = CalculateCurrentSkill(ch, SKILL_MIGHTHIT, victim);
   TrainSkill(ch, SKILL_MIGHTHIT, percent <= prob, victim);
   int lag = 0, might = 0;
 
@@ -2693,7 +2693,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 
 void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
   int percent = number(1, skill_info[SKILL_STUPOR].difficulty);
-  int prob = CalcCurrentSkill(ch, SKILL_STUPOR, victim);
+  int prob = CalculateCurrentSkill(ch, SKILL_STUPOR, victim);
   TrainSkill(ch, SKILL_STUPOR, prob >= percent, victim);
   SendSkillBalanceMsg(ch, skill_info[SKILL_STUPOR].name, percent, prob, prob >= percent);
   int lag = 0;
@@ -2864,12 +2864,12 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim) {
     // удар голыми руками
     weap_skill = SKILL_PUNCH;
   }
-  weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
+  weap_skill_is = CalculateCurrentSkill(ch, weap_skill, victim);
   TrainSkill(ch, weap_skill, true, victim);
 
   //* обработка SKILL_NOPARRYHIT //
   if (skill_num == TYPE_UNDEFINED && ch->get_skill(SKILL_NOPARRYHIT)) {
-    int tmp_skill = CalcCurrentSkill(ch, SKILL_NOPARRYHIT, victim);
+    int tmp_skill = CalculateCurrentSkill(ch, SKILL_NOPARRYHIT, victim);
     bool success = tmp_skill >= number(1, skill_info[SKILL_NOPARRYHIT].difficulty);
     TrainSkill(ch, SKILL_NOPARRYHIT, success, victim);
     if (success) {
@@ -3058,14 +3058,14 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
       && skill_num != SKILL_BACKSTAB
       && !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
       && !IS_NPC(ch)) {
-    calc_thaco += (skill_info[SKILL_SHIT].difficulty - CalcCurrentSkill(ch, SKILL_SHIT, victim) / 10);
+    calc_thaco += (skill_info[SKILL_SHIT].difficulty - CalculateCurrentSkill(ch, SKILL_SHIT, victim) / 10);
     TrainSkill(ch, SKILL_SHIT, true, victim);
   }
 
   // courage
   if (affected_by_spell(ch, SPELL_COURAGE)) {
     int range = number(1, skill_info[SKILL_COURAGE].difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
-    int prob = CalcCurrentSkill(ch, SKILL_COURAGE, victim);
+    int prob = CalculateCurrentSkill(ch, SKILL_COURAGE, victim);
     TrainSkill(ch, SKILL_COURAGE, prob > range, victim);
     if (prob > range) {
       dam += ((ch->get_skill(SKILL_COURAGE) + 19) / 20);
@@ -3108,7 +3108,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
       && AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
       && !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
       && !GET_MOB_HOLD(victim)) {
-    bool success = CalcCurrentSkill(ch, SKILL_AWAKE, victim)
+    bool success = CalculateCurrentSkill(ch, SKILL_AWAKE, victim)
         >= number(1, skill_info[SKILL_AWAKE].difficulty);
     if (success) {
       // > и зачем так? кто балансом занимается поправте.
@@ -3671,7 +3671,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 
   if (hit_params.skill_num == SKILL_THROW) {
     hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
-    hit_params.dam *= (CalcCurrentSkill(ch, SKILL_THROW, victim) + 10) / 10;
+    hit_params.dam *= (CalculateCurrentSkill(ch, SKILL_THROW, victim) + 10) / 10;
     if (IS_NPC(ch)) {
       hit_params.dam = MIN(300, hit_params.dam);
     }
@@ -3682,7 +3682,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 
   if (GET_AF_BATTLE(ch, EAF_PUNCTUAL) && GET_PUNCTUAL_WAIT(ch) <= 0 && GET_WAIT(ch) <= 0
       && (hit_params.diceroll >= 18 - GET_MOB_HOLD(victim))) {
-    int percent = CalcCurrentSkill(ch, SKILL_PUNCTUAL, victim);
+    int percent = CalculateCurrentSkill(ch, SKILL_PUNCTUAL, victim);
     bool success = percent >= number(1, skill_info[SKILL_PUNCTUAL].difficulty);
     TrainSkill(ch, SKILL_PUNCTUAL, success, victim);
     if (!PUNCTUAL_WAITLESS(ch)) {

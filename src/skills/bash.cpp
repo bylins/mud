@@ -43,7 +43,7 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
   vict = try_protect(vict, ch);
 
   int percent = number(1, skill_info[SKILL_BASH].difficulty);
-  int prob = CalcCurrentSkill(ch, SKILL_BASH, vict);
+  int prob = CalculateCurrentSkill(ch, SKILL_BASH, vict);
 
   if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, GF_GODSCURSE)) {
     prob = percent;
@@ -90,7 +90,7 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
       else {
         int range, prob2;
         range = number(1, skill_info[SKILL_BLOCK].difficulty);
-        prob2 = CalcCurrentSkill(vict, SKILL_BLOCK, ch);
+        prob2 = CalculateCurrentSkill(vict, SKILL_BLOCK, ch);
         bool success2 = prob2 >= range;
         TrainSkill(vict, SKILL_BLOCK, success2, ch);
         if (!success2) {

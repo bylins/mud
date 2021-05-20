@@ -67,10 +67,10 @@ void InitSkills() {
 	}
 
 	InitSingleSkill(SKILL_GLOBAL_COOLDOWN, "!global cooldown", "ОЗ", SAVING_REFLEX, 1, 1);
-	InitSingleSkill(SKILL_BACKSTAB, "заколоть", "Зк", SAVING_REFLEX, 180, 1000);
+	InitSingleSkill(SKILL_BACKSTAB, "заколоть", "Зк", SAVING_REFLEX, 25, 1000);
 	InitSingleSkill(SKILL_BASH, "сбить", "Сб", SAVING_REFLEX, 200, 200);
 	InitSingleSkill(SKILL_HIDE, "спрятаться", "Сп", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_KICK, "пнуть", "Пн", SAVING_STABILITY, 100, 200);
+	InitSingleSkill(SKILL_KICK, "пнуть", "Пн", SAVING_STABILITY, 0, 200);
 	InitSingleSkill(SKILL_PICK_LOCK, "взломать", "Вз", SAVING_REFLEX, 120, 200);
 	InitSingleSkill(SKILL_PUNCH, "кулачный бой", "Кб", SAVING_REFLEX, 100, 1000);
 	InitSingleSkill(SKILL_RESCUE, "спасти", "Спс", SAVING_REFLEX, 130, 1000);

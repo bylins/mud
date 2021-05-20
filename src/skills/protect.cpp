@@ -132,7 +132,7 @@ CHAR_DATA *try_protect(CHAR_DATA *victim, CHAR_DATA *ch) {
 
       protect = true;
       percent = number(1, skill_info[SKILL_PROTECT].difficulty);
-      prob = CalcCurrentSkill(vict, SKILL_PROTECT, victim);
+      prob = CalculateCurrentSkill(vict, SKILL_PROTECT, victim);
       prob = prob * 8 / 10;
       if (vict->haveCooldown(SKILL_PROTECT)) {
         prob /= 2;

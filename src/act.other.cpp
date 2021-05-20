@@ -385,7 +385,7 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	send_to_char("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	percent = number(1, skill_info[SKILL_SNEAK].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_SNEAK, 0);
+	prob = CalculateCurrentSkill(ch, SKILL_SNEAK, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_SNEAK;
@@ -449,7 +449,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	send_to_char("Вы начали усиленно маскироваться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
 	percent = number(1, skill_info[SKILL_CAMOUFLAGE].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, 0);
+	prob = CalculateCurrentSkill(ch, SKILL_CAMOUFLAGE, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAMOUFLAGE;
@@ -515,7 +515,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	send_to_char("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	percent = number(1, skill_info[SKILL_HIDE].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_HIDE, 0);
+	prob = CalculateCurrentSkill(ch, SKILL_HIDE, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_HIDE;
@@ -633,7 +633,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				return;
 			}
 			percent += GET_OBJ_WEIGHT(obj);	// Make heavy harder
-			prob = CalcCurrentSkill(ch, SKILL_STEAL, vict);
+			prob = CalculateCurrentSkill(ch, SKILL_STEAL, vict);
 
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 				prob += 5;
@@ -675,7 +675,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 	}
 	else  		// Steal some coins
 	{
-		prob = CalcCurrentSkill(ch, SKILL_STEAL, vict);
+		prob = CalculateCurrentSkill(ch, SKILL_STEAL, vict);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 			prob += 5;
 		if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP))
@@ -881,7 +881,7 @@ void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	timed.skill = SKILL_COURAGE;
 	timed.time = 6;
 	timed_to_char(ch, &timed);
-	prob = CalcCurrentSkill(ch, SKILL_COURAGE, 0) / 20;
+	prob = CalculateCurrentSkill(ch, SKILL_COURAGE, 0) / 20;
 	AFFECT_DATA<EApplyLocation> af[4];
 	af[0].type = SPELL_COURAGE;
 	af[0].duration = pc_duration(ch, 3, 0, 0, 0, 0);
