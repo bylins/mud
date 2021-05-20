@@ -26,41 +26,9 @@
 
 extern void weight_change_object(OBJ_DATA *obj, int weight);
 
-// виды жидскостей, наливаемых в контейнеры
-const int LIQ_WATER = 0;
-const int LIQ_BEER = 1;
-const int LIQ_WINE = 2;
-const int LIQ_ALE = 3;
-const int LIQ_QUAS = 4;
-const int LIQ_BRANDY = 5;
-const int LIQ_MORSE = 6;
-const int LIQ_VODKA = 7;
-const int LIQ_BRAGA = 8;
-const int LIQ_MED = 9;
-const int LIQ_MILK = 10;
-const int LIQ_TEA = 11;
-const int LIQ_COFFE = 12;
-const int LIQ_BLOOD = 13;
-const int LIQ_SALTWATER = 14;
-const int LIQ_CLEARWATER = 15;
-const int LIQ_POTION = 16;
-const int LIQ_POTION_RED = 17;
-const int LIQ_POTION_BLUE = 18;
-const int LIQ_POTION_WHITE = 19;
-const int LIQ_POTION_GOLD = 20;
-const int LIQ_POTION_BLACK = 21;
-const int LIQ_POTION_GREY = 22;
-const int LIQ_POTION_FUCHSIA = 23;
-const int LIQ_POTION_PINK = 24;
-const int LIQ_POISON_ACONITUM = 25;
-const int LIQ_POISON_SCOPOLIA = 26;
-const int LIQ_POISON_BELENA = 27;
-const int LIQ_POISON_DATURA = 28;
-// терминатор
-const int NUM_LIQ_TYPES = 29;
+
 const char *diag_liquid_timer(const OBJ_DATA *obj);
 
-// LIQ_x
 const char *drinks[] = {"воды",
                         "пива",
                         "вина",
@@ -81,7 +49,7 @@ const char *drinks[] = {"воды",
                         "красного колдовского зелья",
                         "синего колдовского зелья",
                         "белого колдовского зелья",
-                        "золотистого колдовского зелья",
+                        "золотистого колдовского зелья", //20
                         "черного колдовского зелья",
                         "серого колдовского зелья",
                         "фиолетового колдовского зелья",
@@ -114,7 +82,7 @@ const char *drinknames[] = {"водой",
                             "красным колдовским зельем",
                             "синим колдовским зельем",
                             "белым колдовским зельем",
-                            "золотистым колдовским зельем",
+                            "золотистым колдовским зельем", //20
                             "черным колдовским зельем",
                             "серым колдовским зельем",
                             "фиолетовым колдовским зельем",
@@ -124,41 +92,6 @@ const char *drinknames[] = {"водой",
                             "настойкой белены",
                             "настойкой дурмана",
                             "\n"
-};
-
-// effect of drinks on DRUNK, FULL, THIRST -- see values.doc
-const int drink_aff[][3] = {
-    {0, 1, -10},            // вода
-    {2, -2, -3},            // пиво
-    {5, -2, -2},            // вино
-    {3, -2, -3},            // медовуха
-    {1, -2, -5},            // квас
-    {8, 0,
-     4},                // самогон (как и водка сушит, никак не влияет на голод можно пить хоть залейся, только запивать успевай)
-    {0, -1, -8},            // морс
-    {10, 0,
-     3},                // водка (водка не питье! после нее обезвоживание, пить можно сколько угодно, но сушняк будет)
-    {3, -3, -3},            // брага
-    {0, -2, -8},            // мед (мед тоже ж калорийный)
-    {0, -3, -6},            // молоко
-    {0, -1, -6},            // чай
-    {0, -1, -6},            // кофе
-    {0, -2, 1},            // кровь
-    {0, -1, 2},            // соленая вода
-    {0, 0, -13},            // родниковая вода
-    {0, -1, 1},            // магическое зелье
-    {0, -1, 1},            // красное магическое зелье
-    {0, -1, 1},            // синее магическое зелье
-    {0, -1, 1},            // белое магическое зелье
-    {0, -1, 1},            // золотистое магическое зелье
-    {0, -1, 1},            // черное магическое зелье
-    {0, -1, 1},            // серое магическое зелье
-    {0, -1, 1},            // фиолетовое магическое зелье
-    {0, -1, 1},            // розовое магическое зелье
-    {0, 0, 0},            // настойка аконита
-    {0, 0, 0},            // настойка скополии
-    {0, 0, 0},            // настойка белены
-    {0, 0, 0}            // настойка дурмана
 };
 
 // color of the various drinks
@@ -182,7 +115,7 @@ const char *color_liquid[] = {"прозрачной",
                               "бордовой",
                               "лазурной",
                               "серебристой",
-                              "золотистой",
+                              "золотистой", //20
                               "черной вязкой",
                               "бесцветной",
                               "фиолетовой",
@@ -192,6 +125,39 @@ const char *color_liquid[] = {"прозрачной",
                               "ядовитой",
                               "ядовитой",
                               "\n"
+};
+
+// effect of drinks on DRUNK, FULL, THIRST -- see values.doc
+const int drink_aff[][3] = {
+    {0, 1, -10},            // вода
+    {2, -2, -3},            // пиво
+    {5, -2, -2},            // вино
+    {3, -2, -3},            // медовуха
+    {1, -2, -5},            // квас
+    {8,  0,  4},                // самогон (как и водка сушит, никак не влияет на голод можно пить хоть залейся, только запивать успевай)
+    {0, -1, -8},            // морс
+    {10, 0,  3},                // водка (водка не питье! после нее обезвоживание, пить можно сколько угодно, но сушняк будет)
+    {3, -3, -3},            // брага
+    {0, -2, -8},            // мед (мед тоже ж калорийный)
+    {0, -3, -6},            // молоко
+    {0, -1, -6},            // чай
+    {0, -1, -6},            // кофе
+    {0, -2, 1},            // кровь
+    {0, -1, 2},            // соленая вода
+    {0,  0, -13},            // родниковая вода
+    {0, -1, 1},            // магическое зелье
+    {0, -1, 1},            // красное магическое зелье
+    {0, -1, 1},            // синее магическое зелье
+    {0, -1, 1},            // белое магическое зелье
+    {0, -1, 1},            // золотистое магическое зелье
+    {0, -1, 1},            // черное магическое зелье
+    {0, -1, 1},            // серое магическое зелье
+    {0, -1, 1},            // фиолетовое магическое зелье
+    {0, -1, 1},            // розовое магическое зелье
+    {0, 0, 0},            // настойка аконита
+    {0, 0, 0},            // настойка скополии
+    {0, 0, 0},            // настойка белены
+    {0, 0, 0}            // настойка дурмана
 };
 
 /**
@@ -1203,19 +1169,24 @@ void name_from_drinkcon(OBJ_DATA *obj) {
 }
 
 void name_to_drinkcon(OBJ_DATA *obj, int type) {
-  int c;
-  char new_name[MAX_INPUT_LENGTH];
+	int c;
+	char new_name[MAX_INPUT_LENGTH], potion_name[MAX_INPUT_LENGTH];
+	if (type >= NUM_LIQ_TYPES) {
+		snprintf(potion_name, MAX_INPUT_LENGTH, "%s", "непонятной бормотухой, сообщите БОГАМ");
+	} 
+	else {
+		snprintf(potion_name, MAX_INPUT_LENGTH, "%s", drinknames[type]);
+	}
 
-  sprintf(new_name, "%s %s", obj->get_aliases().c_str(), drinknames[type]);
-  obj->set_aliases(new_name);
+	snprintf(new_name, MAX_INPUT_LENGTH, "%s %s", obj->get_aliases().c_str(), potion_name);
+	obj->set_aliases(new_name);
+	snprintf(new_name, MAX_INPUT_LENGTH, "%s с %s", obj->get_short_description().c_str(), potion_name);
+	obj->set_short_description(new_name);
 
-  sprintf(new_name, "%s с %s", obj->get_short_description().c_str(), drinknames[type]);
-  obj->set_short_description(new_name);
-
-  for (c = 0; c < CObjectPrototype::NUM_PADS; c++) {
-    sprintf(new_name, "%s с %s", obj->get_PName(c).c_str(), drinknames[type]);
-    obj->set_PName(c, new_name);
-  }
+	for (c = 0; c < CObjectPrototype::NUM_PADS; c++) {
+		snprintf(new_name, MAX_INPUT_LENGTH, "%s с %s", obj->get_PName(c).c_str(), potion_name);
+		obj->set_PName(c, new_name);
+	}
 }
 
 std::string print_spell(CHAR_DATA *ch, const OBJ_DATA *obj, int num) {
