@@ -17,9 +17,7 @@
 #include <algorithm>
 
 extern const byte kSkillCapOnZeroRemort = 80;
-extern const byte kSkillCapBonusPerRemort = 5;
-
-;
+extern const byte kSkillCapBonusPerRemort = 5;;
 const int kNoviceSkillThreshold = 75;
 const short kSkillDiceSize = 100;
 const short kSkillCriticalFailure = 6;
@@ -1205,9 +1203,9 @@ int CalculateSkillRate(CHAR_DATA *ch, const ESkill skill_id, CHAR_DATA *vict) {
 	double rate = 0;
 	if (MakeLuckTest(ch, vict)) {
 		rate = round(std::max(0, base_percent - kNoviceSkillThreshold) * kSkillWeight
-			+ std::min(kNoviceSkillThreshold, base_percent) * kNoviceSkillWeight
-			+ bonus * kBonusWeight
-			+ parameter_bonus * kParameterWeight);
+						 + std::min(kNoviceSkillThreshold, base_percent) * kNoviceSkillWeight
+						 + bonus * kBonusWeight
+						 + parameter_bonus * kParameterWeight);
 	}
 
 	return static_cast<int>(rate);

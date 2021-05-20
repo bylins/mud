@@ -7,9 +7,8 @@
 #include <unordered_map>
 #include <memory>
 
-class IndexFile : private std::list<std::string>
-{
-public:
+class IndexFile : private std::list<std::string> {
+ public:
 	using shared_ptr = std::shared_ptr<IndexFile>;
 
 	using base_t = std::list<std::string>;
@@ -21,14 +20,13 @@ public:
 	virtual bool open() = 0;
 	virtual int load() = 0;
 
-protected:
+ protected:
 	using base_t::clear;
 	using base_t::push_back;
 };
 
-class IndexFileFactory
-{
-public:
+class IndexFileFactory {
+ public:
 	static IndexFile::shared_ptr get_index(const EBootType mode);
 };
 

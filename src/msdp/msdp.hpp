@@ -13,7 +13,7 @@ void debug(const bool on);
 
 class Report {
  public:
-  void operator()(DESCRIPTOR_DATA *d, const std::string &type);
+	void operator()(DESCRIPTOR_DATA *d, const std::string &type);
 };
 
 extern Report report;

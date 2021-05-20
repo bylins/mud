@@ -65,9 +65,9 @@ void olc_remove_from_save_list(int zone, byte type);
 // * OLC structures.
 
 typedef struct t_zcmd {
-  struct t_zcmd *next;    // следующий элемент кольцевого буфера
-  struct t_zcmd *prev;    // предыдущий элемент кольцевого буфера
-  struct reset_com cmd;    // команда
+	struct t_zcmd *next;    // следующий элемент кольцевого буфера
+	struct t_zcmd *prev;    // предыдущий элемент кольцевого буфера
+	struct reset_com cmd;    // команда
 } zcmd, *pzcmd;
 
 void zedit_delete_cmdlist(pzcmd head);
@@ -78,38 +78,38 @@ class MakeRecept;
 class ZoneData;    // to avoid inclusion of "zone.table.hpp"
 
 struct olc_data {
-  olc_data();
+	olc_data();
 
-  int mode;
-  int zone_num;
-  int number;
-  int value;
-  int total_mprogs;
-  unsigned long bitmask;
-  CHAR_DATA *mob;
-  ROOM_DATA *room;
-  OBJ_DATA *obj;
-  ZoneData *zone;
-  EXTRA_DESCR_DATA::shared_ptr desc;
+	int mode;
+	int zone_num;
+	int number;
+	int value;
+	int total_mprogs;
+	unsigned long bitmask;
+	CHAR_DATA *mob;
+	ROOM_DATA *room;
+	OBJ_DATA *obj;
+	ZoneData *zone;
+	EXTRA_DESCR_DATA::shared_ptr desc;
 
-  MakeRecept *mrec;
+	MakeRecept *mrec;
 
 #if defined(OASIS_MPROG)
-  struct mob_prog_data *mprog;
-  struct mob_prog_data *mprogl;
+	struct mob_prog_data *mprog;
+	struct mob_prog_data *mprogl;
 #endif
-  TRIG_DATA *trig;
-  int script_mode;
-  int trigger_position;
-  int item_type;
-  OBJ_DATA::triggers_list_t script;
-  char *storage;        // for holding commands etc..
+	TRIG_DATA *trig;
+	int script_mode;
+	int trigger_position;
+	int item_type;
+	OBJ_DATA::triggers_list_t script;
+	char *storage;        // for holding commands etc..
 };
 
 struct olc_save_info {
-  int zone;
-  char type;
-  struct olc_save_info *next;
+	int zone;
+	char type;
+	struct olc_save_info *next;
 };
 
 // * Exported globals.

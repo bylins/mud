@@ -6,26 +6,20 @@
 #include <iostream>
 
 //нужный Handler вызывается в зависимости от типа передаваемых параметров
-void LackyAffectHandler::Handle( DamageActorParameters& params )
-{
-	if (params.damage>0) damFromMe_ = true;
-	params.damage += params.damage*(round_*4)/100;
+void LackyAffectHandler::Handle(DamageActorParameters &params) {
+	if (params.damage > 0) damFromMe_ = true;
+	params.damage += params.damage * (round_ * 4) / 100;
 }
 
-void LackyAffectHandler::Handle( DamageVictimParameters& params )
-{
-	if (params.damage>0)
-	{
+void LackyAffectHandler::Handle(DamageVictimParameters &params) {
+	if (params.damage > 0) {
 		damToMe_ = true;
 	}
 }
 
-AFFECT_DATA<EApplyLocation>::shared_ptr find_affect(CHAR_DATA* ch, int afftype)
-{
-	for (const auto& aff : ch->affected)
-	{
-		if (aff->type == afftype)
-		{
+AFFECT_DATA<EApplyLocation>::shared_ptr find_affect(CHAR_DATA *ch, int afftype) {
+	for (const auto &aff : ch->affected) {
+		if (aff->type == afftype) {
 			return aff;
 		}
 	}
@@ -33,33 +27,25 @@ AFFECT_DATA<EApplyLocation>::shared_ptr find_affect(CHAR_DATA* ch, int afftype)
 	return AFFECT_DATA<EApplyLocation>::shared_ptr();
 }
 
-void LackyAffectHandler::Handle(BattleRoundParameters& params)
-{
+void LackyAffectHandler::Handle(BattleRoundParameters &params) {
 	auto af = find_affect(params.ch, SPELL_LACKY);
-	if (damFromMe_&&!damToMe_)
-	{
-		if (round_<5)
-		{
+	if (damFromMe_ && !damToMe_) {
+		if (round_ < 5) {
 			++round_;
 		}
+	} else {
+		round_ = 0;
 	}
-	else
-	{
-		round_= 0;
-	}
-	if (af)
-	{
+	if (af) {
 		af->modifier = round_ * 2;
 	}
-	damToMe_=false;
-	damFromMe_=false;
+	damToMe_ = false;
+	damFromMe_ = false;
 }
 // тест
-void LackyAffectHandler::Handle(StopFightParameters& params)
-{
+void LackyAffectHandler::Handle(StopFightParameters &params) {
 	auto af = find_affect(params.ch, SPELL_LACKY);
-	if (af)
-	{
+	if (af) {
 		af->modifier = 0;
 	}
 	round_ = 0;

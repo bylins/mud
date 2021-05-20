@@ -8,16 +8,16 @@ using object_id_set_t = std::unordered_set<object_id_t>;
 
 class MaxID {
  public:
-  MaxID();
+	MaxID();
 
-  auto current() const { return m_value; }
-  auto allocate() { return ++m_value; }
+	auto current() const { return m_value; }
+	auto allocate() { return ++m_value; }
 
  private:
-  // mob/object id's: MOBOBJ_ID_BASE and higher    //
-  static constexpr int MOBOBJ_ID_BASE = 2000000;
+	// mob/object id's: MOBOBJ_ID_BASE and higher    //
+	static constexpr int MOBOBJ_ID_BASE = 2000000;
 
-  object_id_t m_value;    // for unique mob/obj id's
+	object_id_t m_value;    // for unique mob/obj id's
 };
 
 extern MaxID max_id;

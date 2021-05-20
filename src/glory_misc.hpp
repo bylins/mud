@@ -10,8 +10,7 @@
 #include "sysdep.h"
 #include "structs.h"
 
-namespace GloryMisc
-{
+namespace GloryMisc {
 
 bool check_stats(CHAR_DATA *ch);
 void recalculate_stats(CHAR_DATA *ch);
@@ -19,7 +18,7 @@ void recalculate_stats(CHAR_DATA *ch);
 void load_log();
 void save_log();
 void add_log(int type, int num, std::string punish, std::string reason, CHAR_DATA *vict);
-void show_log(CHAR_DATA *ch , char const * const value);
+void show_log(CHAR_DATA *ch, char const *const value);
 
 enum { ADD_GLORY = 1, REMOVE_GLORY, REMOVE_STAT, TRANSFER_GLORY, HIDE_GLORY };
 

@@ -10,13 +10,11 @@
 #include "sysdep.h"
 #include "structs.h"
 
-struct HitData
-{
+struct HitData {
 	HitData() : weapon(FightSystem::MAIN_HAND), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
-		weap_skill_is(0), skill_num(SKILL_UNDEF), hit_type(0), hit_no_parry(false),
-		ch_start_pos(-1), victim_start_pos(-1), victim_ac(0), calc_thaco(0),
-		dam(0), dam_critic(0)
-	{
+				weap_skill_is(0), skill_num(SKILL_UNDEF), hit_type(0), hit_no_parry(false),
+				ch_start_pos(-1), victim_start_pos(-1), victim_ac(0), calc_thaco(0),
+				dam(0), dam_critic(0) {
 		diceroll = number(100, 2099) / 100;
 	};
 
@@ -77,34 +75,34 @@ struct HitData
 	// flags[CRIT_HIT] = true, dam_critic > 0 - удар точным стилем
 	int dam_critic;
 
-public:
+ public:
 	using flags_t = std::bitset<FightSystem::HIT_TYPE_FLAGS_NUM>;
 
-	const flags_t& get_flags() const { return m_flags; }
+	const flags_t &get_flags() const { return m_flags; }
 	void set_flag(const size_t flag) { m_flags.set(flag); }
 	void reset_flag(const size_t flag) { m_flags.reset(flag); }
-	static void check_weap_feats(const CHAR_DATA* ch, int weap_skill, int& calc_thaco, int& dam);
-private:
+	static void check_weap_feats(const CHAR_DATA *ch, int weap_skill, int &calc_thaco, int &dam);
+ private:
 	// какой-никакой набор флагов, так же передается в damage()
 	flags_t m_flags;
 };
 
-int compute_armor_class(CHAR_DATA * ch);
+int compute_armor_class(CHAR_DATA *ch);
 
-int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim);
-void set_battle_pos(CHAR_DATA * ch);
+int check_agro_follower(CHAR_DATA *ch, CHAR_DATA *victim);
+void set_battle_pos(CHAR_DATA *ch);
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam);
-void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef);
-void group_gain(CHAR_DATA * ch, CHAR_DATA * victim);
+void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef);
+void group_gain(CHAR_DATA *ch, CHAR_DATA *victim);
 
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
 bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int line);
 
-void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon);
+void exthit(CHAR_DATA *ch, ESkill type, FightSystem::AttType weapon);
 void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType weapon);
 
-void appear(CHAR_DATA * ch);
+void appear(CHAR_DATA *ch);
 
 #endif // _FIGHT_LOCAL_HPP_
 

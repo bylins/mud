@@ -72,110 +72,110 @@ int vnum_obj_trig(char *searchname, CHAR_DATA *ch);
 
 // structure for the reset commands
 struct reset_com {
-  /**
-   *  Commands:
-   *  'M': Read a mobile
-   *  'O': Read an object
-   *  'G': Give obj to mob
-   *  'P': Put obj in obj
-   *  'G': Obj to char
-   *  'E': Obj to char equip
-   *  'D': Set state of door
-   *  'T': Trigger command
-   */
-  char command;        // current command
+	/**
+	 *  Commands:
+	 *  'M': Read a mobile
+	 *  'O': Read an object
+	 *  'G': Give obj to mob
+	 *  'P': Put obj in obj
+	 *  'G': Obj to char
+	 *  'E': Obj to char equip
+	 *  'D': Set state of door
+	 *  'T': Trigger command
+	 */
+	char command;        // current command
 
-  int if_flag;        // 4 modes of command execution
-  int arg1;        //
-  int arg2;        // Arguments to the command
-  int arg3;        //
-  int arg4;
-  int line;        // line number this command appears on
-  char *sarg1;        // string argument
-  char *sarg2;        // string argument
+	int if_flag;        // 4 modes of command execution
+	int arg1;        //
+	int arg2;        // Arguments to the command
+	int arg3;        //
+	int arg4;
+	int line;        // line number this command appears on
+	char *sarg1;        // string argument
+	char *sarg2;        // string argument
 };
 
 struct _case {
-  // внум сундука
-  int vnum;
-  // шанс выпадаения
-  int chance;
-  // внумы шмоток, которые выпадают из кейса
-  std::vector<int> vnum_objs;
+	// внум сундука
+	int vnum;
+	// шанс выпадаения
+	int chance;
+	// внумы шмоток, которые выпадают из кейса
+	std::vector<int> vnum_objs;
 };
 
 // для экстраффектов в random_obj
 struct ExtraAffects {
-  int number; // номер экстрааафетка
-  int min_val; // минимальное значение
-  int max_val; // максимальное значение
-  int chance; // вероятность того, что данный экстраффект будет на шмотке
+	int number; // номер экстрааафетка
+	int min_val; // минимальное значение
+	int max_val; // максимальное значение
+	int chance; // вероятность того, что данный экстраффект будет на шмотке
 };
 
 struct QuestBodrichRewards {
-  int level;
-  int vnum;
-  int money;
-  int exp;
+	int level;
+	int vnum;
+	int money;
+	int exp;
 };
 
 class QuestBodrich {
  public:
-  QuestBodrich();
+	QuestBodrich();
 
  private:
-  void load_mobs();
-  void load_objs();
-  void load_rewards();
+	void load_mobs();
+	void load_objs();
+	void load_rewards();
 
-  // здесь храним предметы для каждого класса
-  std::map<int, std::vector<int>> objs;
-  // здесь храним мобов
-  std::map<int, std::vector<int>> mobs;
-  // а здесь награды
-  std::map<int, std::vector<QuestBodrichRewards>> rewards;
+	// здесь храним предметы для каждого класса
+	std::map<int, std::vector<int>> objs;
+	// здесь храним мобов
+	std::map<int, std::vector<int>> mobs;
+	// а здесь награды
+	std::map<int, std::vector<QuestBodrichRewards>> rewards;
 };
 
 struct City {
-  std::string name; // имя города
-  std::vector<int> vnums; // номера зон, которые принадлежат городу
-  int rent_vnum; // внум ренты города
+	std::string name; // имя города
+	std::vector<int> vnums; // номера зон, которые принадлежат городу
+	int rent_vnum; // внум ренты города
 };
 
 class RandomObj {
  public:
-  // внум объекта
-  int vnum;
-  // массив, в котором показывается, кому шмотка недоступна + шанс, что эта "недоступность" при выпадении предмета будет на нем
-  std::map<std::string, int> not_wear;
-  // минимальный и максимальный вес
-  int min_weight;
-  int max_weight;
-  // минимальная и максимальная цена за предмет
-  int min_price;
-  int max_price;
-  // прочность
-  int min_stability;
-  int max_stability;
-  // value0, value1, value2, value3
-  int value0_min, value1_min, value2_min, value3_min;
-  int value0_max, value1_max, value2_max, value3_max;
-  // список аффектов и их шанс упасть на шмотку
-  std::map<std::string, int> affects;
-  // список экстраффектов и их шанс упасть на шмотку
-  std::vector<ExtraAffects> extraffect;
+	// внум объекта
+	int vnum;
+	// массив, в котором показывается, кому шмотка недоступна + шанс, что эта "недоступность" при выпадении предмета будет на нем
+	std::map<std::string, int> not_wear;
+	// минимальный и максимальный вес
+	int min_weight;
+	int max_weight;
+	// минимальная и максимальная цена за предмет
+	int min_price;
+	int max_price;
+	// прочность
+	int min_stability;
+	int max_stability;
+	// value0, value1, value2, value3
+	int value0_min, value1_min, value2_min, value3_min;
+	int value0_max, value1_max, value2_max, value3_max;
+	// список аффектов и их шанс упасть на шмотку
+	std::map<std::string, int> affects;
+	// список экстраффектов и их шанс упасть на шмотку
+	std::vector<ExtraAffects> extraffect;
 };
 
 // for queueing zones for update
 struct reset_q_element {
-  zone_rnum zone_to_reset;    // ref to zone_data
-  struct reset_q_element *next;
+	zone_rnum zone_to_reset;    // ref to zone_data
+	struct reset_q_element *next;
 };
 
 // structure for the update queue
 struct reset_q_type {
-  struct reset_q_element *head;
-  struct reset_q_element *tail;
+	struct reset_q_element *head;
+	struct reset_q_element *tail;
 };
 
 #define OBJECT_SAVE_ACTIVITY 300
@@ -184,29 +184,29 @@ struct reset_q_type {
 
 class player_index_element {
  public:
-  player_index_element(const int id, const char *name);
+	player_index_element(const int id, const char *name);
 
-  //added by WorM индексируюца еще мыло и последний айпи
-  char *mail;
-  char *last_ip;
-  //end by WorM
-  int unique;
-  int level;
-  int remorts;
-  int plr_class;
-  int last_logon;
-  int activity;        // When player be saved and checked
-  save_info *timer;
+	//added by WorM индексируюца еще мыло и последний айпи
+	char *mail;
+	char *last_ip;
+	//end by WorM
+	int unique;
+	int level;
+	int remorts;
+	int plr_class;
+	int last_logon;
+	int activity;        // When player be saved and checked
+	save_info *timer;
 
-  const char *name() const { return m_name; }
-  int id() const { return m_id; }
+	const char *name() const { return m_name; }
+	int id() const { return m_id; }
 
-  void set_name(const char *name);
-  void set_id(const int id) { m_id = id; }
+	void set_name(const char *name);
+	void set_id(const int id) { m_id = id; }
 
  private:
-  int m_id;
-  const char *m_name;
+	int m_id;
+	const char *m_name;
 };
 
 #define SEASON_WINTER        0
@@ -229,24 +229,24 @@ class player_index_element {
 #define DAYS_PER_WEEK        7
 
 struct month_temperature_type {
-  int min;
-  int max;
-  int med;
+	int min;
+	int max;
+	int med;
 };
 
 //Polud тестовый класс для хранения параметров различных рас мобов
 struct ingredient {
-  int imtype;
-  std::string imname;
-  std::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
+	int imtype;
+	std::string imname;
+	std::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
 };
 
 class MobRace {
  public:
-  MobRace();
-  ~MobRace();
-  std::string race_name;
-  std::vector<ingredient> ingrlist;
+	MobRace();
+	~MobRace();
+	std::string race_name;
+	std::vector<ingredient> ingrlist;
 };
 
 typedef std::shared_ptr<MobRace> MobRacePtr;
@@ -278,8 +278,8 @@ extern CHAR_DATA *combat_list;
 
 class Rooms : public std::vector<ROOM_DATA *> {
  public:
-  static constexpr int UNDEFINED_ROOM_VNUM = -1;
-  ~Rooms();
+	static constexpr int UNDEFINED_ROOM_VNUM = -1;
+	~Rooms();
 };
 
 extern Rooms &world;
@@ -315,45 +315,45 @@ void free_alias(struct alias_data *a);
 
 class PlayersIndex : public std::vector<player_index_element> {
  public:
-  using parent_t = std::vector<player_index_element>;
-  using parent_t::operator[];
-  using parent_t::size;
-  using free_names_list_t = std::list<std::string>;
+	using parent_t = std::vector<player_index_element>;
+	using parent_t::operator[];
+	using parent_t::size;
+	using free_names_list_t = std::list<std::string>;
 
-  static const std::size_t NOT_FOUND;
+	static const std::size_t NOT_FOUND;
 
-  ~PlayersIndex();
+	~PlayersIndex();
 
-  std::size_t append(const player_index_element &element);
-  bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
-  bool player_exists(const char *name) const { return NOT_FOUND != get_by_name(name); }
-  std::size_t get_by_name(const char *name) const;
-  void set_name(const std::size_t index, const char *name);
+	std::size_t append(const player_index_element &element);
+	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
+	bool player_exists(const char *name) const { return NOT_FOUND != get_by_name(name); }
+	std::size_t get_by_name(const char *name) const;
+	void set_name(const std::size_t index, const char *name);
 
-  void add_free(const std::string &name) { m_free_names.push_back(name); }
-  auto free_names_count() const { return m_free_names.size(); }
-  void get_free_names(const int count, free_names_list_t &names) const;
+	void add_free(const std::string &name) { m_free_names.push_back(name); }
+	auto free_names_count() const { return m_free_names.size(); }
+	void get_free_names(const int count, free_names_list_t &names) const;
 
  private:
-  class hasher {
-   public:
-    std::size_t operator()(const std::string &value) const;
-  };
+	class hasher {
+	 public:
+		std::size_t operator()(const std::string &value) const;
+	};
 
-  class equal_to {
-   public:
-    bool operator()(const std::string &left, const std::string &right) const;
-  };
+	class equal_to {
+	 public:
+		bool operator()(const std::string &left, const std::string &right) const;
+	};
 
-  using id_to_index_t = std::unordered_map<int, std::size_t>;
-  using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
-  using free_names_t = std::deque<std::string>;
+	using id_to_index_t = std::unordered_map<int, std::size_t>;
+	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
+	using free_names_t = std::deque<std::string>;
 
-  void add_name_to_index(const char *name, const std::size_t index);
+	void add_name_to_index(const char *name, const std::size_t index);
 
-  id_to_index_t m_id_to_index;
-  name_to_index_t m_name_to_index;
-  free_names_t m_free_names;
+	id_to_index_t m_id_to_index;
+	name_to_index_t m_name_to_index;
+	free_names_t m_free_names;
 };
 
 extern PlayersIndex &player_table;
@@ -363,12 +363,12 @@ extern long top_idnum;
 bool player_exists(const long id);
 
 inline save_info *SAVEINFO(const size_t number) {
-  return player_table[number].timer;
+	return player_table[number].timer;
 }
 
 inline void clear_saveinfo(const size_t number) {
-  delete player_table[number].timer;
-  player_table[number].timer = NULL;
+	delete player_table[number].timer;
+	player_table[number].timer = NULL;
 }
 
 void recreate_saveinfo(const size_t number);
@@ -393,13 +393,13 @@ extern insert_wanted_gem iwg;
 
 class GameLoader {
  public:
-  GameLoader();
+	GameLoader();
 
-  void boot_world();
-  void index_boot(const EBootType mode);
+	void boot_world();
+	void index_boot(const EBootType mode);
 
  private:
-  static void prepare_global_structures(const EBootType mode, const int rec_count);
+	static void prepare_global_structures(const EBootType mode, const int rec_count);
 };
 
 extern GameLoader world_loader;

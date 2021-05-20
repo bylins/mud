@@ -20,12 +20,10 @@
 
 #include <map>
 
-namespace GloryMisc
-{
+namespace GloryMisc {
 
-class GloryLog
-{
-public:
+class GloryLog {
+ public:
 	GloryLog() : type(0), num(0) {};
 	// тип записи (1 - плюс слава, 2 - минус слава, 3 - убирание стата, 4 - трансфер, 5 - hide)
 	int type;
@@ -41,50 +39,41 @@ typedef std::multimap<time_t /* время */, GloryLogPtr> GloryLogType;
 GloryLogType glory_log;
 
 // * Загрузка лога славы.
-void load_log()
-{
+void load_log() {
 	const char *glory_file = "../log/glory.log";
 	std::ifstream file(glory_file);
-	if (!file.is_open())
-	{
+	if (!file.is_open()) {
 		log("GloryLog: не удалось открыть файл на чтение: %s", glory_file);
 		return;
 	}
 
 	std::string buffer;
-	while (std::getline(file, buffer))
-	{
+	while (std::getline(file, buffer)) {
 		std::string buffer2;
 		GetOneParam(buffer, buffer2);
 		time_t time = 0;
-		try
-		{
+		try {
 			time = std::stoi(buffer2, nullptr, 10);
 		}
-		catch (const std::invalid_argument &)
-		{
+		catch (const std::invalid_argument &) {
 			log("GloryLog: ошибка чтения time, buffer2: %s", buffer2.c_str());
 			return;
 		}
 		GetOneParam(buffer, buffer2);
 		int type = 0;
-		try
-		{
+		try {
 			type = std::stoi(buffer2, nullptr, 10);
 		}
-		catch (const std::invalid_argument &)
-		{
+		catch (const std::invalid_argument &) {
 			log("GloryLog: ошибка чтения type, buffer2: %s", buffer2.c_str());
 			return;
 		}
 		GetOneParam(buffer, buffer2);
 		int num = 0;
-		try
-		{
+		try {
 			num = std::stoi(buffer2, nullptr, 10);
 		}
-		catch (const std::invalid_argument &)
-		{
+		catch (const std::invalid_argument &) {
 			log("GloryLog: ошибка чтения num, buffer2: %s", buffer2.c_str());
 			return;
 		}
@@ -99,8 +88,7 @@ void load_log()
 }
 
 // * Сохранение лога славы.
-void save_log()
-{
+void save_log() {
 	std::stringstream out;
 
 	for (GloryLogType::const_iterator it = glory_log.begin(); it != glory_log.end(); ++it)
@@ -108,8 +96,7 @@ void save_log()
 
 	const char *glory_file = "../log/glory.log";
 	std::ofstream file(glory_file);
-	if (!file.is_open())
-	{
+	if (!file.is_open()) {
 		log("GloryLog: не удалось открыть файл на запись: %s", glory_file);
 		return;
 	}
@@ -118,10 +105,8 @@ void save_log()
 }
 
 // * Добавление записи в лог славы (время, тип, кол-во, строка из кармы).
-void add_log(int type, int num, std::string punish, std::string reason, CHAR_DATA *vict)
-{
-	if (!vict || vict->get_name().empty())
-	{
+void add_log(int type, int num, std::string punish, std::string reason, CHAR_DATA *vict) {
+	if (!vict || vict->get_name().empty()) {
 		return;
 	}
 
@@ -139,10 +124,8 @@ void add_log(int type, int num, std::string punish, std::string reason, CHAR_DAT
 * Показ лога славы (show glory), отсортированного по убыванию даты, с возможностью фильтрациии.
 * Фильтры: show glory число|transfer|remove|hide
 */
-void show_log(CHAR_DATA *ch , char const * const value)
-{
-	if (glory_log.empty())
-	{
+void show_log(CHAR_DATA *ch, char const *const value) {
+	if (glory_log.empty()) {
 		send_to_char("Пусто, слава те господи!\r\n", ch);
 		return;
 	}
@@ -158,23 +141,18 @@ void show_log(CHAR_DATA *ch , char const * const value)
 		type = REMOVE_GLORY;
 	else if (CompareParam(buffer, "hide"))
 		type = HIDE_GLORY;
-	else
-	{
-		try
-		{
+	else {
+		try {
 			num = std::stoi(buffer, nullptr, 10);
 		}
-		catch (const std::invalid_argument &)
-		{
+		catch (const std::invalid_argument &) {
 			type = 0;
 			num = 0;
 		}
 	}
 	std::stringstream out;
-	for (GloryLogType::reverse_iterator it = glory_log.rbegin(); it != glory_log.rend(); ++it)
-	{
-		if (type == it->second->type || (type == 0 && num == 0) || (type == 0 && num <= it->second->num))
-		{
+	for (GloryLogType::reverse_iterator it = glory_log.rbegin(); it != glory_log.rend(); ++it) {
+		if (type == it->second->type || (type == 0 && num == 0) || (type == 0 && num <= it->second->num)) {
 			char time_buf[17];
 			strftime(time_buf, sizeof(time_buf), "%H:%M %d-%m-%Y", localtime(&it->first));
 			out << time_buf << " " << it->second->karma << "\r\n";
@@ -184,11 +162,9 @@ void show_log(CHAR_DATA *ch , char const * const value)
 }
 
 // * Суммарное кол-во стартовых статов у чара (должно совпадать с SUM_ALL_STATS)
-int start_stats_count(CHAR_DATA *ch)
-{
+int start_stats_count(CHAR_DATA *ch) {
 	int count = 0;
-	for (int i = 0; i < START_STATS_TOTAL; ++i)
-	{
+	for (int i = 0; i < START_STATS_TOTAL; ++i) {
 		count += ch->get_start_stat(i);
 	}
 	return count;
@@ -198,22 +174,20 @@ int start_stats_count(CHAR_DATA *ch)
 * Стартовые статы при любых условиях должны соответствовать границам ролла.
 * В случае старого ролла тут это всплывет из-за нулевых статов.
 */
-bool bad_start_stats(CHAR_DATA *ch)
-{
+bool bad_start_stats(CHAR_DATA *ch) {
 	if (ch->get_start_stat(G_STR) > MAX_STR(ch)
-			|| ch->get_start_stat(G_STR) < MIN_STR(ch)
-			|| ch->get_start_stat(G_DEX) > MAX_DEX(ch)
-			|| ch->get_start_stat(G_DEX) < MIN_DEX(ch)
-			|| ch->get_start_stat(G_INT) > MAX_INT(ch)
-			|| ch->get_start_stat(G_INT) < MIN_INT(ch)
-			|| ch->get_start_stat(G_WIS) > MAX_WIS(ch)
-			|| ch->get_start_stat(G_WIS) < MIN_WIS(ch)
-			|| ch->get_start_stat(G_CON) > MAX_CON(ch)
-			|| ch->get_start_stat(G_CON) < MIN_CON(ch)
-			|| ch->get_start_stat(G_CHA) > MAX_CHA(ch)
-			|| ch->get_start_stat(G_CHA) < MIN_CHA(ch)
-			|| start_stats_count(ch) != SUM_ALL_STATS)
-	{
+		|| ch->get_start_stat(G_STR) < MIN_STR(ch)
+		|| ch->get_start_stat(G_DEX) > MAX_DEX(ch)
+		|| ch->get_start_stat(G_DEX) < MIN_DEX(ch)
+		|| ch->get_start_stat(G_INT) > MAX_INT(ch)
+		|| ch->get_start_stat(G_INT) < MIN_INT(ch)
+		|| ch->get_start_stat(G_WIS) > MAX_WIS(ch)
+		|| ch->get_start_stat(G_WIS) < MIN_WIS(ch)
+		|| ch->get_start_stat(G_CON) > MAX_CON(ch)
+		|| ch->get_start_stat(G_CON) < MIN_CON(ch)
+		|| ch->get_start_stat(G_CHA) > MAX_CHA(ch)
+		|| ch->get_start_stat(G_CHA) < MIN_CHA(ch)
+		|| start_stats_count(ch) != SUM_ALL_STATS) {
 		return 1;
 	}
 	return 0;
@@ -223,8 +197,7 @@ bool bad_start_stats(CHAR_DATA *ch)
 * Считаем реальные статы с учетом мортов и влитой славы.
 * \return 0 - все ок, любое другое число - все плохо
 */
-int bad_real_stats(CHAR_DATA *ch, int check)
-{
+int bad_real_stats(CHAR_DATA *ch, int check) {
 	check -= SUM_ALL_STATS; // стартовые статы у всех по 95
 	check -= 6 * GET_REMORT(ch); // реморты
 	// влитая слава
@@ -238,11 +211,9 @@ int bad_real_stats(CHAR_DATA *ch, int check)
 * Если невалидные стартовые статы - чар отправляется на реролл.
 * Если невалидные только итоговые статы - идет перезапись со стартовых с учетом мортов и славы.
 */
-bool check_stats(CHAR_DATA *ch)
-{
+bool check_stats(CHAR_DATA *ch) {
 	// иммов травмировать не стоит
-	if (IS_IMMORTAL(ch))
-	{
+	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
 
@@ -250,19 +221,18 @@ bool check_stats(CHAR_DATA *ch)
 		+ ch->get_inborn_con() + ch->get_inborn_cha();
 
 	// чар со старым роллом статов или после попыток поправить статы в файле
-	if (bad_start_stats(ch))
-	{
+	if (bad_start_stats(ch)) {
 		snprintf(buf, MAX_STRING_LENGTH, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
-			"Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
-			"Просим вас заново распределить основные параметры персонажа.%s\r\n",
-			CCIGRN(ch, C_SPR),
-			ch->get_inborn_str() - GET_REMORT(ch),
-			ch->get_inborn_dex() - GET_REMORT(ch),
-			ch->get_inborn_int() - GET_REMORT(ch),
-			ch->get_inborn_wis() - GET_REMORT(ch),
-			ch->get_inborn_con() - GET_REMORT(ch),
-			ch->get_inborn_cha() - GET_REMORT(ch),
-			CCNRM(ch, C_SPR));
+										 "Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
+										 "Просим вас заново распределить основные параметры персонажа.%s\r\n",
+				 CCIGRN(ch, C_SPR),
+				 ch->get_inborn_str() - GET_REMORT(ch),
+				 ch->get_inborn_dex() - GET_REMORT(ch),
+				 ch->get_inborn_int() - GET_REMORT(ch),
+				 ch->get_inborn_wis() - GET_REMORT(ch),
+				 ch->get_inborn_con() - GET_REMORT(ch),
+				 ch->get_inborn_cha() - GET_REMORT(ch),
+				 CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
 
 		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
@@ -279,16 +249,14 @@ bool check_stats(CHAR_DATA *ch)
 		return 0;
 	}
 	// стартовые статы в поряде, но слава не сходится (снялась по времени или иммом)
-	if (bad_real_stats(ch, have_stats))
-	{
+	if (bad_real_stats(ch, have_stats)) {
 		recalculate_stats(ch);
 	}
 	return 1;
 }
 
 // * Пересчет статов чара на основании стартовых статов, ремортов и славы.
-void recalculate_stats(CHAR_DATA *ch)
-{
+void recalculate_stats(CHAR_DATA *ch) {
 	// стартовые статы
 	ch->set_str(ch->get_start_stat(G_STR));
 	ch->set_dex(ch->get_start_stat(G_DEX));
@@ -297,8 +265,7 @@ void recalculate_stats(CHAR_DATA *ch)
 	ch->set_wis(ch->get_start_stat(G_WIS));
 	ch->set_cha(ch->get_start_stat(G_CHA));
 	// морты
-	if (GET_REMORT(ch))
-	{
+	if (GET_REMORT(ch)) {
 		ch->inc_str(GET_REMORT(ch));
 		ch->inc_dex(GET_REMORT(ch));
 		ch->inc_con(GET_REMORT(ch));
