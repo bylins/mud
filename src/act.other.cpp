@@ -384,7 +384,7 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	send_to_char("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
-	percent = number(1, skill_info[SKILL_SNEAK].fail_percent);
+	percent = number(1, skill_info[SKILL_SNEAK].difficulty);
 	prob = CalcCurrentSkill(ch, SKILL_SNEAK, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
@@ -448,7 +448,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 
 	send_to_char("Вы начали усиленно маскироваться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	percent = number(1, skill_info[SKILL_CAMOUFLAGE].fail_percent);
+	percent = number(1, skill_info[SKILL_CAMOUFLAGE].difficulty);
 	prob = CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
@@ -514,7 +514,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	send_to_char("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
-	percent = number(1, skill_info[SKILL_HIDE].fail_percent);
+	percent = number(1, skill_info[SKILL_HIDE].difficulty);
 	prob = CalcCurrentSkill(ch, SKILL_HIDE, 0);
 
 	AFFECT_DATA<EApplyLocation> af;
@@ -557,7 +557,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 	}
 
 	// 101% is a complete failure
-	percent = number(1, skill_info[SKILL_STEAL].fail_percent);
+	percent = number(1, skill_info[SKILL_STEAL].difficulty);
 
 	if (WAITLESS(ch) || (GET_POS(vict) <= POS_SLEEPING && !AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP)))
 		success = 1;	// ALWAYS SUCCESS, unless heavy object.
@@ -3223,7 +3223,7 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	percent = number(1, skill_info[SKILL_DIG].fail_percent);
+	percent = number(1, skill_info[SKILL_DIG].difficulty);
 	prob = ch->get_skill(SKILL_DIG);
 	old_int = ch->get_int();
 	old_wis = ch->get_wis();
@@ -3432,7 +3432,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	}
 
-	percent = number(1, skill_info[SKILL_INSERTGEM].fail_percent);
+	percent = number(1, skill_info[SKILL_INSERTGEM].difficulty);
 	prob = ch->get_skill(SKILL_INSERTGEM);
 
 	WAIT_STATE(ch, PULSE_VIOLENCE);

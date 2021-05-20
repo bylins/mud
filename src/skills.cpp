@@ -36,11 +36,28 @@
 #include <algorithm>
 
 extern const byte kSkillCapOnZeroRemort = 80;
-extern const byte kSkillCapBonusPerRemort = 5;
+extern const byte kSkillCapBonusPerRemort = 5;;
+
+const int kNoviceSkillThreshold = 75;
+const short kSkillDiceSize = 100;
+const short kSkillCriticalFailure = 6;
+const short kSkillCriticalSuccess = 95;
+const short kSkillDegreeDivider = 5;
+const short kMinSkillDegree = 0;
+const short kMaxSkillDegree = 10;
+const double kSkillWeight = 1.0;
+const double kNoviceSkillWeight = 0.75;
+const double kParameterWeight = 3.0;
+const double kBonusWeight = 1.0;
+const double kSaveWeight = 1.0;
 
 const short kDummyKnight = 390;
 const short kDummyShield = 391;
 const short kDummyWeapon = 392;
+
+bool MakeLuckTest(CHAR_DATA *ch, CHAR_DATA *vict);
+void SendSkillRollMsg(CHAR_DATA *ch, CHAR_DATA *victim, ESkill skill_id,
+					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result);
 
 extern struct message_list fight_messages[MAX_MESSAGES];
 
@@ -645,595 +662,1209 @@ int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, s
   return (0);
 }
 
+
+int CalculateVictimRate(CHAR_DATA *ch, const ESkill skill_id, CHAR_DATA *vict) {
+	if (!vict) {
+		return 0;
+	}
+
+	int rate = 0;
+
+	switch (skill_id) {
+
+		case SKILL_BACKSTAB: {
+			if ((GET_POS(vict) >= POS_FIGHTING) && AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS)) {
+				rate += 30;
+			}
+			rate += GET_REAL_DEX(vict);
+			//rate -= size_app[GET_POS_SIZE(vict)].ac;
+			break;
+		}
+
+		case SKILL_BASH: {
+			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING) {
+				rate -= 20;
+			}
+			if (PRF_FLAGGED(vict, PRF_AWAKE)) {
+				rate -= CalculateSkillAwakeModifier(ch, vict);
+			}
+			break;
+		}
+
+		case SKILL_HIDE: {
+			if (AWAKE(vict)) {
+				rate -= int_app[GET_REAL_INT(vict)].observation;
+			}
+			break;
+		}
+
+		case SKILL_KICK: {
+			//rate += size_app[GET_POS_SIZE(vict)].interpolate;
+			rate += GET_REAL_CON(vict);
+			if (PRF_FLAGGED(vict, PRF_AWAKE)) {
+				rate += CalculateSkillAwakeModifier(ch, vict);
+			}
+			break;
+		}
+
+		case SKILL_SNEAK: {
+			if (AWAKE(vict)) {
+				rate -= int_app[GET_REAL_INT(vict)].observation;
+			}
+			break;
+		}
+
+		case SKILL_STEAL: {
+			if (AWAKE(vict)) {
+				rate -= int_app[GET_REAL_INT(vict)].observation;
+			}
+			break;
+		}
+
+		case SKILL_TRACK: {
+			rate += GET_REAL_CON(vict) / 2;
+			break;
+		}
+
+		case SKILL_MULTYPARRY:
+		case SKILL_PARRY: {
+			rate = 100;
+			break;
+		}
+
+		case SKILL_TOUCH: {
+			rate -= dex_bonus(GET_REAL_DEX(vict));
+			rate -= size_app[GET_POS_SIZE(vict)].interpolate;
+			break;
+		}
+
+		case SKILL_PROTECT: {
+			rate = 50;
+			break;
+		}
+
+		case SKILL_DISARM: {
+			rate -= dex_bonus(GET_REAL_STR(ch));
+			if (GET_EQ(vict, WEAR_BOTHS))
+				rate -= 10;
+			if (PRF_FLAGGED(vict, PRF_AWAKE))
+				rate -= CalculateSkillAwakeModifier(ch, vict);
+			break;
+		}
+
+		case SKILL_CAMOUFLAGE: {
+			if (AWAKE(vict))
+				rate -= int_app[GET_REAL_INT(vict)].observation;
+			break;
+		}
+
+		case SKILL_DEVIATE: {
+			rate -= dex_bonus(GET_REAL_DEX(vict));
+			break;
+		}
+
+		case SKILL_CHOPOFF: {
+			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
+				rate -= 20;
+			if (PRF_FLAGGED(vict, PRF_AWAKE))
+				rate -= CalculateSkillAwakeModifier(ch, vict);
+			break;
+		}
+
+		case SKILL_MIGHTHIT: {
+			if (IS_NPC(vict))
+				rate -= size_app[GET_POS_SIZE(vict)].shocking / 2;
+			else
+				rate -= size_app[GET_POS_SIZE(vict)].shocking;
+			break;
+		}
+
+		case SKILL_STUPOR: {
+			rate -= GET_REAL_CON(vict);
+			break;
+		}
+
+		case SKILL_PUNCTUAL: {
+			rate -= int_app[GET_REAL_INT(vict)].observation;
+			break;
+		}
+
+		case SKILL_AWAKE: {
+			rate -= int_app[GET_REAL_INT(vict)].observation;
+		}
+			break;
+
+		case SKILL_LOOK_HIDE: {
+			if (CAN_SEE(vict, ch) && AWAKE(vict)) {
+				rate -= int_app[GET_REAL_INT(ch)].observation;
+			}
+			break;
+		}
+
+		case SKILL_STRANGLE: {
+			if (CAN_SEE(ch, vict) && PRF_FLAGGED(vict, PRF_AWAKE)) {
+				rate -= CalculateSkillAwakeModifier(ch, vict);
+			}
+			break;
+		}
+
+		case SKILL_STUN: {
+			if (PRF_FLAGGED(vict, PRF_AWAKE))
+				rate -= CalculateSkillAwakeModifier(ch, vict);
+			break;
+		}
+		default: {
+			rate = 0;
+			break;
+		}
+	}
+
+	if (skill_info[skill_id].save_type != SAVING_NONE) {
+		rate -= static_cast<int>(round(GET_SAVE(vict, skill_info[skill_id].save_type) * kSaveWeight));
+	}
+
+	return rate;
+}
+
+// \TODO По-хорошему, нужна отдельно функция, которая считает голый скилл с бонусами от перков
+// И отдельно - бонус от статов и всего прочего. Однако не вижу сейчас смысла этим заниматься,
+// потому что по-хорошему половина этих параметров должна находиться в описании соответствующей абилки
+// которого не имеется и которое сейчас вводить не время.
+int CalculateSkillRate(CHAR_DATA *ch, const ESkill skill_id, CHAR_DATA *vict) {
+	int base_percent = ch->get_skill(skill_id);
+	int parameter_bonus = 0; // бонус от ключевого параметра
+	int bonus = 0; // бонус от дополнительных параметров.
+	int size = 0; // бонусы/штрафы размера (не спрашивайте...)
+
+	if (base_percent <= 0) {
+		return 0;
+	}
+
+	if (!IS_NPC(ch) && !ch->affected.empty()) {
+		for (const auto &aff : ch->affected) {
+			if (aff->location == APPLY_BONUS_SKILLS) {
+				base_percent += aff->modifier;
+			}
+			if (aff->location == APPLY_PLAQUE) {
+				base_percent -= number(ch->get_skill(skill_id) * 0.4,
+									   ch->get_skill(skill_id) * 0.05);
+			}
+		}
+	}
+
+	if (!IS_NPC(ch)) {
+		size = (MAX(0, GET_REAL_SIZE(ch) - 50));
+	} else {
+		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
+	}
+
+	switch (skill_id) {
+
+		case SKILL_HIDETRACK: {
+			parameter_bonus += GET_REAL_INT(ch);
+			bonus += can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0;
+			break;
+		}
+
+		case SKILL_BACKSTAB: {
+			parameter_bonus += GET_REAL_DEX(ch);
+			if (awake_others(ch) || equip_in_metall(ch)) {
+				bonus += -30;
+			}
+			if (vict) {
+				if (!CAN_SEE(vict, ch)) {
+					bonus += 20;
+				}
+				if (GET_POS(vict) < POS_FIGHTING) {
+					bonus += (20 * (POS_FIGHTING - GET_POS(vict)));
+				}
+			}
+			break;
+		}
+
+		case SKILL_BASH: {
+			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
+			bonus = size + (GET_EQ(ch, WEAR_SHIELD) ?
+							weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing : 0);
+			if (PRF_FLAGGED(ch, PRF_AWAKE)) {
+				bonus = -50;
+			}
+			break;
+		}
+
+		case SKILL_HIDE: {
+			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
+			bonus = size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			if (awake_others(ch) || equip_in_metall(ch)) {
+				bonus -= 50;
+			}
+			if (IS_DARK(ch->in_room)) {
+				bonus += 25;
+			}
+			if (SECT(ch->in_room) == SECT_INSIDE) {
+				bonus += 20;
+			} else if (SECT(ch->in_room) == SECT_CITY) {
+				bonus -= 15;
+			} else if (SECT(ch->in_room) == SECT_FOREST) {
+				bonus += 20;
+			} else if (SECT(ch->in_room) == SECT_HILLS
+				|| SECT(ch->in_room) == SECT_MOUNTAIN) {
+				bonus += 10;
+			}
+			break;
+		}
+
+		case SKILL_KICK: {
+			if (!ch->ahorse() && vict->ahorse()) {
+				base_percent = 0;
+			} else {
+				parameter_bonus += GET_REAL_STR(ch);
+				if (AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)) {
+					bonus += 50;
+				}
+			}
+			break;
+		}
+
+		case SKILL_PICK_LOCK: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
+			bonus += can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0;
+			break;
+		}
+
+		case SKILL_RESCUE: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
+			break;
+		}
+
+		case SKILL_SNEAK: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
+			bonus += can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0;
+			if (awake_others(ch) || equip_in_metall(ch))
+				bonus -= 50;
+			if (SECT(ch->in_room) == SECT_CITY)
+				bonus -= 10;
+			if (IS_DARK(ch->in_room)) {
+				bonus += 20;
+			}
+			if (vict) {
+				if (!CAN_SEE(vict, ch))
+					bonus += 25;
+			}
+			break;
+		}
+
+		case SKILL_STEAL: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
+			bonus += (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+			if (awake_others(ch) || equip_in_metall(ch))
+				bonus -= 50;
+			if (IS_DARK(ch->in_room))
+				bonus += 20;
+			if (vict) {
+				if (!CAN_SEE(vict, ch))
+					bonus += 25;
+				if (AWAKE(vict)) {
+					if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
+						bonus -= 30;
+				}
+			}
+			break;
+		}
+
+		case SKILL_TRACK: {
+			parameter_bonus = int_app[GET_REAL_INT(ch)].observation;
+			bonus += can_use_feat(ch, TRACKER_FEAT) ? 10 : 0;
+			if (SECT(ch->in_room) == SECT_FOREST
+				|| SECT(ch->in_room) == SECT_FIELD) {
+				bonus += 10;
+			}
+			if (SECT(ch->in_room) == SECT_UNDERWATER) {
+				bonus -= 30;
+			}
+			bonus = complex_skill_modifier(ch, SKILL_INDEFINITE, GAPPLY_SKILL_SUCCESS, bonus);
+			if (SECT(ch->in_room) == SECT_WATER_SWIM
+				|| SECT(ch->in_room) == SECT_WATER_NOSWIM
+				|| SECT(ch->in_room) == SECT_FLYING
+				|| SECT(ch->in_room) == SECT_UNDERWATER
+				|| SECT(ch->in_room) == SECT_SECRET
+				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK)) {
+				parameter_bonus = 0;
+				bonus = -100;
+			}
+
+			break;
+		}
+
+		case SKILL_SENSE: {
+			parameter_bonus += int_app[GET_REAL_INT(ch)].observation;
+			bonus += can_use_feat(ch, TRACKER_FEAT) ? 20 : 0;
+			break;
+		}
+
+		case SKILL_MULTYPARRY:
+		case SKILL_PARRY: {
+			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
+			if (GET_AF_BATTLE(ch, EAF_AWAKE)) {
+				bonus += ch->get_skill(SKILL_AWAKE);
+			}
+			if (GET_EQ(ch, WEAR_HOLD)
+				&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON) {
+				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].parrying;
+			}
+			break;
+		}
+
+		case SKILL_BLOCK: {
+			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
+			bonus += GET_EQ(ch, WEAR_SHIELD) ?
+					 MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
+			break;
+		}
+
+		case SKILL_TOUCH: {
+			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
+			if (vict) {
+				bonus += size_app[GET_POS_SIZE(vict)].interpolate;
+			}
+			break;
+		}
+
+		case SKILL_PROTECT: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch)) + size;
+			break;
+		}
+
+		case SKILL_BOWS: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
+			break;
+		}
+
+		case SKILL_LOOKING:[[fallthrough]];
+		case SKILL_HEARING: {
+			parameter_bonus += int_app[GET_REAL_INT(ch)].observation;
+			break;
+		}
+
+		case SKILL_DISARM: {
+			parameter_bonus += dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
+			break;
+		}
+
+		case SKILL_ADDSHOT: {
+			if (equip_in_metall(ch)) {
+				bonus -= 20;
+			}
+			break;
+		}
+
+		case SKILL_NOPARRYHIT: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
+			break;
+		}
+
+		case SKILL_CAMOUFLAGE: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac;
+			bonus += (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			if (awake_others(ch))
+				bonus -= 100;
+			if (IS_DARK(ch->in_room))
+				bonus += 15;
+			if (SECT(ch->in_room) == SECT_CITY)
+				bonus -= 15;
+			else if (SECT(ch->in_room) == SECT_FOREST)
+				bonus += 10;
+			else if (SECT(ch->in_room) == SECT_HILLS
+				|| SECT(ch->in_room) == SECT_MOUNTAIN)
+				bonus += 5;
+			if (equip_in_metall(ch))
+				bonus -= 30;
+
+			break;
+		}
+
+		case SKILL_DEVIATE: {
+			parameter_bonus = -size_app[GET_POS_SIZE(ch)].ac + dex_bonus(GET_REAL_DEX(ch));
+			if (equip_in_metall(ch))
+				bonus -= 40;
+			break;
+		}
+
+		case SKILL_CHOPOFF: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
+			if (equip_in_metall(ch)) {
+				bonus -= 10;
+			}
+			if (vict) {
+				if (!CAN_SEE(vict, ch))
+					bonus += 10;
+				if (GET_POS(vict) < POS_SITTING)
+					bonus -= 50;
+			}
+			break;
+		}
+
+		case SKILL_MIGHTHIT: {
+			bonus = size + dex_bonus(GET_REAL_STR(ch));
+			break;
+		}
+
+		case SKILL_STUPOR: {
+			bonus = dex_bonus(GET_REAL_STR(ch));
+			if (GET_EQ(ch, WEAR_WIELD)) {
+				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
+			} else {
+				if (GET_EQ(ch, WEAR_BOTHS)) {
+					bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+				}
+			}
+			break;
+		}
+
+		case SKILL_POISONED: break;
+		case SKILL_LEADERSHIP: {
+			parameter_bonus += cha_app[GET_REAL_CHA(ch)].leadership;
+			break;
+		}
+
+		case SKILL_PUNCTUAL: {
+			parameter_bonus = dex_bonus(GET_REAL_INT(ch));
+			if (GET_EQ(ch, WEAR_WIELD))
+				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
+					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
+			if (GET_EQ(ch, WEAR_HOLD))
+				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 18
+					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
+			if (GET_EQ(ch, WEAR_BOTHS))
+				bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
+			break;
+		}
+
+		case SKILL_AWAKE: {
+			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
+			bonus += int_app[GET_REAL_INT(ch)].observation;
+			/* if (real_dex < INT_APP_SIZE) {
+				bonus = int_app[real_dex].observation;
+			} else {
+				log("SYSERR: Global buffer overflow for SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
+					real_dex, INT_APP_SIZE);
+			} */
+		}
+			break;
+
+		case SKILL_IDENTIFY: {
+			parameter_bonus = int_app[GET_REAL_INT(ch)].observation;
+			bonus += (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
+			break;
+		}
+
+		case SKILL_LOOK_HIDE: {
+			parameter_bonus = cha_app[GET_REAL_CHA(ch)].illusive;
+			if (vict) {
+				if (!CAN_SEE(vict, ch)) {
+					bonus += 50;
+				}
+			}
+			break;
+		}
+
+		case SKILL_DRUNKOFF: {
+			parameter_bonus = GET_REAL_CON(ch) / 2;
+			bonus += (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
+			break;
+		}
+
+		case SKILL_AID: {
+			bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
+			break;
+		}
+
+		case SKILL_FIRE: {
+			if (get_room_sky(ch->in_room) == SKY_RAINING)
+				bonus -= 50;
+			else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
+				bonus -= number(10, 25);
+			break;
+		}
+
+		case SKILL_HORSE: {
+			bonus = cha_app[GET_REAL_CHA(ch)].leadership;
+			break;
+		}
+
+		case SKILL_STRANGLE: {
+			bonus = dex_bonus(GET_REAL_DEX(ch));
+			if (GET_MOB_HOLD(vict)) {
+				bonus += 30;
+			} else {
+				if (!CAN_SEE(ch, vict))
+					bonus += 20;
+			}
+			break;
+		}
+
+		case SKILL_STUN: {
+			parameter_bonus = dex_bonus(GET_REAL_STR(ch));
+			if (GET_EQ(ch, WEAR_WIELD))
+				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
+			else if (GET_EQ(ch, WEAR_BOTHS))
+				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+			break;
+		}
+		default: break;
+	}
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN)) {
+		bonus += 5;
+	}
+
+	double rate = 0;
+	if (MakeLuckTest(ch, vict)) {
+		rate = round(std::max(0, base_percent - kNoviceSkillThreshold) * kSkillWeight
+						 + std::min(kNoviceSkillThreshold, base_percent) * kNoviceSkillWeight
+						 + bonus * kBonusWeight
+						 + parameter_bonus * kParameterWeight);
+	}
+
+	return static_cast<int>(rate);
+}
+
+bool MakeLuckTest(CHAR_DATA *ch, CHAR_DATA *vict) {
+	int luck = ch->calc_morale();
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+		luck -= 20;
+	if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
+		luck -= 10;
+
+	const int prob = number(0, 999);
+
+	int morale_bonus = luck;
+	if (luck < 0) {
+		morale_bonus = luck * 10;
+	}
+	int fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
+	// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
+	// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
+	// все решают спас-броски.
+	if (luck >= 50)   // от 50 удачи абсолютный фейл не работает
+		fail_limit = 999;
+	if (prob >= fail_limit) {   // Абсолютный фейл 4.9 процента
+		return false;
+	}
+	return true;
+}
+
+SkillRollResult MakeSkillTest(CHAR_DATA *ch, ESkill skill_id, CHAR_DATA *vict) {
+	int actor_rate = CalculateSkillRate(ch, skill_id, vict);
+	int victim_rate = CalculateVictimRate(ch, skill_id, vict);
+
+	int success_threshold = std::max(0, actor_rate - victim_rate - skill_info[skill_id].difficulty);
+	int dice_roll = number(1, kSkillDiceSize);
+
+	// \TODO Механика критфейла и критуспеха пока не реализована.
+	SkillRollResult result;
+	result.success = dice_roll <= success_threshold;
+	result.critical = (dice_roll > kSkillCriticalSuccess) || (dice_roll < kSkillCriticalFailure);
+	result.degree = std::abs(dice_roll - success_threshold) / kSkillDegreeDivider;
+	result.degree = std::clamp(result.degree, kMinSkillDegree, kMaxSkillDegree);
+
+	SendSkillRollMsg(ch, vict, skill_id, actor_rate, victim_rate, success_threshold, dice_roll, result);
+	return result;
+}
+
+void SendSkillRollMsg(CHAR_DATA *ch, CHAR_DATA *victim, ESkill skill_id,
+					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result) {
+	std::stringstream buffer;
+	buffer << "&C"
+		   << "Skill: '" << skill_info[skill_id].name << "'"
+		   << " Rate: " << actor_rate
+		   << " Victim: " << victim->get_name()
+		   << " V.Rate: " << victim_rate
+		   << " Difficulty: " << skill_info[skill_id].difficulty
+		   << " Threshold: " << threshold
+		   << " Roll: " << roll
+		   << " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
+		   << " Crit: " << (result.critical ? "yes" : "no")
+		   << " Degree: " << result.degree
+		   << "&n" << std::endl;
+	ch->send_to_TC(false, true, true, buffer.str().c_str());
+}
+
+// \TODO Не забыть убрать после ребаланса умений
+void SendSkillBalanceMsg(CHAR_DATA *ch, const char *skill_name, int percent, int prob, bool success) {
+	std::stringstream buffer;
+	buffer << "&C" << "Skill: " << skill_name
+		   << " Percent: " << percent << " Prob: " << prob << " Success: " << success << "&n" << std::endl;
+	ch->send_to_TC(false, true, true, buffer.str().c_str());
+}
+
 int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict) {
-  if (skill < SKILL_FIRST || skill > MAX_SKILL_NUM) {
-    return 0;
-  }
-
-  int base_percent = ch->get_skill(skill);
-  int max_percent = skill_info[skill].cap;
-  int total_percent = 0;
-  int victim_sav = 0; // савис жертвы,
-  int victim_modi = 0; // другие модификаторы, влияющие на прохождение
-  int bonus = 0; // бонус от дополнительных параметров.
-  int size = 0; // бонусы/штрафы размера (не спрашивайте...)
-  int fail_limit = 950;
-  bool no_luck = false; // Для скиллов, не учитывающих удачу
-
-  if (base_percent <= 0) {
-    return 0;
-  }
-
-  if (!IS_NPC(ch) && !ch->affected.empty()) {
-    for (const auto &aff : ch->affected) {
-      if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с эксп умелкой
-      {
-        base_percent += aff->modifier;
-      }
-
-      if (aff->location == APPLY_PLAQUE) {
-        base_percent -= number(ch->get_skill(skill) * 0.4,
-                               ch->get_skill(skill) * 0.05);
-      }
-    }
-  }
-
-  base_percent += int_app[GET_REAL_INT(ch)].to_skilluse;
-  if (!IS_NPC(ch)) {
-    size = (MAX(0, GET_REAL_SIZE(ch) - 50));
-  } else {
-    size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
-  }
-
-  switch (skill) {
-
-    case SKILL_HIDETRACK: {
-      bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
-      break;
-    }
-
-    case SKILL_BACKSTAB: {
-      victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-      bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
-      if (awake_others(ch)
-          || equip_in_metall(ch)) {
-        bonus -= 50;
-      }
-
-      if (vict) {
-        if (!CAN_SEE(vict, ch)) {
-          bonus += 25;
-        }
-
-        if (GET_POS(vict) < POS_FIGHTING) {
-          bonus += (20 * (POS_FIGHTING - GET_POS(vict)));
-        } else if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS)) {
-          victim_modi -= 30;
-        }
-        victim_modi += size_app[GET_POS_SIZE(vict)].ac;
-        victim_modi -= dex_bonus(GET_REAL_DEX(vict));
-      }
-      break;
-    }
-
-    case SKILL_BASH: {
-      victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-      bonus = size
-          + dex_bonus(GET_REAL_DEX(ch))
-          + (GET_EQ(ch, WEAR_SHIELD)
-             ? weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing
-             : 0);
-      if (vict) {
-        if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING) {
-          victim_modi -= 20;
-        }
-        if (PRF_FLAGGED(vict, PRF_AWAKE)) {
-          victim_modi -= CalcAwakeMod(ch, vict);
-        }
-      }
-      break;
-    }
-
-    case SKILL_HIDE: {
-      bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
-      if (awake_others(ch) || equip_in_metall(ch)) {
-        bonus -= 50;
-      }
-
-      if (IS_DARK(ch->in_room)) {
-        bonus += 25;
-      }
-
-      if (SECT(ch->in_room) == SECT_INSIDE) {
-        bonus += 20;
-      } else if (SECT(ch->in_room) == SECT_CITY) {
-        bonus -= 15;
-      } else if (SECT(ch->in_room) == SECT_FOREST) {
-        bonus += 20;
-      } else if (SECT(ch->in_room) == SECT_HILLS
-          || SECT(ch->in_room) == SECT_MOUNTAIN) {
-        bonus += 10;
-      }
-
-      if (vict) {
-        if (AWAKE(vict)) {
-          victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-        }
-      }
-      break;
-    }
-
-    case SKILL_KICK: {
-      victim_sav = -GET_REAL_SAVING_STABILITY(vict);
-      bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
-      if (vict) {
-        victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
-        victim_modi -= GET_REAL_CON(vict);
-        if (PRF_FLAGGED(vict, PRF_AWAKE)) {
-          victim_modi -= CalcAwakeMod(ch, vict);
-        }
-      }
-      break;
-    }
-
-    case SKILL_PICK_LOCK: {
-      bonus = dex_bonus(GET_REAL_DEX(ch)) + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
-      break;
-    }
-
-    case SKILL_PUNCH: {
-      victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-      break;
-    }
-
-    case SKILL_RESCUE: {
-      bonus = dex_bonus(GET_REAL_DEX(ch));
-      break;
-    }
-
-    case SKILL_SNEAK: {
-      bonus = dex_bonus(GET_REAL_DEX(ch))
-          + (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
-
-      if (awake_others(ch) || equip_in_metall(ch))
-        bonus -= 50;
-
-      if (SECT(ch->in_room) == SECT_CITY)
-        bonus -= 10;
-      if (IS_DARK(ch->in_room))
-        bonus += 20;
-
-      if (vict) {
-        if (GET_LEVEL(vict) > 35)
-          bonus -= 50;
-        if (!CAN_SEE(vict, ch))
-          bonus += 25;
-        if (AWAKE(vict)) {
-          victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-        }
-      }
-      break;
-    }
-
-    case SKILL_STEAL: {
-      bonus = dex_bonus(GET_REAL_DEX(ch))
-          + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
-
-      if (awake_others(ch) || equip_in_metall(ch))
-        bonus -= 50;
-      if (IS_DARK(ch->in_room))
-        bonus += 20;
-
-      if (vict) {
-        victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-        if (!CAN_SEE(vict, ch))
-          bonus += 25;
-        if (AWAKE(vict)) {
-          victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-          if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
-            bonus -= 30;
-        }
-      }
-      break;
-    }
-
-    case SKILL_TRACK: {
-      no_luck = true;
-      total_percent = base_percent + int_app[GET_REAL_INT(ch)].observation + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
-
-      if (SECT(ch->in_room) == SECT_FOREST || SECT(ch->in_room) == SECT_FIELD) {
-        total_percent += 10;
-      }
-
-      total_percent = complex_skill_modifier(ch, SKILL_INDEFINITE, GAPPLY_SKILL_SUCCESS, total_percent);
-
-      if (SECT(ch->in_room) == SECT_WATER_SWIM
-          || SECT(ch->in_room) == SECT_WATER_NOSWIM
-          || SECT(ch->in_room) == SECT_FLYING
-          || SECT(ch->in_room) == SECT_UNDERWATER
-          || SECT(ch->in_room) == SECT_SECRET
-          || ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
-        total_percent = 0;
-
-      if (vict) {
-        victim_modi += GET_REAL_CON(vict) / 2;
-      }
-      break;
-    }
-
-    case SKILL_SENSE: {
-      bonus = int_app[GET_REAL_INT(ch)].observation
-          + (can_use_feat(ch, TRACKER_FEAT) ? 20 : 0);
-      break;
-    }
-
-    case SKILL_MULTYPARRY:
-    case SKILL_PARRY: {
-      victim_sav = dex_bonus(GET_REAL_DEX(vict));
-      bonus = dex_bonus(GET_REAL_DEX(ch));
-      if (GET_AF_BATTLE(ch, EAF_AWAKE)) {
-        bonus += ch->get_skill(SKILL_AWAKE);
-      }
-
-      if (GET_EQ(ch, WEAR_HOLD)
-          && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON) {
-        bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].parrying;
-      }
-      victim_modi = 100;
-      break;
-    }
-
-    case SKILL_BLOCK: {
-      int shield_mod = GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
-      int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20) / 3);
-      bonus = dex_mod + shield_mod;
-      break;
-    }
-
-    case SKILL_TOUCH: {
-      victim_sav = dex_bonus(GET_REAL_DEX(vict));
-      bonus = dex_bonus(GET_REAL_DEX(ch)) +
-          size_app[GET_POS_SIZE(vict)].interpolate;
-
-      if (vict) {
-        victim_modi -= dex_bonus(GET_REAL_DEX(vict));
-        victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
-      }
-      break;
-    }
-
-    case SKILL_PROTECT: {
-      bonus = dex_bonus(GET_REAL_DEX(ch)) + size;
-      victim_modi = 50;
-      break;
-    }
-
-    case SKILL_BOWS: {
-      bonus = dex_bonus(GET_REAL_DEX(ch));
-      break;
-    }
-
-    case SKILL_BOTHHANDS: break;
-    case SKILL_LONGS: break;
-    case SKILL_SPADES: break;
-    case SKILL_SHORTS: break;
-    case SKILL_CLUBS: break;
-    case SKILL_PICK: break;
-    case SKILL_NONSTANDART: break;
-    case SKILL_AXES: break;
-    case SKILL_SATTACK: {
-      victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GET_REAL_DEX(ch)); //equal
-      break;
-    }
-
-    case SKILL_LOOKING: {
-      bonus = int_app[GET_REAL_INT(ch)].observation;
-      break;
-    }
-    case SKILL_HEARING: {
-      bonus = int_app[GET_REAL_INT(ch)].observation;
-      break;
-    }
-
-    case SKILL_DISARM: {
-      victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-      bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
-      if (vict) {
-        victim_modi -= dex_bonus(GET_REAL_STR(ch));
-        if (GET_EQ(vict, WEAR_BOTHS))
-          victim_modi -= 10;
-        if (PRF_FLAGGED(vict, PRF_AWAKE))
-          victim_modi -= CalcAwakeMod(ch, vict);
-      }
-      break;
-    }
-
-    case SKILL_HEAL: break;
-    case SKILL_ADDSHOT: {
-      if (equip_in_metall(ch))
-        bonus -= 5;
-      no_luck = true;
-      break;
-    }
-
-    case SKILL_NOPARRYHIT: {
-      bonus = dex_bonus(GET_REAL_DEX(ch));
-      break;
-    }
-
-    case SKILL_CAMOUFLAGE: {
-      bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
-          + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
-
-      if (awake_others(ch))
-        bonus -= 100;
-
-      if (IS_DARK(ch->in_room))
-        bonus += 15;
-
-      if (SECT(ch->in_room) == SECT_CITY)
-        bonus -= 15;
-      else if (SECT(ch->in_room) == SECT_FOREST)
-        bonus += 10;
-      else if (SECT(ch->in_room) == SECT_HILLS
-          || SECT(ch->in_room) == SECT_MOUNTAIN)
-        bonus += 5;
-      if (equip_in_metall(ch))
-        bonus -= 30;
-
-      if (vict) {
-        if (AWAKE(vict))
-          victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-      }
-      break;
-    }
-
-    case SKILL_DEVIATE: {
-      bonus = -size_app[GET_POS_SIZE(ch)].ac +
-          dex_bonus(GET_REAL_DEX(ch));
-
-      if (equip_in_metall(ch))
-        bonus -= 40;
-
-      if (vict) {
-        victim_modi -= dex_bonus(GET_REAL_DEX(vict));
-      }
-      break;
-    }
-
-    case SKILL_CHOPOFF: {
-      victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-      bonus = dex_bonus(GET_REAL_DEX(ch)) + ((dex_bonus(GET_REAL_DEX(ch)) * 5) / 10)
-          + size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
-      if (equip_in_metall(ch))
-        bonus -= 10;
-      if (vict) {
-        if (!CAN_SEE(vict, ch))
-          bonus += 10;
-        if (GET_POS(vict) < POS_SITTING)
-          bonus -= 50;
-        if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
-          victim_modi -= 20;
-        if (PRF_FLAGGED(vict, PRF_AWAKE))
-          victim_modi -= CalcAwakeMod(ch, vict);
-      }
-      break;
-    }
-
-    case SKILL_REPAIR: break;
-    case SKILL_UPGRADE: break;
-    case SKILL_WARCRY: break;
-    case SKILL_COURAGE: break;
-    case SKILL_SHIT: break;
-    case SKILL_MIGHTHIT: {
-      victim_sav = -GET_REAL_SAVING_STABILITY(vict);
-      bonus = size + dex_bonus(GET_REAL_STR(ch));
-
-      if (IS_NPC(vict))
-        victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking) / 2;
-      else
-        victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
-      break;
-    }
-
-    case SKILL_STUPOR: {
-      victim_sav = -GET_REAL_SAVING_STABILITY(vict);
-      bonus = dex_bonus(GET_REAL_STR(ch));
-      if (GET_EQ(ch, WEAR_WIELD))
-        bonus +=
-            weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
-      else if (GET_EQ(ch, WEAR_BOTHS))
-        bonus +=
-            weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
-
-      if (vict) {
-        victim_modi -= GET_REAL_CON(vict);
-      }
-      break;
-    }
-
-    case SKILL_POISONED: break;
-    case SKILL_LEADERSHIP: {
-      bonus = cha_app[GET_REAL_CHA(ch)].leadership;
-      break;
-    }
-
-    case SKILL_PUNCTUAL: {
-      victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
-      bonus = dex_bonus(GET_REAL_INT(ch));
-      if (GET_EQ(ch, WEAR_WIELD))
-        bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
-            + MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
-            + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
-      if (GET_EQ(ch, WEAR_HOLD))
-        bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 18
-            + MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
-            + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
-      if (GET_EQ(ch, WEAR_BOTHS))
-        bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 25
-            + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
-      if (vict) {
-        victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-      }
-      break;
-    }
-
-    case SKILL_AWAKE: {
-      const size_t real_dex = static_cast<size_t>(GET_REAL_DEX(ch));
-      if (real_dex < INT_APP_SIZE) {
-        bonus = int_app[real_dex].observation;
-
-        if (vict) {
-          victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-        }
-      } else {
-        log("SYSERR: Global buffer overflow for SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
-            real_dex, INT_APP_SIZE);
-      }
-    }
-      break;
-
-    case SKILL_IDENTIFY: {
-      bonus = int_app[GET_REAL_INT(ch)].observation
-          + (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
-      break;
-    }
-
-    case SKILL_CREATE_POTION:
-    case SKILL_CREATE_SCROLL:
-    case SKILL_CREATE_WAND: break;
-
-    case SKILL_LOOK_HIDE: {
-      bonus = cha_app[GET_REAL_CHA(ch)].illusive;
-      if (vict) {
-        if (!CAN_SEE(vict, ch))
-          bonus += 50;
-        else if (AWAKE(vict))
-          victim_modi -= int_app[GET_REAL_INT(ch)].observation;
-      }
-      break;
-    }
-
-    case SKILL_ARMORED: break;
-
-    case SKILL_DRUNKOFF: {
-      bonus = -GET_REAL_CON(ch) / 2
-          + (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
-      break;
-    }
-
-    case SKILL_AID: {
-      bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
-      break;
-    }
-
-    case SKILL_FIRE: {
-      if (get_room_sky(ch->in_room) == SKY_RAINING)
-        bonus -= 50;
-      else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
-        bonus -= number(10, 25);
-      break;
-    }
-
-    case SKILL_HORSE: {
-      bonus = cha_app[GET_REAL_CHA(ch)].leadership;
-      break;
-    }
-    case SKILL_TURN_UNDEAD: {
-      break;
-    }
-
-    case SKILL_MORPH: break;
-    case SKILL_STRANGLE: {
-      victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-      bonus = dex_bonus(GET_REAL_DEX(ch));
-      if (GET_MOB_HOLD(vict)) {
-        bonus += (base_percent + bonus) / 2;
-      } else {
-        if (!CAN_SEE(ch, vict))
-          bonus += (base_percent + bonus) / 5;
-        if (PRF_FLAGGED(vict, PRF_AWAKE))
-          victim_modi -= CalcAwakeMod(ch, vict);
-      }
-      break;
-    }
-
-    case SKILL_STUN: {
-      victim_sav = -GET_REAL_SAVING_STABILITY(vict);
-      if (!IS_NPC(vict))
-        victim_sav *= 2;
-      else
-        victim_sav -= GET_LEVEL(vict);
-
-      bonus = dex_bonus(GET_REAL_STR(ch));
-      if (GET_EQ(ch, WEAR_WIELD))
-        bonus +=
-            weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
-      else if (GET_EQ(ch, WEAR_BOTHS))
-        bonus +=
-            weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
-
-      if (PRF_FLAGGED(vict, PRF_AWAKE))
-        victim_modi -= CalcAwakeMod(ch, vict);
-      break;
-    }
-    default: break;
-  }
-
-  total_percent = base_percent + bonus + victim_sav + victim_modi / 2;
-
-  if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill == SKILL_BASH)) {
-    total_percent /= 2;
-  }
-
-  // не все умения надо модифицировать из-за внешних факторов и морали
-  int luck = ch->calc_morale();
-  if (!no_luck) {
-
-    if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
-      luck -= 20;
-    if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
-      luck -= 10;
-
-    const int prob = number(0, 999);
-
-    int morale_bonus = luck;
-    if (luck < 0) {
-      morale_bonus = luck * 10;
-    }
-    const int bonus_limit = MIN(150, luck * 10);
-    fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
-    // Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
-    // игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
-    // все решают спас-броски.
-    if (luck >= 50)   // от 50 удачи абсолютный фейл не работает
-      fail_limit = 999;
-    if (prob >= fail_limit) {   // Абсолютный фейл 4.9 процента
-      total_percent = 0;
-    } else if (prob < bonus_limit) {
-      total_percent = max_percent + bonus;
-    }
-  }
-
-  // иммские флаги и прокла влияют на все
-  if (IS_IMMORTAL(ch))
-    total_percent = max_percent;
-  else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
-    total_percent = 0;
-  else if (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))
-    total_percent = max_percent;
-  else
-    total_percent = MIN(MAX(0, total_percent), max_percent);
-
-  ch->send_to_TC(false, true, true,
-                 "&CTarget: %s, BaseSkill: %d, Bonus: %d, TargetSave = %d, TargetMod: %d, TotalSkill: %d&n\r\n",
-                 vict ? GET_NAME(vict) : "NULL",
-                 base_percent,
-                 bonus,
-                 victim_sav,
-                 victim_modi / 2,
-                 total_percent);
-  return (total_percent);
+	if (skill < SKILL_FIRST || skill > MAX_SKILL_NUM) {
+		return 0;
+	}
+
+	int base_percent = ch->get_skill(skill);
+	int max_percent = skill_info[skill].cap;
+	int total_percent = 0;
+	int victim_sav = 0; // савис жертвы,
+	int victim_modi = 0; // другие модификаторы, влияющие на прохождение
+	int bonus = 0; // бонус от дополнительных параметров.
+	int size = 0; // бонусы/штрафы размера (не спрашивайте...)
+	bool ignore_luck = false; // Для скиллов, не учитывающих удачу
+
+	if (base_percent <= 0) {
+		return 0;
+	}
+
+	if (!IS_NPC(ch) && !ch->affected.empty()) {
+		for (const auto &aff : ch->affected) {
+			// скушал свиток с эксп умелкой
+			if (aff->location == APPLY_BONUS_SKILLS) {
+				base_percent += aff->modifier;
+			}
+
+			if (aff->location == APPLY_PLAQUE) {
+				base_percent -= number(ch->get_skill(skill) * 0.4,
+									   ch->get_skill(skill) * 0.05);
+			}
+		}
+	}
+
+	base_percent += int_app[GET_REAL_INT(ch)].to_skilluse;
+	if (!IS_NPC(ch)) {
+		size = (MAX(0, GET_REAL_SIZE(ch) - 50));
+	} else {
+		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
+	}
+
+	switch (skill) {
+
+		case SKILL_HIDETRACK: {
+			bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			break;
+		}
+
+		case SKILL_BACKSTAB: {
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
+			if (awake_others(ch)
+				|| equip_in_metall(ch)) {
+				bonus -= 50;
+			}
+
+			if (vict) {
+				if (!CAN_SEE(vict, ch)) {
+					bonus += 25;
+				}
+
+				if (GET_POS(vict) < POS_FIGHTING) {
+					bonus += (20 * (POS_FIGHTING - GET_POS(vict)));
+				} else if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS)) {
+					victim_modi -= 30;
+				}
+				victim_modi += size_app[GET_POS_SIZE(vict)].ac;
+				victim_modi -= dex_bonus(GET_REAL_DEX(vict));
+			}
+			break;
+		}
+
+		case SKILL_BASH: {
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			bonus = size
+				+ dex_bonus(GET_REAL_DEX(ch))
+				+ (GET_EQ(ch, WEAR_SHIELD)
+				   ? weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing
+				   : 0);
+			if (vict) {
+				if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING) {
+					victim_modi -= 20;
+				}
+				if (PRF_FLAGGED(vict, PRF_AWAKE)) {
+					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
+				}
+			}
+			break;
+		}
+
+		case SKILL_HIDE: {
+			bonus =
+				dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			if (awake_others(ch) || equip_in_metall(ch)) {
+				bonus -= 50;
+			}
+
+			if (IS_DARK(ch->in_room)) {
+				bonus += 25;
+			}
+
+			if (SECT(ch->in_room) == SECT_INSIDE) {
+				bonus += 20;
+			} else if (SECT(ch->in_room) == SECT_CITY) {
+				bonus -= 15;
+			} else if (SECT(ch->in_room) == SECT_FOREST) {
+				bonus += 20;
+			} else if (SECT(ch->in_room) == SECT_HILLS
+				|| SECT(ch->in_room) == SECT_MOUNTAIN) {
+				bonus += 10;
+			}
+
+			if (vict) {
+				if (AWAKE(vict)) {
+					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+				}
+			}
+			break;
+		}
+
+		case SKILL_KICK: {
+			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
+			if (vict) {
+				victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
+				victim_modi -= GET_REAL_CON(vict);
+				if (PRF_FLAGGED(vict, PRF_AWAKE)) {
+					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
+				}
+			}
+			break;
+		}
+
+		case SKILL_PICK_LOCK: {
+			bonus = dex_bonus(GET_REAL_DEX(ch)) + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+			break;
+		}
+
+		case SKILL_PUNCH: {
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			break;
+		}
+
+		case SKILL_RESCUE: {
+			bonus = dex_bonus(GET_REAL_DEX(ch));
+			break;
+		}
+
+		case SKILL_SNEAK: {
+			bonus = dex_bonus(GET_REAL_DEX(ch))
+				+ (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
+
+			if (awake_others(ch) || equip_in_metall(ch))
+				bonus -= 50;
+
+			if (SECT(ch->in_room) == SECT_CITY)
+				bonus -= 10;
+			if (IS_DARK(ch->in_room))
+				bonus += 20;
+
+			if (vict) {
+				if (GET_LEVEL(vict) > 35)
+					bonus -= 50;
+				if (!CAN_SEE(vict, ch))
+					bonus += 25;
+				if (AWAKE(vict)) {
+					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+				}
+			}
+			break;
+		}
+
+		case SKILL_STEAL: {
+			bonus = dex_bonus(GET_REAL_DEX(ch))
+				+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+
+			if (awake_others(ch) || equip_in_metall(ch))
+				bonus -= 50;
+			if (IS_DARK(ch->in_room))
+				bonus += 20;
+
+			if (vict) {
+				victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+				if (!CAN_SEE(vict, ch))
+					bonus += 25;
+				if (AWAKE(vict)) {
+					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+					if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
+						bonus -= 30;
+				}
+			}
+			break;
+		}
+
+		case SKILL_TRACK: {
+			ignore_luck = true;
+			total_percent =
+				base_percent + int_app[GET_REAL_INT(ch)].observation + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+
+			if (SECT(ch->in_room) == SECT_FOREST || SECT(ch->in_room) == SECT_FIELD) {
+				total_percent += 10;
+			}
+
+			total_percent = complex_skill_modifier(ch, SKILL_INDEFINITE, GAPPLY_SKILL_SUCCESS, total_percent);
+
+			if (SECT(ch->in_room) == SECT_WATER_SWIM
+				|| SECT(ch->in_room) == SECT_WATER_NOSWIM
+				|| SECT(ch->in_room) == SECT_FLYING
+				|| SECT(ch->in_room) == SECT_UNDERWATER
+				|| SECT(ch->in_room) == SECT_SECRET
+				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
+				total_percent = 0;
+
+			if (vict) {
+				victim_modi += GET_REAL_CON(vict) / 2;
+			}
+			break;
+		}
+
+		case SKILL_SENSE: {
+			bonus = int_app[GET_REAL_INT(ch)].observation
+				+ (can_use_feat(ch, TRACKER_FEAT) ? 20 : 0);
+			break;
+		}
+
+		case SKILL_MULTYPARRY:
+		case SKILL_PARRY: {
+			victim_sav = dex_bonus(GET_REAL_DEX(vict));
+			bonus = dex_bonus(GET_REAL_DEX(ch));
+			if (GET_AF_BATTLE(ch, EAF_AWAKE)) {
+				bonus += ch->get_skill(SKILL_AWAKE);
+			}
+
+			if (GET_EQ(ch, WEAR_HOLD)
+				&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON) {
+				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].parrying;
+			}
+			victim_modi = 100;
+			break;
+		}
+
+		case SKILL_BLOCK: {
+			int shield_mod =
+				GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
+			int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20) / 3);
+			bonus = dex_mod + shield_mod;
+			break;
+		}
+
+		case SKILL_TOUCH: {
+			victim_sav = dex_bonus(GET_REAL_DEX(vict));
+			bonus = dex_bonus(GET_REAL_DEX(ch)) +
+				size_app[GET_POS_SIZE(vict)].interpolate;
+
+			if (vict) {
+				victim_modi -= dex_bonus(GET_REAL_DEX(vict));
+				victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
+			}
+			break;
+		}
+
+		case SKILL_PROTECT: {
+			bonus = dex_bonus(GET_REAL_DEX(ch)) + size;
+			victim_modi = 50;
+			break;
+		}
+
+		case SKILL_BOWS: {
+			bonus = dex_bonus(GET_REAL_DEX(ch));
+			break;
+		}
+
+		case SKILL_BOTHHANDS: break;
+		case SKILL_LONGS: break;
+		case SKILL_SPADES: break;
+		case SKILL_SHORTS: break;
+		case SKILL_CLUBS: break;
+		case SKILL_PICK: break;
+		case SKILL_NONSTANDART: break;
+		case SKILL_AXES: break;
+		case SKILL_SATTACK: {
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GET_REAL_DEX(ch)); //equal
+			break;
+		}
+
+		case SKILL_LOOKING:[[fallthrough]];
+		case SKILL_HEARING: {
+			bonus = int_app[GET_REAL_INT(ch)].observation;
+			break;
+		}
+
+		case SKILL_DISARM: {
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
+			if (vict) {
+				victim_modi -= dex_bonus(GET_REAL_STR(ch));
+				if (GET_EQ(vict, WEAR_BOTHS))
+					victim_modi -= 10;
+				if (PRF_FLAGGED(vict, PRF_AWAKE))
+					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
+			}
+			break;
+		}
+
+		case SKILL_HEAL: break;
+		case SKILL_ADDSHOT: {
+			if (equip_in_metall(ch))
+				bonus -= 5;
+			ignore_luck = true;
+			break;
+		}
+
+		case SKILL_NOPARRYHIT: {
+			bonus = dex_bonus(GET_REAL_DEX(ch));
+			break;
+		}
+
+		case SKILL_CAMOUFLAGE: {
+			bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
+				+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+
+			if (awake_others(ch))
+				bonus -= 100;
+
+			if (IS_DARK(ch->in_room))
+				bonus += 15;
+
+			if (SECT(ch->in_room) == SECT_CITY)
+				bonus -= 15;
+			else if (SECT(ch->in_room) == SECT_FOREST)
+				bonus += 10;
+			else if (SECT(ch->in_room) == SECT_HILLS
+				|| SECT(ch->in_room) == SECT_MOUNTAIN)
+				bonus += 5;
+			if (equip_in_metall(ch))
+				bonus -= 30;
+
+			if (vict) {
+				if (AWAKE(vict))
+					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+			}
+			break;
+		}
+
+		case SKILL_DEVIATE: {
+			bonus = -size_app[GET_POS_SIZE(ch)].ac +
+				dex_bonus(GET_REAL_DEX(ch));
+
+			if (equip_in_metall(ch))
+				bonus -= 40;
+
+			if (vict) {
+				victim_modi -= dex_bonus(GET_REAL_DEX(vict));
+			}
+			break;
+		}
+
+		case SKILL_CHOPOFF: {
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			bonus = dex_bonus(GET_REAL_DEX(ch)) + ((dex_bonus(GET_REAL_DEX(ch)) * 5) / 10)
+				+ size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
+			if (equip_in_metall(ch))
+				bonus -= 10;
+			if (vict) {
+				if (!CAN_SEE(vict, ch))
+					bonus += 10;
+				if (GET_POS(vict) < POS_SITTING)
+					bonus -= 50;
+				if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
+					victim_modi -= 20;
+				if (PRF_FLAGGED(vict, PRF_AWAKE))
+					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
+			}
+			break;
+		}
+
+		case SKILL_REPAIR: break;
+		case SKILL_UPGRADE: break;
+		case SKILL_WARCRY: break;
+		case SKILL_COURAGE: break;
+		case SKILL_SHIT: break;
+		case SKILL_MIGHTHIT: {
+			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			bonus = size + dex_bonus(GET_REAL_STR(ch));
+
+			if (IS_NPC(vict))
+				victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking) / 2;
+			else
+				victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
+			break;
+		}
+
+		case SKILL_STUPOR: {
+			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			bonus = dex_bonus(GET_REAL_STR(ch));
+			if (GET_EQ(ch, WEAR_WIELD))
+				bonus +=
+					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
+			else if (GET_EQ(ch, WEAR_BOTHS))
+				bonus +=
+					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+
+			if (vict) {
+				victim_modi -= GET_REAL_CON(vict);
+			}
+			break;
+		}
+
+		case SKILL_POISONED: break;
+		case SKILL_LEADERSHIP: {
+			bonus = cha_app[GET_REAL_CHA(ch)].leadership;
+			break;
+		}
+
+		case SKILL_PUNCTUAL: {
+			victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
+			bonus = dex_bonus(GET_REAL_INT(ch));
+			if (GET_EQ(ch, WEAR_WIELD))
+				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
+					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
+			if (GET_EQ(ch, WEAR_HOLD))
+				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 18
+					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
+			if (GET_EQ(ch, WEAR_BOTHS))
+				bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
+			if (vict) {
+				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+			}
+			break;
+		}
+
+		case SKILL_AWAKE: {
+			const size_t real_dex = static_cast<size_t>(GET_REAL_DEX(ch));
+			if (real_dex < INT_APP_SIZE) {
+				bonus = int_app[real_dex].observation;
+
+				if (vict) {
+					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+				}
+			} else {
+				log("SYSERR: Global buffer overflow for SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
+					real_dex, INT_APP_SIZE);
+			}
+		}
+			break;
+
+		case SKILL_IDENTIFY: {
+			bonus = int_app[GET_REAL_INT(ch)].observation
+				+ (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
+			break;
+		}
+
+		case SKILL_CREATE_POTION:
+		case SKILL_CREATE_SCROLL:
+		case SKILL_CREATE_WAND: break;
+
+		case SKILL_LOOK_HIDE: {
+			bonus = cha_app[GET_REAL_CHA(ch)].illusive;
+			if (vict) {
+				if (!CAN_SEE(vict, ch))
+					bonus += 50;
+				else if (AWAKE(vict))
+					victim_modi -= int_app[GET_REAL_INT(ch)].observation;
+			}
+			break;
+		}
+
+		case SKILL_ARMORED: break;
+
+		case SKILL_DRUNKOFF: {
+			bonus = -GET_REAL_CON(ch) / 2
+				+ (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
+			break;
+		}
+
+		case SKILL_AID: {
+			bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
+			break;
+		}
+
+		case SKILL_FIRE: {
+			if (get_room_sky(ch->in_room) == SKY_RAINING)
+				bonus -= 50;
+			else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
+				bonus -= number(10, 25);
+			break;
+		}
+
+		case SKILL_HORSE: {
+			bonus = cha_app[GET_REAL_CHA(ch)].leadership;
+			break;
+		}
+
+		case SKILL_MORPH: break;
+		case SKILL_STRANGLE: {
+			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
+			bonus = dex_bonus(GET_REAL_DEX(ch));
+			if (GET_MOB_HOLD(vict)) {
+				bonus += (base_percent + bonus) / 2;
+			} else {
+				if (!CAN_SEE(ch, vict))
+					bonus += (base_percent + bonus) / 5;
+				if (PRF_FLAGGED(vict, PRF_AWAKE))
+					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
+			}
+			break;
+		}
+
+		case SKILL_STUN: {
+			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
+			if (!IS_NPC(vict))
+				victim_sav *= 2;
+			else
+				victim_sav -= GET_LEVEL(vict);
+
+			bonus = dex_bonus(GET_REAL_STR(ch));
+			if (GET_EQ(ch, WEAR_WIELD))
+				bonus +=
+					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
+			else if (GET_EQ(ch, WEAR_BOTHS))
+				bonus +=
+					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+
+			if (PRF_FLAGGED(vict, PRF_AWAKE))
+				victim_modi -= CalculateSkillAwakeModifier(ch, vict);
+			break;
+		}
+		default: break;
+	}
+
+	if (ignore_luck || MakeLuckTest(ch, vict)) {
+		base_percent = 0;
+		bonus = 0;
+	} else {
+		total_percent = 0;
+	}
+
+	total_percent = std::max(0, base_percent + bonus + victim_sav + victim_modi / 2);
+
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill == SKILL_BASH)) {
+		total_percent /= 2;
+	}
+
+	// иммские флаги и прокла влияют на все
+	if (IS_IMMORTAL(ch))
+		total_percent = max_percent;
+	else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
+		total_percent = 0;
+	else if (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))
+		total_percent = max_percent;
+	else
+		total_percent = MIN(MAX(0, total_percent), max_percent);
+
+	ch->send_to_TC(false, true, true,
+				   "&CTarget: %s, BaseSkill: %d, Bonus: %d, TargetSave = %d, TargetMod: %d, TotalSkill: %d&n\r\n",
+				   vict ? GET_NAME(vict) : "NULL",
+				   base_percent,
+				   bonus,
+				   victim_sav,
+				   victim_modi / 2,
+				   total_percent);
+	return (total_percent);
 }
 
 void ImproveSkill(CHAR_DATA *ch, const ESkill skill, int success, CHAR_DATA *victim) {
@@ -1318,7 +1949,7 @@ void TrainSkill(CHAR_DATA *ch, const ESkill skill, bool success, CHAR_DATA *vict
   } else if (!IS_CHARMICE(ch)) {
     if (ch->get_skill(skill) > 0
         && GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch))
-        && ch->get_skill(skill) < skill_info[skill].fail_percent) {
+        && ch->get_skill(skill) < skill_info[skill].difficulty) {
       ch->set_skill(skill, ch->get_skill(skill) + 1);
     }
   }
@@ -1328,10 +1959,10 @@ void TrainSkill(CHAR_DATA *ch, const ESkill skill, bool success, CHAR_DATA *vict
 * Расчет влияния осторожки у victim против умений killer.
 * В данный момент учитывается случай 'игрок против игрока', где осторожка считается как скилл/2
 */
-int CalcAwakeMod(CHAR_DATA *killer, CHAR_DATA *victim) {
+int CalculateSkillAwakeModifier(CHAR_DATA *killer, CHAR_DATA *victim) {
   int result = 0;
   if (!killer || !victim) {
-    log("SYSERROR: zero character in CalcAwakeMod.");
+    log("SYSERROR: zero character in CalculateSkillAwakeModifier.");
   } else if (IS_NPC(killer) || IS_NPC(victim)) {
     result = victim->get_skill(SKILL_AWAKE);
   } else {
@@ -1424,14 +2055,6 @@ int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill) {
   return std::min(CalcSkillSoftCap(ch), skill_info[skill].cap);
 }
 
-// \TODO Не забыть убрать после ребаланса умений
-void SendSkillBalanceMsg (CHAR_DATA* ch, const char* skill_name, int percent, int prob, bool success) {
-  std::stringstream buffer;
-  buffer << "&C" << "Skill: " << skill_name
-         << " Percent: " << percent << " Prob: " << prob << " Success: " << success << "&n" << std::endl;
-  ch->send_to_TC(false, true, true, buffer.str().c_str());
-}
-
 //  Реализация класса Skill
 // Закомментим поека за ненадобностью
 /*
@@ -1459,7 +2082,7 @@ void Skill::ParseSkill(pugi::xml_node SkillNode)
 	TmpSkill->_Number = CurNode.attribute("val").as_int();
 	CurNode = SkillNode.child("name");
 	TmpSkill->_Name = CurNode.attribute("text").value();
-	CurNode = SkillNode.child("fail_percent");
+	CurNode = SkillNode.child("difficulty");
 	TmpSkill->_MaxPercent = CurNode.attribute("val").as_int();
 
 	// Добавляем новый скилл в лист

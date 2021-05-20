@@ -176,7 +176,7 @@ int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
 	skill = skill - MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
 	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEL(ch)) * 5);
 	skill = MAX(0, skill);
-	percent = number(0, skill_info[SKILL_SENSE].fail_percent);
+	percent = number(0, skill_info[SKILL_SENSE].difficulty);
 	if (percent > skill)
 	{
 		int tries = 10;

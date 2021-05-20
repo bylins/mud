@@ -462,13 +462,6 @@ template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
 #define TYPE_ROOMDEATH               498
 #define TYPE_SUFFERING               499
 
-#define SAVING_WILL       0
-#define SAVING_CRITICAL   1
-#define SAVING_STABILITY  2
-#define SAVING_REFLEX     3
-#define SAVING_COUNT      4
-#define SAVING_NONE	5 //Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.
-
 #define TAR_IGNORE      (1 << 0)
 #define TAR_CHAR_ROOM   (1 << 1)
 #define TAR_CHAR_WORLD  (1 << 2) // не ищет мобов при касте чарами (призвать/переместиться/переход)
