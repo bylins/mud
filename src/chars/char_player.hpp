@@ -11,7 +11,7 @@
 #include "quested.hpp"
 #include "mobmax.hpp"
 #include "remember.hpp"
-#include "char.hpp"
+#include "character.h"
 #include "dps.hpp"
 #include "map.hpp"
 #include "reset_stats.hpp"
@@ -29,17 +29,14 @@
 const int START_STATS_TOTAL = 6;
 
 // для одноразовых флагов
-enum
-{
+enum {
 	DIS_OFFTOP_MESSAGE,
 	DIS_EXCHANGE_MESSAGE,
 	DIS_TOTAL_NUM
 };
 
-
-class Player : public CHAR_DATA
-{
-public:
+class Player : public CHAR_DATA {
+ public:
 	using cities_t = boost::dynamic_bitset<std::size_t>;
 
 	Player();
@@ -50,8 +47,8 @@ public:
 	room_rnum get_was_in_room() const;
 	void set_was_in_room(room_rnum was_in_room);
 
-	std::string const & get_passwd() const;
-	void set_passwd(std::string const & passwd);
+	std::string const &get_passwd() const;
+	void set_passwd(std::string const &passwd);
 
 	room_rnum get_from_room() const;
 	void set_from_room(room_rnum was_in_room);
@@ -63,13 +60,13 @@ public:
 	void set_start_stat(int stat_num, int number);
 
 	void set_last_tell(const char *text);
-	std::string const & get_last_tell();
+	std::string const &get_last_tell();
 
 	void set_answer_id(int id);
 	int get_answer_id() const;
 
 	// обертка на CharRemember
-	virtual void remember_add(const std::string& text, int flag);
+	virtual void remember_add(const std::string &text, int flag);
 	std::string remember_get(int flag) const;
 	bool remember_set_num(unsigned int num);
 	unsigned int remember_get_num() const;
@@ -116,7 +113,7 @@ public:
 	void map_set_option(unsigned num);
 	void map_print_to_snooper(CHAR_DATA *imm);
 	void map_text_olc(const char *arg);
-	const MapSystem::Options * get_map_options() const;
+	const MapSystem::Options *get_map_options() const;
 
 	int get_ext_money(unsigned type) const;
 	void set_ext_money(unsigned type, int num, bool write_log = true);
@@ -146,7 +143,6 @@ public:
 	int get_spent_hryvn();
 	void reset_daily_quest();
 
-
 	void add_value_cities(bool v);
 	void str_to_cities(std::string str);
 	std::string cities_to_str();
@@ -162,18 +158,18 @@ public:
 	void dquest(int id);
 
 	std::shared_ptr<Account> get_account();
-    // добавить/обновить чармиса в историю игрока
-    void updateCharmee(int vnum, int gold);
-    // получить список чармисов игрока
-    std::map<int, MERCDATA>  *getMercList();
-    // метод выставления chat_id
-    void setTelegramId(unsigned long chat_id) override;
-    unsigned long int getTelegramId() override;
-    // методы работы с последним временем респека славой
-    void setGloryRespecTime(time_t param) override;
-    time_t getGloryRespecTime() override;
+	// добавить/обновить чармиса в историю игрока
+	void updateCharmee(int vnum, int gold);
+	// получить список чармисов игрока
+	std::map<int, MERCDATA> *getMercList();
+	// метод выставления chat_id
+	void setTelegramId(unsigned long chat_id) override;
+	unsigned long int getTelegramId() override;
+	// методы работы с последним временем респека славой
+	void setGloryRespecTime(time_t param) override;
+	time_t getGloryRespecTime() override;
 
-private:
+ private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
@@ -245,13 +241,12 @@ private:
 	std::map<int, MERCDATA> charmeeHistory;
 };
 
-namespace PlayerSystem
-{
+namespace PlayerSystem {
 
 int con_natural_hp(CHAR_DATA *ch);
 int con_add_hp(CHAR_DATA *ch);
 int con_total_hp(CHAR_DATA *ch);
-unsigned weight_dex_penalty(CHAR_DATA* ch);
+unsigned weight_dex_penalty(CHAR_DATA *ch);
 
 } // namespace PlayerSystem
 

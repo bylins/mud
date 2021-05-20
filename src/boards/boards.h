@@ -16,22 +16,20 @@
 #include <vector>
 #include <bitset>
 
-namespace Boards
-{
+namespace Boards {
 extern std::string dg_script_text;
 
-class Static
-{
-public:
-	static bool LoginInfo(CHAR_DATA * ch);
+class Static {
+ public:
+	static bool LoginInfo(CHAR_DATA *ch);
 	static void BoardInit();
 	static void ClanInit();
-	static int Special(CHAR_DATA*, void*, int, char*);
+	static int Special(CHAR_DATA *, void *, int, char *);
 	static std::string print_stats(CHAR_DATA *ch, Board::shared_ptr board, int num);
 	static void reload_all();
 	static void clear_god_boards();
 	static void init_god_board(long uid, std::string name);
-	static void do_list(CHAR_DATA* ch, const Board::shared_ptr board);
+	static void do_list(CHAR_DATA *ch, const Board::shared_ptr board);
 
 	static bool can_see(CHAR_DATA *ch, const Board::shared_ptr board);
 	static bool can_read(CHAR_DATA *ch, const Board::shared_ptr board);
@@ -41,15 +39,15 @@ public:
 	static void new_message_notify(const Board::shared_ptr board);
 
 	static Board::shared_ptr create_board(BoardTypes type, const std::string &name,
-		const std::string &desc, const std::string &file);
+										  const std::string &desc, const std::string &file);
 
-private:
+ private:
 	static std::bitset<ACCESS_NUM> get_access(CHAR_DATA *ch, const Board::shared_ptr board);
 };
 
-void report_on_board(CHAR_DATA* ch, char* argument, int cmd, int subcmd);
-void DoBoard(CHAR_DATA* ch, char* argument, int cmd, int subcmd);
-void DoBoardList(CHAR_DATA* ch, char* argument, int cmd, int subcmd);
+void report_on_board(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoBoard(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void DoBoardList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 } // namespace BoardSystem
 

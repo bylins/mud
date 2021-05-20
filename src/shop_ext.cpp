@@ -8,7 +8,7 @@
 #include "boot.constants.hpp"
 #include "object.prototypes.hpp"
 #include "chars/world.characters.hpp"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "db.h"
 #include "handler.h"
 #include "house.h"
@@ -57,24 +57,21 @@
 </shop_list>
 */
 
-extern int do_social(CHAR_DATA * ch, char *argument);	// implemented in the act.social.cpp
+extern int do_social(CHAR_DATA *ch, char *argument);    // implemented in the act.social.cpp
 // здесь хранятся все предметы из магазинов вида внум_предмета, цена
 //std::map<int, int> items_list_for_checks;
-namespace ShopExt
-{
+namespace ShopExt {
 const char *MSG_NO_STEAL_HERE = "$n, грязн$w воришка, чеши отседова!";
 
 typedef std::map<int/*vnum предмета*/, item_desc_node> ObjDescType;
 std::map<std::string/*id шаблона*/, ObjDescType> item_descriptions;
 
-struct item_set_node
-{
+struct item_set_node {
 	long item_vnum;
 	int item_price;
 };
 
-struct item_set
-{
+struct item_set {
 	item_set() {};
 
 	std::string _id;
@@ -84,61 +81,52 @@ struct item_set
 typedef std::shared_ptr<item_set> ItemSetPtr;
 typedef std::vector<ItemSetPtr> ItemSetListType;
 
-ShopListType& shop_list = GlobalObjects::shop_list();
+ShopListType &shop_list = GlobalObjects::shop_list();
 
-void log_shop_load()
-{
-	for (const auto& shop : shop_list)
-	{
-		for (const auto& mob_vnum : shop->mob_vnums())
-		{
+void log_shop_load() {
+	for (const auto &shop : shop_list) {
+		for (const auto &mob_vnum : shop->mob_vnums()) {
 			log("ShopExt: mob=%d", mob_vnum);
 		}
 
 		log("ShopExt: currency=%s", shop->currency.c_str());
 
-		const auto& items = shop->items_list();
-		for (auto index = 0u; index < items.size(); ++index)
-		{
-			const auto& item = items.node(index);
+		const auto &items = shop->items_list();
+		for (auto index = 0u; index < items.size(); ++index) {
+			const auto &item = items.node(index);
 			log("ItemList: vnum=%d, price=%ld", item->vnum(), item->get_price());
 		}
 	}
 }
 
-void load_item_desc()
-{
+void load_item_desc() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/item_desc.xml");
-	if (!result)
-	{
+	if (!result) {
 		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 
 	pugi::xml_node node_list = doc.child("templates");
-    if (!node_list)
-    {
+	if (!node_list) {
 		snprintf(buf, MAX_STRING_LENGTH, "...templates list read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
-    }
+	}
 	item_descriptions.clear();
 	pugi::xml_node child;
-	for (pugi::xml_node item_template = node_list.child("template"); item_template; item_template = item_template.next_sibling("template"))
-	{
+	for (pugi::xml_node item_template = node_list.child("template"); item_template;
+		 item_template = item_template.next_sibling("template")) {
 		std::string templateId = item_template.attribute("id").value();
-		for (pugi::xml_node item = item_template.child("item"); item; item = item.next_sibling("item"))
-		{
+		for (pugi::xml_node item = item_template.child("item"); item; item = item.next_sibling("item")) {
 
 			int item_vnum = Parse::attr_int(item, "vnum");
-			if (item_vnum <= 0)
-			{
-					snprintf(buf, MAX_STRING_LENGTH,
-						"...bad item description attributes (item_vnum=%d)", item_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-					return;
+			if (item_vnum <= 0) {
+				snprintf(buf, MAX_STRING_LENGTH,
+						 "...bad item description attributes (item_vnum=%d)", item_vnum);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				return;
 			}
 			item_desc_node desc_node;
 			child = item.child("name");
@@ -165,25 +153,29 @@ void load_item_desc()
 			// парсим список триггеров
 			pugi::xml_node trig_list = item.child("triggers");
 			CObjectPrototype::triggers_list_t trig_vnums;
-			for (pugi::xml_node trig = trig_list.child("trig"); trig; trig = trig.next_sibling("trig"))
-			{
+			for (pugi::xml_node trig = trig_list.child("trig"); trig; trig = trig.next_sibling("trig")) {
 				int trig_vnum;
 				std::string tmp_value = trig.child_value();
 				boost::trim(tmp_value);
-				try
-				{
+				try {
 					trig_vnum = std::stoi(tmp_value, nullptr, 10);
 				}
-				catch (const std::invalid_argument&)
-				{
-					snprintf(buf, MAX_STRING_LENGTH, "...error while casting to num (item_vnum=%d, casting value=%s)", item_vnum, tmp_value.c_str());
+				catch (const std::invalid_argument &) {
+					snprintf(buf,
+							 MAX_STRING_LENGTH,
+							 "...error while casting to num (item_vnum=%d, casting value=%s)",
+							 item_vnum,
+							 tmp_value.c_str());
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
 				}
 
-				if (trig_vnum <= 0)
-				{
-					snprintf(buf, MAX_STRING_LENGTH, "...error while parsing triggers (item_vnum=%d, parsed value=%s)", item_vnum, tmp_value.c_str());
+				if (trig_vnum <= 0) {
+					snprintf(buf,
+							 MAX_STRING_LENGTH,
+							 "...error while parsing triggers (item_vnum=%d, parsed value=%s)",
+							 item_vnum,
+							 tmp_value.c_str());
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 					return;
 				}
@@ -195,19 +187,14 @@ void load_item_desc()
 	}
 }
 
-void load(bool reload)
-{
-	if (reload)
-	{
-		for (const auto& shop : shop_list)
-		{
+void load(bool reload) {
+	if (reload) {
+		for (const auto &shop : shop_list) {
 			shop->clear_store();
 
-			for (const auto& mob_vnum : shop->mob_vnums())
-			{
+			for (const auto &mob_vnum : shop->mob_vnums()) {
 				int mob_rnum = real_mobile(mob_vnum);
-				if (mob_rnum >= 0)
-				{
+				if (mob_rnum >= 0) {
 					mob_index[mob_rnum].func = NULL;
 				}
 			}
@@ -219,36 +206,36 @@ void load(bool reload)
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/shops.xml");
-	if (!result)
-	{
+	if (!result) {
 		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-    pugi::xml_node node_list = doc.child("shop_list");
-    if (!node_list)
-    {
+	pugi::xml_node node_list = doc.child("shop_list");
+	if (!node_list) {
 		snprintf(buf, MAX_STRING_LENGTH, "...shop_list read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
-    }
+	}
 	//наборы предметов - "заготовки" для реальных предметов в магазинах. живут только на время лоада
 	ItemSetListType itemSetList;
 	pugi::xml_node itemSets = doc.child("shop_item_sets");
-	for (pugi::xml_node itemSet = itemSets.child("shop_item_set"); itemSet; itemSet = itemSet.next_sibling("shop_item_set"))
-	{
+	for (pugi::xml_node itemSet = itemSets.child("shop_item_set"); itemSet;
+		 itemSet = itemSet.next_sibling("shop_item_set")) {
 		std::string itemSetId = itemSet.attribute("id").value();
 		ItemSetPtr tmp_set(new item_set);
 		tmp_set->_id = itemSetId;
 
-		for (pugi::xml_node item = itemSet.child("item"); item; item = item.next_sibling("item"))
-		{
+		for (pugi::xml_node item = itemSet.child("item"); item; item = item.next_sibling("item")) {
 			int item_vnum = Parse::attr_int(item, "vnum");
 			int price = Parse::attr_int(item, "price");
-			if (item_vnum < 0 || price < 0)
-			{
-				snprintf(buf, MAX_STRING_LENGTH,
-					"...bad shop item set attributes (item_set=%s, item_vnum=%d, price=%d)", itemSetId.c_str(), item_vnum, price);
+			if (item_vnum < 0 || price < 0) {
+				snprintf(buf,
+						 MAX_STRING_LENGTH,
+						 "...bad shop item set attributes (item_set=%s, item_vnum=%d, price=%d)",
+						 itemSetId.c_str(),
+						 item_vnum,
+						 price);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
@@ -260,14 +247,14 @@ void load(bool reload)
 		itemSetList.push_back(tmp_set);
 	}
 
-	for (pugi::xml_node node = node_list.child("shop"); node; node = node.next_sibling("shop"))
-	{
+	for (pugi::xml_node node = node_list.child("shop"); node; node = node.next_sibling("shop")) {
 		std::string shop_id = node.attribute("id").value();
 		std::string currency = node.attribute("currency").value();
 		int profit = node.attribute("profit").as_int();
 		std::string can_buy_value = node.attribute("can_buy").value();
 		bool shop_can_buy = can_buy_value != "false";
-		int store_time_min = (node.attribute("waste_time_min").value() ? node.attribute("waste_time_min").as_int() : 180);
+		int store_time_min =
+			(node.attribute("waste_time_min").value() ? node.attribute("waste_time_min").as_int() : 180);
 
 		// иним сам магазин
 		const auto tmp_shop = std::make_shared<shop_node>();
@@ -282,20 +269,17 @@ void load(bool reload)
 
 		std::map<int, std::string> mob_to_template;
 
-		for (pugi::xml_node mob = node.child("mob"); mob; mob=mob.next_sibling("mob"))
-		{
+		for (pugi::xml_node mob = node.child("mob"); mob; mob = mob.next_sibling("mob")) {
 			int mob_vnum = Parse::attr_int(mob, "mob_vnum");
 			std::string templateId = mob.attribute("template").value();
-			if (mob_vnum < 0)
-			{
+			if (mob_vnum < 0) {
 				snprintf(buf, MAX_STRING_LENGTH,
-					"...bad shop attributes (mob_vnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
+						 "...bad shop attributes (mob_vnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
 
-			if (!templateId.empty())
-			{
+			if (!templateId.empty()) {
 				mob_to_template[mob_vnum] = templateId;
 			}
 
@@ -303,70 +287,61 @@ void load(bool reload)
 			// проверяем и сетим мобу спешиал
 			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
 			int mob_rnum = real_mobile(mob_vnum);
-			if (mob_rnum >= 0)
-			{
+			if (mob_rnum >= 0) {
 				if (mob_index[mob_rnum].func
-					&& mob_index[mob_rnum].func != shop_ext)
-				{
+					&& mob_index[mob_rnum].func != shop_ext) {
 					snprintf(buf, MAX_STRING_LENGTH,
-						"...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
+							 "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-				}
-				else
-				{
+				} else {
 					mob_index[mob_rnum].func = shop_ext;
 				}
-			}
-			else
-			{
+			} else {
 				snprintf(buf, MAX_STRING_LENGTH, "...incorrect mob_vnum=%d", mob_vnum);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			}
 		}
 
 		// и список его продукции
-		for (pugi::xml_node item = node.child("item"); item; item = item.next_sibling("item"))
-		{
+		for (pugi::xml_node item = node.child("item"); item; item = item.next_sibling("item")) {
 			int item_vnum = Parse::attr_int(item, "vnum");
 			int price = Parse::attr_int(item, "price");
 			if (item_vnum < 0
-				|| price < 0)
-			{
+				|| price < 0) {
 				snprintf(buf, MAX_STRING_LENGTH,
-					"...bad shop attributes (item_vnum=%d, price=%d)", item_vnum, price);
+						 "...bad shop attributes (item_vnum=%d, price=%d)", item_vnum, price);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
 
 			// проверяем шмотку
 			int item_rnum = real_object(item_vnum);
-			if (item_rnum < 0)
-			{
+			if (item_rnum < 0) {
 				snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%d", item_vnum);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
 
 			// иним ее в магазе
-			const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price; //если не указана цена - берем цену из прототипа
+			const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum])
+											   : price; //если не указана цена - берем цену из прототипа
 			tmp_shop->add_item(item_vnum, item_price);
 		}
 
 		//и еще добавим наборы
-		for (pugi::xml_node itemSet = node.child("item_set"); itemSet; itemSet = itemSet.next_sibling("item_set"))
-		{
+		for (pugi::xml_node itemSet = node.child("item_set"); itemSet; itemSet = itemSet.next_sibling("item_set")) {
 			std::string itemSetId = itemSet.child_value();
-			for (ItemSetListType::const_iterator it = itemSetList.begin(); it != itemSetList.end();++it)
-			{
-				if ((*it)->_id == itemSetId)
-				{
-					for (unsigned i = 0; i < (*it)->item_list.size(); i++)
-					{
+			for (ItemSetListType::const_iterator it = itemSetList.begin(); it != itemSetList.end(); ++it) {
+				if ((*it)->_id == itemSetId) {
+					for (unsigned i = 0; i < (*it)->item_list.size(); i++) {
 						// проверяем шмотку
 						int item_rnum = real_object((*it)->item_list[i].item_vnum);
-						if (item_rnum < 0)
-						{
-							snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%d in item_set=%s", (int)(*it)->item_list[i].item_vnum, (*it)->_id.c_str());
+						if (item_rnum < 0) {
+							snprintf(buf,
+									 MAX_STRING_LENGTH,
+									 "...incorrect item_vnum=%d in item_set=%s",
+									 (int) (*it)->item_list[i].item_vnum,
+									 (*it)->_id.c_str());
 							mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 							return;
 						}
@@ -392,27 +367,21 @@ void load(bool reload)
 			}
 		}
 
-		if (tmp_shop->empty())
-		{
+		if (tmp_shop->empty()) {
 			snprintf(buf, MAX_STRING_LENGTH, "...item list empty (shop_id=%s)", shop_id.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
 
-		const auto& items = tmp_shop->items_list();
-		for (auto index = 0u; index < items.size(); ++index)
-		{
-			const auto& item = items.node(index);
-			for (auto id = item_descriptions.begin(); id != item_descriptions.end(); ++id)
-			{
-				if (id->second.find(item->vnum()) != id->second.end())
-				{
+		const auto &items = tmp_shop->items_list();
+		for (auto index = 0u; index < items.size(); ++index) {
+			const auto &item = items.node(index);
+			for (auto id = item_descriptions.begin(); id != item_descriptions.end(); ++id) {
+				if (id->second.find(item->vnum()) != id->second.end()) {
 					item_desc_node tmp_desc(id->second[item->vnum()]);
-					for (const auto& mob_vnum : tmp_shop->mob_vnums())
-					{
+					for (const auto &mob_vnum : tmp_shop->mob_vnums()) {
 						if (mob_to_template.find(mob_vnum) != mob_to_template.end()
-							&& mob_to_template[mob_vnum] == id->first)
-						{
+							&& mob_to_template[mob_vnum] == id->first) {
 							item->add_desc(mob_vnum, tmp_desc);
 						}
 					}
@@ -421,13 +390,12 @@ void load(bool reload)
 		}
 
 		shop_list.push_back(tmp_shop);
-    }
+	}
 
-    log_shop_load();
+	log_shop_load();
 }
 
-int get_spent_today()
-{
+int get_spent_today() {
 	return spent_today;
 }
 
@@ -435,11 +403,9 @@ int get_spent_today()
 
 using namespace ShopExt;
 
-int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
-{
+int shop_ext(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	if (!ch->desc
-		|| IS_NPC(ch))
-	{
+		|| IS_NPC(ch)) {
 		return 0;
 	}
 
@@ -460,36 +426,31 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 		|| CMD_IS("рассмотреть")
 		|| CMD_IS("examine")
 		|| CMD_IS("характеристики")
-		|| CMD_IS("identify")))
-	{
+		|| CMD_IS("identify"))) {
 		return 0;
 	}
 
 	char argm[MAX_INPUT_LENGTH];
-	CHAR_DATA * const keeper = reinterpret_cast<CHAR_DATA *>(me);
+	CHAR_DATA *const keeper = reinterpret_cast<CHAR_DATA *>(me);
 	shop_node::shared_ptr shop;
-	for (const auto& s : shop_list)
-	{
-		const auto found = std::find(s->mob_vnums().begin(), s->mob_vnums().end(), GET_MOB_VNUM(keeper)) != s->mob_vnums().end();
-		if (found)
-		{
+	for (const auto &s : shop_list) {
+		const auto found =
+			std::find(s->mob_vnums().begin(), s->mob_vnums().end(), GET_MOB_VNUM(keeper)) != s->mob_vnums().end();
+		if (found) {
 			shop = s;
 			break;
 		}
 	}
 
-	if (!shop)
-	{
+	if (!shop) {
 		log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
 		send_to_char("Ошибочка вышла.\r\n", ch);
 
 		return 1;
 	}
 
-
 	if (CMD_IS("steal")
-		|| CMD_IS("украсть"))
-	{
+		|| CMD_IS("украсть")) {
 		sprintf(argm, "$N вскричал$G '%s'", MSG_NO_STEAL_HERE);
 		sprintf(buf, "ругать %s", GET_NAME(ch));
 		do_social(keeper, buf);
@@ -498,8 +459,7 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	}
 
 	if (CMD_IS("список")
-		|| CMD_IS("list"))
-	{
+		|| CMD_IS("list")) {
 		std::string buffer = argument, buffer2;
 		GetOneParam(buffer, buffer2);
 		shop->print_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
@@ -507,8 +467,7 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	}
 
 	if (CMD_IS("фильтровать")
-		|| CMD_IS("filter"))
-	{
+		|| CMD_IS("filter")) {
 		std::string buffer = argument, buffer2;
 		GetOneParam(buffer, buffer2);
 		shop->filter_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
@@ -516,35 +475,28 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	}
 
 	if (CMD_IS("купить")
-		|| CMD_IS("buy"))
-	{
+		|| CMD_IS("buy")) {
 		shop->process_buy(ch, keeper, argument);
 		return 1;
 	}
-	if (CMD_IS("характеристики") || CMD_IS("identify"))
-	{
+	if (CMD_IS("характеристики") || CMD_IS("identify")) {
 		shop->process_ident(ch, keeper, argument, "Характеристики");
 		return 1;
 	}
 
-
-	if (CMD_IS("value") || CMD_IS("оценить"))
-	{
+	if (CMD_IS("value") || CMD_IS("оценить")) {
 		shop->process_cmd(ch, keeper, argument, "Оценить");
 		return 1;
 	}
-	if (CMD_IS("продать") || CMD_IS("sell"))
-	{
+	if (CMD_IS("продать") || CMD_IS("sell")) {
 		shop->process_cmd(ch, keeper, argument, "Продать");
 		return 1;
 	}
-	if (CMD_IS("чинить") || CMD_IS("repair"))
-	{
+	if (CMD_IS("чинить") || CMD_IS("repair")) {
 		shop->process_cmd(ch, keeper, argument, "Чинить");
 		return 1;
 	}
-	if (CMD_IS("рассмотреть") || CMD_IS("examine"))
-	{
+	if (CMD_IS("рассмотреть") || CMD_IS("examine")) {
 		shop->process_ident(ch, keeper, argument, "Рассмотреть");
 		return 1;
 	}
@@ -553,26 +505,21 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 }
 
 // * Лоад странствующих продавцов в каждой ренте.
-void town_shop_keepers()
-{
+void town_shop_keepers() {
 	// список уже оработанных зон, чтобы не грузить двух и более торгашей в одну
 	std::set<int> zone_list;
 
-	for (const auto& ch : character_list)
-	{
+	for (const auto &ch : character_list) {
 		if (IS_RENTKEEPER(ch)
 			&& ch->in_room > 0
 			&& !Clan::GetClanByRoom(ch->in_room)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
 			&& GET_ROOM_VNUM(ch->in_room) % 100 != 99
-			&& zone_list.find(world[ch->in_room]->zone) == zone_list.end())
-		{
+			&& zone_list.find(world[ch->in_room]->zone) == zone_list.end()) {
 			int rnum_start, rnum_end;
-			if (get_zone_rooms(world[ch->in_room]->zone, &rnum_start, &rnum_end))
-			{
+			if (get_zone_rooms(world[ch->in_room]->zone, &rnum_start, &rnum_end)) {
 				CHAR_DATA *mob = read_mobile(1901, VIRTUAL);
-				if (mob)
-				{
+				if (mob) {
 					char_to_room(mob, number(rnum_start, rnum_end));
 				}
 			}
@@ -581,22 +528,19 @@ void town_shop_keepers()
 	}
 }
 
-void do_shops_list(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
-{
+void do_shops_list(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();
 	std::ostringstream out;
-	for (size_t i = 0; i < n; i++)
-	{
+	for (size_t i = 0; i < n; i++) {
 		out << std::to_string(i + 1) << " " << dic->GetNameByNID(i) << " " << dic->GetTIDByNID(i) + "\r\n";
 	}
 	send_to_char(out.str().c_str(), ch);
 }
 
-void fill_shop_dictionary(DictionaryType &dic)
-{
+void fill_shop_dictionary(DictionaryType &dic) {
 	ShopExt::ShopListType::const_iterator it = ShopExt::shop_list.begin();
-	for (;it != ShopExt::shop_list.end();++it)
+	for (; it != ShopExt::shop_list.end(); ++it)
 		dic.push_back((*it)->GetDictionaryItem());
 };
 

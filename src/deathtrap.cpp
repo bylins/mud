@@ -9,7 +9,7 @@
 #include "spells.h"
 #include "handler.h"
 #include "house.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "corpse.hpp"
 #include "room.hpp"
 #include "fightsystem/fight.h"
@@ -20,24 +20,22 @@
 
 #include <list>
 #include <algorithm>
-#include "act.movement.hpp"
+#include "act.movement.h"
 
-extern void death_cry(CHAR_DATA * ch, CHAR_DATA * killer);
+extern void death_cry(CHAR_DATA *ch, CHAR_DATA *killer);
 
-namespace DeathTrap
-{
+namespace DeathTrap {
 
 // список текущих слоу-дт в маде
-std::list<ROOM_DATA*> room_list;
+std::list<ROOM_DATA *> room_list;
 
-void log_death_trap(CHAR_DATA * ch);
+void log_death_trap(CHAR_DATA *ch);
 void remove_items(CHAR_DATA *ch);
 
 } // namespace DeathTrap
 
 // * Инициализация списка при загрузке мада или редактирования комнат в олц
-void DeathTrap::load()
-{
+void DeathTrap::load() {
 	// на случай релоада, свапать смысла нету
 	room_list.clear();
 
@@ -50,9 +48,8 @@ void DeathTrap::load()
 * Добавление новой комнаты с проверкой на присутствие
 * \param room - комната, кот. добавляем
 */
-void DeathTrap::add(ROOM_DATA* room)
-{
-	std::list<ROOM_DATA*>::const_iterator it = std::find(room_list.begin(), room_list.end(), room);
+void DeathTrap::add(ROOM_DATA *room) {
+	std::list<ROOM_DATA *>::const_iterator it = std::find(room_list.begin(), room_list.end(), room);
 	if (it == room_list.end())
 		room_list.push_back(room);
 }
@@ -61,8 +58,7 @@ void DeathTrap::add(ROOM_DATA* room)
 * Удаление комнаты из списка слоу-дт
 * \param room - комната, кот. удаляем
 */
-void DeathTrap::remove(ROOM_DATA* room)
-{
+void DeathTrap::remove(ROOM_DATA *room) {
 	room_list.remove(room);
 }
 
@@ -70,15 +66,11 @@ void DeathTrap::remove(ROOM_DATA* room)
 /// Доп список строится для случаев, когда в списке комнаты сначала идет чар,
 /// а следом его чармисы и последовательный проход по ch->next_in_room
 /// с пуржем чара натыкается далее на обнуленные структуры чармисов.
-void DeathTrap::activity()
-{
-	for (auto it = room_list.cbegin(); it != room_list.cend(); ++it)
-	{
+void DeathTrap::activity() {
+	for (auto it = room_list.cbegin(); it != room_list.cend(); ++it) {
 		const auto people = (*it)->people; // make copy of people in the room
-		for (const auto i : people)
-		{
-			if (i->purged() || IS_NPC(i))
-			{
+		for (const auto i : people) {
+			if (i->purged() || IS_NPC(i)) {
 				continue;
 			}
 			std::string name = i->get_name_str();
@@ -86,12 +78,11 @@ void DeathTrap::activity()
 			Damage dmg(SimpleDmg(TYPE_ROOMDEATH), MAX(1, GET_REAL_MAX_HIT(i) >> 2), FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
-			if (dmg.process(i, i) < 0)
-			{
+			if (dmg.process(i, i) < 0) {
 				char buf_[MAX_INPUT_LENGTH];
 				snprintf(buf_, sizeof(buf_),
-					"Player %s died in slow DT (room %d)",
-					name.c_str(), (*it)->number);
+						 "Player %s died in slow DT (room %d)",
+						 name.c_str(), (*it)->number);
 				mudlog(buf_, LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 		}
@@ -99,15 +90,12 @@ void DeathTrap::activity()
 }
 
 // * Логирование в отдельный файл уходов в дт для интересу и мб статистики.
-void DeathTrap::log_death_trap(CHAR_DATA * ch)
-{
+void DeathTrap::log_death_trap(CHAR_DATA *ch) {
 	const char *filename = "../log/death_trap.log";
 	static FILE *file = 0;
-	if (!file)
-	{
+	if (!file) {
 		file = fopen(filename, "a");
-		if (!file)
-		{
+		if (!file) {
 			log("SYSERR: can't open %s!", filename);
 			return;
 		}
@@ -119,10 +107,8 @@ void DeathTrap::log_death_trap(CHAR_DATA * ch)
 }
 
 // * Попадание в обычное дт.
-int DeathTrap::check_death_trap(CHAR_DATA * ch)
-{
-	if (ch->in_room != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO))
-	{
+int DeathTrap::check_death_trap(CHAR_DATA *ch) {
+	if (ch->in_room != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
 			&& !IS_IMMORTAL(ch))
 			|| (real_sector(ch->in_room) == SECT_FLYING && !IS_NPC(ch)
@@ -130,14 +116,15 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 			|| (real_sector(ch->in_room) == SECT_WATER_NOSWIM && !IS_NPC(ch)
 				&& !IS_GOD(ch)
-				&& !has_boat(ch)))
-		{
+				&& !has_boat(ch))) {
 			OBJ_DATA *corpse;
 			DeathTrap::log_death_trap(ch);
 
-			if (check_tester_death(ch, nullptr))
-			{
-				sprintf(buf1, "Player %s died in DT (room %d) but zone is under construction.", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
+			if (check_tester_death(ch, nullptr)) {
+				sprintf(buf1,
+						"Player %s died in DT (room %d) but zone is under construction.",
+						GET_NAME(ch),
+						GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 				return FALSE;
 			}
@@ -150,17 +137,14 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 			GET_RIP_DTTHIS(ch) = GET_RIP_DTTHIS(ch) + 1;
 			//конец правки (с) Василиса
 			corpse = make_corpse(ch);
-			if (corpse != NULL)
-			{
-				obj_from_room(corpse);	// для того, чтобы удалилость все содержимое
+			if (corpse != NULL) {
+				obj_from_room(corpse);    // для того, чтобы удалилость все содержимое
 				extract_obj(corpse);
 			}
 			GET_HIT(ch) = GET_MOVE(ch) = 0;
-			if (RENTABLE(ch))
-			{
+			if (RENTABLE(ch)) {
 				die(ch, NULL);
-			}
-			else
+			} else
 				extract_char(ch, TRUE);
 			return TRUE;
 		}
@@ -168,8 +152,7 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 	return FALSE;
 }
 
-bool DeathTrap::is_slow_dt(int rnum)
-{
+bool DeathTrap::is_slow_dt(int rnum) {
 	if (ROOM_FLAGGED(rnum, ROOM_SLOWDEATH) || ROOM_FLAGGED(rnum, ROOM_ICEDEATH))
 		return true;
 	return false;
@@ -178,13 +161,11 @@ bool DeathTrap::is_slow_dt(int rnum)
 /// Проверка чара на дамаг в ванруме, если он попадет в комнату room_rnum
 /// \return если > 0, то величину дамага,
 /// иначе - чара в tunnel_damage() не дамагнет
-int calc_tunnel_dmg(CHAR_DATA *ch, int room_rnum)
-{
+int calc_tunnel_dmg(CHAR_DATA *ch, int room_rnum) {
 	if (!IS_NPC(ch)
 		&& !IS_IMMORTAL(ch)
 		&& RENTABLE(ch)
-		&& ROOM_FLAGGED(room_rnum, ROOM_TUNNEL))
-	{
+		&& ROOM_FLAGGED(room_rnum, ROOM_TUNNEL)) {
 		return std::max(20, GET_REAL_MAX_HIT(ch) >> 3);
 	}
 	return 0;
@@ -192,11 +173,9 @@ int calc_tunnel_dmg(CHAR_DATA *ch, int room_rnum)
 
 /// \return true - чара может убить сразу при входе в ванрум
 /// предполагается не пускать чара на верную смерть
-bool DeathTrap::check_tunnel_death(CHAR_DATA *ch, int room_rnum)
-{
+bool DeathTrap::check_tunnel_death(CHAR_DATA *ch, int room_rnum) {
 	const int dam = calc_tunnel_dmg(ch, room_rnum);
-	if (dam > 0 && GET_HIT(ch) <= dam * 2)
-	{
+	if (dam > 0 && GET_HIT(ch) <= dam * 2) {
 		return true;
 	}
 	return false;
@@ -204,22 +183,19 @@ bool DeathTrap::check_tunnel_death(CHAR_DATA *ch, int room_rnum)
 
 /// дамаг чаров с бд в ван-румах раз в 2 секунды (SECS_PER_PLAYER_AFFECT)
 /// и просто по факту входа (char_to_room), чтобы не так резво скакали
-bool DeathTrap::tunnel_damage(CHAR_DATA *ch)
-{
+bool DeathTrap::tunnel_damage(CHAR_DATA *ch) {
 	const int dam = calc_tunnel_dmg(ch, ch->in_room);
-	if (dam > 0)
-	{
+	if (dam > 0) {
 		const int room_rnum = ch->in_room;
 		const std::string name = ch->get_name_str();
 		Damage dmg(SimpleDmg(TYPE_TUNNERLDEATH), dam, FightSystem::UNDEF_DMG);
 		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
-		if (dmg.process(ch, ch) < 0)
-		{
+		if (dmg.process(ch, ch) < 0) {
 			char buf_[MAX_INPUT_LENGTH];
 			snprintf(buf_, sizeof(buf_),
-				"Player %s died in tunnel room (room %d)",
-				name.c_str(), GET_ROOM_VNUM(room_rnum));
+					 "Player %s died in tunnel room (room %d)",
+					 name.c_str(), GET_ROOM_VNUM(room_rnum));
 			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, TRUE);
 			return true;
 		}

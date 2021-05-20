@@ -3,7 +3,7 @@
 
 class CHAR_DATA;
 
-void go_kick(CHAR_DATA * ch, CHAR_DATA * vict);
+void go_kick(CHAR_DATA *ch, CHAR_DATA *vict);
 void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_KICK_H

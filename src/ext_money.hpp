@@ -8,11 +8,10 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include <string>
 
-namespace ExtMoney
-{
+namespace ExtMoney {
 
 void torc_exch_menu(CHAR_DATA *ch);
 void torc_exch_parse(CHAR_DATA *ch, const char *arg);
@@ -25,8 +24,7 @@ std::string name_currency_plural(std::string name);
 
 } // namespace ExtMoney
 
-namespace Remort
-{
+namespace Remort {
 
 extern std::string WHERE_TO_REMORT_STR;
 
@@ -37,7 +35,7 @@ bool need_torc(CHAR_DATA *ch);
 
 } // namespace Remort
 
-int torc(CHAR_DATA *ch, void *me, int cmd, char* argument);
+int torc(CHAR_DATA *ch, void *me, int cmd, char *argument);
 
 #endif // EXT_MONEY_HPP_INCLUDED
 

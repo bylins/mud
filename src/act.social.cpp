@@ -22,7 +22,7 @@
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "room.hpp"
 
 // extern variables
@@ -36,30 +36,26 @@ struct social_keyword *soc_keys_list = NULL;
 
 // local functions
 int find_action(char *cmd);
-int do_social(CHAR_DATA * ch, char *argument);
+int do_social(CHAR_DATA *ch, char *argument);
 void do_insult(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-int find_action(char *cmd)
-{
+int find_action(char *cmd) {
 	int bot, top, mid, chk;
 
 	bot = 0;
 	top = number_of_social_commands - 1;
 	size_t len = strlen(cmd);
 
-	if (top < 0 || !len)
-	{
+	if (top < 0 || !len) {
 		return -1;
 	}
 
-	for (;;)
-	{
+	for (;;) {
 		mid = (bot + top) / 2;
 
 		if (bot > top)
 			return (-1);
-		if (!(chk = strn_cmp(cmd, soc_keys_list[mid].keyword, len)))
-		{
+		if (!(chk = strn_cmp(cmd, soc_keys_list[mid].keyword, len))) {
 			while (mid > 0 && !strn_cmp(cmd, soc_keys_list[mid - 1].keyword, len))
 				mid--;
 			return (soc_keys_list[mid].social_message);
@@ -74,8 +70,7 @@ int find_action(char *cmd)
 
 const char *deaf_social = "&K$n попытал$u очень эмоционально выразить свою мысль.&n";
 
-int do_social(CHAR_DATA * ch, char *argument)
-{
+int do_social(CHAR_DATA *ch, char *argument) {
 	int act_nr;
 	char social[MAX_INPUT_LENGTH];
 	struct social_messg *action;
@@ -84,8 +79,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 	if (!argument || !*argument)
 		return (FALSE);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
-	{
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return (FALSE);
 	}
@@ -96,8 +90,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 		return (FALSE);
 
 	action = &soc_mess_list[act_nr];
-	if (GET_POS(ch) < action->ch_min_pos || GET_POS(ch) > action->ch_max_pos)
-	{
+	if (GET_POS(ch) < action->ch_min_pos || GET_POS(ch) > action->ch_max_pos) {
 		send_to_char("Вам крайне неудобно это сделать.\r\n", ch);
 		return (TRUE);
 	}
@@ -107,15 +100,12 @@ int do_social(CHAR_DATA * ch, char *argument)
 	else
 		*buf = '\0';
 
-	if (!*buf)
-	{
+	if (!*buf) {
 		send_to_char(action->char_no_arg, ch);
 		send_to_char("\r\n", ch);
-		for (const auto to : world[ch->in_room]->people)
-		{
+		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
-				|| ignores(to, ch, IGNORE_EMOTE))
-			{
+				|| ignores(to, ch, IGNORE_EMOTE)) {
 				continue;
 			}
 
@@ -124,36 +114,28 @@ int do_social(CHAR_DATA * ch, char *argument)
 		}
 		return (TRUE);
 	}
-	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
-	{
+	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM))) {
 		const auto message = action->not_found
-			? action->not_found
-			: "Поищите кого-нибудь более доступного для этих целей.\r\n";
+							 ? action->not_found
+							 : "Поищите кого-нибудь более доступного для этих целей.\r\n";
 		send_to_char(message, ch);
 		send_to_char("\r\n", ch);
-	}
-	else if (vict == ch)
-	{
+	} else if (vict == ch) {
 		send_to_char(action->char_no_arg, ch);
 		send_to_char("\r\n", ch);
-		for (const auto to : world[ch->in_room]->people)
-		{
+		for (const auto to : world[ch->in_room]->people) {
 			if (to == ch
-				|| ignores(to, ch, IGNORE_EMOTE))
-			{
+				|| ignores(to, ch, IGNORE_EMOTE)) {
 				continue;
 			}
 
 			act(action->others_no_arg, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
 			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}
-	}
-	else
-	{
+	} else {
 		if (GET_POS(vict) < action->vict_min_pos || GET_POS(vict) > action->vict_max_pos)
 			act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-		else
-		{
+		else {
 			act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
 // здесь зарылся баг, связанный с тем, что я не знаю,
 // как без грязных хаков сделать так, чтобы
@@ -171,79 +153,82 @@ int do_social(CHAR_DATA * ch, char *argument)
 	return (TRUE);
 }
 
-void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim;
 
 	one_argument(argument, arg);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
-	{
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return;
 	}
-	if (*arg)
-	{
+	if (*arg) {
 		if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 			send_to_char("&KА он вас и не услышит :(&n\r\n", ch);
-		else
-		{
-			if (victim != ch)
-			{
+		else {
+			if (victim != ch) {
 				sprintf(buf, "&KВы оскорбили %s.&n\r\n", GET_PAD(victim, 3));
 				send_to_char(buf, ch);
 
-				switch (number(0, 2))
-				{
-				case 0:
-					if (IS_MALE(ch))
-					{
-						if (IS_MALE(victim))
-							act("&K$n высмеял$g вашу манеру держать меч !&n",
-								FALSE, ch, 0, victim, TO_VICT);
-						else
-							act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n", FALSE, ch, 0, victim, TO_VICT);
-					}
-					else  	// Ch == Woman
-					{
-						if (IS_MALE(victim))
-							act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n", FALSE, ch, 0, victim, TO_VICT);
-						else
-							act("&K$n обьявил$g всем о вашем близком родстве с Бабой-Ягой.&n", FALSE, ch, 0, victim, TO_VICT);
-					}
-					break;
-				case 1:
-					act("&K$n1 чем-то не удовлетворила ваша мама!&n", FALSE,
-						ch, 0, victim, TO_VICT);
-					break;
-				default:
-					act("&K$n предложил$g вам посетить ближайший хутор!\r\n"
-						"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
-						FALSE, ch, 0, victim, TO_VICT);
-					break;
-				}	// end switch
+				switch (number(0, 2)) {
+					case 0:
+						if (IS_MALE(ch)) {
+							if (IS_MALE(victim))
+								act("&K$n высмеял$g вашу манеру держать меч !&n",
+									FALSE, ch, 0, victim, TO_VICT);
+							else
+								act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n",
+									FALSE,
+									ch,
+									0,
+									victim,
+									TO_VICT);
+						} else    // Ch == Woman
+						{
+							if (IS_MALE(victim))
+								act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n",
+									FALSE,
+									ch,
+									0,
+									victim,
+									TO_VICT);
+							else
+								act("&K$n обьявил$g всем о вашем близком родстве с Бабой-Ягой.&n",
+									FALSE,
+									ch,
+									0,
+									victim,
+									TO_VICT);
+						}
+						break;
+					case 1:
+						act("&K$n1 чем-то не удовлетворила ваша мама!&n", FALSE,
+							ch, 0, victim, TO_VICT);
+						break;
+					default:
+						act("&K$n предложил$g вам посетить ближайший хутор!\r\n"
+							"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
+							FALSE, ch, 0, victim, TO_VICT);
+						break;
+				}    // end switch
 
 				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", TRUE, ch, 0, victim, TO_NOTVICT);
-			}
-			else  	// ch == victim
+			} else    // ch == victim
 			{
 				send_to_char("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
 			}
 		}
-	}
-	else
+	} else
 		send_to_char("&KВы уверены, что стоит оскорблять такими словами всех?&n\r\n", ch);
 }
 
-char *fread_action(FILE * fl, int nr)
-{
+char *fread_action(FILE *fl, int nr) {
 	char buf[MAX_STRING_LENGTH];
 
-	const char* result = fgets(buf, MAX_STRING_LENGTH, fl);
+	const char *result = fgets(buf, MAX_STRING_LENGTH, fl);
 	UNUSED_ARG(result);
 
-	if (feof(fl))
-	{
+	if (feof(fl)) {
 		log("SYSERR: fread_action: unexpected EOF near action #%d", nr);
 		exit(1);
 	}

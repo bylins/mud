@@ -7,55 +7,47 @@
 
 #include <random>
 
-namespace Random
-{
-	class NormalRand
-	{
-	public:
-		NormalRand() :
-            _rng(_rd())
-        { }
+namespace Random {
+class NormalRand {
+ public:
+	NormalRand() :
+		_rng(_rd()) {}
 
-		int number(int from, int to);
-		//Нормальное распределение
-		double NormalDistributionNumber(double mean, double sigma);
-		bool BernoulliTrial(double prob);
+	int number(int from, int to);
+	//Нормальное распределение
+	double NormalDistributionNumber(double mean, double sigma);
+	bool BernoulliTrial(double prob);
 
-	private:
-	    std::random_device _rd;
-		std::mt19937 _rng;
-	};
+ private:
+	std::random_device _rd;
+	std::mt19937 _rng;
+};
 
-	NormalRand rnd;
+NormalRand rnd;
 
-	int NormalRand::number(int from, int to)
-	{
-		std::uniform_int_distribution<> dist(from, to);
-		return dist(_rng);
-	}
+int NormalRand::number(int from, int to) {
+	std::uniform_int_distribution<> dist(from, to);
+	return dist(_rng);
+}
 
-	//функция возвращает случайное число с нормальным распределением
-	//с параметрами mean - матожидание и sigma - дисперсия
-	double NormalRand::NormalDistributionNumber(double mean, double sigma)
-	{
-		std::normal_distribution<double> NormalDistribution(mean, sigma);
-		return NormalDistribution(_rng);
-	}
+//функция возвращает случайное число с нормальным распределением
+//с параметрами mean - матожидание и sigma - дисперсия
+double NormalRand::NormalDistributionNumber(double mean, double sigma) {
+	std::normal_distribution<double> NormalDistribution(mean, sigma);
+	return NormalDistribution(_rng);
+}
 
-	bool NormalRand::BernoulliTrial(double p)
-	{
-		std::binomial_distribution<> dist(p);
-		return dist(_rng);
-	}
+bool NormalRand::BernoulliTrial(double p) {
+	std::binomial_distribution<> dist(p);
+	return dist(_rng);
+}
 } // namespace Random
 
 // править везде вызовы, чтобы занести эти две функции в неймспейс меня чет обломало
 
 // * Генерация рандомного числа в диапазоне от from до to.
-int number(int from, int to)
-{
-	if (from > to)
-	{
+int number(int from, int to) {
+	if (from > to) {
 		int tmp = from;
 		from = to;
 		to = tmp;
@@ -65,21 +57,19 @@ int number(int from, int to)
 }
 
 // * Аналог кидания кубиков.
-int dice(int number, int size)
-{
+int dice(int number, int size) {
 	if (size <= 0 || number <= 0)
 		return 0;
 
-    int sum = 0;
+	int sum = 0;
 
-    while (number--)
+	while (number--)
 		sum += Random::rnd.number(1, size);
 
 	return sum;
 }
 
-bool bernoulli_trial(double p)
-{
+bool bernoulli_trial(double p) {
 	return Random::rnd.BernoulliTrial(p);
 }
 
@@ -91,8 +81,7 @@ bool bernoulli_trial(double p)
   и meam, близком к краю отрезка, в область высоких значений наротив попадет и сам край.
   Защиты от дурака в функции нет, так что пользоваться осторожно.
 */
-int GaussIntNumber(double mean, double sigma, int min_val, int max_val)
-{
+int GaussIntNumber(double mean, double sigma, int min_val, int max_val) {
 	double dresult = 0.0;
 	int iresult = 0;
 

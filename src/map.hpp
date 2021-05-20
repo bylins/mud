@@ -11,16 +11,14 @@
 
 #include "sysdep.h"
 #include "structs.h"
-#include "chars/char.hpp"
+#include "chars/character.h"
 #include "interpreter.h"
 
 void do_map(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-namespace MapSystem
-{
+namespace MapSystem {
 
-enum
-{
+enum {
 	MAP_MODE_MOBS,
 	MAP_MODE_PLAYERS,
 	MAP_MODE_MOBS_CORPSES,
@@ -48,8 +46,7 @@ enum
 void print_map(CHAR_DATA *ch, CHAR_DATA *imm = 0);
 void do_command(CHAR_DATA *ch, const std::string &arg);
 
-struct Options
-{
+struct Options {
 	void olc_menu(CHAR_DATA *ch);
 	void parse_menu(CHAR_DATA *ch, const char *arg);
 	void text_olc(CHAR_DATA *ch, const char *arg);

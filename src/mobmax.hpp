@@ -14,12 +14,11 @@
 
 int get_max_kills(const int level);
 
-class MobMax
-{
-public:
-	using mobmax_stats_t = std::map<int, int>;	///< maps level to count
+class MobMax {
+ public:
+	using mobmax_stats_t = std::map<int, int>;    ///< maps level to count
 
-	void get_stats(mobmax_stats_t& result) const;
+	void get_stats(mobmax_stats_t &result) const;
 
 	static void init();
 	static int get_level_by_vnum(int vnum);
@@ -31,14 +30,12 @@ public:
 	void save(FILE *saved) const;
 	void clear();
 
-private:
+ private:
 	void refresh(int level);
 
-	struct mobmax_data
-	{
+	struct mobmax_data {
 		mobmax_data(int in_vnum, int in_count, int in_level)
-			: vnum(in_vnum), count(in_count), level(in_level)
-		{};
+			: vnum(in_vnum), count(in_count), level(in_level) {};
 		// внум моба
 		int vnum;
 		// кол-во мобов
