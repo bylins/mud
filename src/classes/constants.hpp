@@ -5,7 +5,8 @@
 	Константы классов персонажей
 */
 
-enum {
+enum
+{
 	CLASS_UNDEFINED = -1,
 	CLASS_CLERIC = 0,
 	CLASS_BATTLEMAGE,

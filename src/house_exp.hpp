@@ -11,7 +11,7 @@
 #include <vector>
 #include "conf.h"
 #include "sysdep.h"
-#include "chars/character.h"
+#include "chars/char.hpp"
 
 void update_clan_exp();
 void save_clan_exp();
@@ -19,8 +19,9 @@ void save_clan_exp();
 // период обновления и сохранения экспы (в минутах)
 const int CLAN_EXP_UPDATE_PERIOD = 60;
 
-class ClanExp {
- public:
+class ClanExp
+{
+public:
 	ClanExp() : buffer_exp_(0), total_exp_(0) {};
 	long long get_exp() const;
 	void add_chunk();
@@ -29,7 +30,7 @@ class ClanExp {
 	void save(const std::string &abbrev) const;
 	void update_total_exp();
 	void fulldelete();
- private:
+private:
 	int buffer_exp_;
 	long long total_exp_;
 	typedef std::list<long long> ExpListType;
@@ -37,8 +38,9 @@ class ClanExp {
 };
 
 // * Список последних пк с участием чаров из данного клана.
-class ClanPkLog {
- public:
+class ClanPkLog
+{
+public:
 	ClanPkLog() : need_save(false) {};
 
 	void load(const std::string &abbrev);
@@ -46,7 +48,7 @@ class ClanPkLog {
 	void print(CHAR_DATA *ch) const;
 	static void check(CHAR_DATA *ch, CHAR_DATA *victim);
 
- private:
+private:
 	void add(const std::string &text);
 
 	bool need_save;
@@ -54,8 +56,9 @@ class ClanPkLog {
 };
 
 // * Помесячная история набранной кланом экспы без учета минусов от смертей и прочего.
-class ClanExpHistory {
- public:
+class ClanExpHistory
+{
+public:
 	void add_exp(long exp);
 	void load(const std::string &abbrev);
 	void save(const std::string &abbrev) const;
@@ -64,18 +67,19 @@ class ClanExpHistory {
 	void show(CHAR_DATA *ch) const;
 	void fulldelete();
 
- private:
+private:
 	typedef std::map<std::string /* месяц.год */, long long /* экспа*/> HistoryExpListType;
 	HistoryExpListType list_;
 	long long calc_exp_history() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class ClanChestLog {
+class ClanChestLog
+{
 	std::list<std::string> chest_log_;
 	bool need_save_;
 
- public:
+public:
 	ClanChestLog() : need_save_(false) {};
 
 	void add(const std::string &text);

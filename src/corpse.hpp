@@ -8,10 +8,11 @@
 #include "sysdep.h"
 #include "structs.h"
 
-void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer);
-OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer = NULL);
+void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer);
+OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer = NULL);
 
-namespace GlobalDrop {
+namespace GlobalDrop
+{
 void init();
 void save();
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch);
@@ -31,8 +32,9 @@ const int MAGIC1_ENCHANT_VNUM = 1930;
 const int MAGIC2_ENCHANT_VNUM = 1931;
 const int MAGIC3_ENCHANT_VNUM = 1932;
 
-class table_drop {
- private:
+class table_drop
+{
+private:
 	// внумы мобов
 	std::vector<int> mobs;
 	// шанс выпадения 0 от 1000
@@ -43,7 +45,7 @@ class table_drop {
 	std::vector<int> drop_mobs;
 	// предмет, который будет падать с мобов
 	int vnum_obj;
- public:
+public:
 	table_drop(std::vector<int> mbs, int chance_, int count_mobs_, int vnum_obj_);
 	void reload_table();
 	// возвратит true, если моб найден в таблице и прошел шанс
@@ -51,6 +53,7 @@ class table_drop {
 	int get_vnum();
 
 };
+
 
 } // namespace GlobalDrop
 

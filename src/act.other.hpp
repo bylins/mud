@@ -1,9 +1,9 @@
 #ifndef __ACT_OTHER_HPP__
 #define __ACT_OTHER_HPP__
 
-class CHAR_DATA;    // to avoid inclusion of "char.hpp"
+class CHAR_DATA;	// to avoid inclusion of "char.hpp"
 
-int perform_group(CHAR_DATA *ch, CHAR_DATA *vict);
+int perform_group(CHAR_DATA * ch, CHAR_DATA * vict);
 
 #endif // __ACT_OTHER_HPP__
 

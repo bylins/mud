@@ -3,7 +3,8 @@
 
 #include <memory>
 
-struct ignore_data {
+struct ignore_data
+{
 	using shared_ptr = std::shared_ptr<ignore_data>;
 
 	ignore_data() : id(0), mode(0) {}

@@ -3,7 +3,7 @@
 
 class CHAR_DATA;
 
-void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict);
+void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict);
 void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_BACKSTAB_H

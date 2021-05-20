@@ -20,11 +20,11 @@
 #include "fightsystem/fight.h"
 #include "classes/class.hpp"
 
-void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
+void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 #define FirstPK  1
 #define SecondPK 5
-#define ThirdPK     10
+#define ThirdPK	 10
 #define FourthPK 20
 #define FifthPK  30
 #define KillerPK 25 //уникальных игроков
@@ -47,7 +47,7 @@ void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
 
 #define MAX_PKILL_FOR_PERIOD 3
 
-int pk_count(CHAR_DATA *ch) {
+int pk_count(CHAR_DATA* ch) {
 	struct PK_Memory_type *pk;
 	int i;
 	for (i = 0, pk = ch->pk_list; pk; pk = pk->next) {
@@ -58,11 +58,11 @@ int pk_count(CHAR_DATA *ch) {
 
 bool check_agrobd(CHAR_DATA *ch) {
 	if (ch->agrobd)
-		return true;
+	    return true;
 	return false;
 }
 
-PK_Memory_type *findPKEntry(CHAR_DATA *agressor, CHAR_DATA *victim) {
+PK_Memory_type* findPKEntry(CHAR_DATA* agressor, CHAR_DATA* victim) {
 //	struct PK_Memory_type* pk;
 	for (auto pk = agressor->pk_list; pk; pk = pk->next) {
 		if (pk->unique == GET_UNIQUE(victim)) {
@@ -73,22 +73,23 @@ PK_Memory_type *findPKEntry(CHAR_DATA *agressor, CHAR_DATA *victim) {
 }
 
 //Количество убитых игроков (уникальное мыло) int
-int pk_player_count(CHAR_DATA *ch) {
+int pk_player_count(CHAR_DATA * ch) {
 	struct PK_Memory_type *pk, *pkg;
 	unsigned count = 0;
 	for (pk = ch->pk_list; pk; pk = pk->next) {
 		long i = get_ptable_by_unique(pk->unique);
-		bool flag = true;
+		bool flag=true;
 		for (pkg = pk->next; pkg && flag; pkg = pkg->next) {
 			long j = get_ptable_by_unique(pkg->unique);
-			flag = strcmp(player_table[i].mail, player_table[j].mail) != 0;
+			flag = strcmp(player_table[i].mail, player_table[j].mail)!=0;
 		}
 		if (flag) ++count;
 	}
 	return count;
 }
 
-int pk_calc_spamm(CHAR_DATA *ch) {
+int pk_calc_spamm(CHAR_DATA * ch)
+{
 	struct PK_Memory_type *pk, *pkg;
 	int count = 0;
 	for (pk = ch->pk_list; pk; pk = pk->next) {
@@ -98,8 +99,7 @@ int pk_calc_spamm(CHAR_DATA *ch) {
 			for (pkg = pk->next; pkg && spamPK; pkg = pkg->next) {
 				long j = get_ptable_by_unique(pkg->unique);
 				// Cчитаем убийства со временем больше TIME_PK_GROUP (5 секунд) и чаров с разных мыл
-				spamPK = !(MAX(pk->kill_at, pkg->kill_at) - MIN(pk->kill_at, pkg->kill_at) <= TIME_PK_GROUP
-					|| strcmp(player_table[i].mail, player_table[j].mail) == 0);
+				spamPK = !(MAX(pk->kill_at, pkg->kill_at) - MIN(pk->kill_at, pkg->kill_at) <= TIME_PK_GROUP || strcmp(player_table[i].mail, player_table[j].mail)==0);
 			}
 			if (spamPK) {
 				++count;
@@ -109,7 +109,7 @@ int pk_calc_spamm(CHAR_DATA *ch) {
 	return (count);
 }
 
-void pk_check_spamm(CHAR_DATA *ch) {
+void pk_check_spamm(CHAR_DATA * ch) {
 	if (pk_calc_spamm(ch) > MAX_PKILL_FOR_PERIOD) {
 		SET_GOD_FLAG(ch, GF_GODSCURSE);
 		GCURSE_DURATION(ch) = time(0) + TIME_GODS_CURSE * 60 * 60;
@@ -121,27 +121,34 @@ void pk_check_spamm(CHAR_DATA *ch) {
 }
 
 // функция переводит переменные *pkiller и *pvictim на хозяев, если это чармы
-void pk_translate_pair(CHAR_DATA **pkiller, CHAR_DATA **pvictim) {
-	if (pkiller != NULL && pkiller[0] != NULL && !pkiller[0]->purged()) {
+void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
+{
+	if (pkiller != NULL && pkiller[0] != NULL && !pkiller[0]->purged())
+	{
 		if (IS_NPC(pkiller[0])
 			&& pkiller[0]->has_master()
 			&& AFF_FLAGGED(pkiller[0], EAffectFlag::AFF_CHARM)
-			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->get_master())) {
+			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->get_master()))
+		{
 			pkiller[0] = pkiller[0]->get_master();
 		}
 	}
-	if (pvictim != NULL && pvictim[0] != NULL && !pvictim[0]->purged()) {
+	if (pvictim != NULL && pvictim[0] != NULL && !pvictim[0]->purged())
+	{
 		if (IS_NPC(pvictim[0])
 			&& pvictim[0]->has_master()
 			&& (AFF_FLAGGED(pvictim[0], EAffectFlag::AFF_CHARM)
-				|| IS_HORSE(pvictim[0]))) {
-			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->get_master())) {
+				|| IS_HORSE(pvictim[0])))
+		{
+			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->get_master()))
+			{
 				if (HERE(pvictim[0]->get_master()))
 					pvictim[0] = pvictim[0]->get_master();
 			}
 		}
 
-		if (!HERE(pvictim[0])) {
+		if (!HERE(pvictim[0]))
+		{
 			pvictim[0] = NULL;
 		}
 	}
@@ -149,8 +156,8 @@ void pk_translate_pair(CHAR_DATA **pkiller, CHAR_DATA **pvictim) {
 
 // agressor совершил противоправные действия против victim
 // выдать/обновить клан-флаг
-void pk_update_clanflag(CHAR_DATA *agressor, CHAR_DATA *victim) {
-	struct PK_Memory_type *pk = findPKEntry(agressor, victim);
+void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim) {
+	struct PK_Memory_type* pk = findPKEntry(agressor, victim) ;
 
 	if (!pk && (!IS_GOD(victim))) {
 		CREATE(pk, 1);
@@ -178,8 +185,8 @@ void pk_update_clanflag(CHAR_DATA *agressor, CHAR_DATA *victim) {
 
 // victim убил agressor (оба в кланах)
 // снять клан-флаг у agressor
-void pk_clear_clanflag(CHAR_DATA *agressor, CHAR_DATA *victim) {
-	struct PK_Memory_type *pk = findPKEntry(agressor, victim);
+void pk_clear_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim) {
+	struct PK_Memory_type* pk = findPKEntry(agressor, victim);
 	if (!pk)
 		return;
 
@@ -192,8 +199,9 @@ void pk_clear_clanflag(CHAR_DATA *agressor, CHAR_DATA *victim) {
 }
 
 // Продлевается время поединка и БД
-void pk_update_revenge(CHAR_DATA *agressor, CHAR_DATA *victim, int attime, int renttime) {
-	struct PK_Memory_type *pk = findPKEntry(agressor, victim);
+void pk_update_revenge(CHAR_DATA * agressor, CHAR_DATA * victim, int attime, int renttime)
+{
+	struct PK_Memory_type* pk = findPKEntry(agressor, victim);
 	if (!pk && !attime && !renttime) {
 		return;
 	}
@@ -214,7 +222,7 @@ void pk_update_revenge(CHAR_DATA *agressor, CHAR_DATA *victim, int attime, int r
 // 1. выдать флаг
 // 2. начать поединок
 // 3. если нужно, начать БД
-void pk_increment_kill(CHAR_DATA *agressor, CHAR_DATA *victim, int rent, bool flag_temp) {
+void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool flag_temp) {
 
 	if (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE)) {
 		may_kill_here(agressor, victim, NoArgument);
@@ -224,7 +232,7 @@ void pk_increment_kill(CHAR_DATA *agressor, CHAR_DATA *victim, int rent, bool fl
 	if (CLAN(agressor) && (CLAN(victim) || flag_temp)) {
 		pk_update_clanflag(agressor, victim);
 	} else {
-		struct PK_Memory_type *pk = findPKEntry(agressor, victim);
+		struct PK_Memory_type* pk = findPKEntry(agressor, victim);
 		if (!pk && (!IS_GOD(victim))) {
 			CREATE(pk, 1);
 			pk->unique = GET_UNIQUE(victim);
@@ -258,15 +266,15 @@ void pk_increment_kill(CHAR_DATA *agressor, CHAR_DATA *victim, int rent, bool fl
 		OBJ_DATA *p_item;
 		if (GET_EQ(agressor, i)) {
 			p_item = GET_EQ(agressor, i);
-			if (invalid_no_class(agressor, p_item)) {
-				obj_to_char(unequip_char(agressor, i), agressor);
+			if (invalid_no_class(agressor,p_item)) {
+				obj_to_char(unequip_char(agressor, i),agressor);
 				remove_otrigger(p_item, agressor);
 			}
 		}
 		if (GET_EQ(victim, i)) {
 			p_item = GET_EQ(victim, i);
-			if (invalid_no_class(victim, p_item)) {
-				obj_to_char(unequip_char(victim, i), victim);
+			if (invalid_no_class(victim,p_item)) {
+				obj_to_char(unequip_char(victim, i),victim);
 				remove_otrigger(p_item, victim);
 			}
 		}
@@ -276,14 +284,14 @@ void pk_increment_kill(CHAR_DATA *agressor, CHAR_DATA *victim, int rent, bool fl
 	return;
 }
 
-void pk_decrement_kill(CHAR_DATA *agressor, CHAR_DATA *victim) {
+void pk_decrement_kill(CHAR_DATA * agressor, CHAR_DATA * victim) {
 
 	if (CLAN(agressor) && CLAN(victim)) {
 		pk_clear_clanflag(agressor, victim);
 		return;
 	}
 
-	struct PK_Memory_type *pk = findPKEntry(agressor, victim);
+	struct PK_Memory_type* pk = findPKEntry(agressor, victim) ;
 	if (!pk) {
 		return;
 	}
@@ -309,7 +317,7 @@ void pk_decrement_kill(CHAR_DATA *agressor, CHAR_DATA *victim) {
 }
 
 // очередная попытка реализовать месть со стороны agressor
-int pk_increment_revenge(CHAR_DATA *agressor, CHAR_DATA *victim) {
+int pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim) {
 	struct PK_Memory_type *pk;
 
 	for (pk = victim->pk_list; pk; pk = pk->next) {
@@ -334,11 +342,12 @@ int pk_increment_revenge(CHAR_DATA *agressor, CHAR_DATA *victim) {
 	return pk->revenge_num;
 }
 
-void pk_increment_gkill(CHAR_DATA *agressor, CHAR_DATA *victim) {
-	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP)) {
+void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim) {
+	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP)) 	{
 		pk_increment_kill(agressor, victim, TRUE, false);
 		return;
 	}
+
 
 	CHAR_DATA *leader;
 	struct follow_type *f;
@@ -363,62 +372,67 @@ void pk_increment_gkill(CHAR_DATA *agressor, CHAR_DATA *victim) {
 	}
 }
 
-bool pk_agro_action(CHAR_DATA *agressor, CHAR_DATA *victim) {
+
+
+bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim) {
 	int pkType = 0;
-	pk_translate_pair(&agressor, &victim);
+    pk_translate_pair(&agressor, &victim);
 	if (victim == NULL) {
 		return false;
 	}
-	// если клан-замок - выдворяем за пределы
-	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor)) {
-		if (victim->get_fighting() != nullptr)
-			stop_fighting(victim, FALSE);
-		if (victim->get_fighting() != nullptr)
-			stop_fighting(agressor, FALSE);
-		act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
-		char_from_room(agressor);
-		if (IS_FEMALE(agressor))
-			send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
-		else
-			send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
-		send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
-		char_to_room(agressor, real_room(CLAN(agressor)->out_rent));
-		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
-		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, agressor, 0, 0, TO_ROOM);
-		set_wait(agressor, 1, TRUE);
-		return false;
-	}
+    // если клан-замок - выдворяем за пределы
+    if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor))
+    {
+        if (victim->get_fighting() != nullptr)
+            stop_fighting(victim, FALSE);
+        if (victim->get_fighting() != nullptr)
+            stop_fighting(agressor, FALSE);
+        act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
+        char_from_room(agressor);
+        if (IS_FEMALE(agressor))
+            send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
+        else
+            send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
+        send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
+        char_to_room(agressor, real_room(CLAN(agressor)->out_rent));
+        look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
+        act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, agressor, 0, 0, TO_ROOM);
+        set_wait(agressor, 1, TRUE);
+        return false;
+    }
 
-	pkType = pk_action_type(agressor, victim);
-	log("pk_agro_action: %s vs %s, pkType = %d", GET_NAME(agressor), GET_NAME(victim), pkType);
+    pkType = pk_action_type(agressor, victim);
+    log("pk_agro_action: %s vs %s, pkType = %d", GET_NAME(agressor), GET_NAME(victim), pkType);
 
-	switch (pkType) {
-		case PK_ACTION_NO: break;
+    switch (pkType) {
+	case PK_ACTION_NO:
+		break;
 
-		case PK_ACTION_REVENGE:
-			if (pk_increment_revenge(agressor, victim) >= MAX_REVENGE) {
-				pk_decrement_kill(agressor, victim);
-			}
-			pk_update_revenge(agressor, victim, BATTLE_DURATION, REVENGE_UNRENTABLE);
-			pk_update_revenge(victim, agressor, BATTLE_DURATION, REVENGE_UNRENTABLE);
-			break;
-		case PK_ACTION_FIGHT: pk_update_revenge(agressor, victim, BATTLE_DURATION, REVENGE_UNRENTABLE);
-			pk_update_revenge(victim, agressor, BATTLE_DURATION, REVENGE_UNRENTABLE);
-			break;
+	case PK_ACTION_REVENGE:
+		if (pk_increment_revenge(agressor, victim) >= MAX_REVENGE) {
+			pk_decrement_kill(agressor, victim);
+		}
+        pk_update_revenge(agressor, victim, BATTLE_DURATION, REVENGE_UNRENTABLE);
+        pk_update_revenge(victim, agressor, BATTLE_DURATION, REVENGE_UNRENTABLE);
+		break;
+	case PK_ACTION_FIGHT:
+		pk_update_revenge(agressor, victim, BATTLE_DURATION, REVENGE_UNRENTABLE);
+		pk_update_revenge(victim, agressor, BATTLE_DURATION, REVENGE_UNRENTABLE);
+		break;
 
-		case PK_ACTION_KILL:
-			if (IS_GOD(agressor) || IS_GOD(victim)) {
-				break;
-			}
-			pk_increment_gkill(agressor, victim);
-			break;
+	case PK_ACTION_KILL:
+		if(IS_GOD(agressor) || IS_GOD(victim)){
+		    break;
+		}
+		pk_increment_gkill(agressor, victim);
+		break;
 	}
 
 	return true;
 }
 
 // * Пришлось дублировать функцию для суммона, чтобы спасти душиков, т.е я удалил проверку на душиков
-int pk_action_type_summon(CHAR_DATA *agressor, CHAR_DATA *victim) {
+int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim) {
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
@@ -433,6 +447,7 @@ int pk_action_type_summon(CHAR_DATA *agressor, CHAR_DATA *victim) {
 		return PK_ACTION_NO;
 	}
 
+
 	for (pk = agressor->pk_list; pk; pk = pk->next) {
 		if (pk->unique != GET_UNIQUE(victim))
 			continue;
@@ -445,67 +460,79 @@ int pk_action_type_summon(CHAR_DATA *agressor, CHAR_DATA *victim) {
 			continue;
 		if (pk->battle_exp > time(NULL))
 			return PK_ACTION_FIGHT;
-		if (CLAN(agressor) &&    // атакующий должен быть в клане
-			// CLAN(victim)   && // атакуемый может быть и не в клане
-			// это значит, что его исключили на время
-			// действия клан-флага
-			pk->clan_exp > time(NULL))
-			return PK_ACTION_REVENGE;    // месть по клан-флагу
+		if (CLAN(agressor) &&	// атакующий должен быть в клане
+				// CLAN(victim)   && // атакуемый может быть и не в клане
+				// это значит, что его исключили на время
+				// действия клан-флага
+				pk->clan_exp > time(NULL))
+			return PK_ACTION_REVENGE;	// месть по клан-флагу
 		if (pk->kill_num && !(CLAN(agressor) && CLAN(victim)) && !IS_GOD(agressor))
-			return PK_ACTION_REVENGE;    // обычная месть
+			return PK_ACTION_REVENGE;	// обычная месть
 		if (pk->thief_exp > time(NULL) && (!IS_GOD(agressor)))
-			return PK_ACTION_REVENGE;    // месть вору
+			return PK_ACTION_REVENGE;	// месть вору
 	}
 
 	return PK_ACTION_KILL;
 }
 
-void pk_thiefs_action(CHAR_DATA *thief, CHAR_DATA *victim) {
+void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
+{
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&thief, &victim);
-	if (victim == NULL) {
+	if (victim == NULL)
+	{
 //		mudlog("Противник исчез при ПК куда-то! функция 3", CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
 
-	switch (pk_action_type(thief, victim)) {
-		case PK_ACTION_NO: return;
+	switch (pk_action_type(thief, victim))
+	{
+	case PK_ACTION_NO:
+		return;
 
-		case PK_ACTION_FIGHT:
-		case PK_ACTION_REVENGE:
-		case PK_ACTION_KILL:
-			// продлить/установить флаг воровства
-			for (pk = thief->pk_list; pk; pk = pk->next)
-				if (pk->unique == GET_UNIQUE(victim))
-					break;
-			if (!pk && (!IS_GOD(victim)) && (!IS_GOD(thief))) {
-				CREATE(pk, 1);
-				pk->unique = GET_UNIQUE(victim);
-				pk->next = thief->pk_list;
-				thief->pk_list = pk;
-			} else
+	case PK_ACTION_FIGHT:
+	case PK_ACTION_REVENGE:
+	case PK_ACTION_KILL:
+		// продлить/установить флаг воровства
+		for (pk = thief->pk_list; pk; pk = pk->next)
+			if (pk->unique == GET_UNIQUE(victim))
 				break;
-			if (pk->thief_exp == 0)
-				act("$N получил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
-			else
-				act("$N продлил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
-			pk->thief_exp = time(NULL) + THIEF_UNRENTABLE * 60;
-			RENTABLE(thief) = MAX(RENTABLE(thief), time(NULL) + THIEF_UNRENTABLE * 60);
-			break;
+		if (!pk && (!IS_GOD(victim)) && (!IS_GOD(thief)))
+		{
+			CREATE(pk, 1);
+			pk->unique = GET_UNIQUE(victim);
+			pk->next = thief->pk_list;
+			thief->pk_list = pk;
+		}
+                else
+                   break;
+		if (pk->thief_exp == 0)
+			act("$N получил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
+		else
+			act("$N продлил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
+		pk->thief_exp = time(NULL) + THIEF_UNRENTABLE * 60;
+		RENTABLE(thief) = MAX(RENTABLE(thief), time(NULL) + THIEF_UNRENTABLE * 60);
+		break;
 	}
 	return;
 }
 
-void pk_revenge_action(CHAR_DATA *killer, CHAR_DATA *victim) {
 
-	if (killer) {
+
+void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
+{
+
+	if (killer)
+	{
 		pk_translate_pair(&killer, NULL);
-		if (victim == NULL) {
+		if (victim == NULL)
+		{
 			return;
 		}
 
-		if (!IS_NPC(killer) && !IS_NPC(victim)) {
+		if (!IS_NPC(killer) && !IS_NPC(victim))
+		{
 			// один флаг отработал
 			pk_decrement_kill(victim, killer);
 			// остановить разборку, убийце установить признак БД
@@ -514,8 +541,10 @@ void pk_revenge_action(CHAR_DATA *killer, CHAR_DATA *victim) {
 	}
 
 	// завершить все поединки, в которых участвовал victim
-	for (const auto &killer : character_list) {
-		if (IS_NPC(killer)) {
+	for (const auto& killer : character_list)
+	{
+		if (IS_NPC(killer))
+		{
 			continue;
 		}
 
@@ -524,46 +553,49 @@ void pk_revenge_action(CHAR_DATA *killer, CHAR_DATA *victim) {
 	}
 }
 
-int pk_action_type(CHAR_DATA *agressor, CHAR_DATA *victim) {
+int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
+{
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
 
 	if (!agressor || !victim || agressor == victim
-		|| ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA)
-		|| ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)
-		|| IS_NPC(agressor) || IS_NPC(victim)
-		|| (agressor != victim
-			&& (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))))
+	    || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA)
+	    || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)
+	    ||IS_NPC(agressor) || IS_NPC(victim)
+	    || (agressor != victim && (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))))
 		return PK_ACTION_NO;
 
 	if (PLR_FLAGGED(victim, PLR_KILLER) || (AGRO(victim) && RENTABLE(victim)))
 		return PK_ACTION_FIGHT;
 
-	for (pk = agressor->pk_list; pk; pk = pk->next) {
+	for (pk = agressor->pk_list; pk; pk = pk->next)
+	{
 		if (pk->unique != GET_UNIQUE(victim))
 			continue;
 		if (pk->battle_exp > time(NULL))
 			return PK_ACTION_FIGHT;
 	}
 
-	for (pk = victim->pk_list; pk; pk = pk->next) {
+	for (pk = victim->pk_list; pk; pk = pk->next)
+	{
 		if (pk->unique != GET_UNIQUE(agressor))
 			continue;
 		if (pk->battle_exp > time(NULL))
 			return PK_ACTION_FIGHT;
 		if (CLAN(agressor) && pk->clan_exp > time(NULL))
-			return PK_ACTION_REVENGE;    // месть по клан-флагу
+			return PK_ACTION_REVENGE;	// месть по клан-флагу
 		if (pk->kill_num && !(CLAN(agressor) && CLAN(victim)))
-			return PK_ACTION_REVENGE;    // обычная месть
+			return PK_ACTION_REVENGE;	// обычная месть
 		if (pk->thief_exp > time(NULL))
-			return PK_ACTION_REVENGE;    // месть вору
+			return PK_ACTION_REVENGE;	// месть вору
 	}
 
 	return PK_ACTION_KILL;
 }
 
-const char *CCPK(CHAR_DATA *ch, int lvl, CHAR_DATA *victim) {
+const char *CCPK(CHAR_DATA * ch, int lvl, CHAR_DATA * victim)
+{
 	int i;
 
 	i = pk_count(victim);
@@ -581,57 +613,80 @@ const char *CCPK(CHAR_DATA *ch, int lvl, CHAR_DATA *victim) {
 		return CCNRM(ch, lvl);
 }
 
-void aura(CHAR_DATA *ch, int lvl, CHAR_DATA *victim, char *s) {
+void aura(CHAR_DATA * ch, int lvl, CHAR_DATA * victim, char *s)
+{
 	int i;
 
 	i = pk_count(victim);
-	if (i >= FifthPK) {
+	if (i >= FifthPK)
+	{
 		sprintf(s, "%s(кровавая аура)%s", CCRED(ch, lvl), CCIRED(ch, lvl));
 		return;
-	} else if (i >= FourthPK) {
+	}
+	else if (i >= FourthPK)
+	{
 		sprintf(s, "%s(пурпурная аура)%s", CCIMAG(ch, lvl), CCIRED(ch, lvl));
 		return;
-	} else if (i >= ThirdPK) {
+	}
+	else if (i >= ThirdPK)
+	{
 		sprintf(s, "%s(желтая аура)%s", CCIYEL(ch, lvl), CCIRED(ch, lvl));
 		return;
-	} else if (i >= SecondPK) {
+	}
+	else if (i >= SecondPK)
+	{
 		sprintf(s, "%s(голубая аура)%s", CCICYN(ch, lvl), CCIRED(ch, lvl));
 		return;
-	} else if (i >= FirstPK) {
+	}
+	else if (i >= FirstPK)
+	{
 		sprintf(s, "%s(зеленая аура)%s", CCIGRN(ch, lvl), CCIRED(ch, lvl));
 		return;
-	} else {
+	}
+	else
+	{
 		sprintf(s, "%s(чистая аура)%s", CCINRM(ch, lvl), CCIRED(ch, lvl));
 		return;
 	}
 }
 
 // Печать списка пк
-void pk_list_sprintf(CHAR_DATA *ch, char *buff) {
+void pk_list_sprintf(CHAR_DATA * ch, char *buff)
+{
 	struct PK_Memory_type *pk;
 
 	*buff = '\0';
 	strcat(buff, "ПК список:\r\n");
 	strcat(buff, "              Имя    Kill Rvng Clan Batl Thif\r\n");
-	for (pk = ch->pk_list; pk; pk = pk->next) {
-		const char *temp = get_name_by_unique(pk->unique);
+	for (pk = ch->pk_list; pk; pk = pk->next)
+	{
+		const char* temp = get_name_by_unique(pk->unique);
 		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp ? temp : "<УДАЛЕН>", pk->kill_num, pk->revenge_num);
 
-		if (pk->clan_exp > time(NULL)) {
+		if (pk->clan_exp > time(NULL))
+		{
 			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk->clan_exp - time(NULL)));
-		} else {
+		}
+		else
+		{
 			strcat(buff, "    -");
 		}
 
-		if (pk->battle_exp > time(NULL)) {
+		if (pk->battle_exp > time(NULL))
+		{
 			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk->battle_exp - time(NULL)));
-		} else {
+		}
+		else
+		{
 			strcat(buff, "    -");
 		}
 
-		if (pk->thief_exp > time(NULL)) {
+		if (pk->thief_exp > time(NULL))
+		{
 			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk->thief_exp - time(NULL)));
-		} else {
+		}
+		else
+		{
 			strcat(buff, "    -");
 		}
 
@@ -639,7 +694,8 @@ void pk_list_sprintf(CHAR_DATA *ch, char *buff) {
 	}
 }
 
-void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
 	struct PK_Memory_type *pk;
 	int found = FALSE;
 	char arg2[MAX_INPUT_LENGTH];
@@ -669,15 +725,15 @@ void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			const char *temp = get_name_by_unique(pk->unique);
+			const char* temp = get_name_by_unique(pk->unique);
 			if (!temp) {
 				continue;
 			}
 
-			const_cast<char *>(temp)[0] = UPPER(temp[0]);
+			const_cast<char*>(temp)[0] = UPPER(temp[0]);
 			// если нада исключаем тех, кто находится оффлайн
 			if (bOnlineOnly) {
-				for (const auto &tch : character_list) {
+				for (const auto& tch : character_list) {
 					if (IS_NPC(tch)) {
 						continue;
 					}
@@ -713,7 +769,7 @@ void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	found = FALSE;
 	*buf = '\0';
-	for (const auto &tch : character_list) {
+	for (const auto& tch : character_list) {
 		if (IS_NPC(tch)) {
 			continue;
 		}
@@ -730,11 +786,13 @@ void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// Сначала проверка клан флага
 				if (CLAN(ch) && pk->clan_exp > time(NULL)) {
 					sprintf(buf + strlen(buf), "  %-40s <ВОЙНА>\r\n", GET_NAME(tch));
-				} else if (pk->clan_exp > time(NULL)) {
+				}
+				else if (pk->clan_exp > time(NULL)) {
 					sprintf(buf + strlen(buf), "  %-40s <ВРЕМЕННЫЙ ФЛАГ>\r\n", GET_NAME(tch));
-				} else if (pk->kill_num + pk->revenge_num > 0) {
+				}
+				else if (pk->kill_num + pk->revenge_num > 0) {
 					sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n",
-							GET_NAME(tch), pk->kill_num, pk->revenge_num);
+						GET_NAME(tch), pk->kill_num, pk->revenge_num);
 				} else {
 					continue;
 				}
@@ -753,46 +811,55 @@ void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_forgive(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_forgive(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
 	struct PK_Memory_type *pk;
 	bool bForgive = false;
 
 	if (IS_NPC(ch))
 		return;
 
-	if (RENTABLE(ch)) {
+	if (RENTABLE(ch))
+	{
 		send_to_char("Вам сначала стоит завершить боевые действия.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Кого вы хотите простить?\r\n", ch);
 		return;
 	}
 
 	*buf = '\0';
 
-	CHAR_DATA *found = nullptr;
-	for (const auto &tch : character_list) {
+	CHAR_DATA* found = nullptr;
+	for (const auto& tch : character_list)
+	{
 		if (IS_NPC(tch)
 			|| !CAN_SEE_CHAR(ch, tch)
-			|| !isname(GET_NAME(tch), arg)) {
+			|| !isname(GET_NAME(tch), arg))
+		{
 			continue;
 		}
 
 		// попытка простить самого себя
-		if (ch == tch.get()) {
+		if (ch == tch.get())
+		{
 			bForgive = true;
 
 			break;
 		}
 
 		found = tch.get();
-		for (pk = tch->pk_list; pk; pk = pk->next) {
-			if (pk->unique == GET_UNIQUE(ch)) {
+		for (pk = tch->pk_list; pk; pk = pk->next)
+		{
+			if (pk->unique == GET_UNIQUE(ch))
+			{
 				// может нам нечего прощать?
-				if (pk->kill_num != 0) {
+				if (pk->kill_num != 0)
+				{
 					bForgive = true;
 				}
 				pk->kill_num = 0;
@@ -805,30 +872,40 @@ void do_forgive(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		if (bForgive) {
+		if (bForgive)
+		{
 			pk_update_revenge(ch, tch.get(), 0, 0);
 		}
 
 		break;
 	}
 
-	if (found) {
-		if (bForgive) {
+	if (found)
+	{
+		if (bForgive)
+		{
 			act("Вы великодушно простили $N3.", FALSE, ch, 0, found, TO_CHAR);
 			act("$N великодушно простил$G вас!", FALSE, found, 0, ch, TO_CHAR);
-		} else {
+		}
+		else
+		{
 			act("$N не нуждается в вашем прощении.", FALSE, ch, 0, found, TO_CHAR);
 		}
-	} else {
-		if (bForgive) {
+	}
+	else
+	{
+		if (bForgive)
+		{
 			send_to_char("Для отпущения грехов Боги рекомендуют воспользоваться церковью.\r\n", ch);
-		} else {
+		}
+		else
+		{
 			send_to_char("Похоже, этого игрока нет в игре.\r\n", ch);
 		}
 	}
 }
 
-void pk_free_list(CHAR_DATA *ch) {
+void pk_free_list(CHAR_DATA * ch) {
 	struct PK_Memory_type *pk, *pk_next;
 
 	for (pk = ch->pk_list; pk; pk = pk_next) {
@@ -838,15 +915,15 @@ void pk_free_list(CHAR_DATA *ch) {
 }
 
 // сохранение списка пк-местей в файл персонажа
-void save_pkills(CHAR_DATA *ch, FILE *saved) {
+void save_pkills(CHAR_DATA * ch, FILE * saved) {
 	struct PK_Memory_type *pk, *tpk;
 
 	fprintf(saved, "Pkil:\n");
 	for (pk = ch->pk_list; pk && !PLR_FLAGGED(ch, PLR_DELETED);) {
 		if (pk->kill_num > 0 && correct_unique(pk->unique)) {
 			if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(NULL)) {
-				CHAR_DATA *result = nullptr;
-				for (const auto &tch : character_list) {
+				CHAR_DATA* result = nullptr;
+				for (const auto& tch : character_list) {
 					if (!IS_NPC(tch) && GET_UNIQUE(tch) == pk->unique) {
 						result = tch.get();
 						break;
@@ -874,8 +951,9 @@ void save_pkills(CHAR_DATA *ch, FILE *saved) {
 }
 
 // Проверка может ли ch начать аргессивные действия против victim
-int may_kill_here(CHAR_DATA *ch, CHAR_DATA *victim, char *argument) {
-	if (!victim)
+int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim, char * argument)
+{
+    if (!victim)
 		return TRUE;
 
 	if (MOB_FLAGGED(ch, MOB_NOFIGHT))
@@ -886,58 +964,60 @@ int may_kill_here(CHAR_DATA *ch, CHAR_DATA *victim, char *argument) {
 		return (FALSE);
 	}
 	//запрет на любые агры
-	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))) {
+	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE)))
+	{
 		send_to_char("Высшие силы воспретили здесь сражаться!\r\n", ch);
 		return (FALSE);
 	}
 	// не агрим чарами <=10 на чаров >=20
 	if (!IS_NPC(victim) && !IS_NPC(ch) && GET_LEVEL(ch) <= 10
-		&& GET_LEVEL(victim) >= 20 && !(pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))) {
+			&& GET_LEVEL(victim) >= 20 && !(pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT)))
+	{
 		act("Вы еще слишком слабы, чтобы напасть на $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		return (FALSE);
 	}
-	// уже идёт сражение
+    // уже идёт сражение
 	if ((ch->get_fighting() && ch->get_fighting() == victim)
 		|| (victim->get_fighting() && victim->get_fighting() == ch)) {
 		return TRUE;
 	}
-	// Один из участников в мирной комнате
-	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
+    // Один из участников в мирной комнате
+    if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
 		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			|| ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))) {
-		// но это специальные мобы
-		if (MOB_FLAGGED(victim, MOB_HORDE))
-			return TRUE;
-		if (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !IS_CHARMICE(ch))
-			return TRUE;
-		// моб по триггеру имеет право
-		if (IS_NPC(ch) && ch->get_rnum() == real_mobile(DG_CASTER_PROXY))
-			return TRUE;
-		// богам, мстящим и продолжающим агро-бд можно
-		if (IS_GOD(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
-			return TRUE;
-		send_to_char("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
-		return FALSE;
-	}
+        // но это специальные мобы
+        if (MOB_FLAGGED(victim, MOB_HORDE))
+            return TRUE;
+        if (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !IS_CHARMICE(ch))
+            return TRUE;
+        // моб по триггеру имеет право
+        if (IS_NPC(ch) && ch->get_rnum() == real_mobile(DG_CASTER_PROXY))
+            return TRUE;
+        // богам, мстящим и продолжающим агро-бд можно
+        if (IS_GOD(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
+            return TRUE;
+        send_to_char("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
+        return FALSE;
+    }
 	//Проверка на чармиса(своего или группы)
-	if (argument) {
-		skip_spaces(&argument);
-		if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
-			if (strcmp(GET_NAME(victim), argument) != 0) {
-				send_to_char(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
-				return FALSE;
-			}
-		}
-		return TRUE;
+	if (argument){
+        skip_spaces(&argument);
+        if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
+            if (strcmp(GET_NAME(victim), argument) != 0) {
+                send_to_char(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
+                return FALSE;
+            }
+        }
+        return TRUE;
 	}
 	return TRUE;
 }
 
 // Определяет необходимость вводить
 // имя жертвы полностью для начала агродействий
-bool need_full_alias(CHAR_DATA *ch, CHAR_DATA *opponent) {
+bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent) {
 	// Цель - НПЦ, не являющаяся чармисом игрока
-	if (IS_NPC(opponent) && (!opponent->has_master() || IS_NPC(opponent->get_master()))) {
+	if (IS_NPC(opponent) && (!opponent->has_master() || IS_NPC(opponent->get_master()) )) {
 		return false;
 	}
 	// Уже воюю?
@@ -948,12 +1028,15 @@ bool need_full_alias(CHAR_DATA *ch, CHAR_DATA *opponent) {
 }
 
 //Проверка, является ли строка arg полным именем ch
-int name_cmp(CHAR_DATA *ch, const char *arg) {
-	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
+int name_cmp(CHAR_DATA * ch, const char *arg)
+{
+    char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
 	strcpy(opp_name, GET_NAME(ch));
-	for (opp_name_remain = opp_name; *opp_name_remain;) {
+	for (opp_name_remain = opp_name; *opp_name_remain;)
+	{
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
-		if (!str_cmp(arg, opp_name_part)) {
+		if (!str_cmp(arg, opp_name_part))
+		{
 			return TRUE;
 		}
 	}
@@ -962,7 +1045,8 @@ int name_cmp(CHAR_DATA *ch, const char *arg) {
 
 // Проверка потенциальной возможности агродействий
 // TRUE - агродействие разрешено, FALSE - агродействие запрещено
-int check_pkill(CHAR_DATA *ch, CHAR_DATA *opponent, const char *arg) {
+int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg)
+{
 	if (!need_full_alias(ch, opponent))
 		return TRUE;
 
@@ -973,10 +1057,7 @@ int check_pkill(CHAR_DATA *ch, CHAR_DATA *opponent, const char *arg) {
 	while (*arg && (*arg == '.' || (*arg >= '0' && *arg <= '9')))
 		++arg;
 
-	log("check_pkill, ch: %s, opp: %s, arg: %s",
-		ch ? GET_NAME(ch) : "NULL",
-		opponent ? GET_NAME(opponent) : "NULL",
-		arg ? arg : "NULL");
+    log("check_pkill, ch: %s, opp: %s, arg: %s", ch? GET_NAME(ch): "NULL", opponent? GET_NAME(opponent): "NULL", arg? arg: "NULL");
 
 	if (name_cmp(opponent, arg))
 		return TRUE;
@@ -985,7 +1066,8 @@ int check_pkill(CHAR_DATA *ch, CHAR_DATA *opponent, const char *arg) {
 	send_to_char(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
 	return FALSE;
 }
-int check_pkill(CHAR_DATA *ch, CHAR_DATA *opponent, const std::string &arg) {
+int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg)
+{
 	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
 
 	if (!need_full_alias(ch, opponent))
@@ -1001,7 +1083,8 @@ int check_pkill(CHAR_DATA *ch, CHAR_DATA *opponent, const std::string &arg) {
 	std::string tmp(i, arg.end());
 
 	strcpy(opp_name, GET_NAME(opponent));
-	for (opp_name_remain = opp_name; *opp_name_remain;) {
+	for (opp_name_remain = opp_name; *opp_name_remain;)
+	{
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
 		if (!str_cmp(tmp, opp_name_part))
 			return TRUE;
@@ -1014,7 +1097,7 @@ int check_pkill(CHAR_DATA *ch, CHAR_DATA *opponent, const std::string &arg) {
 
 // Проверяет, есть ли члены любого клан в группе чара и находятся ли они
 // в одной с ним комнате
-bool has_clan_members_in_group(CHAR_DATA *ch) {
+bool has_clan_members_in_group(CHAR_DATA * ch) {
 	CHAR_DATA *leader;
 	struct follow_type *f;
 	leader = ch->has_master() ? ch->get_master() : ch;
@@ -1022,10 +1105,10 @@ bool has_clan_members_in_group(CHAR_DATA *ch) {
 	// проверяем, был ли в группе клановый чар
 	if (CLAN(leader)) {
 		return true;
-	} else {
+	}
+	else {
 		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && IN_ROOM(f->follower) == ch->in_room
-				&& CLAN(f->follower)) {
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && IN_ROOM(f->follower) == ch->in_room && CLAN(f->follower)) {
 				return true;
 			}
 		}
@@ -1033,16 +1116,17 @@ bool has_clan_members_in_group(CHAR_DATA *ch) {
 	return false;
 }
 
+
 //Polud
-void pkPortal(CHAR_DATA *ch) {
+void pkPortal(CHAR_DATA* ch) {
 	AGRO(ch) = MAX(AGRO(ch), time(NULL) + PENTAGRAM_TIME * 60);
 	RENTABLE(ch) = MAX(RENTABLE(ch), time(NULL) + PENTAGRAM_TIME * 60);
 }
 
-BloodyInfoMap &bloody_map = GlobalObjects::bloody_map();
+BloodyInfoMap& bloody_map = GlobalObjects::bloody_map();
 
 //Устанавливает экстрабит кровавому стафу
-void set_bloody_flag(OBJ_DATA *list, const CHAR_DATA *ch) {
+void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch) {
 	if (!list) {
 		return;
 	}
@@ -1081,35 +1165,43 @@ void bloody::update() {
 	}
 }
 
-void bloody::remove_obj(const OBJ_DATA *obj) {
+void bloody::remove_obj(const OBJ_DATA* obj)
+{
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
-	if (it != bloody_map.end()) {
+	if (it != bloody_map.end())
+	{
 		it->second.object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
 		bloody_map.erase(it);
 	}
 }
 
-bool bloody::handle_transfer(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj, OBJ_DATA *container) {
-	CHAR_DATA *initial_ch = ch;
-	CHAR_DATA *initial_victim = victim;
+bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OBJ_DATA* container)
+{
+	CHAR_DATA* initial_ch = ch;
+	CHAR_DATA* initial_victim = victim;
 	if (!obj || (ch && IS_GOD(ch))) return true;
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
 	if (!obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)
-		|| it == bloody_map.end()) {
+		|| it == bloody_map.end())
+	{
 		result = true;
-	} else {
+	}
+	else
+	{
 		//Если отдаем владельцу или берет владелец
 		if (victim
 			&& (GET_UNIQUE(victim) == it->second.owner_unique
 				|| (CLAN(victim)
 					&& (CLAN(victim)->is_clan_member(it->second.owner_unique)
 						|| CLAN(victim)->is_alli_member(it->second.owner_unique)))
-				|| strcmp(player_table[get_ptable_by_unique(it->second.owner_unique)].mail, GET_EMAIL(victim)) == 0)) {
+				|| strcmp(player_table[get_ptable_by_unique(it->second.owner_unique)].mail, GET_EMAIL(victim)) == 0))
+		{
 			remove_obj(obj); //снимаем флаг
 			result = true;
-		} else if (!ch && victim && (!IS_GOD(victim))) //лут не владельцем
+		}
+		else if (!ch && victim && (!IS_GOD(victim))) //лут не владельцем
 		{
 			if (IS_NPC(initial_victim)) //чармисам брать нельзя
 			{
@@ -1118,33 +1210,33 @@ bool bloody::handle_transfer(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj, OB
 			AGRO(victim) = MAX(AGRO(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
 			RENTABLE(victim) = MAX(RENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
 			result = true;
-		} else if (ch
+		}
+		else if (ch
 			&& container
 			&& (container->get_carried_by() == ch
 				|| container->get_worn_by() == ch)) //чар пытается положить в контейнер в инвентаре или экипировке
 		{
 			result = true;
-		} else //нельзя передавать кровавый шмот
+		}
+		else //нельзя передавать кровавый шмот
 		{
-			if (ch) {
-				act("Кровь, покрывающая $o3, намертво въелась вам в руки, не давая избавиться от н$S.",
-					FALSE,
-					ch,
-					obj,
-					0,
-					TO_CHAR);
+			if (ch)
+			{
+				act("Кровь, покрывающая $o3, намертво въелась вам в руки, не давая избавиться от н$S.", FALSE, ch, obj, 0, TO_CHAR);
 			}
 			return false;
 		}
 	}
 	//обработка контейнеров
-	for (OBJ_DATA *nobj = obj->get_contains(); nobj != NULL && result; nobj = nobj->get_next_content()) {
+	for (OBJ_DATA* nobj = obj->get_contains(); nobj != NULL && result; nobj = nobj->get_next_content())
+	{
 		result = handle_transfer(initial_ch, initial_victim, nobj);
 	}
 	return result;
 }
 
-void bloody::handle_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *killer) {
+void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
+{
 	pk_translate_pair(&ch, &killer);
 	//Если игрок убил игрока, который не был в агро бд и убитый не душегуб,
 	// то с него выпадает окровавленный стаф
@@ -1154,7 +1246,8 @@ void bloody::handle_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *killer) {
 		&& !IS_NPC(killer)
 		&& !PLR_FLAGGED(ch, PLR_KILLER)
 		&& !AGRO(ch)
-		&& !IS_GOD(killer)) {
+                && !IS_GOD(killer))
+	{
 		//Проверим, может у killer есть месть на ch
 		struct PK_Memory_type *pk = 0;
 		for (pk = ch->pk_list; pk; pk = pk->next)
@@ -1165,12 +1258,15 @@ void bloody::handle_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *killer) {
 	}
 }
 
-bool bloody::is_bloody(const OBJ_DATA *obj) {
-	if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)) {
+bool bloody::is_bloody(const OBJ_DATA* obj)
+{
+	if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY))
+	{
 		return true;
 	}
 	bool result = false;
-	for (OBJ_DATA *nobj = obj->get_contains(); nobj != NULL && !result; nobj = nobj->get_next_content()) {
+	for (OBJ_DATA* nobj = obj->get_contains(); nobj != NULL && !result; nobj = nobj->get_next_content())
+	{
 		result = is_bloody(nobj);
 	}
 	return result;

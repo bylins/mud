@@ -11,9 +11,11 @@
 ///
 /// Платный сброс/перераспределение характеристик персонажа через главное меню.
 ///
-namespace ResetStats {
+namespace ResetStats
+{
 
-enum Type : int {
+enum Type : int
+{
 	MAIN_STATS,
 	RACE,
 	FEATS,

@@ -9,7 +9,8 @@
 #include "sysdep.h"
 #include "structs.h"
 
-namespace SpamSystem {
+namespace SpamSystem
+{
 
 const int MIN_OFFTOP_LVL = 6;
 enum { OFFTOP_MODE };

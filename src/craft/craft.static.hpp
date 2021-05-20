@@ -5,13 +5,15 @@
 
 #include <memory>
 
-namespace craft {
-class CCraftModel;
-namespace cmd {
-class CommandsHandler;
-}
+namespace craft
+{
+	class CCraftModel;
+	namespace cmd
+	{
+		class CommandsHandler;
+	}
 
-extern CCraftModel model;
+	extern CCraftModel model;
 }
 
 #endif // __CRAFT_STATIC_HPP__

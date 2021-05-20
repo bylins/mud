@@ -6,18 +6,19 @@
 
 #include <array>
 
-int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);
+int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int extra_damroll(int class_num, int level);
 
-class GroupPenalties {
- public:
+class GroupPenalties
+{
+public:
 	using class_penalties_t = std::array<int, MAX_REMORT + 1>;
 	using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
 
 	int init();
-	const auto &operator[](const size_t character_class) const { return m_grouping[character_class]; }
+	const auto& operator[](const size_t character_class) const { return m_grouping[character_class]; }
 
- private:
+private:
 	penalties_t m_grouping;
 };
 

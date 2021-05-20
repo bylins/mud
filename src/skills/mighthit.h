@@ -3,7 +3,7 @@
 
 class CHAR_DATA;
 
-void go_mighthit(CHAR_DATA *ch, CHAR_DATA *victim);
+void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim);
 void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_MIGHTHIT_H

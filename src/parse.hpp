@@ -12,9 +12,11 @@
 
 #include <string>
 
-namespace TextId {
+namespace TextId
+{
 
-enum IdType {
+enum IdType
+{
 	CHAR_CLASS,
 	OBJ_VALS,
 	TEXT_ID_COUNT
@@ -27,7 +29,8 @@ std::string to_str(IdType type, int num);
 
 } // namespace TextId
 
-namespace Parse {
+namespace Parse
+{
 
 bool valid_obj_vnum(int vnum);
 

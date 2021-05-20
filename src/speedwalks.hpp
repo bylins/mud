@@ -4,14 +4,16 @@
 #include <vector>
 #include <string>
 
-struct Route {
+struct Route
+{
 	std::string direction;
 	int wait;
 };
 
-class CHAR_DATA;    // to avoid inclusion of char.hpp
+class CHAR_DATA;	// to avoid inclusion of char.hpp
 
-struct SpeedWalk {
+struct SpeedWalk
+{
 	using mob_vnums_t = std::vector<int>;
 	using routes_t = std::vector<Route>;
 	using mobs_t = std::vector<CHAR_DATA *>;
@@ -26,7 +28,7 @@ struct SpeedWalk {
 
 using speedwalks_t = std::vector<SpeedWalk>;
 
-extern speedwalks_t &speedwalks;
+extern speedwalks_t& speedwalks;
 
 #endif // __SPEEDWALKS_HPP__
 

@@ -3,9 +3,9 @@
 
 class CHAR_DATA;
 
-void do_multyparry(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+void do_multyparry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 void do_parry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void parry_override(CHAR_DATA *ch);
+void parry_override(CHAR_DATA * ch);
 
 #endif //BYLINS_PARRY_H
 

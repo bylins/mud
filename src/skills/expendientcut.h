@@ -7,6 +7,6 @@
 
 class CHAR_DATA;
 
-void go_cut_shorts(CHAR_DATA *ch, CHAR_DATA *vict);
+void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict);
 
 #endif //BYLINS_EXPENDIENTCUT_H

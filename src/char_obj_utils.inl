@@ -2,16 +2,18 @@
 #define __CHAR_OBJ_UTILS_HPP__
 
 #include "structs.h"
-#include "chars/character.h"
+#include "chars/char.hpp"
 #include "obj.hpp"
 #include "utils.h"
 
-inline bool INVIS_OK_OBJ(const CHAR_DATA *sub, const OBJ_DATA *obj) {
+inline bool INVIS_OK_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
+{
 	return !obj->get_extra_flag(EExtraFlag::ITEM_INVISIBLE)
 		|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS);
 }
 
-inline bool MORT_CAN_SEE_OBJ(const CHAR_DATA *sub, const OBJ_DATA *obj) {
+inline bool MORT_CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
+{
 	return INVIS_OK_OBJ(sub, obj)
 		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
 		&& (IS_LIGHT(obj->get_in_room())
@@ -21,7 +23,8 @@ inline bool MORT_CAN_SEE_OBJ(const CHAR_DATA *sub, const OBJ_DATA *obj) {
 			|| can_use_feat(sub, DARK_READING_FEAT));
 }
 
-inline bool CAN_SEE_OBJ(const CHAR_DATA *sub, const OBJ_DATA *obj) {
+inline bool CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
+{
 	return (obj->get_worn_by() == sub
 		|| obj->get_carried_by() == sub
 		|| (obj->get_in_obj()
@@ -32,19 +35,22 @@ inline bool CAN_SEE_OBJ(const CHAR_DATA *sub, const OBJ_DATA *obj) {
 			&& PRF_FLAGGED((sub), PRF_HOLYLIGHT)));
 }
 
-inline const char *OBJN(const OBJ_DATA *obj, const CHAR_DATA *vict, const size_t pad) {
+inline const char* OBJN(const OBJ_DATA* obj, const CHAR_DATA* vict, const size_t pad)
+{
 	return CAN_SEE_OBJ(vict, obj)
-		   ? (!obj->get_PName(pad).empty()
-			  ? obj->get_PName(pad).c_str()
-			  : obj->get_short_description().c_str())
-		   : GET_PAD_OBJ(pad);
+		? (!obj->get_PName(pad).empty()
+			? obj->get_PName(pad).c_str()
+			: obj->get_short_description().c_str())
+		: GET_PAD_OBJ(pad);
 }
 
-inline const char *OBJS(const OBJ_DATA *obj, const CHAR_DATA *vict) {
+inline const char* OBJS(const OBJ_DATA* obj, const CHAR_DATA* vict)
+{
 	return CAN_SEE_OBJ(vict, obj) ? obj->get_short_description().c_str() : "что-то";
 }
 
-inline bool CAN_GET_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj) {
+inline bool CAN_GET_OBJ(const CHAR_DATA* ch, const OBJ_DATA* obj)
+{
 	return (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE)
 		&& CAN_CARRY_OBJ(ch, obj)
 		&& CAN_SEE_OBJ(ch, obj))

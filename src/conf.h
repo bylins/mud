@@ -52,7 +52,7 @@
 #define ssize_t int
 #define socklen_t int
 #if (_MSC_VER < 1900)
-#define snprintf _snprintf
+	#define snprintf _snprintf
 #endif
 
 void gettimeofday(struct timeval *t, void *dummy);

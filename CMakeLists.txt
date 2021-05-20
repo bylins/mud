@@ -13,9 +13,9 @@ set(SOURCES
 		src/influxdb.cpp
 		src/heartbeat.cpp
 		src/heartbeat.commands.cpp
-		src/abilities/abilities_rollsystem.cpp
+		src/ability.rollsystem.cpp
 		src/chars/accounts.cpp
-		src/action_targeting.cpp
+		src/action.targeting.cpp
 		src/act.comm.cpp
 		src/act.informative.cpp
 		src/act.item.cpp
@@ -23,12 +23,12 @@ set(SOURCES
 		src/act.other.cpp
 		src/act.social.cpp
 		src/act.wizard.cpp
-		src/affects/affects_handler.cpp
+		src/AffectHandler.cpp
 		src/alias.cpp
 		src/auction.cpp
 		src/backtrace.cpp
-		src/cmd.wiz/ban.cpp
-		src/birthplaces.cpp
+		src/ban.cpp
+		src/birth_places.cpp
 		src/boards/boards.changelog.loaders.cpp
 		src/boards/boards.constants.cpp
 		src/boards/boards.cpp
@@ -41,7 +41,7 @@ set(SOURCES
 		src/boot.index.cpp
 		src/cache.cpp
 		src/celebrates.cpp
-        src/chars/character.cpp
+		src/chars/char.cpp
 		src/chars/char_player.cpp
 		src/classes/class.cpp
 		src/classes/spell.slots.cpp
@@ -143,7 +143,7 @@ set(SOURCES
 		src/shop_ext.cpp
 		src/shutdown.parameters.cpp
 		src/skills.cpp
-		src/skills_info.cpp
+		src/skills.info.cpp
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
@@ -207,7 +207,7 @@ set(SOURCES
 		src/cmd/retreat.cpp
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
-		src/affects/affect_data.cpp
+        src/core/affect_data.cpp
 		src/skills/track.cpp
 		src/cmd/flee.cpp
 		src/cmd/hire.cpp
@@ -237,7 +237,7 @@ set(HEADERS
 		src/cmd/mixture.h
 		src/cmd/cast.h
 		src/cmd/employ.h
-		src/affects/affect_data.h
+		src/core/affect_data.h
 		src/skills/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
@@ -260,19 +260,19 @@ set(HEADERS
 		src/skills/warcry.h
 		src/skills/identify.h
 		src/skills/relocate.h
-        src/act.movement.h
+		src/act.movement.hpp
 		src/strengthening.hpp
-		src/abilities/abilities_constants.h
-		src/abilities/abilities_rollsystem.h
+		src/ability.constants.hpp
+		src/ability.rollsystem.hpp
 		src/chars/mount.h
-        src/chars/accounts.h
-		src/action_targeting.h
+		src/chars/accounts.hpp
+		src/action.targeting.hpp
 		src/blocking.queue.hpp
 		src/influxdb.hpp
 		src/heartbeat.commands.hpp
 		src/weather.hpp
 		src/limits.hpp
-		src/act.wizard.h
+		src/act.wizard.hpp
 		src/heartbeat.hpp
 		src/speedwalks.hpp
 		src/chars/world.characters.hpp
@@ -285,12 +285,12 @@ set(HEADERS
 		src/object.prototypes.hpp
 		src/world.objects.hpp
 		src/utils.string.hpp
-		src/act.other.h
-		src/affects/affects_handler.h
+		src/act.other.hpp
+		src/AffectHandler.hpp
 		src/auction.h
-		src/backtrace.h
-		src/cmd.wiz/ban.h
-		src/birthplaces.h
+		src/backtrace.hpp
+		src/ban.hpp
+		src/birth_places.hpp
 		src/boards/boards.changelog.loaders.hpp
 		src/boards/boards.constants.hpp
 		src/boards/boards.formatters.hpp
@@ -305,7 +305,7 @@ set(HEADERS
 		src/boot.index.hpp
 		src/cache.hpp
 		src/celebrates.hpp
-		src/chars/character.h
+		src/chars/char.hpp
 		src/char_obj_utils.inl
 		src/chars/char_player.hpp
 		src/classes/class.hpp
@@ -400,7 +400,7 @@ set(HEADERS
 		src/shop_ext.hpp
 		src/shutdown.parameters.hpp
 		src/skills.h
-		src/skills_info.h
+		src/skills.info.h
 		src/spam.hpp
 		src/spells.h
 		src/spells.info.h

@@ -6,10 +6,10 @@
 #include <unordered_map>
 
 // arbitrary constants used by index_boot() (must be unique)
-#define MAX_PROTO_NUMBER 9999999    //Максимально возможный номер комнаты, предмета и т.д.
+#define MAX_PROTO_NUMBER 9999999	//Максимально возможный номер комнаты, предмета и т.д.
 
-#define MIN_ZONE_LEVEL    1
-#define MAX_ZONE_LEVEL    50
+#define MIN_ZONE_LEVEL	1
+#define MAX_ZONE_LEVEL	50
 
 #define DL_LOAD_ANYWAY     0
 #define DL_LOAD_IFLAST     1
@@ -18,7 +18,8 @@
 
 #define DUPLICATE_MINI_SET_VNUM 1000000
 
-enum SetStuffMode {
+enum SetStuffMode
+{
 	SETSTUFF_SNUM,
 	SETSTUFF_NAME,
 	SETSTUFF_ALIS,
@@ -63,8 +64,8 @@ enum SetStuffMode {
 #define LIB_TEXT_HELP "text/help/"
 #define LIB_MISC      "misc/"
 #define LIB_ACCOUNTS  "plrs/accounts/"
-#define LIB_MISC_MOBRACES    "misc/mobraces/"
-#define LIB_MISC_CRAFT        "misc/craft/"
+#define LIB_MISC_MOBRACES	"misc/mobraces/"
+#define LIB_MISC_CRAFT		"misc/craft/"
 #define LIB_STAT      "stat/"
 #define LIB_ETC       "etc/"
 #define ETC_BOARD     "etc/board/"
@@ -81,10 +82,10 @@ enum SetStuffMode {
 #error "Unknown path components."
 #endif
 
-#define TEXT_SUF_OBJS    "textobjs"
-#define TIME_SUF_OBJS    "timeobjs"
-#define SUF_ALIAS    "alias"
-#define SUF_MEM        "mem"
+#define TEXT_SUF_OBJS	"textobjs"
+#define TIME_SUF_OBJS	"timeobjs"
+#define SUF_ALIAS	"alias"
+#define SUF_MEM		"mem"
 #define SUF_PLAYER  "player"
 #define SUF_PERS_DEPOT "pers"
 #define SUF_SHARE_DEPOT "share"
@@ -99,62 +100,63 @@ enum SetStuffMode {
 #define KILLSCRIPT_FILE	"::.killscript"	// autorun: shut mud down
 #define PAUSE_FILE	"::pause"	// autorun: don't restart mud
 #else
-#define FASTBOOT_FILE   "../.fastboot"    // autorun: boot without sleep
-#define KILLSCRIPT_FILE "../.killscript"    // autorun: shut mud down
-#define PAUSE_FILE      "../pause"    // autorun: don't restart mud
+#define FASTBOOT_FILE   "../.fastboot"	// autorun: boot without sleep
+#define KILLSCRIPT_FILE "../.killscript"	// autorun: shut mud down
+#define PAUSE_FILE      "../pause"	// autorun: don't restart mud
 #endif
 
 // names of various files and directories
-#define INDEX_FILE    "index"    // index of world files
-#define MINDEX_FILE    "index.mini"    // ... and for mini-mud-mode
-#define WLD_PREFIX    LIB_WORLD "wld" SLASH    // room definitions
-#define MOB_PREFIX    LIB_WORLD "mob" SLASH    // monster prototypes
-#define OBJ_PREFIX    LIB_WORLD "obj" SLASH    // object prototypes
-#define ZON_PREFIX    LIB_WORLD "zon" SLASH    // zon defs & command tables
-#define TRG_PREFIX    LIB_WORLD "trg" SLASH    // shop definitions
-#define HLP_PREFIX    LIB_TEXT "help" SLASH    // for HELP <keyword>
-#define SOC_PREFIX    LIB_MISC
+#define INDEX_FILE	"index"	// index of world files
+#define MINDEX_FILE	"index.mini"	// ... and for mini-mud-mode
+#define WLD_PREFIX	LIB_WORLD "wld" SLASH	// room definitions
+#define MOB_PREFIX	LIB_WORLD "mob" SLASH	// monster prototypes
+#define OBJ_PREFIX	LIB_WORLD "obj" SLASH	// object prototypes
+#define ZON_PREFIX	LIB_WORLD "zon" SLASH	// zon defs & command tables
+#define TRG_PREFIX	LIB_WORLD "trg" SLASH	// shop definitions
+#define HLP_PREFIX	LIB_TEXT "help" SLASH	// for HELP <keyword>
+#define SOC_PREFIX	LIB_MISC
 #define PLAYER_F_PREFIX LIB_PLRS "" LIB_F
 #define PLAYER_K_PREFIX LIB_PLRS "" LIB_K
 #define PLAYER_P_PREFIX LIB_PLRS "" LIB_P
 #define PLAYER_U_PREFIX LIB_PLRS "" LIB_U
 #define PLAYER_Z_PREFIX LIB_PLRS "" LIB_Z
 
-#define CREDITS_FILE    LIB_TEXT "credits"    // for the 'credits' command
-#define MOTD_FILE       LIB_TEXT "motd"    // messages of the day / mortal
-#define RULES_FILE      LIB_TEXT "rules"    // rules for immort
-#define GREETINGS_FILE    LIB_TEXT "greetings"    // The opening screen.
-#define HELP_PAGE_FILE    LIB_TEXT_HELP "screen"    // for HELP <CR>
-#define INFO_FILE       LIB_TEXT "info"    // for INFO
-#define IMMLIST_FILE    LIB_TEXT "immlist"    // for IMMLIST
-#define BACKGROUND_FILE    LIB_TEXT "background"    // for the background story
-#define POLICIES_FILE    LIB_TEXT "policies"    // player policies/rules
-#define HANDBOOK_FILE    LIB_TEXT "handbook"    // handbook for new immorts
+#define CREDITS_FILE	LIB_TEXT "credits"	// for the 'credits' command
+#define MOTD_FILE       LIB_TEXT "motd"	// messages of the day / mortal
+#define RULES_FILE      LIB_TEXT "rules"	// rules for immort
+#define GREETINGS_FILE	LIB_TEXT "greetings"	// The opening screen.
+#define HELP_PAGE_FILE	LIB_TEXT_HELP "screen"	// for HELP <CR>
+#define INFO_FILE       LIB_TEXT "info"	// for INFO
+#define IMMLIST_FILE	LIB_TEXT "immlist"	// for IMMLIST
+#define BACKGROUND_FILE	LIB_TEXT "background"	// for the background story
+#define POLICIES_FILE	LIB_TEXT "policies"	// player policies/rules
+#define HANDBOOK_FILE	LIB_TEXT "handbook"	// handbook for new immorts
 #define NAME_RULES_FILE LIB_TEXT "namerules" // rules of character's names
 
-#define PROXY_FILE        LIB_MISC "proxy"    // register proxy list
-#define IDEA_FILE        LIB_MISC "ideas"    // for the 'idea'-command
-#define TYPO_FILE        LIB_MISC "typos"    //         'typo'
-#define BUG_FILE        LIB_MISC "bugs"    //         'bug'
-#define MESS_FILE       LIB_MISC "messages"    // damage messages
-#define SOCMESS_FILE    LIB_MISC "socials"    // messgs for social acts
-#define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings
+#define PROXY_FILE	    LIB_MISC "proxy"	// register proxy list
+#define IDEA_FILE	    LIB_MISC "ideas"	// for the 'idea'-command
+#define TYPO_FILE	    LIB_MISC "typos"	//         'typo'
+#define BUG_FILE	    LIB_MISC "bugs"	//         'bug'
+#define MESS_FILE       LIB_MISC "messages"	// damage messages
+#define SOCMESS_FILE    LIB_MISC "socials"	// messgs for social acts
+#define XNAME_FILE      LIB_MISC "xnames"	// invalid name substrings
 #define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена
 #define DNAME_FILE      LIB_MISC "dis_name" // запрещенные имена
 #define NNAME_FILE      LIB_MISC "new_name" // ждущие одобрения
 
-#define MAIL_FILE        LIB_ETC "plrmail"    // for the mudmail system
-#define BAN_FILE        LIB_ETC "badsites"    // for the siteban system
-#define PROXY_BAN_FILE    LIB_ETC "badproxy"    // for the siteban system
+#define MAIL_FILE	    LIB_ETC "plrmail"	// for the mudmail system
+#define BAN_FILE	    LIB_ETC "badsites"	// for the siteban system
+#define PROXY_BAN_FILE	LIB_ETC "badproxy"	// for the siteban system
 
-#define WHOLIST_FILE    LIB_STAT "wholist.html"    // for the stat system
+#define WHOLIST_FILE    LIB_STAT "wholist.html"	// for the stat system
 
 //Dead load (dl_load) options
 #define DL_ORDINARY    0
 #define DL_PROGRESSION 1
 #define DL_SKIN        2
 
-enum EBootType : int {
+enum EBootType: int
+{
 	DB_BOOT_WLD = 0,
 	DB_BOOT_MOB = 1,
 	DB_BOOT_OBJ = 2,
@@ -164,12 +166,13 @@ enum EBootType : int {
 	DB_BOOT_SOCIAL = 6
 };
 
-class FilesPrefixes : private std::unordered_map<int, std::string> {
- public:
+class FilesPrefixes : private std::unordered_map<int, std::string>
+{
+public:
 	FilesPrefixes();
-	const std::string &operator()(const EBootType mode) const;
+	const std::string& operator()(const EBootType mode) const;
 
- private:
+private:
 	static std::string s_empty_prefix;
 };
 

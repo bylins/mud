@@ -6,33 +6,36 @@
 #include <string>
 #include <vector>
 
-class RadixTrie {
- public:
+class RadixTrie
+{
+public:
 	using shared_ptr = std::shared_ptr<RadixTrie>;
 
-	class DFS_Iterator {
-	 public:
-		DFS_Iterator(const RadixTrie::shared_ptr &trie) : m_trie(trie) {}
+	class DFS_Iterator
+	{
+	public:
+		DFS_Iterator(const RadixTrie::shared_ptr& trie) : m_trie(trie) {}
 
-	 private:
+	private:
 		RadixTrie::shared_ptr m_trie;
 	};
 
-	bool add_string(const std::string &string);
-	bool has_string(const std::string &string) const;
+	bool add_string(const std::string& string);
+	bool has_string(const std::string& string) const;
 
- private:
-	class Node {
-	 public:
+private:
+	class Node
+	{
+	public:
 		using shared_ptr = std::shared_ptr<Node>;
 		using children_t = std::vector<Node::shared_ptr>;
 
-		Node(const std::string &string) : m_piece(string), m_children(1 << (sizeof(char) * 8)), m_is_terminal(true) {}
+		Node(const std::string& string) : m_piece(string), m_children(1 << (sizeof(char)*8)), m_is_terminal(true) {}
 
-		void add_suffix(const std::string &string, size_t from);
-		bool has_suffix(const std::string &string, size_t from) const;
+		void add_suffix(const std::string& string, size_t from);
+		bool has_suffix(const std::string& string, size_t from) const;
 
-	 private:
+	private:
 		std::string m_piece;
 		children_t m_children;
 		bool m_is_terminal;

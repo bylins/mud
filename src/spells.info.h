@@ -7,10 +7,10 @@
 extern const char *unused_spellname;
 
 struct spellInfo_t {
-	byte min_position;    // Position for caster   //
-	int mana_min;        // Min amount of mana used by a spell (highest lev) //
-	int mana_max;        // Max amount of mana used by a spell (lowest lev) //
-	int mana_change;    // Change in mana used by spell from lev to lev //
+	byte min_position;	// Position for caster   //
+	int mana_min;		// Min amount of mana used by a spell (highest lev) //
+	int mana_max;		// Max amount of mana used by a spell (lowest lev) //
+	int mana_change;	// Change in mana used by spell from lev to lev //
 	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
 	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
 	int slot_forc[NUM_PLAYER_CLASSES][NUM_KIN];
@@ -18,19 +18,21 @@ struct spellInfo_t {
 	long danger;
 	long routines;
 	byte violent;
-	int targets;        // See below for use with TAR_XXX  //
+	int targets;		// See below for use with TAR_XXX  //
 	byte spell_class;
 	const char *name;
 	const char *syn;
 };
 
-struct spell_create_item {
+struct spell_create_item
+{
 	std::array<int, 3> items;
 	int rnumber;
 	int min_caster_level;
 };
 
-struct spell_create_type {
+struct spell_create_type
+{
 	struct spell_create_item wand;
 	struct spell_create_item scroll;
 	struct spell_create_item potion;

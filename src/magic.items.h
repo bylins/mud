@@ -4,6 +4,6 @@
 class CHAR_DATA;
 class OBJ_DATA;
 
-void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument);
+void employMagicItem(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument);
 
 #endif //BYLINS_CREATE_H

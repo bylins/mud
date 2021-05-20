@@ -10,9 +10,10 @@
 #include <bitset>
 #include <map>
 
-class CHAR_DATA;    // to avoid inclusion of "char.hpp"
+class CHAR_DATA;	// to avoid inclusion of "char.hpp"
 
-namespace Privilege {
+namespace Privilege
+{
 
 void load();
 bool god_list_check(const std::string &name, long unique);

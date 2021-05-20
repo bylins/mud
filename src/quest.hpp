@@ -1,8 +1,9 @@
 // by bodrich (2014)
 // http://mud.ru
 
-class Quest {
- public:
+class Quest
+{
+    public:
 	Quest(int id, int time_start, int time_end, std::string text_quest, std::string tquest, int var_quest);
 	//~Quest();
 	int get_id();
@@ -14,7 +15,7 @@ class Quest {
 	int get_var_quest();
 	int pquest();
 	void set_pvar(int pvar);
- private:
+    private:
 	// id квеста
 	int id;
 	// время, когда был взят квест

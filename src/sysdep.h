@@ -101,7 +101,7 @@ extern void free();
 
 extern void abort(), exit();
 
-#endif                // Standard headers.
+#endif				// Standard headers.
 
 // POSIX compliance  *************************************************
 
@@ -132,7 +132,7 @@ extern void abort(), exit();
      (defined (sequent) && defined (i386)))
 #undef POSIX
 #endif
-#endif                // HAVE_UNISTD_H
+#endif				// HAVE_UNISTD_H
 
 #if !defined (POSIX) && defined (_AIX) && defined (_POSIX_SOURCE)
 #define POSIX
@@ -239,7 +239,7 @@ struct in_addr
 #ifdef HAVE_SYS_UIO_H
 # include <sys/uio.h>
 #endif
-#endif                // __COMM_C__ && CIRCLE_UNIX
+#endif				// __COMM_C__ && CIRCLE_UNIX
 // Basic system dependencies ******************************************
 #if !defined(__GNUC__)
 #define __attribute__(x)	// nothing //
@@ -248,7 +248,7 @@ struct in_addr
 # define isascii(c)	(a_isascii(c))	// So easy to have, but ... //
 #endif
 // Socket/header miscellany. //
-#if defined(CIRCLE_WINDOWS)    // Definitions for Win32 //
+#if defined(CIRCLE_WINDOWS)	// Definitions for Win32 //
 # if !defined(__BORLANDC__) && !defined(LCC_WIN32)	// MSVC //
 #  define chdir _chdir
 # endif
@@ -279,12 +279,12 @@ struct in_addr
 # define CLOSE_SOCKET(sock)	closesocket(sock)
 typedef SOCKET socket_t;
 #else
-# define CLOSE_SOCKET(sock)    close(sock)
+# define CLOSE_SOCKET(sock)	close(sock)
 typedef int socket_t;
 #endif
 
-#if defined(__cplusplus)    // C++
-#define cpp_extern    extern
+#if defined(__cplusplus)	// C++
+#define cpp_extern	extern
 #else				// C
 #define cpp_extern		// Nothing
 #endif
@@ -556,9 +556,10 @@ int socket(int domain, int type, int protocol);
 ssize_t write(int fildes, const void *buf, size_t nbyte);
 #endif
 
-#endif                // __COMM_C__
+#endif				// __COMM_C__
 
-#endif                // NO_LIBRARY_PROTOTYPES
+
+#endif				// NO_LIBRARY_PROTOTYPES
 
 /* Definition of UNUSED_ARG was taken from ACE library as is and was renamed. */
 #if !defined (UNUSED_ARG)

@@ -15,13 +15,14 @@
 * Вобщем вынес всю работу с паролями в один файл + прикрутил md5, хотя толку с него сейчас тоже уже не особо много.
 * Зато если вдруг надумается подключить какую-нить либу с ядреным алгоритмом - все уже под это дело готово.
 */
-namespace Password {
+namespace Password
+{
 
 void set_password(CHAR_DATA *ch, const std::string &pwd);
 void set_password_to_email(CHAR_DATA *ch, const std::string &pwd);
 void send_password(std::string email, std::string password);
 void send_password(std::string email, std::string password, std::string name);
-void set_all_password_to_email(const char *email, const std::string &pwd, const std::string &name);
+void set_all_password_to_email(const char* email, const std::string &pwd, const std::string &name);
 bool compare_password(CHAR_DATA *ch, const std::string &pwd);
 bool compare_password(std::string const &hash, std::string const &pass);
 bool check_password(const CHAR_DATA *ch, const char *pwd);

@@ -9,7 +9,8 @@
 #include "sysdep.h"
 #include "structs.h"
 
-namespace FileCRC {
+namespace FileCRC
+{
 
 // UPDATE_х идут после обычных флагов
 enum { PLAYER, TEXTOBJS, TIMEOBJS, UPDATE_PLAYER, UPDATE_TEXTOBJS, UPDATE_TIMEOBJS };

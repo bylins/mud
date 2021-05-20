@@ -14,21 +14,22 @@
 #include "conf.h"
 
 // these factors should be unique integers
-#define RENT_FACTOR    1
-#define CRYO_FACTOR    4
+#define RENT_FACTOR 	1
+#define CRYO_FACTOR 	4
 
 OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error);
-void write_one_object(std::stringstream &out, OBJ_DATA *object, int location);
-int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int display, int factor, int *totalcost);
-void Crash_rentsave(CHAR_DATA *ch, int cost);
-void Crash_crashsave(CHAR_DATA *ch);
+void write_one_object(std::stringstream &out, OBJ_DATA * object, int location);
+int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int factor, int *totalcost);
+void Crash_rentsave(CHAR_DATA * ch, int cost);
+void Crash_crashsave(CHAR_DATA * ch);
 int Crash_write_timer(const std::size_t index);
 void Crash_rent_time(int dectime);
 void Crash_save_all(void);
 void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
 
-namespace ObjSaveSync {
+namespace ObjSaveSync
+{
 
 enum { CHAR_SAVE, CLAN_SAVE, PERS_CHEST_SAVE, PARCEL_SAVE };
 

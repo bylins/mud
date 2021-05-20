@@ -9,7 +9,9 @@
 #include "sysdep.h"
 #include "structs.h"
 
-namespace Parcel {
+namespace Parcel
+{
+
 
 int delete_obj(int vnum);
 void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg);
@@ -24,7 +26,7 @@ void save();
 void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman);
 
 int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num);
-OBJ_DATA *locate_object(const char *str);
+OBJ_DATA * locate_object(const char *str);
 
 void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto);
 
