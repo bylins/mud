@@ -7,18 +7,19 @@
 class CHAR_DATA;
 
 // Система одобрения имён
-namespace NewNames {
-enum {
-	AUTO_ALLOW = 0,
-	AUTO_BAN = 1,
-	NO_DECISION = 2
-};
-void add(CHAR_DATA *ch);
-void remove(CHAR_DATA *ch);
-void remove(const std::string &name, CHAR_DATA *actor);
-void load();
-bool show(CHAR_DATA *actor);
-int auto_authorize(DESCRIPTOR_DATA *d);
+namespace NewNames
+{
+	enum {
+			AUTO_ALLOW = 0,
+			AUTO_BAN = 1,
+			NO_DECISION = 2
+	};
+	void add(CHAR_DATA * ch);
+	void remove(CHAR_DATA * ch);
+	void remove(const std::string& name, CHAR_DATA * actor);
+	void load();
+	bool show(CHAR_DATA * actor);
+	int auto_authorize(DESCRIPTOR_DATA * d);
 } // namespace NewNames
 
 void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

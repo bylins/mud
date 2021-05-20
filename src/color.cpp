@@ -50,111 +50,148 @@
 #define CAMP  "&"
 #define CSLH  "\\"
 
-#define CUDL  "\x1B[4m"        // Underline ANSI code
-#define CFSH  "\x1B[5m"        /* Flashing ANSI code.  Change to #define CFSH "" if
+#define CUDL  "\x1B[4m"		// Underline ANSI code
+#define CFSH  "\x1B[5m"		/* Flashing ANSI code.  Change to #define CFSH "" if
 * you want to disable flashing colour codes
 */
-#define CRVS  "\x1B[7m"        // Reverse video ANSI code
+#define CRVS  "\x1B[7m"		// Reverse video ANSI code
 
-const char *COLOURLIST[] = {CNRM, CRED, CGRN, CYEL, CBLU, CMAG, CCYN, CWHT,
-							BRED, BGRN, BYEL, BBLU, BMAG, BCYN, BWHT,
-							BKRED, BKGRN, BKYEL, BKBLU, BKMAG, BKCYN, BKWHT,
-							CAMP, CSLH, BKBLK, CBLK, CFSH, CRVS, CUDL, BBLK
-};
+const char *COLOURLIST[] = { CNRM, CRED, CGRN, CYEL, CBLU, CMAG, CCYN, CWHT,
+							 BRED, BGRN, BYEL, BBLU, BMAG, BCYN, BWHT,
+							 BKRED, BKGRN, BKYEL, BKBLU, BKMAG, BKCYN, BKWHT,
+							 CAMP, CSLH, BKBLK, CBLK, CFSH, CRVS, CUDL, BBLK
+						   };
 
 #define MAX_COLORS 30
 
-int isnum(char s) {
+int isnum(char s)
+{
 	return ((s >= '0') && (s <= '9'));
 }
 
-int is_colour(char code) {
-	switch (code) {
+int is_colour(char code)
+{
+	switch (code)
+	{
 		// Normal colours
-		case 'k': return 25;
-			break;        // Black
-		case 'r': return 1;
-			break;        // Red
-		case 'g': return 2;
-			break;        // Green
-		case 'y': return 3;
-			break;        // Yellow
-		case 'b': return 4;
-			break;        // Blue
-		case 'm': return 5;
-			break;        // Magenta
-		case 'c': return 6;
-			break;        // Cyan
-		case 'w': return 7;
-			break;        // White
+	case 'k':
+		return 25;
+		break;		// Black
+	case 'r':
+		return 1;
+		break;		// Red
+	case 'g':
+		return 2;
+		break;		// Green
+	case 'y':
+		return 3;
+		break;		// Yellow
+	case 'b':
+		return 4;
+		break;		// Blue
+	case 'm':
+		return 5;
+		break;		// Magenta
+	case 'c':
+		return 6;
+		break;		// Cyan
+	case 'w':
+		return 7;
+		break;		// White
 
-			// Bold colours
-		case 'K': return 29;
-			break;        // Bold black (Just for completeness)
-		case 'R': return 8;
-			break;        // Bold red
-		case 'G': return 9;
-			break;        // Bold green
-		case 'Y': return 10;
-			break;        // Bold yellow
-		case 'B': return 11;
-			break;        // Bold blue
-		case 'M': return 12;
-			break;        // Bold magenta
-		case 'C': return 13;
-			break;        // Bold cyan
-		case 'W': return 14;
-			break;        // Bold white
+		// Bold colours
+	case 'K':
+		return 29;
+		break;		// Bold black (Just for completeness)
+	case 'R':
+		return 8;
+		break;		// Bold red
+	case 'G':
+		return 9;
+		break;		// Bold green
+	case 'Y':
+		return 10;
+		break;		// Bold yellow
+	case 'B':
+		return 11;
+		break;		// Bold blue
+	case 'M':
+		return 12;
+		break;		// Bold magenta
+	case 'C':
+		return 13;
+		break;		// Bold cyan
+	case 'W':
+		return 14;
+		break;		// Bold white
 
-			// Background colours
-		case '0': return 24;
-			break;        // Black background
-		case '1': return 15;
-			break;        // Red background
-		case '2': return 16;
-			break;        // Green background
-		case '3': return 17;
-			break;        // Yellow background
-		case '4': return 18;
-			break;        // Blue background
-		case '5': return 19;
-			break;        // Magenta background
-		case '6': return 20;
-			break;        // Cyan background
-		case '7': return 21;
-			break;        // White background
+		// Background colours
+	case '0':
+		return 24;
+		break;		// Black background
+	case '1':
+		return 15;
+		break;		// Red background
+	case '2':
+		return 16;
+		break;		// Green background
+	case '3':
+		return 17;
+		break;		// Yellow background
+	case '4':
+		return 18;
+		break;		// Blue background
+	case '5':
+		return 19;
+		break;		// Magenta background
+	case '6':
+		return 20;
+		break;		// Cyan background
+	case '7':
+		return 21;
+		break;		// White background
 
-			// Misc characters
+		// Misc characters
 //	case '&':
 //		return 22;
 //		break;		// The & character
-		case '\\': return 23;
-			break;        // The \ character
+	case '\\':
+		return 23;
+		break;		// The \ character
 
-			// Special codes
-		case 'n': return 0;
-			break;        // Normal
-		case 'f': return 26;
-			break;        // Flash
-		case 'v': return 27;
-			break;        // Reverse video
-		case 'u': return 28;
-			break;        // Underline (Only for mono screens)
-		case 'q': return -2;
-			break;        // set default color to current
-		case 'Q': return -3;
-			break;        // set default color back to normal
-		case 'e': return -4;
-			break;        // print error when color not reseted to normal
+		// Special codes
+	case 'n':
+		return 0;
+		break;		// Normal
+	case 'f':
+		return 26;
+		break;		// Flash
+	case 'v':
+		return 27;
+		break;		// Reverse video
+	case 'u':
+		return 28;
+		break;		// Underline (Only for mono screens)
+	case 'q':
+		return -2;
+		break;		// set default color to current
+	case 'Q':
+		return -3;
+		break;		// set default color back to normal
+	case 'e':
+		return -4;
+		break;		// print error when color not reseted to normal
 
-		default: return -1;
-			break;
+	default:
+		return -1;
+		break;
 	}
 	return -1;
 }
 
-#define MAX_COLOR_STRING_LENGTH        (MAX_SOCK_BUF * 2 - GARBAGE_SPACE)
-int proc_color(char *inbuf, int colour) {
+#define MAX_COLOR_STRING_LENGTH		(MAX_SOCK_BUF * 2 - GARBAGE_SPACE)
+int proc_color(char *inbuf, int colour)
+{
 	int p = 0;
 	int c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
 	bool show_all = false;
@@ -164,55 +201,71 @@ int proc_color(char *inbuf, int colour) {
 		return -1;
 
 	size_t len = strlen(inbuf);
-	if (len == 0) {
+	if (len == 0)
+	{
 		return -2;
 	}
 
 	size_t j = 0;
-	while (j < len) {
-		if (p > MAX_COLOR_STRING_LENGTH) {
+	while (j < len)
+	{
+		if (p > MAX_COLOR_STRING_LENGTH)
+		{
 			snprintf(&out_buf[p], MAX_SOCK_BUF * 2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
 			strcpy(inbuf, out_buf);
 			return 0;
 		}
 
 		// WorM: Добавил ключи &S и &s, начало и конец текста без обработки цветов и _
-		if (inbuf[j] == '&' && ((!show_all && inbuf[j + 1] == 'S') || (show_all && inbuf[j + 1] == 's'))) {
+		if (inbuf[j] == '&' && ((!show_all && inbuf[j + 1] == 'S') || (show_all && inbuf[j + 1] == 's')))
+		{
 			show_all = !show_all;
 			j += 2;
 			continue;
 		}
 		if (!show_all && (inbuf[j] == '\\') && (inbuf[j + 1] == 'c')
-			&& isnum(inbuf[j + 2]) && isnum(inbuf[j + 3])) {
+				&& isnum(inbuf[j + 2]) && isnum(inbuf[j + 3]))
+		{
 			c = (inbuf[j + 2] - '0') * 10 + inbuf[j + 3] - '0';
 			j += 4;
-		} else if (!show_all && (inbuf[j] == '&') && !((tmp = is_colour(inbuf[j + 1])) == -1)) {
+		}
+		else if (!show_all && (inbuf[j] == '&') && !((tmp = is_colour(inbuf[j + 1])) == -1))
+		{
 			j += 2;
-			if (tmp == -4) {
+			if (tmp == -4)
+			{
 				// ключ &e выводит три воскл.знака если тут не закрыты цвета ключом &n
-				if (c != 0 && c != nc) {
+				if (c != 0 && c != nc)
+				{
 					out_buf[p++] = '!';
 					out_buf[p++] = '!';
 					out_buf[p++] = '!';
 				}
-			} else {
-				// WorM: ключ &q сохраняем текущий цвет как стандартный &n вместо 0 будет возвращать его
+			}
+			else
+			{
+		        	// WorM: ключ &q сохраняем текущий цвет как стандартный &n вместо 0 будет возвращать его
 				(tmp < 0 ? nc : c) = (tmp == -2 ? c : (tmp == -3 ? 0 : tmp));
 			}
 			if (tmp < 0)
 				continue;
-		} else {
+		}
+		else
+		{
 			out_buf[p] = (!show_all && inbuf[j] == '_' ? ' ' : inbuf[j]);
 			j++;
 			p++;
 			continue;
 		}
-		if (c >= MAX_COLORS) {
+		if (c >= MAX_COLORS)
+		{
 			c = 0;
 		}
 		size_t max = strlen(COLOURLIST[(c == 0 && nc != 0 ? nc : c)]);
-		if (colour || max == 1) {
-			for (size_t k = 0; k < max; k++) {
+		if (colour || max == 1)
+		{
+			for (size_t k = 0; k < max; k++)
+			{
 				out_buf[p] = COLOURLIST[(c == 0 && nc != 0 ? nc : c)][k];
 				p++;
 			}
@@ -221,7 +274,8 @@ int proc_color(char *inbuf, int colour) {
 	out_buf[p] = '\0';
 
 	strcpy(inbuf, out_buf);
-	if (j > len) {
+	if (j > len)
+	{
 		return static_cast<int>(j);
 	}
 	return 0;

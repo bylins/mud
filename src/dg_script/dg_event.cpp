@@ -26,8 +26,10 @@
 // * define statics
 static struct event_info *event_list = NULL;
 
+
 // * Add an event to the current list
-struct event_info *add_event(int time, EVENT(*func), void *info) {
+struct event_info *add_event(int time, EVENT(*func), void *info)
+{
 	struct event_info *this_data, *prev, *curr;
 
 	CREATE(this_data, 1);
@@ -38,14 +40,18 @@ struct event_info *add_event(int time, EVENT(*func), void *info) {
 	// sort the event into the list in next-to-fire order
 	if (event_list == NULL)
 		event_list = this_data;
-	else if (this_data->time_remaining <= event_list->time_remaining) {
+	else if (this_data->time_remaining <= event_list->time_remaining)
+	{
 		this_data->next = event_list;
 		event_list = this_data;
-	} else {
+	}
+	else
+	{
 		prev = event_list;
 		curr = prev->next;
 
-		while (curr && (curr->time_remaining > this_data->time_remaining)) {
+		while (curr && (curr->time_remaining > this_data->time_remaining))
+		{
 			prev = curr;
 			curr = curr->next;
 		}
@@ -57,23 +63,28 @@ struct event_info *add_event(int time, EVENT(*func), void *info) {
 	return this_data;
 }
 
-void remove_event(struct event_info *event) {
+void remove_event(struct event_info *event)
+{
 	struct event_info *curr;
 
-	if (event_list == event) {
+	if (event_list == event)
+	{
 		event_list = event->next;
-	} else {
+	}
+	else
+	{
 		curr = event_list;
 		while (curr && (curr->next != event))
 			curr = curr->next;
 		if (!curr)
-			return;    // failed to find it
+			return;	// failed to find it
 		curr->next = curr->next->next;
 	}
 	free(event);
 }
 
-void process_events(void) {
+void process_events(void)
+{
 	struct event_info *e = event_list;
 	struct event_info *del;
 	struct timeval start, stop, result;
@@ -81,9 +92,11 @@ void process_events(void) {
 
 	gettimeofday(&start, NULL);
 
-	while (e) {
-		if (--(e->time_remaining) == 0) {
-			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *) (e->info))->trigger);
+	while (e)
+	{
+		if (--(e->time_remaining) == 0)
+		{
+			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *)(e->info))->trigger);
 			e->func(e->info);
 
 			del = e;
@@ -96,7 +109,8 @@ void process_events(void) {
 			gettimeofday(&stop, NULL);
 			timediff(&result, &stop, &start);
 
-			if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC) {
+			if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
+			{
 				// Выводим номер триггера который переполнил время работы.
 				sprintf(buf,
 						"[TrigVNum: %d]: process_events overflow %ld sec. %ld us.",
@@ -105,7 +119,8 @@ void process_events(void) {
 
 				break;
 			}
-		} else
+		}
+		else
 			e = e->next;
 	}
 }

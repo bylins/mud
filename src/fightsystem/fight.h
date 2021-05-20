@@ -4,7 +4,7 @@
 #define _FIGHT_H_
 
 #include "fight_constants.hpp"
-#include "chars/character.h"
+#include "chars/char.hpp"
 #include "structs.h"
 #include "conf.h"
 #include "sysdep.h"
@@ -14,7 +14,8 @@
  * Damage obj(SkillDmg(SKILL_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
  * obj.process(ch, victim);
  */
-struct SkillDmg {
+struct SkillDmg
+{
 	SkillDmg(int num) : skill_num(num) {};
 	int skill_num;
 };
@@ -24,7 +25,8 @@ struct SkillDmg {
  * Damage obj(SpellDmg(SPELL_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
  * obj.process(ch, victim);
  */
-struct SpellDmg {
+struct SpellDmg
+{
 	SpellDmg(int num) : spell_num(num) {};
 	int spell_num;
 };
@@ -34,7 +36,8 @@ struct SpellDmg {
  * Damage obj(SimpleDmg(TYPE_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
  * obj.process(ch, victim);
  */
-struct SimpleDmg {
+struct SimpleDmg
+{
 	SimpleDmg(int num) : msg_num(num) {};
 	int msg_num;
 };
@@ -48,13 +51,15 @@ struct SimpleDmg {
  *   ch_start_pos - если нужны модификаторы урона от позиции атакующего (физ дамаг)
  *   victim_start_pos - если нужны модификаторы урона от позиции жертвы (физ/маг дамаг)
  */
-class Damage {
- public:
+class Damage
+{
+public:
 	// полностью ручное создание объекта
 	Damage() { zero_init(); };
 
 	// скилы
-	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
+	{
 		zero_init();
 		skill_num = obj.skill_num;
 		dam = in_dam;
@@ -62,7 +67,8 @@ class Damage {
 	};
 
 	// заклинания
-	Damage(SpellDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SpellDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
+	{
 		zero_init();
 		spell_num = obj.spell_num;
 		dam = in_dam;
@@ -70,7 +76,8 @@ class Damage {
 	};
 
 	// прочий дамаг
-	Damage(SimpleDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SimpleDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
+	{
 		zero_init();
 		msg_num = obj.msg_num;
 		dam = in_dam;
@@ -106,7 +113,7 @@ class Damage {
 	// позиция жертвы на начало атаки (по дефолту будет = текущему положению)
 	int victim_start_pos;
 
- private:
+private:
 	// инит всех полей дефолтными значениями для конструкторов
 	void zero_init();
 	// инит msg_num, ch_start_pos, victim_start_pos
@@ -119,7 +126,7 @@ class Damage {
 	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
 	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
 	void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim);
-	void dam_message(CHAR_DATA *ch, CHAR_DATA *victim) const;
+	void dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const;
 
 	// обратный дамаг от огненного щита
 	int fs_damage;
@@ -131,7 +138,7 @@ class Damage {
 // fight.cpp
 
 void set_fighting(CHAR_DATA *ch, CHAR_DATA *victim);
-inline void set_fighting(const CHAR_DATA::shared_ptr &ch, CHAR_DATA *victim) { set_fighting(ch.get(), victim); }
+inline void set_fighting(const CHAR_DATA::shared_ptr& ch, CHAR_DATA *victim) { set_fighting(ch.get(), victim); }
 
 void stop_fighting(CHAR_DATA *ch, int switch_others);
 void perform_violence();
@@ -154,7 +161,7 @@ void alt_equip(CHAR_DATA *ch, int pos, int dam, int chance);
 void char_dam_message(int dam, CHAR_DATA *ch, CHAR_DATA *victim, bool mayflee);
 void test_self_hitroll(CHAR_DATA *ch);
 
-int calc_leadership(CHAR_DATA *ch);
+int calc_leadership(CHAR_DATA * ch);
 
 #endif
 

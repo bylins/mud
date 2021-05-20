@@ -4,23 +4,25 @@
 #include "structs.h"
 #include "commands.hpp"
 
-namespace heartbeat {
-const int SCMD_NOTHING = 0;
+namespace heartbeat
+{
+	const int SCMD_NOTHING = 0;
 
-namespace cmd {
-extern const char *HEARTBEAT_COMMAND;
+	namespace cmd
+	{
+		extern const char* HEARTBEAT_COMMAND;
 
-/// Minimal position for heartbeat command
-constexpr int MINIMAL_POSITION = POS_SITTING;
+		/// Minimal position for heartbeat command
+		constexpr int MINIMAL_POSITION = POS_SITTING;
 
-// Minimal level for heartbeat command
-constexpr int MINIMAL_LEVEL = LVL_IMPL;
+		// Minimal level for heartbeat command
+		constexpr int MINIMAL_LEVEL = LVL_IMPL;
 
-// Probability to stop hide when using heartbeat command
-constexpr int UNHIDE_PROBABILITY = 0;    // -1 - always, 0 - never
+		// Probability to stop hide when using heartbeat command
+		constexpr int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never
 
-extern void do_heartbeat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-}
+		extern void do_heartbeat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	}
 }
 
 #endif // __HEARTBEAT_COMMANDS_HPP__

@@ -4,56 +4,64 @@
 #include "utils.h"
 #include "boot.constants.hpp"
 
-class IndexFileImplementation : public IndexFile {
- public:
+class IndexFileImplementation : public IndexFile
+{
+public:
 	IndexFileImplementation();
 
 	virtual bool open();
 	virtual int load();
 
- protected:
+protected:
 	virtual EBootType mode() const = 0;
-	const auto &get_file_prefix() const { return prefixes(mode()); }
-	const auto &file() const { return m_file; }
-	const auto &line() const { return m_buffer; }
+	const auto& get_file_prefix() const { return prefixes(mode()); }
+	const auto& file() const { return m_file; }
+	const auto& line() const { return m_buffer; }
 	void getline();
 
- private:
+private:
 	virtual int process_line() = 0;
 
 	std::ifstream m_file;
 	std::string m_buffer;
 };
 
-void IndexFileImplementation::getline() {
+void IndexFileImplementation::getline()
+{
 	std::getline(m_file, m_buffer);
 	if (0 < m_buffer.size()
-		&& '\r' == m_buffer[m_buffer.size() - 1]) {
+			&& '\r' == m_buffer[m_buffer.size() - 1])
+	{
 		m_buffer.resize(m_buffer.size() - 1);
 	}
 }
 
-IndexFileImplementation::IndexFileImplementation() {
+IndexFileImplementation::IndexFileImplementation()
+{
 }
 
-bool IndexFileImplementation::open() {
+bool IndexFileImplementation::open()
+{
 	constexpr int BUFFER_SIZE = 1024;
 	char filename[BUFFER_SIZE];
 
-	const auto &prefix = get_file_prefix();
-	if (prefix.empty()) {
+	const auto& prefix = get_file_prefix();
+	if (prefix.empty())
+	{
 		log("SYSERR: Unknown subcommand %d to index_boot!", mode());
 		return false;
 	}
 
 	const auto written = snprintf(filename, BUFFER_SIZE, "%s%s", prefix.c_str(), INDEX_FILE);
-	if (written >= BUFFER_SIZE) {
+	if (written >= BUFFER_SIZE)
+	{
 		log("SYSERR: buffer size for index file name is not enough.");
 		return false;
 	}
 
 	m_file.open(filename, std::ios::in);
-	if (!m_file.good()) {
+	if (!m_file.good())
+	{
 		log("SYSERR: opening index file '%s': %s", filename, strerror(errno));
 		return false;
 	}
@@ -61,22 +69,25 @@ bool IndexFileImplementation::open() {
 	return true;
 }
 
-int IndexFileImplementation::load() {
+int IndexFileImplementation::load()
+{
 	int rec_count = 0;
 
-	const auto &prefix = get_file_prefix();
+	const auto& prefix = get_file_prefix();
 
 	getline();
 	clear();
 	while (file().good()
-		&& (0 == line().size() || line()[0] != '$')) {
+		&& (0 == line().size() || line()[0] != '$'))
+	{
 		push_back(line());
 		rec_count += process_line();
 		getline();
 	}
 
 	// Exit if 0 records, unless this is shops
-	if (!rec_count) {
+	if (!rec_count)
+	{
 		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix.c_str(), INDEX_FILE);
 		exit(1);
 	}
@@ -84,22 +95,24 @@ int IndexFileImplementation::load() {
 	return rec_count;
 }
 
-class ZoneIndexFile : public IndexFileImplementation {
- public:
+class ZoneIndexFile : public IndexFileImplementation
+{
+public:
 	static shared_ptr create() { return shared_ptr(new ZoneIndexFile()); }
 
- private:
+private:
 	virtual EBootType mode() const { return DB_BOOT_ZON; }
 	virtual int process_line() { return 1; }
 };
 
-class FilesIndexFile : public IndexFileImplementation {
- protected:
-	const auto &entry_file() const { return m_entry_file; }
-	const auto &entry_line() const { return m_buffer; }
+class FilesIndexFile : public IndexFileImplementation
+{
+protected:
+	const auto& entry_file() const { return m_entry_file; }
+	const auto& entry_line() const { return m_buffer; }
 	void get_next_entry_line() { std::getline(m_entry_file, m_buffer); }
 
- private:
+private:
 	virtual int process_line();
 	virtual int process_file() = 0;
 
@@ -107,16 +120,14 @@ class FilesIndexFile : public IndexFileImplementation {
 	std::string m_buffer;
 };
 
-int FilesIndexFile::process_line() {
-	const auto &prefix = get_file_prefix();
+int FilesIndexFile::process_line()
+{
+	const auto& prefix = get_file_prefix();
 	const std::string filename = prefix + line();
 	m_entry_file.open(filename, std::ios::in);
-	if (!m_entry_file.good()) {
-		log("SYSERR: File '%s' listed in '%s/%s' (will be skipped): %s",
-			filename.c_str(),
-			prefix.c_str(),
-			INDEX_FILE,
-			strerror(errno));
+	if (!m_entry_file.good())
+	{
+		log("SYSERR: File '%s' listed in '%s/%s' (will be skipped): %s", filename.c_str(), prefix.c_str(), INDEX_FILE, strerror(errno));
 		return 0;
 	}
 
@@ -126,18 +137,19 @@ int FilesIndexFile::process_line() {
 	return result;
 }
 
-class HelpIndexFile : public FilesIndexFile {
- public:
+class HelpIndexFile : public FilesIndexFile
+{
+public:
 	HelpIndexFile() : m_messages(0), m_keywords(0), m_unexpected_eof(false) {}
 	static shared_ptr create() { return shared_ptr(new HelpIndexFile()); }
 
- protected:
+protected:
 	virtual int process_file();
 
 	auto get_keywords() const { return m_keywords; }
 	auto get_messages() const { return m_messages; }
 
- private:
+private:
 	virtual EBootType mode() const { return DB_BOOT_HLP; }
 	int count_social_records();
 	bool skip_entry_body();
@@ -154,13 +166,17 @@ class HelpIndexFile : public FilesIndexFile {
 	char next_key[READ_SIZE];
 };
 
-int HelpIndexFile::process_file() {
+int HelpIndexFile::process_file()
+{
 	return count_social_records();
 }
 
-int HelpIndexFile::count_social_records() {
-	while (read_entry()) {
-		if (m_unexpected_eof) {
+int HelpIndexFile::count_social_records()
+{
+	while (read_entry())
+	{
+		if (m_unexpected_eof)
+		{
 			log("SYSERR: Unexpected end of help file.");
 			exit(1);
 		}
@@ -170,10 +186,13 @@ int HelpIndexFile::count_social_records() {
 	return result;
 }
 
-bool HelpIndexFile::skip_entry_body() {
-	while (entry_file().good()) {
+bool HelpIndexFile::skip_entry_body()
+{
+	while (entry_file().good())
+	{
 		get_next_entry_line();
-		if (0 < entry_line().size() && '#' == entry_line()[0]) {
+		if (0 < entry_line().size() && '#' == entry_line()[0])
+		{
 			return true;
 		}
 	}
@@ -181,55 +200,61 @@ bool HelpIndexFile::skip_entry_body() {
 	return false;
 }
 
-bool HelpIndexFile::read_entry() {
-	while (file().good()) {
+bool HelpIndexFile::read_entry()
+{
+	while (file().good())
+	{
 		get_next_entry_line();
-		if (0 < entry_line().size() && '$' == entry_line()[0]) {
+		if (0 < entry_line().size() && '$' == entry_line()[0])
+		{
 			break;
 		}
 		m_keywords_string = entry_line();
 
-		if (!skip_entry_body()) {
+		if (!skip_entry_body())
+		{
 			m_unexpected_eof = true;
 			break;
 		}
 
 		++m_messages;
 		auto scan = m_keywords_string.c_str();
-		do {
+		do
+		{
 			scan = one_word(scan, next_key);
-			if (*next_key) {
+			if (*next_key)
+			{
 				++m_keywords;
 			}
 		} while (*next_key);
 	}
 
-	if (!file().good()) {
+	if (!file().good())
+	{
 		m_unexpected_eof = true;
 	}
 
 	return false;
 }
 
-class SocialIndexFile : public HelpIndexFile {
- public:
+class SocialIndexFile : public HelpIndexFile
+{
+public:
 	/// TODO: get rid of references
-	SocialIndexFile(int &messages, int &keywords) : m_messages_ref(messages), m_keywords_ref(keywords) {}
+	SocialIndexFile(int& messages, int& keywords) : m_messages_ref(messages), m_keywords_ref(keywords) {}
 
-	static shared_ptr create(int &messages, int &keywords) {
-		return shared_ptr(new SocialIndexFile(messages,
-											  keywords));
-	}
+	static shared_ptr create(int& messages, int& keywords) { return shared_ptr(new SocialIndexFile(messages, keywords)); }
 
- private:
+private:
 	virtual EBootType mode() const { return DB_BOOT_SOCIAL; }
 	virtual int process_file();
 
-	int &m_messages_ref;
-	int &m_keywords_ref;
+	int& m_messages_ref;
+	int& m_keywords_ref;
 };
 
-int SocialIndexFile::process_file() {
+int SocialIndexFile::process_file()
+{
 	const auto result = HelpIndexFile::process_file();
 
 	m_messages_ref = get_messages();
@@ -238,23 +263,28 @@ int SocialIndexFile::process_file() {
 	return result;
 }
 
-class HashSeparatedIndexFile : public FilesIndexFile {
- private:
+class HashSeparatedIndexFile : public FilesIndexFile
+{
+private:
 	virtual int process_file();
 	int count_hash_records();
 
 	std::string m_buffer;
 };
 
-int HashSeparatedIndexFile::process_file() {
+int HashSeparatedIndexFile::process_file()
+{
 	return count_hash_records();
 }
 
 // function to count how many hash-mark delimited records exist in a file
-int HashSeparatedIndexFile::count_hash_records() {
+int HashSeparatedIndexFile::count_hash_records()
+{
 	int count = 0;
-	for (get_next_entry_line(); entry_file().good(); get_next_entry_line()) {
-		if (0 < entry_line().size() && entry_line()[0] == '#') {
+	for (get_next_entry_line(); entry_file().good(); get_next_entry_line())
+	{
+		if (0 < entry_line().size() && entry_line()[0] == '#')
+		{
 			count++;
 		}
 	}
@@ -262,59 +292,73 @@ int HashSeparatedIndexFile::count_hash_records() {
 	return count;
 }
 
-class MobileIndexFile : public HashSeparatedIndexFile {
- public:
+class MobileIndexFile : public HashSeparatedIndexFile
+{
+public:
 	static shared_ptr create() { return shared_ptr(new MobileIndexFile()); }
 
- private:
+private:
 	virtual EBootType mode() const { return DB_BOOT_MOB; }
 };
 
-class ObjectIndexFile : public HashSeparatedIndexFile {
- public:
+class ObjectIndexFile : public HashSeparatedIndexFile
+{
+public:
 	static shared_ptr create() { return shared_ptr(new ObjectIndexFile()); }
 
- private:
+private:
 	virtual EBootType mode() const { return DB_BOOT_OBJ; }
 };
 
-class TriggerIndexFile : public HashSeparatedIndexFile {
- public:
+class TriggerIndexFile : public HashSeparatedIndexFile
+{
+public:
 	static shared_ptr create() { return shared_ptr(new TriggerIndexFile()); }
 
- private:
+private:
 	virtual EBootType mode() const { return DB_BOOT_TRG; }
 };
 
-class WorldIndexFile : public IndexFileImplementation {
- public:
+class WorldIndexFile : public IndexFileImplementation
+{
+public:
 	static shared_ptr create() { return shared_ptr(new WorldIndexFile()); }
 
- private:
+private:
 	virtual EBootType mode() const { return DB_BOOT_WLD; }
 	virtual int process_line() { return 1; }
 };
 
-extern int number_of_social_messages;    // TODO: get rid of me
-extern int number_of_social_commands;    // TODO: get rid of me
+extern int number_of_social_messages;	// TODO: get rid of me
+extern int number_of_social_commands;	// TODO: get rid of me
 
-IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode) {
-	switch (mode) {
-		case DB_BOOT_MOB: return MobileIndexFile::create();
+IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode)
+{
+	switch (mode)
+	{
+	case DB_BOOT_MOB:
+		return MobileIndexFile::create();
 
-		case DB_BOOT_OBJ: return ObjectIndexFile::create();
+	case DB_BOOT_OBJ:
+		return ObjectIndexFile::create();
 
-		case DB_BOOT_TRG: return TriggerIndexFile::create();
+	case DB_BOOT_TRG:
+		return TriggerIndexFile::create();
 
-		case DB_BOOT_WLD: return WorldIndexFile::create();
+	case DB_BOOT_WLD:
+		return WorldIndexFile::create();
 
-		case DB_BOOT_ZON: return ZoneIndexFile::create();
+	case DB_BOOT_ZON:
+		return ZoneIndexFile::create();
 
-		case DB_BOOT_HLP: return HelpIndexFile::create();
+	case DB_BOOT_HLP:
+		return HelpIndexFile::create();
 
-		case DB_BOOT_SOCIAL: return SocialIndexFile::create(number_of_social_messages, number_of_social_commands);
+	case DB_BOOT_SOCIAL:
+		return SocialIndexFile::create(number_of_social_messages, number_of_social_commands);
 
-		default: return nullptr;
+	default:
+		return nullptr;
 	}
 }
 

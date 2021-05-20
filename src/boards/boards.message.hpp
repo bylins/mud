@@ -6,7 +6,8 @@
 #include <deque>
 
 // отдельное сообщение
-struct Message {
+struct Message
+{
 	using shared_ptr = std::shared_ptr<Message>;
 
 	Message() : num(0), unique(0), level(0), rank(0), date(0) {};

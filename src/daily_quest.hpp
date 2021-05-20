@@ -4,7 +4,8 @@
 #include <string>
 #include <unordered_map>
 
-struct DailyQuest {
+struct DailyQuest
+{
 	// id
 	int id;
 	// desk
@@ -14,7 +15,7 @@ struct DailyQuest {
 };
 
 using DailyQuestMap = std::unordered_map<int, DailyQuest>;
-extern DailyQuestMap &d_quest;
+extern DailyQuestMap& d_quest;
 
 #endif // __DAILY_QUEST_HPP__
 

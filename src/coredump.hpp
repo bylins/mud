@@ -8,17 +8,20 @@
 #include <unistd.h>
 #endif
 
-namespace debug {
-inline void coredump() {
+namespace debug
+{
+	inline void coredump()
+	{
 #ifndef WIN32
-	pid_t pid = fork();
-	if (0 == pid) {
-		abort();
-	}
-	int result = 0;
-	wait(&result);
+		pid_t pid = fork();
+		if (0 == pid)
+		{
+			abort();
+		}
+		int result = 0;
+		wait(&result);
 #endif
-}
+	}
 }
 
 #endif

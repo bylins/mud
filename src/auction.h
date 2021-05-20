@@ -16,7 +16,8 @@ typedef struct auction_data AUCTION_DATA;
 class OBJ_DATA; // to avoid inclusion of obj.hpp
 class CHAR_DATA; // to avoid inclusion of char.hpp
 
-struct auction_data {
+struct auction_data
+{
 	int item_id;
 	OBJ_DATA *item;
 	int seller_unique;
@@ -30,20 +31,20 @@ struct auction_data {
 };
 
 // Auction functions  ***************************************************
-void showlots(CHAR_DATA *ch);
-bool auction_drive(CHAR_DATA *ch, char *argument);
+void showlots(CHAR_DATA * ch);
+bool auction_drive(CHAR_DATA * ch, char *argument);
 
-void message_auction(char *message, CHAR_DATA *ch);
+void message_auction(char *message, CHAR_DATA * ch);
 void clear_auction(int lot);
 void sell_auction(int lot);
 void trans_auction(int lot);
-void check_auction(CHAR_DATA *ch, OBJ_DATA *obj);
+void check_auction(CHAR_DATA * ch, OBJ_DATA * obj);
 void tact_auction(void);
 AUCTION_DATA *free_auction(int *lotnum);
-int obj_on_auction(OBJ_DATA *obj);
+int obj_on_auction(OBJ_DATA * obj);
 
 #define GET_LOT(value) ((auction_lots+value))
-#define AUCTION_IDENT_PAY 110    //цена за опознание
+#define AUCTION_IDENT_PAY 110	//цена за опознание
 
 #endif
 

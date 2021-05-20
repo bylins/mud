@@ -3,8 +3,9 @@
 
 #include <cstdio>
 
-namespace debug {
-void backtrace(FILE *file);
+namespace debug
+{
+	void backtrace(FILE* file);
 }
 
 #endif // __BACKTRACE_HPP__

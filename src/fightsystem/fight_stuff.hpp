@@ -1,7 +1,7 @@
 #ifndef __FIGHT_STUFF_HPP__
 #define __FIGHT_STUFF_HPP__
 
-class CHAR_DATA;    // to avoid inclusion "char.hpp" into header file.
+class CHAR_DATA;	// to avoid inclusion "char.hpp" into header file.
 
 bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer);
 

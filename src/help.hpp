@@ -22,14 +22,15 @@
 /// DYNAMIC справка:
 /// 	клан-сайты
 /// 	справка по дропу сетов
-namespace HelpSystem {
+namespace HelpSystem
+{
 
 extern bool need_update;
 enum Flags { STATIC, DYNAMIC, TOTAL_NUM };
 
 // добавление статической справки, которая обновляется максимально редко
 void add_static(const std::string &key, const std::string &entry,
-				int min_level = 0, bool no_immlog = false);
+	int min_level = 0, bool no_immlog = false);
 // в динамической справке все с включенным no_immlog и 0 min_level
 void add_dynamic(const std::string &key, const std::string &entry);
 // добавление сетов, идет в DYNAMIC массив с включенным sets_drop_page
@@ -43,10 +44,12 @@ void check_update_dynamic();
 
 } // namespace HelpSystem
 
-namespace PrintActivators {
+namespace PrintActivators
+{
 
 // суммарные активы для одной профы
-struct clss_activ_node {
+struct clss_activ_node
+{
 	clss_activ_node() { total_affects = clear_flags; };
 
 	// аффекты
@@ -64,46 +67,64 @@ void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skil
 
 /// l - список <obj_affected_type> куда добавляем,
 /// r - список того же, который добавляем в l
-template<class T, class N>
-void sum_apply(T &l, const N &r) {
-	for (auto ri = r.begin(); ri != r.end(); ++ri) {
-		if (ri->modifier == 0) {
+template <class T, class N>
+void sum_apply(T &l, const N &r)
+{
+	for (auto ri = r.begin(); ri != r.end(); ++ri)
+	{
+		if (ri->modifier == 0)
+		{
 			continue;
 		}
 
 		auto li = std::find_if(l.begin(), l.end(),
-							   [&](const auto &obj_aff) {
-								   return obj_aff.location == ri->location;
-							   });
+			[&](const auto& obj_aff)
+		{
+			return obj_aff.location == ri->location;
+		});
 
-		if (li != l.end()) {
+		if (li != l.end())
+		{
 			li->modifier += ri->modifier;
-		} else {
+		}
+		else
+		{
 			l.push_back(*ri);
 		}
 	}
 }
 
-template<class T>
-void add_pair(T &target, const typename T::value_type &add) {
-	if (add.first > 0) {
+template <class T>
+void add_pair(T &target, const typename T::value_type &add)
+{
+	if (add.first > 0)
+	{
 		auto i = target.find(add.first);
-		if (i != target.end()) {
+		if (i != target.end())
+		{
 			i->second += add.second;
-		} else {
+		}
+		else
+		{
 			target[add.first] = add.second;
 		}
 	}
 }
 
-template<class T>
-void add_map(T &target, const T &add) {
-	for (auto i = add.begin(), iend = add.end(); i != iend; ++i) {
-		if (i->first > 0) {
+template <class T>
+void add_map(T &target, const T &add)
+{
+	for (auto i = add.begin(), iend = add.end(); i != iend; ++i)
+	{
+		if (i->first > 0)
+		{
 			auto ii = target.find(i->first);
-			if (ii != target.end()) {
+			if (ii != target.end())
+			{
 				ii->second += i->second;
-			} else {
+			}
+			else
+			{
 				target[i->first] = i->second;
 			}
 		}

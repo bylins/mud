@@ -48,7 +48,7 @@ extern const char *material_type[];
 extern const char *container_bits[];
 extern const char *fullness[];
 
-extern const std::vector<const char *> npc_role_types;
+extern const std::vector<const char*> npc_role_types;
 extern const char *npc_race_types[];
 extern const char *places_of_birth[];
 extern const char *weekdays[];
@@ -86,11 +86,11 @@ extern const char *godslike_bits[];
 extern std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name;
 
 //MZ.load
-extern struct zone_type *zone_types;
+extern struct zone_type * zone_types;
 //-MZ.load
 
 //The number of changing coefficients (the others are unchanged)
-#define    MAX_EXP_COEFFICIENTS_USED 15
+#define	MAX_EXP_COEFFICIENTS_USED 15
 
 // unless you change this, Puff casts all your dg spells
 #define DG_CASTER_PROXY 113
@@ -114,6 +114,7 @@ extern struct zone_type *zone_types;
 #define MOB_DAMAGE_MULT  3
 
 #define MAX_GROUPED_FOLLOWERS 7
+
 
 extern int HORSE_VNUM;
 extern int HORSE_COST;

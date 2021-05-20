@@ -21,12 +21,13 @@
 * \todo В последствии нужно переместить в class room, а потом вообще убрать из кода,
 * т.к. есть куда более прикольная тема с шаблонами в файлах зон.
 */
-class RoomDescription {
- public:
+class RoomDescription
+{
+public:
 	static size_t add_desc(const std::string &text);
-	static const std::string &show_desc(size_t desc_num);
+	static const std::string& show_desc(size_t desc_num);
 
- private:
+private:
 	RoomDescription();
 	~RoomDescription();
 	// отсюда дергаем описания при работе мада

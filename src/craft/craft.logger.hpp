@@ -3,8 +3,9 @@
 
 #include "logger.hpp"
 
-namespace craft {
-extern Logger logger;
+namespace craft
+{
+	extern Logger logger;
 }
 
 #endif // __CRAFT_LOGGER_HPP__

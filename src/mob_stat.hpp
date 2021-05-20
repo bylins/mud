@@ -14,7 +14,8 @@
 #include "structs.h"
 
 /// Статистика по убийствам мобов/мобами с делением на размер группы и месяцы
-namespace mob_stat {
+namespace mob_stat
+{
 
 /// макс. кол-во участников в группе учитываемое в статистике
 const int MAX_GROUP_SIZE = 12;
@@ -23,8 +24,12 @@ const int SAVE_PERIOD = 27;
 /// 0 - убиства мобом игроков, 1..MAX_GROUP_SIZE - убиства моба игроками
 typedef std::array<int, MAX_GROUP_SIZE + 1> KillStatType;
 
-struct mob_node {
-	mob_node() : month(0), year(0) {
+
+
+struct mob_node
+{
+	mob_node() : month(0), year(0)
+	{
 		kills.fill(0);
 	};
 	// месяц (1..12)
@@ -35,11 +40,12 @@ struct mob_node {
 	KillStatType kills;
 };
 
-struct MobNode {
+struct MobNode
+{
 	static const time_t DEFAULT_DATE;
 
-	MobNode() : date(0) {}
-	MobNode(const time_t d) : date(d) {}
+	MobNode(): date(0) {}
+	MobNode(const time_t d): date(d) {}
 
 	time_t date;
 	std::list<mob_node> stats;
@@ -59,7 +65,7 @@ void show_stats(CHAR_DATA *ch);
 /// \param members если = 0 - см. KillStatType
 void add_mob(CHAR_DATA *mob, int members);
 // когда последний раз убили моба
-void last_kill_mob(CHAR_DATA *mob, std::string &result);
+void last_kill_mob(CHAR_DATA *mob, std::string& result);
 int last_time_killed_mob(int vnum);
 /// печать статистики имму по конкретной зоне (show mobstat zone_vnum)
 void show_zone(CHAR_DATA *ch, int zone_vnum, int months);
@@ -72,7 +78,8 @@ std::string print_mob_name(int mob_vnum, unsigned int len);
 
 } // namespace mob_stat
 
-namespace char_stat {
+namespace char_stat
+{
 
 /// мобов убито - для 'статистика'
 extern int mkilled;

@@ -9,12 +9,13 @@
 #include <string>
 #include <vector>
 
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
-namespace Noob {
+namespace Noob
+{
 
 void init();
-int outfit(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int outfit(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 bool is_noob(const CHAR_DATA *ch);
 std::string print_start_outfit(CHAR_DATA *ch);

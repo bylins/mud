@@ -8,7 +8,8 @@
 #include "sysdep.h"
 #include "structs.h"
 #include <map>
-namespace SetsDrop {
+namespace SetsDrop
+{
 
 // период сохранения списков мобов и таблицы дропа (минуты)
 const int SAVE_PERIOD = 27;

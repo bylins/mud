@@ -12,13 +12,16 @@
 #include <string>
 #include <vector>
 
-namespace obj_sets {
-struct ench_type;
+namespace obj_sets
+{
+	struct ench_type;
 }
 
-namespace ObjectEnchant {
+namespace ObjectEnchant
+{
 
-enum {
+enum
+{
 	// из предмета типа ITEM_ENCHANT
 	ENCHANT_FROM_OBJ,
 	// из сетового бонуса
@@ -26,7 +29,8 @@ enum {
 };
 
 // список аффектов от какого-то одного источника
-struct enchant {
+struct enchant
+{
 	enchant();
 	// инит свои аффекты из указанного предмета (ENCHANT_FROM_OBJ)
 	enchant(OBJ_DATA *obj);
@@ -56,8 +60,9 @@ struct enchant {
 	int sdice_;
 };
 
-class Enchants {
- public:
+class Enchants
+{
+public:
 	bool empty() const;
 	std::string print_to_file() const;
 	void print(CHAR_DATA *ch) const;
@@ -65,10 +70,10 @@ class Enchants {
 	void add(const enchant &ench);
 	// сеты используют только вес (который накопительный, а не флаг), поэтому
 	// их допускается менять, т.к. сколько прибавили, столько можно и отнять
-	void update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type &ench);
+	void update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type& ench);
 	void remove_set_bonus(OBJ_DATA *obj);
 
- private:
+private:
 	std::vector<enchant> list_;
 };
 

@@ -11,8 +11,9 @@
 #include "sysdep.h"
 #include "structs.h"
 
-class Quested {
- public:
+class Quested
+{
+public:
 	void add(CHAR_DATA *ch, int vnum, char *text);
 	bool remove(int vnum);
 	void clear();
@@ -22,7 +23,7 @@ class Quested {
 	std::string print() const;
 	void save(FILE *saved) const;
 
- private:
+private:
 	// выполненные квесты
 	typedef std::map<int /* внум */, std::string /* текст данных конкретного квеста */> QuestedType;
 

@@ -48,11 +48,11 @@
 
 extern const char *genchar_help;
 
-class CHAR_DATA;    // to avoid inclusion of "char.hpp"
+class CHAR_DATA;	// to avoid inclusion of "char.hpp"
 
-void genchar_disp_menu(CHAR_DATA *ch);
-int genchar_parse(CHAR_DATA *ch, char *arg);
-void roll_real_abils(CHAR_DATA *ch);
+void genchar_disp_menu(CHAR_DATA * ch);
+int genchar_parse(CHAR_DATA * ch, char *arg);
+void roll_real_abils(CHAR_DATA * ch);
 void GetCase(const char *name, const ESex sex, int caseNum, char *result);
 
 extern int max_stats[][6];

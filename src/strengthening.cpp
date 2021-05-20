@@ -1,22 +1,26 @@
 #include "strengthening.hpp"
 
-Strengthening::Strengthening() {
-	init();
+Strengthening::Strengthening()
+{
+    init();
 }
 
-int Strengthening::operator()(percentage_t percentage, Type type) const {
-	const auto cell_i = m_strengthening_table.find(std::make_pair(percentage, type));
-	if (cell_i == m_strengthening_table.end()) {
-		log("ERROR: couldn't find cell <%d, %d> in the stengthening table. 0 will be returned.\n",
-			percentage, static_cast<int>(type));
+int Strengthening::operator()(percentage_t percentage, Type type) const
+{
+    const auto cell_i = m_strengthening_table.find(std::make_pair(percentage, type));
+    if (cell_i == m_strengthening_table.end())
+    {
+        log("ERROR: couldn't find cell <%d, %d> in the stengthening table. 0 will be returned.\n",
+            percentage, static_cast<int>(type));
 
-		return 0;
-	}
+        return 0;
+    }
 
-	return cell_i->second;
+    return cell_i->second;
 }
 
-void Strengthening::init() {
+void Strengthening::init()
+{
 //		%	таймер+	броня+	поглощение	здоровье	живучесть	стойкость	огня	воздуха	воды	земли реация
 	static int table[][12] = {
 		{100, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -33,8 +37,10 @@ void Strengthening::init() {
 	};
 
 //заполним таблицу
-	for (int i = 0; i != 11; ++i) {
-		for (int j = 1; j != 12; ++j) {
+	for (int i = 0; i != 11; ++i)
+	{
+		for (int j = 1; j != 12; ++j)
+		{
 			m_strengthening_table.emplace(std::make_pair(table[i][0], static_cast<Type>(j - 1)), table[i][j]);
 		}
 	}
