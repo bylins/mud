@@ -10,7 +10,6 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "interpreter.h"
 
 // виды жидскостей, наливаемых в контейнеры
 enum {

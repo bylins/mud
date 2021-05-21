@@ -11,31 +11,16 @@
 #include "mail.h"
 
 #include "world.objects.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "db.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "chars/char.hpp"
 #include "parcel.hpp"
 #include "chars/char_player.hpp"
 #include "named_stuff.hpp"
 #include "parse.hpp"
 #include "screen.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
 #include "pugixml.hpp"
 
-#include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-
-#include <string>
-#include <ctime>
-#include <unordered_map>
-#include <unordered_set>
 
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;

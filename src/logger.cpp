@@ -1,11 +1,7 @@
-#include "logger.hpp"
+//#include "logger.hpp"
 
 #include "global.objects.hpp"
-#include "config.hpp"
 #include "screen.h"
-#include "comm.h"
-#include "utils.h"
-#include "chars/char.hpp"
 
 #include <iostream>
 

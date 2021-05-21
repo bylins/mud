@@ -9,19 +9,12 @@
 #include "object.prototypes.hpp"
 #include "handler.h"
 #include "auction.h"
-#include "exchange.h"
 #include "screen.h"
 #include "chars/char_player.hpp"
 #include "modify.h"
 #include "objsave.h"
 #include "house.h"
 #include "char_obj_utils.inl"
-
-#include <map>
-#include <list>
-#include <sstream>
-#include <cmath>
-#include <bitset>
 
 extern int bank(CHAR_DATA *, void *, int, char *);
 extern int can_take_obj(CHAR_DATA *ch, OBJ_DATA *obj);

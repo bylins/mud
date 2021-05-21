@@ -11,30 +11,13 @@
 
 #include "abilities/abilities_constants.h"
 #include "action.targeting.hpp"
-#include "logger.hpp"
-#include "obj.hpp"
 #include "handler.h"
-#include "comm.h"
-#include "db.h"
-#include "interpreter.h"
-#include "magic/spells.h"
-#include "chars/char.hpp"
 #include "chars/player_races.hpp"
-#include "room.hpp"
 #include "screen.h"
 #include "fightsystem/pk.h"
-#include "room.hpp"
-#include "screen.h"
-#include "fightsystem/pk.h"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
-
-#include <string>
 
 using namespace AbilitySystemConstants;
 

@@ -4,7 +4,6 @@
 
 #include "file_crc.hpp"
 
-#include "conf.h"
 #include "db.h"
 #include "logger.hpp"
 #include "utils.h"
@@ -12,10 +11,6 @@
 #include "comm.h"
 
 #include <boost/crc.hpp>
-
-#include <fstream>
-#include <string>
-#include <sstream>
 
 bool need_warn = true;
 namespace FileCRC {

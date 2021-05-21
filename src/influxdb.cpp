@@ -1,7 +1,6 @@
 #include "influxdb.hpp"
 
 #include "logger.hpp"
-#include "sysdep.h"
 
 #ifndef WIN32
 #include <netinet/in.h>
@@ -12,8 +11,6 @@
 constexpr int INVALID_SOCKET = -1;
 constexpr int SOCKET_ERROR = -1;
 #endif
-
-#include <chrono>
 
 namespace influxdb {
 class SenderImpl {

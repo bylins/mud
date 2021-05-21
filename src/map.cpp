@@ -2,29 +2,17 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "map.hpp"
-
 #include "act.movement.hpp"
-#include "obj.hpp"
 #include "screen.h"
-#include "room.hpp"
-#include "db.h"
 #include "chars/char_player.hpp"
-#include "shop_ext.hpp"
 #include "noob.hpp"
 #include "char_obj_utils.inl"
 #include "zone.table.hpp"
-#include "logger.hpp"
-#include "conf.h"
 
-#include <boost/algorithm/string.hpp>
 #include "boost/multi_array.hpp"
 #include <boost/format.hpp>
 
-#include <map>
-#include <sstream>
 #include <iomanip>
-#include <vector>
 
 int shop_ext(CHAR_DATA *ch, void *me, int cmd, char *argument);
 int receptionist(CHAR_DATA *ch, void *me, int cmd, char *argument);

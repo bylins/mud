@@ -1,12 +1,9 @@
 #include "heartbeat.commands.hpp"
 
 #include "heartbeat.hpp"
-#include "logger.hpp"
-#include "utils.h"
 #include "global.objects.hpp"
 #include "utils.string.hpp"
 
-#include <sstream>
 #include <iomanip>
 
 namespace heartbeat {

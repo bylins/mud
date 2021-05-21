@@ -5,11 +5,6 @@
 #include "mobmax.hpp"
 
 #include "chars/char.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "db.h"
-
-#include <map>
 
 std::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels = {{0}};
 namespace {

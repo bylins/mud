@@ -1,11 +1,8 @@
 #include "find.obj.id.by.vnum.hpp"
 
-#include "logger.hpp"
 #include "dg_script/dg_scripts.h"
 #include "world.objects.hpp"
 #include "chars/char.hpp"
-#include "obj.hpp"
-#include "room.hpp"
 
 class TriggerLookup {
  public:

@@ -1,7 +1,5 @@
 #include "ignores.loader.hpp"
 
-#include "logger.hpp"
-#include "ignores.hpp"
 #include "chars/char.hpp"
 
 #include <boost/algorithm/string.hpp>

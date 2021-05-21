@@ -4,20 +4,15 @@
 
 #include "house_exp.hpp"
 
-#include "structs.h"
+#include "chars/char.hpp"
 #include "logger.hpp"
-#include "utils.h"
 #include "house.h"
 #include "comm.h"
-#include "room.hpp"
 #include "modify.h"
-
 #include "utils.string.hpp"
 
 #include <boost/algorithm/string.hpp>
 
-#include <fstream>
-#include <string>
 #include <sstream>
 
 namespace {

@@ -8,8 +8,9 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "chars/char.hpp"
 #include <string>
+
+class CHAR_DATA;
 
 namespace ExtMoney {
 

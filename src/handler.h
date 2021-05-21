@@ -20,7 +20,7 @@
 #include "chars/char.hpp"
 #include "structs.h"    // there was defined type "byte" if it had been missing
 
-struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+struct ROOM_DATA;
 
 #define LIGHT_NO    0
 #define LIGHT_YES   1

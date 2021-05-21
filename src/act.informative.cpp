@@ -3433,7 +3433,6 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 
-	//Обработка команды "счет все", добавил Adept. Ширина таблицы - 85 символов + пробел.
 	if (is_abbrev(argument, "все") || is_abbrev(argument, "all")) {
 		print_do_score_all(ch);
 		return;

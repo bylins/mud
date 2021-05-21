@@ -5,30 +5,15 @@
 #include "help.hpp"
 
 #include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "db.h"
 #include "modify.h"
 #include "house.h"
 #include "sets_drop.hpp"
-#include "handler.h"
 #include "screen.h"
-#include "magic/spells.h"
-#include "obj_sets.hpp"
 #include "zone.table.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "classes/constants.hpp"
 #include "skills.info.h"
 
 #include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/remove_if.hpp>
-
-#include <iterator>
-#include <sstream>
-#include <iomanip>
-#include <map>
 
 extern char *help;
 extern const char *weapon_affects[];

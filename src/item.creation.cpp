@@ -10,30 +10,12 @@
 
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "screen.h"
-#include "magic/spells.h"
-#include "skills.h"
 #include "constants.h"
-#include "comm.h"
-#include "interpreter.h"
 #include "handler.h"
-#include "db.h"
 #include "olc/olc.h"
-#include "crafts/im.h"
-#include "features.hpp"
-#include "chars/char.hpp"
 #include "modify.h"
-#include "room.hpp"
 #include "fightsystem/fight.h"
-#include "structs.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "sysdep.h"
-#include "conf.h"
 #include "skills.info.h"
-
-#include <cmath>
 
 extern int material_value[];
 void die(CHAR_DATA *ch, CHAR_DATA *killer);

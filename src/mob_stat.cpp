@@ -3,19 +3,12 @@
 
 #include "mob_stat.hpp"
 
-#include "logger.hpp"
-#include "utils.h"
 #include "pugixml.hpp"
-#include "db.h"
 #include "parse.hpp"
 #include "chars/char.hpp"
-#include "conf.h"
 #include "screen.h"
-#include "classes/constants.hpp"
 
-#include <sstream>
 #include <iomanip>
-#include <string>
 
 namespace char_stat {
 

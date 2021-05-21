@@ -1,7 +1,5 @@
 #include "external.trigger.hpp"
 
-#include <filesystem>
-
 ExternalTriggerChecker::ExternalTriggerChecker(const std::string &filename) : m_mtime(), m_filename(filename) {
 	init();
 }

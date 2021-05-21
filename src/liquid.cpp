@@ -12,14 +12,9 @@
 #include "obj.hpp"
 #include "chars/char.hpp"
 #include "char_obj_utils.inl"
-#include "db.h"
-#include "comm.h"
 #include "handler.h"
 #include "magic/magic.h"
-#include "skills.h"
-#include "room.hpp"
 #include "screen.h"
-#include "features.hpp"
 #include "skills.info.h"
 
 #include <cmath>

@@ -4,21 +4,14 @@
 
 #include "glory_misc.hpp"
 
-#include "logger.hpp"
-#include "utils.h"
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "genchar.h"
 #include "chars/char.hpp"
-#include "db.h"
 #include "screen.h"
 #include "comm.h"
 #include "chars/char_player.hpp"
 #include "modify.h"
-
-#include <boost/algorithm/string.hpp>
-
-#include <map>
 
 namespace GloryMisc {
 

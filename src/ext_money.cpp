@@ -4,6 +4,7 @@
 
 #include "ext_money.hpp"
 
+#include "chars/char.hpp"
 #include "screen.h"
 #include "pugixml.hpp"
 #include "parse.hpp"

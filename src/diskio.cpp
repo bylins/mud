@@ -10,7 +10,6 @@
 **************************************************************************/
 
 #include <sys/stat.h>
-#include "conf.h"
 #include "sysdep.h"
 #include "utils.h"
 #include "diskio.h"

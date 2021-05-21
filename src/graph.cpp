@@ -12,23 +12,11 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "comm.h"
 #include "interpreter.h"
 #include "constants.h"
 #include "handler.h"
-#include "db.h"
-#include "magic/spells.h"
-#include "skills.h"
-#include "features.hpp"
 #include "random.hpp"
 #include "skills.info.h"
-
-#include <vector>
 
 // Externals
 void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
