@@ -9,23 +9,12 @@
 #include "object.prototypes.hpp"
 #include "parse.hpp"
 #include "handler.h"
-#include "dg_script/dg_scripts.h"
 #include "screen.h"
 #include "celebrates.hpp"
 #include "fightsystem/pk.h"
 #include "cache.hpp"
-#include "chars/char.hpp"
 #include "depot.hpp"
-#include "constants.h"
-#include "db.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "conf.h"
 #include "house.h"
-
-#include <cmath>
-#include <sstream>
-#include <memory>
 
 extern void get_from_container(CHAR_DATA *ch, OBJ_DATA *cont, char *arg, int mode, int amount, bool autoloot);
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);

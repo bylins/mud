@@ -6,14 +6,6 @@
 
 #include "obj.hpp"
 #include "chars/char.hpp"
-#include "handler.h"
-#include "interpreter.h"
-#include "utils.h"
-
-#include <limits>
-#include <map>
-#include <string>
-#include <set>
 
 namespace {
 

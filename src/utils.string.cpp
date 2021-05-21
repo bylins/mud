@@ -2,8 +2,6 @@
 
 #include "utils.h"
 
-#include <string.h>
-
 namespace utils {
 template<typename T>
 void remove_colors_template(T string, int &new_length) {

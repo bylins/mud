@@ -4,24 +4,10 @@
 #include "noob.hpp"
 
 #include "chars/char.hpp"
-#include "obj.hpp"
-#include "db.h"
-#include "comm.h"
 #include "pugixml.hpp"
 #include "parse.hpp"
-#include "room.hpp"
-#include "birthplaces.h"
 #include "handler.h"
-#include "skills.h"
 #include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "conf.h"
-#include "classes/constants.hpp"
-
-#include <array>
-#include <vector>
-#include <sstream>
 
 int find_eq_pos(CHAR_DATA *ch, OBJ_DATA *obj, char *arg);
 

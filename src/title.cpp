@@ -4,23 +4,13 @@
 
 #include "title.hpp"
 
-#include "structs.h"
 #include "interpreter.h"
-#include "conf.h"
 #include "logger.hpp"
-#include "utils.h"
-#include "comm.h"
-#include "db.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
 #include "privilege.hpp"
 #include "handler.h"
-#include "chars/char.hpp"
 #include "chars/char_player.hpp"
-
-#include <boost/algorithm/string.hpp>
-
-#include <sstream>
 
 extern void send_to_gods(char *text, bool demigod);
 

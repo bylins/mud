@@ -9,26 +9,10 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "db.h"
 #include "screen.h"
-#include "privilege.hpp"
-#include "chars/char.hpp"
 #include "chars/char_player.hpp"
-
-#include <boost/algorithm/string.hpp>
-
-#include <string>
-#include <map>
-#include <fstream>
-#include <sstream>
 
 #include "names.hpp"
 

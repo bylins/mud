@@ -5,18 +5,11 @@
 #include "shop_ext.hpp"
 
 #include "global.objects.hpp"
-#include "boot/boot.constants.hpp"
 #include "object.prototypes.hpp"
-#include "chars/world.characters.hpp"
-#include "chars/char.hpp"
-#include "db.h"
 #include "handler.h"
 #include "house.h"
-#include "logger.hpp"
-#include "utils.h"
 #include "parse.hpp"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 /*

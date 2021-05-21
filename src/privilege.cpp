@@ -5,16 +5,8 @@
 #include "privilege.hpp"
 
 #include "logger.hpp"
-#include "utils.h"
 #include "chars/char.hpp"
-#include "room.hpp"
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "db.h"
-#include "interpreter.h"
 #include "boards/boards.h"
-#include "magic/spells.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>

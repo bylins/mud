@@ -5,18 +5,11 @@
 #include "remember.hpp"
 
 #include "logger.hpp"
-#include "utils.h"
-#include "comm.h"
-#include "db.h"
 #include "chars/char.hpp"
-#include "interpreter.h"
 #include "screen.h"
 #include "house.h"
-#include "room.hpp"
 
 #include <boost/format.hpp>
-
-#include <algorithm>
 
 namespace Remember {
 

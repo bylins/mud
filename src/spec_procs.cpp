@@ -14,43 +14,21 @@
 
 #include "act.movement.hpp"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "chars/mount.h"
 #include "chars/player_races.hpp"
 #include "chars/world.characters.hpp"
 #include "cmd/follow.h"
-#include "cmd/mercenary.h"
-#include "comm.h"
-#include "constants.h"
-#include "db.h"
 #include "depot.hpp"
-#include "dg_script/dg_scripts.h"
-#include "features.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
-#include "handler.h"
 #include "house.h"
-#include "interpreter.h"
 #include "logger.hpp"
 #include "magic/magic.h"
-#include "obj.hpp"
 #include "screen.h"
-#include "skills.h"
 #include "magic/magic_utils.h"
-#include "magic/spells.h"
-#include "structs.h"
-#include "sysdep.h"
 #include "magic/temp_spells.hpp"
-#include "classes/constants.hpp"
 #include "skills.info.h"
-#include "magic/spells.info.h"
-
-#include <cmath>
-#include <boost/algorithm/string.hpp>
-#include <string>
-
-//using namespace ClassPlayer;
 
 //   external vars
 extern DESCRIPTOR_DATA *descriptor_list;

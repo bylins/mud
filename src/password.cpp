@@ -10,7 +10,6 @@
 #	endif
 #endif
 #include "password.hpp"
-#include "utils.h"
 #include "interpreter.h"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"

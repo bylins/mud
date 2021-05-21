@@ -14,19 +14,12 @@
 
 #include "object.prototypes.hpp"
 #include "cmd/mercenary.h"
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "db.h"
 #include "constants.h"
-#include "interpreter.h"
 #include "logger.hpp"
-#include "utils.h"
 #include "house.h"
 #include "boards/boards.constants.hpp"
 #include "boards/boards.h"
 #include "chars/char.hpp"
-#include "room.hpp"
 #include "noob.hpp"
 
 extern int dts_are_dumps;

@@ -6,8 +6,6 @@
 
 #include "room.hpp"
 
-#include "dg_script/dg_scripts.h"
-
 EXIT_DATA::EXIT_DATA() : keyword(nullptr),
 						 vkeyword(nullptr),
 						 exit_info(0),

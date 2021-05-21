@@ -11,22 +11,10 @@
 
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "db.h"
 #include "handler.h"
-#include "dg_script/dg_scripts.h"
-#include "chars/char.hpp"
-#include "room.hpp"
 #include "corpse.hpp"
 #include "screen.h"
-#include "skills.h"
 #include "sets_drop.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
 
 extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);

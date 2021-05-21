@@ -4,14 +4,7 @@
 #include "parse.hpp"
 
 #include "object.prototypes.hpp"
-#include "logger.hpp"
-#include "db.h"
-#include "obj.hpp"
 #include "utils.h"
-#include "conf.h"
-
-#include <unordered_map>
-#include <array>
 
 namespace TextId {
 

@@ -4,39 +4,16 @@
 #include "sets_drop.hpp"
 
 #include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "db.h"
 #include "chars/char.hpp"
-#include "comm.h"
-#include "handler.h"
-#include "dg_script/dg_scripts.h"
-#include "crafts/im.h"
-#include "room.hpp"
 #include "pugixml.hpp"
-#include "modify.h"
 #include "house.h"
 #include "screen.h"
 #include "help.hpp"
 #include "parse.hpp"
 #include "mob_stat.hpp"
-#include "obj_sets.hpp"
 #include "zone.table.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "conf.h"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include <sstream>
-#include <iostream>
-#include <set>
-#include <list>
-#include <map>
-#include <string>
-#include <vector>
-#include <iomanip>
-#include <algorithm>
 
 extern int real_zone(int number);
 

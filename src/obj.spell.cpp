@@ -5,24 +5,13 @@
 #include "magic/spells.h"
 
 #include "obj.hpp"
-#include "comm.h"
 #include "screen.h"
 #include "skills/poison.hpp"
 #include "chars/char.hpp"
-#include "db.h"
-#include "room.hpp"
-#include "logger.hpp"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
 #include "char_obj_utils.inl"
-#include "skills.info.h"
 #include "magic/spells.info.h"
 
 #include <boost/format.hpp>
-
-#include <sstream>
-#include <string>
 
 /*
 Система следующая:

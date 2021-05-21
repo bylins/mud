@@ -5,28 +5,15 @@
 #include "parcel.hpp"
 
 #include "world.objects.hpp"
-#include "logger.hpp"
-#include "obj.hpp"
 #include "char_obj_utils.inl"
-#include "db.h"
-#include "interpreter.h"
-#include "comm.h"
-#include "chars/char.hpp"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
 #include "chars/char_player.hpp"
 #include "mail.h"
-#include "name_list.hpp"
-#include "room.hpp"
 #include "objsave.h"
 
-#include <map>
-#include <list>
-#include <string>
-#include <sstream>
 #include <iomanip>
-#include <vector>
 
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;

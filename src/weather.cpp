@@ -14,22 +14,10 @@
 
 #include "weather.hpp"
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
 #include "magic/spells.h"
-#include "skills.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "comm.h"
 #include "handler.h"
-#include "interpreter.h"
-#include "db.h"
 #include "screen.h"
-#include "constants.h"
 #include "random.hpp"
-#include "chars/char.hpp"
-#include "room.hpp"
 #include "celebrates.hpp"
 
 extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени

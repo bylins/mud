@@ -1,17 +1,13 @@
 // Copyright (c) 2012 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <sstream>
+/*#include "conf.h"
+#include <sstream>*/
 
 #include "obj_enchant.hpp"
 #include "obj.hpp"
-#include "utils.h"
 #include "screen.h"
-#include "db.h"
 #include "chars/char.hpp"
-#include "constants.h"
-#include "magic/spells.h"
 
 namespace ObjectEnchant {
 

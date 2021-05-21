@@ -7,33 +7,11 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 
-#include "skills.h"
-
 #include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "comm.h"
 #include "handler.h"
-#include "db.h"
-#include "interpreter.h"
-#include "magic/spells.h"
 #include "screen.h"
-#include "dg_script/dg_scripts.h"
-#include "constants.h"
-#include "crafts/im.h"
-#include "features.hpp"
 #include "random.hpp"
-#include "chars/char.hpp"
-#include "room.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "classes/constants.hpp"
 #include "skills.info.h"
-
-#include <sstream>
-#include <algorithm>
 
 extern const byte kSkillCapOnZeroRemort = 80;
 extern const byte kSkillCapBonusPerRemort = 5;;

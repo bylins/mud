@@ -1,17 +1,12 @@
-#include "structs.h"
-#include "utils.h"
 #include "interpreter.h"
-#include "comm.h"
 #include "screen.h"
 #include "top.h"
 #include "glory_const.hpp"
 #include "chars/char.hpp"
-#include "classes/constants.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
-#include <sstream>
 #include <iomanip>
 
 extern const char *class_name[];

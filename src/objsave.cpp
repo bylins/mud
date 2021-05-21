@@ -14,35 +14,16 @@
 #include "world.objects.hpp"
 #include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "comm.h"
 #include "handler.h"
-#include "db.h"
-#include "interpreter.h"
-#include "logger.hpp"
-#include "magic/spells.h"
 #include "screen.h"
 #include "house.h"
-#include "crafts/im.h"
 #include "depot.hpp"
-#include "chars/char.hpp"
 #include "liquid.hpp"
 #include "file_crc.hpp"
 #include "named_stuff.hpp"
-#include "room.hpp"
-#include "mail.h"
-#include "dg_script/dg_scripts.h"
-#include "features.hpp"
 #include "char_obj_utils.inl"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "obj_sets.hpp"
 
 #include <boost/algorithm/string.hpp>
-
-#include <sstream>
-#include <vector>
 
 #define LOC_INVENTORY    0
 #define MAX_BAG_ROWS    5

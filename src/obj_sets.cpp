@@ -3,37 +3,15 @@
 
 #include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
-#include "conf.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "obj_sets.hpp"
 #include "obj_sets_stuff.hpp"
-#include "structs.h"
-#include "obj.hpp"
-#include "db.h"
 #include "pugixml.hpp"
 #include "parse.hpp"
-#include "constants.h"
-#include "handler.h"
-#include "chars/char_player.hpp"
-#include "skills.h"
 #include "screen.h"
 #include "modify.h"
-#include "magic/spells.h"
 #include "help.hpp"
 #include "sets_drop.hpp"
-#include "classes/constants.hpp"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include <string>
-#include <vector>
-#include <map>
-#include <array>
-#include <algorithm>
-#include <sstream>
-#include <unordered_map>
 
 namespace obj_sets {
 

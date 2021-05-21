@@ -1,23 +1,12 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "reset_stats.hpp"
-
-#include "logger.hpp"
-#include "utils.h"
 #include "genchar.h"
-#include "db.h"
 #include "screen.h"
 #include "parse.hpp"
 #include "chars/char.hpp"
-#include "features.hpp"
-#include "conf.h"
 
 #include <boost/format.hpp>
-
-#include <string>
-#include <array>
-#include <algorithm>
 
 extern void add_karma(CHAR_DATA *ch, const char *punish, const char *reason);
 extern bool ValidateStats(DESCRIPTOR_DATA *d);

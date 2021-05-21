@@ -5,12 +5,7 @@
 #include "spam.hpp"
 
 #include "logger.hpp"
-#include "utils.h"
 #include "chars/char.hpp"
-#include "comm.h"
-
-#include <list>
-#include <sstream>
 
 using namespace SpamSystem;
 

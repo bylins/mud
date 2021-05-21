@@ -2,14 +2,10 @@
 
 #include "objsave.h"
 
-#include "logger.hpp"
 #include "house.h"
 #include "depot.hpp"
 #include "parcel.hpp"
 #include "chars/world.characters.hpp"
-
-#include <list>
-#include <vector>
 
 namespace ObjSaveSync {
 
