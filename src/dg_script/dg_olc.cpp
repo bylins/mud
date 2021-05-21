@@ -17,18 +17,11 @@
 #include "dg_olc.h"
 
 #include "obj.hpp"
-#include "comm.h"
-#include "db.h"
 #include "olc/olc.h"
 #include "dg_event.h"
 #include "chars/char.hpp"
-#include "room.hpp"
 #include "zone.table.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
+//#include "logger.hpp"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DESCRIPTOR_DATA *descriptor_list;

@@ -7,28 +7,28 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "comm.h"
+//#include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "db.h"
+//#include "db.h"
 #include "ban.h"
-#include "chars/char.hpp"
+//#include "chars/char.hpp"
 #include "modify.h"
-#include "logger.hpp"
+/*#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
+#include "conf.h"*/
 #include "global.objects.hpp"
 
 #include <boost/tokenizer.hpp>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <map>
+/*#include <map>
 #include <fstream>
 #include <sstream>
-#include <iomanip>
+#include <iomanip>*/
 
 extern DESCRIPTOR_DATA *descriptor_list;
 

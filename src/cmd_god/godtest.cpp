@@ -3,9 +3,6 @@
 #include "../chars/char.hpp"
 #include "../modify.h"
 
-/*#include <sstream>
-#include <iomanip>*/
-
 // This is test command for different testings
 void do_godtest(CHAR_DATA *ch, char * /*argument*/, int /* cmd */, int /* subcmd */) {
 	std::stringstream buffer;

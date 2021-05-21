@@ -13,23 +13,13 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "logger.hpp"
-#include "obj.hpp"
-#include "dg_db_scripts.hpp"
 #include "dg_scripts.h"
-#include "comm.h"
-#include "interpreter.h"
 #include "handler.h"
-#include "db.h"
-#include "olc/olc.h"
-#include "chars/char.hpp"
-#include "room.hpp"
-#include "magic/spells.h"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
+#include "interpreter.h"
 #include "magic/spells.info.h"
+//#include "logger.hpp"
+#include "obj.hpp"
+#include "olc/olc.h"
 
 #include <boost/lexical_cast.hpp>
 

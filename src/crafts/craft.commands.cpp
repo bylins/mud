@@ -1,14 +1,14 @@
 #include "craft.commands.hpp"
 
-#include "logger.hpp"
+/*#include "logger.hpp"
 #include "craft.logger.hpp"
-#include "craft.static.hpp"
+#include "craft.static.hpp"*/
 #include "xml_loading_helper.hpp"
 #include "craft.hpp"
 #include "chars/char.hpp"
-#include "commands.hpp"
+//#include "commands.hpp"
 
-#include <sstream>
+//#include <sstream>
 #include <iomanip>
 
 namespace craft {

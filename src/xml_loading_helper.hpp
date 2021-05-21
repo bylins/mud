@@ -1,9 +1,10 @@
 #if !defined __XML_LOADING_HELPER_HPP__
 #define __XML_LOADING_HELPER_HPP__
 
+#include "logger.hpp"
+#include "pugixml.hpp"
 #include "structs.h"
 #include "utils.h"
-#include "pugixml.hpp"
 
 namespace xml {
 namespace loading {

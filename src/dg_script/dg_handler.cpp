@@ -14,19 +14,9 @@
 ************************************************************************ */
 
 #include "dg_scripts.h"
-#include "utils.h"
-#include "comm.h"
-#include "db.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
-#include "magic/spells.h"
 #include "dg_event.h"
-#include "crafts/im.h"
-#include "features.hpp"
-#include "chars/char.hpp"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
 
 // remove a single trigger from a mob/obj/room
 void extract_trigger(TRIG_DATA *trig) {

@@ -8,24 +8,13 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-#include "obj.hpp"
 #include "constants.h"
 #include "dg_scripts.h"
-#include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "dg_event.h"
-#include "db.h"
-#include "screen.h"
 #include "magic/magic.h"
-#include "chars/char.hpp"
-#include "room.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "logger.hpp"
-#include "magic/spells.info.h"
+//#include "logger.hpp"
 
 extern const char *item_types[];
 extern const char *apply_types[];

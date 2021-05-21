@@ -7,17 +7,17 @@
 #include "craft.hpp"
 
 #include "object.prototypes.hpp"
-#include "logger.hpp"
+//#include "logger.hpp"
 #include "craft.logger.hpp"
-#include "craft.commands.hpp"
+//#include "craft.commands.hpp"
 #include "craft.static.hpp"
 #include "time_utils.hpp"
 #include "xml_loading_helper.hpp"
 #include "parse.hpp"
-#include "skills.h"
-#include "comm.h"
+/*#include "skills.h"
+#include "comm.h"*/
 #include "db.h"
-#include "utils.h"
+//#include "utils.h"
 #include "pugixml.hpp"
 
 #include <boost/filesystem.hpp>
@@ -25,9 +25,9 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
-#include <iostream>
+/*#include <iostream>
 #include <string>
-#include <sstream>
+#include <sstream>*/
 
 namespace craft {
 using xml::loading::CHelper;
