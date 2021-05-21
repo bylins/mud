@@ -1,16 +1,10 @@
 #include "magic_rooms.h"
 
-#include "spells.h"
-#include "comm.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 #include "modify.h"
-#include "db.h"
-#include "utils.h"
 #include "chars/char.hpp"
-#include "magic_utils.h"
 #include "magic.h" //Включено ради material_component_processing, который надо, по-хлорошему, вообще в отдеьный модуль.
 
-#include <sstream>
 #include <iomanip>
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты

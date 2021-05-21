@@ -34,7 +34,7 @@
 #include "room.hpp"
 #include "named_stuff.hpp"
 #include "magic/magic_utils.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.h"
 #include "noob.hpp"
 #include "genchar.h"

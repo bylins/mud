@@ -12,7 +12,7 @@
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "screen.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.h"
 #include "constants.h"
 #include "comm.h"

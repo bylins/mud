@@ -15,7 +15,7 @@
 #include "skills.h"
 #include "constants.h"
 #include "char_player.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 #include "comm.h"
 #include "room.hpp"
 #include "player_races.hpp"

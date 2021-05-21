@@ -6,7 +6,7 @@
 
 #include "constants.h"
 #include "db.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "handler.h"
 #include "house.h"
 #include "chars/char.hpp"

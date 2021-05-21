@@ -12,52 +12,27 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "spells.h"
+#include "magic/spells.h"
 
-#include "birthplaces.h"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
 #include "chars/world.characters.hpp"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
-#include "comm.h"
-#include "conf.h"
-#include "constants.h"
-#include "coredump.hpp"
-#include "db.h"
-#include "deathtrap.hpp"
 #include "depot.hpp"
-#include "dg_script/dg_scripts.h"
-#include "features.hpp"
 #include "fightsystem/mobact.hpp"
 #include "fightsystem/pk.h"
 #include "handler.h"
 #include "house.h"
-#include "crafts/im.h"
-#include "interpreter.h"
 #include "liquid.hpp"
-#include "logger.hpp"
 #include "magic/magic.h"
-#include "modify.h"
-#include "obj.hpp"
-#include "obj_sets.hpp"
 #include "object.prototypes.hpp"
 #include "parcel.hpp"
 #include "privilege.hpp"
-#include "room.hpp"
 #include "screen.h"
-#include "skills.h"
 #include "cmd/flee.h"
 #include "skills/townportal.h"
-#include "structs.h"
-#include "sysdep.h"
 #include "world.objects.hpp"
-#include "zone.table.hpp"
 #include "skills.info.h"
-#include "spells.info.h"
-
-#include <math.h>
-#include <vector>
 
 #include <boost/format.hpp>
 

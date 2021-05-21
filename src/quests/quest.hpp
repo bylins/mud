@@ -1,6 +1,8 @@
 // by bodrich (2014)
 // http://mud.ru
 
+#include <string>
+
 class Quest {
  public:
 	Quest(int id, int time_start, int time_end, std::string text_quest, std::string tquest, int var_quest);

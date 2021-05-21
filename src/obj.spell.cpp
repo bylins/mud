@@ -2,12 +2,12 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "spells.h"
+#include "magic/spells.h"
 
 #include "obj.hpp"
 #include "comm.h"
 #include "screen.h"
-#include "poison.hpp"
+#include "skills/poison.hpp"
 #include "chars/char.hpp"
 #include "db.h"
 #include "room.hpp"
@@ -17,7 +17,7 @@
 #include "conf.h"
 #include "char_obj_utils.inl"
 #include "skills.info.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <boost/format.hpp>
 

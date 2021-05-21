@@ -5,7 +5,7 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight_hit.hpp"
 #include "handler.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.info.h"
 
 // ************** PROTECT PROCEDURES

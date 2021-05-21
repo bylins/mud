@@ -21,7 +21,7 @@
 #include "handler.h"
 #include "dg_event.h"
 #include "comm.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.h"
 #include "crafts/im.h"
 #include "features.hpp"
@@ -35,7 +35,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "temp_spells.hpp"
+#include "magic/temp_spells.hpp"
 #include "skills.info.h"
 
 #include <algorithm>

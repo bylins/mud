@@ -13,7 +13,7 @@
 #include "handler.h"
 #include "db.h"
 #include "room.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 #include "dg_script/dg_scripts.h"
 #include "corpse.hpp"
 #include "house.h"
@@ -35,7 +35,7 @@
 #include "chars/char_player.hpp"
 #include "mob_stat.hpp"
 #include "classes/constants.hpp"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <math.h>
 #include <algorithm>

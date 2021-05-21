@@ -19,7 +19,7 @@
 #include "db.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "dg_event.h"
 #include "crafts/im.h"
 #include "features.hpp"

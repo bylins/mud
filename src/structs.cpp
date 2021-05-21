@@ -1,6 +1,6 @@
 #include "structs.h"
 #include "chars/char.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 #include "utils.h"
 #include "logger.hpp"
 #include "msdp/msdp.hpp"

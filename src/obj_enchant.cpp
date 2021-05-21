@@ -11,7 +11,7 @@
 #include "db.h"
 #include "chars/char.hpp"
 #include "constants.h"
-#include "spells.h"
+#include "magic/spells.h"
 
 namespace ObjectEnchant {
 

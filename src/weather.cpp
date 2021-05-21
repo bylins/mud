@@ -17,7 +17,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.h"
 #include "logger.hpp"
 #include "utils.h"

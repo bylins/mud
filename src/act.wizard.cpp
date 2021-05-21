@@ -68,7 +68,7 @@
 #include "sets_drop.hpp"
 #include "shop_ext.hpp"
 #include "skills.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "time_utils.hpp"
@@ -78,7 +78,7 @@
 #include "world.objects.hpp"
 #include "zone.table.hpp"
 #include "classes/constants.hpp"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 #include "magic/magic_rooms.h"
 
 #include <boost/format.hpp>

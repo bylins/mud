@@ -38,13 +38,13 @@
 #include "screen.h"
 #include "skills.h"
 #include "magic/magic_utils.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "temp_spells.hpp"
+#include "magic/temp_spells.hpp"
 #include "classes/constants.hpp"
 #include "skills.info.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <cmath>
 #include <boost/algorithm/string.hpp>

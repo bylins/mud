@@ -6,11 +6,11 @@
 #include "structs.h"
 #include "comm.h"
 #include "skills.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "magic/magic_utils.h"
 #include "features.hpp"
 #include "classes/spell.slots.hpp"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 #include "handler.h"
 #include "screen.h"
 

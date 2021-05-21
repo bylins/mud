@@ -2,13 +2,13 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "poison.hpp"
+#include "skills/poison.hpp"
 
 #include "logger.hpp"
 #include "utils.h"
 #include "obj.hpp"
 #include "chars/char.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 #include "liquid.hpp"
 #include "screen.h"
 #include "handler.h"

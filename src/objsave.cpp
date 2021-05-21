@@ -20,7 +20,7 @@
 #include "db.h"
 #include "interpreter.h"
 #include "logger.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 #include "screen.h"
 #include "house.h"
 #include "crafts/im.h"

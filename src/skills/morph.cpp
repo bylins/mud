@@ -1,4 +1,4 @@
-#include "morph.hpp"
+#include "skills/morph.hpp"
 
 #include "obj.hpp"
 #include "screen.h"
@@ -6,7 +6,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "chars/char.hpp"
 #include "comm.h"
 #include "skills.h"

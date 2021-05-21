@@ -1,7 +1,7 @@
 #include "fight.extra.attack.hpp"
 
 #include "chars/char.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 #include "utils.h"
 
 #include <boost/algorithm/string.hpp>

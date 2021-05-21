@@ -2,14 +2,11 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "quested.hpp"
+#include "quests/quested.hpp"
 
 #include "chars/char.hpp"
-#include "utils.h"
 
 #include <boost/algorithm/string/predicate.hpp>
-
-#include <sstream>
 
 void smash_tilde(char *str);
 

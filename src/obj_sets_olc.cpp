@@ -15,7 +15,7 @@
 #include "skills.h"
 #include "screen.h"
 #include "modify.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "utils.h"
 #include "classes/constants.hpp"
 #include "skills.info.h"

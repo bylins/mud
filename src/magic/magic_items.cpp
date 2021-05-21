@@ -1,11 +1,10 @@
 #include "magic_items.h"
 
 #include "obj.hpp"
-#include "room.hpp"
 #include "chars/char.hpp"
 #include "handler.h"
 #include "object.prototypes.hpp"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 #include "magic_utils.h"
 
 const short DEFAULT_STAFF_LVL = 12;

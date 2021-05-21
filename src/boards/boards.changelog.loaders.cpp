@@ -1,15 +1,10 @@
 #include "boards.changelog.loaders.hpp"
 
 #include "logger.hpp"
-#include "boards.h"
-#include "boards.message.hpp"
 #include "boards.constants.hpp"
 
 #include <boost/algorithm/string/trim.hpp>
-
-#include <functional>
 #include <sstream>
-#include <iomanip>
 
 namespace Boards {
 class ChangeLogLoaderImplementation : public ChangeLogLoader {

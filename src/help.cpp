@@ -12,7 +12,7 @@
 #include "sets_drop.hpp"
 #include "handler.h"
 #include "screen.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "obj_sets.hpp"
 #include "zone.table.hpp"
 #include "logger.hpp"

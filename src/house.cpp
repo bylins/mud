@@ -18,7 +18,7 @@
 #include "screen.h"
 #include "boards/boards.h"
 #include "skills.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "privilege.hpp"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"

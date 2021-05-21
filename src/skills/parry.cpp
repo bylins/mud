@@ -3,7 +3,7 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/common.h"
-#include "spells.h"
+#include "magic/spells.h"
 
 using namespace FightSystem;
 

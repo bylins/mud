@@ -8,7 +8,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "quested.hpp"
+#include "quests/quested.hpp"
 #include "mobmax.hpp"
 #include "remember.hpp"
 #include "char.hpp"
@@ -16,7 +16,7 @@
 #include "map.hpp"
 #include "reset_stats.hpp"
 #include "boards/boards.types.hpp"
-#include "quest.hpp"
+#include "quests/quest.hpp"
 #include "stigmas.hpp"
 #include "cmd/mercenary.h"
 

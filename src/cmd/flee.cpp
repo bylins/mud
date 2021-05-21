@@ -1,9 +1,10 @@
 #include "flee.h"
 
 #include "act.movement.hpp"
-#include "random.hpp"
 
-#include <math.h>
+#include "features.hpp"
+#include "random.hpp"
+#include "chars/char.hpp"
 
 void reduce_exp_after_flee(CHAR_DATA *ch, CHAR_DATA *victim, room_rnum room) {
 	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))
@@ -15,7 +16,7 @@ void reduce_exp_after_flee(CHAR_DATA *ch, CHAR_DATA *victim, room_rnum room) {
 
 // ********************* FLEE PROCEDURE
 void go_flee(CHAR_DATA *ch) {
-	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0) {
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || GET_WAIT(ch) > 0) {
 		return;
 	}
 

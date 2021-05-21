@@ -16,7 +16,7 @@
 #include <array>
 
 #include "constants.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.h"
 #include "interpreter.h"    // alias_data
 #include "house.h"

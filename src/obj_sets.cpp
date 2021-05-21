@@ -19,7 +19,7 @@
 #include "skills.h"
 #include "screen.h"
 #include "modify.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "help.hpp"
 #include "sets_drop.hpp"
 #include "classes/constants.hpp"

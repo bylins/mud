@@ -7,7 +7,7 @@
 #include "action.targeting.hpp"
 #include "abilities/abilities_rollsystem.h"
 #include "handler.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "cmd/flee.h"
 
 using namespace FightSystem;

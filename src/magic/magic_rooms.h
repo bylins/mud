@@ -3,7 +3,7 @@
 
 // яРПСЙРСПШ Х ТСМЙЖХХ ДКЪ ПЮАНРШ Я ГЮЙКХМЮМХЪЛХ, НАЙЮЯРНБШБЮЧЫХЛХ ЙНЛМЮРШ
 
-#include "spells.h"
+#include "magic/spells.h"
 #include "room.hpp"
 
 #include <list>

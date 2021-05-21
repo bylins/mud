@@ -45,7 +45,7 @@
 #include "screen.h"
 #include "shop_ext.hpp"
 #include "skills.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "world.objects.hpp"

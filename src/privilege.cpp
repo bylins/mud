@@ -14,7 +14,7 @@
 #include "db.h"
 #include "interpreter.h"
 #include "boards/boards.h"
-#include "spells.h"
+#include "magic/spells.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>

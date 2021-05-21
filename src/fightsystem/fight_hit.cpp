@@ -9,7 +9,7 @@
 #include "pk.h"
 #include "dps.hpp"
 #include "house_exp.hpp"
-#include "poison.hpp"
+#include "skills/poison.hpp"
 #include "bonus.h"
 #include "mobact.hpp"
 #include "fightsystem/common.h"

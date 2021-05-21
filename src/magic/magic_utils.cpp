@@ -14,32 +14,15 @@
 
 #include "magic_utils.h"
 
-#include "skills/stun.h"
-
-#include "obj.hpp"
 #include "chars/char.hpp"
-#include "room.hpp"
-#include "spells.h"
-#include "skills.h"
 #include "handler.h"
-#include "comm.h"
 #include "screen.h"
-#include "constants.h"
 #include "fightsystem/pk.h"
-#include "features.hpp"
-#include "name_list.hpp"
 #include "depot.hpp"
 #include "parcel.hpp"
 #include "magic.h"
-#include "chars/world.characters.hpp"
-#include "logger.hpp"
-#include "structs.h"
 #include "skills.info.h"
-#include "spells.info.h"
 #include "magic_rooms.h"
-#include "db.h"
-
-#include <vector>
 
 extern struct spell_create_type spell_create[];
 char cast_argument[MAX_STRING_LENGTH];

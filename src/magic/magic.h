@@ -17,7 +17,7 @@
 #include "obj.hpp"
 #include "chars/char.hpp"
 #include "room.hpp"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <cstdlib>
 

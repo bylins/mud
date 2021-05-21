@@ -1,8 +1,8 @@
-#include "boot.index.hpp"
+#include "boot/boot.index.hpp"
 
 #include "logger.hpp"
 #include "utils.h"
-#include "boot.constants.hpp"
+#include "boot/boot.constants.hpp"
 
 class IndexFileImplementation : public IndexFile {
  public:

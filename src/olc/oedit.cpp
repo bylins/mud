@@ -14,7 +14,7 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "db.h"
@@ -36,7 +36,7 @@
 #include "obj.hpp"
 #include "zone.table.hpp"
 #include "skills.info.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <array>
 #include <vector>

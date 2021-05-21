@@ -22,11 +22,11 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "db.h"
 #include "cache.hpp"
 #include "magic/magic_utils.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "handler.h"
 #include "constants.h"
 #include "modify.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 // Required because pyconfig.h defines ssize_t by himself
 #if defined(ssize_t)

@@ -1,24 +1,18 @@
-#include "boot.data.files.hpp"
+#include "boot/boot.data.files.hpp"
 
 #include "object.prototypes.hpp"
-#include "logger.hpp"
 #include "dg_script/dg_scripts.h"
 #include "dg_script/dg_olc.h"
 #include "boards/boards.h"
 #include "constants.h"
-#include "room.hpp"
 #include "description.h"
 #include "crafts/im.h"
 #include "chars/char.hpp"
 #include "help.hpp"
 #include "dg_script/dg_db_scripts.hpp"
 #include "zone.table.hpp"
-#include "utils.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string.hpp>
-#include <iostream>
 #include <regex>
 
 extern int scheck;                        // TODO: get rid of this line

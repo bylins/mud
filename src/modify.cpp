@@ -19,7 +19,7 @@
 #include "db.h"
 #include "comm.h"
 #include "magic/magic_utils.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "mail.h"
 #include "boards/boards.h"
 #include "screen.h"
@@ -36,7 +36,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "skills.info.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>

@@ -1,11 +1,6 @@
-#include "shutdown.h"
+#include "cmd_god/shutdown.h"
 
-#include "logger.hpp"
 #include "chars/char.hpp"
-#include "comm.h"
-#include "interpreter.h"
-#include "utils.h"
-#include "structs.h"
 
 namespace commands {
 Shutdown::Shutdown(CHAR_DATA *character, const char *argument, ShutdownParameters &shutdown_parameters) :

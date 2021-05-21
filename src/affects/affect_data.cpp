@@ -6,12 +6,8 @@
 #include "classes/class.hpp"
 #include "cmd/follow.h"
 #include "deathtrap.hpp"
-#include "handler.h"
 #include "magic/magic.h"
-#include "poison.hpp"
-#include "spells.h"
-#include "classes/constants.hpp"
-#include "spells.info.h"
+#include "skills/poison.hpp"
 
 bool no_bad_affects(OBJ_DATA *obj) {
 	static std::list<EWeaponAffectFlag> bad_waffects =

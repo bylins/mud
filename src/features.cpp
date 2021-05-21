@@ -17,7 +17,7 @@
 #include "comm.h"
 #include "db.h"
 #include "interpreter.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "chars/char.hpp"
 #include "chars/player_races.hpp"
 #include "room.hpp"
@@ -1188,7 +1188,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 #include "classes/spell.slots.hpp" // удалить после вырезания do_spell_capable
-#include "spells.info.h"
+#include "magic/spells.info.h"
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона
 void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

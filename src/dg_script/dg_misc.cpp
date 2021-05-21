@@ -25,7 +25,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "logger.hpp"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 extern const char *item_types[];
 extern const char *apply_types[];

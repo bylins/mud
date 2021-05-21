@@ -60,7 +60,7 @@
 #include "privilege.hpp"
 #include "sets_drop.hpp"
 #include "shop_ext.hpp"
-#include "shutdown.parameters.hpp"
+#include "cmd_god/shutdown.parameters.hpp"
 #include "skills/townportal.h"
 #include "speedwalks.hpp"
 #include "stuff.hpp"
@@ -72,7 +72,7 @@
 #include "classes/constants.hpp"
 #include "magic/magic_rooms.h"
 #include "skills.info.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>

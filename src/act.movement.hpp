@@ -1,7 +1,10 @@
 #ifndef _ACT_MOVEMENT_HPP_
 #define _ACT_MOVEMENT_HPP_
 
-#include "chars/char.hpp"
+#include "structs.h"
+
+class CHAR_DATA;    // to avoid inclusion
+class OBJ_DATA;
 
 enum DOOR_SCMD : int {
 	SCMD_OPEN = 0,    // открыть

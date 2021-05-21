@@ -15,7 +15,7 @@
 #include "world.objects.hpp"
 #include "chars/world.characters.hpp"
 #include "obj.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills/townportal.h"
 #include "comm.h"
 #include "db.h"
@@ -49,7 +49,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "classes/spell.slots.hpp"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <boost/format.hpp>
 

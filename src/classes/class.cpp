@@ -25,7 +25,7 @@
 #include "comm.h"
 #include "db.h"
 #include "magic/magic_utils.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -48,7 +48,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "skills.info.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <iostream>
 

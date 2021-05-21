@@ -24,12 +24,12 @@
 #include "olc/olc.h"
 #include "chars/char.hpp"
 #include "room.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <boost/lexical_cast.hpp>
 

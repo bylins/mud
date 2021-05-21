@@ -12,30 +12,15 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "db.h"
 #include "screen.h"
-#include "dg_script/dg_scripts.h"
 #include "auction.h"
-#include "privilege.hpp"
-#include "chars/char.hpp"
 #include "chars/char_player.hpp"
-#include "remember.hpp"
 #include "house.h"
-#include "obj.hpp"
-#include "room.hpp"
 #include "spam.hpp"
 #include "char_obj_utils.inl"
 #include "chars/world.characters.hpp"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-
-#include <sstream>
-#include <list>
-#include <string>
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;

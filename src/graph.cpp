@@ -22,7 +22,7 @@
 #include "constants.h"
 #include "handler.h"
 #include "db.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.h"
 #include "features.hpp"
 #include "random.hpp"

@@ -5,7 +5,7 @@
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/common.h"
 #include "skills/parry.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "protect.h"
 
 using namespace FightSystem;

@@ -1,12 +1,12 @@
 #include "memorize.h"
 
-#include "spells.info.h"
+#include "magic/spells.info.h"
 #include "handler.h"
 #include "crafts/im.h"
 #include "screen.h"
 #include "limits.hpp"
 #include "classes/spell.slots.hpp"
-#include "spells.h"
+#include "magic/spells.h"
 
 #include "magic/magic_utils.h" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
 

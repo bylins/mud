@@ -1,9 +1,10 @@
 // by bodrich (2014)
 // http://mud.ru
 
+#include "quests/quest.hpp"
+
 #include <vector>
 #include <string>
-#include "quest.hpp"
 
 Quest::Quest(int id, int time_start, int time_end, std::string text_quest, std::string tquest, int var_quest) {
 	this->id = id;

@@ -6,14 +6,14 @@
 #include "logger.hpp"
 #include "heartbeat.hpp"
 #include "speedwalks.hpp"
-#include "shutdown.parameters.hpp"
+#include "cmd_god/shutdown.parameters.hpp"
 #include "shops.implementation.hpp"
 #include "world.objects.hpp"
 #include "chars/world.characters.hpp"
 #include "act.wizard.hpp"
 #include "influxdb.hpp"
 #include "zone.table.hpp"
-#include "daily_quest.hpp"
+#include "quests/daily_quest.hpp"
 #include "strengthening.hpp"
 class BanList;    // to avoid inclusion of ban.hpp
 

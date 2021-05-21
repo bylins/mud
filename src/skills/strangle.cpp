@@ -6,7 +6,7 @@
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/common.h"
 #include "handler.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "random.hpp"
 #include "protect.h"
 #include "skills.info.h"

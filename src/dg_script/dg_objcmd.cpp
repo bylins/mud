@@ -29,7 +29,7 @@
 #include "screen.h"
 #include "skills.h"
 #include "magic/magic_utils.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "utils.h"

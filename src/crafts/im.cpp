@@ -10,29 +10,14 @@
 
 // Реализация ингредиентной магии
 
-#include "im.h"
+#include "crafts/im.h"
 
 #include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
-#include "obj.hpp"
 #include "handler.h"
-#include "db.h"
-#include "interpreter.h"
-#include "comm.h"
-#include "constants.h"
 #include "screen.h"
-#include "features.hpp"
-#include "chars/char.hpp"
 #include "modify.h"
-#include "room.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-
-#include <vector>
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, LVL_BUILDER, IMLOG, TRUE)

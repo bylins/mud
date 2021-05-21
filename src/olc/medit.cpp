@@ -10,7 +10,7 @@
 #include "chars/world.characters.hpp"
 #include "obj.hpp"
 #include "comm.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "db.h"
 #include "olc.h"
 #include "handler.h"
@@ -32,7 +32,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "skills.info.h"
-#include "spells.info.h"
+#include "magic/spells.info.h"
 
 #include <boost/format.hpp>
 #include <stack>

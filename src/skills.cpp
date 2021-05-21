@@ -15,7 +15,7 @@
 #include "handler.h"
 #include "db.h"
 #include "interpreter.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "screen.h"
 #include "dg_script/dg_scripts.h"
 #include "constants.h"

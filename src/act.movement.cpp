@@ -22,7 +22,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-#include "spells.h"
+#include "magic/spells.h"
 #include "skills.h"
 #include "house.h"
 #include "constants.h"
