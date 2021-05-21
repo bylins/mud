@@ -25,6 +25,13 @@ extern const byte  kSkillCapBonusPerRemort;
 
 class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
+#define SAVING_WILL       0
+#define SAVING_CRITICAL   1
+#define SAVING_STABILITY  2
+#define SAVING_REFLEX     3
+#define SAVING_COUNT      4
+#define SAVING_NONE	5 //Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.
+
 enum ExtraAttackEnumType {
   EXTRA_ATTACK_UNUSED,
   EXTRA_ATTACK_THROW,
@@ -137,6 +144,12 @@ enum ESkill : int {
 
 #define KNOW_SKILL  1
 
+struct SkillRollResult {
+	bool success = true;
+	bool critical = false;
+	short degree = 0;
+};
+
 template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
@@ -159,8 +172,9 @@ int CalcSkillRemortCap(const CHAR_DATA* ch);
 int CalcSkillSoftCap(const CHAR_DATA *ch);
 int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill);
 int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill);
-
-void SendSkillBalanceMsg (CHAR_DATA* ch, const char* skill_name, int percent, int prob, bool success);
+SkillRollResult MakeSkillTest(CHAR_DATA *ch, ESkill skill_id, CHAR_DATA *vict);
+void SendSkillBalanceMsg(CHAR_DATA *ch, const char *skill_name, int percent, int prob, bool success);
+int CalculateSkillAwakeModifier(CHAR_DATA *killer, CHAR_DATA *victim);
 
 // ГОРНОЕ ДЕЛО
 
@@ -234,15 +248,13 @@ struct skillvariables_dig {
 #define INSGEM_DFLT_TIMER_MINUS_PERCENT    10
 
 struct skillvariables_insgem {
-  int lag;
-  int minus_for_affect;
-  int prob_divide;
-  int dikey_percent;
-  int timer_plus_percent;
-  int timer_minus_percent;
+	int lag;
+	int minus_for_affect;
+	int prob_divide;
+	int dikey_percent;
+	int timer_plus_percent;
+	int timer_minus_percent;
 };
-
-int CalcAwakeMod(CHAR_DATA *killer, CHAR_DATA *victim);
 
 /*
     В перспективе описанный далее класс должен будет содержать

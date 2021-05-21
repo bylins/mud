@@ -148,8 +148,8 @@ int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_appl
       save -= MAX(0, victim->get_skill(SKILL_AWAKE) - 80) / 2;
       temp_awake_mod = MAX(0, victim->get_skill(SKILL_AWAKE) - 80) / 2;
     }
-    temp_awake_mod += CalcAwakeMod(killer, victim);
-    save -= CalcAwakeMod(killer, victim);
+    temp_awake_mod += CalculateSkillAwakeModifier(killer, victim);
+    save -= CalculateSkillAwakeModifier(killer, victim);
   }
 
   save += GET_SAVE(victim, type);    // одежда

@@ -839,9 +839,7 @@ void init_guilds(void) {
         featnum = find_feat_num(line5);
       }
       if (skillnum <= 0 && spellnum <= 0 && featnum <= 0) {
-        sprintf(buf2, "Unknown skill, spell or feat for polyguild - \'%s\'", line5);
-        //log("Unknown skill, spell or feat for polyguild");
-        log(buf2);
+        log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
         graceful_exit(1);
       }
       if ((level = atoi(line6)) == 0 || level >= LVL_IMMORT) {

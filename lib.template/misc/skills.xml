@@ -28,435 +28,435 @@
 	<skill id="SKILL_PROTECT">
         <number val="1" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="120" />
+        <difficulty val="120" />
     </skill>
 	<skill id="SKILL_TOUCH">
         <number val="2" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_SHIT">
 	    <number val="3" />
         <name text="О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_MIGHTHIT">
 	    <number val="4" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_STUPOR">
 	    <number val="5" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_POISONED">
 	    <number val="6" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
     <skill id="SKILL_SENSE">
 	    <number val="7" />
         <name text="О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_HORSE">
 	    <number val="8" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_HIDETRACK">
 	    <number val="9" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="120" />
+        <difficulty val="120" />
     </skill>
     <!-- О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫? О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫... -->
     <skill id="SKILL_RELIGION">
 	    <number val="10" />
         <name text="!О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫!" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_MAKEFOOD">
 	    <number val="11" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="120" />
+        <difficulty val="120" />
     </skill>
 	<skill id="SKILL_MULTYPARRY">
 	    <number val="12" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
 	<skill id="SKILL_TRANSFORMWEAPON">
 	    <number val="13" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
     <!-- О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
     <skill id="SKILL_LEADERSHIP">
 	    <number val="20" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_PUNCTUAL">
 	    <number val="21" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="110" />
+        <difficulty val="110" />
     </skill>
 	<skill id="SKILL_AWAKE">
 	    <number val="22" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_IDENTIFY">
 	    <number val="23" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_HEARING">
 	    <number val="24" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <!-- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
     <skill id="SKILL_CREATE_POTION">
 	    <number val="25" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_CREATE_SCROLL">
 	    <number val="26" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_CREATE_WAND">
 	    <number val="27" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <!--  О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
     <skill id="SKILL_LOOK_HIDE">
 	    <number val="28" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_ARMORED">
 	    <number val="29" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_DRUNKOFF">
 	    <number val="30" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_AID">
 	    <number val="31" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_FIRE">
 	    <number val="32" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <!-- О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
 	<skill id="SKILL_CREATEBOW">
         <number val="33" />
         <name text="create bow" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
     <!-- О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ -->
     <skill id="SKILL_THROW">
 	    <number val="130" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="150" />
+        <difficulty val="150" />
     </skill>
 	<skill id="SKILL_BACKSTAB">
         <number val="131" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
 	<skill id="SKILL_BASH">
         <number val="132" />
         <name text="О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
 	<skill id="SKILL_HIDE">
         <number val="133" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_KICK">
         <number val="134" />
         <name text="О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_PICK_LOCK">
         <number val="135" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="120" />
+        <difficulty val="120" />
     </skill>
 	<skill id="SKILL_PUNCH">
         <number val="136" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_RESCUE">
         <number val="137" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="130" />
+        <difficulty val="130" />
     </skill>
 	<skill id="SKILL_SNEAK">
         <number val="138" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_STEAL">
         <number val="139" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_TRACK">
         <number val="140" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_CLUBS">
 	    <number val="141" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
     <skill id="SKILL_AXES">
 	    <number val="142" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
 	<skill id="SKILL_LONGS">
 	    <number val="143" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
 	<skill id="SKILL_SHORTS">
 	    <number val="144" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
     <skill id="SKILL_NONSTANDART">
 	    <number val="145" />
         <name text="О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
     <skill id="SKILL_BOTHHANDS">
 	    <number val="146" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
     <skill id="SKILL_PICK">
 	    <number val="147" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
     <skill id="SKILL_SPADES">
 	    <number val="148" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
     <skill id="SKILL_SATTACK">
 	    <number val="149" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_DISARM">
 	    <number val="150" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_PARRY">
         <number val="151" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="120" />
+        <difficulty val="120" />
     </skill>
 	<skill id="SKILL_HEAL">
 	    <number val="152" />
         <name text="!heal!" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_TURN">
 	    <number val="153" />
         <name text="turn" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_BOWS">
 	    <number val="154" />
         <name text="О©╫О©╫О©╫О©╫" />
-        <fail_percent val="160" />
+        <difficulty val="160" />
     </skill>
     <skill id="SKILL_ADDSHOT">
 	    <number val="155" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_CAMOUFLAGE">
 	    <number val="156" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_DEVIATE">
 	    <number val="157" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_BLOCK">
         <number val="158" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
     <skill id="SKILL_LOOKING">
 	    <number val="159" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_CHOPOFF">
 	    <number val="160" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_REPAIR">
 	    <number val="161" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <!-- О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ -->
     <skill id="SKILL_UPGRADE">
 	    <number val="164" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_COURAGE">
 	    <number val="165" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_MANADRAIN">
 	    <number val="166" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_NOPARRYHIT">
 	    <number val="167" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_TOWNPORTAL">
 	    <number val="168" />
         <name text="О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <!-- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ -->
     <skill id="SKILL_MAKE_STAFF">
 	    <number val="169" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
     <skill id="SKILL_MAKE_BOW">
 	    <number val="170" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
 	<skill id="SKILL_MAKE_WEAPON">
 	    <number val="171" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
 	<skill id="SKILL_MAKE_ARMOR">
 	    <number val="172" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
 	<skill id="SKILL_MAKE_WEAR">
 	    <number val="173" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
 	<skill id="SKILL_MAKE_JEWEL">
 	    <number val="174" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
     <skill id="SKILL_MAKE_POTION">
 	    <number val="175" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="140" />
+        <difficulty val="140" />
     </skill>
     <!-- О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫  -->
     <skill id="SKILL_DIG">
 	    <number val="176" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_INSERTGEM">
 	    <number val="177" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
     <skill id="SKILL_WARCRY">
 	    <number val="178" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_TURN_UNDEAD">
 	    <number val="179" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="100" />
+        <difficulty val="100" />
     </skill>
 	<skill id="SKILL_IRON_WIND">
 	    <number val="180" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="150" />
+        <difficulty val="150" />
     </skill>
 	<skill id="SKILL_STRANGLE">
 	    <number val="181" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_AIR_MAGIC">
 	    <number val="182" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_FIRE_MAGIC">
 	    <number val="183" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_WATER_MAGIC">
 	    <number val="184" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_EARTH_MAGIC">
 	    <number val="185" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_LIGHT_MAGIC">
 	    <number val="186" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_DARK_MAGIC">
 	    <number val="187" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_MIND_MAGIC">
 	    <number val="188" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 	<skill id="SKILL_LIFE_MAGIC">
 	    <number val="189" />
         <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
-        <fail_percent val="200" />
+        <difficulty val="200" />
     </skill>
 </skills>

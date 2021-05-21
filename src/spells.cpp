@@ -3103,7 +3103,7 @@ int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, 
       if (!obj) {
         return FALSE;
       } else {
-        percent = number(1, skill_info[skillnum].fail_percent);
+        percent = number(1, skill_info[skillnum].difficulty);
         auto prob = CalcCurrentSkill(ch, skillnum, nullptr);
 
         if (skillnum > 0

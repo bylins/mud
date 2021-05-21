@@ -634,7 +634,7 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
   if (!IS_IMMORTAL(ch) && !IS_NPC(ch))
     GET_MOVE(ch) -= calculate_move_cost(ch, dir);
 
-  i = skill_info[SKILL_SNEAK].fail_percent;
+  i = skill_info[SKILL_SNEAK].difficulty;
   if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) && !is_flee) {
     if (IS_NPC(ch))
       invis = 1;
@@ -644,7 +644,7 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
       invis = 1;
   }
 
-  i = skill_info[SKILL_CAMOUFLAGE].fail_percent;
+  i = skill_info[SKILL_CAMOUFLAGE].difficulty;
   if (AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE) && !is_flee) {
     if (IS_NPC(ch))
       invis = 1;
@@ -1023,7 +1023,7 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     af.modifier = 0;
     af.duration = 1;
     const int calculated_skill = CalcCurrentSkill(ch, SKILL_SNEAK, 0);
-    const int chance = number(1, skill_info[SKILL_SNEAK].fail_percent);
+    const int chance = number(1, skill_info[SKILL_SNEAK].difficulty);
     af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlag::AFF_SNEAK) : 0;
     af.battleflag = 0;
     affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
@@ -1357,7 +1357,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 
 int ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int scmd) {
   int pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
-  int prob = number(1, skill_info[SKILL_PICK_LOCK].fail_percent);
+  int prob = number(1, skill_info[SKILL_PICK_LOCK].difficulty);
 
   if (scmd == SCMD_PICK) {
     auto percent = CalcCurrentSkill(ch, SKILL_PICK_LOCK, nullptr);

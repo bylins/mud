@@ -52,7 +52,7 @@ int go_track(CHAR_DATA *ch, CHAR_DATA *victim, const ESkill skill_no) {
   //Временная затычка. Перевести на резисты
   //Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
   if_sense = (skill_no == SKILL_SENSE) ? 100 : 0;
-  percent = number(0, skill_info[skill_no].fail_percent - if_sense);
+  percent = number(0, skill_info[skill_no].difficulty - if_sense);
   //current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
   if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //Если цель чар и ищет не бог
   {
@@ -163,8 +163,8 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
   for (int c = 0; c < NUM_OF_DIRS; c++) {
     if ((track && track->time_income[c]
-        && calc_track >= number(0, skill_info[SKILL_TRACK].fail_percent))
-        || (!track && calc_track < number(0, skill_info[SKILL_TRACK].fail_percent))) {
+        && calc_track >= number(0, skill_info[SKILL_TRACK].difficulty))
+        || (!track && calc_track < number(0, skill_info[SKILL_TRACK].difficulty))) {
       found = TRUE;
       sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
               track_when[age_track
@@ -173,8 +173,8 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
                        time_income[c] : (1 << number(0, 25)), calc_track)], DirsFrom[Reverse[c]]);
     }
     if ((track && track->time_outgone[c]
-        && calc_track >= number(0, skill_info[SKILL_TRACK].fail_percent))
-        || (!track && calc_track < number(0, skill_info[SKILL_TRACK].fail_percent))) {
+        && calc_track >= number(0, skill_info[SKILL_TRACK].difficulty))
+        || (!track && calc_track < number(0, skill_info[SKILL_TRACK].difficulty))) {
       found = TRUE;
       SET_BIT(ch->track_dirs, 1 << c);
       sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
@@ -234,7 +234,7 @@ void do_hidetrack(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
   }
   if (!check_moves(ch, can_use_feat(ch, STEALTHY_FEAT) ? HIDETRACK_MOVES / 2 : HIDETRACK_MOVES))
     return;
-  percent = number(1, skill_info[SKILL_HIDETRACK].fail_percent);
+  percent = number(1, skill_info[SKILL_HIDETRACK].difficulty);
   prob = CalcCurrentSkill(ch, SKILL_HIDETRACK, 0);
   if (percent > prob) {
     send_to_char("Вы безуспешно попытались замести свои следы.\r\n", ch);

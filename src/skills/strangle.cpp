@@ -38,7 +38,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 
   int prob = CalcCurrentSkill(ch, SKILL_STRANGLE, vict);
   int delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
-  int percent = number(1, skill_info[SKILL_STRANGLE].fail_percent);
+  int percent = number(1, skill_info[SKILL_STRANGLE].difficulty);
 
   bool success = percent <= prob;
   TrainSkill(ch, SKILL_STRANGLE, success, vict);
