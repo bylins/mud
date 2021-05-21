@@ -1,11 +1,11 @@
 #include "employ.h"
 
-#include "../comm.h"
-#include "../structs.h"
-#include "../features.hpp"
-#include "../chars/char.hpp"
-#include "../interpreter.h"
-#include "../handler.h"
+#include "comm.h"
+#include "structs.h"
+#include "features.hpp"
+#include "chars/char.hpp"
+#include "interpreter.h"
+#include "handler.h"
 #include "magic/magic_items.h"
 
 void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text);

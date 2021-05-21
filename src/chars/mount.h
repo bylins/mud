@@ -1,7 +1,7 @@
 #ifndef BYLINS_MOUNT_H
 #define BYLINS_MOUNT_H
 
-#include "char.hpp"
+class CHAR_DATA;
 
 CHAR_DATA *get_horse(CHAR_DATA *ch);
 void make_horse(CHAR_DATA *horse, CHAR_DATA *ch);

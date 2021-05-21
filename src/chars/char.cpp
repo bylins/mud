@@ -3,40 +3,26 @@
 // Part of Bylins http://www.mud.ru
 
 #include "world.characters.hpp"
-#include "logger.hpp"
-#include "obj.hpp"
-#include "db.h"
 #include "fightsystem/pk.h"
-#include "crafts/im.h"
 #include "handler.h"
-#include "interpreter.h"
-#include "boards/boards.h"
 #include "privilege.hpp"
-#include "skills.h"
-#include "constants.h"
 #include "char_player.hpp"
-#include "magic/spells.h"
-#include "comm.h"
-#include "room.hpp"
 #include "player_races.hpp"
 #include "celebrates.hpp"
 #include "cache.hpp"
 #include "fightsystem/fight.h"
 #include "house.h"
-#include "help.hpp"
-#include "utils.h"
 #include "msdp/msdp.constants.hpp"
 #include "backtrace.hpp"
-#include "dg_script/dg_scripts.h"
 #include "zone.table.hpp"
 #include "skills.info.h"
 
 #include <boost/format.hpp>
 
-#include <sstream>
+/*#include <sstream>
 #include <list>
 #include <algorithm>
-#include <iostream>
+#include <iostream>*/
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;

@@ -1,8 +1,6 @@
 #ifndef BYLINS_MERCENARY_H
 #define BYLINS_MERCENARY_H
 
-#include <map>
-
 class CHAR_DATA;
 
 int mercenary(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument);

@@ -4,20 +4,20 @@
 #ifndef PLAYER_RACES_HPP_INCLUDED
 #define PLAYER_RACES_HPP_INCLUDED
 
-#define RACE_UNDEFINED -1
-#define KIN_UNDEFINED -1
-#define RACE_NAME_UNDEFINED "RaceUndef"
-#define KIN_NAME_UNDEFINED "KinUndef"
-#define PLAYER_RACE_FILE "playerraces.xml"
-#define RACE_MAIN_TAG "races"
-#define PLAYER_RACE_ERROR_STR "...players races reading fail"
-
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 
 #include <string>
 #include <vector>
+
+const int RACE_UNDEFINED = -1;
+const int KIN_UNDEFINED = -1;
+#define RACE_NAME_UNDEFINED "RaceUndef"
+#define KIN_NAME_UNDEFINED "KinUndef"
+#define PLAYER_RACE_FILE "playerraces.xml"
+#define RACE_MAIN_TAG "races"
+#define PLAYER_RACE_ERROR_STR "...players races reading fail"
 
 class PlayerKin;
 class PlayerRace;

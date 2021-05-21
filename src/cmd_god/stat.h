@@ -1,7 +1,8 @@
 #ifndef BYLINS_STAT_H
 #define BYLINS_STAT_H
 
-#include "chars/char.hpp"
+class CHAR_DATA;
+class OBJ_DATA;
 
 extern const char *pc_class_types[];
 

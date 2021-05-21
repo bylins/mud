@@ -2,7 +2,7 @@
 //
 #include "mount.h"
 
-#include "cmd/follow.h"
+#include "char.hpp"
 #include "handler.h"
 
 void make_horse(CHAR_DATA *horse, CHAR_DATA *ch) {

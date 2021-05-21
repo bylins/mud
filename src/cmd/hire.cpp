@@ -2,9 +2,9 @@
 
 #include "cmd/follow.h"
 #include "handler.h"
-#include "screen.h"
+//#include "screen.h"
 
-#include <algorithm>
+//#include <algorithm>
 
 constexpr short MAX_HIRE_TIME = 10080 / 2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);

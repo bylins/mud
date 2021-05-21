@@ -3,10 +3,10 @@
 * 2018 (c) bodrich
 */
 #include "accounts.hpp"
-#include "db.h"
-#include "comm.h"
 #include "password.hpp"
-#include "utils.h"
+/*#include "db.h"
+#include "comm.h"
+#include "utils.h"*/
 #include <boost/algorithm/string.hpp>
 #include "zone.table.hpp"
 

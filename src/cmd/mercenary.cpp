@@ -1,9 +1,11 @@
-#include <cmd/mercenary.h>
-#include <chars/char_player.hpp>
+#include "cmd/mercenary.h"
+#include "chars/char_player.hpp"
+#include "modify.h"
+#include "mob_stat.hpp"
+
+//#include <map>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
-#include <modify.h>
-#include <mob_stat.hpp>
 
 int do_social(CHAR_DATA *ch, char *argument);
 

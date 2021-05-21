@@ -2,11 +2,11 @@
 
 #include "chars/char.hpp"
 #include "screen.h"
-#include "utils.h"
+/*#include "utils.h"
 #include "conf.h"
 
 #include <sstream>
-#include <memory.h>
+#include <memory.h>*/
 
 namespace Boards {
 class CommonBoardFormatter : public Board::Formatter {

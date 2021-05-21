@@ -13,9 +13,10 @@
 #include "conf.h"
 #include "diskio.h"
 
-#include <string>
-#include <list>
 #include <algorithm>
+#include <list>
+#include <memory>
+#include <string>
 #include <sys/types.h>
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -8,25 +8,24 @@
 #include "boards.changelog.loaders.hpp"
 #include "boards.constants.hpp"
 #include "boards.formatters.hpp"
-#include "obj.hpp"
+//#include "obj.hpp"
 #include "house.h"
 #include "screen.h"
-#include "comm.h"
+//#include "comm.h"
 #include "privilege.hpp"
-#include "chars/char.hpp"
+//#include "chars/char.hpp"
 #include "modify.h"
-#include "room.hpp"
+/*#include "room.hpp"
 #include "handler.h"
 #include "parse.hpp"
 #include "utils.h"
-#include "conf.h"
+#include "conf.h"*/
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-
-#include <fstream>
-#include <sstream>
+/*#include <fstream>
+#include <sstream>*/
 #include <iomanip>
 
 namespace Boards {
