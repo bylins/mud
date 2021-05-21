@@ -4,13 +4,9 @@
 #include "bonus.h"
 
 #include "bonus.command.parser.hpp"
-#include "structs.h"
-#include "comm.h"
 #include "handler.h"
 #include "modify.h"
 #include "chars/char_player.hpp"
-
-#include <iostream>
 
 namespace Bonus {
 const size_t MAXIMUM_BONUS_RECORDS = 10;

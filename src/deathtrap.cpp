@@ -5,21 +5,21 @@
 #include "deathtrap.hpp"
 
 #include "constants.h"
-#include "db.h"
-#include "magic/spells.h"
+/*#include "db.h"
+#include "magic/spells.h"*/
 #include "handler.h"
 #include "house.h"
-#include "chars/char.hpp"
+//#include "chars/char.hpp"
 #include "corpse.hpp"
-#include "room.hpp"
+//#include "room.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_stuff.hpp"
-#include "logger.hpp"
+/*#include "logger.hpp"
 #include "utils.h"
 #include "conf.h"
 
 #include <list>
-#include <algorithm>
+#include <algorithm>*/
 #include "act.movement.hpp"
 
 extern void death_cry(CHAR_DATA *ch, CHAR_DATA *killer);

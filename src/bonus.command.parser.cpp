@@ -3,8 +3,6 @@
 #include "interpreter.h"
 #include "utils.h"
 
-#include <sstream>
-
 namespace Bonus {
 const char *USAGE_MESSAGE = "Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]";
 

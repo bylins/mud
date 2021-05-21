@@ -32,8 +32,6 @@
 #include "corpse.hpp"
 #include "deathtrap.hpp"
 #include "depot.hpp"
-#include "dg_script/dg_db_scripts.hpp"
-#include "dg_script/dg_scripts.h"
 #include "ext_money.hpp"
 #include "fightsystem/fight.h"
 #include "file_crc.hpp"
@@ -46,7 +44,6 @@
 #include "house.h"
 #include "item.creation.hpp"
 #include "liquid.hpp"
-#include "logger.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
 #include "modify.h"
@@ -60,26 +57,18 @@
 #include "privilege.hpp"
 #include "sets_drop.hpp"
 #include "shop_ext.hpp"
-#include "cmd_god/shutdown.parameters.hpp"
 #include "skills/townportal.h"
-#include "speedwalks.hpp"
 #include "stuff.hpp"
 #include "time_utils.hpp"
 #include "title.hpp"
 #include "top.h"
-#include "utils.h"
-#include "world.objects.hpp"
-#include "classes/constants.hpp"
 #include "magic/magic_rooms.h"
 #include "skills.info.h"
 #include "magic/spells.info.h"
 
-#include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <sys/stat.h>
-#include <sstream>
-#include <string>
-#include <cmath>
+
 #include <boost/lexical_cast.hpp>
 
 #define CRITERION_FILE "criterion.xml"

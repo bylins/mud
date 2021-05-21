@@ -14,7 +14,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 

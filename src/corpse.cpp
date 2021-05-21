@@ -6,26 +6,12 @@
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "constants.h"
-#include "db.h"
-#include "logger.hpp"
-#include "utils.h"
 #include "chars/char.hpp"
-#include "comm.h"
 #include "handler.h"
-#include "dg_script/dg_scripts.h"
-#include "crafts/im.h"
-#include "room.hpp"
 #include "pugixml.hpp"
-#include "modify.h"
 #include "house.h"
 #include "parse.hpp"
-#include "obj.hpp"
 #include "random.hpp"
-
-#include <fstream>
-#include <map>
-#include <vector>
-#include <string>
 
 #include <boost/algorithm/string.hpp>
 

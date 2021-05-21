@@ -1,23 +1,11 @@
 #include "celebrates.hpp"
+
 #include "global.objects.hpp"
-#include "logger.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "db.h"
-#include "dg_script/dg_db_scripts.hpp"
-#include "dg_script/dg_scripts.h"
-#include "chars/char.hpp"
-#include "room.hpp"
 #include "handler.h"
-#include "utils.h"
-#include "sysdep.h"
-#include "conf.h"
 #include "pugixml.hpp"
 #include "backtrace.hpp"
 
 #include <boost/lexical_cast.hpp>
-
-#include <algorithm>
 
 extern void extract_trigger(TRIG_DATA *trig);
 

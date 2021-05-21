@@ -1,6 +1,5 @@
 #include "backtrace.hpp"
-#include <iostream>
-#include <cstdlib>
+
 #include <climits>
 #ifdef _WIN32
 #include <windows.h>

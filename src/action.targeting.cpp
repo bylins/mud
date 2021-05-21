@@ -4,8 +4,6 @@
 
 #include "action.targeting.hpp"
 #include "fightsystem/pk.h"
-#include <algorithm>
-
 
 /*
 	2. Добавить возможность сформировать список группы без учета комнаты.

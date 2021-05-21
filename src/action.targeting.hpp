@@ -10,10 +10,11 @@
 	Сейчас это не сделано, потому что при текущей логике исполнения команд это ничего особо не даст.
 */
 
-#include "chars/char.hpp"
 #include "structs.h"
 
 #include <functional>
+
+class CHAR_DATA;
 
 namespace ActionTargeting {
 

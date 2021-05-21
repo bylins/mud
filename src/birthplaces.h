@@ -7,9 +7,9 @@
 
 //Для тех, у кого нет нормального файла рас, и нет зон.
 //Хотя по-хорошему внумам в коде делать вообще нефик
-#define DEFAULT_LOADROOM 4056
+const int DEFAULT_LOADROOM = 4056;
+const int BIRTH_PLACE_UNDEFINED = -1;
 #define BIRTH_PLACES_FILE "birthplaces.xml"
-#define BIRTH_PLACE_UNDEFINED    -1
 #define BIRTH_PLACE_NAME_UNDEFINED "Undefined: у кодера какие-то проблемы"
 #define BIRTH_PLACE_MAIN_TAG "birthplaces"
 #define BIRTH_PLACE_ERROR_STR "...birth places reading fail"
