@@ -1,8 +1,6 @@
 #ifndef __MAGIC_ROOMS_HPP__
 #define __MAGIC_ROOMS_HPP__
 
-// яРПСЙРСПШ Х ТСМЙЖХХ ДКЪ ПЮАНРШ Я ГЮЙКХМЮМХЪЛХ, НАЙЮЯРНБШБЮЧЫХЛХ ЙНЛМЮРШ
-
 #include "magic/spells.h"
 #include "room.hpp"
 

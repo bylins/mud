@@ -3,7 +3,6 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
-#include "magic/spells.h"
 #include "protect.h"
 #include "skills.info.h"
 

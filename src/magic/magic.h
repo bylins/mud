@@ -14,12 +14,13 @@
 #ifndef _MAGIC_H_
 #define _MAGIC_H_
 
-#include "obj.hpp"
-#include "chars/char.hpp"
-#include "room.hpp"
 #include "magic/spells.info.h"
 
 #include <cstdlib>
+
+class CHAR_DATA;
+class OBJ_DATA;
+class ROOM_DATA;
 
 // VNUM'ы мобов для заклинаний, создающих мобов
 const int MOB_DOUBLE = 3000; //внум прототипа для клона

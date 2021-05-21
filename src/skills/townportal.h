@@ -1,13 +1,17 @@
 #ifndef BYLINS_TOWNPORTAL_H
 #define BYLINS_TOWNPORTAL_H
 
-#include "chars/char.hpp"
+#include "db.h"
+#include "comm.h"
+#include "room.hpp"
+
+class CHAR_DATA;
 
 void spell_townportal(CHAR_DATA *ch, char *arg);
 
 inline void decay_portal(const int room_num) {
-	act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->first_character(), 0, 0, TO_ROOM);
-	act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->first_character(), 0, 0, TO_CHAR);
+	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, TO_ROOM);
+	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, TO_CHAR);
 	world[room_num]->portal_time = 0;
 	world[room_num]->portal_room = 0;
 }

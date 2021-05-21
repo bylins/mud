@@ -6,7 +6,6 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
 #include "handler.h"
-#include "magic/spells.h"
 #include "protect.h"
 #include "fightsystem/common.h"
 

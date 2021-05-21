@@ -4,18 +4,10 @@
 
 #include "skills/poison.hpp"
 
-#include "logger.hpp"
-#include "utils.h"
 #include "obj.hpp"
 #include "chars/char.hpp"
-#include "magic/spells.h"
 #include "liquid.hpp"
 #include "screen.h"
-#include "handler.h"
-#include "db.h"
-#include "comm.h"
-#include "skills.h"
-#include "room.hpp"
 #include "fightsystem/fight.h"
 #include "skills.info.h"
 

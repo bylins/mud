@@ -1,14 +1,11 @@
 #include "relocate.h"
 
-#include "../features.hpp"
-#include "../chars/char.hpp"
-#include "../house.h"
-#include "../comm.h"
-#include "../screen.h"
-#include "../structs.h"
-#include "../handler.h"
-#include "../fightsystem/pk.h"
-#include "../dg_script/dg_scripts.h"
+#include "features.hpp"
+#include "chars/char.hpp"
+#include "house.h"
+#include "screen.h"
+#include "handler.h"
+#include "fightsystem/pk.h"
 
 void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct timed_type timed;

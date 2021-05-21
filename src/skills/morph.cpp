@@ -2,17 +2,9 @@
 
 #include "obj.hpp"
 #include "screen.h"
-#include "structs.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
-#include "magic/spells.h"
-#include "chars/char.hpp"
-#include "comm.h"
-#include "skills.h"
-#include "db.h"
-#include "logger.hpp"
-#include "utils.h"
 #include "pugixml.hpp"
 
 #include <boost/algorithm/string.hpp>

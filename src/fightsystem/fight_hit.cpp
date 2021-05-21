@@ -1,10 +1,8 @@
 #include "fight_hit.hpp"
 
-#include "logger.hpp"
+//#include "logger.hpp"
 #include "handler.h"
 #include "screen.h"
-#include "dg_script/dg_scripts.h"
-#include "skills.h"
 #include "magic/magic.h"
 #include "pk.h"
 #include "dps.hpp"

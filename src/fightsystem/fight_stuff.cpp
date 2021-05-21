@@ -8,39 +8,21 @@
 #include "fight.h"
 #include "fight.penalties.hpp"
 #include "fight_hit.hpp"
-#include "chars/char.hpp"
-#include "skills.h"
 #include "handler.h"
-#include "db.h"
-#include "room.hpp"
-#include "magic/spells.h"
-#include "dg_script/dg_scripts.h"
 #include "corpse.hpp"
 #include "house.h"
 #include "pk.h"
 #include "stuff.hpp"
-#include "sets_drop.hpp"
 #include "top.h"
-#include "constants.h"
 #include "screen.h"
 #include "magic/magic.h"
 #include "mob_stat.hpp"
-#include "logger.hpp"
+//#include "logger.hpp"
 #include "bonus.h"
 #include "backtrace.hpp"
 #include "magic/magic_utils.h"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
 #include "zone.table.hpp"
 #include "chars/char_player.hpp"
-#include "mob_stat.hpp"
-#include "classes/constants.hpp"
-#include "magic/spells.info.h"
-
-#include <math.h>
-#include <algorithm>
-
-//using namespace PlayerClass;
 
 // extern
 void perform_drop_gold(CHAR_DATA *ch, int amount);

@@ -7,7 +7,6 @@
 #include "fightsystem/start.fight.h"
 #include "handler.h"
 #include "protect.h"
-#include "skills.h"
 #include "skills.info.h"
 
 using namespace FightSystem;

@@ -26,34 +26,34 @@
 #include "chars/world.characters.hpp"
 #include "fight_hit.hpp"
 #include "fightsystem/mobact.hpp"
-#include "affects/affect_handler.h"
+/*#include "affects/affect_handler.h"
 #include "obj.hpp"
-#include "comm.h"
+#include "comm.h"*/
 #include "handler.h"
-#include "interpreter.h"
+/*#include "interpreter.h"
 #include "db.h"
-#include "magic/spells.h"
+#include "magic/spells.h"*/
 #include "screen.h"
-#include "constants.h"
+/*#include "constants.h"
 #include "dg_script/dg_scripts.h"
 #include "crafts/im.h"
 #include "skills.h"
-#include "features.hpp"
+#include "features.hpp"*/
 #include "random.hpp"
-#include "chars/char.hpp"
+//#include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "magic/magic.h"
-#include "room.hpp"
+/*#include "room.hpp"
 #include "genchar.h"
-#include "sets_drop.hpp"
+#include "sets_drop.hpp"*/
 #include "olc/olc.h"
-#include "logger.hpp"
-#include "utils.h"
+//#include "logger.hpp"
+//#include "utils.h"
 #include "msdp/msdp.constants.hpp"
-#include "magic/spells.info.h"
+//#include "magic/spells.info.h"
 #include "magic/magic_items.h"
 
-#include <unordered_set>
+//#include <unordered_set>
 
 // Structures
 CHAR_DATA *combat_list = NULL;    // head of l-list of fighting chars

@@ -6,13 +6,8 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
-#include "fightsystem/fight_constants.hpp"
 #include "fightsystem/pk.h"
 #include "skills/protect.h"
-#include "skills.h"
-#include "handler.h"
-
-#include <math.h>
 
 using namespace FightSystem;
 

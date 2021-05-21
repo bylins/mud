@@ -1,5 +1,6 @@
 #include "assist.h"
 
+#include "chars/char.hpp"
 #include "handler.h"
 #include "pk.h"
 #include "start.fight.h"

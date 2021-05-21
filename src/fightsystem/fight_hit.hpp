@@ -1,6 +1,6 @@
 // Part of Bylins http://www.mud.ru
 
-#ifndef _FIGHT_LOCAL_HPP_
+#ifndef _FIGHT_HIT_HPP_
 #define _FIGHT_HIT_HPP_
 
 #include "fight_constants.hpp"
@@ -104,6 +104,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 
 void appear(CHAR_DATA *ch);
 
-#endif // _FIGHT_LOCAL_HPP_
+#endif // _FIGHT_HIT_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

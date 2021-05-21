@@ -4,8 +4,6 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/start.fight.h"
-#include "handler.h"
-#include "magic/spells.h"
 #include "random.hpp"
 #include "screen.h"
 #include "skills.info.h"

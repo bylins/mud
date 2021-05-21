@@ -24,34 +24,22 @@
 #include "skills/protect.h"
 #include "skills/track.h"
 
-#include "affects/affect_data.h"
 #include "abilities/abilities_rollsystem.h"
 #include "action.targeting.hpp"
 #include "act.movement.hpp"
-#include "features.hpp"
 #include "chars/world.characters.hpp"
 #include "world.objects.hpp"
-#include "obj.hpp"
-#include "db.h"
-#include "comm.h"
 #include "handler.h"
 #include "magic/magic.h"
-#include "skills.h"
 #include "fightsystem/pk.h"
 #include "random.hpp"
-#include "chars/char.hpp"
 #include "house.h"
-#include "room.hpp"
 #include "fightsystem/fight.h"
-#include "fightsystem/start.fight.h"
 #include "fightsystem/fight_hit.hpp"
-#include "logger.hpp"
-#include "structs.h"
-#include "sysdep.h"
+//#include "logger.hpp"
 #include "magic/magic_rooms.h"
 
 // external structs
-//extern INDEX_DATA *mob_index;
 extern int no_specials;
 extern int guild_poly(CHAR_DATA *, void *, int, char *);
 extern guardian_type guardian_list;

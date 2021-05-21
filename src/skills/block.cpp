@@ -2,7 +2,6 @@
 
 #include "fightsystem/pk.h"
 #include "fightsystem/fight_hit.hpp"
-#include "magic/spells.h"
 
 using namespace FightSystem;
 

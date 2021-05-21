@@ -27,6 +27,9 @@
 #include "corpse.hpp"
 #include "fightsystem/mobact.hpp"
 #include "fightsystem/fight_hit.hpp"
+//#include "obj.hpp"
+//#include "chars/char.hpp"
+//#include "room.hpp"
 
 //#include <iomanip>
 

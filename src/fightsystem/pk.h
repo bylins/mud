@@ -11,8 +11,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _PK_H_
-#define _PK_H_
+#ifndef _PVP_H_
+#define _PVP_H_
 
 #include "chars/char.hpp"
 
@@ -150,6 +150,6 @@ struct BloodyInfo {
 
 typedef std::map<const OBJ_DATA *, BloodyInfo> BloodyInfoMap;
 
-#endif
+#endif // _PVP_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

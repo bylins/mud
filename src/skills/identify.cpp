@@ -1,9 +1,7 @@
 #include "identify.h"
 
 #include "chars/char.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "skills.h"
+
 #include "handler.h"
 
 void do_identify(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

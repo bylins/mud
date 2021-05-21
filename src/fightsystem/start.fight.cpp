@@ -4,7 +4,6 @@
 #include "pk.h"
 #include "fight_hit.hpp"
 #include "skills/protect.h"
-#include "remember.hpp"
 #include "mobact.hpp"
 #include "common.h"
 
