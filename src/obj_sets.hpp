@@ -17,11 +17,9 @@
 
 /// версия сетовых наборов по принципу навешивания аффектов на чара, а не на
 /// конкретные предметы, подменяя их родные статы + как бонус полноценное олц
-namespace obj_sets
-{
+namespace obj_sets {
 int normalize_vnum(int vnum);
-struct idx_node
-{
+struct idx_node {
 	// индекс сета
 	size_t set_idx;
 	// предметы на чаре из данного сета
@@ -34,9 +32,8 @@ struct idx_node
 
 /// построение списка предметов с индексами их сетов
 /// для сбора сетовых предметов с чара в affect_total()
-class WornSets
-{
-public:
+class WornSets {
+ public:
 	/// очистка перед каждым использованием
 	void clear();
 	/// заполнение списка сетов idx_list_ при обходе предметов на чаре
@@ -44,12 +41,11 @@ public:
 	/// проверка активаторов (вся магия здесь)
 	void check(CHAR_DATA *ch);
 
-private:
+ private:
 	std::array<idx_node, NUM_WEARS> idx_list_;
 };
 
-struct bonus_type
-{
+struct bonus_type {
 	bonus_type() : phys_dmg(0), mage_dmg(0) {};
 
 	int phys_dmg;
@@ -57,12 +53,11 @@ struct bonus_type
 
 	bool operator!=(const bonus_type &r) const;
 	bool operator==(const bonus_type &r) const;
-	bonus_type& operator+=(const bonus_type &r);
+	bonus_type &operator+=(const bonus_type &r);
 	bool empty() const;
 };
 
-struct ench_type
-{
+struct ench_type {
 	ench_type() : weight(0), ndice(0), sdice(0) {};
 
 	int weight;
@@ -71,21 +66,19 @@ struct ench_type
 
 	bool operator!=(const ench_type &r) const;
 	bool operator==(const ench_type &r) const;
-	ench_type& operator+=(const ench_type &r);
+	ench_type &operator+=(const ench_type &r);
 	bool empty() const;
 };
 
 struct activ_node;
 
-struct activ_sum
-{
-	activ_sum()
-	{
+struct activ_sum {
+	activ_sum() {
 		affects = clear_flags;
 	};
 
 	// суммирование активаторов
-	activ_sum& operator+=(const activ_node *r);
+	activ_sum &operator+=(const activ_node *r);
 
 	bool operator!=(const activ_sum &r) const;
 	bool operator==(const activ_sum &r) const;
@@ -122,8 +115,7 @@ bool is_set_item(OBJ_DATA *obj);
 
 } // namespace obj_sets
 
-namespace obj_sets_olc
-{
+namespace obj_sets_olc {
 
 void parse_input(CHAR_DATA *ch, const char *arg);
 

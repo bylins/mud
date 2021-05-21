@@ -27,9 +27,9 @@
 
 #include <iostream>
 
-#define YES	    1
-#define FALSE	0
-#define NO	    0
+#define YES        1
+#define FALSE    0
+#define NO        0
 
 /*
  * Below are several constants which you can change to alter certain aspects
@@ -49,12 +49,12 @@
  *
  */
 
-int level_exp(CHAR_DATA * ch, int level);
+int level_exp(CHAR_DATA *ch, int level);
 
 // GAME PLAY OPTIONS
 
 // exp change limits
-int max_exp_gain_npc = 100000;	// max gainable per kill
+int max_exp_gain_npc = 100000;    // max gainable per kill
 
 // number of tics (usually 75 seconds) before PC/NPC corpses decompose
 int max_npc_corpse_time = 5;
@@ -104,8 +104,7 @@ int free_rent = NO;
 //int max_obj_save = 120;
 
 // receptionist's surcharge on top of item costs
-int min_rent_cost(CHAR_DATA * ch)
-{
+int min_rent_cost(CHAR_DATA *ch) {
 	if ((GET_LEVEL(ch) < 15) && (GET_REMORT(ch) == 0))
 		return (0);
 	else
@@ -130,53 +129,53 @@ int free_crashrent_period = 2;
    Если количество дней равно -1, то не удалять никогда
 */
 struct pclean_criteria_data pclean_criteria[] =
-{
-	//     УРОВЕНЬ           ДНИ
-	{ -1, 0},		// Удаленные чары - удалять сразу
-	{0, 0},			// Чары 0го уровня никогда не войдут в игру, так что глюки удалять сразу
-	{1, 7},
-	{2, 14},
-	{3, 21},
-	{4, 28},
-	{5, 35},
-	{6, 42},
-	{7, 49},
-	{8, 56},
-	{9, 63},
-	{10, 70},
-	{11, 77},
-	{12, 84},
-	{13, 91},
-	{14, 98},
-	{15, 105},
-	{16, 112},
-	{17, 119},
-	{18, 126},
-	{19, 133},
-	{20, 140},
-	{21, 147},
-	{22, 154},
-	{23, 161},
-	{24, 168},
-	{25, 360},
-	{LVL_IMPL, -1},		// c 25го и дальше живут вечно
-	{ -2, 0}			// Последняя обязательная строка
-};
+	{
+		//     УРОВЕНЬ           ДНИ
+		{-1, 0},        // Удаленные чары - удалять сразу
+		{0, 0},            // Чары 0го уровня никогда не войдут в игру, так что глюки удалять сразу
+		{1, 7},
+		{2, 14},
+		{3, 21},
+		{4, 28},
+		{5, 35},
+		{6, 42},
+		{7, 49},
+		{8, 56},
+		{9, 63},
+		{10, 70},
+		{11, 77},
+		{12, 84},
+		{13, 91},
+		{14, 98},
+		{15, 105},
+		{16, 112},
+		{17, 119},
+		{18, 126},
+		{19, 133},
+		{20, 140},
+		{21, 147},
+		{22, 154},
+		{23, 161},
+		{24, 168},
+		{25, 360},
+		{LVL_IMPL, -1},        // c 25го и дальше живут вечно
+		{-2, 0}            // Последняя обязательная строка
+	};
 
 
 // ROOM NUMBERS
 
 // virtual number of room that mortals should enter at
-room_vnum mortal_start_room = 4056;	// tavern in village
+room_vnum mortal_start_room = 4056;    // tavern in village
 
 // virtual number of room that immorts should enter at by default
-room_vnum immort_start_room = 100;	// place  in castle
+room_vnum immort_start_room = 100;    // place  in castle
 
 // virtual number of room that frozen players should enter at
-room_vnum frozen_start_room = 101;	// something in castle
+room_vnum frozen_start_room = 101;    // something in castle
 
 // virtual number of room that helled players should enter at
-room_vnum helled_start_room = 101;	// something in castle
+room_vnum helled_start_room = 101;    // something in castle
 room_vnum named_start_room = 105;
 room_vnum unreg_start_room = 103;
 
@@ -202,7 +201,7 @@ ush_int DFLT_PORT = 4000;
  * course, that IP address must be one of your host's interfaces, or it
  * won't work.)
  */
-const char *DFLT_IP = NULL;	// bind to all interfaces
+const char *DFLT_IP = NULL;    // bind to all interfaces
 // const char *DFLT_IP = "192.168.1.1";  -- bind only to one interface
 
 // default directory to use as data directory
@@ -257,7 +256,6 @@ int siteok_everyone = TRUE;
 
 int nameserver_is_slow = YES;
 
-
 const char *MENU = "\r\n"
 				   "0) Отсоединиться.\r\n"
 				   "1) Начать игру.\r\n"
@@ -283,11 +281,9 @@ const char *START_MESSG =
 	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
 	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
 
-int max_exp_gain_pc(CHAR_DATA * ch)
-{
+int max_exp_gain_pc(CHAR_DATA *ch) {
 	int result = 1;
-	if (!IS_NPC(ch))
-	{
+	if (!IS_NPC(ch)) {
 		int max_per_lev =
 			level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0);
 		result = max_per_lev / (10 + GET_REMORT(ch));
@@ -295,26 +291,18 @@ int max_exp_gain_pc(CHAR_DATA * ch)
 	return result;
 }
 
-int max_exp_loss_pc(CHAR_DATA * ch)
-{
+int max_exp_loss_pc(CHAR_DATA *ch) {
 	return (IS_NPC(ch) ? 1 : (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0)) / 3);
 }
 
-int calc_loadroom(const CHAR_DATA* ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/)
-{
-    if (IS_IMMORTAL(ch))
-	{
+int calc_loadroom(const CHAR_DATA *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
+	if (IS_IMMORTAL(ch)) {
 		return (immort_start_room);
-	}
-	else if (PLR_FLAGGED(ch, PLR_FROZEN))
-	{
+	} else if (PLR_FLAGGED(ch, PLR_FROZEN)) {
 		return (frozen_start_room);
-	}
-	else
-	{
-        const int loadroom = BirthPlace::GetLoadRoom(bplace_mode);
-        if (loadroom != BIRTH_PLACE_UNDEFINED)
-		{
+	} else {
+		const int loadroom = BirthPlace::GetLoadRoom(bplace_mode);
+		if (loadroom != BIRTH_PLACE_UNDEFINED) {
 			return loadroom;
 		}
 	}
@@ -322,97 +310,81 @@ int calc_loadroom(const CHAR_DATA* ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED
 	return (mortal_start_room);
 }
 
-bool RuntimeConfiguration::open_log(const EOutputStream stream)
-{
+bool RuntimeConfiguration::open_log(const EOutputStream stream) {
 	return m_logs[stream].open();
 }
 
-void RuntimeConfiguration::handle(const EOutputStream stream, FILE* handle)
-{
+void RuntimeConfiguration::handle(const EOutputStream stream, FILE *handle) {
 	m_logs[stream].handle(handle);
 }
 
-class StreamConfigLoader
-{
-private:
+class StreamConfigLoader {
+ private:
 	static constexpr int UMASK_BASE = 8;
 
-public:
-	StreamConfigLoader(CLogInfo& log, const pugi::xml_node* node) : m_log(log), m_node(node) {}
+ public:
+	StreamConfigLoader(CLogInfo &log, const pugi::xml_node *node) : m_log(log), m_node(node) {}
 
 	void load_filename();
 	void load_buffered();
 	void load_mode();
 	void load_umask();
 
-private:
-	CLogInfo& m_log;
-	const pugi::xml_node* m_node;
+ private:
+	CLogInfo &m_log;
+	const pugi::xml_node *m_node;
 };
 
-void StreamConfigLoader::load_filename()
-{
+void StreamConfigLoader::load_filename() {
 	const auto filename = m_node->child("filename");
-	if (filename)
-	{
+	if (filename) {
 		m_log.filename(filename.child_value());
 	}
 }
 
-void StreamConfigLoader::load_buffered()
-{
+void StreamConfigLoader::load_buffered() {
 	const auto buffered = m_node->child("buffered");
-	if (buffered)
-	{
-		try
-		{
+	if (buffered) {
+		try {
 			m_log.buffered(ITEM_BY_NAME<CLogInfo::EBuffered>(buffered.child_value()));
 		}
-		catch (...)
-		{
-			std::cerr << "Could not set value \"" << buffered.child_value() << "\" as buffered option. Using default value " << NAME_BY_ITEM(m_log.buffered()) << std::endl;
+		catch (...) {
+			std::cerr << "Could not set value \"" << buffered.child_value()
+					  << "\" as buffered option. Using default value " << NAME_BY_ITEM(m_log.buffered()) << std::endl;
 		}
 	}
 }
 
-void StreamConfigLoader::load_mode()
-{
+void StreamConfigLoader::load_mode() {
 	const auto mode = m_node->child("mode");
-	if (mode)
-	{
-		try
-		{
+	if (mode) {
+		try {
 			m_log.mode(ITEM_BY_NAME<CLogInfo::EMode>(mode.child_value()));
 		}
-		catch (...)
-		{
-			std::cerr << "Could not set value \"" << mode.child_value() << "\" as opening mode. Using default value " << NAME_BY_ITEM(m_log.mode()) << std::endl;
+		catch (...) {
+			std::cerr << "Could not set value \"" << mode.child_value() << "\" as opening mode. Using default value "
+					  << NAME_BY_ITEM(m_log.mode()) << std::endl;
 		}
 	}
 }
 
-void StreamConfigLoader::load_umask()
-{
+void StreamConfigLoader::load_umask() {
 	const auto umask = m_node->child("umask");
-	if (umask)
-	{
-		try
-		{
+	if (umask) {
+		try {
 			const int umask_value = std::stoi(umask.child_value(), nullptr, UMASK_BASE);
 			m_log.umask(umask_value);
 		}
-		catch (...)
-		{
+		catch (...) {
 			std::cerr << "Could not set value \"" << umask.child_value()
-				<< "\" as umask value. Using default value " << std::endl;
+					  << "\" as umask value. Using default value " << std::endl;
 		}
 	}
 }
 
 constexpr unsigned short RuntimeConfiguration::StatisticsConfiguration::DEFAULT_PORT;
 
-void RuntimeConfiguration::load_stream_config(CLogInfo& log, const pugi::xml_node* node)
-{
+void RuntimeConfiguration::load_stream_config(CLogInfo &log, const pugi::xml_node *node) {
 	StreamConfigLoader loader(log, node);
 	loader.load_filename();
 	loader.load_buffered();
@@ -420,28 +392,21 @@ void RuntimeConfiguration::load_stream_config(CLogInfo& log, const pugi::xml_nod
 	loader.load_umask();
 }
 
-void RuntimeConfiguration::setup_converters()
-{
-	if (!log_stderr().empty())
-	{
+void RuntimeConfiguration::setup_converters() {
+	if (!log_stderr().empty()) {
 		// set up converter
-		const auto& encoding = log_stderr();
-		if ("cp1251" == encoding)
-		{
+		const auto &encoding = log_stderr();
+		if ("cp1251" == encoding) {
 			m_syslog_converter = &koi_to_win;
-		}
-		else if ("alt" == encoding)
-		{
-			m_syslog_converter = static_cast<void (*)(char*, int)>(koi_to_alt);
+		} else if ("alt" == encoding) {
+			m_syslog_converter = static_cast<void (*)(char *, int)>(koi_to_alt);
 		}
 	}
 }
 
-void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node* root)
-{
+void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node *root) {
 	const auto logging = root->child("logging");
-	if (!logging)
-	{
+	if (!logging) {
 		return;
 	}
 
@@ -449,90 +414,75 @@ void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node* root
 	m_log_stderr = log_stderr.child_value();
 
 	const auto syslog = logging.child("syslog");
-	if (syslog)
-	{
+	if (syslog) {
 		load_stream_config(m_logs[SYSLOG], &syslog);
 	}
 
 	const auto errlog = logging.child("errlog");
-	if (errlog)
-	{
+	if (errlog) {
 		load_stream_config(m_logs[ERRLOG], &errlog);
 	}
 
 	const auto imlog = logging.child("imlog");
-	if (imlog)
-	{
+	if (imlog) {
 		load_stream_config(m_logs[IMLOG], &imlog);
 	}
 
 	const auto msdplog = logging.child("msdplog");
-	if (msdplog)
-	{
+	if (msdplog) {
 		load_stream_config(m_logs[MSDP_LOG], &msdplog);
 	}
 	const auto moneylog = logging.child("moneylog");
-	if (moneylog)
-	{
+	if (moneylog) {
 		load_stream_config(m_logs[MONEY_LOG], &moneylog);
 	}
 
 	const auto separate_thread_node = logging.child("separate_thread");
-	if (separate_thread_node)
-	{
+	if (separate_thread_node) {
 		m_output_thread = true;
 		const auto queue_size_node = separate_thread_node.child("queue_size");
 		const auto queue_size_string = queue_size_node.child_value();
 		const auto queue_size = std::strtoul(queue_size_string, nullptr, 10);
-		if (0 < queue_size)
-		{
+		if (0 < queue_size) {
 			m_output_queue_size = queue_size;
-		}
-		else
-		{
+		} else {
 			std::cerr << "Couldn't set queue size to value '" << queue_size_string
-				<< "'. Leaving default value " << m_output_queue_size << "." << std::endl;
+					  << "'. Leaving default value " << m_output_queue_size << "." << std::endl;
 		}
 	}
 }
 
-void RuntimeConfiguration::load_features_configuration(const pugi::xml_node* root)
-{
+void RuntimeConfiguration::load_features_configuration(const pugi::xml_node *root) {
 	const auto features = root->child("features");
-	if (!features)
-	{
+	if (!features) {
 		return;
 	}
 
 	const auto msdp = features.child("msdp");
-	if (msdp)
-	{
+	if (msdp) {
 		load_msdp_configuration(&msdp);
 	}
 }
 
-void RuntimeConfiguration::setup_logs()
-{
+void RuntimeConfiguration::setup_logs() {
 	mkdir("log", 0700);
 	mkdir("log/perslog", 0700);
 
-	for (int i = 0; i < 1 + LAST_LOG; ++i)
-	{
+	for (int i = 0; i < 1 + LAST_LOG; ++i) {
 		EOutputStream stream = static_cast<EOutputStream>(i);
 
 		constexpr int MAX_SRC_PATH_LENGTH = 4096;
 		char src_path[MAX_SRC_PATH_LENGTH];
-		const char* getcwd_result = getcwd(src_path, MAX_SRC_PATH_LENGTH);
+		const char *getcwd_result = getcwd(src_path, MAX_SRC_PATH_LENGTH);
 		UNUSED_ARG(getcwd_result);
 
-		if (logs(stream).filename().empty())
-		{
+		if (logs(stream).filename().empty()) {
 			handle(stream, stderr);
 			puts("Using file descriptor for logging.");
 			continue;
 		}
 
-		if (!runtime_config.open_log(stream))	//s_fp
+		if (!runtime_config.open_log(stream))    //s_fp
 		{
 			puts("SYSERR: Couldn't open anything to log to, giving up.");
 			exit(1);
@@ -542,95 +492,77 @@ void RuntimeConfiguration::setup_logs()
 	setup_converters();
 
 	printf("Bylins server will use %schronous output into syslog file.\n",
-		output_thread() ? "asyn" : "syn");
+		   output_thread() ? "asyn" : "syn");
 }
 
-void RuntimeConfiguration::load_msdp_configuration(const pugi::xml_node* msdp)
-{
-	if (!msdp)
-	{
+void RuntimeConfiguration::load_msdp_configuration(const pugi::xml_node *msdp) {
+	if (!msdp) {
 		return;
 	}
 	const auto disabled = msdp->child("disabled");
 	const auto disabled_value = disabled.child_value();
 	if (disabled_value
-		&& 0 == strcmp("true", disabled_value))
-	{
+		&& 0 == strcmp("true", disabled_value)) {
 		m_msdp_disabled = true;
-	}
-	else
-	{
+	} else {
 		m_msdp_disabled = false;
 	}
 }
 
-void RuntimeConfiguration::load_boards_configuration(const pugi::xml_node* root)
-{
+void RuntimeConfiguration::load_boards_configuration(const pugi::xml_node *root) {
 	const auto boards = root->child("boards");
-	if (!boards)
-	{
+	if (!boards) {
 		return;
 	}
 
 	const auto changelog = boards.child("changelog");
-	if (!changelog)
-	{
+	if (!changelog) {
 		return;
 	}
 
 	const auto format = changelog.child("format");
-	if (format)
-	{
+	if (format) {
 		m_changelog_format = format.child_value();
 		std::transform(m_changelog_format.begin(), m_changelog_format.end(), m_changelog_format.begin(), ::tolower);
 	}
 	const auto filename = changelog.child("filename");
-	if (filename)
-	{
+	if (filename) {
 		m_changelog_file_name = filename.child_value();
 	}
 }
 
-void RuntimeConfiguration::load_external_triggers(const pugi::xml_node* root)
-{
+void RuntimeConfiguration::load_external_triggers(const pugi::xml_node *root) {
 	const auto external_triggers = root->child("external_triggers");
-	if (!external_triggers)
-	{
+	if (!external_triggers) {
 		return;
 	}
 
 	const auto reboot_value = external_triggers.child_value("reboot");
-	if (reboot_value)
-	{
+	if (reboot_value) {
 		m_external_reboot_trigger_file_name = reboot_value;
 	}
 }
 
-void RuntimeConfiguration::load_statistics_configuration(const pugi::xml_node* root)
-{
+void RuntimeConfiguration::load_statistics_configuration(const pugi::xml_node *root) {
 	const auto statistics = root->child("statistics");
-	if (!statistics)
-	{
+	if (!statistics) {
 		return;
 	}
 
 	const auto server = statistics.child("server");
-	if (!server)
-	{
+	if (!server) {
 		return;
 	}
 
 	std::string host;
 	const auto host_value = server.child_value("host");
-	if (host_value)
-	{
+	if (host_value) {
 		host = host_value;
 	}
 
 	unsigned short port = StatisticsConfiguration::DEFAULT_PORT;
 	const auto port_value = server.child_value("port");
-	if (port_value)
-	{
+	if (port_value) {
 		port = static_cast<unsigned short>(std::strtoul(port_value, nullptr, 10));
 	}
 
@@ -642,8 +574,7 @@ typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t
 EOutputStream_name_by_value_t EOutputStream_name_by_value;
 EOutputStream_value_by_name_t EOutputStream_value_by_name;
 
-void init_EOutputStream_ITEM_NAMES()
-{
+void init_EOutputStream_ITEM_NAMES() {
 	EOutputStream_name_by_value.clear();
 	EOutputStream_value_by_name.clear();
 
@@ -653,27 +584,22 @@ void init_EOutputStream_ITEM_NAMES()
 	EOutputStream_name_by_value[MSDP_LOG] = "MSDPLOG";
 	EOutputStream_name_by_value[MONEY_LOG] = "MONEYLOG";
 
-	for (const auto& i : EOutputStream_name_by_value)
-	{
+	for (const auto &i : EOutputStream_name_by_value) {
 		EOutputStream_value_by_name[i.second] = i.first;
 	}
 }
 
-template <>
-EOutputStream ITEM_BY_NAME(const std::string& name)
-{
-	if (EOutputStream_name_by_value.empty())
-	{
+template<>
+EOutputStream ITEM_BY_NAME(const std::string &name) {
+	if (EOutputStream_name_by_value.empty()) {
 		init_EOutputStream_ITEM_NAMES();
 	}
 	return EOutputStream_value_by_name.at(name);
 }
 
-template <>
-const std::string& NAME_BY_ITEM<EOutputStream>(const EOutputStream item)
-{
-	if (EOutputStream_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM<EOutputStream>(const EOutputStream item) {
+	if (EOutputStream_name_by_value.empty()) {
 		init_EOutputStream_ITEM_NAMES();
 	}
 	return EOutputStream_name_by_value.at(item);
@@ -684,8 +610,7 @@ typedef std::map<const std::string, CLogInfo::EBuffered> EBuffered_value_by_name
 EBuffered_name_by_value_t EBuffered_name_by_value;
 EBuffered_value_by_name_t EBuffered_value_by_name;
 
-void init_EBuffered_ITEM_NAMES()
-{
+void init_EBuffered_ITEM_NAMES() {
 	EBuffered_name_by_value.clear();
 	EBuffered_value_by_name.clear();
 
@@ -693,27 +618,22 @@ void init_EBuffered_ITEM_NAMES()
 	EBuffered_name_by_value[CLogInfo::EBuffered::EB_LINE] = "LINE";
 	EBuffered_name_by_value[CLogInfo::EBuffered::EB_NO] = "NO";
 
-	for (const auto& i : EBuffered_name_by_value)
-	{
+	for (const auto &i : EBuffered_name_by_value) {
 		EBuffered_value_by_name[i.second] = i.first;
 	}
 }
 
-template <>
-CLogInfo::EBuffered ITEM_BY_NAME(const std::string& name)
-{
-	if (EBuffered_name_by_value.empty())
-	{
+template<>
+CLogInfo::EBuffered ITEM_BY_NAME(const std::string &name) {
+	if (EBuffered_name_by_value.empty()) {
 		init_EBuffered_ITEM_NAMES();
 	}
 	return EBuffered_value_by_name.at(name);
 }
 
-template <>
-const std::string& NAME_BY_ITEM<CLogInfo::EBuffered>(const CLogInfo::EBuffered item)
-{
-	if (EBuffered_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM<CLogInfo::EBuffered>(const CLogInfo::EBuffered item) {
+	if (EBuffered_name_by_value.empty()) {
 		init_EBuffered_ITEM_NAMES();
 	}
 	return EBuffered_name_by_value.at(item);
@@ -724,53 +644,47 @@ typedef std::map<const std::string, CLogInfo::EMode> EMode_value_by_name_t;
 EMode_name_by_value_t EMode_name_by_value;
 EMode_value_by_name_t EMode_value_by_name;
 
-void init_EMode_ITEM_NAMES()
-{
+void init_EMode_ITEM_NAMES() {
 	EMode_name_by_value.clear();
 	EMode_value_by_name.clear();
 
 	EMode_name_by_value[CLogInfo::EMode::EM_REWRITE] = "REWRITE";
 	EMode_name_by_value[CLogInfo::EMode::EM_APPEND] = "APPEND";
 
-	for (const auto& i : EMode_name_by_value)
-	{
+	for (const auto &i : EMode_name_by_value) {
 		EMode_value_by_name[i.second] = i.first;
 	}
 }
 
-template <>
-CLogInfo::EMode ITEM_BY_NAME(const std::string& name)
-{
-	if (EMode_name_by_value.empty())
-	{
+template<>
+CLogInfo::EMode ITEM_BY_NAME(const std::string &name) {
+	if (EMode_name_by_value.empty()) {
 		init_EMode_ITEM_NAMES();
 	}
 	return EMode_value_by_name.at(name);
 }
 
-template <>
-const std::string& NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode item)
-{
-	if (EMode_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode item) {
+	if (EMode_name_by_value.empty()) {
 		init_EMode_ITEM_NAMES();
 	}
 	return EMode_name_by_value.at(item);
 }
 
-const char* RuntimeConfiguration::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
+const char *RuntimeConfiguration::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
 
 const RuntimeConfiguration::logs_t LOGS({
-	CLogInfo("syslog", "СИСТЕМНЫЙ"),
-	CLogInfo("log/errlog.txt", "ОШИБКИ МИРА"),
-	CLogInfo("log/imlog.txt", "ИНГРЕДИЕНТНАЯ МАГИЯ"),
-	CLogInfo("log/msdp.txt", "лог MSDP пакетов"),
-	CLogInfo("log/money.txt", "лог обращения денег")
-});
+											CLogInfo("syslog", "СИСТЕМНЫЙ"),
+											CLogInfo("log/errlog.txt", "ОШИБКИ МИРА"),
+											CLogInfo("log/imlog.txt", "ИНГРЕДИЕНТНАЯ МАГИЯ"),
+											CLogInfo("log/msdp.txt", "лог MSDP пакетов"),
+											CLogInfo("log/money.txt", "лог обращения денег")
+										});
 
 constexpr std::size_t RuntimeConfiguration::OUTPUT_QUEUE_SIZE;
 
-RuntimeConfiguration::RuntimeConfiguration():
+RuntimeConfiguration::RuntimeConfiguration() :
 	m_logs(LOGS),
 	m_output_thread(false),
 	m_output_queue_size(OUTPUT_QUEUE_SIZE),
@@ -779,23 +693,18 @@ RuntimeConfiguration::RuntimeConfiguration():
 	m_msdp_disabled(false),
 	m_msdp_debug(false),
 	m_changelog_file_name(Boards::constants::CHANGELOG_FILE_NAME),
-	m_changelog_format(Boards::constants::loader_formats::GIT)
-{
+	m_changelog_format(Boards::constants::loader_formats::GIT) {
 }
 
-void RuntimeConfiguration::load_from_file(const char* filename)
-{
-	try
-	{
+void RuntimeConfiguration::load_from_file(const char *filename) {
+	try {
 		pugi::xml_document document;
-		if (!document.load_file(filename))
-		{
+		if (!document.load_file(filename)) {
 			throw std::runtime_error("could not load XML configuration file");
 		}
 
 		const auto root = document.child("configuration");
-		if (!root)
-		{
+		if (!root) {
 			throw std::runtime_error("Root tag \"configuration\" not found");
 		}
 
@@ -805,24 +714,20 @@ void RuntimeConfiguration::load_from_file(const char* filename)
 		load_external_triggers(&root);
 		load_statistics_configuration(&root);
 	}
-	catch (const std::exception& e)
-	{
+	catch (const std::exception &e) {
 		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << std::endl;
 	}
-	catch (...)
-	{
+	catch (...) {
 		std::cerr << "Unexpected error when loading configuration file " << filename << std::endl;
 	}
 }
 
-class UMaskToggle
-{
-public:
+class UMaskToggle {
+ public:
 	UMaskToggle(const umask_t umask_value) : m_umask(set_umask(umask_value)) {}
 	~UMaskToggle() { set_umask(m_umask); }
 
-	static umask_t set_umask(const umask_t umask_value)
-	{
+	static umask_t set_umask(const umask_t umask_value) {
 #if defined CIRCLE_UNIX
 		return CLogInfo::UMASK_DEFAULT == umask_value ? umask_value : umask(umask_value);
 #else
@@ -830,26 +735,24 @@ public:
 #endif
 	}
 
-private:
+ private:
 	umask_t m_umask;
 };
 
-bool CLogInfo::open()
-{
+bool CLogInfo::open() {
 	UMaskToggle umask_toggle(this->umask());
 
-	const char* mode = EM_APPEND == this->mode() ? "a+" : "w";
-	FILE* handle = fopen(filename().c_str(), mode);
+	const char *mode = EM_APPEND == this->mode() ? "a+" : "w";
+	FILE *handle = fopen(filename().c_str(), mode);
 
-	if (handle)
-	{
+	if (handle) {
 		setvbuf(handle, m_buffer, buffered(), BUFFER_SIZE);
 
 		m_handle = handle;
 		printf("Using log file '%s' with %s buffering. Opening in %s mode.\n",
-			filename().c_str(),
-			NAME_BY_ITEM(buffered()).c_str(),
-			NAME_BY_ITEM(this->mode()).c_str());
+			   filename().c_str(),
+			   NAME_BY_ITEM(buffered()).c_str(),
+			   NAME_BY_ITEM(this->mode()).c_str());
 		return true;
 	}
 

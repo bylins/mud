@@ -20,7 +20,7 @@
 
 	<crafts>
 		<craft id="craft1" filename="craft1.xml">
-			<name>Craft 1</name>	<!-- craft based of craft from file craft1.xml but with overridden name -->
+			<name>Craft 1</name>	<!-- crafts based of crafts from file craft1.xml but with overridden name -->
 		</craft>
 		<craft id="CRAFT_TAILOR">
 			<name>Портной</name>

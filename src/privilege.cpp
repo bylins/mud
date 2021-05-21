@@ -47,8 +47,7 @@
 * </gods>
 * Формат файла временный, zone.ru там грозится своим форматом на lua, а xml в очередной раз решено не воротить, хотя и хотелось...
 */
-namespace Privilege
-{
+namespace Privilege {
 
 const int BOARDS = 0;
 const int USE_SKILLS = 1;
@@ -65,17 +64,15 @@ const int FLAGS_NUM = 8;
 
 typedef std::set<std::string> PrivListType;
 
-class GodListNode
-{
-public:
+class GodListNode {
+ public:
 	std::string name; // имя
 	PrivListType set; // доступные подкоманды set
 	PrivListType show; // доступные подкоманды show
 	PrivListType other; // доступные команды
 	PrivListType arena; // доступные команды на арене
 	std::bitset<FLAGS_NUM> flags; // флаги
-	void clear()
-	{
+	void clear() {
 		name.clear();
 		set.clear();
 		show.clear();
@@ -97,8 +94,7 @@ void parse_command_line(const std::string &command, int other_flags = 0); // п�
 * поэтому флаги обрабатываем до парса по группам здесь.
 * \param command - имя флага
 */
-void parse_flags(const std::string &command)
-{
+void parse_flags(const std::string &command) {
 	if (command == "boards")
 		tmp_god.flags.set(BOARDS);
 	else if (command == "skills")
@@ -121,47 +117,37 @@ void parse_flags(const std::string &command)
 * Рассовываем команды по группам (общие, set, show), из группы arena команды идут в отдельный список
 * \param command - имя команды, fill_mode - в какой список добавлять, other_flags - для групп вроде арены со своим списком команд
 */
-void insert_command(const std::string &command, int fill_mode, int other_flags)
-{
-	if (other_flags == 1)
-	{
+void insert_command(const std::string &command, int fill_mode, int other_flags) {
+	if (other_flags == 1) {
 		// в арену пишется только аналог общего списка, я не знаю зачем на арене set или show
 		if (!fill_mode)
 			tmp_god.arena.insert(command);
 		return;
 	}
 
-	switch (fill_mode)
-	{
-	case 0:
-		tmp_god.other.insert(command);
-		break;
-	case 1:
-		tmp_god.set.insert(command);
-		break;
-	case 2:
-		tmp_god.show.insert(command);
-		break;
-	case 3:
-	{
-		std::map<std::string, std::string>::const_iterator it = group_list.find(command);
-		if (it != group_list.end())
-		{
-			if (command == "arena")
-				parse_command_line(it->second, 1);
-			else
-				parse_command_line(it->second);
+	switch (fill_mode) {
+		case 0: tmp_god.other.insert(command);
+			break;
+		case 1: tmp_god.set.insert(command);
+			break;
+		case 2: tmp_god.show.insert(command);
+			break;
+		case 3: {
+			std::map<std::string, std::string>::const_iterator it = group_list.find(command);
+			if (it != group_list.end()) {
+				if (command == "arena")
+					parse_command_line(it->second, 1);
+				else
+					parse_command_line(it->second);
+			}
+			break;
 		}
-		break;
-	}
-	default:
-		break;
+		default: break;
 	}
 }
 
 // * Добавление иммам и демигодам списка команд по умолчанию из групп default и default_demigod.
-void insert_default_command(long uid)
-{
+void insert_default_command(long uid) {
 	std::map<std::string, std::string>::const_iterator it;
 	if (get_level_by_unique(uid) < LVL_IMMORT)
 		it = group_list.find("default_demigod");
@@ -176,38 +162,28 @@ void insert_default_command(long uid)
 * \param other_flags - по дефолту 0 (добавление идет в основной список команд), 1 - добавление в список arena
 * \param commands - строка со списком команд для парса
 */
-void parse_command_line(const std::string &commands, int other_flags)
-{
-	typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
-	boost::char_separator <char>sep(" ", "()");
+void parse_command_line(const std::string &commands, int other_flags) {
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> sep(" ", "()");
 	tokenizer::iterator tok_iter, tmp_tok_iter;
 	tokenizer tokens(commands, sep);
 
 	int fill_mode = 0;
 	tokens.assign(commands);
 	if (tokens.begin() == tokens.end()) return;
-	for (tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-	{
-		if ((*tok_iter) == "(")
-		{
-			if ((*tmp_tok_iter) == "set")
-			{
+	for (tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter) {
+		if ((*tok_iter) == "(") {
+			if ((*tmp_tok_iter) == "set") {
 				fill_mode = 1;
 				continue;
-			}
-			else if ((*tmp_tok_iter) == "show")
-			{
+			} else if ((*tmp_tok_iter) == "show") {
 				fill_mode = 2;
 				continue;
-			}
-			else if ((*tmp_tok_iter) == "groups")
-			{
+			} else if ((*tmp_tok_iter) == "groups") {
 				fill_mode = 3;
 				continue;
 			}
-		}
-		else if ((*tok_iter) == ")")
-		{
+		} else if ((*tok_iter) == ")") {
 			fill_mode = 0;
 			continue;
 		}
@@ -218,11 +194,9 @@ void parse_command_line(const std::string &commands, int other_flags)
 }
 
 // * Лоад и релоад файла привилегий (reload privilege) с последующим проставлением блокнотов иммам.
-void load()
-{
+void load() {
 	std::ifstream file(PRIVILEGE_FILE);
-	if (!file.is_open())
-	{
+	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", PRIVILEGE_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -231,21 +205,17 @@ void load()
 	std::string name, commands, temp;
 	long uid;
 
-	while (file >> name)
-	{
+	while (file >> name) {
 		if (name == "#") {
 			ReadEndString(file);
 			continue;
-		}
-		else if (name == "<groups>")
-		{
+		} else if (name == "<groups>") {
 
-			while (file >> name)
-			{
-                if (name == "#") {
-                    ReadEndString(file);
-                    continue;
-                }
+			while (file >> name) {
+				if (name == "#") {
+					ReadEndString(file);
+					continue;
+				}
 				if (name == "</groups>")
 					break;
 
@@ -256,15 +226,12 @@ void load()
 				continue;
 			}
 			continue;
-		}
-		else if (name == "<gods>")
-		{
-			while (file >> name)
-			{
-			    if (name == "#") {
-                    ReadEndString(file);
-                    continue;
-                }
+		} else if (name == "<gods>") {
+			while (file >> name) {
+				if (name == "#") {
+					ReadEndString(file);
+					continue;
+				}
 				if (name == "</gods>")
 					break;
 				file >> uid;
@@ -292,8 +259,7 @@ void load()
 * \return 0 - не нашли, 1 - нашли
 */
 
-bool god_list_check(const std::string &name, long unique)
-{
+bool god_list_check(const std::string &name, long unique) {
 #ifdef TEST_BUILD
 	return 1;
 #endif
@@ -305,11 +271,9 @@ bool god_list_check(const std::string &name, long unique)
 }
 
 // * Создание и лоад/релоад блокнотов иммам.
-void load_god_boards()
-{
+void load_god_boards() {
 	Boards::Static::clear_god_boards();
-	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god)
-	{
+	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god) {
 		int level = get_level_by_unique(god->first);
 		if (level < LVL_IMMORT) continue;
 		// если это имм - делаем блокнот
@@ -323,9 +287,9 @@ void load_god_boards()
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level )
-{
-	if (check_level && !mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT && GET_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
+bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
+	if (check_level && !mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT
+		&& GET_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
 	if (IS_NPC(ch)) return false;
 #ifdef TEST_BUILD
@@ -333,26 +297,23 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 		return true;
 #endif
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
-	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1))
-	{
+	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
 		if (GET_LEVEL(ch) == LVL_IMPL)
 			return true;
-		switch (mode)
-		{
-		case 0:
-			if (it->second.other.find(cmd_name) != it->second.other.end())
-				return true;
-			break;
-		case 1:
-			if (it->second.set.find(cmd_name) != it->second.set.end())
-				return true;
-			break;
-		case 2:
-			if (it->second.show.find(cmd_name) != it->second.show.end())
-				return true;
-			break;
-		default:
-			break;
+		switch (mode) {
+			case 0:
+				if (it->second.other.find(cmd_name) != it->second.other.end())
+					return true;
+				break;
+			case 1:
+				if (it->second.set.find(cmd_name) != it->second.set.end())
+					return true;
+				break;
+			case 2:
+				if (it->second.show.find(cmd_name) != it->second.show.end())
+					return true;
+				break;
+			default: break;
 		}
 		// на арене доступны команды из группы arena_master
 		if (!mode && ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && it->second.arena.find(cmd_name) != it->second.arena.end())
@@ -367,8 +328,7 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 * \param flag - список флагов в начале файла, кол-во FLAGS_NUM
 * \return 0 - не нашли, 1 - нашли
 */
-bool check_flag(const CHAR_DATA *ch, int flag)
-{
+bool check_flag(const CHAR_DATA *ch, int flag) {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
@@ -385,10 +345,9 @@ bool check_flag(const CHAR_DATA *ch, int flag)
 * Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool check_spells(const CHAR_DATA *ch, int spellnum)
-{
+bool check_spells(const CHAR_DATA *ch, int spellnum) {
 	// флаг use_skills - везде и что угодно
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS) )
+	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	// флаг arena_master - только на арене и только для призыва/пенты
 	if (spellnum == SPELL_PORTAL || spellnum == SPELL_SUMMON || spellnum == SPELL_WORD_OF_RECALL)
@@ -402,8 +361,7 @@ bool check_spells(const CHAR_DATA *ch, int spellnum)
 * У морталов, мобов и 34х проверка не производится.
 * \return 0 - не может использовать скиллы, 1 - может
 */
-bool check_skills(const CHAR_DATA *ch)
-{
+bool check_skills(const CHAR_DATA *ch) {
 	if ((GET_LEVEL(ch) > LVL_GOD) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
 //	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;

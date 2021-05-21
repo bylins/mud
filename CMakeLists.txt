@@ -13,7 +13,7 @@ set(SOURCES
 		src/influxdb.cpp
 		src/heartbeat.cpp
 		src/heartbeat.commands.cpp
-		src/ability.rollsystem.cpp
+		src/abilities/abilities_rollsystem.cpp
 		src/chars/accounts.cpp
 		src/action.targeting.cpp
 		src/act.comm.cpp
@@ -23,12 +23,12 @@ set(SOURCES
 		src/act.other.cpp
 		src/act.social.cpp
 		src/act.wizard.cpp
-		src/AffectHandler.cpp
+		src/affects/affect_handler.cpp
 		src/alias.cpp
 		src/auction.cpp
 		src/backtrace.cpp
-		src/ban.cpp
-		src/birth_places.cpp
+		src/cmd_god/ban.cpp
+		src/birthplaces.cpp
 		src/boards/boards.changelog.loaders.cpp
 		src/boards/boards.constants.cpp
 		src/boards/boards.cpp
@@ -36,9 +36,9 @@ set(SOURCES
 		src/boards/boards.types.cpp
 		src/bonus.cpp
 		src/bonus.command.parser.cpp
-		src/boot.constants.cpp
-		src/boot.data.files.cpp
-		src/boot.index.cpp
+		src/boot/boot.constants.cpp
+		src/boot/boot.data.files.cpp
+		src/boot/boot.index.cpp
 		src/cache.cpp
 		src/celebrates.cpp
 		src/chars/char.cpp
@@ -47,12 +47,13 @@ set(SOURCES
 		src/classes/spell.slots.cpp
 		src/color.cpp
 		src/comm.cpp
-		src/command.shutdown.cpp
+		src/cmd_god/shutdown.cpp
 		src/commands.cpp
 		src/config.cpp
 		src/constants.cpp
 		src/corpse.cpp
-		src/daily_quest.cpp
+		src/quests/quest.cpp
+		src/quests/daily_quest.cpp
 		src/db.cpp
 		src/deathtrap.cpp
 		src/depot.cpp
@@ -91,17 +92,20 @@ set(SOURCES
 		src/house_exp.cpp
 		src/ignores.cpp
 		src/ignores.loader.cpp
-		src/im.cpp
+		src/crafts/im.cpp
 		src/interpreter.cpp
 		src/item.creation.cpp
 		src/limits.cpp
 		src/levenshtein.cpp
 		src/liquid.cpp
 		src/logger.cpp
-		src/magic.cpp
-		src/magic.rooms.cpp
-		src/magic.items.cpp
-		src/magic.utils.cpp
+		src/magic/magic.cpp
+		src/magic/magic_items.cpp
+		src/magic/magic_rooms.cpp
+		src/magic/magic_utils.cpp
+		src/magic/spells.cpp
+		src/magic/spells.info.cpp
+		src/magic/temp_spells.cpp
 		src/mail.cpp
 		src/map.cpp
 		src/meat.maker.cpp
@@ -110,7 +114,7 @@ set(SOURCES
 		src/mobmax.cpp
 		src/mob_stat.cpp
 		src/modify.cpp
-		src/morph.cpp
+		src/skills/morph.cpp
 		src/named_stuff.cpp
 		src/name_list.cpp
 		src/names.cpp
@@ -129,11 +133,9 @@ set(SOURCES
 		src/password.cpp
 		src/fightsystem/pk.cpp
 		src/chars/player_races.cpp
-		src/poison.cpp
 		src/privilege.cpp
 		src/pugixml.cpp
-		src/quest.cpp
-		src/quested.cpp
+		src/quests/quested.cpp
 		src/random.cpp
 		src/olc/redit.cpp
 		src/remember.cpp
@@ -141,18 +143,15 @@ set(SOURCES
 		src/room.cpp
 		src/sets_drop.cpp
 		src/shop_ext.cpp
-		src/shutdown.parameters.cpp
+		src/cmd_god/shutdown.parameters.cpp
 		src/skills.cpp
 		src/skills.info.cpp
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
-		src/spells.cpp
-		src/spells.info.cpp
 		src/structs.cpp
 		src/structs.cpp
 		src/stuff.cpp
-		src/temp_spells.cpp
 		src/time_utils.cpp
 		src/title.cpp
 		src/top.cpp
@@ -189,8 +188,10 @@ set(SOURCES
 		src/skills/ironwind.cpp
 		src/skills/throw.cpp
 		src/skills/mighthit.cpp
+		src/skills/morph.cpp
 		src/skills/block.cpp
 		src/skills/parry.cpp
+		src/skills/poison.cpp
 		src/skills/protect.cpp
 		src/skills/expendientcut.cpp
 		src/skills/turnundead.cpp
@@ -207,13 +208,13 @@ set(SOURCES
 		src/cmd/retreat.cpp
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
-        src/core/affect_data.cpp
+        src/affects/affect_data.cpp
 		src/skills/track.cpp
 		src/cmd/flee.cpp
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
-		src/cmd.wiz/stat.cpp
-		src/cmd.wiz/godtest.cpp
+		src/cmd_god/stat.cpp
+		src/cmd_god/godtest.cpp
 		src/cmd/learn.cpp
 		src/cmd/forget.cpp
 		src/cmd/memorize.cpp
@@ -230,14 +231,14 @@ set(HEADERS
 		src/cmd/forget.h
 		src/cmd/create.h
 		src/cmd/memorize.h
-		src/cmd.wiz/stat.h
-		src/cmd.wiz/godtest.h
+		src/cmd_god/stat.h
+		src/cmd_god/godtest.h
 		src/cmd/telegram.h
 		src/cmd/hire.h
 		src/cmd/mixture.h
 		src/cmd/cast.h
 		src/cmd/employ.h
-		src/core/affect_data.h
+        src/affects/affect_data.h
 		src/skills/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
@@ -262,8 +263,8 @@ set(HEADERS
 		src/skills/relocate.h
 		src/act.movement.hpp
 		src/strengthening.hpp
-		src/ability.constants.hpp
-		src/ability.rollsystem.hpp
+		src/abilities/abilities_constants.h
+		src/abilities/abilities_rollsystem.h
 		src/chars/mount.h
 		src/chars/accounts.hpp
 		src/action.targeting.hpp
@@ -286,11 +287,11 @@ set(HEADERS
 		src/world.objects.hpp
 		src/utils.string.hpp
 		src/act.other.hpp
-		src/AffectHandler.hpp
+		src/affects/affect_handler.h
 		src/auction.h
 		src/backtrace.hpp
-		src/ban.hpp
-		src/birth_places.hpp
+		src/cmd_god/ban.h
+		src/birthplaces.h
 		src/boards/boards.changelog.loaders.hpp
 		src/boards/boards.constants.hpp
 		src/boards/boards.formatters.hpp
@@ -300,9 +301,9 @@ set(HEADERS
 		src/bonus.h
 		src/bonus.command.parser.hpp
 		src/bonus.types.hpp
-		src/boot.constants.hpp
-		src/boot.data.files.hpp
-		src/boot.index.hpp
+		src/boot/boot.constants.hpp
+		src/boot/boot.data.files.hpp
+		src/boot/boot.index.hpp
 		src/cache.hpp
 		src/celebrates.hpp
 		src/chars/char.hpp
@@ -311,14 +312,15 @@ set(HEADERS
 		src/classes/class.hpp
 		src/classes/spell.slots.hpp
 		src/comm.h
-		src/command.shutdown.hpp
+		src/cmd_god/shutdown.h
 		src/commands.hpp
 		src/conf.h
 		src/config.hpp
 		src/constants.h
 		src/coredump.hpp
 		src/corpse.hpp
-		src/daily_quest.hpp
+		src/quests/daily_quest.hpp
+		src/quests/quest.hpp
 		src/db.h
 		src/deathtrap.hpp
 		src/depot.hpp
@@ -352,16 +354,19 @@ set(HEADERS
 		src/house.h
 		src/ignores.hpp
 		src/ignores.loader.hpp
-		src/im.h
+		src/crafts/im.h
 		src/interpreter.h
 		src/item.creation.hpp
 		src/levenshtein.hpp
 		src/liquid.hpp
 		src/logger.hpp
-		src/magic.h
-		src/magic.rooms.hpp
-		src/magic.items.h
-		src/magic.utils.hpp
+		src/magic/magic.h
+		src/magic/magic_items.h
+		src/magic/magic_rooms.h
+		src/magic/magic_utils.h
+		src/magic/spells.h
+		src/magic/spells.info.h
+		src/magic/temp_spells.hpp
 		src/mail.h
 		src/map.hpp
 		src/meat.maker.hpp
@@ -369,7 +374,6 @@ set(HEADERS
 		src/mobmax.hpp
 		src/mob_stat.hpp
 		src/modify.h
-		src/morph.hpp
 		src/named_stuff.hpp
 		src/name_list.hpp
 		src/noob.hpp
@@ -385,12 +389,10 @@ set(HEADERS
 		src/fightsystem/pk.h
 		src/chars/player_i.hpp
 		src/chars/player_races.hpp
-		src/poison.hpp
 		src/privilege.hpp
 		src/pugiconfig.hpp
 		src/pugixml.hpp
-		src/quested.hpp
-		src/quest.hpp
+		src/quests/quested.hpp
 		src/random.hpp
 		src/remember.hpp
 		src/reset_stats.hpp
@@ -398,17 +400,14 @@ set(HEADERS
 		src/screen.h
 		src/sets_drop.hpp
 		src/shop_ext.hpp
-		src/shutdown.parameters.hpp
+		src/cmd_god/shutdown.parameters.hpp
 		src/skills.h
 		src/skills.info.h
 		src/spam.hpp
-		src/spells.h
-		src/spells.info.h
 		src/structs.h
 		src/stuff.hpp
 		src/sysdep.h
 		src/telnet.h
-		src/temp_spells.hpp
 		src/time_utils.hpp
 		src/title.hpp
 		src/top.h
@@ -420,6 +419,7 @@ set(HEADERS
 		src/skills/backstab.h
 		src/skills/bash.h
 		src/skills/stun.h
+		src/skills/poison.hpp
 		src/skills/resque.h
 		src/skills/kick.h
 		src/skills/strangle.h
@@ -566,15 +566,15 @@ set(CRAFT_TEMPLATE_FILES
 	lib.template/misc/craft/recipe_template.xml)
 set(CRAFT_PROTOTYPES)
 set(CRAFT_SOURCE_FILES
-	src/craft/craft.commands.cpp
-	src/craft/craft.cpp
-	src/craft/craft.logger.cpp
-	src/craft/craft.static.cpp)
+		src/crafts/craft.commands.cpp
+		src/crafts/craft.cpp
+		src/crafts/craft.logger.cpp
+		src/crafts/craft.static.cpp)
 set(CRAFT_HEADER_FILES
-	src/craft/craft.commands.hpp
-	src/craft/craft.hpp
-	src/craft/craft.logger.hpp
-	src/craft/craft.static.hpp)
+		src/crafts/craft.commands.hpp
+		src/crafts/craft.hpp
+		src/crafts/craft.logger.hpp
+		src/crafts/craft.static.hpp)
 
 source_group("Craft\\Configuration" FILES ${CRAFT_GENERAL_FILES})
 source_group("Craft\\Configuration\\Tailoring" FILES ${CRAFT_TAILORING_FILES})

@@ -6,11 +6,10 @@
 #include <map>
 #include <memory>
 
-class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-class OBJ_DATA;		// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class OBJ_DATA;        // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
-namespace Celebrates
-{
+namespace Celebrates {
 
 const int CLEAN_PERIOD = 10;
 
@@ -20,8 +19,7 @@ struct ToLoad;
 typedef std::shared_ptr<ToLoad> LoadPtr;
 typedef std::vector<LoadPtr> LoadList;
 
-struct ToLoad
-{
+struct ToLoad {
 	TrigList triggers;
 	int vnum;
 	int max;
@@ -31,8 +29,7 @@ struct ToLoad
 typedef std::map<int, TrigList> AttachList; //mob vnum, списк триггеров
 typedef std::map<int, AttachList> AttachZonList; //zone_num, список для аттача
 
-struct CelebrateRoom
-{
+struct CelebrateRoom {
 	int vnum;
 	TrigList triggers;
 	LoadList mobs;
@@ -43,8 +40,7 @@ typedef std::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
 typedef std::vector<CelebrateRoomPtr> CelebrateRoomsList;
 typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//номер зоны, список комнат
 
-struct CelebrateData
-{
+struct CelebrateData {
 	CelebrateData() : is_clean(true) {};
 	std::string name;
 	bool is_clean;
@@ -55,8 +51,7 @@ struct CelebrateData
 
 typedef std::shared_ptr<CelebrateData> CelebrateDataPtr;
 
-struct CelebrateDay
-{
+struct CelebrateDay {
 	CelebrateDay() : last(false), start_at(0), finish_at(24) {};
 	bool last;
 	int start_at;

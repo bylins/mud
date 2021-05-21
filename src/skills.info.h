@@ -5,17 +5,17 @@
 #include "classes/constants.hpp"
 
 struct SkillInfoType {
-  byte min_position;
-  int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
-  int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
-  int level_decrement[NUM_PLAYER_CLASSES][NUM_KIN];
-  long int k_improve[NUM_PLAYER_CLASSES][NUM_KIN];
-  int classknow[NUM_PLAYER_CLASSES][NUM_KIN];
-  int difficulty;
-  int save_type;
-  int cap;
-  const char *name;
-  const char *shortName;
+	byte min_position;
+	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
+	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
+	int level_decrement[NUM_PLAYER_CLASSES][NUM_KIN];
+	long int k_improve[NUM_PLAYER_CLASSES][NUM_KIN];
+	int classknow[NUM_PLAYER_CLASSES][NUM_KIN];
+	int difficulty;
+	int save_type;
+	int cap;
+	const char *name;
+	const char *shortName;
 };
 
 extern struct SkillInfoType skill_info[];
