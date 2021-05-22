@@ -10,7 +10,7 @@
 #include "features.hpp"
 
 #include "abilities/abilities_constants.h"
-#include "action.targeting.hpp"
+#include "action_targeting.hpp"
 #include "handler.h"
 #include "chars/player_races.hpp"
 #include "screen.h"

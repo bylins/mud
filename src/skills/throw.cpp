@@ -1,5 +1,5 @@
 #include "throw.h"
-#include "action.targeting.hpp"
+#include "action_targeting.hpp"
 #include "abilities/abilities_rollsystem.h"
 
 #include "fightsystem/pk.h"

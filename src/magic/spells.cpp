@@ -25,14 +25,14 @@
 #include "house.h"
 #include "liquid.hpp"
 #include "magic/magic.h"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "parcel.hpp"
 #include "privilege.hpp"
 #include "screen.h"
 #include "cmd/flee.h"
 #include "skills/townportal.h"
-#include "world.objects.hpp"
-#include "skills.info.h"
+#include "world_objects.hpp"
+#include "skills_info.h"
 
 #include <boost/format.hpp>
 

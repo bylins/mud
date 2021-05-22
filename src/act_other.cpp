@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "act.other.hpp"
+#include "act_other.hpp"
 
 #include "char_obj_utils.inl"
 #include "chars/char.hpp"
@@ -36,8 +36,8 @@
 #include "msdp/msdp_constants.h"
 #include "noob.hpp"
 #include "obj.hpp"
-#include "object.prototypes.hpp"
-#include "objsave.h"
+#include "obj_prototypes.hpp"
+#include "obj_save.h"
 #include "privilege.hpp"
 #include "random.hpp"
 #include "remember.hpp"
@@ -48,8 +48,8 @@
 #include "magic/spells.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "world.objects.hpp"
-#include "skills.info.h"
+#include "world_objects.hpp"
+#include "skills_info.h"
 
 #include <sys/stat.h>
 #include <sstream>

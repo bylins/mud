@@ -10,14 +10,14 @@
 
 #include "olc.h"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
 #include "comm.h"
 #include "db.h"
 #include "dg_script/dg_olc.h"
 #include "screen.h"
-#include "item.creation.hpp"
+#include "item_creation.hpp"
 #include "crafts/im.h"
 #include "privilege.hpp"
 #include "chars/char.hpp"

@@ -12,9 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "act.wizard.hpp"
+#include "act_wizard.hpp"
 
-#include "action.targeting.hpp"
+#include "action_targeting.hpp"
 #include "cmd_god/ban.h"
 #include "birthplaces.h"
 #include "celebrates.hpp"
@@ -40,7 +40,7 @@
 #include "fightsystem/pk.h"
 #include "file_crc.hpp"
 #include "genchar.h"
-#include "global.objects.hpp"
+#include "celebrates_global_objects.hpp"
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
@@ -57,7 +57,7 @@
 #include "names.hpp"
 #include "noob.hpp"
 #include "obj.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "olc/olc.h"
 #include "parcel.hpp"
 #include "password.hpp"
@@ -71,11 +71,11 @@
 #include "magic/spells.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "time_utils.hpp"
+#include "utils_time.hpp"
 #include "title.hpp"
 #include "top.h"
 #include "utils.h"
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "zone.table.hpp"
 #include "classes/class_constants.h"
 #include "magic/spells_info.h"

@@ -1,6 +1,6 @@
 #include "quests/daily_quest.h"
 
-#include "global.objects.hpp"
+#include "celebrates_global_objects.hpp"
 
 DailyQuestMap &d_quest = GlobalObjects::daily_quests();
 

@@ -1,11 +1,11 @@
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "db.h"
 #include "liquid.hpp"
 #include "dg_script/dg_scripts.h"
 #include "utils.h"
-#include "global.objects.hpp"
+#include "celebrates_global_objects.hpp"
 
 #include <algorithm>
 

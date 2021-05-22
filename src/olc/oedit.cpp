@@ -8,8 +8,8 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -35,7 +35,7 @@
 #include "sets_drop.hpp"
 #include "obj.hpp"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "magic/spells_info.h"
 
 #include <array>

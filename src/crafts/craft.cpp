@@ -6,12 +6,12 @@
 
 #include "craft.h"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 //#include "logger.hpp"
 #include "craft_logger.h"
 //#include "craft.commands.hpp"
 #include "craft_static.h"
-#include "time_utils.hpp"
+#include "utils_time.hpp"
 #include "xml_loading_helper.hpp"
 #include "parse.hpp"
 /*#include "skills.h"

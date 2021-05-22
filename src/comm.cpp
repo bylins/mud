@@ -31,13 +31,13 @@
 
 #include "comm.h"
 
-#include "global.objects.hpp"
+#include "celebrates_global_objects.hpp"
 #include "magic/magic.h"
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "chars/world.characters.hpp"
 #include "cmd_god/shutdown_parameters.h"
-#include "object.prototypes.hpp"
-#include "external.trigger.hpp"
+#include "obj_prototypes.hpp"
+#include "external_trigger.hpp"
 #include "handler.h"
 #include "house.h"
 #include "olc/olc.h"
@@ -63,7 +63,7 @@
 #include "zone.table.hpp"
 #include "db.h"
 #include "utils.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"

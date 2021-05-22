@@ -6,9 +6,9 @@
 
 #include "house.h"
 
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "obj.hpp"
@@ -24,7 +24,7 @@
 #include "chars/char_player.hpp"
 #include "modify.h"
 #include "room.hpp"
-#include "objsave.h"
+#include "obj_save.h"
 #include "handler.h"
 #include "named_stuff.hpp"
 #include "help.hpp"

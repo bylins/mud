@@ -7,7 +7,7 @@
 #include "handler.h"
 #include "random.hpp"
 #include "screen.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 using namespace FightSystem;
 

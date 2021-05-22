@@ -10,7 +10,7 @@
 
 #include "exchange.h"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "chars/world.characters.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -27,7 +27,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "mail.h"
-#include "objsave.h"
+#include "obj_save.h"
 #include "fightsystem/pk.h"
 #include "logger.hpp"
 #include "utils.h"

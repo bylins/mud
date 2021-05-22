@@ -12,7 +12,7 @@
 #include "mobact.h"
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 // extern
 int extra_aco(int class_num, int level);

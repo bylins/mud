@@ -2,7 +2,7 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "act.movement.hpp"
+#include "act_movement.hpp"
 #include "screen.h"
 #include "chars/char_player.hpp"
 #include "noob.hpp"

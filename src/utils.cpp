@@ -15,7 +15,7 @@
 #include "utils.h"
 
 #include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "db.h"
@@ -35,7 +35,7 @@
 #include "house.h"
 #include "chars/player_races.hpp"
 #include "depot.hpp"
-#include "objsave.h"
+#include "obj_save.h"
 #include "fightsystem/fight.h"
 #include "skills.h"
 #include "exchange.h"

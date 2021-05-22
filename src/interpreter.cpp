@@ -15,7 +15,7 @@
 
 #include "interpreter.h"
 
-#include "act.movement.hpp"
+#include "act_movement.hpp"
 #include "cmd_god/ban.h"
 #include "boards/boards.h"
 #include "chars/char.hpp"
@@ -53,9 +53,9 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "handler.h"
-#include "heartbeat.commands.hpp"
+#include "heartbeat_commands.hpp"
 #include "house.h"
-#include "item.creation.hpp"
+#include "item_creation.hpp"
 #include "liquid.hpp"
 #include "logger.hpp"
 #include "mail.h"
@@ -64,7 +64,7 @@
 #include "named_stuff.hpp"
 #include "names.hpp"
 #include "obj.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "olc/olc.h"
 #include "parcel.hpp"
 #include "password.hpp"
@@ -95,7 +95,7 @@
 #include "time.h"
 #include "title.hpp"
 #include "top.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -114,8 +114,8 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
-#include "debug.utils.hpp"
-#include "global.objects.hpp"
+#include "utils_debug.hpp"
+#include "celebrates_global_objects.hpp"
 #include "chars/accounts.hpp"
 #include "fightsystem/pk.h"
 

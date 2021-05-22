@@ -5,14 +5,14 @@
 #include "depot.hpp"
 
 #include "chars/world.characters.hpp"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
 #include "chars/char_player.hpp"
 #include "modify.h"
-#include "objsave.h"
+#include "obj_save.h"
 #include "house.h"
 #include "char_obj_utils.inl"
 

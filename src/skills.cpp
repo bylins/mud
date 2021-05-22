@@ -7,11 +7,11 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "handler.h"
 #include "screen.h"
 #include "random.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 extern const byte kSkillCapOnZeroRemort = 80;
 extern const byte kSkillCapBonusPerRemort = 5;;

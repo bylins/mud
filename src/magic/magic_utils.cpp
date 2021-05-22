@@ -21,7 +21,7 @@
 #include "depot.hpp"
 #include "parcel.hpp"
 #include "magic.h"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "magic_rooms.h"
 
 extern struct spell_create_type spell_create[];

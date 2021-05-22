@@ -9,7 +9,7 @@
 #include "liquid.hpp"
 #include "screen.h"
 #include "fightsystem/fight.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 extern int interpolate(int min_value, int pulse);
 

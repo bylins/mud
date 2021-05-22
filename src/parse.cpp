@@ -3,7 +3,7 @@
 
 #include "parse.hpp"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "utils.h"
 
 namespace TextId {

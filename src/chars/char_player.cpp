@@ -5,7 +5,7 @@
 #include "char_player.hpp"
 
 #include "file_crc.hpp"
-#include "ignores.loader.hpp"
+#include "ignores_loader.hpp"
 #include "olc/olc.h"
 #include "fightsystem/pk.h"
 #include "diskio.h"
@@ -17,7 +17,7 @@
 #include "accounts.hpp"
 #include "zone.table.hpp"
 #include "quests/daily_quest.h"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "magic/spells_info.h"
 
 #include <boost/lexical_cast.hpp>

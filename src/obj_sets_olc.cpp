@@ -3,7 +3,7 @@
 
 #include "obj_sets.hpp"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "conf.h"
 #include "obj_sets_stuff.hpp"
 #include "structs.h"
@@ -18,7 +18,7 @@
 #include "magic/spells.h"
 #include "utils.h"
 #include "classes/class_constants.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <boost/algorithm/string.hpp>
 

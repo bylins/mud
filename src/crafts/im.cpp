@@ -13,8 +13,8 @@
 #include "crafts/im.h"
 
 #include "chars/world.characters.hpp"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "handler.h"
 #include "screen.h"
 #include "modify.h"

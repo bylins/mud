@@ -1,7 +1,7 @@
-#include "find.obj.id.by.vnum.hpp"
+#include "utils_find_obj_id_by_vnum.hpp"
 
 #include "dg_script/dg_scripts.h"
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "chars/char.hpp"
 
 class TriggerLookup {

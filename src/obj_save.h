@@ -7,7 +7,7 @@
 #ifndef OBJSAVE_HPP_INCLUDED
 #define OBJSAVE_HPP_INCLUDED
 
-#include "objsave.h"
+#include "obj_save.h"
 #include "obj.hpp"
 #include "structs.h"
 #include "sysdep.h"

@@ -2,7 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "obj_sets_stuff.hpp"
 #include "pugixml.hpp"
 #include "parse.hpp"

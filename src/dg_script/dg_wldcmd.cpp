@@ -13,12 +13,12 @@
 #include "cmd/follow.h"
 #include "fightsystem/fight.h"
 #include "handler.h"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "skills/townportal.h"
 #include "magic/magic_utils.h"
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 extern const char *dirs[];
 

@@ -12,9 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "logger.hpp"
 #include "cmd_god/shutdown_parameters.h"
 #include "obj.hpp"
@@ -62,7 +62,7 @@
 #include "bonus.h"
 #include "conf.h"
 #include "classes/class_constants.h"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "magic/magic_rooms.h"
 
 #include <boost/lexical_cast.hpp>

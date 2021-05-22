@@ -9,11 +9,11 @@
 
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
-#include "objsave.h"
+#include "obj_save.h"
 
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "handler.h"
 #include "screen.h"
 #include "house.h"

@@ -1,6 +1,6 @@
 // Part of Bylins http://www.mud.ru
 
-#include "objsave.h"
+#include "obj_save.h"
 
 #include "house.h"
 #include "depot.hpp"

@@ -4,8 +4,8 @@
 
 #include "named_stuff.hpp"
 
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "obj.hpp"
 #include "screen.h"
 #include "chars/char.hpp"

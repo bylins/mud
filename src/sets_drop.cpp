@@ -3,7 +3,7 @@
 
 #include "sets_drop.hpp"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "chars/char.hpp"
 #include "pugixml.hpp"
 #include "house.h"

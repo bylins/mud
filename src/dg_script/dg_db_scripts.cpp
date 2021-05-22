@@ -14,7 +14,7 @@
 ************************************************************************ */
 #include "dg_db_scripts.hpp"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 //#include "obj.hpp"
 #include "dg_scripts.h"
 //#include "db.h"
@@ -36,7 +36,7 @@
 #include "sysdep.h"
 #include "conf.h"*/
 #include "magic/magic_temp_spells.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 //#include <algorithm>
 #include <stack>

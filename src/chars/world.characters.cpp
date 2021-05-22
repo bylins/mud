@@ -4,7 +4,7 @@
 #include "config.hpp"
 #include "logger.hpp"
 #include "utils.h"
-#include "global.objects.hpp"
+#include "celebrates_global_objects.hpp"
 
 Characters &character_list = GlobalObjects::characters();    // global container of chars
 

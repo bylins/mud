@@ -4,7 +4,7 @@
  *  Copyright 1996 Harvey Gilpin.					*
  ************************************************************************/
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"

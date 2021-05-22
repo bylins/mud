@@ -10,9 +10,9 @@
 
 #include "dg_scripts.h"
 
-#include "global.objects.hpp"
-#include "find.obj.id.by.vnum.hpp"
-#include "object.prototypes.hpp"
+#include "celebrates_global_objects.hpp"
+#include "utils_find_obj_id_by_vnum.hpp"
+#include "obj_prototypes.hpp"
 #include "handler.h"
 #include "dg_event.h"
 #include "screen.h"

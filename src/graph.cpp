@@ -16,7 +16,7 @@
 #include "constants.h"
 #include "handler.h"
 #include "random.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 // Externals
 void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

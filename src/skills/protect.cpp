@@ -5,7 +5,7 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight_hit.h"
 #include "handler.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 // ************** PROTECT PROCEDURES
 void go_protect(CHAR_DATA *ch, CHAR_DATA *vict) {

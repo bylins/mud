@@ -13,11 +13,11 @@
 #include "cmd/follow.h"
 #include "fightsystem/fight.h"
 #include "handler.h"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "magic/magic_utils.h"
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "skills/townportal.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA *obj);

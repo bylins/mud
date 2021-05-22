@@ -3,7 +3,7 @@
 #include "obj.hpp"
 #include "chars/char.hpp"
 #include "handler.h"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "magic/spells_info.h"
 #include "magic_utils.h"
 

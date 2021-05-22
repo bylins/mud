@@ -5,7 +5,7 @@
 #include "fightsystem/common.h"
 
 #include "protect.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 using namespace FightSystem;
 

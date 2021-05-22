@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "chars/world.characters.hpp"
 #include "skills/townportal.h"
 #include "handler.h"
@@ -24,7 +24,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "chars/char_player.hpp"
-#include "objsave.h"
+#include "obj_save.h"
 #include "fightsystem/fight.h"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"

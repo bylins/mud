@@ -6,16 +6,16 @@
 *  $Date$                                          *
 *  $Revision$                                                     *
 ************************************************************************ */
-#include "item.creation.hpp"
+#include "item_creation.hpp"
 
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "constants.h"
 #include "handler.h"
 #include "olc/olc.h"
 #include "modify.h"
 #include "fightsystem/fight.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 extern int material_value[];
 void die(CHAR_DATA *ch, CHAR_DATA *killer);

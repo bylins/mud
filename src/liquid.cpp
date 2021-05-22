@@ -15,7 +15,7 @@
 #include "handler.h"
 #include "magic/magic.h"
 #include "screen.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <cmath>
 

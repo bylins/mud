@@ -6,7 +6,7 @@
 
 #include "graph.h"
 #include "handler.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 const char *track_when[] = {"совсем свежие",
 							"свежие",

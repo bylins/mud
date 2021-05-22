@@ -4,13 +4,13 @@
 
 #include "help.hpp"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "modify.h"
 #include "house.h"
 #include "sets_drop.hpp"
 #include "screen.h"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <boost/format.hpp>
 #include <boost/range/algorithm/remove_if.hpp>

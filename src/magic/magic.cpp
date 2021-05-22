@@ -15,10 +15,10 @@
 #include "magic.h"
 
 #include "cmd/hire.h"
-#include "action.targeting.hpp"
+#include "action_targeting.hpp"
 #include "chars/world.characters.hpp"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/fight.h"

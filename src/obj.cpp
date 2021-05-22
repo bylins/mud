@@ -4,9 +4,9 @@
 
 #include "obj.hpp"
 
-#include "objsave.h"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "obj_save.h"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "parse.hpp"
 #include "handler.h"
 #include "screen.h"

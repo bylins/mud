@@ -9,7 +9,7 @@
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
 
-#include "features.itemset.hpp"
+#include "abilities_items_set.h"
 #include "skills.h"
 #include "structs.h"
 #include "conf.h"

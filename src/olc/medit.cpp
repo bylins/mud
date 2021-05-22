@@ -31,7 +31,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>

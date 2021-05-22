@@ -1,4 +1,4 @@
-#include <radix.trie.hpp>
+#include <radix_trie.hpp>
 
 #include <gtest/gtest.h>
 

@@ -9,20 +9,20 @@ endif ()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
-		src/blocking.queue.cpp
+		src/blocking_queue.cpp
 		src/influxdb.cpp
 		src/heartbeat.cpp
-		src/heartbeat.commands.cpp
+		src/heartbeat_commands.cpp
 		src/abilities/abilities_rollsystem.cpp
 		src/chars/accounts.cpp
-		src/action.targeting.cpp
-		src/act.comm.cpp
-		src/act.informative.cpp
-		src/act.item.cpp
-		src/act.movement.cpp
-		src/act.other.cpp
-		src/act.social.cpp
-		src/act.wizard.cpp
+		src/action_targeting.cpp
+        src/act_comm.cpp
+		src/act_informative.cpp
+		src/act_item.cpp
+		src/act_movement.cpp
+		src/act_other.cpp
+		src/act_social.cpp
+		src/act_wizard.cpp
 		src/affects/affect_handler.cpp
 		src/alias.cpp
 		src/auction.cpp
@@ -35,7 +35,7 @@ set(SOURCES
 		src/boards/boards_formatters.cpp
 		src/boards/boards_types.cpp
 		src/bonus.cpp
-		src/bonus.command.parser.cpp
+		src/bonus_command_parser.cpp
 		src/boot/boot_constants.cpp
 		src/boot/boot_data_files.cpp
 		src/boot/boot_index.cpp
@@ -74,7 +74,7 @@ set(SOURCES
 		src/dps.cpp
 		src/exchange.cpp
 		src/ext_money.cpp
-		src/external.trigger.cpp
+		src/external_trigger.cpp
 		src/features.cpp
         src/fightsystem/fight.cpp
         src/fightsystem/fight_hit.cpp
@@ -91,10 +91,10 @@ set(SOURCES
 		src/house.cpp
 		src/house_exp.cpp
 		src/ignores.cpp
-		src/ignores.loader.cpp
+		src/ignores_loader.cpp
 		src/crafts/im.cpp
 		src/interpreter.cpp
-		src/item.creation.cpp
+		src/item_creation.cpp
 		src/limits.cpp
 		src/levenshtein.cpp
 		src/liquid.cpp
@@ -108,7 +108,7 @@ set(SOURCES
         src/magic/magic_temp_spells.cpp
 		src/mail.cpp
 		src/map.cpp
-		src/meat.maker.cpp
+		src/meat_maker.cpp
 		src/olc/medit.cpp
 		src/fightsystem/mobact.cpp
 		src/mobmax.cpp
@@ -121,11 +121,11 @@ set(SOURCES
 		src/noob.cpp
 		src/obj.cpp
 		src/obj_enchant.cpp
-		src/objsave.cpp
-		src/objsave_ext.cpp
+		src/obj_save.cpp
+		src/obj_save_ext.cpp
 		src/obj_sets.cpp
 		src/obj_sets_olc.cpp
-		src/obj.spell.cpp
+		src/magic_objects.cpp
 		src/olc/oedit.cpp
 		src/olc/olc.cpp
 		src/parcel.cpp
@@ -145,14 +145,14 @@ set(SOURCES
 		src/shop_ext.cpp
 		src/cmd_god/shutdown_parameters.cpp
 		src/skills.cpp
-		src/skills.info.cpp
+		src/skills_info.cpp
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
 		src/structs.cpp
 		src/structs.cpp
 		src/stuff.cpp
-		src/time_utils.cpp
+		src/utils_time.cpp
 		src/title.cpp
 		src/top.cpp
 		src/utils.cpp
@@ -160,17 +160,17 @@ set(SOURCES
 		src/weather.cpp
 		src/olc/zedit.cpp
 		src/utils.string.cpp
-		src/world.objects.cpp
-		src/object.prototypes.cpp
+		src/world_objects.cpp
+		src/obj_prototypes.cpp
 		src/id.cpp
-		src/find.obj.id.by.vnum.cpp
-		src/global.objects.cpp
-		src/shops.implementation.cpp
+        src/utils_find_obj_id_by_vnum.cpp
+		src/celebrates_global_objects.cpp
+		src/shops_implementation.cpp
 		src/chars/world.characters.cpp
-		src/debug.utils.cpp
+		src/utils_debug.cpp
 		src/speedwalks.cpp
-		src/shops.implementation.cpp
-		src/radix.trie.cpp
+		src/shops_implementation.cpp
+        src/radix_trie.cpp
 		src/compact.trie.cpp
 		src/id.cpp
 		src/stigmas.cpp
@@ -261,32 +261,32 @@ set(HEADERS
 		src/skills/warcry.h
 		src/skills/identify.h
 		src/skills/relocate.h
-		src/act.movement.hpp
+		src/act_movement.hpp
 		src/strengthening.hpp
 		src/abilities/abilities_constants.h
 		src/abilities/abilities_rollsystem.h
 		src/chars/mount.h
 		src/chars/accounts.hpp
-		src/action.targeting.hpp
-		src/blocking.queue.hpp
+		src/action_targeting.hpp
+		src/blocking_queue.hpp
 		src/influxdb.hpp
-		src/heartbeat.commands.hpp
+		src/heartbeat_commands.hpp
 		src/weather.hpp
 		src/limits.hpp
-		src/act.wizard.hpp
+		src/act_wizard.hpp
 		src/heartbeat.hpp
 		src/speedwalks.hpp
 		src/chars/world.characters.hpp
-		src/shops.implementation.hpp
-		src/global.objects.hpp
-		src/find.obj.id.by.vnum.hpp
+		src/shops_implementation.hpp
+		src/celebrates_global_objects.hpp
+        src/utils_find_obj_id_by_vnum.hpp
 		src/id.hpp
 		src/compact.trie.hpp
-		src/radix.trie.hpp
-		src/object.prototypes.hpp
-		src/world.objects.hpp
+        src/radix_trie.hpp
+		src/obj_prototypes.hpp
+		src/world_objects.hpp
 		src/utils.string.hpp
-		src/act.other.hpp
+		src/act_other.hpp
 		src/affects/affect_handler.h
 		src/auction.h
 		src/backtrace.hpp
@@ -299,7 +299,7 @@ set(HEADERS
 		src/boards/boards_message.h
 		src/boards/boards_types.h
 		src/bonus.h
-		src/bonus.command.parser.hpp
+		src/bonus_command_parser.hpp
 		src/bonus.types.hpp
 		src/boot/boot_constants.h
 		src/boot/boot_data_files.h
@@ -335,8 +335,8 @@ set(HEADERS
 		src/dps.hpp
 		src/exchange.h
 		src/ext_money.hpp
-		src/external.trigger.hpp
-		src/features.itemset.hpp
+		src/external_trigger.hpp
+		src/abilities_items_set.h
 		src/features.hpp
 		src/fightsystem/fight_constants.h
         src/fightsystem/fight.h
@@ -353,10 +353,10 @@ set(HEADERS
 		src/house_exp.hpp
 		src/house.h
 		src/ignores.hpp
-		src/ignores.loader.hpp
+		src/ignores_loader.hpp
 		src/crafts/im.h
 		src/interpreter.h
-		src/item.creation.hpp
+		src/item_creation.hpp
 		src/levenshtein.hpp
 		src/liquid.hpp
 		src/logger.hpp
@@ -369,7 +369,7 @@ set(HEADERS
 		src/magic/magic_temp_spells.h
 		src/mail.h
 		src/map.hpp
-		src/meat.maker.hpp
+		src/meat_maker.hpp
 		src/fightsystem/mobact.h
 		src/mobmax.hpp
 		src/mob_stat.hpp
@@ -379,7 +379,7 @@ set(HEADERS
 		src/noob.hpp
 		src/obj_enchant.hpp
 		src/obj.hpp
-		src/objsave.h
+		src/obj_save.h
 		src/obj_sets.hpp
 		src/obj_sets_stuff.hpp
 		src/olc/olc.h
@@ -402,18 +402,18 @@ set(HEADERS
 		src/shop_ext.hpp
 		src/cmd_god/shutdown_parameters.h
 		src/skills.h
-		src/skills.info.h
+		src/skills_info.h
 		src/spam.hpp
 		src/structs.h
 		src/stuff.hpp
 		src/sysdep.h
 		src/telnet.h
-		src/time_utils.hpp
+		src/utils_time.hpp
 		src/title.hpp
 		src/top.h
 		src/utils.h
 		src/xml_loading_helper.hpp
-		src/debug.utils.hpp
+		src/utils_debug.hpp
 		src/stigmas.hpp
 		src/zone.table.hpp
 		src/skills/backstab.h

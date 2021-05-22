@@ -29,11 +29,11 @@
 #include "fightsystem/fight_hit.h"
 #include "handler.h"
 //#include "logger.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "magic/magic_utils.h"
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "skills/townportal.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 struct mob_command_info {
 	const char *command;

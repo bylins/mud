@@ -3,8 +3,8 @@
 
 #include "corpse.hpp"
 
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "constants.h"
 #include "chars/char.hpp"
 #include "handler.h"

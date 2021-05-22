@@ -13,12 +13,12 @@
 #include "glory_const.hpp"
 #include "house.h"
 #include "liquid.hpp"
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "screen.h"
 #include "mob_stat.hpp"
 #include "modify.h"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "magic/spells_info.h"
 
 void do_statip(CHAR_DATA *ch, CHAR_DATA *k) {

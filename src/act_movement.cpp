@@ -11,10 +11,10 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 ************************************************************************ */
-#include "act.movement.hpp"
+#include "act_movement.hpp"
 
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "interpreter.h"
 #include "handler.h"
 #include "house.h"
@@ -26,7 +26,7 @@
 #include "named_stuff.hpp"
 #include "fightsystem/fight.h"
 #include "random.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <cmath>
 

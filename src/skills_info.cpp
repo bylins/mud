@@ -1,4 +1,4 @@
-#include "skills.info.h"
+#include "skills_info.h"
 
 const char *kUnusedSkillName = "!UNUSED!";
 const char *kUnidentifiedSkillName = "!UNIDENTIFIED!";

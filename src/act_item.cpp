@@ -13,8 +13,8 @@
 ************************************************************************ */
 
 #include "cmd/hire.h"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
+#include "world_objects.hpp"
+#include "obj_prototypes.hpp"
 #include "chars/char.hpp"
 #include "depot.hpp"
 #include "fightsystem/fight.h"
@@ -22,13 +22,13 @@
 #include "house.h"
 #include "liquid.hpp"
 #include "named_stuff.hpp"
-#include "objsave.h"
+#include "obj_save.h"
 #include "fightsystem/pk.h"
 #include "skills/poison.hpp"
-#include "meat.maker.hpp"
+#include "meat_maker.hpp"
 #include "char_obj_utils.inl"
-#include "global.objects.hpp"
-#include "skills.info.h"
+#include "celebrates_global_objects.hpp"
+#include "skills_info.h"
 
 // extern variables
 extern CHAR_DATA *mob_proto;

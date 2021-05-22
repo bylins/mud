@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "act.movement.hpp"
+#include "act_movement.hpp"
 #include "char_obj_utils.inl"
 #include "chars/char_player.hpp"
 #include "chars/mount.h"
@@ -28,7 +28,7 @@
 #include "screen.h"
 #include "magic/magic_utils.h"
 #include "magic/magic_temp_spells.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 //   external vars
 extern DESCRIPTOR_DATA *descriptor_list;

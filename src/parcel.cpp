@@ -4,14 +4,14 @@
 
 #include "parcel.hpp"
 
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "char_obj_utils.inl"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
 #include "chars/char_player.hpp"
 #include "mail.h"
-#include "objsave.h"
+#include "obj_save.h"
 
 #include <iomanip>
 

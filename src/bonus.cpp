@@ -3,7 +3,7 @@
 
 #include "bonus.h"
 
-#include "bonus.command.parser.hpp"
+#include "bonus_command_parser.hpp"
 #include "handler.h"
 #include "modify.h"
 #include "chars/char_player.hpp"

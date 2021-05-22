@@ -25,10 +25,10 @@
 #include "skills/track.h"
 
 #include "abilities/abilities_rollsystem.h"
-#include "action.targeting.hpp"
-#include "act.movement.hpp"
+#include "action_targeting.hpp"
+#include "act_movement.hpp"
 #include "chars/world.characters.hpp"
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "handler.h"
 #include "magic/magic.h"
 #include "fightsystem/pk.h"

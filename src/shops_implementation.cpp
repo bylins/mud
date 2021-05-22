@@ -1,6 +1,6 @@
-#include "shops.implementation.hpp"
+#include "shops_implementation.hpp"
 
-#include "object.prototypes.hpp"
+#include "obj_prototypes.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "liquid.hpp"
@@ -8,7 +8,7 @@
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "ext_money.hpp"
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "handler.h"
 #include "modify.h"
 #include "named_stuff.hpp"

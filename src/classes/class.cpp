@@ -20,7 +20,7 @@
  */
 #include "class.h"
 
-#include "world.objects.hpp"
+#include "world_objects.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
@@ -47,7 +47,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "skills.info.h"
+#include "skills_info.h"
 #include "magic/spells_info.h"
 
 #include <iostream>

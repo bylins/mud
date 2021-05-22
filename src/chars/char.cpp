@@ -15,7 +15,7 @@
 #include "msdp/msdp_constants.h"
 #include "backtrace.hpp"
 #include "zone.table.hpp"
-#include "skills.info.h"
+#include "skills_info.h"
 
 #include <boost/format.hpp>
 
