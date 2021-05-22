@@ -26,7 +26,7 @@
 #include "sets_drop.h"
 #include "fightsystem/fight.h"
 #include "zone.table.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

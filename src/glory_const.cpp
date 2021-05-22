@@ -4,7 +4,7 @@
 
 #include "glory_const.h"
 
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "pugixml.h"
 #include "structs.h"

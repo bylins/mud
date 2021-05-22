@@ -4,7 +4,7 @@
 
 #include "privilege.h"
 
-#include "logger.hpp"
+#include "logger.h"
 #include "chars/char.h"
 #include "boards/boards.h"
 

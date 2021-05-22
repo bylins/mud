@@ -1,9 +1,9 @@
 #include "shops_implementation.h"
 
 #include "obj_prototypes.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
-#include "liquid.hpp"
+#include "liquid.h"
 #include "chars/char.h"
 #include "glory.h"
 #include "glory_const.h"

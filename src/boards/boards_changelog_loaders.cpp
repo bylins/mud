@@ -1,6 +1,6 @@
 #include "boards_changelog_loaders.h"
 
-#include "logger.hpp"
+#include "logger.h"
 #include "boards_constants.h"
 
 #include <boost/algorithm/string/trim.hpp>

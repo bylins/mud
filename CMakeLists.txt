@@ -269,7 +269,7 @@ set(HEADERS
         src/chars/accounts.h
 		src/action_targeting.h
 		src/blocking_queue.h
-		src/influxdb.hpp
+		src/influxdb.h
 		src/heartbeat_commands.hpp
 		src/weather.h
 		src/game_limits.h
@@ -349,17 +349,17 @@ set(HEADERS
 		src/glory.h
 		src/glory_misc.h
 		src/handler.h
-		src/help.hpp
-		src/house_exp.hpp
+		src/help.h
+		src/house_exp.h
 		src/house.h
-		src/ignores.hpp
-		src/ignores_loader.hpp
+		src/ignores.h
+		src/ignores_loader.h
 		src/crafts/im.h
 		src/interpreter.h
-		src/item_creation.hpp
-		src/levenshtein.hpp
-		src/liquid.hpp
-		src/logger.hpp
+		src/item_creation.h
+		src/levenshtein.h
+		src/liquid.h
+        src/logger.h
 		src/magic/magic.h
 		src/magic/magic_items.h
 		src/magic/magic_rooms.h

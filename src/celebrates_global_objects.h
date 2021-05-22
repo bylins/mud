@@ -3,7 +3,7 @@
 
 #include "fightsystem/pk.h"
 #include "celebrates.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "heartbeat.hpp"
 #include "speedwalks.h"
 #include "cmd_god/shutdown_parameters.h"
@@ -11,7 +11,7 @@
 #include "world_objects.h"
 #include "chars/world.characters.h"
 #include "act_wizard.h"
-#include "influxdb.hpp"
+#include "influxdb.h"
 #include "zone.table.h"
 #include "quests/daily_quest.h"
 #include "strengthening.h"

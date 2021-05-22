@@ -8,7 +8,7 @@
 #define _HOUSE_H_
 
 #include "interpreter.h"
-#include "house_exp.hpp"
+#include "house_exp.h"
 #include "remember.h"
 #include "db.h"
 #include "conf.h"

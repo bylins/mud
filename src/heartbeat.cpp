@@ -6,7 +6,7 @@
 #include "fightsystem/pk.h"
 #include "celebrates.h"
 #include "fightsystem/fight.h"
-#include "help.hpp"
+#include "help.h"
 #include "bonus.h"
 #include "magic/magic_temp_spells.h"
 #include "external_trigger.h"

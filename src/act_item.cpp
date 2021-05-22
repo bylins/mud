@@ -20,7 +20,7 @@
 #include "fightsystem/fight.h"
 #include "handler.h"
 #include "house.h"
-#include "liquid.hpp"
+#include "liquid.h"
 #include "named_stuff.h"
 #include "obj_save.h"
 #include "fightsystem/pk.h"

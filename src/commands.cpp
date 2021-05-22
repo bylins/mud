@@ -1,7 +1,7 @@
 #include "commands.h"
 
 #include "chars/char.h"
-#include "levenshtein.hpp"
+#include "levenshtein.h"
 #include "compact_trie.h"
 
 #include <iomanip>

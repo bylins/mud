@@ -1,7 +1,7 @@
 #ifndef __STRENGTHENING_HPP__
 #define __STRENGTHENING_HPP__
 
-#include "logger.hpp"
+#include "logger.h"
 
 #include <unordered_map>
 

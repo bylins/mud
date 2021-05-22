@@ -8,7 +8,7 @@
 #include "description.h"
 #include "crafts/im.h"
 #include "chars/char.h"
-#include "help.hpp"
+#include "help.h"
 #include "dg_script/dg_db_scripts.h"
 #include "zone.table.h"
 #include "magic/spells_info.h"

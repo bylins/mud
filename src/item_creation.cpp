@@ -6,7 +6,7 @@
 *  $Date$                                          *
 *  $Revision$                                                     *
 ************************************************************************ */
-#include "item_creation.hpp"
+#include "item_creation.h"
 
 #include "world_objects.h"
 #include "obj_prototypes.h"

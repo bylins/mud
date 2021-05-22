@@ -12,7 +12,7 @@
 #include "glory.h"
 #include "glory_const.h"
 #include "house.h"
-#include "liquid.hpp"
+#include "liquid.h"
 #include "obj_prototypes.h"
 #include "screen.h"
 #include "mob_stat.h"

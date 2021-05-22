@@ -1,7 +1,7 @@
 #ifndef __CRAFT_LOGGER_HPP__
 #define __CRAFT_LOGGER_HPP__
 
-#include "logger.hpp"
+#include "logger.h"
 
 namespace craft {
 extern Logger logger;

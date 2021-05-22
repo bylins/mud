@@ -1,6 +1,6 @@
-#include "influxdb.hpp"
+#include "influxdb.h"
 
-#include "logger.hpp"
+#include "logger.h"
 
 #ifndef WIN32
 #include <netinet/in.h>

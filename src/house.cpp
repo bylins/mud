@@ -9,7 +9,7 @@
 #include "world_objects.h"
 #include "chars/world.characters.h"
 #include "obj_prototypes.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "obj.h"
 #include "comm.h"
@@ -27,7 +27,7 @@
 #include "obj_save.h"
 #include "handler.h"
 #include "named_stuff.h"
-#include "help.hpp"
+#include "help.h"
 #include "conf.h"
 
 #include <boost/format.hpp>

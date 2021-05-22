@@ -6,7 +6,7 @@
 #include "magic/magic.h"
 #include "pk.h"
 #include "dps.h"
-#include "house_exp.hpp"
+#include "house_exp.h"
 #include "skills/poison.h"
 #include "bonus.h"
 #include "mobact.h"

@@ -15,7 +15,7 @@
 #include "obj_prototypes.h"
 #include "cmd/mercenary.h"
 #include "constants.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "house.h"
 #include "boards/boards_constants.h"
 #include "boards/boards.h"

@@ -2,7 +2,7 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "help.hpp"
+#include "help.h"
 
 #include "obj_prototypes.h"
 #include "modify.h"

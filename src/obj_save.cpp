@@ -18,7 +18,7 @@
 #include "screen.h"
 #include "house.h"
 #include "depot.h"
-#include "liquid.hpp"
+#include "liquid.h"
 #include "file_crc.hpp"
 #include "named_stuff.h"
 #include "utils_char_obj.inl"

@@ -14,7 +14,7 @@
 
 #include "skills.h"
 #include "structs.h"
-#include "logger.hpp"
+#include "logger.h"
 
 struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 

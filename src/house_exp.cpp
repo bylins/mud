@@ -2,10 +2,10 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "house_exp.hpp"
+#include "house_exp.h"
 
 #include "chars/char.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "house.h"
 #include "comm.h"
 #include "modify.h"

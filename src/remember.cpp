@@ -4,7 +4,7 @@
 
 #include "remember.h"
 
-#include "logger.hpp"
+#include "logger.h"
 #include "chars/char.h"
 #include "screen.h"
 #include "house.h"

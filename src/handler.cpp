@@ -25,7 +25,7 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
 #include "house.h"
-#include "liquid.hpp"
+#include "liquid.h"
 #include "magic/magic.h"
 #include "named_stuff.h"
 #include "obj_prototypes.h"

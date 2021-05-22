@@ -8,7 +8,7 @@
 #include "pugixml.h"
 #include "house.h"
 #include "screen.h"
-#include "help.hpp"
+#include "help.h"
 #include "parse.h"
 #include "mob_stat.h"
 #include "zone.table.h"

@@ -56,7 +56,7 @@
 #include "mail.h"
 #include "mob_stat.h"
 #include "utils_char_obj.inl"
-#include "logger.hpp"
+#include "logger.h"
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"
 #include "heartbeat.hpp"

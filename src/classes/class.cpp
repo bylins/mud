@@ -42,7 +42,7 @@
 #include "chars/player_races.h"
 #include "noob.hpp"
 #include "exchange.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

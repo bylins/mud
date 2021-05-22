@@ -6,7 +6,7 @@
 
 #include "obj.h"
 #include "chars/char.h"
-#include "liquid.hpp"
+#include "liquid.h"
 #include "screen.h"
 #include "fightsystem/fight.h"
 #include "skills_info.h"

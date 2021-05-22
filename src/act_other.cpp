@@ -31,7 +31,7 @@
 #include "handler.h"
 #include "house.h"
 #include "interpreter.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "magic/magic.h"
 #include "msdp/msdp_constants.h"
 #include "noob.hpp"

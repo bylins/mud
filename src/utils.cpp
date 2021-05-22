@@ -16,7 +16,7 @@
 
 #include "chars/world.characters.h"
 #include "obj_prototypes.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "obj.h"
 #include "db.h"
 #include "comm.h"

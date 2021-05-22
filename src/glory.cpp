@@ -5,7 +5,7 @@
 #include "glory.h"
 
 #include "conf.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "db.h"
 #include "comm.h"

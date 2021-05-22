@@ -4,7 +4,7 @@
 #include "boards.h"
 #include "boards_types.h"
 
-#include "logger.hpp"
+#include "logger.h"
 #include "boards_changelog_loaders.h"
 #include "boards_constants.h"
 #include "boards_formatters.h"

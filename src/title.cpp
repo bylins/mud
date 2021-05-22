@@ -5,7 +5,7 @@
 #include "title.h"
 
 #include "interpreter.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
 #include "privilege.h"

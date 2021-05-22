@@ -23,7 +23,7 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "house.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "magic/magic.h"
 #include "screen.h"
 #include "magic/magic_utils.h"

@@ -29,7 +29,7 @@
 #include "mail.h"
 #include "obj_save.h"
 #include "fightsystem/pk.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

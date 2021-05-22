@@ -2,7 +2,7 @@
 
 #include "fightsystem/mobact.h"
 #include "config.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "celebrates_global_objects.h"
 

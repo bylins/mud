@@ -8,7 +8,7 @@
 #include "parse.h"
 #include "screen.h"
 #include "modify.h"
-#include "help.hpp"
+#include "help.h"
 #include "sets_drop.h"
 
 #include <boost/lexical_cast.hpp>

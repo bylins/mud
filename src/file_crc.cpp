@@ -5,7 +5,7 @@
 #include "file_crc.hpp"
 
 #include "db.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "interpreter.h"
 #include "comm.h"

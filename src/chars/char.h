@@ -9,7 +9,7 @@
 #include "obj_sets.h"
 #include "db.h"
 #include "room.h"
-#include "ignores.hpp"
+#include "ignores.h"
 #include "crafts/im.h"
 #include "skills.h"
 #include "utils.h"

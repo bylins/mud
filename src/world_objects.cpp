@@ -2,7 +2,7 @@
 
 #include "obj_prototypes.h"
 #include "db.h"
-#include "liquid.hpp"
+#include "liquid.h"
 #include "dg_script/dg_scripts.h"
 #include "utils.h"
 #include "celebrates_global_objects.h"

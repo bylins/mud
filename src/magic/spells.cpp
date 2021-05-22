@@ -23,7 +23,7 @@
 #include "fightsystem/pk.h"
 #include "handler.h"
 #include "house.h"
-#include "liquid.hpp"
+#include "liquid.h"
 #include "magic/magic.h"
 #include "obj_prototypes.h"
 #include "parcel.h"

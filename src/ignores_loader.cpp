@@ -1,4 +1,4 @@
-#include "ignores_loader.hpp"
+#include "ignores_loader.h"
 
 #include "chars/char.h"
 

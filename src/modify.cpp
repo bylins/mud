@@ -30,7 +30,7 @@
 #include "chars/char.h"
 #include "skills.h"
 #include "genchar.h"
-#include "logger.hpp"
+#include "logger.h"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

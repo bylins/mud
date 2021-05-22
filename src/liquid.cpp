@@ -7,7 +7,7 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 
-#include "liquid.hpp"
+#include "liquid.h"
 
 #include "obj.h"
 #include "chars/char.h"
