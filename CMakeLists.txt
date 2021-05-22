@@ -315,10 +315,10 @@ set(HEADERS
 		src/cmd_god/shutdown.h
 		src/commands.h
 		src/conf.h
-		src/config.hpp
+		src/config.h
 		src/constants.h
-		src/coredump.hpp
-		src/corpse.hpp
+		src/coredump.h
+		src/corpse.h
 		src/quests/daily_quest.h
 		src/quests/quest.h
 		src/db.h

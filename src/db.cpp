@@ -29,7 +29,7 @@
 #include "chars/world.characters.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
-#include "corpse.hpp"
+#include "corpse.h"
 #include "deathtrap.hpp"
 #include "depot.hpp"
 #include "ext_money.hpp"

@@ -9,7 +9,7 @@
 #include "fight_penalties.h"
 #include "fight_hit.h"
 #include "handler.h"
-#include "corpse.hpp"
+#include "corpse.h"
 #include "house.h"
 #include "pk.h"
 #include "stuff.hpp"

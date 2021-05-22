@@ -7,7 +7,7 @@
 #include "constants.h"
 #include "handler.h"
 #include "house.h"
-#include "corpse.hpp"
+#include "corpse.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_stuff.h"
 #include "act_movement.h"

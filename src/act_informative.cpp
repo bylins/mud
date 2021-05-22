@@ -48,7 +48,7 @@
 #include "room.hpp"
 #include "glory_const.hpp"
 #include "chars/player_races.h"
-#include "corpse.hpp"
+#include "corpse.h"
 #include "sets_drop.hpp"
 #include "help.hpp"
 #include "map.hpp"

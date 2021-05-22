@@ -1,7 +1,7 @@
 // $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
 
-#include "corpse.hpp"
+#include "corpse.h"
 
 #include "world_objects.hpp"
 #include "obj_prototypes.hpp"

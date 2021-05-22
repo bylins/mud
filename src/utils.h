@@ -14,7 +14,7 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "config.hpp"
+#include "config.h"
 #include "structs.h"
 #include "conf.h"
 #include "pugixml.hpp"

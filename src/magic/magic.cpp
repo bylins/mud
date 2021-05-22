@@ -24,7 +24,7 @@
 #include "fightsystem/fight.h"
 #include "random.hpp"
 #include "affects/affect_handler.h"
-#include "corpse.hpp"
+#include "corpse.h"
 #include "fightsystem/mobact.h"
 #include "fightsystem/fight_hit.h"
 //#include "obj.hpp"

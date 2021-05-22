@@ -48,7 +48,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "file_crc.hpp"
-#include "corpse.hpp"
+#include "corpse.h"
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "shop_ext.hpp"

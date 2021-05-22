@@ -1,6 +1,6 @@
 #include "msdp_parser.h"
 
-#include "config.hpp"
+#include "config.h"
 #include "telnet.h"
 #include "logger.hpp"
 

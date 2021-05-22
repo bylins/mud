@@ -1,7 +1,7 @@
 #include "world.characters.h"
 
 #include "fightsystem/mobact.h"
-#include "config.hpp"
+#include "config.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "celebrates_global_objects.h"

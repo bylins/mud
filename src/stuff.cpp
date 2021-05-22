@@ -12,7 +12,7 @@
 #include "world_objects.hpp"
 #include "obj_prototypes.hpp"
 #include "handler.h"
-#include "corpse.hpp"
+#include "corpse.h"
 #include "screen.h"
 #include "sets_drop.hpp"
 

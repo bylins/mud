@@ -22,7 +22,7 @@
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
-#include "corpse.hpp"
+#include "corpse.h"
 #include "sets_drop.hpp"
 #include "fightsystem/fight.h"
 #include "zone.table.hpp"

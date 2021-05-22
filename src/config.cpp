@@ -14,7 +14,7 @@
 
 #define __CONFIG_C__
 
-#include "config.hpp"
+#include "config.h"
 
 #include "boards/boards_changelog_loaders.h"
 #include "boards/boards_constants.h"

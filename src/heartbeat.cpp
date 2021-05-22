@@ -27,7 +27,7 @@
 #include "limits.hpp"
 #include "fightsystem/mobact.h"
 #include "dg_script/dg_event.h"
-#include "corpse.hpp"
+#include "corpse.h"
 //#include "chars/char.hpp"
 #include "cmd_god/shutdown_parameters.h"
 //#include "logger.hpp"
