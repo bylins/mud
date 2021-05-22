@@ -1,4 +1,4 @@
-#include "external_trigger.hpp"
+#include "external_trigger.h"
 
 ExternalTriggerChecker::ExternalTriggerChecker(const std::string &filename) : m_mtime(), m_filename(filename) {
 	init();

@@ -6,7 +6,7 @@
 
 #include "house.h"
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "chars/world.characters.h"
 #include "obj_prototypes.hpp"
 #include "logger.hpp"

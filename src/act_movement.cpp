@@ -13,7 +13,7 @@
 ************************************************************************ */
 #include "act_movement.h"
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "obj_prototypes.hpp"
 #include "interpreter.h"
 #include "handler.h"
@@ -21,7 +21,7 @@
 #include "screen.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/mobact.h"
-#include "deathtrap.hpp"
+#include "deathtrap.h"
 #include "privilege.hpp"
 #include "named_stuff.hpp"
 #include "fightsystem/fight.h"

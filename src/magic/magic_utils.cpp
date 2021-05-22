@@ -18,7 +18,7 @@
 #include "handler.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "parcel.hpp"
 #include "magic.h"
 #include "skills_info.h"

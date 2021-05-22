@@ -21,7 +21,7 @@
 #include "bonus.h"
 #include "backtrace.h"
 #include "magic/magic_utils.h"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "chars/char_player.h"
 
 // extern

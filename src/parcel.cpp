@@ -4,7 +4,7 @@
 
 #include "parcel.hpp"
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "utils_char_obj.inl"
 #include "handler.h"
 #include "auction.h"

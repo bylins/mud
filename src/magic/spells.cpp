@@ -18,7 +18,7 @@
 #include "chars/world.characters.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "fightsystem/mobact.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
@@ -31,7 +31,7 @@
 #include "screen.h"
 #include "cmd/flee.h"
 #include "skills/townportal.h"
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "skills_info.h"
 
 #include <boost/format.hpp>

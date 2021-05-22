@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "weather.hpp"
+#include "weather.h"
 
 #include "magic/spells.h"
 #include "handler.h"

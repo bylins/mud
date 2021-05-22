@@ -11,7 +11,7 @@
 #include "help.hpp"
 #include "parse.hpp"
 #include "mob_stat.hpp"
-#include "zone.table.hpp"
+#include "zone.table.h"
 
 #include <boost/lexical_cast.hpp>
 

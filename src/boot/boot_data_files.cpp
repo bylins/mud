@@ -10,7 +10,7 @@
 #include "chars/char.h"
 #include "help.hpp"
 #include "dg_script/dg_db_scripts.h"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "magic/spells_info.h"
 
 #include <regex>

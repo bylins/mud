@@ -1,7 +1,7 @@
 #ifndef __SHOPS_IMPLEMENTATION_HPP__
 #define __SHOPS_IMPLEMENTATION_HPP__
 
-#include "dictionary.hpp"
+#include "dictionary.h"
 #include "structs.h"
 #include "obj.hpp"
 

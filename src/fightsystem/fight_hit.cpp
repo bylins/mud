@@ -5,7 +5,7 @@
 #include "screen.h"
 #include "magic/magic.h"
 #include "pk.h"
-#include "dps.hpp"
+#include "dps.h"
 #include "house_exp.hpp"
 #include "skills/poison.h"
 #include "bonus.h"

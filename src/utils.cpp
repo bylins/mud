@@ -34,7 +34,7 @@
 #include "modify.h"
 #include "house.h"
 #include "chars/player_races.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "obj_save.h"
 #include "fightsystem/fight.h"
 #include "skills.h"
@@ -44,7 +44,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "obj_sets.hpp"
-#include "utils.string.hpp"
+#include "utils.string.h"
 
 #ifdef HAVE_ICONV
 #include <iconv.h>

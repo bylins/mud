@@ -22,7 +22,7 @@
 #include "conf.h"
 #include "constants.h"
 #include "db.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "dg_script/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
@@ -48,7 +48,7 @@
 #include "magic/spells.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "skills_info.h"
 
 #include <sys/stat.h>

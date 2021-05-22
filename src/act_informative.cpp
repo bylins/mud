@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "chars/world.characters.h"
 #include "obj_prototypes.hpp"
 #include "logger.hpp"
@@ -37,7 +37,7 @@
 #include "house.h"
 #include "description.h"
 #include "privilege.hpp"
-#include "depot.hpp"
+#include "depot.h"
 #include "glory.hpp"
 #include "random.hpp"
 #include "chars/char.h"
@@ -52,11 +52,11 @@
 #include "sets_drop.hpp"
 #include "help.hpp"
 #include "map.hpp"
-#include "ext_money.hpp"
+#include "ext_money.h"
 #include "mob_stat.hpp"
 #include "utils_char_obj.inl"
 #include "classes/class.h"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "bonus.h"

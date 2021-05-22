@@ -25,7 +25,7 @@
 #include "corpse.h"
 #include "sets_drop.hpp"
 #include "fightsystem/fight.h"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"

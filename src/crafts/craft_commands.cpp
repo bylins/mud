@@ -3,7 +3,7 @@
 /*#include "logger.hpp"
 #include "craft.logger.hpp"
 #include "craft.static.hpp"*/
-#include "xml_loading_helper.hpp"
+#include "xml_loading_helper.h"
 #include "craft.h"
 #include "chars/char.h"
 //#include "commands.hpp"

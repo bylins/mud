@@ -5,7 +5,7 @@
 #include "obj.hpp"
 
 #include "obj_save.h"
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "obj_prototypes.hpp"
 #include "parse.hpp"
 #include "handler.h"
@@ -13,7 +13,7 @@
 #include "celebrates.h"
 #include "fightsystem/pk.h"
 #include "cache.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "house.h"
 
 extern void get_from_container(CHAR_DATA *ch, OBJ_DATA *cont, char *arg, int mode, int amount, bool autoloot);

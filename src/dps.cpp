@@ -2,7 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "dps.hpp"
+#include "dps.h"
 
 #include "chars/char.h"
 #include "handler.h"

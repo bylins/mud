@@ -2,10 +2,10 @@
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "depot.hpp"
+#include "depot.h"
 
 #include "chars/world.characters.h"
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "obj_prototypes.hpp"
 #include "handler.h"
 #include "auction.h"

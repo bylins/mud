@@ -19,7 +19,7 @@
 #include "chars/player_races.h"
 #include "chars/world.characters.h"
 #include "cmd/follow.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "house.h"

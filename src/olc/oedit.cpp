@@ -8,7 +8,7 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "obj_prototypes.hpp"
 #include "conf.h"
 #include "sysdep.h"
@@ -22,7 +22,7 @@
 #include "dg_script/dg_olc.h"
 #include "crafts/im.h"
 #include "features.hpp"
-#include "depot.hpp"
+#include "depot.h"
 #include "chars/char.h"
 #include "house.h"
 #include "skills.h"
@@ -34,7 +34,7 @@
 #include "constants.h"
 #include "sets_drop.hpp"
 #include "obj.hpp"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
 

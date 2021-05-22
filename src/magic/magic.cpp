@@ -17,7 +17,7 @@
 #include "cmd/hire.h"
 #include "action_targeting.h"
 #include "chars/world.characters.h"
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "obj_prototypes.hpp"
 #include "handler.h"
 #include "fightsystem/pk.h"

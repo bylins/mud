@@ -271,7 +271,7 @@ set(HEADERS
 		src/blocking_queue.h
 		src/influxdb.hpp
 		src/heartbeat_commands.hpp
-		src/weather.hpp
+		src/weather.h
 		src/limits.hpp
 		src/act_wizard.h
 		src/heartbeat.hpp
@@ -279,13 +279,13 @@ set(HEADERS
 		src/chars/world.characters.h
 		src/shops_implementation.hpp
 		src/celebrates_global_objects.h
-        src/utils_find_obj_id_by_vnum.hpp
+		src/utils_find_obj_id_by_vnum.h
 		src/id.hpp
 		src/compact_trie.h
         src/radix_trie.hpp
 		src/obj_prototypes.hpp
-		src/world_objects.hpp
-		src/utils.string.hpp
+		src/world_objects.h
+		src/utils.string.h
 		src/act_other.h
 		src/affects/affect_handler.h
 		src/auction.h
@@ -322,20 +322,20 @@ set(HEADERS
 		src/quests/daily_quest.h
 		src/quests/quest.h
 		src/db.h
-		src/deathtrap.hpp
-		src/depot.hpp
+        src/deathtrap.h
+		src/depot.h
 		src/description.h
         src/dg_script/dg_db_scripts.h
 		src/dg_script/dg_event.h
 		src/dg_script/dg_olc.h
 		src/dg_script/dg_scripts.h
-		src/dictionary.hpp
+		src/dictionary.h
 		src/diskio.h
 		src/double_map.hpp
-		src/dps.hpp
+		src/dps.h
 		src/exchange.h
-		src/ext_money.hpp
-		src/external_trigger.hpp
+		src/ext_money.h
+		src/external_trigger.h
 		src/abilities/abilities_items_set.h
 		src/features.hpp
 		src/fightsystem/fight_constants.h
@@ -408,14 +408,14 @@ set(HEADERS
 		src/stuff.hpp
 		src/sysdep.h
 		src/telnet.h
-		src/utils_time.hpp
+		src/utils_time.h
 		src/title.hpp
 		src/top.h
 		src/utils.h
-		src/xml_loading_helper.hpp
-		src/utils_debug.hpp
+		src/xml_loading_helper.h
+		src/utils_debug.h
 		src/stigmas.hpp
-		src/zone.table.hpp
+		src/zone.table.h
 		src/skills/backstab.h
 		src/skills/bash.h
 		src/skills/stun.h

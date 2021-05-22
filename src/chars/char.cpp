@@ -14,7 +14,7 @@
 #include "house.h"
 #include "msdp/msdp_constants.h"
 #include "backtrace.h"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "skills_info.h"
 
 #include <boost/format.hpp>

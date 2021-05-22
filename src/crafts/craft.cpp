@@ -11,8 +11,8 @@
 #include "craft_logger.h"
 //#include "craft.commands.hpp"
 #include "craft_static.h"
-#include "utils_time.hpp"
-#include "xml_loading_helper.hpp"
+#include "utils_time.h"
+#include "xml_loading_helper.h"
 #include "parse.hpp"
 /*#include "skills.h"
 #include "comm.h"*/

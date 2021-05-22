@@ -9,7 +9,7 @@
 #include "house.h"
 #include "sets_drop.hpp"
 #include "screen.h"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "skills_info.h"
 
 #include <boost/format.hpp>

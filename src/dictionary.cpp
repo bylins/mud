@@ -1,4 +1,4 @@
-#include "dictionary.hpp"
+#include "dictionary.h"
 #include "shop_ext.hpp"
 
 // комментарий на русском в надежде починить кодировки bitbucket

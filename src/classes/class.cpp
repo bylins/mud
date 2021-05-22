@@ -20,7 +20,7 @@
  */
 #include "class.h"
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"

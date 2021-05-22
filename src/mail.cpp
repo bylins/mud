@@ -10,7 +10,7 @@
 
 #include "mail.h"
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "parcel.hpp"

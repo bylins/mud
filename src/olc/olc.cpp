@@ -27,7 +27,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "zone.table.hpp"
+#include "zone.table.h"
 
 #include <vector>
 

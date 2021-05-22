@@ -1,4 +1,4 @@
-#include "world_objects.hpp"
+#include "world_objects.h"
 
 #include "obj_prototypes.hpp"
 #include "db.h"

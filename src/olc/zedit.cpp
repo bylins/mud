@@ -13,7 +13,7 @@
 #include "chars/char.h"
 #include "room.hpp"
 #include "help.hpp"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"

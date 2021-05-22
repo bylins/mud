@@ -8,11 +8,11 @@
 #include "speedwalks.hpp"
 #include "cmd_god/shutdown_parameters.h"
 #include "shops_implementation.hpp"
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "chars/world.characters.h"
 #include "act_wizard.h"
 #include "influxdb.hpp"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "quests/daily_quest.h"
 #include "strengthening.hpp"
 class BanList;    // to avoid inclusion of ban.hpp

@@ -12,7 +12,7 @@
 #include "mobmax.hpp"
 #include "remember.hpp"
 #include "char.h"
-#include "dps.hpp"
+#include "dps.h"
 #include "map.hpp"
 #include "reset_stats.hpp"
 #include "boards/boards_types.h"

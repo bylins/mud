@@ -5,7 +5,7 @@
 #include "chars/world.characters.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
-#include "deathtrap.hpp"
+#include "deathtrap.h"
 #include "magic/magic.h"
 #include "skills/poison.h"
 

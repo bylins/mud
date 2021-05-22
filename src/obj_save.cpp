@@ -11,13 +11,13 @@
 
 #include "obj_save.h"
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "chars/world.characters.h"
 #include "obj_prototypes.hpp"
 #include "handler.h"
 #include "screen.h"
 #include "house.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "liquid.hpp"
 #include "file_crc.hpp"
 #include "named_stuff.hpp"

@@ -3,7 +3,7 @@
 #include "chars/char.h"
 #include "magic/magic.h"
 #include "msdp_constants.h"
-#include "zone.table.hpp"
+#include "zone.table.h"
 
 namespace msdp {
 void RoomReporter::get(Variable::shared_ptr &response) {

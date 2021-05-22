@@ -3,7 +3,7 @@
 #include "obj_save.h"
 
 #include "house.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "parcel.hpp"
 #include "chars/world.characters.h"
 

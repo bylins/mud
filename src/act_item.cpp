@@ -13,10 +13,10 @@
 ************************************************************************ */
 
 #include "cmd/hire.h"
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "obj_prototypes.hpp"
 #include "chars/char.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "fightsystem/fight.h"
 #include "handler.h"
 #include "house.h"

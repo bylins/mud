@@ -8,7 +8,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "interpreter.h"
-#include "dictionary.hpp"
+#include "dictionary.h"
 
 namespace ShopExt {
 

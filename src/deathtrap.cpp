@@ -2,7 +2,7 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "deathtrap.hpp"
+#include "deathtrap.h"
 
 #include "constants.h"
 #include "handler.h"

@@ -15,7 +15,7 @@
 #include "handler.h"
 #include "obj_prototypes.hpp"
 #include "magic/magic_utils.h"
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "skills/townportal.h"
 #include "skills_info.h"
 

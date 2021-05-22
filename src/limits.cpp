@@ -12,23 +12,23 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "world_objects.hpp"
+#include "world_objects.h"
 #include "chars/world.characters.h"
 #include "skills/townportal.h"
 #include "handler.h"
 #include "screen.h"
 #include "house.h"
 #include "exchange.h"
-#include "deathtrap.hpp"
+#include "deathtrap.h"
 #include "cmd_god/ban.h"
-#include "depot.hpp"
+#include "depot.h"
 #include "glory.hpp"
 #include "chars/char_player.h"
 #include "obj_save.h"
 #include "fightsystem/fight.h"
-#include "ext_money.hpp"
+#include "ext_money.h"
 #include "mob_stat.hpp"
-#include "zone.table.hpp"
+#include "zone.table.h"
 #include "classes/class_spell_slots.h"
 #include "magic/spells_info.h"
 

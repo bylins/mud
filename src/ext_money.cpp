@@ -2,13 +2,13 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "ext_money.hpp"
+#include "ext_money.h"
 
 #include "chars/char.h"
 #include "screen.h"
 #include "pugixml.hpp"
 #include "parse.hpp"
-#include "zone.table.hpp"
+#include "zone.table.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>

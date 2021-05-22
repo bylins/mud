@@ -16,8 +16,8 @@
 #include "obj_prototypes.hpp"
 #include "skills/townportal.h"
 #include "magic/magic_utils.h"
-#include "world_objects.hpp"
-#include "zone.table.hpp"
+#include "world_objects.h"
+#include "zone.table.h"
 #include "skills_info.h"
 
 extern const char *dirs[];
