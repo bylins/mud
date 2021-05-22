@@ -20,7 +20,7 @@
 #include "boards/boards_constants.h"
 #include "boards/boards.h"
 #include "chars/char.h"
-#include "noob.hpp"
+#include "noob.h"
 
 extern int dts_are_dumps;
 

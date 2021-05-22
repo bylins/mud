@@ -10,7 +10,7 @@
 #ifndef _STUFF_HPP_
 #define _STUFF_HPP_
 
-#include "double_map.hpp"
+#include "structs_double_map.h"
 #include "structs.h"
 #include "conf.h"
 

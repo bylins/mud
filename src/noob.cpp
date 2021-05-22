@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "noob.hpp"
+#include "noob.h"
 
 #include "chars/char.h"
 #include "pugixml.h"

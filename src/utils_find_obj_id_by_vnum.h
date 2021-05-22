@@ -1,7 +1,7 @@
 #ifndef __FIND_OBJ_ID_BY_VNUM_HPP__
 #define __FIND_OBJ_ID_BY_VNUM_HPP__
 
-#include "id.hpp"
+#include "id.h"
 #include "structs.h"
 
 class CHAR_DATA;    // to avoid inclusion of "char.hpp"

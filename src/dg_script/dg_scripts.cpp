@@ -21,7 +21,7 @@
 #include "modify.h"
 #include "named_stuff.h"
 #include "magic/magic_utils.h"
-#include "noob.hpp"
+#include "noob.h"
 //#include "logger.hpp"
 #include "dg_db_scripts.h"
 #include "bonus.h"

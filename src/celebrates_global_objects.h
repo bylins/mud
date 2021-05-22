@@ -4,7 +4,7 @@
 #include "fightsystem/pk.h"
 #include "celebrates.h"
 #include "logger.h"
-#include "heartbeat.hpp"
+#include "heartbeat.h"
 #include "speedwalks.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "shops_implementation.h"

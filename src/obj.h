@@ -5,7 +5,7 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
-#include "id.hpp"
+#include "id.h"
 #include "obj_enchant.h"
 #include "magic/spells.h"
 #include "skills.h"

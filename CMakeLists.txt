@@ -270,17 +270,17 @@ set(HEADERS
 		src/action_targeting.h
 		src/blocking_queue.h
 		src/influxdb.h
-		src/heartbeat_commands.hpp
+		src/heartbeat_commands.h
 		src/weather.h
 		src/game_limits.h
 		src/act_wizard.h
-		src/heartbeat.hpp
+		src/heartbeat.h
 		src/speedwalks.h
 		src/chars/world.characters.h
 		src/shops_implementation.h
 		src/celebrates_global_objects.h
 		src/utils_find_obj_id_by_vnum.h
-		src/id.hpp
+		src/id.h
 		src/compact_trie.h
 		src/radix_trie.h
 		src/obj_prototypes.h
@@ -331,7 +331,7 @@ set(HEADERS
 		src/dg_script/dg_scripts.h
 		src/dictionary.h
 		src/diskio.h
-		src/double_map.hpp
+		src/structs_double_map.h
 		src/dps.h
 		src/exchange.h
 		src/ext_money.h
@@ -343,7 +343,7 @@ set(HEADERS
 		src/fightsystem/fight_hit.h
 		src/fightsystem/fight_stuff.h
 		src/fightsystem/fight_penalties.h
-		src/file_crc.hpp
+        src/file_crc.h
 		src/genchar.h
 		src/glory_const.h
 		src/glory.h
@@ -376,7 +376,7 @@ set(HEADERS
 		src/modify.h
 		src/named_stuff.h
 		src/name_list.h
-		src/noob.hpp
+		src/noob.h
 		src/obj_enchant.h
 		src/obj.h
 		src/obj_save.h

@@ -1,7 +1,7 @@
 #ifndef __WORLD_OBJECTS_HPP__
 #define __WORLD_OBJECTS_HPP__
 
-#include "id.hpp"
+#include "id.h"
 #include "obj.h"
 
 #include <list>

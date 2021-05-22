@@ -40,7 +40,7 @@
 #include "chars/char_player.h"
 #include "named_stuff.h"
 #include "chars/player_races.h"
-#include "noob.hpp"
+#include "noob.h"
 #include "exchange.h"
 #include "logger.h"
 #include "utils.h"

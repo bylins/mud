@@ -1,6 +1,6 @@
-#include "heartbeat_commands.hpp"
+#include "heartbeat_commands.h"
 
-#include "heartbeat.hpp"
+#include "heartbeat.h"
 #include "celebrates_global_objects.h"
 #include "utils.string.h"
 

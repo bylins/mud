@@ -19,7 +19,7 @@
 #include "house.h"
 #include "depot.h"
 #include "liquid.h"
-#include "file_crc.hpp"
+#include "file_crc.h"
 #include "named_stuff.h"
 #include "utils_char_obj.inl"
 

@@ -2,7 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "file_crc.hpp"
+#include "file_crc.h"
 
 #include "db.h"
 #include "logger.h"

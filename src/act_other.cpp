@@ -34,7 +34,7 @@
 #include "logger.h"
 #include "magic/magic.h"
 #include "msdp/msdp_constants.h"
-#include "noob.hpp"
+#include "noob.h"
 #include "obj.h"
 #include "obj_prototypes.h"
 #include "obj_save.h"

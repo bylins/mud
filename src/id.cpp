@@ -1,4 +1,4 @@
-#include "id.hpp"
+#include "id.h"
 
 MaxID::MaxID() : m_value(MOBOBJ_ID_BASE) {
 }

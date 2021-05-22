@@ -1,4 +1,4 @@
-#include "heartbeat.hpp"
+#include "heartbeat.h"
 
 #include "auction.h"
 #include "deathtrap.h"
@@ -16,7 +16,7 @@
 #include "title.h"
 #include "depot.h"
 #include "glory.h"
-#include "file_crc.hpp"
+#include "file_crc.h"
 #include "sets_drop.h"
 #include "mail.h"
 #include "mob_stat.h"

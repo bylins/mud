@@ -4,7 +4,7 @@
 
 #include "char_player.h"
 
-#include "file_crc.hpp"
+#include "file_crc.h"
 #include "ignores_loader.h"
 #include "olc/olc.h"
 #include "fightsystem/pk.h"
