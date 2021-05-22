@@ -14,7 +14,7 @@
 
 #include "utils.h"
 
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "obj_prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
@@ -29,11 +29,11 @@
 #include "dg_script/dg_scripts.h"
 #include "features.hpp"
 #include "privilege.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "room.hpp"
 #include "modify.h"
 #include "house.h"
-#include "chars/player_races.hpp"
+#include "chars/player_races.h"
 #include "depot.hpp"
 #include "obj_save.h"
 #include "fightsystem/fight.h"

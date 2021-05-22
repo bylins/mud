@@ -1,6 +1,6 @@
 #include "fight_penalties.h"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 int GroupPenaltyCalculator::get() const {
 	const bool leader_is_npc = IS_NPC(m_leader);

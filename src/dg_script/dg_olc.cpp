@@ -19,7 +19,7 @@
 #include "obj.hpp"
 #include "olc/olc.h"
 #include "dg_event.h"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "zone.table.hpp"
 //#include "logger.hpp"
 

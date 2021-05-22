@@ -2,18 +2,18 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "world.characters.hpp"
+#include "world.characters.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
 #include "privilege.hpp"
-#include "char_player.hpp"
-#include "player_races.hpp"
-#include "celebrates.hpp"
-#include "cache.hpp"
+#include "char_player.h"
+#include "player_races.h"
+#include "celebrates.h"
+#include "cache.h"
 #include "fightsystem/fight.h"
 #include "house.h"
 #include "msdp/msdp_constants.h"
-#include "backtrace.hpp"
+#include "backtrace.h"
 #include "zone.table.hpp"
 #include "skills_info.h"
 

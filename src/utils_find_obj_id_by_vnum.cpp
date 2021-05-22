@@ -2,7 +2,7 @@
 
 #include "dg_script/dg_scripts.h"
 #include "world_objects.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 class TriggerLookup {
  public:

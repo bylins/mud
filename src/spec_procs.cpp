@@ -12,12 +12,12 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "act_movement.hpp"
-#include "char_obj_utils.inl"
-#include "chars/char_player.hpp"
+#include "act_movement.h"
+#include "utils_char_obj.inl"
+#include "chars/char_player.h"
 #include "chars/mount.h"
-#include "chars/player_races.hpp"
-#include "chars/world.characters.hpp"
+#include "chars/player_races.h"
+#include "chars/world.characters.h"
 #include "cmd/follow.h"
 #include "depot.hpp"
 #include "fightsystem/fight.h"

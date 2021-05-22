@@ -20,7 +20,7 @@
 #include "item_creation.hpp"
 #include "crafts/im.h"
 #include "privilege.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "room.hpp"
 #include "logger.hpp"
 #include "utils.h"

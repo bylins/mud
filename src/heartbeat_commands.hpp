@@ -2,7 +2,7 @@
 #define __HEARTBEAT_COMMANDS_HPP__
 
 #include "structs.h"
-#include "commands.hpp"
+#include "commands.h"
 
 namespace heartbeat {
 const int SCMD_NOTHING = 0;

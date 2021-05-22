@@ -11,7 +11,7 @@
 #include "quests/quested.h"
 #include "mobmax.hpp"
 #include "remember.hpp"
-#include "char.hpp"
+#include "char.h"
 #include "dps.hpp"
 #include "map.hpp"
 #include "reset_stats.hpp"

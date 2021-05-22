@@ -7,7 +7,7 @@
 #include "obj_enchant.hpp"
 #include "obj.hpp"
 #include "screen.h"
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 namespace ObjectEnchant {
 

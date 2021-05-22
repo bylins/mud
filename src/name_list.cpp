@@ -5,7 +5,7 @@
 #include "name_list.hpp"
 
 #include "obj.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 namespace {
 

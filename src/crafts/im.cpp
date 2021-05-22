@@ -12,7 +12,7 @@
 
 #include "crafts/im.h"
 
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "world_objects.hpp"
 #include "obj_prototypes.hpp"
 #include "handler.h"

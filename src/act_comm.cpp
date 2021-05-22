@@ -16,11 +16,11 @@
 #include "handler.h"
 #include "screen.h"
 #include "auction.h"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "house.h"
 #include "spam.hpp"
-#include "char_obj_utils.inl"
-#include "chars/world.characters.hpp"
+#include "utils_char_obj.inl"
+#include "chars/world.characters.h"
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;

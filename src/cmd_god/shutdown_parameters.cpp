@@ -1,6 +1,6 @@
 #include "cmd_god/shutdown_parameters.h"
 
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 #include "sysdep.h"
 
 ShutdownParameters::ShutdownParameters() :

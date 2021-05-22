@@ -15,8 +15,8 @@
 #include "magic.h"
 
 #include "cmd/hire.h"
-#include "action_targeting.hpp"
-#include "chars/world.characters.hpp"
+#include "action_targeting.h"
+#include "chars/world.characters.h"
 #include "world_objects.hpp"
 #include "obj_prototypes.hpp"
 #include "handler.h"

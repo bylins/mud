@@ -15,7 +15,7 @@
 #include "cmd/hire.h"
 #include "world_objects.hpp"
 #include "obj_prototypes.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "depot.hpp"
 #include "fightsystem/fight.h"
 #include "handler.h"
@@ -24,10 +24,10 @@
 #include "named_stuff.hpp"
 #include "obj_save.h"
 #include "fightsystem/pk.h"
-#include "skills/poison.hpp"
+#include "skills/poison.h"
 #include "meat_maker.hpp"
-#include "char_obj_utils.inl"
-#include "celebrates_global_objects.hpp"
+#include "utils_char_obj.inl"
+#include "celebrates_global_objects.h"
 #include "skills_info.h"
 
 // extern variables

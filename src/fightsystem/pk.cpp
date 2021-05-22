@@ -13,7 +13,7 @@
 
 #include "pk.h"
 
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 #include "screen.h"
 #include "house.h"
 #include "handler.h"

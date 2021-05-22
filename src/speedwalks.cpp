@@ -1,6 +1,6 @@
 #include "speedwalks.hpp"
 
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 
 speedwalks_t &speedwalks = GlobalObjects::speedwalks();
 

@@ -1,6 +1,6 @@
 #include "identify.h"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 #include "handler.h"
 

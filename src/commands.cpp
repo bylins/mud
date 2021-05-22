@@ -1,8 +1,8 @@
-#include "commands.hpp"
+#include "commands.h"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "levenshtein.hpp"
-#include "compact.trie.hpp"
+#include "compact_trie.h"
 
 #include <iomanip>
 

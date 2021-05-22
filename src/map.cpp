@@ -2,11 +2,11 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "act_movement.hpp"
+#include "act_movement.h"
 #include "screen.h"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "noob.hpp"
-#include "char_obj_utils.inl"
+#include "utils_char_obj.inl"
 #include "zone.table.hpp"
 
 #include "boost/multi_array.hpp"

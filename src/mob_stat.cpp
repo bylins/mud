@@ -5,7 +5,7 @@
 
 #include "pugixml.hpp"
 #include "parse.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "screen.h"
 
 #include <iomanip>

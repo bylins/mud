@@ -1,6 +1,6 @@
 // Copyright (c) 2016 bodrich
 // Part of Bylins http://www.bylins.su
-#include "bonus.types.hpp"
+#include "bonus_types.h"
 
 #include <string>
 

@@ -31,10 +31,10 @@
 
 #include "comm.h"
 
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 #include "magic/magic.h"
 #include "world_objects.hpp"
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "obj_prototypes.hpp"
 #include "external_trigger.hpp"
@@ -55,7 +55,7 @@
 #include "sets_drop.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
-#include "char_obj_utils.inl"
+#include "utils_char_obj.inl"
 #include "logger.hpp"
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"

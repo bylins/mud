@@ -1,6 +1,6 @@
 #include "zone.table.hpp"
 
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 
 ZoneData::ZoneData() : name(nullptr),
 					   comment(nullptr),

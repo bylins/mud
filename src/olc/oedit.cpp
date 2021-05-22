@@ -23,7 +23,7 @@
 #include "crafts/im.h"
 #include "features.hpp"
 #include "depot.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "house.h"
 #include "skills.h"
 #include "parcel.hpp"

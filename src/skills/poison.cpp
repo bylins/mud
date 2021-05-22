@@ -2,10 +2,10 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "skills/poison.hpp"
+#include "skills/poison.h"
 
 #include "obj.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "liquid.hpp"
 #include "screen.h"
 #include "fightsystem/fight.h"

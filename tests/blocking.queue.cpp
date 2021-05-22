@@ -1,4 +1,4 @@
-#include <blocking_queue.hpp>
+#include <blocking_queue.h>
 
 #include <gtest/gtest.h>
 

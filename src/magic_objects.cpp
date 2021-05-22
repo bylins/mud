@@ -6,9 +6,9 @@
 
 #include "obj.hpp"
 #include "screen.h"
-#include "skills/poison.hpp"
-#include "chars/char.hpp"
-#include "char_obj_utils.inl"
+#include "skills/poison.h"
+#include "chars/char.h"
+#include "utils_char_obj.inl"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>

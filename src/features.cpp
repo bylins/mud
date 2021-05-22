@@ -10,9 +10,9 @@
 #include "features.hpp"
 
 #include "abilities/abilities_constants.h"
-#include "action_targeting.hpp"
+#include "action_targeting.h"
 #include "handler.h"
-#include "chars/player_races.hpp"
+#include "chars/player_races.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
 

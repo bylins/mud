@@ -1,6 +1,6 @@
 #include "msdp.h"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "telnet.h"
 #include "msdp_parser.h"
 #include "msdp_constants.h"

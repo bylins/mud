@@ -1,6 +1,6 @@
 #include "msdp_reporters.h"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "magic/magic.h"
 #include "msdp_constants.h"
 #include "zone.table.hpp"

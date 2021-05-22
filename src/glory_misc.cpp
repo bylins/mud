@@ -7,10 +7,10 @@
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "genchar.h"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "screen.h"
 #include "comm.h"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "modify.h"
 
 namespace GloryMisc {

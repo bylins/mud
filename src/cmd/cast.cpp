@@ -1,6 +1,6 @@
 #include "cast.h"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "obj.hpp"
 #include "room.hpp"
 #include "structs.h"

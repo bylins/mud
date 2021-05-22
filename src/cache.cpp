@@ -3,7 +3,7 @@
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
-#include "cache.hpp"
+#include "cache.h"
 
 template
 class caching::Cache<CHAR_DATA *>;

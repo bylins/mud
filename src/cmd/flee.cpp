@@ -1,10 +1,10 @@
 #include "flee.h"
 
-#include "act_movement.hpp"
+#include "act_movement.h"
 
 #include "features.hpp"
 #include "random.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 void reduce_exp_after_flee(CHAR_DATA *ch, CHAR_DATA *victim, room_rnum room) {
 	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))

@@ -19,7 +19,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"*/
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/format.hpp>

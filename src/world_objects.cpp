@@ -5,7 +5,7 @@
 #include "liquid.hpp"
 #include "dg_script/dg_scripts.h"
 #include "utils.h"
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 
 #include <algorithm>
 

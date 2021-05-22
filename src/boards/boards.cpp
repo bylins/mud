@@ -11,7 +11,7 @@
 #include "house.h"
 #include "screen.h"
 #include "privilege.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "modify.h"
 
 #include <boost/format.hpp>

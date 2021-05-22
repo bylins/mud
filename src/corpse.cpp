@@ -6,7 +6,7 @@
 #include "world_objects.hpp"
 #include "obj_prototypes.hpp"
 #include "constants.h"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "handler.h"
 #include "pugixml.hpp"
 #include "house.h"

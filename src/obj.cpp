@@ -10,9 +10,9 @@
 #include "parse.hpp"
 #include "handler.h"
 #include "screen.h"
-#include "celebrates.hpp"
+#include "celebrates.h"
 #include "fightsystem/pk.h"
-#include "cache.hpp"
+#include "cache.h"
 #include "depot.hpp"
 #include "house.h"
 

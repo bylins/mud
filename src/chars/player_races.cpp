@@ -8,7 +8,7 @@
 #include "sysdep.h"*/
 #include "utils.h"
 //#include "comm.h"
-#include "player_races.hpp"
+#include "player_races.h"
 #include "pugixml.hpp"
 
 PlayerKinListType PlayerRace::PlayerKinList;

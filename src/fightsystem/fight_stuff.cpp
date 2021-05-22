@@ -4,7 +4,7 @@
 #include "mobact.h"
 #include "obj.hpp"
 #include "cmd/flee.h"
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "fight.h"
 #include "fight_penalties.h"
 #include "fight_hit.h"
@@ -19,10 +19,10 @@
 #include "mob_stat.hpp"
 //#include "logger.hpp"
 #include "bonus.h"
-#include "backtrace.hpp"
+#include "backtrace.h"
 #include "magic/magic_utils.h"
 #include "zone.table.hpp"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 
 // extern
 void perform_drop_gold(CHAR_DATA *ch, int amount);

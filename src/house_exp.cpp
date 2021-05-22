@@ -4,7 +4,7 @@
 
 #include "house_exp.hpp"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "logger.hpp"
 #include "house.h"
 #include "comm.h"

@@ -12,7 +12,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "screen.h"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 
 #include "names.hpp"
 

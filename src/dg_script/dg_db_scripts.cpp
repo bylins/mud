@@ -12,7 +12,7 @@
 *  $Date$                                           *
 *  $Revision$                                                   *
 ************************************************************************ */
-#include "dg_db_scripts.hpp"
+#include "dg_db_scripts.h"
 
 #include "obj_prototypes.hpp"
 //#include "obj.hpp"

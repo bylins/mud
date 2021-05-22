@@ -2,7 +2,7 @@
 #define __CRAFT_COMMANDS_HPP__
 
 #include "structs.h"
-#include "commands.hpp"
+#include "commands.h"
 
 #include <memory>
 

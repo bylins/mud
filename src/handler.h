@@ -17,7 +17,7 @@
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "structs.h"    // there was defined type "byte" if it had been missing
 
 struct ROOM_DATA;

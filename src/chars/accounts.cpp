@@ -2,7 +2,7 @@
 * part of bylins
 * 2018 (c) bodrich
 */
-#include "accounts.hpp"
+#include "accounts.h"
 #include "password.hpp"
 /*#include "db.h"
 #include "comm.h"

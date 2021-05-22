@@ -14,7 +14,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "parcel.hpp"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "named_stuff.hpp"
 #include "parse.hpp"
 #include "screen.h"

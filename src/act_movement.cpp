@@ -11,7 +11,7 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 ************************************************************************ */
-#include "act_movement.hpp"
+#include "act_movement.h"
 
 #include "world_objects.hpp"
 #include "obj_prototypes.hpp"

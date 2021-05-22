@@ -4,7 +4,7 @@
 
 #include "dps.hpp"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "handler.h"
 
 #include <boost/format.hpp>

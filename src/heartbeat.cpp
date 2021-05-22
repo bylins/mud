@@ -4,7 +4,7 @@
 #include "deathtrap.hpp"
 #include "parcel.hpp"
 #include "fightsystem/pk.h"
-#include "celebrates.hpp"
+#include "celebrates.h"
 #include "fightsystem/fight.h"
 #include "help.hpp"
 #include "bonus.h"
@@ -33,7 +33,7 @@
 //#include "logger.hpp"
 #include "utils_time.hpp"
 //#include "structs.h"
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"

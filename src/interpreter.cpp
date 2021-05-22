@@ -15,12 +15,12 @@
 
 #include "interpreter.h"
 
-#include "act_movement.hpp"
+#include "act_movement.h"
 #include "cmd_god/ban.h"
 #include "boards/boards.h"
-#include "chars/char.hpp"
-#include "chars/char_player.hpp"
-#include "chars/world.characters.hpp"
+#include "chars/char.h"
+#include "chars/char_player.h"
+#include "chars/world.characters.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/godtest.h"
 #include "cmd/follow.h"
@@ -100,7 +100,7 @@
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
-#include "chars/player_races.hpp"
+#include "chars/player_races.h"
 #include "birthplaces.h"
 #include "help.hpp"
 #include "map.hpp"
@@ -115,8 +115,8 @@
 #include "conf.h"
 #include "bonus.h"
 #include "utils_debug.hpp"
-#include "celebrates_global_objects.hpp"
-#include "chars/accounts.hpp"
+#include "celebrates_global_objects.h"
+#include "chars/accounts.h"
 #include "fightsystem/pk.h"
 
 #include <boost/lexical_cast.hpp>

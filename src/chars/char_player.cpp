@@ -2,7 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "char_player.hpp"
+#include "char_player.h"
 
 #include "file_crc.hpp"
 #include "ignores_loader.hpp"
@@ -11,10 +11,10 @@
 #include "diskio.h"
 #include "genchar.h"
 #include "affects/affect_handler.h"
-#include "player_races.hpp"
+#include "player_races.h"
 #include "ext_money.hpp"
 #include "magic/magic_temp_spells.h"
-#include "accounts.hpp"
+#include "accounts.h"
 #include "zone.table.hpp"
 #include "quests/daily_quest.h"
 #include "skills_info.h"

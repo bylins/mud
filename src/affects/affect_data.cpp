@@ -1,13 +1,13 @@
 #include <glory_const.hpp>
 
 #include "affect_data.h"
-#include "chars/char_player.hpp"
-#include "chars/world.characters.hpp"
+#include "chars/char_player.h"
+#include "chars/world.characters.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
 #include "deathtrap.hpp"
 #include "magic/magic.h"
-#include "skills/poison.hpp"
+#include "skills/poison.h"
 
 bool no_bad_affects(OBJ_DATA *obj) {
 	static std::list<EWeaponAffectFlag> bad_waffects =

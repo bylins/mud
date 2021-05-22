@@ -4,7 +4,7 @@
 #ifndef CHAR_HPP_INCLUDED
 #define CHAR_HPP_INCLUDED
 
-#include "player_i.hpp"
+#include "player_i.h"
 #include "skills/morph.hpp"
 #include "obj_sets.hpp"
 #include "db.h"

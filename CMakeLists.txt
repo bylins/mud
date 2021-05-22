@@ -171,7 +171,7 @@ set(SOURCES
 		src/speedwalks.cpp
 		src/shops_implementation.cpp
         src/radix_trie.cpp
-		src/compact.trie.cpp
+		src/compact_trie.cpp
 		src/id.cpp
 		src/stigmas.cpp
 		src/zone.table.cpp
@@ -261,35 +261,35 @@ set(HEADERS
 		src/skills/warcry.h
 		src/skills/identify.h
 		src/skills/relocate.h
-		src/act_movement.hpp
+		src/act_movement.h
 		src/strengthening.hpp
 		src/abilities/abilities_constants.h
 		src/abilities/abilities_rollsystem.h
 		src/chars/mount.h
-		src/chars/accounts.hpp
-		src/action_targeting.hpp
-		src/blocking_queue.hpp
+        src/chars/accounts.h
+		src/action_targeting.h
+		src/blocking_queue.h
 		src/influxdb.hpp
 		src/heartbeat_commands.hpp
 		src/weather.hpp
 		src/limits.hpp
-		src/act_wizard.hpp
+		src/act_wizard.h
 		src/heartbeat.hpp
 		src/speedwalks.hpp
-		src/chars/world.characters.hpp
+		src/chars/world.characters.h
 		src/shops_implementation.hpp
-		src/celebrates_global_objects.hpp
+		src/celebrates_global_objects.h
         src/utils_find_obj_id_by_vnum.hpp
 		src/id.hpp
-		src/compact.trie.hpp
+		src/compact_trie.h
         src/radix_trie.hpp
 		src/obj_prototypes.hpp
 		src/world_objects.hpp
 		src/utils.string.hpp
-		src/act_other.hpp
+		src/act_other.h
 		src/affects/affect_handler.h
 		src/auction.h
-		src/backtrace.hpp
+		src/backtrace.h
 		src/cmd_god/ban.h
 		src/birthplaces.h
 		src/boards/boards_changelog_loaders.h
@@ -299,21 +299,21 @@ set(HEADERS
 		src/boards/boards_message.h
 		src/boards/boards_types.h
 		src/bonus.h
-		src/bonus_command_parser.hpp
-		src/bonus.types.hpp
+		src/bonus_command_parser.h
+		src/bonus_types.h
 		src/boot/boot_constants.h
 		src/boot/boot_data_files.h
 		src/boot/boot_index.h
-		src/cache.hpp
-		src/celebrates.hpp
-		src/chars/char.hpp
-		src/char_obj_utils.inl
-		src/chars/char_player.hpp
+		src/cache.h
+		src/celebrates.h
+		src/chars/char.h
+		src/utils_char_obj.inl
+		src/chars/char_player.h
 		src/classes/class.h
 		src/classes/class_spell_slots.h
 		src/comm.h
 		src/cmd_god/shutdown.h
-		src/commands.hpp
+		src/commands.h
 		src/conf.h
 		src/config.hpp
 		src/constants.h
@@ -325,7 +325,7 @@ set(HEADERS
 		src/deathtrap.hpp
 		src/depot.hpp
 		src/description.h
-		src/dg_script/dg_db_scripts.hpp
+        src/dg_script/dg_db_scripts.h
 		src/dg_script/dg_event.h
 		src/dg_script/dg_olc.h
 		src/dg_script/dg_scripts.h
@@ -336,7 +336,7 @@ set(HEADERS
 		src/exchange.h
 		src/ext_money.hpp
 		src/external_trigger.hpp
-		src/abilities_items_set.h
+		src/abilities/abilities_items_set.h
 		src/features.hpp
 		src/fightsystem/fight_constants.h
         src/fightsystem/fight.h
@@ -387,8 +387,8 @@ set(HEADERS
 		src/parse.hpp
 		src/password.hpp
 		src/fightsystem/pk.h
-		src/chars/player_i.hpp
-		src/chars/player_races.hpp
+		src/chars/player_i.h
+		src/chars/player_races.h
 		src/privilege.hpp
 		src/pugiconfig.hpp
 		src/pugixml.hpp
@@ -419,7 +419,7 @@ set(HEADERS
 		src/skills/backstab.h
 		src/skills/bash.h
 		src/skills/stun.h
-		src/skills/poison.hpp
+		src/skills/poison.h
 		src/skills/resque.h
 		src/skills/kick.h
 		src/skills/strangle.h

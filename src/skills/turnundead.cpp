@@ -4,7 +4,7 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/common.h"
-#include "action_targeting.hpp"
+#include "action_targeting.h"
 #include "abilities/abilities_rollsystem.h"
 #include "handler.h"
 #include "cmd/flee.h"

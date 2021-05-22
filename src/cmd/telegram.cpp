@@ -1,6 +1,6 @@
 #include "telegram.h"
-#include "chars/char_player.hpp"
-#include "chars/world.characters.hpp"
+#include "chars/char_player.h"
+#include "chars/world.characters.h"
 
 #include <obj.hpp>
 

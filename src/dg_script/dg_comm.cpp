@@ -12,7 +12,7 @@
 #include "dg_scripts.h"
 #include "comm.h"
 #include "handler.h"
-#include "char_obj_utils.inl"
+#include "utils_char_obj.inl"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 

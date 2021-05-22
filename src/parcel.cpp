@@ -5,11 +5,11 @@
 #include "parcel.hpp"
 
 #include "world_objects.hpp"
-#include "char_obj_utils.inl"
+#include "utils_char_obj.inl"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "mail.h"
 #include "obj_save.h"
 

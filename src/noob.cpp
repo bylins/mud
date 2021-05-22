@@ -3,7 +3,7 @@
 
 #include "noob.hpp"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "pugixml.hpp"
 #include "parse.hpp"
 #include "handler.h"

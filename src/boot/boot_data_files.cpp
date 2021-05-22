@@ -7,9 +7,9 @@
 #include "constants.h"
 #include "description.h"
 #include "crafts/im.h"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "help.hpp"
-#include "dg_script/dg_db_scripts.hpp"
+#include "dg_script/dg_db_scripts.h"
 #include "zone.table.hpp"
 #include "magic/spells_info.h"
 

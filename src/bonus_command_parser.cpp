@@ -1,4 +1,4 @@
-#include "bonus_command_parser.hpp"
+#include "bonus_command_parser.h"
 
 #include "interpreter.h"
 #include "utils.h"

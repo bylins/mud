@@ -1,6 +1,6 @@
 #include "boards_formatters.h"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "screen.h"
 /*#include "utils.h"
 #include "conf.h"

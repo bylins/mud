@@ -2,15 +2,15 @@
 #define __GLOBAL_OBJECTS_HPP__
 
 #include "fightsystem/pk.h"
-#include "celebrates.hpp"
+#include "celebrates.h"
 #include "logger.hpp"
 #include "heartbeat.hpp"
 #include "speedwalks.hpp"
 #include "cmd_god/shutdown_parameters.h"
 #include "shops_implementation.hpp"
 #include "world_objects.hpp"
-#include "chars/world.characters.hpp"
-#include "act_wizard.hpp"
+#include "chars/world.characters.h"
+#include "act_wizard.h"
 #include "influxdb.hpp"
 #include "zone.table.hpp"
 #include "quests/daily_quest.h"

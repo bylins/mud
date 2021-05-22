@@ -4,17 +4,17 @@
 
 #include "depot.hpp"
 
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "world_objects.hpp"
 #include "obj_prototypes.hpp"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "modify.h"
 #include "obj_save.h"
 #include "house.h"
-#include "char_obj_utils.inl"
+#include "utils_char_obj.inl"
 
 extern int bank(CHAR_DATA *, void *, int, char *);
 extern int can_take_obj(CHAR_DATA *ch, OBJ_DATA *obj);

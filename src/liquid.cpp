@@ -10,8 +10,8 @@
 #include "liquid.hpp"
 
 #include "obj.hpp"
-#include "chars/char.hpp"
-#include "char_obj_utils.inl"
+#include "chars/char.h"
+#include "utils_char_obj.inl"
 #include "handler.h"
 #include "magic/magic.h"
 #include "screen.h"

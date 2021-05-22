@@ -1,7 +1,7 @@
 #ifndef __BONUS_BOMMAND_PARSER_HPP__
 #define __BONUS_BOMMAND_PARSER_HPP__
 
-#include "bonus.types.hpp"
+#include "bonus_types.h"
 
 #include <string>
 

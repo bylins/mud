@@ -7,7 +7,7 @@
 *  $Revision$                                                      *
 ***************************************************************************/
 
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "obj.hpp"
 #include "comm.h"
 #include "magic/spells.h"
@@ -18,7 +18,7 @@
 #include "constants.h"
 #include "features.hpp"
 #include "crafts/im.h"
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"

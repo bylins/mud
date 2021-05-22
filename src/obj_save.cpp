@@ -12,7 +12,7 @@
 #include "obj_save.h"
 
 #include "world_objects.hpp"
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "obj_prototypes.hpp"
 #include "handler.h"
 #include "screen.h"
@@ -21,7 +21,7 @@
 #include "liquid.hpp"
 #include "file_crc.hpp"
 #include "named_stuff.hpp"
-#include "char_obj_utils.inl"
+#include "utils_char_obj.inl"
 
 #include <boost/algorithm/string.hpp>
 

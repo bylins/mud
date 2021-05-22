@@ -1,9 +1,9 @@
-#include "celebrates.hpp"
+#include "celebrates.h"
 
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 #include "handler.h"
 #include "pugixml.hpp"
-#include "backtrace.hpp"
+#include "backtrace.h"
 
 #include <boost/lexical_cast.hpp>
 

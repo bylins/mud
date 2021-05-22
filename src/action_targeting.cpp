@@ -2,7 +2,7 @@
 	Модуль составление списков целей для умений/зклинаний.
 */
 
-#include "action_targeting.hpp"
+#include "action_targeting.h"
 #include "fightsystem/pk.h"
 
 /*

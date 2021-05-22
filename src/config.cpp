@@ -18,7 +18,7 @@
 
 #include "boards/boards_changelog_loaders.h"
 #include "boards/boards_constants.h"
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 #if CIRCLE_UNIX
 #include <sys/stat.h>

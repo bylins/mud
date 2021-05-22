@@ -14,7 +14,7 @@
 #ifndef _PVP_H_
 #define _PVP_H_
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 #include <string>
 

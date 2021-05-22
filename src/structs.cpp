@@ -1,6 +1,6 @@
 //#include "structs.h"
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "logger.hpp"
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"

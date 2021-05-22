@@ -1,7 +1,7 @@
 #include "heartbeat_commands.hpp"
 
 #include "heartbeat.hpp"
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 #include "utils.string.hpp"
 
 #include <iomanip>

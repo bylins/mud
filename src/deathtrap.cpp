@@ -10,7 +10,7 @@
 #include "corpse.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_stuff.h"
-#include "act_movement.hpp"
+#include "act_movement.h"
 
 extern void death_cry(CHAR_DATA *ch, CHAR_DATA *killer);
 

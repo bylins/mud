@@ -10,7 +10,7 @@
 #include "fightsystem/pk.h"
 #include "privilege.hpp"
 #include "handler.h"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 
 extern void send_to_gods(char *text, bool demigod);
 

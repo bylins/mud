@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "world_objects.hpp"
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "skills/townportal.h"
 #include "handler.h"
 #include "screen.h"
@@ -23,7 +23,7 @@
 #include "cmd_god/ban.h"
 #include "depot.hpp"
 #include "glory.hpp"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "obj_save.h"
 #include "fightsystem/fight.h"
 #include "ext_money.hpp"

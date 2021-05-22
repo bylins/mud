@@ -9,7 +9,7 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "interpreter.h"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "classes/class_constants.h"
 
 #include <array>

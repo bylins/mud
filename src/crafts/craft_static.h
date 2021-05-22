@@ -1,7 +1,7 @@
 #ifndef __CRAFT_STATIC_HPP__
 #define __CRAFT_STATIC_HPP__
 
-#include "commands.hpp"
+#include "commands.h"
 
 #include <memory>
 

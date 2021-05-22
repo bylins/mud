@@ -1,10 +1,10 @@
-#include "world.characters.hpp"
+#include "world.characters.h"
 
 #include "fightsystem/mobact.h"
 #include "config.hpp"
 #include "logger.hpp"
 #include "utils.h"
-#include "celebrates_global_objects.hpp"
+#include "celebrates_global_objects.h"
 
 Characters &character_list = GlobalObjects::characters();    // global container of chars
 

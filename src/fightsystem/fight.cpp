@@ -23,7 +23,7 @@
 #include "skills/protect.h"
 
 #include "assist.h"
-#include "chars/world.characters.hpp"
+#include "chars/world.characters.h"
 #include "fight_hit.h"
 #include "fightsystem/mobact.h"
 /*#include "affects/affect_handler.h"
@@ -41,7 +41,7 @@
 #include "features.hpp"*/
 #include "random.hpp"
 //#include "chars/char.hpp"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 #include "magic/magic.h"
 /*#include "room.hpp"
 #include "genchar.h"

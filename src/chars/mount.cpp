@@ -2,7 +2,7 @@
 //
 #include "mount.h"
 
-#include "char.hpp"
+#include "char.h"
 #include "handler.h"
 
 void make_horse(CHAR_DATA *horse, CHAR_DATA *ch) {

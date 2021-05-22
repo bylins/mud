@@ -1,6 +1,6 @@
 #include "godtest.h"
 
-#include "../chars/char.hpp"
+#include "../chars/char.h"
 #include "../modify.h"
 
 // This is test command for different testings

@@ -5,7 +5,7 @@
 #include "spam.hpp"
 
 #include "logger.hpp"
-#include "chars/char.hpp"
+#include "chars/char.h"
 
 using namespace SpamSystem;
 

@@ -1,9 +1,9 @@
 #include "char.utilities.hpp"
 
 #include <utils.h>
-#include <chars/char.hpp>
+#include <chars/char.h>
 #include <handler.h>
-#include <act_other.hpp>
+#include <act_other.h>
 
 namespace test_utils
 {

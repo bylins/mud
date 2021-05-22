@@ -12,11 +12,11 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "act_other.hpp"
+#include "act_other.h"
 
-#include "char_obj_utils.inl"
-#include "chars/char.hpp"
-#include "chars/char_player.hpp"
+#include "utils_char_obj.inl"
+#include "chars/char.h"
+#include "chars/char_player.h"
 #include "cmd/follow.h"
 #include "comm.h"
 #include "conf.h"

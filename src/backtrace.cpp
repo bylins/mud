@@ -1,4 +1,4 @@
-#include "backtrace.hpp"
+#include "backtrace.h"
 
 #include <climits>
 #ifdef _WIN32
