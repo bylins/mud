@@ -23,7 +23,7 @@
 #include "skills.h"
 #include "chars/char.h"
 #include "chars/char_player.h"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "modify.h"
 #include "room.hpp"
 #include "mail.h"

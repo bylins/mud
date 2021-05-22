@@ -20,7 +20,7 @@
 #include "depot.h"
 #include "liquid.hpp"
 #include "file_crc.hpp"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "utils_char_obj.inl"
 
 #include <boost/algorithm/string.hpp>

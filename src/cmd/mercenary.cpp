@@ -1,7 +1,7 @@
 #include "cmd/mercenary.h"
 #include "chars/char_player.h"
 #include "modify.h"
-#include "mob_stat.hpp"
+#include "mob_stat.h"
 
 //#include <map>
 #include <boost/lexical_cast.hpp>

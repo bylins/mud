@@ -1,4 +1,4 @@
-#include <glory_const.hpp>
+#include <glory_const.h>
 
 #include "affect_data.h"
 #include "chars/char_player.h"

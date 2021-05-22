@@ -4,7 +4,7 @@
 #include "handler.h"
 #include "crafts/im.h"
 #include "screen.h"
-#include "limits.hpp"
+#include "game_limits.h"
 #include "classes/class_spell_slots.h"
 #include "magic/spells.h"
 

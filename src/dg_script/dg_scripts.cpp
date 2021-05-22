@@ -19,7 +19,7 @@
 #include "house.h"
 #include "chars/char_player.h"
 #include "modify.h"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "magic/magic_utils.h"
 #include "noob.hpp"
 //#include "logger.hpp"

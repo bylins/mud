@@ -20,7 +20,7 @@
 #include "crafts/im.h"
 #include "chars/char.h"
 #include "skills.h"
-#include "name_list.hpp"
+#include "name_list.h"
 #include "room.hpp"
 #include "corpse.h"
 #include "sets_drop.hpp"

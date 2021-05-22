@@ -15,7 +15,7 @@
 #include "handler.h"
 #include "parcel.hpp"
 #include "chars/char_player.h"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "parse.hpp"
 #include "screen.h"
 #include "pugixml.hpp"

@@ -2,10 +2,10 @@
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "glory_misc.hpp"
+#include "glory_misc.h"
 
-#include "glory.hpp"
-#include "glory_const.hpp"
+#include "glory.h"
+#include "glory_const.h"
 #include "genchar.h"
 #include "chars/char.h"
 #include "screen.h"

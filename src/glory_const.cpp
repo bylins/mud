@@ -2,7 +2,7 @@
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "glory_const.hpp"
+#include "glory_const.h"
 
 #include "logger.hpp"
 #include "utils.h"
@@ -15,7 +15,7 @@
 #include "genchar.h"
 #include "handler.h"
 #include "chars/char_player.h"
-#include "glory_misc.hpp"
+#include "glory_misc.h"
 #include "top.h"
 
 #include <boost/lexical_cast.hpp>

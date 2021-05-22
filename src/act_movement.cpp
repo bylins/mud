@@ -23,7 +23,7 @@
 #include "fightsystem/mobact.h"
 #include "deathtrap.h"
 #include "privilege.hpp"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "fightsystem/fight.h"
 #include "random.hpp"
 #include "skills_info.h"

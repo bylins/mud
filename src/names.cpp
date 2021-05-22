@@ -14,7 +14,7 @@
 #include "screen.h"
 #include "chars/char_player.h"
 
-#include "names.hpp"
+#include "names.h"
 
 namespace NewNames {
 static void save();

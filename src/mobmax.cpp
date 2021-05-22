@@ -2,7 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "mobmax.hpp"
+#include "mobmax.h"
 
 #include "chars/char.h"
 

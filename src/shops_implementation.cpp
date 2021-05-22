@@ -5,13 +5,13 @@
 #include "utils.h"
 #include "liquid.hpp"
 #include "chars/char.h"
-#include "glory.hpp"
-#include "glory_const.hpp"
+#include "glory.h"
+#include "glory_const.h"
 #include "ext_money.h"
 #include "world_objects.h"
 #include "handler.h"
 #include "modify.h"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "fightsystem/pk.h"
 
 #include <boost/lexical_cast.hpp>

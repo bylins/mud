@@ -2,7 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "name_list.hpp"
+#include "name_list.h"
 
 #include "obj.hpp"
 #include "chars/char.h"

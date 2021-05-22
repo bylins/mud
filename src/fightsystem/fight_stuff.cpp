@@ -16,7 +16,7 @@
 #include "top.h"
 #include "screen.h"
 #include "magic/magic.h"
-#include "mob_stat.hpp"
+#include "mob_stat.h"
 //#include "logger.hpp"
 #include "bonus.h"
 #include "backtrace.h"

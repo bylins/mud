@@ -95,7 +95,7 @@ set(SOURCES
 		src/crafts/im.cpp
 		src/interpreter.cpp
 		src/item_creation.cpp
-		src/limits.cpp
+		src/game_limits.cpp
 		src/levenshtein.cpp
 		src/liquid.cpp
 		src/logger.cpp
@@ -107,7 +107,7 @@ set(SOURCES
 		src/magic/spells_info.cpp
         src/magic/magic_temp_spells.cpp
 		src/mail.cpp
-		src/map.cpp
+		src/mapsystem.cpp
 		src/meat_maker.cpp
 		src/olc/medit.cpp
 		src/fightsystem/mobact.cpp
@@ -272,7 +272,7 @@ set(HEADERS
 		src/influxdb.hpp
 		src/heartbeat_commands.hpp
 		src/weather.h
-		src/limits.hpp
+		src/game_limits.h
 		src/act_wizard.h
 		src/heartbeat.hpp
 		src/speedwalks.hpp
@@ -345,9 +345,9 @@ set(HEADERS
 		src/fightsystem/fight_penalties.h
 		src/file_crc.hpp
 		src/genchar.h
-		src/glory_const.hpp
-		src/glory.hpp
-		src/glory_misc.hpp
+		src/glory_const.h
+		src/glory.h
+		src/glory_misc.h
 		src/handler.h
 		src/help.hpp
 		src/house_exp.hpp
@@ -368,14 +368,14 @@ set(HEADERS
 		src/magic/spells_info.h
 		src/magic/magic_temp_spells.h
 		src/mail.h
-		src/map.hpp
-		src/meat_maker.hpp
+		src/mapsystem.h
+		src/meat_maker.h
 		src/fightsystem/mobact.h
-		src/mobmax.hpp
-		src/mob_stat.hpp
+		src/mobmax.h
+		src/mob_stat.h
 		src/modify.h
-		src/named_stuff.hpp
-		src/name_list.hpp
+		src/named_stuff.h
+		src/name_list.h
 		src/noob.hpp
 		src/obj_enchant.hpp
 		src/obj.hpp

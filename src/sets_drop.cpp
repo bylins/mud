@@ -10,7 +10,7 @@
 #include "screen.h"
 #include "help.hpp"
 #include "parse.hpp"
-#include "mob_stat.hpp"
+#include "mob_stat.h"
 #include "zone.table.h"
 
 #include <boost/lexical_cast.hpp>

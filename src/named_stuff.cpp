@@ -2,7 +2,7 @@
 // Copyright (c) 2010 WorM
 // Part of Bylins http://www.mud.ru
 
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 
 #include "world_objects.h"
 #include "obj_prototypes.hpp"

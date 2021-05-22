@@ -28,7 +28,7 @@
 #include "skills.h"
 #include "parcel.hpp"
 #include "liquid.hpp"
-#include "name_list.hpp"
+#include "name_list.h"
 #include "corpse.h"
 #include "shop_ext.hpp"
 #include "constants.h"

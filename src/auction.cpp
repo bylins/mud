@@ -13,7 +13,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "auction.h"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "fightsystem/pk.h"
 
 // external functions

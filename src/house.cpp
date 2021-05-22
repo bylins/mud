@@ -26,7 +26,7 @@
 #include "room.hpp"
 #include "obj_save.h"
 #include "handler.h"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "help.hpp"
 #include "conf.h"
 

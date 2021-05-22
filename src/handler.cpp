@@ -27,7 +27,7 @@
 #include "house.h"
 #include "liquid.hpp"
 #include "magic/magic.h"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "obj_prototypes.hpp"
 #include "screen.h"
 #include "magic/magic_utils.h"

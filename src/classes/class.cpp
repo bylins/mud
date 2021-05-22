@@ -38,7 +38,7 @@
 #include "spam.hpp"
 #include "screen.h"
 #include "chars/char_player.h"
-#include "named_stuff.hpp"
+#include "named_stuff.h"
 #include "chars/player_races.h"
 #include "noob.hpp"
 #include "exchange.h"

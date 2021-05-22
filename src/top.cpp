@@ -1,7 +1,7 @@
 #include "interpreter.h"
 #include "screen.h"
 #include "top.h"
-#include "glory_const.hpp"
+#include "glory_const.h"
 #include "chars/char.h"
 
 #include <boost/algorithm/string.hpp>

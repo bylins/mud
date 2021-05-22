@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "mob_stat.hpp"
+#include "mob_stat.h"
 
 #include "pugixml.hpp"
 #include "parse.hpp"
