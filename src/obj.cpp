@@ -2,12 +2,12 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "obj.hpp"
+#include "obj.h"
 
 #include "obj_save.h"
 #include "world_objects.h"
-#include "obj_prototypes.hpp"
-#include "parse.hpp"
+#include "obj_prototypes.h"
+#include "parse.h"
 #include "handler.h"
 #include "screen.h"
 #include "celebrates.h"

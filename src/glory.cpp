@@ -9,7 +9,7 @@
 #include "utils.h"
 #include "db.h"
 #include "comm.h"
-#include "password.hpp"
+#include "password.h"
 #include "genchar.h"
 #include "screen.h"
 #include "top.h"

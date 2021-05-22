@@ -10,9 +10,9 @@
 
 #include "exchange.h"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "chars/world.characters.h"
-#include "obj.hpp"
+#include "obj.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"

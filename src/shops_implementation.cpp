@@ -1,6 +1,6 @@
 #include "shops_implementation.hpp"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "liquid.hpp"

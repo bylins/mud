@@ -4,8 +4,8 @@
 #include "noob.hpp"
 
 #include "chars/char.h"
-#include "pugixml.hpp"
-#include "parse.hpp"
+#include "pugixml.h"
+#include "parse.h"
 #include "handler.h"
 #include "logger.hpp"
 

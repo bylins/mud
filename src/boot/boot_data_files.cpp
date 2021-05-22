@@ -1,6 +1,6 @@
 #include "boot/boot_data_files.h"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "dg_script/dg_scripts.h"
 #include "dg_script/dg_olc.h"
 #include "boards/boards.h"

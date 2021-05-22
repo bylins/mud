@@ -5,10 +5,10 @@
 #include "shop_ext.hpp"
 
 #include "celebrates_global_objects.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "handler.h"
 #include "house.h"
-#include "parse.hpp"
+#include "parse.h"
 
 #include <boost/algorithm/string.hpp>
 

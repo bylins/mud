@@ -2,7 +2,7 @@
 
 #include "auction.h"
 #include "deathtrap.h"
-#include "parcel.hpp"
+#include "parcel.h"
 #include "fightsystem/pk.h"
 #include "celebrates.h"
 #include "fightsystem/fight.h"

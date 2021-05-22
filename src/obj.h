@@ -6,7 +6,7 @@
 #define OBJ_HPP_INCLUDED
 
 #include "id.hpp"
-#include "obj_enchant.hpp"
+#include "obj_enchant.h"
 #include "magic/spells.h"
 #include "skills.h"
 #include "structs.h"

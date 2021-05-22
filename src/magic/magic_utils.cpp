@@ -19,7 +19,7 @@
 #include "screen.h"
 #include "fightsystem/pk.h"
 #include "depot.h"
-#include "parcel.hpp"
+#include "parcel.h"
 #include "magic.h"
 #include "skills_info.h"
 #include "magic_rooms.h"

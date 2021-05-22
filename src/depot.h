@@ -5,7 +5,7 @@
 #ifndef DEPOT_HPP_INCLUDED
 #define DEPOT_HPP_INCLUDED
 
-#include "obj.hpp"
+#include "obj.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

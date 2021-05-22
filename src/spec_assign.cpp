@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "cmd/mercenary.h"
 #include "constants.h"
 #include "logger.hpp"

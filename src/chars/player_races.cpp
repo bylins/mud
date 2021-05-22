@@ -9,7 +9,7 @@
 #include "utils.h"
 //#include "comm.h"
 #include "player_races.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 
 PlayerKinListType PlayerRace::PlayerKinList;
 

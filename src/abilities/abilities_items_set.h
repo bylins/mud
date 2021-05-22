@@ -5,7 +5,7 @@
 	Класс наборов экипировки, требующейся для выполнения приема.
 */
 
-#include "obj.hpp"
+#include "obj.h"
 #include "skills.h"
 #include "structs.h"
 #include "utils.h"

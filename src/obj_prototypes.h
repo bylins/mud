@@ -1,7 +1,7 @@
 #ifndef __OBJECT_PROTOTYPES_HPP__
 #define __OBJECT_PROTOTYPES_HPP__
 
-#include "obj.hpp"
+#include "obj.h"
 #include "logger.hpp"
 
 #include <deque>

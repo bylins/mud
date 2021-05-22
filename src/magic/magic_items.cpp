@@ -1,9 +1,9 @@
 #include "magic_items.h"
 
-#include "obj.hpp"
+#include "obj.h"
 #include "chars/char.h"
 #include "handler.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "magic/spells_info.h"
 #include "magic_utils.h"
 

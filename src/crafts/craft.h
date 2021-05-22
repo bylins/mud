@@ -7,7 +7,7 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
-#include "obj.hpp"
+#include "obj.h"
 #include "structs.h"
 
 #include <stdarg.h>

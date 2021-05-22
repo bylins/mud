@@ -21,7 +21,7 @@
 #include "class.h"
 
 #include "world_objects.h"
-#include "obj.hpp"
+#include "obj.h"
 #include "comm.h"
 #include "db.h"
 #include "magic/magic_utils.h"

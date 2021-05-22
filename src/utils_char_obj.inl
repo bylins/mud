@@ -3,7 +3,7 @@
 
 #include "structs.h"
 #include "chars/char.h"
-#include "obj.hpp"
+#include "obj.h"
 #include "utils.h"
 
 inline bool INVIS_OK_OBJ(const CHAR_DATA *sub, const OBJ_DATA *obj) {

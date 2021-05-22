@@ -3,7 +3,7 @@
 #include "magic/spells.h"
 #include "magic/magic_utils.h"
 #include "handler.h"
-#include "privilege.hpp"
+#include "privilege.h"
 #include "magic/spells_info.h"
 
 void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {

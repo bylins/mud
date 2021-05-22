@@ -36,7 +36,7 @@
 #include "world_objects.h"
 #include "chars/world.characters.h"
 #include "cmd_god/shutdown_parameters.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "external_trigger.h"
 #include "handler.h"
 #include "house.h"

@@ -3,8 +3,8 @@
 
 #include "mob_stat.h"
 
-#include "pugixml.hpp"
-#include "parse.hpp"
+#include "pugixml.h"
+#include "parse.h"
 #include "chars/char.h"
 #include "screen.h"
 

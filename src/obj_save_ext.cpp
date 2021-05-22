@@ -4,7 +4,7 @@
 
 #include "house.h"
 #include "depot.h"
-#include "parcel.hpp"
+#include "parcel.h"
 #include "chars/world.characters.h"
 
 namespace ObjSaveSync {

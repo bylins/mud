@@ -5,7 +5,7 @@
 #include "world.characters.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
-#include "privilege.hpp"
+#include "privilege.h"
 #include "char_player.h"
 #include "player_races.h"
 #include "celebrates.h"

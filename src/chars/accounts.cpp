@@ -3,7 +3,7 @@
 * 2018 (c) bodrich
 */
 #include "accounts.h"
-#include "password.hpp"
+#include "password.h"
 /*#include "db.h"
 #include "comm.h"
 #include "utils.h"*/

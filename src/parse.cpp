@@ -1,9 +1,9 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "parse.hpp"
+#include "parse.h"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "utils.h"
 
 namespace TextId {

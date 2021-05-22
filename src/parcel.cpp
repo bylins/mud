@@ -2,7 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "parcel.hpp"
+#include "parcel.h"
 
 #include "world_objects.h"
 #include "utils_char_obj.inl"

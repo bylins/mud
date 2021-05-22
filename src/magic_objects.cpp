@@ -4,7 +4,7 @@
 
 #include "magic/spells.h"
 
-#include "obj.hpp"
+#include "obj.h"
 #include "screen.h"
 #include "skills/poison.h"
 #include "chars/char.h"

@@ -282,8 +282,8 @@ set(HEADERS
 		src/utils_find_obj_id_by_vnum.h
 		src/id.hpp
 		src/compact_trie.h
-        src/radix_trie.hpp
-		src/obj_prototypes.hpp
+		src/radix_trie.h
+		src/obj_prototypes.h
 		src/world_objects.h
 		src/utils.string.h
 		src/act_other.h
@@ -377,21 +377,21 @@ set(HEADERS
 		src/named_stuff.h
 		src/name_list.h
 		src/noob.hpp
-		src/obj_enchant.hpp
-		src/obj.hpp
+		src/obj_enchant.h
+		src/obj.h
 		src/obj_save.h
-		src/obj_sets.hpp
-		src/obj_sets_stuff.hpp
+		src/obj_sets.h
+		src/obj_sets_stuff.h
 		src/olc/olc.h
-		src/parcel.hpp
-		src/parse.hpp
-		src/password.hpp
+		src/parcel.h
+		src/parse.h
+		src/password.h
 		src/fightsystem/pk.h
 		src/chars/player_i.h
 		src/chars/player_races.h
-		src/privilege.hpp
-		src/pugiconfig.hpp
-		src/pugixml.hpp
+		src/privilege.h
+		src/pugiconfig.h
+		src/pugixml.h
 		src/quests/quested.h
 		src/random.hpp
 		src/remember.hpp

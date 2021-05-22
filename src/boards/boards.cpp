@@ -10,7 +10,7 @@
 #include "boards_formatters.h"
 #include "house.h"
 #include "screen.h"
-#include "privilege.hpp"
+#include "privilege.h"
 #include "chars/char.h"
 #include "modify.h"
 

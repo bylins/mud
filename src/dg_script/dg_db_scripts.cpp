@@ -14,7 +14,7 @@
 ************************************************************************ */
 #include "dg_db_scripts.h"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 //#include "obj.hpp"
 #include "dg_scripts.h"
 //#include "db.h"

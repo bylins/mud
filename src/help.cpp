@@ -4,7 +4,7 @@
 
 #include "help.hpp"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "modify.h"
 #include "house.h"
 #include "sets_drop.hpp"

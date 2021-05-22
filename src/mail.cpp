@@ -13,12 +13,12 @@
 #include "world_objects.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "parcel.hpp"
+#include "parcel.h"
 #include "chars/char_player.h"
 #include "named_stuff.h"
-#include "parse.hpp"
+#include "parse.h"
 #include "screen.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 
 #include <boost/lexical_cast.hpp>
 

@@ -13,7 +13,7 @@
 #include "cmd/follow.h"
 #include "fightsystem/fight.h"
 #include "handler.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "magic/magic_utils.h"
 #include "world_objects.h"
 #include "skills/townportal.h"

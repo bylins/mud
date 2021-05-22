@@ -4,7 +4,7 @@
 
 #include "skills/poison.h"
 
-#include "obj.hpp"
+#include "obj.h"
 #include "chars/char.h"
 #include "liquid.hpp"
 #include "screen.h"

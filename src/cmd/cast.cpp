@@ -1,7 +1,7 @@
 #include "cast.h"
 
 #include "chars/char.h"
-#include "obj.hpp"
+#include "obj.h"
 #include "room.hpp"
 #include "structs.h"
 #include "comm.h"

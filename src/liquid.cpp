@@ -9,7 +9,7 @@
 
 #include "liquid.hpp"
 
-#include "obj.hpp"
+#include "obj.h"
 #include "chars/char.h"
 #include "utils_char_obj.inl"
 #include "handler.h"

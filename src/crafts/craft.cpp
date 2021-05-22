@@ -6,19 +6,19 @@
 
 #include "craft.h"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 //#include "logger.hpp"
 #include "craft_logger.h"
 //#include "craft.commands.hpp"
 #include "craft_static.h"
 #include "utils_time.h"
 #include "xml_loading_helper.h"
-#include "parse.hpp"
+#include "parse.h"
 /*#include "skills.h"
 #include "comm.h"*/
 #include "db.h"
 //#include "utils.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/detail/util.hpp>

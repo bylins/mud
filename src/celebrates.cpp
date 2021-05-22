@@ -2,7 +2,7 @@
 
 #include "celebrates_global_objects.h"
 #include "handler.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 #include "backtrace.h"
 
 #include <boost/lexical_cast.hpp>

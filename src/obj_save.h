@@ -8,7 +8,7 @@
 #define OBJSAVE_HPP_INCLUDED
 
 #include "obj_save.h"
-#include "obj.hpp"
+#include "obj.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

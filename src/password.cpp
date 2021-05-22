@@ -9,7 +9,7 @@
 #	include <crypt.h>
 #	endif
 #endif
-#include "password.hpp"
+#include "password.h"
 #include "interpreter.h"
 #include "chars/char.h"
 #include "chars/char_player.h"

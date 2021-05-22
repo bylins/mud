@@ -1,4 +1,4 @@
-#include "radix_trie.hpp"
+#include "radix_trie.h"
 
 void compare(const std::string &string1, size_t &pos1, const std::string &string2, size_t &pos2) {
 	while (pos1 < string1.size()

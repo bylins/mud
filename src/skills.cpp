@@ -7,7 +7,7 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "handler.h"
 #include "screen.h"
 #include "random.hpp"

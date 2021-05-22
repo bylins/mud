@@ -17,7 +17,7 @@
 #include "config.h"
 #include "structs.h"
 #include "conf.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 #include "classes/class_constants.h"
 
 #include <boost/dynamic_bitset.hpp>

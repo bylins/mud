@@ -15,9 +15,9 @@
 #include "utils.h"
 
 #include "chars/world.characters.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "logger.hpp"
-#include "obj.hpp"
+#include "obj.h"
 #include "db.h"
 #include "comm.h"
 #include "screen.h"
@@ -28,7 +28,7 @@
 #include "crafts/im.h"
 #include "dg_script/dg_scripts.h"
 #include "features.hpp"
-#include "privilege.hpp"
+#include "privilege.h"
 #include "chars/char.h"
 #include "room.hpp"
 #include "modify.h"
@@ -43,7 +43,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "obj_sets.hpp"
+#include "obj_sets.h"
 #include "utils.string.h"
 
 #ifdef HAVE_ICONV

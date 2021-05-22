@@ -6,7 +6,7 @@
 
 #include "logger.hpp"
 #include "utils.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 #include "structs.h"
 #include "screen.h"
 #include "chars/char.h"

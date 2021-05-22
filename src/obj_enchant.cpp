@@ -4,8 +4,8 @@
 /*#include "conf.h"
 #include <sstream>*/
 
-#include "obj_enchant.hpp"
-#include "obj.hpp"
+#include "obj_enchant.h"
+#include "obj.h"
 #include "screen.h"
 #include "chars/char.h"
 

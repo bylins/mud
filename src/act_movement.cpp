@@ -14,7 +14,7 @@
 #include "act_movement.h"
 
 #include "world_objects.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "house.h"
@@ -22,7 +22,7 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/mobact.h"
 #include "deathtrap.h"
-#include "privilege.hpp"
+#include "privilege.h"
 #include "named_stuff.h"
 #include "fightsystem/fight.h"
 #include "random.hpp"

@@ -14,7 +14,7 @@
 
 #include "cmd/hire.h"
 #include "world_objects.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "chars/char.h"
 #include "depot.h"
 #include "fightsystem/fight.h"

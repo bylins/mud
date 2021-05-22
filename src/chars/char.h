@@ -6,7 +6,7 @@
 
 #include "player_i.h"
 #include "skills/morph.hpp"
-#include "obj_sets.hpp"
+#include "obj_sets.h"
 #include "db.h"
 #include "room.hpp"
 #include "ignores.hpp"

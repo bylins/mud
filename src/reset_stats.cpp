@@ -3,7 +3,7 @@
 
 #include "genchar.h"
 #include "screen.h"
-#include "parse.hpp"
+#include "parse.h"
 #include "chars/char.h"
 
 #include <boost/format.hpp>

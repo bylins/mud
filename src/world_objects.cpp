@@ -1,6 +1,6 @@
 #include "world_objects.h"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "db.h"
 #include "liquid.hpp"
 #include "dg_script/dg_scripts.h"

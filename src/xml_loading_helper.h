@@ -2,7 +2,7 @@
 #define __XML_LOADING_HELPER_HPP__
 
 #include "logger.hpp"
-#include "pugixml.hpp"
+#include "pugixml.h"
 #include "structs.h"
 #include "utils.h"
 

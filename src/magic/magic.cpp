@@ -18,7 +18,7 @@
 #include "action_targeting.h"
 #include "chars/world.characters.h"
 #include "world_objects.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/fight.h"

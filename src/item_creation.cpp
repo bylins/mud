@@ -9,7 +9,7 @@
 #include "item_creation.hpp"
 
 #include "world_objects.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "constants.h"
 #include "handler.h"
 #include "olc/olc.h"

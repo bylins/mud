@@ -16,7 +16,7 @@
 #define _SKILLS_H_
 
 #include "structs.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 
 #include <map>
 

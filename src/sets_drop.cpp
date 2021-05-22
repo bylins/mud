@@ -3,13 +3,13 @@
 
 #include "sets_drop.hpp"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "chars/char.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 #include "house.h"
 #include "screen.h"
 #include "help.hpp"
-#include "parse.hpp"
+#include "parse.h"
 #include "mob_stat.h"
 #include "zone.table.h"
 

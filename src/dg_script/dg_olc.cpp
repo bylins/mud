@@ -16,7 +16,7 @@
 
 #include "dg_olc.h"
 
-#include "obj.hpp"
+#include "obj.h"
 #include "olc/olc.h"
 #include "dg_event.h"
 #include "chars/char.h"

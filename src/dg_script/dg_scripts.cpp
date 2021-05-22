@@ -12,7 +12,7 @@
 
 #include "celebrates_global_objects.h"
 #include "utils_find_obj_id_by_vnum.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "handler.h"
 #include "dg_event.h"
 #include "screen.h"
@@ -26,7 +26,7 @@
 #include "dg_db_scripts.h"
 #include "bonus.h"
 #include "olc/olc.h"
-#include "privilege.hpp"
+#include "privilege.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 

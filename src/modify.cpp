@@ -26,7 +26,7 @@
 #include "olc/olc.h"
 #include "features.hpp"
 #include "house.h"
-#include "privilege.hpp"
+#include "privilege.h"
 #include "chars/char.h"
 #include "skills.h"
 #include "genchar.h"

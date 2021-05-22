@@ -8,7 +8,7 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "obj.hpp"
+#include "obj.h"
 #include "comm.h"
 #include "db.h"
 #include "olc.h"

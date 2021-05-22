@@ -1,13 +1,13 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "obj_sets.hpp"
+#include "obj_sets.h"
 
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "conf.h"
-#include "obj_sets_stuff.hpp"
+#include "obj_sets_stuff.h"
 #include "structs.h"
-#include "obj.hpp"
+#include "obj.h"
 #include "db.h"
 #include "constants.h"
 #include "handler.h"

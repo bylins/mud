@@ -10,7 +10,7 @@
 #include "stuff.hpp"
 
 #include "world_objects.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "handler.h"
 #include "corpse.h"
 #include "screen.h"

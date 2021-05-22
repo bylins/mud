@@ -3,7 +3,7 @@
 
 #include "utils.h"
 #include "interpreter.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 
 const char *DEFAULT_RENT_HELP = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";
 

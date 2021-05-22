@@ -4,13 +4,13 @@
 #include "corpse.h"
 
 #include "world_objects.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "constants.h"
 #include "chars/char.h"
 #include "handler.h"
-#include "pugixml.hpp"
+#include "pugixml.h"
 #include "house.h"
-#include "parse.hpp"
+#include "parse.h"
 #include "random.hpp"
 
 #include <boost/algorithm/string.hpp>

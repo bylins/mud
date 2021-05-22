@@ -8,7 +8,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "obj.hpp"
+#include "obj.h"
 #include "screen.h"
 #include "interpreter.h"
 #include "handler.h"

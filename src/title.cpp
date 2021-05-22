@@ -8,7 +8,7 @@
 #include "logger.hpp"
 #include "screen.h"
 #include "fightsystem/pk.h"
-#include "privilege.hpp"
+#include "privilege.h"
 #include "handler.h"
 #include "chars/char_player.h"
 

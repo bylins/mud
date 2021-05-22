@@ -6,8 +6,8 @@
 
 #include "chars/char.h"
 #include "screen.h"
-#include "pugixml.hpp"
-#include "parse.hpp"
+#include "pugixml.h"
+#include "parse.h"
 #include "zone.table.h"
 
 #include <boost/format.hpp>

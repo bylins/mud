@@ -10,8 +10,8 @@
 
 #include "olc.h"
 
-#include "obj_prototypes.hpp"
-#include "obj.hpp"
+#include "obj_prototypes.h"
+#include "obj.h"
 #include "interpreter.h"
 #include "comm.h"
 #include "db.h"
@@ -19,7 +19,7 @@
 #include "screen.h"
 #include "item_creation.hpp"
 #include "crafts/im.h"
-#include "privilege.hpp"
+#include "privilege.h"
 #include "chars/char.h"
 #include "room.hpp"
 #include "logger.hpp"

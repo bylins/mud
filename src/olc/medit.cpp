@@ -8,7 +8,7 @@
 ***************************************************************************/
 
 #include "chars/world.characters.h"
-#include "obj.hpp"
+#include "obj.h"
 #include "comm.h"
 #include "magic/spells.h"
 #include "db.h"

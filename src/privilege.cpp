@@ -2,7 +2,7 @@
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "privilege.hpp"
+#include "privilege.h"
 
 #include "logger.hpp"
 #include "chars/char.h"

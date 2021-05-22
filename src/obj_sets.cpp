@@ -2,10 +2,10 @@
 // Part of Bylins http://www.mud.ru
 
 #include "chars/world.characters.h"
-#include "obj_prototypes.hpp"
-#include "obj_sets_stuff.hpp"
-#include "pugixml.hpp"
-#include "parse.hpp"
+#include "obj_prototypes.h"
+#include "obj_sets_stuff.h"
+#include "pugixml.h"
+#include "parse.h"
 #include "screen.h"
 #include "modify.h"
 #include "help.hpp"

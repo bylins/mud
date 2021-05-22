@@ -2,7 +2,7 @@
 
 #include "affects/affect_data.h"
 #include "mobact.h"
-#include "obj.hpp"
+#include "obj.h"
 #include "cmd/flee.h"
 #include "chars/world.characters.h"
 #include "fight.h"

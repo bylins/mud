@@ -15,7 +15,7 @@
 #ifndef _DB_H_
 #define _DB_H_
 
-#include "obj.hpp"
+#include "obj.h"
 #include "boot/boot_constants.h"
 #include "structs.h"
 #include "conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)

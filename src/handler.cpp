@@ -28,7 +28,7 @@
 #include "liquid.hpp"
 #include "magic/magic.h"
 #include "named_stuff.h"
-#include "obj_prototypes.hpp"
+#include "obj_prototypes.h"
 #include "screen.h"
 #include "magic/magic_utils.h"
 #include "world_objects.h"
