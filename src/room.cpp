@@ -4,7 +4,7 @@
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
-#include "room.hpp"
+#include "room.h"
 
 EXIT_DATA::EXIT_DATA() : keyword(nullptr),
 						 vkeyword(nullptr),

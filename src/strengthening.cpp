@@ -1,4 +1,4 @@
-#include "strengthening.hpp"
+#include "strengthening.h"
 
 Strengthening::Strengthening() {
 	init();

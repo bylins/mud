@@ -22,7 +22,7 @@
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/fight.h"
-#include "random.hpp"
+#include "random.h"
 #include "affects/affect_handler.h"
 #include "corpse.h"
 #include "fightsystem/mobact.h"

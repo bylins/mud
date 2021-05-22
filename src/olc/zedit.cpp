@@ -11,7 +11,7 @@
 #include "olc.h"
 #include "dg_script/dg_scripts.h"
 #include "chars/char.h"
-#include "room.hpp"
+#include "room.h"
 #include "help.hpp"
 #include "zone.table.h"
 #include "logger.hpp"

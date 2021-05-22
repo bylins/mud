@@ -19,7 +19,7 @@
 #include "deathtrap.h"
 #include "chars/char.h"
 #include "chars/char_player.h"
-#include "room.hpp"
+#include "room.h"
 #include "house.h"
 #include "chars/world.characters.h"
 #include "zone.table.h"

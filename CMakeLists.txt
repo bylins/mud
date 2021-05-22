@@ -262,7 +262,7 @@ set(HEADERS
 		src/skills/identify.h
 		src/skills/relocate.h
 		src/act_movement.h
-		src/strengthening.hpp
+		src/strengthening.h
 		src/abilities/abilities_constants.h
 		src/abilities/abilities_rollsystem.h
 		src/chars/mount.h
@@ -275,9 +275,9 @@ set(HEADERS
 		src/game_limits.h
 		src/act_wizard.h
 		src/heartbeat.hpp
-		src/speedwalks.hpp
+		src/speedwalks.h
 		src/chars/world.characters.h
-		src/shops_implementation.hpp
+		src/shops_implementation.h
 		src/celebrates_global_objects.h
 		src/utils_find_obj_id_by_vnum.h
 		src/id.hpp
@@ -393,28 +393,28 @@ set(HEADERS
 		src/pugiconfig.h
 		src/pugixml.h
 		src/quests/quested.h
-		src/random.hpp
-		src/remember.hpp
-		src/reset_stats.hpp
-		src/room.hpp
+		src/random.h
+		src/remember.h
+		src/reset_stats.h
+		src/room.h
 		src/screen.h
-		src/sets_drop.hpp
-		src/shop_ext.hpp
+		src/sets_drop.h
+		src/shop_ext.h
 		src/cmd_god/shutdown_parameters.h
 		src/skills.h
 		src/skills_info.h
-		src/spam.hpp
+		src/spam.h
 		src/structs.h
-		src/stuff.hpp
+		src/stuff.h
 		src/sysdep.h
 		src/telnet.h
 		src/utils_time.h
-		src/title.hpp
+		src/title.h
 		src/top.h
 		src/utils.h
 		src/xml_loading_helper.h
 		src/utils_debug.h
-		src/stigmas.hpp
+		src/stigmas.h
 		src/zone.table.h
 		src/skills/backstab.h
 		src/skills/bash.h
@@ -465,7 +465,7 @@ if (PY_VERSION)
 	set(Python_ADDITIONAL_VERSIONS ${PY_VERSION})
 endif ()
 
-set(SCRIPTING_HEADERS src/scripting.hpp)
+set(SCRIPTING_HEADERS src/scripting.h)
 set(SCRIPTING_SOURCES src/scripting.cpp)
 
 option(TIMED_SCRIPT "Turns on/off definition TIMED_SCRIPT" NO)

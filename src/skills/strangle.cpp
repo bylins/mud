@@ -6,7 +6,7 @@
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/common.h"
 #include "handler.h"
-#include "random.hpp"
+#include "random.h"
 #include "protect.h"
 #include "skills_info.h"
 

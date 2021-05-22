@@ -9,7 +9,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 И где-то там в файлах есть функция _PyUnicode_AsString( obj ), ее меняем на PyBytes_AsString( PyUnicode_EncodeLocale(obj) )
 Т.е. делаем все так же, как и здесь http://habrahabr.ru/post/161931/
 */
-#include "scripting.hpp"
+#include "scripting.h"
 
 #include "chars/world.characters.h"
 #include "obj_prototypes.h"

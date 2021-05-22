@@ -10,14 +10,14 @@
 #include "structs.h"
 #include "quests/quested.h"
 #include "mobmax.h"
-#include "remember.hpp"
+#include "remember.h"
 #include "char.h"
 #include "dps.h"
 #include "mapsystem.h"
-#include "reset_stats.hpp"
+#include "reset_stats.h"
 #include "boards/boards_types.h"
 #include "quests/quest.h"
-#include "stigmas.hpp"
+#include "stigmas.h"
 #include "cmd/mercenary.h"
 
 #include <string>

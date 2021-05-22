@@ -2,7 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "random.hpp"
+#include "random.h"
 #include "utils.h"
 
 #include <random>

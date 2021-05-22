@@ -10,7 +10,7 @@
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "screen.h"
-#include "random.hpp"
+#include "random.h"
 #include "skills_info.h"
 
 extern const byte kSkillCapOnZeroRemort = 80;

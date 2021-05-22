@@ -39,7 +39,7 @@
 #include "crafts/im.h"
 #include "skills.h"
 #include "features.hpp"*/
-#include "random.hpp"
+#include "random.h"
 //#include "chars/char.hpp"
 #include "chars/char_player.h"
 #include "magic/magic.h"

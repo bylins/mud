@@ -18,7 +18,7 @@
 #include "auction.h"
 #include "chars/char_player.h"
 #include "house.h"
-#include "spam.hpp"
+#include "spam.h"
 #include "utils_char_obj.inl"
 #include "chars/world.characters.h"
 

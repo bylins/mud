@@ -12,7 +12,7 @@
 #include "corpse.h"
 #include "house.h"
 #include "pk.h"
-#include "stuff.hpp"
+#include "stuff.h"
 #include "top.h"
 #include "screen.h"
 #include "magic/magic.h"

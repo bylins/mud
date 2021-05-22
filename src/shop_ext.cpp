@@ -2,7 +2,7 @@
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "shop_ext.hpp"
+#include "shop_ext.h"
 
 #include "celebrates_global_objects.h"
 #include "obj_prototypes.h"

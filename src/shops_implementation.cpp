@@ -1,4 +1,4 @@
-#include "shops_implementation.hpp"
+#include "shops_implementation.h"
 
 #include "obj_prototypes.h"
 #include "logger.hpp"

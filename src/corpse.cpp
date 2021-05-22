@@ -11,7 +11,7 @@
 #include "pugixml.h"
 #include "house.h"
 #include "parse.h"
-#include "random.hpp"
+#include "random.h"
 
 #include <boost/algorithm/string.hpp>
 

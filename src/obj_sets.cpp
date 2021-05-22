@@ -9,7 +9,7 @@
 #include "screen.h"
 #include "modify.h"
 #include "help.hpp"
-#include "sets_drop.hpp"
+#include "sets_drop.h"
 
 #include <boost/lexical_cast.hpp>
 

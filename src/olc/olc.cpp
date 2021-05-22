@@ -21,7 +21,7 @@
 #include "crafts/im.h"
 #include "privilege.h"
 #include "chars/char.h"
-#include "room.hpp"
+#include "room.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"

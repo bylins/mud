@@ -1,6 +1,6 @@
 #include "meat_maker.h"
 
-#include "random.hpp"
+#include "random.h"
 
 const obj_vnum MeatMapping::ARTEFACT_KEY;
 

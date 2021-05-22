@@ -35,7 +35,7 @@
 #include "features.hpp"
 #include "crafts/im.h"
 #include "chars/char.h"
-#include "spam.hpp"
+#include "spam.h"
 #include "screen.h"
 #include "chars/char_player.h"
 #include "named_stuff.h"

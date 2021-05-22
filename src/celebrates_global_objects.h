@@ -5,16 +5,16 @@
 #include "celebrates.h"
 #include "logger.hpp"
 #include "heartbeat.hpp"
-#include "speedwalks.hpp"
+#include "speedwalks.h"
 #include "cmd_god/shutdown_parameters.h"
-#include "shops_implementation.hpp"
+#include "shops_implementation.h"
 #include "world_objects.h"
 #include "chars/world.characters.h"
 #include "act_wizard.h"
 #include "influxdb.hpp"
 #include "zone.table.h"
 #include "quests/daily_quest.h"
-#include "strengthening.hpp"
+#include "strengthening.h"
 class BanList;    // to avoid inclusion of ban.hpp
 
 /**

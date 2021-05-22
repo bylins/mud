@@ -2,7 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "remember.hpp"
+#include "remember.h"
 
 #include "logger.hpp"
 #include "chars/char.h"

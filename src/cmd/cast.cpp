@@ -2,7 +2,7 @@
 
 #include "chars/char.h"
 #include "obj.h"
-#include "room.hpp"
+#include "room.h"
 #include "structs.h"
 #include "comm.h"
 #include "skills.h"

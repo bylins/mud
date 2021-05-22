@@ -1,4 +1,4 @@
-#include "stigmas.hpp"
+#include "stigmas.h"
 #include "chars/char.h"
 
 

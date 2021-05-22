@@ -23,7 +23,7 @@
 #include "chars/char.h"
 #include "chars/char_player.h"
 #include "modify.h"
-#include "room.hpp"
+#include "room.h"
 #include "obj_save.h"
 #include "handler.h"
 #include "named_stuff.h"

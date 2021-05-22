@@ -7,14 +7,14 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "stuff.hpp"
+#include "stuff.h"
 
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "corpse.h"
 #include "screen.h"
-#include "sets_drop.hpp"
+#include "sets_drop.h"
 
 extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);

@@ -32,7 +32,7 @@
 #include "handler.h"
 #include "magic/magic.h"
 #include "fightsystem/pk.h"
-#include "random.hpp"
+#include "random.h"
 #include "house.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"

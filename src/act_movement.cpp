@@ -25,7 +25,7 @@
 #include "privilege.h"
 #include "named_stuff.h"
 #include "fightsystem/fight.h"
-#include "random.hpp"
+#include "random.h"
 #include "skills_info.h"
 
 #include <cmath>

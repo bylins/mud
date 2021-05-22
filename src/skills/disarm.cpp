@@ -5,7 +5,7 @@
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/fight_start.h"
 #include "handler.h"
-#include "random.hpp"
+#include "random.h"
 #include "screen.h"
 #include "skills_info.h"
 

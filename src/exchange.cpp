@@ -25,7 +25,7 @@
 #include "chars/char_player.h"
 #include "named_stuff.h"
 #include "modify.h"
-#include "room.hpp"
+#include "room.h"
 #include "mail.h"
 #include "obj_save.h"
 #include "fightsystem/pk.h"

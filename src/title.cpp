@@ -2,7 +2,7 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.bylins.su
 
-#include "title.hpp"
+#include "title.h"
 
 #include "interpreter.h"
 #include "logger.hpp"

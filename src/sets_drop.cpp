@@ -1,7 +1,7 @@
 // Copyright (c) 2012 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "sets_drop.hpp"
+#include "sets_drop.h"
 
 #include "obj_prototypes.h"
 #include "chars/char.h"
