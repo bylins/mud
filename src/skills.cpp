@@ -55,7 +55,13 @@ const short kDummyKnight = 390;
 const short kDummyShield = 391;
 const short kDummyWeapon = 392;
 
-bool MakeLuckTest(CHAR_DATA *ch, CHAR_DATA *vict);
+enum class ELuckTestResult {
+	kLuckTestFail = 0,
+	kLuckTestSuccess,
+	kLuckTestCriticalSuccess,
+};
+
+ELuckTestResult MakeLuckTest(CHAR_DATA *ch, CHAR_DATA *vict);
 void SendSkillRollMsg(CHAR_DATA *ch, CHAR_DATA *victim, ESkill skill_id,
 					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result);
 
@@ -869,7 +875,7 @@ int CalculateSkillRate(CHAR_DATA *ch, const ESkill skill_id, CHAR_DATA *vict) {
 		case SKILL_BACKSTAB: {
 			parameter_bonus += GET_REAL_DEX(ch);
 			if (awake_others(ch) || equip_in_metall(ch)) {
-				bonus += -30;
+				bonus += -50;
 			}
 			if (vict) {
 				if (!CAN_SEE(vict, ch)) {
@@ -1222,7 +1228,7 @@ int CalculateSkillRate(CHAR_DATA *ch, const ESkill skill_id, CHAR_DATA *vict) {
 	}
 
 	double rate = 0;
-	if (MakeLuckTest(ch, vict)) {
+	if (MakeLuckTest(ch, vict) != ELuckTestResult::kLuckTestFail) {
 		rate = round(std::max(0, base_percent - kNoviceSkillThreshold) * kSkillWeight
 						 + std::min(kNoviceSkillThreshold, base_percent) * kNoviceSkillWeight
 						 + bonus * kBonusWeight
@@ -1232,30 +1238,31 @@ int CalculateSkillRate(CHAR_DATA *ch, const ESkill skill_id, CHAR_DATA *vict) {
 	return static_cast<int>(rate);
 }
 
-bool MakeLuckTest(CHAR_DATA *ch, CHAR_DATA *vict) {
+ELuckTestResult MakeLuckTest(CHAR_DATA *ch, CHAR_DATA *vict) {
 	int luck = ch->calc_morale();
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
 		luck -= 20;
-	if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
+	}
+	if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT)) {
 		luck -= 10;
+	}
 
 	const int prob = number(0, 999);
-
-	int morale_bonus = luck;
 	if (luck < 0) {
-		morale_bonus = luck * 10;
+		luck = luck * 10;
 	}
-	int fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
-	// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
-	// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
-	// все решают спас-броски.
-	if (luck >= 50)   // от 50 удачи абсолютный фейл не работает
+	const int bonus_limit = MIN(150, luck * 10);
+	int fail_limit = MIN(990, 950 + luck * 10 / 6);
+	if (luck >= 50) {
 		fail_limit = 999;
-	if (prob >= fail_limit) {   // Абсолютный фейл 4.9 процента
-		return false;
 	}
-	return true;
+	if (prob >= fail_limit) {   // Абсолютный фейл 4.9 процента
+		return ELuckTestResult::kLuckTestFail;
+	} else if (prob < bonus_limit) {
+		return ELuckTestResult::kLuckTestCriticalSuccess;
+	}
+	return ELuckTestResult::kLuckTestSuccess;
 }
 
 SkillRollResult MakeSkillTest(CHAR_DATA *ch, ESkill skill_id, CHAR_DATA *vict) {
@@ -1279,7 +1286,7 @@ SkillRollResult MakeSkillTest(CHAR_DATA *ch, ESkill skill_id, CHAR_DATA *vict) {
 void SendSkillRollMsg(CHAR_DATA *ch, CHAR_DATA *victim, ESkill skill_id,
 					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
-	buffer << "&C"
+	buffer << KICYN
 		   << "Skill: '" << skill_info[skill_id].name << "'"
 		   << " Rate: " << actor_rate
 		   << " Victim: " << victim->get_name()
@@ -1290,15 +1297,19 @@ void SendSkillRollMsg(CHAR_DATA *ch, CHAR_DATA *victim, ESkill skill_id,
 		   << " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
 		   << " Crit: " << (result.critical ? "yes" : "no")
 		   << " Degree: " << result.degree
-		   << "&n" << std::endl;
+		   << KNRM << std::endl;
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
 // \TODO Не забыть убрать после ребаланса умений
 void SendSkillBalanceMsg(CHAR_DATA *ch, const char *skill_name, int percent, int prob, bool success) {
 	std::stringstream buffer;
-	buffer << "&C" << "Skill: " << skill_name
-		   << " Percent: " << percent << " Prob: " << prob << " Success: " << success << "&n" << std::endl;
+	buffer << KICYN
+		<< "Skill: " << skill_name
+		<< " Percent: " << percent
+		<< " Prob: " << prob
+		<< " Success: " << (success ? "yes" : "no")
+		<< KNRM << std::endl;
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
@@ -1308,7 +1319,6 @@ int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict) {
 	}
 
 	int base_percent = ch->get_skill(skill);
-	int max_percent = skill_info[skill].cap;
 	int total_percent = 0;
 	int victim_sav = 0; // савис жертвы,
 	int victim_modi = 0; // другие модификаторы, влияющие на прохождение
@@ -1833,28 +1843,31 @@ int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict) {
 		default: break;
 	}
 
-	if (ignore_luck || MakeLuckTest(ch, vict)) {
-		base_percent = 0;
-		bonus = 0;
-	} else {
-		total_percent = 0;
+	if (!ignore_luck) {
+		switch (MakeLuckTest(ch, vict)) {
+			case ELuckTestResult::kLuckTestSuccess:
+				break;
+			case ELuckTestResult::kLuckTestFail:
+				base_percent = 0;
+				bonus = 0;
+				break;
+			case ELuckTestResult::kLuckTestCriticalSuccess:
+				base_percent = CalcSkillHardCap(ch, skill);
+				break;
+		}
 	}
 
-	total_percent = std::max(0, base_percent + bonus + victim_sav + victim_modi / 2);
+	total_percent = std::clamp(base_percent + bonus + victim_sav + victim_modi / 2, 0, skill_info[skill].cap);
 
 	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill == SKILL_BASH)) {
 		total_percent /= 2;
 	}
 
-	// иммские флаги и прокла влияют на все
-	if (IS_IMMORTAL(ch))
-		total_percent = max_percent;
-	else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
+	if (IS_IMMORTAL(ch) || (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))) {
+		total_percent = skill_info[skill].cap;
+	} else if (GET_GOD_FLAG(ch, GF_GODSCURSE)) {
 		total_percent = 0;
-	else if (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))
-		total_percent = max_percent;
-	else
-		total_percent = MIN(MAX(0, total_percent), max_percent);
+	}
 
 	ch->send_to_TC(false, true, true,
 				   "&CTarget: %s, BaseSkill: %d, Bonus: %d, TargetSave = %d, TargetMod: %d, TotalSkill: %d&n\r\n",
