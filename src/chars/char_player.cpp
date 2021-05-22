@@ -13,7 +13,7 @@
 #include "affects/affect_handler.h"
 #include "player_races.hpp"
 #include "ext_money.hpp"
-#include "magic/temp_spells.hpp"
+#include "magic/magic_temp_spells.h"
 #include "accounts.hpp"
 #include "zone.table.hpp"
 #include "quests/daily_quest.hpp"

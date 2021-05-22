@@ -26,7 +26,7 @@
 #include "dg_script/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
 #include "house.h"

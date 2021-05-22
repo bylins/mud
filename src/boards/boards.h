@@ -4,8 +4,8 @@
 #ifndef _BOARDS_H_
 #define _BOARDS_H_
 
-#include "boards.message.hpp"
-#include "boards.types.hpp"
+#include "boards_message.h"
+#include "boards_types.h"
 #include "db.h"
 #include "interpreter.h"
 #include "structs.h"

@@ -1,7 +1,7 @@
 #ifndef __BOARDS_FORMATTERS_HPP__
 #define __BOARDS_FORMATTERS_HPP__
 
-#include "boards.types.hpp"
+#include "boards_types.h"
 
 #include <sstream>
 

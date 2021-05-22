@@ -17,7 +17,7 @@
 #include "modify.h"
 #include "magic/spells.h"
 #include "utils.h"
-#include "classes/constants.hpp"
+#include "classes/class_constants.h"
 #include "skills.info.h"
 
 #include <boost/algorithm/string.hpp>

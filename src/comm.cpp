@@ -35,7 +35,7 @@
 #include "magic/magic.h"
 #include "world.objects.hpp"
 #include "chars/world.characters.hpp"
-#include "cmd_god/shutdown.parameters.hpp"
+#include "cmd_god/shutdown_parameters.h"
 #include "object.prototypes.hpp"
 #include "external.trigger.hpp"
 #include "handler.h"

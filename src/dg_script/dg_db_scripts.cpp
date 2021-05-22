@@ -35,7 +35,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"*/
-#include "magic/temp_spells.hpp"
+#include "magic/magic_temp_spells.h"
 #include "skills.info.h"
 
 //#include <algorithm>

@@ -1,7 +1,7 @@
-#include "craft.static.hpp"
+#include "craft_static.h"
 
-#include "craft.hpp"
-#include "craft.commands.hpp"
+#include "craft.h"
+#include "craft_commands.h"
 
 namespace craft {
 CCraftModel model;

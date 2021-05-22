@@ -5,7 +5,7 @@
 #define PLAYER_I_HPP_INCLUDED
 
 #include "reset_stats.hpp"
-#include "boards/boards.types.hpp"
+#include "boards/boards_types.h"
 #include "structs.h"
 #include "conf.h"
 #include "sysdep.h"

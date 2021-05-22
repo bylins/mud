@@ -2,7 +2,7 @@
 
 #include "fightsystem/pk.h"
 #include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 #include "fightsystem/common.h"
 #include "action.targeting.hpp"
 #include "abilities/abilities_rollsystem.h"

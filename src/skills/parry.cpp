@@ -1,7 +1,7 @@
 #include "parry.h"
 
 #include "fightsystem/pk.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 #include "fightsystem/common.h"
 
 using namespace FightSystem;

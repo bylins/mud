@@ -20,7 +20,7 @@
 #include "house.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
-#include "fightsystem/mobact.hpp"
+#include "fightsystem/mobact.h"
 #include "deathtrap.hpp"
 #include "privilege.hpp"
 #include "named_stuff.hpp"

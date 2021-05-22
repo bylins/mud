@@ -1,4 +1,4 @@
-#include "boot/boot.index.hpp"
+#include "boot/boot_index.h"
 
 #include "logger.hpp"
 #include "utils.h"

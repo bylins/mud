@@ -26,7 +26,7 @@
 #include "chars/char.hpp"
 #include "cmd/follow.h"
 #include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 #include "handler.h"
 //#include "logger.hpp"
 #include "object.prototypes.hpp"

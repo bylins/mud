@@ -1,7 +1,7 @@
 #ifndef __BOARDS_TYPES_HPP__
 #define __BOARDS_TYPES_HPP__
 
-#include "boards.message.hpp"
+#include "boards_message.h"
 
 #include <string>
 #include <memory>

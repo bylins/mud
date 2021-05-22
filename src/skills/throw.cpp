@@ -4,7 +4,7 @@
 
 #include "fightsystem/pk.h"
 #include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 #include "handler.h"
 #include "protect.h"
 #include "fightsystem/common.h"

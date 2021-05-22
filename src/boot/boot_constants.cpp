@@ -1,4 +1,4 @@
-#include "boot/boot.constants.hpp"
+#include "boot/boot_constants.h"
 
 const char *boot_mode_name(EBootType mode) {
 	switch (mode) {

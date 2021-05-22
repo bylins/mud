@@ -1,7 +1,7 @@
 #ifndef __BOOT_FATA_FILES_HPP__
 #define __BOOT_FATA_FILES_HPP__
 
-#include "boot/boot.constants.hpp"
+#include "boot/boot_constants.h"
 
 #include <memory>
 #include <string>

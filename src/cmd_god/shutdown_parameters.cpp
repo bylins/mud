@@ -1,4 +1,4 @@
-#include "cmd_god/shutdown.parameters.hpp"
+#include "cmd_god/shutdown_parameters.h"
 
 #include "global.objects.hpp"
 #include "sysdep.h"

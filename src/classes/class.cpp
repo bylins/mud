@@ -18,7 +18,7 @@
  * you should go through this entire file from beginning to end and add
  * the appropriate new special cases for your new class.
  */
-#include "class.hpp"
+#include "class.h"
 
 #include "world.objects.hpp"
 #include "obj.hpp"
@@ -1791,7 +1791,7 @@ void load_skills() {
  * which classes, and the minimum level the character must be to use
  * the spell or skill.
  */
-#include "classes/spell.slots.hpp"
+#include "classes/class_spell_slots.h"
 void init_spell_levels(void) {
 	using PlayerClass::mspell_slot;
 

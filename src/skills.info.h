@@ -2,7 +2,7 @@
 #define __SKILLS_INFO__
 
 #include "skills.h"
-#include "classes/constants.hpp"
+#include "classes/class_constants.h"
 
 struct SkillInfoType {
 	byte min_position;

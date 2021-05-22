@@ -10,7 +10,7 @@
 
 #include "abilities_constants.h"
 #include "chars/char.hpp"
-#include "fightsystem/fight_constants.hpp"
+#include "fightsystem/fight_constants.h"
 #include "features.hpp"
 #include "skills.h"
 

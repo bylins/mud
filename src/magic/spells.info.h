@@ -1,7 +1,7 @@
 #ifndef __SPELLS_INFO__
 #define __SPELLS_INFO__
 
-#include "classes/constants.hpp"
+#include "classes/class_constants.h"
 #include "structs.h"
 
 extern const char *unused_spellname;

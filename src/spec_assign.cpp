@@ -17,7 +17,7 @@
 #include "constants.h"
 #include "logger.hpp"
 #include "house.h"
-#include "boards/boards.constants.hpp"
+#include "boards/boards_constants.h"
 #include "boards/boards.h"
 #include "chars/char.hpp"
 #include "noob.hpp"

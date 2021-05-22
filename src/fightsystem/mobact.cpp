@@ -11,7 +11,7 @@
 *  $Date$                                           *
 *  $Revision$                                                      *
 ************************************************************************ */
-#include "mobact.hpp"
+#include "mobact.h"
 
 #include "skills/backstab.h"
 #include "skills/bash.h"
@@ -35,7 +35,7 @@
 #include "random.hpp"
 #include "house.h"
 #include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 //#include "logger.hpp"
 #include "magic/magic_rooms.h"
 

@@ -24,8 +24,8 @@
 
 #include "assist.h"
 #include "chars/world.characters.hpp"
-#include "fight_hit.hpp"
-#include "fightsystem/mobact.hpp"
+#include "fight_hit.h"
+#include "fightsystem/mobact.h"
 /*#include "affects/affect_handler.h"
 #include "obj.hpp"
 #include "comm.h"*/

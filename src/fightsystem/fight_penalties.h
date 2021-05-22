@@ -1,7 +1,7 @@
 #ifndef __FIGHT_PENALTIES_HPP__
 #define __FIGHT_PENALTIES_HPP__
 
-#include "classes/class.hpp"
+#include "classes/class.h"
 
 class CHAR_DATA;    // to avoid inclusion of "char.hpp"
 

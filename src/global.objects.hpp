@@ -6,7 +6,7 @@
 #include "logger.hpp"
 #include "heartbeat.hpp"
 #include "speedwalks.hpp"
-#include "cmd_god/shutdown.parameters.hpp"
+#include "cmd_god/shutdown_parameters.h"
 #include "shops.implementation.hpp"
 #include "world.objects.hpp"
 #include "chars/world.characters.hpp"

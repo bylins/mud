@@ -29,7 +29,7 @@
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
 #include "zone.table.hpp"
-#include "classes/spell.slots.hpp"
+#include "classes/class_spell_slots.h"
 #include "magic/spells.info.h"
 
 #include <boost/format.hpp>

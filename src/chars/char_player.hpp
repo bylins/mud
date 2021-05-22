@@ -15,7 +15,7 @@
 #include "dps.hpp"
 #include "map.hpp"
 #include "reset_stats.hpp"
-#include "boards/boards.types.hpp"
+#include "boards/boards_types.h"
 #include "quests/quest.hpp"
 #include "stigmas.hpp"
 #include "cmd/mercenary.h"

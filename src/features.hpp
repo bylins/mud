@@ -13,7 +13,7 @@
 #include "skills.h"
 #include "structs.h"
 #include "conf.h"
-#include "classes/constants.hpp"
+#include "classes/class_constants.h"
 
 #include <array>
 #include <bitset>

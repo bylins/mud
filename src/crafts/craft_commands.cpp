@@ -1,10 +1,10 @@
-#include "craft.commands.hpp"
+#include "craft_commands.h"
 
 /*#include "logger.hpp"
 #include "craft.logger.hpp"
 #include "craft.static.hpp"*/
 #include "xml_loading_helper.hpp"
-#include "craft.hpp"
+#include "craft.h"
 #include "chars/char.hpp"
 //#include "commands.hpp"
 

@@ -1,4 +1,4 @@
-#include "fight_hit.hpp"
+#include "fight_hit.h"
 
 //#include "logger.hpp"
 #include "handler.h"
@@ -9,7 +9,7 @@
 #include "house_exp.hpp"
 #include "skills/poison.hpp"
 #include "bonus.h"
-#include "mobact.hpp"
+#include "mobact.h"
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
 #include "skills.info.h"

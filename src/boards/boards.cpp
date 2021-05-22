@@ -2,12 +2,12 @@
 // Part of Bylins http://www.mud.ru
 
 #include "boards.h"
-#include "boards.types.hpp"
+#include "boards_types.h"
 
 #include "logger.hpp"
-#include "boards.changelog.loaders.hpp"
-#include "boards.constants.hpp"
-#include "boards.formatters.hpp"
+#include "boards_changelog_loaders.h"
+#include "boards_constants.h"
+#include "boards_formatters.h"
 #include "house.h"
 #include "screen.h"
 #include "privilege.hpp"

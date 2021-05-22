@@ -1,4 +1,4 @@
-#include "boot/boot.data.files.hpp"
+#include "boot/boot_data_files.h"
 
 #include "object.prototypes.hpp"
 #include "dg_script/dg_scripts.h"

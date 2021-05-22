@@ -1,6 +1,6 @@
 #include "world.characters.hpp"
 
-#include "fightsystem/mobact.hpp"
+#include "fightsystem/mobact.h"
 #include "config.hpp"
 #include "logger.hpp"
 #include "utils.h"

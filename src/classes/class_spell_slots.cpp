@@ -3,7 +3,7 @@
 	и прочий код для работы с ними.
 */
 
-#include "spell.slots.hpp"
+#include "class_spell_slots.h"
 #include "magic/spells.info.h"
 //#include "structs.h"
 

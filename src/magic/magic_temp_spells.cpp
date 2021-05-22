@@ -1,4 +1,4 @@
-#include "magic/temp_spells.hpp"
+#include "magic/magic_temp_spells.h"
 
 #include "chars/world.characters.hpp"
 #include "screen.h"

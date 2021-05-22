@@ -19,7 +19,7 @@
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "depot.hpp"
-#include "fightsystem/mobact.hpp"
+#include "fightsystem/mobact.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
 #include "house.h"

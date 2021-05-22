@@ -1,7 +1,7 @@
-#include "boards.changelog.loaders.hpp"
+#include "boards_changelog_loaders.h"
 
 #include "logger.hpp"
-#include "boards.constants.hpp"
+#include "boards_constants.h"
 
 #include <boost/algorithm/string/trim.hpp>
 #include <sstream>

@@ -2,8 +2,8 @@
 
 #include "fightsystem/pk.h"
 #include "fightsystem/common.h"
-#include "fightsystem/fight_hit.hpp"
-#include "fightsystem/start.fight.h"
+#include "fightsystem/fight_hit.h"
+#include "fightsystem/fight_start.h"
 #include "handler.h"
 #include "random.hpp"
 #include "screen.h"

@@ -3,7 +3,7 @@
 #include "affect_data.h"
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
-#include "classes/class.hpp"
+#include "classes/class.h"
 #include "cmd/follow.h"
 #include "deathtrap.hpp"
 #include "magic/magic.h"

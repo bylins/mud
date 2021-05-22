@@ -3,7 +3,7 @@
 #include "chars/char.hpp"
 #include "handler.h"
 #include "pk.h"
-#include "start.fight.h"
+#include "fight_start.h"
 
 void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_fighting()) {

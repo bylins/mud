@@ -29,22 +29,22 @@ set(SOURCES
 		src/backtrace.cpp
 		src/cmd_god/ban.cpp
 		src/birthplaces.cpp
-		src/boards/boards.changelog.loaders.cpp
-		src/boards/boards.constants.cpp
+        src/boards/boards_changelog_loaders.cpp
+		src/boards/boards_constants.cpp
 		src/boards/boards.cpp
-		src/boards/boards.formatters.cpp
-		src/boards/boards.types.cpp
+		src/boards/boards_formatters.cpp
+		src/boards/boards_types.cpp
 		src/bonus.cpp
 		src/bonus.command.parser.cpp
-		src/boot/boot.constants.cpp
-		src/boot/boot.data.files.cpp
-		src/boot/boot.index.cpp
+		src/boot/boot_constants.cpp
+		src/boot/boot_data_files.cpp
+		src/boot/boot_index.cpp
 		src/cache.cpp
 		src/celebrates.cpp
 		src/chars/char.cpp
 		src/chars/char_player.cpp
 		src/classes/class.cpp
-		src/classes/spell.slots.cpp
+		src/classes/class_spell_slots.cpp
 		src/color.cpp
 		src/comm.cpp
 		src/cmd_god/shutdown.cpp
@@ -78,7 +78,7 @@ set(SOURCES
 		src/features.cpp
         src/fightsystem/fight.cpp
         src/fightsystem/fight_hit.cpp
-        src/fightsystem/fight.penalties.cpp
+		src/fightsystem/fight_penalties.cpp
         src/fightsystem/fight_stuff.cpp
 		src/file_crc.cpp
 		src/genchar.cpp
@@ -105,7 +105,7 @@ set(SOURCES
 		src/magic/magic_utils.cpp
 		src/magic/spells.cpp
 		src/magic/spells.info.cpp
-		src/magic/temp_spells.cpp
+        src/magic/magic_temp_spells.cpp
 		src/mail.cpp
 		src/map.cpp
 		src/meat.maker.cpp
@@ -143,7 +143,7 @@ set(SOURCES
 		src/room.cpp
 		src/sets_drop.cpp
 		src/shop_ext.cpp
-		src/cmd_god/shutdown.parameters.cpp
+		src/cmd_god/shutdown_parameters.cpp
 		src/skills.cpp
 		src/skills.info.cpp
 		src/spam.cpp
@@ -202,7 +202,7 @@ set(SOURCES
 		src/skills/relocate.cpp
 		src/chars/mount.cpp
 		src/fightsystem/assist.cpp
-		src/fightsystem/start.fight.cpp
+		src/fightsystem/fight_start.cpp
 		src/skills/styles.cpp
 		src/fightsystem/common.cpp
 		src/cmd/retreat.cpp
@@ -242,7 +242,7 @@ set(HEADERS
 		src/skills/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
-		src/fightsystem/start.fight.h
+		src/fightsystem/fight_start.h
 		src/cmd/retreat.h
 		src/cmd/order.h
 		src/cmd/mercenary.h
@@ -292,25 +292,25 @@ set(HEADERS
 		src/backtrace.hpp
 		src/cmd_god/ban.h
 		src/birthplaces.h
-		src/boards/boards.changelog.loaders.hpp
-		src/boards/boards.constants.hpp
-		src/boards/boards.formatters.hpp
+		src/boards/boards_changelog_loaders.h
+		src/boards/boards_constants.h
+		src/boards/boards_formatters.h
 		src/boards/boards.h
-		src/boards/boards.message.hpp
-		src/boards/boards.types.hpp
+		src/boards/boards_message.h
+		src/boards/boards_types.h
 		src/bonus.h
 		src/bonus.command.parser.hpp
 		src/bonus.types.hpp
-		src/boot/boot.constants.hpp
-		src/boot/boot.data.files.hpp
-		src/boot/boot.index.hpp
+		src/boot/boot_constants.h
+		src/boot/boot_data_files.h
+		src/boot/boot_index.h
 		src/cache.hpp
 		src/celebrates.hpp
 		src/chars/char.hpp
 		src/char_obj_utils.inl
 		src/chars/char_player.hpp
-		src/classes/class.hpp
-		src/classes/spell.slots.hpp
+		src/classes/class.h
+		src/classes/class_spell_slots.h
 		src/comm.h
 		src/cmd_god/shutdown.h
 		src/commands.hpp
@@ -338,11 +338,11 @@ set(HEADERS
 		src/external.trigger.hpp
 		src/features.itemset.hpp
 		src/features.hpp
-        src/fightsystem/fight_constants.hpp
+		src/fightsystem/fight_constants.h
         src/fightsystem/fight.h
-        src/fightsystem/fight_hit.hpp
-        src/fightsystem/fight_stuff.hpp
-        src/fightsystem/fight.penalties.hpp
+		src/fightsystem/fight_hit.h
+		src/fightsystem/fight_stuff.h
+		src/fightsystem/fight_penalties.h
 		src/file_crc.hpp
 		src/genchar.h
 		src/glory_const.hpp
@@ -366,11 +366,11 @@ set(HEADERS
 		src/magic/magic_utils.h
 		src/magic/spells.h
 		src/magic/spells.info.h
-		src/magic/temp_spells.hpp
+		src/magic/magic_temp_spells.h
 		src/mail.h
 		src/map.hpp
 		src/meat.maker.hpp
-		src/fightsystem/mobact.hpp
+		src/fightsystem/mobact.h
 		src/mobmax.hpp
 		src/mob_stat.hpp
 		src/modify.h
@@ -400,7 +400,7 @@ set(HEADERS
 		src/screen.h
 		src/sets_drop.hpp
 		src/shop_ext.hpp
-		src/cmd_god/shutdown.parameters.hpp
+		src/cmd_god/shutdown_parameters.h
 		src/skills.h
 		src/skills.info.h
 		src/spam.hpp
@@ -566,15 +566,15 @@ set(CRAFT_TEMPLATE_FILES
 	lib.template/misc/craft/recipe_template.xml)
 set(CRAFT_PROTOTYPES)
 set(CRAFT_SOURCE_FILES
-		src/crafts/craft.commands.cpp
+		src/crafts/craft_commands.cpp
 		src/crafts/craft.cpp
-		src/crafts/craft.logger.cpp
-		src/crafts/craft.static.cpp)
+		src/crafts/craft_logger.cpp
+		src/crafts/craft_static.cpp)
 set(CRAFT_HEADER_FILES
-		src/crafts/craft.commands.hpp
-		src/crafts/craft.hpp
-		src/crafts/craft.logger.hpp
-		src/crafts/craft.static.hpp)
+		src/crafts/craft_commands.h
+		src/crafts/craft.h
+		src/crafts/craft_logger.h
+		src/crafts/craft_static.h)
 
 source_group("Craft\\Configuration" FILES ${CRAFT_GENERAL_FILES})
 source_group("Craft\\Configuration\\Tailoring" FILES ${CRAFT_TAILORING_FILES})

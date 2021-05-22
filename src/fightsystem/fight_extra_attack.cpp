@@ -1,4 +1,4 @@
-#include "fight.extra.attack.hpp"
+#include "fight_extra_attack.h"
 
 #include "chars/char.hpp"
 #include "magic/spells.h"

@@ -16,8 +16,8 @@
 
 #include "config.hpp"
 
-#include "boards/boards.changelog.loaders.hpp"
-#include "boards/boards.constants.hpp"
+#include "boards/boards_changelog_loaders.h"
+#include "boards/boards_constants.h"
 #include "chars/char.hpp"
 
 #if CIRCLE_UNIX

@@ -1,7 +1,7 @@
 #include "block.h"
 
 #include "fightsystem/pk.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 
 using namespace FightSystem;
 

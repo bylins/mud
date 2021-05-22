@@ -1,13 +1,13 @@
 // Part of Bylins http://www.mud.ru
 
 #include "affects/affect_data.h"
-#include "mobact.hpp"
+#include "mobact.h"
 #include "obj.hpp"
 #include "cmd/flee.h"
 #include "chars/world.characters.hpp"
 #include "fight.h"
-#include "fight.penalties.hpp"
-#include "fight_hit.hpp"
+#include "fight_penalties.h"
+#include "fight_hit.h"
 #include "handler.h"
 #include "corpse.hpp"
 #include "house.h"
@@ -335,7 +335,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 	raw_kill(ch, killer);
 }
 
-#include "classes/spell.slots.hpp"
+#include "classes/class_spell_slots.h"
 void forget_all_spells(CHAR_DATA *ch) {
 	using PlayerClass::slot_for_char;
 

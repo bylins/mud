@@ -5,7 +5,7 @@
 #include "crafts/im.h"
 #include "screen.h"
 #include "limits.hpp"
-#include "classes/spell.slots.hpp"
+#include "classes/class_spell_slots.h"
 #include "magic/spells.h"
 
 #include "magic/magic_utils.h" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.

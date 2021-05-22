@@ -1,6 +1,6 @@
-#include "boards.types.hpp"
+#include "boards_types.h"
 
-#include "boards.constants.hpp"
+#include "boards_constants.h"
 #include "logger.hpp"
 #include "utils.h"
 /*#include "screen.h"

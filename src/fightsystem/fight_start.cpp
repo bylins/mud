@@ -1,10 +1,10 @@
-#include "start.fight.h"
+#include "fight_start.h"
 
 #include "fight.h"
 #include "pk.h"
-#include "fight_hit.hpp"
+#include "fight_hit.h"
 #include "skills/protect.h"
-#include "mobact.hpp"
+#include "mobact.h"
 #include "common.h"
 
 int set_hit(CHAR_DATA *ch, CHAR_DATA *victim) {

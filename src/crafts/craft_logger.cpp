@@ -1,4 +1,4 @@
-#include "craft.logger.hpp"
+#include "craft_logger.h"
 
 namespace craft {
 Logger logger;

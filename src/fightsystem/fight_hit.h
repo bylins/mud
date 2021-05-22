@@ -3,7 +3,7 @@
 #ifndef _FIGHT_HIT_HPP_
 #define _FIGHT_HIT_HPP_
 
-#include "fight_constants.hpp"
+#include "fight_constants.h"
 #include "affects/affect_handler.h"
 #include "utils.h"
 #include "conf.h"

@@ -1170,7 +1170,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 }
 
-#include "classes/spell.slots.hpp" // удалить после вырезания do_spell_capable
+#include "classes/class_spell_slots.h" // удалить после вырезания do_spell_capable
 #include "magic/spells.info.h"
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона

@@ -21,13 +21,13 @@
 #include "cmd/follow.h"
 #include "depot.hpp"
 #include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 #include "house.h"
 #include "logger.hpp"
 #include "magic/magic.h"
 #include "screen.h"
 #include "magic/magic_utils.h"
-#include "magic/temp_spells.hpp"
+#include "magic/magic_temp_spells.h"
 #include "skills.info.h"
 
 //   external vars
@@ -484,7 +484,7 @@ const char *spells_color(int spellnum) {
    смогли посмотреть заклинания которые они могут колдовать
    на своем уровне, но на которые у них нет необходимых предметов
    при параметре TRUE */
-#include "classes/spell.slots.hpp"
+#include "classes/class_spell_slots.h"
 void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
 	using PlayerClass::slot_for_char;
 

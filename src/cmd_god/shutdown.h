@@ -1,7 +1,7 @@
 #ifndef __COMMAND_SHUTDOWN_HPP__
 #define __COMMAND_SHUTDOWN_HPP__
 
-#include "cmd_god/shutdown.parameters.hpp"
+#include "cmd_god/shutdown_parameters.h"
 
 #include "structs.h"
 

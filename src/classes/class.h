@@ -2,7 +2,7 @@
 #define __CLASS_HPP__
 
 #include "structs.h"
-#include "constants.hpp"
+#include "class_constants.h"
 
 #include <array>
 

@@ -1,7 +1,7 @@
 #include "kick.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 #include "fightsystem/common.h"
 
 #include "protect.h"

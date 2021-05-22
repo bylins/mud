@@ -18,7 +18,7 @@
 #include "house.h"
 #include "handler.h"
 #include "fightsystem/fight.h"
-#include "classes/class.hpp"
+#include "classes/class.h"
 
 void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
 

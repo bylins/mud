@@ -3,7 +3,7 @@
 #ifndef _FIGHT_H_
 #define _FIGHT_H_
 
-#include "fight_constants.hpp"
+#include "fight_constants.h"
 #include "chars/char.hpp"
 #include "structs.h"
 #include "conf.h"
