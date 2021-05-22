@@ -3451,7 +3451,11 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		&& (ch->get_fighting()
 			|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-		mag_damage(GET_LEVEL(ch), ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+    if (IS_NPC(ch)) {
+		mag_damage(std::min(LVL_IMPL, GET_LEVEL(ch)), ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+	} else {
+		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+    }
 		if (ch->purged() || victim->purged()) {
 			return;
 		}
