@@ -54,7 +54,7 @@
 #include "mapsystem.h"
 #include "ext_money.h"
 #include "mob_stat.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "classes/class.h"
 #include "zone.table.h"
 #include "structs.h"

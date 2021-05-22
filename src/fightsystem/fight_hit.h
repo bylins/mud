@@ -5,7 +5,7 @@
 
 #include "fight_constants.h"
 #include "affects/affect_handler.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"

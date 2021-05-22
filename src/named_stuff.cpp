@@ -16,7 +16,7 @@
 #include "dg_script/dg_scripts.h"
 #include "pugixml.h"
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "structs.h"
 
 #include <list>

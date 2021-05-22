@@ -1,4 +1,4 @@
-#include "celebrates_global_objects.h"
+#include "global_objects.h"
 
 #include "cmd_god/ban.h"
 

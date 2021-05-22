@@ -8,7 +8,7 @@
 #include "obj.h"
 #include "skills.h"
 #include "structs.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 struct TechniqueItem {
 	short _wearPosition;

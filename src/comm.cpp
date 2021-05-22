@@ -31,7 +31,7 @@
 
 #include "comm.h"
 
-#include "celebrates_global_objects.h"
+#include "global_objects.h"
 #include "magic/magic.h"
 #include "world_objects.h"
 #include "chars/world.characters.h"
@@ -55,14 +55,14 @@
 #include "sets_drop.h"
 #include "mail.h"
 #include "mob_stat.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "logger.h"
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"
 #include "heartbeat.h"
 #include "zone.table.h"
 #include "db.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "skills_info.h"
 
 #if defined WITH_SCRIPTING

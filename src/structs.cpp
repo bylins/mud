@@ -1,4 +1,3 @@
-//#include "structs.h"
 
 #include "chars/char.h"
 #include "logger.h"

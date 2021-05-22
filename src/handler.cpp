@@ -16,7 +16,7 @@
 
 #include "auction.h"
 #include "backtrace.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "chars/char_player.h"
 #include "chars/world.characters.h"
 #include "cmd/follow.h"

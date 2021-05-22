@@ -9,7 +9,7 @@
 #include "house.h"
 #include "comm.h"
 #include "modify.h"
-#include "utils.string.h"
+#include "utils/utils.string.h"
 
 #include <boost/algorithm/string.hpp>
 

@@ -6,7 +6,7 @@
 
 #include "db.h"
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "interpreter.h"
 #include "comm.h"
 

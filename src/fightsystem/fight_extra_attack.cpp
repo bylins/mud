@@ -2,7 +2,7 @@
 
 #include "chars/char.h"
 #include "magic/spells.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #include <boost/algorithm/string.hpp>
 

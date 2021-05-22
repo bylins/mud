@@ -13,14 +13,10 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-/*#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "logger.hpp"*/
 #include "dg_event.h"
 #include "db.h"
 #include "dg_scripts.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "comm.h"
 
 // * define statics

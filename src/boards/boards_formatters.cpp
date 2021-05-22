@@ -2,11 +2,6 @@
 
 #include "chars/char.h"
 #include "screen.h"
-/*#include "utils.h"
-#include "conf.h"
-
-#include <sstream>
-#include <memory.h>*/
 
 namespace Boards {
 class CommonBoardFormatter : public Board::Formatter {

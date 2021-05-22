@@ -15,32 +15,14 @@
 #include "dg_db_scripts.h"
 
 #include "obj_prototypes.h"
-//#include "obj.hpp"
 #include "dg_scripts.h"
-//#include "db.h"
 #include "handler.h"
 #include "dg_event.h"
-/*#include "comm.h"
-#include "magic/spells.h"
-#include "skills.h"
-#include "crafts/im.h"
-#include "features.hpp"
-#include "chars/char.hpp"
-#include "interpreter.h"
-#include "room.hpp"*/
 #include "magic/magic.h"
-/*#include "boards/boards.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"*/
 #include "magic/magic_temp_spells.h"
 #include "skills_info.h"
 
-//#include <algorithm>
 #include <stack>
-//#include <iostream>
 
 //External functions
 extern void extract_trigger(TRIG_DATA *trig);

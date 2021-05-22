@@ -30,7 +30,7 @@
 #include "obj_save.h"
 #include "fightsystem/pk.h"
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

@@ -1,9 +1,6 @@
 // Copyright (c) 2012 Krodo
 // Part of Bylins http://www.mud.ru
 
-/*#include "conf.h"
-#include <sstream>*/
-
 #include "obj_enchant.h"
 #include "obj.h"
 #include "screen.h"

@@ -3,7 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "random.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 #include <random>
 

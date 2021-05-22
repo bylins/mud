@@ -4,9 +4,6 @@
 */
 #include "accounts.h"
 #include "password.h"
-/*#include "db.h"
-#include "comm.h"
-#include "utils.h"*/
 #include <boost/algorithm/string.hpp>
 #include "zone.table.h"
 

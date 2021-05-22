@@ -1,9 +1,4 @@
 #include "affect_handler.h"
-/*#include "handler.h"
-#include "magic/spells.h"
-#include "utils.h"
-
-#include <iostream>*/
 
 //нужный Handler вызывается в зависимости от типа передаваемых параметров
 void LackyAffectHandler::Handle(DamageActorParameters &params) {

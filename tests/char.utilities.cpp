@@ -1,6 +1,6 @@
 #include "char.utilities.hpp"
 
-#include <utils.h>
+#include <utils/utils.h>
 #include <chars/char.h>
 #include <handler.h>
 #include <act_other.h>

@@ -6,8 +6,8 @@
 *  $Date$                                          *
 *  $Revision$                                                  *
 **************************************************************************/
-#ifndef __FEATURES_HPP__
-#define __FEATURES_HPP__
+#ifndef FILE_FEATURES_H_INCLUDED
+#define FILE_FEATURES_H_INCLUDED
 
 #include "abilities/abilities_items_set.h"
 #include "skills.h"
@@ -18,7 +18,7 @@
 #include <array>
 #include <bitset>
 
-using std::bitset;
+//using std::bitset;
 
 #define INCORRECT_FEAT            0   //DO NOT USE THIS VALUE
 #define BERSERK_FEAT            1   //предсмертная ярость

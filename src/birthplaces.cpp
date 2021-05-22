@@ -1,7 +1,7 @@
 // $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
 
-#include "utils.h"
+#include "utils/utils.h"
 #include "interpreter.h"
 #include "pugixml.h"
 

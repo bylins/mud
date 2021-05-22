@@ -21,7 +21,7 @@
 #include "liquid.h"
 #include "file_crc.h"
 #include "named_stuff.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 
 #include <boost/algorithm/string.hpp>
 

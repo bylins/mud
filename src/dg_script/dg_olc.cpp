@@ -21,7 +21,6 @@
 #include "dg_event.h"
 #include "chars/char.h"
 #include "zone.table.h"
-//#include "logger.hpp"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DESCRIPTOR_DATA *descriptor_list;

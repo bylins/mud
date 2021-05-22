@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <structs.h>
-#include <utils.h>
+#include <utils/utils.h>
 
 #define PIECE_A_OLD	"   Вели"
 #define PIECE_A_NEW	"   Вели"

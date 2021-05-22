@@ -94,7 +94,7 @@ set(SOURCES
 		src/ignores_loader.cpp
 		src/crafts/im.cpp
 		src/interpreter.cpp
-		src/item_creation.cpp
+		src/crafts/item_creation.cpp
 		src/game_limits.cpp
 		src/levenshtein.cpp
 		src/liquid.cpp
@@ -125,7 +125,7 @@ set(SOURCES
 		src/obj_save_ext.cpp
 		src/obj_sets.cpp
 		src/obj_sets_olc.cpp
-		src/magic_objects.cpp
+		src/magic/magic_objects.cpp
 		src/olc/oedit.cpp
 		src/olc/olc.cpp
 		src/parcel.cpp
@@ -152,22 +152,22 @@ set(SOURCES
 		src/structs.cpp
 		src/structs.cpp
 		src/stuff.cpp
-		src/utils_time.cpp
+		src/utils/utils_time.cpp
 		src/title.cpp
 		src/top.cpp
-		src/utils.cpp
+		src/utils/utils.cpp
 		src/version.cpp
 		src/weather.cpp
 		src/olc/zedit.cpp
-		src/utils.string.cpp
+		src/utils/utils.string.cpp
 		src/world_objects.cpp
 		src/obj_prototypes.cpp
 		src/id.cpp
-        src/utils_find_obj_id_by_vnum.cpp
-		src/celebrates_global_objects.cpp
+		src/utils/utils_find_obj_id_by_vnum.cpp
+        src/global_objects.cpp
 		src/shops_implementation.cpp
 		src/chars/world.characters.cpp
-		src/utils_debug.cpp
+		src/utils/utils_debug.cpp
 		src/speedwalks.cpp
 		src/shops_implementation.cpp
         src/radix_trie.cpp
@@ -278,14 +278,14 @@ set(HEADERS
 		src/speedwalks.h
 		src/chars/world.characters.h
 		src/shops_implementation.h
-		src/celebrates_global_objects.h
-		src/utils_find_obj_id_by_vnum.h
+        src/global_objects.h
+		src/utils/utils_find_obj_id_by_vnum.h
 		src/id.h
 		src/compact_trie.h
 		src/radix_trie.h
 		src/obj_prototypes.h
 		src/world_objects.h
-		src/utils.string.h
+		src/utils/utils.string.h
 		src/act_other.h
 		src/affects/affect_handler.h
 		src/auction.h
@@ -307,7 +307,7 @@ set(HEADERS
 		src/cache.h
 		src/celebrates.h
 		src/chars/char.h
-		src/utils_char_obj.inl
+		src/utils/utils_char_obj.inl
 		src/chars/char_player.h
 		src/classes/class.h
 		src/classes/class_spell_slots.h
@@ -356,7 +356,7 @@ set(HEADERS
 		src/ignores_loader.h
 		src/crafts/im.h
 		src/interpreter.h
-		src/item_creation.h
+		src/crafts/item_creation.h
 		src/levenshtein.h
 		src/liquid.h
         src/logger.h
@@ -408,12 +408,12 @@ set(HEADERS
 		src/stuff.h
 		src/sysdep.h
 		src/telnet.h
-		src/utils_time.h
+		src/utils/utils_time.h
 		src/title.h
 		src/top.h
-		src/utils.h
+		src/utils/utils.h
 		src/xml_loading_helper.h
-		src/utils_debug.h
+		src/utils/utils_debug.h
 		src/stigmas.h
 		src/zone.table.h
 		src/skills/backstab.h

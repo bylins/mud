@@ -6,7 +6,7 @@
 #include "screen.h"
 #include "chars/char_player.h"
 #include "noob.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "zone.table.h"
 
 #include "boost/multi_array.hpp"

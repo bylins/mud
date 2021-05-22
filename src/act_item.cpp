@@ -26,8 +26,8 @@
 #include "fightsystem/pk.h"
 #include "skills/poison.h"
 #include "meat_maker.h"
-#include "utils_char_obj.inl"
-#include "celebrates_global_objects.h"
+#include "utils/utils_char_obj.inl"
+#include "global_objects.h"
 #include "skills_info.h"
 
 // extern variables

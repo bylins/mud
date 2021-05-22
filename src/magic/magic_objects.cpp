@@ -8,7 +8,7 @@
 #include "screen.h"
 #include "skills/poison.h"
 #include "chars/char.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>

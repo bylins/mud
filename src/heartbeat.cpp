@@ -28,20 +28,14 @@
 #include "fightsystem/mobact.h"
 #include "dg_script/dg_event.h"
 #include "corpse.h"
-//#include "chars/char.hpp"
 #include "cmd_god/shutdown_parameters.h"
-//#include "logger.hpp"
-#include "utils_time.h"
-//#include "structs.h"
-#include "celebrates_global_objects.h"
+#include "utils/utils_time.h"
+#include "global_objects.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
 
-//#include <boost/algorithm/string/predicate.hpp>
-
-//#include <iostream>
 
 constexpr bool FRAC_SAVE = true;
 

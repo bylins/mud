@@ -5,7 +5,6 @@
 
 #include "class_spell_slots.h"
 #include "magic/spells_info.h"
-//#include "structs.h"
 
 namespace PlayerClass {
 

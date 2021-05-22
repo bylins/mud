@@ -12,18 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-//#include "logger.hpp"
-/*#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"*/
 #include "interpreter.h"
 #include "handler.h"
-/*#include "db.h"
-#include "magic/spells.h"
-#include "chars/char.hpp"
-#include "room.hpp"*/
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;

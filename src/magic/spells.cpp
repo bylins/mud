@@ -14,7 +14,7 @@
 
 #include "magic/spells.h"
 
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "chars/world.characters.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"

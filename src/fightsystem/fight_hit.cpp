@@ -1,6 +1,5 @@
 #include "fight_hit.h"
 
-//#include "logger.hpp"
 #include "handler.h"
 #include "screen.h"
 #include "magic/magic.h"

@@ -31,7 +31,7 @@
 #include "skills.h"
 #include "genchar.h"
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

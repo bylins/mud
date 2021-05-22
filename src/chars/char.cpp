@@ -19,11 +19,6 @@
 
 #include <boost/format.hpp>
 
-/*#include <sstream>
-#include <list>
-#include <algorithm>
-#include <iostream>*/
-
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
 

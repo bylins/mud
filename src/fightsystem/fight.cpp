@@ -26,34 +26,14 @@
 #include "chars/world.characters.h"
 #include "fight_hit.h"
 #include "fightsystem/mobact.h"
-/*#include "affects/affect_handler.h"
-#include "obj.hpp"
-#include "comm.h"*/
 #include "handler.h"
-/*#include "interpreter.h"
-#include "db.h"
-#include "magic/spells.h"*/
 #include "screen.h"
-/*#include "constants.h"
-#include "dg_script/dg_scripts.h"
-#include "crafts/im.h"
-#include "skills.h"
-#include "features.hpp"*/
 #include "random.h"
-//#include "chars/char.hpp"
 #include "chars/char_player.h"
 #include "magic/magic.h"
-/*#include "room.hpp"
-#include "genchar.h"
-#include "sets_drop.hpp"*/
 #include "olc/olc.h"
-//#include "logger.hpp"
-//#include "utils.h"
 #include "msdp/msdp_constants.h"
-//#include "magic/spells.info.h"
 #include "magic/magic_items.h"
-
-//#include <unordered_set>
 
 // Structures
 CHAR_DATA *combat_list = NULL;    // head of l-list of fighting chars

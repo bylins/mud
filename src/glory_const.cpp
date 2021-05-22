@@ -5,7 +5,7 @@
 #include "glory_const.h"
 
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "pugixml.h"
 #include "structs.h"
 #include "screen.h"

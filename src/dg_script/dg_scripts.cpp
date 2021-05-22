@@ -10,8 +10,8 @@
 
 #include "dg_scripts.h"
 
-#include "celebrates_global_objects.h"
-#include "utils_find_obj_id_by_vnum.h"
+#include "global_objects.h"
+#include "utils/utils_find_obj_id_by_vnum.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "dg_event.h"
@@ -22,7 +22,6 @@
 #include "named_stuff.h"
 #include "magic/magic_utils.h"
 #include "noob.h"
-//#include "logger.hpp"
 #include "dg_db_scripts.h"
 #include "bonus.h"
 #include "olc/olc.h"

@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "act_movement.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "chars/char_player.h"
 #include "chars/mount.h"
 #include "chars/player_races.h"

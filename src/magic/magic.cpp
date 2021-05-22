@@ -27,11 +27,6 @@
 #include "corpse.h"
 #include "fightsystem/mobact.h"
 #include "fightsystem/fight_hit.h"
-//#include "obj.hpp"
-//#include "chars/char.hpp"
-//#include "room.hpp"
-
-//#include <iomanip>
 
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;

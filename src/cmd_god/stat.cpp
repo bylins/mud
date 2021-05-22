@@ -4,7 +4,7 @@
 #include "chars/char.h"
 #include "chars/char_player.h"
 #include "chars/player_races.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "description.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"

@@ -4,7 +4,7 @@
 
 #include "shop_ext.h"
 
-#include "celebrates_global_objects.h"
+#include "global_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "house.h"

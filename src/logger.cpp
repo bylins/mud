@@ -1,6 +1,4 @@
-//#include "logger.hpp"
-
-#include "celebrates_global_objects.h"
+#include "global_objects.h"
 #include "screen.h"
 
 #include <iostream>

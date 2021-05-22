@@ -5,7 +5,7 @@
 #include "parcel.h"
 
 #include "world_objects.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"

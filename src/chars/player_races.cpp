@@ -1,13 +1,7 @@
 // $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
 
-/*#include <algorithm>
-#include <sstream>
-
-#include "conf.h"
-#include "sysdep.h"*/
-#include "utils.h"
-//#include "comm.h"
+#include "utils/utils.h"
 #include "player_races.h"
 #include "pugixml.h"
 

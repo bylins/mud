@@ -19,7 +19,7 @@
 #include "chars/char_player.h"
 #include "house.h"
 #include "spam.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "chars/world.characters.h"
 
 // extern variables

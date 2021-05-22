@@ -16,7 +16,7 @@
 #include "comm.h"
 #include "magic/spells.h"
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "db.h"
 #include "olc.h"
 #include "dg_script/dg_olc.h"

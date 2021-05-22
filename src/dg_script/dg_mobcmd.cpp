@@ -28,7 +28,6 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "handler.h"
-//#include "logger.hpp"
 #include "obj_prototypes.h"
 #include "magic/magic_utils.h"
 #include "world_objects.h"

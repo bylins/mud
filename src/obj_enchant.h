@@ -4,7 +4,6 @@
 #ifndef OBJ_ENCHANT_HPP_INCLUDED
 #define OBJ_ENCHANT_HPP_INCLUDED
 
-//#include "features.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

@@ -10,7 +10,7 @@
 #include "chars/world.characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "obj.h"
 #include "comm.h"
 #include "handler.h"

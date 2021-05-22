@@ -3,8 +3,8 @@
 #include "fightsystem/mobact.h"
 #include "config.h"
 #include "logger.h"
-#include "utils.h"
-#include "celebrates_global_objects.h"
+#include "utils/utils.h"
+#include "global_objects.h"
 
 Characters &character_list = GlobalObjects::characters();    // global container of chars
 

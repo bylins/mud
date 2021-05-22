@@ -1,7 +1,7 @@
 #ifndef __FIGHT_EXTRA_ATTACK_HPP__
 #define __FIGHT_EXTRA_ATTACK_HPP__
 
-#include "utils.h"
+#include "utils/utils.h"
 #include "magic/spells.h"
 
 class CHAR_DATA;    // to avoid inclusion of "char.hpp"

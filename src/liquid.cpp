@@ -11,7 +11,7 @@
 
 #include "obj.h"
 #include "chars/char.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 #include "handler.h"
 #include "magic/magic.h"
 #include "screen.h"

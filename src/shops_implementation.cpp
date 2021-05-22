@@ -2,7 +2,7 @@
 
 #include "obj_prototypes.h"
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "liquid.h"
 #include "chars/char.h"
 #include "glory.h"

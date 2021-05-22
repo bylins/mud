@@ -19,7 +19,7 @@
 #include "structs.h"
 #include "comm.h"
 #include "logger.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "magic/spells.h"
 #include "chars/char.h"
 #include "chars/char_player.h"

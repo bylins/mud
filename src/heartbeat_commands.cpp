@@ -1,8 +1,8 @@
 #include "heartbeat_commands.h"
 
 #include "heartbeat.h"
-#include "celebrates_global_objects.h"
-#include "utils.string.h"
+#include "global_objects.h"
+#include "utils/utils.string.h"
 
 #include <iomanip>
 

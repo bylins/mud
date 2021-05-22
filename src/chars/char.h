@@ -12,7 +12,7 @@
 #include "ignores.h"
 #include "crafts/im.h"
 #include "skills.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "structs.h"
 #include "conf.h"
 #include "affects/affect_data.h"
@@ -107,7 +107,7 @@ struct char_played_ability_data {
 struct char_ability_data {
 	std::array<ubyte, MAX_SPELLS + 1> SplKnw; // array of SPELL_KNOW_TYPE
 	std::array<ubyte, MAX_SPELLS + 1> SplMem; // array of MEMed SPELLS
-	bitset<MAX_FEATS> Feats;
+	std::bitset<MAX_FEATS> Feats;
 	sbyte size;
 	sbyte hitroll;
 	int damroll;

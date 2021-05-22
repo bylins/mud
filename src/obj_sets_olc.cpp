@@ -16,7 +16,7 @@
 #include "screen.h"
 #include "modify.h"
 #include "magic/spells.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "classes/class_constants.h"
 #include "skills_info.h"
 

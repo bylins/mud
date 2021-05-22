@@ -14,7 +14,7 @@
 #include "modify.h"
 #include "obj_save.h"
 #include "house.h"
-#include "utils_char_obj.inl"
+#include "utils/utils_char_obj.inl"
 
 extern int bank(CHAR_DATA *, void *, int, char *);
 extern int can_take_obj(CHAR_DATA *ch, OBJ_DATA *obj);

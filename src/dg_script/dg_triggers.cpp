@@ -17,7 +17,6 @@
 #include "handler.h"
 #include "interpreter.h"
 #include "magic/spells_info.h"
-//#include "logger.hpp"
 #include "obj.h"
 #include "olc/olc.h"
 

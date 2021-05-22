@@ -11,7 +11,7 @@
 
 #include <sys/stat.h>
 #include "sysdep.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "diskio.h"
 
 // комментарий на русском в надежде починить кодировки bitbucket
