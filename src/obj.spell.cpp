@@ -9,7 +9,7 @@
 #include "skills/poison.hpp"
 #include "chars/char.hpp"
 #include "char_obj_utils.inl"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include <boost/format.hpp>
 

@@ -26,7 +26,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "handler.h"
 #include "constants.h"
 #include "modify.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 // Required because pyconfig.h defines ssize_t by himself
 #if defined(ssize_t)

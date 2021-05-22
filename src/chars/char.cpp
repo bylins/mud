@@ -12,7 +12,7 @@
 #include "cache.hpp"
 #include "fightsystem/fight.h"
 #include "house.h"
-#include "msdp/msdp.constants.hpp"
+#include "msdp/msdp_constants.h"
 #include "backtrace.hpp"
 #include "zone.table.hpp"
 #include "skills.info.h"

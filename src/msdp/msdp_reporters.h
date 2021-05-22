@@ -1,7 +1,7 @@
 #ifndef __MSDP_REPORTERS_HPP__
 #define __MSDP_REPORTERS_HPP__
 
-#include "msdp.parser.hpp"
+#include "msdp_parser.h"
 
 #include <memory>
 

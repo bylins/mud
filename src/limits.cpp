@@ -30,7 +30,7 @@
 #include "mob_stat.hpp"
 #include "zone.table.hpp"
 #include "classes/class_spell_slots.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include <boost/format.hpp>
 

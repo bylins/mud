@@ -13,7 +13,7 @@
 #include "act.wizard.hpp"
 #include "influxdb.hpp"
 #include "zone.table.hpp"
-#include "quests/daily_quest.hpp"
+#include "quests/daily_quest.h"
 #include "strengthening.hpp"
 class BanList;    // to avoid inclusion of ban.hpp
 

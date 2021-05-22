@@ -104,7 +104,7 @@ set(SOURCES
 		src/magic/magic_rooms.cpp
 		src/magic/magic_utils.cpp
 		src/magic/spells.cpp
-		src/magic/spells.info.cpp
+		src/magic/spells_info.cpp
         src/magic/magic_temp_spells.cpp
 		src/mail.cpp
 		src/map.cpp
@@ -319,8 +319,8 @@ set(HEADERS
 		src/constants.h
 		src/coredump.hpp
 		src/corpse.hpp
-		src/quests/daily_quest.hpp
-		src/quests/quest.hpp
+		src/quests/daily_quest.h
+		src/quests/quest.h
 		src/db.h
 		src/deathtrap.hpp
 		src/depot.hpp
@@ -365,7 +365,7 @@ set(HEADERS
 		src/magic/magic_rooms.h
 		src/magic/magic_utils.h
 		src/magic/spells.h
-		src/magic/spells.info.h
+		src/magic/spells_info.h
 		src/magic/magic_temp_spells.h
 		src/mail.h
 		src/map.hpp
@@ -392,7 +392,7 @@ set(HEADERS
 		src/privilege.hpp
 		src/pugiconfig.hpp
 		src/pugixml.hpp
-		src/quests/quested.hpp
+		src/quests/quested.h
 		src/random.hpp
 		src/remember.hpp
 		src/reset_stats.hpp
@@ -523,16 +523,16 @@ else()
 endif ()
 
 set(MSDP_FILES
-	src/msdp/msdp.hpp
+		src/msdp/msdp.h
 	src/msdp/msdp.cpp
-	src/msdp/msdp.parser.cpp
-	src/msdp/msdp.parser.hpp
-	src/msdp/msdp.constants.hpp
-	src/msdp/msdp.constants.cpp
-	src/msdp/msdp.reporters.cpp
-	src/msdp/msdp.reporters.hpp
-	src/msdp/msdp.senders.cpp
-	src/msdp/msdp.senders.hpp)
+		src/msdp/msdp_parser.cpp
+		src/msdp/msdp_parser.h
+		src/msdp/msdp_constants.h
+		src/msdp/msdp_constants.cpp
+		src/msdp/msdp_reporters.cpp
+		src/msdp/msdp_reporters.h
+		src/msdp/msdp_senders.cpp
+		src/msdp/msdp_senders.h)
 list(APPEND SOURCES ${MSDP_FILES})
 
 # Versioning

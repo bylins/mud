@@ -19,7 +19,7 @@
 #include "modify.h"
 #include "zone.table.hpp"
 #include "skills.info.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 void do_statip(CHAR_DATA *ch, CHAR_DATA *k) {
 	log("Start logon list stat");

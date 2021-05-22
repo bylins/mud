@@ -1,7 +1,7 @@
 #ifndef __MSDP_SENDERS_HPP__
 #define __MSDP_SENDERS_HPP__
 
-#include "msdp.reporters.hpp"
+#include "msdp_reporters.h"
 
 namespace msdp {
 class AbstractSender {

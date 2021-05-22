@@ -4,7 +4,7 @@
 #include "chars/char.hpp"
 #include "handler.h"
 #include "object.prototypes.hpp"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 #include "magic_utils.h"
 
 const short DEFAULT_STAFF_LVL = 12;

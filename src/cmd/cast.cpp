@@ -10,7 +10,7 @@
 #include "magic/magic_utils.h"
 #include "features.hpp"
 #include "classes/class_spell_slots.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 #include "handler.h"
 #include "screen.h"
 

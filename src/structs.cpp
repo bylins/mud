@@ -2,8 +2,8 @@
 
 #include "chars/char.hpp"
 #include "logger.hpp"
-#include "msdp/msdp.hpp"
-#include "msdp/msdp.constants.hpp"
+#include "msdp/msdp.h"
+#include "msdp/msdp_constants.h"
 
 void asciiflag_conv(const char *flag, void *to) {
 	int *flags = (int *) to;

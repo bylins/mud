@@ -2,7 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "quests/quested.hpp"
+#include "quests/quested.h"
 
 #include "chars/char.hpp"
 

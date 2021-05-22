@@ -33,7 +33,7 @@
 #include "interpreter.h"
 #include "logger.hpp"
 #include "magic/magic.h"
-#include "msdp/msdp.constants.hpp"
+#include "msdp/msdp_constants.h"
 #include "noob.hpp"
 #include "obj.hpp"
 #include "object.prototypes.hpp"

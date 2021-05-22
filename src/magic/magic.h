@@ -14,7 +14,7 @@
 #ifndef _MAGIC_H_
 #define _MAGIC_H_
 
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include <cstdlib>
 

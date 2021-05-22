@@ -1,10 +1,10 @@
-#include "msdp.senders.hpp"
+#include "msdp_senders.h"
 
 #include "structs.h"
 #include "telnet.h"
 #include "comm.h"
-#include "msdp.parser.hpp"
-#include "msdp.constants.hpp"
+#include "msdp_parser.h"
+#include "msdp_constants.h"
 
 namespace msdp {
 AbstractSender::buffer_t AbstractSender::build(const AbstractReporter::shared_ptr &reporter) {

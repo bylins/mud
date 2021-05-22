@@ -32,7 +32,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "skills.info.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include <boost/format.hpp>
 #include <stack>

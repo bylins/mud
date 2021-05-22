@@ -1,6 +1,6 @@
 #include "magic_rooms.h"
 
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 #include "modify.h"
 #include "chars/char.hpp"
 #include "magic.h" //Включено ради material_component_processing, который надо, по-хлорошему, вообще в отдеьный модуль.

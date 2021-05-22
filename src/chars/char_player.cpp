@@ -16,9 +16,9 @@
 #include "magic/magic_temp_spells.h"
 #include "accounts.hpp"
 #include "zone.table.hpp"
-#include "quests/daily_quest.hpp"
+#include "quests/daily_quest.h"
 #include "skills.info.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include <boost/lexical_cast.hpp>
 

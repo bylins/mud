@@ -64,7 +64,7 @@
 #include "top.h"
 #include "magic/magic_rooms.h"
 #include "skills.info.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include <boost/format.hpp>
 #include <sys/stat.h>

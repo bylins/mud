@@ -3,7 +3,7 @@
 #include "chars/world.characters.hpp"
 #include "screen.h"
 #include "handler.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 namespace Temporary_Spells {
 void add_spell(CHAR_DATA *ch, int spellnum, time_t set_time, time_t duration) {

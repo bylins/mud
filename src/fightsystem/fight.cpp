@@ -49,7 +49,7 @@
 #include "olc/olc.h"
 //#include "logger.hpp"
 //#include "utils.h"
-#include "msdp/msdp.constants.hpp"
+#include "msdp/msdp_constants.h"
 //#include "magic/spells.info.h"
 #include "magic/magic_items.h"
 

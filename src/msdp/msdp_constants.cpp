@@ -1,4 +1,4 @@
-#include "msdp.constants.hpp"
+#include "msdp_constants.h"
 
 namespace msdp {
 namespace constants {

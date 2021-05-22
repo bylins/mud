@@ -1,4 +1,4 @@
-#include "msdp.parser.hpp"
+#include "msdp_parser.h"
 
 #include "config.hpp"
 #include "telnet.h"

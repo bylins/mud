@@ -3,7 +3,7 @@
 #include "handler.h"
 #include "classes/class_spell_slots.h"
 #include "skills.info.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 class OBJ_DATA;
 

@@ -78,7 +78,7 @@
 #include "world.objects.hpp"
 #include "zone.table.hpp"
 #include "classes/class_constants.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 #include "magic/magic_rooms.h"
 
 #include <boost/format.hpp>

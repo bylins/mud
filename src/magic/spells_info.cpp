@@ -1,4 +1,4 @@
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include "magic/spells.h"
 #include "utils.h"

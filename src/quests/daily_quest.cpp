@@ -1,4 +1,4 @@
-#include "quests/daily_quest.hpp"
+#include "quests/daily_quest.h"
 
 #include "global.objects.hpp"
 

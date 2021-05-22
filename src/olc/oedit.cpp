@@ -36,7 +36,7 @@
 #include "obj.hpp"
 #include "zone.table.hpp"
 #include "skills.info.h"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include <array>
 #include <vector>

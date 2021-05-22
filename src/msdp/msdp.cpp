@@ -1,10 +1,10 @@
-#include "msdp.hpp"
+#include "msdp.h"
 
 #include "chars/char.hpp"
 #include "telnet.h"
-#include "msdp.parser.hpp"
-#include "msdp.constants.hpp"
-#include "msdp.senders.hpp"
+#include "msdp_parser.h"
+#include "msdp_constants.h"
+#include "msdp_senders.h"
 
 namespace msdp {
 class ReporterFactory {

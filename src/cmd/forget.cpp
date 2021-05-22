@@ -1,6 +1,6 @@
 #include "forget.h"
 
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 #include "handler.h"
 #include "crafts/im.h"
 #include "screen.h"

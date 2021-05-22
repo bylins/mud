@@ -1,8 +1,8 @@
-#include "msdp.reporters.hpp"
+#include "msdp_reporters.h"
 
 #include "chars/char.hpp"
 #include "magic/magic.h"
-#include "msdp.constants.hpp"
+#include "msdp_constants.h"
 #include "zone.table.hpp"
 
 namespace msdp {

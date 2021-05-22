@@ -11,7 +11,7 @@
 #include "help.hpp"
 #include "dg_script/dg_db_scripts.hpp"
 #include "zone.table.hpp"
-#include "magic/spells.info.h"
+#include "magic/spells_info.h"
 
 #include <regex>
 
