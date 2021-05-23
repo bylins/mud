@@ -43,7 +43,7 @@
 #include "db.h"
 #include "depot.h"
 #include "dg_script/dg_scripts.h"
-#include "features.hpp"
+#include "feats.h"
 #include "fightsystem/assist.h"
 #include "fightsystem/mobact.h"
 #include "fightsystem/pk.h"

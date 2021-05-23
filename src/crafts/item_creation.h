@@ -12,7 +12,7 @@
 
 #include "skills.h"
 #include "interpreter.h"
-#include "features.hpp"
+#include "features.h"
 #include "conf.h"
 
 #include <string>

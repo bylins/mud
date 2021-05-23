@@ -8,7 +8,7 @@
 #include "skills.h"
 #include "magic/spells.h"
 #include "magic/magic_utils.h"
-#include "features.hpp"
+#include "features.h"
 #include "classes/class_spell_slots.h"
 #include "magic/spells_info.h"
 #include "handler.h"

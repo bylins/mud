@@ -11,7 +11,7 @@
 #include "abilities_constants.h"
 #include "chars/char.h"
 #include "fightsystem/fight_constants.h"
-#include "features.hpp"
+#include "features.h"
 #include "skills.h"
 
 #include <string>

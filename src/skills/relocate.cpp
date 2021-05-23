@@ -1,6 +1,6 @@
 #include "relocate.h"
 
-#include "features.hpp"
+#include "features.h"
 #include "chars/char.h"
 #include "house.h"
 #include "screen.h"

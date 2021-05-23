@@ -75,7 +75,7 @@ set(SOURCES
 		src/exchange.cpp
 		src/ext_money.cpp
 		src/external_trigger.cpp
-		src/features.cpp
+        src/feats.cpp
         src/fightsystem/fight.cpp
         src/fightsystem/fight_hit.cpp
 		src/fightsystem/fight_penalties.cpp
@@ -337,7 +337,7 @@ set(HEADERS
 		src/ext_money.h
 		src/external_trigger.h
 		src/abilities/abilities_items_set.h
-		src/features.hpp
+        src/feats.h
 		src/fightsystem/fight_constants.h
         src/fightsystem/fight.h
 		src/fightsystem/fight_hit.h

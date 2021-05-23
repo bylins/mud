@@ -24,7 +24,7 @@
 #include "boards/boards.h"
 #include "screen.h"
 #include "olc/olc.h"
-#include "features.hpp"
+#include "feats.h"
 #include "house.h"
 #include "privilege.h"
 #include "chars/char.h"

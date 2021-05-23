@@ -21,7 +21,7 @@
 #include "olc.h"
 #include "dg_script/dg_olc.h"
 #include "crafts/im.h"
-#include "features.hpp"
+#include "features.h"
 #include "depot.h"
 #include "chars/char.h"
 #include "house.h"

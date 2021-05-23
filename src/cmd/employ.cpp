@@ -2,7 +2,7 @@
 
 #include "comm.h"
 #include "structs.h"
-#include "features.hpp"
+#include "features.h"
 #include "chars/char.h"
 #include "interpreter.h"
 #include "handler.h"

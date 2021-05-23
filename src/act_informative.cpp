@@ -32,7 +32,7 @@
 #include "dg_script/dg_scripts.h"
 #include "mail.h"
 #include "parcel.h"
-#include "features.hpp"
+#include "feats.h"
 #include "crafts/im.h"
 #include "house.h"
 #include "description.h"

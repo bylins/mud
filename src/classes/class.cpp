@@ -32,7 +32,7 @@
 #include "constants.h"
 #include "fightsystem/pk.h"
 #include "top.h"
-#include "features.hpp"
+#include "features.h"
 #include "crafts/im.h"
 #include "chars/char.h"
 #include "spam.h"

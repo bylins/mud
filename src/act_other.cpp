@@ -24,7 +24,7 @@
 #include "db.h"
 #include "depot.h"
 #include "dg_script/dg_scripts.h"
-#include "features.hpp"
+#include "feats.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"

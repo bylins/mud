@@ -7,7 +7,7 @@
 *  $Revision$                	                                 *
 ************************************************************************ */
 
-#include "features.hpp"
+#include "feats.h"
 
 #include "abilities/abilities_constants.h"
 #include "action_targeting.h"

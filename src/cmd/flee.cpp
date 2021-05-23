@@ -1,8 +1,7 @@
 #include "flee.h"
 
 #include "act_movement.h"
-
-#include "features.hpp"
+#include "features.h"
 #include "random.h"
 #include "chars/char.h"
 

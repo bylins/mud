@@ -27,7 +27,7 @@
 #include "constants.h"
 #include "crafts/im.h"
 #include "dg_script/dg_scripts.h"
-#include "features.hpp"
+#include "features.h"
 #include "privilege.h"
 #include "chars/char.h"
 #include "room.h"
