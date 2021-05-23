@@ -3108,7 +3108,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
 
 	// AWAKE style for victim
 	if (GET_AF_BATTLE(victim, EAF_AWAKE)
-		&& AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& !GET_MOB_HOLD(victim)) {
 		bool success = CalcCurrentSkill(ch, SKILL_AWAKE, victim)
