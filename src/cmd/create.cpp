@@ -1,13 +1,12 @@
 #include "create.h"
 
-#include "im.h"
-#include "spells.h"
+#include "crafts/im.h"
+#include "magic/spells.h"
 #include "comm.h"
-#include "magic.utils.hpp"
+#include "magic/magic_utils.h"
 #include "handler.h"
 
-void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
-{
+void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	char *s;
 	int spellnum, itemnum = 0;
 
@@ -17,8 +16,7 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// get: blank, spell name, target name
 	argument = one_argument(argument, arg);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		if (subcmd == SCMD_RECIPE)
 			send_to_char("Состав ЧЕГО вы хотите узнать?\r\n", ch);
 		else
@@ -34,28 +32,21 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	else if (!strn_cmp(arg, "scroll", i) || !strn_cmp(arg, "свиток", i))
 		itemnum = SPELL_SCROLL;
 	else if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
-			 !strn_cmp(arg, "отвар", i))
-	{
-		if (subcmd != SCMD_RECIPE)
-		{
+		!strn_cmp(arg, "отвар", i)) {
+		if (subcmd != SCMD_RECIPE) {
 			send_to_char("Магическую смесь необходимо СМЕШАТЬ.\r\n", ch);
 			return;
 		}
 //		itemnum = SPELL_ITEMS;
 		compose_recipe(ch, argument, 0);
 		return;
-	}
-	else if (!strn_cmp(arg, "runes", i) || !strn_cmp(arg, "руны", i))
-	{
-		if (subcmd != SCMD_RECIPE)
-		{
+	} else if (!strn_cmp(arg, "runes", i) || !strn_cmp(arg, "руны", i)) {
+		if (subcmd != SCMD_RECIPE) {
 			send_to_char("Руны требуется сложить.\r\n", ch);
 			return;
 		}
 		itemnum = SPELL_RUNES;
-	}
-	else
-	{
+	} else {
 		if (subcmd == SCMD_RECIPE)
 			snprintf(buf, MAX_INPUT_LENGTH, "Состав '%s' уже давно утерян.\r\n", arg);
 		else
@@ -65,15 +56,13 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 
 	s = strtok(argument, "'*!");
-	if (s == NULL)
-	{
+	if (s == NULL) {
 		sprintf(buf, "Уточните тип состава!\r\n");
 		send_to_char(buf, ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
-	if (s == NULL)
-	{
+	if (s == NULL) {
 		send_to_char("Название состава должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
@@ -81,33 +70,28 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	spellnum = fix_name_and_find_spell_num(s);
 
 	// Unknown spell
-	if (spellnum < 1 || spellnum > MAX_SPELLS)
-	{
+	if (spellnum < 1 || spellnum > MAX_SPELLS) {
 		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
 	// Caster is don't know this recipe
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), itemnum) && !IS_IMMORTAL(ch))
-	{
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), itemnum) && !IS_IMMORTAL(ch)) {
 		send_to_char("Было бы неплохо прежде всего выучить этот состав.\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_RECIPE)
-	{
+	if (subcmd == SCMD_RECIPE) {
 		check_recipe_values(ch, spellnum, itemnum, TRUE);
 		return;
 	}
 
-	if (!check_recipe_values(ch, spellnum, itemnum, FALSE))
-	{
+	if (!check_recipe_values(ch, spellnum, itemnum, FALSE)) {
 		send_to_char("Боги хранят в тайне этот состав.\r\n", ch);
 		return;
 	}
 
-	if (!check_recipe_items(ch, spellnum, itemnum, TRUE))
-	{
+	if (!check_recipe_items(ch, spellnum, itemnum, TRUE)) {
 		send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		return;
 	}

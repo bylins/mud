@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "bonus.command.parser.hpp"
+#include "bonus_command_parser.h"
 
 const int DEFAULT_DURATION = 12;
 const Bonus::EBonusType DEFAULT_TYPE = Bonus::BONUS_DAMAGE;

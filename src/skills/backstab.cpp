@@ -3,12 +3,11 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/common.h"
-#include "fightsystem/fight_hit.hpp"
-#include "fightsystem/start.fight.h"
+#include "fightsystem/fight_hit.h"
+#include "fightsystem/fight_start.h"
 #include "handler.h"
 #include "protect.h"
-#include "skills.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
 using namespace FightSystem;
 

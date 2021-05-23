@@ -1,4 +1,4 @@
-#include <compact.trie.hpp>
+#include <compact_trie.h>
 
 #include <gtest/gtest.h>
 

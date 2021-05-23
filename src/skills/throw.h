@@ -3,7 +3,7 @@
 
 class CHAR_DATA;
 
-void go_throw(CHAR_DATA * ch, CHAR_DATA * victim);
+void go_throw(CHAR_DATA *ch, CHAR_DATA *victim);
 void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd);
 
 #endif //BYLINS_THROW_H

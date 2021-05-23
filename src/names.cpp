@@ -9,40 +9,23 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "db.h"
 #include "screen.h"
-#include "privilege.hpp"
-#include "chars/char.hpp"
-#include "chars/char_player.hpp"
+#include "chars/char_player.h"
 
-#include <boost/algorithm/string.hpp>
-
-#include <string>
-#include <map>
-#include <fstream>
-#include <sstream>
-
-#include "names.hpp"
+#include "names.h"
 
 namespace NewNames {
-	static void save();
-	static void cache_add(CHAR_DATA * ch);
+static void save();
+static void cache_add(CHAR_DATA *ch);
 }
 
 extern const char *genders[];
 extern void send_to_gods(char *text, bool demigod);
 
 // Check if name agree (name must be parsed)
-int was_agree_name(DESCRIPTOR_DATA * d)
-{
+int was_agree_name(DESCRIPTOR_DATA *d) {
 	log("was_agree_name start");
 	FILE *fp;
 	char temp[MAX_INPUT_LENGTH];
@@ -54,23 +37,19 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 
 //1. Load list
 
-	if (!(fp = fopen(ANAME_FILE, "r")))
-	{
+	if (!(fp = fopen(ANAME_FILE, "r"))) {
 		perror("SYSERR: Unable to open '" ANAME_FILE "' for reading");
-	log("was_agree_name end");
+		log("was_agree_name end");
 		return (1);
 	}
 //2. Find name in list ...
-	while (get_line(fp, temp))
-	{
+	while (get_line(fp, temp)) {
 		// Format First name/pad1/pad2/pad3/pad4/pad5/sex immname immlev
 		sscanf(temp, "%s %s %s %s %s %s %d %s %d", mortname[0],
 			   mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], &sex, immname, &immlev);
-		if (!strcmp(mortname[0], GET_NAME(d->character)))
-		{
+		if (!strcmp(mortname[0], GET_NAME(d->character))) {
 			// We find char ...
-			for (i = 1; i < 6; i++)
-			{
+			for (i = 1; i < 6; i++) {
 				d->character->player_data.PNames[i] = std::string(mortname[i]);
 			}
 			d->character->set_sex(static_cast<ESex>(sex));
@@ -82,7 +61,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
 			fclose(fp);
-	log("was_agree_name end");
+			log("was_agree_name end");
 			return (0);
 		}
 	}
@@ -91,8 +70,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 	return (1);
 }
 
-int was_disagree_name(DESCRIPTOR_DATA * d)
-{
+int was_disagree_name(DESCRIPTOR_DATA *d) {
 	log("was_disagree_name start");
 	FILE *fp;
 	char temp[MAX_INPUT_LENGTH];
@@ -100,21 +78,18 @@ int was_disagree_name(DESCRIPTOR_DATA * d)
 	char immname[MAX_INPUT_LENGTH];
 	int immlev;
 
-	if (!(fp = fopen(DNAME_FILE, "r")))
-	{
+	if (!(fp = fopen(DNAME_FILE, "r"))) {
 		perror("SYSERR: Unable to open '" DNAME_FILE "' for reading");
-	log("was_disagree_name end");
+		log("was_disagree_name end");
 		return (1);
 	}
 	//1. Load list
 	//2. Find name in list ...
 	//3. Compare names ... get next
-	while (get_line(fp, temp))
-	{
+	while (get_line(fp, temp)) {
 		// Extract chars and
 		sscanf(temp, "%s %s %d", mortname, immname, &immlev);
-		if (!strcmp(mortname, GET_NAME(d->character)))
-		{
+		if (!strcmp(mortname, GET_NAME(d->character))) {
 			// Char found all ok;
 
 			sprintf(buf, "\r\nВаше имя запрещено!\r\n");
@@ -123,7 +98,7 @@ int was_disagree_name(DESCRIPTOR_DATA * d)
 			log(buf, d);
 
 			fclose(fp);
-	log("was_disagree_name end");
+			log("was_disagree_name end");
 			return (0);
 		};
 	}
@@ -132,8 +107,7 @@ int was_disagree_name(DESCRIPTOR_DATA * d)
 	return (1);
 }
 
-void rm_agree_name(CHAR_DATA * d)
-{
+void rm_agree_name(CHAR_DATA *d) {
 	FILE *fin;
 	FILE *fout;
 	char temp[MAX_INPUT_LENGTH];
@@ -143,24 +117,20 @@ void rm_agree_name(CHAR_DATA * d)
 	int sex;
 
 	// 1. Find name ...
-	if (!(fin = fopen(ANAME_FILE, "r")))
-	{
+	if (!(fin = fopen(ANAME_FILE, "r"))) {
 		perror("SYSERR: Unable to open '" ANAME_FILE "' for read");
 		return;
 	}
-	if (!(fout = fopen("" ANAME_FILE ".tmp", "w")))
-	{
+	if (!(fout = fopen("" ANAME_FILE ".tmp", "w"))) {
 		perror("SYSERR: Unable to open '" ANAME_FILE ".tmp' for writing");
 		fclose(fin);
 		return;
 	}
-	while (get_line(fin, temp))
-	{
+	while (get_line(fin, temp)) {
 		// Get name ...
 		sscanf(temp, "%s %s %s %s %s %s %d %s %d", mortname[0],
 			   mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], &sex, immname, &immlev);
-		if (strcmp(mortname[0], GET_NAME(d)))
-		{
+		if (strcmp(mortname[0], GET_NAME(d))) {
 			// Name un matches ... do copy ...
 			fprintf(fout, "%s\n", temp);
 		};
@@ -176,8 +146,7 @@ void rm_agree_name(CHAR_DATA * d)
 // список неодобренных имен, дубль2
 // на этот раз ничего перебирать не будем, держа все в памяти и обновляя по необходимости
 
-struct NewName
-{
+struct NewName {
 	std::string name0; // падежи
 	std::string name1; // --//--
 	std::string name2; // --//--
@@ -194,11 +163,9 @@ typedef std::map<std::string, NewNamePtr> NewNameListType;
 static NewNameListType NewNameList;
 
 // сохранение списка в файл
-static void NewNames::save()
-{
+static void NewNames::save() {
 	std::ofstream file(NNAME_FILE);
-	if (!file.is_open())
-	{
+	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", NNAME_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -210,8 +177,7 @@ static void NewNames::save()
 }
 
 // добавить в список без сохранения на диск
-static void NewNames::cache_add(CHAR_DATA * ch)
-{
+static void NewNames::cache_add(CHAR_DATA *ch) {
 	NewNamePtr name(new NewName);
 
 	name->name0 = ch->get_name();
@@ -227,15 +193,13 @@ static void NewNames::cache_add(CHAR_DATA * ch)
 }
 
 // добавление имени в список неодобренных для показа иммам
-void NewNames::add(CHAR_DATA * ch)
-{
+void NewNames::add(CHAR_DATA *ch) {
 	cache_add(ch);
 	save();
 }
 
 // поиск/удаление персонажа из списка неодобренных имен
-void NewNames::remove(CHAR_DATA * ch)
-{
+void NewNames::remove(CHAR_DATA *ch) {
 	NewNameListType::iterator it;
 	it = NewNameList.find(GET_NAME(ch));
 	if (it != NewNameList.end())
@@ -244,33 +208,27 @@ void NewNames::remove(CHAR_DATA * ch)
 }
 
 // для удаления через команду имма
-void NewNames::remove(const std::string& name, CHAR_DATA * actor)
-{
+void NewNames::remove(const std::string &name, CHAR_DATA *actor) {
 	NewNameListType::iterator it = NewNameList.find(name);
-	if (it != NewNameList.end())
-	{
+	if (it != NewNameList.end()) {
 		NewNameList.erase(it);
 		send_to_char("Запись удалена.\r\n", actor);
-	}
-	else
+	} else
 		send_to_char("В списке нет такого имени.\r\n", actor);
 
 	save();
 }
 
 // лоад списка неодобренных имен
-void NewNames::load()
-{
+void NewNames::load() {
 	std::ifstream file(NNAME_FILE);
-	if (!file.is_open())
-	{
+	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", NNAME_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
 
 	std::string buffer;
-	while (file >> buffer)
-	{
+	while (file >> buffer) {
 		// сразу проверяем не сделетился ли уже персонаж
 		Player t_tch;
 		Player *tch = &t_tch;
@@ -285,20 +243,19 @@ void NewNames::load()
 }
 
 // вывод списка неодобренных имму
-bool NewNames::show(CHAR_DATA * actor)
-{
+bool NewNames::show(CHAR_DATA *actor) {
 	if (NewNameList.empty())
 		return false;
 
 	std::ostringstream buffer;
 	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << CCWHT(actor, C_NRM);
-	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)
-	{
+	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it) {
 		const size_t sex = static_cast<size_t>(to_underlying(it->second->sex));
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
-		<< "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
-		<< "/" << it->second->name5 << " Email: &S" << (GET_GOD_FLAG(actor, GF_DEMIGOD) ? "неопределен" : it->second->email) 
-		<< "&s Пол: " << genders[sex] << "\r\n";
+			   << "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
+			   << "/" << it->second->name5 << " Email: &S"
+			   << (GET_GOD_FLAG(actor, GF_DEMIGOD) ? "неопределен" : it->second->email)
+			   << "&s Пол: " << genders[sex] << "\r\n";
 	}
 	buffer << CCNRM(actor, C_NRM);
 	send_to_char(buffer.str(), actor);
@@ -306,20 +263,18 @@ bool NewNames::show(CHAR_DATA * actor)
 }
 
 // Name auto-agreement
-int NewNames::auto_authorize(DESCRIPTOR_DATA * d)
-{
+int NewNames::auto_authorize(DESCRIPTOR_DATA *d) {
 	// Check for name ...
 	if (!was_agree_name(d))
 		return AUTO_ALLOW;
-	
+
 	if (!was_disagree_name(d))
 		return AUTO_BAN;
 
 	return NO_DECISION;
 }
 
-static void rm_disagree_name(CHAR_DATA * d)
-{
+static void rm_disagree_name(CHAR_DATA *d) {
 	FILE *fin;
 	FILE *fout;
 	char temp[256];
@@ -328,23 +283,19 @@ static void rm_disagree_name(CHAR_DATA * d)
 	int immlev;
 
 	// 1. Find name ...
-	if (!(fin = fopen(DNAME_FILE, "r")))
-	{
+	if (!(fin = fopen(DNAME_FILE, "r"))) {
 		perror("SYSERR: Unable to open '" DNAME_FILE "' for read");
 		return;
 	}
-	if (!(fout = fopen("" DNAME_FILE ".tmp", "w")))
-	{
+	if (!(fout = fopen("" DNAME_FILE ".tmp", "w"))) {
 		perror("SYSERR: Unable to open '" DNAME_FILE ".tmp' for writing");
 		fclose(fin);
 		return;
 	}
-	while (get_line(fin, temp))
-	{
+	while (get_line(fin, temp)) {
 		// Get name ...
 		sscanf(temp, "%s %s %d", mortname, immname, &immlev);
-		if (strcmp(mortname, GET_NAME(d)))
-		{
+		if (strcmp(mortname, GET_NAME(d))) {
 			// Name un matches ... do copy ...
 			fprintf(fout, "%s\n", temp);
 		};
@@ -356,26 +307,31 @@ static void rm_disagree_name(CHAR_DATA * d)
 
 }
 
-static void add_agree_name(CHAR_DATA * d, const char *immname, int immlev)
-{
+static void add_agree_name(CHAR_DATA *d, const char *immname, int immlev) {
 	FILE *fl;
-	if (!(fl = fopen(ANAME_FILE, "a")))
-	{
+	if (!(fl = fopen(ANAME_FILE, "a"))) {
 		perror("SYSERR: Unable to open '" ANAME_FILE "' for writing");
 		return;
 	}
 	// Pos to the end ...
-	fprintf(fl, "%s %s %s %s %s %s %d %s %d\r\n", GET_NAME(d),
-			GET_PAD(d, 1), GET_PAD(d, 2), GET_PAD(d, 3), GET_PAD(d, 4), GET_PAD(d, 5), static_cast<int>(GET_SEX(d)), immname, immlev);
+	fprintf(fl,
+			"%s %s %s %s %s %s %d %s %d\r\n",
+			GET_NAME(d),
+			GET_PAD(d, 1),
+			GET_PAD(d, 2),
+			GET_PAD(d, 3),
+			GET_PAD(d, 4),
+			GET_PAD(d, 5),
+			static_cast<int>(GET_SEX(d)),
+			immname,
+			immlev);
 	fclose(fl);
 	return;
 }
 
-static void add_disagree_name(CHAR_DATA * d, const char *immname, int immlev)
-{
+static void add_disagree_name(CHAR_DATA *d, const char *immname, int immlev) {
 	FILE *fl;
-	if (!(fl = fopen(DNAME_FILE, "a")))
-	{
+	if (!(fl = fopen(DNAME_FILE, "a"))) {
 		perror("SYSERR: Unable to open '" DNAME_FILE "' for writing");
 		return;
 	}
@@ -385,8 +341,7 @@ static void add_disagree_name(CHAR_DATA * d, const char *immname, int immlev)
 	return;
 }
 
-static void disagree_name(CHAR_DATA * d, const char *immname, int immlev)
-{
+static void disagree_name(CHAR_DATA *d, const char *immname, int immlev) {
 	// Clean record from agreed if present ...
 	rm_agree_name(d);
 	rm_disagree_name(d);
@@ -395,8 +350,7 @@ static void disagree_name(CHAR_DATA * d, const char *immname, int immlev)
 	add_disagree_name(d, immname, immlev);
 }
 
-void agree_name(CHAR_DATA * d, const char *immname, int immlev)
-{
+void agree_name(CHAR_DATA *d, const char *immname, int immlev) {
 	// Clean record from disgreed if present ...
 	rm_agree_name(d);
 	rm_disagree_name(d);
@@ -407,12 +361,10 @@ void agree_name(CHAR_DATA * d, const char *immname, int immlev)
 
 enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
-static void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
-{
+static void go_name(CHAR_DATA *ch, CHAR_DATA *vict, int action) {
 	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
 
-	if (GET_LEVEL(vict) > god_level)
-	{
+	if (GET_LEVEL(vict) > god_level) {
 		send_to_char("А он ведь старше вас...\r\n", ch);
 		return;
 	}
@@ -421,8 +373,7 @@ static void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 	int lev = NAME_GOD(vict);
 	if (lev > 1000)
 		lev = lev - 1000;
-	if (lev > god_level)
-	{
+	if (lev > god_level) {
 		send_to_char("Об этом имени уже позаботился бог старше вас.\r\n", ch);
 		return;
 	}
@@ -431,8 +382,7 @@ static void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		if (NAME_ID_GOD(vict) != GET_IDNUM(ch))
 			send_to_char("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
 
-	if (action == NAME_AGREE)
-	{
+	if (action == NAME_AGREE) {
 		NAME_GOD(vict) = god_level + 1000;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
 		//send_to_char("Имя одобрено!\r\n", ch);
@@ -443,9 +393,7 @@ static void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		// В этом теперь нет смысла
 		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 
-	}
-	else
-	{
+	} else {
 		NAME_GOD(vict) = god_level;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
 		//send_to_char("Имя запрещено!\r\n", ch);
@@ -459,19 +407,17 @@ static void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 
 }
 
-const char* MORTAL_DO_TITLE_FORMAT = "\r\n"
+const char *MORTAL_DO_TITLE_FORMAT = "\r\n"
 									 "имя - вывод списка имен, ждущих одобрения, если они есть\r\n"
 									 "имя <игрок> одобрить - одобрить имя данного игрока\r\n"
 									 "имя <игрок> запретить - запретить имя данного игрока\r\n"
 									 "имя <игрок> удалить - удалить данное имя из списка без запрета или одобрения\r\n";
 
-void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string name, command = argument;
 	GetOneParam(command, name);
 
-	if (name.empty())
-	{
+	if (name.empty()) {
 		if (!NewNameList.empty())
 			NewNames::show(ch);
 		else
@@ -480,7 +426,7 @@ void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	boost::trim(command);
-	int	action = -1;
+	int action = -1;
 	if (CompareParam(command, "одобрить"))
 		action = NAME_AGREE;
 	else if (CompareParam(command, "запретить"))
@@ -488,34 +434,27 @@ void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (CompareParam(command, "удалить"))
 		action = NAME_DELETE;
 
-	if (action < 0)
-	{
+	if (action < 0) {
 		send_to_char(MORTAL_DO_TITLE_FORMAT, ch);
 		return;
 	}
 
 	name_convert(name);
-	if (action == NAME_DELETE)
-	{
+	if (action == NAME_DELETE) {
 		NewNames::remove(name, ch);
 		return;
 	}
 
-	CHAR_DATA* vict;
-	if ((vict = get_player_vis(ch, name, FIND_CHAR_WORLD)) != NULL)
-	{
-		if (!(vict = get_player_pun(ch, name, FIND_CHAR_WORLD)))
-		{
+	CHAR_DATA *vict;
+	if ((vict = get_player_vis(ch, name, FIND_CHAR_WORLD)) != NULL) {
+		if (!(vict = get_player_pun(ch, name, FIND_CHAR_WORLD))) {
 			send_to_char("Нет такого игрока.\r\n", ch);
 			return;
 		}
 		go_name(ch, vict, action);
-	}
-	else
-	{
+	} else {
 		vict = new Player; // TODO: переделать на стек
-		if (load_char(name.c_str(), vict) < 0)
-		{
+		if (load_char(name.c_str(), vict) < 0) {
 			send_to_char("Такого персонажа не существует.\r\n", ch);
 			delete vict;
 			return;

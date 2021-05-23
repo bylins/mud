@@ -1,27 +1,23 @@
-#include "world.characters.hpp"
+#include "world.characters.h"
 
-#include "fightsystem/mobact.hpp"
-#include "config.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "global.objects.hpp"
+#include "fightsystem/mobact.h"
+#include "config.h"
+#include "logger.h"
+#include "utils/utils.h"
+#include "global_objects.h"
 
-Characters& character_list = GlobalObjects::characters();	// global container of chars
+Characters &character_list = GlobalObjects::characters();    // global container of chars
 
-Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters& cl) : m_parent(cl)
-{
+Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters &cl) : m_parent(cl) {
 }
 
-Characters::~Characters()
-{
+Characters::~Characters() {
 	log("~Characters()");
 }
 
-void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData& character, const mob_rnum old_rnum)
-{
-	const auto character_ptr = dynamic_cast<CHAR_DATA*>(&character);
-	if (nullptr == character_ptr)
-	{
+void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData &character, const mob_rnum old_rnum) {
+	const auto character_ptr = dynamic_cast<CHAR_DATA *>(&character);
+	if (nullptr == character_ptr) {
 		log("LOGIC ERROR: Character object passed to RNUM change observer "
 			"is not an instance of CHAR_DATA class. Old RNUM: %d.",
 			old_rnum);
@@ -30,37 +26,31 @@ void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData& character
 	}
 
 	m_parent.m_rnum_to_characters_set[old_rnum].erase(character_ptr);
-	if (m_parent.m_rnum_to_characters_set[old_rnum].empty())
-	{
+	if (m_parent.m_rnum_to_characters_set[old_rnum].empty()) {
 		m_parent.m_rnum_to_characters_set.erase(old_rnum);
 	}
 
 	const auto new_rnum = character.get_rnum();
-	if (new_rnum != NOBODY)
-	{
+	if (new_rnum != NOBODY) {
 		m_parent.m_rnum_to_characters_set[new_rnum].insert(character_ptr);
 	}
 }
 
-Characters::Characters()
-{
+Characters::Characters() {
 	m_rnum_change_observer = std::make_shared<CL_RNumChangeObserver>(*this);
 }
 
-void Characters::push_front(const CHAR_DATA::shared_ptr& character)
-{
+void Characters::push_front(const CHAR_DATA::shared_ptr &character) {
 	m_list.push_front(character);
 	m_character_raw_ptr_to_character_ptr[character.get()] = m_list.begin();
 
 	const auto rnum = character->get_rnum();
-	if (NOBODY != rnum)
-	{
+	if (NOBODY != rnum) {
 		m_rnum_to_characters_set[rnum].insert(character.get());
 	}
 	character->subscribe_for_rnum_changes(m_rnum_change_observer);
 
-	if (character->purged())
-	{
+	if (character->purged()) {
 		/*
 		* Anton Gorev (2017/10/29): It is possible is character quit the game without
 		* disconnecting and then reenter the game. In this case #character of his descriptor will be reused but
@@ -73,40 +63,33 @@ void Characters::push_front(const CHAR_DATA::shared_ptr& character)
 	}
 }
 
-void Characters::get_mobs_by_rnum(const mob_rnum rnum, list_t& result)
-{
+void Characters::get_mobs_by_rnum(const mob_rnum rnum, list_t &result) {
 	result.clear();
 
 	const auto i = m_rnum_to_characters_set.find(rnum);
-	if (i == m_rnum_to_characters_set.end())
-	{
+	if (i == m_rnum_to_characters_set.end()) {
 		return;
 	}
 
-	for (const auto& character : i->second)
-	{
+	for (const auto &character : i->second) {
 		result.push_back(*m_character_raw_ptr_to_character_ptr[character]);
 	}
 }
 
-void Characters::foreach_on_copy(const foreach_f function) const
-{
+void Characters::foreach_on_copy(const foreach_f function) const {
 	const list_t list = get_list();
 	std::for_each(list.begin(), list.end(), function);
 }
 
-void Characters::foreach_on_filtered_copy(const foreach_f function, const predicate_f predicate) const
-{
+void Characters::foreach_on_filtered_copy(const foreach_f function, const predicate_f predicate) const {
 	list_t list;
 	std::copy_if(get_list().begin(), get_list().end(), std::back_inserter(list), predicate);
 	std::for_each(list.begin(), list.end(), function);
 }
 
-void Characters::remove(CHAR_DATA* character)
-{
+void Characters::remove(CHAR_DATA *character) {
 	const auto index_i = m_character_raw_ptr_to_character_ptr.find(character);
-	if (index_i == m_character_raw_ptr_to_character_ptr.end())
-	{
+	if (index_i == m_character_raw_ptr_to_character_ptr.end()) {
 		const size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
 		snprintf(buffer, BUFFER_SIZE, "Character at address %p requested to remove not found in the world.", character);
@@ -120,11 +103,9 @@ void Characters::remove(CHAR_DATA* character)
 
 	character->unsubscribe_from_rnum_changes(m_rnum_change_observer);
 	const auto rnum = character->get_rnum();
-	if (NOBODY != rnum)
-	{
+	if (NOBODY != rnum) {
 		m_rnum_to_characters_set[rnum].erase(character);
-		if (m_rnum_to_characters_set[rnum].empty())
-		{
+		if (m_rnum_to_characters_set[rnum].empty()) {
 			m_rnum_to_characters_set.erase(rnum);
 		}
 	}
@@ -135,13 +116,10 @@ void Characters::remove(CHAR_DATA* character)
 	character->set_purged();
 }
 
-void Characters::purge()
-{
+void Characters::purge() {
 	m_purge_set.clear();
-	for (const auto& character : m_purge_list)
-	{
-		if (IS_NPC(character))
-		{
+	for (const auto &character : m_purge_list) {
+		if (IS_NPC(character)) {
 			clearMemory(character.get());
 		}
 
@@ -151,8 +129,7 @@ void Characters::purge()
 	m_purge_list.clear();
 }
 
-bool Characters::has(const CHAR_DATA* character) const
-{
+bool Characters::has(const CHAR_DATA *character) const {
 	return m_character_raw_ptr_to_character_ptr.find(character) != m_character_raw_ptr_to_character_ptr.end()
 		|| m_purge_set.find(character) != m_purge_set.end();
 }

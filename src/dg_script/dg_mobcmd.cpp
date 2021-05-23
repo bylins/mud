@@ -23,38 +23,23 @@
  *  $Revision$                                                   *
  ***************************************************************************/
 
-#include "chars/char.hpp"
+#include "chars/char.h"
 #include "cmd/follow.h"
-#include "comm.h"
-#include "conf.h"
-#include "db.h"
-#include "dg_scripts.h"
-#include "features.hpp"
 #include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/fight_hit.h"
 #include "handler.h"
-#include "im.h"
-#include "interpreter.h"
-#include "logger.hpp"
-#include "obj.hpp"
-#include "object.prototypes.hpp"
-#include "room.hpp"
-#include "skills.h"
-#include "magic.utils.hpp"
-#include "spells.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "world.objects.hpp"
+#include "obj_prototypes.h"
+#include "magic/magic_utils.h"
+#include "world_objects.h"
 #include "skills/townportal.h"
-#include "skills.info.h"
+#include "skills_info.h"
 
-struct mob_command_info
-{
+struct mob_command_info {
 	const char *command;
 	byte minimum_position;
-	typedef void(*handler_f)(CHAR_DATA* ch, char *argument, int cmd, int subcmd);
+	typedef void(*handler_f)(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	handler_f command_pointer;
-	int subcmd;				///< Subcommand. See SCMD_* constants.
+	int subcmd;                ///< Subcommand. See SCMD_* constants.
 	bool use_in_lag;
 };
 
@@ -63,16 +48,15 @@ struct mob_command_info
 extern int reloc_target;
 extern TRIG_DATA *cur_trig;
 
-void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
+void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets);
 ROOM_DATA *get_room(char *name);
-OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
+OBJ_DATA *get_obj_by_char(CHAR_DATA *ch, char *name);
 // * Local functions.
-void mob_command_interpreter(CHAR_DATA* ch, char *argument);
-bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
+void mob_command_interpreter(CHAR_DATA *ch, char *argument);
+bool mob_script_command_interpreter(CHAR_DATA *ch, char *argument);
 
 // attaches mob's name and vnum to msg and sends it to script_log
-void mob_log(CHAR_DATA * mob, const char *msg, LogMode type = LogMode::OFF)
-{
+void mob_log(CHAR_DATA *mob, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[MAX_INPUT_LENGTH + 100];
 
 	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg);
@@ -81,27 +65,22 @@ void mob_log(CHAR_DATA * mob, const char *msg, LogMode type = LogMode::OFF)
 
 //returns the real room number, or NOWHERE if not found or invalid
 //copy from find_target_room except char's messages
-room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr)
-{
+room_rnum dg_find_target_room(CHAR_DATA *ch, char *rawroomstr) {
 	char roomstr[MAX_INPUT_LENGTH];
 	room_rnum location = NOWHERE;
 
 	one_argument(rawroomstr, roomstr);
 
-	if (!*roomstr)
-	{
+	if (!*roomstr) {
 		sprintf(buf, "Undefined mteleport room: %s", rawroomstr);
 		mob_log(ch, buf);
 		return NOWHERE;
 	}
 
 	const auto tmp = atoi(roomstr);
-	if (tmp > 0)
-	{
+	if (tmp > 0) {
 		location = real_room(tmp);
-	}
-	else
-	{
+	} else {
 		sprintf(buf, "Undefined mteleport room: %s", roomstr);
 		mob_log(ch, buf);
 		return NOWHERE;
@@ -110,16 +89,14 @@ room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr)
 	return location;
 }
 
-void do_mportal(CHAR_DATA *mob, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mportal(CHAR_DATA *mob, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int target, howlong, curroom, nr;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
 	argument = two_arguments(argument, arg1, arg2);
 	skip_spaces(&argument);
 
-	if (!*arg1 || !*arg2)
-	{
+	if (!*arg1 || !*arg2) {
 		mob_log(mob, "mportal: called with too few args");
 		return;
 	}
@@ -128,8 +105,7 @@ void do_mportal(CHAR_DATA *mob, char *argument, int/* cmd*/, int/* subcmd*/)
 	nr = atoi(arg1);
 	target = real_room(nr);
 
-	if (target == NOWHERE)
-	{
+	if (target == NOWHERE) {
 		mob_log(mob, "mportal: target is an invalid room");
 		return;
 	}
@@ -145,13 +121,11 @@ void do_mportal(CHAR_DATA *mob, char *argument, int/* cmd*/, int/* subcmd*/)
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 // prints the argument to all the rooms aroud the mobile
-void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (!*argument)
-	{
+	if (!*argument) {
 		mob_log(ch, "masound called with no argument");
 		return;
 	}
@@ -159,13 +133,11 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	skip_spaces(&argument);
 
 	const int temp_in_room = ch->in_room;
-	for (int door = 0; door < NUM_OF_DIRS; door++)
-	{
-		const auto& exit = world[temp_in_room]->dir_option[door];
+	for (int door = 0; door < NUM_OF_DIRS; door++) {
+		const auto &exit = world[temp_in_room]->dir_option[door];
 		if (exit
 			&& exit->to_room() != NOWHERE
-			&& exit->to_room() != temp_in_room)
-		{
+			&& exit->to_room() != temp_in_room) {
 			ch->in_room = exit->to_room();
 			sub_write(argument, ch, TRUE, TO_ROOM);
 		}
@@ -175,13 +147,11 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // lets the mobile kill any player or mobile without murder
-void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
 
-	if (MOB_FLAGGED(ch, MOB_NOFIGHT))
-	{
+	if (MOB_FLAGGED(ch, MOB_NOFIGHT)) {
 		mob_log(ch, "mkill called for mob with NOFIGHT flag");
 		return;
 	}
@@ -191,43 +161,35 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		mob_log(ch, "mkill called with no argument");
 		return;
 	}
 
-	if (*arg == UID_CHAR)
-	{
-		if (!(victim = get_char(arg)))
-		{
+	if (*arg == UID_CHAR) {
+		if (!(victim = get_char(arg))) {
 			sprintf(buf, "mkill: victim (%s) not found", arg + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_room_vis(ch, arg)))
-	{
+	} else if (!(victim = get_char_room_vis(ch, arg))) {
 		sprintf(buf, "mkill: victim (%s) not found", arg);
 		mob_log(ch, buf);
 		return;
 	}
 
-	if (victim == ch)
-	{
+	if (victim == ch) {
 		mob_log(ch, "mkill: victim is self");
 		return;
 	}
 
 	if (IS_AFFECTED(ch, AFF_CHARM)
-		&& ch->get_master() == victim)
-	{
+		&& ch->get_master() == victim) {
 		mob_log(ch, "mkill: charmed mob attacking master");
 		return;
 	}
 
-	if (ch->get_fighting())
-	{
+	if (ch->get_fighting()) {
 		mob_log(ch, "mkill: already fighting");
 		return;
 	}
@@ -240,8 +202,7 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
  * it can also destroy a worn object and it can destroy
  * items using all.xxxxx or just plain all of them
  */
-void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
 	int pos, junk_all = 0;
 	OBJ_DATA *obj;
@@ -252,8 +213,7 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		mob_log(ch, "mjunk called with no argument");
 		return;
 	}
@@ -261,10 +221,8 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
 		junk_all = 1;
 
-	if ((find_all_dots(arg) == FIND_INDIV) && !junk_all)
-	{
-		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != NULL)
-		{
+	if ((find_all_dots(arg) == FIND_INDIV) && !junk_all) {
+		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != NULL) {
 			unequip_char(ch, pos);
 			extract_obj(obj);
 			return;
@@ -272,19 +230,14 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if ((obj = get_obj_in_list_vis(ch, arg, ch->carrying)) != NULL)
 			extract_obj(obj);
 		return;
-	}
-	else
-	{
-		for (obj = ch->carrying; obj != NULL; obj = obj_next)
-		{
+	} else {
+		for (obj = ch->carrying; obj != NULL; obj = obj_next) {
 			obj_next = obj->get_next_content();
-			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases()))
-			{
+			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases())) {
 				extract_obj(obj);
 			}
 		}
-		while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)))
-		{
+		while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
 			unequip_char(ch, pos);
 			extract_obj(obj);
 		}
@@ -292,8 +245,7 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // prints the message to everyone in the room other than the mob and victim
-void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
 	char *p;
@@ -304,30 +256,24 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	p = one_argument(argument, arg);
 	skip_spaces(&p);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		mob_log(ch, "mechoaround called with no argument");
 		return;
 	}
 
-	if (*arg == UID_CHAR)
-	{
-		if (!(victim = get_char(arg)))
-		{
+	if (*arg == UID_CHAR) {
+		if (!(victim = get_char(arg))) {
 			sprintf(buf, "mechoaround: victim (%s) UID does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
 		}
-	}
-	else if (!(victim = get_char_room_vis(ch, arg)))
-	{
+	} else if (!(victim = get_char_room_vis(ch, arg))) {
 		sprintf(buf, "mechoaround: victim (%s) does not exist", arg);
 		mob_log(ch, buf, LGH);
 		return;
 	}
 
-	if (reloc_target != -1 && reloc_target != IN_ROOM(victim))
-	{
+	if (reloc_target != -1 && reloc_target != IN_ROOM(victim)) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
@@ -338,8 +284,7 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // sends the message to only the victim
-void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
 	char *p;
@@ -350,30 +295,24 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	p = one_argument(argument, arg);
 	skip_spaces(&p);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		mob_log(ch, "msend called with no argument");
 		return;
 	}
 
-	if (*arg == UID_CHAR)
-	{
-		if (!(victim = get_char(arg)))
-		{
+	if (*arg == UID_CHAR) {
+		if (!(victim = get_char(arg))) {
 			sprintf(buf, "msend: victim (%s) UID does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
 		}
-	}
-	else if (!(victim = get_char_room_vis(ch, arg)))
-	{
+	} else if (!(victim = get_char_room_vis(ch, arg))) {
 //		sprintf(buf, "msend: victim (%s) does not exist", arg);
 //		mob_log(ch, buf, LGH);
 		return;
 	}
 
-	if (reloc_target != -1 && reloc_target != IN_ROOM(victim))
-	{
+	if (reloc_target != -1 && reloc_target != IN_ROOM(victim)) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
@@ -384,23 +323,20 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // prints the message to the room at large
-void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *p;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (!*argument)
-	{
+	if (!*argument) {
 		mob_log(ch, "mecho called with no arguments");
 		return;
 	}
 	p = argument;
 	skip_spaces(&p);
 
-	if (reloc_target != -1 && reloc_target != ch->in_room)
-	{
+	if (reloc_target != -1 && reloc_target != ch->in_room) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
@@ -414,51 +350,41 @@ void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
  * lets the mobile load an item or mobile.  All items
  * are loaded into inventory, unless it is NO-TAKE.
  */
-void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0;
 	CHAR_DATA *mob;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		mob_log(ch, "mload: попытка почармленным мобом загрузать моба/предмет.");
 		return;
 	}
 
 	two_arguments(argument, arg1, arg2);
 
-	if (!*arg1 || !*arg2 || !is_number(arg2) || ((number = atoi(arg2)) < 0))
-	{
+	if (!*arg1 || !*arg2 || !is_number(arg2) || ((number = atoi(arg2)) < 0)) {
 		mob_log(ch, "mload: bad syntax");
 		return;
 	}
 
-	if (is_abbrev(arg1, "mob"))
-	{
-		if ((mob = read_mobile(number, VIRTUAL)) == NULL)
-		{
+	if (is_abbrev(arg1, "mob")) {
+		if ((mob = read_mobile(number, VIRTUAL)) == NULL) {
 			mob_log(ch, "mload: bad mob vnum");
 			return;
 		}
 		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
 		char_to_room(mob, ch->in_room);
 		load_mtrigger(mob);
-	}
-	else if (is_abbrev(arg1, "obj"))
-	{
+	} else if (is_abbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
-		if (!object)
-		{
+		if (!object) {
 			mob_log(ch, "mload: bad object vnum");
 			return;
 		}
 
 		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) >= 0
-			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
-		{
-			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
-			{
+			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()])) {
+			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				mob_log(ch, buf);
 //				extract_obj(object.get());
@@ -469,18 +395,14 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		object->set_zone(world[ch->in_room]->zone);
 
-		if (CAN_WEAR(object.get(), EWearFlag::ITEM_WEAR_TAKE))
-		{
+		if (CAN_WEAR(object.get(), EWearFlag::ITEM_WEAR_TAKE)) {
 			obj_to_char(object.get(), ch);
-		}
-		else
-		{
+		} else {
 			obj_to_room(object.get(), ch->in_room);
 		}
 
 		load_otrigger(object.get());
-	}
-	else
+	} else
 		mob_log(ch, "mload: bad type");
 }
 
@@ -489,8 +411,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
  * or purge a specified object or mob in the room.  It can purge
  *  itself, but this will be the last command it does.
  */
-void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
 	OBJ_DATA *obj;
@@ -500,8 +421,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		return;
 	}
 
@@ -510,28 +430,22 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 		victim = get_char_room_vis(ch, arg);
 
-	if (victim == NULL)
-	{
-		if ((obj = get_obj_by_char(ch, arg)))
-		{
+	if (victim == NULL) {
+		if ((obj = get_obj_by_char(ch, arg))) {
 			extract_obj(obj);
-		}
-		else
-		{
+		} else {
 			mob_log(ch, "mpurge: bad argument");
 		}
 		return;
 	}
 
-	if (!IS_NPC(victim))
-	{
+	if (!IS_NPC(victim)) {
 		mob_log(ch, "mpurge: purging a PC");
 		return;
 	}
 
 	if (victim->followers
-		|| victim->has_master())
-	{
+		|| victim->has_master()) {
 		die_follower(victim);
 	}
 
@@ -604,8 +518,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  * lets the mobile transfer people.  the all argument transfers
  * everyone in the current room to the specified location
  */
-void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int target;
 	room_rnum from_room;
@@ -617,40 +530,32 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	argument = two_arguments(argument, arg1, arg2);
 	skip_spaces(&argument);
 
-	if (!*arg1 || !*arg2)
-	{
+	if (!*arg1 || !*arg2) {
 		mob_log(ch, "mteleport: bad syntax");
 		return;
 	}
 
 	target = dg_find_target_room(ch, arg2);
 
-	if (target == NOWHERE)
-	{
+	if (target == NOWHERE) {
 		mob_log(ch, "mteleport target is an invalid room");
-	}
-	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
-	{
-		if (target == ch->in_room)
-		{
+	} else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
+		if (target == ch->in_room) {
 			mob_log(ch, "mteleport all: target is itself");
 			return;
 		}
 
 		const auto people_copy = world[ch->in_room]->people;
-		for (const auto vict : people_copy)
-		{
+		for (const auto vict : people_copy) {
 			if (IS_NPC(vict)
 				&& !(IS_HORSE(vict)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 					|| MOB_FLAGGED(vict, MOB_ANGEL)
-					|| MOB_FLAGGED(vict, MOB_GHOST)))
-			{
+					|| MOB_FLAGGED(vict, MOB_GHOST))) {
 				continue;
 			}
 
-			if (IN_ROOM(vict) == NOWHERE)
-			{
+			if (IN_ROOM(vict) == NOWHERE) {
 				mob_log(ch, "mteleport transports from NOWHERE");
 
 				return;
@@ -661,45 +566,34 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 			look_at_room(vict, TRUE);
 		}
-	}
-	else
-	{
-		if (*arg1 == UID_CHAR)
-		{
-			if (!(vict = get_char(arg1)))
-			{
+	} else {
+		if (*arg1 == UID_CHAR) {
+			if (!(vict = get_char(arg1))) {
 				sprintf(buf, "mteleport: victim (%s) UID does not exist", arg1 + 1);
 				mob_log(ch, buf);
 				return;
 			}
-		}
-		else if (!(vict = get_char_vis(ch, arg1, FIND_CHAR_WORLD)))
-		{
+		} else if (!(vict = get_char_vis(ch, arg1, FIND_CHAR_WORLD))) {
 			sprintf(buf, "mteleport: victim (%s) does not exist", arg1);
 			mob_log(ch, buf);
 			return;
 		}
 
 		const auto people_copy = world[IN_ROOM(vict)]->people;
-		for (const auto charmee : people_copy)
-		{
+		for (const auto charmee : people_copy) {
 			if (IS_NPC(charmee)
 				&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 					|| MOB_FLAGGED(charmee, MOB_ANGEL)
 					|| MOB_FLAGGED(charmee, MOB_GHOST))
-				&& charmee->get_master() == vict)
-			{
+				&& charmee->get_master() == vict) {
 				char_from_room(charmee);
 				char_to_room(charmee, target);
 			}
 		}
 
-		if (vict->ahorse() || vict->has_horse(true))
-		{
+		if (vict->ahorse() || vict->has_horse(true)) {
 			horse = vict->get_horse();
-		}
-		else
-		{
+		} else {
 			horse = NULL;
 		}
 
@@ -707,27 +601,23 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		char_from_room(vict);
 		char_to_room(vict, target);
-		if (!str_cmp(argument, "horse") && horse)
-		{
+		if (!str_cmp(argument, "horse") && horse) {
 			char_from_room(horse);
 			char_to_room(horse, target);
 		}
 
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
-		if (!str_cmp(argument, "followers") && vict->followers)
-		{
+		if (!str_cmp(argument, "followers") && vict->followers) {
 			follow_type *ft;
-			for (ft = vict->followers; ft; ft = ft->next)
-			{
-				if (IN_ROOM(ft->follower) == from_room && IS_NPC(ft->follower))
-				{
+			for (ft = vict->followers; ft; ft = ft->next) {
+				if (IN_ROOM(ft->follower) == from_room && IS_NPC(ft->follower)) {
 					char_from_room(ft->follower);
 					char_to_room(ft->follower, target);
 				}
 			}
 		}
 //-Polud
-        vict->dismount();
+		vict->dismount();
 		look_at_room(vict, TRUE);
 	}
 }
@@ -736,8 +626,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
  * lets the mobile force someone to do something.  must be mortal level
  * and the all argument only affects those in the room with the mobile
  */
-void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -745,69 +634,55 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	argument = one_argument(argument, arg);
 
-	if (!*arg || !*argument)
-	{
+	if (!*arg || !*argument) {
 		mob_log(ch, "mforce: bad syntax");
 		return;
 	}
 
 	if (!str_cmp(arg, "all")
-		|| !str_cmp(arg, "все"))
-	{
+		|| !str_cmp(arg, "все")) {
 		mob_log(ch, "ERROR: \'mforce all\' command disabled.");
 		return;
 	}
 
 	CHAR_DATA *victim = nullptr;
 
-	if (*arg == UID_CHAR)
-	{
-		if (!(victim = get_char(arg)))
-		{
+	if (*arg == UID_CHAR) {
+		if (!(victim = get_char(arg))) {
 			sprintf(buf, "mforce: victim (%s) UID does not exist", arg + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if ((victim = get_char_room_vis(ch, arg)) == NULL)
-	{
+	} else if ((victim = get_char_room_vis(ch, arg)) == NULL) {
 		mob_log(ch, "mforce: no such victim");
 		return;
 	}
 
-	if (!IS_NPC(victim))
-	{
-		if ((!victim->desc))
-		{
+	if (!IS_NPC(victim)) {
+		if ((!victim->desc)) {
 			return;
 		}
 	}
 
-	if (victim == ch)
-	{
+	if (victim == ch) {
 		mob_log(ch, "mforce: forcing self");
 		return;
 	}
 
-	if (IS_NPC(victim))
-	{
-		if (mob_script_command_interpreter(victim, argument))
-		{
+	if (IS_NPC(victim)) {
+		if (mob_script_command_interpreter(victim, argument)) {
 			mob_log(ch, "Mob trigger commands in mforce. Please rewrite trigger.");
 			return;
 		}
 
 		command_interpreter(victim, argument);
-	}
-	else if (GET_LEVEL(victim) < LVL_IMMORT)
-	{
+	} else if (GET_LEVEL(victim) < LVL_IMMORT) {
 		command_interpreter(victim, argument);
 	}
 }
 
 // increases the target's exp
-void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 
@@ -821,23 +696,18 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount)
-	{
+	if (!*name || !*amount) {
 		mob_log(ch, "mexp: too few arguments");
 		return;
 	}
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mexp: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mexp: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -848,8 +718,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // increases the target's gold
-void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 
@@ -860,57 +729,46 @@ void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount)
-	{
+	if (!*name || !*amount) {
 		mob_log(ch, "mgold: too few arguments");
 		return;
 	}
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mgold: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mgold: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
 	}
 
 	int num = atoi(amount);
-	if (num >= 0)
-	{
+	if (num >= 0) {
 		victim->add_gold(num);
-	}
-	else
-	{
+	} else {
 		num = victim->remove_gold(num);
-		if (num > 0)
-		{
+		if (num > 0) {
 			mob_log(ch, "mgold subtracting more gold than character has");
 		}
 	}
 }
 
 // transform into a different mobile
-void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *m;
 	OBJ_DATA *obj[NUM_WEARS];
-	int keep_hp = 1;	// new mob keeps the old mob's hp/max hp/exp
+	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
 	int pos;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (ch->desc)
-	{
+	if (ch->desc) {
 		send_to_char("You've got no VNUM to return to, dummy! try 'switch'\r\n", ch);
 		return;
 	}
@@ -921,17 +779,14 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mob_log(ch, "mtransform: missing argument");
 	else if (!a_isdigit(*arg) && *arg != '-')
 		mob_log(ch, "mtransform: bad argument");
-	else
-	{
+	else {
 		if (a_isdigit(*arg))
 			m = read_mobile(atoi(arg), VIRTUAL);
-		else
-		{
+		else {
 			keep_hp = 0;
 			m = read_mobile(atoi(arg + 1), VIRTUAL);
 		}
-		if (m == NULL)
-		{
+		if (m == NULL) {
 			mob_log(ch, "mtransform: bad mobile vnum");
 			return;
 		}
@@ -944,8 +799,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 //            c) удаляю m (на самом деле это данные ch в другой оболочке)
 
 
-		for (pos = 0; pos < NUM_WEARS; pos++)
-		{
+		for (pos = 0; pos < NUM_WEARS; pos++) {
 			if (GET_EQ(ch, pos))
 				obj[pos] = unequip_char(ch, pos);
 			else
@@ -985,8 +839,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		ch->set_master(m->get_master());
 		m->set_master(tmpmob.get_master());
 
-		if (keep_hp)
-		{
+		if (keep_hp) {
 			GET_HIT(ch) = GET_HIT(m);
 			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
 			ch->set_exp(m->get_exp());
@@ -1004,8 +857,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		ch->set_serial_num(m->get_serial_num());
 		m->set_serial_num(tmpmob.get_serial_num());
 
-		for (pos = 0; pos < NUM_WEARS; pos++)
-		{
+		for (pos = 0; pos < NUM_WEARS; pos++) {
 			if (obj[pos])
 				equip_char(ch, obj[pos], pos | 0x40);
 		}
@@ -1013,24 +865,23 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
 	ROOM_DATA *rm;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] =
-	{
-		"purge",
-		"description",
-		"flags",
-		"key",
-		"name",
-		"room",
-		"lock",
-		"\n"
-	};
+		{
+			"purge",
+			"description",
+			"flags",
+			"key",
+			"name",
+			"room",
+			"lock",
+			"\n"
+		};
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -1039,26 +890,22 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	value = one_argument(argument, field);
 	skip_spaces(&value);
 
-	if (!*target || !*direction || !*field)
-	{
+	if (!*target || !*direction || !*field) {
 		mob_log(ch, "mdoor called with too few args");
 		return;
 	}
 
-	if ((rm = get_room(target)) == NULL)
-	{
+	if ((rm = get_room(target)) == NULL) {
 		mob_log(ch, "mdoor: invalid target");
 		return;
 	}
 
-	if ((dir = search_block(direction, dirs, FALSE)) == -1)
-	{
+	if ((dir = search_block(direction, dirs, FALSE)) == -1) {
 		mob_log(ch, "mdoor: invalid direction");
 		return;
 	}
 
-	if ((fd = search_block(field, door_field, FALSE)) == -1)
-	{
+	if ((fd = search_block(field, door_field, FALSE)) == -1) {
 		mob_log(ch, "mdoor: invalid field");
 		return;
 	}
@@ -1066,58 +913,49 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	auto exit = rm->dir_option[dir];
 
 	// purge exit
-	if (fd == 0)
-	{
-		if (exit)
-		{
+	if (fd == 0) {
+		if (exit) {
 			rm->dir_option[dir].reset();
 		}
-	}
-	else
-	{
-		if (!exit)
-		{
+	} else {
+		if (!exit) {
 			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
 
 		std::string buffer;
-		switch (fd)
-		{
-		case 1:	// description
-			exit->general_description = std::string(value) + "\r\n";
-			break;
+		switch (fd) {
+			case 1:    // description
+				exit->general_description = std::string(value) + "\r\n";
+				break;
 
-		case 2:	// flags
-			asciiflag_conv(value, &exit->exit_info);
-			break;
+			case 2:    // flags
+				asciiflag_conv(value, &exit->exit_info);
+				break;
 
-		case 3:	// key
-			exit->key = atoi(value);
-			break;
+			case 3:    // key
+				exit->key = atoi(value);
+				break;
 
-		case 4:	// name
-			exit->set_keywords(value);
-			break;
+			case 4:    // name
+				exit->set_keywords(value);
+				break;
 
-		case 5:	// room
-			if ((to_room = real_room(atoi(value))) != NOWHERE)
-			{
-				exit->to_room(to_room);
-			}
-			else
-			{
-				mob_log(ch, "mdoor: invalid door target");
-			}
-			break;
+			case 5:    // room
+				if ((to_room = real_room(atoi(value))) != NOWHERE) {
+					exit->to_room(to_room);
+				} else {
+					mob_log(ch, "mdoor: invalid door target");
+				}
+				break;
 
-		case 6:	// lock - сложность замка
-			lock = atoi(value);
-			if (!(lock < 0 || lock >255))
-				exit->lock_complexity = lock;
-			else
-				mob_log(ch, "mdoor: invalid lock complexity");
-			break;
+			case 6:    // lock - сложность замка
+				lock = atoi(value);
+				if (!(lock < 0 || lock > 255))
+					exit->lock_complexity = lock;
+				else
+					mob_log(ch, "mdoor: invalid lock complexity");
+				break;
 		}
 	}
 }
@@ -1127,8 +965,7 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int fix_name_and_find_spell_num(char *name);
 
-void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], featname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
@@ -1139,8 +976,7 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(two_arguments(argument, name, featname), amount);
 
-	if (!*name || !*featname || !*amount)
-	{
+	if (!*name || !*featname || !*amount) {
 		mob_log(ch, "mfeatturn: too few arguments");
 		return;
 	}
@@ -1152,8 +988,7 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((featnum = find_feat_num(featname)) > 0 && featnum < MAX_FEATS)
 		isFeat = 1;
-	else
-	{
+	else {
 		mob_log(ch, "mfeatturn: feature not found");
 		return;
 	}
@@ -1162,23 +997,18 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		featdiff = 1;
 	else if (!str_cmp(amount, "clear"))
 		featdiff = 0;
-	else
-	{
+	else {
 		mob_log(ch, "mfeatturn: unknown set variable");
 		return;
 	}
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mfeatturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1188,8 +1018,7 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		trg_featturn(victim, featnum, featdiff, last_trig_vnum);
 }
 
-void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool isSkill = false;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
@@ -1197,80 +1026,59 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		return;
 	}
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
-	if (!*name || !*skillname || !*amount)
-	{
+	if (!*name || !*skillname || !*amount) {
 		mob_log(ch, "mskillturn: too few arguments");
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-	{
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
 		isSkill = 1;
-	}
-	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
-	{
+	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskillturn: %s skill/recipe not found", skillname);
 		mob_log(ch, buf);
 		return;
 	}
 
-	if (!str_cmp(amount, "set"))
-	{
+	if (!str_cmp(amount, "set")) {
 		skilldiff = 1;
-	}
-	else if (!str_cmp(amount, "clear"))
-	{
+	} else if (!str_cmp(amount, "clear")) {
 		skilldiff = 0;
-	}
-	else
-	{
+	} else {
 		mob_log(ch, "mskillturn: unknown set variable");
 		return;
 	}
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mskillturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mskillturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
 	}
 
-	if (isSkill)
-	{
-		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == KNOW_SKILL)
-        {
-            trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
-        }
-		else
-		{
+	if (isSkill) {
+		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == KNOW_SKILL) {
+			trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
+		} else {
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
 			mob_log(ch, buf);
 		}
-	}
-	else
-	{
+	} else {
 		trg_recipeturn(victim, recipenum, skilldiff);
 	}
 }
 
-void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool isSkill = false;
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
@@ -1278,25 +1086,20 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		return;
 	}
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
-	if (!*name || !*skillname || !*amount)
-	{
+	if (!*name || !*skillname || !*amount) {
 		mob_log(ch, "mskilladd: too few arguments");
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
-	{
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
 		isSkill = true;
-	}
-	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
-	{
+	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskilladd: %s skill/recipe not found", skillname);
 		mob_log(ch, buf);
 		return;
@@ -1304,68 +1107,52 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	skilldiff = atoi(amount);
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mskilladd: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mskilladd: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
 	};
 
-	if (isSkill)
-	{
+	if (isSkill) {
 		trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
-	}
-	else
-	{
+	} else {
 		trg_recipeadd(victim, recipenum, skilldiff);
 	}
 }
 
-void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int skillnum = 0, skilldiff = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		return;
 	}
 
 	argument = one_argument(argument, name);
 	two_arguments(argument, skillname, amount);
 
-	if (!*name || !*skillname || !*amount)
-	{
+	if (!*name || !*skillname || !*amount) {
 		mob_log(ch, "mspellturn: too few arguments");
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
-	{
+	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS) {
 		mob_log(ch, "mspellturn: spell not found");
 		return;
 	}
 
-	if (!str_cmp(amount, "set"))
-	{
+	if (!str_cmp(amount, "set")) {
 		skilldiff = 1;
-	}
-	else if (!str_cmp(amount, "clear"))
-	{
+	} else if (!str_cmp(amount, "clear")) {
 		skilldiff = 0;
-	}
-	else
-	{
+	} else {
 		mob_log(ch, "mspellturn: unknown set variable");
 		return;
 	}
@@ -1373,17 +1160,13 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mspellturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mspellturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1392,51 +1175,42 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	trg_spellturn(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
-void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelltime = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		return;
 	}
 
 	argument = one_argument(argument, name);
 	two_arguments(argument, spellname, amount);
 
-	if (!*name || !*spellname || !*amount)
-	{
+	if (!*name || !*spellname || !*amount) {
 		mob_log(ch, "mspellturntemp: too few arguments");
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
-	{
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
 		mob_log(ch, "mspellturntemp: spell not found");
 		return;
 	}
 
 	spelltime = atoi(amount);
 
-	if(spelltime < 0)
-	{
+	if (spelltime < 0) {
 		mob_log(ch, "mspellturntemp: time is negative");
 		return;
 	}
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mspellturntemp: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1445,8 +1219,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 	trg_spellturntemp(victim, spellnum, spelltime, last_trig_vnum);
 }
 
-void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int skillnum = 0, skilldiff = 0;
@@ -1456,31 +1229,25 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
-	if (!*name || !*skillname || !*amount)
-	{
+	if (!*name || !*skillname || !*amount) {
 		mob_log(ch, "mspelladd: too few arguments");
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
-	{
+	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS) {
 		mob_log(ch, "mspelladd: skill not found");
 		return;
 	}
 
 	skilldiff = atoi(amount);
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mspelladd: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mspelladd: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1489,82 +1256,58 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	trg_spelladd(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
-void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		return;
 	}
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
 
-	if (!*name || !*spellname || !*type || !*turn)
-	{
+	if (!*name || !*spellname || !*type || !*turn) {
 		mob_log(ch, "mspellitem: too few arguments");
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
-	{
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
 		mob_log(ch, "mspellitem: spell not found");
 		return;
 	}
 
-	if (!str_cmp(type, "potion"))
-	{
+	if (!str_cmp(type, "potion")) {
 		spell = SPELL_POTION;
-	}
-	else if (!str_cmp(type, "wand"))
-	{
+	} else if (!str_cmp(type, "wand")) {
 		spell = SPELL_WAND;
-	}
-	else if (!str_cmp(type, "scroll"))
-	{
+	} else if (!str_cmp(type, "scroll")) {
 		spell = SPELL_SCROLL;
-	}
-	else if (!str_cmp(type, "items"))
-	{
+	} else if (!str_cmp(type, "items")) {
 		spell = SPELL_ITEMS;
-	}
-	else if (!str_cmp(type, "runes"))
-	{
+	} else if (!str_cmp(type, "runes")) {
 		spell = SPELL_RUNES;
-	}
-	else
-	{
+	} else {
 		mob_log(ch, "mspellitem: type spell not found");
 		return;
 	}
 
-	if (!str_cmp(turn, "set"))
-	{
+	if (!str_cmp(turn, "set")) {
 		spelldiff = 1;
-	}
-	else if (!str_cmp(turn, "clear"))
-	{
+	} else if (!str_cmp(turn, "clear")) {
 		spelldiff = 0;
-	}
-	else
-	{
+	} else {
 		mob_log(ch, "mspellitem: unknown set variable");
 		return;
 	}
 
-	if (*name == UID_CHAR)
-	{
-		if (!(victim = get_char(name)))
-		{
+	if (*name == UID_CHAR) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mspellitem: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
-	}
-	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
-	{
+	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
 		sprintf(buf, "mspellitem: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
@@ -1573,99 +1316,89 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	trg_spellitem(victim, spellnum, spelldiff, spell);
 }
 
-void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int dam = 0;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		return;
 	}
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount || !a_isdigit(*amount))
-	{
+	if (!*name || !*amount || !a_isdigit(*amount)) {
 		mob_log(ch, "mdamage: bad syntax");
 		return;
 	}
 
 	dam = atoi(amount);
 	auto victim = get_char(name);
-	if (victim)
-	{
-		if (world[IN_ROOM(victim)]->zone != world[ch->in_room]->zone)
-		{
+	if (victim) {
+		if (world[IN_ROOM(victim)]->zone != world[ch->in_room]->zone) {
 			return;
 		}
 
-		if (GET_LEVEL(victim) >= LVL_IMMORT && dam > 0)
-		{
+		if (GET_LEVEL(victim) >= LVL_IMMORT && dam > 0) {
 			send_to_char
-			("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
+				("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
 			return;
 		}
 		GET_HIT(victim) -= dam;
-		if (dam < 0)
-		{
+		if (dam < 0) {
 			send_to_char("Вы почувствовали себя лучше.\r\n", victim);
 			return;
 		}
 
 		update_pos(victim);
 		char_dam_message(dam, victim, victim, 0);
-		if (GET_POS(victim) == POS_DEAD)
-		{
-			if (!IS_NPC(victim))
-			{
-				sprintf(buf2, "%s killed by mobdamage at %s [%d]",
+		if (GET_POS(victim) == POS_DEAD) {
+			if (!IS_NPC(victim)) {
+				sprintf(buf2,
+						"%s killed by mobdamage at %s [%d]",
 						GET_NAME(victim),
-						IN_ROOM(victim) == NOWHERE ? "NOWHERE" : world[IN_ROOM(victim)]->name, GET_ROOM_VNUM(IN_ROOM(victim)));
+						IN_ROOM(victim) == NOWHERE ? "NOWHERE" : world[IN_ROOM(victim)]->name,
+						GET_ROOM_VNUM(IN_ROOM(victim)));
 				mudlog(buf2, BRF, 0, SYSLOG, TRUE);
 			}
 			die(victim, ch);
 		}
-	}
-	else
-	{
+	} else {
 		mob_log(ch, "mdamage: target not found");
 	}
 }
 
 const struct mob_command_info mob_cmd_info[] =
-{
-	{ "RESERVED", 0, 0, 0, 0 },	// this must be first -- for specprocs
-	{ "masound", POS_DEAD, do_masound, -1, false},
-	{ "mkill", POS_STANDING, do_mkill, -1, false},
-	{ "mjunk", POS_SITTING, do_mjunk, -1, true},
-	{ "mdamage", POS_DEAD, do_mdamage, -1, false},
-	{ "mdoor", POS_DEAD, do_mdoor, -1, false},
-	{ "mecho", POS_DEAD, do_mecho, -1, false},
-	{ "mechoaround", POS_DEAD, do_mechoaround, -1, false},
-	{ "msend", POS_DEAD, do_msend, -1, false},
-	{ "mload", POS_DEAD, do_mload, -1, false},
-	{ "mpurge", POS_DEAD, do_mpurge, -1, true},
-	{ "mgoto", POS_DEAD, do_mgoto, -1, false},
-	{ "mat", POS_DEAD, do_mat, -1, false},
-	{ "mteleport", POS_DEAD, do_mteleport, -1, false},
-	{ "mforce", POS_DEAD, do_mforce, -1, false},
-	{ "mexp", POS_DEAD, do_mexp, -1, false},
-	{ "mgold", POS_DEAD, do_mgold, -1, false},
-	{ "mtransform", POS_DEAD, do_mtransform, -1, false},
-	{ "mfeatturn", POS_DEAD, do_mfeatturn, -1, false},
-	{ "mskillturn", POS_DEAD, do_mskillturn, -1, false},
-	{ "mskilladd", POS_DEAD, do_mskilladd, -1, false},
-	{ "mspellturn", POS_DEAD, do_mspellturn, -1, false},
-	{ "mspellturntemp", POS_DEAD, do_mspellturntemp, -1, false},
-	{ "mspelladd", POS_DEAD, do_mspelladd, -1, false},
-	{ "mspellitem", POS_DEAD, do_mspellitem, -1, false},
-	{ "mportal",POS_DEAD, do_mportal, -1, false},
-	{ "\n", 0, 0, 0, 0}		// this must be last
-};
+	{
+		{"RESERVED", 0, 0, 0, 0},    // this must be first -- for specprocs
+		{"masound", POS_DEAD, do_masound, -1, false},
+		{"mkill", POS_STANDING, do_mkill, -1, false},
+		{"mjunk", POS_SITTING, do_mjunk, -1, true},
+		{"mdamage", POS_DEAD, do_mdamage, -1, false},
+		{"mdoor", POS_DEAD, do_mdoor, -1, false},
+		{"mecho", POS_DEAD, do_mecho, -1, false},
+		{"mechoaround", POS_DEAD, do_mechoaround, -1, false},
+		{"msend", POS_DEAD, do_msend, -1, false},
+		{"mload", POS_DEAD, do_mload, -1, false},
+		{"mpurge", POS_DEAD, do_mpurge, -1, true},
+		{"mgoto", POS_DEAD, do_mgoto, -1, false},
+		{"mat", POS_DEAD, do_mat, -1, false},
+		{"mteleport", POS_DEAD, do_mteleport, -1, false},
+		{"mforce", POS_DEAD, do_mforce, -1, false},
+		{"mexp", POS_DEAD, do_mexp, -1, false},
+		{"mgold", POS_DEAD, do_mgold, -1, false},
+		{"mtransform", POS_DEAD, do_mtransform, -1, false},
+		{"mfeatturn", POS_DEAD, do_mfeatturn, -1, false},
+		{"mskillturn", POS_DEAD, do_mskillturn, -1, false},
+		{"mskilladd", POS_DEAD, do_mskilladd, -1, false},
+		{"mspellturn", POS_DEAD, do_mspellturn, -1, false},
+		{"mspellturntemp", POS_DEAD, do_mspellturntemp, -1, false},
+		{"mspelladd", POS_DEAD, do_mspelladd, -1, false},
+		{"mspellitem", POS_DEAD, do_mspellitem, -1, false},
+		{"mportal", POS_DEAD, do_mportal, -1, false},
+		{"\n", 0, 0, 0, 0}        // this must be last
+	};
 
-bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
-{
+bool mob_script_command_interpreter(CHAR_DATA *ch, char *argument) {
 	char *line, arg[MAX_INPUT_LENGTH];
 
 	// just drop to next line for hitting CR
@@ -1680,10 +1413,8 @@ bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
 	int cmd = 0;
 	const size_t length = strlen(arg);
 
-	while (*mob_cmd_info[cmd].command != '\n')
-	{
-		if (!strncmp(mob_cmd_info[cmd].command, arg, length))
-		{
+	while (*mob_cmd_info[cmd].command != '\n') {
+		if (!strncmp(mob_cmd_info[cmd].command, arg, length)) {
 			break;
 		}
 		cmd++;
@@ -1691,25 +1422,19 @@ bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
 
 	if (!mob_cmd_info[cmd].use_in_lag &&
 		(GET_MOB_HOLD(ch)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)))
-	{
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))) {
 		return false;
 	}
 
-	if (*mob_cmd_info[cmd].command == '\n')
-	{
+	if (*mob_cmd_info[cmd].command == '\n') {
 		return false;
-	}
-	else if (GET_POS(ch) < mob_cmd_info[cmd].minimum_position)
-	{
+	} else if (GET_POS(ch) < mob_cmd_info[cmd].minimum_position) {
 		return false;
-	}
-	else
-	{
+	} else {
 		check_hiding_cmd(ch, -1);
 
-		const mob_command_info::handler_f& command = mob_cmd_info[cmd].command_pointer;
+		const mob_command_info::handler_f &command = mob_cmd_info[cmd].command_pointer;
 		command(ch, line, cmd, mob_cmd_info[cmd].subcmd);
 
 		return true;
@@ -1717,10 +1442,8 @@ bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
 }
 
 // *  This is the command interpreter used by mob, include common interpreter's commands
-void mob_command_interpreter(CHAR_DATA* ch, char *argument)
-{
-	if (!mob_script_command_interpreter(ch, argument))
-	{
+void mob_command_interpreter(CHAR_DATA *ch, char *argument) {
+	if (!mob_script_command_interpreter(ch, argument)) {
 		command_interpreter(ch, argument);
 	}
 }

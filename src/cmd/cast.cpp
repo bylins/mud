@@ -1,16 +1,16 @@
 #include "cast.h"
 
-#include "chars/char.hpp"
-#include "obj.hpp"
-#include "room.hpp"
+#include "chars/char.h"
+#include "obj.h"
+#include "room.h"
 #include "structs.h"
 #include "comm.h"
 #include "skills.h"
-#include "spells.h"
-#include "magic.utils.hpp"
-#include "features.hpp"
-#include "classes/spell.slots.hpp"
-#include "spells.info.h"
+#include "magic/spells.h"
+#include "magic/magic_utils.h"
+#include "features.h"
+#include "classes/class_spell_slots.h"
+#include "magic/spells_info.h"
 #include "handler.h"
 #include "screen.h"
 
@@ -20,8 +20,7 @@
  * the spell can be cast, checks for sufficient mana and subtracts it, and
  * passes control to cast_spell().
  */
-void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
-{
+void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
 	ROOM_DATA *troom;
@@ -42,9 +41,10 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	};
 
 	if (!ch->affected.empty()) {
-		for (const auto& aff : ch->affected){
+		for (const auto &aff : ch->affected) {
 			if (aff->location == APPLY_PLAQUE && number(1, 100) < 10) { // лихорадка 10% фэйл закла
-				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n", ch);
+				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n",
+							 ch);
 				return;
 			}
 			if (aff->location == APPLY_MADNESS && number(1, 100) < 20) { // безумие 20% фэйл закла
@@ -83,34 +83,29 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	// Caster is lower than spell level
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
-			GET_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
-			(GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch)))
-	{
+		GET_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
+		(GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) {
 		if (GET_LEVEL(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
-				|| GET_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
-				||  PlayerClass::slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
-		{
+			|| GET_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
+			|| PlayerClass::slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+				<= 0) {
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
-		}
-		else {
+		} else {
 			send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 			return;
 		}
 	}
 
 	// Caster havn't slot
-	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch))
-	{
+	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
 		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
-				&& (spellnum == SPELL_CURE_LIGHT || spellnum == SPELL_CURE_SERIOUS
-					|| spellnum == SPELL_CURE_CRITIC || spellnum == SPELL_HEAL))
-		{
+			&& (spellnum == SPELL_CURE_LIGHT || spellnum == SPELL_CURE_SERIOUS
+				|| spellnum == SPELL_CURE_CRITIC || spellnum == SPELL_HEAL)) {
 			for (i = 1; i <= MAX_SPELLS; i++) {
 				if (GET_SPELL_MEM(ch, i) &&
-					spell_info[i].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] ==
-					spell_info[spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])
-				{
+					spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
+						spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 					spell_subst = i;
 					break;
 				}
@@ -119,8 +114,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
 			}
-		}
-		else {
+		} else {
 			send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 			return;
 		}
@@ -148,12 +142,10 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
 
-	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum))
-	{
+	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 			WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (GET_SPELL_MEM(ch, spell_subst))
-		{
+		if (GET_SPELL_MEM(ch, spell_subst)) {
 			GET_SPELL_MEM(ch, spell_subst)--;
 		}
 		if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
@@ -163,20 +155,16 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		//log("[DO_CAST->AFFECT_TOTAL] Stop");
 		if (!tch || !SendSkillMessages(0, ch, tch, spellnum))
 			send_to_char("Вы не смогли сосредоточиться!\r\n", ch);
-	}
-	else  		// cast spell returns 1 on success; subtract mana & set waitstate
+	} else        // cast spell returns 1 on success; subtract mana & set waitstate
 	{
-		if (ch->get_fighting() && !IS_IMPL(ch))
-		{
+		if (ch->get_fighting() && !IS_IMPL(ch)) {
 			ch->set_cast(spellnum, spell_subst, tch, tobj, troom);
 			sprintf(buf,
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), spell_info[spellnum].name, CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
-		}
-		else if (cast_spell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0)
-		{
+		} else if (cast_spell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
 			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 				WAIT_STATE(ch, PULSE_VIOLENCE);
 		}

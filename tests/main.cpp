@@ -1,4 +1,4 @@
-#include <config.hpp>
+#include <config.h>
 #include <class.hpp>
 
 #include <gtest/gtest.h>

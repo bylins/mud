@@ -1,39 +1,28 @@
-#include "structs.h"
-#include "chars/char.hpp"
-#include "spells.h"
-#include "utils.h"
-#include "logger.hpp"
-#include "msdp/msdp.hpp"
-#include "msdp/msdp.constants.hpp"
 
-void asciiflag_conv(const char *flag, void *to)
-{
-	int *flags = (int *)to;
+#include "chars/char.h"
+#include "logger.h"
+#include "msdp/msdp.h"
+#include "msdp/msdp_constants.h"
+
+void asciiflag_conv(const char *flag, void *to) {
+	int *flags = (int *) to;
 	unsigned int is_number = 1, block = 0, i;
 	const char *p;
 
-	for (p = flag; *p; p += i + 1)
-	{
+	for (p = flag; *p; p += i + 1) {
 		i = 0;
-		if (islower(*p))
-		{
-			if (*(p + 1) >= '0' && *(p + 1) <= '9')
-			{
-				block = (int)* (p + 1) - '0';
+		if (islower(*p)) {
+			if (*(p + 1) >= '0' && *(p + 1) <= '9') {
+				block = (int) *(p + 1) - '0';
 				i = 1;
-			}
-			else
+			} else
 				block = 0;
 			*(flags + block) |= (0x3FFFFFFF & (1 << (*p - 'a')));
-		}
-		else if (isupper(*p))
-		{
-			if (*(p + 1) >= '0' && *(p + 1) <= '9')
-			{
-				block = (int)* (p + 1) - '0';
+		} else if (isupper(*p)) {
+			if (*(p + 1) >= '0' && *(p + 1) <= '9') {
+				block = (int) *(p + 1) - '0';
 				i = 1;
-			}
-			else
+			} else
 				block = 0;
 			*(flags + block) |= (0x3FFFFFFF & (1 << (26 + (*p - 'A'))));
 		}
@@ -41,88 +30,62 @@ void asciiflag_conv(const char *flag, void *to)
 			is_number = 0;
 	}
 
-	if (is_number)
-	{
+	if (is_number) {
 		is_number = atol(flag);
 		block = is_number < INT_ONE ? 0 : is_number < INT_TWO ? 1 : is_number < INT_THREE ? 2 : 3;
 		*(flags + block) = is_number & 0x3FFFFFFF;
 	}
 }
 
-int ext_search_block(const char *arg, const char * const * const list, int exact)
-{
+int ext_search_block(const char *arg, const char *const *const list, int exact) {
 	unsigned int i, j, o;
 
-	if (exact)
-	{
-		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш
+	if (exact) {
+		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)    // shapirus: попытка в лоб убрать креш
 		{
-			if (**(list + i) == '\n')
-			{
+			if (**(list + i) == '\n') {
 				o = 1;
-				switch (j)
-				{
-				case 0:
-					j = INT_ONE;
-					break;
+				switch (j) {
+					case 0: j = INT_ONE;
+						break;
 
-				case INT_ONE:
-					j = INT_TWO;
-					break;
+					case INT_ONE: j = INT_TWO;
+						break;
 
-				case INT_TWO:
-					j = INT_THREE;
-					break;
+					case INT_TWO: j = INT_THREE;
+						break;
 
-				default:
-					j = 1;
-					break;
+					default: j = 1;
+						break;
 				}
-			}
-			else if (!str_cmp(arg, *(list + i)))
-			{
+			} else if (!str_cmp(arg, *(list + i))) {
 				return j | o;
-			}
-			else
-			{
+			} else {
 				o <<= 1;
 			}
 		}
-	}
-	else
-	{
+	} else {
 		size_t l = strlen(arg);
-		if (!l)
-		{
-			l = 1;	// Avoid "" to match the first available string
+		if (!l) {
+			l = 1;    // Avoid "" to match the first available string
 		}
-		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш
+		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)    // shapirus: попытка в лоб убрать креш
 		{
-			if (**(list + i) == '\n')
-			{
+			if (**(list + i) == '\n') {
 				o = 1;
-				switch (j)
-				{
-				case 0:
-					j = INT_ONE;
-					break;
-				case INT_ONE:
-					j = INT_TWO;
-					break;
-				case INT_TWO:
-					j = INT_THREE;
-					break;
-				default:
-					j = 1;
-					break;
+				switch (j) {
+					case 0: j = INT_ONE;
+						break;
+					case INT_ONE: j = INT_TWO;
+						break;
+					case INT_TWO: j = INT_THREE;
+						break;
+					default: j = 1;
+						break;
 				}
-			}
-			else if (!strn_cmp(arg, *(list + i), l))
-			{
+			} else if (!strn_cmp(arg, *(list + i), l)) {
 				return j | o;
-			}
-			else
-			{
+			} else {
 				o <<= 1;
 			}
 		}
@@ -131,59 +94,46 @@ int ext_search_block(const char *arg, const char * const * const list, int exact
 	return 0;
 }
 
-void FLAG_DATA::from_string(const char *flag)
-{
+void FLAG_DATA::from_string(const char *flag) {
 	uint32_t is_number = 1;
 	int i;
 
-	for (const char* p = flag; *p; p += i + 1)
-	{
+	for (const char *p = flag; *p; p += i + 1) {
 		i = 0;
-		if (islower(*p))
-		{
+		if (islower(*p)) {
 			size_t block = 0;
-			if (*(p + 1) >= '0' && *(p + 1) <= '9')
-			{
-				block = (int)* (p + 1) - '0';
+			if (*(p + 1) >= '0' && *(p + 1) <= '9') {
+				block = (int) *(p + 1) - '0';
 				i = 1;
 			}
 			m_flags[block] |= (0x3FFFFFFF & (1 << (*p - 'a')));
-		}
-		else if (isupper(*p))
-		{
+		} else if (isupper(*p)) {
 			size_t block = 0;
-			if (*(p + 1) >= '0' && *(p + 1) <= '9')
-			{
-				block = (int)* (p + 1) - '0';
+			if (*(p + 1) >= '0' && *(p + 1) <= '9') {
+				block = (int) *(p + 1) - '0';
 				i = 1;
 			}
 			m_flags[block] |= (0x3FFFFFFF & (1 << (26 + (*p - 'A'))));
 		}
 
-		if (!isdigit(*p))
-		{
+		if (!isdigit(*p)) {
 			is_number = 0;
 		}
 	}
 
-	if (is_number)
-	{
+	if (is_number) {
 		is_number = atol(flag);
 		const size_t block = is_number >> 30;
 		m_flags[block] = is_number & 0x3FFFFFFF;
 	}
 }
 
-void FLAG_DATA::tascii(int num_planes, char* ascii) const
-{
+void FLAG_DATA::tascii(int num_planes, char *ascii) const {
 	bool found = false;
 
-	for (int i = 0; i < num_planes; i++)
-	{
-		for (int c = 0; c < 30; c++)
-		{
-			if (m_flags[i] & (1 << c))
-			{
+	for (int i = 0; i < num_planes; i++) {
+		for (int c = 0; c < 30; c++) {
+			if (m_flags[i] & (1 << c)) {
 				found = true;
 				sprintf(ascii + strlen(ascii), "%c%d", c < 26 ? c + 'a' : c - 26 + 'A', i);
 			}
@@ -193,16 +143,12 @@ void FLAG_DATA::tascii(int num_planes, char* ascii) const
 	strcat(ascii, found ? " " : "0 ");
 }
 
-void tascii(const uint32_t* pointer, int num_planes, char* ascii)
-{
+void tascii(const uint32_t *pointer, int num_planes, char *ascii) {
 	bool found = false;
 
-	for (int i = 0; i < num_planes; i++)
-	{
-		for (int c = 0; c < 30; c++)
-		{
-			if (pointer[i] & (1 << c))
-			{
+	for (int i = 0; i < num_planes; i++) {
+		for (int c = 0; c < 30; c++) {
+			if (pointer[i] & (1 << c)) {
 				found = true;
 				sprintf(ascii + strlen(ascii), "%c%d", c < 26 ? c + 'a' : c - 26 + 'A', i);
 			}
@@ -212,10 +158,9 @@ void tascii(const uint32_t* pointer, int num_planes, char* ascii)
 	strcat(ascii, found ? " " : "0 ");
 }
 
-const char* nothing_string = "ничего";
+const char *nothing_string = "ничего";
 
-bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
-{
+bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag) {
 
 	long nr = 0;
 	int fail = 0;
@@ -226,10 +171,8 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 
 	fail = bitvector >> 30;
 	bitvector &= 0x3FFFFFFF;
-	while (fail)
-	{
-		if (*names[nr] == '\n')
-		{
+	while (fail) {
+		if (*names[nr] == '\n') {
 			fail--;
 			plane++;
 		}
@@ -237,58 +180,44 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 	}
 
 	bool can_show = true;
-	for (; bitvector; bitvector >>= 1)
-	{
-		if (IS_SET(bitvector, 1))
-		{
-			can_show = ((*names[nr]!='*') || (print_flag&4));
+	for (; bitvector; bitvector >>= 1) {
+		if (IS_SET(bitvector, 1)) {
+			can_show = ((*names[nr] != '*') || (print_flag & 4));
 
 			if (*result != '\0' && can_show)
-				strcat(result,div);
+				strcat(result, div);
 
-			if (*names[nr] != '\n')
-			{
-				if (print_flag & 1)
-				{
+			if (*names[nr] != '\n') {
+				if (print_flag & 1) {
 					sprintf(result + strlen(result), "%c%d:", c, plane);
 				}
-				if ((print_flag & 2) && (!strcmp(names[nr], "UNUSED")))
-				{
+				if ((print_flag & 2) && (!strcmp(names[nr], "UNUSED"))) {
 					sprintf(result + strlen(result), "%ld:", nr + 1);
 				}
 				if (can_show)
-					strcat(result, (*names[nr]!='*'?names[nr]:names[nr]+1));
-			}
-			else
-			{
-				if (print_flag & 2)
-				{
+					strcat(result, (*names[nr] != '*' ? names[nr] : names[nr] + 1));
+			} else {
+				if (print_flag & 2) {
 					sprintf(result + strlen(result), "%ld:", nr + 1);
-				}
-				else if (print_flag & 1)
-				{
+				} else if (print_flag & 1) {
 					sprintf(result + strlen(result), "%c%d:", c, plane);
 				}
 				strcat(result, "UNDEF");
 			}
 		}
 
-		if (print_flag & 1)
-		{
+		if (print_flag & 1) {
 			c++;
-			if (c > 'z')
-			{
+			if (c > 'z') {
 				c = 'A';
 			}
 		}
-		if (*names[nr] != '\n')
-		{
+		if (*names[nr] != '\n') {
 			nr++;
 		}
 	}
 
-	if ('\0' == *result)
-	{
+	if ('\0' == *result) {
 		strcat(result, nothing_string);
 		return false;
 	}
@@ -296,17 +225,15 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 	return true;
 }
 
-bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, const int print_flag) const
-{
+bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, const int print_flag) const {
 	bool have_flags = false;
 	char buffer[MAX_STRING_LENGTH];
 	*result = '\0';
 
-	for (int i = 0; i < 4; i++)
-	{
-		if (sprintbitwd(m_flags[i] | (i << 30), names, buffer, div, print_flag))
-		{
-			if ('\0' != *result)	// We don't need to calculate length of result. We just want to know if it is not empty.
+	for (int i = 0; i < 4; i++) {
+		if (sprintbitwd(m_flags[i] | (i << 30), names, buffer, div, print_flag)) {
+			if ('\0'
+				!= *result)    // We don't need to calculate length of result. We just want to know if it is not empty.
 			{
 				strcat(result, div);
 			}
@@ -315,52 +242,41 @@ bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, c
 		}
 	}
 
-	if ('\0' == *result)
-	{
+	if ('\0' == *result) {
 		strcat(result, nothing_string);
 	}
 
 	return have_flags;
 }
 
-void FLAG_DATA::gm_flag(const char *subfield, const char * const * const list, char *res)
-{
+void FLAG_DATA::gm_flag(const char *subfield, const char *const *const list, char *res) {
 	strcpy(res, "0");
 
-	if ('\0' == *subfield)
-	{
+	if ('\0' == *subfield) {
 		return;
 	}
 
-	if (*subfield == '-')
-	{
+	if (*subfield == '-') {
 		const int flag = ext_search_block(subfield + 1, list, FALSE);
-		if (flag)
-		{
+		if (flag) {
 			unset(flag);
-			if (plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
+			if (plane_not_empty(flag))    // looks like an error: we should check flag, but not whole plane
 			{
 				strcpy(res, "1");
 			}
 		}
-	}
-	else if (*subfield == '+')
-	{
+	} else if (*subfield == '+') {
 		const int flag = ext_search_block(subfield + 1, list, FALSE);
-		if (flag)
-		{
+		if (flag) {
 			set(flag);
-			if (plane_not_empty(flag))	// looks like an error: we should check flag, but not whole plane
+			if (plane_not_empty(flag))    // looks like an error: we should check flag, but not whole plane
 			{
 				strcpy(res, "1");
 			}
 		}
-	}
-	else
-	{
+	} else {
 		const int flag = ext_search_block(subfield, list, FALSE);
-		if (flag && get(flag))
-		{
+		if (flag && get(flag)) {
 			strcpy(res, "1");
 		}
 	}
@@ -369,37 +285,37 @@ void FLAG_DATA::gm_flag(const char *subfield, const char * const * const list, c
 }
 
 const religion_names_t religion_name =
-{
-	religion_genders_t{ "Язычник", "Язычник", "Язычница", "Язычники" },
-	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" },
-	religion_genders_t{ "", "", "", "" }		// for undefined religion
-};
+	{
+		religion_genders_t{"Язычник", "Язычник", "Язычница", "Язычники"},
+		religion_genders_t{"Христианин", "Христианин", "Христианка", "Христиане"},
+		religion_genders_t{"", "", "", ""}        // for undefined religion
+	};
 
 std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE = {
-	{ SECT_INSIDE, "inside" },
-	{ SECT_CITY, "city" },
-	{ SECT_FIELD, "field" },
-	{ SECT_FOREST, "forest" },
-	{ SECT_HILLS, "hills" },
-	{ SECT_MOUNTAIN, "mountain" },
-	{ SECT_WATER_SWIM, "swim water" },
-	{ SECT_WATER_NOSWIM, "no swim water" },
-	{ SECT_FLYING, "flying" },
-	{ SECT_UNDERWATER, "underwater" },
-	{ SECT_SECRET, "secret" },
-	{ SECT_STONEROAD, "stone road" },
-	{ SECT_ROAD, "road" },
-	{ SECT_WILDROAD, "wild road" },
-	{ SECT_FIELD_SNOW, "snow field" },
-	{ SECT_FIELD_RAIN, "rain field" },
-	{ SECT_FOREST_SNOW, "snow forest" },
-	{ SECT_FOREST_RAIN, "rain forest" },
-	{ SECT_HILLS_SNOW, "snow hills" },
-	{ SECT_HILLS_RAIN, "rain hills" },
-	{ SECT_MOUNTAIN_SNOW, "snow mountain" },
-	{ SECT_THIN_ICE, "thin ice" },
-	{ SECT_NORMAL_ICE, "normal ice" },
-	{ SECT_THICK_ICE, "thick ice" }
+	{SECT_INSIDE, "inside"},
+	{SECT_CITY, "city"},
+	{SECT_FIELD, "field"},
+	{SECT_FOREST, "forest"},
+	{SECT_HILLS, "hills"},
+	{SECT_MOUNTAIN, "mountain"},
+	{SECT_WATER_SWIM, "swim water"},
+	{SECT_WATER_NOSWIM, "no swim water"},
+	{SECT_FLYING, "flying"},
+	{SECT_UNDERWATER, "underwater"},
+	{SECT_SECRET, "secret"},
+	{SECT_STONEROAD, "stone road"},
+	{SECT_ROAD, "road"},
+	{SECT_WILDROAD, "wild road"},
+	{SECT_FIELD_SNOW, "snow field"},
+	{SECT_FIELD_RAIN, "rain field"},
+	{SECT_FOREST_SNOW, "snow forest"},
+	{SECT_FOREST_RAIN, "rain forest"},
+	{SECT_HILLS_SNOW, "snow hills"},
+	{SECT_HILLS_RAIN, "rain hills"},
+	{SECT_MOUNTAIN_SNOW, "snow mountain"},
+	{SECT_THIN_ICE, "thin ice"},
+	{SECT_NORMAL_ICE, "normal ice"},
+	{SECT_THICK_ICE, "thick ice"}
 };
 
 typedef std::map<ESex, std::string> ESex_name_by_value_t;
@@ -407,8 +323,7 @@ typedef std::map<const std::string, ESex> ESex_value_by_name_t;
 ESex_name_by_value_t ESex_name_by_value;
 ESex_value_by_name_t ESex_value_by_name;
 
-void init_ESex_ITEM_NAMES()
-{
+void init_ESex_ITEM_NAMES() {
 	ESex_name_by_value.clear();
 	ESex_value_by_name.clear();
 
@@ -417,27 +332,22 @@ void init_ESex_ITEM_NAMES()
 	ESex_name_by_value[ESex::SEX_FEMALE] = "FEMALE";
 	ESex_name_by_value[ESex::SEX_POLY] = "POLY";
 
-	for (const auto& i : ESex_name_by_value)
-	{
+	for (const auto &i : ESex_name_by_value) {
 		ESex_value_by_name[i.second] = i.first;
 	}
 }
 
-template <>
-ESex ITEM_BY_NAME(const std::string& name)
-{
-	if (ESex_name_by_value.empty())
-	{
+template<>
+ESex ITEM_BY_NAME(const std::string &name) {
+	if (ESex_name_by_value.empty()) {
 		init_ESex_ITEM_NAMES();
 	}
 	return ESex_value_by_name.at(name);
 }
 
-template <>
-const std::string& NAME_BY_ITEM(const ESex item)
-{
-	if (ESex_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM(const ESex item) {
+	if (ESex_name_by_value.empty()) {
 		init_ESex_ITEM_NAMES();
 	}
 	return ESex_name_by_value.at(item);
@@ -448,8 +358,7 @@ typedef std::map<const std::string, EWeaponAffectFlag> EWeaponAffectFlag_value_b
 EWeaponAffectFlag_name_by_value_t EWeaponAffectFlag_name_by_value;
 EWeaponAffectFlag_value_by_name_t EWeaponAffectFlag_value_by_name;
 
-void init_EWeaponAffectFlag_ITEM_NAMES()
-{
+void init_EWeaponAffectFlag_ITEM_NAMES() {
 	EWeaponAffectFlag_name_by_value.clear();
 	EWeaponAffectFlag_value_by_name.clear();
 
@@ -499,27 +408,22 @@ void init_EWeaponAffectFlag_ITEM_NAMES()
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DEAFNESS] = "WAFF_DEAFNESS";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_COMMANDER] = "WAFF_COMMANDER";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_EARTHAURA] = "WAFF_EARTHAURA";
-	for (const auto& i : EWeaponAffectFlag_name_by_value)
-	{
+	for (const auto &i : EWeaponAffectFlag_name_by_value) {
 		EWeaponAffectFlag_value_by_name[i.second] = i.first;
 	}
 }
 
-template <>
-EWeaponAffectFlag ITEM_BY_NAME(const std::string& name)
-{
-	if (EWeaponAffectFlag_name_by_value.empty())
-	{
+template<>
+EWeaponAffectFlag ITEM_BY_NAME(const std::string &name) {
+	if (EWeaponAffectFlag_name_by_value.empty()) {
 		init_EWeaponAffectFlag_ITEM_NAMES();
 	}
 	return EWeaponAffectFlag_value_by_name.at(name);
 }
 
-template <>
-const std::string& NAME_BY_ITEM(const EWeaponAffectFlag item)
-{
-	if (EWeaponAffectFlag_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM(const EWeaponAffectFlag item) {
+	if (EWeaponAffectFlag_name_by_value.empty()) {
 		init_EWeaponAffectFlag_ITEM_NAMES();
 	}
 	return EWeaponAffectFlag_name_by_value.at(item);
@@ -530,8 +434,7 @@ typedef std::map<const std::string, EWearFlag> EWearFlag_value_by_name_t;
 EWearFlag_name_by_value_t EWearFlag_name_by_value;
 EWearFlag_value_by_name_t EWearFlag_value_by_name;
 
-void init_EWearFlag_ITEM_NAMES()
-{
+void init_EWearFlag_ITEM_NAMES() {
 	EWearFlag_name_by_value.clear();
 	EWearFlag_value_by_name.clear();
 
@@ -553,25 +456,22 @@ void init_EWearFlag_ITEM_NAMES()
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BOTHS] = "ITEM_WEAR_BOTHS";
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_QUIVER] = "ITEM_WEAR_QUIVER";
 
-	for (const auto& i : EWearFlag_name_by_value)
-	{
+	for (const auto &i : EWearFlag_name_by_value) {
 		EWearFlag_value_by_name[i.second] = i.first;
 	}
 }
 
-template <> const std::string& NAME_BY_ITEM<EWearFlag>(const EWearFlag item)
-{
-	if (EWearFlag_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM<EWearFlag>(const EWearFlag item) {
+	if (EWearFlag_name_by_value.empty()) {
 		init_EWearFlag_ITEM_NAMES();
 	}
 	return EWearFlag_name_by_value.at(item);
 }
 
-template <> EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string& name)
-{
-	if (EWearFlag_name_by_value.empty())
-	{
+template<>
+EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string &name) {
+	if (EWearFlag_name_by_value.empty()) {
 		init_EWearFlag_ITEM_NAMES();
 	}
 	return EWearFlag_value_by_name.at(name);
@@ -582,8 +482,7 @@ typedef std::map<const std::string, EExtraFlag> EExtraFlag_value_by_name_t;
 EExtraFlag_name_by_value_t EExtraFlag_name_by_value;
 EExtraFlag_value_by_name_t EExtraFlag_value_by_name;
 
-void init_EExtraFlag_ITEM_NAMES()
-{
+void init_EExtraFlag_ITEM_NAMES() {
 	EExtraFlag_name_by_value.clear();
 	EExtraFlag_value_by_name.clear();
 
@@ -638,38 +537,32 @@ void init_EExtraFlag_ITEM_NAMES()
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE] = "ITEM_UNIQUE_WHEN_PURCHASE";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_ONE_CLANCHEST] = "ITEM_NOT_ONE_CLANCHEST";
 
-	for (const auto& i : EExtraFlag_name_by_value)
-	{
+	for (const auto &i : EExtraFlag_name_by_value) {
 		EExtraFlag_value_by_name[i.second] = i.first;
 	}
 }
 
-template <>
-const std::string& NAME_BY_ITEM(const EExtraFlag item)
-{
-	if (EExtraFlag_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM(const EExtraFlag item) {
+	if (EExtraFlag_name_by_value.empty()) {
 		init_EExtraFlag_ITEM_NAMES();
 	}
 	return EExtraFlag_name_by_value.at(item);
 }
 
-template <>
-EExtraFlag ITEM_BY_NAME(const std::string& name)
-{
-    if (EExtraFlag_name_by_value.empty())
-    {
-        init_EExtraFlag_ITEM_NAMES();
-    }
-    return EExtraFlag_value_by_name.at(name);
+template<>
+EExtraFlag ITEM_BY_NAME(const std::string &name) {
+	if (EExtraFlag_name_by_value.empty()) {
+		init_EExtraFlag_ITEM_NAMES();
+	}
+	return EExtraFlag_value_by_name.at(name);
 }
 
 typedef std::map<EAffectFlag, std::string> EAffectFlag_name_by_value_t;
 typedef std::map<const std::string, EAffectFlag> EAffectFlag_value_by_name_t;
 EAffectFlag_name_by_value_t EAffectFlag_name_by_value;
 EAffectFlag_value_by_name_t EAffectFlag_value_by_name;
-void init_EAffectFlag_ITEM_NAMES()
-{
+void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_value_by_name.clear();
 	EAffectFlag_name_by_value.clear();
 
@@ -753,31 +646,26 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_STRANGLED] = "AFF_STRANGLED";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_RECALL_SPELLS] = "AFF_RECALL_SPELLS";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_NOOB_REGEN] = "AFF_NOOB_REGEN";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE]   = "AFF_VAMPIRE";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE] = "AFF_VAMPIRE";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_COMMANDER] = "AFF_COMMANDER";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EARTHAURA] = "AFF_EARTHAURA";
-	for (const auto& i : EAffectFlag_name_by_value)
-	{
+	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
 }
 
-template <>
-const std::string& NAME_BY_ITEM(const EAffectFlag item)
-{
-	if (EAffectFlag_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM(const EAffectFlag item) {
+	if (EAffectFlag_name_by_value.empty()) {
 		init_EAffectFlag_ITEM_NAMES();
 	}
 	return EAffectFlag_name_by_value.at(item);
 }
 
-template <>
-EAffectFlag ITEM_BY_NAME(const std::string& name)
-{
-	if (EAffectFlag_name_by_value.empty())
-	{
+template<>
+EAffectFlag ITEM_BY_NAME(const std::string &name) {
+	if (EAffectFlag_name_by_value.empty()) {
 		init_EAffectFlag_ITEM_NAMES();
 	}
 	return EAffectFlag_value_by_name.at(name);
@@ -787,8 +675,7 @@ typedef std::map<ENoFlag, std::string> ENoFlag_name_by_value_t;
 typedef std::map<const std::string, ENoFlag> ENoFlag_value_by_name_t;
 ENoFlag_name_by_value_t ENoFlag_name_by_value;
 ENoFlag_value_by_name_t ENoFlag_value_by_name;
-void init_ENoFlag_ITEM_NAMES()
-{
+void init_ENoFlag_ITEM_NAMES() {
 	ENoFlag_value_by_name.clear();
 	ENoFlag_name_by_value.clear();
 
@@ -832,25 +719,22 @@ void init_ENoFlag_ITEM_NAMES()
 	ENoFlag_name_by_value[ENoFlag::ITEM_NO_STEPNYAKI] = "ITEM_NO_STEPNYAKI";
 	ENoFlag_name_by_value[ENoFlag::ITEM_NO_VIKINGI] = "ITEM_NO_VIKINGI";
 
-	for (const auto& i : ENoFlag_name_by_value)
-	{
+	for (const auto &i : ENoFlag_name_by_value) {
 		ENoFlag_value_by_name[i.second] = i.first;
 	}
 }
 
-template <> const std::string& NAME_BY_ITEM<ENoFlag>(const ENoFlag item)
-{
-	if (ENoFlag_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM<ENoFlag>(const ENoFlag item) {
+	if (ENoFlag_name_by_value.empty()) {
 		init_ENoFlag_ITEM_NAMES();
 	}
 	return ENoFlag_name_by_value.at(item);
 }
 
-template <> ENoFlag ITEM_BY_NAME<ENoFlag>(const std::string& name)
-{
-	if (ENoFlag_name_by_value.empty())
-	{
+template<>
+ENoFlag ITEM_BY_NAME<ENoFlag>(const std::string &name) {
+	if (ENoFlag_name_by_value.empty()) {
 		init_ENoFlag_ITEM_NAMES();
 	}
 	return ENoFlag_value_by_name.at(name);
@@ -860,81 +744,75 @@ typedef std::map<EAntiFlag, std::string> EAntiFlag_name_by_value_t;
 typedef std::map<const std::string, EAntiFlag> EAntiFlag_value_by_name_t;
 EAntiFlag_name_by_value_t EAntiFlag_name_by_value;
 EAntiFlag_value_by_name_t EAntiFlag_value_by_name;
-void init_EAntiFlag_ITEM_NAMES()
-{
-    EAntiFlag_value_by_name.clear();
-    EAntiFlag_name_by_value.clear();
+void init_EAntiFlag_ITEM_NAMES() {
+	EAntiFlag_value_by_name.clear();
+	EAntiFlag_name_by_value.clear();
 
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MONO] = "ITEM_AN_MONO";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLY] = "ITEM_AN_POLY";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NEUTRAL] = "ITEM_AN_NEUTRAL";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MAGIC_USER] = "ITEM_AN_MAGIC_USER";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CLERIC] = "ITEM_AN_CLERIC";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_THIEF] = "ITEM_AN_THIEF";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_WARRIOR] = "ITEM_AN_WARRIOR";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_ASSASINE] = "ITEM_AN_ASSASINE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_GUARD] = "ITEM_AN_GUARD";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_PALADINE] = "ITEM_AN_PALADINE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_RANGER] = "ITEM_AN_RANGER";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SMITH] = "ITEM_AN_SMITH";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MERCHANT] = "ITEM_AN_MERCHANT";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DRUID] = "ITEM_AN_DRUID";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_BATTLEMAGE] = "ITEM_AN_BATTLEMAGE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CHARMMAGE] = "ITEM_AN_CHARMMAGE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DEFENDERMAGE] = "ITEM_AN_DEFENDERMAGE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NECROMANCER] = "ITEM_AN_NECROMANCER";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KILLER] = "ITEM_AN_KILLER";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_COLORED] = "ITEM_AN_COLORED";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_BD] = "ITEM_AN_BD";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SEVERANE] = "ITEM_AN_SEVERANE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLANE] = "ITEM_AN_POLANE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KRIVICHI] = "ITEM_AN_KRIVICHI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VATICHI] = "ITEM_AN_VATICHI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VELANE] = "ITEM_AN_VELANE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DREVLANE] = "ITEM_AN_DREVLANE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MALE] = "ITEM_AN_MALE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_FEMALE] = "ITEM_AN_FEMALE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CHARMICE] = "ITEM_AN_CHARMICE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLOVCI] = "ITEM_AN_POLOVCI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_PECHENEGI] = "ITEM_AN_PECHENEGI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MONGOLI] = "ITEM_AN_MONGOLI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_YIGURI] = "ITEM_AN_YIGURI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KANGARI] = "ITEM_AN_KANGARI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_XAZARI] = "ITEM_AN_XAZARI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SVEI] = "ITEM_AN_SVEI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DATCHANE] = "ITEM_AN_DATCHANE";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_GETTI] = "ITEM_AN_GETTI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_UTTI] = "ITEM_AN_UTTI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_XALEIGI] = "ITEM_AN_XALEIGI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NORVEZCI] = "ITEM_AN_NORVEZCI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_RUSICHI] = "ITEM_AN_RUSICHI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_STEPNYAKI] = "ITEM_AN_STEPNYAKI";
-    EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VIKINGI] = "ITEM_AN_VIKINGI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MONO] = "ITEM_AN_MONO";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLY] = "ITEM_AN_POLY";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NEUTRAL] = "ITEM_AN_NEUTRAL";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MAGIC_USER] = "ITEM_AN_MAGIC_USER";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CLERIC] = "ITEM_AN_CLERIC";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_THIEF] = "ITEM_AN_THIEF";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_WARRIOR] = "ITEM_AN_WARRIOR";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_ASSASINE] = "ITEM_AN_ASSASINE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_GUARD] = "ITEM_AN_GUARD";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_PALADINE] = "ITEM_AN_PALADINE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_RANGER] = "ITEM_AN_RANGER";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SMITH] = "ITEM_AN_SMITH";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MERCHANT] = "ITEM_AN_MERCHANT";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DRUID] = "ITEM_AN_DRUID";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_BATTLEMAGE] = "ITEM_AN_BATTLEMAGE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CHARMMAGE] = "ITEM_AN_CHARMMAGE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DEFENDERMAGE] = "ITEM_AN_DEFENDERMAGE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NECROMANCER] = "ITEM_AN_NECROMANCER";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KILLER] = "ITEM_AN_KILLER";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_COLORED] = "ITEM_AN_COLORED";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_BD] = "ITEM_AN_BD";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SEVERANE] = "ITEM_AN_SEVERANE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLANE] = "ITEM_AN_POLANE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KRIVICHI] = "ITEM_AN_KRIVICHI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VATICHI] = "ITEM_AN_VATICHI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VELANE] = "ITEM_AN_VELANE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DREVLANE] = "ITEM_AN_DREVLANE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MALE] = "ITEM_AN_MALE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_FEMALE] = "ITEM_AN_FEMALE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_CHARMICE] = "ITEM_AN_CHARMICE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_POLOVCI] = "ITEM_AN_POLOVCI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_PECHENEGI] = "ITEM_AN_PECHENEGI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_MONGOLI] = "ITEM_AN_MONGOLI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_YIGURI] = "ITEM_AN_YIGURI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_KANGARI] = "ITEM_AN_KANGARI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_XAZARI] = "ITEM_AN_XAZARI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_SVEI] = "ITEM_AN_SVEI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_DATCHANE] = "ITEM_AN_DATCHANE";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_GETTI] = "ITEM_AN_GETTI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_UTTI] = "ITEM_AN_UTTI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_XALEIGI] = "ITEM_AN_XALEIGI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_NORVEZCI] = "ITEM_AN_NORVEZCI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_RUSICHI] = "ITEM_AN_RUSICHI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_STEPNYAKI] = "ITEM_AN_STEPNYAKI";
+	EAntiFlag_name_by_value[EAntiFlag::ITEM_AN_VIKINGI] = "ITEM_AN_VIKINGI";
 
-    for (const auto& i : EAntiFlag_name_by_value)
-    {
-        EAntiFlag_value_by_name[i.second] = i.first;
-    }
+	for (const auto &i : EAntiFlag_name_by_value) {
+		EAntiFlag_value_by_name[i.second] = i.first;
+	}
 }
 
-template <>
-const std::string& NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item)
-{
-    if (EAntiFlag_name_by_value.empty())
-    {
-        init_EAntiFlag_ITEM_NAMES();
-    }
-    return EAntiFlag_name_by_value.at(item);
+template<>
+const std::string &NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item) {
+	if (EAntiFlag_name_by_value.empty()) {
+		init_EAntiFlag_ITEM_NAMES();
+	}
+	return EAntiFlag_name_by_value.at(item);
 }
 
-template <>
-EAntiFlag ITEM_BY_NAME(const std::string& name)
-{
-    if (EAntiFlag_name_by_value.empty())
-    {
-        init_EAntiFlag_ITEM_NAMES();
-    }
-    return EAntiFlag_value_by_name.at(name);
+template<>
+EAntiFlag ITEM_BY_NAME(const std::string &name) {
+	if (EAntiFlag_name_by_value.empty()) {
+		init_EAntiFlag_ITEM_NAMES();
+	}
+	return EAntiFlag_value_by_name.at(name);
 }
 
 typedef std::map<EApplyLocation, std::string> EApplyLocation_name_by_value_t;
@@ -1016,245 +894,207 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_DAM] = "APPLY_PERCENT_DAM";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_SPELL_BLINK] = "APPLY_SPELL_BLINK";
 	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
-	for (const auto& i : EApplyLocation_name_by_value) {
+	for (const auto &i : EApplyLocation_name_by_value) {
 		EApplyLocation_value_by_name[i.second] = i.first;
 	}
 }
 
-template <>
-EApplyLocation ITEM_BY_NAME(const std::string& name)
-{
-	if (EApplyLocation_name_by_value.empty())
-	{
+template<>
+EApplyLocation ITEM_BY_NAME(const std::string &name) {
+	if (EApplyLocation_name_by_value.empty()) {
 		init_EApplyLocation_ITEM_NAMES();
 	}
 	return EApplyLocation_value_by_name.at(name);
 }
 
-template <>
-const std::string& NAME_BY_ITEM(const EApplyLocation item)
-{
-	if (EApplyLocation_name_by_value.empty())
-	{
+template<>
+const std::string &NAME_BY_ITEM(const EApplyLocation item) {
+	if (EApplyLocation_name_by_value.empty()) {
 		init_EApplyLocation_ITEM_NAMES();
 	}
 	return EApplyLocation_name_by_value.at(item);
 }
 
-void DelegatedStringWriter::set_string(const char* string)
-{
+void DelegatedStringWriter::set_string(const char *string) {
 	const size_t l = strlen(string);
-	if (nullptr == m_delegated_string)
-	{
+	if (nullptr == m_delegated_string) {
 		CREATE(m_delegated_string, l + 1);
-	}
-	else
-	{
+	} else {
 		RECREATE(m_delegated_string, l + 1);
 	}
 	strcpy(m_delegated_string, string);
 }
 
-void DelegatedStringWriter::append_string(const char* string)
-{
+void DelegatedStringWriter::append_string(const char *string) {
 	const size_t l = length() + strlen(string);
-	if (nullptr == m_delegated_string)
-	{
+	if (nullptr == m_delegated_string) {
 		CREATE(m_delegated_string, l + 1);
 		*m_delegated_string = '\0';
-	}
-	else
-	{
+	} else {
 		RECREATE(m_delegated_string, l + 1);
 	}
 	strcat(m_delegated_string, string);
 }
 
-void DelegatedStringWriter::clear()
-{
-	if (m_delegated_string)
-	{
+void DelegatedStringWriter::clear() {
+	if (m_delegated_string) {
 		free(m_delegated_string);
 	}
 	m_delegated_string = nullptr;
 }
 
 DESCRIPTOR_DATA::DESCRIPTOR_DATA() : bad_pws(0),
-	idle_tics(0),
-	connected(0),
-	desc_num(0),
-	input_time(0),
-	login_time(0),
-	showstr_head(0),
-	showstr_vector(0),
-	showstr_count(0),
-	showstr_page(0),
-	max_str(0),
-	backstr(0),
-	mail_to(0),
-	has_prompt(0),
-	output(0),
-	history(0),
-	history_pos(0),
-	bufptr(0),
-	bufspace(0),
-	large_outbuf(0),
-	character(0),
-	original(0),
-	snooping(0),
-	snoop_by(0),
-	next(0),
-	olc(0),
-	keytable(0),
-	options(0),
-	deflate(nullptr),
-	mccp_version(0),
-	ip(0),
-	registered_email(0),
-	pers_log(0),
-	cur_vnum(0),
-	old_vnum(0),
-	snoop_with_map(0),
-	m_msdp_support(false),
-	m_msdp_last_max_hit(0),
-	m_msdp_last_max_move(0)
-{
+									 idle_tics(0),
+									 connected(0),
+									 desc_num(0),
+									 input_time(0),
+									 login_time(0),
+									 showstr_head(0),
+									 showstr_vector(0),
+									 showstr_count(0),
+									 showstr_page(0),
+									 max_str(0),
+									 backstr(0),
+									 mail_to(0),
+									 has_prompt(0),
+									 output(0),
+									 history(0),
+									 history_pos(0),
+									 bufptr(0),
+									 bufspace(0),
+									 large_outbuf(0),
+									 character(0),
+									 original(0),
+									 snooping(0),
+									 snoop_by(0),
+									 next(0),
+									 olc(0),
+									 keytable(0),
+									 options(0),
+									 deflate(nullptr),
+									 mccp_version(0),
+									 ip(0),
+									 registered_email(0),
+									 pers_log(0),
+									 cur_vnum(0),
+									 old_vnum(0),
+									 snoop_with_map(0),
+									 m_msdp_support(false),
+									 m_msdp_last_max_hit(0),
+									 m_msdp_last_max_move(0) {
 	host[0] = 0;
 	inbuf[0] = 0;
 	last_input[0] = 0;
 	small_outbuf[0] = 0;
 }
 
-void DESCRIPTOR_DATA::msdp_support(bool on)
-{
+void DESCRIPTOR_DATA::msdp_support(bool on) {
 	log("INFO: MSDP support enabled for client %s.\n", host);
 	m_msdp_support = on;
 }
 
-void DESCRIPTOR_DATA::msdp_report(const std::string& name)
-{
-	if (m_msdp_support && msdp_need_report(name))
-	{
+void DESCRIPTOR_DATA::msdp_report(const std::string &name) {
+	if (m_msdp_support && msdp_need_report(name)) {
 		msdp::report(this, name);
 	}
 }
 
 // Should be called periodically to update changing msdp variables.
 // this is mostly to overcome complication of hunting every possible place affect are added/removed to/from char.
-void DESCRIPTOR_DATA::msdp_report_changed_vars()
-{
-	if (!m_msdp_support || !character)
-	{
+void DESCRIPTOR_DATA::msdp_report_changed_vars() {
+	if (!m_msdp_support || !character) {
 		return;
 	}
 
-	if (m_msdp_last_max_hit != GET_REAL_MAX_HIT(character))
-	{
+	if (m_msdp_last_max_hit != GET_REAL_MAX_HIT(character)) {
 		msdp_report(msdp::constants::MAX_HIT);
 		m_msdp_last_max_hit = GET_REAL_MAX_HIT(character);
 	}
 
-	if (m_msdp_last_max_move != GET_REAL_MAX_MOVE(character))
-	{
+	if (m_msdp_last_max_move != GET_REAL_MAX_MOVE(character)) {
 		msdp_report(msdp::constants::MAX_MOVE);
 		m_msdp_last_max_move = GET_REAL_MAX_MOVE(character);
 	}
 }
 
-void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output) const
-{
-	switch (keytable)
-	{
-	case KT_ALT:
-		for (; *input; *output = KtoA(*input), input++, output++);
-		break;
+void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output) const {
+	switch (keytable) {
+		case KT_ALT: for (; *input; *output = KtoA(*input), input++, output++);
+			break;
 
-	case KT_WIN:
-		for (; *input; input++, output++)
-		{
-			*output = KtoW(*input);
+		case KT_WIN:
+			for (; *input; input++, output++) {
+				*output = KtoW(*input);
 
-			// 0xFF is cp1251 'я' and Telnet IAC, so escape it with another IAC
-			if (*output == '\xFF')
-			{
-				*++output = '\xFF';
+				// 0xFF is cp1251 'я' and Telnet IAC, so escape it with another IAC
+				if (*output == '\xFF') {
+					*++output = '\xFF';
+				}
 			}
-		}
-		break;
+			break;
 
-	case KT_WINZ_OLD:
-	case KT_WINZ_Z:
-		// zMUD before 6.39 or after for backward compatibility  - replace я with z
-		for (; *input; *output = KtoW2(*input), input++, output++);
-		break;
+		case KT_WINZ_OLD:
+		case KT_WINZ_Z:
+			// zMUD before 6.39 or after for backward compatibility  - replace я with z
+			for (; *input; *output = KtoW2(*input), input++, output++);
+			break;
 
-	case KT_WINZ:
-		// zMUD after 6.39 and CMUD support 'я' but with some issues
-		for (; *input; input++, output++)
-		{
-			*output = KtoW(*input);
+		case KT_WINZ:
+			// zMUD after 6.39 and CMUD support 'я' but with some issues
+			for (; *input; input++, output++) {
+				*output = KtoW(*input);
 
-			// 0xFF is cp1251 'я' and Telnet IAC, so escape it with antother IAC
-			// also there is a bug in zMUD, meaning we need to add an extra byte
-			if (*output == '\xFF')
-			{
-				*++output = '\xFF';
-				// make it obvious for other clients something is wrong
-				*++output = '?';
+				// 0xFF is cp1251 'я' and Telnet IAC, so escape it with antother IAC
+				// also there is a bug in zMUD, meaning we need to add an extra byte
+				if (*output == '\xFF') {
+					*++output = '\xFF';
+					// make it obvious for other clients something is wrong
+					*++output = '?';
+				}
 			}
-		}
-		break;
+			break;
 
-	case KT_UTF8:
-		// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
-		// contain character with code 0xff which telnet interprets as IAC.
-		// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
-		koi_to_utf8(const_cast<char *>(input), output);
-		break;
+		case KT_UTF8:
+			// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
+			// contain character with code 0xff which telnet interprets as IAC.
+			// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
+			koi_to_utf8(const_cast<char *>(input), output);
+			break;
 
-	default:
-		for (; *input; *output = *input, input++, output++);
-		break;
+		default: for (; *input; *output = *input, input++, output++);
+			break;
 	}
 
-	if (keytable != KT_UTF8)
-	{
+	if (keytable != KT_UTF8) {
 		*output = '\0';
 	}
 }
 
-void EXTRA_DESCR_DATA::set_keyword(std::string const& value)
-{
+void EXTRA_DESCR_DATA::set_keyword(std::string const &value) {
 	if (keyword != nullptr)
 		free(keyword);
 	keyword = str_dup(value.c_str());
 }
 
-void EXTRA_DESCR_DATA::set_description(std::string const& value)
-{
+void EXTRA_DESCR_DATA::set_description(std::string const &value) {
 	if (description != nullptr)
 		free(description);
 	description = str_dup(value.c_str());
 }
 
-EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()
-{
-	if (nullptr != keyword)
-	{
+EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA() {
+	if (nullptr != keyword) {
 		free(keyword);
 	}
 
-	if (nullptr != description)
-	{
+	if (nullptr != description) {
 		free(description);
 	}
 
 	// we don't take care of items in list. So, we don't do anything with the next field.
 }
 
-
-punish_data::punish_data() : duration(0), reason(nullptr), level(0), godid(0)
-{
+punish_data::punish_data() : duration(0), reason(nullptr), level(0), godid(0) {
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

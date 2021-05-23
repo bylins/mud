@@ -1,8 +1,8 @@
-#include <utils.string.hpp>
+#include <utils/utils.string.h>
 
 #include <gtest/gtest.h>
 
-#include <utils.h>
+#include <utils/utils.h>
 
 struct
 {

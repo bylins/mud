@@ -13,16 +13,12 @@
 *  $Revision$                                                      *
 *********************************************************************** */
 
-#include "logger.hpp"
-#include "chars/char.hpp"
-#include "utils.h"
+#include "chars/char.h"
 
-void write_aliases(CHAR_DATA * ch);
-void read_aliases(CHAR_DATA * ch);
+void write_aliases(CHAR_DATA *ch);
+void read_aliases(CHAR_DATA *ch);
 
-void write_aliases(CHAR_DATA * ch)
-
-{
+void write_aliases(CHAR_DATA *ch) {
 	FILE *file;
 	char fn[MAX_STRING_LENGTH];
 	struct alias_data *temp;
@@ -34,33 +30,30 @@ void write_aliases(CHAR_DATA * ch)
 	if (GET_ALIASES(ch) == NULL)
 		return;
 
-	if ((file = fopen(fn, "w")) == NULL)
-	{
+	if ((file = fopen(fn, "w")) == NULL) {
 		log("SYSERR: Couldn't save aliases for %s in '%s'.", GET_NAME(ch), fn);
 		perror("SYSERR: write_aliases");
 		return;
 	}
 
-	for (temp = GET_ALIASES(ch); temp; temp = temp->next)
-	{
+	for (temp = GET_ALIASES(ch); temp; temp = temp->next) {
 		size_t aliaslen = strlen(temp->alias);
 		size_t repllen = strlen(temp->replacement) - 1;
 
-		fprintf(file, "%d\n%s\n"	// Alias
-				"%d\n%s\n"	// Replacement
-				"%d\n",	// Type
-			static_cast<int>(aliaslen),
-			temp->alias,
-			static_cast<int>(repllen),
-			temp->replacement + 1,
-			temp->type);
+		fprintf(file, "%d\n%s\n"    // Alias
+					  "%d\n%s\n"    // Replacement
+					  "%d\n",    // Type
+				static_cast<int>(aliaslen),
+				temp->alias,
+				static_cast<int>(repllen),
+				temp->replacement + 1,
+				temp->type);
 	}
 
 	fclose(file);
 }
 
-void read_aliases(CHAR_DATA * ch)
-{
+void read_aliases(CHAR_DATA *ch) {
 	FILE *file;
 	char xbuf[MAX_STRING_LENGTH];
 	struct alias_data *t2;
@@ -69,10 +62,8 @@ void read_aliases(CHAR_DATA * ch)
 	log("Read alias %s", GET_NAME(ch));
 	get_filename(GET_NAME(ch), xbuf, ALIAS_FILE);
 
-	if ((file = fopen(xbuf, "r")) == NULL)
-	{
-		if (errno != ENOENT)
-		{
+	if ((file = fopen(xbuf, "r")) == NULL) {
+		if (errno != ENOENT) {
 			log("SYSERR: Couldn't open alias file '%s' for %s.", xbuf, GET_NAME(ch));
 			perror("SYSERR: read_aliases");
 		}
@@ -82,9 +73,9 @@ void read_aliases(CHAR_DATA * ch)
 	CREATE(GET_ALIASES(ch), 1);
 	t2 = GET_ALIASES(ch);
 
-	const char* dummyc;
+	const char *dummyc;
 	int dummyi;
-	for (;;)  		// Read the aliased command.
+	for (;;)        // Read the aliased command.
 	{
 		dummyi = fscanf(file, "%d\n", &length);
 		dummyc = fgets(xbuf, length + 1, file);
@@ -92,7 +83,7 @@ void read_aliases(CHAR_DATA * ch)
 
 		// Build the replacement.
 		dummyi = fscanf(file, "%d\n", &length);
-		*xbuf = ' ';	// Doesn't need terminated, fgets() will.
+		*xbuf = ' ';    // Doesn't need terminated, fgets() will.
 		dummyc = fgets(xbuf + 1, length + 1, file);
 		t2->replacement = str_dup(xbuf);
 
