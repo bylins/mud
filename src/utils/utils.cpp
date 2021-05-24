@@ -46,6 +46,8 @@
 #include "obj_sets.h"
 #include "utils.string.h"
 
+#include <algorithm>
+
 #ifdef HAVE_ICONV
 #include <iconv.h>
 #endif
@@ -680,7 +682,6 @@ std::string koi_to_alt(const std::string &input) {
 	for (std::size_t i = 0; i < result.size(); ++i) {
 		result[i] = KtoA(result[i]);
 	}
-
 	return std::move(result);
 }
 
@@ -1521,38 +1522,45 @@ size_t strl_cpy(char *dst, const char *src, size_t siz) {
 	return (s - src - 1);    // count does not include NUL
 }
 
-/**
-* Аналог старого GET_REAL_DR(ch)
-* для мобов ограничение в 50 дамролов убрано
-* +еще есть рандом дамролы, в данный момент максимум 30d127
-*/
-int get_real_dr(CHAR_DATA *ch) {
-	int dd = 0;
-// Инициализация массива для дальнейшего бонуса попаданий/повреждений от количества перевоплощений
-	int dam[36] =
+int CalcPcDamrollBonus(CHAR_DATA *ch) {
+	const short kMaxRemortForDamrollBonus = 35;
+	const short kRemortDamrollBonus[kMaxRemortForDamrollBonus + 1] =
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
-	if (IS_SMITH(ch) || IS_GUARD(ch) || IS_RANGER(ch))  // Бонус имеют только Дружинники, охотники, кузнецы
-		dd = dam[MIN(35, GET_REMORT(ch))]; //кап на 35+ морт
-	GET_HR_ADD(ch) += dd;           // Бонус попаданий от количества перевоплощений
-
-	int level = GET_LEVEL(ch);
-
 	int bonus = 0;
-	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
-		if (level > STRONG_MOB_LEVEL)
-			bonus += level + number(0, level);
-		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + bonus);
+	if (IS_SMITH(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {
+		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GET_REMORT(ch))];
 	}
 	if (can_use_feat(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_ADDSHOT)) {
-		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch) + dd * 2);
-	} else {
-		return (VPOSI(GET_DR(ch) + GET_DR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)) + dd * 2);
+		bonus *= 3;
 	}
+	return bonus;
 }
 
-// без ограничений
-int get_real_dr_new(CHAR_DATA *ch) {
-	return MAX(0, GET_DR(ch) + GET_DR_ADD(ch));
+int CalcNpcDamrollBonus(CHAR_DATA *ch) {
+	int bonus = 0;
+	if (GET_LEVEL(ch) > STRONG_MOB_LEVEL) {
+		bonus += GET_LEVEL(ch) * number(100, 200) / 100.0;
+	}
+	return bonus;
+}
+
+/**
+* еще есть рандом дамролы, в данный момент максимум 30d127
+*/
+int GetRealDamroll(CHAR_DATA *ch) {
+	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
+	}
+
+	int bonus = CalcPcDamrollBonus(ch);
+	return std::clamp(GET_DR(ch) + GET_DR_ADD(ch) + 2 * bonus, -50, (IS_MORTIFIER(ch) ? 100 : 50) + 2 * bonus);
+}
+
+int GetAutoattackDamroll(CHAR_DATA *ch, int weapon_skill) {
+	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
+	}
+	return std::min(GET_DR(ch) + GET_DR_ADD(ch) + 2 * CalcPcDamrollBonus(ch), weapon_skill / 4);
 }
 
 

@@ -67,19 +67,18 @@ int exchange_database_load();
 int exchange_database_reload(bool loadbackup);
 void check_exchange(OBJ_DATA *obj);
 void extract_exchange_item(EXCHANGE_ITEM_DATA *item);
-int get_unique_lot(void);
+int get_unique_lot();
 void message_exchange(char *message, CHAR_DATA *ch, EXCHANGE_ITEM_DATA *j);
 void show_lots(char *filter, short int show_type, CHAR_DATA *ch);
 int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects);
 void clear_exchange_lot(EXCHANGE_ITEM_DATA *lot);
 extern void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
 
-//Polud
 void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-EXCHANGE_ITEM_DATA *create_exchange_item(void);
+EXCHANGE_ITEM_DATA *create_exchange_item();
 
-EXCHANGE_ITEM_DATA *exchange_item_list = NULL;
+EXCHANGE_ITEM_DATA *exchange_item_list = nullptr;
 std::vector<bool> lot_usage;
 
 char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -731,7 +730,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 	if (is_abbrev(arg1, "все") || is_abbrev(arg1, "all")) {
 		show_type = 0;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
-			snprintf(filter, MAX_STRING_LENGTH, "И%s", arg2);
+			snprintf(filter, FILTER_LENGTH, "И%s", arg2);
 		}
 		if (*multifilter) {
 			strcat(filter, " О");
@@ -741,7 +740,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 		show_type = 1;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			sprintf(buf, "%s", filter);
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
+			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
 		if (*multifilter) {
 			strcat(filter, " О");
@@ -751,7 +750,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 		show_type = 2;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			sprintf(buf, "%s", filter);
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
+			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
 		if (*multifilter) {
 			strcat(filter, " С");
@@ -761,7 +760,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 		show_type = 3;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			sprintf(buf, "%s", filter);
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
+			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
 		if (*multifilter) {
 			strcat(filter, " О");
@@ -771,7 +770,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 		show_type = 4;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
 			sprintf(buf, "%s", filter);
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
+			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
 		if (*multifilter) {
 			strcat(filter, " К");
@@ -781,18 +780,18 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 		show_type = 5;
 		if ((*arg2) && (*arg2 != '*')) {
 			sprintf(buf, "%s", filter);
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
+			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
 	} else if (is_abbrev(arg1, "ингредиенты") || is_abbrev(arg1, "ingradients")) {
 		show_type = 6;
 		if ((*arg2) && (*arg2 != '*')) {
 			sprintf(buf, "%s", filter);
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
+			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
 	} else if (is_abbrev(arg1, "прочие") || is_abbrev(arg1, "other")) {
 		show_type = 7;
 		if ((*arg2) && (*arg2 != '*')) {
-			snprintf(filter, MAX_STRING_LENGTH, "%s И%s", buf, arg2);
+			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
 	} else if (is_abbrev(arg1, "последние") || is_abbrev(arg1, "last")) {
 		show_type = 8;
@@ -836,7 +835,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 		}
 		show_type = 11;
 		sprintf(buf, "%s", filter);
-		snprintf(filter, MAX_STRING_LENGTH, "%s А%s", buf, arg2);
+		snprintf(filter, FILTER_LENGTH, "%s А%s", buf, arg2);
 	} else {
 		send_to_char(info_message, ch);
 		return 0;

@@ -3525,7 +3525,11 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		}
 	}
 	// обработка по факту попадания
-	hit_params.dam += get_real_dr(ch);
+	if (hit_params.skill_num < 0) {
+		hit_params.dam += GetAutoattackDamroll(ch, ch->get_skill(hit_params.weap_skill));
+	} else {
+		hit_params.dam += GetRealDamroll(ch);
+	}
 	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) {
 		hit_params.dam += str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
 	} else {
@@ -3646,10 +3650,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 			}
 		}
 
-		int initial_dam = hit_params.dam;
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		// выводим временно влияние живучести
-		ch->send_to_TC(false,
+/*		int initial_dam = hit_params.dam;
+  		ch->send_to_TC(false,
 					   true,
 					   true,
 					   "&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g количество хитов врага = %d&n\r\n",
@@ -3664,7 +3668,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 						   initial_dam,
 						   GET_RESIST(victim, VITALITY_RESISTANCE),
 						   float(hit_params.dam) / initial_dam,
-						   GET_MAX_HIT(victim));
+						   GET_MAX_HIT(victim));*/
 
 		// режем стаб
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch)) {

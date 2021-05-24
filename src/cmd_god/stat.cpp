@@ -293,8 +293,8 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			GET_REAL_HR(k),
 			GET_REAL_HR(k) + str_bonus(GET_REAL_STR(k), STR_TO_HIT),
 			GET_DR(k),
-			GET_REAL_DR(k),
-			GET_REAL_DR(k) + str_bonus(GET_REAL_STR(k), STR_TO_DAM));
+			GetRealDamroll(k),
+			GetRealDamroll(k) + str_bonus(GET_REAL_STR(k), STR_TO_DAM));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Защитн.аффекты: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Поглощ: [%d], Стойк: [%d], Реакц: [%d], Воля: [%d]\r\n",

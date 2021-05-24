@@ -167,6 +167,7 @@ int min_skill_level(CHAR_DATA *ch, int skill);
 int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 bool IsAbleToGetSkill(CHAR_DATA *ch, int skill);
 bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
+bool IsWeaponSkill(ESkill skill);
 int FindWeaponMasterBySkill(ESkill skill);
 int CalcSkillRemortCap(const CHAR_DATA *ch);
 int CalcSkillSoftCap(const CHAR_DATA *ch);
