@@ -3526,10 +3526,11 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 	}
 	// обработка по факту попадания
 	hit_params.dam += get_real_dr(ch);
-	if (can_use_feat(ch, SHOT_FINESSE_FEAT))
+	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) {
 		hit_params.dam += str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
-	else
+	} else {
 		hit_params.dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	}
 
 	// рандом разброс базового дамага
 	if (hit_params.dam > 0) {
@@ -3646,7 +3647,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		}
 
 		int initial_dam = hit_params.dam;
-		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		// выводим временно влияние живучести
 		ch->send_to_TC(false,
