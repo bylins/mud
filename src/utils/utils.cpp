@@ -2068,7 +2068,7 @@ bool ParseFilter::init_type(const char *str) {
 bool ParseFilter::init_state(const char *str) {
 	if (is_abbrev(str, "ужасно"))
 		state = 0;
-	else if (is_abbrev(str, "скоро испортится"))
+	else if (is_abbrev(str, "скоро сломается"))
 		state = 20;
 	else if (is_abbrev(str, "плоховато"))
 		state = 40;
@@ -2632,7 +2632,7 @@ const char *print_obj_state(int tm_pct) {
 	if (tm_pct < 20)
 		return "ужасно";
 	else if (tm_pct < 40)
-		return "скоро испортится";
+		return "скоро сломается";
 	else if (tm_pct < 60)
 		return "плоховато";
 	else if (tm_pct < 80)
