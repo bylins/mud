@@ -3062,7 +3062,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
 		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
 		&& !IS_NPC(ch)) {
 		calc_thaco += (skill_info[SKILL_SHIT].difficulty - CalcCurrentSkill(ch, SKILL_SHIT, victim) / 10);
-		TrainSkill(ch, SKILL_SHIT, true, victim);
+//		TrainSkill(ch, SKILL_SHIT, true, victim);
 	}
 
 	// courage

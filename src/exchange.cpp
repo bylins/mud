@@ -791,6 +791,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 	} else if (is_abbrev(arg1, "прочие") || is_abbrev(arg1, "other")) {
 		show_type = 7;
 		if ((*arg2) && (*arg2 != '*')) {
+			sprintf(buf, "%s", filter);
 			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
 		}
 	} else if (is_abbrev(arg1, "последние") || is_abbrev(arg1, "last")) {
