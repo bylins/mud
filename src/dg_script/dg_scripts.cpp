@@ -1983,7 +1983,7 @@ void find_replacement(void *go,
 			GET_DR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_DR(c));
 			sprintf(str, "%d", GET_DR_ADD(c));
 		} else if (!str_cmp(field, "dr")) {
-			sprintf(str, "%d", GET_REAL_DR(c));
+			sprintf(str, "%d", GetRealDamroll(c));
 		} else if (!str_cmp(field, "acbase")) {
 			//GET_AC(c) = (int) gm_char_field(c,field,subfield,(long)GET_AC(c));
 			sprintf(str, "%d", GET_AC(c));

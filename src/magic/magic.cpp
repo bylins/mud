@@ -14,19 +14,19 @@
 
 #include "magic.h"
 
-#include "cmd/hire.h"
 #include "action_targeting.h"
-#include "chars/world.characters.h"
-#include "world_objects.h"
-#include "obj_prototypes.h"
-#include "handler.h"
-#include "fightsystem/pk.h"
-#include "fightsystem/fight.h"
-#include "random.h"
 #include "affects/affect_handler.h"
+#include "chars/world.characters.h"
+#include "cmd/hire.h"
 #include "corpse.h"
-#include "fightsystem/mobact.h"
+#include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
+#include "fightsystem/mobact.h"
+#include "fightsystem/pk.h"
+#include "handler.h"
+#include "obj_prototypes.h"
+#include "random.h"
+#include "world_objects.h"
 
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -668,7 +668,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				return (0);
 			ndice = ch->mob_specials.damnodice;
 			sdice = ch->mob_specials.damsizedice;
-			adice = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+			adice = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 			break;
 
 		case SPELL_SACRIFICE:

@@ -2871,10 +2871,11 @@ void print_do_score_all(CHAR_DATA *ch) {
 			CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 			CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) //ловкий выстрел дамы от ловки
-		max_dam = get_real_dr(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
-	else
-		max_dam = get_real_dr(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) {
+		max_dam = GetRealDamroll(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+	} else {
+		max_dam = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	}
 
 	if (can_use_feat(ch, BULLY_FEAT)) {
 		modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18) : 0));
@@ -3500,7 +3501,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				"  AC   : %4d(%4d)"
 				"  DR   : %4d(%4d)%s\r\n",
 				CCIGRN(ch, C_NRM), GET_AC(ch), compute_armor_class(ch),
-				GET_DR(ch), GET_REAL_DR(ch), CCNRM(ch, C_NRM));
+				GET_DR(ch), GetRealDamroll(ch), CCNRM(ch, C_NRM));
 	} else {
 		ac = compute_armor_class(ch) / 10;
 

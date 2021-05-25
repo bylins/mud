@@ -51,7 +51,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 		dmg.process(ch, vict);
 		cooldown = 2;
 	} else {
-		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch) + GET_LEVEL(ch) / 6;
+		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GET_LEVEL(ch) / 6;
 		if (!IS_NPC(ch) || (IS_NPC(ch) && GET_EQ(ch, WEAR_FEET))) {
 			int modi = MAX(0, (ch->get_skill(SKILL_KICK) + 4) / 5);
 			dam += number(0, modi * 2);

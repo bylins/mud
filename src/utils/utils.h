@@ -143,7 +143,8 @@ const char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-int get_real_dr(CHAR_DATA *ch);
+int GetRealDamroll(CHAR_DATA *ch);
+int GetAutoattackDamroll(CHAR_DATA *ch, int weapon_skill);
 extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
 bool is_head(std::string name);
@@ -653,7 +654,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)))
 #define GET_DR(ch)         ((ch)->real_abils.damroll)
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
-#define GET_REAL_DR(ch)   (get_real_dr(ch))
 #define GET_AC(ch)         ((ch)->real_abils.armor)
 #define GET_AC_ADD(ch)    ((ch)->add_abils.ac_add)
 #define GET_REAL_AC(ch)      (GET_AC(ch)+GET_AC_ADD(ch))
