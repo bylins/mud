@@ -149,7 +149,7 @@ void go_cut_shorts(CHAR_DATA *ch, CHAR_DATA *vict) {
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
-	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::OFFHAND);
+	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::OFF_HAND);
 
 	AFFECT_DATA<EApplyLocation> AffectImmunPhysic;
 	AffectImmunPhysic.type = SPELL_EXPEDIENT;

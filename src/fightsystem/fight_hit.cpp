@@ -2854,9 +2854,13 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim) {
 			wielded = GET_EQ(ch, WEAR_BOTHS);
 			weapon_pos = WEAR_BOTHS;
 		}
-	} else if (weapon == FightSystem::AttType::OFFHAND) {
+	} else if (weapon == FightSystem::AttType::OFF_HAND) {
 		wielded = GET_EQ(ch, WEAR_HOLD);
 		weapon_pos = WEAR_HOLD;
+		if (!wielded) { // удар второй рукой
+			weap_skill_is = CalcCurrentSkill(ch, SKILL_SHIT, victim);
+			TrainSkill(ch, weap_skill, true, victim);
+		}
 	}
 
 	if (wielded
@@ -3056,13 +3060,12 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
 
-	if (weapon == FightSystem::AttType::OFFHAND
+	if (weapon == FightSystem::AttType::OFF_HAND
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
 		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
 		&& !IS_NPC(ch)) {
-		calc_thaco += (skill_info[SKILL_SHIT].difficulty - CalcCurrentSkill(ch, SKILL_SHIT, victim) / 10);
-//		TrainSkill(ch, SKILL_SHIT, true, victim);
+			calc_thaco += std::max(0, (CalcSkillMinCap(victim, SKILL_SHIT) - CalcCurrentSkill(ch, SKILL_SHIT, victim)) / 10);
 	}
 
 	// courage
@@ -3137,7 +3140,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch) {
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
-	if (weapon == FightSystem::AttType::OFFHAND
+	if (weapon == FightSystem::AttType::OFF_HAND
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
 		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
@@ -3805,7 +3808,7 @@ OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, FightSystem::AttType AttackType) {
 	if (AttackType == FightSystem::AttType::MAIN_HAND) {
 		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
 			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
-	} else if (AttackType == FightSystem::AttType::OFFHAND)
+	} else if (AttackType == FightSystem::AttType::OFF_HAND)
 		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
 
 	return UsedWeapon;

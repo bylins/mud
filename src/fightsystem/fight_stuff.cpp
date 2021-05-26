@@ -1243,7 +1243,7 @@ void test_self_hitroll(CHAR_DATA *ch) {
 	hit.calc_ac(ch);
 
 	HitData hit2;
-	hit2.weapon = FightSystem::AttType::OFFHAND;
+	hit2.weapon = FightSystem::AttType::OFF_HAND;
 	hit2.init(ch, ch);
 	hit2.calc_base_hr(ch);
 	hit2.calc_stat_hr(ch);

@@ -1834,7 +1834,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 		if (IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| !GET_AF_BATTLE(ch, EAF_USEDLEFT)) {
-			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::OFFHAND);
+			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::OFF_HAND);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
@@ -1847,8 +1847,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 		&& GET_AF_BATTLE(ch, EAF_SECOND)
 		&& ch->get_skill(SKILL_SHIT)) {
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT)) {
-			TrainSkill(ch, SKILL_SHIT, true, ch->get_fighting());  //костыль временно сюда
-			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::MAIN_HAND);
+			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::OFF_HAND);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
