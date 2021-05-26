@@ -81,7 +81,7 @@ int set_hit(CHAR_DATA *ch, CHAR_DATA *victim) {
 		return (FALSE);
 	}
 	hit(ch, victim, ESkill::SKILL_UNDEF,
-		AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? FightSystem::OFFHAND : FightSystem::MAIN_HAND);
+		AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? FightSystem::OFF_HAND : FightSystem::MAIN_HAND);
 	set_wait(ch, 2, TRUE);
 	//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 	return (TRUE);

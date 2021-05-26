@@ -4,7 +4,7 @@
 namespace FightSystem {
 enum AttType {
 	MAIN_HAND = 1, //Основная атака
-	OFFHAND = 2,  //Доп.атака
+	OFF_HAND = 2,  //Доп.атака
 	MOB_ADD = 3    //Доп.атака моба
 };
 
