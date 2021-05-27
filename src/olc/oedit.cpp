@@ -536,8 +536,8 @@ void oedit_disp_spells_menu(DESCRIPTOR_DATA *d) {
 	for (counter = 0; counter < MAX_SPELLS; counter++) {
 		if (!spell_info[counter].name || *spell_info[counter].name == '!')
 			continue;
-		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
-				spell_info[counter].name, !(++columns % 3) ? "\r\n" : "");
+		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, counter, nrm, yel,
+				spell_info[counter].name, !(++columns % 4) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите магию (0 - выход) : ", nrm);
