@@ -148,7 +148,7 @@ bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA *ch);
 void do_blind_exits(CHAR_DATA *ch);
 const char *diag_liquid_timer(const OBJ_DATA *obj);
-const char *daig_filling_drink(const OBJ_DATA *obj, const CHAR_DATA *ch);
+char *daig_filling_drink(const OBJ_DATA *obj, const CHAR_DATA *ch);
 #define EXIT_SHOW_WALL    (1 << 0)
 #define EXIT_SHOW_LOOKING (1 << 1)
 
@@ -548,7 +548,11 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 				} else {
 					sprintf(buf2, " %s ", diag_obj_to_char(ch, object, 1));
 					if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON) {
-							strcat(buf2, daig_filling_drink(object, ch));
+							char *tmp = daig_filling_drink(object, ch);
+							char tmp2[128];
+							*tmp = LOWER(*tmp);
+							sprintf(tmp2, "(%s)", tmp);
+							strcat(buf2, tmp2);
 					}
 				}
 			}
@@ -2238,7 +2242,7 @@ void look_in_obj(CHAR_DATA *ch, char *arg) {
 			}
 		} else    // item must be a fountain or drink container
 		{
-			send_to_char(ch, "%s\r\n", daig_filling_drink(obj, ch));
+			send_to_char(ch, "%s.\r\n", daig_filling_drink(obj, ch));
 
 		}
 	}
@@ -2253,21 +2257,23 @@ char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr &list) {
 
 	return nullptr;
 }
-const char *daig_filling_drink(const OBJ_DATA *obj, const CHAR_DATA *ch) {
+char *daig_filling_drink(const OBJ_DATA *obj, const CHAR_DATA *ch) {
 	char tmp[256];
-	if (GET_OBJ_VAL(obj, 1) <= 0)
-		return "Пусто.";
+	if (GET_OBJ_VAL(obj, 1) <= 0) {
+		sprintf(buf1, "Пусто");
+		return buf1;
+	}
 	else {
 		if (GET_OBJ_VAL(obj, 0) <= 0 || GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
 			sprintf(buf1, "Заполнен%s вакуумом?!", GET_OBJ_SUF_6(obj));    // BUG
 			return buf1;
 		}
 		else {
-				const char *msg = AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON) && obj->get_val(3) == 1 ? " (отравленной)" : "";
+				const char *msg = AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON) && obj->get_val(3) == 1 ? " *отравленной*" : "";
 				int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 				sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
 				snprintf(buf1, MAX_STRING_LENGTH,
-					"Наполнен%s %s%s%s жидкостью.", GET_OBJ_SUF_6(obj), fullness[amt], tmp, msg);
+					"Наполнен%s %s%s%s жидкостью", GET_OBJ_SUF_6(obj), fullness[amt], tmp, msg);
 				return buf1;
 			}
 		}
