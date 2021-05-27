@@ -496,7 +496,7 @@ void show_apply_olc(DESCRIPTOR_DATA *d) {
 	send_to_char("[H[J", d->character);
 #endif
 	for (counter = 0; counter < NUM_APPLIES; counter++) {
-		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
+		sprintf(buf, "%s%2d%s) %-40.40s %s", grn, counter, nrm,
 				apply_types[counter], !(++columns % 3) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
