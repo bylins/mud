@@ -2785,19 +2785,20 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim) {
 		// аналогично молоту, все доп условия добавляются внутри
 	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0) {
 		CLR_AF_BATTLE(ch, EAF_STUPOR);
-		if (IS_NPC(ch) || IS_IMMORTAL(ch)) {
+		if (IS_IMMORTAL(ch)) {
 			try_stupor_dam(ch, victim);
-		} else if (wielded) {
-			if (GET_OBJ_SKILL(wielded) == SKILL_BOWS) {
-				send_to_char("Луком оглушить нельзя.\r\n", ch);
-			} else if (!GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY)) {
-				if (GET_OBJ_WEIGHT(wielded) > 18) {
-					try_stupor_dam(ch, victim);
-				} else {
-					send_to_char("&WВаше оружие слишком легкое, чтобы им можно было оглушить!&Q&n\r\n", ch);
-				}
+		} else if (IS_NPC(ch) && !((wielded) && (GET_OBJ_SKILL(wielded) == SKILL_BOWS))) {
+				try_stupor_dam(ch, victim);
+		} else if ((wielded) && (GET_OBJ_SKILL(wielded) == SKILL_BOWS)) {
+			send_to_char("Луком оглушить нельзя.\r\n", ch);
+		} else if (!GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY)) {
+			if (GET_OBJ_WEIGHT(wielded) > 18) {
+				try_stupor_dam(ch, victim);
+			} else {
+				send_to_char("&WВаше оружие слишком легкое, чтобы им можно было оглушить!&Q&n\r\n", ch);
 			}
-		} else {
+		}
+		else {
 			sprintf(buf, "&c&qВы оказались без оружия, а пальцем оглушить нельзя.&Q&n\r\n");
 			send_to_char(buf, ch);
 			sprintf(buf, "&c&q%s оказался без оружия и не смог вас оглушить.&Q&n\r\n", GET_NAME(ch));
