@@ -64,6 +64,7 @@
 #include "classes/class_constants.h"
 #include "skills_info.h"
 #include "magic/magic_rooms.h"
+#include "exchange.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -4953,8 +4954,16 @@ void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 			print_object_location(0, obj->get_in_obj(), ch);
 		}
 	} else {
-		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.");
-		strcat(buf, "\r\n");
+		for (EXCHANGE_ITEM_DATA *j = exchange_item_list; j; j = j->next) {
+			if (GET_EXCHANGE_ITEM(j)->get_uid() == obj->get_uid()) {
+				sprintf(buf1, "на базаре однако, лот #%d\r\n", GET_EXCHANGE_ITEM_LOT(j));
+				strcat(buf, buf1);
+				send_to_char(buf, ch);
+				return;
+			}
+		}
+		sprintf(buf1, "находится где-то там, далеко-далеко.\r\n");
+		strcat(buf, buf1);
 		send_to_char(buf, ch);
 	}
 }
