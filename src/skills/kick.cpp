@@ -73,7 +73,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 						if (!AFF_FLAGGED(vict, EAffectFlag::AFF_STOPRIGHT)) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам правую руку.";
-							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он выживет.";
+							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
 							af.type = SPELL_BATTLE;
 							af.bitvector = to_underlying(EAffectFlag::AFF_STOPRIGHT);
 							af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
