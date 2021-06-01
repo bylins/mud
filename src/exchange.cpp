@@ -291,7 +291,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 	GET_EXCHANGE_ITEM(item) = obj;
 	obj_from_char(obj);
 
-	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.\r\n",
+	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.",
 			GET_EXCHANGE_ITEM_LOT(item), item_cost, desc_count(item_cost, WHAT_MONEYu));
 	act(tmpbuf, FALSE, ch, 0, obj, TO_CHAR);
 	sprintf(tmpbuf, "Базар : новый лот (%d) - %s - цена %d %s. \r\n",

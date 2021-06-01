@@ -1560,7 +1560,7 @@ int GetAutoattackDamroll(CHAR_DATA *ch, int weapon_skill) {
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
-	return std::min(GET_DR(ch) + GET_DR_ADD(ch) + 2 * CalcPcDamrollBonus(ch), weapon_skill / 4);
+	return std::min(GET_DR(ch) + GET_DR_ADD(ch) + 2 * CalcPcDamrollBonus(ch), weapon_skill / 2); //попробюуем так
 }
 
 

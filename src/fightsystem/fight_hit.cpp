@@ -2789,13 +2789,15 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim) {
 			try_stupor_dam(ch, victim);
 		} else if (IS_NPC(ch) && !((wielded) && (GET_OBJ_SKILL(wielded) == SKILL_BOWS))) {
 				try_stupor_dam(ch, victim);
-		} else if ((wielded) && (GET_OBJ_SKILL(wielded) == SKILL_BOWS)) {
-			send_to_char("Луком оглушить нельзя.\r\n", ch);
-		} else if (!GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY)) {
-			if (GET_OBJ_WEIGHT(wielded) > 18) {
-				try_stupor_dam(ch, victim);
-			} else {
-				send_to_char("&WВаше оружие слишком легкое, чтобы им можно было оглушить!&Q&n\r\n", ch);
+		} else if (wielded) {
+			if (GET_OBJ_SKILL(wielded) == SKILL_BOWS) {
+				send_to_char("Луком оглушить нельзя.\r\n", ch);
+			} else if (!GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY)) {
+				if (GET_OBJ_WEIGHT(wielded) > 18) {
+					try_stupor_dam(ch, victim);
+				} else {
+					send_to_char("&WВаше оружие слишком легкое, чтобы им можно было оглушить!&Q&n\r\n", ch);
+				}
 			}
 		}
 		else {
