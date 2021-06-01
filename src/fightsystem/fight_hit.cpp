@@ -2929,17 +2929,6 @@ void HitData::calc_base_hr(CHAR_DATA *ch) {
 					break;
 			}
 			calc_thaco -= MIN(3, MAX(percent, 0));
-
-			// Penalty for unknown weapon type
-			// shapirus: старый штраф нифига не работает, тем более, что unknown_weapon_fault
-			// нигде не определяется. сделан новый на базе инты чара. плюс сделан штраф на дамролл.
-			// если скилл есть, то штраф не даем, а применяем бонусы/штрафы по профам
-			if (ch->get_skill(weap_skill) == 0) {
-				calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-				dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-			} else {
-				apply_weapon_bonus(GET_CLASS(ch), weap_skill, &dam, &calc_thaco);
-			}
 		} else if (!IS_NPC(ch)) {
 			// кулаками у нас полагается бить только богатырям :)
 			if (!can_use_feat(ch, BULLY_FEAT))
@@ -2981,9 +2970,6 @@ void HitData::calc_base_hr(CHAR_DATA *ch) {
 			calc_thaco -= (int) ((GET_REAL_INT(ch) - 13) / GET_LEVEL(ch));
 			calc_thaco -= (int) ((GET_REAL_WIS(ch) - 13) / GET_LEVEL(ch));
 		}
-		// Skill level increase damage
-		if (ch->get_skill(weap_skill) >= 60)
-			dam += ((ch->get_skill(weap_skill) - 50) / 10);
 	}
 
 	// bless
@@ -2999,16 +2985,12 @@ void HitData::calc_base_hr(CHAR_DATA *ch) {
 	// Учет мощной и прицельной атаки
 	if (PRF_FLAGGED(ch, PRF_POWERATTACK) && can_use_feat(ch, POWER_ATTACK_FEAT)) {
 		calc_thaco += 2;
-		dam += 5;
 	} else if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK) && can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)) {
 		calc_thaco += 4;
-		dam += 10;
 	} else if (PRF_FLAGGED(ch, PRF_AIMINGATTACK) && can_use_feat(ch, AIMING_ATTACK_FEAT)) {
 		calc_thaco -= 2;
-		dam -= 5;
 	} else if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK) && can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT)) {
 		calc_thaco -= 4;
-		dam -= 10;
 	}
 
 	// Calculate the THAC0 of the attacker
@@ -3363,6 +3345,94 @@ void HitData::calc_crit_chance(CHAR_DATA *ch) {
 		reset_flag(FightSystem::CRIT_HIT);
 	}
 }
+void HitData::calc_add_damage(CHAR_DATA *ch) {
+	if (ch->get_skill(weap_skill) == 0) {
+		calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
+		dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
+	} else {
+		apply_weapon_bonus(GET_CLASS(ch), weap_skill, &dam, &calc_thaco);
+	}
+	if (ch->get_skill(weap_skill) >= 60) { //от уровня скилла
+		dam += ((ch->get_skill(weap_skill) - 50) / 10);
+	}
+	// Учет мощной и прицельной атаки
+	if (PRF_FLAGGED(ch, PRF_POWERATTACK) && can_use_feat(ch, POWER_ATTACK_FEAT)) {
+		dam += 5;
+	} else if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK) && can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)) {
+		dam += 10;
+	} else if (PRF_FLAGGED(ch, PRF_AIMINGATTACK) && can_use_feat(ch, AIMING_ATTACK_FEAT)) {
+		dam -= 5;
+	} else if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK) && can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT)) {
+		dam -= 10;
+	}
+	// courage
+	if (affected_by_spell(ch, SPELL_COURAGE)) {
+		int range = number(1, skill_info[SKILL_COURAGE].difficulty + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
+		int prob = CalcCurrentSkill(ch, SKILL_COURAGE, victim);
+		if (prob > range) {
+			dam += ((ch->get_skill(SKILL_COURAGE) + 19) / 20);
+		}
+	}
+	// Horse modifier for attacker
+	if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB && ch->ahorse()) {
+		int prob = ch->get_skill(SKILL_HORSE);
+		dam += ((prob + 19) / 10);
+	}
+	// обработка по факту попадания
+	if (skill_num < 0) {
+		dam += GetAutoattackDamroll(ch, ch->get_skill(weap_skill));
+	} else {
+		dam += GetRealDamroll(ch);
+	}
+	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) {
+		dam += str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+	} else {
+		dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	}
+	if (GET_EQ(ch, WEAR_BOTHS) && weap_skill != SKILL_BOWS) //двуруч множим на 2
+		dam *= 2;
+	// оружие/руки и модификаторы урона скилов, с ними связанных
+	if (wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON) {
+		add_weapon_damage(ch);
+		// скрытый удар
+		int tmp_dam = calculate_noparryhit_dmg(ch, wielded);
+		if (tmp_dam > 0) {
+			// 0 раунд и стаб = 70% скрытого, дальше раунд * 0.4 (до 5 раунда)
+			int round_dam = tmp_dam * 7 / 10;
+			if (can_use_feat(ch, SNEAKRAGE_FEAT)) {
+				if (ROUND_COUNTER(ch) >= 1 && ROUND_COUNTER(ch) <= 3) {
+					dam *= ROUND_COUNTER(ch);
+				}
+			}
+			if (skill_num == SKILL_BACKSTAB || ROUND_COUNTER(ch) <= 0) {
+				dam += round_dam;
+			} else {
+				dam += round_dam * MIN(3, ROUND_COUNTER(ch));
+			}
+		}
+	} else {
+		add_hand_damage(ch);
+	}
+	if (ch->add_abils.percent_dam_add > 0)
+		dam += dam * (number(1, ch->add_abils.percent_dam_add) / 100.0);
+	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
+		dam += ch->get_skill(SKILL_IRON_WIND) / 2;
+
+	if (affected_by_spell(ch, SPELL_BERSERK)) {
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)) {
+			dam = (dam * MAX(150, 150 + GET_LEVEL(ch) + dice(0, GET_REMORT(ch)) * 2)) / 100;
+		}
+	}
+	if (IS_NPC(ch)) { // урон моба из олц
+		dam += dice(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
+	}
+
+	if (GET_SKILL(ch, SKILL_HORSE) > 100 && ch->ahorse()) {
+		dam *= 1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0; // на лошадке до +20%
+	}
+
+
+}
 
 ESpell breathFlag2Spellnum(CHAR_DATA *ch) {
 	ESpell t = SPELL_NO_SPELL;
@@ -3472,6 +3542,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 	hit_params.calc_base_hr(ch);
 	hit_params.calc_rand_hr(ch, victim);
 	hit_params.calc_ac(victim);
+	hit_params.calc_add_damage(ch); // попытка все собрать в кучу
+
+	// рандом разброс базового дамага для красоты
+	if (hit_params.dam > 0) {
+		int min_rnd = hit_params.dam - hit_params.dam / 4;
+		int max_rnd = hit_params.dam + hit_params.dam / 4;
+		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
+	}
 
 	const int victim_lvl_miss = victim->get_level() + victim->get_remort();
 	const int ch_lvl_miss = ch->get_level() + ch->get_remort();
@@ -3530,74 +3608,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 			}
 		}
 	}
-	// обработка по факту попадания
-	if (hit_params.skill_num < 0) {
-		hit_params.dam += GetAutoattackDamroll(ch, ch->get_skill(hit_params.weap_skill));
-	} else {
-		hit_params.dam += GetRealDamroll(ch);
-	}
-	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) {
-		hit_params.dam += str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
-	} else {
-		hit_params.dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
-	}
-
-	// рандом разброс базового дамага
-	if (hit_params.dam > 0) {
-		int min_rnd = hit_params.dam - hit_params.dam / 4;
-		int max_rnd = hit_params.dam + hit_params.dam / 4;
-		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
-	}
-
-	if (GET_EQ(ch, WEAR_BOTHS) && hit_params.weap_skill != SKILL_BOWS)
-		hit_params.dam *= 2;
-
-	if (IS_NPC(ch)) {
-		hit_params.dam += dice(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
-	}
 
 	// расчет критических ударов
 	hit_params.calc_crit_chance(ch);
-
-	// оружие/руки и модификаторы урона скилов, с ними связанных
-	if (hit_params.wielded
-		&& GET_OBJ_TYPE(hit_params.wielded) == OBJ_DATA::ITEM_WEAPON) {
-		hit_params.add_weapon_damage(ch);
-		// скрытый удар
-		int tmp_dam = calculate_noparryhit_dmg(ch, hit_params.wielded);
-		if (tmp_dam > 0) {
-			// 0 раунд и стаб = 70% скрытого, дальше раунд * 0.4 (до 5 раунда)
-			int round_dam = tmp_dam * 7 / 10;
-			if (can_use_feat(ch, SNEAKRAGE_FEAT)) {
-				if (ROUND_COUNTER(ch) >= 1 && ROUND_COUNTER(ch) <= 3) {
-					hit_params.dam *= ROUND_COUNTER(ch);
-				}
-			}
-			if (hit_params.skill_num == SKILL_BACKSTAB || ROUND_COUNTER(ch) <= 0) {
-				hit_params.dam += round_dam;
-			} else {
-				hit_params.dam += round_dam * MIN(3, ROUND_COUNTER(ch));
-			}
-		}
-	} else {
-		hit_params.add_hand_damage(ch);
-	}
-	if (ch->add_abils.percent_dam_add > 0)
-		hit_params.dam += hit_params.dam * (number(1, ch->add_abils.percent_dam_add) / 100.0);
-	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
-		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 2;
-
-	if (affected_by_spell(ch, SPELL_BERSERK)) {
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)) {
-			hit_params.dam = (hit_params.dam * MAX(150, 150 + GET_LEVEL(ch) + dice(0, GET_REMORT(ch)) * 2)) / 100;
-		}
-	}
-
-	// at least 1 hp damage min per hit
-	hit_params.dam = MAX(1, hit_params.dam);
-	if (GET_SKILL(ch, SKILL_HORSE) > 100 && ch->ahorse()) {
-		hit_params.dam *= 1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0; // на лошадке до +20%
-	}
 
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
 	if (damage_mtrigger(ch, victim)) {
