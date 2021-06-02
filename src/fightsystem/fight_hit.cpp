@@ -3348,7 +3348,7 @@ void HitData::calc_crit_chance(CHAR_DATA *ch) {
 		reset_flag(FightSystem::CRIT_HIT);
 	}
 }
-void HitData::calc_damage(CHAR_DATA *ch) {
+int HitData::calc_damage(CHAR_DATA *ch) {
 	send_to_char(ch, "&YДамага без бонусов == %d&n\r\n", dam);
 	if (ch->get_skill(weap_skill) == 0) {
 		calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
@@ -3453,6 +3453,7 @@ void HitData::calc_damage(CHAR_DATA *ch) {
 	//режем дамаг от голода
 	dam *= ch->get_cond_penalty(P_DAMROLL);
 	send_to_char(ch, "&YДамага с бонусами == %d&n\r\n", dam);
+	return dam;
 
 }
 

@@ -2994,8 +2994,10 @@ void print_do_score_all(CHAR_DATA *ch) {
 			CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	HitData hit_params;
-	hit_params.calc_damage(ch);
-	max_dam = hit_params.dam;
+	hit_params.weapon = FightSystem::MAIN_HAND;
+	hit_params.init(ch, ch);
+//	hit_params.calc_damage(ch);
+	max_dam = hit_params.calc_damage(ch);
 
 
 	resist = MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75);
