@@ -28,7 +28,7 @@ struct HitData {
 	void add_hand_damage(CHAR_DATA *ch);
 	void check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim);
 	void calc_crit_chance(CHAR_DATA *ch);
-	void calc_add_damage(CHAR_DATA *ch);
+	void calc_damage(CHAR_DATA *ch);
 	double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	// extdamage

@@ -2993,6 +2993,11 @@ void print_do_score_all(CHAR_DATA *ch) {
 			CCIGRN(ch, C_NRM), hr - (ch->ahorse() ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
+	HitData hit_params;
+	hit_params.calc_damage(ch);
+	max_dam = hit_params.dam;
+
+
 	resist = MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sПеревоплощений: %s%-2d %s|"
@@ -3008,8 +3013,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 			GET_REAL_DEX(ch),
 			CCCYN(ch, C_NRM),
 			CCIGRN(ch, C_NRM),
-			int(max_dam * (ch->ahorse() ? ((GET_SKILL(ch, SKILL_HORSE) > 100) ? (1
-				+ (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0) : 1) : 1)),
+			max_dam,
 			CCCYN(ch, C_NRM),
 			CCYEL(ch, C_NRM),
 			resist,
