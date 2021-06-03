@@ -2997,7 +2997,8 @@ void print_do_score_all(CHAR_DATA *ch) {
 	hit_params.weapon = FightSystem::MAIN_HAND;
 	hit_params.init(ch, ch);
 //	hit_params.calc_damage(ch);
-	max_dam = hit_params.calc_damage(ch);
+	bool need_dice = false;
+	max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
 
 
 	resist = MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75);
@@ -3442,6 +3443,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 	send_to_char(buf, ch);
 	if (PRF_FLAGGED(ch, PRF_TESTER))
 		test_self_hitroll(ch);
+	send_to_char(ch, "+дамы %d\r\n", ch->add_abils.percent_dam_add);
 }
 
 void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

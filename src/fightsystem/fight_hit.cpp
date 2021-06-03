@@ -3256,10 +3256,13 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim) {
  * добавление дамролов с пушек
  * добавление дамага от концентрации силы
  */
-void HitData::add_weapon_damage(CHAR_DATA *ch) {
-	int damroll = dice(GET_OBJ_VAL(wielded, 1),
-					   GET_OBJ_VAL(wielded, 2));
-
+void HitData::add_weapon_damage(CHAR_DATA *ch, bool need_dice) {
+	int damroll;
+ 	if (need_dice) {
+		damroll = dice(GET_OBJ_VAL(wielded, 1), GET_OBJ_VAL(wielded, 2));
+	} else {
+		damroll = (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2) + GET_OBJ_VAL(wielded, 1)) / 2;
+	}
 	if (IS_NPC(ch)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))) {
@@ -3274,10 +3277,10 @@ void HitData::add_weapon_damage(CHAR_DATA *ch) {
 }
 
 // * Добавление дамага от голых рук и молота.
-void HitData::add_hand_damage(CHAR_DATA *ch) {
+void HitData::add_hand_damage(CHAR_DATA *ch, bool need_dice) {
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STONEHAND)) {
-		dam += dice(2, 3);
+		dam += need_dice? dice(2, 4) : 5;
 		if (can_use_feat(ch, BULLY_FEAT)) {
 			dam += GET_LEVEL(ch) / 5;
 			dam += MAX(0, GET_REAL_STR(ch) - 25);
@@ -3348,7 +3351,7 @@ void HitData::calc_crit_chance(CHAR_DATA *ch) {
 		reset_flag(FightSystem::CRIT_HIT);
 	}
 }
-int HitData::calc_damage(CHAR_DATA *ch) {
+int HitData::calc_damage(CHAR_DATA *ch, bool need_dice) {
 	send_to_char(ch, "&YДамага без бонусов == %d&n\r\n", dam);
 	if (ch->get_skill(weap_skill) == 0) {
 		calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
@@ -3407,8 +3410,8 @@ int HitData::calc_damage(CHAR_DATA *ch) {
 	}
 	// оружие/руки и модификаторы урона скилов, с ними связанных
 	if (wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON) {
-		add_weapon_damage(ch);
-	send_to_char(ch, "&YДамага +кубики оружия == %d&n\r\n", dam);
+		add_weapon_damage(ch, need_dice);
+			send_to_char(ch, "&YДамага +кубики оружия == %d&n\r\n", dam);
 		// скрытый удар
 		int tmp_dam = calculate_noparryhit_dmg(ch, wielded);
 		if (tmp_dam > 0) {
@@ -3426,14 +3429,11 @@ int HitData::calc_damage(CHAR_DATA *ch) {
 			}
 		}
 	} else {
-
-		add_hand_damage(ch);
+		add_hand_damage(ch, need_dice);
 	send_to_char(ch, "&YДамага руками == %d&n\r\n", dam);
 	}
-	if (ch->add_abils.percent_dam_add > 0) {
-		dam += dam * (number(1, ch->add_abils.percent_dam_add) / 100.0);
-		send_to_char(ch, "&YДамага c + процентами дамаги== %d&n\r\n", dam);
-	}
+		send_to_char(ch, "&YДамага после расчета руки или оружия == %d&n\r\n", dam);
+
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 		dam += ch->get_skill(SKILL_IRON_WIND) / 2;
 
@@ -3450,9 +3450,21 @@ int HitData::calc_damage(CHAR_DATA *ch) {
 		dam *= 1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0; // на лошадке до +20%
 		send_to_char(ch, "&YДамага с учетом второй лошади == %d&n\r\n", dam);
 	}
+
+	if (ch->add_abils.percent_dam_add > 0) {
+		int tmp;
+		if (need_dice) {
+			tmp = dam * (number(1, ch->add_abils.percent_dam_add) / 100.0); 
+			dam += tmp;
+		} else {
+			tmp = dam * (ch->add_abils.percent_dam_add / 2.0 / 100.0);
+			dam += tmp;
+		}
+		send_to_char(ch, "&YДамага c + процентами дамаги== %d, добавили = %d &n\r\n", dam, tmp);
+	}
 	//режем дамаг от голода
 	dam *= ch->get_cond_penalty(P_DAMROLL);
-	send_to_char(ch, "&YДамага с бонусами == %d&n\r\n", dam);
+	send_to_char(ch, "&YДамага с бонусами итого == %d&n\r\n", dam);
 	return dam;
 
 }
@@ -3565,7 +3577,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 	hit_params.calc_base_hr(ch);
 	hit_params.calc_rand_hr(ch, victim);
 	hit_params.calc_ac(victim);
-	hit_params.calc_damage(ch); // попытка все собрать в кучу
+	bool need_dice = false;
+	hit_params.calc_damage(ch, need_dice); // попытка все собрать в кучу
 
 	// рандом разброс базового дамага для красоты
 	if (hit_params.dam > 0) {
