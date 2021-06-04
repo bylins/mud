@@ -3874,7 +3874,7 @@ struct set_struct        /*
 		{"dumb", LVL_GOD, PC, MISC},
 		{"karma", LVL_IMPL, PC, MISC},
 		{"unreg", LVL_GOD, PC, MISC}, // 56
-		{"executor", LVL_IMPL, PC, BINARY}, // 57
+		{"палач", LVL_IMPL, PC, BINARY}, // 57
 		{"killer", LVL_IMPL, PC, BINARY}, // 58
 		{"remort", LVL_IMPL, PC, BINARY}, // 59
 		{"tester", LVL_IMPL, PC, BINARY}, // 60
@@ -4471,7 +4471,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			reason = one_argument(val_arg, num);
 			skip_spaces(&reason);
 			sprintf(buf, "executor %s by %s", (on ? "on" : "off"), GET_NAME(ch));
-			add_karma(vict, buf, reason);
+//			add_karma(vict, buf, reason);
 			if (on) {
 				PRF_FLAGS(vict).set(PRF_EXECUTOR);
 			} else if (off) {

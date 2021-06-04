@@ -24,10 +24,11 @@ struct HitData {
 	void calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim);
 	void calc_stat_hr(CHAR_DATA *ch);
 	void calc_ac(CHAR_DATA *victim);
-	void add_weapon_damage(CHAR_DATA *ch);
-	void add_hand_damage(CHAR_DATA *ch);
+	void add_weapon_damage(CHAR_DATA *ch, bool need_dice);
+	void add_hand_damage(CHAR_DATA *ch, bool need_dice);
 	void check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim);
 	void calc_crit_chance(CHAR_DATA *ch);
+	int calc_damage(CHAR_DATA *ch, bool need_dice);
 	double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	// extdamage
