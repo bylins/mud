@@ -3443,7 +3443,6 @@ void print_do_score_all(CHAR_DATA *ch) {
 	send_to_char(buf, ch);
 	if (PRF_FLAGGED(ch, PRF_TESTER))
 		test_self_hitroll(ch);
-	send_to_char(ch, "+дамы %d\r\n", ch->add_abils.percent_dam_add);
 }
 
 void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
