@@ -3410,12 +3410,12 @@ int HitData::calc_damage(CHAR_DATA *ch, bool need_dice) {
 		dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 	}
 	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
-		send_to_char(ch, "&YДамага с бонусами от силы или ловкости == %d&n\r\n", dam);
+		send_to_char(ch, "&YДамага с бонусами от силы или ловкости == %d str_bonus == %d str == %d&n\r\n", dam, str_bonus(GET_REAL_STR(ch), STR_TO_DAM), GET_REAL_STR(ch));
 	// оружие/руки и модификаторы урона скилов, с ними связанных
 	if (wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON) {
 		add_weapon_damage(ch, need_dice);
 		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
-			send_to_char(ch, "&YДамага +кубики оружия == %d&n\r\n", dam);
+			send_to_char(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam, GET_OBJ_PNAME(wielded,1).c_str(), GET_OBJ_VNUM(wielded));
 		if (GET_EQ(ch, WEAR_BOTHS) && weap_skill != SKILL_BOWS) { //двуруч множим на 2
 			dam *= 2;
 		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
@@ -3789,8 +3789,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 				if (!PUNCTUAL_WAITLESS(ch)) {
 					PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 				}
+				call_magic(ch, victim, nullptr, nullptr, ESpell::SPELL_PALADINE_INSPIRATION, ch->get_level());
 			}
-			call_magic(ch, victim, nullptr, nullptr, ESpell::SPELL_PALADINE_INSPIRATION, ch->get_level());
 		}
 	}
 
