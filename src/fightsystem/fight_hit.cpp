@@ -3768,7 +3768,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		return;
 	}
 
-	if (GET_AF_BATTLE(ch, EAF_PUNCTUAL) && GET_PUNCTUAL_WAIT(ch) <= 0 && GET_WAIT(ch) <= 0
+	if (!IS_CHARMICE(ch) && GET_AF_BATTLE(ch, EAF_PUNCTUAL) && GET_PUNCTUAL_WAIT(ch) <= 0 && GET_WAIT(ch) <= 0
 		&& (hit_params.diceroll >= 18 - GET_MOB_HOLD(victim))) {
 		int percent = CalcCurrentSkill(ch, SKILL_PUNCTUAL, victim);
 		bool success = percent >= number(1, skill_info[SKILL_PUNCTUAL].difficulty);
@@ -3776,8 +3776,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		if (!PUNCTUAL_WAITLESS(ch)) {
 			PUNCTUAL_WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 		}
-		if (success
-			&& (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
+		if (success && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
 				|| percent >= skill_info[SKILL_PUNCTUAL].difficulty)) {
 			if (!MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL)) {
 				hit_params.set_flag(FightSystem::CRIT_HIT);

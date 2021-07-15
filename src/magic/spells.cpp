@@ -2516,7 +2516,7 @@ const cast_phrases_t cast_phrase =
 					  "...и самый сильный яд станет вам виден."}, // SPELL_SNAKE_EYES
 		cast_phrase_t{"Велес, даруй защиту.", "... земля благословенна твоя."}, // SPELL_EARTH_AURA
 		cast_phrase_t{"други, супостат нощи",
-					  "други, свет который в тебе, да убоится тьма."}, // SPELL_GROUP_PROT_FROM_EVIL
+					  "други, свет который в нас, да убоится тьма."}, // SPELL_GROUP_PROT_FROM_EVIL
 		cast_phrase_t{"!магический выстрел!", "!use battle expedient!"}, // SPELL_ARROWS_FIRE (set by program)
 		cast_phrase_t{"!магический выстрел!", "!use battle expedient!"}, // SPELL_ARROWS_ (set by program)
 		cast_phrase_t{"!магический выстрел!", "!use battle expedient!"}, // SPELL_ARROWS_ (set by program)
