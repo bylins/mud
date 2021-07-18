@@ -109,7 +109,7 @@ struct char_ability_data {
 	std::array<ubyte, MAX_SPELLS + 1> SplMem; // array of MEMed SPELLS
 	std::bitset<MAX_FEATS> Feats;
 	sbyte size;
-	sbyte hitroll;
+	int hitroll;
 	int damroll;
 	short armor;
 };
@@ -117,10 +117,10 @@ struct char_ability_data {
 // Char's points.
 struct char_point_data {
 	int hit;
-	sh_int move;
+	int move;
 
 	sh_int max_move;    // Max move for PC/NPC
-	int max_hit;        // Max hit for PC/NPC
+	sh_int max_hit;        // Max hit for PC/NPC
 };
 
 /*
