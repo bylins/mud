@@ -114,7 +114,7 @@ int min_rent_cost(CHAR_DATA *ch) {
 int crash_file_timeout = 30;
 
 // Lifetime of normal rent files in days
-int rent_file_timeout = 30;
+int rent_file_timeout = 60;
 
 // The period of free rent after crash or forced-rent in hours
 int free_crashrent_period = 2;

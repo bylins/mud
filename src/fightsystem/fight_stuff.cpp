@@ -223,6 +223,44 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer) {
 	}
 }
 
+bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
+	room_rnum rnum_start, rnum_stop;
+	if (IS_NPC(ch)){
+		return false;
+	}
+	if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && (ch != killer)) { //не нычка в ПК
+		return false;
+	}
+	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
+	get_zone_rooms(world[ch->in_room]->zone, &rnum_start, &rnum_stop);
+	for (; rnum_start <= rnum_stop; rnum_start++) {
+		ROOM_DATA *rm = world[rnum_start];
+		if (rm->contents) {
+			for (OBJ_DATA *j = rm->contents; j; j = j->get_next_content()) {
+				if (j->get_vnum() == 1000) { // камень возрождения
+					send_to_char("Божественная сила спасла вашу жизнь!\r\n", ch);
+					char_from_room(ch);
+					char_to_room(ch, rnum_start);
+					ch->dismount();
+					GET_HIT(ch) = 1;
+					update_pos(ch);
+					if (!ch->affected.empty()) {
+						while (!ch->affected.empty()) {
+							ch->affect_remove(ch->affected.begin());
+						}
+					}
+					GET_POS(ch) = POS_STANDING;
+					look_at_room(ch, 0);
+					act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+					WAIT_STATE(ch, 10 * PULSE_VIOLENCE);
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
 	const bool player_died = !IS_NPC(ch);
 	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone].under_construction;
@@ -277,7 +315,9 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 	if (check_tester_death(ch, killer)) {
 		return;
 	}
-
+	if (stone_rebirth(ch, killer)) {
+		return;
+	}
 	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].number == 759)
 		&& (GET_LEVEL(ch) < 15)) //нуб помер в мадшколе
 	{
