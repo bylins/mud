@@ -44,7 +44,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
-extern int free_rent;
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
 extern room_rnum r_helled_start_room;
@@ -1005,10 +1004,7 @@ void check_idling(CHAR_DATA *ch) {
 				if (ch->in_room != NOWHERE)
 					char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
-				if (free_rent)
-					Crash_rentsave(ch, 0);
-				else
-					Crash_idlesave(ch);
+				Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
