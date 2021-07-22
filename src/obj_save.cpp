@@ -1784,8 +1784,8 @@ int Crash_load(CHAR_DATA *ch) {
 	}
 	// end by WorM
 	// Бесплатная рента, если выйти в течение 2 часов после ребута или креша
-	if ((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED || free_rent)
-		&& SAVEINFO(index)->rent.time + free_crashrent_period * SECS_PER_REAL_HOUR > time(0)) {
+	if (((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
+		&& SAVEINFO(index)->rent.time + free_crashrent_period * SECS_PER_REAL_HOUR > time(0)) || free_rent) {
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
@@ -2808,9 +2808,9 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 		extract_char(ch, FALSE);
 	}
 	else if (CMD_IS("offer") || CMD_IS("предложение")) {
+			act("$N предложил$G $n2 остановиться у н$S.", FALSE, ch, 0, recep, TO_ROOM);
 			if (!free_rent) {
 				Crash_offer_rent(ch, recep, TRUE, mode, &cost);
-				act("$N предложил$G $n2 остановиться у н$S.", FALSE, ch, 0, recep, TO_ROOM);
 			}
 			else {
 				act("$n сказал$g вам : 'Сегодня спим на халяву..'", FALSE, recep, 0, ch, TO_VICT);
