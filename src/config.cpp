@@ -97,7 +97,7 @@ const char *NOEFFECT = "Ваши потуги оказались напрасн�
  * Should the MUD allow you to 'rent' for free?  (i.e. if you just quit,
  * your objects are saved at no cost, as in Merc-type MUDs.)
  */
-int free_rent = NO;
+int free_rent = YES;
 
 // maximum number of items players are allowed to rent
 //int max_obj_save = 120;

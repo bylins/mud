@@ -65,7 +65,6 @@
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
 extern char const *class_abbrevs[];
-extern int free_rent;
 extern int max_filesize;
 extern int nameserver_is_slow;
 extern struct skillvariables_dig dig_vars;
@@ -179,10 +178,6 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			if (d->character && (GET_IDNUM(d->character) == GET_IDNUM(ch)))
 				STATE(d) = CON_DISCONNECT;
-		}
-
-		if (free_rent || IS_GOD(ch)) {
-			Crash_rentsave(ch, 0);
 		}
 		extract_char(ch, FALSE);
 	}
