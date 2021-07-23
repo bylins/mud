@@ -2861,7 +2861,8 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim) {
 		wielded = GET_EQ(ch, WEAR_HOLD);
 		weapon_pos = WEAR_HOLD;
 		if (!wielded) { // удар второй рукой
-			weap_skill_is = CalcCurrentSkill(ch, SKILL_SHIT, victim);
+			weap_skill = SKILL_SHIT;
+			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
 			TrainSkill(ch, weap_skill, true, victim);
 		}
 	}
