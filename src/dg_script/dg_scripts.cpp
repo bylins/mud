@@ -26,6 +26,7 @@
 #include "bonus.h"
 #include "olc/olc.h"
 #include "privilege.h"
+#include <string>
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -1775,6 +1776,17 @@ void find_replacement(void *go,
 			}
 
 			return;
+		} else if (!str_cmp(var, "number")) {
+			if (!str_cmp(field, "range")) {
+				std::string tempstr = subfield;
+				std::string s1 = tempstr.substr(0, tempstr.find(','));
+				std::string s2 = tempstr.substr(tempstr.find(',') +1 );
+				int x = atoi(s1.c_str());
+				int y = atoi(s2.c_str());
+				sprintf(str, "%d", number(x, y));
+			}
+		return;
+		
 		} else if (!str_cmp(var, "array")) {
 			if (!str_cmp(field, "item")) {
 				char *p = strchr(subfield, ',');
