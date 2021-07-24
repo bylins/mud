@@ -2913,7 +2913,22 @@ void find_replacement(void *go,
 			if (first_char) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(first_char));
 			}
-		} else if (!str_cmp(field, "char")
+		} else if (!str_cmp(field, "firstvnum")) {
+			if (r->zone > 1) {
+				int fv = zone_table[--r->zone].top;
+				fv++;
+				sprintf(str, "%d", fv);
+			} else
+				sprintf(str, "%d", 100);
+		} else if (!str_cmp(field, "lastvnum")) {
+			int lv = zone_table[r->zone].top;
+			int x,y;
+			get_zone_rooms(r->zone, &x , &y);
+			sprintf(buf, "top vnum x= %d y= %d", x, y);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			sprintf(str, "%d", lv);
+		}
+		else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
 			|| !str_cmp(field, "npc")
 			|| !str_cmp(field, "all")) {
