@@ -1,5 +1,5 @@
 #!/bin/bash
-PORT=4000
+PORT=5555
 ulimit -c unlimited
 
 # Default flags to pass to the MUD server (see admin.txt for a description
@@ -18,23 +18,6 @@ while ( : ) do
   mv syslog.CRASH.1 syslog.CRASH.2
   mv syslog.CRASH syslog.CRASH.1
   tail -1000 syslog > syslog.CRASH
-
-  fgrep "self-delete" syslog >> log/delete
-  fgrep "death trap" syslog >> log/dts
-  fgrep "killed" syslog >> log/rip
-  fgrep "Running" syslog >> log/restarts
-  fgrep "advanced" syslog >> log/levels
-  fgrep "equipment lost" syslog >> log/rentgone
-  fgrep "usage" syslog >> log/usage
-  fgrep "new player" syslog >> log/newplayers
-  fgrep "SYSERR" syslog >> log/errors
-  fgrep "(GC)" syslog >> log/godcmds
-  fgrep "Bad PW" syslog >> log/badpws
-
-  gzip syslog
-  mv syslog.gz archive/syslog.$(date +%d%m%y).gz
-  mv core.2 core.3
-  mv core.1 core.2
   mv lib/core core.1
   chmod 660 core.1
 
