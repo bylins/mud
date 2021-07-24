@@ -1132,6 +1132,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	mob_proto[i].set_con(11);
 	mob_proto[i].set_cha(11);
 
+	mob_proto[i].player_specials->saved.NameGod = 1001; // у мобов имя всегда одобрено
 	if (!get_line(file(), line)) {
 		log("SYSERR: Format error in mob #%d, file ended after S flag!", nr);
 		exit(1);

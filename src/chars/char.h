@@ -117,10 +117,10 @@ struct char_ability_data {
 // Char's points.
 struct char_point_data {
 	int hit;
-	int move;
+	sh_int move;
 
-	sh_int max_move;    // Max move for PC/NPC
-	sh_int max_hit;        // Max hit for PC/NPC
+	int max_move;    // Max move for PC/NPC
+	int max_hit;        // Max hit for PC/NPC
 };
 
 /*

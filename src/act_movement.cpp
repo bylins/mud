@@ -1527,7 +1527,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
 				if (!IS_IMMORTAL(ch)
 					&& ((!IS_NPC(ch)
-						&& (!Clan::MayEnter(ch, door, HCE_PORTAL) || (GET_LEVEL(ch) <= 10 && world[door]->portal_time)))
+						&& (!Clan::MayEnter(ch, door, HCE_PORTAL) || (GET_LEVEL(ch) <= 10 && world[door]->portal_time && ch->get_remort() < 9)))
 						|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT) || ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
 						|| AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)
 						|| (world[door]->pkPenterUnique

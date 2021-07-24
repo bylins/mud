@@ -26,6 +26,7 @@
 #include "bonus.h"
 #include "olc/olc.h"
 #include "privilege.h"
+#include <string>
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -1775,6 +1776,17 @@ void find_replacement(void *go,
 			}
 
 			return;
+		} else if (!str_cmp(var, "number")) {
+			if (!str_cmp(field, "range")) {
+				std::string tempstr = subfield;
+				std::string s1 = tempstr.substr(0, tempstr.find(','));
+				std::string s2 = tempstr.substr(tempstr.find(',') +1 );
+				int x = atoi(s1.c_str());
+				int y = atoi(s2.c_str());
+				sprintf(str, "%d", number(x, y));
+			}
+		return;
+		
 		} else if (!str_cmp(var, "array")) {
 			if (!str_cmp(field, "item")) {
 				char *p = strchr(subfield, ',');
@@ -2282,20 +2294,30 @@ void find_replacement(void *go,
 										  (long) GET_SIZE_ADD(c)));
 			sprintf(str, "%d", GET_SIZE_ADD(c));
 		} else if (!str_cmp(field, "room")) {
-			int n = find_room_uid(world[IN_ROOM(c)]->number);
-			if (n >= 0)
+			if (!*subfield) {
+				int n = find_room_uid(world[IN_ROOM(c)]->number);
+				if (n >= 0)
 				sprintf(str, "%c%d", UID_ROOM, n);
+			}
+			else {
+				int p = atoi(subfield);
+				if (p > 0){
+					char_from_room(c);
+					char_to_room(c, real_room(p));
+				}
+			}
 		} else if (!str_cmp(field, "realroom"))
 			sprintf(str, "%d", world[IN_ROOM(c)]->number);
 		else if (!str_cmp(field, "loadroom")) {
-			int pos;
 			if (!IS_NPC(c)) {
-				if (!*subfield || !(pos = atoi(subfield)))
+				if (!*subfield)
 					sprintf(str, "%d", GET_LOADROOM(c));
 				else {
-					GET_LOADROOM(c) = pos;
-					c->save_char();
-					sprintf(str, "%d", real_room(pos)); // TODO: почему тогда тут рнум?
+					int pos = atoi(subfield);
+					if (real_room(pos) != NOWHERE) {
+						GET_LOADROOM(c) = pos;
+						c->save_char();
+					}
 				}
 			}
 		} else if (!str_cmp(field, "maxskill")) {
