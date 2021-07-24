@@ -2630,15 +2630,8 @@ int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int display, int fa
 
 	for (i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i)) {
-			Crash_report_rent(ch,
-							  receptionist,
-							  (GET_EQ(ch, i))->get_contains(),
-							  totalcost,
-							  &numitems,
-							  display,
-							  factor,
-							  FALSE,
-							  TRUE);
+			Crash_report_rent(ch, receptionist, (GET_EQ(ch, i))->get_contains(), totalcost,
+				&numitems, display, factor, FALSE, TRUE);
 		}
 
 	numitems += numitems_weared;
@@ -2697,7 +2690,8 @@ int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int display, int fa
 
 int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, int mode) {
 	room_rnum save_room;
-	int cost, rentshow = TRUE;
+	int numitems = 0;
+	int cost, rentshow = TRUE; // не трогать работает черезодно место
 
 	if (!ch->desc || IS_NPC(ch))
 		return (FALSE);
@@ -2740,10 +2734,37 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 	if (ch->get_fighting()) {
 		return (FALSE);
 	}
+
 	if (CMD_IS("rent") || CMD_IS("постой")) {
 		if (!free_rent) {
 			if (!Crash_offer_rent(ch, recep, rentshow, mode, &cost))
 			return (TRUE);
+		} else {
+			for (auto i = 0; i < NUM_WEARS; i++) {
+				if (GET_EQ(ch, i)) {
+					numitems++;
+				}
+			}
+			for (auto i = ch->carrying; i; i = i->get_next_content()) {
+				if (!i->get_contains())
+					numitems++;
+				else {
+					for (auto y = i->get_contains(); y; y = y->get_next_content())
+						numitems++;
+				}
+			}
+			if (numitems == 0) {
+				act("$n сказал$g вам : \"Но у тебя ведь ничего нет! Просто набери \"конец\"!\"", FALSE,
+				recep, 0, ch, TO_VICT);
+				return (TRUE);
+			}
+			if (numitems > MAX_SAVED_ITEMS) {
+				sprintf(buf, "$n сказал$g вам : \"Извините, но я не могу хранить больше %d предметов.\"", MAX_SAVED_ITEMS);
+				act(buf, FALSE, recep, 0, ch, TO_VICT);
+				sprintf(buf, "$n сказал$g вам : \"В данный момент их у вас %d.\"", numitems);
+				act(buf, FALSE, recep, 0, ch, TO_VICT);
+				return (TRUE);
+			}
 		}
 		if (!rentshow) {
 			if (!free_rent) {

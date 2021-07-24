@@ -155,6 +155,7 @@ extern INDEX_DATA *mob_index;
 extern const char *default_race[];
 extern void add_karma(CHAR_DATA *ch, const char *punish, const char *reason);
 extern struct pclean_criteria_data pclean_criteria[];
+extern int rent_file_timeout;
 
 extern char *GREETINGS;
 extern const char *pc_class_types[];
@@ -3534,7 +3535,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 							timeout = pclean_criteria[ci + 1].days;
 						}
 						if (timeout > 0) {
-							time_t deltime = time(NULL) + timeout * 60 * 60 * 24;
+							time_t deltime = time(NULL) + timeout * 60 * rent_file_timeout * 24;
 							sprintf(buf, "В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
 									rustime(localtime(&deltime)));
 							SEND_TO_Q(buf, d);
