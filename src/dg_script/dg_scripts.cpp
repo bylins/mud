@@ -1791,24 +1791,18 @@ void find_replacement(void *go,
 			if (!str_cmp(field, "item")) {
 				char *p = strchr(subfield, ',');
 				int n = 0;
-				int i = 1;
 				if (!p) {
-					p = subfield;
-					while (p[i] != '\0') {
-						if (p[i] == ' ' && (p[i + 1] == ' ' || p[i + 1] == '\0')) {
-							i++;
-							continue;
+					int count = 0;
+					for(const char * c = subfield; *c; ++c) {
+						if (*c == ' ' && *(c + 1) != ' ') {
+							++count;
 						}
-						if (p[i] == ' ')
-							n++;
-						i++;
 					}
-					sprintf(str, "%d", n + 1);
+					sprintf(str, "%d", count + 1); // +1 за первое слово
 					return;
-				} else {
-					*(p++) = '\0';
-					n = atoi(p);
 				}
+				*(p++) = '\0';
+				n = atoi(p);
 				p = subfield;
 				while (n) {
 					char *retval = p;
