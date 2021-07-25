@@ -2913,7 +2913,16 @@ void find_replacement(void *go,
 			if (first_char) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(first_char));
 			}
-		} else if (!str_cmp(field, "char")
+		} else if (!str_cmp(field, "firstvnum")) {
+			int x,y;
+			get_zone_rooms(r->zone, &x , &y);
+			sprintf(str, "%d", world[x]->number);
+		} else if (!str_cmp(field, "lastvnum")) {
+			int x,y;
+			get_zone_rooms(r->zone, &x , &y);
+			sprintf(str, "%d", world[y]->number);
+		}
+		else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
 			|| !str_cmp(field, "npc")
 			|| !str_cmp(field, "all")) {

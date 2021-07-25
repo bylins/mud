@@ -4601,7 +4601,7 @@ int get_zone_rooms(int zone_nr, int *start, int *stop) {
 
 	if (rnum == NOWHERE)
 		return 0;
-	*stop = rnum;
+	*stop = rnum - 1;
 	rnum = NOWHERE;
 	while (zone_nr) {
 		first_room_vnum = zone_table[--zone_nr].top;
