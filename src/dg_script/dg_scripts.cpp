@@ -2914,19 +2914,13 @@ void find_replacement(void *go,
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(first_char));
 			}
 		} else if (!str_cmp(field, "firstvnum")) {
-			if (r->zone > 1) {
-				int fv = zone_table[--r->zone].top;
-				fv++;
-				sprintf(str, "%d", fv);
-			} else
-				sprintf(str, "%d", 100);
-		} else if (!str_cmp(field, "lastvnum")) {
-			int lv = zone_table[r->zone].top;
 			int x,y;
 			get_zone_rooms(r->zone, &x , &y);
-			sprintf(buf, "top vnum x= %d y= %d", x, y);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			sprintf(str, "%d", lv);
+			sprintf(str, "%d", world[x]->number);
+		} else if (!str_cmp(field, "lastvnum")) {
+			int x,y;
+			get_zone_rooms(r->zone, &x , &y);
+			sprintf(str, "%d", world[y]->number);
 		}
 		else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
