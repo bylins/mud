@@ -2829,15 +2829,14 @@ int koef_skill_magic(int percent_skill) {
 }
 
 int mag_manacost(const CHAR_DATA *ch, int spellnum) {
-	int mana_cost;
-
+	int result;
 	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
 
 //	Мем рунных профессий(на сегодня только волхвы)
 	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum)) {
-		const auto result = static_cast<int>(DRUID_MANA_COST_MODIFIER
+		result = static_cast<int>(DRUID_MANA_COST_MODIFIER
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
 			* 60
@@ -2846,39 +2845,25 @@ int mag_manacost(const CHAR_DATA *ch, int spellnum) {
 						  * (GET_LEVEL(ch)
 							  - spell_create[spellnum].runes.min_caster_level)),
 				  SpINFO.mana_min));
-
-		//Зависимости в таблице несколько корявые, поэтому изменение пустим в обратную сторону
-		return result;
-	};
-
+	} else {
 //	Мем всех остальных
-	if (!IS_MANA_CASTER(ch)
-		&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
-		&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
-		mana_cost = MAX(SpINFO.mana_max
-							- (SpINFO.mana_change
-								* (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))),
-						SpINFO.mana_min);
-
-		if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
-			mana_cost =
-				mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
-		} else {
-			mana_cost =
-				mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
-		}
-
+		if (!IS_MANA_CASTER(ch)
+			&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
+			&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
+			result = MAX(SpINFO.mana_max - (SpINFO.mana_change * (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))), SpINFO.mana_min);
+			if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
+				result = result * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
+			} else {
+				result = result * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
+			}
 //		Меняем мем на коэффициент скилла магии
-		if ((GET_CLASS(ch) == CLASS_DRUID)
-			|| (GET_CLASS(ch) == CLASS_PALADINE)
-			|| (GET_CLASS(ch) == CLASS_MERCHANT)) {
-			return mana_cost;
+			if (GET_CLASS(ch) == CLASS_PALADINE || GET_CLASS(ch) == CLASS_MERCHANT) {
+				return result;
+			}
 		}
-		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum)))
-			/ 100; // при скилле 200 + 25%
-	};
-
-	return 99999;
+	}
+	return result * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100;
+				// при скилле 200 + 25%, чем меньше тем лучше
 }
 
 void MemQ_init(CHAR_DATA *ch) {
