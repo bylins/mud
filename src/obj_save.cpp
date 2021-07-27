@@ -2758,6 +2758,15 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 				recep, 0, ch, TO_VICT);
 				return (TRUE);
 			}
+
+			auto norent = Crash_report_unrentables(ch, recep, ch->carrying);
+			for (auto i = 0; i < NUM_WEARS; i++) {
+				norent += Crash_report_unrentables(ch, recep, GET_EQ(ch, i));
+			}
+			norent += Depot::report_unrentables(ch, recep);
+			if (norent)
+				return (TRUE);
+
 			if (numitems > MAX_SAVED_ITEMS) {
 				sprintf(buf, "$n сказал$g вам : \"Извините, но я не могу хранить больше %d предметов.\"", MAX_SAVED_ITEMS);
 				act(buf, FALSE, recep, 0, ch, TO_VICT);
