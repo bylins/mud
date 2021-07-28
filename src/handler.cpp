@@ -2829,7 +2829,7 @@ int koef_skill_magic(int percent_skill) {
 }
 
 int mag_manacost(const CHAR_DATA *ch, int spellnum) {
-	int result;
+	int result = 0;
 	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
@@ -2846,9 +2846,7 @@ int mag_manacost(const CHAR_DATA *ch, int spellnum) {
 							  - spell_create[spellnum].runes.min_caster_level)),
 				  SpINFO.mana_min));
 	} else {
-//	Мем всех остальных
-		if (!IS_MANA_CASTER(ch)
-			&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
+		if (!IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
 			&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
 			result = MAX(SpINFO.mana_max - (SpINFO.mana_change * (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))), SpINFO.mana_min);
 			if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
@@ -2862,8 +2860,11 @@ int mag_manacost(const CHAR_DATA *ch, int spellnum) {
 			}
 		}
 	}
-	return result * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100;
+	if (result > 0)
+		return result * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100;
 				// при скилле 200 + 25%, чем меньше тем лучше
+	else 
+		return 99999;
 }
 
 void MemQ_init(CHAR_DATA *ch) {
