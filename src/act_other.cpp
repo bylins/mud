@@ -780,19 +780,19 @@ void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af[1].duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	af[1].modifier = MAX(1, prob);
 	af[1].location = APPLY_DAMROLL;
-	af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+	af[1].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
 	af[1].battleflag = 0;
 	af[2].type = SPELL_COURAGE;
 	af[2].duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	af[2].modifier = MAX(1, prob * 7);
 	af[2].location = APPLY_ABSORBE;
-	af[2].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+	af[2].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
 	af[2].battleflag = 0;
 	af[3].type = SPELL_COURAGE;
 	af[3].duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	af[3].modifier = 50;
 	af[3].location = APPLY_HITREG;
-	af[3].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+	af[3].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
 	af[3].battleflag = 0;
 
 	for (i = 0; i < 4; i++) {
@@ -800,6 +800,7 @@ void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 	send_to_char("Вы пришли в ярость.\r\n", ch);
+
 	if ((obj = GET_EQ(ch, WEAR_WIELD)) || (obj = GET_EQ(ch, WEAR_BOTHS)))
 		strcpy(buf, "Глаза $n1 налились кровью и $e яростно сжал$g в руках $o3.");
 	else
