@@ -1666,7 +1666,7 @@ void perform_wear(CHAR_DATA *ch, OBJ_DATA *obj, int where) {
 	}
 	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
 		if (ch->get_fighting() && (where == WEAR_SHIELD || GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)) {
-			send_to_char("Вм нужно набраться сил.\r\n", ch);
+			send_to_char("Вам нужно набраться сил.\r\n", ch);
 			return;
 		}
 	};
