@@ -192,7 +192,8 @@ int mobs_in_room(int m_num, int r_num);
 void new_build_player_index(void);
 void renum_obj_zone(void);
 void renum_mob_zone(void);
-int get_zone_rooms(int, int *, int *);
+//int get_zone_rooms(int, int *, int *);
+//int get_zone_rooms1(int, int *, int *);
 void init_guilds(void);
 void init_basic_values(void);
 void init_portals(void);
@@ -4591,6 +4592,31 @@ void ZoneReset::reset_zone_essential() {
 void reset_zone(zone_rnum zone) {
 	ZoneReset zreset(zone);
 	zreset.reset();
+}
+
+int get_zone_rooms1(int zone_nr, int *first, int *last) {
+	*first = zone_table[zone_nr].number * 100;
+	*last  = *first + 99;
+	for (int nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->number < *last); nr++) {
+		if (world[nr]->number >= *first) {
+			*first = real_room(world[nr]->number);
+			sprintf(buf, "1firstroom = %d", world[nr]->number);
+			mudlog(buf, CMP, 31, SYSLOG, TRUE);
+			break;
+		}
+	}
+	for (int nr = *first; nr <= top_of_world; nr++) {
+		if (world[nr]->number >= *last ) {
+			sprintf(buf, "1laststroom == %d nr ==%dm last == %d", world[nr]->number -1, nr, *last);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+
+			*last = real_room(world[nr]->number - 1);
+		break;
+		}
+	}
+	if (*first == NOWHERE || *last == NOWHERE)
+		return 0;
+	return 1;
 }
 
 // Ищет RNUM первой и последней комнаты зоны
