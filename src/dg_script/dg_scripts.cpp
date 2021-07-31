@@ -1877,8 +1877,10 @@ void find_replacement(void *go,
 			if (!IS_NPC(c))
 				sprintf(str, "%d", GET_REMORT(c));
 		} else if (!str_cmp(field, "hitp")) {
-			GET_HIT(c) = (int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));
-			sprintf(str, "%d", GET_HIT(c));
+			if (*subfield)
+				GET_HIT(c) = (int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));
+			else
+				sprintf(str, "%d", GET_HIT(c));
 		} else if (!str_cmp(field, "arenahp")) {
 			CHAR_DATA *k;
 			struct follow_type *f;
@@ -1930,96 +1932,94 @@ void find_replacement(void *go,
 			}
 			sprintf(str, "%d", arena_hp);
 		} else if (!str_cmp(field, "hitpadd")) {
-			GET_HIT_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HIT_ADD(c));
-			sprintf(str, "%d", GET_HIT_ADD(c));
+			if (*subfield)
+				GET_HIT_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HIT_ADD(c));
+			else
+				sprintf(str, "%d", GET_HIT_ADD(c));
 		} else if (!str_cmp(field, "maxhitp")) {
-			// if (!IS_NPC(c))
-			//   GET_MAX_HIT(c) = (sh_int) MAX(1,gm_char_field(c,field,subfield,(long)GET_MAX_HIT(c)));
 			sprintf(str, "%d", GET_MAX_HIT(c));
-		} else if (!str_cmp(field, "hitpreg")) {
-			GET_HITREG(c) = (int) gm_char_field(c, field, subfield, (long) GET_HITREG(c));
-			sprintf(str, "%d", GET_HITREG(c));
 		} else if (!str_cmp(field, "mana")) {
-			if (!IS_NPC(c))
-				GET_MANA_STORED(c) =
-					MAX(0, gm_char_field(c, field, subfield, (long) GET_MANA_STORED(c)));
-			sprintf(str, "%d", GET_MANA_STORED(c));
-		} else if (!str_cmp(field, "manareg")) {
-			GET_MANAREG(c) = (int) gm_char_field(c, field, subfield, (long) GET_MANAREG(c));
-			sprintf(str, "%d", GET_MANAREG(c));
+			if (*subfield) {
+				if (!IS_NPC(c))
+					GET_MANA_STORED(c) = MAX(0, gm_char_field(c, field, subfield, (long) GET_MANA_STORED(c)));
+			} else
+				sprintf(str, "%d", GET_MANA_STORED(c));
 		} else if (!str_cmp(field, "maxmana"))
 			sprintf(str, "%d", GET_MAX_MANA(c));
 		else if (!str_cmp(field, "move")) {
-			if (!IS_NPC(c))
+			if (*subfield)
 				GET_MOVE(c) = MAX(0, gm_char_field(c, field, subfield, GET_MOVE(c)));
-			sprintf(str, "%d", GET_MOVE(c));
+			else
+				sprintf(str, "%d", GET_MOVE(c));
 		} else if (!str_cmp(field, "maxmove")) {
-			//GET_MAX_MOVE(c) = (sh_int) MAX(1,gm_char_field(c,field,subfield,(long)GET_MAX_MOVE(c)));
 			sprintf(str, "%d", GET_MAX_MOVE(c));
 		} else if (!str_cmp(field, "moveadd")) {
-			GET_MOVE_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_MOVE_ADD(c));
-			sprintf(str, "%d", GET_MOVE_ADD(c));
-		} else if (!str_cmp(field, "movereg")) {
-			GET_MOVEREG(c) = (int) gm_char_field(c, field, subfield, (long) GET_MOVEREG(c));
-			sprintf(str, "%d", GET_MOVEREG(c));
+			if (*subfield)
+				GET_MOVE_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_MOVE_ADD(c));
+			else
+				sprintf(str, "%d", GET_MOVE_ADD(c));
 		} else if (!str_cmp(field, "castsucc")) {
-			GET_CAST_SUCCESS(c) =
-				(int) gm_char_field(c, field, subfield, (long) GET_CAST_SUCCESS(c));
-			sprintf(str, "%d", GET_CAST_SUCCESS(c));
-		} else if (!str_cmp(field, "ageadd")) {
-			if (!IS_NPC(c)) {
-				GET_AGE_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_AGE_ADD(c));
-				sprintf(str, "%d", GET_AGE_ADD(c));
-			}
+			if (*subfield)
+				GET_CAST_SUCCESS(c) = (int) gm_char_field(c, field, subfield, (long) GET_CAST_SUCCESS(c));
+			else
+				sprintf(str, "%d", GET_CAST_SUCCESS(c));
 		} else if (!str_cmp(field, "age")) {
 			if (!IS_NPC(c))
 				sprintf(str, "%d", GET_REAL_AGE(c));
 		} else if (!str_cmp(field, "hrbase")) {
-			//GET_HR(c) = (int) gm_char_field(c,field,subfield,(long)GET_HR(c));
 			sprintf(str, "%d", GET_HR(c));
 		} else if (!str_cmp(field, "hradd")) {
-			GET_HR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HR(c));
-			sprintf(str, "%d", GET_HR_ADD(c));
+			if (*subfield)
+				GET_HR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HR(c));
+			else
+				sprintf(str, "%d", GET_HR_ADD(c));
 		} else if (!str_cmp(field, "hr")) {
 			sprintf(str, "%d", GET_REAL_HR(c));
 		} else if (!str_cmp(field, "drbase")) {
-			//GET_DR(c) = (int) gm_char_field(c,field,subfield,(long)GET_DR(c));
 			sprintf(str, "%d", GET_DR(c));
 		} else if (!str_cmp(field, "dradd")) {
-			GET_DR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_DR(c));
-			sprintf(str, "%d", GET_DR_ADD(c));
+			if (*subfield)
+				GET_DR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_DR(c));
+			else
+				sprintf(str, "%d", GET_DR_ADD(c));
 		} else if (!str_cmp(field, "dr")) {
 			sprintf(str, "%d", GetRealDamroll(c));
 		} else if (!str_cmp(field, "acbase")) {
-			//GET_AC(c) = (int) gm_char_field(c,field,subfield,(long)GET_AC(c));
 			sprintf(str, "%d", GET_AC(c));
 		} else if (!str_cmp(field, "acadd")) {
-			GET_AC_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_AC(c));
-			sprintf(str, "%d", GET_AC_ADD(c));
+			if (*subfield)
+				GET_AC_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_AC(c));
+			else
+				sprintf(str, "%d", GET_AC_ADD(c));
 		} else if (!str_cmp(field, "ac")) {
 			sprintf(str, "%d", GET_REAL_AC(c));
 		} else if (!str_cmp(field, "morale")) // общая сумма морали
 		{
-			//GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
 			sprintf(str, "%d", c->calc_morale());
 		} else if (!str_cmp(field, "moraleadd")) // добавочная мораль
 		{
-			GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
-			sprintf(str, "%d", GET_MORALE(c));
+			if (*subfield)
+				GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
+			else
+				sprintf(str, "%d", GET_MORALE(c));
 		} else if (!str_cmp(field, "poison")) {
-			GET_POISON(c) = (int) gm_char_field(c, field, subfield, (long) GET_POISON(c));
-			sprintf(str, "%d", GET_POISON(c));
+			if (*subfield)
+				GET_POISON(c) = (int) gm_char_field(c, field, subfield, (long) GET_POISON(c));
+			else
+				sprintf(str, "%d", GET_POISON(c));
 		} else if (!str_cmp(field, "initiative")) {
-			GET_INITIATIVE(c) = (int) gm_char_field(c, field, subfield, (long) GET_INITIATIVE(c));
-			sprintf(str, "%d", GET_INITIATIVE(c));
+			if (*subfield)
+				GET_INITIATIVE(c) = (int) gm_char_field(c, field, subfield, (long) GET_INITIATIVE(c));
+			else
+				sprintf(str, "%d", GET_INITIATIVE(c));
 		} else if (!str_cmp(field, "align")) {
 			if (*subfield) {
 				if (*subfield == '-')
 					GET_ALIGNMENT(c) -= MAX(1, atoi(subfield + 1));
 				else if (*subfield == '+')
 					GET_ALIGNMENT(c) += MAX(1, atoi(subfield + 1));
-			}
-			sprintf(str, "%d", GET_ALIGNMENT(c));
+			} else
+				sprintf(str, "%d", GET_ALIGNMENT(c));
 		} else if (!str_cmp(field, "religion")) {
 			if (*subfield && ((atoi(subfield) == RELIGION_POLY) || (atoi(subfield) == RELIGION_MONO)))
 				GET_RELIGION(c) = atoi(subfield);
@@ -2048,26 +2048,28 @@ void find_replacement(void *go,
 
 		if (done) {
 		} else if (!str_cmp(field, "hryvn")) {
-			const long before = c->get_hryvn();
-			int value;
-			c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
-			value = c->get_hryvn() - before;
-			sprintf(buf,
-					"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
+			if (*subfield) {
+				const long before = c->get_hryvn();
+				int value;
+				c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+				value = c->get_hryvn() - before;
+				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
 					GET_PAD(c, 0),
 					GET_ROOM_VNUM(c->in_room),
 					value,
 					desc_count(value, WHAT_TORCu),
 					GET_TRIG_NAME(trig),
 					GET_TRIG_VNUM(trig));
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
-			sprintf(str, "%d", c->get_hryvn());
+				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			} else
+				sprintf(str, "%d", c->get_hryvn());
 		} else if (!str_cmp(field, "gold")) {
-			const long before = c->get_gold();
-			int value;
-			c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
-			value = c->get_gold() - before;
-			sprintf(buf,
+			if (*subfield) {
+				const long before = c->get_gold();
+				int value;
+				c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
+				value = c->get_gold() - before;
+				sprintf(buf,
 					"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
 					GET_PAD(c, 0),
 					GET_ROOM_VNUM(c->in_room),
@@ -2075,28 +2077,31 @@ void find_replacement(void *go,
 					desc_count(value, WHAT_MONEYu),
 					GET_TRIG_NAME(trig),
 					GET_TRIG_VNUM(trig));
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
-			sprintf(str, "%ld", c->get_gold());
-			// клан-налог
-			const long diff = c->get_gold() - before;
-			split_or_clan_tax(c, diff);
-			// стата для show money
-			if (!IS_NPC(c) && IN_ROOM(c) > 0) {
-				MoneyDropStat::add(
+				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+				// клан-налог
+				const long diff = c->get_gold() - before;
+				split_or_clan_tax(c, diff);
+				// стата для show money
+				if (!IS_NPC(c) && IN_ROOM(c) > 0) {
+					MoneyDropStat::add(
 					zone_table[world[IN_ROOM(c)]->zone].number, diff);
-			}
+				}
+			} else
+				sprintf(str, "%ld", c->get_gold());
 		} else if (!str_cmp(field, "bank")) {
-			const long before = c->get_bank();
-			c->set_bank(MAX(0, gm_char_field(c, field, subfield, c->get_bank())));
-			sprintf(str, "%ld", c->get_bank());
-			// клан-налог
-			const long diff = c->get_bank() - before;
-			split_or_clan_tax(c, diff);
-			// стата для show money
-			if (!IS_NPC(c) && IN_ROOM(c) > 0) {
-				MoneyDropStat::add(
+			if (*subfield) {
+				const long before = c->get_bank();
+				c->set_bank(MAX(0, gm_char_field(c, field, subfield, c->get_bank())));
+				// клан-налог
+				const long diff = c->get_bank() - before;
+				split_or_clan_tax(c, diff);
+				// стата для show money
+				if (!IS_NPC(c) && IN_ROOM(c) > 0) {
+					MoneyDropStat::add(
 					zone_table[world[IN_ROOM(c)]->zone].number, diff);
-			}
+				} 
+			} else
+				sprintf(str, "%ld", c->get_bank());
 		} else if (!str_cmp(field, "exp") || !str_cmp(field, "questbodrich")) {
 			if (!str_cmp(field, "questbodrich")) {
 				if (*subfield) {
@@ -2249,44 +2254,37 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "vnum")) {
 			sprintf(str, "%d", GET_MOB_VNUM(c));
 		} else if (!str_cmp(field, "str")) {
-			//GET_STR(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_STR(c)));
 			sprintf(str, "%d", c->get_str());
 		} else if (!str_cmp(field, "stradd"))
 			sprintf(str, "%d", GET_STR_ADD(c));
 		else if (!str_cmp(field, "int")) {
-			//GET_INT(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_INT(c)));
 			sprintf(str, "%d", c->get_int());
 		} else if (!str_cmp(field, "intadd"))
 			sprintf(str, "%d", GET_INT_ADD(c));
 		else if (!str_cmp(field, "wis")) {
-			//GET_WIS(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_WIS(c)));
 			sprintf(str, "%d", c->get_wis());
 		} else if (!str_cmp(field, "wisadd"))
 			sprintf(str, "%d", GET_WIS_ADD(c));
 		else if (!str_cmp(field, "dex")) {
-			//GET_DEX(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_DEX(c)));
 			sprintf(str, "%d", c->get_dex());
 		} else if (!str_cmp(field, "dexadd"))
 			sprintf(str, "%d", c->get_dex_add());
 		else if (!str_cmp(field, "con")) {
-			//GET_CON(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_CON(c)));
 			sprintf(str, "%d", c->get_con());
 		} else if (!str_cmp(field, "conadd")) {
 			sprintf(str, "%d", GET_CON_ADD(c));
 		} else if (!str_cmp(field, "cha")) {
-			//GET_CHA(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_CHA(c)));
 			sprintf(str, "%d", c->get_cha());
 		} else if (!str_cmp(field, "chaadd"))
 			sprintf(str, "%d", GET_CHA_ADD(c));
 		else if (!str_cmp(field, "size")) {
-			//GET_SIZE(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_SIZE(c)));
 			sprintf(str, "%d", GET_SIZE(c));
 		} else if (!str_cmp(field, "sizeadd")) {
-			GET_SIZE_ADD(c) =
-				(sbyte) MAX(1,
-							gm_char_field(c, field, subfield,
-										  (long) GET_SIZE_ADD(c)));
-			sprintf(str, "%d", GET_SIZE_ADD(c));
+			if (*subfield)
+				GET_SIZE_ADD(c) =
+					(sbyte) MAX(1, gm_char_field(c, field, subfield, (long) GET_SIZE_ADD(c)));
+				else
+				sprintf(str, "%d", GET_SIZE_ADD(c));
 		} else if (!str_cmp(field, "room")) {
 			if (!*subfield) {
 				int n = find_room_uid(world[IN_ROOM(c)]->number);
