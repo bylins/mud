@@ -5049,28 +5049,31 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			m = 60 * 60;
 		else if (m == 'm')    // minutes
 			m = 60;
-		else if (m == 's' || a_isdigit(m))    // seconds
+		else if (m == 's')    // seconds
 			m = 1;
 		else
 			m = 0;
+
 		if ((m *= atoi(ca)) > 0)
 			t += m;
 		else {
-			send_to_char("Сдвиг игрового времени (h - часы, m - минуты, s - секунды).\r\n", ch);
-			return;
+			// no time shift with undefined arguments
+			t = 0;
+			break;
 		}
 	}
 
-	if (!t)            // 1 tick default
-	{
-		t = (SECS_PER_MUD_HOUR);
+	if (t <= 0) {
+			send_to_char("Сдвиг игрового времени (h - часы, m - минуты, s - секунды).\r\n", ch);
+			return;
 	}
 
 	for (m = 0; m < t * PASSES_PER_SEC; m++) {
 		GlobalObjects::heartbeat()(t * PASSES_PER_SEC - m);
 	}
 
-	sprintf(buf, "(GC) %s перевел игровое время на %d сек.", GET_NAME(ch), t);
+	send_to_char(ch, "Вы перевели игровое время на %d сек вперед.\r\n", t);
+	sprintf(buf, "(GC) %s перевел игровое время на %d сек вперед.", GET_NAME(ch), t);
 	mudlog(buf, NRM, LVL_IMMORT, IMLOG, FALSE);
 	send_to_char(OK, ch);
 
