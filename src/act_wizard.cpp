@@ -4957,7 +4957,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			snprintf(buf_, sizeof(buf_),
 					 "Список комнат от Vnum %d до %d\r\n", first, last);
 			out += buf_;
-			for (nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->number < last); nr++) {
+			for (nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->number <= last); nr++) {
 				if (world[nr]->number >= first) {
 					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
 							 ++found, world[nr]->number, world[nr]->zone, world[nr]->name);

@@ -4594,31 +4594,34 @@ void reset_zone(zone_rnum zone) {
 	zreset.reset();
 }
 
-int get_zone_rooms1(int zone_nr, int *first, int *last) {
-	*first = zone_table[zone_nr].number * 100;
-	*last  = *first + 99;
-	for (int nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->number < *last); nr++) {
-		if (world[nr]->number >= *first) {
-			*first = real_room(world[nr]->number);
-			sprintf(buf, "1firstroom = %d", world[nr]->number);
-			mudlog(buf, CMP, 31, SYSLOG, TRUE);
+
+// Ищет RNUM первой и последней комнаты зоны
+// Еси возвращает 0 - комнат в зоне нету
+int get_zone_rooms(int zone_nr, int *first, int *last) {
+	*first = 0;
+	for (int nr = FIRST_ROOM; nr <= top_of_world; nr++) {
+		if (world[nr]->number >= zone_table[zone_nr].number * 100 && *first == 0) {
+			*first = world[nr]->number;
+		}
+		if (world[nr]->number >= zone_table[zone_nr + 1].number * 100) {
+			*last = world[nr - 1]->number;
+//			sprintf(buf, "worldnumber %d last %d nr ==%d zone %d zone+1 =%d", world[nr]->number, *last, nr,  zone_table[zone_nr].number * 100, zone_table[zone_nr +1].number * 100);
+//			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			if ((*last - zone_table[zone_nr].number * 100) == 99 ){
+				*last = world[nr - 2]->number; // если есть уберем виртуалку
+//			sprintf(buf, "worldnumber2 %d last %d nr ==%d zone =%d", world[nr]->number, (world[nr - 1]->number), nr,  zone_table[zone_nr].number * 100);
+//			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			}
 			break;
 		}
 	}
-	for (int nr = *first; nr <= top_of_world; nr++) {
-		if (world[nr]->number >= *last ) {
-			sprintf(buf, "1laststroom == %d nr ==%dm last == %d", world[nr]->number -1, nr, *last);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-
-			*last = real_room(world[nr]->number - 1);
-		break;
-		}
-	}
+	*first = real_room(*first);
+	*last = real_room(*last);
 	if (*first == NOWHERE || *last == NOWHERE)
 		return 0;
 	return 1;
 }
-
+/*
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
 int get_zone_rooms(int zone_nr, int *start, int *stop) {
@@ -4642,6 +4645,7 @@ int get_zone_rooms(int zone_nr, int *start, int *stop) {
 	*start = rnum;
 	return 1;
 }
+*/
 
 // for use in reset_zone; return TRUE if zone 'nr' is free of PC's
 bool is_empty(zone_rnum zone_nr) {

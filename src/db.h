@@ -47,7 +47,6 @@ int get_level_by_unique(long unique);
 long get_lastlogon_by_unique(long unique);
 long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
-int get_zone_rooms1(int, int *, int *);
 void zone_traffic_save();
 
 int load_char(const char *name, CHAR_DATA *char_element, bool reboot = 0, const bool find_id = true);

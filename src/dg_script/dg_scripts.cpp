@@ -2915,11 +2915,11 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "firstvnum")) {
 			int x,y;
-			get_zone_rooms1(r->zone, &x , &y);
+			get_zone_rooms(r->zone, &x , &y);
 			sprintf(str, "%d", world[x]->number);
 		} else if (!str_cmp(field, "lastvnum")) {
 			int x,y;
-			get_zone_rooms1(r->zone, &x , &y);
+			get_zone_rooms(r->zone, &x , &y);
 			sprintf(str, "%d", world[y]->number);
 		}
 		else if (!str_cmp(field, "char")
