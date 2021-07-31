@@ -52,7 +52,6 @@ extern struct spell_create_type spell_create[];
 extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DESCRIPTOR_DATA *ch);
 extern int check_death_ice(int room, CHAR_DATA *ch);
-extern int free_rent;
 
 void decrease_level(CHAR_DATA *ch);
 int max_exp_gain_pc(CHAR_DATA *ch);
@@ -1005,10 +1004,7 @@ void check_idling(CHAR_DATA *ch) {
 				if (ch->in_room != NOWHERE)
 					char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
-				if (free_rent)
-					Crash_rentsave(ch, 0);
-				else
-					Crash_idlesave(ch);
+				Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));

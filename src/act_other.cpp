@@ -69,7 +69,6 @@ extern int max_filesize;
 extern int nameserver_is_slow;
 extern struct skillvariables_dig dig_vars;
 extern struct skillvariables_insgem insgem_vars;
-extern int free_rent;
 
 // extern procedures
 void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);
@@ -179,9 +178,6 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			if (d->character && (GET_IDNUM(d->character) == GET_IDNUM(ch)))
 				STATE(d) = CON_DISCONNECT;
-		}
-		if (free_rent || IS_GOD(ch)) {
-			Crash_rentsave(ch, 0);
 		}
 		extract_char(ch, FALSE);
 	}
