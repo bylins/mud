@@ -69,7 +69,6 @@ extern int max_filesize;
 extern int nameserver_is_slow;
 extern struct skillvariables_dig dig_vars;
 extern struct skillvariables_insgem insgem_vars;
-extern int free_rent;
 
 // extern procedures
 void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);
@@ -179,9 +178,6 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			if (d->character && (GET_IDNUM(d->character) == GET_IDNUM(ch)))
 				STATE(d) = CON_DISCONNECT;
-		}
-		if (free_rent || IS_GOD(ch)) {
-			Crash_rentsave(ch, 0);
 		}
 		extract_char(ch, FALSE);
 	}
@@ -753,7 +749,7 @@ void do_visible(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	OBJ_DATA *obj;
-	int prob;
+	int prob, dur;
 	struct timed_type timed;
 	int i;
 	if (IS_NPC(ch))        // Cannot use GET_COND() on mobs.
@@ -773,27 +769,28 @@ void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	timed.time = 6;
 	timed_to_char(ch, &timed);
 	prob = CalcCurrentSkill(ch, SKILL_COURAGE, 0) / 20;
+	dur = 1 + MIN(5, ch->get_skill(SKILL_COURAGE) / 40);
 	AFFECT_DATA<EApplyLocation> af[4];
 	af[0].type = SPELL_COURAGE;
-	af[0].duration = pc_duration(ch, 3, 0, 0, 0, 0);
+	af[0].duration = pc_duration(ch, dur, 0, 0, 0, 0);
 	af[0].modifier = 40;
 	af[0].location = APPLY_AC;
 	af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 	af[0].battleflag = 0;
 	af[1].type = SPELL_COURAGE;
-	af[1].duration = pc_duration(ch, 3, 0, 0, 0, 0);
+	af[1].duration = pc_duration(ch, dur, 0, 0, 0, 0);
 	af[1].modifier = MAX(1, prob);
 	af[1].location = APPLY_DAMROLL;
 	af[1].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
 	af[1].battleflag = 0;
 	af[2].type = SPELL_COURAGE;
-	af[2].duration = pc_duration(ch, 3, 0, 0, 0, 0);
+	af[2].duration = pc_duration(ch, dur, 0, 0, 0, 0);
 	af[2].modifier = MAX(1, prob * 7);
 	af[2].location = APPLY_ABSORBE;
 	af[2].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
 	af[2].battleflag = 0;
 	af[3].type = SPELL_COURAGE;
-	af[3].duration = pc_duration(ch, 3, 0, 0, 0, 0);
+	af[3].duration = pc_duration(ch, dur, 0, 0, 0, 0);
 	af[3].modifier = 50;
 	af[3].location = APPLY_HITREG;
 	af[3].bitvector = to_underlying(EAffectFlag::AFF_COURAGE);
