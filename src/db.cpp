@@ -192,7 +192,8 @@ int mobs_in_room(int m_num, int r_num);
 void new_build_player_index(void);
 void renum_obj_zone(void);
 void renum_mob_zone(void);
-int get_zone_rooms(int, int *, int *);
+//int get_zone_rooms(int, int *, int *);
+//int get_zone_rooms1(int, int *, int *);
 void init_guilds(void);
 void init_basic_values(void);
 void init_portals(void);
@@ -4593,6 +4594,34 @@ void reset_zone(zone_rnum zone) {
 	zreset.reset();
 }
 
+
+// Ищет RNUM первой и последней комнаты зоны
+// Еси возвращает 0 - комнат в зоне нету
+int get_zone_rooms(int zone_nr, int *first, int *last) {
+	*first = 0;
+	for (int nr = FIRST_ROOM; nr <= top_of_world; nr++) {
+		if (world[nr]->number >= zone_table[zone_nr].number * 100 && *first == 0) {
+			*first = world[nr]->number;
+		}
+		if (world[nr]->number >= zone_table[zone_nr + 1].number * 100) {
+			*last = world[nr - 1]->number;
+//			sprintf(buf, "worldnumber %d last %d nr ==%d zone %d zone+1 =%d", world[nr]->number, *last, nr,  zone_table[zone_nr].number * 100, zone_table[zone_nr +1].number * 100);
+//			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			if ((*last - zone_table[zone_nr].number * 100) == 99 ){
+				*last = world[nr - 2]->number; // если есть уберем виртуалку
+//			sprintf(buf, "worldnumber2 %d last %d nr ==%d zone =%d", world[nr]->number, (world[nr - 1]->number), nr,  zone_table[zone_nr].number * 100);
+//			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
+		}
+	}
+	*first = real_room(*first);
+	*last = real_room(*last);
+	if (*first == NOWHERE || *last == NOWHERE)
+		return 0;
+	return 1;
+}
+/*
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
 int get_zone_rooms(int zone_nr, int *start, int *stop) {
@@ -4616,6 +4645,7 @@ int get_zone_rooms(int zone_nr, int *start, int *stop) {
 	*start = rnum;
 	return 1;
 }
+*/
 
 // for use in reset_zone; return TRUE if zone 'nr' is free of PC's
 bool is_empty(zone_rnum zone_nr) {
