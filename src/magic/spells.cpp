@@ -336,6 +336,13 @@ void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DA
 	greet_otrigger(ch, -1);
 }
 
+void check_auto_nosummon(CHAR_DATA *ch) {
+	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
+		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
+		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
+	}
+}
+
 // ПЕРЕМЕСТИТЬСЯ
 void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
 	room_rnum to_room, fnd_room;
@@ -343,8 +350,11 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	if (victim == NULL)
 		return;
 
-	// Если левел жертвы больше чем перемещяющегося - фейл
-	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim)) {
+	if (IS_NPC(victim)) {
+		send_to_char(SUMMON_FAIL, ch);
+		return;
+	}
+	if (GET_LEVEL(victim) > GET_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -392,7 +402,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-
+	check_auto_nosummon(victim);
 	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
@@ -413,13 +423,6 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	}
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
-}
-
-void check_auto_nosummon(CHAR_DATA *ch) {
-	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
-		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
-		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
-	}
 }
 
 void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
