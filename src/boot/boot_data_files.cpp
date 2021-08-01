@@ -367,7 +367,9 @@ void TriggersFile::parse_trigger(int vnum) {
 
 class WorldFile : public DiscreteFile {
  public:
-	WorldFile(const std::string &file_name) : DiscreteFile(file_name) {}
+	WorldFile(const std::string &file_name)
+		: DiscreteFile(file_name)
+		, room_already_added(false) {}
 
 	virtual bool load() override;
 	virtual EBootType mode() const override { return DB_BOOT_WLD; }
@@ -382,6 +384,10 @@ class WorldFile : public DiscreteFile {
 
 	/// reads direction data
 	void setup_dir(int room, unsigned dir);
+
+private:
+	/// does file containe at least one room?
+	bool room_already_added;
 };
 
 void WorldFile::read_entry(const int nr) {
@@ -397,6 +403,14 @@ void WorldFile::parse_room(int virtual_nr, const int virt) {
 	char letter;
 
 	if (virt) {
+		// attempt to add virtual room to zone which does not contain any rooms
+		// in this case "zone" is not updated, so it should be changed
+		if (!room_already_added) {
+			if (++zone > zone_table.size()) {
+				log("SYSERR: Could not create virtual room in zone %d", zone);
+				exit(1);
+			}
+		}
 		virtual_nr = zone_table[zone].top;
 	}
 
@@ -414,6 +428,7 @@ void WorldFile::parse_room(int virtual_nr, const int virt) {
 	}
 	// Создаем новую комнату
 	world.push_back(new ROOM_DATA);
+	room_already_added = true;
 
 	world[room_nr]->zone = zone;
 	world[room_nr]->number = virtual_nr;
