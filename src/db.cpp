@@ -4599,19 +4599,15 @@ void reset_zone(zone_rnum zone) {
 // Еси возвращает 0 - комнат в зоне нету
 int get_zone_rooms(int zone_nr, int *first, int *last) {
 	*first = 0;
+	auto numzone = zone_table[zone_nr].number * 100;
 	for (int nr = FIRST_ROOM; nr <= top_of_world; nr++) {
-		if (world[nr]->number >= zone_table[zone_nr].number * 100 && *first == 0) {
+		if (world[nr]->number >= numzone && *first == 0) {
 			*first = world[nr]->number;
 		}
-		if (world[nr]->number >= zone_table[zone_nr + 1].number * 100) {
+		if (world[nr]->number >= numzone + 99) {
+//			sprintf(buf, "worldnumber %d last %d nr ==%d zone %d", world[nr]->number, *last, nr,  zone_table[zone_nr].number * 100);
+//			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			*last = world[nr - 1]->number;
-//			sprintf(buf, "worldnumber %d last %d nr ==%d zone %d zone+1 =%d", world[nr]->number, *last, nr,  zone_table[zone_nr].number * 100, zone_table[zone_nr +1].number * 100);
-//			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			if ((*last - zone_table[zone_nr].number * 100) == 99 ){
-				*last = world[nr - 2]->number; // если есть уберем виртуалку
-//			sprintf(buf, "worldnumber2 %d last %d nr ==%d zone =%d", world[nr]->number, (world[nr - 1]->number), nr,  zone_table[zone_nr].number * 100);
-//			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			}
 			break;
 		}
 	}
