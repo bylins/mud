@@ -350,11 +350,12 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	if (victim == NULL)
 		return;
 
-	if (IS_NPC(victim)) {
+	if (IS_NPC(victim)) { 
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-	if (GET_LEVEL(victim) > GET_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+	// если противник не может быть призван и уровень меньше цели - фэйл
+	if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
