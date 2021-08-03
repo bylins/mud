@@ -1701,6 +1701,12 @@ bool ZoneFile::load_regular_zone() {
 	zone.under_construction = !str_cmp(t1, "test");
 	zone.locked = !str_cmp(t2, "locked");
 
+	const room_vnum expected_zone_top = zone.number * 100 + 99;
+	if (zone.top != expected_zone_top) {
+		log("Zone: %d contains wrong top: %d, should be: %d", zone.number, zone.top, expected_zone_top);
+		zone.top = expected_zone_top;
+	}
+
 	auto a_number = 0;
 	auto cmd_no = 0;
 	for (;;) {

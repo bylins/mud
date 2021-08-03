@@ -797,7 +797,7 @@ void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af[3].battleflag = 0;
 
 	for (i = 0; i < 4; i++) {
-		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
+		affect_join(ch, af[i], false, false, false, false);
 	}
 
 	send_to_char("Вы пришли в ярость.\r\n", ch);
