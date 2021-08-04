@@ -185,7 +185,7 @@ int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
 void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void check_start_rooms(void);
-void add_vrooms_to_empty_zones();
+void add_vrooms_to_all_zones();
 void renum_world(void);
 void renum_zone_table(void);
 void log_zone_error(zone_rnum zone, int cmd_no, const char *message);
@@ -1309,9 +1309,9 @@ void GameLoader::boot_world() {
 	log("Loading rooms.");
 	world_loader.index_boot(DB_BOOT_WLD);
 
-	boot_profiler.next_step("Adding virtual rooms to empty zones");
-	log("Adding virtual rooms to empty zones.");
-	add_vrooms_to_empty_zones();
+	boot_profiler.next_step("Adding virtual rooms to all zones");
+	log("Adding virtual rooms to all zones.");
+	add_vrooms_to_all_zones();
 
 	boot_profiler.next_step("Renumbering rooms");
 	log("Renumbering rooms.");
@@ -2789,47 +2789,49 @@ void check_start_rooms(void) {
 	}
 }
 
-void add_vrooms_to_empty_zones() {
+void add_vrooms_to_all_zones() {
 	for (auto it = zone_table.begin(); it < zone_table.end(); ++it) {
 		const auto first_room = it->number * 100;
 		const auto last_room = first_room + 99;
 
-		const auto room_counter = std::count_if(world.begin(), world.end(), [first_room, last_room](ROOM_DATA *room) {
-			return (room->number >= first_room) && (room->number <= last_room);
+		const room_vnum virtual_room_vnum = (it->number * 100) + 99;
+		const auto vroom_it = std::find_if(world.cbegin(), world.cend(), [virtual_room_vnum](ROOM_DATA *room) {
+			return room->number == virtual_room_vnum;
 		});
-
-		if (!room_counter) {
-			log("Zone %d does not contain any rooms. Add virtual room.", it->number);
-			const zone_rnum rnum = std::distance(zone_table.begin(), it);
-
-			// ищем место для вставки новой комнаты с конца, чтобы потом не вычитать 1 из результата
-			auto insert_reverse_position = std::find_if(world.rbegin(), world.rend(), [rnum](ROOM_DATA *room) {
-				return rnum > room->zone;
-			});
-			auto insert_position = (insert_reverse_position == world.rend()) ? world.begin() : insert_reverse_position.base();
-
-			top_of_world++;
-			ROOM_DATA *new_room = new ROOM_DATA;
-			world.insert(insert_position, new_room);
-			new_room->zone = rnum;
-			new_room->number = last_room;
-			new_room->set_name(std::string("Виртуальная комната"));
-			new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
-			new_room->clear_flags();
-			new_room->sector_type = SECT_SECRET;
-
-			new_room->affected_by.clear();
-			memset(&new_room->base_property, 0, sizeof(room_property_data));
-			memset(&new_room->add_property, 0, sizeof(room_property_data));
-			new_room->func = NULL;
-			new_room->contents = NULL;
-			new_room->track = NULL;
-			new_room->light = 0;
-			new_room->fires = 0;
-			new_room->gdark = 0;
-			new_room->glight = 0;
-			new_room->proto_script.reset(new OBJ_DATA::triggers_list_t());
+		if (vroom_it != world.cend()) {
+			log("Zone %d already contains virtual room.", it->number);
+			continue;
 		}
+
+		const zone_rnum rnum = std::distance(zone_table.begin(), it);
+
+		// ищем место для вставки новой комнаты с конца, чтобы потом не вычитать 1 из результата
+		auto insert_reverse_position = std::find_if(world.rbegin(), world.rend(), [rnum](ROOM_DATA *room) {
+			return rnum >= room->zone;
+		});
+		auto insert_position = (insert_reverse_position == world.rend()) ? world.begin() : insert_reverse_position.base();
+
+		top_of_world++;
+		ROOM_DATA *new_room = new ROOM_DATA;
+		world.insert(insert_position, new_room);
+		new_room->zone = rnum;
+		new_room->number = last_room;
+		new_room->set_name(std::string("Виртуальная комната"));
+		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
+		new_room->clear_flags();
+		new_room->sector_type = SECT_SECRET;
+
+		new_room->affected_by.clear();
+		memset(&new_room->base_property, 0, sizeof(room_property_data));
+		memset(&new_room->add_property, 0, sizeof(room_property_data));
+		new_room->func = NULL;
+		new_room->contents = NULL;
+		new_room->track = NULL;
+		new_room->light = 0;
+		new_room->fires = 0;
+		new_room->gdark = 0;
+		new_room->glight = 0;
+		new_room->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	}
 }
 
