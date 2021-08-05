@@ -2179,6 +2179,10 @@ void find_replacement(void *go,
 			strcpy(str, GET_CH_SUF_8(c));
 		else if (!str_cmp(field, "weight"))
 			sprintf(str, "%d", GET_WEIGHT(c));
+		else if (!str_cmp(field, "carry_weight"))
+			sprintf(str, "%d", c->char_specials.carry_weight);
+		else if (!str_cmp(field, "can_carry_weight"))
+			sprintf(str, "%d", CAN_CARRY_W(c));
 		else if (!str_cmp(field, "canbeseen")) {
 			if ((type == MOB_TRIGGER) && !CAN_SEE(((CHAR_DATA *) go), c)) {
 				strcpy(str, "0");
