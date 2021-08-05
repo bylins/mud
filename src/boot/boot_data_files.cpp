@@ -378,17 +378,17 @@ class WorldFile : public DiscreteFile {
 	virtual void read_entry(const int nr) override;
 
 	/// loads rooms
-	void parse_room(int virtual_nr, const int virt);
+	void parse_room(int virtual_nr);
 
 	/// reads direction data
 	void setup_dir(int room, unsigned dir);
 };
 
 void WorldFile::read_entry(const int nr) {
-	parse_room(nr, FALSE);
+	parse_room(nr);
 }
 
-void WorldFile::parse_room(int virtual_nr, const int virt) {
+void WorldFile::parse_room(int virtual_nr) {
 	static int room_nr = FIRST_ROOM;
 	static zone_rnum zone = 0;
 
@@ -396,11 +396,7 @@ void WorldFile::parse_room(int virtual_nr, const int virt) {
 	char line[256], flags[128];
 	char letter;
 
-	if (virt) {
-		virtual_nr = zone_table[zone].top;
-	}
-
-	sprintf(buf2, "room #%d%s", virtual_nr, virt ? "(virt)" : "");
+	sprintf(buf2, "room #%d", virtual_nr);
 
 	if (virtual_nr <= (zone ? zone_table[zone - 1].top : -1)) {
 		log("SYSERR: Room #%d is below zone %d.", virtual_nr, zone);
@@ -417,32 +413,26 @@ void WorldFile::parse_room(int virtual_nr, const int virt) {
 
 	world[room_nr]->zone = zone;
 	world[room_nr]->number = virtual_nr;
-	if (virt) {
-		world[room_nr]->set_name(std::string("Виртуальная комната"));
-		world[room_nr]->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
-		world[room_nr]->clear_flags();
-		world[room_nr]->sector_type = SECT_SECRET;
-	} else {
-		world[room_nr]->set_name(fread_string());
 
-		std::string desc = fread_string();
-		boost::trim_right_if(desc, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
-		desc.shrink_to_fit();
-		world[room_nr]->description_num = RoomDescription::add_desc(desc);
+	world[room_nr]->set_name(fread_string());
 
-		if (!get_line(file(), line)) {
-			log("SYSERR: Expecting roomflags/sector type of room #%d but file ended!", virtual_nr);
-			exit(1);
-		}
+	std::string desc = fread_string();
+	boost::trim_right_if(desc, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
+	desc.shrink_to_fit();
+	world[room_nr]->description_num = RoomDescription::add_desc(desc);
 
-		if (sscanf(line, " %d %s %d ", t, flags, t + 2) != 3) {
-			log("SYSERR: Format error in roomflags/sector type of room #%d", virtual_nr);
-			exit(1);
-		}
-		// t[0] is the zone number; ignored with the zone-file system
-		world[room_nr]->flags_from_string(flags);
-		world[room_nr]->sector_type = t[2];
+	if (!get_line(file(), line)) {
+		log("SYSERR: Expecting roomflags/sector type of room #%d but file ended!", virtual_nr);
+		exit(1);
 	}
+
+	if (sscanf(line, " %d %s %d ", t, flags, t + 2) != 3) {
+		log("SYSERR: Format error in roomflags/sector type of room #%d", virtual_nr);
+		exit(1);
+	}
+	// t[0] is the zone number; ignored with the zone-file system
+	world[room_nr]->flags_from_string(flags);
+	world[room_nr]->sector_type = t[2];
 
 	check_room_flags(room_nr);
 
@@ -468,10 +458,6 @@ void WorldFile::parse_room(int virtual_nr, const int virt) {
 	}
 
 	world[room_nr]->ex_description = NULL;
-	if (virt) {
-		top_of_world = room_nr++;
-		return;
-	}
 
 	sprintf(buf, "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
 
@@ -572,7 +558,6 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 
 bool WorldFile::load() {
 	const auto result = DiscreteFile::load();
-	parse_room(0, TRUE);
 	return result;
 }
 
