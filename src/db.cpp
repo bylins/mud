@@ -61,6 +61,7 @@
 #include "skills/townportal.h"
 #include "stuff.h"
 #include "utils/utils_time.h"
+#include "utils/id_converter.h"
 #include "title.h"
 #include "top.h"
 #include "magic/magic_rooms.h"
@@ -223,7 +224,6 @@ void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int c
 void calc_easter(void);
 void do_start(CHAR_DATA *ch, int newbie);
 extern void repop_decay(zone_rnum zone);    // рассыпание обьектов ITEM_REPOP_DECAY
-int real_zone(int number);
 int level_exp(CHAR_DATA *ch, int level);
 extern char *fread_action(FILE *fl, int nr);
 void load_mobraces();
@@ -2855,7 +2855,7 @@ void renum_world(void) {
 // Установка принадлежности к зоне в прототипах
 void renum_obj_zone(void) {
 	for (size_t i = 0; i < obj_proto.size(); ++i) {
-		obj_proto.zone(i, real_zone(obj_proto[i]->get_vnum()));
+		obj_proto.zone(i, get_zone_rnum_by_obj_vnum(obj_proto[i]->get_vnum()));
 	}
 }
 
@@ -2863,7 +2863,7 @@ void renum_obj_zone(void) {
 void renum_mob_zone(void) {
 	int i;
 	for (i = 0; i <= top_of_mobt; ++i) {
-		mob_index[i].zone = real_zone(mob_index[i].vnum);
+		mob_index[i].zone = get_zone_rnum_by_mob_vnum(mob_index[i].vnum);
 	}
 }
 
@@ -3637,7 +3637,7 @@ void zone_update(void) {
 			std::string out(tmp);
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
 				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
-					//Ищем real_zone по vnum
+					//Ищем zone_rnum по vnum
 					for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++) {
 						if (zone_table[j].number ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
@@ -3679,7 +3679,7 @@ bool can_be_reset(zone_rnum zone) {
 		return FALSE;
 // проверяем список B
 	for (auto i = 0; i < zone_table[zone].typeB_count; i++) {
-		//Ищем real_zone по vnum
+		//Ищем zone_rnum по vnum
 		for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++) {
 			if (zone_table[j].number == zone_table[zone].typeB_list[i]) {
 				if (!zone_table[zone].typeB_flag[i] || !is_empty(j))
@@ -3690,7 +3690,7 @@ bool can_be_reset(zone_rnum zone) {
 	}
 // проверяем список A
 	for (auto i = 0; i < zone_table[zone].typeA_count; i++) {
-		//Ищем real_zone по vnum
+		//Ищем zone_rnum по vnum
 		for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++) {
 			if (zone_table[j].number == zone_table[zone].typeA_list[i]) {
 				if (!is_empty(j))

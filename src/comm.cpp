@@ -56,6 +56,7 @@
 #include "mail.h"
 #include "mob_stat.h"
 #include "utils/utils_char_obj.inl"
+#include "utils/id_converter.h"
 #include "logger.h"
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"
@@ -559,7 +560,6 @@ void redit_save_to_disk(int zone_num);
 void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
-int real_zone(int number);
 void Crash_ldsave(CHAR_DATA *ch);
 void Crash_save_all_rent();
 int level_exp(CHAR_DATA *ch, int level);
@@ -885,7 +885,7 @@ void stop_game(ush_int port) {
 			if (entry->type < 0 || entry->type > 4) {
 				sprintf(buf, "OLC: Illegal save type %d!", entry->type);
 				log("%s", buf);
-			} else if ((rznum = real_zone(entry->zone * 100)) == -1) {
+			} else if ((rznum = get_zone_rnum_by_zone_vnum(entry->zone)) == -1) {
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
 				log("%s", buf);
 			} else if (rznum < 0 || rznum >= static_cast<int>(zone_table.size())) {

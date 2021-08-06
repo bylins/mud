@@ -13,12 +13,14 @@
 #include "cmd/follow.h"
 #include "fightsystem/fight.h"
 #include "handler.h"
+#include "utils/id_converter.h"
 #include "obj_prototypes.h"
 #include "skills/townportal.h"
 #include "magic/magic_utils.h"
 #include "world_objects.h"
 #include "zone.table.h"
 #include "skills_info.h"
+#include "utils/id_converter.h"
 
 extern const char *dirs[];
 
@@ -136,16 +138,8 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd) {
 		wld_log(room, "no target found for wsend", LGH);
 }
 
-int real_zone(int number) {
-	for (int counter = 0; counter < static_cast<int>(zone_table.size()); counter++)
-		if ((number >= (zone_table[counter].number * 100)) && (number <= (zone_table[counter].top)))
-			return counter;
-
-	return -1;
-}
-
 void do_wzoneecho(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int zone;
+	zone_rnum zone;
 	char zone_name[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH], *msg;
 
 	msg = any_one_arg(argument, zone_name);
@@ -153,8 +147,11 @@ void do_wzoneecho(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 
 	if (!*zone_name || !*msg)
 		wld_log(room, "wzoneecho called with too few args");
-	else if ((zone = real_zone(atoi(zone_name))) < 0)
-		wld_log(room, "wzoneecho called for nonexistant zone");
+	else if ((zone = get_zone_rnum_by_zone_vnum(atoi(zone_name))) < 0) {
+		std::stringstream str_log;
+		str_log << "wzoneecho called for nonexistant zone: " << zone_name;
+		wld_log(room, str_log.str().c_str());
+	}
 	else {
 		sprintf(buf, "%s\r\n", msg);
 		send_to_zone(buf, zone);

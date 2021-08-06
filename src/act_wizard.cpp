@@ -75,6 +75,7 @@
 #include "title.h"
 #include "top.h"
 #include "utils/utils.h"
+#include "utils/id_converter.h"
 #include "world_objects.h"
 #include "zone.table.h"
 #include "classes/class_constants.h"
@@ -136,7 +137,6 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);
 void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter = NULL);
 void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells);
 extern void print_rune_stats(CHAR_DATA *ch);
-extern int real_zone(int number);
 // local functions
 int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg);
 void perform_immort_invis(CHAR_DATA *ch, int level);
@@ -1837,7 +1837,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
 		}
-		if ((zone_table[real_zone(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
+		if ((zone_table[get_zone_rnum_by_mob_vnum(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
@@ -1853,7 +1853,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
 		}
-		if ((zone_table[real_zone(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
+		if ((zone_table[get_zone_rnum_by_obj_vnum(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}

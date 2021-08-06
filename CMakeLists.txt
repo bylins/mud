@@ -16,7 +16,7 @@ set(SOURCES
 		src/abilities/abilities_rollsystem.cpp
 		src/chars/accounts.cpp
 		src/action_targeting.cpp
-        src/act_comm.cpp
+		src/act_comm.cpp
 		src/act_informative.cpp
 		src/act_item.cpp
 		src/act_movement.cpp
@@ -29,7 +29,7 @@ set(SOURCES
 		src/backtrace.cpp
 		src/cmd_god/ban.cpp
 		src/birthplaces.cpp
-        src/boards/boards_changelog_loaders.cpp
+		src/boards/boards_changelog_loaders.cpp
 		src/boards/boards_constants.cpp
 		src/boards/boards.cpp
 		src/boards/boards_formatters.cpp
@@ -75,11 +75,11 @@ set(SOURCES
 		src/exchange.cpp
 		src/ext_money.cpp
 		src/external_trigger.cpp
-        src/feats.cpp
-        src/fightsystem/fight.cpp
-        src/fightsystem/fight_hit.cpp
+		src/feats.cpp
+		src/fightsystem/fight.cpp
+		src/fightsystem/fight_hit.cpp
 		src/fightsystem/fight_penalties.cpp
-        src/fightsystem/fight_stuff.cpp
+		src/fightsystem/fight_stuff.cpp
 		src/file_crc.cpp
 		src/genchar.cpp
 		src/glory_const.cpp
@@ -105,7 +105,7 @@ set(SOURCES
 		src/magic/magic_utils.cpp
 		src/magic/spells.cpp
 		src/magic/spells_info.cpp
-        src/magic/magic_temp_spells.cpp
+		src/magic/magic_temp_spells.cpp
 		src/mail.cpp
 		src/mapsystem.cpp
 		src/meat_maker.cpp
@@ -152,6 +152,7 @@ set(SOURCES
 		src/structs.cpp
 		src/structs.cpp
 		src/stuff.cpp
+		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
 		src/title.cpp
 		src/top.cpp
@@ -164,13 +165,13 @@ set(SOURCES
 		src/obj_prototypes.cpp
 		src/id.cpp
 		src/utils/utils_find_obj_id_by_vnum.cpp
-        src/global_objects.cpp
+		src/global_objects.cpp
 		src/shops_implementation.cpp
 		src/chars/world.characters.cpp
 		src/utils/utils_debug.cpp
 		src/speedwalks.cpp
 		src/shops_implementation.cpp
-        src/radix_trie.cpp
+		src/radix_trie.cpp
 		src/compact_trie.cpp
 		src/id.cpp
 		src/stigmas.cpp
@@ -208,7 +209,7 @@ set(SOURCES
 		src/cmd/retreat.cpp
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
-        src/affects/affect_data.cpp
+		src/affects/affect_data.cpp
 		src/skills/track.cpp
 		src/cmd/flee.cpp
 		src/cmd/hire.cpp
@@ -238,7 +239,7 @@ set(HEADERS
 		src/cmd/mixture.h
 		src/cmd/cast.h
 		src/cmd/employ.h
-        src/affects/affect_data.h
+		src/affects/affect_data.h
 		src/skills/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
@@ -266,7 +267,7 @@ set(HEADERS
 		src/abilities/abilities_constants.h
 		src/abilities/abilities_rollsystem.h
 		src/chars/mount.h
-        src/chars/accounts.h
+		src/chars/accounts.h
 		src/action_targeting.h
 		src/blocking_queue.h
 		src/influxdb.h
@@ -278,7 +279,8 @@ set(HEADERS
 		src/speedwalks.h
 		src/chars/world.characters.h
 		src/shops_implementation.h
-        src/global_objects.h
+		src/global_objects.h
+		src/utils/id_converter.h
 		src/utils/utils_find_obj_id_by_vnum.h
 		src/id.h
 		src/compact_trie.h
@@ -322,10 +324,10 @@ set(HEADERS
 		src/quests/daily_quest.h
 		src/quests/quest.h
 		src/db.h
-        src/deathtrap.h
+		src/deathtrap.h
 		src/depot.h
 		src/description.h
-        src/dg_script/dg_db_scripts.h
+		src/dg_script/dg_db_scripts.h
 		src/dg_script/dg_event.h
 		src/dg_script/dg_olc.h
 		src/dg_script/dg_scripts.h
@@ -337,13 +339,13 @@ set(HEADERS
 		src/ext_money.h
 		src/external_trigger.h
 		src/abilities/abilities_items_set.h
-        src/feats.h
+		src/feats.h
 		src/fightsystem/fight_constants.h
-        src/fightsystem/fight.h
+		src/fightsystem/fight.h
 		src/fightsystem/fight_hit.h
 		src/fightsystem/fight_stuff.h
 		src/fightsystem/fight_penalties.h
-        src/file_crc.h
+		src/file_crc.h
 		src/genchar.h
 		src/glory_const.h
 		src/glory.h
@@ -359,7 +361,7 @@ set(HEADERS
 		src/crafts/item_creation.h
 		src/levenshtein.h
 		src/liquid.h
-        src/logger.h
+		src/logger.h
 		src/magic/magic.h
 		src/magic/magic_items.h
 		src/magic/magic_rooms.h
