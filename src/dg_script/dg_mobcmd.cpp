@@ -33,6 +33,7 @@
 #include "world_objects.h"
 #include "skills/townportal.h"
 #include "skills_info.h"
+#include "utils/id_converter.h"
 
 struct mob_command_info {
 	const char *command;
@@ -54,6 +55,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA *ch, char *name);
 // * Local functions.
 void mob_command_interpreter(CHAR_DATA *ch, char *argument);
 bool mob_script_command_interpreter(CHAR_DATA *ch, char *argument);
+void send_to_zone(char *messg, int zone_rnum);
 
 // attaches mob's name and vnum to msg and sends it to script_log
 void mob_log(CHAR_DATA *mob, const char *msg, LogMode type = LogMode::OFF) {
@@ -1367,6 +1369,26 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
+void do_mzoneecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	zone_rnum zone;
+	char zone_name[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH], *msg;
+
+	msg = any_one_arg(argument, zone_name);
+	skip_spaces(&msg);
+
+	if (!*zone_name || !*msg)
+		mob_log(ch, "mzoneecho called with too few args");
+	else if ((zone = get_zone_rnum_by_zone_vnum(atoi(zone_name))) < 0) {
+		std::stringstream str_log;
+		str_log << "mzoneecho called for nonexistant zone: " << zone_name;
+		mob_log(ch, str_log.str().c_str());
+	}
+	else {
+		sprintf(buf, "%s\r\n", msg);
+		send_to_zone(buf, zone);
+	}
+}
+
 const struct mob_command_info mob_cmd_info[] =
 	{
 		{"RESERVED", 0, 0, 0, 0},    // this must be first -- for specprocs
@@ -1395,6 +1417,7 @@ const struct mob_command_info mob_cmd_info[] =
 		{"mspelladd", POS_DEAD, do_mspelladd, -1, false},
 		{"mspellitem", POS_DEAD, do_mspellitem, -1, false},
 		{"mportal", POS_DEAD, do_mportal, -1, false},
+		{"mzoneecho", POS_DEAD, do_mzoneecho, -1, false},
 		{"\n", 0, 0, 0, 0}        // this must be last
 	};
 

@@ -17,6 +17,7 @@
 #include "magic/spells.h"
 #include "logger.h"
 #include "utils/utils.h"
+#include "utils/id_converter.h"
 #include "db.h"
 #include "olc.h"
 #include "dg_script/dg_olc.h"
@@ -59,7 +60,6 @@ extern struct spellInfo_t spell_info[];
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_imrecipes;
 extern void extract_obj(OBJ_DATA *obj);
-int real_zone(int number);
 
 //------------------------------------------------------------------------
 
@@ -269,7 +269,7 @@ void oedit_save_internally(DESCRIPTOR_DATA *d) {
 		log("[OEdit] Save mem new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(OBJ_DATA));
 
 		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
-		obj_proto.zone(index, real_zone(OLC_NUM(d)));
+		obj_proto.zone(index, get_zone_rnum_by_obj_vnum(OLC_NUM(d)));
 	}
 
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_OBJ);

@@ -28,6 +28,7 @@
 #include "zone.table.h"
 #include "logger.h"
 #include "utils/utils.h"
+#include "utils/id_converter.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -56,8 +57,6 @@ extern const char *mobprog_types[];
 #endif
 
 int planebit(const char *str, int *plane, int *bit);
-
-int real_zone(int number);
 
 int receptionist(CHAR_DATA *ch, void *me, int cmd, char *argument);
 void clear_mob_charm(CHAR_DATA *mob);
@@ -401,7 +400,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 					OLC_MOB(d)->set_rnum(rmob_num);
 					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
 					//					new_proto[rmob_num] = *(OLC_MOB(d));
-					new_index[rmob_num].zone = real_zone(OLC_NUM(d));
+					new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
 					new_index[rmob_num].set_idx = -1;
 					--rmob_num;
 					continue;
@@ -435,7 +434,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 
 			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
 
-			new_index[rmob_num].zone = real_zone(OLC_NUM(d));
+			new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
 			new_index[rmob_num].set_idx = -1;
 		}
 

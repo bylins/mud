@@ -15,8 +15,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-extern int real_zone(int number);
-
 namespace SetsDrop {
 // список сетин на дроп
 const char *CONFIG_FILE = LIB_MISC"full_set_drop.xml";
