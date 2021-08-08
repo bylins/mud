@@ -115,6 +115,7 @@ set(SOURCES
 		src/mob_stat.cpp
 		src/modify.cpp
 		src/skills/morph.cpp
+		src/name_adviser.cpp
 		src/named_stuff.cpp
 		src/name_list.cpp
 		src/names.cpp
@@ -376,6 +377,7 @@ set(HEADERS
 		src/mobmax.h
 		src/mob_stat.h
 		src/modify.h
+		src/name_adviser.h
 		src/named_stuff.h
 		src/name_list.h
 		src/noob.h
