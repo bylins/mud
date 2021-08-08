@@ -1428,6 +1428,8 @@ void find_replacement(void *go,
 	const char *spelladd[] = {"mspelladd", "ospelladd", "wspelladd"};
 	const char *spellitem[] = {"mspellitem", "ospellitem", "wspellitem"};
 	const char *portal[] = {"mportal", "oportal", "wportal"};
+	const char *at[] = {"mat", "oat", "wat"};
+	const char *zoneecho[] = {"mzoneecho", "ozoneecho", "wzoneecho"};
 
 	if (!subfield) {
 		subfield = NULL;    // Чтобы проверок меньше было
@@ -1499,6 +1501,10 @@ void find_replacement(void *go,
 				strcpy(str, spellitem[type]);
 			else if (!str_cmp(var, "portal"))
 				strcpy(str, portal[type]);
+			else if (!str_cmp(var, "at"))
+				strcpy(str, at[type]);
+			else if (!str_cmp(var, "zoneecho"))
+				strcpy(str, zoneecho[type]);
 		}
 		return;
 	}

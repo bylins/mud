@@ -147,7 +147,7 @@ void do_wzoneecho(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 
 	if (!*zone_name || !*msg)
 		wld_log(room, "wzoneecho called with too few args");
-	else if ((zone = get_zone_rnum_by_zone_vnum(atoi(zone_name))) < 0) {
+	else if ((zone = get_zone_rnum_by_room_vnum(atoi(zone_name))) < 0) {
 		std::stringstream str_log;
 		str_log << "wzoneecho called for nonexistant zone: " << zone_name;
 		wld_log(room, str_log.str().c_str());
