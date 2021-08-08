@@ -1,41 +1,37 @@
 #pragma once
 
 #include <vector>
-#include <set>
+#include <list>
 #include <string>
 
-// save/load/advise free name for new chars
+// suggests free names to new players
 class NameAdviser {
 public:
-	NameAdviser() = default;
+	NameAdviser();
 
 	NameAdviser (const NameAdviser&) = delete;
 	NameAdviser& operator= (const NameAdviser&) = delete;
 
 public:
-	// load list of free names from file
-	bool load();
-
-	// save list of free names to file
-	bool save();
-
-	// count of free names
-	size_t count();
-
 	// add free name to list
 	void add(const std::string &free_name);
 
 	// remove free name from list
-	void remove(const std::string &name);
+	void remove(const std::string &name_to_remove);
 
-	// get list of random free names (maximum list size is limited to counter)
-	std::vector<std::string> get_random_name_list(size_t counter);
+	// get list of random free names (maximum list size is hardcoded as suggestion_counter)
+	std::vector<std::string> get_random_name_list();
+
+	// load player list and list of approved names
+	void init();
 
 private:
-	bool m_initialized = false;
+	bool is_names_similar(const std::string &left, const std::string &right);
+	void remove_duplicates();
 
 private:
-	std::set<std::string> m_list_of_free_names;
+	std::list<std::string> m_list_of_free_names;
+	std::list<std::string> m_list_of_removed_names;
 };
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
