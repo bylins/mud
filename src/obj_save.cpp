@@ -1604,13 +1604,15 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	for (i = 0; i < nitems; i++) {
 		if (player_table[index].timer->time[i].timer >= 0) {
 			rnum = real_object(player_table[index].timer->time[i].vnum);
-			timer = player_table[index].timer->time[i].timer;
-			if (timer < timer_dec) {
-				player_table[index].timer->time[i].timer = -1;
-				idelete++;
-				if (rnum >= 0) {
-					obj_proto.dec_stored(rnum);
-					log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(0).c_str());
+			if (!check_unlimited_timer(obj_proto[rnum].get())) {
+				timer = player_table[index].timer->time[i].timer;
+				if (timer < timer_dec) {
+					player_table[index].timer->time[i].timer = -1;
+					idelete++;
+					if (rnum >= 0) {
+						obj_proto.dec_stored(rnum);
+						log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(0).c_str());
+					}
 				}
 			}
 		} else {
