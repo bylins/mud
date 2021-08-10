@@ -87,7 +87,6 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
-	check_auto_nosummon(victim);
 	timed.skill = RELOCATE_FEAT;
 	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
@@ -113,6 +112,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	timed_feat_to_char(ch, &timed);
 	look_at_room(ch, 0);
+	check_auto_nosummon(victim);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }
