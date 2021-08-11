@@ -5368,6 +5368,9 @@ void new_build_player_index(void) {
 
 	fclose(players);
 
+	// update index file after loading playrs
+	flush_player_index();
+
 	player_table.name_adviser().init();
 }
 

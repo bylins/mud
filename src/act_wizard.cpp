@@ -4667,9 +4667,19 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
+	const bool is_delete_mode = !strcmp("deleted", set_fields[mode].cmd);
+
 	// perform the set
 	strcpy(OName, GET_NAME(vict));
 	retval = perform_set(ch, vict, mode, val_arg);
+
+	// for deleted objects remove PLR_NODELETE flag
+	if (PLR_FLAGS(vict).get(PLR_DELETED) && (is_player || is_file) && is_delete_mode) {
+		if (PLR_FLAGS(vict).get(PLR_NODELETE)) {
+			PLR_FLAGS(vict).unset(PLR_NODELETE);
+			send_to_char("NODELETE flag also removed.\r\n", ch);
+		}
+	}
 
 	// save the character if a change was made
 	if (retval && !IS_NPC(vict)) {
