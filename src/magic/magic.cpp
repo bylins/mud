@@ -3703,6 +3703,8 @@ int mag_manual(int level, CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, 
 			break;
 		case SPELL_IDENTIFY: MANUAL_SPELL(spell_identify);
 			break;
+		case SPELL_FULL_IDENTIFY: MANUAL_SPELL(spell_full_identify);
+			break;
 		case SPELL_HOLYSTRIKE: MANUAL_SPELL(spell_holystrike);
 			break;
 		case SPELL_ANGEL: MANUAL_SPELL(spell_angel);
