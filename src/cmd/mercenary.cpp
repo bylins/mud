@@ -2,6 +2,7 @@
 #include "chars/char_player.h"
 #include "modify.h"
 #include "mob_stat.h"
+#include "utils/id_converter.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>

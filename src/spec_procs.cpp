@@ -14,6 +14,7 @@
 
 #include "act_movement.h"
 #include "utils/utils_char_obj.inl"
+#include "utils/id_converter.h"
 #include "chars/char_player.h"
 #include "chars/mount.h"
 #include "chars/player_races.h"

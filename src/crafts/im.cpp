@@ -18,6 +18,7 @@
 #include "handler.h"
 #include "screen.h"
 #include "modify.h"
+#include "utils/id_converter.h"
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, LVL_BUILDER, IMLOG, TRUE)

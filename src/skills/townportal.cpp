@@ -4,6 +4,7 @@
 #include "handler.h"
 #include "magic/magic_rooms.h"
 #include "fightsystem/pk.h"
+#include "utils/id_converter.h"
 
 namespace OneWayPortal {
 

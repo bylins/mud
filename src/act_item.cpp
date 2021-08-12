@@ -29,6 +29,7 @@
 #include "utils/utils_char_obj.inl"
 #include "global_objects.h"
 #include "skills_info.h"
+#include "utils/id_converter.h"
 
 // extern variables
 extern CHAR_DATA *mob_proto;

@@ -22,6 +22,7 @@
 #include "file_crc.h"
 #include "named_stuff.h"
 #include "utils/utils_char_obj.inl"
+#include "utils/id_converter.h"
 
 #include <boost/algorithm/string.hpp>
 

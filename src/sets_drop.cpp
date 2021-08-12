@@ -12,6 +12,7 @@
 #include "parse.h"
 #include "mob_stat.h"
 #include "zone.table.h"
+#include "utils/id_converter.h"
 
 #include <boost/lexical_cast.hpp>
 

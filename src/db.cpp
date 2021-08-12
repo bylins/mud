@@ -2582,6 +2582,8 @@ void boot_db(void) {
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
 
+
+
 }
 
 // reset the time in the game from file
@@ -5191,49 +5193,6 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	act("$n вступил$g в игру.", TRUE, ch, 0, 0, TO_ROOM);
 	act("Вы перевоплотились! Желаем удачи!", FALSE, ch, 0, 0, TO_CHAR);
-}
-
-// returns the real number of the room with given virtual number
-room_rnum real_room(room_vnum vnum) {
-	room_rnum bot, top, mid;
-
-	bot = 1;        // 0 - room is NOWHERE
-	top = top_of_world;
-	// perform binary search on world-table
-	for (;;) {
-		mid = (bot + top) / 2;
-
-		if (world[mid]->number == vnum)
-			return (mid);
-		if (bot >= top)
-			return (NOWHERE);
-		if (world[mid]->number > vnum)
-			top = mid - 1;
-		else
-			bot = mid + 1;
-	}
-}
-
-// returns the real number of the monster with given virtual number
-mob_rnum real_mobile(mob_vnum vnum) {
-	mob_rnum bot, top, mid;
-
-	bot = 0;
-	top = top_of_mobt;
-
-	// perform binary search on mob-table
-	for (;;) {
-		mid = (bot + top) / 2;
-
-		if ((mob_index + mid)->vnum == vnum)
-			return (mid);
-		if (bot >= top)
-			return (-1);
-		if ((mob_index + mid)->vnum > vnum)
-			top = mid - 1;
-		else
-			bot = mid + 1;
-	}
 }
 
 // данная функция работает с неполностью загруженным персонажем

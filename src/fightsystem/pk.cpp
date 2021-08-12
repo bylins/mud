@@ -19,6 +19,7 @@
 #include "handler.h"
 #include "fightsystem/fight.h"
 #include "classes/class.h"
+#include "utils/id_converter.h"
 
 void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
 

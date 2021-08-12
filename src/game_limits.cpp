@@ -31,6 +31,7 @@
 #include "zone.table.h"
 #include "classes/class_spell_slots.h"
 #include "magic/spells_info.h"
+#include "utils/id_converter.h"
 
 #include <boost/format.hpp>
 

@@ -12,6 +12,7 @@
 
 #include "global_objects.h"
 #include "utils/utils_find_obj_id_by_vnum.h"
+#include "utils/id_converter.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "dg_event.h"
@@ -448,14 +449,14 @@ CHAR_DATA *get_char(char *name, int/* vnum*/) {
 			return i;
 		}
 	} else {
-		for (const auto &character : character_list) {
-			const auto i = character.get();
-			if (isname(name, i->get_pc_name())
-				&& (IS_NPC(i)
-					|| !GET_INVIS_LEV(i))) {
-				return i;
-			}
+		const auto it_ch = std::find_if(character_list.begin(), character_list.end(),
+										[name](const auto ch) {
+			return isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch));
+		});
+		if (it_ch != character_list.end()) {
+				return it_ch->get();
 		}
+
 	}
 
 	return NULL;
@@ -523,12 +524,12 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA *obj, char *name) {
 			return obj->get_worn_by();
 		}
 
-		for (const auto ch : character_list) {
-			if (isname(name, ch->get_pc_name())
-				&& (IS_NPC(ch)
-					|| !GET_INVIS_LEV(ch))) {
-				return ch.get();
-			}
+		const auto it_ch = std::find_if(character_list.begin(), character_list.end(),
+										[name](const auto ch) {
+			return isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch));
+		});
+		if (it_ch != character_list.end()) {
+				return it_ch->get();
 		}
 	}
 
@@ -542,34 +543,31 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA *obj, char *name) {
 CHAR_DATA *get_char_by_room(ROOM_DATA *room, char *name) {
 	CHAR_DATA *ch;
 
-	if (*name == UID_ROOM
-		|| *name == UID_OBJ) {
+	if (*name == UID_ROOM || *name == UID_OBJ) {
 		return NULL;
 	}
 
 	if (*name == UID_CHAR) {
 		ch = find_char(atoi(name + 1));
 
-		if (ch
-			&& (IS_NPC(ch)
-				|| !GET_INVIS_LEV(ch))) {
+		if (ch && (IS_NPC(ch) || !GET_INVIS_LEV(ch))) {
 			return ch;
 		}
 	} else {
-		for (const auto ch : room->people) {
-			if (isname(name, ch->get_pc_name())
-				&& (IS_NPC(ch)
-					|| !GET_INVIS_LEV(ch))) {
-				return ch;
-			}
+		const auto it_in_room = std::find_if(room->people.cbegin(), room->people.cend(),
+											 [name](const auto ch) {
+			return isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch));
+		});
+		if (it_in_room != room->people.cend()) {
+			return *it_in_room;
 		}
 
-		for (const auto ch : character_list) {
-			if (isname(name, ch->get_pc_name())
-				&& (IS_NPC(ch)
-					|| !GET_INVIS_LEV(ch))) {
-				return ch.get();
-			}
+		const auto it_ch = std::find_if(character_list.begin(), character_list.end(),
+										[name](const auto ch) {
+			return isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch));
+		});
+		if (it_ch != character_list.end()) {
+			return it_ch->get();
 		}
 	}
 

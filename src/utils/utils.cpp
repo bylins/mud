@@ -104,23 +104,19 @@ const char *ACTNULL = "<NULL>";
 
 // return char with UID n
 CHAR_DATA *find_char(long n) {
-	for (const auto &ch : character_list) {
-		if (GET_ID(ch) == n) {
-			return ch.get();
-		}
-	}
+	const auto it_ch = std::find_if(character_list.begin(), character_list.end(), [n](const auto ch) {
+		return GET_ID(ch) == n;
+	});
 
-	return nullptr;
+	return it_ch == character_list.end() ? nullptr : it_ch->get();
 }
 
 bool check_spell_on_player(CHAR_DATA *ch, int spell_num) {
-	for (const auto af : ch->affected) {
-		if (af->type == spell_num) {
-			return true;
-		}
-	}
+	const auto it_aff = std::find_if(ch->affected.cbegin(), ch->affected.cend(), [spell_num](const auto af) {
+		return af->type == spell_num;
+	});
 
-	return false;
+	return it_aff != ch->affected.cend();
 }
 
 int MIN(int a, int b) {

@@ -11,6 +11,7 @@
 #include "obj_prototypes.h"
 #include "logger.h"
 #include "utils/utils.h"
+#include "utils/id_converter.h"
 #include "obj.h"
 #include "comm.h"
 #include "handler.h"

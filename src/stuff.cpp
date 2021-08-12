@@ -15,6 +15,7 @@
 #include "corpse.h"
 #include "screen.h"
 #include "sets_drop.h"
+#include "utils/id_converter.h"
 
 extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);

@@ -96,6 +96,7 @@
 #include "title.h"
 #include "top.h"
 #include "skills_info.h"
+#include "utils/id_converter.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"

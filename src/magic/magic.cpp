@@ -27,6 +27,7 @@
 #include "obj_prototypes.h"
 #include "random.h"
 #include "world_objects.h"
+#include "utils/id_converter.h"
 
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;

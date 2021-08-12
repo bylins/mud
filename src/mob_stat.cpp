@@ -7,6 +7,7 @@
 #include "parse.h"
 #include "chars/char.h"
 #include "screen.h"
+#include "utils/id_converter.h"
 
 #include <iomanip>
 

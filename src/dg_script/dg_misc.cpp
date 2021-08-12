@@ -14,6 +14,7 @@
 #include "handler.h"
 #include "dg_event.h"
 #include "magic/magic.h"
+#include "utils/id_converter.h"
 
 extern const char *item_types[];
 extern const char *apply_types[];

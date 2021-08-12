@@ -15,6 +15,7 @@
 #include "cache.h"
 #include "depot.h"
 #include "house.h"
+#include "utils/id_converter.h"
 
 extern void get_from_container(CHAR_DATA *ch, OBJ_DATA *cont, char *arg, int mode, int amount, bool autoloot);
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);

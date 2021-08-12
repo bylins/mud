@@ -4,6 +4,7 @@
 #include "handler.h"
 #include "pugixml.h"
 #include "backtrace.h"
+#include "utils/id_converter.h"
 
 #include <boost/lexical_cast.hpp>
 

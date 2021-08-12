@@ -22,6 +22,7 @@
 #include "magic/magic_utils.h"
 #include "zone.table.h"
 #include "chars/char_player.h"
+#include "utils/id_converter.h"
 
 // extern
 void perform_drop_gold(CHAR_DATA *ch, int amount);

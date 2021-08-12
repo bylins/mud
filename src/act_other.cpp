@@ -15,6 +15,7 @@
 #include "act_other.h"
 
 #include "utils/utils_char_obj.inl"
+#include "utils/id_converter.h"
 #include "chars/char.h"
 #include "chars/char_player.h"
 #include "cmd/follow.h"

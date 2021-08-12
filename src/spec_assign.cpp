@@ -21,6 +21,7 @@
 #include "boards/boards.h"
 #include "chars/char.h"
 #include "noob.h"
+#include "utils/id_converter.h"
 
 extern int dts_are_dumps;
 

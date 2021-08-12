@@ -5,6 +5,7 @@
 #include "mobmax.h"
 
 #include "chars/char.h"
+#include "utils/id_converter.h"
 
 std::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels = {{0}};
 namespace {

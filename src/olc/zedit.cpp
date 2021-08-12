@@ -16,6 +16,7 @@
 #include "zone.table.h"
 #include "logger.h"
 #include "utils/utils.h"
+#include "utils/id_converter.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

@@ -9,6 +9,7 @@
 #include "handler.h"
 #include "house.h"
 #include "parse.h"
+#include "utils/id_converter.h"
 
 #include <boost/algorithm/string.hpp>
 

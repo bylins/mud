@@ -5,6 +5,7 @@
 #include "chars/char_player.h"
 #include "chars/player_races.h"
 #include "utils/utils_char_obj.inl"
+#include "utils/id_converter.h"
 #include "description.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"

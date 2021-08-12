@@ -37,7 +37,6 @@ void tag_argument(char *argument, char *tag);
 void boot_db(void);
 void zone_update(void);
 bool can_be_reset(zone_rnum zone);
-room_rnum real_room(room_vnum vnum);
 long get_id_by_name(char *name);
 long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
@@ -52,7 +51,6 @@ void zone_traffic_save();
 
 int load_char(const char *name, CHAR_DATA *char_element, bool reboot = 0, const bool find_id = true);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
-mob_rnum real_mobile(mob_vnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA *ch);
 void clear_char_skills(CHAR_DATA *ch);
 int correct_unique(int unique);
