@@ -4092,6 +4092,12 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				return 0;
 			}
 			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_DELETED);
+			if (PLR_FLAGS(vict).get(PLR_DELETED)) {
+				if (PLR_FLAGS(vict).get(PLR_NODELETE)) {
+					PLR_FLAGS(vict).unset(PLR_NODELETE);
+					send_to_char("NODELETE flag also removed.\r\n", ch);
+				}
+			}
 			break;
 		case 31:
 			if ((i = parse_class(*val_arg)) == CLASS_UNDEFINED) {

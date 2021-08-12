@@ -1157,13 +1157,13 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
-enhansed_scroll = true;
+//enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
 		if (check_unlimited_timer(obj))
-			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
+			sprintf(buf2, "&GТаймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
 		else
-			sprintf(buf2, "Таймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
-		snprintf(buf, MAX_STRING_LENGTH, "Сейчас в мире : %d. На постое : %d. Макс в мире: %d. %s\r\n", 
+			sprintf(buf2, "&GТаймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
+		snprintf(buf, MAX_STRING_LENGTH, "Сейчас в мире : %d. На постое : %d. Макс. в мире: %d. %s&n\r\n", 
 			obj_proto.number(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), GET_OBJ_MIW(obj), buf2);
 		send_to_char(buf, ch);
 	}
