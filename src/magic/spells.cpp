@@ -1088,7 +1088,7 @@ void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	}
 }
 
-void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness) {
+void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll) {
 	int i, found, drndice = 0, drsdice = 0, j;
 	long int li;
 
@@ -1157,7 +1157,16 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness) {
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
-
+//enhansed_scroll = true; //для теста
+	if (enhansed_scroll) {
+		if (check_unlimited_timer(obj))
+			sprintf(buf2, "&GТаймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
+		else
+			sprintf(buf2, "&GТаймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
+		snprintf(buf, MAX_STRING_LENGTH, "Сейчас в мире : %d. На постое : %d. Макс. в мире: %d. %s&n\r\n", 
+			obj_proto.number(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), GET_OBJ_MIW(obj), buf2);
+		send_to_char(buf, ch);
+	}
 	if (fullness < 75)
 		return;
 
@@ -1552,8 +1561,9 @@ void mort_show_char_values(CHAR_DATA *victim, CHAR_DATA *ch, int fullness) {
 }
 
 void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+	bool full = false;
 	if (obj) {
-		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, SKILL_IDENTIFY, nullptr));
+		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, SKILL_IDENTIFY, nullptr), full);
 		TrainSkill(ch, SKILL_IDENTIFY, true, nullptr);
 	} else if (victim) {
 		if (GET_LEVEL(victim) < 3) {
@@ -1565,9 +1575,21 @@ void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *o
 	}
 }
 
-void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+
+void spell_full_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+	bool full = true;
 	if (obj)
-		mort_show_obj_values(obj, ch, 100);
+		mort_show_obj_values(obj, ch, 100, full);
+	else if (victim) {
+			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);
+			return;
+	}
+}
+
+void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+	bool full = false;
+	if (obj)
+		mort_show_obj_values(obj, ch, 100, full);
 	else if (victim) {
 		if (victim != ch) {
 			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);

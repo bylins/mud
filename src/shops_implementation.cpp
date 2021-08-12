@@ -27,7 +27,7 @@ extern char *diag_timer_to_char(const OBJ_DATA *obj);    // implemented in the a
 extern int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj);    // implemented in class.cpp
 extern int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj);    // implemented in class.cpp
 extern int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);    // implemented in class.cpp
-extern void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness);    // implemented in spells.cpp
+extern void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll);    // implemented in spells.cpp
 namespace ShopExt {
 const int IDENTIFY_COST = 110;
 
@@ -907,7 +907,8 @@ void shop_node::process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, 
 			tell_to_char(keeper, ch, buf);
 
 			send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0).c_str());
-			mort_show_obj_values(ident_obj, ch, 200);
+			bool full =  false;
+			mort_show_obj_values(ident_obj, ch, 200, full);
 			ch->remove_gold(IDENTIFY_COST);
 		}
 	}

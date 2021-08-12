@@ -428,6 +428,7 @@ const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
  */
 
 #define SPELL_IDENTIFY               351
+#define SPELL_FULL_IDENTIFY          352
 #define SPELL_QUEST             357    // Spell for dg_affect using
 
 #define TOP_SPELL_DEFINE         399
@@ -493,6 +494,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *
 void spell_charm(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_information(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_full_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_enchant_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_control_weather(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_create_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
@@ -500,7 +502,6 @@ void spell_energydrain(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *ob
 void spell_fear(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_sacrifice(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_forbidden(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_holystrike(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void skill_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_angel(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);

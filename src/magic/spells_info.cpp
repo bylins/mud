@@ -1111,6 +1111,9 @@ void initSpells(void) {
 
 	initSpell(SPELL_LIGHTNING_BREATH, "опаляющее дыхание", "lightning breath",
 			  0, 0, 0, POS_SITTING, TAR_IGNORE, TRUE, MAG_DAMAGE, 3, STYPE_DARK);
+//248
+	initSpell(SPELL_FULL_IDENTIFY, "полная идентификация", "identify",
+			  0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 // 357
 	initSpell(SPELL_QUEST, "чары", "quest spell",
 			  55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
