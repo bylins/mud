@@ -1040,7 +1040,9 @@ inline bool NO_DESTROY(const OBJ_DATA *obj) {
 }
 
 inline bool NO_TIMER(const OBJ_DATA *obj) {
-	return GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN;
+	return (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
+		|| (obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)
+			&& !ROOM_FLAGGED(obj->get_in_room(), ROOM_DEATH)));
 }
 
 int up_obj_where(OBJ_DATA *obj) {
