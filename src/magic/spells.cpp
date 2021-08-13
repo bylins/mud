@@ -1160,11 +1160,17 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
 		if (check_unlimited_timer(obj))
-			sprintf(buf2, "&GТаймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
+			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
 		else
-			sprintf(buf2, "&GТаймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
-		snprintf(buf, MAX_STRING_LENGTH, "Сейчас в мире : %d. На постое : %d. Макс. в мире: %d. %s&n\r\n", 
-			obj_proto.number(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), GET_OBJ_MIW(obj), buf2);
+			sprintf(buf2, "Таймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
+		char miw[128];
+		if (GET_OBJ_MIW(obj) < 0) {
+			sprintf(miw, "%s", "бесконечно");
+		} else {
+			sprintf(miw, "%d", GET_OBJ_MIW(obj));
+		}
+		snprintf(buf, MAX_STRING_LENGTH, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n", 
+			obj_proto.number(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
 		send_to_char(buf, ch);
 	}
 	if (fullness < 75)
@@ -1172,13 +1178,13 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 
 	switch (GET_OBJ_TYPE(obj)) {
 		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION: sprintf(buf, "Содержит заклинания: ");
+		case OBJ_DATA::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
 				sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) < MAX_SPELLS)
-				sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 2)));
+				sprintf(buf + strlen(buf), ", %s", spell_name(GET_OBJ_VAL(obj, 2)));
 			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
-				sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 3)));
+				sprintf(buf + strlen(buf), ", %s", spell_name(GET_OBJ_VAL(obj, 3)));
 			strcat(buf, "\r\n");
 			send_to_char(buf, ch);
 			break;

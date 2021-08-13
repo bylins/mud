@@ -919,21 +919,14 @@ void initSpells(void) {
 //198
 	initSpell(SPELL_STRANGLE, "!удушье!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //199
-	initSpell(SPELL_RECALL_SPELLS,
-			  "!вспоминает заклинания!",
-			  "!set by programm!",
-			  0,
-			  0,
-			  0,
-			  255,
-			  0,
-			  FALSE,
-			  MAG_MANUAL,
-			  0,
-			  STYPE_NEUTRAL);
+	initSpell(SPELL_RECALL_SPELLS, "!вспоминает заклинания!", "!set by programm!",
+		0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //200
 	initSpell(SPELL_HYPNOTIC_PATTERN, "чарующий узор", "hypnotic pattern", 120, 100, 2,
 			  POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_MIND);
+//201
+	initSpell(SPELL_SOLOBONUS, "награда", "bonus",
+		55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
 //202
 	initSpell(SPELL_VAMPIRE, "вампиризм", "vampire", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
 			  3, STYPE_DARK);
@@ -1094,8 +1087,7 @@ void initSpells(void) {
 	 */
 
 
-	initSpell(SPELL_IDENTIFY, "идентификация", "identify",
-			  0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
+
 //243 - 247
 	initSpell(SPELL_FIRE_BREATH, "огненное дыхание", "fire breath", 0, 0, 0,
 			  POS_SITTING, TAR_IGNORE, TRUE, MAG_DAMAGE, 3, STYPE_FIRE);
@@ -1112,13 +1104,17 @@ void initSpells(void) {
 	initSpell(SPELL_LIGHTNING_BREATH, "опаляющее дыхание", "lightning breath",
 			  0, 0, 0, POS_SITTING, TAR_IGNORE, TRUE, MAG_DAMAGE, 3, STYPE_DARK);
 //248
+
+//351
+	initSpell(SPELL_IDENTIFY, "идентификация", "identify",
+			  0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
+//352
 	initSpell(SPELL_FULL_IDENTIFY, "полная идентификация", "identify",
 			  0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
-// 357
-	initSpell(SPELL_QUEST, "чары", "quest spell",
+//353 в dg_affect
+	initSpell(SPELL_QUEST, "!чары!", "!quest spell!",
 			  55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
-	initSpell(SPELL_SOLOBONUS, "награда", "bonus",
-			  55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
+
 }
 
 
