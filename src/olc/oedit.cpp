@@ -533,8 +533,8 @@ void oedit_disp_spells_menu(DESCRIPTOR_DATA *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < MAX_SPELLS; counter++) {
-		if (!spell_info[counter].name || *spell_info[counter].name == '!')
+	for (counter = 0; counter <= SPELLS_COUNT; counter++) {
+		if (!spell_info[counter].name || *spell_info[counter].name == '!' || *spell_info[counter].name == '*')
 			continue;
 		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, counter, nrm, yel,
 				spell_info[counter].name, !(++columns % 4) ? "\r\n" : "");
@@ -1887,7 +1887,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			// * Quick'n'easy error checking.
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case OBJ_DATA::ITEM_SCROLL:
-				case OBJ_DATA::ITEM_POTION: min_val = 0;
+				case OBJ_DATA::ITEM_POTION: min_val = -1;
 					max_val = SPELLS_COUNT;
 					break;
 
@@ -1920,7 +1920,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case OEDIT_VALUE_4: number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case OBJ_DATA::ITEM_SCROLL:
-				case OBJ_DATA::ITEM_POTION: min_val = 0;
+				case OBJ_DATA::ITEM_POTION: min_val = -1;
 					max_val = SPELLS_COUNT;
 					break;
 

@@ -383,7 +383,10 @@ enum ESpell : int {
 	SPELL_FROST_BREATH = 245,      // магическое дыхание
 	SPELL_ACID_BREATH = 246,       // магическое дыхание
 	SPELL_LIGHTNING_BREATH = 247,  // магическое дыхание
-	SPELLS_COUNT = SPELL_LIGHTNING_BREATH    // Counter corresponds to the last value because we count spells from 1.
+	SPELL_IDENTIFY = 351,
+	SPELL_FULL_IDENTIFY =352,
+	SPELL_QUEST = 353,
+	SPELLS_COUNT = SPELL_QUEST //last
 };
 
 class spell_wear_off_msg_t : public std::array<const char *, SPELLS_COUNT + 1> {
@@ -427,11 +430,11 @@ const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
  *  identify) or non-players (such as NPC-only spells).
  */
 
-#define SPELL_IDENTIFY               351
-#define SPELL_FULL_IDENTIFY          352
-#define SPELL_QUEST             357    // Spell for dg_affect using
+#define SPELL_IDENTIFY               	351
+#define SPELL_FULL_IDENTIFY          	352
+#define SPELL_QUEST          			353
 
-#define TOP_SPELL_DEFINE         399
+#define TOP_SPELL_DEFINE         MAX_SPELLS
 // NEW NPC/OBJECT SPELLS can be inserted here up to 299
 
 
