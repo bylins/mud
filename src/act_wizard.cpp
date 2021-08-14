@@ -75,6 +75,7 @@
 #include "title.h"
 #include "top.h"
 #include "utils/utils.h"
+#include "utils/id_converter.h"
 #include "world_objects.h"
 #include "zone.table.h"
 #include "classes/class_constants.h"
@@ -136,7 +137,6 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);
 void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter = NULL);
 void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells);
 extern void print_rune_stats(CHAR_DATA *ch);
-extern int real_zone(int number);
 // local functions
 int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg);
 void perform_immort_invis(CHAR_DATA *ch, int level);
@@ -1837,7 +1837,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
 		}
-		if ((zone_table[real_zone(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
+		if ((zone_table[get_zone_rnum_by_mob_vnum(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
@@ -1853,7 +1853,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
 		}
-		if ((zone_table[real_zone(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
+		if ((zone_table[get_zone_rnum_by_obj_vnum(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
@@ -3188,26 +3188,29 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 void print_zone_to_buf(char **bufptr, zone_rnum zone) {
 	const size_t BUFFER_SIZE = 1024;
+	int rfirst, rlast;
+	get_zone_rooms(zone, &rfirst, &rlast);
 	char tmpstr[BUFFER_SIZE];
 	snprintf(tmpstr, BUFFER_SIZE,
-			 "%3d %-60.60s Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-			 "    Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; Автор: %s, посещено после ребута: %d\r\n",
-			 zone_table[zone].number,
-			 zone_table[zone].name,
-			 zone_table[zone].mob_level,
-			 zone_types[zone_table[zone].type].name,
-			 zone_table[zone].age, zone_table[zone].lifespan,
-			 zone_table[zone].reset_mode,
-			 (zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
-			 zone_table[zone].top,
-			 zone_table[zone].under_construction ? "&GТестовая!&n" : " ",
-			 zone_table[zone].locked ? "&RРедактирование запрещено!&n" : " ",
-			 zone_table[zone].reset_idle ? "Y" : "N",
-			 zone_table[zone].used ? "Y" : "N",
-			 (double) zone_table[zone].activity / 1000,
-			 zone_table[zone].group,
-			 zone_table[zone].author ? zone_table[zone].author : "Не известен.",
-			 zone_table[zone].traffic);
+		"%3d %-60.60s Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
+		"First: %5d, Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\nАвтор: %s, посещено после ребута: %d\r\n",
+		zone_table[zone].number,
+		zone_table[zone].name,
+		zone_table[zone].mob_level,
+		zone_types[zone_table[zone].type].name,
+		zone_table[zone].age, zone_table[zone].lifespan,
+		zone_table[zone].reset_mode,
+		(zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
+		world[rfirst]->number,
+		world[rlast]->number,
+		zone_table[zone].under_construction ? "&GТестовая!&n" : " ",
+		zone_table[zone].locked ? "&RРедактирование запрещено!&n" : " ",
+		zone_table[zone].reset_idle ? "Y" : "N",
+		zone_table[zone].used ? "Y" : "N",
+		(double) zone_table[zone].activity / 1000,
+		zone_table[zone].group,
+		zone_table[zone].author ? zone_table[zone].author : "неизвестен",
+		zone_table[zone].traffic);
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
@@ -3413,7 +3416,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			} else if (*value && is_number(value)) {
 				for (zvn = atoi(value), zrn = 0;
-					 zone_table[zrn].number != zvn && zrn < static_cast<zone_rnum>(zone_table.size());
+					zrn < static_cast<zone_rnum>(zone_table.size()) && zone_table[zrn].number != zvn;
 					 zrn++) {
 					/* empty loop */
 				}
@@ -4089,6 +4092,12 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				return 0;
 			}
 			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_DELETED);
+			if (PLR_FLAGS(vict).get(PLR_DELETED)) {
+				if (PLR_FLAGS(vict).get(PLR_NODELETE)) {
+					PLR_FLAGS(vict).unset(PLR_NODELETE);
+					send_to_char("NODELETE flag also removed.\r\n", ch);
+				}
+			}
 			break;
 		case 31:
 			if ((i = parse_class(*val_arg)) == CLASS_UNDEFINED) {
@@ -4957,7 +4966,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			snprintf(buf_, sizeof(buf_),
 					 "Список комнат от Vnum %d до %d\r\n", first, last);
 			out += buf_;
-			for (nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->number < last); nr++) {
+			for (nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->number <= last); nr++) {
 				if (world[nr]->number >= first) {
 					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
 							 ++found, world[nr]->number, world[nr]->zone, world[nr]->name);
@@ -5049,28 +5058,31 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			m = 60 * 60;
 		else if (m == 'm')    // minutes
 			m = 60;
-		else if (m == 's' || a_isdigit(m))    // seconds
+		else if (m == 's')    // seconds
 			m = 1;
 		else
 			m = 0;
+
 		if ((m *= atoi(ca)) > 0)
 			t += m;
 		else {
-			send_to_char("Сдвиг игрового времени (h - часы, m - минуты, s - секунды).\r\n", ch);
-			return;
+			// no time shift with undefined arguments
+			t = 0;
+			break;
 		}
 	}
 
-	if (!t)            // 1 tick default
-	{
-		t = (SECS_PER_MUD_HOUR);
+	if (t <= 0) {
+			send_to_char("Сдвиг игрового времени (h - часы, m - минуты, s - секунды).\r\n", ch);
+			return;
 	}
 
 	for (m = 0; m < t * PASSES_PER_SEC; m++) {
 		GlobalObjects::heartbeat()(t * PASSES_PER_SEC - m);
 	}
 
-	sprintf(buf, "(GC) %s перевел игровое время на %d сек.", GET_NAME(ch), t);
+	send_to_char(ch, "Вы перевели игровое время на %d сек вперед.\r\n", t);
+	sprintf(buf, "(GC) %s перевел игровое время на %d сек вперед.", GET_NAME(ch), t);
 	mudlog(buf, NRM, LVL_IMMORT, IMLOG, FALSE);
 	send_to_char(OK, ch);
 

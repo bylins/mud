@@ -18,6 +18,7 @@
 #include "world_objects.h"
 #include "skills/townportal.h"
 #include "skills_info.h"
+#include "utils/id_converter.h"
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA *obj);
@@ -28,6 +29,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA *obj, char *name);
 void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets);
 void die(CHAR_DATA *ch, CHAR_DATA *killer);
 void obj_command_interpreter(OBJ_DATA *obj, char *argument);
+void send_to_zone(char *messg, int zone_rnum);
 
 ROOM_DATA *get_room(char *name);
 
@@ -937,6 +939,26 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
+void do_ozoneecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	zone_rnum zone;
+	char zone_name[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH], *msg;
+
+	msg = any_one_arg(argument, zone_name);
+	skip_spaces(&msg);
+
+	if (!*zone_name || !*msg)
+		obj_log(obj, "ozoneecho called with too few args");
+	else if ((zone = get_zone_rnum_by_room_vnum(atoi(zone_name))) < 0) {
+		std::stringstream str_log;
+		str_log << "ozoneecho called for nonexistant zone: " << zone_name;
+		obj_log(obj, str_log.str().c_str());
+	}
+	else {
+		sprintf(buf, "%s\r\n", msg);
+		send_to_zone(buf, zone);
+	}
+}
+
 const struct obj_command_info obj_cmd_info[] =
 	{
 		{"RESERVED", 0, 0},    // this must be first -- for specprocs
@@ -962,6 +984,7 @@ const struct obj_command_info obj_cmd_info[] =
 		{"oskilladd", do_oskilladd, 0},
 		{"ospellitem", do_ospellitem, 0},
 		{"oportal", do_oportal, 0},
+		{"ozoneecho", do_ozoneecho, 0},
 		{"\n", 0, 0}        // this must be last
 	};
 

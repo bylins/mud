@@ -52,7 +52,6 @@ extern struct spell_create_type spell_create[];
 extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DESCRIPTOR_DATA *ch);
 extern int check_death_ice(int room, CHAR_DATA *ch);
-extern int free_rent;
 
 void decrease_level(CHAR_DATA *ch);
 int max_exp_gain_pc(CHAR_DATA *ch);
@@ -1005,10 +1004,7 @@ void check_idling(CHAR_DATA *ch) {
 				if (ch->in_room != NOWHERE)
 					char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
-				if (free_rent)
-					Crash_rentsave(ch, 0);
-				else
-					Crash_idlesave(ch);
+				Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
@@ -1036,7 +1032,7 @@ inline bool NO_DESTROY(const OBJ_DATA *obj) {
 	return (obj->get_carried_by()
 		|| obj->get_worn_by()
 		|| obj->get_in_obj()
-		|| (obj->get_script()->has_triggers())
+//		|| (obj->get_script()->has_triggers())
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
 		|| obj->get_in_room() == NOWHERE
 		|| (obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)
@@ -1416,7 +1412,7 @@ void obj_point_update() {
 			if (j
 				&& (j->get_in_room() != NOWHERE)
 				&& j->get_timer() > 0
-				&& !NO_DESTROY(j.get())) {
+				&& !NO_TIMER(j.get())) {
 				j->dec_timer();
 			}
 
@@ -1425,10 +1421,8 @@ void obj_point_update() {
 					&& GET_OBJ_ZONE(j) != NOWHERE
 					&& up_obj_where(j.get()) != NOWHERE
 					&& GET_OBJ_ZONE(j) != world[up_obj_where(j.get())]->zone)
-					|| (j->get_timer() <= 0
-						&& !NO_TIMER(j.get()))
-					|| (GET_OBJ_DESTROY(j) == 0
-						&& !NO_DESTROY(j.get())))) {
+					|| j->get_timer() <= 0
+					|| GET_OBJ_DESTROY(j) == 0)) {
 				// *** рассыпание объекта
 				OBJ_DATA *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
@@ -1489,6 +1483,12 @@ void obj_point_update() {
 					}
 					obj_from_char(j.get());
 				} else if (j->get_in_room() != NOWHERE) {
+					if (j->get_timer() <= 0 && j->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
+						snprintf(buf, MAX_STRING_LENGTH, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d", 
+							GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->number );
+						mudlog(buf, CMP, LVL_GRGOD, ERRLOG, TRUE);
+
+					}
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("$o рассыпал$U в прах, который был развеян ветром...",
 							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
@@ -1520,7 +1520,7 @@ void obj_point_update() {
 					}
 					obj_from_obj(j.get());
 				}
-				extract_obj(j.get());
+			extract_obj(j.get());
 			} else {
 				if (!j) {
 					return;

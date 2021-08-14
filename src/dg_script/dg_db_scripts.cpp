@@ -332,7 +332,7 @@ void trg_skillturn(CHAR_DATA *ch, const ESkill skillnum, int skilldiff, int vnum
 
 void trg_skilladd(CHAR_DATA *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	int skill = ch->get_trained_skill(skillnum);
-	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_trained_skill(skillnum) + skilldiff, 200))));
+	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_trained_skill(skillnum) + skilldiff, CalcSkillMinCap(ch, skillnum)))));
 
 	if (skill > ch->get_trained_skill(skillnum)) {
 		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));

@@ -2658,13 +2658,6 @@ int create_entry(player_index_element &element) {
 	return static_cast<int>(player_table.append(element));
 }
 
-void print_free_names(std::ostream &os, const PlayersIndex &index) {
-	constexpr int SUGGESTIONS_COUNT = 4;
-	PlayersIndex::free_names_list_t names;
-	index.get_free_names(SUGGESTIONS_COUNT, names);
-	os << JoinRange<PlayersIndex::free_names_list_t>(names);
-}
-
 void DoAfterEmailConfirm(DESCRIPTOR_DATA *d) {
 	player_index_element element(-1, GET_PC_NAME(d->character));
 
@@ -2689,6 +2682,9 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d) {
 				genders[(int) GET_SEX(d->character)], GET_NAME(d->character));
 		NewNames::add(d->character.get());
 	}
+
+	// remove from free names
+	player_table.name_adviser().remove(GET_NAME(d->character));
 
 	SEND_TO_Q(motd, d);
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
@@ -2749,6 +2745,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 	char buf[MAX_STRING_LENGTH];
 	int player_i = 0, load_result;
 	char tmp_name[MAX_INPUT_LENGTH], pwd_name[MAX_INPUT_LENGTH], pwd_pwd[MAX_INPUT_LENGTH];
+	bool is_player_deleted;
 	if (STATE(d) != CON_CONSOLE)
 		skip_spaces(&arg);
 
@@ -2856,11 +2853,13 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 				std::stringstream ss;
 				ss << "Введите имя";
-				if (0 < player_table.free_names_count()) {
+				const auto free_name_list = player_table.name_adviser().get_random_name_list();
+				if (!free_name_list.empty()) {
 					ss << " (примеры доступных имен : ";
-					print_free_names(ss, player_table);
+					ss << JoinRange(free_name_list);
 					ss << ")";
 				}
+
 				ss << ": ";
 
 				SEND_TO_Q(ss.str().c_str(), d);
@@ -3061,8 +3060,10 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			player_i = load_char(tmp_name, d->character.get());
+			is_player_deleted = false;
 			if (player_i > -1) {
-				if (PLR_FLAGGED(d->character, PLR_DELETED)) {
+				is_player_deleted = PLR_FLAGGED(d->character, PLR_DELETED);
+				if (is_player_deleted) {
 					d->character.reset();
 					CreateChar(d);
 				} else {
@@ -3078,7 +3079,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				return;
 			}
 
-			if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH + 1) >= 0) {
+			// skip name check for deleted players
+			if (!is_player_deleted && cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH) >= 0) {
 				SEND_TO_Q("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 						  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
 						  "Имя  : ", d);

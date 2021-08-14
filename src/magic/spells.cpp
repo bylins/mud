@@ -336,6 +336,13 @@ void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DA
 	greet_otrigger(ch, -1);
 }
 
+void check_auto_nosummon(CHAR_DATA *ch) {
+	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
+		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
+		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
+	}
+}
+
 // ПЕРЕМЕСТИТЬСЯ
 void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
 	room_rnum to_room, fnd_room;
@@ -343,8 +350,12 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	if (victim == NULL)
 		return;
 
-	// Если левел жертвы больше чем перемещяющегося - фейл
-	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim)) {
+	if (IS_NPC(victim)) { 
+		send_to_char(SUMMON_FAIL, ch);
+		return;
+	}
+	// если противник не может быть призван и уровень меньше цели - фэйл
+	if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -392,7 +403,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-
+	check_auto_nosummon(victim);
 	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
@@ -413,13 +424,6 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	}
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
-}
-
-void check_auto_nosummon(CHAR_DATA *ch) {
-	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
-		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
-		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
-	}
 }
 
 void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
@@ -1084,7 +1088,7 @@ void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	}
 }
 
-void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness) {
+void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll) {
 	int i, found, drndice = 0, drsdice = 0, j;
 	long int li;
 
@@ -1153,19 +1157,34 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness) {
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
-
+//enhansed_scroll = true; //для теста
+	if (enhansed_scroll) {
+		if (check_unlimited_timer(obj))
+			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
+		else
+			sprintf(buf2, "Таймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
+		char miw[128];
+		if (GET_OBJ_MIW(obj) < 0) {
+			sprintf(miw, "%s", "бесконечно");
+		} else {
+			sprintf(miw, "%d", GET_OBJ_MIW(obj));
+		}
+		snprintf(buf, MAX_STRING_LENGTH, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n", 
+			obj_proto.number(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
+		send_to_char(buf, ch);
+	}
 	if (fullness < 75)
 		return;
 
 	switch (GET_OBJ_TYPE(obj)) {
 		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION: sprintf(buf, "Содержит заклинания: ");
+		case OBJ_DATA::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
 				sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) < MAX_SPELLS)
-				sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 2)));
+				sprintf(buf + strlen(buf), ", %s", spell_name(GET_OBJ_VAL(obj, 2)));
 			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
-				sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 3)));
+				sprintf(buf + strlen(buf), ", %s", spell_name(GET_OBJ_VAL(obj, 3)));
 			strcat(buf, "\r\n");
 			send_to_char(buf, ch);
 			break;
@@ -1548,8 +1567,9 @@ void mort_show_char_values(CHAR_DATA *victim, CHAR_DATA *ch, int fullness) {
 }
 
 void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+	bool full = false;
 	if (obj) {
-		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, SKILL_IDENTIFY, nullptr));
+		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, SKILL_IDENTIFY, nullptr), full);
 		TrainSkill(ch, SKILL_IDENTIFY, true, nullptr);
 	} else if (victim) {
 		if (GET_LEVEL(victim) < 3) {
@@ -1561,9 +1581,21 @@ void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *o
 	}
 }
 
-void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+
+void spell_full_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+	bool full = true;
 	if (obj)
-		mort_show_obj_values(obj, ch, 100);
+		mort_show_obj_values(obj, ch, 100, full);
+	else if (victim) {
+			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);
+			return;
+	}
+}
+
+void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+	bool full = false;
+	if (obj)
+		mort_show_obj_values(obj, ch, 100, full);
 	else if (victim) {
 		if (victim != ch) {
 			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);

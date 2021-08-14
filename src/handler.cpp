@@ -1469,7 +1469,7 @@ const int money_destroy_timer = 60;
 const int death_destroy_timer = 5;
 const int room_destroy_timer = 10;
 const int room_nodestroy_timer = -1;
-const int script_destroy_timer = 1; // * !!! Never set less than ONE * //
+const int script_destroy_timer = 10; // * !!! Never set less than ONE * //
 
 /**
 * put an object in a room

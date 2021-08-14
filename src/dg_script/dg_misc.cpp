@@ -336,7 +336,8 @@ void do_dg_affect(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* sc
 
 	// spell not found
 	if (index_s <= 0) {
-		sprintf(buf2, "dg_affect: unknown spell '%s'!", spell);
+		index_s = SPELL_QUEST;
+		sprintf(buf2, "dg_affect: unknown spell '%s' ставим 'чары'!", spell);
 		trig_log(trig, buf2);
 		return;
 	}

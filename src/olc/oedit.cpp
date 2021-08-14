@@ -17,6 +17,7 @@
 #include "magic/spells.h"
 #include "logger.h"
 #include "utils/utils.h"
+#include "utils/id_converter.h"
 #include "db.h"
 #include "olc.h"
 #include "dg_script/dg_olc.h"
@@ -59,7 +60,6 @@ extern struct spellInfo_t spell_info[];
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_imrecipes;
 extern void extract_obj(OBJ_DATA *obj);
-int real_zone(int number);
 
 //------------------------------------------------------------------------
 
@@ -269,7 +269,7 @@ void oedit_save_internally(DESCRIPTOR_DATA *d) {
 		log("[OEdit] Save mem new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(OBJ_DATA));
 
 		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
-		obj_proto.zone(index, real_zone(OLC_NUM(d)));
+		obj_proto.zone(index, get_zone_rnum_by_obj_vnum(OLC_NUM(d)));
 	}
 
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_OBJ);
@@ -533,8 +533,8 @@ void oedit_disp_spells_menu(DESCRIPTOR_DATA *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < MAX_SPELLS; counter++) {
-		if (!spell_info[counter].name || *spell_info[counter].name == '!')
+	for (counter = 0; counter <= SPELLS_COUNT; counter++) {
+		if (!spell_info[counter].name || *spell_info[counter].name == '!' || *spell_info[counter].name == '*')
 			continue;
 		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, counter, nrm, yel,
 				spell_info[counter].name, !(++columns % 4) ? "\r\n" : "");
@@ -1887,7 +1887,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			// * Quick'n'easy error checking.
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case OBJ_DATA::ITEM_SCROLL:
-				case OBJ_DATA::ITEM_POTION: min_val = 0;
+				case OBJ_DATA::ITEM_POTION: min_val = -1;
 					max_val = SPELLS_COUNT;
 					break;
 
@@ -1920,7 +1920,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case OEDIT_VALUE_4: number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case OBJ_DATA::ITEM_SCROLL:
-				case OBJ_DATA::ITEM_POTION: min_val = 0;
+				case OBJ_DATA::ITEM_POTION: min_val = -1;
 					max_val = SPELLS_COUNT;
 					break;
 

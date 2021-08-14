@@ -19,6 +19,7 @@
 #include "boot/boot_constants.h"
 #include "structs.h"
 #include "conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
+#include "name_adviser.h"
 
 #include <map>
 #include <list>
@@ -318,7 +319,6 @@ class PlayersIndex : public std::vector<player_index_element> {
 	using parent_t = std::vector<player_index_element>;
 	using parent_t::operator[];
 	using parent_t::size;
-	using free_names_list_t = std::list<std::string>;
 
 	static const std::size_t NOT_FOUND;
 
@@ -330,9 +330,7 @@ class PlayersIndex : public std::vector<player_index_element> {
 	std::size_t get_by_name(const char *name) const;
 	void set_name(const std::size_t index, const char *name);
 
-	void add_free(const std::string &name) { m_free_names.push_back(name); }
-	auto free_names_count() const { return m_free_names.size(); }
-	void get_free_names(const int count, free_names_list_t &names) const;
+	NameAdviser &name_adviser() { return m_name_adviser; }
 
  private:
 	class hasher {
@@ -353,7 +351,8 @@ class PlayersIndex : public std::vector<player_index_element> {
 
 	id_to_index_t m_id_to_index;
 	name_to_index_t m_name_to_index;
-	free_names_t m_free_names;
+	// contains free names which are available for new players
+	NameAdviser m_name_adviser;
 };
 
 extern PlayersIndex &player_table;

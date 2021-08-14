@@ -24,6 +24,7 @@
 #include "room.h"
 #include "logger.h"
 #include "utils/utils.h"
+#include "utils/id_converter.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -56,7 +57,6 @@ int real_trigger(int vnum);
 void dg_olc_script_free(DESCRIPTOR_DATA *d);
 
 // Internal function prototypes.
-int real_zone(int number);
 void olc_saveinfo(CHAR_DATA *ch);
 
 // global data
@@ -200,7 +200,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	d->olc = new olc_data;
 
 	// * Find the zone.
-	if ((OLC_ZNUM(d) = real_zone(number)) == -1) {
+	if ((OLC_ZNUM(d) = get_zone_rnum_by_room_vnum(number)) == -1) {
 		send_to_char("Звыняйтэ, такойи зоны нэмае.\r\n", ch);
 		delete d->olc;
 		return;

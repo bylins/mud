@@ -262,7 +262,7 @@ void FLAG_DATA::gm_flag(const char *subfield, const char *const *const list, cha
 			unset(flag);
 			if (plane_not_empty(flag))    // looks like an error: we should check flag, but not whole plane
 			{
-				strcpy(res, "1");
+				strcpy(res, "");
 			}
 		}
 	} else if (*subfield == '+') {
@@ -271,14 +271,16 @@ void FLAG_DATA::gm_flag(const char *subfield, const char *const *const list, cha
 			set(flag);
 			if (plane_not_empty(flag))    // looks like an error: we should check flag, but not whole plane
 			{
-				strcpy(res, "1");
+				strcpy(res, "");
 			}
 		}
 	} else {
 		const int flag = ext_search_block(subfield, list, FALSE);
 		if (flag && get(flag)) {
 			strcpy(res, "1");
-		}
+		} else
+			strcpy(res, "0");
+			
 	}
 
 	return;
