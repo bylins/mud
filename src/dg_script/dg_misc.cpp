@@ -174,7 +174,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 
 	// spellnum = search_block(s, spells, 0);
 	spellnum = fix_name_and_find_spell_num(s);
-	if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
+	if ((spellnum < 1) || (spellnum > SPELLS_COUNT)) {
 		sprintf(buf2, "dg_cast: invalid spell name (%s)", cmd);
 		trig_log(trig, buf2);
 		return;

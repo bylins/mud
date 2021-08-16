@@ -105,8 +105,8 @@ struct char_played_ability_data {
 
 // Char's abilities.
 struct char_ability_data {
-	std::array<ubyte, MAX_SPELLS + 1> SplKnw; // array of SPELL_KNOW_TYPE
-	std::array<ubyte, MAX_SPELLS + 1> SplMem; // array of MEMed SPELLS
+	std::array<ubyte, SPELLS_COUNT + 1> SplKnw; // array of SPELL_KNOW_TYPE
+	std::array<ubyte, SPELLS_COUNT + 1> SplMem; // array of MEMed SPELLS
 	std::bitset<MAX_FEATS> Feats;
 	sbyte size;
 	int hitroll;

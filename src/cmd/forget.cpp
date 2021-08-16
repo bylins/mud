@@ -37,7 +37,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			MemQ_flush(ch);
 			send_to_char("Вы вычеркнули все заклинания из своего списка для запоминания.\r\n", ch);
 		} else {
-			for (i = 1; i <= MAX_SPELLS; i++) {
+			for (i = 1; i <= SPELLS_COUNT; i++) {
 				GET_SPELL_MEM(ch, i) = 0;
 			}
 			sprintf(buf,
@@ -64,7 +64,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	spellnum = fix_name_and_find_spell_num(s);
 	// Unknown spell
-	if (spellnum < 1 || spellnum > MAX_SPELLS) {
+	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}

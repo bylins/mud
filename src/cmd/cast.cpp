@@ -76,7 +76,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	spell_subst = spellnum;
 
 	// Unknown spell
-	if (spellnum < 1 || spellnum > MAX_SPELLS) {
+	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -102,7 +102,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
 			&& (spellnum == SPELL_CURE_LIGHT || spellnum == SPELL_CURE_SERIOUS
 				|| spellnum == SPELL_CURE_CRITIC || spellnum == SPELL_HEAL)) {
-			for (i = 1; i <= MAX_SPELLS; i++) {
+			for (i = 1; i <= SPELLS_COUNT; i++) {
 				if (GET_SPELL_MEM(ch, i) &&
 					spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
 						spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {

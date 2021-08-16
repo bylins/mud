@@ -280,7 +280,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 		&& spellnum != SPELL_ACID_BREATH)
 		|| ch == victim) {
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY)) {
-			if (ch != victim && spellnum < MAX_SPELLS &&
+			if (ch != victim && spellnum <= SPELLS_COUNT &&
 				((AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3)))) {
 				act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
 				act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -292,7 +292,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				return (mag_damage(level, ch, ch, spellnum, savetype));
 			}
 		} else {
-			if (ch != victim && spellnum < MAX_SPELLS && IS_GOD(victim)
+			if (ch != victim && spellnum <= SPELLS_COUNT && IS_GOD(victim)
 				&& (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch))) {
 				act("Звуковой барьер $N1 отразил ваш крик!", FALSE, ch, 0, victim, TO_CHAR);
 				act("Звуковой барьер $N1 отразил крик $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -302,7 +302,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 		}
 
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, EAffectFlag::AFF_SHADOW_CLOAK)
-			&& spellnum < MAX_SPELLS && number(1, 100) < 21) {
+			&& spellnum <= SPELLS_COUNT && number(1, 100) < 21) {
 			act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
 			act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
 			act("Густая тень вокруг вас поглотила магию $n1.", FALSE, ch, 0, victim, TO_VICT);

@@ -1828,7 +1828,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number < 0 || (number > MAX_SPELLS || !spell_info[number].name
+							if (number < 0 || (number > SPELLS_COUNT || !spell_info[number].name
 								|| *spell_info[number].name == '!')) {
 								send_to_char("Неизвестное заклинание, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);

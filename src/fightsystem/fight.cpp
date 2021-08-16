@@ -977,7 +977,7 @@ void mob_casting(CHAR_DATA *ch) {
 		return;
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
-	for (int i = 1; i <= MAX_SPELLS; i++) {
+	for (int i = 1; i <= SPELLS_COUNT; i++) {
 		if (GET_SPELL_MEM(ch, i) && IS_SET(spell_info[i].routines, NPC_CALCULATE)) {
 			battle_spells[spells++] = i;
 		}
@@ -991,7 +991,7 @@ void mob_casting(CHAR_DATA *ch) {
 		switch (GET_OBJ_TYPE(item)) {
 			case OBJ_DATA::ITEM_WAND:
 			case OBJ_DATA::ITEM_STAFF:
-				if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > TOP_SPELL_DEFINE) {
+				if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > SPELLS_COUNT) {
 					log("SYSERR: Не верно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ",
 						GET_OBJ_VNUM(item),
 						item->get_PName(0).c_str(),
@@ -1007,7 +1007,7 @@ void mob_casting(CHAR_DATA *ch) {
 
 			case OBJ_DATA::ITEM_POTION:
 				for (int i = 1; i <= 3; i++) {
-					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE) {
+					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > SPELLS_COUNT) {
 						log("SYSERR: Не верно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
 							GET_OBJ_VNUM(item),
 							item->get_PName(0).c_str(),
@@ -1024,7 +1024,7 @@ void mob_casting(CHAR_DATA *ch) {
 
 			case OBJ_DATA::ITEM_SCROLL:
 				for (int i = 1; i <= 3; i++) {
-					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE) {
+					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > SPELLS_COUNT) {
 						log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ",
 							GET_OBJ_VNUM(item),
 							item->get_PName(0).c_str(),
@@ -1060,7 +1060,7 @@ void mob_casting(CHAR_DATA *ch) {
 	// Ищем рандомную заклинашку и цель для нее
 	for (int i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++) {
 		if (!spellnum && (spellnum = battle_spells[(sp_num = number(0, spells - 1))])
-			&& spellnum > 0 && spellnum <= MAX_SPELLS)    // sprintf(buf,"$n using spell '%s', %d from %d",
+			&& spellnum > 0 && spellnum <= SPELLS_COUNT)    // sprintf(buf,"$n using spell '%s', %d from %d",
 		{
 			//         spell_name(spellnum), sp_num, spells);
 			// act(buf,FALSE,ch,0,ch->get_fighting(),TO_VICT);

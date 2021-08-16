@@ -304,7 +304,7 @@ void room_affect_update(void) {
 			} else if (affect->duration == -1) {
 				affect->duration = -1;
 			} else {
-				if (affect->type > 0 && affect->type <= MAX_SPELLS) {
+				if (affect->type > 0 && affect->type <= SPELLS_COUNT) {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {

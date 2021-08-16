@@ -966,7 +966,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		send_to_char("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
 		strcpy(help, "Возможные умения:\r\n");
-		for (qend = 0, i = 0; i <= TOP_SPELL_DEFINE; i++) {
+		for (qend = 0, i = 0; i <= SPELLS_COUNT; i++) {
 			if (spell_info[i].name == unused_spellname)    // This is valid.
 				continue;
 			sprintf(help + strlen(help), "%18s", spell_info[i].name);
@@ -1047,7 +1047,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
 	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
-	if (spell >= 0 && spell <= MAX_SPELLS) {
+	if (spell >= 0 && spell <= SPELLS_COUNT) {
 		GET_SPELL_TYPE(vict, spell) = value;
 	} else if (SKILL_INVALID != skill
 		&& skill <= MAX_SKILL_NUM) {

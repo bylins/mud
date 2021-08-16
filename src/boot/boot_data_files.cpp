@@ -957,7 +957,7 @@ bool ObjectFile::check_object_spell_number(OBJ_DATA *obj, unsigned val) {
 	if (GET_OBJ_VAL(obj, val) < 0) {
 		error = true;
 	}
-	if (GET_OBJ_VAL(obj, val) > TOP_SPELL_DEFINE) {
+	if (GET_OBJ_VAL(obj, val) > SPELLS_COUNT) {
 		error = true;
 	}
 	if (error) {
@@ -1457,7 +1457,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > MAX_SPELLS || t[0] < 1) {
+		if (t[0] > SPELLS_COUNT || t[0] < 1) {
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}

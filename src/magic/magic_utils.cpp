@@ -162,7 +162,7 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 /*
  * This function should be used anytime you are not 100% sure that you have
  * a valid spell/skill number.  A typical for() loop would not need to use
- * this because you can guarantee > 0 and <= TOP_SPELL_DEFINE.
+ * this because you can guarantee > 0 and <= SPELLS_COUNT.
  */
 
 template<typename T>
@@ -220,7 +220,7 @@ int find_spell_num(const char *name) {
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
 
-	for (index = 1; index <= TOP_SPELL_DEFINE; index++) {
+	for (index = 1; index <= SPELLS_COUNT; index++) {
 		realname = (use_syn) ? spell_info[index].syn : spell_info[index].name;
 
 		if (!realname || !*realname)
@@ -357,7 +357,7 @@ int may_cast_here(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum) {
  */
 int call_magic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level) {
 
-	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
+	if (spellnum < 1 || spellnum > SPELLS_COUNT)
 		return (0);
 
 	if (caster && cvict) {
@@ -571,8 +571,8 @@ int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, 
 	int ignore;
 	ESkill skillnum = SKILL_INVALID;
 
-	if (spellnum < 0 || spellnum > TOP_SPELL_DEFINE) {
-		log("SYSERR: cast_spell trying to call spellnum %d/%d.\n", spellnum, TOP_SPELL_DEFINE);
+	if (spellnum < 0 || spellnum > SPELLS_COUNT) {
+		log("SYSERR: cast_spell trying to call spellnum %d/%d.\n", spellnum, SPELLS_COUNT);
 		return (0);
 	}
 //проверка на алайнмент мобов

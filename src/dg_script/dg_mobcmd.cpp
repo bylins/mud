@@ -1145,7 +1145,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS) {
+	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
 		mob_log(ch, "mspellturn: spell not found");
 		return;
 	}
@@ -1194,7 +1194,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
 		mob_log(ch, "mspellturntemp: spell not found");
 		return;
 	}
@@ -1236,7 +1236,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS) {
+	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
 		mob_log(ch, "mspelladd: skill not found");
 		return;
 	}
@@ -1274,7 +1274,7 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
 		mob_log(ch, "mspellitem: spell not found");
 		return;
 	}

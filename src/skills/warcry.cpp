@@ -67,7 +67,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	spellnum = fix_name_and_find_spell_num(wc_name);
 
 	// Unknown warcry
-	if (spellnum < 1 || spellnum > MAX_SPELLS
+	if (spellnum < 1 || spellnum > SPELLS_COUNT
 		|| (ch->get_skill(SKILL_WARCRY) < spell_info[spellnum].mana_change)
 		|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP)) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);

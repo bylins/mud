@@ -717,7 +717,7 @@ void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
 		wld_log(room, "wspellturn: spell not found");
 		return;
 	}
@@ -752,7 +752,7 @@ void do_wspellturntemp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcm
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
 		wld_log(room, "wspellturntemp: spell not found");
 		return;
 	}
@@ -784,7 +784,7 @@ void do_wspelladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
 		wld_log(room, "wspelladd: spell not found");
 		return;
 	}
@@ -811,7 +811,7 @@ void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
 		wld_log(room, "wspellitem: spell not found");
 		return;
 	}

@@ -787,7 +787,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 	}
 
 	if (spellnum < 0
-		|| spellnum >= TOP_SPELL_DEFINE) {
+		|| spellnum > SPELLS_COUNT) {
 		log("SYSERROR: spellnum = %d (%s:%d)", spellnum, __FILE__, __LINE__);
 		return;
 	}
