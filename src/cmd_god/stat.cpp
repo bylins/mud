@@ -684,7 +684,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 
 			switch (GET_OBJ_VAL(j, 0)) {
 				case BOOK_SPELL:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_SPELLS) {
+					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= SPELLS_COUNT) {
 						sprintf(buf, "содержит заклинание        : \"%s\"", spell_info[GET_OBJ_VAL(j, 1)].name);
 					} else
 						sprintf(buf, "неверный номер заклинания");

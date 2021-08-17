@@ -561,7 +561,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define CLR_MEMORY(ch)  (memset((ch)->Memory,0,MAX_SPELLS+1))
+#define CLR_MEMORY(ch)  (memset((ch)->Memory,0,SPELLS_COUNT+1))
 #define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GET_LEVEL(ch)/3)+GET_REMORT(ch))

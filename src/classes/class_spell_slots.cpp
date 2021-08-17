@@ -1220,8 +1220,8 @@ int slot_for_char(CHAR_DATA *ch, int slot_num) {
 void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 	int bad = 0;
 
-	if (spell < 0 || spell > TOP_SPELL_DEFINE) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, TOP_SPELL_DEFINE);
+	if (spell < 0 || spell > SPELLS_COUNT) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
 		return;
 	}
 

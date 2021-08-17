@@ -131,7 +131,7 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item);
 #define   MI_LEVEL8      (1 << 11)
 #define   MI_LEVEL16     (1 << 12)
 
-// PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS //
+// PLAYER SPELLS -- Numbered from 1 to SPELLS_COUNT //
 enum ESpell : int {
 	SPELL_NO_SPELL = 0,
 	SPELL_ARMOR = 1,    // Reserved Skill[] DO NOT CHANGE //
@@ -186,7 +186,7 @@ enum ESpell : int {
 	SPELL_INFRAVISION = 50,    // Reserved Skill[] DO NOT CHANGE //
 	SPELL_WATERWALK = 51,    // Reserved Skill[] DO NOT CHANGE //
 
-	// Insert new spells here, up to MAX_SPELLS //
+	// Insert new spells here, up to SPELLS_COUNT //
 	SPELL_CURE_SERIOUS = 52,
 	SPELL_GROUP_STRENGTH = 53,
 	SPELL_HOLD = 54,
@@ -434,7 +434,6 @@ const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
 #define SPELL_FULL_IDENTIFY          	352
 #define SPELL_QUEST          			353
 
-#define TOP_SPELL_DEFINE         MAX_SPELLS
 // NEW NPC/OBJECT SPELLS can be inserted here up to 299
 
 

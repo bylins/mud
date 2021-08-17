@@ -169,7 +169,7 @@ void pulse_affect_update(CHAR_DATA *ch) {
 		{
 			affect->duration = -1;    // GODs only! unlimited //
 		} else {
-			if ((affect->type > 0) && (affect->type <= MAX_SPELLS)) {
+			if ((affect->type > 0) && (affect->type <= SPELLS_COUNT)) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
@@ -219,7 +219,7 @@ void player_affect_update() {
 				}
 				affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > 0) && (affect->type <= MAX_SPELLS)) {
+				if ((affect->type > 0) && (affect->type <= SPELLS_COUNT)) {
 					if (next_affect_i == i->affected.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
@@ -276,7 +276,7 @@ void battle_affect_update(CHAR_DATA *ch) {
 					affect->duration -= MIN(affect->duration, SECS_PER_MUD_HOUR / SECS_PER_PLAYER_AFFECT);
 			}
 		} else if (affect->duration != -1) {
-			if (affect->type > 0 && affect->type <= MAX_SPELLS) {
+			if (affect->type > 0 && affect->type <= SPELLS_COUNT) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
@@ -328,7 +328,7 @@ void mobile_affect_update() {
 					affect->duration = -1;    // GODS - unlimited
 				} else {
 					if (affect->type > 0
-						&& affect->type <= MAX_SPELLS) {
+						&& affect->type <= SPELLS_COUNT) {
 						if (next_affect_i == i->affected.end()
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
@@ -633,7 +633,7 @@ void affect_total(CHAR_DATA *ch) {
 	{
 		// Calculate CASTER value
 		int i = 1;
-		for (GET_CASTER(ch) = 0; !IS_NPC(ch) && i <= MAX_SPELLS; i++) {
+		for (GET_CASTER(ch) = 0; !IS_NPC(ch) && i <= SPELLS_COUNT; i++) {
 			if (IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW | SPELL_TEMP)) {
 				GET_CASTER(ch) += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
 			}

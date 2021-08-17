@@ -1845,7 +1845,7 @@ void CHAR_DATA::restore_mob() {
 	GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
 	update_pos(this);
 
-	for (int i = 0; i < MAX_SPELLS; ++i) {
+	for (int i = 0; i <= SPELLS_COUNT; ++i) {
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
 	}
 	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);

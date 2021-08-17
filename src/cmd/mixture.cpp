@@ -38,7 +38,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	spellnum = fix_name_and_find_spell_num(s);
 
-	if (spellnum < 1 || spellnum > MAX_SPELLS) {
+	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
 		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}

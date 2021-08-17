@@ -498,7 +498,7 @@ void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
 		*names[i] = '\0';
 		slots[i] = 0;
 	}
-	for (i = 1; i <= MAX_SPELLS; i++) {
+	for (i = 1; i <= SPELLS_COUNT; i++) {
 		if (!GET_SPELL_TYPE(ch, i) && !all_spells)
 			continue;
 
@@ -742,7 +742,7 @@ void init_guilds(void) {
 				log("You need use 3 arguments for monoguild");
 				graceful_exit(1);
 			}
-			if ((spellnum = atoi(line)) == 0 || spellnum > MAX_SPELLS) {
+			if ((spellnum = atoi(line)) == 0 || spellnum > SPELLS_COUNT) {
 				spellnum = fix_name_and_find_spell_num(line);
 			}
 			if ((skillnum = atoi(line1)) == 0 || skillnum > MAX_SKILL_NUM) {
@@ -809,7 +809,7 @@ void init_guilds(void) {
 			for (i = 0; *(line3 + i); i++)
 				if (strchr("!1xX", *(line3 + i)))
 					SET_BIT(ptr->alignment, (1 << i));
-			if ((spellnum = atoi(line4)) == 0 || spellnum > MAX_SPELLS) {
+			if ((spellnum = atoi(line4)) == 0 || spellnum > SPELLS_COUNT) {
 				spellnum = fix_name_and_find_spell_num(line4);
 			}
 			if ((skillnum = atoi(line5)) == 0 || skillnum > MAX_SKILL_NUM) {
@@ -1071,7 +1071,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 			const int spell_no = fix_name_and_find_spell_num(argument);
 			if (spell_no > 0
-				&& spell_no <= MAX_SPELLS) {
+				&& spell_no <= SPELLS_COUNT) {
 				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch)) {
 						continue;
@@ -1392,7 +1392,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			}
 
 			const int spell_no = fix_name_and_find_spell_num(argument);
-			if (spell_no > 0 && spell_no <= MAX_SPELLS) {
+			if (spell_no > 0 && spell_no <= SPELLS_COUNT) {
 				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch)) {
 						continue;

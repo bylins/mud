@@ -1179,11 +1179,11 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 	switch (GET_OBJ_TYPE(obj)) {
 		case OBJ_DATA::ITEM_SCROLL:
 		case OBJ_DATA::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= SPELLS_COUNT)
 				sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
-			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) < MAX_SPELLS)
+			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) <= SPELLS_COUNT)
 				sprintf(buf + strlen(buf), ", %s", spell_name(GET_OBJ_VAL(obj, 2)));
-			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
+			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= SPELLS_COUNT)
 				sprintf(buf + strlen(buf), ", %s", spell_name(GET_OBJ_VAL(obj, 3)));
 			strcat(buf, "\r\n");
 			send_to_char(buf, ch);
@@ -1191,7 +1191,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 
 		case OBJ_DATA::ITEM_WAND:
 		case OBJ_DATA::ITEM_STAFF: sprintf(buf, "Вызывает заклинания: ");
-			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
+			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= SPELLS_COUNT)
 				sprintf(buf + strlen(buf), " %s\r\n", spell_name(GET_OBJ_VAL(obj, 3)));
 			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
@@ -1218,7 +1218,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 		case OBJ_DATA::ITEM_BOOK:
 			switch (GET_OBJ_VAL(obj, 0)) {
 				case BOOK_SPELL:
-					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
+					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= SPELLS_COUNT) {
 						drndice = GET_OBJ_VAL(obj, 1);
 						if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
 							drsdice = 34;
@@ -1693,7 +1693,7 @@ void spell_energydrain(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA
 
 	if (ch == victim || !general_savingthrow(ch, victim, SAVING_WILL, CALC_SUCCESS(modi, 33))) {
 		int i;
-		for (i = 0; i <= MAX_SPELLS; GET_SPELL_MEM(victim, i++) = 0);
+		for (i = 0; i <= SPELLS_COUNT; GET_SPELL_MEM(victim, i++) = 0);
 		GET_CASTER(victim) = 0;
 		send_to_char("Внезапно вы осознали, что у вас напрочь отшибло память.\r\n", victim);
 	} else
@@ -2886,7 +2886,7 @@ int check_recipe_values(CHAR_DATA *ch, int spellnum, int spelltype, int showreci
 	int item0 = -1, item1 = -1, item2 = -1, obj_num = -1;
 	struct spell_create_item *items;
 
-	if (spellnum <= 0 || spellnum > MAX_SPELLS)
+	if (spellnum <= 0 || spellnum > SPELLS_COUNT)
 		return (FALSE);
 	if (spelltype == SPELL_ITEMS) {
 		items = &spell_create[spellnum].items;
@@ -3027,7 +3027,7 @@ int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, 
 	struct spell_create_item *items;
 
 	if (spellnum <= 0
-		|| spellnum > MAX_SPELLS) {
+		|| spellnum > SPELLS_COUNT) {
 		return (FALSE);
 	}
 	if (spelltype == SPELL_ITEMS) {

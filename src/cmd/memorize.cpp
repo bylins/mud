@@ -40,7 +40,7 @@ void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	spellnum = fix_name_and_find_spell_num(s);
 
-	if (spellnum < 1 || spellnum > MAX_SPELLS) {
+	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -70,7 +70,7 @@ void show_wizdom(CHAR_DATA *ch, int bitset) {
 	}
 	if (bitset & 0x01) {
 		is_full = 0;
-		for (i = 1, max_slot = 0; i <= MAX_SPELLS; i++) {
+		for (i = 1, max_slot = 0; i <= SPELLS_COUNT; i++) {
 			if (!GET_SPELL_TYPE(ch, i))
 				continue;
 			if (!spell_info[i].name || *spell_info[i].name == '!')
@@ -113,8 +113,8 @@ void show_wizdom(CHAR_DATA *ch, int bitset) {
 		}
 
 		if (!MEMQUEUE_EMPTY(ch)) {
-			unsigned char cnt[MAX_SPELLS + 1];
-			memset(cnt, 0, MAX_SPELLS + 1);
+			unsigned char cnt[SPELLS_COUNT + 1];
+			memset(cnt, 0, SPELLS_COUNT + 1);
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;

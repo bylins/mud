@@ -1334,7 +1334,7 @@ void do_start(CHAR_DATA *ch, int newbie) {
 	}
 
 	if (newbie && GET_CLASS(ch) == CLASS_DRUID) {
-		for (int i = 1; i <= MAX_SPELLS; i++) {
+		for (int i = 1; i <= SPELLS_COUNT; i++) {
 			GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
 		}
 	}
@@ -2493,8 +2493,8 @@ int level_exp(CHAR_DATA *ch, int level) {
 void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
 	int bad = 0;
 
-	if (spell < 0 || spell > TOP_SPELL_DEFINE) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, TOP_SPELL_DEFINE);
+	if (spell < 0 || spell > SPELLS_COUNT) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
 		return;
 	}
 	if (kin < 0 || kin >= NUM_KIN) {
@@ -2518,8 +2518,8 @@ void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
 void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 	int bad = 0;
 
-	if (spell < 0 || spell > TOP_SPELL_DEFINE) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, TOP_SPELL_DEFINE);
+	if (spell < 0 || spell > SPELLS_COUNT) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
 		return;
 	}
 
@@ -2547,8 +2547,8 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 void mspell_change(char *name, int spell, int kin, int chclass, int class_change) {
 	int bad = 0;
 
-	if (spell < 0 || spell > TOP_SPELL_DEFINE) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, TOP_SPELL_DEFINE);
+	if (spell < 0 || spell > SPELLS_COUNT) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
 		return;
 	}
 

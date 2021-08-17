@@ -584,7 +584,7 @@ void Player::save_char() {
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
 	if (GET_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID) {
 		fprintf(saved, "Spel:\n");
-		for (i = 1; i <= MAX_SPELLS; i++)
+		for (i = 1; i <= SPELLS_COUNT; i++)
 			if (GET_SPELL_TYPE(this, i))
 				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(this, i), spell_info[i].name);
 		fprintf(saved, "0 0\n");
@@ -606,7 +606,7 @@ void Player::save_char() {
 	// Замемленые спелы
 	if (GET_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "SpMe:\n");
-		for (i = 1; i <= MAX_SPELLS; i++) {
+		for (i = 1; i <= SPELLS_COUNT; i++) {
 			if (GET_SPELL_MEM(this, i))
 				fprintf(saved, "%d %d\n", i, GET_SPELL_MEM(this, i));
 		}
@@ -1123,13 +1123,13 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	// волхвам сетим все спеллы на рунах, остальные инит нулями
 	if (GET_CLASS(this) != CLASS_DRUID)
-		for (i = 1; i <= MAX_SPELLS; i++)
+		for (i = 1; i <= SPELLS_COUNT; i++)
 			GET_SPELL_TYPE(this, i) = 0;
 	else
-		for (i = 1; i <= MAX_SPELLS; i++)
+		for (i = 1; i <= SPELLS_COUNT; i++)
 			GET_SPELL_TYPE(this, i) = SPELL_RUNES;
 
-	for (i = 1; i <= MAX_SPELLS; i++)
+	for (i = 1; i <= SPELLS_COUNT; i++)
 		GET_SPELL_MEM(this, i) = 0;
 	this->char_specials.saved.affected_by = clear_flags;
 	POOFIN(this) = NULL;
@@ -1886,11 +1886,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	setAllInbornFeatures(this);
 
 	if (IS_GRGOD(this)) {
-		for (i = 0; i <= MAX_SPELLS; i++)
+		for (i = 0; i <= SPELLS_COUNT; i++)
 			GET_SPELL_TYPE(this, i) = GET_SPELL_TYPE(this, i) |
 				SPELL_ITEMS | SPELL_KNOW | SPELL_RUNES | SPELL_SCROLL | SPELL_POTION | SPELL_WAND;
 	} else if (!IS_IMMORTAL(this)) {
-		for (i = 0; i <= MAX_SPELLS; i++) {
+		for (i = 0; i <= SPELLS_COUNT; i++) {
 			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == MAX_SLOT)
 				REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,

@@ -2602,7 +2602,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 		set_god_morphs(ch);
 	}
 
-	for (i = 1; i <= MAX_SPELLS; i++) {
+	for (i = 1; i <= SPELLS_COUNT; i++) {
 		if (GET_LEVEL(ch) < LVL_GRGOD)
 			GET_SPELL_TYPE(ch, i) = 0;
 		else

@@ -4990,9 +4990,9 @@ int file_to_string(const char *name, char *buf) {
 void clear_char_skills(CHAR_DATA *ch) {
 	int i;
 	ch->real_abils.Feats.reset();
-	for (i = 0; i < MAX_SPELLS + 1; i++)
+	for (i = 0; i <= SPELLS_COUNT + 1; i++)
 		ch->real_abils.SplKnw[i] = 0;
-	for (i = 0; i < MAX_SPELLS + 1; i++)
+	for (i = 0; i <= SPELLS_COUNT + 1; i++)
 		ch->real_abils.SplMem[i] = 0;
 	ch->clear_skills();
 }
@@ -5095,13 +5095,13 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
-		for (i = 1; i <= MAX_SPELLS; i++) {
+		for (i = 1; i <= SPELLS_COUNT; i++) {
 			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
-		for (i = 1; i <= MAX_SPELLS; i++) {
+		for (i = 1; i <= SPELLS_COUNT; i++) {
 			if (GET_CLASS(ch) == CLASS_DRUID) {
 				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
 			} else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
