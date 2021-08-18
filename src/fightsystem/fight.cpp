@@ -1279,20 +1279,7 @@ void set_mob_skills_flags(CHAR_DATA *ch) {
 		SET_AF_BATTLE(ch, EAF_DEVIATE);
 		sk_use = true;
 	}
-	// 5) mighthit
-	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_MIGHTHIT)
-		&& check_mighthit_weapon(ch)) {
-		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
-		sk_use = true;
-	}
-	// 6) stupor
-	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_STUPOR)) {
-		SET_AF_BATTLE(ch, EAF_STUPOR);
-		sk_use = true;
-	}
-	// 7) styles
+	// 5) styles
 	do_this = number(0, 100);
 	if (do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_AWAKE) > number(1, 101)) {
 		SET_AF_BATTLE(ch, EAF_AWAKE);
@@ -1352,6 +1339,43 @@ int calc_initiative(CHAR_DATA *ch, bool mode) {
 	return initiative;
 }
 
+void using_charmice_skills(CHAR_DATA *ch) {
+	// если чармис вооружен и может глушить - будем глушить
+	// если нет оружия но есть молот - будем молотить
+	const bool charmice_wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
+	const bool charmice_not_wielded = !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD));
+
+	const int do_this = number(0, 100);
+	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
+	CHAR_DATA *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : NULL;
+
+	if (charmice_wielded_for_stupor && ch->get_skill(SKILL_STUPOR) > 0) {
+		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_STUPOR) <= 0;
+		if (master) {
+			std::stringstream msg;
+			msg << ch->get_name() << " использует оглушение: " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
+			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
+			master->send_to_TC(true, true, true, msg.str().c_str());
+		}
+		if (do_skill_without_command && skill_ready) {
+			SET_AF_BATTLE(ch, EAF_STUPOR);
+		}
+	} else if (charmice_not_wielded && ch->get_skill(SKILL_MIGHTHIT) > 0) {
+		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_MIGHTHIT) <= 0;
+		if (master) {
+			std::stringstream msg;
+			msg << ch->get_name() << " использует богатырский молот: " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
+			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
+			master->send_to_TC(true, true, true, msg.str().c_str());
+		}
+		if (do_skill_without_command && skill_ready) {
+			SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		}
+	}
+}
+
 void using_mob_skills(CHAR_DATA *ch) {
 	ESkill sk_num = SKILL_INVALID;
 	for (int sk_use = GET_REAL_INT(ch); MAY_LIKES(ch) && sk_use > 0; sk_use--) {
@@ -1377,12 +1401,32 @@ void using_mob_skills(CHAR_DATA *ch) {
 			sk_num = SKILL_CHOPOFF;
 		} else if (do_this < 80) {
 			sk_num = SKILL_THROW;
-		} else {
-			sk_num = SKILL_BASH;
+		} else if (do_this < 90) {
+			sk_num = SKILL_MIGHTHIT;
+		} else if (do_this <= 100) {
+			sk_num = SKILL_STUPOR;
 		}
 
 		if (ch->get_skill(sk_num) <= 0) {
 			sk_num = SKILL_INVALID;
+		}
+
+		////////////////////////////////////////////////////////////////////////
+		// для глуша и молота выставляем соотвествующие флаги
+		// цель не выбираем чтобы избежать переключения у мобов, которые не могут переключаться
+		if (sk_num == SKILL_MIGHTHIT) {
+			const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_MIGHTHIT) <= 0;
+			if (skill_ready) {
+				sk_use = 0;
+				SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+			}
+		}
+		if (sk_num == SKILL_STUPOR) {
+			const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_STUPOR) <= 0;
+			if (skill_ready) {
+				sk_use = 0;
+				SET_AF_BATTLE(ch, EAF_STUPOR);
+			}
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -1694,24 +1738,28 @@ void process_npc_attack(CHAR_DATA *ch) {
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
 		&& ch->has_master()
 			// && !IS_NPC(ch->master)
-		&& CAN_SEE(ch, ch->get_master())
 		&& ch->in_room == IN_ROOM(ch->get_master())
 		&& AWAKE(ch)
 		&& MAY_ACT(ch)
 		&& GET_POS(ch) >= POS_FIGHTING) {
-		for (const auto vict : world[ch->in_room]->people) {
-			if (vict->get_fighting() == ch->get_master()
-				&& vict != ch
-				&& vict != ch->get_master()) {
-				if (ch->get_skill(SKILL_RESCUE)) {
-					go_rescue(ch, ch->get_master(), vict);
-				} else if (ch->get_skill(SKILL_PROTECT)) {
-					go_protect(ch, ch->get_master());
-				}
+		// сначала мытаемся спасти
+		if (CAN_SEE(ch, ch->get_master())) {
+			for (const auto vict : world[ch->in_room]->people) {
+				if (vict->get_fighting() == ch->get_master()
+					&& vict != ch
+					&& vict != ch->get_master()) {
+					if (ch->get_skill(SKILL_RESCUE)) {
+						go_rescue(ch, ch->get_master(), vict);
+					} else if (ch->get_skill(SKILL_PROTECT)) {
+						go_protect(ch, ch->get_master());
+					}
 
-				break;
+					break;
+				}
 			}
 		}
+		// теперь чармис использует свои скилы
+		using_charmice_skills(ch);
 	} else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		//* применение скилов
 		using_mob_skills(ch);
