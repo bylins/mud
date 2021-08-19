@@ -23,8 +23,6 @@
 #include "zone.table.h"
 #include "chars/char_player.h"
 
-#include <algorithm>
-
 // extern
 void perform_drop_gold(CHAR_DATA *ch, int amount);
 int level_exp(CHAR_DATA *ch, int chlevel);
@@ -727,32 +725,25 @@ int get_remort_mobmax(CHAR_DATA *ch) {
 	return 0;
 }
 
-// даем небольшой бонус, если моба нет в списке замакса
-float get_exp_bonus_for_first_kill(CHAR_DATA *ch, CHAR_DATA *victim) {
-	const int kill_counter = ch->mobmax_get(GET_MOB_VNUM(victim));
-	return kill_counter == 0 ? 1.5f : 1.0f;
-}
-
-// даем увеличенную экспу за давно не убитых мобов.
-// за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
-int get_npc_long_live_exp_bounus(CHAR_DATA *victim) {
-	if (GET_MOB_VNUM(victim) == -1) {
-		return 1;
+float get_npc_long_live_exp_bounus(int vnum) {
+	if (vnum == -1) {
+		return 1.0f;
 	}
-
-	int exp_multiplier = 1;
-
-	const int last_kill_time = mob_stat::last_time_killed_mob(GET_MOB_VNUM(victim));
-	if (last_kill_time > 0) {
-		const int now_time = time(0);
-		if (now_time > last_kill_time) {
-			const double delta_time = now_time - last_kill_time;
-			const double delay = 60 * 60 * 24 * 30; // 30 days
-			exp_multiplier = std::clamp(static_cast<int>(floor(delta_time / delay)), 1, 10);
+	int nowTime = time(0);
+	int lastKillTime = mob_stat::last_time_killed_mob(vnum);
+	if (lastKillTime > 0) {
+		int deltaTime = nowTime - lastKillTime;
+		int delay = 60 * 60 * 24 * 30; // 30 days
+		float timeMultiplicator = floor(deltaTime / delay);
+		if (timeMultiplicator < 1.0f) {
+			timeMultiplicator = 1.0f;
 		}
+		if (timeMultiplicator > 10.0f) {
+			timeMultiplicator = 10.0f;
+		}
+		return timeMultiplicator;
 	}
-
-	return exp_multiplier;
+	return 1.0f;
 }
 
 int get_extend_exp(int exp, CHAR_DATA *ch, CHAR_DATA *victim) {
@@ -761,7 +752,27 @@ int get_extend_exp(int exp, CHAR_DATA *ch, CHAR_DATA *victim) {
 
 	if (!IS_NPC(victim) || IS_NPC(ch))
 		return (exp);
-
+	// если моб убивается первый раз, то повышаем экспу в несколько раз
+	// стимулируем изучение новых зон!
+	ch->send_to_TC(false, true, false,
+				   "&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
+				   mob_proto[victim->get_rnum()].mob_specials.MaxFactor,
+				   exp,
+				   ch->mobmax_get(GET_MOB_VNUM(victim)));
+// все равно таблица корявая, учитываются только уникальные мобы и глючит
+/*
+	// даем увеличенную экспу за давно не убитых мобов.
+	// за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
+	exp *= get_npc_long_live_exp_bounus(GET_MOB_VNUM(victim));
+*/
+/*  бонусы за непопулярных мобов круче
+	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)	{
+		// так чуть-чуть поприятней
+		exp *= 1.5;
+		exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
+		return (exp);
+	}
+*/
 	exp += exp * (ch->add_abils.percent_exp_add) / 100.0;
 	for (koef = 100, base = 0, diff =
 		ch->mobmax_get(GET_MOB_VNUM(victim)) - mob_proto[victim->get_rnum()].mob_specials.MaxFactor;
@@ -812,21 +823,12 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 	//    хотя в большинстве случаев это все равно
 	exp = exp * koef / 100;
 
-	const int long_live_exp_bounus_miltiplier = get_npc_long_live_exp_bounus(victim);
-	const float first_kill_exp_miltiplier = get_exp_bonus_for_first_kill(ch, victim);
-
-	ch->send_to_TC(false, true, false,
-		"&RПолучен бонус за убийство моба. Коэфф. за первое убийство: %f, коэфф. за редкого моба: %d\r\n",
-		first_kill_exp_miltiplier,
-		long_live_exp_bounus_miltiplier);
-
 	// 3. Вычисление опыта для PC и NPC
 	if (IS_NPC(ch)) {
 		exp = MIN(max_exp_gain_npc, exp);
 		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
-	} else {
-		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier * first_kill_exp_miltiplier);
-	}
+	} else
+		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
 	// 4. Последняя проверка
 	exp = MAX(1, exp);
 	if (exp > 1) {
@@ -843,9 +845,10 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 			}
 		}
 
-		if (long_live_exp_bounus_miltiplier > 1) {
+		int long_live_bonus = floor(get_npc_long_live_exp_bounus(GET_MOB_VNUM(victim)));
+		if (long_live_bonus > 1) {
 			std::string mess = "";
-			switch (long_live_exp_bounus_miltiplier) {
+			switch (long_live_bonus) {
 				case 2: mess = "Редкая удача! Опыт повышен!\r\n";
 					break;
 				case 3: mess = "Очень редкая удача! Опыт повышен!\r\n";
@@ -867,9 +870,7 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 				default: mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
 					break;
 			}
-			send_to_char(mess.c_str(), ch);
-		} else if (first_kill_exp_miltiplier > 1) {
-			send_to_char("Вам улыбнулась удача!\r\n", ch);
+//			send_to_char(mess.c_str(), ch);
 		}
 
 		exp = MIN(max_exp_gain_pc(ch), exp);
