@@ -330,7 +330,7 @@ void add_mob(CHAR_DATA *mob, int members) {
 		list_node.stats.push_back(node);
 		list_node.date = time(nullptr);
 
-		mob_list.insert(std::make_pair(GET_MOB_VNUM(mob), list_node));
+		mob_list[GET_MOB_VNUM(mob)] = list_node;
 	}
 	if (members == 0) {
 		++char_stat::pkilled;
