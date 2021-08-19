@@ -3089,6 +3089,9 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 			d->character->set_pc_name(CAP(tmp_name));
 			d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
+			if (is_player_deleted) {
+				d->character->set_pfilepos(player_i);
+			}
 			if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
 				sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 						GET_PC_NAME(d->character), d->host);
