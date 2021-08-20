@@ -1041,7 +1041,7 @@ inline bool NO_DESTROY(const OBJ_DATA *obj) {
 
 inline bool NO_TIMER(const OBJ_DATA *obj) {
 	return (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
-	|| zone_table[obj->get_in_room()].under_construction); // так как таймер всего 30 запретим тикать на земле
+	|| zone_table[obj->get_zone()].under_construction); // так как таймер всего 30 запретим тикать на земле
 }
 
 int up_obj_where(OBJ_DATA *obj) {

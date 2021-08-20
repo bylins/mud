@@ -661,7 +661,7 @@ const char *if_flag_text(int if_flag) {
 	return if_flag_msg[if_flag & 3];
 }
 
-void zedit_disp_commands(DESCRIPTOR_DATA *d, char *buf) {
+void zedit_disp_commands(DESCRIPTOR_DATA *d) {
 	pzcmd head, item;
 	int room, counter = 0;
 	int hl = 0;        // требуется ли подсветка
@@ -674,8 +674,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA *d, char *buf) {
 
 	// Проверка допустимости индекса start
 	stop = zedit_count_cmdlist(head);    // количество элементов
-	sprintf(buf1, "[Command list (0:%d)]\r\n", stop - 1);
-	strcat(buf, buf1);
+	sprintf(buf, "[Command list (0:%d)]\r\n", stop - 1);
 	if (show_all) {
 		if (start > stop - CMD_PAGE_SIZE)
 			start = stop - CMD_PAGE_SIZE;
@@ -830,7 +829,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA *d, char *buf) {
 		sprintf(buf1, "%s%d - <END>\r\n", nrm, counter);
 		strcat(buf, buf1);
 	}
-
+	send_to_char(buf, d->character.get());
 	return;
 }
 
@@ -933,9 +932,9 @@ void zedit_disp_menu(DESCRIPTOR_DATA *d) {
 	snprintf(buf, MAX_STRING_LENGTH, "%sG%s) Оптимальное число игроков  : %s%d%s\r\n",
 			 grn, nrm, yel, OLC_ZONE(d)->group, nrm);
 	send_to_char(buf, d->character.get());
+	
 	// Print the commands into display buffer.
-	zedit_disp_commands(d, buf);
-	send_to_char(buf, d->character.get());
+	zedit_disp_commands(d);
 	// Finish off menu
 	if (d->olc->bitmask & OLC_BM_SHOWALLCMD) {
 		// Режим отображения всех команд
