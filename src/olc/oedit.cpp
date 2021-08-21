@@ -272,7 +272,7 @@ void oedit_save_internally(DESCRIPTOR_DATA *d) {
 		obj_proto.zone(index, get_zone_rnum_by_obj_vnum(OLC_NUM(d)));
 	}
 
-	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_OBJ);
+	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_OBJ);
 }
 
 //------------------------------------------------------------------------
@@ -281,13 +281,13 @@ void oedit_save_to_disk(int zone_num) {
 	int counter, counter2, realcounter;
 	FILE *fp;
 
-	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].number);
+	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return;
 	}
 	// * Start running through all objects in this zone.
-	for (counter = zone_table[zone_num].number * 100; counter <= zone_table[zone_num].top; counter++) {
+	for (counter = zone_table[zone_num].vnum * 100; counter <= zone_table[zone_num].top; counter++) {
 		if ((realcounter = real_object(counter)) >= 0) {
 			const auto &obj = obj_proto[realcounter];
 			if (!obj->get_action_description().empty()) {
@@ -394,12 +394,12 @@ void oedit_save_to_disk(int zone_num) {
 	// * Write the final line, close the file.
 	fprintf(fp, "$\n$\n");
 	fclose(fp);
-	sprintf(buf2, "%s/%d.obj", OBJ_PREFIX, zone_table[zone_num].number);
+	sprintf(buf2, "%s/%d.obj", OBJ_PREFIX, zone_table[zone_num].vnum);
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(buf, buf2);
 
-	olc_remove_from_save_list(zone_table[zone_num].number, OLC_SAVE_OBJ);
+	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_OBJ);
 }
 
 // **************************************************************************

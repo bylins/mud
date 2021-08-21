@@ -893,7 +893,7 @@ void stop_game(ush_int port) {
 				log("%s", buf);
 			} else {
 				sprintf(buf, "OLC: Reboot saving %s for zone %d.",
-						save_info_msg[(int) entry->type], zone_table[rznum].number);
+						save_info_msg[(int) entry->type], zone_table[rznum].vnum);
 				log("%s", buf);
 				switch (entry->type) {
 					case OLC_SAVE_ROOM: redit_save_to_disk(rznum);

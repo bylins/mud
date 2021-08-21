@@ -209,8 +209,8 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	if (lock) {
 		zone_table[OLC_ZNUM(d)].locked = TRUE;
 		send_to_char("Защищаю зону от записи.\r\n", ch);
-		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
-		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
+		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
+		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
 		zedit_save_to_disk(OLC_ZNUM(d));
 		delete d->olc;
@@ -220,8 +220,8 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	if (unlock) {
 		zone_table[OLC_ZNUM(d)].locked = FALSE;
 		send_to_char("Снимаю защиту от записи.\r\n", ch);
-		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
-		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
+		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
+		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
 		zedit_save_to_disk(OLC_ZNUM(d));
 		delete d->olc;
@@ -237,7 +237,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	// * Everyone but IMPLs can only edit zones they have been assigned.
 	if (GET_LEVEL(ch) < LVL_IMPL) {
 		if (!Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
-			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch))) {
+			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].vnum != GET_OLC_ZONE(ch))) {
 				send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
 				delete d->olc;
 				return;
@@ -261,10 +261,10 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			send_to_char("Родной(ая,ое), объясни по людски - что записать.\r\n", ch);
 			return;
 		}
-		sprintf(buf, "Saving all %ss in zone %d.\r\n", type, zone_table[OLC_ZNUM(d)].number);
+		sprintf(buf, "Saving all %ss in zone %d.\r\n", type, zone_table[OLC_ZNUM(d)].vnum);
 		send_to_char(buf, ch);
-		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].number);
-		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].number);
+		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
+		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 
 		switch (subcmd) {

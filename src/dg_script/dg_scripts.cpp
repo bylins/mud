@@ -1594,7 +1594,7 @@ void find_replacement(void *go,
 					sprintf(str, "%d", num);
 			} else if (!str_cmp(field, "zreset") && num > 0) {
 				for (zone_rnum i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++) {
-					if (zone_table[i].number == num) {
+					if (zone_table[i].vnum == num) {
 						reset_zone(i);
 					}
 				}
@@ -2089,8 +2089,7 @@ void find_replacement(void *go,
 				split_or_clan_tax(c, diff);
 				// стата для show money
 				if (!IS_NPC(c) && IN_ROOM(c) > 0) {
-					MoneyDropStat::add(
-					zone_table[world[IN_ROOM(c)]->zone].number, diff);
+					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone].vnum, diff);
 				}
 			} else
 				sprintf(str, "%ld", c->get_gold());
@@ -2103,8 +2102,7 @@ void find_replacement(void *go,
 				split_or_clan_tax(c, diff);
 				// стата для show money
 				if (!IS_NPC(c) && IN_ROOM(c) > 0) {
-					MoneyDropStat::add(
-					zone_table[world[IN_ROOM(c)]->zone].number, diff);
+					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone].vnum, diff);
 				} 
 			} else
 				sprintf(str, "%ld", c->get_bank());

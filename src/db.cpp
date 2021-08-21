@@ -1989,8 +1989,8 @@ void set_zone_mob_level() {
 		int count = 0;
 
 		for (int nr = 0; nr <= top_of_mobt; ++nr) {
-			if (mob_index[nr].vnum >= zone_table[i].number * 100
-				&& mob_index[nr].vnum <= zone_table[i].number * 100 + 99) {
+			if (mob_index[nr].vnum >= zone_table[i].vnum * 100
+				&& mob_index[nr].vnum <= zone_table[i].vnum * 100 + 99) {
 				level += mob_proto[nr].get_level();
 				++count;
 			}
@@ -2134,7 +2134,7 @@ void zone_traffic_save() {
 	for (auto i = 0u; i < zone_table.size(); ++i) {
 		pugi::xml_node zone_node = node_list.append_child();
 		zone_node.set_name("zone");
-		zone_node.append_attribute("vnum") = zone_table[i].number;
+		zone_node.append_attribute("vnum") = zone_table[i].vnum;
 		zone_node.append_attribute("traffic") = zone_table[i].traffic;
 	}
 
@@ -2157,7 +2157,7 @@ void zone_traffic_load() {
 	for (pugi::xml_node node = node_list.child("zone"); node; node = node.next_sibling("zone")) {
 		const int zone_vnum = atoi(node.attribute("vnum").value());
 		zone_rnum zrn;
-		for (zrn = 0; zone_table[zrn].number != zone_vnum && zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+		for (zrn = 0; zone_table[zrn].vnum != zone_vnum && zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
 			/* empty loop */
 		}
 		int num = atoi(node.attribute("traffic").value());
@@ -2791,15 +2791,15 @@ void check_start_rooms(void) {
 
 void add_vrooms_to_all_zones() {
 	for (auto it = zone_table.begin(); it < zone_table.end(); ++it) {
-		const auto first_room = it->number * 100;
+		const auto first_room = it->vnum * 100;
 		const auto last_room = first_room + 99;
 
-		const room_vnum virtual_room_vnum = (it->number * 100) + 99;
+		const room_vnum virtual_room_vnum = (it->vnum * 100) + 99;
 		const auto vroom_it = std::find_if(world.cbegin(), world.cend(), [virtual_room_vnum](ROOM_DATA *room) {
 			return room->number == virtual_room_vnum;
 		});
 		if (vroom_it != world.cend()) {
-			log("Zone %d already contains virtual room.", it->number);
+			log("Zone %d already contains virtual room.", it->vnum);
 			continue;
 		}
 
@@ -3633,18 +3633,18 @@ void zone_update(void) {
 			char tmp[128];
 			snprintf(tmp, sizeof(tmp), "Auto zone reset: %s (%d)",
 					 zone_table[update_u->zone_to_reset].name,
-					 zone_table[update_u->zone_to_reset].number);
+					 zone_table[update_u->zone_to_reset].vnum);
 			std::string out(tmp);
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
 				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
 					//Ищем zone_rnum по vnum
 					for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++) {
-						if (zone_table[j].number ==
+						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
 							reset_zone(j);
 							snprintf(tmp, sizeof(tmp),
 									 " ]\r\n[ Also resetting: %s (%d)",
-									 zone_table[j].name, zone_table[j].number);
+									 zone_table[j].name, zone_table[j].vnum);
 							out += tmp;
 							break;
 						}
@@ -3681,7 +3681,7 @@ bool can_be_reset(zone_rnum zone) {
 	for (auto i = 0; i < zone_table[zone].typeB_count; i++) {
 		//Ищем zone_rnum по vnum
 		for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++) {
-			if (zone_table[j].number == zone_table[zone].typeB_list[i]) {
+			if (zone_table[j].vnum == zone_table[zone].typeB_list[i]) {
 				if (!zone_table[zone].typeB_flag[i] || !is_empty(j))
 					return FALSE;
 				break;
@@ -3692,7 +3692,7 @@ bool can_be_reset(zone_rnum zone) {
 	for (auto i = 0; i < zone_table[zone].typeA_count; i++) {
 		//Ищем zone_rnum по vnum
 		for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++) {
-			if (zone_table[j].number == zone_table[zone].typeA_list[i]) {
+			if (zone_table[j].vnum == zone_table[zone].typeA_list[i]) {
 				if (!is_empty(j))
 					return FALSE;
 				break;
@@ -3917,11 +3917,11 @@ void paste_on_reset(ROOM_DATA *to_room) {
 void log_zone_error(zone_rnum zone, int cmd_no, const char *message) {
 	char buf[256];
 
-	sprintf(buf, "SYSERR: zone file %d.zon: %s", zone_table[zone].number, message);
+	sprintf(buf, "SYSERR: zone file %d.zon: %s", zone_table[zone].vnum, message);
 	mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 
 	sprintf(buf, "SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
-			ZCMD.command, zone_table[zone].number, ZCMD.line);
+			ZCMD.command, zone_table[zone].vnum, ZCMD.line);
 	mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 }
 
@@ -4159,7 +4159,7 @@ void ZoneReset::reset() {
 		const auto execution_time = timer.delta();
 		influxdb::Record record("zone_reset");
 		record.add_tag("pulse", GlobalObjects::heartbeat().pulse_number());
-		record.add_tag("zone", zone_table[m_zone_rnum].number);
+		record.add_tag("zone", zone_table[m_zone_rnum].vnum);
 		record.add_field("duration", execution_time.count());
 		GlobalObjects::stats_sender().send(record);
 	} else {
@@ -4191,7 +4191,7 @@ bool ZoneReset::handle_zone_Q_command(const mob_rnum rnum) {
 		influxdb::Record record("Q_command");
 
 		record.add_tag("pulse", GlobalObjects::heartbeat().pulse_number());
-		record.add_tag("zone", zone_table[m_zone_rnum].number);
+		record.add_tag("zone", zone_table[m_zone_rnum].vnum);
 		record.add_tag("rnum", rnum);
 
 		record.add_field("duration", execution_time.count());
@@ -4236,7 +4236,7 @@ void ZoneReset::reset_zone_essential() {
 
 					if (ZCMD.arg3 < FIRST_ROOM) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
-								mob_index[ZCMD.arg1].vnum, zone_table[m_zone_rnum].number);
+								mob_index[ZCMD.arg1].vnum, zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 						break;
 					}
@@ -4249,7 +4249,7 @@ void ZoneReset::reset_zone_essential() {
 							sprintf(buf,
 									"ZRESET: ошибка! моб %d  в зоне %d не существует",
 									ZCMD.arg1,
-									zone_table[m_zone_rnum].number);
+									zone_table[m_zone_rnum].vnum);
 							mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 							return;
 						}
@@ -4313,7 +4313,7 @@ void ZoneReset::reset_zone_essential() {
 
 					if (ZCMD.arg3 < FIRST_ROOM) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
-								obj_proto[ZCMD.arg1]->get_vnum(), zone_table[m_zone_rnum].number);
+								obj_proto[ZCMD.arg1]->get_vnum(), zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 						break;
 					}
@@ -4463,7 +4463,7 @@ void ZoneReset::reset_zone_essential() {
 
 					if (ZCMD.arg1 < FIRST_ROOM) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
-								obj_proto[ZCMD.arg2]->get_vnum(), zone_table[m_zone_rnum].number);
+								obj_proto[ZCMD.arg2]->get_vnum(), zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 						break;
 					}
@@ -4483,7 +4483,7 @@ void ZoneReset::reset_zone_essential() {
 
 					if (ZCMD.arg1 < FIRST_ROOM) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
-								zone_table[m_zone_rnum].number);
+								zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 						break;
 					}
@@ -4598,7 +4598,7 @@ void ZoneReset::reset_zone_essential() {
 
 	zone_table[m_zone_rnum].age = 0;
 	zone_table[m_zone_rnum].used = FALSE;
-	process_celebrates(zone_table[m_zone_rnum].number);
+	process_celebrates(zone_table[m_zone_rnum].vnum);
 
 	int rnum_start = 0;
 	int rnum_stop = 0;
@@ -4626,7 +4626,7 @@ void ZoneReset::reset_zone_essential() {
 	for (rnum_start = 0; rnum_start < static_cast<int>(zone_table.size()); rnum_start++) {
 		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
 		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--) {
-			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[m_zone_rnum].number) {
+			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[m_zone_rnum].vnum) {
 				zone_table[rnum_start].typeB_flag[curr_state - 1] = TRUE;
 
 				break;
@@ -4651,13 +4651,13 @@ void reset_zone(zone_rnum zone) {
 // Еси возвращает 0 - комнат в зоне нету
 int get_zone_rooms(int zone_nr, int *first, int *last) {
 	*first = 0;
-	auto numzone = zone_table[zone_nr].number * 100;
+	auto numzone = zone_table[zone_nr].vnum * 100;
 	for (int nr = FIRST_ROOM; nr <= top_of_world; nr++) {
 		if (world[nr]->number >= numzone && *first == 0) {
 			*first = world[nr]->number;
 		}
 		if (world[nr]->number >= numzone + 99) {
-//			sprintf(buf, "worldnumber %d last %d nr ==%d zone %d", world[nr]->number, *last, nr,  zone_table[zone_nr].number * 100);
+//			sprintf(buf, "worldnumber %d last %d nr ==%d zone %d", world[nr]->number, *last, nr,  zone_table[zone_nr].vnum * 100);
 //			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			*last = world[nr - 1]->number;
 			break;

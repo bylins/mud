@@ -329,7 +329,7 @@ void zedit_setup(DESCRIPTOR_DATA *d, int/* room_num*/) {
 	zone->group = zone_table[OLC_ZNUM(d)].group;
 
 	// The remaining fields are used as a 'has been modified' flag //
-	zone->number = 0;    // Header information has changed.      //
+	zone->vnum = 0;    // Header information has changed.      //
 	zone->age = 0;        // The commands have changed.           //
 
 	// Переменная используется не по назначению
@@ -372,7 +372,7 @@ void zedit_save_internally(DESCRIPTOR_DATA *d) {
 	renum_single_table(OLC_ZNUM(d));
 
 	// Finally, if zone headers have been changed, copy over
-	if (OLC_ZONE(d)->number) {
+	if (OLC_ZONE(d)->vnum) {
 		free(zone_table[OLC_ZNUM(d)].name);
 		zone_table[OLC_ZNUM(d)].name = str_dup(OLC_ZONE(d)->name);
 
@@ -418,7 +418,7 @@ void zedit_save_internally(DESCRIPTOR_DATA *d) {
 		}
 	}
 
-	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_ZONE);
+	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ZONE);
 }
 
 //------------------------------------------------------------------------
@@ -436,16 +436,16 @@ void zedit_save_to_disk(int zone_num) {
 	const char *comment = NULL;
 	FILE *zfile;
 
-	sprintf(fname, "%s/%d.new", ZON_PREFIX, zone_table[zone_num].number);
+	sprintf(fname, "%s/%d.new", ZON_PREFIX, zone_table[zone_num].vnum);
 	if (!(zfile = fopen(fname, "w"))) {
-		sprintf(buf, "SYSERR: OLC: zedit_save_to_disk:  Can't write zone %d.", zone_table[zone_num].number);
+		sprintf(buf, "SYSERR: OLC: zedit_save_to_disk:  Can't write zone %d.", zone_table[zone_num].vnum);
 		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return;
 	}
 
 	// * Print zone header to file
 	fprintf(zfile, "#%d\n" "%s~\n",
-			zone_table[zone_num].number, (zone_table[zone_num].name && *zone_table[zone_num].name)
+			zone_table[zone_num].vnum, (zone_table[zone_num].name && *zone_table[zone_num].name)
 										 ? zone_table[zone_num].name : "неопределено");
 	if (zone_table[zone_num].comment && *zone_table[zone_num].comment) {
 		fprintf(zfile, "^%s~\n", zone_table[zone_num].comment);
@@ -586,12 +586,12 @@ void zedit_save_to_disk(int zone_num) {
 	}
 	fprintf(zfile, "S\n$\n");
 	fclose(zfile);
-	sprintf(buf2, "%s/%d.zon", ZON_PREFIX, zone_table[zone_num].number);
+	sprintf(buf2, "%s/%d.zon", ZON_PREFIX, zone_table[zone_num].vnum);
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(fname, buf2);
 
-	olc_remove_from_save_list(zone_table[zone_num].number, OLC_SAVE_ZONE);
+	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_ZONE);
 }
 
 // *************************************************************************
@@ -869,7 +869,7 @@ void zedit_disp_menu(DESCRIPTOR_DATA *d) {
 			OLC_NUM(d),
 			nrm,
 			cyn,
-			zone_table[OLC_ZNUM(d)].number,
+			zone_table[OLC_ZNUM(d)].vnum,
 			grn,
 			nrm,
 			yel,
@@ -1379,7 +1379,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			switch (*arg) {
 				case 'x':
 				case 'X':
-					if (OLC_ZONE(d)->age || OLC_ZONE(d)->number) {
+					if (OLC_ZONE(d)->age || OLC_ZONE(d)->vnum) {
 						send_to_char("Вы желаете сохранить изменения зоны в памяти? (y/n) : ", d->character.get());
 						OLC_MODE(d) = ZEDIT_CONFIRM_SAVESTRING;
 					} else {
@@ -1468,7 +1468,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 				case 't':
 				case 'T': OLC_ZONE(d)->under_construction = !(OLC_ZONE(d)->under_construction);
-					OLC_ZONE(d)->number = 1;
+					OLC_ZONE(d)->vnum = 1;
 					zedit_disp_menu(d);
 					break;
 				case 'g':
@@ -1830,7 +1830,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			else
 				log("SYSERR: OLC: ZEDIT_ZONE_NAME: no name to free!");
 			OLC_ZONE(d)->name = str_dup(arg);
-			OLC_ZONE(d)->number = 1;
+			OLC_ZONE(d)->vnum = 1;
 			zedit_disp_menu(d);
 			break;
 //MZ.load
@@ -1842,7 +1842,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				send_to_char(d->character.get(), "Повторите ввод (%d-%d) : ", MIN_ZONE_LEVEL, MAX_ZONE_LEVEL);
 			else {
 				OLC_ZONE(d)->level = pos;
-				OLC_ZONE(d)->number = 1;
+				OLC_ZONE(d)->vnum = 1;
 				zedit_disp_menu(d);
 			}
 			break;
@@ -1860,7 +1860,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					zedit_disp_type_menu(d);
 				else {
 					OLC_ZONE(d)->type = pos;
-					OLC_ZONE(d)->number = 1;
+					OLC_ZONE(d)->vnum = 1;
 					zedit_disp_menu(d);
 				}
 			}
@@ -1874,7 +1874,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				send_to_char("Повторите ввод (0-3) : ", d->character.get());
 			} else {
 				OLC_ZONE(d)->reset_mode = pos;
-				OLC_ZONE(d)->number = 1;
+				OLC_ZONE(d)->vnum = 1;
 				zedit_disp_menu(d);
 			}
 			break;
@@ -1886,7 +1886,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				send_to_char("Повторите ввод (0-240) : ", d->character.get());
 			} else {
 				OLC_ZONE(d)->lifespan = pos;
-				OLC_ZONE(d)->number = 1;
+				OLC_ZONE(d)->vnum = 1;
 				zedit_disp_menu(d);
 			}
 			break;
@@ -1900,7 +1900,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					OLC_ZONE(d)->reset_idle = 1;
 				else
 					OLC_ZONE(d)->reset_idle = 0;
-				OLC_ZONE(d)->number = 1;
+				OLC_ZONE(d)->vnum = 1;
 				zedit_disp_menu(d);
 			}
 			break;
@@ -1943,7 +1943,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					OLC_ZONE(d)->typeA_list[i] = temp[i];
 				}
 				free(temp);
-				OLC_ZONE(d)->number = 1;
+				OLC_ZONE(d)->vnum = 1;
 				zedit_disp_menu(d);
 			}
 			break;
@@ -1986,7 +1986,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					OLC_ZONE(d)->typeB_list[i] = temp[i];
 				}
 				free(temp);
-				OLC_ZONE(d)->number = 1;
+				OLC_ZONE(d)->vnum = 1;
 				zedit_disp_menu(d);
 			}
 			break;
@@ -1996,7 +1996,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			if (OLC_ZNUM(d) == static_cast<zone_rnum>(zone_table.size()) - 1) {
 				OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(99900, atoi(arg)));
 			} else {
-				OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(zone_table[OLC_ZNUM(d) + 1].number * 100, atoi(arg)));
+				OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(zone_table[OLC_ZNUM(d) + 1].vnum * 100, atoi(arg)));
 			}
 
 			OLC_ZONE(d)->top = (OLC_ZONE(d)->top / 100) * 100 + 99;
@@ -2008,7 +2008,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				free(OLC_ZONE(d)->comment);
 			}
 			OLC_ZONE(d)->comment = str_dup(arg);
-			OLC_ZONE(d)->number = 1;
+			OLC_ZONE(d)->vnum = 1;
 			zedit_disp_menu(d);
 			break;
 
@@ -2020,7 +2020,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			if (arg && *arg) {
 				OLC_ZONE(d)->location = str_dup(arg);
 			}
-			OLC_ZONE(d)->number = 1;
+			OLC_ZONE(d)->vnum = 1;
 			zedit_disp_menu(d);
 			break;
 
@@ -2032,7 +2032,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			if (arg && *arg) {
 				OLC_ZONE(d)->author = str_dup(arg);
 			}
-			OLC_ZONE(d)->number = 1;
+			OLC_ZONE(d)->vnum = 1;
 			zedit_disp_menu(d);
 			break;
 
@@ -2041,7 +2041,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				free(OLC_ZONE(d)->description);
 			}
 			OLC_ZONE(d)->description = str_dup(arg);
-			OLC_ZONE(d)->number = 1;
+			OLC_ZONE(d)->vnum = 1;
 			zedit_disp_menu(d);
 			break;
 
@@ -2051,7 +2051,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				send_to_char("Повторите ввод (от 1 до 20) :", d->character.get());
 			} else {
 				OLC_ZONE(d)->group = num;
-				OLC_ZONE(d)->number = 1;
+				OLC_ZONE(d)->vnum = 1;
 				zedit_disp_menu(d);
 			}
 			break;
