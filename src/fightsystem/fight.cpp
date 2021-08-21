@@ -1735,7 +1735,6 @@ void process_npc_attack(CHAR_DATA *ch) {
 	}
 
 	if ((AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL))
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
 		&& ch->has_master()
 			// && !IS_NPC(ch->master)
 		&& ch->in_room == IN_ROOM(ch->get_master())
@@ -1743,7 +1742,7 @@ void process_npc_attack(CHAR_DATA *ch) {
 		&& MAY_ACT(ch)
 		&& GET_POS(ch) >= POS_FIGHTING) {
 		// сначала мытаемся спасти
-		if (CAN_SEE(ch, ch->get_master())) {
+		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->get_fighting() == ch->get_master()
 					&& vict != ch
@@ -1758,8 +1757,19 @@ void process_npc_attack(CHAR_DATA *ch) {
 				}
 			}
 		}
-		// теперь чармис использует свои скилы
-		using_charmice_skills(ch);
+
+		bool extra_attack_used = false;
+		//* применение экстра скилл-атак
+		if (ch->get_extra_victim() && GET_WAIT(ch) <= 0) {
+			extra_attack_used = using_extra_attack(ch);
+			if (extra_attack_used) {
+				ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
+			}
+		}
+		if (!extra_attack_used && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
+			// теперь чармис использует свои скилы
+			using_charmice_skills(ch);
+		}
 	} else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		//* применение скилов
 		using_mob_skills(ch);
