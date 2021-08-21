@@ -573,7 +573,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 		send_to_char(ch, ", Владелец : %s", get_name_by_unique(GET_OBJ_OWNER(j)));
 	}
 	if (GET_OBJ_ZONE(j))
-		send_to_char(ch, ", Принадлежит зоне VNUM : %d", zone_table[GET_OBJ_ZONE(j)].number);
+		send_to_char(ch, ", Принадлежит зоне VNUM : %d", zone_table[GET_OBJ_ZONE(j)].vnum);
 	if (GET_OBJ_MAKER(j)) {
 		send_to_char(ch, ", Создатель : %s", get_name_by_unique(GET_OBJ_MAKER(j)));
 	}
@@ -961,7 +961,7 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 	sprinttype(rm->sector_type, sector_types, smallBuf);
 	sprintf(buf,
 			"Зона: [%3d], VNum: [%s%5d%s], RNum: [%5d], Тип  сектора: %s\r\n",
-			zone_table[rm->zone].number, CCGRN(ch, C_NRM), rm->number, CCNRM(ch, C_NRM), ch->in_room, smallBuf);
+			zone_table[rm->zone].vnum, CCGRN(ch, C_NRM), rm->number, CCNRM(ch, C_NRM), ch->in_room, smallBuf);
 	send_to_char(buf, ch);
 
 	rm->flags_sprint(smallBuf, ",");

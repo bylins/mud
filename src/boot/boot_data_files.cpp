@@ -1534,15 +1534,15 @@ bool ZoneFile::load_zone() {
 	auto result = false;
 	{
 		char type[BUFFER_SIZE];
-		const auto count = sscanf(buf, "#%d %s", &zone.number, type);
+		const auto count = sscanf(buf, "#%d %s", &zone.vnum, type);
 		if (count < 1) {
 			log("SYSERR: Format error in %s, line 1", full_file_name().c_str());
 			exit(1);
 		}
 		size_t digits = full_file_name().find_first_of("1234567890");
 		if (digits <= full_file_name().size()) {
-			if (zone.number != atoi(full_file_name().c_str() + digits)) {
-				log("SYSERR: файл %s содержит неверный номер зоны %d", full_file_name().c_str(), zone.number);
+			if (zone.vnum != atoi(full_file_name().c_str() + digits)) {
+				log("SYSERR: файл %s содержит неверный номер зоны %d", full_file_name().c_str(), zone.vnum);
 				exit(1);
 			}
 		}
@@ -1563,7 +1563,7 @@ bool ZoneFile::load_zone() {
 bool ZoneFile::load_regular_zone() {
 	auto &zone = zone_table[s_zone_number];
 
-	sprintf(buf2, "beginning of zone #%d", zone.number);
+	sprintf(buf2, "beginning of zone #%d", zone.vnum);
 
 	rewind(file());
 	char *ptr;
@@ -1686,9 +1686,9 @@ bool ZoneFile::load_regular_zone() {
 	zone.under_construction = !str_cmp(t1, "test");
 	zone.locked = !str_cmp(t2, "locked");
 
-	const room_vnum expected_zone_top = zone.number * 100 + 99;
+	const room_vnum expected_zone_top = zone.vnum * 100 + 99;
 	if (zone.top != expected_zone_top) {
-		log("Zone: %d contains wrong top: %d, should be: %d", zone.number, zone.top, expected_zone_top);
+		log("Zone: %d contains wrong top: %d, should be: %d", zone.vnum, zone.top, expected_zone_top);
 		zone.top = expected_zone_top;
 	}
 
@@ -1794,7 +1794,7 @@ bool ZoneFile::load_regular_zone() {
 bool ZoneFile::load_generated_zone() const {
 	auto &zone = zone_table[s_zone_number];
 
-	sprintf(buf2, "beginning of generated zone #%d", zone.number);
+	sprintf(buf2, "beginning of generated zone #%d", zone.vnum);
 
 	return true;
 }

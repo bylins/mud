@@ -427,7 +427,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 	// new trigger to an item, we will get SYSERR's upton reboot that //
 	// could make things hard to debug.                               //
 
-	zone = zone_table[OLC_ZNUM(d)].number;
+	zone = zone_table[OLC_ZNUM(d)].vnum;
 	top = zone_table[OLC_ZNUM(d)].top;
 
 #ifdef CIRCLE_MAC

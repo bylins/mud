@@ -259,7 +259,7 @@ void redit_save_internally(DESCRIPTOR_DATA *d) {
 	// Настало время добавить триггеры
 	SCRIPT(world[room_num])->cleanup();
 	assign_triggers(world[room_num], WLD_TRIGGER);
-	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_ROOM);
+	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ROOM);
 }
 
 //------------------------------------------------------------------------
@@ -274,12 +274,12 @@ void redit_save_to_disk(int zone_num) {
 		return;
 	}
 
-	sprintf(buf, "%s/%d.new", WLD_PREFIX, zone_table[zone_num].number);
+	sprintf(buf, "%s/%d.new", WLD_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open room file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return;
 	}
-	for (counter = zone_table[zone_num].number * 100; counter < zone_table[zone_num].top; counter++) {
+	for (counter = zone_table[zone_num].vnum * 100; counter < zone_table[zone_num].top; counter++) {
 		if ((realcounter = real_room(counter)) != NOWHERE) {
 			if (counter % 100 == 99)
 				continue;
@@ -299,7 +299,7 @@ void redit_save_to_disk(int zone_num) {
 			room->flags_tascii(4, buf2);
 			fprintf(fp, "#%d\n%s~\n%s~\n%d %s %d\n", counter,
 					room->name ? room->name : "неопределено", buf1,
-					zone_table[room->zone].number, buf2, room->sector_type);
+					zone_table[room->zone].vnum, buf2, room->sector_type);
 
 			// * Handle exits.
 			for (counter2 = 0; counter2 < NUM_OF_DIRS; counter2++) {
@@ -361,12 +361,12 @@ void redit_save_to_disk(int zone_num) {
 	// * Write final line and close.
 	fprintf(fp, "$\n$\n");
 	fclose(fp);
-	sprintf(buf2, "%s/%d.wld", WLD_PREFIX, zone_table[zone_num].number);
+	sprintf(buf2, "%s/%d.wld", WLD_PREFIX, zone_table[zone_num].vnum);
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(buf, buf2);
 
-	olc_remove_from_save_list(zone_table[zone_num].number, OLC_SAVE_ROOM);
+	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_ROOM);
 }
 
 
@@ -518,7 +518,7 @@ void redit_disp_menu(DESCRIPTOR_DATA *d) {
 			 "%sQ%s) Quit\r\n"
 			 "Ваш выбор : ",
 			 cyn, OLC_NUM(d), nrm,
-			 cyn, zone_table[OLC_ZNUM(d)].number, nrm,
+			 cyn, zone_table[OLC_ZNUM(d)].vnum, nrm,
 			 grn, nrm, room->name,
 			 grn, room->temp_description,
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,

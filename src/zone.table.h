@@ -40,7 +40,7 @@ class ZoneData {
 	 */
 	int reset_mode;
 
-	zone_vnum number;    // virtual number of this zone
+	zone_vnum vnum;    // virtual number of this zone
 	// Местоположение зоны
 	char *location;
 	// Описание зоны

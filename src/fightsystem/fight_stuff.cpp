@@ -318,7 +318,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 	if (stone_rebirth(ch, killer)) {
 		return;
 	}
-	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].number == 759)
+	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].vnum == 759)
 		&& (GET_LEVEL(ch) < 15)) //нуб помер в мадшколе
 	{
 		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);

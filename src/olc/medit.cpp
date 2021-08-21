@@ -514,7 +514,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 	}
 #endif
 
-	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_MOB);
+	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_MOB);
 }
 
 //-------------------------------------------------------------------
@@ -534,7 +534,7 @@ void medit_save_to_disk(int zone_num) {
 	MPROG_DATA *mob_prog = NULL;
 #endif
 
-	zone = zone_table[zone_num].number;
+	zone = zone_table[zone_num].vnum;
 	top = zone_table[zone_num].top;
 
 	sprintf(fname, "%s/%d.new", MOB_PREFIX, zone);
@@ -732,7 +732,7 @@ void medit_save_to_disk(int zone_num) {
 	remove(buf2);
 	rename(fname, buf2);
 
-	olc_remove_from_save_list(zone_table[zone_num].number, OLC_SAVE_MOB);
+	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_MOB);
 }
 
 // **************************************************************************

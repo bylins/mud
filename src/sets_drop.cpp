@@ -387,14 +387,14 @@ void init_mob_name_list() {
 	int curr_zone = 0;
 	bool rent = false, mail = false, banker = false;
 	for (const auto i : world) {
-		if (curr_zone != zone_table[i->zone].number) {
+		if (curr_zone != zone_table[i->zone].vnum) {
 			if (rent && mail && banker) {
 				bad_zones.insert(curr_zone);
 			}
 			rent = false;
 			mail = false;
 			banker = false;
-			curr_zone = zone_table[i->zone].number;
+			curr_zone = zone_table[i->zone].vnum;
 		}
 
 		for (const auto ch : i->people) {
@@ -411,7 +411,7 @@ void init_mob_name_list() {
 	// тестовые зоны
 	for (std::size_t nr = 0; nr < zone_table.size(); nr++) {
 		if (zone_table[nr].under_construction) {
-			bad_zones.insert(zone_table[nr].number);
+			bad_zones.insert(zone_table[nr].vnum);
 		}
 	}
 

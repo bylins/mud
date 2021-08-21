@@ -1226,7 +1226,7 @@ void CHAR_DATA::set_gold(long num, bool need_log) {
 			log("Gold: %s remove %ld", get_name().c_str(), -change);
 		}
 		if (IN_ROOM(this) > 0) {
-			MoneyDropStat::add(zone_table[world[IN_ROOM(this)]->zone].number, change);
+			MoneyDropStat::add(zone_table[world[IN_ROOM(this)]->zone].vnum, change);
 		}
 	}
 

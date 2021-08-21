@@ -192,7 +192,7 @@ void do_add_wizard(CHAR_DATA *ch, char *, int, int);
 
 void save_zone_count_reset() {
 	for (auto i = 0u; i < zone_table.size(); ++i) {
-		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
+		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].vnum, zone_table[i].count_reset);
 		log("%s", buf);
 	}
 }
@@ -349,7 +349,7 @@ void do_showzonestats(CHAR_DATA *ch, char *argument, int, int) {
 	for (auto i = 0u; i < zone_table.size(); ++i) {
 		sprintf(buf,
 				"Zone: %5d, count_reset с ребута: %3d, посещено: %5d, назвение зоны: %s",
-				zone_table[i].number,
+				zone_table[i].vnum,
 				zone_table[i].count_reset,
 				zone_table[i].traffic,
 				zone_table[i].name);
@@ -887,7 +887,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 			continue;
 		sprintf(buf2,
 				"Проверка по дискрипторам: В зоне (vnum: %d клетка: %d) находится персонаж: %s.\r\n",
-				zone_table[zone_nr].number,
+				zone_table[zone_nr].vnum,
 				GET_ROOM_VNUM(IN_ROOM(i->character)),
 				GET_NAME(i->character));
 		send_to_char(buf2, ch);
@@ -897,7 +897,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 		return;
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop)) {
-		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_table[zone_nr].number));
+		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_table[zone_nr].vnum));
 		send_to_char(buf2, ch);
 		return;    // в зоне нет комнат :)
 	}
@@ -909,7 +909,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 				if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT)) {
 					sprintf(buf2,
 							"Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n",
-							zone_table[zone_nr].number,
+							zone_table[zone_nr].vnum,
 							GET_ROOM_VNUM(IN_ROOM(c)),
 							GET_NAME(c));
 					send_to_char(buf2, ch);
@@ -931,14 +931,14 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 		sprintf(buf2,
 				"В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n",
 				GET_NAME(c),
-				zone_table[zone_nr].number,
+				zone_table[zone_nr].vnum,
 				GET_ROOM_VNUM(IN_ROOM(c)));
 		send_to_char(buf2, ch);
 		found = true;
 	}
 
 	if (!found) {
-		sprintf(buf2, "В зоне %d даже мышь не пробегала.\r\n", zone_table[zone_nr].number);
+		sprintf(buf2, "В зоне %d даже мышь не пробегала.\r\n", zone_table[zone_nr].vnum);
 		send_to_char(buf2, ch);
 	}
 }
@@ -960,7 +960,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 
 	// что-то по другому не нашел, как проверить существует такая зона или нет
 	for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
-		if (zone_table[zrn].number == number) {
+		if (zone_table[zrn].vnum == number) {
 			is_empty_ch(zrn, ch);
 			is_found = true;
 			break;
@@ -3080,7 +3080,7 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		j = atoi(arg);
 		for (i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++) {
-			if (zone_table[i].number == j) {
+			if (zone_table[i].vnum == j) {
 				break;
 			}
 		}
@@ -3088,7 +3088,7 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (i >= 0 && i < static_cast<zone_rnum>(zone_table.size())) {
 		reset_zone(i);
-		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].number, zone_table[i].name);
+		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].vnum, zone_table[i].name);
 		send_to_char(buf, ch);
 		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name);
 		mudlog(buf, NRM, MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -3194,7 +3194,7 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone) {
 	snprintf(tmpstr, BUFFER_SIZE,
 		"%3d %-60.60s Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
 		"First: %5d, Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\nАвтор: %s, посещено после ребута: %d\r\n",
-		zone_table[zone].number,
+		zone_table[zone].vnum,
 		zone_table[zone].name,
 		zone_table[zone].mob_level,
 		zone_types[zone_table[zone].type].name,
@@ -3219,7 +3219,7 @@ std::string print_zone_exits(zone_rnum zone) {
 	char tmp[128];
 
 	snprintf(tmp, sizeof(tmp),
-			 "\r\nВыходы из зоны %3d:\r\n", zone_table[zone].number);
+			 "\r\nВыходы из зоны %3d:\r\n", zone_table[zone].vnum);
 	std::string out(tmp);
 
 	for (int n = FIRST_ROOM; n <= top_of_world; n++) {
@@ -3249,7 +3249,7 @@ std::string print_zone_enters(zone_rnum zone) {
 	char tmp[128];
 
 	snprintf(tmp, sizeof(tmp),
-			 "\r\nВходы в зону %3d:\r\n", zone_table[zone].number);
+			 "\r\nВходы в зону %3d:\r\n", zone_table[zone].vnum);
 	std::string out(tmp);
 
 	for (int n = FIRST_ROOM; n <= top_of_world; n++) {
@@ -3403,8 +3403,8 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				int zend = atoi(value1);
 
 				for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
-					if (zone_table[zrn].number >= zstart
-						&& zone_table[zrn].number <= zend) {
+					if (zone_table[zrn].vnum >= zstart
+						&& zone_table[zrn].vnum <= zend) {
 						print_zone_to_buf(&bf, zrn);
 						found = 1;
 					}
@@ -3416,7 +3416,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			} else if (*value && is_number(value)) {
 				for (zvn = atoi(value), zrn = 0;
-					zrn < static_cast<zone_rnum>(zone_table.size()) && zone_table[zrn].number != zvn;
+					zrn < static_cast<zone_rnum>(zone_table.size()) && zone_table[zrn].vnum != zvn;
 					 zrn++) {
 					/* empty loop */
 				}
@@ -3684,7 +3684,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				page_string(ch->desc, out);
 			} else if (*value && is_number(value)) {
 				for (zvn = atoi(value), zrn = 0;
-					 zone_table[zrn].number != zvn && zrn < static_cast<zone_rnum>(zone_table.size());
+					 zone_table[zrn].vnum != zvn && zrn < static_cast<zone_rnum>(zone_table.size());
 					 zrn++) {
 					// empty
 				}
@@ -5003,14 +5003,14 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 					 first, last);
 			out += buf_;
 
-			for (nr = 0; nr < static_cast<zone_rnum>(zone_table.size()) && (zone_table[nr].number <= last); nr++) {
-				if (zone_table[nr].number >= first) {
+			for (nr = 0; nr < static_cast<zone_rnum>(zone_table.size()) && (zone_table[nr].vnum <= last); nr++) {
+				if (zone_table[nr].vnum >= first) {
 					snprintf(buf_, sizeof(buf_),
 							 "%5d. [%s%s] [%5d] (%3d) (%2d/%2d) (%2d) %s\r\n",
 							 ++found,
 							 zone_table[nr].locked ? "L" : " ",
 							 zone_table[nr].under_construction ? "T" : " ",
-							 zone_table[nr].number,
+							 zone_table[nr].vnum,
 							 zone_table[nr].lifespan,
 							 zone_table[nr].level,
 							 zone_table[nr].mob_level,
@@ -5507,7 +5507,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		if (find) {
 			const auto vnum = i->get_vnum() / 100;
 			for (auto nr = 0; nr < static_cast<zone_rnum>(zone_table.size()); nr++) {
-				if (vnum == zone_table[nr].number) {
+				if (vnum == zone_table[nr].vnum) {
 					tmp_list.insert(std::make_pair(zone_table[nr].mob_level, GET_OBJ_RNUM(i)));
 				}
 			}

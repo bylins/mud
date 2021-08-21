@@ -759,7 +759,7 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 		return;
 	} else {
 		ch->dps_add_exp(gain);
-		ZoneExpStat::add(zone_table[world[ch->in_room]->zone].number, gain);
+		ZoneExpStat::add(zone_table[world[ch->in_room]->zone].vnum, gain);
 	}
 
 	if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_IMMORT)))
@@ -1735,7 +1735,7 @@ void point_update(void) {
 }
 
 void repop_decay(zone_rnum zone) {
-	const zone_vnum zone_num = zone_table[zone].number;
+	const zone_vnum zone_num = zone_table[zone].vnum;
 
 	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr &j) {
 		const zone_vnum obj_zone_num = j->get_vnum() / 100;
