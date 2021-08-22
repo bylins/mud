@@ -522,7 +522,7 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0) {
-			send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
+			send_to_char("Будучи бессмертным, вы избежали повреждения...\r\n", ch);
 			return;
 		}
 		GET_HIT(ch) -= dam;
