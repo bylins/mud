@@ -533,7 +533,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define IS_LIGHT(room)     (!IS_DARK(room))
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->number : NOWHERE))
+#define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : NOWHERE))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
 
 // char utils ***********************************************************

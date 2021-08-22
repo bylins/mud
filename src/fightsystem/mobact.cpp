@@ -214,7 +214,7 @@ int find_door(CHAR_DATA *ch, const bool track_method) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
 				if (GET_IDNUM(vict) == names->id
 					&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-						|| world[ch->in_room]->zone == world[IN_ROOM(vict)]->zone)) {
+						|| world[ch->in_room]->zone_rn == world[IN_ROOM(vict)]->zone_rn)) {
 					if (!msg) {
 						msg = true;
 						act("$n начал$g внимательно искать чьи-то следы.", FALSE, ch, 0, 0, TO_ROOM);
@@ -1193,7 +1193,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 						&& !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
 					|| IS_DARK(rdata->to_room())
 					|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
-						&& world[ch->in_room]->zone != world[rdata->to_room()]->zone)) {
+						&& world[ch->in_room]->zone_rn != world[rdata->to_room()]->zone_rn)) {
 					continue;
 				}
 
@@ -1248,7 +1248,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& legal_dir(ch.get(), door, TRUE, FALSE)
 			&& (!is_room_forbidden(world[EXIT(ch, door)->to_room()]) || MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
 			&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-				|| world[EXIT(ch, door)->to_room()]->zone == world[ch->in_room]->zone)
+				|| world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn)
 			&& allow_enter(world[EXIT(ch, door)->to_room()], ch.get())) {
 			// После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
 			// оно не валится на муд.ру, но на цигвине у меня падало стабильно,

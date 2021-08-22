@@ -72,7 +72,7 @@ void DeathTrap::activity() {
 				char buf_[MAX_INPUT_LENGTH];
 				snprintf(buf_, sizeof(buf_),
 						 "Player %s died in slow DT (room %d)",
-						 name.c_str(), (*it)->number);
+						 name.c_str(), (*it)->room_vn);
 				mudlog(buf_, LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 		}

@@ -66,8 +66,8 @@ void EXIT_DATA::to_room(const room_rnum _) {
 	m_to_room = _;
 }
 
-ROOM_DATA::ROOM_DATA() : number(0),
-						 zone(0),
+ROOM_DATA::ROOM_DATA() : room_vn(0),
+						 zone_rn(0),
 						 sector_type(0),
 						 sector_state(0),
 						 name(nullptr),

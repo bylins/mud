@@ -378,8 +378,8 @@ void char_to_room(CHAR_DATA *ch, room_rnum room) {
 	}
 
 	if (!IS_NPC(ch)) {
-		zone_table[world[room]->zone].used = true;
-		zone_table[world[room]->zone].activity++;
+		zone_table[world[room]->zone_rn].used = true;
+		zone_table[world[room]->zone_rn].activity++;
 	} else {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
@@ -444,8 +444,8 @@ void char_flee_to_room(CHAR_DATA *ch, room_rnum room) {
 	}
 
 	if (!IS_NPC(ch)) {
-		zone_table[world[room]->zone].used = true;
-		zone_table[world[room]->zone].activity++;
+		zone_table[world[room]->zone_rn].used = true;
+		zone_table[world[room]->zone_rn].activity++;
 	} else {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
@@ -1541,7 +1541,7 @@ int obj_decay(OBJ_DATA *object) {
 
 	if (OBJ_FLAGGED(object, EExtraFlag::ITEM_DECAY) ||
 		(OBJ_FLAGGED(object, EExtraFlag::ITEM_ZONEDECAY) &&
-			GET_OBJ_ZONE(object) != NOWHERE && GET_OBJ_ZONE(object) != world[room]->zone)) {
+			GET_OBJ_ZONE(object) != NOWHERE && GET_OBJ_ZONE(object) != world[room]->zone_rn)) {
 
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
 			world[room]->first_character(), object, 0, TO_ROOM);
@@ -2286,23 +2286,23 @@ bool try_locate_obj(CHAR_DATA *ch, OBJ_DATA *i) {
 	{
 		return false;
 	} else if (i->get_carried_by() && IS_NPC(i->get_carried_by())) {
-		if (world[IN_ROOM(i->get_carried_by())]->zone
-			== world[ch->in_room]->zone) //шмотки у моба можно локейтить только в одной зоне
+		if (world[IN_ROOM(i->get_carried_by())]->zone_rn
+			== world[ch->in_room]->zone_rn) //шмотки у моба можно локейтить только в одной зоне
 		{
 			return true;
 		} else {
 			return false;
 		}
 	} else if (i->get_in_room() != NOWHERE && i->get_in_room()) {
-		if (world[i->get_in_room()]->zone
-			== world[ch->in_room]->zone) //шмотки в клетке можно локейтить только в одной зоне
+		if (world[i->get_in_room()]->zone_rn
+			== world[ch->in_room]->zone_rn) //шмотки в клетке можно локейтить только в одной зоне
 		{
 			return true;
 		} else {
 			return false;
 		}
 	} else if (i->get_worn_by() && IS_NPC(i->get_worn_by())) {
-		if (world[IN_ROOM(i->get_worn_by())]->zone == world[ch->in_room]->zone) {
+		if (world[IN_ROOM(i->get_worn_by())]->zone_rn == world[ch->in_room]->zone_rn) {
 			return true;
 		} else {
 			return false;
@@ -2314,7 +2314,7 @@ bool try_locate_obj(CHAR_DATA *ch, OBJ_DATA *i) {
 			const auto in_obj = i->get_in_obj();
 			if (in_obj->get_carried_by()) {
 				if (IS_NPC(in_obj->get_carried_by())) {
-					if (world[IN_ROOM(in_obj->get_carried_by())]->zone == world[ch->in_room]->zone) {
+					if (world[IN_ROOM(in_obj->get_carried_by())]->zone_rn == world[ch->in_room]->zone_rn) {
 						return true;
 					} else {
 						return false;
@@ -2323,7 +2323,7 @@ bool try_locate_obj(CHAR_DATA *ch, OBJ_DATA *i) {
 					return true;
 				}
 			} else if (in_obj->get_in_room() != NOWHERE && in_obj->get_in_room()) {
-				if (world[in_obj->get_in_room()]->zone == world[ch->in_room]->zone) {
+				if (world[in_obj->get_in_room()]->zone_rn == world[ch->in_room]->zone_rn) {
 					return true;
 				} else {
 					return false;
@@ -2331,7 +2331,7 @@ bool try_locate_obj(CHAR_DATA *ch, OBJ_DATA *i) {
 			} else if (in_obj->get_worn_by()) {
 				const auto worn_by = i->get_in_obj()->get_worn_by();
 				if (IS_NPC(worn_by)) {
-					if (world[worn_by->in_room]->zone == world[ch->in_room]->zone) {
+					if (world[worn_by->in_room]->zone_rn == world[ch->in_room]->zone_rn) {
 						return true;
 					} else {
 						return false;

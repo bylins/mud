@@ -353,7 +353,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 
 		if (obj) {
 			if (GET_OBJ_ZONE(obj) == NOWHERE) {
-				obj->set_zone(world[ch->in_room]->zone);
+				obj->set_zone(world[ch->in_room]->zone_rn);
 			}
 			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE)) {
 				obj->set_owner(GET_UNIQUE(ch));

@@ -230,7 +230,7 @@ void Player::dquest(const int id) {
 		return;
 	}
 	int value = quest->second.reward + number(1, 3);
-	const int zone_lvl = zone_table[world[this->in_room]->zone].mob_level;
+	const int zone_lvl = zone_table[world[this->in_room]->zone_rn].mob_level;
 	value = this->account->zero_hryvn(this, value);
 	if (zone_lvl < 25
 		&& zone_lvl <= (GET_LEVEL(this) + GET_REMORT(this) / 5)) {
@@ -2113,7 +2113,7 @@ int Player::get_spent_hryvn() {
 }
 
 int Player::death_player_count() {
-	const int zone_vnum = zone_table[world[this->in_room]->zone].vnum;
+	const int zone_vnum = zone_table[world[this->in_room]->zone_rn].vnum;
 	auto it = this->count_death_zone.find(zone_vnum);
 	if (it != this->count_death_zone.end()) {
 		count_death_zone.at(zone_vnum) += 1;

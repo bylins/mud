@@ -1460,7 +1460,7 @@ void do_auto_exits(CHAR_DATA *ch) {
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
 			} else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN)) {
-				if (world[EXIT(ch, door)->to_room()]->zone == world[ch->in_room]->zone) {
+				if (world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn) {
 					slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
 				} else {
 					slen += sprintf(buf + slen, "%c ", UPPER(*dirs[door]));
@@ -1672,7 +1672,7 @@ bool put_delim(std::stringstream &out, bool delim) {
 }
 
 void print_zone_info(CHAR_DATA *ch) {
-	ZoneData *zone = &zone_table[world[ch->in_room]->zone];
+	ZoneData *zone = &zone_table[world[ch->in_room]->zone_rn];
 	std::stringstream out;
 	out << "\r\n" << zone->name;
 
@@ -1960,8 +1960,8 @@ void look_at_room(CHAR_DATA *ch, int ignore_brief) {
 
 	// вход в новую зону
 	if (!IS_NPC(ch)) {
-		zone_rnum inroom = world[ch->in_room]->zone;
-		if (zone_table[world[ch->get_from_room()]->zone].vnum != zone_table[inroom].vnum) {
+		zone_rnum inroom = world[ch->in_room]->zone_rn;
+		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
 			if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
 				print_zone_info(ch);
 			if ((ch->get_level() < LVL_IMMORT) && !ch->get_master())
@@ -4175,7 +4175,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (!CAN_SEE_CHAR(ch, tch) || GET_LEVEL(tch) < low || GET_LEVEL(tch) > high)
 			continue;
-		if (localwho && world[ch->in_room]->zone != world[tch->in_room]->zone)
+		if (localwho && world[ch->in_room]->zone_rn != world[tch->in_room]->zone_rn)
 			continue;
 		if (who_room && (tch->in_room != ch->in_room))
 			continue;
@@ -4886,7 +4886,7 @@ void perform_mortal_where(CHAR_DATA *ch, char *arg) {
 				continue;
 			}
 
-			if (world[ch->in_room]->zone != world[i->in_room]->zone) {
+			if (world[ch->in_room]->zone_rn != world[i->in_room]->zone_rn) {
 				continue;
 			}
 
@@ -4902,7 +4902,7 @@ void perform_mortal_where(CHAR_DATA *ch, char *arg) {
 			}
 
 			if (!CAN_SEE(ch, i)
-				|| world[i->in_room]->zone != world[ch->in_room]->zone) {
+				|| world[i->in_room]->zone_rn != world[ch->in_room]->zone_rn) {
 				continue;
 			}
 
@@ -4940,14 +4940,14 @@ void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]",
 				PERS(obj->get_carried_by(), ch, 4),
 				GET_MOB_VNUM(obj->get_carried_by()),
-				world[obj->get_carried_by()->in_room]->number);
+				world[obj->get_carried_by()->in_room]->room_vn);
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	} else if (obj->get_worn_by()) {
 		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]",
 				PERS(obj->get_worn_by(), ch, 3),
 				GET_MOB_VNUM(obj->get_worn_by()),
-				world[obj->get_worn_by()->in_room]->number);
+				world[obj->get_worn_by()->in_room]->room_vn);
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	} else if (obj->get_in_obj()) {
@@ -5040,7 +5040,7 @@ void perform_immort_where(CHAR_DATA *ch, char *arg) {
 			if (CAN_SEE(ch, i)
 				&& i->in_room != NOWHERE
 				&& isname(arg, i->get_pc_name())) {
-				ZoneData *zone = &zone_table[world[i->in_room]->zone];
+				ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
 				found = 1;
 				sprintf(buf,
 						"%s%3d. %-25s - [%5d] %s. Название зоны: '%s'\r\n",
@@ -5303,9 +5303,9 @@ void do_zone(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	print_zone_info(ch);
 
 	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-		&& zone_table[world[ch->in_room]->zone].comment) {
+		&& zone_table[world[ch->in_room]->zone_rn].comment) {
 		send_to_char(ch, "Комментарий: %s.\r\n",
-					 zone_table[world[ch->in_room]->zone].comment);
+					 zone_table[world[ch->in_room]->zone_rn].comment);
 	}
 }
 

@@ -52,7 +52,7 @@ struct wld_command_info {
 void wld_log(ROOM_DATA *room, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[MAX_INPUT_LENGTH + 100];
 
-	sprintf(buf, "(Room: %d, trig: %d): %s", room->number, last_trig_vnum, msg);
+	sprintf(buf, "(Room: %d, trig: %d): %s", room->room_vn, last_trig_vnum, msg);
 	script_log(buf, type);
 }
 
@@ -271,7 +271,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 	if (target == NOWHERE)
 		wld_log(room, "wteleport target is an invalid room");
 	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
-		if (nr == room->number) {
+		if (nr == room->room_vn) {
 			wld_log(room, "wteleport all target is itself");
 			return;
 		}
@@ -470,7 +470,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			wld_log(room, "wload: bad mob vnum");
 			return;
 		}
-		char_to_room(mob, real_room(room->number));
+		char_to_room(mob, real_room(room->room_vn));
 		load_mtrigger(mob);
 	} else if (is_abbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -489,8 +489,8 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
-		object->set_zone(world[real_room(room->number)]->zone);
-		obj_to_room(object.get(), real_room(room->number));
+		object->set_zone(world[real_room(room->room_vn)]->zone_rn);
+		obj_to_room(object.get(), real_room(room->room_vn));
 		load_otrigger(object.get());
 	} else {
 		wld_log(room, "wload: bad type");
@@ -517,7 +517,7 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	dam = atoi(amount);
 
 	if ((ch = get_char_by_room(room, name))) {
-		if (world[ch->in_room]->zone != room->zone) {
+		if (world[ch->in_room]->zone_rn != room->zone_rn) {
 			return;
 		}
 
@@ -874,7 +874,7 @@ void do_wportal(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	/* Ставим пентаграмму из текущей комнаты в комнату target с
 	   длительностью howlong */
-	curroom = real_room(room->number);
+	curroom = real_room(room->room_vn);
 	world[curroom]->portal_room = target;
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;

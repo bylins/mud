@@ -1258,7 +1258,7 @@ int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 					 attach_name[(int) t->get_attach_type()],
 					 attach_name[WLD_TRIGGER],
 					 room->name,
-					 room->number);
+					 room->room_vn);
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
 			SCRIPT(room)->remove_trigger(buf);

@@ -759,7 +759,7 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 		return;
 	} else {
 		ch->dps_add_exp(gain);
-		ZoneExpStat::add(zone_table[world[ch->in_room]->zone].vnum, gain);
+		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
 	if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_IMMORT)))
@@ -1249,7 +1249,7 @@ void clan_chest_point_update(OBJ_DATA *j) {
 		|| (j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
 			&& GET_OBJ_ZONE(j) != NOWHERE
 			&& up_obj_where(j->get_in_obj()) != NOWHERE
-			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->get_in_obj())]->zone)) {
+			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->get_in_obj())]->zone_rn)) {
 		clan_chest_invoice(j);
 		obj_from_obj(j);
 		extract_obj(j);
@@ -1323,7 +1323,7 @@ void obj_point_update() {
 			&& !j->get_in_obj()->get_worn_by()
 			&& j->get_in_obj()->get_extra_flag(EExtraFlag::ITEM_NODECAY)
 			&& GET_ROOM_VNUM(j->get_in_obj()->get_in_room()) % 100 != 99) {
-			int zone = world[j->get_in_obj()->get_in_room()]->zone;
+			int zone = world[j->get_in_obj()->get_in_room()]->zone_rn;
 			bool find = 0;
 			const auto clan = Clan::GetClanByRoom(j->get_in_obj()->get_in_room());
 			if (!clan)   // внутри замков даже и смотреть не будем
@@ -1421,7 +1421,7 @@ void obj_point_update() {
 				&& ((j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
 					&& GET_OBJ_ZONE(j) != NOWHERE
 					&& up_obj_where(j.get()) != NOWHERE
-					&& GET_OBJ_ZONE(j) != world[up_obj_where(j.get())]->zone)
+					&& GET_OBJ_ZONE(j) != world[up_obj_where(j.get())]->zone_rn)
 					|| j->get_timer() <= 0
 					|| GET_OBJ_DESTROY(j) == 0)) {
 				// *** рассыпание объекта
@@ -1486,7 +1486,7 @@ void obj_point_update() {
 				} else if (j->get_in_room() != NOWHERE) {
 					if (j->get_timer() <= 0 && j->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
 						snprintf(buf, MAX_STRING_LENGTH, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d", 
-							GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->number );
+							GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->room_vn);
 						mudlog(buf, CMP, LVL_GRGOD, ERRLOG, TRUE);
 
 					}

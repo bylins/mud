@@ -50,8 +50,8 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 
 	// output might be more than input up to 4 times (in case of utf-8) plus NULL terminator.
 	std::shared_ptr<char>
-		zone_name(new char[4 * strlen(zone_table[world[rnum]->zone].name)], std::default_delete<char[]>());
-	descriptor()->string_to_client_encoding(zone_table[world[rnum]->zone].name, zone_name.get());
+		zone_name(new char[4 * strlen(zone_table[world[rnum]->zone_rn].name)], std::default_delete<char[]>());
+	descriptor()->string_to_client_encoding(zone_table[world[rnum]->zone_rn].name, zone_name.get());
 
 	room_descriptor->add(std::make_shared<Variable>("VNUM",
 													std::make_shared<StringValue>(std::to_string(vnum))));

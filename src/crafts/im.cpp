@@ -919,7 +919,7 @@ void im_reset_room(ROOM_DATA *room, int level, int type) {
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
 			o = load_ingredient(indx, pow, -1);
 			if (o)
-				obj_to_room(o, real_room(room->number));
+				obj_to_room(o, real_room(room->room_vn));
 		}
 	}
 }

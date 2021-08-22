@@ -695,7 +695,7 @@ void script_trigger_check() {
 			auto sc = SCRIPT(ch).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM)
-				&& (!is_empty(world[ch->in_room]->zone)
+				&& (!is_empty(world[ch->in_room]->zone_rn)
 					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL))) {
 				random_mtrigger(ch.get());
 			}
@@ -721,10 +721,10 @@ void script_trigger_check() {
 			auto sc = SCRIPT(room).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM)
-				&& (!is_empty(room->zone)
+				&& (!is_empty(room->zone_rn)
 					|| IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL))) {
 				// Если будет крэш (а он несомненно будет) можно будет посмотреть параметры в стеке
-				random_wtrigger(room, room->number, sc, sc->types, sc->trig_list);
+				random_wtrigger(room, room->room_vn, sc, sc->types, sc->trig_list);
 			}
 		}
 	}
@@ -737,7 +737,7 @@ void script_timechange_trigger_check(const int time) {
 			auto sc = SCRIPT(ch).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE)
-				&& (!is_empty(world[ch->in_room]->zone)
+				&& (!is_empty(world[ch->in_room]->zone_rn)
 					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL))) {
 				timechange_mtrigger(ch.get(), time);
 			}
@@ -759,7 +759,7 @@ void script_timechange_trigger_check(const int time) {
 			auto sc = SCRIPT(room).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE)
-				&& (!is_empty(room->zone)
+				&& (!is_empty(room->zone_rn)
 					|| IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL))) {
 				timechange_wtrigger(room, time);
 			}
@@ -1052,7 +1052,7 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
 					sprintf(buf, "Trigger %d (%s) attached to room %d.\r\n",
-							tn, GET_TRIG_NAME(trig), world[room]->number);
+							tn, GET_TRIG_NAME(trig), world[room]->room_vn);
 					send_to_char(buf, ch);
 
 					if (!add_trigger(world[room]->script.get(), trig, loc)) {
@@ -1461,7 +1461,7 @@ void find_replacement(void *go,
 						uid_type = UID_OBJ;
 						break;
 
-					case WLD_TRIGGER: uid = find_room_uid(((ROOM_DATA *) go)->number);
+					case WLD_TRIGGER: uid = find_room_uid(((ROOM_DATA *) go)->room_vn);
 						uid_type = UID_ROOM;
 						break;
 
@@ -1905,7 +1905,7 @@ void find_replacement(void *go,
 					if (!IS_NPC(k)
 						&& (GET_CLASS(k) == 8
 							|| GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
-						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
+						&& world[IN_ROOM(k)]->zone_rn == world[IN_ROOM(c)]->zone_rn) //но только если находится в той же зоне
 					{
 						can_use = 1;
 					}
@@ -1917,8 +1917,8 @@ void find_replacement(void *go,
 							}
 							if ((GET_CLASS(f->follower) == 8
 								|| GET_CLASS(f->follower) == 13) //чернок или волхв может использовать ужи на согруппов
-								&& world[IN_ROOM(f->follower)]->zone
-									== world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
+								&& world[IN_ROOM(f->follower)]->zone_rn
+									== world[IN_ROOM(c)]->zone_rn) //но только если находится в той же зоне
 							{
 								can_use = 1;
 								break;
@@ -2089,7 +2089,7 @@ void find_replacement(void *go,
 				split_or_clan_tax(c, diff);
 				// стата для show money
 				if (!IS_NPC(c) && IN_ROOM(c) > 0) {
-					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone].vnum, diff);
+					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone_rn].vnum, diff);
 				}
 			} else
 				sprintf(str, "%ld", c->get_gold());
@@ -2102,7 +2102,7 @@ void find_replacement(void *go,
 				split_or_clan_tax(c, diff);
 				// стата для show money
 				if (!IS_NPC(c) && IN_ROOM(c) > 0) {
-					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone].vnum, diff);
+					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone_rn].vnum, diff);
 				} 
 			} else
 				sprintf(str, "%ld", c->get_bank());
@@ -2295,7 +2295,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_SIZE_ADD(c));
 		} else if (!str_cmp(field, "room")) {
 			if (!*subfield) {
-				int n = find_room_uid(world[IN_ROOM(c)]->number);
+				int n = find_room_uid(world[IN_ROOM(c)]->room_vn);
 				if (n >= 0)
 				sprintf(str, "%c%d", UID_ROOM, n);
 			}
@@ -2307,7 +2307,7 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "realroom"))
-			sprintf(str, "%d", world[IN_ROOM(c)]->number);
+			sprintf(str, "%d", world[IN_ROOM(c)]->room_vn);
 		else if (!str_cmp(field, "loadroom")) {
 			if (!IS_NPC(c)) {
 				if (!*subfield)
@@ -2716,11 +2716,11 @@ void find_replacement(void *go,
 			sprintf(str, "%d", (int) GET_OBJ_SEX(o));
 		else if (!str_cmp(field, "room")) {
 			if (o->get_carried_by()) {
-				sprintf(str, "%d", world[IN_ROOM(o->get_carried_by())]->number);
+				sprintf(str, "%d", world[IN_ROOM(o->get_carried_by())]->room_vn);
 			} else if (o->get_worn_by()) {
-				sprintf(str, "%d", world[IN_ROOM(o->get_worn_by())]->number);
+				sprintf(str, "%d", world[IN_ROOM(o->get_worn_by())]->room_vn);
 			} else if (o->get_in_room() != NOWHERE) {
-				sprintf(str, "%d", world[o->get_in_room()]->number);
+				sprintf(str, "%d", world[o->get_in_room()]->room_vn);
 			} else {
 				strcpy(str, "");
 			}
@@ -2751,7 +2751,7 @@ void find_replacement(void *go,
 			}
 			if (*subfield == UID_ROOM) {
 				room_to = find_room(atoi(subfield + 1));
-				if (!(room_to && (room_to->number != NOWHERE))) {
+				if (!(room_to && (room_to->room_vn != NOWHERE))) {
 					trig_log(trig, "object.put: недопустимая комната для размещения объекта");
 					return;
 				}
@@ -2776,7 +2776,7 @@ void find_replacement(void *go,
 			else if (obj_to)
 				obj_to_obj(o, obj_to);
 			else if (room_to)
-				obj_to_room(o, real_room(room_to->number));
+				obj_to_room(o, real_room(room_to->room_vn));
 			else {
 				sprintf(buf2,
 						"object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в NOWHERE",
@@ -2906,12 +2906,12 @@ void find_replacement(void *go,
 				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[DOWN]->to_room())));
 			}
 		} else if (!str_cmp(field, "vnum")) {
-			sprintf(str, "%d", r->number);
+			sprintf(str, "%d", r->room_vn);
 		} else if (!str_cmp(field, "sectortype"))//Polud возвращает строку - тип комнаты
 		{
 			sprinttype(r->sector_type, sector_types, str);
 		} else if (!str_cmp(field, "id")) {
-			sprintf(str, "%c%d", UID_ROOM, find_room_uid(r->number));
+			sprintf(str, "%c%d", UID_ROOM, find_room_uid(r->room_vn));
 		} else if (!str_cmp(field, "flag")) {
 			r->gm_flag(subfield, room_bits, str);
 		} else if (!str_cmp(field, "people")) {
@@ -2921,12 +2921,12 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "firstvnum")) {
 			int x,y;
-			get_zone_rooms(r->zone, &x , &y);
-			sprintf(str, "%d", world[x]->number);
+			get_zone_rooms(r->zone_rn, &x , &y);
+			sprintf(str, "%d", world[x]->room_vn);
 		} else if (!str_cmp(field, "lastvnum")) {
 			int x,y;
-			get_zone_rooms(r->zone, &x , &y);
-			sprintf(str, "%d", world[y]->number);
+			get_zone_rooms(r->zone_rn, &x , &y);
+			sprintf(str, "%d", world[y]->room_vn);
 		}
 		else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
@@ -2935,7 +2935,7 @@ void find_replacement(void *go,
 			int inroom;
 
 			// Составление списка (для room)
-			inroom = real_room(r->number);
+			inroom = real_room(r->room_vn);
 			if (inroom == NOWHERE) {
 				trig_log(trig, "room-построитель списка в NOWHERE");
 				return;
@@ -2971,7 +2971,7 @@ void find_replacement(void *go,
 			//mixaz  Выдаем список объектов в комнате
 			int inroom;
 			// Составление списка (для room)
-			inroom = real_room(r->number);
+			inroom = real_room(r->room_vn);
 			if (inroom == NOWHERE) {
 				trig_log(trig, "room-построитель списка в NOWHERE");
 				return;
@@ -3774,7 +3774,7 @@ void process_attach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *
 
 	if (r) {
 		if (add_trigger(SCRIPT(r).get(), newtrig, -1)) {
-			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->number);
+			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->room_vn);
 		} else {
 			extract_trigger(newtrig);
 		}

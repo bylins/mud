@@ -281,11 +281,11 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 		return;
 	}
 
-	(void) get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
+	(void) get_zone_rooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
 	if (fnd_room == NOWHERE) {
 		to_room = Clan::CloseRent(to_room);
-		(void) get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
+		(void) get_zone_rooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
 		fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
 	}
 
@@ -319,7 +319,7 @@ void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DA
 		return;
 	}
 
-	get_zone_rooms(world[in_room]->zone, &rnum_start, &rnum_stop);
+	get_zone_rooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = get_teleport_target_room(ch, rnum_start, rnum_stop);
 	if (fnd_room == NOWHERE) {
 		send_to_char(SUMMON_FAIL, ch);
@@ -759,7 +759,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 		}
 		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
-			const auto same_zone = world[ch->in_room]->zone == world[carried_by->in_room]->zone;
+			const auto same_zone = world[ch->in_room]->zone_rn == world[carried_by->in_room]->zone_rn;
 			if (!IS_NPC(carried_by) || same_zone || bloody_corpse) {
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
 						GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
@@ -768,7 +768,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 			}
 		} else if (i->get_in_room() != NOWHERE && i->get_in_room()) {
 			const auto room = i->get_in_room();
-			const auto same_zone = world[ch->in_room]->zone == world[room]->zone;
+			const auto same_zone = world[ch->in_room]->zone_rn == world[room]->zone_rn;
 			if (same_zone) {
 				sprintf(buf, "%s наход%sся в комнате '%s'\r\n",
 						i->get_short_description().c_str(), GET_OBJ_POLY_1(ch, i), world[room]->name);
@@ -805,7 +805,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 			}
 		} else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
-			const auto same_zone = world[ch->in_room]->zone == world[worn_by->in_room]->zone;
+			const auto same_zone = world[ch->in_room]->zone_rn == world[worn_by->in_room]->zone_rn;
 			if (!IS_NPC(worn_by) || same_zone || bloody_corpse) {
 				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
 						GET_OBJ_SUF_6(i), PERS(worn_by, ch, 3));
@@ -1645,9 +1645,9 @@ void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/,
 
 	if (sky_info) {
 		duration = MAX(GET_LEVEL(ch) / 8, 2);
-		zone = world[ch->in_room]->zone;
+		zone = world[ch->in_room]->zone_rn;
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
-			if (world[i]->zone == zone && SECT(i) != SECT_INSIDE && SECT(i) != SECT_CITY) {
+			if (world[i]->zone_rn == zone && SECT(i) != SECT_INSIDE && SECT(i) != SECT_CITY) {
 				world[i]->weather.sky = what_sky;
 				world[i]->weather.weather_type = sky_type;
 				world[i]->weather.duration = duration;

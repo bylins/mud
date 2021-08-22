@@ -414,7 +414,7 @@ bool mode_allow(const CHAR_DATA *ch, int cur_depth) {
 
 void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x) {
 	// чтобы не ходить по комнатам вторично, но с проверкой на глубину
-	std::map<int, int>::iterator i = check_dupe.find(room->number);
+	std::map<int, int>::iterator i = check_dupe.find(room->room_vn);
 	if (i != check_dupe.end()) {
 		if (i->second <= cur_depth) {
 			return;
@@ -422,7 +422,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			i->second = cur_depth;
 		}
 	} else {
-		check_dupe.insert(std::make_pair(room->number, cur_depth));
+		check_dupe.insert(std::make_pair(room->room_vn, cur_depth));
 	}
 
 	if (world[ch->in_room] == room) {
@@ -525,7 +525,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
 			if (i != UP && i != DOWN) {
 				// переход в другую зону
-				if (next_room->zone != world[ch->in_room]->zone) {
+				if (next_room->zone_rn != world[ch->in_room]->zone_rn) {
 					put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
 				}
 				// моб со спешиалом
@@ -567,7 +567,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			if (i != UP && i != DOWN
 				&& cur_depth < MAX_DEPTH_ROOMS
 				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
-				&& next_room->zone == world[ch->in_room]->zone
+				&& next_room->zone_rn == world[ch->in_room]->zone_rn
 				&& mode_allow(ch, cur_depth)) {
 				draw_room(ch, next_room, cur_depth + 1, next_y, next_x);
 			}
@@ -584,7 +584,7 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm) {
 	MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_STANDART;
 	if (ch->map_check_option(MAP_MODE_BIG)) {
 		for (unsigned int i = 0; i < cities.size(); i++) {
-			if (zone_table[world[ch->in_room]->zone].vnum == cities[i].rent_vnum / 100) {
+			if (zone_table[world[ch->in_room]->zone_rn].vnum == cities[i].rent_vnum / 100) {
 				MAX_LINES = MAX_LINES_BIG;
 				MAX_LENGTH = MAX_LENGTH_BIG;
 				MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_BIG;
