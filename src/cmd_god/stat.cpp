@@ -11,6 +11,7 @@
 #include "olc/olc.h"
 #include "glory.h"
 #include "glory_const.h"
+#include "graph.h"
 #include "house.h"
 #include "liquid.h"
 #include "obj_prototypes.h"
@@ -381,7 +382,57 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 				send_to_char(ch, " %s:[%3d]", skill_info[counter].name, k->get_skill(counter));
 			}
 		}
-		send_to_char(ch, "&n\r\n");
+		send_to_char(ch, CCNRM(ch, C_NRM));
+		send_to_char(ch, "\r\n");
+
+		// информация о маршруте моба
+		if (k->mob_specials.dest_count > 0) {
+			// подготавливаем путевые точки
+			std::stringstream str_dest_list;
+			for (auto i = 0; i < k->mob_specials.dest_count; i++) {
+				if (i) {
+					str_dest_list << " - ";
+				}
+				str_dest_list << std::to_string(k->mob_specials.dest[i]);
+			}
+
+			// пытаемся просчитать маршрут на несколько клеток вперед
+			std::vector<room_vnum> predictive_path_vnum_list;
+			static const int max_path_size = 25;
+			room_vnum current_room = world[k->in_room]->room_vn;
+			predictive_path_vnum_list.push_back(current_room);
+			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > NOWHERE) {
+				const auto direction = find_first_step(real_room(current_room), real_room(GET_DEST(k)), k);
+				if (direction > 0) {
+					const auto exit_room_rnum = world[real_room(current_room)]->dir_option[direction]->to_room();
+					current_room = world[exit_room_rnum]->room_vn;
+					predictive_path_vnum_list.push_back(current_room);
+				} else {
+					break;
+				}
+			}
+			// конвертируем путь из внумов в строку
+			std::stringstream str_predictive_path;
+			for (const auto &room : predictive_path_vnum_list) {
+				if (!str_predictive_path.str().empty()) {
+					str_predictive_path << " - ";
+				}
+				str_predictive_path << std::to_string(room);
+			}
+
+			send_to_char(ch,
+						 "Заданные путевые точки: %s%s%s\r\n",
+						 CCCYN(ch, C_NRM),
+						 str_dest_list.str().c_str(),
+						 CCNRM(ch, C_NRM));
+			if (!virt) {
+				send_to_char(ch,
+							"Предполагаемый маршрут: %s%s%s\r\n",
+							CCCYN(ch, C_NRM),
+							str_predictive_path.str().c_str(),
+							CCNRM(ch, C_NRM));
+			}
+		}
 	} else {
 		k->char_specials.saved.act.sprintbits(player_bits, smallBuf, ",", 4);
 		sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
