@@ -133,7 +133,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	{
 		switch (subcmd) {
 			case SCMD_OLC_ZEDIT:
-			case SCMD_OLC_REDIT: number = world[ch->in_room]->number;
+			case SCMD_OLC_REDIT: number = world[ch->in_room]->room_vn;
 				break;
 			case SCMD_OLC_TRIGEDIT:
 			case SCMD_OLC_OEDIT:

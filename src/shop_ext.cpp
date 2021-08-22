@@ -508,15 +508,15 @@ void town_shop_keepers() {
 			&& !Clan::GetClanByRoom(ch->in_room)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
 			&& GET_ROOM_VNUM(ch->in_room) % 100 != 99
-			&& zone_list.find(world[ch->in_room]->zone) == zone_list.end()) {
+			&& zone_list.find(world[ch->in_room]->zone_rn) == zone_list.end()) {
 			int rnum_start, rnum_end;
-			if (get_zone_rooms(world[ch->in_room]->zone, &rnum_start, &rnum_end)) {
+			if (get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
 				CHAR_DATA *mob = read_mobile(1901, VIRTUAL);
 				if (mob) {
 					char_to_room(mob, number(rnum_start, rnum_end));
 				}
 			}
-			zone_list.insert(world[ch->in_room]->zone);
+			zone_list.insert(world[ch->in_room]->zone_rn);
 		}
 	}
 }

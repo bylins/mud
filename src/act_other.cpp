@@ -403,7 +403,7 @@ void do_camouflage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAMOUFLAGE;
 	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 6, 0, 2);
-	af.modifier = world[ch->in_room]->zone;
+	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
 

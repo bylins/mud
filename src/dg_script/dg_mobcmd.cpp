@@ -395,7 +395,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
-		object->set_zone(world[ch->in_room]->zone);
+		object->set_zone(world[ch->in_room]->zone_rn);
 
 		if (CAN_WEAR(object.get(), EWearFlag::ITEM_WEAR_TAKE)) {
 			obj_to_char(object.get(), ch);
@@ -1336,7 +1336,7 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	dam = atoi(amount);
 	auto victim = get_char(name);
 	if (victim) {
-		if (world[IN_ROOM(victim)]->zone != world[ch->in_room]->zone) {
+		if (world[IN_ROOM(victim)]->zone_rn != world[ch->in_room]->zone_rn) {
 			return;
 		}
 

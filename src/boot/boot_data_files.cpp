@@ -239,12 +239,12 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 						owner_to_triggers_map_t tmp_map;
 						owner_trig.emplace(vnum, tmp_map);
 					}
-					add_trig_to_owner(-1, vnum, room->number);
+					add_trig_to_owner(-1, vnum, room->room_vn);
 				} else {
 					extract_trigger(trigger_instance);
 				}
 			} else {
-				sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->number);
+				sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->room_vn);
 				log("%s", line);
 			}
 			break;
@@ -411,8 +411,8 @@ void WorldFile::parse_room(int virtual_nr) {
 	// Создаем новую комнату
 	world.push_back(new ROOM_DATA);
 
-	world[room_nr]->zone = zone;
-	world[room_nr]->number = virtual_nr;
+	world[room_nr]->zone_rn = zone;
+	world[room_nr]->room_vn = virtual_nr;
 
 	world[room_nr]->set_name(fread_string());
 

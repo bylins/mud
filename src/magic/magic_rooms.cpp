@@ -58,7 +58,7 @@ RoomAffectListIt findRoomAffect(ROOM_DATA *room, int type) {
 
 bool isZoneRoomAffected(int zoneVNUM, ESpell spell) {
 	for (auto it = aff_room_list.begin(); it != aff_room_list.end(); ++it) {
-		if ((*it)->zone == zoneVNUM && isRoomAffected(*it, spell)) {
+		if ((*it)->zone_rn == zoneVNUM && isRoomAffected(*it, spell)) {
 			return true;
 		}
 	}
@@ -91,7 +91,7 @@ void showAffectedRooms(CHAR_DATA *ch) {
 		   << " " << std::setfill('-') << std::setw(tableW) << "" << std::endl << std::setfill(' ');
 	for (const auto room : aff_room_list) {
 		for (const auto &af : room->affected) {
-			buffer << std::left << " " << std::setw(vnumCW) << room->number
+			buffer << std::left << " " << std::setw(vnumCW) << room->room_vn
 				   << std::setw(spellCW) << spell_info[af->type].name
 				   << std::setw(casterCW) << get_name_by_id(af->caster_id)
 				   << std::right << std::setw(timeCW) << af->duration * 2
@@ -127,7 +127,7 @@ int removeAffectFromRooms(int spellnum, const F &filter) {
 	for (const auto room : aff_room_list) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
-			sendAffectOffMessageToRoom((*affect)->type, real_room(room->number));
+			sendAffectOffMessageToRoom((*affect)->type, real_room(room->room_vn));
 			spellnum = (*affect)->type;
 			removeAffectFromRoom(room, affect);
 			return spellnum;
@@ -308,7 +308,7 @@ void room_affect_update(void) {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						sendAffectOffMessageToRoom(affect->type, real_room((*it)->number));
+						sendAffectOffMessageToRoom(affect->type, real_room((*it)->room_vn));
 					}
 				}
 				removeAffectFromRoom(*it, affect_i);

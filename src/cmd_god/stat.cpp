@@ -961,7 +961,7 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 	sprinttype(rm->sector_type, sector_types, smallBuf);
 	sprintf(buf,
 			"Зона: [%3d], VNum: [%s%5d%s], RNum: [%5d], Тип  сектора: %s\r\n",
-			zone_table[rm->zone].vnum, CCGRN(ch, C_NRM), rm->number, CCNRM(ch, C_NRM), ch->in_room, smallBuf);
+			zone_table[rm->zone_rn].vnum, CCGRN(ch, C_NRM), rm->room_vn, CCNRM(ch, C_NRM), ch->in_room, smallBuf);
 	send_to_char(buf, ch);
 
 	rm->flags_sprint(smallBuf, ",");
