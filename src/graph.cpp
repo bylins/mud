@@ -92,7 +92,12 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 		get_zone_rooms(world[src]->zone_rn, &rnum_start, &rnum_stop);
 		// Запрещаем мобам искать через двери ...
 		through_doors = FALSE;
-//		edge = EDGE_ZONE;
+		if (MOB_FLAGGED(ch, MOB_STAY_ZONE)) {
+			get_zone_rooms(world[src]->zone, &rnum_start, &rnum_stop);
+			edge = EDGE_ZONE;
+		} else {
+			edge = EDGE_WORLD;
+		}
 	} else {
 		// Игроки полноценно ищут в мире.
 		through_doors = TRUE;
