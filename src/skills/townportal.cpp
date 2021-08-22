@@ -16,7 +16,7 @@ std::unordered_map<room_vnum /*to*/, ROOM_DATA * /*from*/> portal_list;
 * \param from_room - откуда ставится
 */
 void add(ROOM_DATA *to_room, ROOM_DATA *from_room) {
-	portal_list.emplace(to_room->number, from_room);
+	portal_list.emplace(to_room->room_vn, from_room);
 }
 
 /**
@@ -24,7 +24,7 @@ void add(ROOM_DATA *to_room, ROOM_DATA *from_room) {
 * \param to_room - куда указывает пента
 */
 void remove(ROOM_DATA *to_room) {
-	const auto it = portal_list.find(to_room->number);
+	const auto it = portal_list.find(to_room->room_vn);
 	if (it != portal_list.end())
 		portal_list.erase(it);
 }
@@ -36,7 +36,7 @@ void remove(ROOM_DATA *to_room) {
 */
 ROOM_DATA *get_from_room(ROOM_DATA *to_room) {
 
-	const auto it = portal_list.find(to_room->number);
+	const auto it = portal_list.find(to_room->room_vn);
 	if (it != portal_list.end())
 		return it->second;
 
@@ -62,7 +62,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 
 		label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 		if (label_room) {
-			label_port.vnum = label_room->number;
+			label_port.vnum = label_room->room_vn;
 			label_port.level = 1;
 			port = &label_port;
 			has_label_portal = true;

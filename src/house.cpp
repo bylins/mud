@@ -136,7 +136,7 @@ Clan::ClanListType Clan::ClanList;
 // поиск to_room в зонах клан-замков, выставляет за замок, если найдено
 room_rnum Clan::CloseRent(room_rnum to_room) {
 	for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
-		if (world[to_room]->zone == world[real_room((*clan)->rent)]->zone)
+		if (world[to_room]->zone_rn == world[real_room((*clan)->rent)]->zone_rn)
 			return real_room((*clan)->out_rent);
 	return to_room;
 }
@@ -147,10 +147,10 @@ int Clan::get_chest_room() {
 
 // проверяет находится ли чар в зоне чужого клана
 bool Clan::InEnemyZone(CHAR_DATA *ch) {
-	int zone = world[ch->in_room]->zone;
+	int zone = world[ch->in_room]->zone_rn;
 
 	for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
-		if (zone == world[real_room((*clan)->rent)]->zone) {
+		if (zone == world[real_room((*clan)->rent)]->zone_rn) {
 			if (CLAN(ch) && (CLAN(ch) == *clan || (*clan)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE))
 				return false;
 			else
@@ -825,7 +825,7 @@ void Clan::SetClanData(CHAR_DATA *ch) {
 // проверка комнаты на принадлежность какому-либо замку
 Clan::shared_ptr Clan::GetClanByRoom(room_rnum room) {
 	for (const auto &clan : ClanList) {
-		if (world[room]->zone == world[real_room(clan->rent)]->zone) {
+		if (world[room]->zone_rn == world[real_room(clan->rent)]->zone_rn) {
 			return clan;
 		}
 	}

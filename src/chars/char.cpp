@@ -99,7 +99,7 @@ int CHAR_DATA::get_souls() {
 
 bool CHAR_DATA::in_used_zone() const {
 	if (IS_MOB(this)) {
-		return 0 != zone_table[world[in_room]->zone].used;
+		return 0 != zone_table[world[in_room]->zone_rn].used;
 	}
 	return false;
 }
@@ -1226,7 +1226,7 @@ void CHAR_DATA::set_gold(long num, bool need_log) {
 			log("Gold: %s remove %ld", get_name().c_str(), -change);
 		}
 		if (IN_ROOM(this) > 0) {
-			MoneyDropStat::add(zone_table[world[IN_ROOM(this)]->zone].vnum, change);
+			MoneyDropStat::add(zone_table[world[IN_ROOM(this)]->zone_rn].vnum, change);
 		}
 	}
 

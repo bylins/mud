@@ -786,7 +786,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 
 			if (subcmd == SCMD_SHOUT
-				&& ((world[ch->in_room]->zone != world[i->character->in_room]->zone)
+				&& ((world[ch->in_room]->zone_rn != world[i->character->in_room]->zone_rn)
 					|| !AWAKE(i->character))) {
 				continue;
 			}

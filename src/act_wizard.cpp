@@ -883,7 +883,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 			continue;
 		if (GET_LEVEL(i->character) >= LVL_IMMORT)
 			continue;
-		if (world[i->character->in_room]->zone != zone_nr)
+		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
 		sprintf(buf2,
 				"Проверка по дискрипторам: В зоне (vnum: %d клетка: %d) находится персонаж: %s.\r\n",
@@ -924,7 +924,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 		int was = c->get_was_in_room();
 		if (was == NOWHERE
 			|| GET_LEVEL(c) >= LVL_IMMORT
-			|| world[was]->zone != zone_nr) {
+			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}
 
@@ -2518,7 +2518,7 @@ void do_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
 		// плюс исключается ситуация, когда они в одной зоне, но чар не в клетке арены
 		if (Privilege::check_flag(ch, Privilege::ARENA_MASTER)) {
-			if (!ROOM_FLAGGED(vict->in_room, ROOM_ARENA) || world[ch->in_room]->zone != world[vict->in_room]->zone) {
+			if (!ROOM_FLAGGED(vict->in_room, ROOM_ARENA) || world[ch->in_room]->zone_rn != world[vict->in_room]->zone_rn) {
 				send_to_char("Не положено...\r\n", ch);
 				return;
 			}
@@ -3076,7 +3076,7 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		imm_log("%s reset entire world.", GET_NAME(ch));
 		return;
 	} else if (*arg == '.') {
-		i = world[ch->in_room]->zone;
+		i = world[ch->in_room]->zone_rn;
 	} else {
 		j = atoi(arg);
 		for (i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++) {
@@ -3201,8 +3201,8 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone) {
 		zone_table[zone].age, zone_table[zone].lifespan,
 		zone_table[zone].reset_mode,
 		(zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
-		world[rfirst]->number,
-		world[rlast]->number,
+		world[rfirst]->room_vn,
+		world[rlast]->room_vn,
 		zone_table[zone].under_construction ? "&GТестовая!&n" : " ",
 		zone_table[zone].locked ? "&RРедактирование запрещено!&n" : " ",
 		zone_table[zone].reset_idle ? "Y" : "N",
@@ -3223,15 +3223,15 @@ std::string print_zone_exits(zone_rnum zone) {
 	std::string out(tmp);
 
 	for (int n = FIRST_ROOM; n <= top_of_world; n++) {
-		if (world[n]->zone == zone) {
+		if (world[n]->zone_rn == zone) {
 			for (int dir = 0; dir < NUM_OF_DIRS; dir++) {
 				if (world[n]->dir_option[dir]
-					&& world[world[n]->dir_option[dir]->to_room()]->zone != zone
-					&& world[world[n]->dir_option[dir]->to_room()]->number > 0) {
+					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn != zone
+					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
 					snprintf(tmp, sizeof(tmp),
 							 "  Номер комнаты:%5d Направление:%6s Выход в комнату:%5d\r\n",
-							 world[n]->number, Dirs[dir],
-							 world[world[n]->dir_option[dir]->to_room()]->number);
+							 world[n]->room_vn, Dirs[dir],
+							 world[world[n]->dir_option[dir]->to_room()]->room_vn);
 					out += tmp;
 					found = true;
 				}
@@ -3253,15 +3253,15 @@ std::string print_zone_enters(zone_rnum zone) {
 	std::string out(tmp);
 
 	for (int n = FIRST_ROOM; n <= top_of_world; n++) {
-		if (world[n]->zone != zone) {
+		if (world[n]->zone_rn != zone) {
 			for (int dir = 0; dir < NUM_OF_DIRS; dir++) {
 				if (world[n]->dir_option[dir]
-					&& world[world[n]->dir_option[dir]->to_room()]->zone == zone
-					&& world[world[n]->dir_option[dir]->to_room()]->number > 0) {
+					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn == zone
+					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
 					snprintf(tmp, sizeof(tmp),
 							 "  Номер комнаты:%5d Направление:%6s Вход в комнату:%5d\r\n",
-							 world[n]->number, Dirs[dir],
-							 world[world[n]->dir_option[dir]->to_room()]->number);
+							 world[n]->room_vn, Dirs[dir],
+							 world[world[n]->dir_option[dir]->to_room()]->room_vn);
 					out += tmp;
 					found = true;
 				}
@@ -3395,7 +3395,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 1:        // zone
 			// tightened up by JE 4/6/93
 			if (self)
-				print_zone_to_buf(&bf, world[ch->in_room]->zone);
+				print_zone_to_buf(&bf, world[ch->in_room]->zone_rn);
 			else if (*value1 && is_number(value) && is_number(value1)) {
 				// хотят зоны в диапазоне увидеть
 				int found = 0;
@@ -3679,8 +3679,8 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 11:        // show paths
 			if (self) {
-				std::string out = print_zone_exits(world[ch->in_room]->zone);
-				out += print_zone_enters(world[ch->in_room]->zone);
+				std::string out = print_zone_exits(world[ch->in_room]->zone_rn);
+				out += print_zone_enters(world[ch->in_room]->zone_rn);
 				page_string(ch->desc, out);
 			} else if (*value && is_number(value)) {
 				for (zvn = atoi(value), zrn = 0;
@@ -4966,10 +4966,10 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			snprintf(buf_, sizeof(buf_),
 					 "Список комнат от Vnum %d до %d\r\n", first, last);
 			out += buf_;
-			for (nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->number <= last); nr++) {
-				if (world[nr]->number >= first) {
+			for (nr = FIRST_ROOM; nr <= top_of_world && (world[nr]->room_vn <= last); nr++) {
+				if (world[nr]->room_vn >= first) {
 					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
-							 ++found, world[nr]->number, world[nr]->zone, world[nr]->name);
+							 ++found, world[nr]->room_vn, world[nr]->zone_rn, world[nr]->name);
 					out += buf_;
 					if (!world[nr]->proto_script->empty()) {
 						out += " - есть скрипты -";

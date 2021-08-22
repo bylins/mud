@@ -232,7 +232,7 @@ bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
 		return false;
 	}
 	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
-	get_zone_rooms(world[ch->in_room]->zone, &rnum_start, &rnum_stop);
+	get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_stop);
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 		ROOM_DATA *rm = world[rnum_start];
 		if (rm->contents) {
@@ -263,7 +263,7 @@ bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
 
 bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
 	const bool player_died = !IS_NPC(ch);
-	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone].under_construction;
+	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone_rn].under_construction;
 
 	if (!player_died
 		|| !zone_is_under_construction) {
@@ -318,7 +318,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 	if (stone_rebirth(ch, killer)) {
 		return;
 	}
-	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].vnum == 759)
+	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone_rn].vnum == 759)
 		&& (GET_LEVEL(ch) < 15)) //нуб помер в мадшколе
 	{
 		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
@@ -981,7 +981,7 @@ void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 	// Раздача опыта
 
 	// если групповой уровень зоны равняется единице
-	if (zone_table[world[killer->in_room]->zone].group < 2) {
+	if (zone_table[world[killer->in_room]->zone_rn].group < 2) {
 		// чтобы не абьюзили на суммонах, когда в группе на самом деле больше
 		// двух мемберов, но лишних реколят перед непосредственным рипом
 		use_partner_exp = total_group_members == 2;

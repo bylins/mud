@@ -387,14 +387,14 @@ void init_mob_name_list() {
 	int curr_zone = 0;
 	bool rent = false, mail = false, banker = false;
 	for (const auto i : world) {
-		if (curr_zone != zone_table[i->zone].vnum) {
+		if (curr_zone != zone_table[i->zone_rn].vnum) {
 			if (rent && mail && banker) {
 				bad_zones.insert(curr_zone);
 			}
 			rent = false;
 			mail = false;
 			banker = false;
-			curr_zone = zone_table[i->zone].vnum;
+			curr_zone = zone_table[i->zone_rn].vnum;
 		}
 
 		for (const auto ch : i->people) {

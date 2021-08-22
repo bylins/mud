@@ -67,8 +67,8 @@ struct ROOM_DATA {
 	ROOM_DATA();
 	~ROOM_DATA();
 
-	room_vnum number;    // Rooms number  (vnum)                //
-	zone_rnum zone;        // Room zone (for resetting)          //
+	room_vnum room_vn;    // Rooms number  (vnum)                //
+	zone_rnum zone_rn;        // Room zone (for resetting)          //
 	int sector_type;        // sector type (move/hide)            //
 	int sector_state;        //*** External, change by weather     //
 

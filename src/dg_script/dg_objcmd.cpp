@@ -512,7 +512,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
-		object->set_zone(world[room]->zone);
+		object->set_zone(world[room]->zone_rn);
 		obj_to_room(object.get(), room);
 		load_otrigger(object.get());
 	} else {
@@ -535,7 +535,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	dam = atoi(amount);
 
 	if ((ch = get_char_by_obj(obj, name))) {
-		if (world[ch->in_room]->zone != world[up_obj_where(obj)]->zone)
+		if (world[ch->in_room]->zone_rn != world[up_obj_where(obj)]->zone_rn)
 			return;
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT) {

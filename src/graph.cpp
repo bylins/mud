@@ -52,7 +52,7 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, int through_doors) {
 		return 0;
 
 	// Попытка уползти в другую зону
-	if (edge_range == EDGE_ZONE && (world[x]->zone != world[TOROOM(x, y)]->zone))
+	if (edge_range == EDGE_ZONE && (world[x]->zone_rn != world[TOROOM(x, y)]->zone_rn))
 		return 0;
 
 	if (through_doors == FALSE && IS_CLOSED(x, y))
@@ -89,6 +89,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 //		if (world[src]->zone != world[target]->zone)
 //			return (BFS_ERROR);
 
+		get_zone_rooms(world[src]->zone_rn, &rnum_start, &rnum_stop);
 		// Запрещаем мобам искать через двери ...
 		through_doors = FALSE;
 		if (MOB_FLAGGED(ch, MOB_STAY_ZONE)) {

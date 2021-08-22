@@ -68,7 +68,7 @@ int is_number(const char *str);
 
 #define TRANS_MOB(field)  item->cmd.field = mob_index[item->cmd.field].vnum
 #define TRANS_OBJ(field)  item->cmd.field = obj_proto[item->cmd.field]->get_vnum()
-#define TRANS_ROOM(field) item->cmd.field = world[item->cmd.field]->number
+#define TRANS_ROOM(field) item->cmd.field = world[item->cmd.field]->room_vn
 
 //------------------------------------------------------------------------
 
@@ -498,12 +498,12 @@ void zedit_save_to_disk(int zone_num) {
 		switch (ZCMD.command) {
 			case 'M': arg1 = mob_index[ZCMD.arg1].vnum;
 				arg2 = ZCMD.arg2;
-				arg3 = world[ZCMD.arg3]->number;
+				arg3 = world[ZCMD.arg3]->room_vn;
 				arg4 = ZCMD.arg4;
 				comment = mob_proto[ZCMD.arg1].get_npc_name().c_str();
 				break;
 
-			case 'F': arg1 = world[ZCMD.arg1]->number;
+			case 'F': arg1 = world[ZCMD.arg1]->room_vn;
 				arg2 = mob_index[ZCMD.arg2].vnum;
 				arg3 = mob_index[ZCMD.arg3].vnum;
 				comment = mob_proto[ZCMD.arg2].get_npc_name().c_str();
@@ -511,7 +511,7 @@ void zedit_save_to_disk(int zone_num) {
 
 			case 'O': arg1 = obj_proto[ZCMD.arg1]->get_vnum();
 				arg2 = ZCMD.arg2;
-				arg3 = world[ZCMD.arg3]->number;
+				arg3 = world[ZCMD.arg3]->room_vn;
 				arg4 = ZCMD.arg4;
 				comment = obj_proto[ZCMD.arg1]->get_short_description().c_str();
 				break;
@@ -543,13 +543,13 @@ void zedit_save_to_disk(int zone_num) {
 				comment = obj_proto[ZCMD.arg1]->get_short_description().c_str();
 				break;
 
-			case 'D': arg1 = world[ZCMD.arg1]->number;
+			case 'D': arg1 = world[ZCMD.arg1]->room_vn;
 				arg2 = ZCMD.arg2;
 				arg3 = ZCMD.arg3;
 				comment = world[ZCMD.arg1]->name;
 				break;
 
-			case 'R': arg1 = world[ZCMD.arg1]->number;
+			case 'R': arg1 = world[ZCMD.arg1]->room_vn;
 				arg2 = obj_proto[ZCMD.arg2]->get_vnum();
 				comment = obj_proto[ZCMD.arg2]->get_short_description().c_str();
 				arg3 = -1;
@@ -558,7 +558,7 @@ void zedit_save_to_disk(int zone_num) {
 			case 'T': arg1 = ZCMD.arg1;    // trigger type
 				arg2 = ZCMD.arg2;
 				if (arg1 == WLD_TRIGGER) {
-					arg3 = world[ZCMD.arg3]->number;
+					arg3 = world[ZCMD.arg3]->room_vn;
 					comment = world[ZCMD.arg3]->name;
 				}
 				break;

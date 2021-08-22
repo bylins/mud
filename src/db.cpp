@@ -2796,7 +2796,7 @@ void add_vrooms_to_all_zones() {
 
 		const room_vnum virtual_room_vnum = (it->vnum * 100) + 99;
 		const auto vroom_it = std::find_if(world.cbegin(), world.cend(), [virtual_room_vnum](ROOM_DATA *room) {
-			return room->number == virtual_room_vnum;
+			return room->room_vn == virtual_room_vnum;
 		});
 		if (vroom_it != world.cend()) {
 			log("Zone %d already contains virtual room.", it->vnum);
@@ -2807,15 +2807,15 @@ void add_vrooms_to_all_zones() {
 
 		// ищем место для вставки новой комнаты с конца, чтобы потом не вычитать 1 из результата
 		auto insert_reverse_position = std::find_if(world.rbegin(), world.rend(), [rnum](ROOM_DATA *room) {
-			return rnum >= room->zone;
+			return rnum >= room->zone_rn;
 		});
 		auto insert_position = (insert_reverse_position == world.rend()) ? world.begin() : insert_reverse_position.base();
 
 		top_of_world++;
 		ROOM_DATA *new_room = new ROOM_DATA;
 		world.insert(insert_position, new_room);
-		new_room->zone = rnum;
-		new_room->number = last_room;
+		new_room->zone_rn = rnum;
+		new_room->room_vn = last_room;
 		new_room->set_name(std::string("Виртуальная комната"));
 		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
 		new_room->clear_flags();
@@ -3039,7 +3039,7 @@ int dl_load_obj(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *chr, int DL_LOAD_TYP
 						break;
 				}
 				if (load) {
-					tobj->set_zone(world[ch->in_room]->zone);
+					tobj->set_zone(world[ch->in_room]->zone_rn);
 					tobj->set_parent(GET_MOB_VNUM(ch));
 					if (DL_LOAD_TYPE == DL_SKIN) {
 						trans_obj_name(tobj.get(), ch);
@@ -3369,7 +3369,7 @@ int vnum_room(char *searchname, CHAR_DATA *ch) {
 
 	for (nr = 0; nr <= top_of_world; nr++) {
 		if (isname(searchname, world[nr]->name)) {
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, world[nr]->number, world[nr]->name);
+			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, world[nr]->room_vn, world[nr]->name);
 			send_to_char(buf, ch);
 		}
 	}
@@ -3569,7 +3569,7 @@ void after_reset_zone(int nr_zone) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		// Чар должен быть в игре
 		if (STATE(d) == CON_PLAYING) {
-			if (world[d->character->in_room]->zone == nr_zone) {
+			if (world[d->character->in_room]->zone_rn == nr_zone) {
 				zone_table[nr_zone].used = true;
 				return;
 			}
@@ -3770,7 +3770,7 @@ void paste_mob(CHAR_DATA *ch, room_rnum room) {
 		month_ok |= no_month;
 		time_ok |= no_time;
 		if (month_ok && time_ok) {
-			if (world[room]->number != zone_table[world[room]->zone].top)
+			if (world[room]->room_vn != zone_table[world[room]->zone_rn].top)
 				return;
 
 			if (GET_LASTROOM(ch) == NOWHERE) {
@@ -3781,12 +3781,12 @@ void paste_mob(CHAR_DATA *ch, room_rnum room) {
 			char_from_room(ch);
 			char_to_room(ch, real_room(GET_LASTROOM(ch)));
 		} else {
-			if (world[room]->number == zone_table[world[room]->zone].top)
+			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top)
 				return;
 
 			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
 			char_from_room(ch);
-			room = real_room(zone_table[world[room]->zone].top);
+			room = real_room(zone_table[world[room]->zone_rn].top);
 
 			if (room == NOWHERE)
 				room = real_room(GET_LASTROOM(ch));
@@ -3867,7 +3867,7 @@ void paste_obj(OBJ_DATA *obj, room_rnum room) {
 		month_ok |= no_month;
 		time_ok |= no_time;
 		if (month_ok && time_ok) {
-			if (world[room]->number != zone_table[world[room]->zone].top) {
+			if (world[room]->room_vn != zone_table[world[room]->zone_rn].top) {
 				return;
 			}
 			if (OBJ_GET_LASTROOM(obj) == NOWHERE) {
@@ -3877,12 +3877,12 @@ void paste_obj(OBJ_DATA *obj, room_rnum room) {
 			obj_from_room(obj);
 			obj_to_room(obj, real_room(OBJ_GET_LASTROOM(obj)));
 		} else {
-			if (world[room]->number == zone_table[world[room]->zone].top) {
+			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top) {
 				return;
 			}
 			obj->set_room_was_in(GET_ROOM_VNUM(room));
 			obj_from_room(obj);
-			room = real_room(zone_table[world[room]->zone].top);
+			room = real_room(zone_table[world[room]->zone_rn].top);
 			if (room == NOWHERE) {
 				room = real_room(OBJ_GET_LASTROOM(obj));
 			}
@@ -3968,7 +3968,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj) {
 									obj_to_char(obj.get(), mob);
-									obj->set_zone(world[IN_ROOM(mob)]->zone);
+									obj->set_zone(world[IN_ROOM(mob)]->zone_rn);
 
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 										 it != (*load_in)->triggers.end(); ++it) {
@@ -4338,7 +4338,7 @@ void ZoneReset::reset_zone_essential() {
 							|| number(1, 100) <= ZCMD.arg4)
 						&& (obj_in_room < obj_in_room_max)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
-						obj->set_zone(world[ZCMD.arg3]->zone);
+						obj->set_zone(world[ZCMD.arg3]->zone_rn);
 
 						if (!obj_to_room(obj.get(), ZCMD.arg3)) {
 							extract_obj(obj.get());
@@ -4377,11 +4377,11 @@ void ZoneReset::reset_zone_essential() {
 						}
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 						if (obj_to->get_in_room() != NOWHERE) {
-							obj->set_zone(world[obj_to->get_in_room()]->zone);
+							obj->set_zone(world[obj_to->get_in_room()]->zone_rn);
 						} else if (obj_to->get_worn_by()) {
-							obj->set_zone(world[IN_ROOM(obj_to->get_worn_by())]->zone);
+							obj->set_zone(world[IN_ROOM(obj_to->get_worn_by())]->zone_rn);
 						} else if (obj_to->get_carried_by()) {
-							obj->set_zone(world[IN_ROOM(obj_to->get_carried_by())]->zone);
+							obj->set_zone(world[IN_ROOM(obj_to->get_carried_by())]->zone_rn);
 						}
 						obj_to_obj(obj.get(), obj_to);
 						load_otrigger(obj.get());
@@ -4408,7 +4408,7 @@ void ZoneReset::reset_zone_essential() {
 							|| number(1, 100) <= ZCMD.arg4)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 						obj_to_char(obj.get(), mob);
-						obj->set_zone(world[IN_ROOM(mob)]->zone);
+						obj->set_zone(world[IN_ROOM(mob)]->zone_rn);
 						tobj = obj.get();
 						load_otrigger(obj.get());
 						curr_state = 1;
@@ -4435,7 +4435,7 @@ void ZoneReset::reset_zone_essential() {
 							ZONE_ERROR("invalid equipment pos number");
 						} else {
 							const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
-							obj->set_zone(world[IN_ROOM(mob)]->zone);
+							obj->set_zone(world[IN_ROOM(mob)]->zone_rn);
 							obj->set_in_room(IN_ROOM(mob));
 							load_otrigger(obj.get());
 							if (wear_otrigger(obj.get(), mob, ZCMD.arg3)) {
@@ -4653,13 +4653,13 @@ int get_zone_rooms(int zone_nr, int *first, int *last) {
 	*first = 0;
 	auto numzone = zone_table[zone_nr].vnum * 100;
 	for (int nr = FIRST_ROOM; nr <= top_of_world; nr++) {
-		if (world[nr]->number >= numzone && *first == 0) {
-			*first = world[nr]->number;
+		if (world[nr]->room_vn >= numzone && *first == 0) {
+			*first = world[nr]->room_vn;
 		}
-		if (world[nr]->number >= numzone + 99) {
+		if (world[nr]->room_vn >= numzone + 99) {
 //			sprintf(buf, "worldnumber %d last %d nr ==%d zone %d", world[nr]->number, *last, nr,  zone_table[zone_nr].vnum * 100);
 //			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			*last = world[nr - 1]->number;
+			*last = world[nr - 1]->room_vn;
 			break;
 		}
 	}
@@ -4706,7 +4706,7 @@ bool is_empty(zone_rnum zone_nr) {
 			continue;
 		if (GET_LEVEL(i->character) >= LVL_IMMORT)
 			continue;
-		if (world[i->character->in_room]->zone != zone_nr)
+		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
 		return false;
 	}
@@ -4731,7 +4731,7 @@ bool is_empty(zone_rnum zone_nr) {
 
 		if (was == NOWHERE
 			|| GET_LEVEL(c) >= LVL_IMMORT
-			|| world[was]->zone != zone_nr) {
+			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}
 
@@ -5203,11 +5203,11 @@ room_rnum real_room(room_vnum vnum) {
 	for (;;) {
 		mid = (bot + top) / 2;
 
-		if (world[mid]->number == vnum)
+		if (world[mid]->room_vn == vnum)
 			return (mid);
 		if (bot >= top)
 			return (NOWHERE);
-		if (world[mid]->number > vnum)
+		if (world[mid]->room_vn > vnum)
 			top = mid - 1;
 		else
 			bot = mid + 1;

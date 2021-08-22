@@ -100,7 +100,7 @@ void redit_save_internally(DESCRIPTOR_DATA *d) {
 	int j, room_num, cmd_no;
 	OBJ_DATA *temp_obj;
 
-	room_num = real_room(OLC_ROOM(d)->number);
+	room_num = real_room(OLC_ROOM(d)->room_vn);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
 	OLC_ROOM(d)->description_num = RoomDescription::add_desc(OLC_ROOM(d)->temp_description);
 	// * Room exists: move contents over then free and replace it.
@@ -120,15 +120,15 @@ void redit_save_internally(DESCRIPTOR_DATA *d) {
 		int i = FIRST_ROOM;
 
 		for (; it != world.cend(); ++it, ++i) {
-			if ((*it)->number > OLC_NUM(d)) {
+			if ((*it)->room_vn > OLC_NUM(d)) {
 				break;
 			}
 		}
 
 		ROOM_DATA *new_room = new ROOM_DATA;
 		room_copy(new_room, OLC_ROOM(d));
-		new_room->number = OLC_NUM(d);
-		new_room->zone = OLC_ZNUM(d);
+		new_room->room_vn = OLC_NUM(d);
+		new_room->zone_rn = OLC_ZNUM(d);
 		new_room->func = NULL;
 		room_num = i; // рнум новой комнаты
 
@@ -299,7 +299,7 @@ void redit_save_to_disk(int zone_num) {
 			room->flags_tascii(4, buf2);
 			fprintf(fp, "#%d\n%s~\n%s~\n%d %s %d\n", counter,
 					room->name ? room->name : "неопределено", buf1,
-					zone_table[room->zone].vnum, buf2, room->sector_type);
+					zone_table[room->zone_rn].vnum, buf2, room->sector_type);
 
 			// * Handle exits.
 			for (counter2 = 0; counter2 < NUM_OF_DIRS; counter2++) {
@@ -337,7 +337,7 @@ void redit_save_to_disk(int zone_num) {
 							counter2, buf1, buf2,
 							room->dir_option[counter2]->exit_info, room->dir_option[counter2]->key,
 							room->dir_option[counter2]->to_room() != NOWHERE ?
-							world[room->dir_option[counter2]->to_room()]->number : NOWHERE,
+							world[room->dir_option[counter2]->to_room()]->room_vn : NOWHERE,
 							room->dir_option[counter2]->lock_complexity);
 
 					//Восстановим флаги направления в памяти
@@ -427,7 +427,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA *d) {
 			 "%s6%s) Очистить выход.\r\n"
 			 "Ваш выбор (0 - конец) : ",
 			 grn, nrm, cyn,
-			 OLC_EXIT(d)->to_room() != NOWHERE ? world[OLC_EXIT(d)->to_room()]->number : NOWHERE,
+			 OLC_EXIT(d)->to_room() != NOWHERE ? world[OLC_EXIT(d)->to_room()]->room_vn : NOWHERE,
 			 grn, nrm,
 			 yel,
 			 !OLC_EXIT(d)->general_description.empty() ? OLC_EXIT(d)->general_description.c_str() : "<NONE>",
@@ -523,22 +523,22 @@ void redit_disp_menu(DESCRIPTOR_DATA *d) {
 			 grn, room->temp_description,
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,
 			 room->dir_option[NORTH] && room->dir_option[NORTH]->to_room() != NOWHERE
-			 ? world[room->dir_option[NORTH]->to_room()]->number : NOWHERE,
+			 ? world[room->dir_option[NORTH]->to_room()]->room_vn : NOWHERE,
 			 grn, nrm, cyn,
 			 room->dir_option[EAST] && room->dir_option[EAST]->to_room() != NOWHERE
-			 ? world[room->dir_option[EAST]->to_room()]->number : NOWHERE,
+			 ? world[room->dir_option[EAST]->to_room()]->room_vn : NOWHERE,
 			 grn, nrm, cyn,
 			 room->dir_option[SOUTH] && room->dir_option[SOUTH]->to_room() != NOWHERE
-			 ? world[room->dir_option[SOUTH]->to_room()]->number : NOWHERE,
+			 ? world[room->dir_option[SOUTH]->to_room()]->room_vn : NOWHERE,
 			 grn, nrm, cyn,
 			 room->dir_option[WEST] && room->dir_option[WEST]->to_room() != NOWHERE
-			 ? world[room->dir_option[WEST]->to_room()]->number : NOWHERE,
+			 ? world[room->dir_option[WEST]->to_room()]->room_vn : NOWHERE,
 			 grn, nrm, cyn,
 			 room->dir_option[UP] && room->dir_option[UP]->to_room() != NOWHERE
-			 ? world[room->dir_option[UP]->to_room()]->number : NOWHERE,
+			 ? world[room->dir_option[UP]->to_room()]->room_vn : NOWHERE,
 			 grn, nrm, cyn,
 			 room->dir_option[DOWN] && room->dir_option[DOWN]->to_room() != NOWHERE
-			 ? world[room->dir_option[DOWN]->to_room()]->number : NOWHERE,
+			 ? world[room->dir_option[DOWN]->to_room()]->room_vn : NOWHERE,
 			 grn, nrm, grn, nrm, cyn,
 			 !room->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm);

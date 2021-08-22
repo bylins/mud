@@ -55,7 +55,7 @@ class WldTriggerLookup : public TriggerLookup {
 int WldTriggerLookup::lookup() {
 	auto result = false;
 	if (m_room) {
-		const auto room_rnum = real_room(m_room->number);
+		const auto room_rnum = real_room(m_room->room_vn);
 		result = finder().lookup_room(room_rnum);
 	}
 
