@@ -2097,6 +2097,10 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			break;
 
 		case MEDIT_DESTINATION: number = atoi(arg);
+			if (number == -1) {
+				OLC_MOB(d)->mob_specials.dest_count = 0;
+				break;
+			}
 			if ((plane = real_room(number)) == NOWHERE) {
 				send_to_char("Нет такой комнаты.\r\n", d->character.get());
 			} else {

@@ -400,7 +400,6 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			std::vector<room_vnum> predictive_path_vnum_list;
 			static const int max_path_size = 25;
 			room_vnum current_room = world[k->in_room]->room_vn;
-			predictive_path_vnum_list.push_back(current_room);
 			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > NOWHERE) {
 				const auto direction = find_first_step(real_room(current_room), real_room(GET_DEST(k)), k);
 				if (direction > 0) {
