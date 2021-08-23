@@ -2309,6 +2309,11 @@ void npc_group(CHAR_DATA *ch) {
 	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
 		return;
 
+	// ноугруп мобы не вступают в группу
+	if (MOB_FLAGGED(ch, MOB_NOGROUP)) {
+		return;
+	}
+
 	if (ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())) {
 		leader = ch->get_master();
@@ -2324,12 +2329,18 @@ void npc_group(CHAR_DATA *ch) {
 		leader = NULL;
 	}
 
+	// ноугруп моб не может быть лидером
+	if (MOB_FLAGGED(leader, MOB_NOGROUP)) {
+		leader = NULL;
+	}
+
 	// Find leader
 	for (const auto vict : world[ch->in_room]->people) {
 		if (!IS_NPC(vict)
 			|| GET_DEST(vict) != GET_DEST(ch)
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
+			|| MOB_FLAGGED(vict, MOB_NOGROUP)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 			|| GET_POS(vict) < POS_SLEEPING) {
 			continue;
