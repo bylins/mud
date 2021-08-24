@@ -334,8 +334,13 @@ int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
 	if (need_specials_check && special(ch, dir + 1, buf2, 1))
 		return (FALSE);
 
-	if (!CAN_GO(ch, dir))
-		return (FALSE);
+	// если нпц идет по маршруту - пропускаем проверку дверей
+	const bool npc_roamer = IS_NPC(ch) && (GET_DEST(ch) != NOWHERE) && (EXIT(ch,dir)->to_room() != NOWHERE);
+	if (!npc_roamer) {
+		if (!CAN_GO(ch, dir)) {
+			return (FALSE);
+		}
+	}
 
 	// не пускать в ванрумы после пк, если его там прибьет сразу
 	if (DeathTrap::check_tunnel_death(ch, EXIT(ch, dir)->to_room())) {

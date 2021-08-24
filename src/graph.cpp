@@ -46,8 +46,9 @@ struct bfs_queue_struct {
 #define IS_MARKED(room)    (ROOM_FLAGGED(room, ROOM_BFS_MARK))
 #define TOROOM(x, y)    (world[(x)]->dir_option[(y)]->to_room())
 #define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))
+#define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_LOCKED))
 
-int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_doors, bool through_notrack) {
+int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
 	if (world[x]->dir_option[y] == NULL || TOROOM(x, y) == NOWHERE)
 		return 0;
 
@@ -55,7 +56,10 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_doors, bool thro
 	if (edge_range == EDGE_ZONE && (world[x]->zone_rn != world[TOROOM(x, y)]->zone_rn))
 		return 0;
 
-	if (!through_doors && IS_CLOSED(x, y))
+	if (!through_closed_doors && IS_CLOSED(x, y))
+		return 0;
+
+	if (!through_locked_doors && IS_LOCKED(x, y))
 		return 0;
 
 	const bool respect_notrack = through_notrack ? false : ROOM_FLAGGED(TOROOM(x, y), ROOM_NOTRACK);
@@ -74,7 +78,8 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_doors, bool thro
  */
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 	int curr_dir, edge;
-	bool through_doors = false;
+	bool through_locked_doors = false;
+	bool through_closed_doors = false;
 	bool through_notrack = false;
 	room_rnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
 
@@ -92,8 +97,10 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 //		if (world[src]->zone != world[target]->zone)
 //			return (BFS_ERROR);
 
-		// Запрещаем мобам искать через двери ...
-		through_doors = false;
+		// Запрещаем мобам искать через запертые двери
+		through_locked_doors = false;
+		// если моб умеет открыть двери - ищем через закрытые двери
+		through_closed_doors = MOB_FLAGGED(ch, MOB_OPENDOOR);
 		// notrack мобам не помеха
 		through_notrack = true;
 		if (MOB_FLAGGED(ch, MOB_STAY_ZONE)) {
@@ -104,7 +111,8 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 		}
 	} else {
 		// Игроки полноценно ищут в мире.
-		through_doors = true;
+		through_locked_doors = true;
+		through_closed_doors = true;
 		// но не могут искать через notrack
 		through_notrack = false;
 		edge = EDGE_WORLD;
@@ -121,7 +129,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 
 	// first, enqueue the first steps, saving which direction we're going.
 	for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++) {
-		if (VALID_EDGE(src, curr_dir, edge, through_doors, through_notrack)) {
+		if (VALID_EDGE(src, curr_dir, edge, through_locked_doors, through_closed_doors, through_notrack)) {
 			MARK(TOROOM(src, curr_dir));
 			temp_queue.room = TOROOM(src, curr_dir);
 			temp_queue.dir = curr_dir;
@@ -137,7 +145,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 			return curr_dir;
 		} else {
 			for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++) {
-				if (VALID_EDGE(bfs_queue[i].room, curr_dir, edge, through_doors, through_notrack)) {
+				if (VALID_EDGE(bfs_queue[i].room, curr_dir, edge, through_locked_doors, through_closed_doors, through_notrack)) {
 					MARK(TOROOM(bfs_queue[i].room, curr_dir));
 					temp_queue.room = TOROOM(bfs_queue[i].room, curr_dir);
 					temp_queue.dir = bfs_queue[i].dir;
