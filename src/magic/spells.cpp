@@ -349,17 +349,19 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 
 	if (victim == NULL)
 		return;
-
+// закл же только у мобов
+/*
 	if (IS_NPC(victim)) { 
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
+
 	// если противник не может быть призван и уровень меньше цели - фэйл
 	if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-
+*/
 	// Для иммов обязательные для перемещения условия не существенны
 	if (!IS_GOD(ch)) {
 		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
@@ -403,13 +405,14 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-	check_auto_nosummon(victim);
+//	check_auto_nosummon(victim);
 	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
-	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
+//	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
+/*
 	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch))) {
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
@@ -422,6 +425,8 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	} else {
 		WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 	}
+*/
+	WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }
