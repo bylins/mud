@@ -1596,7 +1596,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 				case 'y':
 				case 'Y': OLC_MODE(d) = MEDIT_DESTINATION;
-					i++;
+					send_to_char("\r\nВведите новое значение (-1 очистить все): ", d->character.get());
 					break;
 
 				case 'z':
