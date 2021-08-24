@@ -89,7 +89,7 @@ const char *trig_types[] = {"Global",
 const char *otrig_types[] = {"Global",
 							 "Random",
 							 "Command",
-							 "UNUSED",
+							 "Разрушился",
 							 "UNUSED",
 							 "Timer",
 							 "Get",
@@ -1067,7 +1067,18 @@ void load_otrigger(OBJ_DATA *obj) {
 		if (TRIGGER_CHECK(t, OTRIG_LOAD)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			break;
+		}
+	}
+}
 
+void purge_otrigger(OBJ_DATA *obj) {
+	if (!SCRIPT_CHECK(obj, OTRIG_PURGE)) {
+		return;
+	}
+	for (auto t : obj->get_script()->trig_list) {
+		if (TRIGGER_CHECK(t, OTRIG_PURGE) && (number(1, 100) <= GET_TRIG_NARG(t))) {
+			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 			break;
 		}
 	}
@@ -1087,7 +1098,6 @@ int pick_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
 			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 		}
 	}
-
 	return 1;
 }
 

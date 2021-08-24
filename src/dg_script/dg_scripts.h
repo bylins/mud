@@ -57,7 +57,7 @@ extern const char *attach_name[];
 #define OTRIG_GLOBAL           (1 << 0)    // unused                     //
 #define OTRIG_RANDOM           (1 << 1)    // checked randomly           //
 #define OTRIG_COMMAND          (1 << 2)    // character types a command  //
-
+#define OTRIG_PURGE           (1 << 3)    // object purge  //
 #define OTRIG_TIMER            (1 << 5)    // item's timer expires       //
 #define OTRIG_GET              (1 << 6)    // item is picked up          //
 #define OTRIG_DROP             (1 << 7)    // character trys to drop obj //
@@ -351,6 +351,7 @@ void random_wtrigger(ROOM_DATA *room, int num, void *s, int types, const Trigger
 void reset_wtrigger(ROOM_DATA *ch);
 void load_mtrigger(CHAR_DATA *ch);
 void load_otrigger(OBJ_DATA *obj);
+void purge_otrigger(OBJ_DATA *obj);
 void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
 void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
 void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
