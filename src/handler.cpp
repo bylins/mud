@@ -1662,6 +1662,9 @@ void extract_obj(OBJ_DATA *obj) {
 
 	// Get rid of the contents of the object, as well.
 	// Обработка содержимого контейнера при его уничтожении
+
+	purge_otrigger(obj);
+
 	while (obj->get_contains()) {
 		temp = obj->get_contains();
 		obj_from_obj(temp);
@@ -1698,6 +1701,7 @@ void extract_obj(OBJ_DATA *obj) {
 			log("SYSERR: Inconsistent worn_by and worn_on pointers!!");
 		}
 	}
+
 	if (obj->get_in_room() != NOWHERE) {
 		obj_from_room(obj);
 	} else if (obj->get_carried_by()) {
