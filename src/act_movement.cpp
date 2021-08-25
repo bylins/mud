@@ -335,7 +335,7 @@ int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
 		return (FALSE);
 
 	// если нпц идет по маршруту - пропускаем проверку дверей
-	const bool npc_roamer = IS_NPC(ch) && (GET_DEST(ch) != NOWHERE) && (EXIT(ch,dir)->to_room() != NOWHERE);
+	const bool npc_roamer = IS_NPC(ch) && (GET_DEST(ch) != NOWHERE) && (EXIT(ch, dir) && EXIT(ch, dir)->to_room() != NOWHERE);
 	if (!npc_roamer) {
 		if (!CAN_GO(ch, dir)) {
 			return (FALSE);
