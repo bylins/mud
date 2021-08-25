@@ -402,7 +402,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			room_vnum current_room = world[k->in_room]->room_vn;
 			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > NOWHERE) {
 				const auto direction = find_first_step(real_room(current_room), real_room(GET_DEST(k)), k);
-				if (direction > 0) {
+				if (direction >= 0) {
 					const auto exit_room_rnum = world[real_room(current_room)]->dir_option[direction]->to_room();
 					current_room = world[exit_room_rnum]->room_vn;
 					predictive_path_vnum_list.push_back(current_room);
