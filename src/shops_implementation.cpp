@@ -352,6 +352,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 		}
 
 		if (obj) {
+			load_otrigger(obj);
 			if (GET_OBJ_ZONE(obj) == NOWHERE) {
 				obj->set_zone(world[ch->in_room]->zone_rn);
 			}
