@@ -1270,45 +1270,23 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			break;
 
 		case SPELL_FASCINATION:
-			if (affected_by_spell(ch, SPELL_FASCINATION)) {
-				send_to_char(NOEFFECT, ch);
-				success = FALSE;
-				break;
-			}
 			if (material_component_processing(ch, victim, spellnum)) {
 				success = FALSE;
 				break;
 			}
-
 			af[0].location = APPLY_CHA;
-			rnd = number(1, 10);
-			if (rnd < 4) {
-				rnd = number(0, 4);
-				af[0].modifier = -rnd;    //(  10 - int(GET_REMORT(victim)/2));
-			} else {
-				rnd = number(0, 15);
-				if (rnd < 1)
-					af[0].modifier = 4;    //(  10 - int(GET_REMORT(victim)/2));
-				else if (rnd < 4)
-					af[0].modifier = 3;
-				else if (rnd < 8)
-					af[0].modifier = 2;
-				else if (rnd < 15)
-					af[0].modifier = 1;
-				else
-					af[0].modifier = 0;
-			}
-			if (af[0].modifier > 0) {
-				af[0].modifier = af[0].modifier / int((GET_REMORT(ch) + 3) / 3);    //модификатор мортов
-			}
-			af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+			af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT*GET_REMORT(ch), 1, 0, 0) * koef_duration;
+			if (ch == victim)
+				af[0].modifier = (level + 9) / 10 + koef_modifier + GET_REMORT(ch) / 5;
+			else
+				af[0].modifier = (level + 14) / 15 + koef_modifier + GET_REMORT(ch) / 5;
 			accum_duration = TRUE;
-			to_vict =
-				"Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
-			to_room =
-				"$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
-
+			accum_affect = TRUE;
+			to_room = "$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
+			to_vict = "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\n Хотя вы ее не очень то слушали.\r\n";
+			spellnum = SPELL_FASCINATION;
 			break;
+
 
 		case SPELL_GROUP_BLESS:
 		case SPELL_BLESS: af[0].location = APPLY_SAVING_STABILITY;
