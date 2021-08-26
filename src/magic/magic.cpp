@@ -932,8 +932,7 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 	const char *missing = nullptr, *use = nullptr, *exhausted = nullptr;
 	switch (spellnum) {
 		case SPELL_FASCINATION: vnum = 3000;
-			use =
-				"Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
+			use = "Вы взяли череп летучей мыши в левую руку.\r\n";
 			missing = "Батюшки светы! А помаду-то я дома забыл$g.\r\n";
 			exhausted = "$o рассыпался в ваших руках от неловкого движения.\r\n";
 			break;
@@ -1283,7 +1282,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			accum_duration = TRUE;
 			accum_affect = TRUE;
 			to_room = "$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
-			to_vict = "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\n Хотя вы ее не очень то слушали.\r\n";
+			to_vict = "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
 			spellnum = SPELL_FASCINATION;
 			break;
 
@@ -3285,7 +3284,6 @@ inline bool NODISPELL(const AFFECT_DATA<EApplyLocation>::shared_ptr &affect) {
 		|| affect->bitvector == to_underlying(EAffectFlag::AFF_CHARM)
 		|| affect->type == SPELL_CHARM
 		|| affect->type == SPELL_QUEST
-		|| affect->type == SPELL_FASCINATION
 		|| affect->type == SPELL_PATRONAGE
 		|| affect->type == SPELL_SOLOBONUS
 		|| affect->type == SPELL_EVILESS;
