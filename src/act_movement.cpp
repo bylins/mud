@@ -1200,7 +1200,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 		deaf = true;
 	// ищем парную дверь в другой клетке
 	ROOM_DATA::exit_data_ptr back;
-	if (!obj && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE)) {
+	if (!obj && EXIT(ch, door) && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE)) {
 		back = world[other_room]->dir_option[rev_dir[door]];
 		if (back) {
 			if ((back->to_room() != ch->in_room)
