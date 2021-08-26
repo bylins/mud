@@ -2330,7 +2330,8 @@ void npc_group(CHAR_DATA *ch) {
 	}
 
 	// ноугруп моб не может быть лидером
-	if (MOB_FLAGGED(leader, MOB_NOGROUP)) {
+	if (leader
+		&& MOB_FLAGGED(leader, MOB_NOGROUP)) {
 		leader = NULL;
 	}
 
