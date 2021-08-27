@@ -235,6 +235,13 @@ float func_koef_modif(int spellnum, int percent) {
 			}
 		}
 			break;
+		case SPELL_FASCINATION:
+		case SPELL_HYPNOTIC_PATTERN: 
+			if (percent >= 80) {
+				return (percent - 80) / 20.00 + 1.00;
+			}
+			return 1;
+			break;
 		default: return 1;
 	}
 	return 0;
@@ -1276,9 +1283,9 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			af[0].location = APPLY_CHA;
 			af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT*GET_REMORT(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + koef_modifier + GET_REMORT(ch) / 5;
+				af[0].modifier = (level + 9) / 10 + koef_modifier;
 			else
-				af[0].modifier = (level + 14) / 15 + koef_modifier + GET_REMORT(ch) / 5;
+				af[0].modifier = (level + 14) / 15 + koef_modifier;
 			accum_duration = TRUE;
 			accum_affect = TRUE;
 			to_room = "$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
