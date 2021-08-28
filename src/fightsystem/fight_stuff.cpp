@@ -23,6 +23,8 @@
 #include "zone.table.h"
 #include "chars/char_player.h"
 
+#include <algorithm>
+
 // extern
 void perform_drop_gold(CHAR_DATA *ch, int amount);
 int level_exp(CHAR_DATA *ch, int chlevel);
@@ -93,6 +95,33 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 			&& partner_feat == 1 && total_group_members == 2) {
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 			partner->mobmax_add(partner, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+		} else if (total_group_members > 12) {
+			// динамический штраф к замаксу на большие группы (с полководцем >12 человек)
+			// +1 человек к замаксу за каждые 4 мембера свыше 12
+			// итого: (13-15)->2 (16-19)->3 20->4
+			const int above_limit = total_group_members - 12;
+			const int mobmax_members = (above_limit / 4) + 2;
+
+			// выбираем всех мемберов в группе в комнате с убивецом
+			std::vector<CHAR_DATA *> members_to_mobmax;
+			if (IN_ROOM(master) == IN_ROOM(killer)) {
+				members_to_mobmax.push_back(master);
+			}
+			for (struct follow_type *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+					members_to_mobmax.push_back(f->follower);
+				}
+			}
+
+			// случайно выбираем на замакс
+			std::random_shuffle(members_to_mobmax.begin(), members_to_mobmax.end());
+			const int actual_size_to_mobmax = std::min(static_cast<int>(members_to_mobmax.size()), mobmax_members);
+			members_to_mobmax.resize(actual_size_to_mobmax);
+
+			for (const auto &member : members_to_mobmax) {
+				member->mobmax_add(member, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+			}
 		} else {
 			// выберем случайным образом мембера группы для замакса
 			auto n = number(0, cnt);
