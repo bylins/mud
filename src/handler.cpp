@@ -312,19 +312,15 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 	if (affect_on_room != world[room]->affected.end()) {
 		CHAR_DATA *caster = find_char((*affect_on_room)->caster_id);
 		if (!same_group(ch, caster)
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND){
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
+			&& (number(1, 100) <= 30)) // 30% шанс что враг уснет
+		{
 			if (ch->has_master()
 				&& !IS_NPC(ch->get_master())
 				&& IS_NPC(ch)) {
 				return;
 			}
-			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего
-			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
-			// иначе пве, и просто кастим сон на входящего
-			if (!IS_NPC(ch) && (number (1, 100) >= (23 + 2*func_koef_modif(SPELL_HYPNOTIC_PATTERN, caster->get_skill(get_magic_skill_number_by_spell(SPELL_HYPNOTIC_PATTERN))))) ) { 
-				return;
-			}
-			
+
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.", ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
 				TRUE,
