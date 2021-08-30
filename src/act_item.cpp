@@ -133,7 +133,7 @@ int perform_put(CHAR_DATA *ch, OBJ_DATA::shared_ptr obj, OBJ_DATA *cont) {
 	} else {
 		obj_from_char(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
-		if (obj->get_type() == OBJ_DATA::ITEM_MONEY && obj->get_vnum() == -1) {
+		if (obj->get_type() == OBJ_DATA::ITEM_MONEY && obj->get_rnum() == 0) {
 			OBJ_DATA *temp, *obj_next;
 			for (temp = cont->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
