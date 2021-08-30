@@ -235,6 +235,19 @@ float func_koef_modif(int spellnum, int percent) {
 			}
 		}
 			break;
+		case SPELL_SONICWAVE:
+			if (percent > 100) {
+				return (percent - 80) / 20.00; // после 100% идет прибавка
+			}
+			return 1;
+			break;
+		case SPELL_FASCINATION:
+		case SPELL_HYPNOTIC_PATTERN: 
+			if (percent >= 80) {
+				return (percent - 80) / 20.00 + 1.00;
+			}
+			return 1;
+			break;
 		default: return 1;
 	}
 	return 0;
@@ -332,7 +345,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 //     modi = 0;
 	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
 		modi = modi - 50;
-
+	// вводим переменную-модификатор владения школы магии	
+	const int mag_school_modif = func_koef_modif(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum))); // к кубикам от % владения магии 
 	switch (spellnum) {
 		// ******** ДЛЯ ВСЕХ МАГОВ ********
 		// магическая стрела - для всех с 1го левела 1го круга(8 слотов)
@@ -416,9 +430,9 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			break;
 
 		case SPELL_SONICWAVE: savetype = SAVING_STABILITY;
-			ndice = 6;
+			ndice = 5 + mag_school_modif;
 			sdice = 8;
-			adice = (level - 25) * 3;
+			adice = level/3 + 2*mag_school_modif;
 			if (GET_POS(victim) > POS_SITTING &&
 				!WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, CALC_SUCCESS(modi, 60)))) {
@@ -1276,9 +1290,9 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			af[0].location = APPLY_CHA;
 			af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT*GET_REMORT(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + koef_modifier + GET_REMORT(ch) / 5;
+				af[0].modifier = (level + 9) / 10 + koef_modifier;
 			else
-				af[0].modifier = (level + 14) / 15 + koef_modifier + GET_REMORT(ch) / 5;
+				af[0].modifier = (level + 14) / 15 + koef_modifier;
 			accum_duration = TRUE;
 			accum_affect = TRUE;
 			to_room = "$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
