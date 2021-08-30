@@ -65,6 +65,8 @@ int mag_creations(int level, CHAR_DATA *ch, int spellnum);
 int mag_single_target(int level, CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, int spellnum, int casttype);
 
 bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
+float func_koef_duration(int spellnum, int percent); 
+float func_koef_modif(int spellnum, int percent);
 
 #endif
 
