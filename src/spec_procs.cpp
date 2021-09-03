@@ -1873,17 +1873,23 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 	retval = perform_move(ch, dir, 1, FALSE, 0);
 
 	if (need_close) {
-		if (retval)
-			do_doorcmd(ch, 0, rev_dir[dir], SCMD_CLOSE);
-		else
-			do_doorcmd(ch, 0, dir, SCMD_CLOSE);
+		const int close_direction = retval ? rev_dir[dir] : dir;
+		// закрываем за собой только существующую дверь
+		if (EXIT(ch, close_direction) &&
+			EXIT_FLAGGED(EXIT(ch, close_direction), EX_ISDOOR) &&
+			EXIT(ch, close_direction)->to_room() != NOWHERE) {
+			do_doorcmd(ch, 0, close_direction, SCMD_CLOSE);
+		}
 	}
 
 	if (need_lock) {
-		if (retval)
-			do_doorcmd(ch, 0, rev_dir[dir], SCMD_LOCK);
-		else
-			do_doorcmd(ch, 0, dir, SCMD_LOCK);
+		const int lock_direction = retval ? rev_dir[dir] : dir;
+		// запираем за собой только существующую дверь
+		if (EXIT(ch, lock_direction) &&
+			EXIT_FLAGGED(EXIT(ch, lock_direction), EX_ISDOOR) &&
+			EXIT(ch, lock_direction)->to_room() != NOWHERE) {
+			do_doorcmd(ch, 0, lock_direction, SCMD_LOCK);
+		}
 	}
 
 	return (retval);
