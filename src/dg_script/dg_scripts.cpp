@@ -2859,6 +2859,24 @@ void find_replacement(void *go,
 			} else {
 				sprintf(str, "%d", GET_OBJ_RENTEQ(o));
 			}
+		} else if (!str_cmp(field, "objs")) {
+			if (o->get_type() == OBJ_DATA::ITEM_CONTAINER) {
+				size_t str_length = strlen(str);
+				for (auto temp = o->get_contains(); temp; temp = temp->get_next_content()) {
+					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, temp->get_id());
+					if (str_length + n < MAX_INPUT_LENGTH) { // not counting the terminating null character
+					strcpy(str + str_length, tmp);
+					str_length += n;
+					} else {
+						sprintf(buf2, "Предмет VNUM %d данные переполнены, далее содержимое не учитывается", GET_OBJ_VNUM(o));
+						trig_log(trig, buf2);
+						break; // too many carying objects
+					}
+				}
+			} else {
+				sprintf(buf2, "Предмет VNUM %d не контейнер, поля 'objs' нет.", GET_OBJ_VNUM(o));
+				trig_log(trig, buf2);
+			}
 		} else //get global var. obj.varname
 		{
 			vd = find_var_cntx(&o->get_script()->global_vars, field, sc->context);
