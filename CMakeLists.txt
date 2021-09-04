@@ -193,6 +193,7 @@ set(SOURCES
 		src/skills/morph.cpp
 		src/skills/block.cpp
 		src/skills/parry.cpp
+		src/skills/pick.cpp
 		src/skills/poison.cpp
 		src/skills/protect.cpp
 		src/skills/expendientcut.cpp
@@ -257,6 +258,7 @@ set(HEADERS
 		src/skills/block.h
 		src/skills/protect.h
 		src/skills/parry.h
+		src/skills/pick.h
 		src/skills/throw.h
 		src/skills/ironwind.h
 		src/skills/disarm.h
