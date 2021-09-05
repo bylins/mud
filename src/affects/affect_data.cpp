@@ -174,8 +174,7 @@ void pulse_affect_update(CHAR_DATA *ch) {
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
 					if (affect->type > 0
-						&& affect->type <= SPELLS_COUNT
-						&& *spell_wear_off_msg[affect->type]) {
+						&& affect->type <= SPELLS_COUNT) {
 						show_spell_off(affect->type, ch);
 					}
 				}
@@ -224,8 +223,7 @@ void player_affect_update() {
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
 						if (affect->type > 0
-							&& affect->type <= SPELLS_COUNT
-							&& *spell_wear_off_msg[affect->type]) {
+							&& affect->type <= SPELLS_COUNT) {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
 							if (!(affect->type == SPELL_MAGICBATTLE
@@ -280,7 +278,7 @@ void battle_affect_update(CHAR_DATA *ch) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
-					if (affect->type > 0 && affect->type <= SPELLS_COUNT && *spell_wear_off_msg[affect->type])
+					if (affect->type > 0 && affect->type <= SPELLS_COUNT)
 						show_spell_off(affect->type, ch);
 				}
 			}
@@ -333,8 +331,7 @@ void mobile_affect_update() {
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
 							if (affect->type > 0
-								&& affect->type <= SPELLS_COUNT
-								&& *spell_wear_off_msg[affect->type]) {
+								&& affect->type <= SPELLS_COUNT) {
 								show_spell_off(affect->type, i.get());
 								if (affect->type == SPELL_CHARM
 									|| affect->bitvector == to_underlying(EAffectFlag::AFF_CHARM)) {

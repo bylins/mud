@@ -152,8 +152,10 @@ int removeControlledRoomAffect(CHAR_DATA *ch) {
 }
 
 void sendAffectOffMessageToRoom(int affectType, room_rnum room) {
-	if (affectType > 0 && affectType <= SPELLS_COUNT && *spell_wear_off_msg[affectType]) {
-		send_to_room(spell_wear_off_msg[affectType], room, 0);
+	// TODO:" refactor and replace int affectType by ESpell
+	const std::string &msg = get_wear_off_text(static_cast<ESpell>(affectType));
+	if (affectType > 0 && affectType <= SPELLS_COUNT && !msg.empty()) {
+		send_to_room(msg.c_str(), room, 0);
 	};
 }
 

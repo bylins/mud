@@ -35,6 +35,8 @@
 #include "skills_info.h"
 
 #include <boost/format.hpp>
+#include <map>
+#include <utility>
 
 extern room_rnum r_mortal_start_room;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -2024,555 +2026,554 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 	return;
 }
 
-const char *spell_wear_off_msg_t::DEFAULT_MESSAGE = "!нет сообщения при спадении аффекта под номером %d!";
-char spell_wear_off_msg_t::MESSAGE_BUFFER[spell_wear_off_msg_t::MESSAGE_BUFFER_LENGTH];
-const spell_wear_off_msg_t spell_wear_off_msg =
-	{
-		"RESERVED DB.C",    // 0
-		"Вы почувствовали себя менее защищенно.",    // 1
-		"!Teleport!",
-		"Вы почувствовали себя менее доблестно.",
-		"Вы вновь можете видеть.",
-		"!Burning Hands!",    // 5
-		"!Call Lightning",
-		"Вы подчиняетесь теперь только себе.",
-		"Вы отметили, что силы вернулись к вам.",
-		"!Clone!",
-		"!Color Spray!",    // 10
-		"!Control Weather!",
-		"!Create Food!",
-		"!Create Water!",
-		"!Cure Blind!",
-		"!Cure Critic!",    // 15
-		"!Cure Light!",
-		"Вы почувствовали себя более уверенно.",
-		"Вы более не можете определять наклонности.",
-		"Вы не в состоянии больше видеть невидимых.",
-		"Вы не в состоянии более определять магию.",    // 20
-		"Вы не в состоянии более определять яды.",
-		"!Dispel Evil!",
-		"!Earthquake!",
-		"!Enchant Weapon!",
-		"!Energy Drain!",    // 25
-		"!Fireball!",
-		"!Harm!",
-		"!Heal!",
-		"Вы вновь видимы.",
-		"!Lightning Bolt!",    // 30
-		"!Locate object!",
-		"!Magic Missile!",
-		"В вашей крови не осталось ни капельки яда.",
-		"Вы вновь ощущаете страх перед тьмой.",
-		"!Remove Curse!",    // 35
-		"Белая аура вокруг вашего тела угасла.",
-		"!Shocking Grasp!",
-		"Вы не чувствуете сонливости.",
-		"Вы чувствуете себя немного слабее.",
-		"!Summon!",        // 40
-		"Вы утратили покровительство высших сил.",
-		"!Word of Recall!",
-		"!Remove Poison!",
-		"Вы больше не можете чувствовать жизнь.",
-		"!Animate Dead!",    // 45
-		"!Dispel Good!",
-		"!Group Armor!",
-		"!Group Heal!",
-		"!Group Recall!",
-		"Вы больше не можете видеть ночью.",    // 50
-		"Вы больше не можете ходить по воде.",
-		"!SPELL CURE SERIOUS!",
-		"!SPELL GROUP STRENGTH!",
-		"К вам вернулась способность двигаться.",
-		"!SPELL POWER HOLD!",    // 55
-		"!SPELL MASS HOLD!",
-		"Вы приземлились на землю.",
-		"Вы вновь стали уязвимы для оцепенения.",
-		"Вы опять можете сбежать с поля боя.",
-		"!SPELL CREATE LIGHT!",    // 60
-		"Облако тьмы, окружающее вас, спало.",
-		"Ваша кожа вновь стала мягкой и бархатистой.",
-		"Ваши очертания приобрели отчетливость.",
-		"Теперь вы можете болтать, все что думаете.",
-		"Ваше тело перестало светиться.",    // 65
-		"!SPELL CHAIN LIGHTNING!",
-		"!SPELL FIREBLAST!",
-		"!SPELL IMPLOSION!",
-		"Силы вернулись к вам.",
-		"!SPELL GROUP INVISIBLE!",    // 70
-		"Ваша теневая мантия замерцала и растаяла.",
-		"!SPELL ACID!",
-		"!SPELL REPAIR!",
-		"Ваши размеры стали прежними.",
-		"!SPELL FEAR!",        // 75
-		"!SPELL SACRIFICE!",
-		"Магическая сеть, покрывавшая вас, исчезла.",
-		"Вы перестали мигать.",
-		"!SPELL REMOVE HOLD!",
-		"Вы стали вновь похожи сами на себя.",    // 80
-		"!SPELL POWER BLINDNESS!",
-		"!SPELL MASS BLINDNESS!",
-		"!SPELL POWER SIELENCE!",
-		"!SPELL EXTRA HITS!",
-		"!SPELL RESSURECTION!",    // 85
-		"Ваш волшебный щит рассеялся.",
-		"Магия, запечатывающая входы, пропала.",
-		"!SPELL MASS SIELENCE!",
-		"!SPELL REMOVE SIELENCE!",
-		"!SPELL DAMAGE LIGHT!",    // 90
-		"!SPELL DAMAGE SERIOUS!",
-		"!SPELL DAMAGE CRITIC!",
-		"!SPELL MASS CURSE!",
-		"!SPELL ARMAGEDDON!",
-		"!SPELL GROUP FLY!",    // 95
-		"!SPELL GROUP BLESS!",
-		"!SPELL REFRESH!",
-		"!SPELL STUNNING!",
-		"Вы стали заметны окружающим.",
-		"Ваши передвижения стали заметны.",    // 100
-		"Кураж прошел. Мама, лучше бы я умер$q вчера.",
-		"А головка ваша уже не болит.",
-		"Вам снова захотелось жареного, да с дымком.",
-		"Вы согрелись и подвижность вернулась к вам.",
-		"К вам вернулась способность нормально сражаться.",    // 105
-		"Ваши кровоточащие раны затянулись.",
-		"Вы успокоились.",
-		"Вы более не способны дышать водой.",
-		"Медлительность исчезла.",
-		"Вы стали более медлительны.",    // 110
-		"!SPELL MASS SLOW!",
-		"!SPELL MASS HASTE!",
-		"Голубой кокон вокруг вашего тела угас.",
-		"Лихорадка прекратилась.",
-		"!SPELL CURE PLAQUE!",    // 115
-		"Вы стали менее внимательны.",
-		"Вы утратили расположение Богов.",
-		"Ваш воздушный щит исчез.",
-		"!PORTAL!",
-		"!DISPELL MAGIC!",    // 120
-		"!SUMMON KEEPER!",
-		"Живительная сила покинула вас.",
-		"!CREATE WEAPON!",
-		"Огненный щит вокруг вашего тела исчез.",
-		"!RELOCATE!",        // 125
-		"!SUMMON FIREKEEPER!",
-		"Ледяной щит вокруг вашего тела исчез.",
-		"Ваши мышцы оттаяли и вы снова можете двигаться.",
-		"Ваши размеры вновь стали прежними.",
-		"!SHINE LIGHT!",    // 130
-		"Безумие боя отпустило вас.",
-		"!GROUP MAGICGLASS!",
-		"Облако стрел вокруг вас рассеялось.",
-		"!VACUUM!",
-		"Последний громовой камень грянул в землю и все стихло.",    // 135 SPELL_METEORSTORM
-		"Ваши руки вернулись к прежнему состоянию.",
-		"Ваш разум просветлел.",
-		"Призматическая аура вокруг вашего тела угасла.",
-		"Силы зла оставили вас.",
-		"Воздушная аура вокруг вас исчезла.",    // 140
-		"Огненная аура вокруг вас исчезла.",
-		"Ледяная аура вокруг вас исчезла.",
-		"!SHOCK!",
-		"Вы вновь чувствительны к магическим поражениям.",
-		"!SPELL GROUP SANCTUARY!",    // 145
-		"!SPELL GROUP PRISMATICAURA!",
-		"Вы вновь можете слышать.",
-		"!SPELL_POWER_DEAFNESS!",
-		"!SPELL_REMOVE_DEAFNESS!",
-		"!SPELL_MASS_DEAFNESS!",    // 150
-		"!SPELL_DUSTSTORM!",
-		"!SPELL_EARTHFALL!",
-		"!SPELL_SONICWAVE!",
-		"!SPELL_HOLYSTRIKE!",
-		"!SPELL_SPELL_ANGEL!",                 // 155
-		"!SPELL_SPELL_MASS_FEAR!",
-		"Ваша красота куда-то пропала.",
-		"Ваша душа успокоилась.",
-		"!SPELL_OBLIVION!",
-		"!SPELL_BURDEN_OF_TIME!",        // 160
-		"!SPELL_GROUP_REFRESH!",
-		"Смирение в вашей душе вдруг куда-то исчезло.",
-		"К вам вернулась способность нормально сражаться.",
-		"Неистовство оставило вас.",
-		"!stone bones!",               // 165
-		"Колдовской свет угас.",          // SPELL_ROOM_LIGHT - строка при снятии аффекта
-		"Порыв ветра развеял ядовитый туман.",   // SPELL_POISONED_FOG - строка при снятии аффекта
-		"Ветер прогнал грозовые тучи.",         // SPELL_THUNDERSTORM - строка при снятии аффекта
-		"Ваши следы вновь стали заметны.",
-		"Удача вновь вернулась к вам.",        // 170
-		"Магические чары ослабели со временем и покинули вас.",
-		"Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе.", // SPELL_GLITTERDUST
-		"Леденящий душу испуг отпустил вас.",
-		"Ваши движения утратили прежнюю колдовскую ловкость.",
-		"Ваше телосложение вновь стало обычным.",
-		"Вы утратили навеянную магией мудрость.",
-		"Навеянная магией хитрость покинула вас.",
-		"!SPELL_WC_OF_CHALLENGE!",
-		"",        // SPELL_WC_OF_MENACE
-		"!SPELL_WC_OF_RAGE!",
-		"",        // SPELL_WC_OF_MADNESS
-		"!SPELL_WC_OF_THUNDER!",
-		"Действие клича 'призыв к обороне' закончилось.", //SPELL_WC_OF_DEFENSE
-		"Действие клича битвы закончилось.",        // SPELL_WC_OF_BATTLE
-		"Действие клича мощи закончилось.",        // SPELL_WC_OF_POWER
-		"Действие клича доблести закончилось.",        // SPELL_WC_OF_BLESS
-		"Действие клича отваги закончилось.",        // SPELL_WC_OF_COURAGE
-		"Магические письмена на земле угасли.",         // SPELL_RUNE_LABEL
-		"В вашей крови не осталось ни капельки яда.", // SPELL_ACONITUM_POISON
-		"В вашей крови не осталось ни капельки яда.", // SPELL_SCOPOLIA_POISON
-		"В вашей крови не осталось ни капельки яда.", // SPELL_BELENA_POISON
-		"В вашей крови не осталось ни капельки яда.",  // SPELL_DATURA_POISON
-		"SPELL_TIMER_REPAIR",
-		"!SPELL_LACKY!",
-		"Вы аккуратно перевязали свои раны.",
-		"Вы снова можете перевязывать свои раны.",
-		"!SPELL_CAPABLE!",
-		"Удушье отпустило вас, и вы вздохнули полной грудью.", //SPELL_STRANGLE
-		"Вам стало не на чем концентрироваться.", //SPELL_RECALL_SPELLS
-		"Плывший в воздухе огненный узор потускнел и растаял струйками дыма.", //SPELL_HYPNOTIC_PATTERN
-		"Одна из наград прекратила действовать.", //SPELL_SOLOBONUS
-		"!SPELL_VAMPIRE!",
-		"!SPELLS_RESTORATION!",
-		"Силы нави покинули вас.",
-		"!SPELL_RECOVERY!",
-		"!SPELL_MASS_RECOVERY!",
-		"Аура зла больше не помогает вам.",
-		"!SPELL_MENTAL_SHADOW!",                 // 208
-		"Жуткие черные руки побледнели и расплылись зловонной дымкой.", //209 SPELL_EVARDS_BLACK_TENTACLES
-		"!SPELL_WHIRLWIND!", //210
-		"Каменные зубы исчезли, возвратив способность двигаться.",
-		"!SPELL_MELFS_ACID_ARROW!",
-		"!SPELL_THUNDERSTONE!",
-		"!SPELL_CLOD!",
-		"Эффект боевого приема завершился.",
-		"!SPELL SIGHT OF DARKNESS!",
-		"!SPELL GENERAL SINCERITY!",
-		"!SPELL MAGICAL GAZE!",
-		"!SPELL ALL SEEING EYE!",
-		"!SPELL EYE OF GODS!", //220
-		"!SPELL BREATHING AT DEPTH!",
-		"!SPELL GENERAL RECOVERY!",
-		"!SPELL COMMON MEAL!",
-		"!SPELL STONE WALL!",
-		"!SPELL SNAKE EYES!",
-		"Матушка земля забыла про Вас.",
-		"Вы вновь ощущаете страх перед тьмой.",
-		"!NONE",
-		"!NONE",
-		"!NONE", //230
-		"!NONE",
-		"!NONE",
-		"*Боевое воодушевление угасло, а с ним и вся жажда подвигов!",
-		"Вы стали менее шустрым.",
-		"!NONE",//    SPELL_GROUP_BLINK = 235, // групповая мигалка
-		"!NONE",//    SPELL_GROUP_CLOUDLY = 236, // группповое затуманивание
-		"!NONE",//    SPELL_GROUP_AWARNESS = 237, // групповая внимательность
-		"Действие клича 'обучение' закончилось.",
-		"Действие клича 'везение' закончилось.",
-		"Действие клича 'точность' закончилось.",
-		"Удача снова повернулась к вам лицом... и залепила пощечину.", // SPELL_MASS_FAILURE !взор Велеса!
-		"Покрывавшие вас сети колдовской западни растаяли." // SPELL_MASS_NOFLEE !западня!
-
-// * в начале строки значит не выводить текст окончания заклинания см void show_spell_off
+std::string get_wear_off_text(ESpell spell)
+{
+	static const std::map<ESpell, std::string> spell_to_text {
+		{SPELL_ARMOR, "Вы почувствовали себя менее защищенно."},
+		{SPELL_TELEPORT, "!Teleport!"},
+		{SPELL_BLESS, "Вы почувствовали себя менее доблестно."},
+		{SPELL_BLINDNESS, "Вы вновь можете видеть."},
+		{SPELL_BURNING_HANDS, "!Burning Hands!"},
+		{SPELL_CALL_LIGHTNING, "!Call Lightning"},
+		{SPELL_CHARM, "Вы подчиняетесь теперь только себе."},
+		{SPELL_CHILL_TOUCH, "Вы отметили, что силы вернулись к вам."},
+		{SPELL_CLONE, "!Clone!"},
+		{SPELL_COLOR_SPRAY, "!Color Spray!"},
+		{SPELL_CONTROL_WEATHER, "!Control Weather!"},
+		{SPELL_CREATE_FOOD, "!Create Food!"},
+		{SPELL_CREATE_WATER, "!Create Water!"},
+		{SPELL_CURE_BLIND, "!Cure Blind!"},
+		{SPELL_CURE_CRITIC, "!Cure Critic!"},
+		{SPELL_CURE_LIGHT, "!Cure Light!"},
+		{SPELL_CURSE, "Вы почувствовали себя более уверенно."},
+		{SPELL_DETECT_ALIGN, "Вы более не можете определять наклонности."},
+		{SPELL_DETECT_INVIS, "Вы не в состоянии больше видеть невидимых."},
+		{SPELL_DETECT_MAGIC, "Вы не в состоянии более определять магию."},
+		{SPELL_DETECT_POISON, "Вы не в состоянии более определять яды."},
+		{SPELL_DISPEL_EVIL, "!Dispel Evil!"},
+		{SPELL_EARTHQUAKE, "!Earthquake!"},
+		{SPELL_ENCHANT_WEAPON, "!Enchant Weapon!"},
+		{SPELL_ENERGY_DRAIN, "!Energy Drain!"},
+		{SPELL_FIREBALL, "!Fireball!"},
+		{SPELL_HARM, "!Harm!"},
+		{SPELL_HEAL, "!Heal!"},
+		{SPELL_INVISIBLE, "Вы вновь видимы."},
+		{SPELL_LIGHTNING_BOLT, "!Lightning Bolt!"},
+		{SPELL_LOCATE_OBJECT, "!Locate object!"},
+		{SPELL_MAGIC_MISSILE, "!Magic Missile!"},
+		{SPELL_POISON, "В вашей крови не осталось ни капельки яда."},
+		{SPELL_PROT_FROM_EVIL, "Вы вновь ощущаете страх перед тьмой."},
+		{SPELL_REMOVE_CURSE, "!Remove Curse!"},
+		{SPELL_SANCTUARY, "Белая аура вокруг вашего тела угасла."},
+		{SPELL_SHOCKING_GRASP, "!Shocking Grasp!"},
+		{SPELL_SLEEP, "Вы не чувствуете сонливости."},
+		{SPELL_STRENGTH, "Вы чувствуете себя немного слабее."},
+		{SPELL_SUMMON, "!Summon!"},
+		{SPELL_PATRONAGE, "Вы утратили покровительство высших сил."},
+		{SPELL_WORD_OF_RECALL, "!Word of Recall!"},
+		{SPELL_REMOVE_POISON, "!Remove Poison!"},
+		{SPELL_SENSE_LIFE, "Вы больше не можете чувствовать жизнь."},
+		{SPELL_ANIMATE_DEAD, "!Animate Dead!"},
+		{SPELL_DISPEL_GOOD, "!Dispel Good!"},
+		{SPELL_GROUP_ARMOR, "!Group Armor!"},
+		{SPELL_GROUP_HEAL, "!Group Heal!"},
+		{SPELL_GROUP_RECALL, "!Group Recall!"},
+		{SPELL_INFRAVISION, "Вы больше не можете видеть ночью."},
+		{SPELL_WATERWALK, "Вы больше не можете ходить по воде."},
+		{SPELL_CURE_SERIOUS, "!SPELL CURE SERIOUS!"},
+		{SPELL_GROUP_STRENGTH, "!SPELL GROUP STRENGTH!"},
+		{SPELL_HOLD, "К вам вернулась способность двигаться."},
+		{SPELL_POWER_HOLD, "!SPELL POWER HOLD!"},
+		{SPELL_MASS_HOLD, "!SPELL MASS HOLD!"},
+		{SPELL_FLY, "Вы приземлились на землю."},
+		{SPELL_BROKEN_CHAINS, "Вы вновь стали уязвимы для оцепенения."},
+		{SPELL_NOFLEE, "Вы опять можете сбежать с поля боя."},
+		{SPELL_CREATE_LIGHT, "!SPELL CREATE LIGHT!"},
+		{SPELL_DARKNESS, "Облако тьмы, окружающее вас, спало."},
+		{SPELL_STONESKIN, "Ваша кожа вновь стала мягкой и бархатистой."},
+		{SPELL_CLOUDLY, "Ваши очертания приобрели отчетливость."},
+		{SPELL_SILENCE, "Теперь вы можете болтать, все что думаете."},
+		{SPELL_LIGHT, "Ваше тело перестало светиться."},
+		{SPELL_CHAIN_LIGHTNING, "!SPELL CHAIN LIGHTNING!"},
+		{SPELL_FIREBLAST, "!SPELL FIREBLAST!"},
+		{SPELL_IMPLOSION, "!SPELL IMPLOSION!"},
+		{SPELL_WEAKNESS, "Силы вернулись к вам."},
+		{SPELL_GROUP_INVISIBLE, "!SPELL GROUP INVISIBLE!"},
+		{SPELL_SHADOW_CLOAK, "Ваша теневая мантия замерцала и растаяла."},
+		{SPELL_ACID, "!SPELL ACID!"},
+		{SPELL_REPAIR, "!SPELL REPAIR!"},
+		{SPELL_ENLARGE, "Ваши размеры стали прежними."},
+		{SPELL_FEAR, "!SPELL FEAR!"},
+		{SPELL_SACRIFICE, "!SPELL SACRIFICE!"},
+		{SPELL_WEB, "Магическая сеть, покрывавшая вас, исчезла."},
+		{SPELL_BLINK, "Вы перестали мигать."},
+		{SPELL_REMOVE_HOLD, "!SPELL REMOVE HOLD!"},
+		{SPELL_CAMOUFLAGE, "Вы стали вновь похожи сами на себя."},
+		{SPELL_POWER_BLINDNESS, "!SPELL POWER BLINDNESS!"},
+		{SPELL_MASS_BLINDNESS, "!SPELL MASS BLINDNESS!"},
+		{SPELL_POWER_SILENCE, "!SPELL POWER SIELENCE!"},
+		{SPELL_EXTRA_HITS, "!SPELL EXTRA HITS!"},
+		{SPELL_RESSURECTION, "!SPELL RESSURECTION!"},
+		{SPELL_MAGICSHIELD, "Ваш волшебный щит рассеялся."},
+		{SPELL_FORBIDDEN, "Магия, запечатывающая входы, пропала."},
+		{SPELL_MASS_SILENCE, "!SPELL MASS SIELENCE!"},
+		{SPELL_REMOVE_SILENCE, "!SPELL REMOVE SIELENCE!"},
+		{SPELL_DAMAGE_LIGHT, "!SPELL DAMAGE LIGHT!"},
+		{SPELL_DAMAGE_SERIOUS, "!SPELL DAMAGE SERIOUS!"},
+		{SPELL_DAMAGE_CRITIC, "!SPELL DAMAGE CRITIC!"},
+		{SPELL_MASS_CURSE, "!SPELL MASS CURSE!"},
+		{SPELL_ARMAGEDDON, "!SPELL ARMAGEDDON!"},
+		{SPELL_GROUP_FLY, "!SPELL GROUP FLY!"},
+		{SPELL_GROUP_BLESS, "!SPELL GROUP BLESS!"},
+		{SPELL_REFRESH, "!SPELL REFRESH!"},
+		{SPELL_STUNNING, "!SPELL STUNNING!"},
+		{SPELL_HIDE, "Вы стали заметны окружающим."},
+		{SPELL_SNEAK, "Ваши передвижения стали заметны."},
+		{SPELL_DRUNKED, "Кураж прошел. Мама, лучше бы я умер$q вчера."},
+		{SPELL_ABSTINENT, "А головка ваша уже не болит."},
+		{SPELL_FULL, "Вам снова захотелось жареного, да с дымком."},
+		{SPELL_CONE_OF_COLD, "Вы согрелись и подвижность вернулась к вам."},
+		{SPELL_BATTLE, "К вам вернулась способность нормально сражаться."},
+		{SPELL_HAEMORRAGIA, "Ваши кровоточащие раны затянулись."},
+		{SPELL_COURAGE, "Вы успокоились."},
+		{SPELL_WATERBREATH, "Вы более не способны дышать водой."},
+		{SPELL_SLOW, "Медлительность исчезла."},
+		{SPELL_HASTE, "Вы стали более медлительны."},
+		{SPELL_MASS_SLOW, "!SPELL MASS SLOW!"},
+		{SPELL_GROUP_HASTE, "!SPELL MASS HASTE!"},
+		{SPELL_SHIELD, "Голубой кокон вокруг вашего тела угас."},
+		{SPELL_PLAQUE, "Лихорадка прекратилась."},
+		{SPELL_CURE_PLAQUE, "!SPELL CURE PLAQUE!"},
+		{SPELL_AWARNESS, "Вы стали менее внимательны."},
+		{SPELL_RELIGION, "Вы утратили расположение Богов."},
+		{SPELL_AIR_SHIELD, "Ваш воздушный щит исчез."},
+		{SPELL_PORTAL, "!PORTAL!"},
+		{SPELL_DISPELL_MAGIC, "!DISPELL MAGIC!"},
+		{SPELL_SUMMON_KEEPER, "!SUMMON KEEPER!"},
+		{SPELL_FAST_REGENERATION, "Живительная сила покинула вас."},
+		{SPELL_CREATE_WEAPON, "!CREATE WEAPON!"},
+		{SPELL_FIRE_SHIELD, "Огненный щит вокруг вашего тела исчез."},
+		{SPELL_RELOCATE, "!RELOCATE!"},
+		{SPELL_SUMMON_FIREKEEPER, "!SUMMON FIREKEEPER!"},
+		{SPELL_ICE_SHIELD, "Ледяной щит вокруг вашего тела исчез."},
+		{SPELL_ICESTORM, "Ваши мышцы оттаяли и вы снова можете двигаться."},
+		{SPELL_ENLESS, "Ваши размеры вновь стали прежними."},
+		{SPELL_SHINEFLASH, "!SHINE LIGHT!"},
+		{SPELL_MADNESS, "Безумие боя отпустило вас."},
+		{SPELL_GROUP_MAGICGLASS, "!GROUP MAGICGLASS!"},
+		{SPELL_CLOUD_OF_ARROWS, "Облако стрел вокруг вас рассеялось."},
+		{SPELL_VACUUM, "!VACUUM!"},
+		{SPELL_METEORSTORM, "Последний громовой камень грянул в землю и все стихло."},
+		{SPELL_STONEHAND, "Ваши руки вернулись к прежнему состоянию."},
+		{SPELL_MINDLESS, "Ваш разум просветлел."},
+		{SPELL_PRISMATICAURA, "Призматическая аура вокруг вашего тела угасла."},
+		{SPELL_EVILESS, "Силы зла оставили вас."},
+		{SPELL_AIR_AURA, "Воздушная аура вокруг вас исчезла."},
+		{SPELL_FIRE_AURA, "Огненная аура вокруг вас исчезла."},
+		{SPELL_ICE_AURA, "Ледяная аура вокруг вас исчезла."},
+		{SPELL_SHOCK, "!SHOCK!"},
+		{SPELL_MAGICGLASS, "Вы вновь чувствительны к магическим поражениям."},
+		{SPELL_GROUP_SANCTUARY, "!SPELL GROUP SANCTUARY!"},
+		{SPELL_GROUP_PRISMATICAURA, "!SPELL GROUP PRISMATICAURA!"},
+		{SPELL_DEAFNESS, "Вы вновь можете слышать."},
+		{SPELL_POWER_DEAFNESS, "!SPELL_POWER_DEAFNESS!"},
+		{SPELL_REMOVE_DEAFNESS, "!SPELL_REMOVE_DEAFNESS!"},
+		{SPELL_MASS_DEAFNESS, "!SPELL_MASS_DEAFNESS!"},
+		{SPELL_DUSTSTORM, "!SPELL_DUSTSTORM!"},
+		{SPELL_EARTHFALL, "!SPELL_EARTHFALL!"},
+		{SPELL_SONICWAVE, "!SPELL_SONICWAVE!"},
+		{SPELL_HOLYSTRIKE, "!SPELL_HOLYSTRIKE!"},
+		{SPELL_ANGEL, "!SPELL_SPELL_ANGEL!"},
+		{SPELL_MASS_FEAR, "!SPELL_SPELL_MASS_FEAR!"},
+		{SPELL_FASCINATION, "Ваша красота куда-то пропала."},
+		{SPELL_CRYING, "Ваша душа успокоилась."},
+		{SPELL_OBLIVION, "!SPELL_OBLIVION!"},
+		{SPELL_BURDEN_OF_TIME, "!SPELL_BURDEN_OF_TIME!"},
+		{SPELL_GROUP_REFRESH, "!SPELL_GROUP_REFRESH!"},
+		{SPELL_PEACEFUL, "Смирение в вашей душе вдруг куда-то исчезло."},
+		{SPELL_MAGICBATTLE, "К вам вернулась способность нормально сражаться."},
+		{SPELL_BERSERK, "Неистовство оставило вас."},
+		{SPELL_STONEBONES, "!stone bones!"},
+		{SPELL_ROOM_LIGHT, "Колдовской свет угас."},
+		{SPELL_POISONED_FOG, "Порыв ветра развеял ядовитый туман."},
+		{SPELL_THUNDERSTORM, "Ветер прогнал грозовые тучи."},
+		{SPELL_LIGHT_WALK, "Ваши следы вновь стали заметны."},
+		{SPELL_FAILURE, "Удача вновь вернулась к вам."},
+		{SPELL_CLANPRAY, "Магические чары ослабели со временем и покинули вас."},
+		{SPELL_GLITTERDUST, "Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе."},
+		{SPELL_SCREAM, "Леденящий душу испуг отпустил вас."},
+		{SPELL_CATS_GRACE, "Ваши движения утратили прежнюю колдовскую ловкость."},
+		{SPELL_BULL_BODY, "Ваше телосложение вновь стало обычным."},
+		{SPELL_SNAKE_WISDOM, "Вы утратили навеянную магией мудрость."},
+		{SPELL_GIMMICKRY, "Навеянная магией хитрость покинула вас."},
+		{SPELL_WC_OF_CHALLENGE, "!SPELL_WC_OF_CHALLENGE!"},
+		{SPELL_WC_OF_MENACE, ""},
+		{SPELL_WC_OF_RAGE, "!SPELL_WC_OF_RAGE!"},
+		{SPELL_WC_OF_MADNESS, ""},
+		{SPELL_WC_OF_THUNDER, "!SPELL_WC_OF_THUNDER!"},
+		{SPELL_WC_OF_DEFENSE, "Действие клича 'призыв к обороне' закончилось."},
+		{SPELL_WC_OF_BATTLE, "Действие клича битвы закончилось."},
+		{SPELL_WC_OF_POWER, "Действие клича мощи закончилось."},
+		{SPELL_WC_OF_BLESS, "Действие клича доблести закончилось."},
+		{SPELL_WC_OF_COURAGE, "Действие клича отваги закончилось."},
+		{SPELL_RUNE_LABEL, "Магические письмена на земле угасли."},
+		{SPELL_ACONITUM_POISON, "В вашей крови не осталось ни капельки яда."},
+		{SPELL_SCOPOLIA_POISON, "В вашей крови не осталось ни капельки яда."},
+		{SPELL_BELENA_POISON, "В вашей крови не осталось ни капельки яда."},
+		{SPELL_DATURA_POISON, "В вашей крови не осталось ни капельки яда."},
+		{SPELL_TIMER_REPAIR, "SPELL_TIMER_REPAIR"},
+		{SPELL_LACKY, "!SPELL_LACKY!"},
+		{SPELL_BANDAGE, "Вы аккуратно перевязали свои раны."},
+		{SPELL_NO_BANDAGE, "Вы снова можете перевязывать свои раны."},
+		{SPELL_CAPABLE, "!SPELL_CAPABLE!"},
+		{SPELL_STRANGLE, "Удушье отпустило вас, и вы вздохнули полной грудью."},
+		{SPELL_RECALL_SPELLS, "Вам стало не на чем концентрироваться."},
+		{SPELL_HYPNOTIC_PATTERN, "Плывший в воздухе огненный узор потускнел и растаял струйками дыма."},
+		{SPELL_SOLOBONUS, "Одна из наград прекратила действовать."},
+		{SPELL_VAMPIRE, "!SPELL_VAMPIRE!"},
+		{SPELLS_RESTORATION, "!SPELLS_RESTORATION!"},
+		{SPELL_AURA_DEATH, "Силы нави покинули вас."},
+		{SPELL_RECOVERY, "!SPELL_RECOVERY!"},
+		{SPELL_MASS_RECOVERY, "!SPELL_MASS_RECOVERY!"},
+		{SPELL_AURA_EVIL, "Аура зла больше не помогает вам."},
+		{SPELL_MENTAL_SHADOW, "!SPELL_MENTAL_SHADOW!"},
+		{SPELL_EVARDS_BLACK_TENTACLES, "Жуткие черные руки побледнели и расплылись зловонной дымкой."},
+		{SPELL_WHIRLWIND, "!SPELL_WHIRLWIND!"},
+		{SPELL_INDRIKS_TEETH, "Каменные зубы исчезли, возвратив способность двигаться."},
+		{SPELL_MELFS_ACID_ARROW, "!SPELL_MELFS_ACID_ARROW!"},
+		{SPELL_THUNDERSTONE, "!SPELL_THUNDERSTONE!"},
+		{SPELL_CLOD, "!SPELL_CLOD!"},
+		{SPELL_EXPEDIENT, "Эффект боевого приема завершился."},
+		{SPELL_SIGHT_OF_DARKNESS, "!SPELL SIGHT OF DARKNESS!"},
+		{SPELL_GENERAL_SINCERITY, "!SPELL GENERAL SINCERITY!"},
+		{SPELL_MAGICAL_GAZE, "!SPELL MAGICAL GAZE!"},
+		{SPELL_ALL_SEEING_EYE, "!SPELL ALL SEEING EYE!"},
+		{SPELL_EYE_OF_GODS, "!SPELL EYE OF GODS!"},
+		{SPELL_BREATHING_AT_DEPTH, "!SPELL BREATHING AT DEPTH!"},
+		{SPELL_GENERAL_RECOVERY, "!SPELL GENERAL RECOVERY!"},
+		{SPELL_COMMON_MEAL, "!SPELL COMMON MEAL!"},
+		{SPELL_STONE_WALL, "!SPELL STONE WALL!"},
+		{SPELL_SNAKE_EYES, "!SPELL SNAKE EYES!"},
+		{SPELL_EARTH_AURA, "Матушка земля забыла про Вас."},
+		{SPELL_GROUP_PROT_FROM_EVIL, "Вы вновь ощущаете страх перед тьмой."},
+		{SPELL_ARROWS_FIRE, "!NONE"},
+		{SPELL_ARROWS_WATER, "!NONE"},
+		{SPELL_ARROWS_EARTH, "!NONE"},
+		{SPELL_ARROWS_AIR, "!NONE"},
+		{SPELL_ARROWS_DEATH, "!NONE"},
+		{SPELL_PALADINE_INSPIRATION, "*Боевое воодушевление угасло, а с ним и вся жажда подвигов!"},
+		{SPELL_DEXTERITY, "Вы стали менее шустрым."},
+		{SPELL_GROUP_BLINK, "!NONE"},
+		{SPELL_GROUP_CLOUDLY, "!NONE"},
+		{SPELL_GROUP_AWARNESS, "!NONE"},
+		{SPELL_WC_EXPERIENSE, "Действие клича 'обучение' закончилось."},
+		{SPELL_WC_LUCK, "Действие клича 'везение' закончилось."},
+		{SPELL_WC_PHYSDAMAGE, "Действие клича 'точность' закончилось."},
+		{SPELL_MASS_FAILURE, "Удача снова повернулась к вам лицом... и залепила пощечину."},
+		{SPELL_MASS_NOFLEE, "Покрывавшие вас сети колдовской западни растаяли."}
 	};
 
-/**
-** Only for debug purposes: to trace values of the spell_wear_off_msg array.
-*/
-void output_spell_wear_off_msg() {
-	unsigned n = 0;
-	for (const auto i : spell_wear_off_msg) {
-		const size_t BUFFER_LENGTH = 4096;
-		char buffer[BUFFER_LENGTH];
-		const size_t length = std::min(BUFFER_LENGTH, strlen(i));
-		strncpy(buffer, i, length + 1);
-		koi_to_alt(buffer, static_cast<int>(length));
-		printf("%d. %s\n", n++, buffer);
+	if (!spell_to_text.count(spell)) {
+		std::stringstream log_text;
+		log_text << "!нет сообщения при спадении аффекта под номером: " << static_cast<int>(spell) << "!";
+		return log_text.str().c_str();
 	}
+
+	return spell_to_text.at(spell);
 }
 
-const cast_phrases_t cast_phrase =
-	{
-		cast_phrase_t{"\nRESERVED DB.C", "\n"},    // 0
-		cast_phrase_t{"буде во прибежище", "... Он - помощь наша и защита наша."},
-		cast_phrase_t{"несите ветры", "... дух поднял меня и перенес меня."},
-		cast_phrase_t{"истягну умь крепостию", "... даст блага просящим у Него."},
-		cast_phrase_t{"Чтоб твои зенки вылезли!", "... поразит тебя Господь слепотою."},
-		cast_phrase_t{"узри огонь!", "... простер руку свою к огню."},    // 5
-		cast_phrase_t{"Разрази тебя Перун!", "... и путь для громоносной молнии."},
-		cast_phrase_t{"умь полонить", "... слушай пастыря сваего, и уразумей."},
-		cast_phrase_t{"хладну персты воскладаше", "... которые черны от льда."},
-		cast_phrase_t{"пусть будет много меня", "... и плодились, и весьма умножились."},
-		cast_phrase_t{"хлад и мраз исторгнути", "... и из воды делается лед."},    // 10
-		cast_phrase_t{"стихия подкоряшися", "... власть затворить небо, чтобы не шел дождь."},
-		cast_phrase_t{"будовати снедь", "... это хлеб, который Господь дал вам в пищу."},
-		cast_phrase_t{"напоиши влагой", "... и потекло много воды."},
-		cast_phrase_t{"зряще узрите", "... и прозрят из тьмы и мрака глаза слепых."},
-		cast_phrase_t{"гой еси", "... да зарубцуются гноища твои."},    // 15
-		cast_phrase_t{"малейше целити раны", "... да затянутся раны твои."},
-		cast_phrase_t{"порча", "... проклят ты пред всеми скотами."},
-		cast_phrase_t{"узряще норов", "... и отделит одних от других, как пастырь отделяет овец от козлов."},
-		cast_phrase_t{"взор мечетный", "... ибо нет ничего тайного, что не сделалось бы явным."},
-		cast_phrase_t{"зряще ворожбу", "... покажись, ересь богопротивная."},    // 20
-		cast_phrase_t{"зряще трутизну", "... по плодам их узнаете их."},
-		cast_phrase_t{"долой нощи", "... грешников преследует зло, а праведникам воздается добром."},
-		cast_phrase_t{"земля тутнет", "... в тот же час произошло великое землетрясение."},
-		cast_phrase_t{"ницовати стружие", "... укрепи сталь Божьим перстом."},
-		cast_phrase_t{"преторгоста", "... да иссякнут соки, питающие тело."},    // 25
-		cast_phrase_t{"огненну солнце", "... да ниспадет огонь с неба, и пожрет их."},
-		cast_phrase_t{"згола скверна", "... и жестокою болью во всех костях твоих."},
-		cast_phrase_t{"згола гой еси", "... тебе говорю, встань."},
-		cast_phrase_t{"низовати мечетно", "... ибо видимое временно, а невидимое вечно."},
-		cast_phrase_t{"грянет гром", "... и были громы и молнии."},    // 30
-		cast_phrase_t{"рища, летая умом под облакы", "... ибо всякий просящий получает, и ищущий находит."},
-		cast_phrase_t{"ворожья стрела", "... остры стрелы Твои."},
-		cast_phrase_t{"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."},
-		cast_phrase_t{"супостат нощи", "... свет, который в тебе, да убоится тьма."},
-		cast_phrase_t{"изыде порча", "... да простятся тебе прегрешения твои."},    // 35
-		cast_phrase_t{"иже во святых", "... буде святым, аки Господь наш свят."},
-		cast_phrase_t{"воскладше огненну персты", "... и дано буде жечь врагов огнем."},
-		cast_phrase_t{"иже дремлет", "... на веки твои тяжесть покладет."},
-		cast_phrase_t{"будет силен", "... и человек разумный укрепляет силу свою."},
-		cast_phrase_t{"кличу-велю", "... и послали за ним и призвали его."},    // 40
-		cast_phrase_t{"ибо будет угоден Богам", "... ибо спасет людей Своих от грехов их."},
-		cast_phrase_t{"с глаз долой исчезни", "... ступай с миром."},
-		cast_phrase_t{"изыде трутизна", "... именем Божьим, изгнати сгниенье из тела."},
-		cast_phrase_t{"зряще живота", "... ибо нет ничего сокровенного, что не обнаружилось бы."},
-		cast_phrase_t{"живот изо праха створисте", "... и земля извергнет мертвецов."},    // 45
-		cast_phrase_t{"свет сгинь", "... и тьма свет накроет."},
-		cast_phrase_t{"прибежище други", "... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?"},
-		cast_phrase_t{"други, гой еси", "... вам говорю, встаньте."},
-		cast_phrase_t{"исчезните с глаз моих", "... вам говорю, ступайте с миром."},
-		cast_phrase_t{"в нощи зряще", "...ибо ни днем, ни ночью сна не знают очи."},    // 50 - INFRAVISION
-		cast_phrase_t{"по воде аки по суху", "... поднимись и ввергнись в море."},
-		cast_phrase_t{"целите раны", "... да уменьшатся раны твои."},
-		cast_phrase_t{"други сильны", "... и даст нам Господь силу."},
-		cast_phrase_t{"аки околел", "... замри."},
-		cast_phrase_t{"згола аки околел", "... замри надолго."},    // 55
-		cast_phrase_t{"их окалеть", "... замрите."},
-		cast_phrase_t{"летать зегзицею", "... и полетел, и понесся на крыльях ветра."},
-		cast_phrase_t{"вериги и цепи железные изорву", "... и цепи упали с рук его."},
-		cast_phrase_t{"опуташа в путины железны", "... да поищешь уйти, да не возможешь."},
-		cast_phrase_t{"будовати светоч", "... да будет свет."},    // 60
-		cast_phrase_t{"тьмою прикрыты", "... тьма покроет землю."},
-		cast_phrase_t{"буде тверд аки камень", "... твердость ли камней твердость твоя?"},
-		cast_phrase_t{"мгла покрыла", "... будут как утренний туман."},
-		cast_phrase_t{"типун тебе на язык!", "... да замкнутся уста твои."},
-		cast_phrase_t{"буде аки светоч", "... и да воссияет над ним свет!"},    // 65
-		cast_phrase_t{"глаголят небеса", "... понесутся меткие стрелы молний из облаков."},
-		cast_phrase_t{"створисте огненну струя", "... и ввергне их в озеро огненное."},
-		cast_phrase_t{"гнев божиа не минути", "... и воспламенится гнев Господа, и Он скоро истребит тебя."},
-		cast_phrase_t{"буде чахнуть", "... и силу могучих ослабляет."},
-		cast_phrase_t{"други, низовати мечетны",
-					  "... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы."},    // 70
-		cast_phrase_t{"будут тени и туман, и мрак ночной", "... распростираются вечерние тени."},
-		cast_phrase_t{"жги аки смола горячая", "... подобно мучению от скорпиона."},
-		cast_phrase_t{"будь целым, аки прежде", "... заделаю трещины в ней и разрушенное восстановлю."},
-		cast_phrase_t{"возросши к небу", "... и плоть выросла."},
-		cast_phrase_t{"падоша в тернии", "... убойся того, кто по убиении ввергнет в геенну."},    // 75
-		cast_phrase_t{"да коснется тебя Чернобог", "... плоть твоя и тело твое будут истощены."},
-		cast_phrase_t{"сети ловчи", "... терны и сети на пути коварного."},
-		cast_phrase_t{"от стрел укрытие и от меча оборона", "...да защитит он себя."},
-		cast_phrase_t{"буде быстр аки прежде", "... встань, и ходи."},
-		cast_phrase_t{"\n!Маскировка!", "\n"},    // 80
-		cast_phrase_t{"згола застить очеса", "... поразит тебя Господь слепотою навечно."},
-		cast_phrase_t{"их очеса непотребны", "... и Он поразил их слепотою."},
-		cast_phrase_t{"згола не прерчет", "... исходящее из уст твоих, да не осквернит слуха."},
-		cast_phrase_t{"буде полон здоровья", "... крепкое тело лучше несметного богатства."},
-		cast_phrase_t{"воскресе из мертвых", "... оживут мертвецы Твои, восстанут мертвые тела!"},    // 85
-		cast_phrase_t{"и ворога оберегись", "... руками своими да защитит он себя"},
-		cast_phrase_t{"вороги не войдут", "... ибо положена печать, и никто не возвращается."},
-		cast_phrase_t{"их уста непотребны", "... да замкнутся уста ваши."},
-		cast_phrase_t{"глаголите", "... слова из уст мудрого - благодать."},
-		cast_phrase_t{"падош", "... будет чувствовать боль."},    // 90
-		cast_phrase_t{"скверна", "... постигнут тебя муки."},
-		cast_phrase_t{"сильна скверна", "... боль и муки схватили."},
-		cast_phrase_t{"порча их", "... прокляты вы пред всеми скотами."},
-		cast_phrase_t{"суд божиа не минути", "... какою мерою мерите, такою отмерено будет и вам."},
-		cast_phrase_t{"крыла им створисте", "... и все летающие по роду их."},    // 95
-		cast_phrase_t{"други, наполнися ратнаго духа", "... блажены те, слышащие слово Божие."},
-		cast_phrase_t{"буде свеж", "... не будет у него ни усталого, ни изнемогающего."},
-		cast_phrase_t{"да обратит тебя Чернобог в мертвый камень!", "... и проклял его именем Господним."},
-		cast_phrase_t{"\n!Спрятался!", "\n"},
-		cast_phrase_t{"\n!Крадется!", "\n"},    // 100
-		cast_phrase_t{"\n!Опьянение!", "\n"},
-		cast_phrase_t{"\n!Абстиненция!", "\n"},
-		cast_phrase_t{"брюхо полно", "... душа больше пищи, и тело - одежды."},
-		cast_phrase_t{"веют ветры", "... подует северный холодный ветер."},
-		cast_phrase_t{"\n!Получил в бою!", "\n"},    // 105
-		cast_phrase_t{"\n!Кровотечение!", "\n"},
-		cast_phrase_t{"\n!Ярость!", "\n"},
-		cast_phrase_t{"не затвори темне березе", "... дух дышит, где хочет."},
-		cast_phrase_t{"немочь", "...и помедлил еще семь дней других."},
-		cast_phrase_t{"скор аки ястреб", "... поднимет его ветер и понесет, и он быстро побежит от него."},    // 110
-		cast_phrase_t{"тернии им", "... загорожу путь их тернами."},
-		cast_phrase_t{"быстры аки ястребов стая", "... и они быстры как серны на горах."},
-		cast_phrase_t{"Живый в помощи Вышняго", "... благословен буде Грядый во имя Господне."},
-		cast_phrase_t{"нутро снеде", "... и сделаются жестокие и кровавые язвы."},
-		cast_phrase_t{"Навь, очисти тело", "... хочу, очистись."},    // 115
-		cast_phrase_t{"око недреманно", "... не дам сна очам моим и веждам моим - дремания."},
-		cast_phrase_t{"\n!молитва или жертва!", "\n"},
-		cast_phrase_t{"Стрибог, даруй прибежище", "... защита от ветра и покров от непогоды."},
-		cast_phrase_t{"буде путь короток", "... входите во врата Его."},
-		cast_phrase_t{"изыде ворожба", "... выйди, дух нечистый."},    // 120
-		cast_phrase_t{"Сварог, даруй защитника", "... и благословен защитник мой!"},
-		cast_phrase_t{"заживет, аки на собаке", "... нет богатства лучше телесного здоровья."},
-		cast_phrase_t{"будовати стружие", "...вооружите из себя людей на войну"},
-		cast_phrase_t{"Хорс, даруй прибежище", "... душа горячая, как пылающий огонь."},
-		cast_phrase_t{"Стрибог, укажи путь...", "... указывай им путь, по которому они должны идти."},    // 125
-		cast_phrase_t{"Дажьбог, даруй защитника", "... Ангел Мой с вами, и он защитник душ ваших."},
-		cast_phrase_t{"Морена, даруй прибежище", "... а снег и лед выдерживали огонь и не таяли."},
-		cast_phrase_t{"торже, яко вихор", "... и град, величиною в талант, падет с неба."},
-		cast_phrase_t{"буде мал аки мышь", "... плоть на нем пропадает."},
-		cast_phrase_t{"засти очи им", "... свет пламени из средины огня."}, // 130
-		cast_phrase_t{"згола яростен", "... и ярость его загорелась в нем."},
-		cast_phrase_t{"гладь воды отразит", "... воздай им по делам их, по злым поступкам их."},
-		cast_phrase_t{"и будут стрелы молний, и зарницы в высях",
-					  "... соберу на них бедствия и истощу на них стрелы Мои."},
-		cast_phrase_t{"Умри!", "... и услышав слова сии - пал бездыханен."},
-		cast_phrase_t{"идти дождю стрелами", "... и камни, величиною в талант, падут с неба."}, // 135
-		cast_phrase_t{"сильны велетов руки", "... рука Моя пребудет с ним, и мышца Моя укрепит его."},
-		cast_phrase_t{"разум аки мутный омут", "... и безумие его с ним."},
-		cast_phrase_t{"окружен радугой", "... явится радуга в облаке."},
-		cast_phrase_t{"зло творяще", "... и ты воздашь им злом."},
-		cast_phrase_t{"Мать-земля, даруй защиту.", "... поклон тебе матушка земля."},    // 140
-		cast_phrase_t{"Сварог, даруй защиту.", "... и огонь низводит с неба."},
-		cast_phrase_t{"Морена, даруй защиту.", "... текущие холодные воды."},
-		cast_phrase_t{"будет слеп и глух, аки мертвец", "... кто делает или глухим, или слепым."},
-		cast_phrase_t{"Аз воздам!", "... и воздам каждому из вас."},
-		cast_phrase_t{"иже во святых, други", "... будьте святы, аки Господь наш свят."},
-		cast_phrase_t{"други, буде окружены радугой", "... взгляни на радугу, и прославь Сотворившего ее."},
-		cast_phrase_t{"оглохни", "... и глухота поразит тебя."},    //SPELL_DEAFNESS
-		cast_phrase_t{"да застит уши твои", "... и будь глухим надолго."},    //SPELL_POWER_DEAFNESS
-		cast_phrase_t{"слушай глас мой", "... услышь слово Его."},    //SPELL_REMOVE_DEAFNESS
-		cast_phrase_t{"будьте глухи", "... и не будут слышать уши ваши."},    //SPELL_MASS_DEAFNESS
-		cast_phrase_t{"пыль поднимется столбами", "... и пыль поглотит вас."},    //SPELL_DUSTSTORM
-		cast_phrase_t{"пусть каменья падут", "... и обрушатся камни с небес."},    //SPELL_EARTHFALL
-		cast_phrase_t{"да невзлюбит тебя воздух", "... и даже воздух покарает тебя."},    //SPELL_SONICWAVE
-		cast_phrase_t{"Велес, упокой мертвых",
-					  "... и предоставь мертвым погребать своих мертвецов."},    //SPELL_HOLYSTRIKE
-		cast_phrase_t{"Боги, даруйте защитника", "... дабы уберег он меня от зла."},    //SPELL_ANGEL
-		cast_phrase_t{"Поврещу сташивые души их в скарядие!", "... и затмил ужас разум их."},    //SPELL_MASS_FEAR
-		cast_phrase_t{"Да пребудет с тобой вся краса мира!", "... и омолодил он, и украсил их."},
-		cast_phrase_t{"Будут слезы твои, аки камень на сердце",
-					  "... и постигнет твой дух угнетение вечное."},    //SPELL_CRYING
-		cast_phrase_t{"будь живот аки буява с шерстнями.", /* Добавлено. Далим. */
-					  "... опадет на тебя чернь страшная."},    // SPELL_OBLIVION
-		cast_phrase_t{"Яко небытие нещадно к вам, али время вернулось вспять.",    /* Добавлено. Далим. */
-					  "... и время не властно над ними."},    // SPELL_BURDEN_OF_TIME
-		cast_phrase_t{"Исполняше други силою!",
-					  "...да не останется ни обделенного, ни обессиленного."},    //SPELL_GROUP_REFRESH
-		cast_phrase_t{"Избавь речь свою от недобрых слов, а ум - от крамольных мыслей.",
-					  "... любите врагов ваших и благотворите ненавидящим вас."},
-		cast_phrase_t{"\n!получил в бою!", "\n"},
-		cast_phrase_t{"\n!Предсмертная ярость!", "\n"},
-		cast_phrase_t{"Обращу кости их в твердый камень.",
-					  "...и тот, кто упадет на камень сей, разобьется."}, // SPELL_STONE_BONE
-		cast_phrase_t{"Да буде СВЕТ !!!", "...ибо сказал МОНТЕР !!!"}, // SPELL_ROOM_LIGHT
-		cast_phrase_t{"Порчу воздух !!!", "...и зловонное дыхание его."}, // SPELL_POISONED_FOG
-		cast_phrase_t{"Абие велий вихрь деяти!",
-					  "...творит молнии при дожде, изводит ветер из хранилищ Своих."}, // SPELL_THUNDERSTORM
-		cast_phrase_t{"\n!легкая поступь!", "\n"},
-		cast_phrase_t{"аще доля зла и удача немилостива", ".. и несчастен, и жалок, и нищ."},
-		cast_phrase_t{"\n!кланаффект!", "\n"},
-		cast_phrase_t{"зрети супостат охабиша", "...и бросали пыль на воздух."}, //SPELL_GLITTERDUST
-		cast_phrase_t{"язвень голки уведати", "...но в полночь раздался крик."}, //SPELL_SCREAM
-		cast_phrase_t{"ристати споро", "...и не уязвит враг того, кто скор."}, //SPELL_CATS_GRACE
-		cast_phrase_t{"руци яре ворога супротив", "...и мощь звериная жила в теле его."},
-		cast_phrase_t{"веси и зрети стези отай", "...и даровал мудрость ему."},
-		cast_phrase_t{"клюка вящего улучити", "...ибо кто познал ум Господень?"},
-		cast_phrase_t{"Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!",
-					  "Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"},    // клич вызова
-		cast_phrase_t{"Покрошу-изувечу, душу выну и в блины закатаю!",
-					  "Покрошу-изувечу, душу выну и в блины закатаю!"}, // клич угрозы
-		cast_phrase_t{"Не отступим, други, они наше сало сперли!",
-					  "Не отступим, други, они наше сало сперли!"}, // клич ярости
-		cast_phrase_t{"Всех убью, а сам$g останусь!", "Всех убью, а сам$g останусь!"},    // клич устрашения
-		cast_phrase_t{"Шоб вас приподняло, да шлепнуло!!!", "Шоб вас приподняло да шлепнуло!!!"},
-		cast_phrase_t{"В строй други, защитим животами Русь нашу!",
-					  "В строй други, защитим животами Русь нашу!"}, // клич призыв к обороне
-		cast_phrase_t{"Дер-ржать строй, волчьи хвосты!", "Дер-ржать строй, волчьи хвосты!"},    // клич битвы
-		cast_phrase_t{"Сарынь на кичку!", "Сарынь на кичку!"},
-		cast_phrase_t{"Стоять крепко! За нами Киев, Подол и трактир с пивом!!!",
-					  "Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"},
-		cast_phrase_t{"Орлы! Будем биться как львы!", "Орлы! Будем биться как львы!"}, //SPELL_WC_OF_COURAGE
-		cast_phrase_t{"...пьсати черты и резы.", "...и Сам отошел от них на вержение камня."}, // SPELL_MAGIC_LABEL
-		cast_phrase_t{"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}, // SPELL_ACONITUM_POISON
-		cast_phrase_t{"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}, // SPELL_SCOPOLIA_POISON
-		cast_phrase_t{"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}, // SPELL_BELENA_POISON
-		cast_phrase_t{"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}, // SPELL_DATURA_POISON
-		cast_phrase_t{"\n", "\n"}, // SPELL_TIMER_REPAIR
-		cast_phrase_t{"\n", "\n"}, // SPELL_LACKY
-		cast_phrase_t{"\n", "\n"}, // SPELL_BANDAGE
-		cast_phrase_t{"\n", "\n"}, // SPELL_NO_BANDAGE
-		cast_phrase_t{"\n", "\n"}, // SPELL_CAPABLE
-		cast_phrase_t{"\n", "\n"}, // SPELL_STRANGLE
-		cast_phrase_t{"\n", "\n"}, // SPELL_RECALL_SPELLS
-		cast_phrase_t{"ажбо супостаты блазнити да клюковати",
-					  "...и утроба его приготовляет обман."}, //SPELL_HYPNOTIC_PATTERN
-		cast_phrase_t{"\n", "\n"}, // SPELL_SOLOBONUS
-		cast_phrase_t{"\n", "\n"}, // SPELL_VAMPIRE
-		cast_phrase_t{"Да прими вид прежний, якой был.",
-					  ".. Воззри на предмет сей Отче и верни ему силу прежнюю."}, // SPELLS_RESTORATION
-		cast_phrase_t{"Надели силою своею Навь, дабы собрать урожай тебе.",
-					  "...налякай ворогов наших и покарай их немощью."}, // SPELL_AURA_DEATH
-		cast_phrase_t{"Обрасти плотью сызнова.", "... прости Господи грехи, верни плоть созданию."}, // SPELL_RECOVERY
-		cast_phrase_t{"Обрастите плотью сызнова.",
-					  "... прости Господи грехи, верни плоть созданиям."}, // SPELL_MASS_RECOVERY
-		cast_phrase_t{"Возьми личину зла для жатвы славной.", "Надели силой злою во благо."}, // SPELL_AURA_EVIL
-		cast_phrase_t{"Силою мысли защиту будую себе.",
-					  "Даруй Отче защиту, силой разума воздвигнутую."}, // SPELL_MENTAL_SHADOW
-		cast_phrase_t{"Ато егоже руци попасти.",
-					  "И он не знает, что мертвецы там и что в глубине..."}, // SPELL_EVARDS_BLACK_TENTACLES
-		cast_phrase_t{"Вждати бурю обло створити.", "И поднялась великая буря..."}, // SPELL_WHIRLWIND
-		cast_phrase_t{"Идеже индрика зубы супостаты изъмати.",
-					  "Есть род, у которого зубы - мечи и челюсти - ножи..."}, // SPELL_WHIRLWIND
-		cast_phrase_t{"Варно сожжет струя!",
-					  "...и на коже его сделаются как бы язвы проказы"}, // SPELL_MELFS_ACID_ARROW
-		cast_phrase_t{"Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи."}, // SPELL_THUNDERSTONE
-		cast_phrase_t{"Онома утес низринется!",
-					  "...доколе камень не оторвался от горы без содействия рук."}, // SPELL_CLODd
-		cast_phrase_t{"!Применил боевой прием!", "!use battle expedient!"}, // SPELL_EXPEDIENT (set by program)
-		cast_phrase_t{"Что свет, что тьма - глазу одинаково.",
-					  "Станьте зрячи в тьме кромешной!"}, // SPELL_SIGHT_OF_DARKNESS
-		cast_phrase_t{"...да не скроются намерения.",
-					  "И узрим братья намерения окружающих."}, // SPELL_GENERAL_SINCERITY
-		cast_phrase_t{"Узрим же все, что с магией навкруги нас.",
-					  "Покажи, Спаситель, магические силы братии."}, // SPELL_MAGICAL_GAZE
-		cast_phrase_t{"Все тайное станет явным.",
-					  "Не спрячется, не скроется, ни заяц, ни блоха."}, // SPELL_ALL_SEEING_EYE
-		cast_phrase_t{"Осязаемое откройся взору!",
-					  "Да не скроется от взора вашего, ни одна живая душа."}, // SPELL_EYE_OF_GODS
-		cast_phrase_t{"Аки стайка рыбок, плывите вместе.",
-					  "Что в воде, что на земле, воздух свежим будет."}, // SPELL_BREATHING_AT_DEPTH
-		cast_phrase_t{"...дабы пройти вместе не одну сотню верст",
-					  "Сохрани Отче от усталости детей своих!"}, // SPELL_GENERAL_RECOVERY
-		cast_phrase_t{"Благодарите богов за хлеб и соль!",
-					  "...дабы не осталось голодающих на свете белом"}, // SPELL_COMMON_MEAL
-		cast_phrase_t{"Станем други крепки як николы!", "Укрепим тела наши перед битвой!"}, // SPELL_STONE_WALL
-		cast_phrase_t{"Что яд, а что мед. Не обманемся!",
-					  "...и самый сильный яд станет вам виден."}, // SPELL_SNAKE_EYES
-		cast_phrase_t{"Велес, даруй защиту.", "... земля благословенна твоя."}, // SPELL_EARTH_AURA
-		cast_phrase_t{"други, супостат нощи",
-					  "други, свет который в нас, да убоится тьма."}, // SPELL_GROUP_PROT_FROM_EVIL
-		cast_phrase_t{"!магический выстрел!", "!use battle expedient!"}, // SPELL_ARROWS_FIRE (set by program)
-		cast_phrase_t{"!магический выстрел!", "!use battle expedient!"}, // SPELL_ARROWS_ (set by program)
-		cast_phrase_t{"!магический выстрел!", "!use battle expedient!"}, // SPELL_ARROWS_ (set by program)
-		cast_phrase_t{"!магический выстрел!", "!use battle expedient!"}, // SPELL_ARROWS_ (set by program)
-		cast_phrase_t{"!магический выстрел!", "!use battle expedient!"}, // SPELL_ARROWS_DEATH (set by program)
-		cast_phrase_t{"\n", "\n"}, // воодушевление
-		cast_phrase_t{"будет ловким", "... и человек разумный укрепляет ловкость свою."}, //ловкость
-		cast_phrase_t{"защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу."}, // груп мигание
-		cast_phrase_t{"огрожу беззакония их туманом",
-					  "...да защитит и покроет рассветная пелена тела ваши."}, // груп затуманивание
-		cast_phrase_t{"буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их."},
-		cast_phrase_t{"найдем новизну в рутине сражений!", "найдем новизну в рутине сражений!"}, // опыт на группу
-		cast_phrase_t{"и пусть удача будет нашей спутницей!", "и пусть удача будет нашей спутницей!"}, // клич на удачу
-		cast_phrase_t{"бей в глаз, не порти шкуру", "бей в глаз, не порти шкуру."}, // клич на дамагу
-		cast_phrase_t{"...отче Велес, очи отвержеши!",
-					  "...надежда тщетна: не упадешь ли от одного взгляда его?"}, // SPELL_MASS_FAILURE
-		cast_phrase_t{"Заклинати поврещение в сети заскопиены!",
-					  "...будет трапеза их сетью им, и мирное пиршество их - западнею."} // SPELL_MASS_NOFLEE
+// TODO:refactor and replate int spell by ESpell
+std::optional<CastPhraseList> get_cast_phrase(int spell)
+{
+	// маппинг заклинания в текстовую пару [для язычника, для христианина]
+	static const std::map<ESpell, CastPhraseList> cast_to_text {
+		{SPELL_ARMOR, {"буде во прибежище", "... Он - помощь наша и защита наша."}},
+		{SPELL_TELEPORT, {"несите ветры", "... дух поднял меня и перенес меня."}},
+		{SPELL_BLESS, {"истягну умь крепостию", "... даст блага просящим у Него."}},
+		{SPELL_BLINDNESS, {"Чтоб твои зенки вылезли!", "... поразит тебя Господь слепотою."}},
+		{SPELL_BURNING_HANDS, {"узри огонь!", "... простер руку свою к огню."}},
+		{SPELL_CALL_LIGHTNING, {"Разрази тебя Перун!", "... и путь для громоносной молнии."}},
+		{SPELL_CHARM, {"умь полонить", "... слушай пастыря сваего, и уразумей."}},
+		{SPELL_CHILL_TOUCH, {"хладну персты воскладаше", "... которые черны от льда."}},
+		{SPELL_CLONE, {"пусть будет много меня", "... и плодились, и весьма умножились."}},
+		{SPELL_COLOR_SPRAY, {"хлад и мраз исторгнути", "... и из воды делается лед."}},
+		{SPELL_CONTROL_WEATHER, {"стихия подкоряшися", "... власть затворить небо, чтобы не шел дождь."}},
+		{SPELL_CREATE_FOOD, {"будовати снедь", "... это хлеб, который Господь дал вам в пищу."}},
+		{SPELL_CREATE_WATER, {"напоиши влагой", "... и потекло много воды."}},
+		{SPELL_CURE_BLIND, {"зряще узрите", "... и прозрят из тьмы и мрака глаза слепых."}},
+		{SPELL_CURE_CRITIC, {"гой еси", "... да зарубцуются гноища твои."}},
+		{SPELL_CURE_LIGHT, {"малейше целити раны", "... да затянутся раны твои."}},
+		{SPELL_CURSE, {"порча", "... проклят ты пред всеми скотами."}},
+		{SPELL_DETECT_ALIGN, {"узряще норов", "... и отделит одних от других, как пастырь отделяет овец от козлов."}},
+		{SPELL_DETECT_INVIS, {"взор мечетный", "... ибо нет ничего тайного, что не сделалось бы явным."}},
+		{SPELL_DETECT_MAGIC, {"зряще ворожбу", "... покажись, ересь богопротивная."}},
+		{SPELL_DETECT_POISON, {"зряще трутизну", "... по плодам их узнаете их."}},
+		{SPELL_DISPEL_EVIL, {"долой нощи", "... грешников преследует зло, а праведникам воздается добром."}},
+		{SPELL_EARTHQUAKE, {"земля тутнет", "... в тот же час произошло великое землетрясение."}},
+		{SPELL_ENCHANT_WEAPON, {"ницовати стружие", "... укрепи сталь Божьим перстом."}},
+		{SPELL_ENERGY_DRAIN, {"преторгоста", "... да иссякнут соки, питающие тело."}},
+		{SPELL_FIREBALL, {"огненну солнце", "... да ниспадет огонь с неба, и пожрет их."}},
+		{SPELL_HARM, {"згола скверна", "... и жестокою болью во всех костях твоих."}},
+		{SPELL_HEAL, {"згола гой еси", "... тебе говорю, встань."}},
+		{SPELL_INVISIBLE, {"низовати мечетно", "... ибо видимое временно, а невидимое вечно."}},
+		{SPELL_LIGHTNING_BOLT, {"грянет гром", "... и были громы и молнии."}},
+		{SPELL_LOCATE_OBJECT, {"рища, летая умом под облакы", "... ибо всякий просящий получает, и ищущий находит."}},
+		{SPELL_MAGIC_MISSILE, {"ворожья стрела", "... остры стрелы Твои."}},
+		{SPELL_POISON, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
+		{SPELL_PROT_FROM_EVIL, {"супостат нощи", "... свет, который в тебе, да убоится тьма."}},
+		{SPELL_REMOVE_CURSE, {"изыде порча", "... да простятся тебе прегрешения твои."}},
+		{SPELL_SANCTUARY, {"иже во святых", "... буде святым, аки Господь наш свят."}},
+		{SPELL_SHOCKING_GRASP, {"воскладше огненну персты", "... и дано буде жечь врагов огнем."}},
+		{SPELL_SLEEP, {"иже дремлет", "... на веки твои тяжесть покладет."}},
+		{SPELL_STRENGTH, {"будет силен", "... и человек разумный укрепляет силу свою."}},
+		{SPELL_SUMMON, {"кличу-велю", "... и послали за ним и призвали его."}},
+		{SPELL_PATRONAGE, {"ибо будет угоден Богам", "... ибо спасет людей Своих от грехов их."}},
+		{SPELL_WORD_OF_RECALL, {"с глаз долой исчезни", "... ступай с миром."}},
+		{SPELL_REMOVE_POISON, {"изыде трутизна", "... именем Божьим, изгнати сгниенье из тела."}},
+		{SPELL_SENSE_LIFE, {"зряще живота", "... ибо нет ничего сокровенного, что не обнаружилось бы."}},
+		{SPELL_ANIMATE_DEAD, {"живот изо праха створисте", "... и земля извергнет мертвецов."}},
+		{SPELL_DISPEL_GOOD, {"свет сгинь", "... и тьма свет накроет."}},
+		{SPELL_GROUP_ARMOR, {"прибежище други", "... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?"}},
+		{SPELL_GROUP_HEAL, {"други, гой еси", "... вам говорю, встаньте."}},
+		{SPELL_GROUP_RECALL, {"исчезните с глаз моих", "... вам говорю, ступайте с миром."}},
+		{SPELL_INFRAVISION, {"в нощи зряще", "...ибо ни днем, ни ночью сна не знают очи."}},
+		{SPELL_WATERWALK, {"по воде аки по суху", "... поднимись и ввергнись в море."}},
+		{SPELL_CURE_SERIOUS, {"целите раны", "... да уменьшатся раны твои."}},
+		{SPELL_GROUP_STRENGTH, {"други сильны", "... и даст нам Господь силу."}},
+		{SPELL_HOLD, {"аки околел", "... замри."}},
+		{SPELL_POWER_HOLD, {"згола аки околел", "... замри надолго."}},
+		{SPELL_MASS_HOLD, {"их окалеть", "... замрите."}},
+		{SPELL_FLY, {"летать зегзицею", "... и полетел, и понесся на крыльях ветра."}},
+		{SPELL_BROKEN_CHAINS, {"вериги и цепи железные изорву", "... и цепи упали с рук его."}},
+		{SPELL_NOFLEE, {"опуташа в путины железны", "... да поищешь уйти, да не возможешь."}},
+		{SPELL_CREATE_LIGHT, {"будовати светоч", "... да будет свет."}},
+		{SPELL_DARKNESS, {"тьмою прикрыты", "... тьма покроет землю."}},
+		{SPELL_STONESKIN, {"буде тверд аки камень", "... твердость ли камней твердость твоя?"}},
+		{SPELL_CLOUDLY, {"мгла покрыла", "... будут как утренний туман."}},
+		{SPELL_SILENCE, {"типун тебе на язык!", "... да замкнутся уста твои."}},
+		{SPELL_LIGHT, {"буде аки светоч", "... и да воссияет над ним свет!"}},
+		{SPELL_CHAIN_LIGHTNING, {"глаголят небеса", "... понесутся меткие стрелы молний из облаков."}},
+		{SPELL_FIREBLAST, {"створисте огненну струя", "... и ввергне их в озеро огненное."}},
+		{SPELL_IMPLOSION, {"гнев божиа не минути", "... и воспламенится гнев Господа, и Он скоро истребит тебя."}},
+		{SPELL_WEAKNESS, {"буде чахнуть", "... и силу могучих ослабляет."}},
+		{SPELL_GROUP_INVISIBLE, {"други, низовати мечетны",
+						"... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы."}},
+		{SPELL_SHADOW_CLOAK, {"будут тени и туман, и мрак ночной", "... распростираются вечерние тени."}},
+		{SPELL_ACID, {"жги аки смола горячая", "... подобно мучению от скорпиона."}},
+		{SPELL_REPAIR, {"будь целым, аки прежде", "... заделаю трещины в ней и разрушенное восстановлю."}},
+		{SPELL_ENLARGE, {"возросши к небу", "... и плоть выросла."}},
+		{SPELL_FEAR, {"падоша в тернии", "... убойся того, кто по убиении ввергнет в геенну."}},
+		{SPELL_SACRIFICE, {"да коснется тебя Чернобог", "... плоть твоя и тело твое будут истощены."}},
+		{SPELL_WEB, {"сети ловчи", "... терны и сети на пути коварного."}},
+		{SPELL_BLINK, {"от стрел укрытие и от меча оборона", "...да защитит он себя."}},
+		{SPELL_REMOVE_HOLD, {"буде быстр аки прежде", "... встань, и ходи."}},
+		{SPELL_CAMOUFLAGE, {"", ""}},
+		{SPELL_POWER_BLINDNESS, {"згола застить очеса", "... поразит тебя Господь слепотою навечно."}},
+		{SPELL_MASS_BLINDNESS, {"их очеса непотребны", "... и Он поразил их слепотою."}},
+		{SPELL_POWER_SILENCE, {"згола не прерчет", "... исходящее из уст твоих, да не осквернит слуха."}},
+		{SPELL_EXTRA_HITS, {"буде полон здоровья", "... крепкое тело лучше несметного богатства."}},
+		{SPELL_RESSURECTION, {"воскресе из мертвых", "... оживут мертвецы Твои, восстанут мертвые тела!"}},
+		{SPELL_MAGICSHIELD, {"и ворога оберегись", "... руками своими да защитит он себя"}},
+		{SPELL_FORBIDDEN, {"вороги не войдут", "... ибо положена печать, и никто не возвращается."}},
+		{SPELL_MASS_SILENCE, {"их уста непотребны", "... да замкнутся уста ваши."}},
+		{SPELL_REMOVE_SILENCE, {"глаголите", "... слова из уст мудрого - благодать."}},
+		{SPELL_DAMAGE_LIGHT, {"падош", "... будет чувствовать боль."}},
+		{SPELL_DAMAGE_SERIOUS, {"скверна", "... постигнут тебя муки."}},
+		{SPELL_DAMAGE_CRITIC, {"сильна скверна", "... боль и муки схватили."}},
+		{SPELL_MASS_CURSE, {"порча их", "... прокляты вы пред всеми скотами."}},
+		{SPELL_ARMAGEDDON, {"суд божиа не минути", "... какою мерою мерите, такою отмерено будет и вам."}},
+		{SPELL_GROUP_FLY, {"крыла им створисте", "... и все летающие по роду их."}},
+		{SPELL_GROUP_BLESS, {"други, наполнися ратнаго духа", "... блажены те, слышащие слово Божие."}},
+		{SPELL_REFRESH, {"буде свеж", "... не будет у него ни усталого, ни изнемогающего."}},
+		{SPELL_STUNNING, {"да обратит тебя Чернобог в мертвый камень!", "... и проклял его именем Господним."}},
+		{SPELL_HIDE, {"", ""}},
+		{SPELL_SNEAK, {"", ""}},
+		{SPELL_DRUNKED, {"", ""}},
+		{SPELL_ABSTINENT, {"", ""}},
+		{SPELL_FULL, {"брюхо полно", "... душа больше пищи, и тело - одежды."}},
+		{SPELL_CONE_OF_COLD, {"веют ветры", "... подует северный холодный ветер."}},
+		{SPELL_BATTLE, {"", ""}},
+		{SPELL_HAEMORRAGIA, {"", ""}},
+		{SPELL_COURAGE, {"", ""}},
+		{SPELL_WATERBREATH, {"не затвори темне березе", "... дух дышит, где хочет."}},
+		{SPELL_SLOW, {"немочь", "...и помедлил еще семь дней других."}},
+		{SPELL_HASTE, {"скор аки ястреб", "... поднимет его ветер и понесет, и он быстро побежит от него."}},
+		{SPELL_MASS_SLOW, {"тернии им", "... загорожу путь их тернами."}},
+		{SPELL_GROUP_HASTE, {"быстры аки ястребов стая", "... и они быстры как серны на горах."}},
+		{SPELL_SHIELD, {"Живый в помощи Вышняго", "... благословен буде Грядый во имя Господне."}},
+		{SPELL_PLAQUE, {"нутро снеде", "... и сделаются жестокие и кровавые язвы."}},
+		{SPELL_CURE_PLAQUE, {"Навь, очисти тело", "... хочу, очистись."}},
+		{SPELL_AWARNESS, {"око недреманно", "... не дам сна очам моим и веждам моим - дремания."}},
+		{SPELL_RELIGION, {"", ""}},
+		{SPELL_AIR_SHIELD, {"Стрибог, даруй прибежище", "... защита от ветра и покров от непогоды."}},
+		{SPELL_PORTAL, {"буде путь короток", "... входите во врата Его."}},
+		{SPELL_DISPELL_MAGIC, {"изыде ворожба", "... выйди, дух нечистый."}},
+		{SPELL_SUMMON_KEEPER, {"Сварог, даруй защитника", "... и благословен защитник мой!"}},
+		{SPELL_FAST_REGENERATION, {"заживет, аки на собаке", "... нет богатства лучше телесного здоровья."}},
+		{SPELL_CREATE_WEAPON, {"будовати стружие", "...вооружите из себя людей на войну"}},
+		{SPELL_FIRE_SHIELD, {"Хорс, даруй прибежище", "... душа горячая, как пылающий огонь."}},
+		{SPELL_RELOCATE, {"Стрибог, укажи путь...", "... указывай им путь, по которому они должны идти."}},
+		{SPELL_SUMMON_FIREKEEPER, {"Дажьбог, даруй защитника", "... Ангел Мой с вами, и он защитник душ ваших."}},
+		{SPELL_ICE_SHIELD, {"Морена, даруй прибежище", "... а снег и лед выдерживали огонь и не таяли."}},
+		{SPELL_ICESTORM, {"торже, яко вихор", "... и град, величиною в талант, падет с неба."}},
+		{SPELL_ENLESS, {"буде мал аки мышь", "... плоть на нем пропадает."}},
+		{SPELL_SHINEFLASH, {"засти очи им", "... свет пламени из средины огня."}},
+		{SPELL_MADNESS, {"згола яростен", "... и ярость его загорелась в нем."}},
+		{SPELL_GROUP_MAGICGLASS, {"гладь воды отразит", "... воздай им по делам их, по злым поступкам их."}},
+		{SPELL_CLOUD_OF_ARROWS, {"и будут стрелы молний, и зарницы в высях",
+						"... соберу на них бедствия и истощу на них стрелы Мои."}},
+		{SPELL_VACUUM, {"Умри!", "... и услышав слова сии - пал бездыханен."}},
+		{SPELL_METEORSTORM, {"идти дождю стрелами", "... и камни, величиною в талант, падут с неба."}},
+		{SPELL_STONEHAND, {"сильны велетов руки", "... рука Моя пребудет с ним, и мышца Моя укрепит его."}},
+		{SPELL_MINDLESS, {"разум аки мутный омут", "... и безумие его с ним."}},
+		{SPELL_PRISMATICAURA, {"окружен радугой", "... явится радуга в облаке."}},
+		{SPELL_EVILESS, {"зло творяще", "... и ты воздашь им злом."}},
+		{SPELL_AIR_AURA, {"Мать-земля, даруй защиту.", "... поклон тебе матушка земля."}},
+		{SPELL_FIRE_AURA, {"Сварог, даруй защиту.", "... и огонь низводит с неба."}},
+		{SPELL_ICE_AURA, {"Морена, даруй защиту.", "... текущие холодные воды."}},
+		{SPELL_SHOCK, {"будет слеп и глух, аки мертвец", "... кто делает или глухим, или слепым."}},
+		{SPELL_MAGICGLASS, {"Аз воздам!", "... и воздам каждому из вас."}},
+		{SPELL_GROUP_SANCTUARY, {"иже во святых, други", "... будьте святы, аки Господь наш свят."}},
+		{SPELL_GROUP_PRISMATICAURA, {"други, буде окружены радугой", "... взгляни на радугу, и прославь Сотворившего ее."}},
+		{SPELL_DEAFNESS, {"оглохни", "... и глухота поразит тебя."}},
+		{SPELL_POWER_DEAFNESS, {"да застит уши твои", "... и будь глухим надолго."}},
+		{SPELL_REMOVE_DEAFNESS, {"слушай глас мой", "... услышь слово Его."}},
+		{SPELL_MASS_DEAFNESS, {"будьте глухи", "... и не будут слышать уши ваши."}},
+		{SPELL_DUSTSTORM, {"пыль поднимется столбами", "... и пыль поглотит вас."}},
+		{SPELL_EARTHFALL, {"пусть каменья падут", "... и обрушатся камни с небес."}},
+		{SPELL_SONICWAVE, {"да невзлюбит тебя воздух", "... и даже воздух покарает тебя."}},
+		{SPELL_HOLYSTRIKE, {"Велес, упокой мертвых",
+						"... и предоставь мертвым погребать своих мертвецов."}},
+		{SPELL_ANGEL, {"Боги, даруйте защитника", "... дабы уберег он меня от зла."}},
+		{SPELL_MASS_FEAR, {"Поврещу сташивые души их в скарядие!", "... и затмил ужас разум их."}},
+		{SPELL_FASCINATION, {"Да пребудет с тобой вся краса мира!", "... и омолодил он, и украсил их."}},
+		{SPELL_CRYING, {"Будут слезы твои, аки камень на сердце",
+						"... и постигнет твой дух угнетение вечное."}},
+		{SPELL_OBLIVION, {"будь живот аки буява с шерстнями.",
+						"... опадет на тебя чернь страшная."}},
+		{SPELL_BURDEN_OF_TIME, {"Яко небытие нещадно к вам, али время вернулось вспять.",
+						"... и время не властно над ними."}},
+		{SPELL_GROUP_REFRESH, {"Исполняше други силою!",
+						"...да не останется ни обделенного, ни обессиленного."}},
+		{SPELL_PEACEFUL, {"Избавь речь свою от недобрых слов, а ум - от крамольных мыслей.",
+						"... любите врагов ваших и благотворите ненавидящим вас."}},
+		{SPELL_MAGICBATTLE, {"", ""}},
+		{SPELL_BERSERK, {"", ""}},
+		{SPELL_STONEBONES, {"Обращу кости их в твердый камень.",
+						"...и тот, кто упадет на камень сей, разобьется."}},
+		{SPELL_ROOM_LIGHT, {"Да буде СВЕТ !!!", "...ибо сказал МОНТЕР !!!"}},
+		{SPELL_POISONED_FOG, {"Порчу воздух !!!", "...и зловонное дыхание его."}},
+		{SPELL_THUNDERSTORM, {"Абие велий вихрь деяти!",
+						"...творит молнии при дожде, изводит ветер из хранилищ Своих."}},
+		{SPELL_LIGHT_WALK, {"", ""}},
+		{SPELL_FAILURE, {"аще доля зла и удача немилостива", ".. и несчастен, и жалок, и нищ."}},
+		{SPELL_CLANPRAY, {"", ""}},
+		{SPELL_GLITTERDUST, {"зрети супостат охабиша", "...и бросали пыль на воздух."}},
+		{SPELL_SCREAM, {"язвень голки уведати", "...но в полночь раздался крик."}},
+		{SPELL_CATS_GRACE, {"ристати споро", "...и не уязвит враг того, кто скор."}},
+		{SPELL_BULL_BODY, {"руци яре ворога супротив", "...и мощь звериная жила в теле его."}},
+		{SPELL_SNAKE_WISDOM, {"веси и зрети стези отай", "...и даровал мудрость ему."}},
+		{SPELL_GIMMICKRY, {"клюка вящего улучити", "...ибо кто познал ум Господень?"}},
+		{SPELL_WC_OF_CHALLENGE, {"Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!",
+						"Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"}},
+		{SPELL_WC_OF_MENACE, {"Покрошу-изувечу, душу выну и в блины закатаю!",
+						"Покрошу-изувечу, душу выну и в блины закатаю!"}},
+		{SPELL_WC_OF_RAGE, {"Не отступим, други, они наше сало сперли!",
+						"Не отступим, други, они наше сало сперли!"}},
+		{SPELL_WC_OF_MADNESS, {"Всех убью, а сам$g останусь!", "Всех убью, а сам$g останусь!"}},
+		{SPELL_WC_OF_THUNDER, {"Шоб вас приподняло, да шлепнуло!!!", "Шоб вас приподняло да шлепнуло!!!"}},
+		{SPELL_WC_OF_DEFENSE, {"В строй други, защитим животами Русь нашу!",
+						"В строй други, защитим животами Русь нашу!"}},
+		{SPELL_WC_OF_BATTLE, {"Дер-ржать строй, волчьи хвосты!", "Дер-ржать строй, волчьи хвосты!"}},
+		{SPELL_WC_OF_POWER, {"Сарынь на кичку!", "Сарынь на кичку!"}},
+		{SPELL_WC_OF_BLESS, {"Стоять крепко! За нами Киев, Подол и трактир с пивом!!!",
+						"Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"}},
+		{SPELL_WC_OF_COURAGE, {"Орлы! Будем биться как львы!", "Орлы! Будем биться как львы!"}},
+		{SPELL_RUNE_LABEL, {"...пьсати черты и резы.", "...и Сам отошел от них на вержение камня."}},
+		{SPELL_ACONITUM_POISON, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
+		{SPELL_SCOPOLIA_POISON, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
+		{SPELL_BELENA_POISON, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
+		{SPELL_DATURA_POISON, {"трутизна", "... и пошлю на них зубы зверей и яд ползающих по земле."}},
+		{SPELL_TIMER_REPAIR, {"", ""}},
+		{SPELL_LACKY, {"", ""}},
+		{SPELL_BANDAGE, {"", ""}},
+		{SPELL_NO_BANDAGE, {"", ""}},
+		{SPELL_CAPABLE, {"", ""}},
+		{SPELL_STRANGLE, {"", ""}},
+		{SPELL_RECALL_SPELLS, {"", ""}},
+		{SPELL_HYPNOTIC_PATTERN, {"ажбо супостаты блазнити да клюковати",
+						"...и утроба его приготовляет обман."}},
+		{SPELL_SOLOBONUS, {"", ""}},
+		{SPELL_VAMPIRE, {"", ""}},
+		{SPELLS_RESTORATION, {"Да прими вид прежний, якой был.",
+						".. Воззри на предмет сей Отче и верни ему силу прежнюю."}},
+		{SPELL_AURA_DEATH, {"Надели силою своею Навь, дабы собрать урожай тебе.",
+						"...налякай ворогов наших и покарай их немощью."}},
+		{SPELL_RECOVERY, {"Обрасти плотью сызнова.", "... прости Господи грехи, верни плоть созданию."}},
+		{SPELL_MASS_RECOVERY, {"Обрастите плотью сызнова.",
+						"... прости Господи грехи, верни плоть созданиям."}},
+		{SPELL_AURA_EVIL, {"Возьми личину зла для жатвы славной.", "Надели силой злою во благо."}},
+		{SPELL_MENTAL_SHADOW, {"Силою мысли защиту будую себе.",
+						"Даруй Отче защиту, силой разума воздвигнутую."}},
+		{SPELL_EVARDS_BLACK_TENTACLES, {"Ато егоже руци попасти.",
+						"И он не знает, что мертвецы там и что в глубине..."}},
+		{SPELL_WHIRLWIND, {"Вждати бурю обло створити.", "И поднялась великая буря..."}},
+		{SPELL_INDRIKS_TEETH, {"Идеже индрика зубы супостаты изъмати.",
+						"Есть род, у которого зубы - мечи и челюсти - ножи..."}},
+		{SPELL_MELFS_ACID_ARROW, {"Варно сожжет струя!",
+						"...и на коже его сделаются как бы язвы проказы"}},
+		{SPELL_THUNDERSTONE, {"Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи."}},
+		{SPELL_CLOD, {"Онома утес низринется!",
+						"...доколе камень не оторвался от горы без содействия рук."}},
+		{SPELL_EXPEDIENT, {"!Применил боевой прием!", "!use battle expedient!"}},
+		{SPELL_SIGHT_OF_DARKNESS, {"Что свет, что тьма - глазу одинаково.",
+						"Станьте зрячи в тьме кромешной!"}},
+		{SPELL_GENERAL_SINCERITY, {"...да не скроются намерения.",
+						"И узрим братья намерения окружающих."}},
+		{SPELL_MAGICAL_GAZE, {"Узрим же все, что с магией навкруги нас.",
+						"Покажи, Спаситель, магические силы братии."}},
+		{SPELL_ALL_SEEING_EYE, {"Все тайное станет явным.",
+						"Не спрячется, не скроется, ни заяц, ни блоха."}},
+		{SPELL_EYE_OF_GODS, {"Осязаемое откройся взору!",
+						"Да не скроется от взора вашего, ни одна живая душа."}},
+		{SPELL_BREATHING_AT_DEPTH, {"Аки стайка рыбок, плывите вместе.",
+						"Что в воде, что на земле, воздух свежим будет."}},
+		{SPELL_GENERAL_RECOVERY, {"...дабы пройти вместе не одну сотню верст",
+						"Сохрани Отче от усталости детей своих!"}},
+		{SPELL_COMMON_MEAL, {"Благодарите богов за хлеб и соль!",
+						"...дабы не осталось голодающих на свете белом"}},
+		{SPELL_STONE_WALL, {"Станем други крепки як николы!", "Укрепим тела наши перед битвой!"}},
+		{SPELL_SNAKE_EYES, {"Что яд, а что мед. Не обманемся!",
+						"...и самый сильный яд станет вам виден."}},
+		{SPELL_EARTH_AURA, {"Велес, даруй защиту.", "... земля благословенна твоя."}},
+		{SPELL_GROUP_PROT_FROM_EVIL, {"други, супостат нощи",
+						"други, свет который в нас, да убоится тьма."}},
+		{SPELL_ARROWS_FIRE, {"!магический выстрел!", "!use battle expedient!"}},
+		{SPELL_ARROWS_WATER, {"!магический выстрел!", "!use battle expedient!"}},
+		{SPELL_ARROWS_EARTH, {"!магический выстрел!", "!use battle expedient!"}},
+		{SPELL_ARROWS_AIR, {"!магический выстрел!", "!use battle expedient!"}},
+		{SPELL_ARROWS_DEATH, {"!магический выстрел!", "!use battle expedient!"}},
+		{SPELL_PALADINE_INSPIRATION, {"", ""}},
+		{SPELL_DEXTERITY, {"будет ловким", "... и человек разумный укрепляет ловкость свою."}},
+		{SPELL_GROUP_BLINK, {"защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу."}},
+		{SPELL_GROUP_CLOUDLY, {"огрожу беззакония их туманом",
+						"...да защитит и покроет рассветная пелена тела ваши."}},
+		{SPELL_GROUP_AWARNESS, {"буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их."}},
+		{SPELL_WC_EXPERIENSE, {"найдем новизну в рутине сражений!", "найдем новизну в рутине сражений!"}},
+		{SPELL_WC_LUCK, {"и пусть удача будет нашей спутницей!", "и пусть удача будет нашей спутницей!"}},
+		{SPELL_WC_PHYSDAMAGE, {"бей в глаз, не порти шкуру", "бей в глаз, не порти шкуру."}},
+		{SPELL_MASS_FAILURE, {"...отче Велес, очи отвержеши!",
+						"...надежда тщетна: не упадешь ли от одного взгляда его?"}},
+		{SPELL_MASS_NOFLEE, {"Заклинати поврещение в сети заскопиены!",
+						"...будет трапеза их сетью им, и мирное пиршество их - западнею."}}
 	};
+
+	if (!cast_to_text.count(static_cast<ESpell>(spell))) {
+		return std::nullopt;
+	}
+
+	return cast_to_text.at(static_cast<ESpell>(spell));
+}
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
 typedef std::map<const std::string, ESpell> ESpell_value_by_name_t;
