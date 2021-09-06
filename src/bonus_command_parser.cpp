@@ -83,13 +83,13 @@ void ArgumentsParser::parse() {
 
 	if (is_abbrev(m_second_argument.c_str(), "оружейный")) {
 		out << " оружейного опыта";
-		m_bonus_type = BONUS_WEAPON_EXP;
+		m_bonus_type = Bonus::EBonusType::BONUS_WEAPON_EXP;
 	} else if (is_abbrev(m_second_argument.c_str(), "опыт")) {
 		out << " опыта";
-		m_bonus_type = BONUS_EXP;
+		m_bonus_type = Bonus::EBonusType::BONUS_EXP;
 	} else if (is_abbrev(m_second_argument.c_str(), "урон")) {
 		out << " увеличенного урона";
-		m_bonus_type = BONUS_DAMAGE;
+		m_bonus_type = Bonus::EBonusType::BONUS_DAMAGE;
 	} else {
 		// logic error.
 	}
