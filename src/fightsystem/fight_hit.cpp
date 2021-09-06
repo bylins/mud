@@ -2291,7 +2291,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 			}
 		}
 
-		if (IS_NPC(victim) && Bonus::is_bonus(Bonus::BONUS_DAMAGE)) {
+		if (IS_NPC(victim) && Bonus::is_bonus_active(Bonus::EBonusType::BONUS_DAMAGE)) {
 			dam *= Bonus::get_mult_bonus();
 		}
 	}

@@ -2,7 +2,7 @@
 #define __BONUS_TYPES_HPP__
 
 namespace Bonus {
-enum EBonusType {
+enum class EBonusType {
 	BONUS_EXP = 0,
 	BONUS_WEAPON_EXP = 1,
 	BONUS_DAMAGE = 2

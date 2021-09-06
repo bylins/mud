@@ -861,11 +861,11 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 	// 4. Последняя проверка
 	exp = MAX(1, exp);
 	if (exp > 1) {
-		if (Bonus::is_bonus(Bonus::BONUS_EXP)) {
+		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			exp *= Bonus::get_mult_bonus();
 		}
 
-		if (!IS_NPC(ch) && !ch->affected.empty()) {
+		if (!IS_NPC(ch) && !ch->affected.empty() && Bonus::can_get_bonus_exp(ch)) {
 			for (const auto aff : ch->affected) {
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
 				{
@@ -1058,7 +1058,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
+		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			battle_exp *= Bonus::get_mult_bonus();
 		}
 		gain_exp(ch, battle_exp);
@@ -1076,7 +1076,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
 
 			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-			if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
+			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
 				battle_exp *= Bonus::get_mult_bonus();
 			}
 			gain_exp(master, battle_exp);
