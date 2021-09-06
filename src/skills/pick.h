@@ -8,9 +8,14 @@ struct PickProbabilityInformation {
 	// показываемый текст игроку при осмотре замка
 	std::string text;
 
-	// шанс сломать замок в %
+	// шанс открыть замок в %
 	// 0 - замок не может быть взломан
-	unsigned short probability;
+	// имеет более высокий приоритет над шансом сломать замок
+	unsigned short unlock_probability;
+
+	// шанс сломать замок
+	// 0 - замок гарантировано не сломается
+	unsigned short brake_lock_probability;
 
 	// можно ли повысить умение при взломе
 	bool skill_train_allowed;
