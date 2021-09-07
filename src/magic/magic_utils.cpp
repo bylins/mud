@@ -54,12 +54,12 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 	char lbuf[256];
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 		*helpee_vict, *damagee_vict, *format;
-	int religion;
 
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
 	// Say phrase ?
-	if (cast_phrase[spellnum][GET_RELIGION(ch)] == nullptr) {
+	const auto &cast_phrase_list = get_cast_phrase(spellnum);
+	if (!cast_phrase_list) {
 		sprintf(buf, "[ERROR]: say_spell: для спелла %d не объявлена cast_phrase", spellnum);
 		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
@@ -70,9 +70,13 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 			case NPC_RACE_GHOST:
 			case NPC_RACE_HUMAN:
 			case NPC_RACE_ZOMBIE:
-			case NPC_RACE_SPIRIT: religion = number(RELIGION_POLY, RELIGION_MONO);
-				if (*cast_phrase[spellnum][religion] != '\n')
-					strcpy(buf, cast_phrase[spellnum][religion]);
+			case NPC_RACE_SPIRIT:
+			{
+				const int religion = number(RELIGION_POLY, RELIGION_MONO);
+				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+				if (!cast_phrase.empty()) {
+					strcpy(buf, cast_phrase.c_str());
+				}
 				say_to_self = "$n пробормотал$g : '%s'.";
 				say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
 				say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
@@ -80,6 +84,7 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 				damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
 				helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
 				break;
+			}
 			default: say_to_self = "$n издал$g непонятный звук.";
 				say_to_other = "$n издал$g непонятный звук.";
 				say_to_obj_vis = "$n издал$g непонятный звук.";
@@ -101,8 +106,10 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 						SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
-		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
-			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
+		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+		if (!cast_phrase.empty()) {
+			strcpy(buf, cast_phrase.c_str());
+		}
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
 		say_to_other = "$n взглянул$g на $N3 и произнес$q : '%s'.";
 		say_to_obj_vis = "$n посмотрел$g на $o3 и произнес$q : '%s'.";

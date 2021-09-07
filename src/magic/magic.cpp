@@ -198,9 +198,11 @@ int multi_cast_say(CHAR_DATA *ch) {
 void show_spell_off(int aff, CHAR_DATA *ch) {
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_WRITING))
 		return;
-	sprintf(buf, "%s", spell_wear_off_msg[aff]);
-	if (buf[0] != '*') {
-		act(buf, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
+
+	// TODO:" refactor and replace int aff by ESpell
+	const std::string &msg = get_wear_off_text(static_cast<ESpell>(aff));
+	if (!msg.empty()) {
+		act(msg.c_str(), FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
 		send_to_char("\r\n", ch);
 	}
 }

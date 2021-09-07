@@ -15,6 +15,8 @@
 #include "structs.h"    // there was defined type "byte" if it had been missing
 #include "classes/class_constants.h"
 
+#include <optional>
+
 struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 // *******************************
@@ -389,32 +391,6 @@ enum ESpell : int {
 	SPELLS_COUNT = SPELL_QUEST //last
 };
 
-class spell_wear_off_msg_t : public std::array<const char *, SPELLS_COUNT + 1> {
- private:
-	static constexpr std::size_t MESSAGE_BUFFER_LENGTH = 128;
-	static char MESSAGE_BUFFER[MESSAGE_BUFFER_LENGTH];
-
-	using parent_t = std::array<const char *, SPELLS_COUNT + 1>;
-	using parent_t::operator[];
-
- public:
-	const static char *DEFAULT_MESSAGE;
-
-	value_type operator[](size_type index) const {
-		if (size() > index && nullptr != parent_t::operator[](index)) {
-			return parent_t::operator[](index);
-		}
-
-		::snprintf(MESSAGE_BUFFER, MESSAGE_BUFFER_LENGTH, DEFAULT_MESSAGE, index);
-		return MESSAGE_BUFFER;
-	}
-};
-extern const spell_wear_off_msg_t spell_wear_off_msg;
-
-typedef std::array<const char *, 2> cast_phrase_t;
-typedef std::array<cast_phrase_t, SPELLS_COUNT + 1> cast_phrases_t;
-extern const cast_phrases_t cast_phrase;
-
 template<>
 ESpell ITEM_BY_NAME<ESpell>(const std::string &name);
 template<>
@@ -429,10 +405,6 @@ const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
  *  associated with objects (such as SPELL_IDENTIFY used with scrolls of
  *  identify) or non-players (such as NPC-only spells).
  */
-
-#define SPELL_IDENTIFY               	351
-#define SPELL_FULL_IDENTIFY          	352
-#define SPELL_QUEST          			353
 
 // NEW NPC/OBJECT SPELLS can be inserted here up to 299
 
@@ -509,6 +481,22 @@ void skill_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_angel(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_vampire(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_mental_shadow(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+
+// возращает текст выводимый при спадении скила
+std::string get_wear_off_text(ESpell spell);
+
+// текст заклинания для игроков, произнесенные заклинателями разных религий
+struct CastPhraseList {
+	// заклинание произнесенное язычником
+	std::string text_for_heathen;
+
+	// заклинание произнесенное христианиным
+	std::string text_for_christian;
+};
+
+// возвращает фразу для заклинания согласно религии
+// std::nullopt если соответсвующего заклинания в таблице нет
+std::optional<CastPhraseList> get_cast_phrase(int spell);
 
 // basic magic calling functions
 
