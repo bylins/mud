@@ -1368,26 +1368,32 @@ bool ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int sc
 
 	const PickProbabilityInformation &pbi = get_pick_probability(ch, DOOR_LOCK_COMPLEX(ch, obj, door));
 
-	if (pbi.probability == 0) {
-		send_to_char("С таким сложным замком даже и пытаться не следует...\r\n", ch);
-		return false;
-	}
-
-	const bool pick_success = pbi.probability >= number(1, 100);
+	const bool pick_success = pbi.unlock_probability >= number(1, 100);
 
 	if (pbi.skill_train_allowed) {
 		TrainSkill(ch, SKILL_PICK_LOCK, pick_success, nullptr);
 	}
 
-	if (pick_success) {
-		send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
-		if (obj) {
-			auto v = obj->get_val(1);
-			SET_BIT(v, CONT_BROKEN);
-			obj->set_val(1, v);
+	if (!pick_success) {
+		// неудачная попытка взлома - есть шанс сломать замок
+		const int brake_probe = number(1, 100);
+		if (pbi.brake_lock_probability >= brake_probe) {
+			send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
+			if (obj) {
+				auto v = obj->get_val(1);
+				SET_BIT(v, CONT_BROKEN);
+				obj->set_val(1, v);
+			} else {
+				SET_BIT(EXIT(ch, door)->exit_info, EX_BROKEN);
+			}
+		} else {
+			if (pbi.unlock_probability == 0) {
+				send_to_char("С таким сложным замком даже и пытаться не следует...\r\n", ch);
+				return false;
+			} else {
+				send_to_char("Взломщик из вас пока еще никудышний.\r\n", ch);
+			}
 		}
-	} else {
-		send_to_char("Взломщик из вас пока еще никудышний.\r\n", ch);
 	}
 
 	return pick_success;
