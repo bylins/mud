@@ -898,7 +898,7 @@ OBJ_DATA *create_charmice_box(CHAR_DATA *ch) {
 	obj->set_cost(1);
 	obj->set_rent_off(1);
 	obj->set_rent_on(1);
-	obj->set_timer(24 * 60);
+	obj->set_timer(9999);
 
 	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);

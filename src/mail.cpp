@@ -520,6 +520,9 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
 		obj->set_rent_off(10);
 		obj->set_rent_on(10);
 		obj->set_timer(24 * 60);
+		obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
+		obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+		obj->set_extra_flag(EExtraFlag::ITEM_NORENT);
 
 		char buf_date[MAX_INPUT_LENGTH];
 		strftime(buf_date, sizeof(buf_date), "%H:%M %d-%m-%Y", localtime(&i->second.date));
