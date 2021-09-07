@@ -61,18 +61,16 @@ PickProbabilityInformation get_pick_probability(CHAR_DATA *ch, int lock_complexi
 
 	// выбираем текст в зависимости от уровня скила и сложности замка
 	std::string pick_text;
-	if (lock_complexity > skill) {
-		pick_text = "Вы в жизни не видели подобного замка.";
-	} else if (lock_complexity + 10 > skill) {
-		pick_text = "Замок очень сложный.";
-	} else if (lock_complexity + 50 > skill) {
-		pick_text = "Сложный замок. Как бы не сломать.";
-	} else {
-		pick_text = "Простой замок. Эка невидаль.";
-	}
 	// если скилл может прокачаться - всегда пишем, что замок очень сложный
 	if (skill_train_allowed) {
 		pick_text = "Замок очень сложный.";
+	} else {
+		if (lock_complexity > skill) {
+			// сложность замка больше скила
+			pick_text = "Вы в жизни не видели подобного замка.";
+		} else {
+			pick_text = "Простой замок. Эка невидаль.";
+		}
 	}
 
 	const PickProbabilityInformation pbi {
