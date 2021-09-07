@@ -84,17 +84,11 @@ WorldObjects::WorldObjects() :
 	m_vnum_change_observer(new WO_VNumChangeObserver(*this)) {
 }
 
-OBJ_DATA::shared_ptr WorldObjects::create_blank(const std::string &alias) {
-	OBJ_DATA::shared_ptr new_object(new OBJ_DATA(-1));
-
-	add(new_object);
-
-	const auto id = max_id.allocate();
-	new_object->set_id(id);
-	new_object->set_extra_flag(EExtraFlag::ITEM_NORENT);
-	new_object->set_aliases(alias);
-
-	return new_object;
+OBJ_DATA::shared_ptr WorldObjects::create_blank() {
+	const auto blank = create_from_prototype_by_rnum(0);
+	blank->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
+	blank->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	return blank; //вместо -1 вставим реальный объект
 }
 
 OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(obj_vnum vnum) {

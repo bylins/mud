@@ -27,6 +27,7 @@
 #include "fightsystem/fight.h"
 #include "random.h"
 #include "skills_info.h"
+#include "skills/pick.h"
 
 #include <cmath>
 
@@ -35,8 +36,6 @@ void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
 int find_eq_pos(CHAR_DATA *ch, OBJ_DATA *obj, char *arg);
 // local functions
 void check_ice(int room);
-
-extern int get_pick_chance(int skill_pick, int lock_complexity);
 
 const int Reverse[NUM_OF_DIRS] = {2, 3, 0, 1, 5, 4};
 const char *DirIs[] =
@@ -1200,7 +1199,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 		deaf = true;
 	// ищем парную дверь в другой клетке
 	ROOM_DATA::exit_data_ptr back;
-	if (!obj && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE)) {
+	if (!obj && EXIT(ch, door) && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE)) {
 		back = world[other_room]->dir_option[rev_dir[door]];
 		if (back) {
 			if ((back->to_room() != ch->in_room)
@@ -1351,38 +1350,53 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 	}
 }
 
-int ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int scmd) {
-	int pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
-	int prob = number(1, skill_info[SKILL_PICK_LOCK].difficulty);
+bool ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int scmd) {
+	const bool pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
 
-	if (scmd == SCMD_PICK) {
-		auto percent = CalcCurrentSkill(ch, SKILL_PICK_LOCK, nullptr);
-		if (pickproof)
-			send_to_char("Вы никогда не сможете взломать ЭТО.\r\n", ch);
-		else if (!check_moves(ch, PICKLOCK_MOVES));
-			//Polud очередной magic number...
-		else if (DOOR_LOCK_COMPLEX(ch, obj, door) - ch->get_skill(SKILL_PICK_LOCK) > 10)
-			//если скилл меньше сложности на 10 и более - даже трениться на таком замке нельзя
-			send_to_char("С таким сложным замком даже и пытаться не следует...\r\n", ch);
-			//если скилл больше сложности на 10 и более - даже трениться на таком замке нельзя
-		else if ((ch->get_skill(SKILL_PICK_LOCK) - DOOR_LOCK_COMPLEX(ch, obj, door) <= 10) && (prob > percent)) {
-			send_to_char("Взломщик из вас пока еще никудышний.\r\n", ch);
-			TrainSkill(ch, SKILL_PICK_LOCK, false, nullptr);
-		} else if (get_pick_chance(ch->get_skill(SKILL_PICK_LOCK), DOOR_LOCK_COMPLEX(ch, obj, door)) < number(1, 10)) {
+	if (scmd != SCMD_PICK) {
+		return true;
+	}
+
+	if (pickproof) {
+		send_to_char("Вы никогда не сможете взломать ЭТО.\r\n", ch);
+		return false;
+	}
+
+	if (!check_moves(ch, PICKLOCK_MOVES)) {
+		return false;
+	}
+
+	const PickProbabilityInformation &pbi = get_pick_probability(ch, DOOR_LOCK_COMPLEX(ch, obj, door));
+
+	const bool pick_success = pbi.unlock_probability >= number(1, 100);
+
+	if (pbi.skill_train_allowed) {
+		TrainSkill(ch, SKILL_PICK_LOCK, pick_success, nullptr);
+	}
+
+	if (!pick_success) {
+		// неудачная попытка взлома - есть шанс сломать замок
+		const int brake_probe = number(1, 100);
+		if (pbi.brake_lock_probability >= brake_probe) {
 			send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
 			if (obj) {
 				auto v = obj->get_val(1);
 				SET_BIT(v, CONT_BROKEN);
 				obj->set_val(1, v);
-			}
-			if (door > -1) {
+			} else {
 				SET_BIT(EXIT(ch, door)->exit_info, EX_BROKEN);
 			}
-		} else
-			return (1);
-		return (0);
+		} else {
+			if (pbi.unlock_probability == 0) {
+				send_to_char("С таким сложным замком даже и пытаться не следует...\r\n", ch);
+				return false;
+			} else {
+				send_to_char("Взломщик из вас пока еще никудышний.\r\n", ch);
+			}
+		}
 	}
-	return (1);
+
+	return pick_success;
 }
 
 void do_gen_door(CHAR_DATA *ch, char *argument, int, int subcmd) {

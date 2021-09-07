@@ -23,6 +23,8 @@
 #include "zone.table.h"
 #include "chars/char_player.h"
 
+#include <algorithm>
+
 // extern
 void perform_drop_gold(CHAR_DATA *ch, int amount);
 int level_exp(CHAR_DATA *ch, int chlevel);
@@ -93,6 +95,33 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 			&& partner_feat == 1 && total_group_members == 2) {
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 			partner->mobmax_add(partner, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+		} else if (total_group_members > 12) {
+			// динамический штраф к замаксу на большие группы (с полководцем >12 человек)
+			// +1 человек к замаксу за каждые 4 мембера свыше 12
+			// итого: (13-15)->2 (16-19)->3 20->4
+			const int above_limit = total_group_members - 12;
+			const int mobmax_members = (above_limit / 4) + 2;
+
+			// выбираем всех мемберов в группе в комнате с убивецом
+			std::vector<CHAR_DATA *> members_to_mobmax;
+			if (IN_ROOM(master) == IN_ROOM(killer)) {
+				members_to_mobmax.push_back(master);
+			}
+			for (struct follow_type *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+					members_to_mobmax.push_back(f->follower);
+				}
+			}
+
+			// случайно выбираем на замакс
+			std::random_shuffle(members_to_mobmax.begin(), members_to_mobmax.end());
+			const int actual_size_to_mobmax = std::min(static_cast<int>(members_to_mobmax.size()), mobmax_members);
+			members_to_mobmax.resize(actual_size_to_mobmax);
+
+			for (const auto &member : members_to_mobmax) {
+				member->mobmax_add(member, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+			}
 		} else {
 			// выберем случайным образом мембера группы для замакса
 			auto n = number(0, cnt);
@@ -832,11 +861,11 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 	// 4. Последняя проверка
 	exp = MAX(1, exp);
 	if (exp > 1) {
-		if (Bonus::is_bonus(Bonus::BONUS_EXP)) {
+		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			exp *= Bonus::get_mult_bonus();
 		}
 
-		if (!IS_NPC(ch) && !ch->affected.empty()) {
+		if (!IS_NPC(ch) && !ch->affected.empty() && Bonus::can_get_bonus_exp(ch)) {
 			for (const auto aff : ch->affected) {
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
 				{
@@ -1029,7 +1058,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
+		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			battle_exp *= Bonus::get_mult_bonus();
 		}
 		gain_exp(ch, battle_exp);
@@ -1047,7 +1076,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
 
 			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-			if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
+			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
 				battle_exp *= Bonus::get_mult_bonus();
 			}
 			gain_exp(master, battle_exp);

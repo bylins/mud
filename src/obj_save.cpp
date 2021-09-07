@@ -1602,6 +1602,8 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	//sprintf (buf,"[TO] Checking items for %s (%d items) :", name, nitems);
 	//mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 	for (i = 0; i < nitems; i++) {
+		if (player_table[index].timer->time[i].vnum < 0) //для шмоток без прототипа идем мимо
+			continue;
 		if (player_table[index].timer->time[i].timer >= 0) {
 			rnum = real_object(player_table[index].timer->time[i].vnum);
 			if (!check_unlimited_timer(obj_proto[rnum].get())) {

@@ -11,17 +11,21 @@
 namespace Bonus {
 const size_t MAXIMUM_BONUS_RECORDS = 10;
 
-// время бонуса, в неактивном состоянии -1
-int time_bonus = -1;
+struct BonusInfo {
+	// время бонуса, в неактивном состоянии -1
+	int time_bonus = -1;
 
-// множитель бонуса
-int mult_bonus = 2;
+	// множитель бонуса
+	int mult_bonus = 2;
 
-// типа бонуса
-// 0 - оружейный
-// 1 - опыт
-// 2 - дамаг
-EBonusType type_bonus = BONUS_EXP;
+	// типа бонуса
+	// 0 - оружейный
+	// 1 - опыт
+	// 2 - дамаг
+	EBonusType type_bonus = EBonusType::BONUS_EXP;
+};
+
+BonusInfo bonus_info;
 
 // история бонусов
 typedef std::list<std::string> bonus_log_t;
@@ -31,10 +35,20 @@ void do_bonus_info(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	show_log(ch);
 }
 
+bool can_get_bonus_exp(CHAR_DATA *ch) {
+	if (IS_NPC(ch)) {
+		return false;
+	}
+
+	// бонус опыта распространяется по 49 реморт включительно
+	const short MAX_REMORT_FOR_BONUS = 49;
+	return ch->get_remort() <= MAX_REMORT_FOR_BONUS;
+}
+
 void setup_bonus(const int duration, const int multilpier, EBonusType type) {
-	time_bonus = duration;
-	mult_bonus = multilpier;
-	type_bonus = type;
+	bonus_info.time_bonus = duration;
+	bonus_info.mult_bonus = multilpier;
+	bonus_info.type_bonus = type;
 }
 
 void bonus_log_add(const std::string &name) {
@@ -86,7 +100,7 @@ void MudlogReporter::report(const std::string &message) {
 }
 
 void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *argument) {
-	ArgumentsParser bonus(argument, type_bonus, time_bonus);
+	ArgumentsParser bonus(argument, bonus_info.type_bonus, bonus_info.time_bonus);
 
 	bonus.parse();
 
@@ -97,7 +111,7 @@ void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *arg
 
 		case ArgumentsParser::ER_START:
 			switch (bonus.type()) {
-				case BONUS_DAMAGE: reporter->report("Режим бонуса \"урон\" в настоящее время отключен.");
+				case EBonusType::BONUS_DAMAGE: reporter->report("Режим бонуса \"урон\" в настоящее время отключен.");
 					break;
 
 				default: {
@@ -112,7 +126,7 @@ void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *arg
 			break;
 
 		case ArgumentsParser::ER_STOP: send_to_all(bonus.broadcast_message().c_str());
-			time_bonus = -1;
+			bonus_info.time_bonus = -1;
 			break;
 	}
 }
@@ -128,18 +142,17 @@ void dg_do_bonus(char *cmd) {
 	do_bonus(reporter, cmd);
 }
 
-// записывает в буффер сколько осталось до конца бонуса
-std::string bonus_end() {
+std::string time_to_bonus_end_as_string() {
 	std::stringstream ss;
-	if (time_bonus > 4) {
-		ss << "До конца бонуса осталось " << time_bonus << " часов.";
-	} else if (time_bonus == 4) {
+	if (bonus_info.time_bonus > 4) {
+		ss << "До конца бонуса осталось " << bonus_info.time_bonus << " часов.";
+	} else if (bonus_info.time_bonus == 4) {
 		ss << "До конца бонуса осталось четыре часа.";
-	} else if (time_bonus == 3) {
+	} else if (bonus_info.time_bonus == 3) {
 		ss << "До конца бонуса осталось три часа.";
-	} else if (time_bonus == 2) {
+	} else if (bonus_info.time_bonus == 2) {
 		ss << "До конца бонуса осталось два часа.";
-	} else if (time_bonus == 1) {
+	} else if (bonus_info.time_bonus == 1) {
 		ss << "До конца бонуса остался последний час!";
 	} else {
 		ss << "Бонуса нет.";
@@ -147,41 +160,48 @@ std::string bonus_end() {
 	return ss.str();
 }
 
-// Записывает в буфер тип бонуса
-std::string str_type_bonus() {
-	switch (type_bonus) {
-		case BONUS_DAMAGE: return "Сейчас идет бонус: повышенный урон.";
-
-		case BONUS_EXP: return "Сейчас идет бонус: повышенный опыт за убийство моба.";
-
-		case BONUS_WEAPON_EXP: return "Сейчас идет бонус: повышенный опыт от урона оружия.";
-
-		default: return "";
+std::string active_bonus_as_string() {
+	if (bonus_info.time_bonus == -1) {
+		return std::string();
 	}
+
+	switch (bonus_info.type_bonus) {
+		case EBonusType::BONUS_DAMAGE: return "Сейчас идет бонус: повышенный урон.";
+
+		case EBonusType::BONUS_EXP: return "Сейчас идет бонус: повышенный опыт за убийство моба.";
+
+		case EBonusType::BONUS_WEAPON_EXP: return "Сейчас идет бонус: повышенный опыт от урона оружия.";
+	}
+
+	return "Неизвестный бонус. Сообщите богам.";
 }
 
 // таймер бонуса
 void timer_bonus() {
-	if (time_bonus <= -1) {
+	if (bonus_info.time_bonus <= -1) {
 		return;
 	}
-	time_bonus--;
-	if (time_bonus < 1) {
+	bonus_info.time_bonus--;
+	if (bonus_info.time_bonus < 1) {
 		send_to_all("&WБонус закончился...&n\r\n");
-		time_bonus = -1;
+		bonus_info.time_bonus = -1;
 		return;
 	}
-	std::string bonus_str = "&W" + bonus_end() + "&n\r\n";
+	std::string bonus_str = "&W" + time_to_bonus_end_as_string() + "&n\r\n";
 	send_to_all(bonus_str.c_str());
 }
 
 // проверка на тип бонуса
-bool is_bonus(int type) {
-	if ((type == 0 || type == type_bonus) && time_bonus > -1) {
-		return true;
+bool is_bonus_active(EBonusType type) {
+	if (bonus_info.time_bonus == -1) {
+		return false;
 	}
 
-	return false;
+	return type == bonus_info.type_bonus;
+}
+
+bool is_bonus_active() {
+	return bonus_info.time_bonus != -1;
 }
 
 // загружает лог бонуса из файла
@@ -217,7 +237,7 @@ void show_log(CHAR_DATA *ch) {
 
 // возвращает множитель бонуса
 int get_mult_bonus() {
-	return mult_bonus;
+	return bonus_info.mult_bonus;
 }
 }
 

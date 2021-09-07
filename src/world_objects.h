@@ -56,9 +56,7 @@ class WorldObjects {
 	* сразу идет добавление в ObjectAlias). На данный момент актуально
 	* для трупов, остальное вроде не особо и надо видеть.
 	*/
-	OBJ_DATA::shared_ptr create_blank(const std::string &alias);
-	OBJ_DATA::shared_ptr create_blank() { return create_blank(""); }
-
+	OBJ_DATA::shared_ptr create_blank(); 
 	// create a new object from a prototype
 	OBJ_DATA::shared_ptr create_from_prototype_by_vnum(obj_vnum vnum);
 

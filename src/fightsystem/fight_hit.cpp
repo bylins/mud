@@ -2291,7 +2291,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 			}
 		}
 
-		if (IS_NPC(victim) && Bonus::is_bonus(Bonus::BONUS_DAMAGE)) {
+		if (IS_NPC(victim) && Bonus::is_bonus_active(Bonus::EBonusType::BONUS_DAMAGE)) {
 			dam *= Bonus::get_mult_bonus();
 		}
 	}
@@ -2784,15 +2784,29 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim) {
 		// аналогично молоту, все доп условия добавляются внутри
 	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0) {
 		CLR_AF_BATTLE(ch, EAF_STUPOR);
+		const int minimum_weapon_weigth = 19;
 		if (IS_IMMORTAL(ch)) {
 			try_stupor_dam(ch, victim);
-		} else if (IS_NPC(ch) && !((wielded) && (GET_OBJ_SKILL(wielded) == SKILL_BOWS))) {
-				try_stupor_dam(ch, victim);
+		} else if (IS_NPC(ch)) {
+			const bool wielded_with_bow = wielded && (GET_OBJ_SKILL(wielded) == SKILL_BOWS);
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
+				// проверка оружия для глуша чармисов
+				const bool wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
+				const bool weapon_weigth_ok = wielded && (GET_OBJ_WEIGHT(wielded) >= minimum_weapon_weigth);
+				if (wielded_for_stupor && !wielded_with_bow && weapon_weigth_ok) {
+					try_stupor_dam(ch, victim);
+				}
+			} else {
+				// нпц глушат всем, кроме луков
+				if (!wielded_with_bow) {
+					try_stupor_dam(ch, victim);
+				}
+			}
 		} else if (wielded) {
 			if (GET_OBJ_SKILL(wielded) == SKILL_BOWS) {
 				send_to_char("Луком оглушить нельзя.\r\n", ch);
 			} else if (!GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY)) {
-				if (GET_OBJ_WEIGHT(wielded) > 18) {
+				if (GET_OBJ_WEIGHT(wielded) >= minimum_weapon_weigth) {
 					try_stupor_dam(ch, victim);
 				} else {
 					send_to_char("&WВаше оружие слишком легкое, чтобы им можно было оглушить!&Q&n\r\n", ch);

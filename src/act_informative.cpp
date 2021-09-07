@@ -63,6 +63,7 @@
 #include "conf.h"
 #include "classes/class_constants.h"
 #include "skills_info.h"
+#include "skills/pick.h"
 #include "magic/magic_rooms.h"
 #include "exchange.h"
 
@@ -106,7 +107,6 @@ void list_obj_to_char(OBJ_DATA *list, CHAR_DATA *ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA *i, OBJ_DATA *obj, int mode);
 const char *diag_obj_timer(const OBJ_DATA *obj);
 char *diag_timer_to_char(const OBJ_DATA *obj);
-int get_pick_chance(int skill_pick, int lock_complexity);
 int thaco(int class_num, int level);
 
 void do_affects(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -183,14 +183,6 @@ const char *ObjState[8][2] = {{"рассыпается", "рассыпается
 							  {"очень хорошо", "в очень хорошем состоянии"},
 							  {"великолепно", "в великолепном состоянии"}
 };
-
-const char *Locks[4][2] =
-	{
-		{"%s Вы в жизни не видели подобного замка.%s\r\n", KIRED},
-		{"%s Замок очень сложный.%s\r\n", KIYEL},
-		{"%s Сложный замок. Как бы не сломать.%s\r\n", KIGRN},
-		{"%s Простой замок. Эка невидаль.%s\r\n", KGRN}
-	};
 
 void do_check(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!login_change_invoice(ch))
@@ -1970,10 +1962,6 @@ void look_at_room(CHAR_DATA *ch, int ignore_brief) {
 	}
 }
 
-int get_pick_chance(int skill_pick, int lock_complexity) {
-	return (MIN(5, MAX(-5, skill_pick - lock_complexity)) + 5);
-}
-
 void look_in_direction(CHAR_DATA *ch, int dir, int info_is) {
 	int count = 0, probe, percent;
 	ROOM_DATA::exit_data_ptr rdata;
@@ -2000,18 +1988,8 @@ void look_in_direction(CHAR_DATA *ch, int dir, int info_is) {
 				} else if (EXIT_FLAGGED(rdata, EX_BROKEN)) {
 					count += sprintf(buf + count - 2, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 				} else {
-					const int chance = get_pick_chance(skill_pick, rdata->lock_complexity);
-					const int index = chance ? chance / 5 + 1 : 0;
-
-					std::string color = Locks[index][1];
-					if (abs(skill_pick - rdata->lock_complexity) > 10) {
-						color = KIDRK;
-					}
-					if (COLOR_LEV(ch) > C_NRM) {
-						count += sprintf(buf + count - 2, Locks[index][0], color.c_str(), KNRM);
-					} else {
-						count += sprintf(buf + count - 2, Locks[index][0], KNUL, KNUL);
-					}
+					const PickProbabilityInformation &pbi = get_pick_probability(ch, rdata->lock_complexity);
+					count += sprintf(buf + count - 2, "%s\r\n", pbi.text.c_str());
 				}
 			}
 
@@ -2201,16 +2179,8 @@ void look_in_obj(CHAR_DATA *ch, char *arg) {
 					else if (OBJVAL_FLAGGED(obj, CONT_BROKEN))
 						count += sprintf(buf + count, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 					else {
-						const int chance = get_pick_chance(skill_pick, GET_OBJ_VAL(obj, 3));
-						const int index = chance ? chance / 5 + 1 : 0;
-						std::string color = Locks[index][1];
-						if (abs(skill_pick - GET_OBJ_VAL(obj, 3)) > 10)
-							color = KIDRK;
-
-						if (COLOR_LEV(ch) > C_NRM)
-							count += sprintf(buf + count, Locks[index][0], color.c_str(), KNRM);
-						else
-							count += sprintf(buf + count, Locks[index][0], KNUL, KNUL);
+						const PickProbabilityInformation &pbi = get_pick_probability(ch, GET_OBJ_VAL(obj, 3));
+						count += sprintf(buf + count, "%s\r\n", pbi.text.c_str());
 					}
 					send_to_char(buf, ch);
 				}
@@ -3294,9 +3264,9 @@ void print_do_score_all(CHAR_DATA *ch) {
 	if (PRF_FLAGGED(ch, PRF_BLIND))
 		sprintf(buf + strlen(buf),
 				" || Режим слепого игрока включен.                                                   ||\r\n");
-	if (Bonus::is_bonus(0))
+	if (Bonus::is_bonus_active())
 		sprintf(buf + strlen(buf),
-				" || %-79s ||\r\n || %-79s ||\r\n", Bonus::str_type_bonus().c_str(), Bonus::bonus_end().c_str());
+				" || %-79s ||\r\n || %-79s ||\r\n", Bonus::active_bonus_as_string().c_str(), Bonus::time_to_bonus_end_as_string().c_str());
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL) {
 		sprintf(buf + strlen(buf),
 				" &c|| &RВНИМАНИЕ!&n ваше имя не одобрил никто из богов!&c                                   ||\r\n");

@@ -38,7 +38,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 					technique.rival()->drop_from_horse();
 				} else { // иначе просто садится на попу с лагом 2
 					GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), POS_SITTING);
-					set_wait(technique.rival(), 2, TRUE);
+					set_wait(technique.rival(), 2, FALSE);
 				}
 			});
 			break;
@@ -69,7 +69,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
-				set_wait(technique.rival(), 3, TRUE);
+				set_wait(technique.rival(), 3, FALSE);
 			});
 			break;
 	};
