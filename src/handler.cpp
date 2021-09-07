@@ -311,6 +311,7 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 	const auto affect_on_room = RoomSpells::findRoomAffect(world[room], SPELL_HYPNOTIC_PATTERN);
 	if (affect_on_room != world[room]->affected.end()) {
 		CHAR_DATA *caster = find_char((*affect_on_room)->caster_id);
+		// если не в гопе, и не слепой
 		if (!same_group(ch, caster)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)){
 			if (ch->has_master()
