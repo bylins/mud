@@ -85,7 +85,10 @@ WorldObjects::WorldObjects() :
 }
 
 OBJ_DATA::shared_ptr WorldObjects::create_blank() {
-	return create_from_prototype_by_rnum(0); //вместо -1 вставим реальный объект
+	const auto blank = create_from_prototype_by_rnum(0);
+	blank->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
+	blank->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	return blank; //вместо -1 вставим реальный объект
 }
 
 OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(obj_vnum vnum) {
