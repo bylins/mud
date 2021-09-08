@@ -465,6 +465,9 @@ CHAR_DATA *find_friend(CHAR_DATA *caster, int spellnum) {
 
 		case SPELL_REMOVE_SILENCE: AFF_USED.push_back(EAffectFlag::AFF_SILENCE);
 			break;
+			
+		case SPELL_REMOVE_DEAFNESS: AFF_USED.push_back(EAffectFlag::AFF_DEAFNESS);
+			break;
 
 		case SPELL_CURE_PLAQUE: spellreal = SPELL_PLAQUE;
 			break;
@@ -537,6 +540,8 @@ CHAR_DATA *find_caster(CHAR_DATA *caster, int spellnum) {
 		case SPELL_REMOVE_CURSE: AFF_USED.push_back(EAffectFlag::AFF_CURSE);
 			break;
 		case SPELL_REMOVE_SILENCE: AFF_USED.push_back(EAffectFlag::AFF_SILENCE);
+			break;
+		case SPELL_REMOVE_DEAFNESS: AFF_USED.push_back(EAffectFlag::AFF_DEAFNESS);
 			break;
 		case SPELL_CURE_PLAQUE: spellreal = SPELL_PLAQUE;
 			break;

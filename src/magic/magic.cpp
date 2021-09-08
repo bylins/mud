@@ -1292,9 +1292,9 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			af[0].location = APPLY_CHA;
 			af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT*GET_REMORT(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + koef_modifier;
+				af[0].modifier = (level + 9) / 10 + 0.7*koef_modifier;
 			else
-				af[0].modifier = (level + 14) / 15 + koef_modifier;
+				af[0].modifier = (level + 14) / 15 + 0.7*koef_modifier;
 			accum_duration = TRUE;
 			accum_affect = TRUE;
 			to_room = "$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
@@ -2964,6 +2964,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 			GET_HR(mob) = GET_HR(mob) + GET_HR(mob) * 0.20;
 		}
 	}
+	ch->add_follower(mob); // для избеганее случаев попадания в комнату, до следования.
 	char_to_room(mob, ch->in_room);
 	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(mob, MOB_PROTECT))) {
 		send_to_char("Оживляемый был освящен Богами и противится этому!\r\n", ch);
@@ -3102,7 +3103,6 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	}
 	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
 
-	ch->add_follower(mob);
 	if (spellnum == SPELL_CLONE) {
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
 		for (k = ch->followers; k; k = k->next) {

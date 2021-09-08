@@ -1968,6 +1968,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 
 	mob->set_level(ch->get_level());
 
+	ch->add_follower(mob);
 	char_to_room(mob, ch->in_room);
 
 	if (IS_FEMALE(mob)) {
@@ -1975,7 +1976,6 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 	} else {
 		act("Небесный защитник появился в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
-	ch->add_follower(mob);
 	return;
 }
 
@@ -1996,7 +1996,12 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 			stop_follower(k->follower, FALSE);
 		}
 	}
-	if (get_effective_int(ch) < 26 && !IS_IMMORTAL(ch)) {
+	auto eff_int = get_effective_int(ch);
+	int hp = 100;
+	int hp_per_int = 15;
+	float base_ac = 100;
+	float additional_ac = -1.5;
+	if (eff_int < 26 && !IS_IMMORTAL(ch)) {
 		send_to_char("Головные боли мешают работать!\r\n", ch);
 		return;
 	};
@@ -2007,22 +2012,46 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 	}
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
-	af.duration =
-		pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
 	affect_to_char(mob, af);
+	
+	GET_MAX_HIT(mob) = floorf(hp + hp_per_int * (eff_int - 20) + GET_HIT(ch)/10);
+	GET_HIT(mob) = GET_MAX_HIT(mob);
+	GET_AC(mob) = floorf(base_ac + additional_ac * eff_int);
+	// Добавление заклов и аффектов в зависимости от интелекта кудеса
+	if (eff_int >= 28 && eff_int < 32) {
+     	SET_SPELL(mob, SPELL_REMOVE_DEAFNESS, 1);
+	} else if (eff_int >= 32 && eff_int < 38) {
+		SET_SPELL(mob, SPELL_REMOVE_DEAFNESS, 2);
+		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+		affect_to_char(mob, af);
 
-	char_to_room(mob, IN_ROOM(ch));
-	mob->set_protecting(ch);
+	} else if(eff_int >= 38 && eff_int < 44) {
+		SET_SPELL(mob, SPELL_REMOVE_DEAFNESS, 2);
+		SET_SPELL(mob, SPELL_REMOVE_SILENCE, 1);
+		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+		affect_to_char(mob, af);
+		
+	} else if(eff_int >= 44) {
+		SET_SPELL(mob, SPELL_REMOVE_DEAFNESS, 2);
+		SET_SPELL(mob, SPELL_REMOVE_SILENCE, 2);
+		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+		affect_to_char(mob, af);
+		af.bitvector = to_underlying(EAffectFlag::AFF_BROKEN_CHAINS);
+		affect_to_char(mob, af);
+	}
+	mob->set_level(ch->get_level());
 	MOB_FLAGS(mob).set(MOB_CORPSE);
 	MOB_FLAGS(mob).set(MOB_GHOST);
-
-	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-
 	ch->add_follower(mob);
+	char_to_room(mob, IN_ROOM(ch));
+	mob->set_protecting(ch);
+	
+	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	return;
 }
 
