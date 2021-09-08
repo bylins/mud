@@ -3190,7 +3190,6 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 		PRF_FLAGS(mob).set(PRF_AWAKE);
 	}
 	MOB_FLAGS(mob).set(MOB_NOTRAIN);
-	
 	// А надо ли это вообще делать???
 	if (handle_corpse) {
 		for (tobj = obj->get_contains(); tobj;) {
