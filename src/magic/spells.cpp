@@ -1976,6 +1976,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 	} else {
 		act("Небесный защитник появился в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
+	act("$N0 начал$G следовать за $n4.", FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN); // временно (Кудояр)
 	return;
 }
 
@@ -2019,30 +2020,31 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 	af.battleflag = 0;
 	affect_to_char(mob, af);
 	
-	GET_MAX_HIT(mob) = floorf(hp + hp_per_int * (eff_int - 20) + GET_HIT(ch)/10);
+	GET_MAX_HIT(mob) = floorf(hp + hp_per_int * (eff_int - 20) + GET_HIT(ch)/4);
 	GET_HIT(mob) = GET_MAX_HIT(mob);
 	GET_AC(mob) = floorf(base_ac + additional_ac * eff_int);
 	// Добавление заклов и аффектов в зависимости от интелекта кудеса
 	if (eff_int >= 28 && eff_int < 32) {
-     	SET_SPELL(mob, SPELL_REMOVE_DEAFNESS, 1);
+     	SET_SPELL(mob, SPELL_REMOVE_SILENCE, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
-		SET_SPELL(mob, SPELL_REMOVE_DEAFNESS, 2);
+		SET_SPELL(mob, SPELL_REMOVE_SILENCE, 1);
 		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
 		affect_to_char(mob, af);
 
 	} else if(eff_int >= 38 && eff_int < 44) {
-		SET_SPELL(mob, SPELL_REMOVE_DEAFNESS, 2);
-		SET_SPELL(mob, SPELL_REMOVE_SILENCE, 1);
+		SET_SPELL(mob, SPELL_REMOVE_SILENCE, 2);
 		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
 		affect_to_char(mob, af);
 		
 	} else if(eff_int >= 44) {
-		SET_SPELL(mob, SPELL_REMOVE_DEAFNESS, 2);
-		SET_SPELL(mob, SPELL_REMOVE_SILENCE, 2);
+		SET_SPELL(mob, SPELL_REMOVE_SILENCE, 3);
 		af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
 		affect_to_char(mob, af);
 		af.bitvector = to_underlying(EAffectFlag::AFF_BROKEN_CHAINS);
 		affect_to_char(mob, af);
+	}
+	if (mob->get_skill(SKILL_AWAKE)) {
+		PRF_FLAGS(mob).set(PRF_AWAKE);
 	}
 	mob->set_level(ch->get_level());
 	MOB_FLAGS(mob).set(MOB_CORPSE);
@@ -2052,6 +2054,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 	mob->set_protecting(ch);
 	
 	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+	act("$N0 начал$G следовать за $n4.", FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN); // временно (Кудояр)
 	return;
 }
 
