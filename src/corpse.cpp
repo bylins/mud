@@ -458,7 +458,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	corpse->set_val(3, OBJ_DATA::CORPSE_INDICATOR);    // corpse identifier
 	corpse->set_rent_off(100000);
 
-	if (IS_NPC(ch)) {
+	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		corpse->set_timer(max_npc_corpse_time * 2);
 	} else {
 		corpse->set_timer(max_pc_corpse_time * 2);
