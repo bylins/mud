@@ -312,6 +312,7 @@ int im_assign_power(OBJ_DATA *obj)
 
 	ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str();
 	obj->set_aliases(replace_alias(ptr, sample, rnum, "m"));
+	obj->set_is_rename(true); // чтоб в олц не портилось имя
 
 	// Обработка других полей объекта
 	// -- пока не сделано --
