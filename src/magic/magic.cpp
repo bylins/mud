@@ -2964,8 +2964,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 			GET_HR(mob) = GET_HR(mob) + GET_HR(mob) * 0.20;
 		}
 	}
-	ch->add_follower(mob); // для избеганее случаев попадания в комнату, до следования.
-	char_to_room(mob, ch->in_room);
+	
 	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffectFlag::AFF_SANCTUARY) || MOB_FLAGGED(mob, MOB_PROTECT))) {
 		send_to_char("Оживляемый был освящен Богами и противится этому!\r\n", ch);
 		extract_char(mob, FALSE);
@@ -3103,6 +3102,12 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	}
 	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
 
+	// для избеганее случаев попадания в комнату, до следования
+	ch->add_follower(mob); 
+	// костыль шлем в клетку - месседж следования (с) Кудояр
+	act("$N0 начал$G следовать за $n4.", FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
+	char_to_room(mob, ch->in_room);
+
 	if (spellnum == SPELL_CLONE) {
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
 		for (k = ch->followers; k; k = k->next) {
@@ -3185,7 +3190,6 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 		PRF_FLAGS(mob).set(PRF_AWAKE);
 	}
 	MOB_FLAGS(mob).set(MOB_NOTRAIN);
-
 	// А надо ли это вообще делать???
 	if (handle_corpse) {
 		for (tobj = obj->get_contains(); tobj;) {
