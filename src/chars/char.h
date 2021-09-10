@@ -206,7 +206,7 @@ struct player_special_data_saved {
 	room_vnum load_room;    // Which room to place char in
 	FLAG_DATA pref;        // preference flags for PC's.
 	int bad_pws;        // number of bad password attemps
-	std::array<int, 3> conditions;        // Drunk, full, thirsty
+	std::array<int, 3> conditions{};        // Drunk, full, thirsty
 
 	int DrunkState;
 	int olc_zone;
