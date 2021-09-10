@@ -1967,16 +1967,14 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
 	mob->set_level(ch->get_level());
-
-	ch->add_follower(mob);
 	char_to_room(mob, ch->in_room);
-
+	ch->add_follower(mob);
+	
 	if (IS_FEMALE(mob)) {
 		act("Небесная защитница появилась в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	} else {
 		act("Небесный защитник появился в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
-	act("$N0 начал$G следовать за $n4.", FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN); // временно (Кудояр)
 	return;
 }
 
@@ -2049,12 +2047,11 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 	mob->set_level(ch->get_level());
 	MOB_FLAGS(mob).set(MOB_CORPSE);
 	MOB_FLAGS(mob).set(MOB_GHOST);
-	ch->add_follower(mob);
 	char_to_room(mob, IN_ROOM(ch));
+	ch->add_follower(mob);
 	mob->set_protecting(ch);
 	
 	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-	act("$N0 начал$G следовать за $n4.", FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN); // временно (Кудояр)
 	return;
 }
 

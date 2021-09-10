@@ -314,12 +314,14 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 		// если не в гопе, и не слепой
 		if (!same_group(ch, caster)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)){
+			// отсекаем всяких непонятных личностей типо двойников и проч. (Кудояр)
+			if  ((GET_MOB_VNUM(ch) >= 3000 && GET_MOB_VNUM(ch) < 4000) || GET_MOB_VNUM(ch) == 108 ) return;
 			if (ch->has_master()
 				&& !IS_NPC(ch->get_master())
 				&& IS_NPC(ch)) {
 				return;
 			}
-			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего
+			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего (Кудояр)
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
 			float mkof = func_koef_modif(SPELL_HYPNOTIC_PATTERN, caster->get_skill(get_magic_skill_number_by_spell(SPELL_HYPNOTIC_PATTERN)));

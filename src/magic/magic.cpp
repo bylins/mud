@@ -3102,12 +3102,9 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	}
 	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
 
-	// для избеганее случаев попадания в комнату, до следования
-	ch->add_follower(mob); 
-	// костыль шлем в клетку - месседж следования (с) Кудояр
-	act("$N0 начал$G следовать за $n4.", FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
 	char_to_room(mob, ch->in_room);
-
+	ch->add_follower(mob); 
+	
 	if (spellnum == SPELL_CLONE) {
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
 		for (k = ch->followers; k; k = k->next) {
