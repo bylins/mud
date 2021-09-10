@@ -1885,12 +1885,13 @@ int MakeRecept::make(CHAR_DATA *ch) {
 	// Для маг предметов надо в сторону облегчения.
 //	i = GET_OBJ_WEIGHT(obj);
 	switch (skill) {
-		case SKILL_MAKE_BOW: obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
-			break;
-		case SKILL_MAKE_WEAR: obj->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
+		case SKILL_MAKE_BOW:;
+		case SKILL_MAKE_WEAR: 
+			obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 			obj->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
 			break;
-		default: break;
+		default: 
+		break;
 	}
 	int sign = -1;
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON

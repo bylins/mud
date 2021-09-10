@@ -514,7 +514,6 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	char_to_room(ch, to_room);
 	look_at_room(ch, to_room);
 	act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
-	reset_affects(ch);
 }
 
 void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gold) {
@@ -700,6 +699,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 			   TRUE);
 		return;
 	}
+	reset_affects(ch);
 	// для начала проверяем, активны ли евенты
 	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != NOWHERE) {
 		death_cry(ch, killer);

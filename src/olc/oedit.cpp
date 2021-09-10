@@ -145,9 +145,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj) {
 	/*if (obj->get_crafter_uid()) //Если шмотка крафченная
 		fullUpdate = false;*/
 
-	//если объект не зависит от прототипа
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO))
-		fullUpdate = false;
 	//если объект изменен кодом
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED))
 		fullUpdate = false;

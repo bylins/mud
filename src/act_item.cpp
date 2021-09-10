@@ -392,7 +392,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch) {
 	act("Вы умело срезали $o3.", FALSE, ch, skin.get(), 0, TO_CHAR);
 
 	//ставим флажок "не зависит от прототипа"
-	skin->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
+	skin->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 	return skin.get();
 }
 
