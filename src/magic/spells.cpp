@@ -2302,7 +2302,8 @@ std::string get_wear_off_text(ESpell spell)
 		{SPELL_WC_LUCK, "Действие клича 'везение' закончилось."},
 		{SPELL_WC_PHYSDAMAGE, "Действие клича 'точность' закончилось."},
 		{SPELL_MASS_FAILURE, "Удача снова повернулась к вам лицом... и залепила пощечину."},
-		{SPELL_MASS_NOFLEE, "Покрывавшие вас сети колдовской западни растаяли."}
+		{SPELL_MASS_NOFLEE, "Покрывавшие вас сети колдовской западни растаяли."},
+		{SPELL_QUEST, "Наложенные на вас чары рассеялись."}
 	};
 
 	if (!spell_to_text.count(spell)) {
