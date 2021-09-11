@@ -3,7 +3,7 @@
 #include "bonus_command_parser.h"
 
 const int DEFAULT_DURATION = 12;
-const Bonus::EBonusType DEFAULT_TYPE = Bonus::BONUS_DAMAGE;
+const Bonus::EBonusType DEFAULT_TYPE = Bonus::EBonusType::BONUS_DAMAGE;
 
 TEST(Bonus_Command_Parser_Negative, NoArguments)
 {
@@ -151,7 +151,7 @@ TEST(Bonus_Command_Parser, OnlyMultiplier_DoubleWeapon)
 
 	ASSERT_EQ(Bonus::ArgumentsParser::ER_START, parser.result());
 	EXPECT_EQ(2, parser.multiplier());
-	EXPECT_EQ(Bonus::BONUS_WEAPON_EXP, parser.type());
+	EXPECT_EQ(Bonus::EBonusType::BONUS_WEAPON_EXP, parser.type());
 	EXPECT_EQ(DEFAULT_DURATION, parser.time());
 	EXPECT_EQ(true, parser.error_message().empty());
 	EXPECT_EQ(false, parser.broadcast_message().empty());
@@ -165,7 +165,7 @@ TEST(Bonus_Command_Parser, OnlyMultiplier_TripleExperience)
 
 	ASSERT_EQ(Bonus::ArgumentsParser::ER_START, parser.result());
 	EXPECT_EQ(3, parser.multiplier());
-	EXPECT_EQ(Bonus::BONUS_EXP, parser.type());
+	EXPECT_EQ(Bonus::EBonusType::BONUS_EXP, parser.type());
 	EXPECT_EQ(DEFAULT_DURATION, parser.time());
 	EXPECT_EQ(true, parser.error_message().empty());
 	EXPECT_EQ(false, parser.broadcast_message().empty());
@@ -179,7 +179,7 @@ TEST(Bonus_Command_Parser, OnlyMultiplier_TripleDamage)
 
 	ASSERT_EQ(Bonus::ArgumentsParser::ER_START, parser.result());
 	EXPECT_EQ(3, parser.multiplier());
-	EXPECT_EQ(Bonus::BONUS_DAMAGE, parser.type());
+	EXPECT_EQ(Bonus::EBonusType::BONUS_DAMAGE, parser.type());
 	EXPECT_EQ(DEFAULT_DURATION, parser.time());
 	EXPECT_EQ(true, parser.error_message().empty());
 	EXPECT_EQ(false, parser.broadcast_message().empty());
@@ -196,7 +196,7 @@ TEST(Bonus_Command_Parser, Double_Weapon_1)
 	EXPECT_EQ(false, parser.broadcast_message().empty());
 	EXPECT_EQ(1, parser.time());
 	EXPECT_EQ(2, parser.multiplier());
-	EXPECT_EQ(Bonus::BONUS_WEAPON_EXP, parser.type());
+	EXPECT_EQ(Bonus::EBonusType::BONUS_WEAPON_EXP, parser.type());
 }
 
 TEST(Bonus_Command_Parser, Double_Experience_5)
@@ -210,7 +210,7 @@ TEST(Bonus_Command_Parser, Double_Experience_5)
 	EXPECT_EQ(false, parser.broadcast_message().empty());
 	EXPECT_EQ(5, parser.time());
 	EXPECT_EQ(2, parser.multiplier());
-	EXPECT_EQ(Bonus::BONUS_EXP, parser.type());
+	EXPECT_EQ(Bonus::EBonusType::BONUS_EXP, parser.type());
 }
 
 TEST(Bonus_Command_Parser, Triple_Damage_60)
@@ -224,7 +224,7 @@ TEST(Bonus_Command_Parser, Triple_Damage_60)
 	EXPECT_EQ(false, parser.broadcast_message().empty());
 	EXPECT_EQ(60, parser.time());
 	EXPECT_EQ(3, parser.multiplier());
-	EXPECT_EQ(Bonus::BONUS_DAMAGE, parser.type());
+	EXPECT_EQ(Bonus::EBonusType::BONUS_DAMAGE, parser.type());
 }
 
 TEST(Bonus_Command_Parser, Cancel)

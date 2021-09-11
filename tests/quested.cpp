@@ -1,6 +1,6 @@
 #include "char.utilities.hpp"
 
-#include <quested.hpp>
+#include <quests/quested.h>
 
 #include <gtest/gtest.h>
 

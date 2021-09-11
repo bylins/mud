@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <boards.h>
+#include <boards/boards.h>
 
 const char* NEWS_BOARD_FILE_NAME = "data/boards/news.catcat";
 

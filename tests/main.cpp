@@ -1,9 +1,7 @@
 #include <config.h>
-#include <class.hpp>
+#include <magic/spells_info.h>
 
 #include <gtest/gtest.h>
-
-void mag_assign_spells(void);	// defined in "spell_parser.cpp"
 
 class BylinsEnvironment: public ::testing::Environment
 {
@@ -13,7 +11,7 @@ public:
 
 void BylinsEnvironment::SetUp()
 {
-	mag_assign_spells();
+	initSpells();
 	runtime_config.disable_logging();
 }
 
