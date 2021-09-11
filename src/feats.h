@@ -188,6 +188,7 @@
 #define DEADLY_THROW_FEAT        152 // широкий размах
 #define TURN_UNDEAD_FEAT        153 // затычка для "изгнать нежить"
 #define MULTI_CAST_FEAT            154 // уменьшение штрафа за число циелей для масскастов
+#define ANIMAL_MASTER_FEAT    155 // хозяин животных
 
 
 // MAX_FEATS определяется в structs.h

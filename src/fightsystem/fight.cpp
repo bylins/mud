@@ -404,7 +404,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA *caster, int spellnum) {
 	}
 
 	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)
-		|| MOB_FLAGGED(caster, MOB_GHOST))
+		|| MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON)) // (Кудояр)
 		&& AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) {
 		if (GET_HP_PERC(caster) < AFF_USED) {
 			return caster;
@@ -474,7 +474,7 @@ CHAR_DATA *find_friend(CHAR_DATA *caster, int spellnum) {
 	}
 	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
 		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST))) {
+			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON))) { //(Кудояр)
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal)) {
 			return caster;
@@ -549,7 +549,7 @@ CHAR_DATA *find_caster(CHAR_DATA *caster, int spellnum) {
 
 	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
 		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST))) {
+			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON))) { // (Кудояр)
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal)) {
 			return caster;
@@ -635,7 +635,7 @@ CHAR_DATA *find_affectee(CHAR_DATA *caster, int spellnum) {
 		spellreal = SPELL_DETECT_POISON;
 
 	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)
-		|| MOB_FLAGGED(caster, MOB_GHOST)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) {
+		|| MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) { // (Кудояр)
 		if (!affected_by_spell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
@@ -652,7 +652,7 @@ CHAR_DATA *find_affectee(CHAR_DATA *caster, int spellnum) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!IS_NPC(vict)
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON)) // (Кудояр)
 					&& vict->has_master()
 					&& !IS_NPC(vict->get_master()))
 				|| !CAN_SEE(caster, vict)) {

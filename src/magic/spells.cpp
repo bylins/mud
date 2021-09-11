@@ -981,7 +981,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch)
-		&& general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 4 + GET_REMORT(ch) * 3))
+		&& general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 4 + GET_REMORT(ch) * 3)) //предлагаю завязать на каст
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
 		if (!check_charmee(ch, victim, SPELL_CHARM)) {
@@ -1018,6 +1018,39 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(victim, af);
+
+		if (can_use_feat(ch, ANIMAL_MASTER_FEAT) && GET_RACE(victim) == 104) {
+			// резервируем место под фит
+			send_to_char("Проверки прошли", ch);
+			// начинаем тестировку
+			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+			affect_to_char(victim, af);
+			af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+			affect_to_char(victim, af);
+			GET_MAX_HIT(victim) += GET_MAX_HIT(ch);
+			GET_HIT(victim) = GET_MAX_HIT(victim);
+			victim->set_int(45);
+			MOB_FLAGS(victim).set(MOB_PLAYER_SUMMON);
+			victim->set_skill(SKILL_MIGHTHIT, 100); // +
+			victim->set_skill(SKILL_STUPOR, 100); // +
+			victim->set_skill(SKILL_BACKSTAB, 100); // +
+			victim->set_skill(SKILL_AWAKE, 100);
+			victim->set_skill(SKILL_PARRY, 100);
+			victim->set_skill(SKILL_CHOPOFF, 100); // +
+			SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
+			SET_SPELL(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
+			SET_SPELL(victim, SPELL_REMOVE_HOLD, 1); // -?
+			SET_SPELL(victim, SPELL_REMOVE_POISON, 1); // -?
+			SET_SPELL(victim, SPELL_HEAL, 1);
+			GET_HR(victim) = 45;  // +
+			GET_AC(victim) = -156; // +
+			GET_DR(victim) = 30;  // +
+			GET_ARMOUR(victim) = floorf(45);
+			NPC_FLAGS(victim).set(NPC_WIELDING); // +
+			SET_FEAT(victim, THIEVES_STRIKE_FEAT); // +
+			// MOB_FLAGS(victim).set(MOB_ANGEL);
+			// GET_LIKES(victim) = 100;
+		}
 
 		if (GET_HELPER(victim)) {
 			GET_HELPER(victim) = NULL;
