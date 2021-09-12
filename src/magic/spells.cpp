@@ -1339,7 +1339,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 			sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", CCCYN(ch, C_NRM), imtypes[j].name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
-			if (i > 30) {
+			if (i > 45) { // тут явно опечатка была, кроме того у нас мобы и выше 40лвл
 				send_to_char("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
 			} else {
 				sprintf(buf, "Качество ингредиента ");
