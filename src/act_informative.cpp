@@ -47,6 +47,7 @@
 #include "modify.h"
 #include "room.h"
 #include "glory_const.h"
+#include "global_objects.h"
 #include "chars/player_races.h"
 #include "corpse.h"
 #include "sets_drop.h"
@@ -4938,6 +4939,22 @@ void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 				send_to_char(buf, ch);
 				return;
 			}
+		}
+
+		for (const auto &shop : GlobalObjects::shop_list()) {
+			const auto &item_list = shop->items_list();
+			for (size_t i = 0; i < item_list.size(); i++) {
+				if (item_list.node(i)->uid() == ShopExt::ItemNode::NO_UID) {
+					continue;
+				}
+				if (item_list.node(i)->uid() == obj->get_uid()) {
+					sprintf(buf + strlen(buf), "можно купить в магазине: %s\r\n", shop->GetDictionaryName().c_str());
+					send_to_char(buf, ch);
+					return;
+				}
+			}
+
+
 		}
 		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.\r\n");
 //		strcat(buf, buf1);
