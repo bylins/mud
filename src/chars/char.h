@@ -387,7 +387,8 @@ class CHAR_DATA : public ProtectedCharacterData {
 
 	int get_obj_slot(int slot_num);
 	void add_obj_slot(int slot_num, int count);
-
+	// ресет нпс
+	void restore_npc();
 	////////////////////////////////////////////////////////////////////////////
 	CHAR_DATA *get_touching() const;
 	void set_touching(CHAR_DATA *vict);

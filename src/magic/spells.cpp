@@ -1019,37 +1019,146 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		af.battleflag = 0;
 		affect_to_char(victim, af);
 
-		if (can_use_feat(ch, ANIMAL_MASTER_FEAT) && GET_RACE(victim) == 104) {
-			// резервируем место под фит
-			send_to_char("Проверки прошли", ch);
+		if ( //can_use_feat(ch, ANIMAL_MASTER_FEAT) && 
+		GET_RACE(victim) == 104) {
+			// резервируем место под фит (Кудояр)
+			act("$N0 обрел$G часть вашей магической силы", FALSE, ch, 0, victim, TO_CHAR);
+			act("$N0 обрел$G часть магической силы $n1.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 			// начинаем тестировку
+			// создаем переменные модификаторов
+			int r_cha = GET_REAL_CHA(ch);
+			int perc = ch->get_skill(get_magic_skill_number_by_spell(SPELL_CHARM));
+			std::string buffer = "Значение хари: ";
+			buffer += std::to_string(r_cha);
+			buffer += " Значение скила магии: ";
+			buffer += std::to_string(perc);
+			buffer += "\n";
+			send_to_char(buffer, ch);
+			
+			// придумать логику
+			int rnd = number(1, 6);
+			// подготовить прототипы брони/ оружия
+			int k_skills = floorf(0.8*r_cha + 0.5*perc);
+			buffer = " Значение скила: ";
+			buffer += std::to_string(k_skills);
+			buffer += "\n";
+			send_to_char(buffer, ch);
+			switch (rnd)
+			{
+			case 1:
+				send_to_char("Попали в кейс с молотом (1) / молотер", ch);
+				victim->set_skill(SKILL_MIGHTHIT, k_skills);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
+				victim->set_skill(SKILL_PUNCH, k_skills*0.9);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
+				victim->set_skill(SKILL_TOUCH, k_skills*0.75);
+				SET_FEAT(victim, PUNCH_MASTER_FEAT);
+				break;
+			case 2:
+				send_to_char("Попали в кейс с глушем (2) / глушер-двуручер", ch);
+				victim->set_skill(SKILL_STUPOR, k_skills);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
+				victim->set_skill(SKILL_BOTHHANDS, k_skills*0.95); 
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
+				SET_FEAT(victim, BOTHHANDS_MASTER_FEAT);
+				SET_FEAT(victim, BOTHHANDS_FOCUS_FEAT);
+				break;
+			case 3:
+				send_to_char("Попали в кейс с стабом (3) / стабер-ядер", ch);
+				victim->set_skill(SKILL_BACKSTAB, k_skills); 
+				victim->set_skill(SKILL_RESCUE, k_skills*0.6);
+				victim->set_skill(SKILL_PICK, k_skills*0.75);
+				victim->set_skill(SKILL_POISONED, k_skills*0.7);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.75);
+				SET_FEAT(victim, PICK_MASTER_FEAT);
+				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
+				SET_FEAT(victim, SHADOW_STRIKE_FEAT);
+				break;
+			case 4:
+				send_to_char("Попали в кейс с осторогой (4)/ танк", ch);
+				victim->set_skill(SKILL_AWAKE, k_skills);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.85);
+				victim->set_skill(SKILL_BLOCK, k_skills*0.6);
+				victim->set_skill(SKILL_AXES, k_skills*0.75);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.65);
+				SET_FEAT(victim, AXES_MASTER_FEAT);
+				SET_FEAT(victim, THIEVES_STRIKE_FEAT);  
+				SET_FEAT(victim, DEFENDER_FEAT);
+				SET_FEAT(victim, LIVE_SHIELD_FEAT);
+				break;
+			case 5:
+				send_to_char("Попали в кейс с луками и трипом (5) / лучник", ch);
+				victim->set_skill(SKILL_CHOPOFF, k_skills);
+				victim->set_skill(SKILL_DEVIATE, k_skills*0.7);
+				victim->set_skill(SKILL_ADDSHOT, k_skills*0.7);
+				victim->set_skill(SKILL_BOWS, k_skills*0.85);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.65);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.5);
+				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
+				SET_FEAT(victim, BOWS_MASTER_FEAT);
+				af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
+				affect_to_char(victim, af);
+				break;			
+			default:
+				send_to_char("Попали в кейс с парри (дефолт) / ну копьеносец", ch);
+				victim->set_skill(SKILL_PARRY, k_skills);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.75);
+				victim->set_skill(SKILL_THROW, k_skills*0.95);
+				victim->set_skill(SKILL_DARK_MAGIC, k_skills*0.8);
+				victim->set_skill(SKILL_SPADES, k_skills*0.9);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.6);
+				SET_FEAT(victim, LIVE_SHIELD_FEAT);
+				SET_FEAT(victim, TRIPLE_THROW_FEAT);
+				SET_FEAT(victim, DOUBLE_THROW_FEAT);
+				SET_FEAT(victim, SHADOW_SPEAR_FEAT);
+				SET_FEAT(victim, SHADOW_THROW_FEAT);
+				SET_FEAT(victim, THROW_WEAPON_FEAT);  
+				SET_FEAT(victim, POWER_THROW_FEAT); 
+				SET_FEAT(victim, DEADLY_THROW_FEAT);
+				SET_FEAT(victim, SPADES_MASTER_FEAT);  
+				break;
+			}
 			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 			affect_to_char(victim, af);
-			af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+			if ((r_cha > 25) && (r_cha < 40)) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+			} else if ((r_cha >= 40) && (r_cha < 70)){
+				af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+			} else if ((r_cha >= 70) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+			}
+			
 			affect_to_char(victim, af);
-			GET_MAX_HIT(victim) += GET_MAX_HIT(ch);
+			
+			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*(1 +(r_cha*1.2 + perc*0.8)/GET_MAX_HIT(ch)));
 			GET_HIT(victim) = GET_MAX_HIT(victim);
-			victim->set_int(45);
+			victim->set_int(floorf((r_cha*0.3 + perc*0.20)));
+			victim->set_dex(floorf((r_cha*0.3 + perc*0.15)));
+			victim->set_str(floorf((r_cha*0.35 + perc*0.15)));
+			victim->set_con(floorf((r_cha*0.3 + perc*0.15)));
+			victim->set_wis(floorf((r_cha*0.2 + perc*0.15)));
+			victim->set_cha(floorf((r_cha*0.2 + perc*0.15)));
 			MOB_FLAGS(victim).set(MOB_PLAYER_SUMMON);
-			victim->set_skill(SKILL_MIGHTHIT, 100); // +
-			victim->set_skill(SKILL_STUPOR, 100); // +
-			victim->set_skill(SKILL_BACKSTAB, 100); // +
-			victim->set_skill(SKILL_AWAKE, 100);
-			victim->set_skill(SKILL_PARRY, 100);
-			victim->set_skill(SKILL_CHOPOFF, 100); // +
-			SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
-			SET_SPELL(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
-			SET_SPELL(victim, SPELL_REMOVE_HOLD, 1); // -?
-			SET_SPELL(victim, SPELL_REMOVE_POISON, 1); // -?
-			SET_SPELL(victim, SPELL_HEAL, 1);
-			GET_HR(victim) = 45;  // +
-			GET_AC(victim) = -156; // +
-			GET_DR(victim) = 30;  // +
-			GET_ARMOUR(victim) = floorf(45);
+				
+			
+			// спелы не работают пока 
+			// SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_HOLD, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_POISON, 1); // -?
+			// SET_SPELL(victim, SPELL_HEAL, 1);
+
+			GET_HR(victim) = floorf(r_cha/5.0 + perc/12.0);  // +
+			GET_AC(victim) = -floorf(r_cha*1.05 + perc/2.0); // +
+			GET_DR(victim) = floorf(r_cha/6.0 + perc/15.0);  // +
+			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0);
 			NPC_FLAGS(victim).set(NPC_WIELDING); // +
-			SET_FEAT(victim, THIEVES_STRIKE_FEAT); // +
+			
+			SET_FEAT(victim, BERSERK_FEAT); // +
 			// MOB_FLAGS(victim).set(MOB_ANGEL);
-			// GET_LIKES(victim) = 100;
+			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.15) / 5.0);
+			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 10.0);
+			victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 120.0);
 		}
 
 		if (GET_HELPER(victim)) {

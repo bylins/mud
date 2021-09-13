@@ -1850,6 +1850,59 @@ void CHAR_DATA::restore_mob() {
 	}
 	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);
 }
+// Кудояр 
+void CHAR_DATA::restore_npc() {
+	if(!IS_NPC(this)) return;
+	
+	attackers_.clear();
+	auto proto = (&mob_proto[GET_MOB_RNUM(this)]);
+	// ресторим хпшки / мувы
+		
+	GET_HIT(this) = 1 + GET_HIT(proto);
+	GET_MAX_HIT(this) = GET_HIT(this) + floorf(GET_MAX_HIT(proto));
+	
+	GET_MOVE(this) = GET_REAL_MAX_MOVE(proto);
+	update_pos(this);
+	// ресторим хиты / дамы / ас / армор
+	GET_WEIGHT(this) = GET_WEIGHT(proto);
+	GET_HEIGHT(this) = GET_HEIGHT(proto);
+	GET_SIZE(this) = GET_SIZE(proto);
+	GET_HR(this) = GET_HR(proto);
+	GET_AC(this) = GET_AC(proto);
+	GET_DR(this) = GET_DR(proto);
+	GET_ARMOUR(this) = GET_ARMOUR(proto);
+    // кубики // екстра атаки
+	this->mob_specials.damnodice = proto->mob_specials.damnodice;
+	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
+	this->mob_specials.ExtraAttack = proto->mob_specials.ExtraAttack;
+	// this->mob_specials.damnodice = 1;
+	// this->mob_specials.damsizedice = 1;
+	// this->mob_specials.ExtraAttack = 0;
+	//флаги
+	MOB_FLAGS(this) = MOB_FLAGS(proto);
+	// ресторим статы
+	this->set_str(GET_REAL_STR(proto));
+	this->set_int(GET_REAL_INT(proto));
+	this->set_wis(GET_REAL_WIS(proto));
+	this->set_dex(GET_REAL_DEX(proto));
+	this->set_con(GET_REAL_CON(proto));
+	this->set_cha(GET_REAL_CHA(proto));
+	// ресторим мем	
+	for (int i = 0; i <= SPELLS_COUNT; ++i) {
+		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(proto, i);
+	}
+	// рестор для скилов
+	for (const auto i : AVAILABLE_SKILLS) { 
+		this->set_skill(i, GET_SKILL(proto, i));
+	}
+	// рестор для фитов
+	for (int i = 1; i < MAX_FEATS; i++) { 
+		if (!HAVE_FEAT(proto, i)) {
+				UNSET_FEAT(this, i);
+			}
+	}
+	GET_CASTER(this) = GET_CASTER(proto);
+}
 
 void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const {
 	std::stringstream ss;
