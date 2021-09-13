@@ -33,10 +33,12 @@
 #include "skills/townportal.h"
 #include "world_objects.h"
 #include "skills_info.h"
+#include "../stuff.h"
 
 #include <boost/format.hpp>
 #include <map>
 #include <utility>
+
 
 extern room_rnum r_mortal_start_room;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -1046,25 +1048,27 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			switch (rnd)
 			{
 			case 1:
-				send_to_char("Попали в кейс с молотом (1) / молотер", ch);
+				send_to_char("Попали в кейс с молотом (1) / молотер\n", ch);
 				victim->set_skill(SKILL_MIGHTHIT, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
 				victim->set_skill(SKILL_PUNCH, k_skills*0.9);
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
 				victim->set_skill(SKILL_TOUCH, k_skills*0.75);
 				SET_FEAT(victim, PUNCH_MASTER_FEAT);
+				create_charmice_weapons(victim, k_skills);
 				break;
 			case 2:
-				send_to_char("Попали в кейс с глушем (2) / глушер-двуручер", ch);
+				send_to_char("Попали в кейс с глушем (2) / глушер-двуручер\n", ch);
 				victim->set_skill(SKILL_STUPOR, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
 				victim->set_skill(SKILL_BOTHHANDS, k_skills*0.95); 
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
 				SET_FEAT(victim, BOTHHANDS_MASTER_FEAT);
 				SET_FEAT(victim, BOTHHANDS_FOCUS_FEAT);
+				create_charmice_weapons(victim, k_skills);
 				break;
 			case 3:
-				send_to_char("Попали в кейс с стабом (3) / стабер-ядер", ch);
+				send_to_char("Попали в кейс с стабом (3) / стабер-ядер\n", ch);
 				victim->set_skill(SKILL_BACKSTAB, k_skills); 
 				victim->set_skill(SKILL_RESCUE, k_skills*0.6);
 				victim->set_skill(SKILL_PICK, k_skills*0.75);
@@ -1073,9 +1077,10 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, PICK_MASTER_FEAT);
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
 				SET_FEAT(victim, SHADOW_STRIKE_FEAT);
+				create_charmice_weapons(victim, k_skills);
 				break;
 			case 4:
-				send_to_char("Попали в кейс с осторогой (4)/ танк", ch);
+				send_to_char("Попали в кейс с осторогой (4)/ танк\n", ch);
 				victim->set_skill(SKILL_AWAKE, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.85);
 				victim->set_skill(SKILL_BLOCK, k_skills*0.6);
@@ -1085,9 +1090,10 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);  
 				SET_FEAT(victim, DEFENDER_FEAT);
 				SET_FEAT(victim, LIVE_SHIELD_FEAT);
+				create_charmice_weapons(victim, k_skills);
 				break;
 			case 5:
-				send_to_char("Попали в кейс с луками и трипом (5) / лучник", ch);
+				send_to_char("Попали в кейс с луками и трипом (5) / лучник\n", ch);
 				victim->set_skill(SKILL_CHOPOFF, k_skills);
 				victim->set_skill(SKILL_DEVIATE, k_skills*0.7);
 				victim->set_skill(SKILL_ADDSHOT, k_skills*0.7);
@@ -1098,9 +1104,10 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, BOWS_MASTER_FEAT);
 				af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
 				affect_to_char(victim, af);
+				create_charmice_weapons(victim, k_skills);
 				break;			
 			default:
-				send_to_char("Попали в кейс с парри (дефолт) / ну копьеносец", ch);
+				send_to_char("Попали в кейс с парри (дефолт) / ну копьеносец\n", ch);
 				victim->set_skill(SKILL_PARRY, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.75);
 				victim->set_skill(SKILL_THROW, k_skills*0.95);
@@ -1116,6 +1123,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, POWER_THROW_FEAT); 
 				SET_FEAT(victim, DEADLY_THROW_FEAT);
 				SET_FEAT(victim, SPADES_MASTER_FEAT);  
+				create_charmice_weapons(victim, k_skills);
 				break;
 			}
 			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
@@ -1124,7 +1132,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
 			} else if ((r_cha >= 40) && (r_cha < 70)){
 				af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
-			} else if ((r_cha >= 70) {
+			} else if (r_cha >= 70) {
 				af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
 			}
 			
@@ -1168,18 +1176,19 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.", FALSE, ch, 0, victim, TO_VICT);
 		if (IS_NPC(victim)) {
 //Eli. Раздеваемся.
-			for (int i = 0; i < NUM_WEARS; i++) {
-				if (GET_EQ(victim, i)) {
-					if (!remove_otrigger(GET_EQ(victim, i), victim)) {
-						continue;
-					}
+			if (IS_NPC(victim) && !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // только если не маг зверьки (Кудояр)
+				for (int i = 0; i < NUM_WEARS; i++) {
+					if (GET_EQ(victim, i)) {
+						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
+							continue;
+						}
 
-					act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
-					act("$n прекратил$g использовать $o3.", TRUE, victim, GET_EQ(victim, i), 0, TO_ROOM);
-					obj_to_char(unequip_char(victim, i | 0x40), victim);
+						act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
+						act("$n прекратил$g использовать $o3.", TRUE, victim, GET_EQ(victim, i), 0, TO_ROOM);
+						obj_to_char(unequip_char(victim, i | 0x40), victim);
+					}
 				}
 			}
-
 //Eli закончили раздеваться.
 			MOB_FLAGS(victim).unset(MOB_AGGRESSIVE);
 			MOB_FLAGS(victim).unset(MOB_SPEC);

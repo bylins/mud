@@ -370,4 +370,80 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
 	}
 }
 
+// готовим прототипы для зверюшек
+void create_charmice_weapons(CHAR_DATA *ch, int diff) {
+	const auto obj = world_objects.create_blank();
+
+	obj->set_aliases("острые когти");
+	const std::string descr = std::string("острые когти ") + ch->get_pad(1);
+	obj->set_short_description(descr);
+	obj->set_description("Острые когти лежет здесь.");
+	obj->set_ex_description(descr.c_str(), "Острые когти лежет здесь.");
+	obj->set_PName(0, "Острые когти");
+	obj->set_PName(1, "Острых когтей");
+	obj->set_PName(2, "Острым когтям");
+	obj->set_PName(3, "Острые когти");
+	obj->set_PName(4, "Острые когти");
+	obj->set_PName(5, "Острые когти");
+	obj->set_sex(ESex::SEX_MALE);
+	obj->set_type(OBJ_DATA::ITEM_WEAPON);
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BOTHS));
+	obj->set_maximum_durability(5000);
+	obj->set_current_durability(5000);
+	obj->set_material(OBJ_DATA::MAT_CRYSTALL);
+	// SKILL_CLUBS = 141,    // *** Weapon is club, etc    //
+	// SKILL_AXES = 142,    // *** Weapon is axe, etc     //
+	// SKILL_LONGS = 143,    // *** Weapon is long blades  //
+	// SKILL_SHORTS = 144,    // *** Weapon is short blades //
+	// SKILL_NONSTANDART = 145,    // *** Weapon is non-standart //
+	// SKILL_BOTHHANDS = 146,    // *** Weapon in both hands   //
+	// SKILL_PICK = 147,    // *** Weapon is pick         //
+	// SKILL_SPADES = 148,    // *** Weapon is spades       //
+	obj->set_skill(147);
+	obj->set_val(1, floorf(diff/25.0));
+	obj->set_val(2, 1);
+	obj->set_val(3, 11);
+	obj->set_val(4, 11);
+	obj->set_weight(25);
+	obj->set_cost(1);
+	obj->set_rent_off(1);
+	obj->set_rent_on(1);
+	obj->set_timer(9999);
+
+	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
+	obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
+	//obj_to_char(obj.get(), ch);
+				// 	#define WEAR_LIGHT      0
+				// #define WEAR_FINGER_R   1
+				// #define WEAR_FINGER_L   2
+				// #define WEAR_NECK_1     3
+				// #define WEAR_NECK_2     4
+				// #define WEAR_BODY       5
+				// #define WEAR_HEAD       6
+				// #define WEAR_LEGS       7
+				// #define WEAR_FEET       8
+				// #define WEAR_HANDS      9
+				// #define WEAR_ARMS      10
+				// #define WEAR_SHIELD    11
+				// #define WEAR_ABOUT     12
+				// #define WEAR_WAIST     13
+				// #define WEAR_WRIST_R   14
+				// #define WEAR_WRIST_L   15
+				// #define WEAR_WIELD     16      // правая рука
+				// #define WEAR_HOLD      17      // левая рука
+				// #define WEAR_BOTHS     18      // обе руки
+	equip_char(ch, obj.get(), 16);
+	
+}
+
+
+
+
+
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
