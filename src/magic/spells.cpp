@@ -945,6 +945,7 @@ int check_charmee(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
 }
 
 void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
+	int k_skills = 0;
 	if (victim == NULL || ch == NULL)
 		return;
 
@@ -1040,7 +1041,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			// придумать логику
 			int rnd = number(1, 6);
 			// подготовить прототипы брони/ оружия
-			int k_skills = floorf(0.8*r_cha + 0.5*perc);
+			k_skills = floorf(0.8*r_cha + 0.5*perc);
 			buffer = " Значение скила: ";
 			buffer += std::to_string(k_skills);
 			buffer += "\n";
@@ -1055,7 +1056,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
 				victim->set_skill(SKILL_TOUCH, k_skills*0.75);
 				SET_FEAT(victim, PUNCH_MASTER_FEAT);
-				create_charmice_weapons(victim, k_skills);
+				//create_charmice_weapons(victim, k_skills);
 				break;
 			case 2:
 				send_to_char("Попали в кейс с глушем (2) / глушер-двуручер\n", ch);
@@ -1065,7 +1066,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
 				SET_FEAT(victim, BOTHHANDS_MASTER_FEAT);
 				SET_FEAT(victim, BOTHHANDS_FOCUS_FEAT);
-				create_charmice_weapons(victim, k_skills);
+				//create_charmice_weapons(victim, k_skills);
 				break;
 			case 3:
 				send_to_char("Попали в кейс с стабом (3) / стабер-ядер\n", ch);
@@ -1077,7 +1078,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, PICK_MASTER_FEAT);
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
 				SET_FEAT(victim, SHADOW_STRIKE_FEAT);
-				create_charmice_weapons(victim, k_skills);
+				//create_charmice_weapons(victim, k_skills);
 				break;
 			case 4:
 				send_to_char("Попали в кейс с осторогой (4)/ танк\n", ch);
@@ -1090,7 +1091,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);  
 				SET_FEAT(victim, DEFENDER_FEAT);
 				SET_FEAT(victim, LIVE_SHIELD_FEAT);
-				create_charmice_weapons(victim, k_skills);
+				//create_charmice_weapons(victim, k_skills);
 				break;
 			case 5:
 				send_to_char("Попали в кейс с луками и трипом (5) / лучник\n", ch);
@@ -1104,7 +1105,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, BOWS_MASTER_FEAT);
 				af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
 				affect_to_char(victim, af);
-				create_charmice_weapons(victim, k_skills);
+				//create_charmice_weapons(victim, k_skills);
 				break;			
 			default:
 				send_to_char("Попали в кейс с парри (дефолт) / ну копьеносец\n", ch);
@@ -1123,7 +1124,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, POWER_THROW_FEAT); 
 				SET_FEAT(victim, DEADLY_THROW_FEAT);
 				SET_FEAT(victim, SPADES_MASTER_FEAT);  
-				create_charmice_weapons(victim, k_skills);
+				//create_charmice_weapons(victim, k_skills);
 				break;
 			}
 			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
@@ -1176,7 +1177,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.", FALSE, ch, 0, victim, TO_VICT);
 		if (IS_NPC(victim)) {
 //Eli. Раздеваемся.
-			if (IS_NPC(victim) && !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // только если не маг зверьки (Кудояр)
+			if (IS_NPC(victim) && !MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) { // только если не маг зверьки (Кудояр)
 				for (int i = 0; i < NUM_WEARS; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
@@ -1202,6 +1203,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			ch->save_char();
 		}
 	}
+	if (MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) create_charmice_weapons(victim, k_skills);
 }
 
 void show_weapon(CHAR_DATA *ch, OBJ_DATA *obj) {
