@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <boards.changelog.loaders.hpp>
-#include <boards.types.hpp>
+#include <boards/boards_changelog_loaders.h>
+#include <boards/boards_types.h>
 
 #include <fstream>
 

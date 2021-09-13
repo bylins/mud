@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <obj.h>
-#include <dg_scripts.h>
+#include <dg_script/dg_scripts.h>
 
 constexpr obj_vnum OBJECT_VNUM = 100500;
 constexpr obj_vnum PROTOTYPE_VNUM = 100501;
