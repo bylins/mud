@@ -324,6 +324,16 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			log("[MAG DAMAGE] Мантия  - поглощение урона: %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), spellnum);
 			return (0);
 		}
+		// Блочим маг дамагу от директ спелов для Витязей : шанс (скил/20 + вес.щита/2) ~ 30% при 200 скила и 40вес щита (Кудояр)
+		if (!IS_SET(SpINFO.routines, MAG_WARCRY) && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_AREAS) 
+			&& (victim->get_skill(SKILL_BLOCK) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, RELATED_TO_MAGIC_FEAT)
+			&& ( number(1, 100) < ((victim->get_skill(SKILL_BLOCK))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
+			{
+				act("Ловким движением $N0 отразил щитом вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Ловким движением $N0 отразил щитом магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
+				act("Вы отразили своим щитом магию $n1.", FALSE, ch, 0, victim, TO_VICT);
+				return (0);
+			}
 	}
 
 	// позиции до начала атаки для расчета модификаторов в damage()
@@ -1067,7 +1077,18 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			return 0;
 		}
 	}
-
+	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  (Кудояр)
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_AREAS) 
+	&& (victim->get_skill(SKILL_BLOCK) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, RELATED_TO_MAGIC_FEAT)
+			&& ( number(1, 100) < ((victim->get_skill(SKILL_BLOCK))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
+	{
+		act("Вашы чары повисли на щите $N1, и затем развеялись.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Щит $N1 поглотил злые чары $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
+		act("Ваш щит уберег вас от злых чар $n1.", FALSE, ch, 0, victim, TO_VICT);
+		return (0);
+	}
+	
+		
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && ch != victim && SpINFO.violent
 		&& number(1, 999) <= GET_AR(victim) * 10) {
 		send_to_char(NOEFFECT, ch);
