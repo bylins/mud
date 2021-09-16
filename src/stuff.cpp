@@ -16,6 +16,7 @@
 #include "screen.h"
 #include "sets_drop.h"
 
+
 extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
@@ -370,26 +371,145 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
 	}
 }
 
-// готовим прототипы для зверюшек
-void create_charmice_weapons(CHAR_DATA *ch, int diff) {
+// готовим прототипы шмоток для зверюшек (Кудояр)
+void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	const auto obj = world_objects.create_blank();
-
+	int position = 0;
 	obj->set_aliases("острые когти");
 	const std::string descr = std::string("острые когти ") + ch->get_pad(1);
 	obj->set_short_description(descr);
-	obj->set_description("Острые когти лежет здесь.");
-	obj->set_ex_description(descr.c_str(), "Острые когти лежет здесь.");
+	obj->set_description("Острые когти лежат здесь.");
+	obj->set_ex_description(descr.c_str(), "Острые когти лежат здесь.");
+// caseNum - номер падежа (0 - 5)
+//  0 - именительный (кто? что?)
+//  1 - родительный (кого? чего?)
+//  2 - дательный (кому? чему?)
+//  3 - винительный (кого? что?)
+//  4 - творительный (кем? чем?)
+//  5 - предложный (о ком? о чем?)
 	obj->set_PName(0, "Острые когти");
 	obj->set_PName(1, "Острых когтей");
 	obj->set_PName(2, "Острым когтям");
 	obj->set_PName(3, "Острые когти");
-	obj->set_PName(4, "Острые когти");
-	obj->set_PName(5, "Острые когти");
-	obj->set_sex(ESex::SEX_MALE);
+	obj->set_PName(4, "Острыми когтями");
+	obj->set_PName(5, "Острых когтях");
+	obj->set_sex(ESex::SEX_POLY);
 	obj->set_type(OBJ_DATA::ITEM_WEAPON);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BOTHS));
+	// среднее оружки
+	obj->set_val(1, floorf(diff/16.0)); // при 100 скила = 6  при 200 скила = 12
+	obj->set_val(2, floorf(diff/25.0)); // при 100 скила = d4  при 200 скила = d8
+	//подсчет среднего оружия	// итог средне при 100 скила = 15  при 200 скила = 54
+	switch (skill_id)
+	{
+	case SKILL_SPADES: // копья
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
+		obj->set_val(3, 11);
+		obj->set_skill(148);
+		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
+		position = 16;
+		create_charmice_weapons(ch, SKILL_BLOCK, diff);
+		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		break;
+	case SKILL_PICK: // стабер
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
+		obj->set_val(3, 11);
+		obj->set_skill(147);
+		obj->set_affected(0, APPLY_STR, floorf(diff/16.0));
+		obj->set_affected(1, APPLY_DEX, floorf(diff/10.0));
+		position = 16;
+		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		break;
+	case SKILL_AXES: // секиры
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
+		obj->set_val(3, 8);
+		obj->set_skill(142);
+		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
+		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
+		obj->set_affected(2, APPLY_DAMROLL, floorf(diff/10.0));
+		obj->set_affected(3, APPLY_HIT, 5*(diff));
+		position = 16;
+		create_charmice_weapons(ch, SKILL_BLOCK, diff);
+		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		break;
+	case SKILL_BOWS: // луки
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BOTHS));
+		obj->set_val(3, 2);
+		obj->set_skill(154);
+		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
+		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
+		position = 18;
+		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		break;
+	case SKILL_BOTHHANDS: // двуруч
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BOTHS));
+		obj->set_val(3, 1);
+		obj->set_skill(146);
+		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
+		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
+		obj->set_affected(1, APPLY_DAMROLL, floorf(diff/12.0));
+		position = 18;
+		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		break;
+	case SKILL_PUNCH: // кулачка
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_HANDS));
+		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+		position = 9;
+		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		break;
+	case SKILL_BLOCK: // блок щитом ? делаем щит
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_SHIELD));
+		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+		obj->set_description("Роговые пластины лежат здесь.");
+		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
+		obj->set_aliases("роговые пластины");
+		obj->set_short_description("Роговые пластины");
+		obj->set_PName(0, "Роговые пластины");
+		obj->set_PName(1, "Роговых пластин");
+		obj->set_PName(2, "Роговым пластинам");
+		obj->set_PName(3, "Роговые пластины");
+		obj->set_PName(4, "Роговыми пластинами");
+		obj->set_PName(5, "Роговых пластинах");
+		obj->set_val(1, floorf(diff/13.0));
+		obj->set_val(2, floorf(diff/8.0));
+		obj->set_affected(0, APPLY_SAVING_STABILITY, -floorf(diff/2.0));
+		obj->set_affected(1, APPLY_SAVING_CRITICAL, -floorf(diff/2.0));
+		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff/2.0));
+		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff/2.0));
+		position = 11;
+		break;
+				
+	default: //SKILL_INVALID / тут шкура(армор)
+		// caseNum - номер падежа (0 - 5)
+//  0 - именительный (кто? что?)
+//  1 - родительный (кого? чего?)
+//  2 - дательный (кому? чему?)
+//  3 - винительный (кого? что?)
+//  4 - творительный (кем? чем?)
+//  5 - предложный (о ком? о чем?)
+		obj->set_sex(ESex::SEX_FEMALE);
+		obj->set_description("Прочная шкура лежит здесь.");
+		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
+		obj->set_aliases("прочная шкура");
+		obj->set_short_description("Прочная шкура");
+		obj->set_PName(0, "Прочная шкура");
+		obj->set_PName(1, "Прочной шкурой");
+		obj->set_PName(2, "Прочной шкуре");
+		obj->set_PName(3, "Прочную шкуру");
+		obj->set_PName(4, "Прочной шкурой");
+		obj->set_PName(5, "Прочной шкуре");
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BODY));
+		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+		obj->set_val(1, floorf(diff/11.0));
+		obj->set_val(2, floorf(diff/7.0));
+		obj->set_affected(0, APPLY_SAVING_STABILITY, -diff);
+		obj->set_affected(1, APPLY_SAVING_CRITICAL, -diff);
+		obj->set_affected(2, APPLY_SAVING_REFLEX, -diff);
+		obj->set_affected(3, APPLY_SAVING_WILL, -diff);
+		position = 5;
+		break;
+	}
+	
 	obj->set_maximum_durability(5000);
 	obj->set_current_durability(5000);
 	obj->set_material(OBJ_DATA::MAT_CRYSTALL);
@@ -401,12 +521,27 @@ void create_charmice_weapons(CHAR_DATA *ch, int diff) {
 	// SKILL_BOTHHANDS = 146,    // *** Weapon in both hands   //
 	// SKILL_PICK = 147,    // *** Weapon is pick         //
 	// SKILL_SPADES = 148,    // *** Weapon is spades       //
-	obj->set_skill(147);
-	obj->set_val(1, floorf(diff/25.0));
-	obj->set_val(2, 1);
-	obj->set_val(3, 11);
-	obj->set_val(4, 11);
-	obj->set_weight(25);
+	// bows = 154
+
+		// {"ударил", "ударить"},    // 0
+		// {"ободрал", "ободрать"},   //1
+		// {"хлестнул", "хлестнуть"},
+		// {"рубанул", "рубануть"},
+		// {"укусил", "укусить"},
+		// {"огрел", "огреть"},    // 5
+		// {"сокрушил", "сокрушить"},
+		// {"резанул", "резануть"},
+		// {"оцарапал", "оцарапать"},
+		// {"подстрелил", "подстрелить"},
+		// {"пырнул", "пырнуть"},    // 10
+		// {"уколол", "уколоть"},	// 11
+		// {"ткнул", "ткнуть"}, 12
+		// {"лягнул", "лягнуть"}, 13
+		// {"боднул", "боднуть"}, 14
+		// {"клюнул", "клюнуть"}, 15
+		// {"ужалил", "ужалить"}, 16
+	//obj->set_val(4, 11);
+	if (skill_id != SKILL_BOTHHANDS) obj->set_weight(15);
 	obj->set_cost(1);
 	obj->set_rent_off(1);
 	obj->set_rent_on(1);
@@ -417,7 +552,7 @@ void create_charmice_weapons(CHAR_DATA *ch, int diff) {
 	obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
 	obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
-	//obj_to_char(obj.get(), ch);
+	//obj_to_char(obj.get(), ch); <=== position
 				// 	#define WEAR_LIGHT      0
 				// #define WEAR_FINGER_R   1
 				// #define WEAR_FINGER_L   2
@@ -437,7 +572,7 @@ void create_charmice_weapons(CHAR_DATA *ch, int diff) {
 				// #define WEAR_WIELD     16      // правая рука
 				// #define WEAR_HOLD      17      // левая рука
 				// #define WEAR_BOTHS     18      // обе руки
-	equip_char(ch, obj.get(), 16);
+	equip_char(ch, obj.get(), position);
 	
 }
 
