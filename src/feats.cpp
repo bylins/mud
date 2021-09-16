@@ -740,6 +740,8 @@ void determineFeaturesSpecification(void) {
 	feat_info[TURN_UNDEAD_FEAT].degreeOfSuccessDamagePercent = 2;
 //154
 	initializeFeature(MULTI_CAST_FEAT, "изощренные чары", NORMAL_FTYPE, TRUE, feat_app);
+//155	
+	initializeFeature(MAGICAL_SHIELD_FEAT, "заговоренный щит", NORMAL_FTYPE, TRUE, feat_app);
 }
 
 const char *feat_name(int num) {
