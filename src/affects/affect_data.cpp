@@ -266,6 +266,10 @@ void battle_affect_update(CHAR_DATA *ch) {
 			if (IS_SET(affect->battleflag, AF_SAME_TIME)) {
 				if (processPoisonDamage(ch, affect) == -1) // жертва умерла
 					return;
+				if (ch->purged()) {
+					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, LVL_IMPL, SYSLOG, TRUE);
+					return;
+				}
 				affect->duration--;
 			} else {
 				if (IS_NPC(ch))

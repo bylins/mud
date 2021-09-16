@@ -2402,8 +2402,10 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 
 	// Внутри magic_shields_dam вызывается dmg::proccess, если чар там умрет, то будет креш
-	if (!(ch && victim) || (ch->purged() || victim->purged()))
+	if (!(ch && victim) || (ch->purged() || victim->purged())) {
+		log("Death from magic_shields_dam");
 		return 0;
+	}
 
 	// зб на мобе
 	if (MOB_FLAGGED(victim, MOB_PROTECT)) {
