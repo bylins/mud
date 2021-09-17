@@ -372,7 +372,7 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
 }
 
 // готовим прототипы шмоток для зверюшек (Кудояр)
-void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
+void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	const auto obj = world_objects.create_blank();
 	int position = 0;
 	obj->set_aliases("острые когти");
@@ -397,8 +397,8 @@ void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	obj->set_type(OBJ_DATA::ITEM_WEAPON);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	// среднее оружки
-	obj->set_val(1, floorf(diff/16.0)); // при 100 скила = 6  при 200 скила = 12
-	obj->set_val(2, floorf(diff/25.0)); // при 100 скила = d4  при 200 скила = d8
+	obj->set_val(1, floorf(diff/16.0)); // при 100 скила куб. = 6  	при 200 скила = 12
+	obj->set_val(2, floorf(diff/25.0)); // при 100 скила граней = d4  при 200 скила = d8
 	//подсчет среднего оружия	// итог средне при 100 скила = 15  при 200 скила = 54
 	switch (skill_id)
 	{
@@ -408,8 +408,8 @@ void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_skill(148);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
 		position = 16;
-		create_charmice_weapons(ch, SKILL_BLOCK, diff);
-		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, SKILL_BLOCK, diff);
+		create_charmice_stuff(ch, SKILL_INVALID, diff);
 		break;
 	case SKILL_PICK: // стабер
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
@@ -418,7 +418,7 @@ void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(0, APPLY_STR, floorf(diff/16.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/10.0));
 		position = 16;
-		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, SKILL_INVALID, diff);
 		break;
 	case SKILL_AXES: // секиры
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
@@ -429,8 +429,8 @@ void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(2, APPLY_DAMROLL, floorf(diff/10.0));
 		obj->set_affected(3, APPLY_HIT, 5*(diff));
 		position = 16;
-		create_charmice_weapons(ch, SKILL_BLOCK, diff);
-		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, SKILL_BLOCK, diff);
+		create_charmice_stuff(ch, SKILL_INVALID, diff);
 		break;
 	case SKILL_BOWS: // луки
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BOTHS));
@@ -439,7 +439,7 @@ void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
 		position = 18;
-		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, SKILL_INVALID, diff);
 		break;
 	case SKILL_BOTHHANDS: // двуруч
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BOTHS));
@@ -449,13 +449,13 @@ void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
 		obj->set_affected(1, APPLY_DAMROLL, floorf(diff/12.0));
 		position = 18;
-		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, SKILL_INVALID, diff);
 		break;
 	case SKILL_PUNCH: // кулачка
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_HANDS));
 		obj->set_type(OBJ_DATA::ITEM_ARMOR);
 		position = 9;
-		create_charmice_weapons(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, SKILL_INVALID, diff);
 		break;
 	case SKILL_BLOCK: // блок щитом ? делаем щит
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_SHIELD));
@@ -546,12 +546,13 @@ void create_charmice_weapons(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	obj->set_rent_off(1);
 	obj->set_rent_on(1);
 	obj->set_timer(9999);
-
+	//ставим флаги на шмотки
 	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
 	obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODROP);
 	//obj_to_char(obj.get(), ch); <=== position
 				// 	#define WEAR_LIGHT      0
 				// #define WEAR_FINGER_R   1

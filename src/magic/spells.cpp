@@ -1034,37 +1034,40 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
 			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
 			
-			// подготовить прототипы брони / оружия
+			// вычисляем % владения умений у victim
 			k_skills = floorf(0.8*r_cha + 0.5*perc);
 			ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
-			// рандомно из 6 вариантов типов чармисов
+			// выбираем тип бойца - рандомно из 6 вариантов
 			int rnd = number(1, 6);
 			switch (rnd)
-			{ // готовим набор скиллов / способностей
+			{ // готовим наборы скиллов / способностей
 			case 1:
 				send_to_char("Попали в кейс с молотом (1) / молотер\n", ch); // тут потом заменим на валидные фразы
+				act("Лапы $N1 увеличились в размерах и обрели огромную дикую мощь.\nТуловище $N1 стало огромным.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_MIGHTHIT, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
 				victim->set_skill(SKILL_PUNCH, k_skills*0.9);
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
 				victim->set_skill(SKILL_TOUCH, k_skills*0.75);
 				SET_FEAT(victim, PUNCH_MASTER_FEAT);
-				//create_charmice_weapons(victim, k_skills);
+				
 				skill_id = SKILL_PUNCH;
 				break;
 			case 2:
 				send_to_char("Попали в кейс с глушем (2) / глушер-двуручер\n", ch);
+				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_STUPOR, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
 				victim->set_skill(SKILL_BOTHHANDS, k_skills*0.95); 
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
 				SET_FEAT(victim, BOTHHANDS_MASTER_FEAT);
 				SET_FEAT(victim, BOTHHANDS_FOCUS_FEAT);
-				//create_charmice_weapons(victim, k_skills);
+				
 				skill_id = SKILL_BOTHHANDS;
 				break;
 			case 3:
 				send_to_char("Попали в кейс с стабом (3) / стабер-ядер\n", ch);
+				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_BACKSTAB, k_skills); 
 				victim->set_skill(SKILL_RESCUE, k_skills*0.6);
 				victim->set_skill(SKILL_PICK, k_skills*0.75);
@@ -1073,11 +1076,12 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, PICK_MASTER_FEAT);
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
 				SET_FEAT(victim, SHADOW_STRIKE_FEAT);
-				//create_charmice_weapons(victim, k_skills);
+				
 				skill_id = SKILL_PICK;
 				break;
 			case 4:
 				send_to_char("Попали в кейс с осторогой (4)/ танк\n", ch);
+				act("Рефлексы $N1 обострились, и туловище раздалось в ширь\nНа огромных лапах засияли мелкие острые коготочки.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_AWAKE, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.85);
 				victim->set_skill(SKILL_BLOCK, k_skills*0.6);
@@ -1087,11 +1091,12 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);  
 				SET_FEAT(victim, DEFENDER_FEAT);
 				SET_FEAT(victim, LIVE_SHIELD_FEAT);
-				//create_charmice_weapons(victim, k_skills);
+				
 				skill_id = SKILL_AXES;
 				break;
 			case 5:
 				send_to_char("Попали в кейс с луками и трипом (5) / лучник\n", ch);
+				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап\n.Которые покрылись длинными когтями", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_CHOPOFF, k_skills);
 				victim->set_skill(SKILL_DEVIATE, k_skills*0.7);
 				victim->set_skill(SKILL_ADDSHOT, k_skills*0.7);
@@ -1102,11 +1107,11 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, BOWS_MASTER_FEAT);
 				af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
 				affect_to_char(victim, af);
-				//create_charmice_weapons(victim, k_skills);
 				skill_id = SKILL_BOWS;
 				break;			
 			default:
 				send_to_char("Попали в кейс с копьем (дефолт) / копейщик\n", ch);
+				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти с темным оттенком.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_PARRY, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.75);
 				victim->set_skill(SKILL_THROW, k_skills*0.95);
@@ -1122,7 +1127,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, POWER_THROW_FEAT); 
 				SET_FEAT(victim, DEADLY_THROW_FEAT);
 				SET_FEAT(victim, SPADES_MASTER_FEAT);  
-				//create_charmice_weapons(victim, k_skills);
+				
 				skill_id = SKILL_SPADES;
 				break;
 			}
@@ -1160,18 +1165,18 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			GET_DR(victim) = floorf(r_cha/6.0 + perc/15.0);  // +
 			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0);
 			//NPC_FLAGS(victim).set(NPC_WIELDING); // тут пока закомитим
-			GET_LIKES(victim) = 100;
+			GET_LIKES(victim) = 100; // устанавливаем возможность авто применения скилов
 			SET_FEAT(victim, BERSERK_FEAT); // +
-			// создаем кубики и доп атаки
+			// создаем кубики и доп атаки (пока без + а просто сет)
 			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.15) / 5.0);
 			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 10.0);
 			victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 120.0);
 		}
-
+// конец фита хозяин животных
 		if (GET_HELPER(victim)) {
 			GET_HELPER(victim) = NULL;
 		}
-// конец фита хозяин животных
+
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.", FALSE, ch, 0, victim, TO_VICT);
 		if (IS_NPC(victim)) {
 //Eli. Раздеваемся.
@@ -1202,7 +1207,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		}
 	}
 	// тут обрабатываем, если виктим маг-зверь => передаем в фунцию создание маг шмоток (цель, базовый скил, процент владения)
-	if (MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) create_charmice_weapons(victim, skill_id, k_skills);
+	if (MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) create_charmice_stuff(victim, skill_id, k_skills);
 }
 
 void show_weapon(CHAR_DATA *ch, OBJ_DATA *obj) {
