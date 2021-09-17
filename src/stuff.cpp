@@ -155,7 +155,10 @@ int get_stat_mod(int stat) {
 	switch (stat) {
 		case APPLY_STR:
 		case APPLY_DEX:
-		case APPLY_CON: mod = 1;
+		case APPLY_INT:
+		case APPLY_WIS:
+		case APPLY_CON:
+		case APPLY_CHA: mod = 1;
 			break;
 		case APPLY_AC: mod = -10;
 			break;
@@ -168,12 +171,15 @@ int get_stat_mod(int stat) {
 		case APPLY_SAVING_STABILITY:
 		case APPLY_SAVING_REFLEX: mod = -10;
 			break;
-		case APPLY_HITREG: mod = 10;
+		case APPLY_HITREG:
+		case APPLY_MANAREG: mod = 10;
 			break;
 		case APPLY_MORALE:
 		case APPLY_INITIATIVE: mod = 3;
 			break;
-		case APPLY_ABSORBE: mod = 5;
+		case APPLY_ABSORBE:
+		case APPLY_RESIST_MIND:
+		case APPLY_CAST_SUCCESS: mod = 5;
 			break;
 		case APPLY_AR:
 		case APPLY_MR: mod = 1;
