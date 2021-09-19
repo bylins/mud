@@ -1871,6 +1871,13 @@ void CHAR_DATA::restore_npc() {
 	GET_AC(this) = GET_AC(proto);
 	GET_DR(this) = GET_DR(proto);
 	GET_ARMOUR(this) = GET_ARMOUR(proto);
+	GET_INITIATIVE(this) = GET_INITIATIVE(proto);
+	GET_MORALE(this) = GET_MORALE(proto);
+	// ресторим резисты ФР/МР/АР
+	GET_AR(this) = GET_AR(proto);
+	GET_MR(this) = GET_MR(proto);
+	GET_PR(this) = GET_PR(proto);
+	
     // кубики // екстра атаки
 	this->mob_specials.damnodice = proto->mob_specials.damnodice;
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;

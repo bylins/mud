@@ -397,9 +397,9 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	obj->set_type(OBJ_DATA::ITEM_WEAPON);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	// среднее оружки
-	obj->set_val(1, floorf(diff/16.0)); // при 100 скила куб. = 6  	при 200 скила = 12
-	obj->set_val(2, floorf(diff/25.0)); // при 100 скила граней = d4  при 200 скила = d8
-	//подсчет среднего оружия	// итог средне при 100 скила = 15  при 200 скила = 54
+	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
+	obj->set_val(2, floorf(diff/27.0)); // при 100 скила граней = d4  при 200 скила = d7
+	//подсчет среднего оружия	// итог средне при 100 скила = 12,5  при 200 скила = 44
 	switch (skill_id)
 	{
 	case SKILL_SPADES: // копья
@@ -472,10 +472,10 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_PName(5, "Роговых пластинах");
 		obj->set_val(1, floorf(diff/13.0));
 		obj->set_val(2, floorf(diff/8.0));
-		obj->set_affected(0, APPLY_SAVING_STABILITY, -floorf(diff/2.0));
-		obj->set_affected(1, APPLY_SAVING_CRITICAL, -floorf(diff/2.0));
-		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff/2.0));
-		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff/2.0));
+		obj->set_affected(0, APPLY_SAVING_STABILITY, -floorf(diff/2.5));
+		obj->set_affected(1, APPLY_SAVING_CRITICAL, -floorf(diff/3.0));
+		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff/2.5));
+		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff/3.0));
 		position = 11;
 		break;
 				
@@ -502,10 +502,10 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_type(OBJ_DATA::ITEM_ARMOR);
 		obj->set_val(1, floorf(diff/11.0));
 		obj->set_val(2, floorf(diff/7.0));
-		obj->set_affected(0, APPLY_SAVING_STABILITY, -diff);
-		obj->set_affected(1, APPLY_SAVING_CRITICAL, -diff);
-		obj->set_affected(2, APPLY_SAVING_REFLEX, -diff);
-		obj->set_affected(3, APPLY_SAVING_WILL, -diff);
+		obj->set_affected(0, APPLY_SAVING_STABILITY, -floorf(diff*0.8));
+		obj->set_affected(1, APPLY_SAVING_CRITICAL, -floorf(diff*0.8));
+		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff*0.8));
+		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff*0.7));
 		position = 5;
 		break;
 	}
@@ -549,7 +549,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	//ставим флаги на шмотки
 	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
+	obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
 	obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODROP);

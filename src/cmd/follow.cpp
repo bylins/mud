@@ -93,6 +93,12 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // фул рестор моба (Кудояр)
 		act("Магия подпитующая $n3 развеялась, и $n0 вернулся в норму.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		ch->restore_npc();
+			// сначало бросаем лишнее
+				while (ch->carrying) {
+						OBJ_DATA *obj = ch->carrying;
+							obj_from_char(obj);
+							obj_to_room(obj, ch->in_room);
+					}
 			
 			for (int i = 0; i < NUM_WEARS; i++) { // убираем что одето
 				if (GET_EQ(ch, i)) {
@@ -107,9 +113,7 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 					}
 				}
 			}
-			// 	// for (OBJ_DATA *cont = ch->carrying; cont > 0; cont = cont->get_next_content()) {
-			// 	// extract_obj(cont);
-			// }
+		
 	}
 	
 	 

@@ -1349,7 +1349,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 	// если нет оружия но есть молот - будем молотить
 	const bool charmice_wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
 	const bool charmice_not_wielded = !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD));
-
+	const bool charmice_wielded_for_throw = (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD)) == SKILL_SPADES)); // Кудояр
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CHAR_DATA *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : NULL;
@@ -1377,6 +1377,31 @@ void using_charmice_skills(CHAR_DATA *ch) {
 		}
 		if (do_skill_without_command && skill_ready) {
 			SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		}
+	} else if(charmice_wielded_for_throw && (ch->get_skill(SKILL_THROW) > ch->get_skill(SKILL_STUPOR))) { // пробуем тут свои палки наставлять в колеса (Кудояр)
+			const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_THROW) <= 0;
+		if (master) {
+			std::stringstream msg;
+			msg << ch->get_name() << " использует метнуть : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
+			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
+			master->send_to_TC(true, true, true, msg.str().c_str());
+		}
+		if (do_skill_without_command && skill_ready) {
+			ch->set_extra_attack(EXTRA_ATTACK_THROW, ch->get_fighting());
+		}
+	} else if (!charmice_wielded_for_throw && (ch->get_extra_attack_mode() != EXTRA_ATTACK_THROW) && !(GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && ch->get_skill(SKILL_CHOPOFF) > 0) {
+		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_CHOPOFF) <= 0;
+		if (master) {
+			std::stringstream msg;
+			msg << ch->get_name() << " использует CHOPOFF : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
+			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
+			master->send_to_TC(true, true, true, msg.str().c_str());
+		}
+		if (do_skill_without_command && skill_ready) {
+			if (GET_POS(ch) < POS_FIGHTING) return;
+		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, ch->get_fighting());
 		}
 	}
 }

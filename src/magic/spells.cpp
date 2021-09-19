@@ -588,7 +588,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	if (!IS_NPC(ch) && IS_NPC(victim)) {
 		if (victim->get_master() != ch
 			|| !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-			|| AFF_FLAGGED(victim, EAffectFlag::AFF_HELPER)
+			|| !AFF_FLAGGED(victim, EAffectFlag::AFF_HELPER) // почему ангела, или менталку или других хелперов не призвать? (Кудояр)
 			|| victim->get_fighting()
 			|| GET_POS(victim) < POS_RESTING) {
 			send_to_char(SUMMON_FAIL, ch);
@@ -630,7 +630,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 			|| ROOM_FLAGGED(ch_room, ROOM_TUNNEL)
 			|| ROOM_FLAGGED(ch_room, ROOM_NOBATTLE)
 			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)
-			|| !Clan::MayEnter(victim, ch_room, HCE_PORTAL)
+			|| !Clan::MayEnter(victim, ch_room, HCE_PORTAL) //&& !(victim->has_master() && victim->get_master() != ch) )
 			|| SECT(ch->in_room) == SECT_SECRET
 			|| (!same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch_room, ROOM_ARENA)))) {
@@ -1037,12 +1037,66 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			// вычисляем % владения умений у victim
 			k_skills = floorf(0.8*r_cha + 0.5*perc);
 			ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
+			// === Формируем новые статы ===
+			// Устанавливаем на виктим флаг маг-сумон (маг-зверь)
+			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+			affect_to_char(victim, af);
+			MOB_FLAGS(victim).set(MOB_PLAYER_SUMMON); 
+			// прибавка хитов по формуле: 1/3 хп_хозяина + 12*лвл_хоз + 4*обая_хоз + 1.5*%магии_хоз
+			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GET_LEVEL(ch)*12 + r_cha*4 + perc*1.5);
+			GET_HIT(victim) = GET_MAX_HIT(victim);
+			// статы
+			victim->set_int(floorf((r_cha*0.2 + perc*0.15)));
+			victim->set_dex(floorf((r_cha*0.3 + perc*0.15)));
+			victim->set_str(floorf((r_cha*0.3 + perc*0.15)));
+			victim->set_con(floorf((r_cha*0.3 + perc*0.15)));
+			victim->set_wis(floorf((r_cha*0.2 + perc*0.15)));
+			victim->set_cha(floorf((r_cha*0.2 + perc*0.15)));
+			// боевые показатели
+			GET_INITIATIVE(victim) = k_skills/4;	// инициатива
+			GET_MORALE(victim) = k_skills/5; 		// удача
+			GET_HR(victim) = floorf(r_cha/5.0 + perc/12.0);  // попадание
+			GET_AC(victim) = -floorf(r_cha*1.05 + perc/2.0); // АС
+			GET_DR(victim) = floorf(r_cha/6.0 + perc/15.0);  // дамрол
+			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0); // броня
+			// резист фр/мр/ар при 12 и более мортов хозяина
+			if (GET_REMORT(ch) > 12) {
+				GET_AR(victim) += GET_REMORT(ch) - 12;
+				GET_MR(victim) += GET_REMORT(ch) - 12;
+				GET_PR(victim) += GET_REMORT(ch) - 12;
+			}
+			// спелы не работают пока 
+			// SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_HOLD, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_POISON, 1); // -?
+			// SET_SPELL(victim, SPELL_HEAL, 1);
+
+			//NPC_FLAGS(victim).set(NPC_WIELDING); // тут пока закомитим
+			GET_LIKES(victim) = 10 + r_cha; // устанавливаем возможность авто применения умений
+			
+			// создаем кубики и доп атаки (пока без + а просто сет)
+			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.15) / 5.5);
+			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 11.0);
+			victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 120.0);
+			
+			// расщет маг аффектов
+			if ((r_cha > 63) && (r_cha < 72)) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+			} else if ((r_cha >= 72) && (r_cha < 81)){
+				af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+			} else if (r_cha >= 81) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+			}
+			affect_to_char(victim, af);
+			
+
 			// выбираем тип бойца - рандомно из 6 вариантов
 			int rnd = number(1, 6);
 			switch (rnd)
 			{ // готовим наборы скиллов / способностей
 			case 1:
-				send_to_char("Попали в кейс с молотом (1) / молотер\n", ch); // тут потом заменим на валидные фразы
+				act("Лапы $N1 увеличились в размерах и обрели огромную дикую мощь.\nТуловище $N1 стало огромным.", FALSE, ch, 0, victim, TO_CHAR); // тут потом заменим на валидные фразы
 				act("Лапы $N1 увеличились в размерах и обрели огромную дикую мощь.\nТуловище $N1 стало огромным.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_MIGHTHIT, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
@@ -1050,11 +1104,17 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
 				victim->set_skill(SKILL_TOUCH, k_skills*0.75);
 				SET_FEAT(victim, PUNCH_MASTER_FEAT);
-				
+					if ((r_cha + perc/4.0) > number(1, 120)) {
+					SET_FEAT(victim, PUNCH_FOCUS_FEAT);
+					victim->set_skill(SKILL_STRANGLE, k_skills);
+					SET_FEAT(victim, BERSERK_FEAT);
+					act("&B$N0 теперь сможет просто удавить всех своих врагов&n\n", FALSE, ch, 0, victim, TO_CHAR);
+				}
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.3));
 				skill_id = SKILL_PUNCH;
 				break;
 			case 2:
-				send_to_char("Попали в кейс с глушем (2) / глушер-двуручер\n", ch);
+				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.", FALSE, ch, 0, victim, TO_CHAR);
 				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_STUPOR, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
@@ -1062,11 +1122,16 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
 				SET_FEAT(victim, BOTHHANDS_MASTER_FEAT);
 				SET_FEAT(victim, BOTHHANDS_FOCUS_FEAT);
-				
+				if ((r_cha + perc/5.0) > number(1, 130)) {
+					SET_FEAT(victim, RELATED_TO_MAGIC_FEAT);
+					act("&G$N0 стал$g намного более опасным хищником.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					victim->set_skill(SKILL_AID, k_skills*0.4);
+				}
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
 				skill_id = SKILL_BOTHHANDS;
 				break;
 			case 3:
-				send_to_char("Попали в кейс с стабом (3) / стабер-ядер\n", ch);
+				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.", FALSE, ch, 0, victim, TO_CHAR);
 				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_BACKSTAB, k_skills); 
 				victim->set_skill(SKILL_RESCUE, k_skills*0.6);
@@ -1075,28 +1140,38 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.75);
 				SET_FEAT(victim, PICK_MASTER_FEAT);
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
-				SET_FEAT(victim, SHADOW_STRIKE_FEAT);
-				
+				if ((r_cha + perc/5.0) > number(1, 140)) {
+					SET_FEAT(victim, SHADOW_STRIKE_FEAT);
+					act("&C$N0 затаил$u в вашей тени...&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					
+				}
+				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.3));		
 				skill_id = SKILL_PICK;
 				break;
 			case 4:
-				send_to_char("Попали в кейс с осторогой (4)/ танк\n", ch);
-				act("Рефлексы $N1 обострились, и туловище раздалось в ширь\nНа огромных лапах засияли мелкие острые коготочки.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				act("Рефлексы $N1 обострились, и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Рефлексы $N1 обострились, и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_AWAKE, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.85);
 				victim->set_skill(SKILL_BLOCK, k_skills*0.6);
 				victim->set_skill(SKILL_AXES, k_skills*0.75);
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.65);
+				if ((r_cha + perc/4.0) > number(1, 100)) {
+					victim->set_skill(SKILL_PROTECT, k_skills*0.75);
+					act("&WЧуткий взгяд $N1 остановился на вас, и вы ощутили себя под защитой.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					victim->set_protecting(ch);
+				}
 				SET_FEAT(victim, AXES_MASTER_FEAT);
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);  
 				SET_FEAT(victim, DEFENDER_FEAT);
 				SET_FEAT(victim, LIVE_SHIELD_FEAT);
-				
+				victim->set_con(floorf(GET_REAL_CON(victim)*1.3));
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
 				skill_id = SKILL_AXES;
 				break;
 			case 5:
-				send_to_char("Попали в кейс с луками и трипом (5) / лучник\n", ch);
-				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап\n.Которые покрылись длинными когтями", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_CHOPOFF, k_skills);
 				victim->set_skill(SKILL_DEVIATE, k_skills*0.7);
 				victim->set_skill(SKILL_ADDSHOT, k_skills*0.7);
@@ -1105,72 +1180,44 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.5);
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
 				SET_FEAT(victim, BOWS_MASTER_FEAT);
-				af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
-				affect_to_char(victim, af);
+				if ((r_cha + perc/5.0) > number(1, 120)) {
+					af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
+					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					affect_to_char(victim, af);
+				}
+				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.2));
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.15));
 				skill_id = SKILL_BOWS;
 				break;			
 			default:
-				send_to_char("Попали в кейс с копьем (дефолт) / копейщик\n", ch);
-				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти с темным оттенком.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_PARRY, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.75);
 				victim->set_skill(SKILL_THROW, k_skills*0.95);
-				victim->set_skill(SKILL_DARK_MAGIC, k_skills*0.8);
 				victim->set_skill(SKILL_SPADES, k_skills*0.9);
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.6);
 				SET_FEAT(victim, LIVE_SHIELD_FEAT);
+				SET_FEAT(victim, SPADES_MASTER_FEAT);
+								
+				if ((r_cha + perc/4.0) > number(1, 100)) {
+					SET_FEAT(victim, SHADOW_THROW_FEAT);
+					SET_FEAT(victim, SHADOW_SPEAR_FEAT);
+					victim->set_skill(SKILL_DARK_MAGIC, k_skills*0.8);
+					act("&KКогти $N1 преобрели темный оттенок, будто сама тьма коснулась их.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+				}
+				
+				SET_FEAT(victim, THROW_WEAPON_FEAT);
+				SET_FEAT(victim, DOUBLE_THROW_FEAT);  
 				SET_FEAT(victim, TRIPLE_THROW_FEAT);
-				SET_FEAT(victim, DOUBLE_THROW_FEAT);
-				SET_FEAT(victim, SHADOW_SPEAR_FEAT);
-				SET_FEAT(victim, SHADOW_THROW_FEAT);
-				SET_FEAT(victim, THROW_WEAPON_FEAT);  
 				SET_FEAT(victim, POWER_THROW_FEAT); 
 				SET_FEAT(victim, DEADLY_THROW_FEAT);
-				SET_FEAT(victim, SPADES_MASTER_FEAT);  
-				
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
+				victim->set_con(floorf(GET_REAL_CON(victim)*1.2));
 				skill_id = SKILL_SPADES;
 				break;
 			}
-			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
-			affect_to_char(victim, af);
-			if ((r_cha > 25) && (r_cha < 40)) {
-				af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
-			} else if ((r_cha >= 40) && (r_cha < 70)){
-				af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
-			} else if (r_cha >= 70) {
-				af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
-			}
-			
-			affect_to_char(victim, af);
-			
-			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*(1 +(r_cha*1.2 + perc*0.8)/GET_MAX_HIT(ch)));
-			GET_HIT(victim) = GET_MAX_HIT(victim);
-			victim->set_int(floorf((r_cha*0.3 + perc*0.20)));
-			victim->set_dex(floorf((r_cha*0.3 + perc*0.15)));
-			victim->set_str(floorf((r_cha*0.35 + perc*0.15)));
-			victim->set_con(floorf((r_cha*0.3 + perc*0.15)));
-			victim->set_wis(floorf((r_cha*0.2 + perc*0.15)));
-			victim->set_cha(floorf((r_cha*0.2 + perc*0.15)));
-			MOB_FLAGS(victim).set(MOB_PLAYER_SUMMON); // Устанавливаем на виктим флаг маг-сумон (маг-зверь)
-				
-			// спелы не работают пока 
-			// SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_HOLD, 1); // -?
-			// SET_SPELL(victim, SPELL_REMOVE_POISON, 1); // -?
-			// SET_SPELL(victim, SPELL_HEAL, 1);
 
-			GET_HR(victim) = floorf(r_cha/5.0 + perc/12.0);  // +
-			GET_AC(victim) = -floorf(r_cha*1.05 + perc/2.0); // +
-			GET_DR(victim) = floorf(r_cha/6.0 + perc/15.0);  // +
-			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0);
-			//NPC_FLAGS(victim).set(NPC_WIELDING); // тут пока закомитим
-			GET_LIKES(victim) = 100; // устанавливаем возможность авто применения скилов
-			SET_FEAT(victim, BERSERK_FEAT); // +
-			// создаем кубики и доп атаки (пока без + а просто сет)
-			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.15) / 5.0);
-			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 10.0);
-			victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 120.0);
 		}
 // конец фита хозяин животных
 		if (GET_HELPER(victim)) {
