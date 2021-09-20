@@ -387,12 +387,12 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 //  3 - винительный (кого? что?)
 //  4 - творительный (кем? чем?)
 //  5 - предложный (о ком? о чем?)
-	obj->set_PName(0, "Острые когти");
-	obj->set_PName(1, "Острых когтей");
-	obj->set_PName(2, "Острым когтям");
-	obj->set_PName(3, "Острые когти");
-	obj->set_PName(4, "Острыми когтями");
-	obj->set_PName(5, "Острых когтях");
+	obj->set_PName(0, "острые когти");
+	obj->set_PName(1, "острых когтей");
+	obj->set_PName(2, "острым когтям");
+	obj->set_PName(3, "острые когти");
+	obj->set_PName(4, "острыми когтями");
+	obj->set_PName(5, "острых когтях");
 	obj->set_sex(ESex::SEX_POLY);
 	obj->set_type(OBJ_DATA::ITEM_WEAPON);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
@@ -463,13 +463,13 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_description("Роговые пластины лежат здесь.");
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
 		obj->set_aliases("роговые пластины");
-		obj->set_short_description("Роговые пластины");
-		obj->set_PName(0, "Роговые пластины");
-		obj->set_PName(1, "Роговых пластин");
-		obj->set_PName(2, "Роговым пластинам");
-		obj->set_PName(3, "Роговые пластины");
-		obj->set_PName(4, "Роговыми пластинами");
-		obj->set_PName(5, "Роговых пластинах");
+		obj->set_short_description("роговые пластины");
+		obj->set_PName(0, "роговые пластины");
+		obj->set_PName(1, "роговых пластин");
+		obj->set_PName(2, "роговым пластинам");
+		obj->set_PName(3, "роговые пластины");
+		obj->set_PName(4, "роговыми пластинами");
+		obj->set_PName(5, "роговых пластинах");
 		obj->set_val(1, floorf(diff/13.0));
 		obj->set_val(2, floorf(diff/8.0));
 		obj->set_affected(0, APPLY_SAVING_STABILITY, -floorf(diff/2.5));
@@ -491,13 +491,13 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_description("Прочная шкура лежит здесь.");
 		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
 		obj->set_aliases("прочная шкура");
-		obj->set_short_description("Прочная шкура");
-		obj->set_PName(0, "Прочная шкура");
-		obj->set_PName(1, "Прочной шкурой");
-		obj->set_PName(2, "Прочной шкуре");
-		obj->set_PName(3, "Прочную шкуру");
-		obj->set_PName(4, "Прочной шкурой");
-		obj->set_PName(5, "Прочной шкуре");
+		obj->set_short_description("прочная шкура");
+		obj->set_PName(0, "прочная шкура");
+		obj->set_PName(1, "прочной шкурой");
+		obj->set_PName(2, "прочной шкуре");
+		obj->set_PName(3, "прочную шкуру");
+		obj->set_PName(4, "прочной шкурой");
+		obj->set_PName(5, "прочной шкуре");
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BODY));
 		obj->set_type(OBJ_DATA::ITEM_ARMOR);
 		obj->set_val(1, floorf(diff/11.0));

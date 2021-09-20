@@ -1887,6 +1887,8 @@ void CHAR_DATA::restore_npc() {
 	// this->mob_specials.ExtraAttack = 0;
 	//флаги
 	MOB_FLAGS(this) = MOB_FLAGS(proto);
+	this->set_touching(0);
+	this->set_protecting(0);
 	// ресторим статы
 	this->set_str(GET_REAL_STR(proto));
 	this->set_int(GET_REAL_INT(proto));
