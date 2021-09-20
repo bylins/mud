@@ -1349,7 +1349,8 @@ void using_charmice_skills(CHAR_DATA *ch) {
 	// если нет оружия но есть молот - будем молотить
 	const bool charmice_wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
 	const bool charmice_not_wielded = !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD));
-	const bool charmice_wielded_for_throw = (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_EXTRA(GET_EQ(ch, WEAR_WIELD)) == ITEM_THROWING)); // Кудояр
+	OBJ_DATA *wielded = GET_EQ(ch, WEAR_WIELD);
+	const bool charmice_wielded_for_throw = (GET_EQ(ch, WEAR_WIELD) && wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)); // Кудояр
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CHAR_DATA *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : NULL;
