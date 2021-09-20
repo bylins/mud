@@ -1080,13 +1080,20 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 11.0);
 			victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 120.0);
 			
+			if (r_cha > 56) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+				affect_to_char(victim, af);
+			} 
+			
 			// расщет маг аффектов
-			if ((r_cha > 63) && (r_cha < 72)) {
+			if ((r_cha > 65) && (r_cha < 74)) {
 				af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
-			} else if ((r_cha >= 72) && (r_cha < 81)){
+			} else if ((r_cha >= 74) && (r_cha < 82)){
 				af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
-			} else if (r_cha >= 81) {
+			} else if (r_cha >= 82) {
 				af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+				affect_to_char(victim, af);
+				af.bitvector = to_underlying(EAffectFlag::AFF_BROKEN_CHAINS);
 			}
 			affect_to_char(victim, af);
 			

@@ -1349,7 +1349,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 	// если нет оружия но есть молот - будем молотить
 	const bool charmice_wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
 	const bool charmice_not_wielded = !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD));
-	const bool charmice_wielded_for_throw = (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD)) == SKILL_SPADES)); // Кудояр
+	const bool charmice_wielded_for_throw = (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_EXTRA(GET_EQ(ch, WEAR_WIELD)) == ITEM_THROWING)); // Кудояр
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CHAR_DATA *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : NULL;
@@ -1394,7 +1394,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_CHOPOFF) <= 0;
 		if (master) {
 			std::stringstream msg;
-			msg << ch->get_name() << " использует CHOPOFF : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << ch->get_name() << " использует подножку : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
 			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
 			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
 			master->send_to_TC(true, true, true, msg.str().c_str());
