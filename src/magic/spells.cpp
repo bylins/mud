@@ -1025,7 +1025,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		// резервируем место под фит (Кудояр)
 		if (can_use_feat(ch, ANIMAL_MASTER_FEAT) && 
 		GET_RACE(victim) == 104) {
-			act("$N0 обрел$G часть вашей магической силы", FALSE, ch, 0, victim, TO_CHAR);
+			act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...", FALSE, ch, 0, victim, TO_CHAR);
 			act("$N0 обрел$G часть магической силы $n1.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 			// начинаем модификации victim
 			// создаем переменные модификаторов
@@ -1108,7 +1108,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 					SET_FEAT(victim, PUNCH_FOCUS_FEAT);
 					victim->set_skill(SKILL_STRANGLE, k_skills);
 					SET_FEAT(victim, BERSERK_FEAT);
-					act("&B$N0 теперь сможет просто удавить всех своих врагов&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					act("&B$N0 теперь сможет просто удавить всех своих врагов.&n\n", FALSE, ch, 0, victim, TO_CHAR);
 				}
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.3));
 				skill_id = SKILL_PUNCH;
@@ -1153,8 +1153,8 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				act("Рефлексы $N1 обострились, и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(SKILL_AWAKE, k_skills);
 				victim->set_skill(SKILL_RESCUE, k_skills*0.85);
-				victim->set_skill(SKILL_BLOCK, k_skills*0.6);
-				victim->set_skill(SKILL_AXES, k_skills*0.75);
+				victim->set_skill(SKILL_BLOCK, k_skills*0.75);
+				victim->set_skill(SKILL_AXES, k_skills*0.85);
 				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.65);
 				if ((r_cha + perc/4.0) > number(1, 100)) {
 					victim->set_skill(SKILL_PROTECT, k_skills*0.75);
@@ -1187,6 +1187,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				}
 				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.2));
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.15));
+				victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 180.0); // срежем доп атаки
 				skill_id = SKILL_BOWS;
 				break;			
 			default:
