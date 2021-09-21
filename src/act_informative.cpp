@@ -145,7 +145,7 @@ void do_auto_exits(CHAR_DATA *ch);
 void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void look_in_direction(CHAR_DATA *ch, int dir, int info_is);
 void look_in_obj(CHAR_DATA *ch, char *arg);
-char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr &list);
+char *find_exdesc(const char *word, const EXTRA_DESCR_DATA::shared_ptr &list);
 bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA *ch);
 void do_blind_exits(CHAR_DATA *ch);
@@ -388,7 +388,7 @@ const char *diag_obj_timer(const OBJ_DATA *obj) {
 char *diag_timer_to_char(const OBJ_DATA *obj) {
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;
-	sprintf(out_str, "Состояние: %s.\r\n", diag_obj_timer(obj));
+	sprintf(out_str, "Состояние: %s.", diag_obj_timer(obj));
 	return (out_str);
 }
 
@@ -630,6 +630,7 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 		strcat(buf, diag_weapon_to_char(object, TRUE));
 		strcat(buf, diag_armor_type_to_char(object).c_str());
 		strcat(buf, diag_timer_to_char(object));
+		strcat(buf, "\r\n");
 		//strcat(buf, diag_uses_to_char(object, ch)); // commented by WorM перенес в obj_info чтобы заряды рун было видно на базаре/ауке
 		strcat(buf, object->diag_ts_to_char(ch).c_str());
 	}
@@ -2220,7 +2221,7 @@ void look_in_obj(CHAR_DATA *ch, char *arg) {
 	}
 }
 
-char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr &list) {
+char *find_exdesc(const char *word, const EXTRA_DESCR_DATA::shared_ptr &list) {
 	for (auto i = list; i; i = i->next) {
 		if (isname(word, i->keyword)) {
 			return i->description;
