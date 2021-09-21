@@ -21,6 +21,7 @@
 #include "skills/throw.h"
 #include "skills/expendientcut.h"
 #include "skills/protect.h"
+#include "skills/ironwind.h"
 
 #include "assist.h"
 #include "chars/world.characters.h"
@@ -1355,7 +1356,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CHAR_DATA *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : NULL;
 
-	if (charmice_wielded_for_stupor && ch->get_skill(SKILL_STUPOR) > 0) {
+	if (charmice_wielded_for_stupor && ch->get_skill(SKILL_STUPOR) > 0) { // оглушить
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_STUPOR) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1367,7 +1368,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 		if (do_skill_without_command && skill_ready) {
 			SET_AF_BATTLE(ch, EAF_STUPOR);
 		}
-	} else if (charmice_not_wielded && ch->get_skill(SKILL_MIGHTHIT) > 0) {
+	} else if (charmice_not_wielded && ch->get_skill(SKILL_MIGHTHIT) > 0) { // молот
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_MIGHTHIT) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1379,7 +1380,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 		if (do_skill_without_command && skill_ready) {
 			SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 		}
-	} else if(charmice_wielded_for_throw && (ch->get_skill(SKILL_THROW) > ch->get_skill(SKILL_STUPOR))) { // пробуем тут свои палки наставлять в колеса (Кудояр)
+	} else if(charmice_wielded_for_throw && (ch->get_skill(SKILL_THROW) > ch->get_skill(SKILL_STUPOR))) { // метнуть (Кудояр)
 			const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_THROW) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1391,7 +1392,8 @@ void using_charmice_skills(CHAR_DATA *ch) {
 		if (do_skill_without_command && skill_ready) {
 			ch->set_extra_attack(EXTRA_ATTACK_THROW, ch->get_fighting());
 		}
-	} else if (!charmice_wielded_for_throw && (ch->get_extra_attack_mode() != EXTRA_ATTACK_THROW) && !(GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && ch->get_skill(SKILL_CHOPOFF) > 0) {
+	} else if (!charmice_wielded_for_throw && (ch->get_extra_attack_mode() != EXTRA_ATTACK_THROW) 
+			&& !(GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && ch->get_skill(SKILL_CHOPOFF) > 0) { // подножка (Кудояр)
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_CHOPOFF) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1403,6 +1405,20 @@ void using_charmice_skills(CHAR_DATA *ch) {
 		if (do_skill_without_command && skill_ready) {
 			if (GET_POS(ch) < POS_FIGHTING) return;
 		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, ch->get_fighting());
+		} 
+	}   else if ((ch->get_extra_attack_mode() != (EXTRA_ATTACK_THROW || EXTRA_ATTACK_CHOPOFF)) 
+			&& !(GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && ch->get_skill(SKILL_IRON_WIND) > 0) {  // вихрь (Кудояр)
+		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_IRON_WIND) <= 0;
+		if (master) {
+			std::stringstream msg;
+			msg << ch->get_name() << " использует ВИХРЬ : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
+			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
+			master->send_to_TC(true, true, true, msg.str().c_str());
+		}
+		if (do_skill_without_command && skill_ready) {
+			if (GET_POS(ch) < POS_FIGHTING) return;
+			go_iron_wind(ch, ch->get_fighting());
 		}
 	}
 }
