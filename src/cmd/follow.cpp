@@ -91,7 +91,7 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 		}
 	}
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // фул рестор моба (Кудояр)
-		act("Магия подпитующая $n3 развеялась, и $n0 вернулся в норму.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		ch->restore_npc();
 			// сначало бросаем лишнее
 				while (ch->carrying) {

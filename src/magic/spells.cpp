@@ -1141,15 +1141,15 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			// боевые показатели
 			GET_INITIATIVE(victim) = floorf(k_skills/4.0);	// инициатива
 			GET_MORALE(victim) = floorf(k_skills/5.0); 		// удача
-			GET_HR(victim) = floorf(r_cha/5.0 + perc/12.0);  // попадание
+			GET_HR(victim) = floorf(r_cha/3.5 + perc/10.0);  // попадание
 			GET_AC(victim) = -floorf(r_cha/5.0 + perc/15.0); // АС
-			GET_DR(victim) = floorf(r_cha/6.0 + perc/15.0);  // дамрол
+			GET_DR(victim) = floorf(r_cha/6.0 + perc/20.0);  // дамрол
 			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0); // броня
-			// резист фр/мр/ар при 12 и более мортов хозяина
+			 // почему-то не работает
 			if (GET_REMORT(ch) > 12) {
-				GET_AR(victim) += GET_REMORT(ch) - 12;
-				GET_MR(victim) += GET_REMORT(ch) - 12;
-				GET_PR(victim) += GET_REMORT(ch) - 12;
+				GET_AR(victim) = (GET_AR(victim) + GET_REMORT(ch) - 12);
+				GET_MR(victim) = (GET_MR(victim) + GET_REMORT(ch) - 12);
+				GET_PR(victim) = (GET_PR(victim) + GET_REMORT(ch) - 12);
 			}
 			// спелы не работают пока 
 			// SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
@@ -1162,16 +1162,35 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			GET_LIKES(victim) = 10 + r_cha; // устанавливаем возможность авто применения умений
 			
 			// создаем кубики и доп атаки (пока без + а просто сет)
-			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.15) / 5.0);
+			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.2) / 5.0);
 			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 11.0);
 			victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 120.0);
 			
+
+			// простые аффекты
+			if (r_cha > 25)  {
+				af.bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
+				affect_to_char(victim, af);
+			} 
+			 if (r_cha >= 30) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
+				affect_to_char(victim, af);
+			} 
+			if (r_cha >= 35) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_FLY);
+				affect_to_char(victim, af);
+			} 
+			if (r_cha >= 39) {	
+				af.bitvector = to_underlying(EAffectFlag::AFF_STONEHAND);
+				affect_to_char(victim, af);
+			}
+			
+			// расщет крутых маг аффектов
 			if (r_cha > 56) {
 				af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
 				affect_to_char(victim, af);
 			} 
 			
-			// расщет маг аффектов
 			if ((r_cha > 65) && (r_cha < 74)) {
 				af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
 			} else if ((r_cha >= 74) && (r_cha < 82)){
@@ -1217,7 +1236,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, BOTHHANDS_FOCUS_FEAT);
 				if (floorf(r_cha + perc/5.0) > number(1, 150)) {
 					SET_FEAT(victim, RELATED_TO_MAGIC_FEAT);
-					act("&G$N0 стал$g намного более опасным хищником.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					act("&G$N0 стал$G намного более опасным хищником.&n\n", FALSE, ch, 0, victim, TO_CHAR);
 					victim->set_skill(SKILL_AID, k_skills*0.4);
 				}
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
@@ -1235,7 +1254,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					SET_FEAT(victim, SHADOW_STRIKE_FEAT);
-					act("&c$N0 затаил$u в вашей тени...&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					act("&c$N0 затаил$U в вашей тени...&n\n", FALSE, ch, 0, victim, TO_CHAR);
 					
 				}
 				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.3));		

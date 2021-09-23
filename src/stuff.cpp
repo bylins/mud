@@ -388,7 +388,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	obj->set_PName(5, "острых когтях");
 	obj->set_sex(ESex::SEX_POLY);
 	obj->set_type(OBJ_DATA::ITEM_WEAPON);
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	// среднее оружки
 	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
 	obj->set_val(2, floorf(diff/27.0)); // при 100 скила граней = d4  при 200 скила = d7
@@ -414,7 +413,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	switch (skill_id)
 	{
 	case SKILL_CLUBS: // дубины
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
 		obj->set_val(3, 12);
 		obj->set_skill(141);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
@@ -424,7 +422,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case SKILL_SPADES: // копья
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
 		obj->set_val(3, 11);
 		obj->set_skill(148);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
@@ -433,7 +430,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case SKILL_PICK: // стабер
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
 		obj->set_val(3, 11);
 		obj->set_skill(147);
 		obj->set_affected(0, APPLY_STR, floorf(diff/16.0));
@@ -442,7 +438,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case SKILL_AXES: // секиры
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
 		obj->set_val(3, 8);
 		obj->set_skill(142);
 		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
@@ -454,7 +449,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case SKILL_BOWS: // луки
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BOTHS));
 		obj->set_val(3, 2);
 		obj->set_skill(154);
 		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
@@ -463,7 +457,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 18;
 		break;
 	case SKILL_BOTHHANDS: // двуруч
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BOTHS));
 		obj->set_val(3, 1);
 		obj->set_skill(146);
 		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
@@ -473,14 +466,12 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 18;
 		break;
 	case SKILL_PUNCH: // кулачка
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_HANDS));
 		obj->set_type(OBJ_DATA::ITEM_ARMOR);
 		obj->set_affected(0, APPLY_DAMROLL, floorf(diff/10.0));
 		create_charmice_stuff(ch, SKILL_INVALID, diff);
 		position = 9;
 		break;
 	case SKILL_LONGS: // длинные
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_WIELD));
 		obj->set_val(3, 10);
 		obj->set_skill(143);
 		obj->set_affected(0, APPLY_STR, floorf(diff/15.0));
@@ -491,7 +482,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case SKILL_BLOCK: // блок щитом ? делаем щит
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_SHIELD));
 		obj->set_type(OBJ_DATA::ITEM_ARMOR);
 		obj->set_description("Роговые пластины лежат здесь.");
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
@@ -526,7 +516,6 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_type(OBJ_DATA::ITEM_ARMOR);
 		if (diff == -1) { // тут делаем сапоги 
 			obj->set_sex(ESex::SEX_POLY);
-			obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_FEET));
 			obj->set_weight(50);
 			obj->set_description("Оторванная лапа зверя лежит здесь.");
 			obj->set_ex_description(descr.c_str(), "Оторванная лапа зверя лежит здесь.");
@@ -541,13 +530,14 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 			position = 8; // слот ступни
 			break;
 		}
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_BODY));
 		obj->set_val(1, floorf(diff/11.0));
 		obj->set_val(2, floorf(diff/7.0));
 		obj->set_affected(0, APPLY_SAVING_STABILITY, -floorf(diff*0.7));
 		obj->set_affected(1, APPLY_SAVING_CRITICAL, -floorf(diff*0.7));
 		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff*0.7));
 		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff*0.6));
+		obj->set_affected(4, APPLY_MR, floorf(diff*0.16));
+		obj->set_affected(5, APPLY_PR, floorf(diff*0.15));
 		position = 5; // слот тело
 		break;
 	}
