@@ -13,6 +13,7 @@
 #include "structs_double_map.h"
 #include "structs.h"
 #include "conf.h"
+#include "skills.h"
 
 #include <vector>
 #include <fstream>
@@ -37,6 +38,7 @@ class oload_class : public oload_map {
 extern oload_class oload_table;
 
 void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch);
+void create_charmice_stuff(CHAR_DATA *ch, ESkill skill_id, int diff);
 
 #endif
 

@@ -152,7 +152,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 }
 
 void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_KICK)) {
+	if (ch->get_skill(SKILL_KICK) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
