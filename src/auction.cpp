@@ -390,6 +390,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 			};
 			strcat(buf, diag_weapon_to_char(obj, TRUE));
 			strcat(buf, diag_timer_to_char(obj));
+			strcat(buf, "\r\n");
 			obj_info(ch, obj, buf);
 			strcat(buf, "\n");
 			if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0)) {

@@ -28,6 +28,7 @@ extern int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj);    // impleme
 extern int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj);    // implemented in class.cpp
 extern int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);    // implemented in class.cpp
 extern void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll);    // implemented in spells.cpp
+char *find_exdesc(const char *word, const EXTRA_DESCR_DATA::shared_ptr &list); // implemented in act.informative.cpp
 namespace ShopExt {
 const int IDENTIFY_COST = 110;
 
@@ -868,8 +869,7 @@ void shop_node::process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, 
 		tell << diag_weapon_to_char(ident_obj, TRUE);
 		tell << diag_timer_to_char(ident_obj);
 
-		if (can_use_feat(ch, SKILLED_TRADER_FEAT)
-			|| PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+		if (can_use_feat(ch, SKILLED_TRADER_FEAT)) {
 			sprintf(buf, "Материал : ");
 			sprinttype(ident_obj->get_material(), material_name, buf + strlen(buf));
 			sprintf(buf + strlen(buf), ".\r\n");
@@ -877,6 +877,18 @@ void shop_node::process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, 
 		}
 
 		tell_to_char(keeper, ch, tell.str().c_str());
+
+		// если есть расширенное описание - показываем отдельно
+		// т.к. в магазине можно обратиться к объекту по номеру -> неизвестно под каким именени обратились к объекту
+		// поэтому пытаемся найти расширенное описание по алиасам
+		const char *desc = find_exdesc(ident_obj->get_aliases().c_str(), ident_obj->get_ex_description());
+		if (desc && strlen(desc)) {
+			tell.str(std::string());
+			tell << "Рассматривая " << ident_obj->get_short_description() << " вы смогли прочитать:\r\n";
+			tell << desc;
+			send_to_char(tell.str().c_str(), ch);
+		}
+
 		if (invalid_anti_class(ch, ident_obj)
 			|| invalid_unique(ch, ident_obj)
 			|| NamedStuff::check_named(ch, ident_obj, 0)) {
