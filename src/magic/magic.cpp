@@ -1082,7 +1082,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 	&& (victim->get_skill(SKILL_BLOCK) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
 			&& ( number(1, 100) < ((victim->get_skill(SKILL_BLOCK))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
 	{
-		act("Вашы чары повисли на щите $N1, и затем развеялись.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Ваши чары повисли на щите $N1, и затем развеялись.", FALSE, ch, 0, victim, TO_CHAR);
 		act("Щит $N1 поглотил злые чары $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
 		act("Ваш щит уберег вас от злых чар $n1.", FALSE, ch, 0, victim, TO_VICT);
 		return (0);
