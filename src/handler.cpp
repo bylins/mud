@@ -55,7 +55,7 @@ void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern std::vector<City> cities;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
-extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr &list);
+char *find_exdesc(const char *word, const EXTRA_DESCR_DATA::shared_ptr &list);
 extern void setSkillCooldown(CHAR_DATA *ch, ESkill skill, int cooldownInPulses);
 
 char *fname(const char *namelist) {
