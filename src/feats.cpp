@@ -742,8 +742,10 @@ void determineFeaturesSpecification(void) {
 	initializeFeature(MULTI_CAST_FEAT, "изощренные чары", NORMAL_FTYPE, TRUE, feat_app);
 //155	
 	initializeFeature(MAGICAL_SHIELD_FEAT, "заговоренный щит", NORMAL_FTYPE, TRUE, feat_app);
+// 156
+	initializeFeature(ANIMAL_MASTER_FEAT, "хозяин животных", NORMAL_FTYPE, TRUE, feat_app);
 }
-
+ 
 const char *feat_name(int num) {
 	if (num > 0 && num < MAX_FEATS) {
 		return (feat_info[num].name);
@@ -799,6 +801,8 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 			break;
 		case SHADOW_THROW_FEAT: return (ch->get_skill(SKILL_DARK_MAGIC) > 120);
 			break;
+		case ANIMAL_MASTER_FEAT: return (ch->get_skill(SKILL_MIND_MAGIC) > 80);
+			break;	
 			// Костыльный блок работы скирмишера где не нужно
 			// Svent TODO Для абилок не забыть реализовать провкрку состояния персонажа
 		case SKIRMISHER_FEAT:

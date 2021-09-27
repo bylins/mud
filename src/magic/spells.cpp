@@ -33,10 +33,12 @@
 #include "skills/townportal.h"
 #include "world_objects.h"
 #include "skills_info.h"
+#include "../stuff.h"
 
 #include <boost/format.hpp>
 #include <map>
 #include <utility>
+
 
 extern room_rnum r_mortal_start_room;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -586,7 +588,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	if (!IS_NPC(ch) && IS_NPC(victim)) {
 		if (victim->get_master() != ch
 			|| !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-			|| AFF_FLAGGED(victim, EAffectFlag::AFF_HELPER)
+			|| !AFF_FLAGGED(victim, EAffectFlag::AFF_HELPER) // почему ангела, или менталку или других хелперов не призвать? (Кудояр)
 			|| victim->get_fighting()
 			|| GET_POS(victim) < POS_RESTING) {
 			send_to_char(SUMMON_FAIL, ch);
@@ -628,7 +630,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 			|| ROOM_FLAGGED(ch_room, ROOM_TUNNEL)
 			|| ROOM_FLAGGED(ch_room, ROOM_NOBATTLE)
 			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)
-			|| !Clan::MayEnter(victim, ch_room, HCE_PORTAL)
+			|| !Clan::MayEnter(victim, ch_room, HCE_PORTAL) //&& !(victim->has_master() && victim->get_master() != ch) )
 			|| SECT(ch->in_room) == SECT_SECRET
 			|| (!same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch_room, ROOM_ARENA)))) {
@@ -943,6 +945,8 @@ int check_charmee(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
 }
 
 void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
+	int k_skills = 0;
+	ESkill skill_id;
 	if (victim == NULL || ch == NULL)
 		return;
 
@@ -981,7 +985,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch)
-		&& general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 4 + GET_REMORT(ch) * 3))
+		&& general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 4 + GET_REMORT(ch) * 3)) //предлагаю завязать на каст
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
 		if (!check_charmee(ch, victim, SPELL_CHARM)) {
@@ -1018,7 +1022,361 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(victim, af);
+		// резервируем место под фит (Кудояр)
+		if (can_use_feat(ch, ANIMAL_MASTER_FEAT) && 
+		GET_RACE(victim) == 104) {
+			act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...", FALSE, ch, 0, victim, TO_CHAR);
+			act("$N0 обрел$G часть магической силы $n1.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+			// начинаем модификации victim
+			// создаем переменные модификаторов
+			int r_cha = GET_REAL_CHA(ch);
+			int perc = ch->get_skill(get_magic_skill_number_by_spell(SPELL_CHARM));
+			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
+			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
+			
+			// вычисляем % владения умений у victim
+			k_skills = floorf(0.8*r_cha + 0.5*perc);
+			ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
+			// === Формируем новые статы ===
+			// Устанавливаем на виктим флаг маг-сумон (маг-зверь)
+			af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
+			affect_to_char(victim, af);
+			MOB_FLAGS(victim).set(MOB_PLAYER_SUMMON);
+			// Модифицируем имя в зависимости от хари
+			static char descr[MAX_STRING_LENGTH];
+			int gender;
+			// ниже идет просто порнуха
+			// по идее могут быть случаи "огромная огромная макака" или "громадная большая собака"
+			// как бороться думаю
+			const char *state[4][9][6] = {
+							{  						
+							{"крепкие",  "крепких", "крепким", "крепкие", "крепкими", "крепких"},
+							{"сильные",  "сильных", "сильным", "сильные", "сильными", "сильных"},
+							{"упитанные",  "упитанных", "упитанным", "упитанных", "упитанными", "упитанных"},
+							{"крупные",  "крупные", "крупным", "крупные", "крупными", "крупных"},
+							{"большые",  "большые", "большым", "большых", "большыми", "большых"},
+							{"громадные", "громадные", "громадным", "громадные", "громадными", "громадных"},
+							{"огромные",  "огромных", "огромным", "огромные", "огромными", "огромных"},
+							{"исполинские",  "исполинские", "исполинским", "исполинские", "исполинскими", "исполинских"},
+							{"гигантские" ,"гигантские", "гигантские", "гигантские", "гигантские", "гигантские"},
+							},
+			 				{ // род ОН
+							{"крепкий",  "крепкого", "крепкому", "крепкого", "крепким", "крепком"},
+							{"сильный",  "сильного", "сильному", "сильного", "сильным", "сильном"},
+							{"упитанный",  "упитанного", "упитанному", "упитанного", "упитанным", "упитанном"},
+							{"крупный",  "крупного", "крупному", "крупного", "крупным", "крупном"},
+							{"большой",  "большого", "большому", "большого", "большым", "большом"},
+							{"громадный",  "громадного", "громадному", "громадного", "громадным", "громадном"},
+							{"огромный",  "огромного", "огромному", "огромного", "огромным", "огромном"},
+							{"исполинский",  "исполинского", "исполинскому", "исполинского", "исполинским", "исполинском"},
+							{"гигантский",  "гигантского", "гигантскому", "гигантского", "гигантским", "гигантском"},
+							},
+			 				{ // род ОНА
+							{"крепкая", "крепкой", "крепкой", "крепкую", "крепкой", "крепкой"},
+							{"сильная", "сильной", "сильной", "сильную", "сильной", "сильной"},
+							{"упитанная", "упитанной", "упитанной", "упитанную", "упитанной", "упитанной"},
+							{"крупная",  "крупной", "крупной", "крупную", "крупной", "крупной"},
+							{"большая", "большой", "большой", "большую", "большой", "большой"},
+							{"громадная",  "громадной", "громадной", "громадную", "громадной", "громадной"},
+							{"огромная",  "огромной", "огромной", "огромную" "огромной", "огромной"},
+							{"исполинская", "исполинской", "исполинской", "исполинскую", "исполинской", "исполинской"},
+							{"гигантская",  "гигантской", "гигантской", "гигантскую", "гигантской", "гигантской"},
+							},
+			 				{  // род ОНО
+							{"крепкое", "крепкое", "крепкому", "крепкое", "крепким", "крепком"},
+							{"сильное",  "сильное", "сильному", "сильное", "сильным", "сильном"},
+							{"упитанное","упитанное", "упитанному", "упитанное", "упитанным", "упитанном"},
+							{"крупное", "крупное", "крупному", "крупное", "крупным", "крупном"},
+							{"большое",  "большое", "большому", "большое", "большым", "большом"},
+							{"громадное", "громадное", "громадному", "громадное", "громадным", "громадном"},
+							{"огромное",  "огромное", "огромному", "огромное", "огромным", "огромном"},
+							{"исполинское",  "исполинское", "исполинскому", "исполинское", "исполинским", "исполинском"},
+							{"гигантское" , "гигантское", "гигантскому", "гигантское", "гигантским", "гигантском"},
+							}
+							};
+			//проверяем GENDER 
+			switch (GET_SEX(victim)) {
+					case ESex::SEX_NEUTRAL:
+					gender = 0;
+					break;
+					case ESex::SEX_MALE: 
+					gender = 1;
+					break;
+					case ESex::SEX_FEMALE:
+					gender = 2;
+					break;
+					default:
+					gender = 3;
+					break;
+			}
+ 		// 1 при 10-19, 2 при 20-29 , 3 при 30-39....
+			int adj = r_cha/10;
+			sprintf(descr, "%s %s %s", state[gender][adj - 1][0], GET_PAD(victim, 0), GET_NAME(victim));
+			victim->set_pc_name(descr);
+			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
+			victim->set_npc_name(descr);
+			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
+			victim->player_data.PNames[0] = std::string(descr);
+			sprintf(descr, "%s %s", state[gender][adj - 1][1], GET_PAD(victim, 1));
+			victim->player_data.PNames[1] = std::string(descr);
+			sprintf(descr, "%s %s", state[gender][adj - 1][2], GET_PAD(victim, 2));
+			victim->player_data.PNames[2] = std::string(descr);
+			sprintf(descr, "%s %s", state[gender][adj - 1][3], GET_PAD(victim, 3));
+			victim->player_data.PNames[3] = std::string(descr);
+			sprintf(descr, "%s %s", state[gender][adj - 1][4], GET_PAD(victim, 4));
+			victim->player_data.PNames[4] = std::string(descr);
+			sprintf(descr, "%s %s", state[gender][adj - 1][5], GET_PAD(victim, 5));
+			victim->player_data.PNames[5] = std::string(descr);
+				
+			// прибавка хитов по формуле: 1/3 хп_хозяина + 12*лвл_хоз + 4*обая_хоз + 1.5*%магии_хоз
+			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GET_LEVEL(ch)*12 + r_cha*4 + perc*1.5);
+			GET_HIT(victim) = GET_MAX_HIT(victim);
+			// статы
+			victim->set_int(floorf((r_cha*0.2 + perc*0.15)));
+			victim->set_dex(floorf((r_cha*0.3 + perc*0.15)));
+			victim->set_str(floorf((r_cha*0.3 + perc*0.15)));
+			victim->set_con(floorf((r_cha*0.3 + perc*0.15)));
+			victim->set_wis(floorf((r_cha*0.2 + perc*0.15)));
+			victim->set_cha(floorf((r_cha*0.2 + perc*0.15)));
+			// боевые показатели
+			GET_INITIATIVE(victim) = floorf(k_skills/4.0);	// инициатива
+			GET_MORALE(victim) = floorf(k_skills/5.0); 		// удача
+			GET_HR(victim) = floorf(r_cha/3.5 + perc/10.0);  // попадание
+			GET_AC(victim) = -floorf(r_cha/5.0 + perc/15.0); // АС
+			GET_DR(victim) = floorf(r_cha/6.0 + perc/20.0);  // дамрол
+			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0); // броня
+			 // почему-то не работает
+			if (GET_REMORT(ch) > 12) {
+				GET_AR(victim) = (GET_AR(victim) + GET_REMORT(ch) - 12);
+				GET_MR(victim) = (GET_MR(victim) + GET_REMORT(ch) - 12);
+				GET_PR(victim) = (GET_PR(victim) + GET_REMORT(ch) - 12);
+			}
+			// спелы не работают пока 
+			// SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_HOLD, 1); // -?
+			// SET_SPELL(victim, SPELL_REMOVE_POISON, 1); // -?
+			// SET_SPELL(victim, SPELL_HEAL, 1);
 
+			//NPC_FLAGS(victim).set(NPC_WIELDING); // тут пока закомитим
+			GET_LIKES(victim) = 10 + r_cha; // устанавливаем возможность авто применения умений
+			
+			// создаем кубики и доп атаки (пока без + а просто сет)
+			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.2) / 5.0);
+			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 11.0);
+			victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 120.0);
+			
+
+			// простые аффекты
+			if (r_cha > 25)  {
+				af.bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
+				affect_to_char(victim, af);
+			} 
+			 if (r_cha >= 30) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
+				affect_to_char(victim, af);
+			} 
+			if (r_cha >= 35) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_FLY);
+				affect_to_char(victim, af);
+			} 
+			if (r_cha >= 39) {	
+				af.bitvector = to_underlying(EAffectFlag::AFF_STONEHAND);
+				affect_to_char(victim, af);
+			}
+			
+			// расщет крутых маг аффектов
+			if (r_cha > 56) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
+				affect_to_char(victim, af);
+			} 
+			
+			if ((r_cha > 65) && (r_cha < 74)) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+			} else if ((r_cha >= 74) && (r_cha < 82)){
+				af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+			} else if (r_cha >= 82) {
+				af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+				affect_to_char(victim, af);
+				af.bitvector = to_underlying(EAffectFlag::AFF_BROKEN_CHAINS);
+			}
+			affect_to_char(victim, af);
+			
+
+			// выбираем тип бойца - рандомно из 8 вариантов
+			int rnd = number(1, 8);
+			switch (rnd)
+			{ // готовим наборы скиллов / способностей
+			case 1:
+				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.", FALSE, ch, 0, victim, TO_CHAR); // тут потом заменим на валидные фразы
+				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				victim->set_skill(SKILL_MIGHTHIT, k_skills);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
+				victim->set_skill(SKILL_PUNCH, k_skills*0.9);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
+				victim->set_skill(SKILL_TOUCH, k_skills*0.75);
+				SET_FEAT(victim, PUNCH_MASTER_FEAT);
+					if (floorf(r_cha*0.9 + perc/5.0) > number(1, 150)) {
+					SET_FEAT(victim, PUNCH_FOCUS_FEAT);
+					victim->set_skill(SKILL_STRANGLE, k_skills);
+					SET_FEAT(victim, BERSERK_FEAT);
+					act("&B$N0 теперь сможет просто удавить всех своих врагов.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+				}
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.3));
+				skill_id = SKILL_PUNCH;
+				break;
+			case 2:
+				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				victim->set_skill(SKILL_STUPOR, k_skills);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.8);
+				victim->set_skill(SKILL_BOTHHANDS, k_skills*0.95); 
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.4);
+				SET_FEAT(victim, BOTHHANDS_MASTER_FEAT);
+				SET_FEAT(victim, BOTHHANDS_FOCUS_FEAT);
+				if (floorf(r_cha + perc/5.0) > number(1, 150)) {
+					SET_FEAT(victim, RELATED_TO_MAGIC_FEAT);
+					act("&G$N0 стал$G намного более опасным хищником.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					victim->set_skill(SKILL_AID, k_skills*0.4);
+				}
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
+				skill_id = SKILL_BOTHHANDS;
+				break;
+			case 3:
+				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				victim->set_skill(SKILL_BACKSTAB, k_skills); 
+				victim->set_skill(SKILL_RESCUE, k_skills*0.6);
+				victim->set_skill(SKILL_PICK, k_skills*0.75);
+				victim->set_skill(SKILL_POISONED, k_skills*0.7);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.75);
+				SET_FEAT(victim, PICK_MASTER_FEAT);
+				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
+				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
+					SET_FEAT(victim, SHADOW_STRIKE_FEAT);
+					act("&c$N0 затаил$U в вашей тени...&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					
+				}
+				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.3));		
+				skill_id = SKILL_PICK;
+				break;
+			case 4:
+				act("Рефлексы $N1 обострились и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Рефлексы $N1 обострились и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				victim->set_skill(SKILL_AWAKE, k_skills);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.85);
+				victim->set_skill(SKILL_BLOCK, k_skills*0.75);
+				victim->set_skill(SKILL_AXES, k_skills*0.85);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.65);
+				if (floorf(r_cha*0.9 + perc/5.0) > number(1, 140)) {
+					victim->set_skill(SKILL_PROTECT, k_skills*0.75);
+					act("&WЧуткий взгяд $N1 остановился на вас и вы ощутили себя под защитой.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					victim->set_protecting(ch);
+				}
+				SET_FEAT(victim, AXES_MASTER_FEAT);
+				SET_FEAT(victim, THIEVES_STRIKE_FEAT);  
+				SET_FEAT(victim, DEFENDER_FEAT);
+				SET_FEAT(victim, LIVE_SHIELD_FEAT);
+				victim->set_con(floorf(GET_REAL_CON(victim)*1.3));
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
+				skill_id = SKILL_AXES;
+				break;
+			case 5:
+				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				victim->set_skill(SKILL_CHOPOFF, k_skills);
+				victim->set_skill(SKILL_DEVIATE, k_skills*0.7);
+				victim->set_skill(SKILL_ADDSHOT, k_skills*0.7);
+				victim->set_skill(SKILL_BOWS, k_skills*0.85);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.65);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.5);
+				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
+				SET_FEAT(victim, BOWS_MASTER_FEAT);
+				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
+					af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
+					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					affect_to_char(victim, af);
+				}
+				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.2));
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.15));
+				victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 180.0); // срежем доп атаки
+				skill_id = SKILL_BOWS;
+				break;
+			case 6:
+				act("Туловище $N1 увеличилось, лапы сильно удлинились.\nНа них выросли острые когти-шипы.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Туловище $N1 увеличилось, лапы сильно удлинились.\nНа них выросли острые когти-шипы.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				victim->set_skill(SKILL_CLUBS, k_skills);
+				victim->set_skill(SKILL_THROW, k_skills*0.85);
+				victim->set_skill(SKILL_DEVIATE, k_skills*0.7);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.6);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.6);
+				SET_FEAT(victim, CLUBS_MASTER_FEAT);
+				SET_FEAT(victim, THROW_WEAPON_FEAT);
+				SET_FEAT(victim, DOUBLE_THROW_FEAT);  
+				SET_FEAT(victim, TRIPLE_THROW_FEAT);
+				SET_FEAT(victim, POWER_THROW_FEAT); 
+				SET_FEAT(victim, DEADLY_THROW_FEAT);
+				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 140)) {
+					SET_FEAT(victim, SHADOW_THROW_FEAT);
+					SET_FEAT(victim, SHADOW_CLUB_FEAT);
+					victim->set_skill(SKILL_DARK_MAGIC, k_skills*0.7);
+					act("&cКогти $N1 преобрели &Kчерный цвет&c, будто смерть коснулась их.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+					victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 100.0);
+				}
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.25));
+				
+				skill_id = SKILL_CLUBS;	
+			break;
+			case 7:
+				act("Туловище $N1 увеличилось, мышцы налились дикой силой.\nА когти на лапах удлинились и заострились.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Туловище $N1 увеличилось, мышцы налились дикой силой.\nА когти на лапах удлинились и заострились.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				victim->set_skill(SKILL_LONGS, k_skills);
+				victim->set_skill(SKILL_KICK, k_skills*0.95);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.7);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.4);
+				SET_FEAT(victim, LONGS_MASTER_FEAT);
+			
+				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
+					victim->set_skill(SKILL_IRON_WIND, k_skills*0.8);
+					SET_FEAT(victim, BERSERK_FEAT);
+					act("&mДвижения $N1 сильно ускорились, и в глазах появились &Rогоньки&m безумия.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+				}
+				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.1));
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.35));
+				
+				skill_id = SKILL_LONGS;	
+			break;		
+			default:
+				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.", FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+				victim->set_skill(SKILL_PARRY, k_skills);
+				victim->set_skill(SKILL_RESCUE, k_skills*0.75);
+				victim->set_skill(SKILL_THROW, k_skills*0.95);
+				victim->set_skill(SKILL_SPADES, k_skills*0.9);
+				victim->set_skill(SKILL_NOPARRYHIT, k_skills*0.6);
+				SET_FEAT(victim, LIVE_SHIELD_FEAT);
+				SET_FEAT(victim, SPADES_MASTER_FEAT);
+								
+				if (floorf(r_cha*0.9 + perc/4.0) > number(1, 140)) {
+					SET_FEAT(victim, SHADOW_THROW_FEAT);
+					SET_FEAT(victim, SHADOW_SPEAR_FEAT);
+					victim->set_skill(SKILL_DARK_MAGIC, k_skills*0.8);
+					act("&KКогти $N1 преобрели темный оттенок, будто сама тьма коснулась их.&n\n", FALSE, ch, 0, victim, TO_CHAR);
+				}
+				
+				SET_FEAT(victim, THROW_WEAPON_FEAT);
+				SET_FEAT(victim, DOUBLE_THROW_FEAT);  
+				SET_FEAT(victim, TRIPLE_THROW_FEAT);
+				SET_FEAT(victim, POWER_THROW_FEAT); 
+				SET_FEAT(victim, DEADLY_THROW_FEAT);
+				victim->set_str(floorf(GET_REAL_STR(victim)*1.2));
+				victim->set_con(floorf(GET_REAL_CON(victim)*1.2));
+				skill_id = SKILL_SPADES;
+				break;
+			}
+
+		}
+// конец фита хозяин животных
 		if (GET_HELPER(victim)) {
 			GET_HELPER(victim) = NULL;
 		}
@@ -1026,18 +1384,19 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.", FALSE, ch, 0, victim, TO_VICT);
 		if (IS_NPC(victim)) {
 //Eli. Раздеваемся.
-			for (int i = 0; i < NUM_WEARS; i++) {
-				if (GET_EQ(victim, i)) {
-					if (!remove_otrigger(GET_EQ(victim, i), victim)) {
-						continue;
-					}
+			if (IS_NPC(victim) && !MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) { // только если не маг зверьки (Кудояр)
+				for (int i = 0; i < NUM_WEARS; i++) {
+					if (GET_EQ(victim, i)) {
+						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
+							continue;
+						}
 
-					act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
-					act("$n прекратил$g использовать $o3.", TRUE, victim, GET_EQ(victim, i), 0, TO_ROOM);
-					obj_to_char(unequip_char(victim, i | 0x40), victim);
+						act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
+						act("$n прекратил$g использовать $o3.", TRUE, victim, GET_EQ(victim, i), 0, TO_ROOM);
+						obj_to_char(unequip_char(victim, i | 0x40), victim);
+					}
 				}
 			}
-
 //Eli закончили раздеваться.
 			MOB_FLAGS(victim).unset(MOB_AGGRESSIVE);
 			MOB_FLAGS(victim).unset(MOB_SPEC);
@@ -1051,6 +1410,8 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			ch->save_char();
 		}
 	}
+	// тут обрабатываем, если виктим маг-зверь => передаем в фунцию создание маг шмоток (цель, базовый скил, процент владения)
+	if (MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) create_charmice_stuff(victim, skill_id, k_skills);
 }
 
 void show_weapon(CHAR_DATA *ch, OBJ_DATA *obj) {

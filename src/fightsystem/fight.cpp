@@ -21,6 +21,7 @@
 #include "skills/throw.h"
 #include "skills/expendientcut.h"
 #include "skills/protect.h"
+#include "skills/ironwind.h"
 
 #include "assist.h"
 #include "chars/world.characters.h"
@@ -404,7 +405,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA *caster, int spellnum) {
 	}
 
 	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)
-		|| MOB_FLAGGED(caster, MOB_GHOST))
+		|| MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON)) // (Кудояр)
 		&& AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) {
 		if (GET_HP_PERC(caster) < AFF_USED) {
 			return caster;
@@ -421,7 +422,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA *caster, int spellnum) {
 	for (const auto vict : world[IN_ROOM(caster)]->people) {
 		if (!IS_NPC(vict)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+			|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
 				&& vict->has_master()
 				&& !IS_NPC(vict->get_master()))
 			|| !CAN_SEE(caster, vict)) {
@@ -474,7 +475,7 @@ CHAR_DATA *find_friend(CHAR_DATA *caster, int spellnum) {
 	}
 	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
 		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST))) {
+			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON))) { //(Кудояр)
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal)) {
 			return caster;
@@ -493,7 +494,7 @@ CHAR_DATA *find_friend(CHAR_DATA *caster, int spellnum) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!IS_NPC(vict)
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
 					&& vict->get_master()
 					&& !IS_NPC(vict->get_master()))
 				|| !CAN_SEE(caster, vict)) {
@@ -549,7 +550,7 @@ CHAR_DATA *find_caster(CHAR_DATA *caster, int spellnum) {
 
 	if (AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)
 		&& (AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST))) {
+			|| MOB_FLAGGED(caster, MOB_ANGEL) || MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON))) { // (Кудояр)
 		if (caster->has_any_affect(AFF_USED)
 			|| affected_by_spell(caster, spellreal)) {
 			return caster;
@@ -568,7 +569,7 @@ CHAR_DATA *find_caster(CHAR_DATA *caster, int spellnum) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!IS_NPC(vict)
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
 					&& (vict->get_master() && !IS_NPC(vict->get_master())))
 				|| !CAN_SEE(caster, vict)) {
 				continue;
@@ -635,7 +636,7 @@ CHAR_DATA *find_affectee(CHAR_DATA *caster, int spellnum) {
 		spellreal = SPELL_DETECT_POISON;
 
 	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)
-		|| MOB_FLAGGED(caster, MOB_GHOST)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) {
+		|| MOB_FLAGGED(caster, MOB_GHOST) || MOB_FLAGGED(caster, MOB_PLAYER_SUMMON)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER)) { // (Кудояр)
 		if (!affected_by_spell(caster, spellreal)) {
 			return caster;
 		} else if (caster->has_master()
@@ -652,7 +653,7 @@ CHAR_DATA *find_affectee(CHAR_DATA *caster, int spellnum) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if (!IS_NPC(vict)
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // (Кудояр)
 					&& vict->has_master()
 					&& !IS_NPC(vict->get_master()))
 				|| !CAN_SEE(caster, vict)) {
@@ -702,7 +703,7 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA *caster, int spellnum) {
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((IS_NPC(vict)
-				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST)
+				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON) // (Кудояр)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 					&& vict->has_master()
 					&& !IS_NPC(vict->get_master())))
@@ -739,7 +740,7 @@ CHAR_DATA *find_opp_caster(CHAR_DATA *caster) {
 
 	for (const auto vict : world[IN_ROOM(caster)]->people) {
 		if (IS_NPC(vict)
-			&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+			&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON)) // Кудояр
 				&& vict->has_master()
 				&& !IS_NPC(vict->get_master()))) {
 			continue;
@@ -916,7 +917,7 @@ CHAR_DATA *find_minhp(CHAR_DATA *caster) {
 	if (GET_REAL_INT(caster) > number(10, 20)) {
 		for (const auto vict : world[IN_ROOM(caster)]->people) {
 			if ((IS_NPC(vict)
-				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST)
+				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || MOB_FLAGGED(vict, MOB_PLAYER_SUMMON) // (Кудояр)
 					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 					&& vict->has_master()
 					&& !IS_NPC(vict->get_master())))
@@ -1349,12 +1350,13 @@ void using_charmice_skills(CHAR_DATA *ch) {
 	// если нет оружия но есть молот - будем молотить
 	const bool charmice_wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
 	const bool charmice_not_wielded = !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD));
-
+	OBJ_DATA *wielded = GET_EQ(ch, WEAR_WIELD);
+	const bool charmice_wielded_for_throw = (GET_EQ(ch, WEAR_WIELD) && wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)); // Кудояр
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CHAR_DATA *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : NULL;
 
-	if (charmice_wielded_for_stupor && ch->get_skill(SKILL_STUPOR) > 0) {
+	if (charmice_wielded_for_stupor && ch->get_skill(SKILL_STUPOR) > 0) { // оглушить
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_STUPOR) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1366,7 +1368,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 		if (do_skill_without_command && skill_ready) {
 			SET_AF_BATTLE(ch, EAF_STUPOR);
 		}
-	} else if (charmice_not_wielded && ch->get_skill(SKILL_MIGHTHIT) > 0) {
+	} else if (charmice_not_wielded && ch->get_skill(SKILL_MIGHTHIT) > 0) { // молот
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_MIGHTHIT) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1377,6 +1379,46 @@ void using_charmice_skills(CHAR_DATA *ch) {
 		}
 		if (do_skill_without_command && skill_ready) {
 			SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		}
+	} else if(charmice_wielded_for_throw && (ch->get_skill(SKILL_THROW) > ch->get_skill(SKILL_STUPOR))) { // метнуть (Кудояр)
+			const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_THROW) <= 0;
+		if (master) {
+			std::stringstream msg;
+			msg << ch->get_name() << " использует метнуть : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
+			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
+			master->send_to_TC(true, true, true, msg.str().c_str());
+		}
+		if (do_skill_without_command && skill_ready) {
+			ch->set_extra_attack(EXTRA_ATTACK_THROW, ch->get_fighting());
+		}
+	} else if (!charmice_wielded_for_throw && (ch->get_extra_attack_mode() != EXTRA_ATTACK_THROW) 
+			&& !(GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && ch->get_skill(SKILL_CHOPOFF) > 0) { // подножка (Кудояр)
+		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_CHOPOFF) <= 0;
+		if (master) {
+			std::stringstream msg;
+			msg << ch->get_name() << " использует подножку : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
+			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
+			master->send_to_TC(true, true, true, msg.str().c_str());
+		}
+		if (do_skill_without_command && skill_ready) {
+			if (GET_POS(ch) < POS_FIGHTING) return;
+		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, ch->get_fighting());
+		} 
+	}   else if ((ch->get_extra_attack_mode() != (EXTRA_ATTACK_THROW || EXTRA_ATTACK_CHOPOFF)) 
+			&& !(GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && ch->get_skill(SKILL_IRON_WIND) > 0) {  // вихрь (Кудояр)
+		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_IRON_WIND) <= 0;
+		if (master) {
+			std::stringstream msg;
+			msg << ch->get_name() << " использует ВИХРЬ : " << ((do_skill_without_command && skill_ready) ? "ДА" : "НЕТ") << "\r\n";
+			msg << "Проверка шанса применения: " << (do_skill_without_command ? "ДА" : "НЕТ");
+			msg << ", скилл откатился: " << (skill_ready ? "ДА" : "НЕТ") << "\r\n";
+			master->send_to_TC(true, true, true, msg.str().c_str());
+		}
+		if (do_skill_without_command && skill_ready) {
+			if (GET_POS(ch) < POS_FIGHTING) return;
+			go_iron_wind(ch, ch->get_fighting());
 		}
 	}
 }
