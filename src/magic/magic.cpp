@@ -1078,7 +1078,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 		}
 	}
 	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  (Кудояр)
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_AREAS) 
+	if (ch != victim && SpINFO.violent && !IS_SET(SpINFO.routines, MAG_WARCRY) && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_AREAS) 
 	&& (victim->get_skill(SKILL_BLOCK) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
 			&& ( number(1, 100) < ((victim->get_skill(SKILL_BLOCK))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
 	{
