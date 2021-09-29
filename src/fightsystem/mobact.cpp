@@ -1072,7 +1072,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 
 		// Mob attemp rest if it is not an angel
-		if (!max && !MOB_FLAGGED(ch, MOB_NOREST) &&
+		if (!max && !MOB_FLAGGED(ch, MOB_NOREST) && !MOB_FLAGGED(ch, MOB_HORDE) &&
 			GET_HIT(ch) < GET_REAL_MAX_HIT(ch) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_GHOST)
 			&& GET_POS(ch) > POS_RESTING) {
 			act("$n присел$g отдохнуть.", FALSE, ch.get(), 0, 0, TO_ROOM);
