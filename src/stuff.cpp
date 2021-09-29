@@ -403,6 +403,10 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	obj->set_rent_on(1);
 	obj->set_timer(9999);
 	//ставим флаги на шмотки
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)); // в теории никак не взять одежку
+	// obj->set_no_flag(ENoFlag::ITEM_NO_MONO); // пресекаем всяких абузеров
+	// obj->set_no_flag(ENoFlag::ITEM_NO_POLY); // 
 	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
 	obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
