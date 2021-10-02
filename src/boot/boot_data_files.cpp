@@ -1828,6 +1828,14 @@ bool HelpFile::load_help() {
 		strcpy(entry, strcat(key, "\r\n"));
 		get_one_line(line);
 		while (*line != '#') {
+			// если вдруг файл внезапно закончился и '#' так и не встретился
+			// логаем ошибку и заканчиваем парсинг во избежание зацикливания
+			if ((*line == '$') && (*(line + 1) == 0)) {
+				std::stringstream str_log;
+				str_log << "SYSERR: unexpected EOF in help file: \"" << file_name() << "\"";
+				mudlog(str_log.str().c_str(), DEF, LVL_IMMORT, SYSLOG, TRUE);
+				break;
+			}
 			strcat(entry, strcat(line, "\r\n"));
 			get_one_line(line);
 		}
