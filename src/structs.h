@@ -893,6 +893,7 @@ enum class ENoFlag : uint32_t {
 	ITEM_NO_CHARMMAGE = 1 << 15,
 	ITEM_NO_DEFENDERMAGE = 1 << 16,
 	ITEM_NO_NECROMANCER = 1 << 17,
+	ITEM_NO_FIGHTER_USER = 1 << 18,
 	ITEM_NO_KILLER = INT_ONE | 1 << 0,
 	ITEM_NO_COLORED = INT_ONE | 1 << 1,    // нельзя цветным //
 	ITEM_NO_BD = INT_ONE | 1 << 2,
@@ -941,6 +942,7 @@ enum class EAntiFlag : uint32_t {
 	ITEM_AN_CHARMMAGE = 1 << 15,
 	ITEM_AN_DEFENDERMAGE = 1 << 16,
 	ITEM_AN_NECROMANCER = 1 << 17,
+	ITEM_AN_FIGHTER_USER = 1 << 18,
 	ITEM_AN_KILLER = INT_ONE | (1 << 0),
 	ITEM_AN_COLORED = INT_ONE | (1 << 1),    // нельзя цветным //
 	ITEM_AN_BD = INT_ONE | (1 << 2),

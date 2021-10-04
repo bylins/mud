@@ -1124,6 +1124,8 @@ inline T VPOSI(const T val, const T min, const T max) {
             ((int) GET_CLASS(ch) == CLASS_DEFENDERMAGE))
 #define IS_NECROMANCER(ch) (!IS_NPC(ch) && \
             ((int) GET_CLASS(ch) == CLASS_NECROMANCER))
+#define IS_FIGHTER_USER(ch)  (!IS_NPC(ch) && \
+            (IS_BITS(MASK_FIGHTERS, (int) GET_CLASS(ch))))
 
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
     (MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE) || (GET_RACE(ch) == NPC_RACE_GHOST)))
