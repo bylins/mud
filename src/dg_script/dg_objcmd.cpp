@@ -538,7 +538,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (world[ch->in_room]->zone_rn != world[up_obj_where(obj)]->zone_rn)
 			return;
 
-		if (GET_LEVEL(ch) >= LVL_IMMORT) {
+		if (IS_IMMORTAL(ch)) {
 			send_to_char
 				("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
 			return;
