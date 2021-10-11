@@ -34,7 +34,7 @@ struct GlobalObjectsStorage {
 	Heartbeat heartbeat;
 	std::shared_ptr<influxdb::Sender> stats_sender;
 	zone_table_t zone_table;
-	DailyQuestMap daily_quests;
+	DailyQuest::DailyQuestMap daily_quests;
 	Strengthening strengthening;
 	obj2triggers_t obj2triggers;
 };
@@ -152,7 +152,7 @@ PlayersIndex &GlobalObjects::player_table() {
 	return global_objects().player_table;
 }
 
-DailyQuestMap &GlobalObjects::daily_quests() {
+DailyQuest::DailyQuestMap &GlobalObjects::daily_quests() {
 	return global_objects().daily_quests;
 }
 

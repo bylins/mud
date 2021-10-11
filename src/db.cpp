@@ -78,10 +78,8 @@
 #define RANDOMOBJ_FILE "randomobj.xml"
 #define SPEEDWALKS_FILE "speedwalks.xml"
 #define CLASS_LIMIT_FILE "class.basestatlimits.xml"
-#define DAILY_FILE "daily.xml"
 #define CITIES_FILE "cities.xml"
 #define QUESTBODRICH_FILE "quest_bodrich.xml"
-#define DQ_FILE "daily_quest.xml"
 
 
 /**************************************************************************
@@ -1012,18 +1010,8 @@ void QuestBodrich::load_rewards() {
 }
 
 void load_dquest() {
-	pugi::xml_document doc_;
-
-	log("Loading daily_quest.xml....");
-
-	const auto file = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
-	for (auto object = file.child("quest"); object; object = object.next_sibling("quest")) {
-		DailyQuest tmp;
-		tmp.id = object.attribute("id").as_int();
-		tmp.reward = object.attribute("reward").as_int();
-		tmp.desk = object.attribute("desk").as_string();
-		d_quest.emplace(tmp.id, tmp);
-	}
+	log("Loading daily quests...");
+	DailyQuest::load_from_file();
 }
 
 /*
@@ -1066,6 +1054,7 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Noob::init();
 		ResetStats::init();
 		Bonus::bonus_log_load();
+		DailyQuest::load_from_file();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "imagic"))
@@ -1175,6 +1164,8 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ResetStats::init();
 	} else if (!str_cmp(arg, "obj_sets.xml")) {
 		obj_sets::load();
+	} else if (!str_cmp(arg, "daily")) {
+		DailyQuest::load_from_file(ch);
 	} else {
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
@@ -5765,24 +5756,6 @@ void init() {
 
 } // namespace OfftopSystem
 ////////////////////////////////////////////////////////////////////////////////
-std::map<int, std::string> daily_array;
-
-int dg_daily_quest(CHAR_DATA *, int, int) {
-	return 0;
-}
-
-void load_daily_quest() {
-	pugi::xml_document doc_;
-	pugi::xml_node child_, object_, file_;
-	file_ = XMLLoad(LIB_MISC DAILY_FILE, "daily_root", "Error loading cases file: daily.xml", doc_);
-
-	for (child_ = file_.child("daily"); child_; child_ = child_.next_sibling("daily")) {
-		int temp_id = child_.attribute("id").as_int();
-		std::string temp_desk = child_.attribute("desk").as_string();
-		daily_array.insert(std::pair<int, std::string>(temp_id, temp_desk));
-	}
-
-}
 
 void load_speedwalk() {
 
