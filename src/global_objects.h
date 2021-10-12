@@ -56,7 +56,7 @@ class GlobalObjects {
 	static BloodyInfoMap &bloody_map();
 	static Rooms &world();
 	static PlayersIndex &player_table();
-	static DailyQuestMap &daily_quests();
+	static DailyQuest::DailyQuestMap &daily_quests();
 	static Strengthening &strengthening();
 	static obj2triggers_t &obj_triggers();
 };

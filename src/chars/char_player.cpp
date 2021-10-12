@@ -10,6 +10,7 @@
 #include "fightsystem/pk.h"
 #include "diskio.h"
 #include "genchar.h"
+#include "global_objects.h"
 #include "affects/affect_handler.h"
 #include "player_races.h"
 #include "ext_money.h"
@@ -218,9 +219,9 @@ void Player::add_hryvn(int value) {
 }
 
 void Player::dquest(const int id) {
-	const auto quest = d_quest.find(id);
+	const auto quest = GlobalObjects::daily_quests().find(id);
 
-	if (quest == d_quest.end()) {
+	if (quest == GlobalObjects::daily_quests().end()) {
 		log("Quest ID: %d - не найден", id);
 		return;
 	}
