@@ -5236,11 +5236,12 @@ int must_be_deleted(CHAR_DATA *short_ch) {
 		return 0;
 	}
 
-	if (GET_REMORT(short_ch))
-		return (0);
-
 	if (PLR_FLAGS(short_ch).get(PLR_DELETED)) {
 		return 1;
+	}
+
+	if (GET_REMORT(short_ch)) {
+		return (0);
 	}
 
 	timeout = -1;
