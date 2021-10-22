@@ -452,24 +452,12 @@ void Player::save_char() {
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
-	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
-	{
-		strcpy(buf, this->desc->host);
-	} else//по сути так должен норм сохраняцо последний айпи
-	{
-		if (!LOGON_LIST(this).empty()) {
-			logon_data *last_logon = &LOGON_LIST(this).at(0);
-			for (auto &cur_log : LOGON_LIST(this)) {
-				if (cur_log.lasttime > last_logon->lasttime) {
-					last_logon = &cur_log;
-				}
-			}
-			strcpy(buf, last_logon->ip);
-		} else {
-			strcpy(buf, "Unknown");
-		}
+	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
+	if (player_table[this->get_pfilepos()].last_ip) {
+		strcpy(buf, player_table[this->get_pfilepos()].last_ip);
+	} else {
+		strcpy(buf, "Unknown");
 	}
-
 	fprintf(saved, "Host: %s\n", buf);
 	free(player_table[this->get_pfilepos()].last_ip);
 	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
