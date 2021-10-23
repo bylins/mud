@@ -1174,7 +1174,7 @@ const int HISTORY_SIZE = 5;
 #define MIN_NAME_LENGTH       5
 #define HOST_LENGTH           30
 #define EXDSCR_LENGTH         512
-#define MAX_AFFECT            32
+#define MAX_AFFECT            128
 #define MAX_OBJ_AFFECT        8
 #define MAX_TIMED_SKILLS      16
 #define MAX_FEATS             256 // Максимальное количество фитов //
