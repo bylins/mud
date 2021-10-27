@@ -2216,8 +2216,16 @@ void inspecting() {
 			const auto &player = player_table[it->second->pos];
 			sprinttype(player.plr_class, pc_class_types, smallBuf);
 			mytime = player_table[it->second->pos].last_logon;
+			Player vict;
+			char clanstatus[MAX_INPUT_LENGTH];
+			sprintf(clanstatus, "%s", "нет");
+			if ((load_char(player.name(), &vict)) > -1) {
+				Clan::SetClanData(&vict);
+				if (CLAN(&vict))
+					sprintf(clanstatus, "%s", (&vict)->player_specials->clan->GetAbbrev());
+			}
 			sprintf(buf,
-					"--------------------\r\nИмя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d, Remort %d, Проф: %s.\r\n",
+					"--------------------\r\nИмя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d, Remort %d, Проф: %s, Клан: %s.\r\n",
 					(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
 					player.name(),
 					CCNRM(ch, C_SPR),
@@ -2227,7 +2235,7 @@ void inspecting() {
 					rustime(localtime(&mytime)),
 					player.level,
 					player.remorts,
-					smallBuf);
+					smallBuf, clanstatus);
 			it->second->out += buf;
 			it->second->out += buf2;
 			it->second->out += buf1;
@@ -2345,12 +2353,19 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				CCWHT(ch, C_SPR),
 				player_table[i].last_ip,
 				CCNRM(ch, C_SPR));
-
+		Player vict;
+		char clanstatus[MAX_INPUT_LENGTH];
+		sprintf(clanstatus, "%s", "нет");
+		if ((load_char(player_table[i].name(), &vict)) > -1) {
+			Clan::SetClanData(&vict);
+			if (CLAN(&vict))
+				sprintf(clanstatus, "%s", (&vict)->player_specials->clan->GetAbbrev());
+		}
 		sprinttype(player_table[i].plr_class, pc_class_types, smallBuf);
 		time_t mytime = player_table[i].last_logon;
-		sprintf(buf1, "Last: %s. Level %d, Remort %d, Проф: %s.\r\n",
+		sprintf(buf1, "Last: %s. Level %d, Remort %d, Проф: %s, Клан: %s.\r\n",
 				rustime(localtime(&mytime)),
-				player_table[i].level, player_table[i].remorts, smallBuf);
+				player_table[i].level, player_table[i].remorts, smallBuf, clanstatus);
 		strcat(buf, buf1);
 
 		if (req->fullsearch) {
