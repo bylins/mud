@@ -748,8 +748,7 @@ void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
 
 void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
-		log("SYSERROR: ch = %s, actor = %s (%s:%d)",
-			ch ? (ch->purged() ? "purged" : "true") : "false",
+		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 			actor ? (actor->purged() ? "purged" : "true") : "false",
 			__FILE__, __LINE__);
 		return;
@@ -777,25 +776,22 @@ void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
 * \param actor - кастер, идет в скрипт как %actor%
 * \param spellnum - номер закла, идет в скрипт как %cast_num% и %castname%
 */
-void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
+int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
-		log("SYSERROR: ch = %s, actor = %s (%s:%d)",
-			ch ? (ch->purged() ? "purged" : "true") : "false",
+		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 			actor ? (actor->purged() ? "purged" : "true") : "false",
 			__FILE__, __LINE__);
-		return;
+		return 0;
 	}
 
 	if (spellnum < 0
 		|| spellnum > SPELLS_COUNT) {
-		log("SYSERROR: spellnum = %d (%s:%d)", spellnum, __FILE__, __LINE__);
-		return;
+		log("SYSERROR: spell non found spellnum = %d (%s:%d)", spellnum, __FILE__, __LINE__);
+		return 0;
 	}
 
-	if (!SCRIPT_CHECK(ch, MTRIG_CAST)
-		|| !CAN_START_MTRIG(ch)
-		|| GET_INVIS_LEV(actor)) {
-		return;
+	if (!SCRIPT_CHECK(ch, MTRIG_CAST) || !CAN_START_MTRIG(ch) || GET_INVIS_LEV(actor)) {
+		return 0;
 	}
 
 	char local_buf[MAX_INPUT_LENGTH];
@@ -805,10 +801,10 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<std::string>(spellnum).c_str(), 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "castname", spell_info[spellnum].name, 0);
-			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
-			return;
+			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}
+	return 0;
 }
 
 void timechange_mtrigger(CHAR_DATA *ch, const int time) {

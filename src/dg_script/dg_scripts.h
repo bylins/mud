@@ -354,7 +354,7 @@ void load_otrigger(OBJ_DATA *obj);
 void purge_otrigger(OBJ_DATA *obj);
 void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
 void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
-void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
+int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 
 // function prototypes from scripts.cpp //
 void script_trigger_check(void);
