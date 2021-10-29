@@ -2133,6 +2133,102 @@ void find_replacement(void *go,
 				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			} else
 				sprintf(str, "%d", c->get_hryvn());
+		} else if (!str_cmp(field, "nogata")) {
+			if (*subfield) {
+				const long before = c->get_nogata();
+				int value;
+				c->set_nogata(MAX(0, gm_char_field(c, field, subfield, c->get_nogata())));
+				value = c->get_nogata() - before;
+				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
+					GET_PAD(c, 0),
+					GET_ROOM_VNUM(c->in_room),
+					value,
+					desc_count(value, WHAT_NOGATACu),
+					GET_TRIG_NAME(trig),
+					GET_TRIG_VNUM(trig));
+				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			} else
+				sprintf(str, "%d", c->get_nogata());
+		} else if (!str_cmp(field, "hryvn")) {
+			if (*subfield) {
+				const long before = c->get_hryvn();
+				int value;
+				c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+				value = c->get_hryvn() - before;
+				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
+					GET_PAD(c, 0),
+					GET_ROOM_VNUM(c->in_room),
+					value,
+					desc_count(value, WHAT_TORCu),
+					GET_TRIG_NAME(trig),
+					GET_TRIG_VNUM(trig));
+				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			} else
+				sprintf(str, "%d", c->get_hryvn());
+		} else if (!str_cmp(field, "hryvn")) {
+			if (*subfield) {
+				const long before = c->get_hryvn();
+				int value;
+				c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+				value = c->get_hryvn() - before;
+				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
+					GET_PAD(c, 0),
+					GET_ROOM_VNUM(c->in_room),
+					value,
+					desc_count(value, WHAT_TORCu),
+					GET_TRIG_NAME(trig),
+					GET_TRIG_VNUM(trig));
+				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			} else
+				sprintf(str, "%d", c->get_hryvn());
+		} else if (!str_cmp(field, "hryvn")) {
+			if (*subfield) {
+				const long before = c->get_hryvn();
+				int value;
+				c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+				value = c->get_hryvn() - before;
+				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
+					GET_PAD(c, 0),
+					GET_ROOM_VNUM(c->in_room),
+					value,
+					desc_count(value, WHAT_TORCu),
+					GET_TRIG_NAME(trig),
+					GET_TRIG_VNUM(trig));
+				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			} else
+				sprintf(str, "%d", c->get_hryvn());
+		} else if (!str_cmp(field, "hryvn")) {
+			if (*subfield) {
+				const long before = c->get_hryvn();
+				int value;
+				c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+				value = c->get_hryvn() - before;
+				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
+					GET_PAD(c, 0),
+					GET_ROOM_VNUM(c->in_room),
+					value,
+					desc_count(value, WHAT_TORCu),
+					GET_TRIG_NAME(trig),
+					GET_TRIG_VNUM(trig));
+				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			} else
+				sprintf(str, "%d", c->get_hryvn());
+		} else if (!str_cmp(field, "hryvn")) {
+			if (*subfield) {
+				const long before = c->get_hryvn();
+				int value;
+				c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+				value = c->get_hryvn() - before;
+				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
+					GET_PAD(c, 0),
+					GET_ROOM_VNUM(c->in_room),
+					value,
+					desc_count(value, WHAT_TORCu),
+					GET_TRIG_NAME(trig),
+					GET_TRIG_VNUM(trig));
+				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			} else
+				sprintf(str, "%d", c->get_hryvn());
 		} else if (!str_cmp(field, "gold")) {
 			if (*subfield) {
 				const long before = c->get_gold();

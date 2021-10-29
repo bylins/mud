@@ -1336,6 +1336,33 @@ void perform_give_gold(CHAR_DATA *ch, CHAR_DATA *vict, int amount) {
 	bribe_mtrigger(vict, ch, amount);
 }
 
+void perform_give_nogat(CHAR_DATA *ch, CHAR_DATA *vict, int amount) {
+	if (amount <= 0) {
+		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
+		return;
+	}
+	if (ch->get_nogata() < amount && (IS_NPC(ch) || !IS_IMPL(ch))) {
+		send_to_char("И откуда ты их взять собирался?\r\n", ch);
+		return;
+	}
+	if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM) && !IS_GOD(ch)) {
+		act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
+		return;
+	}
+	send_to_char(OK, ch);
+	sprintf(buf, "$n дал$g вам %d %s.", amount, desc_count(amount, WHAT_NOGATACu));
+	act(buf, FALSE, ch, 0, vict, TO_VICT);
+	if (amount > 4)
+		sprintf(buf, "$n дал$g много %s $N2.", desc_count(amount, WHAT_NOGATACu));
+	else
+		sprintf(buf, "$n дал$g %s $N2.", desc_count(amount, WHAT_NOGATACu));
+	act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+	if (IS_NPC(ch) || !IS_IMPL(ch)) {
+		ch->sub_nogata(amount);
+	}
+	vict->add_nogata(amount);
+}
+
 void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int amount, dotmode;
 	CHAR_DATA *vict;
@@ -1348,13 +1375,19 @@ void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (is_number(arg)) {
 		amount = atoi(arg);
 		argument = one_argument(argument, arg);
-		if (!strn_cmp("coin", arg, 4) || !strn_cmp("кун", arg, 5) || !str_cmp("денег", arg)) {
+		if (!strn_cmp("coin", arg, 4) || !strn_cmp("кун", arg, 3) || !str_cmp("денег", arg)) {
 			one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)) != NULL)
 				perform_give_gold(ch, vict, amount);
 			return;
-		} else if (!*arg)    // Give multiple code.
-		{
+		}
+		if (!strn_cmp("nogat", arg, 5) || !strn_cmp("ногат", arg, 5)) {
+			one_argument(argument, arg);
+			if ((vict = give_find_vict(ch, arg)) != NULL)
+				perform_give_nogat(ch, vict, amount);
+			return;
+		}
+		if (!*arg) {
 			sprintf(buf, "Чего %d вы хотите дать?\r\n", amount);
 			send_to_char(buf, ch);
 		} else if (!(vict = give_find_vict(ch, argument))) {
