@@ -123,6 +123,11 @@ class PlayerI {
 	virtual void set_hryvn(int /* value */) {};
 	virtual void sub_hryvn(int /* value */) {};
 	virtual void add_hryvn(int /* value */) {};
+	virtual int get_nogata() { return 0; }
+	virtual void set_nogata(int /* value */) {};
+	virtual void sub_nogata(int /* value */) {};
+	virtual void add_nogata(int /* value */) {};
+
 	virtual void dquest(int /*id */) {};
 	int get_count_daily_quest(int /*id*/) { return 0; };
 	void add_daily_quest(int /*id*/, int /*count*/) {};

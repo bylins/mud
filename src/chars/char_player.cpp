@@ -59,6 +59,7 @@ Player::Player() :
 	motion_(true),
 	ice_currency(0),
 	hryvn(0),
+	nogata(0),
 	spent_hryvn(0) {
 	for (int i = 0; i < START_STATS_TOTAL; ++i) {
 		start_stats_.at(i) = 0;
@@ -188,6 +189,7 @@ void Player::str_to_cities(std::string str) {
 int Player::get_hryvn() {
 	return this->hryvn;
 }
+
 short cap_hryvn = 1500;
 
 void Player::set_hryvn(int value) {
@@ -198,6 +200,24 @@ void Player::set_hryvn(int value) {
 
 void Player::sub_hryvn(int value) {
 	this->hryvn -= value;
+}
+
+int Player::get_nogata() {
+	return this->nogata;
+}
+
+void Player::set_nogata(int value) {
+	this->nogata = value;
+}
+
+void Player::sub_nogata(int value) {
+	this->nogata -= value;
+}
+
+void Player::add_nogata(int value) {
+	this->nogata += value;
+	send_to_char(this, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_NOGATACu));
+
 }
 
 void Player::add_hryvn(int value) {

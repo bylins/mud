@@ -156,6 +156,10 @@ class Player : public CHAR_DATA {
 	void sub_hryvn(int value);
 	void add_hryvn(int value);
 	void dquest(int id);
+	int get_nogata();
+	void set_nogata(int value);
+	void sub_nogata(int value);
+	void add_nogata(int value);
 
 	std::shared_ptr<Account> get_account();
 	// добавить/обновить чармиса в историю игрока
@@ -229,6 +233,8 @@ class Player : public CHAR_DATA {
 	bool setmode_dontbot;
 	// гривны
 	int hryvn;
+	// ногаты
+	int nogata;
 	// id задания и сколько раз было выполненно задание
 	std::map<int, int> daily_quest;
 	// сколько гривен было потрачено в магазине

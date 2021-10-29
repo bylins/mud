@@ -3902,6 +3902,7 @@ struct set_struct        /*
 		{"spammer", LVL_GOD, PC, BINARY}, // 64
 		{"gloryhide", LVL_IMPL, PC, BINARY}, // 65
 		{"telegram", LVL_IMPL, PC, MISC}, // 66
+		{"nogata", LVL_IMPL, PC, NUMBER}, // 67
 		{"\n", 0, BOTH, MISC}
 	};
 
@@ -4576,6 +4577,8 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				send_to_char("Ошибка, указано неверное число или персонаж.\r\n", ch);
 			break;
 		}
+		case 67: vict->set_nogata(value);
+			break;
 		default: send_to_char("Не могу установить это!\r\n", ch);
 			return (0);
 	}

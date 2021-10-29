@@ -3747,6 +3747,16 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(buf, ch);
 		}
 	}
+	if (ch->get_nogata() > 0) {
+		int value = ch->get_nogata();
+		if (ch->get_nogata() == 1) {
+			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");
+		}
+		else {
+			sprintf(buf, "У вас в наличии есть %d %s.\r\n", value, desc_count(value, WHAT_NOGATACu));
+		}
+		send_to_char(buf, ch);
+	}
 }
 
 //29.11.09 Отображение количества рипов (с) Василиса

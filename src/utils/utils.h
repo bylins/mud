@@ -1210,6 +1210,7 @@ const char *desc_count(long how_many, int of_what);
 #define WHAT_TSILVERu    35
 #define WHAT_TBRONZEu    36
 #define WHAT_ICEu        37
+#define WHAT_NOGATACu        38
 
 #undef AW_HIDE // конфликтует с winuser.h
 // some awaking cases

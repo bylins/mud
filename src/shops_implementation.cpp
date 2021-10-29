@@ -50,6 +50,9 @@ bool check_money(CHAR_DATA *ch, long price, const std::string &currency) {
 	if (currency == "гривны") {
 		return ch->get_hryvn() >= price;
 	}
+	if (currency == "ногаты") {
+		return ch->get_nogata() >= price;
+	}
 
 	return false;
 }
@@ -379,9 +382,13 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
 				}
 				ch->sub_ice_currency(price);
-
+			} else if (currency == "ногата") {
+				// книги за лед, как и за славу, не фейлим
+				if (OBJ_DATA::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
+					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
+				}
+				ch->sub_nogata(price);
 			} else if (currency == "гривны") {
-				// книги за гривны, как и за славу, не фейлим
 				if (OBJ_DATA::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
 					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
 				}
@@ -429,6 +436,9 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 		suffix = desc_count(total_money, WHAT_GLORYu);
 	if (currency == "гривны")
 		suffix = desc_count(total_money, WHAT_TORCu);
+	if (currency == "ногаты")
+		suffix = desc_count(total_money, WHAT_NOGATACu);
+
 	snprintf(buf, MAX_STRING_LENGTH, "Это будет стоить %d %s.", total_money, suffix);
 	tell_to_char(keeper, ch, buf);
 
