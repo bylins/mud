@@ -365,10 +365,10 @@ int may_cast_here(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum) {
 int call_magic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level) {
 
 	if (spellnum < 1 || spellnum > SPELLS_COUNT)
-		return (0);
+		return 0;
 
-	if (caster && cvict) {
-		cast_mtrigger(cvict, caster, spellnum);
+	if (caster && cvict && !cast_mtrigger(cvict, caster, spellnum)) {
+		return 0;
 	}
 
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !may_cast_in_nomagic(caster, cvict, spellnum)) {
