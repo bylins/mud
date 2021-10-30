@@ -81,7 +81,7 @@ void clear_mob_charm(CHAR_DATA *mob);
 void medit_setup(DESCRIPTOR_DATA *d, int rmob_num);
 
 void medit_mobile_init(CHAR_DATA *mob);
-void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src, bool partialcopy);
+void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src, bool partial_copy);
 void medit_mobile_free(CHAR_DATA *mob);
 
 void medit_save_internally(DESCRIPTOR_DATA *d);
