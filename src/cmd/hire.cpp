@@ -116,13 +116,13 @@ long calc_hire_price(CHAR_DATA *ch, CHAR_DATA *victim) {
 	price += m_luck + m_ini + m_ar + m_mr + m_pr + m_dr + extraAttack;
 	// сколько персонаж может
 	float hirePoints = 0;
-	float rem_hirePoints = GET_REMORT(ch) * 1.8;
+	float rem_hirePoints = GET_REAL_REMORT(ch) * 1.8;
 	float int_hirePoints = GET_REAL_INT(ch) * 1.8;
 	float cha_hirePoints = GET_REAL_CHA(ch) * 1.8;
 	hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
-	hirePoints = hirePoints * 5 * GET_LEVEL(ch);
+	hirePoints = hirePoints * 5 * GET_REAL_LEVEL(ch);
 
-	int min_price = MAX((m_dr / 300 * GET_LEVEL(victim)), (GET_LEVEL(victim) * 5));
+	int min_price = MAX((m_dr / 300 * GET_REAL_LEVEL(victim)), (GET_REAL_LEVEL(victim) * 5));
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
 	ch->send_to_TC(true,

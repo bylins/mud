@@ -105,14 +105,14 @@ ESkill get_magic_skill_number_by_spell(int spellnum) {
 //req_lvl - требуемый уровень из книги
 int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl) {
 	int min_lvl = MAX(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
-		- (MAX(GET_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
+		- (MAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
 
 	return MAX(1, min_lvl);
 }
 
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl) {
-	if (min_spell_lvl_with_req(ch, spellnum, req_lvl) > GET_LEVEL(ch)
-		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch))
+	if (min_spell_lvl_with_req(ch, spellnum, req_lvl) > GET_REAL_LEVEL(ch)
+		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
 		return FALSE;
 
 	return TRUE;
@@ -120,8 +120,8 @@ bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl) {
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool can_get_spell(CHAR_DATA *ch, int spellnum) {
-	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GET_LEVEL(ch)
-		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch))
+	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GET_REAL_LEVEL(ch)
+		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
 		return FALSE;
 
 	return TRUE;
@@ -248,7 +248,7 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	room_rnum to_room = NOWHERE, fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
 
-	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT) {
+	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_REAL_LEVEL(victim) >= LVL_IMMORT) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -361,7 +361,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	}
 
 	// если противник не может быть призван и уровень меньше цели - фэйл
-	if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && GET_LEVEL(victim) > GET_LEVEL(ch)) {
+	if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && GET_REAL_LEVEL(victim) > GET_REAL_LEVEL(ch)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -440,13 +440,13 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 
 	if (victim == NULL)
 		return;
-	if (GET_LEVEL(victim) > GET_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+	if (GET_REAL_LEVEL(victim) > GET_REAL_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch)) {
-		if ((!IS_NPC(victim) && GET_LEVEL(victim) <= 10 && ch->get_remort() < 9) || IS_IMMORTAL(victim)
+		if ((!IS_NPC(victim) && GET_REAL_LEVEL(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
 			|| AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -579,7 +579,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	}
 
 	if (IS_IMMORTAL(victim)) {
-		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim))) {
+		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_REAL_LEVEL(ch) < GET_REAL_LEVEL(victim))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -619,7 +619,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		if (!IS_NPC(ch) && !IS_NPC(victim) && GET_LEVEL(victim) <= 10) {
+		if (!IS_NPC(ch) && !IS_NPC(victim) && GET_REAL_LEVEL(victim) <= 10) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -926,12 +926,12 @@ int check_charmee(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
 		return (FALSE);
 	}
 
-	if (spellnum == SPELL_CLONE && cha_summ >= MAX(1, (GET_LEVEL(ch) + 4) / 5 - 2)) {
+	if (spellnum == SPELL_CLONE && cha_summ >= MAX(1, (GET_REAL_LEVEL(ch) + 4) / 5 - 2)) {
 		send_to_char("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (FALSE);
 	}
 
-	if (spellnum != SPELL_CLONE && cha_summ >= (GET_LEVEL(ch) + 9) / 10) {
+	if (spellnum != SPELL_CLONE && cha_summ >= (GET_REAL_LEVEL(ch) + 9) / 10) {
 		send_to_char("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (FALSE);
 	}
@@ -985,7 +985,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch)
-		&& general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 4 + GET_REMORT(ch) * 3)) //предлагаю завязать на каст
+		&& general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 4 + GET_REAL_REMORT(ch) * 3)) //предлагаю завязать на каст
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
 		if (!check_charmee(ch, victim, SPELL_CHARM)) {
@@ -1014,7 +1014,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
 		} else {
-			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REMORT(ch) * 2, 0, 0, 0, 0);
+			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REAL_REMORT(ch) * 2, 0, 0, 0, 0);
 		}
 
 		af.modifier = 0;
@@ -1129,7 +1129,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			victim->player_data.PNames[5] = std::string(descr);
 				
 			// прибавка хитов по формуле: 1/3 хп_хозяина + 12*лвл_хоз + 4*обая_хоз + 1.5*%магии_хоз
-			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GET_LEVEL(ch)*12 + r_cha*4 + perc*1.5);
+			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GET_REAL_LEVEL(ch)*12 + r_cha*4 + perc*1.5);
 			GET_HIT(victim) = GET_MAX_HIT(victim);
 			// статы
 			victim->set_int(floorf((r_cha*0.2 + perc*0.15)));
@@ -1146,10 +1146,10 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			GET_DR(victim) = floorf(r_cha/6.0 + perc/20.0);  // дамрол
 			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0); // броня
 			 // почему-то не работает
-			if (GET_REMORT(ch) > 12) {
-				GET_AR(victim) = (GET_AR(victim) + GET_REMORT(ch) - 12);
-				GET_MR(victim) = (GET_MR(victim) + GET_REMORT(ch) - 12);
-				GET_PR(victim) = (GET_PR(victim) + GET_REMORT(ch) - 12);
+			if (GET_REAL_REMORT(ch) > 12) {
+				GET_AR(victim) = (GET_AR(victim) + GET_REAL_REMORT(ch) - 12);
+				GET_MR(victim) = (GET_MR(victim) + GET_REAL_REMORT(ch) - 12);
+				GET_PR(victim) = (GET_PR(victim) + GET_REAL_REMORT(ch) - 12);
 			}
 			// спелы не работают пока 
 			// SET_SPELL(victim, SPELL_CURE_BLIND, 1); // -?
@@ -1589,7 +1589,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 				case BOOK_SPELL:
 					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= SPELLS_COUNT) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
+						if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REAL_REMORT(ch))
 							drsdice = 34;
 						else
 							drsdice = min_spell_lvl_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
@@ -1868,7 +1868,7 @@ void mort_show_char_values(CHAR_DATA *victim, CHAR_DATA *ch, int fullness) {
 	if (fullness < 60 && ch != victim)
 		return;
 
-	val0 = GET_LEVEL(victim);
+	val0 = GET_REAL_LEVEL(victim);
 	val1 = GET_HIT(victim);
 	val2 = GET_REAL_MAX_HIT(victim);
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
@@ -1941,7 +1941,7 @@ void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *o
 		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, SKILL_IDENTIFY, nullptr), full);
 		TrainSkill(ch, SKILL_IDENTIFY, true, nullptr);
 	} else if (victim) {
-		if (GET_LEVEL(victim) < 3) {
+		if (GET_REAL_LEVEL(victim) < 3) {
 			send_to_char("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
 			return;
 		}
@@ -1970,7 +1970,7 @@ void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *o
 			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);
 			return;
 		}
-		if (GET_LEVEL(victim) < 3) {
+		if (GET_REAL_LEVEL(victim) < 3) {
 			send_to_char("Вы можете опознать себя только достигнув третьего уровня.\r\n", ch);
 			return;
 		}
@@ -2013,7 +2013,7 @@ void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/,
 	}
 
 	if (sky_info) {
-		duration = MAX(GET_LEVEL(ch) / 8, 2);
+		duration = MAX(GET_REAL_LEVEL(ch) / 8, 2);
 		zone = world[ch->in_room]->zone_rn;
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
 			if (world[i]->zone_rn == zone && SECT(i) != SECT_INSIDE && SECT(i) != SECT_CITY) {
@@ -2035,8 +2035,8 @@ void spell_fear(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*ob
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
-	if (!IS_NPC(ch) && (GET_LEVEL(ch) > 10))
-		modi += (GET_LEVEL(ch) - 10);
+	if (!IS_NPC(ch) && (GET_REAL_LEVEL(ch) > 10))
+		modi += (GET_REAL_LEVEL(ch) - 10);
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLESS))
@@ -2055,8 +2055,8 @@ void spell_energydrain(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
-	if (!IS_NPC(ch) && (GET_LEVEL(ch) > 10))
-		modi += (GET_LEVEL(ch) - 10);
+	if (!IS_NPC(ch) && (GET_REAL_LEVEL(ch) > 10))
+		modi += (GET_REAL_LEVEL(ch) - 10);
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
 
@@ -2073,7 +2073,7 @@ void spell_energydrain(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA
 void do_sacrifice(CHAR_DATA *ch, int dam) {
 //MZ.overflow_fix
 	GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam), GET_REAL_MAX_HIT(ch)
-		+ GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10));
+		+ GET_REAL_MAX_HIT(ch) * GET_REAL_LEVEL(ch) / 10));
 //-MZ.overflow_fix
 	update_pos(ch);
 }
@@ -2090,7 +2090,7 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *
 		return;
 	}
 
-	dam = mag_damage(GET_LEVEL(ch), ch, victim, SPELL_SACRIFICE, SAVING_STABILITY);
+	dam = mag_damage(GET_REAL_LEVEL(ch), ch, victim, SPELL_SACRIFICE, SAVING_STABILITY);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -2136,8 +2136,8 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_
 			}
 		}
 
-		mag_affects(GET_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);
-		mag_damage(GET_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);
+		mag_affects(GET_REAL_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);
+		mag_damage(GET_REAL_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);
 	}
 
 	act(msg2, FALSE, ch, 0, 0, TO_CHAR);
@@ -3394,7 +3394,7 @@ bool mag_item_ok(CHAR_DATA *ch, OBJ_DATA *obj, int spelltype) {
 			num += 64;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG128s))
 			num += 128;
-		if (GET_OBJ_VAL(obj, 3) + num - 5 * GET_REMORT(ch) >= time(nullptr))
+		if (GET_OBJ_VAL(obj, 3) + num - 5 * GET_REAL_REMORT(ch) >= time(nullptr))
 			return false;
 	}
 
@@ -3410,7 +3410,7 @@ bool mag_item_ok(CHAR_DATA *ch, OBJ_DATA *obj, int spelltype) {
 			num += 8;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL16))
 			num += 16;
-		if (GET_LEVEL(ch) + GET_REMORT(ch) < num)
+		if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) < num)
 			return false;
 	}
 

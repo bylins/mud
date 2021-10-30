@@ -98,10 +98,10 @@ int apply_armour(CHAR_DATA *ch, int eq_pos) {
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CHAR_DATA *ch) {
-	if (GET_REMORT(ch) <= 3 && !IS_IMMORTAL(ch)) {
-		affect_modify(ch, APPLY_HITREG, 60 - (GET_REMORT(ch) * 10), EAffectFlag::AFF_NOOB_REGEN, TRUE);
+	if (GET_REAL_REMORT(ch) <= 3 && !IS_IMMORTAL(ch)) {
+		affect_modify(ch, APPLY_HITREG, 60 - (GET_REAL_REMORT(ch) * 10), EAffectFlag::AFF_NOOB_REGEN, TRUE);
 		affect_modify(ch, APPLY_MOVEREG, 100, EAffectFlag::AFF_NOOB_REGEN, TRUE);
-		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REMORT(ch) * 20), EAffectFlag::AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REAL_REMORT(ch) * 20), EAffectFlag::AFF_NOOB_REGEN, TRUE);
 	}
 }
 
@@ -432,9 +432,9 @@ void affect_total(CHAR_DATA *ch) {
 	}
 
 	// бонусы от морта
-	if (GET_REMORT(ch) >= 20) {
-		ch->add_abils.mresist += ch->get_remort() - 19;
-		ch->add_abils.presist += ch->get_remort() - 19;
+	if (GET_REAL_REMORT(ch) >= 20) {
+		ch->add_abils.mresist += GET_REAL_REMORT(ch) - 19;
+		ch->add_abils.presist += GET_REAL_REMORT(ch) - 19;
 	}
 
 	// Restore values for NPC - added by Adept
@@ -492,7 +492,7 @@ void affect_total(CHAR_DATA *ch) {
 		for (int j = 0; j < MAX_FEAT_AFFECT; j++) {
 			affect_modify(ch,
 						  feat_info[IMPREGNABLE_FEAT].affected[j].location,
-						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier * GET_REMORT(ch)),
+						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier * GET_REAL_REMORT(ch)),
 						  static_cast<EAffectFlag>(0),
 						  TRUE);
 		}
@@ -500,19 +500,19 @@ void affect_total(CHAR_DATA *ch) {
 
 	// Обработка изворотливости (с) Числобог
 	if (can_use_feat(ch, DODGER_FEAT)) {
-		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!IS_NPC(ch)) {
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
+			affect_modify(ch, APPLY_MOVE, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
-			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
+			affect_modify(ch, APPLY_HIT, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
 		GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
 	}
@@ -535,9 +535,9 @@ void affect_total(CHAR_DATA *ch) {
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_REAL_LEVEL(ch));
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN)) {
-			GET_HITREG(ch) += ((int) GET_LEVEL(ch) + 4) / 5 * 10;
+			GET_HITREG(ch) += ((int) GET_REAL_LEVEL(ch) + 4) / 5 * 10;
 		}
 		if (can_use_feat(ch, DARKREGEN_FEAT)) {
 			GET_HITREG(ch) += GET_HITREG(ch) * 0.2;

@@ -42,7 +42,7 @@ int spell_create_level(const CHAR_DATA *ch, int spellnum) {
 	if (required_level >= LVL_GOD)
 		return required_level;
 	if (can_use_feat(ch, SECRET_RUNES_FEAT)) {
-		int remort = ch->get_remort();
+		int remort = GET_REAL_REMORT(ch);
 		required_level -= MIN(8, MAX(0, ((remort - 8) / 3) * 2 + (remort > 7 && remort < 11 ? 1 : 0)));
 	}
 
@@ -688,7 +688,7 @@ int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, 
 		affect_total(ch);
 	}
 
-	return (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)));
+	return (call_magic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)));
 }
 
 int spell_use_success(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int spellnum) {
@@ -731,8 +731,8 @@ int spell_use_success(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int sp
 		prob += 50;
 	}
 
-	if (IS_NPC(ch) && (GET_LEVEL(ch) >= STRONG_MOB_LEVEL)) {
-		prob += GET_LEVEL(ch) - 20;
+	if (IS_NPC(ch) && (GET_REAL_LEVEL(ch) >= STRONG_MOB_LEVEL)) {
+		prob += GET_REAL_LEVEL(ch) - 20;
 	}
 
 	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);

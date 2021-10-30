@@ -91,7 +91,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			if (GET_LEVEL(vict) >= LVL_IMMORT || PRF_FLAGGED(vict, PRF_CODERINFO)) {
+			if (GET_REAL_LEVEL(vict) >= LVL_IMMORT || PRF_FLAGGED(vict, PRF_CODERINFO)) {
 				send_to_char("Вы не можете сделать этого.\r\n", ch);
 				return;
 			}
@@ -206,7 +206,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 bool TitleSystem::check_title(const std::string &text, CHAR_DATA *ch) {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return 0;
 
-	if (GET_LEVEL(ch) < 25 && !GET_REMORT(ch) && !IS_GOD(ch) && !Privilege::check_flag(ch, Privilege::TITLE)) {
+	if (GET_REAL_LEVEL(ch) < 25 && !GET_REAL_REMORT(ch) && !IS_GOD(ch) && !Privilege::check_flag(ch, Privilege::TITLE)) {
 		send_to_char(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return 0;
 	}
@@ -225,7 +225,7 @@ bool TitleSystem::check_pre_title(std::string text, CHAR_DATA *ch) {
 
 	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) return 1;
 
-	if (!GET_REMORT(ch)) {
+	if (!GET_REAL_REMORT(ch)) {
 		send_to_char(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
 		return 0;
 	}
@@ -243,7 +243,7 @@ bool TitleSystem::check_pre_title(std::string text, CHAR_DATA *ch) {
 		send_to_char(ch, "Слишком много слов в предтитуле.\r\n");
 		return 0;
 	}
-	if (word > GET_REMORT(ch)) {
+	if (word > GET_REAL_REMORT(ch)) {
 		send_to_char(ch, "У вас недостаточно перевоплощений для стольких слов в предтитуле.\r\n");
 		return 0;
 	}

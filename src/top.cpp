@@ -45,14 +45,14 @@ void TopPlayer::Refresh(CHAR_DATA *short_ch, bool reboot) {
 	std::list<TopPlayer>::iterator it_exp;
 	for (it_exp = TopPlayer::TopList[GET_CLASS(short_ch)].begin();
 		 it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end(); ++it_exp)
-		if (it_exp->remort < GET_REMORT(short_ch)
-			|| (it_exp->remort == GET_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch)))
+		if (it_exp->remort < GET_REAL_REMORT(short_ch)
+			|| (it_exp->remort == GET_REAL_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch)))
 			break;
 
 	if (short_ch->get_name().empty()) {
 		return; // у нас все может быть
 	}
-	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REMORT(short_ch));
+	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REAL_REMORT(short_ch));
 
 	if (it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end())
 		TopPlayer::TopList[GET_CLASS(short_ch)].insert(it_exp, temp_player);

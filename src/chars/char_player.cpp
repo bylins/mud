@@ -221,7 +221,7 @@ void Player::add_nogata(int value) {
 }
 
 void Player::add_hryvn(int value) {
-	if (GET_REMORT(this) < 6) {
+	if (GET_REAL_REMORT(this) < 6) {
 		send_to_char(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
 	} else if ((this->get_hryvn() + value) > cap_hryvn) {
@@ -254,7 +254,7 @@ void Player::dquest(const int id) {
 	const int zone_lvl = zone_table[world[this->in_room]->zone_rn].mob_level;
 	value = this->account->zero_hryvn(this, value);
 	if (zone_lvl < 25
-		&& zone_lvl <= (GET_LEVEL(this) + GET_REMORT(this) / 5)) {
+		&& zone_lvl <= (GET_REAL_LEVEL(this) + GET_REAL_REMORT(this) / 5)) {
 		value /= 2;
 	}
 
@@ -468,7 +468,7 @@ void Player::save_char() {
 	if (!get_name().empty()) {
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
 	}
-	fprintf(saved, "Levl: %d\n", GET_LEVEL(this));
+	fprintf(saved, "Levl: %d\n", GET_REAL_LEVEL(this));
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
@@ -483,8 +483,8 @@ void Player::save_char() {
 	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
-	if (GET_REMORT(this) > 0) {
-		fprintf(saved, "Rmrt: %d\n", GET_REMORT(this));
+	if (GET_REAL_REMORT(this) > 0) {
+		fprintf(saved, "Rmrt: %d\n", GET_REAL_REMORT(this));
 	}
 	// флаги
 	*buf = '\0';
@@ -546,7 +546,7 @@ void Player::save_char() {
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
 	// способности - added by Gorrah
-	if (GET_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "Feat:\n");
 		for (i = 1; i < MAX_FEATS; i++) {
 			if (HAVE_FEAT(this, i))
@@ -556,7 +556,7 @@ void Player::save_char() {
 	}
 
 	// Задержки на cпособности
-	if (GET_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "FtTm:\n");
 		for (skj = this->timed_feat; skj; skj = skj->next) {
 			fprintf(saved, "%d %d %s\n", skj->skill, skj->time, feat_info[skj->skill].name);
@@ -565,7 +565,7 @@ void Player::save_char() {
 	}
 
 	// скилы
-	if (GET_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "Skil:\n");
 		int skill;
 		for (const auto i : AVAILABLE_SKILLS) {
@@ -581,7 +581,7 @@ void Player::save_char() {
 	fprintf(saved, "Cits: %s\n", this->cities_to_str().c_str());
 
 	// Задержки на скилы
-	if (GET_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "SkTm:\n");
 		for (skj = this->timed; skj; skj = skj->next) {
 			fprintf(saved, "%d %d\n", skj->skill, skj->time);
@@ -591,7 +591,7 @@ void Player::save_char() {
 
 	// спелы
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
-	if (GET_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID) {
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID) {
 		fprintf(saved, "Spel:\n");
 		for (i = 1; i <= SPELLS_COUNT; i++)
 			if (GET_SPELL_TYPE(this, i))
@@ -599,7 +599,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GET_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID) {
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID) {
 		fprintf(saved, "TSpl:\n");
 		for (auto it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it) {
 			fprintf(saved,
@@ -613,7 +613,7 @@ void Player::save_char() {
 	}
 
 	// Замемленые спелы
-	if (GET_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "SpMe:\n");
 		for (i = 1; i <= SPELLS_COUNT; i++) {
 			if (GET_SPELL_MEM(this, i))
@@ -623,7 +623,7 @@ void Player::save_char() {
 	}
 
 	// Мемящиеся спелы
-	if (GET_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "SpTM:\n");
 		for (struct spell_mem_queue_item *qi = this->MemQueue.queue; qi != NULL; qi = qi->link)
 			fprintf(saved, "%d\n", qi->spellnum);
@@ -631,7 +631,7 @@ void Player::save_char() {
 	}
 
 	// Рецепты
-//    if (GET_LEVEL(this) < LVL_IMMORT)
+//    if (GET_REAL_LEVEL(this) < LVL_IMMORT)
 	{
 		im_rskill *rs;
 		im_recipe *r;
@@ -673,11 +673,11 @@ void Player::save_char() {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		fprintf(saved, "St%02d: %i\n", i, this->get_start_stat(i));
 
-	if (GET_LEVEL(this) < LVL_IMMORT)
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT)
 		fprintf(saved, "Hung: %d\n", GET_COND(this, FULL));
-	if (GET_LEVEL(this) < LVL_IMMORT)
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT)
 		fprintf(saved, "Thir: %d\n", GET_COND(this, THIRST));
-	if (GET_LEVEL(this) < LVL_IMMORT)
+	if (GET_REAL_LEVEL(this) < LVL_IMMORT)
 		fprintf(saved, "Drnk: %d\n", GET_COND(this, DRUNK));
 
 	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) GET_SEX(this)]);
@@ -941,7 +941,7 @@ void Player::save_char() {
 	i = get_ptable_by_name(GET_NAME(this));
 	if (i >= 0) {
 		player_table[i].last_logon = LAST_LOGON(this);
-		player_table[i].level = GET_LEVEL(this);
+		player_table[i].level = GET_REAL_LEVEL(this);
 		player_table[i].remorts = get_remort();
 		//added by WorM 2010.08.27 в индексе добавляем мыло
 		if (player_table[i].mail)
@@ -959,7 +959,7 @@ void Player::save_char() {
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
+// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_REAL_LEVEL, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
@@ -1108,8 +1108,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
-	if (GET_EXP(this) < level_exp(this, GET_LEVEL(this))) {
-		set_exp(level_exp(this, GET_LEVEL(this)));
+	if (GET_EXP(this) < level_exp(this, GET_REAL_LEVEL(this))) {
+		set_exp(level_exp(this, GET_REAL_LEVEL(this)));
 	}
 
 	if (reboot) {
@@ -1883,7 +1883,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 	PRF_FLAGS(this).set(PRF_COLOR_2); //всегда цвет полный
 	// initialization for imms
-	if (GET_LEVEL(this) >= LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) >= LVL_IMMORT) {
 		set_god_skills(this);
 		set_god_morphs(this);
 		GET_COND(this, FULL) = -1;
@@ -1904,7 +1904,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
 // если мортов мало
-			if (GET_REMORT(this) < MIN_CAST_REM(spell_info[i], this))
+			if (GET_REAL_REMORT(this) < MIN_CAST_REM(spell_info[i], this))
 				GET_SPELL_MEM(this, i) = 0;
 		}
 	}
@@ -2154,7 +2154,7 @@ int con_natural_hp(CHAR_DATA *ch) {
 	double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
 		+ (VPOSI_MOB(ch, 2, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
 			* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
-	return 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
+	return 10 + static_cast<int>(add_hp_per_level * GET_REAL_LEVEL(ch));
 }
 
 ///
@@ -2162,7 +2162,7 @@ int con_natural_hp(CHAR_DATA *ch) {
 ///
 int con_add_hp(CHAR_DATA *ch) {
 	int con_add = MAX(0, GET_REAL_CON(ch) - ch->get_con());
-	return class_app[(int) GET_CLASS(ch)].koef_con * con_add * GET_LEVEL(ch) / 100;
+	return class_app[(int) GET_CLASS(ch)].koef_con * con_add * GET_REAL_LEVEL(ch) / 100;
 }
 
 ///

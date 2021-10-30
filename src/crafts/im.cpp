@@ -288,7 +288,7 @@ int im_assign_power(OBJ_DATA *obj)
 		rnum = real_mobile(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
 		if (rnum < 0)
 			return 3;    // неверный VNUM базового моба
-		obj->set_val(IM_POWER_SLOT, (GET_LEVEL(mob_proto + rnum) + 3) * 3 / 4);
+		obj->set_val(IM_POWER_SLOT, (GET_REAL_LEVEL(mob_proto + rnum) + 3) * 3 / 4);
 	}
 	// Попробовать найти описатель ВИДА
 	for (p = imtypes[rind].head, sample = NULL; p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT);
@@ -950,7 +950,7 @@ OBJ_DATA *try_make_ingr(CHAR_DATA *mob, int prob_default) {
 		int *ingr_to_load_list = NULL;
 		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);
 		size_t j = 0;
-		const int level_mob = GET_LEVEL(mob) > 0 ? GET_LEVEL(mob) : 1;
+		const int level_mob = GET_REAL_LEVEL(mob) > 0 ? GET_REAL_LEVEL(mob) : 1;
 		for (; j < num_inrgs; j++) {
 			ingr_to_load_list[2 * j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
 			ingr_to_load_list[2 * j + 1] = it->second->ingrlist[j].prob.at(level_mob - 1);
@@ -997,14 +997,14 @@ void list_recipes(CHAR_DATA *ch, bool all_recipes) {
 			rs = im_get_char_rskill(ch, sortpos);
 			if (clr(ch, C_NRM))
 				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
-						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GET_LEVEL(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GET_REMORT(ch)) ?
+						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GET_REAL_LEVEL(ch) ||
+							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GET_REAL_REMORT(ch)) ?
 						KRED : rs ? KGRN : KNRM, imrecipes[sortpos].name, KCYN,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort, KNRM);
 			else
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
-						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GET_LEVEL(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GET_REMORT(ch)) ?
+						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GET_REAL_LEVEL(ch) ||
+							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GET_REAL_REMORT(ch)) ?
 						"[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort);
 			strcat(buf1, buf);
@@ -1176,7 +1176,7 @@ void im_improve_recipe(CHAR_DATA *ch, im_rskill *rs, int success) {
 			send_to_char(buf, ch);
 			rs->perc += number(1, 2);
 			if (!IS_IMMORTAL(ch))
-				rs->perc = MIN(kSkillCapOnZeroRemort + GET_REMORT(ch) * 5, rs->perc);
+				rs->perc = MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5, rs->perc);
 		}
 	}
 }
@@ -1785,7 +1785,7 @@ void do_imlist(CHAR_DATA *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf + strlen(buf), "Моб %d [%s,%d]\r\n%s\r\n",
 				GET_MOB_VNUM(mob),
 				GET_NAME(mob),
-				GET_LEVEL(mob),
+				GET_REAL_LEVEL(mob),
 				buf1);
 		}
 	}

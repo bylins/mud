@@ -282,7 +282,7 @@ void send_to_gods(char *text, bool demigod) {
 		if (STATE(d) == CON_PLAYING) {
 			// Чар должен быть имморталом
 			// Либо же демигодом (при demigod = true)
-			if ((GET_LEVEL(d->character) >= LVL_GOD) ||
+			if ((GET_REAL_LEVEL(d->character) >= LVL_GOD) ||
 				(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod)) {
 				send_to_char(text, d->character.get());
 			}
@@ -422,7 +422,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 		return 0;
 	}
 
-	if ((GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || IS_IMPL(vict)) {
+	if ((GET_REAL_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || IS_IMPL(vict)) {
 		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return 0;
 	}
@@ -446,7 +446,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 			break;
 	}
 	assert(pundata);
-	if (GET_LEVEL(ch) < pundata->level) {
+	if (GET_REAL_LEVEL(ch) < pundata->level) {
 		send_to_char("Да кто ты такой!!? Чтобы оспаривать волю СТАРШИХ БОГОВ !!!\r\n", ch);
 		return 0;
 	}
@@ -513,7 +513,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 					result = real_room(result);
 
 					if (result == NOWHERE) {
-						if (GET_LEVEL(vict) >= LVL_IMMORT)
+						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
 						else
 							result = r_mortal_start_room;
@@ -578,7 +578,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 					result = real_room(result);
 
 					if (result == NOWHERE) {
-						if (GET_LEVEL(vict) >= LVL_IMMORT)
+						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
 						else
 							result = r_mortal_start_room;
@@ -616,7 +616,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 					result = real_room(result);
 
 					if (result == NOWHERE) {
-						if (GET_LEVEL(vict) >= LVL_IMMORT)
+						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
 						else
 							result = r_mortal_start_room;
@@ -658,7 +658,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 					result = real_room(result);
 
 					if (result == NOWHERE) {
-						if (GET_LEVEL(vict) >= LVL_IMMORT)
+						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
 						else
 							result = r_mortal_start_room;
@@ -695,7 +695,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 
 								if (result == NOWHERE)
 								{
-									if (GET_LEVEL(vict) >= LVL_IMMORT)
+									if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 										result = r_immort_start_room;
 									else
 										result = r_mortal_start_room;
@@ -718,7 +718,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 		} else
 			skip_spaces(&reason);
 
-		pundata->level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+		pundata->level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
 		pundata->godid = GET_UNIQUE(ch);
 
 		// Добавляем в причину имя имма
@@ -881,7 +881,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 			continue;
 		if (IN_ROOM(i->character) == NOWHERE)
 			continue;
-		if (GET_LEVEL(i->character) >= LVL_IMMORT)
+		if (GET_REAL_LEVEL(i->character) >= LVL_IMMORT)
 			continue;
 		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
@@ -906,7 +906,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 		// num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		{
 			for (const auto c : world[rnum_start]->people) {
-				if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT)) {
+				if (!IS_NPC(c) && (GET_REAL_LEVEL(c) < LVL_IMMORT)) {
 					sprintf(buf2,
 							"Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n",
 							zone_table[zone_nr].vnum,
@@ -923,7 +923,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 	for (const auto c : world[STRANGE_ROOM]->people) {
 		int was = c->get_was_in_room();
 		if (was == NOWHERE
-			|| GET_LEVEL(c) >= LVL_IMMORT
+			|| GET_REAL_LEVEL(c) >= LVL_IMMORT
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}
@@ -1018,7 +1018,7 @@ void setall_inspect() {
 				it->second->found++;
 				if (it->second->type_req == SETALL_FREEZE) {
 					if (is_online) {
-						if (GET_LEVEL(d_vict->character) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(d_vict->character) >= LVL_GOD) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1035,7 +1035,7 @@ void setall_inspect() {
 							it->second->out += buf1;
 							continue;
 						} else {
-							if (GET_LEVEL(vict) >= LVL_GOD) {
+							if (GET_REAL_LEVEL(vict) >= LVL_GOD) {
 								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 								it->second->out += buf1;
 								continue;
@@ -1050,7 +1050,7 @@ void setall_inspect() {
 					}
 				} else if (it->second->type_req == SETALL_EMAIL) {
 					if (is_online) {
-						if (GET_LEVEL(d_vict->character) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(d_vict->character) >= LVL_GOD) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1072,7 +1072,7 @@ void setall_inspect() {
 							delete vict;
 							continue;
 						} else {
-							if (GET_LEVEL(vict) >= LVL_GOD) {
+							if (GET_REAL_LEVEL(vict) >= LVL_GOD) {
 								it->second->out += buf1;
 								continue;
 							}
@@ -1090,7 +1090,7 @@ void setall_inspect() {
 					}
 				} else if (it->second->type_req == SETALL_PSWD) {
 					if (is_online) {
-						if (GET_LEVEL(d_vict->character) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(d_vict->character) >= LVL_GOD) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1108,7 +1108,7 @@ void setall_inspect() {
 							delete vict;
 							continue;
 						}
-						if (GET_LEVEL(vict) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(vict) >= LVL_GOD) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1125,7 +1125,7 @@ void setall_inspect() {
 					}
 				} else if (it->second->type_req == SETALL_HELL) {
 					if (is_online) {
-						if (GET_LEVEL(d_vict->character) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(d_vict->character) >= LVL_GOD) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1142,7 +1142,7 @@ void setall_inspect() {
 							it->second->out += buf1;
 							continue;
 						} else {
-							if (GET_LEVEL(vict) >= LVL_GOD) {
+							if (GET_REAL_LEVEL(vict) >= LVL_GOD) {
 								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 								it->second->out += buf1;
 								continue;
@@ -1492,7 +1492,7 @@ room_rnum find_target_room(CHAR_DATA *ch, char *rawroomstr, int trig) {
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
 	if (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
-		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD) {
+		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GET_REAL_LEVEL(ch) < LVL_GRGOD) {
 			send_to_char("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (NOWHERE);
 		}
@@ -1626,7 +1626,7 @@ void do_teleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(NOPERSON, ch);
 	else if (victim == ch)
 		send_to_char("Используйте 'прыжок' для собственного перемещения.\r\n", ch);
-	else if (GET_LEVEL(victim) >= GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
+	else if (GET_REAL_LEVEL(victim) >= GET_REAL_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		send_to_char("Попробуйте придумать что-то другое.\r\n", ch);
 	else if (!*buf2)
 		act("Куда вы хотите $S переместить?", FALSE, ch, 0, victim, TO_CHAR);
@@ -1720,8 +1720,8 @@ void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		else
 			tch = victim;
 
-		const int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
-		const int victim_level = PRF_FLAGGED(tch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(tch);
+		const int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
+		const int victim_level = PRF_FLAGGED(tch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(tch);
 
 		if (victim_level >= god_level) {
 			send_to_char("Вы не можете.\r\n", ch);
@@ -1763,7 +1763,7 @@ void do_switch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (!IS_IMPL(ch)
 			&& !IS_NPC(visible_character)) {
 			send_to_char("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
-		} else if (GET_LEVEL(ch) < LVL_GRGOD
+		} else if (GET_REAL_LEVEL(ch) < LVL_GRGOD
 			&& ROOM_FLAGGED(IN_ROOM(visible_character), ROOM_GODROOM)) {
 			send_to_char("Вы не можете находиться в той комнате.\r\n", ch);
 		} else if (!IS_GRGOD(ch)
@@ -1837,7 +1837,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
 		}
-		if ((zone_table[get_zone_rnum_by_mob_vnum(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
+		if ((zone_table[get_zone_rnum_by_mob_vnum(number)].locked) && (GET_REAL_LEVEL(ch) != LVL_IMPL)) {
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
@@ -1853,7 +1853,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
 		}
-		if ((zone_table[get_zone_rnum_by_obj_vnum(number)].locked) && (GET_LEVEL(ch) != LVL_IMPL)) {
+		if ((zone_table[get_zone_rnum_by_obj_vnum(number)].locked) && (GET_REAL_LEVEL(ch) != LVL_IMPL)) {
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
@@ -1962,7 +1962,7 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (*buf) {        // argument supplied. destroy single object or char
 		if ((vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)) != NULL) {
-			if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+			if (!IS_NPC(vict) && GET_REAL_LEVEL(ch) <= GET_REAL_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 				send_to_char("Да я вас за это...\r\n", ch);
 				return;
 			}
@@ -2124,7 +2124,7 @@ void inspecting() {
 		if ((it->second->sfor == ICHAR
 			&& it->second->unique == player_table[it->second->pos].unique)//Это тот же перс которого мы статим
 			|| (player_table[it->second->pos].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
-			|| (player_table[it->second->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch)
+			|| (player_table[it->second->pos].level > GET_REAL_LEVEL(ch) && !IS_IMPL(ch)
 				&& !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
 		{
 			continue;
@@ -2327,7 +2327,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		i = get_ptable_by_unique(req->unique);
 		if ((req->unique <= 0)//Перс не существует
 			|| (player_table[i].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
-			|| (player_table[i].level > GET_LEVEL(ch) && !IS_IMPL(ch)
+			|| (player_table[i].level > GET_REAL_LEVEL(ch) && !IS_IMPL(ch)
 				&& !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
 		{
 			send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", req->req);
@@ -2431,18 +2431,18 @@ void do_syslog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
 
 	if (*arg) {
-		if (GET_LEVEL(ch) == LVL_IMMORT)
+		if (GET_REAL_LEVEL(ch) == LVL_IMMORT)
 			logtypes[2] = "\n";
 		else
 			logtypes[2] = "краткий";
-		if (GET_LEVEL(ch) == LVL_GOD)
+		if (GET_REAL_LEVEL(ch) == LVL_GOD)
 			logtypes[4] = "\n";
 		else
 			logtypes[4] = "полный";
 		if ((tp = search_block(arg, logtypes, FALSE)) == -1) {
-			if (GET_LEVEL(ch) == LVL_IMMORT)
+			if (GET_REAL_LEVEL(ch) == LVL_IMMORT)
 				send_to_char("Формат: syslog { нет | начальный }\r\n", ch);
-			else if (GET_LEVEL(ch) == LVL_GOD)
+			else if (GET_REAL_LEVEL(ch) == LVL_GOD)
 				send_to_char("Формат: syslog { нет | начальный | краткий | нормальный }\r\n", ch);
 			else
 				send_to_char
@@ -2476,7 +2476,7 @@ void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_LEVEL(ch) <= GET_LEVEL(victim) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (GET_REAL_LEVEL(ch) <= GET_REAL_LEVEL(victim) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		send_to_char("Нелогично.\r\n", ch);
 		return;
 	}
@@ -2489,15 +2489,15 @@ void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(buf, ch);
 		return;
 	}
-	if (newlevel > GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (newlevel > GET_REAL_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		send_to_char("Вы не можете установить уровень выше собственного.\r\n", ch);
 		return;
 	}
-	if (newlevel == GET_LEVEL(victim)) {
+	if (newlevel == GET_REAL_LEVEL(victim)) {
 		act("$E и так этого уровня.", FALSE, ch, 0, victim, TO_CHAR);
 		return;
 	}
-	oldlevel = GET_LEVEL(victim);
+	oldlevel = GET_REAL_LEVEL(victim);
 	if (newlevel < oldlevel) {
 		send_to_char("Вас окутало облако тьмы.\r\n" "Вы почувствовали себя лишенным чего-то.\r\n", victim);
 	} else {
@@ -2601,11 +2601,11 @@ void perform_immort_invis(CHAR_DATA *ch, int level) {
 			continue;
 		}
 
-		if (GET_LEVEL(tch) >= GET_INVIS_LEV(ch) && GET_LEVEL(tch) < level) {
+		if (GET_REAL_LEVEL(tch) >= GET_INVIS_LEV(ch) && GET_REAL_LEVEL(tch) < level) {
 			act("Вы вздрогнули, когда $n растворил$u на ваших глазах.", FALSE, ch, 0, tch, TO_VICT);
 		}
 
-		if (GET_LEVEL(tch) < GET_INVIS_LEV(ch) && GET_LEVEL(tch) >= level) {
+		if (GET_REAL_LEVEL(tch) < GET_INVIS_LEV(ch) && GET_REAL_LEVEL(tch) >= level) {
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, tch, TO_VICT);
 		}
 	}
@@ -2628,16 +2628,16 @@ void do_invis(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (GET_INVIS_LEV(ch) > 0)
 			perform_immort_vis(ch);
 		else {
-			if (GET_LEVEL(ch) < LVL_IMPL)
+			if (GET_REAL_LEVEL(ch) < LVL_IMPL)
 				perform_immort_invis(ch, LVL_IMMORT);
 			else
-				perform_immort_invis(ch, GET_LEVEL(ch));
+				perform_immort_invis(ch, GET_REAL_LEVEL(ch));
 		}
 	} else {
 		level = MIN(atoi(arg), LVL_IMPL);
-		if (level > GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
+		if (level > GET_REAL_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			send_to_char("Вы не можете достичь невидимости выше вашего уровня.\r\n", ch);
-		else if (GET_LEVEL(ch) < LVL_IMPL && level > LVL_IMMORT && !PRF_FLAGGED(ch, PRF_CODERINFO))
+		else if (GET_REAL_LEVEL(ch) < LVL_IMPL && level > LVL_IMMORT && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			perform_immort_invis(ch, LVL_IMMORT);
 		else if (level < 1)
 			perform_immort_vis(ch);
@@ -2713,8 +2713,8 @@ void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (d->character) //Чтоб не крешило при попытке разъединить незалогиненного
 	{
-		int victim_level = PRF_FLAGGED(d->character, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(d->character);
-		int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+		int victim_level = PRF_FLAGGED(d->character, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(d->character);
+		int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
 		if (victim_level >= god_level) {
 			if (!CAN_SEE(ch, d->character))
 				send_to_char("Нет такого соединения.\r\n", ch);
@@ -2763,7 +2763,7 @@ void do_wizlock(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		value = atoi(arg);
 		if (value > LVL_IMPL)
 			value = LVL_IMPL; // 34е всегда должны иметь возможность зайти
-		if (value < 0 || (value > GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))) {
+		if (value < 0 || (value > GET_REAL_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))) {
 			send_to_char("Неверное значение для wizlock.\r\n", ch);
 			return;
 		}
@@ -2827,12 +2827,12 @@ void do_last(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Нет такого игрока.\r\n", ch);
 		return;
 	}
-	if (GET_LEVEL(chdata) > GET_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (GET_REAL_LEVEL(chdata) > GET_REAL_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		send_to_char("Вы не столь уж и божественны для этого.\r\n", ch);
 	} else {
 		time_t tmp_time = LAST_LOGON(chdata);
 		sprintf(buf, "[%5ld] [%2d %s %s] %-12s : %-18s : %-20s\r\n",
-				GET_IDNUM(chdata), (int) GET_LEVEL(chdata),
+				GET_IDNUM(chdata), (int) GET_REAL_LEVEL(chdata),
 				kin_abbrevs[(int) GET_KIN(chdata)],
 				class_abbrevs[(int) GET_CLASS(chdata)], GET_NAME(chdata),
 				GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&tmp_time));
@@ -2855,7 +2855,7 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto vict = get_char_vis(ch, arg, FIND_CHAR_WORLD);
 		if (!vict) {
 			send_to_char(NOPERSON, ch);
-		} else if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		} else if (!IS_NPC(vict) && GET_REAL_LEVEL(ch) <= GET_REAL_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			send_to_char("Господи, только не это!\r\n", ch);
 		} else {
 			char *pstr;
@@ -2879,7 +2879,7 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
 			if (!IS_NPC(vict)
-				&& GET_LEVEL(vict) >= GET_LEVEL(ch)
+				&& GET_REAL_LEVEL(vict) >= GET_REAL_LEVEL(ch)
 				&& !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 				continue;
 			}
@@ -2900,7 +2900,7 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto vict = i->character;
 			if (STATE(i) != CON_PLAYING
 				|| !vict
-				|| (!IS_NPC(vict) && GET_LEVEL(vict) >= GET_LEVEL(ch)
+				|| (!IS_NPC(vict) && GET_REAL_LEVEL(vict) >= GET_REAL_LEVEL(ch)
 					&& !PRF_FLAGGED(ch, PRF_CODERINFO))) {
 				continue;
 			}
@@ -2928,7 +2928,7 @@ void do_sdemigod(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (STATE(d) == CON_PLAYING) {
 			// Если в игре, то проверяем, демигод ли чар
 			// Иммы 34-левела тоже могут смотреть канал
-			if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GET_LEVEL(d->character) == LVL_IMPL)) {
+			if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GET_REAL_LEVEL(d->character) == LVL_IMPL)) {
 				// Проверяем пишет ли чар или отправляет письмо
 				// А так же на реж сдемигод
 				if ((!PLR_FLAGGED(d->character, PLR_WRITING)) &&
@@ -2975,7 +2975,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (is_number(buf1)) {
 				half_chop(argument + 1, buf1, argument);
 				level = MAX(atoi(buf1), LVL_IMMORT);
-				if (level > GET_LEVEL(ch)) {
+				if (level > GET_REAL_LEVEL(ch)) {
 					send_to_char("Вы не можете изрекать выше вашего уровня.\r\n", ch);
 					return;
 				}
@@ -3048,7 +3048,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов
 	for (d = descriptor_list; d; d = d->next) {
 		if ((STATE(d) == CON_PLAYING) &&    // персонаж должен быть в игре
-			((GET_LEVEL(d->character) >= level) ||    // уровень равным или выше level
+			((GET_REAL_LEVEL(d->character) >= level) ||    // уровень равным или выше level
 				(GET_GOD_FLAG(d->character, GF_DEMIGOD) && level == 31)) &&    // демигоды видят 31 канал
 			(!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&    // игрок с режимом NOWIZ не видит имм канала
 			(!PLR_FLAGGED(d->character, PLR_WRITING)) &&    // пишущий не видит имм канала
@@ -3130,9 +3130,9 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Для кого?\r\n", ch);
 	else if (!(vict = get_player_pun(ch, arg, FIND_CHAR_WORLD)))
 		send_to_char("Нет такого игрока.\r\n", ch);
-	else if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !PRF_FLAGGED(ch, PRF_CODERINFO))
+	else if (GET_REAL_LEVEL(vict) > GET_REAL_LEVEL(ch) && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		send_to_char("А он ведь старше вас....\r\n", ch);
-	else if (GET_LEVEL(vict) >= LVL_IMMORT && GET_GOD_FLAG(ch, GF_DEMIGOD))
+	else if (GET_REAL_LEVEL(vict) >= LVL_IMMORT && GET_GOD_FLAG(ch, GF_DEMIGOD))
 		send_to_char("А он ведь старше вас....\r\n", ch);
 	else {
 		switch (subcmd) {
@@ -3502,12 +3502,12 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				*buf1 = UPPER(*buf1);
 				sprintf(buf + strlen(buf), "Имя одобрено богом %s\r\n", buf1);
 			}
-			if (GET_REMORT(vict) < 4)
-				sprintf(rem, "Перевоплощений: %d\r\n", GET_REMORT(vict));
+			if (GET_REAL_REMORT(vict) < 4)
+				sprintf(rem, "Перевоплощений: %d\r\n", GET_REAL_REMORT(vict));
 			else
 				sprintf(rem, "Перевоплощений: 3+\r\n");
 			sprintf(buf + strlen(buf), "%s", rem);
-			sprintf(buf + strlen(buf), "Уровень: %s\r\n", (GET_LEVEL(vict) < 25 ? "ниже 25" : "25+"));
+			sprintf(buf + strlen(buf), "Уровень: %s\r\n", (GET_REAL_LEVEL(vict) < 25 ? "ниже 25" : "25+"));
 			sprintf(buf + strlen(buf),
 					"Титул: %s\r\n",
 					(vict->player_data.title != "" ? vict->player_data.title.c_str() : "<Нет>"));
@@ -3614,7 +3614,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& d->character
 					&& STATE(d) == CON_PLAYING
 					&& IN_ROOM(d->character) != NOWHERE
-					&& ((CAN_SEE(ch, d->character) && GET_LEVEL(ch) >= GET_LEVEL(d->character))
+					&& ((CAN_SEE(ch, d->character) && GET_REAL_LEVEL(ch) >= GET_REAL_LEVEL(d->character))
 						|| PRF_FLAGGED(ch, PRF_CODERINFO))) {
 					sprintf(buf + strlen(buf),
 							"%-10s - подслушивается %s (map %s).\r\n",
@@ -3649,7 +3649,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (d->snooping != NULL && d->character != NULL)
 					continue;
 				if (STATE(d) != CON_PLAYING
-					|| (GET_LEVEL(ch) < GET_LEVEL(d->character) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
+					|| (GET_REAL_LEVEL(ch) < GET_REAL_LEVEL(d->character) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
 					continue;
 				if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == NOWHERE)
 					continue;
@@ -3921,12 +3921,12 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 	if (!IS_IMPL(ch)) {
 		if (!IS_NPC(vict) && vict != ch) {
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD)) {
-				if (GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+				if (GET_REAL_LEVEL(ch) <= GET_REAL_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
 				}
 			} else {
-				if (GET_LEVEL(vict) >= LVL_IMMORT || PRF_FLAGGED(vict, PRF_CODERINFO)) {
+				if (GET_REAL_LEVEL(vict) >= LVL_IMMORT || PRF_FLAGGED(vict, PRF_CODERINFO)) {
 					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
 				}
@@ -4023,7 +4023,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 				return (0);
 			}
-			SET_INVIS_LEV(vict, RANGE(0, GET_LEVEL(vict)));
+			SET_INVIS_LEV(vict, RANGE(0, GET_REAL_LEVEL(vict)));
 			break;
 		case 18:
 			if (!IS_IMPL(ch) && ch != vict && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
@@ -4081,7 +4081,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			break;
 		case 26:
 			if (!PRF_FLAGGED(ch, PRF_CODERINFO)
-				&& (value > GET_LEVEL(ch) || value > LVL_IMPL || GET_LEVEL(vict) > GET_LEVEL(ch))) {
+				&& (value > GET_REAL_LEVEL(ch) || value > LVL_IMPL || GET_REAL_LEVEL(vict) > GET_REAL_LEVEL(ch))) {
 				send_to_char("Вы не можете установить уровень игрока выше собственного.\r\n", ch);
 				return (0);
 			}
@@ -4463,7 +4463,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			}
 			break;
 		case 55:
-			if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+			if (GET_REAL_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 				send_to_char("Кем вы себя возомнили?\r\n", ch);
 				return 0;
 			}
@@ -4637,12 +4637,12 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD)) {
-				if ((GET_LEVEL(ch) <= GET_LEVEL(vict)) && !(is_head(ch->get_name_str()))) {
+				if ((GET_REAL_LEVEL(ch) <= GET_REAL_LEVEL(vict)) && !(is_head(ch->get_name_str()))) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
 				}
 			} else {
-				if (GET_LEVEL(vict) >= LVL_IMMORT) {
+				if (GET_REAL_LEVEL(vict) >= LVL_IMMORT) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
 				}
@@ -4666,12 +4666,12 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if ((player_i = load_char(name, cbuf.get())) > -1) {
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD)) {
-				if (GET_LEVEL(ch) <= GET_LEVEL(cbuf) && !(is_head(ch->get_name_str()))) {
+				if (GET_REAL_LEVEL(ch) <= GET_REAL_LEVEL(cbuf) && !(is_head(ch->get_name_str()))) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
 				}
 			} else {
-				if (GET_LEVEL(cbuf) >= LVL_IMMORT) {
+				if (GET_REAL_LEVEL(cbuf) >= LVL_IMMORT) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
 				}
@@ -4891,7 +4891,7 @@ int print_olist(const CHAR_DATA *ch, const int first, const int last, std::strin
 				 vnum, prototype->get_ilevel(), prototype->get_auto_mort_req());
 		ss << buf_;
 
-		if (GET_LEVEL(ch) >= LVL_GRGOD
+		if (GET_REAL_LEVEL(ch) >= LVL_GRGOD
 			|| PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
 					 obj_proto.number(rnum),

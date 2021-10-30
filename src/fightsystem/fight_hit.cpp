@@ -63,7 +63,7 @@ int compute_armor_class(CHAR_DATA *ch) {
 			high_stat = std::max(high_stat, GET_REAL_INT(ch) * 3 / 4);
 		}
 		armorclass -= dex_ac_bonus(high_stat) * 10;
-		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_REAL_LEVEL(ch));
 	};
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)) {
@@ -761,7 +761,7 @@ void HitData::compute_critical(CHAR_DATA *ch, CHAR_DATA *victim) {
 					} else if (wield) {
 						extra_duration = GET_OBJ_WEIGHT(wield) / 5;
 					}
-					af[i].duration += pc_duration(victim, GET_REMORT(ch) / 2 + extra_duration, 0, 0, 0, 0);
+					af[i].duration += pc_duration(victim, GET_REAL_REMORT(ch) / 2 + extra_duration, 0, 0, 0, 0);
 				}
 			}
 			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
@@ -785,8 +785,8 @@ int calculate_strconc_damage(CHAR_DATA *ch, OBJ_DATA * /*wielded*/, int damage) 
 		return damage;
 	}
 	float str_mod = (GET_REAL_STR(ch) - 25) * 0.4;
-	float lvl_mod = GET_LEVEL(ch) * 0.2;
-	float rmt_mod = MIN(5, GET_REMORT(ch)) / 5.0;
+	float lvl_mod = GET_REAL_LEVEL(ch) * 0.2;
+	float rmt_mod = MIN(5, GET_REAL_REMORT(ch)) / 5.0;
 	float res_mod = 1 + (str_mod + lvl_mod) / 10.0 * rmt_mod;
 
 	return static_cast<int>(damage * res_mod);
@@ -801,10 +801,10 @@ int calculate_noparryhit_dmg(CHAR_DATA *ch, OBJ_DATA *wielded) {
 
 	float weap_dmg = (((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1));
 	float weap_mod = weap_dmg / (10 + weap_dmg / 2);
-	float level_mod = static_cast<float>(GET_LEVEL(ch)) / 30;
+	float level_mod = static_cast<float>(GET_REAL_LEVEL(ch)) / 30;
 	float skill_mod = static_cast<float>(ch->get_skill(SKILL_NOPARRYHIT)) / 5;
 
-	return static_cast<int>((skill_mod + GET_REMORT(ch) * 3) * weap_mod * level_mod);
+	return static_cast<int>((skill_mod + GET_REAL_REMORT(ch) * 3) * weap_mod * level_mod);
 }
 
 void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim) {
@@ -865,7 +865,7 @@ void addshot_damage(CHAR_DATA *ch, ESkill type, FightSystem::AttType weapon) {
 	// поставим кап в 50 ловки для допвыстрела
 	float dex_mod = static_cast<float>(MAX(MIN(GET_REAL_DEX(ch), 50) - 21, 0)) / 29 * 2;
 	// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
-	float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
+	float remort_mod = static_cast<float>(GET_REAL_REMORT(ch)) / 5;
 	if (remort_mod > 1) {
 		remort_mod = 1;
 	}
@@ -1608,7 +1608,7 @@ void appear(CHAR_DATA *ch) {
 
 	if (appear_msg) {
 		if (IS_NPC(ch)
-			|| GET_LEVEL(ch) < LVL_IMMORT) {
+			|| GET_REAL_LEVEL(ch) < LVL_IMMORT) {
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, 0, TO_ROOM);
 		} else {
 			act("Вы почувствовали странное присутствие $n1.", FALSE, ch, 0, 0, TO_ROOM);
@@ -1958,7 +1958,7 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim) {
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
-		int chance = 10 + GET_REMORT(victim) / 3;
+		int chance = 10 + GET_REAL_REMORT(victim) / 3;
 		if (can_use_feat(victim, IMPREGNABLE_FEAT)
 			&& PRF_FLAGS(victim).get(PRF_AWAKE)) {
 			chance += 5;
@@ -2012,8 +2012,8 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam) {
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
 			GET_NAME(ch),
 			GET_CLASS(ch),
-			GET_REMORT(ch),
-			GET_LEVEL(ch),
+			GET_REAL_REMORT(ch),
+			GET_REAL_LEVEL(ch),
 			real_dam,
 			over_dam);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
@@ -2025,8 +2025,8 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam) {
 		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 		if (!IS_NPC(ch->get_master())) {
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
-				GET_NAME(ch), GET_NAME(ch->get_master()), GET_CLASS(ch->get_master()), GET_REMORT(ch->get_master()),
-				GET_LEVEL(ch->get_master()), real_dam, over_dam);
+				GET_NAME(ch), GET_NAME(ch->get_master()), GET_CLASS(ch->get_master()), GET_REAL_REMORT(ch->get_master()),
+				GET_REAL_LEVEL(ch->get_master()), real_dam, over_dam);
 		}
 
 		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)) {
@@ -2390,7 +2390,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 		armor_dam_reduce(victim);
 		// потом абсорб
 		bool armor_full_absorb = dam_absorb(ch, victim);
-		if (flags[FightSystem::CRIT_HIT] && (GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
+		if (flags[FightSystem::CRIT_HIT] && (GET_REAL_LEVEL(victim) >= 5 || !IS_NPC(ch))
 			&& !AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA)
 			&& !flags[FightSystem::VICTIM_ICE_SHIELD]) {
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
@@ -2462,7 +2462,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 	// если на чармисе вампир
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_VAMPIRE)) {
 		GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam * 0.1), GET_REAL_MAX_HIT(ch)
-			+ GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10));
+			+ GET_REAL_MAX_HIT(ch) * GET_REAL_LEVEL(ch) / 10));
 		// если есть родство душ, то чару отходит по 5% от дамаги к хп
 		if (ch->has_master()) {
 			if (can_use_feat(ch->get_master(), SOULLINK_FEAT)) {
@@ -2470,7 +2470,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 												MIN(GET_HIT(ch->get_master()) + MAX(1, dam * 0.05),
 													GET_REAL_MAX_HIT(ch->get_master())
 														+ GET_REAL_MAX_HIT(ch->get_master())
-															* GET_LEVEL(ch->get_master())
+															* GET_REAL_LEVEL(ch->get_master())
 															/ 10));
 			}
 		}
@@ -2837,9 +2837,9 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim) {
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& GET_WAIT(ch) <= 0
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_POISON)
-		&& number(0, 100) < GET_LIKES(ch) + GET_LEVEL(ch) - GET_LEVEL(victim)
+		&& number(0, 100) < GET_LIKES(ch) + GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(victim)
 		&& !general_savingthrow(ch, victim, SAVING_CRITICAL, -GET_REAL_CON(victim))) {
-		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
+		poison_victim(ch, victim, MAX(1, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(victim)) * 10);
 	}
 		//* точный стиль //
 	else if (dam && get_flags()[FightSystem::CRIT_HIT] && dam_critic) {
@@ -2983,8 +2983,8 @@ void HitData::calc_base_hr(CHAR_DATA *ch) {
 				     complex_skill_modifier (ch, SKILL_INDEFINITE, GAPPLY_SKILL_SUCCESS,
 							     10));
 			*/
-			calc_thaco -= (int) ((GET_REAL_INT(ch) - 13) / GET_LEVEL(ch));
-			calc_thaco -= (int) ((GET_REAL_WIS(ch) - 13) / GET_LEVEL(ch));
+			calc_thaco -= (int) ((GET_REAL_INT(ch) - 13) / GET_REAL_LEVEL(ch));
+			calc_thaco -= (int) ((GET_REAL_WIS(ch) - 13) / GET_REAL_LEVEL(ch));
 		}
 	}
 
@@ -3011,10 +3011,10 @@ void HitData::calc_base_hr(CHAR_DATA *ch) {
 
 	// Calculate the THAC0 of the attacker
 	if (!IS_NPC(ch)) {
-		calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+		calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_REAL_LEVEL(ch));
 	} else {
 		// штраф мобам по рекомендации Триглава
-		calc_thaco += (25 - GET_LEVEL(ch) / 3);
+		calc_thaco += (25 - GET_REAL_LEVEL(ch) / 3);
 	}
 
 	//Вычисляем штраф за голод
@@ -3227,7 +3227,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim) {
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& GET_MOB_HOLD(victim) == 0
-		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 7) / 8) {
+		&& BATTLECNTR(victim) < (GET_REAL_LEVEL(victim) + 7) / 8) {
 		// Обработаем команду   УКЛОНИТЬСЯ
 		hit_deviate(ch, victim, &dam);
 	} else if (dam > 0
@@ -3248,7 +3248,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim) {
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPRIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT)
-		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 4) / 5
+		&& BATTLECNTR(victim) < (GET_REAL_LEVEL(victim) + 4) / 5
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0) {
 		// обработаем команду  ВЕЕРНАЯ ЗАЩИТА
@@ -3261,7 +3261,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim) {
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT)
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0
-		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 8) / 9) {
+		&& BATTLECNTR(victim) < (GET_REAL_LEVEL(victim) + 8) / 9) {
 		// Обработаем команду   БЛОКИРОВАТЬ
 		hit_block(ch, victim, &dam);
 	}
@@ -3298,7 +3298,7 @@ void HitData::add_hand_damage(CHAR_DATA *ch, bool need_dice) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STONEHAND)) {
 		dam += need_dice? dice(2, 4) : 5;
 		if (can_use_feat(ch, BULLY_FEAT)) {
-			dam += GET_LEVEL(ch) / 5;
+			dam += GET_REAL_LEVEL(ch) / 5;
 			dam += MAX(0, GET_REAL_STR(ch) - 25);
 		}
 	}
@@ -3353,7 +3353,7 @@ void HitData::calc_crit_chance(CHAR_DATA *ch) {
 			calc_critic += (int) (ch->get_skill(SKILL_NOPARRYHIT) / 3);
 		}
 		if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-			calc_critic += GET_LEVEL(ch);
+			calc_critic += GET_REAL_LEVEL(ch);
 		}
 	} else {
 		//Polud не должны - так пусть и не критают
@@ -3471,7 +3471,7 @@ int HitData::calc_damage(CHAR_DATA *ch, bool need_dice) {
 
 	if (affected_by_spell(ch, SPELL_BERSERK)) {
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)) {
-			dam = (dam * MAX(150, 150 + GET_LEVEL(ch) + dice(0, GET_REMORT(ch)) * 2)) / 100;
+			dam = (dam * MAX(150, 150 + GET_REAL_LEVEL(ch) + dice(0, GET_REAL_REMORT(ch)) * 2)) / 100;
 			if (PRF_FLAGGED(ch, PRF_EXECUTOR))
 				send_to_char(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 		}
@@ -3571,13 +3571,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 					if (IS_IMMORTAL(tch) || ch->in_room == NOWHERE || IN_ROOM(tch) == NOWHERE)
 						continue;
 					if (tch != ch && !same_group(ch, tch)) {
-						mag_damage(GET_LEVEL(ch), ch, tch, spellnum, SAVING_STABILITY);
+						mag_damage(GET_REAL_LEVEL(ch), ch, tch, spellnum, SAVING_STABILITY);
 					}
 				}
 				return;
 			}
 			// а теперь просто дышащие
-			mag_damage(GET_LEVEL(ch), ch, victim, spellnum, SAVING_STABILITY);
+			mag_damage(GET_REAL_LEVEL(ch), ch, victim, spellnum, SAVING_STABILITY);
 			return;
 		}
 	}
@@ -3599,7 +3599,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 			|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
     if (IS_NPC(ch)) {
-		mag_damage(std::min(LVL_IMPL, GET_LEVEL(ch)), ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+		mag_damage(std::min(LVL_IMPL, GET_REAL_LEVEL(ch)), ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
 	} else {
 		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
     }
@@ -3625,7 +3625,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 	}
 
 	const int victim_lvl_miss = victim->get_level() + victim->get_remort();
-	const int ch_lvl_miss = ch->get_level() + ch->get_remort();
+	const int ch_lvl_miss = ch->get_level() + GET_REAL_REMORT(ch);
 
 	// собсно выяснение попали или нет
 	if (victim_lvl_miss - ch_lvl_miss <= 5 || (!IS_NPC(ch) && !IS_NPC(victim))) {
@@ -3665,7 +3665,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 			else
 				blink = 5;
 			if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
-				blink = 10 + GET_REMORT(ch) * 2 / 3;
+				blink = 10 + GET_REAL_REMORT(ch) * 2 / 3;
 			} else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
 				blink = victim->add_abils.percent_spell_blink;
 				ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
@@ -3707,15 +3707,15 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		}
 		// Наемы фигачат больше
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim)) {
-			hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * (1.0 + ch->get_skill(SKILL_NOPARRYHIT) / 200.0);
+			hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch)) * (1.0 + ch->get_skill(SKILL_NOPARRYHIT) / 200.0);
 		} else if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
 			if (victim->get_fighting()) {
-				hit_params.dam *= backstab_mult(GET_LEVEL(ch));
+				hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch));
 			} else {
-				hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 1.3;
+				hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch)) * 1.3;
 			}
 		} else {
-			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
+			hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch));
 		}
 
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT)
@@ -3764,7 +3764,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 
 		// режем стаб
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch)) {
-			hit_params.dam = MIN(8000 + GET_REMORT(ch) * 20 * GET_LEVEL(ch), hit_params.dam);
+			hit_params.dam = MIN(8000 + GET_REAL_REMORT(ch) * 20 * GET_REAL_LEVEL(ch), hit_params.dam);
 		}
 
 		ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);

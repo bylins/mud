@@ -678,7 +678,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		command_interpreter(victim, argument);
-	} else if (GET_LEVEL(victim) < LVL_IMMORT) {
+	} else if (GET_REAL_LEVEL(victim) < LVL_IMMORT) {
 		command_interpreter(victim, argument);
 	}
 }
@@ -693,7 +693,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
+	if (ch->desc && (GET_REAL_LEVEL(ch->desc->original) < LVL_IMPL))
 		return;
 
 	two_arguments(argument, name, amount);

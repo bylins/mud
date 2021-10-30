@@ -260,7 +260,7 @@ void do_drink_poison(CHAR_DATA *ch, OBJ_DATA *jar, int amount) {
 		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
-		af.modifier = amount == 0 ? GET_LEVEL(ch) * 3 : amount * 3;
+		af.modifier = amount == 0 ? GET_REAL_LEVEL(ch) * 3 : amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
@@ -485,7 +485,7 @@ void do_drink_drunk(CHAR_DATA *ch, OBJ_DATA *jar, int amount) {
 			// **** Increase DR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
-			af.modifier = (GET_LEVEL(ch) + 4) / 5;
+			af.modifier = (GET_REAL_LEVEL(ch) + 4) / 5;
 			af.location = APPLY_DAMROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;

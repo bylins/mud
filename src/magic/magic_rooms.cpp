@@ -184,7 +184,7 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 			if (ch) {
 				const auto people_copy = room->people;
 				for (const auto tch : people_copy) {
-					if (!call_magic(ch, tch, nullptr, nullptr, SPELL_POISON, GET_LEVEL(ch))) {
+					if (!call_magic(ch, tch, nullptr, nullptr, SPELL_POISON, GET_REAL_LEVEL(ch))) {
 						aff->duration = 0;
 						break;
 					}
@@ -201,7 +201,7 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 		case SPELL_THUNDERSTORM:
 			switch (aff->duration) {
 				case 8:
-					if (!call_magic(ch, nullptr, nullptr, nullptr, SPELL_CONTROL_WEATHER, GET_LEVEL(ch))) {
+					if (!call_magic(ch, nullptr, nullptr, nullptr, SPELL_CONTROL_WEATHER, GET_REAL_LEVEL(ch))) {
 						aff->duration = 0;
 						break;
 					}
@@ -365,7 +365,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 	switch (spellnum) {
 		case SPELL_FORBIDDEN: af[0].type = spellnum;
 			af[0].location = APPLY_ROOM_NONE;
-			af[0].duration = (1 + (GET_LEVEL(ch) + 14) / 15) * 30;
+			af[0].duration = (1 + (GET_REAL_LEVEL(ch) + 14) / 15) * 30;
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_FORBIDDEN;
 			af[0].must_handled = false;
@@ -390,7 +390,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 		case SPELL_ROOM_LIGHT: af[0].type = spellnum;
 			af[0].location = APPLY_ROOM_NONE;
 			af[0].modifier = 0;
-			af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
+			af[0].duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_LIGHT;
 			af[0].must_handled = false;
@@ -403,7 +403,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 		case SPELL_POISONED_FOG: af[0].type = spellnum;
 			af[0].location = APPLY_ROOM_POISON;
 			af[0].modifier = 50;
-			af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
+			af[0].duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
 			af[0].bitvector = AFF_ROOM_FOG; //Добаляет бит туман
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
@@ -445,7 +445,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].type = spellnum;
 			af[0].location = APPLY_ROOM_NONE;
 			af[0].modifier = 0;
-			af[0].duration = (TIME_SPELL_RUNE_LABEL + (GET_REMORT(ch) * 10)) * 3;
+			af[0].duration = (TIME_SPELL_RUNE_LABEL + (GET_REAL_REMORT(ch) * 10)) * 3;
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_RUNE_LABEL;
 			af[0].must_handled = false;
@@ -465,7 +465,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].type = spellnum;
 			af[0].location = APPLY_ROOM_NONE;
 			af[0].modifier = 0;
-			af[0].duration = 30 + (GET_LEVEL(ch) + GET_REMORT(ch)) * dice(1, 3);
+			af[0].duration = 30 + (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) * dice(1, 3);
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_HYPNOTIC_PATTERN;
 			af[0].must_handled = false;
@@ -484,7 +484,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].type = spellnum;
 			af[0].location = APPLY_ROOM_NONE;
 			af[0].modifier = 0;
-			af[0].duration = 1 + GET_LEVEL(ch) / 7;
+			af[0].duration = 1 + GET_REAL_LEVEL(ch) / 7;
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_EVARDS_BLACK_TENTACLES;
 			af[0].must_handled = true;

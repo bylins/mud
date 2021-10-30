@@ -771,7 +771,7 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 		return FALSE;
 	};
-	if (GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+	if (GET_REAL_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 		return FALSE;
 	};
 
@@ -793,9 +793,9 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 			break;
 		case MASTER_JEWELER_FEAT: return (ch->get_skill(SKILL_INSERTGEM) > 59);
 			break;
-		case SKILLED_TRADER_FEAT: return ((ch->get_level() + ch->get_remort() / 3) > 19);
+		case SKILLED_TRADER_FEAT: return ((ch->get_level() + GET_REAL_REMORT(ch) / 3) > 19);
 			break;
-		case MAGIC_USER_FEAT: return (GET_LEVEL(ch) < 25);
+		case MAGIC_USER_FEAT: return (GET_REAL_LEVEL(ch) < 25);
 			break;
 		case LIVE_SHIELD_FEAT: return (ch->get_skill(SKILL_RESCUE) > 124);
 			break;
@@ -828,7 +828,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 	};
 	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 		&& !PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat))
-		|| (GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])) {
+		|| (GET_REAL_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])) {
 		return FALSE;
 	}
 
@@ -865,7 +865,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 			for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
 				if (HAVE_FEAT(ch, i))
 					count++;
-			if (count >= 1 + GET_REMORT(ch) / 7)
+			if (count >= 1 + GET_REAL_REMORT(ch) / 7)
 				return FALSE;
 			break;
 		case SPIRIT_WARRIOR_FEAT: return (HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT));
@@ -894,7 +894,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 				}
 			}
 
-			if (count >= 2 + GET_REMORT(ch) / 6) {
+			if (count >= 2 + GET_REAL_REMORT(ch) / 6) {
 				return FALSE;
 			}
 			break;
@@ -1020,7 +1020,7 @@ void check_berserk(CHAR_DATA *ch) {
 		af.location = APPLY_NONE;
 		af.battleflag = 0;
 
-		prob = IS_NPC(ch) ? 601 : (751 - GET_LEVEL(ch) * 5);
+		prob = IS_NPC(ch) ? 601 : (751 - GET_REAL_LEVEL(ch) * 5);
 		if (number(1, 1000) < prob) {
 			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
 			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
@@ -1067,7 +1067,7 @@ void do_lightwalk(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_LIGHT_WALK;
-	af.duration = pc_duration(ch, 2, GET_LEVEL(ch), 5, 2, 8);
+	af.duration = pc_duration(ch, 2, GET_REAL_LEVEL(ch), 5, 2, 8);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -1088,7 +1088,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	char arg2[MAX_INPUT_LENGTH];
 
 	//отключено пока для не-иммов
-	if (GET_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(ch) < LVL_IMMORT) {
 		send_to_char("Вы не можете этого.", ch);
 		return;
 	};
@@ -1225,10 +1225,10 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
-		GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
-		(GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) {
-		if (GET_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
-			|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
+		GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
+		(GET_REAL_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) {
+		if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
+			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			|| slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
@@ -1305,12 +1305,12 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 	timed_feat_to_char(ch, &timed);
 
-	GET_CAST_SUCCESS(follower) = GET_REMORT(ch) * 4;
+	GET_CAST_SUCCESS(follower) = GET_REAL_REMORT(ch) * 4;
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAPABLE;
 	af.duration = 48;
-	if (GET_REMORT(ch) > 0) {
-		af.modifier = GET_REMORT(ch) * 4;//вешаецо аффект который дает +морт*4 касту
+	if (GET_REAL_REMORT(ch) > 0) {
+		af.modifier = GET_REAL_REMORT(ch) * 4;//вешаецо аффект который дает +морт*4 касту
 		af.location = APPLY_CAST_SUCCESS;
 	} else {
 		af.modifier = 0;

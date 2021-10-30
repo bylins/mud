@@ -147,7 +147,7 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	}
 	/*
 	  ВНИМАНИЕ: формула содрана с NUM_LEV_FEAT (utils.h)!
-	  ((int) 1+GET_LEVEL(ch)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+	  ((int) 1+GET_REAL_LEVEL(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 	  сделано это потому, что "обратная" формула, использованная ранее в list_feats,
 	  выдавала неверные результаты ввиду нюансов округления
 	  */
@@ -182,8 +182,8 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 		*names[0] = '\0';
 	for (i = 1; i < max_slot; i++)
 		if (all_feats) {
-			//j = i*28/(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); // старая формула, работавшая криво!
-			j = feat_slot_lvl(GET_REMORT(ch),
+			//j = i*28/(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); // старая формула, работавшая криво!
+			j = feat_slot_lvl(GET_REAL_REMORT(ch),
 							  feat_slot_for_remort[(int) GET_CLASS(ch)],
 							  i); // на каком уровне будет слот i?
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
@@ -502,8 +502,8 @@ void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
 		if (!GET_SPELL_TYPE(ch, i) && !all_spells)
 			continue;
 
-		if ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)
-			|| MIN_CAST_REM(spell_info[i], ch) > GET_REMORT(ch)
+		if ((MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch)
+			|| MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch)
 			|| slot_for_char(ch, spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 			&& all_spells && !GET_SPELL_TYPE(ch, i))
 			continue;
@@ -521,7 +521,7 @@ void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
 			can_cast = 1;
 		}
 
-		if (MIN_CAST_REM(spell_info[i], ch) > GET_REMORT(ch))
+		if (MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch))
 			slot_num = MAX_SLOT - 1;
 		else
 			slot_num = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
@@ -557,7 +557,7 @@ void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
 
 									   slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
 									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N'
+											  SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch)) ? 'N'
 																											   : 'K')
 														  : '.',
 									   IS_SET(GET_SPELL_TYPE(ch, i),
@@ -882,7 +882,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
 				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch)) {
+					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 
@@ -933,7 +933,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			if (!strn_cmp(argument, "все", strlen(argument)) || !strn_cmp(argument, "all", strlen(argument))) {
 				for (i = 0, found = FALSE, sfound = TRUE;
 					 (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch))
+					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch))
 						continue;
 
 					const ESkill skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
@@ -1003,7 +1003,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			const int feat_no = find_feat_num(argument);
 			if ((feat_no > 0 && feat_no < MAX_FEATS)) {
 				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch)) {
+					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 
@@ -1038,7 +1038,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			if ((SKILL_INVALID != skill_no
 				&& skill_no <= MAX_SKILL_NUM)) {
 				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch)) {
+					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 
@@ -1073,7 +1073,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			if (spell_no > 0
 				&& spell_no <= SPELLS_COUNT) {
 				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch)) {
+					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 
@@ -1178,7 +1178,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
 				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 
@@ -1235,7 +1235,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			if (!strn_cmp(argument, "все", strlen(argument))
 				|| !strn_cmp(argument, "all", strlen(argument))) {
 				for (i = 0, found = FALSE, sfound = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
@@ -1314,7 +1314,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			if (SKILL_INVALID != skill_no
 				&& skill_no <= MAX_SKILL_NUM) {
 				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
@@ -1355,7 +1355,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 			if (feat_no > 0 && feat_no < MAX_FEATS) {
 				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->feat_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
@@ -1394,7 +1394,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			const int spell_no = fix_name_and_find_spell_num(argument);
 			if (spell_no > 0 && spell_no <= SPELLS_COUNT) {
 				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
 					if (!(bits = -2 * (guild_poly_info[info_num] + i)->skill_no)
@@ -2254,13 +2254,13 @@ int do_npc_steal(CHAR_DATA *ch, CHAR_DATA *victim) {
 	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || victim->get_fighting())
 		return (FALSE);
 
-	if (GET_LEVEL(victim) >= LVL_IMMORT)
+	if (GET_REAL_LEVEL(victim) >= LVL_IMMORT)
 		return (FALSE);
 
 	if (!CAN_SEE(ch, victim))
 		return (FALSE);
 
-	if (AWAKE(victim) && (number(0, MAX(0, GET_LEVEL(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0)) {
+	if (AWAKE(victim) && (number(0, MAX(0, GET_REAL_LEVEL(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0)) {
 		act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, victim, TO_VICT);
 		act("$n пытал$u обокрасть $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
 	} else        // Steal some gold coins
@@ -2450,7 +2450,7 @@ int dump(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 	if (value) {
 		send_to_char("Боги оценили вашу жертву.\r\n", ch);
 		act("$n оценен$y Богами.", TRUE, ch, 0, 0, TO_ROOM);
-		if (GET_LEVEL(ch) < 3)
+		if (GET_REAL_LEVEL(ch) < 3)
 			gain_exp(ch, value);
 		else
 			ch->add_gold(value);
@@ -2567,7 +2567,7 @@ return (FALSE);
 	for (const auto cons : world[ch->in_room]->people)
 	{
 		if (!IS_NPC(cons)
-			&& GET_LEVEL(cons) < LVL_IMMORT
+			&& GET_REAL_LEVEL(cons) < LVL_IMMORT
 			&& !number(0, 4))
 		{
 			do_npc_steal(ch, cons);
@@ -2606,15 +2606,15 @@ int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		return (TRUE);
 	}
 
-	if ((GET_LEVEL(ch) > 13) && (number(0, 10) == 0)) {
+	if ((GET_REAL_LEVEL(ch) > 13) && (number(0, 10) == 0)) {
 		cast_spell(ch, target, NULL, NULL, SPELL_SLEEP, SPELL_SLEEP);
 	}
 
-	if ((GET_LEVEL(ch) > 7) && (number(0, 8) == 0)) {
+	if ((GET_REAL_LEVEL(ch) > 7) && (number(0, 8) == 0)) {
 		cast_spell(ch, target, NULL, NULL, SPELL_BLINDNESS, SPELL_BLINDNESS);
 	}
 
-	if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
+	if ((GET_REAL_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch)) {
 			cast_spell(ch, target, NULL, NULL, SPELL_ENERGY_DRAIN, SPELL_ENERGY_DRAIN);
 		} else if (IS_GOOD(ch)) {
@@ -2626,7 +2626,7 @@ int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		return (TRUE);
 	}
 
-	switch (GET_LEVEL(ch)) {
+	switch (GET_REAL_LEVEL(ch)) {
 		case 4:
 		case 5: cast_spell(ch, target, NULL, NULL, SPELL_MAGIC_MISSILE, SPELL_MAGIC_MISSILE);
 			break;
@@ -2669,7 +2669,7 @@ int guild_guard(CHAR_DATA *ch, void *me, int cmd, char * /*argument*/) {
 		|| AFF_FLAGGED(guard, EAffectFlag::AFF_HOLD))
 		return (FALSE);
 
-	if (GET_LEVEL(ch) >= LVL_IMMORT)
+	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT)
 		return (FALSE);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
@@ -2787,7 +2787,7 @@ int cityguard(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	return (FALSE);
 }
 
-#define PET_PRICE(pet) (GET_LEVEL(pet) * 300)
+#define PET_PRICE(pet) (GET_REAL_LEVEL(pet) * 300)
 
 int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 	char buf[MAX_STRING_LENGTH], pet_name[256];

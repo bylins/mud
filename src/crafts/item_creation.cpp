@@ -739,9 +739,9 @@ void go_create_weapon(CHAR_DATA *ch, OBJ_DATA *obj, int obj_type, ESkill skill) 
 				case 6: tobj->set_timer(OBJ_DATA::ONE_DAY);
 					tobj->set_maximum_durability(50);
 					tobj->set_current_durability(50);
-					ndice = MAX(2, MIN(4, GET_LEVEL(ch) / number(6, 8)));
+					ndice = MAX(2, MIN(4, GET_REAL_LEVEL(ch) / number(6, 8)));
 					ndice += (GET_OBJ_WEIGHT(tobj) / 10);
-					sdice = MAX(2, MIN(5, GET_LEVEL(ch) / number(4, 5)));
+					sdice = MAX(2, MIN(5, GET_REAL_LEVEL(ch) / number(4, 5)));
 					sdice += (GET_OBJ_WEIGHT(tobj) / 10);
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
@@ -1218,7 +1218,7 @@ int MakeRecept::can_make(CHAR_DATA *ch) {
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
-		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch)))) {
+		if (!IS_IMPL(ch) && (ingr_lev > (GET_REAL_LEVEL(ch) + 2 * GET_REAL_REMORT(ch)))) {
 			send_to_char("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (FALSE);
 		}
@@ -1588,7 +1588,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
 			break;
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
-		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch)))) {
+		if (!IS_IMPL(ch) && (ingr_lev > (GET_REAL_LEVEL(ch) + 2 * GET_REAL_REMORT(ch)))) {
 			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(3)
 				+ "\r\n и прекратили работу над " + tobj->get_PName(4) + ".\r\n";
 			send_to_char(tmpstr.c_str(), ch);
@@ -1734,7 +1734,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
 			created_lev += ingr_lev;
 		}
 		// Шанс испортить не ингредиент всетаки есть.
-		if ((number(0, 30) < (5 + ingr_lev - GET_LEVEL(ch) - 2 * GET_REMORT(ch))) && !IS_IMPL(ch)) {
+		if ((number(0, 30) < (5 + ingr_lev - GET_REAL_LEVEL(ch) - 2 * GET_REAL_REMORT(ch))) && !IS_IMPL(ch)) {
 			tmpstr = "Вы испортили " + ingrs[i]->get_PName(3) + ".\r\n";
 			send_to_char(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
@@ -1847,7 +1847,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
 			act(roomdam.c_str(), FALSE, ch, &obj, 0, TO_ROOM);
 			dam = number(0, dam);
 			// Наносим дамаг.
-			if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0) {
+			if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && dam > 0) {
 				send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
 				return (FALSE);
 			}
@@ -1917,7 +1917,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
 		case OBJ_DATA::ITEM_WAND:
 		case OBJ_DATA::ITEM_STAFF:
 			// Считаем уровень закла
-			obj->set_val(0, GET_LEVEL(ch));
+			obj->set_val(0, GET_REAL_LEVEL(ch));
 			break;
 		case OBJ_DATA::ITEM_WEAPON:
 			// Считаем число xdy

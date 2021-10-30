@@ -1528,7 +1528,7 @@ int CalcPcDamrollBonus(CHAR_DATA *ch) {
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
 	int bonus = 0;
 	if (IS_SMITH(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {
-		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GET_REMORT(ch))];
+		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GET_REAL_REMORT(ch))];
 	}
 	if (can_use_feat(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_ADDSHOT)) {
 		bonus *= 3;
@@ -1538,8 +1538,8 @@ int CalcPcDamrollBonus(CHAR_DATA *ch) {
 
 int CalcNpcDamrollBonus(CHAR_DATA *ch) {
 	int bonus = 0;
-	if (GET_LEVEL(ch) > STRONG_MOB_LEVEL) {
-		bonus += GET_LEVEL(ch) * number(100, 200) / 100.0;
+	if (GET_REAL_LEVEL(ch) > STRONG_MOB_LEVEL) {
+		bonus += GET_REAL_LEVEL(ch) * number(100, 200) / 100.0;
 	}
 	return bonus;
 }
@@ -1989,9 +1989,9 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg) {
 }
 
 int CAN_CARRY_N(const CHAR_DATA *ch) {
-	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_LEVEL(ch) / 2;
+	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_REAL_LEVEL(ch) / 2;
 	if (HAVE_FEAT(ch, JUGGLER_FEAT)) {
-		n += GET_LEVEL(ch) / 2;
+		n += GET_REAL_LEVEL(ch) / 2;
 		if (GET_CLASS(ch) == CLASS_DRUID) {
 			n += 5;
 		}
@@ -2667,6 +2667,46 @@ void sanity_check(void) {
 		plant_magic(buf2);
 		plant_magic(arg);
 	}
+}
+
+short GET_REAL_LEVEL(const CHAR_DATA *ch)
+{
+	// обрезаем максимальный уровень мобов
+	if (IS_NPC(ch)) {
+		return std::clamp(ch->get_level() + ch->get_level_add(), 1, static_cast<int>(MAX_MOB_LEVEL));
+	}
+
+	// игнорируем get_level_add для иммов
+	if (IS_IMMORTAL(ch)) {
+		return ch->get_level();
+	}
+
+	return std::clamp(ch->get_level() + ch->get_level_add(), 1, LVL_IMMORT - 1);
+}
+
+short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> ch)
+{
+	return GET_REAL_LEVEL(ch.get());
+}
+
+short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> &ch)
+{
+	return GET_REAL_LEVEL(ch.get());
+}
+
+short GET_REAL_REMORT(const CHAR_DATA *ch)
+{
+	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, MAX_REMORT);
+}
+
+short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> ch)
+{
+	return GET_REAL_REMORT(ch.get());
+}
+
+short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch)
+{
+	return GET_REAL_REMORT(ch.get());
 }
 
 bool isname(const char *str, const char *namelist) {

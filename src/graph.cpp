@@ -164,8 +164,8 @@ int go_sense(CHAR_DATA *ch, CHAR_DATA *victim) {
 	int percent, dir, skill = CalcCurrentSkill(ch, SKILL_SENSE, victim);
 
 	skill = skill
-		- MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
-	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEL(ch)) * 5);
+		- MAX(1, (GET_REAL_REMORT(victim) - GET_REAL_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
+	skill = skill - MAX(1, (GET_REAL_LEVEL(victim) - GET_REAL_LEVEL(ch)) * 5);
 	skill = MAX(0, skill);
 	percent = number(0, skill_info[SKILL_SENSE].difficulty);
 	if (percent > skill) {
@@ -176,7 +176,7 @@ int go_sense(CHAR_DATA *ch, CHAR_DATA *victim) {
 		return dir;
 	}
 	ch->send_to_TC(false, true, false,
-				   "НЮХ: skill == %d percent ==%d реморт цели %d\r\n", skill, percent, GET_REMORT(victim));
+				   "НЮХ: skill == %d percent ==%d реморт цели %d\r\n", skill, percent, GET_REAL_REMORT(victim));
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 

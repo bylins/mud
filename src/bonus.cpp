@@ -42,7 +42,7 @@ bool can_get_bonus_exp(CHAR_DATA *ch) {
 
 	// бонус опыта распространяется по 49 реморт включительно
 	const short MAX_REMORT_FOR_BONUS = 49;
-	return ch->get_remort() <= MAX_REMORT_FOR_BONUS;
+	return GET_REAL_REMORT(ch) <= MAX_REMORT_FOR_BONUS;
 }
 
 void setup_bonus(const int duration, const int multilpier, EBonusType type) {

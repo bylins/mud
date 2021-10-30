@@ -349,7 +349,7 @@ void do_sneak(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_SNEAK;
-	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 8, 0, 1);
+	af.duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch), 8, 0, 1);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -402,7 +402,7 @@ void do_camouflage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CAMOUFLAGE;
-	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 6, 0, 2);
+	af.duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch), 6, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -458,7 +458,7 @@ void do_hide(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_HIDE;
-	af.duration = pc_duration(ch, 0, GET_LEVEL(ch), 8, 0, 1);
+	af.duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch), 8, 0, 1);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -1813,7 +1813,7 @@ void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		showhelp = TRUE;
 	} else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0) {
 		showhelp = TRUE;
-	} else if ((GET_LEVEL(ch) < gen_tog_param[i >> 1].level)
+	} else if ((GET_REAL_LEVEL(ch) < gen_tog_param[i >> 1].level)
 		|| (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester)) {
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
 		//showhelp = TRUE;
@@ -1825,7 +1825,7 @@ void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::stringstream buffer;
 		buffer << "Вы можете установить следующее.\r\n" << std::endl;
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++) {
-			if ((GET_LEVEL(ch) >= gen_tog_param[i].level)
+			if ((GET_REAL_LEVEL(ch) >= gen_tog_param[i].level)
 				&& (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester)) {
 				buffer << std::setw(20) << gen_tog_type[i << 1] << " (" << gen_tog_type[(i << 1) + 1] << ")"
 					   << std::endl;
@@ -1835,7 +1835,7 @@ void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 /*
 		strcpy(buf, "Вы можете установить следующее.\r\n");
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
-			if ((GET_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
+			if ((GET_REAL_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
 				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);*/
@@ -2721,7 +2721,7 @@ void do_dig(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		vnum = number(dig_vars.mob_vnum_start, dig_vars.mob_vnum_end);
 		mob = read_mobile(real_mobile(vnum), REAL);
 		if (mob) {
-			if (GET_LEVEL(mob) <= GET_LEVEL(ch)) {
+			if (GET_REAL_LEVEL(mob) <= GET_REAL_LEVEL(ch)) {
 				MOB_FLAGS(mob).set(MOB_AGGRESSIVE);
 				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3].c_str());
 				send_to_char(textbuf, ch);

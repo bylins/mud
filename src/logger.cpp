@@ -267,9 +267,9 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int
 			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
 			continue;
-		if (type == DEF && GET_LEVEL(i->character) < LVL_IMMORT && !PRF_FLAGGED(i->character, PRF_CODERINFO))
+		if (type == DEF && GET_REAL_LEVEL(i->character) < LVL_IMMORT && !PRF_FLAGGED(i->character, PRF_CODERINFO))
 			continue;
-		if (GET_LEVEL(i->character) < level && !PRF_FLAGGED(i->character, PRF_CODERINFO))
+		if (GET_REAL_LEVEL(i->character) < level && !PRF_FLAGGED(i->character, PRF_CODERINFO))
 			continue;
 		if (PLR_FLAGGED(i->character, PLR_WRITING) || PLR_FLAGGED(i->character, PLR_FROZEN))
 			continue;

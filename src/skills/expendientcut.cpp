@@ -51,7 +51,7 @@ int ExpedientCap(CHAR_DATA *ch, ESkill skill) {
 	if (!IS_NPC(ch)) {
 		return floor(1.33 * (CalcSkillRemortCap(ch) / 2.00 + ParameterBonus(GetExpedientKeyParameter(ch, skill))));
 	} else {
-		return floor(1.33 * ((kSkillCapOnZeroRemort + 5 * MAX(0, GET_LEVEL(ch) - 30) / 2.00
+		return floor(1.33 * ((kSkillCapOnZeroRemort + 5 * MAX(0, GET_REAL_LEVEL(ch) - 30) / 2.00
 			+ ParameterBonus(GetExpedientKeyParameter(ch, skill)))));
 	}
 }

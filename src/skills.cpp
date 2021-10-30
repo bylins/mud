@@ -588,7 +588,7 @@ int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, s
 				brief.reflect = true;
 			}
 
-			if (!IS_NPC(vict) && (GET_LEVEL(vict) >= LVL_IMMORT) && !PLR_FLAGGED((ch), PLR_WRITING)) {
+			if (!IS_NPC(vict) && (GET_REAL_LEVEL(vict) >= LVL_IMMORT) && !PLR_FLAGGED((ch), PLR_WRITING)) {
 				switch (attacktype) {
 					case SKILL_BACKSTAB + TYPE_HIT:
 					case SKILL_THROW + TYPE_HIT:
@@ -1448,7 +1448,7 @@ int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict) {
 				bonus += 20;
 
 			if (vict) {
-				if (GET_LEVEL(vict) > 35)
+				if (GET_REAL_LEVEL(vict) > 35)
 					bonus -= 50;
 				if (!CAN_SEE(vict, ch))
 					bonus += 25;
@@ -1803,7 +1803,7 @@ int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict) {
 			if (!IS_NPC(vict))
 				victim_sav *= 2;
 			else
-				victim_sav -= GET_LEVEL(vict);
+				victim_sav -= GET_REAL_LEVEL(vict);
 
 			bonus = dex_bonus(GET_REAL_STR(ch));
 			if (GET_EQ(ch, WEAR_WIELD))
@@ -1903,7 +1903,7 @@ void ImproveSkill(CHAR_DATA *ch, const ESkill skill, int success, CHAR_DATA *vic
 	prob += number(1, trained_skill * 5);
 
 	int skill_is = number(1, MAX(1, prob));
-	if ((victim && skill_is <= GET_REAL_INT(ch) * GET_LEVEL(victim) / GET_LEVEL(ch))
+	if ((victim && skill_is <= GET_REAL_INT(ch) * GET_REAL_LEVEL(victim) / GET_REAL_LEVEL(ch))
 		|| (!victim && skill_is <= GET_REAL_INT(ch))) {
 		if (success) {
 			sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
@@ -1916,7 +1916,7 @@ void ImproveSkill(CHAR_DATA *ch, const ESkill skill, int success, CHAR_DATA *vic
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
 		if (!IS_IMMORTAL(ch)) {
 			ch->set_morphed_skill(skill,
-								  (MIN(kSkillCapOnZeroRemort + GET_REMORT(ch) * 5, ch->get_trained_skill(skill))));
+								  (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5, ch->get_trained_skill(skill))));
 		}
 		if (victim && IS_NPC(victim)) {
 			MOB_FLAGS(victim).set(MOB_NOTRAIN);
@@ -1991,7 +1991,7 @@ int FindWeaponMasterBySkill(ESkill skill) {
 //req_lvl - требуемый уровень из книги
 int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl) {
 	int min_lvl = MAX(req_lvl, skill_info[skill].min_level[ch->get_class()][ch->get_kin()])
-		- MAX(0, ch->get_remort() / skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]);
+		- MAX(0, GET_REAL_REMORT(ch) / skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]);
 
 	return MAX(1, min_lvl);
 };
@@ -2002,12 +2002,12 @@ int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl) {
  */
 int min_skill_level(CHAR_DATA *ch, int skill) {
 	int min_lvl = skill_info[skill].min_level[ch->get_class()][ch->get_kin()]
-		- MAX(0, ch->get_remort() / skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]);
+		- MAX(0, GET_REAL_REMORT(ch) / skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]);
 	return MAX(1, min_lvl);
 };
 
 bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl) {
-	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
+	if (GET_REAL_REMORT(ch) < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
 		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL)) {
 		return false;
 	}
@@ -2018,7 +2018,7 @@ bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl) {
 }
 
 bool IsAbleToGetSkill(CHAR_DATA *ch, int skill) {
-	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
+	if (GET_REAL_REMORT(ch) < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
 		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL)) {
 		return FALSE;
 	}
@@ -2030,11 +2030,11 @@ bool IsAbleToGetSkill(CHAR_DATA *ch, int skill) {
 }
 
 int CalcSkillRemortCap(const CHAR_DATA *ch) {
-	return kSkillCapOnZeroRemort + ch->get_remort() * kSkillCapBonusPerRemort;
+	return kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * kSkillCapBonusPerRemort;
 }
 
 int CalcSkillSoftCap(const CHAR_DATA *ch) {
-	return std::min(CalcSkillRemortCap(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20);
+	return std::min(CalcSkillRemortCap(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_REAL_LEVEL(ch) / 20);
 }
 
 int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill) {

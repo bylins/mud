@@ -93,8 +93,8 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 		// получается замакс идет в 2 раза быстрее, чем без способности в той же группе
 		if (leader_partner
 			&& partner_feat == 1 && total_group_members == 2) {
-			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
-			partner->mobmax_add(partner, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_REAL_LEVEL(ch));
+			partner->mobmax_add(partner, GET_MOB_VNUM(ch), 1, GET_REAL_LEVEL(ch));
 		} else if (total_group_members > 12) {
 			// динамический штраф к замаксу на большие группы (с полководцем >12 человек)
 			// +1 человек к замаксу за каждые 4 мембера свыше 12
@@ -120,7 +120,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 			members_to_mobmax.resize(actual_size_to_mobmax);
 
 			for (const auto &member : members_to_mobmax) {
-				member->mobmax_add(member, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+				member->mobmax_add(member, GET_MOB_VNUM(ch), 1, GET_REAL_LEVEL(ch));
 			}
 		} else {
 			// выберем случайным образом мембера группы для замакса
@@ -133,7 +133,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 					master = f->follower;
 				}
 			}
-			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_REAL_LEVEL(ch));
 		}
 	}
 }
@@ -348,7 +348,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 		return;
 	}
 	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone_rn].vnum == 759)
-		&& (GET_LEVEL(ch) < 15)) //нуб помер в мадшколе
+		&& (GET_REAL_LEVEL(ch) < 15)) //нуб помер в мадшколе
 	{
 		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
 //		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
@@ -376,11 +376,11 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 		{
 			if (!RENTABLE(ch))
 				dec_exp =
-					(level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5))
+					(level_exp(ch, GET_REAL_LEVEL(ch) + 1) - level_exp(ch, GET_REAL_LEVEL(ch))) / (3 + MIN(3, GET_REAL_REMORT(ch) / 5))
 						/ ch->death_player_count();
 			else
-				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch)))
-					/ (3 + MIN(3, GET_REMORT(ch) / 5));
+				dec_exp = (level_exp(ch, GET_REAL_LEVEL(ch) + 1) - level_exp(ch, GET_REAL_LEVEL(ch)))
+					/ (3 + MIN(3, GET_REAL_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
 			dec_exp = e - GET_EXP(ch);
 			sprintf(buf, "Вы потеряли %d %s опыта.\r\n",
@@ -583,7 +583,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer) {
 			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
 		GET_POS(ch) = POS_STANDING;
-		call_magic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell, GET_LEVEL(ch));
+		call_magic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell, GET_REAL_LEVEL(ch));
 		GET_POS(ch) = pos;
 	}
 }
@@ -643,7 +643,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 #endif
 	} else {
 		if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer))) {
-			log("Killed: %d %d %ld", GET_LEVEL(ch), GET_MAX_HIT(ch), GET_EXP(ch));
+			log("Killed: %d %d %ld", GET_REAL_LEVEL(ch), GET_MAX_HIT(ch), GET_EXP(ch));
 			obj_load_on_death(corpse, ch);
 		}
 		if (MOB_FLAGGED(ch, MOB_CORPSE)) {
@@ -657,7 +657,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 #endif
 	}
 /*	до будущих времен
-	if (!IS_NPC(ch) && GET_REMORT(ch) > 7 && (GET_LEVEL(ch) == 29 || GET_LEVEL(ch) == 30))
+	if (!IS_NPC(ch) && GET_REAL_REMORT(ch) > 7 && (GET_REAL_LEVEL(ch) == 29 || GET_REAL_LEVEL(ch) == 30))
 	{
 		// лоадим свиток с экспой
 		const auto rnum = real_object(100);
@@ -716,8 +716,8 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	// добавляем одну душу киллеру
 	if (IS_NPC(ch) && killer) {
 		if (can_use_feat(killer, COLLECTORSOULS_FEAT)) {
-			if (GET_LEVEL(ch) >= GET_LEVEL(killer)) {
-				if (killer->get_souls() < (GET_REMORT(killer) + 1)) {
+			if (GET_REAL_LEVEL(ch) >= GET_REAL_LEVEL(killer)) {
+				if (killer->get_souls() < (GET_REAL_REMORT(killer) + 1)) {
 					act("&GВы забрали душу $N1 себе!&n", FALSE, killer, 0, ch, TO_CHAR);
 					act("$n забрал душу $N1 себе!", FALSE, killer, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 					killer->inc_souls();
@@ -743,7 +743,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 }
 
 int get_remort_mobmax(CHAR_DATA *ch) {
-	int remort = GET_REMORT(ch);
+	int remort = GET_REAL_REMORT(ch);
 	if (remort >= 18)
 		return 15;
 	if (remort >= 14)
@@ -797,7 +797,7 @@ int get_extend_exp(int exp, CHAR_DATA *ch, CHAR_DATA *victim) {
 	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)	{
 		// так чуть-чуть поприятней
 		exp *= 1.5;
-		exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
+		exp /= std::max(1.0, 0.5 * (GET_REAL_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 		return (exp);
 	}
 */
@@ -809,7 +809,7 @@ int get_extend_exp(int exp, CHAR_DATA *ch, CHAR_DATA *victim) {
 	exp = exp * MAX(15, koef) / 100;
 
 	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
+	exp /= std::max(1.0, 0.5 * (GET_REAL_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 	return (exp);
 }
 
@@ -854,7 +854,7 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 	// 3. Вычисление опыта для PC и NPC
 	if (IS_NPC(ch)) {
 		exp = MIN(max_exp_gain_npc, exp);
-		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
+		exp += MAX(0, (exp * MIN(4, (GET_REAL_LEVEL(victim) - GET_REAL_LEVEL(ch)))) / 8);
 	} else
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
 	// 4. Последняя проверка
@@ -954,7 +954,7 @@ void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 	if (can_use_feat(killer, CYNIC_FEAT)) {
 		maxlevel = 300;
 	} else {
-		maxlevel = GET_LEVEL(killer);
+		maxlevel = GET_REAL_LEVEL(killer);
 	}
 
 	auto leader = killer->get_master();
@@ -969,7 +969,7 @@ void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 	// Количество согрупников в комнате
 	if (leader_inroom) {
 		inroom_members = 1;
-		maxlevel = GET_LEVEL(leader);
+		maxlevel = GET_REAL_LEVEL(leader);
 	} else {
 		inroom_members = 0;
 	}
@@ -988,7 +988,7 @@ void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
-			maxlevel = MAX(maxlevel, GET_LEVEL(f->follower));
+			maxlevel = MAX(maxlevel, GET_REAL_LEVEL(f->follower));
 			if (!IS_NPC(f->follower)) {
 				partner_count++;
 			}
@@ -1053,8 +1053,8 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
 
 	// получение игроками экспы
 	if (!IS_NPC(ch) && OK_GAIN_EXP(ch, victim)) {
-		int max_exp = MIN(max_exp_gain_pc(ch), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
-			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
+		int max_exp = MIN(max_exp_gain_pc(ch), (GET_REAL_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
+			(5 * MAX(1, GET_REAL_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
@@ -1070,8 +1070,8 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
 		CHAR_DATA *master = ch->get_master();
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && OK_GAIN_EXP(master, victim)) {
-			int max_exp = MIN(max_exp_gain_pc(master), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
-				(5 * MAX(1, GET_REMORT(master) - MAX_EXP_COEFFICIENTS_USED - 1)));
+			int max_exp = MIN(max_exp_gain_pc(master), (GET_REAL_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
+				(5 * MAX(1, GET_REAL_REMORT(master) - MAX_EXP_COEFFICIENTS_USED - 1)));
 
 			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));

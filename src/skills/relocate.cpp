@@ -44,7 +44,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_LEVEL(victim) > GET_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+	if (GET_REAL_LEVEL(victim) > GET_REAL_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -99,7 +99,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
-		timed.time = 18 - MIN(GET_REMORT(ch), 15);
+		timed.time = 18 - MIN(GET_REAL_REMORT(ch), 15);
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 		AFFECT_DATA<EApplyLocation> af;
 		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);

@@ -186,7 +186,7 @@ void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg) {
 // соответствующий режим; имморталы могут телять всегда
 	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
 		&& !CAN_SEE(vict, ch)
-		&& GET_LEVEL(ch) < LVL_IMMORT
+		&& GET_REAL_LEVEL(ch) < LVL_IMMORT
 		&& !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		act("$N не любит разговаривать с теми, кого не видит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return;
@@ -646,7 +646,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (GET_LEVEL(ch) < com_msgs[subcmd].min_lev && !GET_REMORT(ch)) {
+	if (GET_REAL_LEVEL(ch) < com_msgs[subcmd].min_lev && !GET_REAL_REMORT(ch)) {
 		sprintf(buf1,
 				"Вам стоит достичь хотя бы %d уровня, чтобы вы могли %s.\r\n",
 				com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
@@ -909,7 +909,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (STATE(i) == CON_PLAYING) {
 			if ((IS_IMMORTAL(i->character.get())
 				|| (GET_GOD_FLAG(i->character.get(), GF_DEMIGOD)
-					&& (GET_LEVEL(ch) < 6)))
+					&& (GET_REAL_LEVEL(ch) < 6)))
 				&& (i->character.get() != ch)) {
 				send_to_char(buf, i->character.get());
 				i->character->remember_add(buf, Remember::ALL);
@@ -922,7 +922,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
 void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
+	if (IS_NPC(ch) || GET_REAL_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -936,7 +936,7 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
-	if (GET_LEVEL(ch) < SpamSystem::MIN_OFFTOP_LVL && !GET_REMORT(ch)) {
+	if (GET_REAL_LEVEL(ch) < SpamSystem::MIN_OFFTOP_LVL && !GET_REAL_REMORT(ch)) {
 		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы вы могли оффтопить.\r\n",
 					 SpamSystem::MIN_OFFTOP_LVL);
 		return;
@@ -969,7 +969,7 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
 		if (STATE(i) == CON_PLAYING
 			&& i->character
-			&& (GET_LEVEL(i->character) < LVL_IMMORT || IS_IMPL(i->character))
+			&& (GET_REAL_LEVEL(i->character) < LVL_IMMORT || IS_IMPL(i->character))
 			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE)
 			&& !PRF_FLAGGED(i->character, PRF_IGVA_PRONA)
 			&& !ignores(i->character.get(), ch, IGNORE_OFFTOP)) {

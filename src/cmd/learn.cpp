@@ -140,8 +140,8 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		spellname = spell_info[spellnum].name;
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
 		&& imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE
-		&& MAX(GET_OBJ_VAL(obj, 2), imrecipes[rcpt].level) <= GET_LEVEL(ch)
-		&& imrecipes[rcpt].remort <= GET_REMORT(ch)) {
+		&& MAX(GET_OBJ_VAL(obj, 2), imrecipes[rcpt].level) <= GET_REAL_LEVEL(ch)
+		&& imrecipes[rcpt].remort <= GET_REAL_REMORT(ch)) {
 		spellnum = rcpt;
 		rs = im_get_char_rskill(ch, spellnum);
 		spellname = imrecipes[spellnum].name;
@@ -183,7 +183,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 		// апгрейд скилла до макс.скилла плеера (без макса в книге)
 		if (GET_OBJ_VAL(obj, 3) <= 0
-			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= kSkillCapOnZeroRemort + GET_REMORT(ch) * 5) {
+			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5) {
 			book_upgrd_fail_message(ch, obj);
 			return;
 		}
@@ -253,7 +253,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				if (GET_OBJ_VAL(obj, 3) > 0) {
 					ch->set_skill(skill, MIN(left_skill_level, GET_OBJ_VAL(obj, 3)));
 				} else {
-					ch->set_skill(skill, MIN(left_skill_level, kSkillCapOnZeroRemort + GET_REMORT(ch) * 5));
+					ch->set_skill(skill, MIN(left_skill_level, kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5));
 				}
 			}
 				break;

@@ -1682,7 +1682,7 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 			else
 				count += sprintf(prompt + count, "%ldо ",
 								 level_exp(d->character.get(),
-										   GET_LEVEL(d->character) + 1) - GET_EXP(d->character));
+										   GET_REAL_LEVEL(d->character) + 1) - GET_EXP(d->character));
 		}
 		// Mem Info
 		if (PRF_FLAGGED(d->character, PRF_DISPMANA)
@@ -1772,7 +1772,7 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 		{
 
 			if (PRF_FLAGGED(d->character, PRF_DISPLEVEL))
-				count += sprintf(prompt + count, "%dL ", GET_LEVEL(d->character));
+				count += sprintf(prompt + count, "%dL ", GET_REAL_LEVEL(d->character));
 
 			if (PRF_FLAGGED(d->character, PRF_DISPGOLD))
 				count += sprintf(prompt + count, "%ldG ", d->character->get_gold());
@@ -2781,7 +2781,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
 				// Иммам или морталам с GF_DEMIGOD разрешено использовать ";".
-				if (GET_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
+				if (GET_REAL_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
 			if (*ptr == '&'
@@ -2789,7 +2789,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_LEVEL(t->character) < LVL_IMPL)
+				if (GET_REAL_LEVEL(t->character) < LVL_IMPL)
 					*ptr = '8';
 			}
 			if (*ptr == '$'
@@ -2797,7 +2797,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_LEVEL(t->character) < LVL_IMPL)
+				if (GET_REAL_LEVEL(t->character) < LVL_IMPL)
 					*ptr = '4';
 			}
 			if (*ptr == '\\'
@@ -2805,7 +2805,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_LEVEL(t->character) < LVL_GRGOD)
+				if (GET_REAL_LEVEL(t->character) < LVL_GRGOD)
 					*ptr = '/';
 			}
 			if (*ptr == '\b' || *ptr == 127)    // handle backspacing or delete key
@@ -3362,7 +3362,7 @@ void signal_setup(void) {
 void send_stat_char(const CHAR_DATA *ch) {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
-			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), ch->get_gold(), GET_LEVEL(ch));
+			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), ch->get_gold(), GET_REAL_LEVEL(ch));
 	SEND_TO_Q(fline, ch->desc);
 }
 

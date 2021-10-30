@@ -339,7 +339,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch) {
 	bool concidence;
 	const int vnum_skin_prototype = 1660;
 
-	vnum = vnum_skin_prototype + MIN((int) (GET_LEVEL(mob) / 5), 9);
+	vnum = vnum_skin_prototype + MIN((int) (GET_REAL_LEVEL(mob) / 5), 9);
 	const auto skin = world_objects.create_from_prototype_by_vnum(vnum);
 	if (!skin) {
 		mudlog("Неверно задан номер прототипа для освежевания в act.item.cpp::create_skin!",
@@ -347,7 +347,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch) {
 		return NULL;
 	}
 
-	skin->set_val(3, int(GET_LEVEL(mob) / 11)); // установим уровень шкуры, топовая 44+
+	skin->set_val(3, int(GET_REAL_LEVEL(mob) / 11)); // установим уровень шкуры, топовая 44+
 	skin->set_parent(GET_MOB_VNUM(mob));
 	trans_obj_name(skin.get(), mob); // переносим падежи
 	for (i = 1; i <= GET_OBJ_VAL(skin, 3); i++) // топовая шкура до 4х афектов
@@ -385,7 +385,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch) {
 		}
 	}
 
-	skin->set_cost(GET_LEVEL(mob) * number(2, MAX(3, 3 * k)));
+	skin->set_cost(GET_REAL_LEVEL(mob) * number(2, MAX(3, 3 * k)));
 	skin->set_val(2, 95); //оставил 5% фейла переноса аффектов на создаваемую шмотку
 
 	act("$n умело срезал$g $o3.", FALSE, ch, skin.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -2318,7 +2318,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//При 200% заточки шмотка будет точиться на 4-5 хитролов и 4-5 дамролов
 	min_mod = ch->get_trained_skill(SKILL_UPGRADE) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
-	max_mod = MAX(1, MIN(5, (GET_LEVEL(ch) + 5 + GET_REMORT(ch) / 4) / 6));
+	max_mod = MAX(1, MIN(5, (GET_REAL_LEVEL(ch) + 5 + GET_REAL_REMORT(ch) / 4) / 6));
 	oldstate = check_unlimited_timer(obj); // запомним какая шмотка была до заточки
 	if (IS_IMMORTAL(ch)) {
 		add_dr = add_hr = 10;
@@ -2431,7 +2431,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	percent = number(1, skill_info[SKILL_ARMORED].difficulty);
 	prob = CalcCurrentSkill(ch, SKILL_ARMORED, nullptr);
 	TrainSkill(ch, SKILL_ARMORED, percent <= prob, nullptr);
-	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_LEVEL(ch) + 4) / 5);
+	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_REAL_LEVEL(ch) + 4) / 5);
 	if (percent > prob
 		|| GET_GOD_FLAG(ch, GF_GODSCURSE)) {
 		act("Но только испортили $S.", FALSE, ch, obj, 0, TO_CHAR);
@@ -2720,8 +2720,8 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				GET_HIT(vict) += add;
 			} else {
 				percent = CalcCurrentSkill(ch, SKILL_AID, vict);
-				prob = GET_LEVEL(ch) * percent * 0.5;
-				send_to_char(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GET_LEVEL(vict), prob, percent);
+				prob = GET_REAL_LEVEL(ch) * percent * 0.5;
+				send_to_char(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GET_REAL_LEVEL(vict), prob, percent);
 				GET_HIT(vict) += prob;
 				GET_HIT(vict) = MIN(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
 				update_pos(vict);
@@ -2838,7 +2838,7 @@ void do_poisoned(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	int cost = MIN(GET_OBJ_VAL(cont, 1), GET_LEVEL(ch) <= 10 ? 1 : GET_LEVEL(ch) <= 20 ? 2 : 3);
+	int cost = MIN(GET_OBJ_VAL(cont, 1), GET_REAL_LEVEL(ch) <= 10 ? 1 : GET_REAL_LEVEL(ch) <= 20 ? 2 : 3);
 	cont->set_val(1, cont->get_val(1) - cost);
 	weight_change_object(cont, -cost);
 	if (!GET_OBJ_VAL(cont, 1)) {
@@ -2935,7 +2935,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch) {
 	int num;
-	switch (GET_LEVEL(mob) / 11) {
+	switch (GET_REAL_LEVEL(mob) / 11) {
 		case 0: num = 15 * animals_levels[0] / 2201; // приводим пропорцией к количеству зверья на 15.11.2015 в мире
 			if (number(1, 100) <= num)
 				return true;
@@ -3122,7 +3122,7 @@ void feed_charmice(CHAR_DATA *ch, char *arg) {
 	int mob_level = 1;
 	// труп не игрока
 	if (GET_OBJ_VAL(obj, 2) != -1) {
-		mob_level = GET_LEVEL(mob_proto + real_mobile(GET_OBJ_VAL(obj, 2)));
+		mob_level = GET_REAL_LEVEL(mob_proto + real_mobile(GET_OBJ_VAL(obj, 2)));
 	}
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;

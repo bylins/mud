@@ -51,7 +51,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 		dmg.process(ch, vict);
 		cooldown = 2;
 	} else {
-		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GET_LEVEL(ch) / 6;
+		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GET_REAL_LEVEL(ch) / 6;
 		if (!IS_NPC(ch) || (IS_NPC(ch) && GET_EQ(ch, WEAR_FEET))) {
 			int modi = MAX(0, (ch->get_skill(SKILL_KICK) + 4) / 5);
 			dam += number(0, modi * 2);
@@ -76,21 +76,21 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
 							af.type = SPELL_BATTLE;
 							af.bitvector = to_underlying(EAffectFlag::AFF_STOPRIGHT);
-							af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
+							af.duration = pc_duration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 						} else if (!AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам левую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он выживет.";
 							af.bitvector = to_underlying(EAffectFlag::AFF_STOPLEFT);
-							af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
+							af.duration = pc_duration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 						} else {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, $M теперь даже бить вас нечем.";
 							to_vict = "Мощный удар ноги $n1 вывел вас из строя.";
 							to_room = "Каблук сапога $n1 надолго запомнится $N2, $M теперь даже биться нечем.";
 							af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-							af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 4, 0, 0, 0, 0);
+							af.duration = pc_duration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 						}
 						dam *= 2;
@@ -101,7 +101,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
 						af.type = SPELL_BATTLE;
 						af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
-						af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
+						af.duration = pc_duration(vict, 3 + GET_REAL_REMORT(ch) / 5, 0, 0, 0, 0);
 						af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 						dam *= 2;
 						break;

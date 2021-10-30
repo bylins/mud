@@ -220,7 +220,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 	}
 /*	if (type == OBJ_TRIGGER){
 	sprintf(buf2, "dg_cast OBJ_TRIGGER: имя кастера: %s, его уровень: %d, его морты: %d, закл: %s.", GET_NAME(caster),
-		GET_LEVEL(caster), GET_REMORT(caster), spell_info[spellnum].name);
+		GET_REAL_LEVEL(caster), GET_REAL_REMORT(caster), spell_info[spellnum].name);
 	trig_log(trig, buf2);
 	}
 */
@@ -257,7 +257,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 		target = find_dg_cast_target(spellnum, arg, caster, &tch, &tobj, &troom);
 	}
 	if (target) {
-		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster));
+		call_magic(caster, tch, tobj, troom, spellnum, GET_REAL_LEVEL(caster));
 	} else if (spellnum != SPELL_RESSURECTION && spellnum != SPELL_ANIMATE_DEAD) {
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);
