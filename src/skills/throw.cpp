@@ -52,7 +52,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				AFFECT_DATA<EApplyLocation> af;
 				af.type = SPELL_BATTLE;
 				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
-				af.duration = pc_duration(technique.rival(), 2, GET_LEVEL(technique.actor()), 9, 6, 2);
+				af.duration = pc_duration(technique.rival(), 2, GET_REAL_LEVEL(technique.actor()), 9, 6, 2);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
 			});

@@ -494,7 +494,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			}
 			// дт иммам и нубам с 0 мортов
 			if (next_room->get_flag(ROOM_DEATH)
-				&& (GET_REMORT(ch) <= 5
+				&& (GET_REAL_REMORT(ch) <= 5
 					|| view_dt || IS_IMMORTAL(ch))) {
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}

@@ -86,7 +86,7 @@ void init() {
 /// \return true - если ch в коде считается нубом и соотв-но претендует на помощь
 ///
 bool is_noob(const CHAR_DATA *ch) {
-	if (ch->get_level() > MAX_LEVEL || ch->get_remort() > 0) {
+	if (ch->get_level() > MAX_LEVEL || GET_REAL_REMORT(ch) > 0) {
 		return false;
 	}
 	return true;

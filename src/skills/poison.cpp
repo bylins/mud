@@ -61,7 +61,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num) {
 		af.type = SPELL_ACONITUM_POISON;
 		af.location = APPLY_ACONITUM_POISON;
 		af.duration = 7;
-		af.modifier = GET_LEVEL(ch) / 2 + 5;
+		af.modifier = GET_REAL_LEVEL(ch) / 2 + 5;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
 		if (poison_affect_join(vict, af)) {
@@ -209,7 +209,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
 				// минус статы (1..5)
 				af.type = SPELL_POISON;
 				af.duration = 30;
-				af.modifier = -GET_LEVEL(ch) / 6;
+				af.modifier = -GET_REAL_LEVEL(ch) / 6;
 				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 				af.battleflag = AF_SAME_TIME;
 
@@ -229,7 +229,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
 				af.type = SPELL_POISON;
 				af.duration = 30;
 				af.location = APPLY_SAVING_REFLEX;
-				af.modifier = GET_LEVEL(ch) / 6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
+				af.modifier = GET_REAL_LEVEL(ch) / 6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
 				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 				af.battleflag = AF_SAME_TIME;
 				affect_join(vict, af, false, false, false, false);
@@ -244,7 +244,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
 				af.type = SPELL_POISON;
 				af.duration = 30;
 				af.location = APPLY_INITIATIVE;
-				af.modifier = -GET_LEVEL(ch) / 6;
+				af.modifier = -GET_REAL_LEVEL(ch) / 6;
 				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 				af.battleflag = AF_SAME_TIME;
 				affect_join(vict, af, false, false, false, false);
@@ -259,7 +259,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
 				af.type = SPELL_POISON;
 				af.duration = 30;
 				af.location = APPLY_RESIST_VITALITY;
-				af.modifier = -GET_LEVEL(ch) / 6;
+				af.modifier = -GET_REAL_LEVEL(ch) / 6;
 				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 				af.battleflag = AF_SAME_TIME;
 				affect_join(vict, af, false, false, false, false);
@@ -283,7 +283,7 @@ void poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int modifier) {
 	// change strength
 	af[0].type = SPELL_POISON;
 	af[0].location = APPLY_STR;
-	af[0].duration = pc_duration(vict, 0, MAX(2, GET_LEVEL(ch) - GET_LEVEL(vict)), 2, 0, 1);
+	af[0].duration = pc_duration(vict, 0, MAX(2, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)), 2, 0, 1);
 	af[0].modifier = -MIN(2, (modifier + 29) / 40);
 	af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[0].battleflag = AF_SAME_TIME;
@@ -305,7 +305,7 @@ void poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int modifier) {
 	af[3].type = SPELL_POISON;
 	af[3].location = APPLY_POISON;
 	af[3].duration = af[0].duration;
-	af[3].modifier = GET_LEVEL(ch);
+	af[3].modifier = GET_REAL_LEVEL(ch);
 	af[3].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[3].battleflag = AF_SAME_TIME;
 

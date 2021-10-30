@@ -157,7 +157,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 				save = 1;
 				number = atoi(buf2) * 100;
 			}
-		} else if (subcmd == SCMD_OLC_ZEDIT && (GET_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO))) {
+		} else if (subcmd == SCMD_OLC_ZEDIT && (GET_REAL_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO))) {
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
 			/*
@@ -228,14 +228,14 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 		return;
 	}
 	// Check if zone is protected from editing
-	if ((zone_table[OLC_ZNUM(d)].locked) && (GET_LEVEL(ch) != 34)) {
+	if ((zone_table[OLC_ZNUM(d)].locked) && (GET_REAL_LEVEL(ch) != 34)) {
 		send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 		delete d->olc;
 		return;
 	}
 
 	// * Everyone but IMPLs can only edit zones they have been assigned.
-	if (GET_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) < LVL_IMPL) {
 		if (!Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
 			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].vnum != GET_OLC_ZONE(ch))) {
 				send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);

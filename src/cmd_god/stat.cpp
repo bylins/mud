@@ -52,7 +52,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	struct follow_type *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
 	int k_room = -1;
 	if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k)))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
@@ -204,7 +204,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	}
 
 	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
-			CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+			CCYEL(ch, C_NRM), GET_REAL_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
 			GET_EXP(k), CCNRM(ch, C_NRM), tmp_buf, GET_ALIGNMENT(k));
 
 	send_to_char(buf, ch);
@@ -236,7 +236,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 				k->get_hryvn(), k->get_nogata());
 
 		//. Display OLC zone for immorts .
-		if (GET_LEVEL(ch) >= LVL_IMMORT) {
+		if (GET_REAL_LEVEL(ch) >= LVL_IMMORT) {
 			sprintf(buf1, ", %sOLC[%d]%s", CCGRN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
 			strcat(buf, buf1);
 		}
@@ -496,7 +496,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, ",", 4);
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-	sprintf(buf, "&GПеревоплощений: %d\r\n&n", GET_REMORT(k));
+	sprintf(buf, "&GПеревоплощений: %d\r\n&n", GET_REAL_REMORT(k));
 	send_to_char(buf, ch);
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty()) {
@@ -1132,7 +1132,7 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
 
 	if (is_abbrev(buf1, "room") && level >= LVL_BUILDER) {
 		int vnum, rnum = NOWHERE;
@@ -1187,7 +1187,7 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			Player t_vict;
 			if (load_char(buf2, &t_vict) > -1) {
-				if (GET_LEVEL(&t_vict) > level) {
+				if (GET_REAL_LEVEL(&t_vict) > level) {
 					send_to_char("Извините, вам это еще рано.\r\n", ch);
 				} else {
 					Clan::SetClanData(&t_vict);

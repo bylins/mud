@@ -440,7 +440,9 @@ class CHAR_DATA : public ProtectedCharacterData {
 	bool is_druid() const { return chclass_ == CLASS_DRUID; }
 
 	short get_level() const;
+	short get_level_add() const;
 	void set_level(short level);
+	void set_level_add(short level);
 
 	long get_idnum() const;
 	void set_idnum(long idnum);
@@ -452,7 +454,9 @@ class CHAR_DATA : public ProtectedCharacterData {
 	void set_exp(long exp);
 
 	short get_remort() const;
+	short get_remort_add() const;
 	void set_remort(short num);
+	void set_remort_add(short num);
 
 	time_t get_last_logon() const;
 	void set_last_logon(time_t num);
@@ -691,6 +695,8 @@ class CHAR_DATA : public ProtectedCharacterData {
 	short chclass_;
 	// уровень
 	short level_;
+	// плюс на уровень
+	short level_add_;
 	// id чара (не тот, что для тригов), у мобов -1
 	long idnum_;
 	// uid (бывший unique) чара
@@ -700,6 +706,8 @@ class CHAR_DATA : public ProtectedCharacterData {
 	long exp_;
 	// реморты
 	short remorts_;
+	// плюсы на реморт
+	short remorts_add_;
 	// время последнего входа в игру //by kilnik
 	time_t last_logon_;
 	// последний вызов базара

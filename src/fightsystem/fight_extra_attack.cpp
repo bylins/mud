@@ -19,7 +19,7 @@ void WeaponMagicalAttack::set_attack(CHAR_DATA *ch, CHAR_DATA *victim) {
 		return;
 	}
 
-	mag_single_target(GET_LEVEL(ch), ch, victim, NULL, GET_OBJ_VAL(mag_cont, 0), SAVING_REFLEX);
+	mag_single_target(GET_REAL_LEVEL(ch), ch, victim, NULL, GET_OBJ_VAL(mag_cont, 0), SAVING_REFLEX);
 }
 
 bool WeaponMagicalAttack::set_count_attack(CHAR_DATA *ch) {

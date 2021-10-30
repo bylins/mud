@@ -136,7 +136,7 @@ void check_light(CHAR_DATA *ch, int was_equip, int was_single, int was_holylight
 			world[ch->in_room]->gdark = MAX(0, world[ch->in_room]->gdark - koef);
 	}
 
-/*	if (GET_LEVEL(ch) >= LVL_GOD)
+/*	if (GET_REAL_LEVEL(ch) >= LVL_GOD)
 	{
 		sprintf(buf,"Light:%d Glight:%d gdark%d koef:%d\r\n",world[ch->in_room]->light,world[ch->in_room]->glight,world[ch->in_room]->gdark,koef);
 		send_to_char(buf,ch);
@@ -335,7 +335,7 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 				0,
 				ch,
 				TO_ROOM | TO_ARENA_LISTEN);
-			call_magic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_LEVEL(caster));
+			call_magic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_REAL_LEVEL(caster));
 		}
 	}
 }
@@ -884,7 +884,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj,
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 								} else {
-									mag_affects(GET_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
+									mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
 								}
 							}
 						}
@@ -916,7 +916,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj,
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									FALSE, ch, obj, 0, TO_CHAR);
 							} else {
-								mag_affects(GET_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
+								mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
 							}
 						}
 					}
@@ -1020,7 +1020,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos) {
 
 	if (!IS_NPC(ch) || IS_CHARMICE(ch)) {
 		CHAR_DATA *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
-		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REMORT(master))
+		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REAL_REMORT(master))
 			&& !IS_IMMORTAL(master)) {
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 						 GET_OBJ_PNAME(obj, 1).c_str(),
@@ -1032,7 +1032,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos) {
 				obj_to_char(obj, ch);
 			}
 			return;
-		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GET_REMORT(master))
+		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GET_REAL_REMORT(master))
 			&& !IS_IMMORTAL(master)) {
 			send_to_char(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
 						 GET_OBJ_PNAME(obj, 1).c_str(),
@@ -1103,7 +1103,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos) {
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							FALSE, ch, obj, 0, TO_CHAR);
 					} else {
-						mag_affects(GET_LEVEL(ch), ch, ch, j.aff_spell, SAVING_WILL);
+						mag_affects(GET_REAL_LEVEL(ch), ch, ch, j.aff_spell, SAVING_WILL);
 					}
 				}
 			}
@@ -2703,7 +2703,7 @@ void check_portals(CHAR_DATA *ch) {
 	// Пробегаем max_p порталы
 	for (tmp = GET_PORTALS(ch); tmp;) {
 		port = get_portal(tmp->vnum, NULL);
-		if (!port || (portals >= max_p) || (MAX(1, port->level - GET_REMORT(ch) / 2) > GET_LEVEL(ch))) {
+		if (!port || (portals >= max_p) || (MAX(1, port->level - GET_REAL_REMORT(ch) / 2) > GET_REAL_LEVEL(ch))) {
 			if (dlt) {
 				dlt->next = tmp->next;
 			} else {
@@ -2731,12 +2731,12 @@ float get_effective_cha(CHAR_DATA *ch) {
 	key_value_add = MIN(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
-	if (GET_LEVEL(ch) <= 14) {
+	if (GET_REAL_LEVEL(ch) <= 14) {
 		eff_cha = key_value
-			- 6 * (float) (14 - GET_LEVEL(ch)) / 13.0 + key_value_add
-			* (0.2 + 0.3 * (float) (GET_LEVEL(ch) - 1) / 13.0);
-	} else if (GET_LEVEL(ch) <= 26) {
-		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_LEVEL(ch) - 14) / 12.0);
+			- 6 * (float) (14 - GET_REAL_LEVEL(ch)) / 13.0 + key_value_add
+			* (0.2 + 0.3 * (float) (GET_REAL_LEVEL(ch) - 1) / 13.0);
+	} else if (GET_REAL_LEVEL(ch) <= 26) {
+		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_REAL_LEVEL(ch) - 14) / 12.0);
 	} else {
 		eff_cha = key_value + key_value_add;
 	}
@@ -2759,12 +2759,12 @@ float get_effective_wis(CHAR_DATA *ch, int spellnum) {
 	}
 
 	float eff_wis = 0.0;
-	if (GET_LEVEL(ch) <= 14) {
+	if (GET_REAL_LEVEL(ch) <= 14) {
 		eff_wis = key_value
-			- 6 * (float) (14 - GET_LEVEL(ch)) / 13.0 + key_value_add
-			* (0.4 + 0.6 * (float) (GET_LEVEL(ch) - 1) / 13.0);
-	} else if (GET_LEVEL(ch) <= 26) {
-		eff_wis = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_LEVEL(ch) - 14) / 12.0);
+			- 6 * (float) (14 - GET_REAL_LEVEL(ch)) / 13.0 + key_value_add
+			* (0.4 + 0.6 * (float) (GET_REAL_LEVEL(ch) - 1) / 13.0);
+	} else if (GET_REAL_LEVEL(ch) <= 26) {
+		eff_wis = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_REAL_LEVEL(ch) - 14) / 12.0);
 	} else {
 		eff_wis = key_value + key_value_add;
 	}
@@ -2780,12 +2780,12 @@ float get_effective_int(CHAR_DATA *ch) {
 	key_value_add = MIN(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
-	if (GET_LEVEL(ch) <= 14) {
+	if (GET_REAL_LEVEL(ch) <= 14) {
 		eff_int = key_value
-			- 6 * (float) (14 - GET_LEVEL(ch)) / 13.0 + key_value_add
-			* (0.2 + 0.3 * (float) (GET_LEVEL(ch) - 1) / 13.0);
-	} else if (GET_LEVEL(ch) <= 26) {
-		eff_int = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_LEVEL(ch) - 14) / 12.0);
+			- 6 * (float) (14 - GET_REAL_LEVEL(ch)) / 13.0 + key_value_add
+			* (0.2 + 0.3 * (float) (GET_REAL_LEVEL(ch) - 1) / 13.0);
+	} else if (GET_REAL_LEVEL(ch) <= 26) {
+		eff_int = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_REAL_LEVEL(ch) - 14) / 12.0);
 	} else {
 		eff_int = key_value + key_value_add;
 	}
@@ -2816,7 +2816,7 @@ int get_player_charms(CHAR_DATA *ch, int spellnum) {
 	} else {
 		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms;
 	}
-	float remort_coeff = 1.0 + (((float) ch->get_remort() - 9.0) * 1.2) / 100.0;
+	float remort_coeff = 1.0 + (((float) GET_REAL_REMORT(ch) - 9.0) * 1.2) / 100.0;
 	if (remort_coeff > 1.0f) {
 		r_hp *= remort_coeff;
 	}
@@ -2846,20 +2846,20 @@ int mag_manacost(const CHAR_DATA *ch, int spellnum) {
 	}
 
 //	Мем рунных профессий(на сегодня только волхвы)
-	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum)) {
+	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= spell_create_level(ch, spellnum)) {
 		result = static_cast<int>(DRUID_MANA_COST_MODIFIER
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
 			* 60
 			* MAX(SpINFO.mana_max
 					  - (SpINFO.mana_change
-						  * (GET_LEVEL(ch)
+						  * (GET_REAL_LEVEL(ch)
 							  - spell_create[spellnum].runes.min_caster_level)),
 				  SpINFO.mana_min));
 	} else {
-		if (!IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
-			&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
-			result = MAX(SpINFO.mana_max - (SpINFO.mana_change * (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))), SpINFO.mana_min);
+		if (!IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
+			&& GET_REAL_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
+			result = MAX(SpINFO.mana_max - (SpINFO.mana_change * (GET_REAL_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))), SpINFO.mana_min);
 			if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
 				result = result * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
 			} else {
@@ -2985,8 +2985,8 @@ int *MemQ_slots(CHAR_DATA *ch) {
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
 			continue;
 		sloti = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		if (MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)
-			|| MIN_CAST_REM(spell_info[i], ch) > GET_REMORT(ch)) {
+		if (MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch)
+			|| MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch)) {
 			GET_SPELL_MEM(ch, i) = 0;
 			continue;
 		}
@@ -3003,8 +3003,8 @@ int *MemQ_slots(CHAR_DATA *ch) {
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 &&
-				MIN_CAST_LEV(spell_info[q[0]->spellnum], ch) <= GET_LEVEL(ch)
-				&& MIN_CAST_REM(spell_info[q[0]->spellnum], ch) <= GET_REMORT(ch)) {
+				MIN_CAST_LEV(spell_info[q[0]->spellnum], ch) <= GET_REAL_LEVEL(ch)
+				&& MIN_CAST_REM(spell_info[q[0]->spellnum], ch) <= GET_REAL_REMORT(ch)) {
 				q = &(q[0]->link);
 			} else {
 				if (q == &ch->MemQueue.queue)

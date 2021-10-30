@@ -37,9 +37,9 @@ int GroupPenaltyCalculator::get() const {
 }
 
 bool GroupPenaltyCalculator::penalty_by_leader(const CHAR_DATA *player, int &penalty) const {
-	const int player_remorts = static_cast<int>(GET_REMORT(player));
+	const int player_remorts = static_cast<int>(GET_REAL_REMORT(player));
 	const int player_class = static_cast<int>(GET_CLASS(player));
-	const int player_level = GET_LEVEL(player);
+	const int player_level = GET_REAL_LEVEL(player);
 
 	if (IS_NPC(player)) {
 		log("LOGIC ERROR: try to get penalty for NPC [%s], VNum: %d\n",

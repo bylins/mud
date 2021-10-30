@@ -122,7 +122,7 @@ int exchange(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 					return 1;
 				}
 		*/
-		if (GET_LEVEL(ch) < EXCHANGE_MIN_CHAR_LEV && !GET_REMORT(ch)) {
+		if (GET_REAL_LEVEL(ch) < EXCHANGE_MIN_CHAR_LEV && !GET_REAL_REMORT(ch)) {
 			sprintf(buf1,
 					"Вам стоит достичь хотя бы %d уровня, чтобы пользоваться базаром.\r\n",
 					EXCHANGE_MIN_CHAR_LEV);
@@ -152,13 +152,13 @@ int exchange(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 			exchange_offers(ch, argument);
 		else if (is_abbrev(arg1, "фильтрация") || is_abbrev(arg1, "filter"))
 			exchange_setfilter(ch, argument);
-		else if (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
+		else if (is_abbrev(arg1, "save") && (GET_REAL_LEVEL(ch) >= LVL_IMPL))
 			exchange_database_save();
-		else if (is_abbrev(arg1, "savebackup") && (GET_LEVEL(ch) >= LVL_IMPL))
+		else if (is_abbrev(arg1, "savebackup") && (GET_REAL_LEVEL(ch) >= LVL_IMPL))
 			exchange_database_save(true);
-		else if (is_abbrev(arg1, "reload") && (GET_LEVEL(ch) >= LVL_IMPL))
+		else if (is_abbrev(arg1, "reload") && (GET_REAL_LEVEL(ch) >= LVL_IMPL))
 			exchange_database_reload(false);
-		else if (is_abbrev(arg1, "reloadbackup") && (GET_LEVEL(ch) >= LVL_IMPL))
+		else if (is_abbrev(arg1, "reloadbackup") && (GET_REAL_LEVEL(ch) >= LVL_IMPL))
 			exchange_database_reload(true);
 		else
 			send_to_char(info_message, ch);
@@ -185,7 +185,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -248,12 +248,12 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		  ? EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
-		&& (GET_LEVEL(ch) < LVL_IMPL)) {
+		&& (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
 		send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list, counter = 0, counter_ming = 0;
-		 j && (counter + (counter_ming / 20) <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REMORT(ch) * 2));
+		 j && (counter + (counter_ming / 20) <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REAL_REMORT(ch) * 2));
 		 j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch)) {
@@ -266,7 +266,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		}
 	}
 
-	if (counter + (counter_ming / 20) >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REMORT(ch) * 2)) {
+	if (counter + (counter_ming / 20) >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REAL_REMORT(ch) * 2)) {
 		send_to_char("Вы уже выставили на базар максимальное количество предметов!\r\n", ch);
 		return false;
 	}
@@ -317,7 +317,7 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -334,7 +334,7 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 		send_to_char("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_LEVEL(ch) < LVL_IMPL)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
 		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
@@ -348,7 +348,7 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 	}
 	pay = newcost - GET_EXCHANGE_ITEM_COST(item);
 	if (pay > 0)
-		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_LEVEL(ch) < LVL_IMPL)) {
+		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
 			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 			return false;
 		}
@@ -386,7 +386,7 @@ int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -404,7 +404,7 @@ int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 		send_to_char("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_LEVEL(ch) < LVL_IMPL)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
 		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
@@ -524,11 +524,11 @@ int exchange_identify(CHAR_DATA *ch, char *arg) {
 		return false;
 	}
 
-	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
 		send_to_char("Господи, а ведь смертные за это деньги платят.\r\n", ch);
 		return false;
 	}
-	if ((ch->get_total_gold() < (EXCHANGE_IDENT_PAY)) && (GET_LEVEL(ch) < LVL_IMPL)) {
+	if ((ch->get_total_gold() < (EXCHANGE_IDENT_PAY)) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
 		send_to_char("У вас не хватит на это денег!\r\n", ch);
 		return false;
 	}
@@ -560,7 +560,7 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -582,7 +582,7 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 		send_to_char("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
 		return false;
 	}
-	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GET_LEVEL(ch) < LVL_IMPL)) {
+	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
 		send_to_char("У вас в банке не хватает денег на этот лот!\r\n", ch);
 		return false;
 	}
@@ -828,7 +828,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 	}
 */
 	else if (is_abbrev(arg1, "аффект") || is_abbrev(arg1, "affect")) {
-		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GET_LEVEL(ch) < LVL_IMPL) {
+		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GET_REAL_LEVEL(ch) < LVL_IMPL) {
 			send_to_char("У вас не хватит на это денег!\r\n", ch);
 			return 0;
 		}

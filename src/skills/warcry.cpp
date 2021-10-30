@@ -120,7 +120,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	say_spell(ch, spellnum, tch, tobj);
 
-	if (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)) >= 0) {
+	if (call_magic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 		if (!WAITLESS(ch)) {
 			if (!CHECK_WAIT(ch))
 				WAIT_STATE(ch, PULSE_VIOLENCE);

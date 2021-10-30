@@ -481,7 +481,7 @@ class CharacterWrapper : public Wrapper<CHAR_DATA> {
 
 	short get_remort() const {
 		Ensurer ch(*this);
-		return ch->get_remort();
+		return GET_REAL_REMORT(ch);
 	}
 
 	int get_skill(int skill_num) const {

@@ -306,10 +306,12 @@ void CHAR_DATA::zero_init() {
 	// на плеер-таблицу
 	chclass_ = 0;
 	level_ = 0;
+	level_add_ = 0,
 	idnum_ = 0;
 	uid_ = 0;
 	exp_ = 0;
 	remorts_ = 0;
+	remorts_add_ = 0;
 	last_logon_ = 0;
 	gold_ = 0;
 	bank_gold_ = 0;
@@ -408,7 +410,7 @@ void CHAR_DATA::purge() {
 	if (!IS_NPC(this) && !get_name().empty()) {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
-			player_table[id].level = GET_LEVEL(this);
+			player_table[id].level = GET_REAL_LEVEL(this);
 			player_table[id].remorts = get_remort();
 			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 		}
@@ -829,7 +831,7 @@ bool AWAKE(const CHAR_DATA *ch) {
 bool OK_GAIN_EXP(const CHAR_DATA *ch, const CHAR_DATA *victim) {
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
-			|| !(GET_LEVEL(ch) == NAME_LEVEL))
+			|| !(GET_REAL_LEVEL(ch) == NAME_LEVEL))
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& IS_NPC(victim)
 		&& (GET_EXP(victim) > 0)
@@ -1007,12 +1009,22 @@ short CHAR_DATA::get_level() const {
 	return level_;
 }
 
+short CHAR_DATA::get_level_add() const {
+	return level_add_;
+}
+
 void CHAR_DATA::set_level(short level) {
 	if (IS_NPC(this)) {
 		level_ = std::max(static_cast<short>(0), std::min(MAX_MOB_LEVEL, level));
 	} else {
 		level_ = std::max(static_cast<short>(0), std::min(LVL_IMPL, level));
 	}
+}
+
+void CHAR_DATA::set_level_add(short level_add) {
+	// level_ + level_add_ не должно быть больше максимального уровня
+	// все проверки находятся в GET_REAL_LEVEL()
+	level_add_ = level_add;
 }
 
 long CHAR_DATA::get_idnum() const {
@@ -1047,8 +1059,16 @@ short CHAR_DATA::get_remort() const {
 	return remorts_;
 }
 
+short CHAR_DATA::get_remort_add() const {
+	return remorts_add_;
+}
+
 void CHAR_DATA::set_remort(short num) {
 	remorts_ = MAX(0, num);
+}
+
+void CHAR_DATA::set_remort_add(short num) {
+	remorts_add_ = num;
 }
 
 time_t CHAR_DATA::get_last_logon() const {
@@ -1645,7 +1665,7 @@ void CHAR_DATA::reset_morph() {
 	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), TRUE, this, 0, 0, TO_ROOM);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(SKILL_MORPH, (MIN(kSkillCapOnZeroRemort + GET_REMORT(this) * 5, value)));
+	this->set_morphed_skill(SKILL_MORPH, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 

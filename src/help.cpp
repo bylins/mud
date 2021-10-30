@@ -740,7 +740,7 @@ void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	UserSearch user_search(ch);
 	// trust_level справки для демигодов - LVL_IMMORT
-	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? LVL_IMMORT : GET_LEVEL(ch);
+	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? LVL_IMMORT : GET_REAL_LEVEL(ch);
 	// первый аргумент без пробелов, заодно в нижний регистр
 	one_argument(argument, arg);
 	// Получаем topic_num для индексации топика

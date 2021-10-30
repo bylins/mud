@@ -1329,7 +1329,7 @@ void do_start(CHAR_DATA *ch, int newbie) {
 	ch->set_level(1);
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
-	if (newbie || (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0)) {
+	if (newbie || (GET_REAL_REMORT(ch) >= 9 && GET_REAL_REMORT(ch) % 3 == 0)) {
 		ch->set_skill(SKILL_DRUNKOFF, 10);
 	}
 
@@ -1383,7 +1383,7 @@ void do_start(CHAR_DATA *ch, int newbie) {
 	}
 
 	advance_level(ch);
-	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_LEVEL(ch));
+	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_REAL_LEVEL(ch));
 	mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
@@ -1407,7 +1407,7 @@ void check_max_hp(CHAR_DATA *ch) {
 
 // * Обработка событий при левел-апе.
 void levelup_events(CHAR_DATA *ch) {
-	if (SpamSystem::MIN_OFFTOP_LVL == GET_LEVEL(ch)
+	if (SpamSystem::MIN_OFFTOP_LVL == GET_REAL_LEVEL(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
 		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
@@ -1415,10 +1415,10 @@ void levelup_events(CHAR_DATA *ch) {
 					 "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
 					 CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}
-	if (EXCHANGE_MIN_CHAR_LEV == GET_LEVEL(ch)
+	if (EXCHANGE_MIN_CHAR_LEV == GET_REAL_LEVEL(ch)
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
 		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
-		if (GET_REMORT(ch) <= 0) {
+		if (GET_REAL_REMORT(ch) <= 0) {
 			send_to_char(ch,
 						 "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
 						 CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
@@ -2276,8 +2276,8 @@ int level_exp(CHAR_DATA *ch, int level) {
 
 	// Exp required for normal mortals is below
 	float exp_modifier;
-	if (GET_REMORT(ch) < MAX_EXP_COEFFICIENTS_USED)
-		exp_modifier = exp_coefficients[GET_REMORT(ch)];
+	if (GET_REAL_REMORT(ch) < MAX_EXP_COEFFICIENTS_USED)
+		exp_modifier = exp_coefficients[GET_REAL_REMORT(ch)];
 	else
 		exp_modifier = exp_coefficients[MAX_EXP_COEFFICIENTS_USED];
 

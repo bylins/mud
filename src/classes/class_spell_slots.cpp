@@ -1163,7 +1163,7 @@ MaxClassSlot max_slots;
 int slot_for_char(CHAR_DATA *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
-	if (slot_num < 1 || slot_num > MAX_SLOT || GET_LEVEL(ch) < 1 || IS_NPC(ch)) {
+	if (slot_num < 1 || slot_num > MAX_SLOT || GET_REAL_LEVEL(ch) < 1 || IS_NPC(ch)) {
 		return -1;
 	}
 
@@ -1180,31 +1180,31 @@ int slot_for_char(CHAR_DATA *ch, int slot_num) {
 	switch (GET_CLASS(ch)) {
 		case CLASS_BATTLEMAGE:
 		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE: wis_is = MAG_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
+		case CLASS_CHARMMAGE: wis_is = MAG_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
 			break;
-		case CLASS_NECROMANCER: wis_is = NECROMANCER_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
+		case CLASS_NECROMANCER: wis_is = NECROMANCER_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
 			break;
 		case CLASS_CLERIC:
-			if (GET_LEVEL(ch) >= MIN_CL_LEVEL && slot_num < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS) {
+			if (GET_REAL_LEVEL(ch) >= MIN_CL_LEVEL && slot_num < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS) {
 				wis_block = MIN(MAX_CL_WIS, GET_REAL_WIS(ch)) - MIN_CL_WIS;
 				wis_block = wis_block / CL_WIS_DIV;
 				wis_block = wis_block * (MAX_CL_LEVEL - MIN_CL_LEVEL + 1);
-				wis_line = GET_LEVEL(ch) - MIN_CL_LEVEL;
+				wis_line = GET_REAL_LEVEL(ch) - MIN_CL_LEVEL;
 				wis_is = CLERIC_SLOTS[wis_block + wis_line][slot_num];
 			}
 			break;
 		case CLASS_PALADINE:
-			if (GET_LEVEL(ch) >= MIN_PA_LEVEL && slot_num < MAX_PA_SLOT && GET_REAL_WIS(ch) >= MIN_PA_WIS) {
+			if (GET_REAL_LEVEL(ch) >= MIN_PA_LEVEL && slot_num < MAX_PA_SLOT && GET_REAL_WIS(ch) >= MIN_PA_WIS) {
 				wis_block = MIN(MAX_PA_WIS, GET_REAL_WIS(ch)) - MIN_PA_WIS;
 				wis_block = wis_block / PA_WIS_DIV;
 				wis_block = wis_block * (MAX_PA_LEVEL - MIN_PA_LEVEL + 1);
-				wis_line = GET_LEVEL(ch) - MIN_PA_LEVEL;
+				wis_line = GET_REAL_LEVEL(ch) - MIN_PA_LEVEL;
 				wis_is = PALADINE_SLOTS[wis_block + wis_line][slot_num];
 			}
 			break;
 		case CLASS_MERCHANT:
 			if (slot_num < MAX_ME_SLOT) {
-				wis_is = MERCHANT_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
+				wis_is = MERCHANT_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
 			}
 			break;
 	}
@@ -1213,7 +1213,7 @@ int slot_for_char(CHAR_DATA *ch, int slot_num) {
 		return 0;
 	}
 
-	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REMORT(ch))
+	return ((wis_is || (GET_REAL_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REAL_REMORT(ch))
 													: 0);
 }
 

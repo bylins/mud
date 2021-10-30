@@ -1219,7 +1219,7 @@ void Clan::HouseAdd(CHAR_DATA *ch, std::string &buffer) {
 		return;
 	}
 
-	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GET_LEVEL(d->character) >= LVL_GOD)) {
+	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GET_REAL_LEVEL(d->character) >= LVL_GOD)) {
 		send_to_char("Вы не можете приписать этого игрока.\r\n", ch);
 		return;
 	}
@@ -3273,7 +3273,7 @@ void Clan::load_mod() {
 // казна дружины... команды теже самые с приставкой 'казна' в начале
 // смотреть/вкладывать могут все, снимать по привилегии, висит на стандартных банкирах
 bool Clan::BankManage(CHAR_DATA *ch, char *arg) {
-	if (IS_NPC(ch) || !CLAN(ch) || GET_LEVEL(ch) >= LVL_IMMORT)
+	if (IS_NPC(ch) || !CLAN(ch) || GET_REAL_LEVEL(ch) >= LVL_IMMORT)
 		return false;
 
 	std::string buffer = arg, buffer2;
@@ -4271,7 +4271,7 @@ void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&stufina);
 
 	if (is_abbrev(arg, "характеристики") || is_abbrev(arg, "identify") || is_abbrev(arg, "опознать")) {
-		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GET_LEVEL(ch) < LVL_IMPL)) {
+		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
 			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
@@ -4497,7 +4497,7 @@ void Clan::HouseStat(CHAR_DATA *ch, std::string &buffer) {
 			if (!d) {
 				continue;
 			} else if (!IS_IMMORTAL(d->character)) {
-				it.second->level = GET_LEVEL(d->character);
+				it.second->level = GET_REAL_LEVEL(d->character);
 				it.second->class_abbr = CLASS_ABBR(d->character);
 				it.second->remort = GET_GOD_FLAG(d->character, GF_REMORT) ? true : false;
 			}
@@ -4632,7 +4632,7 @@ bool Clan::ChestShow(OBJ_DATA *obj, CHAR_DATA *ch) {
 // +/- клан-экспы
 void Clan::SetClanExp(CHAR_DATA *ch, int add) {
 	// шоб не читили
-	if (GET_LEVEL(ch) >= LVL_IMMORT) {
+	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT) {
 		return;
 	}
 
@@ -4677,7 +4677,7 @@ void Clan::SetClanExp(CHAR_DATA *ch, int add) {
 // добавление экспы для топа кланов и мемберу в зачетку
 void Clan::AddTopExp(CHAR_DATA *ch, int add_exp) {
 	// шоб не читили
-	if (GET_LEVEL(ch) >= LVL_IMMORT)
+	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT)
 		return;
 
 	CLAN_MEMBER(ch)->exp += add_exp;

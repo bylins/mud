@@ -283,6 +283,14 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
 
+short GET_REAL_LEVEL(const CHAR_DATA *ch);
+short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> *ch);
+short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> &ch);
+
+short GET_REAL_REMORT(const CHAR_DATA *ch);
+short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> *ch);
+short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch);
+
 #define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMMORT)
 #define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GOD)
 #define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GRGOD)
@@ -562,9 +570,9 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 #define CLR_MEMORY(ch)  (memset((ch)->Memory,0,SPELLS_COUNT+1))
-#define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
+#define IS_CODER(ch)    (GET_REAL_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
-#define MAX_PORTALS(ch)  ((GET_LEVEL(ch)/3)+GET_REMORT(ch))
+#define MAX_PORTALS(ch)  ((GET_REAL_LEVEL(ch)/3)+GET_REAL_REMORT(ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->BattleAffects.get(flag))
 #define SET_AF_BATTLE(ch, flag) ((ch)->BattleAffects.set(flag))
@@ -609,11 +617,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define STRING_WIDTH(ch)  ((ch)->player_specials->saved.stringWidth)
 //Polud
 #define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
-
-// * I wonder if this definition of GET_REAL_LEVEL should be the definition of GET_LEVEL?  JE
-#define GET_REAL_LEVEL(ch) \
-   (ch->desc && ch->desc->original ? GET_LEVEL(ch->desc->original) : \
-    GET_LEVEL(ch))
 
 #define POSI(val)      ((val < 50) ? ((val > 0) ? val : 1) : 50)
 
@@ -785,12 +788,12 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
 #define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
 #define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
-#define    NUM_LEV_FEAT(ch) ((int) 1+GET_LEVEL(ch)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+#define    NUM_LEV_FEAT(ch) ((int) 1+GET_REAL_LEVEL(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 #define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 
 // Min cast level getting
 #define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))
-#define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
+#define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
 #define BASE_CAST_LEV(sp, ch) ((sp).min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
 
 #define MIN_CAST_REM(sp, ch) ((sp).min_remort[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])

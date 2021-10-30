@@ -34,7 +34,7 @@ void set_last_read(CHAR_DATA *ch, BoardTypes type, time_t date) {
 }
 
 bool lvl_no_write(CHAR_DATA *ch) {
-	if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && GET_REMORT(ch) <= 0) {
+	if (GET_REAL_LEVEL(ch) < MIN_WRITE_LEVEL && GET_REAL_REMORT(ch) <= 0) {
 		return true;
 	}
 	return false;
@@ -281,7 +281,7 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		tempMessage->author = name;
 		tempMessage->unique = GET_UNIQUE(ch);
 		// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
-		PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = LVL_IMPL : tempMessage->level = GET_LEVEL(ch);
+		PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = LVL_IMPL : tempMessage->level = GET_REAL_LEVEL(ch);
 
 		// клановым еще ранг
 		if (CLAN(ch)) {
@@ -333,7 +333,7 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			&& board.get_type() != CLANNEWS_BOARD
 			&& board.get_type() != PERS_BOARD
 			&& !PRF_FLAGGED(ch, PRF_CODERINFO)
-			&& GET_LEVEL(ch) < board.messages[messages_index]->level) {
+			&& GET_REAL_LEVEL(ch) < board.messages[messages_index]->level) {
 			// для простых досок сверяем левела (для контроля иммов)
 			// клановые ниже, у персональных смысла нет
 			send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
@@ -924,7 +924,7 @@ void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	temp_message->author = GET_NAME(ch) ? GET_NAME(ch) : "неизвестен";
 	temp_message->unique = GET_UNIQUE(ch);
 	// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
-	temp_message->level = GET_LEVEL(ch);
+	temp_message->level = GET_REAL_LEVEL(ch);
 	temp_message->rank = 0;
 	temp_message->subject = "[" + boost::lexical_cast<std::string>(GET_ROOM_VNUM(ch->in_room)) + "]";
 	temp_message->text = argument;

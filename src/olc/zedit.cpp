@@ -1478,7 +1478,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				case 'p':
 				case 'P':
 					// * Edit top of zone.
-					if (GET_LEVEL(d->character) < LVL_IMPL)
+					if (GET_REAL_LEVEL(d->character) < LVL_IMPL)
 						zedit_disp_menu(d);
 					else {
 						send_to_char("Введите новую старшую комнату зоны.\r\n"

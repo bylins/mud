@@ -86,7 +86,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (IS_MANA_CASTER(ch)) {
-		if (GET_LEVEL(ch) < spell_create_level(ch, spellnum)) {
+		if (GET_REAL_LEVEL(ch) < spell_create_level(ch, spellnum)) {
 			send_to_char("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
 			return;
 		}
@@ -109,7 +109,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 					send_to_char("Вы не смогли правильно истолковать значение рун!\r\n", ch);
 			}
 		} else {
-			if (call_magic(ch, tch, tobj, world[ch->in_room], spellnum, GET_LEVEL(ch)) >= 0) {
+			if (call_magic(ch, tch, tobj, world[ch->in_room], spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 					WAIT_STATE(ch, PULSE_VIOLENCE);
 			}
