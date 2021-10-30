@@ -321,6 +321,7 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_RACE            66
 #define MEDIT_MAXFACTOR            67
 #define MEDIT_REMORT            68
+#define MEDIT_CLONE_PARTIAL   69
 
 
 

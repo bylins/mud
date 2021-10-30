@@ -781,17 +781,11 @@ int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 			actor ? (actor->purged() ? "purged" : "true") : "false",
 			__FILE__, __LINE__);
-		return 0;
-	}
-
-	if (spellnum < 0
-		|| spellnum > SPELLS_COUNT) {
-		log("SYSERROR: spell non found spellnum = %d (%s:%d)", spellnum, __FILE__, __LINE__);
-		return 0;
+		return 1;
 	}
 
 	if (!SCRIPT_CHECK(ch, MTRIG_CAST) || !CAN_START_MTRIG(ch) || GET_INVIS_LEV(actor)) {
-		return 0;
+		return 1;
 	}
 
 	char local_buf[MAX_INPUT_LENGTH];
@@ -804,7 +798,7 @@ int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}
-	return 0;
+	return 1;
 }
 
 void timechange_mtrigger(CHAR_DATA *ch, const int time) {

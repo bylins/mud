@@ -81,7 +81,7 @@ void clear_mob_charm(CHAR_DATA *mob);
 void medit_setup(DESCRIPTOR_DATA *d, int rmob_num);
 
 void medit_mobile_init(CHAR_DATA *mob);
-void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src);
+void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src, bool partialcopy);
 void medit_mobile_free(CHAR_DATA *mob);
 
 void medit_save_internally(DESCRIPTOR_DATA *d);
@@ -130,7 +130,7 @@ void medit_mobile_init(CHAR_DATA *mob) {
 	}
 }
 
-void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src)
+void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src, bool partial_copy)
 /*++
    Функция делает создает копию ПРОТОТИПА моба.
    После вызова этой функции создается полностью независимая копия моба src.
@@ -151,7 +151,7 @@ void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src)
    mob_specials.Questor - странно, т.к. похоже всегда NULL
    скрипт=NULL и прототипы
    помощники
-
+   partial_copy не тронем падежи и некоторые поля
 --*/
 {
 	struct helper_data_type **pdhd, *shd;
@@ -162,29 +162,49 @@ void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src)
 	// Копирую все поверх
 	*dst = *src;
 	dst->set_normal_morph();//вот это копировать не нада
-
+	if (partial_copy) {
+		dst->set_pc_name(tmp.get_pc_name());
+		dst->set_npc_name(tmp.get_npc_name());
+		dst->player_data.long_descr = tmp.player_data.long_descr;
+		dst->player_data.description = tmp.player_data.description;
+		dst->player_data.PNames[0] = tmp.player_data.PNames[0];
+		dst->player_data.PNames[1] = tmp.player_data.PNames[1];
+		dst->player_data.PNames[2] = tmp.player_data.PNames[2];
+		dst->player_data.PNames[3] = tmp.player_data.PNames[3];
+		dst->player_data.PNames[4] = tmp.player_data.PNames[4];
+		dst->player_data.PNames[5] = tmp.player_data.PNames[5];
+		if (tmp.mob_specials.dest_count > 0) { // ели был маршрут оставим
+			dst->mob_specials.dest_count = tmp.mob_specials.dest_count;
+			for (auto plane = 0; plane < tmp.mob_specials.dest_count; plane++) {
+				dst->mob_specials.dest[plane] = tmp.mob_specials.dest[plane];
+			}
+		}
+	}
 	// Теперь дублирую память
 
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 									 && *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
 																   : NULL);
-
+	if (partial_copy && tmp.helpers) //если неполное копирование но хелперов нет, копирнем
+		shd = tmp.helpers;
+	else
+		shd = src->helpers;
 	pdhd = &dst->helpers;
-	shd = src->helpers;
-
 	while (shd) {
 		CREATE(pdhd[0], 1);
 		pdhd[0]->mob_vnum = shd->mob_vnum;
 		pdhd = &(pdhd[0]->next_helper);
 		shd = shd->next_helper;
 	}
-
 	// Копирую скрипт и прототипы
 	SCRIPT(dst)->cleanup();
 	auto proto_script_old = new OBJ_DATA::triggers_list_t(*src->proto_script);
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;
-	dl_list_copy(&dst->dl_list, src->dl_list);
+	if (partial_copy && tmp.dl_list)
+		dl_list_copy(&dst->dl_list, tmp.dl_list);
+	else
+		dl_list_copy(&dst->dl_list, src->dl_list);
 	// для name_list
 	dst->set_serial_num(tmp.get_serial_num());
 	//	CharacterAlias::remove(dst);
@@ -278,7 +298,7 @@ void medit_setup(DESCRIPTOR_DATA *d, int real_num)
 		MPROG_DATA *head;
 #endif
 
-		medit_mobile_copy(mob, &mob_proto[real_num]);
+		medit_mobile_copy(mob, &mob_proto[real_num], false);
 
 #if defined(OASIS_MPROG)
 		/*
@@ -349,7 +369,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 		// Удаление старого прототипа
 		medit_mobile_free(&mob_proto[rmob_num]);
 		// Обновляю прототип
-		medit_mobile_copy(&mob_proto[rmob_num], OLC_MOB(d));
+		medit_mobile_copy(&mob_proto[rmob_num], OLC_MOB(d), false);
 		// Теперь просто удалить OLC_MOB(d) и все будет хорошо
 		medit_mobile_free(OLC_MOB(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
@@ -398,7 +418,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 					new_index[rmob_num].func = NULL;
 					new_mob_num = rmob_num;
 					OLC_MOB(d)->set_rnum(rmob_num);
-					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
+					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
 					//					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
 					new_index[rmob_num].set_idx = -1;
@@ -432,7 +452,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 			new_mob_num = rmob_num;
 			OLC_MOB(d)->set_rnum(rmob_num);
 
-			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
+			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
 
 			new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
 			new_index[rmob_num].set_idx = -1;
@@ -1043,10 +1063,10 @@ void medit_disp_helpers(DESCRIPTOR_DATA *d) {
 		send_to_char(buf, d->character.get());
 	}
 	if (!columns) {
-		sprintf(buf, "%sНЕТ%s\r\n", cyn, nrm);
+		sprintf(buf, "%sНЕТ%s", cyn, nrm);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Укажите vnum моба-помощника (0 - конец) : ", d->character.get());
+	send_to_char("\r\nУкажите vnum моба-помощника (0 - конец) : ", d->character.get());
 }
 
 void medit_disp_skills(DESCRIPTOR_DATA *d) {
@@ -1330,8 +1350,10 @@ void medit_disp_clone_menu(DESCRIPTOR_DATA *d) {
 #endif
 			"%s1%s) Заменить триггеры\r\n"
 			"%s2%s) Не заменять триггеры\r\n"
-			"%s3%s) Quit\r\n"
+			"%s3%s) Не заменять падежи, описания, триггеры и если есть destination, помогают, загр.объекты\r\n"
+			"%s4%s) Quit\r\n"
 			"Ваш выбор : ",
+			grn, nrm,
 			grn, nrm,
 			grn, nrm,
 			grn, nrm);
@@ -2308,7 +2330,10 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				case '2': OLC_MODE(d) = MEDIT_CLONE_WITHOUT_TRIGGERS;
 					send_to_char("Введите VNUM моба для клонирования:", d->character.get());
 					return;
-				case '3': break;    //to main menu
+				case '3': OLC_MODE(d) = MEDIT_CLONE_PARTIAL;
+					send_to_char("Введите VNUM моба для клонирования:", d->character.get());
+					return;
+				case '4': break;    //to main menu
 				default: medit_disp_clone_menu(d);
 					return;
 			}
@@ -2323,7 +2348,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
-			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum]);
+			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
 
 			break;
@@ -2339,7 +2364,24 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 			auto proto_script_old = OLC_MOB(d)->proto_script;
-			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum]);
+			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], false);
+			OLC_MOB(d)->set_rnum(rnum_old);
+			OLC_MOB(d)->proto_script = proto_script_old;
+
+			break;
+		}
+
+		case MEDIT_CLONE_PARTIAL: {
+			auto rnum = real_mobile(atoi(arg));
+
+			if (rnum < 0) {
+				send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character.get());
+				return;
+			}
+
+			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
+			auto proto_script_old = OLC_MOB(d)->proto_script;
+			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], true);
 			OLC_MOB(d)->set_rnum(rnum_old);
 			OLC_MOB(d)->proto_script = proto_script_old;
 
