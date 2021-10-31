@@ -196,7 +196,7 @@ char DiscreteFile::fread_letter(FILE *fp) {
 }
 
 void DiscreteFile::dg_read_trigger(void *proto, int type) {
-	char line[256];
+	char line[MAX_TRGLINE_LENGTH];
 	char junk[8];
 	int vnum, rnum, count;
 	CHAR_DATA *mob;

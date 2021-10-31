@@ -1410,7 +1410,7 @@ void find_replacement(void *go,
 	char *name;
 	int num = 0, count = 0, i;
 	char uid_type = '\0';
-	char tmp[MAX_INPUT_LENGTH] = {};
+	char tmp[MAX_TRGLINE_LENGTH] = {};
 
 	const char *send_cmd[] = {"msend", "osend", "wsend"};
 	const char *echo_cmd[] = {"mecho", "oecho", "wecho"};
@@ -2579,8 +2579,8 @@ void find_replacement(void *go,
 				if (t->get_fighting() != c) {
 					continue;
 				}
-				int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(t));
-				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+				int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(t));
+				if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
@@ -2606,8 +2606,8 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "objs")) {
 			size_t str_length = strlen(str);
 			for (obj = c->carrying; obj; obj = obj->get_next_content()) {
-				int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
-				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+				int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
+				if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
@@ -2647,8 +2647,8 @@ void find_replacement(void *go,
 					|| (IS_NPC(rndm)
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
-					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+					int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
@@ -2663,7 +2663,7 @@ void find_replacement(void *go,
 			strcpy(str, Noob::is_noob(c) ? "1" : "0");
 		} else if (!str_cmp(field, "noob_outfit")) {
 			std::string vnum_str = Noob::print_start_outfit(c);
-			snprintf(str, MAX_INPUT_LENGTH, "%s", vnum_str.c_str());
+			snprintf(str, MAX_TRGLINE_LENGTH, "%s", vnum_str.c_str());
 		} else {
 			vd = find_var_cntx(&((SCRIPT(c))->global_vars), field,
 							   sc->context);
@@ -2891,8 +2891,8 @@ void find_replacement(void *go,
 					|| (IS_NPC(rndm)
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
-					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+					int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
@@ -2943,8 +2943,8 @@ void find_replacement(void *go,
 			if (o->get_type() == OBJ_DATA::ITEM_CONTAINER) {
 				size_t str_length = strlen(str);
 				for (auto temp = o->get_contains(); temp; temp = temp->get_next_content()) {
-					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, temp->get_id());
-					if (str_length + n < MAX_INPUT_LENGTH) { // not counting the terminating null character
+					int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_OBJ, temp->get_id());
+					if (str_length + n < MAX_TRGLINE_LENGTH) { // not counting the terminating null character
 					strcpy(str + str_length, tmp);
 					str_length += n;
 					} else {
@@ -3053,8 +3053,8 @@ void find_replacement(void *go,
 					|| (IS_NPC(rndm)
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
-					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+					int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
@@ -3077,8 +3077,8 @@ void find_replacement(void *go,
 
 			size_t str_length = strlen(str);
 			for (obj = world[inroom]->contents; obj; obj = obj->get_next_content()) {
-				int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
-				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+				int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
+				if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
@@ -3111,9 +3111,9 @@ void find_replacement(void *go,
 
 // substitutes any variables into line and returns it as buf
 void var_subst(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, const char *line, char *buf) {
-	char tmp[MAX_INPUT_LENGTH], repl_str[MAX_INPUT_LENGTH], *var, *field, *p;
-	char *subfield_p, subfield[MAX_INPUT_LENGTH];
-	char *local_p, local[MAX_INPUT_LENGTH];
+	char tmp[MAX_TRGLINE_LENGTH], repl_str[MAX_TRGLINE_LENGTH], *var, *field, *p;
+	char *subfield_p, subfield[MAX_TRGLINE_LENGTH];
+	char *local_p, local[MAX_TRGLINE_LENGTH];
 	int paren_count = 0;
 
 	if (!strchr(line, '%')) {
@@ -3124,7 +3124,7 @@ void var_subst(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, const char 
 	p = strcpy(tmp, line);
 	subfield_p = subfield;
 
-	size_t left = MAX_INPUT_LENGTH - 1;
+	size_t left = MAX_TRGLINE_LENGTH - 1;
 	while (*p && (left > 0)) {
 		while (*p && (*p != '%') && (left > 0)) {
 			*(buf++) = *(p++);
@@ -3420,9 +3420,9 @@ foreach i <список>
 --*/
 // returns 1 if next iteration, else 0
 int process_foreach_begin(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type) {
-	char name[MAX_INPUT_LENGTH];
-	char list_str[MAX_INPUT_LENGTH];
-	char value[MAX_INPUT_LENGTH];
+	char name[MAX_TRGLINE_LENGTH];
+	char list_str[MAX_TRGLINE_LENGTH];
+	char value[MAX_TRGLINE_LENGTH];
 
 	skip_spaces(&cond);
 	auto p = one_argument(cond, name);
@@ -3453,7 +3453,7 @@ int process_foreach_begin(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA
 	}
 
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
-	snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
+	snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
 	add_var_cntx(&GET_TRIG_VARS(trig), value, list_str, 0);
 
 	strcat(name, FOREACH_LIST_POS_GUID);
@@ -3464,8 +3464,8 @@ int process_foreach_begin(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA
 }
 
 int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *trig, int) {
-	char name[MAX_INPUT_LENGTH];
-	char value[MAX_INPUT_LENGTH];
+	char name[MAX_TRGLINE_LENGTH];
+	char value[MAX_TRGLINE_LENGTH];
 
 	skip_spaces(&cond);
 	one_argument(cond, name);
@@ -3475,10 +3475,10 @@ int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *tri
 		return 0;
 	}
 
-	snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
+	snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
 	const auto var_list = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
-	snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_POS_GUID);
+	snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_POS_GUID);
 	const auto var_list_pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
 	if (!var_list || !var_list_pos) {
@@ -3490,10 +3490,10 @@ int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *tri
 	if (!p || !*p) {
 		remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
 
-		snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
+		snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
 		remove_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
-		snprintf(value, MAX_INPUT_LENGTH, "%s%s", name, FOREACH_LIST_POS_GUID);
+		snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_POS_GUID);
 		remove_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
 		return 0;
@@ -3756,7 +3756,7 @@ void process_wait(void *go, TRIG_DATA *trig, int type, char *cmd, const cmdlist_
 
 // processes a script set command
 void process_set(SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], *value;
+	char arg[MAX_TRGLINE_LENGTH], name[MAX_TRGLINE_LENGTH], *value;
 
 	value = two_arguments(cmd, arg, name);
 
@@ -3773,8 +3773,8 @@ void process_set(SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
 
 // processes a script eval command
 void process_eval(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH];
-	char result[MAX_INPUT_LENGTH], *expr;
+	char arg[MAX_TRGLINE_LENGTH], name[MAX_TRGLINE_LENGTH];
+	char result[MAX_TRGLINE_LENGTH], *expr;
 
 	expr = two_arguments(cmd, arg, name);
 
@@ -4257,8 +4257,8 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 bool find_all_char_vnum(long n, char *str) {
 	int count = 0;
 	for (const auto ch : character_list) {
-		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE && count < 25) {
-			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(ch));
+		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE && (strlen(str + strlen(str)) < MAX_TRGLINE_LENGTH)) {
+			snprintf(str + strlen(str), MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(ch));
 			++count;
 		}
 	}
@@ -4269,12 +4269,10 @@ bool find_all_char_vnum(long n, char *str) {
 // * Поиск предметов для calcuidall_var.
 bool find_all_obj_vnum(long n, char *str) {
 	int count = 0;
-
-	const int LIMIT = 25;
 	world_objects.foreach_with_vnum(n, [&](const OBJ_DATA::shared_ptr &i) {
-		if (count < LIMIT) {
-			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, i->get_id());
-			++count;
+		if (strlen(str + strlen(str)) < MAX_TRGLINE_LENGTH) {
+			snprintf(str + strlen(str), MAX_TRGLINE_LENGTH, "%c%ld ", UID_OBJ, i->get_id());
+			count++;
 		}
 	});
 
@@ -4283,7 +4281,7 @@ bool find_all_obj_vnum(long n, char *str) {
 
 // * Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
 void calcuidall_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* type*/, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
+	char arg[MAX_TRGLINE_LENGTH], varname[MAX_TRGLINE_LENGTH];
 	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
 	char uid[MAX_INPUT_LENGTH];
 	int result = -1;
@@ -4639,7 +4637,7 @@ void process_context(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 }
 
 void extract_value(SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
-	char buf2[MAX_INPUT_LENGTH];
+	char buf2[MAX_TRGLINE_LENGTH];
 	char *buf3;
 	char to[128];
 	int num;
