@@ -1283,8 +1283,8 @@ int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 				send_to_char("Сделать это в ваших снах?\r\n", actor);
 				return 1;
 			}
-
-			if (GET_POS(actor) == POS_FIGHTING) {
+// в идеале бы в триггере бой проверять а не хардкодом, ленивые скотины....
+			if (GET_POS(actor) == POS_FIGHTING && str_cmp(t->arglist.c_str(), "*")) {
 				send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
 				return 1;
 			}
