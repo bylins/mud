@@ -2314,6 +2314,10 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					OLC_MOB(d)->dl_list->remove(*p);
 					send_to_char("\r\nЗапись удалена.\r\n", d->character.get());
 					OLC_VAL(d) = 1;
+					if (OLC_MOB(d)->dl_list->empty()) {
+						delete (OLC_MOB(d)->dl_list);
+						OLC_MOB(d)->dl_list = NULL;
+					}
 				} else
 					send_to_char("\r\nЗапись не найдена.\r\n", d->character.get());
 			}
