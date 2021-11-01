@@ -1379,8 +1379,7 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Такой алиас не определен.\r\n", ch);
 			else
 				send_to_char("Алиас успешно удален.\r\n", ch);
-		} else    // otherwise, either add or redefine an alias
-		{
+		} else {
 			if (!str_cmp(arg, "alias")) {
 				send_to_char("Вы не можете определить алиас 'alias'.\r\n", ch);
 				return;
@@ -1397,6 +1396,7 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_ALIASES(ch) = a;
 			send_to_char("Алиас успешно добавлен.\r\n", ch);
 		}
+		ch->save_char();
 	}
 }
 
