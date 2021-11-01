@@ -3341,7 +3341,7 @@ void eval_expr(const char *line, char *result, void *go, SCRIPT_DATA *sc, TRIG_D
  * answer in result.  returns 1 if expr is evaluated, else 0
  */
 int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type) {
-	char *p, *tokens[MAX_INPUT_LENGTH];
+	char *p, *tokens[MAX_TRGLINE_LENGTH];
 	char line[MAX_TRGLINE_LENGTH], lhr[MAX_TRGLINE_LENGTH], rhr[MAX_TRGLINE_LENGTH];
 	int i, j;
 
