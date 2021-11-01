@@ -1353,8 +1353,8 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	} else if (!str_cmp(field, "words")) {
 		int n = 0;
 		// Подсчет количества слов или получение слова
-		char buf1[MAX_INPUT_LENGTH];
-		char buf2[MAX_INPUT_LENGTH];
+		char buf1[MAX_TRGLINE_LENGTH];
+		char buf2[MAX_TRGLINE_LENGTH];
 		buf1[0] = 0;
 		strcpy(buf2, vd->value);
 		if (*subfield) {
@@ -1430,6 +1430,7 @@ void find_replacement(void *go,
 	const char *portal[] = {"mportal", "oportal", "wportal"};
 	const char *at[] = {"mat", "oat", "wat"};
 	const char *zoneecho[] = {"mzoneecho", "ozoneecho", "wzoneecho"};
+	const char *spellturntemp[] = {"mspellturntemp", "ospellturntemp", "wspellturntemp"};
 
 	if (!subfield) {
 		subfield = NULL;    // Чтобы проверок меньше было
@@ -1495,6 +1496,8 @@ void find_replacement(void *go,
 				strcpy(str, skilladd[type]);
 			else if (!str_cmp(var, "spellturn"))
 				strcpy(str, spellturn[type]);
+				else if (!str_cmp(var, "spellturntemp"))
+				strcpy(str, spellturntemp[type]);
 			else if (!str_cmp(var, "spelladd"))
 				strcpy(str, spelladd[type]);
 			else if (!str_cmp(var, "spellitem"))

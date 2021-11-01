@@ -1284,7 +1284,7 @@ int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 				return 1;
 			}
 // в идеале бы в триггере бой проверять а не хардкодом, ленивые скотины....
-			if (GET_POS(actor) == POS_FIGHTING && str_cmp(t->arglist.c_str(), "*")) {
+			if (GET_POS(actor) == POS_FIGHTING && t->arglist[0] != '*') {
 				send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
 				return 1;
 			}
@@ -1298,7 +1298,6 @@ int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
 		}
 	}
-
 	return 0;
 }
 
