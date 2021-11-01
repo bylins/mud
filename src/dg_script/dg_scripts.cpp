@@ -3342,7 +3342,7 @@ void eval_expr(const char *line, char *result, void *go, SCRIPT_DATA *sc, TRIG_D
  */
 int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type) {
 	char *p, *tokens[MAX_INPUT_LENGTH];
-	char line[MAX_INPUT_LENGTH], lhr[MAX_INPUT_LENGTH], rhr[MAX_INPUT_LENGTH];
+	char line[MAX_TRGLINE_LENGTH], lhr[MAX_TRGLINE_LENGTH], rhr[MAX_TRGLINE_LENGTH];
 	int i, j;
 
 	/*
@@ -4749,7 +4749,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
 	static int depth = 0;
 	int ret_val = 1, stop = FALSE;
-	char cmd[MAX_INPUT_LENGTH];
+	char cmd[MAX_TRGLINE_LENGTH];
 	SCRIPT_DATA *sc = 0;
 	unsigned long loops = 0;
 	TRIG_DATA *prev_trig;
