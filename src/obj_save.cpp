@@ -2804,6 +2804,7 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
 		}
 		Clan::clan_invoice(ch, false);
+		ch->save_char();
 		extract_char(ch, FALSE);
 	} else if (CMD_IS("offer") || CMD_IS("предложение")) {
 		Crash_offer_rent(ch, recep, rentshow, mode, &cost);
