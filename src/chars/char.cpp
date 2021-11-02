@@ -411,7 +411,7 @@ void CHAR_DATA::purge() {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
 			player_table[id].level = GET_REAL_LEVEL(this);
-			player_table[id].remorts = get_remort();
+			player_table[id].remorts = GET_REAL_REMORT(this);
 			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 		}
 	}

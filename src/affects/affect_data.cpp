@@ -430,6 +430,9 @@ void affect_total(CHAR_DATA *ch) {
 			}
 		}
 	}
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION))
+			ch->set_remort_add(20 - GET_REAL_REMORT(ch));
+			ch->set_level_add(20 - GET_REAL_LEVEL(ch));
 
 	// бонусы от морта
 	if (GET_REAL_REMORT(ch) >= 20) {

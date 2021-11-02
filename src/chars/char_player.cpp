@@ -468,7 +468,7 @@ void Player::save_char() {
 	if (!get_name().empty()) {
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
 	}
-	fprintf(saved, "Levl: %d\n", GET_REAL_LEVEL(this));
+	fprintf(saved, "Levl: %d\n", this->get_level());
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
@@ -483,9 +483,7 @@ void Player::save_char() {
 	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
-	if (GET_REAL_REMORT(this) > 0) {
-		fprintf(saved, "Rmrt: %d\n", GET_REAL_REMORT(this));
-	}
+	fprintf(saved, "Rmrt: %d\n", this->get_remort());
 	// флаги
 	*buf = '\0';
 	PLR_FLAGS(this).tascii(4, buf);
@@ -942,7 +940,7 @@ void Player::save_char() {
 	if (i >= 0) {
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GET_REAL_LEVEL(this);
-		player_table[i].remorts = get_remort();
+		player_table[i].remorts = GET_REAL_REMORT(this);
 		//added by WorM 2010.08.27 в индексе добавляем мыло
 		if (player_table[i].mail)
 			free(player_table[i].mail);

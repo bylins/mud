@@ -3624,8 +3624,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
 	}
 
-	const int victim_lvl_miss = victim->get_level() + victim->get_remort();
-	const int ch_lvl_miss = ch->get_level() + GET_REAL_REMORT(ch);
+	const int victim_lvl_miss = victim->get_level() + GET_REAL_REMORT(victim);
+	const int ch_lvl_miss = GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch);
 
 	// собсно выяснение попали или нет
 	if (victim_lvl_miss - ch_lvl_miss <= 5 || (!IS_NPC(ch) && !IS_NPC(victim))) {
