@@ -178,6 +178,7 @@ int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
 void read_aliases(CHAR_DATA *ch);
+void write_aliases(CHAR_DATA *ch);
 void read_saved_vars(CHAR_DATA *ch);
 void oedit_parse(DESCRIPTOR_DATA *d, char *arg);
 void redit_parse(DESCRIPTOR_DATA *d, char *arg);

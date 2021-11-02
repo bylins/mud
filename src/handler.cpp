@@ -167,29 +167,22 @@ bool affected_by_spell(CHAR_DATA *ch, int type) {
 
 void affect_join_fspell(CHAR_DATA *ch, const AFFECT_DATA<EApplyLocation> &af) {
 	bool found = false;
-
 	for (const auto &affect : ch->affected) {
-		if (af.location == APPLY_NONE) {
-			// для APPLY_NONE выполняем поиск по битвектору для возможности добавления нескольких аффектов
-			if (affect->bitvector == af.bitvector) {
-				affect_total(ch);
-				found = true;
-				break;
-			}
-		} else {
-			if ((affect->type == af.type) && (affect->location == af.location)) {
-				if (affect->modifier < af.modifier) {
-					affect->modifier = af.modifier;
-				}
+		const bool same_affect = (af.location == APPLY_NONE) && (affect->bitvector == af.bitvector);
+		const bool same_type = (af.location != APPLY_NONE) && (affect->type == af.type) && (affect->location == af.location);
 
-				if (affect->duration < af.duration) {
-					affect->duration = af.duration;
-				}
-
-				affect_total(ch);
-				found = true;
-				break;
+		if (same_affect || same_type) {
+			if (affect->modifier < af.modifier) {
+				affect->modifier = af.modifier;
 			}
+
+			if (affect->duration < af.duration) {
+				affect->duration = af.duration;
+			}
+
+			affect_total(ch);
+			found = true;
+			break;
 		}
 	}
 
