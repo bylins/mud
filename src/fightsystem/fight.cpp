@@ -1406,7 +1406,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 			if (GET_POS(ch) < POS_FIGHTING) return;
 		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, ch->get_fighting());
 		} 
-	}   else if ((ch->get_extra_attack_mode() != (EXTRA_ATTACK_THROW || EXTRA_ATTACK_CHOPOFF)) 
+	}   else if (((ch->get_extra_attack_mode() != EXTRA_ATTACK_THROW) || (ch->get_extra_attack_mode() != EXTRA_ATTACK_CHOPOFF))
 			&& !(GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && ch->get_skill(SKILL_IRON_WIND) > 0) {  // вихрь (Кудояр)
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_IRON_WIND) <= 0;
 		if (master) {

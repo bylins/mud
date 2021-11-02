@@ -766,7 +766,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 	}
 	*error = 22;
 
-	return std::move(object);
+	return object;
 }
 
 // shapirus: функция проверки наличия доп. описания в прототипе

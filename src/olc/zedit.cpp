@@ -841,11 +841,16 @@ void zedit_disp_menu(DESCRIPTOR_DATA *d) {
 	int i;
 	type1_zones[0] = '\0';
 	type2_zones[0] = '\0';
-	for (i = 0; i < OLC_ZONE(d)->typeA_count; i++)
-		sprintf(type1_zones, "%s %d", type1_zones, OLC_ZONE(d)->typeA_list[i]);
-	for (i = 0; i < OLC_ZONE(d)->typeB_count; i++)
-		sprintf(type2_zones, "%s %d", type2_zones, OLC_ZONE(d)->typeB_list[i]);
-
+	for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
+		sprintf(buf, "%d", OLC_ZONE(d)->typeA_list[i]);
+		strcpy(type1_zones, buf);
+//		sprintf(type1_zones, "%s %d", type1_zones, OLC_ZONE(d)->typeA_list[i]);
+	}
+	for (i = 0; i < OLC_ZONE(d)->typeB_count; i++) {
+		sprintf(buf, "%d", OLC_ZONE(d)->typeB_list[i]);
+		strcpy(type2_zones, buf);
+//		sprintf(type2_zones, "%s %d", type2_zones, OLC_ZONE(d)->typeB_list[i]);
+	}
 	get_char_cols(d->character.get());
 
 	// Menu header
@@ -1688,7 +1693,9 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					zedit_disp_menu(d);
 					break;
 
-				case 'D': for (i = 0; *dirs[i] != '\n' && i != pos; ++i);
+				case 'D': 
+					for (i = 0; *dirs[i] != '\n' && i != pos; ++i) {
+					}
 					if (*dirs[i] == '\n') {
 						send_to_char("Неверное направление, повторите : ", d->character.get());
 						return;
@@ -1737,7 +1744,9 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					zedit_disp_arg4(d);
 					break;
 
-				case 'E': for (i = 0; *equipment_types[i] != '\n' && i != pos; ++i);
+				case 'E': 
+					for (i = 0; *equipment_types[i] != '\n' && i != pos; ++i) {
+					}
 					if (*equipment_types[i] == '\n') {
 						send_to_char("Неверная позиция, повторите : ", d->character.get());
 						return;

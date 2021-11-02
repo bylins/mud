@@ -380,15 +380,15 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 							|| (uid == -1
 								&& obj_proto[r_num]->get_vnum() >= first
 								&& obj_proto[r_num]->get_vnum() <= last)) {
-							sprintf(buf2, "%6d) %s",
+							sprintf(buf1, "%6d) %s",
 									obj_proto[r_num]->get_vnum(),
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
-								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf2,
+								snprintf(buf2, MAX_STRING_LENGTH, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
 										obj_proto.number(r_num), obj_proto.stored(r_num),
 										GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
 							} else {
-								sprintf(buf2, "%s\r\n", buf2);
+								snprintf(buf2, MAX_STRING_LENGTH, "%s\r\n", buf1);
 							}
 							if (found == 0) {
 								out += buf1;
