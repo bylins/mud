@@ -212,7 +212,7 @@ void do_save(CHAR_DATA *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
 
 	// Only tell the char we're saving if they actually typed "save"
 	if (cmd) {
-		send_to_char("Ладушки.\r\n", ch);
+		send_to_char("Сохраняю игрока, синонимы и вещи.\r\n", ch);
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 	}
 	write_aliases(ch);

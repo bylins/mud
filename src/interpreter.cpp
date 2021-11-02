@@ -1396,7 +1396,8 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_ALIASES(ch) = a;
 			send_to_char("Алиас успешно добавлен.\r\n", ch);
 		}
-		ch->save_char();
+		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+		write_aliases(ch);
 	}
 }
 
