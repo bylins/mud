@@ -1158,9 +1158,13 @@ char *replace_string(const char *str, const char *weapon_singular, const char *w
 	for (; *str; str++) {
 		if (*str == '#') {
 			switch (*(++str)) {
-				case 'W': for (; *weapon_plural; *(cp++) = *(weapon_plural++));
+				case 'W':
+					for (; *weapon_plural; *(cp++) = *(weapon_plural++)) {
+					}
 					break;
-				case 'w': for (; *weapon_singular; *(cp++) = *(weapon_singular++));
+				case 'w':
+					for (; *weapon_singular; *(cp++) = *(weapon_singular++)) {
+					}
 					break;
 				default: *(cp++) = '#';
 					break;

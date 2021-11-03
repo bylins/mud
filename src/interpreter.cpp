@@ -2391,10 +2391,11 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	}
 
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-	look_at_room(d->character.get(), 0);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
+	affect_total(d->character.get());
 	check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
+	look_at_room(d->character.get(), 0);
 
 	if (new_char) {
 		send_to_char("\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n",

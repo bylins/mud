@@ -838,7 +838,8 @@ bool OK_GAIN_EXP(const CHAR_DATA *ch, const CHAR_DATA *victim) {
 		&& (!IS_NPC(victim)
 			|| !IS_NPC(ch)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		&& !IS_HORSE(victim);
+		&& !IS_HORSE(victim)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION);
 }
 
 bool IS_MALE(const CHAR_DATA *ch) {

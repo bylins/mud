@@ -393,15 +393,9 @@ void trg_spellturntemp(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {
 		return;
 	}
 
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW)) {
-		Temporary_Spells::add_spell(ch, spellnum, time(0), spelldiff);
-		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
-		log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d",
-			spell_name(spellnum),
-			spelldiff,
-			GET_NAME(ch),
-			vnum);
-	}
+	Temporary_Spells::add_spell(ch, spellnum, time(0), spelldiff);
+	send_to_char(ch, "Вы дополнительно можете использовать заклинание '%s' некоторое время.\r\n", spell_name(spellnum));
+	log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d", spell_name(spellnum), spelldiff, GET_NAME(ch), vnum);
 }
 
 void trg_spelladd(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {

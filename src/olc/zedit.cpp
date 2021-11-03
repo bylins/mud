@@ -842,13 +842,13 @@ void zedit_disp_menu(DESCRIPTOR_DATA *d) {
 	type1_zones[0] = '\0';
 	type2_zones[0] = '\0';
 	for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
-		sprintf(buf, "%d", OLC_ZONE(d)->typeA_list[i]);
-		strcpy(type1_zones, buf);
+		sprintf(buf, "%s %d", type1_zones, OLC_ZONE(d)->typeA_list[i]);
+		sprintf(type1_zones, "%s", buf);
 //		sprintf(type1_zones, "%s %d", type1_zones, OLC_ZONE(d)->typeA_list[i]);
 	}
 	for (i = 0; i < OLC_ZONE(d)->typeB_count; i++) {
-		sprintf(buf, "%d", OLC_ZONE(d)->typeB_list[i]);
-		strcpy(type2_zones, buf);
+		sprintf(buf, "%s %d", type2_zones, OLC_ZONE(d)->typeB_list[i]);
+		sprintf(type2_zones, "%s", buf);
 //		sprintf(type2_zones, "%s %d", type2_zones, OLC_ZONE(d)->typeB_list[i]);
 	}
 	get_char_cols(d->character.get());

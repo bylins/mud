@@ -435,8 +435,12 @@ void affect_total(CHAR_DATA *ch) {
 		}
 	}
 	if (domination) {
-		ch->set_remort_add(20 - GET_REAL_REMORT(ch));
-		ch->set_level_add(30 - GET_REAL_LEVEL(ch));
+		ch->set_remort_add(20 - ch->get_remort());
+		ch->set_level_add(30 - ch->get_level());
+	} else {
+		ch->set_remort_add(0);
+		ch->set_level_add(0);
+
 	}
 	// бонусы от морта
 	if (GET_REAL_REMORT(ch) >= 20) {
