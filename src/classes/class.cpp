@@ -709,7 +709,7 @@ int thaco(int class_num, int level) {
 			}
 		}
 		case CLASS_CLERIC:
-		case CLASS_DRUID:
+		case CLASS_DRUID: {
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -749,9 +749,10 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for cleric thac0.");
 					break;
 			}
+		}
 		case CLASS_ASSASINE:
 		case CLASS_THIEF:
-		case CLASS_MERCHANT:
+		case CLASS_MERCHANT: {
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -791,8 +792,9 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for thief thac0.");
 					break;
 			}
+		}
 		case CLASS_WARRIOR:
-		case CLASS_GUARD:
+		case CLASS_GUARD: {
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -832,9 +834,10 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for warrior thac0.");
 					break;
 			}
+		}
 		case CLASS_PALADINE:
 		case CLASS_RANGER:
-		case CLASS_SMITH:
+		case CLASS_SMITH: {
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -871,12 +874,14 @@ int thaco(int class_num, int level) {
 				case 32: return 0;
 				case 33: return 0;
 				case 34: return 0;
-				default: log("SYSERR: Missing level for warrior thac0.");
-					break;
+				default: 
+					log("SYSERR: Missing level for warrior thac0.");
+				break;
 			}
-
-		default: log("SYSERR: Unknown class in thac0 chart.");
-			break;
+		}
+		default: 
+			log("SYSERR: Unknown class in thac0 chart.");
+		break;
 	}
 
 	// Will not get there unless something is wrong.

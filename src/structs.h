@@ -657,6 +657,7 @@ enum class EAffectFlag : uint32_t {
 	AFF_EXPEDIENT = INT_TWO | (1u << 21),
 	AFF_COMMANDER = INT_TWO | (1u << 22),
 	AFF_EARTHAURA = INT_TWO | (1u << 23),
+	AFF_DOMINATION = INT_TWO | (1u << 24)
 };
 
 template<>
@@ -1852,10 +1853,12 @@ enum class EWeaponAffectFlag : uint32_t {
 	WAFF_ICE_AURA = INT_ONE | (1 << 12),
 	WAFF_DEAFNESS = INT_ONE | (1 << 13),
 	WAFF_COMMANDER = INT_ONE | (1 << 14),
-	WAFF_EARTHAURA = INT_ONE | (1 << 15)
+	WAFF_EARTHAURA = INT_ONE | (1 << 15),
+	WAFF_DOMINATION = INT_ONE | (1 << 16),
+// не забудьте поправить WAFF_COUNT
 };
 
-constexpr size_t WAFF_COUNT = 46;
+constexpr size_t WAFF_COUNT = 47;
 
 template<>
 EWeaponAffectFlag ITEM_BY_NAME<EWeaponAffectFlag>(const std::string &name);

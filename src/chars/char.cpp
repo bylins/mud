@@ -411,7 +411,7 @@ void CHAR_DATA::purge() {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
 			player_table[id].level = GET_REAL_LEVEL(this);
-			player_table[id].remorts = get_remort();
+			player_table[id].remorts = GET_REAL_REMORT(this);
 			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 		}
 	}
@@ -838,7 +838,8 @@ bool OK_GAIN_EXP(const CHAR_DATA *ch, const CHAR_DATA *victim) {
 		&& (!IS_NPC(victim)
 			|| !IS_NPC(ch)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		&& !IS_HORSE(victim);
+		&& !IS_HORSE(victim)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION);
 }
 
 bool IS_MALE(const CHAR_DATA *ch) {

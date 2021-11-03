@@ -410,6 +410,7 @@ void init_EWeaponAffectFlag_ITEM_NAMES() {
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DEAFNESS] = "WAFF_DEAFNESS";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_COMMANDER] = "WAFF_COMMANDER";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_EARTHAURA] = "WAFF_EARTHAURA";
+	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DOMINATION] = "WAFF_DOMINATION";
 	for (const auto &i : EWeaponAffectFlag_name_by_value) {
 		EWeaponAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -651,6 +652,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_COMMANDER] = "AFF_COMMANDER";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EARTHAURA] = "AFF_EARTHAURA";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_DOMINATION] = "AFF_DOMINATION";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -1022,9 +1024,10 @@ void DESCRIPTOR_DATA::msdp_report_changed_vars() {
 
 void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output) const {
 	switch (keytable) {
-		case KT_ALT: for (; *input; *output = KtoA(*input), input++, output++);
+		case KT_ALT:
+			for (; *input; *output = KtoA(*input), input++, output++) {
+			}
 			break;
-
 		case KT_WIN:
 			for (; *input; input++, output++) {
 				*output = KtoW(*input);
@@ -1039,7 +1042,8 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output)
 		case KT_WINZ_OLD:
 		case KT_WINZ_Z:
 			// zMUD before 6.39 or after for backward compatibility  - replace я with z
-			for (; *input; *output = KtoW2(*input), input++, output++);
+			for (; *input; *output = KtoW2(*input), input++, output++) {
+			}
 			break;
 
 		case KT_WINZ:
@@ -1064,7 +1068,9 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output)
 			koi_to_utf8(const_cast<char *>(input), output);
 			break;
 
-		default: for (; *input; *output = *input, input++, output++);
+		default:
+			for (; *input; *output = *input, input++, output++) {
+			}
 			break;
 	}
 

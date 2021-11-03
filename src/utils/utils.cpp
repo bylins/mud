@@ -682,7 +682,7 @@ std::string koi_to_alt(const std::string &input) {
 	for (std::size_t i = 0; i < result.size(); ++i) {
 		result[i] = KtoA(result[i]);
 	}
-	return std::move(result);
+	return result;
 }
 
 // string manipulation fucntion originally by Darren Wilson //

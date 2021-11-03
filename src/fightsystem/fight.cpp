@@ -210,7 +210,8 @@ void set_fighting(CHAR_DATA *ch, CHAR_DATA *vict) {
 	// раундов в большую сторону (для подножки, должно давать чару зазор в две
 	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
 	if (IS_NPC(ch) && GET_WAIT(ch) > 0) {
-		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(PULSE_VIOLENCE));
+//		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(PULSE_VIOLENCE));
+		auto tmp = div(ch->get_wait(), PULSE_VIOLENCE);
 		if (tmp.rem > 0) {
 			WAIT_STATE(ch, (tmp.quot + 1) * PULSE_VIOLENCE);
 		}
@@ -1406,7 +1407,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 			if (GET_POS(ch) < POS_FIGHTING) return;
 		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, ch->get_fighting());
 		} 
-	}   else if ((ch->get_extra_attack_mode() != (EXTRA_ATTACK_THROW || EXTRA_ATTACK_CHOPOFF)) 
+	}   else if (((ch->get_extra_attack_mode() != EXTRA_ATTACK_THROW) || (ch->get_extra_attack_mode() != EXTRA_ATTACK_CHOPOFF))
 			&& !(GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && ch->get_skill(SKILL_IRON_WIND) > 0) {  // вихрь (Кудояр)
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_IRON_WIND) <= 0;
 		if (master) {

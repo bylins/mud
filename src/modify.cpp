@@ -37,6 +37,7 @@
 #include "conf.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
+#include "magic/magic_temp_spells.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -969,7 +970,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (qend = 0, i = 0; i <= SPELLS_COUNT; i++) {
 			if (spell_info[i].name == unused_spellname)    // This is valid.
 				continue;
-			sprintf(help + strlen(help), "%18s", spell_info[i].name);
+			sprintf(help + strlen(help), "%30s", spell_info[i].name);
 			if (qend++ % 4 == 3) {
 				strcat(help, "\r\n");
 				send_to_char(help, ch);
@@ -1035,7 +1036,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не можете добавить умение для мобов.\r\n", ch);
 		return;
 	}
-	if (value > skill_info[skill].cap) {
+	if (value > skill_info[skill].cap && spell < 0) {
 		send_to_char("Превышено максимально возможное значение умения.\r\n", ch);
 		value = skill_info[skill].cap;
 	}
@@ -1044,10 +1045,27 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
-	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
-	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+	mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, TRUE);
 	if (spell >= 0 && spell <= SPELLS_COUNT) {
+
+		if (value == 0) {
+			if (IS_SET(GET_SPELL_TYPE(vict, spell), SPELL_TEMP)) {
+//				send_to_char(ch, "Вы проверяете стирание темп .\r\n");
+				Temporary_Spells::add_spell(vict, spell, time(0), 0);
+/*				for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) 
+					if (it->first == spell) {
+						it->second.set_time = time(0);
+						it->second.duration = 0;
+						send_to_char(ch, "Вы убрали .\r\n");
+						it = vict->temp_spells.erase(it);
+					} */
+			}
+		} else {
+			if (IS_SET(value, SPELL_TEMP)) {
+//				send_to_char(ch, "Вы проверяете простановку темп .\r\n");
+				Temporary_Spells::add_spell(vict, spell, time(0), 60);
+			}
+		}
 		GET_SPELL_TYPE(vict, spell) = value;
 	} else if (SKILL_INVALID != skill
 		&& skill <= MAX_SKILL_NUM) {

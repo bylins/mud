@@ -132,16 +132,18 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
-
 	if (!target) {
 		send_to_char("Тяжеловато найти цель вашего заклинания!\r\n", ch);
+		return;
+	}
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP) && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+		send_to_char("На данной арене вы можете колдовать только временные заклинания!\r\n", ch);
 		return;
 	}
 
 	// You throws the dice and you takes your chances.. 101% is total failure
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
-
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 			WAIT_STATE(ch, PULSE_VIOLENCE);

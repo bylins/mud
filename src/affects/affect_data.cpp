@@ -407,7 +407,11 @@ void affect_total(CHAR_DATA *ch) {
 		// we don't care of affects of removed character.
 		return;
 	}
+	bool domination = false;
 
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+		domination = true;
+	}
 	OBJ_DATA *obj;
 
 	FLAG_DATA saved;
@@ -430,7 +434,14 @@ void affect_total(CHAR_DATA *ch) {
 			}
 		}
 	}
+	if (domination) {
+		ch->set_remort_add(20 - ch->get_remort());
+		ch->set_level_add(30 - ch->get_level());
+	} else {
+		ch->set_remort_add(0);
+		ch->set_level_add(0);
 
+	}
 	// бонусы от морта
 	if (GET_REAL_REMORT(ch) >= 20) {
 		ch->add_abils.mresist += GET_REAL_REMORT(ch) - 19;
