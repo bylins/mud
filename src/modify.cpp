@@ -1048,17 +1048,14 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, TRUE);
 	if (spell >= 0 && spell <= SPELLS_COUNT) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), SPELL_TEMP)) {
-			send_to_char(ch, "Вы стирание темп .\r\n");
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
 				if (it->second.spell == spell) {
-//					REMOVE_BIT(GET_SPELL_TYPE(vict, it->first), SPELL_TEMP);
 					it = vict->temp_spells.erase(it);
-					send_to_char(ch, "Вы убрали spell %d.\r\n", spell);
-				}
+				} else
+					++it;
 			}
 		}
 		if (IS_SET(value, SPELL_TEMP)) {
-			send_to_char(ch, "Вы добавляете темп .\r\n");
 			Temporary_Spells::add_spell(vict, spell, time(0), 3600);
 		}
 		GET_SPELL_TYPE(vict, spell) = value;

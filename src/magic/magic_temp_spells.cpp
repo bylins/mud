@@ -11,17 +11,13 @@ void add_spell(CHAR_DATA *ch, int spellnum, time_t set_time, time_t duration) {
 	sp.spell = spellnum;
 	sp.set_time = set_time;
 	sp.duration = duration;
-//send_to_char(ch, "Вы в проставке закла.\r\n");
 	auto it = ch->temp_spells.find(spellnum);
 	if (it != ch->temp_spells.end()) {
-send_to_char(ch, "закл найден продляем на %d.\r\n", static_cast<int>(duration));
 		if ((it->second.set_time + it->second.duration) < (set_time + duration)) {
 			it->second.set_time = set_time;
 			it->second.duration = duration;
-//send_to_char(ch, "Вы продлили закл.\r\n");
 		}
 	} else {
-send_to_char(ch, "Вы постигли заклинание. time %d\r\n", static_cast<int>(duration));
 		SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 		ch->temp_spells[spellnum] = sp;
 	}
