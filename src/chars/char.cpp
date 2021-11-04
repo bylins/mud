@@ -328,6 +328,7 @@ void CHAR_DATA::zero_init() {
 	int_add_ = 0;
 	cha_ = 0;
 	cha_add_ = 0;
+	skill_bonus_ = 0;
 	role_.reset();
 	attackers_.clear();
 	restore_timer_ = 0;
@@ -1497,10 +1498,16 @@ void CHAR_DATA::inc_cha(int param) {
 int CHAR_DATA::get_cha_add() const {
 	return cha_add_;
 }
-
 void CHAR_DATA::set_cha_add(int param) {
 	cha_add_ = param;
 }
+int CHAR_DATA::get_skill_bonus() const {
+	return skill_bonus_;
+}
+void CHAR_DATA::set_skill_bonus(int param) {
+	skill_bonus_ = param;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void CHAR_DATA::clear_add_affects() {
