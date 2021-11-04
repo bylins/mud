@@ -268,7 +268,7 @@ bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
 			for (OBJ_DATA *j = rm->contents; j; j = j->get_next_content()) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					send_to_char("Божественная сила спасла вашу жизнь!\r\n", ch);
-					enter_wtrigger(world[rnum_start], ch, -1);
+//					enter_wtrigger(world[rnum_start], ch, -1);
 					char_from_room(ch);
 					char_to_room(ch, rnum_start);
 					ch->dismount();
@@ -316,7 +316,7 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
 		send_to_char("Вам некуда возвращаться!\r\n", ch);
 		return true;
 	}
-	enter_wtrigger(world[rent_room], ch, -1);
+//	enter_wtrigger(world[rent_room], ch, -1);
 	send_to_char("Божественная сила спасла вашу жизнь.!\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, rent_room);
@@ -357,7 +357,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
 //		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
 //		send_to_char(buf, ch);  // все мессаги писать в грит триггере
-		enter_wtrigger(world[real_room(75989)], ch, -1);
+//		enter_wtrigger(world[real_room(75989)], ch, -1);
 		char_from_room(ch);
 		char_to_room(ch, real_room(75989));
 		ch->dismount();
