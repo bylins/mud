@@ -1563,6 +1563,8 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					WAIT_STATE(ch, PULSE_VIOLENCE);
 					return;
 				}
+//				if (!enter_wtrigger(world[door], ch, -1))
+//					return;
 				act("$n исчез$q в пентаграмме.", TRUE, ch, 0, 0, TO_ROOM);
 				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UNIQUE(ch)
 					&& !IS_IMMORTAL(ch)) {
@@ -1572,6 +1574,8 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				char_from_room(ch);
 				char_to_room(ch, door);
+				greet_mtrigger(ch, -1);
+				greet_otrigger(ch, -1);
 				set_wait(ch, 3, FALSE);
 				act("$n появил$u из пентаграммы.", TRUE, ch, 0, 0, TO_ROOM);
 				// ищем ангела и лошадь
