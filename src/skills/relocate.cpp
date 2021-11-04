@@ -88,6 +88,8 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	timed.skill = RELOCATE_FEAT;
+	if (!enter_wtrigger(world[fnd_room], ch, -1))
+			return;
 	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);

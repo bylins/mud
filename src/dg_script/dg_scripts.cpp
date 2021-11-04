@@ -3806,14 +3806,14 @@ void process_attach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *
 	id_p = two_arguments(cmd, arg, trignum_s);
 	skip_spaces(&id_p);
 
-	if (!*trignum_s) {
-		sprintf(buf2, "attach w/o an arg: '%s'", cmd);
+	if (!*trignum_s || atoi(trignum_s + 1) == 0) {
+		sprintf(buf2, "attach: нет или ошибка в аргументе 1: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!id_p || !*id_p || atoi(id_p + 1) == 0) {
-		sprintf(buf2, "attach invalid id(1) arg: '%s'", cmd);
+		sprintf(buf2, "attach: нет или ошибка в аргументе 2: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -3827,10 +3827,16 @@ void process_attach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				sprintf(buf2, "attach invalid id arg(3): '%s'", cmd);
+				sprintf(buf2, "attach: не найден аргумент 2 (кому): '%s'", cmd);
 				trig_log(trig, buf2);
 				return;
 			}
+		}
+	} else {
+		if (!IS_NPC(c)) {
+				sprintf(buf2, "attach: триггер нельзя прикрепить к игроку");
+				trig_log(trig, buf2);
+				return;
 		}
 	}
 
@@ -3848,7 +3854,7 @@ void process_attach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *
 	}
 
 	if (trignum < 0 || !(newtrig = read_trigger(trignum))) {
-		sprintf(buf2, "attach invalid trigger: '%s'", trignum_s);
+		sprintf(buf2, "attach: invalid trigger: '%s'", trignum_s);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -3917,7 +3923,7 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, 
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				sprintf(buf2, "detach invalid id arg(3): '%s'", cmd);
+				sprintf(buf2, "detach invalid id arg(2): '%s'", cmd);
 				trig_log(trig, buf2);
 				return retval;
 			}
