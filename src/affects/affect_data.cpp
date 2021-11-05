@@ -419,7 +419,7 @@ void affect_total(CHAR_DATA *ch) {
 	// Init struct
 	saved.clear();
 
-	ch->clear_add_affects();
+	ch->clear_add_apply_affects();
 
 	// PC's clear all affects, because recalc one
 	{
@@ -453,6 +453,7 @@ void affect_total(CHAR_DATA *ch) {
 		ch->set_int_add(0);
 		ch->set_wis_add(0);
 		ch->set_cha_add(0);*/
+
 	}
 	// бонусы от морта
 	if (GET_REAL_REMORT(ch) >= 20) {
@@ -474,11 +475,7 @@ void affect_total(CHAR_DATA *ch) {
 			}
 			// Update weapon applies
 			for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
-				affect_modify(ch,
-							  GET_EQ(ch, i)->get_affected(j).location,
-							  GET_EQ(ch, i)->get_affected(j).modifier,
-							  static_cast<EAffectFlag>(0),
-							  TRUE);
+				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location,  GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffectFlag>(0), TRUE);
 			}
 			// Update weapon bitvectors
 			for (const auto &j : weapon_affect) {
@@ -490,7 +487,6 @@ void affect_total(CHAR_DATA *ch) {
 			}
 		}
 	}
-
 	ch->obj_bonus().apply_affects(ch);
 
 /*	if (ch->add_abils.absorb > 0) {
@@ -868,6 +864,9 @@ void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, boo
 			break;
 		case APPLY_SPELL_BLINK:ch->add_abils.percent_spell_blink += mod;
 			break;
+		case APPLY_BONUS_SKILLS: {
+			ch->set_skill_bonus(ch->get_skill_bonus() + mod);
+		}
 		default:break;
 	}            // switch
 }

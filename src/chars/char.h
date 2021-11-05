@@ -384,6 +384,8 @@ class CHAR_DATA : public ProtectedCharacterData {
 	int get_skills_count() const;
 	int get_equipped_skill(const ESkill skill_num) const;
 	int get_trained_skill(const ESkill skill_num) const;
+	int get_skill_bonus() const;
+	void set_skill_bonus(int);
 
 	int get_obj_slot(int slot_num);
 	void add_obj_slot(int slot_num, int count);
@@ -530,7 +532,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 	void inc_cha(int);
 
 	////////////////////////////////////////////////////////////////////////////
-	void clear_add_affects();
+	void clear_add_apply_affects();
 	int get_str_add() const;
 	void set_str_add(int);
 	int get_dex_add() const;
@@ -760,6 +762,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 	int count_score;
 	// души, онли чернок
 	int souls;
+	int skill_bonus_;
 
  public:
 	bool isInSameRoom(const CHAR_DATA *ch) const { return (this->in_room == ch->in_room); };

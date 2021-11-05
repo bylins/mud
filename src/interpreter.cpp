@@ -2338,6 +2338,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	act("$n вступил$g в игру.", TRUE, d->character.get(), 0, 0, TO_ROOM);
 	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character.get());
+	enter_wtrigger(world[d->character.get()->in_room], d->character.get(), -1);
 	greet_mtrigger(d->character.get(), -1);
 	greet_otrigger(d->character.get(), -1);
 	STATE(d) = CON_PLAYING;
@@ -2405,7 +2406,6 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 			"Если вы заблудились и не можете самостоятельно найти дорогу назад - прочтите 'справка возврат'.\r\n",
 			d->character.get());
 	}
-
 	Noob::check_help_message(d->character.get());
 }
 

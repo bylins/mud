@@ -302,7 +302,8 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 		if (!pk_agro_action(ch, victim->get_fighting()))
 			return;
 	}
-
+	if (!enter_wtrigger(world[fnd_room], ch, -1))
+		return;
 	act("$n исчез$q.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, fnd_room);
@@ -329,7 +330,8 @@ void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DA
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-
+	if (!enter_wtrigger(world[fnd_room], ch, -1))
+		return;
 	act("$n медленно исчез$q из виду.", FALSE, ch, 0, 0, TO_ROOM);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
@@ -353,19 +355,6 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 
 	if (victim == NULL)
 		return;
-// закл же только у мобов
-/*
-	if (IS_NPC(victim)) { 
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	}
-
-	// если противник не может быть призван и уровень меньше цели - фэйл
-	if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && GET_REAL_LEVEL(victim) > GET_REAL_LEVEL(ch)) {
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	}
-*/
 	// Для иммов обязательные для перемещения условия не существенны
 	if (!IS_GOD(ch)) {
 		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
@@ -409,27 +398,16 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
+	if (!enter_wtrigger(world[fnd_room], ch, -1))
+		return;
 //	check_auto_nosummon(victim);
 	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
-//	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
+	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	ch->dismount();
-	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
-/*
-	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch))) {
-		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
-					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
-		pkPortal(ch);
-	}
 	look_at_room(ch, 0);
-	// Прыжок на чара в БД удваивает лаг
-	if (RENTABLE(victim)) {
-		WAIT_STATE(ch, 4 * PULSE_VIOLENCE);
-	} else {
-		WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-	}
-*/
+	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
 	WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
@@ -659,7 +637,8 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 			return;
 		}
 	}
-
+	if (!enter_wtrigger(world[ch_room], ch, -1))
+		return;
 	act("$n растворил$u на ваших глазах.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, ch_room);
@@ -684,9 +663,8 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 			}
 		}
 	}
-
-	greet_mtrigger(victim, -1);    // УЖАС!!! Не стоит в эту функцию передавать -1 :)
-	greet_otrigger(victim, -1);    // УЖАС!!! Не стоит в эту функцию передавать -1 :)
+	greet_mtrigger(victim, -1);
+	greet_otrigger(victim, -1);
 	return;
 }
 
