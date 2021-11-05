@@ -478,7 +478,6 @@ void affect_total(CHAR_DATA *ch) {
 			}
 		}
 	}
-
 	ch->obj_bonus().apply_affects(ch);
 
 /*	if (ch->add_abils.absorb > 0) {
@@ -856,6 +855,9 @@ void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, boo
 			break;
 		case APPLY_SPELL_BLINK:ch->add_abils.percent_spell_blink += mod;
 			break;
+		case APPLY_BONUS_SKILLS: {
+			ch->set_skill_bonus(ch->get_skill_bonus() + mod);
+		}
 		default:break;
 	}            // switch
 }
