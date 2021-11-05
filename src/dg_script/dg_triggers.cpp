@@ -1225,14 +1225,14 @@ int enter_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir) {
 			|| (TRIGGER_CHECK(t, WTRIG_ENTER_PC)
 				&& !IS_NPC(actor)))
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
+			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			if (dir >= 0) {
 				add_var_cntx(&GET_TRIG_VARS(t), "direction", dirs[rev_dir[dir]], 0);
-			}
-
-			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-
 			// триггер может удалить выход, но не вернуть 0 (есть такие билдеры)
-			return (script_driver(room, t, WLD_TRIGGER, TRIG_NEW) && CAN_GO(actor, dir));
+				return (script_driver(room, t, WLD_TRIGGER, TRIG_NEW) && CAN_GO(actor, dir));
+			} else {
+				return (script_driver(room, t, WLD_TRIGGER, TRIG_NEW));
+			}
 		}
 	}
 

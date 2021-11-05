@@ -1563,8 +1563,8 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					WAIT_STATE(ch, PULSE_VIOLENCE);
 					return;
 				}
-//				if (!enter_wtrigger(world[door], ch, -1))
-//					return;
+				if (!enter_wtrigger(world[door], ch, -1))
+					return;
 				act("$n исчез$q в пентаграмме.", TRUE, ch, 0, 0, TO_ROOM);
 				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UNIQUE(ch)
 					&& !IS_IMMORTAL(ch)) {
