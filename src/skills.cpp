@@ -825,12 +825,8 @@ int CalculateSkillRate(CHAR_DATA *ch, const ESkill skill_id, CHAR_DATA *vict) {
 
 	if (!IS_NPC(ch) && !ch->affected.empty()) {
 		for (const auto &aff : ch->affected) {
-			if (aff->location == APPLY_BONUS_SKILLS) {
-				base_percent += aff->modifier;
-			}
 			if (aff->location == APPLY_PLAQUE) {
-				base_percent -= number(ch->get_skill(skill_id) * 0.4,
-									   ch->get_skill(skill_id) * 0.05);
+				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
 			}
 		}
 	}
@@ -1309,11 +1305,6 @@ int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict) {
 
 	if (!IS_NPC(ch) && !ch->affected.empty()) {
 		for (const auto &aff : ch->affected) {
-			// скушал свиток с эксп умелкой
-			if (aff->location == APPLY_BONUS_SKILLS) {
-				base_percent += aff->modifier;
-			}
-
 			if (aff->location == APPLY_PLAQUE) {
 				base_percent -= number(ch->get_skill(skill) * 0.4,
 									   ch->get_skill(skill) * 0.05);

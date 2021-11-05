@@ -347,7 +347,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 }
 
 void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter/* = NULL*/) {
-	int i = 0, bonus = 0;
+	int i = 0;
 
 	sprintf(buf, "Вы владеете следующими умениями:\r\n");
 	strcpy(buf2, buf);
@@ -413,7 +413,7 @@ void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter/* = NULL*/) 
 
 			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
 					skill_info[sortpos].name,
-					how_good(ch->get_skill(sortpos) + bonus, CalcSkillHardCap(ch, sortpos)),
+					how_good(ch->get_skill(sortpos), CalcSkillHardCap(ch, sortpos)),
 					CalcSkillMinCap(ch, sortpos),
 					CCNRM(ch, C_NRM));
 
