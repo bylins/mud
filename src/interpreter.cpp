@@ -2406,7 +2406,6 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 			"Если вы заблудились и не можете самостоятельно найти дорогу назад - прочтите 'справка возврат'.\r\n",
 			d->character.get());
 	}
-
 	Noob::check_help_message(d->character.get());
 }
 
