@@ -532,7 +532,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 	void inc_cha(int);
 
 	////////////////////////////////////////////////////////////////////////////
-	void clear_add_affects();
+	void clear_add_apply_affects();
 	int get_str_add() const;
 	void set_str_add(int);
 	int get_dex_add() const;

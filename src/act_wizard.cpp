@@ -3330,14 +3330,27 @@ void print_mob_bosses(CHAR_DATA *ch, bool lvl_sort) {
 								 ? zone_name_str.substr(0, 31)
 								 : zone_name_str));
 	}
-
 	page_string(ch->desc, out);
 }
-
 } // namespace
 
-struct show_struct show_fields[] =
-	{
+void show_apply(CHAR_DATA *ch, CHAR_DATA *vict) {
+	OBJ_DATA *obj = nullptr;
+	for (int i = 0; i < NUM_WEARS; i++) {
+		if ((obj = GET_EQ(vict, i))) {
+			send_to_char(ch, "Предмет: %s (%d)\r\n", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
+			// Update weapon applies
+			for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+				if (GET_EQ(vict, i)->get_affected(j).modifier != 0) {
+						send_to_char(ch, "Добавляет (apply): %s, модификатор: %d\r\n", 
+							apply_types[(int) GET_EQ(vict, i)->get_affected(j).location], GET_EQ(vict, i)->get_affected(j).modifier);
+				}
+			}
+		}
+	}
+}
+
+struct show_struct show_fields[] = {
 		{"nothing", 0},        // 0
 		{"zones", LVL_IMMORT},    // 1
 		{"player", LVL_IMMORT},
@@ -3364,8 +3377,9 @@ struct show_struct show_fields[] =
 		{"mobstat", LVL_IMPL},
 		{"bosses", LVL_IMPL},
 		{"remort", LVL_IMPL}, // 25
+		{"apply", LVL_GOD}, // 26
 		{"\n", 0}
-	};
+};
 
 void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, j, l, con;    // i, j, k to specifics?
@@ -3717,10 +3731,8 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			break;
-
 		case 12:        // show loadrooms
 			break;
-
 		case 13:        // show skills
 			if (!*value) {
 				send_to_char("Уточните имя.\r\n", ch);
@@ -3778,8 +3790,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 22: // runes
 			print_rune_stats(ch);
 			break;
-		case 23: // mobstat
-		{
+		case 23: { // mobstat 
 			if (*value && is_number(value)) {
 				if (*value1 && is_number(value1)) {
 					mob_stat::show_zone(ch, atoi(value), atoi(value1));
@@ -3801,6 +3812,18 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 25: // remort
 			Remort::show_config(ch);
 			break;
+		case 26: { //Apply
+			if (!*value) {
+				send_to_char("Уточните имя.\r\n", ch);
+				return;
+			}
+			if (!(vict = get_player_vis(ch, value, FIND_CHAR_WORLD))) {
+				send_to_char("Нет такого игрока.\r\n", ch);
+				return;
+			}
+			show_apply(ch, vict);
+			break;
+		}
 		default: send_to_char("Извините, неверная команда.\r\n", ch);
 			break;
 	}
