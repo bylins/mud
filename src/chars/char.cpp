@@ -518,7 +518,7 @@ void CHAR_DATA::purge() {
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
 int CHAR_DATA::get_skill(const ESkill skill_num) const {
-	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num) + get_skill_bonus();
+	int skill = this->get_trained_skill(skill_num) + get_equipped_skill(skill_num);
 	if (AFF_FLAGGED(this, EAffectFlag::AFF_SKILLS_REDUCE)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
@@ -532,7 +532,6 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const {
 
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
-	// Пока что отменим это дело, народ морально не готов отказаться от автосников.
 	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
 	//int is_native = true;
 	for (int i = 0; i < NUM_WEARS; ++i) {
@@ -547,10 +546,9 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const {
 			}*/
 		}
 	}
-	skill += obj_bonus_.get_skill(skill_num);
-	/*if (is_native)
-		skill += obj_bonus_.get_skill(skill_num);*/
-
+	if (is_native)
+		skill += obj_bonus_.get_skill(skill_num);
+	skill += get_skill_bonus();
 	return skill;
 }
 
@@ -1519,6 +1517,7 @@ void CHAR_DATA::clear_add_affects() {
 	set_int_add(0);
 	set_wis_add(0);
 	set_cha_add(0);
+	set_skill_bonus(0);
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CHAR_DATA::get_zone_group() const {

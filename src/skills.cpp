@@ -1931,7 +1931,7 @@ void TrainSkill(CHAR_DATA *ch, const ESkill skill, bool success, CHAR_DATA *vict
 		if (ch->get_skill(skill) > 0
 			&& GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch))
 			&& ch->get_skill(skill) < skill_info[skill].difficulty) {
-			ch->set_skill(skill, ch->get_skill(skill) + 1);
+			ch->set_skill(skill, ch->get_trained_skill(skill) + 1);
 		}
 	}
 }
