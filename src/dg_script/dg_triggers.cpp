@@ -793,7 +793,9 @@ int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 		if (TRIGGER_CHECK(t, MTRIG_CAST)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
-			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<std::string>(spellnum).c_str(), 0);
+//			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<std::string>(spellnum).c_str(), 0);
+			sprintf(buf, "%d", spellnum);
+			add_var_cntx(&GET_TRIG_VARS(t), "castnum", buf, 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "castname", spell_info[spellnum].name, 0);
 			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 		}
