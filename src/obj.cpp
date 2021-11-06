@@ -961,7 +961,7 @@ void init_ilvl(CObjectPrototype *obj) {
 }
 
 void init_item_levels() {
-	for (const auto i : obj_proto) {
+	for (const auto &i : obj_proto) {
 		init_ilvl(i.get());
 	}
 }
@@ -1140,7 +1140,7 @@ std::string ObjVal::print_to_zone() const {
 				  return a.first < b.first;
 			  });
 
-	for (auto const i : m_val_vec) {
+	for (auto const &i : m_val_vec) {
 		out << "V " << i.first << " " << i.second << "\n";
 	}
 

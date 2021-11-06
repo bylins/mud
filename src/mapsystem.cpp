@@ -486,7 +486,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			// здесь важна очередность, что первое отрисовалось - то и будет
 			const ROOM_DATA *next_room = world[room->dir_option[i]->to_room()];
 			bool view_dt = false;
-			for (const auto aff : ch->affected) {
+			for (const auto &aff : ch->affected) {
 				if (aff->location == APPLY_VIEW_DT) // скушал свиток с эксп бонусом
 				{
 					view_dt = true;

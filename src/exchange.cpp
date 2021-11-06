@@ -542,7 +542,7 @@ int exchange_identify(CHAR_DATA *ch, char *arg) {
 }
 
 CHAR_DATA *get_char_by_id(int id) {
-	for (const auto i : character_list) {
+	for (const auto &i : character_list) {
 		if (!IS_NPC(i) && GET_IDNUM(i) == id) {
 			return i.get();
 		}

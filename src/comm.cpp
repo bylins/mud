@@ -3009,7 +3009,7 @@ int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst) {
 * а менять систему с пасами/дубликатами обламывает.
 */
 bool any_other_ch(CHAR_DATA *ch) {
-	for (const auto vict : character_list) {
+	for (const auto &vict : character_list) {
 		if (!IS_NPC(vict)
 			&& vict.get() != ch
 			&& GET_UNIQUE(vict) == GET_UNIQUE(ch)) {

@@ -3510,11 +3510,11 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else if (NAME_GOD(vict) < 1000) {
 				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(vict)));
 				*buf1 = UPPER(*buf1);
-				sprintf(buf + strlen(buf), "Имя запрещено богом %s\r\n", buf1);
+				snprintf(buf + strlen(buf), MAX_STRING_LENGTH, "Имя запрещено богом %s\r\n", buf1);
 			} else {
 				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(vict)));
 				*buf1 = UPPER(*buf1);
-				sprintf(buf + strlen(buf), "Имя одобрено богом %s\r\n", buf1);
+				snprintf(buf + strlen(buf), MAX_STRING_LENGTH, "Имя одобрено богом %s\r\n", buf1);
 			}
 			if (GET_REAL_REMORT(vict) < 4)
 				sprintf(rem, "Перевоплощений: %d\r\n", GET_REAL_REMORT(vict));
@@ -3548,7 +3548,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			j = 0;
 			con = 0;
 			int motion = 0;
-			for (const auto vict : character_list) {
+			for (const auto &vict : character_list) {
 				if (IS_NPC(vict)) {
 					j++;
 				} else {
@@ -3644,7 +3644,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
 			send_to_char(buf, ch);
 			i = 0;
-			for (const auto vict : character_list) {
+			for (const auto &vict : character_list) {
 				if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE) {
 					continue;
 				}
@@ -5485,7 +5485,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	send_to_char(buffer, ch);
 
 	std::multimap<int /* zone lvl */, int /* obj rnum */> tmp_list;
-	for (const auto i : obj_proto) {
+	for (const auto &i : obj_proto) {
 		// материал
 		if (filter.material >= 0 && filter.material != GET_OBJ_MATER(i)) {
 			continue;

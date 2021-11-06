@@ -453,7 +453,7 @@ void init_depot() {
 
 // * Загрузка самих хранилищ в банки делается после инита хранилищ и резета зон, потому как мобов надо.
 void load_chests() {
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		const auto rnum = ch->get_rnum();
 		if (rnum > 0
 			&& rnum <= top_of_mobt

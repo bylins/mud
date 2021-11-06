@@ -594,7 +594,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer) {
 }
 
 void clear_mobs_memory(CHAR_DATA *ch) {
-	for (const auto hitter : character_list) {
+	for (const auto &hitter : character_list) {
 		if (IS_NPC(hitter) && MEMORY(hitter)) {
 			mobForget(hitter.get(), ch);
 		}
@@ -870,7 +870,7 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 		}
 
 		if (!IS_NPC(ch) && !ch->affected.empty() && Bonus::can_get_bonus_exp(ch)) {
-			for (const auto aff : ch->affected) {
+			for (const auto &aff : ch->affected) {
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
 				{
 					exp *= MIN(3, aff->modifier); // бонус макс тройной

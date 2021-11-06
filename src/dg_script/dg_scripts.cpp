@@ -334,7 +334,7 @@ const char *get_objs_in_world(OBJ_DATA *obj) {
 int gcount_char_vnum(long n) {
 	int count = 0;
 
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (n == GET_MOB_VNUM(ch)) {
 			count++;
 		}
@@ -403,7 +403,7 @@ ROOM_DATA *find_room(long n) {
  */
 int find_char_vnum(long n, int num = 0) {
 	int count = 0;
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE) {
 			if (num != count) {
 				++count;
@@ -523,7 +523,7 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA *obj, char *name) {
 			return obj->get_worn_by();
 		}
 
-		for (const auto ch : character_list) {
+		for (const auto &ch : character_list) {
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch))) {
@@ -556,7 +556,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA *room, char *name) {
 			return ch;
 		}
 	} else {
-		for (const auto ch : room->people) {
+		for (const auto &ch : room->people) {
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch))) {
@@ -564,7 +564,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA *room, char *name) {
 			}
 		}
 
-		for (const auto ch : character_list) {
+		for (const auto &ch : character_list) {
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch))) {
@@ -4238,7 +4238,7 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 		return;
 	}
 
-	for (const auto tch : character_list) {
+	for (const auto &tch : character_list) {
 		if (IS_NPC(tch)
 			|| !HERE(tch)
 			|| (*who
@@ -4265,7 +4265,7 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 // * Поиск мобов для calcuidall_var.
 bool find_all_char_vnum(long n, char *str) {
 	int count = 0;
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE && (strlen(str + strlen(str)) < MAX_TRGLINE_LENGTH)) {
 			snprintf(str + strlen(str), MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(ch));
 			++count;

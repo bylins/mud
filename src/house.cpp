@@ -2619,7 +2619,7 @@ const char *CLAN_PKLIST_FORMAT[] =
 * т.е. они стоят где-то в мире полюбому, все остальные состояния считаются как онлайн.
 */
 bool check_online_state(long uid) {
-	for (const auto tch : character_list) {
+	for (const auto &tch : character_list) {
 		if (IS_NPC(tch)
 			|| GET_UNIQUE(tch) != uid
 			|| (!tch->desc && !RENTABLE(tch))) {
@@ -2663,7 +2663,7 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 					 CCNRM(ch, C_NRM));
 		ClanPkList::const_iterator it;
 		// вобщем чтобы словить чаров, находящихся в лд - придется гонять по чарактер-листу
-		for (const auto tch : character_list) {
+		for (const auto &tch : character_list) {
 			if (IS_NPC(tch))
 				continue;
 			// пкл

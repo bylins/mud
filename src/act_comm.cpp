@@ -331,7 +331,7 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		 *      hear tells anyway. :) -gg 2/24/98
 		 */
 		bool found = false;
-		for (const auto i : character_list) {
+		for (const auto &i : character_list) {
 			if (!IS_NPC(i)
 				&& GET_IDNUM(i) == ch->get_answer_id()) {
 				if (is_tell_ok(ch, i.get())) {
@@ -1063,7 +1063,7 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!arg1[0] && !arg2[0] && !arg3[0]) {
 		sprintf(buf, "%sВы игнорируете следующих персонажей:%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		for (const auto ignore : ch->get_ignores()) {
+		for (const auto &ignore : ch->get_ignores()) {
 			if (!ignore->id)
 				continue;
 			if (ignore->id == -1) {
@@ -1133,7 +1133,7 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // ищем жертву в списке
 	ignore_data::shared_ptr ignore = nullptr;
-	for (const auto ignore_i : ch->get_ignores()) {
+	for (const auto &ignore_i : ch->get_ignores()) {
 		if (ignore_i->id == vict_id) {
 			ignore = ignore_i;
 			break;
