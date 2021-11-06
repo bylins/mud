@@ -444,7 +444,7 @@ void affect_total(CHAR_DATA *ch) {
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
 	} 	else {
-		ch->clear_add_affects();
+		ch->clear_add_apply_affects();
 /*		ch->set_remort_add(0);
 		ch->set_level_add(0);
 		ch->set_str_add(0);
