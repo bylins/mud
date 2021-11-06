@@ -1511,6 +1511,8 @@ void CHAR_DATA::set_skill_bonus(int param) {
 void CHAR_DATA::clear_add_apply_affects() {
 	// Clear all affect, because recalc one
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
+	set_remort_add(0);
+	set_level_add(0);
 	set_str_add(0);
 	set_dex_add(0);
 	set_con_add(0);

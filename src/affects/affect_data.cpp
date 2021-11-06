@@ -437,9 +437,22 @@ void affect_total(CHAR_DATA *ch) {
 	if (domination) {
 		ch->set_remort_add(20 - ch->get_remort());
 		ch->set_level_add(30 - ch->get_level());
-	} else {
-		ch->set_remort_add(0);
+		ch->set_str_add(ch->get_remort_add());
+		ch->set_dex_add(ch->get_remort_add());
+		ch->set_con_add(ch->get_remort_add()); 
+		ch->set_int_add(ch->get_remort_add());
+		ch->set_wis_add(ch->get_remort_add());
+		ch->set_cha_add(ch->get_remort_add());
+	} 	else {
+		ch->clear_add_affects();
+/*		ch->set_remort_add(0);
 		ch->set_level_add(0);
+		ch->set_str_add(0);
+		ch->set_dex_add(0);
+		ch->set_con_add(0);
+		ch->set_int_add(0);
+		ch->set_wis_add(0);
+		ch->set_cha_add(0);*/
 
 	}
 	// бонусы от морта
