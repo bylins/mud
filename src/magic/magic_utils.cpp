@@ -367,9 +367,9 @@ int call_magic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *
 	if (spellnum < 1 || spellnum > SPELLS_COUNT)
 		return 0;
 
-	if (caster && cvict && !cast_mtrigger(cvict, caster, spellnum)) {
-		return 0;
-	}
+//	if (caster && cvict && !cast_mtrigger(cvict, caster, spellnum)) {
+//		return 0;
+//	}
 
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !may_cast_in_nomagic(caster, cvict, spellnum)) {
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);

@@ -3810,7 +3810,9 @@ int mag_single_target(int level, CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *
 			send_to_char(NOEFFECT, caster);
 			return (-1);
 		}
-
+	if (!cast_mtrigger(cvict, caster, spellnum)) {
+		return -1;
+		}
 	if (IS_SET(SpINFO.routines, MAG_WARCRY) && cvict && IS_UNDEAD(cvict))
 		return 1;
 
