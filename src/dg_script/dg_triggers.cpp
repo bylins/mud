@@ -167,7 +167,7 @@ char *one_phrase(char *arg, char *first_arg) {
 		s = first_arg;
 		p = arg;
 
-		while (*p && !a_isspace(*p) && *p != '"')
+		while (*p && !isspace(*p) && *p != '"')
 			*s++ = *p++;
 
 		*s = '\0';
@@ -185,9 +185,9 @@ int is_substring(const char *sub, const char *string) {
 		size_t sublen = strlen(sub);
 
 		// check front
-		if ((s == string || a_isspace(*(s - 1)) || ispunct(static_cast<unsigned char>(*(s - 1))))
+		if ((s == string || isspace(*(s - 1)) || ispunct(static_cast<unsigned char>(*(s - 1))))
 			// check end
-			&& ((s + sublen == string + len) || a_isspace(s[sublen])
+			&& ((s + sublen == string + len) || isspace(s[sublen])
 				|| ispunct(static_cast<unsigned char>(s[sublen])))) {
 			return 1;
 		}
