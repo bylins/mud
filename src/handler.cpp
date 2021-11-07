@@ -1465,7 +1465,7 @@ CHAR_DATA *get_char_room(char *name, room_rnum room) {
 
 // search all over the world for a char num, and return a pointer if found //
 CHAR_DATA *get_char_num(mob_rnum nr) {
-	for (const auto i : character_list) {
+	for (const auto &i : character_list) {
 		if (GET_MOB_RNUM(i) == nr) {
 			return i.get();
 		}

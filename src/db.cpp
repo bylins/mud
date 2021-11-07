@@ -1263,7 +1263,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 /// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
 void convert_obj_values() {
 	int save = 0;
-	for (const auto i : obj_proto) {
+	for (const auto &i : obj_proto) {
 		save = std::max(save, convert_drinkcon_skill(i.get(), true));
 		if (i->get_extra_flag(EExtraFlag::ITEM_1INLAID)) {
 			i->unset_extraflag(EExtraFlag::ITEM_1INLAID);
@@ -3271,7 +3271,7 @@ int vnum_flag(char *searchname, CHAR_DATA *ch) {
 	}
 
 	if (f) {
-		for (const auto i : obj_proto) {
+		for (const auto &i : obj_proto) {
 			if (i->get_extra_flag(plane, 1 << plane_offset)) {
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
 						 ++found, i->get_vnum(), i->get_short_description().c_str(), extra_bits[counter]);
@@ -3288,7 +3288,7 @@ int vnum_flag(char *searchname, CHAR_DATA *ch) {
 		}
 	}
 	if (f) {
-		for (const auto i : obj_proto) {
+		for (const auto &i : obj_proto) {
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++) {
 				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter)) {
 					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
@@ -3316,7 +3316,7 @@ int vnum_flag(char *searchname, CHAR_DATA *ch) {
 		plane_offset++;
 	}
 	if (f) {
-		for (const auto i : obj_proto) {
+		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
 						 ++found, i->get_vnum(),
@@ -3335,7 +3335,7 @@ int vnum_flag(char *searchname, CHAR_DATA *ch) {
 		}
 	}
 	if (f) {
-		for (const auto i : obj_proto) {
+		for (const auto &i : obj_proto) {
 			if (i->has_skills()) {
 				auto it = i->get_skills().find(static_cast<ESkill>(counter));
 				if (it != i->get_skills().end()) {
@@ -4061,7 +4061,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 		//поскольку единственным доступным способом получить всех мобов одного внума является
 		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
-		for (const auto ch : character_list) {
+		for (const auto &ch : character_list) {
 			const auto rnum = ch->get_rnum();
 			if (rnum > 0
 				&& list.find(mob_index[rnum].vnum) != list.end()) {
@@ -5780,7 +5780,7 @@ void load_speedwalk() {
 		speedwalks.push_back(sw);
 
 	}
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		for (auto &sw : speedwalks) {
 			for (auto mob : sw.vnum_mobs) {
 				if (GET_MOB_VNUM(ch) == mob) {

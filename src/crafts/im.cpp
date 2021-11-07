@@ -362,7 +362,7 @@ OBJ_DATA *load_ingredient(int index, int power, int rnum)
 
 void im_translate_rskill_to_id(void) {
 	im_rskill *rs;
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (IS_NPC(ch)) {
 			continue;
 		}
@@ -376,7 +376,7 @@ void im_translate_rskill_to_id(void) {
 void im_translate_rskill_to_rid(void) {
 	im_rskill *rs, **prs;
 	int rid;
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (IS_NPC(ch))
 			continue;
 		prs = &GET_RSKILL(ch);

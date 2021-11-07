@@ -379,7 +379,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 		}
 
 		// В живых мобах необходимо обновить строки, иначе будут крэши
-		for (const auto live_mob : character_list) {
+		for (const auto &live_mob : character_list) {
 			if (IS_MOB(live_mob) && GET_MOB_RNUM(live_mob) == rmob_num) {
 				live_mob->set_pc_name((mob_proto + rmob_num)->get_pc_name().c_str());
 				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name().c_str());
@@ -480,7 +480,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 		// Update live mobile rnums. //
 		// new_mob_num - индекс, куда вставлен новый моб //
 		// Для всех существующих мобов с RNUM>=new_mob_num нужно увеличить RNUM //
-		for (const auto live_mob : character_list) {
+		for (const auto &live_mob : character_list) {
 			if (GET_MOB_RNUM(live_mob) >= new_mob_num) {
 				live_mob->set_rnum(1 + live_mob->get_rnum());
 			}

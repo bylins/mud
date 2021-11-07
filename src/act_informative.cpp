@@ -3230,8 +3230,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 																 desc_count(
 																	 (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
 																	 WHAT_HOUR)) : sprintf(buf2, "менее часа.");
-			sprintf(buf + strlen(buf),
-					" || Метка продержится еще %-58s||\r\n", buf2);
+			snprintf(buf + strlen(buf), MAX_STRING_LENGTH, " || Метка продержится еще %-58s||\r\n", buf2);
 			*buf2 = '\0';
 		}
 	}
@@ -4142,7 +4141,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	int all = 0;
 
-	for (const auto tch: character_list) {
+	for (const auto &tch: character_list) {
 		if (IS_NPC(tch))
 			continue;
 
@@ -4338,7 +4337,7 @@ void do_statistic(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		ptot[i] = 0;
 	}
 
-	for (const auto tch : character_list) {
+	for (const auto &tch : character_list) {
 		if (IS_NPC(tch) || GET_REAL_LEVEL(tch) >= LVL_IMMORT || !HERE(tch))
 			continue;
 
@@ -4877,7 +4876,7 @@ void perform_mortal_where(CHAR_DATA *ch, char *arg) {
 		}
 	} else        // print only FIRST char, not all.
 	{
-		for (const auto i : character_list) {
+		for (const auto &i : character_list) {
 			if (i->in_room == NOWHERE
 				|| i.get() == ch) {
 				continue;
@@ -5034,7 +5033,7 @@ void perform_immort_where(CHAR_DATA *ch, char *arg) {
 			}
 		}
 	} else {
-		for (const auto i : character_list) {
+		for (const auto &i : character_list) {
 			if (CAN_SEE(ch, i)
 				&& i->in_room != NOWHERE
 				&& isname(arg, i->get_pc_name())) {

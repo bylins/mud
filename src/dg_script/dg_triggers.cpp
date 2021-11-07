@@ -167,7 +167,7 @@ char *one_phrase(char *arg, char *first_arg) {
 		s = first_arg;
 		p = arg;
 
-		while (*p && !a_isspace(*p) && *p != '"')
+		while (*p && !isspace(*p) && *p != '"')
 			*s++ = *p++;
 
 		*s = '\0';
@@ -185,9 +185,9 @@ int is_substring(const char *sub, const char *string) {
 		size_t sublen = strlen(sub);
 
 		// check front
-		if ((s == string || a_isspace(*(s - 1)) || ispunct(static_cast<unsigned char>(*(s - 1))))
+		if ((s == string || isspace(*(s - 1)) || ispunct(static_cast<unsigned char>(*(s - 1))))
 			// check end
-			&& ((s + sublen == string + len) || a_isspace(s[sublen])
+			&& ((s + sublen == string + len) || isspace(s[sublen])
 				|| ispunct(static_cast<unsigned char>(s[sublen])))) {
 			return 1;
 		}
@@ -793,7 +793,9 @@ int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 		if (TRIGGER_CHECK(t, MTRIG_CAST)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
-			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<std::string>(spellnum).c_str(), 0);
+//			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<std::string>(spellnum).c_str(), 0);
+			sprintf(buf, "%d", spellnum);
+			add_var_cntx(&GET_TRIG_VARS(t), "castnum", buf, 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "castname", spell_info[spellnum].name, 0);
 			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 		}

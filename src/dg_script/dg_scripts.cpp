@@ -334,7 +334,7 @@ const char *get_objs_in_world(OBJ_DATA *obj) {
 int gcount_char_vnum(long n) {
 	int count = 0;
 
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (n == GET_MOB_VNUM(ch)) {
 			count++;
 		}
@@ -403,7 +403,7 @@ ROOM_DATA *find_room(long n) {
  */
 int find_char_vnum(long n, int num = 0) {
 	int count = 0;
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE) {
 			if (num != count) {
 				++count;
@@ -523,7 +523,7 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA *obj, char *name) {
 			return obj->get_worn_by();
 		}
 
-		for (const auto ch : character_list) {
+		for (const auto &ch : character_list) {
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch))) {
@@ -556,7 +556,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA *room, char *name) {
 			return ch;
 		}
 	} else {
-		for (const auto ch : room->people) {
+		for (const auto &ch : room->people) {
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch))) {
@@ -564,7 +564,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA *room, char *name) {
 			}
 		}
 
-		for (const auto ch : character_list) {
+		for (const auto &ch : character_list) {
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch))) {
@@ -1312,9 +1312,9 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		// trim whitespace from ends
 		p = vd->value;
 		p2 = vd->value + strlen(vd->value) - 1;
-		while (*p && a_isspace(*p))
+		while (*p && isspace(*p))
 			p++;
-		while ((p >= p2) && a_isspace(*p2))
+		while ((p >= p2) && isspace(*p2))
 			p2--;
 		if (p > p2)    // nothing left
 		{
@@ -1335,16 +1335,16 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	} else if (!str_cmp(field, "car"))    // car
 	{
 		char *car = vd->value;
-		while (*car && !a_isspace(*car))
+		while (*car && !isspace(*car))
 			*str++ = *car++;
 		*str = '\0';
 		return TRUE;
 	} else if (!str_cmp(field, "cdr"))    // cdr
 	{
 		char *cdr = vd->value;
-		while (*cdr && !a_isspace(*cdr))
+		while (*cdr && !isspace(*cdr))
 			cdr++;    // skip 1st field
-		while (*cdr && a_isspace(*cdr))
+		while (*cdr && isspace(*cdr))
 			cdr++;    // skip to next
 		while (*cdr)
 			*str++ = *cdr++;
@@ -3194,7 +3194,7 @@ int is_num(const char *num) {
 		num++;
 	}
 
-	return (!*num || a_isspace(*num)) ? 1 : 0;
+	return (!*num || isspace(*num)) ? 1 : 0;
 }
 
 // evaluates 'lhs op rhs', and copies to result
@@ -3209,19 +3209,19 @@ void eval_op(const char *op,
 	int n;
 
 	// strip off extra spaces at begin and end
-	while (*lhs && a_isspace(*lhs)) {
+	while (*lhs && isspace(*lhs)) {
 		lhs++;
 	}
 
 	char *rhs = nullptr;
 	std::shared_ptr<char> rhs_guard(rhs = str_dup(const_rhs), free);
 
-	while (*rhs && a_isspace(*rhs)) {
+	while (*rhs && isspace(*rhs)) {
 		rhs++;
 	}
 
-	for (p = lhs + strlen(lhs) - 1; (p >= lhs) && a_isspace(*p); *p-- = '\0');
-	for (p = rhs + strlen(rhs) - 1; (p >= rhs) && a_isspace(*p); *p-- = '\0');
+	for (p = lhs + strlen(lhs) - 1; (p >= lhs) && isspace(*p); *p-- = '\0');
+	for (p = rhs + strlen(rhs) - 1; (p >= rhs) && isspace(*p); *p-- = '\0');
 
 	// find the op, and figure out the value
 	if (!strcmp("||", op)) {
@@ -3321,7 +3321,7 @@ char *matching_paren(char *p) {
 void eval_expr(const char *line, char *result, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type) {
 	char expr[MAX_INPUT_LENGTH], *p;
 
-	while (*line && a_isspace(*line)) {
+	while (*line && isspace(*line)) {
 		line++;
 	}
 
@@ -3381,7 +3381,7 @@ int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA *sc, T
 		else if (*p == '"')
 			p = matching_quote(p) + 1;
 		else if (a_isalnum(*p))
-			for (p++; *p && (a_isalnum(*p) || a_isspace(*p)); p++);
+			for (p++; *p && (a_isalnum(*p) || isspace(*p)); p++);
 		else
 			p++;
 	}
@@ -3551,7 +3551,7 @@ cmdlist_element::shared_ptr find_end(TRIG_DATA *trig, cmdlist_element::shared_pt
 #endif
 
 	while ((cl = cl ? cl->next : cl) != NULL) {
-		for (p = cl->cmd.c_str(); *p && a_isspace(*p); p++);
+		for (p = cl->cmd.c_str(); *p && isspace(*p); p++);
 
 		if (!strn_cmp("if ", p, 3)) {
 			cl = find_end(trig, cl);
@@ -3585,7 +3585,7 @@ cmdlist_element::shared_ptr find_else_end(TRIG_DATA *trig,
 #endif
 
 	while ((cl = cl ? cl->next : cl) != NULL) {
-		for (p = cl->cmd.c_str(); *p && a_isspace(*p); p++);
+		for (p = cl->cmd.c_str(); *p && isspace(*p); p++);
 
 		if (!strn_cmp("if ", p, 3)) {
 			cl = find_end(trig, cl);
@@ -4238,7 +4238,7 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 		return;
 	}
 
-	for (const auto tch : character_list) {
+	for (const auto &tch : character_list) {
 		if (IS_NPC(tch)
 			|| !HERE(tch)
 			|| (*who
@@ -4265,7 +4265,7 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 // * Поиск мобов для calcuidall_var.
 bool find_all_char_vnum(long n, char *str) {
 	int count = 0;
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE && (strlen(str + strlen(str)) < MAX_TRGLINE_LENGTH)) {
 			snprintf(str + strlen(str), MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(ch));
 			++count;
@@ -4805,7 +4805,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			break;
 		}
 		const char *p = nullptr;
-		for (p = cl->cmd.c_str(); !stop && trig && *p && a_isspace(*p); p++);
+		for (p = cl->cmd.c_str(); !stop && trig && *p && isspace(*p); p++);
 
 		if (*p == '*' || *p == '/')    // comment
 		{
@@ -4871,7 +4871,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		} else if (!strn_cmp("done", p, 4)) {
 			if (cl->original) {
 				auto orig_cmd = cl->original->cmd.c_str();
-				while (*orig_cmd && a_isspace(*orig_cmd)) {
+				while (*orig_cmd && isspace(*orig_cmd)) {
 					orig_cmd++;
 				}
 

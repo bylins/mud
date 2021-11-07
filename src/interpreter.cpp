@@ -1651,8 +1651,9 @@ T any_one_arg_template(T argument, char *first_arg) {
 	}
 	skip_spaces(&argument);
 
-	unsigned num = 0;
-	while (*argument && !a_isspace(*argument) && num < MAX_INPUT_LENGTH - 1) {
+	int num = 0;
+//	int len = strlen(argument);
+	while (*argument && !a_isspace(*argument) && num < MAX_STRING_LENGTH - 1) {
 		*first_arg = a_lcc(*argument);
 		++first_arg;
 		++argument;
@@ -1672,7 +1673,7 @@ const char *any_one_arg(const char *argument, char *first_arg) { return any_one_
 void half_chop(const char *string, char *arg1, char *arg2) {
 	const char *temp = any_one_arg_template(string, arg1);
 	skip_spaces(&temp);
-	strl_cpy(arg2, temp, MAX_INPUT_LENGTH);
+	strl_cpy(arg2, temp, MAX_STRING_LENGTH);
 }
 
 // Used in specprocs, mostly.  (Exactly) matches "command" to cmd number //
@@ -2040,7 +2041,7 @@ int check_dupes_email(DESCRIPTOR_DATA *d) {
 		return (1);
 	}
 
-	for (const auto ch : character_list) {
+	for (const auto &ch : character_list) {
 		if (ch == d->character
 			|| IS_NPC(ch)) {
 			continue;
@@ -2212,7 +2213,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	send_to_char(WELC_MESSG, d->character.get());
 
 	CHAR_DATA *character = nullptr;
-	for (const auto character_i : character_list) {
+	for (const auto &character_i : character_list) {
 		if (character_i == d->character) {
 			character = character_i.get();
 			break;

@@ -21,7 +21,7 @@ char *any_one_name(char *argument, char *first_arg) {
 	char *arg;
 
 	// Find first non blank 
-	while (a_isspace(*argument))
+	while (isspace(*argument))
 		argument++;
 
 	// Find length of first word 
@@ -30,7 +30,7 @@ char *any_one_name(char *argument, char *first_arg) {
 	 * Библиотечная функция ispunct() неправильно работает для русского языка
 	 * (по крайней мере у меня). Пока закоментировал.
 	 */
-	for (arg = first_arg; *argument && !a_isspace(*argument)    /*&&
+	for (arg = first_arg; *argument && !isspace(*argument)    /*&&
 									   (!ispunct(*argument) || *argument == '#' || *argument == '-') */ ;
 		 arg++, argument++)
 		*arg = LOWER(*argument);
@@ -105,7 +105,8 @@ void sub_write_to_char(CHAR_DATA *ch, char *tokens[], void *otokens[], char type
 
 	strcat(sb, tokens[i]);
 	strcat(sb, "\n\r");
-	sb[0] = UPPER(sb[0]);    // Библиотечный вызов toupper() глючит для русского
+// Ибо нефиг, достали прочерки ставить чтоб не аперкейсило в многостроковых сказаниях, пусть билдеры руками.
+//	sb[0] = UPPER(sb[0]);    // Библиотечный вызов toupper() глючит для русского
 	send_to_char(sb, ch);
 }
 

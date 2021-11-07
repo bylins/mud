@@ -182,7 +182,7 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu) {
 	bool left = true;
 
 	std::list<std::pair<int, const char *>> rnum_list;
-	for (const auto i : set.obj_list) {
+	for (const auto &i : set.obj_list) {
 		const auto rnum = real_object(i.first);
 		const auto name = rnum < 0
 						  ? MISSING_OBJECT_NAME
@@ -203,7 +203,7 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu) {
 	}
 
 	left = true;
-	for (const auto i : rnum_list) {
+	for (const auto &i : rnum_list) {
 		if (MISSING_OBJECT_NAME == i.second) {
 			snprintf(buf_vnum, sizeof(buf_vnum), "&Y%d&n", i.first);
 		} else {
