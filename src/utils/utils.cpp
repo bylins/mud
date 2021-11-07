@@ -2681,7 +2681,7 @@ short GET_REAL_LEVEL(const CHAR_DATA *ch)
 		return ch->get_level();
 	}
 
-	return std::clamp(ch->get_level() + ch->get_level_add(), 1, LVL_IMMORT - 1);
+	return std::clamp(ch->get_level() + ch->get_level_add(), 0, LVL_IMMORT - 1);
 }
 
 short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> ch)

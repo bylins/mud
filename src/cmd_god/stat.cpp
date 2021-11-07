@@ -500,7 +500,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	send_to_char(buf, ch);
 	// Routine to show what spells a char is affected by
 	if (!k->affected.empty()) {
-		for (const auto aff : k->affected) {
+		for (const auto &aff : k->affected) {
 			*buf2 = '\0';
 			sprintf(buf, "Заклинания: (%3d%s|%s) %s%-21s%s ", aff->duration + 1,
 					(aff->battleflag & AF_PULSEDEC) || (aff->battleflag & AF_SAME_TIME) ? "плс" : "мин",
