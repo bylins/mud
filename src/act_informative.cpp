@@ -2797,6 +2797,12 @@ const char *ac_text[] =
 		"&rВы почти полностью уязвимы",
 		"&rВы полностью уязвимы",    // 10
 	};
+void print_do_score_list(CHAR_DATA *ch) {
+	int ac, max_dam = 0, hr = 0, modi = 0;
+	ESkill skill = SKILL_BOTHHANDS;
+	sprintf(buf, "Ваши характеристики: имя: %s, %s\r\n", ch->get_name().c_str(), class_name[GET_CLASS(ch)]);
+	send_to_char(ch, "%s", buf);
+}
 
 void print_do_score_all(CHAR_DATA *ch) {
 	int ac, max_dam = 0, hr = 0, modi = 0;
@@ -3427,6 +3433,10 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (is_abbrev(argument, "все") || is_abbrev(argument, "all")) {
 		print_do_score_all(ch);
+		return;
+	}
+	if (is_abbrev(argument, "список") || is_abbrev(argument, "list")) {
+		print_do_score_list(ch);
 		return;
 	}
 
