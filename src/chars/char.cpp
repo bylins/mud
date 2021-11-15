@@ -1929,6 +1929,7 @@ void CHAR_DATA::restore_npc() {
 	this->set_touching(0);
 	this->set_protecting(0);
 	// ресторим статы
+	proto->set_normal_morph();
 	this->set_str(GET_REAL_STR(proto));
 	this->set_int(GET_REAL_INT(proto));
 	this->set_wis(GET_REAL_WIS(proto));
