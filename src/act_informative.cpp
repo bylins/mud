@@ -2800,8 +2800,13 @@ const char *ac_text[] =
 void print_do_score_list(CHAR_DATA *ch) {
 	int ac, max_dam = 0, hr = 0, modi = 0;
 	ESkill skill = SKILL_BOTHHANDS;
-	sprintf(buf, "Ваши характеристики: имя: %s, %s\r\n", ch->get_name().c_str(), class_name[GET_CLASS(ch)]);
-	send_to_char(ch, "%s", buf);
+	send_to_char(ch, "Вы %s, %s, %s, %s, %s.\r\n", ch->get_name().c_str(),
+		string(PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch))).c_str(),
+		class_name[static_cast<int>(GET_CLASS(ch)) + 14 * GET_KIN(ch)],
+		string(religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]).c_str(),
+		GET_CLAN_STATUS(ch) ? GET_CLAN_STATUS(ch) : "в дружине не состоите");
+	send_to_char(ch, "Ваша сила: %d, ловкость: %d, телосложение: %d, ум: %d, мудрость: %d, обаяние: %d.\r\n",
+		GET_REAL_STR(ch), GET_REAL_DEX(ch), GET_REAL_CON(ch), GET_REAL_INT(ch), GET_REAL_WIS(ch), GET_REAL_CHA(ch));
 }
 
 void print_do_score_all(CHAR_DATA *ch) {
