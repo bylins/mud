@@ -2797,16 +2797,123 @@ const char *ac_text[] =
 		"&rВы почти полностью уязвимы",
 		"&rВы полностью уязвимы",    // 10
 	};
-void print_do_score_list(CHAR_DATA *ch) {
-	int ac, max_dam = 0, hr = 0, modi = 0;
+int calc_hr_info(CHAR_DATA *ch) {
 	ESkill skill = SKILL_BOTHHANDS;
-	send_to_char(ch, "Вы %s, %s, %s, %s, %s.\r\n", ch->get_name().c_str(),
-		string(PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch))).c_str(),
+	int modi = 0, hr = 0;
+	OBJ_DATA *weapon = GET_EQ(ch, WEAR_BOTHS);
+	if (weapon) {
+		if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
+			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+			if (ch->get_skill(skill) == SKILL_INVALID) {
+				hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
+			} else {
+				apply_weapon_bonus(GET_CLASS(ch), skill, 0, &hr);
+			}
+		}
+	} else {
+		weapon = GET_EQ(ch, WEAR_HOLD);
+		if (weapon) {
+			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
+				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+				if (ch->get_skill(skill) == SKILL_INVALID) {
+					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
+				} else {
+					apply_weapon_bonus(GET_CLASS(ch), skill, 0, &hr);
+				}
+			}
+		}
+		weapon = GET_EQ(ch, WEAR_WIELD);
+		if (weapon) {
+			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
+				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+				if (ch->get_skill(skill) == SKILL_INVALID) {
+					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
+				} else {
+					apply_weapon_bonus(GET_CLASS(ch), skill, 0, &hr);
+				}
+			}
+		}
+	}
+send_to_char(ch, "hr1 = %d\r\n", hr);
+	int max_dam = 0;
+	if (weapon) {
+		int tmphr = 0;
+		HitData::check_weap_feats(ch, GET_OBJ_SKILL(weapon), tmphr, max_dam);
+		hr -= tmphr;
+	} else {
+		HitData::check_weap_feats(ch, SKILL_PUNCH, hr, max_dam);
+	}
+send_to_char(ch, "hr2 = %d\r\n", hr);
+	if (can_use_feat(ch, WEAPON_FINESSE_FEAT)) {
+		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
+	} else {
+		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+	}
+	hr += GET_REAL_HR(ch) - thaco(static_cast<int>(GET_CLASS(ch)), static_cast<int>(GET_REAL_LEVEL(ch)));
+	if (PRF_FLAGGED(ch, PRF_POWERATTACK)) {
+		hr -= 2;
+	}
+	if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK)) {
+		hr -= 4;
+	}
+	if (PRF_FLAGGED(ch, PRF_AIMINGATTACK)) {
+		hr += 2;
+	}
+	if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK)) {
+		hr += 4;
+	}
+send_to_char(ch, "hr3 = %d\r\n", hr);
+	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0);
+send_to_char(ch, "hr4 = %d\r\n", hr);
+	hr *= ch->get_cond_penalty(P_HITROLL);
+send_to_char(ch, "hr5 = %d\r\n", hr);
+	return hr;
+}
+
+void print_do_score_list(CHAR_DATA *ch) {
+	int ac, max_dam = 0;
+	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)).c_str());
+	buf[0] = LOWER(buf[0]);
+	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]);
+	buf1[0] = LOWER(buf1[0]);
+	send_to_char(ch, "Вы %s, %s, %s, %s, уровень %d(%d), перевоплощений %d(%d).\r\n", ch->get_name().c_str(),
+		buf,
 		class_name[static_cast<int>(GET_CLASS(ch)) + 14 * GET_KIN(ch)],
-		string(religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]).c_str(),
-		GET_CLAN_STATUS(ch) ? GET_CLAN_STATUS(ch) : "в дружине не состоите");
-	send_to_char(ch, "Ваша сила: %d, ловкость: %d, телосложение: %d, ум: %d, мудрость: %d, обаяние: %d.\r\n",
-		GET_REAL_STR(ch), GET_REAL_DEX(ch), GET_REAL_CON(ch), GET_REAL_INT(ch), GET_REAL_WIS(ch), GET_REAL_CHA(ch));
+		buf1,
+		GET_LEVEL(ch), GET_REAL_LEVEL(ch),
+		GET_REMORT(ch), GET_REAL_REMORT(ch));
+	send_to_char(ch, "Ваша возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
+		GET_AGE(ch),
+		GET_SIZE(ch), GET_REAL_SIZE(ch),
+		GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
+		GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
+		send_to_char(ch, "Вы можете выдержать %d(%d) %s повреждений, и пройти %d(%d) %s по ровной местности.\r\n",
+			GET_HIT(ch), GET_REAL_MAX_HIT(ch), desc_count(GET_HIT(ch),  WHAT_ONEu),
+			GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), desc_count(GET_MOVE(ch), WHAT_MOVEu));
+		if (IS_MANA_CASTER(ch)) {
+			send_to_char(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
+				GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
+		}
+	send_to_char(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
+		ch->get_str(), GET_REAL_STR(ch),
+		ch->get_dex(), GET_REAL_DEX(ch),
+		ch->get_con(), GET_REAL_CON(ch),
+		ch->get_wis(), GET_REAL_WIS(ch),
+		ch->get_int(), GET_REAL_INT(ch),
+		ch->get_cha(), GET_REAL_CHA(ch));
+
+	HitData hit_params;
+	hit_params.weapon = FightSystem::MAIN_HAND;
+	hit_params.init(ch, ch);
+	bool need_dice = false;
+	int max_dam1 = hit_params.calc_damage(ch, need_dice); // без кубиков
+
+	send_to_char(ch, "Попадание %d, повреждение %d, запоминание %d, успех колдовства %d, удача %d.\r\n",
+		calc_hr_info(ch),
+		max_dam1,
+		int (GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
+		int (GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST)),
+		ch->calc_morale());
 }
 
 void print_do_score_all(CHAR_DATA *ch) {
