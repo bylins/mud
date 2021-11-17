@@ -2989,8 +2989,8 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			return;
 
 		}
-		if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch)) {
-			sprintf(buf, "Вы можете вплавлять желаемые аффекты только в перековку!\r\n");
+		if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch) && (ch->get_skill(SKILL_INSERTGEM) < 130)) {
+			sprintf(buf, "Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n");
 			send_to_char(buf, ch);
 			return;
 		}
