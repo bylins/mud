@@ -2883,6 +2883,21 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+		send_to_char("Вы слепы!\r\n", ch);
+		return;
+	}
+
+	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
+		send_to_char("Да тут темно хоть глаза выколи...\r\n", ch);
+		return;
+	}
+
+	if (!WAITLESS(ch) && ch->ahorse()) {
+		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+		return;
+	}
+
 	if (!*arg1) {
 		send_to_char("Вплавить что?\r\n", ch);
 		return;
@@ -2902,7 +2917,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	if (!*arg2) {
-		send_to_char("Вплавить куда?\r\n", ch);
+		send_to_char("Вплавить во что?\r\n", ch);
 		return;
 	} else
 		item = arg2;
@@ -2912,8 +2927,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		return;
 	}
-	if (GET_OBJ_MATER(itemobj) < OBJ_DATA::MAT_BULAT
-		|| (GET_OBJ_MATER(itemobj) > OBJ_DATA::MAT_COLOR && GET_OBJ_MATER(itemobj) != OBJ_DATA::MAT_BONE)) {
+	if (GET_OBJ_MATER(itemobj) == OBJ_DATA::MAT_NONE || GET_OBJ_MATER(itemobj) > OBJ_DATA::MAT_COLOR) {
 		sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
 		send_to_char(buf, ch);
 		return;
@@ -2922,21 +2936,6 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)
 		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS)) {
 		send_to_char("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
-		return;
-	}
-
-	if (!WAITLESS(ch) && ch->ahorse()) {
-		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
-		send_to_char("Вы слепы!\r\n", ch);
-		return;
-	}
-
-	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
-		send_to_char("Да тут темно хоть глаза выколи...\r\n", ch);
 		return;
 	}
 
@@ -2989,8 +2988,8 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			return;
 
 		}
-		if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch)) {
-			sprintf(buf, "Вы можете вплавлять желаемые аффекты только в перековку!\r\n");
+		if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch) && (ch->get_skill(SKILL_INSERTGEM) < 130)) {
+			sprintf(buf, "Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n");
 			send_to_char(buf, ch);
 			return;
 		}
