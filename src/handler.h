@@ -19,12 +19,26 @@
 
 #include "chars/char.h"
 #include "structs.h"    // there was defined type "byte" if it had been missing
+#include "utils/flags.hpp"
 
 struct ROOM_DATA;
 
 #define LIGHT_NO    0
 #define LIGHT_YES   1
 #define LIGHT_UNDEF 2
+
+enum class CharEquipFlag : uint8_t {
+	// no spell casting
+	no_cast,
+
+	// no total affect update
+	skip_total,
+
+	// show wear and activation messages
+	show_msg
+};
+FLAGS_DECLARE_FROM_ENUM(CharEquipFlags, CharEquipFlag);
+FLAGS_DECLARE_OPERATORS(CharEquipFlags, CharEquipFlag);
 
 int get_room_sky(int rnum);
 int equip_in_metall(CHAR_DATA *ch);
@@ -60,8 +74,8 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
 void obj_to_char(OBJ_DATA *object, CHAR_DATA *ch);
 void obj_from_char(OBJ_DATA *object);
 
-void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos);
-OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos);
+void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flags);
+OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags);
 int invalid_align(CHAR_DATA *ch, OBJ_DATA *obj);
 
 OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA *list);

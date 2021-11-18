@@ -700,7 +700,7 @@ void HitData::compute_critical(CHAR_DATA *ch, CHAR_DATA *victim) {
 		act(buf, FALSE, ch, 0, victim, TO_VICT);
 	}
 	if (unequip_pos && GET_EQ(victim, unequip_pos)) {
-		obj = unequip_char(victim, unequip_pos);
+		obj = unequip_char(victim, unequip_pos, CharEquipFlags());
 		switch (unequip_pos) {
 			case 6:        //WEAR_HEAD
 				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));

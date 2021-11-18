@@ -105,7 +105,7 @@ void performWeaponThrow(TechniqueRollType &technique, Damage &techniqueDamage) {
 		};
 	} else {
 		if (technique.isCriticalFail()) {
-			OBJ_DATA *weapon = unequip_char(technique.actor(), technique.getWeaponEquipPosition());
+			OBJ_DATA *weapon = unequip_char(technique.actor(), technique.getWeaponEquipPosition(), CharEquipFlags());
 			if (weapon) {
 				obj_to_char(weapon, technique.actor());
 				send_to_char(technique.actor(), "&BВы выронили %s!&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());

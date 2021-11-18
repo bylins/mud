@@ -1473,7 +1473,7 @@ void obj_point_update() {
 							}
 							break;
 					}
-					unequip_char(j->get_worn_by(), j->get_worn_on());
+					unequip_char(j->get_worn_by(), j->get_worn_on(), CharEquipFlags());
 				} else if (j->get_carried_by()) {
 					if (IS_CHARMICE(j->get_carried_by())) {
 						charmee_obj_decay_tell(j->get_carried_by(), j.get(), 0);

@@ -812,19 +812,19 @@ int flag_data_by_char_class(const CHAR_DATA *ch) {
 		+ NUM_PLAYER_CLASSES * GET_KIN(ch));
 }
 
-unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj,
-							id_to_set_info_map::const_iterator it, int pos, unsigned int set_obj_qty) {
-	int show_msg = IS_SET(pos, 0x80), no_cast = IS_SET(pos, 0x40);
+unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::const_iterator it,
+							int pos, CharEquipFlags equip_flags, unsigned int set_obj_qty) {
+	const bool no_cast = equip_flags.test(CharEquipFlag::no_cast);
+	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 	std::string::size_type delim;
-
-	REMOVE_BIT(pos, (0x80 | 0x40));
 
 	if (pos < NUM_WEARS) {
 		set_info::const_iterator set_obj_info;
 
 		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlag::ITEM_SETSTUFF) &&
 			(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
-			unsigned int oqty = activate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0),
+			unsigned int oqty = activate_stuff(ch, obj, it, pos + 1,
+											   (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()) | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()),
 											   set_obj_qty + 1);
 			qty_to_camap_map::const_iterator qty_info = set_obj_info->second.upper_bound(oqty);
 			qty_to_camap_map::const_iterator old_qty_info = GET_EQ(ch, pos) == obj ?
@@ -927,7 +927,9 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj,
 
 			return oqty;
 		} else
-			return activate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0), set_obj_qty);
+			return activate_stuff(ch, obj, it, pos + 1,
+								  (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()) | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()),
+								  set_obj_qty);
 	} else
 		return set_obj_qty;
 }
@@ -957,18 +959,15 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj) {
 	return true;
 }
 
-//  0x40 - no spell casting
-//  0x80 - no total affect update
-// 0x100 - show wear and activation messages
-void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos) {
+void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flags) {
 	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 		was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
 		was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO,
 		was_lamp = FALSE;
-	int j, show_msg = IS_SET(pos, 0x100), skip_total = IS_SET(pos, 0x80),
-		no_cast = IS_SET(pos, 0x40);
 
-	REMOVE_BIT(pos, (0x100 | 0x80 | 0x40));
+	const bool no_cast = equip_flags.test(CharEquipFlag::no_cast);
+	const bool skip_total = equip_flags.test(CharEquipFlag::skip_total);
+	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 
 	if (pos < 0 || pos >= NUM_WEARS) {
 		log("SYSERR: equip_char(%s,%d) in unknown pos...", GET_NAME(ch), pos);
@@ -1076,14 +1075,15 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos) {
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
 		for (; it != OBJ_DATA::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
-				activate_stuff(ch, obj, it, 0 | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0), 0);
+				activate_stuff(ch, obj, it, 0,
+							   (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()) | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()), 0);
 				break;
 			}
 		}
 	}
 
 	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end()) {
-		for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+		for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
 			affect_modify(ch,
 						  obj->get_affected(j).location,
 						  obj->get_affected(j).modifier,
@@ -1127,12 +1127,10 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos) {
 	}
 }
 
-unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj,
-							  id_to_set_info_map::const_iterator it, int pos, unsigned int set_obj_qty) {
-	int show_msg = IS_SET(pos, 0x40);
+unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::const_iterator it,
+							  int pos, CharEquipFlags equip_flags, unsigned int set_obj_qty) {
+	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 	std::string::size_type delim;
-
-	REMOVE_BIT(pos, 0x40);
 
 	if (pos < NUM_WEARS) {
 		set_info::const_iterator set_obj_info;
@@ -1140,7 +1138,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj,
 		if (GET_EQ(ch, pos)
 			&& OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlag::ITEM_SETSTUFF)
 			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
-			unsigned int oqty = deactivate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x40 : 0),
+			unsigned int oqty = deactivate_stuff(ch, obj, it, pos + 1, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()),
 												 set_obj_qty + 1);
 			qty_to_camap_map::const_iterator old_qty_info = set_obj_info->second.upper_bound(oqty);
 			qty_to_camap_map::const_iterator qty_info = GET_EQ(ch, pos) == obj ?
@@ -1282,23 +1280,20 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj,
 
 			return oqty;
 		} else {
-			return deactivate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x40 : 0), set_obj_qty);
+			return deactivate_stuff(ch, obj, it, pos + 1, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()), set_obj_qty);
 		}
 	} else {
 		return set_obj_qty;
 	}
 }
 
-//  0x40 - show setstuff related messages
-//  0x80 - no total affect update
-OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos) {
+OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 		was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
 		was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
 
-	int j, skip_total = IS_SET(pos, 0x80), show_msg = IS_SET(pos, 0x40);
-
-	REMOVE_BIT(pos, (0x80 | 0x40));
+	const bool skip_total = equip_flags.test(CharEquipFlag::skip_total);
+	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 
 	if (pos < 0 || pos >= NUM_WEARS) {
 		log("SYSERR: unequip_char(%s,%d) - unused pos...", GET_NAME(ch), pos);
@@ -1321,12 +1316,12 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos) {
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
-				deactivate_stuff(ch, obj, it, 0 | (show_msg ? 0x40 : 0), 0);
+				deactivate_stuff(ch, obj, it, 0, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()), 0);
 				break;
 			}
 
 	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end()) {
-		for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+		for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
 			affect_modify(ch,
 						  obj->get_affected(j).location,
 						  obj->get_affected(j).modifier,
@@ -1706,7 +1701,7 @@ void extract_obj(OBJ_DATA *obj) {
 	// Содержимое контейнера удалено
 
 	if (obj->get_worn_by() != NULL) {
-		if (unequip_char(obj->get_worn_by(), obj->get_worn_on()) != obj) {
+		if (unequip_char(obj->get_worn_by(), obj->get_worn_on(), CharEquipFlags()) != obj) {
 			log("SYSERR: Inconsistent worn_by and worn_on pointers!!");
 		}
 	}
@@ -1911,7 +1906,7 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 //	log("[Extract char] Drop equipment");
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)) {
-			OBJ_DATA *obj_eq = unequip_char(ch, i);
+			OBJ_DATA *obj_eq = unequip_char(ch, i, CharEquipFlags());
 			if (!obj_eq) {
 				continue;
 			}

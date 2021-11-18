@@ -101,12 +101,12 @@ void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 		if (GET_EQ(ch, do_hold)) {
 			act("Вы прекратили использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_CHAR);
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_ROOM | TO_ARENA_LISTEN);
-			obj_to_char(unequip_char(ch, do_hold), ch);
+			obj_to_char(unequip_char(ch, do_hold, CharEquipFlags()), ch);
 		}
 		if (GET_EQ(ch, WEAR_HOLD))
-			obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
+			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlags()), ch);
 		//obj_from_char(mag_item);
-		equip_char(ch, mag_item, WEAR_HOLD);
+		equip_char(ch, mag_item, WEAR_HOLD, CharEquipFlags());
 	}
 	if ((do_hold && GET_EQ(ch, WEAR_HOLD) == mag_item) || (!do_hold))
 		employMagicItem(ch, mag_item, buf_temp);

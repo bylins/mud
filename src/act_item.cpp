@@ -1744,7 +1744,7 @@ void perform_wear(CHAR_DATA *ch, OBJ_DATA *obj, int where) {
 		return;
 
 	//obj_from_char(obj);
-	equip_char(ch, obj, where | 0x100);
+	equip_char(ch, obj, where, CharEquipFlag::show_msg);
 }
 
 int find_eq_pos(CHAR_DATA *ch, OBJ_DATA *obj, char *arg) {
@@ -2138,7 +2138,7 @@ void perform_remove(CHAR_DATA *ch, int pos) {
 			}
 			act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-			obj_to_char(unequip_char(ch, pos | 0x40), ch);
+			obj_to_char(unequip_char(ch, pos, CharEquipFlag::show_msg), ch);
 		}
 	}
 }
@@ -2216,7 +2216,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS)) {
 		send_to_char("Нету лука, нет и стрел.\r\n", ch);
 		act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
-		obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+		obj_to_char(unequip_char(ch, WEAR_QUIVER, CharEquipFlags()), ch);
 		return;
 	}
 }

@@ -1989,50 +1989,50 @@ void npc_wield(CHAR_DATA *ch) {
 		}
 		if (GET_EQ(ch, WEAR_BOTHS)) {
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
+			obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, WEAR_WIELD)) {
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_WIELD | 0x40), ch);
+			obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, WEAR_SHIELD)) {
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_SHIELD | 0x40), ch);
+			obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, WEAR_HOLD)) {
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_HOLD | 0x40), ch);
+			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(both);
-		equip_char(ch, both, WEAR_BOTHS | 0x100);
+		equip_char(ch, both, WEAR_BOTHS, CharEquipFlag::show_msg);
 	} else {
 		if (left && GET_EQ(ch, WEAR_HOLD) != left) {
 			if (GET_EQ(ch, WEAR_BOTHS)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
+				obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, WEAR_SHIELD)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_SHIELD | 0x40), ch);
+				obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, WEAR_HOLD)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_HOLD | 0x40), ch);
+				obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(left);
-			equip_char(ch, left, WEAR_HOLD | 0x100);
+			equip_char(ch, left, WEAR_HOLD, CharEquipFlag::show_msg);
 		}
 		if (right && GET_EQ(ch, WEAR_WIELD) != right) {
 			if (GET_EQ(ch, WEAR_BOTHS)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
+				obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, WEAR_WIELD)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_WIELD | 0x40), ch);
+				obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(right);
-			equip_char(ch, right, WEAR_WIELD | 0x100);
+			equip_char(ch, right, WEAR_WIELD, CharEquipFlag::show_msg);
 		}
 	}
 }
@@ -2132,10 +2132,10 @@ void npc_armor(CHAR_DATA *ch) {
 				continue;
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, where), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, where | 0x40), ch);
+			obj_to_char(unequip_char(ch, where, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(obj);
-		equip_char(ch, obj, where | 0x100);
+		equip_char(ch, obj, where, CharEquipFlag::show_msg);
 		break;
 	}
 }
@@ -2151,7 +2151,7 @@ void npc_light(CHAR_DATA *ch) {
 
 	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(ch->in_room))) {
 		act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
-		obj_to_char(unequip_char(ch, WEAR_LIGHT | 0x40), ch);
+		obj_to_char(unequip_char(ch, WEAR_LIGHT, CharEquipFlag::show_msg), ch);
 	}
 
 	if (!GET_EQ(ch, WEAR_LIGHT) && IS_DARK(ch->in_room)) {
@@ -2167,7 +2167,7 @@ void npc_light(CHAR_DATA *ch) {
 				continue;
 			}
 			//obj_from_char(obj);
-			equip_char(ch, obj, WEAR_LIGHT | 0x100);
+			equip_char(ch, obj, WEAR_LIGHT, CharEquipFlag::show_msg);
 			return;
 		}
 	}

@@ -585,7 +585,7 @@ void affect_total(CHAR_DATA *ch) {
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_BOTHS), ch);
+			obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_WIELD)) && !OK_WIELD(ch, obj)) {
@@ -594,7 +594,7 @@ void affect_total(CHAR_DATA *ch) {
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_WIELD), ch);
+			obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlags()), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
 				&& OK_BOTH(ch, obj)
@@ -603,7 +603,7 @@ void affect_total(CHAR_DATA *ch) {
 				&& !GET_EQ(ch, WEAR_SHIELD)
 				&& !GET_EQ(ch, WEAR_WIELD)
 				&& !GET_EQ(ch, WEAR_BOTHS)) {
-				equip_char(ch, obj, WEAR_BOTHS | 0x100);
+				equip_char(ch, obj, WEAR_BOTHS, CharEquipFlag::show_msg);
 			}
 			return;
 		}
@@ -613,7 +613,7 @@ void affect_total(CHAR_DATA *ch) {
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
+			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_SHIELD)) && !OK_SHIELD(ch, obj)) {
@@ -622,13 +622,13 @@ void affect_total(CHAR_DATA *ch) {
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
+			obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS)) {
 			send_to_char("Нету лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+			obj_to_char(unequip_char(ch, WEAR_QUIVER, CharEquipFlags()), ch);
 			return;
 		}
 	}

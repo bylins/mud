@@ -402,7 +402,7 @@ void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		for (int i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(vict, i)) {
 				remove_otrigger(GET_EQ(vict, i), vict);
-				extract_obj(unequip_char(vict, i));
+				extract_obj(unequip_char(vict, i, CharEquipFlags()));
 			}
 		}
 		OBJ_DATA *obj;

@@ -153,6 +153,7 @@ set(SOURCES
 		src/structs.cpp
 		src/structs.cpp
 		src/stuff.cpp
+		src/utils/flags.hpp
 		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
 		src/title.cpp

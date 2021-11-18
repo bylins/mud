@@ -420,7 +420,7 @@ void Player::save_char() {
 	// снимаем все возможные аффекты
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(this, i)) {
-			char_eq[i] = unequip_char(this, i | 0x80);
+			char_eq[i] = unequip_char(this, i, CharEquipFlag::skip_total);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			remove_otrigger(char_eq[i], this);
 #endif
@@ -927,7 +927,7 @@ void Player::save_char() {
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			if (wear_otrigger(char_eq[i], this, i))
 #endif
-			equip_char(this, char_eq[i], i | 0x80 | 0x40);
+			equip_char(this, char_eq[i], i, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			else
 				obj_to_char(char_eq[i], this);

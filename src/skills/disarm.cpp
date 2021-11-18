@@ -61,7 +61,7 @@ void go_disarm(CHAR_DATA *ch, CHAR_DATA *vict) {
 		send_to_char(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-		unequip_char(vict, pos);
+		unequip_char(vict, pos, CharEquipFlags());
 		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, IS_NPC(vict) ? 1 : 2);
 		prob = 2;
 

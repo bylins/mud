@@ -1317,7 +1317,7 @@ int auto_equip(CHAR_DATA *ch, OBJ_DATA *obj, int location) {
 					|| NamedStuff::check_named(ch, obj, 0)) {
 					location = LOC_INVENTORY;
 				} else {
-					equip_char(ch, obj, j | 0x80 | 0x40);
+					equip_char(ch, obj, j, CharEquipFlag::no_cast | CharEquipFlag::skip_total);
 //					log("Equipped with %s %d", (obj)->short_description, j);
 				}
 			} else    // Oops, saved a player with double equipment?
@@ -2127,7 +2127,7 @@ void Crash_extract_norent_eq(CHAR_DATA *ch) {
 		}
 
 		if (Crash_is_unrentable(ch, GET_EQ(ch, j))) {
-			obj_to_char(unequip_char(ch, j), ch);
+			obj_to_char(unequip_char(ch, j, CharEquipFlags()), ch);
 		} else {
 			Crash_extract_norents(ch, GET_EQ(ch, j));
 		}
@@ -2147,7 +2147,7 @@ void Crash_extract_norent_charmee(CHAR_DATA *ch) {
 				}
 
 				if (Crash_is_unrentable(k->follower, GET_EQ(k->follower, j))) {
-					obj_to_char(unequip_char(k->follower, j), k->follower);
+					obj_to_char(unequip_char(k->follower, j, CharEquipFlags()), k->follower);
 				} else {
 					Crash_extract_norents(k->follower, GET_EQ(k->follower, j));
 				}

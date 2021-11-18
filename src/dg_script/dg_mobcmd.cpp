@@ -225,7 +225,7 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if ((find_all_dots(arg) == FIND_INDIV) && !junk_all) {
 		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != NULL) {
-			unequip_char(ch, pos);
+			unequip_char(ch, pos, CharEquipFlags());
 			extract_obj(obj);
 			return;
 		}
@@ -240,7 +240,7 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
-			unequip_char(ch, pos);
+			unequip_char(ch, pos, CharEquipFlags());
 			extract_obj(obj);
 		}
 	}
@@ -803,7 +803,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		for (pos = 0; pos < NUM_WEARS; pos++) {
 			if (GET_EQ(ch, pos))
-				obj[pos] = unequip_char(ch, pos);
+				obj[pos] = unequip_char(ch, pos, CharEquipFlags());
 			else
 				obj[pos] = NULL;
 		}
@@ -861,7 +861,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		for (pos = 0; pos < NUM_WEARS; pos++) {
 			if (obj[pos])
-				equip_char(ch, obj[pos], pos | 0x40);
+				equip_char(ch, obj[pos], pos, CharEquipFlag::no_cast);
 		}
 		extract_char(m, FALSE);
 	}

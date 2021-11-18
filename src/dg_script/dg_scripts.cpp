@@ -2830,7 +2830,7 @@ void find_replacement(void *go,
 			//found something to put our object
 			//let's make it nobody's!
 			if (o->get_worn_by()) {
-				unequip_char(o->get_worn_by(), o->get_worn_on());
+				unequip_char(o->get_worn_by(), o->get_worn_on(), CharEquipFlags());
 			} else if (o->get_carried_by()) {
 				obj_from_char(o);
 			} else if (o->get_in_obj()) {

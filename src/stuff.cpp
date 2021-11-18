@@ -552,7 +552,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		break;
 	}
 	// одеваем шмотки
-	equip_char(ch, obj.get(), position);
+	equip_char(ch, obj.get(), position, CharEquipFlags());
 }
 
 

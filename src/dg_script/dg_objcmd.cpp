@@ -315,7 +315,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (obj->get_worn_by()) {
 			pos = obj->get_worn_on();
 			wearer = obj->get_worn_by();
-			unequip_char(obj->get_worn_by(), pos);
+			unequip_char(obj->get_worn_by(), pos, CharEquipFlags());
 		}
 
 		obj->swap(*o);
@@ -325,7 +325,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (wearer) {
-			equip_char(wearer, obj, pos);
+			equip_char(wearer, obj, pos, CharEquipFlags());
 		}
 		extract_obj(o.get());
 	}
