@@ -1298,7 +1298,6 @@ long gm_char_field(CHAR_DATA *ch, char *field, char *subfield, long val) {
 }
 
 int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *str) {
-	char *p, *p2;
 	*str = '\0';
 	if (!vd || !vd->name || !vd->value)
 		return FALSE;
@@ -1309,21 +1308,10 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 		return TRUE;
 	} else if (!str_cmp(field, "trim"))    // trim
 	{
-		// trim whitespace from ends
-		p = vd->value;
-		p2 = vd->value + strlen(vd->value) - 1;
-		while (*p && isspace(*p))
-			p++;
-		while ((p >= p2) && isspace(*p2))
-			p2--;
-		if (p > p2)    // nothing left
-		{
-			*str = '\0';
-			return TRUE;
-		}
-		while (p <= p2)
-			*str++ = *p++;
-		*str = '\0';
+		std::string str_to_trim(vd->value);
+		str_to_trim.erase(std::find_if_not(str_to_trim.rbegin(), str_to_trim.rend(), isspace).base(), str_to_trim.end());
+		str_to_trim.erase(str_to_trim.begin(), std::find_if_not(str_to_trim.begin(), str_to_trim.end(), isspace));
+		strcpy(str, str_to_trim.c_str());
 		return TRUE;
 	} else if (!str_cmp(field, "contains"))    // contains
 	{
