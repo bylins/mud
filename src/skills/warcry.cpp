@@ -22,14 +22,13 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
+	
+	std::string wc_name(argument);
+	// обрезаем лишние пробелы, чтобы нормально обработать "warcry of ..."
+	wc_name.erase(std::find_if_not(wc_name.rbegin(), wc_name.rend(), isspace).base(), wc_name.end());
+	wc_name.erase(wc_name.begin(), std::find_if_not(wc_name.begin(), wc_name.end(), isspace));
 
-	std::string buffer = argument;
-	typedef boost::tokenizer<pred_separator> tokenizer;
-	pred_separator sep;
-	tokenizer tok(buffer, sep);
-	tokenizer::iterator tok_iter = tok.begin();
-
-	if (tok_iter == tok.end()) {
+	if (wc_name.empty()) {
 		sprintf(buf, "Вам доступны :\r\n");
 		for (cnt = spellnum = 1; spellnum <= SPELLS_COUNT; spellnum++) {
 			const char *realname = spell_info[spellnum].name
@@ -53,16 +52,11 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	std::string wc_name = *(tok_iter++);
-
-	if (CompareParam(wc_name, "of")) {
-		if (tok_iter == tok.end()) {
-			send_to_char("Какой клич вы хотите использовать?\r\n", ch);
-			return;
-		} else
-			wc_name = "warcry of " + *(tok_iter++);
-	} else
+	if (wc_name.length() > 3 && wc_name.substr(0, 3) == "of ") {
+		wc_name = "warcry of " + wc_name.substr(3, std::string::npos);
+	} else {
 		wc_name = "клич " + wc_name;
+	}
 
 	spellnum = fix_name_and_find_spell_num(wc_name);
 
@@ -74,33 +68,16 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *tch;
-	OBJ_DATA *tobj;
-	ROOM_DATA *troom;
-	//афтар сотворил клона функции, а остальное не перевёл :(
+	// в текущем варианте кличи можно кастить только без указания цели
+	// если в будущем добавятся кличи на цель - необходимо менять формат команды
+	// например как сделано с заклинаниями - брать клич в !!
+	// либо гарантировать что все кличи будут всегда из 1 слова
 
-	int target = find_cast_target(spellnum, tok_iter == tok.end() ? "" : (*tok_iter).c_str(), ch, &tch, &tobj, &troom);
-
-	if (!target) {
-		send_to_char("Тяжеловато найти цель!\r\n", ch);
-		return;
-	}
-
-	if (tch == ch && spell_info[spellnum].violent) {
-		send_to_char("Не накликайте беды!\r\n", ch);
-		return;
-	}
-
-	if (tch && IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !spell_info[spellnum].violent)
-		return;
-
-	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spellnum].targets, TAR_SELF_ONLY)) {
-		send_to_char("Этот клич предназначен только для вас!\r\n", ch);
-		return;
-	}
-
-	if (tch == ch && IS_SET(spell_info[spellnum].targets, TAR_NOT_SELF)) {
-		send_to_char("Да вы с ума сошли!\r\n", ch);
+	if (spell_info[spellnum].targets != TAR_IGNORE) {
+		std::stringstream str_log;
+		str_log << "Для клича #" << spellnum << ", установлены некорректные цели: " << spell_info[spellnum].targets;
+		mudlog(str_log.str(), BRF, LVL_GOD, SYSLOG, TRUE);
+		send_to_char("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
 		return;
 	}
 
@@ -118,16 +95,16 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	say_spell(ch, spellnum, tch, tobj);
+	say_spell(ch, spellnum, nullptr, nullptr);
 
-	if (call_magic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)) >= 0) {
+	if (call_magic(ch, nullptr, nullptr, nullptr, spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 		if (!WAITLESS(ch)) {
 			if (!CHECK_WAIT(ch))
 				WAIT_STATE(ch, PULSE_VIOLENCE);
 			timed_to_char(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}
-		TrainSkill(ch, SKILL_WARCRY, true, tch);
+		TrainSkill(ch, SKILL_WARCRY, true, nullptr);
 	}
 }
 
