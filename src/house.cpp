@@ -4365,6 +4365,13 @@ void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				break;
+            case 'М':// количество мортов
+                argument = one_argument(++argument, buf_tmp);
+                if (!filter.init_remorts(buf_tmp)) {
+                    send_to_char("Неверный формат в фильтре: М<количество мортов><+->.\r\n", ch);
+                    return;
+                }
+                break;
 			default: ++argument;
 		}
 	}
