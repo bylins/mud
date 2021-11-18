@@ -2161,6 +2161,18 @@ bool ParseFilter::init_rent(const char *str) {
 	return true;
 }
 
+bool ParseFilter::init_remorts(const char *str) {
+    if (sscanf(str, "%d%[-+]", &remorts, &remorts_sign) != 2) {
+        return false;
+    }
+    if (remorts_sign == '-') {
+        remorts = -remorts;
+    }
+
+    return true;
+}
+
+
 bool ParseFilter::init_weap_class(const char *str) {
 	if (is_abbrev(str, "луки")) {
 		weap_class = SKILL_BOWS;
@@ -2469,6 +2481,21 @@ bool ParseFilter::check_rent(int obj_price) const {
 	return result;
 }
 
+bool ParseFilter::check_remorts(OBJ_DATA *obj) const {
+    bool result = false;
+    int obj_remorts = obj->get_auto_mort_req();
+
+    if (remorts_sign == '\0') {
+        result = true;
+    } else if (remorts >= 0 && obj_remorts >= remorts) {
+        result = true;
+    } else if (remorts < 0 && obj_remorts <= -remorts) {
+        result = true;
+    }
+    return result;
+}
+
+
 // заколебали эти флаги... сравниваем num и все поля в flags
 bool CompareBits(const FLAG_DATA &flags, const char *names[], int affect) {
 	int i;
@@ -2603,7 +2630,8 @@ bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch) {
 		&& check_rent(GET_OBJ_RENTEQ(obj) * CLAN_STOREHOUSE_COEFF / 100)
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
-		&& check_affect_extra(obj)) {
+		&& check_affect_extra(obj)
+        && check_remorts(obj)) {
 		return true;
 	}
 	return false;
@@ -2843,6 +2871,10 @@ std::string ParseFilter::print() const {
 		sprintf(buf, "%d%c ", rent, rent_sign);
 		buffer += buf;
 	}
+    if (remorts >= 0) {
+        sprintf(buf, "%d%c ", remorts, remorts_sign);
+        buffer += buf;
+    }
 	if (!affect_weap.empty()) {
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it) {
 			buffer += weapon_affects[*it];
