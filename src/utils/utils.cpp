@@ -2481,8 +2481,9 @@ bool ParseFilter::check_rent(int obj_price) const {
 	return result;
 }
 
-bool ParseFilter::check_remorts(int obj_remorts) const {
+bool ParseFilter::check_remorts(OBJ_DATA *obj) const {
     bool result = false;
+    int obj_remorts = obj->get_auto_mort_req();
 
     if (remorts_sign == '\0') {
         result = true;
@@ -2630,7 +2631,7 @@ bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch) {
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj)
-        && check_remorts(GET_OBJ_REMORTS(obj))) {
+        && check_remorts(obj)) {
 		return true;
 	}
 	return false;

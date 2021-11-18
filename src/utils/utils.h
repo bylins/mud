@@ -1011,7 +1011,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_OBJ_MATER(obj)  ((obj)->get_material())
 #define GET_OBJ_ZONE(obj)   ((obj)->get_zone())
 #define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
-#define GET_OBJ_REMORTS(obj) ((obj)->get_auto_mort_req())
 
 #define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
 #define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM(obj->get_worn_by()) : \
@@ -1550,7 +1549,7 @@ struct ParseFilter {
 	bool check_weap_class(OBJ_DATA *obj) const;
 	bool check_cost(int obj_price) const;
 	bool check_rent(int obj_price) const;
-    bool check_remorts(int obj_remorts) const;
+    bool check_remorts(OBJ_DATA *obj) const;
 	bool check_affect_weap(OBJ_DATA *obj) const;
 	bool check_affect_apply(OBJ_DATA *obj) const;
 	bool check_affect_extra(OBJ_DATA *obj) const;
