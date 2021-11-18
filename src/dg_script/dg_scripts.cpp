@@ -3794,8 +3794,8 @@ void process_attach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *
 	id_p = two_arguments(cmd, arg, trignum_s);
 	skip_spaces(&id_p);
 
-	if (!*trignum_s || atoi(trignum_s + 1) == 0) {
-		sprintf(buf2, "attach: нет или ошибка в аргументе 1: '%s'", cmd);
+	if (!*trignum_s || atoi(trignum_s) == 0) {
+		sprintf(buf2, "attach: нет или ошибка в аргументе 1: аргумент '%s' комманда: '%s'", trignum_s, cmd);
 		trig_log(trig, buf2);
 		return;
 	}
