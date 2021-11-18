@@ -2799,7 +2799,7 @@ const char *ac_text[] =
 	};
 int calc_hr_info(CHAR_DATA *ch) {
 	ESkill skill = SKILL_BOTHHANDS;
-	int modi = 0, hr = 0;
+	int hr = 0;
 	OBJ_DATA *weapon = GET_EQ(ch, WEAR_BOTHS);
 	if (weapon) {
 		if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
@@ -2834,7 +2834,6 @@ int calc_hr_info(CHAR_DATA *ch) {
 			}
 		}
 	}
-send_to_char(ch, "hr1 = %d\r\n", hr);
 	int max_dam = 0;
 	if (weapon) {
 		int tmphr = 0;
@@ -2843,7 +2842,6 @@ send_to_char(ch, "hr1 = %d\r\n", hr);
 	} else {
 		HitData::check_weap_feats(ch, SKILL_PUNCH, hr, max_dam);
 	}
-send_to_char(ch, "hr2 = %d\r\n", hr);
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT)) {
 		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
 	} else {
@@ -2862,16 +2860,45 @@ send_to_char(ch, "hr2 = %d\r\n", hr);
 	if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK)) {
 		hr += 4;
 	}
-send_to_char(ch, "hr3 = %d\r\n", hr);
 	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0);
-send_to_char(ch, "hr4 = %d\r\n", hr);
 	hr *= ch->get_cond_penalty(P_HITROLL);
-send_to_char(ch, "hr5 = %d\r\n", hr);
 	return hr;
 }
 
+char list_score_pos(CHAR_DATA *ch) {
+	char pos[128];
+	if (!ch->ahorse())
+		switch (GET_POS(ch)) {
+			case POS_DEAD: sprintf(pos, "Вы МЕРТВЫ!\r\n");
+				break;
+			case POS_MORTALLYW: sprintf(pos, "Вы смертельно ранены и нуждаетесь в помощи!\r\n");
+				break;
+			case POS_INCAP: sprintf(pos, "Вы без сознания и медленно умираете...\r\n");
+				break;
+			case POS_STUNNED: sprintf(pos, "Вы в обмороке!\r\n");
+				break;
+			case POS_SLEEPING: sprintf(pos, "Вы спите.\r\n");
+				break;
+			case POS_RESTING: sprintf(pos, "Вы отдыхаете.\r\n");
+				break;
+			case POS_SITTING: sprintf(pos, "Вы сидите.\r\n");
+				break;
+			case POS_FIGHTING:
+				if (ch->get_fighting())
+					sprintf(buf + strlen(buf), "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
+				else
+					sprintf(pos, "Вы машете кулаками по воздуху.\r\n");
+				break;
+			case POS_STANDING: sprintf(pos, "Вы стоите.\r\n");
+				break;
+			default: sprintf(pos, "You are floating.\r\n");
+				break;
+		}
+	return pos;
+}
+
 void print_do_score_list(CHAR_DATA *ch) {
-	int ac, max_dam = 0;
+
 	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)).c_str());
 	buf[0] = LOWER(buf[0]);
 	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]);
@@ -2906,14 +2933,52 @@ void print_do_score_list(CHAR_DATA *ch) {
 	hit_params.weapon = FightSystem::MAIN_HAND;
 	hit_params.init(ch, ch);
 	bool need_dice = false;
-	int max_dam1 = hit_params.calc_damage(ch, need_dice); // без кубиков
+	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
 
-	send_to_char(ch, "Попадание %d, повреждение %d, запоминание %d, успех колдовства %d, удача %d.\r\n",
+	send_to_char(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d.\r\n",
 		calc_hr_info(ch),
-		max_dam1,
+		max_dam,
 		int (GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
 		int (GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST)),
 		ch->calc_morale());
+	send_to_char(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
+		MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75),
+		MIN(GET_RESIST(ch, AIR_RESISTANCE), 75),
+		MIN(GET_RESIST(ch, WATER_RESISTANCE), 75),
+		MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75),
+		MIN(GET_RESIST(ch, DARK_RESISTANCE), 75),
+		MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75),
+		MIN(GET_RESIST(ch, MIND_RESISTANCE), 75),
+		MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75));
+	send_to_char(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, ареа.резист: %d.\r\n",
+		GET_REAL_SAVING_WILL(ch),
+		GET_REAL_SAVING_CRITICAL(ch),
+		GET_REAL_SAVING_STABILITY(ch),
+		GET_REAL_SAVING_REFLEX(ch),
+		GET_MR(ch),
+		GET_PR(ch),
+		GET_AR(ch));
+	send_to_char(ch, "Восстановление: жизни: +%d%% (+%d), сил: +%d%% (+%d).\r\n",
+		GET_HITREG(ch),
+		hit_gain(ch),
+		GET_MOVEREG(ch),
+		move_gain(ch));
+	int ac = compute_armor_class(ch) / 10;
+	if (ac < 5) {
+		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+		ac = ac + mod > 5 ? 5 : ac + mod;
+	}
+	send_to_char(ch, "Броня: %d, защита: %d, поглощение %d.\r\n",
+		GET_ARMOUR(ch),
+		ac,
+		GET_ABSORBE(ch));
+	send_to_char(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
+		ch->get_gold(),
+		ch->get_bank(),
+		ch->get_hryvn(),
+		GET_EXP(ch),
+		IS_IMMORTAL(ch) ? 1: level_exp(ch, GET_REAL_LEVEL(ch) + 1) - GET_EXP(ch));
+	send_to_char(ch, "Ваша позиция: %s", list_score_pos(ch));
 }
 
 void print_do_score_all(CHAR_DATA *ch) {
