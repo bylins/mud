@@ -3303,10 +3303,7 @@ void HitData::add_hand_damage(CHAR_DATA *ch, bool need_dice) {
 		}
 	}
 	else
-		dam += number(1, 3);
-
-
-
+		dam += need_dice? number(1, 3) : 2;
 	// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
 	// <вес перчаток> <увеличение>
 	// 0  50%
