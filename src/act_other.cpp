@@ -2927,10 +2927,12 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		return;
 	}
-	if (GET_OBJ_MATER(itemobj) == OBJ_DATA::MAT_NONE || GET_OBJ_MATER(itemobj) > OBJ_DATA::MAT_COLOR) {
-		sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
-		send_to_char(buf, ch);
-		return;
+	if (GET_OBJ_MATER(itemobj) == OBJ_DATA::MAT_NONE || (GET_OBJ_MATER(itemobj) > OBJ_DATA::MAT_COLOR)) {
+		if (!(GET_OBJ_MATER(itemobj) == OBJ_DATA::MAT_BONE || GET_OBJ_MATER(itemobj) == OBJ_DATA::MAT_ROCK)) {
+			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
+			send_to_char(buf, ch);
+			return;
+		}
 	}
 	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT)
 		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)
