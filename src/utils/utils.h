@@ -1498,7 +1498,6 @@ struct ParseFilter {
 
 	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
 							weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
-                            remorts(-1), remorts_sign('\0'),
 							new_timesign('\0'), new_timedown(time(0)), new_timeup(time(0)),
 							filter_type(type) {};
 
@@ -1528,8 +1527,9 @@ struct ParseFilter {
 	char cost_sign;        // знак цены +/-
 	int rent;             // для стоимости ренты
 	char rent_sign;        // знак ренты +/-
-    int remorts; //для количества ремортов
-    char remorts_sign; // знак ремортов
+    int filter_remorts_count = -1;
+    int remorts[2] = {-1,-1}; //для количества ремортов
+    char remorts_sign[2] = "\0"; // знак ремортов
 	char new_timesign;       // знак времени < > =
 	time_t new_timedown;   // нижняя граница времени
 	time_t new_timeup;       // верхняя граница времени

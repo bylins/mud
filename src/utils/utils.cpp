@@ -2170,11 +2170,15 @@ bool ParseFilter::init_rent(const char *str) {
 }
 
 bool ParseFilter::init_remorts(const char *str) {
-    if (sscanf(str, "%d%[-+]", &remorts, &remorts_sign) != 2) {
+    filter_remorts_count++;
+    if (filter_remorts_count>1) {
+        filter_remorts_count = 1;
+    }
+    if (sscanf(str, "%d%[-+]", &remorts[filter_remorts_count], &remorts_sign[filter_remorts_count]) != 2) {
         return false;
     }
-    if (remorts_sign == '-') {
-        remorts = -remorts;
+    if (remorts_sign[filter_remorts_count] == '-') {
+        remorts[filter_remorts_count] = -remorts[filter_remorts_count];
     }
 
     return true;
@@ -2490,17 +2494,25 @@ bool ParseFilter::check_rent(int obj_price) const {
 }
 
 bool ParseFilter::check_remorts(OBJ_DATA *obj) const {
-    bool result = false;
+    int result;
     int obj_remorts = obj->get_auto_mort_req();
 
-    if (remorts_sign == '\0') {
-        result = true;
-    } else if (remorts >= 0 && obj_remorts >= remorts) {
-        result = true;
-    } else if (remorts < 0 && obj_remorts <= -remorts) {
-        result = true;
+    for (int i=0;i<=filter_remorts_count;i++) {
+        result = 0;
+        if (remorts_sign[i] == '\0') {
+            result = 1;
+        } else if (remorts[i] >= 0 && obj_remorts >= remorts[i]) {
+            result = 1;
+        } else if (remorts[i] <= 0 && obj_remorts <= -remorts[i]) {
+            result = 1;
+        }
+        if (result==0) {
+            return false;
+        }
     }
-    return result;
+
+
+    return true;
 }
 
 
@@ -2653,6 +2665,7 @@ bool ParseFilter::check(exchange_item_data *exch_obj) {
 		&& check_type(obj)
 		&& check_state(obj)
 		&& check_wear(obj)
+        && check_remorts(obj)
 		&& check_weap_class(obj)
 		&& check_cost(GET_EXCHANGE_ITEM_COST(exch_obj))
 		&& check_affect_apply(obj)
@@ -2879,10 +2892,10 @@ std::string ParseFilter::print() const {
 		sprintf(buf, "%d%c ", rent, rent_sign);
 		buffer += buf;
 	}
-    if (remorts >= 0) {
+    /*if (remorts >= 0) {
         sprintf(buf, "%d%c ", remorts, remorts_sign);
         buffer += buf;
-    }
+    }*/
 	if (!affect_weap.empty()) {
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it) {
 			buffer += weapon_affects[*it];
