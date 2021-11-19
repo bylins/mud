@@ -2800,6 +2800,7 @@ const char *ac_text[] =
 int calc_hr_info(CHAR_DATA *ch) {
 	ESkill skill = SKILL_BOTHHANDS;
 	int hr = 0;
+	int max_dam = 0;
 	OBJ_DATA *weapon = GET_EQ(ch, WEAR_BOTHS);
 	if (weapon) {
 		if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
@@ -2807,7 +2808,7 @@ int calc_hr_info(CHAR_DATA *ch) {
 			if (ch->get_skill(skill) == SKILL_INVALID) {
 				hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 			} else {
-				apply_weapon_bonus(GET_CLASS(ch), skill, 0, &hr);
+				apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
 			}
 		}
 	} else {
@@ -2818,7 +2819,7 @@ int calc_hr_info(CHAR_DATA *ch) {
 				if (ch->get_skill(skill) == SKILL_INVALID) {
 					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, 0, &hr);
+					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
 				}
 			}
 		}
@@ -2829,12 +2830,11 @@ int calc_hr_info(CHAR_DATA *ch) {
 				if (ch->get_skill(skill) == SKILL_INVALID) {
 					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, 0, &hr);
+					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
 				}
 			}
 		}
 	}
-	int max_dam = 0;
 	if (weapon) {
 		int tmphr = 0;
 		HitData::check_weap_feats(ch, GET_OBJ_SKILL(weapon), tmphr, max_dam);
@@ -2866,43 +2866,42 @@ int calc_hr_info(CHAR_DATA *ch) {
 }
 
 const char *list_score_pos(CHAR_DATA *ch) {
-	if (!ch->ahorse())
-		switch (GET_POS(ch)) {
-			case POS_DEAD: 
-				return "Вы МЕРТВЫ!\r\n";
-				break;
-			case POS_MORTALLYW: 
-				return "Вы смертельно ранены и нуждаетесь в помощи!\r\n";
-				break;
-			case POS_INCAP: 
-				return "Вы без сознания и медленно умираете...\r\n";
-				break;
-			case POS_STUNNED: 
-				return "Вы в обмороке!\r\n";
-				break;
-			case POS_SLEEPING: 
-				return "Вы спите.\r\n";
-				break;
-			case POS_RESTING: 
-				return "Вы отдыхаете.\r\n";
-				break;
-			case POS_SITTING: 
-				return "Вы сидите.\r\n";
-				break;
-			case POS_FIGHTING:
-				if (ch->get_fighting()) {
-					sprintf(buf, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
-					return buf;
-					}
-				else
-					return "Вы машете кулаками по воздуху.\r\n";
-				break;
-			case POS_STANDING: 
-				return "Вы стоите.\r\n";
-				break;
-			default:
-				break;
-		}
+	switch (GET_POS(ch)) {
+		case POS_DEAD: 
+			return "Вы МЕРТВЫ!\r\n";
+			break;
+		case POS_MORTALLYW: 
+			return "Вы смертельно ранены и нуждаетесь в помощи!\r\n";
+			break;
+		case POS_INCAP: 
+			return "Вы без сознания и медленно умираете...\r\n";
+			break;
+		case POS_STUNNED: 
+			return "Вы в обмороке!\r\n";
+			break;
+		case POS_SLEEPING: 
+			return "Вы спите.\r\n";
+			break;
+		case POS_RESTING: 
+			return "Вы отдыхаете.\r\n";
+			break;
+		case POS_SITTING: 
+			return "Вы сидите.\r\n";
+			break;
+		case POS_FIGHTING:
+			if (ch->get_fighting()) {
+				sprintf(buf1, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
+				return buf1;
+				}
+			else
+				return "Вы машете кулаками по воздуху.\r\n";
+			break;
+		case POS_STANDING: 
+			return "Вы стоите.\r\n";
+			break;
+		default:
+			break;
+	}
 return "Вы незнамо что делаете!!!\r\n";
 }
 
@@ -2912,12 +2911,12 @@ void print_do_score_list(CHAR_DATA *ch) {
 	buf[0] = LOWER(buf[0]);
 	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]);
 	buf1[0] = LOWER(buf1[0]);
-	send_to_char(ch, "Вы %s, %s, %s, %s, уровень %d(%d), перевоплощений %d(%d).\r\n", ch->get_name().c_str(),
+	send_to_char(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 		buf,
 		class_name[static_cast<int>(GET_CLASS(ch)) + 14 * GET_KIN(ch)],
 		buf1,
-		GET_LEVEL(ch), GET_REAL_LEVEL(ch),
-		GET_REMORT(ch), GET_REAL_REMORT(ch));
+		GET_REAL_LEVEL(ch),
+		GET_REAL_REMORT(ch));
 	send_to_char(ch, "Ваша возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
 		GET_AGE(ch),
 		GET_SIZE(ch), GET_REAL_SIZE(ch),
@@ -2987,12 +2986,37 @@ void print_do_score_list(CHAR_DATA *ch) {
 		ch->get_hryvn(),
 		GET_EXP(ch),
 		IS_IMMORTAL(ch) ? 1: level_exp(ch, GET_REAL_LEVEL(ch) + 1) - GET_EXP(ch));
-	send_to_char(ch, "Ваша позиция: %s", list_score_pos(ch));
+	if (!ch->ahorse())
+		send_to_char(ch, "Ваша позиция: %s", list_score_pos(ch));
+	else 
+		send_to_char(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
+		send_to_char(ch, "Вы можете быть призваны.\r\n");
+	else
+		send_to_char(ch, "Вы защищены от призыва.\r\n");
+	send_to_char(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > NORM_COND_VALUE)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
+	//Напоминаем о метке, если она есть.
+	ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	if (label_room) {
+		const int timer_room_label = RoomSpells::getUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
+		if (timer_room_label > 0) {
+			*buf2 = '\0';
+			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
+					desc_count((timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа.");
+			send_to_char(ch, "Вы поставили рунную метку в комнате: '%s', она продержится еще %s\r\n", label_room->name, buf2);
+			*buf2 = '\0';
+		}
+	}
+	if (!NAME_GOD(ch) && GET_REAL_LEVEL(ch) <= NAME_LEVEL) {
+		send_to_char(ch, "ВНИМАНИЕ! ваше имя не одобрил никто из богов!\r\n");
+		send_to_char(ch, "Cкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени.\r\n");
+	} else if (NAME_BAD(ch)) {
+		send_to_char(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
+	}
 }
 
 void print_do_score_all(CHAR_DATA *ch) {
-	int ac, max_dam = 0, hr = 0, modi = 0;
-	ESkill skill = SKILL_BOTHHANDS;
+	int ac, max_dam = 0;
 
 	std::string sum = string("Вы ") + string(ch->get_name()) + string(", ")
 		+ string(class_name[static_cast<int>(GET_CLASS(ch)) + 14 * GET_KIN(ch)]) + string(".");
@@ -3048,104 +3072,6 @@ void print_do_score_all(CHAR_DATA *ch) {
 			CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 			CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) {
-		max_dam = GetRealDamroll(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
-	} else {
-		max_dam = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
-	}
-
-	if (can_use_feat(ch, BULLY_FEAT)) {
-		modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18) : 0));
-		//modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
-		modi = MAX(100, modi);
-		max_dam += modi * max_dam / 50;
-		max_dam += MAX(0, GET_REAL_STR(ch) - 25);
-	} else {
-		max_dam += 6 + 2 * GET_REAL_LEVEL(ch) / 3;
-	}
-
-	OBJ_DATA *weapon = GET_EQ(ch, WEAR_BOTHS);
-	if (weapon) {
-		if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
-			max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
-			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-			if (ch->get_skill(skill) == SKILL_INVALID) {
-				hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-				max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-			} else {
-				apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-			}
-		}
-	} else {
-		weapon = GET_EQ(ch, WEAR_HOLD);
-		if (weapon) {
-			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
-				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == SKILL_INVALID) {
-					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-				}
-			}
-		}
-		weapon = GET_EQ(ch, WEAR_WIELD);
-		if (weapon) {
-			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
-				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == SKILL_INVALID) {
-					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-				}
-			}
-		}
-
-	}
-
-	if (weapon) {
-		int tmphr = 0;
-		HitData::check_weap_feats(ch, GET_OBJ_SKILL(weapon), tmphr, max_dam);
-		hr -= tmphr;
-	} else {
-		HitData::check_weap_feats(ch, SKILL_PUNCH, hr, max_dam);
-	}
-
-	if (can_use_feat(ch, WEAPON_FINESSE_FEAT)) {
-		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
-	} else {
-		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
-	}
-	hr += GET_REAL_HR(ch) - thaco(static_cast<int>(GET_CLASS(ch)), static_cast<int>(GET_REAL_LEVEL(ch)));
-	if (PRF_FLAGGED(ch, PRF_POWERATTACK)) {
-		hr -= 2;
-		max_dam += 5;
-	}
-	if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK)) {
-		hr -= 4;
-		max_dam += 10;
-	}
-	if (PRF_FLAGGED(ch, PRF_AIMINGATTACK)) {
-		hr += 2;
-		max_dam -= 5;
-	}
-	if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK)) {
-		hr += 4;
-		max_dam -= 10;
-	}
-
-	max_dam += ch->obj_bonus().calc_phys_dmg(max_dam);
-	if (ch->add_abils.percent_dam_add > 0) {
-		max_dam += max_dam * ch->add_abils.percent_dam_add / 100. / 2;
-	}
-	max_dam = MAX(0, max_dam);
-	max_dam *= ch->get_cond_penalty(P_DAMROLL);
-
-	hr *= ch->get_cond_penalty(P_HITROLL);
-
 	resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sУровень: %s%-2d        %s|"
@@ -3154,7 +3080,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 			" %sВоде:      %3d %s||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_REAL_LEVEL(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), hr - (ch->ahorse() ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0), CCCYN(ch, C_NRM),
+			CCIGRN(ch, C_NRM), calc_hr_info(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	HitData hit_params;
@@ -3757,35 +3683,10 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
 			playing_time.day, desc_count(playing_time.day, WHAT_DAY),
 			playing_time.hours, desc_count(playing_time.hours, WHAT_HOUR));
+	send_to_char(buf, ch);
 
 	if (!ch->ahorse())
-		switch (GET_POS(ch)) {
-			case POS_DEAD: strcat(buf, "Вы МЕРТВЫ!\r\n");
-				break;
-			case POS_MORTALLYW: strcat(buf, "Вы смертельно ранены и нуждаетесь в помощи!\r\n");
-				break;
-			case POS_INCAP: strcat(buf, "Вы без сознания и медленно умираете...\r\n");
-				break;
-			case POS_STUNNED: strcat(buf, "Вы в обмороке!\r\n");
-				break;
-			case POS_SLEEPING: strcat(buf, "Вы спите.\r\n");
-				break;
-			case POS_RESTING: strcat(buf, "Вы отдыхаете.\r\n");
-				break;
-			case POS_SITTING: strcat(buf, "Вы сидите.\r\n");
-				break;
-			case POS_FIGHTING:
-				if (ch->get_fighting())
-					sprintf(buf + strlen(buf), "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
-				else
-					strcat(buf, "Вы машете кулаками по воздуху.\r\n");
-				break;
-			case POS_STANDING: strcat(buf, "Вы стоите.\r\n");
-				break;
-			default: strcat(buf, "You are floating.\r\n");
-				break;
-		}
-	send_to_char(buf, ch);
+		send_to_char(ch, "%s", list_score_pos(ch));
 
 	strcpy(buf, CCIGRN(ch, C_NRM));
 	const auto value_drunked = GET_COND(ch, DRUNK);
