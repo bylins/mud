@@ -61,6 +61,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <sstream>
+#include <sstream>
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
@@ -129,6 +130,13 @@ int MIN(int a, int b) {
 
 int MAX(int a, int b) {
 	return (a > b ? a : b);
+}
+
+template <typename T> 
+std::string number_to_string(T val) {
+    std::stringstream ss;
+    ss << val;
+return ss.str();
 }
 
 const char *first_letter(const char *txt) {
