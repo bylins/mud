@@ -2865,36 +2865,45 @@ int calc_hr_info(CHAR_DATA *ch) {
 	return hr;
 }
 
-char list_score_pos(CHAR_DATA *ch) {
-	char pos[128];
+const char *list_score_pos(CHAR_DATA *ch) {
 	if (!ch->ahorse())
 		switch (GET_POS(ch)) {
-			case POS_DEAD: sprintf(pos, "Вы МЕРТВЫ!\r\n");
+			case POS_DEAD: 
+				return "Вы МЕРТВЫ!\r\n";
 				break;
-			case POS_MORTALLYW: sprintf(pos, "Вы смертельно ранены и нуждаетесь в помощи!\r\n");
+			case POS_MORTALLYW: 
+				return "Вы смертельно ранены и нуждаетесь в помощи!\r\n";
 				break;
-			case POS_INCAP: sprintf(pos, "Вы без сознания и медленно умираете...\r\n");
+			case POS_INCAP: 
+				return "Вы без сознания и медленно умираете...\r\n";
 				break;
-			case POS_STUNNED: sprintf(pos, "Вы в обмороке!\r\n");
+			case POS_STUNNED: 
+				return "Вы в обмороке!\r\n";
 				break;
-			case POS_SLEEPING: sprintf(pos, "Вы спите.\r\n");
+			case POS_SLEEPING: 
+				return "Вы спите.\r\n";
 				break;
-			case POS_RESTING: sprintf(pos, "Вы отдыхаете.\r\n");
+			case POS_RESTING: 
+				return "Вы отдыхаете.\r\n";
 				break;
-			case POS_SITTING: sprintf(pos, "Вы сидите.\r\n");
+			case POS_SITTING: 
+				return "Вы сидите.\r\n";
 				break;
 			case POS_FIGHTING:
-				if (ch->get_fighting())
-					sprintf(buf + strlen(buf), "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
+				if (ch->get_fighting()) {
+					sprintf(buf, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
+					return buf;
+					}
 				else
-					sprintf(pos, "Вы машете кулаками по воздуху.\r\n");
+					return "Вы машете кулаками по воздуху.\r\n";
 				break;
-			case POS_STANDING: sprintf(pos, "Вы стоите.\r\n");
+			case POS_STANDING: 
+				return "Вы стоите.\r\n";
 				break;
-			default: sprintf(pos, "You are floating.\r\n");
+			default:
 				break;
 		}
-	return pos;
+return "Вы незнамо что делаете!!!\r\n";
 }
 
 void print_do_score_list(CHAR_DATA *ch) {
@@ -2950,7 +2959,7 @@ void print_do_score_list(CHAR_DATA *ch) {
 		MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75),
 		MIN(GET_RESIST(ch, MIND_RESISTANCE), 75),
 		MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75));
-	send_to_char(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, ареа.резист: %d.\r\n",
+	send_to_char(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
 		GET_REAL_SAVING_WILL(ch),
 		GET_REAL_SAVING_CRITICAL(ch),
 		GET_REAL_SAVING_STABILITY(ch),
