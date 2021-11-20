@@ -324,7 +324,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 					act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
 					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
-					obj_to_char(unequip_char(helpee, i | 0x40), helpee);
+					obj_to_char(unequip_char(helpee, i, CharEquipFlag::show_msg), helpee);
 				}
 			}
 

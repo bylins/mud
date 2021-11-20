@@ -913,7 +913,7 @@ void extract_charmice(CHAR_DATA *ch) {
 	std::vector<OBJ_DATA *> objects;
 	for (int i = 0; i < NUM_WEARS; ++i) {
 		if (GET_EQ(ch, i)) {
-			OBJ_DATA *obj = unequip_char(ch, i);
+			OBJ_DATA *obj = unequip_char(ch, i, CharEquipFlags());
 			if (obj) {
 				remove_otrigger(obj, ch);
 				objects.push_back(obj);

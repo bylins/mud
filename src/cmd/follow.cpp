@@ -105,7 +105,7 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 					if (!remove_otrigger(GET_EQ(ch, i), ch)) {
 						continue;
 					}
-					obj_to_char(unequip_char(ch, i | 0x40), ch);
+					obj_to_char(unequip_char(ch, i, CharEquipFlag::show_msg), ch);
 					//extract_obj(tmp);
 					while (ch->carrying) {
 						OBJ_DATA *obj = ch->carrying;

@@ -1372,7 +1372,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 
 						act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
 						act("$n прекратил$g использовать $o3.", TRUE, victim, GET_EQ(victim, i), 0, TO_ROOM);
-						obj_to_char(unequip_char(victim, i | 0x40), victim);
+						obj_to_char(unequip_char(victim, i, CharEquipFlag::show_msg), victim);
 					}
 				}
 			}

@@ -4431,7 +4431,7 @@ void ZoneReset::reset_zone_essential() {
 							load_otrigger(obj.get());
 							if (wear_otrigger(obj.get(), mob, ZCMD.arg3)) {
 								obj->set_in_room(NOWHERE);
-								equip_char(mob, obj.get(), ZCMD.arg3);
+								equip_char(mob, obj.get(), ZCMD.arg3, CharEquipFlags());
 							} else {
 								obj_to_char(obj.get(), mob);
 							}
@@ -5069,7 +5069,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 // Снимаем весь стафф
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)) {
-			obj_to_char(unequip_char(ch, i), ch);
+			obj_to_char(unequip_char(ch, i, CharEquipFlags()), ch);
 		}
 	}
 

@@ -259,14 +259,14 @@ void pk_increment_kill(CHAR_DATA *agressor, CHAR_DATA *victim, int rent, bool fl
 		if (GET_EQ(agressor, i)) {
 			p_item = GET_EQ(agressor, i);
 			if (invalid_no_class(agressor, p_item)) {
-				obj_to_char(unequip_char(agressor, i), agressor);
+				obj_to_char(unequip_char(agressor, i, CharEquipFlags()), agressor);
 				remove_otrigger(p_item, agressor);
 			}
 		}
 		if (GET_EQ(victim, i)) {
 			p_item = GET_EQ(victim, i);
 			if (invalid_no_class(victim, p_item)) {
-				obj_to_char(unequip_char(victim, i), victim);
+				obj_to_char(unequip_char(victim, i, CharEquipFlags()), victim);
 				remove_otrigger(p_item, victim);
 			}
 		}

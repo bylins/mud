@@ -540,7 +540,7 @@ void go_steal(CHAR_DATA *ch, CHAR_DATA *vict, char *obj_name) {
 				} else {
 					act("Вы раздели $N3 и взяли $o3.", FALSE, ch, obj, vict, TO_CHAR);
 					act("$n украл$g $o3 у $N1.", FALSE, ch, obj, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-					obj_to_char(unequip_char(vict, eq_pos), ch);
+					obj_to_char(unequip_char(vict, eq_pos, CharEquipFlags()), ch);
 				}
 			}
 		} else    // obj found in inventory
