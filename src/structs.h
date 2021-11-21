@@ -1169,8 +1169,8 @@ const int HISTORY_SIZE = 5;
 #define MAX_STRING_LENGTH     32768
 #define MAX_EXTEND_LENGTH     0xFFFF
 #define MAX_TRGLINE_LENGTH     1024
-#define MAX_INPUT_LENGTH      256    // Max length per *line* of input //
-#define MAX_RAW_INPUT_LENGTH  512    // Max size of *raw* input //
+#define MAX_INPUT_LENGTH      1024   // Max length per *line* of input //
+#define MAX_RAW_INPUT_LENGTH  1024   // Max size of *raw* input //
 #define MAX_MESSAGES          600
 #define MAX_NAME_LENGTH       20
 #define MIN_NAME_LENGTH       5
