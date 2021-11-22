@@ -846,7 +846,7 @@ void find_uid_name(char *uid, char *name) {
 void script_stat(CHAR_DATA *ch, SCRIPT_DATA *sc) {
 	struct trig_var_data *tv;
 	char name[MAX_INPUT_LENGTH];
-	char namebuf[512];
+	char namebuf[MAX_INPUT_LENGTH];
 
 	sprintf(buf, "Global Variables: %s\r\n", sc->global_vars ? "" : "None");
 	send_to_char(buf, ch);
