@@ -532,7 +532,8 @@ void affect_total(CHAR_DATA *ch) {
 			affect_modify(ch, APPLY_MOVE, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
 			affect_modify(ch, APPLY_HIT, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
-		GloryConst::apply_modifiers(ch);
+		if (!domination) // мы на новой арене
+			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
 	}
 
