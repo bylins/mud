@@ -382,7 +382,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
 				}
 				ch->sub_ice_currency(price);
-			} else if (currency == "ногата") {
+			} else if (currency == "ногаты") {
 				// книги за лед, как и за славу, не фейлим
 				if (OBJ_DATA::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
 					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
