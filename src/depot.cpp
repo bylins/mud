@@ -15,6 +15,7 @@
 #include "obj_save.h"
 #include "house.h"
 #include "utils/utils_char_obj.inl"
+#include "named_stuff.h"
 
 extern int bank(CHAR_DATA *, void *, int, char *);
 extern int can_take_obj(CHAR_DATA *ch, OBJ_DATA *obj);
@@ -22,8 +23,8 @@ extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 namespace Depot {
 
 // максимальное кол-во шмоток в персональном хранилище (волхвам * 2)
-const unsigned int MAX_PERS_SLOTS = 25;
-const unsigned int MAX_PERS_INGR_SLOTS = 50;
+inline unsigned int MAX_PERS_SLOTS(CHAR_DATA *ch) {return GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) * 3;};
+//const unsigned int MAX_PERS_INGR_SLOTS = 50;
 
 // * Для оффлайнового списка шмоток в хранилище.
 class OfflineNode {
@@ -788,9 +789,9 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 // * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
 unsigned int get_max_pers_slots(CHAR_DATA *ch) {
 	if (can_use_feat(ch, THRIFTY_FEAT))
-		return MAX_PERS_SLOTS * 2;
+		return MAX_PERS_SLOTS(ch) * 2;
 	else
-		return MAX_PERS_SLOTS;
+		return MAX_PERS_SLOTS(ch);
 }
 
 /**
@@ -849,7 +850,7 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont) {
 		 << "Заполненность отделения для вещей: "
 		 << s_cnt << "/" << get_max_pers_slots(ch)
 		 << ", отделения для ингредиентов: "
-		 << i_cnt << "/" << MAX_PERS_INGR_SLOTS
+		 << i_cnt << "/" << MAX_PERS_SLOTS(ch) * 2
 		 << CCNRM(ch, C_NRM) << "\r\n\r\n";
 
 	if (!found) {
@@ -943,8 +944,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj) {
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
-	{
+		|| NamedStuff::check_named(ch, obj, 0)) {
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
 		return 0;
 	} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
@@ -1011,7 +1011,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
 	const bool is_ingr = GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MATERIAL;
 
-	if (is_ingr && ingr_cnt >= MAX_PERS_INGR_SLOTS) {
+	if (is_ingr && ingr_cnt >= (MAX_PERS_SLOTS(ch) * 2)) {
 		send_to_char("В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
 		return 0;
 	} else if (!is_ingr && staff_cnt >= get_max_pers_slots(ch)) {
