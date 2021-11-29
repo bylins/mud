@@ -4235,14 +4235,14 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 		}
 
 		if (IN_ROOM(tch) != NOWHERE) {
-			result = GET_ID(tch);
+			result = GET_UNIQUE(tch);
 		}
 	}
 
 	if (result <= -1) {
 		sprintf(buf2, "charuid target not found, name: '%s'", who);
 		trig_log(trig, buf2);
-		*uid = '\0';
+//		*uid = '\0';
 		return;
 	}
 
