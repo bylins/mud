@@ -426,7 +426,7 @@ void forget_all_spells(CHAR_DATA *ch) {
 	}
 	int slotn;
 
-	for (int i = 0; i <= SPELLS_COUNT + 1; i++) {
+	for (int i = 0; i <= SPELLS_COUNT; i++) {
 		if (PRF_FLAGGED(ch, PRF_AUTOMEM) && ch->real_abils.SplMem[i]) {
 			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[i]); ++j, --slots[slotn]) {
