@@ -505,7 +505,6 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	change_fighting(ch, TRUE);
 	GET_HIT(ch) = 1;
 	GET_POS(ch) = POS_SITTING;
-	char_from_room(ch);
 	int to_room = real_room(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
 	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL)) {
@@ -522,6 +521,7 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 			char_to_room(f->follower, to_room);
 		}
 	}
+	char_from_room(ch);
 	char_to_room(ch, to_room);
 	look_at_room(ch, to_room);
 	act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
