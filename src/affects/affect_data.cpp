@@ -443,18 +443,17 @@ void affect_total(CHAR_DATA *ch) {
 		ch->set_int_add(ch->get_remort_add());
 		ch->set_wis_add(ch->get_remort_add());
 		ch->set_cha_add(ch->get_remort_add());
-	} 	else {
-		ch->clear_add_apply_affects();
-/*		ch->set_remort_add(0);
-		ch->set_level_add(0);
-		ch->set_str_add(0);
-		ch->set_dex_add(0);
-		ch->set_con_add(0);
-		ch->set_int_add(0);
-		ch->set_wis_add(0);
-		ch->set_cha_add(0);*/
-
+		double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
+				+ (VPOSI_MOB(ch, 2, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
+				* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
+	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->get_level()));
+//		send_to_char(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
+//	send_to_char(ch, "ХитАдд %d\r\n", GET_HIT_ADD(ch));
+//	else {
+//		ch->clear_add_apply_affects();
+//	}
+
 	// бонусы от морта
 	if (GET_REAL_REMORT(ch) >= 20) {
 		ch->add_abils.mresist += GET_REAL_REMORT(ch) - 19;
@@ -670,7 +669,7 @@ void affect_total(CHAR_DATA *ch) {
 			}
 		}
 	}
-
+//	send_to_char(ch, "ХитАдд2222 %d\r\n", GET_HIT_ADD(ch));
 	check_berserk(ch);
 	if (ch->get_fighting() || affected_by_spell(ch, SPELL_GLITTERDUST)) {
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
@@ -878,7 +877,9 @@ void reset_affects(CHAR_DATA *ch) {
 
 	for (auto af = naf; af != ch->affected.end(); af = naf) {
 		++naf;
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION))
 			continue;
 		const auto &affect = *af;
 		if (!IS_SET(affect->battleflag, AF_DEADKEEP)) {
