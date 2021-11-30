@@ -516,6 +516,12 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 		HELL_DURATION(ch) = time(0) + 6;
 		to_room = r_helled_start_room;
 	}
+	for (follow_type *f = ch->followers; f; f = f->next) {
+		if (IS_CHARMICE(f->follower) && (IN_ROOM(f->follower) == ch->in_room)) {
+			char_from_room(f->follower);
+			char_to_room(f->follower, to_room);
+		}
+	}
 	char_to_room(ch, to_room);
 	look_at_room(ch, to_room);
 	act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);

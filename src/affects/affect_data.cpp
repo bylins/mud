@@ -878,7 +878,9 @@ void reset_affects(CHAR_DATA *ch) {
 
 	for (auto af = naf; af != ch->affected.end(); af = naf) {
 		++naf;
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION))
 			continue;
 		const auto &affect = *af;
 		if (!IS_SET(affect->battleflag, AF_DEADKEEP)) {

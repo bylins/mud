@@ -4981,9 +4981,9 @@ int file_to_string(const char *name, char *buf) {
 void clear_char_skills(CHAR_DATA *ch) {
 	int i;
 	ch->real_abils.Feats.reset();
-	for (i = 0; i <= SPELLS_COUNT + 1; i++)
+	for (i = 1; i <= SPELLS_COUNT + 1; i++)
 		ch->real_abils.SplKnw[i] = 0;
-	for (i = 0; i <= SPELLS_COUNT + 1; i++)
+	for (i = 1; i <= SPELLS_COUNT + 1; i++)
 		ch->real_abils.SplMem[i] = 0;
 	ch->clear_skills();
 }
