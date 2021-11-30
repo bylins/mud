@@ -1008,7 +1008,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			// начинаем модификации victim
 			// создаем переменные модификаторов
 			int r_cha = GET_REAL_CHA(ch);
-			int perc = ch->get_skill(get_magic_skill_number_by_spell(SPELL_CHARM));
+			int perc = MIN(CalcSkillMinCap(ch, get_magic_skill_number_by_spell(SPELL_CHARM)), ch->get_skill(get_magic_skill_number_by_spell(SPELL_CHARM)));
 			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
 			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
 			
