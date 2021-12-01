@@ -717,24 +717,16 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont) {
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
 		do_split(ch, local_buf, 0, 0);
+	} else if (cont && system_obj::is_purse(cont)) {
+		// лут кошелька с баблом
+		// налогом не облагается, т.к. уже все уплочено
+		// на данном этапе cont уже не содержит владельца
+		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value, desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+		ch->add_gold(value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
-/*		int mob_num = GET_OBJ_VAL(cont, 2);
-		CHAR_DATA *mob;
-		if (mob_num  <= 0)
-		{
-			sprintf(buf, "<%s> {%d} заработал %d %s.", ch->get_name(), GET_ROOM_VNUM(ch->in_room), value,desc_count(value, WHAT_MONEYu));
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
-		}
-		else
-		{
-			mob = read_mobile(mob_num, VIRTUAL);
-			sprintf(buf, "<%s> {%d} получил %d %s кун из трупа моба. [Имя: %s, Vnum: %d]", ch->get_name(), GET_ROOM_VNUM(ch->in_room), value,desc_count(value, WHAT_MONEYu),  GET_NAME(mob), mob_num);
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
-			extract_char(mob, FALSE);
-		}
-*/
 		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value, desc_count(value, WHAT_MONEYu));
 		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		ch->add_gold(value, true, true);
