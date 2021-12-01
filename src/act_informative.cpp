@@ -2933,8 +2933,8 @@ void print_do_score_list(CHAR_DATA *ch) {
 		ch->get_str(), GET_REAL_STR(ch),
 		ch->get_dex(), GET_REAL_DEX(ch),
 		ch->get_con(), GET_REAL_CON(ch),
-		ch->get_wis(), GET_REAL_WIS(ch),
 		ch->get_int(), GET_REAL_INT(ch),
+		ch->get_wis(), GET_REAL_WIS(ch),
 		ch->get_cha(), GET_REAL_CHA(ch));
 
 	HitData hit_params;
@@ -3112,7 +3112,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 			resist,
 			CCCYN(ch, C_NRM));
 
-	resist = GET_RESIST(ch, DARK_RESISTANCE);
+	resist = MIN(GET_RESIST(ch, DARK_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sВозраст: %s%-3d       %s|"
 			" %sТелосложение:  %2d(%2d) %s|-------------------| &KТьме:      %3d&c ||\r\n",
@@ -3843,7 +3843,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(buf, ch);
 		}
 	}
-	if (ch->get_nogata() > 0) {
+	if (ch->get_nogata() > 0 && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
 		int value = ch->get_nogata();
 		if (ch->get_nogata() == 1) {
 			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");
