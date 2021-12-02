@@ -895,7 +895,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 	if (!IS_NPC(ch))
 		dam *= ch->get_cond_penalty(P_DAMROLL);
 
-	if (number(1, 100) <= GET_MR(victim))
+	if (number(1, 100) <= MAX(75, GET_MR(victim)))
 		dam = 0;
 
 	for (; count > 0 && rand >= 0; count--) {
