@@ -454,17 +454,17 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			char_from_room(ch);
-			char_to_room(ch, target);
-
 			if (!str_cmp(argument, "horse")
 				&& horse) {
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}
-
+			char_from_room(ch);
+			char_to_room(ch, target);
 			ch->dismount();
 			look_at_room(ch, TRUE);
+			greet_mtrigger(ch, -1);
+			greet_otrigger(ch, -1);
 		} else {
 			obj_log(obj, "oteleport: no target found");
 		}

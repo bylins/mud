@@ -1998,7 +1998,10 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_HIT_ADD(c));
 		} else if (!str_cmp(field, "maxhitp")) {
-			sprintf(str, "%d", GET_MAX_HIT(c));
+			if (*subfield && IS_NPC(c))
+				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_MAX_HIT(c));
+			else
+				sprintf(str, "%d", GET_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
 				if (!IS_NPC(c))

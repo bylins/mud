@@ -332,17 +332,18 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 					char_to_room(charmee, target);
 				}
 			}
-			char_from_room(ch);
-			char_to_room(ch, target);
 
 			if (!str_cmp(argument, "horse")
 				&& horse) {
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}
-
+			char_from_room(ch);
+			char_to_room(ch, target);
 			ch->dismount();
 			look_at_room(ch, TRUE);
+			greet_mtrigger(ch, -1);
+			greet_otrigger(ch, -1);
 		} else {
 			wld_log(room, "wteleport: no target found");
 		}

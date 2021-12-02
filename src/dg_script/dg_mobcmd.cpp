@@ -601,8 +601,6 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		from_room = vict->in_room;
 
-		char_from_room(vict);
-		char_to_room(vict, target);
 		if (!str_cmp(argument, "horse") && horse) {
 			char_from_room(horse);
 			char_to_room(horse, target);
@@ -619,8 +617,12 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 //-Polud
+		char_from_room(vict);
+		char_to_room(vict, target);
 		vict->dismount();
 		look_at_room(vict, TRUE);
+		greet_mtrigger(vict, -1);
+		greet_otrigger(vict, -1);
 	}
 }
 
