@@ -887,7 +887,7 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_SCOPOLIA_POISON] = "APPLY_SCOPOLIA_POISON";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BELENA_POISON] = "APPLY_BELENA_POISON";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_DATURA_POISON] = "APPLY_DATURA_POISON";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT_GLORY] = "APPLY_HIT_GLORY";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_FREE_FOR_USE] = "APPLY_FREE_FOR_USE";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_EXP] = "APPLY_BONUS_EXP";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_SKILLS] = "APPLY_BONUS_SKILLS";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";

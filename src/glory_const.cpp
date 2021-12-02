@@ -1002,7 +1002,7 @@ void apply_modifiers(CHAR_DATA *ch) {
 		int location = 0;
 		bool add = true;
 		switch (i->first) {
-			case GLORY_HIT: location = APPLY_HIT_GLORY;
+			case GLORY_HIT: location = APPLY_HIT;
 				break;
 			case GLORY_SUCCESS: location = APPLY_CAST_SUCCESS;
 				break;
@@ -1021,11 +1021,8 @@ void apply_modifiers(CHAR_DATA *ch) {
 				break;
 			default: break;
 		}
-		// TODO: убрать наверно надо эти костыли блин, но аппли у нас не позволяет навесить что либо больше чем влазит в signed byte т.е. +127
-// не совсем понял что тут делается, но тупо увеличил аппли до инта, кто мешал это сделать раньше? А то 10 лет багрепортят что аффекты после 127 глючат.
 		if (location) {
-			const int K = location != APPLY_HIT_GLORY ? stat_multi(i->first) : 1;
-			affect_modify(ch, location, i->second * K, static_cast<EAffectFlag>(0), add);
+			affect_modify(ch, location, i->second * stat_multi(i->first), static_cast<EAffectFlag>(0), add);
 		}
 	}
 }

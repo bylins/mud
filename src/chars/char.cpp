@@ -1522,7 +1522,6 @@ void CHAR_DATA::clear_add_apply_affects() {
 	set_wis_add(0);
 	set_cha_add(0);
 	set_skill_bonus(0);
-	GET_HIT_ADD(this) = 0;
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CHAR_DATA::get_zone_group() const {
