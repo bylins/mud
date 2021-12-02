@@ -407,7 +407,6 @@ void affect_total(CHAR_DATA *ch) {
 		// we don't care of affects of removed character.
 		return;
 	}
-//	send_to_char(ch, "ХитАдд начало %d\r\n", GET_HIT_ADD(ch));
 	bool domination = false;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
@@ -419,9 +418,8 @@ void affect_total(CHAR_DATA *ch) {
 
 	// Init struct
 	saved.clear();
-
-	ch->clear_add_apply_affects();
-
+	if (!IS_NPC(ch))
+		ch->clear_add_apply_affects();
 	// PC's clear all affects, because recalc one
 	{
 		saved = ch->char_specials.saved.affected_by;
@@ -450,22 +448,18 @@ void affect_total(CHAR_DATA *ch) {
 	 	GET_HIT_ADD(ch) = static_cast<int>(add_hp_per_level * (30 - ch->get_level()));
 //		send_to_char(ch, "add per level %f hitadd %d  level %d\r\n", add_hp_per_level, GET_HIT_ADD(ch), ch->get_level());
 	}
-//	send_to_char(ch, "ХитАдд %d\r\n", GET_HIT_ADD(ch));
-//	else {
-//		ch->clear_add_apply_affects();
-//	}
 
 	// бонусы от морта
 	if (GET_REAL_REMORT(ch) >= 20) {
 		ch->add_abils.mresist += GET_REAL_REMORT(ch) - 19;
 		ch->add_abils.presist += GET_REAL_REMORT(ch) - 19;
 	}
-
+/*	см выше
 	// Restore values for NPC - added by Adept
 	if (IS_NPC(ch)) {
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
-
+*/
 	// move object modifiers
 	for (int i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_EQ(ch, i))) {
@@ -670,7 +664,6 @@ void affect_total(CHAR_DATA *ch) {
 			}
 		}
 	}
-//	send_to_char(ch, "ХитАдд2222 %d\r\n", GET_HIT_ADD(ch));
 	check_berserk(ch);
 	if (ch->get_fighting() || affected_by_spell(ch, SPELL_GLITTERDUST)) {
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
@@ -853,9 +846,6 @@ void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, boo
 		case APPLY_SCOPOLIA_POISON:
 		case APPLY_BELENA_POISON:
 		case APPLY_DATURA_POISON:GET_POISON(ch) += mod;
-			break;
-		case APPLY_HIT_GLORY: //вкачка +хп за славу
-			GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
 			break;
 		case APPLY_PR:GET_PR(ch) += mod; //скиллрезист
 			break;
