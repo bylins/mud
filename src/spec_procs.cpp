@@ -182,8 +182,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 		*names[0] = '\0';
 	for (i = 1; i < max_slot; i++)
 		if (all_feats) {
-			//j = i*28/(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); // старая формула, работавшая криво!
-			j = feat_slot_lvl(GET_REAL_REMORT(ch),
+			j = feat_slot_lvl(GET_REMORT(ch),
 							  feat_slot_for_remort[(int) GET_CLASS(ch)],
 							  i); // на каком уровне будет слот i?
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);

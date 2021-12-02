@@ -101,7 +101,7 @@ void InitSkills() {
 	InitSingleSkill(SKILL_DEVIATE, "уклониться", "Укл", SAVING_REFLEX, 100, 200);
 	InitSingleSkill(SKILL_CHOPOFF, "подножка", "Пд", SAVING_REFLEX, 200, 200);
 	InitSingleSkill(SKILL_REPAIR, "ремонт", "Рм", SAVING_REFLEX, 180, 200);
-	InitSingleSkill(SKILL_COURAGE, "ярость", "Яр", SAVING_REFLEX, 100, 1000);
+	InitSingleSkill(SKILL_COURAGE, "ярость", "Яр", SAVING_REFLEX, 100, 200);
 	InitSingleSkill(SKILL_IDENTIFY, "опознание", "Оп", SAVING_REFLEX, 100, 1000);
 	InitSingleSkill(SKILL_LOOK_HIDE, "подсмотреть", "Пдм", SAVING_REFLEX, 100, 200);
 	InitSingleSkill(SKILL_UPGRADE, "заточить", "Зат", SAVING_REFLEX, 100, 200);

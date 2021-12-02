@@ -407,6 +407,7 @@ void affect_total(CHAR_DATA *ch) {
 		// we don't care of affects of removed character.
 		return;
 	}
+//	send_to_char(ch, "ХитАдд начало %d\r\n", GET_HIT_ADD(ch));
 	bool domination = false;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
