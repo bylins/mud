@@ -1553,6 +1553,18 @@ void find_replacement(void *go,
 				num = gcount_obj_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%c", num > 0 ? '1' : '0');
+			} else if (!str_cmp(field, "pc")) {
+				for (const auto &tch : character_list) {
+					if (IS_NPC(tch) || IN_ROOM(tch) == NOWHERE)
+						continue;
+					if (!str_cmp(subfield, GET_NAME(tch))) {
+						if (tch->desc) {
+							sprintf(str, "1");
+							return;
+						}
+					}
+				}
+				sprintf(str, "0");
 			}
 			return;
 		} else if (!str_cmp(var, "world")) {
@@ -2076,6 +2088,11 @@ void find_replacement(void *go,
 				GET_INITIATIVE(c) = (int) gm_char_field(c, field, subfield, (long) GET_INITIATIVE(c));
 			else
 				sprintf(str, "%d", GET_INITIATIVE(c));
+		} else if (!str_cmp(field, "linkdrop")) {
+			if (!IS_NPC(c) && !c->desc)
+				sprintf(str, "1");
+			else
+				sprintf(str, "0");
 		} else if (!str_cmp(field, "align")) {
 			if (*subfield) {
 				if (*subfield == '-')
