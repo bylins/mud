@@ -119,7 +119,7 @@ extern struct spellInfo_t spell_info[];
 extern int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0);
 extern bool CompareBits(const FLAG_DATA &flags, const char *names[], int affect);    // to avoid inclusion of utils.h
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void save_zone_count_reset();
+void log_zone_count_reset();
 // extern functions
 int level_exp(CHAR_DATA *ch, int level);
 void appear(CHAR_DATA *ch);
@@ -190,7 +190,7 @@ void do_add_wizard(CHAR_DATA *ch, char *, int, int);
 
 //extern std::vector<Stigma> stigmas;
 
-void save_zone_count_reset() {
+void log_zone_count_reset() {
 	for (auto i = 0u; i < zone_table.size(); ++i) {
 		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].vnum, zone_table[i].count_reset);
 		log("%s", buf);
@@ -3207,8 +3207,10 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone) {
 	get_zone_rooms(zone, &rfirst, &rlast);
 	char tmpstr[BUFFER_SIZE];
 	snprintf(tmpstr, BUFFER_SIZE,
-		"%3d %-60.60s Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-		"First: %5d, Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\nАвтор: %s, посещено после ребута: %d\r\n",
+		"%3d %s\r\n"
+		"Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
+		"First: %5d, Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
+		"Автор: %s, количество репопов зоны (с перезагрузки): %d, всего посещений: %d\r\n",
 		zone_table[zone].vnum,
 		zone_table[zone].name,
 		zone_table[zone].mob_level,
@@ -3225,6 +3227,7 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone) {
 		(double) zone_table[zone].activity / 1000,
 		zone_table[zone].group,
 		zone_table[zone].author ? zone_table[zone].author : "неизвестен",
+		zone_table[zone].count_reset,
 		zone_table[zone].traffic);
 	*bufptr = str_add(*bufptr, tmpstr);
 }

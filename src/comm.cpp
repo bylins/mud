@@ -164,7 +164,7 @@
 #define ESC "\x1B"  /* esc character */
 
 #define MXPMODE(arg) ESC "[" #arg "z"
-extern void save_zone_count_reset();
+extern void log_zone_count_reset();
 extern int perform_move(CHAR_DATA *ch, int dir, int following, int checkmob, CHAR_DATA *leader);
 // flags for show_list_to_char
 
@@ -1127,7 +1127,7 @@ int shutting_down(void) {
 		lastmessage = time(NULL);
 		// на десятой секунде засейвим нужное нам в сислог
 		if (wait == 10)
-			save_zone_count_reset();
+			log_zone_count_reset();
 	}
 	return (FALSE);
 }
