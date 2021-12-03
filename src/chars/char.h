@@ -96,9 +96,9 @@ struct char_played_ability_data {
 	std::array<sh_int, 4> apply_saving_throw;        // Saving throw (Bonuses)
 	std::array<sh_int, MAX_NUMBER_RESISTANCE>
 		apply_resistance_throw;    // Сопротивление (резисты) к магии, ядам и крит. ударам
-	ubyte mresist;
-	ubyte aresist;
-	ubyte presist;    // added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
+	int mresist;
+	int aresist;
+	int presist;    // added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
 
 };
 

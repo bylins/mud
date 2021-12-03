@@ -418,8 +418,7 @@ void affect_total(CHAR_DATA *ch) {
 
 	// Init struct
 	saved.clear();
-	if (!IS_NPC(ch))
-		ch->clear_add_apply_affects();
+	ch->clear_add_apply_affects();
 	// PC's clear all affects, because recalc one
 	{
 		saved = ch->char_specials.saved.affected_by;
@@ -454,12 +453,10 @@ void affect_total(CHAR_DATA *ch) {
 		ch->add_abils.mresist += GET_REAL_REMORT(ch) - 19;
 		ch->add_abils.presist += GET_REAL_REMORT(ch) - 19;
 	}
-/*	см выше
 	// Restore values for NPC - added by Adept
 	if (IS_NPC(ch)) {
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
-*/
 	// move object modifiers
 	for (int i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_EQ(ch, i))) {
