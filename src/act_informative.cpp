@@ -1471,6 +1471,7 @@ void do_exits(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int door;
 
 	*buf = '\0';
+	*buf2 = '\0';
 
 	if (PRF_FLAGGED(ch, PRF_BLIND)) {
 		do_blind_exits(ch);
@@ -1483,14 +1484,20 @@ void do_exits(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	for (door = 0; door < NUM_OF_DIRS; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 			if (IS_GOD(ch))
-				sprintf(buf2, "%-5s - [%5d] %s\r\n", Dirs[door],
+				sprintf(buf2, "%-6s - [%5d] %s\r\n", Dirs[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
-				sprintf(buf2, "%-5s - ", Dirs[door]);
+				sprintf(buf2, "%-6s - ", Dirs[door]);
 				if (IS_DARK(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
 					strcat(buf2, "слишком темно\r\n");
 				else {
-					strcat(buf2, world[EXIT(ch, door)->to_room()]->name);
+					const room_rnum rnum_exit_room = EXIT(ch, door)->to_room();
+					if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
+						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
+						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
+					} else {
+						strcat(buf2, world[rnum_exit_room]->name);
+					}
 					strcat(buf2, "\r\n");
 				}
 			}
@@ -1506,6 +1513,7 @@ void do_blind_exits(CHAR_DATA *ch) {
 	int door;
 
 	*buf = '\0';
+	*buf2 = '\0';
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		send_to_char("Вы слепы, как котенок!\r\n", ch);
@@ -1514,14 +1522,20 @@ void do_blind_exits(CHAR_DATA *ch) {
 	for (door = 0; door < NUM_OF_DIRS; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 			if (IS_GOD(ch))
-				sprintf(buf2, "&W%-5s - [%5d] %s ", Dirs[door],
+				sprintf(buf2, "&W%s - [%d] %s ", Dirs[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
-				sprintf(buf2, "&W%-5s - ", Dirs[door]);
+				sprintf(buf2, "&W%s - ", Dirs[door]);
 				if (IS_DARK(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
 					strcat(buf2, "слишком темно");
 				else {
-					strcat(buf2, world[EXIT(ch, door)->to_room()]->name);
+					const room_rnum rnum_exit_room = EXIT(ch, door)->to_room();
+					if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
+						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
+						sprintf(buf2 + strlen(buf2), "[%d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
+					} else {
+						strcat(buf2, world[rnum_exit_room]->name);
+					}
 					strcat(buf2, "");
 				}
 			}
