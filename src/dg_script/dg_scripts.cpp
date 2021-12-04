@@ -1555,13 +1555,13 @@ void find_replacement(void *go,
 					sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
 				for (const auto &tch : character_list) {
-					if (IS_NPC(tch) || IN_ROOM(tch) == NOWHERE)
+					if (IS_NPC(tch))
+						continue;
+					if (IN_ROOM(tch) == NOWHERE || !tch->desc)
 						continue;
 					if (!str_cmp(subfield, GET_NAME(tch))) {
-						if (tch->desc) {
-							sprintf(str, "1");
-							return;
-						}
+						sprintf(str, "1");
+						return;
 					}
 				}
 				sprintf(str, "0");
