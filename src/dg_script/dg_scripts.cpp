@@ -952,6 +952,26 @@ void do_sstat_character(CHAR_DATA *ch, CHAR_DATA *k) {
 	script_stat(ch, SCRIPT(k).get());
 }
 
+void print_worlds_vars(CHAR_DATA *ch, std::optional<long> context)
+{
+	trig_var_data *current;
+
+	send_to_char("Worlds vars list:\r\n", ch);
+	for (current = worlds_vars; current; current = current->next) {
+		if (context && context.value() != current->context) {
+			continue;
+		}
+
+		std::stringstream str_out;
+		str_out << "Context: " << current->context;
+		str_out << ", Name: " << (current->name ? current->name : "[not set]");
+		str_out << ", Value: " << (current->value ? current->value : "[not set]");
+		str_out << "\r\n";
+
+		send_to_char(str_out.str(), ch);
+	}
+}
+
 /*
  * adds the trigger t to script sc in in location loc.  loc = -1 means
  * add to the end, loc = 0 means add before all other triggers.
