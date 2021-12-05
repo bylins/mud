@@ -844,6 +844,13 @@ class CHAR_DATA : public ProtectedCharacterData {
 	bool isHorsePrevents();
 	void dismount();
 };
+# define MAX_FIRSTAID_REMOVE 13
+inline int RemoveSpell(int num) {
+	int spell[MAX_FIRSTAID_REMOVE] = {SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
+									 SPELL_SILENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL,
+									 SPELL_CONE_OF_COLD, SPELL_DEAFNESS, SPELL_BATTLE};
+	return spell[num];
+}
 
 inline const player_special_data::ignores_t &CHAR_DATA::get_ignores() const {
 	const auto &ps = get_player_specials();

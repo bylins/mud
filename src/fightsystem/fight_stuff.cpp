@@ -494,7 +494,6 @@ void death_cry(CHAR_DATA *ch, CHAR_DATA *killer) {
 		}
 	}
 }
-
 void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	make_arena_corpse(ch, killer);
 	//Если убил палач то все деньги перекачивают к нему
@@ -520,6 +519,9 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 			char_from_room(f->follower);
 			char_to_room(f->follower, to_room);
 		}
+	}
+	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
+		affect_from_char(ch, RemoveSpell(i));
 	}
 	char_from_room(ch);
 	char_to_room(ch, to_room);

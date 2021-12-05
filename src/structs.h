@@ -1194,6 +1194,7 @@ const long MAX_MONEY_KEPT = 1000000000;
 #define INT_HIGH_AI 40
 #define CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK 100
 #define STRONG_MOB_LEVEL 30
+
 const short MAX_MOB_LEVEL = 100;
 const short MAX_SAVE = 400; //максимальное значение воля, здоровье, стойкость, реакция
 

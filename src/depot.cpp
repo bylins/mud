@@ -944,7 +944,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj) {
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING
-		|| NamedStuff::check_named(ch, obj, 0)) {
+		|| (NamedStuff::check_named(ch, obj, 0) || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj))) {
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
 		return 0;
 	} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER

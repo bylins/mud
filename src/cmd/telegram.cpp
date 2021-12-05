@@ -44,7 +44,7 @@ void do_telegram(CHAR_DATA *ch, char *argument, int, int) {
 		return;
 	}
 
-	sprintf(smallBuf, "Поступила телега от %s, сообщают следующее:\r\n%s", GET_NAME(ch), output);
+	snprintf(smallBuf, MAX_INPUT_LENGTH, "Поступила телега от %s, сообщают следующее:\r\n%s", GET_NAME(ch), output);
 	koi_to_utf8(const_cast<char *>(smallBuf), utfBuf);
 	if (strlen(utfBuf) < 10) {
 		send_to_char("Ошибочка вышла..\r\n", ch);
