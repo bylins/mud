@@ -3381,6 +3381,7 @@ struct show_struct show_fields[] = {
 		{"bosses", LVL_IMPL},
 		{"remort", LVL_IMPL}, // 25
 		{"apply", LVL_GOD}, // 26
+		{"worlds", LVL_IMMORT},
 		{"\n", 0}
 };
 
@@ -3801,7 +3802,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					mob_stat::show_zone(ch, atoi(value), 0);
 				}
 			} else {
-				send_to_char("Формат комнады: show mobstat внум-зоны <месяцев>.\r\n", ch);
+				send_to_char("Формат команды: show mobstat внум-зоны <месяцев>.\r\n", ch);
 			}
 			break;
 		}
@@ -3827,11 +3828,20 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			show_apply(ch, vict);
 			break;
 		}
+		case 27: // worlds
+			if (*value && is_number(value)) {
+				print_worlds_vars(ch, atol(value));
+			}
+			else if (*value && !str_cmp("all", value)) {
+				print_worlds_vars(ch, std::nullopt);
+			} else {
+				send_to_char("Формат команды: show worlds номер-контекста|all.\r\n", ch);
+			}
+			break;
 		default: send_to_char("Извините, неверная команда.\r\n", ch);
 			break;
 	}
 }
-
 
 // **************** The do_set function
 

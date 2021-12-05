@@ -366,6 +366,7 @@ void do_sstat_room(ROOM_DATA *rm, CHAR_DATA *ch);
 void do_sstat_room(CHAR_DATA *ch);
 void do_sstat_object(CHAR_DATA *ch, OBJ_DATA *j);
 void do_sstat_character(CHAR_DATA *ch, CHAR_DATA *k);
+void print_worlds_vars(CHAR_DATA *ch, std::optional<long> context);
 
 void script_log(const char *msg,
 				LogMode type = LogMode::OFF);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
