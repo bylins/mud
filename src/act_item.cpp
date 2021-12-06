@@ -2649,12 +2649,6 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-#define MAX_REMOVE  13
-const int RemoveSpell[MAX_REMOVE] = {SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
-									 SPELL_SILENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL,
-									 SPELL_CONE_OF_COLD,
-									 SPELL_DEAFNESS, SPELL_BATTLE};
-
 void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int success = FALSE, need = FALSE, spellnum = 0;
 	struct timed_type timed;
@@ -2733,13 +2727,13 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		need = TRUE;
 		prob = TRUE;
 	} else {
-		count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
+		count = MIN(MAX_FIRSTAID_REMOVE, MAX_FIRSTAID_REMOVE * prob / 100);
 
-		for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++) {
-			if (affected_by_spell(vict, RemoveSpell[percent])) {
+		for (percent = 0, prob = need; !need && percent < MAX_FIRSTAID_REMOVE && RemoveSpell(percent); percent++) {
+			if (affected_by_spell(vict, RemoveSpell(percent))) {
 				need = TRUE;
 				if (percent < count) {
-					spellnum = RemoveSpell[percent];
+					spellnum = RemoveSpell(percent);
 					prob = TRUE;
 				}
 			}
