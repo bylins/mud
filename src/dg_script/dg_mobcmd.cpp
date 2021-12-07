@@ -1331,7 +1331,8 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	two_arguments(argument, name, amount);
 
 	if (!*name || !*amount || !a_isdigit(*amount)) {
-		mob_log(ch, "mdamage: bad syntax");
+		sprintf(buf, "mdamage: bad syntax, arg %s", argument);
+		mob_log(ch, buf);
 		return;
 	}
 
