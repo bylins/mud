@@ -527,6 +527,7 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	char_to_room(ch, to_room);
 	look_at_room(ch, to_room);
 	act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
+	enter_wtrigger(ch->in_room], ch, -1);
 }
 
 void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gold) {
