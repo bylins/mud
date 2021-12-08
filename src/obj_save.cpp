@@ -484,6 +484,9 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 			} else if (!strcmp(read_line, "Ctmr")) {
 				*error = 65;
 				object->set_craft_timer(atoi(buffer));
+			} else if (!strcmp(read_line, "Ozne")) {
+				*error = 66;
+				object->set_zone_from(atoi(buffer));
 			} else {
 				snprintf(buf, MAX_STRING_LENGTH, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
 						 read_line, buffer);
@@ -885,12 +888,16 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 			out << "Levl: " << GET_OBJ_LEVEL(object) << "~\n";
 		}
 		// была ли шмотка ренейм
-		if ((GET_OBJ_RENAME(object) != false) && (GET_OBJ_RENAME(object) != false)) {
+		if (GET_OBJ_RENAME(object) != false) {
 			out << "Rnme: 1~\n";
 		}
-		// есть ли на шмотке таймер при крафте
+		// скрафчено с таймером
 		if ((GET_OBJ_CRAFTIMER(object) > 0)) {
 			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
+		}
+		// в какой зоне было загружено в мир
+		if (GET_OBJ_ZONE_FROM(object)) {
+			out << "Ozne: " << GET_OBJ_ZONE_FROM(object) << "~\n";
 		}
 		// Наводимые аффекты
 		*buf = '\0';
@@ -1024,6 +1031,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 			out << object->serialize_values();
 		}
 	} else        // Если у шмотки нет прототипа - придется сохранять ее целиком.
+				//6.12.2021 такого уже не может быть можно удалить нахрен
 	{
 		// Алиасы
 		if (!GET_OBJ_ALIAS(object).empty()) {
@@ -1152,6 +1160,10 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 		// есть ли на шмотке таймер при крафте
 		if (GET_OBJ_CRAFTIMER(object) > 0) {
 			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
+		}
+		// в какой зоне было загружено в мир
+		if (GET_OBJ_ZONE_FROM(object)) {
+			out << "Ozne: " << GET_OBJ_ZONE_FROM(object) << "~\n";
 		}
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++) {

@@ -1040,8 +1040,13 @@ inline bool NO_DESTROY(const OBJ_DATA *obj) {
 }
 
 inline bool NO_TIMER(const OBJ_DATA *obj) {
-	return (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
-	|| zone_table[obj->get_zone()].under_construction); // так как таймер всего 30 запретим тикать на земле
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN)
+		return true;
+// так как таймер всего 30 шмот из тестовой зоны в своей зоне запретим тикать на земле
+	if (obj->get_in_room() != NOWHERE && zone_table[world[obj->get_in_room()]->zone_rn].under_construction
+		&& zone_table[world[GET_OBJ_ZONE_FROM(obj)]->zone_rn].under_construction)
+		return true;
+	return false;
 }
 
 int up_obj_where(OBJ_DATA *obj) {
@@ -1247,9 +1252,9 @@ void clan_chest_point_update(OBJ_DATA *j) {
 
 	if (j->get_timer() <= 0
 		|| (j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-			&& GET_OBJ_ZONE(j) != NOWHERE
+			&& GET_OBJ_ZONE_FROM(j)
 			&& up_obj_where(j->get_in_obj()) != NOWHERE
-			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->get_in_obj())]->zone_rn)) {
+			&& GET_OBJ_ZONE_FROM(j) != zone_table[world[up_obj_where(j->get_in_obj())]->zone_rn].vnum)) {
 		clan_chest_invoice(j);
 		obj_from_obj(j);
 		extract_obj(j);
@@ -1410,18 +1415,16 @@ void obj_point_update() {
 				j->dec_destroyer();
 			}
 
-			if (j
-				&& (j->get_in_room() != NOWHERE)
+			if (j && (j->get_in_room() != NOWHERE)
 				&& j->get_timer() > 0
 				&& !NO_TIMER(j.get())) {
 				j->dec_timer();
 			}
 
-			if (j
-				&& ((j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-					&& GET_OBJ_ZONE(j) != NOWHERE
+			if (j && ((j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
+					&& GET_OBJ_ZONE_FROM(j)
 					&& up_obj_where(j.get()) != NOWHERE
-					&& GET_OBJ_ZONE(j) != world[up_obj_where(j.get())]->zone_rn)
+					&& GET_OBJ_ZONE_FROM(j) != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)
 					|| j->get_timer() <= 0
 					|| GET_OBJ_DESTROY(j) == 0)) {
 				// *** рассыпание объекта
