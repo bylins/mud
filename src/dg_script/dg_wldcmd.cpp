@@ -21,6 +21,7 @@
 #include "zone.table.h"
 #include "skills_info.h"
 #include "utils/id_converter.h"
+#include "zone.table.h"
 
 extern const char *dirs[];
 
@@ -490,7 +491,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
-		object->set_zone(world[real_room(room->room_vn)]->zone_rn);
+		object->set_zone_from(zone_table[room->zone_rn].vnum);
 		obj_to_room(object.get(), real_room(room->room_vn));
 		load_otrigger(object.get());
 	} else {

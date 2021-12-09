@@ -34,6 +34,7 @@
 #include "skills/townportal.h"
 #include "skills_info.h"
 #include "utils/id_converter.h"
+#include "zone.table.h"
 
 struct mob_command_info {
 	const char *command;
@@ -395,7 +396,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
-		object->set_zone(world[ch->in_room]->zone_rn);
+		object->set_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
 
 		if (CAN_WEAR(object.get(), EWearFlag::ITEM_WEAR_TAKE)) {
 			obj_to_char(object.get(), ch);

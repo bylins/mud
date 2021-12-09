@@ -19,6 +19,7 @@
 #include "skills/townportal.h"
 #include "skills_info.h"
 #include "utils/id_converter.h"
+#include "zone.table.h"
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA *obj);
@@ -512,7 +513,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
-		object->set_zone(world[room]->zone_rn);
+		object->set_zone_from(zone_table[world[room]->zone_rn].vnum);
 		obj_to_room(object.get(), room);
 		load_otrigger(object.get());
 	} else {

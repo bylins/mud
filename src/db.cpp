@@ -3030,7 +3030,7 @@ int dl_load_obj(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *chr, int DL_LOAD_TYP
 						break;
 				}
 				if (load) {
-					tobj->set_zone(world[ch->in_room]->zone_rn);
+					tobj->set_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
 					tobj->set_parent(GET_MOB_VNUM(ch));
 					if (DL_LOAD_TYPE == DL_SKIN) {
 						trans_obj_name(tobj.get(), ch);
@@ -3959,7 +3959,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj) {
 									obj_to_char(obj.get(), mob);
-									obj->set_zone(world[IN_ROOM(mob)]->zone_rn);
+									obj->set_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
 
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 										 it != (*load_in)->triggers.end(); ++it) {
@@ -4024,7 +4024,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 								if (obj_in
 									&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER) {
 									obj_to_obj(obj_in.get(), obj.get());
-									obj_in->set_zone(GET_OBJ_ZONE(obj));
+									obj_in->set_zone_from(GET_OBJ_ZONE_FROM(obj));
 
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 										 it != (*load_in)->triggers.end(); ++it) {
@@ -4329,7 +4329,7 @@ void ZoneReset::reset_zone_essential() {
 							|| number(1, 100) <= ZCMD.arg4)
 						&& (obj_in_room < obj_in_room_max)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
-						obj->set_zone(world[ZCMD.arg3]->zone_rn);
+						obj->set_zone_from(zone_table[world[ZCMD.arg3]->zone_rn].vnum);
 
 						if (!obj_to_room(obj.get(), ZCMD.arg3)) {
 							extract_obj(obj.get());
@@ -4368,11 +4368,11 @@ void ZoneReset::reset_zone_essential() {
 						}
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 						if (obj_to->get_in_room() != NOWHERE) {
-							obj->set_zone(world[obj_to->get_in_room()]->zone_rn);
+							obj->set_zone_from(zone_table[world[obj_to->get_in_room()]->zone_rn].vnum);
 						} else if (obj_to->get_worn_by()) {
-							obj->set_zone(world[IN_ROOM(obj_to->get_worn_by())]->zone_rn);
+							obj->set_zone_from(zone_table[world[IN_ROOM(obj_to->get_worn_by())]->zone_rn].vnum);
 						} else if (obj_to->get_carried_by()) {
-							obj->set_zone(world[IN_ROOM(obj_to->get_carried_by())]->zone_rn);
+							obj->set_zone_from(zone_table[world[IN_ROOM(obj_to->get_carried_by())]->zone_rn].vnum);
 						}
 						obj_to_obj(obj.get(), obj_to);
 						load_otrigger(obj.get());
@@ -4399,7 +4399,7 @@ void ZoneReset::reset_zone_essential() {
 							|| number(1, 100) <= ZCMD.arg4)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 						obj_to_char(obj.get(), mob);
-						obj->set_zone(world[IN_ROOM(mob)]->zone_rn);
+						obj->set_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
 						tobj = obj.get();
 						load_otrigger(obj.get());
 						curr_state = 1;
@@ -4426,7 +4426,7 @@ void ZoneReset::reset_zone_essential() {
 							ZONE_ERROR("invalid equipment pos number");
 						} else {
 							const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
-							obj->set_zone(world[IN_ROOM(mob)]->zone_rn);
+							obj->set_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
 							obj->set_in_room(IN_ROOM(mob));
 							load_otrigger(obj.get());
 							if (wear_otrigger(obj.get(), mob, ZCMD.arg3)) {

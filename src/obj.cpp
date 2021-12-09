@@ -30,7 +30,7 @@ OBJ_DATA::OBJ_DATA(const obj_vnum vnum) :
 	m_room_was_in(0),
 	m_maker(DEFAULT_MAKER),
 	m_owner(DEFAULT_OWNER),
-	m_zone(0),
+	m_zone_from(0),
 	m_parent(DEFAULT_PARENT),
 	m_is_rename(false),
 	m_carried_by(nullptr),
@@ -57,7 +57,7 @@ OBJ_DATA::OBJ_DATA(const CObjectPrototype &other) :
 	m_room_was_in(0),
 	m_maker(DEFAULT_MAKER),
 	m_owner(DEFAULT_OWNER),
-	m_zone(0),
+	m_zone_from(0),
 	m_parent(DEFAULT_PARENT),
 	m_is_rename(false),
 	m_carried_by(nullptr),
@@ -623,8 +623,9 @@ void OBJ_DATA::swap(OBJ_DATA &object) {
 	set_serial_num(object.get_serial_num());
 	object.set_serial_num(tmpobj.get_serial_num());
 	//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
-	set_zone(GET_OBJ_ZONE(&object));
-	object.set_zone(GET_OBJ_ZONE(&tmpobj));
+	// см ZONE_DECAY (c) Стрибог
+	set_zone_from(GET_OBJ_ZONE_FROM(&object));
+	object.set_zone_from(GET_OBJ_ZONE_FROM(&tmpobj));
 }
 
 void OBJ_DATA::set_tag(const char *tag) {
