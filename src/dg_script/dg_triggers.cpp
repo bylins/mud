@@ -130,7 +130,7 @@ const char *wtrig_types[] = {"Global",
 							 "Close",
 							 "Взломать",
 							 "Смена времени",
-							 "UNUSED",
+							 "Kill PC",
 							 "UNUSED",
 							 "UNUSED",
 							 "UNUSED",
@@ -778,9 +778,9 @@ void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
 */
 int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
-		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
-			actor ? (actor->purged() ? "purged" : "true") : "false",
-			__FILE__, __LINE__);
+//		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
+//			actor ? (actor->purged() ? "purged" : "true") : "false",
+//			__FILE__, __LINE__);
 		return 1;
 	}
 
@@ -1303,6 +1303,21 @@ int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 	return 0;
 }
 
+void kill_pc_wtrigger(CHAR_DATA *killer, CHAR_DATA *victim) {
+	if (!killer || !victim || !SCRIPT_CHECK(world[IN_ROOM(killer)], WTRIG_KILL_PC) || GET_INVIS_LEV(killer))
+		return;
+	auto room = world[IN_ROOM(victim)];
+	for (auto t : SCRIPT(room)->trig_list) {
+		if (!TRIGGER_CHECK(t, WTRIG_KILL_PC)) {
+			continue;
+		}
+		ADD_UID_CHAR_VAR(buf, t, killer, "killer", 0);
+		ADD_UID_CHAR_VAR(buf, t, victim, "victim", 0);
+		script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+		break;
+	}
+
+}
 void speech_wtrigger(CHAR_DATA *actor, char *str) {
 	char buf[MAX_INPUT_LENGTH];
 

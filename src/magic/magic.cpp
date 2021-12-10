@@ -2695,7 +2695,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
          * поэтому на каждого члена группы применяется свой аффект, а кастер еще и полечить может
          * */
 
-			if (ch == victim)
+			if (ch == victim && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
 				rnd = number(1, 4);
 			else
 				rnd = number(1, 3);
