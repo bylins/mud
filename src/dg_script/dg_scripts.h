@@ -93,6 +93,7 @@ extern const char *attach_name[];
 #define WTRIG_CLOSE            (1 << 11)
 #define WTRIG_PICK             (1 << 12)
 #define WTRIG_TIMECHANGE       (1 << 13)
+#define WTRIG_KILL_PC          (1 << 14)
 
 // obj command trigger types //
 #define OCMD_EQUIP             (1 << 0)    // obj must be in char's equip //
@@ -356,6 +357,7 @@ void purge_otrigger(OBJ_DATA *obj);
 void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
 void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
 int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
+void kill_pc_wtrigger(CHAR_DATA *killer, CHAR_DATA *victim);
 
 // function prototypes from scripts.cpp //
 void script_trigger_check(void);

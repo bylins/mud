@@ -2679,7 +2679,10 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N сражается, $M не до ваших телячьих нежностей.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-
+	if (IS_NPC(vict) && !IS_CHARMICE(vict)) {
+		send_to_char("Вы не красный крест лечить всех подряд.\r\n", ch);
+		return;
+	}
 	int percent = number(1, skill_info[SKILL_AID].difficulty);
 	int prob = CalcCurrentSkill(ch, SKILL_AID, vict);
 

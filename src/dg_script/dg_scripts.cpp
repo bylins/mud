@@ -3731,7 +3731,8 @@ void process_wait(void *go, TRIG_DATA *trig, int type, char *cmd, const cmdlist_
 	extern TIME_INFO_DATA time_info;
 
 	if ((trig->get_attach_type() == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
-		||(trig->get_attach_type() == OBJ_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), OTRIG_PURGE))) {
+		||(trig->get_attach_type() == OBJ_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), OTRIG_PURGE))
+		||(trig->get_attach_type() == WLD_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), WTRIG_KILL_PC))) {
 		sprintf(buf, "&YВНИМАНИЕ&G Используется wait в триггере '%s' (VNUM=%d).",
 				GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
 		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
