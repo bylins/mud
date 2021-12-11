@@ -740,7 +740,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 		}
 	}
 	if (ch->in_room != NOWHERE) {
-		if (!IS_NPC(killer) && !IS_NPC(ch))
+		if (killer && !IS_NPC(killer) && !IS_NPC(ch))
  			kill_pc_wtrigger(killer, ch);
 		if (!IS_NPC(ch)
 			&& ((!RENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
