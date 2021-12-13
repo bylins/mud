@@ -3715,12 +3715,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 			hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch));
 		}
 
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT)
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 			&& IS_NPC(victim)
-			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
-				&& !(MOB_FLAGGED(victim, MOB_PROTECT)))
+			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) && !(MOB_FLAGGED(victim, MOB_PROTECT)))
 			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL)) //голодный наем снижаем скрытый удар
-			&& IS_NPC(victim)
 			&& !victim->get_role(MOB_ROLE_BOSS)) {
 			GET_HIT(victim) = 1;
 			hit_params.dam = 2000; // для надежности
