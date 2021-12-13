@@ -957,17 +957,35 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 	int vnum = 0;
 	const char *missing = nullptr, *use = nullptr, *exhausted = nullptr;
 	switch (spellnum) {
-		case SPELL_FASCINATION: vnum = 3000;
+		case SPELL_FASCINATION:
+			for (auto i = caster->carrying; i; i = i->get_next_content()) {
+				if (GET_OBJ_TYPE(i) == OBJ_DATA::ITEM_INGREDIENT && i->get_val(1) == 3000) {
+					vnum = GET_OBJ_VNUM(i);
+					break;
+				}
+			}
 			use = "Вы взяли череп летучей мыши в левую руку.\r\n";
 			missing = "Батюшки светы! А помаду-то я дома забыл$g.\r\n";
 			exhausted = "$o рассыпался в ваших руках от неловкого движения.\r\n";
 			break;
-		case SPELL_HYPNOTIC_PATTERN: vnum = 3006;
+		case SPELL_HYPNOTIC_PATTERN:
+			for (auto i = caster->carrying; i; i = i->get_next_content()) {
+				if (GET_OBJ_TYPE(i) == OBJ_DATA::ITEM_INGREDIENT && i->get_val(1) == 3006) {
+					vnum = GET_OBJ_VNUM(i);
+					break;
+				}
+			}
 			use = "Вы разожгли палочку заморских благовоний.\r\n";
 			missing = "Вы начали суматошно искать свои благовония, но тщетно.\r\n";
 			exhausted = "$o дотлели и рассыпались пеплом.\r\n";
 			break;
-		case SPELL_ENCHANT_WEAPON: vnum = 1930;
+		case SPELL_ENCHANT_WEAPON:
+			for (auto i = caster->carrying; i; i = i->get_next_content()) {
+				if (GET_OBJ_TYPE(i) == OBJ_DATA::ITEM_INGREDIENT && i->get_val(1) == 1930) {
+					vnum = GET_OBJ_VNUM(i);
+					break;
+				}
+			}
 			use = "Вы подготовили дополнительные компоненты для зачарования.\r\n";
 			missing = "Вы были уверены что положили его в этот карман.\r\n";
 			exhausted = "$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n";

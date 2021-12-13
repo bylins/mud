@@ -811,9 +811,9 @@ void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 int max_group_size(CHAR_DATA *ch) {
 	int bonus_commander = 0;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER))
-		bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 120) / 10, 0, 8);
-
+//	if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER))
+//		bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 120) / 10, 0, 8);
+	bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 200) / 8, 0, 8);
 	return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4) + bonus_commander;
 }
 

@@ -67,7 +67,7 @@
 #include "skills/pick.h"
 #include "magic/magic_rooms.h"
 #include "exchange.h"
-
+#include "act_other.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -3418,6 +3418,8 @@ void print_do_score_all(CHAR_DATA *ch) {
 				(string(desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
 								   WHAT_LEVEL))
 					+ string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
+	sprintf(buf + strlen(buf),
+				" ||&n &CВы можете принять в группу максимум %d соратников.                               &c||\r\n", max_group_size(ch));
 
 	if (RENTABLE(ch)) {
 		const time_t rent_time = RENTABLE(ch) - time(0);
