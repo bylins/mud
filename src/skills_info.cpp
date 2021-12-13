@@ -113,7 +113,7 @@ void InitSkills() {
 	InitSingleSkill(SKILL_MIGHTHIT, "богатырский молот", "Бм", SAVING_STABILITY, 200, 200);
 	InitSingleSkill(SKILL_STUPOR, "оглушить", "Ог", SAVING_STABILITY, 200, 200);
 	InitSingleSkill(SKILL_POISONED, "отравить", "Отр", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_LEADERSHIP, "лидерство", "Лд", SAVING_REFLEX, 100, 200);
+	InitSingleSkill(SKILL_LEADERSHIP, "лидерство", "Лд", SAVING_REFLEX, 100, 1000);
 	InitSingleSkill(SKILL_PUNCTUAL, "точный стиль", "Тс", SAVING_CRITICAL, 110, 200);
 	InitSingleSkill(SKILL_AWAKE, "осторожный стиль", "Ос", SAVING_REFLEX, 100, 200);
 	InitSingleSkill(SKILL_SENSE, "найти", "Нйт", SAVING_REFLEX, 160, 200);

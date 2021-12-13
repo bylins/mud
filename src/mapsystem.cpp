@@ -579,6 +579,8 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CHAR_DATA *ch, CHAR_DATA *imm) {
+	if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER))
+		return;
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;
 	MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_STANDART;

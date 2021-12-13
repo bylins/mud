@@ -3930,7 +3930,7 @@ struct set_struct        /*
 		{"unreg", LVL_GOD, PC, MISC}, // 56
 		{"палач", LVL_IMPL, PC, BINARY}, // 57
 		{"killer", LVL_IMPL, PC, BINARY}, // 58
-		{"remort", LVL_IMPL, PC, BINARY}, // 59
+		{"remort", LVL_IMPL, PC, NUMBER}, // 59
 		{"tester", LVL_IMPL, PC, BINARY}, // 60
 		{"autobot", LVL_IMPL, PC, BINARY}, // 61
 		{"hryvn", LVL_IMPL, PC, NUMBER}, // 62
@@ -4544,11 +4544,16 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_KILLER);
 			break;
 		case 59: // флаг реморта
-			ch->remort();
-			sprintf(buf, "Иммортал %s установил реморт +1 для игрока %s", GET_NAME(ch), GET_NAME(vict));
-			add_karma(vict, buf, GET_NAME(ch));
-			add_karma(ch, buf, GET_NAME(vict));
-			send_to_gods(buf);
+			if (value > 1 && value < 50) {
+				sprintf(buf, "Иммортал %s установил добавочный реморт  для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+				add_karma(vict, buf, GET_NAME(ch));
+				add_karma(ch, buf, GET_NAME(vict));
+				vict->set_remort(value);
+				send_to_gods(buf);
+			}
+			else {
+				send_to_char(ch, "Не правильно вильно указан реморт.\r\n");
+			}
 			break;
 		case 60: // флаг тестера
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
