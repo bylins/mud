@@ -742,10 +742,9 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	if (ch->in_room != NOWHERE) {
 		if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && !IS_NPC(ch))
  			kill_pc_wtrigger(killer, ch);
-		if (!IS_NPC(ch)
-			&& ((!RENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
-				|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))) {
-			//Если убили на арене или палач
+//		if ((!IS_NPC(ch) || IS_CHARMICE(ch))
+		if (!RENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+			//Если убили на арене
 			arena_kill(ch, killer);
 		} else if (change_rep(ch, killer)) {
 			// клановые не теряют вещи
