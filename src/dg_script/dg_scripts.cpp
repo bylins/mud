@@ -2318,6 +2318,12 @@ void find_replacement(void *go,
 			} else {
 				strcpy(str, "0");
 			}
+		} else if (!str_cmp(field, "is_charmice")) {
+			if (IS_CHARMICE(c)) {
+				strcpy(str, "1");
+			} else {
+				strcpy(str, "0");
+			}
 		} else if (!str_cmp(field, "is_thief")) {
 			if (PLR_FLAGGED(c, PLR_THIEF)) {
 				strcpy(str, "1");

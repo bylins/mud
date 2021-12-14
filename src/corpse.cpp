@@ -407,7 +407,11 @@ void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	corpse->set_val(3, 1);    // corpse identifier
 	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent_off(100000);
-	corpse->set_timer(max_pc_corpse_time * 2);
+	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
+		corpse->set_timer(5);
+	} else {
+		corpse->set_timer(0);
+	}
 	EXTRA_DESCR_DATA::shared_ptr exdesc(new EXTRA_DESCR_DATA());
 	exdesc->keyword = str_dup(corpse->get_PName(0).c_str());    // косметика
 	if (killer) {

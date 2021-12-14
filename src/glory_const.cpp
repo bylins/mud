@@ -371,18 +371,52 @@ void olc_add_stat(CHAR_DATA *ch, int stat) {
 	bool ok = false;
 	switch (stat) {
 		case GLORY_CON:
-		case GLORY_STR:
-		case GLORY_DEX:
-		case GLORY_INT:
-			if (ch->desc->glory_const->olc_free_glory >= need_glory)
+			if (ch->desc->glory_const->olc_free_glory >= need_glory
+				&& ch->desc->glory_const->stat_cur[stat]
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_con])
 				ok = true;
+			else
+				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+			break;
+		case GLORY_STR:
+			if (ch->desc->glory_const->olc_free_glory >= need_glory
+				&& ch->desc->glory_const->stat_cur[stat]
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_str])
+				ok = true;
+			else
+				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+			break;
+		case GLORY_DEX:
+			if (ch->desc->glory_const->olc_free_glory >= need_glory
+				&& ch->desc->glory_const->stat_cur[stat]
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_dex])
+				ok = true;
+			else
+				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+			break;
+		case GLORY_INT:
+			if (ch->desc->glory_const->olc_free_glory >= need_glory
+				&& ch->desc->glory_const->stat_cur[stat]
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_int])
+				ok = true;
+			else
+				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
 			break;
 		case GLORY_WIS:
+			if (ch->desc->glory_const->olc_free_glory >= need_glory
+				&& ch->desc->glory_const->stat_cur[stat]
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_wis])
+				ok = true;
+			else
+				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
+			break;
 		case GLORY_CHA:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < 50)
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_cha])
 				ok = true;
+			else
+				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
 			break;
 		case GLORY_HIT:
 		case GLORY_SUCCESS:
