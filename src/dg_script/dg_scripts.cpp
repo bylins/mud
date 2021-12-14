@@ -2031,7 +2031,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_HIT_ADD(c));
 		} else if (!str_cmp(field, "maxhitp")) {
 			if (*subfield && IS_NPC(c))
-				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_MAX_HIT(c));
+				GET_REAL_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_REAL_MAX_HIT(c));
 			else
 				sprintf(str, "%d", GET_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
