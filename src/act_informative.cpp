@@ -3027,6 +3027,14 @@ void print_do_score_list(CHAR_DATA *ch) {
 	} else if (NAME_BAD(ch)) {
 		send_to_char(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
+	send_to_char(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
+			grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+			(string(desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],  WHAT_LEVEL)
+				+ string(" без потерь для опыта.")).substr(0, 76).c_str()));
+
+	send_to_char(ch,"Вы можете принять в группу максимум %d соратников.\r\n", max_group_size(ch));
+
+
 }
 
 void print_do_score_all(CHAR_DATA *ch) {
@@ -3419,7 +3427,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 								   WHAT_LEVEL))
 					+ string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
 	sprintf(buf + strlen(buf),
-				" ||&n &CВы можете принять в группу максимум %d соратников.                               &c||\r\n", max_group_size(ch));
+				" ||&n &nВы можете принять в группу максимум %2d соратников.                              &c||\r\n", max_group_size(ch));
 
 	if (RENTABLE(ch)) {
 		const time_t rent_time = RENTABLE(ch) - time(0);
