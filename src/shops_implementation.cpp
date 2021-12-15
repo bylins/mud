@@ -436,7 +436,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 	if (currency == "гривны")
 		suffix = desc_count(total_money, WHAT_TORCu);
 	if (currency == "ногаты")
-		suffix = desc_count(total_money, WHAT_NOGATACu);
+		suffix = desc_count(total_money, WHAT_NOGATAu);
 
 	snprintf(buf, MAX_STRING_LENGTH, "Это будет стоить %d %s.", total_money, suffix);
 	tell_to_char(keeper, ch, buf);

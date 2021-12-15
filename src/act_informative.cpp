@@ -3873,7 +3873,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");
 		}
 		else {
-			sprintf(buf, "У вас в наличии есть %d %s.\r\n", value, desc_count(value, WHAT_NOGATACu));
+			sprintf(buf, "У вас в наличии есть %d %s.\r\n", value, desc_count(value, WHAT_NOGATAu));
 		}
 		send_to_char(buf, ch);
 	}

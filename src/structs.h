@@ -41,7 +41,7 @@ const unsigned TOTAL_TYPES = 3;
 } // namespace ExtMoney
 
 namespace currency {
-enum { GOLD, GLORY, TORC, ICE };
+enum { GOLD, GLORY, TORC, ICE, NOGATA };
 }
 
 #define MAX_ALIAS_LENGTH 100

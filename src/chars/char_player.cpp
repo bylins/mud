@@ -216,7 +216,7 @@ void Player::sub_nogata(int value) {
 
 void Player::add_nogata(int value) {
 	this->nogata += value;
-	send_to_char(this, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_NOGATACu));
+	send_to_char(this, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_NOGATAu));
 
 }
 
