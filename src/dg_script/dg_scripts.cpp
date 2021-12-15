@@ -2030,10 +2030,9 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_HIT_ADD(c));
 		} else if (!str_cmp(field, "maxhitp")) {
-//а с какого поле доступно?
-//			if (*subfield && IS_NPC(c))
-//				GET_REAL_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_REAL_MAX_HIT(c));
-//			else
+			if (*subfield && IS_NPC(c)) // доступно тока мобам
+				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_REAL_MAX_HIT(c));
+			else
 				sprintf(str, "%d", GET_REAL_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
@@ -4184,7 +4183,61 @@ ROOM_DATA *dg_room_of_obj(OBJ_DATA *obj) {
 
 	return nullptr;
 }
+void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
+	int obj_vnum, room_vnum, room_rnum;
+		obj_vnum = number(15010, 15019);
+		room_vnum = number(15021, 15084);
+		OBJ_DATA::shared_ptr object;
+		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
+		if (!object) {
+			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			trig_log(trig, buf2);
+			return;
+		}
+		sprintf(buf2, "Add stuf: obj_vnum %d, room_vnum %d", obj_vnum, room_vnum);
+		trig_log(trig, buf2);
 
+		room_rnum = real_room(room_vnum);
+		if (room_rnum != NOWHERE) {
+			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			obj_to_room(object.get(), room_rnum);
+			load_otrigger(object.get());
+		}
+		obj_vnum = number(15020, 15029);
+		room_vnum = number(15021, 15084);
+		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
+		if (!object) {
+			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			trig_log(trig, buf2);
+			return;
+		}
+		sprintf(buf2, "Add stuf: obj_vnum %d, room_vnum %d", obj_vnum, room_vnum);
+		trig_log(trig, buf2);
+
+		room_rnum = real_room(room_vnum);
+		if (room_rnum != NOWHERE) {
+			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			obj_to_room(object.get(), room_rnum);
+			load_otrigger(object.get());
+		}
+		obj_vnum = number(15030, 15039);
+		room_vnum = number(15021, 15084);
+		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
+		if (!object) {
+			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			trig_log(trig, buf2);
+			return;
+		}
+		sprintf(buf2, "Add stuf: obj_vnum %d, room_vnum %d", obj_vnum, room_vnum);
+		trig_log(trig, buf2);
+
+		room_rnum = real_room(room_vnum);
+		if (room_rnum != NOWHERE) {
+			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			obj_to_room(object.get(), room_rnum);
+			load_otrigger(object.get());
+		}
+}
 // create a UID variable from the id number
 void makeuid_var(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd) {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
@@ -4983,6 +5036,8 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			if (!strn_cmp(cmd, "eval ", 5)) {
 				process_eval(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "nop ", 4)) { ;    // nop: do nothing
+			} else if (!strn_cmp(cmd, "add_stuf_zone ", 14)) {
+				add_stuf_zone(trig, cmd);
 			} else if (!strn_cmp(cmd, "extract ", 8)) {
 				extract_value(sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "makeuid ", 8)) {
