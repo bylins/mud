@@ -2030,10 +2030,10 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_HIT_ADD(c));
 		} else if (!str_cmp(field, "maxhitp")) {
-			if (*subfield && IS_NPC(c))
-				GET_REAL_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_REAL_MAX_HIT(c));
+			if (*subfield && IS_NPC(c)) // доступно тока мобам
+				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_REAL_MAX_HIT(c));
 			else
-				sprintf(str, "%d", GET_MAX_HIT(c));
+				sprintf(str, "%d", GET_REAL_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
 				if (!IS_NPC(c))
@@ -2166,20 +2166,56 @@ void find_replacement(void *go,
 				sprintf(str, "%d", c->get_hryvn());
 		} else if (!str_cmp(field, "nogata")) {
 			if (*subfield) {
-				const long before = c->get_nogata();
-				int value;
-				c->set_nogata(MAX(0, gm_char_field(c, field, subfield, c->get_nogata())));
-				value = c->get_nogata() - before;
-				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
-					GET_PAD(c, 0),
-					GET_ROOM_VNUM(c->in_room),
-					value,
-					desc_count(value, WHAT_NOGATACu),
-					GET_TRIG_NAME(trig),
-					GET_TRIG_VNUM(trig));
-				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
-			} else
+				int val = 0, num;
+				CHAR_DATA *k;
+				if (*subfield == '-') {
+					val = atoi(subfield + 1);
+					c->set_nogata(MAX(0, c->get_nogata() - val));
+				}
+				else if (*subfield == '+') {
+					val = atoi(subfield + 1);
+					if (val > 1) {
+						k = c->has_master() ? c->get_master() : c;
+						if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && (k->in_room == c->in_room)) {
+							num = 1;
+						} else {
+							num = 0;
+						}
+						for (auto f = k->followers; f; f = f->next) {
+							if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+									&& !IS_NPC(f->follower) && IN_ROOM(f->follower) == c->in_room) {
+								num++;
+							}
+						}
+						if (num > 1) {
+							int share = val / num;
+							int rest = val % num;
+							if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == c->in_room && !IS_NPC(k) && k != c)
+								k->add_nogata(share);
+							for (auto f = k->followers; f; f = f->next) {
+								if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+										&& !IS_NPC(f->follower) && IN_ROOM(f->follower) == c->in_room && f->follower != c) {
+									f->follower->add_nogata(share);
+								}
+							}
+							sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
+									val, desc_count(val, WHAT_NOGATAu), num, share);
+							send_to_char(buf, c);
+							if (rest > 0) {
+								send_to_char(c, "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
+										rest, desc_count(rest, WHAT_NOGATAu));
+							}
+							c->add_nogata(share+rest);
+						}
+					 	else {
+							c->add_nogata(val);
+						}
+					}
+				}
+			}
+			else {
 				sprintf(str, "%d", c->get_nogata());
+			}
 		} else if (!str_cmp(field, "gold")) {
 			if (*subfield) {
 				const long before = c->get_gold();
@@ -4147,7 +4183,61 @@ ROOM_DATA *dg_room_of_obj(OBJ_DATA *obj) {
 
 	return nullptr;
 }
+void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
+	int obj_vnum, room_vnum, room_rnum;
+		obj_vnum = number(15010, 15019);
+		room_vnum = number(15021, 15084);
+		OBJ_DATA::shared_ptr object;
+		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
+		if (!object) {
+			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			trig_log(trig, buf2);
+			return;
+		}
+		sprintf(buf2, "Add stuf: obj_vnum %d, room_vnum %d", obj_vnum, room_vnum);
+		trig_log(trig, buf2);
 
+		room_rnum = real_room(room_vnum);
+		if (room_rnum != NOWHERE) {
+			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			obj_to_room(object.get(), room_rnum);
+			load_otrigger(object.get());
+		}
+		obj_vnum = number(15020, 15029);
+		room_vnum = number(15021, 15084);
+		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
+		if (!object) {
+			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			trig_log(trig, buf2);
+			return;
+		}
+		sprintf(buf2, "Add stuf: obj_vnum %d, room_vnum %d", obj_vnum, room_vnum);
+		trig_log(trig, buf2);
+
+		room_rnum = real_room(room_vnum);
+		if (room_rnum != NOWHERE) {
+			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			obj_to_room(object.get(), room_rnum);
+			load_otrigger(object.get());
+		}
+		obj_vnum = number(15030, 15039);
+		room_vnum = number(15021, 15084);
+		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
+		if (!object) {
+			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			trig_log(trig, buf2);
+			return;
+		}
+		sprintf(buf2, "Add stuf: obj_vnum %d, room_vnum %d", obj_vnum, room_vnum);
+		trig_log(trig, buf2);
+
+		room_rnum = real_room(room_vnum);
+		if (room_rnum != NOWHERE) {
+			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			obj_to_room(object.get(), room_rnum);
+			load_otrigger(object.get());
+		}
+}
 // create a UID variable from the id number
 void makeuid_var(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd) {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
@@ -4946,6 +5036,8 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			if (!strn_cmp(cmd, "eval ", 5)) {
 				process_eval(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "nop ", 4)) { ;    // nop: do nothing
+			} else if (!strn_cmp(cmd, "add_stuf_zone ", 14)) {
+				add_stuf_zone(trig, cmd);
 			} else if (!strn_cmp(cmd, "extract ", 8)) {
 				extract_value(sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "makeuid ", 8)) {

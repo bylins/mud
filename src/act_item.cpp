@@ -1342,12 +1342,12 @@ void perform_give_nogat(CHAR_DATA *ch, CHAR_DATA *vict, int amount) {
 		return;
 	}
 	send_to_char(OK, ch);
-	sprintf(buf, "$n дал$g вам %d %s.", amount, desc_count(amount, WHAT_NOGATACu));
+	sprintf(buf, "$n дал$g вам %d %s.", amount, desc_count(amount, WHAT_NOGATAu));
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 	if (amount > 4)
-		sprintf(buf, "$n дал$g много %s $N2.", desc_count(amount, WHAT_NOGATACu));
+		sprintf(buf, "$n дал$g много %s $N2.", desc_count(amount, WHAT_NOGATAu));
 	else
-		sprintf(buf, "$n дал$g %s $N2.", desc_count(amount, WHAT_NOGATACu));
+		sprintf(buf, "$n дал$g %s $N2.", desc_count(amount, WHAT_NOGATAu));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	if (IS_NPC(ch) || !IS_IMPL(ch)) {
 		ch->sub_nogata(amount);
