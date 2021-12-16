@@ -572,7 +572,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 		};
 	} else if (!RegisterSystem::is_registered(i.get()) && i->desc && STATE(i->desc) == CON_PLAYING) {
 		if (restore != r_unreg_start_room
-			&& !RENTABLE(i)
+			&& !NORENTABLE(i)
 			&& !DeathTrap::is_slow_dt(IN_ROOM(i))
 			&& !check_dupes_host(i->desc, 1)) {
 			if (IN_ROOM(i) == STRANGE_ROOM) {
@@ -626,8 +626,8 @@ void beat_points_update(int pulse) {
 			return;
 		}
 
-		if (RENTABLE(i) <= time(NULL)) {
-			RENTABLE(i) = 0;
+		if (NORENTABLE(i) <= time(NULL)) {
+			NORENTABLE(i) = 0;
 			AGRESSOR(i) = 0;
 			AGRO(i) = 0;
 			i->agrobd = false;
@@ -980,7 +980,7 @@ void underwater_check() {
 }
 
 void check_idling(CHAR_DATA *ch) {
-	if (!RENTABLE(ch)) {
+	if (!NORENTABLE(ch)) {
 		if (++(ch->char_specials.timer) > idle_void) {
 			ch->set_motion(false);
 

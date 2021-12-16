@@ -132,7 +132,7 @@ int DeathTrap::check_death_trap(CHAR_DATA *ch) {
 				extract_obj(corpse);
 			}
 			GET_HIT(ch) = GET_MOVE(ch) = 0;
-			if (RENTABLE(ch)) {
+			if (NORENTABLE(ch)) {
 				die(ch, NULL);
 			} else
 				extract_char(ch, TRUE);
@@ -154,7 +154,7 @@ bool DeathTrap::is_slow_dt(int rnum) {
 int calc_tunnel_dmg(CHAR_DATA *ch, int room_rnum) {
 	if (!IS_NPC(ch)
 		&& !IS_IMMORTAL(ch)
-		&& RENTABLE(ch)
+		&& NORENTABLE(ch)
 		&& ROOM_FLAGGED(room_rnum, ROOM_TUNNEL)) {
 		return std::max(20, GET_REAL_MAX_HIT(ch) >> 3);
 	}

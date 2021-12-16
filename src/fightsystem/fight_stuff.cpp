@@ -373,13 +373,13 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 
 	if (IS_NPC(ch)
 		|| !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		|| RENTABLE(ch)) {
+		|| NORENTABLE(ch)) {
 		if (!(IS_NPC(ch)
 			|| IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//если убил не палач
 		{
-			if (!RENTABLE(ch))
+			if (!NORENTABLE(ch))
 				dec_exp =
 					(level_exp(ch, GET_REAL_LEVEL(ch) + 1) - level_exp(ch, GET_REAL_LEVEL(ch))) / (3 + MIN(3, GET_REAL_REMORT(ch) / 5))
 						/ ch->death_player_count();
@@ -640,7 +640,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 
 	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
 	// трупа месть на убийцу была еще жива
-	if (IS_NPC(ch) || !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || RENTABLE(ch)) {
+	if (IS_NPC(ch) || !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || NORENTABLE(ch)) {
 		pk_revenge_action(killer, ch);
 	}
 
@@ -648,7 +648,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 		forget_all_spells(ch);
 		clear_mobs_memory(ch);
 		// Если убит в бою - то может выйти из игры
-		RENTABLE(ch) = 0;
+		NORENTABLE(ch) = 0;
 		AGRESSOR(ch) = 0;
 		AGRO(ch) = 0;
 		ch->agrobd = false;
@@ -742,8 +742,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	if (ch->in_room != NOWHERE) {
 		if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && !IS_NPC(ch))
  			kill_pc_wtrigger(killer, ch);
-//		if ((!IS_NPC(ch) || IS_CHARMICE(ch))
-		if (!RENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+		if (!IS_NPC(ch) && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))) {
 			//Если убили на арене
 			arena_kill(ch, killer);
 		} else if (change_rep(ch, killer)) {

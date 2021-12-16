@@ -205,7 +205,7 @@ void pk_update_revenge(CHAR_DATA *agressor, CHAR_DATA *victim, int attime, int r
 	}
 	pk->battle_exp = time(NULL) + attime * 60;
 	if (!same_group(agressor, victim)) {
-		RENTABLE(agressor) = MAX(RENTABLE(agressor), time(NULL) + renttime * 60);
+		NORENTABLE(agressor) = MAX(NORENTABLE(agressor), time(NULL) + renttime * 60);
 	}
 	return;
 }
@@ -491,7 +491,7 @@ void pk_thiefs_action(CHAR_DATA *thief, CHAR_DATA *victim) {
 			else
 				act("$N продлил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
 			pk->thief_exp = time(NULL) + THIEF_UNRENTABLE * 60;
-			RENTABLE(thief) = MAX(RENTABLE(thief), time(NULL) + THIEF_UNRENTABLE * 60);
+			NORENTABLE(thief) = MAX(NORENTABLE(thief), time(NULL) + THIEF_UNRENTABLE * 60);
 			break;
 	}
 	return;
@@ -537,7 +537,7 @@ int pk_action_type(CHAR_DATA *agressor, CHAR_DATA *victim) {
 			&& (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))))
 		return PK_ACTION_NO;
 
-	if (PLR_FLAGGED(victim, PLR_KILLER) || (AGRO(victim) && RENTABLE(victim)))
+	if (PLR_FLAGGED(victim, PLR_KILLER) || (AGRO(victim) && NORENTABLE(victim)))
 		return PK_ACTION_FIGHT;
 
 	for (pk = agressor->pk_list; pk; pk = pk->next) {
@@ -760,7 +760,7 @@ void do_forgive(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 
-	if (RENTABLE(ch)) {
+	if (NORENTABLE(ch)) {
 		send_to_char("Вам сначала стоит завершить боевые действия.\r\n", ch);
 		return;
 	}
@@ -1036,7 +1036,7 @@ bool has_clan_members_in_group(CHAR_DATA *ch) {
 //Polud
 void pkPortal(CHAR_DATA *ch) {
 	AGRO(ch) = MAX(AGRO(ch), time(NULL) + PENTAGRAM_TIME * 60);
-	RENTABLE(ch) = MAX(RENTABLE(ch), time(NULL) + PENTAGRAM_TIME * 60);
+	NORENTABLE(ch) = MAX(NORENTABLE(ch), time(NULL) + PENTAGRAM_TIME * 60);
 }
 
 BloodyInfoMap &bloody_map = GlobalObjects::bloody_map();
@@ -1116,7 +1116,7 @@ bool bloody::handle_transfer(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj, OB
 				return false;
 			}
 			AGRO(victim) = MAX(AGRO(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
-			RENTABLE(victim) = MAX(RENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
+			NORENTABLE(victim) = MAX(NORENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
 			result = true;
 		} else if (ch
 			&& container

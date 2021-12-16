@@ -649,7 +649,8 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
 		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
 		act(buf, FALSE, ch, 0, leader, TO_CHAR);
 	}
-
+	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SENTINEL) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
 	direction = dir + 1;
@@ -1469,7 +1470,7 @@ void do_gen_door(CHAR_DATA *ch, char *argument, int, int subcmd) {
 			return;
 		}
 		keynum = DOOR_KEY(ch, obj, door);
-		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !IS_NPC(ch) && RENTABLE(ch))
+		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !IS_NPC(ch) && NORENTABLE(ch))
 			send_to_char("Ведите себя достойно во время боевых действий!\r\n", ch);
 		else if (!(DOOR_IS_OPENABLE(ch, obj, door)))
 			act("Вы никогда не сможете $F это!", FALSE, ch, 0, a_cmd_door[subcmd], TO_CHAR);
@@ -1521,7 +1522,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				// Если чар под местью, и портал односторонний, то не пускать
-				if (RENTABLE(ch) && !IS_NPC(ch) && !world[door]->portal_time) {
+				if (NORENTABLE(ch) && !IS_NPC(ch) && !world[door]->portal_time) {
 					send_to_char("Грехи мешают вам воспользоваться вратами.\r\n", ch);
 					return;
 				}

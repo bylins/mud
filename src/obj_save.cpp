@@ -2752,7 +2752,7 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 		act("$n сказал$g : \"Чужакам здесь не место!\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}
-	if (RENTABLE(ch)) {
+	if (NORENTABLE(ch)) {
 		send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 		return (TRUE);
 	}

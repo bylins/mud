@@ -2082,7 +2082,7 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim) {
 	if ((!IS_NPC(ch)
 		|| (ch->has_master()
 			&& !IS_NPC(ch->get_master())))
-		&& RENTABLE(victim)
+		&& NORENTABLE(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)) {
 		mudlog(buf2, BRF, LVL_IMPL, SYSLOG, 0);
 		if (IS_NPC(ch)

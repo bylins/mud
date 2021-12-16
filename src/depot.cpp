@@ -897,7 +897,7 @@ void show_depot(CHAR_DATA *ch) {
 	}
 #endif
 
-	if (RENTABLE(ch)) {
+	if (NORENTABLE(ch)) {
 		send_to_char(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return;
@@ -981,7 +981,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
 	}
 #endif
 
-	if (RENTABLE(ch)) {
+	if (NORENTABLE(ch)) {
 		send_to_char(ch,
 					 "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -1052,7 +1052,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany) {
 	}
 #endif
 
-	if (RENTABLE(vict)) {
+	if (NORENTABLE(vict)) {
 		send_to_char(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					 CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 		return;

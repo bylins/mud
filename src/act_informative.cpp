@@ -3429,8 +3429,8 @@ void print_do_score_all(CHAR_DATA *ch) {
 	sprintf(buf + strlen(buf),
 				" ||&n &nВы можете принять в группу максимум %2d соратников.                              &c||\r\n", max_group_size(ch));
 
-	if (RENTABLE(ch)) {
-		const time_t rent_time = RENTABLE(ch) - time(0);
+	if (NORENTABLE(ch)) {
+		const time_t rent_time = NORENTABLE(ch) - time(0);
 		const int minutes = rent_time > 60 ? rent_time / 60 : 0;
 		sprintf(buf + strlen(buf),
 				" || %sВ связи с боевыми действиями вы не можете уйти на постой еще %-18s%s ||\r\n",
@@ -3750,7 +3750,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-	if (RENTABLE(ch)) {
+	if (NORENTABLE(ch)) {
 		sprintf(buf,
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
 				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -4358,7 +4358,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							genders[static_cast<int>(GET_SEX(tch))]);
 				}
 			}
-			if ((GET_REAL_LEVEL(ch) == LVL_IMPL) && (RENTABLE(tch)))
+			if ((GET_REAL_LEVEL(ch) == LVL_IMPL) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));

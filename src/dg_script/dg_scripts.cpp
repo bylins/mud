@@ -2031,7 +2031,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_HIT_ADD(c));
 		} else if (!str_cmp(field, "maxhitp")) {
 			if (*subfield && IS_NPC(c)) // доступно тока мобам
-				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_REAL_MAX_HIT(c));
+				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_MAX_HIT(c));
 			else
 				sprintf(str, "%d", GET_REAL_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
@@ -2164,6 +2164,12 @@ void find_replacement(void *go,
 				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			} else
 				sprintf(str, "%d", c->get_hryvn());
+		} else if (!str_cmp(field, "point_nogata")) {
+				if (*subfield) {
+					c->set_nogata(MAX(0, gm_char_field(c, field, subfield, c->get_nogata())));
+				}
+				else
+					sprintf(str, "%d", c->get_nogata());
 		} else if (!str_cmp(field, "nogata")) {
 			if (*subfield) {
 				int val = 0, num;
@@ -2367,7 +2373,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "rentable")) {
-			if (!IS_NPC(c) && RENTABLE(c)) {
+			if (!IS_NPC(c) && NORENTABLE(c)) {
 				strcpy(str, "0");
 			} else {
 				strcpy(str, "1");

@@ -5009,7 +5009,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 					 "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
 		return;
 	}
-	if (RENTABLE(ch)) {
+	if (NORENTABLE(ch)) {
 		send_to_char("Вы не можете перевоплотиться в связи с боевыми действиями.\r\n", ch);
 		return;
 	}
