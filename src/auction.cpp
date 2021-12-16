@@ -573,7 +573,7 @@ void trans_auction(int lot) {
 	// Проверяем условия передачи предмета.
 	// Оба чара в мирке
 	// Оба чара без БД
-	if (RENTABLE(ch)) {
+	if (NORENTABLE(ch)) {
 		tmpstr = "Завершите боевые действия для передачи " + obj->get_PName(1) + " $N2.\r\n";
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
@@ -584,7 +584,7 @@ void trans_auction(int lot) {
 		return;
 	}
 
-	if (RENTABLE(tch)) {
+	if (NORENTABLE(tch)) {
 		tmpstr = "Завершите боевые действия для получения денег от $n1.\r\n";
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);

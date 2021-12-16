@@ -565,8 +565,8 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 		if (!quested.empty())
 			send_to_char(ch, "Выполнил квесты:\r\n%s\r\n", quested.c_str());
 
-		if (RENTABLE(k)) {
-			sprintf(buf, "Не может уйти на постой %ld\r\n", static_cast<long int>(RENTABLE(k) - time(0)));
+		if (NORENTABLE(k)) {
+			sprintf(buf, "Не может уйти на постой %ld\r\n", static_cast<long int>(NORENTABLE(k) - time(0)));
 			send_to_char(buf, ch);
 		}
 		if (AGRO(k)) {

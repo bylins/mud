@@ -3032,7 +3032,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		return;
 	}
 
-	//if (!direct && d->character && RENTABLE(d->character))
+	//if (!direct && d->character && NORENTABLE(d->character))
 	//	return;
 	// Нельзя делать лд при wait_state
 	if (d->character && !direct) {

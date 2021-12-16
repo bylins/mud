@@ -146,7 +146,7 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Если вы хотите выйти из игры с потерей всех вещей, то просто наберите 'конец'.\r\n", ch);
 	} else {
 //		int loadroom = ch->in_room;
-		if (RENTABLE(ch)) {
+		if (NORENTABLE(ch)) {
 			send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 			return;
 		}

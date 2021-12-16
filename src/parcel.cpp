@@ -270,7 +270,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg) {
 		act("$n сказал$g вам : 'Не загружай понапрасну почту!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	if (RENTABLE(ch)) {
+	if (NORENTABLE(ch)) {
 		act("$n сказал$g вам : 'Да у тебя руки по локоть в крови, проваливай!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}

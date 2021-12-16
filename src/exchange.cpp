@@ -129,7 +129,7 @@ int exchange(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 			send_to_char(buf1, ch);
 			return 1;
 		}
-		if (RENTABLE(ch)) {
+		if (NORENTABLE(ch)) {
 			send_to_char("Завершите сначала боевые действия.\r\n", ch);
 			return 1;
 		}

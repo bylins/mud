@@ -876,7 +876,7 @@ bool Clan::MayEnter(CHAR_DATA *ch, room_rnum room, bool mode) {
 			}
 
 			// с временным флагом тоже курят
-			if (RENTABLE(ch)) {
+			if (NORENTABLE(ch)) {
 				if (mode == HCE_ATRIUM) {
 					send_to_char("Пускай сначала кровь с тебя стечет, а потом входи сколько угодно.\r\n", ch);
 				}
@@ -2622,7 +2622,7 @@ bool check_online_state(long uid) {
 	for (const auto &tch : character_list) {
 		if (IS_NPC(tch)
 			|| GET_UNIQUE(tch) != uid
-			|| (!tch->desc && !RENTABLE(tch))) {
+			|| (!tch->desc && !NORENTABLE(tch))) {
 			continue;
 		}
 

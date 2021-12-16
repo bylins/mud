@@ -387,88 +387,54 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			obj_log(obj, "oteleport called in NOWHERE");
 			return;
 		}
-
 		if (target == rm) {
 			obj_log(obj, "oteleport target is itself");
+			return;
 		}
-
 		const auto people_copy = world[rm]->people;
 		decltype(world[rm]->people)::const_iterator next_ch = people_copy.begin();
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-
-			if (IS_NPC(ch)
-				&& !(IS_HORSE(ch)
-					|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(ch, MOB_ANGEL)
-					|| MOB_FLAGGED(ch, MOB_GHOST))) {
-				continue;
-			}
-
-			if (ch->ahorse() || ch->has_horse(true)) {
-				horse = ch->get_horse();
-			} else {
-				horse = NULL;
-			}
-
 			if (ch->in_room == NOWHERE) {
 				obj_log(obj, "oteleport transports from NOWHERE");
 				return;
 			}
-
 			char_from_room(ch);
 			char_to_room(ch, target);
-
-			if (!str_cmp(argument, "horse")
-				&& horse) {
-				// skip horse
-				if (next_ch != people_copy.end()
-					&& horse == *next_ch) {
-					++next_ch;
-				}
-
-				char_from_room(horse);
-				char_to_room(horse, target);
-			}
-
 			ch->dismount();
 			look_at_room(ch, TRUE);
 		}
 	} else {
-		if ((ch = get_char_by_obj(obj, arg1))) {
-			if (ch->ahorse() || ch->has_horse(true)) {
-				horse = ch->get_horse();
-			} else {
-				horse = NULL;
-			}
-
-			const auto people_copy = world[ch->in_room]->people;
-			for (const auto charmee : people_copy) {
-				if (IS_NPC(charmee)
-					&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
-						|| MOB_FLAGGED(charmee, MOB_ANGEL)
-						|| MOB_FLAGGED(charmee, MOB_GHOST))
-					&& charmee->get_master() == ch) {
-					char_from_room(charmee);
-					char_to_room(charmee, target);
-				}
-			}
-
-			if (!str_cmp(argument, "horse")
-				&& horse) {
-				char_from_room(horse);
-				char_to_room(horse, target);
-			}
-			char_from_room(ch);
-			char_to_room(ch, target);
-			ch->dismount();
-			look_at_room(ch, TRUE);
-			greet_mtrigger(ch, -1);
-			greet_otrigger(ch, -1);
-		} else {
+		if (!(ch = get_char_by_obj(obj, arg1))) {
 			obj_log(obj, "oteleport: no target found");
+			return;
 		}
+		if (ch->ahorse() || ch->has_horse(true)) {
+			horse = ch->get_horse();
+		} else {
+			horse = NULL;
+		}
+		if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
+			ch = ch->get_master();
+		const auto people_copy = world[ch->in_room]->people;
+		for (const auto charmee : people_copy) {
+			if (IS_CHARMICE(charmee)) {
+				char_from_room(charmee);
+				char_to_room(charmee, target);
+			}
+		}
+		if (!str_cmp(argument, "horse")
+			&& horse) {
+			char_from_room(horse);
+			char_to_room(horse, target);
+		}
+		char_from_room(ch);
+		char_to_room(ch, target);
+		ch->dismount();
+		look_at_room(ch, TRUE);
+		greet_mtrigger(ch, -1);
+		greet_otrigger(ch, -1);
 	}
 }
 

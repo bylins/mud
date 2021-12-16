@@ -269,9 +269,11 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (target == NOWHERE)
+	if (target == NOWHERE) {
 		wld_log(room, "wteleport target is an invalid room");
-	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
+		return;
+	}
+	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
 		if (nr == room->room_vn) {
 			wld_log(room, "wteleport all target is itself");
 			return;
@@ -282,60 +284,28 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-
-			if (IS_NPC(ch)
-				&& !(IS_HORSE(ch)
-					|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(ch, MOB_ANGEL)
-					|| MOB_FLAGGED(ch, MOB_GHOST))) {
-				continue;
-			}
-
-			if (ch->ahorse() || ch->has_horse(true)) {
-				horse = ch->get_horse();
-			} else {
-				horse = nullptr;
-			}
-
 			char_from_room(ch);
 			char_to_room(ch, target);
-
-			if (!str_cmp(argument, "horse") && horse) {
-				if (next_ch != people_copy.end()
-					&& horse == *next_ch)    // skip horse
-				{
-					++next_ch;
-				}
-
-				char_from_room(horse);
-				char_to_room(horse, target);
-			}
-
 			ch->dismount();
 			look_at_room(ch, TRUE);
 		}
 	} else {
-		if ((ch = get_char_by_room(room, arg1))) {
+		if ((ch = get_char_by_room(room, arg1))) { //уид ищется внутри
 			if (ch->ahorse() || ch->has_horse(true)) {
 				horse = ch->get_horse();
 			} else {
 				horse = NULL;
 			}
-
+			if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
+				ch = ch->get_master();
 			const auto people_copy = world[ch->in_room]->people;
 			for (const auto charmee : people_copy) {
-				if (IS_NPC(charmee)
-					&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
-						|| MOB_FLAGGED(charmee, MOB_ANGEL)
-						|| MOB_FLAGGED(charmee, MOB_GHOST))
-					&& charmee->get_master() == ch) {
+				if (IS_CHARMICE(charmee)) {
 					char_from_room(charmee);
 					char_to_room(charmee, target);
 				}
 			}
-
-			if (!str_cmp(argument, "horse")
-				&& horse) {
+			if (!str_cmp(argument, "horse") && horse) {
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}

@@ -731,7 +731,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_BAD_PWS(ch)        ((ch)->player_specials->saved.bad_pws)
 #define POOFIN(ch)            ((ch)->player_specials->poofin)
 #define POOFOUT(ch)            ((ch)->player_specials->poofout)
-#define RENTABLE(ch)        ((ch)->player_specials->may_rent)
+#define NORENTABLE(ch)        ((ch)->player_specials->may_rent)
 #define AGRESSOR(ch)        ((ch)->player_specials->agressor)
 #define AGRO(ch)            ((ch)->player_specials->agro_time)
 
@@ -1042,7 +1042,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define OMHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ей" : "им")) :"ему")
 #define OYOU(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
 
-#define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || RENTABLE(ch)))
+#define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || NORENTABLE(ch)))
 
 // Can subject see character "obj" without light
 #define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && \

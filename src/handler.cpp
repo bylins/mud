@@ -354,7 +354,7 @@ void char_to_room(CHAR_DATA *ch, room_rnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch)) {
+	if (!IS_NPC(ch) && NORENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -420,7 +420,7 @@ void char_flee_to_room(CHAR_DATA *ch, room_rnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch)) {
+	if (!IS_NPC(ch) && NORENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -1988,7 +1988,7 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 		&& ch->desc != NULL) {
 		STATE(ch->desc) = CON_MENU;
 		SEND_TO_Q(MENU, ch->desc);
-		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs) {
+		if (!IS_NPC(ch) && NORENTABLE(ch) && clear_objs) {
 			do_entergame(ch->desc);
 			left_in_game = true;
 		}

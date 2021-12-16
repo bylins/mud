@@ -584,7 +584,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 				send_to_char(SUMMON_FAIL2, ch);
 				return;
 			}
-			if (RENTABLE(victim)) {
+			if (NORENTABLE(victim)) {
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
