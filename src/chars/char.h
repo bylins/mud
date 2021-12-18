@@ -221,6 +221,8 @@ struct player_special_data_saved {
 
 	// 29.11.09 переменные для подсчета количества рипов (с) Василиса
 	int Rip_arena; //рипы на арене
+	int rip_arena_dom; //рипы на арене доминирования
+	int kill_arena_dom; //рипы на арене доминирования
 	int Rip_mob; // рипы от мобов всего
 	int Rip_pk; // рипы от чаров всего
 	int Rip_dt; // дт всего

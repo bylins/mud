@@ -2188,6 +2188,8 @@ player_special_data_saved::player_special_data_saved() :
 	stringLength(0),
 	stringWidth(0),
 	Rip_arena(0),
+	rip_arena_dom(0),
+	kill_arena_dom(0),
 	Rip_mob(0),
 	Rip_pk(0),
 	Rip_dt(0),
