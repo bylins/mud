@@ -3916,7 +3916,7 @@ void do_mystat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				GET_EXP_MOB(ch) + GET_EXP_PK(ch) + GET_EXP_DT(ch) + GET_EXP_OTHER(ch) + GET_EXP_ARENA(ch),
 				GET_WIN_ARENA(ch), GET_RIP_ARENA(ch), GET_EXP_ARENA(ch));
 		send_to_char(buf, ch);
-		send_to_char(ch, " &C|| Киллы арене доминирования %3d, смерти на арене %3d&C                               ||&n\r\n", ch->player_specials->saved.kill_arena_dom, ch->player_specials->saved.rip_arena_dom);
+		send_to_char(ch, " &C|| Киллы арене на арене доминирования %3d, смерти на арене %3d&C                            ||&n\r\n", ch->player_specials->saved.kill_arena_dom, ch->player_specials->saved.rip_arena_dom);
 		send_to_char(ch, " &C--------------------------------------------------------------------------------------&n\r\n");
 	}
 }

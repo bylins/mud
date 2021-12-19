@@ -300,7 +300,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 				ch = ch->get_master();
 			const auto people_copy = world[ch->in_room]->people;
 			for (const auto charmee : people_copy) {
-				if (IS_CHARMICE(charmee)) {
+				if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
 					char_from_room(charmee);
 					char_to_room(charmee, target);
 				}
