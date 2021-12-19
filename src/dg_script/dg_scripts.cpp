@@ -2033,16 +2033,26 @@ void find_replacement(void *go,
 			if (*subfield && IS_NPC(c)) // доступно тока мобам
 				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_MAX_HIT(c));
 			else
-				sprintf(str, "%d", GET_REAL_MAX_HIT(c));
+				sprintf(str, "%d", GET_MAX_HIT(c));
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
 				if (!IS_NPC(c))
 					GET_MANA_STORED(c) = MAX(0, gm_char_field(c, field, subfield, (long) GET_MANA_STORED(c)));
 			} else
 				sprintf(str, "%d", GET_MANA_STORED(c));
-		} else if (!str_cmp(field, "maxmana"))
+		} else if (!str_cmp(field, "maxmana")) {
 			sprintf(str, "%d", GET_MAX_MANA(c));
-		else if (!str_cmp(field, "move")) {
+		} else if (!str_cmp(field, "domination_kill")) {
+			if (*subfield)
+				c->player_specials->saved.kill_arena_dom = atoi(subfield);
+			else
+				sprintf(str, "%d", c->player_specials->saved.kill_arena_dom);
+		} else if (!str_cmp(field, "domination_rip")) {
+			if (*subfield)
+				c->player_specials->saved.rip_arena_dom = atoi(subfield);
+			else
+				sprintf(str, "%d", c->player_specials->saved.rip_arena_dom);
+		} else if (!str_cmp(field, "move")) {
 			if (*subfield)
 				GET_MOVE(c) = MAX(0, gm_char_field(c, field, subfield, GET_MOVE(c)));
 			else
