@@ -246,8 +246,9 @@ void Player::dquest(const int id) {
 		return;
 	}
 	// в случае если квест-моба убил чармис, найдем его владельца, меняем указатель на владельца чармиса
+	// Кудояр
 	if (IS_CHARMICE(this)) {
-		player = this->get_master()
+		player = this->get_master();
 	}
 	if (!player->account->quest_is_available(id)) {
 		send_to_char(player, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
