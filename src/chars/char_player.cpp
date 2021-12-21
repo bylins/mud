@@ -239,32 +239,36 @@ void Player::add_hryvn(int value) {
 }
 
 void Player::dquest(const int id) {
-	const auto quest = GlobalObjects::daily_quests().find(id);
-	const auto player = this;
-	if (quest == GlobalObjects::daily_quests().end()) {
-		log("Quest ID: %d - не найден", id);
-		return;
-	}
-	// в случае если квест-моба убил чармис, найдем его владельца, меняем указатель на владельца чармиса
-	// Кудояр
-	if (IS_CHARMICE(this)) {
-		player = this->get_master();
-	}
-	if (!player->account->quest_is_available(id)) {
-		send_to_char(player, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
-		return;
-	}
-	int value = quest->second.reward + number(1, 3);
-	const int zone_lvl = zone_table[world[player->in_room]->zone_rn].mob_level;
-	value = player->account->zero_hryvn(player, value);
-	if (zone_lvl < 25
-		&& zone_lvl <= (GET_REAL_LEVEL(player) + GET_REAL_REMORT(player) / 5)) {
-		value /= 2;
-	}
+ const auto quest = GlobalObjects::daily_quests().find(id);
+ Player* player = this;
+ if (quest == GlobalObjects::daily_quests().end()) {
+  log("Quest ID: %d - не найден", id);
+  return;
+ }
+ // в случае если квест-моба убил чармис, найдем его владельца, меняем указатель на владельца чармиса
+ // Кудояр
+ if (IS_CHARMICE(this)) {
+  player = dynamic_cast<Player*>(this->get_master());
+  if (!player) {
+   log("Ошибка получения хозяина чармиса: %s", this->get_name().c_str());
+   return;
+  }
+ }
+ if (!player->account->quest_is_available(id)) {
+  send_to_char(player, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
+  return;
+ }
+ int value = quest->second.reward + number(1, 3);
+ const int zone_lvl = zone_table[world[player->in_room]->zone_rn].mob_level;
+ value = player->account->zero_hryvn(player, value);
+ if (zone_lvl < 25
+  && zone_lvl <= (GET_REAL_LEVEL(player) + GET_REAL_REMORT(player) / 5)) {
+  value /= 2;
+ }
 
-	player->add_hryvn(value);
+ player->add_hryvn(value);
 
-	player->account->complete_quest(id);
+ player->account->complete_quest(id);
 }
 
 void Player::mark_city(const size_t index) {
