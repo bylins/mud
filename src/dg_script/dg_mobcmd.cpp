@@ -555,6 +555,8 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, "mteleport transports from NOWHERE");
 				return;
 			}
+			if (ch == vict)
+				continue;
 			char_from_room(vict);
 			char_to_room(vict, target);
 			look_at_room(vict, TRUE);
@@ -575,7 +577,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			vict = vict->get_master();
 		const auto people_copy = world[IN_ROOM(vict)]->people;
 		for (const auto charmee : people_copy) {
-			if (IS_CHARMICE(charmee)) {
+			if (IS_CHARMICE(charmee) && charmee->get_master()  == vict) {
 				char_from_room(charmee);
 				char_to_room(charmee, target);
 			}
