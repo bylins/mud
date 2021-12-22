@@ -4224,9 +4224,6 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 			trig_log(trig, buf2);
 			return;
 		}
-		sprintf(buf2, "Add stuf: obj_vnum %d, room_vnum %d", obj_vnum, room_vnum);
-		trig_log(trig, buf2);
-
 		room_rnum = real_room(room_vnum);
 		if (room_rnum != NOWHERE) {
 			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
@@ -4241,9 +4238,6 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 			trig_log(trig, buf2);
 			return;
 		}
-		sprintf(buf2, "Add stuf: obj_vnum %d, room_vnum %d", obj_vnum, room_vnum);
-		trig_log(trig, buf2);
-
 		room_rnum = real_room(room_vnum);
 		if (room_rnum != NOWHERE) {
 			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);

@@ -3253,25 +3253,32 @@ int mag_points(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int) {
 	}
 
 	switch (spellnum) {
-		case SPELL_CURE_LIGHT: hit = dice(6, 3) + (level + 2) / 3;
+		case SPELL_CURE_LIGHT: 
+			hit = GET_REAL_MAX_HIT(victim) / 100 * 20 + victim->get_skill(SKILL_LIFE_MAGIC) / 2;
 			send_to_char("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
-		case SPELL_CURE_SERIOUS: hit = dice(25, 2) + (level + 2) / 3;
+		case SPELL_CURE_SERIOUS: 
+			hit = GET_REAL_MAX_HIT(victim) / 100 * 40 + victim->get_skill(SKILL_LIFE_MAGIC) / 2;
 			send_to_char("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
-		case SPELL_CURE_CRITIC: hit = dice(45, 2) + level;
+		case SPELL_CURE_CRITIC: 
+			hit = GET_REAL_MAX_HIT(victim) / 100 * 60 + victim->get_skill(SKILL_LIFE_MAGIC) / 2;
 			send_to_char("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
 		case SPELL_HEAL:
-		case SPELL_GROUP_HEAL: hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
+		case SPELL_GROUP_HEAL: 
+			hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
 			send_to_char("Вы почувствовали себя здоровым.\r\n", victim);
 			break;
-		case SPELL_PATRONAGE: hit = (GET_REAL_LEVEL(victim) + GET_REAL_REMORT(victim)) * 2;
+		case SPELL_PATRONAGE: 
+			hit = (GET_REAL_LEVEL(victim) + GET_REAL_REMORT(victim)) * 2;
 			break;
-		case SPELL_WC_OF_POWER: hit = MIN(200, (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2);
+		case SPELL_WC_OF_POWER: 
+			hit = MIN(200, (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2);
 			send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
-		case SPELL_EXTRA_HITS: extraHealing = true;
+		case SPELL_EXTRA_HITS: 
+			extraHealing = true;
 			hit = dice(10, level / 3) + level;
 			send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
