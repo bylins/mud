@@ -605,13 +605,16 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 			|| ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH)
 			|| ROOM_FLAGGED(ch_room, ROOM_TUNNEL)
 			|| ROOM_FLAGGED(ch_room, ROOM_NOBATTLE)
-			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)
-			|| (!(victim->has_master() && victim->get_master() != ch) && !Clan::MayEnter(victim, ch_room, HCE_PORTAL))
+			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)			
 			|| SECT(ch->in_room) == SECT_SECRET
 			|| (!same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch_room, ROOM_ARENA)))) {
 			send_to_char(SUMMON_FAIL, ch);
-			send_to_char(SUMMON_FAIL2, ch);
+			return;
+		}
+		// отдельно проверку на клан комнаты, своих чармисов призвать можем (Кудояр)
+		if (!Clan::MayEnter(victim, ch_room, HCE_PORTAL) && !(victim->has_master()) && (victim->get_master() != ch)) {
+			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 
