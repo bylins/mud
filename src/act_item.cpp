@@ -124,13 +124,17 @@ int perform_put(CHAR_DATA *ch, OBJ_DATA::shared_ptr obj, OBJ_DATA *cont) {
 
 	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0)) {
 		act("$O : $o не помещается туда.", FALSE, ch, obj.get(), cont, TO_CHAR);
-	} else if (obj->get_type() == OBJ_DATA::ITEM_CONTAINER) {
-		act("Невозможно положить контейнер в контейнер.", FALSE, ch, 0, 0, TO_CHAR);
-	} else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
+	} 
+	else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER && obj->get_contains()) {
+		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
+	} 
+	else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj.get(), cont, TO_CHAR);
-	} else if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY) || obj->get_type() == OBJ_DATA::ITEM_KEY) {
+	} 
+	else if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY) || obj->get_type() == OBJ_DATA::ITEM_KEY) {
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj.get(), cont, TO_CHAR);
-	} else {
+	} 
+	else {
 		obj_from_char(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
 		if (obj->get_type() == OBJ_DATA::ITEM_MONEY && obj->get_rnum() == 0) {
