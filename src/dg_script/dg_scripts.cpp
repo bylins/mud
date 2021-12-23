@@ -2272,7 +2272,13 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "exp") || !str_cmp(field, "questbodrich")) {
 			if (!str_cmp(field, "questbodrich")) {
 				if (*subfield) {
-					c->dquest(atoi(subfield));
+					if(IS_CHARMICE(c)) {
+//						send_to_char(c->get_master(), "Квест чармисом, берем мастера\r\n");
+						c->get_master()->dquest(atoi(subfield));
+					}
+					else {
+						c->dquest(atoi(subfield));
+					}
 				}
 			} else {
 				if (*subfield) {
