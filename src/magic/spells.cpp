@@ -564,9 +564,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	}
 
 	if (!IS_NPC(ch) && IS_NPC(victim)) {
-		if (victim->get_master() != ch
-			|| !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-			|| !AFF_FLAGGED(victim, EAffectFlag::AFF_HELPER) // почему ангела, или менталку или других хелперов не призвать? (Кудояр)
+		if (victim->get_master() != ch  //поправим это, тут и так понято что чармис (Кудояр)
 			|| victim->get_fighting()
 			|| GET_POS(victim) < POS_RESTING) {
 			send_to_char(SUMMON_FAIL, ch);
@@ -607,11 +605,15 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 			|| ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH)
 			|| ROOM_FLAGGED(ch_room, ROOM_TUNNEL)
 			|| ROOM_FLAGGED(ch_room, ROOM_NOBATTLE)
-			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)
-			|| !Clan::MayEnter(victim, ch_room, HCE_PORTAL) //&& !(victim->has_master() && victim->get_master() != ch) )
+			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)			
 			|| SECT(ch->in_room) == SECT_SECRET
 			|| (!same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch_room, ROOM_ARENA)))) {
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+		// отдельно проверку на клан комнаты, своих чармисов призвать можем (Кудояр)
+		if (!Clan::MayEnter(victim, ch_room, HCE_PORTAL) && !(victim->has_master()) && (victim->get_master() != ch)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
