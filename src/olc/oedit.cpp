@@ -124,6 +124,11 @@ void oedit_setup(DESCRIPTOR_DATA *d, int real_num)
 	} else {
 		obj->clone_olc_object_from_prototype(vnum);
 		obj->set_rnum(real_num);
+		if (obj->get_type() == OBJ_DATA::ITEM_DRINKCON) {
+//			if (obj->get_val(1) > 0) {
+				name_from_drinkcon(obj);
+//			}
+		}
 	}
 
 	OLC_OBJ(d) = obj;
