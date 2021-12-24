@@ -278,12 +278,29 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 			wld_log(room, "wteleport all target is itself");
 			return;
 		}
-
 		const auto people_copy = room->people;
 		decltype(people_copy)::const_iterator next_ch = people_copy.begin();
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
+			char_from_room(ch);
+			char_to_room(ch, target);
+			ch->dismount();
+			look_at_room(ch, TRUE);
+		}
+	}
+	else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
+		if (nr == room->room_vn) {
+			wld_log(room, "wteleport allchar target is itself");
+			return;
+		}
+		const auto people_copy = room->people;
+		decltype(people_copy)::const_iterator next_ch = people_copy.begin();
+		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
+			const auto ch = *ch_i;
+			++next_ch;
+			if (IS_NPC(ch) && !IS_CHARMICE(ch))
+				continue;
 			char_from_room(ch);
 			char_to_room(ch, target);
 			ch->dismount();
@@ -317,6 +334,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 			greet_otrigger(ch, -1);
 		} else {
 			wld_log(room, "wteleport: no target found");
+			return;
 		}
 	}
 }

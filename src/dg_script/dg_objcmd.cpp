@@ -405,6 +405,33 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ch->dismount();
 			look_at_room(ch, TRUE);
 		}
+	}
+	else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
+		rm = obj_room(obj);
+		if (rm == NOWHERE) {
+			obj_log(obj, "oteleport called in NOWHERE");
+			return;
+		}
+		if (target == rm) {
+			obj_log(obj, "oteleport target is itself");
+			return;
+		}
+		const auto people_copy = world[rm]->people;
+		decltype(world[rm]->people)::const_iterator next_ch = people_copy.begin();
+		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
+			const auto ch = *ch_i;
+			++next_ch;
+			if (ch->in_room == NOWHERE) {
+				obj_log(obj, "oteleport transports allchar from NOWHERE");
+				return;
+			}
+			if (IS_NPC(ch) && !IS_CHARMICE(ch))
+				continue;
+			char_from_room(ch);
+			char_to_room(ch, target);
+			ch->dismount();
+			look_at_room(ch, TRUE);
+		}
 	} else {
 		if (!(ch = get_char_by_obj(obj, arg1))) {
 			obj_log(obj, "oteleport: no target found");
