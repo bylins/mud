@@ -555,7 +555,24 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mob_log(ch, "mteleport transports from NOWHERE");
 				return;
 			}
-			if (ch == vict)
+			char_from_room(vict);
+			char_to_room(vict, target);
+			// переделать чтоб чары смотрели в клетку после переноса, походу еще один цикл крутить, ну и мутево будет
+			if (!IS_NPC(vict))
+				look_at_room(vict, TRUE);
+		}
+	} else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
+		if (target == ch->in_room) {
+			mob_log(ch, "mteleport all: target is itself");
+			return;
+		}
+		const auto people_copy = world[ch->in_room]->people;
+		for (const auto vict : people_copy) {
+			if (IN_ROOM(vict) == NOWHERE) {
+				mob_log(ch, "mteleport transports allchar from NOWHERE");
+				return;
+			}
+			if (IS_NPC(vict) && !IS_CHARMICE(vict))
 				continue;
 			char_from_room(vict);
 			char_to_room(vict, target);
