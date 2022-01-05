@@ -923,7 +923,7 @@ int may_kill_here(CHAR_DATA *ch, CHAR_DATA *victim, char *argument) {
 	if (argument) {
 		skip_spaces(&argument);
 		if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
-			if (strcmp(GET_NAME(victim), argument) != 0) {
+			if (!name_cmp(victim, argument)) {
 				send_to_char(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
 				return FALSE;
 			}
