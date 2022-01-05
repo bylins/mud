@@ -4544,15 +4544,15 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_KILLER);
 			break;
 		case 59: // флаг реморта
-			if (value > 1 && value < 51) {
-				sprintf(buf, "Иммортал %s установил добавочный реморт  для игрока %s\r\n", GET_NAME(ch), GET_NAME(vict));
+			if (value > 1 && value < 75) {
+				sprintf(buf, "Иммортал %s установил реморт %d  для игрока %s ", GET_NAME(ch), value, GET_NAME(vict));
 				add_karma(vict, buf, GET_NAME(ch));
 				add_karma(ch, buf, GET_NAME(vict));
-			//	vict->set_remort(value);
+				vict->set_remort(value);
 				send_to_gods(buf);
 			}
 			else {
-				send_to_char(ch, "Не правильно вильно указан реморт.\r\n");
+				send_to_char(ch, "Не правильно указан реморт.\r\n");
 			}
 			break;
 		case 60: // флаг тестера
