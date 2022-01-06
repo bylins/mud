@@ -486,7 +486,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_craft_timer(atoi(buffer));
 			} else if (!strcmp(read_line, "Ozne")) {
 				*error = 66;
-				object->set_zone_from(atoi(buffer));
+				object->set_vnum_zone_from(atoi(buffer));
 			} else {
 				snprintf(buf, MAX_STRING_LENGTH, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
 						 read_line, buffer);
@@ -896,8 +896,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
 		}
 		// в какой зоне было загружено в мир
-		if (GET_OBJ_ZONE_FROM(object)) {
-			out << "Ozne: " << GET_OBJ_ZONE_FROM(object) << "~\n";
+		if (GET_OBJ_VNUM_ZONE_FROM(object)) {
+			out << "Ozne: " << GET_OBJ_VNUM_ZONE_FROM(object) << "~\n";
 		}
 		// Наводимые аффекты
 		*buf = '\0';
@@ -1162,8 +1162,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
 		}
 		// в какой зоне было загружено в мир
-		if (GET_OBJ_ZONE_FROM(object)) {
-			out << "Ozne: " << GET_OBJ_ZONE_FROM(object) << "~\n";
+		if (GET_OBJ_VNUM_ZONE_FROM(object)) {
+			out << "Ozne: " << GET_OBJ_VNUM_ZONE_FROM(object) << "~\n";
 		}
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++) {

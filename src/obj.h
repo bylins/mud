@@ -767,7 +767,7 @@ class OBJ_DATA : public CObjectPrototype {
 	auto get_uid() const { return m_uid; }
 	auto get_worn_by() const { return m_worn_by; }
 	auto get_worn_on() const { return m_worn_on; }
-	auto get_zone_from() const { return m_zone_from; }
+	auto get_vnum_zone_from() const { return m_zone_from; }
 	auto serialize_enchants() const { return m_enchants.print_to_file(); }
 	const auto &get_enchants() const { return m_enchants; }
 	const auto &get_custom_label() const { return m_custom_label; }
@@ -798,7 +798,7 @@ class OBJ_DATA : public CObjectPrototype {
 	void set_uid(const unsigned _);
 	void set_worn_by(CHAR_DATA *_) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
-	void set_zone_from(const int _) { m_zone_from = _; }
+	void set_vnum_zone_from(const int _) { m_zone_from = _; }
 	void update_enchants_set_bonus(const obj_sets::ench_type &_) { m_enchants.update_set_bonus(this, _); }
 	void set_enchant(int skill);
 	void set_enchant(int skill, OBJ_DATA *obj);

@@ -506,7 +506,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
-		object->set_zone_from(zone_table[world[room]->zone_rn].vnum);
+		object->set_vnum_zone_from(zone_table[world[room]->zone_rn].vnum);
 		obj_to_room(object.get(), room);
 		load_otrigger(object.get());
 	} else {
