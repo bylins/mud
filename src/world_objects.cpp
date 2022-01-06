@@ -104,7 +104,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum) 
 	auto new_object = create_raw_from_prototype_by_rnum(rnum);
 	if (new_object) {
 		rnum = obj_proto.zone(rnum);
-		if (rnum != -1 && zone_table[rnum].under_construction && new_object->get_in_room() != NOWHERE) {
+		if (rnum != -1 && zone_table[rnum].under_construction) {
 			// модификация объектов тестовой зоны
 			constexpr int TEST_OBJECT_TIMER = 30;
 			new_object->set_timer(TEST_OBJECT_TIMER);

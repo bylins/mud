@@ -623,7 +623,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 		send_to_char(ch, ", Владелец : %s", get_name_by_unique(GET_OBJ_OWNER(j)));
 	}
 //	if (GET_OBJ_ZONE(j))
-	send_to_char(ch, ", Принадлежит зоне VNUM : %d", GET_OBJ_ZONE_FROM(j));
+	send_to_char(ch, ", Принадлежит зоне VNUM : %d", GET_OBJ_VNUM_ZONE_FROM(j));
 	if (GET_OBJ_MAKER(j)) {
 		send_to_char(ch, ", Создатель : %s", get_name_by_unique(GET_OBJ_MAKER(j)));
 	}

@@ -479,7 +479,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
-		object->set_zone_from(zone_table[room->zone_rn].vnum);
+		object->set_vnum_zone_from(zone_table[room->zone_rn].vnum);
 		obj_to_room(object.get(), real_room(room->room_vn));
 		load_otrigger(object.get());
 	} else {

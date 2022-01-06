@@ -4218,7 +4218,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 		}
 		room_rnum = real_room(room_vnum);
 		if (room_rnum != NOWHERE) {
-			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			obj_to_room(object.get(), room_rnum);
 			load_otrigger(object.get());
 		}
@@ -4232,7 +4232,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 		}
 		room_rnum = real_room(room_vnum);
 		if (room_rnum != NOWHERE) {
-			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			obj_to_room(object.get(), room_rnum);
 			load_otrigger(object.get());
 		}
@@ -4246,7 +4246,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 		}
 		room_rnum = real_room(room_vnum);
 		if (room_rnum != NOWHERE) {
-			object->set_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
+			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			obj_to_room(object.get(), room_rnum);
 			load_otrigger(object.get());
 		}

@@ -358,7 +358,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 
 		if (obj) {
 			load_otrigger(obj);
-			obj->set_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
+			obj->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
 			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE)) {
 				obj->set_owner(GET_UNIQUE(ch));
 			}
