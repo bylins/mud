@@ -1043,8 +1043,21 @@ inline bool NO_TIMER(const OBJ_DATA *obj) {
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN)
 		return true;
 // так как таймер всего 30 шмот из тестовой зоны в своей зоне запретим тикать на земле
-	if (obj->get_in_room() != NOWHERE && zone_table[world[obj->get_in_room()]->zone_rn].under_construction
-		&& zone_table[world[real_room(GET_OBJ_VNUM_ZONE_FROM(obj))]->zone_rn].under_construction)
+// полный вариан
+/*	zone_rnum zrn = 0;
+	if (GET_OBJ_VNUM_ZONE_FROM(obj) > 0) {
+		for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size() - 1); zrn++) {
+			if (zone_table[zrn].vnum == GET_OBJ_VNUM_ZONE_FROM(obj))
+				break;
+		}
+
+		if (zone_table[zrn].under_construction && zone_table[world[obj->get_in_room()]->zone_rn].under_construction) {
+			return true;
+		}
+	}
+*/
+// а почему бы не так?
+	if (zone_table[world[obj->get_in_room()]->zone_rn].under_construction && !OBJ_FLAGGED(obj, EExtraFlag::ITEM_TICKTIMER))
 		return true;
 	return false;
 }
