@@ -4642,16 +4642,23 @@ void reset_zone(zone_rnum zone) {
 // Еси возвращает 0 - комнат в зоне нету
 int get_zone_rooms(int zone_nr, int *first, int *last) {
 	*first = 0;
+	*last = 0;
 	auto numzone = zone_table[zone_nr].vnum * 100;
 	for (int nr = FIRST_ROOM; nr <= top_of_world; nr++) {
 		if (world[nr]->room_vn >= numzone && *first == 0) {
 			*first = world[nr]->room_vn;
 		}
-		if (world[nr]->room_vn >= numzone + 99) {
-//			sprintf(buf, "worldnumber %d last %d nr ==%d zone %d", world[nr]->number, *last, nr,  zone_table[zone_nr].vnum * 100);
-//			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			*last = world[nr - 1]->room_vn;
-			break;
+		if (world[nr]->room_vn == numzone + 99) {
+			// если первая комната виртуальная (99), то последняя тоже будет виртуальной
+			if (*first == numzone + 99) {
+				*last = *first;
+				break;
+			}
+			// если в зоне есть комнаты, то берем последнюю комнату перед виртуальной
+			if (nr > 1 && *first && world[nr - 1]->room_vn >= *first) {
+				*last = world[nr - 1]->room_vn;
+				break;
+			}
 		}
 	}
 	*first = real_room(*first);
