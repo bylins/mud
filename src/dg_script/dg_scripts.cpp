@@ -5244,35 +5244,36 @@ void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/) {
 		send_to_char("Максимальный показываемый промежуток - 200.\n\r", ch);
 		return;
 	}
-
+	char trgtypes[256];
 	for (nr = 0; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		if (trig_index[nr]->vnum >= first) {
 			std::string out = "";
-			if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
-				out += "[MOB_TRIG]";
-			}
-
-			if (trig_index[nr]->proto->get_attach_type() == OBJ_TRIGGER) {
-				out += "[OBJ_TRIG]";
-			}
-
-			if (trig_index[nr]->proto->get_attach_type() == WLD_TRIGGER) {
-				out += "[WLD_TRIG]";
-			}
-
-			sprintf(buf,
-					"%5d. [%5d] %s\r\nПрикрепленные триггеры: ",
-					++found,
-					trig_index[nr]->vnum,
-					trig_index[nr]->proto->get_name().c_str());
+			sprintf(buf,"%2d) [%5d] [%-50s] ", ++found,
+					trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
 			out += buf;
+			if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
+				sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types, trgtypes);
+				out += "[MOB] ";
+				out += trgtypes;
+			}
+			if (trig_index[nr]->proto->get_attach_type() == OBJ_TRIGGER) {
+				sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), otrig_types, trgtypes);
+				out += "[OBJ] ";
+				out += trgtypes;
+			}
+			if (trig_index[nr]->proto->get_attach_type() == WLD_TRIGGER) {
+				sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), wtrig_types, trgtypes);
+				out += "[WLD] ";
+				out += trgtypes;
+			}
+			out += "\r\nПрикреплен к: ";
 			if (!owner_trig[trig_index[nr]->vnum].empty()) {
 				for (auto it = owner_trig[trig_index[nr]->vnum].begin(); it != owner_trig[trig_index[nr]->vnum].end();
 					 ++it) {
 					out += "[";
 					std::string out_tmp = "";
 					for (const auto trigger_vnum : it->second) {
-						sprintf(buf, " [%d]", trigger_vnum);
+						sprintf(buf, " %d", trigger_vnum);
 						out_tmp += buf;
 					}
 
