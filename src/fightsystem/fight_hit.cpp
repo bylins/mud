@@ -1496,7 +1496,8 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *d
 			prob = 0;
 			*dam = -1;
 		}
-		setSkillCooldownInFight(victim, SKILL_GLOBAL_COOLDOWN, prob > 0? 1 : 0);
+		if (prob > 0)
+			setSkillCooldownInFight(victim, SKILL_GLOBAL_COOLDOWN, 1);
 		setSkillCooldownInFight(victim, SKILL_PARRY, prob);
 /*
 		if (!WAITLESS(ch) && prob) {
