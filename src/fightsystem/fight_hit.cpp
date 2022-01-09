@@ -1377,6 +1377,7 @@ void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam) {
 		int percent = number(1, skill_info[SKILL_TOUCH].difficulty);
 		int prob = CalcCurrentSkill(vict, SKILL_TOUCH, ch);
 		TrainSkill(vict, SKILL_TOUCH, prob >= percent, ch);
+		SendSkillBalanceMsg(ch, skill_info[SKILL_TOUCH].name, percent, prob, prob >= 70);
 		if (IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)) {
 			percent = prob;
 		}
@@ -1398,9 +1399,13 @@ void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam) {
 			*dam = -1;
 			prob = 1;
 		}
+		setSkillCooldownInFight(vict, SKILL_GLOBAL_COOLDOWN, 1);
+		setSkillCooldownInFight(vict, SKILL_TOUCH, prob);
+/*
 		if (!WAITLESS(vict)) {
 			WAIT_STATE(vict, prob * PULSE_VIOLENCE);
 		}
+*/
 	}
 }
 
@@ -1491,9 +1496,13 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *d
 			prob = 0;
 			*dam = -1;
 		}
+		setSkillCooldownInFight(victim, SKILL_GLOBAL_COOLDOWN, prob > 0? 1 : 0);
+		setSkillCooldownInFight(victim, SKILL_PARRY, prob);
+/*
 		if (!WAITLESS(ch) && prob) {
 			WAIT_STATE(victim, PULSE_VIOLENCE * prob);
 		}
+*/
 		CLR_AF_BATTLE(victim, EAF_PARRY);
 	}
 }
