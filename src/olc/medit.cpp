@@ -1921,9 +1921,6 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				if (MOB_FLAGGED(OLC_MOB(d), MOB_IGNORE_FORMATION)) {
 					OLC_MOB(d)->set_role(MOB_ROLE_ROGUE, true);
 				}
-				else {
-					OLC_MOB(d)->set_role(MOB_ROLE_ROGUE, false);
-				}
 				return;
 			}
 
