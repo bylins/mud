@@ -18,6 +18,7 @@
 #include "handler.h"
 #include "screen.h"
 #include "modify.h"
+#include "zone.table.h"
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, LVL_BUILDER, IMLOG, TRUE)
@@ -888,6 +889,12 @@ void im_reset_room(ROOM_DATA *room, int level, int type) {
 			extract_obj(o);
 		}
 	}
+
+	// пропускаем виртуальные комнаты
+	if (zone_table[room->zone_rn].vnum * 100 + 99 == room->room_vn) {
+		return;
+	}
+
 	if (!zone_types[type].ingr_qty
 		|| room->get_flag(ROOM_DEATH)) {
 		return;
