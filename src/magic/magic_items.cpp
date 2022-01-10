@@ -1,6 +1,6 @@
 #include "magic_items.h"
 
-#include "obj.h"
+//#include "obj.h"
 #include "chars/char.h"
 #include "handler.h"
 #include "obj_prototypes.h"
@@ -39,16 +39,16 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 	switch (GET_OBJ_TYPE(obj)) {
 		case OBJ_DATA::ITEM_STAFF:
 			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_CHAR);
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_CHAR);
+				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
-				act("Вы ударили $o4 о землю.", FALSE, ch, obj, 0, TO_CHAR);
-				act("$n ударил$g $o4 о землю.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("Вы ударили $o4 о землю.", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("$n ударил$g $o4 о землю.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				send_to_char("Похоже, кончились заряды :)\r\n", ch);
-				act("И ничего не случилось.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("И ничего не случилось.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
 				obj->dec_val(2);
 				WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -56,9 +56,9 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 					call_magic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 				} else {
 					const auto people_copy = world[ch->in_room]->people;
-					for (const auto tch : people_copy) {
-						if (ch != tch) {
-							call_magic(ch, tch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+					for (const auto target : people_copy) {
+						if (ch != target) {
+							call_magic(ch, target, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 						}
 					}
 				}
@@ -89,8 +89,8 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 						act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
 						act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 					} else {
-						act("Вы указали $o4 на себя.", FALSE, ch, obj, 0, TO_CHAR);
-						act("$n указал$g $o4 на себя.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+						act("Вы указали $o4 на себя.", FALSE, ch, obj, nullptr, TO_CHAR);
+						act("$n указал$g $o4 на себя.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 					}
 				} else {
 					if (!obj->get_action_description().empty()) {
@@ -136,16 +136,19 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 			}
 
 			spellnum = GET_OBJ_VAL(obj, 1);
-			if (!*argument)
-				tch = ch;
-			else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
+			if (!*argument) {
+				if (!IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES)) {
+					tch = ch;
+				}
+			} else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom)) {
 				return;
+			}
 
 			if (!obj->get_action_description().empty()) {
 				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_CHAR);
 				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
-				act("Вы зачитали $o3, котор$W рассыпался в прах.", TRUE, ch, obj, 0, TO_CHAR);
+				act("Вы зачитали $o3, котор$W рассыпался в прах.", TRUE, ch, obj, nullptr, TO_CHAR);
 				act("$n зачитал$g $o3.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 
@@ -156,9 +159,10 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 				}
 			}
 
-			if (obj != nullptr) {
+			/*if (obj != nullptr) {
 				extract_obj(obj);
-			}
+			}*/
+			extract_obj(obj);
 			break;
 
 		case OBJ_DATA::ITEM_POTION:
@@ -182,9 +186,10 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 				}
 			}
 
-			if (obj != nullptr) {
+			/*if (obj != nullptr) {
 				extract_obj(obj);
-			}
+			}*/
+			extract_obj(obj);
 			break;
 
 		default: log("SYSERR: Unknown object_type %d in employMagicItem.", GET_OBJ_TYPE(obj));
