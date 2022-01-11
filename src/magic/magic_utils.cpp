@@ -597,7 +597,7 @@ int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, i
 		return (0);
 	}
 
-	if (tch && ch && IN_ROOM(tch) != ch->in_room) {
+	if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
 		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
 			send_to_char("Цель заклинания недоступна.\r\n", ch);
 			return (0);
@@ -656,11 +656,11 @@ int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, i
 }
 
 int CalculateCastSuccess(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int spellnum) {
-	int prob = 0;
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
 		return true;
 	}
 
+	int prob;
 	switch (casting_type) {
 		case SAVING_STABILITY:
 		case SAVING_NONE:
