@@ -24,7 +24,6 @@
 #include "skills_info.h"
 #include "magic_rooms.h"
 
-//extern struct spell_create_type spell_create[];
 char cast_argument[MAX_STRING_LENGTH];
 
 #define SpINFO spell_info[spellnum]
@@ -32,9 +31,6 @@ char cast_argument[MAX_STRING_LENGTH];
 
 extern int what_sky;
 
-// local functions
-//void SaySpell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj);
-//int get_zone_rooms(int, int *, int *);
 
 int CalculateRequiredLevel(const CHAR_DATA *ch, int spellnum) {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
