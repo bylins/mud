@@ -708,10 +708,6 @@ int spell_use_success(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int sp
 				|| (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT))) {
 				prob += 10;
 			}
-
-			if (IS_MAGE(ch) && equip_in_metall(ch)) {
-				prob -= 50;
-			}
 			break;
 	}
 
