@@ -13,6 +13,7 @@
 #include "privilege.h"
 #include "chars/char.h"
 #include "modify.h"
+#include "structs/descriptor_data.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>

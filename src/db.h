@@ -15,11 +15,12 @@
 #ifndef _DB_H_
 #define _DB_H_
 
-#include "obj.h"
 #include "boot/boot_constants.h"
-#include "structs/structs.h"
 #include "conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 #include "name_adviser.h"
+#include "obj.h"
+#include "structs/descriptor_data.h"
+#include "structs/structs.h"
 
 #include <map>
 #include <list>
@@ -290,7 +291,7 @@ extern mob_rnum top_of_mobt;
 
 inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
 
-extern DESCRIPTOR_DATA *descriptor_list;
+//extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern const char *MENU;
 

@@ -2082,11 +2082,11 @@ int new_descriptor(socket_t s)
 			perror("SYSERR: gethostbyaddr");
 
 		// find the numeric site address
-		strncpy(newd->host, (char *) inet_ntoa(peer.sin_addr), HOST_LENGTH);
-		*(newd->host + HOST_LENGTH) = '\0';
+		strncpy(newd->host, (char *) inet_ntoa(peer.sin_addr), kHostLength);
+		*(newd->host + kHostLength) = '\0';
 	} else {
-		strncpy(newd->host, from->h_name, HOST_LENGTH);
-		*(newd->host + HOST_LENGTH) = '\0';
+		strncpy(newd->host, from->h_name, kHostLength);
+		*(newd->host + kHostLength) = '\0';
 	}
 
 	// ип в виде числа

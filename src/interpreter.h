@@ -17,6 +17,7 @@
 
 #include "conf.h"
 #include "structs/structs.h"
+#include "structs/descriptor_data.h"
 
 #include <string>
 

@@ -14,11 +14,11 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "config.h"
-#include "structs/structs.h"
-#include "conf.h"
-#include "pugixml.h"
 #include "classes/class_constants.h"
+#include "conf.h"
+#include "config.h"
+#include "pugixml.h"
+#include "structs/structs.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -30,6 +30,7 @@
 
 struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct DESCRIPTOR_DATA;
 
 // external declarations and prototypes *********************************
 

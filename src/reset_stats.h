@@ -6,7 +6,8 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs/structs.h"
+#include "structs/descriptor_data.h"
+//#include "structs/structs.h"
 
 ///
 /// Платный сброс/перераспределение характеристик персонажа через главное меню.

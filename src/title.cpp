@@ -4,13 +4,14 @@
 
 #include "title.h"
 
-#include "interpreter.h"
-#include "logger.h"
-#include "screen.h"
-#include "fightsystem/pk.h"
-#include "privilege.h"
-#include "handler.h"
 #include "chars/char_player.h"
+#include "fightsystem/pk.h"
+/*#include "handler.h"
+#include "interpreter.h"
+#include "logger.h"*/
+#include "privilege.h"
+#include "screen.h"
+//#include "structs/descriptor_data.h"
 
 extern void send_to_gods(char *text, bool demigod);
 

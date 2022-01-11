@@ -69,6 +69,7 @@
 #include "shop_ext.h"
 #include "skills.h"
 #include "magic/spells.h"
+#include "structs/descriptor_data.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "utils/utils_time.h"

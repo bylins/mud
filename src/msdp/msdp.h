@@ -5,7 +5,7 @@
 
 #include <ostream>
 
-struct DESCRIPTOR_DATA;    // to avoid inclusion of "structs.h"
+#include "structs/descriptor_data.h"
 
 namespace msdp {
 size_t handle_conversation(DESCRIPTOR_DATA *t, const char *pos, const size_t length);

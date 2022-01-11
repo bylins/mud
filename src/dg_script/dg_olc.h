@@ -19,6 +19,8 @@
 
 #include "dg_scripts.h"
 
+struct DESCRIPTOR_DATA;
+
 // prototype exported functions from trigedit.cpp
 //void script_copy(void *dst, void *src, int type);
 void script_save_to_disk(FILE *fp, const void *item, int type);

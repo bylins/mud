@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 
 project(bylins CXX)
 
@@ -150,7 +151,7 @@ set(SOURCES
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
-        src/structs/structs.cpp
+		src/structs/descriptor_data.cpp
         src/structs/structs.cpp
 		src/stuff.cpp
 		src/utils/flags.hpp
@@ -411,6 +412,7 @@ set(HEADERS
 		src/skills.h
 		src/skills_info.h
 		src/spam.h
+		src/structs/descriptor_data.h
         src/structs/structs.h
 		src/stuff.h
 		src/sysdep.h
