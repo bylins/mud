@@ -36,7 +36,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	t = strtok(NULL, "\0");
 
-	spellnum = fix_name_and_find_spell_num(s);
+	spellnum = FixNameAndFindSpellNum(s);
 
 	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
 		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
@@ -68,7 +68,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	else
 		*arg = '\0';
 
-	target = find_cast_target(spellnum, arg, ch, &tch, &tobj, &troom);
+	target = FindCastTarget(spellnum, arg, ch, &tch, &tobj, &troom);
 
 	if (target && (tch == ch) && spell_info[spellnum].violent) {
 		send_to_char("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
@@ -86,7 +86,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (IS_MANA_CASTER(ch)) {
-		if (GET_REAL_LEVEL(ch) < spell_create_level(ch, spellnum)) {
+		if (GET_REAL_LEVEL(ch) < CalculateRequiredLevel(ch, spellnum)) {
 			send_to_char("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
 			return;
 		}
@@ -100,7 +100,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, TRUE, tch)) {
-		if (!spell_use_success(ch, tch, SAVING_NONE, spellnum)) {
+		if (!CalculateCastSuccess(ch, tch, SAVING_NONE, spellnum)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			if (!tch || !SendSkillMessages(0, ch, tch, spellnum)) {
 				if (subcmd == SCMD_ITEMS)
@@ -109,7 +109,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 					send_to_char("Вы не смогли правильно истолковать значение рун!\r\n", ch);
 			}
 		} else {
-			if (call_magic(ch, tch, tobj, world[ch->in_room], spellnum, GET_REAL_LEVEL(ch)) >= 0) {
+			if (CallMagic(ch, tch, tobj, world[ch->in_room], spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 					WAIT_STATE(ch, PULSE_VIOLENCE);
 			}

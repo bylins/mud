@@ -1663,7 +1663,7 @@ void load_skills_definitions() {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = fix_name_and_find_skill_num(name)) < 0) {
+		if ((sp_num = FixNameAndFindSkillNum(name)) < 0) {
 			log("Skill '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1709,7 +1709,7 @@ void load_skills_definitions() {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = fix_name_and_find_skill_num(name)) < 0) {
+		if ((sp_num = FixNameAndFindSkillNum(name)) < 0) {
 			log("Skill '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1757,7 +1757,7 @@ void load_skills() {
 			for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill")) {
 				int sk_num;
 				std::string name = std::string(xNodeSkill.attribute("name").value());
-				if ((sk_num = fix_name_and_find_skill_num(name)) < 0) {
+				if ((sk_num = FixNameFndFindSkillNum(name)) < 0) {
 					log("Skill '%s' not found...", name.c_str());
 					graceful_exit(1);
 				}
@@ -1829,7 +1829,7 @@ void init_spell_levels(void) {
 			strcat(name, line2);
 		}
 
-		if ((sp_num = fix_name_and_find_spell_num(name)) < 0) {
+		if ((sp_num = FixNameAndFindSpellNum(name)) < 0) {
 			log("Spell '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1878,7 +1878,7 @@ void init_spell_levels(void) {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = fix_name_and_find_spell_num(name)) < 0) {
+		if ((sp_num = FixNameAndFindSpellNum(name)) < 0) {
 			log("Spell '%s' not found...", name);
 			graceful_exit(1);
 		}

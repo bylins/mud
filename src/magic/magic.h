@@ -52,8 +52,8 @@ void show_spell_off(int aff, CHAR_DATA *ch);
 int callMagicToGroup(int level, CHAR_DATA *ch, int spellnum);
 int callMagicToArea(CHAR_DATA *ch, CHAR_DATA *victim, ROOM_DATA *room, int spellnum, int level);
 
-int call_magic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level);
-int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
+int CallMagic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level);
+int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
 
 int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int savetype);
 int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int savetype);

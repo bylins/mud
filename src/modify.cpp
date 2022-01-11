@@ -1011,8 +1011,8 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if (SKILL_INVALID == (skill = fix_name_and_find_skill_num(help))) {
-		spell = fix_name_and_find_spell_num(help);
+	if (SKILL_INVALID == (skill = FixNameAndFindSkillNum(help))) {
+		spell = FixNameAndFindSpellNum(help);
 	}
 
 	if (SKILL_INVALID == skill
@@ -1041,7 +1041,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		value = skill_info[skill].cap;
 	}
 
-	// * find_skill_num() guarantees a valid spell_info[] index, or -1, and we
+	// * FindSkillNum() guarantees a valid spell_info[] index, or -1, and we
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);

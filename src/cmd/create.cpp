@@ -67,7 +67,7 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	spellnum = fix_name_and_find_spell_num(s);
+	spellnum = FixNameAndFindSpellNum(s);
 
 	// Unknown spell
 	if (spellnum < 1 || spellnum > SPELLS_COUNT) {

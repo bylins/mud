@@ -58,7 +58,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		wc_name = "клич " + wc_name;
 	}
 
-	spellnum = fix_name_and_find_spell_num(wc_name);
+	spellnum = FixNameAndFindSpellNum(wc_name);
 
 	// Unknown warcry
 	if (spellnum < 1 || spellnum > SPELLS_COUNT
@@ -95,9 +95,9 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	say_spell(ch, spellnum, nullptr, nullptr);
+	SaySpell(ch, spellnum, nullptr, nullptr);
 
-	if (call_magic(ch, nullptr, nullptr, nullptr, spellnum, GET_REAL_LEVEL(ch)) >= 0) {
+	if (CallMagic(ch, nullptr, nullptr, nullptr, spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 		if (!WAITLESS(ch)) {
 			if (!CHECK_WAIT(ch))
 				WAIT_STATE(ch, PULSE_VIOLENCE);

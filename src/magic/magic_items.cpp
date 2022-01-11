@@ -53,12 +53,12 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 				obj->dec_val(2);
 				WAIT_STATE(ch, PULSE_VIOLENCE);
 				if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS)) {
-					call_magic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+					CallMagic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 				} else {
 					const auto people_copy = world[ch->in_room]->people;
 					for (const auto tch : people_copy) {
 						if (ch != tch) {
-							call_magic(ch, tch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+							CallMagic(ch, tch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 						}
 					}
 				}
@@ -78,7 +78,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 					tch = ch;
 				}
 			} else {
-				if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom)) {
+				if (!FindCastTarget(spellnum, argument, ch, &tch, &tobj, &troom)) {
 					return;
 				}
 			}
@@ -122,7 +122,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 
 			obj->dec_val(2);
 			WAIT_STATE(ch, PULSE_VIOLENCE);
-			call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			break;
 
 		case OBJ_DATA::ITEM_SCROLL:
@@ -138,7 +138,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 			spellnum = GET_OBJ_VAL(obj, 1);
 			if (!*argument)
 				tch = ch;
-			else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
+			else if (!FindCastTarget(spellnum, argument, ch, &tch, &tobj, &troom))
 				return;
 
 			if (!obj->get_action_description().empty()) {
@@ -151,7 +151,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			for (i = 1; i <= 3; i++) {
-				if (call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
+				if (CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
 					break;
 				}
 			}
@@ -177,7 +177,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			for (i = 1; i <= 3; i++) {
-				if (call_magic(ch, ch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
+				if (CallMagic(ch, ch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
 					break;
 				}
 			}

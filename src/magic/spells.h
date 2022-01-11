@@ -500,7 +500,7 @@ std::optional<CastPhraseList> get_cast_phrase(int spell);
 
 // basic magic calling functions
 
-int fix_name_and_find_spell_num(char *name);
+int FixNameAndFindSpellNum(char *name);
 
 bool catch_bloody_corpse(OBJ_DATA *l);
 

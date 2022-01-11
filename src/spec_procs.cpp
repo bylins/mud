@@ -730,10 +730,10 @@ void init_guilds(void) {
 				graceful_exit(1);
 			}
 			if ((spellnum = atoi(line)) == 0 || spellnum > SPELLS_COUNT) {
-				spellnum = fix_name_and_find_spell_num(line);
+				spellnum = FixNameAndFindSpellNum(line);
 			}
 			if ((skillnum = atoi(line1)) == 0 || skillnum > MAX_SKILL_NUM) {
-				skillnum = fix_name_and_find_skill_num(line1);
+				skillnum = FixNameAndFindSkillNum(line1);
 			}
 
 			if ((featnum = atoi(line1)) == 0 || featnum >= MAX_FEATS) {
@@ -797,10 +797,10 @@ void init_guilds(void) {
 				if (strchr("!1xX", *(line3 + i)))
 					SET_BIT(ptr->alignment, (1 << i));
 			if ((spellnum = atoi(line4)) == 0 || spellnum > SPELLS_COUNT) {
-				spellnum = fix_name_and_find_spell_num(line4);
+				spellnum = FixNameAndFindSpellNum(line4);
 			}
 			if ((skillnum = atoi(line5)) == 0 || skillnum > MAX_SKILL_NUM) {
-				skillnum = fix_name_and_find_skill_num(line5);
+				skillnum = FixNameAndFindSkillNum(line5);
 			}
 
 			if ((featnum = atoi(line5)) == 0 || featnum >= MAX_FEATS) {
@@ -1021,7 +1021,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const ESkill skill_no = fix_name_and_find_skill_num(argument);
+			const ESkill skill_no = FixNameAndFindSkillNum(argument);
 			if ((SKILL_INVALID != skill_no
 				&& skill_no <= MAX_SKILL_NUM)) {
 				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
@@ -1056,7 +1056,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const int spell_no = fix_name_and_find_spell_num(argument);
+			const int spell_no = FixNameAndFindSpellNum(argument);
 			if (spell_no > 0
 				&& spell_no <= SPELLS_COUNT) {
 				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
@@ -1297,7 +1297,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const ESkill skill_no = fix_name_and_find_skill_num(argument);
+			const ESkill skill_no = FixNameAndFindSkillNum(argument);
 			if (SKILL_INVALID != skill_no
 				&& skill_no <= MAX_SKILL_NUM) {
 				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
@@ -1378,7 +1378,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 				}
 			}
 
-			const int spell_no = fix_name_and_find_spell_num(argument);
+			const int spell_no = FixNameAndFindSpellNum(argument);
 			if (spell_no > 0 && spell_no <= SPELLS_COUNT) {
 				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
@@ -2594,18 +2594,18 @@ int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	if ((GET_REAL_LEVEL(ch) > 13) && (number(0, 10) == 0)) {
-		cast_spell(ch, target, NULL, NULL, SPELL_SLEEP, SPELL_SLEEP);
+		CastSpell(ch, target, NULL, NULL, SPELL_SLEEP, SPELL_SLEEP);
 	}
 
 	if ((GET_REAL_LEVEL(ch) > 7) && (number(0, 8) == 0)) {
-		cast_spell(ch, target, NULL, NULL, SPELL_BLINDNESS, SPELL_BLINDNESS);
+		CastSpell(ch, target, NULL, NULL, SPELL_BLINDNESS, SPELL_BLINDNESS);
 	}
 
 	if ((GET_REAL_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch)) {
-			cast_spell(ch, target, NULL, NULL, SPELL_ENERGY_DRAIN, SPELL_ENERGY_DRAIN);
+			CastSpell(ch, target, NULL, NULL, SPELL_ENERGY_DRAIN, SPELL_ENERGY_DRAIN);
 		} else if (IS_GOOD(ch)) {
-			cast_spell(ch, target, NULL, NULL, SPELL_DISPEL_EVIL, SPELL_DISPEL_EVIL);
+			CastSpell(ch, target, NULL, NULL, SPELL_DISPEL_EVIL, SPELL_DISPEL_EVIL);
 		}
 	}
 
@@ -2615,26 +2615,26 @@ int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	switch (GET_REAL_LEVEL(ch)) {
 		case 4:
-		case 5: cast_spell(ch, target, NULL, NULL, SPELL_MAGIC_MISSILE, SPELL_MAGIC_MISSILE);
+		case 5: CastSpell(ch, target, NULL, NULL, SPELL_MAGIC_MISSILE, SPELL_MAGIC_MISSILE);
 			break;
 		case 6:
-		case 7: cast_spell(ch, target, NULL, NULL, SPELL_CHILL_TOUCH, SPELL_CHILL_TOUCH);
+		case 7: CastSpell(ch, target, NULL, NULL, SPELL_CHILL_TOUCH, SPELL_CHILL_TOUCH);
 			break;
 		case 8:
-		case 9: cast_spell(ch, target, NULL, NULL, SPELL_BURNING_HANDS, SPELL_BURNING_HANDS);
+		case 9: CastSpell(ch, target, NULL, NULL, SPELL_BURNING_HANDS, SPELL_BURNING_HANDS);
 			break;
 		case 10:
-		case 11: cast_spell(ch, target, NULL, NULL, SPELL_SHOCKING_GRASP, SPELL_SHOCKING_GRASP);
+		case 11: CastSpell(ch, target, NULL, NULL, SPELL_SHOCKING_GRASP, SPELL_SHOCKING_GRASP);
 			break;
 		case 12:
-		case 13: cast_spell(ch, target, NULL, NULL, SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT);
+		case 13: CastSpell(ch, target, NULL, NULL, SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT);
 			break;
 		case 14:
 		case 15:
 		case 16:
-		case 17: cast_spell(ch, target, NULL, NULL, SPELL_COLOR_SPRAY, SPELL_COLOR_SPRAY);
+		case 17: CastSpell(ch, target, NULL, NULL, SPELL_COLOR_SPRAY, SPELL_COLOR_SPRAY);
 			break;
-		default: cast_spell(ch, target, NULL, NULL, SPELL_FIREBALL, SPELL_FIREBALL);
+		default: CastSpell(ch, target, NULL, NULL, SPELL_FIREBALL, SPELL_FIREBALL);
 			break;
 	}
 

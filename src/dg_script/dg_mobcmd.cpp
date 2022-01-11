@@ -970,7 +970,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // increases spells & skills
 const char *skill_name(int num);
 const char *spell_name(int num);
-int fix_name_and_find_spell_num(char *name);
+int FixNameAndFindSpellNum(char *name);
 
 void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
@@ -1044,7 +1044,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
+	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
 		isSkill = 1;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskillturn: %s skill/recipe not found", skillname);
@@ -1104,7 +1104,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
+	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskilladd: %s skill/recipe not found", skillname);
@@ -1150,7 +1150,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
+	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
 		mob_log(ch, "mspellturn: spell not found");
 		return;
 	}
@@ -1199,7 +1199,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
 		mob_log(ch, "mspellturntemp: spell not found");
 		return;
 	}
@@ -1241,7 +1241,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
+	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
 		mob_log(ch, "mspelladd: skill not found");
 		return;
 	}
@@ -1279,7 +1279,7 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
 		mob_log(ch, "mspellitem: spell not found");
 		return;
 	}

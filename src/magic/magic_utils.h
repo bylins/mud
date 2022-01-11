@@ -7,17 +7,17 @@ class CHAR_DATA;
 class ROOM_DATA;
 class OBJ_DATA;
 
-ESkill find_skill_num(const char *name);
-ESkill fix_name_and_find_skill_num(char *name);
-ESkill fix_name_and_find_skill_num(std::string &name);
-int find_spell_num(const char *name);
-int fix_name_and_find_spell_num(char *name);
-int fix_name_and_find_spell_num(std::string &name);
-int find_cast_target(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, OBJ_DATA **tobj, ROOM_DATA **troom);
-void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj);
-int call_magic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level);
-int spell_use_success(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int spellnum);
-int spell_create_level(const CHAR_DATA *ch, int spellnum);
-int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
+ESkill FindSkillNum(const char *name);
+ESkill FixNameAndFindSkillNum(char *name);
+ESkill FixNameFndFindSkillNum(std::string &name);
+int FindSpellNum(const char *name);
+int FixNameAndFindSpellNum(char *name);
+int FixNameAndFindSpellNum(std::string &name);
+int FindCastTarget(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, OBJ_DATA **tobj, ROOM_DATA **troom);
+void SaySpell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj);
+int CallMagic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level);
+int CalculateCastSuccess(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int spellnum);
+int CalculateRequiredLevel(const CHAR_DATA *ch, int spellnum);
+int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
 
 #endif // __SPELL_PARSER_HPP__

@@ -2394,7 +2394,7 @@ void find_replacement(void *go,
 				strcpy(str, "1");
 			}
 		} else if (!str_cmp(field, "can_get_skill")) {
-			if ((num = fix_name_and_find_skill_num(subfield)) > 0) {
+			if ((num = FixNameAndFindSkillNum(subfield)) > 0) {
 				if (IsAbleToGetSkill(c, num)) {
 					strcpy(str, "1");
 				} else {
@@ -2406,7 +2406,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "can_get_spell")) {
-			if ((num = fix_name_and_find_spell_num(subfield)) > 0) {
+			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
 				if (can_get_spell(c, num)) {
 					strcpy(str, "1");
 				} else {
@@ -2495,7 +2495,7 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "maxskill")) {
-			const ESkill skillnum = fix_name_and_find_skill_num(subfield);
+			const ESkill skillnum = FixNameAndFindSkillNum(subfield);
 			if (skillnum > 0) {
 				sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
 			} else {
@@ -2637,7 +2637,7 @@ void find_replacement(void *go,
 			//тупизм какой-то проверять аффекты обездвижен,летит и т.п.
 			//к тому же они в том списке не все кличи например никак там не отображаются
 		else if (!str_cmp(field, "affected_by")) {
-			if ((num = fix_name_and_find_spell_num(subfield)) > 0) {
+			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
 				sprintf(str, "%d", (int) affected_by_spell(c, num));
 			}
 		} else if (!str_cmp(field, "action")) {

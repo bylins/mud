@@ -3809,7 +3809,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 				if (!PUNCTUAL_WAITLESS(ch)) {
 					PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 				}
-				call_magic(ch, victim, nullptr, nullptr, ESpell::SPELL_PALADINE_INSPIRATION, ch->get_level());
+				CallMagic(ch, victim, nullptr, nullptr, ESpell::SPELL_PALADINE_INSPIRATION, ch->get_level());
 			}
 		}
 	}

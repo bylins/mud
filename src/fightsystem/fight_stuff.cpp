@@ -603,7 +603,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer) {
 			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
 		GET_POS(ch) = POS_STANDING;
-		call_magic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell, GET_REAL_LEVEL(ch));
+		CallMagic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell, GET_REAL_LEVEL(ch));
 		GET_POS(ch) = pos;
 	}
 }

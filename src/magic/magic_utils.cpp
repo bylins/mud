@@ -24,7 +24,7 @@
 #include "skills_info.h"
 #include "magic_rooms.h"
 
-extern struct spell_create_type spell_create[];
+//extern struct spell_create_type spell_create[];
 char cast_argument[MAX_STRING_LENGTH];
 
 #define SpINFO spell_info[spellnum]
@@ -33,10 +33,10 @@ char cast_argument[MAX_STRING_LENGTH];
 extern int what_sky;
 
 // local functions
-void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj);
-int get_zone_rooms(int, int *, int *);
+//void SaySpell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj);
+//int get_zone_rooms(int, int *, int *);
 
-int spell_create_level(const CHAR_DATA *ch, int spellnum) {
+int CalculateRequiredLevel(const CHAR_DATA *ch, int spellnum) {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 
 	if (required_level >= LVL_GOD)
@@ -49,8 +49,8 @@ int spell_create_level(const CHAR_DATA *ch, int spellnum) {
 	return MAX(1, required_level);
 }
 
-// say_spell erodes buf, buf1, buf2
-void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
+// SaySpell erodes buf, buf1, buf2
+void SaySpell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 	char lbuf[256];
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 		*helpee_vict, *damagee_vict, *format;
@@ -60,8 +60,8 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 	// Say phrase ?
 	const auto &cast_phrase_list = get_cast_phrase(spellnum);
 	if (!cast_phrase_list) {
-		sprintf(buf, "[ERROR]: say_spell: для спелла %d не объявлена cast_phrase", spellnum);
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", spellnum);
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
 		return;
 	}
 	if (IS_NPC(ch)) {
@@ -118,13 +118,13 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 		helpee_vict = "$n подмигнул$g вам и произнес$q : '%s'.";
 	}
 
-	if (tch != NULL && IN_ROOM(tch) == ch->in_room) {
+	if (tch != nullptr && IN_ROOM(tch) == ch->in_room) {
 		if (tch == ch) {
 			format = say_to_self;
 		} else {
 			format = say_to_other;
 		}
-	} else if (tobj != NULL && (tobj->get_in_room() == ch->in_room || tobj->get_carried_by() == ch)) {
+	} else if (tobj != nullptr && (tobj->get_in_room() == ch->in_room || tobj->get_carried_by() == ch)) {
 		format = say_to_obj_vis;
 	} else {
 		format = say_to_something;
@@ -151,7 +151,7 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 
 	act(buf1, 1, ch, tobj, tch, TO_ARENA_LISTEN);
 
-	if (tch != NULL
+	if (tch != nullptr
 		&& tch != ch
 		&& IN_ROOM(tch) == ch->in_room
 		&& !AFF_FLAGGED(tch, EAffectFlag::AFF_DEAFNESS)) {
@@ -162,7 +162,7 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 			sprintf(buf1, helpee_vict,
 					IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW | SPELL_TEMP) ? spell_name(spellnum) : buf);
 		}
-		act(buf1, FALSE, ch, NULL, tch, TO_VICT);
+		act(buf1, false, ch, nullptr, tch, TO_VICT);
 	}
 }
 
@@ -173,7 +173,7 @@ void say_spell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
  */
 
 template<typename T>
-void fix_name(T &name) {
+void FixName(T &name) {
 	size_t pos = 0;
 	while ('\0' != name[pos] && pos < MAX_STRING_LENGTH) {
 		if (('.' == name[pos]) || ('_' == name[pos])) {
@@ -183,11 +183,7 @@ void fix_name(T &name) {
 	}
 }
 
-void fix_name_feat(char *name) {
-	fix_name(name);
-}
-
-ESkill find_skill_num(const char *name) {
+ESkill FindSkillNum(const char *name) {
 	int ok;
 	char const *temp, *temp2;
 	char first[256], first2[256];
@@ -197,13 +193,13 @@ ESkill find_skill_num(const char *name) {
 			return (index);
 		}
 
-		ok = TRUE;
+		ok = true;
 		// It won't be changed, but other uses of this function elsewhere may.
 		temp = any_one_arg(skill_info[index].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
 			if (!is_abbrev(first2, first)) {
-				ok = FALSE;
+				ok = false;
 			}
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
@@ -217,13 +213,12 @@ ESkill find_skill_num(const char *name) {
 	return SKILL_INVALID;
 }
 
-int find_spell_num(const char *name) {
+int FindSpellNum(const char *name) {
 	int index, ok;
-	int use_syn = 0;
 	char const *temp, *temp2, *realname;
 	char first[256], first2[256];
 
-	use_syn = (((ubyte) *name <= (ubyte) 'z')
+	int use_syn = (((ubyte) *name <= (ubyte) 'z')
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
 
@@ -234,13 +229,13 @@ int find_spell_num(const char *name) {
 			continue;
 		if (is_abbrev(name, realname))
 			return (index);
-		ok = TRUE;
+		ok = true;
 		// It won't be changed, but other uses of this function elsewhere may.
 		temp = any_one_arg(realname, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
 			if (!is_abbrev(first2, first))
-				ok = FALSE;
+				ok = false;
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
 		}
@@ -251,108 +246,86 @@ int find_spell_num(const char *name) {
 	return (-1);
 }
 
-ESkill fix_name_and_find_skill_num(char *name) {
-	fix_name(name);
-	return find_skill_num(name);
+ESkill FixNameAndFindSkillNum(char *name) {
+	FixName(name);
+	return FindSkillNum(name);
 }
 
-ESkill fix_name_and_find_skill_num(std::string &name) {
-	fix_name(name);
-	return find_skill_num(name.c_str());
+ESkill FixNameFndFindSkillNum(std::string &name) {
+	FixName(name);
+	return FindSkillNum(name.c_str());
 }
 
-int fix_name_and_find_spell_num(char *name) {
-	fix_name(name);
-	return find_spell_num(name);
+int FixNameAndFindSpellNum(char *name) {
+	FixName(name);
+	return FindSpellNum(name);
 }
 
-int fix_name_and_find_spell_num(std::string &name) {
-	fix_name(name);
-	return find_spell_num(name.c_str());
+int FixNameAndFindSpellNum(std::string &name) {
+	FixName(name);
+	return FindSpellNum(name.c_str());
 }
 
-int may_cast_in_nomagic(CHAR_DATA *caster, CHAR_DATA * /*victim*/, int spellnum) {
-	// More than 33 level - may cast always
-	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, MAG_WARCRY))
-		return TRUE;
-	if (IS_NPC(caster) && !(AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)))
-		return TRUE;
+bool MayCastInNomagic(CHAR_DATA *caster, int spellnum) {
+	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, MAG_WARCRY)) {
+		return true;
+	}
 
-	return FALSE;
+	return false;
 }
 
-// может ли кастер зачитать заклинание?
-int may_cast_here(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum) {
+bool MayCastHere(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum) {
 	int ignore;
 
-	//  More than 33 level - may cast always
-	if (IS_GRGOD(caster)) {
-		return TRUE;
+	if (IS_GRGOD(caster) || !ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL)) {
+		return true;
 	}
 
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOBATTLE) && SpINFO.violent) {
-		return FALSE;
+		return false;
 	}
 
-	// не в мирке можно кастовать все что угодно
-	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL)) {
-		return TRUE;
-	}
-
-	// Проверяю, что закл имеет одну из допустимых комбинаций параметров
 	ignore = IS_SET(SpINFO.targets, TAR_IGNORE)
 		|| IS_SET(SpINFO.routines, MAG_MASSES)
 		|| IS_SET(SpINFO.routines, MAG_GROUPS);
 
-	// цели нет
 	if (!ignore && !victim) {
-		return TRUE;
+		return true;
 	}
 
 	if (ignore && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_GROUPS)) {
 		if (SpINFO.violent) {
-			return FALSE;    // нельзя злые кастовать
+			return false;
 		}
-		// если игнорируется цель, то должен быть GROUP или MASS
-		// в противном случае на цель кастовать нельзя
-		return victim == 0 ? TRUE : FALSE;
+		return victim == nullptr ? true : false;
 	}
-	// остальные комбинации не проверяю
 
-	// индивидуальная цель
 	ignore = victim
 		&& (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)
 			|| IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
 		&& !IS_SET(SpINFO.routines, MAG_AREAS);
 
-	// начинаю проверять условия каста
-	// Для добрых заклинаний - проверка на противника цели
-	// Для злых заклинаний - проверка на цель
 	for (const auto ch_vict : world[caster->in_room]->people) {
 		if (IS_IMMORTAL(ch_vict))
-			continue;    // имморталы на этот процесс не влияют
+			continue;
 		if (!HERE(ch_vict))
-			continue;    // лд не участвуют
+			continue;
 		if (SpINFO.violent && same_group(caster, ch_vict))
-			continue;    // на согрупника кастовться не будет
+			continue;
 		if (ignore && ch_vict != victim)
-			continue;    // только по 1 чару, и не текущему
-		// ch_vict может стать потунциальной жертвой
+			continue;
 		if (SpINFO.violent) {
 			if (!may_kill_here(caster, ch_vict, NoArgument)) {
-				return 0;
+				return false;
 			}
 		} else {
 			if (!may_kill_here(caster, ch_vict->get_fighting(), NoArgument)) {
-				return 0;
+				return false;
 			}
 		}
 	}
 
-	// check_pkill вызвать не могу, т.к. имя жертвы безвозвратно утеряно
-
-	// Ура! Можно
-	return (TRUE);
+	return true;
 }
 
 /*
@@ -362,7 +335,7 @@ int may_cast_here(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum) {
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int call_magic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level) {
+int CallMagic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level) {
 
 	if (spellnum < 1 || spellnum > SPELLS_COUNT)
 		return 0;
@@ -371,29 +344,21 @@ int call_magic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *
 //		return 0;
 //	}
 
-	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !may_cast_in_nomagic(caster, cvict, spellnum)) {
+	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !MayCastInNomagic(caster, spellnum)) {
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
-		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, caster, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		return 0;
 	}
 
-	if (!may_cast_here(caster, cvict, spellnum)) {
+	if (!MayCastHere(caster, cvict, spellnum)) {
 		if (IS_SET(SpINFO.routines, MAG_WARCRY)) {
 			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
 			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.",
-				FALSE,
-				caster,
-				0,
-				0,
-				TO_ROOM | TO_ARENA_LISTEN);
+				false, caster, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		} else {
 			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
 			act("Яркая вспышка на миг осветила комнату, и тут же погасла.",
-				FALSE,
-				caster,
-				0,
-				0,
-				TO_ROOM | TO_ARENA_LISTEN);
+				false, caster, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		return 0;
 	}
@@ -435,7 +400,7 @@ const char *what_weapon[] = {"плеть",
 * Поиск предмета для каста локейта (без учета видимости для чара и с поиском
 * как в основном списке, так и в личных хранилищах с почтой).
 */
-OBJ_DATA *find_obj_for_locate(CHAR_DATA *ch, const char *name) {
+OBJ_DATA *FindObjForLocate(CHAR_DATA *ch, const char *name) {
 //	OBJ_DATA *obj = ObjectAlias::locate_object(name);
 	OBJ_DATA *obj = get_obj_vis_for_locate(ch, name);
 	if (!obj) {
@@ -447,22 +412,22 @@ OBJ_DATA *find_obj_for_locate(CHAR_DATA *ch, const char *name) {
 	return obj;
 }
 
-int find_cast_target(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, OBJ_DATA **tobj, ROOM_DATA **troom) {
-	*tch = NULL;
-	*tobj = NULL;
+int FindCastTarget(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, OBJ_DATA **tobj, ROOM_DATA **troom) {
+	*tch = nullptr;
+	*tobj = nullptr;
 	*troom = world[ch->in_room];
 	if (spellnum == SPELL_CONTROL_WEATHER) {
-		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
+		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
 			send_to_char("Не указан тип погоды.\r\n", ch);
-			return FALSE;
+			return false;
 		} else
 			what_sky >>= 1;
 	}
 
 	if (spellnum == SPELL_CREATE_WEAPON) {
-		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0) {
+		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
 			send_to_char("Не указан тип оружия.\r\n", ch);
-			return FALSE;
+			return false;
 		} else
 			what_sky = 5 + (what_sky >> 1);
 	}
@@ -470,40 +435,40 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch
 	strcpy(cast_argument, t);
 
 	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
-		return TRUE;
+		return true;
 	if (IS_SET(SpINFO.targets, TAR_IGNORE))
-		return TRUE;
+		return true;
 	else if (*t) {
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL) {
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != nullptr) {
 				if (SpINFO.violent && !check_pkill(ch, *tch, t))
-					return FALSE;
-				return TRUE;
+					return false;
+				return true;
 			}
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL) {
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != nullptr) {
 				// чтобы мобов не чекали
 				if (IS_NPC(ch) || !IS_NPC(*tch)) {
 					if (SpINFO.violent && !check_pkill(ch, *tch, t)) {
-						return FALSE;
+						return false;
 					}
-					return TRUE;
+					return true;
 				}
 				if (!IS_NPC(ch)) {
 					struct follow_type *k, *k_next;
-					int tnum = 1, fnum = 0; // ищем одноимённые цели
+					int fnum = 0; // ищем одноимённые цели
 					char tmpname[MAX_INPUT_LENGTH];
 					char *tmp = tmpname;
 					strcpy(tmp, t);
-					tnum = get_number(&tmp); // возвращает 1, если первая цель
+					int tnum = get_number(&tmp); // возвращает 1, если первая цель
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
 						if (isname(tmp, k->follower->get_pc_name())) {
 							if (++fnum == tnum) {// нашли!!
 								*tch = k->follower;
-								return TRUE;
+								return true;
 							}
 						}
 					}
@@ -512,24 +477,24 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_INV))
-			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != NULL)
-				return TRUE;
+			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr)
+				return true;
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_EQUIP)) {
 			int tmp;
-			if ((*tobj = get_object_in_equip_vis(ch, t, ch->equipment, &tmp)) != NULL)
-				return TRUE;
+			if ((*tobj = get_object_in_equip_vis(ch, t, ch->equipment, &tmp)) != nullptr)
+				return true;
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))
-			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != NULL)
-				return TRUE;
+			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
+				return true;
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD)) {
 //			if ((*tobj = get_obj_vis(ch, t)) != NULL)
-//				return TRUE;
+//				return true;
 			if (spellnum == SPELL_LOCATE_OBJECT) {
-				*tobj = find_obj_for_locate(ch, t);
+				*tobj = FindObjForLocate(ch, t);
 			} else {
 				*tobj = get_obj_vis(ch, t);
 			}
@@ -539,18 +504,18 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch
 		}
 	} else {
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_SELF))
-			if (ch->get_fighting() != NULL) {
+			if (ch->get_fighting() != nullptr) {
 				*tch = ch;
-				return TRUE;
+				return true;
 			}
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_VICT))
-			if (ch->get_fighting() != NULL) {
+			if (ch->get_fighting() != nullptr) {
 				*tch = ch->get_fighting();
-				return TRUE;
+				return true;
 			}
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent) {
 			*tch = ch;
-			return TRUE;
+			return true;
 		}
 	}
 	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
@@ -563,23 +528,22 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
 				? "ЧТО" : "КОГО");
 	send_to_char(buf, ch);
-	return FALSE;
+	return false;
 }
 
 /*
- * cast_spell is used generically to cast any spoken spell, assuming we
+ * CastSpell is used generically to cast any spoken spell, assuming we
  * already have the target char/obj and spell number.  It checks all
  * restrictions, etc., prints the words, etc.
  *
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, int spellnum, int spell_subst) {
+int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, int spellnum, int spell_subst) {
 	int ignore;
-	ESkill skillnum = SKILL_INVALID;
 
 	if (spellnum < 0 || spellnum > SPELLS_COUNT) {
-		log("SYSERR: cast_spell trying to call spellnum %d/%d.\n", spellnum, SPELLS_COUNT);
+		log("SYSERR: CastSpell trying to call spellnum %d/%d.\n", spellnum, SPELLS_COUNT);
 		return (0);
 	}
 //проверка на алайнмент мобов
@@ -589,9 +553,9 @@ int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, 
 			return (0);
 	}
 
-	if (!troom)
-		// Вызвали с пустой комнатой значит будем кастить тут
+	if (!troom) {
 		troom = world[ch->in_room];
+	}
 
 	if (GET_POS(ch) < SpINFO.min_position) {
 		switch (GET_POS(ch)) {
@@ -646,30 +610,30 @@ int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, 
 		if (ignore) { // индивидуальная цель
 			if (SpINFO.violent) {
 				send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
-				return FALSE;    // нельзя злые кастовать
+				return false;    // нельзя злые кастовать
 			}
 		}
 		for (const auto ch_vict : world[ch->in_room]->people) {
 			if (SpINFO.violent) {
 				if (ch_vict == tch) {
 					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
-					return FALSE;
+					return false;
 				}
 			} else {
 				if (ch_vict == tch && !same_group(ch, ch_vict)) {
 					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
-					return FALSE;
+					return false;
 				}
 			}
 		}
 	}
 
-	skillnum = get_magic_skill_number_by_spell(spellnum);
+	ESkill skillnum = get_magic_skill_number_by_spell(spellnum);
 	if (skillnum != SKILL_INVALID && skillnum != SKILL_UNDEF) {
 		TrainSkill(ch, skillnum, true, tch);
 	}
-	// Комнату тут в say_spell не обрабатываем - будет сказал "что-то"
-	say_spell(ch, spellnum, tch, tobj);
+	// Комнату тут в SaySpell не обрабатываем - будет сказал "что-то"
+	SaySpell(ch, spellnum, tch, tobj);
 	// Уменьшаем кол-во заклов в меме
 	if (GET_SPELL_MEM(ch, spell_subst) > 0) {
 		GET_SPELL_MEM(ch, spell_subst)--;
@@ -688,26 +652,28 @@ int cast_spell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, 
 		affect_total(ch);
 	}
 
-	return (call_magic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)));
+	return (CallMagic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)));
 }
 
-int spell_use_success(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int spellnum) {
-	int prob = 100;
-	int skill;
+int CalculateCastSuccess(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int spellnum) {
+	int prob = 0;
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
-		return TRUE;
+		return true;
 	}
 
 	switch (casting_type) {
 		case SAVING_STABILITY:
-		case SAVING_NONE: prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
-
+		case SAVING_NONE:
+			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
 			if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_MAGE))
 				|| (IS_CLERIC(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))
 				|| (IS_PALADINE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE))
 				|| (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT))) {
 				prob += 10;
 			}
+			break;
+		default:
+			prob = 100;
 			break;
 	}
 
@@ -733,11 +699,9 @@ int spell_use_success(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int sp
 
 	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
 	if (skill_number > 0) {
-		skill = ch->get_skill(skill_number) / 20;
-		prob += skill;
+		prob += ch->get_skill(skill_number) / 20;
 	}
-	//prob*=ch->get_cond_penalty(P_CAST);
-	// умения магии дают + к успеху колдовства
+
 	return (prob > number(0, 100));
 }
 

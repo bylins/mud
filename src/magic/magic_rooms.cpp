@@ -184,7 +184,7 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 			if (ch) {
 				const auto people_copy = room->people;
 				for (const auto tch : people_copy) {
-					if (!call_magic(ch, tch, nullptr, nullptr, SPELL_POISON, GET_REAL_LEVEL(ch))) {
+					if (!CallMagic(ch, tch, nullptr, nullptr, SPELL_POISON, GET_REAL_LEVEL(ch))) {
 						aff->duration = 0;
 						break;
 					}
@@ -201,7 +201,7 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 		case SPELL_THUNDERSTORM:
 			switch (aff->duration) {
 				case 8:
-					if (!call_magic(ch, nullptr, nullptr, nullptr, SPELL_CONTROL_WEATHER, GET_REAL_LEVEL(ch))) {
+					if (!CallMagic(ch, nullptr, nullptr, nullptr, SPELL_CONTROL_WEATHER, GET_REAL_LEVEL(ch))) {
 						aff->duration = 0;
 						break;
 					}
