@@ -8,7 +8,7 @@
 #define __CRAFT_HPP__
 
 #include "obj.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <stdarg.h>
 

@@ -3,7 +3,7 @@
 #include "chars/char.h"
 #include "obj.h"
 #include "room.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "comm.h"
 #include "skills.h"
 #include "magic/spells.h"

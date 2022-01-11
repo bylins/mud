@@ -46,7 +46,7 @@
 #include "shop_ext.h"
 #include "skills.h"
 #include "magic/spells.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "world_objects.h"
 #include "skills_info.h"

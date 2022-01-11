@@ -4,7 +4,7 @@
 #ifndef NOOB_HPP_INCLUDED
 #define NOOB_HPP_INCLUDED
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <string>
 #include <vector>

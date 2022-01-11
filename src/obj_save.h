@@ -9,7 +9,7 @@
 
 #include "obj_save.h"
 #include "obj.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 

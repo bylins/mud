@@ -1,7 +1,7 @@
 #ifndef _ACT_MOVEMENT_HPP_
 #define _ACT_MOVEMENT_HPP_
 
-#include "structs.h"
+#include "structs/structs.h"
 
 class CHAR_DATA;    // to avoid inclusion
 class OBJ_DATA;

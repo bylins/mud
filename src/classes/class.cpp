@@ -44,7 +44,7 @@
 #include "exchange.h"
 #include "logger.h"
 #include "utils/utils.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 #include "skills_info.h"

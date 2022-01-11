@@ -7,7 +7,7 @@
 #include "logger.h"
 #include "utils/utils.h"
 #include "pugixml.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "screen.h"
 #include "chars/char.h"
 #include "comm.h"

@@ -7,7 +7,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include <string>
 
 class CHAR_DATA;

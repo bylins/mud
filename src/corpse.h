@@ -6,7 +6,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer);
 OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer = NULL);

@@ -13,7 +13,7 @@
 #define _CONSTANTS_H_
 
 #include "classes/class_constants.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 

@@ -3,7 +3,7 @@
 
 #include "blocking_queue.h"
 #include "birthplaces.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <cstdio>
 #include <array>

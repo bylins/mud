@@ -6,7 +6,7 @@
 #ifndef __ACCOUNTS_HPP__
 #define __ACCOUNTS_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <string>
 #include <vector>

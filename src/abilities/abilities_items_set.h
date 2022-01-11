@@ -7,7 +7,7 @@
 
 #include "obj.h"
 #include "skills.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "utils/utils.h"
 
 struct TechniqueItem {

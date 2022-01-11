@@ -1,6 +1,6 @@
 #pragma once
 
-#include "structs.h"
+#include "structs/structs.h"
 
 zone_rnum get_zone_rnum_by_room_vnum(room_vnum vnum);
 zone_rnum get_zone_rnum_by_obj_vnum(obj_vnum vnum);

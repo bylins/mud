@@ -7,7 +7,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "quests/quested.h"
 #include "mobmax.h"
 #include "remember.h"

@@ -150,8 +150,8 @@ set(SOURCES
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
-		src/structs.cpp
-		src/structs.cpp
+        src/structs/structs.cpp
+        src/structs/structs.cpp
 		src/stuff.cpp
 		src/utils/flags.hpp
 		src/utils/id_converter.cpp
@@ -173,8 +173,8 @@ set(SOURCES
 		src/utils/utils_debug.cpp
 		src/speedwalks.cpp
 		src/shops_implementation.cpp
-		src/radix_trie.cpp
-		src/compact_trie.cpp
+        src/structs/radix_trie.cpp
+        src/structs/compact_trie.cpp
 		src/id.cpp
 		src/stigmas.cpp
 		src/zone.table.cpp
@@ -287,8 +287,8 @@ set(HEADERS
 		src/utils/id_converter.h
 		src/utils/utils_find_obj_id_by_vnum.h
 		src/id.h
-		src/compact_trie.h
-		src/radix_trie.h
+        src/structs/compact_trie.h
+        src/structs/radix_trie.h
 		src/obj_prototypes.h
 		src/world_objects.h
 		src/utils/utils.string.h
@@ -337,7 +337,7 @@ set(HEADERS
 		src/dg_script/dg_scripts.h
 		src/dictionary.h
 		src/diskio.h
-		src/structs_double_map.h
+		src/structs/structs_double_map.h
 		src/dps.h
 		src/exchange.h
 		src/ext_money.h
@@ -411,7 +411,7 @@ set(HEADERS
 		src/skills.h
 		src/skills_info.h
 		src/spam.h
-		src/structs.h
+        src/structs/structs.h
 		src/stuff.h
 		src/sysdep.h
 		src/telnet.h

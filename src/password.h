@@ -9,7 +9,7 @@
 #include <string>
 
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 /**
 * Вобщем вынес всю работу с паролями в один файл + прикрутил md5, хотя толку с него сейчас тоже уже не особо много.

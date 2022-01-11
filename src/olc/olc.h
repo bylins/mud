@@ -12,7 +12,7 @@
 #define _OLC_H_
 
 #include "db.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 // * If you don't want a short explanation of each field in your zone files,
 // * change the number below to a 0 instead of a 1.

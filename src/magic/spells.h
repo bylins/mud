@@ -12,7 +12,7 @@
 #define _SPELLS_H_
 
 #include "skills.h"
-#include "structs.h"    // there was defined type "byte" if it had been missing
+#include "structs/structs.h"    // there was defined type "byte" if it had been missing
 #include "classes/class_constants.h"
 
 #include <optional>

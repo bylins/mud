@@ -12,7 +12,7 @@
 #include "remember.h"
 #include "db.h"
 #include "conf.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 
 #include <vector>

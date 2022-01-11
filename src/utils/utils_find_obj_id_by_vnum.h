@@ -2,7 +2,7 @@
 #define __FIND_OBJ_ID_BY_VNUM_HPP__
 
 #include "id.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 class CHAR_DATA;    // to avoid inclusion of "char.hpp"
 class OBJ_DATA;        // to avoid inclusion of "obj.hpp"

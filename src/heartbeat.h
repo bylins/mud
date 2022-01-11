@@ -1,7 +1,7 @@
 #ifndef __HEARTBEAT_HPP__
 #define __HEARTBEAT_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <functional>
 #include <queue>

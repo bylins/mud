@@ -5,7 +5,7 @@
 #ifndef DEATHTRAP_HPP_INCLUDED
 #define DEATHTRAP_HPP_INCLUDED
 
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 

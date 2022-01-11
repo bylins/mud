@@ -3,7 +3,7 @@
 
 #include "cmd_god/shutdown_parameters.h"
 
-#include "structs.h"
+#include "structs/structs.h"
 
 class CHAR_DATA;    // to avoid inclusion of "char.hpp"
 

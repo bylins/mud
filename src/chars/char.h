@@ -13,7 +13,7 @@
 #include "crafts/im.h"
 #include "skills.h"
 #include "utils/utils.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "affects/affect_data.h"
 

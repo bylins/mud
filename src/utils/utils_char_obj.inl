@@ -1,7 +1,7 @@
 #ifndef __CHAR_OBJ_UTILS_HPP__
 #define __CHAR_OBJ_UTILS_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 #include "chars/char.h"
 #include "obj.h"
 #include "utils.h"

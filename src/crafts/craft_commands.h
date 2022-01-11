@@ -1,7 +1,7 @@
 #if !defined __CRAFT_COMMANDS_HPP__
 #define __CRAFT_COMMANDS_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 #include "commands.h"
 
 #include <memory>

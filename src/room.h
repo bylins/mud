@@ -8,7 +8,7 @@
 #include "dg_script/dg_scripts.h"
 #include "obj.h"
 #include "constants.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "affects/affect_data.h"
 

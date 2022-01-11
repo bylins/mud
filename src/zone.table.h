@@ -1,7 +1,7 @@
 #ifndef __ZONE_TABLE_HPP__
 #define __ZONE_TABLE_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <vector>
 

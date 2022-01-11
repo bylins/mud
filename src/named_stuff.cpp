@@ -17,7 +17,7 @@
 #include "pugixml.h"
 #include "logger.h"
 #include "utils/utils.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <list>
 #include <map>

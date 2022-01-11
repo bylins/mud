@@ -7,7 +7,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 // оба списка воткнуты в попытке ускорить работу триггеров на этапе подстановки переменных
 

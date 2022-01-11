@@ -1,7 +1,7 @@
 #include "employ.h"
 
 #include "comm.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "features.h"
 #include "chars/char.h"
 #include "interpreter.h"

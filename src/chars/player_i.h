@@ -6,7 +6,7 @@
 
 #include "reset_stats.h"
 #include "boards/boards_types.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "sysdep.h"
 #include <map>

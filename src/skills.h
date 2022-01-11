@@ -15,7 +15,7 @@
 #ifndef _SKILLS_H_
 #define _SKILLS_H_
 
-#include "structs.h"
+#include "structs/structs.h"
 #include "pugixml.h"
 
 #include <map>

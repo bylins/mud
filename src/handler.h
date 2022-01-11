@@ -18,7 +18,7 @@
 #define _HANDLER_H_
 
 #include "chars/char.h"
-#include "structs.h"    // there was defined type "byte" if it had been missing
+#include "structs/structs.h"    // there was defined type "byte" if it had been missing
 #include "utils/flags.hpp"
 
 struct ROOM_DATA;

@@ -16,7 +16,7 @@
 #define _INTERPRETER_H_
 
 #include "conf.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <string>
 

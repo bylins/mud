@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <array>
 
-#include "structs.h"
+#include "structs/structs.h"
 
 // An affect structure. //
 class IAffectHandler;

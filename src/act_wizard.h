@@ -2,7 +2,7 @@
 #define __ACT_WIZARD_HPP__
 
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <memory>
 #include <map>

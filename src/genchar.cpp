@@ -16,7 +16,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "comm.h"
 #include "logger.h"
 #include "utils/utils.h"

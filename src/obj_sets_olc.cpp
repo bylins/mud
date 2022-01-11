@@ -6,7 +6,7 @@
 #include "obj_prototypes.h"
 #include "conf.h"
 #include "obj_sets_stuff.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "obj.h"
 #include "db.h"
 #include "constants.h"

@@ -1,7 +1,7 @@
 #ifndef __CLASS_HPP__
 #define __CLASS_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 #include "class_constants.h"
 
 #include <array>

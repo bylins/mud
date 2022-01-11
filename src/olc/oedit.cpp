@@ -12,7 +12,7 @@
 #include "obj_prototypes.h"
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "comm.h"
 #include "magic/spells.h"
 #include "logger.h"

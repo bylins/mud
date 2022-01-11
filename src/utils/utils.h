@@ -15,7 +15,7 @@
 #define _UTILS_H_
 
 #include "config.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "pugixml.h"
 #include "classes/class_constants.h"

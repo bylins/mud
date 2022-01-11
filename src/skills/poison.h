@@ -7,7 +7,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "affects/affect_data.h"
 
 void poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int modifier);

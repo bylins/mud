@@ -40,7 +40,7 @@
 #include "skills.h"
 #include "exchange.h"
 #include "sets_drop.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 #include "obj_sets.h"

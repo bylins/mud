@@ -1,7 +1,7 @@
 #ifndef __HEARTBEAT_COMMANDS_HPP__
 #define __HEARTBEAT_COMMANDS_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 #include "commands.h"
 
 namespace heartbeat {

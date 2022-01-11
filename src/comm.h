@@ -15,7 +15,7 @@
 #ifndef _COMM_H_
 #define _COMM_H_
 
-#include "structs.h"
+#include "structs/structs.h"
 #include <string>
 #include <sstream>
 

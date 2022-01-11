@@ -1,7 +1,7 @@
 #ifndef ___MEAT_MAKER_HPP__
 #define ___MEAT_MAKER_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <unordered_map>
 

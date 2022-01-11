@@ -8,7 +8,7 @@
 #include "boards_types.h"
 #include "db.h"
 #include "interpreter.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "sysdep.h"
 

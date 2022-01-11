@@ -7,7 +7,7 @@
 #include "conf.h"
 
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "interpreter.h"
 #include "chars/char_player.h"
 #include "classes/class_constants.h"

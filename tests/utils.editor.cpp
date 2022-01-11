@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <structs.h>
+#include <structs/structs.h>
 #include <utils/utils.h>
 
 #define PIECE_A_OLD	"   Вели"

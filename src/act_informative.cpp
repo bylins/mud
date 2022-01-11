@@ -58,7 +58,7 @@
 #include "utils/utils_char_obj.inl"
 #include "classes/class.h"
 #include "zone.table.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "bonus.h"
 #include "conf.h"

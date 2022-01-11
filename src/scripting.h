@@ -1,7 +1,7 @@
 // Copyright (c) 2011 Posvist
 // Part of Bylins http://www.mud.ru
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <memory>
 #include <string>

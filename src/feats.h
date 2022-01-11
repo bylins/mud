@@ -11,7 +11,7 @@
 
 #include "abilities/abilities_items_set.h"
 #include "skills.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "classes/class_constants.h"
 

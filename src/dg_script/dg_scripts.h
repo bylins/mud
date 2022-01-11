@@ -13,7 +13,7 @@
 #define _DG_SCRIPTS_H_
 
 #include "skills.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "logger.h"
 #include <optional>
 

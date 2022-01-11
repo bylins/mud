@@ -2,7 +2,7 @@
 
 #include "chars/char.h"
 #include "levenshtein.h"
-#include "compact_trie.h"
+#include "structs/compact_trie.h"
 
 #include <iomanip>
 

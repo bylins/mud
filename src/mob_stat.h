@@ -11,7 +11,7 @@
 #include <string>
 
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 /// Статистика по убийствам мобов/мобами с делением на размер группы и месяцы
 namespace mob_stat {

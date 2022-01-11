@@ -10,7 +10,7 @@
 #include <bitset>
 
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "chars/char.h"
 #include "interpreter.h"
 

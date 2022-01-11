@@ -5,7 +5,7 @@
 #ifndef _MODIFY_H_
 #define _MODIFY_H_
 
-#include "structs.h"
+#include "structs/structs.h"
 
 void string_add(DESCRIPTOR_DATA *d, char *str);
 void string_write(DESCRIPTOR_DATA *d, AbstractStringWriter *writer, size_t len, int mailto, void *data);

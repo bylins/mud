@@ -8,7 +8,7 @@
 #include "utils/utils.h"
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 struct HitData {
 	HitData() : weapon(FightSystem::MAIN_HAND), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),

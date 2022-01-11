@@ -10,8 +10,8 @@
 #ifndef _STUFF_HPP_
 #define _STUFF_HPP_
 
-#include "structs_double_map.h"
-#include "structs.h"
+#include "structs/structs_double_map.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "skills.h"
 

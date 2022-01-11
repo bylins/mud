@@ -1,6 +1,6 @@
 #include "msdp_senders.h"
 
-#include "structs.h"
+#include "structs/structs.h"
 #include "telnet.h"
 #include "comm.h"
 #include "msdp_parser.h"

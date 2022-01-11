@@ -2,7 +2,7 @@
 #define __SHOPS_IMPLEMENTATION_HPP__
 
 #include "dictionary.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "obj.h"
 
 #include <vector>
