@@ -1918,6 +1918,9 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			} else {
 				OLC_MOB(d)->char_specials.saved.act.toggle_flag(plane, 1 << bit);
 				medit_disp_mob_flags(d);
+				if (MOB_FLAGGED(OLC_MOB(d), MOB_IGNORE_FORMATION)) {
+					OLC_MOB(d)->set_role(MOB_ROLE_ROGUE, true);
+				}
 				return;
 			}
 

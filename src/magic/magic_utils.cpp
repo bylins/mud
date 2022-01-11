@@ -246,6 +246,10 @@ int FindSpellNum(const char *name) {
 	return (-1);
 }
 
+/*void fix_name_feat(char *name) {
+	fix_name(name);
+}*/
+
 ESkill FixNameAndFindSkillNum(char *name) {
 	FixName(name);
 	return FindSkillNum(name);
@@ -346,7 +350,8 @@ int CallMagic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *r
 
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !MayCastInNomagic(caster, spellnum)) {
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
-		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, caster, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+		act("Магия $n1 потерпела неудачу и развеялась по воздуху.",
+			false, caster, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		return 0;
 	}
 
@@ -458,10 +463,10 @@ int FindCastTarget(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, 
 				}
 				if (!IS_NPC(ch)) {
 					struct follow_type *k, *k_next;
-					int fnum = 0; // ищем одноимённые цели
 					char tmpname[MAX_INPUT_LENGTH];
 					char *tmp = tmpname;
 					strcpy(tmp, t);
+					int fnum = 0; // ищем одноимённые цели
 					int tnum = get_number(&tmp); // возвращает 1, если первая цель
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
@@ -546,11 +551,11 @@ int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, i
 		log("SYSERR: CastSpell trying to call spellnum %d/%d.\n", spellnum, SPELLS_COUNT);
 		return (0);
 	}
-//проверка на алайнмент мобов
 
 	if (tch && ch) {
-		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !SpINFO.violent)
+		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !SpINFO.violent) {
 			return (0);
+		}
 	}
 
 	if (!troom) {
@@ -593,10 +598,12 @@ int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, i
 			   TAR_CHAR_ROOM | TAR_CHAR_WORLD | TAR_FIGHT_SELF | TAR_FIGHT_VICT
 				   | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_WORLD | TAR_OBJ_EQUIP | TAR_ROOM_THIS
 				   | TAR_ROOM_DIR)) {
-		send_to_char("Цель заклинания не доступна.\r\n", ch);
+		send_to_char("Цель заклинания недоступна.\r\n", ch);
 		return (0);
 	}
 
+	// Идея считает, что это условие лищнее, но что-то не вижу, почему. Поэтому на всякий случай - комментариий.
+	//if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
 	if (tch != nullptr && IN_ROOM(tch) != ch->in_room) {
 		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
 			send_to_char("Цель заклинания недоступна.\r\n", ch);

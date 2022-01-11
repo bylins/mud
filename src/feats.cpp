@@ -26,7 +26,7 @@ extern const char *unused_spellname;
 struct FeatureInfoType feat_info[MAX_FEATS];
 
 /* Служебные функции */
-extern void fix_name_feat(char *name);
+//extern void fix_name_feat(char *name);
 void initializeFeatureByDefault(int featureNum);
 void determineFeaturesSpecification(void);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
