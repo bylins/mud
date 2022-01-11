@@ -25,7 +25,7 @@ extern const char *what_weapon[];
 extern int pc_duration(CHAR_DATA *ch, int cnst, int level, int level_divisor, int min, int max);
 /*
  * Функция осуществляет поиск цели для DG_CAST
- * Облегченная версия find_cast_target
+ * Облегченная версия FindCastTarget
  */
 int find_dg_cast_target(int spellnum,
 						const char *t,
@@ -173,7 +173,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 	t = strtok(NULL, "\0");
 
 	// spellnum = search_block(s, spells, 0);
-	spellnum = fix_name_and_find_spell_num(s);
+	spellnum = FixNameAndFindSpellNum(s);
 	if ((spellnum < 1) || (spellnum > SPELLS_COUNT)) {
 		sprintf(buf2, "dg_cast: invalid spell name (%s)", cmd);
 		trig_log(trig, buf2);
@@ -230,7 +230,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 	else
 		*arg = '\0';
 
-	// в find_dg_cast_target можем и не попасть для инита нулями и в call_magic пойдет мусор
+	// в find_dg_cast_target можем и не попасть для инита нулями и в CallMagic пойдет мусор
 	CHAR_DATA *tch = 0;
 	OBJ_DATA *tobj = 0;
 	ROOM_DATA *troom = 0;
@@ -257,7 +257,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 		target = find_dg_cast_target(spellnum, arg, caster, &tch, &tobj, &troom);
 	}
 	if (target) {
-		call_magic(caster, tch, tobj, troom, spellnum, GET_REAL_LEVEL(caster));
+		CallMagic(caster, tch, tobj, troom, spellnum, GET_REAL_LEVEL(caster));
 	} else if (spellnum != SPELL_RESSURECTION && spellnum != SPELL_ANIMATE_DEAD) {
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);
@@ -332,7 +332,7 @@ void do_dg_affect(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* sc
 	}
 
 	// locate spell
-	index_s = fix_name_and_find_spell_num(spell);
+	index_s = FixNameAndFindSpellNum(spell);
 
 	// spell not found
 	if (index_s <= 0) {

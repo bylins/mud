@@ -60,7 +60,7 @@ const char *skill_percent(TRIG_DATA *trig, CHAR_DATA *ch, char *skill) {
 	im_rskill *rs;
 	int rid;
 
-	const ESkill skillnum = fix_name_and_find_skill_num(skill);
+	const ESkill skillnum = FixNameAndFindSkillNum(skill);
 	if (skillnum > 0) {
 		sprintf(retval, "%d", ch->get_trained_skill(skillnum));
 		return retval;
@@ -98,7 +98,7 @@ const char *spell_count(TRIG_DATA *trig, CHAR_DATA *ch, char *spell) {
 	static char retval[256];
 	int spellnum;
 
-	spellnum = fix_name_and_find_spell_num(spell);
+	spellnum = FixNameAndFindSpellNum(spell);
 	if (spellnum <= 0) {
 		sprintf(buf2, "Wrong spell name: %s", spell);
 		trig_log(trig, buf2);
@@ -116,7 +116,7 @@ const char *spell_knowledge(TRIG_DATA *trig, CHAR_DATA *ch, char *spell) {
 	static char retval[256];
 	int spellnum;
 
-	spellnum = fix_name_and_find_spell_num(spell);
+	spellnum = FixNameAndFindSpellNum(spell);
 	if (spellnum <= 0) {
 		sprintf(buf2, "Wrong spell name: %s", spell);
 		trig_log(trig, buf2);

@@ -240,7 +240,7 @@ int cast_potion_spell(CHAR_DATA *ch, OBJ_DATA *obj, int num) {
 	const int level = obj->get_value(init_spell_lvl(num));
 
 	if (spell >= 0 && level >= 0) {
-		return call_magic(ch, ch, NULL, world[ch->in_room], spell, level);
+		return CallMagic(ch, ch, NULL, world[ch->in_room], spell, level);
 	}
 	return 1;
 }

@@ -2732,7 +2732,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 					af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
 					af[0].modifier = GET_REAL_REMORT(ch) / 5 * 2 + GET_REAL_REMORT(ch) * 5;
 					break;
-				case 4:call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_REAL_LEVEL(ch));
+				case 4:CallMagic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_REAL_LEVEL(ch));
 					break;
 				default:break;
 			}
@@ -3806,13 +3806,13 @@ void cast_reaction(CHAR_DATA *victim, CHAR_DATA *caster, int spellnum) {
 	if (!CAN_SEE(victim, caster) && (GET_REAL_INT(victim) > 25 || GET_REAL_INT(victim) > number(10, 25))) {
 		if (!AFF_FLAGGED(victim, EAffectFlag::AFF_DETECT_INVIS)
 			&& GET_SPELL_MEM(victim, SPELL_DETECT_INVIS) > 0)
-			cast_spell(victim, victim, nullptr, nullptr, SPELL_DETECT_INVIS, SPELL_DETECT_INVIS);
+			CastSpell(victim, victim, 0, 0, SPELL_DETECT_INVIS, SPELL_DETECT_INVIS);
 		else if (!AFF_FLAGGED(victim, EAffectFlag::AFF_SENSE_LIFE)
 			&& GET_SPELL_MEM(victim, SPELL_SENSE_LIFE) > 0)
-			cast_spell(victim, victim, nullptr, nullptr, SPELL_SENSE_LIFE, SPELL_SENSE_LIFE);
+			CastSpell(victim, victim, 0, 0, SPELL_SENSE_LIFE, SPELL_SENSE_LIFE);
 		else if (!AFF_FLAGGED(victim, EAffectFlag::AFF_INFRAVISION)
 			&& GET_SPELL_MEM(victim, SPELL_LIGHT) > 0)
-			cast_spell(victim, victim, nullptr, nullptr, SPELL_LIGHT, SPELL_LIGHT);
+			CastSpell(victim, victim, 0, 0, SPELL_LIGHT, SPELL_LIGHT);
 	}
 }
 

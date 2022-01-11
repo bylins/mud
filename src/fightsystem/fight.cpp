@@ -1144,7 +1144,7 @@ void mob_casting(CHAR_DATA *ch) {
 			item = item->get_next_content();
 		}
 
-		cast_spell(ch, victim, 0, NULL, spellnum, spellnum);
+		CastSpell(ch, victim, 0, NULL, spellnum, spellnum);
 	}
 }
 
@@ -1862,8 +1862,8 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 			send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 			ch->set_cast(0, 0, 0, 0, 0);
 		} else {
-			cast_spell(ch, ch->get_cast_char(), ch->get_cast_obj(),
-					   0, ch->get_cast_spell(), ch->get_cast_subst());
+			CastSpell(ch, ch->get_cast_char(), ch->get_cast_obj(),
+					  0, ch->get_cast_spell(), ch->get_cast_subst());
 
 			if (!(IS_IMMORTAL(ch)
 				|| GET_GOD_FLAG(ch, GF_GODSLIKE)

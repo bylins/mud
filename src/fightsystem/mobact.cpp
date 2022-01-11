@@ -1276,11 +1276,11 @@ void mobile_activity(int activity_level, int missed_pulses) {
 					if (names->id == GET_IDNUM(vict)
 						&& CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE)) {
 						if (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0) {
-							cast_spell(ch.get(), vict.get(), 0, 0, SPELL_SUMMON, SPELL_SUMMON);
+							CastSpell(ch.get(), vict.get(), 0, 0, SPELL_SUMMON, SPELL_SUMMON);
 
 							break;
 						} else if (GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0) {
-							cast_spell(ch.get(), vict.get(), 0, 0, SPELL_RELOCATE, SPELL_RELOCATE);
+							CastSpell(ch.get(), vict.get(), 0, 0, SPELL_RELOCATE, SPELL_RELOCATE);
 
 							break;
 						}

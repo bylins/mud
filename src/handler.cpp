@@ -337,7 +337,7 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 				0,
 				ch,
 				TO_ROOM | TO_ARENA_LISTEN);
-			call_magic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_REAL_LEVEL(caster));
+			CallMagic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_REAL_LEVEL(caster));
 		}
 	}
 }
@@ -2842,7 +2842,7 @@ int mag_manacost(const CHAR_DATA *ch, int spellnum) {
 	}
 
 //	Мем рунных профессий(на сегодня только волхвы)
-	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= spell_create_level(ch, spellnum)) {
+	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= CalculateRequiredLevel(ch, spellnum)) {
 		result = static_cast<int>(DRUID_MANA_COST_MODIFIER
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic

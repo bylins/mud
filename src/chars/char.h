@@ -406,7 +406,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 	CHAR_DATA *get_fighting() const;
 	void set_fighting(CHAR_DATA *vict);
 
-	// TODO: касты можно сделать и красивее (+ troom не используется, cast_spell/cast_subst/cast_obj только по разу)
+	// TODO: касты можно сделать и красивее (+ troom не используется, CastSpell/cast_subst/cast_obj только по разу)
 	void set_cast(int spellnum, int spell_subst, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom);
 	int get_cast_spell() const;
 	int get_cast_subst() const;

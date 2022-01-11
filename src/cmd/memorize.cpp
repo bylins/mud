@@ -38,7 +38,7 @@ void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	spellnum = fix_name_and_find_spell_num(s);
+	spellnum = FixNameAndFindSpellNum(s);
 
 	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);

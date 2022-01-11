@@ -18,7 +18,7 @@
  * do_cast is the entry point for PC-casted spells.  It parses the arguments,
  * determines the spell number and finds a target, throws the die to see if
  * the spell can be cast, checks for sufficient mana and subtracts it, and
- * passes control to cast_spell().
+ * passes control to CastSpell().
  */
 void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	CHAR_DATA *tch;
@@ -72,7 +72,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 	t = strtok(NULL, "\0");
 
-	spellnum = fix_name_and_find_spell_num(s);
+	spellnum = FixNameAndFindSpellNum(s);
 	spell_subst = spellnum;
 
 	// Unknown spell
@@ -126,7 +126,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	else
 		*arg = '\0';
 
-	target = find_cast_target(spellnum, arg, ch, &tch, &tobj, &troom);
+	target = FindCastTarget(spellnum, arg, ch, &tch, &tobj, &troom);
 
 	if (target && (tch == ch) && spell_info[spellnum].violent) {
 		send_to_char("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
@@ -144,7 +144,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// You throws the dice and you takes your chances.. 101% is total failure
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
-	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum)) {
+	if (!CalculateCastSuccess(ch, tch, SAVING_STABILITY, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (GET_SPELL_MEM(ch, spell_subst)) {
@@ -166,7 +166,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					CCCYN(ch, C_NRM), spell_info[spellnum].name, CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
-		} else if (cast_spell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
+		} else if (CastSpell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
 			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 				WAIT_STATE(ch, PULSE_VIOLENCE);
 		}
