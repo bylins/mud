@@ -12,7 +12,7 @@
 #include "dg_script/dg_db_scripts.h"
 #include "zone.table.h"
 #include "magic/spells_info.h"
-
+#include "fightsystem/fight_hit.h"
 #include <regex>
 
 extern int scheck;                        // TODO: get rid of this line
@@ -1449,6 +1449,24 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		t[1] = MIN(200, MAX(0, t[1]));
+		if (t[0] == SKILL_BACKSTAB) {
+			HitData hit_params;
+			hit_params.weapon = FightSystem::MAIN_HAND;
+			hit_params.init((mob_proto + i), (mob_proto + i));
+			int dam = hit_params.calc_damage(mob_proto + i, false);
+			int dam2 = dam * backstab_mult(GET_REAL_LEVEL(mob_proto + i));
+			zone_rnum zrn = 0;
+			for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size() - 1); zrn++) {
+				if (zone_table[zrn].vnum == mob_index[i].vnum  / 100)
+					break;
+				}
+			sprintf(buf, "Зона,%d,%s,Моб,%d,%s,уровень,%d,заколоть,%d,дамага,%d,стабдамага,%d", zone_table[zrn].vnum , zone_table[zrn].name,
+					mob_index[i].vnum, GET_NAME(mob_proto + i), GET_REAL_LEVEL(mob_proto + i), 
+				t[1], dam, dam2);
+			log("%s", buf);
+//			MOB_FLAGS(mob_proto + i).set(MOB_IGNORE_FORMATION);
+//			(mob_proto + i)->set_role(MOB_ROLE_ROGUE, true);
+		}
 		(mob_proto + i)->set_skill(static_cast<ESkill>(t[0]), t[1]);
 	}
 
