@@ -606,6 +606,15 @@ long long Heartbeat::period() const {
 	return period;
 }
 
+void Heartbeat::clear_stats() {
+	for (auto &step : m_steps) {
+		if (step.on()) {
+			step.clear_measurements();
+		}
+	}
+	m_measurements.clear();
+}
+
 void Heartbeat::advance_pulse_numbers() {
 	m_pulse_number++;
 	m_global_pulse_number++;
@@ -658,6 +667,10 @@ void Heartbeat::PulseStep::add_measurement(const std::size_t index,
 	m_measurements.add(index, pulse, value);
 }
 
+void Heartbeat::PulseStep::clear_measurements() {
+	m_measurements.clear();
+}
+
 BasePulseMeasurements::BasePulseMeasurements() :
 	m_sum(0.0),
 	m_global_sum(0.0),
@@ -667,6 +680,13 @@ BasePulseMeasurements::BasePulseMeasurements() :
 void BasePulseMeasurements::add(const measurement_t &measurement) {
 	add_measurement(measurement);
 	squeeze();
+}
+
+void BasePulseMeasurements::clear() {
+	m_measurements.clear();
+	m_sum = 0.0;
+	m_global_sum = 0.0;
+	m_global_count = 0;
 }
 
 void BasePulseMeasurements::add_measurement(const measurement_t &measurement) {

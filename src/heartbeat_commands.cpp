@@ -27,6 +27,29 @@ std::ostream &operator<<(std::ostream &os, const DefaultFloatsFormat &) {
 	return os << std::fixed << std::setprecision(6);
 }
 
+class ClearStats : public commands::utils::CommonCommand {
+ public:
+	ClearStats() { set_help_line("Clear heartbeat stats."); }
+
+	virtual void execute(const CommandContext::shared_ptr &context,
+						 const arguments_t &path,
+						 const arguments_t &arguments) override;
+};
+
+void ClearStats::execute(const CommandContext::shared_ptr &context,
+						 const arguments_t &path,
+						 const arguments_t &arguments) {
+	const auto heartbeat_context = std::dynamic_pointer_cast<HeartbeatCommandContext>(context);
+	if (!heartbeat_context) {
+		log("SYSERR: context of heartbeat command '%s' is not an instance of class 'HeartbeatCommandContext'.",
+			JoinRange<arguments_t>(path).as_string().c_str());
+		return;
+	}
+
+	(*heartbeat_context)().clear_stats();
+	send(context, "Статистика очищена");
+}
+
 class ShowStepStats : public commands::utils::CommonCommand {
  public:
 	ShowStepStats() { set_help_line("Shows step stats."); }
@@ -262,6 +285,7 @@ void CommandsHandler::initialize() {
 	const auto stats_command = CommandEmbranchment::create("Allows to get access to heartbeat stats.");
 	stats_command->add_command("general", std::make_shared<ShowHeartbeatStats>())
 		.add_command("step", std::make_shared<ShowStepStats>())
+		.add_command("clear", std::make_shared<ClearStats>())
 		.add_command("help", std::make_shared<ParentalHelp>(stats_command))
 		.rebuild_help();
 	m_command->add_command("stats", stats_command)

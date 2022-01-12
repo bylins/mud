@@ -43,6 +43,7 @@ class BasePulseMeasurements {
 	const auto &max() const { return m_max; }
 
 	void add(const measurement_t &measurement);
+	void clear();
 
  protected:
 	virtual void remove_handler(const pulse_t) { /* do nothing by default */ }
@@ -95,6 +96,8 @@ class LabelledMeasurements : public BasePulseMeasurements {
 	const auto &global_min() const { return m_global_min; }
 	const auto &global_max() const { return m_global_max; }
 
+	void clear();
+
  protected:
 	using BasePulseMeasurements::add;
 
@@ -123,6 +126,13 @@ void LabelledMeasurements<Label>::add(const Label &label, const measurement_t me
 		|| m_global_max.second == NO_VALUE) {
 		m_global_max = std::move(single_value_t(label, measurement));
 	}
+}
+
+template<typename Label>
+void LabelledMeasurements<Label>::clear() {
+	m_global_min = single_value_t(Label(), NO_VALUE);
+	m_global_max = single_value_t(Label(), NO_VALUE);
+	m_labels.clear();
 }
 
 template<typename Label>
@@ -155,6 +165,7 @@ class Heartbeat {
 		void turn_off() { m_off = true; }
 
 		void add_measurement(const std::size_t index, const pulse_t pulse, const StepMeasurement::value_t value);
+		void clear_measurements();
 
 		const auto &stats() const { return m_measurements; }
 
@@ -181,6 +192,7 @@ class Heartbeat {
 	long long period() const;
 
 	const auto &stats() const { return m_measurements; }
+	void clear_stats();
 	const auto &steps() const { return m_steps; }
 	const auto &executed_steps() const { return m_executed_steps; }
 
@@ -203,3 +215,4 @@ class Heartbeat {
 #endif // __HEARTBEAT_HPP__
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+
