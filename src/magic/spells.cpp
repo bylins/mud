@@ -2209,7 +2209,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 	affect_to_char(mob, af);
 
 	//Set shields
-	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
+	int count_shields = 0; // временно base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
 		af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
 		affect_to_char(mob, af);
