@@ -40,7 +40,7 @@ struct enchant {
 	std::string name_;
 	// тип источника аффектов
 	int type_;
-	// список APPLY аффектов (affected[MAX_OBJ_AFFECT])
+	// список APPLY аффектов (affected[kMaxObjAffect])
 	std::vector<obj_affected_type> affected_;
 	// аффекты обкаста (obj_flags.affects)
 	FLAG_DATA affects_flags_;

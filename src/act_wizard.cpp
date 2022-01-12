@@ -211,7 +211,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int) {
 	} else if (IS_NPC(vict))
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	else {
-		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
+		snprintf(buf1, kMaxStringLength, "%s\r\n", buf2);
 		send_to_char(buf1, vict);
 	}
 }
@@ -505,15 +505,15 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 					act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
 
-					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
 
-					if (result == NOWHERE) {
+					if (result == kNowhere) {
 						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
 						else
@@ -570,15 +570,15 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 					act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
 
-					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
 
-					if (result == NOWHERE) {
+					if (result == kNowhere) {
 						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
 						else
@@ -610,13 +610,13 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
-					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+				if (IN_ROOM(vict) != kNowhere) {
+					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
 
-					if (result == NOWHERE) {
+					if (result == kNowhere) {
 						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
 						else
@@ -649,16 +649,16 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				RegisterSystem::add(vict, buf, reason);
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 
 					act("$n зарегистрирован$a!", FALSE, vict, 0, 0, TO_ROOM);
 
-					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
 
-					if (result == NOWHERE) {
+					if (result == kNowhere) {
 						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
 						else
@@ -687,14 +687,14 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				RegisterSystem::remove(vict);
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 					act("C $n1 снята метка регистрации!", FALSE, vict, 0, 0, TO_ROOM);
-					/*				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					/*				if ((result = GET_LOADROOM(vict)) == kNowhere)
 									result = r_unreg_start_room;
 
 								result = real_room(result);
 
-								if (result == NOWHERE)
+								if (result == kNowhere)
 								{
 									if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
 										result = r_immort_start_room;
@@ -758,7 +758,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
 						CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
 				sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 					act("$n водворен$a в темницу!", FALSE, vict, 0, 0, TO_ROOM);
 
 					char_from_room(vict);
@@ -786,14 +786,14 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 
 				pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 					act("$n водворен$a в темницу!", FALSE, vict, 0, 0, TO_ROOM);
 
 					char_from_room(vict);
 					char_to_room(vict, r_helled_start_room);
 					look_at_room(vict, r_helled_start_room);
 				};
-				vict->set_was_in_room(NOWHERE);
+				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -810,13 +810,13 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 
 				pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 					act("$n водворен$a в комнату имени!", FALSE, vict, 0, 0, TO_ROOM);
 					char_from_room(vict);
 					char_to_room(vict, r_named_start_room);
 					look_at_room(vict, r_named_start_room);
 				};
-				vict->set_was_in_room(NOWHERE);
+				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -832,7 +832,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 			case SCMD_UNREGISTER: pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 				RegisterSystem::remove(vict);
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) {
 						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
 							FALSE,
@@ -845,7 +845,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 						look_at_room(vict, r_unreg_start_room);
 					}
 				}
-				vict->set_was_in_room(NOWHERE);
+				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -861,7 +861,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 
 		}
 	}
-	if (ch->in_room != NOWHERE) {
+	if (ch->in_room != kNowhere) {
 		act(buf, FALSE, vict, 0, ch, TO_CHAR);
 		act(buf2, FALSE, vict, 0, ch, TO_ROOM);
 	};
@@ -880,7 +880,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING)
 			continue;
-		if (IN_ROOM(i->character) == NOWHERE)
+		if (IN_ROOM(i->character) == kNowhere)
 			continue;
 		if (GET_REAL_LEVEL(i->character) >= LVL_IMMORT)
 			continue;
@@ -923,7 +923,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 	// теперь проверю всех товарищей в void комнате STRANGE_ROOM
 	for (const auto c : world[STRANGE_ROOM]->people) {
 		int was = c->get_was_in_room();
-		if (was == NOWHERE
+		if (was == kNowhere
 			|| GET_REAL_LEVEL(c) >= LVL_IMMORT
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
@@ -1322,8 +1322,8 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// Без параметров выводит славу у игрока
 	// + cлава прибавляет славу
 	// - cлава убавляет славу
-	char num[MAX_INPUT_LENGTH];
-	char arg1[MAX_INPUT_LENGTH];
+	char num[kMaxInputLength];
+	char arg1[kMaxInputLength];
 	int mode = 0;
 	char *reason;
 
@@ -1452,7 +1452,7 @@ void do_send(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char("Послано.\r\n", ch);
 	else {
-		snprintf(buf2, MAX_STRING_LENGTH, "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
+		snprintf(buf2, kMaxStringLength, "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
 		send_to_char(buf2, ch);
 	}
 }
@@ -1463,54 +1463,54 @@ room_rnum find_target_room(CHAR_DATA *ch, char *rawroomstr, int trig) {
 	room_rnum location;
 	CHAR_DATA *target_mob;
 	OBJ_DATA *target_obj;
-	char roomstr[MAX_INPUT_LENGTH];
+	char roomstr[kMaxInputLength];
 
 	one_argument(rawroomstr, roomstr);
 
 	if (!*roomstr) {
 		send_to_char("Укажите номер или название комнаты.\r\n", ch);
-		return (NOWHERE);
+		return (kNowhere);
 	}
 	if (a_isdigit(*roomstr) && !strchr(roomstr, '.')) {
 		tmp = atoi(roomstr);
-		if ((location = real_room(tmp)) == NOWHERE) {
+		if ((location = real_room(tmp)) == kNowhere) {
 			send_to_char("Нет комнаты с таким номером.\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 	} else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != NULL) {
 		location = target_mob->in_room;
 	} else if ((target_obj = get_obj_vis(ch, roomstr)) != NULL) {
-		if (target_obj->get_in_room() != NOWHERE) {
+		if (target_obj->get_in_room() != kNowhere) {
 			location = target_obj->get_in_room();
 		} else {
 			send_to_char("Этот объект вам недоступен.\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 	} else {
 		send_to_char("В округе нет похожего предмета или создания.\r\n", ch);
-		return (NOWHERE);
+		return (kNowhere);
 	}
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
 	if (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GET_REAL_LEVEL(ch) < LVL_GRGOD) {
 			send_to_char("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 		if (ROOM_FLAGGED(location, ROOM_NOTELEPORTIN) && trig != 1) {
 			send_to_char("В комнату не телепортировать!\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 		if (!Clan::MayEnter(ch, location, HCE_PORTAL)) {
 			send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 	}
 	return (location);
 }
 
 void do_at(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char command[MAX_INPUT_LENGTH];
+	char command[kMaxInputLength];
 	room_rnum location, original_loc;
 
 	half_chop(argument, buf, command);
@@ -1524,7 +1524,7 @@ void do_at(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((location = find_target_room(ch, buf, 0)) == NOWHERE)
+	if ((location = find_target_room(ch, buf, 0)) == kNowhere)
 		return;
 
 	// a location has been found.
@@ -1593,7 +1593,7 @@ void do_unfreeze(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 void do_goto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	room_rnum location;
 
-	if ((location = find_target_room(ch, argument, 0)) == NOWHERE)
+	if ((location = find_target_room(ch, argument, 0)) == kNowhere)
 		return;
 
 	if (POOFOUT(ch))
@@ -1631,7 +1631,7 @@ void do_teleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Попробуйте придумать что-то другое.\r\n", ch);
 	else if (!*buf2)
 		act("Куда вы хотите $S переместить?", FALSE, ch, 0, victim, TO_CHAR);
-	else if ((target = find_target_room(ch, buf2, 0)) != NOWHERE) {
+	else if ((target = find_target_room(ch, buf2, 0)) != kNowhere) {
 		send_to_char(OK, ch);
 		act("$n растворил$u в клубах дыма.", FALSE, victim, 0, 0, TO_ROOM);
 		char_from_room(victim);
@@ -2218,7 +2218,7 @@ void inspecting() {
 			sprinttype(player.plr_class, pc_class_types, smallBuf);
 			mytime = player_table[it->second->pos].last_logon;
 			Player vict;
-			char clanstatus[MAX_INPUT_LENGTH];
+			char clanstatus[kMaxInputLength];
 			sprintf(clanstatus, "%s", "нет");
 			if ((load_char(player.name(), &vict)) > -1) {
 				Clan::SetClanData(&vict);
@@ -2355,7 +2355,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				player_table[i].last_ip,
 				CCNRM(ch, C_SPR));
 		Player vict;
-		char clanstatus[MAX_INPUT_LENGTH];
+		char clanstatus[kMaxInputLength];
 		sprintf(clanstatus, "%s", "нет");
 		if ((load_char(player_table[i].name(), &vict)) > -1) {
 			Clan::SetClanData(&vict);
@@ -2843,7 +2843,7 @@ void do_last(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DESCRIPTOR_DATA *i, *next_desc;
-	char to_force[MAX_INPUT_LENGTH + 2];
+	char to_force[kMaxInputLength + 2];
 
 	half_chop(argument, arg, to_force);
 
@@ -3043,7 +3043,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		sprintf(buf1, "%s%s: %s%s\r\n", GET_NAME(ch), emote ? "" : " богам", emote ? "<--- " : "", argument);
 	}
-	snprintf(buf2, MAX_STRING_LENGTH, "&c%s&n", buf1);
+	snprintf(buf2, kMaxStringLength, "&c%s&n", buf1);
 	Remember::add_to_flaged_cont(Remember::wiznet_, buf2, level);
 
 	// пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов
@@ -3056,7 +3056,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			(!PLR_FLAGGED(d->character, PLR_MAILING)))    // отправляющий письмо не видит имм канала
 		{
 			// отправляем сообщение чару
-			snprintf(buf2, MAX_STRING_LENGTH, "%s%s%s",
+			snprintf(buf2, kMaxStringLength, "%s%s%s",
 					 CCCYN(d->character, C_NRM), buf1, CCNRM(d->character, C_NRM));
 			d->character->remember_add(buf2, Remember::ALL);
 			// не видино своих мессаг если 'режим repeat'
@@ -3122,7 +3122,7 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	long result;
 	int times = 0;
 	char *reason;
-	char num[MAX_INPUT_LENGTH];
+	char num[kMaxInputLength];
 
 	//  one_argument(argument, arg);
 	reason = two_arguments(argument, arg, num);
@@ -3344,7 +3344,7 @@ void show_apply(CHAR_DATA *ch, CHAR_DATA *vict) {
 		if ((obj = GET_EQ(vict, i))) {
 			send_to_char(ch, "Предмет: %s (%d)\r\n", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 			// Update weapon applies
-			for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+			for (int j = 0; j < kMaxObjAffect; j++) {
 				if (GET_EQ(vict, i)->get_affected(j).modifier != 0) {
 						send_to_char(ch, "Добавляет (apply): %s, модификатор: %d\r\n", 
 							apply_types[(int) GET_EQ(vict, i)->get_affected(j).location], GET_EQ(vict, i)->get_affected(j).modifier);
@@ -3394,10 +3394,10 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char self = 0;
 	CHAR_DATA *vict;
 	DESCRIPTOR_DATA *d;
-	char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH], value1[MAX_INPUT_LENGTH];
-	// char bf[MAX_EXTEND_LENGTH];
+	char field[kMaxInputLength], value[kMaxInputLength], value1[kMaxInputLength];
+	// char bf[kMaxExtendLength];
 	char *bf = NULL;
-	char rem[MAX_INPUT_LENGTH];
+	char rem[kMaxInputLength];
 
 	skip_spaces(&argument);
 
@@ -3515,11 +3515,11 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else if (NAME_GOD(vict) < 1000) {
 				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(vict)));
 				*buf1 = UPPER(*buf1);
-				snprintf(buf + strlen(buf), MAX_STRING_LENGTH, "Имя запрещено богом %s\r\n", buf1);
+				snprintf(buf + strlen(buf), kMaxStringLength, "Имя запрещено богом %s\r\n", buf1);
 			} else {
 				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(vict)));
 				*buf1 = UPPER(*buf1);
-				snprintf(buf + strlen(buf), MAX_STRING_LENGTH, "Имя одобрено богом %s\r\n", buf1);
+				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
 			if (GET_REAL_REMORT(vict) < 4)
 				sprintf(rem, "Перевоплощений: %d\r\n", GET_REAL_REMORT(vict));
@@ -3632,7 +3632,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (d->snooping
 					&& d->character
 					&& STATE(d) == CON_PLAYING
-					&& IN_ROOM(d->character) != NOWHERE
+					&& IN_ROOM(d->character) != kNowhere
 					&& ((CAN_SEE(ch, d->character) && GET_REAL_LEVEL(ch) >= GET_REAL_LEVEL(d->character))
 						|| PRF_FLAGGED(ch, PRF_CODERINFO))) {
 					sprintf(buf + strlen(buf),
@@ -3650,7 +3650,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(buf, ch);
 			i = 0;
 			for (const auto &vict : character_list) {
-				if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE) {
+				if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == kNowhere) {
 					continue;
 				}
 				++i;
@@ -3670,7 +3670,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (STATE(d) != CON_PLAYING
 					|| (GET_REAL_LEVEL(ch) < GET_REAL_LEVEL(d->character) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
 					continue;
-				if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == NOWHERE)
+				if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == kNowhere)
 					continue;
 				buf[0] = 0;
 				if (PLR_FLAGGED(d->character, PLR_FROZEN)
@@ -3951,7 +3951,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 	char *reason;
 	room_rnum rnum;
 	room_vnum rvnum;
-	char output[MAX_STRING_LENGTH], num[MAX_INPUT_LENGTH];
+	char output[kMaxStringLength], num[kMaxInputLength];
 	int rod;
 
 	// Check to make sure all the levels are correct
@@ -4126,11 +4126,11 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			vict->set_level(value);
 			break;
 		case 27:
-			if ((rnum = real_room(value)) == NOWHERE) {
+			if ((rnum = real_room(value)) == kNowhere) {
 				send_to_char("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 				return (0);
 			}
-			if (IN_ROOM(vict) != NOWHERE)    // Another Eric Green special.
+			if (IN_ROOM(vict) != kNowhere)    // Another Eric Green special.
 				char_from_room(vict);
 			char_to_room(vict, rnum);
 			vict->dismount();
@@ -4174,7 +4174,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 		case 33:
 			if (is_number(val_arg)) {
 				rvnum = atoi(val_arg);
-				if (real_room(rvnum) != NOWHERE) {
+				if (real_room(rvnum) != kNowhere) {
 					GET_LOADROOM(vict) = rvnum;
 					sprintf(output, "%s будет входить в игру из комнаты #%d.",
 							GET_NAME(vict), GET_LOADROOM(vict));
@@ -4302,7 +4302,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				send_to_char(buf, ch);
 			} else {
 				for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
-					if (strlen(npad[i]) < MIN_NAME_LENGTH || strlen(npad[i]) > MAX_NAME_LENGTH) {
+					if (strlen(npad[i]) < kMinNameLength || strlen(npad[i]) > kMaxNameLength) {
 						sprintf(buf, "Падеж номер %d некорректен.\r\n", ++i);
 						send_to_char(buf, ch);
 						return (0);
@@ -4310,8 +4310,8 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				}
 
 				if (_parse_name(npad[0], npad[0]) ||
-					strlen(npad[0]) < MIN_NAME_LENGTH ||
-					strlen(npad[0]) > MAX_NAME_LENGTH ||
+					strlen(npad[0]) < kMinNameLength ||
+					strlen(npad[0]) > kMaxNameLength ||
 					!Valid_Name(npad[0]) || reserved_word(npad[0]) || fill_word(npad[0])) {
 					send_to_char("Некорректное имя.\r\n", ch);
 					return (0);
@@ -4632,7 +4632,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 
 void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *vict = NULL;
-	char field[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], val_arg[MAX_INPUT_LENGTH], OName[MAX_INPUT_LENGTH];
+	char field[kMaxInputLength], name[kMaxInputLength], val_arg[kMaxInputLength], OName[kMaxInputLength];
 	int mode, player_i = 0, retval;
 	char is_file = 0, is_player = 0;
 
@@ -5262,7 +5262,7 @@ void do_loadstat(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	istream.seekg(0, istream.end);
 	length = istream.tellg();
 	istream.seekg(0, istream.beg);
-	istream.read(buf, MIN(length, MAX_STRING_LENGTH - 1));
+	istream.read(buf, MIN(length, kMaxStringLength - 1));
 	buf[istream.gcount()] = '\0';
 	send_to_char(buf, ch);
 }
@@ -5297,7 +5297,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	filter_type filter;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	bool find_param = false;
 	while (*argument) {
 		switch (*argument) {
@@ -5537,7 +5537,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			for (std::vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find;
 				 ++it) {
 				find = false;
-				for (int k = 0; k < MAX_OBJ_AFFECT; ++k) {
+				for (int k = 0; k < kMaxObjAffect; ++k) {
 					if (i->get_affected(k).location == *it) {
 						find = true;
 						break;
@@ -5584,7 +5584,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			<< std::setw(14) << material_name[GET_OBJ_MATER(obj)] << " | "
 			<< GET_OBJ_PNAME(obj, 0) << "\r\n";
 
-		for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+		for (int i = 0; i < kMaxObjAffect; i++) {
 			int drndice = obj->get_affected(i).location;
 			int drsdice = obj->get_affected(i).modifier;
 			if (drndice == APPLY_NONE || !drsdice) {
@@ -5601,7 +5601,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			if (obj->get_affected(i).modifier < 0) {
 				negative = !negative;
 			}
-			snprintf(buf, MAX_STRING_LENGTH, "   %s%s%s%s%s%d%s\r\n",
+			snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
 					 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 					 CCCYN(ch, C_NRM),
 					 negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));

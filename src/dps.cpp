@@ -411,7 +411,7 @@ void do_dmeter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	char name[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength];
 	two_arguments(argument, arg, name);
 
 	if (!*arg) {

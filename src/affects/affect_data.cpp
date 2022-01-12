@@ -465,7 +465,7 @@ void affect_total(CHAR_DATA *ch) {
 				GET_ARMOUR(ch) += apply_armour(ch, i);
 			}
 			// Update weapon applies
-			for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+			for (int j = 0; j < kMaxObjAffect; j++) {
 				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location,  GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffectFlag>(0), TRUE);
 			}
 			// Update weapon bitvectors
@@ -485,7 +485,7 @@ void affect_total(CHAR_DATA *ch) {
 	}
 */
 	// move features modifiers - added by Gorrah
-	for (int i = 1; i < MAX_FEATS; i++) {
+	for (int i = 1; i < kMaxFeats; i++) {
 		if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE)) {
 			for (int j = 0; j < MAX_FEAT_AFFECT; j++) {
 				affect_modify(ch,

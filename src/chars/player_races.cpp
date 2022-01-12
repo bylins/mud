@@ -122,17 +122,17 @@ bool PlayerRace::FeatureCheck(int Kin, int Race, int Feat) {
 };
 
 void PlayerRace::GetKinNamesList(CHAR_DATA * /*ch*/) {
-	//char buf[MAX_INPUT_LENGTH];
-	//snprintf(buf, MAX_STRING_LENGTH, " %d \r\n", PlayerKinList[0]->PlayerRaceList[0]->GetFeatNum());
+	//char buf[kMaxInputLength];
+	//snprintf(buf, kMaxStringLength, " %d \r\n", PlayerKinList[0]->PlayerRaceList[0]->GetFeatNum());
 	//send_to_char(buf, ch);
 	//for (PlayerKinListType::iterator it = PlayerKinList.begin();it != PlayerKinList.end();++it)
 	//{
-	//	snprintf(buf, MAX_STRING_LENGTH, " %s \r\n", (*it)->KinHeName.c_str());
+	//	snprintf(buf, kMaxStringLength, " %s \r\n", (*it)->KinHeName.c_str());
 	//	send_to_char(buf, ch);
 	//}
 	//test message
-	//char buf33[MAX_INPUT_LENGTH];
-	//snprintf(buf33, MAX_STRING_LENGTH, "!==!...%s", CurNode.child("shename").child_value());
+	//char buf33[kMaxInputLength];
+	//snprintf(buf33, kMaxStringLength, "!==!...%s", CurNode.child("shename").child_value());
 	//mudlog(buf33, CMP, LVL_IMMORT, SYSLOG, TRUE);
 }
 
@@ -177,16 +177,16 @@ std::string PlayerRace::GetKinNameByNum(int KinNum, const ESex Sex) {
 	for (PlayerKinListType::iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it) {
 		if ((*it)->KinNum == KinNum) {
 			switch (Sex) {
-				case ESex::SEX_NEUTRAL: return PlayerRace::PlayerKinList[KinNum]->KinItName;
+				case ESex::kSexNeutral: return PlayerRace::PlayerKinList[KinNum]->KinItName;
 					break;
 
-				case ESex::SEX_MALE: return PlayerRace::PlayerKinList[KinNum]->KinHeName;
+				case ESex::kSexMale: return PlayerRace::PlayerKinList[KinNum]->KinHeName;
 					break;
 
-				case ESex::SEX_FEMALE: return PlayerRace::PlayerKinList[KinNum]->KinSheName;
+				case ESex::kSexFemale: return PlayerRace::PlayerKinList[KinNum]->KinSheName;
 					break;
 
-				case ESex::SEX_POLY: return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
+				case ESex::kSexPoly: return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
 					break;
 
 				default: return PlayerRace::PlayerKinList[KinNum]->KinHeName;
@@ -199,7 +199,7 @@ std::string PlayerRace::GetKinNameByNum(int KinNum, const ESex Sex) {
 
 //Получение названия рода по номеру и полу
 std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, const ESex Sex) {
-	//static char out_str[MAX_STRING_LENGTH];
+	//static char out_str[kMaxStringLength];
 	//*out_str = '\0';
 	//sprintf(out_str, "Число рас %d %d", KinNum, RaceNum);
 	//return out_str; //PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
@@ -210,16 +210,16 @@ std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, const ESex Sex
 			 ++it) {
 			if ((*it)->_RaceNum == RaceNum) {
 				switch (Sex) {
-					case ESex::SEX_NEUTRAL: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
+					case ESex::kSexNeutral: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
 						break;
 
-					case ESex::SEX_MALE: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
+					case ESex::kSexMale: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
 						break;
 
-					case ESex::SEX_FEMALE: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
+					case ESex::kSexFemale: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
 						break;
 
-					case ESex::SEX_POLY: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
+					case ESex::kSexPoly: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
 						break;
 
 					default: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;

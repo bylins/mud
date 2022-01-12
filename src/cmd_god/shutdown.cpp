@@ -11,7 +11,7 @@ Shutdown::Shutdown(CHAR_DATA *character, const char *argument, ShutdownParameter
 }
 
 bool Shutdown::parse_arguments() {
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 
 	two_arguments(m_argument, m_argument_buffer, buffer);
 

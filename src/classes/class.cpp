@@ -205,8 +205,8 @@ const char *religion_menu =
 
 #define RELIGION_ANY 100
 
-/* Соответствие классов и религий. RELIGION_POLY-класс не может быть христианином
-                                   RELIGION_MONO-класс не может быть язычником  (Кард)
+/* Соответствие классов и религий. kReligionPoly-класс не может быть христианином
+                                   kReligionMono-класс не может быть язычником  (Кард)
 				   RELIGION_ANY - класс может быть кем угодно */
 const int class_religion[] = {RELIGION_ANY,        //Лекарь
 							  RELIGION_ANY,        //Колдун
@@ -221,7 +221,7 @@ const int class_religion[] = {RELIGION_ANY,        //Лекарь
 							  RELIGION_ANY,        //Охотник
 							  RELIGION_ANY,        //Кузнец
 							  RELIGION_ANY,        //Купец
-							  RELIGION_POLY        //Волхв
+							  kReligionPoly        //Волхв
 };
 
 //str dex con wis int cha
@@ -1569,8 +1569,8 @@ int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
 		return (TRUE);
 	}
 
-	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
+	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == kReligionMono)
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == kReligionPoly)
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch))
@@ -1609,8 +1609,8 @@ int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
 		return FALSE;
 	}
 
-	if ((IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
+	if ((IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO) && GET_RELIGION(ch) == kReligionMono)
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY) && GET_RELIGION(ch) == kReligionPoly)
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MAGIC_USER) && IS_MAGIC_USER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE) && IS_BATTLEMAGE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE) && IS_CHARMMAGE(ch))
@@ -1667,7 +1667,7 @@ void load_skills_definitions() {
 			log("Skill '%s' not found...", name);
 			graceful_exit(1);
 		}
-		if (PlayerRace::GetKinNameByNum(i[0], ESex::SEX_MALE) == RACE_NAME_UNDEFINED) {
+		if (PlayerRace::GetKinNameByNum(i[0], ESex::kSexMale) == RACE_NAME_UNDEFINED) {
 			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
 			graceful_exit(1);
 		}
@@ -1675,7 +1675,7 @@ void load_skills_definitions() {
 			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
 			graceful_exit(1);
 		}
-		if (i[2] < 0 || i[2] >= MAX_REMORT) {
+		if (i[2] < 0 || i[2] >= kMaxRemort) {
 			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
 			graceful_exit(1);
 		}
@@ -1713,7 +1713,7 @@ void load_skills_definitions() {
 			log("Skill '%s' not found...", name);
 			graceful_exit(1);
 		}
-		for (l = 0; line3[l] && l < NUM_KIN; l++) {
+		for (l = 0; line3[l] && l < kNumKins; l++) {
 			if (!strchr("1xX!", line3[l]))
 				continue;
 			for (j = 0; line4[j] && j < NUM_PLAYER_CLASSES; j++) {
@@ -1734,7 +1734,7 @@ void load_skills() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -1742,7 +1742,7 @@ void load_skills() {
 	pugi::xml_node node_list = doc.child("skills");
 
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...class.skills.xml read fail");
+		snprintf(buf, kMaxStringLength, "...class.skills.xml read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -1762,7 +1762,7 @@ void load_skills() {
 					graceful_exit(1);
 				}
 				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
-				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > MAX_REMORT) {
+				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > kMaxRemort) {
 					log("ERROR: Недопустимый параметр level decrement класса %d.", PCclass);
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;
 				} else {
@@ -1780,7 +1780,7 @@ void load_skills() {
 					graceful_exit(1);
 				}
 				value = xNodeSkill.attribute("remort").as_int();
-				if (value >= 0 && value < MAX_REMORT) {
+				if (value >= 0 && value < kMaxRemort) {
 					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
 				} else {
 					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d",
@@ -1834,7 +1834,7 @@ void init_spell_levels(void) {
 			graceful_exit(1);
 		}
 
-		if (i[0] < 0 || i[0] >= NUM_KIN) {
+		if (i[0] < 0 || i[0] >= kNumKins) {
 			log("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
 			graceful_exit(1);
 		}
@@ -1842,7 +1842,7 @@ void init_spell_levels(void) {
 			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
 			graceful_exit(1);
 		}
-		if (i[2] < 0 || i[2] >= MAX_REMORT) {
+		if (i[2] < 0 || i[2] >= kMaxRemort) {
 			log("Bad remort type for spell '%s'  \"%d\"...", name, sp_num);
 			graceful_exit(1);
 		}
@@ -1948,7 +1948,7 @@ void init_spell_levels(void) {
 			log("Feat '%s' not found...", name);
 			graceful_exit(1);
 		}
-		for (j = 0; j < NUM_KIN; j++)
+		for (j = 0; j < kNumKins; j++)
 			if (i[j] < 0 || i[j] > 1) {
 				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
 				graceful_exit(1);
@@ -1957,7 +1957,7 @@ void init_spell_levels(void) {
 			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
 			graceful_exit(1);
 		}
-		if (i[4] < 0 || i[4] >= MAX_REMORT) {
+		if (i[4] < 0 || i[4] >= kMaxRemort) {
 			log("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
 			graceful_exit(1);
 		}
@@ -1965,7 +1965,7 @@ void init_spell_levels(void) {
 			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
 			graceful_exit(1);
 		}
-		for (j = 0; j < NUM_KIN; j++)
+		for (j = 0; j < kNumKins; j++)
 			if (i[j] == 1) {
 				//log("Setting up feat '%s'", feat_info[sp_num].name);
 				feat_info[sp_num].classknow[i[3]][j] = TRUE;
@@ -2120,7 +2120,7 @@ void init_spell_levels(void) {
 
 void init_basic_values(void) {
 	FILE *magic;
-	char line[256], name[MAX_INPUT_LENGTH];
+	char line[256], name[kMaxInputLength];
 	int i[10], c, j, mode = 0, *pointer;
 	if (!(magic = fopen(LIB_MISC "basic.lst", "r"))) {
 		log("Can't open basic values list file...");
@@ -2186,8 +2186,8 @@ void init_basic_values(void) {
 	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
 */
 int GroupPenalties::init(void) {
-	char buf[MAX_INPUT_LENGTH];
-	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = MAX_REMORT + 1;
+	char buf[kMaxInputLength];
+	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = kMaxRemort + 1;
 
 	// пре-инициализация
 	for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
@@ -2224,10 +2224,10 @@ int GroupPenalties::init(void) {
 						LIB_MISC "grouping", remorts);
 					return 2;
 				}
-				if (remorts > MAX_REMORT || remorts < 0) {
+				if (remorts > kMaxRemort || remorts < 0) {
 					log("Ошибка при чтении файла %s: неверное значение количества ремортов: %d, "
 						"должно быть в промежутке от 0 до %d",
-						LIB_MISC "grouping", remorts, MAX_REMORT);
+						LIB_MISC "grouping", remorts, kMaxRemort);
 					return 3;
 				}
 			} else {
@@ -2504,16 +2504,16 @@ void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
 		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
 		return;
 	}
-	if (kin < 0 || kin >= NUM_KIN) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+	if (kin < 0 || kin >= kNumKins) {
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
 		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
-	if (remort < 0 || remort > MAX_REMORT) {
-		log("SYSERR: assigning '%s' to illegal remort %d/%d.", skill_name(spell), remort, MAX_REMORT);
+	if (remort < 0 || remort > kMaxRemort) {
+		log("SYSERR: assigning '%s' to illegal remort %d/%d.", skill_name(spell), remort, kMaxRemort);
 		bad = 1;
 	}
 	if (!bad) {
@@ -2530,8 +2530,8 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+	if (kin < 0 || kin >= kNumKins) {
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 
@@ -2559,8 +2559,8 @@ void mspell_change(char *name, int spell, int kin, int chclass, int class_change
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+	if (kin < 0 || kin >= kNumKins) {
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 

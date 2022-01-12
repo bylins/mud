@@ -40,7 +40,7 @@ char *any_one_name(char *argument, char *first_arg) {
 }
 
 void sub_write_to_char(CHAR_DATA *ch, char *tokens[], void *otokens[], char type[]) {
-	char sb[MAX_STRING_LENGTH];
+	char sb[kMaxStringLength];
 	int i;
 
 	strcpy(sb, "");
@@ -111,10 +111,10 @@ void sub_write_to_char(CHAR_DATA *ch, char *tokens[], void *otokens[], char type
 }
 
 void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets) {
-	char str[MAX_INPUT_LENGTH * 2];
-	char type[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH];
-	char *tokens[MAX_INPUT_LENGTH], *s, *p;
-	void *otokens[MAX_INPUT_LENGTH];
+	char str[kMaxInputLength * 2];
+	char type[kMaxInputLength], name[kMaxInputLength];
+	char *tokens[kMaxInputLength], *s, *p;
+	void *otokens[kMaxInputLength];
 	OBJ_DATA *obj;
 	int i, tmp;
 	int to_sleeping = 0;    // mainly for windows compiles
@@ -185,7 +185,7 @@ void send_to_zone(char *messg, int zone_rnum) {
 
 	for (i = descriptor_list; i; i = i->next)
 		if (!i->connected && i->character && AWAKE(i->character) &&
-			(IN_ROOM(i->character) != NOWHERE) && (world[IN_ROOM(i->character)]->zone_rn == zone_rnum))
+			(IN_ROOM(i->character) != kNowhere) && (world[IN_ROOM(i->character)]->zone_rn == zone_rnum))
 			SEND_TO_Q(messg, i);
 }
 

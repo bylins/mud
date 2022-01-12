@@ -149,19 +149,19 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid) {
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| GET_OBJ_OWNER(obj)) {
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
+		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
 				 obj->get_PName(0).c_str());
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
 		&& obj->get_contains()) {
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(5).c_str());
+		snprintf(buf, kMaxStringLength, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(5).c_str());
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	} else if (SetSystem::is_big_set(obj)) {
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
+		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
 				 obj->get_PName(0).c_str());
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
@@ -172,12 +172,12 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid) {
 	}
 	if (invalid_anti_class(&t_vict, obj)) {
 		switch (GET_SEX(&t_vict)) {
-			case ESex::SEX_MALE:
+			case ESex::kSexMale:
 				act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
 					FALSE, mailman, 0, ch, TO_VICT);
 				break;
 
-			case ESex::SEX_FEMALE:
+			case ESex::kSexFemale:
 				act("$n сказал$g вам : 'Знаю я такую красну девицу - эта вещь явно на нее не налезет.'\r\n",
 					FALSE, mailman, 0, ch, TO_VICT);
 				break;
@@ -235,7 +235,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	}
 	if (SetSystem::is_norent_set(ch, obj)
 		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_UNIQUE(ch)))) {
-		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return;
 	}
@@ -276,8 +276,8 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg) {
 	}
 
 	OBJ_DATA *obj, *next_obj;
-	char tmp_arg[MAX_INPUT_LENGTH];
-	char tmp_arg2[MAX_INPUT_LENGTH];
+	char tmp_arg[kMaxInputLength];
+	char tmp_arg2[kMaxInputLength];
 
 	two_arguments(arg, tmp_arg, tmp_arg2);
 
@@ -403,7 +403,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
 					continue;
 				}
 
-				snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у почтового голубя в инвентаре.\r\n",
+				snprintf(buf, kMaxStringLength, "%s наход%sся у почтового голубя в инвентаре.\r\n",
 						 it3->obj_->get_short_description().c_str(), GET_OBJ_POLY_1(ch, it3->obj_));
 //				CAP(buf); issue #59
 				send_to_char(buf, ch);
@@ -487,7 +487,7 @@ OBJ_DATA *create_parcel() {
 	obj->set_PName(3, "посылку");
 	obj->set_PName(4, "посылкой");
 	obj->set_PName(5, "посылке");
-	obj->set_sex(ESex::SEX_FEMALE);
+	obj->set_sex(ESex::kSexFemale);
 	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	obj->set_weight(1);
@@ -530,7 +530,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
 			return_money(name, money, RETURN_WITH_MONEY);
 
 			obj_to_char(obj, ch);
-			snprintf(buf, MAX_STRING_LENGTH, "$n дал$g вам посылку (отправитель %s).", name.c_str());
+			snprintf(buf, kMaxStringLength, "$n дал$g вам посылку (отправитель %s).", name.c_str());
 			act(buf, FALSE, mailman, 0, ch, TO_VICT);
 			act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
 			++was_sended;
@@ -579,7 +579,7 @@ void return_parcel() {
 
 // * Дикей предмета на почте и уведомление об этом отправителя и получателя через письма.
 void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::iterator &it) {
-	snprintf(buf, MAX_STRING_LENGTH, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
+	snprintf(buf, kMaxStringLength, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
 			 it->obj_->get_short_description().c_str(),
 			 GET_OBJ_SUF_2(it->obj_));
 
@@ -601,7 +601,7 @@ void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::itera
 
 // * Генерация письма о возврате посылки.
 void return_invoice(int uid, OBJ_DATA *obj) {
-	snprintf(buf, MAX_STRING_LENGTH, "Посылка возвращена отправителю: %s.\r\n",
+	snprintf(buf, kMaxStringLength, "Посылка возвращена отправителю: %s.\r\n",
 			 obj->get_short_description().c_str());
 	char *tmp = str_dup(buf);
 	create_mail(uid, -1, tmp);
@@ -620,7 +620,7 @@ LoadNode parcel_read_one_object(char **data, int *error) {
 
 	// Пропустим #
 	(*data)++;
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 
 	*error = 2;
 	// отправитель
@@ -887,7 +887,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman) {
 			obj_to_obj(l->obj_.get(), obj);
 		}
 		obj_to_char(obj, ch);
-		snprintf(buf, MAX_STRING_LENGTH, "$n дал$g вам посылку.");
+		snprintf(buf, kMaxStringLength, "$n дал$g вам посылку.");
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
 

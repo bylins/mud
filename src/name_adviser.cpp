@@ -130,16 +130,16 @@ void NameAdviser::init()
 
 bool NameAdviser::is_names_similar(const std::string &left, const std::string &right)
 {
-	if ((left.length() < MIN_NAME_LENGTH) || (right.length() < MIN_NAME_LENGTH)) {
+	if ((left.length() < kMinNameLength) || (right.length() < kMinNameLength)) {
 		return false;
 	}
 
-	std::string short_left = left.substr(0, MIN_NAME_LENGTH);
+	std::string short_left = left.substr(0, kMinNameLength);
 	for (auto &ch : short_left) {
 		ch = UPPER(ch);
 	}
 
-	std::string short_rigth = right.substr(0, MIN_NAME_LENGTH);
+	std::string short_rigth = right.substr(0, kMinNameLength);
 	for (auto &ch : short_rigth) {
 		ch = UPPER(ch);
 	}

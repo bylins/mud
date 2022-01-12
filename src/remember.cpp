@@ -188,7 +188,7 @@ unsigned int CharRemember::get_num_str() const {
 }
 
 void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength];
 
 	if (IS_NPC(ch))
 		return;

@@ -24,7 +24,7 @@
 #include "skills_info.h"
 #include "magic_rooms.h"
 
-char cast_argument[MAX_STRING_LENGTH];
+char cast_argument[kMaxStringLength];
 
 #define SpINFO spell_info[spellnum]
 #define SkINFO skill_info[skillnum]
@@ -68,7 +68,7 @@ void SaySpell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 			case NPC_RACE_ZOMBIE:
 			case NPC_RACE_SPIRIT:
 			{
-				const int religion = number(RELIGION_POLY, RELIGION_MONO);
+				const int religion = number(kReligionPoly, kReligionMono);
 				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
 				if (!cast_phrase.empty()) {
 					strcpy(buf, cast_phrase.c_str());
@@ -171,7 +171,7 @@ void SaySpell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 template<typename T>
 void FixName(T &name) {
 	size_t pos = 0;
-	while ('\0' != name[pos] && pos < MAX_STRING_LENGTH) {
+	while ('\0' != name[pos] && pos < kMaxStringLength) {
 		if (('.' == name[pos]) || ('_' == name[pos])) {
 			name[pos] = ' ';
 		}
@@ -459,7 +459,7 @@ int FindCastTarget(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, 
 				}
 				if (!IS_NPC(ch)) {
 					struct follow_type *k, *k_next;
-					char tmpname[MAX_INPUT_LENGTH];
+					char tmpname[kMaxInputLength];
 					char *tmp = tmpname;
 					strcpy(tmp, t);
 					int fnum = 0; // ищем одноимённые цели
@@ -589,7 +589,7 @@ int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, i
 		return (0);
 	}
 
-	if ((!tch || IN_ROOM(tch) == NOWHERE) && !tobj && !troom &&
+	if ((!tch || IN_ROOM(tch) == kNowhere) && !tobj && !troom &&
 		IS_SET(SpINFO.targets,
 			   TAR_CHAR_ROOM | TAR_CHAR_WORLD | TAR_FIGHT_SELF | TAR_FIGHT_VICT
 				   | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_WORLD | TAR_OBJ_EQUIP | TAR_ROOM_THIS
@@ -668,10 +668,10 @@ int CalculateCastSuccess(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int
 		case SAVING_STABILITY:
 		case SAVING_NONE:
 			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
-			if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_MAGE))
-				|| (IS_CLERIC(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))
-				|| (IS_PALADINE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE))
-				|| (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT))) {
+			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MAGE))
+				|| (IS_CLERIC(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))
+				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE))
+				|| (IS_MERCHANT(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT))) {
 				prob += 10;
 			}
 			break;

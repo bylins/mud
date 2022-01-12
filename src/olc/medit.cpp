@@ -274,7 +274,7 @@ void medit_setup(DESCRIPTOR_DATA *d, int real_num)
 	medit_mobile_init(mob);
 
 	if (real_num == -1) {
-		mob->set_rnum(NOBODY);
+		mob->set_rnum(kNobody);
 		mob->set_pc_name("неоконченный моб");
 		mob->set_npc_name("неоконченный моб");
 		mob->player_data.long_descr = "Неоконченный моб стоит тут.\r\n";
@@ -685,7 +685,7 @@ void medit_save_to_disk(int zone_num) {
 			strcpy(buf1, "Special_Bitvector: ");
 			NPC_FLAGS(mob).tascii(4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (c = 1; c < MAX_FEATS; c++) {
+			for (c = 1; c < kMaxFeats; c++) {
 				if (HAVE_FEAT(mob, c))
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
@@ -968,7 +968,7 @@ void medit_disp_role(DESCRIPTOR_DATA *d) {
 #endif
 
 	std::string out;
-	char tmp[MAX_INPUT_LENGTH];
+	char tmp[kMaxInputLength];
 	auto &bits = OLC_MOB(d)->get_role_bits();
 
 	for (unsigned i = 0; i < bits.size(); ++i) {
@@ -999,14 +999,14 @@ void medit_disp_features(DESCRIPTOR_DATA *d) {
 	send_to_char("[H[J", d->character);
 #endif
 
-	for (counter = 1; counter < MAX_FEATS; counter++) {
+	for (counter = 1; counter < kMaxFeats; counter++) {
 		if (!feat_info[counter].name || *feat_info[counter].name == '!')
 			continue;
 		if (HAVE_FEAT(OLC_MOB(d), counter))
 			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
 		else
 			strcpy(buf1, "     ");
-		snprintf(buf, MAX_STRING_LENGTH, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 				 feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
@@ -1088,7 +1088,7 @@ void medit_disp_skills(DESCRIPTOR_DATA *d) {
 			strcpy(buf1, "     ");
 		}
 
-		snprintf(buf, MAX_STRING_LENGTH, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 				 skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
@@ -1112,7 +1112,7 @@ void medit_disp_spells(DESCRIPTOR_DATA *d) {
 		} else {
 			strcpy(buf1, "     ");
 		}
-		snprintf(buf, MAX_STRING_LENGTH, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 				 spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
@@ -1123,14 +1123,14 @@ void medit_disp_spells(DESCRIPTOR_DATA *d) {
 void medit_disp_mob_flags(DESCRIPTOR_DATA *d) {
 	disp_planes_values(d, action_bits, 2);
 	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 5);
-	snprintf(buf, MAX_STRING_LENGTH, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
 void medit_disp_npc_flags(DESCRIPTOR_DATA *d) {
 	disp_planes_values(d, function_bits, 2);
 	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 5);
-	snprintf(buf, MAX_STRING_LENGTH, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1138,7 +1138,7 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA *d) {
 void medit_disp_aff_flags(DESCRIPTOR_DATA *d) {
 	disp_planes_values(d, affected_bits, 2);
 	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 5);
-	snprintf(buf, MAX_STRING_LENGTH, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
+	snprintf(buf, kMaxStringLength, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1199,7 +1199,7 @@ void medit_disp_menu(DESCRIPTOR_DATA *d) {
 
 	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 4);
 	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",", 4);
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 "%sP%s) Положение     : %s%s\r\n"
 			 "%sR%s) По умолчанию  : %s%s\r\n"
 			 "%sT%s) Тип атаки     : %s%s\r\n"
@@ -1212,7 +1212,7 @@ void medit_disp_menu(DESCRIPTOR_DATA *d) {
 
 	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 4);
 	*buf2 = '\0';
-	if (GET_DEST(mob) == NOWHERE) {
+	if (GET_DEST(mob) == kNowhere) {
 		strcpy(buf2, "-1,");
 	} else {
 		for (i = 0; i < mob->mob_specials.dest_count; i++) {
@@ -1228,7 +1228,7 @@ void medit_disp_menu(DESCRIPTOR_DATA *d) {
 		roles_str += "нет";
 	}
 
-	snprintf(buf, MAX_STRING_LENGTH, "%sW%s) Флаги   (NPC) : %s%s\r\n"
+	snprintf(buf, kMaxStringLength, "%sW%s) Флаги   (NPC) : %s%s\r\n"
 									 "%sY%s) Destination: %s%s\r\n"
 									 "%sZ%s) Помогают   : %s%s\r\n"
 									 "%sА%s) Умения     : \r\n"
@@ -1776,7 +1776,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (number >= MAX_FEATS
+			if (number >= kMaxFeats
 				|| number <= 0
 				|| !feat_info[number].name
 				|| *feat_info[number].name == '!') {
@@ -2024,7 +2024,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 						d->backstr = str_dup(OLC_MPROG(d)->comlist);
 					}
 					d->str = &OLC_MPROG(d)->comlist;
-					d->max_str = MAX_STRING_LENGTH;
+					d->max_str = kMaxStringLength;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;
 				}
@@ -2127,7 +2127,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				OLC_MOB(d)->mob_specials.dest_count = 0;
 				break;
 			}
-			if ((plane = real_room(number)) == NOWHERE) {
+			if ((plane = real_room(number)) == kNowhere) {
 				send_to_char("Нет такой комнаты.\r\n", d->character.get());
 			} else {
 				for (plane = 0; plane < OLC_MOB(d)->mob_specials.dest_count; plane++) {
@@ -2141,7 +2141,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 						break;
 					}
 				}
-				if (plane == OLC_MOB(d)->mob_specials.dest_count && plane < MAX_DEST) {
+				if (plane == OLC_MOB(d)->mob_specials.dest_count && plane < kMaxDest) {
 					OLC_MOB(d)->mob_specials.dest_count++;
 					OLC_MOB(d)->mob_specials.dest[plane] = number;
 				}

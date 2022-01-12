@@ -4,7 +4,7 @@
 
 // ****************** CHARM ORDERS PROCEDURES
 void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char name[MAX_INPUT_LENGTH], message[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], message[kMaxInputLength];
 	bool found = FALSE;
 	room_rnum org_room;
 	CHAR_DATA *vict;

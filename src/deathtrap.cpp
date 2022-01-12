@@ -69,7 +69,7 @@ void DeathTrap::activity() {
 			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) < 0) {
-				char buf_[MAX_INPUT_LENGTH];
+				char buf_[kMaxInputLength];
 				snprintf(buf_, sizeof(buf_),
 						 "Player %s died in slow DT (room %d)",
 						 name.c_str(), (*it)->room_vn);
@@ -98,13 +98,13 @@ void DeathTrap::log_death_trap(CHAR_DATA *ch) {
 
 // * Попадание в обычное дт.
 int DeathTrap::check_death_trap(CHAR_DATA *ch) {
-	if (ch->in_room != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (ch->in_room != kNowhere && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
 			&& !IS_IMMORTAL(ch))
-			|| (real_sector(ch->in_room) == SECT_FLYING && !IS_NPC(ch)
+			|| (real_sector(ch->in_room) == kSectOnlyFlying && !IS_NPC(ch)
 				&& !IS_GOD(ch)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
-			|| (real_sector(ch->in_room) == SECT_WATER_NOSWIM && !IS_NPC(ch)
+			|| (real_sector(ch->in_room) == kSectWaterNoswim && !IS_NPC(ch)
 				&& !IS_GOD(ch)
 				&& !has_boat(ch))) {
 			OBJ_DATA *corpse;
@@ -182,7 +182,7 @@ bool DeathTrap::tunnel_damage(CHAR_DATA *ch) {
 		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 		if (dmg.process(ch, ch) < 0) {
-			char buf_[MAX_INPUT_LENGTH];
+			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_),
 					 "Player %s died in tunnel room (room %d)",
 					 name.c_str(), GET_ROOM_VNUM(room_rnum));

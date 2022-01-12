@@ -60,7 +60,7 @@ void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void show_wizdom(CHAR_DATA *ch, int bitset) {
-	char names[MAX_SLOT][MAX_STRING_LENGTH];
+	char names[MAX_SLOT][kMaxStringLength];
 	int slots[MAX_SLOT], i, max_slot, count, slot_num, is_full, gcount = 0, imax_slot = 0;
 	for (i = 1; i <= MAX_SLOT; i++) {
 		*names[i - 1] = '\0';

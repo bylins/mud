@@ -93,16 +93,16 @@ void OBJ_DATA::zero_init() {
 	CObjectPrototype::zero_init();
 	set_weight(0);
 	m_uid = 0;
-	m_in_room = NOWHERE;
+	m_in_room = kNowhere;
 	m_carried_by = nullptr;
 	m_worn_by = nullptr;
-	m_worn_on = NOWHERE;
+	m_worn_on = kNowhere;
 	m_in_obj = nullptr;
 	m_contains = nullptr;
 	m_id = 0;
 	m_next_content = nullptr;
 	m_next = nullptr;
-	m_room_was_in = NOWHERE;
+	m_room_was_in = kNowhere;
 	m_serial_number = 0;
 	m_purged = false;
 	m_activator.first = false;
@@ -142,7 +142,7 @@ void OBJ_DATA::set_serial_num(int num) {
 const std::string OBJ_DATA::activate_obj(const activation &__act) {
 	if (get_rnum() >= 0) {
 		set_affect_flags(__act.get_affects());
-		for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+		for (int i = 0; i < kMaxObjAffect; i++) {
 			set_affected(i, __act.get_affected_i(i));
 		}
 
@@ -181,7 +181,7 @@ const std::string OBJ_DATA::activate_obj(const activation &__act) {
 const std::string OBJ_DATA::deactivate_obj(const activation &__act) {
 	if (get_rnum() >= 0) {
 		set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
-		for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+		for (int i = 0; i < kMaxObjAffect; i++) {
 			set_affected(i, obj_proto[get_rnum()]->get_affected(i));
 		}
 
@@ -284,7 +284,7 @@ void CObjectPrototype::set_wear_flag(const EWearFlag flag) {
 }
 
 void CObjectPrototype::clear_all_affected() {
-	for (size_t i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (size_t i = 0; i < kMaxObjAffect; i++) {
 		if (m_affected[i].location != APPLY_NONE) {
 			m_affected[i].location = APPLY_NONE;
 		}
@@ -413,7 +413,7 @@ int CObjectPrototype::get_timer() const {
 void OBJ_DATA::set_enchant(int skill) {
 	int i = 0;
 
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		if (get_affected(i).location != APPLY_NONE) {
 			set_affected_location(i, APPLY_NONE);
 		}
@@ -493,7 +493,7 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj) {
 
 void OBJ_DATA::unset_enchant() {
 	int i = 0;
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		if (obj_proto.at(get_rnum())->get_affected(i).location != APPLY_NONE) {
 			set_affected(i, obj_proto.at(get_rnum())->get_affected(i));
 		} else {
@@ -1000,7 +1000,7 @@ OBJ_DATA *create_purse(CHAR_DATA *ch, int/* gold*/) {
 	obj->set_PName(4, "тугим кошельком");
 	obj->set_PName(5, "тугом кошельке");
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_),
 			 "--------------------------------------------------\r\n"
 			 "Владелец: %s\r\n"
@@ -1037,7 +1037,7 @@ void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj) {
 	REMOVE_BIT(value, CONT_CLOSED);
 	obj->set_val(1, value);
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "all");
 	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
 	act("$o рассыпал$U в ваших руках...", FALSE, ch, obj, 0, TO_CHAR);
@@ -1211,7 +1211,7 @@ std::string print_obj_affects(const obj_affected_type &affect) {
 		negative = false;
 	}
 
-	snprintf(buf, MAX_STRING_LENGTH, "%s%s%s%s%s%d%s\r\n",
+	snprintf(buf, kMaxStringLength, "%s%s%s%s%s%d%s\r\n",
 			 KCYN, buf2, KNRM,
 			 KCYN, (negative ? " ухудшает на " : " улучшает на "),
 			 abs(affect.modifier), KNRM);
@@ -1233,7 +1233,7 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect) {
 	} else if (negative && affect.modifier < 0) {
 		negative = false;
 	}
-	snprintf(buf, MAX_STRING_LENGTH, "   %s%s%s%s%s%d%s\r\n",
+	snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
 			 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 			 CCCYN(ch, C_NRM),
 			 negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));

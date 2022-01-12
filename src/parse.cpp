@@ -139,7 +139,7 @@ int cast_to_int(const char *text) {
 		result = std::stoi(text, nullptr, 10);
 	}
 	catch (...) {
-		snprintf(buf, MAX_STRING_LENGTH, "...lexical_cast<int> fail (value='%s')", text);
+		snprintf(buf, kMaxStringLength, "...lexical_cast<int> fail (value='%s')", text);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 	}
 
@@ -154,7 +154,7 @@ int cast_to_int(const char *text) {
 int attr_int(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
 	if (!attr) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
+		snprintf(buf, kMaxStringLength, "...%s read fail", text);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 	}
 	return cast_to_int(attr.value());
@@ -176,7 +176,7 @@ int attr_int_t(const pugi::xml_node &node, const char *text) {
 int child_value_int(const pugi::xml_node &node, const char *text) {
 	pugi::xml_node child_node = node.child(text);
 	if (!child_node) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
+		snprintf(buf, kMaxStringLength, "...%s read fail", text);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 	}
 	return cast_to_int(child_node.child_value());
@@ -188,7 +188,7 @@ int child_value_int(const pugi::xml_node &node, const char *text) {
 std::string attr_str(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
 	if (!attr) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
+		snprintf(buf, kMaxStringLength, "...%s read fail", text);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 	} else {
 		return attr.value();
@@ -202,7 +202,7 @@ std::string attr_str(const pugi::xml_node &node, const char *text) {
 std::string child_value_str(const pugi::xml_node &node, const char *text) {
 	pugi::xml_node child_node = node.child(text);
 	if (!child_node) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
+		snprintf(buf, kMaxStringLength, "...%s read fail", text);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 	} else {
 		return child_node.child_value();

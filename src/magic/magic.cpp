@@ -283,7 +283,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 	int dam = 0, rand = 0, count = 1, modi = 0, ndice = 0, sdice = 0, adice = 0, no_savings = FALSE;
 	OBJ_DATA *obj = nullptr;
 
-	if (victim == nullptr || IN_ROOM(victim) == NOWHERE || ch == nullptr)
+	if (victim == nullptr || IN_ROOM(victim) == kNowhere || ch == nullptr)
 		return (0);
 
 	if (!pk_agro_action(ch, victim))
@@ -899,8 +899,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 		dam = 0;
 
 	for (; count > 0 && rand >= 0; count--) {
-		if (ch->in_room != NOWHERE
-			&& IN_ROOM(victim) != NOWHERE
+		if (ch->in_room != kNowhere
+			&& IN_ROOM(victim) != kNowhere
 			&& GET_POS(ch) > POS_STUNNED
 			&& GET_POS(victim) > POS_DEAD) {
 			// инит полей для дамага
@@ -1043,7 +1043,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 	int rnd = 0;
 	int decline_mod = 0;
 	if (victim == nullptr
-		|| IN_ROOM(victim) == NOWHERE
+		|| IN_ROOM(victim) == kNowhere
 		|| ch == nullptr) {
 		return 0;
 	}
@@ -2993,7 +2993,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 		mob->player_data.PNames[5] = std::string(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
 		mob->player_data.PNames[1] = std::string(buf2);
-		mob->set_sex(ESex::SEX_NEUTRAL);
+		mob->set_sex(ESex::kSexNeutral);
 		MOB_FLAGS(mob).set(MOB_RESURRECTED);    // added by Pereplut
 		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
 		if (can_use_feat(ch, FURYDARK_FEAT)) {
@@ -3130,7 +3130,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 
 		GET_POS(mob) = POS_STANDING;
 		GET_DEFAULT_POS(mob) = POS_STANDING;
-		mob->set_sex(ESex::SEX_MALE);
+		mob->set_sex(ESex::kSexMale);
 
 		mob->set_class(ch->get_class());
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);
@@ -3232,7 +3232,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 			next_obj = tobj->get_next_content();
 			obj_from_obj(tobj);
 			obj_to_room(tobj, ch->in_room);
-			if (!obj_decay(tobj) && tobj->get_in_room() != NOWHERE) {
+			if (!obj_decay(tobj) && tobj->get_in_room() != kNowhere) {
 				act("На земле остал$U лежать $o.", FALSE, ch, tobj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			tobj = next_obj;
@@ -3317,7 +3317,7 @@ int mag_points(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int) {
 			return 0;
 	}
 	// лечение
-	if (GET_HIT(victim) < MAX_HITS && hit != 0) {
+	if (GET_HIT(victim) < kMaxHits && hit != 0) {
 		// просто лечим
 		if (!extraHealing && GET_HIT(victim) < GET_REAL_MAX_HIT(victim))
 			GET_HIT(victim) = MIN(GET_HIT(victim) + hit, GET_REAL_MAX_HIT(victim));
@@ -3572,9 +3572,9 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 			} else {
 				obj->set_enchant(ch->get_skill(SKILL_LIGHT_MAGIC));
 			}
-			if (GET_RELIGION(ch) == RELIGION_MONO) {
+			if (GET_RELIGION(ch) == kReligionMono) {
 				to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
-			} else if (GET_RELIGION(ch) == RELIGION_POLY) {
+			} else if (GET_RELIGION(ch) == kReligionPoly) {
 				to_char = "$o вспыхнул$G на миг красным светом и тут же потух$Q.";
 			} else {
 				to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
@@ -3618,7 +3618,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 			break;
 
 		case SPELL_TIMER_REPAIR:
-			if (GET_OBJ_RNUM(obj) != NOTHING) {
+			if (GET_OBJ_RNUM(obj) != kNothing) {
 				obj->set_current_durability(GET_OBJ_MAX(obj));
 				obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 				to_char = "Вы полностью восстановили $o3.";
@@ -3630,7 +3630,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 
 		case SPELLS_RESTORATION: {
 			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)
-				&& (GET_OBJ_RNUM(obj) != NOTHING)) {
+				&& (GET_OBJ_RNUM(obj) != kNothing)) {
 				if (obj_proto.at(GET_OBJ_RNUM(obj))->get_extra_flag(EExtraFlag::ITEM_MAGIC)) {
 					return 0;
 				}
@@ -4318,7 +4318,7 @@ int calculateAmountTargetsOfSpell(const CHAR_DATA *ch, const int &msgIndex, cons
 }
 
 int callMagicToArea(CHAR_DATA *ch, CHAR_DATA *victim, ROOM_DATA *room, int spellnum, int level) {
-	if (ch == nullptr || IN_ROOM(ch) == NOWHERE) {
+	if (ch == nullptr || IN_ROOM(ch) == kNowhere) {
 		return 0;
 	}
 

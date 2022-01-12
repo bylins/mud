@@ -915,8 +915,8 @@ void spells_to_drinkcon(OBJ_DATA *from_obj, OBJ_DATA *to_obj) {
 }
 
 void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
 	OBJ_DATA *from_obj = NULL, *to_obj = NULL;
 	int amount;
 
@@ -1141,7 +1141,7 @@ size_t find_liquid_name(const char *name) {
 }
 
 void name_from_drinkcon(OBJ_DATA *obj) {
-	char new_name[MAX_STRING_LENGTH];
+	char new_name[kMaxStringLength];
 	std::string tmp;
 
 	size_t pos = find_liquid_name(obj->get_aliases().c_str());
@@ -1169,20 +1169,20 @@ void name_from_drinkcon(OBJ_DATA *obj) {
 
 void name_to_drinkcon(OBJ_DATA *obj, int type) {
 	int c;
-	char new_name[MAX_INPUT_LENGTH], potion_name[MAX_INPUT_LENGTH];
+	char new_name[kMaxInputLength], potion_name[kMaxInputLength];
 	if (type >= NUM_LIQ_TYPES) {
-		snprintf(potion_name, MAX_INPUT_LENGTH, "%s", "непонятной бормотухой, сообщите БОГАМ");
+		snprintf(potion_name, kMaxInputLength, "%s", "непонятной бормотухой, сообщите БОГАМ");
 	} else {
-		snprintf(potion_name, MAX_INPUT_LENGTH, "%s", drinknames[type]);
+		snprintf(potion_name, kMaxInputLength, "%s", drinknames[type]);
 	}
 
-	snprintf(new_name, MAX_INPUT_LENGTH, "%s %s", obj->get_aliases().c_str(), potion_name);
+	snprintf(new_name, kMaxInputLength, "%s %s", obj->get_aliases().c_str(), potion_name);
 	obj->set_aliases(new_name);
-	snprintf(new_name, MAX_INPUT_LENGTH, "%s с %s", obj->get_short_description().c_str(), potion_name);
+	snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_short_description().c_str(), potion_name);
 	obj->set_short_description(new_name);
 
 	for (c = 0; c < CObjectPrototype::NUM_PADS; c++) {
-		snprintf(new_name, MAX_INPUT_LENGTH, "%s с %s", obj->get_PName(c).c_str(), potion_name);
+		snprintf(new_name, kMaxInputLength, "%s с %s", obj->get_PName(c).c_str(), potion_name);
 		obj->set_PName(c, new_name);
 	}
 }
@@ -1195,7 +1195,7 @@ std::string print_spell(CHAR_DATA *ch, const OBJ_DATA *obj, int num) {
 		return "";
 	}
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
 			 CCCYN(ch, C_NRM),
 			 spell_name(obj->get_value(spell)),
@@ -1209,7 +1209,7 @@ namespace drinkcon {
 
 std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	std::string out;
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 
 	for (int i = 1; i <= 3; ++i) {
 		out += print_spell(ch, obj, i);
@@ -1230,7 +1230,7 @@ std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj) {
 
 void identify(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	std::string out;
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	int volume = GET_OBJ_VAL(obj, 0);
 	int amount = GET_OBJ_VAL(obj, 1);
 

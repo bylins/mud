@@ -23,7 +23,7 @@ using namespace AbilitySystemConstants;
 
 extern const char *unused_spellname;
 
-struct FeatureInfoType feat_info[MAX_FEATS];
+struct FeatureInfoType feat_info[kMaxFeats];
 
 /* Служебные функции */
 //extern void fix_name_feat(char *name);
@@ -58,7 +58,7 @@ extern void setSkillCooldown(CHAR_DATA *ch, ESkill skill, int cooldownInPulses);
 /// true для поиска при вводе имени способности игроком у учителей
 ///
 int find_feat_num(const char *name, bool alias) {
-	for (int index = 1; index < MAX_FEATS; index++) {
+	for (int index = 1; index < kMaxFeats; index++) {
 		bool flag = true;
 		std::string name_feat(alias ? feat_info[index].alias.c_str() : feat_info[index].name);
 		std::vector<std::string> strs_feat, strs_args;
@@ -83,7 +83,7 @@ void initializeFeature(int featureNum, const char *name, int type, bool can_up_s
 					   short oppositeSaving = SAVING_STABILITY) {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
-		for (j = 0; j < NUM_KIN; j++) {
+		for (j = 0; j < kNumKins; j++) {
 			feat_info[featureNum].minRemort[i][j] = 0;
 			feat_info[featureNum].slot[i][j] = 0;
 		}
@@ -111,7 +111,7 @@ void initializeFeatureByDefault(int featureNum) {
 	int i, j;
 
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
-		for (j = 0; j < NUM_KIN; j++) {
+		for (j = 0; j < kNumKins; j++) {
 			feat_info[featureNum].minRemort[i][j] = 0;
 			feat_info[featureNum].slot[i][j] = 0;
 			feat_info[featureNum].inbornFeatureOfClass[i][j] = false;
@@ -154,7 +154,7 @@ void initializeFeatureByDefault(int featureNum) {
 void determineFeaturesSpecification(void) {
 	CFeatArray feat_app;
 	TechniqueItemKitType *techniqueItemKit;
-	for (int i = 1; i < MAX_FEATS; i++) {
+	for (int i = 1; i < kMaxFeats; i++) {
 		initializeFeatureByDefault(i);
 	}
 //1
@@ -747,7 +747,7 @@ void determineFeaturesSpecification(void) {
 }
  
 const char *feat_name(int num) {
-	if (num > 0 && num < MAX_FEATS) {
+	if (num > 0 && num < kMaxFeats) {
 		return (feat_info[num].name);
 	} else {
 		if (num == -1) {
@@ -816,7 +816,7 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 
 bool can_get_feat(CHAR_DATA *ch, int feat) {
 	int i, count = 0;
-	if (feat <= 0 || feat >= MAX_FEATS) {
+	if (feat <= 0 || feat >= kMaxFeats) {
 		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
 				feat, ch->get_name().c_str());
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -950,7 +950,7 @@ bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat) {
 	//Мы не можем просто учесть кол-во способностей меньше требуемого и больше требуемого,
 	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
 	auto slot_list = std::vector<int>();
-	for (i = 1; i < MAX_FEATS; ++i) {
+	for (i = 1; i < kMaxFeats; ++i) {
 		if (feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 			|| PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), i))
 			continue;
@@ -1084,8 +1084,8 @@ void do_lightwalk(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	OBJ_DATA *obj;
 	CHAR_DATA *vict;
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
 
 	//отключено пока для не-иммов
 	if (GET_REAL_LEVEL(ch) < LVL_IMMORT) {
@@ -1339,7 +1339,7 @@ void unsetFeaturesOfRace(CHAR_DATA *ch) {
 }
 
 void setInbornFeaturesOfClass(CHAR_DATA *ch) {
-	for (int i = 1; i < MAX_FEATS; ++i) {
+	for (int i = 1; i < kMaxFeats; ++i) {
 		if (can_get_feat(ch, i) && feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 			SET_FEAT(ch, i);
 		}

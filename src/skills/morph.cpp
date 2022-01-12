@@ -278,13 +278,13 @@ void load_morphs() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"morphs.xml");
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("animalMorphs");
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...morphs list read fail");
+		snprintf(buf, kMaxStringLength, "...morphs list read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -293,7 +293,7 @@ void load_morphs() {
 	for (pugi::xml_node morph = node_list.child("morph"); morph; morph = morph.next_sibling("morph")) {
 		std::string id = std::string(morph.attribute("id").value());
 		if (id.empty()) {
-			snprintf(buf, MAX_STRING_LENGTH, "...morph id read fail");
+			snprintf(buf, kMaxStringLength, "...morph id read fail");
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
@@ -330,7 +330,7 @@ void load_morphs() {
 			if (skillNum != -SKILL_INVALID) {
 				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
 			} else {
-				snprintf(buf, MAX_STRING_LENGTH, "...skills read fail for morph %s", name.c_str());
+				snprintf(buf, kMaxStringLength, "...skills read fail for morph %s", name.c_str());
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
@@ -342,7 +342,7 @@ void load_morphs() {
 			if (found) {
 				affs.insert(affNum);
 			} else {
-				snprintf(buf, MAX_STRING_LENGTH, "...affects read fail for morph %s", name.c_str());
+				snprintf(buf, kMaxStringLength, "...affects read fail for morph %s", name.c_str());
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}

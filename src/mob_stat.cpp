@@ -60,7 +60,7 @@ std::string print_curr_class(CHAR_DATA *ch, const class_exp_node &node,
 	}
 	out += CCNRM(ch, C_NRM);
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "%-13s %s",
 			 node.class_name.c_str(), out.c_str());
 
@@ -142,7 +142,7 @@ std::pair<int, int> get_date() {
 void load() {
 	mob_list.clear();
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(MOB_STAT_FILE_NEW);
@@ -214,7 +214,7 @@ void save() {
 	pugi::xml_document doc;
 	doc.append_child().set_name("mob_list");
 	pugi::xml_node xml_mob_list = doc.child("mob_list");
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 
 	for (auto i = mob_list.cbegin(), iend = mob_list.cend(); i != iend; ++i) {
 		pugi::xml_node mob_node = xml_mob_list.append_child();
@@ -309,7 +309,7 @@ void last_kill_mob(CHAR_DATA *mob, std::string &result) {
 }
 void add_mob(CHAR_DATA *mob, int members) {
 	if (members < 0 || members > MAX_GROUP_SIZE) {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_),
 				 "SYSERROR: mob_vnum=%d, members=%d (%s:%d)",
 				 GET_MOB_VNUM(mob), members, __FILE__, __LINE__);

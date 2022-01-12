@@ -1516,7 +1516,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 		// своей дружине
 		case SCMD_CHANNEL:
 			// вспомнить
-			snprintf(buf, MAX_STRING_LENGTH, "%s дружине: &R'%s'.&n\r\n", GET_NAME(ch), text.c_str());
+			snprintf(buf, kMaxStringLength, "%s дружине: &R'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 			CLAN(ch)->add_remember(buf, Remember::CLAN);
 
 			for (auto d = descriptor_list; d; d = d->next) {
@@ -1526,7 +1526,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 					&& CLAN(d->character) == CLAN(ch)
 					&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
 					&& !ignores(d->character.get(), ch, IGNORE_CLAN)) {
-					snprintf(buf, MAX_STRING_LENGTH, "%s дружине: %s'%s'.%s\r\n",
+					snprintf(buf, kMaxStringLength, "%s дружине: %s'%s'.%s\r\n",
 							 GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
 					d->character->remember_add(buf, Remember::ALL);
 					send_to_char(buf, d->character.get());
@@ -1534,7 +1534,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 			}
 
 			snprintf(buf,
-					 MAX_STRING_LENGTH,
+					 kMaxStringLength,
 					 "Вы дружине: %s'%s'.%s\r\n",
 					 CCIRED(ch, C_NRM),
 					 text.c_str(),
@@ -1547,7 +1547,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 			// союзникам
 		case SCMD_ACHANNEL:
 			// вспомнить
-			snprintf(buf, MAX_STRING_LENGTH, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
+			snprintf(buf, kMaxStringLength, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 			for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 				if ((CLAN(ch)->CheckPolitics((*clan)->GetRent()) == POLITICS_ALLIANCE
 					&& (*clan)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
@@ -1569,7 +1569,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 						if ((CLAN(d->character)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
 							|| CLAN(ch) == CLAN(d->character)) {
 							snprintf(buf,
-									 MAX_STRING_LENGTH,
+									 kMaxStringLength,
 									 "%s союзникам: %s'%s'.%s\r\n",
 									 GET_NAME(ch),
 									 CCIGRN(d->character, C_NRM),
@@ -1583,7 +1583,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 			}
 
 			snprintf(buf,
-					 MAX_STRING_LENGTH,
+					 kMaxStringLength,
 					 "Вы союзникам: %s'%s'.%s\r\n",
 					 CCIGRN(ch, C_NRM),
 					 text.c_str(),
@@ -1715,7 +1715,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::vector<CHAR_DATA::shared_ptr> temp_list;
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->character
-			&& d->character->in_room != NOWHERE
+			&& d->character->in_room != kNowhere
 			&& CLAN(d->character)
 			&& CAN_SEE_CHAR(ch, d->character)
 			&& !IS_IMMORTAL(d->character)
@@ -2956,7 +2956,7 @@ bool Clan::PutChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NAMED)
 		|| GET_OBJ_OWNER(obj)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
@@ -2964,7 +2964,7 @@ bool Clan::PutChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		&& obj->get_contains()) {
 		act("В $o5 что-то лежит.", FALSE, ch, obj, 0, TO_CHAR);
 	} else if (SetSystem::is_norent_set(ch, obj, true) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_ONE_CLANCHEST)) {
-		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return false;
 	} else {
@@ -4302,7 +4302,7 @@ void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	ParseFilter filter(ParseFilter::CLAN);
 
-	char buf_tmp[MAX_INPUT_LENGTH];
+	char buf_tmp[kMaxInputLength];
 	while (*argument) {
 		switch (*argument) {
 			case 'И': argument = one_argument(++argument, buf_tmp);
@@ -4788,7 +4788,7 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		rnum = GET_OBJ_RNUM(obj);
 
-		if (rnum == NOTHING) {
+		if (rnum == kNothing) {
 			continue;
 		}
 
@@ -5216,7 +5216,7 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= NOTHING) {
+		|| GET_OBJ_RNUM(obj) <= kNothing) {
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
 	} else {
 		if (CLAN(ch)->ingr_chest_objcount_ >= CLAN(ch)->ingr_chest_max_objects()) {

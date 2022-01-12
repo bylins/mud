@@ -898,7 +898,7 @@ void CObject::load_applies(const pugi::xml_node *node) {
 	bool first = true;
 	size_t i = 0;
 	for (const auto &apply : applies) {
-		if (i < MAX_OBJ_AFFECT) {
+		if (i < kMaxObjAffect) {
 			set_affected(i, apply);
 		} else {
 			const auto &apply = applies.back();
@@ -912,7 +912,7 @@ void CObject::load_applies(const pugi::xml_node *node) {
 		logger(
 			"WARNING: Object with VNUM %d has applies over the limit of %d. The following applies is ignored: { %s }.\n",
 			get_vnum(),
-			MAX_OBJ_AFFECT,
+			kMaxObjAffect,
 			ignored_applies.str().c_str());
 	}
 }

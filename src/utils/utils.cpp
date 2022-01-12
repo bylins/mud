@@ -764,7 +764,7 @@ void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCR
 	const char *flow;
 	const char *start = NULL;
 	// warning: do not edit messages with max_str's of over this value //
-	char formatted[MAX_STRING_LENGTH];
+	char formatted[kMaxStringLength];
 	char *pos = formatted;
 
 	flow = writer->get_string();
@@ -904,58 +904,58 @@ int real_sector(int room) {
 	if (ROOM_FLAGGED(room, ROOM_NOWEATHER))
 		return sector;
 	switch (sector) {
-		case SECT_INSIDE:
-		case SECT_CITY:
-		case SECT_FLYING:
-		case SECT_UNDERWATER:
-		case SECT_SECRET:
-		case SECT_STONEROAD:
-		case SECT_ROAD:
-		case SECT_WILDROAD: return sector;
+		case kSectInside:
+		case kSectCity:
+		case kSectOnlyFlying:
+		case kSectUnderwater:
+		case kSectSecret:
+		case kSectStoneroad:
+		case kSectRoad:
+		case kSectWildroad: return sector;
 			break;
-		case SECT_FIELD:
+		case kSectField:
 			if (world[room]->weather.snowlevel > 20)
-				return SECT_FIELD_SNOW;
+				return kSectFieldSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return SECT_FIELD_RAIN;
+				return kSectFieldRain;
 			else
-				return SECT_FIELD;
+				return kSectField;
 			break;
-		case SECT_FOREST:
+		case kSectForest:
 			if (world[room]->weather.snowlevel > 20)
-				return SECT_FOREST_SNOW;
+				return kSectForestSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return SECT_FOREST_RAIN;
+				return kSectForestRain;
 			else
-				return SECT_FOREST;
+				return kSectForest;
 			break;
-		case SECT_HILLS:
+		case kSectHills:
 			if (world[room]->weather.snowlevel > 20)
-				return SECT_HILLS_SNOW;
+				return kSectHillsSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return SECT_HILLS_RAIN;
+				return kSectHillsRain;
 			else
-				return SECT_HILLS;
+				return kSectHills;
 			break;
-		case SECT_MOUNTAIN:
+		case kSectMountain:
 			if (world[room]->weather.snowlevel > 20)
-				return SECT_MOUNTAIN_SNOW;
+				return kSectMountainSnow;
 			else
-				return SECT_MOUNTAIN;
+				return kSectMountain;
 			break;
-		case SECT_WATER_SWIM:
-		case SECT_WATER_NOSWIM:
+		case kSectWaterSwim:
+		case kSectWaterNoswim:
 			if (world[room]->weather.icelevel > 30)
-				return SECT_THICK_ICE;
+				return kSectThickIce;
 			else if (world[room]->weather.icelevel > 20)
-				return SECT_NORMAL_ICE;
+				return kSectNormalIce;
 			else if (world[room]->weather.icelevel > 10)
-				return SECT_THIN_ICE;
+				return kSectThinIce;
 			else
 				return sector;
 			break;
 	}
-	return SECT_INSIDE;
+	return kSectInside;
 }
 
 bool same_group(CHAR_DATA *ch, CHAR_DATA *tch) {
@@ -1044,10 +1044,10 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 	int stopbyte;
 //	CHAR_DATA *dg_victim = NULL;
 
-	buf = (char *) malloc(MAX_STRING_LENGTH);
+	buf = (char *) malloc(kMaxStringLength);
 	lbuf = buf;
 
-	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++) {
+	for (stopbyte = 0; stopbyte < kMaxStringLength; stopbyte++) {
 		if (*orig == '$') {
 			switch (*(++orig)) {
 				case 'n':
@@ -1984,13 +1984,13 @@ size_t strlen_no_colors(const char *str) {
 
 // Симуляция телла от моба
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg) {
-	char local_buf[MAX_INPUT_LENGTH];
+	char local_buf[kMaxInputLength];
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
 		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 		return;
 	}
-	snprintf(local_buf, MAX_INPUT_LENGTH,
+	snprintf(local_buf, kMaxInputLength,
 			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
 	send_to_char(ch, "%s%s%s\r\n",
 				 CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
@@ -2391,7 +2391,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 /// имя, метка для клан-хранов
 bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const {
 	bool result = false;
-	char name_obj[MAX_STRING_LENGTH];
+	char name_obj[kMaxStringLength];
 	strcpy(name_obj, GET_OBJ_PNAME(obj, 0).c_str());
 	utils::remove_colors(name_obj);
 	if (name.empty()
@@ -2427,7 +2427,7 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const {
 	} else if (GET_OBJ_RNUM(obj) >= 0) {
 		int proto_tm = obj_proto.at(GET_OBJ_RNUM(obj))->get_timer();
 		if (proto_tm <= 0) {
-			char buf_[MAX_INPUT_LENGTH];
+			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
 					 proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
 			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
@@ -2556,10 +2556,10 @@ bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const {
 std::string ParseFilter::show_obj_aff(OBJ_DATA *obj) {
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it) {
-			for (int i = 0; i < MAX_OBJ_AFFECT; ++i) {
+			for (int i = 0; i < kMaxObjAffect; ++i) {
 				if (obj->get_affected(i).location == *it) {
 					int mod = obj->get_affected(i).modifier;
-					char buf_[MAX_INPUT_LENGTH];
+					char buf_[kMaxInputLength];
 					sprinttype(obj->get_affected(i).location, apply_types, buf_);
 					for (int j = 0; *apply_negative[j] != '\n'; j++) {
 						if (!str_cmp(buf_, apply_negative[j])) {
@@ -2585,10 +2585,10 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const {
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end() && result; ++it) {
 			result = false;
-			for (int i = 0; i < MAX_OBJ_AFFECT; ++i) {
+			for (int i = 0; i < kMaxObjAffect; ++i) {
 				if (obj->get_affected(i).location == *it) {
 					int mod = obj->get_affected(i).modifier;
-					char buf_[MAX_INPUT_LENGTH];
+					char buf_[kMaxInputLength];
 					sprinttype(obj->get_affected(i).location, apply_types, buf_);
 					for (int j = 0; *apply_negative[j] != '\n'; j++) {
 						if (!str_cmp(buf_, apply_negative[j])) {
@@ -2745,7 +2745,7 @@ short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> &ch)
 
 short GET_REAL_REMORT(const CHAR_DATA *ch)
 {
-	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, MAX_REMORT);
+	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
 }
 
 short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> ch)
@@ -3261,7 +3261,7 @@ void CCheckTable::check() const
 void koi_to_utf8(char *str_i, char *str_o)
 {
 	iconv_t cd;
-	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t len_i, len_o = kMaxSockBuf * 6;
 	size_t i;
 
 	if ((cd = iconv_open("UTF-8","KOI8-R")) == (iconv_t) - 1)
@@ -3287,7 +3287,7 @@ void koi_to_utf8(char *str_i, char *str_o)
 void utf8_to_koi(char *str_i, char *str_o)
 {
 	iconv_t cd;
-	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t len_i, len_o = kMaxSockBuf * 6;
 	size_t i;
 
 	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)

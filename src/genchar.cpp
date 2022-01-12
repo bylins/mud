@@ -106,7 +106,7 @@ const char *default_race[] = {
 };
 
 void genchar_disp_menu(CHAR_DATA *ch) {
-	char buf[MAX_STRING_LENGTH];
+	char buf[kMaxStringLength];
 
 	sprintf(buf,
 			"\r\n              -      +\r\n"
@@ -478,7 +478,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 // Функция для склонения имени по падежам.
 // Буквы должны быть заранее переведены в нижний регистр.
 // name - имя в именительном падеже
-// sex - пол (SEX_MALE или SEX_FEMALE)
+// sex - пол (kSexMale или kSexFemale)
 // caseNum - номер падежа (0 - 5)
 //  0 - именительный (кто? что?)
 //  1 - родительный (кого? чего?)
@@ -491,7 +491,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 	size_t len = strlen(name);
 
 	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != NULL
-		&& sex == ESex::SEX_MALE) {
+		&& sex == ESex::kSexMale) {
 		strcpy(result, name);
 		if (caseNum == 1)
 			strcat(result, "а"); // Ивана
@@ -519,7 +519,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		else
 			strcat(result, "я"); // Аня, Ваня
 	} else if (name[len - 1] == 'й'
-		&& sex == ESex::SEX_MALE) {
+		&& sex == ESex::kSexMale) {
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
 		if (caseNum == 1)

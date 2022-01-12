@@ -72,7 +72,7 @@ void message_exchange(char *message, CHAR_DATA *ch, EXCHANGE_ITEM_DATA *j);
 void show_lots(char *filter, short int show_type, CHAR_DATA *ch);
 int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects);
 void clear_exchange_lot(EXCHANGE_ITEM_DATA *lot);
-extern void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
+extern void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]);
 
 void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
@@ -81,7 +81,7 @@ EXCHANGE_ITEM_DATA *create_exchange_item();
 EXCHANGE_ITEM_DATA *exchange_item_list = nullptr;
 std::vector<bool> lot_usage;
 
-char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
 char info_message[] = ("базар выставить <предмет> <цена>        - выставить предмет на продажу\r\n"
 					   "базар цена <#лот> <цена>                - изменить цену на свой лот\r\n"
@@ -171,10 +171,10 @@ int exchange(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 
 int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 
-	char obj_name[MAX_INPUT_LENGTH];
+	char obj_name[kMaxInputLength];
 	int item_cost = 0, lot;
 	OBJ_DATA *obj;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	EXCHANGE_ITEM_DATA *item = NULL;
 	EXCHANGE_ITEM_DATA *j, *next_thing = NULL;
 	int counter;
@@ -234,7 +234,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		send_to_char(tmpbuf, ch);
 		return false;
 	} else if (SetSystem::is_big_set(obj, true)) {
-		snprintf(buf, MAX_STRING_LENGTH, "%s является частью большого набора предметов.\r\n",
+		snprintf(buf, kMaxStringLength, "%s является частью большого набора предметов.\r\n",
 				 obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return false;
@@ -311,7 +311,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
 	int lot, newcost, pay;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 
 	if (!*arg) {
 		send_to_char(info_message, ch);
@@ -380,7 +380,7 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
 	int lot;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 
 	if (!*arg) {
 		send_to_char(info_message, ch);
@@ -434,7 +434,7 @@ int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 int exchange_information(CHAR_DATA *ch, char *arg) {
 	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
 	int lot;
-	char buf[MAX_STRING_LENGTH], buf2[MAX_INPUT_LENGTH];
+	char buf[kMaxStringLength], buf2[kMaxInputLength];
 
 	if (!*arg) {
 		send_to_char(info_message, ch);
@@ -553,7 +553,7 @@ CHAR_DATA *get_char_by_id(int id) {
 int exchange_purchase(CHAR_DATA *ch, char *arg) {
 	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
 	int lot;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	CHAR_DATA *seller;
 
 	if (!*arg) {
@@ -690,11 +690,11 @@ bool correct_filter_length(CHAR_DATA *ch, const char *str) {
 
 int exchange_offers(CHAR_DATA *ch, char *arg) {
 //влом байты считать. Если кто хочет оптимизировать, посчитайте точно.
-	char filter[MAX_INPUT_LENGTH];
-	char multifilter[MAX_STRING_LENGTH];
+	char filter[kMaxInputLength];
+	char multifilter[kMaxStringLength];
 	short int show_type;
 	bool ignore_filter;
-	char arg3[MAX_INPUT_LENGTH], arg4[MAX_INPUT_LENGTH];
+	char arg3[kMaxInputLength], arg4[kMaxInputLength];
 
 	/*
 	show_type
@@ -845,7 +845,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 	}
 
 	if (!ignore_filter && EXCHANGE_FILTER(ch))
-		snprintf(multifilter, MAX_STRING_LENGTH, "%s %s", EXCHANGE_FILTER(ch), filter);
+		snprintf(multifilter, kMaxStringLength, "%s %s", EXCHANGE_FILTER(ch), filter);
 	else
 		strcpy(multifilter, filter);
 
@@ -875,8 +875,8 @@ int exchange_setfilter(CHAR_DATA *ch, char *arg) {
 		return true;
 	}
 
-	char tmpbuf[MAX_INPUT_LENGTH];
-	char filter[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
+	char filter[kMaxInputLength];
 
 	skip_spaces(&arg);
 	strcpy(filter, arg);
@@ -906,10 +906,10 @@ int exchange_setfilter(CHAR_DATA *ch, char *arg) {
 	}
 
 	if (EXCHANGE_FILTER(ch)) {
-		snprintf(tmpbuf, MAX_INPUT_LENGTH, "Ваш старый фильтр: %s. Новый фильтр: %s.\r\n",
+		snprintf(tmpbuf, kMaxInputLength, "Ваш старый фильтр: %s. Новый фильтр: %s.\r\n",
 				 EXCHANGE_FILTER(ch), filter);
 	} else {
-		snprintf(tmpbuf, MAX_INPUT_LENGTH, "Ваш новый фильтр: %s.\r\n", filter);
+		snprintf(tmpbuf, kMaxInputLength, "Ваш новый фильтр: %s.\r\n", filter);
 	}
 	send_to_char(tmpbuf, ch);
 
@@ -967,7 +967,7 @@ void check_exchange(OBJ_DATA *obj) {
 }
 
 EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error) {
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 	EXCHANGE_ITEM_DATA *item = NULL;
 	//char *d;
 
@@ -1049,7 +1049,7 @@ int exchange_database_load() {
 	char *data, *readdata;
 	EXCHANGE_ITEM_DATA *item;
 	int fsize, error, max_lot = 0;
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 
 	log("Exchange: loading database... (exchange.cpp)");
 
@@ -1124,7 +1124,7 @@ int exchange_database_reload(bool loadbackup) {
 	char *data, *readdata;
 	EXCHANGE_ITEM_DATA *item, *j, *next_thing;
 	int fsize, error, max_lot = 0;
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 
 	for (j = exchange_item_list; j; j = next_thing) {
 		next_thing = j->next;
@@ -1310,7 +1310,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA *ch) {
 	10 - тяжелые доспехи
 	11 - аффект
 	*/
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	bool any_item = 0;
 
 	ParseFilter params(ParseFilter::EXCHANGE);
@@ -1376,7 +1376,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA *ch) {
 				bool found = false;
 				int drndice = 0, drsdice = 0;
 
-				for (int n = 0; n < MAX_OBJ_AFFECT; n++) {
+				for (int n = 0; n < kMaxObjAffect; n++) {
 					drndice = GET_EXCHANGE_ITEM(j)->get_affected(n).location;
 					drsdice = GET_EXCHANGE_ITEM(j)->get_affected(n).modifier;
 					if ((drndice != APPLY_NONE) && (drsdice != 0)) {
@@ -1390,7 +1390,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA *ch) {
 						}
 						if (drsdice < 0)
 							negative = !negative;
-						snprintf(buf, MAX_STRING_LENGTH, "%s %s%d", buf2, negative ? "-" : "+", abs(drsdice));
+						snprintf(buf, kMaxStringLength, "%s %s%d", buf2, negative ? "-" : "+", abs(drsdice));
 						found = true;
 						break;
 					}
@@ -1403,7 +1403,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA *ch) {
 							GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str());
 				} else {
 					snprintf(tmpbuf,
-							 MAX_INPUT_LENGTH,
+							 kMaxInputLength,
 							 "[%4d]   %s (%s)",
 							 GET_EXCHANGE_ITEM_LOT(j),
 							 GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(),
@@ -1411,7 +1411,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA *ch) {
 				}
 			} else  // end by WorM
 			{
-				snprintf(tmpbuf, MAX_INPUT_LENGTH, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j),
+				snprintf(tmpbuf, kMaxInputLength, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j),
 						 GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
 			}
 		} else if (is_dig_stone(GET_EXCHANGE_ITEM(j))

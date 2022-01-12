@@ -57,8 +57,8 @@ struct activ_node {
 	bool npc;
 	// аффекты (obj_flags.affects)
 	FLAG_DATA affects;
-	// APPLY_XXX аффекты (affected[MAX_OBJ_AFFECT])
-	std::array<obj_affected_type, MAX_OBJ_AFFECT> apply;
+	// APPLY_XXX аффекты (affected[kMaxObjAffect])
+	std::array<obj_affected_type, kMaxObjAffect> apply;
 	// изменение умения. идет в bonus, но в активаторах юзается это поле
 	// а не bonus::skills, которое юзается для справки и складывании на чаре
 	std::pair<CObjectPrototype::skills_t::key_type, CObjectPrototype::skills_t::mapped_type> skill;

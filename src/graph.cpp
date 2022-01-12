@@ -49,7 +49,7 @@ struct bfs_queue_struct {
 #define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_LOCKED))
 
 int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
-	if (world[x]->dir_option[y] == NULL || TOROOM(x, y) == NOWHERE)
+	if (world[x]->dir_option[y] == NULL || TOROOM(x, y) == kNowhere)
 		return 0;
 
 	// Попытка уползти в другую зону

@@ -63,7 +63,7 @@ void doList(CHAR_DATA *ch, CHAR_DATA *boss, bool isFavList) {
 			"А всего за %d кун моя ватага приведёт тебе любого из них живым и невредимым.",
 			1000 * (GET_REAL_REMORT(ch) + 1));
 	tell_to_char(boss, ch, buf);
-	snprintf(buf, MAX_INPUT_LENGTH, "ухмы %s", GET_NAME(ch));
+	snprintf(buf, kMaxInputLength, "ухмы %s", GET_NAME(ch));
 	do_social(boss, buf);
 };
 
@@ -181,9 +181,9 @@ int mercenary(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 		return 0;
 	}
 
-	char subCmd[MAX_INPUT_LENGTH];
-	char cmdParam[MAX_INPUT_LENGTH];
-	char bank[MAX_INPUT_LENGTH];
+	char subCmd[kMaxInputLength];
+	char cmdParam[kMaxInputLength];
+	char bank[kMaxInputLength];
 	unsigned int pos;
 
 	three_arguments(argument, subCmd, cmdParam, bank);

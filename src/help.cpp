@@ -128,7 +128,7 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 	}
 
 	std::string tmp_str;
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (obj->get_affected(i).modifier != 0) {
 			tmp_str += "   " + print_obj_affects(obj->get_affected(i));
 		}
@@ -152,9 +152,9 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	std::stringstream out;
 
 	out << " + Профессии :";
-	for (int i = 0; i <= NUM_PLAYER_CLASSES * NUM_KIN; ++i) {
+	for (int i = 0; i <= NUM_PLAYER_CLASSES * kNumKins; ++i) {
 		if (check_num_in_unique_bit_flag_data(activ->first, i)) {
-			if (i < NUM_PLAYER_CLASSES * NUM_KIN) {
+			if (i < NUM_PLAYER_CLASSES * kNumKins) {
 				out << " " << class_name[i];
 			} else {
 				out << " чармисы";
@@ -168,9 +168,9 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 		out << " + Аффекты : " << buf2 << "\r\n";
 	}
 
-	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected = activ->second.get_affected();
+	std::array<obj_affected_type, kMaxObjAffect> affected = activ->second.get_affected();
 	std::string tmp_str;
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (affected[i].modifier != 0) {
 			tmp_str += " +    " + print_obj_affects(affected[i]);
 		}
@@ -230,7 +230,7 @@ void activators_obj::fill_class(set_info::const_iterator k) {
 			 mend = k->second.end(); m != mend; ++m) {
 		for (class_to_act_map::const_iterator q = m->second.begin(),
 				 qend = m->second.end(); q != qend; ++q) {
-			for (int i = 0; i <= NUM_PLAYER_CLASSES * NUM_KIN; ++i) {
+			for (int i = 0; i <= NUM_PLAYER_CLASSES * kNumKins; ++i) {
 				if (check_num_in_unique_bit_flag_data(q->first, i)) {
 					struct clss_activ_node tmp_node;
 					clss_list[i] = tmp_node;
@@ -280,7 +280,7 @@ std::string activators_obj::print() {
 			 cls_it_end = clss_list.end(); cls_it != cls_it_end; ++cls_it) {
 		// распечатка аффектов каждой профы
 		dup_node node;
-		node.clss += cls_it->first < NUM_PLAYER_CLASSES * NUM_KIN ? class_name[cls_it->first] : "чармисы";
+		node.clss += cls_it->first < NUM_PLAYER_CLASSES * kNumKins ? class_name[cls_it->first] : "чармисы";
 		// affects
 		cls_it->second.total_affects += native_affects;
 		if (cls_it->second.total_affects.sprintbits(weapon_affects, buf2, ",")) {

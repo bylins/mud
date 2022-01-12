@@ -36,7 +36,7 @@ class PlayerI {
 	virtual int get_pfilepos() const { return -1; };
 	virtual void set_pfilepos(int/* pfilepos*/) {};
 
-	virtual room_rnum get_was_in_room() const { return NOWHERE; };
+	virtual room_rnum get_was_in_room() const { return kNowhere; };
 	virtual void set_was_in_room(room_rnum/* was_in_room*/) {};
 
 	virtual std::string const &get_passwd() const { return empty_const_str; };
@@ -55,7 +55,7 @@ class PlayerI {
 	virtual std::string const &get_last_tell() { return empty_const_str; };
 
 	virtual void set_answer_id(int/* id*/) {};
-	virtual int get_answer_id() const { return NOBODY; };
+	virtual int get_answer_id() const { return kNobody; };
 
 	virtual void remember_add(const std::string &/* text*/, int/* flag*/) {};
 	virtual std::string remember_get(int/* flag*/) const { return ""; };

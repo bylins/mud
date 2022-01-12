@@ -32,7 +32,7 @@ int EasterMonth = 0;
 int EasterDay = 0;
 
 void gods_day_now(CHAR_DATA *ch) {
-	char mono[MAX_INPUT_LENGTH], poly[MAX_INPUT_LENGTH], real[MAX_INPUT_LENGTH];
+	char mono[kMaxInputLength], poly[kMaxInputLength], real[kMaxInputLength];
 	*mono = 0;
 	*poly = 0;
 	*real = 0;
@@ -59,13 +59,13 @@ void gods_day_now(CHAR_DATA *ch) {
 		sprintf(mono + strlen(mono), "Пасха    : %d.%02d\r\n", EasterDay + 1, EasterMonth + 1);
 		send_to_char(poly, ch);
 		send_to_char(mono, ch);
-	} else if (GET_RELIGION(ch) == RELIGION_POLY) {
+	} else if (GET_RELIGION(ch) == kReligionPoly) {
 		if (poly_name != "") {
 			sprintf(poly, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
 					poly_name.c_str(), CCNRM(ch, C_NRM));
 			send_to_char(poly, ch);
 		}
-	} else if (GET_RELIGION(ch) == RELIGION_MONO) {
+	} else if (GET_RELIGION(ch) == kReligionMono) {
 		if (mono_name != "") {
 			sprintf(mono, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
 					mono_name.c_str(), CCNRM(ch, C_NRM));
@@ -827,7 +827,7 @@ const int moon_modifiers[28] = {-10, -9, -7, -5, -3, 0, 0, 0, 0, 0, 0, 0, 1, 5, 
 
 int day_spell_modifier(CHAR_DATA *ch, int/* spellnum*/, int type, int value) {
 	int modi = value;
-	if (IS_NPC(ch) || ch->in_room == NOWHERE)
+	if (IS_NPC(ch) || ch->in_room == kNowhere)
 		return (modi);
 	switch (type) {
 		case GAPPLY_SPELL_SUCCESS: modi = modi * (100 + moon_modifiers[weather_info.moon_day]) / 100;
@@ -843,9 +843,9 @@ int weather_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value) {
 	int modi = value, sky = weather_info.sky, season = weather_info.season;
 
 	if (IS_NPC(ch) ||
-		ch->in_room == NOWHERE ||
-		SECT(ch->in_room) == SECT_INSIDE ||
-		SECT(ch->in_room) == SECT_CITY ||
+		ch->in_room == kNowhere ||
+		SECT(ch->in_room) == kSectInside ||
+		SECT(ch->in_room) == kSectCity ||
 		ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) || ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER) || IS_NPC(ch))
 		return (modi);
 
@@ -915,8 +915,8 @@ int weather_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 
 	if (IS_NPC(ch) ||
-		SECT(ch->in_room) == SECT_INSIDE ||
-		SECT(ch->in_room) == SECT_CITY ||
+		SECT(ch->in_room) == kSectInside ||
+		SECT(ch->in_room) == kSectCity ||
 		ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) || ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER))
 		return (modi);
 

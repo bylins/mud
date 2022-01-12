@@ -615,11 +615,11 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		remove_glory(GET_UNIQUE(ch), amount);
 		add_glory(GET_UNIQUE(vict), total_amount);
 
-		snprintf(buf, MAX_STRING_LENGTH,
+		snprintf(buf, kMaxStringLength,
 				 "Transfer %d const glory from %s", total_amount, GET_NAME(ch));
 		add_karma(vict, buf, "командой");
 
-		snprintf(buf, MAX_STRING_LENGTH, "Transfer %d const glory to %s", amount, GET_NAME(vict));
+		snprintf(buf, kMaxStringLength, "Transfer %d const glory to %s", amount, GET_NAME(vict));
 		add_karma(ch, buf, "командой");
 
 		total_charge += tax;
@@ -736,7 +736,7 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	enum { SHOW_GLORY, ADD_GLORY, SUB_GLORY, RESET_GLORY };
 
-	char num[MAX_INPUT_LENGTH];
+	char num[kMaxInputLength];
 	int mode = 0;
 
 	char *reason = two_arguments(argument, arg, num);
@@ -870,7 +870,7 @@ void load() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"glory_const.xml");
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "SYSERR: error reading glory_const.xml: %s", result.description());
+		snprintf(buf, kMaxStringLength, "SYSERR: error reading glory_const.xml: %s", result.description());
 		perror(buf);
 		return;
 	}
@@ -879,7 +879,7 @@ void load() {
 		ver = std::stoi(char_list.attribute("version").value(), nullptr, 10);
 		if (ver > cur_ver) {
 			snprintf(buf,
-					 MAX_STRING_LENGTH,
+					 kMaxStringLength,
 					 "SYSERR: error reading glory_const.xml: unsupported version: %d, current version: %d",
 					 ver,
 					 cur_ver);

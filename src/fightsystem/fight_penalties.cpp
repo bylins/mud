@@ -59,7 +59,7 @@ bool GroupPenaltyCalculator::penalty_by_leader(const CHAR_DATA *player, int &pen
 	}
 
 	if (0 > player_remorts
-		|| player_remorts > MAX_REMORT) {
+		|| player_remorts > kMaxRemort) {
 		log("LOGIC ERROR: wrong number of remorts: %d for player [%s]",
 			player_remorts,
 			player->get_name().c_str());

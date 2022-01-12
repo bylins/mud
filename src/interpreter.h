@@ -315,7 +315,7 @@ const char *one_argument(const char *argument, char *first_arg);
 
 ///
 /// same as one_argument except that it doesn't ignore fill words
-/// как бы декларируем, что first_arg должен быть не менее MAX_INPUT_LENGTH
+/// как бы декларируем, что first_arg должен быть не менее kMaxInputLength
 ///
 char *any_one_arg(char *argument, char *first_arg);
 const char *any_one_arg(const char *argument, char *first_arg);

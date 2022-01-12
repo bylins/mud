@@ -363,7 +363,7 @@ void load() {
 			// <apply>
 			for (pugi::xml_node xml_apply = xml_activ.child("apply"); xml_apply;
 				 xml_apply = xml_apply.next_sibling("apply")) {
-				// заполняются только первые MAX_OBJ_AFFECT
+				// заполняются только первые kMaxObjAffect
 				for (auto i = tmp_activ.apply.begin();
 					 i != tmp_activ.apply.end(); ++i) {
 					if (i->location <= 0) {

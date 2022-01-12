@@ -401,10 +401,10 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch) {
 }
 
 void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
-	char arg3[MAX_INPUT_LENGTH];
-	char arg4[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
+	char arg3[kMaxInputLength];
+	char arg4[kMaxInputLength];
 	OBJ_DATA *next_obj, *cont;
 	CHAR_DATA *tmp_char;
 	int obj_dotmode, cont_dotmode, found = 0, howmany = 1, money_mode = FALSE;
@@ -543,8 +543,8 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //переложить стрелы из пучка стрел
 //в колчан
 void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
 	OBJ_DATA *from_obj = NULL, *to_obj = NULL;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -657,7 +657,7 @@ void split_or_clan_tax(CHAR_DATA *ch, long amount) {
 	if (IS_AFFECTED(ch, AFF_GROUP)
 		&& other_pc_in_group(ch) > 0
 		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
 		do_split(ch, buf_, 0, 0);
 	} else {
@@ -916,8 +916,8 @@ void get_from_room(CHAR_DATA *ch, char *arg, int howmany) {
 }
 
 void do_mark(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
 
 	int cont_dotmode, found = 0;
 	OBJ_DATA *cont;
@@ -976,10 +976,10 @@ void do_mark(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_get(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
-	char arg3[MAX_INPUT_LENGTH];
-	char arg4[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
+	char arg3[kMaxInputLength];
+	char arg4[kMaxInputLength];
 	char *theobj, *thecont, *theplace;
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_EQUIP | FIND_OBJ_ROOM;
 
@@ -1178,7 +1178,7 @@ void do_drop(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			sprintf(buf, "%s %d чего?\r\n", drop_op[0], multi);
 			send_to_char(buf, ch);
 		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-			snprintf(buf, MAX_INPUT_LENGTH, "У вас нет ничего похожего на %s.\r\n", arg);
+			snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на %s.\r\n", arg);
 			send_to_char(buf, ch);
 		} else {
 			do {
@@ -1205,7 +1205,7 @@ void do_drop(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				return;
 			}
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, MAX_INPUT_LENGTH, "У вас нет ничего похожего на '%s'.\r\n", arg);
+				snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			while (obj) {
@@ -1215,7 +1215,7 @@ void do_drop(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			}
 		} else {
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, MAX_INPUT_LENGTH, "У вас нет '%s'.\r\n", arg);
+				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			} else
 				perform_drop(ch, obj);
@@ -1389,7 +1389,7 @@ void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (!(vict = give_find_vict(ch, argument))) {
 			return;
 		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-			snprintf(buf, MAX_INPUT_LENGTH, "У вас нет '%s'.\r\n", arg);
+			snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
 			send_to_char(buf, ch);
 		} else {
 			while (obj && amount--) {
@@ -1405,7 +1405,7 @@ void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		dotmode = find_all_dots(arg);
 		if (dotmode == FIND_INDIV) {
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-				snprintf(buf, MAX_INPUT_LENGTH, "У вас нет '%s'.\r\n", arg);
+				snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			} else
 				perform_give(ch, vict, obj);
@@ -1440,7 +1440,7 @@ void weight_change_object(OBJ_DATA *obj, int weight) {
 	OBJ_DATA *tmp_obj;
 	CHAR_DATA *tmp_ch;
 
-	if (obj->get_in_room() != NOWHERE) {
+	if (obj->get_in_room() != kNowhere) {
 		obj->set_weight(MAX(1, GET_OBJ_WEIGHT(obj) + weight));
 	} else if ((tmp_ch = obj->get_carried_by())) {
 		obj_from_char(obj);
@@ -1467,7 +1467,7 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 	if (!(meet = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, MAX_STRING_LENGTH, "У вас нет '%s'.\r\n", arg);
+		snprintf(buf, kMaxStringLength, "У вас нет '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -1531,7 +1531,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (!(food = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет '%s'.\r\n", arg);
+		snprintf(buf, kMaxInputLength, "У вас нет '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -1580,7 +1580,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Вы наелись.\r\n", ch);
 	}
 
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (food->get_affected(i).modifier) {
 			AFFECT_DATA<EApplyLocation> af;
 			af.location = food->get_affected(i).location;
@@ -1898,8 +1898,8 @@ int find_eq_pos(CHAR_DATA *ch, OBJ_DATA *obj, char *arg) {
 }
 
 void do_wear(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
 	OBJ_DATA *obj, *next_obj;
 	int where, dotmode, items_worn = 0;
 
@@ -1982,7 +1982,7 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg)
 		send_to_char("Вооружиться чем?\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, MAX_INPUT_LENGTH, "Вы не видите ничего похожего на \'%s\'.\r\n", arg);
+		snprintf(buf, kMaxInputLength, "Вы не видите ничего похожего на \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 	} else {
 		if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)
@@ -2061,7 +2061,7 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg)
 		send_to_char("Вы заорали : 'Держи его!!! Хватай его!!!'\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет ничего похожего на '%s'.\r\n", arg);
+		snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 	} else {
 		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_LIGHT) {
@@ -2179,7 +2179,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			if (!found) {
-				snprintf(buf, MAX_STRING_LENGTH, "Вы не используете ни одного '%s'.\r\n", arg);
+				snprintf(buf, kMaxStringLength, "Вы не используете ни одного '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 				return;
 			}
@@ -2200,7 +2200,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				else
 					perform_remove(ch, WEAR_HOLD);
 			} else {
-				snprintf(buf, MAX_INPUT_LENGTH, "Вы не используете '%s'.\r\n", arg);
+				snprintf(buf, kMaxInputLength, "Вы не используете '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 				return;
 			}
@@ -2233,7 +2233,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет \'%s\'.\r\n", arg);
+		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
@@ -2254,7 +2254,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	// Make sure no other (than hitroll & damroll) affections.
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		if ((obj->get_affected(i).location != APPLY_NONE)
 			&& (obj->get_affected(i).location != APPLY_HITROLL)
 			&& (obj->get_affected(i).location != APPLY_DAMROLL)) {
@@ -2347,7 +2347,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	OBJ_DATA *obj;
-	char arg2[MAX_INPUT_LENGTH];
+	char arg2[kMaxInputLength];
 	int add_ac, prob, percent, i, armorvalue;
 	const auto &strengthening = GlobalObjects::strengthening();
 
@@ -2362,7 +2362,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Что вы хотите укрепить?\r\n", ch);
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет \'%s\'.\r\n", arg);
+		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -2379,7 +2379,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	// Make sure no other affections.
-	for (i = 0; i < MAX_OBJ_AFFECT; i++)
+	for (i = 0; i < kMaxObjAffect; i++)
 		if (obj->get_affected(i).location != APPLY_NONE) {
 			send_to_char("Этот предмет не может быть укреплен.\r\n", ch);
 			return;
@@ -2517,12 +2517,12 @@ void do_fire(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (SECT(ch->in_room) == SECT_INSIDE ||
-		SECT(ch->in_room) == SECT_CITY ||
-		SECT(ch->in_room) == SECT_WATER_SWIM ||
-		SECT(ch->in_room) == SECT_WATER_NOSWIM ||
-		SECT(ch->in_room) == SECT_FLYING ||
-		SECT(ch->in_room) == SECT_UNDERWATER || SECT(ch->in_room) == SECT_SECRET) {
+	if (SECT(ch->in_room) == kSectInside ||
+		SECT(ch->in_room) == kSectCity ||
+		SECT(ch->in_room) == kSectWaterSwim ||
+		SECT(ch->in_room) == kSectWaterNoswim ||
+		SECT(ch->in_room) == kSectOnlyFlying ||
+		SECT(ch->in_room) == kSectUnderwater || SECT(ch->in_room) == kSectSecret) {
 		send_to_char("В этой комнате нельзя разжечь костер.\r\n", ch);
 		return;
 	}
@@ -2872,7 +2872,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет \'%s\'.\r\n", arg);
+		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
@@ -3008,7 +3008,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!obj) {
 		obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
 		if (!obj) {
-			snprintf(buf, MAX_INPUT_LENGTH, "Вы не видите здесь '%s'.\r\n", arg);
+			snprintf(buf, kMaxInputLength, "Вы не видите здесь '%s'.\r\n", arg);
 			send_to_char(buf, ch);
 			return;
 		}
@@ -3187,11 +3187,11 @@ void feed_charmice(CHAR_DATA *ch, char *arg) {
 // чтоб не абузили длину. персональные пофиг, а клановые не надо.
 #define MAX_LABEL_LENGTH 32
 void do_custom_label(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
 
-	char arg3[MAX_INPUT_LENGTH];
-	char arg4[MAX_INPUT_LENGTH];
+	char arg3[kMaxInputLength];
+	char arg4[kMaxInputLength];
 
 	OBJ_DATA *target = NULL;
 	int erase_only = 0; // 0 -- наносим новую метку, 1 -- удаляем старую

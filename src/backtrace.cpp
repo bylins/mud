@@ -17,13 +17,13 @@ constexpr unsigned short MAX_STACK_SIZE = USHRT_MAX;
 #ifdef _WIN32
 void win32_backtrace(FILE* file)
 {
-	constexpr size_t MAX_NAME_LENGTH = 1024u;
+	constexpr size_t kMaxNameLength = 1024u;
 	const auto process = GetCurrentProcess();
 	SymInitialize(process, nullptr, TRUE);
 	void* stack[MAX_STACK_SIZE];
 	const auto frames = CaptureStackBackTrace(0, MAX_STACK_SIZE, stack, nullptr);
-	SYMBOL_INFO* symbol = (SYMBOL_INFO *) calloc(sizeof(SYMBOL_INFO) + MAX_NAME_LENGTH*sizeof(char), 1);
-	symbol->MaxNameLen = MAX_NAME_LENGTH - 1;
+	SYMBOL_INFO* symbol = (SYMBOL_INFO *) calloc(sizeof(SYMBOL_INFO) + kMaxNameLength*sizeof(char), 1);
+	symbol->MaxNameLen = kMaxNameLength - 1;
 	symbol->SizeOfStruct = sizeof(*symbol);
 	for (auto i = 0; i < frames; ++i)
 	{

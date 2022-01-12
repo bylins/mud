@@ -336,7 +336,7 @@ std::string base64_decode(const std::string &encoded_string) {
 }
 
 std::string to_iso8601(time_t time) {
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	strftime(buf_, sizeof(buf_), "%FT%T", localtime(&time));
 	return buf_;
 }
@@ -457,7 +457,7 @@ void add(int to_uid, int from_uid, const char *message) {
 	node.date = time(0);
 	node.text = coder::base64_encode(message, strlen(message));
 
-	char buf_[MAX_STRING_LENGTH];
+	char buf_[kMaxStringLength];
 	snprintf(buf_, sizeof(buf_), "%s %d %d",
 			 coder::to_iso8601(node.date).c_str(), from_uid, to_uid);
 	node.header = coder::base64_encode(buf_, strlen(buf_));
@@ -511,7 +511,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
 		obj->set_PName(3, "письмо");
 		obj->set_PName(4, "письмом");
 		obj->set_PName(5, "письме");
-		obj->set_sex(ESex::SEX_NEUTRAL);
+		obj->set_sex(ESex::kSexNeutral);
 		obj->set_type(OBJ_DATA::ITEM_NOTE);
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
 		obj->set_weight(1);
@@ -524,10 +524,10 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
 		obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 		obj->set_extra_flag(EExtraFlag::ITEM_NORENT);
 
-		char buf_date[MAX_INPUT_LENGTH];
+		char buf_date[kMaxInputLength];
 		strftime(buf_date, sizeof(buf_date), "%H:%M %d-%m-%Y", localtime(&i->second.date));
 
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_),
 				 " * * * * Княжеская почта * * * *\r\n"
 				 "Дата: %s\r\n"
@@ -573,13 +573,13 @@ void load() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(MAIL_XML_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 	pugi::xml_node mail_n = doc.child("mail");
 	if (!mail_n) {
-		snprintf(buf, MAX_STRING_LENGTH, "...<mail> read fail");
+		snprintf(buf, kMaxStringLength, "...<mail> read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}

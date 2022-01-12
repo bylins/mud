@@ -167,14 +167,14 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 */
 void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 	int i = 0, j = 0, sortpos, slot, max_slot = 0;
-	char msg[MAX_STRING_LENGTH];
+	char msg[kMaxStringLength];
 	bool sfound;
 
 	//Найдем максимальный слот, который вобще может потребоваться данному персонажу на текущем морте
 	max_slot = MAX_ACC_FEAT(ch);
 	char **names = new char *[max_slot];
 	for (int k = 0; k < max_slot; k++)
-		names[k] = new char[MAX_STRING_LENGTH];
+		names[k] = new char[kMaxStringLength];
 
 	if (all_feats) {
 		sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");
@@ -203,7 +203,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 						 " Пометкой [И] выделены уже изученные способности.\r\n"
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
-		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++) {
+		for (sortpos = 1; sortpos < kMaxFeats; sortpos++) {
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 				&& !PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos))
 				continue;
@@ -231,7 +231,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 		}
 		sprintf(buf1, "--------------------------------------");
 		for (i = 0; i < max_slot; i++) {
-			if (strlen(buf1) >= MAX_STRING_LENGTH - 60) {
+			if (strlen(buf1) >= kMaxStringLength - 60) {
 				strcat(buf1, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 				break;
 			}
@@ -255,8 +255,8 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
-	for (sortpos = 1; sortpos < MAX_FEATS; sortpos++) {
-		if (strlen(buf2) >= MAX_STRING_LENGTH - 60) {
+	for (sortpos = 1; sortpos < kMaxFeats; sortpos++) {
+		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;
 		}
@@ -421,7 +421,7 @@ void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter/* = NULL*/) 
 		size_t buf2_length = strlen(buf2);
 		for (skills_t::const_iterator i = skills.begin(); i != skills.end(); ++i) {
 			// why 60?
-			if (buf2_length + i->length() >= MAX_STRING_LENGTH - 60) {
+			if (buf2_length + i->length() >= kMaxStringLength - 60) {
 				strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 				break;
 			}
@@ -475,7 +475,7 @@ const char *spells_color(int spellnum) {
 void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
 	using PlayerClass::slot_for_char;
 
-	char names[MAX_SLOT][MAX_STRING_LENGTH];
+	char names[MAX_SLOT][kMaxStringLength];
 	std::string time_str;
 	int slots[MAX_SLOT], i, max_slot = 0, slot_num, is_full, gcount = 0, can_cast = 1;
 
@@ -620,7 +620,7 @@ struct guild_poly_type **guild_poly_info = nullptr;
 
 void init_guilds(void) {
 	FILE *magic;
-	char name[MAX_INPUT_LENGTH],
+	char name[kMaxInputLength],
 		line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
 	int i, spellnum, skillnum, featnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
 	std::unique_ptr<struct guild_poly_type, decltype(free) *> poly_guild(nullptr, free);
@@ -736,7 +736,7 @@ void init_guilds(void) {
 				skillnum = FixNameAndFindSkillNum(line1);
 			}
 
-			if ((featnum = atoi(line1)) == 0 || featnum >= MAX_FEATS) {
+			if ((featnum = atoi(line1)) == 0 || featnum >= kMaxFeats) {
 				if ((pos = strchr(line1, '.')))
 					*pos = ' ';
 				featnum = find_feat_num(line1);
@@ -803,7 +803,7 @@ void init_guilds(void) {
 				skillnum = FixNameAndFindSkillNum(line5);
 			}
 
-			if ((featnum = atoi(line5)) == 0 || featnum >= MAX_FEATS) {
+			if ((featnum = atoi(line5)) == 0 || featnum >= kMaxFeats) {
 				if ((pos = strchr(line5, '.')))
 					*pos = ' ';
 
@@ -967,7 +967,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 					const int feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
 					if (feat_no > 0
-						&& feat_no < MAX_FEATS) {
+						&& feat_no < kMaxFeats) {
 						if (!HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
 							sfound = TRUE;
 						}
@@ -988,7 +988,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			}
 
 			const int feat_no = find_feat_num(argument);
-			if ((feat_no > 0 && feat_no < MAX_FEATS)) {
+			if ((feat_no > 0 && feat_no < kMaxFeats)) {
 				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
@@ -1201,7 +1201,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 					const int feat_no = (guild_poly_info[info_num] + i)->feat_no;
 					if (feat_no > 0
-						&& feat_no < MAX_FEATS) {
+						&& feat_no < kMaxFeats) {
 						if (!HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
 							gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 											  CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
@@ -1244,7 +1244,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 					const int feat_no = (guild_poly_info[info_num] + i)->feat_no;
 					if (feat_no > 0
-						&& feat_no < MAX_FEATS) {
+						&& feat_no < kMaxFeats) {
 						if (!HAVE_FEAT(ch, feat_no)
 							&& can_get_feat(ch, feat_no)) {
 							sfound = TRUE;
@@ -1334,13 +1334,13 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			}
 
 			int feat_no = find_feat_num(argument);
-			if (feat_no < 0 || feat_no >= MAX_FEATS) {
+			if (feat_no < 0 || feat_no >= kMaxFeats) {
 				std::string str(argument);
 				std::replace_if(str.begin(), str.end(), boost::is_any_of("_:"), ' ');
 				feat_no = find_feat_num(str.c_str(), true);
 			}
 
-			if (feat_no > 0 && feat_no < MAX_FEATS) {
+			if (feat_no > 0 && feat_no < kMaxFeats) {
 				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->feat_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
@@ -1824,7 +1824,7 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting()) {
 		return (FALSE);
-	} else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == NOWHERE) {
+	} else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere) {
 		return (FALSE);
 	} else if (ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())) {
@@ -1849,7 +1849,7 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 		}
 		if (EXIT_FLAGGED(rdata, EX_CLOSED)) {
 			if (GET_REAL_INT(ch) >= 15
-				|| GET_DEST(ch) != NOWHERE
+				|| GET_DEST(ch) != kNowhere
 				|| MOB_FLAGGED(ch, MOB_OPENDOOR)) {
 				do_doorcmd(ch, 0, dir, SCMD_OPEN);
 				need_close = TRUE;
@@ -1864,7 +1864,7 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 		// закрываем за собой только существующую дверь
 		if (EXIT(ch, close_direction) &&
 			EXIT_FLAGGED(EXIT(ch, close_direction), EX_ISDOOR) &&
-			EXIT(ch, close_direction)->to_room() != NOWHERE) {
+			EXIT(ch, close_direction)->to_room() != kNowhere) {
 			do_doorcmd(ch, 0, close_direction, SCMD_CLOSE);
 		}
 	}
@@ -1874,7 +1874,7 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 		// запираем за собой только существующую дверь
 		if (EXIT(ch, lock_direction) &&
 			EXIT_FLAGGED(EXIT(ch, lock_direction), EX_ISDOOR) &&
-			EXIT(ch, lock_direction)->to_room() != NOWHERE) {
+			EXIT(ch, lock_direction)->to_room() != kNowhere) {
 			do_doorcmd(ch, 0, lock_direction, SCMD_LOCK);
 		}
 	}
@@ -1905,7 +1905,7 @@ int calculate_weapon_class(CHAR_DATA *ch, OBJ_DATA *weapon) {
 
 	hits = CalcCurrentSkill(ch, static_cast<ESkill>(GET_OBJ_SKILL(weapon)), 0);
 	damage = (GET_OBJ_VAL(weapon, 1) + 1) * (GET_OBJ_VAL(weapon, 2)) / 2;
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		auto &affected = weapon->get_affected(i);
 		if (affected.location == APPLY_DAMROLL) {
 			damage += affected.modifier;
@@ -2201,10 +2201,10 @@ int npc_battle_scavenge(CHAR_DATA *ch) {
 int npc_walk(CHAR_DATA *ch) {
 	int rnum, door = BFS_ERROR;
 
-	if (ch->in_room == NOWHERE)
+	if (ch->in_room == kNowhere)
 		return (BFS_ERROR);
 
-	if (GET_DEST(ch) == NOWHERE || (rnum = real_room(GET_DEST(ch))) == NOWHERE)
+	if (GET_DEST(ch) == kNowhere || (rnum = real_room(GET_DEST(ch))) == kNowhere)
 		return (BFS_ERROR);
 
 	if (ch->in_room == rnum) {
@@ -2215,7 +2215,7 @@ int npc_walk(CHAR_DATA *ch) {
 		if (!ch->mob_specials.dest_pos && ch->mob_specials.dest_dir < 0)
 			ch->mob_specials.dest_dir = 0;
 		ch->mob_specials.dest_pos += ch->mob_specials.dest_dir >= 0 ? 1 : -1;
-		if (((rnum = real_room(GET_DEST(ch))) == NOWHERE)
+		if (((rnum = real_room(GET_DEST(ch))) == kNowhere)
 			|| rnum == ch->in_room)
 			return (BFS_ERROR);
 		else
@@ -2299,7 +2299,7 @@ void npc_group(CHAR_DATA *ch) {
 	CHAR_DATA *leader = NULL;
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
-	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
+	if (GET_DEST(ch) == kNowhere || ch->in_room == kNowhere)
 		return;
 
 	// ноугруп мобы не вступают в группу
@@ -2394,7 +2394,7 @@ void npc_groupbattle(CHAR_DATA *ch) {
 		|| !ch->get_fighting()
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| !ch->has_master()
-		|| ch->in_room == NOWHERE
+		|| ch->in_room == kNowhere
 		|| !ch->followers) {
 		return;
 	}
@@ -2777,7 +2777,7 @@ int cityguard(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 #define PET_PRICE(pet) (GET_REAL_LEVEL(pet) * 300)
 
 int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
-	char buf[MAX_STRING_LENGTH], pet_name[256];
+	char buf[kMaxStringLength], pet_name[256];
 	room_rnum pet_room;
 	CHAR_DATA *pet;
 

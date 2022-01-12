@@ -397,7 +397,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 						total_len++;
 						pos++;
 						sprintf(buf1, "%s", buf);
-						snprintf(buf, MAX_STRING_LENGTH, "%s%4d:\r\n", buf1, (i - 1));
+						snprintf(buf, kMaxStringLength, "%s%4d:\r\n", buf1, (i - 1));
 						strncat(buf, beginning, pos - beginning);
 						beginning = pos;
 					}
@@ -539,7 +539,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 void string_add(DESCRIPTOR_DATA *d, char *str) {
 	int terminator = 0, action = 0;
 	int i = 2, j = 0;
-	char actions[MAX_INPUT_LENGTH];
+	char actions[kMaxInputLength];
 
 	// determine if this is the terminal string, and truncate if so //
 	// changed to only accept '@' at the beginning of line - J. Elson 1/17/94 //
@@ -855,8 +855,8 @@ void string_add(DESCRIPTOR_DATA *d, char *str) {
 
 void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *vict;
-	char name[MAX_INPUT_LENGTH], buf2[128];
-	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
+	char name[kMaxInputLength], buf2[128];
+	char buf[kMaxInputLength], help[kMaxStringLength];
 	int feat = -1, value, i, qend;
 
 	argument = one_argument(argument, name);
@@ -865,7 +865,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		send_to_char("Формат: featset <игрок> '<способность>' <значение>\r\n", ch);
 		strcpy(help, "Возможные способности:\r\n");
-		for (qend = 0, i = 1; i < MAX_FEATS; i++) {
+		for (qend = 0, i = 1; i < kMaxFeats; i++) {
 			if (feat_info[i].type == UNUSED_FTYPE)    // This is valid. //
 				continue;
 			sprintf(help + strlen(help), "%30s", feat_info[i].name);
@@ -935,7 +935,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			feat_info[feat].name, value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
 	imm_log("%s", buf2);
-	if (feat >= 0 && feat < MAX_FEATS) {
+	if (feat >= 0 && feat < kMaxFeats) {
 		if (value)
 			SET_FEAT(vict, feat);
 		else
@@ -955,8 +955,8 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *vict;
-	char name[MAX_INPUT_LENGTH], buf2[128];
-	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
+	char name[kMaxInputLength], buf2[128];
+	char buf[kMaxInputLength], help[kMaxStringLength];
 	int spell = -1, value, i, qend;
 	ESkill skill = SKILL_INVALID;
 
@@ -1221,7 +1221,7 @@ void page_string(DESCRIPTOR_DATA *d, const std::string &buf) {
 
 // The call that displays the next page.
 void show_string(DESCRIPTOR_DATA *d, char *input) {
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 	int diff;
 
 	any_one_arg(input, buf);
@@ -1271,8 +1271,8 @@ void show_string(DESCRIPTOR_DATA *d, char *input) {
 		// Or if we have more to show....
 	else {
 		diff = d->showstr_vector[d->showstr_page + 1] - d->showstr_vector[d->showstr_page];
-		if (diff >= MAX_STRING_LENGTH)
-			diff = MAX_STRING_LENGTH - 1;
+		if (diff >= kMaxStringLength)
+			diff = kMaxStringLength - 1;
 		strncpy(buffer, d->showstr_vector[d->showstr_page], diff);
 		buffer[diff] = '\0';
 		send_to_char(buffer, d->character.get());

@@ -767,7 +767,7 @@ void init_im(void) {
 			continue;
 		}
 
-		if (k[2] < 0 || k[2] >= MAX_REMORT) {
+		if (k[2] < 0 || k[2] >= kMaxRemort) {
 			log("Bad remort type for recipe (%d '%s'), set remort to -1 (unavailable)", k[0], imrecipes[rcpt].name);
 			imrecipes[rcpt].remort = 0;
 			continue;
@@ -997,7 +997,7 @@ void list_recipes(CHAR_DATA *ch, bool all_recipes) {
 				continue;
 			}
 
-			if (strlen(buf1) >= MAX_STRING_LENGTH - 60) {
+			if (strlen(buf1) >= kMaxStringLength - 60) {
 				strcat(buf1, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 				break;
 			}
@@ -1028,7 +1028,7 @@ void list_recipes(CHAR_DATA *ch, bool all_recipes) {
 	strcpy(buf2, buf);
 
 	for (rs = GET_RSKILL(ch), i = 0; rs; rs = rs->link) {
-		if (strlen(buf2) >= MAX_STRING_LENGTH - 60) {
+		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;
 		}
@@ -1057,8 +1057,8 @@ void do_recipes(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *vict;
-	char name[MAX_INPUT_LENGTH], buf2[128];
-	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
+	char name[kMaxInputLength], buf2[128];
+	char buf[kMaxInputLength], help[kMaxStringLength];
 	int rcpt = -1, value, i, qend;
 	im_rskill *rs;
 
@@ -1157,7 +1157,7 @@ void im_improve_recipe(CHAR_DATA *ch, im_rskill *rs, int success) {
 	if (IS_NPC(ch) || (rs->perc >= kMaxRecipeLevel))
 		return;
 
-	if (ch->in_room != NOWHERE && (CalcSkillSoftCap(ch) - rs->perc > 0)) {
+	if (ch->in_room != kNowhere && (CalcSkillSoftCap(ch) - rs->perc > 0)) {
 		int n = ch->get_skills_count();
 		n = (n + 1) >> 1;
 		n += im_get_char_rskill_count(ch);
@@ -1189,7 +1189,7 @@ void im_improve_recipe(CHAR_DATA *ch, im_rskill *rs, int success) {
 }
 
 OBJ_DATA **im_obtain_ingredients(CHAR_DATA *ch, char *argument, int *count) {
-	char name[MAX_STRING_LENGTH], buf[128];
+	char name[kMaxStringLength], buf[128];
 	OBJ_DATA **array = NULL;
 	OBJ_DATA *o;
 	int i, n = 0;
@@ -1205,7 +1205,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA *ch, char *argument, int *count) {
 		}
 		o = get_obj_in_list_vis(ch, name, ch->carrying);
 		if (!o) {
-			snprintf(buf, MAX_STRING_LENGTH, "У вас нет %s.\r\n", name);
+			snprintf(buf, kMaxStringLength, "У вас нет %s.\r\n", name);
 			break;
 		}
 		if (GET_OBJ_TYPE(o) != OBJ_DATA::ITEM_MING) {
@@ -1244,7 +1244,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA *ch, char *argument, int *count) {
 // Применение рецепта
 // варить 'рецепт' <ингредиенты>
 void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char name[MAX_STRING_LENGTH];
+	char name[kMaxStringLength];
 	int rcpt = -1, qend, mres;
 	im_rskill *rs;
 	OBJ_DATA **objs;
@@ -1521,7 +1521,7 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void compose_recipe(CHAR_DATA *ch, char *argument, int/* subcmd*/) {
-	char name[MAX_STRING_LENGTH];
+	char name[kMaxStringLength];
 	int qend, rcpt = -1;
 	im_rskill *rs;
 
@@ -1579,7 +1579,7 @@ void compose_recipe(CHAR_DATA *ch, char *argument, int/* subcmd*/) {
 
 // Поиск rid по имени
 void forget_recipe(CHAR_DATA *ch, char *argument, int/* subcmd*/) {
-	char name[MAX_STRING_LENGTH];
+	char name[kMaxStringLength];
 	int qend, rcpt = -1;
 	im_rskill *rs;
 
@@ -1757,7 +1757,7 @@ void do_imlist(CHAR_DATA *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	for (i = 0; i < 100; ++i)
 	{
-		if ((rnum = real_room(i + 100 * zone)) == NOWHERE)
+		if ((rnum = real_room(i + 100 * zone)) == kNowhere)
 			continue;
 		ping = world[rnum]->ing_list;
 		for (str = buf1, str[0] = 0; im_ing_dump(ping, str); ping += 2)

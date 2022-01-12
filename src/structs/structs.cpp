@@ -1,8 +1,5 @@
 
 #include "chars/char.h"
-/*#include "logger.h"
-#include "msdp/msdp.h"
-#include "msdp/msdp_constants.h"*/
 
 void asciiflag_conv(const char *flag, void *to) {
 	int *flags = (int *) to;
@@ -227,7 +224,7 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 
 bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, const int print_flag) const {
 	bool have_flags = false;
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 	*result = '\0';
 
 	for (int i = 0; i < 4; i++) {
@@ -294,30 +291,30 @@ const religion_names_t religion_name =
 	};
 
 std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE = {
-	{SECT_INSIDE, "inside"},
-	{SECT_CITY, "city"},
-	{SECT_FIELD, "field"},
-	{SECT_FOREST, "forest"},
-	{SECT_HILLS, "hills"},
-	{SECT_MOUNTAIN, "mountain"},
-	{SECT_WATER_SWIM, "swim water"},
-	{SECT_WATER_NOSWIM, "no swim water"},
-	{SECT_FLYING, "flying"},
-	{SECT_UNDERWATER, "underwater"},
-	{SECT_SECRET, "secret"},
-	{SECT_STONEROAD, "stone road"},
-	{SECT_ROAD, "road"},
-	{SECT_WILDROAD, "wild road"},
-	{SECT_FIELD_SNOW, "snow field"},
-	{SECT_FIELD_RAIN, "rain field"},
-	{SECT_FOREST_SNOW, "snow forest"},
-	{SECT_FOREST_RAIN, "rain forest"},
-	{SECT_HILLS_SNOW, "snow hills"},
-	{SECT_HILLS_RAIN, "rain hills"},
-	{SECT_MOUNTAIN_SNOW, "snow mountain"},
-	{SECT_THIN_ICE, "thin ice"},
-	{SECT_NORMAL_ICE, "normal ice"},
-	{SECT_THICK_ICE, "thick ice"}
+	{kSectInside, "inside"},
+	{kSectCity, "city"},
+	{kSectField, "field"},
+	{kSectForest, "forest"},
+	{kSectHills, "hills"},
+	{kSectMountain, "mountain"},
+	{kSectWaterSwim, "swim water"},
+	{kSectWaterNoswim, "no swim water"},
+	{kSectOnlyFlying, "flying"},
+	{kSectUnderwater, "underwater"},
+	{kSectSecret, "secret"},
+	{kSectStoneroad, "stone road"},
+	{kSectRoad, "road"},
+	{kSectWildroad, "wild road"},
+	{kSectFieldSnow, "snow field"},
+	{kSectFieldRain, "rain field"},
+	{kSectForestSnow, "snow forest"},
+	{kSectForestRain, "rain forest"},
+	{kSectHillsSnow, "snow hills"},
+	{kSectHillsRain, "rain hills"},
+	{kSectMountainSnow, "snow mountain"},
+	{kSectThinIce, "thin ice"},
+	{kSectNormalIce, "normal ice"},
+	{kSectThickIce, "thick ice"}
 };
 
 typedef std::map<ESex, std::string> ESex_name_by_value_t;
@@ -329,10 +326,10 @@ void init_ESex_ITEM_NAMES() {
 	ESex_name_by_value.clear();
 	ESex_value_by_name.clear();
 
-	ESex_name_by_value[ESex::SEX_NEUTRAL] = "NEUTRAL";
-	ESex_name_by_value[ESex::SEX_MALE] = "MALE";
-	ESex_name_by_value[ESex::SEX_FEMALE] = "FEMALE";
-	ESex_name_by_value[ESex::SEX_POLY] = "POLY";
+	ESex_name_by_value[ESex::kSexNeutral] = "NEUTRAL";
+	ESex_name_by_value[ESex::kSexMale] = "MALE";
+	ESex_name_by_value[ESex::kSexFemale] = "FEMALE";
+	ESex_name_by_value[ESex::kSexPoly] = "POLY";
 
 	for (const auto &i : ESex_name_by_value) {
 		ESex_value_by_name[i.second] = i.first;

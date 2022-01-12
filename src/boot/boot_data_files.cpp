@@ -146,8 +146,8 @@ void DiscreteFile::read_next_line(const int nr) {
 }
 
 std::string DiscreteFile::fread_string(void) {
-	char bufferIn[MAX_RAW_INPUT_LENGTH];
-	char bufferOut[MAX_STRING_LENGTH];
+	char bufferIn[kMaxRawInputLength];
+	char bufferOut[kMaxStringLength];
 	char *to = bufferOut;
 	const char *end = bufferOut + sizeof(bufferOut) - 1;
 	bool isEscaped = false;
@@ -196,7 +196,7 @@ char DiscreteFile::fread_letter(FILE *fp) {
 }
 
 void DiscreteFile::dg_read_trigger(void *proto, int type) {
-	char line[MAX_TRGLINE_LENGTH];
+	char line[kMaxTrglineLength];
 	char junk[8];
 	int vnum, rnum, count;
 	CHAR_DATA *mob;
@@ -356,7 +356,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	} while (pos != std::string::npos);
 
 	if (indlev > 0) {
-		char tmp[MAX_INPUT_LENGTH];
+		char tmp[kMaxInputLength];
 		snprintf(tmp, sizeof(tmp), "Positive indent-level on trigger #%d end.", vnum);
 		log("%s", tmp);
 		Boards::dg_script_text += tmp + std::string("\r\n");
@@ -585,7 +585,7 @@ class ObjectFile : public DiscreteFile {
 	bool check_object_level(OBJ_DATA *obj, int val);
 	bool check_object_spell_number(OBJ_DATA *obj, unsigned val);
 
-	char m_buffer[MAX_STRING_LENGTH];
+	char m_buffer[kMaxStringLength];
 };
 
 void ObjectFile::read_next_line(const int nr) {
@@ -607,7 +607,7 @@ void ObjectFile::parse_object(const int nr) {
 	// *** Add some initialization fields
 	tobj->set_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
 	tobj->set_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
-	tobj->set_sex(DEFAULT_SEX);
+	tobj->set_sex(kDefaultSex);
 	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
 	tobj->set_level(1);
 	tobj->set_destroyer(OBJ_DATA::DEFAULT_DESTROYER);
@@ -784,8 +784,8 @@ void ObjectFile::parse_object(const int nr) {
 				break;
 
 			case 'A':
-				if (j >= MAX_OBJ_AFFECT) {
-					log("SYSERR: Too many A fields (%d max), %s", MAX_OBJ_AFFECT, m_buffer);
+				if (j >= kMaxObjAffect) {
+					log("SYSERR: Too many A fields (%d max), %s", kMaxObjAffect, m_buffer);
 					exit(1);
 				}
 
@@ -1342,7 +1342,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Destination") {
-		if (mob_proto[i].mob_specials.dest_count < MAX_DEST) {
+		if (mob_proto[i].mob_specials.dest_count < kMaxDest) {
 			mob_proto[i].mob_specials.dest[mob_proto[i].mob_specials.dest_count] = num_arg;
 			mob_proto[i].mob_specials.dest_count++;
 		}
@@ -1432,7 +1432,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
 			return;
 		}
-		if (t[0] >= MAX_FEATS || t[0] <= 0) {
+		if (t[0] >= kMaxFeats || t[0] <= 0) {
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}
@@ -1876,7 +1876,7 @@ class SocialsFile : public DataFile {
 };
 
 bool SocialsFile::load_socials() {
-	char line[MAX_INPUT_LENGTH], next_key[MAX_INPUT_LENGTH];
+	char line[kMaxInputLength], next_key[kMaxInputLength];
 	const char *scan;
 	int key = -1, message = -1, c_min_pos, c_max_pos, v_min_pos, v_max_pos, what;
 
@@ -1941,7 +1941,7 @@ bool SocialsFile::load_socials() {
 }
 
 char *SocialsFile::str_dup_bl(const char *source) {
-	char line[MAX_INPUT_LENGTH];
+	char line[kMaxInputLength];
 
 	line[0] = 0;
 	if (source[0]) {

@@ -135,13 +135,13 @@ void init() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("globaldrop");
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...<globaldrop> read fail");
+		snprintf(buf, kMaxStringLength, "...<globaldrop> read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -197,14 +197,14 @@ void init() {
 			race_mob = -1; // -1 для всех рас
 
 		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0) {
-			snprintf(buf, MAX_STRING_LENGTH,
+			snprintf(buf, kMaxStringLength,
 					 "...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d)",
 					 obj_vnum, mob_lvl, count_mob, max_mob_lvl);
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
 		snprintf(buf,
-				 MAX_STRING_LENGTH,
+				 kMaxStringLength,
 				 "GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, count_mob=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, chance=%d)",
 				 obj_vnum,
 				 mob_lvl,
@@ -228,7 +228,7 @@ void init() {
 		if (obj_vnum >= 0) {
 			int obj_rnum = real_object(obj_vnum);
 			if (obj_rnum < 0) {
-				snprintf(buf, MAX_STRING_LENGTH, "...incorrect obj_vnum=%d", obj_vnum);
+				snprintf(buf, kMaxStringLength, "...incorrect obj_vnum=%d", obj_vnum);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
@@ -238,7 +238,7 @@ void init() {
 			for (pugi::xml_node item = node.child("obj"); item; item = item.next_sibling("obj")) {
 				int item_vnum = Parse::attr_int(item, "vnum");
 				if (item_vnum <= 0) {
-					snprintf(buf, MAX_STRING_LENGTH,
+					snprintf(buf, kMaxStringLength,
 							 "...bad shop attributes (item_vnum=%d)", item_vnum);
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 					return;
@@ -246,14 +246,14 @@ void init() {
 				// проверяем шмотку
 				int item_rnum = real_object(item_vnum);
 				if (item_rnum < 0) {
-					snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%d", item_vnum);
+					snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 					return;
 				}
 				tmp_node.olist[item_vnum] = item_rnum;
 			}
 			if (tmp_node.olist.empty()) {
-				snprintf(buf, MAX_STRING_LENGTH, "...item list empty (obj_vnum=%d)", obj_vnum);
+				snprintf(buf, kMaxStringLength, "...item list empty (obj_vnum=%d)", obj_vnum);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
@@ -375,7 +375,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob) {
 
 void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	auto corpse = world_objects.create_blank();
-	corpse->set_sex(ESex::SEX_POLY);
+	corpse->set_sex(ESex::kSexPoly);
 
 	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
@@ -434,7 +434,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	auto corpse = world_objects.create_blank();
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->set_aliases(buf2);
-	corpse->set_sex(ESex::SEX_MALE);
+	corpse->set_sex(ESex::kSexMale);
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
@@ -539,7 +539,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	} else {
 		room_rnum corpse_room = ch->in_room;
 		if (corpse_room == STRANGE_ROOM
-			&& ch->get_was_in_room() != NOWHERE) {
+			&& ch->get_was_in_room() != kNowhere) {
 			corpse_room = ch->get_was_in_room();
 		}
 		obj_to_room(corpse.get(), corpse_room);

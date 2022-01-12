@@ -28,7 +28,7 @@ class Shutdown {
 	const char *m_argument;
 	int m_timeout;
 	ShutdownParameters &m_shutdown_parameters;
-	char m_argument_buffer[MAX_STRING_LENGTH];
+	char m_argument_buffer[kMaxStringLength];
 };
 }
 

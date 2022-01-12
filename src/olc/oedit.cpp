@@ -368,7 +368,7 @@ void oedit_save_to_disk(int zone_num) {
 				}
 			}
 			// * Do we have affects?
-			for (counter2 = 0; counter2 < MAX_OBJ_AFFECT; counter2++) {
+			for (counter2 = 0; counter2 < kMaxObjAffect; counter2++) {
 				if (obj->get_affected(counter2).location
 					&& obj->get_affected(counter2).modifier) {
 					fprintf(fp, "A\n%d %d\n",
@@ -415,7 +415,7 @@ void oedit_disp_container_flags_menu(DESCRIPTOR_DATA *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 "%s1%s) Закрываем\r\n"
 			 "%s2%s) Нельзя взломать\r\n"
 			 "%s3%s) Закрыт\r\n"
@@ -435,7 +435,7 @@ void oedit_disp_extradesc_menu(DESCRIPTOR_DATA *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 "Меню экстрадескрипторов\r\n"
 			 "%s1%s) Ключ: %s%s\r\n"
 			 "%s2%s) Описание:\r\n%s%s\r\n"
@@ -457,10 +457,10 @@ void oedit_disp_prompt_apply_menu(DESCRIPTOR_DATA *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < MAX_OBJ_AFFECT; counter++) {
+	for (counter = 0; counter < kMaxObjAffect; counter++) {
 		if (OLC_OBJ(d)->get_affected(counter).modifier) {
 			sprinttype(OLC_OBJ(d)->get_affected(counter).location, apply_types, buf2);
-			snprintf(buf, MAX_STRING_LENGTH, " %s%d%s) %+d to %s\r\n", grn, counter + 1, nrm,
+			snprintf(buf, kMaxStringLength, " %s%d%s) %+d to %s\r\n", grn, counter + 1, nrm,
 					 OLC_OBJ(d)->get_affected(counter).modifier, buf2);
 			send_to_char(buf, d->character.get());
 		} else {
@@ -589,7 +589,7 @@ void oedit_disp_feats_menu(DESCRIPTOR_DATA *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 1; counter < MAX_FEATS; counter++) {
+	for (counter = 1; counter < kMaxFeats; counter++) {
 		if (!feat_info[counter].name || *feat_info[counter].name == '!') {
 			continue;
 		}
@@ -621,7 +621,7 @@ void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA *d) {
 		} else {
 			strcpy(buf1, "     ");
 		}
-		snprintf(buf, MAX_STRING_LENGTH, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
 				 skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
@@ -929,7 +929,7 @@ void oedit_disp_extra_menu(DESCRIPTOR_DATA *d) {
 	disp_planes_values(d, extra_bits, 2);
 	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", 5);
 	snprintf(buf,
-			 MAX_STRING_LENGTH,
+			 kMaxStringLength,
 			 "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг: (помеченное '*' пользоваться вдумчиво. 0 - выход) : ",
 			 cyn,
 			 buf1,
@@ -941,7 +941,7 @@ void oedit_disp_anti_menu(DESCRIPTOR_DATA *d) {
 	disp_planes_values(d, anti_bits, 2);
 	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, ",", 5);
 	snprintf(buf,
-			 MAX_STRING_LENGTH,
+			 kMaxStringLength,
 			 "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ",
 			 cyn,
 			 buf1,
@@ -953,7 +953,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA *d) {
 	disp_planes_values(d, no_bits, 2);
 	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, ",", 5);
 	snprintf(buf,
-			 MAX_STRING_LENGTH,
+			 kMaxStringLength,
 			 "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ",
 			 cyn,
 			 buf1,
@@ -964,7 +964,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA *d) {
 void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags) {
 	disp_planes_values(d, weapon_affects, 2);
 	flags.sprintbits(weapon_affects, buf1, ",", 5);
-	snprintf(buf, MAX_STRING_LENGTH, "\r\nНакладываемые аффекты : %s%s%s\r\n"
+	snprintf(buf, kMaxStringLength, "\r\nНакладываемые аффекты : %s%s%s\r\n"
 									 "Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
@@ -988,7 +988,7 @@ void oedit_disp_wear_menu(DESCRIPTOR_DATA *d) {
 	}
 	sprintbit(GET_OBJ_WEAR(OLC_OBJ(d)), wear_bits, buf1);
 	snprintf(buf,
-			 MAX_STRING_LENGTH,
+			 kMaxStringLength,
 			 "\r\nМожет быть одет : %s%s%s\r\n" "Выберите позицию (0 - выход) : ",
 			 cyn,
 			 buf1,
@@ -1026,7 +1026,7 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA *d) {
 		send_to_char(buf, d->character.get());
 	}
 	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), ingradient_bits, buf1);
-	snprintf(buf, MAX_STRING_LENGTH, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, kMaxStringLength, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1041,7 +1041,7 @@ void oedit_disp_magic_container_menu(DESCRIPTOR_DATA *d) {
 		send_to_char(buf, d->character.get());
 	}
 	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), magic_container_bits, buf1);
-	snprintf(buf, MAX_STRING_LENGTH, "\r\nТип контейнера : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
+	snprintf(buf, kMaxStringLength, "\r\nТип контейнера : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1049,7 +1049,7 @@ std::string print_spell_value(OBJ_DATA *obj, const ObjVal::EValueKey key1, const
 	if (obj->get_value(key1) < 0) {
 		return "нет";
 	}
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "%s:%d", spell_name(obj->get_value(key1)), obj->get_value(key2));
 	return buf_;
 }
@@ -1130,7 +1130,7 @@ std::string print_values2_menu(OBJ_DATA *obj) {
 		return "Спец.параметры";
 	}
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Skill       : %d", GET_OBJ_SKILL(obj));
 	return buf_;
 }
@@ -1145,7 +1145,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA *d) {
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf1);
 	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",", 4);
 
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -1177,7 +1177,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA *d) {
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf1);
 	obj->get_no_flags().sprintbits(no_bits, buf2, ",");
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 "%sC%s) Одевается  : %s%s\r\n"
 			 "%sD%s) Неудобен    : %s%s\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character.get());
@@ -1185,7 +1185,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA *d) {
 	obj->get_anti_flags().sprintbits(anti_bits, buf1, ",", 4);
 	obj->get_affect_flags().sprintbits(weapon_affects, buf2, ",", 4);
 	const size_t gender = static_cast<size_t>(to_underlying(GET_OBJ_SEX(obj)));
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 "%sE%s) Запрещен    : %s%s\r\n"
 			 "%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
 			 "%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
@@ -1701,7 +1701,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 		case OEDIT_SEXVALUE:
 			if ((number = atoi(arg)) >= 0
-				&& number < NUM_SEXES) {
+				&& number < static_cast<int>(ESex::kSexLast)) {
 				OLC_OBJ(d)->set_sex(static_cast<ESex>(number));
 			} else {
 				send_to_char("Пол (0-3) : ", d->character.get());
@@ -1869,7 +1869,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 								return;
 							}
 							if (number <= 0
-								|| number >= MAX_FEATS
+								|| number >= kMaxFeats
 								|| !feat_info[number].name
 								|| *feat_info[number].name == '!') {
 								send_to_char("Неизвестная способность, повторите.\r\n", d->character.get());
@@ -1964,7 +1964,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case OEDIT_PROMPT_APPLY:
 			if ((number = atoi(arg)) == 0)
 				break;
-			else if (number < 0 || number > MAX_OBJ_AFFECT) {
+			else if (number < 0 || number > kMaxObjAffect) {
 				oedit_disp_prompt_apply_menu(d);
 				return;
 			}

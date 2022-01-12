@@ -48,9 +48,9 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		itemnum = SPELL_RUNES;
 	} else {
 		if (subcmd == SCMD_RECIPE)
-			snprintf(buf, MAX_INPUT_LENGTH, "Состав '%s' уже давно утерян.\r\n", arg);
+			snprintf(buf, kMaxInputLength, "Состав '%s' уже давно утерян.\r\n", arg);
 		else
-			snprintf(buf, MAX_INPUT_LENGTH, "Создание '%s' доступно только Великим Богам.\r\n", arg);
+			snprintf(buf, kMaxInputLength, "Создание '%s' доступно только Великим Богам.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}

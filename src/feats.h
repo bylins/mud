@@ -192,7 +192,7 @@
 #define ANIMAL_MASTER_FEAT    156 // хозяин животных
 
 
-// MAX_FEATS определяется в structs.h
+// kMaxFeats определяется в structs.h
 
 #define UNUSED_FTYPE            -1
 #define NORMAL_FTYPE            0
@@ -217,7 +217,7 @@ const short MAX_FEAT_AFFECT = 5;
 #define FEAT_TIMER 1
 #define FEAT_SKILL 2
 
-extern struct FeatureInfoType feat_info[MAX_FEATS];
+extern struct FeatureInfoType feat_info[kMaxFeats];
 
 const char *feat_name(int num);
 int getModifier(int feat, int location);
@@ -269,10 +269,10 @@ class CFeatArray {
 struct FeatureInfoType {
 	int ID;
 	int type;
-	int minRemort[NUM_PLAYER_CLASSES][NUM_KIN];
-	int slot[NUM_PLAYER_CLASSES][NUM_KIN];
-	bool classknow[NUM_PLAYER_CLASSES][NUM_KIN];
-	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][NUM_KIN];
+	int minRemort[NUM_PLAYER_CLASSES][kNumKins];
+	int slot[NUM_PLAYER_CLASSES][kNumKins];
+	bool classknow[NUM_PLAYER_CLASSES][kNumKins];
+	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][kNumKins];
 	bool up_slot;
 	bool usesWeaponSkill;
 	bool alwaysAvailable;

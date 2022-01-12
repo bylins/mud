@@ -30,7 +30,7 @@ void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	char flag[MAX_INPUT_LENGTH], site[MAX_INPUT_LENGTH];
+	char flag[kMaxInputLength], site[kMaxInputLength];
 	argument = two_arguments(argument, flag, site);
 
 	if (!str_cmp(flag, "proxy")) {
@@ -92,7 +92,7 @@ void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	char length[MAX_INPUT_LENGTH], *reason;
+	char length[kMaxInputLength], *reason;
 	int len, ban_type = BanList::BAN_ALL;
 	reason = one_argument(argument, length);
 	skip_spaces(&reason);
@@ -116,7 +116,7 @@ void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_unban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char site[MAX_INPUT_LENGTH];
+	char site[kMaxInputLength];
 	one_argument(argument, site);
 	if (!*site) {
 		send_to_char("A site to unban might help.\r\n", ch);
@@ -142,7 +142,7 @@ int num_invalid = 0;
 
 int Is_Valid_Name(char *newname) {
 	int i;
-	char tempname[MAX_INPUT_LENGTH];
+	char tempname[kMaxInputLength];
 
 	if (!*invalid_list || num_invalid < 1)
 		return (1);
@@ -842,7 +842,7 @@ void BanList::ShowBannedIp(int sort_mode, CHAR_DATA *ch) {
 	}
 
 	sort_ip(sort_mode);
-	char format[MAX_INPUT_LENGTH], to_unban[MAX_INPUT_LENGTH], buff[MAX_INPUT_LENGTH], *listbuf = 0, *timestr;
+	char format[kMaxInputLength], to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = 0, *timestr;
 	strcpy(format, "%-25.25s  %-8.8s  %-10.10s  %-16.16s %-8.8s\r\n");
 	sprintf(buf, format, "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban");
 
@@ -878,7 +878,7 @@ void BanList::ShowBannedIpByMask(int sort_mode, CHAR_DATA *ch, const char *mask)
 	}
 
 	sort_ip(sort_mode);
-	char format[MAX_INPUT_LENGTH], to_unban[MAX_INPUT_LENGTH], buff[MAX_INPUT_LENGTH], *listbuf = 0, *timestr;
+	char format[kMaxInputLength], to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = 0, *timestr;
 	strcpy(format, "%-25.25s  %-8.8s  %-10.10s  %-16.16s %-8.8s\r\n");
 	sprintf(buf, format, "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban");
 
@@ -920,7 +920,7 @@ void BanList::ShowBannedProxy(int sort_mode, CHAR_DATA *ch) {
 		return;
 	}
 	sort_proxy(sort_mode);
-	char format[MAX_INPUT_LENGTH];
+	char format[kMaxInputLength];
 	strcpy(format, "%-25.25s  %-16.16s\r\n");
 	sprintf(buf, format, "Banned Site Name", "Banned By");
 	send_to_char(buf, ch);

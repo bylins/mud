@@ -23,7 +23,7 @@ class MaxClassSlot {
 	int get(const CHAR_DATA *ch) const;
 
  private:
-	int _max_class_slot[NUM_PLAYER_CLASSES][NUM_KIN];
+	int _max_class_slot[NUM_PLAYER_CLASSES][kNumKins];
 };
 
 extern MaxClassSlot max_slots;

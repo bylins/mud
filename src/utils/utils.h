@@ -324,7 +324,6 @@ extern int mercenary(CHAR_DATA *, void *, int, char *);
 #define LATIN(c)   (a_lat(c))
 
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
-#define IF_STR(st) ((st) ? (st) : "\0")
 
 // memory utils *********************************************************
 
@@ -473,7 +472,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, mask)   (obj->get_wear_mask(mask))
-#define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
 // IS_AFFECTED for backwards compatibility
@@ -492,57 +490,17 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
                              weather_info.moon_day <= FULLMOONSTOP))
 
 #define IS_TIMEDARK(room) is_dark(room)
-
-/*((world[room]->gdark > world[room]->glight) || \
-                            (!(world[room]->light+world[room]->fires+world[room]->glight) && \
-                              (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
-                               ( weather_info.sunlight == SUN_SET || \
-                                 weather_info.sunlight == SUN_DARK )) ) ) )*/
-
 #define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
+                              (SECT(room) != kSectInside && \
+                               SECT(room) != kSectCity   && \
                                ( weather_info.sunlight == SUN_SET || \
                                  weather_info.sunlight == SUN_DARK )) )
 
 #define IS_DARK(room) is_dark(room)
-
-#define IS_DARKOLD(room)      ((world[room]->gdark > (world[room]->glight + world[room]->light + world[room]->fires)) || \
-                            (!(world[room]->gdark < (world[room]->glight + world[room]->light + world[room]->fires)) && \
-                              !ROOM_AFFECTED(room, AFF_ROOM_LIGHT) && \
-                (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
-                               ( weather_info.sunlight == SUN_SET || \
-                                 (weather_info.sunlight == SUN_DARK && \
-                                  !IS_MOONLIGHT(room)) )) ) ) )
-
-#define IS_DARKTHIS(room)      ((world[room]->gdark > world[room]->glight) || \
-                                (!(world[room]->gdark < world[room]->glight) && \
-                                 !(world[room]->light+world[room]->fires) && \
-                                  (ROOM_FLAGGED(room, ROOM_DARK) || \
-                                  (SECT(room) != SECT_INSIDE && \
-                                   SECT(room) != SECT_CITY   && \
-                                   ( weather_info.sunlight == SUN_DARK && \
-                                     !IS_MOONLIGHT(room) )) ) ) )
-
-#define IS_DARKSIDE(room)      ((world[room]->gdark > world[room]->glight) || \
-                                (!(world[room]->gdark < world[room]->glight) && \
-                                 !(world[room]->light+world[room]->fires) && \
-                                  (ROOM_FLAGGED(room, ROOM_DARK) || \
-                                  (SECT(room) != SECT_INSIDE && \
-                                   SECT(room) != SECT_CITY   && \
-                                   ( weather_info.sunlight == SUN_SET  || \
-                                     weather_info.sunlight == SUN_RISE || \
-                                     (weather_info.sunlight == SUN_DARK && \
-                                      !IS_MOONLIGHT(room) )) ) ) )
-
-#define IS_LIGHT(room)     (!IS_DARK(room))
+#define IS_LIGHT(room)  (!IS_DARK(room))
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : NOWHERE))
+#define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
 
 // char utils ***********************************************************
@@ -556,7 +514,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define SAME_ROOM(ch, tch)        (IN_ROOM(ch) == IN_ROOM(tch))
 #define GET_MANA_COST(ch, spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
@@ -570,7 +527,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define CLR_MEMORY(ch)  (memset((ch)->Memory,0,SPELLS_COUNT+1))
 #define IS_CODER(ch)    (GET_REAL_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GET_REAL_LEVEL(ch)/3)+GET_REAL_REMORT(ch))
@@ -715,12 +671,10 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define ALIG_NEUT 0
 #define ALIG_GOOD 1
 #define ALIG_EVIL 2
-#define ALIG_EVIL_LESS     -300
+#define ALIG_EVIL_LESS     (-300)
 #define ALIG_GOOD_MORE     300
 
 #define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
-#define CALC_ALIGNMENT(ch)    ((GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS) ? ALIG_EVIL : \
-                               (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE) ? ALIG_GOOD : ALIG_NEUT)
 
 #define NAME_LEVEL 5
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
@@ -811,7 +765,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define MEMORY(ch)          ((ch)->mob_specials.memory)
 #define GET_DEST(ch)        (((ch)->mob_specials.dest_count ? \
                               (ch)->mob_specials.dest[(ch)->mob_specials.dest_pos] : \
-                              NOWHERE))
+                              kNowhere))
 #define GET_ACTIVITY(ch)    ((ch)->mob_specials.activity)
 #define GET_GOLD_NoDs(ch)   ((ch)->mob_specials.GoldNoDs)
 #define GET_GOLD_SiDs(ch)   ((ch)->mob_specials.GoldSiDs)
@@ -893,9 +847,9 @@ inline T VPOSI(const T val, const T min, const T max) {
                           IS_FEMALE(ch) ? "ая" : "ие")
 
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_NEUTRAL)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
+#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::kSexNeutral)
+#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::kSexMale)
+#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::kSexFemale)
 
 #define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
 
@@ -962,8 +916,8 @@ inline T VPOSI(const T val, const T min, const T max) {
                             IS_FEMALE(ch) ? "ей" : "ими")
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
+#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kSexPoly) ? "ят" : "ит")
+#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::kSexPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
@@ -1033,15 +987,15 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define CIRCLEMUD_VERSION(major, minor, patchlevel) \
    (((major) << 16) + ((minor) << 8) + (patchlevel))
 
-#define HSHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (ESex::kSexNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
+#define HSSH(ch) (ESex::kSexNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
+#define HMHR(ch) (ESex::kSexNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (ESex::kSexNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
-#define OSHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "его": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ее" : "их")) :"его")
-#define OSSH(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "он": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "она" : "они")) :"оно")
-#define OMHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ей" : "им")) :"ему")
-#define OYOU(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
+#define OSHR(ch) (ESex::kSexNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kSexMale ? "его": (GET_OBJ_SEX(ch) == ESex::kSexFemale ? "ее" : "их")) :"его")
+#define OSSH(ch) (ESex::kSexNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kSexMale ? "он": (GET_OBJ_SEX(ch) == ESex::kSexFemale ? "она" : "они")) :"оно")
+#define OMHR(ch) (ESex::kSexNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kSexMale ? "ему": (GET_OBJ_SEX(ch) == ESex::kSexFemale ? "ей" : "им")) :"ему")
+#define OYOU(ch) (ESex::kSexNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kSexMale ? "ваш": (GET_OBJ_SEX(ch) == ESex::kSexFemale ? "ваша" : "ваши")) :"ваше")
 
 #define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || NORENTABLE(ch)))
 
@@ -1094,7 +1048,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])
 
 #define CAN_GO(ch, door) (ch?((EXIT(ch,door) && \
-          (EXIT(ch,door)->to_room() != NOWHERE) && \
+          (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
 
 #define CLASS_ABBR(ch) (IS_NPC(ch) ? "--" : class_abbrevs[(int)GET_CLASS(ch)])
@@ -1582,17 +1536,17 @@ private:
 
 // global buffering system
 #ifdef __DB_C__
-char buf[MAX_STRING_LENGTH];
-char buf1[MAX_STRING_LENGTH];
-char buf2[MAX_STRING_LENGTH];
-char arg[MAX_STRING_LENGTH];
-char smallBuf[MAX_RAW_INPUT_LENGTH];
+char buf[kMaxStringLength];
+char buf1[kMaxStringLength];
+char buf2[kMaxStringLength];
+char arg[kMaxStringLength];
+char smallBuf[kMaxRawInputLength];
 #else
-extern char buf[MAX_STRING_LENGTH];
-extern char buf1[MAX_STRING_LENGTH];
-extern char buf2[MAX_STRING_LENGTH];
-extern char arg[MAX_STRING_LENGTH];
-extern char smallBuf[MAX_RAW_INPUT_LENGTH];
+extern char buf[kMaxStringLength];
+extern char buf1[kMaxStringLength];
+extern char buf2[kMaxStringLength];
+extern char arg[kMaxStringLength];
+extern char smallBuf[kMaxRawInputLength];
 #endif
 
 #define plant_magic(x)    do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)

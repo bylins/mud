@@ -87,10 +87,10 @@ void DESCRIPTOR_DATA::msdp_report_changed_vars() {
 
 void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output) const {
 	switch (keytable) {
-		case KT_ALT: for (; *input; *output = KtoA(*input), input++, output++);
+		case kCodePageAlt: for (; *input; *output = KtoA(*input), input++, output++);
 			break;
 
-		case KT_WIN:
+		case kCodePageWin:
 			for (; *input; input++, output++) {
 				*output = KtoW(*input);
 
@@ -101,13 +101,13 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output)
 			}
 			break;
 
-		case KT_WINZ_OLD:
-		case KT_WINZ_Z:
+		case kCodePageWinzOld:
+		case kCodePageWinzZ:
 			// zMUD before 6.39 or after for backward compatibility  - replace я with z
 			for (; *input; *output = KtoW2(*input), input++, output++);
 			break;
 
-		case KT_WINZ:
+		case kCodePageWinz:
 			// zMUD after 6.39 and CMUD support 'я' but with some issues
 			for (; *input; input++, output++) {
 				*output = KtoW(*input);
@@ -122,7 +122,7 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output)
 			}
 			break;
 
-		case KT_UTF8:
+		case kCodePageUTF8:
 			// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
 			// contain character with code 0xff which telnet interprets as IAC.
 			// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
@@ -133,7 +133,7 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output)
 			break;
 	}
 
-	if (keytable != KT_UTF8) {
+	if (keytable != kCodePageUTF8) {
 		*output = '\0';
 	}
 }

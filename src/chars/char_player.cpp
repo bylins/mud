@@ -53,9 +53,9 @@ uint8_t get_day_today() {
 
 Player::Player() :
 	pfilepos_(-1),
-	was_in_room_(NOWHERE),
+	was_in_room_(kNowhere),
 	from_room_(0),
-	answer_id_(NOBODY),
+	answer_id_(kNobody),
 	motion_(true),
 	ice_currency(0),
 	hryvn(0),
@@ -119,7 +119,7 @@ void Player::remort() {
 void Player::reset() {
 	remember_.reset();
 	last_tell_ = "";
-	answer_id_ = NOBODY;
+	answer_id_ = kNobody;
 	CHAR_DATA::reset();
 }
 
@@ -388,7 +388,7 @@ void Player::dps_add_exp(int exp, bool battle) {
 
 void Player::save_char() {
 	FILE *saved;
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	int i;
 	time_t li;
 	OBJ_DATA *char_eq[NUM_WEARS];
@@ -428,10 +428,10 @@ void Player::save_char() {
 			char_eq[i] = NULL;
 	}
 
-	AFFECT_DATA<EApplyLocation> tmp_aff[MAX_AFFECT];
+	AFFECT_DATA<EApplyLocation> tmp_aff[kMaxAffect];
 	{
 		auto aff_i = affected.begin();
-		for (i = 0; i < MAX_AFFECT; i++) {
+		for (i = 0; i < kMaxAffect; i++) {
 			if (aff_i != affected.end()) {
 				const auto &aff = *aff_i;
 				if (aff->type == SPELL_ARMAGEDDON
@@ -451,7 +451,7 @@ void Player::save_char() {
 			}
 		}
 
-		if ((i >= MAX_AFFECT) && aff_i != affected.end()) {
+		if ((i >= kMaxAffect) && aff_i != affected.end()) {
 			log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
 		}
 
@@ -546,7 +546,7 @@ void Player::save_char() {
 	// способности - added by Gorrah
 	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "Feat:\n");
-		for (i = 1; i < MAX_FEATS; i++) {
+		for (i = 1; i < kMaxFeats; i++) {
 			if (HAVE_FEAT(this, i))
 				fprintf(saved, "%d %s\n", i, feat_info[i].name);
 		}
@@ -775,7 +775,7 @@ void Player::save_char() {
 	// affected_type
 	if (tmp_aff[0].type > 0) {
 		fprintf(saved, "Affs:\n");
-		for (i = 0; i < MAX_AFFECT; i++) {
+		for (i = 0; i < kMaxAffect; i++) {
 			const auto &aff = &tmp_aff[i];
 			if (aff->type) {
 				fprintf(saved, "%d %d %d %d %d %d %s\n", aff->type, aff->duration,
@@ -916,7 +916,7 @@ void Player::save_char() {
 
 	// восстанавливаем аффекты
 	// add spell and eq affections back in now
-	for (i = 0; i < MAX_AFFECT; i++) {
+	for (i = 0; i < kMaxAffect; i++) {
 		if (tmp_aff[i].type) {
 			affect_to_char(this, tmp_aff[i]);
 		}
@@ -965,8 +965,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	unsigned long long llnum = 0;
 	FBFILE *fl = NULL;
 	char filename[40];
-	char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
-	char line1[MAX_RAW_INPUT_LENGTH];
+	char buf[kMaxRawInputLength], line[kMaxRawInputLength], tag[6];
+	char line1[kMaxRawInputLength];
 	struct timed_type timed;
 	*filename = '\0';
 	log("Load ascii char %s", name);
@@ -1226,10 +1226,10 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	NAME_ID_GOD(this) = 0;
 	GET_OLC_ZONE(this) = -1;
 	this->player_data.time.played = 0;
-	GET_LOADROOM(this) = NOWHERE;
+	GET_LOADROOM(this) = kNowhere;
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
-	this->set_sex(ESex::SEX_NEUTRAL);
+	this->set_sex(ESex::kSexNeutral);
 	GET_COND(this, THIRST) = NORM_COND_VALUE;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
@@ -1440,7 +1440,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
-						if (num > 0 && num < MAX_FEATS)
+						if (num > 0 && num < kMaxFeats)
 							if (feat_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)]
 								|| PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num))
 								SET_FEAT(this, num);
@@ -1887,7 +1887,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		GET_COND(this, FULL) = -1;
 		GET_COND(this, THIRST) = -1;
 		GET_COND(this, DRUNK) = -1;
-		GET_LOADROOM(this) = NOWHERE;
+		GET_LOADROOM(this) = kNowhere;
 	}
 
 	setAllInbornFeatures(this);
@@ -2006,7 +2006,7 @@ int Player::get_ext_money(unsigned type) const {
 }
 
 void Player::set_ext_money(unsigned type, int num, bool write_log) {
-	if (num < 0 || num > MAX_MONEY_KEPT) {
+	if (num < 0 || num > kMaxMoneyKept) {
 		return;
 	}
 	if (type < ext_money_.size()) {

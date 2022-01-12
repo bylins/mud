@@ -649,7 +649,7 @@ void go_steal(CHAR_DATA *ch, CHAR_DATA *vict, char *obj_name) {
 
 void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *vict;
-	char vict_name[MAX_INPUT_LENGTH], obj_name[MAX_INPUT_LENGTH];
+	char vict_name[kMaxInputLength], obj_name[kMaxInputLength];
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_STEAL)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
@@ -2229,9 +2229,9 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (!IS_IMMORTAL(ch)
 		&& ((subcmd == SCMD_DONATE
-			&& GET_RELIGION(ch) != RELIGION_POLY)
+			&& GET_RELIGION(ch) != kReligionPoly)
 			|| (subcmd == SCMD_PRAY
-				&& GET_RELIGION(ch) != RELIGION_MONO))) {
+				&& GET_RELIGION(ch) != kReligionMono))) {
 		send_to_char("Не кощунствуйте!\r\n", ch);
 		return;
 	}
@@ -2343,13 +2343,13 @@ void do_recall(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	const int rent_room = real_room(GET_LOADROOM(ch));
-	if (rent_room == NOWHERE || ch->in_room == NOWHERE) {
+	if (rent_room == kNowhere || ch->in_room == kNowhere) {
 		send_to_char("Вам некуда возвращаться!\r\n", ch);
 		return;
 	}
 
 	if (!IS_IMMORTAL(ch)
-		&& (SECT(ch->in_room) == SECT_SECRET
+		&& (SECT(ch->in_room) == kSectSecret
 			|| ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
 			|| ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
 			|| ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH)
@@ -2422,7 +2422,7 @@ void do_beep(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void insert_wanted_gem::show(CHAR_DATA *ch, int gem_vnum) {
 	alias_type::iterator alias_it;
-	char buf[MAX_INPUT_LENGTH];
+	char buf[kMaxInputLength];
 
 	const auto it = content.find(gem_vnum);
 	if (it == content.end()) return;
@@ -2437,7 +2437,7 @@ void insert_wanted_gem::show(CHAR_DATA *ch, int gem_vnum) {
 void insert_wanted_gem::init() {
 	std::ifstream file;
 	char dummy;
-	char buf[MAX_INPUT_LENGTH];
+	char buf[kMaxInputLength];
 	std::string str;
 	int val, val2, curr_val = 0;
 	std::map<int, alias_type>::iterator it;
@@ -2453,13 +2453,13 @@ void insert_wanted_gem::init() {
 		return log("failed to open insert_wanted.lst.");
 	}
 
-	file.width(MAX_INPUT_LENGTH);
+	file.width(kMaxInputLength);
 
 	while (1) {
 		if (!(file >> dummy)) break;
 
 		if (dummy == '*') {
-			if (!file.getline(buf, MAX_INPUT_LENGTH)) break;
+			if (!file.getline(buf, kMaxInputLength)) break;
 			continue;
 		}
 
@@ -2478,7 +2478,7 @@ void insert_wanted_gem::init() {
 		if (dummy == '$') {
 			if (curr_val == 0) break;
 			if (!(file >> str)) break;
-			if (str.size() > MAX_ALIAS_LENGTH - 1) break;
+			if (str.size() > kMaxAliasLehgt - 1) break;
 			if (!(file >> val)) break;
 			if (curr_val == 0) break;
 
@@ -2581,7 +2581,7 @@ int insert_wanted_gem::exist(const int gem_vnum, const std::string &str) const {
 
 
 int make_hole(CHAR_DATA *ch) {
-	if (roundup(world[ch->in_room]->holes / HOLES_TIME) >= dig_vars.hole_max_deep) {
+	if (roundup(world[ch->in_room]->holes / kHolesTime) >= dig_vars.hole_max_deep) {
 		send_to_char("Тут и так все перекопано.\r\n", ch);
 		return 0;
 	}
@@ -2666,8 +2666,8 @@ void do_dig(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (world[ch->in_room]->sector_type != SECT_MOUNTAIN &&
-		world[ch->in_room]->sector_type != SECT_HILLS && !IS_IMMORTAL(ch)) {
+	if (world[ch->in_room]->sector_type != kSectMountain &&
+		world[ch->in_room]->sector_type != kSectHills && !IS_IMMORTAL(ch)) {
 		send_to_char("Полезные минералы водятся только в гористой местности!\r\n", ch);
 		return;
 	}
@@ -2693,7 +2693,7 @@ void do_dig(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!check_moves(ch, dig_vars.need_moves))
 		return;
 
-	world[ch->in_room]->holes += HOLES_TIME;
+	world[ch->in_room]->holes += kHolesTime;
 
 	send_to_char("Вы стали усердно ковырять каменистую почву...\r\n", ch);
 	act("$n стал$g усердно ковырять каменистую почву...", FALSE, ch, 0, 0, TO_ROOM);
@@ -2835,7 +2835,7 @@ void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv) {
 }
 
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod) {
-	for (auto i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (auto i = 0; i < kMaxObjAffect; i++) {
 		if (itemobj->get_affected(i).location == type) {
 			const auto current_mod = itemobj->get_affected(i).modifier;
 			itemobj->set_affected(i, type, current_mod + mod);
@@ -2862,9 +2862,9 @@ bool is_dig_stone(OBJ_DATA *obj) {
 
 void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	int percent, prob;
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
-	char arg3[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
+	char arg3[kMaxInputLength];
 	char buf[300];
 	char *gem, *item;
 	OBJ_DATA *gemobj, *itemobj;
@@ -2946,7 +2946,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	WAIT_STATE(ch, PULSE_VIOLENCE);
 
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (itemobj->get_affected(i).location == APPLY_NONE) {
 			prob -= i * insgem_vars.minus_for_affect;
 			break;
@@ -3144,11 +3144,11 @@ bool is_dark(room_rnum room) {
 	if (ROOM_AFFECTED(room, AFF_ROOM_LIGHT))
 		coef += 2.0;
 	// если светит луна и комната !помещение и !город
-	if ((SECT(room) != SECT_INSIDE) && (SECT(room) != SECT_CITY) && (IS_MOONLIGHT(room)))
+	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity) && (IS_MOONLIGHT(room)))
 		coef += 1.0;
 
 	// если ночь и мы не внутри и не в городе
-	if ((SECT(room) != SECT_INSIDE) && (SECT(room) != SECT_CITY)
+	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity)
 		&& ((weather_info.sunlight == SUN_SET) || (weather_info.sunlight == SUN_DARK)))
 		coef -= 1.0;
 	// если на комнате флаг темно

@@ -35,10 +35,10 @@ void check_purged(const CHAR_DATA *ch, const char *fnc) {
 } // namespace
 
 
-ProtectedCharacterData::ProtectedCharacterData() : m_rnum(NOBODY) {
+ProtectedCharacterData::ProtectedCharacterData() : m_rnum(kNobody) {
 }
 
-ProtectedCharacterData::ProtectedCharacterData(const ProtectedCharacterData &rhv) : m_rnum(NOBODY) {
+ProtectedCharacterData::ProtectedCharacterData(const ProtectedCharacterData &rhv) : m_rnum(kNobody) {
 	*this = rhv;
 }
 
@@ -179,7 +179,7 @@ void CHAR_DATA::reset() {
 
 	followers = NULL;
 	m_master = nullptr;
-	in_room = NOWHERE;
+	in_room = kNowhere;
 	carrying = NULL;
 	next_fighting = NULL;
 	set_protecting(0);
@@ -296,7 +296,7 @@ size_t CHAR_DATA::remove_random_affects(const size_t count) {
 * вынесено в отдельную функцию, чтобы дергать из purge().
 */
 void CHAR_DATA::zero_init() {
-	set_sex(ESex::SEX_MALE);
+	set_sex(ESex::kSexMale);
 	set_race(0);
 	protecting_ = 0;
 	touching_ = 0;
@@ -333,7 +333,7 @@ void CHAR_DATA::zero_init() {
 	attackers_.clear();
 	restore_timer_ = 0;
 	// char_data
-	set_rnum(NOBODY);
+	set_rnum(kNobody);
 	in_room = 0;
 	set_wait(0u);
 	punctual_wait = 0;
@@ -848,19 +848,19 @@ bool OK_GAIN_EXP(const CHAR_DATA *ch, const CHAR_DATA *victim) {
 }
 
 bool IS_MALE(const CHAR_DATA *ch) {
-	return GET_SEX(ch) == ESex::SEX_MALE;
+	return GET_SEX(ch) == ESex::kSexMale;
 }
 
 bool IS_FEMALE(const CHAR_DATA *ch) {
-	return GET_SEX(ch) == ESex::SEX_FEMALE;
+	return GET_SEX(ch) == ESex::kSexFemale;
 }
 
 bool IS_NOSEXY(const CHAR_DATA *ch) {
-	return GET_SEX(ch) == ESex::SEX_NEUTRAL;
+	return GET_SEX(ch) == ESex::kSexNeutral;
 }
 
 bool IS_POLY(const CHAR_DATA *ch) {
-	return GET_SEX(ch) == ESex::SEX_POLY;
+	return GET_SEX(ch) == ESex::kSexPoly;
 }
 
 bool IMM_CAN_SEE(const CHAR_DATA *sub, const CHAR_DATA *obj) {
@@ -897,7 +897,7 @@ void change_fighting(CHAR_DATA *ch, int need_stop) {
 			k->set_cast(0, 0, 0, 0, 0);
 		}
 
-		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE) {
+		if (k->get_fighting() == ch && IN_ROOM(k) != kNowhere) {
 			log("[Change fighting] Change victim");
 
 			bool found = false;
@@ -1098,8 +1098,9 @@ ESex CHAR_DATA::get_sex() const {
 }
 
 void CHAR_DATA::set_sex(const ESex sex) {
-	if (to_underlying(sex) >= 0
-		&& to_underlying(sex) < NUM_SEXES) {
+/*	if (to_underlying(sex) >= 0
+		&& to_underlying(sex) < ESex::kSexLast) {*/
+	if (sex < ESex::kSexLast) {
 		player_data.sex = sex;
 	}
 }
@@ -1135,7 +1136,7 @@ ubyte CHAR_DATA::get_kin() const {
 }
 
 void CHAR_DATA::set_kin(const ubyte v) {
-	if (v < NUM_KIN) {
+	if (v < kNumKins) {
 		player_data.Kin = v;
 	}
 }
@@ -1242,7 +1243,7 @@ void CHAR_DATA::set_gold(long num, bool need_log) {
 		// чтобы с логированием не заморачиваться
 		return;
 	}
-	num = MAX(0, MIN(MAX_MONEY_KEPT, num));
+	num = MAX(0, MIN(kMaxMoneyKept, num));
 
 	if (need_log && !IS_NPC(this)) {
 		long change = num - get_gold();
@@ -1266,7 +1267,7 @@ void CHAR_DATA::set_bank(long num, bool need_log) {
 		// чтобы с логированием не заморачиваться
 		return;
 	}
-	num = MAX(0, MIN(MAX_MONEY_KEPT, num));
+	num = MAX(0, MIN(kMaxMoneyKept, num));
 
 	if (need_log && !IS_NPC(this)) {
 		long change = num - get_bank();
@@ -1949,7 +1950,7 @@ void CHAR_DATA::restore_npc() {
 		this->set_skill(i, GET_SKILL(proto, i));
 	}
 	// рестор для фитов
-	for (int i = 1; i < MAX_FEATS; i++) { 
+	for (int i = 1; i < kMaxFeats; i++) {
 		if (!HAVE_FEAT(proto, i)) {
 				UNSET_FEAT(this, i);
 			}
@@ -2060,7 +2061,7 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 		return;
 
 	va_list args;
-	char tmpbuf[MAX_STRING_LENGTH];
+	char tmpbuf[kMaxStringLength];
 
 	va_start(args, msg);
 	vsnprintf(tmpbuf, sizeof(tmpbuf), msg, args);

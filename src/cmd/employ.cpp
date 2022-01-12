@@ -33,7 +33,7 @@ void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			case SCMD_RECITE:
 			case SCMD_QUAFF:
 				if (!(mag_item = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-					snprintf(buf2, MAX_STRING_LENGTH, "Окститесь, нет у вас %s.\r\n", arg);
+					snprintf(buf2, kMaxStringLength, "Окститесь, нет у вас %s.\r\n", arg);
 					send_to_char(buf2, ch);
 					return;
 				}
@@ -41,7 +41,7 @@ void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			case SCMD_USE: mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
 				if (!mag_item
 					|| GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_ENCHANT) {
-					snprintf(buf2, MAX_STRING_LENGTH, "Возьмите в руку '%s' перед применением!\r\n", arg);
+					snprintf(buf2, kMaxStringLength, "Возьмите в руку '%s' перед применением!\r\n", arg);
 					send_to_char(buf2, ch);
 					return;
 				}

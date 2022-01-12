@@ -124,9 +124,9 @@ const char uid_replace_table[] = {
 };
 
 void script_log(const char *msg, LogMode type) {
-	char tmpbuf[MAX_STRING_LENGTH];
+	char tmpbuf[kMaxStringLength];
 
-	snprintf(tmpbuf, MAX_STRING_LENGTH, "SCRIPT LOG %s", msg);
+	snprintf(tmpbuf, kMaxStringLength, "SCRIPT LOG %s", msg);
 
 	char *pos = tmpbuf;
 	while (*pos != '\0') {
@@ -143,8 +143,8 @@ void script_log(const char *msg, LogMode type) {
  *  Will eventually allow on-line view of script errors.
  */
 void trig_log(TRIG_DATA *trig, const char *msg, LogMode type) {
-	char tmpbuf[MAX_STRING_LENGTH];
-	snprintf(tmpbuf, MAX_STRING_LENGTH, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
+	char tmpbuf[kMaxStringLength];
+	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
 	script_log(tmpbuf, type);
 }
 
@@ -241,7 +241,7 @@ GlobalTriggersStorage &trigger_list = GlobalObjects::trigger_list();    // all a
 int trgvar_in_room(int vnum) {
 	const int rnum = real_room(vnum);
 
-	if (NOWHERE == rnum) {
+	if (kNowhere == rnum) {
 		script_log("people.vnum: world[rnum] does not exist");
 		return (-1);
 	}
@@ -282,7 +282,7 @@ OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA *list) {
 OBJ_DATA *get_object_in_equip(CHAR_DATA *ch, char *name) {
 	int j, n = 0, number;
 	OBJ_DATA *obj;
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 	long id;
 
@@ -404,7 +404,7 @@ ROOM_DATA *find_room(long n) {
 int find_char_vnum(long n, int num = 0) {
 	int count = 0;
 	for (const auto &ch : character_list) {
-		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE) {
+		if (n == GET_MOB_VNUM(ch) && ch->in_room != kNowhere) {
 			if (num != count) {
 				++count;
 				continue;
@@ -420,13 +420,13 @@ int find_char_vnum(long n, int num = 0) {
 // Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к.
 // RNUM может быть независимо изменен с помощью OLC
 int find_room_vnum(long n) {
-	//  return (real_room (n) != NOWHERE) ? ROOM_ID_BASE + n : -1;
-	return (real_room(n) != NOWHERE) ? n : -1;
+	//  return (real_room (n) != kNowhere) ? ROOM_ID_BASE + n : -1;
+	return (real_room(n) != kNowhere) ? n : -1;
 }
 
 int find_room_uid(long n) {
-	return (real_room(n) != NOWHERE) ? ROOM_ID_BASE + n : -1;
-	//return (real_room (n) != NOWHERE) ? n : -1;
+	return (real_room(n) != kNowhere) ? ROOM_ID_BASE + n : -1;
+	//return (real_room (n) != kNowhere) ? n : -1;
 }
 
 /************************************************************
@@ -487,7 +487,7 @@ ROOM_DATA *get_room(char *name) {
 
 	if (*name == UID_ROOM)
 		return find_room(atoi(name + 1));
-	else if ((nr = real_room(atoi(name))) == NOWHERE)
+	else if ((nr = real_room(atoi(name))) == kNowhere)
 		return NULL;
 	else
 		return world[nr];
@@ -608,7 +608,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA *obj, char *name) {
 		return i;
 	} else if (obj->get_carried_by() && (i = get_obj_in_list(name, obj->get_carried_by()->carrying))) {
 		return i;
-	} else if (((rm = obj_room(obj)) != NOWHERE) && (i = get_obj_in_list(name, world[rm]->contents))) {
+	} else if (((rm = obj_room(obj)) != kNowhere) && (i = get_obj_in_list(name, world[rm]->contents))) {
 		return i;
 	}
 
@@ -784,7 +784,7 @@ EVENT(trig_wait_event) {
 }
 
 void do_stat_trigger(CHAR_DATA *ch, TRIG_DATA *trig) {
-	char sb[MAX_EXTEND_LENGTH];
+	char sb[kMaxExtendLength];
 
 	if (!trig) {
 		log("SYSERR: NULL trigger passed to do_stat_trigger.");
@@ -845,8 +845,8 @@ void find_uid_name(char *uid, char *name) {
 // general function to display stats on script sc
 void script_stat(CHAR_DATA *ch, SCRIPT_DATA *sc) {
 	struct trig_var_data *tv;
-	char name[MAX_INPUT_LENGTH];
-	char namebuf[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength];
+	char namebuf[kMaxInputLength];
 
 	sprintf(buf, "Global Variables: %s\r\n", sc->global_vars ? "" : "None");
 	send_to_char(buf, ch);
@@ -997,8 +997,8 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim;
 	OBJ_DATA *object;
 	TRIG_DATA *trig;
-	char targ_name[MAX_INPUT_LENGTH], trig_name[MAX_INPUT_LENGTH];
-	char loc_name[MAX_INPUT_LENGTH];
+	char targ_name[kMaxInputLength], trig_name[kMaxInputLength];
+	char loc_name[kMaxInputLength];
 	int loc, room, tn, rn;
 
 	argument = two_arguments(argument, arg, trig_name);
@@ -1067,7 +1067,7 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("That object does not exist.\r\n", ch);
 	} else if (is_abbrev(arg, "wtr")) {
 		if (a_isdigit(*targ_name) && !strchr(targ_name, '.')) {
-			if ((room = find_target_room(ch, targ_name, 0)) != NOWHERE)    // have a valid room, now get trigger
+			if ((room = find_target_room(ch, targ_name, 0)) != kNowhere)    // have a valid room, now get trigger
 			{
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
@@ -1094,7 +1094,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *victim = NULL;
 	OBJ_DATA *object = NULL;
 	ROOM_DATA *room;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], arg3[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength], arg2[kMaxInputLength], arg3[kMaxInputLength];
 	char *trigger = 0;
 	int tmp;
 
@@ -1361,8 +1361,8 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	} else if (!str_cmp(field, "words")) {
 		int n = 0;
 		// Подсчет количества слов или получение слова
-		char buf1[MAX_TRGLINE_LENGTH];
-		char buf2[MAX_TRGLINE_LENGTH];
+		char buf1[kMaxTrglineLength];
+		char buf2[kMaxTrglineLength];
 		buf1[0] = 0;
 		strcpy(buf2, vd->value);
 		if (*subfield) {
@@ -1418,7 +1418,7 @@ void find_replacement(void *go,
 	char *name;
 	int num = 0, count = 0, i;
 	char uid_type = '\0';
-	char tmp[MAX_TRGLINE_LENGTH] = {};
+	char tmp[kMaxTrglineLength] = {};
 
 	const char *send_cmd[] = {"msend", "osend", "wsend"};
 	const char *echo_cmd[] = {"mecho", "oecho", "wecho"};
@@ -1577,7 +1577,7 @@ void find_replacement(void *go,
 				for (const auto &tch : character_list) {
 					if (IS_NPC(tch))
 						continue;
-					if (IN_ROOM(tch) == NOWHERE || !tch->desc)
+					if (IN_ROOM(tch) == kNowhere || !tch->desc)
 						continue;
 					if (!str_cmp(subfield, GET_NAME(tch))) {
 						sprintf(str, "1");
@@ -1659,7 +1659,7 @@ void find_replacement(void *go,
 				num = -1;
 				if ((num = atoi(subfield)) > 0)
 					num = real_room(num);
-				if (num != NOWHERE)
+				if (num != kNowhere)
 					sprintf(str, "%d", GET_ROOM_SKY(num));
 				else
 					sprintf(str, "%d", weather_info.sky);
@@ -1669,7 +1669,7 @@ void find_replacement(void *go,
 				num = -1;
 				if ((num = atoi(subfield)) > 0)
 					num = real_room(num);
-				if (num != NOWHERE && world[num]->weather.duration > 0)
+				if (num != kNowhere && world[num]->weather.duration > 0)
 					wt = world[num]->weather.weather_type;
 				for (c = 'a'; wt; ++c, wt >>= 1)
 					if (wt & 1)
@@ -1714,19 +1714,19 @@ void find_replacement(void *go,
 			if (!str_cmp(field, "unix")) {
 				sprintf(str, "%ld", static_cast<long>(now_time));
 			} else if (!str_cmp(field, "yday")) {
-				strftime(str, MAX_INPUT_LENGTH, "%j", localtime(&now_time));
+				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
-				strftime(str, MAX_INPUT_LENGTH, "%w", localtime(&now_time));
+				strftime(str, kMaxInputLength, "%w", localtime(&now_time));
 			} else if (!str_cmp(field, "minute")) {
-				strftime(str, MAX_INPUT_LENGTH, "%M", localtime(&now_time));
+				strftime(str, kMaxInputLength, "%M", localtime(&now_time));
 			} else if (!str_cmp(field, "hour")) {
-				strftime(str, MAX_INPUT_LENGTH, "%H", localtime(&now_time));
+				strftime(str, kMaxInputLength, "%H", localtime(&now_time));
 			} else if (!str_cmp(field, "day")) {
-				strftime(str, MAX_INPUT_LENGTH, "%d", localtime(&now_time));
+				strftime(str, kMaxInputLength, "%d", localtime(&now_time));
 			} else if (!str_cmp(field, "month")) {
-				strftime(str, MAX_INPUT_LENGTH, "%m", localtime(&now_time));
+				strftime(str, kMaxInputLength, "%m", localtime(&now_time));
 			} else if (!str_cmp(field, "year")) {
-				strftime(str, MAX_INPUT_LENGTH, "%y", localtime(&now_time));
+				strftime(str, kMaxInputLength, "%y", localtime(&now_time));
 			}
 			return;
 		} else if (!str_cmp(var, "random")) {
@@ -2131,7 +2131,7 @@ void find_replacement(void *go,
 			} else
 				sprintf(str, "%d", GET_ALIGNMENT(c));
 		} else if (!str_cmp(field, "religion")) {
-			if (*subfield && ((atoi(subfield) == RELIGION_POLY) || (atoi(subfield) == RELIGION_MONO)))
+			if (*subfield && ((atoi(subfield) == kReligionPoly) || (atoi(subfield) == kReligionMono)))
 				GET_RELIGION(c) = atoi(subfield);
 			else
 				sprintf(str, "%d", GET_RELIGION(c));
@@ -2488,7 +2488,7 @@ void find_replacement(void *go,
 					sprintf(str, "%d", GET_LOADROOM(c));
 				else {
 					int pos = atoi(subfield);
-					if (real_room(pos) != NOWHERE) {
+					if (real_room(pos) != kNowhere) {
 						GET_LOADROOM(c) = pos;
 						c->save_char();
 					}
@@ -2673,8 +2673,8 @@ void find_replacement(void *go,
 				if (t->get_fighting() != c) {
 					continue;
 				}
-				int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(t));
-				if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
+				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(t));
+				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
@@ -2700,8 +2700,8 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "objs")) {
 			size_t str_length = strlen(str);
 			for (obj = c->carrying; obj; obj = obj->get_next_content()) {
-				int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
-				if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
+				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_OBJ, obj->get_id());
+				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
@@ -2719,8 +2719,8 @@ void find_replacement(void *go,
 
 			// Составление списка (для mob)
 			inroom = IN_ROOM(c);
-			if (inroom == NOWHERE) {
-				trig_log(trig, "mob-построитель списка в NOWHERE");
+			if (inroom == kNowhere) {
+				trig_log(trig, "mob-построитель списка в kNowhere");
 				return;
 			}
 
@@ -2741,8 +2741,8 @@ void find_replacement(void *go,
 					|| (IS_NPC(rndm)
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
-					if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
@@ -2757,7 +2757,7 @@ void find_replacement(void *go,
 			strcpy(str, Noob::is_noob(c) ? "1" : "0");
 		} else if (!str_cmp(field, "noob_outfit")) {
 			std::string vnum_str = Noob::print_start_outfit(c);
-			snprintf(str, MAX_TRGLINE_LENGTH, "%s", vnum_str.c_str());
+			snprintf(str, kMaxTrglineLength, "%s", vnum_str.c_str());
 		} else {
 			vd = find_var_cntx(&((SCRIPT(c))->global_vars), field,
 							   sc->context);
@@ -2893,7 +2893,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", world[IN_ROOM(o->get_carried_by())]->room_vn);
 			} else if (o->get_worn_by()) {
 				sprintf(str, "%d", world[IN_ROOM(o->get_worn_by())]->room_vn);
-			} else if (o->get_in_room() != NOWHERE) {
+			} else if (o->get_in_room() != kNowhere) {
 				sprintf(str, "%d", world[o->get_in_room()]->room_vn);
 			} else {
 				strcpy(str, "");
@@ -2925,7 +2925,7 @@ void find_replacement(void *go,
 			}
 			if (*subfield == UID_ROOM) {
 				room_to = find_room(atoi(subfield + 1));
-				if (!(room_to && (room_to->room_vn != NOWHERE))) {
+				if (!(room_to && (room_to->room_vn != kNowhere))) {
 					trig_log(trig, "object.put: недопустимая комната для размещения объекта");
 					return;
 				}
@@ -2938,7 +2938,7 @@ void find_replacement(void *go,
 				obj_from_char(o);
 			} else if (o->get_in_obj()) {
 				obj_from_obj(o);
-			} else if (o->get_in_room() > NOWHERE) {
+			} else if (o->get_in_room() > kNowhere) {
 				obj_from_room(o);
 			} else {
 				trig_log(trig, "object.put: не удалось извлечь объект");
@@ -2953,7 +2953,7 @@ void find_replacement(void *go,
 				obj_to_room(o, real_room(room_to->room_vn));
 			else {
 				sprintf(buf2,
-						"object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в NOWHERE",
+						"object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в kNowhere",
 						o->get_short_description().c_str());
 				trig_log(trig, buf2);
 				return;
@@ -2966,8 +2966,8 @@ void find_replacement(void *go,
 
 			// Составление списка (для obj)
 			inroom = obj_room(o);
-			if (inroom == NOWHERE) {
-				trig_log(trig, "obj-построитель списка в NOWHERE");
+			if (inroom == kNowhere) {
+				trig_log(trig, "obj-построитель списка в kNowhere");
 				return;
 			}
 
@@ -2985,8 +2985,8 @@ void find_replacement(void *go,
 					|| (IS_NPC(rndm)
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
-					if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
@@ -3037,8 +3037,8 @@ void find_replacement(void *go,
 			if (o->get_type() == OBJ_DATA::ITEM_CONTAINER) {
 				size_t str_length = strlen(str);
 				for (auto temp = o->get_contains(); temp; temp = temp->get_next_content()) {
-					int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_OBJ, temp->get_id());
-					if (str_length + n < MAX_TRGLINE_LENGTH) { // not counting the terminating null character
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_OBJ, temp->get_id());
+					if (str_length + n < kMaxTrglineLength) { // not counting the terminating null character
 					strcpy(str + str_length, tmp);
 					str_length += n;
 					} else {
@@ -3128,8 +3128,8 @@ void find_replacement(void *go,
 
 			// Составление списка (для room)
 			inroom = real_room(r->room_vn);
-			if (inroom == NOWHERE) {
-				trig_log(trig, "room-построитель списка в NOWHERE");
+			if (inroom == kNowhere) {
+				trig_log(trig, "room-построитель списка в kNowhere");
 				return;
 			}
 
@@ -3147,8 +3147,8 @@ void find_replacement(void *go,
 					|| (IS_NPC(rndm)
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
-					if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
@@ -3164,15 +3164,15 @@ void find_replacement(void *go,
 			int inroom;
 			// Составление списка (для room)
 			inroom = real_room(r->room_vn);
-			if (inroom == NOWHERE) {
-				trig_log(trig, "room-построитель списка в NOWHERE");
+			if (inroom == kNowhere) {
+				trig_log(trig, "room-построитель списка в kNowhere");
 				return;
 			}
 
 			size_t str_length = strlen(str);
 			for (obj = world[inroom]->contents; obj; obj = obj->get_next_content()) {
-				int n = snprintf(tmp, MAX_TRGLINE_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
-				if (str_length + n < MAX_TRGLINE_LENGTH) // not counting the terminating null character
+				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_OBJ, obj->get_id());
+				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
@@ -3205,9 +3205,9 @@ void find_replacement(void *go,
 
 // substitutes any variables into line and returns it as buf
 void var_subst(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, const char *line, char *buf) {
-	char tmp[MAX_TRGLINE_LENGTH], repl_str[MAX_TRGLINE_LENGTH], *var, *field, *p;
-	char *subfield_p, subfield[MAX_TRGLINE_LENGTH];
-	char *local_p, local[MAX_TRGLINE_LENGTH];
+	char tmp[kMaxTrglineLength], repl_str[kMaxTrglineLength], *var, *field, *p;
+	char *subfield_p, subfield[kMaxTrglineLength];
+	char *local_p, local[kMaxTrglineLength];
 	int paren_count = 0;
 
 	if (!strchr(line, '%')) {
@@ -3218,7 +3218,7 @@ void var_subst(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, const char 
 	p = strcpy(tmp, line);
 	subfield_p = subfield;
 
-	size_t left = MAX_TRGLINE_LENGTH - 1;
+	size_t left = kMaxTrglineLength - 1;
 	while (*p && (left > 0)) {
 		while (*p && (*p != '%') && (left > 0)) {
 			*(buf++) = *(p++);
@@ -3410,7 +3410,7 @@ char *matching_paren(char *p) {
 
 // evaluates line, and returns answer in result
 void eval_expr(const char *line, char *result, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type) {
-	char expr[MAX_INPUT_LENGTH], *p;
+	char expr[kMaxInputLength], *p;
 
 	while (*line && isspace(*line)) {
 		line++;
@@ -3432,8 +3432,8 @@ void eval_expr(const char *line, char *result, void *go, SCRIPT_DATA *sc, TRIG_D
  * answer in result.  returns 1 if expr is evaluated, else 0
  */
 int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type) {
-	char *p, *tokens[MAX_TRGLINE_LENGTH];
-	char line[MAX_TRGLINE_LENGTH], lhr[MAX_TRGLINE_LENGTH], rhr[MAX_TRGLINE_LENGTH];
+	char *p, *tokens[kMaxTrglineLength];
+	char line[kMaxTrglineLength], lhr[kMaxTrglineLength], rhr[kMaxTrglineLength];
 	int i, j;
 
 	/*
@@ -3514,9 +3514,9 @@ foreach i <список>
 --*/
 // returns 1 if next iteration, else 0
 int process_foreach_begin(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type) {
-	char name[MAX_TRGLINE_LENGTH];
-	char list_str[MAX_TRGLINE_LENGTH];
-	char value[MAX_TRGLINE_LENGTH];
+	char name[kMaxTrglineLength];
+	char list_str[kMaxTrglineLength];
+	char value[kMaxTrglineLength];
 
 	skip_spaces(&cond);
 	auto p = one_argument(cond, name);
@@ -3547,7 +3547,7 @@ int process_foreach_begin(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA
 	}
 
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
-	snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
+	snprintf(value, kMaxTrglineLength, "%s%s", name, FOREACH_LIST_GUID);
 	add_var_cntx(&GET_TRIG_VARS(trig), value, list_str, 0);
 
 	strcat(name, FOREACH_LIST_POS_GUID);
@@ -3558,8 +3558,8 @@ int process_foreach_begin(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA
 }
 
 int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *trig, int) {
-	char name[MAX_TRGLINE_LENGTH];
-	char value[MAX_TRGLINE_LENGTH];
+	char name[kMaxTrglineLength];
+	char value[kMaxTrglineLength];
 
 	skip_spaces(&cond);
 	one_argument(cond, name);
@@ -3569,10 +3569,10 @@ int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *tri
 		return 0;
 	}
 
-	snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
+	snprintf(value, kMaxTrglineLength, "%s%s", name, FOREACH_LIST_GUID);
 	const auto var_list = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
-	snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_POS_GUID);
+	snprintf(value, kMaxTrglineLength, "%s%s", name, FOREACH_LIST_POS_GUID);
 	const auto var_list_pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
 	if (!var_list || !var_list_pos) {
@@ -3584,10 +3584,10 @@ int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *tri
 	if (!p || !*p) {
 		remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
 
-		snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_GUID);
+		snprintf(value, kMaxTrglineLength, "%s%s", name, FOREACH_LIST_GUID);
 		remove_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
-		snprintf(value, MAX_TRGLINE_LENGTH, "%s%s", name, FOREACH_LIST_POS_GUID);
+		snprintf(value, kMaxTrglineLength, "%s%s", name, FOREACH_LIST_POS_GUID);
 		remove_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
 		return 0;
@@ -3616,7 +3616,7 @@ int process_foreach_done(const char *cond, void *, SCRIPT_DATA *, TRIG_DATA *tri
 
 // returns 1 if cond is true, else 0
 int process_if(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type) {
-	char result[MAX_INPUT_LENGTH], *p;
+	char result[kMaxInputLength], *p;
 
 	eval_expr(cond, result, go, sc, trig, type);
 
@@ -3635,7 +3635,7 @@ int process_if(const char *cond, void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int
  * returns the line containg 'end', or NULL
  */
 cmdlist_element::shared_ptr find_end(TRIG_DATA *trig, cmdlist_element::shared_ptr cl) {
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	const char *p = nullptr;
 #ifdef DG_CODE_ANALYZE
 	const char *cmd = cl ? cl->cmd.c_str() : "<NULL>";
@@ -3746,7 +3746,7 @@ cmdlist_element::shared_ptr find_case(TRIG_DATA *trig,
 									  SCRIPT_DATA *sc,
 									  int type,
 									  const char *cond) {
-	char result[MAX_INPUT_LENGTH];
+	char result[kMaxInputLength];
 	const char *p = nullptr;
 #ifdef DG_CODE_ANALYZE
 	const char *cmd = cl ? cl->cmd.c_str() : "<NULL>";
@@ -3760,7 +3760,7 @@ cmdlist_element::shared_ptr find_case(TRIG_DATA *trig,
 		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
 			cl = find_done(trig, cl);
 		} else if (!strn_cmp("case ", p, 5)) {
-			char *tmpbuf = (char *) malloc(MAX_STRING_LENGTH);
+			char *tmpbuf = (char *) malloc(kMaxStringLength);
 			eval_op("==", result, p + 5, tmpbuf, go, sc, trig);
 			if (*tmpbuf && *tmpbuf != '0') {
 				free(tmpbuf);
@@ -3851,7 +3851,7 @@ void process_wait(void *go, TRIG_DATA *trig, int type, char *cmd, const cmdlist_
 
 // processes a script set command
 void process_set(SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
-	char arg[MAX_TRGLINE_LENGTH], name[MAX_TRGLINE_LENGTH], *value;
+	char arg[kMaxTrglineLength], name[kMaxTrglineLength], *value;
 
 	value = two_arguments(cmd, arg, name);
 
@@ -3868,8 +3868,8 @@ void process_set(SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
 
 // processes a script eval command
 void process_eval(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd) {
-	char arg[MAX_TRGLINE_LENGTH], name[MAX_TRGLINE_LENGTH];
-	char result[MAX_TRGLINE_LENGTH], *expr;
+	char arg[kMaxTrglineLength], name[kMaxTrglineLength];
+	char result[kMaxTrglineLength], *expr;
 
 	expr = two_arguments(cmd, arg, name);
 
@@ -3887,8 +3887,8 @@ void process_eval(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cm
 
 // script attaching a trigger to something
 void process_attach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], trignum_s[MAX_INPUT_LENGTH];
-	char result[MAX_INPUT_LENGTH], *id_p;
+	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
+	char result[kMaxInputLength], *id_p;
 	TRIG_DATA *newtrig;
 	CHAR_DATA *c = NULL;
 	OBJ_DATA *o = NULL;
@@ -3984,8 +3984,8 @@ void process_attach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *
 
 // script detaching a trigger from something
 TRIG_DATA *process_detach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], trignum_s[MAX_INPUT_LENGTH];
-	char result[MAX_INPUT_LENGTH], *id_p;
+	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
+	char result[kMaxInputLength], *id_p;
 	CHAR_DATA *c = NULL;
 	OBJ_DATA *o = NULL;
 	ROOM_DATA *r = NULL;
@@ -4048,8 +4048,8 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, 
 		  FALSE  - trigger not runned
 */
 int process_run(void *go, SCRIPT_DATA **sc, TRIG_DATA **trig, int type, char *cmd, int *retval) {
-	char arg[MAX_INPUT_LENGTH], trignum_s[MAX_INPUT_LENGTH], *name, *cname;
-	char result[MAX_INPUT_LENGTH], *id_p;
+	char arg[kMaxInputLength], trignum_s[kMaxInputLength], *name, *cname;
+	char result[kMaxInputLength], *id_p;
 	TRIG_DATA *runtrig = NULL;
 	//	SCRIPT_DATA *runsc = NULL;
 	struct trig_var_data *vd;
@@ -4186,7 +4186,7 @@ CHAR_DATA *dg_caster_owner_obj(OBJ_DATA *obj) {
 
 ROOM_DATA *dg_room_of_obj(OBJ_DATA *obj) {
 
-	if (obj->get_in_room() > NOWHERE) {
+	if (obj->get_in_room() > kNowhere) {
 		return world[obj->get_in_room()];
 	}
 
@@ -4216,7 +4216,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 			return;
 		}
 		room_rnum = real_room(room_vnum);
-		if (room_rnum != NOWHERE) {
+		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			obj_to_room(object.get(), room_rnum);
 			load_otrigger(object.get());
@@ -4230,7 +4230,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 			return;
 		}
 		room_rnum = real_room(room_vnum);
-		if (room_rnum != NOWHERE) {
+		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			obj_to_room(object.get(), room_rnum);
 			load_otrigger(object.get());
@@ -4244,7 +4244,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 			return;
 		}
 		room_rnum = real_room(room_vnum);
-		if (room_rnum != NOWHERE) {
+		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			obj_to_room(object.get(), room_rnum);
 			load_otrigger(object.get());
@@ -4252,9 +4252,9 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 }
 // create a UID variable from the id number
 void makeuid_var(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
-	char result[MAX_INPUT_LENGTH], *uid_p;
-	char uid[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength], varname[kMaxInputLength];
+	char result[kMaxInputLength], *uid_p;
+	char uid[kMaxInputLength];
 
 	uid_p = two_arguments(cmd, arg, varname);
 	skip_spaces(&uid_p);
@@ -4283,9 +4283,9 @@ void makeuid_var(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd
 * если порядковый не указан - возвращается первое вхождение.
 */
 void calcuid_var(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
-	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
-	char uid[MAX_INPUT_LENGTH], count[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength], varname[kMaxInputLength];
+	char *t, vnum[kMaxInputLength], what[kMaxInputLength];
+	char uid[kMaxInputLength], count[kMaxInputLength];
 	char uid_type;
 	int result = -1;
 
@@ -4355,8 +4355,8 @@ void calcuid_var(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char
  * совпадает аргумент
  */
 void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
-	char who[MAX_INPUT_LENGTH], uid[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength], varname[kMaxInputLength];
+	char who[kMaxInputLength], uid[kMaxInputLength];
 	char uid_type = UID_CHAR;
 
 	int result = -1;
@@ -4382,7 +4382,7 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 			continue;
 		}
 
-		if (IN_ROOM(tch) != NOWHERE) {
+		if (IN_ROOM(tch) != kNowhere) {
 			result = GET_ID(tch);
 		}
 	}
@@ -4400,8 +4400,8 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 
 // поиск всех чаров с лд
 void charuidld_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
-	char who[MAX_INPUT_LENGTH], uid[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength], varname[kMaxInputLength];
+	char who[kMaxInputLength], uid[kMaxInputLength];
 	char uid_type = UID_CHARLD;
 
 	int result = -1;
@@ -4426,7 +4426,7 @@ void charuidld_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *c
 		if (str_cmp(who, GET_NAME(tch))) {
 			continue;
 		}
-		if (IN_ROOM(tch) != NOWHERE && !tch->desc) {
+		if (IN_ROOM(tch) != kNowhere && !tch->desc) {
 			result = GET_ID(tch);
 			break;
 		}
@@ -4446,8 +4446,8 @@ void charuidld_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *c
 bool find_all_char_vnum(long n, char *str) {
 	int count = 0;
 	for (const auto &ch : character_list) {
-		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE && (strlen(str + strlen(str)) < MAX_TRGLINE_LENGTH)) {
-			snprintf(str + strlen(str), MAX_TRGLINE_LENGTH, "%c%ld ", UID_CHAR, GET_ID(ch));
+		if (n == GET_MOB_VNUM(ch) && ch->in_room != kNowhere && (strlen(str + strlen(str)) < kMaxTrglineLength)) {
+			snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(ch));
 			++count;
 		}
 	}
@@ -4459,8 +4459,8 @@ bool find_all_char_vnum(long n, char *str) {
 bool find_all_obj_vnum(long n, char *str) {
 	int count = 0;
 	world_objects.foreach_with_vnum(n, [&](const OBJ_DATA::shared_ptr &i) {
-		if (strlen(str + strlen(str)) < MAX_TRGLINE_LENGTH) {
-			snprintf(str + strlen(str), MAX_TRGLINE_LENGTH, "%c%ld ", UID_OBJ, i->get_id());
+		if (strlen(str + strlen(str)) < kMaxTrglineLength) {
+			snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_OBJ, i->get_id());
 			count++;
 		}
 	});
@@ -4470,9 +4470,9 @@ bool find_all_obj_vnum(long n, char *str) {
 
 // * Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
 void calcuidall_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* type*/, char *cmd) {
-	char arg[MAX_TRGLINE_LENGTH], varname[MAX_TRGLINE_LENGTH];
-	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
-	char uid[MAX_INPUT_LENGTH];
+	char arg[kMaxTrglineLength], varname[kMaxTrglineLength];
+	char *t, vnum[kMaxInputLength], what[kMaxInputLength];
+	char uid[kMaxInputLength];
 	int result = -1;
 
 	uid[0] = '\0';
@@ -4521,7 +4521,7 @@ void calcuidall_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* 
  * returns the new value for the script to return.
  */
 int process_return(TRIG_DATA *trig, char *cmd) {
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
 	two_arguments(cmd, arg1, arg2);
 
@@ -4539,7 +4539,7 @@ int process_return(TRIG_DATA *trig, char *cmd) {
  * or the local vars of trig if not found in global list.
  */
 void process_unset(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], *var;
+	char arg[kMaxInputLength], *var;
 
 	var = any_one_arg(cmd, arg);
 
@@ -4564,7 +4564,7 @@ void process_remote(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 	struct trig_var_data *vd;
 	SCRIPT_DATA *sc_remote = NULL;
 	char *line, *var, *uid_p;
-	char arg[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength];
 	long uid, context;
 	ROOM_DATA *room;
 	CHAR_DATA *mob;
@@ -4589,7 +4589,7 @@ void process_remote(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 		vd = find_var_cntx(&(sc->global_vars), var, sc->context);
 
 	if (!vd) {
-		snprintf(buf2, MAX_STRING_LENGTH, "local var '%s' not found in remote call", buf);
+		snprintf(buf2, kMaxStringLength, "local var '%s' not found in remote call", buf);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4600,7 +4600,7 @@ void process_remote(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 //		std::stringstream buffer;
 //		buffer << "remote: illegal uid " << buf2;
 //		sprintf(buf, buffer.str());
-		snprintf(buf, MAX_STRING_LENGTH, "remote: illegal uid '%s'", buf2);
+		snprintf(buf, kMaxStringLength, "remote: illegal uid '%s'", buf2);
 		trig_log(trig, buf);
 		return;
 	}
@@ -4703,7 +4703,7 @@ void process_rdelete(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 	//  struct trig_var_data *vd, *vd_prev=NULL;
 	SCRIPT_DATA *sc_remote = NULL;
 	char *line, *var, *uid_p;
-	char arg[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength];
 	long uid; //, context;
 	ROOM_DATA *room;
 	CHAR_DATA *mob;
@@ -4726,7 +4726,7 @@ void process_rdelete(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 	// find the target script from the uid number
 	uid = atoi(buf2 + 1);
 	if (uid <= 0) {
-		snprintf(buf, MAX_STRING_LENGTH, "rdelete: illegal uid '%s'", buf2);
+		snprintf(buf, kMaxStringLength, "rdelete: illegal uid '%s'", buf2);
 		trig_log(trig, buf);
 		return;
 	}
@@ -4757,7 +4757,7 @@ void process_rdelete(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 // * makes a local variable into a global variable
 void process_global(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd, long id) {
 	struct trig_var_data *vd;
-	char arg[MAX_INPUT_LENGTH], *var;
+	char arg[kMaxInputLength], *var;
 
 	var = any_one_arg(cmd, arg);
 
@@ -4784,7 +4784,7 @@ void process_global(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd, long id) {
 // * makes a local variable into a world variable
 void process_worlds(SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd, long id) {
 	struct trig_var_data *vd;
-	char arg[MAX_INPUT_LENGTH], *var;
+	char arg[kMaxInputLength], *var;
 
 	var = any_one_arg(cmd, arg);
 
@@ -4810,7 +4810,7 @@ void process_worlds(SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd, long id) {
 
 // set the current context for a script
 void process_context(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
-	char arg[MAX_INPUT_LENGTH], *var;
+	char arg[kMaxInputLength], *var;
 
 	var = any_one_arg(cmd, arg);
 
@@ -4826,7 +4826,7 @@ void process_context(SCRIPT_DATA *sc, TRIG_DATA *trig, char *cmd) {
 }
 
 void extract_value(SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
-	char buf2[MAX_TRGLINE_LENGTH];
+	char buf2[kMaxTrglineLength];
 	char *buf3;
 	char to[128];
 	int num;
@@ -4886,13 +4886,13 @@ int script_driver(void *go, TRIG_DATA *trig, int type, int mode) {
 			finish_string_trig = trig->curr_state->cmd;
 		}
 		*/
-		snprintf(buf, MAX_STRING_LENGTH, "[TrigVNum: %d] : ", vnum);
+		snprintf(buf, kMaxStringLength, "[TrigVNum: %d] : ", vnum);
 		const auto current_buffer_length = strlen(buf);
-/*		snprintf(buf + current_buffer_length, MAX_STRING_LENGTH - current_buffer_length,
+/*		snprintf(buf + current_buffer_length, kMaxStringLength - current_buffer_length,
 			"work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s",
 			result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
 */
-		snprintf(buf + current_buffer_length, MAX_STRING_LENGTH - current_buffer_length,
+		snprintf(buf + current_buffer_length, kMaxStringLength - current_buffer_length,
 				 "work time overflow %ld sec. %ld us.",
 				 result.tv_sec, result.tv_usec);
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
@@ -4904,8 +4904,8 @@ int script_driver(void *go, TRIG_DATA *trig, int type, int mode) {
 void do_dg_add_ice_currency(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* script_type*/, char *cmd) {
 	CHAR_DATA *ch = NULL;
 	int value;
-	char junk[MAX_INPUT_LENGTH];
-	char charname[MAX_INPUT_LENGTH], value_c[MAX_INPUT_LENGTH];
+	char junk[kMaxInputLength];
+	char charname[kMaxInputLength], value_c[kMaxInputLength];
 
 	half_chop(cmd, junk, cmd);
 	half_chop(cmd, charname, cmd);
@@ -4935,7 +4935,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
 	static int depth = 0;
 	int ret_val = 1, stop = FALSE;
-	char cmd[MAX_TRGLINE_LENGTH];
+	char cmd[kMaxTrglineLength];
 	SCRIPT_DATA *sc = 0;
 	unsigned long loops = 0;
 	TRIG_DATA *prev_trig;
@@ -5061,7 +5061,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					loops++;
 					GET_TRIG_LOOPS(trig)++;
 					if (loops == 30) {
-						snprintf(buf2, MAX_STRING_LENGTH, "wait 1");
+						snprintf(buf2, kMaxStringLength, "wait 1");
 						process_wait(go, trig, type, buf2, cl);
 						depth--;
 						cur_trig = prev_trig;
@@ -5314,7 +5314,7 @@ int real_trigger(int vnum) {
 
 void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/) {
 	int vnum, rnum;
-	char str[MAX_INPUT_LENGTH];
+	char str[kMaxInputLength];
 
 	half_chop(argument, str, argument);
 
@@ -5773,7 +5773,7 @@ TRIG_DATA::TRIG_DATA() :
 	loops(-1),
 	wait_event(nullptr),
 	var_list(nullptr),
-	nr(NOTHING),
+	nr(kNothing),
 	attach_type(0),
 	name(DEFAULT_TRIGGER_NAME),
 	trigger_type(0) {
@@ -5826,7 +5826,7 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA &from) :
 }
 
 void TRIG_DATA::reset() {
-	nr = NOTHING;
+	nr = kNothing;
 	attach_type = 0;
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;

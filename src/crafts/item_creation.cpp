@@ -139,7 +139,7 @@ CHAR_DATA *&operator<<(CHAR_DATA *&ch, string p) {
 }
 
 void init_make_items() {
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	sprintf(tmpbuf, "Loading making recepts.");
 	mudlog(tmpbuf, LGH, LVL_IMMORT, SYSLOG, TRUE);
 	make_recepts.load();
@@ -147,7 +147,7 @@ void init_make_items() {
 // Парсим ввод пользователя в меню правки рецепта
 void mredit_parse(DESCRIPTOR_DATA *d, char *arg) {
 	string sagr = string(arg);
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	string tmpstr;
 	MakeRecept *trec = OLC_MREC(d);
 	int i;
@@ -363,7 +363,7 @@ void mredit_parse(DESCRIPTOR_DATA *d, char *arg) {
 void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	string tmpstr;
 	DESCRIPTOR_DATA *d;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	MakeRecept *trec;
 
 	// Проверяем не правит ли кто-то рецепты для исключения конфликтов
@@ -409,7 +409,7 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA *d) {
 	// Рисуем меню ...
 	MakeRecept *trec;
 	string objname, ingrname, tmpstr;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	int index = OLC_NUM(d);
 	trec = OLC_MREC(d);
 	get_char_cols(d->character.get());
@@ -448,7 +448,7 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA *d) {
 void mredit_disp_menu(DESCRIPTOR_DATA *d) {
 	// Рисуем меню ...
 	MakeRecept *trec;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	string tmpstr, objname, skillname;
 	trec = OLC_MREC(d);
 	get_char_cols(d->character.get());
@@ -501,7 +501,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA *d) {
 
 void do_list_make(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	string tmpstr, skill_name, obj_name;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	MakeRecept *trec;
 	if (make_recepts.size() == 0) {
 		send_to_char("Рецепты в этом мире не определены.", ch);
@@ -573,7 +573,7 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	string tmpstr;
 	MakeReceptList canlist;
 	MakeRecept *trec;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	//int used_skill = subcmd;
 	argument = one_argument(argument, tmpbuf);
 	// Разбираем в зависимости от того что набрали ... список объектов
@@ -817,8 +817,8 @@ void go_create_weapon(CHAR_DATA *ch, OBJ_DATA *obj, int obj_type, ESkill skill) 
 	}
 }
 void do_transform_weapon(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
 	OBJ_DATA *obj = NULL, *coal, *proto[MAX_PROTO];
 	int obj_type, i, found, rnum;
 
@@ -1010,7 +1010,7 @@ int
 MakeReceptList::load() {
 	// Читаем тут файл с рецептом.
 	// НАДО ДОБАВИТЬ СОРТИРОВКУ !!!
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	string tmpstr;
 	// чистим список рецептов от старых данных.
 	clear();
@@ -1022,7 +1022,7 @@ MakeReceptList::load() {
 		return (FALSE);
 	}
 	while (!bifs.eof()) {
-		bifs.getline(tmpbuf, MAX_INPUT_LENGTH, '\n');
+		bifs.getline(tmpbuf, kMaxInputLength, '\n');
 		tmpstr = string(tmpbuf);
 		// пропускаем закомменированные строчки.
 		if (tmpstr.substr(0, 2) == "//")
@@ -1046,7 +1046,7 @@ int MakeReceptList::save() {
 	// Пишем тут файл с рецептом.
 	// Очищаем список
 	string tmpstr;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	list<MakeRecept *>::iterator p;
 	ofstream bofs(LIB_MISC "makeitems.lst");
 	if (!bofs) {
@@ -1189,7 +1189,7 @@ MakeRecept::MakeRecept() : skill(SKILL_INVALID) {
 int MakeRecept::can_make(CHAR_DATA *ch) {
 	int i;
 	OBJ_DATA *ingrobj = NULL;
-	// char tmpbuf[MAX_INPUT_LENGTH];
+	// char tmpbuf[kMaxInputLength];
 	// Сделать проверку на поле locked
 	if (!ch)
 		return (FALSE);
@@ -1330,11 +1330,11 @@ float MakeRecept::count_mort_requred(OBJ_DATA *obj) {
 	float total_weight = 0.0;
 
 	// аффекты APPLY_x
-	for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
+	for (int k = 0; k < kMaxObjAffect; k++) {
 		if (obj->get_affected(k).location == 0) continue;
 
 		// случай, если один аффект прописан в нескольких полях
-		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++) {
+		for (int kk = 0; kk < kMaxObjAffect; kk++) {
 			if (obj->get_affected(k).location == obj->get_affected(kk).location
 				&& k != kk) {
 				log("SYSERROR: double affect=%d, obj_vnum=%d",
@@ -1477,12 +1477,12 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_P
 		if (i == 0) // именительный падеж
 		{
 			obj->set_short_description(buf);
-			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE) {
-				snprintf(buf2, MAX_STRING_LENGTH, "Брошенный %s лежит тут.", buf);
-			} else if (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE) {
-				snprintf(buf2, MAX_STRING_LENGTH, "Брошенная %s лежит тут.", buf);
-			} else if (GET_OBJ_SEX(obj) == ESex::SEX_POLY) {
-				snprintf(buf2, MAX_STRING_LENGTH, "Брошенные %s лежат тут.", buf);
+			if (GET_OBJ_SEX(obj) == ESex::kSexMale) {
+				snprintf(buf2, kMaxStringLength, "Брошенный %s лежит тут.", buf);
+			} else if (GET_OBJ_SEX(obj) == ESex::kSexFemale) {
+				snprintf(buf2, kMaxStringLength, "Брошенная %s лежит тут.", buf);
+			} else if (GET_OBJ_SEX(obj) == ESex::kSexPoly) {
+				snprintf(buf2, kMaxStringLength, "Брошенные %s лежат тут.", buf);
 			}
 			obj->set_description(buf2); // описание на земле
 		}
@@ -1507,7 +1507,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_P
 	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
 	for (j = 1; j < ingr_cnt; j++) {
 		int i, raffect = 0;
-		for (i = 0; i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
+		for (i = 0; i < kMaxObjAffect; i++) // посмотрим скока аффектов
 		{
 			if (ingrs[j]->get_affected(i).location == APPLY_NONE) {
 				break;
@@ -1516,7 +1516,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_P
 		if (i > 0) // если > 0 переносим случайный
 		{
 			raffect = number(0, i - 1);
-			for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+			for (int i = 0; i < kMaxObjAffect; i++) {
 				const auto &ra = ingrs[j]->get_affected(raffect);
 				if (obj->get_affected(i).location
 					== ra.location) // если аффект такой уже висит и он меньше, переставим значение
@@ -1551,7 +1551,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_P
 }
 // создать предмет по рецепту
 int MakeRecept::make(CHAR_DATA *ch) {
-	char tmpbuf[MAX_STRING_LENGTH];//, tmpbuf2[MAX_STRING_LENGTH];
+	char tmpbuf[kMaxStringLength];//, tmpbuf2[kMaxStringLength];
 	OBJ_DATA *ingrs[MAX_PARTS];
 	string tmpstr, charwork, roomwork, charfail, roomfail, charsucc, roomsucc, chardam, roomdam, tagging, itemtag;
 	int dam = 0;
@@ -1859,7 +1859,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
 				if (!IS_NPC(ch)) {
 					sprintf(tmpbuf, "%s killed by a crafting at %s",
 							GET_NAME(ch),
-							ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name);
+							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name);
 					mudlog(tmpbuf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 				}
 				die(ch, NULL);
@@ -2040,7 +2040,7 @@ int MakeRecept::make(CHAR_DATA *ch) {
 // вытащить рецепт из строки.
 int MakeRecept::load_from_str(string &rstr) {
 	// Разбираем строку.
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	// Проверяем рецепт на блокировку .
 	if (rstr.substr(0, 1) == string("*")) {
 		rstr = rstr.substr(1);
@@ -2085,7 +2085,7 @@ int MakeRecept::load_from_str(string &rstr) {
 }
 // сохранить рецепт в строку.
 int MakeRecept::save_to_str(string &rstr) {
-	char tmpstr[MAX_INPUT_LENGTH];
+	char tmpstr[kMaxInputLength];
 	if (obj_proto == 0) {
 		return (FALSE);
 	}
@@ -2172,16 +2172,16 @@ int MakeRecept::add_flags(CHAR_DATA *ch, FLAG_DATA *base_flag, const FLAG_DATA *
 	return (TRUE);
 }
 int MakeRecept::add_affects(CHAR_DATA *ch,
-							std::array<obj_affected_type, MAX_OBJ_AFFECT> &base,
-							const std::array<obj_affected_type, MAX_OBJ_AFFECT> &add,
+							std::array<obj_affected_type, kMaxObjAffect> &base,
+							const std::array<obj_affected_type, kMaxObjAffect> &add,
 							int delta) {
 	bool found = false;
 	int i, j;
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		found = false;
 		if (add[i].location == APPLY_NONE)
 			continue;
-		for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+		for (j = 0; j < kMaxObjAffect; j++) {
 			if (base[j].location == APPLY_NONE)
 				continue;
 			if (add[i].location == base[j].location) {
@@ -2195,7 +2195,7 @@ int MakeRecept::add_affects(CHAR_DATA *ch,
 		}
 		if (!found) {
 			// Ищем первый свободный аффект и втыкаем туда новый.
-			for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+			for (int j = 0; j < kMaxObjAffect; j++) {
 				if (base[j].location == APPLY_NONE) {
 					if (number(0, 100) > delta)
 						break;

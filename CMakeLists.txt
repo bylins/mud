@@ -227,7 +227,8 @@ set(SOURCES
 		src/cmd/mixture.cpp
 		src/cmd/cast.cpp
 		src/cmd/employ.cpp
-        src/cmd/follow.cpp )
+        src/cmd/follow.cpp
+		src/structs/flag_data.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -434,7 +435,8 @@ set(HEADERS
 		src/skills/strangle.h
 		src/skills/chopoff.h
 		src/skills/stupor.h
-		src/graph.h)
+		src/graph.h
+		src/structs/flag_data.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

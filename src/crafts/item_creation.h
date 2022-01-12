@@ -135,8 +135,8 @@ class MakeRecept {
 	int add_flags(CHAR_DATA *ch, FLAG_DATA *base_flag, const FLAG_DATA *add_flag, int delta);
 
 	int add_affects(CHAR_DATA *ch,
-					std::array<obj_affected_type, MAX_OBJ_AFFECT> &base,
-					const std::array<obj_affected_type, MAX_OBJ_AFFECT> &add,
+					std::array<obj_affected_type, kMaxObjAffect> &base,
+					const std::array<obj_affected_type, kMaxObjAffect> &add,
 					int delta);
 
 	int get_ingr_lev(OBJ_DATA *ingrobj);

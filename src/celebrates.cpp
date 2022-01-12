@@ -98,7 +98,7 @@ void parse_trig_list(pugi::xml_node node, TrigList *triggers) {
 	for (pugi::xml_node trig = node.child("trig"); trig; trig = trig.next_sibling("trig")) {
 		int vnum = trig.attribute("vnum").as_int();
 		if (!vnum) {
-			snprintf(buf, MAX_STRING_LENGTH, "...celebrates - bad trig (node = %s)", node.name());
+			snprintf(buf, kMaxStringLength, "...celebrates - bad trig (node = %s)", node.name());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
@@ -110,7 +110,7 @@ void parse_load_data(pugi::xml_node node, LoadPtr node_data) {
 	int vnum = node.attribute("vnum").as_int();
 	int max = node.attribute("max").as_int();
 	if (!vnum || !max) {
-		snprintf(buf, MAX_STRING_LENGTH, "...celebrates - bad data (node = %s)", node.name());
+		snprintf(buf, kMaxStringLength, "...celebrates - bad data (node = %s)", node.name());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -123,7 +123,7 @@ void parse_load_section(pugi::xml_node node, CelebrateDataPtr holiday) {
 		int vnum = room.attribute("vnum").as_int();
 		if (!vnum) {
 			snprintf(buf,
-					 MAX_STRING_LENGTH,
+					 kMaxStringLength,
 					 "...celebrates - bad room (celebrate = %s)",
 					 node.attribute("name").value());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
@@ -165,7 +165,7 @@ void parse_attach_section(pugi::xml_node node, CelebrateDataPtr holiday) {
 	for (pugi::xml_node mob = attaches.child("mob"); mob; mob = mob.next_sibling("mob")) {
 		vnum = mob.attribute("vnum").as_int();
 		if (!vnum) {
-			snprintf(buf, MAX_STRING_LENGTH, "...celebrates - bad attach data (node = %s)", node.name());
+			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.name());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
@@ -174,7 +174,7 @@ void parse_attach_section(pugi::xml_node node, CelebrateDataPtr holiday) {
 	for (pugi::xml_node obj = attaches.child("obj"); obj; obj = obj.next_sibling("obj")) {
 		vnum = obj.attribute("vnum").as_int();
 		if (!vnum) {
-			snprintf(buf, MAX_STRING_LENGTH, "...celebrates - bad attach data (node = %s)", node.name());
+			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.name());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
@@ -212,7 +212,7 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 		std::string name = node.attribute("name").value();
 		int baseDay;
 		if (!day || !month || name.empty()) {
-			snprintf(buf, MAX_STRING_LENGTH, "...celebrates - bad node struct");
+			snprintf(buf, kMaxStringLength, "...celebrates - bad node struct");
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
@@ -263,13 +263,13 @@ void load() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"celebrates.xml");
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("celebrates");
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...celebrates read fail");
+		snprintf(buf, kMaxStringLength, "...celebrates read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}

@@ -10,7 +10,7 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 	const auto rnum = IN_ROOM(descriptor()->character);
 	const auto vnum = GET_ROOM_VNUM(rnum);
 	const auto from_rnum = descriptor()->character->get_from_room();
-	if ((from_rnum == vnum) || (NOWHERE == vnum)) {
+	if ((from_rnum == vnum) || (kNowhere == vnum)) {
 		//добавил проверку если перемещаемся из неоткуда
 		return;
 	}
@@ -34,7 +34,7 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 				from_direction = direction_commands[i];
 			}
 			const auto to_vnum = GET_ROOM_VNUM(to_rnum);
-			if (NOWHERE
+			if (kNowhere
 				!= to_vnum)    // Anton Gorev (2016-05-01): Some rooms has exits that  lead to nowhere. It is a workaround.
 			{
 				exits->add(std::make_shared<Variable>(direction_commands[i],
@@ -63,7 +63,7 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 													std::make_shared<StringValue>(std::to_string(vnum / 100))));
 
 	const auto from_vnum = GET_ROOM_VNUM(from_rnum);
-	if (from_vnum != NOWHERE) {
+	if (from_vnum != kNowhere) {
 		room_descriptor->add(std::make_shared<Variable>("FROM_ROOM",
 														std::make_shared<StringValue>(std::to_string(from_vnum))));
 	}
@@ -169,7 +169,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	}
 	const auto member = std::make_shared<TableValue>();
 
-	char buffer[MAX_INPUT_LENGTH] = {0};
+	char buffer[kMaxInputLength] = {0};
 	descriptor()->string_to_client_encoding(GET_NAME(character), buffer);
 	member->add(std::make_shared<Variable>("NAME",
 										   std::make_shared<StringValue>(buffer)));
@@ -225,7 +225,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	const auto leader_value = leader ? "leader" : (IS_NPC(character) ? "npc" : "pc");
 	member->add(std::make_shared<Variable>("ROLE", std::make_shared<StringValue>(leader_value)));
 
-	char position[MAX_INPUT_LENGTH];
+	char position[kMaxInputLength];
 	sprinttype(GET_POS(character), position_types, position);
 	descriptor()->string_to_client_encoding(position, buffer);
 	member->add(std::make_shared<Variable>("POSITION", std::make_shared<StringValue>(buffer)));

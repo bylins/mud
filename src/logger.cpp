@@ -203,7 +203,7 @@ void imm_log(const char *format, ...) {
 }
 
 void err_log(const char *format, ...) {
-	static char buf_[MAX_RAW_INPUT_LENGTH];
+	static char buf_[kMaxRawInputLength];
 	int cnt = snprintf(buf_, sizeof(buf_), "SYSERROR: ");
 
 	va_list args;
@@ -238,7 +238,7 @@ void mudlog(std::string str, LogMode type, int level, EOutputStream channel, int
 * file - номер файла для вывода (0..NLOG), -1 не выводить в файл
 */
 void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int file) {
-	char tmpbuf[MAX_STRING_LENGTH];
+	char tmpbuf[kMaxStringLength];
 	DESCRIPTOR_DATA *i;
 
 	if (str == NULL) {

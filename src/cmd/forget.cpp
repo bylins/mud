@@ -31,7 +31,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!strn_cmp(arg, "все", i) || !strn_cmp(arg, "all", i)) {
-		char arg2[MAX_INPUT_LENGTH];
+		char arg2[kMaxInputLength];
 		two_arguments(argument, arg, arg2);
 		if (in_mem(arg2)) {
 			MemQ_flush(ch);
@@ -42,7 +42,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			sprintf(buf,
 					"Вы удалили все заклинания из %s.\r\n",
-					GET_RELIGION(ch) == RELIGION_MONO ? "своего часослова" : "своих рез");
+					GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
 			send_to_char(buf, ch);
 		}
 		return;
@@ -87,7 +87,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_CASTER(ch) -= spell_info[spellnum].danger;
 			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
 					KICYN, spell_info[spellnum].name,
-					KNRM, GET_RELIGION(ch) == RELIGION_MONO ? "своего часослова" : "своих рез");
+					KNRM, GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
 			send_to_char(buf, ch);
 		}
 	else

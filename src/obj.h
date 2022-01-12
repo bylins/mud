@@ -207,7 +207,7 @@ class CObjectPrototype {
 	constexpr static int DEFAULT_TIMER = SEVEN_DAYS;
 
 	constexpr static int DEFAULT_DESTROYER = 60;
-	constexpr static int DEFAULT_RNUM = NOTHING;
+	constexpr static int DEFAULT_RNUM = kNothing;
 	constexpr static int VALS_COUNT = 4;
 	constexpr static int CORPSE_INDICATOR = 1; // container with value 3 set to 1 is a corpse
 
@@ -217,7 +217,7 @@ class CObjectPrototype {
 	using pnames_t = std::array<std::string, NUM_PADS>;
 	using triggers_list_t = std::list<obj_vnum>;
 	using triggers_list_ptr = std::shared_ptr<triggers_list_t>;
-	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;
+	using affected_t = std::array<obj_affected_type, kMaxObjAffect>;
 
 	CObjectPrototype(const obj_vnum vnum) : m_vnum(vnum),
 											m_type(DEFAULT_TYPE),
@@ -232,7 +232,7 @@ class CObjectPrototype {
 											m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
 											m_current_durability(DEFAULT_CURRENT_DURABILITY),
 											m_material(DEFAULT_MATERIAL),
-											m_sex(DEFAULT_SEX),
+											m_sex(kDefaultSex),
 											m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
 											m_timer(DEFAULT_TIMER),
 											m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
@@ -489,7 +489,7 @@ inline auto GET_OBJ_VAL(const CObjectPrototype::shared_ptr &obj, size_t index) {
 class activation {
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
 	FLAG_DATA affects;
-	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected;
+	std::array<obj_affected_type, kMaxObjAffect> affected;
 	int weight, ndices, nsides;
 	CObjectPrototype::skills_t skills;
 
@@ -503,7 +503,7 @@ class activation {
 		actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg),
 		room_deactmsg(__room_deactmsg), affects(__affects), weight(__weight),
 		ndices(__ndices), nsides(__nsides) {
-		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+		for (int i = 0; i < kMaxObjAffect; i++)
 			affected[i] = __affected[i];
 	}
 
@@ -608,14 +608,14 @@ class activation {
 		return *this;
 	}
 
-	const std::array<obj_affected_type, MAX_OBJ_AFFECT> &
+	const std::array<obj_affected_type, kMaxObjAffect> &
 	get_affected() const {
 		return affected;
 	}
 
 	activation &
 	set_affected(const obj_affected_type *__affected) {
-		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+		for (int i = 0; i < kMaxObjAffect; i++)
 			affected[i] = __affected[i];
 		return *this;
 	}
@@ -623,12 +623,12 @@ class activation {
 	const obj_affected_type &
 	get_affected_i(int __i) const {
 		return __i < 0 ? affected[0] :
-			   __i < MAX_OBJ_AFFECT ? affected[__i] : affected[MAX_OBJ_AFFECT - 1];
+			   __i < kMaxObjAffect ? affected[__i] : affected[kMaxObjAffect - 1];
 	}
 
 	activation &
 	set_affected_i(int __i, const obj_affected_type &__affected) {
-		if (__i >= 0 && __i < MAX_OBJ_AFFECT)
+		if (__i >= 0 && __i < kMaxObjAffect)
 			affected[__i] = __affected;
 
 		return *this;

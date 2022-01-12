@@ -1021,7 +1021,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	vict_it->second->copy_glory(it->second);
 	vict_it->second->denial = DISPLACE_TIMER;
 
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 "%s: перекинуто (%s -> %s) славы: %d, статов: %d",
 			 GET_NAME(god), GET_NAME(ch), GET_NAME(vict), it->second->free_glory,
 			 vict_it->second->spend_glory - was_stats);

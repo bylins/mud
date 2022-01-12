@@ -130,8 +130,8 @@ int get_buf_lines(char **source, char *target) {
 // Данная процедура выбирает предмет из буфера.
 // с поддержкой нового формата вещей игроков [от 10.12.04].
 OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
-	char buffer[MAX_STRING_LENGTH];
-	char read_line[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
+	char read_line[kMaxStringLength];
 	int t[2];
 	int vnum;
 	OBJ_DATA::shared_ptr object;
@@ -488,7 +488,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 				*error = 66;
 				object->set_vnum_zone_from(atoi(buffer));
 			} else {
-				snprintf(buf, MAX_STRING_LENGTH, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
+				snprintf(buf, kMaxStringLength, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
 						 read_line, buffer);
 				mudlog(buf, NRM, LVL_GRGOD, ERRLOG, TRUE);
 			}
@@ -531,7 +531,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 // ВНИМАНИЕ!!! эта функция используется только для чтения вещей персонажа,
 // сохраненных в старом формате, для чтения нового формата применяется ф-ия read_one_object_new
 OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
-	char buffer[MAX_STRING_LENGTH], f0[MAX_STRING_LENGTH], f1[MAX_STRING_LENGTH], f2[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength], f0[kMaxStringLength], f1[kMaxStringLength], f2[kMaxStringLength];
 	int vnum, i, j, t[5];
 
 	*error = 1;
@@ -691,7 +691,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 	for (;;) {
 		if (!get_buf_line(data, buffer)) {
 			*error = 0;
-			for (; j < MAX_OBJ_AFFECT; j++) {
+			for (; j < kMaxObjAffect; j++) {
 				object->set_affected(j, APPLY_NONE, 0);
 			}
 
@@ -724,7 +724,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 				break;
 
 			case 'A':
-				if (j >= MAX_OBJ_AFFECT) {
+				if (j >= kMaxObjAffect) {
 					*error = 18;
 					return object;
 				}
@@ -787,8 +787,8 @@ inline bool proto_has_descr(const EXTRA_DESCR_DATA::shared_ptr &odesc, const EXT
 // Данная процедура помещает предмет в буфер
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
 void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
-	char buf[MAX_STRING_LENGTH];
-	char buf2[MAX_STRING_LENGTH];
+	char buf[kMaxStringLength];
+	char buf2[kMaxStringLength];
 	int i, j;
 
 	// vnum
@@ -993,7 +993,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 		}
 
 		// Аффекты
-		for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+		for (j = 0; j < kMaxObjAffect; j++) {
 			const auto &oaff = object->get_affected(j);
 			const auto &paff = proto->get_affected(j);
 			if (oaff.location != paff.location
@@ -1078,7 +1078,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
 		}
 		// Пол
-		if (ESex::SEX_NEUTRAL != GET_OBJ_SEX(object)) {
+		if (ESex::kSexNeutral != GET_OBJ_SEX(object)) {
 			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер
@@ -1166,7 +1166,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 			out << "Ozne: " << GET_OBJ_VNUM_ZONE_FROM(object) << "~\n";
 		}
 		// Аффекты
-		for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+		for (j = 0; j < kMaxObjAffect; j++) {
 			if (object->get_affected(j).location
 				&& object->get_affected(j).modifier) {
 				out << "Afc" << j << ": " << object->get_affected(j).location
@@ -1349,7 +1349,7 @@ int auto_equip(CHAR_DATA *ch, OBJ_DATA *obj, int location) {
 }
 
 int Crash_delete_files(const std::size_t index) {
-	char filename[MAX_STRING_LENGTH + 1], name[MAX_NAME_LENGTH + 1];
+	char filename[kMaxStringLength + 1], name[kMaxNameLength + 1];
 	FILE *fl;
 	int retcode = FALSE;
 
@@ -1435,8 +1435,8 @@ void Crash_create_timer(const std::size_t index, int/* num*/) {
 
 int Crash_read_timer(const std::size_t index, int temp) {
 	FILE *fl;
-	char fname[MAX_INPUT_LENGTH];
-	char name[MAX_NAME_LENGTH + 1];
+	char fname[kMaxInputLength];
+	char name[kMaxNameLength + 1];
 	int size = 0, count = 0, rnum, num = 0;
 	struct save_rent_info rent;
 	struct save_time_info info;
@@ -1541,8 +1541,8 @@ void Crash_reload_timer(int index) {
 
 int Crash_write_timer(const std::size_t index) {
 	FILE *fl;
-	char fname[MAX_STRING_LENGTH];
-	char name[MAX_NAME_LENGTH + 1];
+	char fname[kMaxStringLength];
+	char name[kMaxNameLength + 1];
 
 	strcpy(name, player_table[index].name());
 	if (!SAVEINFO(index)) {
@@ -1567,7 +1567,7 @@ int Crash_write_timer(const std::size_t index) {
 }
 
 void Crash_timer_obj(const std::size_t index, long time) {
-	char name[MAX_NAME_LENGTH + 1];
+	char name[kMaxNameLength + 1];
 	int nitems = 0, idelete = 0, ideleted = 0, rnum, timer, i;
 	int rentcode, timer_dec;
 
@@ -1685,7 +1685,7 @@ void Crash_list_objects(CHAR_DATA *ch, int index) {
 					data.vnum, MAX(-1, data.timer - timer_dec), "БЕЗ ПРОТОТИПА");
 		}
 
-		if (strlen(buf) > MAX_STRING_LENGTH - 80) {
+		if (strlen(buf) > kMaxStringLength - 80) {
 			strcat(buf, "** Excessive rent listing. **\r\n");
 			break;
 		}
@@ -1741,7 +1741,7 @@ struct container_list_type {
 // *******************  load_char_objects ********************
 int Crash_load(CHAR_DATA *ch) {
 	FILE *fl;
-	char fname[MAX_STRING_LENGTH], *data, *readdata;
+	char fname[kMaxStringLength], *data, *readdata;
 	int cost, i = 0, reccount, fsize, error, index;
 	float num_of_days;
 	OBJ_DATA *obj2, *obj_list = NULL;
@@ -1923,7 +1923,7 @@ int Crash_load(CHAR_DATA *ch) {
 
 		if (error) {
 			snprintf(buf,
-					 MAX_STRING_LENGTH,
+					 kMaxStringLength,
 					 "WARNING: Error #%d reading item vnum #%d num #%d from %s.",
 					 error,
 					 obj->get_vnum(),
@@ -1957,7 +1957,7 @@ int Crash_load(CHAR_DATA *ch) {
 
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0) {
-			snprintf(buf, MAX_STRING_LENGTH, "%s%s%s рассыпал%s от длительного использования.\r\n",
+			snprintf(buf, kMaxStringLength, "%s%s%s рассыпал%s от длительного использования.\r\n",
 					 CCWHT(ch, C_NRM),
 					 cap.c_str(),
 					 char_get_custom_label(obj.get(), ch).c_str(),
@@ -2111,7 +2111,7 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA *obj) {
 		|| GET_OBJ_RENT(obj) < 0
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
-		|| (GET_OBJ_RNUM(obj) <= NOTHING
+		|| (GET_OBJ_RNUM(obj) <= kNothing
 			&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| SetSystem::is_norent_set(ch, obj)) {
@@ -2260,7 +2260,7 @@ void crash_save_and_restore_weight(std::stringstream &write_buffer,
 
 // ********************* save_char_objects ********************************
 int save_char_objects(CHAR_DATA *ch, int savetype, int rentcost) {
-	char fname[MAX_STRING_LENGTH];
+	char fname[kMaxStringLength];
 	struct save_rent_info rent;
 	int j, num = 0, iplayer = -1, cost;
 
@@ -2387,7 +2387,7 @@ int save_char_objects(CHAR_DATA *ch, int savetype, int rentcost) {
 	if (get_filename(GET_NAME(ch), fname, TEXT_CRASH_FILE)) {
 		std::ofstream file(fname);
 		if (!file.is_open()) {
-			snprintf(buf, MAX_STRING_LENGTH, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
+			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 			Crash_delete_files(iplayer);
 			return FALSE;
@@ -2617,7 +2617,7 @@ void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost
 }
 
 int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int rentshow, int factor, int *totalcost) {
-	char buf[MAX_EXTEND_LENGTH];
+	char buf[kMaxExtendLength];
 	int i;
 	long numitems = 0, norent;
 // added by Dikiy (Лель)

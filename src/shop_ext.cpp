@@ -96,14 +96,14 @@ void load_item_desc() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/item_desc.xml");
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 
 	pugi::xml_node node_list = doc.child("templates");
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...templates list read fail");
+		snprintf(buf, kMaxStringLength, "...templates list read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -116,7 +116,7 @@ void load_item_desc() {
 
 			int item_vnum = Parse::attr_int(item, "vnum");
 			if (item_vnum <= 0) {
-				snprintf(buf, MAX_STRING_LENGTH,
+				snprintf(buf, kMaxStringLength,
 						 "...bad item description attributes (item_vnum=%d)", item_vnum);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
@@ -155,7 +155,7 @@ void load_item_desc() {
 				}
 				catch (const std::invalid_argument &) {
 					snprintf(buf,
-							 MAX_STRING_LENGTH,
+							 kMaxStringLength,
 							 "...error while casting to num (item_vnum=%d, casting value=%s)",
 							 item_vnum,
 							 tmp_value.c_str());
@@ -165,7 +165,7 @@ void load_item_desc() {
 
 				if (trig_vnum <= 0) {
 					snprintf(buf,
-							 MAX_STRING_LENGTH,
+							 kMaxStringLength,
 							 "...error while parsing triggers (item_vnum=%d, parsed value=%s)",
 							 item_vnum,
 							 tmp_value.c_str());
@@ -200,13 +200,13 @@ void load(bool reload) {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/shops.xml");
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("shop_list");
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...shop_list read fail");
+		snprintf(buf, kMaxStringLength, "...shop_list read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -224,7 +224,7 @@ void load(bool reload) {
 			int price = Parse::attr_int(item, "price");
 			if (item_vnum < 0 || price < 0) {
 				snprintf(buf,
-						 MAX_STRING_LENGTH,
+						 kMaxStringLength,
 						 "...bad shop item set attributes (item_set=%s, item_vnum=%d, price=%d)",
 						 itemSetId.c_str(),
 						 item_vnum,
@@ -266,7 +266,7 @@ void load(bool reload) {
 			int mob_vnum = Parse::attr_int(mob, "mob_vnum");
 			std::string templateId = mob.attribute("template").value();
 			if (mob_vnum < 0) {
-				snprintf(buf, MAX_STRING_LENGTH,
+				snprintf(buf, kMaxStringLength,
 						 "...bad shop attributes (mob_vnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
@@ -283,14 +283,14 @@ void load(bool reload) {
 			if (mob_rnum >= 0) {
 				if (mob_index[mob_rnum].func
 					&& mob_index[mob_rnum].func != shop_ext) {
-					snprintf(buf, MAX_STRING_LENGTH,
+					snprintf(buf, kMaxStringLength,
 							 "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				} else {
 					mob_index[mob_rnum].func = shop_ext;
 				}
 			} else {
-				snprintf(buf, MAX_STRING_LENGTH, "...incorrect mob_vnum=%d", mob_vnum);
+				snprintf(buf, kMaxStringLength, "...incorrect mob_vnum=%d", mob_vnum);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			}
 		}
@@ -301,7 +301,7 @@ void load(bool reload) {
 			int price = Parse::attr_int(item, "price");
 			if (item_vnum < 0
 				|| price < 0) {
-				snprintf(buf, MAX_STRING_LENGTH,
+				snprintf(buf, kMaxStringLength,
 						 "...bad shop attributes (item_vnum=%d, price=%d)", item_vnum, price);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
@@ -310,7 +310,7 @@ void load(bool reload) {
 			// проверяем шмотку
 			int item_rnum = real_object(item_vnum);
 			if (item_rnum < 0) {
-				snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%d", item_vnum);
+				snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
@@ -331,7 +331,7 @@ void load(bool reload) {
 						int item_rnum = real_object((*it)->item_list[i].item_vnum);
 						if (item_rnum < 0) {
 							snprintf(buf,
-									 MAX_STRING_LENGTH,
+									 kMaxStringLength,
 									 "...incorrect item_vnum=%d in item_set=%s",
 									 (int) (*it)->item_list[i].item_vnum,
 									 (*it)->_id.c_str());
@@ -361,7 +361,7 @@ void load(bool reload) {
 		}
 
 		if (tmp_shop->empty()) {
-			snprintf(buf, MAX_STRING_LENGTH, "...item list empty (shop_id=%s)", shop_id.c_str());
+			snprintf(buf, kMaxStringLength, "...item list empty (shop_id=%s)", shop_id.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
@@ -423,7 +423,7 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 		return 0;
 	}
 
-	char argm[MAX_INPUT_LENGTH];
+	char argm[kMaxInputLength];
 	CHAR_DATA *const keeper = reinterpret_cast<CHAR_DATA *>(me);
 	shop_node::shared_ptr shop;
 	for (const auto &s : shop_list) {

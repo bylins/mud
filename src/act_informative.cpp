@@ -245,7 +245,7 @@ const char *weapon_class[] = {"луки",
 };
 
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
-	static char out_str[MAX_STRING_LENGTH];
+	static char out_str[kMaxStringLength];
 	int skill = 0;
 	int need_str = 0;
 
@@ -364,7 +364,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 // Чтобы можно было получить только строку состяния
 const char *diag_obj_timer(const OBJ_DATA *obj) {
 	int prot_timer;
-	if (GET_OBJ_RNUM(obj) != NOTHING) {
+	if (GET_OBJ_RNUM(obj) != kNothing) {
 		if (check_unlimited_timer(obj)) {
 			return "нерушимо";
 		}
@@ -386,14 +386,14 @@ const char *diag_obj_timer(const OBJ_DATA *obj) {
 }
 
 char *diag_timer_to_char(const OBJ_DATA *obj) {
-	static char out_str[MAX_STRING_LENGTH];
+	static char out_str[kMaxStringLength];
 	*out_str = 0;
 	sprintf(out_str, "Состояние: %s.", diag_obj_timer(obj));
 	return (out_str);
 }
 
 char *diag_uses_to_char(OBJ_DATA *obj, CHAR_DATA *ch) {
-	static char out_str[MAX_STRING_LENGTH];
+	static char out_str[kMaxStringLength];
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT
@@ -411,7 +411,7 @@ char *diag_uses_to_char(OBJ_DATA *obj, CHAR_DATA *ch) {
 }
 
 char *diag_shot_to_char(OBJ_DATA *obj, CHAR_DATA *ch) {
-	static char out_str[MAX_STRING_LENGTH];
+	static char out_str[kMaxStringLength];
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER
@@ -513,7 +513,7 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 			return 0;
 		} else if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_BANDAGE) {
 			strcpy(buf, "Бинты для перевязки ран ('перевязать').\r\n");
-			snprintf(buf2, MAX_STRING_LENGTH, "Осталось применений: %d, восстановление: %d",
+			snprintf(buf2, kMaxStringLength, "Осталось применений: %d, восстановление: %d",
 					 GET_OBJ_WEIGHT(object), GET_OBJ_VAL(object, 0) * 10);
 			strcat(buf, buf2);
 		} else if (GET_OBJ_TYPE(object) != OBJ_DATA::ITEM_DRINKCON) {
@@ -970,7 +970,7 @@ void look_at_char(CHAR_DATA *i, CHAR_DATA *ch) {
 }
 
 void list_one_char(CHAR_DATA *i, CHAR_DATA *ch, int skill_mode) {
-	int sector = SECT_CITY;
+	int sector = kSectCity;
 	int n;
 	char aura_txt[200];
 	const char *positions[] =
@@ -1236,13 +1236,13 @@ void list_one_char(CHAR_DATA *i, CHAR_DATA *ch, int skill_mode) {
 			}
 		} else if (IS_HORSE(i) && AFF_FLAGGED(i, EAffectFlag::AFF_TETHERED))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
-		else if ((sector = real_sector(i->in_room)) == SECT_FLYING)
+		else if ((sector = real_sector(i->in_room)) == kSectOnlyFlying)
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
-		else if (sector == SECT_UNDERWATER)
+		else if (sector == kSectUnderwater)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else if (GET_POS(i) > POS_SLEEPING && AFF_FLAGGED(i, EAffectFlag::AFF_FLY))
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
-		else if (sector == SECT_WATER_SWIM || sector == SECT_WATER_NOSWIM)
+		else if (sector == kSectWaterSwim || sector == kSectWaterNoswim)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else
 			strcat(buf,
@@ -1450,7 +1450,7 @@ void do_auto_exits(CHAR_DATA *ch) {
 
 	for (door = 0; door < NUM_OF_DIRS; door++) {
 		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE) {
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere) {
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
 			} else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN)) {
@@ -1482,7 +1482,7 @@ void do_exits(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	for (door = 0; door < NUM_OF_DIRS; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 			if (IS_GOD(ch))
 				sprintf(buf2, "%-6s - [%5d] %s\r\n", Dirs[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
@@ -1520,7 +1520,7 @@ void do_blind_exits(CHAR_DATA *ch) {
 		return;
 	}
 	for (door = 0; door < NUM_OF_DIRS; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 			if (IS_GOD(ch))
 				sprintf(buf2, "&W%s - [%d] %s ", Dirs[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
@@ -1613,7 +1613,7 @@ int paste_description(char *string, const char *tag, int need) {
 
 void show_extend_room(const char *const description, CHAR_DATA *ch) {
 	int found = FALSE;
-	char string[MAX_STRING_LENGTH], *pos;
+	char string[kMaxStringLength], *pos;
 
 	if (!description || !*description)
 		return;
@@ -1853,7 +1853,7 @@ void look_at_room(CHAR_DATA *ch, int ignore_brief) {
 		GET_ROOM(ch->in_room)->unset_flag(ROOM_BFS_MARK);
 
 		GET_ROOM(ch->in_room)->flags_sprint(buf, ";");
-		snprintf(buf2, MAX_STRING_LENGTH, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
+		snprintf(buf2, kMaxStringLength, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
 		send_to_char(buf2, ch);
 
 		if (has_flag) {
@@ -1909,42 +1909,42 @@ void look_at_room(CHAR_DATA *ch, int ignore_brief) {
 	}
 
 	if (world[ch->in_room]->holes) {
-		const int ar = roundup(world[ch->in_room]->holes / HOLES_TIME);
+		const int ar = roundup(world[ch->in_room]->holes / kHolesTime);
 		sprintf(buf, "%sЗдесь выкопана ямка глубиной примерно в %i аршин%s.%s\r\n",
 				CCYEL(ch, C_NRM), ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов")), (CCNRM(ch, C_NRM)));
 		send_to_char(buf, ch);
 	}
 
-	if (ch->in_room != NOWHERE && !ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER)
+	if (ch->in_room != kNowhere && !ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER)
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_INDOORS)) {
 		*buf = '\0';
 		switch (real_sector(ch->in_room)) {
-			case SECT_FIELD_SNOW:
-			case SECT_FOREST_SNOW:
-			case SECT_HILLS_SNOW:
-			case SECT_MOUNTAIN_SNOW:
+			case kSectFieldSnow:
+			case kSectForestSnow:
+			case kSectHillsSnow:
+			case kSectMountainSnow:
 				sprintf(buf, "%sСнежный ковер лежит у вас под ногами.%s\r\n",
 						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 				break;
-			case SECT_FIELD_RAIN:
-			case SECT_FOREST_RAIN:
-			case SECT_HILLS_RAIN:
+			case kSectFieldRain:
+			case kSectForestRain:
+			case kSectHillsRain:
 				sprintf(buf,
 						"%sВы просто увязаете в грязи.%s\r\n",
 						CCIWHT(ch, C_NRM),
 						CCNRM(ch, C_NRM));
 				break;
-			case SECT_THICK_ICE:
+			case kSectThickIce:
 				sprintf(buf,
 						"%sУ вас под ногами толстый лед.%s\r\n",
 						CCIBLU(ch, C_NRM),
 						CCNRM(ch, C_NRM));
 				break;
-			case SECT_NORMAL_ICE:
+			case kSectNormalIce:
 				sprintf(buf, "%sУ вас под ногами достаточно толстый лед.%s\r\n",
 						CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 				break;
-			case SECT_THIN_ICE:
+			case kSectThinIce:
 				sprintf(buf, "%sТоненький ледок вот-вот проломится под вами.%s\r\n",
 						CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 				break;
@@ -1984,7 +1984,7 @@ void look_in_direction(CHAR_DATA *ch, int dir, int info_is) {
 
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
-			&& EXIT(ch, dir)->to_room() != NOWHERE)) {
+			&& EXIT(ch, dir)->to_room() != kNowhere)) {
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
 		if (EXIT_FLAGGED(rdata, EX_CLOSED)) {
@@ -2065,7 +2065,7 @@ void hear_in_direction(CHAR_DATA *ch, int dir, int info_is) {
 	}
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
-			&& EXIT(ch, dir)->to_room() != NOWHERE)) {
+			&& EXIT(ch, dir)->to_room() != kNowhere)) {
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
 		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
@@ -2101,7 +2101,7 @@ void hear_in_direction(CHAR_DATA *ch, int dir, int info_is) {
 							tmpstr += " Вы слышите чей-то громкий скрип.\r\n";
 						else
 							tmpstr += " Вы слышите чей-то грозный скрип.\r\n";
-					} else if (real_sector(ch->in_room) != SECT_UNDERWATER) {
+					} else if (real_sector(ch->in_room) != kSectUnderwater) {
 						if (GET_REAL_LEVEL(tch) < 5)
 							tmpstr += " Вы слышите чью-то тихую возню.\r\n";
 						else if (GET_REAL_LEVEL(tch) < 15)
@@ -2144,7 +2144,7 @@ void hear_in_direction(CHAR_DATA *ch, int dir, int info_is) {
 void look_in_obj(CHAR_DATA *ch, char *arg) {
 	OBJ_DATA *obj = NULL;
 	CHAR_DATA *dummy = NULL;
-	char whatp[MAX_INPUT_LENGTH], where[MAX_INPUT_LENGTH];
+	char whatp[kMaxInputLength], where[kMaxInputLength];
 	int amt, bits;
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
 
@@ -2259,8 +2259,8 @@ char *daig_filling_drink(const OBJ_DATA *obj, const CHAR_DATA *ch) {
 				const char *msg = AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON) && obj->get_val(3) == 1 ? " *отравленной*" : "";
 				int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 				sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
-				snprintf(buf1, MAX_STRING_LENGTH,
-					"Наполнен%s %s%s%s жидкостью", GET_OBJ_SUF_6(obj), fullness[amt], tmp, msg);
+				snprintf(buf1, kMaxStringLength,
+						 "Наполнен%s %s%s%s жидкостью", GET_OBJ_SUF_6(obj), fullness[amt], tmp, msg);
 				return buf1;
 			}
 		}
@@ -2286,7 +2286,7 @@ const char *diag_liquid_timer(const OBJ_DATA *obj) {
 
 //ф-ция вывода доп инфы об объекте
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
-void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]) {
+void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]) {
 	int j;
 	if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT) || ch->get_skill(SKILL_INSERTGEM)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
@@ -2372,7 +2372,7 @@ bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd) {
 	CHAR_DATA *found_char = NULL;
 	OBJ_DATA *found_obj = NULL;
 	struct char_portal_type *tmp;
-	char *desc, *what, whatp[MAX_INPUT_LENGTH], where[MAX_INPUT_LENGTH];
+	char *desc, *what, whatp[kMaxInputLength], where[kMaxInputLength];
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
 	if (!ch->desc) {
@@ -2527,7 +2527,7 @@ void skip_hide_on_look(CHAR_DATA *ch) {
 }
 
 void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	char arg2[MAX_INPUT_LENGTH];
+	char arg2[kMaxInputLength];
 	int look_type;
 
 	if (!ch->desc)
@@ -2662,7 +2662,7 @@ void do_hearing(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_examine(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	CHAR_DATA *tmp_char;
 	OBJ_DATA *tmp_object;
-	char where[MAX_INPUT_LENGTH];
+	char where[kMaxInputLength];
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
 	if (GET_POS(ch) < POS_SLEEPING) {
@@ -3370,7 +3370,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 																 desc_count(
 																	 (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
 																	 WHAT_HOUR)) : sprintf(buf2, "менее часа.");
-			snprintf(buf + strlen(buf), MAX_STRING_LENGTH, " || Метка продержится еще %-58s||\r\n", buf2);
+			snprintf(buf + strlen(buf), kMaxStringLength, " || Метка продержится еще %-58s||\r\n", buf2);
 			*buf2 = '\0';
 		}
 	}
@@ -3441,7 +3441,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 						: (boost::lexical_cast<std::string>(rent_time) + string(" ")
 					+ string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(),
 				CCCYN(ch, C_NRM));
-	} else if ((ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 		sprintf(buf + strlen(buf),
 				" || %sТут вы чувствуете себя в безопасности.                                          %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3755,7 +3755,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
 				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-	} else if ((ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
 		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
@@ -4019,7 +4019,7 @@ void do_time(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 	}
 
-	if (GET_RELIGION(ch) == RELIGION_POLY)
+	if (GET_RELIGION(ch) == kReligionPoly)
 		strcat(buf, weekdays_poly[weather_info.week_day_poly]);
 	else
 		strcat(buf, weekdays[weather_info.week_day_mono]);
@@ -4038,14 +4038,14 @@ void do_time(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	day = time_info.day + 1;    // day in [1..30]
 	*buf = '\0';
-	if (GET_RELIGION(ch) == RELIGION_POLY || IS_IMMORTAL(ch)) {
+	if (GET_RELIGION(ch) == kReligionPoly || IS_IMMORTAL(ch)) {
 		days_go = time_info.month * DAYS_PER_MONTH + time_info.day;
 		month = days_go / 40;
 		days_go = (days_go % 40) + 1;
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d%s",
 				month_name_poly[month], days_go, time_info.year, IS_IMMORTAL(ch) ? ".\r\n" : "");
 	}
-	if (GET_RELIGION(ch) == RELIGION_MONO || IS_IMMORTAL(ch))
+	if (GET_RELIGION(ch) == kReligionMono || IS_IMMORTAL(ch))
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d",
 				month_name[static_cast<int>(time_info.month)], day, time_info.year);
 	if (IS_IMMORTAL(ch))
@@ -4171,7 +4171,7 @@ const char *MORT_WHO_FORMAT = "Формат: кто [имя] [-?]\r\n";
 } // namespace
 
 void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char name_search[MAX_INPUT_LENGTH];
+	char name_search[kMaxInputLength];
 	name_search[0] = '\0';
 
 	// Флаги для опций
@@ -4296,7 +4296,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		num_can_see++;
 
 		if (short_list) {
-			char tmp[MAX_INPUT_LENGTH];
+			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
 			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
 				sprintf(buf, "%s[%2d %s %s] %-30s%s",
@@ -4565,7 +4565,7 @@ void do_statistic(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), 3, all, CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	std::string out;
 
 	out += print_server_uptime();
@@ -4587,9 +4587,9 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const char *format = "%3d %-7s %-12s %-14s %-3s %-8s ";
 	char line[200], line2[220], idletime[10], classname[20];
 	char state[30] = "\0", *timeptr, mode;
-	char name_search[MAX_INPUT_LENGTH] = "\0", host_search[MAX_INPUT_LENGTH];
+	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
 // Хорс
-	char host_by_name[MAX_INPUT_LENGTH] = "\0";
+	char host_by_name[kMaxInputLength] = "\0";
 	DESCRIPTOR_DATA *list_players[MAX_LIST_LEN];
 	DESCRIPTOR_DATA *d_tmp;
 	int count_pl;
@@ -4865,7 +4865,7 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				const auto ci = d->get_character();
 				if (ci
 					&& CAN_SEE(ch, ci)
-					&& ci->in_room != NOWHERE) {
+					&& ci->in_room != kNowhere) {
 					if (d->original && d->character) {
 						sprintf(line2, " [%5d] %s (in %s)",
 								GET_ROOM_VNUM(IN_ROOM(d->character)),
@@ -4922,9 +4922,9 @@ void sendWhoami(CHAR_DATA *ch) {
 		const char *by_rank = god_level < LVL_IMMORT ? by_rank_privileged : by_rank_god;
 
 		if (NAME_GOD(ch) < 1000)
-			snprintf(buf, MAX_STRING_LENGTH, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
+			snprintf(buf, kMaxStringLength, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
 		else
-			snprintf(buf, MAX_STRING_LENGTH, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
+			snprintf(buf, kMaxStringLength, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
 		send_to_char(buf, ch);
 	}
 	sprintf(buf, "Перевоплощений: %d\r\n", GET_REAL_REMORT(ch));
@@ -4986,7 +4986,7 @@ void perform_mortal_where(CHAR_DATA *ch, char *arg) {
 				continue;
 			}
 
-			if (i->in_room == NOWHERE
+			if (i->in_room == kNowhere
 				|| !CAN_SEE(ch, i)) {
 				continue;
 			}
@@ -5001,7 +5001,7 @@ void perform_mortal_where(CHAR_DATA *ch, char *arg) {
 	} else        // print only FIRST char, not all.
 	{
 		for (const auto &i : character_list) {
-			if (i->in_room == NOWHERE
+			if (i->in_room == kNowhere
 				|| i.get() == ch) {
 				continue;
 			}
@@ -5037,7 +5037,7 @@ void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 		sprintf(buf, "%41s", " - ");
 	}
 
-	if (obj->get_in_room() > NOWHERE) {
+	if (obj->get_in_room() > kNowhere) {
 		sprintf(buf + strlen(buf), "[%5d] %s", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
@@ -5140,7 +5140,7 @@ void perform_immort_where(CHAR_DATA *ch, char *arg) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (STATE(d) == CON_PLAYING) {
 					const auto i = d->get_character();
-					if (i && CAN_SEE(ch, i) && (i->in_room != NOWHERE)) {
+					if (i && CAN_SEE(ch, i) && (i->in_room != kNowhere)) {
 						if (d->original) {
 							sprintf(buf, "%-20s - [%5d] %s (in %s)\r\n",
 									GET_NAME(i),
@@ -5159,7 +5159,7 @@ void perform_immort_where(CHAR_DATA *ch, char *arg) {
 	} else {
 		for (const auto &i : character_list) {
 			if (CAN_SEE(ch, i)
-				&& i->in_room != NOWHERE
+				&& i->in_room != kNowhere
 				&& isname(arg, i->get_pc_name())) {
 				ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
 				found = 1;
@@ -5291,7 +5291,7 @@ void do_toggle(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
 	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_CODERINFO)) {
-		snprintf(buf, MAX_STRING_LENGTH,
+		snprintf(buf, kMaxStringLength,
 				 " Нет агров     : %-3s     "
 				 " Супервидение  : %-3s     "
 				 " Флаги комнат  : %-3s \r\n"
@@ -5309,7 +5309,7 @@ void do_toggle(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		send_to_char(buf, ch);
 	}
 
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 " Автовыходы    : %-3s     "
 			 " Краткий режим : %-3s     "
 			 " Сжатый режим  : %-3s \r\n"
@@ -5393,7 +5393,7 @@ void do_toggle(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		sprintf(buf, " Уведомления   : %-7s ", "Нет");
 	}
 	send_to_char(buf, ch);
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 " Карта         : %-3s     "
 			 " Вход в зону   : %-3s   \r\n"
 			 " Магщиты (вид) : %-8s"
@@ -5519,7 +5519,7 @@ void do_commands(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 std::array<EAffectFlag, 3> hiding = {EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_HIDE, EAffectFlag::AFF_CAMOUFLAGE};
 
 void do_affects(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	char sp_name[MAX_STRING_LENGTH];
+	char sp_name[kMaxStringLength];
 
 	// Show the bitset without "hiding" etc.
 	auto aff_copy = ch->char_specials.saved.affected_by;
@@ -5528,7 +5528,7 @@ void do_affects(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 	aff_copy.sprintbits(affected_bits, buf2, ",");
-	snprintf(buf, MAX_STRING_LENGTH, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
 	// Routine to show what spells a char is affected by
@@ -5554,7 +5554,7 @@ void do_affects(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 					  (mod + 1) / SECS_PER_MUD_HOUR + 1,
 					  desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
 			: sprintf(buf2, "(менее часа)");
-			snprintf(buf, MAX_STRING_LENGTH, "%s%s%-21s %-12s%s ",
+			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					 CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
 			*buf2 = '\0';
@@ -5602,7 +5602,7 @@ void do_affects(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 						  desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
 				: sprintf(buf2, "(менее часа)");
 				snprintf(buf,
-						 MAX_STRING_LENGTH,
+						 kMaxStringLength,
 						 "Заклинание : %s%-21s %-12s%s ",
 						 CCICYN(ch, C_NRM),
 						 "награда",

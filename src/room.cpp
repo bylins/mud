@@ -11,7 +11,7 @@ EXIT_DATA::EXIT_DATA() : keyword(nullptr),
 						 exit_info(0),
 						 lock_complexity(0),
 						 key(-1),
-						 m_to_room(NOWHERE) {
+						 m_to_room(kNowhere) {
 }
 
 EXIT_DATA::~EXIT_DATA() {

@@ -62,7 +62,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	to_room = IN_ROOM(victim);
 
-	if (to_room == NOWHERE) {
+	if (to_room == kNowhere) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -78,7 +78,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!IS_GOD(ch) &&
-		(SECT(fnd_room) == SECT_SECRET ||
+		(SECT(fnd_room) == kSectSecret ||
 			ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
 			ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
 			ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||

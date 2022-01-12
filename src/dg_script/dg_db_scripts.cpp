@@ -421,7 +421,7 @@ void trg_spelladd(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {
 }
 
 void trg_spellitem(CHAR_DATA *ch, int spellnum, int spelldiff, int spell) {
-	char type[MAX_STRING_LENGTH];
+	char type[kMaxStringLength];
 
 	if ((spelldiff && IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)) ||
 		(!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)))

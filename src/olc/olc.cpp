@@ -292,14 +292,14 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			STATE(d) = CON_TRIGEDIT;
 			break;
 		case SCMD_OLC_REDIT:
-			if ((real_num = real_room(number)) != NOWHERE)
+			if ((real_num = real_room(number)) != kNowhere)
 				redit_setup(d, real_num);
 			else
-				redit_setup(d, NOWHERE);
+				redit_setup(d, kNowhere);
 			STATE(d) = CON_REDIT;
 			break;
 		case SCMD_OLC_ZEDIT:
-			if ((real_num = real_room(number)) == NOWHERE) {
+			if ((real_num = real_room(number)) == kNowhere) {
 				send_to_char("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
 				delete d->olc;
 				return;

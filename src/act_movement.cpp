@@ -53,12 +53,12 @@ const char *DirIs[] =
 int check_death_ice(int room, CHAR_DATA * /*ch*/) {
 	int sector, mass = 0, result = FALSE;
 
-	if (room == NOWHERE)
+	if (room == kNowhere)
 		return (FALSE);
 	sector = SECT(room);
-	if (sector != SECT_WATER_SWIM && sector != SECT_WATER_NOSWIM)
+	if (sector != kSectWaterSwim && sector != kSectWaterNoswim)
 		return (FALSE);
-	if ((sector = real_sector(room)) != SECT_THIN_ICE && sector != SECT_NORMAL_ICE)
+	if ((sector = real_sector(room)) != kSectThinIce && sector != kSectNormalIce)
 		return (FALSE);
 
 	for (const auto vict : world[room]->people) {
@@ -72,7 +72,7 @@ int check_death_ice(int room, CHAR_DATA * /*ch*/) {
 		return (FALSE);
 	}
 
-	if ((sector == SECT_THIN_ICE && mass > 500) || (sector == SECT_NORMAL_ICE && mass > 1500)) {
+	if ((sector == kSectThinIce && mass > 500) || (sector == kSectNormalIce && mass > 1500)) {
 		const auto first_in_room = world[room]->first_character();
 
 		act("Лед проломился под вашей тяжестью.", FALSE, first_in_room, 0, 0, TO_ROOM);
@@ -129,7 +129,7 @@ int has_boat(CHAR_DATA *ch) {
 }
 
 void make_visible(CHAR_DATA *ch, const EAffectFlag affect) {
-	char to_room[MAX_STRING_LENGTH], to_char[MAX_STRING_LENGTH];
+	char to_room[kMaxStringLength], to_char[kMaxStringLength];
 
 	*to_room = *to_char = 0;
 
@@ -276,11 +276,11 @@ int skip_sneaking(CHAR_DATA *ch, CHAR_DATA *vict) {
 
 int real_forest_paths_sect(int sect) {
 	switch (sect) {
-		case SECT_FOREST: return SECT_FIELD;
+		case kSectForest: return kSectField;
 			break;
-		case SECT_FOREST_SNOW: return SECT_FIELD_SNOW;
+		case kSectForestSnow: return kSectFieldSnow;
 			break;
-		case SECT_FOREST_RAIN: return SECT_FIELD_RAIN;
+		case kSectForestRain: return kSectFieldRain;
 			break;
 	}
 	return sect;
@@ -288,13 +288,13 @@ int real_forest_paths_sect(int sect) {
 
 int real_mountains_paths_sect(int sect) {
 	switch (sect) {
-		case SECT_HILLS:
-		case SECT_MOUNTAIN: return SECT_FIELD;
+		case kSectHills:
+		case kSectMountain: return kSectField;
 			break;
-		case SECT_HILLS_RAIN: return SECT_FIELD_RAIN;
+		case kSectHillsRain: return kSectFieldRain;
 			break;
-		case SECT_HILLS_SNOW:
-		case SECT_MOUNTAIN_SNOW: return SECT_FIELD_SNOW;
+		case kSectHillsSnow:
+		case kSectMountainSnow: return kSectFieldSnow;
 			break;
 	}
 	return sect;
@@ -334,7 +334,7 @@ int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
 		return (FALSE);
 
 	// если нпц идет по маршруту - пропускаем проверку дверей
-	const bool npc_roamer = IS_NPC(ch) && (GET_DEST(ch) != NOWHERE) && (EXIT(ch, dir) && EXIT(ch, dir)->to_room() != NOWHERE);
+	const bool npc_roamer = IS_NPC(ch) && (GET_DEST(ch) != kNowhere) && (EXIT(ch, dir) && EXIT(ch, dir)->to_room() != kNowhere);
 	if (!npc_roamer) {
 		if (!CAN_GO(ch, dir)) {
 			return (FALSE);
@@ -362,7 +362,7 @@ int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
 
 	// check NPC's
 	if (IS_NPC(ch)) {
-		if (GET_DEST(ch) != NOWHERE) {
+		if (GET_DEST(ch) != kNowhere) {
 			return (TRUE);
 		}
 
@@ -370,8 +370,8 @@ int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
 		if (!MOB_FLAGGED(ch, MOB_SWIMMING)
 			&& !MOB_FLAGGED(ch, MOB_FLYING)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)
-			&& (real_sector(ch->in_room) == SECT_WATER_NOSWIM
-				|| real_sector(EXIT(ch, dir)->to_room()) == SECT_WATER_NOSWIM)) {
+			&& (real_sector(ch->in_room) == kSectWaterNoswim
+				|| real_sector(EXIT(ch, dir)->to_room()) == kSectWaterNoswim)) {
 			if (!has_boat(ch)) {
 				return (FALSE);
 			}
@@ -383,13 +383,13 @@ int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
 			return (FALSE);
 
 		if (!MOB_FLAGGED(ch, MOB_FLYING) &&
-			!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) && SECT(EXIT(ch, dir)->to_room()) == SECT_FLYING)
+			!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) && SECT(EXIT(ch, dir)->to_room()) == kSectOnlyFlying)
 			return (FALSE);
 
 		if (MOB_FLAGGED(ch, MOB_ONLYSWIMMING) &&
-			!(real_sector(EXIT(ch, dir)->to_room()) == SECT_WATER_SWIM ||
-				real_sector(EXIT(ch, dir)->to_room()) == SECT_WATER_NOSWIM ||
-				real_sector(EXIT(ch, dir)->to_room()) == SECT_UNDERWATER))
+			!(real_sector(EXIT(ch, dir)->to_room()) == kSectWaterSwim ||
+				real_sector(EXIT(ch, dir)->to_room()) == kSectWaterNoswim ||
+				real_sector(EXIT(ch, dir)->to_room()) == kSectUnderwater))
 			return (FALSE);
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_NOMOB) &&
@@ -416,15 +416,15 @@ int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
 			}
 		}
 
-		if (real_sector(ch->in_room) == SECT_WATER_NOSWIM ||
-			real_sector(EXIT(ch, dir)->to_room()) == SECT_WATER_NOSWIM) {
+		if (real_sector(ch->in_room) == kSectWaterNoswim ||
+			real_sector(EXIT(ch, dir)->to_room()) == kSectWaterNoswim) {
 			if (!has_boat(ch)) {
 				if (show_msg)
 					send_to_char("Вам нужна лодка, чтобы попасть туда.\r\n", ch);
 				return (FALSE);
 			}
 		}
-		if (real_sector(EXIT(ch, dir)->to_room()) == SECT_FLYING
+		if (real_sector(EXIT(ch, dir)->to_room()) == kSectOnlyFlying
 			&& !IS_GOD(ch)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)) {
 			if (show_msg) {
@@ -672,17 +672,17 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
 			strcpy(smallBuf, "улетел$g");
 		} else if (IS_NPC(ch)
 			&& NPC_FLAGGED(ch, NPC_MOVESWIM)
-			&& (real_sector(was_in) == SECT_WATER_SWIM
-				|| real_sector(was_in) == SECT_WATER_NOSWIM
-				|| real_sector(was_in) == SECT_UNDERWATER)) {
+			&& (real_sector(was_in) == kSectWaterSwim
+				|| real_sector(was_in) == kSectWaterNoswim
+				|| real_sector(was_in) == kSectUnderwater)) {
 			strcpy(smallBuf, "уплыл$g");
 		} else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEJUMP))
 			strcpy(smallBuf, "ускакал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVECREEP))
 			strcpy(smallBuf, "уполз$q");
-		else if (real_sector(was_in) == SECT_WATER_SWIM
-			|| real_sector(was_in) == SECT_WATER_NOSWIM
-			|| real_sector(was_in) == SECT_UNDERWATER) {
+		else if (real_sector(was_in) == kSectWaterSwim
+			|| real_sector(was_in) == kSectWaterNoswim
+			|| real_sector(was_in) == kSectUnderwater) {
 			strcpy(smallBuf, "уплыл$g");
 		} else if (use_horse) {
 			horse = ch->get_horse();
@@ -733,7 +733,7 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
 		for (int i = 0; i < NUM_OF_DIRS; i++) {
 			if (CAN_GO(ch, i)
 				|| (EXIT(ch, i)
-					&& EXIT(ch, i)->to_room() != NOWHERE)) {
+					&& EXIT(ch, i)->to_room() != kNowhere)) {
 				const auto &rdata = EXIT(ch, i);
 				if (ROOM_FLAGGED(rdata->to_room(), ROOM_DEATH)) {
 					send_to_char("\007", ch);
@@ -751,17 +751,17 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
 			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY))) {
 			strcpy(smallBuf, "прилетел$g");
 		} else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVESWIM)
-			&& (real_sector(go_to) == SECT_WATER_SWIM
-				|| real_sector(go_to) == SECT_WATER_NOSWIM
-				|| real_sector(go_to) == SECT_UNDERWATER)) {
+			&& (real_sector(go_to) == kSectWaterSwim
+				|| real_sector(go_to) == kSectWaterNoswim
+				|| real_sector(go_to) == kSectUnderwater)) {
 			strcpy(smallBuf, "приплыл$g");
 		} else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEJUMP))
 			strcpy(smallBuf, "прискакал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVECREEP))
 			strcpy(smallBuf, "приполз$q");
-		else if (real_sector(go_to) == SECT_WATER_SWIM
-			|| real_sector(go_to) == SECT_WATER_NOSWIM
-			|| real_sector(go_to) == SECT_UNDERWATER) {
+		else if (real_sector(go_to) == kSectWaterSwim
+			|| real_sector(go_to) == kSectWaterNoswim
+			|| real_sector(go_to) == kSectUnderwater) {
 			strcpy(smallBuf, "приплыл$g");
 		} else if (use_horse) {
 			horse = ch->get_horse();
@@ -920,7 +920,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 
 	if (ch == nullptr || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
 		return FALSE;
-	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == NOWHERE)
+	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere)
 		send_to_char("Вы не сможете туда пройти...\r\n", ch);
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED)) {
 		if (EXIT(ch, dir)->keyword) {
@@ -1192,7 +1192,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 	int other_room = 0;
 	int r_num, vnum;
 	int rev_dir[] = {SOUTH, WEST, NORTH, EAST, DOWN, UP};
-	char local_buf[MAX_STRING_LENGTH]; // строка, в которую накапливается совершенное действо
+	char local_buf[kMaxStringLength]; // строка, в которую накапливается совершенное действо
 	// пишем начало строки - кто чё сделал
 	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 
@@ -1200,7 +1200,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 		deaf = true;
 	// ищем парную дверь в другой клетке
 	ROOM_DATA::exit_data_ptr back;
-	if (!obj && EXIT(ch, door) && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE)) {
+	if (!obj && EXIT(ch, door) && ((other_room = EXIT(ch, door)->to_room()) != kNowhere)) {
 		back = world[other_room]->dir_option[rev_dir[door]];
 		if (back) {
 			if ((back->to_room() != ch->in_room)
@@ -1330,7 +1330,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 
 	// Notify the room
 	sprintf(local_buf + strlen(local_buf), "%s.", (obj) ? "$o3" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
-	if (!obj || (obj->get_in_room() != NOWHERE)) {
+	if (!obj || (obj->get_in_room() != kNowhere)) {
 		act(local_buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
 	}
 
@@ -1403,7 +1403,7 @@ bool ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int sc
 void do_gen_door(CHAR_DATA *ch, char *argument, int, int subcmd) {
 	int door = -1;
 	obj_vnum keynum;
-	char type[MAX_INPUT_LENGTH], dir[MAX_INPUT_LENGTH];
+	char type[kMaxInputLength], dir[kMaxInputLength];
 	OBJ_DATA *obj = NULL;
 	CHAR_DATA *victim = NULL;
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
@@ -1609,7 +1609,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!GET_MOB_HOLD(k->follower) &&
 						GET_POS(k->follower) == POS_STANDING &&
 						IN_ROOM(k->follower) == from_room) {
-						snprintf(buf2, MAX_STRING_LENGTH, "войти пентаграмма");
+						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
 						command_interpreter(k->follower, buf2);
 					}
 				}
@@ -1634,7 +1634,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		for (door = 0; door < NUM_OF_DIRS; door++)
 			if (EXIT(ch, door))
-				if (EXIT(ch, door)->to_room() != NOWHERE)
+				if (EXIT(ch, door)->to_room() != kNowhere)
 					if (!EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED) &&
 						ROOM_FLAGGED(EXIT(ch, door)->to_room(), ROOM_INDOORS)) {
 						perform_move(ch, door, 1, TRUE, 0);

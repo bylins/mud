@@ -346,7 +346,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 	const char *to_room = nullptr;
 	int i = 0, lag = 0;
 	// Sanity check
-	if (room == nullptr || ch == nullptr || ch->in_room == NOWHERE) {
+	if (room == nullptr || ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
 	}
 

@@ -9,7 +9,6 @@
 
 #include "structs.h"
 #include "sysdep.h"
-//#include "utils/utils.h"
 
 #include <string>
 
@@ -45,9 +44,9 @@ struct DESCRIPTOR_DATA {
 	char *backstr;        // added for handling abort buffers //
 	int mail_to;        // uid for mail system
 	int has_prompt;        // is the user at a prompt?             //
-	char inbuf[MAX_RAW_INPUT_LENGTH];    // buffer for raw input    //
-	char last_input[MAX_INPUT_LENGTH];    // the last input       //
-	char small_outbuf[SMALL_BUFSIZE];    // standard output buffer      //
+	char inbuf[kMaxRawInputLength];    // buffer for raw input    //
+	char last_input[kMaxInputLength];    // the last input       //
+	char small_outbuf[kSmallBufsize];    // standard output buffer      //
 	char *output;        // ptr to the current output buffer //
 	char **history;        // History of commands, for ! mostly.  //
 	int history_pos;        // Circular array position.      //

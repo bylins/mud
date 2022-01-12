@@ -122,7 +122,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT
 		&& (GET_OBJ_VAL(obj, 1) < 1
-			|| GET_OBJ_VAL(obj, 1) >= MAX_FEATS)) {
+			|| GET_OBJ_VAL(obj, 1) >= kMaxFeats)) {
 		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
@@ -193,7 +193,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		const char *where = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
 		const char *what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
 		const char
-			*whom = obj->get_sex() == ESex::SEX_FEMALE ? "нее" : (obj->get_sex() == ESex::SEX_POLY ? "них" : "него");
+			*whom = obj->get_sex() == ESex::kSexFemale ? "нее" : (obj->get_sex() == ESex::kSexPoly ? "них" : "него");
 		sprintf(buf,
 				"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
 				"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"

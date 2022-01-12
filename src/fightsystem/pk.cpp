@@ -642,7 +642,7 @@ void pk_list_sprintf(CHAR_DATA *ch, char *buff) {
 void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct PK_Memory_type *pk;
 	int found = FALSE;
-	char arg2[MAX_INPUT_LENGTH];
+	char arg2[kMaxInputLength];
 	bool bOnlineOnly;
 
 	if (IS_NPC(ch))

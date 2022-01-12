@@ -30,8 +30,8 @@ const char *spell_name(int num) {
 void initUnusedSpell(int spl) {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
-		for (j = 0; j < NUM_KIN; j++) {
-			spell_info[spl].min_remort[i][j] = MAX_REMORT;
+		for (j = 0; j < kNumKins; j++) {
+			spell_info[spl].min_remort[i][j] = kMaxRemort;
 			spell_info[spl].min_level[i][j] = LVL_IMPL + 1;
 			spell_info[spl].slot_forc[i][j] = MAX_SLOT;
 			spell_info[spl].class_change[i][j] = 0;
@@ -70,8 +70,8 @@ void initSpell(int spl, const char *name, const char *syn,
 
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
-		for (j = 0; j < NUM_KIN; j++) {
-			spell_info[spl].min_remort[i][j] = MAX_REMORT;
+		for (j = 0; j < kNumKins; j++) {
+			spell_info[spl].min_remort[i][j] = kMaxRemort;
 			spell_info[spl].min_level[i][j] = LVL_IMPL;
 			spell_info[spl].slot_forc[i][j] = MAX_SLOT;
 			spell_info[spl].class_change[i][j] = 0;

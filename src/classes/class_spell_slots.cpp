@@ -1225,8 +1225,8 @@ void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+	if (kin < 0 || kin >= kNumKins) {
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 
@@ -1250,7 +1250,7 @@ void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 
 MaxClassSlot::MaxClassSlot() {
 	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i) {
-		for (int k = 0; k < NUM_KIN; ++k) {
+		for (int k = 0; k < kNumKins; ++k) {
 			_max_class_slot[i][k] = 0;
 		}
 	}
@@ -1264,7 +1264,7 @@ void MaxClassSlot::init(int chclass, int kin, int slot) {
 
 int MaxClassSlot::get(int chclass, int kin) const {
 	if (kin < 0
-		|| kin >= NUM_KIN
+		|| kin >= kNumKins
 		|| chclass < 0
 		|| chclass >= NUM_PLAYER_CLASSES) {
 		return 0;

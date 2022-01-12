@@ -53,14 +53,14 @@ void init() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 
 	pugi::xml_node main_node = doc.child("reset_stats");
 	if (!main_node) {
-		snprintf(buf, MAX_STRING_LENGTH, "...<reset_stats> read fail");
+		snprintf(buf, kMaxStringLength, "...<reset_stats> read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -101,7 +101,7 @@ void reset_stats(CHAR_DATA *ch, Type type) {
 		case Type::FEATS: ch->real_abils.Feats.reset();
 			setAllInbornFeatures(ch);
 			break;
-		case Type::RELIGION: ch->player_data.Religion = 2; //RELIGION_MONO + 1
+		case Type::RELIGION: ch->player_data.Religion = 2; //kReligionMono + 1
 			break;
 		default: mudlog("SYSERROR: reset_stats() switch", NRM, LVL_IMMORT, SYSLOG, TRUE);
 			return;
@@ -148,7 +148,7 @@ void process(DESCRIPTOR_DATA *d, Type type) {
 		SEND_TO_Q(MENU, d);
 		STATE(d) = CON_MENU;
 	} else {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		reset_stats(ch.get(), type);
 
 		if ((type == Type::MAIN_STATS || type == Type::RACE || type == Type::RELIGION)

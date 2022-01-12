@@ -40,7 +40,7 @@ bool need_save = false;
 void add_message(const char *text, ...) {
 	if (!text) return;
 	va_list args;
-	char out[MAX_STRING_LENGTH];
+	char out[kMaxStringLength];
 
 	va_start(args, text);
 	vsprintf(out, text, args);

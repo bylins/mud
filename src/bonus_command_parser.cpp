@@ -100,7 +100,7 @@ void ArgumentsParser::parse() {
 }
 
 void ArgumentsParser::parse_arguments(const char *argument) {
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 	argument = one_argument(argument, buffer);
 	m_first_argument = buffer;
 	argument = one_argument(argument, buffer);

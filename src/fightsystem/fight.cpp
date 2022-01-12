@@ -972,7 +972,7 @@ CHAR_DATA *find_cure(CHAR_DATA *caster, CHAR_DATA *patient, int *spellnum) {
 
 void mob_casting(CHAR_DATA *ch) {
 	CHAR_DATA *victim;
-	int battle_spells[MAX_STRING_LENGTH];
+	int battle_spells[kMaxStringLength];
 	int spellnum, spells = 0, sp_num;
 	OBJ_DATA *item;
 
@@ -991,7 +991,7 @@ void mob_casting(CHAR_DATA *ch) {
 	}
 
 	item = ch->carrying;
-	while (spells < MAX_STRING_LENGTH
+	while (spells < kMaxStringLength
 		&& item
 		&& GET_RACE(ch) == NPC_RACE_HUMAN
 		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))) {
@@ -1167,7 +1167,7 @@ void summon_mob_helpers(CHAR_DATA *ch) {
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND)
 				|| GET_WAIT(vict) > 0
 				|| GET_POS(vict) < POS_STANDING
-				|| IN_ROOM(vict) == NOWHERE
+				|| IN_ROOM(vict) == kNowhere
 				|| vict->get_fighting()) {
 				return;
 			}
@@ -1197,7 +1197,7 @@ void check_mob_helpers() {
 		// Extract battler if no opponent
 		if (ch->get_fighting() == NULL
 			|| ch->in_room != IN_ROOM(ch->get_fighting())
-			|| ch->in_room == NOWHERE) {
+			|| ch->in_room == kNowhere) {
 			stop_fighting(ch, TRUE);
 			continue;
 		}
@@ -1683,7 +1683,7 @@ void add_attackers_round(CHAR_DATA *ch) {
 
 void update_round_affs() {
 	for (CHAR_DATA *ch = combat_list; ch; ch = ch->next_fighting) {
-		if (ch->in_room == NOWHERE)
+		if (ch->in_room == kNowhere)
 			continue;
 
 		CLR_AF_BATTLE(ch, EAF_FIRST);
@@ -1977,7 +1977,7 @@ bool stuff_before_round(CHAR_DATA *ch) {
 	SET_AF_BATTLE(ch, EAF_STAND);
 	if (affected_by_spell(ch, SPELL_SLEEP))
 		SET_AF_BATTLE(ch, EAF_SLEEP);
-	if (ch->in_room == NOWHERE)
+	if (ch->in_room == kNowhere)
 		return false;
 
 	if (GET_MOB_HOLD(ch)
@@ -2074,7 +2074,7 @@ void perform_violence() {
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list) {
 			next_combat_list = ch->next_fighting;
-			if (INITIATIVE(ch) != initiative || ch->in_room == NOWHERE) {
+			if (INITIATIVE(ch) != initiative || ch->in_room == kNowhere) {
 				continue;
 			}
 

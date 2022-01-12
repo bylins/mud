@@ -10,7 +10,7 @@
 const short DEFAULT_STAFF_LVL = 12;
 const short DEFAULT_WAND_LVL = 12;
 
-extern char cast_argument[MAX_INPUT_LENGTH];
+extern char cast_argument[kMaxInputLength];
 
 void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 	int i, spellnum;

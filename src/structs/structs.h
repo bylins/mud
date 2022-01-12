@@ -44,7 +44,7 @@ namespace currency {
 enum { GOLD, GLORY, TORC, ICE, NOGATA };
 }
 
-#define MAX_ALIAS_LENGTH 100
+const int kMaxAliasLehgt = 100;
 #define  NoArgument  nullptr
 //-Polos.insert_wanted_gem
 
@@ -56,11 +56,10 @@ enum { GOLD, GLORY, TORC, ICE, NOGATA };
  * for CircleMUD 3.0 to be complete but we refuse to break binary file
  * compatibility.
  */
-#define USE_AUTOEQ   1        // TRUE/FALSE aren't defined yet.
+#define USE_AUTOEQ 1        // TRUE/FALSE aren't defined yet.
 
-#define MAX_DEST         50
+const __uint8_t kMaxDest = 50;
 
-// done
 typedef struct index_data INDEX_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 
@@ -70,42 +69,42 @@ class TRIG_DATA;
 
 // preamble ************************************************************
 
-#define NOHOUSE    -1        // nil reference for non house
-#define NOWHERE    0        // nil reference for room-database
-#define NOTHING      -1        // nil reference for objects
-#define NOBODY    -1        // nil reference for mobiles
+const __int8_t kNoHouse = -1;        // nil reference for non house
+const __int8_t kNowhere = 0;        // nil reference for room-database
+const __int8_t kNothing = -1;        // nil reference for objects
+const __int8_t kNobody = -1;        // nil reference for mobiles
 
 // misc editor defines *************************************************
 
 // format modes for format_text
-#define FORMAT_INDENT      (1 << 0)
+constexpr int FORMAT_INDENT = 1 << 0;
 
-#define KT_ALT        1
-#define KT_WIN        2
-#define KT_WINZ       3
-#define KT_WINZ_Z     4
-#define KT_UTF8       5
-#define KT_WINZ_OLD   6
-#define KT_LAST       7
+const __uint8_t kCodePageAlt = 1;
+const __uint8_t kCodePageWin = 2;
+const __uint8_t kCodePageWinz = 3;
+const __uint8_t kCodePageWinzZ = 4;
+const __uint8_t kCodePageUTF8 = 5;
+const __uint8_t kCodePageWinzOld = 6;
+const __uint8_t kCodePageLast = 7;
 
-#define KT_SELECTMENU 255
+const int kKtSelectmenu = 255;
 
 // room-related defines ************************************************
 
-#define HOLES_TIME 1
+const int kHolesTime = 1;
 
 // The cardinal directions: used as index to room_data.dir_option[]
-#define NORTH          0
-#define EAST           1
-#define SOUTH          2
-#define WEST           3
-#define UP             4
-#define DOWN           5
+const __uint8_t NORTH = 0;
+const __uint8_t EAST = 1;
+const __uint8_t SOUTH = 2;
+const __uint8_t WEST = 3;
+const __uint8_t UP = 4;
+const __uint8_t DOWN = 5;
 
 // This structure describe new bitvector structure                  //
 typedef uint32_t bitvector_t;
 
-#define INT_ZERRO (0u << 30)
+#define INT_ZERO (0u << 30)
 #define INT_ONE   (1u << 30)
 #define INT_TWO   (2u << 30)
 #define INT_THREE (3u << 30)
@@ -187,33 +186,32 @@ typedef uint32_t bitvector_t;
 #define AF_SAME_TIME (1 << 3) // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
 // Sector types: used in room_data.sector_type //
-#define SECT_INSIDE          0    // Indoors        //
-#define SECT_CITY            1    // In a city         //
-#define SECT_FIELD           2    // In a field     //
-#define SECT_FOREST          3    // In a forest    //
-#define SECT_HILLS           4    // In the hills      //
-#define SECT_MOUNTAIN        5    // On a mountain     //
-#define SECT_WATER_SWIM      6    // Swimmable water      //
-#define SECT_WATER_NOSWIM    7    // Water - need a boat  //
-#define SECT_FLYING          8    // Wheee!         //
-#define SECT_UNDERWATER      9    // Underwater     //
-#define SECT_SECRET          10
-#define SECT_STONEROAD       11
-#define SECT_ROAD            12
-#define SECT_WILDROAD        13
+const __uint8_t kSectInside = 0;
+const __uint8_t kSectCity = 1;
+const __uint8_t kSectField = 2;
+const __uint8_t kSectForest = 3;
+const __uint8_t kSectHills = 4;
+const __uint8_t kSectMountain = 5;
+const __uint8_t kSectWaterSwim = 6;		// Swimmable water      //
+const __uint8_t kSectWaterNoswim = 7;	// Water - need a boat  //
+const __uint8_t kSectOnlyFlying = 8;	// Wheee!         //
+const __uint8_t kSectUnderwater = 9;
+const __uint8_t kSectSecret = 10;
+const __uint8_t kSectStoneroad = 11;
+const __uint8_t kSectRoad = 12;
+const __uint8_t kSectWildroad = 13;
 // надо не забывать менять NUM_ROOM_SECTORS в olc.h
-
-// Added values for weather changes //
-#define SECT_FIELD_SNOW      20
-#define SECT_FIELD_RAIN      21
-#define SECT_FOREST_SNOW     22
-#define SECT_FOREST_RAIN     23
-#define SECT_HILLS_SNOW      24
-#define SECT_HILLS_RAIN      25
-#define SECT_MOUNTAIN_SNOW   26
-#define SECT_THIN_ICE        27
-#define SECT_NORMAL_ICE      28
-#define SECT_THICK_ICE       29
+// Values for weather changes //
+const __uint8_t kSectFieldSnow = 20;
+const __uint8_t kSectFieldRain = 21;
+const __uint8_t kSectForestSnow = 22;
+const __uint8_t kSectForestRain = 23;
+const __uint8_t kSectHillsSnow = 24;
+const __uint8_t kSectHillsRain = 25;
+const __uint8_t kSectMountainSnow = 26;
+const __uint8_t kSectThinIce = 27;
+const __uint8_t kSectNormalIce = 28;
+const __uint8_t kSectThickIce = 29;
 
 extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
 
@@ -230,7 +228,7 @@ extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
 #define WEATHER_MEDIUMWIND    (1 << 10)
 #define WEATHER_BIGWIND       (1 << 11)
 
-#define MAX_REMORT            75
+const int kMaxRemort = 75;
 
 template<typename T>
 struct Unimplemented {};
@@ -262,37 +260,35 @@ typedef char byte;
 #endif
 
 enum class ESex : byte {
-	SEX_NEUTRAL = 0,
-	SEX_MALE = 1,
-	SEX_FEMALE = 2,
-	SEX_POLY = 3
+	kSexNeutral = 0,
+	kSexMale = 1,
+	kSexFemale = 2,
+	kSexPoly = 3,
+	kSexLast = 4
 };
 
-constexpr ESex DEFAULT_SEX = ESex::SEX_MALE;
+#define NUM_SEXES 4
+
+constexpr ESex kDefaultSex = ESex::kSexMale;
 
 template<>
 ESex ITEM_BY_NAME<ESex>(const std::string &name);
 template<>
-const std::string &NAME_BY_ITEM(const ESex item);
-
-#define NUM_SEXES 4
+const std::string &NAME_BY_ITEM(ESex item);
 
 // PC religions //
-#define RELIGION_POLY    0
-#define RELIGION_MONO    1
+const __uint8_t kReligionPoly = 0;
+const __uint8_t kReligionMono = 1;
 
-typedef std::array<const char *, NUM_SEXES> religion_genders_t;
+typedef std::array<const char *, static_cast<std::size_t>(ESex::kSexLast)> religion_genders_t;
 typedef std::array<religion_genders_t, 3> religion_names_t;
 extern const religion_names_t religion_name;
-
-#define MASK_RELIGION_POLY        (1 << RELIGION_POLY)
-#define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
 
 // PC races //
 // * Все расы персонажей-игроков теперь описываются в playerraces.xml
 
 // PC Kin
-#define NUM_KIN            3
+const __uint8_t kNumKins = 3;
 
 // NPC races
 #define NPC_RACE_BASIC            100
@@ -315,11 +311,6 @@ extern const religion_names_t religion_name;
 // Virtual NPC races
 #define NPC_BOSS                200
 #define NPC_UNIQUE                201
-
-#define MASK_SEX_NEUTRAL  (1 << to_underlying(ESex::SEX_NEUTRAL))
-#define MASK_SEX_MALE     (1 << to_underlying(ESex::SEX_MALE))
-#define MASK_SEX_FEMALE   (1 << to_underlying(ESex::SEX_FEMALE))
-#define MASK_SEX_POLY     (1 << to_underlying(ESex::SEX_POLY))
 
 // GODs FLAGS
 #define GF_GODSLIKE   (1 << 0)
@@ -662,7 +653,7 @@ enum class EAffectFlag : uint32_t {
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
+const std::string &NAME_BY_ITEM<EAffectFlag>(EAffectFlag item);
 template<>
 EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string &name);
 
@@ -809,7 +800,7 @@ enum class EWearFlag : uint32_t {
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EWearFlag>(const EWearFlag item);
+const std::string &NAME_BY_ITEM<EWearFlag>(EWearFlag item);
 template<>
 EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string &name);
 
@@ -872,7 +863,7 @@ enum class EExtraFlag : uint32_t {
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EExtraFlag>(const EExtraFlag item);
+const std::string &NAME_BY_ITEM<EExtraFlag>(EExtraFlag item);
 template<>
 EExtraFlag ITEM_BY_NAME<EExtraFlag>(const std::string &name);
 
@@ -921,7 +912,7 @@ enum class ENoFlag : uint32_t {
 };
 
 template<>
-const std::string &NAME_BY_ITEM<ENoFlag>(const ENoFlag item);
+const std::string &NAME_BY_ITEM<ENoFlag>(ENoFlag item);
 template<>
 ENoFlag ITEM_BY_NAME<ENoFlag>(const std::string &name);
 
@@ -976,7 +967,7 @@ enum class EAntiFlag : uint32_t {
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item);
+const std::string &NAME_BY_ITEM<EAntiFlag>(EAntiFlag item);
 template<>
 EAntiFlag ITEM_BY_NAME<EAntiFlag>(const std::string &name);
 
@@ -1054,7 +1045,7 @@ enum EApplyLocation {
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
+const std::string &NAME_BY_ITEM<EApplyLocation>(EApplyLocation item);
 template<>
 EApplyLocation ITEM_BY_NAME<EApplyLocation>(const std::string &name);
 
@@ -1159,43 +1150,38 @@ constexpr long long PASSES_PER_SEC = 1000000 / OPT_USEC;
 #define PULSE_LOGROTATE (10 RL_SEC)
 
 // Variables for the output buffering system //
-#define MAX_SOCK_BUF            (48 * 1024)    // Size of kernel's sock buf   //
-#define MAX_PROMPT_LENGTH       256    // Max length of prompt        //
-#define GARBAGE_SPACE         32    // Space for **OVERFLOW** etc  //
-#define SMALL_BUFSIZE         1024    // Static output buffer size   //
+constexpr __uint16_t kMaxSockBuf = 48*1024;		// Size of kernel's sock buf   //
+const __uint16_t kMaxPromptLength = 256;		// Max length of prompt        //
+const __uint8_t kGarbageSpace = 32;				// Space for **OVERFLOW** etc  //
+const __uint16_t kSmallBufsize = 1024;			// Static output buffer size   //
 // Max amount of output that can be buffered //
-#define LARGE_BUFSIZE            (MAX_SOCK_BUF - GARBAGE_SPACE - MAX_PROMPT_LENGTH)
+constexpr __uint16_t kLargeBufSize = kMaxSockBuf - kGarbageSpace - kMaxPromptLength;
+
 // Keep last 5 commands
-const int HISTORY_SIZE = 5;
-const int MAX_STRING_LENGTH = 32768;
-const int MAX_EXTEND_LENGTH = 0xFFFF;
-const int MAX_TRGLINE_LENGTH = 1024;
-const int MAX_INPUT_LENGTH = 1024;   // Max length per *line* of input //
-const int MAX_RAW_INPUT_LENGTH = 1024;   // Max size of *raw* input //
-const int MAX_MESSAGES = 600;
-const int MAX_NAME_LENGTH = 20;
-const int MIN_NAME_LENGTH = 5;
+const int kHistorySize = 5;
+const int kMaxStringLength = 32768;
+const int kMaxExtendLength = 0xFFFF;
+const int kMaxTrglineLength = 1024;
+const int kMaxInputLength = 1024;   // Max length per *line* of input //
+const int kMaxRawInputLength = 1024;   // Max size of *raw* input //
+const int kMaxMessages = 600;
+const int kMaxNameLength = 20;
+const int kMinNameLength = 5;
 const int kHostLength = 30;
-const int EXDSCR_LENGTH = 512;
-const int MAX_AFFECT = 128;
-const int MAX_OBJ_AFFECT = 8;
-const int MAX_TIMED_SKILLS = 16;
-const int MAX_FEATS = 256;
-const int MAX_TIMED_FEATS = 16;
-const int MAX_HITS = 32000; // Максимальное количество хитов и дамага //
-// Количество запомненных предложений для воззваний //
-#define MAX_REMEMBER_PRAY     20
-// Количество запомненных предложений для эфира //
-#define MAX_REMEMBER_GOSSIP   15
-// планка на кол-во денег у чара на руках и в банке (раздельно)
-const long MAX_MONEY_KEPT = 1000000000;
+const int kExdscrLength = 512;
+const int kMaxAffect = 128;
+const int kMaxObjAffect = 8;
+const int kMaxTimedSkills = 16;
+const int kMaxFeats = 256;
+const int kMaxTimedFeats = 16;
+const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
+const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 
-#define INT_STUPID_MOD 10
-#define INT_MIDDLE_AI 30
-#define INT_HIGH_AI 40
-#define CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK 100
-#define STRONG_MOB_LEVEL 30
-
+const short INT_STUPID_MOD = 10;
+const short INT_MIDDLE_AI = 30;
+const short INT_HIGH_AI = 40;
+const short CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK = 100;
+const short STRONG_MOB_LEVEL = 30;
 const short MAX_MOB_LEVEL = 100;
 const short MAX_SAVE = 400; //максимальное значение воля, здоровье, стойкость, реакция
 
@@ -1228,7 +1214,7 @@ typedef rnum_t trg_rnum;    // A trigger's real (array index) number. //
 */
 void asciiflag_conv(const char *flag, void *to);
 
-int ext_search_block(const char *arg, const char *const *const list, int exact);
+int ext_search_block(const char *arg, const char *const *list, int exact);
 
 class FLAG_DATA {
  public:

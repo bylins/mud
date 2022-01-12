@@ -142,10 +142,10 @@ obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info> &it) {
 						  ? (it.first >= 0 && i >= 0
 							 ? (obj_proto.actual_count(i) < it.second.obj_qty
 								? i
-								: NOTHING)
-							 : NOTHING)
-						  : NOTHING;
-	if (resutl_obj != NOTHING) {
+								: kNothing)
+							 : kNothing)
+						  : kNothing;
+	if (resutl_obj != kNothing) {
 		log("Current load_prob: %d/%d, obj #%d (setload)", it.second.load_prob, MAX_LOAD_PROB, it.first);
 	}
 	return resutl_obj;
@@ -337,7 +337,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload) {
 	}
 
 	if (!obj_decay(o.get())) {
-		if (o->get_in_room() != NOWHERE) {
+		if (o->get_in_room() != kNowhere) {
 			act("На земле остал$U лежать $o.", FALSE, ch, o.get(), 0, TO_ROOM);
 		}
 		load_otrigger(o.get());
@@ -392,7 +392,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	obj->set_PName(3, "острые когти");
 	obj->set_PName(4, "острыми когтями");
 	obj->set_PName(5, "острых когтях");
-	obj->set_sex(ESex::SEX_POLY);
+	obj->set_sex(ESex::kSexPoly);
 	obj->set_type(OBJ_DATA::ITEM_WEAPON);
 	// среднее оружки
 	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
@@ -512,7 +512,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 11; // слот щит
 		break;		
 	default: //SKILL_INVALID / тут шкура(армор)
-		obj->set_sex(ESex::SEX_FEMALE);
+		obj->set_sex(ESex::kSexFemale);
 		obj->set_description("Прочная шкура лежит здесь.");
 		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");
 		obj->set_aliases("прочная шкура");
@@ -525,7 +525,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_PName(5, "прочной шкуре");
 		obj->set_type(OBJ_DATA::ITEM_ARMOR);
 		if (diff == -1) { // тут делаем сапоги 
-			obj->set_sex(ESex::SEX_POLY);
+			obj->set_sex(ESex::kSexPoly);
 			obj->set_weight(50);
 			obj->set_description("Оторванная лапа зверя лежит здесь.");
 			obj->set_ex_description(descr.c_str(), "Оторванная лапа зверя лежит здесь.");

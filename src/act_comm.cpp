@@ -194,18 +194,18 @@ void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg) {
 
 	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
 	if (tell_can_see(ch, vict)) {
-		snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
+		snprintf(buf, kMaxStringLength, "%s сказал%s вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
 	} else {
-		snprintf(buf, MAX_STRING_LENGTH, "Кто-то сказал вам : '%s'", arg);
+		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
 	}
-	snprintf(buf1, MAX_STRING_LENGTH, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
+	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
 	send_to_char(buf1, vict);
 	if (!IS_NPC(vict)) {
 		vict->remember_add(buf1, Remember::ALL);
 	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch)) {
-		snprintf(buf, MAX_STRING_LENGTH, "%s%s : '%s'%s\r\n", CCICYN(vict, C_NRM),
+		snprintf(buf, kMaxStringLength, "%s%s : '%s'%s\r\n", CCICYN(vict, C_NRM),
 				 tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, CCNRM(vict, C_NRM));
 		vict->remember_add(buf, Remember::PERSONAL);
 	}
@@ -213,7 +213,7 @@ void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg) {
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT)) {
 		send_to_char(OK, ch);
 	} else {
-		snprintf(buf, MAX_STRING_LENGTH, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
+		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
 				 tell_can_see(vict, ch) ? vict->player_data.PNames[2].c_str() : "кому-то", arg, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		if (!IS_NPC(ch)) {
@@ -313,7 +313,7 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	skip_spaces(&argument);
 
-	if (ch->get_answer_id() == NOBODY)
+	if (ch->get_answer_id() == kNobody)
 		send_to_char("Вам некому ответить!\r\n", ch);
 	else if (!*argument)
 		send_to_char("Что вы собираетесь ответить?\r\n", ch);
@@ -353,7 +353,7 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	CHAR_DATA *vict;
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
-	char vict3[MAX_INPUT_LENGTH];
+	char vict3[kMaxInputLength];
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 		send_to_char(SIELENCE, ch);
@@ -707,7 +707,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!check_moves(ch, com_msgs[subcmd].move_cost))
 		return;
 
-	char out_str[MAX_STRING_LENGTH];
+	char out_str[kMaxStringLength];
 
 	// first, set up strings to be given to the communicator
 	if (subcmd == SCMD_AUCTION) {
@@ -726,16 +726,16 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char(OK, ch);
 		else {
 			if (COLOR_LEV(ch) >= C_CMP) {
-				snprintf(buf1, MAX_STRING_LENGTH, "%sВы %s : '%s'%s", color_on,
+				snprintf(buf1, kMaxStringLength, "%sВы %s : '%s'%s", color_on,
 						 com_msgs[subcmd].you_action, argument, KNRM);
 			} else {
-				snprintf(buf1, MAX_STRING_LENGTH, "Вы %s : '%s'",
+				snprintf(buf1, kMaxStringLength, "Вы %s : '%s'",
 						 com_msgs[subcmd].you_action, argument);
 			}
 			act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
 
 			if (!IS_NPC(ch)) {
-				snprintf(buf1 + strlen(buf1), MAX_STRING_LENGTH, "\r\n");
+				snprintf(buf1 + strlen(buf1), kMaxStringLength, "\r\n");
 				ch->remember_add(buf1, Remember::ALL);
 			}
 		}
@@ -754,23 +754,23 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 				break;
 			default: ign_flag = 0;
 		}
-		snprintf(out_str, MAX_STRING_LENGTH, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
+		snprintf(out_str, kMaxStringLength, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
 		if (IS_FEMALE(ch)) {
 			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP)) {
-				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметила :'%s'%s\r\n", color_on, GET_NAME(ch), argument, KNRM);
+				snprintf(buf1, kMaxStringLength, "%s%s заметила :'%s'%s\r\n", color_on, GET_NAME(ch), argument, KNRM);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 			if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER)) {
-				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорала :'%s'%s\r\n", color_on, GET_NAME(ch), argument, KNRM);
+				snprintf(buf1, kMaxStringLength, "%s%s заорала :'%s'%s\r\n", color_on, GET_NAME(ch), argument, KNRM);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 		} else {
 			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP)) {
-				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметил :'%s'%s\r\n", color_on, GET_NAME(ch), argument, KNRM);
+				snprintf(buf1, kMaxStringLength, "%s%s заметил :'%s'%s\r\n", color_on, GET_NAME(ch), argument, KNRM);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 			if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER)) {
-				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорал :'%s'%s\r\n", color_on, GET_NAME(ch), argument, KNRM);
+				snprintf(buf1, kMaxStringLength, "%s%s заорал :'%s'%s\r\n", color_on, GET_NAME(ch), argument, KNRM);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 		}
@@ -839,7 +839,7 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
 	DESCRIPTOR_DATA *i;
 	CHAR_DATA *victim = NULL;
 
@@ -890,18 +890,18 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(buf, victim);
 		victim->remember_add(buf, Remember::PRAY_PERSONAL);
 
-		snprintf(buf1, MAX_STRING_LENGTH, "&R%s ответил%s %s : '%s&n\r\n",
+		snprintf(buf1, kMaxStringLength, "&R%s ответил%s %s : '%s&n\r\n",
 				 GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
-		snprintf(buf, MAX_STRING_LENGTH, "&R%s ответил%s на воззвание %s : '%s'&n\r\n",
+		snprintf(buf, kMaxStringLength, "&R%s ответил%s на воззвание %s : '%s'&n\r\n",
 				 GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
 	} else {
-		snprintf(buf1, MAX_STRING_LENGTH, "&R%s воззвал%s к богам : '%s&n\r\n",
+		snprintf(buf1, kMaxStringLength, "&R%s воззвал%s к богам : '%s&n\r\n",
 				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
-		snprintf(buf, MAX_STRING_LENGTH, "&R%s воззвал%s к богам с сообщением : '%s'&n\r\n",
+		snprintf(buf, kMaxStringLength, "&R%s воззвал%s к богам с сообщением : '%s'&n\r\n",
 				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 	}
 
@@ -962,8 +962,8 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->set_last_tell(argument);
 	if (PLR_FLAGGED(ch, PLR_SPAMMER)) // а вот фиг, еще проверка :)
 		return;
-	snprintf(buf, MAX_STRING_LENGTH, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
-	snprintf(buf1, MAX_STRING_LENGTH, "&c%s&n", buf);
+	snprintf(buf, kMaxStringLength, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
+	snprintf(buf1, kMaxStringLength, "&c%s&n", buf);
 	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next) {
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
 		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
@@ -1043,9 +1043,9 @@ char *text_ignore_modes(unsigned long mode, char *buf) {
 }
 
 void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
-	char arg3[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength];
+	char arg2[kMaxInputLength];
+	char arg3[kMaxInputLength];
 	unsigned int mode = 0, list_empty = 1, all = 0, flag = 0;
 	long vict_id;
 	char buf[256], buf1[256], name[50];

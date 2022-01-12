@@ -147,7 +147,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct char_portal_type *tmp, *dlt = NULL;
-	char arg2[MAX_INPUT_LENGTH];
+	char arg2[kMaxInputLength];
 	int vnum = 0;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOWNPORTAL)) {

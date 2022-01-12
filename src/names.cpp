@@ -28,9 +28,9 @@ extern void send_to_gods(char *text, bool demigod);
 int was_agree_name(DESCRIPTOR_DATA *d) {
 	log("was_agree_name start");
 	FILE *fp;
-	char temp[MAX_INPUT_LENGTH];
-	char immname[MAX_INPUT_LENGTH];
-	char mortname[6][MAX_INPUT_LENGTH];
+	char temp[kMaxInputLength];
+	char immname[kMaxInputLength];
+	char mortname[6][kMaxInputLength];
 	int immlev;
 	int sex;
 	int i;
@@ -73,9 +73,9 @@ int was_agree_name(DESCRIPTOR_DATA *d) {
 int was_disagree_name(DESCRIPTOR_DATA *d) {
 	log("was_disagree_name start");
 	FILE *fp;
-	char temp[MAX_INPUT_LENGTH];
-	char mortname[MAX_INPUT_LENGTH];
-	char immname[MAX_INPUT_LENGTH];
+	char temp[kMaxInputLength];
+	char mortname[kMaxInputLength];
+	char immname[kMaxInputLength];
 	int immlev;
 
 	if (!(fp = fopen(DNAME_FILE, "r"))) {
@@ -110,9 +110,9 @@ int was_disagree_name(DESCRIPTOR_DATA *d) {
 void rm_agree_name(CHAR_DATA *d) {
 	FILE *fin;
 	FILE *fout;
-	char temp[MAX_INPUT_LENGTH];
-	char immname[MAX_INPUT_LENGTH];
-	char mortname[6][MAX_INPUT_LENGTH];
+	char temp[kMaxInputLength];
+	char immname[kMaxInputLength];
+	char mortname[6][kMaxInputLength];
 	int immlev;
 	int sex;
 

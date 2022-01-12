@@ -31,7 +31,7 @@ void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData &character
 	}
 
 	const auto new_rnum = character.get_rnum();
-	if (new_rnum != NOBODY) {
+	if (new_rnum != kNobody) {
 		m_parent.m_rnum_to_characters_set[new_rnum].insert(character_ptr);
 	}
 }
@@ -45,7 +45,7 @@ void Characters::push_front(const CHAR_DATA::shared_ptr &character) {
 	m_character_raw_ptr_to_character_ptr[character.get()] = m_list.begin();
 
 	const auto rnum = character->get_rnum();
-	if (NOBODY != rnum) {
+	if (kNobody != rnum) {
 		m_rnum_to_characters_set[rnum].insert(character.get());
 	}
 	character->subscribe_for_rnum_changes(m_rnum_change_observer);
@@ -103,7 +103,7 @@ void Characters::remove(CHAR_DATA *character) {
 
 	character->unsubscribe_from_rnum_changes(m_rnum_change_observer);
 	const auto rnum = character->get_rnum();
-	if (NOBODY != rnum) {
+	if (kNobody != rnum) {
 		m_rnum_to_characters_set[rnum].erase(character);
 		if (m_rnum_to_characters_set[rnum].empty()) {
 			m_rnum_to_characters_set.erase(rnum);

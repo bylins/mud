@@ -1756,7 +1756,7 @@ void Damage::dam_message(CHAR_DATA *ch, CHAR_DATA *victim) const {
 	if (brief_shields_.empty()) {
 		act(buf_ptr, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	} else {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s%s", buf_ptr, brief_shields_.c_str());
 		act(buf_, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_BRIEF_SHIELDS);
 		act(buf_ptr, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
@@ -1765,7 +1765,7 @@ void Damage::dam_message(CHAR_DATA *ch, CHAR_DATA *victim) const {
 	// damage message to damager
 	send_to_char(ch, "%s", dam ? "&Y&q" : "&y&q");
 	if (!brief_shields_.empty() && PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)) {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s%s",
 				 replace_string(dam_weapons[dam_msgnum].to_char,
 								attack_hit_text[w_type].singular, attack_hit_text[w_type].plural),
@@ -1781,7 +1781,7 @@ void Damage::dam_message(CHAR_DATA *ch, CHAR_DATA *victim) const {
 	// damage message to damagee
 	send_to_char("&R&q", victim);
 	if (!brief_shields_.empty() && PRF_FLAGGED(victim, PRF_BRIEF_SHIELDS)) {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s%s",
 				 replace_string(dam_weapons[dam_msgnum].to_victim,
 								attack_hit_text[w_type].singular, attack_hit_text[w_type].plural),
@@ -1854,7 +1854,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 		if (mg_damage > 0
 			&& victim->get_fighting()
 			&& GET_POS(victim) > POS_STUNNED
-			&& IN_ROOM(victim) != NOWHERE) {
+			&& IN_ROOM(victim) != kNowhere) {
 			flags.set(FightSystem::DRAW_BRIEF_MAG_MIRROR);
 			Damage dmg(SpellDmg(SPELL_MAGICGLASS), mg_damage, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE_DMG);
@@ -1938,7 +1938,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 void Damage::armor_dam_reduce(CHAR_DATA *victim) {
 	// броня на физ дамаг
 	if (dam > 0 && dmg_type == FightSystem::PHYS_DMG) {
-		alt_equip(victim, NOWHERE, dam, 50);
+		alt_equip(victim, kNowhere, dam, 50);
 		if (!flags[FightSystem::CRIT_HIT] && !flags[FightSystem::IGNORE_ARMOR]) {
 			// 50 брони = 50% снижение дамага
 			int max_armour = 50;
@@ -2071,7 +2071,7 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim) {
 					}
 					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
 								 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
-					snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
+					snprintf(buf, kMaxStringLength, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
 							 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
 					act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
@@ -2086,7 +2086,7 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim) {
 void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim) {
 	ClanPkLog::check(ch, victim);
 	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
-			IN_ROOM(victim) != NOWHERE ? world[IN_ROOM(victim)]->name : "NOWHERE", GET_ROOM_VNUM(IN_ROOM(victim)));
+			IN_ROOM(victim) != kNowhere ? world[IN_ROOM(victim)]->name : "kNowhere", GET_ROOM_VNUM(IN_ROOM(victim)));
 	log("%s", buf2);
 
 	if ((!IS_NPC(ch)
@@ -2109,7 +2109,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim) {
 	CHAR_DATA *killer = NULL;
 
 	if (IS_NPC(victim) || victim->desc) {
-		if (victim == ch && IN_ROOM(victim) != NOWHERE) {
+		if (victim == ch && IN_ROOM(victim) != kNowhere) {
 			if (spell_num == SPELL_POISON) {
 				for (const auto poisoner : world[IN_ROOM(victim)]->people) {
 					if (poisoner != victim
@@ -2201,10 +2201,10 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 		return 0;
 	}
 
-	if (IN_ROOM(victim) == NOWHERE
-		|| ch->in_room == NOWHERE
+	if (IN_ROOM(victim) == kNowhere
+		|| ch->in_room == kNowhere
 		|| ch->in_room != IN_ROOM(victim)) {
-		log("SYSERR: Attempt to damage '%s' in room NOWHERE by '%s'.",
+		log("SYSERR: Attempt to damage '%s' in room kNowhere by '%s'.",
 			GET_NAME(victim), GET_NAME(ch));
 		return 0;
 	}
@@ -2271,8 +2271,8 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 
 	// If negative damage - return
 	if (dam < 0
-		|| ch->in_room == NOWHERE
-		|| IN_ROOM(victim) == NOWHERE
+		|| ch->in_room == kNowhere
+		|| IN_ROOM(victim) == kNowhere
 		|| ch->in_room != IN_ROOM(victim)) {
 		return (0);
 	}
@@ -2454,7 +2454,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 		dam = MIN(dam, GET_HIT(victim) - 1);
 	}
 
-	dam = MAX(0, MIN(dam, MAX_HITS));
+	dam = MAX(0, MIN(dam, kMaxHits));
 
 	// расчет бэтл-экспы для чаров
 	gain_battle_exp(ch, victim, dam);
@@ -2546,7 +2546,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 		|| flags.test(FightSystem::DRAW_BRIEF_AIR_SHIELD)
 		|| flags.test(FightSystem::DRAW_BRIEF_ICE_SHIELD)
 		|| flags.test(FightSystem::DRAW_BRIEF_MAG_MIRROR)) {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "&n (%s%s%s%s)",
 				 flags.test(FightSystem::DRAW_BRIEF_FIRE_SHIELD) ? "&R*&n" : "",
 				 flags.test(FightSystem::DRAW_BRIEF_AIR_SHIELD) ? "&C*&n" : "",
@@ -2602,7 +2602,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 	if (fs_damage > 0
 		&& victim->get_fighting()
 		&& GET_POS(victim) > POS_STUNNED
-		&& IN_ROOM(victim) != NOWHERE) {
+		&& IN_ROOM(victim) != kNowhere) {
 		Damage dmg(SpellDmg(SPELL_FIRE_SHIELD), fs_damage, FightSystem::UNDEF_DMG);
 		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 		dmg.flags.set(FightSystem::MAGIC_REFLECT);
@@ -3544,7 +3544,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		return;
 	}
 	// Do some sanity checking, in case someone flees, etc.
-	if (ch->in_room != IN_ROOM(victim) || ch->in_room == NOWHERE) {
+	if (ch->in_room != IN_ROOM(victim) || ch->in_room == kNowhere) {
 		if (ch->get_fighting() && ch->get_fighting() == victim) {
 			stop_fighting(ch, TRUE);
 		}
@@ -3575,7 +3575,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 				const auto
 					people = world[ch->in_room]->people;    // make copy because inside loop this list might be changed.
 				for (const auto &tch : people) {
-					if (IS_IMMORTAL(tch) || ch->in_room == NOWHERE || IN_ROOM(tch) == NOWHERE)
+					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || IN_ROOM(tch) == kNowhere)
 						continue;
 					if (tch != ch && !same_group(ch, tch)) {
 						mag_damage(GET_REAL_LEVEL(ch), ch, tch, spellnum, SAVING_STABILITY);

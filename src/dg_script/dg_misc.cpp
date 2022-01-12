@@ -35,8 +35,8 @@ int find_dg_cast_target(int spellnum,
 						ROOM_DATA **troom) {
 	*tch = NULL;
 	*tobj = NULL;
-	if (NOWHERE
-		== ch->in_room)  //если чар есть но он по каким-то причинам в NOWHERE крешает как минимум в mag_masses так как указатель на комнату nullptr
+	if (kNowhere
+		== ch->in_room)  //если чар есть но он по каким-то причинам в kNowhere крешает как минимум в mag_masses так как указатель на комнату nullptr
 	{
 		return FALSE;
 	}
@@ -240,8 +240,8 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 		if (tch == nullptr) {
 			sprintf(buf2, "dg_cast: victim (%s) not found", arg + 1);
 			trig_log(trig, buf2);
-		} else if (NOWHERE == caster->in_room) {
-			sprintf(buf2, "dg_cast: caster (%s) in NOWHERE", GET_NAME(caster));
+		} else if (kNowhere == caster->in_room) {
+			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", GET_NAME(caster));
 			trig_log(trig, buf2);
 		} else if (tch->in_room != caster->in_room) {
 			sprintf(buf2,
@@ -277,11 +277,11 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 void do_dg_affect(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* script_type*/, char *cmd) {
 	CHAR_DATA *ch = NULL;
 	int value = 0, duration = 0, battle = 0;
-	char junk[MAX_INPUT_LENGTH];    // will be set to "dg_affect"
-	char charname[MAX_INPUT_LENGTH], property[MAX_INPUT_LENGTH];
-	char value_p[MAX_INPUT_LENGTH], duration_p[MAX_INPUT_LENGTH];
-	char battle_p[MAX_INPUT_LENGTH];
-	char spell[MAX_INPUT_LENGTH];
+	char junk[kMaxInputLength];    // will be set to "dg_affect"
+	char charname[kMaxInputLength], property[kMaxInputLength];
+	char value_p[kMaxInputLength], duration_p[kMaxInputLength];
+	char battle_p[kMaxInputLength];
+	char spell[kMaxInputLength];
 	int index = 0, type = 0, index_s = 0, i;
 
 	half_chop(cmd, junk, cmd);

@@ -227,7 +227,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else {
 		// Вы издеваетесь? Блок else на три экрана, реально?
 		// Svent TODO: Вынести проверку на корректность чармиса в отдельную функицю.
-		char isbank[MAX_STRING_LENGTH];
+		char isbank[kMaxStringLength];
 		two_arguments(argument, arg, isbank);
 
 		unsigned int times = 0;

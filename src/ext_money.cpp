@@ -633,14 +633,14 @@ void init() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 
 	pugi::xml_node main_node = doc.child("remort");
 	if (!main_node) {
-		snprintf(buf, MAX_STRING_LENGTH, "...<remort> read fail");
+		snprintf(buf, kMaxStringLength, "...<remort> read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}

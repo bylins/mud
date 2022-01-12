@@ -74,10 +74,10 @@ int extra_aggressive(CHAR_DATA *ch, CHAR_DATA *victim) {
 	if (MOB_FLAGGED(ch, MOB_GUARDIAN) && guardian_attack(ch, victim))
 		return (TRUE);
 
-	if (victim && MOB_FLAGGED(ch, MOB_AGGRMONO) && !IS_NPC(victim) && GET_RELIGION(victim) == RELIGION_MONO)
+	if (victim && MOB_FLAGGED(ch, MOB_AGGRMONO) && !IS_NPC(victim) && GET_RELIGION(victim) == kReligionMono)
 		agro = TRUE;
 
-	if (victim && MOB_FLAGGED(ch, MOB_AGGRPOLY) && !IS_NPC(victim) && GET_RELIGION(victim) == RELIGION_POLY)
+	if (victim && MOB_FLAGGED(ch, MOB_AGGRPOLY) && !IS_NPC(victim) && GET_RELIGION(victim) == kReligionPoly)
 		agro = TRUE;
 
 //Пока что убрал обработку флагов, тем более что персов кроме русичей и нет
@@ -210,7 +210,7 @@ int find_door(CHAR_DATA *ch, const bool track_method) {
 	bool msg = false;
 
 	for (const auto &vict : character_list) {
-		if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE) {
+		if (CAN_SEE(ch, vict) && IN_ROOM(vict) != kNowhere) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
 				if (GET_IDNUM(vict) == names->id
 					&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
@@ -423,13 +423,13 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA *ch, int extmode) {
 		best = min_hp ? min_hp : (caster ? caster : (min_lvl ? min_lvl : (use_light ? use_light : victim)));
 
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRMONO) &&
-		!IS_NPC(best) && GET_RELIGION(best) == RELIGION_MONO) {
+		!IS_NPC(best) && GET_RELIGION(best) == kReligionMono) {
 		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на вас.", FALSE, ch, nullptr, best, TO_VICT);
 		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на $N3.", FALSE, ch, nullptr, best, TO_NOTVICT);
 	}
 
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRPOLY) &&
-		!IS_NPC(best) && GET_RELIGION(best) == RELIGION_POLY) {
+		!IS_NPC(best) && GET_RELIGION(best) == kReligionPoly) {
 		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на вас.", FALSE, ch, nullptr, best, TO_VICT);
 		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", FALSE, ch, nullptr, best, TO_NOTVICT);
 	}
@@ -735,7 +735,7 @@ int perform_mob_switch(CHAR_DATA *ch) {
 }
 
 void do_aggressive_mob(CHAR_DATA *ch, int check_sneak) {
-	if (!ch || ch->in_room == NOWHERE || !IS_NPC(ch) || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+	if (!ch || ch->in_room == kNowhere || !IS_NPC(ch) || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		return;
 	}
 
@@ -843,7 +843,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak) {
 * например с глуша.
 */
 void do_aggressive_room(CHAR_DATA *ch, int check_sneak) {
-	if (!ch || ch->in_room == NOWHERE) {
+	if (!ch || ch->in_room == kNowhere) {
 		return;
 	}
 
@@ -891,7 +891,7 @@ OBJ_DATA *create_charmice_box(CHAR_DATA *ch) {
 	obj->set_PName(3, "узелок");
 	obj->set_PName(4, "узелком");
 	obj->set_PName(5, "узелке");
-	obj->set_sex(ESex::SEX_MALE);
+	obj->set_sex(ESex::kSexMale);
 	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	obj->set_weight(1);
@@ -979,7 +979,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			ch_activity = activity_lev;
 		}
 		if (ch_activity != activity_lev
-			|| (was_in = ch->in_room) == NOWHERE
+			|| (was_in = ch->in_room) == kNowhere
 			|| GET_ROOM_VNUM(ch->in_room) % 100 == 99) {
 			return;
 		}
@@ -1187,7 +1187,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			for (found = FALSE, door = 0; door < NUM_OF_DIRS; door++) {
 				ROOM_DATA::exit_data_ptr rdata = EXIT(ch, door);
 				if (!rdata
-					|| rdata->to_room() == NOWHERE
+					|| rdata->to_room() == kNowhere
 					|| !legal_dir(ch.get(), door, TRUE, FALSE)
 					|| (is_room_forbidden(world[rdata->to_room()])
 						&& !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
@@ -1220,7 +1220,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			}
 		}
 
-		if (GET_DEST(ch) != NOWHERE
+		if (GET_DEST(ch) != kNowhere
 			&& GET_POS(ch) > POS_FIGHTING
 			&& door == BFS_ERROR) {
 			npc_group(ch.get());
@@ -1244,7 +1244,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& GET_POS(ch) == POS_STANDING
 			&& (door >= 0 && door < NUM_OF_DIRS)
 			&& EXIT(ch, door)
-			&& EXIT(ch, door)->to_room() != NOWHERE
+			&& EXIT(ch, door)->to_room() != kNowhere
 			&& legal_dir(ch.get(), door, TRUE, FALSE)
 			&& (!is_room_forbidden(world[EXIT(ch, door)->to_room()]) || MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
 			&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)

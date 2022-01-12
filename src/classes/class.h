@@ -11,7 +11,7 @@ int extra_damroll(int class_num, int level);
 
 class GroupPenalties {
  public:
-	using class_penalties_t = std::array<int, MAX_REMORT + 1>;
+	using class_penalties_t = std::array<int, kMaxRemort + 1>;
 	using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
 
 	int init();

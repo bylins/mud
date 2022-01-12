@@ -20,7 +20,7 @@ void read_aliases(CHAR_DATA *ch);
 
 void write_aliases(CHAR_DATA *ch) {
 	FILE *file;
-	char fn[MAX_STRING_LENGTH];
+	char fn[kMaxStringLength];
 	struct alias_data *temp;
 
 	log("Write alias %s", GET_NAME(ch));
@@ -55,7 +55,7 @@ void write_aliases(CHAR_DATA *ch) {
 
 void read_aliases(CHAR_DATA *ch) {
 	FILE *file;
-	char xbuf[MAX_STRING_LENGTH];
+	char xbuf[kMaxStringLength];
 	struct alias_data *t2;
 	int length;
 

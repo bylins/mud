@@ -49,7 +49,7 @@ struct obj_command_info {
 
 // attaches object name and vnum to msg and sends it to script_log
 void obj_log(OBJ_DATA *obj, const char *msg, LogMode type = LogMode::OFF) {
-	char buf[MAX_INPUT_LENGTH + 100];
+	char buf[kMaxInputLength + 100];
 
 	sprintf(buf,
 			"(Obj: '%s', VNum: %d, trig: %d): %s",
@@ -62,7 +62,7 @@ void obj_log(OBJ_DATA *obj, const char *msg, LogMode type = LogMode::OFF) {
 
 // returns the real room number that the object or object's carrier is in
 int obj_room(OBJ_DATA *obj) {
-	if (obj->get_in_room() != NOWHERE) {
+	if (obj->get_in_room() != kNowhere) {
 		return obj->get_in_room();
 	} else if (obj->get_carried_by()) {
 		return IN_ROOM(obj->get_carried_by());
@@ -71,21 +71,21 @@ int obj_room(OBJ_DATA *obj) {
 	} else if (obj->get_in_obj()) {
 		return obj_room(obj->get_in_obj());
 	} else {
-		return NOWHERE;
+		return kNowhere;
 	}
 }
 
-// returns the real room number, or NOWHERE if not found or invalid
+// returns the real room number, or kNowhere if not found or invalid
 int find_obj_target_room(OBJ_DATA *obj, char *rawroomstr) {
-	char roomstr[MAX_INPUT_LENGTH];
-	room_rnum location = NOWHERE;
+	char roomstr[kMaxInputLength];
+	room_rnum location = kNowhere;
 
 	one_argument(rawroomstr, roomstr);
 
 	if (!*roomstr) {
 		sprintf(buf, "Undefined oteleport room: %s", rawroomstr);
 		obj_log(obj, buf);
-		return NOWHERE;
+		return kNowhere;
 	}
 
 	auto tmp = atoi(roomstr);
@@ -94,7 +94,7 @@ int find_obj_target_room(OBJ_DATA *obj, char *rawroomstr) {
 	} else {
 		sprintf(buf, "Undefined oteleport room: %s", roomstr);
 		obj_log(obj, buf);
-		return NOWHERE;
+		return kNowhere;
 	}
 
 	return location;
@@ -102,7 +102,7 @@ int find_obj_target_room(OBJ_DATA *obj, char *rawroomstr) {
 
 void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int target, howlong, curroom, nr;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
 	argument = two_arguments(argument, arg1, arg2);
 	skip_spaces(&argument);
@@ -116,7 +116,7 @@ void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	nr = atoi(arg1);
 	target = real_room(nr);
 
-	if (target == NOWHERE) {
+	if (target == kNowhere) {
 		obj_log(obj, "oportal: target is an invalid room");
 		return;
 	}
@@ -140,7 +140,7 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int room;
 	if (!*argument) {
 		obj_log(obj, "oecho called with no args");
-	} else if ((room = obj_room(obj)) != NOWHERE) {
+	} else if ((room = obj_room(obj)) != kNowhere) {
 		if (!world[room]->people.empty()) {
 			sub_write(argument, world[room]->first_character(), TRUE, TO_ROOM | TO_CHAR);
 		}
@@ -148,8 +148,8 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 void do_oat(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 //	int location;
-	char roomstr[MAX_INPUT_LENGTH];
-	room_rnum location = NOWHERE;
+	char roomstr[kMaxInputLength];
+	room_rnum location = kNowhere;
 	if (!*argument) {
 		obj_log(obj, "oat: bad argument");
 		return;
@@ -172,7 +172,7 @@ void do_oat(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *ch;
-	char arg1[MAX_INPUT_LENGTH], *line;
+	char arg1[kMaxInputLength], *line;
 
 	line = one_argument(argument, arg1);
 
@@ -187,9 +187,9 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj_log(obj, "ERROR: \'oforce all\' command disabled.");
 		return;
 
-		/*if ((room = obj_room(obj)) == NOWHERE)
+		/*if ((room = obj_room(obj)) == kNowhere)
 		{
-			obj_log(obj, "oforce called by object in NOWHERE");
+			obj_log(obj, "oforce called by object in kNowhere");
 		}
 		else
 		{
@@ -229,7 +229,7 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_osend(OBJ_DATA *obj, char *argument, int/* cmd*/, int subcmd) {
-	char buf[MAX_INPUT_LENGTH], *msg;
+	char buf[kMaxInputLength], *msg;
 	CHAR_DATA *ch;
 
 	msg = any_one_arg(argument, buf);
@@ -257,7 +257,7 @@ void do_osend(OBJ_DATA *obj, char *argument, int/* cmd*/, int subcmd) {
 // increases the target's exp
 void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], amount[kMaxInputLength];
 
 	two_arguments(argument, name, amount);
 
@@ -278,7 +278,7 @@ void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // set the object's timer value
 void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength];
 
 	one_argument(argument, arg);
 
@@ -295,7 +295,7 @@ void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 // note: this shouldn't be used with containers unless both objects
 // are containers!
 void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength];
 	CHAR_DATA *wearer = NULL;
 	int pos = -1;
 
@@ -334,7 +334,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // purge all objects an npcs in room, or specified object or mob
 void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg[MAX_INPUT_LENGTH];
+	char arg[kMaxInputLength];
 	CHAR_DATA *ch;
 	OBJ_DATA *o;
 
@@ -367,7 +367,7 @@ void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *ch, *horse;
 	int target, rm;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
 	argument = two_arguments(argument, arg1, arg2);
 	skip_spaces(&argument);
@@ -379,12 +379,12 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	target = find_obj_target_room(obj, arg2);
 
-	if (target == NOWHERE)
+	if (target == kNowhere)
 		obj_log(obj, "oteleport target is an invalid room");
 	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
 		rm = obj_room(obj);
-		if (rm == NOWHERE) {
-			obj_log(obj, "oteleport called in NOWHERE");
+		if (rm == kNowhere) {
+			obj_log(obj, "oteleport called in kNowhere");
 			return;
 		}
 		if (target == rm) {
@@ -396,8 +396,8 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-			if (ch->in_room == NOWHERE) {
-				obj_log(obj, "oteleport transports from NOWHERE");
+			if (ch->in_room == kNowhere) {
+				obj_log(obj, "oteleport transports from kNowhere");
 				return;
 			}
 			char_from_room(ch);
@@ -408,8 +408,8 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
 		rm = obj_room(obj);
-		if (rm == NOWHERE) {
-			obj_log(obj, "oteleport called in NOWHERE");
+		if (rm == kNowhere) {
+			obj_log(obj, "oteleport called in kNowhere");
 			return;
 		}
 		if (target == rm) {
@@ -421,8 +421,8 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-			if (ch->in_room == NOWHERE) {
-				obj_log(obj, "oteleport transports allchar from NOWHERE");
+			if (ch->in_room == kNowhere) {
+				obj_log(obj, "oteleport transports allchar from kNowhere");
 				return;
 			}
 			if (IS_NPC(ch) && !IS_CHARMICE(ch))
@@ -466,7 +466,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int number = 0, room;
 	CHAR_DATA *mob;
 
@@ -477,8 +477,8 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((room = obj_room(obj)) == NOWHERE) {
-		obj_log(obj, "oload: object in NOWHERE trying to load");
+	if ((room = obj_room(obj)) == kNowhere) {
+		obj_log(obj, "oload: object in kNowhere trying to load");
 		return;
 	}
 
@@ -515,7 +515,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], amount[kMaxInputLength];
 	int dam = 0;
 	CHAR_DATA *ch;
 
@@ -543,7 +543,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (GET_POS(ch) == POS_DEAD) {
 			if (!IS_NPC(ch)) {
 				sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(ch),
-						ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
+						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			die(ch, NULL);
@@ -553,8 +553,8 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
-	char field[MAX_INPUT_LENGTH], *value;
+	char target[kMaxInputLength], direction[kMaxInputLength];
+	char field[kMaxInputLength], *value;
 	ROOM_DATA *rm;
 	int dir, fd, to_room, lock;
 
@@ -624,7 +624,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 
 			case 5:    // room
-				if ((to_room = real_room(atoi(value))) != NOWHERE) {
+				if ((to_room = real_room(atoi(value))) != kNowhere) {
 					exit->to_room(to_room);
 				} else {
 					obj_log(obj, "odoor: invalid door target");
@@ -643,7 +643,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_osetval(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int position, new_value;
 
 	two_arguments(argument, arg1, arg2);
@@ -664,7 +664,7 @@ void do_osetval(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], featname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
 	int featnum = 0, featdiff = 0;
 
 	one_argument(two_arguments(argument, name, featname), amount);
@@ -679,7 +679,7 @@ void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	if ((featnum = find_feat_num(featname)) > 0 && featnum < MAX_FEATS)
+	if ((featnum = find_feat_num(featname)) > 0 && featnum < kMaxFeats)
 		isFeat = 1;
 	else {
 		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);
@@ -708,7 +708,7 @@ void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool isSkill = false;
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
@@ -757,7 +757,7 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool isSkill = false;
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
@@ -793,7 +793,7 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
@@ -827,7 +827,7 @@ void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelltime = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
@@ -859,7 +859,7 @@ void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*
 
 void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
@@ -886,7 +886,7 @@ void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
@@ -935,7 +935,7 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_ozoneecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	zone_rnum zone;
-	char zone_name[MAX_INPUT_LENGTH], buf[MAX_INPUT_LENGTH], *msg;
+	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
 	msg = any_one_arg(argument, zone_name);
 	skip_spaces(&msg);
@@ -984,7 +984,7 @@ const struct obj_command_info obj_cmd_info[] =
 
 // *  This is the command interpreter used by objects, called by script_driver.
 void obj_command_interpreter(OBJ_DATA *obj, char *argument) {
-	char *line, arg[MAX_INPUT_LENGTH];
+	char *line, arg[kMaxInputLength];
 
 	skip_spaces(&argument);
 

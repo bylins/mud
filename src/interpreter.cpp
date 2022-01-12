@@ -1312,7 +1312,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 		if (ch->purged()) {
 			return;
 		}
-		if (!IS_NPC(ch) && ch->in_room != NOWHERE && CHECK_AGRO(ch)) {
+		if (!IS_NPC(ch) && ch->in_room != kNowhere && CHECK_AGRO(ch)) {
 			CHECK_AGRO(ch) = FALSE;
 			do_aggressive_room(ch, FALSE);
 			if (ch->purged()) {
@@ -1430,7 +1430,7 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 	for (temp = a->replacement; *temp; temp++) {
 		if (*temp == ALIAS_SEP_CHAR) {
 			*write_point = '\0';
-			buf[MAX_INPUT_LENGTH - 1] = '\0';
+			buf[kMaxInputLength - 1] = '\0';
 			write_to_q(buf, &temp_queue, 1);
 			write_point = buf;
 		} else if (*temp == ALIAS_VAR_CHAR) {
@@ -1448,7 +1448,7 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 	}
 
 	*write_point = '\0';
-	buf[MAX_INPUT_LENGTH - 1] = '\0';
+	buf[kMaxInputLength - 1] = '\0';
 	write_to_q(buf, &temp_queue, 1);
 
 	// push our temp_queue on to the _front_ of the input queue
@@ -1469,7 +1469,7 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
  *      have been placed at the front of the character's input queue.
  */
 int perform_alias(DESCRIPTOR_DATA *d, char *orig) {
-	char first_arg[MAX_INPUT_LENGTH], *ptr;
+	char first_arg[kMaxInputLength], *ptr;
 	struct alias_data *a, *tmp;
 
 	// Mobs don't have alaises. //
@@ -1653,7 +1653,7 @@ T any_one_arg_template(T argument, char *first_arg) {
 
 	int num = 0;
 //	int len = strlen(argument);
-	while (*argument && !a_isspace(*argument) && num < MAX_STRING_LENGTH - 1) {
+	while (*argument && !a_isspace(*argument) && num < kMaxStringLength - 1) {
 		*first_arg = a_lcc(*argument);
 		++first_arg;
 		++argument;
@@ -1673,7 +1673,7 @@ const char *any_one_arg(const char *argument, char *first_arg) { return any_one_
 void half_chop(const char *string, char *arg1, char *arg2) {
 	const char *temp = any_one_arg_template(string, arg1);
 	skip_spaces(&temp);
-	strl_cpy(arg2, temp, MAX_STRING_LENGTH);
+	strl_cpy(arg2, temp, kMaxStringLength);
 }
 
 // Used in specprocs, mostly.  (Exactly) matches "command" to cmd number //
@@ -1907,7 +1907,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 		}
 
 		// we've found a duplicate - blow him away, dumping his eq in limbo. //
-		if (ch->in_room != NOWHERE) {
+		if (ch->in_room != kNowhere) {
 			char_from_room(ch);
 		}
 		char_to_room(ch, STRANGE_ROOM);
@@ -1960,7 +1960,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 }
 
 int pre_help(CHAR_DATA *ch, char *arg) {
-	char command[MAX_INPUT_LENGTH], topic[MAX_INPUT_LENGTH];
+	char command[kMaxInputLength], topic[kMaxInputLength];
 
 	half_chop(arg, command, topic);
 
@@ -2088,11 +2088,11 @@ void add_logon_record(DESCRIPTOR_DATA *d) {
 
 // * Проверка на доступные религии конкретной профе (из текущей генерации чара).
 void check_religion(CHAR_DATA *ch) {
-	if (class_religion[ch->get_class()] == RELIGION_POLY && GET_RELIGION(ch) != RELIGION_POLY) {
-		GET_RELIGION(ch) = RELIGION_POLY;
+	if (class_religion[ch->get_class()] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
+		GET_RELIGION(ch) = kReligionPoly;
 		log("Change religion to poly: %s", ch->get_name().c_str());
-	} else if (class_religion[ch->get_class()] == RELIGION_MONO && GET_RELIGION(ch) != RELIGION_MONO) {
-		GET_RELIGION(ch) = RELIGION_MONO;
+	} else if (class_religion[ch->get_class()] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
+		GET_RELIGION(ch) = kReligionMono;
 		log("Change religion to mono: %s", ch->get_name().c_str());
 	}
 }
@@ -2177,7 +2177,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 
 	/*
 	 * We have to place the character in a room before equipping them
-	 * or equip_char() will gripe about the person in NOWHERE.
+	 * or equip_char() will gripe about the person in kNowhere.
 	 */
 	if (PLR_FLAGGED(d->character, PLR_HELLED))
 		load_room = r_helled_start_room;
@@ -2188,7 +2188,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	else if (!check_dupes_host(d))
 		load_room = r_unreg_start_room;
 	else {
-		if ((load_room = GET_LOADROOM(d->character)) == NOWHERE) {
+		if ((load_room = GET_LOADROOM(d->character)) == kNowhere) {
 			load_room = calc_loadroom(d->character.get());
 		}
 		load_room = real_room(load_room);
@@ -2198,12 +2198,12 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		}
 
 		if (!is_rent(load_room)) {
-			load_room = NOWHERE;
+			load_room = kNowhere;
 		}
 	}
 
-	// If char was saved with NOWHERE, or real_room above failed...
-	if (load_room == NOWHERE) {
+	// If char was saved with kNowhere, or real_room above failed...
+	if (load_room == kNowhere) {
 		if (GET_REAL_LEVEL(d->character) >= LVL_IMMORT)
 			load_room = r_immort_start_room;
 		else
@@ -2290,7 +2290,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	}
 
 	// Check & remove/add natural, race & unavailable features
-	for (int i = 1; i < MAX_FEATS; i++) {
+	for (int i = 1; i < kMaxFeats; i++) {
 		if (!HAVE_FEAT(d->character, i)
 			|| can_get_feat(d->character.get(), i)) {
 			if (feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
@@ -2379,16 +2379,16 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	}
 
 	switch (GET_SEX(d->character)) {
-		case ESex::SEX_NEUTRAL: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+		case ESex::kSexNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
 			break;
 
-		case ESex::SEX_MALE: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+		case ESex::kSexMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 			break;
 
-		case ESex::SEX_FEMALE: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+		case ESex::kSexFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
 			break;
 
-		case ESex::SEX_POLY: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+		case ESex::kSexPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
 			break;
 	}
 
@@ -2440,7 +2440,7 @@ bool ValidateStats(DESCRIPTOR_DATA *d) {
 	}
 
 	// не корректный номер религии
-	if (GET_RELIGION(d->character) > RELIGION_MONO) {
+	if (GET_RELIGION(d->character) > kReligionMono) {
 		SEND_TO_Q(religion_menu, d);
 		SEND_TO_Q("\n\rРелигия :", d);
 		STATE(d) = CON_RESET_RELIGION;
@@ -2578,7 +2578,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	ch->player_data.time.logon = time(0);
 
 	// make favors for sex
-	if (ch->get_sex() == ESex::SEX_MALE) {
+	if (ch->get_sex() == ESex::kSexMale) {
 		ch->player_data.weight = number(120, 180);
 		ch->player_data.height = number(160, 200);
 	} else {
@@ -2746,9 +2746,9 @@ static void ShowEncodingPrompt(DESCRIPTOR_DATA *d, bool withHints = false) {
 
 // deal with newcomers and other non-playing sockets
 void nanny(DESCRIPTOR_DATA *d, char *arg) {
-	char buf[MAX_STRING_LENGTH];
+	char buf[kMaxStringLength];
 	int player_i = 0, load_result;
-	char tmp_name[MAX_INPUT_LENGTH], pwd_name[MAX_INPUT_LENGTH], pwd_pwd[MAX_INPUT_LENGTH];
+	char tmp_name[kMaxInputLength], pwd_name[kMaxInputLength], pwd_pwd[kMaxInputLength];
 	bool is_player_deleted;
 	if (STATE(d) != CON_CONSOLE)
 		skip_spaces(&arg);
@@ -2835,7 +2835,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				ShowEncodingPrompt(d, true);
 				return;
 			};
-			if (!*arg || *arg < '0' || *arg >= '0' + KT_LAST) {
+			if (!*arg || *arg < '0' || *arg >= '0' + kCodePageLast) {
 				SEND_TO_Q("\r\nUnknown key table. Retry, please : ", d);
 				return;
 			};
@@ -2899,8 +2899,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					return;
 				} else {
 					if (parse_exist_name(arg, tmp_name) ||
-						strlen(tmp_name) < (MIN_NAME_LENGTH - 1) || // дабы можно было войти чарам с 4 буквами
-						strlen(tmp_name) > MAX_NAME_LENGTH ||
+						strlen(tmp_name) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
+						strlen(tmp_name) > kMaxNameLength ||
 						!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
@@ -2935,7 +2935,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 						}
 
 						// дополнительная проверка на длину имени чара
-						if (strlen(tmp_name) < (MIN_NAME_LENGTH)) {
+						if (strlen(tmp_name) < (kMinNameLength)) {
 							SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 							return;
 						}
@@ -2968,7 +2968,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				} else    // player unknown -- make new character
 				{
 					// еще одна проверка
-					if (strlen(tmp_name) < (MIN_NAME_LENGTH)) {
+					if (strlen(tmp_name) < (kMinNameLength)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
@@ -2979,7 +2979,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 						return;
 					}
 
-					if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH) >= 0) {
+					if (cmp_ptable_by_name(tmp_name, kMinNameLength) >= 0) {
 						SEND_TO_Q
 						("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 						 "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
@@ -3056,8 +3056,8 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			if (_parse_name(arg, tmp_name) ||
-				strlen(tmp_name) < MIN_NAME_LENGTH ||
-				strlen(tmp_name) > MAX_NAME_LENGTH ||
+				strlen(tmp_name) < kMinNameLength ||
+				strlen(tmp_name) > kMaxNameLength ||
 				!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 				SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
@@ -3084,7 +3084,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			// skip name check for deleted players
-			if (!is_player_deleted && cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH) >= 0) {
+			if (!is_player_deleted && cmp_ptable_by_name(tmp_name, kMinNameLength) >= 0) {
 				SEND_TO_Q("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 						  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
 						  "Имя  : ", d);
@@ -3228,11 +3228,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 			switch (UPPER(*arg)) {
 				case 'М':
-				case 'M': d->character->set_sex(ESex::SEX_MALE);
+				case 'M': d->character->set_sex(ESex::kSexMale);
 					break;
 
 				case 'Ж':
-				case 'F': d->character->set_sex(ESex::SEX_FEMALE);
+				case 'F': d->character->set_sex(ESex::kSexFemale);
 					break;
 
 				default: SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
@@ -3292,24 +3292,24 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				case 'Я':
 				case 'З':
 				case 'P':
-					if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_MONO) {
+					if (class_religion[(int) GET_CLASS(d->character)] == kReligionMono) {
 						SEND_TO_Q
 						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = RELIGION_POLY;
+					GET_RELIGION(d->character) = kReligionPoly;
 					break;
 
 				case 'Х':
 				case 'C':
-					if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_POLY) {
+					if (class_religion[(int) GET_CLASS(d->character)] == kReligionPoly) {
 						SEND_TO_Q
 						("Персонажу выбранной вами профессии противно христианство!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = RELIGION_MONO;
+					GET_RELIGION(d->character) = kReligionMono;
 					break;
 
 				default: SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
@@ -3584,7 +3584,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
 
 					d->writer.reset(new DelegatedStdStringWriter(d->character->player_data.description));
-					d->max_str = EXDSCR_LENGTH;
+					d->max_str = kExdscrLength;
 					STATE(d) = CON_EXDESC;
 
 					break;
@@ -3717,11 +3717,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, arg);
 			}
 			if (!_parse_name(arg, tmp_name)
-				&& strlen(tmp_name) >= MIN_NAME_LENGTH
-				&& strlen(tmp_name) <= MAX_NAME_LENGTH
+				&& strlen(tmp_name) >= kMinNameLength
+				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
-							 std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[1] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 				sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
@@ -3742,11 +3742,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			if (!_parse_name(arg, tmp_name)
-				&& strlen(tmp_name) >= MIN_NAME_LENGTH
-				&& strlen(tmp_name) <= MAX_NAME_LENGTH
+				&& strlen(tmp_name) >= kMinNameLength
+				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
-							 std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[2] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 				sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
@@ -3768,11 +3768,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			}
 
 			if (!_parse_name(arg, tmp_name)
-				&& strlen(tmp_name) >= MIN_NAME_LENGTH
-				&& strlen(tmp_name) <= MAX_NAME_LENGTH
+				&& strlen(tmp_name) >= kMinNameLength
+				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
-							 std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[3] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 				sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
@@ -3791,10 +3791,10 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (strlen(arg) == 0)
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, arg);
 			if (!_parse_name(arg, tmp_name) &&
-				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+				strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
 				!strn_cmp(tmp_name,
 						  GET_PC_NAME(d->character),
-						  std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
 				d->character->player_data.PNames[4] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
@@ -3812,10 +3812,10 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (strlen(arg) == 0)
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, arg);
 			if (!_parse_name(arg, tmp_name) &&
-				strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+				strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
 				!strn_cmp(tmp_name,
 						  GET_PC_NAME(d->character),
-						  std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
 				d->character->player_data.PNames[5] = std::string(CAP(tmp_name));
 				sprintf(buf,
@@ -3931,24 +3931,24 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				case 'Я':
 				case 'З':
 				case 'P':
-					if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_MONO) {
+					if (class_religion[(int) GET_CLASS(d->character)] == kReligionMono) {
 						SEND_TO_Q
 						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = RELIGION_POLY;
+					GET_RELIGION(d->character) = kReligionPoly;
 					break;
 
 				case 'Х':
 				case 'C':
-					if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_POLY) {
+					if (class_religion[(int) GET_CLASS(d->character)] == kReligionPoly) {
 						SEND_TO_Q ("Персонажу выбранной вами профессии противно христианство!\r\n"
 								   "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
 
-					GET_RELIGION(d->character) = RELIGION_MONO;
+					GET_RELIGION(d->character) = kReligionMono;
 
 					break;
 

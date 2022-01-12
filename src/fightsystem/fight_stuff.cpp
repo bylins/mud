@@ -156,7 +156,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp) {
 		if (rkiller->has_master()) {
 			rkiller = rkiller->get_master();
 		} else {
-			snprintf(buf, MAX_STRING_LENGTH,
+			snprintf(buf, kMaxStringLength,
 					 "die: %s killed by %s (without master)",
 					 GET_PAD(ch, 0), GET_PAD(rkiller, 0));
 			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -318,7 +318,7 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
 	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
 	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
 	const int rent_room = real_room(GET_LOADROOM(ch));
-	if (rent_room == NOWHERE) {
+	if (rent_room == kNowhere) {
 		send_to_char("Вам некуда возвращаться!\r\n", ch);
 		return true;
 	}
@@ -346,8 +346,8 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
 void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 	int dec_exp = 0, e = GET_EXP(ch);
 
-	if (!IS_NPC(ch) && (ch->in_room == NOWHERE)) {
-		log("SYSERR: %s is dying in room NOWHERE.", GET_NAME(ch));
+	if (!IS_NPC(ch) && (ch->in_room == kNowhere)) {
+		log("SYSERR: %s is dying in room kNowhere.", GET_NAME(ch));
 		return;
 	}
 
@@ -515,7 +515,7 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL)) {
 		to_room = Clan::CloseRent(to_room);
 	}
-	if (to_room == NOWHERE) {
+	if (to_room == kNowhere) {
 		PLR_FLAGS(ch).set(PLR_HELLED);
 		HELL_DURATION(ch) = time(0) + 6;
 		to_room = r_helled_start_room;
@@ -721,7 +721,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	}
 	reset_affects(ch);
 	// для начала проверяем, активны ли евенты
-	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != NOWHERE) {
+	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != kNowhere) {
 		death_cry(ch, killer);
 	}
 
@@ -745,7 +745,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 			}
 		}
 	}
-	if (ch->in_room != NOWHERE) {
+	if (ch->in_room != kNowhere) {
 		if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && !IS_NPC(ch))
  			kill_pc_wtrigger(killer, ch);
 		if (!IS_NPC(ch) && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))) {
@@ -1117,11 +1117,11 @@ void alterate_object(OBJ_DATA *obj, int dam, int chance) {
 		obj->sub_current(dam);
 		if (obj->get_current_durability() <= 0) {
 			if (obj->get_worn_by()) {
-				snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U, не выдержав повреждений.",
+				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
 						 char_get_custom_label(obj, obj->get_worn_by()).c_str());
 				act(buf, FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
 			} else if (obj->get_carried_by()) {
-				snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U, не выдержав повреждений.",
+				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
 						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
 				act(buf, FALSE, obj->get_carried_by(), obj, 0, TO_CHAR);
 			}
@@ -1132,7 +1132,7 @@ void alterate_object(OBJ_DATA *obj, int dam, int chance) {
 
 void alt_equip(CHAR_DATA *ch, int pos, int dam, int chance) {
 	// calculate chance if
-	if (pos == NOWHERE) {
+	if (pos == kNowhere) {
 		pos = number(0, 100);
 		if (pos < 3)
 			pos = WEAR_FINGER_R + number(0, 1);
@@ -1213,7 +1213,7 @@ bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int 
  */
 
 void char_dam_message(int dam, CHAR_DATA *ch, CHAR_DATA *victim, bool noflee) {
-	if (ch->in_room == NOWHERE)
+	if (ch->in_room == kNowhere)
 		return;
 	if (!victim || victim->purged())
 		return;

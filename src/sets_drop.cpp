@@ -212,7 +212,7 @@ void init_obj_list() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -860,14 +860,14 @@ bool load_unique_mobs() {
 	int vnum = 0;
 	int level = 0;
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return false;
 	}
 
 	pugi::xml_node node_list = doc.child("mobs");
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...<mobs> read fail");
+		snprintf(buf, kMaxStringLength, "...<mobs> read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return false;
 	}
@@ -884,14 +884,14 @@ bool load_drop_table() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(DROP_TABLE_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return false;
 	}
 
 	pugi::xml_node node_list = doc.child("drop_list");
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...<drop_list> read fail");
+		snprintf(buf, kMaxStringLength, "...<drop_list> read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return false;
 	}
@@ -903,7 +903,7 @@ bool load_drop_table() {
 			next_reset_time = std::stoull(timer, nullptr, 10);
 		}
 		catch (...) {
-			snprintf(buf, MAX_STRING_LENGTH, "...timer (%s) lexical_cast fail", timer.c_str());
+			snprintf(buf, kMaxStringLength, "...timer (%s) lexical_cast fail", timer.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return false;
 		}
@@ -1148,7 +1148,7 @@ int check_mob(int mob_rnum) {
 
 void renumber_obj_rnum(const int mob_rnum) {
 	if (mob_rnum < 0) {
-		snprintf(buf, MAX_STRING_LENGTH,
+		snprintf(buf, kMaxStringLength,
 				 "SetsDrop: renumber_obj_rnum wrong parameters...");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;

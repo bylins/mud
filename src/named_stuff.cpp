@@ -384,11 +384,11 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 									obj_proto[r_num]->get_vnum(),
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
-								snprintf(buf2, MAX_STRING_LENGTH, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
-										obj_proto.number(r_num), obj_proto.stored(r_num),
-										GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
+								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
+										 obj_proto.number(r_num), obj_proto.stored(r_num),
+										 GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
 							} else {
-								snprintf(buf2, MAX_STRING_LENGTH, "%s\r\n", buf1);
+								snprintf(buf2, kMaxStringLength, "%s\r\n", buf1);
 							}
 							if (found == 0) {
 								out += buf1;
@@ -489,19 +489,19 @@ void receive_items(CHAR_DATA *ch, CHAR_DATA *mailman) {
 	mob_rnum r_num;
 	int found = 0;
 	int in_world = 0;
-	snprintf(buf1, MAX_STRING_LENGTH, "не найден именной предмет");
+	snprintf(buf1, kMaxStringLength, "не найден именной предмет");
 	for (StuffListType::const_iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it) {
 		if ((it->second->uid == GET_UNIQUE(ch)) || (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))) {
 			if ((r_num = real_object(it->first)) < 0) {
 				send_to_char("Странно, но такого объекта не существует.\r\n", ch);
-				snprintf(buf1, MAX_STRING_LENGTH, "объект не существует!!!");
+				snprintf(buf1, kMaxStringLength, "объект не существует!!!");
 				continue;
 			}
 			if ((GET_OBJ_MIW(obj_proto[r_num]) > obj_proto.actual_count(r_num))    //Проверка на макс в мире
 				|| (obj_proto.actual_count(r_num) < 1))//Пока что если в мире нету то тоже загрузить
 			{
 				found++;
-				snprintf(buf1, MAX_STRING_LENGTH, "выдаем именной предмет %s Max:%d > Current:%d",
+				snprintf(buf1, kMaxStringLength, "выдаем именной предмет %s Max:%d > Current:%d",
 						 obj_proto[r_num]->get_short_description().c_str(),
 						 GET_OBJ_MIW(obj_proto[r_num]),
 						 obj_proto.actual_count(r_num));
@@ -514,13 +514,13 @@ void receive_items(CHAR_DATA *ch, CHAR_DATA *mailman) {
 				act("$n дал$g вам $o3.", FALSE, mailman, obj.get(), ch, TO_VICT);
 				act("$N дал$G $n2 $o3.", FALSE, ch, obj.get(), mailman, TO_ROOM);
 			} else {
-				snprintf(buf1, MAX_STRING_LENGTH, "не выдаем именной предмет %s Max:%d <= Current:%d",
+				snprintf(buf1, kMaxStringLength, "не выдаем именной предмет %s Max:%d <= Current:%d",
 						 obj_proto[r_num]->get_short_description().c_str(),
 						 GET_OBJ_MIW(obj_proto[r_num]),
 						 obj_proto.actual_count(r_num));
 				in_world++;
 			}
-			snprintf(buf, MAX_STRING_LENGTH, "NamedStuff: %s vnum:%ld %s", GET_PAD(ch, 0), it->first, buf1);
+			snprintf(buf, kMaxStringLength, "NamedStuff: %s vnum:%ld %s", GET_PAD(ch, 0), it->first, buf1);
 			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
 		}
 	}
@@ -549,13 +549,13 @@ void load() {
 			long vnum = std::stol(node.attribute("vnum").value(), nullptr, 10);
 			std::string name;
 			if (stuff_list.find(vnum) != stuff_list.end()) {
-				snprintf(buf, MAX_STRING_LENGTH, "NamedStuff: дубликат записи vnum=%ld пропущен", vnum);
+				snprintf(buf, kMaxStringLength, "NamedStuff: дубликат записи vnum=%ld пропущен", vnum);
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 				continue;
 			}
 
 			if (real_object(vnum) < 0) {
-				snprintf(buf, MAX_STRING_LENGTH,
+				snprintf(buf, kMaxStringLength,
 						 "NamedStuff: предмет vnum=%ld не существует.", vnum);
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 			}
@@ -564,7 +564,7 @@ void load() {
 				name = GetNameByUnique(tmp_node->uid, false);// Ищем персонажа с указанным уид(богов игнорируем)
 				if (name.empty()) {
 					snprintf(buf,
-							 MAX_STRING_LENGTH,
+							 kMaxStringLength,
 							 "NamedStuff: Unique=%d - персонажа не существует(владелец предмета vnum=%ld).",
 							 tmp_node->uid,
 							 vnum);
@@ -595,7 +595,7 @@ void load() {
 			if (!valid_email(tmp_node->mail.c_str())) {
 				std::string name = GetNameByUnique(tmp_node->uid, false);
 				snprintf(buf,
-						 MAX_STRING_LENGTH,
+						 kMaxStringLength,
 						 "NamedStuff: указан не корректный e-mail=&S%s&s для предмета vnum=%ld (владелец=%s).",
 						 tmp_node->mail.c_str(),
 						 vnum,
@@ -616,7 +616,7 @@ void load() {
 			log("NamedStuff : exception %s (%s %s %d)", e.what(), __FILE__, __func__, __LINE__);
 		}
 	}
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 			 "NamedStuff: список именных вещей загружен, всего объектов: %lu.",
 			 static_cast<unsigned long>(stuff_list.size()));
 	mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);

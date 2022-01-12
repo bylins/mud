@@ -75,7 +75,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *vict = NULL;
 	struct track_data *track;
 	int found = FALSE, calc_track = 0, track_t, i;
-	char name[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength];
 
 	// The character must have the track skill.
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK)) {

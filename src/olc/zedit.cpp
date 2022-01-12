@@ -818,7 +818,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA *d) {
 
 		// Build the display buffer for this command
 		if ((show_all && start <= counter && stop > counter) || (!show_all && hl)) {
-			snprintf(buf1, MAX_STRING_LENGTH, "%s%d - %s%s%s\r\n", nrm, counter, hl ? iyel : yel,
+			snprintf(buf1, kMaxStringLength, "%s%d - %s%s%s\r\n", nrm, counter, hl ? iyel : yel,
 					 if_flag_text(item->cmd.if_flag), buf2);
 			strcat(buf, buf1);
 		}
@@ -926,15 +926,15 @@ void zedit_disp_menu(DESCRIPTOR_DATA *d) {
 			nrm);
 	send_to_char(buf, d->character.get());
 	if (OLC_ZONE(d)->reset_mode == 3) {
-		snprintf(buf, MAX_STRING_LENGTH, "%sA%s) Зоны первого типа       : %s%s%s\r\n"
+		snprintf(buf, kMaxStringLength, "%sA%s) Зоны первого типа       : %s%s%s\r\n"
 										 "%sB%s) Зоны второго типа       : %s%s%s\r\n",
 				 grn, nrm, ired, type1_zones, nrm, grn, nrm, grn, type2_zones, nrm);
 		send_to_char(buf, d->character.get());
 	}
-	snprintf(buf, MAX_STRING_LENGTH, "%sT%s) Режим            : %s%s%s\r\n",
+	snprintf(buf, kMaxStringLength, "%sT%s) Режим            : %s%s%s\r\n",
 			 grn, nrm, yel, OLC_ZONE(d)->under_construction ? "ТЕСТИРУЕТСЯ" : "подключена", nrm);
 	send_to_char(buf, d->character.get());
-	snprintf(buf, MAX_STRING_LENGTH, "%sG%s) Оптимальное число игроков  : %s%d%s\r\n",
+	snprintf(buf, kMaxStringLength, "%sG%s) Оптимальное число игроков  : %s%d%s\r\n",
 			 grn, nrm, yel, OLC_ZONE(d)->group, nrm);
 	send_to_char(buf, d->character.get());
 	
@@ -1345,7 +1345,7 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA *d) {
 
 #define CHECK_MOB(d, n)  if(real_mobile(n)<0)   {send_to_char("Неверный номер моба, повторите : ",d->character.get());return;}
 #define CHECK_OBJ(d, n)  if(real_object(n)<0)   {send_to_char("Неверный номер объекта, повторите : ",d->character.get());return;}
-#define CHECK_ROOM(d, n) if(real_room(n)<=NOWHERE)     {send_to_char("Неверный номер комнаты, повторите : ",d->character.get());return;}
+#define CHECK_ROOM(d, n) if(real_room(n)<=kNowhere)     {send_to_char("Неверный номер комнаты, повторите : ",d->character.get());return;}
 #define CHECK_TRIG(d, n) if(real_trigger(n)<0)  {send_to_char("Неверный номер триггера, повторите : ",d->character.get());return;}
 #define CHECK_NUM(d, n)  if(!is_signednumber(n)){send_to_char("Ожидается число, повторите : ",d->character.get());return;}
 

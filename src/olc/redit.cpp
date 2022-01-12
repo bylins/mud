@@ -75,7 +75,7 @@ void redit_setup(DESCRIPTOR_DATA *d, int real_num)
 --*/
 {
 	ROOM_DATA *room = new ROOM_DATA;
-	if (real_num == NOWHERE) {
+	if (real_num == kNowhere) {
 		room->name = str_dup("Недоделанная комната.\r\n");
 		room->temp_description =
 			str_dup("Вы оказались в комнате, наполненной обломками творческих мыслей билдера.\r\n");
@@ -104,7 +104,7 @@ void redit_save_internally(DESCRIPTOR_DATA *d) {
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
 	OLC_ROOM(d)->description_num = RoomDescription::add_desc(OLC_ROOM(d)->temp_description);
 	// * Room exists: move contents over then free and replace it.
-	if (room_num != NOWHERE) {
+	if (room_num != kNowhere) {
 		log("[REdit] Save room to mem %d", room_num);
 		// Удаляю устаревшие данные
 		room_free(world[room_num]);
@@ -137,13 +137,13 @@ void redit_save_internally(DESCRIPTOR_DATA *d) {
 			// если комната потеснила рнумы, то их надо переписать у людей/шмота в этих комнатах
 			for (i = room_num; i <= top_of_world; i++) {
 				for (const auto temp_ch : world[i]->people) {
-					if (temp_ch->in_room != NOWHERE) {
+					if (temp_ch->in_room != kNowhere) {
 						temp_ch->in_room = i;
 					}
 				}
 
 				for (temp_obj = world[i]->contents; temp_obj; temp_obj = temp_obj->get_next_content()) {
-					if (temp_obj->get_in_room() != NOWHERE) {
+					if (temp_obj->get_in_room() != kNowhere) {
 						temp_obj->set_in_room(i);
 					}
 				}
@@ -280,7 +280,7 @@ void redit_save_to_disk(int zone_num) {
 		return;
 	}
 	for (counter = zone_table[zone_num].vnum * 100; counter < zone_table[zone_num].top; counter++) {
-		if ((realcounter = real_room(counter)) != NOWHERE) {
+		if ((realcounter = real_room(counter)) != kNowhere) {
 			if (counter % 100 == 99)
 				continue;
 			room = world[realcounter];
@@ -336,8 +336,8 @@ void redit_save_to_disk(int zone_num) {
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d %d\n",
 							counter2, buf1, buf2,
 							room->dir_option[counter2]->exit_info, room->dir_option[counter2]->key,
-							room->dir_option[counter2]->to_room() != NOWHERE ?
-							world[room->dir_option[counter2]->to_room()]->room_vn : NOWHERE,
+							room->dir_option[counter2]->to_room() != kNowhere ?
+							world[room->dir_option[counter2]->to_room()]->room_vn : kNowhere,
 							room->dir_option[counter2]->lock_complexity);
 
 					//Восстановим флаги направления в памяти
@@ -396,7 +396,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA *d) {
 	// * if exit doesn't exist, alloc/create it
 	if (!OLC_EXIT(d)) {
 		OLC_EXIT(d).reset(new EXIT_DATA());
-		OLC_EXIT(d)->to_room(NOWHERE);
+		OLC_EXIT(d)->to_room(kNowhere);
 	}
 
 	// * Weird door handling!
@@ -415,7 +415,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA *d) {
 	}
 
 	get_char_cols(d->character.get());
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -427,7 +427,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA *d) {
 			 "%s6%s) Очистить выход.\r\n"
 			 "Ваш выбор (0 - конец) : ",
 			 grn, nrm, cyn,
-			 OLC_EXIT(d)->to_room() != NOWHERE ? world[OLC_EXIT(d)->to_room()]->room_vn : NOWHERE,
+			 OLC_EXIT(d)->to_room() != kNowhere ? world[OLC_EXIT(d)->to_room()]->room_vn : kNowhere,
 			 grn, nrm,
 			 yel,
 			 !OLC_EXIT(d)->general_description.empty() ? OLC_EXIT(d)->general_description.c_str() : "<NONE>",
@@ -463,7 +463,7 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA *d) {
 	disp_planes_values(d, room_bits, 2);
 	OLC_ROOM(d)->flags_sprint(buf1, ",", true);
 	snprintf(buf,
-			 MAX_STRING_LENGTH,
+			 kMaxStringLength,
 			 "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ",
 			 cyn,
 			 buf1,
@@ -497,7 +497,7 @@ void redit_disp_menu(DESCRIPTOR_DATA *d) {
 
 	room->flags_sprint(buf1, ",");
 	sprinttype(room->sector_type, sector_types, buf2);
-	snprintf(buf, MAX_STRING_LENGTH,
+	snprintf(buf, kMaxStringLength,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -522,23 +522,23 @@ void redit_disp_menu(DESCRIPTOR_DATA *d) {
 			 grn, nrm, room->name,
 			 grn, room->temp_description,
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,
-			 room->dir_option[NORTH] && room->dir_option[NORTH]->to_room() != NOWHERE
-			 ? world[room->dir_option[NORTH]->to_room()]->room_vn : NOWHERE,
+			 room->dir_option[NORTH] && room->dir_option[NORTH]->to_room() != kNowhere
+			 ? world[room->dir_option[NORTH]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[EAST] && room->dir_option[EAST]->to_room() != NOWHERE
-			 ? world[room->dir_option[EAST]->to_room()]->room_vn : NOWHERE,
+			 room->dir_option[EAST] && room->dir_option[EAST]->to_room() != kNowhere
+			 ? world[room->dir_option[EAST]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[SOUTH] && room->dir_option[SOUTH]->to_room() != NOWHERE
-			 ? world[room->dir_option[SOUTH]->to_room()]->room_vn : NOWHERE,
+			 room->dir_option[SOUTH] && room->dir_option[SOUTH]->to_room() != kNowhere
+			 ? world[room->dir_option[SOUTH]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[WEST] && room->dir_option[WEST]->to_room() != NOWHERE
-			 ? world[room->dir_option[WEST]->to_room()]->room_vn : NOWHERE,
+			 room->dir_option[WEST] && room->dir_option[WEST]->to_room() != kNowhere
+			 ? world[room->dir_option[WEST]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[UP] && room->dir_option[UP]->to_room() != NOWHERE
-			 ? world[room->dir_option[UP]->to_room()]->room_vn : NOWHERE,
+			 room->dir_option[UP] && room->dir_option[UP]->to_room() != kNowhere
+			 ? world[room->dir_option[UP]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[DOWN] && room->dir_option[DOWN]->to_room() != NOWHERE
-			 ? world[room->dir_option[DOWN]->to_room()]->room_vn : NOWHERE,
+			 room->dir_option[DOWN] && room->dir_option[DOWN]->to_room() != kNowhere
+			 ? world[room->dir_option[DOWN]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, grn, nrm, cyn,
 			 !room->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm);
@@ -737,9 +737,9 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			break;
 
 		case REDIT_EXIT_NUMBER: number = atoi(arg);
-			if (number != NOWHERE) {
+			if (number != kNowhere) {
 				number = real_room(number);
-				if (number == NOWHERE) {
+				if (number == kNowhere) {
 					send_to_char("Нет такой комнаты - повторите ввод : ", d->character.get());
 
 					return;

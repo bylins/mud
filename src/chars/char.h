@@ -106,7 +106,7 @@ struct char_played_ability_data {
 struct char_ability_data {
 	std::array<ubyte, SPELLS_COUNT + 1> SplKnw; // array of SPELL_KNOW_TYPE
 	std::array<ubyte, SPELLS_COUNT + 1> SplMem; // array of MEMed SPELLS
-	std::bitset<MAX_FEATS> Feats;
+	std::bitset<kMaxFeats> Feats;
 	sbyte size;
 	int hitroll;
 	int damroll;
@@ -157,7 +157,7 @@ struct mob_special_data {
 	memory_rec *memory;    // List of attackers to remember
 	byte damnodice;        // The number of damage dice's
 	byte damsizedice;    // The size of the damage dice's
-	std::array<int, MAX_DEST> dest;
+	std::array<int, kMaxDest> dest;
 	int dest_dir;
 	int dest_pos;
 	int dest_count;

@@ -46,7 +46,7 @@ extern const char *material_name[];
 extern const char *weapon_affects[];
 extern TIME_INFO_DATA time_info;
 extern int cmd_tell;
-extern char cast_argument[MAX_INPUT_LENGTH];
+extern char cast_argument[kMaxInputLength];
 extern im_type *imtypes;
 extern int top_imtypes;
 
@@ -212,12 +212,12 @@ int get_teleport_target_room(CHAR_DATA *ch,    // ch - кого перемеща
 ) {
 	int *r_array;
 	int n, i, j;
-	int fnd_room = NOWHERE;
+	int fnd_room = kNowhere;
 
 	n = rnum_stop - rnum_start + 1;
 
 	if (n <= 0)
-		return NOWHERE;
+		return kNowhere;
 
 	r_array = (int *) malloc(n * sizeof(int));
 	for (i = 0; i < n; ++i)
@@ -228,7 +228,7 @@ int get_teleport_target_room(CHAR_DATA *ch,    // ch - кого перемеща
 		fnd_room = r_array[j];
 		r_array[j] = r_array[n - 1];
 
-		if (SECT(fnd_room) != SECT_SECRET &&
+		if (SECT(fnd_room) != kSectSecret &&
 			!ROOM_FLAGGED(fnd_room, ROOM_DEATH) &&
 			!ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) &&
 			!ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN) &&
@@ -241,11 +241,11 @@ int get_teleport_target_room(CHAR_DATA *ch,    // ch - кого перемеща
 
 	free(r_array);
 
-	return n ? fnd_room : NOWHERE;
+	return n ? fnd_room : kNowhere;
 }
 
 void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
-	room_rnum to_room = NOWHERE, fnd_room = NOWHERE;
+	room_rnum to_room = kNowhere, fnd_room = kNowhere;
 	room_rnum rnum_start, rnum_stop;
 
 	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_REAL_LEVEL(victim) >= LVL_IMMORT) {
@@ -277,23 +277,23 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 		}
 	}
 
-	if ((to_room = real_room(GET_LOADROOM(victim))) == NOWHERE)
+	if ((to_room = real_room(GET_LOADROOM(victim))) == kNowhere)
 		to_room = real_room(calc_loadroom(victim));
 
-	if (to_room == NOWHERE) {
+	if (to_room == kNowhere) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	(void) get_zone_rooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
-	if (fnd_room == NOWHERE) {
+	if (fnd_room == kNowhere) {
 		to_room = Clan::CloseRent(to_room);
 		(void) get_zone_rooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
 		fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
 	}
 
-	if (fnd_room == NOWHERE) {
+	if (fnd_room == kNowhere) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -316,7 +316,7 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 
 // ПРЫЖОК в рамках зоны
 void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA * /* obj*/) {
-	room_rnum in_room = ch->in_room, fnd_room = NOWHERE;
+	room_rnum in_room = ch->in_room, fnd_room = kNowhere;
 	room_rnum rnum_start, rnum_stop;
 
 	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT))) {
@@ -326,7 +326,7 @@ void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DA
 
 	get_zone_rooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = get_teleport_target_room(ch, rnum_start, rnum_stop);
-	if (fnd_room == NOWHERE) {
+	if (fnd_room == kNowhere) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -372,7 +372,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 
 	to_room = IN_ROOM(victim);
 
-	if (to_room == NOWHERE) {
+	if (to_room == kNowhere) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -389,7 +389,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	}
 
 	if (!IS_GOD(ch) &&
-		(SECT(fnd_room) == SECT_SECRET ||
+		(SECT(fnd_room) == kSectSecret ||
 			ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
 			ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
 			ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
@@ -436,14 +436,14 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	}
 
 	fnd_room = IN_ROOM(victim);
-	if (fnd_room == NOWHERE) {
+	if (fnd_room == kNowhere) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 	// обработка NOTELEPORTIN и NOTELEPORTOUT теперь происходит при входе в портал
 	if (!IS_GOD(ch) && ( //ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT)||
 		//ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)||
-		SECT(fnd_room) == SECT_SECRET || ROOM_FLAGGED(fnd_room, ROOM_DEATH) || ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH)
+		SECT(fnd_room) == kSectSecret || ROOM_FLAGGED(fnd_room, ROOM_DEATH) || ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH)
 			|| ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || ROOM_FLAGGED(fnd_room, ROOM_TUNNEL)
 			|| ROOM_FLAGGED(fnd_room, ROOM_GODROOM)    //||
 		//ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTOUT) ||
@@ -546,7 +546,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	ch_room = ch->in_room;
 	vic_room = IN_ROOM(victim);
 
-	if (ch_room == NOWHERE || vic_room == NOWHERE) {
+	if (ch_room == kNowhere || vic_room == kNowhere) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -606,7 +606,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 			|| ROOM_FLAGGED(ch_room, ROOM_TUNNEL)
 			|| ROOM_FLAGGED(ch_room, ROOM_NOBATTLE)
 			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)			
-			|| SECT(ch->in_room) == SECT_SECRET
+			|| SECT(ch->in_room) == kSectSecret
 			|| (!same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch_room, ROOM_ARENA)))) {
 			send_to_char(SUMMON_FAIL, ch);
@@ -681,7 +681,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 		return;
 	}
 
-	char name[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength];
 	bool bloody_corpse = false;
 	strcpy(name, cast_argument);
 
@@ -715,7 +715,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 			return false;
 		}
 
-		if (SECT(i->get_in_room()) == SECT_SECRET) {
+		if (SECT(i->get_in_room()) == kSectSecret) {
 			return false;
 		}
 
@@ -738,7 +738,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 				return false;
 			}
 
-			if (SECT(IN_ROOM(carried_by)) == SECT_SECRET || IS_IMMORTAL(carried_by)) {
+			if (SECT(IN_ROOM(carried_by)) == kSectSecret || IS_IMMORTAL(carried_by)) {
 				return false;
 			}
 		}
@@ -755,7 +755,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 			} else {
 				return false;
 			}
-		} else if (i->get_in_room() != NOWHERE && i->get_in_room()) {
+		} else if (i->get_in_room() != kNowhere && i->get_in_room()) {
 			const auto room = i->get_in_room();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[room]->zone_rn;
 			if (same_zone) {
@@ -774,7 +774,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 							return false;
 						}
 					}
-					if (i->get_in_obj()->get_in_room() != NOWHERE
+					if (i->get_in_obj()->get_in_room() != kNowhere
 						&& i->get_in_obj()->get_in_room()) {
 						if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE) && !bloody_corpse) {
 							return false;
@@ -1023,7 +1023,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 			affect_to_char(victim, af);
 			MOB_FLAGS(victim).set(MOB_PLAYER_SUMMON);
 			// Модифицируем имя в зависимости от хари
-			static char descr[MAX_STRING_LENGTH];
+			static char descr[kMaxStringLength];
 			int gender;
 			// ниже идет просто порнуха
 			// по идее могут быть случаи "огромная огромная макака" или "громадная большая собака"
@@ -1076,13 +1076,13 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 							};
 			//проверяем GENDER 
 			switch (GET_SEX(victim)) {
-					case ESex::SEX_NEUTRAL:
+					case ESex::kSexNeutral:
 					gender = 0;
 					break;
-					case ESex::SEX_MALE: 
+					case ESex::kSexMale:
 					gender = 1;
 					break;
-					case ESex::SEX_FEMALE:
+					case ESex::kSexFemale:
 					gender = 2;
 					break;
 					default:
@@ -1464,7 +1464,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 	if (fullness < 30)
 		return;
 	sprinttype(obj->get_material(), material_name, buf2);
-	snprintf(buf, MAX_STRING_LENGTH, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2,
+	snprintf(buf, kMaxStringLength, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2,
 			 obj->get_maximum_durability(), obj->get_current_durability());
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1518,8 +1518,8 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 		} else {
 			sprintf(miw, "%d", GET_OBJ_MIW(obj));
 		}
-		snprintf(buf, MAX_STRING_LENGTH, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n", 
-			obj_proto.number(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
+		snprintf(buf, kMaxStringLength, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n",
+				 obj_proto.number(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
 		send_to_char(buf, ch);
 	}
 	if (fullness < 75)
@@ -1621,7 +1621,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 					break;
 
 				case BOOK_FEAT:
-					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS) {
+					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < kMaxFeats) {
 						drndice = GET_OBJ_VAL(obj, 1);
 						if (can_get_feat(ch, drndice)) {
 							drsdice = feat_info[drndice].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
@@ -1643,7 +1643,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 			break;
 
 		case OBJ_DATA::ITEM_INGREDIENT: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
-			snprintf(buf, MAX_STRING_LENGTH, "%s\r\n", buf2);
+			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 			send_to_char(buf, ch);
 
 			if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)) {
@@ -1742,7 +1742,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 	}
 
 	found = FALSE;
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		if (obj->get_affected(i).location != APPLY_NONE
 			&& obj->get_affected(i).modifier != 0) {
 			if (!found) {
@@ -1897,7 +1897,7 @@ void mort_show_char_values(CHAR_DATA *victim, CHAR_DATA *ch, int fullness) {
 			}
 			sprinttype(aff->location, apply_types, buf2);
 			snprintf(buf,
-					 MAX_STRING_LENGTH,
+					 kMaxStringLength,
 					 "   %s изменяет на %s%d\r\n",
 					 buf2,
 					 aff->modifier > 0 ? "+" : "",
@@ -1910,7 +1910,7 @@ void mort_show_char_values(CHAR_DATA *victim, CHAR_DATA *ch, int fullness) {
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCICYN(ch, C_NRM), ch);
 	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n", IS_IMMORTAL(ch) ? 4 : 0);
-	snprintf(buf, MAX_STRING_LENGTH, "%s\r\n", buf2);
+	snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
@@ -1996,7 +1996,7 @@ void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/,
 		duration = MAX(GET_REAL_LEVEL(ch) / 8, 2);
 		zone = world[ch->in_room]->zone_rn;
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
-			if (world[i]->zone_rn == zone && SECT(i) != SECT_INSIDE && SECT(i) != SECT_CITY) {
+			if (world[i]->zone_rn == zone && SECT(i) != kSectInside && SECT(i) != kSectCity) {
 				world[i]->weather.sky = what_sky;
 				world[i]->weather.weather_type = sky_type;
 				world[i]->weather.duration = duration;
@@ -2224,7 +2224,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 	}
 
 	if (IS_FEMALE(ch)) {
-		mob->set_sex(ESex::SEX_MALE);
+		mob->set_sex(ESex::kSexMale);
 		mob->set_pc_name("Небесный защитник");
 		mob->player_data.PNames[0] = "Небесный защитник";
 		mob->player_data.PNames[1] = "Небесного защитника";
@@ -2236,7 +2236,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	} else {
-		mob->set_sex(ESex::SEX_FEMALE);
+		mob->set_sex(ESex::kSexFemale);
 		mob->set_pc_name("Небесная защитница");
 		mob->player_data.PNames[0] = "Небесная защитница";
 		mob->player_data.PNames[1] = "Небесной защитницы";
@@ -3251,7 +3251,7 @@ void extract_item(CHAR_DATA *ch, OBJ_DATA *obj, int spelltype) {
 
 	if (extract) {
 		if (spelltype == SPELL_RUNES) {
-			snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U у вас в руках.",
+			snprintf(buf, kMaxStringLength, "$o%s рассыпал$U у вас в руках.",
 					 char_get_custom_label(obj, ch).c_str());
 			act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		}

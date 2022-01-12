@@ -160,7 +160,7 @@ std::string generate_purged_filename(long uid) {
 	if (name.empty())
 		return "";
 
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (!get_filename(name.c_str(), filename, PURGE_DEPOT_FILE))
 		return "";
 
@@ -180,7 +180,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 	if (load_char(name.c_str(), ch) < 0)
 		return out.str();
 
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (!get_filename(name.c_str(), filename, PERS_DEPOT_FILE)) {
 		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
@@ -328,7 +328,7 @@ void init_purged_list() {
 void remove_pers_file(const std::string &name) {
 	if (name.empty()) return;
 
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (get_filename(name.c_str(), filename, PERS_DEPOT_FILE))
 		remove(filename);
 }
@@ -535,7 +535,7 @@ void save_timedata() {
 void write_obj_file(const std::string &name, int file_type, const ObjListType &cont) {
 	// генерим имя файла
 	depot_log("write_obj_file: %s", name.c_str());
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (!get_filename(name.c_str(), filename, file_type)) {
 		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
@@ -942,7 +942,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj) {
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
 //		|| (NamedStuff::check_named(ch, obj, 0) && GET_UNIQUE(ch) != GET_OBJ_OWNER(obj))) {
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
@@ -952,7 +952,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj) {
 		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
-		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return 0;
 	}
@@ -1085,7 +1085,7 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHA
 
 // * Поиск шмотки в контейнере (со всякими точками), удаляем ее тут же.
 bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict) {
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 	strcpy(tmp, name);
 
@@ -1197,7 +1197,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 		return;
 	}
 
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (!get_filename(name.c_str(), filename, file_type)) {
 		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
@@ -1397,7 +1397,7 @@ void reload_char(long uid, CHAR_DATA *ch) {
 		}
 	}
 
-	snprintf(buf, MAX_STRING_LENGTH, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
+	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
 	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 	imm_log("%s", buf);
 }
@@ -1424,7 +1424,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
 				continue;
 			}
 
-			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",
+			snprintf(buf, kMaxStringLength, "%s наход%sся у кого-то в персональном хранилище.\r\n",
 					 (*obj_it)->get_short_description().c_str(), GET_OBJ_POLY_1(ch, (*obj_it)));
 //			CAP(buf); issue #59
 			send_to_char(buf, ch);
@@ -1515,7 +1515,7 @@ int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 				 obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it) {
 			if (SetSystem::is_norent_set(ch, obj_it->get())) {
-				snprintf(buf, MAX_STRING_LENGTH,
+				snprintf(buf, kMaxStringLength,
 						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
 						 OBJN(obj_it->get(), ch, 3));
 				act(buf, FALSE, recep, 0, ch, TO_VICT);

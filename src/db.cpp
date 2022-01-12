@@ -116,7 +116,7 @@ void load_speedwalk();
 void load_class_limit();
 int global_uid = 0;
 
-struct message_list fight_messages[MAX_MESSAGES];    // fighting messages
+struct message_list fight_messages[kMaxMessages];    // fighting messages
 PlayersIndex &player_table = GlobalObjects::player_table();    // index to plr file
 
 bool player_exists(const long id) { return player_table.player_exists(id); }
@@ -313,8 +313,8 @@ bool check_obj_in_system_zone(int vnum) {
 }
 
 bool check_unlimited_timer(const CObjectPrototype *obj) {
-	char buf_temp[MAX_STRING_LENGTH];
-	char buf_temp1[MAX_STRING_LENGTH];
+	char buf_temp[kMaxStringLength];
+	char buf_temp1[kMaxStringLength];
 	//sleep(15);
 	// куда одевается наш предмет
 	int item_wear = -1;
@@ -442,7 +442,7 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 		return false;
 	}
 	// проходим по всем характеристикам предмета
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (obj->get_affected(i).modifier) {
 			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
 			// проходим по нашей таблице с критериями
@@ -485,11 +485,11 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 	double sum = 0.0;
 	double sum_aff = 0.0;
-	char buf_temp[MAX_STRING_LENGTH];
-	char buf_temp1[MAX_STRING_LENGTH];
+	char buf_temp[kMaxStringLength];
+	char buf_temp1[kMaxStringLength];
 
 	// проходим по всем характеристикам предмета
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (obj->get_affected(i).modifier) {
 			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
 			// проходим по нашей таблице с критериями
@@ -622,11 +622,11 @@ float count_mort_requred(const CObjectPrototype *obj) {
 	float total_weight = 0.0;
 
 	// аффекты APPLY_x
-	for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
+	for (int k = 0; k < kMaxObjAffect; k++) {
 		if (obj->get_affected(k).location == 0) continue;
 
 		// случай, если один аффект прописан в нескольких полях
-		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++) {
+		for (int kk = 0; kk < kMaxObjAffect; kk++) {
 			if (obj->get_affected(k).location == obj->get_affected(kk).location
 				&& k != kk) {
 				log("SYSERROR: double affect=%d, obj_vnum=%d",
@@ -1204,7 +1204,7 @@ void init_portals(void) {
 		if (!nm[0] || nm[0] == ';')
 			continue;
 		sscanf(nm, "%d %d %s", &rnm, &level, nm2);
-		if (real_room(rnm) == NOWHERE || nm2[0] == '\0') {
+		if (real_room(rnm) == kNowhere || nm2[0] == '\0') {
 			log("Invalid portal entry detected");
 			continue;
 		}
@@ -1661,7 +1661,7 @@ void OBJ_DATA::init_set_table() {
 					if (mode == SETSTUFF_AMSG || mode == SETSTUFF_AFFS)
 						appnum = 0;
 
-					if (appnum >= MAX_OBJ_AFFECT) {
+					if (appnum >= kMaxObjAffect) {
 						cppstr = "init_set_table:: Too many applies - line '" + tag + ":" + cppstr + "'";
 						mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 						continue;
@@ -1703,12 +1703,12 @@ void OBJ_DATA::init_set_table() {
 						int i = 0;
 
 						while (isstream >> std::skipws >> i)
-							if (i < 0 || i > NUM_PLAYER_CLASSES * NUM_KIN)
+							if (i < 0 || i > NUM_PLAYER_CLASSES * kNumKins)
 								break;
 							else
 								tmpclss.set(flag_data_by_num(i));
 
-						if (i < 0 || i > NUM_PLAYER_CLASSES * NUM_KIN) {
+						if (i < 0 || i > NUM_PLAYER_CLASSES * kNumKins) {
 							cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
 							mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 							continue;
@@ -2063,7 +2063,7 @@ void load_messages(void) {
 		log("SYSERR: Error reading combat message file %s: %s", MESS_FILE, strerror(errno));
 		exit(1);
 	}
-	for (i = 0; i < MAX_MESSAGES; i++) {
+	for (i = 0; i < kMaxMessages; i++) {
 		fight_messages[i].a_type = 0;
 		fight_messages[i].number_of_attacks = 0;
 		fight_messages[i].msg = 0;
@@ -2080,10 +2080,10 @@ void load_messages(void) {
 		int dummyi = sscanf(chk, " %d\n", &type);
 		UNUSED_ARG(dummyi);
 
-		for (i = 0; (i < MAX_MESSAGES) &&
+		for (i = 0; (i < kMaxMessages) &&
 			(fight_messages[i].a_type != type) && (fight_messages[i].a_type); i++);
-		if (i >= MAX_MESSAGES) {
-			log("SYSERR: Too many combat messages.  Increase MAX_MESSAGES and recompile.");
+		if (i >= kMaxMessages) {
+			log("SYSERR: Too many combat messages.  Increase kMaxMessages and recompile.");
 			exit(1);
 		}
 		log("BATTLE MESSAGE %d(%d)", i, type);
@@ -2135,7 +2135,7 @@ void zone_traffic_load() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(ZONE_TRAFFIC_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -2154,7 +2154,7 @@ void zone_traffic_load() {
 		int num = atoi(node.attribute("traffic").value());
 		if (zrn >= static_cast<zone_rnum>(zone_table.size())) {
 			snprintf(buf,
-					 MAX_STRING_LENGTH,
+					 kMaxStringLength,
 					 "zone_traffic: несуществующий номер зоны %d ее траффик %d ",
 					 zone_vnum,
 					 num);
@@ -2687,7 +2687,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 			break;
 
 		case DB_BOOT_WLD: {
-			// Creating empty world with NOWHERE room.
+			// Creating empty world with kNowhere room.
 			world.push_back(new ROOM_DATA);
 			top_of_world = FIRST_ROOM;
 			const size_t rooms_bytes = sizeof(ROOM_DATA) * rec_count;
@@ -2741,40 +2741,40 @@ void check_room_flags(int rnum) {
 		GET_ROOM(rnum)->unset_flag(ROOM_NOSUMMON);
 	}
 	if (GET_ROOM(rnum)->get_flag(ROOM_HOUSE)
-		&& (SECT(rnum) == SECT_MOUNTAIN || SECT(rnum) == SECT_HILLS)) {
+		&& (SECT(rnum) == kSectMountain || SECT(rnum) == kSectHills)) {
 		// шоб в замках умные не копали
-		SECT(rnum) = SECT_INSIDE;
+		SECT(rnum) = kSectInside;
 	}
 }
 
 // make sure the start rooms exist & resolve their vnums to rnums
 void check_start_rooms(void) {
-	if ((r_mortal_start_room = real_room(mortal_start_room)) == NOWHERE) {
+	if ((r_mortal_start_room = real_room(mortal_start_room)) == kNowhere) {
 		log("SYSERR:  Mortal start room does not exist.  Change in config.c. %d", mortal_start_room);
 		exit(1);
 	}
 
-	if ((r_immort_start_room = real_room(immort_start_room)) == NOWHERE) {
+	if ((r_immort_start_room = real_room(immort_start_room)) == kNowhere) {
 		log("SYSERR:  Warning: Immort start room does not exist.  Change in config.c.");
 		r_immort_start_room = r_mortal_start_room;
 	}
 
-	if ((r_frozen_start_room = real_room(frozen_start_room)) == NOWHERE) {
+	if ((r_frozen_start_room = real_room(frozen_start_room)) == kNowhere) {
 		log("SYSERR:  Warning: Frozen start room does not exist.  Change in config.c.");
 		r_frozen_start_room = r_mortal_start_room;
 	}
 
-	if ((r_helled_start_room = real_room(helled_start_room)) == NOWHERE) {
+	if ((r_helled_start_room = real_room(helled_start_room)) == kNowhere) {
 		log("SYSERR:  Warning: Hell start room does not exist.  Change in config.c.");
 		r_helled_start_room = r_mortal_start_room;
 	}
 
-	if ((r_named_start_room = real_room(named_start_room)) == NOWHERE) {
+	if ((r_named_start_room = real_room(named_start_room)) == kNowhere) {
 		log("SYSERR:  Warning: NAME start room does not exist.  Change in config.c.");
 		r_named_start_room = r_mortal_start_room;
 	}
 
-	if ((r_unreg_start_room = real_room(unreg_start_room)) == NOWHERE) {
+	if ((r_unreg_start_room = real_room(unreg_start_room)) == kNowhere) {
 		log("SYSERR:  Warning: UNREG start room does not exist.  Change in config.c.");
 		r_unreg_start_room = r_mortal_start_room;
 	}
@@ -2810,7 +2810,7 @@ void add_vrooms_to_all_zones() {
 		new_room->set_name(std::string("Виртуальная комната"));
 		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
 		new_room->clear_flags();
-		new_room->sector_type = SECT_SECRET;
+		new_room->sector_type = kSectSecret;
 
 		new_room->affected_by.clear();
 		memset(&new_room->base_property, 0, sizeof(room_property_data));
@@ -2833,7 +2833,7 @@ void renum_world(void) {
 	for (room = FIRST_ROOM; room <= top_of_world; room++) {
 		for (door = 0; door < NUM_OF_DIRS; door++) {
 			if (world[room]->dir_option[door]) {
-				if (world[room]->dir_option[door]->to_room() != NOWHERE) {
+				if (world[room]->dir_option[door]->to_room() != kNowhere) {
 					const auto to_room = real_room(world[room]->dir_option[door]->to_room());
 
 					world[room]->dir_option[door]->to_room(to_room);
@@ -2879,7 +2879,7 @@ void renum_single_table(int zone) {
 				c = ZCMD.arg3 = real_mobile(ZCMD.arg3);
 				break;
 			case 'O': a = ZCMD.arg1 = real_object(ZCMD.arg1);
-				if (ZCMD.arg3 != NOWHERE)
+				if (ZCMD.arg3 != kNowhere)
 					c = ZCMD.arg3 = real_room(ZCMD.arg3);
 				break;
 			case 'G': a = ZCMD.arg1 = real_object(ZCMD.arg1);
@@ -3273,7 +3273,7 @@ int vnum_flag(char *searchname, CHAR_DATA *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_extra_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
+				snprintf(buf, kMaxStringLength, "%3d. [%5d] %s :   %s\r\n",
 						 ++found, i->get_vnum(), i->get_short_description().c_str(), extra_bits[counter]);
 				out += buf;
 			}
@@ -3289,9 +3289,9 @@ int vnum_flag(char *searchname, CHAR_DATA *ch) {
 	}
 	if (f) {
 		for (const auto &i : obj_proto) {
-			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++) {
+			for (plane = 0; plane < kMaxObjAffect; plane++) {
 				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter)) {
-					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
+					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
 							 apply_types[counter], i->get_affected(plane).modifier);
@@ -3318,7 +3318,7 @@ int vnum_flag(char *searchname, CHAR_DATA *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
+				snprintf(buf, kMaxStringLength, "%3d. [%5d] %s :   %s\r\n",
 						 ++found, i->get_vnum(),
 						 i->get_short_description().c_str(),
 						 weapon_affects[counter]);
@@ -3339,7 +3339,7 @@ int vnum_flag(char *searchname, CHAR_DATA *ch) {
 			if (i->has_skills()) {
 				auto it = i->get_skills().find(static_cast<ESkill>(counter));
 				if (it != i->get_skills().end()) {
-					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
+					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
 							 skill_info[counter].name, it->second);
@@ -3494,7 +3494,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type) {                // and mob_rnum
 	mob->points.hit = mob->points.max_hit;
 	GET_MEM_TOTAL(mob) = GET_MEM_COMPLETED(mob) = 0;
 	GET_HORSESTATE(mob) = 800;
-	GET_LASTROOM(mob) = NOWHERE;
+	GET_LASTROOM(mob) = kNowhere;
 	if (mob->mob_specials.speed <= -1)
 		GET_ACTIVITY(mob) = number(0, PULSE_MOBILE - 1);
 	else
@@ -3704,7 +3704,7 @@ void paste_mob(CHAR_DATA *ch, room_rnum room) {
 	}
 //	if (MOB_FLAGGED(ch, MOB_CORPSE))
 //		return;
-	if (room == NOWHERE)
+	if (room == kNowhere)
 		return;
 
 	bool time_ok = FALSE;
@@ -3764,7 +3764,7 @@ void paste_mob(CHAR_DATA *ch, room_rnum room) {
 			if (world[room]->room_vn != zone_table[world[room]->zone_rn].top)
 				return;
 
-			if (GET_LASTROOM(ch) == NOWHERE) {
+			if (GET_LASTROOM(ch) == kNowhere) {
 				extract_char(ch, FALSE, TRUE);
 				return;
 			}
@@ -3779,7 +3779,7 @@ void paste_mob(CHAR_DATA *ch, room_rnum room) {
 			char_from_room(ch);
 			room = real_room(zone_table[world[room]->zone_rn].top);
 
-			if (room == NOWHERE)
+			if (room == kNowhere)
 				room = real_room(GET_LASTROOM(ch));
 
 			char_to_room(ch, room);
@@ -3790,7 +3790,7 @@ void paste_mob(CHAR_DATA *ch, room_rnum room) {
 void paste_obj(OBJ_DATA *obj, room_rnum room) {
 	if (obj->get_carried_by()
 		|| obj->get_worn_by()
-		|| room == NOWHERE) {
+		|| room == kNowhere) {
 		return;
 	}
 
@@ -3861,7 +3861,7 @@ void paste_obj(OBJ_DATA *obj, room_rnum room) {
 			if (world[room]->room_vn != zone_table[world[room]->zone_rn].top) {
 				return;
 			}
-			if (OBJ_GET_LASTROOM(obj) == NOWHERE) {
+			if (OBJ_GET_LASTROOM(obj) == kNowhere) {
 				extract_obj(obj);
 				return;
 			}
@@ -3874,7 +3874,7 @@ void paste_obj(OBJ_DATA *obj, room_rnum room) {
 			obj->set_room_was_in(GET_ROOM_VNUM(room));
 			obj_from_room(obj);
 			room = real_room(zone_table[world[room]->zone_rn].top);
-			if (room == NOWHERE) {
+			if (room == kNowhere) {
 				room = real_room(OBJ_GET_LASTROOM(obj));
 			}
 			obj_to_room(obj, room);
@@ -3925,7 +3925,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 	if (celebrate->rooms.find(vnum) != celebrate->rooms.end()) {
 		for (room = celebrate->rooms[vnum].begin(); room != celebrate->rooms[vnum].end(); ++room) {
 			room_rnum rn = real_room((*room)->vnum);
-			if (rn != NOWHERE) {
+			if (rn != kNowhere) {
 				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); it != (*room)->triggers.end();
 					 ++it) {
 					auto trig = read_trigger(real_trigger(*it));
@@ -4367,7 +4367,7 @@ void ZoneReset::reset_zone_essential() {
 							break;
 						}
 						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
-						if (obj_to->get_in_room() != NOWHERE) {
+						if (obj_to->get_in_room() != kNowhere) {
 							obj->set_vnum_zone_from(zone_table[world[obj_to->get_in_room()]->zone_rn].vnum);
 						} else if (obj_to->get_worn_by()) {
 							obj->set_vnum_zone_from(zone_table[world[IN_ROOM(obj_to->get_worn_by())]->zone_rn].vnum);
@@ -4430,7 +4430,7 @@ void ZoneReset::reset_zone_essential() {
 							obj->set_in_room(IN_ROOM(mob));
 							load_otrigger(obj.get());
 							if (wear_otrigger(obj.get(), mob, ZCMD.arg3)) {
-								obj->set_in_room(NOWHERE);
+								obj->set_in_room(kNowhere);
 								equip_char(mob, obj.get(), ZCMD.arg3, CharEquipFlags());
 							} else {
 								obj_to_char(obj.get(), mob);
@@ -4528,7 +4528,7 @@ void ZoneReset::reset_zone_essential() {
 						}
 						curr_state = 1;
 					} else if (ZCMD.arg1 == WLD_TRIGGER) {
-						if (ZCMD.arg3 > NOWHERE) {
+						if (ZCMD.arg3 > kNowhere) {
 							auto trig = read_trigger(real_trigger(ZCMD.arg2));
 							if (!add_trigger(world[ZCMD.arg3]->script.get(), trig, -1)) {
 								extract_trigger(trig);
@@ -4663,7 +4663,7 @@ int get_zone_rooms(int zone_nr, int *first, int *last) {
 	}
 	*first = real_room(*first);
 	*last = real_room(*last);
-	if (*first == NOWHERE || *last == NOWHERE)
+	if (*first == kNowhere || *last == kNowhere)
 		return 0;
 	return 1;
 }
@@ -4674,19 +4674,19 @@ int get_zone_rooms(int zone_nr, int *start, int *stop) {
 	auto first_room_vnum = zone_table[zone_nr].top;
 	auto rnum = real_room(first_room_vnum);
 
-	if (rnum == NOWHERE)
+	if (rnum == kNowhere)
 		return 0;
 	*stop = rnum - 1;
-	rnum = NOWHERE;
+	rnum = kNowhere;
 	while (zone_nr) {
 		first_room_vnum = zone_table[--zone_nr].top;
 		rnum = real_room(first_room_vnum);
-		if (rnum != NOWHERE) {
+		if (rnum != kNowhere) {
 			++rnum;
 			break;
 		}
 	}
-	if (rnum == NOWHERE)
+	if (rnum == kNowhere)
 		rnum = 1;    // самая первая зона начинается с 1
 	*start = rnum;
 	return 1;
@@ -4700,7 +4700,7 @@ bool is_empty(zone_rnum zone_nr) {
 	for (auto i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING)
 			continue;
-		if (IN_ROOM(i->character) == NOWHERE)
+		if (IN_ROOM(i->character) == kNowhere)
 			continue;
 		if (GET_REAL_LEVEL(i->character) >= LVL_IMMORT)
 			continue;
@@ -4727,7 +4727,7 @@ bool is_empty(zone_rnum zone_nr) {
 	for (const auto c : world[STRANGE_ROOM]->people) {
 		const int was = c->get_was_in_room();
 
-		if (was == NOWHERE
+		if (was == kNowhere
 			|| GET_REAL_LEVEL(c) >= LVL_IMMORT
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
@@ -4931,7 +4931,7 @@ int load_char(const char *name, CHAR_DATA *char_element, bool reboot, const bool
  * is to the string we're interested in and not a copy.
  */
 int file_to_string_alloc(const char *name, char **buf) {
-	char temp[MAX_EXTEND_LENGTH];
+	char temp[kMaxExtendLength];
 	DESCRIPTOR_DATA *in_use;
 
 	for (in_use = descriptor_list; in_use; in_use = in_use->next) {
@@ -4971,8 +4971,8 @@ int file_to_string(const char *name, char *buf) {
 		strcat(tmp, "\r\n");
 
 		if (!feof(fl)) {
-			if (strlen(buf) + strlen(tmp) + 1 > MAX_EXTEND_LENGTH) {
-				log("SYSERR: %s: string too big (%d max)", name, MAX_STRING_LENGTH);
+			if (strlen(buf) + strlen(tmp) + 1 > kMaxExtendLength) {
+				log("SYSERR: %s: string too big (%d max)", name, kMaxStringLength);
 				*buf = '\0';
 				return (-1);
 			}
@@ -4999,7 +4999,7 @@ const char *remort_msg =
 	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
 void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	int i, place_of_destination, load_room = NOWHERE;
+	int i, place_of_destination, load_room = kNowhere;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
 	if (IS_NPC(ch) || IS_IMMORTAL(ch)) {
@@ -5087,7 +5087,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	while (ch->timed_feat) {
 		timed_feat_from_char(ch, ch->timed_feat);
 	}
-	for (i = 1; i < MAX_FEATS; i++) {
+	for (i = 1; i < kMaxFeats; i++) {
 		UNSET_FEAT(ch, i);
 	}
 
@@ -5160,11 +5160,11 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	else if (PLR_FLAGGED(ch, PLR_FROZEN))
 		load_room = r_frozen_start_room;
 	else {
-		if ((load_room = GET_LOADROOM(ch)) == NOWHERE)
+		if ((load_room = GET_LOADROOM(ch)) == kNowhere)
 			load_room = calc_loadroom(ch);
 		load_room = real_room(load_room);
 	}
-	if (load_room == NOWHERE) {
+	if (load_room == kNowhere) {
 		if (GET_REAL_LEVEL(ch) >= LVL_IMMORT)
 			load_room = r_immort_start_room;
 		else
@@ -5195,7 +5195,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 room_rnum real_room(room_vnum vnum) {
 	room_rnum bot, top, mid;
 
-	bot = 1;        // 0 - room is NOWHERE
+	bot = 1;        // 0 - room is kNowhere
 	top = top_of_world;
 	// perform binary search on world-table
 	for (;;) {
@@ -5204,7 +5204,7 @@ room_rnum real_room(room_vnum vnum) {
 		if (world[mid]->room_vn == vnum)
 			return (mid);
 		if (bot >= top)
-			return (NOWHERE);
+			return (kNowhere);
 		if (world[mid]->room_vn > vnum)
 			top = mid - 1;
 		else
@@ -5272,7 +5272,7 @@ int must_be_deleted(CHAR_DATA *short_ch) {
 // подробности в комментарии к load_char_ascii
 void entrycount(char *name, const bool find_id /*= true*/) {
 	int deleted;
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 
 	if (get_filename(name, filename, PLAYERS_FILE)) {
 		Player t_short_ch;
@@ -5347,7 +5347,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 
 void new_build_player_index(void) {
 	FILE *players;
-	char name[MAX_INPUT_LENGTH], playername[MAX_INPUT_LENGTH];
+	char name[kMaxInputLength], playername[kMaxInputLength];
 
 	if (!(players = fopen(LIB_PLRS "players.lst", "r"))) {
 		log("Players list empty...");
@@ -5372,7 +5372,7 @@ void new_build_player_index(void) {
 
 void flush_player_index(void) {
 	FILE *players;
-	char name[MAX_STRING_LENGTH];
+	char name[kMaxStringLength];
 
 	if (!(players = fopen(LIB_PLRS "players.lst", "w+"))) {
 		log("Can't save players list...");
@@ -5397,7 +5397,7 @@ void flush_player_index(void) {
 }
 
 void rename_char(CHAR_DATA *ch, char *oname) {
-	char filename[MAX_INPUT_LENGTH], ofilename[MAX_INPUT_LENGTH];
+	char filename[kMaxInputLength], ofilename[kMaxInputLength];
 
 	// 1) Rename(if need) char and pkill file - directly
 	log("Rename char %s->%s", GET_NAME(ch), oname);
@@ -5598,7 +5598,7 @@ void load_guardians() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"guards.xml");
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -5606,7 +5606,7 @@ void load_guardians() {
 	pugi::xml_node xMainNode = doc.child("guardians");
 
 	if (!xMainNode) {
-		snprintf(buf, MAX_STRING_LENGTH, "...guards.xml read fail");
+		snprintf(buf, kMaxStringLength, "...guards.xml read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -5663,7 +5663,7 @@ void load_mobraces() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(MOBRACE_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -5671,7 +5671,7 @@ void load_mobraces() {
 	pugi::xml_node node_list = doc.child("mobraces");
 
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...mobraces read fail");
+		snprintf(buf, kMaxStringLength, "...mobraces read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -5819,7 +5819,7 @@ void load_class_limit() {
 
 		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
 		if (id == CLASS_UNDEFINED) {
-			snprintf(buf, MAX_STRING_LENGTH, "...<class id='%s'> convert fail", id_str.c_str());
+			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
 		}

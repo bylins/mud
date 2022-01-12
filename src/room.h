@@ -34,7 +34,7 @@ class EXIT_DATA {
 	obj_vnum key;        // Key's number (-1 for no key) //
 
  private:
-	room_rnum m_to_room;    // Where direction leads (NOWHERE) //
+	room_rnum m_to_room;    // Where direction leads (kNowhere) //
 };
 
 struct track_data {

@@ -62,7 +62,7 @@ const char *deaf_social = "&K$n попытал$u очень эмоциональ
 
 int do_social(CHAR_DATA *ch, char *argument) {
 	int act_nr;
-	char social[MAX_INPUT_LENGTH];
+	char social[kMaxInputLength];
 	struct social_messg *action;
 	CHAR_DATA *vict;
 
@@ -213,9 +213,9 @@ void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 char *fread_action(FILE *fl, int nr) {
-	char buf[MAX_STRING_LENGTH];
+	char buf[kMaxStringLength];
 
-	const char *result = fgets(buf, MAX_STRING_LENGTH, fl);
+	const char *result = fgets(buf, kMaxStringLength, fl);
 	UNUSED_ARG(result);
 
 	if (feof(fl)) {

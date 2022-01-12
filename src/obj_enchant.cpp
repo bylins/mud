@@ -19,7 +19,7 @@ enchant::enchant(OBJ_DATA *obj) {
 	name_ = !GET_OBJ_PNAME(obj, 4).empty() ? GET_OBJ_PNAME(obj, 4).c_str() : "<null>";
 	type_ = ENCHANT_FROM_OBJ;
 
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (obj->get_affected(i).location != APPLY_NONE
 			&& obj->get_affected(i).modifier != 0) {
 			affected_.push_back(obj->get_affected(i));
@@ -115,7 +115,7 @@ void correct_values(OBJ_DATA *obj) {
 
 void enchant::apply_to_obj(OBJ_DATA *obj) const {
 	for (auto i = affected_.cbegin(), iend = affected_.cend(); i != iend; ++i) {
-		for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
+		for (int k = 0; k < kMaxObjAffect; k++) {
 			if (obj->get_affected(k).location == i->location) {
 				obj->add_affected(k, i->modifier);
 				break;

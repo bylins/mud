@@ -24,7 +24,7 @@ extern int invalid_align(CHAR_DATA *ch, OBJ_DATA *obj);
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 extern char *diag_timer_to_char(const OBJ_DATA *obj);
 extern void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
-extern void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
+extern void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]);
 extern void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll);
 
 AUCTION_DATA auction_lots[MAX_AUCTION_LOT] = {{-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
@@ -53,7 +53,7 @@ const char *auction_cmd[] = {"поставить", "set",
 };
 
 void showlots(CHAR_DATA *ch) {
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 
 	CHAR_DATA *sch;
 	//CHAR_DATA *bch;
@@ -92,8 +92,8 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 	CHAR_DATA *tch = NULL;
 	AUCTION_DATA *lotis;
 	OBJ_DATA *obj;
-	char operation[MAX_INPUT_LENGTH], whom[MAX_INPUT_LENGTH];
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char operation[kMaxInputLength], whom[kMaxInputLength];
+	char tmpbuf[kMaxInputLength];
 
 	if (!*argument) {
 		showlots(ch);
@@ -498,7 +498,7 @@ void clear_auction(int lot) {
 int check_sell(int lot) {
 	CHAR_DATA *ch, *tch;
 	OBJ_DATA *obj;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 
 	if (lot < 0 || lot >= MAX_AUCTION_LOT || !(ch = GET_LOT(lot)->seller)
 		|| GET_UNIQUE(ch) != GET_LOT(lot)->seller_unique || !(tch = GET_LOT(lot)->buyer)
@@ -545,7 +545,7 @@ void trans_auction(int lot) {
 	CHAR_DATA *ch, *tch;
 	OBJ_DATA *obj;
 	std::string tmpstr;
-	char tmpbuff[MAX_INPUT_LENGTH];
+	char tmpbuff[kMaxInputLength];
 
 	ch = GET_LOT(lot)->seller;
 	tch = GET_LOT(lot)->prefect;
@@ -689,7 +689,7 @@ void sell_auction(int lot) {
 	CHAR_DATA *ch, *tch;
 	OBJ_DATA *obj;
 	std::string tmpstr;
-	char tmpbuff[MAX_INPUT_LENGTH];
+	char tmpbuff[kMaxInputLength];
 
 	ch = GET_LOT(lot)->seller;
 	tch = GET_LOT(lot)->buyer;
@@ -746,7 +746,7 @@ void sell_auction(int lot) {
 
 void check_auction(CHAR_DATA *ch, OBJ_DATA *obj) {
 	int i;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	if (ch) {
 		for (i = 0; i < MAX_AUCTION_LOT; i++) {
 			if (!GET_LOT(i)->seller || !GET_LOT(i)->item)
@@ -791,7 +791,7 @@ void check_auction(CHAR_DATA *ch, OBJ_DATA *obj) {
 
 void tact_auction(void) {
 	int i;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 
 	check_auction(NULL, NULL);
 

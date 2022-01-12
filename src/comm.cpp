@@ -1140,7 +1140,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #endif
 {
 	DESCRIPTOR_DATA *d, *next_d;
-	char comm[MAX_INPUT_LENGTH];
+	char comm[kMaxInputLength];
 	int aliased;
 
 #ifdef HAS_EPOLL
@@ -1173,7 +1173,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
 		{
 			// надо будет помониторить сислог на предмет этих сообщений
-			char tmp[MAX_INPUT_LENGTH];
+			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in %s() at %s:%d",
 					 static_cast<unsigned>(events[i].events),
 					 __func__, __FILE__, __LINE__);
@@ -1255,11 +1255,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d->character)    // Reset the idle timer & pull char back from void if necessary
 		{
 			d->character->char_specials.timer = 0;
-			if (STATE(d) == CON_PLAYING && d->character->get_was_in_room() != NOWHERE) {
-				if (d->character->in_room != NOWHERE)
+			if (STATE(d) == CON_PLAYING && d->character->get_was_in_room() != kNowhere) {
+				if (d->character->in_room != kNowhere)
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
-				d->character->set_was_in_room(NOWHERE);
+				d->character->set_was_in_room(kNowhere);
 				act("$n вернул$u.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				d->character->set_wait(1u);
 			}
@@ -1627,14 +1627,14 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim) {
 }
 
 char *make_prompt(DESCRIPTOR_DATA *d) {
-	static char prompt[MAX_PROMPT_LENGTH + 1];
+	static char prompt[kMaxPromptLength + 1];
 	static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
 
 	int ch_hp, sec_hp;
 	int door;
 	int perc;
 
-	// Note, prompt is truncated at MAX_PROMPT_LENGTH chars (structs.h )
+	// Note, prompt is truncated at kMaxPromptLength chars (structs.h )
 	if (d->showstr_count) {
 		sprintf(prompt,
 				"\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).",
@@ -1782,7 +1782,7 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 				if (!AFF_FLAGGED(d->character, EAffectFlag::AFF_BLIND)) {
 					for (door = 0; door < NUM_OF_DIRS; door++) {
 						if (EXIT(d->character, door)
-							&& EXIT(d->character, door)->to_room() != NOWHERE
+							&& EXIT(d->character, door)->to_room() != kNowhere
 							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN)) {
 							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)
 									 ? sprintf(prompt + count, "(%s)", dirs[door])
@@ -1887,7 +1887,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
 	 * If the text is too big to fit into even a large buffer, chuck the
 	 * new text and switch to the overflow state.
 	 */
-	if (size + t->bufptr > LARGE_BUFSIZE - 1) {
+	if (size + t->bufptr > kLargeBufSize - 1) {
 		t->bufptr = ~0ull;
 		buf_overflows++;
 		return;
@@ -1901,7 +1901,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
 	} else        // else create a new one
 	{
 		CREATE(t->large_outbuf, 1);
-		CREATE(t->large_outbuf->text, LARGE_BUFSIZE);
+		CREATE(t->large_outbuf->text, kLargeBufSize);
 		buf_largecount++;
 	}
 
@@ -1912,7 +1912,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
 	// set the pointer for the next write
 	t->bufptr = strlen(t->output);
 	// calculate how much space is left in the buffer
-	t->bufspace = LARGE_BUFSIZE - 1 - t->bufptr;
+	t->bufspace = kLargeBufSize - 1 - t->bufptr;
 }
 
 
@@ -1999,7 +1999,7 @@ unsigned long get_ip(const char *addr) {
 // Sets the kernel's send buffer size for the descriptor
 int set_sendbuf(socket_t s) {
 #if defined(SO_SNDBUF) && !defined(CIRCLE_MACINTOSH)
-	int opt = MAX_SOCK_BUF;
+	int opt = kMaxSockBuf;
 
 	if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char *) &opt, sizeof(opt)) < 0) {
 		perror("SYSERR: setsockopt SNDBUF");
@@ -2158,20 +2158,20 @@ int new_descriptor(socket_t s)
 	newd->descriptor = desc;
 	newd->idle_tics = 0;
 	newd->output = newd->small_outbuf;
-	newd->bufspace = SMALL_BUFSIZE - 1;
+	newd->bufspace = kSmallBufsize - 1;
 	newd->login_time = newd->input_time = time(0);
 	*newd->output = '\0';
 	newd->bufptr = 0;
 	newd->mxp = false;
 	newd->has_prompt = 1;    // prompt is part of greetings
-	newd->keytable = KT_SELECTMENU;
+	newd->keytable = kKtSelectmenu;
 	STATE(newd) = CON_INIT;
 	/*
 	 * This isn't exactly optimal but allows us to make a design choice.
 	 * Do we embed the history in descriptor_data or keep it dynamically
 	 * allocated and allow a user defined history size?
 	 */
-	CREATE(newd->history, HISTORY_SIZE);
+	CREATE(newd->history, kHistorySize);
 
 	if (++last_desc == 1000)
 		last_desc = 1;
@@ -2197,7 +2197,7 @@ int new_descriptor(socket_t s)
 
 bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, size_t buffer_size, int &written) {
 #if defined(HAVE_ZLIB)
-	Bytef compressed[SMALL_BUFSIZE];
+	Bytef compressed[kSmallBufsize];
 
 	if (t->deflate)    // Complex case, compression, write it out.
 	{
@@ -2207,16 +2207,16 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
 		t->deflate->avail_in = static_cast<uInt>(buffer_size);
 		t->deflate->next_in = (Bytef *) (buffer);
 		t->deflate->next_out = compressed;
-		t->deflate->avail_out = SMALL_BUFSIZE;
+		t->deflate->avail_out = kSmallBufsize;
 
 		int counter = 0;
 		do {
 			++counter;
-			int df, prevsize = SMALL_BUFSIZE - t->deflate->avail_out;
+			int df, prevsize = kSmallBufsize - t->deflate->avail_out;
 
 			// If there is input or the output has reset from being previously full, run compression again.
 			if (t->deflate->avail_in
-				|| t->deflate->avail_out == SMALL_BUFSIZE) {
+				|| t->deflate->avail_out == kSmallBufsize) {
 				if ((df = deflate(t->deflate, Z_SYNC_FLUSH)) != Z_OK) {
 					log("SYSERR: process_output: deflate() returned %d.", df);
 				}
@@ -2224,11 +2224,11 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
 
 			// There should always be something new to write out.
 			written = write_to_descriptor(t->descriptor, (char *) compressed + prevsize,
-										  SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
+										  kSmallBufsize - t->deflate->avail_out - prevsize);
 
 			// Wrap the buffer when we've run out of buffer space for the output.
 			if (t->deflate->avail_out == 0) {
-				t->deflate->avail_out = SMALL_BUFSIZE;
+				t->deflate->avail_out = kSmallBufsize;
 				t->deflate->next_out = compressed;
 			}
 
@@ -2238,7 +2238,7 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
 			}
 
 			// Need to loop while we still have input or when the output buffer was previously full.
-		} while (t->deflate->avail_out == SMALL_BUFSIZE || t->deflate->avail_in);
+		} while (t->deflate->avail_out == kSmallBufsize || t->deflate->avail_in);
 	} else {
 		written = write_to_descriptor(t->descriptor, buffer, buffer_size);
 	}
@@ -2254,7 +2254,7 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
  * the player's descriptor.
  */
 int process_output(DESCRIPTOR_DATA *t) {
-	char i[MAX_SOCK_BUF * 2], o[MAX_SOCK_BUF * 2 * 3], *pi, *po;
+	char i[kMaxSockBuf * 2], o[kMaxSockBuf * 2 * 3], *pi, *po;
 	int written = 0, offset, result;
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
@@ -2309,7 +2309,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 		t->msdp_report_changed_vars();
 
 	// add a prompt
-	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);
+	strncat(i, make_prompt(t), kMaxPromptLength);
 
 	// easy color
 	int pos;
@@ -2339,7 +2339,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 		offset = 2;
 
 	if (t->character && PRF_FLAGGED(t->character, PRF_GOAHEAD))
-		strncat(o, str_goahead, MAX_PROMPT_LENGTH);
+		strncat(o, str_goahead, kMaxPromptLength);
 
 	if (!write_to_descriptor_with_options(t, o + offset, strlen(o + offset), result)) {
 		return -1;
@@ -2358,7 +2358,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 		t->output = t->small_outbuf;
 	}
 	// reset total bufspace back to that of a small buffer
-	t->bufspace = SMALL_BUFSIZE - 1;
+	t->bufspace = kSmallBufsize - 1;
 	t->bufptr = 0;
 	*(t->output) = '\0';
 
@@ -2608,12 +2608,12 @@ int process_input(DESCRIPTOR_DATA *t) {
 	ssize_t bytes_read;
 	size_t space_left;
 	char *ptr, *read_point, *write_point, *nl_pos;
-	char tmp[MAX_INPUT_LENGTH];
+	char tmp[kMaxInputLength];
 
 	// first, find the point where we left off reading data
 	size_t buf_length = strlen(t->inbuf);
 	read_point = t->inbuf + buf_length;
-	space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
+	space_left = kMaxRawInputLength - buf_length - 1;
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
 	if (t == NULL) {
@@ -2651,7 +2651,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 			if (ptr[1] == (char) IAC) {
 				// последовательность IAC IAC
 				// следует заменить просто на один IAC, но
-				// для раскладок KT_WIN/KT_WINZ это произойдет ниже.
+				// для раскладок kCodePageWin/kCodePageWinz это произойдет ниже.
 				// Почему так сделано - не знаю, но заменять не буду.
 				// II: потому что второй IAC может прочитаться в другом socket_read
 				++ptr;
@@ -2771,7 +2771,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 	while (nl_pos != NULL) {
 		int tilde = 0;
 		write_point = tmp;
-		space_left = MAX_INPUT_LENGTH - 1;
+		space_left = kMaxInputLength - 1;
 
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++) {
 			// Нафиг точку с запятой - задрали уроды с тригерами (Кард)
@@ -2830,17 +2830,17 @@ int process_input(DESCRIPTOR_DATA *t) {
 					default: t->keytable = 0;
 						// fall through
 					case 0:
-					case KT_UTF8: *(write_point++) = *ptr;
+					case kCodePageUTF8: *(write_point++) = *ptr;
 						break;
-					case KT_ALT: *(write_point++) = AtoK(*ptr);
+					case kCodePageAlt: *(write_point++) = AtoK(*ptr);
 						break;
-					case KT_WIN:
-					case KT_WINZ:
-					case KT_WINZ_Z: *(write_point++) = WtoK(*ptr);
+					case kCodePageWin:
+					case kCodePageWinz:
+					case kCodePageWinzZ: *(write_point++) = WtoK(*ptr);
 						if (*ptr == (char) 255 && *(ptr + 1) == (char) 255 && ptr + 1 < nl_pos)
 							ptr++;
 						break;
-					case KT_WINZ_OLD: *(write_point++) = WtoK(*ptr);
+					case kCodePageWinzOld: *(write_point++) = WtoK(*ptr);
 						break;
 				}
 				space_left--;
@@ -2849,7 +2849,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 			// Для того чтобы работали все триги в старом zMUD, заменяем все вводимые 'z' на 'я'
 			// Увы, это кое-что ломает, напр. wizhelp, или "г я использую zMUD"
 			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC)) {
-				if (t->keytable == KT_WINZ_Z || t->keytable == KT_WINZ_OLD) {
+				if (t->keytable == kCodePageWinzZ || t->keytable == kCodePageWinzOld) {
 					if (*(write_point - 1) == 'z') {
 						*(write_point - 1) = 'я';
 					}
@@ -2860,24 +2860,24 @@ int process_input(DESCRIPTOR_DATA *t) {
 
 		*write_point = '\0';
 
-		if (t->keytable == KT_UTF8) {
+		if (t->keytable == kCodePageUTF8) {
 			int i;
-			char utf8_tmp[MAX_SOCK_BUF * 2 * 3];
+			char utf8_tmp[kMaxSockBuf * 2 * 3];
 			size_t len_i, len_o;
 
 			len_i = strlen(tmp);
 
-			for (i = 0; i < MAX_SOCK_BUF * 2 * 3; i++) {
+			for (i = 0; i < kMaxSockBuf * 2 * 3; i++) {
 				utf8_tmp[i] = 0;
 			}
 			utf8_to_koi(tmp, utf8_tmp);
 			len_o = strlen(utf8_tmp);
-			strncpy(tmp, utf8_tmp, MAX_INPUT_LENGTH - 1);
+			strncpy(tmp, utf8_tmp, kMaxInputLength - 1);
 			space_left = space_left + len_i - len_o;
 		}
 
 		if ((space_left <= 0) && (ptr < nl_pos)) {
-			char buffer[MAX_INPUT_LENGTH + 64];
+			char buffer[kMaxInputLength + 64];
 
 			sprintf(buffer, "Line too long.  Truncated to:\r\n%s\r\n", tmp);
 			SEND_TO_Q(buffer, t);
@@ -2903,7 +2903,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 		else if (*tmp == '!' && *(tmp + 1)) {
 			char *commandln = (tmp + 1);
 			int starting_pos = t->history_pos,
-				cnt = (t->history_pos == 0 ? HISTORY_SIZE - 1 : t->history_pos - 1);
+				cnt = (t->history_pos == 0 ? kHistorySize - 1 : t->history_pos - 1);
 
 			skip_spaces(&commandln);
 			for (; cnt != starting_pos; cnt--) {
@@ -2915,7 +2915,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					break;
 				}
 				if (cnt == 0)    // At top, loop to bottom.
-					cnt = HISTORY_SIZE;
+					cnt = kHistorySize;
 			}
 		} else if (*tmp == '^') {
 			if (!(failed_subst = perform_subst(t, t->last_input, tmp)))
@@ -2925,7 +2925,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 			if (t->history[t->history_pos])
 				free(t->history[t->history_pos]);    // Clear the old line.
 			t->history[t->history_pos] = str_dup(tmp);    // Save the new.
-			if (++t->history_pos >= HISTORY_SIZE)    // Wrap to top.
+			if (++t->history_pos >= kHistorySize)    // Wrap to top.
 				t->history_pos = 0;
 		}
 
@@ -2957,7 +2957,7 @@ int process_input(DESCRIPTOR_DATA *t) {
  * substition string, i.e. "^telm^tell"
  */
 int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst) {
-	char newsub[MAX_INPUT_LENGTH + 5];
+	char newsub[kMaxInputLength + 5];
 
 	char *first, *second, *strpos;
 
@@ -2988,15 +2988,15 @@ int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst) {
 	newsub[(strpos - orig)] = '\0';
 
 	// now, the replacement string
-	strncat(newsub, second, (MAX_INPUT_LENGTH - strlen(newsub) - 1));
+	strncat(newsub, second, (kMaxInputLength - strlen(newsub) - 1));
 
 	/* now, if there's anything left in the original after the string to
 	 * replaced, copy that too. */
 	if (((strpos - orig) + strlen(first)) < strlen(orig))
-		strncat(newsub, strpos + strlen(first), (MAX_INPUT_LENGTH - strlen(newsub) - 1));
+		strncat(newsub, strpos + strlen(first), (kMaxInputLength - strlen(newsub) - 1));
 
 	// terminate the string in case of an overflow from strncat
-	newsub[MAX_INPUT_LENGTH - 1] = '\0';
+	newsub[kMaxInputLength - 1] = '\0';
 	strcpy(subst, newsub);
 
 	return (0);
@@ -3133,7 +3133,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	// Clear the command history.
 	if (d->history) {
 		int cnt;
-		for (cnt = 0; cnt < HISTORY_SIZE; cnt++)
+		for (cnt = 0; cnt < kHistorySize; cnt++)
 			if (d->history[cnt])
 				free(d->history[cnt]);
 		free(d->history);
@@ -3374,7 +3374,7 @@ void send_to_char(const char *messg, const CHAR_DATA *ch) {
 // New edition :)
 void send_to_char(const CHAR_DATA *ch, const char *messg, ...) {
 	va_list args;
-	char tmpbuf[MAX_STRING_LENGTH];
+	char tmpbuf[kMaxStringLength];
 
 	va_start(args, messg);
 	vsnprintf(tmpbuf, sizeof(tmpbuf), messg, args);
@@ -3413,12 +3413,12 @@ void send_to_outdoor(const char *messg, int control) {
 		room = IN_ROOM(i->character);
 		if (!control
 			|| (IS_SET(control, SUN_CONTROL)
-				&& room != NOWHERE
-				&& SECT(room) != SECT_UNDERWATER
+				&& room != kNowhere
+				&& SECT(room) != kSectUnderwater
 				&& !AFF_FLAGGED(i->character, EAffectFlag::AFF_BLIND))
 			|| (IS_SET(control, WEATHER_CONTROL)
-				&& room != NOWHERE
-				&& SECT(room) != SECT_UNDERWATER
+				&& room != kNowhere
+				&& SECT(room) != kSectUnderwater
 				&& !ROOM_FLAGGED(room, ROOM_NOWEATHER)
 				&& world[IN_ROOM(i->character)]->weather.duration <= 0)) {
 			SEND_TO_Q(messg, i);
@@ -3470,7 +3470,7 @@ void perform_act(const char *orig,
 				 const std::string &kick_type) {
 	const char *i = NULL;
 	char nbuf[256];
-	char lbuf[MAX_STRING_LENGTH], *buf;
+	char lbuf[kMaxStringLength], *buf;
 	ubyte padis;
 	int stopbyte, cap = 0;
 	CHAR_DATA *dg_victim = NULL;
@@ -3481,7 +3481,7 @@ void perform_act(const char *orig,
 
 	if (orig == NULL)
 		return mudlog("perform_act: NULL *orig string", BRF, -1, ERRLOG, TRUE);
-	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++) {
+	for (stopbyte = 0; stopbyte < kMaxStringLength; stopbyte++) {
 		if (*orig == '$') {
 			switch (*(++orig)) {
 				case 'n':
@@ -3800,7 +3800,7 @@ void act(const char *str,
 	if (type == TO_CHAR) {
 		if (ch
 			&& SENDOK(ch)
-			&& ch->in_room != NOWHERE
+			&& ch->in_room != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
@@ -3814,7 +3814,7 @@ void act(const char *str,
 		CHAR_DATA *to = (CHAR_DATA *) vict_obj;
 		if (to != NULL
 			&& SENDOK(to)
-			&& IN_ROOM(to) != NOWHERE
+			&& IN_ROOM(to) != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
@@ -3828,9 +3828,9 @@ void act(const char *str,
 	// or TO_ROOM_HIDE
 
 	size_t room_number = ~0;
-	if (ch && ch->in_room != NOWHERE) {
+	if (ch && ch->in_room != kNowhere) {
 		room_number = ch->in_room;
-	} else if (obj && obj->get_in_room() != NOWHERE) {
+	} else if (obj && obj->get_in_room() != kNowhere) {
 		room_number = obj->get_in_room();
 	} else {
 		log("No valid target to act('%s')!", str);
@@ -3876,7 +3876,7 @@ void act(const char *str,
 		}
 	}
 	//Реализация флага слышно арену
-	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& ROOM_FLAGGED(ch->in_room, ROOM_ARENASEND) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV)) {
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне
@@ -3984,7 +3984,7 @@ int mccp_end(DESCRIPTOR_DATA *t, int ver) {
 
 	t->deflate->avail_in = 0;
 	t->deflate->next_in = tmp;
-	prevsize = SMALL_BUFSIZE - t->deflate->avail_out;
+	prevsize = kSmallBufsize - t->deflate->avail_out;
 
 	log("SYSERR: about to deflate Z_FINISH.");
 
@@ -3994,7 +3994,7 @@ int mccp_end(DESCRIPTOR_DATA *t, int ver) {
 		return 0;
 	}
 
-	pending = SMALL_BUFSIZE - t->deflate->avail_out - prevsize;
+	pending = kSmallBufsize - t->deflate->avail_out - prevsize;
 
 	if (!write_to_descriptor(t->descriptor, t->small_outbuf + prevsize, pending))
 		return 0;

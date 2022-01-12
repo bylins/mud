@@ -299,18 +299,18 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 
 	const long price = item->get_price();
 	if (!check_money(ch, price, currency)) {
-		snprintf(buf, MAX_STRING_LENGTH,
+		snprintf(buf, kMaxStringLength,
 				 "У вас нет столько %s!", ExtMoney::name_currency_plural(currency).c_str());
 		tell_to_char(keeper, ch, buf);
 
-		char local_buf[MAX_INPUT_LENGTH];
+		char local_buf[kMaxInputLength];
 		switch (number(0, 3)) {
-			case 0: snprintf(local_buf, MAX_INPUT_LENGTH, "ругать %s!", GET_NAME(ch));
+			case 0: snprintf(local_buf, kMaxInputLength, "ругать %s!", GET_NAME(ch));
 				do_social(keeper, local_buf);
 				break;
 
 			case 1:
-				snprintf(local_buf, MAX_INPUT_LENGTH,
+				snprintf(local_buf, kMaxInputLength,
 						 "отхлебнул$g немелкий глоток %s",
 						 IS_MALE(keeper) ? "водки" : "медовухи");
 				do_echo(keeper, local_buf, 0, SCMD_EMOTE);
@@ -324,7 +324,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 		const auto &name = obj_from_proto
 						   ? item->get_item_name(GET_MOB_VNUM(keeper), 3).c_str()
 						   : tmp_obj->get_short_description().c_str();
-		snprintf(buf, MAX_STRING_LENGTH,
+		snprintf(buf, kMaxStringLength,
 				 "%s, я понимаю, своя ноша карман не тянет,\r\n"
 				 "но %s вам явно некуда положить.\r\n",
 				 GET_NAME(ch), name);
@@ -414,16 +414,16 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 
 	if (bought < item_count) {
 		if (!check_money(ch, price, currency)) {
-			snprintf(buf, MAX_STRING_LENGTH, "Мошенни%s, ты можешь оплатить только %d.",
+			snprintf(buf, kMaxStringLength, "Мошенни%s, ты можешь оплатить только %d.",
 					 IS_MALE(ch) ? "к" : "ца", bought);
 		} else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
-			snprintf(buf, MAX_STRING_LENGTH, "Ты сможешь унести только %d.", bought);
+			snprintf(buf, kMaxStringLength, "Ты сможешь унести только %d.", bought);
 		} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto) > CAN_CARRY_W(ch)) {
-			snprintf(buf, MAX_STRING_LENGTH, "Ты сможешь поднять только %d.", bought);
+			snprintf(buf, kMaxStringLength, "Ты сможешь поднять только %d.", bought);
 		} else if (bought > 0) {
-			snprintf(buf, MAX_STRING_LENGTH, "Я продам тебе только %d.", bought);
+			snprintf(buf, kMaxStringLength, "Я продам тебе только %d.", bought);
 		} else {
-			snprintf(buf, MAX_STRING_LENGTH, "Я не продам тебе ничего.");
+			snprintf(buf, kMaxStringLength, "Я не продам тебе ничего.");
 		}
 
 		tell_to_char(keeper, ch, buf);
@@ -438,14 +438,14 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 	if (currency == "ногаты")
 		suffix = desc_count(total_money, WHAT_NOGATAu);
 
-	snprintf(buf, MAX_STRING_LENGTH, "Это будет стоить %d %s.", total_money, suffix);
+	snprintf(buf, kMaxStringLength, "Это будет стоить %d %s.", total_money, suffix);
 	tell_to_char(keeper, ch, buf);
 
 	if (obj) {
 		if ((GET_OBJ_COST(obj) * bought) > total_money) {
 
 			snprintf(buf,
-					 MAX_STRING_LENGTH,
+					 kMaxStringLength,
 					 "Персонаж %s купил предмет %d за %d при его стоимости %d и прайсе %ld.",
 					 ch->get_name().c_str(),
 					 GET_OBJ_VNUM(obj),
@@ -909,21 +909,21 @@ void shop_node::process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, 
 	if (cmd == "Характеристики") {
 		if (ch->get_gold() < IDENTIFY_COST) {
 			tell_to_char(keeper, ch, "У вас нет столько денег!");
-			char local_buf[MAX_INPUT_LENGTH];
+			char local_buf[kMaxInputLength];
 			switch (number(0, 3)) {
-				case 0: snprintf(local_buf, MAX_INPUT_LENGTH, "ругать %s!", GET_NAME(ch));
+				case 0: snprintf(local_buf, kMaxInputLength, "ругать %s!", GET_NAME(ch));
 					do_social(keeper, local_buf);
 					break;
 
 				case 1:
-					snprintf(local_buf, MAX_INPUT_LENGTH,
+					snprintf(local_buf, kMaxInputLength,
 							 "отхлебнул$g немелкий глоток %s",
 							 IS_MALE(keeper) ? "водки" : "медовухи");
 					do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 					break;
 			}
 		} else {
-			snprintf(buf, MAX_STRING_LENGTH,
+			snprintf(buf, kMaxStringLength,
 					 "Эта услуга будет стоить %d %s.", IDENTIFY_COST,
 					 desc_count(IDENTIFY_COST, WHAT_MONEYu));
 			tell_to_char(keeper, ch, buf);

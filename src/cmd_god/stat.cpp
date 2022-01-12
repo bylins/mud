@@ -400,7 +400,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			std::vector<room_vnum> predictive_path_vnum_list;
 			static const int max_path_size = 25;
 			room_vnum current_room = world[k->in_room]->room_vn;
-			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > NOWHERE) {
+			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > kNowhere) {
 				const auto direction = find_first_step(real_room(current_room), real_room(GET_DEST(k)), k);
 				if (direction >= 0) {
 					const auto exit_room_rnum = world[real_room(current_room)]->dir_option[direction]->to_room();
@@ -540,7 +540,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	{
 		if (SCRIPT(k)->global_vars) {
 			struct trig_var_data *tv;
-			char name[MAX_INPUT_LENGTH];
+			char name[kMaxInputLength];
 			void find_uid_name(char *uid, char *name);
 			send_to_char("Глобальные переменные:\r\n", ch);
 			// currently, variable context for players is always 0, so it is
@@ -656,7 +656,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	sprinttype(j->get_material(), material_name, buf2);
-	snprintf(buf, MAX_STRING_LENGTH, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n",
+	snprintf(buf, kMaxStringLength, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n",
 			 buf2, j->get_maximum_durability(), j->get_current_durability());
 	send_to_char(buf, ch);
 
@@ -693,7 +693,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 
 	auto room = get_room_where_obj(j);
 	strcpy(buf, "Находится в комнате : ");
-	if (room == NOWHERE || !is_grgod) {
+	if (room == kNowhere || !is_grgod) {
 		strcat(buf, "нигде");
 	} else {
 		sprintf(buf2, "%d", room);
@@ -763,7 +763,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 				}
 					break;
 				case BOOK_FEAT:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_FEATS) {
+					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < kMaxFeats) {
 						sprintf(buf, "содержит секрет способности : \"%s\"", feat_info[GET_OBJ_VAL(j, 1)].name);
 					} else
 						sprintf(buf, "неверный номер способности");
@@ -939,7 +939,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	}
 	found = 0;
 	send_to_char("Аффекты:", ch);
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		if (j->get_affected(i).modifier) {
 			sprinttype(j->get_affected(i).location, apply_types, smallBuf);
 			sprintf(buf, "%s %+d to %s", found++ ? "," : "", j->get_affected(i).modifier, smallBuf);
@@ -1082,7 +1082,7 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 	}
 	for (i = 0; i < NUM_OF_DIRS; i++) {
 		if (rm->dir_option[i]) {
-			if (rm->dir_option[i]->to_room() == NOWHERE)
+			if (rm->dir_option[i]->to_room() == kNowhere)
 				sprintf(smallBuf, " %sNONE%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			else
 				sprintf(smallBuf, "%s%5d%s", CCCYN(ch, C_NRM),
@@ -1135,9 +1135,9 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
 
 	if (is_abbrev(buf1, "room") && level >= LVL_BUILDER) {
-		int vnum, rnum = NOWHERE;
+		int vnum, rnum = kNowhere;
 		if (*buf2 && (vnum = atoi(buf2))) {
-			if ((rnum = real_room(vnum)) != NOWHERE)
+			if ((rnum = real_room(vnum)) != kNowhere)
 				do_stat_room(ch, rnum);
 			else
 				send_to_char("Состояние какой комнаты?\r\n", ch);

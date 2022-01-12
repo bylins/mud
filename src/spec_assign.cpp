@@ -75,7 +75,7 @@ void ASSIGNOBJ(obj_vnum obj, special_f fname) {
 void ASSIGNROOM(room_vnum room, special_f fname) {
 	const room_rnum rnum = real_room(room);
 
-	if (rnum != NOWHERE) {
+	if (rnum != kNowhere) {
 		world[rnum]->func = fname;
 	} else {
 		log("SYSERR: Attempt to assign spec to non-existant room #%d", room);

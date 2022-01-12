@@ -94,7 +94,7 @@ struct activ_sum {
 
 	// аффекты (obj_flags.affects)
 	FLAG_DATA affects;
-	// APPLY_XXX аффекты (affected[MAX_OBJ_AFFECT])
+	// APPLY_XXX аффекты (affected[kMaxObjAffect])
 	std::vector<obj_affected_type> apply;
 	// +скилы в обход текущего обхода шмоток
 	CObjectPrototype::skills_t skills;

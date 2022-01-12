@@ -29,8 +29,8 @@ void InitUnusedSkill(int skill) {
 	int i, j;
 
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
-		for (j = 0; j < NUM_KIN; j++) {
-			skill_info[skill].min_remort[i][j] = MAX_REMORT;
+		for (j = 0; j < kNumKins; j++) {
+			skill_info[skill].min_remort[i][j] = kMaxRemort;
 			skill_info[skill].min_level[i][j] = 0;
 			skill_info[skill].k_improve[i][j] = 0;
 		}
@@ -46,8 +46,8 @@ void InitSingleSkill(int skill, const char *name, const char *short_name,
 					 int save_type, int difficulty, unsigned short cap) {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
-		for (j = 0; j < NUM_KIN; j++) {
-			skill_info[skill].min_remort[i][j] = MAX_REMORT;
+		for (j = 0; j < kNumKins; j++) {
+			skill_info[skill].min_remort[i][j] = kMaxRemort;
 			skill_info[skill].min_level[i][j] = 0;
 			skill_info[skill].k_improve[i][j] = 0;
 		}

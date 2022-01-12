@@ -415,7 +415,7 @@ int Static::Special(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			return 0;
 		}
 
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s", "список");
 
 		if (act_board(ch, GET_OBJ_VNUM(board), buf_)) {
@@ -447,7 +447,7 @@ int Static::Special(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			}
 		}
 		// общая доска
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s%s", cmd_info[cmd].command, argument);
 
 		if (act_board(ch, GET_OBJ_VNUM(board), buf_)) {
@@ -587,7 +587,7 @@ void Static::new_message_notify(const Board::shared_ptr board) {
 		&& board->get_type() != CODER_BOARD
 		&& !board->empty()) {
 		const Message &msg = *board->get_last_message();
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_),
 				 "Новое сообщение в разделе '%s' от %s, тема: %s\r\n",
 				 board->get_name().c_str(), msg.author.c_str(),

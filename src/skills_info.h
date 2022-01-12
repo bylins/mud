@@ -6,11 +6,11 @@
 
 struct SkillInfoType {
 	byte min_position;
-	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
-	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
-	int level_decrement[NUM_PLAYER_CLASSES][NUM_KIN];
-	long int k_improve[NUM_PLAYER_CLASSES][NUM_KIN];
-	int classknow[NUM_PLAYER_CLASSES][NUM_KIN];
+	int min_remort[NUM_PLAYER_CLASSES][kNumKins];
+	int min_level[NUM_PLAYER_CLASSES][kNumKins];
+	int level_decrement[NUM_PLAYER_CLASSES][kNumKins];
+	long int k_improve[NUM_PLAYER_CLASSES][kNumKins];
+	int classknow[NUM_PLAYER_CLASSES][kNumKins];
 	int difficulty;
 	int save_type;
 	int cap;

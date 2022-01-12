@@ -83,7 +83,7 @@ bool is_wear_light(CHAR_DATA *ch) {
 }
 
 void check_light(CHAR_DATA *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef) {
-	if (ch->in_room == NOWHERE) {
+	if (ch->in_room == kNowhere) {
 		return;
 	}
 
@@ -284,9 +284,9 @@ int timed_by_skill(CHAR_DATA *ch, int skill) {
 
 // move a player out of a room
 void char_from_room(CHAR_DATA *ch) {
-	if (ch == NULL || ch->in_room == NOWHERE) {
+	if (ch == NULL || ch->in_room == kNowhere) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: NULL character or NOWHERE in %s, char_from_room", __FILE__);
+		log("SYSERR: NULL character or kNowhere in %s, char_from_room", __FILE__);
 		return;
 	}
 
@@ -301,7 +301,7 @@ void char_from_room(CHAR_DATA *ch) {
 	auto &people = world[ch->in_room]->people;
 	people.erase(std::find(people.begin(), people.end(), ch));
 
-	ch->in_room = NOWHERE;
+	ch->in_room = kNowhere;
 	ch->track_dirs = 0;
 }
 
@@ -344,7 +344,7 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 
 // place a character in a room
 void char_to_room(CHAR_DATA *ch, room_rnum room) {
-	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world) {
+	if (ch == NULL || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
 		return;
@@ -410,7 +410,7 @@ void char_to_room(CHAR_DATA *ch, room_rnum room) {
 }
 // place a character in a room
 void char_flee_to_room(CHAR_DATA *ch, room_rnum room) {
-	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world) {
+	if (ch == NULL || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
 		return;
@@ -682,7 +682,7 @@ void obj_to_char(OBJ_DATA *object, CHAR_DATA *ch) {
 		}
 
 		object->set_carried_by(ch);
-		object->set_in_room(NOWHERE);
+		object->set_in_room(kNowhere);
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
 		IS_CARRYING_N(ch)++;
 
@@ -721,11 +721,11 @@ int invalid_align(CHAR_DATA *ch, OBJ_DATA *obj) {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch))
 		return (FALSE);
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO)
-		&& GET_RELIGION(ch) == RELIGION_MONO) {
+		&& GET_RELIGION(ch) == kReligionMono) {
 		return TRUE;
 	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY)
-		&& GET_RELIGION(ch) == RELIGION_POLY) {
+		&& GET_RELIGION(ch) == kReligionPoly) {
 		return TRUE;
 	}
 	return FALSE;
@@ -808,7 +808,7 @@ int flag_data_by_char_class(const CHAR_DATA *ch) {
 	if (ch == NULL)
 		return 0;
 
-	return flag_data_by_num(IS_NPC(ch) ? NUM_PLAYER_CLASSES * NUM_KIN : GET_CLASS(ch)
+	return flag_data_by_num(IS_NPC(ch) ? NUM_PLAYER_CLASSES * kNumKins : GET_CLASS(ch)
 		+ NUM_PLAYER_CLASSES * GET_KIN(ch));
 }
 
@@ -840,7 +840,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 				item.set(flags);
 				if ((class_info = qty_info->second.find(item)) != qty_info->second.end()) {
 					if (GET_EQ(ch, pos) != obj) {
-						for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+						for (int i = 0; i < kMaxObjAffect; i++) {
 							affect_modify(ch,
 										  GET_EQ(ch, pos)->get_affected(i).location,
 										  GET_EQ(ch, pos)->get_affected(i).modifier,
@@ -848,7 +848,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 										  FALSE);
 						}
 
-						if (ch->in_room != NOWHERE) {
+						if (ch->in_room != kNowhere) {
 							for (const auto &i : weapon_affect) {
 								if (i.aff_bitvector == 0
 									|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
@@ -869,12 +869,12 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 							ch, GET_EQ(ch, pos), 0, TO_ROOM);
 					}
 
-					for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+					for (int i = 0; i < kMaxObjAffect; i++) {
 						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
 									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffectFlag>(0), TRUE);
 					}
 
-					if (ch->in_room != NOWHERE) {
+					if (ch->in_room != kNowhere) {
 						for (const auto &i : weapon_affect) {
 							if (i.aff_spell == 0 || !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 								continue;
@@ -897,7 +897,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 			}
 
 			if (GET_EQ(ch, pos) == obj) {
-				for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+				for (int i = 0; i < kMaxObjAffect; i++) {
 					affect_modify(ch,
 								  obj->get_affected(i).location,
 								  obj->get_affected(i).modifier,
@@ -905,7 +905,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 								  TRUE);
 				}
 
-				if (ch->in_room != NOWHERE) {
+				if (ch->in_room != kNowhere) {
 					for (const auto &i : weapon_affect) {
 						if (i.aff_spell == 0
 							|| !IS_OBJ_AFF(obj, i.aff_pos)) {
@@ -982,7 +982,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 	//	log("SYSERR: EQUIP: %s - Obj is carried_by when equip.", OBJN(obj, ch, 0));
 	//	return;
 	//}
-	if (obj->get_in_room() != NOWHERE) {
+	if (obj->get_in_room() != kNowhere) {
 		log("SYSERR: EQUIP: %s - Obj is in_room when equip.", OBJN(obj, ch, 0));
 		return;
 	}
@@ -1066,8 +1066,8 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 		}
 	}
 
-	if (ch->in_room == NOWHERE) {
-		log("SYSERR: ch->in_room = NOWHERE when equipping char %s.", GET_NAME(ch));
+	if (ch->in_room == kNowhere) {
+		log("SYSERR: ch->in_room = kNowhere when equipping char %s.", GET_NAME(ch));
 	}
 
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
@@ -1083,7 +1083,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 	}
 
 	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end()) {
-		for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+		for (int j = 0; j < kMaxObjAffect; j++) {
 			affect_modify(ch,
 						  obj->get_affected(j).location,
 						  obj->get_affected(j).modifier,
@@ -1091,7 +1091,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 						  TRUE);
 		}
 
-		if (ch->in_room != NOWHERE) {
+		if (ch->in_room != kNowhere) {
 			for (const auto &j : weapon_affect) {
 				if (j.aff_spell == 0
 					|| !IS_OBJ_AFF(obj, j.aff_pos)) {
@@ -1157,7 +1157,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 						flags2.set(flag_data_by_char_class(ch));
 						class_to_act_map::const_iterator class_info2 = qty_info->second.find(flags2);
 						if (class_info2 != qty_info->second.end()) {
-							for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+							for (int i = 0; i < kMaxObjAffect; i++) {
 								affect_modify(ch,
 											  GET_EQ(ch, pos)->get_affected(i).location,
 											  GET_EQ(ch, pos)->get_affected(i).modifier,
@@ -1165,7 +1165,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 											  FALSE);
 							}
 
-							if (ch->in_room != NOWHERE) {
+							if (ch->in_room != kNowhere) {
 								for (const auto &i : weapon_affect) {
 									if (i.aff_bitvector == 0
 										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
@@ -1185,7 +1185,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 									ch, GET_EQ(ch, pos), 0, TO_ROOM);
 							}
 
-							for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+							for (int i = 0; i < kMaxObjAffect; i++) {
 								affect_modify(ch,
 											  GET_EQ(ch, pos)->get_affected(i).location,
 											  GET_EQ(ch, pos)->get_affected(i).modifier,
@@ -1193,7 +1193,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 											  TRUE);
 							}
 
-							if (ch->in_room != NOWHERE) {
+							if (ch->in_room != kNowhere) {
 								for (const auto &i : weapon_affect) {
 									if (i.aff_bitvector == 0
 										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
@@ -1207,12 +1207,12 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 						}
 					}
 
-					for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+					for (int i = 0; i < kMaxObjAffect; i++) {
 						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
 									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffectFlag>(0), FALSE);
 					}
 
-					if (ch->in_room != NOWHERE) {
+					if (ch->in_room != kNowhere) {
 						for (const auto &i : weapon_affect) {
 							if (i.aff_bitvector == 0
 								|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
@@ -1233,7 +1233,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 					}
 
 					if (GET_EQ(ch, pos) != obj) {
-						for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+						for (int i = 0; i < kMaxObjAffect; i++) {
 							affect_modify(ch,
 										  GET_EQ(ch, pos)->get_affected(i).location,
 										  GET_EQ(ch, pos)->get_affected(i).modifier,
@@ -1241,7 +1241,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 										  TRUE);
 						}
 
-						if (ch->in_room != NOWHERE) {
+						if (ch->in_room != kNowhere) {
 							for (const auto &i : weapon_affect) {
 								if (i.aff_bitvector == 0 ||
 									!IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
@@ -1257,7 +1257,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 			}
 
 			if (GET_EQ(ch, pos) == obj) {
-				for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+				for (int i = 0; i < kMaxObjAffect; i++) {
 					affect_modify(ch,
 								  obj->get_affected(i).location,
 								  obj->get_affected(i).modifier,
@@ -1265,7 +1265,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 								  FALSE);
 				}
 
-				if (ch->in_room != NOWHERE) {
+				if (ch->in_room != kNowhere) {
 					for (const auto &i : weapon_affect) {
 						if (i.aff_bitvector == 0
 							|| !IS_OBJ_AFF(obj, i.aff_pos)) {
@@ -1308,8 +1308,8 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 
 	was_lamp = is_wear_light(ch);
 
-	if (ch->in_room == NOWHERE)
-		log("SYSERR: ch->in_room = NOWHERE when unequipping char %s.", GET_NAME(ch));
+	if (ch->in_room == kNowhere)
+		log("SYSERR: ch->in_room = kNowhere when unequipping char %s.", GET_NAME(ch));
 
 	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
 
@@ -1321,7 +1321,7 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 			}
 
 	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end()) {
-		for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+		for (int j = 0; j < kMaxObjAffect; j++) {
 			affect_modify(ch,
 						  obj->get_affected(j).location,
 						  obj->get_affected(j).modifier,
@@ -1329,7 +1329,7 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 						  FALSE);
 		}
 
-		if (ch->in_room != NOWHERE) {
+		if (ch->in_room != kNowhere) {
 			for (const auto &j : weapon_affect) {
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
@@ -1348,7 +1348,7 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 
 	GET_EQ(ch, pos) = NULL;
 	obj->set_worn_by(nullptr);
-	obj->set_worn_on(NOWHERE);
+	obj->set_worn_on(kNowhere);
 	obj->set_next_content(nullptr);
 
 	if (!skip_total) {
@@ -1371,7 +1371,7 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 int get_number(char **name) {
 	int i, res;
 	char *ppos;
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 
 	if ((ppos = strchr(*name, '.')) != NULL) {
 		for (i = 0; *name + i != ppos; i++) {
@@ -1381,8 +1381,8 @@ int get_number(char **name) {
 		}
 		*ppos = '\0';
 		res = atoi(*name);
-		strl_cpy(tmpname, ppos + 1, MAX_INPUT_LENGTH);
-		strl_cpy(*name, tmpname, MAX_INPUT_LENGTH);
+		strl_cpy(tmpname, ppos + 1, kMaxInputLength);
+		strl_cpy(*name, tmpname, kMaxInputLength);
 		return res;
 	}
 
@@ -1437,7 +1437,7 @@ OBJ_DATA *get_obj_num(obj_rnum nr) {
 
 // search a room for a char, and return a pointer if found..  //
 CHAR_DATA *get_char_room(char *name, room_rnum room) {
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
 	strcpy(tmp, name);
@@ -1519,12 +1519,12 @@ int obj_decay(OBJ_DATA *object) {
 	int room, sect;
 	room = object->get_in_room();
 
-	if (room == NOWHERE)
+	if (room == kNowhere)
 		return (0);
 
 	sect = real_sector(room);
 
-	if (((sect == SECT_WATER_SWIM || sect == SECT_WATER_NOSWIM) &&
+	if (((sect == kSectWaterSwim || sect == kSectWaterNoswim) &&
 		!OBJ_FLAGGED(object, EExtraFlag::ITEM_SWIMMING) &&
 		!OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING) &&
 		!IS_CORPSE(object))) {
@@ -1535,7 +1535,7 @@ int obj_decay(OBJ_DATA *object) {
 		return (1);
 	}
 
-	if (((sect == SECT_FLYING) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING))) {
+	if (((sect == kSectOnlyFlying) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING))) {
 
 		act("$o0 упал$G вниз.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
 		act("$o0 упал$G вниз.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
@@ -1559,7 +1559,7 @@ int obj_decay(OBJ_DATA *object) {
 
 // Take an object from a room
 void obj_from_room(OBJ_DATA *object) {
-	if (!object || object->get_in_room() == NOWHERE) {
+	if (!object || object->get_in_room() == kNowhere) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: NULL object (%p) or obj not in a room (%d) passed to obj_from_room",
 			object, object->get_in_room());
@@ -1568,7 +1568,7 @@ void obj_from_room(OBJ_DATA *object) {
 
 	object->remove_me_from_contains_list(world[object->get_in_room()]->contents);
 
-	object->set_in_room(NOWHERE);
+	object->set_in_room(kNowhere);
 	object->set_next_content(nullptr);
 }
 
@@ -1637,7 +1637,7 @@ void object_list_new_owner(OBJ_DATA *list, CHAR_DATA *ch) {
 }
 
 room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep) {
-	if (GET_ROOM_VNUM(obj->get_in_room()) != NOWHERE) {
+	if (GET_ROOM_VNUM(obj->get_in_room()) != kNowhere) {
 		return GET_ROOM_VNUM(obj->get_in_room());
 	} else if (obj->get_in_obj() && !deep) {
 		return get_room_where_obj(obj->get_in_obj(), true);
@@ -1647,12 +1647,12 @@ room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep) {
 		return GET_ROOM_VNUM(IN_ROOM(obj->get_worn_by()));
 	}
 
-	return NOWHERE;
+	return kNowhere;
 }
 
 // Extract an object from the world
 void extract_obj(OBJ_DATA *obj) {
-	char name[MAX_STRING_LENGTH];
+	char name[kMaxStringLength];
 	OBJ_DATA *temp;
 
 	strcpy(name, obj->get_PName(0).c_str());
@@ -1688,7 +1688,7 @@ void extract_obj(OBJ_DATA *obj) {
 			} else {
 				obj_to_char(temp, obj->get_worn_by());
 			}
-		} else if (obj->get_in_room() != NOWHERE) {
+		} else if (obj->get_in_room() != kNowhere) {
 			obj_to_room(temp, obj->get_in_room());
 			obj_decay(temp);
 		} else if (obj->get_in_obj()) {
@@ -1705,7 +1705,7 @@ void extract_obj(OBJ_DATA *obj) {
 		}
 	}
 
-	if (obj->get_in_room() != NOWHERE) {
+	if (obj->get_in_room() != kNowhere) {
 		obj_from_room(obj);
 	} else if (obj->get_carried_by()) {
 		obj_from_char(obj);
@@ -1761,7 +1761,7 @@ void update_char_objects(CHAR_DATA *ch) {
 					} else if (i == 0) {
 						act("$z $o погас$Q.\r\n", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
 						act("$o $n1 погас$Q.", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
-						if (ch->in_room != NOWHERE) {
+						if (ch->in_room != kNowhere) {
 							if (world[ch->in_room]->light > 0)
 								world[ch->in_room]->light -= 1;
 						}
@@ -2042,7 +2042,7 @@ CHAR_DATA *get_player_pun(CHAR_DATA *ch, const char *name, int inroom) {
 }
 
 CHAR_DATA *get_char_room_vis(CHAR_DATA *ch, const char *name) {
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 	// JE 7/18/94 :-) :-)
 	if (!str_cmp(name, "self")
@@ -2054,7 +2054,7 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA *ch, const char *name) {
 	}
 
 	// 0.<name> means PC with name
-	strl_cpy(tmp, name, MAX_INPUT_LENGTH);
+	strl_cpy(tmp, name, kMaxInputLength);
 
 	const int number = get_number(&tmp);
 	if (0 == number) {
@@ -2076,7 +2076,7 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA *ch, const char *name) {
 
 CHAR_DATA *get_char_vis(CHAR_DATA *ch, const char *name, int where) {
 	CHAR_DATA *i;
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
 	// check the room first
@@ -2110,7 +2110,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA *ch, const char *name, int where) {
 OBJ_DATA *get_obj_in_list_vis(CHAR_DATA *ch, const char *name, OBJ_DATA *list, bool locate_item) {
 	OBJ_DATA *i;
 	int j = 0, number;
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
 	strcpy(tmp, name);
@@ -2189,7 +2189,7 @@ OBJ_DATA *get_obj_vis_and_dec_num(CHAR_DATA *ch,
 // search the entire world for an object, and return a pointer
 OBJ_DATA *get_obj_vis(CHAR_DATA *ch, const char *name) {
 	int number;
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
 	strcpy(tmp, name);
@@ -2253,7 +2253,7 @@ OBJ_DATA *get_obj_vis(CHAR_DATA *ch, const char *name) {
 OBJ_DATA *get_obj_vis_for_locate(CHAR_DATA *ch, const char *name) {
 	OBJ_DATA *i;
 	int number;
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
 	// scan items carried //
@@ -2300,7 +2300,7 @@ bool try_locate_obj(CHAR_DATA *ch, OBJ_DATA *i) {
 		} else {
 			return false;
 		}
-	} else if (i->get_in_room() != NOWHERE && i->get_in_room()) {
+	} else if (i->get_in_room() != kNowhere && i->get_in_room()) {
 		if (world[i->get_in_room()]->zone_rn
 			== world[ch->in_room]->zone_rn) //шмотки в клетке можно локейтить только в одной зоне
 		{
@@ -2329,7 +2329,7 @@ bool try_locate_obj(CHAR_DATA *ch, OBJ_DATA *i) {
 				} else {
 					return true;
 				}
-			} else if (in_obj->get_in_room() != NOWHERE && in_obj->get_in_room()) {
+			} else if (in_obj->get_in_room() != kNowhere && in_obj->get_in_room()) {
 				if (world[in_obj->get_in_room()]->zone_rn == world[ch->in_room]->zone_rn) {
 					return true;
 				} else {
@@ -2357,7 +2357,7 @@ bool try_locate_obj(CHAR_DATA *ch, OBJ_DATA *i) {
 
 OBJ_DATA *get_object_in_equip_vis(CHAR_DATA *ch, const char *arg, OBJ_DATA *equipment[], int *j) {
 	int l, number;
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
 	strcpy(tmp, arg);
@@ -2473,7 +2473,7 @@ OBJ_DATA::shared_ptr create_money(int amount) {
 
 	obj->set_type(OBJ_DATA::ITEM_MONEY);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
-	obj->set_sex(ESex::SEX_FEMALE);
+	obj->set_sex(ESex::kSexFemale);
 	obj->set_val(0, amount);
 	obj->set_cost(amount);
 	obj->set_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
@@ -2510,7 +2510,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA *ch, CHAR_DATA **ta
 
 	OBJ_DATA *i;
 	int l, number, j = 0;
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
 	one_argument(arg, name);
@@ -2597,13 +2597,13 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA *ch, CHAR_DATA **ta
 
 // a function to scan for "all" or "all.x"
 int find_all_dots(char *arg) {
-	char tmpname[MAX_INPUT_LENGTH];
+	char tmpname[kMaxInputLength];
 
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
 		return (FIND_ALL);
 	} else if (!strn_cmp(arg, "all.", 4) || !strn_cmp(arg, "все.", 4)) {
-		strl_cpy(tmpname, arg + 4, MAX_INPUT_LENGTH);
-		strl_cpy(arg, tmpname, MAX_INPUT_LENGTH);
+		strl_cpy(tmpname, arg + 4, kMaxInputLength);
+		strl_cpy(arg, tmpname, kMaxInputLength);
 		return (FIND_ALLDOT);
 	} else {
 		return (FIND_INDIV);
@@ -2631,14 +2631,14 @@ int level_portal_by_vnum(int vnum) {
 	return (0);
 }
 
-// Возвращает vnum портала по ключевому слову или NOWHERE если не найдено
+// Возвращает vnum портала по ключевому слову или kNowhere если не найдено
 int find_portal_by_word(char *wrd) {
 	struct portals_list_type *i;
 	for (i = portals_list; i; i = i->next_portal) {
 		if (!str_cmp(i->wrd, wrd))
 			return (i->vnum);
 	}
-	return (NOWHERE);
+	return (kNowhere);
 }
 
 struct portals_list_type *get_portal(int vnum, char *wrd) {
@@ -2924,7 +2924,7 @@ void MemQ_remember(CHAR_DATA *ch, int num) {
 		return;
 	}
 
-	if (GET_RELIGION(ch) == RELIGION_MONO)
+	if (GET_RELIGION(ch) == kReligionMono)
 		sprintf(buf, "Вы дописали заклинание \"%s%s%s\" в свой часослов.\r\n",
 				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
 	else
