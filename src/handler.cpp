@@ -2473,7 +2473,7 @@ OBJ_DATA::shared_ptr create_money(int amount) {
 
 	obj->set_type(OBJ_DATA::ITEM_MONEY);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
-	obj->set_sex(ESex::kSexFemale);
+	obj->set_sex(ESex::kFemale);
 	obj->set_val(0, amount);
 	obj->set_cost(amount);
 	obj->set_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);

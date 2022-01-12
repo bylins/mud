@@ -876,9 +876,9 @@ void Player::save_char() {
 
 	fprintf(saved, "Map : %s\n", map_options_.bit_list_.to_string().c_str());
 
-	fprintf(saved, "TrcG: %d\n", ext_money_[ExtMoney::TORC_GOLD]);
-	fprintf(saved, "TrcS: %d\n", ext_money_[ExtMoney::TORC_SILVER]);
-	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::TORC_BRONZE]);
+	fprintf(saved, "TrcG: %d\n", ext_money_[ExtMoney::kTorcGold]);
+	fprintf(saved, "TrcS: %d\n", ext_money_[ExtMoney::kTorcSilver]);
+	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::kTorcBronze]);
 	fprintf(saved, "TrcL: %d %d\n", today_torc_.first, today_torc_.second);
 
 	if (get_reset_stats_cnt(ResetStats::Type::MAIN_STATS) > 0) {
@@ -1229,7 +1229,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_LOADROOM(this) = kNowhere;
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
-	this->set_sex(ESex::kSexNeutral);
+	this->set_sex(ESex::kNeutral);
 	GET_COND(this, THIRST) = NORM_COND_VALUE;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
@@ -1834,11 +1834,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				else if (!strcmp(tag, "Titl"))
 					GET_TITLE(this) = std::string(str_dup(line));
 				else if (!strcmp(tag, "TrcG"))
-					set_ext_money(ExtMoney::TORC_GOLD, num, false);
+					set_ext_money(ExtMoney::kTorcGold, num, false);
 				else if (!strcmp(tag, "TrcS"))
-					set_ext_money(ExtMoney::TORC_SILVER, num, false);
+					set_ext_money(ExtMoney::kTorcSilver, num, false);
 				else if (!strcmp(tag, "TrcB"))
-					set_ext_money(ExtMoney::TORC_BRONZE, num, false);
+					set_ext_money(ExtMoney::kTorcBronze, num, false);
 				else if (!strcmp(tag, "TrcL")) {
 					sscanf(line, "%d %d", &num, &num2);
 					today_torc_.first = num;

@@ -1191,7 +1191,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 	bool deaf = false;
 	int other_room = 0;
 	int r_num, vnum;
-	int rev_dir[] = {SOUTH, WEST, NORTH, EAST, DOWN, UP};
+	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 	char local_buf[kMaxStringLength]; // строка, в которую накапливается совершенное действо
 	// пишем начало строки - кто чё сделал
 	sprintf(local_buf, "$n %s ", cmd_door[scmd]);

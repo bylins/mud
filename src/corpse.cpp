@@ -375,7 +375,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob) {
 
 void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	auto corpse = world_objects.create_blank();
-	corpse->set_sex(ESex::kSexPoly);
+	corpse->set_sex(ESex::kPoly);
 
 	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
@@ -434,7 +434,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	auto corpse = world_objects.create_blank();
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->set_aliases(buf2);
-	corpse->set_sex(ESex::kSexMale);
+	corpse->set_sex(ESex::kMale);
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));

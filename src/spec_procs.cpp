@@ -1819,7 +1819,7 @@ int npc_loot(CHAR_DATA *ch) {
 
 int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 	int need_close = FALSE, need_lock = FALSE;
-	int rev_dir[] = {SOUTH, WEST, NORTH, EAST, DOWN, UP};
+	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 	int retval = FALSE;
 
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting()) {

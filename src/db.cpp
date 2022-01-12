@@ -5178,9 +5178,9 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
 	PRF_FLAGS(ch).unset(PRF_CAN_REMORT);
-	ch->set_ext_money(ExtMoney::TORC_GOLD, 0);
-	ch->set_ext_money(ExtMoney::TORC_SILVER, 0);
-	ch->set_ext_money(ExtMoney::TORC_BRONZE, 0);
+	ch->set_ext_money(ExtMoney::kTorcGold, 0);
+	ch->set_ext_money(ExtMoney::kTorcSilver, 0);
+	ch->set_ext_money(ExtMoney::kTorcBronze, 0);
 
 	snprintf(buf, sizeof(buf),
 			 "remort from %d to %d", ch->get_remort() - 1, ch->get_remort());

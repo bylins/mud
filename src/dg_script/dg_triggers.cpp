@@ -265,7 +265,7 @@ void bribe_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int amount) {
 
 void greet_mtrigger(CHAR_DATA *actor, int dir) {
 	char buf[kMaxInputLength];
-	int rev_dir[] = {SOUTH, WEST, NORTH, EAST, DOWN, UP};
+	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 
 	if (!actor || actor->purged()) {
 		return;
@@ -312,7 +312,7 @@ void greet_mtrigger(CHAR_DATA *actor, int dir) {
 }
 
 void income_mtrigger(CHAR_DATA *ch, int dir) {
-	int rev_dir[] = {SOUTH, WEST, NORTH, EAST, DOWN, UP};
+	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 	int ispcinroom = 0;
 	CHAR_DATA *actor = NULL;
 
@@ -1138,7 +1138,7 @@ int close_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int lock) {
 void greet_otrigger(CHAR_DATA *actor, int dir) {
 	char buf[kMaxInputLength];
 	OBJ_DATA *obj;
-	int rev_dir[] = {SOUTH, WEST, NORTH, EAST, DOWN, UP};
+	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 
 	if (IS_NPC(actor) || GET_INVIS_LEV(actor)) {
 		return;
@@ -1214,7 +1214,7 @@ void random_wtrigger(ROOM_DATA *room, int/* num*/, void * /*s*/, int/* types*/, 
 
 int enter_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir) {
 	char buf[kMaxInputLength];
-	int rev_dir[] = {SOUTH, WEST, NORTH, EAST, DOWN, UP};
+	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 
 	if (!actor || actor->purged())
 		return 1;

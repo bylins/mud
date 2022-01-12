@@ -154,9 +154,9 @@ void tascii(const uint32_t *pointer, int num_planes, char *ascii);
 inline int flag_data_by_num(const int &num) {
 	return num < 0 ? 0 :
 		   num < 30 ? (1 << num) :
-		   num < 60 ? (INT_ONE | (1 << (num - 30))) :
-		   num < 90 ? (INT_TWO | (1 << (num - 60))) :
-		   num < 120 ? (INT_THREE | (1 << (num - 90))) : 0;
+		   num < 60 ? (kIntOne | (1 << (num - 30))) :
+		   num < 90 ? (kIntTwo | (1 << (num - 60))) :
+		   num < 120 ? (kIntThree | (1 << (num - 90))) : 0;
 }
 
 #endif //BYLINS_SRC_STRUCTS_FLAG_DATA_H_

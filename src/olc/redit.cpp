@@ -522,23 +522,23 @@ void redit_disp_menu(DESCRIPTOR_DATA *d) {
 			 grn, nrm, room->name,
 			 grn, room->temp_description,
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,
-			 room->dir_option[NORTH] && room->dir_option[NORTH]->to_room() != kNowhere
-			 ? world[room->dir_option[NORTH]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[kDirNorth] && room->dir_option[kDirNorth]->to_room() != kNowhere
+			 ? world[room->dir_option[kDirNorth]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[EAST] && room->dir_option[EAST]->to_room() != kNowhere
-			 ? world[room->dir_option[EAST]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[kDirEast] && room->dir_option[kDirEast]->to_room() != kNowhere
+			 ? world[room->dir_option[kDirEast]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[SOUTH] && room->dir_option[SOUTH]->to_room() != kNowhere
-			 ? world[room->dir_option[SOUTH]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[kDirSouth] && room->dir_option[kDirSouth]->to_room() != kNowhere
+			 ? world[room->dir_option[kDirSouth]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[WEST] && room->dir_option[WEST]->to_room() != kNowhere
-			 ? world[room->dir_option[WEST]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[kDirWest] && room->dir_option[kDirWest]->to_room() != kNowhere
+			 ? world[room->dir_option[kDirWest]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[UP] && room->dir_option[UP]->to_room() != kNowhere
-			 ? world[room->dir_option[UP]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[kDirUp] && room->dir_option[kDirUp]->to_room() != kNowhere
+			 ? world[room->dir_option[kDirUp]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[DOWN] && room->dir_option[DOWN]->to_room() != kNowhere
-			 ? world[room->dir_option[DOWN]->to_room()]->room_vn : kNowhere,
+			 room->dir_option[kDirDown] && room->dir_option[kDirDown]->to_room() != kNowhere
+			 ? world[room->dir_option[kDirDown]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, grn, nrm, cyn,
 			 !room->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm);
@@ -621,28 +621,28 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				case '4': redit_disp_sector_menu(d);
 					break;
 
-				case '5': OLC_VAL(d) = NORTH;
+				case '5': OLC_VAL(d) = kDirNorth;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '6': OLC_VAL(d) = EAST;
+				case '6': OLC_VAL(d) = kDirEast;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '7': OLC_VAL(d) = SOUTH;
+				case '7': OLC_VAL(d) = kDirSouth;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '8': OLC_VAL(d) = WEST;
+				case '8': OLC_VAL(d) = kDirWest;
 					redit_disp_exit_menu(d);
 					break;
 
-				case '9': OLC_VAL(d) = UP;
+				case '9': OLC_VAL(d) = kDirUp;
 					redit_disp_exit_menu(d);
 					break;
 
 				case 'a':
-				case 'A': OLC_VAL(d) = DOWN;
+				case 'A': OLC_VAL(d) = kDirDown;
 					redit_disp_exit_menu(d);
 					break;
 

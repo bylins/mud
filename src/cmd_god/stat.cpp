@@ -230,9 +230,9 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 		k->add_today_torc(0);
 		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %d, Ногат: %d",
 				GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
-				k->get_ext_money(ExtMoney::TORC_GOLD),
-				k->get_ext_money(ExtMoney::TORC_SILVER),
-				k->get_ext_money(ExtMoney::TORC_BRONZE),
+				k->get_ext_money(ExtMoney::kTorcGold),
+				k->get_ext_money(ExtMoney::kTorcSilver),
+				k->get_ext_money(ExtMoney::kTorcBronze),
 				k->get_hryvn(), k->get_nogata());
 
 		//. Display OLC zone for immorts .

@@ -1701,7 +1701,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 		case OEDIT_SEXVALUE:
 			if ((number = atoi(arg)) >= 0
-				&& number < static_cast<int>(ESex::kSexLast)) {
+				&& number < static_cast<int>(ESex::kLast)) {
 				OLC_OBJ(d)->set_sex(static_cast<ESex>(number));
 			} else {
 				send_to_char("Пол (0-3) : ", d->character.get());

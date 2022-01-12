@@ -1076,13 +1076,13 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 							};
 			//проверяем GENDER 
 			switch (GET_SEX(victim)) {
-					case ESex::kSexNeutral:
+					case ESex::kNeutral:
 					gender = 0;
 					break;
-					case ESex::kSexMale:
+					case ESex::kMale:
 					gender = 1;
 					break;
-					case ESex::kSexFemale:
+					case ESex::kFemale:
 					gender = 2;
 					break;
 					default:
@@ -2224,7 +2224,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 	}
 
 	if (IS_FEMALE(ch)) {
-		mob->set_sex(ESex::kSexMale);
+		mob->set_sex(ESex::kMale);
 		mob->set_pc_name("Небесный защитник");
 		mob->player_data.PNames[0] = "Небесный защитник";
 		mob->player_data.PNames[1] = "Небесного защитника";
@@ -2236,7 +2236,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	} else {
-		mob->set_sex(ESex::kSexFemale);
+		mob->set_sex(ESex::kFemale);
 		mob->set_pc_name("Небесная защитница");
 		mob->player_data.PNames[0] = "Небесная защитница";
 		mob->player_data.PNames[1] = "Небесной защитницы";

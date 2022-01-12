@@ -83,7 +83,7 @@ struct DESCRIPTOR_DATA {
 	unsigned long old_vnum;                    // старый внум именной шмотки
 	std::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
 	bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
-	std::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
+	std::array<int, ExtMoney::kTotalTypes> ext_money; // обмен доп.денег
 	std::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 	bool mxp; // Для MXP
 

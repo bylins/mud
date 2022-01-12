@@ -20,11 +20,11 @@ int ext_search_block(const char *arg, const char *const *const list, int exact) 
 			if (**(list + i) == '\n') {
 				o = 1;
 				switch (j) {
-					case 0: j = INT_ONE;
+					case 0: j = kIntOne;
 						break;
-					case INT_ONE: j = INT_TWO;
+					case kIntOne: j = kIntTwo;
 						break;
-					case INT_TWO: j = INT_THREE;
+					case kIntTwo: j = kIntThree;
 						break;
 					default: j = 1;
 						break;
@@ -45,11 +45,11 @@ int ext_search_block(const char *arg, const char *const *const list, int exact) 
 			if (**(list + i) == '\n') {
 				o = 1;
 				switch (j) {
-					case 0: j = INT_ONE;
+					case 0: j = kIntOne;
 						break;
-					case INT_ONE: j = INT_TWO;
+					case kIntOne: j = kIntTwo;
 						break;
-					case INT_TWO: j = INT_THREE;
+					case kIntTwo: j = kIntThree;
 						break;
 					default: j = 1;
 						break;
@@ -93,7 +93,7 @@ void asciiflag_conv(const char *flag, void *to) {
 
 	if (is_number) {
 		is_number = atol(flag);
-		block = is_number < INT_ONE ? 0 : is_number < INT_TWO ? 1 : is_number < INT_THREE ? 2 : 3;
+		block = is_number < kIntOne ? 0 : is_number < kIntTwo ? 1 : is_number < kIntThree ? 2 : 3;
 		*(flags + block) = is_number & 0x3FFFFFFF;
 	}
 }

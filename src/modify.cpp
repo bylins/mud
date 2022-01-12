@@ -165,7 +165,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 					case 'i':
 						if (!indent) {
 							indent = TRUE;
-							flags += FORMAT_INDENT;
+							flags += kFormatIndent;
 						}
 						break;
 					default: break;

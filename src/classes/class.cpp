@@ -1667,7 +1667,7 @@ void load_skills_definitions() {
 			log("Skill '%s' not found...", name);
 			graceful_exit(1);
 		}
-		if (PlayerRace::GetKinNameByNum(i[0], ESex::kSexMale) == RACE_NAME_UNDEFINED) {
+		if (PlayerRace::GetKinNameByNum(i[0], ESex::kMale) == RACE_NAME_UNDEFINED) {
 			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
 			graceful_exit(1);
 		}

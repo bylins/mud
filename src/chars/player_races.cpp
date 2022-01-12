@@ -177,16 +177,16 @@ std::string PlayerRace::GetKinNameByNum(int KinNum, const ESex Sex) {
 	for (PlayerKinListType::iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it) {
 		if ((*it)->KinNum == KinNum) {
 			switch (Sex) {
-				case ESex::kSexNeutral: return PlayerRace::PlayerKinList[KinNum]->KinItName;
+				case ESex::kNeutral: return PlayerRace::PlayerKinList[KinNum]->KinItName;
 					break;
 
-				case ESex::kSexMale: return PlayerRace::PlayerKinList[KinNum]->KinHeName;
+				case ESex::kMale: return PlayerRace::PlayerKinList[KinNum]->KinHeName;
 					break;
 
-				case ESex::kSexFemale: return PlayerRace::PlayerKinList[KinNum]->KinSheName;
+				case ESex::kFemale: return PlayerRace::PlayerKinList[KinNum]->KinSheName;
 					break;
 
-				case ESex::kSexPoly: return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
+				case ESex::kPoly: return PlayerRace::PlayerKinList[KinNum]->KinPluralName;
 					break;
 
 				default: return PlayerRace::PlayerKinList[KinNum]->KinHeName;
@@ -210,16 +210,16 @@ std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, const ESex Sex
 			 ++it) {
 			if ((*it)->_RaceNum == RaceNum) {
 				switch (Sex) {
-					case ESex::kSexNeutral: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
+					case ESex::kNeutral: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceItName;
 						break;
 
-					case ESex::kSexMale: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
+					case ESex::kMale: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
 						break;
 
-					case ESex::kSexFemale: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
+					case ESex::kFemale: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceSheName;
 						break;
 
-					case ESex::kSexPoly: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
+					case ESex::kPoly: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RacePluralName;
 						break;
 
 					default: return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;

@@ -210,7 +210,7 @@ class Player : public CHAR_DATA {
 	// опции отрисовки режима карты
 	MapSystem::Options map_options_;
 	// доп. валюты (гривны)
-	std::array<int, ExtMoney::TOTAL_TYPES> ext_money_;
+	std::array<int, ExtMoney::kTotalTypes> ext_money_;
 	// сколько гривн, в пересчете на бронзу, сегодня уже собрано
 	std::pair<uint8_t /* day 1-31 */, int> today_torc_;
 	// кол-во сбросов характеристик через меню

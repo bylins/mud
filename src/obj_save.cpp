@@ -1078,7 +1078,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
 		}
 		// Пол
-		if (ESex::kSexNeutral != GET_OBJ_SEX(object)) {
+		if (ESex::kNeutral != GET_OBJ_SEX(object)) {
 			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
 		// Таймер

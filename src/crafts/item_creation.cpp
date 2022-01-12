@@ -1477,11 +1477,11 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_P
 		if (i == 0) // именительный падеж
 		{
 			obj->set_short_description(buf);
-			if (GET_OBJ_SEX(obj) == ESex::kSexMale) {
+			if (GET_OBJ_SEX(obj) == ESex::kMale) {
 				snprintf(buf2, kMaxStringLength, "Брошенный %s лежит тут.", buf);
-			} else if (GET_OBJ_SEX(obj) == ESex::kSexFemale) {
+			} else if (GET_OBJ_SEX(obj) == ESex::kFemale) {
 				snprintf(buf2, kMaxStringLength, "Брошенная %s лежит тут.", buf);
-			} else if (GET_OBJ_SEX(obj) == ESex::kSexPoly) {
+			} else if (GET_OBJ_SEX(obj) == ESex::kPoly) {
 				snprintf(buf2, kMaxStringLength, "Брошенные %s лежат тут.", buf);
 			}
 			obj->set_description(buf2); // описание на земле

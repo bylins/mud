@@ -3074,28 +3074,28 @@ void find_replacement(void *go,
 			} else
 				strcpy(str, r->name);
 		} else if (!str_cmp(field, "north")) {
-			if (r->dir_option[NORTH]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[NORTH]->to_room())));
+			if (r->dir_option[kDirNorth]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirNorth]->to_room())));
 			}
 		} else if (!str_cmp(field, "east")) {
-			if (r->dir_option[EAST]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EAST]->to_room())));
+			if (r->dir_option[kDirEast]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirEast]->to_room())));
 			}
 		} else if (!str_cmp(field, "south")) {
-			if (r->dir_option[SOUTH]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[SOUTH]->to_room())));
+			if (r->dir_option[kDirSouth]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirSouth]->to_room())));
 			}
 		} else if (!str_cmp(field, "west")) {
-			if (r->dir_option[WEST]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[WEST]->to_room())));
+			if (r->dir_option[kDirWest]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirWest]->to_room())));
 			}
 		} else if (!str_cmp(field, "up")) {
-			if (r->dir_option[UP]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[UP]->to_room())));
+			if (r->dir_option[kDirUp]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirUp]->to_room())));
 			}
 		} else if (!str_cmp(field, "down")) {
-			if (r->dir_option[DOWN]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[DOWN]->to_room())));
+			if (r->dir_option[kDirDown]) {
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirDown]->to_room())));
 			}
 		} else if (!str_cmp(field, "vnum")) {
 			sprintf(str, "%d", r->room_vn);

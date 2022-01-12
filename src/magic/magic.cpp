@@ -2993,7 +2993,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 		mob->player_data.PNames[5] = std::string(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
 		mob->player_data.PNames[1] = std::string(buf2);
-		mob->set_sex(ESex::kSexNeutral);
+		mob->set_sex(ESex::kNeutral);
 		MOB_FLAGS(mob).set(MOB_RESURRECTED);    // added by Pereplut
 		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
 		if (can_use_feat(ch, FURYDARK_FEAT)) {
@@ -3130,7 +3130,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 
 		GET_POS(mob) = POS_STANDING;
 		GET_DEFAULT_POS(mob) = POS_STANDING;
-		mob->set_sex(ESex::kSexMale);
+		mob->set_sex(ESex::kMale);
 
 		mob->set_class(ch->get_class());
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);

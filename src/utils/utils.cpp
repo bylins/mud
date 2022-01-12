@@ -772,7 +772,7 @@ void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCR
 		return;
 	}
 
-	if (IS_SET(mode, FORMAT_INDENT)) {
+	if (IS_SET(mode, kFormatIndent)) {
 		strcpy(pos, "   ");
 		total_chars = 3;
 		pos += 3;

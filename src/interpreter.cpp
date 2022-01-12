@@ -2379,16 +2379,16 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	}
 
 	switch (GET_SEX(d->character)) {
-		case ESex::kSexNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+		case ESex::kNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
 			break;
 
-		case ESex::kSexMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+		case ESex::kMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 			break;
 
-		case ESex::kSexFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+		case ESex::kFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
 			break;
 
-		case ESex::kSexPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+		case ESex::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
 			break;
 	}
 
@@ -2578,7 +2578,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	ch->player_data.time.logon = time(0);
 
 	// make favors for sex
-	if (ch->get_sex() == ESex::kSexMale) {
+	if (ch->get_sex() == ESex::kMale) {
 		ch->player_data.weight = number(120, 180);
 		ch->player_data.height = number(160, 200);
 	} else {
@@ -3228,11 +3228,11 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 
 			switch (UPPER(*arg)) {
 				case 'М':
-				case 'M': d->character->set_sex(ESex::kSexMale);
+				case 'M': d->character->set_sex(ESex::kMale);
 					break;
 
 				case 'Ж':
-				case 'F': d->character->set_sex(ESex::kSexFemale);
+				case 'F': d->character->set_sex(ESex::kFemale);
 					break;
 
 				default: SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);

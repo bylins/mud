@@ -847,9 +847,9 @@ inline T VPOSI(const T val, const T min, const T max) {
                           IS_FEMALE(ch) ? "ая" : "ие")
 
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::kSexNeutral)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::kSexMale)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::kSexFemale)
+#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::kNeutral)
+#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::kMale)
+#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::kFemale)
 
 #define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
 
@@ -916,8 +916,8 @@ inline T VPOSI(const T val, const T min, const T max) {
                             IS_FEMALE(ch) ? "ей" : "ими")
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kSexPoly) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::kSexPoly) ? "ят" : "ит")
+#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
+#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
@@ -987,15 +987,15 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define CIRCLEMUD_VERSION(major, minor, patchlevel) \
    (((major) << 16) + ((minor) << 8) + (patchlevel))
 
-#define HSHR(ch) (ESex::kSexNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (ESex::kSexNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (ESex::kSexNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (ESex::kSexNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
+#define HSSH(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
+#define HMHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
-#define OSHR(ch) (ESex::kSexNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kSexMale ? "его": (GET_OBJ_SEX(ch) == ESex::kSexFemale ? "ее" : "их")) :"его")
-#define OSSH(ch) (ESex::kSexNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kSexMale ? "он": (GET_OBJ_SEX(ch) == ESex::kSexFemale ? "она" : "они")) :"оно")
-#define OMHR(ch) (ESex::kSexNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kSexMale ? "ему": (GET_OBJ_SEX(ch) == ESex::kSexFemale ? "ей" : "им")) :"ему")
-#define OYOU(ch) (ESex::kSexNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kSexMale ? "ваш": (GET_OBJ_SEX(ch) == ESex::kSexFemale ? "ваша" : "ваши")) :"ваше")
+#define OSHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "его": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ее" : "их")) :"его")
+#define OSSH(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "он": (GET_OBJ_SEX(ch) == ESex::kFemale ? "она" : "они")) :"оно")
+#define OMHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ему": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ей" : "им")) :"ему")
+#define OYOU(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ваш": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ваша" : "ваши")) :"ваше")
 
 #define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || NORENTABLE(ch)))
 
