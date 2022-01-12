@@ -10,10 +10,11 @@
 #ifndef __ITEM_CREATION_HPP__
 #define __ITEM_CREATION_HPP__
 
-#include "skills.h"
-#include "interpreter.h"
-#include "features.h"
 #include "conf.h"
+#include "features.h"
+#include "interpreter.h"
+#include "skills.h"
+#include "structs/flag_data.h"
 
 #include <string>
 #include <list>

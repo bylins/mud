@@ -5,6 +5,7 @@
 #define OBJ_ENCHANT_HPP_INCLUDED
 
 #include "structs/structs.h"
+#include "structs/flag_data.h"
 #include "sysdep.h"
 #include "conf.h"
 

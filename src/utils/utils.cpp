@@ -209,7 +209,7 @@ char *CAP(char *txt) {
 
 // Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src) {
-	if (dst == NULL) {
+	if (dst == nullptr) {
 		dst = (char *) malloc(strlen(src) + 1);
 		strcpy(dst, src);
 	} else {
@@ -221,7 +221,7 @@ char *str_add(char *dst, const char *src) {
 
 // Create a duplicate of a string
 char *str_dup(const char *source) {
-	char *new_z = NULL;
+	char *new_z = nullptr;
 	if (source) {
 		CREATE(new_z, strlen(source) + 1);
 		return (strcpy(new_z, source));
@@ -292,8 +292,8 @@ CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
 int str_cmp(const char *arg1, const char *arg2) {
 	int chk, i;
 
-	if (arg1 == NULL || arg2 == NULL) {
-		log("SYSERR: str_cmp() passed a NULL pointer, %p or %p.", arg1, arg2);
+	if (arg1 == nullptr || arg2 == nullptr) {
+		log("SYSERR: str_cmp() passed a nullptr pointer, %p or %p.", arg1, arg2);
 		return (0);
 	}
 
@@ -308,7 +308,7 @@ int str_cmp(const std::string &arg1, const char *arg2) {
 	int chk;
 	std::string::size_type i;
 
-	if (arg2 == NULL) {
+	if (arg2 == nullptr) {
 		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg2);
 		return (0);
 	}
@@ -329,7 +329,7 @@ int str_cmp(const char *arg1, const std::string &arg2) {
 	int chk;
 	std::string::size_type i;
 
-	if (arg1 == NULL) {
+	if (arg1 == nullptr) {
 		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg1);
 		return (0);
 	}
@@ -372,7 +372,7 @@ int str_cmp(const std::string &arg1, const std::string &arg2) {
 int strn_cmp(const char *arg1, const char *arg2, size_t n) {
 	int chk, i;
 
-	if (arg1 == NULL || arg2 == NULL) {
+	if (arg1 == nullptr || arg2 == nullptr) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p or %p.", arg1, arg2);
 		return (0);
 	}
@@ -388,7 +388,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n) {
 	int chk;
 	std::string::size_type i;
 
-	if (arg2 == NULL) {
+	if (arg2 == nullptr) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg2);
 		return (0);
 	}
@@ -410,7 +410,7 @@ int strn_cmp(const char *arg1, const std::string &arg2, size_t n) {
 	int chk;
 	std::string::size_type i;
 
-	if (arg1 == NULL) {
+	if (arg1 == nullptr) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg1);
 		return (0);
 	}
@@ -552,7 +552,7 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 	const char *prefix, *middle, *suffix;
 	char name[64], *ptr;
 
-	if (orig_name == NULL || *orig_name == '\0' || filename == NULL) {
+	if (orig_name == nullptr || *orig_name == '\0' || filename == nullptr) {
 		log("SYSERR: NULL pointer or empty string passed to get_filename(), %p or %p.", orig_name, filename);
 		return (0);
 	}
@@ -760,9 +760,9 @@ int replace_str(const AbstractStringWriter::shared_ptr &writer,
 // (for strings edited with d->str) (mostly olc and mail)     //
 void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCRIPTOR_DATA * /*d*/, size_t maxlen) {
 	size_t total_chars = 0;
-	int cap_next = TRUE, cap_next_next = FALSE;
+	int cap_next = true, cap_next_next = false;
 	const char *flow;
-	const char *start = NULL;
+	const char *start = nullptr;
 	// warning: do not edit messages with max_str's of over this value //
 	char formatted[kMaxStringLength];
 	char *pos = formatted;
@@ -807,13 +807,13 @@ void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCR
 			}
 
 			if (cap_next_next) {
-				cap_next_next = FALSE;
-				cap_next = TRUE;
+				cap_next_next = false;
+				cap_next = true;
 			}
 
 			// this is so that if we stopped on a sentance .. we move off the sentance delim. //
 			while ((*flow == '.') || (*flow == '!') || (*flow == '?')) {
-				cap_next_next = TRUE;
+				cap_next_next = true;
 				flow++;
 			}
 
@@ -834,7 +834,7 @@ void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCR
 			total_chars += flow - start;
 			strncpy(pos, start, flow - start);
 			if (cap_next) {
-				cap_next = FALSE;
+				cap_next = false;
 				*pos = UPPER(*pos);
 			}
 			pos += flow - start;
@@ -889,13 +889,13 @@ const char *desc_count(long how_many, int of_what) {
 
 int check_moves(CHAR_DATA *ch, int how_moves) {
 	if (IS_IMMORTAL(ch) || IS_NPC(ch))
-		return (TRUE);
+		return (true);
 	if (GET_MOVE(ch) < how_moves) {
 		send_to_char("Вы слишком устали.\r\n", ch);
-		return (FALSE);
+		return (false);
 	}
 	GET_MOVE(ch) -= how_moves;
-	return (TRUE);
+	return (true);
 }
 
 int real_sector(int room) {
@@ -1028,21 +1028,21 @@ int is_post(room_rnum room) {
 	for (const auto ch : world[room]->people) {
 		if (IS_NPC(ch)
 			&& IS_POSTKEEPER(ch)) {
-			return (TRUE);
+			return (true);
 		}
 	}
-	return (FALSE);
+	return (false);
 
 }
 
 // Форматирование вывода в соответствии с форматом act-a
 // output act format//
 char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vict_obj) {
-	const char *i = NULL;
+	const char *i = nullptr;
 	char *buf, *lbuf;
 	ubyte padis;
 	int stopbyte;
-//	CHAR_DATA *dg_victim = NULL;
+//	CHAR_DATA *dg_victim = nullptr;
 
 	buf = (char *) malloc(kMaxStringLength);
 	lbuf = buf;
@@ -1288,7 +1288,7 @@ bool ignores(CHAR_DATA *who, CHAR_DATA *whom, unsigned int flag) {
 
 // имморталов не игнорит никто
 	if (IS_IMMORTAL(whom)) {
-		return FALSE;
+		return false;
 	}
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
@@ -1301,10 +1301,10 @@ bool ignores(CHAR_DATA *who, CHAR_DATA *whom, unsigned int flag) {
 	for (const auto &ignore : who->get_ignores()) {
 		if ((ignore->id == ign_id || ignore->id == -1)
 			&& IS_SET(ignore->mode, flag)) {
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 //Gorrah
@@ -1395,14 +1395,14 @@ std::string time_format(int in_timer, int flag) {
 
 // * Для обрезания точек в карме при сете славы.
 void skip_dots(char **string) {
-	for (; **string && (strchr(" .", **string) != NULL); (*string)++);
+	for (; **string && (strchr(" .", **string) != nullptr); (*string)++);
 }
 
 // Return pointer to first occurrence in string ct in
-// cs, or NULL if not present.  Case insensitive
+// cs, or nullptr if not present.  Case insensitive
 const char *str_str(const char *cs, const char *ct) {
 	if (!cs || !ct) {
-		return NULL;
+		return nullptr;
 	}
 
 	while (*cs) {
@@ -1423,7 +1423,7 @@ const char *str_str(const char *cs, const char *ct) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 // remove ^M's from file output
@@ -2430,7 +2430,7 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const {
 			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
 					 proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
-			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, true);
 		} else {
 			int tm_pct;
 			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
@@ -2694,7 +2694,7 @@ const char *print_obj_state(int tm_pct) {
 }
 
 void sanity_check(void) {
-	int ok = TRUE;
+	int ok = true;
 
 	// * If any line is false, 'ok' will become false also.
 	ok &= (test_magic(buf) == MAGIC_NUMBER || test_magic(buf) == '\0');

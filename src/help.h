@@ -5,10 +5,11 @@
 #ifndef HELP_HPP_INCLUDED
 #define HELP_HPP_INCLUDED
 
-#include "conf.h"
-#include "sysdep.h"
-#include "interpreter.h"
 #include "chars/char_player.h"
+#include "conf.h"
+#include "interpreter.h"
+#include "structs/flag_data.h"
+#include "sysdep.h"
 
 #include <string>
 #include <map>

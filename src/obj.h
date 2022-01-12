@@ -9,6 +9,7 @@
 #include "obj_enchant.h"
 #include "magic/spells.h"
 #include "skills.h"
+#include "structs/flag_data.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
