@@ -538,31 +538,32 @@ void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
 														   / SECS_PER_MUD_HOUR)))));
 				time_str.append("]");
 			}
-
-			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-									   "%s|<%c%c%c%c%c%c%c%c>%s %-30s %-7s&n|",
-
-									   slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch)) ? 'N'
-																											   : 'K')
-														  : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_TEMP) ? 'T' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_POTION) ? 'P' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_WAND) ? 'W' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_SCROLL) ? 'S' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_ITEMS) ? 'I' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_RUNES) ? 'R' : '.',
-									   '.',
-									   spells_color(i),
-									   spell_info[i].name,
-									   time_str.c_str());
+		if (MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch) && IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW)) {
+			sprintf(buf1, "%d", MIN_CAST_LEV(spell_info[i], ch) - GET_REAL_LEVEL(ch));
+		}
+		else {
+			sprintf(buf1, "%s", "K");
+		}
+		slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
+				"%s|<%s%c%c%c%c%c%c%c>%s %-30s %-7s&n|",
+				slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
+				IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch)) ? buf1 : "K") : ".",
+				IS_SET(GET_SPELL_TYPE(ch, i),
+				SPELL_TEMP) ? 'T' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+				SPELL_POTION) ? 'P' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+				SPELL_WAND) ? 'W' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+				SPELL_SCROLL) ? 'S' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+				SPELL_ITEMS) ? 'I' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+				SPELL_RUNES) ? 'R' : '.',
+				'.',
+				spells_color(i),
+				spell_info[i].name,
+				time_str.c_str());
 		}
 		is_full++;
 	};
