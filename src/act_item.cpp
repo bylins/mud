@@ -16,7 +16,7 @@
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "entities/char.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "depot.h"
 #include "fightsystem/fight.h"
 #include "handler.h"

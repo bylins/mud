@@ -7,6 +7,7 @@
 #ifndef BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 #define BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 
+#include "boards/boards_types.h"
 #include "structs.h"
 #include "sysdep.h"
 

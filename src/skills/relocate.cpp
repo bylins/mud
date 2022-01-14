@@ -2,7 +2,7 @@
 
 //#include "features.h"
 #include "entities/char.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "house.h"
 #include "screen.h"
 #include "handler.h"

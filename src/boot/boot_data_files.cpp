@@ -8,7 +8,7 @@
 #include "description.h"
 #include "crafts/im.h"
 #include "entities/char.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
 #include "zone.table.h"

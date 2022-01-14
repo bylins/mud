@@ -3,7 +3,7 @@
 #include "affects/affect_data.h"
 #include "mobact.h"
 #include "entities/obj.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "cmd/flee.h"
 #include "entities/world_characters.h"
 #include "fight.h"

@@ -22,7 +22,7 @@
 #include "entities/char.h"
 #include "entities/char_player.h"
 #include "entities/player_races.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "entities/world_characters.h"
 #include "cmd_god/stat.h"
 #include "cmd/follow.h"

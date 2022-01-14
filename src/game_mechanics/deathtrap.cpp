@@ -5,7 +5,7 @@
 #include "deathtrap.h"
 
 #include "constants.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "handler.h"
 #include "house.h"
 #include "corpse.h"

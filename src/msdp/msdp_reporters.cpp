@@ -1,7 +1,7 @@
 #include "msdp_reporters.h"
 
 #include "entities/char.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "magic/magic.h"
 #include "msdp_constants.h"
 #include "zone.table.h"

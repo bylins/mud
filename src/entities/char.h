@@ -8,12 +8,12 @@
 #include "skills/morph.hpp"
 #include "game_mechanics/obj_sets.h"
 #include "db.h"
+#include "entities/entity_constants.h"
 #include "room.h"
 #include "ignores.h"
 #include "crafts/im.h"
 #include "skills.h"
 #include "utils/utils.h"
-#include "structs/structs.h"
 #include "conf.h"
 #include "affects/affect_data.h"
 

@@ -73,7 +73,7 @@ set(SOURCES
 		src/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
-		src/entities/room_constants.cpp
+		src/entities/entity_constants.cpp
 		src/exchange.cpp
 		src/ext_money.cpp
 		src/external_trigger.cpp
@@ -229,7 +229,8 @@ set(SOURCES
 		src/cmd/cast.cpp
 		src/cmd/employ.cpp
         src/cmd/follow.cpp
-		src/structs/flag_data.cpp)
+		src/structs/flag_data.cpp
+		)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -437,7 +438,9 @@ set(HEADERS
 		src/skills/chopoff.h
 		src/skills/stupor.h
 		src/graph.h
-		src/structs/flag_data.h src/entities/room_constants.h)
+		src/structs/flag_data.h
+		src/entities/entity_constants.h
+		)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

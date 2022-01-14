@@ -14,7 +14,7 @@
 #include "act_movement.h"
 
 #include "game_mechanics/deathtrap.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/mobact.h"

@@ -17,7 +17,7 @@
 #include "utils/utils_char_obj.inl"
 #include "entities/char.h"
 #include "entities/char_player.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "cmd/follow.h"
 #include "comm.h"
 #include "conf.h"

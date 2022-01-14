@@ -14,7 +14,7 @@
 
 #include "world_objects.h"
 #include "entities/world_characters.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "obj_prototypes.h"
 #include "logger.h"
 #include "cmd_god/shutdown_parameters.h"

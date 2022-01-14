@@ -11,7 +11,8 @@
 #ifndef _IM_H_
 #define _IM_H_
 
-#include "structs/structs.h"
+#include "entities/entity_constants.h"
+//#include "structs/structs.h"
 #include "classes/class_constants.h"
 
 class OBJ_DATA;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.

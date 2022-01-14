@@ -24,7 +24,7 @@
 #include "depot.h"
 #include "game_mechanics/glory.h"
 #include "entities/char_player.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "obj_save.h"
 #include "fightsystem/fight.h"
 #include "ext_money.h"

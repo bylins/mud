@@ -5,12 +5,12 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
+#include "entities/entity_constants.h"
 #include "id.h"
 #include "obj_enchant.h"
 #include "magic/spells.h"
 #include "skills.h"
 #include "structs/flag_data.h"
-#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 #include "cmd/telegram.h"

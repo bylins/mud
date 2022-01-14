@@ -17,7 +17,7 @@
 #ifndef _GENCHAR_H_
 #define _GENCHAR_H_
 
-#include "structs/structs.h"
+#include "entities/entity_constants.h"
 
 #define SUM_ALL_STATS 95
 #define SUM_STATS(ch) (ch->get_str() + ch->get_dex() + ch->get_int() +  ch->get_wis() + ch->get_con() +  ch->get_cha())

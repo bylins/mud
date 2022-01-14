@@ -11,6 +11,7 @@
 #define __ITEM_CREATION_HPP__
 
 #include "conf.h"
+#include "entities/entity_constants.h"
 #include "features.h"
 #include "interpreter.h"
 #include "skills.h"

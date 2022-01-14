@@ -9,7 +9,7 @@
 ************************************************************************ */
 
 #include "entities/obj.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "screen.h"
 #include "interpreter.h"
 #include "handler.h"

@@ -18,7 +18,7 @@
 #include "screen.h"
 #include "house.h"
 #include "entities/char_player.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
 #include "magic/magic_utils.h"

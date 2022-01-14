@@ -7,7 +7,7 @@
 #include "obj_prototypes.h"
 #include "constants.h"
 #include "entities/char.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "handler.h"
 #include "utils/pugixml.h"
 #include "house.h"

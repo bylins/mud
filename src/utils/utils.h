@@ -17,7 +17,7 @@
 #include "classes/class_constants.h"
 #include "conf.h"
 #include "config.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "pugixml.h"
 #include "structs/structs.h"
 

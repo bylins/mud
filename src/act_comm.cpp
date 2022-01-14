@@ -18,7 +18,7 @@
 #include "auction.h"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "house.h"
 #include "spam.h"
 #include "utils/utils_char_obj.inl"

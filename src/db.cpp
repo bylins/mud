@@ -27,7 +27,7 @@
 #include "entities/char.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "entities/room_constants.h"
+#include "entities/entity_constants.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
 #include "corpse.h"

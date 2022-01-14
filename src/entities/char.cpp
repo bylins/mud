@@ -5,7 +5,7 @@
 #include "world_characters.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
-#include "room_constants.h"
+#include "entity_constants.h"
 #include "privilege.h"
 #include "char_player.h"
 #include "player_races.h"
