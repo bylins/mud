@@ -372,7 +372,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			accum_duration = FALSE;
 			update_spell = TRUE;
 			if (IS_MANA_CASTER(ch)) {
-				af[0].modifier = 80;
+				af[0].modifier = 95;
 			} else {
 				af[0].modifier = MIN(100, GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0));
 			}
