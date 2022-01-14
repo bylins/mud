@@ -80,7 +80,6 @@
 using std::string;
 
 // extern variables
-//extern DESCRIPTOR_DATA *descriptor_list;
 extern int number_of_social_commands;
 extern char *credits;
 extern char *info;
@@ -101,8 +100,6 @@ extern std::vector<City> cities;
 long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA *ch, int level);
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
-//int compute_armor_class(CHAR_DATA *ch);
-//int pk_count(CHAR_DATA *ch);
 // local functions
 const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA *list, CHAR_DATA *ch, int mode, int show);
@@ -1726,88 +1723,81 @@ void show_room_affects(CHAR_DATA *ch, const char *name_affects[], const char *na
 
 	for (const auto &af : world[ch->in_room]->affected) {
 		switch (af->bitvector) {
-			case AFF_ROOM_LIGHT:                    // 1 << 0
-				if (!IS_SET(bitvector, AFF_ROOM_LIGHT)) {
+			case room_spells::EAffect::kLight:
+				if (!IS_SET(bitvector, room_spells::EAffect::kLight)) {
 					if (af->caster_id == ch->id && *name_self_affects[0] != '\0') {
 						buffer << name_self_affects[0] << "\r\n";
 					} else if (*name_affects[0] != '\0') {
 						buffer << name_affects[0] << "\r\n";
 					}
-
-					SET_BIT(bitvector, AFF_ROOM_LIGHT);
+					SET_BIT(bitvector, room_spells::EAffect::kLight);
 				}
 				break;
-			case AFF_ROOM_FOG:                        // 1 << 1
-				if (!IS_SET(bitvector, AFF_ROOM_FOG)) {
+			case room_spells::EAffect::kPoisonFog:
+				if (!IS_SET(bitvector, room_spells::EAffect::kPoisonFog)) {
 					if (af->caster_id == ch->id && *name_self_affects[1] != '\0') {
 						buffer << name_self_affects[1] << "\r\n";
 					} else if (*name_affects[1] != '\0') {
 						buffer << name_affects[1] << "\r\n";
 					}
-
-					SET_BIT(bitvector, AFF_ROOM_FOG);
+					SET_BIT(bitvector, room_spells::EAffect::kPoisonFog);
 				}
 				break;
-			case AFF_ROOM_RUNE_LABEL:                // 1 << 2
+			case room_spells::EAffect::kRuneLabel:                // 1 << 2
 				if (af->caster_id == ch->id && *name_self_affects[2] != '\0') {
 					buffer << name_self_affects[2] << "\r\n";
 				} else if (*name_affects[2] != '\0') {
 					buffer << name_affects[2] << "\r\n";
 				}
 				break;
-			case AFF_ROOM_FORBIDDEN:                // 1 << 3
-				if (!IS_SET(bitvector, AFF_ROOM_FORBIDDEN)) {
+			case room_spells::EAffect::kForbidden:
+				if (!IS_SET(bitvector, room_spells::EAffect::kForbidden)) {
 					if (af->caster_id == ch->id && *name_self_affects[3] != '\0') {
 						buffer << name_self_affects[3] << "\r\n";
 					} else if (*name_affects[3] != '\0') {
 						buffer << name_affects[3] << "\r\n";
 					}
-
-					SET_BIT(bitvector, AFF_ROOM_FORBIDDEN);
+					SET_BIT(bitvector, room_spells::EAffect::kForbidden);
 				}
 				break;
-			case AFF_ROOM_HYPNOTIC_PATTERN:            // 1 << 4
-				if (!IS_SET(bitvector, AFF_ROOM_HYPNOTIC_PATTERN)) {
+			case room_spells::EAffect::kHypnoticPattern:
+				if (!IS_SET(bitvector, room_spells::EAffect::kHypnoticPattern)) {
 					if (af->caster_id == ch->id && *name_self_affects[4] != '\0') {
 						buffer << name_self_affects[4] << "\r\n";
 					} else if (*name_affects[4] != '\0') {
 						buffer << name_affects[4] << "\r\n";
 					}
-
-					SET_BIT(bitvector, AFF_ROOM_HYPNOTIC_PATTERN);
+					SET_BIT(bitvector, room_spells::EAffect::kHypnoticPattern);
 				}
 				break;
-			case AFF_ROOM_EVARDS_BLACK_TENTACLES:    // 1 << 5
-				if (!IS_SET(bitvector, AFF_ROOM_EVARDS_BLACK_TENTACLES)) {
+			case room_spells::EAffect::kBlackTentacles:
+				if (!IS_SET(bitvector, room_spells::EAffect::kBlackTentacles)) {
 					if (af->caster_id == ch->id && *name_self_affects[5] != '\0') {
 						buffer << name_self_affects[5] << "\r\n";
 					} else if (*name_affects[5] != '\0') {
 						buffer << name_affects[5] << "\r\n";
 					}
-
-					SET_BIT(bitvector, AFF_ROOM_EVARDS_BLACK_TENTACLES);
+					SET_BIT(bitvector, room_spells::EAffect::kBlackTentacles);
 				}
 				break;
-			case AFF_ROOM_METEORSTORM:                // 1 << 6
-				if (!IS_SET(bitvector, AFF_ROOM_METEORSTORM)) {
+			case room_spells::EAffect::kMeteorstorm:
+				if (!IS_SET(bitvector, room_spells::EAffect::kMeteorstorm)) {
 					if (af->caster_id == ch->id && *name_self_affects[6] != '\0') {
 						buffer << name_self_affects[6] << "\r\n";
 					} else if (*name_affects[6] != '\0') {
 						buffer << name_affects[6] << "\r\n";
 					}
-
-					SET_BIT(bitvector, AFF_ROOM_METEORSTORM);
+					SET_BIT(bitvector, room_spells::EAffect::kMeteorstorm);
 				}
 				break;
-			case AFF_ROOM_THUNDERSTORM:                // 1 << 7
-				if (!IS_SET(bitvector, AFF_ROOM_THUNDERSTORM)) {
+			case room_spells::EAffect::kThunderstorm:
+				if (!IS_SET(bitvector, room_spells::EAffect::kThunderstorm)) {
 					if (af->caster_id == ch->id && *name_self_affects[7] != '\0') {
 						buffer << name_self_affects[7] << "\r\n";
 					} else if (*name_affects[7] != '\0') {
 						buffer << name_affects[7] << "\r\n";
 					}
-
-					SET_BIT(bitvector, AFF_ROOM_THUNDERSTORM);
+					SET_BIT(bitvector, room_spells::EAffect::kThunderstorm);
 				}
 				break;
 			default: log("SYSERR: Unknown room affect: %d", af->type);
@@ -3006,9 +2996,9 @@ void print_do_score_list(CHAR_DATA *ch) {
 		send_to_char(ch, "Вы защищены от призыва.\r\n");
 	send_to_char(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > NORM_COND_VALUE)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	ROOM_DATA *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room) {
-		const int timer_room_label = RoomSpells::getUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
 			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
@@ -3350,9 +3340,9 @@ void print_do_score_all(CHAR_DATA *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	ROOM_DATA *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room) {
-		const int timer_room_label = RoomSpells::getUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
 		sprintf(buf + strlen(buf),
 				" %s|| &G&qВы поставили рунную метку в комнате %s%s||\r\n",
 				CCCYN(ch, C_NRM),
@@ -3681,7 +3671,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	ROOM_DATA *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",

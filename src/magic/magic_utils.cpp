@@ -374,7 +374,7 @@ int CallMagic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *r
 		return callMagicToGroup(level, caster, spellnum);
 
 	if (IS_SET(SpINFO.routines, MAG_ROOM))
-		return RoomSpells::imposeSpellToRoom(level, caster, rvict, spellnum);
+		return room_spells::ImposeSpellToRoom(level, caster, rvict, spellnum);
 
 	return mag_single_target(level, caster, cvict, ovict, spellnum, SAVING_STABILITY);
 }

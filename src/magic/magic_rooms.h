@@ -1,5 +1,5 @@
-#ifndef __MAGIC_ROOMS_HPP__
-#define __MAGIC_ROOMS_HPP__
+#ifndef MAGIC_ROOMS_HPP_
+#define MAGIC_ROOMS_HPP_
 
 #include "magic/spells.h"
 #include "entities/room.h"
@@ -8,24 +8,37 @@
 
 class CHAR_DATA;
 
-namespace RoomSpells {
+namespace room_spells {
 
-using RoomAffectListIt = ROOM_DATA::room_affects_list_t::iterator;
+using RoomAffectIt = ROOM_DATA::room_affects_list_t::iterator;
 
-extern std::list<ROOM_DATA *> aff_room_list;
+extern std::list<ROOM_DATA *> affected_rooms;
 
-void room_affect_update(void);
-RoomAffectListIt findRoomAffect(ROOM_DATA *room, int type);
-bool isRoomAffected(ROOM_DATA *room, ESpell spell);
-bool isZoneRoomAffected(int zoneVNUM, ESpell spell);
-void showAffectedRooms(CHAR_DATA *ch);
-int imposeSpellToRoom(int level, CHAR_DATA *ch, ROOM_DATA *room, int spellnum);
-ROOM_DATA *findAffectedRoom(long casterID, int spellnum);
-int getUniqueAffectDuration(long casterID, int spellnum);
-void removeAffectFromRoom(ROOM_DATA *room, const ROOM_DATA::room_affects_list_t::iterator &affect);
+void room_affect_update();
+RoomAffectIt FindAffect(ROOM_DATA *room, int type);
+bool IsRoomAffected(ROOM_DATA *room, ESpell spell);
+bool IsZoneRoomAffected(int zoneVNUM, ESpell spell);
+void ShowAffectedRooms(CHAR_DATA *ch);
+int ImposeSpellToRoom(int level, CHAR_DATA *ch, ROOM_DATA *room, int spellnum);
+ROOM_DATA *FindAffectedRoom(long casterID, int spellnum);
+int GetUniqueAffectDuration(long casterID, int spellnum);
+void RemoveAffect(ROOM_DATA *room, const ROOM_DATA::room_affects_list_t::iterator &affect);
+
+// Битвекторы аффектов комнат - порождаются заклинаниями и не сохраняются в файле.
+enum EAffect : bitvector_t {
+	kLight = 1 << 0,
+	kPoisonFog = 1 << 1,
+	kRuneLabel = 1 << 2,        // Комната помечена SPELL_MAGIC_LABEL //
+	kForbidden = 1 << 3,        // Комната помечена SPELL_FORBIDDEN //
+	kHypnoticPattern = 1 << 4,  // Комната под SPELL_HYPNOTIC_PATTERN //
+	kBlackTentacles = 1 << 5, 	// Комната под SPELL_EVARDS_BLACK_TENTACLES //
+	kMeteorstorm= 1 << 6,       // Комната под SPELL_METEORSTORM //
+	kThunderstorm = 1 << 7      // SPELL_THUNDERSTORM
+};
+
 }
 
-#endif //__MAGIC_ROOMS_HPP__
+#endif // MAGIC_ROOMS_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 

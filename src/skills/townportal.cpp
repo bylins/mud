@@ -60,7 +60,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
 	if (!port && name_cmp(ch, arg)) {
 
-		label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+		label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 		if (label_room) {
 			label_port.vnum = label_room->room_vn;
 			label_port.level = 1;
@@ -79,7 +79,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 			return;
 		}
 
-		if (RoomSpells::isRoomAffected(world[ch->in_room], SPELL_RUNE_LABEL)) {
+		if (room_spells::IsRoomAffected(world[ch->in_room], SPELL_RUNE_LABEL)) {
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}

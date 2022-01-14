@@ -4737,7 +4737,7 @@ bool is_empty(zone_rnum zone_nr) {
 		return false;
 	}
 
-	if (RoomSpells::isZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
 		return false;
 	}
 

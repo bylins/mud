@@ -874,7 +874,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 	int rnum_start, rnum_stop;
 	bool found = false;
 
-	if (RoomSpells::isZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
 		send_to_char("В зоне имеется рунная метка.\r\n", ch);
 	}
 
@@ -3785,7 +3785,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 18:        // show crc
 			FileCRC::show(ch);
 			break;
-		case 19: RoomSpells::showAffectedRooms(ch);
+		case 19: room_spells::ShowAffectedRooms(ch);
 			break;
 		case 20: // money
 			MoneyDropStat::print(ch);

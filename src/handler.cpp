@@ -311,7 +311,7 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 		return;
 	}
 
-	const auto affect_on_room = RoomSpells::findRoomAffect(world[room], SPELL_HYPNOTIC_PATTERN);
+	const auto affect_on_room = room_spells::FindAffect(world[room], SPELL_HYPNOTIC_PATTERN);
 	if (affect_on_room != world[room]->affected.end()) {
 		CHAR_DATA *caster = find_char((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой
@@ -3102,11 +3102,11 @@ int get_object_low_rent(OBJ_DATA *obj) {
 
 // * Удаление рунной метки (при пропадании в пустоте и реморте).
 void remove_rune_label(CHAR_DATA *ch) {
-	ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	ROOM_DATA *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room) {
-		const auto aff = RoomSpells::findRoomAffect(label_room, SPELL_RUNE_LABEL);
+		const auto aff = room_spells::FindAffect(label_room, SPELL_RUNE_LABEL);
 		if (aff != label_room->affected.end()) {
-			RoomSpells::removeAffectFromRoom(label_room, aff);
+			room_spells::RemoveAffect(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);
 		}
 	}

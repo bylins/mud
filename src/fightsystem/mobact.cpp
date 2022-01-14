@@ -758,7 +758,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak) {
 					nullptr,
 					nullptr,
 					TO_ROOM | TO_ARENA_LISTEN);
-				RoomSpells::removeAffectFromRoom(world[ch->in_room], affect_it);
+				room_spells::RemoveAffect(world[ch->in_room], affect_it);
 				break;
 			}
 		}

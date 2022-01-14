@@ -2640,7 +2640,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						send_to_char(buf, caster);
 					}
 				}
-				RoomSpells::removeAffectFromRoom(world[ch->in_room], aff_i);
+				room_spells::RemoveAffect(world[ch->in_room], aff_i);
 				lag = 3;
 			} else {
 				send_to_char("А тут топтать и нечего :)\r\n", ch);

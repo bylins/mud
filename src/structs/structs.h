@@ -127,16 +127,6 @@ const int kKtSelectmenu = 255;
 
 const int kHolesTime = 1;
 
-// Флаги комнатных аффектов НЕ сохраняются в файлах и возникают только от заклов //
-constexpr bitvector_t AFF_ROOM_LIGHT = 1 << 0;
-constexpr bitvector_t AFF_ROOM_FOG = 1 << 1;
-constexpr bitvector_t AFF_ROOM_RUNE_LABEL = 1 << 2;                // Комната помечена SPELL_MAGIC_LABEL //
-constexpr bitvector_t AFF_ROOM_FORBIDDEN = 1 << 3;                // Комната помечена SPELL_FORBIDDEN //
-constexpr bitvector_t AFF_ROOM_HYPNOTIC_PATTERN = 1 << 4;        // Комната под SPELL_HYPNOTIC_PATTERN //
-constexpr bitvector_t AFF_ROOM_EVARDS_BLACK_TENTACLES = 1 << 5; // Комната под SPELL_EVARDS_BLACK_TENTACLES //
-constexpr bitvector_t AFF_ROOM_METEORSTORM = 1 << 6;            // Комната под SPELL_METEORSTORM //
-constexpr bitvector_t AFF_ROOM_THUNDERSTORM = 1 << 7;             // SPELL_THUNDERSTORM
-
 constexpr bitvector_t AF_BATTLEDEC = 1 << 0;
 constexpr bitvector_t AF_DEADKEEP = 1 << 1;
 constexpr bitvector_t AF_PULSEDEC = 1 << 2;

@@ -1,6 +1,10 @@
 #ifndef BYLINS_AFFECT_DATA_H
 #define BYLINS_AFFECT_DATA_H
 
+#include "structs/flag_data.h"
+
+#include "structs/structs.h"
+
 #include <vector>
 #include <list>
 #include <bitset>
@@ -11,8 +15,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <array>
-
-#include "structs/flag_data.h"
 
 // An affect structure. //
 class IAffectHandler;
@@ -33,7 +35,7 @@ class AFFECT_DATA {
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
 	long battleflag;       //*** SUCH AS HOLD,SIELENCE etc
 	FLAG_DATA aff;
-	uint32_t bitvector;        // Tells which bits to set (AFF_XXX) //
+	bitvector_t bitvector;        // Tells which bits to set (AFF_XXX) //
 	long caster_id; //Unique caster ID //
 	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
 	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
