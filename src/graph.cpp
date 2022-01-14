@@ -49,7 +49,7 @@ struct bfs_queue_struct {
 #define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_LOCKED))
 
 int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
-	if (world[x]->dir_option[y] == NULL || TOROOM(x, y) == kNowhere)
+	if (world[x]->dir_option[y] == nullptr || TOROOM(x, y) == kNowhere)
 		return 0;
 
 	// Попытка уползти в другую зону
@@ -156,7 +156,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
 	}
 	bfs_queue.clear();
 	sprintf(buf, "Mob (mob: %s vnum: %d) can't find path.", GET_NAME(ch), GET_MOB_VNUM(ch));
-	mudlog(buf, NRM, -1, ERRLOG, TRUE);
+	mudlog(buf, NRM, -1, ERRLOG, true);
 	return (BFS_NO_PATH);
 }
 
@@ -216,7 +216,7 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
-	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
+	act("Похоже, $n кого-то ищет.", false, ch, 0, 0, TO_ROOM);
 
 	dir = go_sense(ch, vict);
 
@@ -228,11 +228,11 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case BFS_NO_PATH: strcpy(buf, "Ваши чувства молчат.");
 			break;
 		default:        // Success!
-			ImproveSkill(ch, SKILL_SENSE, TRUE, vict);
+			ImproveSkill(ch, SKILL_SENSE, true, vict);
 			sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
 			break;
 	}
-	act(buf, FALSE, ch, 0, vict, TO_CHAR);
+	act(buf, false, ch, 0, vict, TO_CHAR);
 }
 
 

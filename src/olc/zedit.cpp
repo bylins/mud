@@ -193,7 +193,7 @@ pzcmd zedit_seek_cmd(pzcmd head, int pos) {
 	pzcmd item;
 	int n;
 	for (n = 0, item = head->next; item != head && n != pos; ++n, item = item->next);
-	return n == pos ? item : NULL;
+	return n == pos ? item : nullptr;
 }
 
 // Удаляю команду номер pos
@@ -249,7 +249,7 @@ int new_command(DESCRIPTOR_DATA *d, int pos) {
 	head->cmd.command = '*';
 	head->cmd.if_flag = 0;
 	head->cmd.arg1 = head->cmd.arg2 = head->cmd.arg3 = head->cmd.arg4 = -1;
-	head->cmd.sarg1 = head->cmd.sarg2 = NULL;
+	head->cmd.sarg1 = head->cmd.sarg2 = nullptr;
 	head->prev = item->prev;
 	head->next = item;
 	head->prev->next = head;
@@ -433,13 +433,13 @@ void zedit_save_internally(DESCRIPTOR_DATA *d) {
 void zedit_save_to_disk(int zone_num) {
 	int subcmd, arg1 = -1, arg2 = -1, arg3 = -1, arg4 = -1, i;
 	char fname[64];
-	const char *comment = NULL;
+	const char *comment = nullptr;
 	FILE *zfile;
 
 	sprintf(fname, "%s/%d.new", ZON_PREFIX, zone_table[zone_num].vnum);
 	if (!(zfile = fopen(fname, "w"))) {
 		sprintf(buf, "SYSERR: OLC: zedit_save_to_disk:  Can't write zone %d.", zone_table[zone_num].vnum);
-		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
+		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, true);
 		return;
 	}
 
@@ -572,7 +572,7 @@ void zedit_save_to_disk(int zone_num) {
 				continue;
 
 			default: sprintf(buf, "SYSERR: OLC: z_save_to_disk(): Unknown cmd '%c' - NOT saving", ZCMD.command);
-				mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf, BRF, LVL_BUILDER, SYSLOG, true);
 				continue;
 		}
 
@@ -1068,7 +1068,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_arg1(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: zedit_disp_arg1(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Oops...\r\n", d->character.get());
 			return;
 	}
@@ -1144,7 +1144,7 @@ void zedit_disp_arg2(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1223,7 +1223,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, just in case.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_arg3(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: zedit_disp_arg3(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1262,7 +1262,7 @@ void zedit_disp_arg4(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1296,7 +1296,7 @@ void zedit_disp_sarg1(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_sarg1(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: zedit_disp_sarg1(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1330,7 +1330,7 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_sarg2(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: zedit_disp_sarg2(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1352,7 +1352,7 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA *d) {
 void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 	pzcmd item;
 	int pos, i, j;
-	int *temp = NULL;
+	int *temp = nullptr;
 
 	switch (OLC_MODE(d)) {
 		case ZEDIT_CONFIRM_SAVESTRING:
@@ -1366,7 +1366,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					zedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits zone info for room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit zone %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// FALL THROUGH
 				case 'n':
 				case 'N':
@@ -1574,7 +1574,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			// Parse the input for which type of command this is, and goto next quiz. //
 			item = SEEK_CMD(d);
 			item->cmd.command = toupper(*arg);
-			if (!item->cmd.command || (strchr("MFQOPEDGRTV", item->cmd.command) == NULL))
+			if (!item->cmd.command || (strchr("MFQOPEDGRTV", item->cmd.command) == nullptr))
 				send_to_char("Неверный выбор, повторите : ", d->character.get());
 			else {
 				sprintf(buf,
@@ -1653,7 +1653,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				default:
 					// * We should never get here.
 					cleanup_olc(d, CLEANUP_ALL);
-					mudlog("SYSERR: OLC: zedit_parse(): case ARG1: Ack!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+					mudlog("SYSERR: OLC: zedit_parse(): case ARG1: Ack!", BRF, LVL_BUILDER, SYSLOG, true);
 					send_to_char("Опаньки...\r\n", d->character.get());
 					break;
 			}
@@ -1714,7 +1714,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				default:
 					// * We should never get here, but just in case...
 					cleanup_olc(d, CLEANUP_ALL);
-					mudlog("SYSERR: OLC: zedit_parse(): case ARG2: Ack!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+					mudlog("SYSERR: OLC: zedit_parse(): case ARG2: Ack!", BRF, LVL_BUILDER, SYSLOG, true);
 					send_to_char("Опаньки...\r\n", d->character.get());
 					break;
 			}
@@ -1771,7 +1771,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				default:
 					// * We should never get here, but just in case...
 					cleanup_olc(d, CLEANUP_ALL);
-					mudlog("SYSERR: OLC: zedit_parse(): case ARG3: Ack!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+					mudlog("SYSERR: OLC: zedit_parse(): case ARG3: Ack!", BRF, LVL_BUILDER, SYSLOG, true);
 					send_to_char("Опаньки...\r\n", d->character.get());
 					break;
 			}
@@ -1808,7 +1808,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				default:
 					// * We should never get here, but just in case...
 					cleanup_olc(d, CLEANUP_ALL);
-					mudlog("SYSERR: OLC: zedit_parse(): case ARG4: Ack!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+					mudlog("SYSERR: OLC: zedit_parse(): case ARG4: Ack!", BRF, LVL_BUILDER, SYSLOG, true);
 					send_to_char("Опаньки...\r\n", d->character.get());
 					break;
 			}
@@ -1817,7 +1817,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case ZEDIT_SARG1: item = SEEK_CMD(d);
 			if (item->cmd.sarg1)
 				free(item->cmd.sarg1);
-			item->cmd.sarg1 = NULL;
+			item->cmd.sarg1 = nullptr;
 			if (strlen(arg))
 				item->cmd.sarg1 = str_dup(arg);
 			zedit_disp_sarg2(d);
@@ -1826,7 +1826,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case ZEDIT_SARG2: item = SEEK_CMD(d);
 			if (item->cmd.sarg2)
 				free(item->cmd.sarg2);
-			item->cmd.sarg2 = NULL;
+			item->cmd.sarg2 = nullptr;
 			if (strlen(arg))
 				item->cmd.sarg2 = str_dup(arg);
 			zedit_disp_menu(d);
@@ -2024,7 +2024,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case ZEDIT_ZONE_LOCATION:
 			if (OLC_ZONE(d)->location) {
 				free(OLC_ZONE(d)->location);
-				OLC_ZONE(d)->location = NULL;
+				OLC_ZONE(d)->location = nullptr;
 			}
 			if (arg && *arg) {
 				OLC_ZONE(d)->location = str_dup(arg);
@@ -2036,7 +2036,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case ZEDIT_ZONE_AUTOR:
 			if (OLC_ZONE(d)->author) {
 				free(OLC_ZONE(d)->author);
-				OLC_ZONE(d)->author = NULL;
+				OLC_ZONE(d)->author = nullptr;
 			}
 			if (arg && *arg) {
 				OLC_ZONE(d)->author = str_dup(arg);
@@ -2069,7 +2069,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: zedit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 	}

@@ -240,7 +240,7 @@ int cast_potion_spell(CHAR_DATA *ch, OBJ_DATA *obj, int num) {
 	const int level = obj->get_value(init_spell_lvl(num));
 
 	if (spell >= 0 && level >= 0) {
-		return CallMagic(ch, ch, NULL, world[ch->in_room], spell, level);
+		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell, level);
 	}
 	return 1;
 }
@@ -249,7 +249,7 @@ int cast_potion_spell(CHAR_DATA *ch, OBJ_DATA *obj, int num) {
 void do_drink_poison(CHAR_DATA *ch, OBJ_DATA *jar, int amount) {
 	if ((GET_OBJ_VAL(jar, 3) == 1) && !IS_GOD(ch)) {
 		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
-		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, TO_ROOM);
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_POISON;
 		//если объем 0 -
@@ -258,13 +258,13 @@ void do_drink_poison(CHAR_DATA *ch, OBJ_DATA *jar, int amount) {
 		af.location = APPLY_STR;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, false, false, false, false);
 		af.type = SPELL_POISON;
 		af.modifier = amount == 0 ? GET_REAL_LEVEL(ch) * 3 : amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, false, false, false, false);
 		ch->Poisoner = 0;
 	}
 }
@@ -272,7 +272,7 @@ void do_drink_poison(CHAR_DATA *ch, OBJ_DATA *jar, int amount) {
 int cast_potion(CHAR_DATA *ch, OBJ_DATA *jar) {
 	// Added by Adept - обкаст если в фонтане или емкости зелье
 	if (is_potion(jar) && jar->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
-		act("$n выпил$g зелья из $o1.", TRUE, ch, jar, 0, TO_ROOM);
+		act("$n выпил$g зелья из $o1.", true, ch, jar, 0, TO_ROOM);
 		send_to_char(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, 1));
 
 		//не очень понятно, но так было
@@ -334,7 +334,7 @@ int do_drink_check(CHAR_DATA *ch, OBJ_DATA *jar) {
 
 //получение контейнера для питья
 OBJ_DATA *do_drink_get_jar(CHAR_DATA *ch, char *jar_name) {
-	OBJ_DATA *jar = NULL;
+	OBJ_DATA *jar = nullptr;
 	if (!(jar = get_obj_in_list_vis(ch, jar_name, ch->carrying))) {
 		if (!(jar = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
 			send_to_char("Вы не смогли это найти!\r\n", ch);
@@ -473,7 +473,7 @@ void do_drink_drunk(CHAR_DATA *ch, OBJ_DATA *jar, int amount) {
 			af.location = APPLY_AC;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -481,7 +481,7 @@ void do_drink_drunk(CHAR_DATA *ch, OBJ_DATA *jar, int amount) {
 			af.location = APPLY_HITROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -489,7 +489,7 @@ void do_drink_drunk(CHAR_DATA *ch, OBJ_DATA *jar, int amount) {
 			af.location = APPLY_DAMROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, false, false, false, false);
 		}
 	}
 }
@@ -530,11 +530,11 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd == SCMD_DRINK) {
 		sprintf(buf, "$n выпил$g %s из $o1.", drinks[GET_OBJ_VAL(jar, 2)]);
-		act(buf, TRUE, ch, jar, 0, TO_ROOM);
+		act(buf, true, ch, jar, 0, TO_ROOM);
 		sprintf(buf, "Вы выпили %s из %s.\r\n", drinks[GET_OBJ_VAL(jar, 2)], OBJN(jar, ch, 1));
 		send_to_char(buf, ch);
 	} else {
-		act("$n отхлебнул$g из $o1.", TRUE, ch, jar, 0, TO_ROOM);
+		act("$n отхлебнул$g из $o1.", true, ch, jar, 0, TO_ROOM);
 		sprintf(buf, "Вы узнали вкус %s.\r\n", drinks[GET_OBJ_VAL(jar, 2)]);
 		send_to_char(buf, ch);
 	}
@@ -696,8 +696,8 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (percent > prob) {
 		sprintf(buf, "Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", FALSE, ch, 0, 0, TO_ROOM);
+		act(buf, false, ch, obj, 0, TO_CHAR);
+		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", false, ch, 0, 0, TO_ROOM);
 		duration = MAX(1, amount / 3);
 		AFFECT_DATA<EApplyLocation> af[3];
 		af[0].type = SPELL_ABSTINENT;
@@ -732,14 +732,14 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 		}
 		for (prob = 0; prob < 3; prob++) {
-			affect_join(ch, af[prob], TRUE, FALSE, TRUE, FALSE);
+			affect_join(ch, af[prob], true, false, true, false);
 		}
 		gain_condition(ch, DRUNK, amount);
 	} else {
 		sprintf(buf, "Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
 				drinks[GET_OBJ_VAL(obj, 2)]);
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
-		act("$n похмелил$u и расцвел$g прям на глазах.", FALSE, ch, 0, 0, TO_ROOM);
+		act(buf, false, ch, obj, 0, TO_CHAR);
+		act("$n похмелил$u и расцвел$g прям на глазах.", false, ch, 0, 0, TO_ROOM);
 		affect_from_char(ch, SPELL_ABSTINENT);
 	}
 
@@ -917,7 +917,7 @@ void spells_to_drinkcon(OBJ_DATA *from_obj, OBJ_DATA *to_obj) {
 void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	char arg1[kMaxInputLength];
 	char arg2[kMaxInputLength];
-	OBJ_DATA *from_obj = NULL, *to_obj = NULL;
+	OBJ_DATA *from_obj = nullptr, *to_obj = nullptr;
 	int amount;
 
 	two_arguments(argument, arg1, arg2);
@@ -949,12 +949,12 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		if (GET_OBJ_TYPE(to_obj) != OBJ_DATA::ITEM_DRINKCON) {
-			act("Вы не можете наполнить $o3!", FALSE, ch, to_obj, 0, TO_CHAR);
+			act("Вы не можете наполнить $o3!", false, ch, to_obj, 0, TO_CHAR);
 			return;
 		}
 		if (!*arg2)    // no 2nd argument //
 		{
-			act("Из чего вы планируете наполнить $o3?", FALSE, ch, to_obj, 0, TO_CHAR);
+			act("Из чего вы планируете наполнить $o3?", false, ch, to_obj, 0, TO_CHAR);
 			return;
 		}
 		if (!(from_obj = get_obj_in_list_vis(ch, arg2, world[ch->in_room]->contents))) {
@@ -963,12 +963,12 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_FOUNTAIN) {
-			act("Вы не сможете ничего наполнить из $o1.", FALSE, ch, from_obj, 0, TO_CHAR);
+			act("Вы не сможете ничего наполнить из $o1.", false, ch, from_obj, 0, TO_CHAR);
 			return;
 		}
 	}
 	if (GET_OBJ_VAL(from_obj, 1) == 0) {
-		act("Пусто.", FALSE, ch, from_obj, 0, TO_CHAR);
+		act("Пусто.", false, ch, from_obj, 0, TO_CHAR);
 		return;
 	}
 	if (subcmd == SCMD_POUR)    // pour //
@@ -978,8 +978,8 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		if (!str_cmp(arg2, "out") || !str_cmp(arg2, "земля")) {
-			act("$n опустошил$g $o3.", TRUE, ch, from_obj, 0, TO_ROOM);
-			act("Вы опустошили $o3.", FALSE, ch, from_obj, 0, TO_CHAR);
+			act("$n опустошил$g $o3.", true, ch, from_obj, 0, TO_ROOM);
+			act("Вы опустошили $o3.", false, ch, from_obj, 0, TO_CHAR);
 
 			weight_change_object(from_obj, -GET_OBJ_VAL(from_obj, 1));    // Empty //
 
@@ -1082,8 +1082,8 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 					 drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
 	}
 	if (subcmd == SCMD_FILL) {
-		act("Вы наполнили $o3 из $O1.", FALSE, ch, to_obj, from_obj, TO_CHAR);
-		act("$n наполнил$g $o3 из $O1.", TRUE, ch, to_obj, from_obj, TO_ROOM);
+		act("Вы наполнили $o3 из $O1.", false, ch, to_obj, from_obj, TO_CHAR);
+		act("$n наполнил$g $o3 из $O1.", true, ch, to_obj, from_obj, TO_ROOM);
 	}
 
 	// копируем тип жидкости //

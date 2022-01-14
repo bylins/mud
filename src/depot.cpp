@@ -4,7 +4,7 @@
 
 #include "depot.h"
 
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
@@ -1030,11 +1030,11 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
 
-	act("Вы положили $o3 в персональное хранилище.", FALSE, ch, obj.get(), 0, TO_CHAR);
-	act("$n положил$g $o3 в персональное хранилище.", TRUE, ch, obj.get(), 0, TO_ROOM);
+	act("Вы положили $o3 в персональное хранилище.", false, ch, obj.get(), 0, TO_CHAR);
+	act("$n положил$g $o3 в персональное хранилище.", true, ch, obj.get(), 0, TO_ROOM);
 
 	obj_from_char(obj.get());
-	check_auction(NULL, obj.get());
+	check_auction(nullptr, obj.get());
 	world_objects.remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
@@ -1076,8 +1076,8 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHA
 			  GET_OBJ_VNUM(obj_it->get()));
 	world_objects.add(*obj_it);
 	obj_to_char(obj_it->get(), vict);
-	act("Вы взяли $o3 из персонального хранилища.", FALSE, vict, obj_it->get(), 0, TO_CHAR);
-	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, obj_it->get(), 0, TO_ROOM);
+	act("Вы взяли $o3 из персонального хранилища.", false, vict, obj_it->get(), 0, TO_CHAR);
+	act("$n взял$g $o3 из персонального хранилища.", true, vict, obj_it->get(), 0, TO_ROOM);
 	cont.erase(obj_it++);
 	need_save = true;
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
@@ -1398,7 +1398,7 @@ void reload_char(long uid, CHAR_DATA *ch) {
 	}
 
 	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
-	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, true);
 	imm_log("%s", buf);
 }
 
@@ -1518,7 +1518,7 @@ int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep) {
 				snprintf(buf, kMaxStringLength,
 						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
 						 OBJN(obj_it->get(), ch, 3));
-				act(buf, FALSE, recep, 0, ch, TO_VICT);
+				act(buf, false, recep, 0, ch, TO_VICT);
 				return 1;
 			}
 		}

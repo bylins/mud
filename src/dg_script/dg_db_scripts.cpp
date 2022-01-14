@@ -124,11 +124,11 @@ void indent_trigger(std::string &cmd, int *level) {
 TRIG_DATA *read_trigger(int nr) {
 	index_data *index;
 	if (nr >= top_of_trigt || nr == -1) {
-		return NULL;
+		return nullptr;
 	}
 
-	if ((index = trig_index[nr]) == NULL) {
-		return NULL;
+	if ((index = trig_index[nr]) == nullptr) {
+		return nullptr;
 	}
 
 	TRIG_DATA *trig = new TRIG_DATA(*index->proto);
@@ -207,7 +207,7 @@ void assign_triggers(void *i, int type) {
 								trigger_vnum,
 								static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 								mob_index[rnum].vnum);
-						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
 					} else {
 						auto trig = read_trigger(rnum);
 						if (add_trigger(SCRIPT(mob).get(), trig, -1)) {
@@ -237,7 +237,7 @@ void assign_triggers(void *i, int type) {
 								trigger_vnum,
 								static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 								obj->get_vnum());
-						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
 					} else {
 						auto trig = read_trigger(rnum);
 						if (add_trigger(obj->get_script().get(), trig, -1)) {
@@ -266,7 +266,7 @@ void assign_triggers(void *i, int type) {
 						sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for room #%d",
 								trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 								room->room_vn);
-						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
 					} else {
 						auto trig = read_trigger(rnum);
 						if (add_trigger(SCRIPT(room).get(), trig, -1)) {
@@ -472,7 +472,7 @@ void trg_spellitem(CHAR_DATA *ch, int spellnum, int spelldiff, int spell) {
 		buffer << "Вы приобрели умение " << type << " '" << spell_name(spellnum) << "'";
 //		sprintf(buf, "Вы приобрели умение %s '%s'", type, spell_name(spellnum));
 		send_to_char(buffer.str(), ch);
-		check_recipe_items(ch, spellnum, spell, TRUE);
+		check_recipe_items(ch, spellnum, spell, true);
 	}
 }
 

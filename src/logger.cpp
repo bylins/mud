@@ -83,12 +83,12 @@ void vlog(const char *format, va_list args, FILE *logfile) {
 		return;
 	}
 
-	if (logfile == NULL) {
+	if (logfile == nullptr) {
 		puts("SYSERR: Using log() before stream was initialized!");
 		return;
 	}
 
-	if (format == NULL) {
+	if (format == nullptr) {
 		format = "SYSERR: log() received a NULL format.";
 	}
 
@@ -211,7 +211,7 @@ void err_log(const char *format, ...) {
 	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
 	va_end(args);
 
-	mudlog(buf_, DEF, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(buf_, DEF, LVL_IMMORT, SYSLOG, true);
 }
 
 void ip_log(const char *ip) {
@@ -241,7 +241,7 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int
 	char tmpbuf[kMaxStringLength];
 	DESCRIPTOR_DATA *i;
 
-	if (str == NULL) {
+	if (str == nullptr) {
 		return;        // eh, oh well.
 	}
 

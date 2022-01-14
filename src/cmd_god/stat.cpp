@@ -122,48 +122,48 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 
 		if (PLR_FLAGGED(k, PLR_FROZEN) && FREEZE_DURATION(k)) {
 			sprintf(buf, "Заморожен : %ld час [%s].\r\n",
-					static_cast<long>((FREEZE_DURATION(k) - time(NULL)) / 3600),
+					static_cast<long>((FREEZE_DURATION(k) - time(nullptr)) / 3600),
 					FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_HELLED) && HELL_DURATION(k)) {
 			sprintf(buf, "Находится в темнице : %ld час [%s].\r\n",
-					static_cast<long>((HELL_DURATION(k) - time(NULL)) / 3600),
+					static_cast<long>((HELL_DURATION(k) - time(nullptr)) / 3600),
 					HELL_REASON(k) ? HELL_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_NAMED) && NAME_DURATION(k)) {
 			sprintf(buf, "Находится в комнате имени : %ld час.\r\n",
-					static_cast<long>((NAME_DURATION(k) - time(NULL)) / 3600));
+					static_cast<long>((NAME_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_MUTE) && MUTE_DURATION(k)) {
 			sprintf(buf, "Будет молчать : %ld час [%s].\r\n",
-					static_cast<long>((MUTE_DURATION(k) - time(NULL)) / 3600),
+					static_cast<long>((MUTE_DURATION(k) - time(nullptr)) / 3600),
 					MUTE_REASON(k) ? MUTE_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_DUMB) && DUMB_DURATION(k)) {
 			sprintf(buf, "Будет нем : %ld мин [%s].\r\n",
-					static_cast<long>((DUMB_DURATION(k) - time(NULL)) / 60),
+					static_cast<long>((DUMB_DURATION(k) - time(nullptr)) / 60),
 					DUMB_REASON(k) ? DUMB_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (!PLR_FLAGGED(k, PLR_REGISTERED) && UNREG_DURATION(k)) {
 			sprintf(buf, "Не будет зарегистрирован : %ld час [%s].\r\n",
-					static_cast<long>((UNREG_DURATION(k) - time(NULL)) / 3600),
+					static_cast<long>((UNREG_DURATION(k) - time(nullptr)) / 3600),
 					UNREG_REASON(k) ? UNREG_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 
 		if (GET_GOD_FLAG(k, GF_GODSLIKE) && GCURSE_DURATION(k)) {
 			sprintf(buf, "Под защитой Богов : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(NULL)) / 3600));
+					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);
 		}
 		if (GET_GOD_FLAG(k, GF_GODSCURSE) && GCURSE_DURATION(k)) {
 			sprintf(buf, "Проклят Богами : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(NULL)) / 3600));
+					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
 			send_to_char(buf, ch);
 		}
 	}
@@ -532,7 +532,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			for (memchar = MEMORY(k); memchar; memchar = memchar->next) {
 				sprintf(buf, "%10ld - %10ld\r\n",
 						static_cast<long>(memchar->id),
-						static_cast<long>(memchar->time - time(NULL)));
+						static_cast<long>(memchar->time - time(nullptr)));
 				send_to_char(buf, ch);
 			}
 		}
@@ -570,7 +570,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			send_to_char(buf, ch);
 		}
 		if (AGRO(k)) {
-			sprintf(buf, "Агрессор %ld\r\n", static_cast<long int>(AGRO(k) - time(NULL)));
+			sprintf(buf, "Агрессор %ld\r\n", static_cast<long int>(AGRO(k) - time(nullptr)));
 			send_to_char(buf, ch);
 		}
 		pk_list_sprintf(k, buf);
@@ -884,10 +884,10 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 
 			if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_LAG)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить 1 раз в %d сек", (i = GET_OBJ_VAL(j, 0) & 0xFF));
-				if (GET_OBJ_VAL(j, 3) == 0 || GET_OBJ_VAL(j, 3) + i < time(NULL))
+				if (GET_OBJ_VAL(j, 3) == 0 || GET_OBJ_VAL(j, 3) + i < time(nullptr))
 					sprintf(buf + strlen(buf), "(можно применять).");
 				else {
-					li = GET_OBJ_VAL(j, 3) + i - time(NULL);
+					li = GET_OBJ_VAL(j, 3) + i - time(nullptr);
 					sprintf(buf + strlen(buf), "(осталось %ld сек).", li);
 				}
 			}
@@ -1015,7 +1015,7 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 	send_to_char(buf, ch);
 
 	rm->flags_sprint(smallBuf, ",");
-	sprintf(buf, "СпецПроцедура: %s, Флаги: %s\r\n", (rm->func == NULL) ? "None" : "Exists", smallBuf);
+	sprintf(buf, "СпецПроцедура: %s, Флаги: %s\r\n", (rm->func == nullptr) ? "None" : "Exists", smallBuf);
 	send_to_char(buf, ch);
 
 	send_to_char("Описание:\r\n", ch);
@@ -1201,31 +1201,31 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!*buf2)
 			send_to_char("Состояние какого предмета?\r\n", ch);
 		else {
-			if ((object = get_obj_vis(ch, buf2)) != NULL)
+			if ((object = get_obj_vis(ch, buf2)) != nullptr)
 				do_stat_object(ch, object);
 			else
 				send_to_char("Нет такого предмета в игре.\r\n", ch);
 		}
 	} else {
 		if (level >= LVL_BUILDER) {
-			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != NULL)
+			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr)
 				do_stat_object(ch, object);
-			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != NULL)
+			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != nullptr)
 				do_stat_object(ch, object);
-			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_ROOM)) != NULL)
+			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_ROOM)) != nullptr)
 				do_stat_character(ch, victim);
-			else if ((object = get_obj_in_list_vis(ch, buf1, world[ch->in_room]->contents)) != NULL)
+			else if ((object = get_obj_in_list_vis(ch, buf1, world[ch->in_room]->contents)) != nullptr)
 				do_stat_object(ch, object);
-			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_WORLD)) != NULL)
+			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_WORLD)) != nullptr)
 				do_stat_character(ch, victim);
-			else if ((object = get_obj_vis(ch, buf1)) != NULL)
+			else if ((object = get_obj_vis(ch, buf1)) != nullptr)
 				do_stat_object(ch, object);
 			else
 				send_to_char("Ничего похожего с этим именем нет.\r\n", ch);
 		} else {
-			if ((victim = get_player_vis(ch, buf1, FIND_CHAR_ROOM)) != NULL)
+			if ((victim = get_player_vis(ch, buf1, FIND_CHAR_ROOM)) != nullptr)
 				do_stat_character(ch, victim);
-			else if ((victim = get_player_vis(ch, buf1, FIND_CHAR_WORLD)) != NULL)
+			else if ((victim = get_player_vis(ch, buf1, FIND_CHAR_WORLD)) != nullptr)
 				do_stat_character(ch, victim);
 			else
 				send_to_char("Никого похожего с этим именем нет.\r\n", ch);

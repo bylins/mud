@@ -11,7 +11,7 @@
 #include "exchange.h"
 
 #include "obj_prototypes.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "entities/obj.h"
 #include "entities/room_constants.h"
 #include "comm.h"
@@ -176,8 +176,8 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 	int item_cost = 0, lot;
 	OBJ_DATA *obj;
 	char tmpbuf[kMaxInputLength];
-	EXCHANGE_ITEM_DATA *item = NULL;
-	EXCHANGE_ITEM_DATA *j, *next_thing = NULL;
+	EXCHANGE_ITEM_DATA *item = nullptr;
+	EXCHANGE_ITEM_DATA *j, *next_thing = nullptr;
 	int counter;
 	int counter_ming; //количиство ингридиентов
 	int tax;    //налог
@@ -207,7 +207,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		send_to_char("У вас этого нет.\r\n", ch);
 		return false;
 	}
-	if (!bloody::handle_transfer(ch, NULL, obj))
+	if (!bloody::handle_transfer(ch, nullptr, obj))
 		return false;
 	if (item_cost > 400000 && OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
 		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
@@ -285,7 +285,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 	if (*arg)
 		GET_EXCHANGE_ITEM_COMMENT(item) = str_dup(arg);
 	else
-		GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
+		GET_EXCHANGE_ITEM_COMMENT(item) = nullptr;
 
 	if (check_unlimited_timer(obj)) // если нерушима таймер 1 неделя
 		obj->set_timer(10080);
@@ -294,7 +294,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 
 	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.",
 			GET_EXCHANGE_ITEM_LOT(item), item_cost, desc_count(item_cost, WHAT_MONEYu));
-	act(tmpbuf, FALSE, ch, 0, obj, TO_CHAR);
+	act(tmpbuf, false, ch, 0, obj, TO_CHAR);
 	sprintf(tmpbuf, "Базар : новый лот (%d) - %s - цена %d %s. \r\n",
 			GET_EXCHANGE_ITEM_LOT(item), obj->get_PName(0).c_str(), item_cost, desc_count(item_cost, WHAT_MONEYa));
 	message_exchange(tmpbuf, ch, item);
@@ -310,7 +310,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 }
 
 int exchange_change_cost(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
+	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
 	int lot, newcost, pay;
 	char tmpbuf[kMaxInputLength];
 
@@ -373,13 +373,13 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 			newcost,
 			desc_count(newcost, WHAT_MONEYa));
 	message_exchange(tmpbuf, ch, item);
-	set_wait(ch, 2, FALSE);
+	set_wait(ch, 2, false);
 
 	return true;
 }
 
 int exchange_withdraw(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
+	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	char tmpbuf[kMaxInputLength];
 
@@ -409,7 +409,7 @@ int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
-	act("Вы сняли $O3 с базара.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+	act("Вы сняли $O3 с базара.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) {
 		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
@@ -433,7 +433,7 @@ int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 }
 
 int exchange_information(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
+	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	char buf[kMaxStringLength], buf2[kMaxInputLength];
 
@@ -470,7 +470,7 @@ int exchange_information(CHAR_DATA *ch, char *arg) {
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	};
-	strcat(buf, diag_weapon_to_char(GET_EXCHANGE_ITEM(item), TRUE));
+	strcat(buf, diag_weapon_to_char(GET_EXCHANGE_ITEM(item), true));
 	strcat(buf, diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
 	strcat(buf, "\r\n");
 	obj_info(ch, GET_EXCHANGE_ITEM(item), buf);
@@ -505,7 +505,7 @@ int exchange_information(CHAR_DATA *ch, char *arg) {
 }
 
 int exchange_identify(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
+	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	if (!*arg) {
 		send_to_char(info_message, ch);
@@ -552,7 +552,7 @@ CHAR_DATA *get_char_by_id(int id) {
 }
 
 int exchange_purchase(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
+	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	char tmpbuf[kMaxInputLength];
 	CHAR_DATA *seller;
@@ -590,17 +590,17 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 
 	seller = get_char_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
 
-	if (seller == NULL) {
+	if (seller == nullptr) {
 		const char *seller_name = get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
 
 		auto seller_ptr = std::make_unique<Player>();
 		seller = seller_ptr.get(); // TODO: переделать на стек
-		if (seller_name == NULL
+		if (seller_name == nullptr
 			|| load_char(seller_name, seller) < 0) {
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
 			//edited by WorM 2011.05.21
-			act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+			act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 					GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 					GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
@@ -632,7 +632,7 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 //-Polud
 		seller->save_char();
 
-		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+		act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
@@ -652,7 +652,7 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 		seller->add_bank(GET_EXCHANGE_ITEM_COST(item));
 		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
-		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+		act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
@@ -660,7 +660,7 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
-		act(tmpbuf, FALSE, seller, 0, NULL, TO_CHAR);
+		act(tmpbuf, false, seller, 0, nullptr, TO_CHAR);
 
 		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
@@ -867,7 +867,7 @@ int exchange_setfilter(CHAR_DATA *ch, char *arg) {
 		ParseFilter params(ParseFilter::EXCHANGE);
 		if (!parse_exch_filter(params, EXCHANGE_FILTER(ch), false)) {
 			free(EXCHANGE_FILTER(ch));
-			EXCHANGE_FILTER(ch) = NULL;
+			EXCHANGE_FILTER(ch) = nullptr;
 			send_to_char("Ваш фильтр базара пуст\r\n", ch);
 		} else {
 			send_to_char(ch, "Ваш текущий фильтр базара: %s.\r\n",
@@ -890,7 +890,7 @@ int exchange_setfilter(CHAR_DATA *ch, char *arg) {
 					 "Ваш старый фильтр: %s. Новый фильтр пуст.\r\n",
 					 EXCHANGE_FILTER(ch));
 			free(EXCHANGE_FILTER(ch));
-			EXCHANGE_FILTER(ch) = NULL;
+			EXCHANGE_FILTER(ch) = nullptr;
 		} else {
 			sprintf(tmpbuf, "Новый фильтр пуст.\r\n");
 		}
@@ -902,7 +902,7 @@ int exchange_setfilter(CHAR_DATA *ch, char *arg) {
 	if (!parse_exch_filter(params, filter, false)) {
 		send_to_char("Неверный формат фильтра. Прочтите справку.\r\n", ch);
 		free(EXCHANGE_FILTER(ch));
-		EXCHANGE_FILTER(ch) = NULL;
+		EXCHANGE_FILTER(ch) = nullptr;
 		return false;
 	}
 
@@ -927,9 +927,9 @@ EXCHANGE_ITEM_DATA *create_exchange_item(void) {
 	GET_EXCHANGE_ITEM_LOT(item) = -1;
 	GET_EXCHANGE_ITEM_SELLERID(item) = -1;
 	GET_EXCHANGE_ITEM_COST(item) = 0;
-	GET_EXCHANGE_ITEM_TIME(item) = time(NULL);
-	GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
-	GET_EXCHANGE_ITEM(item) = NULL;
+	GET_EXCHANGE_ITEM_TIME(item) = time(nullptr);
+	GET_EXCHANGE_ITEM_COMMENT(item) = nullptr;
+	GET_EXCHANGE_ITEM(item) = nullptr;
 	item->next = exchange_item_list;
 	exchange_item_list = item;
 	return (item);
@@ -969,7 +969,7 @@ void check_exchange(OBJ_DATA *obj) {
 
 EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error) {
 	char buffer[kMaxStringLength];
-	EXCHANGE_ITEM_DATA *item = NULL;
+	EXCHANGE_ITEM_DATA *item = nullptr;
 	//char *d;
 
 	*error = 1;
@@ -1078,7 +1078,7 @@ int exchange_database_load() {
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
-	if (strstr(buffer, "!NEW!") == NULL) {
+	if (strstr(buffer, "!NEW!") == nullptr) {
 		log("SYSERR: Old format exchange database file.");
 		return 0;
 	}
@@ -1086,7 +1086,7 @@ int exchange_database_load() {
 	for (fsize = 0; *data && *data != EX_END_CHAR; fsize++) {
 		item = exchange_read_one_object_new(&data, &error);
 
-		if (item == NULL) {
+		if (item == nullptr) {
 			log("SYSERR: Error #%d reading exchange database file. (exchange.cpp)", error);
 			return (0);
 		}
@@ -1167,7 +1167,7 @@ int exchange_database_reload(bool loadbackup) {
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
-	if (strstr(buffer, "!NEW!") == NULL) {
+	if (strstr(buffer, "!NEW!") == nullptr) {
 		log("SYSERR: Old format exchange database file.");
 		return 0;
 	}
@@ -1175,7 +1175,7 @@ int exchange_database_reload(bool loadbackup) {
 	for (fsize = 0; *data && *data != EX_END_CHAR; fsize++) {
 		item = exchange_read_one_object_new(&data, &error);
 
-		if (item == NULL) {
+		if (item == nullptr) {
 			if (loadbackup)
 				log("SYSERR: Error #%d reading exchange database backup file. (exchange.cpp)", error);
 			else
@@ -1238,7 +1238,7 @@ void exchange_database_save(bool backup) {
 	std::ofstream file(filename);
 	if (!file.is_open()) {
 		sprintf(buf, "[SYSERROR] open exchange db ('%s')", filename);
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 	file << out.rdbuf();
@@ -1285,7 +1285,7 @@ void message_exchange(char *message, CHAR_DATA *ch, EXCHANGE_ITEM_DATA *j) {
 					send_to_char("&Y&q", i->character.get());
 				}
 
-				act(message, FALSE, i->character.get(), 0, 0, TO_CHAR | TO_SLEEP);
+				act(message, false, i->character.get(), 0, 0, TO_CHAR | TO_SLEEP);
 
 				if (COLOR_LEV(i->character) >= C_NRM) {
 					send_to_char("&Q&n", i->character.get());
@@ -1519,7 +1519,7 @@ int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects) {
 }
 
 void clear_exchange_lot(EXCHANGE_ITEM_DATA *lot) {
-	if (lot == NULL) {
+	if (lot == nullptr) {
 		return;
 	}
 
@@ -1545,7 +1545,7 @@ void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/) {
 		send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n",
 					 ch);
 	} else
-		exchange(ch, NULL, cmd, arg);
+		exchange(ch, nullptr, cmd, arg);
 	free(arg);
 }
 

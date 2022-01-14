@@ -27,10 +27,10 @@ void write_aliases(CHAR_DATA *ch) {
 	get_filename(GET_NAME(ch), fn, ALIAS_FILE);
 	remove(fn);
 
-	if (GET_ALIASES(ch) == NULL)
+	if (GET_ALIASES(ch) == nullptr)
 		return;
 
-	if ((file = fopen(fn, "w")) == NULL) {
+	if ((file = fopen(fn, "w")) == nullptr) {
 		log("SYSERR: Couldn't save aliases for %s in '%s'.", GET_NAME(ch), fn);
 		perror("SYSERR: write_aliases");
 		return;
@@ -62,7 +62,7 @@ void read_aliases(CHAR_DATA *ch) {
 	log("Read alias %s", GET_NAME(ch));
 	get_filename(GET_NAME(ch), xbuf, ALIAS_FILE);
 
-	if ((file = fopen(xbuf, "r")) == NULL) {
+	if ((file = fopen(xbuf, "r")) == nullptr) {
 		if (errno != ENOENT) {
 			log("SYSERR: Couldn't open alias file '%s' for %s.", xbuf, GET_NAME(ch));
 			perror("SYSERR: read_aliases");

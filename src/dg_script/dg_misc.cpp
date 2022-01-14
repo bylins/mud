@@ -55,30 +55,30 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **
 	}
 
 	if (IS_SET(spell_info[spellnum].targets, TAR_IGNORE))
-		return TRUE;
+		return true;
 
 	if (IS_SET(spell_info[spellnum].targets, TAR_ROOM_THIS))
-		return TRUE;
+		return true;
 
 	if (*t) {
 		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_ROOM)) {
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return false;
-				return TRUE;
+				return true;
 			}
 		}
 		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_WORLD)) {
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return false;
-				return TRUE;
+				return true;
 			}
 		}
 
 		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_INV)) {
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr) {
-				return TRUE;
+				return true;
 			}
 		}
 
@@ -87,32 +87,32 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **
 			for (i = 0; i < NUM_WEARS; i++) {
 				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases())) {
 					*tobj = GET_EQ(ch, i);
-					return TRUE;
+					return true;
 				}
 			}
 		}
 
 		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_ROOM))
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
-				return TRUE;
+				return true;
 
 		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_WORLD))
 			if ((*tobj = get_obj_vis(ch, t)) != nullptr)
-				return TRUE;
+				return true;
 	} else {
 		if (IS_SET(spell_info[spellnum].targets, TAR_FIGHT_SELF))
 			if (ch->get_fighting() != nullptr) {
 				*tch = ch;
-				return TRUE;
+				return true;
 			}
 		if (IS_SET(spell_info[spellnum].targets, TAR_FIGHT_VICT))
 			if (ch->get_fighting() != nullptr) {
 				*tch = ch->get_fighting();
-				return TRUE;
+				return true;
 			}
 		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_ROOM) && !spell_info[spellnum].violent) {
 			*tch = ch;
-			return TRUE;
+			return true;
 		}
 	}
 

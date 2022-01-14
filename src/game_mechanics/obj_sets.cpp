@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
 #include "utils/pugixml.h"
@@ -563,7 +563,7 @@ std::set<int> vnum_list_add(int vnum) {
 	size_t idx = setidx_by_objvnum(vnum);
 
 	if (static_cast<size_t>(-1) == idx) {
-		mudlog("setidx_by_objvnum returned -1", BRF, LVL_BUILDER, ERRLOG, TRUE);
+		mudlog("setidx_by_objvnum returned -1", BRF, LVL_BUILDER, ERRLOG, true);
 		return list_vnum;
 	}
 
@@ -621,11 +621,11 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated) {
 		room_off_msg = global_msg.room_off_msg.c_str();
 	// что-то в любом случае распечатаем
 	if (activated) {
-		act(char_on_msg, FALSE, ch, obj, 0, TO_CHAR);
-		act(room_on_msg, TRUE, ch, obj, 0, TO_ROOM);
+		act(char_on_msg, false, ch, obj, 0, TO_CHAR);
+		act(room_on_msg, true, ch, obj, 0, TO_ROOM);
 	} else {
-		act(char_off_msg, FALSE, ch, obj, 0, TO_CHAR);
-		act(room_off_msg, TRUE, ch, obj, 0, TO_ROOM);
+		act(char_off_msg, false, ch, obj, 0, TO_CHAR);
+		act(room_off_msg, true, ch, obj, 0, TO_ROOM);
 	}
 }
 
@@ -1226,11 +1226,11 @@ void activ_sum::apply_affects(CHAR_DATA *ch) const {
 	for (const auto &j : weapon_affect) {
 		if (j.aff_bitvector != 0
 			&& affects.get(j.aff_pos)) {
-			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
+			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), true);
 		}
 	}
 	for (auto &&i : apply) {
-		affect_modify(ch, i.location, i.modifier, static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, i.location, i.modifier, static_cast<EAffectFlag>(0), true);
 	}
 }
 

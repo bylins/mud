@@ -43,7 +43,7 @@ void go_flee(CHAR_DATA *ch) {
 	int correct_dirs = 0;
 
 	for (auto i = 0; i < NUM_OF_DIRS; ++i) {
-		if (legal_dir(ch, i, TRUE, FALSE) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ROOM_DEATH)) {
+		if (legal_dir(ch, i, true, false) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ROOM_DEATH)) {
 			dirs[correct_dirs] = i;
 			++correct_dirs;
 		}
@@ -55,22 +55,22 @@ void go_flee(CHAR_DATA *ch) {
 		const auto was_fighting = ch->get_fighting();
 		const auto was_in = ch->in_room;
 
-		if (do_simple_move(ch, direction, TRUE, 0, true)) {
-			act("$n запаниковал$g и пытал$u сбежать!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		if (do_simple_move(ch, direction, true, 0, true)) {
+			act("$n запаниковал$g и пытал$u сбежать!", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
 			if (ch->ahorse()) {
-				act("Верн$W $N вынес$Q вас из боя.", FALSE, ch, 0, ch->get_horse(), TO_CHAR);
+				act("Верн$W $N вынес$Q вас из боя.", false, ch, 0, ch->get_horse(), TO_CHAR);
 			}
 
 			if (was_fighting && !IS_NPC(ch)) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
 		} else {
-			act("$n запаниковал$g и попытал$u убежать, но не смог$q!", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n запаниковал$g и попытал$u убежать, но не смог$q!", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 		}
 	} else {
-		act("$n запаниковал$g и попытал$u убежать, но не смог$q!", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("$n запаниковал$g и попытал$u убежать, но не смог$q!", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 	}
 }
@@ -91,13 +91,13 @@ void go_dir_flee(CHAR_DATA *ch, int direction) {
 		return;
 	}
 
-	if (legal_dir(ch, direction, TRUE, FALSE)
+	if (legal_dir(ch, direction, true, false)
 		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ROOM_DEATH)) {
-		if (do_simple_move(ch, direction, TRUE, 0, true)) {
+		if (do_simple_move(ch, direction, true, 0, true)) {
 			const auto was_in = ch->in_room;
 			const auto was_fighting = ch->get_fighting();
 
-			act("$n запаниковал$g и попытал$u убежать.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n запаниковал$g и попытал$u убежать.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
 			if (was_fighting && !IS_NPC(ch)) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
@@ -128,8 +128,8 @@ void do_flee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (can_use_feat(ch, CALMNESS_FEAT) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
 		one_argument(argument, arg);
-		if ((direction = search_block(arg, dirs, FALSE)) >= 0 ||
-			(direction = search_block(arg, FleeDirs, FALSE)) >= 0) {
+		if ((direction = search_block(arg, dirs, false)) >= 0 ||
+			(direction = search_block(arg, FleeDirs, false)) >= 0) {
 			go_dir_flee(ch, direction);
 			return;
 		}

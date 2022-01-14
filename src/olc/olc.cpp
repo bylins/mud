@@ -62,7 +62,7 @@ void olc_saveinfo(CHAR_DATA *ch);
 // global data
 const char *save_info_msg[5] = {"Rooms", "Objects", "Zone info", "Mobiles", "Shops"};
 const char *nrm, *grn, *cyn, *yel, *iyel, *ired;
-struct olc_save_info *olc_save_list = NULL;
+struct olc_save_info *olc_save_list = nullptr;
 
 struct olc_scmd_data {
 	const char *text;
@@ -143,8 +143,8 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 		}
 	} else if (!a_isdigit(*buf1)) {
 		if (strn_cmp("save", buf1, 4) == 0
-			|| (lock = !strn_cmp("lock", buf1, 4)) == TRUE
-			|| (unlock = !strn_cmp("unlock", buf1, 6)) == TRUE) {
+			|| (lock = !strn_cmp("lock", buf1, 4)) == true
+			|| (unlock = !strn_cmp("unlock", buf1, 6)) == true) {
 			if (!*buf2) {
 				if (GET_OLC_ZONE(ch)) {
 					save = 1;
@@ -207,22 +207,22 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	}
 
 	if (lock) {
-		zone_table[OLC_ZNUM(d)].locked = TRUE;
+		zone_table[OLC_ZNUM(d)].locked = true;
 		send_to_char("Защищаю зону от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(buf, LGH, LVL_IMPL, SYSLOG, true);
 		zedit_save_to_disk(OLC_ZNUM(d));
 		delete d->olc;
 		return;
 	}
 
 	if (unlock) {
-		zone_table[OLC_ZNUM(d)].locked = FALSE;
+		zone_table[OLC_ZNUM(d)].locked = false;
 		send_to_char("Снимаю защиту от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(buf, LGH, LVL_IMPL, SYSLOG, true);
 		zedit_save_to_disk(OLC_ZNUM(d));
 		delete d->olc;
 		return;
@@ -246,7 +246,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	}
 
 	if (save) {
-		const char *type = NULL;
+		const char *type = nullptr;
 		switch (subcmd) {
 			case SCMD_OLC_REDIT: type = "room";
 				break;
@@ -265,7 +265,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 		send_to_char(buf, ch);
 		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, LGH, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		switch (subcmd) {
 			case SCMD_OLC_REDIT: redit_save_to_disk(OLC_ZNUM(d));
@@ -324,7 +324,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			break;
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
-		TRUE, d->character.get(), 0, 0, TO_ROOM);
+		true, d->character.get(), 0, 0, TO_ROOM);
 	PLR_FLAGS(ch).set(PLR_WRITING);
 }
 
@@ -499,7 +499,7 @@ void cleanup_olc(DESCRIPTOR_DATA *d, byte cleanup_type) {
 			PLR_FLAGS(d->character).unset(PLR_WRITING);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
-				TRUE, d->character.get(), 0, 0, TO_ROOM);
+				true, d->character.get(), 0, 0, TO_ROOM);
 		}
 		delete d->olc;
 	}
@@ -529,7 +529,7 @@ int xparse_ing(DESCRIPTOR_DATA * /*d*/, int **pping, char *arg) {
 			if (arg[0] == '*') {
 				if (*pping)
 					free(*pping);
-				*pping = NULL;
+				*pping = nullptr;
 			} else if (a_isdigit(arg[0])) {
 				im_extract_ing(pping, atoi(arg));
 			}

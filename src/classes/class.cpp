@@ -1389,7 +1389,7 @@ void do_start(CHAR_DATA *ch, int newbie) {
 
 	advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_REAL_LEVEL(ch));
-	mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+	mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
 
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
 	GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
@@ -1526,7 +1526,7 @@ int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	if (!IS_CORPSE(obj)) {
 		for (object = obj->get_contains(); object; object = object->get_next_content()) {
 			if (invalid_unique(ch, object)) {
-				return (TRUE);
+				return (true);
 			}
 		}
 	}
@@ -1537,9 +1537,9 @@ int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj) {
 		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
 		|| obj->get_owner() == GET_UNIQUE(ch)) {
-		return (FALSE);
+		return (false);
 	}
-	return (TRUE);
+	return (true);
 }
 
 bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj) {
@@ -1554,19 +1554,19 @@ int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	if (!IS_CORPSE(obj)) {
 		for (const OBJ_DATA *object = obj->get_contains(); object; object = object->get_next_content()) {
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0)) {
-				return (TRUE);
+				return (true);
 			}
 		}
 	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-		return (TRUE);
+		return (true);
 	}
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch)) {
-		return (FALSE);
+		return (false);
 	}
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_NOT_FOR_NOPK) && char_to_pk_clan(ch))) {
-		return (TRUE);
+		return (true);
 	}
 
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == kReligionMono)
@@ -1592,21 +1592,21 @@ int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BD) && check_agrobd(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_COLORED) && IS_COLORED(ch))) {
-		return (TRUE);
+		return (true);
 	}
-	return (FALSE);
+	return (false);
 }
 
 int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-		return TRUE;
+		return true;
 	}
 
 	if (!IS_CHARMICE(ch)
 		&& (IS_NPC(ch)
 			|| WAITLESS(ch))) {
-		return FALSE;
+		return false;
 	}
 
 	if ((IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO) && GET_RELIGION(ch) == kReligionMono)
@@ -1633,10 +1633,10 @@ int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))
 		|| (!IS_SMITH(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch))) {
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void load_skills_definitions() {
@@ -1735,7 +1735,7 @@ void load_skills() {
 	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 
@@ -1743,7 +1743,7 @@ void load_skills() {
 
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...class.skills.xml read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 
@@ -1968,7 +1968,7 @@ void init_spell_levels(void) {
 		for (j = 0; j < kNumKins; j++)
 			if (i[j] == 1) {
 				//log("Setting up feat '%s'", feat_info[sp_num].name);
-				feat_info[sp_num].classknow[i[3]][j] = TRUE;
+				feat_info[sp_num].classknow[i[3]][j] = true;
 				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
 					feat_info[sp_num].name,
 					sp_num,
@@ -2159,7 +2159,7 @@ void init_basic_values(void) {
 					fields = sizeof(weapon_app[c]) / sizeof(int);
 					break;
 
-				default: pointer = NULL;
+				default: pointer = nullptr;
 			}
 
 			if (pointer)    //log("Mode %d - %d = %d %d %d %d %d %d",mode,c,

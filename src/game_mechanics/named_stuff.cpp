@@ -132,8 +132,8 @@ bool wear_msg(CHAR_DATA *ch, OBJ_DATA *obj) {
 		if (check_named(ch, obj, true)) {
 			if (!it->second->cant_msg_v.empty()) {
 				if (!it->second->cant_msg_a.empty())
-					act(it->second->cant_msg_a.c_str(), FALSE, ch, obj, 0, TO_ROOM);
-				act(it->second->cant_msg_v.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+					act(it->second->cant_msg_a.c_str(), false, ch, obj, 0, TO_ROOM);
+				act(it->second->cant_msg_v.c_str(), false, ch, obj, 0, TO_CHAR);
 				return true;
 			} else
 				return false;
@@ -141,8 +141,8 @@ bool wear_msg(CHAR_DATA *ch, OBJ_DATA *obj) {
 			if (!it->second->wear_msg_v.empty()) {
 				if (number(1, 100) <= 20) {
 					if (!it->second->wear_msg_a.empty())
-						act(it->second->wear_msg_a.c_str(), FALSE, ch, obj, 0, TO_ROOM);
-					act(it->second->wear_msg_v.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+						act(it->second->wear_msg_a.c_str(), false, ch, obj, 0, TO_ROOM);
+					act(it->second->wear_msg_v.c_str(), false, ch, obj, 0, TO_CHAR);
 				}
 				return true;
 			} else
@@ -482,7 +482,7 @@ void receive_items(CHAR_DATA *ch, CHAR_DATA *mailman) {
 	if ((ch->in_room == r_helled_start_room) ||
 		(ch->in_room == r_named_start_room) ||
 		(ch->in_room == r_unreg_start_room)) {
-		act("$n сказал$g вам : 'Вот выйдешь - тогда и получишь!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Вот выйдешь - тогда и получишь!'", false, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
@@ -511,8 +511,8 @@ void receive_items(CHAR_DATA *ch, CHAR_DATA *mailman) {
 				obj->cleanup_script();
 				obj_decay(obj.get());
 
-				act("$n дал$g вам $o3.", FALSE, mailman, obj.get(), ch, TO_VICT);
-				act("$N дал$G $n2 $o3.", FALSE, ch, obj.get(), mailman, TO_ROOM);
+				act("$n дал$g вам $o3.", false, mailman, obj.get(), ch, TO_VICT);
+				act("$N дал$G $n2 $o3.", false, ch, obj.get(), mailman, TO_ROOM);
 			} else {
 				snprintf(buf1, kMaxStringLength, "не выдаем именной предмет %s Max:%d <= Current:%d",
 						 obj_proto[r_num]->get_short_description().c_str(),
@@ -521,19 +521,19 @@ void receive_items(CHAR_DATA *ch, CHAR_DATA *mailman) {
 				in_world++;
 			}
 			snprintf(buf, kMaxStringLength, "NamedStuff: %s vnum:%ld %s", GET_PAD(ch, 0), it->first, buf1);
-			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, true);
 		}
 	}
 
 	if (!found) {
 		if (!in_world) {
-			act("$n сказал$g вам : 'Кажется для тебя ничего нет'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n сказал$g вам : 'Кажется для тебя ничего нет'", false, mailman, 0, ch, TO_VICT);
 		} else {
-			act("$n сказал$g вам : 'Забрал кто-то твои вещи'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n сказал$g вам : 'Забрал кто-то твои вещи'", false, mailman, 0, ch, TO_VICT);
 		}
 	}
 
-	set_wait(ch, 3, FALSE);
+	set_wait(ch, 3, false);
 }
 
 void load() {
@@ -550,14 +550,14 @@ void load() {
 			std::string name;
 			if (stuff_list.find(vnum) != stuff_list.end()) {
 				snprintf(buf, kMaxStringLength, "NamedStuff: дубликат записи vnum=%ld пропущен", vnum);
-				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, true);
 				continue;
 			}
 
 			if (real_object(vnum) < 0) {
 				snprintf(buf, kMaxStringLength,
 						 "NamedStuff: предмет vnum=%ld не существует.", vnum);
-				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, true);
 			}
 			if (node.attribute("uid")) {
 				tmp_node->uid = std::stol(node.attribute("uid").value(), nullptr, 10);
@@ -568,7 +568,7 @@ void load() {
 							 "NamedStuff: Unique=%d - персонажа не существует(владелец предмета vnum=%ld).",
 							 tmp_node->uid,
 							 vnum);
-					mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
+					mudlog(buf, NRM, LVL_BUILDER, SYSLOG, true);
 				}
 			}
 			if (node.attribute("mail")) {
@@ -600,7 +600,7 @@ void load() {
 						 tmp_node->mail.c_str(),
 						 vnum,
 						 (name.empty() ? "неизвестен" : name.c_str()));
-				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, true);
 			}
 			if (node.attribute("can_clan"))
 				tmp_node->can_clan = std::stoi(node.attribute("can_clan").value(), nullptr, 10);
@@ -619,7 +619,7 @@ void load() {
 	snprintf(buf, kMaxStringLength,
 			 "NamedStuff: список именных вещей загружен, всего объектов: %lu.",
 			 static_cast<unsigned long>(stuff_list.size()));
-	mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);
+	mudlog(buf, CMP, LVL_BUILDER, SYSLOG, true);
 }
 
 } // namespace NamedStuff

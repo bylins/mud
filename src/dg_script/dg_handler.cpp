@@ -24,7 +24,7 @@ void extract_trigger(TRIG_DATA *trig) {
 		// см. объяснения в вызове trig_data_free()
 		free(GET_TRIG_WAIT(trig)->info);
 		remove_event(GET_TRIG_WAIT(trig));
-		GET_TRIG_WAIT(trig) = NULL;
+		GET_TRIG_WAIT(trig) = nullptr;
 	}
 
 	trig_index[trig->get_rnum()]->number--;

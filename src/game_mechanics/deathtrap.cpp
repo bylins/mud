@@ -74,7 +74,7 @@ void DeathTrap::activity() {
 				snprintf(buf_, sizeof(buf_),
 						 "Player %s died in slow DT (room %d)",
 						 name.c_str(), (*it)->room_vn);
-				mudlog(buf_, LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf_, LGH, LVL_IMMORT, SYSLOG, true);
 			}
 		}
 	}
@@ -116,31 +116,31 @@ int DeathTrap::check_death_trap(CHAR_DATA *ch) {
 						"Player %s died in DT (room %d) but zone is under construction.",
 						GET_NAME(ch),
 						GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-				return FALSE;
+				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, true);
+				return false;
 			}
 
 			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
-			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-			death_cry(ch, NULL);
+			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, true);
+			death_cry(ch, nullptr);
 			//29.11.09 Для счета количество рипов (с) Василиса
 			GET_RIP_DT(ch) = GET_RIP_DT(ch) + 1;
 			GET_RIP_DTTHIS(ch) = GET_RIP_DTTHIS(ch) + 1;
 			//конец правки (с) Василиса
 			corpse = make_corpse(ch);
-			if (corpse != NULL) {
+			if (corpse != nullptr) {
 				obj_from_room(corpse);    // для того, чтобы удалилость все содержимое
 				extract_obj(corpse);
 			}
 			GET_HIT(ch) = GET_MOVE(ch) = 0;
 			if (NORENTABLE(ch)) {
-				die(ch, NULL);
+				die(ch, nullptr);
 			} else
-				extract_char(ch, TRUE);
-			return TRUE;
+				extract_char(ch, true);
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 bool DeathTrap::is_slow_dt(int rnum) {
@@ -187,7 +187,7 @@ bool DeathTrap::tunnel_damage(CHAR_DATA *ch) {
 			snprintf(buf_, sizeof(buf_),
 					 "Player %s died in tunnel room (room %d)",
 					 name.c_str(), GET_ROOM_VNUM(room_rnum));
-			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, true);
 			return true;
 		}
 	}

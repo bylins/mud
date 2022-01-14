@@ -93,7 +93,7 @@ extern const char *nothing_string;
  * for CircleMUD 3.0 to be complete but we refuse to break binary file
  * compatibility.
  */
-#define USE_AUTOEQ 1        // TRUE/FALSE aren't defined yet.
+#define USE_AUTOEQ 1
 
 const __uint8_t kMaxDest = 50;
 

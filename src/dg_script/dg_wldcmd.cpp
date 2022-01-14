@@ -69,8 +69,8 @@ void act_to_room(char *str, ROOM_DATA *room) {
 	 * TO_ROOM and TO_CHAR for some char in the room.
 	 * (just dont use $n or you might get strange results)
 	 */
-	act(str, FALSE, room->first_character(), 0, 0, TO_ROOM);
-	act(str, FALSE, room->first_character(), 0, 0, TO_CHAR);
+	act(str, false, room->first_character(), 0, 0, TO_ROOM);
+	act(str, false, room->first_character(), 0, 0, TO_CHAR);
 }
 
 // World commands
@@ -129,12 +129,12 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd) {
 			sprintf(buf,
 					"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 					GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-			mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+			mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
 		}
 		if (subcmd == SCMD_WSEND)
-			sub_write(msg, ch, TRUE, TO_CHAR);
+			sub_write(msg, ch, true, TO_CHAR);
 		else if (subcmd == SCMD_WECHOAROUND)
-			sub_write(msg, ch, TRUE, TO_ROOM);
+			sub_write(msg, ch, true, TO_ROOM);
 	} else
 		wld_log(room, "no target found for wsend", LGH);
 }
@@ -183,17 +183,17 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((rm = get_room(target)) == NULL) {
+	if ((rm = get_room(target)) == nullptr) {
 		wld_log(room, "wdoor: invalid target");
 		return;
 	}
 
-	if ((dir = search_block(direction, dirs, FALSE)) == -1) {
+	if ((dir = search_block(direction, dirs, false)) == -1) {
 		wld_log(room, "wdoor: invalid direction");
 		return;
 	}
 
-	if ((fd = search_block(field, door_field, FALSE)) == -1) {
+	if ((fd = search_block(field, door_field, false)) == -1) {
 		wld_log(room, "wdoor: invalid field");
 		return;
 	}
@@ -286,7 +286,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 			char_from_room(ch);
 			char_to_room(ch, target);
 			ch->dismount();
-			look_at_room(ch, TRUE);
+			look_at_room(ch, true);
 		}
 	}
 	else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
@@ -304,14 +304,14 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 			char_from_room(ch);
 			char_to_room(ch, target);
 			ch->dismount();
-			look_at_room(ch, TRUE);
+			look_at_room(ch, true);
 		}
 	} else {
 		if ((ch = get_char_by_room(room, arg1))) { //уид ищется внутри
 			if (ch->ahorse() || ch->has_horse(true)) {
 				horse = ch->get_horse();
 			} else {
-				horse = NULL;
+				horse = nullptr;
 			}
 			if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
 				ch = ch->get_master();
@@ -329,7 +329,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 			char_from_room(ch);
 			char_to_room(ch, target);
 			ch->dismount();
-			look_at_room(ch, TRUE);
+			look_at_room(ch, true);
 			greet_mtrigger(ch, -1);
 			greet_otrigger(ch, -1);
 		} else {
@@ -439,7 +439,7 @@ void do_wpurge(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| ch->get_master()) {
 		die_follower(ch);
 	}
-	extract_char(ch, FALSE);
+	extract_char(ch, false);
 }
 
 // loads a mobile or object into the room //
@@ -456,7 +456,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (is_abbrev(arg1, "mob")) {
-		if ((mob = read_mobile(number, VIRTUAL)) == NULL) {
+		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			wld_log(room, "wload: bad mob vnum");
 			return;
 		}
@@ -527,9 +527,9 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!IS_NPC(ch)) {
 				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
 						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, true);
 			}
-			die(ch, NULL);
+			die(ch, nullptr);
 		}
 	} else {
 		wld_log(room, "wdamage: target not found");
@@ -869,8 +869,8 @@ void do_wportal(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
+	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 
 const struct wld_command_info wld_cmd_info[] =

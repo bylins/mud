@@ -29,12 +29,12 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("Что вы хотите смешать?\r\n", ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
+	s = strtok(nullptr, "'*!");
 	if (!s) {
 		send_to_char("Название вызываемой магии смеси должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	t = strtok(NULL, "\0");
+	t = strtok(nullptr, "\0");
 
 	spellnum = FixNameAndFindSpellNum(s);
 
@@ -51,10 +51,10 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!check_recipe_values(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE))
+	if (!check_recipe_values(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, false))
 		return;
 
-	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE)) {
+	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, false)) {
 		if (subcmd == SCMD_ITEMS)
 			send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		else if (subcmd == SCMD_RUNES)
@@ -63,7 +63,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	// Find the target
-	if (t != NULL)
+	if (t != nullptr)
 		one_argument(t, arg);
 	else
 		*arg = '\0';
@@ -99,7 +99,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, TRUE, tch)) {
+	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, true, tch)) {
 		if (!CalculateCastSuccess(ch, tch, SAVING_NONE, spellnum)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			if (!tch || !SendSkillMessages(0, ch, tch, spellnum)) {

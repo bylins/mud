@@ -26,16 +26,16 @@ void go_stupor(CHAR_DATA *ch, CHAR_DATA *victim) {
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, SKILL_STUPOR, FightSystem::MAIN_HAND);
-		//set_wait(ch, 2, TRUE);
+		//set_wait(ch, 2, true);
 		if (ch->getSkillCooldown(SKILL_STUPOR) > 0) {
 			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 		}
 	} else {
-		act("Вы попытаетесь оглушить $N3.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Вы попытаетесь оглушить $N3.", false, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
-			stop_fighting(ch, FALSE);
+			stop_fighting(ch, false);
 			set_fighting(ch, victim);
-			//set_wait(ch, 2, TRUE);
+			//set_wait(ch, 2, true);
 			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 2);
 		}
 		SET_AF_BATTLE(ch, EAF_STUPOR);

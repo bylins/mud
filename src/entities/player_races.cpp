@@ -101,7 +101,7 @@ PlayerRacePtr PlayerRace::GetPlayerRace(int Kin, int Race) {
 	PlayerRacePtr RacePtr;
 	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(Kin);
 
-	if (KinPtr != NULL)
+	if (KinPtr != nullptr)
 		for (PlayerRaceListType::iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end(); ++it)
 			if ((*it)->_RaceNum == Race)
 				RacePtr = *it;
@@ -111,7 +111,7 @@ PlayerRacePtr PlayerRace::GetPlayerRace(int Kin, int Race) {
 //Проверка наличия у данного рода+расы способности с указанным номером
 bool PlayerRace::FeatureCheck(int Kin, int Race, int Feat) {
 	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
-	if (RacePtr == NULL)
+	if (RacePtr == nullptr)
 		return false;
 	std::vector<int>::iterator
 		RaceFeature = find(RacePtr->_RaceFeatureList.begin(), RacePtr->_RaceFeatureList.end(), Feat);
@@ -133,14 +133,14 @@ void PlayerRace::GetKinNamesList(CHAR_DATA * /*ch*/) {
 	//test message
 	//char buf33[kMaxInputLength];
 	//snprintf(buf33, kMaxStringLength, "!==!...%s", CurNode.child("shename").child_value());
-	//mudlog(buf33, CMP, LVL_IMMORT, SYSLOG, TRUE);
+	//mudlog(buf33, CMP, LVL_IMMORT, SYSLOG, true);
 }
 
 //Получение всего списка способностей для указанного рода+расы
 std::vector<int> PlayerRace::GetRaceFeatures(int Kin, int Race) {
 	std::vector<int> RaceFeatures;
 	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
-	if (RacePtr != NULL) {
+	if (RacePtr != nullptr) {
 		RaceFeatures = RacePtr->_RaceFeatureList;
 	}
 	return RaceFeatures;
@@ -160,7 +160,7 @@ int PlayerRace::GetKinNumByName(const std::string &KinName) {
 //Получение номера рода по названию
 int PlayerRace::GetRaceNumByName(int Kin, const std::string &RaceName) {
 	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(Kin);
-	if (KinPtr != NULL) {
+	if (KinPtr != nullptr) {
 		for (PlayerRaceListType::const_iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end();
 			 ++it) {
 			if ((*it)->_RaceMenuStr == RaceName) {
@@ -236,7 +236,7 @@ std::string PlayerRace::ShowRacesMenu(int KinNum) {
 	std::ostringstream buffer;
 	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(KinNum);
 
-	if (KinPtr != NULL)
+	if (KinPtr != nullptr)
 		for (PlayerRaceListType::iterator it = KinPtr->PlayerRaceList.begin(); it != KinPtr->PlayerRaceList.end(); ++it)
 			buffer << " " << (*it)->_RaceNum + 1 << ") " << (*it)->_RaceMenuStr << "\r\n";
 
@@ -288,7 +288,7 @@ int PlayerRace::CheckKin(char *arg) {
 std::vector<int> PlayerRace::GetRaceBirthPlaces(int Kin, int Race) {
 	std::vector<int> BirthPlaces;
 	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
-	if (RacePtr != NULL)
+	if (RacePtr != nullptr)
 		BirthPlaces = RacePtr->_RaceBirthPlaceList;
 
 	return BirthPlaces;

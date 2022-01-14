@@ -55,18 +55,18 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!opponent)
-		act("Но никто не сражается с $N4!", FALSE, ch, 0, helpee, TO_CHAR);
+		act("Но никто не сражается с $N4!", false, ch, 0, helpee, TO_CHAR);
 	else if (!CAN_SEE(ch, opponent))
-		act("Вы не видите противника $N1!", FALSE, ch, 0, helpee, TO_CHAR);
+		act("Вы не видите противника $N1!", false, ch, 0, helpee, TO_CHAR);
 	else if (opponent == ch)
-		act("Дык $E сражается с ВАМИ!", FALSE, ch, 0, helpee, TO_CHAR);
+		act("Дык $E сражается с ВАМИ!", false, ch, 0, helpee, TO_CHAR);
 	else if (!may_kill_here(ch, opponent, NoArgument))
 		return;
 	else if (need_full_alias(ch, opponent))
-		act("Используйте команду 'атаковать' для нападения на $N1.", FALSE, ch, 0, opponent, TO_CHAR);
+		act("Используйте команду 'атаковать' для нападения на $N1.", false, ch, 0, opponent, TO_CHAR);
 	else if (set_hit(ch, opponent)) {
-		act("Вы присоединились к битве, помогая $N2!", FALSE, ch, 0, helpee, TO_CHAR);
+		act("Вы присоединились к битве, помогая $N2!", false, ch, 0, helpee, TO_CHAR);
 		act("$N решил$G помочь вам в битве!", 0, helpee, 0, ch, TO_CHAR);
-		act("$n вступил$g в бой на стороне $N1.", FALSE, ch, 0, helpee, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("$n вступил$g в бой на стороне $N1.", false, ch, 0, helpee, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }

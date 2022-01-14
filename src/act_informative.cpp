@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "world_objects.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "entities/room_constants.h"
 #include "obj_prototypes.h"
 #include "logger.h"

@@ -2,7 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "world.characters.h"
+#include "world_characters.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
 #include "room_constants.h"
@@ -174,15 +174,15 @@ void CHAR_DATA::reset() {
 	int i;
 
 	for (i = 0; i < NUM_WEARS; i++) {
-		GET_EQ(this, i) = NULL;
+		GET_EQ(this, i) = nullptr;
 	}
 	memset((void *) &add_abils, 0, sizeof(add_abils));
 
-	followers = NULL;
+	followers = nullptr;
 	m_master = nullptr;
 	in_room = kNowhere;
-	carrying = NULL;
-	next_fighting = NULL;
+	carrying = nullptr;
+	next_fighting = nullptr;
 	set_protecting(0);
 	set_touching(0);
 	BattleAffects = clear_flags;
@@ -242,7 +242,7 @@ void CHAR_DATA::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	}
 
 	const auto af = *affect_i;
-	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
+	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), false);
 	if (af->type == SPELL_ABSTINENT) {
 		if (player_specials) {
 			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
@@ -446,7 +446,7 @@ void CHAR_DATA::purge() {
 
 	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;
 	if (this->player_specials && !keep_player_specials) {
-		while ((a = GET_ALIASES(this)) != NULL) {
+		while ((a = GET_ALIASES(this)) != nullptr) {
 			GET_ALIASES(this) = (GET_ALIASES(this))->next;
 			free_alias(a);
 		}
@@ -455,14 +455,14 @@ void CHAR_DATA::purge() {
 		if (this->player_specials->poofout)
 			free(this->player_specials->poofout);
 		// рецепты
-		while (GET_RSKILL(this) != NULL) {
+		while (GET_RSKILL(this) != nullptr) {
 			im_rskill *r;
 			r = GET_RSKILL(this)->link;
 			free(GET_RSKILL(this));
 			GET_RSKILL(this) = r;
 		}
 		// порталы
-		while (GET_PORTALS(this) != NULL) {
+		while (GET_PORTALS(this) != nullptr) {
 			struct char_portal_type *prt_next;
 			prt_next = GET_PORTALS(this)->next;
 			free(GET_PORTALS(this));
@@ -490,7 +490,7 @@ void CHAR_DATA::purge() {
 		if (EXCHANGE_FILTER(this)) {
 			free(EXCHANGE_FILTER(this));
 		}
-		EXCHANGE_FILTER(this) = NULL;    // на всякий случай
+		EXCHANGE_FILTER(this) = nullptr;    // на всякий случай
 
 		clear_ignores();
 
@@ -589,14 +589,14 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
 	if (IS_MANA_CASTER(this) && get_skill(skill_num) > 0) {
 		if (skill_num == SKILL_WATER_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0) {
 			sprintf(buf, "Попытка установить скилл магии воды без скилла магии огня для игрока %s", GET_NAME(this));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 			return;
 		}
 		if (skill_num == SKILL_EARTH_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0) {
 			sprintf(buf,
 					"Попытка установить скилл магии земли без скилла магии огня + воды для игрока %s",
 					GET_NAME(this));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 			return;
 		}
 		if (skill_num == SKILL_AIR_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0
@@ -604,7 +604,7 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
 			sprintf(buf,
 					"Попытка установить скилл магии воздуха без скилла магии огня + воды + земли для игрока %s",
 					GET_NAME(this));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 			return;
 		}
 		if (skill_num == SKILL_DARK_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0
@@ -612,7 +612,7 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
 			sprintf(buf,
 					"Попытка установить скилл магии тьмы без скилла магии огня + воды + земли + воздуха для игрока %s",
 					GET_NAME(this));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 			return;
 		}
 	}
@@ -905,8 +905,8 @@ void change_fighting(CHAR_DATA *ch, int need_stop) {
 			bool found = false;
 			for (const auto j : world[ch->in_room]->people) {
 				if (j->get_fighting() == k.get()) {
-					act("Вы переключили внимание на $N3.", FALSE, k.get(), 0, j, TO_CHAR);
-					act("$n переключил$u на вас!", FALSE, k.get(), 0, j, TO_VICT);
+					act("Вы переключили внимание на $N3.", false, k.get(), 0, j, TO_CHAR);
+					act("$n переключил$u на вас!", false, k.get(), 0, j, TO_VICT);
 					k->set_fighting(j);
 					found = true;
 
@@ -916,7 +916,7 @@ void change_fighting(CHAR_DATA *ch, int need_stop) {
 
 			if (!found
 				&& need_stop) {
-				stop_fighting(k.get(), FALSE);
+				stop_fighting(k.get(), false);
 			}
 		}
 	}
@@ -1681,7 +1681,7 @@ void CHAR_DATA::set_morph(MorphPtr morph) {
 void CHAR_DATA::reset_morph() {
 	int value = this->get_trained_skill(SKILL_MORPH);
 	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
-	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), TRUE, this, 0, 0, TO_ROOM);
+	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, TO_ROOM);
 	this->current_morph_ = GetNormalMorphNew(this);
 	this->set_morphed_skill(SKILL_MORPH, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
@@ -1743,9 +1743,9 @@ void CHAR_DATA::add_follower(CHAR_DATA *ch) {
 	add_follower_silently(ch);
 
 	if (!IS_HORSE(ch)) {
-		act("Вы начали следовать за $N4.", FALSE, ch, 0, this, TO_CHAR);
-		act("$n начал$g следовать за вами.", TRUE, ch, 0, this, TO_VICT);
-		act("$n начал$g следовать за $N4.", TRUE, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы начали следовать за $N4.", false, ch, 0, this, TO_CHAR);
+		act("$n начал$g следовать за вами.", true, ch, 0, this, TO_VICT);
+		act("$n начал$g следовать за $N4.", true, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
 
@@ -2043,7 +2043,7 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
 	if (IS_CHARMICE(this) && !this->has_master()) {
 		sprintf(buf, "[WARNING] CHAR_DATA::send_to_TC. Чармис без хозяина: %s", this->get_name().c_str());
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
 		return;
 	}
 	if ((IS_CHARMICE(this) && this->get_master()->is_npc()) //если это чармис у нпц
@@ -2071,7 +2071,7 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 
 	if (!tmpbuf) {
 		sprintf(buf, "[WARNING] CHAR_DATA::send_to_TC. Передано пустое сообщение");
-		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+		mudlog(buf, BRF, LVL_GOD, SYSLOG, true);
 		return;
 	}
 	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру
@@ -2106,7 +2106,7 @@ bool CHAR_DATA::ahorse() const {
 
 bool CHAR_DATA::isHorsePrevents() {
 	if (this->ahorse()) {
-		act("Вам мешает $N.", FALSE, this, 0, this->get_horse(), TO_CHAR);
+		act("Вам мешает $N.", false, this, 0, this->get_horse(), TO_CHAR);
 		return true;
 	}
 	return false;
@@ -2117,17 +2117,17 @@ bool CHAR_DATA::drop_from_horse() {
 	// вызвали для лошади
 	if (IS_HORSE(this) && this->get_master()->ahorse()) {
 		plr = this->get_master();
-		act("$N сбросил$G вас со своей спины.", FALSE, plr, 0, this, TO_CHAR);
+		act("$N сбросил$G вас со своей спины.", false, plr, 0, this, TO_CHAR);
 	}
 	// вызвали для седока
 	if (this->ahorse()) {
 		plr = this;
-		act("Вы упали с $N1.", FALSE, plr, 0, this->get_horse(), TO_CHAR);
+		act("Вы упали с $N1.", false, plr, 0, this->get_horse(), TO_CHAR);
 	}
 	if (plr == nullptr || !plr->ahorse())
 		return false;
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
-	act(buf, FALSE, plr, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+	act(buf, false, plr, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	AFF_FLAGS(plr).unset(EAffectFlag::AFF_HORSE);
 	WAIT_STATE(this, 3 * PULSE_VIOLENCE);
 	if (GET_POS(plr) > POS_SITTING)
@@ -2141,8 +2141,8 @@ void CHAR_DATA::dismount() {
 	if (!IS_NPC(this) && this->has_horse(true)) {
 		AFF_FLAGS(this).unset(EAffectFlag::AFF_HORSE);
 	}
-	act("Вы слезли со спины $N1.", FALSE, this, 0, this->get_horse(), TO_CHAR);
-	act("$n соскочил$g с $N1.", FALSE, this, 0, this->get_horse(), TO_ROOM | TO_ARENA_LISTEN);
+	act("Вы слезли со спины $N1.", false, this, 0, this->get_horse(), TO_CHAR);
+	act("$n соскочил$g с $N1.", false, this, 0, this->get_horse(), TO_ROOM | TO_ARENA_LISTEN);
 }
 
 CHAR_DATA *CHAR_DATA::get_horse() {

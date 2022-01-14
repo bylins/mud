@@ -30,7 +30,7 @@ void init() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 
@@ -66,7 +66,7 @@ void init() {
 		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
 		if (id == CLASS_UNDEFINED) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 			return;
 		}
 
@@ -161,8 +161,8 @@ void check_help_message(CHAR_DATA *ch) {
 			CHAR_DATA *renter = find_renter(ch->in_room);
 			std::string text = BirthPlace::GetRentHelp(birth_id);
 			if (renter && !text.empty()) {
-				act("\n\\u$n оглядел$g вас с головы до пят.", TRUE, renter, 0, ch, TO_VICT);
-				act("$n посмотрел$g на $N3.", TRUE, renter, 0, ch, TO_NOTVICT);
+				act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, 0, ch, TO_VICT);
+				act("$n посмотрел$g на $N3.", true, renter, 0, ch, TO_NOTVICT);
 				tell_to_char(renter, ch, text.c_str());
 			}
 		}

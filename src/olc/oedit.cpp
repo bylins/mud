@@ -285,7 +285,7 @@ void oedit_save_to_disk(int zone_num) {
 
 	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
-		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, LVL_BUILDER, SYSLOG, true);
 		return;
 	}
 	// * Start running through all objects in this zone.
@@ -359,7 +359,7 @@ void oedit_save_to_disk(int zone_num) {
 					if (!ex_desc->keyword
 						|| !ex_desc->description) {
 						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
-							   BRF, LVL_BUILDER, SYSLOG, TRUE);
+							   BRF, LVL_BUILDER, SYSLOG, true);
 						continue;
 					}
 					strcpy(buf1, ex_desc->description);
@@ -1343,7 +1343,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					oedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					break;
 
@@ -1427,7 +1427,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 				case '9': OLC_MODE(d) = OEDIT_ACTDESC;
 					SEND_TO_Q("Введите описание при применении: (/s сохранить /h помощь)\r\n\r\n", d);
-					d->backstr = NULL;
+					d->backstr = nullptr;
 					if (!OLC_OBJ(d)->get_action_description().empty()) {
 						SEND_TO_Q(OLC_OBJ(d)->get_action_description().c_str(), d);
 						d->backstr = str_dup(OLC_OBJ(d)->get_action_description().c_str());
@@ -1594,7 +1594,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			}
 			break;
 
-		case OEDIT_EDIT_NAMELIST: OLC_OBJ(d)->set_aliases(not_null(arg, NULL));
+		case OEDIT_EDIT_NAMELIST: OLC_OBJ(d)->set_aliases(not_null(arg, nullptr));
 			break;
 
 		case OEDIT_PAD0: OLC_OBJ(d)->set_short_description(not_null(arg, "что-то"));
@@ -1626,7 +1626,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			} else {
 				OLC_OBJ(d)->set_type(static_cast<OBJ_DATA::EObjectType>(number));
 				sprintf(buf, "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
-				mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+				mudlog(buf, BRF, LVL_GOD, SYSLOG, true);
 				if (number != OBJ_DATA::ITEM_WEAPON
 					&& number != OBJ_DATA::ITEM_INGREDIENT) {
 					OLC_OBJ(d)->set_skill(SKILL_INVALID);
@@ -1993,7 +1993,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case OEDIT_EXTRADESC_KEY:
 			if (OLC_DESC(d)->keyword)
 				free(OLC_DESC(d)->keyword);
-			OLC_DESC(d)->keyword = str_dup(not_null(arg, NULL));
+			OLC_DESC(d)->keyword = str_dup(not_null(arg, nullptr));
 			oedit_disp_extradesc_menu(d);
 			return;
 
@@ -2012,7 +2012,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 				case 2: OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
 					SEND_TO_Q("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
-					d->backstr = NULL;
+					d->backstr = nullptr;
 					if (OLC_DESC(d)->description) {
 						SEND_TO_Q(OLC_DESC(d)->description, d);
 						d->backstr = str_dup(OLC_DESC(d)->description);
@@ -2146,7 +2146,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			OLC_OBJ(d)->set_proto_script(proto_script_old);
 			break;
 		}
-		default: mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+		default: mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Oops...\r\n", d->character.get());
 			break;
 	}

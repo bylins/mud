@@ -213,7 +213,7 @@ void trigedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 				case '6': OLC_MODE(d) = TRIGEDIT_COMMANDS;
 					send_to_char("Enter trigger commands: (/s saves /h for help)\r\n\r\n", d->character.get());
-					d->backstr = NULL;
+					d->backstr = nullptr;
 					if (OLC_STORAGE(d)) {
 						send_to_char(d->character.get(), "&S%s&s", OLC_STORAGE(d));
 						d->backstr = str_dup(OLC_STORAGE(d));
@@ -234,7 +234,7 @@ void trigedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				case 'y': trigedit_save(d);
 					sprintf(buf, "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// fall through
 
 				case 'n': cleanup_olc(d, CLEANUP_ALL);
@@ -327,7 +327,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 	cmdlist->cmd = cmd_token ? cmd_token : "";
 	auto cmd = cmdlist;
 
-	while ((s = strtok(NULL, "\n\r"))) {
+	while ((s = strtok(nullptr, "\n\r"))) {
 		cmd->next.reset(new cmdlist_element());
 		cmd = cmd->next;
 		cmd->cmd = s;
@@ -372,14 +372,14 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 		for (i = 0; i < top_of_trigt; i++) {
 			if (!found) {
 				if (trig_index[i]->vnum > OLC_NUM(d)) {
-					found = TRUE;
+					found = true;
 					trig_rnum = i;
 
 					CREATE(new_index[trig_rnum], 1);
 					OLC_TRIG(d)->set_rnum(trig_rnum);
 					new_index[trig_rnum]->vnum = OLC_NUM(d);
 					new_index[trig_rnum]->number = 0;
-					new_index[trig_rnum]->func = NULL;
+					new_index[trig_rnum]->func = nullptr;
 					new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
 					--i;
 					continue;    // повторить копирование еще раз, но уже по-другому
@@ -400,7 +400,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 			OLC_TRIG(d)->set_rnum(trig_rnum);
 			new_index[trig_rnum]->vnum = OLC_NUM(d);
 			new_index[trig_rnum]->number = 0;
-			new_index[trig_rnum]->func = NULL;
+			new_index[trig_rnum]->func = nullptr;
 			new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
 		}
 		free(trig_index);
@@ -438,7 +438,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 
 	if (!(trig_file = fopen(fname, "w"))) {
 		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
-		mudlog(logbuf, BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+		mudlog(logbuf, BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
 		return;
 	}
 
@@ -448,7 +448,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 
 			if (fprintf(trig_file, "#%d\n", i) < 0) {
 				sprintf(logbuf, "SYSERR: OLC: Can't write trig file!");
-				mudlog(logbuf, BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+				mudlog(logbuf, BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				fclose(trig_file);
 				return;
 			}
@@ -481,7 +481,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 				// замена одиночного '~' на '~~'
 				p = strtok(buf, "~");
 				fprintf(trig_file, "%s", p);
-				while ((p = strtok(NULL, "~")) != NULL) {
+				while ((p = strtok(nullptr, "~")) != nullptr) {
 					fprintf(trig_file, "~~%s", p);
 				}
 				fprintf(trig_file, "~\n");
@@ -510,7 +510,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 void trigedit_create_index(int znum, const char *type) {
 	FILE *newfile, *oldfile;
 	char new_name[32], old_name[32];
-	int num, found = FALSE;
+	int num, found = false;
 
 	const char *prefix = TRG_PREFIX;
 
@@ -519,11 +519,11 @@ void trigedit_create_index(int znum, const char *type) {
 
 	if (!(oldfile = fopen(old_name, "r"))) {
 		snprintf(buf1, kMaxStringLength, "SYSERR: TRIGEDIT: Failed to open %s", buf);
-		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, true);
 		return;
 	} else if (!(newfile = fopen(new_name, "w"))) {
 		snprintf(buf1, kMaxStringLength, "SYSERR: TRIGEDIT: Failed to open %s", buf);
-		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, true);
 		return;
 	}
 
@@ -537,9 +537,9 @@ void trigedit_create_index(int znum, const char *type) {
 		} else if (!found) {
 			sscanf(buf, "%d", &num);
 			if (num == znum)
-				found = TRUE;
+				found = true;
 			else if (num > znum) {
-				found = TRUE;
+				found = true;
 				fprintf(newfile, "%s\n", buf1);
 			}
 		}

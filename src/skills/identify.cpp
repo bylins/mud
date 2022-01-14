@@ -5,8 +5,8 @@
 #include "handler.h"
 
 void do_identify(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *cvict = NULL, *caster = ch;
-	OBJ_DATA *ovict = NULL;
+	CHAR_DATA *cvict = nullptr, *caster = ch;
+	OBJ_DATA *ovict = nullptr;
 	struct timed_type timed;
 	int k, level = 0;
 

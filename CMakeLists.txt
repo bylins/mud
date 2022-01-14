@@ -164,14 +164,14 @@ set(SOURCES
 		src/version.cpp
 		src/weather.cpp
 		src/olc/zedit.cpp
-		src/utils/utils.string.cpp
+		src/utils/utils_string.cpp
 		src/world_objects.cpp
 		src/obj_prototypes.cpp
 		src/id.cpp
 		src/utils/utils_find_obj_id_by_vnum.cpp
 		src/global_objects.cpp
 		src/shops_implementation.cpp
-		src/entities/world.characters.cpp
+		src/entities/world_characters.cpp
 		src/utils/utils_debug.cpp
 		src/speedwalks.cpp
 		src/shops_implementation.cpp
@@ -284,7 +284,7 @@ set(HEADERS
 		src/act_wizard.h
 		src/heartbeat.h
 		src/speedwalks.h
-		src/entities/world.characters.h
+		src/entities/world_characters.h
 		src/shops_implementation.h
 		src/global_objects.h
 		src/utils/id_converter.h
@@ -294,7 +294,7 @@ set(HEADERS
         src/structs/radix_trie.h
 		src/obj_prototypes.h
 		src/world_objects.h
-		src/utils/utils.string.h
+		src/utils/utils_string.h
 		src/act_other.h
 		src/affects/affect_handler.h
 		src/auction.h

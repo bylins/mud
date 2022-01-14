@@ -12,7 +12,7 @@
 #include "obj_save.h"
 
 #include "world_objects.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "screen.h"
@@ -86,7 +86,7 @@ enum {
 
 int get_buf_line(char **source, char *target) {
 	char *otarget = target;
-	int empty = TRUE;
+	int empty = true;
 
 	*target = '\0';
 	for (; **source && **source != DIV_CHAR && **source != END_CHAR; (*source)++) {
@@ -99,14 +99,14 @@ int get_buf_line(char **source, char *target) {
 				continue;
 			}
 			(*source)++;
-			return (TRUE);
+			return (true);
 		}
 		*target = **source;
 		if (!isspace(static_cast<unsigned char>(*target++)))
-			empty = FALSE;
+			empty = false;
 		*target = '\0';
 	}
-	return (FALSE);
+	return (false);
 }
 
 int get_buf_lines(char **source, char *target) {
@@ -119,12 +119,12 @@ int get_buf_lines(char **source, char *target) {
 				(*source)++;
 			if (**source == END_LINE)
 				(*source)++;
-			return (TRUE);
+			return (true);
 		}
 		*(target++) = **source;
 		*target = '\0';
 	}
-	return (FALSE);
+	return (false);
 }
 
 // Данная процедура выбирает предмет из буфера.
@@ -167,7 +167,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 		object = world_objects.create_from_prototype_by_vnum(vnum);
 		if (!object) {
 			*error = 4;
-			return NULL;
+			return nullptr;
 		}
 	}
 	// Далее найденные параметры присваиваем к прототипу
@@ -490,7 +490,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 			} else {
 				snprintf(buf, kMaxStringLength, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
 						 read_line, buffer);
-				mudlog(buf, NRM, LVL_GRGOD, ERRLOG, TRUE);
+				mudlog(buf, NRM, LVL_GRGOD, ERRLOG, true);
 			}
 		}
 	}
@@ -777,11 +777,11 @@ inline bool proto_has_descr(const EXTRA_DESCR_DATA::shared_ptr &odesc, const EXT
 	for (auto desc = pdesc; desc; desc = desc->next) {
 		if (!str_cmp(odesc->keyword, desc->keyword)
 			&& !str_cmp(odesc->description, desc->description)) {
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 // Данная процедура помещает предмет в буфер
@@ -1336,7 +1336,7 @@ int auto_equip(CHAR_DATA *ch, OBJ_DATA *obj, int location) {
 			{
 				char aeq[128];
 				sprintf(aeq, "SYSERR: autoeq: '%s' already equipped in position %d.", GET_NAME(ch), location);
-				mudlog(aeq, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(aeq, BRF, LVL_IMMORT, SYSLOG, true);
 				location = LOC_INVENTORY;
 			}
 		}
@@ -1351,7 +1351,7 @@ int auto_equip(CHAR_DATA *ch, OBJ_DATA *obj, int location) {
 int Crash_delete_files(const std::size_t index) {
 	char filename[kMaxStringLength + 1], name[kMaxNameLength + 1];
 	FILE *fl;
-	int retcode = FALSE;
+	int retcode = false;
 
 	if (static_cast<int>(index) < 0) {
 		return retcode;
@@ -1362,18 +1362,18 @@ int Crash_delete_files(const std::size_t index) {
 	//удаляем файл описания объектов
 	if (!get_filename(name, filename, TEXT_CRASH_FILE)) {
 		log("SYSERR: Error deleting objects file for %s - unable to resolve file name.", name);
-		retcode = FALSE;
+		retcode = false;
 	} else {
 		if (!(fl = fopen(filename, "rb"))) {
 			if (errno != ENOENT)    // if it fails but NOT because of no file
 				log("SYSERR: Error deleting objects file %s (1): %s", filename, strerror(errno));
-			retcode = FALSE;
+			retcode = false;
 		} else {
 			fclose(fl);
 			// if it fails, NOT because of no file
 			if (remove(filename) < 0 && errno != ENOENT) {
 				log("SYSERR: Error deleting objects file %s (2): %s", filename, strerror(errno));
-				retcode = FALSE;
+				retcode = false;
 			}
 			FileCRC::check_crc(filename, FileCRC::UPDATE_TEXTOBJS, player_table[index].unique);
 		}
@@ -1382,18 +1382,18 @@ int Crash_delete_files(const std::size_t index) {
 	//удаляем файл таймеров
 	if (!get_filename(name, filename, TIME_CRASH_FILE)) {
 		log("SYSERR: Error deleting timer file for %s - unable to resolve file name.", name);
-		retcode = FALSE;
+		retcode = false;
 	} else {
 		if (!(fl = fopen(filename, "rb"))) {
 			if (errno != ENOENT)    // if it fails but NOT because of no file
 				log("SYSERR: deleting timer file %s (1): %s", filename, strerror(errno));
-			retcode = FALSE;
+			retcode = false;
 		} else {
 			fclose(fl);
 			// if it fails, NOT because of no file
 			if (remove(filename) < 0 && errno != ENOENT) {
 				log("SYSERR: deleting timer file %s (2): %s", filename, strerror(errno));
-				retcode = FALSE;
+				retcode = false;
 			}
 			FileCRC::check_crc(filename, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
 		}
@@ -1407,10 +1407,10 @@ int Crash_delete_crashfile(CHAR_DATA *ch) {
 
 	index = GET_INDEX(ch);
 	if (index < 0)
-		return FALSE;
+		return false;
 	if (!SAVEINFO(index))
 		Crash_delete_files(index);
-	return TRUE;
+	return true;
 }
 
 // ********* Timer utils: create, read, write, list, timer_objects *********
@@ -1444,14 +1444,14 @@ int Crash_read_timer(const std::size_t index, int temp) {
 	strcpy(name, player_table[index].name());
 	if (!get_filename(name, fname, TIME_CRASH_FILE)) {
 		log("[ReadTimer] Error reading %s timer file - unable to resolve file name.", name);
-		return FALSE;
+		return false;
 	}
 	if (!(fl = fopen(fname, "rb"))) {
 		if (errno != ENOENT) {
 			log("SYSERR: fatal error opening timer file %s", fname);
-			return FALSE;
+			return false;
 		} else
-			return TRUE;
+			return true;
 	}
 
 	fseek(fl, 0L, SEEK_END);
@@ -1459,7 +1459,7 @@ int Crash_read_timer(const std::size_t index, int temp) {
 	rewind(fl);
 	if ((size = size - sizeof(struct save_rent_info)) < 0 || size % sizeof(struct save_time_info)) {
 		log("WARNING:  Timer file %s is corrupt!", fname);
-		return FALSE;
+		return false;
 	}
 
 	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name);
@@ -1479,7 +1479,7 @@ int Crash_read_timer(const std::size_t index, int temp) {
 		case RENT_FORCED: strcat(buf, " Forced ");
 			break;
 		default: log("[ReadTimer] Error reading %s timer file - undefined rent code.", name);
-			return FALSE;
+			return false;
 			//strcat(buf, " Undef ");
 			//rent.rentcode = RENT_CRASH;
 			break;
@@ -1495,7 +1495,7 @@ int Crash_read_timer(const std::size_t index, int temp) {
 			fclose(fl);
 			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
 			clear_saveinfo(index);
-			return FALSE;
+			return false;
 		}
 		if (info.vnum && info.timer >= -1) {
 			player_table[index].timer->time.push_back(info);
@@ -1516,9 +1516,9 @@ int Crash_read_timer(const std::size_t index, int temp) {
 	if (rent.nitems != num) {
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
 		clear_saveinfo(index);
-		return FALSE;
+		return false;
 	} else
-		return TRUE;
+		return true;
 }
 
 void Crash_reload_timer(int index) {
@@ -1533,9 +1533,9 @@ void Crash_reload_timer(int index) {
 		clear_saveinfo(index);
 	}
 
-	if (!Crash_read_timer(index, FALSE)) {
+	if (!Crash_read_timer(index, false)) {
 		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name());
-		mudlog(buf, BRF, MAX(LVL_IMMORT, LVL_GOD), SYSLOG, TRUE);
+		mudlog(buf, BRF, MAX(LVL_IMMORT, LVL_GOD), SYSLOG, true);
 	}
 }
 
@@ -1547,15 +1547,15 @@ int Crash_write_timer(const std::size_t index) {
 	strcpy(name, player_table[index].name());
 	if (!SAVEINFO(index)) {
 		log("SYSERR: Error writing %s timer file - no data.", name);
-		return FALSE;
+		return false;
 	}
 	if (!get_filename(name, fname, TIME_CRASH_FILE)) {
 		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name);
-		return FALSE;
+		return false;
 	}
 	if (!(fl = fopen(fname, "wb"))) {
 		log("[WriteTimer] Error writing %s timer file - unable to open file %s.", name, fname);
-		return FALSE;
+		return false;
 	}
 	fwrite(&(SAVEINFO(index)->rent), sizeof(save_rent_info), 1, fl);
 	for (int i = 0; i < SAVEINFO(index)->rent.nitems; ++i) {
@@ -1563,7 +1563,7 @@ int Crash_write_timer(const std::size_t index) {
 	}
 	fclose(fl);
 	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
-	return TRUE;
+	return true;
 }
 
 void Crash_timer_obj(const std::size_t index, long time) {
@@ -1612,7 +1612,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 //  log("[TO] Checking items for %s (%d items, rented time %dmin):",
 //      name, nitems, timer_dec);
 	//sprintf (buf,"[TO] Checking items for %s (%d items) :", name, nitems);
-	//mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+	//mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 	for (i = 0; i < nitems; i++) {
 		if (player_table[index].timer->time[i].vnum < 0) //для шмоток без прототипа идем мимо
 			continue;
@@ -1640,7 +1640,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	if (idelete) {
 		if (!Crash_write_timer(index)) {
 			sprintf(buf, "SYSERR: [TO] Error writing timer file for %s.", name);
-			mudlog(buf, CMP, MAX(LVL_IMMORT, LVL_GOD), SYSLOG, TRUE);
+			mudlog(buf, CMP, MAX(LVL_IMMORT, LVL_GOD), SYSLOG, true);
 		}
 	}
 }
@@ -1712,7 +1712,7 @@ void Crash_listrent(CHAR_DATA *ch, char *name) {
 	}
 
 	if (!SAVEINFO(index)) {
-		if (!Crash_read_timer(index, TRUE)) {
+		if (!Crash_read_timer(index, true)) {
 			sprintf(buf, "Ubable to read %s timer file.\r\n", name);
 			send_to_char(buf, ch);
 		} else if (!SAVEINFO(index)) {
@@ -1744,9 +1744,9 @@ int Crash_load(CHAR_DATA *ch) {
 	char fname[kMaxStringLength], *data, *readdata;
 	int cost, i = 0, reccount, fsize, error, index;
 	float num_of_days;
-	OBJ_DATA *obj2, *obj_list = NULL;
+	OBJ_DATA *obj2, *obj_list = nullptr;
 	int location, rnum;
-	struct container_list_type *tank_list = NULL, *tank, *tank_to;
+	struct container_list_type *tank_list = nullptr, *tank, *tank_to;
 	bool need_convert_character_objects = 0;    // add by Pereplut
 
 	if ((index = GET_INDEX(ch)) < 0)
@@ -1756,7 +1756,7 @@ int Crash_load(CHAR_DATA *ch) {
 
 	if (!SAVEINFO(index)) {
 		sprintf(buf, "%s entering game with no equipment.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, true);
 		return (1);
 	}
 
@@ -1772,7 +1772,7 @@ int Crash_load(CHAR_DATA *ch) {
 		case RENT_TIMEDOUT: sprintf(buf, "%s retrieving auto-saved items and entering game.", GET_NAME(ch));
 			break;
 		default: sprintf(buf, "SYSERR: %s entering game with undefined rent code %d.", GET_NAME(ch), RENTCODE(index));
-			mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+			mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, true);
 			send_to_char("\r\n** Неизвестный код ренты **\r\n"
 						 "Проблемы с восстановлением ваших вещей из файла.\r\n"
 						 "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1780,12 +1780,12 @@ int Crash_load(CHAR_DATA *ch) {
 			return (1);
 			break;
 	}
-	mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+	mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 	//Деньги за постой
 	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / SECS_PER_REAL_DAY;
 	sprintf(buf, "%s was %1.2f days in rent.", GET_NAME(ch), num_of_days);
-	mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+	mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, true);
 	cost = (int) (SAVEINFO(index)->rent.net_cost_per_diem * num_of_days);
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
@@ -1805,7 +1805,7 @@ int Crash_load(CHAR_DATA *ch) {
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, true);
 	} else if (cost > ch->get_gold() + ch->get_bank()) {
 		sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 					 "%s"
@@ -1823,7 +1823,7 @@ int Crash_load(CHAR_DATA *ch) {
 				desc_count(ch->get_gold() + ch->get_bank(), WHAT_MONEYa), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
-		mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, true);
 		ch->set_bank(0);
 		ch->set_gold(0);
 		Crash_clear_objects(index);
@@ -1903,7 +1903,7 @@ int Crash_load(CHAR_DATA *ch) {
 				//send_to_char ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 				send_to_char("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
-				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 
 				continue;    //Ann
 			}
@@ -1915,7 +1915,7 @@ int Crash_load(CHAR_DATA *ch) {
 				send_to_char("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 						GET_NAME(ch), error);
-				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 				//break;
 				continue;    //Ann
 			}
@@ -1929,13 +1929,13 @@ int Crash_load(CHAR_DATA *ch) {
 					 obj->get_vnum(),
 					 i,
 					 fname);
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 		}
 
 		if (obj->get_vnum() != SAVEINFO(index)->time[fsize].vnum) {
 			send_to_char("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
 			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 			extract_obj(obj.get());
 			break;
 		}
@@ -2104,7 +2104,7 @@ void Crash_extract_objs(OBJ_DATA *obj) {
 
 int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA *obj) {
 	if (!obj) {
-		return FALSE;
+		return false;
 	}
 
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
@@ -2115,10 +2115,10 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA *obj) {
 			&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 		|| SetSystem::is_norent_set(ch, obj)) {
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA *obj) {
@@ -2134,7 +2134,7 @@ void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA *obj) {
 
 void Crash_extract_norent_eq(CHAR_DATA *ch) {
 	for (int j = 0; j < NUM_WEARS; j++) {
-		if (GET_EQ(ch, j) == NULL) {
+		if (GET_EQ(ch, j) == nullptr) {
 			continue;
 		}
 
@@ -2265,12 +2265,12 @@ int save_char_objects(CHAR_DATA *ch, int savetype, int rentcost) {
 	int j, num = 0, iplayer = -1, cost;
 
 	if (IS_NPC(ch))
-		return FALSE;
+		return false;
 
 	if ((iplayer = GET_INDEX(ch)) < 0) {
 		sprintf(buf, "[SYSERR] Store file '%s' - INVALID ID %d", GET_NAME(ch), iplayer);
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-		return FALSE;
+		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+		return false;
 	}
 
 	// удаление !рент предметов
@@ -2300,7 +2300,7 @@ int save_char_objects(CHAR_DATA *ch, int savetype, int rentcost) {
 
 	if (!num) {
 		Crash_delete_files(iplayer);
-		return FALSE;
+		return false;
 	}
 
 	// цена ренты
@@ -2388,9 +2388,9 @@ int save_char_objects(CHAR_DATA *ch, int savetype, int rentcost) {
 		std::ofstream file(fname);
 		if (!file.is_open()) {
 			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 			Crash_delete_files(iplayer);
-			return FALSE;
+			return false;
 		}
 		write_buffer << "\n$\n$\n";
 		file << write_buffer.rdbuf();
@@ -2398,19 +2398,19 @@ int save_char_objects(CHAR_DATA *ch, int savetype, int rentcost) {
 		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, GET_UNIQUE(ch));
 	} else {
 		Crash_delete_files(iplayer);
-		return FALSE;
+		return false;
 	}
 
 	if (!Crash_write_timer(iplayer)) {
 		Crash_delete_files(iplayer);
-		return FALSE;
+		return false;
 	}
 
 	if (savetype == RENT_CRASH) {
 		clear_saveinfo(iplayer);
 	}
 
-	return TRUE;
+	return true;
 }
 
 //some dummy functions
@@ -2447,7 +2447,7 @@ void Crash_rent_deadline(CHAR_DATA *ch, CHAR_DATA *recep, long cost) {
 		return;
 	}
 
-	act("$n сказал$g вам :\r\n", FALSE, recep, 0, ch, TO_VICT);
+	act("$n сказал$g вам :\r\n", false, recep, 0, ch, TO_VICT);
 
 	long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 	if (depot_cost) {
@@ -2476,7 +2476,7 @@ int Crash_report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj) {
 				snprintf(buf, sizeof(buf),
 						 "$n сказал$g вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
 			}
-			act(buf, FALSE, recep, 0, ch, TO_VICT);
+			act(buf, false, recep, 0, ch, TO_VICT);
 		}
 		has_norents += Crash_report_unrentables(ch, recep, obj->get_contains());
 		has_norents += Crash_report_unrentables(ch, recep, obj->get_next_content());
@@ -2519,14 +2519,14 @@ void Crash_report_rent_item(CHAR_DATA *ch,
 				bf, OBJN(obj, ch, 3),
 				count > 1 ? bf2 : "",
 				recursive ? "" : CCNRM(ch, C_SPR));
-		act(buf, FALSE, recep, 0, ch, TO_VICT);
+		act(buf, false, recep, 0, ch, TO_VICT);
 	}
 }
 // end by WorM
 
 void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost,
 		long *nitems, int rentshow, int factor, int equip, int recursive) {
-	OBJ_DATA *i, *push = NULL;
+	OBJ_DATA *i, *push = nullptr;
 	int push_count = 0;
 
 	if (obj) {
@@ -2538,10 +2538,9 @@ void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost
 				if (*nitems == 1)
 				{
 					if (!recursive)
-						act("$n сказал$g Вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"", FALSE, recep, 0, ch, TO_VICT);
+						act("$n сказал$g Вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"", false, recep, 0, ch, TO_VICT);
 					else
-						act("$n сказал$g Вам : \"Это я в чулане запру:\"", FALSE,
-							recep, 0, ch, TO_VICT);
+						act("$n сказал$g Вам : \"Это я в чулане запру:\"", false, recep, 0, ch, TO_VICT);
 				}
 				if (CAN_WEAR_ANY(obj))
 				{
@@ -2560,7 +2559,7 @@ void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost
 									GET_OBJ_RENT(obj)) * factor,
 								   WHAT_MONEYa), bf, OBJN(obj, ch, 3),
 						recursive ? "" : CCNRM(ch, C_SPR));
-				act(buf, FALSE, recep, 0, ch, TO_VICT);
+				act(buf, false, recep, 0, ch, TO_VICT);
 			}*/
 			// added by WorM (Видолюб)
 			//группирует вывод при ренте на подобии:
@@ -2572,13 +2571,13 @@ void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost
 					if (*nitems == 1) {
 						if (!recursive) {
 							act("$n сказал$g вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"",
-								FALSE,
+								false,
 								recep,
 								0,
 								ch,
 								TO_VICT);
 						} else {
-							act("$n сказал$g вам : \"Это я в чулане запру:\"", FALSE, recep, 0, ch, TO_VICT);
+							act("$n сказал$g вам : \"Это я в чулане запру:\"", false, recep, 0, ch, TO_VICT);
 						}
 					}
 
@@ -2595,8 +2594,8 @@ void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost
 											  nitems,
 											  rentshow,
 											  factor,
-											  FALSE,
-											  TRUE);
+											  false,
+											  true);
 						}
 						push = i;
 						push_count = 1;
@@ -2608,7 +2607,7 @@ void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost
 			if (push) {
 				Crash_report_rent_item(ch, recep, push, push_count, factor, equip, recursive);
 				if (recursive) {
-					Crash_report_rent(ch, recep, push->get_contains(), cost, nitems, rentshow, factor, FALSE, TRUE);
+					Crash_report_rent(ch, recep, push->get_contains(), cost, nitems, rentshow, factor, false, true);
 				}
 			}
 			// end by WorM
@@ -2631,17 +2630,17 @@ int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int rentshow, int f
 	norent += Depot::report_unrentables(ch, receptionist);
 
 	if (norent)
-		return (FALSE);
+		return (false);
 
 	*totalcost = min_rent_cost(ch) * factor;
 
 	for (i = 0; i < NUM_WEARS; i++)
-		Crash_report_rent(ch, receptionist, GET_EQ(ch, i), totalcost, &numitems, rentshow, factor, TRUE, FALSE);
+		Crash_report_rent(ch, receptionist, GET_EQ(ch, i), totalcost, &numitems, rentshow, factor, true, false);
 
 	numitems_weared = numitems;
 	numitems = 0;
 
-	Crash_report_rent(ch, receptionist, ch->carrying, totalcost, &numitems, rentshow, factor, FALSE, TRUE);
+	Crash_report_rent(ch, receptionist, ch->carrying, totalcost, &numitems, rentshow, factor, false, true);
 
 	for (i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i)) {
@@ -2652,28 +2651,28 @@ int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int rentshow, int f
 							  &numitems,
 							  rentshow,
 							  factor,
-							  FALSE,
-							  TRUE);
+							  false,
+							  true);
 		}
 
 	numitems += numitems_weared;
 
 	if (!numitems) {
 		act("$n сказал$g вам : \"Но у тебя ведь ничего нет! Просто набери \"конец\"!\"",
-			FALSE,
+			false,
 			receptionist,
 			0,
 			ch,
 			TO_VICT);
-		return (FALSE);
+		return (false);
 	}
 
 	if (numitems > MAX_SAVED_ITEMS) {
 		sprintf(buf,
 				"$n сказал$g вам : \"Извините, но я не могу хранить больше %d предметов.\"\r\n"
 				"$n сказал$g вам : \"В данный момент их у вас %ld.\"", MAX_SAVED_ITEMS, numitems);
-		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
-		return (FALSE);
+		act(buf, false, receptionist, 0, ch, TO_VICT);
+		return (false);
 	}
 
 	int divide = 1;
@@ -2686,23 +2685,23 @@ int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int rentshow, int f
 			sprintf(buf,
 					"$n сказал$g вам : \"И еще %d %s мне на сбитень с медовухой :)\"",
 					min_rent_cost(ch) * factor, desc_count(min_rent_cost(ch) * factor, WHAT_MONEYu));
-			act(buf, FALSE, receptionist, 0, ch, TO_VICT);
+			act(buf, false, receptionist, 0, ch, TO_VICT);
 		}
 
 		sprintf(buf, "$n сказал$g вам : \"В сумме это составит %d %s %s.\"",
 				*totalcost, desc_count(*totalcost, WHAT_MONEYu),
 				(factor == RENT_FACTOR ? "в день " : ""));
-		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
+		act(buf, false, receptionist, 0, ch, TO_VICT);
 
 		if (MAX(0, *totalcost / divide) > ch->get_gold() + ch->get_bank()) {
-			act("\"...которых у тебя отродясь не было.\"", FALSE, receptionist, 0, ch, TO_VICT);
-			return (FALSE);
+			act("\"...которых у тебя отродясь не было.\"", false, receptionist, 0, ch, TO_VICT);
+			return (false);
 		}
 
 		*totalcost = MAX(0, *totalcost / divide);
 		if (divide == 2) {
 			act("$n сказал$g вам : \"Так уж и быть, я скощу тебе половину.\"",
-				FALSE, receptionist, 0, ch, TO_VICT);
+				false, receptionist, 0, ch, TO_VICT);
 		}
 
 		if (factor == RENT_FACTOR) {
@@ -2711,24 +2710,24 @@ int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int rentshow, int f
 	} else {
 		*totalcost = MAX(0, *totalcost / divide);
 	}
-	return (TRUE);
+	return (true);
 }
 
 int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, int mode) {
 	room_rnum save_room;
-	int cost, rentshow = TRUE;
+	int cost, rentshow = true;
 
 	if (!ch->desc || IS_NPC(ch))
-		return (FALSE);
+		return (false);
 
 	if (!cmd && !number(0, 5))
-		return (FALSE);
+		return (false);
 
 	if (!CMD_IS("offer") && !CMD_IS("предложение")
 		&& !CMD_IS("rent") && !CMD_IS("постой")
 		&& !CMD_IS("quit") && !CMD_IS("конец")
 		&& !CMD_IS("settle") && !CMD_IS("поселиться"))
-		return (FALSE);
+		return (false);
 
 	save_room = ch->in_room;
 
@@ -2736,37 +2735,37 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 		if (save_room != r_helled_start_room &&
 			save_room != r_named_start_room && save_room != r_unreg_start_room)
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
-		return (FALSE);
+		return (false);
 	}
 
 	if (!AWAKE(recep)) {
 		sprintf(buf, "%s не в состоянии говорить с вами...\r\n", HSSH(recep));
 		send_to_char(buf, ch);
-		return (TRUE);
+		return (true);
 	}
 	if (!CAN_SEE(recep, ch)) {
-		act("$n сказал$g : \"Не люблю говорить с теми, кого я не вижу!\"", FALSE, recep, 0, 0, TO_ROOM);
-		return (TRUE);
+		act("$n сказал$g : \"Не люблю говорить с теми, кого я не вижу!\"", false, recep, 0, 0, TO_ROOM);
+		return (true);
 	}
 	if (Clan::InEnemyZone(ch)) {
-		act("$n сказал$g : \"Чужакам здесь не место!\"", FALSE, recep, 0, 0, TO_ROOM);
-		return (TRUE);
+		act("$n сказал$g : \"Чужакам здесь не место!\"", false, recep, 0, 0, TO_ROOM);
+		return (true);
 	}
 	if (NORENTABLE(ch)) {
 		send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
-		return (TRUE);
+		return (true);
 	}
 	if (ch->get_fighting()) {
-		return (FALSE);
+		return (false);
 	}
 	if (free_rent) {
-		act("$n сказал$g вам : \"Сегодня спим нахаляву!\"", FALSE, recep, 0, ch, TO_VICT);
+		act("$n сказал$g вам : \"Сегодня спим нахаляву!\"", false, recep, 0, ch, TO_VICT);
 		rentshow = false;
 	}
 	if (CMD_IS("rent") || CMD_IS("постой")) {
 
 		if (!Crash_offer_rent(ch, recep, rentshow, mode, &cost))
-			return (TRUE);
+			return (true);
 
 		if (rentshow) {
 			if (mode == RENT_FACTOR)
@@ -2777,12 +2776,12 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 				sprintf(buf,
 						"$n сказал$g вам : \"Дневной постой обойдется тебе в %d %s (за пользование холодильником :)\"",
 						cost, desc_count(cost, WHAT_MONEYu));
-			act(buf, FALSE, recep, 0, ch, TO_VICT);
+			act(buf, false, recep, 0, ch, TO_VICT);
 
 			if (cost > ch->get_gold() + ch->get_bank()) {
 				act("$n сказал$g вам : '..но такой голытьбе, как ты, это не по карману.'",
-					FALSE, recep, 0, ch, TO_VICT);
-				return (TRUE);
+					false, recep, 0, ch, TO_VICT);
+				return (true);
 			}
 			if (cost && (mode == RENT_FACTOR))
 				Crash_rent_deadline(ch, recep, cost);
@@ -2791,7 +2790,7 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 			cost = 0;
 		}
 		if (mode == RENT_FACTOR) {
-			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.", FALSE, recep, 0, ch, TO_VICT);
+			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.", false, recep, 0, ch, TO_VICT);
 			Crash_rentsave(ch, cost);
 			sprintf(buf, "%s has rented (%d/day, %ld tot.)",
 					GET_NAME(ch), cost, ch->get_gold() + ch->get_bank());
@@ -2799,37 +2798,37 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 		{
 			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.\r\n"
 				"Белый призрак появился в комнате, обдав вас холодом...\r\n"
-				"Вы потеряли связь с окружающими вас...", FALSE, recep, 0, ch, TO_VICT);
+				"Вы потеряли связь с окружающими вас...", false, recep, 0, ch, TO_VICT);
 			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
 			PLR_FLAGS(ch).set(PLR_CRYO);
 		}
 
-		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		if ((save_room == r_helled_start_room)
 			|| (save_room == r_named_start_room)
 			|| (save_room == r_unreg_start_room))
-			act("$n проводил$g $N3 мощным пинком на свободную лавку.", FALSE, recep, 0, ch, TO_ROOM);
+			act("$n проводил$g $N3 мощным пинком на свободную лавку.", false, recep, 0, ch, TO_ROOM);
 		else {
-			act("$n помог$q $N2 отойти ко сну.", FALSE, recep, 0, ch, TO_NOTVICT);
+			act("$n помог$q $N2 отойти ко сну.", false, recep, 0, ch, TO_NOTVICT);
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
 		}
 		Clan::clan_invoice(ch, false);
 		ch->save_char();
-		extract_char(ch, FALSE);
+		extract_char(ch, false);
 	} else if (CMD_IS("offer") || CMD_IS("предложение")) {
 		Crash_offer_rent(ch, recep, rentshow, mode, &cost);
-		act("$N предложил$G $n2 остановиться у н$S.", FALSE, ch, 0, recep, TO_ROOM);
+		act("$N предложил$G $n2 остановиться у н$S.", false, ch, 0, recep, TO_ROOM);
 	} else {
 		if ((save_room == r_helled_start_room)
 			|| (save_room == r_named_start_room)
 			|| (save_room == r_unreg_start_room))
-			act("$N сказал$G : \"Куда же ты денешься от меня?\"", FALSE, ch, 0, recep, TO_CHAR);
+			act("$N сказал$G : \"Куда же ты денешься от меня?\"", false, ch, 0, recep, TO_CHAR);
 		else {
-			act("$n предложил$g $N2 поселиться у н$s.", FALSE, recep, 0, ch, TO_NOTVICT);
+			act("$n предложил$g $N2 поселиться у н$s.", false, recep, 0, ch, TO_NOTVICT);
 			act("$N сказал$G вам : \"Примем в любое время и почти в любом состоянии!\"",
-				FALSE,
+				false,
 				ch,
 				0,
 				recep,
@@ -2840,12 +2839,12 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 					GET_LOADROOM(ch),
 					GET_ROOM_VNUM(save_room));
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
-			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, true);
 			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 			ch->save_char();
 		}
 	}
-	return (TRUE);
+	return (true);
 }
 
 int receptionist(CHAR_DATA *ch, void *me, int cmd, char *argument) {
@@ -2894,7 +2893,7 @@ void Crash_save_all_rent(void) {
 			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
 			(ch.get())->removeGroupFlags();
 			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
-			extract_char(ch.get(), FALSE);
+			extract_char(ch.get(), false);
 		}
 	});
 }

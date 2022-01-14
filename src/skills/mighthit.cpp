@@ -29,19 +29,19 @@ void go_mighthit(CHAR_DATA *ch, CHAR_DATA *victim) {
 		if (ch->getSkillCooldown(SKILL_MIGHTHIT) > 0) {
 			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 		}
-		//set_wait(ch, 2, TRUE);
+		//set_wait(ch, 2, true);
 		return;
 	}
 
 	if ((victim->get_fighting() != ch) && (ch->get_fighting() != victim)) {
-		act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N не сражается с вами, не трогайте $S.", false, ch, 0, victim, TO_CHAR);
 	} else {
-		act("Вы попытаетесь нанести богатырский удар по $N2.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Вы попытаетесь нанести богатырский удар по $N2.", false, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, 2);
 			set_fighting(ch, victim);
 			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 2);
-			//set_wait(ch, 2, TRUE);
+			//set_wait(ch, 2, true);
 		}
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 	}

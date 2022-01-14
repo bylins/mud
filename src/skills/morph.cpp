@@ -208,7 +208,7 @@ void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	MorphPtr newMorph = MorphPtr(new AnimalMorph(*IdToMorphMap[morphId]));
 
 	send_to_char(str(boost::format(newMorph->GetMessageToChar()) % newMorph->PadName()) + "\r\n", ch);
-	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), TRUE, ch, 0, 0, TO_ROOM);
+	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), true, ch, 0, 0, TO_ROOM);
 
 	ch->set_morph(newMorph);
 	if (ch->equipment[WEAR_BOTHS]) {
@@ -267,7 +267,7 @@ void do_morphset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	vict->add_morph(morphId);
 
 	sprintf(buf2, "%s add morph %s to %s.", GET_NAME(ch), IdToMorphMap[morphId]->Name().c_str(), GET_NAME(vict));
-	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
+	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s add morph %s to %s.", GET_NAME(ch), IdToMorphMap[morphId]->Name().c_str(), GET_NAME(vict));
 
 	send_to_char(std::string("Вы добавили форму '") + IdToMorphMap[morphId]->Name() + "' персонажу " + vict->get_name()
@@ -279,13 +279,13 @@ void load_morphs() {
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"morphs.xml");
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("animalMorphs");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...morphs list read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 	MIN_WIS_FOR_MORPH = node_list.attribute("minWis").as_int();
@@ -294,7 +294,7 @@ void load_morphs() {
 		std::string id = std::string(morph.attribute("id").value());
 		if (id.empty()) {
 			snprintf(buf, kMaxStringLength, "...morph id read fail");
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 			return;
 		}
 		DescListType descList;
@@ -331,7 +331,7 @@ void load_morphs() {
 				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
 			} else {
 				snprintf(buf, kMaxStringLength, "...skills read fail for morph %s", name.c_str());
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 				return;
 			}
 		}
@@ -343,7 +343,7 @@ void load_morphs() {
 				affs.insert(affNum);
 			} else {
 				snprintf(buf, kMaxStringLength, "...affects read fail for morph %s", name.c_str());
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 				return;
 			}
 		}

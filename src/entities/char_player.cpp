@@ -425,7 +425,7 @@ void Player::save_char() {
 			remove_otrigger(char_eq[i], this);
 #endif
 		} else
-			char_eq[i] = NULL;
+			char_eq[i] = nullptr;
 	}
 
 	AFFECT_DATA<EApplyLocation> tmp_aff[kMaxAffect];
@@ -623,7 +623,7 @@ void Player::save_char() {
 	// Мемящиеся спелы
 	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
 		fprintf(saved, "SpTM:\n");
-		for (struct spell_mem_queue_item *qi = this->MemQueue.queue; qi != NULL; qi = qi->link)
+		for (struct spell_mem_queue_item *qi = this->MemQueue.queue; qi != nullptr; qi = qi->link)
 			fprintf(saved, "%d\n", qi->spellnum);
 		fprintf(saved, "0\n");
 	}
@@ -841,7 +841,7 @@ void Player::save_char() {
 	if (this->followers
 		&& can_use_feat(this, EMPLOYER_FEAT)
 		&& !IS_IMMORTAL(this)) {
-		struct follow_type *k = NULL;
+		struct follow_type *k = nullptr;
 		for (k = this->followers; k; k = k->next) {
 			if (k->follower
 				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
@@ -963,7 +963,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
 	long int lnum = 0, lnum3 = 0;
 	unsigned long long llnum = 0;
-	FBFILE *fl = NULL;
+	FBFILE *fl = nullptr;
 	char filename[40];
 	char buf[kMaxRawInputLength], line[kMaxRawInputLength], tag[6];
 	char line1[kMaxRawInputLength];
@@ -1139,9 +1139,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	for (i = 1; i <= SPELLS_COUNT; i++)
 		GET_SPELL_MEM(this, i) = 0;
 	this->char_specials.saved.affected_by = clear_flags;
-	POOFIN(this) = NULL;
-	POOFOUT(this) = NULL;
-	GET_RSKILL(this) = NULL;    // рецептов не знает
+	POOFIN(this) = nullptr;
+	POOFOUT(this) = nullptr;
+	GET_RSKILL(this) = nullptr;    // рецептов не знает
 	this->char_specials.carry_weight = 0;
 	this->char_specials.carry_items = 0;
 	this->real_abils.armor = 100;
@@ -1235,8 +1235,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_WIMP_LEV(this) = 0;
 	PRF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	AFF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
-	GET_PORTALS(this) = NULL;
-	EXCHANGE_FILTER(this) = NULL;
+	GET_PORTALS(this) = nullptr;
+	EXCHANGE_FILTER(this) = nullptr;
 	clear_ignores();
 	CREATE(GET_LOGS(this), 1 + LAST_LOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
@@ -1624,7 +1624,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							}
 							num2 = 0;
 						}
-						struct PK_Memory_type *pk_one = NULL;
+						struct PK_Memory_type *pk_one = nullptr;
 						for (pk_one = this->pk_list; pk_one; pk_one = pk_one->next)
 							if (pk_one->unique == lnum)
 								break;
@@ -1729,7 +1729,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				else if (!strcmp(tag, "Race"))
 					GET_RACE(this) = num;
 				else if (!strcmp(tag, "Rcps")) {
-					im_rskill *last = NULL;
+					im_rskill *last = nullptr;
 					for (;;) {
 						im_rskill *rs;
 						fbgetline(fl, line);
@@ -1744,7 +1744,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						CREATE(rs, 1);
 						rs->rid = num;
 						rs->perc = num2;
-						rs->link = NULL;
+						rs->link = nullptr;
 						if (last)
 							last->link = rs;
 						else
@@ -1804,7 +1804,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							CREATE(qi_cur, 1);
 							*qi = qi_cur;
 							qi_cur->spellnum = num;
-							qi_cur->link = NULL;
+							qi_cur->link = nullptr;
 							qi = &qi_cur->link;
 						}
 					} while (num != 0);

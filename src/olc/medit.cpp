@@ -7,7 +7,7 @@
 *  $Revision$                                                      *
 ***************************************************************************/
 
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "entities/obj.h"
 #include "comm.h"
 #include "magic/spells.h"
@@ -184,7 +184,7 @@ void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src, bool partial_copy)
 
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 									 && *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
-																   : NULL);
+																   : nullptr);
 	if (partial_copy && tmp.helpers) //если неполное копирование но хелперов нет, копирнем
 		shd = tmp.helpers;
 	else
@@ -255,7 +255,7 @@ void medit_mobile_free(CHAR_DATA *mob)
 
 	if (mob->dl_list) {
 		delete (mob->dl_list);
-		mob->dl_list = NULL;
+		mob->dl_list = nullptr;
 	}
 
 }
@@ -286,11 +286,11 @@ void medit_setup(DESCRIPTOR_DATA *d, int real_num)
 		mob->player_data.PNames[3] = "неоконченного моба";
 		mob->player_data.PNames[4] = "неоконченным мобом";
 		mob->player_data.PNames[5] = "неоконченном мобе";
-		mob->mob_specials.Questor = NULL;
-		mob->helpers = NULL;
+		mob->mob_specials.Questor = nullptr;
+		mob->helpers = nullptr;
 #if defined(OASIS_MPROG)
-		OLC_MPROGL(d) = NULL;
-		OLC_MPROG(d) = NULL;
+		OLC_MPROGL(d) = nullptr;
+		OLC_MPROG(d) = nullptr;
 #endif
 	} else {
 #if defined(OASIS_MPROG)
@@ -409,13 +409,13 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 			{
 				if (mob_index[rmob_num].vnum > OLC_NUM(d))    // Yep, stick it here.
 				{
-					found = TRUE;
+					found = true;
 #if defined(DEBUG)
 					fprintf(stderr, "Inserted: rmob_num: %d\n", rmob_num);
 #endif
 					new_index[rmob_num].vnum = OLC_NUM(d);
 					new_index[rmob_num].number = 0;
-					new_index[rmob_num].func = NULL;
+					new_index[rmob_num].func = nullptr;
 					new_mob_num = rmob_num;
 					OLC_MOB(d)->set_rnum(rmob_num);
 					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
@@ -448,7 +448,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
 #endif
 			new_index[rmob_num].vnum = OLC_NUM(d);
 			new_index[rmob_num].number = 0;
-			new_index[rmob_num].func = NULL;
+			new_index[rmob_num].func = nullptr;
 			new_mob_num = rmob_num;
 			OLC_MOB(d)->set_rnum(rmob_num);
 
@@ -551,7 +551,7 @@ void medit_save_to_disk(int zone_num) {
 	char fname[64];
 	CHAR_DATA *mob;
 #if defined(OASIS_MPROG)
-	MPROG_DATA *mob_prog = NULL;
+	MPROG_DATA *mob_prog = nullptr;
 #endif
 
 	zone = zone_table[zone_num].vnum;
@@ -559,7 +559,7 @@ void medit_save_to_disk(int zone_num) {
 
 	sprintf(fname, "%s/%d.new", MOB_PREFIX, zone);
 	if (!(mob_file = fopen(fname, "w"))) {
-		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, LVL_BUILDER, SYSLOG, true);
 		return;
 	}
 
@@ -567,7 +567,7 @@ void medit_save_to_disk(int zone_num) {
 	for (i = zone * 100; i <= top; i++) {
 		if ((rmob_num = real_mobile(i)) != -1) {
 			if (fprintf(mob_file, "#%d\n", i) < 0) {
-				mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, LVL_BUILDER, SYSLOG, true);
 				fclose(mob_file);
 				return;
 			}
@@ -1305,14 +1305,14 @@ void disp_dl_list(DESCRIPTOR_DATA *d) {
 
 	send_to_char(buf, d->character.get());
 
-	if (mob->dl_list != NULL) {
+	if (mob->dl_list != nullptr) {
 		i = 0;
 		load_list::iterator p = mob->dl_list->begin();
 		while (p != mob->dl_list->end()) {
 			i++;
 
 			auto tobj = get_object_prototype((*p)->obj_vnum);
-			const char *objname = NULL;
+			const char *objname = nullptr;
 			if ((*p)->obj_vnum && tobj) {
 				objname = tobj->get_PName(0).c_str();
 			} else {
@@ -1390,7 +1390,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					medit_save_internally(d);
 					sprintf(buf, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the mob structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					send_to_char("Mob saved to memory.\r\n", d->character.get());
@@ -1491,7 +1491,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				case 'a':
 				case 'A': OLC_MODE(d) = MEDIT_D_DESC;
 					SEND_TO_Q("Введите описание моба: (/s сохранить /h помощь)\r\n\r\n", d);
-					d->backstr = NULL;
+					d->backstr = nullptr;
 					if (OLC_MOB(d)->player_data.description != "") {
 						SEND_TO_Q(OLC_MOB(d)->player_data.description.c_str(), d);
 						d->backstr = str_dup(OLC_MOB(d)->player_data.description.c_str());
@@ -1897,7 +1897,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case MEDIT_D_DESC:
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 
@@ -1905,7 +1905,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			case MEDIT_MPROG_COMLIST:
 				// * We should never get here, but if we do, bail out.
 				cleanup_olc(d, CLEANUP_ALL);
-				mudlog("SYSERR: OLC: medit_parse(): Reached MPROG_COMLIST case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog("SYSERR: OLC: medit_parse(): Reached MPROG_COMLIST case!", BRF, LVL_BUILDER, SYSLOG, true);
 				break;
 #endif
 
@@ -2300,7 +2300,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 		case MEDIT_DLIST_DEL: number = atoi(arg);
 			if (number != 0) {
-				if (OLC_MOB(d)->dl_list == NULL || OLC_MOB(d)->dl_list->empty()) {
+				if (OLC_MOB(d)->dl_list == nullptr || OLC_MOB(d)->dl_list->empty()) {
 					send_to_char("Список пуст!\r\n", d->character.get());
 					OLC_MODE(d) = MEDIT_DLIST_MENU;
 					disp_dl_list(d);
@@ -2319,7 +2319,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					OLC_VAL(d) = 1;
 					if (OLC_MOB(d)->dl_list->empty()) {
 						delete (OLC_MOB(d)->dl_list);
-						OLC_MOB(d)->dl_list = NULL;
+						OLC_MOB(d)->dl_list = nullptr;
 					}
 				} else
 					send_to_char("\r\nЗапись не найдена.\r\n", d->character.get());
@@ -2400,7 +2400,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		default:
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, true);
 			send_to_char("Oops...\r\n", d->character.get());
 			break;
 	}

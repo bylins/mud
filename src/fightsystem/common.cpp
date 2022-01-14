@@ -27,7 +27,7 @@ int isHaveNoExtraAttack(CHAR_DATA *ch) {
 		return true;
 	};
 
-	act(message.c_str(), FALSE, ch, 0, ch->get_extra_victim(), TO_CHAR);
+	act(message.c_str(), false, ch, 0, ch->get_extra_victim(), TO_CHAR);
 	return false;
 }
 

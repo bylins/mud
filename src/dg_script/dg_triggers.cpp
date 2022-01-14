@@ -315,7 +315,7 @@ void greet_mtrigger(CHAR_DATA *actor, int dir) {
 void income_mtrigger(CHAR_DATA *ch, int dir) {
 	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 	int ispcinroom = 0;
-	CHAR_DATA *actor = NULL;
+	CHAR_DATA *actor = nullptr;
 
 	if (!ch || ch->purged())
 		return;
@@ -374,11 +374,11 @@ int entry_mtrigger(CHAR_DATA *ch) {
 }
 
 int compare_cmd(int mode, const char *source, const char *dest) {
-	int result = FALSE;
+	int result = false;
 	if (!source || !*source || !dest || !*dest)
-		return (FALSE);
+		return (false);
 	if (*source == '*')
-		return (TRUE);
+		return (true);
 
 	switch (mode) {
 		case 0: result = word_check(dest, source);
@@ -389,7 +389,7 @@ int compare_cmd(int mode, const char *source, const char *dest) {
 			break;
 		default:
 			if (!str_cmp(source, dest))
-				return (TRUE);
+				return (true);
 	}
 	return (result);
 }
@@ -414,7 +414,7 @@ int command_mtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 							 attach_name[MOB_TRIGGER],
 							 ch->get_name().c_str(),
 							 GET_MOB_VNUM(ch));
-					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 					snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
 					SCRIPT(ch)->remove_trigger(buf);
 
@@ -430,7 +430,7 @@ int command_mtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 							 kMaxInputLength,
 							 "SYSERR: Command Trigger #%d has no text argument!",
 							 GET_TRIG_VNUM(t));
-					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 					continue;
 				}
 
@@ -483,7 +483,7 @@ void speech_mtrigger(CHAR_DATA *actor, char *str) {
 							 kMaxInputLength,
 							 "SYSERR: Speech Trigger #%d has no text argument!",
 							 GET_TRIG_VNUM(t));
-					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 					continue;
 				}
 
@@ -513,7 +513,7 @@ void act_mtrigger(CHAR_DATA *ch, char *str, CHAR_DATA *actor, CHAR_DATA *victim,
 
 			if (t->arglist.empty()) {
 				snprintf(buf, kMaxInputLength, "SYSERR: Act Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
-				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 				continue;
 			}
 
@@ -891,7 +891,7 @@ int cmd_otrig(OBJ_DATA *obj, CHAR_DATA *actor, char *cmd, const char *argument, 
 						 attach_name[OBJ_TRIGGER],
 						 obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "undefined",
 						 GET_OBJ_VNUM(obj));
-				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 				snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
 				obj->get_script()->remove_trigger(buf);
 				break;
@@ -906,7 +906,7 @@ int cmd_otrig(OBJ_DATA *obj, CHAR_DATA *actor, char *cmd, const char *argument, 
 						 kMaxInputLength,
 						 "SYSERR: O-Command Trigger #%d has no text argument!",
 						 GET_TRIG_VNUM(t));
-				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 				continue;
 			}
 
@@ -1262,7 +1262,7 @@ int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 					 attach_name[WLD_TRIGGER],
 					 room->name,
 					 room->room_vn);
-			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 			snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
 			SCRIPT(room)->remove_trigger(buf);
 
@@ -1275,7 +1275,7 @@ int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 
 		if (t->arglist.empty()) {
 			snprintf(buf, kMaxInputLength, "SYSERR: W-Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
-			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 			continue;
 		}
 
@@ -1333,7 +1333,7 @@ void speech_wtrigger(CHAR_DATA *actor, char *str) {
 
 		if (t->arglist.empty()) {
 			snprintf(buf, kMaxInputLength, "SYSERR: W-Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
-			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, true);
 
 			continue;
 		}

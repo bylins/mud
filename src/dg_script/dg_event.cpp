@@ -20,7 +20,7 @@
 #include "comm.h"
 
 // * define statics
-static struct event_info *event_list = NULL;
+static struct event_info *event_list = nullptr;
 
 // * Add an event to the current list
 struct event_info *add_event(int time, EVENT(*func), void *info) {
@@ -32,7 +32,7 @@ struct event_info *add_event(int time, EVENT(*func), void *info) {
 	this_data->info = info;
 
 	// sort the event into the list in next-to-fire order
-	if (event_list == NULL)
+	if (event_list == nullptr)
 		event_list = this_data;
 	else if (this_data->time_remaining <= event_list->time_remaining) {
 		this_data->next = event_list;
@@ -75,7 +75,7 @@ void process_events(void) {
 	struct timeval start, stop, result;
 	int trig_vnum;
 
-	gettimeofday(&start, NULL);
+	gettimeofday(&start, nullptr);
 
 	while (e) {
 		if (--(e->time_remaining) == 0) {
@@ -89,7 +89,7 @@ void process_events(void) {
 			// На отработку отложенных тригов выделяем всего 50 мсекунд
 			// По исчерпанию лимита откладываем отработку на следующий тик.
 			// Делаем для более равномерного распределения времени процессора.
-			gettimeofday(&stop, NULL);
+			gettimeofday(&stop, nullptr);
 			timediff(&result, &stop, &start);
 
 			if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC) {
@@ -97,7 +97,7 @@ void process_events(void) {
 				sprintf(buf,
 						"[TrigVNum: %d]: process_events overflow %ld sec. %ld us.",
 						trig_vnum, result.tv_sec, result.tv_usec);
-				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				mudlog(buf, BRF, -1, ERRLOG, true);
 
 				break;
 			}

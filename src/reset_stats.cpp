@@ -54,14 +54,14 @@ void init() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 
 	pugi::xml_node main_node = doc.child("reset_stats");
 	if (!main_node) {
 		snprintf(buf, kMaxStringLength, "...<reset_stats> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 
@@ -103,7 +103,7 @@ void reset_stats(CHAR_DATA *ch, Type type) {
 			break;
 		case Type::RELIGION: ch->player_data.Religion = 2; //kReligionMono + 1
 			break;
-		default: mudlog("SYSERROR: reset_stats() switch", NRM, LVL_IMMORT, SYSLOG, TRUE);
+		default: mudlog("SYSERROR: reset_stats() switch", NRM, LVL_IMMORT, SYSLOG, true);
 			return;
 	}
 
@@ -160,7 +160,7 @@ void process(DESCRIPTOR_DATA *d, Type type) {
 			STATE(d) = CON_MENU;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
 					 d->character->get_name().c_str(), reset_prices.at(type).log_text.c_str());
-			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, true);
 		} else {
 			// в любом другом случае изменения можно считать состояшимися
 			snprintf(buf_, sizeof(buf_), "changed %s, price=%d",
@@ -172,7 +172,7 @@ void process(DESCRIPTOR_DATA *d, Type type) {
 
 			snprintf(buf_, sizeof(buf_), "%s changed %s, price=%d",
 					 ch->get_name().c_str(), reset_prices.at(type).log_text.c_str(), price);
-			mudlog(buf_, NRM, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog(buf_, NRM, LVL_BUILDER, SYSLOG, true);
 		}
 
 		// при сбросе не через ValidateStats нужно отправлять чара дальше в игру

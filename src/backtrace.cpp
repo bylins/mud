@@ -19,7 +19,7 @@ void win32_backtrace(FILE* file)
 {
 	constexpr size_t kMaxNameLength = 1024u;
 	const auto process = GetCurrentProcess();
-	SymInitialize(process, nullptr, TRUE);
+	SymInitialize(process, nullptr, true);
 	void* stack[MAX_STACK_SIZE];
 	const auto frames = CaptureStackBackTrace(0, MAX_STACK_SIZE, stack, nullptr);
 	SYMBOL_INFO* symbol = (SYMBOL_INFO *) calloc(sizeof(SYMBOL_INFO) + kMaxNameLength*sizeof(char), 1);

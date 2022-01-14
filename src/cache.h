@@ -36,7 +36,7 @@ class Cache {
 		typename id_map_t::const_iterator it = id_map.find(id);
 		if (it != id_map.end())
 			return it->second;
-		else return NULL; //dirty
+		else return nullptr; //dirty
 	}
 
 	inline id_t get_id(t &obj) {

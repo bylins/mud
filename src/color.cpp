@@ -159,7 +159,7 @@ int proc_color(char *inbuf, int colour) {
 	bool show_all = false;
 	char out_buf[kMaxSockBuf * 2];
 
-	if (inbuf == NULL)
+	if (inbuf == nullptr)
 		return -1;
 
 	size_t len = strlen(inbuf);

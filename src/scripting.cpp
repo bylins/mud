@@ -11,7 +11,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 */
 #include "scripting.h"
 
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
 #include "utils/utils.h"

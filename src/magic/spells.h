@@ -515,7 +515,7 @@ int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 ESkill get_magic_skill_number_by_spell(int spellnum);
 int check_recipe_values(CHAR_DATA *ch, int spellnum, int spelltype, int showrecipe);
-int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, const CHAR_DATA *targ = NULL);
+int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, const CHAR_DATA *targ = nullptr);
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;

@@ -36,7 +36,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 								   spell_info[spellnum].syn
 									   && *spell_info[spellnum].syn
 								   ? spell_info[spellnum].syn
-								   : NULL;
+								   : nullptr;
 
 			if (realname
 				&& IS_SET(spell_info[spellnum].routines, MAG_WARCRY)
@@ -76,7 +76,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (spell_info[spellnum].targets != TAR_IGNORE) {
 		std::stringstream str_log;
 		str_log << "Для клича #" << spellnum << ", установлены некорректные цели: " << spell_info[spellnum].targets;
-		mudlog(str_log.str(), BRF, LVL_GOD, SYSLOG, TRUE);
+		mudlog(str_log.str(), BRF, LVL_GOD, SYSLOG, true);
 		send_to_char("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
 		return;
 	}

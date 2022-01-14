@@ -281,18 +281,18 @@ void brief_shields::act_with_exception_handling(const char *msg, const int type)
 	try {
 		const auto weapon_type = weap.type();
 		switch (weapon_type) {
-			case WeapForAct::EWT_STRING: act(msg, FALSE, ch, nullptr, vict, type, weap.get_string());
+			case WeapForAct::EWT_STRING: act(msg, false, ch, nullptr, vict, type, weap.get_string());
 				break;
 
 			case WeapForAct::EWT_OBJECT_RAW_PTR:
-			case WeapForAct::EWT_PROTOTYPE_SHARED_PTR: act(msg, FALSE, ch, weap.get_object_ptr(), vict, type);
+			case WeapForAct::EWT_PROTOTYPE_SHARED_PTR: act(msg, false, ch, weap.get_object_ptr(), vict, type);
 				break;
 
-			default: act(msg, FALSE, ch, nullptr, vict, type);
+			default: act(msg, false, ch, nullptr, vict, type);
 		}
 	}
 	catch (const WeapForAct::WeaponTypeException &e) {
-		mudlog(e.what(), BRF, LVL_BUILDER, ERRLOG, TRUE);
+		mudlog(e.what(), BRF, LVL_BUILDER, ERRLOG, true);
 	}
 }
 
@@ -2011,7 +2011,7 @@ bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl) {
 bool IsAbleToGetSkill(CHAR_DATA *ch, int skill) {
 	if (GET_REAL_REMORT(ch) < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
 		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL)) {
-		return FALSE;
+		return false;
 	}
 	if (ch->get_level() < min_skill_level(ch, skill)) {
 		return false;
@@ -2035,68 +2035,5 @@ int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill) {
 int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill) {
 	return std::min(CalcSkillSoftCap(ch), skill_info[skill].cap);
 }
-
-//  Реализация класса Skill
-// Закомментим поека за ненадобностью
-/*
-
-//Объявляем глобальный скиллист
-SkillListType Skill::SkillList;
-
-// Конструктор
-Skill::Skill() : _Name(SKILL_NAME_UNDEFINED), _Number(SKILL_UNDEFINED), _MaxPercent(0)
-{
-// Инициализация от греха подальше
-};
-
-// Парсим блок описания скилла
-void Skill::ParseSkill(pugi::xml_node SkillNode)
-{
-	std::string SkillID;
-	pugi::xml_node CurNode;
-	SkillPtr TmpSkill(new Skill);
-
-	// Базовые параметры скилла (а пока боле ничего и нет)
-	SkillID = SkillNode.attribute("id").value();
-
-	CurNode = SkillNode.child("number");
-	TmpSkill->_Number = CurNode.attribute("val").as_int();
-	CurNode = SkillNode.child("name");
-	TmpSkill->_Name = CurNode.attribute("text").value();
-	CurNode = SkillNode.child("difficulty");
-	TmpSkill->_MaxPercent = CurNode.attribute("val").as_int();
-
-	// Добавляем новый скилл в лист
-	Skill::SkillList.insert(make_pair(SkillID, TmpSkill));
-};
-
-// Парсинг скиллов
-// Вынесено в отдельную функцию, чтобы, если нам передали кривой XML лист, не создавался кривой скилл
-void Skill::Load(const pugi::xml_node& XMLSkillList)
-{
-	pugi::xml_node CurNode;
-
-	for (CurNode = XMLSkillList.child("skill"); CurNode; CurNode = CurNode.next_sibling("skill"))
-	{
-		Skill::ParseSkill(CurNode);
-	}
-};
-
-// Получаем номер скилла по его иду
-// Отрыжка совместимости со старым кодом
-int Skill::GetNumByID(const std::string& ID)
-{
-	SkillPtr TmpSkill = Skill::SkillList[ID];
-
-	if (TmpSkill)
-	{
-		return TmpSkill->_Number;
-	}
-
-	return SKILL_UNDEFINED;
-};
-
-// Конец (увы) реализации класса Skill
-*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

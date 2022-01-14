@@ -94,7 +94,7 @@ void GoodsStorage::add(OBJ_DATA *object) {
 		return;
 	}
 
-	m_activities.emplace(object, static_cast<int>(time(NULL)));
+	m_activities.emplace(object, static_cast<int>(time(nullptr)));
 	m_objects_by_uid.emplace(object->get_uid(), object);
 	object->subscribe_for_uid_change(m_object_uid_change_observer);
 }
@@ -452,7 +452,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 					 total_money,
 					 GET_OBJ_COST(obj),
 					 price);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		}
 		send_to_char(ch, "Теперь вы стали %s %s.\r\n",
 					 IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
@@ -875,7 +875,7 @@ void shop_node::process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, 
 		std::stringstream tell;
 		tell << "Предмет " << ident_obj->get_short_description() << ": ";
 		tell << item_types[GET_OBJ_TYPE(ident_obj)] << "\r\n";
-		tell << diag_weapon_to_char(ident_obj, TRUE);
+		tell << diag_weapon_to_char(ident_obj, true);
 		tell << diag_timer_to_char(ident_obj);
 
 		if (can_use_feat(ch, SKILLED_TRADER_FEAT)) {
@@ -963,7 +963,7 @@ OBJ_DATA *shop_node::get_from_shelve(const size_t index) const {
 	const auto uid = node->uid();
 	if (ItemNode::NO_UID == uid) {
 		sprintf(buf, "ERROR: get_from_shelve: вернул NULL, index: %zu", index);
-		mudlog(buf, LogMode::BRF, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(buf, LogMode::BRF, LVL_IMPL, SYSLOG, true);
 		return nullptr;
 	}
 
@@ -1232,7 +1232,7 @@ void shop_node::do_shop_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, OBJ_DATA *obj, std
 			+ boost::lexical_cast<std::string>(repair_price) + " " + desc_count(repair_price, WHAT_MONEYu)).c_str());
 
 		if (!IS_GOD(ch) && repair_price > ch->get_gold()) {
-			act("А вот их у тебя как-раз то и нет.", FALSE, ch, 0, 0, TO_CHAR);
+			act("А вот их у тебя как-раз то и нет.", false, ch, 0, 0, TO_CHAR);
 			return;
 		}
 
@@ -1240,7 +1240,7 @@ void shop_node::do_shop_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, OBJ_DATA *obj, std
 			ch->remove_gold(repair_price);
 		}
 
-		act("$n сноровисто починил$g $o3.", FALSE, keeper, obj, 0, TO_ROOM);
+		act("$n сноровисто починил$g $o3.", false, keeper, obj, 0, TO_ROOM);
 
 		obj->set_current_durability(GET_OBJ_MAX(obj));
 	}

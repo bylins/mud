@@ -1026,7 +1026,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 			 GET_NAME(god), GET_NAME(ch), GET_NAME(vict), it->second->free_glory,
 			 vict_it->second->spend_glory - was_stats);
 	imm_log("%s", buf);
-	mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(buf, DEF, LVL_IMMORT, SYSLOG, true);
 	add_karma(ch, buf, reason);
 	GloryMisc::add_log(GloryMisc::TRANSFER_GLORY, 0, buf, std::string(reason), vict.get());
 

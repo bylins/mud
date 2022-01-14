@@ -119,7 +119,7 @@ void parry_override(CHAR_DATA *ch) {
 		message = "Вы забыли о защите и бросились в бой.";
 		CLR_AF_BATTLE(ch, EAF_MULTYPARRY);
 	}
-	act(message.c_str(), FALSE, ch, 0, 0, TO_CHAR);
+	act(message.c_str(), false, ch, 0, 0, TO_CHAR);
 }
 
 

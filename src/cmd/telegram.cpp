@@ -1,6 +1,6 @@
 #include "telegram.h"
 #include "entities/char_player.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 
 #include <entities/obj.h>
 

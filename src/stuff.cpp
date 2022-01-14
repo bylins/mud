@@ -75,7 +75,7 @@ void oload_class::init() {
 
 	if (!fp) {
 		cppstr = "oload_class:: Unable open input file !!!";
-		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 
@@ -89,7 +89,7 @@ void oload_class::init() {
 
 			if (cppstr.empty()) {
 				cppstr = "oload_class:: Error in line '#' expected '#<RIGHT_obj_vnum>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
 				in_block = false;
 				continue;
 			}
@@ -100,7 +100,7 @@ void oload_class::init() {
 			if (!isstream.eof() || real_object(ovnum) < 0) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '#" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
 				in_block = false;
 				continue;
 			}
@@ -117,10 +117,10 @@ void oload_class::init() {
 			if (lprob < 0 || lprob > MAX_LOAD_PROB || oqty < 0 || real_mobile(mvnum) < 0 || !isstream.eof()) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '" + cppstr + "'";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
 				cppstr =
 					"oload_class:: \texpected '<RIGHT_mob_vnum>\t<0 <= obj_qty>\t<0 <= load_prob <= MAX_LOAD_PROB>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
 				continue;
 			}
 
@@ -129,7 +129,7 @@ void oload_class::init() {
 			add_elem(mvnum, ovnum, obj_load_info(oqty, lprob));
 		} else {
 			cppstr = "oload_class:: Error in line '" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
-			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
 		}
 	}
 }
@@ -242,7 +242,7 @@ void generate_warrior_enchant(OBJ_DATA *obj) {
 			break;
 		}
 		default: sprintf(buf2, "SYSERR: Unknown vnum warrior enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, true);
 			break;
 	}
 }
@@ -289,7 +289,7 @@ void generate_magic_enchant(OBJ_DATA *obj) {
 			break;
 		}
 		default: sprintf(buf2, "SYSERR: Unknown vnum magic enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, true);
 			break;
 	}
 }
@@ -338,17 +338,17 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload) {
 
 	if (!obj_decay(o.get())) {
 		if (o->get_in_room() != kNowhere) {
-			act("На земле остал$U лежать $o.", FALSE, ch, o.get(), 0, TO_ROOM);
+			act("На земле остал$U лежать $o.", false, ch, o.get(), 0, TO_ROOM);
 		}
 		load_otrigger(o.get());
 	}
 }
 
 void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
-	if (ch == NULL
+	if (ch == nullptr
 		|| !IS_NPC(ch)
 		|| (!MOB_FLAGGED(ch, MOB_CORPSE)
-			&& corpse == NULL)) {
+			&& corpse == nullptr)) {
 		return;
 	}
 

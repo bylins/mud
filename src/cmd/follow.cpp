@@ -19,20 +19,20 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 
 	if (!ch->has_master()) {
 		log("SYSERR: stop_follower(%s) without master", GET_NAME(ch));
-		return (FALSE);
+		return (false);
 	}
 
 	// для смены лидера без лишнего спама
 	if (!IS_SET(mode, SF_SILENCE)) {
-		act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->get_master(), TO_CHAR);
-		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы прекратили следовать за $N4.", false, ch, 0, ch->get_master(), TO_CHAR);
+		act("$n прекратил$g следовать за $N4.", true, ch, 0, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	//log("[Stop follower] Stop horse");
 	if (ch->get_master()->get_horse() == ch && ch->get_master()->ahorse()) {
 		ch->drop_from_horse();
 	} else {
-		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->get_master(), TO_VICT);
+		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), TO_VICT);
 	}
 
 	//log("[Stop follower] Remove from followers list");
@@ -74,24 +74,24 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CHARM);
 
 		if (ch->get_fighting()) {
-			stop_fighting(ch, TRUE);
+			stop_fighting(ch, true);
 		}
 
 		if (IS_NPC(ch)) {
 			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
-				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				perform_drop_gold(ch, ch->get_gold());
 				ch->set_gold(0);
-				extract_char(ch, FALSE);
-				return (TRUE);
+				extract_char(ch, false);
+				return (true);
 			} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
 				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
 			}
 		}
 	}
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // фул рестор моба (Кудояр)
-		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		ch->restore_npc();
 			// сначало бросаем лишнее
 				while (ch->carrying) {
@@ -123,7 +123,7 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
 	}
 
-	return (FALSE);
+	return (false);
 }
 
 // * Called when a character that follows/is followed dies
@@ -187,13 +187,13 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch->get_master() == leader) {
-		act("Вы уже следуете за $N4.", FALSE, ch, 0, leader, TO_CHAR);
+		act("Вы уже следуете за $N4.", false, ch, 0, leader, TO_CHAR);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& ch->has_master()) {
-		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->get_master(), TO_CHAR);
+		act("Но вы можете следовать только за $N4!", false, ch, 0, ch->get_master(), TO_CHAR);
 	} else        // Not Charmed follow person
 	{
 		if (leader == ch) {

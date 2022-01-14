@@ -161,7 +161,7 @@ void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets) {
 	}
 
 	*s = '\0';
-	tokens[++i] = NULL;
+	tokens[++i] = nullptr;
 
 	if (IS_SET(targets, TO_CHAR) && SENDOK(ch)) {
 		sub_write_to_char(ch, tokens, otokens, type);

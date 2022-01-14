@@ -61,16 +61,16 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	// get: blank, spell name, target name
 	s = strtok(argument, "'*!");
-	if (s == NULL) {
+	if (s == nullptr) {
 		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
-	if (s == NULL) {
+	s = strtok(nullptr, "'*!");
+	if (s == nullptr) {
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	t = strtok(NULL, "\0");
+	t = strtok(nullptr, "\0");
 
 	spellnum = FixNameAndFindSpellNum(s);
 	spell_subst = spellnum;
@@ -121,7 +121,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	// Find the target
-	if (t != NULL)
+	if (t != nullptr)
 		one_argument(t, arg);
 	else
 		*arg = '\0';
@@ -165,7 +165,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), spell_info[spellnum].name, CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
-			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
+			act(buf, false, ch, tobj, tch, TO_CHAR);
 		} else if (CastSpell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
 			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 				WAIT_STATE(ch, PULSE_VIOLENCE);

@@ -41,7 +41,7 @@ void removeAffectFromRoom(ROOM_DATA *room, const ROOM_DATA::room_affects_list_t:
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
 	}
-	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, FALSE);
+	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, false);
 	room->affected.erase(affect);
 	affect_room_total(room);
 }
@@ -194,7 +194,7 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 			break;
 
 		case SPELL_METEORSTORM: send_to_char("Раскаленные громовые камни рушатся с небес!\r\n", ch);
-			act("Раскаленные громовые камни рушатся с небес!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("Раскаленные громовые камни рушатся с небес!\r\n", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_THUNDERSTONE, ch->get_level());
 			break;
 
@@ -208,19 +208,19 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 					what_sky = SKY_CLOUDY;
 					send_to_char("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
 					act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
-						FALSE,
+						false,
 						ch,
 						0,
 						0,
 						TO_ROOM | TO_ARENA_LISTEN);
 					break;
 				case 7: send_to_char("Раздался чудовищный раскат грома!\r\n", ch);
-					act("Раздался чудовищный удар грома!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("Раздался чудовищный удар грома!\r\n", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_DEAFNESS, ch->get_level());
 					break;
 				case 6: send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
-						FALSE,
+						false,
 						ch,
 						0,
 						0,
@@ -228,31 +228,31 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_CONE_OF_COLD, ch->get_level());
 					break;
 				case 5: send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
-					act("Из туч хлынул дождь кислоты!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("Из туч хлынул дождь кислоты!\r\n", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_ACID, ch->get_level());
 					break;
 				case 4: send_to_char("Из туч ударили разряды молний!\r\n", ch);
-					act("Из туч ударили разряды молний!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("Из туч ударили разряды молний!\r\n", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_LIGHTNING_BOLT, ch->get_level());
 					break;
 				case 3: send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
-					act("Из тучи посыпались шаровые молнии!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("Из тучи посыпались шаровые молнии!\r\n", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_CALL_LIGHTNING, ch->get_level());
 					break;
 				case 2: send_to_char("Буря завыла, закручиваясь в вихри!\r\n", ch);
-					act("Буря завыла, закручиваясь в вихри!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("Буря завыла, закручиваясь в вихри!\r\n", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_WHIRLWIND, ch->get_level());
 					break;
 				case 1: what_sky = SKY_CLOUDLESS;
 					break;
 				default: send_to_char("Из туч ударили разряды молний!\r\n", ch);
-					act("Из туч ударили разряды молний!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("Из туч ударили разряды молний!\r\n", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_LIGHTNING_BOLT, ch->get_level());
 			}
 			break;
 
 		case SPELL_EVARDS_BLACK_TENTACLES: send_to_char("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
-			act("Мертвые руки навей шарят в поисках добычи!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("Мертвые руки навей шарят в поисках добычи!\r\n", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_DAMAGE_SERIOUS, ch->get_level());
 			break;
 
@@ -338,10 +338,10 @@ void room_affect_update(void) {
 
 // Применение заклинания к комнате //
 int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnum) {
-	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
-	bool update_spell = FALSE;
+	bool accum_affect = false, accum_duration = false, success = true;
+	bool update_spell = false;
 	// Должен ли данный спелл быть только 1 в мире от этого кастера?
-	bool only_one = FALSE;
+	bool only_one = false;
 	const char *to_char = nullptr;
 	const char *to_room = nullptr;
 	int i = 0, lag = 0;
@@ -369,8 +369,8 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_FORBIDDEN;
 			af[0].must_handled = false;
-			accum_duration = FALSE;
-			update_spell = TRUE;
+			accum_duration = false;
+			update_spell = true;
 			if (IS_MANA_CASTER(ch)) {
 				af[0].modifier = 80;
 			} else {
@@ -394,8 +394,8 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_LIGHT;
 			af[0].must_handled = false;
-			accum_duration = TRUE;
-			update_spell = TRUE;
+			accum_duration = true;
+			update_spell = true;
 			to_char = "Вы облили комнату бензином и бросили окурок.";
 			to_room = "Пространство вокруг начало светиться.";
 			break;
@@ -407,7 +407,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].bitvector = AFF_ROOM_FOG; //Добаляет бит туман
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
-			update_spell = FALSE;
+			update_spell = false;
 			to_room = "$n испортил$g воздух и плюнул$g в суп.";
 			break;
 
@@ -418,8 +418,8 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_METEORSTORM;
 			af[0].must_handled = true;
-			accum_duration = FALSE;
-			update_spell = FALSE;
+			accum_duration = false;
+			update_spell = false;
 			to_char = "Повинуясь вашей воле несшиеся в неизмеримой дали громовые камни обрушились на землю.";
 			to_room = "$n воздел$g руки и с небес посыпался град раскаленных громовых камней.";
 			break;
@@ -429,7 +429,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].must_handled = true;
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_THUNDERSTORM;
-			update_spell = FALSE;
+			update_spell = false;
 			to_char = "Вы ощутили в небесах силу бури и призвали ее к себе.";
 			to_room = "$n проревел$g заклинание. Вы услышали раскаты далекой грозы.";
 			break;
@@ -449,9 +449,9 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_RUNE_LABEL;
 			af[0].must_handled = false;
-			accum_duration = FALSE;
-			update_spell = TRUE;
-			only_one = TRUE;
+			accum_duration = false;
+			update_spell = true;
+			only_one = true;
 			to_char = "Вы начертали свое имя рунами на земле и произнесли заклинание.";
 			to_room = "$n начертил$g на земле несколько рун и произнес$q заклинание.";
 			lag = 2;
@@ -459,7 +459,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 
 		case SPELL_HYPNOTIC_PATTERN:
 			if (material_component_processing(ch, ch, spellnum)) {
-				success = FALSE;
+				success = false;
 				break;
 			}
 			af[0].type = spellnum;
@@ -469,16 +469,16 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_HYPNOTIC_PATTERN;
 			af[0].must_handled = false;
-			accum_duration = FALSE;
-			update_spell = FALSE;
-			only_one = FALSE;
+			accum_duration = false;
+			update_spell = false;
+			only_one = false;
 			to_char = "Вы воскурили благовония и пропели заклинание. В воздухе поплыл чарующий глаз огненный узор.";
 			to_room = "$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор.";
 			break;
 
 		case SPELL_EVARDS_BLACK_TENTACLES:
 			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_MONO) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_POLY)) {
-				success = FALSE;
+				success = false;
 				break;
 			}
 			af[0].type = spellnum;
@@ -488,8 +488,8 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = AFF_ROOM_EVARDS_BLACK_TENTACLES;
 			af[0].must_handled = true;
-			accum_duration = FALSE;
-			update_spell = FALSE;
+			accum_duration = false;
+			update_spell = false;
 			to_char =
 				"Вы выкрикнули несколько мерзко звучащих слов и притопнули.\r\nИз-под ваших ног полезли скрюченные мертвые руки.";
 			to_room =
@@ -526,7 +526,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			if (update_spell) {
 				affect_room_join_fspell(room, af[i]);
 			} else {
-				affect_room_join(room, af[i], accum_duration, FALSE, accum_affect, FALSE);
+				affect_room_join(room, af[i], accum_duration, false, accum_affect, false);
 			}
 			//Вставляем указатель на комнату в список обкастованных, с проверкой на наличие
 			//Здесь - потому что все равно надо проверять, может это не первый спелл такого типа на руме
@@ -536,9 +536,9 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 
 	if (success) {
 		if (to_room != nullptr)
-			act(to_room, TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act(to_room, true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		if (to_char != nullptr)
-			act(to_char, TRUE, ch, 0, 0, TO_CHAR);
+			act(to_char, true, ch, 0, 0, TO_CHAR);
 		return 1;
 	} else
 		send_to_char(NOEFFECT, ch);
@@ -562,7 +562,7 @@ int getUniqueAffectDuration(long casterID, int spellnum) {
 }
 
 void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApplyLocation> &af) {
-	bool found = FALSE;
+	bool found = false;
 
 	for (const auto &hjp : room->affected) {
 		if (hjp->type == af.type
@@ -643,7 +643,7 @@ void affect_room_total(ROOM_DATA *room) {
 
 	// перенакладываем аффекты
 	for (const auto &af : room->affected) {
-		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
+		affect_room_modify(room, af->location, af->modifier, af->bitvector, true);
 	}
 }
 
@@ -652,7 +652,7 @@ void affect_to_room(ROOM_DATA *room, const AFFECT_DATA<ERoomApplyLocation> &af) 
 
 	room->affected.push_front(new_affect);
 
-	affect_room_modify(room, af.location, af.modifier, af.bitvector, TRUE);
+	affect_room_modify(room, af.location, af.modifier, af.bitvector, true);
 	affect_room_total(room);
 }
 

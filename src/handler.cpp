@@ -18,7 +18,7 @@
 #include "backtrace.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_player.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "entities/room_constants.h"
 #include "cmd/follow.h"
 #include "exchange.h"

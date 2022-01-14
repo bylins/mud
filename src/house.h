@@ -168,8 +168,8 @@ class Clan {
 	static ClanListType ClanList; // список кланов
 
 	static void ClanLoad();
-	static void ClanLoadSingle(std::string index);
-	static void ClanReload(std::string index);
+	static void ClanLoadSingle(const std::string& index);
+	static void ClanReload(const std::string& index);
 	static void ClanSave();
 	static void SaveChestAll();
 	static void HconShow(CHAR_DATA *ch);

@@ -12,7 +12,7 @@
 
 #include "crafts/im.h"
 
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "entities/room_constants.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
@@ -22,7 +22,7 @@
 #include "zone.table.h"
 
 #define        VAR_CHAR    '@'
-#define imlog(lvl, str)    mudlog(str, lvl, LVL_BUILDER, IMLOG, TRUE)
+#define imlog(lvl, str)    mudlog(str, lvl, LVL_BUILDER, IMLOG, true)
 
 const short kMaxRecipeLevel = 200;
 
@@ -37,10 +37,10 @@ void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-im_type *imtypes = NULL;    // Список зарегестрированных ТИПОВ/МЕТАТИПОВ
+im_type *imtypes = nullptr;    // Список зарегестрированных ТИПОВ/МЕТАТИПОВ
 int top_imtypes = -1;        // Последний номер типа ИМ
 
-im_recipe *imrecipes = NULL;    // Список зарегестрированных рецептов
+im_recipe *imrecipes = nullptr;    // Список зарегестрированных рецептов
 int top_imrecipes = -1;        // Последний номер рецепта ИМ
 
 // Поиск типа по имени name. mode=0-только элементарные,1-все подряд
@@ -88,12 +88,12 @@ int im_get_recipe_by_name(char *name) {
 		if (is_abbrev(name, imrecipes[rid].name))
 			break;
 
-		ok = TRUE;
+		ok = true;
 		temp = any_one_arg(imrecipes[rid].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
 			if (!is_abbrev(first2, first))
-				ok = FALSE;
+				ok = false;
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
 		}
@@ -207,7 +207,7 @@ const char *replace_alias(const char *ptr, im_memb *sample, int rnum, const char
 	// Строю соответствуюжую строку в buf
 	if (sample) {
 		// поиск в образце
-		if (std && (al = get_im_alias(sample, std)) != NULL) {
+		if (std && (al = get_im_alias(sample, std)) != nullptr) {
 			ptr = al;
 		} else {
 			// Посимвольный разбор строки
@@ -293,7 +293,7 @@ int im_assign_power(OBJ_DATA *obj)
 		obj->set_val(IM_POWER_SLOT, (GET_REAL_LEVEL(mob_proto + rnum) + 3) * 3 / 4);
 	}
 	// Попробовать найти описатель ВИДА
-	for (p = imtypes[rind].head, sample = NULL; p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT);
+	for (p = imtypes[rind].head, sample = nullptr; p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT);
 		 sample = p, p = p->next);
 
 	if (sample) {
@@ -382,7 +382,7 @@ void im_translate_rskill_to_rid(void) {
 		if (IS_NPC(ch))
 			continue;
 		prs = &GET_RSKILL(ch);
-		while ((rs = *prs) != NULL) {
+		while ((rs = *prs) != nullptr) {
 			rid = im_get_recipe(rs->rid);
 			if (rid >= 0) {
 				rs->rid = rid;
@@ -414,7 +414,7 @@ void im_cleanup_recipe(im_recipe *r) {
 	free(r->msg_room[0]);
 	free(r->msg_room[1]);
 	free(r->msg_room[2]);
-	while ((a = r->addon) != NULL) {
+	while ((a = r->addon) != nullptr) {
 		r->addon = a->link;
 		free(a);
 	}
@@ -442,14 +442,14 @@ void init_im(void) {
 		im_cleanup_recipe(imrecipes + i);
 	if (imtypes)
 		free(imtypes);
-	imtypes = NULL;
+	imtypes = nullptr;
 	top_imtypes = -1;
 	if (imrecipes)
 		free(imrecipes);
-	imrecipes = NULL;
+	imrecipes = nullptr;
 	top_imrecipes = -1;
 
-	mbs = mptr = NULL;
+	mbs = mptr = nullptr;
 
 	// ПРОХОД 1
 	// Определение количества ТИПОВ/МЕТАТИПОВ
@@ -460,7 +460,7 @@ void init_im(void) {
 		if (!strn_cmp(tmp, "РЕЦЕПТ", 6))
 			++top_imrecipes;
 		if (!strn_cmp(tmp, "ВИД", 3)) {
-			if (mbs == NULL) {
+			if (mbs == nullptr) {
 				CREATE(mbs, 1);
 				mptr = mbs;
 			} else {
@@ -498,7 +498,7 @@ void init_im(void) {
 				imtypes[top_imtypes].id = id;
 				imtypes[top_imtypes].name = str_dup(name);
 				imtypes[top_imtypes].proto_vnum = vnum;
-				imtypes[top_imtypes].head = NULL;
+				imtypes[top_imtypes].head = nullptr;
 				imtypes[top_imtypes].tlst.size = 0;
 				TypeListSetSingle(&imtypes[top_imtypes].tlst, top_imtypes);
 				continue;
@@ -512,9 +512,9 @@ void init_im(void) {
 				imtypes[top_imtypes].id = id;
 				imtypes[top_imtypes].name = str_dup(name);
 				imtypes[top_imtypes].proto_vnum = -1;
-				imtypes[top_imtypes].head = NULL;
+				imtypes[top_imtypes].head = nullptr;
 				imtypes[top_imtypes].tlst.size = 0;
-				for (p = strtok(tlist, ","); p; p = strtok(NULL, ",")) {
+				for (p = strtok(tlist, ","); p; p = strtok(nullptr, ",")) {
 					int i = im_get_type_by_name(p, 1);    // поиск любого типа
 					if (i == -1) {
 						snprintf(text, sizeof(text), "[IM] Invalid type name : '%s'", p);
@@ -547,15 +547,15 @@ void init_im(void) {
 						*p++ = str_dup(name);
 						*p++ = str_dup(text);
 					}
-					p[0] = p[1] = NULL;
+					p[0] = p[1] = nullptr;
 					// Добавляю в структуру типа согласно силе
-					ins_after = NULL;
+					ins_after = nullptr;
 					ins_before = imtypes[i].head;
 					while (ins_before && ins_before->power < mptr->power) {
 						ins_after = ins_before;
 						ins_before = ins_before->next;
 					}
-					if (ins_after == NULL)
+					if (ins_after == nullptr)
 						imtypes[i].head = mptr;
 					else
 						ins_after->next = mptr;
@@ -695,7 +695,7 @@ void init_im(void) {
 							adi->k0 = k0;
 							adi->k1 = k1;
 							adi->k2 = k2;
-							adi->obj = NULL;
+							adi->obj = nullptr;
 							adi->link = imrecipes[top_imrecipes].addon;
 							imrecipes[top_imrecipes].addon = adi;
 						}
@@ -819,7 +819,7 @@ void init_im(void) {
 void im_parse(int **ing_list, char *line) {
 	int local_count = 0;
 	int count = 0;
-	int *local_list = NULL;
+	int *local_list = nullptr;
 	int *res;
 	int n, l, p, *ptr;
 
@@ -911,18 +911,18 @@ void im_reset_room(ROOM_DATA *room, int level, int type) {
 				log("SYSERR: WRONG INGREDIENT TYPE ID %d IN ZTYPES.LST", zone_types[type].ingr_types[i]);
 				continue;
 			}
-			after = NULL;
+			after = nullptr;
 			before = imtypes[indx].head;
 			while (before && before->power < lev) {
 				after = before;
 				before = before->next;
 			}
-			if (after == NULL && before == NULL) {
+			if (after == nullptr && before == nullptr) {
 				log("SYSERR: NO INGREDIENTS OF TYPE %d AVAILABLE NOW", indx);
 				continue;
-			} else if (after == NULL)
+			} else if (after == nullptr)
 				pow = before->power;
-			else if (before == NULL)
+			else if (before == nullptr)
 				pow = after->power;
 			else
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
@@ -947,7 +947,7 @@ OBJ_DATA *try_make_ingr(int *ing_list, int vnum, int max_prob) {
 		}
 		return load_ingredient(ing_list[indx], power, vnum);
 	}
-	return NULL;
+	return nullptr;
 }
 
 OBJ_DATA *try_make_ingr(CHAR_DATA *mob, int prob_default) {
@@ -955,7 +955,7 @@ OBJ_DATA *try_make_ingr(CHAR_DATA *mob, int prob_default) {
 	const int vnum = GET_MOB_VNUM(mob);
 	if (it != mobraces_list.end()) {
 		size_t num_inrgs = it->second->ingrlist.size();
-		int *ingr_to_load_list = NULL;
+		int *ingr_to_load_list = nullptr;
 		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);
 		size_t j = 0;
 		const int level_mob = GET_REAL_LEVEL(mob) > 0 ? GET_REAL_LEVEL(mob) : 1;
@@ -968,7 +968,7 @@ OBJ_DATA *try_make_ingr(CHAR_DATA *mob, int prob_default) {
 		return try_make_ingr(ingr_to_load_list, vnum, prob_default);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void list_recipes(CHAR_DATA *ch, bool all_recipes) {
@@ -1051,9 +1051,9 @@ void do_recipes(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	skip_spaces(&argument);
 	if (is_abbrev(argument, "все") || is_abbrev(argument, "all"))
-		list_recipes(ch, TRUE);
+		list_recipes(ch, true);
 	else
-		list_recipes(ch, FALSE);
+		list_recipes(ch, false);
 }
 
 void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1147,7 +1147,7 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	rs->perc = value;
 
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
-	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
+	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
 	send_to_char(buf2, ch);
 }
@@ -1191,7 +1191,7 @@ void im_improve_recipe(CHAR_DATA *ch, im_rskill *rs, int success) {
 
 OBJ_DATA **im_obtain_ingredients(CHAR_DATA *ch, char *argument, int *count) {
 	char name[kMaxStringLength], buf[128];
-	OBJ_DATA **array = NULL;
+	OBJ_DATA **array = nullptr;
 	OBJ_DATA *o;
 	int i, n = 0;
 
@@ -1237,7 +1237,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA *ch, char *argument, int *count) {
 		free(array);
 	imlog(NRM, buf);
 	send_to_char(buf, ch);
-	return NULL;
+	return nullptr;
 }
 
 #define        IS_RECIPE_DELIM(c)        (((c)=='\'')||((c)=='*')||((c)=='!'))
@@ -1413,11 +1413,11 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Этап 2. Дополнительные компоненты
 	for (addon = imrecipes[rs->rid].addon; addon; addon = addon->link)
-		addon->obj = NULL;
+		addon->obj = nullptr;
 	for (i = add_start; i < num; ++i) {
 		int itype = im_type_rnum(GET_OBJ_VAL(objs[i], IM_TYPE_SLOT));
 		for (addon = imrecipes[rs->rid].addon; addon; addon = addon->link)
-			if (addon->obj == NULL && TypeListCheck(&imtypes[itype].tlst, addon->id))
+			if (addon->obj == nullptr && TypeListCheck(&imtypes[itype].tlst, addon->id))
 				break;
 		if (addon) {
 			// "белый" список
@@ -1480,8 +1480,8 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Рассылаю сообщения
 	imlog(CMP, "Рассылка сообщений");
-	act(imrecipes[rs->rid].msg_char[mres], TRUE, ch, 0, 0, TO_CHAR);
-	act(imrecipes[rs->rid].msg_room[mres], TRUE, ch, 0, 0, TO_ROOM);
+	act(imrecipes[rs->rid].msg_char[mres], true, ch, 0, 0, TO_CHAR);
+	act(imrecipes[rs->rid].msg_room[mres], true, ch, 0, 0, TO_ROOM);
 
 	if (mres == IM_MSG_OK) {
 		imlog(CMP, "Создание результата");
@@ -1642,7 +1642,7 @@ int im_ing_dump(int *ping, char *s) {
 
 void im_inglist_copy(int **pdst, int *src) {
 	int i;
-	*pdst = NULL;
+	*pdst = nullptr;
 	if (!src)
 		return;
 	for (i = 0; src[i] != -1; i += 2);
@@ -1679,7 +1679,7 @@ void im_extract_ing(int **pdst, int num) {
 	*p2 = *p1;
 	if (**pdst == -1) {
 		free(*pdst);
-		*pdst = NULL;
+		*pdst = nullptr;
 	}
 }
 

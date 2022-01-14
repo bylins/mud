@@ -17,7 +17,7 @@
 #include "screen.h"
 #include "auction.h"
 #include "entities/char_player.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "entities/room_constants.h"
 #include "house.h"
 #include "spam.h"
@@ -69,15 +69,13 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else {
 		sprintf(buf, "$n сказал$g : '%s'", argument);
 
-//      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);
-// shapirus; для возможности игнорирования теллов в клетку
+// для возможности игнорирования теллов в клетку
 // пришлось изменить act в клетку на проход по клетке
 		for (const auto to : world[ch->in_room]->people) {
 			if (ch == to || ignores(to, ch, IGNORE_SAY)) {
 				continue;
 			}
-
-			act(buf, FALSE, ch, 0, to, TO_VICT | DG_NO_TRIG | CHECK_DEAF);
+			act(buf, false, ch, 0, to, TO_VICT | DG_NO_TRIG | CHECK_DEAF);
 		}
 
 		if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT)) {
@@ -128,7 +126,7 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
 			&& k != ch
 			&& !ignores(k, ch, IGNORE_GROUP)) {
-			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
+			act(buf, false, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
 			// added by WorM  групптелы 2010.10.13
 			if (!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
 				&& GET_POS(k) > POS_DEAD) {
@@ -146,7 +144,7 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 				&& (f->follower != ch)
 				&& !ignores(f->follower, ch, IGNORE_GROUP)) {
-				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
+				act(buf, false, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
 				// added by WorM  групптелы 2010.10.13
 				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_DEAFNESS)
 					&& GET_POS(f->follower) > POS_DEAD) {
@@ -190,7 +188,7 @@ void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg) {
 		&& !CAN_SEE(vict, ch)
 		&& GET_REAL_LEVEL(ch) < LVL_IMMORT
 		&& !PRF_FLAGGED(ch, PRF_CODERINFO)) {
-		act("$N не любит разговаривать с теми, кого не видит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N не любит разговаривать с теми, кого не видит.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return;
 	}
 
@@ -231,34 +229,34 @@ void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg) {
 int is_tell_ok(CHAR_DATA *ch, CHAR_DATA *vict) {
 	if (ch == vict) {
 		send_to_char("Вы начали потихоньку разговаривать с самим собой.\r\n", ch);
-		return (FALSE);
+		return (false);
 	} else if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам.\r\n", ch);
-		return (FALSE);
+		return (false);
 	} else if (!IS_NPC(vict) && !vict->desc)    // linkless
 	{
-		act("$N потерял$G связь в этот момент.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-		return (FALSE);
+		act("$N потерял$G связь в этот момент.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		return (false);
 	} else if (PLR_FLAGGED(vict, PLR_WRITING)) {
-		act("$N пишет сообщение - повторите попозже.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-		return (FALSE);
+		act("$N пишет сообщение - повторите попозже.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		return (false);
 	}
 
 	if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-		return (TRUE);
+		return (true);
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 		send_to_char(SOUNDPROOF, ch);
 	else if ((!IS_NPC(vict) &&
 		(PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
 		ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
-		act("$N не сможет вас услышать.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N не сможет вас услышать.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else if (GET_POS(vict) < POS_RESTING || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
-		act("$N вас не услышит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N вас не услышит.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else
-		return (TRUE);
+		return (true);
 
-	return (FALSE);
+	return (false);
 }
 
 /*
@@ -266,7 +264,7 @@ int is_tell_ok(CHAR_DATA *ch, CHAR_DATA *vict) {
  * called frequently, and should IMHO be kept as tight as possible.
  */
 void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict = NULL;
+	CHAR_DATA *vict = nullptr;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -402,7 +400,7 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		std::stringstream buffer;
 		buffer << "$n " << action_plur << "$g " << vict2 << " : " << buf2;
 //		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
-		act(buffer.str().c_str(), FALSE, ch, 0, vict, TO_VICT | CHECK_DEAF);
+		act(buffer.str().c_str(), false, ch, 0, vict, TO_VICT | CHECK_DEAF);
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
@@ -413,14 +411,14 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char(buffer.str(), ch);
 		}
 
-		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
+		act(action_others, false, ch, 0, vict, TO_NOTVICT);
 	}
 }
 
 #define MAX_NOTE_LENGTH 4096    // arbitrary
 
 void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	OBJ_DATA *paper, *pen = NULL;
+	OBJ_DATA *paper, *pen = nullptr;
 	char *papername, *penname;
 
 	papername = buf1;
@@ -458,7 +456,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (GET_OBJ_TYPE(paper) == OBJ_DATA::ITEM_PEN)    // oops, a pen..
 		{
 			pen = paper;
-			paper = NULL;
+			paper = nullptr;
 		} else if (GET_OBJ_TYPE(paper) != OBJ_DATA::ITEM_NOTE) {
 			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
@@ -482,9 +480,9 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// ok.. now let's see what kind of stuff we've found
 	if (GET_OBJ_TYPE(pen) != OBJ_DATA::ITEM_PEN) {
-		act("Вы не умеете писать $o4.", FALSE, ch, pen, 0, TO_CHAR);
+		act("Вы не умеете писать $o4.", false, ch, pen, 0, TO_CHAR);
 	} else if (GET_OBJ_TYPE(paper) != OBJ_DATA::ITEM_NOTE) {
-		act("Вы не можете писать на $o5.", FALSE, ch, paper, 0, TO_CHAR);
+		act("Вы не можете писать на $o5.", false, ch, paper, 0, TO_CHAR);
 	} else if (!paper->get_action_description().empty()) {
 		send_to_char("Там уже что-то записано.\r\n", ch);
 	} else            // we can write - hooray!
@@ -493,7 +491,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		 * a) the text editor with a message already loaed
 		 * b) the abort buffer if the player aborts the message
 		 */
-		ch->desc->backstr = NULL;
+		ch->desc->backstr = nullptr;
 		send_to_char("Можете писать.  (/s СОХРАНИТЬ ЗАПИСЬ  /h ПОМОЩЬ)\r\n", ch);
 		// ok, here we check for a message ALREADY on the paper
 		if (!paper->get_action_description().empty())    // we str_dup the original text to the descriptors->backstr
@@ -503,12 +501,12 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// loaded into the editor)
 			send_to_char(paper->get_action_description().c_str(), ch);
 		}
-		act("$n начал$g писать.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n начал$g писать.", true, ch, 0, 0, TO_ROOM);
 		// assign the descriptor's->str the value of the pointer to the text
 		// pointer so that we can reallocate as needed (hopefully that made
 		// sense :>)
 		const AbstractStringWriter::shared_ptr writer(new CActionDescriptionWriter(*paper));
-		string_write(ch->desc, writer, MAX_NOTE_LENGTH, 0, NULL);
+		string_write(ch->desc, writer, MAX_NOTE_LENGTH, 0, nullptr);
 	}
 }
 
@@ -530,7 +528,7 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (IS_GRGOD(ch)) {
 				for (d = descriptor_list; d; d = d->next) {
 					if (STATE(d) == CON_PLAYING && d->character) {
-						act(buf, FALSE, ch, 0, d->character.get(), TO_VICT);
+						act(buf, false, ch, 0, d->character.get(), TO_VICT);
 					}
 				}
 			} else {
@@ -538,12 +536,12 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != NULL) {
-			act(buffer.str().c_str(), FALSE, ch, 0, vict, TO_VICT);
+		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != nullptr) {
+			act(buffer.str().c_str(), false, ch, 0, vict, TO_VICT);
 			if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 				send_to_char(OK, ch);
 			else
-				act(buffer.str().c_str(), FALSE, ch, 0, vict, TO_CHAR);
+				act(buffer.str().c_str(), false, ch, 0, vict, TO_CHAR);
 		} else
 			send_to_char("Такой игрок отсутствует!\r\n", ch);
 	}
@@ -734,7 +732,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 				snprintf(buf1, kMaxStringLength, "Вы %s : '%s'",
 						 com_msgs[subcmd].you_action, argument);
 			}
-			act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
+			act(buf1, false, ch, 0, 0, TO_CHAR | TO_SLEEP);
 
 			if (!IS_NPC(ch)) {
 				snprintf(buf1 + strlen(buf1), kMaxStringLength, "\r\n");
@@ -797,7 +795,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 				send_to_char(color_on, i->character.get());
 			}
 
-			act(out_str, FALSE, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
+			act(out_str, false, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				send_to_char(KNRM, i->character.get());
 			}
@@ -831,7 +829,7 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char(KIYEL, i->character.get());
 			}
 
-			act(buf, FALSE, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
+			act(buf, false, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
 
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				send_to_char(KNRM, i->character.get());
@@ -843,7 +841,7 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength];
 	DESCRIPTOR_DATA *i;
-	CHAR_DATA *victim = NULL;
+	CHAR_DATA *victim = nullptr;
 
 	skip_spaces(&argument);
 
@@ -861,7 +859,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		victim = get_player_vis(ch, arg1, FIND_CHAR_WORLD);
-		if (victim == NULL) {
+		if (victim == nullptr) {
 			send_to_char("Такого нет в игре!\r\n", ch);
 			return;
 		}
@@ -881,7 +879,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
 		} else {
 			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
-			set_wait(ch, 3, FALSE);
+			set_wait(ch, 3, false);
 		}
 		send_to_char(buf, ch);
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);

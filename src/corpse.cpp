@@ -137,13 +137,13 @@ void init() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("globaldrop");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...<globaldrop> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 	for (pugi::xml_node node = node_list.child("tdrop"); node; node = node.next_sibling("tdrop")) {
@@ -201,7 +201,7 @@ void init() {
 			snprintf(buf, kMaxStringLength,
 					 "...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d)",
 					 obj_vnum, mob_lvl, count_mob, max_mob_lvl);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 			return;
 		}
 		snprintf(buf,
@@ -215,7 +215,7 @@ void init() {
 				 day_end,
 				 race_mob,
 				 chance);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
 		tmp_node.mob_lvl = mob_lvl;
@@ -230,7 +230,7 @@ void init() {
 			int obj_rnum = real_object(obj_vnum);
 			if (obj_rnum < 0) {
 				snprintf(buf, kMaxStringLength, "...incorrect obj_vnum=%d", obj_vnum);
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 				return;
 			}
 			tmp_node.rnum = obj_rnum;
@@ -241,21 +241,21 @@ void init() {
 				if (item_vnum <= 0) {
 					snprintf(buf, kMaxStringLength,
 							 "...bad shop attributes (item_vnum=%d)", item_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 					return;
 				}
 				// проверяем шмотку
 				int item_rnum = real_object(item_vnum);
 				if (item_rnum < 0) {
 					snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 					return;
 				}
 				tmp_node.olist[item_vnum] = item_rnum;
 			}
 			if (tmp_node.olist.empty()) {
 				snprintf(buf, kMaxStringLength, "...item list empty (obj_vnum=%d)", obj_vnum);
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 				return;
 			}
 		}
@@ -322,7 +322,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob) {
 				log("Ошибка tdrop. Внум: %d", tables_drop[i].get_vnum());
 				return true;
 			}
-			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
+			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, TO_ROOM);
 			log("Фридроп: упал предмет %s с VNUM: %d",
 				obj_proto[rnum]->get_short_description().c_str(),
 				obj_proto[rnum]->get_vnum());
@@ -355,13 +355,13 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob) {
 					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
 						|| (obj_rnum >= 0
 							&& obj_proto.actual_count(obj_rnum) < GET_OBJ_MIW(obj_proto[obj_rnum])))) {
-					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
+					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, TO_ROOM);
 					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d",
 							obj_proto[obj_rnum]->get_short_description().c_str(),
 							obj_proto[obj_rnum]->get_vnum(),
 							GET_NAME(mob),
 							GET_MOB_VNUM(mob));
-					mudlog(buf, CMP, LVL_GRGOD, SYSLOG, TRUE);
+					mudlog(buf, CMP, LVL_GRGOD, SYSLOG, true);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}
 				i->mobs = 0;
@@ -431,7 +431,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	int i;
 
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
-		return NULL;
+		return nullptr;
 	auto corpse = world_objects.create_blank();
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->set_aliases(buf2);
@@ -483,10 +483,10 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 
 	// transfer character's inventory to the corpse
 	corpse->set_contains(ch->carrying);
-	for (o = corpse->get_contains(); o != NULL; o = o->get_next_content()) {
+	for (o = corpse->get_contains(); o != nullptr; o = o->get_next_content()) {
 		o->set_in_obj(corpse.get());
 	}
-	object_list_new_owner(corpse.get(), NULL);
+	object_list_new_owner(corpse.get(), nullptr);
 
 	// transfer gold
 	// following 'if' clause added to fix gold duplication loophole
@@ -513,7 +513,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 		ch->set_gold(0);
 	}
 
-	ch->carrying = NULL;
+	ch->carrying = nullptr;
 	IS_CARRYING_N(ch) = 0;
 	IS_CARRYING_W(ch) = 0;
 
@@ -536,7 +536,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 		if (ch->has_master()) {
 				obj_to_char(corpse.get(), ch->get_master());
 		}
-		return NULL;
+		return nullptr;
 	} else {
 		room_rnum corpse_room = ch->in_room;
 		if (corpse_room == STRANGE_ROOM

@@ -103,7 +103,7 @@ void smash_tilde(char *str) {
 	 * Derived from an idea by Sammy <samedi@dhc.net> (who happens to like
 	 * his tildes thank you very much.), -gg 2/20/98
 	 */
-	while ((str = strchr(str, '~')) != NULL)
+	while ((str = strchr(str, '~')) != nullptr)
 		*str = ' ';
 }
 
@@ -124,7 +124,7 @@ void string_write(DESCRIPTOR_DATA *d,
 	}
 
 	if (data) {
-		mudlog("SYSERR: string_write: I don't understand special data.", BRF, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog("SYSERR: string_write: I don't understand special data.", BRF, LVL_IMMORT, SYSLOG, true);
 	}
 
 	d->writer = writer;
@@ -164,7 +164,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				switch (string[j]) {
 					case 'i':
 						if (!indent) {
-							indent = TRUE;
+							indent = true;
 							flags += kFormatIndent;
 						}
 						break;
@@ -190,16 +190,16 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				}
 				j++;
 			}
-			if ((s = strtok(string, "'")) == NULL) {
+			if ((s = strtok(string, "'")) == nullptr) {
 				SEND_TO_Q("Неверный формат.\r\n", d);
 				return;
-			} else if ((s = strtok(NULL, "'")) == NULL) {
+			} else if ((s = strtok(nullptr, "'")) == nullptr) {
 				SEND_TO_Q("Шаблон должен быть заключен в апострофы.\r\n", d);
 				return;
-			} else if ((t = strtok(NULL, "'")) == NULL) {
+			} else if ((t = strtok(nullptr, "'")) == nullptr) {
 				SEND_TO_Q("No replacement string.\r\n", d);
 				return;
-			} else if ((t = strtok(NULL, "'")) == NULL) {
+			} else if ((t = strtok(nullptr, "'")) == nullptr) {
 				SEND_TO_Q("Замещающая строка должна быть заключена в апострофы.\r\n", d);
 				return;
 			} else {
@@ -246,24 +246,24 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				} else if (line_low > 0) {
 					unsigned int total_len = 1;
 					while (s && (i < line_low)) {
-						if ((s = strchr(s, '\n')) != NULL) {
+						if ((s = strchr(s, '\n')) != nullptr) {
 							i++;
 							s++;
 						}
 					}
-					if ((i < line_low) || (s == NULL)) {
+					if ((i < line_low) || (s == nullptr)) {
 						SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 						return;
 					}
 					t = s;
 					while (s && (i < line_high)) {
-						if ((s = strchr(s, '\n')) != NULL) {
+						if ((s = strchr(s, '\n')) != nullptr) {
 							i++;
 							total_len++;
 							s++;
 						}
 					}
-					if ((s) && ((s = strchr(s, '\n')) != NULL)) {
+					if ((s) && ((s = strchr(s, '\n')) != nullptr)) {
 						s++;
 						while (*s != '\0') {
 							*(t++) = *(s++);
@@ -316,20 +316,20 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 
 				unsigned int total_len = 0;
 				while (pos && (i < line_low)) {
-					if ((pos = strchr(pos, '\n')) != NULL) {
+					if ((pos = strchr(pos, '\n')) != nullptr) {
 						i++;
 						pos++;
 					}
 				}
 
-				if ((i < line_low) || (pos == NULL)) {
+				if ((i < line_low) || (pos == nullptr)) {
 					SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 					return;
 				}
 
 				const char *beginning = pos;
 				while (pos && (i <= line_high)) {
-					if ((pos = strchr(pos, '\n')) != NULL) {
+					if ((pos = strchr(pos, '\n')) != nullptr) {
 						i++;
 						total_len++;
 						pos++;
@@ -342,7 +342,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 					strcat(buf, beginning);
 				}
 
-				page_string(d, buf, TRUE);
+				page_string(d, buf, true);
 			}
 
 			break;
@@ -379,20 +379,20 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				unsigned int total_len = 0;
 
 				while (pos && (i < line_low)) {
-					if ((pos = strchr(pos, '\n')) != NULL) {
+					if ((pos = strchr(pos, '\n')) != nullptr) {
 						i++;
 						pos++;
 					}
 				}
 
-				if ((i < line_low) || (pos == NULL)) {
+				if ((i < line_low) || (pos == nullptr)) {
 					SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 					return;
 				}
 
 				const char *beginning = pos;
 				while (pos && (i <= line_high)) {
-					if ((pos = strchr(pos, '\n')) != NULL) {
+					if ((pos = strchr(pos, '\n')) != nullptr) {
 						i++;
 						total_len++;
 						pos++;
@@ -410,7 +410,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				}
 			}
 
-			page_string(d, buf, TRUE);
+			page_string(d, buf, true);
 			break;
 
 		case PARSE_INSERT: half_chop(string, buf, buf2);
@@ -426,18 +426,18 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 			{
 				const char *pos = d->writer->get_string();
 				const char *beginning = pos;
-				if (pos == NULL) {
+				if (pos == nullptr) {
 					SEND_TO_Q("Буфер пуст - ничего не вставлено.\r\n", d);
 					return;
 				}
 				if (line_low > 0) {
 					while (pos && (i < line_low)) {
-						if ((pos = strchr(pos, '\n')) != NULL) {
+						if ((pos = strchr(pos, '\n')) != nullptr) {
 							i++;
 							pos++;
 						}
 					}
-					if ((i < line_low) || (pos == NULL)) {
+					if ((i < line_low) || (pos == nullptr)) {
 						SEND_TO_Q("Номер строки вне диапазона - прервано.\r\n", d);
 						return;
 					}
@@ -481,14 +481,14 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 
 				if (line_low > 0) {    // Loop through the text counting \\n characters until we get to the line/
 					while (s && (i < line_low)) {
-						if ((s = strchr(s, '\n')) != NULL) {
+						if ((s = strchr(s, '\n')) != nullptr) {
 							i++;
 							s++;
 						}
 					}
 
 					// * Make sure that there was a THAT line in the text.
-					if ((i < line_low) || (s == NULL)) {
+					if ((i < line_low) || (s == nullptr)) {
 						SEND_TO_Q("Строка вне диапазона - прервано.\r\n", d);
 						return;
 					}
@@ -501,7 +501,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 					}
 					// Put the new 'good' line into place.
 					strcat(buf, buf2);
-					if ((s = strchr(s, '\n')) != NULL) {
+					if ((s = strchr(s, '\n')) != nullptr) {
 						/*
 						* This means that we are at the END of the line, we want out of
 						* there, but we want s to point to the beginning of the line
@@ -529,7 +529,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 			break;
 
 		default: SEND_TO_Q("Неверная опция.\r\n", d);
-			mudlog("SYSERR: invalid command passed to parse_action", BRF, LVL_IMPL, SYSLOG, TRUE);
+			mudlog("SYSERR: invalid command passed to parse_action", BRF, LVL_IMPL, SYSLOG, true);
 			return;
 	}
 	//log("[PA] Stop");
@@ -648,7 +648,7 @@ void string_add(DESCRIPTOR_DATA *d, char *str) {
 			send_to_char(d->character.get(),
 						 "Слишком длинное послание > %lu симв. Последняя строка проигнорирована.\r\n",
 						 d->max_str - 3);
-			action = TRUE;
+			action = true;
 		} else {
 			d->writer->append_string(str);
 		}
@@ -933,7 +933,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
 			feat_info[feat].name, value ? "enabled" : "disabled");
-	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
+	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
 	if (feat >= 0 && feat < kMaxFeats) {
 		if (value)
@@ -1045,7 +1045,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
-	mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, true);
 	if (spell >= 0 && spell <= SPELLS_COUNT) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), SPELL_TEMP)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
@@ -1080,13 +1080,13 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // * Traverse down the string until the begining of the next page has been
 // * reached.  Return NULL if this is the last page of the string.
 char *next_page(char *str, CHAR_DATA *ch) {
-	int col = 1, line = 1, spec_code = FALSE;
+	int col = 1, line = 1, spec_code = false;
 	const char *color;
 
 	for (;; str++)    // If end of string, return NULL. //
 	{
 		if (*str == '\0')
-			return (NULL);
+			return (nullptr);
 
 			// If we're at the start of the next page, return this fact. //
 		else if (STRING_WIDTH(ch) && line > STRING_WIDTH(ch))
@@ -1135,11 +1135,11 @@ char *next_page(char *str, CHAR_DATA *ch) {
 			strncpy(str, color, strlen(color));
 			str += (strlen(color) - 1);
 		} else if (*str == '\x1B' && !spec_code)
-			spec_code = TRUE;
+			spec_code = true;
 
 			// Check for the end of an ANSI color code block. //
 		else if (*str == 'm' && spec_code)
-			spec_code = FALSE;
+			spec_code = false;
 
 			// Check for everything else. //
 		else if (!spec_code)    // Carriage return puts us in column one. //
@@ -1232,7 +1232,7 @@ void show_string(DESCRIPTOR_DATA *d, char *input) {
 		d->showstr_count = 0;
 		if (d->showstr_head) {
 			free(d->showstr_head);
-			d->showstr_head = NULL;
+			d->showstr_head = nullptr;
 		}
 		print_con_prompt(d);
 		return;
@@ -1264,7 +1264,7 @@ void show_string(DESCRIPTOR_DATA *d, char *input) {
 		d->showstr_count = 0;
 		if (d->showstr_head) {
 			free(d->showstr_head);
-			d->showstr_head = NULL;
+			d->showstr_head = nullptr;
 		}
 		print_con_prompt(d);
 	}

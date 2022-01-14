@@ -100,7 +100,7 @@ void process_speedwalks() {
 						dir = SCMD_UP;
 					if (boost::starts_with(direction, "вниз"))
 						dir = SCMD_DOWN;
-					perform_move(ch, dir - 1, 0, TRUE, 0);
+					perform_move(ch, dir - 1, 0, true, 0);
 				}
 			}
 			sw.wait = 0;
@@ -160,7 +160,7 @@ class CheckScheduledRebootCall : public AbstractPulseAction {
 
 void CheckScheduledRebootCall::perform(int, int) {
 	const auto boot_time = GlobalObjects::shutdown_parameters().get_boot_time();
-	const auto uptime_minutes = ((time(NULL) - boot_time) / 60);
+	const auto uptime_minutes = ((time(nullptr) - boot_time) / 60);
 
 	if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
 		&& shutdown_parameters.get_shutdown_timeout() == 0) {
@@ -254,7 +254,7 @@ class CrashSaveCall : public AbstractPulseAction {
 
 CrashSaveCall::CrashSaveCall() :
 	m_mins_since_crashsave(0),
-	m_last_rent_check(time(NULL)) {
+	m_last_rent_check(time(nullptr)) {
 }
 
 void CrashSaveCall::perform(int, int) {
@@ -268,7 +268,7 @@ void CrashSaveCall::perform(int, int) {
 
 	m_mins_since_crashsave = 0;
 	Crash_save_all();
-	const auto check_at = time(NULL);
+	const auto check_at = time(nullptr);
 
 	if (m_last_rent_check > check_at) {
 		m_last_rent_check = check_at;
@@ -276,7 +276,7 @@ void CrashSaveCall::perform(int, int) {
 
 	if (((check_at - m_last_rent_check) / 60)) {
 		Crash_rent_time((check_at - m_last_rent_check) / 60);
-		m_last_rent_check = time(NULL) - (check_at - m_last_rent_check) % 60;
+		m_last_rent_check = time(nullptr) - (check_at - m_last_rent_check) % 60;
 	}
 }
 

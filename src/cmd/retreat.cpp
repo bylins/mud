@@ -30,10 +30,10 @@ void do_retreat(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Невозможно, вы сражаетесь за свою жизнь.\r\n", ch);
 		return;
 	} else {
-		stop_fighting(ch, TRUE);
+		stop_fighting(ch, true);
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 		send_to_char("Вы отступили из битвы.\r\n", ch);
-		act("$n выбыл$g из битвы.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("$n выбыл$g из битвы.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 }

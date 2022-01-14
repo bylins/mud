@@ -56,13 +56,13 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	s = strtok(argument, "'*!");
-	if (s == NULL) {
+	if (s == nullptr) {
 		sprintf(buf, "Уточните тип состава!\r\n");
 		send_to_char(buf, ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
-	if (s == NULL) {
+	s = strtok(nullptr, "'*!");
+	if (s == nullptr) {
 		send_to_char("Название состава должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
@@ -82,16 +82,16 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_RECIPE) {
-		check_recipe_values(ch, spellnum, itemnum, TRUE);
+		check_recipe_values(ch, spellnum, itemnum, true);
 		return;
 	}
 
-	if (!check_recipe_values(ch, spellnum, itemnum, FALSE)) {
+	if (!check_recipe_values(ch, spellnum, itemnum, false)) {
 		send_to_char("Боги хранят в тайне этот состав.\r\n", ch);
 		return;
 	}
 
-	if (!check_recipe_items(ch, spellnum, itemnum, TRUE)) {
+	if (!check_recipe_items(ch, spellnum, itemnum, true)) {
 		send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		return;
 	}

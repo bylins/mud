@@ -368,7 +368,7 @@ inline save_info *SAVEINFO(const size_t number) {
 
 inline void clear_saveinfo(const size_t number) {
 	delete player_table[number].timer;
-	player_table[number].timer = NULL;
+	player_table[number].timer = nullptr;
 }
 
 void recreate_saveinfo(const size_t number);

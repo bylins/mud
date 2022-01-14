@@ -13,7 +13,7 @@ void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj) {
 				 obj->get_PName(3).c_str());
 	act("$n с интересом принял$u читать $o3.\r\n"
 		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-		FALSE, ch, obj, 0, TO_ROOM);
+		false, ch, obj, 0, TO_ROOM);
 }
 
 void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
@@ -21,7 +21,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	OBJ_DATA *obj;
 	int spellnum = 0, addchance = 10, rcpt = -1;
-	im_rskill *rs = NULL;
+	im_rskill *rs = nullptr;
 	const char *spellname = "";
 
 	const char *stype0[] =
@@ -58,7 +58,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (!*arg) {
 		send_to_char("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
 		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.",
-			FALSE,
+			false,
 			ch,
 			0,
 			0,
@@ -72,15 +72,15 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK) {
-		act("Вы уставились на $o3, как баран на новые ворота.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n начал$g внимательно изучать устройство $o1.", FALSE, ch, obj, 0, TO_ROOM);
+		act("Вы уставились на $o3, как баран на новые ворота.", false, ch, obj, 0, TO_CHAR);
+		act("$n начал$g внимательно изучать устройство $o1.", false, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
 	if (GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_SKILL &&
 		GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT &&
 		GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
-		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!", FALSE, ch, obj, 0, TO_CHAR);
+		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!", false, ch, obj, 0, TO_CHAR);
 		return;
 	}
 
@@ -170,7 +170,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		act("$n с интересом принял$u читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-			FALSE, ch, obj, 0, TO_ROOM);
+			false, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
@@ -201,7 +201,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				"долга закрыли %s. До %s вы еще не доросли.\r\n",
 				where, what, obj->get_PName(3).c_str(), whom);
 		send_to_char(buf, ch);
-		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.", false, ch, obj, 0, TO_ROOM);
 		return;
 	}
 

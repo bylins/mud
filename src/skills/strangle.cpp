@@ -33,7 +33,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		return;
 	}
 
-	act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, nullptr, vict, TO_CHAR);
+	act("Вы попытались накинуть удавку на шею $N2.\r\n", false, ch, nullptr, vict, TO_CHAR);
 
 	int prob = CalcCurrentSkill(ch, SKILL_STRANGLE, vict);
 	int delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
@@ -46,7 +46,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		Damage dmg(SkillDmg(SKILL_STRANGLE), ZERO_DMG, PHYS_DMG);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		//set_wait(ch, 3, TRUE);
+		//set_wait(ch, 3, true);
 		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 3);
 	} else {
 		AFFECT_DATA<EApplyLocation> af;
@@ -65,13 +65,13 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		if (GET_POS(vict) > POS_DEAD) {
-			set_wait(vict, 2, TRUE);
+			set_wait(vict, 2, true);
 			//vict->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 			if (vict->ahorse()) {
-				act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, nullptr, ch, TO_CHAR);
-				act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, nullptr, ch, TO_VICT);
+				act("Рванув на себя, $N стащил$G Вас на землю.", false, vict, nullptr, ch, TO_CHAR);
+				act("Рванув на себя, Вы стащили $n3 на землю.", false, vict, nullptr, ch, TO_VICT);
 				act("Рванув на себя, $N стащил$G $n3 на землю.",
-					FALSE,
+					false,
 					vict,
 					nullptr,
 					ch,

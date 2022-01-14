@@ -34,7 +34,7 @@
 #include "global_objects.h"
 #include "magic/magic.h"
 #include "world_objects.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "entities/room_constants.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "obj_prototypes.h"
@@ -187,8 +187,8 @@ int count_mxp_tags(const int bMXP, const char *txt, int length) {
 	char c;
 	const char *p;
 	int count;
-	int bInTag = FALSE;
-	int bInEntity = FALSE;
+	int bInTag = false;
+	int bInEntity = false;
 
 	for (p = txt, count = 0;
 		 length > 0;
@@ -200,19 +200,19 @@ int count_mxp_tags(const int bMXP, const char *txt, int length) {
 			if (!bMXP)
 				count--;     /* not output if not MXP */
 			if (c == MXP_ENDc)
-				bInTag = FALSE;
+				bInTag = false;
 		} /* end of being inside a tag */
 		else if (bInEntity)  /* in a tag, eg. <send> */
 		{
 			if (!bMXP)
 				count--;     /* not output if not MXP */
 			if (c == ';')
-				bInEntity = FALSE;
+				bInEntity = false;
 		} /* end of being inside a tag */
 		else
 			switch (c) {
 
-				case MXP_BEGc:bInTag = TRUE;
+				case MXP_BEGc:bInTag = true;
 					if (!bMXP)
 						count--;     /* not output if not MXP */
 					break;
@@ -222,7 +222,7 @@ int count_mxp_tags(const int bMXP, const char *txt, int length) {
 						count--;     /* not output if not MXP */
 					break;
 
-				case MXP_AMPc:bInEntity = TRUE;
+				case MXP_AMPc:bInEntity = true;
 					if (!bMXP)
 						count--;     /* not output if not MXP */
 					break;
@@ -255,8 +255,8 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 	char c;
 	const char *ps;
 	char *pd;
-	int bInTag = FALSE;
-	int bInEntity = FALSE;
+	int bInTag = false;
+	int bInEntity = false;
 
 	for (ps = src, pd = dest;
 		 length > 0;
@@ -265,7 +265,7 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 		if (bInTag)  /* in a tag, eg. <send> */
 		{
 			if (c == MXP_ENDc) {
-				bInTag = FALSE;
+				bInTag = false;
 				if (bMXP)
 					*pd++ = '>';
 			} else if (bMXP)
@@ -276,11 +276,11 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 			if (bMXP)
 				*pd++ = c;  /* copy tag only in MXP mode */
 			if (c == ';')
-				bInEntity = FALSE;
+				bInEntity = false;
 		} /* end of being inside a tag */
 		else
 			switch (c) {
-				case MXP_BEGc:bInTag = TRUE;
+				case MXP_BEGc:bInTag = true;
 					if (bMXP)
 						*pd++ = '<';
 					break;
@@ -290,7 +290,7 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 						*pd++ = '>';
 					break;
 
-				case MXP_AMPc:bInEntity = TRUE;
+				case MXP_AMPc:bInEntity = true;
 					if (bMXP)
 						*pd++ = '&';
 					break;
@@ -332,7 +332,7 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 void our_terminate();
 
 namespace {
-static const bool SET_TERMINATE = NULL != std::set_terminate(our_terminate);
+static const bool SET_TERMINATE = nullptr != std::set_terminate(our_terminate);
 }
 
 void our_terminate() {
@@ -375,7 +375,7 @@ extern void tact_auction(void);
 extern void log_code_date();
 
 // local globals
-DESCRIPTOR_DATA *descriptor_list = NULL;    // master desc list
+DESCRIPTOR_DATA *descriptor_list = nullptr;    // master desc list
 struct txt_block *bufpool = 0;    // pool of large output buffers
 int buf_largecount = 0;        // # of large buffers which exist
 int buf_overflows = 0;        // # of overflows of output
@@ -863,10 +863,10 @@ void stop_game(ush_int port) {
 	log("Closing all sockets.");
 #ifdef HAS_EPOLL
 	while (descriptor_list)
-		close_socket(descriptor_list, TRUE, epoll, NULL, 0);
+		close_socket(descriptor_list, true, epoll, nullptr, 0);
 #else
 	while (descriptor_list)
-		close_socket(descriptor_list, TRUE);
+		close_socket(descriptor_list, true);
 #endif
 	// должно идти после дисконекта плееров
 	FileCRC::save(true);
@@ -1098,17 +1098,17 @@ int shutting_down(void) {
 	int wait;
 
 	if (shutdown_parameters.no_shutdown()) {
-		return FALSE;
+		return false;
 	}
 
 	if (!shutdown_parameters.get_shutdown_timeout()
 		|| time(nullptr) >= shutdown_parameters.get_shutdown_timeout()) {
-		return TRUE;
+		return true;
 	}
 
 	if (lastmessage == shutdown_parameters.get_shutdown_timeout()
 		|| lastmessage == time(nullptr)) {
-		return FALSE;
+		return false;
 	}
 	wait = shutdown_parameters.get_shutdown_timeout() - time(nullptr);
 
@@ -1125,12 +1125,12 @@ int shutting_down(void) {
 		else
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, desc_count(wait / 60, WHAT_MINu));
 		send_to_all(buf);
-		lastmessage = time(NULL);
+		lastmessage = time(nullptr);
 		// на десятой секунде засейвим нужное нам в сислог
 		if (wait == 10)
 			log_zone_count_reset();
 	}
-	return (FALSE);
+	return (false);
 }
 
 #ifdef HAS_EPOLL
@@ -1160,7 +1160,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	for (i = 0; i < n; i++)
 		if (events[i].events & EPOLLIN) {
 			d = (DESCRIPTOR_DATA *) events[i].data.ptr;
-			if (d == NULL)
+			if (d == nullptr)
 				continue;
 			if (mother_desc == d->descriptor) // событие на mother_desc: принимаем все ждущие соединения
 			{
@@ -1170,7 +1170,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				while (desc > 0 || desc == -3);
 			} else // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
 			if (process_input(d) < 0)
-				close_socket(d, FALSE, epoll, events, n);
+				close_socket(d, false, epoll, events, n);
 		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
 		{
 			// надо будет помониторить сислог на предмет этих сообщений
@@ -1200,7 +1200,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		{
 			FD_CLR(d->descriptor, &input_set);
 			FD_CLR(d->descriptor, &output_set);
-			close_socket(d, TRUE);
+			close_socket(d, true);
 		}
 	}
 
@@ -1210,7 +1210,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		next_d = d->next;
 		if (FD_ISSET(d->descriptor, &input_set))
 			if (process_input(d) < 0)
-				close_socket(d, FALSE);
+				close_socket(d, false);
 	}
 #endif
 
@@ -1244,15 +1244,15 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (!get_from_q(&d->input, comm, &aliased)) {
 			if (STATE(d) != CON_PLAYING &&
 				STATE(d) != CON_DISCONNECT &&
-				time(NULL) - d->input_time > 300 && d->character && !IS_GOD(d->character))
+				time(nullptr) - d->input_time > 300 && d->character && !IS_GOD(d->character))
 #ifdef HAS_EPOLL
-				close_socket(d, TRUE, epoll, events, n);
+				close_socket(d, true, epoll, events, n);
 #else
-			close_socket(d, TRUE);
+			close_socket(d, true);
 #endif
 			continue;
 		}
-		d->input_time = time(NULL);
+		d->input_time = time(nullptr);
 		if (d->character)    // Reset the idle timer & pull char back from void if necessary
 		{
 			d->character->char_specials.timer = 0;
@@ -1261,7 +1261,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(kNowhere);
-				act("$n вернул$u.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n вернул$u.", true, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				d->character->set_wait(1u);
 			}
 		}
@@ -1288,11 +1288,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #ifdef HAS_EPOLL
 	for (i = 0; i < n; i++) {
 		d = (DESCRIPTOR_DATA *) events[i].data.ptr;
-		if (d == NULL)
+		if (d == nullptr)
 			continue;
 		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output))) {
 			if (process_output(d) < 0) // сокет умер
-				close_socket(d, FALSE, epoll, events, n);
+				close_socket(d, false, epoll, events, n);
 			else
 				d->has_prompt = 1;   // признак того, что промпт уже выводил
 			// следующий после команды или очередной
@@ -1306,7 +1306,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
 			if (process_output(d) < 0)
-				close_socket(d, FALSE);	// закрыл соединение
+				close_socket(d, false);	// закрыл соединение
 			else
 				d->has_prompt = 1;	// признак того, что промпт уже выводил
 			// следующий после команды или очередной
@@ -1323,9 +1323,9 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		next_d = d->next;
 		if (STATE(d) == CON_CLOSE || STATE(d) == CON_DISCONNECT)
 #ifdef HAS_EPOLL
-			close_socket(d, FALSE, epoll, events, n);
+			close_socket(d, false, epoll, events, n);
 #else
-		close_socket(d, FALSE);
+		close_socket(d, false);
 #endif
 	}
 
@@ -1375,7 +1375,7 @@ void game_loop(socket_t mother_desc)
 	// The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The..
 	while (!shutting_down())    // Sleep if we don't have any connections
 	{
-		if (descriptor_list == NULL) {
+		if (descriptor_list == nullptr) {
 			log("No connections.  Going to sleep.");
 			//make_who2html();
 #ifdef HAS_EPOLL
@@ -1383,7 +1383,7 @@ void game_loop(socket_t mother_desc)
 #else
 				FD_ZERO(&input_set);
 				FD_SET(mother_desc, &input_set);
-				if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, NULL) < 0)
+				if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, nullptr) < 0)
 #endif
 			{
 				if (errno == EINTR)
@@ -1826,12 +1826,12 @@ void write_to_q(const char *txt, struct txt_q *queue, int aliased) {
 
 	// queue empty?
 	if (!queue->head) {
-		newt->next = NULL;
+		newt->next = nullptr;
 		queue->head = queue->tail = newt;
 	} else {
 		queue->tail->next = newt;
 		queue->tail = newt;
-		newt->next = NULL;
+		newt->next = nullptr;
 	}
 }
 
@@ -1896,7 +1896,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
 	buf_switches++;
 
 	// if the pool has a buffer in it, grab it
-	if (bufpool != NULL) {
+	if (bufpool != nullptr) {
 		t->large_outbuf = bufpool;
 		bufpool = bufpool->next;
 	} else        // else create a new one
@@ -1938,7 +1938,7 @@ struct in_addr *get_bind_addr() {
 	memset((char *) &bind_addr, 0, sizeof(bind_addr));
 
 	// If DLFT_IP is unspecified, use INADDR_ANY
-	if (DFLT_IP == NULL) {
+	if (DFLT_IP == nullptr) {
 		bind_addr.s_addr = htonl(INADDR_ANY);
 	} else {
 		// If the parsing fails, use INADDR_ANY
@@ -2101,7 +2101,7 @@ int new_descriptor(socket_t s)
 	 * your site, but you are wizinvis upon login.
 	 */
 	sprintf(buf2, "New connection from [%s]", newd->host);
-	mudlog(buf2, CMP, LVL_GOD, SYSLOG, FALSE);
+	mudlog(buf2, CMP, LVL_GOD, SYSLOG, false);
 #endif
 	if (ban->is_banned(newd->host) == BanList::BAN_ALL) {
 		time_t bantime = ban->getBanDate(newd->host);
@@ -2110,7 +2110,7 @@ int new_descriptor(socket_t s)
 		write_to_descriptor(desc, buf, strlen(buf));
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
-		// mudlog(buf2, CMP, LVL_GOD, SYSLOG, TRUE);
+		// mudlog(buf2, CMP, LVL_GOD, SYSLOG, true);
 		delete newd;
 		return (-3);
 	}
@@ -2131,10 +2131,10 @@ int new_descriptor(socket_t s)
 	// событиях для данного сокета становится уже невалидным, и при попытке
 	// обработки этих событий произойдет чудесный креш.
 	//
-	// Предотвращается этот возможный креш принудительной установкой data.ptr в NULL
+	// Предотвращается этот возможный креш принудительной установкой data.ptr в nullptr
 	// для всех событий, пришедших от данного сокета. Это делается в close_socket(),
 	// которому для этой цели теперь передается ссылка на массив событий.
-	// Также добавлена проверка аргумента на NULL в close_socket(), process_input()
+	// Также добавлена проверка аргумента на nullptr в close_socket(), process_input()
 	// и process_output().
 	//
 	// Для алгоритма с использованием select() это было неактуально, поскольку
@@ -2259,7 +2259,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 	int written = 0, offset, result;
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
-	if (t == NULL) {
+	if (t == nullptr) {
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 								 % __func__ % __FILE__ % __LINE__).c_str());
 		return -1;
@@ -2320,7 +2320,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 				(pos < 0 ? (pos == -1 ? "NULL buffer" : "zero length buffer") : "go out of buffer"),
 				pos,
 				GET_NAME(t->character));
-		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+		mudlog(buf, BRF, LVL_GOD, SYSLOG, true);
 	}
 
 	/*
@@ -2355,7 +2355,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 	if (t->large_outbuf) {
 		t->large_outbuf->next = bufpool;
 		bufpool = t->large_outbuf;
-		t->large_outbuf = NULL;
+		t->large_outbuf = nullptr;
 		t->output = t->small_outbuf;
 	}
 	// reset total bufspace back to that of a small buffer
@@ -2617,7 +2617,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 	space_left = kMaxRawInputLength - buf_length - 1;
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
-	if (t == NULL) {
+	if (t == nullptr) {
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 								 % __func__ % __FILE__ % __LINE__).c_str());
 		return -1;
@@ -2733,7 +2733,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 		}
 
 		// search for a newline in the data we just read
-		for (ptr = read_point, nl_pos = NULL; *ptr && !nl_pos;) {
+		for (ptr = read_point, nl_pos = nullptr; *ptr && !nl_pos;) {
 			if (ISNEWL(*ptr))
 				nl_pos = ptr;
 			ptr++;
@@ -2753,12 +2753,12 @@ int process_input(DESCRIPTOR_DATA *t) {
 		 * this descriptor is in the read set).  JE 2/23/95.
 		 */
 #if !defined(POSIX_NONBLOCK_BROKEN)
-	} while (nl_pos == NULL);
+	} while (nl_pos == nullptr);
 #else
 	}
 	while (0);
 
-	if (nl_pos == NULL)
+	if (nl_pos == nullptr)
 		return (0);
 #endif                // POSIX_NONBLOCK_BROKEN
 
@@ -2769,7 +2769,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 
 	read_point = t->inbuf;
 
-	while (nl_pos != NULL) {
+	while (nl_pos != nullptr) {
 		int tilde = 0;
 		write_point = tmp;
 		space_left = kMaxInputLength - 1;
@@ -2939,7 +2939,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 
 		// see if there's another newline in the input buffer
 		read_point = ptr = nl_pos;
-		for (nl_pos = NULL; *ptr && !nl_pos; ptr++)
+		for (nl_pos = nullptr; *ptr && !nl_pos; ptr++)
 			if (ISNEWL(*ptr))
 				nl_pos = ptr;
 	}
@@ -3027,7 +3027,7 @@ void close_socket(DESCRIPTOR_DATA *d, int direct, int epoll, struct epoll_event 
 void close_socket(DESCRIPTOR_DATA * d, int direct)
 #endif
 {
-	if (d == NULL) {
+	if (d == nullptr) {
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 								 % __func__ % __FILE__ % __LINE__).c_str());
 		return;
@@ -3043,25 +3043,25 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 	REMOVE_FROM_LIST(d, descriptor_list);
 #ifdef HAS_EPOLL
-	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, NULL) == -1)
+	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, nullptr) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
 	// см. комментарии в new_descriptor()
 	int i;
-	if (events != NULL)
+	if (events != nullptr)
 		for (i = 0; i < n_ev; i++)
 			if (events[i].data.ptr == d)
-				events[i].data.ptr = NULL;
+				events[i].data.ptr = nullptr;
 #endif
 	CLOSE_SOCKET(d->descriptor);
 	flush_queues(d);
 
 	// Forget snooping
 	if (d->snooping)
-		d->snooping->snoop_by = NULL;
+		d->snooping->snoop_by = nullptr;
 
 	if (d->snoop_by) {
 		SEND_TO_Q("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
-		d->snoop_by->snooping = NULL;
+		d->snoop_by->snooping = nullptr;
 	}
 	//. Kill any OLC stuff .
 	switch (d->connected) {
@@ -3102,7 +3102,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		}
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT) {
-			act("$n потерял$g связь.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n потерял$g связь.", true, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE)) {
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
 				command_interpreter(d->character.get(), buf2);
@@ -3113,9 +3113,9 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				Crash_ldsave(d->character.get());
 
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
-				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
-			d->character->desc = NULL;
+			d->character->desc = nullptr;
 		} else {
 			if (!any_other_ch(d->character.get())) {
 				Depot::exit_char(d->character.get());
@@ -3129,7 +3129,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 	// JE 2/22/95 -- part of my unending quest to make switch stable
 	if (d->original && d->original->desc)
-		d->original->desc = NULL;
+		d->original->desc = nullptr;
 
 	// Clear the command history.
 	if (d->history) {
@@ -3240,7 +3240,7 @@ void nonblock(socket_t s) {
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
 RETSIGTYPE unrestrict_game(int/* sig*/) {
-	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, LVL_IMMORT, SYSLOG, true);
 	ban->clear_all();
 	circle_restrict = 0;
 	num_invalid = 0;
@@ -3250,7 +3250,7 @@ RETSIGTYPE unrestrict_game(int/* sig*/) {
 
 // clean up our zombie kids to avoid defunct processes
 RETSIGTYPE reap(int/* sig*/) {
-	while (waitpid(-1, (int *) NULL, WNOHANG) > 0);
+	while (waitpid(-1, (int *) nullptr, WNOHANG) > 0);
 
 	my_signal(SIGCHLD, reap);
 }
@@ -3339,7 +3339,7 @@ void signal_setup(void) {
 	interval.tv_usec = 0;
 	itime.it_interval = interval;
 	itime.it_value = interval;
-	setitimer(ITIMER_VIRTUAL, &itime, NULL);
+	setitimer(ITIMER_VIRTUAL, &itime, nullptr);
 	my_signal(SIGVTALRM, checkpointing);
 
 	// just to be on the safe side:
@@ -3390,7 +3390,7 @@ void send_to_char(const std::string &buffer, const CHAR_DATA *ch) {
 }
 
 void send_to_all(const char *messg) {
-	if (messg == NULL)
+	if (messg == nullptr)
 		return;
 	for (auto i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING) {
@@ -3407,7 +3407,7 @@ void send_to_outdoor(const char *messg, int control) {
 		return;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == NULL)
+		if (STATE(i) != CON_PLAYING || i->character == nullptr)
 			continue;
 		if (!AWAKE(i->character) || !OUTSIDE(i->character))
 			continue;
@@ -3434,7 +3434,7 @@ void send_to_gods(const char *messg) {
 		return;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == NULL)
+		if (STATE(i) != CON_PLAYING || i->character == nullptr)
 			continue;
 		if (!IS_GOD(i->character))
 			continue;
@@ -3443,7 +3443,7 @@ void send_to_gods(const char *messg) {
 }
 
 void send_to_room(const char *messg, room_rnum room, int to_awake) {
-	if (messg == NULL) {
+	if (messg == nullptr) {
 		return;
 	}
 
@@ -3459,7 +3459,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake) {
 }
 
 #define CHK_NULL(pointer, expression) \
-  ((pointer) == NULL) ? ACTNULL : (expression)
+  ((pointer) == nullptr) ? ACTNULL : (expression)
 
 // higher-level communication: the act() function
 void perform_act(const char *orig,
@@ -3469,19 +3469,19 @@ void perform_act(const char *orig,
 				 CHAR_DATA *to,
 				 const int arena,
 				 const std::string &kick_type) {
-	const char *i = NULL;
+	const char *i = nullptr;
 	char nbuf[256];
 	char lbuf[kMaxStringLength], *buf;
 	ubyte padis;
 	int stopbyte, cap = 0;
-	CHAR_DATA *dg_victim = NULL;
-	OBJ_DATA *dg_target = NULL;
-	char *dg_arg = NULL;
+	CHAR_DATA *dg_victim = nullptr;
+	OBJ_DATA *dg_target = nullptr;
+	char *dg_arg = nullptr;
 
 	buf = lbuf;
 
-	if (orig == NULL)
-		return mudlog("perform_act: NULL *orig string", BRF, -1, ERRLOG, TRUE);
+	if (orig == nullptr)
+		return mudlog("perform_act: NULL *orig string", BRF, -1, ERRLOG, true);
 	for (stopbyte = 0; stopbyte < kMaxStringLength; stopbyte++) {
 		if (*orig == '$') {
 			switch (*(++orig)) {
@@ -3813,7 +3813,7 @@ void act(const char *str,
 
 	if (type == TO_VICT) {
 		CHAR_DATA *to = (CHAR_DATA *) vict_obj;
-		if (to != NULL
+		if (to != nullptr
 			&& SENDOK(to)
 			&& IN_ROOM(to) != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
@@ -3952,13 +3952,13 @@ int mccp_start(DESCRIPTOR_DATA *t, int ver) {
 	CREATE(t->deflate, 1);
 	t->deflate->zalloc = zlib_alloc;
 	t->deflate->zfree = zlib_free;
-	t->deflate->opaque = NULL;
+	t->deflate->opaque = nullptr;
 
 	// Initialize.
 	if ((derr = deflateInit(t->deflate, Z_DEFAULT_COMPRESSION)) != 0) {
 		log("SYSERR: deflateEnd returned %d.", derr);
 		free(t->deflate);
-		t->deflate = NULL;
+		t->deflate = nullptr;
 		return 0;
 	}
 
@@ -3977,7 +3977,7 @@ int mccp_end(DESCRIPTOR_DATA *t, int ver) {
 	int prevsize, pending;
 	unsigned char tmp[1];
 
-	if (t->deflate == NULL)
+	if (t->deflate == nullptr)
 		return 1;
 
 	if (t->mccp_version != ver)
@@ -4005,7 +4005,7 @@ int mccp_end(DESCRIPTOR_DATA *t, int ver) {
 			t->deflate->avail_in, t->deflate->avail_out);
 
 	free(t->deflate);
-	t->deflate = NULL;
+	t->deflate = nullptr;
 
 	return 1;
 }
@@ -4015,7 +4015,7 @@ int toggle_compression(DESCRIPTOR_DATA *t) {
 #if defined(HAVE_ZLIB)
 	if (t->mccp_version == 0)
 		return 0;
-	if (t->deflate == NULL) {
+	if (t->deflate == nullptr) {
 		return mccp_start(t, t->mccp_version) ? 1 : 0;
 	} else {
 		return mccp_end(t, t->mccp_version) ? 0 : 1;

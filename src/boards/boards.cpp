@@ -311,7 +311,7 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
 		STATE(ch->desc) = CON_WRITEBOARD;
 		AbstractStringWriter::shared_ptr writer(new StdStringWriter());
-		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, NULL);
+		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, nullptr);
 	} else if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove")) {
 		if (!is_number(buffer2.c_str())) {
 			send_to_char("Укажите корректный номер сообщения.\r\n", ch);

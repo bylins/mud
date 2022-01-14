@@ -57,8 +57,8 @@ const short MAX_REVENGE = 2;    // Максимальное количество
 int pk_action_type(CHAR_DATA *agressor, CHAR_DATA *victim);
 
 // Проверка может ли ch начать аргессивные действия против victim
-// TRUE - может
-// FALSE - не может
+// true - может
+// false - не может
 int may_kill_here(CHAR_DATA *ch, CHAR_DATA *victim, char *argument);
 
 // проверка на агробд для сетов
@@ -129,7 +129,7 @@ void remove_obj(const OBJ_DATA *obj);
 //ch может быть NULL (лут)
 //victim может быть null (в случае с бросить, аук, продать..)
 //возвращает true, если передача может состояться, и false в противном случае
-bool handle_transfer(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj, OBJ_DATA *container = NULL);
+bool handle_transfer(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj, OBJ_DATA *container = nullptr);
 //Помечает стаф в трупе как кровавый
 void handle_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *killer);
 bool is_bloody(const OBJ_DATA *obj);

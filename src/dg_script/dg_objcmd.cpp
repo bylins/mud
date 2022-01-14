@@ -128,10 +128,10 @@ void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 //	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
-//	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+//	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, true);
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
+	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 // Object commands
 void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -142,7 +142,7 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj_log(obj, "oecho called with no args");
 	} else if ((room = obj_room(obj)) != kNowhere) {
 		if (!world[room]->people.empty()) {
-			sub_write(argument, world[room]->first_character(), TRUE, TO_ROOM | TO_CHAR);
+			sub_write(argument, world[room]->first_character(), true, TO_ROOM | TO_CHAR);
 		}
 	}
 }
@@ -247,9 +247,9 @@ void do_osend(OBJ_DATA *obj, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if ((ch = get_char_by_obj(obj, buf))) {
 		if (subcmd == SCMD_OSEND)
-			sub_write(msg, ch, TRUE, TO_CHAR);
+			sub_write(msg, ch, true, TO_CHAR);
 		else if (subcmd == SCMD_OECHOAROUND)
-			sub_write(msg, ch, TRUE, TO_ROOM);
+			sub_write(msg, ch, true, TO_ROOM);
 	} else
 		obj_log(obj, "no target found for osend");
 }
@@ -296,7 +296,7 @@ void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 // are containers!
 void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
-	CHAR_DATA *wearer = NULL;
+	CHAR_DATA *wearer = nullptr;
 	int pos = -1;
 
 	one_argument(argument, arg);
@@ -307,7 +307,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj_log(obj, "otransform: bad argument");
 	} else {
 		const auto o = world_objects.create_from_prototype_by_vnum(atoi(arg));
-		if (o == NULL) {
+		if (o == nullptr) {
 			obj_log(obj, "otransform: bad object vnum");
 			return;
 		}
@@ -361,7 +361,7 @@ void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| ch->has_master()) {
 		die_follower(ch);
 	}
-	extract_char(ch, FALSE);
+	extract_char(ch, false);
 }
 
 void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -403,7 +403,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			char_from_room(ch);
 			char_to_room(ch, target);
 			ch->dismount();
-			look_at_room(ch, TRUE);
+			look_at_room(ch, true);
 		}
 	}
 	else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
@@ -430,7 +430,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			char_from_room(ch);
 			char_to_room(ch, target);
 			ch->dismount();
-			look_at_room(ch, TRUE);
+			look_at_room(ch, true);
 		}
 	} else {
 		if (!(ch = get_char_by_obj(obj, arg1))) {
@@ -440,7 +440,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (ch->ahorse() || ch->has_horse(true)) {
 			horse = ch->get_horse();
 		} else {
-			horse = NULL;
+			horse = nullptr;
 		}
 		if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
 			ch = ch->get_master();
@@ -459,7 +459,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		char_from_room(ch);
 		char_to_room(ch, target);
 		ch->dismount();
-		look_at_room(ch, TRUE);
+		look_at_room(ch, true);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
 	}
@@ -483,7 +483,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (is_abbrev(arg1, "mob")) {
-		if ((mob = read_mobile(number, VIRTUAL)) == NULL) {
+		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			obj_log(obj, "oload: bad mob vnum");
 			return;
 		}
@@ -544,9 +544,9 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!IS_NPC(ch)) {
 				sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(ch),
 						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, true);
 			}
-			die(ch, NULL);
+			die(ch, nullptr);
 		}
 	} else
 		obj_log(obj, "odamage: target not found");
@@ -577,17 +577,17 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((rm = get_room(target)) == NULL) {
+	if ((rm = get_room(target)) == nullptr) {
 		obj_log(obj, "odoor: invalid target");
 		return;
 	}
 
-	if ((dir = search_block(direction, dirs, FALSE)) == -1) {
+	if ((dir = search_block(direction, dirs, false)) == -1) {
 		obj_log(obj, "odoor: invalid direction");
 		return;
 	}
 
-	if ((fd = search_block(field, door_field, FALSE)) == -1) {
+	if ((fd = search_block(field, door_field, false)) == -1) {
 		obj_log(obj, "odoor: invalid field");
 		return;
 	}

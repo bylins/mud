@@ -24,7 +24,7 @@ void doList(CHAR_DATA *ch, CHAR_DATA *boss, bool isFavList) {
 	m = ch->getMercList();
 	if (m->empty()) {
 		if (ch->get_class() == CLASS_MERCHANT)
-			tell_to_char(boss, ch, "Ступай, поначалу, заведи знакомства, потом ко мне приходи.");
+			tell_to_char(boss, ch, "Ступай, поначалу заведи знакомства, потом ко мне приходи.");
 		else if (ch->get_class() == CLASS_CHARMMAGE)
 			tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
 		else if (IS_IMMORTAL(ch))
@@ -32,7 +32,7 @@ void doList(CHAR_DATA *ch, CHAR_DATA *boss, bool isFavList) {
 		return;
 	}
 	if (IS_IMMORTAL(ch)) {
-		sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел волею своей:",
+		sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел:",
 				isFavList ? "краткий список" : "полный список");
 	} else if (ch->get_class() == CLASS_MERCHANT) {
 		sprintf(buf, "%s тех, с кем знакомство ты водишь:",
@@ -105,12 +105,12 @@ void doBring(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos, char *bank) {
 		mob = read_mobile(rnum, REAL);
 		char_to_room(mob, ch->in_room);
 		if (ch->get_class() == CLASS_CHARMMAGE) {
-			act("$n окрикнул$g своих парней и скрыл$u из виду.", TRUE, boss, 0, 0, TO_ROOM);
-			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", TRUE, mob, 0, 0, TO_ROOM);
+			act("$n окрикнул$g своих парней и скрыл$u из виду.", true, boss, 0, 0, TO_ROOM);
+			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", true, mob, 0, 0, TO_ROOM);
 		} else {
-			act("$n вскочил$g и скрыл$u из виду.", TRUE, boss, 0, 0, TO_ROOM);
+			act("$n вскочил$g и скрыл$u из виду.", true, boss, 0, 0, TO_ROOM);
 			sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
-			act(buf, TRUE, mob, 0, ch, TO_ROOM);
+			act(buf, true, mob, 0, ch, TO_ROOM);
 		}
 		if (!WAITLESS(ch)) {
 			if (isname(bank, "банк bank"))

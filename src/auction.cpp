@@ -28,11 +28,11 @@ extern void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
 extern void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]);
 extern void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll);
 
-AUCTION_DATA auction_lots[MAX_AUCTION_LOT] = {{-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
-											  {-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
-											  {-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0}    /*,
-	{-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
-	{-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0}  */
+AUCTION_DATA auction_lots[MAX_AUCTION_LOT] = {{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
+											  {-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
+											  {-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0}    /*,
+	{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
+	{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0}  */
 };
 
 const char *tact_message[] = {"РАЗ!",
@@ -90,7 +90,7 @@ void showlots(CHAR_DATA *ch) {
 
 bool auction_drive(CHAR_DATA *ch, char *argument) {
 	int mode = -1, value = -1, lot = -1;
-	CHAR_DATA *tch = NULL;
+	CHAR_DATA *tch = nullptr;
 	AUCTION_DATA *lotis;
 	OBJ_DATA *obj;
 	char operation[kMaxInputLength], whom[kMaxInputLength];
@@ -101,7 +101,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 		return false;
 	}
 	argument = one_argument(argument, operation);
-	if ((mode = search_block(operation, auction_cmd, FALSE)) < 0) {
+	if ((mode = search_block(operation, auction_cmd, false)) < 0) {
 		send_to_char("Команды аукциона : поставить, снять, ставка, продать, транспорт, характеристики, рассмотреть.\r\n",
 					 ch);
 		return false;
@@ -181,7 +181,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 			lotis->seller_unique = GET_UNIQUE(ch);
 			lotis->seller = ch;
 			lotis->buyer_unique = lotis->prefect_unique = -1;
-			lotis->buyer = lotis->prefect = NULL;
+			lotis->buyer = lotis->prefect = nullptr;
 			if (tch) {
 				lotis->prefect_unique = GET_UNIQUE(tch);
 				lotis->prefect = tch;
@@ -193,12 +193,12 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 			} else {
 				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s", value, desc_count(value, WHAT_MONEYu));
 			}
-			act(tmpbuf, FALSE, ch, 0, obj, TO_CHAR);
+			act(tmpbuf, false, ch, 0, obj, TO_CHAR);
 			sprintf(tmpbuf,
 					"Аукцион : новый лот %d - %s - начальная ставка %d %s. \r\n",
 					lot, obj->get_PName(0).c_str(), value, desc_count(value, WHAT_MONEYa));
-			message_auction(tmpbuf, NULL);
-			set_wait(ch, 1, FALSE);
+			message_auction(tmpbuf, nullptr);
+			set_wait(ch, 1, false);
 			return true;
 			break;
 		case 1:        // Close
@@ -214,12 +214,12 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 				send_to_char("Это не ваш лот.\r\n", ch);
 				return false;
 			}
-			act("Вы сняли $O3 с аукциона.\r\n", FALSE, ch, 0, GET_LOT(lot)->item, TO_CHAR);
+			act("Вы сняли $O3 с аукциона.\r\n", false, ch, 0, GET_LOT(lot)->item, TO_CHAR);
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) снят%s с аукциона владельцем.\r\n", lot,
 					GET_LOT(lot)->item->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_LOT(lot)->item));
 			clear_auction(lot);
-			message_auction(tmpbuf, NULL);
-			set_wait(ch, 1, FALSE);
+			message_auction(tmpbuf, nullptr);
+			set_wait(ch, 1, false);
 			return true;
 			break;
 		case 2:        // Set
@@ -250,7 +250,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 				sprintf(tmpbuf, "Аукцион : лот %d (%s) снят, ввиду смены владельца.", lot,
 						GET_LOT(lot)->item->get_PName(0).c_str());
 				clear_auction(lot);
-				message_auction(tmpbuf, NULL);
+				message_auction(tmpbuf, nullptr);
 				return true;
 			}
 			if (value < GET_LOT(lot)->cost) {
@@ -282,8 +282,8 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 			send_to_char(tmpbuf, GET_LOT(lot)->seller);
 			sprintf(tmpbuf, "Аукцион : лот %d(%s) - новая ставка %d %s.", lot,
 					GET_LOT(lot)->item->get_PName(0).c_str(), value, desc_count(value, WHAT_MONEYa));
-			message_auction(tmpbuf, NULL);
-			set_wait(ch, 1, FALSE);
+			message_auction(tmpbuf, nullptr);
+			set_wait(ch, 1, false);
 			return true;
 			break;
 
@@ -317,10 +317,10 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 			sell_auction(lot);
 			if (*whom) {
 				strcpy(tmpbuf, whom);
-				message_auction(tmpbuf, NULL);
+				message_auction(tmpbuf, nullptr);
 				return true;
 			}
-			set_wait(ch, 1, FALSE);
+			set_wait(ch, 1, false);
 			return false;
 			break;
 		case 4:        // Transport //
@@ -390,7 +390,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 				strcat(buf, buf2);
 				strcat(buf, "\n");
 			};
-			strcat(buf, diag_weapon_to_char(obj, TRUE));
+			strcat(buf, diag_weapon_to_char(obj, true));
 			strcat(buf, diag_timer_to_char(obj));
 			strcat(buf, "\r\n");
 			obj_info(ch, obj, buf);
@@ -478,7 +478,7 @@ void message_auction(char *message, CHAR_DATA *ch) {
 				send_to_char("&Y&q", i->character.get());
 			}
 
-			act(message, FALSE, i->character.get(), 0, 0, TO_CHAR | TO_SLEEP);
+			act(message, false, i->character.get(), 0, 0, TO_CHAR | TO_SLEEP);
 
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				send_to_char("&Q&n", i->character.get());
@@ -490,9 +490,9 @@ void message_auction(char *message, CHAR_DATA *ch) {
 void clear_auction(int lot) {
 	if (lot < 0 || lot >= MAX_AUCTION_LOT)
 		return;
-	GET_LOT(lot)->seller = GET_LOT(lot)->buyer = GET_LOT(lot)->prefect = NULL;
+	GET_LOT(lot)->seller = GET_LOT(lot)->buyer = GET_LOT(lot)->prefect = nullptr;
 	GET_LOT(lot)->seller_unique = GET_LOT(lot)->buyer_unique = GET_LOT(lot)->prefect_unique = -1;
-	GET_LOT(lot)->item = NULL;
+	GET_LOT(lot)->item = nullptr;
 	GET_LOT(lot)->item_id = -1;
 }
 
@@ -505,13 +505,13 @@ int check_sell(int lot) {
 		|| GET_UNIQUE(ch) != GET_LOT(lot)->seller_unique || !(tch = GET_LOT(lot)->buyer)
 		|| GET_UNIQUE(tch) != GET_LOT(lot)->buyer_unique || !(obj = GET_LOT(lot)->item)
 		|| obj->get_id() != GET_LOT(lot)->item_id)
-		return (FALSE);
+		return (false);
 
 	if (obj->get_carried_by() != ch) {
 		sprintf(tmpbuf, "Аукцион : лот %d(%s) снят, ввиду смены владельца", lot, obj->get_PName(0).c_str());
-		message_auction(tmpbuf, NULL);
+		message_auction(tmpbuf, nullptr);
 		clear_auction(lot);
-		return (FALSE);
+		return (false);
 	}
 
 	if (obj->get_contains()) {
@@ -522,9 +522,9 @@ int check_sell(int lot) {
 					"Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.",
 					lot,
 					obj->get_PName(0).c_str());
-			message_auction(tmpbuf, NULL);
+			message_auction(tmpbuf, nullptr);
 			clear_auction(lot);
-			return (FALSE);
+			return (false);
 		}
 	}
 
@@ -534,12 +534,12 @@ int check_sell(int lot) {
 		sprintf(tmpbuf, "У покупателя %s не хватает денег.\r\n", obj->get_PName(1).c_str());
 		send_to_char(tmpbuf, ch);
 		sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.", lot, obj->get_PName(0).c_str());
-		message_auction(tmpbuf, NULL);
+		message_auction(tmpbuf, nullptr);
 		clear_auction(lot);
-		return (FALSE);
+		return (false);
 	}
 	// Продать можно.
-	return (TRUE);
+	return (true);
 }
 
 void trans_auction(int lot) {
@@ -569,7 +569,7 @@ void trans_auction(int lot) {
 	if (ch->in_room == IN_ROOM(tch)) {
 		// Проверка на нахождение в одной комнате.
 		tmpstr = "$n стоит рядом с вами.";
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_VICT | TO_SLEEP);
 		return;
 	};
 	// Проверяем условия передачи предмета.
@@ -578,26 +578,26 @@ void trans_auction(int lot) {
 	if (NORENTABLE(ch)) {
 		tmpstr = "Завершите боевые действия для передачи " + obj->get_PName(1) + " $N2.\r\n";
 
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_CHAR | TO_SLEEP);
 
 		tmpstr = "$n2 необходимо завершить боевые действия для передачи " + obj->get_PName(1) + " вам.\r\n";
 
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_VICT | TO_SLEEP);
 		return;
 	}
 
 	if (NORENTABLE(tch)) {
 		tmpstr = "Завершите боевые действия для получения денег от $n1.\r\n";
 
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_VICT | TO_SLEEP);
 
 		tmpstr = "$N2 необходимо завершить боевые действия для получения денег от вас.";
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_CHAR | TO_SLEEP);
 		return;
 	}
 
 	if (!bloody::handle_transfer(tch, ch, obj)) {
-		act("$N2 стоит сначала кровь смыть с товара.", FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
+		act("$N2 стоит сначала кровь смыть с товара.", false, ch, 0, tch, TO_CHAR | TO_SLEEP);
 		return;
 	}
 
@@ -605,21 +605,21 @@ void trans_auction(int lot) {
 		// Проверка на то что продавец на ренте.
 		tmpstr = "Вам необходимо прибыть к ближайшей яме для передачи " + obj->get_PName(1) + " $N2.\r\n";
 
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_CHAR | TO_SLEEP);
 
 		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи " + obj->get_PName(1) + " вам.\r\n";
 
-		act(tmpstr.c_str(), FALSE, tch, 0, ch, TO_CHAR | TO_SLEEP);
+		act(tmpstr.c_str(), false, tch, 0, ch, TO_CHAR | TO_SLEEP);
 		return;
 	}
 
 	if (!is_post(IN_ROOM(tch))) {
 		// Проверка на то что продавец на ренте.
 		tmpstr = "Вам необходимо прибыть к ближайшей яме для передачи денег $N2.\r\n";
-		act(tmpstr.c_str(), FALSE, tch, 0, ch, TO_CHAR | TO_SLEEP);
+		act(tmpstr.c_str(), false, tch, 0, ch, TO_CHAR | TO_SLEEP);
 
 		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи денег вам.\r\n";
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_CHAR | TO_SLEEP);
 		return;
 	}
 
@@ -634,40 +634,40 @@ void trans_auction(int lot) {
 // - Забираем предмет у продавца
 	tmpstr = "Перед вами появился слегка трезвый Иван Царевич на Сивке-бурке.";
 
-	act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR);
-	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_CHAR);
+	act(tmpstr.c_str(), false, ch, 0, tch, TO_CHAR);
+	act(tmpstr.c_str(), false, tch, 0, tch, TO_CHAR);
 
 	tmpstr = "Перед $n4 появился Иван-Царевич на Сивке-бурке.";
 
-	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_ROOM);
-	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_ROOM);
+	act(tmpstr.c_str(), false, ch, 0, ch, TO_ROOM);
+	act(tmpstr.c_str(), false, tch, 0, tch, TO_ROOM);
 
-	act("Иван-Царевич дал вам кучку кун.", FALSE, ch, 0, ch, TO_CHAR);
-	act("Иван-Царевич дал гору кун $n2", FALSE, ch, 0, ch, TO_ROOM);
+	act("Иван-Царевич дал вам кучку кун.", false, ch, 0, ch, TO_CHAR);
+	act("Иван-Царевич дал гору кун $n2", false, ch, 0, ch, TO_ROOM);
 
 	tmpstr = "Вы отдали " + obj->get_PName(3) + " Ивану-Царевичу.";
-	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_CHAR);
+	act(tmpstr.c_str(), false, ch, 0, ch, TO_CHAR);
 
 	tmpstr = "$n отдал$g " + obj->get_PName(3) + " Ивану-Царевичу.";
-	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_ROOM);
+	act(tmpstr.c_str(), false, ch, 0, ch, TO_ROOM);
 
-	act("Вы дали кучку кун Ивану-Царевичу.", FALSE, tch, 0, tch, TO_CHAR);
-	act("$n дал$g гору кун Ивану-Царевичу.", FALSE, tch, 0, tch, TO_ROOM);
+	act("Вы дали кучку кун Ивану-Царевичу.", false, tch, 0, tch, TO_CHAR);
+	act("$n дал$g гору кун Ивану-Царевичу.", false, tch, 0, tch, TO_ROOM);
 
 	tmpstr = "Иван-Царевич отдал " + obj->get_PName(3) + " вам.";
-	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_CHAR);
+	act(tmpstr.c_str(), false, tch, 0, tch, TO_CHAR);
 
 	tmpstr = "Иван-Царевич отдал " + obj->get_PName(3) + " $n2.";
-	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_ROOM);
+	act(tmpstr.c_str(), false, tch, 0, tch, TO_ROOM);
 
 	tmpstr = "Иван-Царевич исчез в клубах пыли. На его суме вы заметили надпись:\r\n";
 	tmpstr += "'Иван да Сивка - бЕрежно дОпрем дОбро'.";
 
-	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_CHAR);
-	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_ROOM);
+	act(tmpstr.c_str(), false, ch, 0, ch, TO_CHAR);
+	act(tmpstr.c_str(), false, ch, 0, ch, TO_ROOM);
 
-	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_CHAR);
-	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_ROOM);
+	act(tmpstr.c_str(), false, tch, 0, tch, TO_CHAR);
+	act(tmpstr.c_str(), false, tch, 0, tch, TO_ROOM);
 
 	// Фонить закончили осуществляем обмен.
 
@@ -707,18 +707,18 @@ void sell_auction(int lot) {
 					lot,
 					obj->get_PName(0).c_str());
 
-			message_auction(tmpbuff, NULL);
+			message_auction(tmpbuff, nullptr);
 			clear_auction(lot);
 			return;
 		}
 		tmpstr = "Вам необходимо прибыть в комнату аукциона к $n2 для получения " +
 			obj->get_PName(1) + "\r\nили воспользоваться услугами ямщика.";
 
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_VICT | TO_SLEEP);
 
 		tmpstr = "Вам необходимо прибыть в комнату аукциона к $N2 для получения денег за " + obj->get_PName(3) + ".";
 
-		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
+		act(tmpstr.c_str(), false, ch, 0, tch, TO_CHAR | TO_SLEEP);
 		GET_LOT(lot)->tact = MAX(GET_LOT(lot)->tact, MAX_AUCTION_TACT_BUY);
 		return;
 	}
@@ -783,7 +783,7 @@ void check_auction(CHAR_DATA *ch, OBJ_DATA *obj) {
 					&& (GET_LOT(i)->buyer->get_total_gold() < GET_LOT(i)->cost))) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
 						i, GET_LOT(i)->item->get_PName(0).c_str());
-				message_auction(tmpbuf, NULL);
+				message_auction(tmpbuf, nullptr);
 				clear_auction(i);
 			}
 		}
@@ -794,7 +794,7 @@ void tact_auction(void) {
 	int i;
 	char tmpbuf[kMaxInputLength];
 
-	check_auction(NULL, NULL);
+	check_auction(nullptr, nullptr);
 
 	for (i = 0; i < MAX_AUCTION_LOT; i++) {
 		if (!GET_LOT(i)->seller || !GET_LOT(i)->item)
@@ -803,13 +803,13 @@ void tact_auction(void) {
 			sprintf(tmpbuf, "Аукцион : лот %d(%s), %d %s, %s", i,
 					GET_LOT(i)->item->get_PName(0).c_str(), GET_LOT(i)->cost,
 					desc_count(GET_LOT(i)->cost, WHAT_MONEYa), tact_message[GET_LOT(i)->tact]);
-			message_auction(tmpbuf, NULL);
+			message_auction(tmpbuf, nullptr);
 			continue;
 		} else if (GET_LOT(i)->tact < MAX_AUCTION_TACT_PRESENT) {
 			if (!GET_LOT(i)->buyer) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят распорядителем ввиду отсутствия спроса.",
 						i, GET_LOT(i)->item->get_PName(0).c_str());
-				message_auction(tmpbuf, NULL);
+				message_auction(tmpbuf, nullptr);
 				clear_auction(i);
 				continue;
 			}
@@ -817,7 +817,7 @@ void tact_auction(void) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s), %d %s - ПРОДАНО.",
 						i, GET_LOT(i)->item->get_PName(0).c_str(), GET_LOT(i)->cost,
 						desc_count(GET_LOT(i)->cost, WHAT_MONEYa));
-				message_auction(tmpbuf, NULL);
+				message_auction(tmpbuf, nullptr);
 				GET_LOT(i)->prefect = GET_LOT(i)->buyer;
 				GET_LOT(i)->prefect_unique = GET_LOT(i)->buyer_unique;
 			}
@@ -836,17 +836,17 @@ AUCTION_DATA *free_auction(int *lotnum) {
 		}
 	}
 
-	return (NULL);
+	return (nullptr);
 }
 
 int obj_on_auction(OBJ_DATA *obj) {
 	int i;
 	for (i = 0; i < MAX_AUCTION_LOT; i++) {
 		if (GET_LOT(i)->item == obj && GET_LOT(i)->item_id == obj->get_id())
-			return (TRUE);
+			return (true);
 	}
 
-	return (FALSE);
+	return (false);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

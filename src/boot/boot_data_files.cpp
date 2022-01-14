@@ -51,8 +51,8 @@ void DataFile::close() {
 }
 
 void DataFile::get_one_line(char *buf) {
-	if (fgets(buf, READ_SIZE, file()) == NULL) {
-		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, LVL_IMMORT, SYSLOG, TRUE);
+	if (fgets(buf, READ_SIZE, file()) == nullptr) {
+		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, LVL_IMMORT, SYSLOG, true);
 		buf[0] = '$';
 		buf[1] = 0;
 		return;
@@ -445,9 +445,9 @@ void WorldFile::parse_room(int virtual_nr) {
 	// Обнуляем добавочные параметры комнаты
 	memset(&world[room_nr]->add_property, 0, sizeof(room_property_data));
 
-	world[room_nr]->func = NULL;
-	world[room_nr]->contents = NULL;
-	world[room_nr]->track = NULL;
+	world[room_nr]->func = nullptr;
+	world[room_nr]->contents = nullptr;
+	world[room_nr]->track = nullptr;
 	world[room_nr]->light = 0;    // Zero light sources
 	world[room_nr]->fires = 0;
 	world[room_nr]->gdark = 0;
@@ -455,10 +455,10 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_nr]->proto_script.reset(new OBJ_DATA::triggers_list_t());
 
 	for (i = 0; i < NUM_OF_DIRS; i++) {
-		world[room_nr]->dir_option[i] = NULL;
+		world[room_nr]->dir_option[i] = nullptr;
 	}
 
-	world[room_nr]->ex_description = NULL;
+	world[room_nr]->ex_description = nullptr;
 
 	sprintf(buf, "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
 
@@ -1013,7 +1013,7 @@ void MobileFile::parse_mobile(const int nr) {
 	char f1[128], f2[128];
 	mob_index[i].vnum = nr;
 	mob_index[i].number = 0;
-	mob_index[i].func = NULL;
+	mob_index[i].func = nullptr;
 	mob_index[i].set_idx = -1;
 
 	sprintf(buf2, "mob vnum %d", nr);
@@ -1031,7 +1031,7 @@ void MobileFile::parse_mobile(const int nr) {
 	}
 	mob_proto[i].player_data.long_descr = colorCAP(fread_string());
 	mob_proto[i].player_data.description = fread_string();
-	mob_proto[i].mob_specials.Questor = NULL;
+	mob_proto[i].mob_specials.Questor = nullptr;
 	mob_proto[i].player_data.title = "";
 	mob_proto[i].set_level(1);
 
@@ -1096,11 +1096,11 @@ void MobileFile::parse_mobile(const int nr) {
 	} while (letter != 0);
 
 	for (j = 0; j < NUM_WEARS; j++) {
-		mob_proto[i].equipment[j] = NULL;
+		mob_proto[i].equipment[j] = nullptr;
 	}
 
 	mob_proto[i].set_rnum(i);
-	mob_proto[i].desc = NULL;
+	mob_proto[i].desc = nullptr;
 	if ((mob_proto + 1)->get_level() == 0)
 		set_test_data(mob_proto + i);
 
@@ -1226,13 +1226,13 @@ void MobileFile::parse_enhanced_mob(int i, int nr) {
 void MobileFile::parse_espec(char *buf, int i, int nr) {
 	char *ptr;
 
-	if ((ptr = strchr(buf, ':')) != NULL) {
+	if ((ptr = strchr(buf, ':')) != nullptr) {
 		*(ptr++) = '\0';
 		while (a_isspace(*ptr)) {
 			ptr++;
 		}
 	} else {
-		ptr = NULL;
+		ptr = nullptr;
 	}
 	interpret_espec(buf, ptr, i, nr);
 }
@@ -1519,9 +1519,9 @@ bool ZoneFile::load_zone() {
 
 	zone.typeA_count = 0;
 	zone.typeB_count = 0;
-	zone.locked = FALSE;
-	zone.reset_idle = FALSE;
-	zone.used = FALSE;
+	zone.locked = false;
+	zone.reset_idle = false;
+	zone.used = false;
 	zone.activity = 0;
 	zone.comment = nullptr;
 	zone.location = nullptr;
@@ -1595,7 +1595,7 @@ bool ZoneFile::load_regular_zone() {
 		CREATE(zone.typeB_flag, zone.typeB_count);
 		// сбрасываем все флаги
 		for (b_number = zone.typeB_count; b_number > 0; b_number--) {
-			zone.typeB_flag[b_number - 1] = FALSE;
+			zone.typeB_flag[b_number - 1] = false;
 		}
 	}
 
@@ -1735,7 +1735,7 @@ bool ZoneFile::load_regular_zone() {
 		auto if_flag = 0;
 		auto error = 0;
 		zone.cmd[cmd_no].arg4 = -1;
-		if (strchr("MOEGPDTVQF", zone.cmd[cmd_no].command) == NULL)    // a 3-arg command
+		if (strchr("MOEGPDTVQF", zone.cmd[cmd_no].command) == nullptr)    // a 3-arg command
 		{
 			const auto count = sscanf(ptr, " %d %d %d ",
 									  &if_flag,
@@ -1834,7 +1834,7 @@ bool HelpFile::load_help() {
 			if ((*line == '$') && (*(line + 1) == 0)) {
 				std::stringstream str_log;
 				str_log << "SYSERR: unexpected EOF in help file: \"" << file_name() << "\"";
-				mudlog(str_log.str().c_str(), DEF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(str_log.str().c_str(), DEF, LVL_IMMORT, SYSLOG, true);
 				break;
 			}
 			strcat(entry, strcat(line, "\r\n"));

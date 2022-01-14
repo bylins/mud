@@ -1040,7 +1040,7 @@ void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj) {
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "all");
 	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
-	act("$o рассыпал$U в ваших руках...", FALSE, ch, obj, 0, TO_CHAR);
+	act("$o рассыпал$U в ваших руках...", false, ch, obj, 0, TO_CHAR);
 	extract_obj(obj);
 }
 

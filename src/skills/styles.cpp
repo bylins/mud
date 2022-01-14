@@ -15,7 +15,7 @@ void go_touch(CHAR_DATA *ch, CHAR_DATA *vict) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	act("Вы попытаетесь перехватить следующую атаку $N1.", FALSE, ch, 0, vict, TO_CHAR);
+	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, 0, vict, TO_CHAR);
 	SET_AF_BATTLE(ch, EAF_TOUCH);
 	ch->set_touching(vict);
 }
@@ -63,7 +63,7 @@ void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (vict->get_fighting() != ch && ch->get_fighting() != vict) {
-		act("Но вы не сражаетесь с $N4.", FALSE, ch, 0, vict, TO_CHAR);
+		act("Но вы не сражаетесь с $N4.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT)) {
@@ -144,7 +144,7 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (tryFlipActivatedFeature(ch, argument)) {
 		return;
 	}
-	if ((tp = search_block(arg, cstyles, FALSE)) == -1) {
+	if ((tp = search_block(arg, cstyles, false)) == -1) {
 		send_to_char("Формат: стиль { название стиля }\r\n", ch);
 		return;
 	}

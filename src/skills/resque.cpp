@@ -11,7 +11,7 @@ using namespace FightSystem;
 // ******************* RESCUE PROCEDURES
 void fighting_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
 	if (vict->get_fighting() == tmp_ch)
-		stop_fighting(vict, FALSE);
+		stop_fighting(vict, false);
 	if (ch->get_fighting())
 		ch->set_fighting(tmp_ch);
 	else
@@ -44,8 +44,7 @@ void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
 	bool success = percent <= prob;
 	SendSkillBalanceMsg(ch, skill_info[SKILL_RESCUE].name, percent, prob, success);
 	if (!success) {
-		act("Вы безуспешно пытались спасти $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		//set_wait(ch, 1, FALSE);
+		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, TO_CHAR);
 		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, PULSE_VIOLENCE);
 		return;
 	}
@@ -53,9 +52,9 @@ void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
 	if (!pk_agro_action(ch, tmp_ch))
 		return;
 
-	act("Хвала Богам, вы героически спасли $N3!", FALSE, ch, 0, vict, TO_CHAR);
-	act("Вы были спасены $N4. Вы чувствуете себя Иудой!", FALSE, vict, 0, ch, TO_CHAR);
-	act("$n героически спас$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+	act("Хвала Богам, вы героически спасли $N3!", false, ch, 0, vict, TO_CHAR);
+	act("Вы были спасены $N4. Вы чувствуете себя Иудой!", false, vict, 0, ch, TO_CHAR);
+	act("$n героически спас$q $N3!", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 
 	int hostilesCounter = 0;
 	if (can_use_feat(ch, LIVE_SHIELD_FEAT)) {
@@ -69,10 +68,9 @@ void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
 	} else {
 		fighting_rescue(ch, vict, tmp_ch);
 	}
-	//set_wait(ch, 1, FALSE);
 	setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
 	setSkillCooldown(ch, SKILL_RESCUE, 1 + hostilesCounter);
-	set_wait(vict, 2, FALSE);
+	set_wait(vict, 2, false);
 }
 
 void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -109,7 +107,7 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!enemy) {
-		act("Но никто не сражается с $N4!", FALSE, ch, 0, vict, TO_CHAR);
+		act("Но никто не сражается с $N4!", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
@@ -135,8 +133,8 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 			&& vict->has_master()
 			&& !same_group(vict->get_master(), ch->get_master())) {
-			act("Спасали бы вы лучше другов своих.", FALSE, ch, 0, vict, TO_CHAR);
-			act("Вы не можете спасти весь мир.", FALSE, ch->get_master(), 0, vict, TO_CHAR);
+			act("Спасали бы вы лучше другов своих.", false, ch, 0, vict, TO_CHAR);
+			act("Вы не можете спасти весь мир.", false, ch->get_master(), 0, vict, TO_CHAR);
 			return;
 		}
 	}

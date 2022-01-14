@@ -40,7 +40,7 @@ void do_turn_undead(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 
 	send_to_char(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n",
-		FALSE,
+		false,
 		ch,
 		0,
 		0,
@@ -66,9 +66,9 @@ void do_turn_undead(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 				victimssHPAmount -= turnUndeadDamage.dam;
 			};
 		} else if (turnUndeadRoll.isCriticalFail() && !IS_CHARMICE(target)) {
-			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n", FALSE, target, 0, ch, TO_VICT);
+			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n", false, target, 0, ch, TO_VICT);
 			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n",
-				FALSE,
+				false,
 				target,
 				0,
 				ch,
@@ -86,8 +86,8 @@ void do_turn_undead(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 			af[1].location = APPLY_HITREG;
 			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			af[1].battleflag = 0;
-			affect_join(target, af[0], TRUE, FALSE, TRUE, FALSE);
-			affect_join(target, af[1], TRUE, FALSE, TRUE, FALSE);
+			affect_join(target, af[0], true, false, true, false);
+			affect_join(target, af[1], true, false, true, false);
 		};
 		turnUndeadDamage.process(ch, target);
 		if (!target->purged() && turnUndeadRoll.isSuccess() && !MOB_FLAGGED(target, MOB_NOFEAR)
@@ -99,7 +99,7 @@ void do_turn_undead(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 			break;
 		};
 	};
-	//set_wait(ch, 1, TRUE);
+	//set_wait(ch, 1, true);
 	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 	setSkillCooldownInFight(ch, SKILL_TURN_UNDEAD, 2);
 }

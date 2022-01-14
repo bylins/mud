@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "world_objects.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "skills/townportal.h"
 #include "handler.h"
 #include "screen.h"
@@ -108,7 +108,7 @@ void handle_recall_spells(CHAR_DATA *ch) {
 		int slot_to_restore = aff->modifier++;
 
 		bool found_spells = false;
-		struct spell_mem_queue_item *next = NULL, *prev = NULL, *i = ch->MemQueue.queue;
+		struct spell_mem_queue_item *next = nullptr, *prev = nullptr, *i = ch->MemQueue.queue;
 		while (i) {
 			next = i->link;
 			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) {
@@ -146,7 +146,7 @@ void handle_recall_spells(CHAR_DATA::shared_ptr &ch) { handle_recall_spells(ch.g
 // manapoint gain pr. game hour
 int mana_gain(const CHAR_DATA *ch) {
 	int gain = 0, restore = int_app[GET_REAL_INT(ch)].mana_per_tic, percent = 100;
-	int stopmem = FALSE;
+	int stopmem = false;
 
 	if (IS_NPC(ch)) {
 		gain = GET_REAL_LEVEL(ch);
@@ -192,7 +192,7 @@ int mana_gain(const CHAR_DATA *ch) {
 				if (IS_MANA_CASTER(ch)) {
 					percent += 80;
 				} else {
-					stopmem = TRUE;
+					stopmem = true;
 					percent = 0;
 				}
 				break;
@@ -201,7 +201,7 @@ int mana_gain(const CHAR_DATA *ch) {
 			case POS_SITTING: percent += 30;
 				break;
 			case POS_STANDING: break;
-			default: stopmem = TRUE;
+			default: stopmem = true;
 				percent = 0;
 				break;
 		}
@@ -211,7 +211,7 @@ int mana_gain(const CHAR_DATA *ch) {
 			AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) ||
 			AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) ||
 			((ch->in_room != kNowhere) && IS_DARK(ch->in_room) && !can_use_feat(ch, DARK_READING_FEAT)))) {
-		stopmem = TRUE;
+		stopmem = true;
 		percent = 0;
 	}
 
@@ -342,7 +342,7 @@ int move_gain(CHAR_DATA *ch) {
 int move_gain(const CHAR_DATA::shared_ptr &ch) { return move_gain(ch.get()); }
 
 #define MINUTE            60
-#define UPDATE_PC_ON_BEAT TRUE
+#define UPDATE_PC_ON_BEAT true
 
 int interpolate(int min_value, int pulse) {
 	int sign = 1, int_p, frac_p, i, carry, x, y;
@@ -355,7 +355,7 @@ int interpolate(int min_value, int pulse) {
 	frac_p = min_value % MINUTE;
 	if (!frac_p)
 		return (sign * int_p);
-	pulse = time(NULL) % MINUTE + 1;
+	pulse = time(nullptr) % MINUTE + 1;
 	x = MINUTE;
 	y = 0;
 	for (i = 0, carry = 0; i <= pulse; i++) {
@@ -371,7 +371,7 @@ int interpolate(int min_value, int pulse) {
 void beat_punish(const CHAR_DATA::shared_ptr &i) {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
-	if (PLR_FLAGGED(i, PLR_HELLED) && HELL_DURATION(i) && HELL_DURATION(i) <= time(NULL)) {
+	if (PLR_FLAGGED(i, PLR_HELLED) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
 		restore = PLR_TOG_CHK(i, PLR_HELLED);
 		if (HELL_REASON(i))
 			free(HELL_REASON(i));
@@ -392,12 +392,12 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 		char_from_room(i);
 		char_to_room(i, restore);
 		look_at_room(i.get(), restore);
-		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.", FALSE, i.get(), 0, 0, TO_ROOM);
+		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, TO_ROOM);
 	}
 
 	if (PLR_FLAGGED(i, PLR_NAMED)
 		&& NAME_DURATION(i)
-		&& NAME_DURATION(i) <= time(NULL)) {
+		&& NAME_DURATION(i) <= time(nullptr)) {
 		restore = PLR_TOG_CHK(i, PLR_NAMED);
 		if (NAME_REASON(i)) {
 			free(NAME_REASON(i));
@@ -425,12 +425,12 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 		char_from_room(i);
 		char_to_room(i, restore);
 		look_at_room(i.get(), restore);
-		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.", FALSE, i.get(), 0, 0, TO_ROOM);
+		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, TO_ROOM);
 	}
 
 	if (PLR_FLAGGED(i, PLR_MUTE)
 		&& MUTE_DURATION(i) != 0
-		&& MUTE_DURATION(i) <= time(NULL)) {
+		&& MUTE_DURATION(i) <= time(nullptr)) {
 		restore = PLR_TOG_CHK(i, PLR_MUTE);
 		if (MUTE_REASON(i))
 			free(MUTE_REASON(i));
@@ -443,7 +443,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 
 	if (PLR_FLAGGED(i, PLR_DUMB)
 		&& DUMB_DURATION(i) != 0
-		&& DUMB_DURATION(i) <= time(NULL)) {
+		&& DUMB_DURATION(i) <= time(nullptr)) {
 		restore = PLR_TOG_CHK(i, PLR_DUMB);
 		if (DUMB_REASON(i))
 			free(DUMB_REASON(i));
@@ -456,7 +456,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 
 	if (!PLR_FLAGGED(i, PLR_REGISTERED)
 		&& UNREG_DURATION(i) != 0
-		&& UNREG_DURATION(i) <= time(NULL)) {
+		&& UNREG_DURATION(i) <= time(nullptr)) {
 		restore = PLR_TOG_CHK(i, PLR_REGISTERED);
 		if (UNREG_REASON(i))
 			free(UNREG_REASON(i));
@@ -486,28 +486,28 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 			look_at_room(i.get(), restore);
 
 			act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!",
-				FALSE, i.get(), 0, 0, TO_ROOM);
+				false, i.get(), 0, 0, TO_ROOM);
 		};
 
 	}
 
 	if (GET_GOD_FLAG(i, GF_GODSLIKE)
 		&& GCURSE_DURATION(i) != 0
-		&& GCURSE_DURATION(i) <= time(NULL)) {
+		&& GCURSE_DURATION(i) <= time(nullptr)) {
 		CLR_GOD_FLAG(i, GF_GODSLIKE);
 		send_to_char("Вы более не под защитой Богов.\r\n", i.get());
 	}
 
 	if (GET_GOD_FLAG(i, GF_GODSCURSE)
 		&& GCURSE_DURATION(i) != 0
-		&& GCURSE_DURATION(i) <= time(NULL)) {
+		&& GCURSE_DURATION(i) <= time(nullptr)) {
 		CLR_GOD_FLAG(i, GF_GODSCURSE);
 		send_to_char("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
 	if (PLR_FLAGGED(i, PLR_FROZEN)
 		&& FREEZE_DURATION(i) != 0
-		&& FREEZE_DURATION(i) <= time(NULL)) {
+		&& FREEZE_DURATION(i) <= time(nullptr)) {
 		restore = PLR_TOG_CHK(i, PLR_FROZEN);
 		if (FREEZE_REASON(i)) {
 			free(FREEZE_REASON(i));
@@ -532,7 +532,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 		char_to_room(i, restore);
 		look_at_room(i.get(), restore);
 		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.",
-			FALSE, i.get(), 0, 0, TO_ROOM);
+			false, i.get(), 0, 0, TO_ROOM);
 	}
 
 	// Проверяем а там ли мы где должны быть по флагам.
@@ -548,7 +548,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 				i->set_was_in_room(r_helled_start_room);
 			} else {
 				send_to_char("Чья-то злая воля вернула вас в темницу.\r\n", i.get());
-				act("$n возвращен$a в темницу.", FALSE, i.get(), 0, 0, TO_ROOM);
+				act("$n возвращен$a в темницу.", false, i.get(), 0, 0, TO_ROOM);
 
 				char_from_room(i);
 				char_to_room(i, r_helled_start_room);
@@ -563,7 +563,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 				i->set_was_in_room(r_named_start_room);
 			} else {
 				send_to_char("Чья-то злая воля вернула вас в комнату имени.\r\n", i.get());
-				act("$n возвращен$a в комнату имени.", FALSE, i.get(), 0, 0, TO_ROOM);
+				act("$n возвращен$a в комнату имени.", false, i.get(), 0, 0, TO_ROOM);
 				char_from_room(i);
 				char_to_room(i, r_named_start_room);
 				look_at_room(i.get(), r_named_start_room);
@@ -580,7 +580,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 				i->set_was_in_room(r_unreg_start_room);
 			} else {
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
-					FALSE, i.get(), 0, 0, TO_ROOM);
+					false, i.get(), 0, 0, TO_ROOM);
 
 				char_from_room(i);
 				char_to_room(i, r_unreg_start_room);
@@ -591,7 +591,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 		} else if (restore == r_unreg_start_room && check_dupes_host(i->desc, 1) && !IS_IMMORTAL(i)) {
 			send_to_char("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
 			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
-				FALSE, i.get(), 0, 0, TO_ROOM);
+				false, i.get(), 0, 0, TO_ROOM);
 			restore = i->get_was_in_room();
 			if (restore == kNowhere
 				|| restore == r_unreg_start_room) {
@@ -627,14 +627,14 @@ void beat_points_update(int pulse) {
 			return;
 		}
 
-		if (NORENTABLE(i) <= time(NULL)) {
+		if (NORENTABLE(i) <= time(nullptr)) {
 			NORENTABLE(i) = 0;
 			AGRESSOR(i) = 0;
 			AGRO(i) = 0;
 			i->agrobd = false;
 		}
 
-		if (AGRO(i) < time(NULL)) {
+		if (AGRO(i) < time(nullptr)) {
 			AGRO(i) = 0;
 		}
 		beat_punish(i);
@@ -694,10 +694,10 @@ void beat_points_update(int pulse) {
 			if (MEMQUEUE_EMPTY(i)) {
 				if (GET_RELIGION(i) == kReligionMono) {
 					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
-					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", FALSE, i.get(), 0, 0, TO_ROOM);
+					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", false, i.get(), 0, 0, TO_ROOM);
 				} else {
 					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i.get());
-					act("Окончив занятия, $n с улыбкой убрал$g резы.", FALSE, i.get(), 0, 0, TO_ROOM);
+					act("Окончив занятия, $n с улыбкой убрал$g резы.", false, i.get(), 0, 0, TO_ROOM);
 				}
 			}
 		}
@@ -751,7 +751,7 @@ void update_clan_exp(CHAR_DATA *ch, int gain) {
 }
 
 void gain_exp(CHAR_DATA *ch, int gain) {
-	int is_altered = FALSE;
+	int is_altered = false;
 	int num_levels = 0;
 	char buf[128];
 
@@ -789,13 +789,13 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 			sprintf(buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			advance_level(ch);
-			is_altered = TRUE;
+			is_altered = true;
 		}
 
 		if (is_altered) {
 			sprintf(buf, "%s advanced %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
-			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
 		}
 	} else if (gain < 0 && GET_REAL_LEVEL(ch) < LVL_IMMORT) {
 		gain = MAX(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
@@ -808,12 +808,12 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 					CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			decrease_level(ch);
-			is_altered = TRUE;
+			is_altered = true;
 		}
 		if (is_altered) {
 			sprintf(buf, "%s decreases %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
-			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+			mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
 		}
 	}
 	if ((GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
@@ -833,7 +833,7 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 
 // юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
 void gain_exp_regardless(CHAR_DATA *ch, int gain) {
-	int is_altered = FALSE;
+	int is_altered = false;
 	int num_levels = 0;
 
 	ch->set_exp(ch->get_exp() + gain);
@@ -847,13 +847,13 @@ void gain_exp_regardless(CHAR_DATA *ch, int gain) {
 				send_to_char(buf, ch);
 
 				advance_level(ch);
-				is_altered = TRUE;
+				is_altered = true;
 			}
 
 			if (is_altered) {
 				sprintf(buf, "%s advanced %d level%s to level %d.",
 						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+				mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
 			}
 		} else if (gain < 0) {
 			// Pereplut: глупый участок кода.
@@ -869,12 +869,12 @@ void gain_exp_regardless(CHAR_DATA *ch, int gain) {
 						CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				decrease_level(ch);
-				is_altered = TRUE;
+				is_altered = true;
 			}
 			if (is_altered) {
 				sprintf(buf, "%s decreases %d level%s to level %d.",
 						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+				mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
 			}
 		}
 
@@ -991,10 +991,10 @@ void check_idling(CHAR_DATA *ch) {
 				}
 				ch->set_was_in_room(ch->in_room);
 				if (ch->get_fighting()) {
-					stop_fighting(ch->get_fighting(), FALSE);
-					stop_fighting(ch, TRUE);
+					stop_fighting(ch->get_fighting(), false);
+					stop_fighting(ch, true);
 				}
-				act("$n растворил$u в пустоте.", TRUE, ch, 0, 0, TO_ROOM);
+				act("$n растворил$u в пустоте.", true, ch, 0, 0, TO_ROOM);
 				send_to_char("Вы пропали в пустоте этого мира.\r\n", ch);
 
 				Crash_crashsave(ch);
@@ -1009,8 +1009,8 @@ void check_idling(CHAR_DATA *ch) {
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-				extract_char(ch, FALSE);
+				mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+				extract_char(ch, false);
 
 				// чара в лд уже посейвило при обрыве коннекта
 				if (ch->desc) {
@@ -1019,8 +1019,8 @@ void check_idling(CHAR_DATA *ch) {
 					* For the 'if (d->character)' test in close_socket().
 					* -gg 3/1/98 (Happy anniversary.)
 					*/
-					ch->desc->character = NULL;
-					ch->desc = NULL;
+					ch->desc->character = nullptr;
+					ch->desc = nullptr;
 				}
 
 			}
@@ -1075,7 +1075,7 @@ void hour_update(void) {
 	DESCRIPTOR_DATA *i;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == NULL || PLR_FLAGGED(i->character, PLR_WRITING))
+		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, PLR_WRITING))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
 		SEND_TO_Q(buf, i);
@@ -1096,8 +1096,8 @@ void room_point_update() {
 			}
 			world[count]->fires -= MIN(mana, world[count]->fires);
 			if (world[count]->fires <= 0) {
-				act("Костер затух.", FALSE, world[count]->first_character(), 0, 0, TO_ROOM);
-				act("Костер затух.", FALSE, world[count]->first_character(), 0, 0, TO_CHAR);
+				act("Костер затух.", false, world[count]->first_character(), 0, 0, TO_ROOM);
+				act("Костер затух.", false, world[count]->first_character(), 0, 0, TO_CHAR);
 
 				world[count]->fires = 0;
 			}
@@ -1108,15 +1108,15 @@ void room_point_update() {
 			if (!world[count]->portal_time) {
 				OneWayPortal::remove(world[count]);
 				world[count]->pkPenterUnique = 0;
-				act("Пентаграмма медленно растаяла.", FALSE, world[count]->first_character(), 0, 0, TO_ROOM);
-				act("Пентаграмма медленно растаяла.", FALSE, world[count]->first_character(), 0, 0, TO_CHAR);
+				act("Пентаграмма медленно растаяла.", false, world[count]->first_character(), 0, 0, TO_ROOM);
+				act("Пентаграмма медленно растаяла.", false, world[count]->first_character(), 0, 0, TO_CHAR);
 			}
 		}
 		if (world[count]->holes) {
 			world[count]->holes--;
 			if (!world[count]->holes || roundup(world[count]->holes) == world[count]->holes) {
-				act("Ямку присыпало землей...", FALSE, world[count]->first_character(), 0, 0, TO_ROOM);
-				act("Ямку присыпало землей...", FALSE, world[count]->first_character(), 0, 0, TO_CHAR);
+				act("Ямку присыпало землей...", false, world[count]->first_character(), 0, 0, TO_ROOM);
+				act("Ямку присыпало землей...", false, world[count]->first_character(), 0, 0, TO_CHAR);
 			}
 		}
 		if (world[count]->ices)
@@ -1130,7 +1130,7 @@ void room_point_update() {
 
 		struct track_data *track, *next_track, *temp;
 		int spellnum;
-		for (track = world[count]->track, temp = NULL; track; track = next_track) {
+		for (track = world[count]->track, temp = nullptr; track; track = next_track) {
 			next_track = track->next;
 			switch (real_sector(count)) {
 				case kSectOnlyFlying:
@@ -1168,12 +1168,12 @@ void room_point_update() {
 			}
 
 			int restore;
-			for (mana = 0, restore = FALSE; mana < NUM_OF_DIRS; mana++) {
+			for (mana = 0, restore = false; mana < NUM_OF_DIRS; mana++) {
 				if ((track->time_income[mana] <<= spellnum)) {
-					restore = TRUE;
+					restore = true;
 				}
 				if ((track->time_outgone[mana] <<= spellnum)) {
-					restore = TRUE;
+					restore = true;
 				}
 			}
 			if (!restore) {
@@ -1188,7 +1188,7 @@ void room_point_update() {
 			}
 		}
 
-		check_death_ice(count, NULL);
+		check_death_ice(count, nullptr);
 	}
 }
 
@@ -1219,7 +1219,7 @@ void clan_chest_invoice(OBJ_DATA *j) {
 	if (room <= 0) {
 		snprintf(buf, sizeof(buf), "clan_chest_invoice: room=%d, obj_vnum=%d",
 				 room, GET_OBJ_VNUM(j));
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 		return;
 	}
 
@@ -1390,18 +1390,18 @@ void obj_point_update() {
 
 				// Конец Ладник
 				if (j->get_carried_by()) {
-					act("$p рассыпал$U в ваших руках.", FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
+					act("$p рассыпал$U в ваших руках.", false, j->get_carried_by(), j.get(), 0, TO_CHAR);
 					obj_from_char(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("Черви полностью сожрали $o3.",
-							TRUE,
+							true,
 							world[j->get_in_room()]->first_character(),
 							j.get(),
 							0,
 							TO_ROOM);
 						act("Черви не оставили от $o1 и следа.",
-							TRUE,
+							true,
 							world[j->get_in_room()]->first_character(),
 							j.get(),
 							0,
@@ -1476,7 +1476,7 @@ void obj_point_update() {
 							} else {
 								snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
 										 char_get_custom_label(j.get(), j->get_worn_by()).c_str());
-								act(buf, FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
+								act(buf, false, j->get_worn_by(), j.get(), 0, TO_CHAR);
 							}
 							break;
 
@@ -1486,7 +1486,7 @@ void obj_point_update() {
 							} else {
 								snprintf(buf, kMaxStringLength, "$o%s рассыпал$U прямо на вас...",
 										 char_get_custom_label(j.get(), j->get_worn_by()).c_str());
-								act(buf, FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
+								act(buf, false, j->get_worn_by(), j.get(), 0, TO_CHAR);
 							}
 							break;
 					}
@@ -1497,27 +1497,27 @@ void obj_point_update() {
 					} else {
 						snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
 								 char_get_custom_label(j.get(), j->get_carried_by()).c_str());
-						act(buf, FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
+						act(buf, false, j->get_carried_by(), j.get(), 0, TO_CHAR);
 					}
 					obj_from_char(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (j->get_timer() <= 0 && j->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
 								 GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->room_vn);
-						mudlog(buf, CMP, LVL_GRGOD, ERRLOG, TRUE);
+						mudlog(buf, CMP, LVL_GRGOD, ERRLOG, true);
 
 					}
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("$o рассыпал$U в прах, который был развеян ветром...",
-							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
+							false, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
 						act("$o рассыпал$U в прах, который был развеян ветром...",
-							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
+							false, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
 					}
 
 					obj_from_room(j.get());
 				} else if (j->get_in_obj()) {
 					// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
-					CHAR_DATA *cont_owner = NULL;
+					CHAR_DATA *cont_owner = nullptr;
 					if (j->get_in_obj()->get_carried_by()) {
 						cont_owner = j->get_in_obj()->get_carried_by();
 					} else if (j->get_in_obj()->get_worn_by()) {
@@ -1533,7 +1533,7 @@ void obj_point_update() {
 									 char_get_custom_label(j.get(), cont_owner).c_str(),
 									 j->get_in_obj()->get_PName(5).c_str(),
 									 char_get_custom_label(j->get_in_obj(), cont_owner).c_str());
-							act(buf, FALSE, cont_owner, j.get(), 0, TO_CHAR);
+							act(buf, false, cont_owner, j.get(), 0, TO_CHAR);
 						}
 					}
 					obj_from_obj(j.get());
@@ -1585,7 +1585,7 @@ void point_update(void) {
 			&& GET_POS(i) > POS_SLEEPING) {
 			GET_POS(i) = POS_SLEEPING;
 			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
-			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", TRUE, i, 0, 0, TO_ROOM);
+			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", true, i, 0, 0, TO_ROOM);
 		}
 
 		if (!IS_NPC(i)) {
@@ -1671,7 +1671,7 @@ void point_update(void) {
 				}
 
 				// Forget PC's
-				for (mem = MEMORY(i), pmem = NULL; mem; mem = nmem) {
+				for (mem = MEMORY(i), pmem = nullptr; mem; mem = nmem) {
 					nmem = mem->next;
 					if (mem->time <= 0
 						&& i->get_fighting()) {
@@ -1679,7 +1679,7 @@ void point_update(void) {
 						continue;
 					}
 
-					if (mem->time < time(NULL)
+					if (mem->time < time(nullptr)
 						|| mem->time <= 0) {
 						if (pmem) {
 							pmem->next = nmem;
@@ -1760,16 +1760,16 @@ void repop_decay(zone_rnum zone) {
 		if (obj_zone_num == zone_num
 			&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {
 			if (j->get_worn_by()) {
-				act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
+				act("$o рассыпал$U, вспыхнув ярким светом...", false, j->get_worn_by(), j.get(), 0, TO_CHAR);
 			} else if (j->get_carried_by()) {
 				act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
-					FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
+					false, j->get_carried_by(), j.get(), 0, TO_CHAR);
 			} else if (j->get_in_room() != kNowhere) {
 				if (!world[j->get_in_room()]->people.empty()) {
 					act("$o рассыпал$U, вспыхнув ярким светом...",
-						FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
+						false, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
 					act("$o рассыпал$U, вспыхнув ярким светом...",
-						FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
+						false, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
 				}
 			} else if (j->get_in_obj()) {
 				CHAR_DATA *owner = nullptr;
@@ -1783,7 +1783,7 @@ void repop_decay(zone_rnum zone) {
 				if (owner) {
 					char buf[kMaxStringLength];
 					snprintf(buf, kMaxStringLength, "$o рассыпал$U в %s...", j->get_in_obj()->get_PName(5).c_str());
-					act(buf, FALSE, owner, j.get(), 0, TO_CHAR);
+					act(buf, false, owner, j.get(), 0, TO_CHAR);
 				}
 			}
 

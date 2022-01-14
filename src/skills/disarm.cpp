@@ -60,7 +60,7 @@ void go_disarm(CHAR_DATA *ch, CHAR_DATA *vict) {
 					 CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 		send_to_char(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
-		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		unequip_char(vict, pos, CharEquipFlags());
 		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, IS_NPC(vict) ? 1 : 2);
 		prob = 2;
@@ -120,7 +120,7 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_disarm(ch, vict);
 	} else if (isHaveNoExtraAttack(ch)) {
-		act("Хорошо. Вы попытаетесь разоружить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, 0, vict, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_DISARM, vict);
 	}
 }

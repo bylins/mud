@@ -22,13 +22,13 @@ void go_iron_wind(CHAR_DATA *ch, CHAR_DATA *victim) {
 		return;
 	}
 	if (ch->get_fighting() && (ch->get_fighting() != victim)) {
-		act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N не сражается с вами, не трогайте $S.", false, ch, 0, victim, TO_CHAR);
 		return;
 	}
 
 	parry_override(ch);
 
-	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", FALSE, ch, 0, victim, TO_CHAR);
+	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", false, ch, 0, victim, TO_CHAR);
 	OBJ_DATA *weapon;
 	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS))) {
 		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!");
@@ -37,14 +37,14 @@ void go_iron_wind(CHAR_DATA *ch, CHAR_DATA *victim) {
 		strcpy(buf, "$n бешено взревел$g и ринул$u на $N3!");
 		strcpy(buf2, "$N бешено взревел$G и ринул$U на вас!");
 	};
-	act(buf, FALSE, ch, weapon, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-	act(buf2, FALSE, victim, weapon, ch, TO_CHAR);
+	act(buf, false, ch, weapon, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+	act(buf2, false, victim, weapon, ch, TO_CHAR);
 
 	if (!ch->get_fighting()) {
 		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
 		hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
-		set_wait(ch, 2, TRUE);
+		set_wait(ch, 2, true);
 		//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 		//ch->setSkillCooldown(SKILL_IRON_WIND, 2);
 	} else {

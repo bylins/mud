@@ -15,7 +15,7 @@ void go_protect(CHAR_DATA *ch, CHAR_DATA *vict) {
 	}
 
 	ch->set_protecting(vict);
-	act("Вы попытаетесь прикрыть $N3 от нападения.", FALSE, ch, 0, vict, TO_CHAR);
+	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, TO_CHAR);
 	SET_AF_BATTLE(ch, EAF_PROTECT);
 }
 
@@ -104,12 +104,12 @@ CHAR_DATA *try_protect(CHAR_DATA *victim, CHAR_DATA *ch) {
 			&& GET_POS(vict) >= POS_FIGHTING) {
 			if (vict == ch) {
 				act("Вы попытались напасть на того, кого прикрывали, и замерли в глубокой задумчивости.",
-					FALSE,
+					false,
 					vict,
 					0,
 					victim,
 					TO_CHAR);
-				act("$N пытается напасть на вас! Лучше бы вам отойти.", FALSE, victim, 0, vict, TO_CHAR);
+				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, TO_CHAR);
 				vict->set_protecting(0);
 				vict->BattleAffects.unset(EAF_PROTECT);
 				WAIT_STATE(vict, PULSE_VIOLENCE);
@@ -120,7 +120,7 @@ CHAR_DATA *try_protect(CHAR_DATA *victim, CHAR_DATA *ch) {
 				af.modifier = 0;
 				af.duration = pc_duration(vict, 1, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
+				affect_join(vict, af, true, false, true, false);
 				return victim;
 			}
 
@@ -152,28 +152,28 @@ CHAR_DATA *try_protect(CHAR_DATA *victim, CHAR_DATA *ch) {
 				if (!may_kill_here(vict, ch, NoArgument))
 					continue;
 				// Вписываемся в противника прикрываемого ...
-				stop_fighting(vict, FALSE);
+				stop_fighting(vict, false);
 				set_fighting(vict, ch);
 			}
 
 			if (!success) {
-				act("Вы не смогли прикрыть $N3.", FALSE, vict, 0, victim, TO_CHAR);
-				act("$N не смог$Q прикрыть вас.", FALSE, victim, 0, vict, TO_CHAR);
-				act("$n не смог$q прикрыть $N3.", TRUE, vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-				//set_wait(vict, 3, TRUE);
+				act("Вы не смогли прикрыть $N3.", false, vict, 0, victim, TO_CHAR);
+				act("$N не смог$Q прикрыть вас.", false, victim, 0, vict, TO_CHAR);
+				act("$n не смог$q прикрыть $N3.", true, vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				//set_wait(vict, 3, true);
 				setSkillCooldownInFight(vict, SKILL_GLOBAL_COOLDOWN, 3);
 			} else {
 				if (!pk_agro_action(vict, ch))
 					return victim; // по аналогии с реском прикрывая кого-то можно пофлагаться
-				act("Вы героически прикрыли $N3, приняв удар на себя.", FALSE, vict, 0, victim, TO_CHAR);
-				act("$N героически прикрыл$G вас, приняв удар на себя.", FALSE, victim, 0, vict, TO_CHAR);
+				act("Вы героически прикрыли $N3, приняв удар на себя.", false, vict, 0, victim, TO_CHAR);
+				act("$N героически прикрыл$G вас, приняв удар на себя.", false, victim, 0, vict, TO_CHAR);
 				act("$n героически прикрыл$g $N3, приняв удар на себя.",
-					TRUE,
+					true,
 					vict,
 					0,
 					victim,
 					TO_NOTVICT | TO_ARENA_LISTEN);
-				//set_wait(vict, 1, TRUE);
+				//set_wait(vict, 1, true);
 				setSkillCooldownInFight(vict, SKILL_GLOBAL_COOLDOWN, 1);
 				setSkillCooldownInFight(vict, SKILL_PROTECT, 1);
 				return vict;

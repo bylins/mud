@@ -20,7 +20,7 @@
 #include "boards/boards.h"
 #include "entities/char.h"
 #include "entities/char_player.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/godtest.h"
 #include "cmd/follow.h"
@@ -457,7 +457,7 @@ void do_debug_queues(CHAR_DATA * /*ch*/, char *argument, int /*cmd*/, int /*subc
 		q.second.print_queue(ss, q.first);
 	}
 
-	mudlog(ss.str().c_str(), DEF, LVL_GOD, ERRLOG, TRUE);
+	mudlog(ss.str().c_str(), DEF, LVL_GOD, ERRLOG, true);
 }
 
 cpp_extern const struct command_info cmd_info[] =
@@ -1114,7 +1114,7 @@ const char *reserved[] = {"a",
 };
 
 void check_hiding_cmd(CHAR_DATA *ch, int percent) {
-	int remove_hide = FALSE;
+	int remove_hide = false;
 	if (affected_by_spell(ch, SPELL_HIDE)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
@@ -1126,7 +1126,7 @@ void check_hiding_cmd(CHAR_DATA *ch, int percent) {
 		}
 
 		if (percent == -1) {
-			remove_hide = TRUE;
+			remove_hide = true;
 		} else if (percent > 0) {
 			remove_hide = number(1, percent) > CalcCurrentSkill(ch, SKILL_HIDE, 0);
 		}
@@ -1135,7 +1135,7 @@ void check_hiding_cmd(CHAR_DATA *ch, int percent) {
 			affect_from_char(ch, SPELL_HIDE);
 			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
-				act("$n прекратил$g прятаться.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n прекратил$g прятаться.", false, ch, 0, 0, TO_ROOM);
 			}
 		}
 	}
@@ -1169,7 +1169,7 @@ bool check_frozen_cmd(CHAR_DATA * /*ch*/, int cmd) {
  * then calls the appropriate function.
  */
 void command_interpreter(CHAR_DATA *ch, char *argument) {
-	int cmd, social = FALSE, hardcopy = FALSE;
+	int cmd, social = false, hardcopy = false;
 	char *line;
 
 	// just drop to next line for hitting CR
@@ -1208,7 +1208,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 
 	const size_t length = strlen(arg);
 	if (1 < length && *(arg + length - 1) == '!') {
-		hardcopy = TRUE;
+		hardcopy = true;
 		*(arg + length - 1) = '\0';
 		*(argument + length - 1) = ' ';
 	}
@@ -1253,7 +1253,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 
 	if (*cmd_info[cmd].command == '\n') {
 		if (find_action(arg) >= 0)
-			social = TRUE;
+			social = true;
 		else {
 			send_to_char("Чаво?\r\n", ch);
 			return;
@@ -1271,7 +1271,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 		return;
 	}
 
-	if (!social && cmd_info[cmd].command_pointer == NULL) {
+	if (!social && cmd_info[cmd].command_pointer == nullptr) {
 		send_to_char("Извините, не смог разобрать команду.\r\n", ch);
 		return;
 	}
@@ -1313,8 +1313,8 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 			return;
 		}
 		if (!IS_NPC(ch) && ch->in_room != kNowhere && CHECK_AGRO(ch)) {
-			CHECK_AGRO(ch) = FALSE;
-			do_aggressive_room(ch, FALSE);
+			CHECK_AGRO(ch) = false;
+			do_aggressive_room(ch, false);
 			if (ch->purged()) {
 				return;
 			}
@@ -1326,7 +1326,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 // * Routines to handle aliasing                                          *
 // ************************************************************************
 struct alias_data *find_alias(struct alias_data *alias_list, char *str) {
-	while (alias_list != NULL) {
+	while (alias_list != nullptr) {
 		if (*str == *alias_list->alias)    // hey, every little bit counts :-)
 			if (!strcmp(str, alias_list->alias))
 				return (alias_list);
@@ -1334,7 +1334,7 @@ struct alias_data *find_alias(struct alias_data *alias_list, char *str) {
 		alias_list = alias_list->next;
 	}
 
-	return (NULL);
+	return (nullptr);
 }
 
 void free_alias(struct alias_data *a) {
@@ -1358,10 +1358,10 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg)        // no argument specified -- list currently defined aliases
 	{
 		send_to_char("Определены следующие алиасы:\r\n", ch);
-		if ((a = GET_ALIASES(ch)) == NULL)
+		if ((a = GET_ALIASES(ch)) == nullptr)
 			send_to_char(" Нет алиасов.\r\n", ch);
 		else {
-			while (a != NULL) {
+			while (a != nullptr) {
 				sprintf(buf, "%-15s %s\r\n", a->alias, a->replacement);
 				send_to_char(buf, ch);
 				a = a->next;
@@ -1370,13 +1370,13 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else        // otherwise, add or remove aliases
 	{
 		// is this an alias we've already defined?
-		if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
+		if ((a = find_alias(GET_ALIASES(ch), arg)) != nullptr) {
 			REMOVE_FROM_LIST(a, GET_ALIASES(ch));
 			free_alias(a);
 		}
 		// if no replacement string is specified, assume we want to delete
 		if (!*repl) {
-			if (a == NULL)
+			if (a == nullptr)
 				send_to_char("Такой алиас не определен.\r\n", ch);
 			else
 				send_to_char("Алиас успешно удален.\r\n", ch);
@@ -1417,14 +1417,14 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 
 	// First, parse the original string
 	temp = strtok(strcpy(buf2, orig), " ");
-	while (temp != NULL && num_of_tokens < NUM_TOKENS) {
+	while (temp != nullptr && num_of_tokens < NUM_TOKENS) {
 		tokens[num_of_tokens++] = temp;
-		temp = strtok(NULL, " ");
+		temp = strtok(nullptr, " ");
 	}
 
 	// initialize
 	write_point = buf;
-	temp_queue.head = temp_queue.tail = NULL;
+	temp_queue.head = temp_queue.tail = nullptr;
 
 	// now parse the alias
 	for (temp = a->replacement; *temp; temp++) {
@@ -1452,7 +1452,7 @@ void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data 
 	write_to_q(buf, &temp_queue, 1);
 
 	// push our temp_queue on to the _front_ of the input queue
-	if (input_q->head == NULL)
+	if (input_q->head == nullptr)
 		*input_q = temp_queue;
 	else {
 		temp_queue.tail->next = input_q->head;
@@ -1477,7 +1477,7 @@ int perform_alias(DESCRIPTOR_DATA *d, char *orig) {
 		return (0);
 
 	// bail out immediately if the guy doesn't have any aliases //
-	if ((tmp = GET_ALIASES(d->character)) == NULL)
+	if ((tmp = GET_ALIASES(d->character)) == nullptr)
 		return (0);
 
 	// find the alias we're supposed to match //
@@ -1488,7 +1488,7 @@ int perform_alias(DESCRIPTOR_DATA *d, char *orig) {
 		return (0);
 
 	// if the first arg is not an alias, return without doing anything //
-	if ((a = find_alias(tmp, first_arg)) == NULL)
+	if ((a = find_alias(tmp, first_arg)) == nullptr)
 		return (0);
 
 	if (a->type == ALIAS_SIMPLE) {
@@ -1580,7 +1580,7 @@ char *delete_doubledollar(char *string) {
 	char *read, *write;
 
 	// If the string has no dollar signs, return immediately //
-	if ((write = strchr(string, '$')) == NULL)
+	if ((write = strchr(string, '$')) == nullptr)
 		return (string);
 
 	// Start from the location of the first dollar sign //
@@ -1597,11 +1597,11 @@ char *delete_doubledollar(char *string) {
 }
 
 int fill_word(const char *argument) {
-	return (search_block(argument, dir_fill, TRUE) >= 0);
+	return (search_block(argument, dir_fill, true) >= 0);
 }
 
 int reserved_word(const char *argument) {
-	return (search_block(argument, reserved, TRUE) >= 0);
+	return (search_block(argument, reserved, true) >= 0);
 }
 
 int is_abbrev(const char *arg1, const char *arg2) {
@@ -1625,7 +1625,7 @@ T one_argument_template(T argument, char *first_arg) {
 	if (!argument) {
 		log("SYSERR: one_argument received a NULL pointer!");
 		*first_arg = '\0';
-		return (NULL);
+		return (nullptr);
 	}
 
 	do {
@@ -1700,7 +1700,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 	int j;
 
 	// special in room? //
-	if (GET_ROOM_SPEC(ch->in_room) != NULL) {
+	if (GET_ROOM_SPEC(ch->in_room) != nullptr) {
 		if (GET_ROOM_SPEC(ch->in_room)(ch, world[ch->in_room], cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
@@ -1709,7 +1709,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 
 	// special in equipment list? //
 	for (j = 0; j < NUM_WEARS; j++) {
-		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != NULL) {
+		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != nullptr) {
 			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, arg)) {
 				check_hiding_cmd(ch, -1);
 				return (1);
@@ -1719,7 +1719,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 
 	// special in inventory? //
 	for (i = ch->carrying; i; i = i->get_next_content()) {
-		if (GET_OBJ_SPEC(i) != NULL
+		if (GET_OBJ_SPEC(i) != nullptr
 			&& GET_OBJ_SPEC(i)(ch, i, cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
@@ -1730,7 +1730,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 //Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (const auto k : world[ch->in_room]->people) {
-		if (GET_MOB_SPEC(k) != NULL
+		if (GET_MOB_SPEC(k) != nullptr
 			&& (fnum == 1
 				|| fnum == specialNum++)
 			&& GET_MOB_SPEC(k)(ch, k, cmd, arg)) {
@@ -1742,7 +1742,7 @@ int special(CHAR_DATA *ch, int cmd, char *arg, int fnum) {
 	// special in object present? //
 	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
 		auto spec = GET_OBJ_SPEC(i);
-		if (spec != NULL
+		if (spec != nullptr
 			&& spec(ch, i, cmd, arg)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
@@ -1834,7 +1834,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Персонаж = %s Хост = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
 
@@ -1847,16 +1847,16 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			}
 
 			if (k->character) {
-				k->character->desc = NULL;
+				k->character->desc = nullptr;
 			}
 
-			k->character = NULL;
-			k->original = NULL;
+			k->character = nullptr;
+			k->original = nullptr;
 		} else if (k->character && (GET_IDNUM(k->character) == id)) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Name = %s Host = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
 
@@ -1865,9 +1865,9 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 				target = k->character;
 				mode = USURP;
 			}
-			k->character->desc = NULL;
-			k->character = NULL;
-			k->original = NULL;
+			k->character->desc = nullptr;
+			k->character = nullptr;
+			k->original = nullptr;
 			SEND_TO_Q("\r\nПопытка второго входа - отключаемся.\r\n", k);
 			STATE(k) = CON_CLOSE;
 		}
@@ -1911,7 +1911,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			char_from_room(ch);
 		}
 		char_to_room(ch, STRANGE_ROOM);
-		extract_char(ch.get(), FALSE);
+		extract_char(ch.get(), false);
 	});
 
 	// no target for switching into was found - allow login to continue //
@@ -1923,7 +1923,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 
 	d->character = target;
 	d->character->desc = d;
-	d->original = NULL;
+	d->original = nullptr;
 	d->character->char_specials.timer = 0;
 	PLR_FLAGS(d->character).unset(PLR_MAILING);
 	PLR_FLAGS(d->character).unset(PLR_WRITING);
@@ -1932,22 +1932,22 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 	switch (mode) {
 		case RECON: SEND_TO_Q("Пересоединяемся.\r\n", d);
 			check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
-			act("$n восстановил$g связь.", TRUE, d->character.get(), 0, 0, TO_ROOM);
+			act("$n восстановил$g связь.", true, d->character.get(), 0, 0, TO_ROOM);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			login_change_invoice(d->character.get());
 			break;
 
 		case USURP: SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
 			act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
-				"Тело $s было захвачено новым духом!", TRUE, d->character.get(), 0, 0, TO_ROOM);
+				"Тело $s было захвачено новым духом!", true, d->character.get(), 0, 0, TO_ROOM);
 			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		case UNSWITCH: SEND_TO_Q("Пересоединяемся для перевключения игрока.", d);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		default:
@@ -2016,7 +2016,7 @@ int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
 							"Вошел - %s, в игре - %s, IP - %s.\r\n"
 							"Игрок помещен в комнату незарегистрированных игроков.",
 							GET_NAME(d->character), GET_NAME(i->character), d->host);
-					mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+					mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					return 0;
 
 				case 1:
@@ -2336,7 +2336,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
 	d->character->set_who_last(time(0));
 	d->character->save_char();
-	act("$n вступил$g в игру.", TRUE, d->character.get(), 0, 0, TO_ROOM);
+	act("$n вступил$g в игру.", true, d->character.get(), 0, 0, TO_ROOM);
 	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character.get());
 	enter_wtrigger(world[d->character.get()->in_room], d->character.get(), -1);
@@ -2361,7 +2361,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
 		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
 		d->character->set_last_exchange(time(0)); // когда последний раз базар
-		do_start(d->character.get(), TRUE);
+		do_start(d->character.get(), true);
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character.get());
 	}
@@ -2392,7 +2392,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 			break;
 	}
 
-	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());
@@ -2462,14 +2462,14 @@ void DoAfterPassword(DESCRIPTOR_DATA *d) {
 		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
-		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+		mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
 		return;
 	}
 	if (GET_REAL_LEVEL(d->character) < circle_restrict) {
 		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
-		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+		mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
 		return;
 	}
 	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0) {
@@ -2489,7 +2489,7 @@ void DoAfterPassword(DESCRIPTOR_DATA *d) {
 	if (!subnets.empty()) {
 		if (subnets.count(inet_addr(d->host) & MASK) == 0) {
 			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
-			mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+			mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
 			if (PRF_FLAGGED(d->character, PRF_IPCONTROL)) {
 				int random_number = number(1000000, 9999999);
 				new_loc_codes[GET_EMAIL(d->character)] = random_number;
@@ -2568,7 +2568,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	}
 #endif
 
-	GET_PORTALS(ch) = NULL;
+	GET_PORTALS(ch) = nullptr;
 	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
 	ch->set_npc_name(0);
 	ch->player_data.long_descr = "";
@@ -2598,8 +2598,8 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	element.level = 0;
 	element.remorts = 0;
 	element.last_logon = -1;
-	element.mail = NULL;//added by WorM mail
-	element.last_ip = NULL;//added by WorM последний айпи
+	element.mail = nullptr;//added by WorM mail
+	element.last_ip = nullptr;//added by WorM последний айпи
 
 	if (GET_REAL_LEVEL(ch) > LVL_GOD) {
 		set_god_skills(ch);
@@ -2657,7 +2657,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 int create_entry(player_index_element &element) {
 	// create new save activity
 	element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
-	element.timer = NULL;
+	element.timer = nullptr;
 
 	return static_cast<int>(player_table.append(element));
 }
@@ -2882,7 +2882,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						if (!PLR_FLAGGED(d->character, PLR_DELETED)) {
 							sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-							mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+							mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 						}
 
 						d->character.reset();
@@ -3002,7 +3002,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
 					sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 							GET_PC_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+					mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
 					SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
 					STATE(d) = CON_CLOSE;
 					return;
@@ -3012,7 +3012,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 					sprintf(buf, "Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 							GET_PC_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+					mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
 					STATE(d) = CON_CLOSE;
 					return;
 				}
@@ -3099,7 +3099,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
 				sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 						GET_PC_NAME(d->character), d->host);
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
 				SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
 				STATE(d) = CON_CLOSE;
 				return;
@@ -3110,7 +3110,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				sprintf(buf,
 						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 						GET_PC_NAME(d->character), d->host);
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
 				STATE(d) = CON_CLOSE;
 				return;
 			}
@@ -3153,7 +3153,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			} else {
 				if (!Password::compare_password(d->character.get(), arg)) {
 					sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 					GET_BAD_PWS(d->character)++;
 					d->character->save_char();
 					if (++(d->bad_pws) >= max_bad_pws)    // 3 strikes and you're out.
@@ -3544,7 +3544,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 							timeout = pclean_criteria[ci + 1].days;
 						}
 						if (timeout > 0) {
-							time_t deltime = time(NULL) + timeout * 60 * rent_file_timeout * 24;
+							time_t deltime = time(nullptr) + timeout * 60 * rent_file_timeout * 24;
 							sprintf(buf, "В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
 									rustime(localtime(&deltime)));
 							SEND_TO_Q(buf, d);
@@ -3701,7 +3701,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 				SEND_TO_Q(buf, d);
 				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_REAL_LEVEL(d->character));
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
 				d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
 				STATE(d) = CON_CLOSE;
 				return;

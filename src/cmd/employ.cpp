@@ -99,8 +99,8 @@ void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			do_hold = WEAR_HOLD;
 
 		if (GET_EQ(ch, do_hold)) {
-			act("Вы прекратили использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_CHAR);
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("Вы прекратили использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, TO_CHAR);
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, TO_ROOM | TO_ARENA_LISTEN);
 			obj_to_char(unequip_char(ch, do_hold, CharEquipFlags()), ch);
 		}
 		if (GET_EQ(ch, WEAR_HOLD))

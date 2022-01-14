@@ -14,7 +14,7 @@
 
 #include "utils.h"
 
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
 #include "entities/obj.h"
@@ -44,7 +44,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "game_mechanics/obj_sets.h"
-#include "utils.string.h"
+#include "utils_string.h"
 
 #include <algorithm>
 

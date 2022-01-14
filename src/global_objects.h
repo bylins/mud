@@ -9,7 +9,7 @@
 #include "cmd_god/shutdown_parameters.h"
 #include "shops_implementation.h"
 #include "world_objects.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "act_wizard.h"
 #include "influxdb.h"
 #include "zone.table.h"

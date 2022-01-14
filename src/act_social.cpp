@@ -21,8 +21,8 @@ extern DESCRIPTOR_DATA *descriptor_list;
 // local globals
 int number_of_social_messages = -1;
 int number_of_social_commands = -1;
-struct social_messg *soc_mess_list = NULL;
-struct social_keyword *soc_keys_list = NULL;
+struct social_messg *soc_mess_list = nullptr;
+struct social_keyword *soc_keys_list = nullptr;
 
 // local functions
 int find_action(char *cmd);
@@ -67,22 +67,22 @@ int do_social(CHAR_DATA *ch, char *argument) {
 	CHAR_DATA *vict;
 
 	if (!argument || !*argument)
-		return (FALSE);
+		return (false);
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
-		return (FALSE);
+		return (false);
 	}
 
 	argument = one_argument(argument, social);
 
 	if ((act_nr = find_action(social)) < 0)
-		return (FALSE);
+		return (false);
 
 	action = &soc_mess_list[act_nr];
 	if (GET_POS(ch) < action->ch_min_pos || GET_POS(ch) > action->ch_max_pos) {
 		send_to_char("Вам крайне неудобно это сделать.\r\n", ch);
-		return (TRUE);
+		return (true);
 	}
 
 	if (action->char_found && argument)
@@ -99,10 +99,10 @@ int do_social(CHAR_DATA *ch, char *argument) {
 				continue;
 			}
 
-			act(action->others_no_arg, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
-			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
+			act(action->others_no_arg, false, ch, 0, to, TO_VICT | CHECK_DEAF);
+			act(deaf_social, false, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}
-		return (TRUE);
+		return (true);
 	}
 	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM))) {
 		const auto message = action->not_found
@@ -119,12 +119,12 @@ int do_social(CHAR_DATA *ch, char *argument) {
 				continue;
 			}
 
-			act(action->others_no_arg, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
-			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
+			act(action->others_no_arg, false, ch, 0, to, TO_VICT | CHECK_DEAF);
+			act(deaf_social, false, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}
 	} else {
 		if (GET_POS(vict) < action->vict_min_pos || GET_POS(vict) > action->vict_max_pos)
-			act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+			act("$N2 сейчас, похоже, не до вас.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		else {
 			act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
 // здесь зарылся баг, связанный с тем, что я не знаю,
@@ -134,13 +134,13 @@ int do_social(CHAR_DATA *ch, char *argument) {
 // в итоге даже если чар в клетке игнорирует чара ch, то все равно он
 // будет видеть его действия, имеющие цель, если при этом цель -- не он сам.
 // для глухих -- то же самое.
-			act(action->others_found, FALSE, ch, 0, vict, TO_NOTVICT | CHECK_DEAF);
-			act(deaf_social, FALSE, ch, 0, 0, TO_ROOM | CHECK_NODEAF);
+			act(action->others_found, false, ch, 0, vict, TO_NOTVICT | CHECK_DEAF);
+			act(deaf_social, false, ch, 0, 0, TO_ROOM | CHECK_NODEAF);
 			if (!ignores(vict, ch, IGNORE_EMOTE))
-				act(action->vict_found, FALSE, ch, 0, vict, TO_VICT | CHECK_DEAF);
+				act(action->vict_found, false, ch, 0, vict, TO_VICT | CHECK_DEAF);
 		}
 	}
-	return (TRUE);
+	return (true);
 }
 
 void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -165,10 +165,10 @@ void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						if (IS_MALE(ch)) {
 							if (IS_MALE(victim))
 								act("&K$n высмеял$g вашу манеру держать меч !&n",
-									FALSE, ch, 0, victim, TO_VICT);
+									false, ch, 0, victim, TO_VICT);
 							else
 								act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n",
-									FALSE,
+									false,
 									ch,
 									0,
 									victim,
@@ -177,14 +177,14 @@ void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						{
 							if (IS_MALE(victim))
 								act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n",
-									FALSE,
+									false,
 									ch,
 									0,
 									victim,
 									TO_VICT);
 							else
 								act("&K$n обьявил$g всем о вашем близком родстве с Бабой-Ягой.&n",
-									FALSE,
+									false,
 									ch,
 									0,
 									victim,
@@ -192,17 +192,17 @@ void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						}
 						break;
 					case 1:
-						act("&K$n1 чем-то не удовлетворила ваша мама!&n", FALSE,
+						act("&K$n1 чем-то не удовлетворила ваша мама!&n", false,
 							ch, 0, victim, TO_VICT);
 						break;
 					default:
 						act("&K$n предложил$g вам посетить ближайший хутор!\r\n"
 							"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
-							FALSE, ch, 0, victim, TO_VICT);
+							false, ch, 0, victim, TO_VICT);
 						break;
 				}    // end switch
 
-				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", TRUE, ch, 0, victim, TO_NOTVICT);
+				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", true, ch, 0, victim, TO_NOTVICT);
 			} else    // ch == victim
 			{
 				send_to_char("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
@@ -223,7 +223,7 @@ char *fread_action(FILE *fl, int nr) {
 		exit(1);
 	}
 	if (*buf == '#')
-		return (NULL);
+		return (nullptr);
 
 	buf[strlen(buf) - 1] = '\0';
 	return (str_dup(buf));

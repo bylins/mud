@@ -21,7 +21,7 @@
 #include "entities/char_player.h"
 #include "entities/room.h"
 #include "house.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "zone.table.h"
 #include "logger.h"
 #include "utils/utils.h"
@@ -129,7 +129,7 @@ void redit_save_internally(DESCRIPTOR_DATA *d) {
 		room_copy(new_room, OLC_ROOM(d));
 		new_room->room_vn = OLC_NUM(d);
 		new_room->zone_rn = OLC_ZNUM(d);
-		new_room->func = NULL;
+		new_room->func = nullptr;
 		room_num = i; // рнум новой комнаты
 
 		if (it != world.cend()) {
@@ -276,7 +276,7 @@ void redit_save_to_disk(int zone_num) {
 
 	sprintf(buf, "%s/%d.new", WLD_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
-		mudlog("SYSERR: OLC: Cannot open room file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
+		mudlog("SYSERR: OLC: Cannot open room file!", BRF, LVL_BUILDER, SYSLOG, true);
 		return;
 	}
 	for (counter = zone_table[zone_num].vnum * 100; counter < zone_table[zone_num].top; counter++) {
@@ -562,7 +562,7 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				case 'Д': redit_save_internally(d);
 					sprintf(buf, "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit room %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the room structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					send_to_char("Room saved to memory.\r\n", d->character.get());
@@ -604,7 +604,7 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					SEND_TO_Q("\x1B[H\x1B[J", d);
 #endif
 					SEND_TO_Q("Введите описание комнаты: (/s записать /h помощь)\r\n\r\n", d);
-					d->backstr = NULL;
+					d->backstr = nullptr;
 					if (OLC_ROOM(d)->temp_description) {
 						SEND_TO_Q(OLC_ROOM(d)->temp_description, d);
 						d->backstr = str_dup(OLC_ROOM(d)->temp_description);
@@ -683,7 +683,7 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 		case REDIT_DESC:
 			// * We will NEVER get here, we hope.
-			mudlog("SYSERR: Reached REDIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: Reached REDIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, true);
 			break;
 
 		case REDIT_FLAGS: number = planebit(arg, &plane, &bit);
@@ -790,7 +790,7 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			OLC_MODE(d) = REDIT_EXIT_DOORFLAGS;
 			redit_disp_exit_flag_menu(d);
 			return;
-		case REDIT_EXTRADESC_KEY: OLC_DESC(d)->keyword = ((arg && *arg) ? str_dup(arg) : NULL);
+		case REDIT_EXTRADESC_KEY: OLC_DESC(d)->keyword = ((arg && *arg) ? str_dup(arg) : nullptr);
 			redit_disp_extradesc_menu(d);
 			return;
 
@@ -811,7 +811,7 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 				case 2: OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
 					SEND_TO_Q("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
-					d->backstr = NULL;
+					d->backstr = nullptr;
 					if (OLC_DESC(d)->description) {
 						SEND_TO_Q(OLC_DESC(d)->description, d);
 						d->backstr = str_dup(OLC_DESC(d)->description);
@@ -843,7 +843,7 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 		default:
 			// * We should never get here.
-			mudlog("SYSERR: Reached default case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog("SYSERR: Reached default case in parse_redit", BRF, LVL_BUILDER, SYSLOG, true);
 			break;
 	}
 	// * If we get this far, something has been changed.

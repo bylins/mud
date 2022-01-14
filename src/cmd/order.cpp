@@ -5,7 +5,7 @@
 // ****************** CHARM ORDERS PROCEDURES
 void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], message[kMaxInputLength];
-	bool found = FALSE;
+	bool found = false;
 	room_rnum org_room;
 	CHAR_DATA *vict;
 
@@ -44,23 +44,23 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& !is_abbrev(name, "всем")
 			&& !is_abbrev(name, "followers")) {
 			sprintf(buf, "$N приказал$g вам '%s'", message);
-			act(buf, FALSE, vict, 0, ch, TO_CHAR | CHECK_DEAF);
-			act("$n отдал$g приказ $N2.", FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF);
+			act(buf, false, vict, 0, ch, TO_CHAR | CHECK_DEAF);
+			act("$n отдал$g приказ $N2.", false, ch, 0, vict, TO_ROOM | CHECK_DEAF);
 
 			if (vict->get_master() != ch
 				|| !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS)) {
 				if (!IS_POLY(vict)) {
-					act("$n безразлично смотрит по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
+					act("$n безразлично смотрит по сторонам.", false, vict, 0, 0, TO_ROOM);
 				} else {
-					act("$n безразлично смотрят по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
+					act("$n безразлично смотрят по сторонам.", false, vict, 0, 0, TO_ROOM);
 				}
 			} else {
 				send_to_char(OK, ch);
 				if (vict->get_wait() <= 0) {
 					command_interpreter(vict, message);
 				} else if (vict->get_fighting()) {
-					if (vict->last_comm != NULL) {
+					if (vict->last_comm != nullptr) {
 						free(vict->last_comm);
 					}
 					vict->last_comm = str_dup(message);
@@ -68,7 +68,7 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else {
 			org_room = ch->in_room;
-			act("$n отдал$g приказ.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
+			act("$n отдал$g приказ.", false, ch, 0, 0, TO_ROOM | CHECK_DEAF);
 
 			CHAR_DATA::followers_list_t followers = ch->get_followers_list();
 
@@ -79,11 +79,11 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 				if (AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM)
 					&& !AFF_FLAGGED(follower, EAffectFlag::AFF_DEAFNESS)) {
-					found = TRUE;
+					found = true;
 					if (follower->get_wait() <= 0) {
 						command_interpreter(follower, message);
 					} else if (follower->get_fighting()) {
-						if (follower->last_comm != NULL) {
+						if (follower->last_comm != nullptr) {
 							free(follower->last_comm);
 						}
 						follower->last_comm = str_dup(message);

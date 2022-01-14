@@ -96,7 +96,7 @@ class MudlogReporter : public AbstractErrorReporter {
 };
 
 void MudlogReporter::report(const std::string &message) {
-	mudlog(message.c_str(), DEF, LVL_BUILDER, ERRLOG, TRUE);
+	mudlog(message.c_str(), DEF, LVL_BUILDER, ERRLOG, true);
 }
 
 void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *argument) {

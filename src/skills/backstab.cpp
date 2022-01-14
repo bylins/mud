@@ -84,9 +84,9 @@ void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
 		return;
 
 	if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch)) {
-		act("Вы заметили, что $N попытал$u вас заколоть!", FALSE, vict, nullptr, ch, TO_CHAR);
-		act("$n заметил$g вашу попытку заколоть $s!", FALSE, vict, nullptr, ch, TO_VICT);
-		act("$n заметил$g попытку $N1 заколоть $s!", FALSE, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, TO_CHAR);
+		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, TO_VICT);
+		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_hit(vict, ch);
 		return;
 	}

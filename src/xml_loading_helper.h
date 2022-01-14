@@ -145,7 +145,7 @@ class CHelper {
 			return;
 		}
 
-		pugi::xml_node *list_node = NULL;
+		pugi::xml_node *list_node = nullptr;
 		pugi::xml_node storage;
 
 		for (const auto &i : list) {
@@ -155,7 +155,7 @@ class CHelper {
 					continue;
 				}
 
-				if (NULL == list_node) {
+				if (nullptr == list_node) {
 					storage = node.append_child(node_name);
 					list_node = &storage;
 					if (!*list_node) {

@@ -17,7 +17,7 @@
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "depot.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "entities/room_constants.h"
 #include "fightsystem/mobact.h"
 #include "fightsystem/pk.h"

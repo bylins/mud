@@ -490,7 +490,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 	size_t len = strlen(name);
 
-	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != NULL
+	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != nullptr
 		&& sex == ESex::kMale) {
 		strcpy(result, name);
 		if (caseNum == 1)
@@ -538,7 +538,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
 		if (caseNum == 1) {
-			if (strchr("шщжч", name[len - 2]) != NULL)
+			if (strchr("шщжч", name[len - 2]) != nullptr)
 				strcat(result, "и"); // Маши, Паши
 			else
 				strcat(result, "ы"); // Анны
@@ -547,7 +547,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		else if (caseNum == 3)
 			strcat(result, "у"); // Пашу, Анну
 		else if (caseNum == 4) {
-			if (strchr("шщч", name[len - 2]) != NULL)
+			if (strchr("шщч", name[len - 2]) != nullptr)
 				strcat(result, "ей"); // Машей, Пашей
 			else
 				strcat(result, "ой"); // Анной, Ханжой

@@ -39,7 +39,7 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		horse = ch->get_horse();
 
-	if (horse == NULL)
+	if (horse == nullptr)
 		send_to_char(NOPERSON, ch);
 	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
@@ -48,21 +48,21 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (GET_POS(horse) < POS_FIGHTING)
-		act("$N не сможет вас нести в таком состоянии.", FALSE, ch, 0, horse, TO_CHAR);
+		act("$N не сможет вас нести в таком состоянии.", false, ch, 0, horse, TO_CHAR);
 	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
-		act("Вам стоит отвязать $N3.", FALSE, ch, 0, horse, TO_CHAR);
+		act("Вам стоит отвязать $N3.", false, ch, 0, horse, TO_CHAR);
 		//чтоб не вскакивали в ванрумах
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
 		send_to_char("Слишком мало места.\r\n", ch);
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_NOHORSE))
-		act("$Z $N взбрыкнул$G и отказал$U вас слушаться.", FALSE, ch, 0, horse, TO_CHAR);
+		act("$Z $N взбрыкнул$G и отказал$U вас слушаться.", false, ch, 0, horse, TO_CHAR);
 	else {
 		if (affected_by_spell(ch, SPELL_SNEAK))
 			affect_from_char(ch, SPELL_SNEAK);
 		if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
-		act("Вы взобрались на спину $N1.", FALSE, ch, 0, horse, TO_CHAR);
-		act("$n вскочил$g на $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
+		act("Вы взобрались на спину $N1.", false, ch, 0, horse, TO_CHAR);
+		act("$n вскочил$g на $N3.", false, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 		AFF_FLAGS(ch).set(EAffectFlag::AFF_HORSE);
 	}
 }
@@ -107,7 +107,7 @@ void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		horse = ch->get_horse();
 
-	if (horse == NULL)
+	if (horse == nullptr)
 		send_to_char(NOPERSON, ch);
 	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
@@ -116,10 +116,10 @@ void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (!AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
-		act("А $N и не привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
+		act("А $N и не привязан$A.", false, ch, 0, horse, TO_CHAR);
 	else {
-		act("Вы отвязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
-		act("$n отвязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
+		act("Вы отвязали $N3.", false, ch, 0, horse, TO_CHAR);
+		act("$n отвязал$g $N3.", false, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 		AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
 	}
 }
@@ -144,7 +144,7 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 	else
 		horse = ch->get_horse();
-	if (horse == NULL)
+	if (horse == nullptr)
 		send_to_char(NOPERSON, ch);
 	else if (IN_ROOM(horse) != ch->in_room)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
@@ -153,16 +153,16 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
-		act("А $N уже и так привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
+		act("А $N уже и так привязан$A.", false, ch, 0, horse, TO_CHAR);
 	else {
-		act("Вы привязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
-		act("$n привязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
+		act("Вы привязали $N3.", false, ch, 0, horse, TO_CHAR);
+		act("$n привязал$g $N3.", false, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 		AFF_FLAGS(horse).set(EAffectFlag::AFF_TETHERED);
 	}
 }
 
 void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *horse = NULL;
+	CHAR_DATA *horse = nullptr;
 
 	if (IS_NPC(ch))
 		return;
@@ -182,7 +182,7 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 	}
 
-	if (horse == NULL) {
+	if (horse == nullptr) {
 		send_to_char(NOPERSON, ch);
 		return;
 	} else if (!IS_NPC(horse)) {
@@ -194,16 +194,16 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		&& !MOB_FLAGGED(horse, MOB_MOUNTING)
 		&& !(horse->has_master()
 			&& AFF_FLAGGED(horse, EAffectFlag::AFF_HORSE))) {
-		act("Вы не сможете оседлать $N3.", FALSE, ch, 0, horse, TO_CHAR);
+		act("Вы не сможете оседлать $N3.", false, ch, 0, horse, TO_CHAR);
 		return;
 	} else if (ch->get_horse()) {
 		if (ch->get_horse() == horse)
-			act("Не стоит седлать $S еще раз.", FALSE, ch, 0, horse, TO_CHAR);
+			act("Не стоит седлать $S еще раз.", false, ch, 0, horse, TO_CHAR);
 		else
 			send_to_char("Вам не усидеть сразу на двух скакунах.\r\n", ch);
 		return;
 	} else if (GET_POS(horse) < POS_STANDING) {
-		act("$N не сможет стать вашим скакуном.", FALSE, ch, 0, horse, TO_CHAR);
+		act("$N не сможет стать вашим скакуном.", false, ch, 0, horse, TO_CHAR);
 		return;
 	} else if (IS_HORSE(horse)) {
 		if (!IS_IMMORTAL(ch)) {
@@ -213,8 +213,8 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (stop_follower(horse, SF_EMPTY))
 		return;
-	act("Вы оседлали $N3.", FALSE, ch, 0, horse, TO_CHAR);
-	act("$n оседлал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
+	act("Вы оседлали $N3.", false, ch, 0, horse, TO_CHAR);
+	act("$n оседлал$g $N3.", false, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 	make_horse(horse, ch);
 }
 
@@ -245,7 +245,7 @@ void do_givehorse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (victim->get_horse()) {
-		act("У $N1 уже есть скакун.\r\n", FALSE, ch, 0, victim, TO_CHAR);
+		act("У $N1 уже есть скакун.\r\n", false, ch, 0, victim, TO_CHAR);
 		return;
 	}
 	if (ch->ahorse()) {
@@ -259,9 +259,9 @@ void do_givehorse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// Долбанные умертвия при передаче рассыпаются и весело роняют мад на проходе по последователям чара -- Krodo
 	if (stop_follower(horse, SF_EMPTY))
 		return;
-	act("Вы передали своего скакуна $N2.", FALSE, ch, 0, victim, TO_CHAR);
-	act("$n передал$g вам своего скакуна.", FALSE, ch, 0, victim, TO_VICT);
-	act("$n передал$g своего скакуна $N2.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+	act("Вы передали своего скакуна $N2.", false, ch, 0, victim, TO_CHAR);
+	act("$n передал$g вам своего скакуна.", false, ch, 0, victim, TO_VICT);
+	act("$n передал$g своего скакуна $N2.", true, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	make_horse(horse, victim);
 }
 
@@ -289,10 +289,10 @@ void do_stophorse(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 	if (stop_follower(horse, SF_EMPTY))
 		return;
-	act("Вы отпустили $N3.", FALSE, ch, 0, horse, TO_CHAR);
-	act("$n отпустил$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
+	act("Вы отпустили $N3.", false, ch, 0, horse, TO_CHAR);
+	act("$n отпустил$g $N3.", false, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 	if (GET_MOB_VNUM(horse) == HORSE_VNUM) {
-		act("$n убежал$g в свою конюшню.\r\n", FALSE, horse, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		extract_char(horse, FALSE);
+		act("$n убежал$g в свою конюшню.\r\n", false, horse, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		extract_char(horse, false);
 	}
 }

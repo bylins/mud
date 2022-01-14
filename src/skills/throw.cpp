@@ -38,7 +38,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 					technique.rival()->drop_from_horse();
 				} else { // иначе просто садится на попу с лагом 2
 					GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), POS_SITTING);
-					set_wait(technique.rival(), 2, FALSE);
+					set_wait(technique.rival(), 2, false);
 				}
 			});
 			break;
@@ -54,7 +54,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 				af.duration = pc_duration(technique.rival(), 2, GET_REAL_LEVEL(technique.actor()), 9, 6, 2);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
+				affect_join(technique.rival(), af, false, false, false, false);
 			});
 			break;
 		case SKILL_CLUBS:mobNoFlag = MOB_NOSTUPOR;
@@ -68,8 +68,8 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
-				set_wait(technique.rival(), 3, FALSE);
+				affect_join(technique.rival(), af, false, false, false, false);
+				set_wait(technique.rival(), 3, false);
 			});
 			break;
 	};
@@ -80,9 +80,9 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 	TechniqueRollType sideAbility;
 	sideAbility.initialize(technique.actor(), featureID, technique.rival());
 	if (sideAbility.isSuccess() && !MOB_FLAGGED(technique.rival(), mobNoFlag)) {
-		act(to_char.c_str(), FALSE, technique.rival(), 0, technique.actor(), TO_VICT);
-		act(to_vict.c_str(), FALSE, technique.rival(), 0, technique.actor(), TO_CHAR);
-		act(to_room.c_str(), FALSE, technique.rival(), 0, technique.actor(), TO_NOTVICT | TO_ARENA_LISTEN);
+		act(to_char.c_str(), false, technique.rival(), 0, technique.actor(), TO_VICT);
+		act(to_vict.c_str(), false, technique.rival(), 0, technique.actor(), TO_CHAR);
+		act(to_room.c_str(), false, technique.rival(), 0, technique.actor(), TO_NOTVICT | TO_ARENA_LISTEN);
 		doSideAction(technique);
 	}
 };
@@ -129,7 +129,7 @@ void go_throw(CHAR_DATA *ch, CHAR_DATA *victim) {
 	DmgType throwDamageKind = PHYS_DMG;
 	if (PRF_FLAGGED(ch, PRF_SHADOW_THROW)) {
 		send_to_char("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
-		act("Оружие в руках $n1 окружила призрачная дымка.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("Оружие в руках $n1 окружила призрачная дымка.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		techniqueID = SHADOW_THROW_FEAT;
 		throwDamageKind = MAGE_DMG;
 		struct timed_type shadowThrowTimed;
@@ -210,7 +210,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		go_throw(ch, victim);
 	} else {
 		if (isHaveNoExtraAttack(ch)) {
-			act("Хорошо. Вы попытаетесь метнуть оружие в $N3.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Хорошо. Вы попытаетесь метнуть оружие в $N3.", false, ch, 0, victim, TO_CHAR);
 			ch->set_extra_attack(EXTRA_ATTACK_THROW, victim);
 		}
 	}

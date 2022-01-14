@@ -7,7 +7,7 @@
 #include "house.h"
 
 #include "world_objects.h"
-#include "entities/world.characters.h"
+#include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
 #include "utils/utils.h"
@@ -135,9 +135,9 @@ Clan::ClanListType Clan::ClanList;
 
 // поиск to_room в зонах клан-замков, выставляет за замок, если найдено
 room_rnum Clan::CloseRent(room_rnum to_room) {
-	for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
-		if (world[to_room]->zone_rn == world[real_room((*clan)->rent)]->zone_rn)
-			return real_room((*clan)->out_rent);
+	for (auto & clan : Clan::ClanList)
+		if (world[to_room]->zone_rn == world[real_room(clan->rent)]->zone_rn)
+			return real_room(clan->out_rent);
 	return to_room;
 }
 
@@ -148,10 +148,9 @@ int Clan::get_chest_room() {
 // проверяет находится ли чар в зоне чужого клана
 bool Clan::InEnemyZone(CHAR_DATA *ch) {
 	int zone = world[ch->in_room]->zone_rn;
-
-	for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
-		if (zone == world[real_room((*clan)->rent)]->zone_rn) {
-			if (CLAN(ch) && (CLAN(ch) == *clan || (*clan)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE))
+	for (auto & clan : Clan::ClanList)
+		if (zone == world[real_room(clan->rent)]->zone_rn) {
+			if (CLAN(ch) && (CLAN(ch) == clan || clan->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE))
 				return false;
 			else
 				return true;
@@ -164,7 +163,7 @@ Clan::Clan() :
 	guard(0), builtOn(time(nullptr)), bankBuffer(0), entranceMode(false), bank(2000),
 	exp(0), clan_exp(0), exp_buf(0), clan_level(0), rent(0),
 	pk(true),
-	chest_room(0), storehouse(true), exp_info(true), test_clan(0),
+	chest_room(0), storehouse(true), exp_info(true), test_clan(false),
 	ingr_chest_room_rnum_(-1), gold_tax_pct_(0), reputation(10),
 	chest_objcount(0), chest_discount(0), chest_weight(0),
 	ingr_chest_objcount_(0) {
@@ -173,7 +172,7 @@ Clan::Clan() :
 Clan::~Clan() {
 }
 // релоад одного отдельного клана, абр. указывать на латинице!
-void Clan::ClanReload(std::string index) {
+void Clan::ClanReload(const std::string& index) {
 	std::ifstream file(LIB_HOUSE "index");
 	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", LIB_HOUSE "index", __FILE__, __func__, __LINE__);
@@ -203,7 +202,7 @@ void Clan::ClanReload(std::string index) {
 }
 
 // лоад отдельного клана из файла
-void Clan::ClanLoadSingle(std::string index) {
+void Clan::ClanLoadSingle(const std::string& index) {
 	std::string buffer;
 	const auto tempClan = std::make_shared<Clan>();
 
@@ -647,20 +646,20 @@ void Clan::HconShow(CHAR_DATA *ch) {
 	boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s|%9s\r\n");
 	int total_day_tax = 0;
 
-	for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
+	for (auto & clan : Clan::ClanList) {
 		char timeBuf[17];
-		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&(*clan)->builtOn));
+		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&(clan->builtOn)));
 
-		int cost = (*clan)->ChestTax() + (*clan)->ingr_chest_tax();
-		cost += (*clan)->calculate_clan_tax();
+		int cost = clan->ChestTax() + clan->ingr_chest_tax();
+		cost += clan->calculate_clan_tax();
 		total_day_tax += cost;
 
-		buffer << show % (*clan)->abbrev % (*clan)->rent % (*clan)->out_rent % (*clan)->chest_room
-			% GET_ROOM_VNUM((*clan)->get_ingr_chest_room_rnum()) % (*clan)->guard % timeBuf
-			% (*clan)->clan_exp % (*clan)->bank % (*clan)->chest_objcount
-			% (*clan)->ingr_chest_objcount_ % cost % (*clan)->clan_level
-			% ((*clan)->test_clan ? "y" : "n")
-			% (((*clan)->m_members.size() > 0) ? "Нет" : "Да");
+		buffer << show % clan->abbrev % clan->rent % clan->out_rent % clan->chest_room
+			% GET_ROOM_VNUM(clan->get_ingr_chest_room_rnum()) % clan->guard % timeBuf
+			% clan->clan_exp % clan->bank % clan->chest_objcount
+			% clan->ingr_chest_objcount_ % cost % clan->clan_level
+			% (clan->test_clan ? "y" : "n")
+			% ((clan->m_members.size() > 0) ? "Нет" : "Да");
 	}
 
 	buffer << "Total day tax: " << total_day_tax << "\r\n";
@@ -702,8 +701,8 @@ void Clan::save_clan_file(const std::string &filename) const {
 	}
 
 	file << "Politics:\n";
-	for (auto it = politics.begin(); it != politics.end(); ++it) {
-		file << " " << it->first << " " << it->second << "\n";
+	for (auto politic : politics) {
+		file << " " << politic.first << " " << politic.second << "\n";
 	}
 
 	file << "~\n";
@@ -744,9 +743,9 @@ void Clan::ClanSave() {
 		return;
 	}
 
-	for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
+	for (auto & clan : Clan::ClanList) {
 		// именем файла для клана служит его аббревиатура (английский и нижний регистр)
-		std::string buffer = (*clan)->abbrev;
+		std::string buffer = clan->abbrev;
 		CreateFileName(buffer);
 		index << buffer << "\n";
 
@@ -760,17 +759,17 @@ void Clan::ClanSave() {
 			}
 		}
 		// основной файл клана
-		(*clan)->save_clan_file(filepath);
+		clan->save_clan_file(filepath);
 		// пкл/дрл
 		std::ofstream pkFile((filepath + ".pkl").c_str());
 		if (!pkFile.is_open()) {
 			log("Error open file: %s! (%s %s %d)", (filepath + ".pkl").c_str(), __FILE__, __func__, __LINE__);
 			return;
 		}
-		for (auto it = (*clan)->pkList.begin(); it != (*clan)->pkList.end(); ++it)
+		for (auto it = clan->pkList.begin(); it != clan->pkList.end(); ++it)
 			pkFile << it->second->author << " " << it->first << " " << (*it).
 				second->time << " " << "0\n" << it->second->text << "\n~\n";
-		for (auto it = (*clan)->frList.begin(); it != (*clan)->frList.end(); ++it)
+		for (auto it = clan->frList.begin(); it != clan->frList.end(); ++it)
 			pkFile << it->second->author << " " << it->first << " " << (*it).
 				second->time << " " << "1\n" << it->second->text << "\n~\n";
 		pkFile.close();
@@ -794,10 +793,10 @@ void Clan::SetClanData(CHAR_DATA *ch) {
 	}
 
 	// если куда-то приписан, то дергаем сразу итераторы на клан и список членов
-	for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
-		const auto member = (*clan)->m_members.find(GET_UNIQUE(ch));
-		if (member != (*clan)->m_members.end()) {
-			CLAN(ch) = *clan;
+	for (auto & clan : Clan::ClanList) {
+		const auto member = clan->m_members.find(GET_UNIQUE(ch));
+		if (member != clan->m_members.end()) {
+			CLAN(ch) = clan;
 			CLAN_MEMBER(ch) = member->second;
 			break;
 		}
@@ -1273,7 +1272,7 @@ void Clan::HouseAdd(CHAR_DATA *ch, std::string &buffer) {
 			buffer += "$N приглашен$G в вашу дружину, статус - " + *it + ".";
 			buffer += CCNRM(d->character, C_NRM);
 			// оповещаем счастливца
-			act(buffer.c_str(), FALSE, ch, nullptr, d->character.get(), TO_CHAR);
+			act(buffer.c_str(), false, ch, nullptr, d->character.get(), TO_CHAR);
 			buffer = CCWHT(d->character, C_NRM);
 			buffer += "Вы получили приглашение в дружину '" + this->name + "', статус - " + *it + ".\r\n"
 				+ "Чтобы принять приглашение наберите 'клан согласен', для отказа 'клан отказать'.\r\n"
@@ -1313,12 +1312,12 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 		const auto clan = Clan::GetClanByRoom(IN_ROOM(k->character));
 		if (clan) {
 			char_from_room(k->character);
-			act("$n был$g выдворен$a за пределы замка!", TRUE, k->character.get(), nullptr, nullptr, TO_ROOM);
+			act("$n был$g выдворен$a за пределы замка!", true, k->character.get(), nullptr, nullptr, TO_ROOM);
 			send_to_char("Вы были выдворены за пределы замка!\r\n", k->character.get());
 			char_to_room(k->character.get(), real_room(clan->out_rent));
 			look_at_room(k->character.get(), real_room(clan->out_rent));
 			act("$n свалил$u с небес, выкрикивая какие-то ругательства!",
-				TRUE,
+				true,
 				k->character.get(),
 				nullptr,
 				nullptr,
@@ -1376,9 +1375,9 @@ void Clan::HouseLeave(CHAR_DATA *ch) {
 // удаляет объект из хранилищ клана
 int Clan::delete_obj(int vnum) {
 	int num = 0;
-	for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
+	for (auto & clan : Clan::ClanList) {
 		OBJ_DATA *temp, *chest;
-		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->get_next_content()) {
+		for (chest = world[real_room(clan->chest_room)]->contents; chest; chest = chest->get_next_content()) {
 			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
 					if (GET_OBJ_VNUM(temp) == vnum) {
@@ -1548,11 +1547,11 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 		case SCMD_ACHANNEL:
 			// вспомнить
 			snprintf(buf, kMaxStringLength, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
-			for (auto clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
-				if ((CLAN(ch)->CheckPolitics((*clan)->GetRent()) == POLITICS_ALLIANCE
-					&& (*clan)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
-					|| CLAN(ch) == (*clan)) {
-					(*clan)->add_remember(buf, Remember::ALLY);
+			for (auto & clan : Clan::ClanList) {
+				if ((CLAN(ch)->CheckPolitics(clan->GetRent()) == POLITICS_ALLIANCE
+					&& clan->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
+					|| CLAN(ch) == clan) {
+					clan->add_remember(buf, Remember::ALLY);
 				}
 			}
 
@@ -1611,7 +1610,7 @@ void DoClanChannel(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		Clan::ClanListType::const_iterator clan;
 		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
-			if (CompareParam((*clan)->abbrev, buffer2, 1)) {
+			if (CompareParam((*clan)->abbrev, buffer2, true)) {
 				break;    // found
 			}
 		}
@@ -1686,7 +1685,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	bool all = 0;
+	bool all = false;
 
 	Clan::ClanListType::const_iterator clan;
 	for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
@@ -1998,7 +1997,7 @@ void Clan::ManagePolitics(CHAR_DATA *ch, std::string &buffer) {
 			return;
 		}
 		SetPolitics((*vict)->rent, POLITICS_NEUTRAL);
-		set_wait(ch, 1, FALSE);
+		set_wait(ch, 1, false);
 		// уведомляем обе дружины
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->character
@@ -2026,7 +2025,7 @@ void Clan::ManagePolitics(CHAR_DATA *ch, std::string &buffer) {
 		}
 
 		SetPolitics((*vict)->rent, POLITICS_WAR);
-		set_wait(ch, 1, FALSE);
+		set_wait(ch, 1, false);
 		// тож самое
 
 		for (d = descriptor_list; d; d = d->next) {
@@ -2062,7 +2061,7 @@ void Clan::ManagePolitics(CHAR_DATA *ch, std::string &buffer) {
 			return;
 		}
 
-		set_wait(ch, 1, FALSE);
+		set_wait(ch, 1, false);
 		SetPolitics((*vict)->rent, POLITICS_ALLIANCE);
 
 		// тож самое
@@ -2758,7 +2757,7 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		tempRecord->authorName = GET_NAME(ch);
 		tempRecord->victimName = buffer2;
 		name_convert(tempRecord->victimName);
-		tempRecord->time = time(0);
+		tempRecord->time = time(nullptr);
 		tempRecord->text = buffer;
 		if (!subcmd)
 			CLAN(ch)->pkList[unique] = tempRecord;
@@ -2780,7 +2779,7 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 							 CLAN(ch)->name.c_str(),
 							 CCNRM(d->character, C_NRM));
 			}
-			set_wait(ch, 1, FALSE);
+			set_wait(ch, 1, false);
 		}
 
 		send_to_char("Ладушки, добавили.\r\n", ch);
@@ -2857,7 +2856,7 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 								 CLAN(ch)->name.c_str(),
 								 CCNRM(d->character, C_NRM));
 				}
-				set_wait(ch, 1, FALSE);
+				set_wait(ch, 1, false);
 			}
 		} else {
 			send_to_char("Запись не найдена.\r\n", ch);
@@ -2959,10 +2958,10 @@ bool Clan::PutChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NAMED)
 		|| GET_OBJ_OWNER(obj)) {
-		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
+		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, TO_CHAR);
 	} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
 		&& obj->get_contains()) {
-		act("В $o5 что-то лежит.", FALSE, ch, obj, 0, TO_CHAR);
+		act("В $o5 что-то лежит.", false, ch, obj, nullptr, TO_CHAR);
 	} else if (SetSystem::is_norent_set(ch, obj, true) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_ONE_CLANCHEST)) {
 		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
@@ -2971,7 +2970,7 @@ bool Clan::PutChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		if ((GET_OBJ_WEIGHT(chest) + GET_OBJ_WEIGHT(obj)) > CLAN(ch)->ChestMaxWeight()
 			|| CLAN(ch)->chest_objcount == CLAN(ch)->ChestMaxObjects()) {
 			act("Вы попытались запихнуть $o3 в $O3, но не смогли - там просто нет места.",
-				FALSE,
+				false,
 				ch,
 				obj,
 				chest,
@@ -3004,7 +3003,7 @@ bool Clan::PutChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		}
 
 		if (!PRF_FLAGGED(ch, PRF_DECAY_MODE)) {
-			act("Вы положили $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
+			act("Вы положили $o3 в $O3.", false, ch, obj, chest, TO_CHAR);
 		}
 
 		CLAN(ch)->chest_objcount++;
@@ -3050,7 +3049,7 @@ bool Clan::TakeChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		}
 
 		if (!PRF_FLAGGED(ch, PRF_TAKE_MODE)) {
-			act("Вы взяли $o3 из $O1.", FALSE, ch, obj, chest, TO_CHAR);
+			act("Вы взяли $o3 из $O1.", false, ch, obj, chest, TO_CHAR);
 		}
 		CLAN(ch)->chest_objcount--;
 	}
@@ -3175,7 +3174,7 @@ void Clan::ChestLoad() {
 				continue;
 			}
 
-			if (!NamedStuff::check_named(NULL,
+			if (!NamedStuff::check_named(nullptr,
 										 obj.get()))//Если объект есть в списке именных то ему нечего делать в хранилище
 			{
 				obj_to_obj(obj.get(), chest.get());
@@ -3314,7 +3313,7 @@ bool Clan::BankManage(CHAR_DATA *ch, char *arg) {
 						 "Вам удалось вложить в казну дружины только %ld %s.\r\n",
 						 over,
 						 desc_count(over, WHAT_MONEYu));
-			act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+			act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, TO_ROOM);
 			std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
 												  % GET_NAME(ch) % GET_CH_SUF_1(ch) % over
 												  % desc_count(over, WHAT_MONEYu));
@@ -3325,7 +3324,7 @@ bool Clan::BankManage(CHAR_DATA *ch, char *arg) {
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
 		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
-		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+		act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, TO_ROOM);
 		std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
 											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % desc_count(gold, WHAT_MONEYu));
 		CLAN(ch)->chest_log.add(log_text);
@@ -3355,7 +3354,7 @@ bool Clan::BankManage(CHAR_DATA *ch, char *arg) {
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), over);
 			send_to_char(ch, "Вам удалось снять только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
-			act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+			act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, TO_ROOM);
 			std::string log_text = boost::str(boost::format("%s получил%s из казны %ld %s\r\n")
 												  % GET_NAME(ch) % GET_CH_SUF_1(ch) % over
 												  % desc_count(over, WHAT_MONEYu));
@@ -3366,7 +3365,7 @@ bool Clan::BankManage(CHAR_DATA *ch, char *arg) {
 		CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), gold);
 		ch->add_gold(gold);
 		send_to_char(ch, "Вы сняли %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
-		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, TO_ROOM);
 		std::string log_text = boost::str(boost::format("%s получил%s из казны %ld %s\r\n")
 											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % desc_count(gold, WHAT_MONEYu));
 		CLAN(ch)->chest_log.add(log_text);
@@ -4377,7 +4376,7 @@ void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	send_to_char(filter.print(), ch);
-	set_wait(ch, 1, FALSE);
+	set_wait(ch, 1, false);
 
 	std::string out;
 	for (chest = world[real_room(CLAN(ch)->chest_room)]->contents;
@@ -4815,8 +4814,8 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (!cnt) {
-			act("$n открыл$g крышку сундука со стандартной экипировкой\r\n", FALSE, ch, 0, 0, TO_ROOM);
-			act("Вы открыли крышку сундука со стандартной экипировкой\r\n", FALSE, ch, 0, 0, TO_CHAR);
+			act("$n открыл$g крышку сундука со стандартной экипировкой\r\n", false, ch, nullptr, nullptr, TO_ROOM);
+			act("Вы открыли крышку сундука со стандартной экипировкой\r\n", false, ch, nullptr, nullptr, TO_CHAR);
 		}
 
 		int gold = GET_OBJ_COST(obj);
@@ -4834,25 +4833,25 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		sprintf(buf, "$n взял$g %s из сундука", obj->get_PName(0).c_str());
 		sprintf(buf2, "Вы взяли %s из сундука", obj->get_PName(0).c_str());
-		act(buf, FALSE, ch, 0, 0, TO_ROOM);
-		act(buf2, FALSE, ch, 0, 0, TO_CHAR);
+		act(buf, false, ch, 0, 0, TO_ROOM);
+		act(buf2, false, ch, 0, 0, TO_CHAR);
 	}
 
 	if (cnt) {
 		sprintf(buf2, "\r\nЭкипировка обошлась вам в %d %s.", gold_total, desc_count(gold_total, WHAT_MONEYu));
-		act("\r\n$n закрыл$g крышку сундука", FALSE, ch, 0, 0, TO_ROOM);
-		act(buf2, FALSE, ch, 0, 0, TO_CHAR);
+		act("\r\n$n закрыл$g крышку сундука", false, ch, 0, 0, TO_ROOM);
+		act(buf2, false, ch, 0, 0, TO_CHAR);
 	} else {
-		act("\r\n$n порыл$u в сундуке со стандартной экипировкой, но ничего не наш$y", FALSE, ch, 0, 0, TO_ROOM);
+		act("\r\n$n порыл$u в сундуке со стандартной экипировкой, но ничего не наш$y", false, ch, 0, 0, TO_ROOM);
 		act("\r\nВы порылись в сундуке со стандартной экипировкой, но не нашли ничего подходящего",
-			FALSE,
+			false,
 			ch,
 			0,
 			0,
 			TO_CHAR);
 	}
 
-	set_wait(ch, 1, FALSE);
+	set_wait(ch, 1, false);
 }
 
 // неужто реально глючит?
@@ -5217,11 +5216,11 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing) {
-		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
+		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, TO_CHAR);
 	} else {
 		if (CLAN(ch)->ingr_chest_objcount_ >= CLAN(ch)->ingr_chest_max_objects()) {
 			act("Вы попытались запихнуть $o3 в $O3, но не смогли - там просто нет места.",
-				FALSE,
+				false,
 				ch,
 				obj,
 				chest,
@@ -5231,7 +5230,7 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 
 		obj_from_char(obj);
 		obj_to_obj(obj, chest);
-		act("Вы положили $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
+		act("Вы положили $o3 в $O3.", false, ch, obj, chest, TO_CHAR);
 		CLAN(ch)->ingr_chest_objcount_++;
 	}
 	return true;
@@ -5247,7 +5246,7 @@ bool Clan::take_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 	obj_from_obj(obj);
 	obj_to_char(obj, ch);
 	if (obj->get_carried_by() == ch) {
-		act("Вы взяли $o3 из $O1.", FALSE, ch, obj, chest, TO_CHAR);
+		act("Вы взяли $o3 из $O1.", false, ch, obj, chest, TO_CHAR);
 		CLAN(ch)->ingr_chest_objcount_--;
 	}
 	return true;
@@ -5516,7 +5515,7 @@ void Clan::house_web_url(CHAR_DATA *ch, const std::string &buffer) {
 					 "Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
 
 		snprintf(buf, sizeof(buf), "%s sets new clan website: %s", GET_NAME(ch), url.c_str());
-		mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, LGH, LVL_IMMORT, SYSLOG, true);
 	}
 
 	HelpSystem::need_update = true;
@@ -5541,7 +5540,7 @@ bool CHECK_CUSTOM_LABEL_CORE(const OBJ_DATA *obj, const CHAR_DATA *ch) {
 		&& !(obj->get_custom_label()->clan))
 		|| IS_IMPL(ch)
 		|| ((ch)->player_specials->clan
-			&& obj->get_custom_label()->clan != NULL
+			&& obj->get_custom_label()->clan != nullptr
 			&& !strcmp(obj->get_custom_label()->clan, ch->player_specials->clan->GetAbbrev()))
 		|| (obj->get_custom_label()->author_mail
 			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->author_mail));
@@ -5593,11 +5592,11 @@ void ClanSystem::check_player_in_house() {
 			const auto clan = Clan::GetClanByRoom(IN_ROOM(d->character));
 			if (clan) {
 				char_from_room(d->character);
-				act("$n был$g выдворен$a за пределы замка!", TRUE, d->character.get(), 0, 0, TO_ROOM);
+				act("$n был$g выдворен$a за пределы замка!", true, d->character.get(), 0, 0, TO_ROOM);
 				send_to_char("Вы были выдворены за пределы замка!\r\n", d->character.get());
 				char_to_room(d->character, real_room(clan->GetOutRent()));
 				look_at_room(d->character.get(), real_room(clan->GetOutRent()));
-				act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, d->character.get(), 0, 0, TO_ROOM);
+				act("$n свалил$u с небес, выкрикивая какие-то ругательства!", true, d->character.get(), 0, 0, TO_ROOM);
 			}
 		}
 	}

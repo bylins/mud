@@ -257,47 +257,6 @@ struct skillvariables_insgem {
 	int timer_minus_percent;
 };
 
-/*
-    В перспективе описанный далее класс должен будет содержать
-    всю информацию по скиллам и использоваться вместо скилл_инфо
-    и прочего.
-    Пока что тут только распарс файла и перевод идентификатора
-    в номер скилла.
-    Это все нужно для совместимости со старой системой.
-*/
-/*
-#define SKILL_UNDEFINED -1
-#define SKILL_NAME_UNDEFINED "undefined"
-#define SKILLS_FILE "skills.xml"
-#define SKILLS_MAIN_TAG "skills"
-#define SKILLS_ERROR_STR "...skills.xml reading fail"
-*/
-class Skill;
-
-typedef std::shared_ptr<Skill> SkillPtr;
-typedef std::map<std::string, SkillPtr> SkillListType;
-
-class Skill {
- public:
-	Skill();
-
-	static int GetNumByID(const std::string &ID);   // Получение номера скилла по ИД
-	static void Load(const pugi::xml_node &XMLSkillList);  // Парсинг конфига скиллов
-	static SkillListType SkillList;                 // Глобальный скилллист
-
-	// Доступ к полям
-	std::string Name() { return this->_Name; }
-	int Number() { return this->_Number; }
-	int MaxPercent() { return this->_MaxPercent; }
-
- private:
-	std::string _Name;  // Имя скилла на русском
-	int _Number;        // Номер скилла
-	int _MaxPercent;    // Максимальная процент
-
-	static void ParseSkill(pugi::xml_node SkillNode);   // Парсинг описания одного скилла
-};
-
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

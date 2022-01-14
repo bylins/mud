@@ -109,7 +109,7 @@ void ApplyNoFleeAffect(CHAR_DATA *ch, int duration) {
 	Noflee.modifier = 0;
 	Noflee.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
 	Noflee.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, Noflee, TRUE, FALSE, TRUE, FALSE);
+	affect_join(ch, Noflee, true, false, true, false);
 
 	AFFECT_DATA<EApplyLocation> Battle;
 	Battle.type = SPELL_BATTLE;
@@ -118,7 +118,7 @@ void ApplyNoFleeAffect(CHAR_DATA *ch, int duration) {
 	Battle.modifier = 0;
 	Battle.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
 	Battle.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, Battle, TRUE, FALSE, TRUE, FALSE);
+	affect_join(ch, Battle, true, false, true, false);
 
 	send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
@@ -138,16 +138,16 @@ void go_cut_shorts(CHAR_DATA *ch, CHAR_DATA *vict) {
 	vict = try_protect(vict, ch);
 
 	if (!CheckExpedientSuccess(ch, vict)) {
-		act("Ваши свистящие удары пропали втуне, не задев $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		act("Ваши свистящие удары пропали втуне, не задев $N3.", false, ch, 0, vict, TO_CHAR);
 		Damage dmg(SkillDmg(SKILL_SHORTS), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
 		return;
 	}
 
-	act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", FALSE, ch, 0, vict, TO_VICT);
+	act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", false, ch, 0, vict, TO_VICT);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
-		TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::OFF_HAND);
 
@@ -157,14 +157,14 @@ void go_cut_shorts(CHAR_DATA *ch, CHAR_DATA *vict) {
 	AffectImmunPhysic.modifier = 100;
 	AffectImmunPhysic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	AffectImmunPhysic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, AffectImmunPhysic, FALSE, FALSE, FALSE, FALSE);
+	affect_join(ch, AffectImmunPhysic, false, false, false, false);
 	AFFECT_DATA<EApplyLocation> AffectImmunMagic;
 	AffectImmunMagic.type = SPELL_EXPEDIENT;
 	AffectImmunMagic.location = EApplyLocation::APPLY_MR;
 	AffectImmunMagic.modifier = 100;
 	AffectImmunMagic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	AffectImmunMagic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, AffectImmunMagic, FALSE, FALSE, FALSE, FALSE);
+	affect_join(ch, AffectImmunMagic, false, false, false, false);
 
 	ApplyNoFleeAffect(ch, 3);
 }
@@ -179,11 +179,11 @@ void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 
 	if (!ch->get_fighting()) {
-		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".", FALSE, ch, 0, victim, TO_CHAR);
+		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".", false, ch, 0, victim, TO_CHAR);
 		set_fighting(ch, victim);
 		ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
 	} else {
-		act("Хорошо. Вы попытаетесь порезать $N3.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, 0, victim, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
 	}
 }
@@ -197,11 +197,11 @@ void SetExtraAttackCutPick(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 
 	if (!ch->get_fighting()) {
-		act("Вы перехватили оружие обратным хватом и проскользнули за спину $N1.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Вы перехватили оружие обратным хватом и проскользнули за спину $N1.", false, ch, 0, victim, TO_CHAR);
 		set_fighting(ch, victim);
 		ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
 	} else {
-		act("Хорошо. Вы попытаетесь порезать $N3.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, 0, victim, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
 	}
 }
@@ -270,7 +270,7 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		return;
 	}
 	if (ch->get_fighting() && vict->get_fighting() != ch) {
-		act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N не сражается с вами, не трогайте $S.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 

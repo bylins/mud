@@ -391,7 +391,7 @@ static void go_name(CHAR_DATA *ch, CHAR_DATA *vict, int action) {
 		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
 		// В этом теперь нет смысла
-		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+		//mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
 
 	} else {
 		NAME_GOD(vict) = god_level;
@@ -401,7 +401,7 @@ static void go_name(CHAR_DATA *ch, CHAR_DATA *vict, int action) {
 		disagree_name(vict, GET_NAME(ch), god_level);
 		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
-		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+		//mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
 
 	}
 
@@ -446,7 +446,7 @@ void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	CHAR_DATA *vict;
-	if ((vict = get_player_vis(ch, name, FIND_CHAR_WORLD)) != NULL) {
+	if ((vict = get_player_vis(ch, name, FIND_CHAR_WORLD)) != nullptr) {
 		if (!(vict = get_player_pun(ch, name, FIND_CHAR_WORLD))) {
 			send_to_char("Нет такого игрока.\r\n", ch);
 			return;

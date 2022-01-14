@@ -27,7 +27,6 @@
 #include <iostream>
 
 #define YES        1
-#define FALSE    0
 #define NO        0
 
 /*
@@ -200,7 +199,7 @@ ush_int DFLT_PORT = 4000;
  * course, that IP address must be one of your host's interfaces, or it
  * won't work.)
  */
-const char *DFLT_IP = NULL;    // bind to all interfaces
+const char *DFLT_IP = nullptr;    // bind to all interfaces
 // const char *DFLT_IP = "192.168.1.1";  -- bind only to one interface
 
 // default directory to use as data directory
@@ -212,7 +211,7 @@ const char *DFLT_DIR = "lib";
  * versions of Circle.  If you specify a file, you don't get messages to
  * the screen. (Hint: Try 'tail -f' if you have a UNIX machine.)
  */
-const char *LOGNAME = NULL;
+const char *LOGNAME = nullptr;
 // const char *LOGNAME = "log/syslog";  -- useful for Windows users
 
 // maximum number of players allowed before game starts to turn people away
@@ -235,7 +234,7 @@ int max_bad_pws = 3;
  * to just have to remove the SITEOK flags from those people I want to ban
  * rather than what is currently done?
  */
-int siteok_everyone = TRUE;
+int siteok_everyone = true;
 
 /*
  * Some nameservers are very slow and cause the game to lag terribly every

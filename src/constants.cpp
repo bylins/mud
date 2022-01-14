@@ -2057,7 +2057,7 @@ int mana_cost_cs[][9] = {
 };
 
 //MZ.load
-struct zone_type *zone_types = NULL;
+struct zone_type *zone_types = nullptr;
 //-MZ.load
 
 // Круги, доступные волхвам в зависимости от уровня

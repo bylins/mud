@@ -188,9 +188,9 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (k) {
-			act("Вашим наемником является $N.", FALSE, ch, 0, k->follower, TO_CHAR);
+			act("Вашим наемником является $N.", false, ch, 0, k->follower, TO_CHAR);
 		} else {
-			act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
+			act("У вас нет наемников!", false, ch, 0, 0, TO_CHAR);
 		}
 		return;
 	}
@@ -213,15 +213,15 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!IS_NPC(helpee))
 		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, NPC_HELPED))
-		act("$N не нанимается!", FALSE, ch, 0, helpee, TO_CHAR);
+		act("$N не нанимается!", false, ch, 0, helpee, TO_CHAR);
 	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_CHARM) && (!k || (k && helpee != k->follower)))
-		act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
+		act("$N под чьим-то контролем.", false, ch, 0, helpee, TO_CHAR);
 	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_DEAFNESS))
-		act("$N не слышит вас.", FALSE, ch, 0, helpee, TO_CHAR);
+		act("$N не слышит вас.", false, ch, 0, helpee, TO_CHAR);
 	else if (IS_HORSE(helpee))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
 	else if (helpee->get_fighting() || GET_POS(helpee) < POS_RESTING)
-		act("$M сейчас, похоже, не до вас.", FALSE, ch, 0, helpee, TO_CHAR);
+		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, TO_CHAR);
 	else if (circle_follow(helpee, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else {
@@ -236,12 +236,12 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto cost = calc_hire_price(ch, helpee);
 			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
 					cost, desc_count(cost, WHAT_MONEYu));
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			act(buf, false, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 			return;
 		}
 
 		if (k && helpee != k->follower) {
-			act("Вы уже наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+			act("Вы уже наняли $N3.", false, ch, 0, k->follower, TO_CHAR);
 			return;
 		}
 
@@ -258,7 +258,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf,
 					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
 					times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			act(buf, false, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 			return;
 		}
 
@@ -314,7 +314,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		affect_to_char(helpee, af);
 
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
-		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+		act(buf, false, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 
 		if (IS_NPC(helpee)) {
 			for (auto i = 0; i < NUM_WEARS; i++) {
@@ -322,8 +322,8 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
 						continue;
 
-					act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
-					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
+					act("Вы прекратили использовать $o3.", false, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
+					act("$n прекратил$g использовать $o3.", true, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
 					obj_to_char(unequip_char(helpee, i, CharEquipFlag::show_msg), helpee);
 				}
 			}
@@ -357,17 +357,17 @@ void do_freehelpee(CHAR_DATA *ch, char * /* argument*/, int/* cmd*/, int/* subcm
 	}
 
 	if (!k) {
-		act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
+		act("У вас нет наемников!", false, ch, 0, 0, TO_CHAR);
 		return;
 	}
 
 	if (ch->in_room != IN_ROOM(k->follower)) {
-		act("Вам следует встретиться с $N4 для этого.", FALSE, ch, 0, k->follower, TO_CHAR);
+		act("Вам следует встретиться с $N4 для этого.", false, ch, 0, k->follower, TO_CHAR);
 		return;
 	}
 
 	if (GET_POS(k->follower) < POS_STANDING) {
-		act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, k->follower, TO_CHAR);
+		act("$N2 сейчас, похоже, не до вас.", false, ch, 0, k->follower, TO_CHAR);
 		return;
 	}
 
@@ -389,7 +389,7 @@ void do_freehelpee(CHAR_DATA *ch, char * /* argument*/, int/* cmd*/, int/* subcm
 		}
 	}
 
-	act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+	act("Вы рассчитали $N3.", false, ch, 0, k->follower, TO_CHAR);
 	affect_from_char(k->follower, SPELL_CHARM);
 	stop_follower(k->follower, SF_CHARMLOST);
 }

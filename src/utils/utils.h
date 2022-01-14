@@ -156,7 +156,7 @@ extern bool is_dark(room_rnum room);
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
-  if ((pointer) == NULL) i = ACTNULL; else i = (expression);
+  if ((pointer) == nullptr) i = ACTNULL; else i = (expression);
 
 #define MIN_TITLE_LEV   25
 
@@ -502,7 +502,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
 #define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
-#define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
+#define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
@@ -520,7 +520,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
 #define GET_MEM_CURRENT(ch)   (MEMQUEUE_EMPTY(ch)?0:mag_manacost(ch,(ch)->MemQueue.queue->spellnum))
 #define GET_MEM_TOTAL(ch)     ((ch)->MemQueue.total)
-#define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == NULL)
+#define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == nullptr)
 #define INITIATIVE(ch)        ((ch)->Initiative)
 #define BATTLECNTR(ch)        ((ch)->BattleCounter)
 #define ROUND_COUNTER(ch)     ((ch)->round_counter)
@@ -758,7 +758,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : NULL)
+#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : nullptr)
 #define GET_MOB_RNUM(mob)  (mob)->get_rnum()
 #define GET_MOB_VNUM(mob)  (IS_MOB(mob) ? mob_index[(mob)->get_rnum()].vnum : -1)
 
@@ -1044,7 +1044,7 @@ inline T VPOSI(const T val, const T min, const T max) {
                            : GET_PAD_OBJ(pad))
 
 #define EXITDATA(room, door) ((room >= 0 && room <= top_of_world) ? \
-                             world[room]->dir_option[door] : NULL)
+                             world[room]->dir_option[door] : nullptr)
 
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])
 
@@ -1198,22 +1198,6 @@ std::string time_format(int timer, int flag = 0);
 size_t count_colors(const char *str, size_t len = 0);
 char *colored_name(const char *str, size_t len, const bool left_align = false);
 size_t strlen_no_colors(const char *str);
-
-// OS compatibility *****************************************************
-
-
-// there could be some strange OS which doesn't have NULL...
-#ifndef NULL
-#define NULL (void *)0
-#endif
-
-#if !defined(FALSE)
-#define FALSE 0
-#endif
-
-#if !defined(TRUE)
-#define TRUE  (!FALSE)
-#endif
 
 // defines for fseek
 #ifndef SEEK_SET

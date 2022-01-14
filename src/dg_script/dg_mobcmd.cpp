@@ -120,8 +120,8 @@ void do_mportal(CHAR_DATA *mob, char *argument, int/* cmd*/, int/* subcmd*/) {
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
+	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -142,7 +142,7 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& exit->to_room() != kNowhere
 			&& exit->to_room() != temp_in_room) {
 			ch->in_room = exit->to_room();
-			sub_write(argument, ch, TRUE, TO_ROOM);
+			sub_write(argument, ch, true, TO_ROOM);
 		}
 	}
 
@@ -225,16 +225,16 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		junk_all = 1;
 
 	if ((find_all_dots(arg) == FIND_INDIV) && !junk_all) {
-		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != NULL) {
+		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != nullptr) {
 			unequip_char(ch, pos, CharEquipFlags());
 			extract_obj(obj);
 			return;
 		}
-		if ((obj = get_obj_in_list_vis(ch, arg, ch->carrying)) != NULL)
+		if ((obj = get_obj_in_list_vis(ch, arg, ch->carrying)) != nullptr)
 			extract_obj(obj);
 		return;
 	} else {
-		for (obj = ch->carrying; obj != NULL; obj = obj_next) {
+		for (obj = ch->carrying; obj != nullptr; obj = obj_next) {
 			obj_next = obj->get_next_content();
 			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases())) {
 				extract_obj(obj);
@@ -280,10 +280,10 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
 	}
 
-	sub_write(p, victim, TRUE, TO_ROOM);
+	sub_write(p, victim, true, TO_ROOM);
 }
 
 // sends the message to only the victim
@@ -319,10 +319,10 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
 	}
 
-	sub_write(p, victim, TRUE, TO_CHAR);
+	sub_write(p, victim, true, TO_CHAR);
 }
 
 // prints the message to the room at large
@@ -343,10 +343,10 @@ void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
 	}
 
-	sub_write(p, ch, TRUE, TO_ROOM);
+	sub_write(p, ch, true, TO_ROOM);
 }
 
 /*
@@ -371,7 +371,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (is_abbrev(arg1, "mob")) {
-		if ((mob = read_mobile(number, VIRTUAL)) == NULL) {
+		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			mob_log(ch, "mload: bad mob vnum");
 			return;
 		}
@@ -433,7 +433,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		victim = get_char_room_vis(ch, arg);
 
-	if (victim == NULL) {
+	if (victim == nullptr) {
 		if ((obj = get_obj_by_char(ch, arg))) {
 			extract_obj(obj);
 		} else {
@@ -452,7 +452,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		die_follower(victim);
 	}
 
-	extract_char(victim, FALSE);
+	extract_char(victim, false);
 }
 
 // lets the mobile goto any location it wishes that is not private
@@ -479,7 +479,7 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch->get_fighting())
-		stop_fighting(ch, TRUE);
+		stop_fighting(ch, true);
 
 	char_from_room(ch);
 	char_to_room(ch, location);
@@ -559,7 +559,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			char_to_room(vict, target);
 			// переделать чтоб чары смотрели в клетку после переноса, походу еще один цикл крутить, ну и мутево будет
 			if (!IS_NPC(vict))
-				look_at_room(vict, TRUE);
+				look_at_room(vict, true);
 		}
 	} else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
 		if (target == ch->in_room) {
@@ -576,7 +576,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			char_from_room(vict);
 			char_to_room(vict, target);
-			look_at_room(vict, TRUE);
+			look_at_room(vict, true);
 		}
 	} else {
 		if (*arg1 == UID_CHAR) {
@@ -602,7 +602,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (vict->ahorse() || vict->has_horse(true)) {
 			horse = vict->get_horse();
 		} else {
-			horse = NULL;
+			horse = nullptr;
 		}
 		if (!str_cmp(argument, "horse") && horse) {
 			char_from_room(horse);
@@ -623,7 +623,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		char_from_room(vict);
 		char_to_room(vict, target);
 		vict->dismount();
-		look_at_room(vict, TRUE);
+		look_at_room(vict, true);
 		greet_mtrigger(vict, -1);
 		greet_otrigger(vict, -1);
 	}
@@ -660,7 +660,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			mob_log(ch, buf);
 			return;
 		}
-	} else if ((victim = get_char_room_vis(ch, arg)) == NULL) {
+	} else if ((victim = get_char_room_vis(ch, arg)) == nullptr) {
 		mob_log(ch, "mforce: no such victim");
 		return;
 	}
@@ -793,7 +793,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			keep_hp = 0;
 			m = read_mobile(atoi(arg + 1), VIRTUAL);
 		}
-		if (m == NULL) {
+		if (m == nullptr) {
 			mob_log(ch, "mtransform: bad mobile vnum");
 			return;
 		}
@@ -810,7 +810,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (GET_EQ(ch, pos))
 				obj[pos] = unequip_char(ch, pos, CharEquipFlags());
 			else
-				obj[pos] = NULL;
+				obj[pos] = nullptr;
 		}
 
 		// put the mob in the same room as ch so extract will work
@@ -868,7 +868,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (obj[pos])
 				equip_char(ch, obj[pos], pos, CharEquipFlag::no_cast);
 		}
-		extract_char(m, FALSE);
+		extract_char(m, false);
 	}
 }
 
@@ -902,17 +902,17 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((rm = get_room(target)) == NULL) {
+	if ((rm = get_room(target)) == nullptr) {
 		mob_log(ch, "mdoor: invalid target");
 		return;
 	}
 
-	if ((dir = search_block(direction, dirs, FALSE)) == -1) {
+	if ((dir = search_block(direction, dirs, false)) == -1) {
 		mob_log(ch, "mdoor: invalid direction");
 		return;
 	}
 
-	if ((fd = search_block(field, door_field, FALSE)) == -1) {
+	if ((fd = search_block(field, door_field, false)) == -1) {
 		mob_log(ch, "mdoor: invalid field");
 		return;
 	}
@@ -1366,7 +1366,7 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						GET_NAME(victim),
 						IN_ROOM(victim) == kNowhere ? "kNowhere" : world[IN_ROOM(victim)]->name,
 						GET_ROOM_VNUM(IN_ROOM(victim)));
-				mudlog(buf2, BRF, 0, SYSLOG, TRUE);
+				mudlog(buf2, BRF, 0, SYSLOG, true);
 			}
 			die(victim, ch);
 		}
