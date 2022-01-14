@@ -6,7 +6,7 @@
 #define ROOM_HPP_INCLUDED
 
 #include "dg_script/dg_scripts.h"
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 #include "constants.h"
 #include "structs/structs.h"
 #include "sysdep.h"

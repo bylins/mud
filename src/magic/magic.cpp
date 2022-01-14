@@ -16,7 +16,7 @@
 
 #include "action_targeting.h"
 #include "affects/affect_handler.h"
-#include "entity_characters/world.characters.h"
+#include "entities/world.characters.h"
 #include "cmd/hire.h"
 #include "corpse.h"
 #include "fightsystem/fight.h"

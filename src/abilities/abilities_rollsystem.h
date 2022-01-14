@@ -9,7 +9,7 @@
 */
 
 #include "abilities_constants.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 //#include "fightsystem/fight_constants.h"
 //#include "features.h"
 //#include "skills.h"

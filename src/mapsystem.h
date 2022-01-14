@@ -11,7 +11,7 @@
 
 #include "sysdep.h"
 #include "structs/structs.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "interpreter.h"
 
 void do_map(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

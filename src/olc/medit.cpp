@@ -7,8 +7,8 @@
 *  $Revision$                                                      *
 ***************************************************************************/
 
-#include "entity_characters/world.characters.h"
-#include "entity_objects/obj.h"
+#include "entities/world.characters.h"
+#include "entities/obj.h"
 #include "comm.h"
 #include "magic/spells.h"
 #include "db.h"
@@ -18,12 +18,12 @@
 #include "constants.h"
 #include "features.h"
 #include "crafts/im.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "skills.h"
 #include "name_list.h"
-#include "entity_rooms/room.h"
+#include "entities/room.h"
 #include "corpse.h"
-#include "sets_drop.h"
+#include "game_mechanics/sets_drop.h"
 #include "fightsystem/fight.h"
 #include "zone.table.h"
 #include "logger.h"

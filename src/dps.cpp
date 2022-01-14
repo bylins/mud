@@ -4,7 +4,7 @@
 
 #include "dps.h"
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "handler.h"
 
 #include <boost/format.hpp>

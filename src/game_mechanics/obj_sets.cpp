@@ -1,15 +1,15 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "entity_characters/world.characters.h"
+#include "entities/world.characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
-#include "pugixml.h"
+#include "utils/pugixml.h"
 #include "parse.h"
 #include "screen.h"
 #include "modify.h"
 #include "help.h"
-#include "sets_drop.h"
+#include "game_mechanics/sets_drop.h"
 
 #include <boost/lexical_cast.hpp>
 

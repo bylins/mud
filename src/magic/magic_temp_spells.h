@@ -1,7 +1,7 @@
 #ifndef TEMP_SPELLS_HPP_INCLUDED
 #define TEMP_SPELLS_HPP_INCLUDED
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 #include <vector>
 

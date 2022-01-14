@@ -4,7 +4,7 @@
 #define _FIGHT_H_
 
 #include "fight_constants.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "structs/structs.h"
 #include "conf.h"
 #include "sysdep.h"

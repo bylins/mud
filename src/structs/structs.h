@@ -140,8 +140,7 @@ constexpr bitvector_t AFF_ROOM_THUNDERSTORM = 1 << 7;             // SPELL_THUND
 constexpr bitvector_t AF_BATTLEDEC = 1 << 0;
 constexpr bitvector_t AF_DEADKEEP = 1 << 1;
 constexpr bitvector_t AF_PULSEDEC = 1 << 2;
-constexpr bitvector_t
-	AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
+constexpr bitvector_t AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
 constexpr bitvector_t WEATHER_QUICKCOOL = 1 << 0;
 constexpr bitvector_t WEATHER_QUICKHOT = 1 << 1;
@@ -486,7 +485,7 @@ enum class EAffectFlag : bitvector_t {
 	AFF_BLIND = 1u << 0,                    ///< (R) Char is blind
 	AFF_INVISIBLE = 1u << 1,                ///< Char is invisible
 	AFF_DETECT_ALIGN = 1u << 2,                ///< Char is sensitive to align
-	AFF_DETECT_INVIS = 1u << 3,                ///< Char can see invis entity_characters
+	AFF_DETECT_INVIS = 1u << 3,                ///< Char can see invis entities
 	AFF_DETECT_MAGIC = 1u << 4,                ///< Char is sensitive to magic
 	AFF_SENSE_LIFE = 1u << 5,                ///< Char can sense hidden life
 	AFF_WATERWALK = 1u << 6,                ///< Char can walk on water
@@ -1201,7 +1200,7 @@ struct timed_type {
 	struct timed_type *next;
 };
 
-// Structure used for entity_characters following other entity_characters //
+// Structure used for entities following other entities //
 struct follow_type {
 	CHAR_DATA *follower;
 	struct follow_type *next;

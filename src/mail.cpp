@@ -14,11 +14,11 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "parcel.h"
-#include "entity_characters/char_player.h"
-#include "named_stuff.h"
+#include "entities/char_player.h"
+#include "game_mechanics/named_stuff.h"
 #include "parse.h"
 #include "screen.h"
-#include "pugixml.h"
+#include "utils/pugixml.h"
 
 #include <boost/lexical_cast.hpp>
 

@@ -8,7 +8,7 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
@@ -16,12 +16,12 @@
 #include "constants.h"
 #include "crafts/im.h"
 #include "description.h"
-#include "deathtrap.h"
-#include "entity_characters/char.h"
-#include "entity_characters/char_player.h"
-#include "entity_rooms/room.h"
+#include "game_mechanics/deathtrap.h"
+#include "entities/char.h"
+#include "entities/char_player.h"
+#include "entities/room.h"
 #include "house.h"
-#include "entity_characters/world.characters.h"
+#include "entities/world.characters.h"
 #include "zone.table.h"
 #include "logger.h"
 #include "utils/utils.h"

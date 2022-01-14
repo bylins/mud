@@ -1,7 +1,7 @@
 #ifndef BYLINS_START_FIGHT_H
 #define BYLINS_START_FIGHT_H
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd);
 void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

@@ -1,7 +1,7 @@
 #ifndef __WORLD_CHARACTERS_HPP__
 #define __WORLD_CHARACTERS_HPP__
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 #include <list>
 #include <functional>

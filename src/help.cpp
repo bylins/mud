@@ -7,7 +7,7 @@
 #include "obj_prototypes.h"
 #include "modify.h"
 #include "house.h"
-#include "sets_drop.h"
+#include "game_mechanics/sets_drop.h"
 #include "screen.h"
 #include "zone.table.h"
 #include "skills_info.h"

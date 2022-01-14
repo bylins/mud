@@ -2,7 +2,7 @@
 #define __WORLD_OBJECTS_HPP__
 
 #include "id.h"
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 
 #include <list>
 #include <functional>

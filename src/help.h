@@ -5,7 +5,7 @@
 #ifndef HELP_HPP_INCLUDED
 #define HELP_HPP_INCLUDED
 
-#include "entity_characters/char_player.h"
+#include "entities/char_player.h"
 #include "conf.h"
 #include "interpreter.h"
 #include "structs/flag_data.h"

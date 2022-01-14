@@ -1,6 +1,6 @@
 /* ************************************************************************
 *   File: handler.cpp                                   Part of Bylins    *
-*  Usage: internal funcs: moving and finding entity_characters/objs                   *
+*  Usage: internal funcs: moving and finding entities/objs                   *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
 *                                                                         *
@@ -17,9 +17,9 @@
 #include "auction.h"
 #include "backtrace.h"
 #include "utils/utils_char_obj.inl"
-#include "entity_characters/char_player.h"
-#include "entity_characters/world.characters.h"
-#include "entity_rooms/room_constants.h"
+#include "entities/char_player.h"
+#include "entities/world.characters.h"
+#include "entities/room_constants.h"
 #include "cmd/follow.h"
 #include "exchange.h"
 #include "ext_money.h"
@@ -28,7 +28,7 @@
 #include "house.h"
 #include "liquid.h"
 #include "magic/magic.h"
-#include "named_stuff.h"
+#include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
 #include "screen.h"
 #include "magic/magic_utils.h"

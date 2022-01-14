@@ -5,7 +5,7 @@
 #include "remember.h"
 
 #include "logger.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "screen.h"
 #include "house.h"
 

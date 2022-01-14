@@ -12,8 +12,8 @@
 
 #include "crafts/im.h"
 
-#include "entity_characters/world.characters.h"
-#include "entity_rooms/room_constants.h"
+#include "entities/world.characters.h"
+#include "entities/room_constants.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
@@ -1089,7 +1089,7 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	skip_spaces(&argument);
 
-	// If there is no entity_characters in argument
+	// If there is no entities in argument
 	if (!*argument) {
 		send_to_char("Пропущено название рецепта.\r\n", ch);
 		return;

@@ -1,11 +1,11 @@
-#include <glory_const.h>
+#include <game_mechanics/glory_const.h>
 
 #include "affect_data.h"
-#include "entity_characters/char_player.h"
-#include "entity_characters/world.characters.h"
+#include "entities/char_player.h"
+#include "entities/world.characters.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
-#include "deathtrap.h"
+#include "game_mechanics/deathtrap.h"
 #include "magic/magic.h"
 #include "skills/poison.h"
 

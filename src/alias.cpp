@@ -13,7 +13,7 @@
 *  $Revision$                                                      *
 *********************************************************************** */
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 void write_aliases(CHAR_DATA *ch);
 void read_aliases(CHAR_DATA *ch);

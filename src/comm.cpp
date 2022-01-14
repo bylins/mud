@@ -34,8 +34,8 @@
 #include "global_objects.h"
 #include "magic/magic.h"
 #include "world_objects.h"
-#include "entity_characters/world.characters.h"
-#include "entity_rooms/room_constants.h"
+#include "entities/world.characters.h"
+#include "entities/room_constants.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "obj_prototypes.h"
 #include "external_trigger.h"
@@ -47,13 +47,13 @@
 #include "exchange.h"
 #include "title.h"
 #include "depot.h"
-#include "glory.h"
-#include "file_crc.h"
+#include "game_mechanics/glory.h"
+#include "utils/file_crc.h"
 #include "corpse.h"
-#include "glory_misc.h"
-#include "glory_const.h"
+#include "game_mechanics/glory_misc.h"
+#include "game_mechanics/glory_const.h"
 #include "shop_ext.h"
-#include "sets_drop.h"
+#include "game_mechanics/sets_drop.h"
 #include "mail.h"
 #include "mob_stat.h"
 #include "utils/utils_char_obj.inl"
@@ -1635,7 +1635,7 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 	int door;
 	int perc;
 
-	// Note, prompt is truncated at kMaxPromptLength entity_characters (structs.h )
+	// Note, prompt is truncated at kMaxPromptLength entities (structs.h )
 	if (d->showstr_count) {
 		sprintf(prompt,
 				"\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).",

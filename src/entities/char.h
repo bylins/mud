@@ -6,9 +6,9 @@
 
 #include "player_i.h"
 #include "skills/morph.hpp"
-#include "obj_sets.h"
+#include "game_mechanics/obj_sets.h"
 #include "db.h"
-#include "entity_rooms/room.h"
+#include "room.h"
 #include "ignores.h"
 #include "crafts/im.h"
 #include "skills.h"

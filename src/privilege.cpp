@@ -5,7 +5,7 @@
 #include "privilege.h"
 
 #include "logger.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "boards/boards.h"
 
 #include <boost/tokenizer.hpp>

@@ -19,7 +19,7 @@
 #include "house.h"
 #include "boards/boards_constants.h"
 #include "boards/boards.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "noob.h"
 
 extern int dts_are_dumps;

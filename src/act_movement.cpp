@@ -13,15 +13,15 @@
 ************************************************************************ */
 #include "act_movement.h"
 
-#include "deathtrap.h"
-#include "entity_rooms/room_constants.h"
+#include "game_mechanics/deathtrap.h"
+#include "entities/room_constants.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/mobact.h"
 #include "handler.h"
 #include "house.h"
 //#include "interpreter.h"
-#include "named_stuff.h"
+#include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
 #include "privilege.h"
 #include "screen.h"

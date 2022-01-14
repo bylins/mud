@@ -2,7 +2,7 @@
 
 #include "magic/spells_info.h"
 #include "modify.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "magic.h" //Включено ради material_component_processing, который надо, по-хлорошему, вообще в отдеьный модуль.
 
 #include <iomanip>

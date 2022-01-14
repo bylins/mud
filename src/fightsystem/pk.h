@@ -14,7 +14,7 @@
 #ifndef _PVP_H_
 #define _PVP_H_
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 #include <string>
 

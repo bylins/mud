@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "handler.h"
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string.hpp>

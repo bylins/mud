@@ -5,13 +5,13 @@
  ************************************************************************/
 
 #include "obj_prototypes.h"
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
 #include "dg_script/dg_scripts.h"
-#include "entity_characters/char.h"
-#include "entity_rooms/room.h"
+#include "entities/char.h"
+#include "entities/room.h"
 #include "help.h"
 #include "zone.table.h"
 #include "logger.h"

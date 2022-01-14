@@ -11,14 +11,14 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 */
 #include "scripting.h"
 
-#include "entity_characters/world.characters.h"
+#include "entities/world.characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
 #include "utils/utils.h"
 #include "comm.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "interpreter.h"
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 #include "db.h"
 #include "cache.h"
 #include "magic/magic_utils.h"

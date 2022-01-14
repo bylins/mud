@@ -9,7 +9,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "cmd/follow.h"
 #include "fightsystem/fight.h"
 #include "handler.h"

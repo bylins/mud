@@ -17,7 +17,7 @@
 #include "classes/class_constants.h"
 #include "conf.h"
 #include "config.h"
-#include "entity_rooms/room_constants.h"
+#include "entities/room_constants.h"
 #include "pugixml.h"
 #include "structs/structs.h"
 
@@ -56,7 +56,7 @@ struct DESCRIPTOR_DATA;
 //	'\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7', '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'	//256
 //};
 
-// Full ASCII table for fast erase entity_characters
+// Full ASCII table for fast erase entities
 //const bool a_isdigit_table[] = {
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,

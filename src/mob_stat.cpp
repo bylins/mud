@@ -3,9 +3,9 @@
 
 #include "mob_stat.h"
 
-#include "pugixml.h"
+#include "utils/pugixml.h"
 #include "parse.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "screen.h"
 
 #include <iomanip>

@@ -13,7 +13,7 @@
 #include "xml_loading_helper.h"
 #include "parse.h"
 #include "db.h"
-#include "pugixml.h"
+#include "utils/pugixml.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/detail/util.hpp>

@@ -14,7 +14,7 @@
 #include "handler.h"
 #include "corpse.h"
 #include "screen.h"
-#include "sets_drop.h"
+#include "game_mechanics/sets_drop.h"
 
 
 extern std::vector<RandomObj> random_objs;

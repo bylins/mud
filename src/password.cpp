@@ -11,8 +11,8 @@
 #endif
 #include "password.h"
 #include "interpreter.h"
-#include "entity_characters/char.h"
-#include "entity_characters/char_player.h"
+#include "entities/char.h"
+#include "entities/char_player.h"
 // для ручного отключения крипования (на локалке лучше собирайте через make test и не парьтесь)
 //#define NOCRYPT
 // в случае сборки без криптования просто пишем пароль в открытом виде

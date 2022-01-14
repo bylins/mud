@@ -12,7 +12,7 @@
 #include "abilities/abilities_constants.h"
 #include "action_targeting.h"
 #include "handler.h"
-#include "entity_characters/player_races.h"
+#include "entities/player_races.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
 

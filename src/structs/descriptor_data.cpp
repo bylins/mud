@@ -7,7 +7,7 @@
 
 #include "descriptor_data.h"
 
-#include "entity_characters/char_player.h"
+#include "entities/char_player.h"
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"
 

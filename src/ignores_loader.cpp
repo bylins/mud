@@ -1,6 +1,6 @@
 #include "ignores_loader.h"
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 #include <boost/algorithm/string.hpp>
 class IgnoreParser {

@@ -6,7 +6,7 @@
 #include "utils/utils.h"
 #include "global_objects.h"
 
-Characters &character_list = GlobalObjects::characters();    // global container of entity_characters
+Characters &character_list = GlobalObjects::characters();    // global container of entities
 
 Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters &cl) : m_parent(cl) {
 }

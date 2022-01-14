@@ -16,10 +16,10 @@
 
 #include "dg_olc.h"
 
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 #include "olc/olc.h"
 #include "dg_event.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "zone.table.h"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];

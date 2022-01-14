@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-#include "entity_characters/char_player.h"
+#include "entities/char_player.h"
 
 NameAdviser::NameAdviser() {
 	std::srand(static_cast<unsigned int>((std::time(0))));

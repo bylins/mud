@@ -1,11 +1,11 @@
 #include "skills/morph.hpp"
 
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 #include "screen.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
-#include "pugixml.h"
+#include "utils/pugixml.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>

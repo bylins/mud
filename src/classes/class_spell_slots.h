@@ -6,7 +6,7 @@
 	и прочий код для работы с ними.
 */
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "classes/class_constants.h"
 
 namespace PlayerClass {

@@ -1,8 +1,8 @@
 #include "interpreter.h"
 #include "screen.h"
 #include "top.h"
-#include "glory_const.h"
-#include "entity_characters/char.h"
+#include "game_mechanics/glory_const.h"
+#include "entities/char.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>

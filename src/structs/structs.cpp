@@ -1,5 +1,5 @@
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 void tascii(const uint32_t *pointer, int num_planes, char *ascii) {
 	bool found = false;

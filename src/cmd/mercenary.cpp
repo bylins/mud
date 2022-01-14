@@ -1,5 +1,5 @@
 #include "cmd/mercenary.h"
-#include "entity_characters/char_player.h"
+#include "entities/char_player.h"
 #include "modify.h"
 #include "mob_stat.h"
 

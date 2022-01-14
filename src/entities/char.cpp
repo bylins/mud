@@ -5,11 +5,11 @@
 #include "world.characters.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
-#include "entity_rooms/room_constants.h"
+#include "room_constants.h"
 #include "privilege.h"
 #include "char_player.h"
 #include "player_races.h"
-#include "celebrates.h"
+#include "game_mechanics/celebrates.h"
 #include "cache.h"
 #include "fightsystem/fight.h"
 #include "house.h"
@@ -879,7 +879,7 @@ bool CAN_SEE(const CHAR_DATA *sub, const CHAR_DATA *obj) {
 
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
 void change_fighting(CHAR_DATA *ch, int need_stop) {
-	//Loop for all entity_characters is necessary for unprotecting
+	//Loop for all entities is necessary for unprotecting
 	for (const auto &k : character_list) {
 		if (k->get_protecting() == ch) {
 			k->set_protecting(0);

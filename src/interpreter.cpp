@@ -18,9 +18,9 @@
 #include "act_movement.h"
 #include "cmd_god/ban.h"
 #include "boards/boards.h"
-#include "entity_characters/char.h"
-#include "entity_characters/char_player.h"
-#include "entity_characters/world.characters.h"
+#include "entities/char.h"
+#include "entities/char_player.h"
+#include "entities/world.characters.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/godtest.h"
 #include "cmd/follow.h"
@@ -49,9 +49,9 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight_start.h"
 #include "genchar.h"
-#include "glory.h"
-#include "glory_const.h"
-#include "glory_misc.h"
+#include "game_mechanics/glory.h"
+#include "game_mechanics/glory_const.h"
+#include "game_mechanics/glory_misc.h"
 #include "handler.h"
 #include "heartbeat_commands.h"
 #include "house.h"
@@ -61,15 +61,15 @@
 #include "mail.h"
 #include "modify.h"
 #include "name_list.h"
-#include "named_stuff.h"
+#include "game_mechanics/named_stuff.h"
 #include "names.h"
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
 #include "parcel.h"
 #include "password.h"
 #include "privilege.h"
-#include "entity_rooms/room.h"
+#include "entities/room.h"
 #include "screen.h"
 #include "skills.h"
 #include "skills/bash.h"
@@ -100,23 +100,23 @@
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
-#include "entity_characters/player_races.h"
+#include "entities/player_races.h"
 #include "birthplaces.h"
 #include "help.h"
 #include "mapsystem.h"
 #include "ext_money.h"
 #include "noob.h"
 #include "reset_stats.h"
-#include "obj_sets.h"
+#include "game_mechanics/obj_sets.h"
 #include "utils/utils.h"
 #include "magic/magic_temp_spells.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "bonus.h"
+#include "game_mechanics/bonus.h"
 #include "utils/utils_debug.h"
 #include "global_objects.h"
-#include "entity_characters/accounts.h"
+#include "accounts.h"
 #include "fightsystem/pk.h"
 
 #include <boost/lexical_cast.hpp>
@@ -1891,7 +1891,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			return;
 		}
 
-		// ignore entity_characters with descriptors (already handled by above step) //
+		// ignore entities with descriptors (already handled by above step) //
 		if (ch->desc)
 			return;
 

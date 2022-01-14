@@ -3,8 +3,8 @@
 
 #include "noob.h"
 
-#include "entity_characters/char.h"
-#include "pugixml.h"
+#include "entities/char.h"
+#include "utils/pugixml.h"
 #include "parse.h"
 #include "handler.h"
 #include "logger.h"

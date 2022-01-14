@@ -4,7 +4,7 @@
 #include "genchar.h"
 #include "screen.h"
 #include "parse.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 #include <boost/format.hpp>
 

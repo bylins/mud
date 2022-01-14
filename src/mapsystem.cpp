@@ -4,7 +4,7 @@
 
 #include "act_movement.h"
 #include "screen.h"
-#include "entity_characters/char_player.h"
+#include "entities/char_player.h"
 #include "noob.h"
 #include "utils/utils_char_obj.inl"
 #include "zone.table.h"

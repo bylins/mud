@@ -4,7 +4,7 @@
 #include "classes/class_spell_slots.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
-#include "entity_rooms/room_constants.h"
+#include "entities/room_constants.h"
 
 class OBJ_DATA;
 

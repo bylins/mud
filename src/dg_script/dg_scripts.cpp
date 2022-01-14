@@ -17,14 +17,14 @@
 #include "dg_event.h"
 #include "screen.h"
 #include "house.h"
-#include "entity_characters/char_player.h"
-#include "entity_rooms/room_constants.h"
+#include "entities/char_player.h"
+#include "entities/room_constants.h"
 #include "modify.h"
-#include "named_stuff.h"
+#include "game_mechanics/named_stuff.h"
 #include "magic/magic_utils.h"
 #include "noob.h"
 #include "dg_db_scripts.h"
-#include "bonus.h"
+#include "game_mechanics/bonus.h"
 #include "olc/olc.h"
 #include "privilege.h"
 #include <string>
@@ -5338,7 +5338,7 @@ void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/) {
 		send_to_char("Usage: tstat <vnum>\r\n", ch);
 }
 
-// read a line in from a file, return the number of entity_characters read
+// read a line in from a file, return the number of entities read
 int fgetline(FILE *file, char *p) {
 	int count = 0;
 

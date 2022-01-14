@@ -4,7 +4,7 @@
 #ifndef OBJ_SETS_HPP_INCLUDED
 #define OBJ_SETS_HPP_INCLUDED
 
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 #include "feats.h"
 #include "interpreter.h"
 #include "structs/structs.h"

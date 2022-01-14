@@ -18,7 +18,7 @@
 #include "handler.h"
 #include "screen.h"
 #include "utils/random.h"
-#include "celebrates.h"
+#include "game_mechanics/celebrates.h"
 
 extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
 extern TIME_INFO_DATA time_info;

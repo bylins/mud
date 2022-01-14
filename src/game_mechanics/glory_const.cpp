@@ -6,15 +6,15 @@
 
 #include "logger.h"
 #include "utils/utils.h"
-#include "pugixml.h"
+#include "utils/pugixml.h"
 #include "structs/structs.h"
 #include "screen.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "comm.h"
 #include "db.h"
 #include "genchar.h"
 #include "handler.h"
-#include "entity_characters/char_player.h"
+#include "entities/char_player.h"
 #include "glory_misc.h"
 #include "top.h"
 

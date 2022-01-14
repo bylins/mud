@@ -8,13 +8,13 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "entity_objects/obj.h"
-#include "entity_rooms/room_constants.h"
+#include "entities/obj.h"
+#include "entities/room_constants.h"
 #include "screen.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "auction.h"
-#include "named_stuff.h"
+#include "game_mechanics/named_stuff.h"
 #include "fightsystem/pk.h"
 
 // external functions

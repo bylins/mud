@@ -27,7 +27,7 @@
 #include "abilities/abilities_rollsystem.h"
 #include "action_targeting.h"
 #include "act_movement.h"
-#include "entity_characters/world.characters.h"
+#include "entities/world.characters.h"
 #include "world_objects.h"
 #include "handler.h"
 #include "magic/magic.h"

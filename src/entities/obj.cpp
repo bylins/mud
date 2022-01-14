@@ -10,7 +10,7 @@
 #include "parse.h"
 #include "handler.h"
 #include "screen.h"
-#include "celebrates.h"
+#include "game_mechanics/celebrates.h"
 #include "fightsystem/pk.h"
 #include "cache.h"
 #include "depot.h"

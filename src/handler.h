@@ -17,7 +17,7 @@
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
 
-#include "entity_characters/char.h"
+#include "entities/char.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
 #include "utils/flags.hpp"
 

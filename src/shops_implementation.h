@@ -3,7 +3,7 @@
 
 #include "dictionary.h"
 #include "structs/structs.h"
-#include "entity_objects/obj.h"
+#include "entities/obj.h"
 
 #include <vector>
 #include <memory>

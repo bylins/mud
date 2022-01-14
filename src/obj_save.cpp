@@ -12,15 +12,15 @@
 #include "obj_save.h"
 
 #include "world_objects.h"
-#include "entity_characters/world.characters.h"
+#include "entities/world.characters.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "screen.h"
 #include "house.h"
 #include "depot.h"
 #include "liquid.h"
-#include "file_crc.h"
-#include "named_stuff.h"
+#include "utils/file_crc.h"
+#include "game_mechanics/named_stuff.h"
 #include "utils/utils_char_obj.inl"
 
 #include <boost/algorithm/string.hpp>

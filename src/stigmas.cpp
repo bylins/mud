@@ -1,5 +1,5 @@
 #include "stigmas.h"
-#include "entity_characters/char.h"
+#include "entities/char.h"
 
 
 /*void do_touch_stigma(CHAR_DATA *ch, char*, int, int);

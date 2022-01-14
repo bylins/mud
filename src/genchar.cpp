@@ -21,8 +21,8 @@
 #include "logger.h"
 #include "utils/utils.h"
 #include "magic/spells.h"
-#include "entity_characters/char.h"
-#include "entity_characters/char_player.h"
+#include "entities/char.h"
+#include "entities/char_player.h"
 #include "db.h"
 
 const char *genchar_help =
