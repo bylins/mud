@@ -1850,11 +1850,13 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 	if (GET_POS(ch) > POS_STUNNED
 		&& GET_POS(ch) < POS_FIGHTING
 		&& GET_AF_BATTLE(ch, EAF_STAND)) {
-		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n",
-				CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		CLR_AF_BATTLE(ch, EAF_STAND);
 	}
+
+	// Срабатывание батл-триггеров амуниции
+	fight_otrigger(ch);
 
 	//* каст заклинания
 	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0) {
