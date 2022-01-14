@@ -4,7 +4,7 @@
 #include "sets_drop.h"
 
 #include "obj_prototypes.h"
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "pugixml.h"
 #include "house.h"
 #include "screen.h"

@@ -1,6 +1,6 @@
 #include "boards_formatters.h"
 
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "screen.h"
 
 namespace Boards {

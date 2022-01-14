@@ -7,7 +7,7 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "structs/structs.h"
 
 #include <stdarg.h>

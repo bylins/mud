@@ -2,7 +2,7 @@
 
 #include "xml_loading_helper.h"
 #include "craft.h"
-#include "chars/char.h"
+#include "entity_characters/char.h"
 
 #include <iomanip>
 

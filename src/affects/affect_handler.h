@@ -1,6 +1,6 @@
 #ifndef _AFFECTHANDLER_HPP_
 #define _AFFECTHANDLER_HPP_
-#include "chars/char.h"
+#include "entity_characters/char.h"
 
 // класс новых аффектов
 class AffectParent {

@@ -16,7 +16,7 @@
 
 #include "action_targeting.h"
 #include "affects/affect_handler.h"
-#include "chars/world.characters.h"
+#include "entity_characters/world.characters.h"
 #include "cmd/hire.h"
 #include "corpse.h"
 #include "fightsystem/fight.h"
@@ -25,7 +25,7 @@
 #include "fightsystem/pk.h"
 #include "handler.h"
 #include "obj_prototypes.h"
-#include "random.h"
+#include "utils/random.h"
 #include "world_objects.h"
 
 extern int what_sky;

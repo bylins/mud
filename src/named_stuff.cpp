@@ -6,9 +6,9 @@
 
 #include "world_objects.h"
 #include "obj_prototypes.h"
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "screen.h"
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"

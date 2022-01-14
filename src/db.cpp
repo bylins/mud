@@ -1,7 +1,7 @@
 
 /************************************************************************
 *   File: db.cpp                                        Part of Bylins    *
-*  Usage: Loading/saving chars, booting/resetting world, internal funcs   *
+*  Usage: Loading/saving entity_characters, booting/resetting world, internal funcs   *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
 *                                                                         *
@@ -24,9 +24,10 @@
 #include "boot/boot_data_files.h"
 #include "boot/boot_index.h"
 #include "celebrates.h"
-#include "chars/char.h"
-#include "chars/player_races.h"
-#include "chars/world.characters.h"
+#include "entity_characters/char.h"
+#include "entity_characters/player_races.h"
+#include "entity_characters/world.characters.h"
+#include "entity_rooms/room_constants.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
 #include "corpse.h"

@@ -1,6 +1,6 @@
 #include "skills/morph.hpp"
 
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "screen.h"
 #include "interpreter.h"
 #include "handler.h"

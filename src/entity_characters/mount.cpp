@@ -3,6 +3,7 @@
 #include "mount.h"
 
 #include "char.h"
+#include "entity_rooms/room_constants.h"
 #include "handler.h"
 
 void make_horse(CHAR_DATA *horse, CHAR_DATA *ch) {

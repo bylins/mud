@@ -2,9 +2,9 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_enchant.h"
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "screen.h"
-#include "chars/char.h"
+#include "entity_characters/char.h"
 
 namespace ObjectEnchant {
 

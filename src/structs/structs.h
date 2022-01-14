@@ -61,12 +61,19 @@ typedef rnum_t mob_rnum;    // A mobile's real (internal) num type //
 typedef rnum_t zone_rnum;    // A zone's real (array index) number. //
 typedef rnum_t trg_rnum;    // A trigger's real (array index) number. //
 
+const int kMaxRemort = 75;
+
 namespace ExtMoney {
-const unsigned kTorcGold = 0;		// золотые гривны
-const unsigned kTorcSilver = 1;		// серебряные гривны
-const unsigned kTorcBronze = 2;		// бронзовые гривны
-const unsigned kTotalTypes = 3;		// терминатор всегда в конце
+const unsigned kTorcGold = 0;        // золотые гривны
+const unsigned kTorcSilver = 1;        // серебряные гривны
+const unsigned kTorcBronze = 2;        // бронзовые гривны
+const unsigned kTotalTypes = 3;        // терминатор всегда в конце
 } // namespace ExtMoney
+
+constexpr bitvector_t kIntZero = 0u << 30;
+constexpr bitvector_t kIntOne = 1u << 30;
+constexpr bitvector_t kIntTwo = 2u << 30;
+constexpr bitvector_t kIntThree = 3u << 30;
 
 namespace currency {
 enum { GOLD, GLORY, TORC, ICE, NOGATA };
@@ -75,7 +82,7 @@ enum { GOLD, GLORY, TORC, ICE, NOGATA };
 const int kMaxAliasLehgt = 100;
 const std::nullptr_t NoArgument = nullptr;
 
-extern const char* nothing_string;
+extern const char *nothing_string;
 //-Polos.insert_wanted_gem
 
 /*
@@ -120,121 +127,21 @@ const int kKtSelectmenu = 255;
 
 const int kHolesTime = 1;
 
-// The cardinal directions: used as index to room_data.dir_option[]
-const __uint8_t kDirNorth = 0;
-const __uint8_t kDirEast = 1;
-const __uint8_t kDirSouth = 2;
-const __uint8_t kDirWest = 3;
-const __uint8_t kDirUp = 4;
-const __uint8_t kDirDown = 5;
-
-constexpr bitvector_t kIntZero = 0u << 30;
-constexpr bitvector_t kIntOne = 1u << 30;
-constexpr bitvector_t kIntTwo = 2u << 30;
-constexpr bitvector_t kIntThree = 3u << 30;
-
-// Room flags: used in room_data.room_flags //
-// WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
-constexpr bitvector_t ROOM_DARK = 1 << 0;
-constexpr bitvector_t ROOM_DEATH =  1 << 1;    // Death trap      //
-constexpr bitvector_t ROOM_NOMOB = 1 << 2;
-constexpr bitvector_t ROOM_INDOORS = 1 << 3;
-constexpr bitvector_t ROOM_PEACEFUL = 1 << 4;
-constexpr bitvector_t ROOM_SOUNDPROOF = 1 << 5;
-constexpr bitvector_t ROOM_NOTRACK = 1 << 6;
-constexpr bitvector_t ROOM_NOMAGIC = 1 << 7;
-constexpr bitvector_t ROOM_TUNNEL = 1 << 8;
-constexpr bitvector_t ROOM_NOTELEPORTIN = 1 << 9;
-constexpr bitvector_t ROOM_GODROOM = 1 << 10;    // LVL_GOD+ only allowed //
-constexpr bitvector_t ROOM_HOUSE = 1 << 11;    // (R) Room is a house  //
-constexpr bitvector_t ROOM_HOUSE_CRASH = 1 << 12;    // (R) House needs saving   //
-constexpr bitvector_t ROOM_ATRIUM = 1 << 13;    // (R) The door to a house //
-constexpr bitvector_t ROOM_OLC = 1 << 14;    // (R) Modifyable/!compress   //
-constexpr bitvector_t ROOM_BFS_MARK = 1 << 15;    // (R) breath-first srch mrk   //
-constexpr bitvector_t ROOM_MAGE = 1 << 16;
-constexpr bitvector_t ROOM_CLERIC = 1 << 17;
-constexpr bitvector_t ROOM_THIEF = 1 << 18;
-constexpr bitvector_t ROOM_WARRIOR = 1 << 19;
-constexpr bitvector_t ROOM_ASSASINE = 1 << 20;
-constexpr bitvector_t ROOM_GUARD = 1 << 21;
-constexpr bitvector_t ROOM_PALADINE = 1 << 22;
-constexpr bitvector_t ROOM_RANGER = 1 << 23;
-constexpr bitvector_t ROOM_POLY = 1 << 24;
-constexpr bitvector_t ROOM_MONO = 1 << 25;
-constexpr bitvector_t ROOM_SMITH = 1 << 26;
-constexpr bitvector_t ROOM_MERCHANT = 1 << 27;
-constexpr bitvector_t ROOM_DRUID = 1 << 28;
-constexpr bitvector_t ROOM_ARENA = 1 << 29;
-
-constexpr bitvector_t ROOM_NOSUMMON = kIntOne | (1 << 0);
-constexpr bitvector_t ROOM_NOTELEPORTOUT = kIntOne | (1 << 1);
-constexpr bitvector_t ROOM_NOHORSE = kIntOne | (1 << 2);
-constexpr bitvector_t ROOM_NOWEATHER = kIntOne | (1 << 3);
-constexpr bitvector_t ROOM_SLOWDEATH = kIntOne | (1 << 4);
-constexpr bitvector_t ROOM_ICEDEATH = kIntOne | (1 << 5);
-constexpr bitvector_t ROOM_NORELOCATEIN = kIntOne | (1 << 6);
-constexpr bitvector_t ROOM_ARENARECV = kIntOne | (1 << 7);  // комната в которой слышно сообщения арены
-constexpr bitvector_t ROOM_ARENASEND = kIntOne | (1 << 8);   // комната из которой отправляются сообщения арены
-constexpr bitvector_t ROOM_NOBATTLE = kIntOne | (1 << 9);
-constexpr bitvector_t ROOM_QUEST = kIntOne | (1 << 10);
-constexpr bitvector_t ROOM_LIGHT = kIntOne | (1 << 11);
-constexpr bitvector_t ROOM_NOMAPPER = kIntOne | (1 << 12);  //нет внумов комнат
-
-constexpr bitvector_t ROOM_NOITEM = kIntTwo | (1 << 0);    // Передача вещей в комнате запрещена
-
 // Флаги комнатных аффектов НЕ сохраняются в файлах и возникают только от заклов //
 constexpr bitvector_t AFF_ROOM_LIGHT = 1 << 0;
 constexpr bitvector_t AFF_ROOM_FOG = 1 << 1;
-constexpr bitvector_t AFF_ROOM_RUNE_LABEL = 1 << 2;		 		// Комната помечена SPELL_MAGIC_LABEL //
-constexpr bitvector_t AFF_ROOM_FORBIDDEN = 1 << 3; 				// Комната помечена SPELL_FORBIDDEN //
-constexpr bitvector_t AFF_ROOM_HYPNOTIC_PATTERN = 1 << 4;		// Комната под SPELL_HYPNOTIC_PATTERN //
+constexpr bitvector_t AFF_ROOM_RUNE_LABEL = 1 << 2;                // Комната помечена SPELL_MAGIC_LABEL //
+constexpr bitvector_t AFF_ROOM_FORBIDDEN = 1 << 3;                // Комната помечена SPELL_FORBIDDEN //
+constexpr bitvector_t AFF_ROOM_HYPNOTIC_PATTERN = 1 << 4;        // Комната под SPELL_HYPNOTIC_PATTERN //
 constexpr bitvector_t AFF_ROOM_EVARDS_BLACK_TENTACLES = 1 << 5; // Комната под SPELL_EVARDS_BLACK_TENTACLES //
-constexpr bitvector_t AFF_ROOM_METEORSTORM = 1 << 6; 			// Комната под SPELL_METEORSTORM //
-constexpr bitvector_t AFF_ROOM_THUNDERSTORM = 1 << 7;			 // SPELL_THUNDERSTORM
-
-// Exit info: used in room_data.dir_option.exit_info //
-constexpr bitvector_t EX_ISDOOR = 1 << 0;    	// Exit is a door     //
-constexpr bitvector_t EX_CLOSED = 1 << 1;   	// The door is closed //
-constexpr bitvector_t EX_LOCKED = 1 << 2; 	   	// The door is locked //
-constexpr bitvector_t EX_PICKPROOF = 1 << 3;    // Lock can't be picked  //
-constexpr bitvector_t EX_HIDDEN = 1 << 4;
-constexpr bitvector_t EX_BROKEN = 1 << 5; 		//Polud замок двери сломан
-constexpr bitvector_t EX_DUNGEON_ENTRY = 1 << 6;    // When character goes through this door then he will get into a copy of the zone behind the door.
+constexpr bitvector_t AFF_ROOM_METEORSTORM = 1 << 6;            // Комната под SPELL_METEORSTORM //
+constexpr bitvector_t AFF_ROOM_THUNDERSTORM = 1 << 7;             // SPELL_THUNDERSTORM
 
 constexpr bitvector_t AF_BATTLEDEC = 1 << 0;
 constexpr bitvector_t AF_DEADKEEP = 1 << 1;
 constexpr bitvector_t AF_PULSEDEC = 1 << 2;
-constexpr bitvector_t AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
-
-// Sector types: used in room_data.sector_type //
-const __uint8_t kSectInside = 0;
-const __uint8_t kSectCity = 1;
-const __uint8_t kSectField = 2;
-const __uint8_t kSectForest = 3;
-const __uint8_t kSectHills = 4;
-const __uint8_t kSectMountain = 5;
-const __uint8_t kSectWaterSwim = 6;		// Swimmable water      //
-const __uint8_t kSectWaterNoswim = 7;	// Water - need a boat  //
-const __uint8_t kSectOnlyFlying = 8;	// Wheee!         //
-const __uint8_t kSectUnderwater = 9;
-const __uint8_t kSectSecret = 10;
-const __uint8_t kSectStoneroad = 11;
-const __uint8_t kSectRoad = 12;
-const __uint8_t kSectWildroad = 13;
-// надо не забывать менять NUM_ROOM_SECTORS в olc.h
-// Values for weather changes //
-const __uint8_t kSectFieldSnow = 20;
-const __uint8_t kSectFieldRain = 21;
-const __uint8_t kSectForestSnow = 22;
-const __uint8_t kSectForestRain = 23;
-const __uint8_t kSectHillsSnow = 24;
-const __uint8_t kSectHillsRain = 25;
-const __uint8_t kSectMountainSnow = 26;
-const __uint8_t kSectThinIce = 27;
-const __uint8_t kSectNormalIce = 28;
-const __uint8_t kSectThickIce = 29;
-
-extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
+constexpr bitvector_t
+	AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
 constexpr bitvector_t WEATHER_QUICKCOOL = 1 << 0;
 constexpr bitvector_t WEATHER_QUICKHOT = 1 << 1;
@@ -248,8 +155,6 @@ constexpr bitvector_t WEATHER_BIGSNOW = 1 << 8;
 constexpr bitvector_t WEATHER_LIGHTWIND = 1 << 9;
 constexpr bitvector_t WEATHER_MEDIUMWIND = 1 << 10;
 constexpr bitvector_t WEATHER_BIGWIND = 1 << 11;
-
-const int kMaxRemort = 75;
 
 template<typename T>
 struct Unimplemented {};
@@ -298,25 +203,25 @@ const __uint8_t kNumKins = 3;
 
 // NPC races
 const __uint8_t NPC_RACE_BASIC = 100;
-const __uint8_t  NPC_RACE_HUMAN = 101;
-const __uint8_t  NPC_RACE_HUMAN_ANIMAL = 102;
-const __uint8_t  NPC_RACE_BIRD = 103;
-const __uint8_t  NPC_RACE_ANIMAL = 104;
-const __uint8_t  NPC_RACE_REPTILE = 105;
-const __uint8_t  NPC_RACE_FISH = 106;
-const __uint8_t  NPC_RACE_INSECT = 107;
-const __uint8_t  NPC_RACE_PLANT = 108;
-const __uint8_t  NPC_RACE_THING = 109;
-const __uint8_t  NPC_RACE_ZOMBIE = 110;
-const __uint8_t  NPC_RACE_GHOST = 111;
-const __uint8_t  NPC_RACE_EVIL_SPIRIT = 112;
-const __uint8_t  NPC_RACE_SPIRIT = 113;
-const __uint8_t  NPC_RACE_MAGIC_CREATURE = 114;
-const __uint8_t  NPC_RACE_NEXT = 115;
+const __uint8_t NPC_RACE_HUMAN = 101;
+const __uint8_t NPC_RACE_HUMAN_ANIMAL = 102;
+const __uint8_t NPC_RACE_BIRD = 103;
+const __uint8_t NPC_RACE_ANIMAL = 104;
+const __uint8_t NPC_RACE_REPTILE = 105;
+const __uint8_t NPC_RACE_FISH = 106;
+const __uint8_t NPC_RACE_INSECT = 107;
+const __uint8_t NPC_RACE_PLANT = 108;
+const __uint8_t NPC_RACE_THING = 109;
+const __uint8_t NPC_RACE_ZOMBIE = 110;
+const __uint8_t NPC_RACE_GHOST = 111;
+const __uint8_t NPC_RACE_EVIL_SPIRIT = 112;
+const __uint8_t NPC_RACE_SPIRIT = 113;
+const __uint8_t NPC_RACE_MAGIC_CREATURE = 114;
+const __uint8_t NPC_RACE_NEXT = 115;
 
 // Virtual NPC races
-const __uint8_t  NPC_BOSS = 200;
-const __uint8_t  NPC_UNIQUE = 201;
+const __uint8_t NPC_BOSS = 200;
+const __uint8_t NPC_UNIQUE = 201;
 
 // GODs FLAGS
 constexpr bitvector_t GF_GODSLIKE = 1 << 0;
@@ -328,63 +233,63 @@ constexpr bitvector_t GF_PERSLOG = 1 << 5;
 constexpr bitvector_t GF_TESTER = 1 << 6;
 
 // Positions
-const __uint8_t  POS_DEAD = 0;
-const __uint8_t  POS_MORTALLYW = 1;    // mortally wounded  //
-const __uint8_t  POS_INCAP = 2;
-const __uint8_t  POS_STUNNED = 3;
-const __uint8_t  POS_SLEEPING = 4;
-const __uint8_t  POS_RESTING = 5;
-const __uint8_t  POS_SITTING = 6;
-const __uint8_t  POS_FIGHTING = 7;
-const __uint8_t  POS_STANDING = 8;
+const __uint8_t POS_DEAD = 0;
+const __uint8_t POS_MORTALLYW = 1;    // mortally wounded  //
+const __uint8_t POS_INCAP = 2;
+const __uint8_t POS_STUNNED = 3;
+const __uint8_t POS_SLEEPING = 4;
+const __uint8_t POS_RESTING = 5;
+const __uint8_t POS_SITTING = 6;
+const __uint8_t POS_FIGHTING = 7;
+const __uint8_t POS_STANDING = 8;
 
 // Player flags: used by char_data.char_specials.act
-constexpr bitvector_t PLR_KILLER = 1 << 0;    		// Player is a player-killer     //
-constexpr bitvector_t PLR_THIEF = 1 << 1;		    // Player is a player-thief      //
-constexpr bitvector_t PLR_FROZEN = 1 << 2;    		// Player is frozen        //
-constexpr bitvector_t PLR_DONTSET = 1 << 3;    		// Don't EVER set (ISNPC bit)  //
-constexpr bitvector_t PLR_WRITING = 1 << 4;    		// Player writing (board/mail/olc)  //
-constexpr bitvector_t PLR_MAILING = 1 << 5;    		// Player is writing mail     //
-constexpr bitvector_t PLR_CRASH = 1 << 6;    		// Player needs to be crash-saved   //
-constexpr bitvector_t PLR_SITEOK = 1 << 7;    		// Player has been site-cleared  //
-constexpr bitvector_t PLR_MUTE = 1 << 8;    		// Player not allowed to shout/goss/auct  //
-constexpr bitvector_t PLR_NOTITLE = 1 << 9;    		// Player not allowed to set title  //
-constexpr bitvector_t PLR_DELETED = 1 << 10;    	// Player deleted - space reusable  //
-constexpr bitvector_t PLR_LOADROOM = 1 << 11;    	// Player uses nonstandard loadroom  (не используется) //
-constexpr bitvector_t PLR_AUTOBOT = 1 << 12;    	// Player автоматический игрок //
-constexpr bitvector_t PLR_NODELETE = 1 << 13;    	// Player shouldn't be deleted //
-constexpr bitvector_t PLR_INVSTART = 1 << 14;    	// Player should enter game wizinvis //
-constexpr bitvector_t PLR_CRYO = 1 << 15;    		// Player is cryo-saved (purge prog)   //
-constexpr bitvector_t PLR_HELLED = 1 << 16;    		// Player is in Hell //
-constexpr bitvector_t PLR_NAMED = 1 << 17;		    // Player is in Names Room //
+constexpr bitvector_t PLR_KILLER = 1 << 0;            // Player is a player-killer     //
+constexpr bitvector_t PLR_THIEF = 1 << 1;            // Player is a player-thief      //
+constexpr bitvector_t PLR_FROZEN = 1 << 2;            // Player is frozen        //
+constexpr bitvector_t PLR_DONTSET = 1 << 3;            // Don't EVER set (ISNPC bit)  //
+constexpr bitvector_t PLR_WRITING = 1 << 4;            // Player writing (board/mail/olc)  //
+constexpr bitvector_t PLR_MAILING = 1 << 5;            // Player is writing mail     //
+constexpr bitvector_t PLR_CRASH = 1 << 6;            // Player needs to be crash-saved   //
+constexpr bitvector_t PLR_SITEOK = 1 << 7;            // Player has been site-cleared  //
+constexpr bitvector_t PLR_MUTE = 1 << 8;            // Player not allowed to shout/goss/auct  //
+constexpr bitvector_t PLR_NOTITLE = 1 << 9;            // Player not allowed to set title  //
+constexpr bitvector_t PLR_DELETED = 1 << 10;        // Player deleted - space reusable  //
+constexpr bitvector_t PLR_LOADROOM = 1 << 11;        // Player uses nonstandard loadroom  (не используется) //
+constexpr bitvector_t PLR_AUTOBOT = 1 << 12;        // Player автоматический игрок //
+constexpr bitvector_t PLR_NODELETE = 1 << 13;        // Player shouldn't be deleted //
+constexpr bitvector_t PLR_INVSTART = 1 << 14;        // Player should enter game wizinvis //
+constexpr bitvector_t PLR_CRYO = 1 << 15;            // Player is cryo-saved (purge prog)   //
+constexpr bitvector_t PLR_HELLED = 1 << 16;            // Player is in Hell //
+constexpr bitvector_t PLR_NAMED = 1 << 17;            // Player is in Names Room //
 constexpr bitvector_t PLR_REGISTERED = 1 << 18;
-constexpr bitvector_t PLR_DUMB = 1 << 19;    		// Player is not allowed to tell/emote/social //
+constexpr bitvector_t PLR_DUMB = 1 << 19;            // Player is not allowed to tell/emote/social //
 constexpr bitvector_t PLR_SCRIPTWRITER = 1 << 20;   // скриптер
-constexpr bitvector_t PLR_SPAMMER = 1 << 21;    	// спаммер
+constexpr bitvector_t PLR_SPAMMER = 1 << 21;        // спаммер
 // свободно
-constexpr bitvector_t PLR_DELETE = 1 << 28;    		// RESERVED - ONLY INTERNALLY (MOB_DELETE) //
-constexpr bitvector_t PLR_FREE = 1 << 29;		    // RESERVED - ONLY INTERBALLY (MOB_FREE)//
+constexpr bitvector_t PLR_DELETE = 1 << 28;            // RESERVED - ONLY INTERNALLY (MOB_DELETE) //
+constexpr bitvector_t PLR_FREE = 1 << 29;            // RESERVED - ONLY INTERBALLY (MOB_FREE)//
 
 
 // Mobile flags: used by char_data.char_specials.act
-constexpr bitvector_t MOB_SPEC = 1 << 0;    		// Mob has a callable spec-proc  //
-constexpr bitvector_t MOB_SENTINEL = 1 << 1;    	// Mob should not move     //
-constexpr bitvector_t MOB_SCAVENGER = 1 << 2;   	// Mob picks up stuff on the ground //
-constexpr bitvector_t MOB_ISNPC = 1 << 3;    		// (R) Automatically set on all Mobs   //
-constexpr bitvector_t MOB_AWARE = 1 << 4;  			// Mob can't be backstabbed      //
-constexpr bitvector_t MOB_AGGRESSIVE = 1 << 5;  	// Mob hits players in the room  //
-constexpr bitvector_t MOB_STAY_ZONE = 1 << 6;   	// Mob shouldn't wander out of zone //
-constexpr bitvector_t MOB_WIMPY = 1 << 7;  			// Mob flees if severely injured //
-constexpr bitvector_t MOB_AGGR_DAY = 1 << 8;    	// //
-constexpr bitvector_t MOB_AGGR_NIGHT = 1 << 9;  	// //
+constexpr bitvector_t MOB_SPEC = 1 << 0;            // Mob has a callable spec-proc  //
+constexpr bitvector_t MOB_SENTINEL = 1 << 1;        // Mob should not move     //
+constexpr bitvector_t MOB_SCAVENGER = 1 << 2;    // Mob picks up stuff on the ground //
+constexpr bitvector_t MOB_ISNPC = 1 << 3;            // (R) Automatically set on all Mobs   //
+constexpr bitvector_t MOB_AWARE = 1 << 4;            // Mob can't be backstabbed      //
+constexpr bitvector_t MOB_AGGRESSIVE = 1 << 5;    // Mob hits players in the room  //
+constexpr bitvector_t MOB_STAY_ZONE = 1 << 6;    // Mob shouldn't wander out of zone //
+constexpr bitvector_t MOB_WIMPY = 1 << 7;            // Mob flees if severely injured //
+constexpr bitvector_t MOB_AGGR_DAY = 1 << 8;        // //
+constexpr bitvector_t MOB_AGGR_NIGHT = 1 << 9;    // //
 constexpr bitvector_t MOB_AGGR_FULLMOON = 1 << 10;  // //
-constexpr bitvector_t MOB_MEMORY = 1 << 11;    		// remember attackers if attacked   //
-constexpr bitvector_t MOB_HELPER = 1 << 12;    		// attack PCs fighting other NPCs   //
-constexpr bitvector_t MOB_NOCHARM = 1 << 13;    	// Mob can't be charmed    //
-constexpr bitvector_t MOB_NOSUMMON = 1 << 14;    	// Mob can't be summoned      //
-constexpr bitvector_t MOB_NOSLEEP = 1 << 15;    	// Mob can't be slept      //
-constexpr bitvector_t MOB_NOBASH = 1 << 16;    		// Mob can't be bashed (e.g. trees) //
-constexpr bitvector_t MOB_NOBLIND = 1 << 17;    	// Mob can't be blinded    //
+constexpr bitvector_t MOB_MEMORY = 1 << 11;            // remember attackers if attacked   //
+constexpr bitvector_t MOB_HELPER = 1 << 12;            // attack PCs fighting other NPCs   //
+constexpr bitvector_t MOB_NOCHARM = 1 << 13;        // Mob can't be charmed    //
+constexpr bitvector_t MOB_NOSUMMON = 1 << 14;        // Mob can't be summoned      //
+constexpr bitvector_t MOB_NOSLEEP = 1 << 15;        // Mob can't be slept      //
+constexpr bitvector_t MOB_NOBASH = 1 << 16;            // Mob can't be bashed (e.g. trees) //
+constexpr bitvector_t MOB_NOBLIND = 1 << 17;        // Mob can't be blinded    //
 constexpr bitvector_t MOB_MOUNTING = 1 << 18;
 constexpr bitvector_t MOB_NOHOLD = 1 << 19;
 constexpr bitvector_t MOB_NOSIELENCE = 1 << 20;
@@ -395,8 +300,8 @@ constexpr bitvector_t MOB_NOGROUP = 1 << 24;
 constexpr bitvector_t MOB_CORPSE = 1 << 25;
 constexpr bitvector_t MOB_LOOTER = 1 << 26;
 constexpr bitvector_t MOB_PROTECT = 1 << 27;
-constexpr bitvector_t MOB_DELETE = 1 << 28;    		// RESERVED - ONLY INTERNALLY //
-constexpr bitvector_t MOB_FREE = 1 << 29;  		  	// RESERVED - ONLY INTERBALLY //
+constexpr bitvector_t MOB_DELETE = 1 << 28;            // RESERVED - ONLY INTERNALLY //
+constexpr bitvector_t MOB_FREE = 1 << 29;            // RESERVED - ONLY INTERBALLY //
 
 constexpr bitvector_t MOB_SWIMMING = kIntOne | (1 << 0);
 constexpr bitvector_t MOB_FLYING = kIntOne | (1 << 1);
@@ -419,12 +324,14 @@ constexpr bitvector_t MOB_CLONE = kIntOne | (1 << 17);
 constexpr bitvector_t MOB_NOTKILLPUNCTUAL = kIntOne | (1 << 18);
 constexpr bitvector_t MOB_NOTRIP = kIntOne | (1 << 19);
 constexpr bitvector_t MOB_ANGEL = kIntOne | (1 << 20);
-constexpr bitvector_t MOB_GUARDIAN = kIntOne | (1 << 21); //Polud моб-стражник, ставится программно, берется из файла guards.xml
+constexpr bitvector_t
+	MOB_GUARDIAN = kIntOne | (1 << 21); //Polud моб-стражник, ставится программно, берется из файла guards.xml
 constexpr bitvector_t MOB_IGNORE_FORBIDDEN = kIntOne | (1 << 22); // игнорирует печать
 constexpr bitvector_t MOB_NO_BATTLE_EXP = kIntOne | (1 << 23); // не дает экспу за удары
 constexpr bitvector_t MOB_NOMIGHTHIT = kIntOne | (1 << 24); // нельзя оглушить богатырским молотом
 constexpr bitvector_t MOB_GHOST = kIntOne | (1 << 25); // Используется для ментальной тени
-constexpr bitvector_t MOB_PLAYER_SUMMON = kIntOne | (1 << 26); // Моб является суммоном игрока (ангел, тень, храны, трупы, умки)
+constexpr bitvector_t
+	MOB_PLAYER_SUMMON = kIntOne | (1 << 26); // Моб является суммоном игрока (ангел, тень, храны, трупы, умки)
 
 constexpr bitvector_t MOB_FIREBREATH = kIntTwo | (1 << 0);
 constexpr bitvector_t MOB_GASBREATH = kIntTwo | (1 << 1);
@@ -439,7 +346,8 @@ constexpr bitvector_t MOB_NOHELPS = kIntTwo | (1 << 9);
 constexpr bitvector_t MOB_OPENDOOR = kIntTwo | (1 << 10);
 constexpr bitvector_t MOB_IGNORNOMOB = kIntTwo | (1 << 11);
 constexpr bitvector_t MOB_IGNORPEACE = kIntTwo | (1 << 12);
-constexpr bitvector_t MOB_RESURRECTED = kIntTwo | (1 << 13);    // поднят через !поднять труп! или !оживить труп! Ставится только програмно//
+constexpr bitvector_t MOB_RESURRECTED =
+	kIntTwo | (1 << 13);    // поднят через !поднять труп! или !оживить труп! Ставится только програмно//
 constexpr bitvector_t MOB_RUSICH = kIntTwo | (1 << 14);
 constexpr bitvector_t MOB_VIKING = kIntTwo | (1 << 15);
 constexpr bitvector_t MOB_STEPNYAK = kIntTwo | (1 << 16);
@@ -483,26 +391,26 @@ constexpr bitvector_t NPC_NOTAKEITEMS = kIntOne | (1 << 4);
 constexpr bitvector_t DESC_CANZLIB = 1 << 0;    // Client says compression capable.   //
 
 // Preference flags: used by char_data.player_specials.pref //
-constexpr bitvector_t PRF_BRIEF = 1 << 0;    	// Room descs won't normally be shown //
-constexpr bitvector_t PRF_COMPACT = 1 << 1;  	// No extra CRLF pair before prompts  //
+constexpr bitvector_t PRF_BRIEF = 1 << 0;        // Room descs won't normally be shown //
+constexpr bitvector_t PRF_COMPACT = 1 << 1;    // No extra CRLF pair before prompts  //
 constexpr bitvector_t PRF_NOHOLLER = 1 << 2;    // Не слышит команду "орать"   //
-constexpr bitvector_t PRF_NOTELL = 1 << 3;    	// Не слышит команду "сказать" //
-constexpr bitvector_t PRF_DISPHP = 1 << 4;    	// Display hit points in prompt   //
+constexpr bitvector_t PRF_NOTELL = 1 << 3;        // Не слышит команду "сказать" //
+constexpr bitvector_t PRF_DISPHP = 1 << 4;        // Display hit points in prompt   //
 constexpr bitvector_t PRF_DISPMANA = 1 << 5;    // Display mana points in prompt   //
 constexpr bitvector_t PRF_DISPMOVE = 1 << 6;    // Display move points in prompt   //
 constexpr bitvector_t PRF_AUTOEXIT = 1 << 7;    // Display exits in a room      //
 constexpr bitvector_t PRF_NOHASSLE = 1 << 8;    // Aggr mobs won't attack    //
 constexpr bitvector_t PRF_SUMMONABLE = 1 << 9;  // Can be summoned         //
-constexpr bitvector_t PRF_QUEST = 1 << 10;    	// On quest                       //
+constexpr bitvector_t PRF_QUEST = 1 << 10;        // On quest                       //
 constexpr bitvector_t PRF_NOREPEAT = 1 << 11;   // No repetition of comm commands  //
 constexpr bitvector_t PRF_HOLYLIGHT = 1 << 12;  // Can see in dark        //
 constexpr bitvector_t PRF_COLOR_1 = 1 << 13;    // Color (low bit)       //
 constexpr bitvector_t PRF_COLOR_2 = 1 << 14;    // Color (high bit)         //
-constexpr bitvector_t PRF_NOWIZ = 1 << 15;    	// Can't hear wizline       //
-constexpr bitvector_t PRF_LOG1 = 1 << 16;    	// On-line System Log (low bit)   //
-constexpr bitvector_t PRF_LOG2 = 1 << 17;    	// On-line System Log (high bit)  //
-constexpr bitvector_t PRF_NOAUCT = 1 << 18;    	// Can't hear auction channel     //
-constexpr bitvector_t PRF_NOGOSS = 1 << 19;    	// Не слышит команду "болтать" //
+constexpr bitvector_t PRF_NOWIZ = 1 << 15;        // Can't hear wizline       //
+constexpr bitvector_t PRF_LOG1 = 1 << 16;        // On-line System Log (low bit)   //
+constexpr bitvector_t PRF_LOG2 = 1 << 17;        // On-line System Log (high bit)  //
+constexpr bitvector_t PRF_NOAUCT = 1 << 18;        // Can't hear auction channel     //
+constexpr bitvector_t PRF_NOGOSS = 1 << 19;        // Не слышит команду "болтать" //
 constexpr bitvector_t PRF_DISPFIGHT = 1 << 20;  // Видит свое состояние в бою      //
 constexpr bitvector_t PRF_ROOMFLAGS = 1 << 21;  // Can see room flags (ROOM_x)  //
 constexpr bitvector_t PRF_DISPEXP = 1 << 22;
@@ -515,55 +423,60 @@ constexpr bitvector_t PRF_AWAKE = 1 << 28;
 constexpr bitvector_t PRF_CODERINFO = 1 << 29;
 
 constexpr bitvector_t PRF_AUTOMEM = kIntOne | 1 << 0;
-constexpr bitvector_t PRF_NOSHOUT = kIntOne | 1 << 1;    			// Не слышит команду "кричать"  //
-constexpr bitvector_t PRF_GOAHEAD = kIntOne | 1 << 2;    			// Добавление IAC GA после промпта //
-constexpr bitvector_t PRF_SHOWGROUP = kIntOne | 1 << 3;    		// Показ полного состава группы //
-constexpr bitvector_t PRF_AUTOASSIST = kIntOne | 1 << 4;    		// Автоматическое вступление в бой //
-constexpr bitvector_t PRF_AUTOLOOT = kIntOne | 1 << 5;    			// Autoloot //
-constexpr bitvector_t PRF_AUTOSPLIT = kIntOne | 1 << 6;    		// Autosplit //
-constexpr bitvector_t PRF_AUTOMONEY = kIntOne | 1 << 7;    		// Automoney //
-constexpr bitvector_t PRF_NOARENA = kIntOne | 1 << 8;    			// Не слышит арену //
-constexpr bitvector_t PRF_NOEXCHANGE = kIntOne | 1 << 9;    		// Не слышит базар //
-constexpr bitvector_t PRF_NOCLONES = kIntOne | 1 << 10;    		// Не видит в группе чужих клонов //
-constexpr bitvector_t PRF_NOINVISTELL = kIntOne | 1 << 11;    		// Не хочет, чтобы телял "кто-то" //
-constexpr bitvector_t PRF_POWERATTACK = kIntOne | 1 << 12;    		// мощная атака //
-constexpr bitvector_t PRF_GREATPOWERATTACK = kIntOne | 1 << 13; 	// улучшеная мощная атака //
-constexpr bitvector_t PRF_AIMINGATTACK = kIntOne | 1 << 14; 		// прицельная атака //
-constexpr bitvector_t PRF_GREATAIMINGATTACK = kIntOne | 1 << 15; 	// улучшеная прицельная атака //
-constexpr bitvector_t PRF_NEWS_MODE = kIntOne | 1 << 16; 			// вариант чтения новостей мада и дружины
-constexpr bitvector_t PRF_BOARD_MODE = kIntOne | 1 << 17; 			// уведомления о новых мессагах на досках
-constexpr bitvector_t PRF_DECAY_MODE = kIntOne | 1 << 18; 			// канал хранилища, рассыпание шмота
-constexpr bitvector_t PRF_TAKE_MODE = kIntOne | 1 << 19; 			// канал хранилища, положили/взяли
-constexpr bitvector_t PRF_PKL_MODE = kIntOne | 1 << 20;			// уведомления о добавлении/убирании в пкл
-constexpr bitvector_t PRF_POLIT_MODE = kIntOne | 1 << 21;			// уведомления об изменении политики, своей и чужой
-constexpr bitvector_t PRF_IRON_WIND = kIntOne | 1 << 22; 			// включен скилл "железный ветер"
-constexpr bitvector_t PRF_PKFORMAT_MODE = kIntOne | 1 << 23; 		// формат пкл/дрл
-constexpr bitvector_t PRF_WORKMATE_MODE = kIntOne | 1 << 24; 		// показ входов/выходов соклановцев
-constexpr bitvector_t PRF_OFFTOP_MODE = kIntOne | 1 << 25; 		// вкл/выкл канала оффтопа
-constexpr bitvector_t PRF_ANTIDC_MODE = kIntOne | 1 << 26; 		// режим защиты от дисконекта в бою
-constexpr bitvector_t PRF_NOINGR_MODE = kIntOne | 1 << 27; 		// не показывать продажу/покупку ингров в канале базара
-constexpr bitvector_t PRF_NOINGR_LOOT = kIntOne | 1 << 28; 		// не лутить ингры в режиме автограбежа
-constexpr bitvector_t PRF_DISP_TIMED = kIntOne | 1 << 29;			// показ задержек для характерных профам умений и способностей
+constexpr bitvector_t PRF_NOSHOUT = kIntOne | 1 << 1;                // Не слышит команду "кричать"  //
+constexpr bitvector_t PRF_GOAHEAD = kIntOne | 1 << 2;                // Добавление IAC GA после промпта //
+constexpr bitvector_t PRF_SHOWGROUP = kIntOne | 1 << 3;            // Показ полного состава группы //
+constexpr bitvector_t PRF_AUTOASSIST = kIntOne | 1 << 4;            // Автоматическое вступление в бой //
+constexpr bitvector_t PRF_AUTOLOOT = kIntOne | 1 << 5;                // Autoloot //
+constexpr bitvector_t PRF_AUTOSPLIT = kIntOne | 1 << 6;            // Autosplit //
+constexpr bitvector_t PRF_AUTOMONEY = kIntOne | 1 << 7;            // Automoney //
+constexpr bitvector_t PRF_NOARENA = kIntOne | 1 << 8;                // Не слышит арену //
+constexpr bitvector_t PRF_NOEXCHANGE = kIntOne | 1 << 9;            // Не слышит базар //
+constexpr bitvector_t PRF_NOCLONES = kIntOne | 1 << 10;            // Не видит в группе чужих клонов //
+constexpr bitvector_t PRF_NOINVISTELL = kIntOne | 1 << 11;            // Не хочет, чтобы телял "кто-то" //
+constexpr bitvector_t PRF_POWERATTACK = kIntOne | 1 << 12;            // мощная атака //
+constexpr bitvector_t PRF_GREATPOWERATTACK = kIntOne | 1 << 13;    // улучшеная мощная атака //
+constexpr bitvector_t PRF_AIMINGATTACK = kIntOne | 1 << 14;        // прицельная атака //
+constexpr bitvector_t PRF_GREATAIMINGATTACK = kIntOne | 1 << 15;    // улучшеная прицельная атака //
+constexpr bitvector_t PRF_NEWS_MODE = kIntOne | 1 << 16;            // вариант чтения новостей мада и дружины
+constexpr bitvector_t PRF_BOARD_MODE = kIntOne | 1 << 17;            // уведомления о новых мессагах на досках
+constexpr bitvector_t PRF_DECAY_MODE = kIntOne | 1 << 18;            // канал хранилища, рассыпание шмота
+constexpr bitvector_t PRF_TAKE_MODE = kIntOne | 1 << 19;            // канал хранилища, положили/взяли
+constexpr bitvector_t PRF_PKL_MODE = kIntOne | 1 << 20;            // уведомления о добавлении/убирании в пкл
+constexpr bitvector_t PRF_POLIT_MODE = kIntOne | 1 << 21;            // уведомления об изменении политики, своей и чужой
+constexpr bitvector_t PRF_IRON_WIND = kIntOne | 1 << 22;            // включен скилл "железный ветер"
+constexpr bitvector_t PRF_PKFORMAT_MODE = kIntOne | 1 << 23;        // формат пкл/дрл
+constexpr bitvector_t PRF_WORKMATE_MODE = kIntOne | 1 << 24;        // показ входов/выходов соклановцев
+constexpr bitvector_t PRF_OFFTOP_MODE = kIntOne | 1 << 25;        // вкл/выкл канала оффтопа
+constexpr bitvector_t PRF_ANTIDC_MODE = kIntOne | 1 << 26;        // режим защиты от дисконекта в бою
+constexpr bitvector_t
+	PRF_NOINGR_MODE = kIntOne | 1 << 27;        // не показывать продажу/покупку ингров в канале базара
+constexpr bitvector_t PRF_NOINGR_LOOT = kIntOne | 1 << 28;        // не лутить ингры в режиме автограбежа
+constexpr bitvector_t
+	PRF_DISP_TIMED = kIntOne | 1 << 29;            // показ задержек для характерных профам умений и способностей
 
-constexpr bitvector_t PRF_IGVA_PRONA = kIntTwo | 1 << 0;  			// для стоп-списка оффтоп
-constexpr bitvector_t PRF_EXECUTOR = kIntTwo | 1 << 1;  			// палач
-constexpr bitvector_t PRF_DRAW_MAP = kIntTwo | 1 << 2;  			// отрисовка карты при осмотре клетки
-constexpr bitvector_t PRF_CAN_REMORT = kIntTwo | 1 << 3;  			// разрешение на реморт через жертвование гривн
-constexpr bitvector_t PRF_ENTER_ZONE = kIntTwo | 1 << 4;  			// вывод названия/среднего уровня при входе в зону
-constexpr bitvector_t PRF_MISPRINT = kIntTwo | 1 << 5;  			// показ непрочитанных сообщений на доске опечаток при входе
-constexpr bitvector_t PRF_BRIEF_SHIELDS = kIntTwo | 1 << 6;  		// краткий режим сообщений при срабатывании маг.щитов
-constexpr bitvector_t PRF_AUTO_NOSUMMON = kIntTwo | 1 << 7;  		// автоматическое включение режима защиты от призыва ('реж призыв') после удачного суммона/пенты
-constexpr bitvector_t PRF_SDEMIGOD = kIntTwo | 1 << 8; 			// Для канала демигодов
-constexpr bitvector_t PRF_BLIND = kIntTwo | 1 << 9;  				// примочки для слепых
-constexpr bitvector_t PRF_MAPPER = kIntTwo | 1 << 10; 				// Показывает хеши рядом с названием комнаты
-constexpr bitvector_t PRF_TESTER = kIntTwo | 1 << 11; 				// отображать допинфу при годсфлаге тестер
-constexpr bitvector_t PRF_IPCONTROL = kIntTwo | 1 << 12; 			// отправлять код на мыло при заходе из новой подсети
-constexpr bitvector_t PRF_SKIRMISHER = kIntTwo | 1 << 13; 			// персонаж "в строю" в группе
-constexpr bitvector_t PRF_DOUBLE_THROW = kIntTwo | 1 << 14; 		// готов использовать двойной бросок
-constexpr bitvector_t PRF_TRIPLE_THROW = kIntTwo | 1 << 15; 		// готов использовать тройной бросок
-constexpr bitvector_t PRF_SHADOW_THROW = kIntTwo | 1 << 16; 		// применяет "теневой бросок"
-constexpr bitvector_t PRF_DISP_COOLDOWNS = kIntTwo | 1 << 17;		// Показывать кулдауны скиллов в промпте
-constexpr bitvector_t PRF_TELEGRAM = kIntTwo | 1 << 18;		 	// Активирует телеграм-канал у персонажа
+constexpr bitvector_t PRF_IGVA_PRONA = kIntTwo | 1 << 0;            // для стоп-списка оффтоп
+constexpr bitvector_t PRF_EXECUTOR = kIntTwo | 1 << 1;            // палач
+constexpr bitvector_t PRF_DRAW_MAP = kIntTwo | 1 << 2;            // отрисовка карты при осмотре клетки
+constexpr bitvector_t PRF_CAN_REMORT = kIntTwo | 1 << 3;            // разрешение на реморт через жертвование гривн
+constexpr bitvector_t PRF_ENTER_ZONE = kIntTwo | 1 << 4;            // вывод названия/среднего уровня при входе в зону
+constexpr bitvector_t
+	PRF_MISPRINT = kIntTwo | 1 << 5;            // показ непрочитанных сообщений на доске опечаток при входе
+constexpr bitvector_t PRF_BRIEF_SHIELDS = kIntTwo | 1 << 6;        // краткий режим сообщений при срабатывании маг.щитов
+constexpr bitvector_t PRF_AUTO_NOSUMMON = kIntTwo
+	| 1 << 7;        // автоматическое включение режима защиты от призыва ('реж призыв') после удачного суммона/пенты
+constexpr bitvector_t PRF_SDEMIGOD = kIntTwo | 1 << 8;            // Для канала демигодов
+constexpr bitvector_t PRF_BLIND = kIntTwo | 1 << 9;                // примочки для слепых
+constexpr bitvector_t PRF_MAPPER = kIntTwo | 1 << 10;                // Показывает хеши рядом с названием комнаты
+constexpr bitvector_t PRF_TESTER = kIntTwo | 1 << 11;                // отображать допинфу при годсфлаге тестер
+constexpr bitvector_t
+	PRF_IPCONTROL = kIntTwo | 1 << 12;            // отправлять код на мыло при заходе из новой подсети
+constexpr bitvector_t PRF_SKIRMISHER = kIntTwo | 1 << 13;            // персонаж "в строю" в группе
+constexpr bitvector_t PRF_DOUBLE_THROW = kIntTwo | 1 << 14;        // готов использовать двойной бросок
+constexpr bitvector_t PRF_TRIPLE_THROW = kIntTwo | 1 << 15;        // готов использовать тройной бросок
+constexpr bitvector_t PRF_SHADOW_THROW = kIntTwo | 1 << 16;        // применяет "теневой бросок"
+constexpr bitvector_t PRF_DISP_COOLDOWNS = kIntTwo | 1 << 17;        // Показывать кулдауны скиллов в промпте
+constexpr bitvector_t PRF_TELEGRAM = kIntTwo | 1 << 18;            // Активирует телеграм-канал у персонажа
 
 // при добавлении не забываем про preference_bits[]
 
@@ -573,7 +486,7 @@ enum class EAffectFlag : bitvector_t {
 	AFF_BLIND = 1u << 0,                    ///< (R) Char is blind
 	AFF_INVISIBLE = 1u << 1,                ///< Char is invisible
 	AFF_DETECT_ALIGN = 1u << 2,                ///< Char is sensitive to align
-	AFF_DETECT_INVIS = 1u << 3,                ///< Char can see invis chars
+	AFF_DETECT_INVIS = 1u << 3,                ///< Char can see invis entity_characters
 	AFF_DETECT_MAGIC = 1u << 4,                ///< Char is sensitive to magic
 	AFF_SENSE_LIFE = 1u << 5,                ///< Char can sense hidden life
 	AFF_WATERWALK = 1u << 6,                ///< Char can walk on water
@@ -680,100 +593,101 @@ constexpr bitvector_t IGNORE_OFFTOP = 1 << 11;
 
 // Modes of connectedness: used by descriptor_data.state //
 //ОБЕЗАТЕЛЬНО ДОБАВИТЬ В connected_types[]!!!!//
-const __uint8_t  CON_PLAYING = 0;		// Playing - Nominal state //
-const __uint8_t  CON_CLOSE = 1;			// Disconnecting     //
-const __uint8_t  CON_GET_NAME = 2;		// By what name ..?     //
-const __uint8_t  CON_NAME_CNFRM = 3;	// Did I get that right, x?   //
-const __uint8_t  CON_PASSWORD = 4;		// Password:         //
-const __uint8_t  CON_NEWPASSWD = 5;		// Give me a password for x   //
-const __uint8_t  CON_CNFPASSWD = 6;		// Please retype password: //
-const __uint8_t  CON_QSEX = 7;			// Sex?           //
-const __uint8_t  CON_QCLASS = 8;		// Class?         //
-const __uint8_t  CON_RMOTD = 9;			// PRESS RETURN after MOTD //
-const __uint8_t  CON_MENU = 10;			// Your choice: (main menu)   //
-const __uint8_t  CON_EXDESC = 11;		// Enter a new description:   //
-const __uint8_t  CON_CHPWD_GETOLD = 12; // Changing passwd: get old   //
-const __uint8_t  CON_CHPWD_GETNEW = 13; // Changing passwd: get new   //
-const __uint8_t  CON_CHPWD_VRFY = 14;	// Verify new password     //
-const __uint8_t  CON_DELCNF1 = 15;		// Delete confirmation 1   //
-const __uint8_t  CON_DELCNF2 = 16;		// Delete confirmation 2   //
-const __uint8_t  CON_DISCONNECT = 17;	// In-game disconnection   //
-const __uint8_t  CON_OEDIT = 18;		//. OLC mode - object edit     . //
-const __uint8_t  CON_REDIT = 19;		//. OLC mode - room edit       . //
-const __uint8_t  CON_ZEDIT = 20;		//. OLC mode - zone info edit  . //
-const __uint8_t  CON_MEDIT = 21;		//. OLC mode - mobile edit     . //
-const __uint8_t  CON_TRIGEDIT = 22;		//. OLC mode - trigger edit    . //
-const __uint8_t  CON_NAME2 = 23;
-const __uint8_t  CON_NAME3 = 24;
-const __uint8_t  CON_NAME4 = 25;
-const __uint8_t  CON_NAME5 = 26;
-const __uint8_t  CON_NAME6 = 27;
-const __uint8_t  CON_RELIGION = 28;
-const __uint8_t  CON_RACE = 29;
-const __uint8_t  CON_LOWS = 30;
-const __uint8_t  CON_GET_KEYTABLE = 31;
-const __uint8_t  CON_GET_EMAIL = 32;
-const __uint8_t  CON_ROLL_STATS = 33;
-const __uint8_t  CON_MREDIT = 34;		// OLC mode - make recept edit //
-const __uint8_t  CON_QKIN = 35;
-const __uint8_t  CON_QCLASSV = 36;
-const __uint8_t  CON_QCLASSS = 37;
-const __uint8_t  CON_MAP_MENU = 38;
-const __uint8_t  CON_COLOR = 39;
-const __uint8_t  CON_WRITEBOARD = 40;		// написание на доску
-const __uint8_t  CON_CLANEDIT = 41;			// команда house
-const __uint8_t  CON_NEW_CHAR = 42;
-const __uint8_t  CON_SPEND_GLORY = 43;		// вливание славы через команду у чара
-const __uint8_t  CON_RESET_STATS = 44;		// реролл статов при входе в игру
-const __uint8_t  CON_BIRTHPLACE = 45;		// выбираем где начать игру
-const __uint8_t  CON_WRITE_MOD = 46;		// пишет клановое сообщение дня
-const __uint8_t  CON_GLORY_CONST = 47;		// вливает славу2
-const __uint8_t  CON_NAMED_STUFF = 48;		// редактирует именной стаф
-const __uint8_t  CON_RESET_KIN = 49;		// выбор расы после смены/удаления оной (или иного способа испоганивания значения)
-const __uint8_t  CON_RESET_RACE = 50;		// выбор РОДА посла смены/сброса оного
-const __uint8_t  CON_CONSOLE = 51;			// Интерактивная скриптовая консоль
-const __uint8_t  CON_TORC_EXCH = 52;		// обмен гривен
-const __uint8_t  CON_MENU_STATS = 53;		// оплата сброса стартовых статов из главного меню
-const __uint8_t  CON_SEDIT = 54;			// sedit - редактирование сетов
-const __uint8_t  CON_RESET_RELIGION = 55;	// сброс религии из меню сброса статов
-const __uint8_t  CON_RANDOM_NUMBER = 56;	// Verification code entry: where player enter in the game from new location
-const __uint8_t  CON_INIT = 57;				// just connected
+const __uint8_t CON_PLAYING = 0;        // Playing - Nominal state //
+const __uint8_t CON_CLOSE = 1;            // Disconnecting     //
+const __uint8_t CON_GET_NAME = 2;        // By what name ..?     //
+const __uint8_t CON_NAME_CNFRM = 3;    // Did I get that right, x?   //
+const __uint8_t CON_PASSWORD = 4;        // Password:         //
+const __uint8_t CON_NEWPASSWD = 5;        // Give me a password for x   //
+const __uint8_t CON_CNFPASSWD = 6;        // Please retype password: //
+const __uint8_t CON_QSEX = 7;            // Sex?           //
+const __uint8_t CON_QCLASS = 8;        // Class?         //
+const __uint8_t CON_RMOTD = 9;            // PRESS RETURN after MOTD //
+const __uint8_t CON_MENU = 10;            // Your choice: (main menu)   //
+const __uint8_t CON_EXDESC = 11;        // Enter a new description:   //
+const __uint8_t CON_CHPWD_GETOLD = 12; // Changing passwd: get old   //
+const __uint8_t CON_CHPWD_GETNEW = 13; // Changing passwd: get new   //
+const __uint8_t CON_CHPWD_VRFY = 14;    // Verify new password     //
+const __uint8_t CON_DELCNF1 = 15;        // Delete confirmation 1   //
+const __uint8_t CON_DELCNF2 = 16;        // Delete confirmation 2   //
+const __uint8_t CON_DISCONNECT = 17;    // In-game disconnection   //
+const __uint8_t CON_OEDIT = 18;        //. OLC mode - object edit     . //
+const __uint8_t CON_REDIT = 19;        //. OLC mode - room edit       . //
+const __uint8_t CON_ZEDIT = 20;        //. OLC mode - zone info edit  . //
+const __uint8_t CON_MEDIT = 21;        //. OLC mode - mobile edit     . //
+const __uint8_t CON_TRIGEDIT = 22;        //. OLC mode - trigger edit    . //
+const __uint8_t CON_NAME2 = 23;
+const __uint8_t CON_NAME3 = 24;
+const __uint8_t CON_NAME4 = 25;
+const __uint8_t CON_NAME5 = 26;
+const __uint8_t CON_NAME6 = 27;
+const __uint8_t CON_RELIGION = 28;
+const __uint8_t CON_RACE = 29;
+const __uint8_t CON_LOWS = 30;
+const __uint8_t CON_GET_KEYTABLE = 31;
+const __uint8_t CON_GET_EMAIL = 32;
+const __uint8_t CON_ROLL_STATS = 33;
+const __uint8_t CON_MREDIT = 34;        // OLC mode - make recept edit //
+const __uint8_t CON_QKIN = 35;
+const __uint8_t CON_QCLASSV = 36;
+const __uint8_t CON_QCLASSS = 37;
+const __uint8_t CON_MAP_MENU = 38;
+const __uint8_t CON_COLOR = 39;
+const __uint8_t CON_WRITEBOARD = 40;        // написание на доску
+const __uint8_t CON_CLANEDIT = 41;            // команда house
+const __uint8_t CON_NEW_CHAR = 42;
+const __uint8_t CON_SPEND_GLORY = 43;        // вливание славы через команду у чара
+const __uint8_t CON_RESET_STATS = 44;        // реролл статов при входе в игру
+const __uint8_t CON_BIRTHPLACE = 45;        // выбираем где начать игру
+const __uint8_t CON_WRITE_MOD = 46;        // пишет клановое сообщение дня
+const __uint8_t CON_GLORY_CONST = 47;        // вливает славу2
+const __uint8_t CON_NAMED_STUFF = 48;        // редактирует именной стаф
+const __uint8_t
+	CON_RESET_KIN = 49;        // выбор расы после смены/удаления оной (или иного способа испоганивания значения)
+const __uint8_t CON_RESET_RACE = 50;        // выбор РОДА посла смены/сброса оного
+const __uint8_t CON_CONSOLE = 51;            // Интерактивная скриптовая консоль
+const __uint8_t CON_TORC_EXCH = 52;        // обмен гривен
+const __uint8_t CON_MENU_STATS = 53;        // оплата сброса стартовых статов из главного меню
+const __uint8_t CON_SEDIT = 54;            // sedit - редактирование сетов
+const __uint8_t CON_RESET_RELIGION = 55;    // сброс религии из меню сброса статов
+const __uint8_t CON_RANDOM_NUMBER = 56;    // Verification code entry: where player enter in the game from new location
+const __uint8_t CON_INIT = 57;                // just connected
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors
 //       which control the valid places you can wear a piece of equipment
-const __uint8_t  WEAR_LIGHT = 0;
-const __uint8_t  WEAR_FINGER_R = 1;
-const __uint8_t  WEAR_FINGER_L = 2;
-const __uint8_t  WEAR_NECK_1 = 3;
-const __uint8_t  WEAR_NECK_2 = 4;
-const __uint8_t  WEAR_BODY = 5;
-const __uint8_t  WEAR_HEAD = 6;
-const __uint8_t  WEAR_LEGS = 7;
-const __uint8_t  WEAR_FEET = 8;
-const __uint8_t  WEAR_HANDS = 9;
-const __uint8_t  WEAR_ARMS = 10;
-const __uint8_t  WEAR_SHIELD = 11;
-const __uint8_t  WEAR_ABOUT = 12;
-const __uint8_t  WEAR_WAIST = 13;
-const __uint8_t  WEAR_WRIST_R = 14;
-const __uint8_t  WEAR_WRIST_L = 15;
-const __uint8_t  WEAR_WIELD = 16;      // правая рука
-const __uint8_t  WEAR_HOLD = 17;      // левая рука
-const __uint8_t  WEAR_BOTHS = 18;      // обе руки
-const __uint8_t  WEAR_QUIVER = 19;      // под лук (колчан)
-const __uint8_t  NUM_WEARS = 20;    // This must be the # of eq positions!! //
+const __uint8_t WEAR_LIGHT = 0;
+const __uint8_t WEAR_FINGER_R = 1;
+const __uint8_t WEAR_FINGER_L = 2;
+const __uint8_t WEAR_NECK_1 = 3;
+const __uint8_t WEAR_NECK_2 = 4;
+const __uint8_t WEAR_BODY = 5;
+const __uint8_t WEAR_HEAD = 6;
+const __uint8_t WEAR_LEGS = 7;
+const __uint8_t WEAR_FEET = 8;
+const __uint8_t WEAR_HANDS = 9;
+const __uint8_t WEAR_ARMS = 10;
+const __uint8_t WEAR_SHIELD = 11;
+const __uint8_t WEAR_ABOUT = 12;
+const __uint8_t WEAR_WAIST = 13;
+const __uint8_t WEAR_WRIST_R = 14;
+const __uint8_t WEAR_WRIST_L = 15;
+const __uint8_t WEAR_WIELD = 16;      // правая рука
+const __uint8_t WEAR_HOLD = 17;      // левая рука
+const __uint8_t WEAR_BOTHS = 18;      // обе руки
+const __uint8_t WEAR_QUIVER = 19;      // под лук (колчан)
+const __uint8_t NUM_WEARS = 20;    // This must be the # of eq positions!! //
 
 
 // object-related defines ******************************************* //
 
 // Типы магических книг //
-const __uint8_t  BOOK_SPELL = 0;	// Книга заклинания //
-const __uint8_t  BOOK_SKILL = 1;	// Книга умения //
-const __uint8_t  BOOK_UPGRD = 2;	// Увеличение умения //
-const __uint8_t  BOOK_RECPT = 3;	// Книга рецепта //
-const __uint8_t  BOOK_FEAT = 4;		// Книга способности (feats) //
+const __uint8_t BOOK_SPELL = 0;    // Книга заклинания //
+const __uint8_t BOOK_SKILL = 1;    // Книга умения //
+const __uint8_t BOOK_UPGRD = 2;    // Увеличение умения //
+const __uint8_t BOOK_RECPT = 3;    // Книга рецепта //
+const __uint8_t BOOK_FEAT = 4;        // Книга способности (feats) //
 
 template<typename E>
 constexpr typename std::underlying_type<E>::type to_underlying(E e) {
@@ -1082,11 +996,11 @@ constexpr bitvector_t TRACK_NPC = 1 << 0;
 constexpr bitvector_t TRACK_HIDE = 1 << 1;
 
 // Container flags - value[1] //
-constexpr bitvector_t CONT_CLOSEABLE = 1 << 0;	// Container can be closed //
-constexpr bitvector_t CONT_PICKPROOF = 1 << 1;	// Container is pickproof  //
-constexpr bitvector_t CONT_CLOSED = 1 << 2;		// Container is closed     //
-constexpr bitvector_t CONT_LOCKED = 1 << 3;		// Container is locked     //
-constexpr bitvector_t CONT_BROKEN = 1 << 4;		// Container is locked     //
+constexpr bitvector_t CONT_CLOSEABLE = 1 << 0;    // Container can be closed //
+constexpr bitvector_t CONT_PICKPROOF = 1 << 1;    // Container is pickproof  //
+constexpr bitvector_t CONT_CLOSED = 1 << 2;        // Container is closed     //
+constexpr bitvector_t CONT_LOCKED = 1 << 3;        // Container is locked     //
+constexpr bitvector_t CONT_BROKEN = 1 << 4;        // Container is locked     //
 
 // other miscellaneous defines ****************************************** //
 
@@ -1095,20 +1009,20 @@ enum { DRUNK, FULL, THIRST };
 enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
 // Sun state for weather_data //
-const __uint8_t  SUN_DARK = 0;
-const __uint8_t  SUN_RISE = 1;
-const __uint8_t  SUN_LIGHT = 2;
-const __uint8_t  SUN_SET = 3;
+const __uint8_t SUN_DARK = 0;
+const __uint8_t SUN_RISE = 1;
+const __uint8_t SUN_LIGHT = 2;
+const __uint8_t SUN_SET = 3;
 
 // Moon change type //
-const __uint8_t  MOON_INCREASE = 0;
-const __uint8_t  MOON_DECREASE = 1;
+const __uint8_t MOON_INCREASE = 0;
+const __uint8_t MOON_DECREASE = 1;
 
 // Sky conditions for weather_data //
-const __uint8_t  SKY_CLOUDLESS = 0;
-const __uint8_t  SKY_CLOUDY = 1;
-const __uint8_t  SKY_RAINING = 2;
-const __uint8_t  SKY_LIGHTNING = 3;
+const __uint8_t SKY_CLOUDLESS = 0;
+const __uint8_t SKY_CLOUDY = 1;
+const __uint8_t SKY_RAINING = 2;
+const __uint8_t SKY_LIGHTNING = 3;
 
 constexpr bitvector_t EXTRA_FAILHIDE = 1 << 0;
 constexpr bitvector_t EXTRA_FAILSNEAK = 1 << 1;
@@ -1136,8 +1050,8 @@ const short LVL_IMMORT = 31;
 // Level of the 'freeze' command //
 const __uint8_t LVL_FREEZE = LVL_GRGOD;
 
-const __uint8_t  NUM_OF_DIRS = 6;        // number of directions in a room (nsewud) //
-const __uint8_t  MAGIC_NUMBER = 0x06;    // Arbitrary number that won't be in a string //
+const __uint8_t NUM_OF_DIRS = 6;        // number of directions in a room (nsewud) //
+const __uint8_t MAGIC_NUMBER = 0x06;    // Arbitrary number that won't be in a string //
 
 constexpr long long OPT_USEC = 40000;    // 25 passes per second //
 constexpr long long PASSES_PER_SEC = 1000000 / OPT_USEC;
@@ -1151,10 +1065,10 @@ constexpr long long PASSES_PER_SEC = 1000000 / OPT_USEC;
 #define PULSE_LOGROTATE (10 RL_SEC)
 
 // Variables for the output buffering system //
-constexpr __uint16_t kMaxSockBuf = 48*1024;		// Size of kernel's sock buf   //
-const __uint16_t kMaxPromptLength = 256;		// Max length of prompt        //
-const __uint8_t kGarbageSpace = 32;				// Space for **OVERFLOW** etc  //
-const __uint16_t kSmallBufsize = 1024;			// Static output buffer size   //
+constexpr __uint16_t kMaxSockBuf = 48 * 1024;        // Size of kernel's sock buf   //
+const __uint16_t kMaxPromptLength = 256;        // Max length of prompt        //
+const __uint8_t kGarbageSpace = 32;                // Space for **OVERFLOW** etc  //
+const __uint16_t kSmallBufsize = 1024;            // Static output buffer size   //
 // Max amount of output that can be buffered //
 constexpr __uint16_t kLargeBufSize = kMaxSockBuf - kGarbageSpace - kMaxPromptLength;
 
@@ -1287,7 +1201,7 @@ struct timed_type {
 	struct timed_type *next;
 };
 
-// Structure used for chars following other chars //
+// Structure used for entity_characters following other entity_characters //
 struct follow_type {
 	CHAR_DATA *follower;
 	struct follow_type *next;

@@ -2,7 +2,7 @@
 #define __MAGIC_ROOMS_HPP__
 
 #include "magic/spells.h"
-#include "room.h"
+#include "entity_rooms/room.h"
 
 #include <list>
 

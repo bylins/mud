@@ -4,8 +4,8 @@
 
 #include "name_list.h"
 
-#include "obj.h"
-#include "chars/char.h"
+#include "entity_objects/obj.h"
+#include "entity_characters/char.h"
 
 namespace {
 

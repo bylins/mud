@@ -17,7 +17,7 @@
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
 
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
 #include "utils/flags.hpp"
 
@@ -74,8 +74,8 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
 void obj_to_char(OBJ_DATA *object, CHAR_DATA *ch);
 void obj_from_char(OBJ_DATA *object);
 
-void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flags);
-OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags);
+void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, const CharEquipFlags& equip_flags);
+OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, const CharEquipFlags& equip_flags);
 int invalid_align(CHAR_DATA *ch, OBJ_DATA *obj);
 
 OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA *list);

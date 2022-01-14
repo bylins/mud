@@ -1,9 +1,9 @@
 #include "stat.h"
 
 #include "ban.h"
-#include "chars/char.h"
-#include "chars/char_player.h"
-#include "chars/player_races.h"
+#include "entity_characters/char.h"
+#include "entity_characters/char_player.h"
+#include "entity_characters/player_races.h"
 #include "utils/utils_char_obj.inl"
 #include "description.h"
 #include "fightsystem/fight_hit.h"

@@ -17,7 +17,8 @@
 #include "dg_event.h"
 #include "screen.h"
 #include "house.h"
-#include "chars/char_player.h"
+#include "entity_characters/char_player.h"
+#include "entity_rooms/room_constants.h"
 #include "modify.h"
 #include "named_stuff.h"
 #include "magic/magic_utils.h"
@@ -5337,7 +5338,7 @@ void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/) {
 		send_to_char("Usage: tstat <vnum>\r\n", ch);
 }
 
-// read a line in from a file, return the number of chars read
+// read a line in from a file, return the number of entity_characters read
 int fgetline(FILE *file, char *p) {
 	int count = 0;
 

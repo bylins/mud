@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "skills_info.h"
 
 

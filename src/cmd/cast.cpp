@@ -1,8 +1,8 @@
 #include "cast.h"
 
-#include "chars/char.h"
-#include "obj.h"
-#include "room.h"
+#include "entity_characters/char.h"
+#include "entity_objects/obj.h"
+#include "entity_rooms/room.h"
 #include "structs/structs.h"
 #include "comm.h"
 #include "skills.h"

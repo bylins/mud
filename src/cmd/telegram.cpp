@@ -1,8 +1,8 @@
 #include "telegram.h"
-#include "chars/char_player.h"
-#include "chars/world.characters.h"
+#include "entity_characters/char_player.h"
+#include "entity_characters/world.characters.h"
 
-#include <obj.h>
+#include <entity_objects/obj.h>
 
 void do_telegram(CHAR_DATA *ch, char *argument, int, int) {
 #if defined(HAVE_TG)

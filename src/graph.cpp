@@ -15,7 +15,7 @@
 #include "interpreter.h"
 #include "constants.h"
 #include "handler.h"
-#include "random.h"
+#include "utils/random.h"
 #include "skills_info.h"
 
 // Externals

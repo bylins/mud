@@ -6,7 +6,7 @@
 #include "bonus_command_parser.h"
 #include "handler.h"
 #include "modify.h"
-#include "chars/char_player.h"
+#include "entity_characters/char_player.h"
 
 namespace Bonus {
 const size_t MAXIMUM_BONUS_RECORDS = 10;

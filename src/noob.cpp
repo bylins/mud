@@ -3,7 +3,7 @@
 
 #include "noob.h"
 
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "pugixml.h"
 #include "parse.h"
 #include "handler.h"

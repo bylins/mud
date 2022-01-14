@@ -17,7 +17,8 @@
 #include "handler.h"
 #include "interpreter.h"
 #include "magic/spells_info.h"
-#include "obj.h"
+#include "entity_objects/obj.h"
+#include "entity_rooms/room_constants.h"
 #include "olc/olc.h"
 
 #include <boost/lexical_cast.hpp>

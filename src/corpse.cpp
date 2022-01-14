@@ -6,12 +6,13 @@
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "constants.h"
-#include "chars/char.h"
+#include "entity_characters/char.h"
+#include "entity_rooms/room_constants.h"
 #include "handler.h"
 #include "pugixml.h"
 #include "house.h"
 #include "parse.h"
-#include "random.h"
+#include "utils/random.h"
 
 #include <boost/algorithm/string.hpp>
 

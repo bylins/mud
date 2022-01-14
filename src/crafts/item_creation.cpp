@@ -16,6 +16,7 @@
 #include "modify.h"
 #include "fightsystem/fight.h"
 #include "skills_info.h"
+#include "entity_rooms/room_constants.h"
 
 extern int material_value[];
 void die(CHAR_DATA *ch, CHAR_DATA *killer);

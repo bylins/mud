@@ -1,7 +1,8 @@
 #include "relocate.h"
 
-#include "features.h"
-#include "chars/char.h"
+//#include "features.h"
+#include "entity_characters/char.h"
+#include "entity_rooms/room_constants.h"
 #include "house.h"
 #include "screen.h"
 #include "handler.h"
@@ -90,12 +91,12 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	timed.skill = RELOCATE_FEAT;
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 			return;
-	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n медленно исчез$q из виду.", TRUE, ch, nullptr, nullptr, TO_ROOM);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	ch->dismount();
-	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n медленно появил$u откуда-то.", TRUE, ch, nullptr, nullptr, TO_ROOM);
 	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch)
 		|| ROOM_FLAGGED(fnd_room, ROOM_ARENA))) {
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",

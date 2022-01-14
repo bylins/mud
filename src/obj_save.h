@@ -8,7 +8,7 @@
 #define OBJSAVE_HPP_INCLUDED
 
 #include "obj_save.h"
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -22,9 +22,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location);
 int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int display, int factor, int *totalcost);
 void Crash_rentsave(CHAR_DATA *ch, int cost);
 void Crash_crashsave(CHAR_DATA *ch);
-int Crash_write_timer(const std::size_t index);
+int Crash_write_timer(std::size_t index);
 void Crash_rent_time(int dectime);
-void Crash_save_all(void);
+void Crash_save_all();
 void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
 

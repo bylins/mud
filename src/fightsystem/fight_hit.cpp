@@ -1,6 +1,7 @@
 #include "fight_hit.h"
 
 #include "handler.h"
+#include "entity_rooms/room_constants.h"
 #include "screen.h"
 #include "magic/magic.h"
 #include "pk.h"

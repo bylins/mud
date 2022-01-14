@@ -1,7 +1,7 @@
 #include "godtest.h"
 
-#include "../chars/char.h"
-#include "../modify.h"
+#include "entity_characters/char.h"
+#include "modify.h"
 
 // This is test command for different testings
 void do_godtest(CHAR_DATA *ch, char * /*argument*/, int /* cmd */, int /* subcmd */) {

@@ -2,8 +2,9 @@
 
 #include "act_movement.h"
 #include "features.h"
-#include "random.h"
-#include "chars/char.h"
+#include "utils/random.h"
+#include "entity_characters/char.h"
+#include "entity_rooms/room_constants.h"
 
 void reduce_exp_after_flee(CHAR_DATA *ch, CHAR_DATA *victim, room_rnum room) {
 	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))

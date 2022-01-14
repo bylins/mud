@@ -8,7 +8,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "obj.h"
+#include "entity_objects/obj.h"
+#include "entity_rooms/room_constants.h"
 #include "screen.h"
 #include "interpreter.h"
 #include "handler.h"

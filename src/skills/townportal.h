@@ -3,7 +3,7 @@
 
 #include "db.h"
 #include "comm.h"
-#include "room.h"
+#include "entity_rooms/room.h"
 
 class CHAR_DATA;
 

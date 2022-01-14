@@ -11,7 +11,7 @@
 #include "house.h"
 #include "screen.h"
 #include "privilege.h"
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "modify.h"
 #include "structs/descriptor_data.h"
 

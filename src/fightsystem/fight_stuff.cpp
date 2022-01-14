@@ -2,9 +2,10 @@
 
 #include "affects/affect_data.h"
 #include "mobact.h"
-#include "obj.h"
+#include "entity_objects/obj.h"
+#include "entity_rooms/room_constants.h"
 #include "cmd/flee.h"
-#include "chars/world.characters.h"
+#include "entity_characters/world.characters.h"
 #include "fight.h"
 #include "fight_penalties.h"
 #include "fight_hit.h"
@@ -21,7 +22,7 @@
 #include "backtrace.h"
 #include "magic/magic_utils.h"
 #include "zone.table.h"
-#include "chars/char_player.h"
+#include "entity_characters/char_player.h"
 
 #include <algorithm>
 

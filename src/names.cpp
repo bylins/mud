@@ -12,7 +12,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "screen.h"
-#include "chars/char_player.h"
+#include "entity_characters/char_player.h"
 
 #include "names.h"
 
@@ -87,7 +87,7 @@ int was_disagree_name(DESCRIPTOR_DATA *d) {
 	//2. Find name in list ...
 	//3. Compare names ... get next
 	while (get_line(fp, temp)) {
-		// Extract chars and
+		// Extract entity_characters and
 		sscanf(temp, "%s %s %d", mortname, immname, &immlev);
 		if (!strcmp(mortname, GET_NAME(d->character))) {
 			// Char found all ok;

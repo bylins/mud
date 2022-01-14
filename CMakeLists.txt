@@ -15,7 +15,7 @@ set(SOURCES
 		src/heartbeat.cpp
 		src/heartbeat_commands.cpp
 		src/abilities/abilities_rollsystem.cpp
-		src/chars/accounts.cpp
+		src/entity_characters/accounts.cpp
 		src/action_targeting.cpp
 		src/act_comm.cpp
 		src/act_informative.cpp
@@ -42,8 +42,8 @@ set(SOURCES
 		src/boot/boot_index.cpp
 		src/cache.cpp
 		src/celebrates.cpp
-		src/chars/char.cpp
-		src/chars/char_player.cpp
+		src/entity_characters/char.cpp
+		src/entity_characters/char_player.cpp
 		src/classes/class.cpp
 		src/classes/class_spell_slots.cpp
 		src/color.cpp
@@ -73,6 +73,7 @@ set(SOURCES
 		src/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
+		src/entity_rooms/room_constants.cpp
 		src/exchange.cpp
 		src/ext_money.cpp
 		src/external_trigger.cpp
@@ -97,7 +98,7 @@ set(SOURCES
 		src/interpreter.cpp
 		src/crafts/item_creation.cpp
 		src/game_limits.cpp
-		src/levenshtein.cpp
+		src/utils/levenshtein.cpp
 		src/liquid.cpp
 		src/logger.cpp
 		src/magic/magic.cpp
@@ -121,7 +122,7 @@ set(SOURCES
 		src/name_list.cpp
 		src/names.cpp
 		src/noob.cpp
-		src/obj.cpp
+        src/entity_objects/obj.cpp
 		src/obj_enchant.cpp
 		src/obj_save.cpp
 		src/obj_save_ext.cpp
@@ -134,15 +135,15 @@ set(SOURCES
 		src/parse.cpp
 		src/password.cpp
 		src/fightsystem/pk.cpp
-		src/chars/player_races.cpp
+		src/entity_characters/player_races.cpp
 		src/privilege.cpp
 		src/pugixml.cpp
 		src/quests/quested.cpp
-		src/random.cpp
+		src/utils/random.cpp
 		src/olc/redit.cpp
 		src/remember.cpp
 		src/reset_stats.cpp
-		src/room.cpp
+		src/entity_rooms/room.cpp
 		src/sets_drop.cpp
 		src/shop_ext.cpp
 		src/cmd_god/shutdown_parameters.cpp
@@ -170,7 +171,7 @@ set(SOURCES
 		src/utils/utils_find_obj_id_by_vnum.cpp
 		src/global_objects.cpp
 		src/shops_implementation.cpp
-		src/chars/world.characters.cpp
+		src/entity_characters/world.characters.cpp
 		src/utils/utils_debug.cpp
 		src/speedwalks.cpp
 		src/shops_implementation.cpp
@@ -205,7 +206,7 @@ set(SOURCES
 		src/skills/warcry.cpp
 		src/skills/identify.cpp
 		src/skills/relocate.cpp
-		src/chars/mount.cpp
+		src/entity_characters/mount.cpp
 		src/fightsystem/assist.cpp
 		src/fightsystem/fight_start.cpp
 		src/skills/styles.cpp
@@ -272,8 +273,8 @@ set(HEADERS
 		src/strengthening.h
 		src/abilities/abilities_constants.h
 		src/abilities/abilities_rollsystem.h
-		src/chars/mount.h
-		src/chars/accounts.h
+		src/entity_characters/mount.h
+		src/entity_characters/accounts.h
 		src/action_targeting.h
 		src/blocking_queue.h
 		src/influxdb.h
@@ -283,7 +284,7 @@ set(HEADERS
 		src/act_wizard.h
 		src/heartbeat.h
 		src/speedwalks.h
-		src/chars/world.characters.h
+		src/entity_characters/world.characters.h
 		src/shops_implementation.h
 		src/global_objects.h
 		src/utils/id_converter.h
@@ -314,9 +315,9 @@ set(HEADERS
 		src/boot/boot_index.h
 		src/cache.h
 		src/celebrates.h
-		src/chars/char.h
+		src/entity_characters/char.h
 		src/utils/utils_char_obj.inl
-		src/chars/char_player.h
+		src/entity_characters/char_player.h
 		src/classes/class.h
 		src/classes/class_spell_slots.h
 		src/comm.h
@@ -365,7 +366,7 @@ set(HEADERS
 		src/crafts/im.h
 		src/interpreter.h
 		src/crafts/item_creation.h
-		src/levenshtein.h
+		src/utils/levenshtein.h
 		src/liquid.h
 		src/logger.h
 		src/magic/magic.h
@@ -387,7 +388,7 @@ set(HEADERS
 		src/name_list.h
 		src/noob.h
 		src/obj_enchant.h
-		src/obj.h
+        src/entity_objects/obj.h
 		src/obj_save.h
 		src/obj_sets.h
 		src/obj_sets_stuff.h
@@ -396,16 +397,16 @@ set(HEADERS
 		src/parse.h
 		src/password.h
 		src/fightsystem/pk.h
-		src/chars/player_i.h
-		src/chars/player_races.h
+		src/entity_characters/player_i.h
+		src/entity_characters/player_races.h
 		src/privilege.h
 		src/pugiconfig.h
 		src/pugixml.h
 		src/quests/quested.h
-		src/random.h
+		src/utils/random.h
 		src/remember.h
 		src/reset_stats.h
-		src/room.h
+		src/entity_rooms/room.h
 		src/screen.h
 		src/sets_drop.h
 		src/shop_ext.h
@@ -436,7 +437,7 @@ set(HEADERS
 		src/skills/chopoff.h
 		src/skills/stupor.h
 		src/graph.h
-		src/structs/flag_data.h)
+		src/structs/flag_data.h src/entity_rooms/room_constants.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

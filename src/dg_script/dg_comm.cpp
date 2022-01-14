@@ -8,7 +8,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "dg_scripts.h"
 #include "comm.h"
 #include "handler.h"

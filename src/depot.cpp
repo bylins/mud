@@ -4,13 +4,13 @@
 
 #include "depot.h"
 
-#include "chars/world.characters.h"
+#include "entity_characters/world.characters.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
-#include "chars/char_player.h"
+#include "entity_characters/char_player.h"
 #include "modify.h"
 #include "obj_save.h"
 #include "house.h"

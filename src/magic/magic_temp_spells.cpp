@@ -1,6 +1,6 @@
 #include "magic/magic_temp_spells.h"
 
-#include "chars/world.characters.h"
+#include "entity_characters/world.characters.h"
 #include "screen.h"
 #include "handler.h"
 #include "magic/spells_info.h"

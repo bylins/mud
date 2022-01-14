@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "chars/world.characters.h"
+#include "entity_characters/world.characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
 #include "pugixml.h"

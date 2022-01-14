@@ -5,6 +5,7 @@
 #include "world.characters.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
+#include "entity_rooms/room_constants.h"
 #include "privilege.h"
 #include "char_player.h"
 #include "player_races.h"
@@ -833,6 +834,7 @@ bool AWAKE(const CHAR_DATA *ch) {
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP);
 }
 
+//Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
 bool OK_GAIN_EXP(const CHAR_DATA *ch, const CHAR_DATA *victim) {
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
@@ -877,7 +879,7 @@ bool CAN_SEE(const CHAR_DATA *sub, const CHAR_DATA *obj) {
 
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
 void change_fighting(CHAR_DATA *ch, int need_stop) {
-	//Loop for all chars is necessary for unprotecting
+	//Loop for all entity_characters is necessary for unprotecting
 	for (const auto &k : character_list) {
 		if (k->get_protecting() == ch) {
 			k->set_protecting(0);

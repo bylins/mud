@@ -9,8 +9,8 @@
 
 #include "liquid.h"
 
-#include "obj.h"
-#include "chars/char.h"
+#include "entity_objects/obj.h"
+#include "entity_characters/char.h"
 #include "utils/utils_char_obj.inl"
 #include "handler.h"
 #include "magic/magic.h"

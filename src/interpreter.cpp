@@ -18,9 +18,9 @@
 #include "act_movement.h"
 #include "cmd_god/ban.h"
 #include "boards/boards.h"
-#include "chars/char.h"
-#include "chars/char_player.h"
-#include "chars/world.characters.h"
+#include "entity_characters/char.h"
+#include "entity_characters/char_player.h"
+#include "entity_characters/world.characters.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/godtest.h"
 #include "cmd/follow.h"
@@ -63,13 +63,13 @@
 #include "name_list.h"
 #include "named_stuff.h"
 #include "names.h"
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
 #include "parcel.h"
 #include "password.h"
 #include "privilege.h"
-#include "room.h"
+#include "entity_rooms/room.h"
 #include "screen.h"
 #include "skills.h"
 #include "skills/bash.h"
@@ -100,7 +100,7 @@
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
-#include "chars/player_races.h"
+#include "entity_characters/player_races.h"
 #include "birthplaces.h"
 #include "help.h"
 #include "mapsystem.h"
@@ -116,7 +116,7 @@
 #include "bonus.h"
 #include "utils/utils_debug.h"
 #include "global_objects.h"
-#include "chars/accounts.h"
+#include "entity_characters/accounts.h"
 #include "fightsystem/pk.h"
 
 #include <boost/lexical_cast.hpp>
@@ -296,7 +296,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_purge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_put(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_quit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_quit(CHAR_DATA *ch, char *argument, int /* cmd */, int subcmd);
 void do_reboot(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rent(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -1891,7 +1891,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			return;
 		}
 
-		// ignore chars with descriptors (already handled by above step) //
+		// ignore entity_characters with descriptors (already handled by above step) //
 		if (ch->desc)
 			return;
 

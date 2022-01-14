@@ -34,7 +34,8 @@
 #include "global_objects.h"
 #include "magic/magic.h"
 #include "world_objects.h"
-#include "chars/world.characters.h"
+#include "entity_characters/world.characters.h"
+#include "entity_rooms/room_constants.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "obj_prototypes.h"
 #include "external_trigger.h"
@@ -1634,7 +1635,7 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 	int door;
 	int perc;
 
-	// Note, prompt is truncated at kMaxPromptLength chars (structs.h )
+	// Note, prompt is truncated at kMaxPromptLength entity_characters (structs.h )
 	if (d->showstr_count) {
 		sprintf(prompt,
 				"\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).",

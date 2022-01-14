@@ -27,7 +27,7 @@
 #include "feats.h"
 #include "house.h"
 #include "privilege.h"
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "skills.h"
 #include "genchar.h"
 #include "logger.h"
@@ -887,7 +887,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	skip_spaces(&argument);
 
-	// If there is no chars in argument //
+	// If there is no entity_characters in argument //
 	if (!*argument) {
 		send_to_char("Пропущено название способности.\r\n", ch);
 		return;
@@ -989,7 +989,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	skip_spaces(&argument);
 
-	// If there is no chars in argument
+	// If there is no entity_characters in argument
 	if (!*argument) {
 		send_to_char("Пропущено название умения.\r\n", ch);
 		return;

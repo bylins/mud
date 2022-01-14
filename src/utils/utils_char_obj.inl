@@ -2,8 +2,8 @@
 #define __CHAR_OBJ_UTILS_HPP__
 
 #include "structs/structs.h"
-#include "chars/char.h"
-#include "obj.h"
+#include "entity_characters/char.h"
+#include "entity_objects/obj.h"
 #include "utils.h"
 
 inline bool INVIS_OK_OBJ(const CHAR_DATA *sub, const OBJ_DATA *obj) {

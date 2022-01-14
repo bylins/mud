@@ -9,7 +9,7 @@
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
-#include "chars/char_player.h"
+#include "entity_characters/char_player.h"
 #include "mail.h"
 #include "obj_save.h"
 

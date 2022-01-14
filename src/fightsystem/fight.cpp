@@ -24,20 +24,20 @@
 #include "skills/ironwind.h"
 
 #include "assist.h"
-#include "chars/world.characters.h"
+#include "entity_characters/world.characters.h"
 #include "fight_hit.h"
 #include "fightsystem/mobact.h"
 #include "handler.h"
 #include "screen.h"
-#include "random.h"
-#include "chars/char_player.h"
+#include "utils/random.h"
+#include "entity_characters/char_player.h"
 #include "magic/magic.h"
 #include "olc/olc.h"
 #include "msdp/msdp_constants.h"
 #include "magic/magic_items.h"
 
 // Structures
-CHAR_DATA *combat_list = NULL;    // head of l-list of fighting chars
+CHAR_DATA *combat_list = NULL;    // head of l-list of fighting entity_characters
 CHAR_DATA *next_combat_list = NULL;
 
 extern int r_helled_start_room;
@@ -241,7 +241,7 @@ void set_fighting(CHAR_DATA *ch, CHAR_DATA *vict) {
 //  check_killer(ch, vict);
 }
 
-// remove a char from the list of fighting chars
+// remove a char from the list of fighting entity_characters
 void stop_fighting(CHAR_DATA *ch, int switch_others) {
 	CHAR_DATA *temp, *found;
 

@@ -1,6 +1,6 @@
 /* ************************************************************************
 *   File: handler.cpp                                   Part of Bylins    *
-*  Usage: internal funcs: moving and finding chars/objs                   *
+*  Usage: internal funcs: moving and finding entity_characters/objs                   *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
 *                                                                         *
@@ -17,8 +17,9 @@
 #include "auction.h"
 #include "backtrace.h"
 #include "utils/utils_char_obj.inl"
-#include "chars/char_player.h"
-#include "chars/world.characters.h"
+#include "entity_characters/char_player.h"
+#include "entity_characters/world.characters.h"
+#include "entity_rooms/room_constants.h"
 #include "cmd/follow.h"
 #include "exchange.h"
 #include "ext_money.h"
@@ -71,12 +72,12 @@ char *fname(const char *namelist) {
 }
 
 bool is_wear_light(CHAR_DATA *ch) {
-	bool wear_light = FALSE;
+	bool wear_light = false;
 	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++) {
 		if (GET_EQ(ch, wear_pos)
 			&& GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == OBJ_DATA::ITEM_LIGHT
 			&& GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2)) {
-			wear_light = TRUE;
+			wear_light = true;
 		}
 	}
 	return wear_light;
@@ -144,8 +145,8 @@ void check_light(CHAR_DATA *ch, int was_equip, int was_single, int was_holylight
 }
 
 /*
- * Return TRUE if a char is affected by a spell (SPELL_XXX),
- * FALSE indicates not affected.
+ * Return true if a char is affected by a spell (SPELL_XXX),
+ * false indicates not affected.
  */
 bool affected_by_spell(CHAR_DATA *ch, int type) {
 	if (type == SPELL_POWER_HOLD) {
@@ -158,11 +159,11 @@ bool affected_by_spell(CHAR_DATA *ch, int type) {
 
 	for (const auto &affect : ch->affected) {
 		if (affect->type == type) {
-			return (TRUE);
+			return (true);
 		}
 	}
 
-	return (FALSE);
+	return (false);
 }
 
 void affect_join_fspell(CHAR_DATA *ch, const AFFECT_DATA<EApplyLocation> &af) {
@@ -223,7 +224,7 @@ void timed_feat_to_char(CHAR_DATA *ch, struct timed_type *timed) {
 }
 
 void timed_feat_from_char(CHAR_DATA *ch, struct timed_type *timed) {
-	if (ch->timed_feat == NULL) {
+	if (ch->timed_feat == nullptr) {
 		log("SYSERR: timed_feat_from_char(%s) when no timed...", GET_NAME(ch));
 		return;
 	}
@@ -262,7 +263,7 @@ void timed_to_char(CHAR_DATA *ch, struct timed_type *timed) {
 }
 
 void timed_from_char(CHAR_DATA *ch, struct timed_type *timed) {
-	if (ch->timed == NULL) {
+	if (ch->timed == nullptr) {
 		log("SYSERR: timed_from_char(%s) when no timed...", GET_NAME(ch));
 		// core_dump();
 		return;
@@ -284,14 +285,14 @@ int timed_by_skill(CHAR_DATA *ch, int skill) {
 
 // move a player out of a room
 void char_from_room(CHAR_DATA *ch) {
-	if (ch == NULL || ch->in_room == kNowhere) {
+	if (ch == nullptr || ch->in_room == kNowhere) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: NULL character or kNowhere in %s, char_from_room", __FILE__);
 		return;
 	}
 
-	if (ch->get_fighting() != NULL)
-		stop_fighting(ch, TRUE);
+	if (ch->get_fighting() != nullptr)
+		stop_fighting(ch, true);
 
 	if (!IS_NPC(ch))
 		ch->set_from_room(ch->in_room);
@@ -332,11 +333,7 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 			}
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.", ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
-				TRUE,
-				ch,
-				0,
-				ch,
-				TO_ROOM | TO_ARENA_LISTEN);
+				true, ch, nullptr, ch, TO_ROOM | TO_ARENA_LISTEN);
 			CallMagic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_REAL_LEVEL(caster));
 		}
 	}
@@ -344,7 +341,7 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 
 // place a character in a room
 void char_to_room(CHAR_DATA *ch, room_rnum room) {
-	if (ch == NULL || room < kNowhere + 1 || room > top_of_world) {
+	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
 		return;
@@ -382,8 +379,8 @@ void char_to_room(CHAR_DATA *ch, room_rnum room) {
 	}
 	// Stop fighting now, if we left.
 	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting())) {
-		stop_fighting(ch->get_fighting(), FALSE);
-		stop_fighting(ch, TRUE);
+		stop_fighting(ch->get_fighting(), false);
+		stop_fighting(ch, true);
 	}
 
 	if (!IS_NPC(ch)) {
@@ -410,7 +407,7 @@ void char_to_room(CHAR_DATA *ch, room_rnum room) {
 }
 // place a character in a room
 void char_flee_to_room(CHAR_DATA *ch, room_rnum room) {
-	if (ch == NULL || room < kNowhere + 1 || room > top_of_world) {
+	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
 		return;
@@ -448,8 +445,8 @@ void char_flee_to_room(CHAR_DATA *ch, room_rnum room) {
 	}
 	// Stop fighting now, if we left.
 	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting())) {
-		stop_fighting(ch->get_fighting(), FALSE);
-		stop_fighting(ch, TRUE);
+		stop_fighting(ch->get_fighting(), false);
+		stop_fighting(ch, true);
 	}
 
 	if (!IS_NPC(ch)) {
@@ -487,7 +484,7 @@ void restore_object(OBJ_DATA *obj, CHAR_DATA *ch) {
 		&& ch
 		&& GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)) {
 		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 	}
 }
 
@@ -495,31 +492,31 @@ void restore_object(OBJ_DATA *obj, CHAR_DATA *ch) {
 bool stockable_custom_labels(OBJ_DATA *obj_one, OBJ_DATA *obj_two) {
 	// без меток стокаются
 	if (!obj_one->get_custom_label() && !obj_two->get_custom_label())
-		return 1;
+		return true;
 
 	if (obj_one->get_custom_label() && obj_two->get_custom_label()) {
 		// с разными типами меток не стокаются
 		if (!obj_one->get_custom_label()->clan != !obj_two->get_custom_label()->clan) {
-			return 0;
+			return false;
 		} else {
 			// обе метки клановые один клан, текст совпадает -- стокается
 			if (obj_one->get_custom_label()->clan && obj_two->get_custom_label()->clan
 				&& !strcmp(obj_one->get_custom_label()->clan, obj_two->get_custom_label()->clan)
 				&& obj_one->get_custom_label()->label_text && obj_two->get_custom_label()->label_text
 				&& !strcmp(obj_one->get_custom_label()->label_text, obj_two->get_custom_label()->label_text)) {
-				return 1;
+				return true;
 			}
 
 			// обе метки личные, один автор, текст совпадает -- стокается
 			if (obj_one->get_custom_label()->author == obj_two->get_custom_label()->author
 				&& obj_one->get_custom_label()->label_text && obj_two->get_custom_label()->label_text
 				&& !strcmp(obj_one->get_custom_label()->label_text, obj_two->get_custom_label()->label_text)) {
-				return 1;
+				return true;
 			}
 		}
 	}
 
-	return 0;
+	return false;
 }
 
 // выяснение стокаются ли предметы
@@ -534,10 +531,10 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two) {
 		|| (GET_OBJ_TYPE(obj_one) == OBJ_DATA::ITEM_BOOK
 			&& GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1))
 		|| !stockable_custom_labels(obj_one, obj_two)) {
-		return 0;
+		return false;
 	}
 
-	return 1;
+	return true;
 }
 
 namespace {
@@ -607,31 +604,27 @@ void obj_to_char(OBJ_DATA *object, CHAR_DATA *ch) {
 		ss << "SYSERR: Object at address 0x" << object
 		   << " is not in the world but we have attempt to put it into character '" << ch->get_name()
 		   << "'. Object won't be placed into character's inventory.";
-		mudlog(ss.str().c_str(), NRM, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(ss.str().c_str(), NRM, LVL_IMPL, SYSLOG, true);
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 
 		return;
 	}
 
-	int may_carry = TRUE;
+	int may_carry = true;
 	if (object && ch) {
 		restore_object(object, ch);
-		if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
-			may_carry = FALSE;
+		if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, false))
+			may_carry = false;
 		if (!may_carry) {
-			act("Вас обожгло при попытке взять $o3.", FALSE, ch, object, 0, TO_CHAR);
-			act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, object, 0, TO_ROOM);
+			act("Вас обожгло при попытке взять $o3.", false, ch, object, nullptr, TO_CHAR);
+			act("$n попытал$u взять $o3 - и чудом не сгорел$g.", false, ch, object, nullptr, TO_ROOM);
 			obj_to_room(object, ch->in_room);
 			return;
 		}
 		if (!IS_NPC(ch)
 			|| (ch->has_master()
 				&& !IS_NPC(ch->get_master()))) {
-			// Контроль уникальности предметов
-			if (object && // Объект существует
-				GET_OBJ_UID(object) != 0 && // Есть UID
-				object->get_timer() > 0) // Целенький
-			{
+			if (object && GET_OBJ_UID(object) != 0 && object->get_timer() > 0) {
 				tuid = GET_OBJ_UID(object);
 				inworld = 1;
 				// Объект готов для проверки. Ищем в мире такой же.
@@ -653,9 +646,9 @@ void obj_to_char(OBJ_DATA *object, CHAR_DATA *ch) {
 							GET_OBJ_VNUM(object),
 							GET_NAME(ch),
 							inworld);
-					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
 					// Удаление предмета
-					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
+					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", false, ch, object, nullptr, TO_CHAR);
 					object->set_timer(0); // Хана предмету
 					object->set_extra_flag(EExtraFlag::ITEM_NOSELL); // Ибо нефиг
 				}
@@ -719,19 +712,19 @@ void obj_from_char(OBJ_DATA *object) {
 
 int invalid_align(CHAR_DATA *ch, OBJ_DATA *obj) {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch))
-		return (FALSE);
+		return (false);
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO)
 		&& GET_RELIGION(ch) == kReligionMono) {
-		return TRUE;
+		return true;
 	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY)
 		&& GET_RELIGION(ch) == kReligionPoly) {
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
-void wear_message(CHAR_DATA *ch, OBJ_DATA *obj, int where) {
+void wear_message(CHAR_DATA *ch, OBJ_DATA *obj, int position) {
 	const char *wear_messages[][2] =
 		{
 			{"$n засветил$g $o3 и взял$g во вторую руку.",
@@ -795,25 +788,23 @@ void wear_message(CHAR_DATA *ch, OBJ_DATA *obj, int where) {
 			 "Вы начали использовать $o3 как колчан."}
 		};
 
-	act(wear_messages[where][1], FALSE, ch, obj, 0, TO_CHAR);
-	act(wear_messages[where][0],
-		IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? FALSE : TRUE,
-		ch,
-		obj,
-		0,
-		TO_ROOM | TO_ARENA_LISTEN);
+	act(wear_messages[position][1], false, ch, obj, nullptr, TO_CHAR);
+	act(wear_messages[position][0],
+		IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? false : true,
+		ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 }
 
 int flag_data_by_char_class(const CHAR_DATA *ch) {
-	if (ch == NULL)
+	if (ch == nullptr) {
 		return 0;
+	}
 
 	return flag_data_by_num(IS_NPC(ch) ? NUM_PLAYER_CLASSES * kNumKins : GET_CLASS(ch)
 		+ NUM_PLAYER_CLASSES * GET_KIN(ch));
 }
 
 unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::const_iterator it,
-							int pos, CharEquipFlags equip_flags, unsigned int set_obj_qty) {
+							int pos, const CharEquipFlags& equip_flags, unsigned int set_obj_qty) {
 	const bool no_cast = equip_flags.test(CharEquipFlag::no_cast);
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 	std::string::size_type delim;
@@ -845,7 +836,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 										  GET_EQ(ch, pos)->get_affected(i).location,
 										  GET_EQ(ch, pos)->get_affected(i).modifier,
 										  static_cast<EAffectFlag>(0),
-										  FALSE);
+										  false);
 						}
 
 						if (ch->in_room != kNowhere) {
@@ -854,7 +845,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 									|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), FALSE);
+								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), false);
 							}
 						}
 					}
@@ -863,15 +854,15 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 					delim = act_msg.find('\n');
 
 					if (show_msg) {
-						act(act_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
+						act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, TO_CHAR);
 						act(act_msg.erase(0, delim + 1).c_str(),
-							IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? FALSE : TRUE,
-							ch, GET_EQ(ch, pos), 0, TO_ROOM);
+							IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? false : true,
+							ch, GET_EQ(ch, pos), nullptr, TO_ROOM);
 					}
 
 					for (int i = 0; i < kMaxObjAffect; i++) {
 						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
-									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffectFlag>(0), TRUE);
+									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffectFlag>(0), true);
 					}
 
 					if (ch->in_room != kNowhere) {
@@ -882,9 +873,9 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 							if (!no_cast) {
 								if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-										FALSE, ch, GET_EQ(ch, pos), 0, TO_ROOM);
+										false, ch, GET_EQ(ch, pos), nullptr, TO_ROOM);
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-										FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
+										false, ch, GET_EQ(ch, pos), nullptr, TO_CHAR);
 								} else {
 									mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
 								}
@@ -902,7 +893,7 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 								  obj->get_affected(i).location,
 								  obj->get_affected(i).modifier,
 								  static_cast<EAffectFlag>(0),
-								  TRUE);
+								  true);
 				}
 
 				if (ch->in_room != kNowhere) {
@@ -914,9 +905,9 @@ unsigned int activate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::co
 						if (!no_cast) {
 							if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-									FALSE, ch, obj, 0, TO_ROOM);
+									false, ch, obj, nullptr, TO_ROOM);
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-									FALSE, ch, obj, 0, TO_CHAR);
+									false, ch, obj, nullptr, TO_CHAR);
 							} else {
 								mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
 							}
@@ -938,32 +929,32 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj) {
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_LIGHT
 		&& !can_use_feat(ch, ARMOR_LIGHT_FEAT)) {
 		act("Для использования $o1 требуется способность 'легкие доспехи'.",
-			FALSE, ch, obj, 0, TO_CHAR);
+			false, ch, obj, nullptr, TO_CHAR);
 		return false;
 	}
 
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_MEDIAN
 		&& !can_use_feat(ch, ARMOR_MEDIAN_FEAT)) {
 		act("Для использования $o1 требуется способность 'средние доспехи'.",
-			FALSE, ch, obj, 0, TO_CHAR);
+			false, ch, obj, nullptr, TO_CHAR);
 		return false;
 	}
 
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_HEAVY
 		&& !can_use_feat(ch, ARMOR_HEAVY_FEAT)) {
 		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
-			FALSE, ch, obj, 0, TO_CHAR);
+			false, ch, obj, nullptr, TO_CHAR);
 		return false;
 	}
 
 	return true;
 }
 
-void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flags) {
+void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, const CharEquipFlags& equip_flags) {
 	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 		was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
 		was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO,
-		was_lamp = FALSE;
+		was_lamp = false;
 
 	const bool no_cast = equip_flags.test(CharEquipFlag::no_cast);
 	const bool skip_total = equip_flags.test(CharEquipFlag::skip_total);
@@ -988,8 +979,8 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 	}
 
 	if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj)) {
-		act("Вас обожгло при попытке использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
+		act("Вас обожгло при попытке использовать $o3.", false, ch, obj, nullptr, TO_CHAR);
+		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", false, ch, obj, nullptr, TO_ROOM);
 		if (obj->get_carried_by()) {
 			obj_from_char(obj);
 		}
@@ -1011,8 +1002,8 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 		|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			&& (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)
 				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))) {
-		act("$o0 явно не предназначен$A для вас.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$o0 явно не предназначен$A для вас.", false, ch, obj, nullptr, TO_CHAR);
+		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", false, ch, obj, nullptr, TO_ROOM);
 		if (!obj->get_carried_by()) {
 			obj_to_char(obj, ch);
 		}
@@ -1027,8 +1018,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 						 GET_OBJ_PNAME(obj, 1).c_str(),
 						 obj->get_auto_mort_req(),
 						 desc_count(obj->get_auto_mort_req(), WHAT_REMORT));
-			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
-				FALSE, ch, obj, 0, TO_ROOM);
+			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", false, ch, obj, nullptr, TO_ROOM);
 			if (!obj->get_carried_by()) {
 				obj_to_char(obj, ch);
 			}
@@ -1039,7 +1029,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 						 GET_OBJ_PNAME(obj, 1).c_str(),
 						 abs(obj->get_auto_mort_req()));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
-				FALSE, ch, obj, 0, TO_ROOM);
+				false, ch, obj, nullptr, TO_ROOM);
 			if (!obj->get_carried_by()) {
 				obj_to_char(obj, ch);
 			}
@@ -1057,7 +1047,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 	obj->set_worn_by(ch);
 	obj->set_worn_on(pos);
 	obj->set_next_content(nullptr);
-	CHECK_AGRO(ch) = TRUE;
+	CHECK_AGRO(ch) = true;
 
 	if (show_msg) {
 		wear_message(ch, obj, pos);
@@ -1070,8 +1060,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 		log("SYSERR: ch->in_room = kNowhere when equipping char %s.", GET_NAME(ch));
 	}
 
-	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-
+	auto it = OBJ_DATA::set_table.begin();
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
 		for (; it != OBJ_DATA::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
@@ -1088,7 +1077,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 						  obj->get_affected(j).location,
 						  obj->get_affected(j).modifier,
 						  static_cast<EAffectFlag>(0),
-						  TRUE);
+						  true);
 		}
 
 		if (ch->in_room != kNowhere) {
@@ -1101,9 +1090,9 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 				if (!no_cast) {
 					if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-							FALSE, ch, obj, 0, TO_ROOM);
+							false, ch, obj, nullptr, TO_ROOM);
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-							FALSE, ch, obj, 0, TO_CHAR);
+							false, ch, obj, nullptr, TO_CHAR);
 					} else {
 						mag_affects(GET_REAL_LEVEL(ch), ch, ch, j.aff_spell, SAVING_WILL);
 					}
@@ -1128,7 +1117,7 @@ void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, CharEquipFlags equip_flag
 }
 
 unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::const_iterator it,
-							  int pos, CharEquipFlags equip_flags, unsigned int set_obj_qty) {
+							  int pos, const CharEquipFlags& equip_flags, unsigned int set_obj_qty) {
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 	std::string::size_type delim;
 
@@ -1162,7 +1151,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 											  GET_EQ(ch, pos)->get_affected(i).location,
 											  GET_EQ(ch, pos)->get_affected(i).modifier,
 											  static_cast<EAffectFlag>(0),
-											  FALSE);
+											  false);
 							}
 
 							if (ch->in_room != kNowhere) {
@@ -1171,7 +1160,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), FALSE);
+									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), false);
 								}
 							}
 
@@ -1179,10 +1168,10 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 							delim = act_msg.find('\n');
 
 							if (show_msg) {
-								act(act_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
+								act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, TO_CHAR);
 								act(act_msg.erase(0, delim + 1).c_str(),
-									IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? FALSE : TRUE,
-									ch, GET_EQ(ch, pos), 0, TO_ROOM);
+									IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? false : true,
+									ch, GET_EQ(ch, pos), nullptr, TO_ROOM);
 							}
 
 							for (int i = 0; i < kMaxObjAffect; i++) {
@@ -1190,7 +1179,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 											  GET_EQ(ch, pos)->get_affected(i).location,
 											  GET_EQ(ch, pos)->get_affected(i).modifier,
 											  static_cast<EAffectFlag>(0),
-											  TRUE);
+											  true);
 							}
 
 							if (ch->in_room != kNowhere) {
@@ -1199,7 +1188,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 										|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 										continue;
 									}
-									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), TRUE);
+									affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), true);
 								}
 							}
 
@@ -1209,7 +1198,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 
 					for (int i = 0; i < kMaxObjAffect; i++) {
 						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
-									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffectFlag>(0), FALSE);
+									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffectFlag>(0), false);
 					}
 
 					if (ch->in_room != kNowhere) {
@@ -1218,7 +1207,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 								|| !IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 								continue;
 							}
-							affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), FALSE);
+							affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), false);
 						}
 					}
 
@@ -1226,10 +1215,10 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 					delim = deact_msg.find('\n');
 
 					if (show_msg) {
-						act(deact_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
+						act(deact_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, TO_CHAR);
 						act(deact_msg.erase(0, delim + 1).c_str(),
-							IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? FALSE : TRUE,
-							ch, GET_EQ(ch, pos), 0, TO_ROOM);
+							IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) ? false : true,
+							ch, GET_EQ(ch, pos), nullptr, TO_ROOM);
 					}
 
 					if (GET_EQ(ch, pos) != obj) {
@@ -1238,7 +1227,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 										  GET_EQ(ch, pos)->get_affected(i).location,
 										  GET_EQ(ch, pos)->get_affected(i).modifier,
 										  static_cast<EAffectFlag>(0),
-										  TRUE);
+										  true);
 						}
 
 						if (ch->in_room != kNowhere) {
@@ -1247,7 +1236,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 									!IS_OBJ_AFF(GET_EQ(ch, pos), i.aff_pos)) {
 									continue;
 								}
-								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), TRUE);
+								affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), true);
 							}
 						}
 					}
@@ -1262,7 +1251,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 								  obj->get_affected(i).location,
 								  obj->get_affected(i).modifier,
 								  static_cast<EAffectFlag>(0),
-								  FALSE);
+								  false);
 				}
 
 				if (ch->in_room != kNowhere) {
@@ -1271,7 +1260,7 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 							|| !IS_OBJ_AFF(obj, i.aff_pos)) {
 							continue;
 						}
-						affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), FALSE);
+						affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(i.aff_bitvector), false);
 					}
 				}
 
@@ -1287,10 +1276,10 @@ unsigned int deactivate_stuff(CHAR_DATA *ch, OBJ_DATA *obj, id_to_set_info_map::
 	}
 }
 
-OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
+OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, const CharEquipFlags& equip_flags) {
 	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 		was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-		was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
+		was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = false;
 
 	const bool skip_total = equip_flags.test(CharEquipFlag::skip_total);
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
@@ -1311,8 +1300,7 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 	if (ch->in_room == kNowhere)
 		log("SYSERR: ch->in_room = kNowhere when unequipping char %s.", GET_NAME(ch));
 
-	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-
+	auto it = OBJ_DATA::set_table.begin();
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
@@ -1326,7 +1314,7 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 						  obj->get_affected(j).location,
 						  obj->get_affected(j).modifier,
 						  static_cast<EAffectFlag>(0),
-						  FALSE);
+						  false);
 		}
 
 		if (ch->in_room != kNowhere) {
@@ -1338,7 +1326,7 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffectFlag>(j.aff_bitvector))) {
 					continue;
 				}
-				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), FALSE);
+				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), false);
 			}
 		}
 
@@ -1346,7 +1334,7 @@ OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, CharEquipFlags equip_flags) {
 			obj->deactivate_obj(activation());
 	}
 
-	GET_EQ(ch, pos) = NULL;
+	GET_EQ(ch, pos) = nullptr;
 	obj->set_worn_by(nullptr);
 	obj->set_worn_on(kNowhere);
 	obj->set_next_content(nullptr);
@@ -1373,7 +1361,7 @@ int get_number(char **name) {
 	char *ppos;
 	char tmpname[kMaxInputLength];
 
-	if ((ppos = strchr(*name, '.')) != NULL) {
+	if ((ppos = strchr(*name, '.')) != nullptr) {
 		for (i = 0; *name + i != ppos; i++) {
 			if (!a_isdigit(*(*name + i))) {
 				return 1;
@@ -1413,7 +1401,7 @@ OBJ_DATA *get_obj_in_list_num(int num, OBJ_DATA *list) {
 		}
 	}
 
-	return (NULL);
+	return (nullptr);
 }
 
 // Search a given list for an object virtul_number, and return a ptr to that obj //
@@ -1426,7 +1414,7 @@ OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA *list) {
 		}
 	}
 
-	return (NULL);
+	return (nullptr);
 }
 
 // search the entire world for an object number, and return a pointer  //
@@ -1455,7 +1443,7 @@ CHAR_DATA *get_char_room(char *name, room_rnum room) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 // search all over the world for a char num, and return a pointer if found //
@@ -1487,9 +1475,9 @@ bool obj_to_room(OBJ_DATA *object, room_rnum room) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to obj_to_room. (Room #%d/%d, obj %p)",
 			room, top_of_world, object);
-		return 0;
+		return false;
 	} else {
-		restore_object(object, 0);
+		restore_object(object, nullptr);
 		insert_obj_and_group(object, &world[room]->contents);
 		object->set_in_room(room);
 		object->set_carried_by(nullptr);
@@ -1529,16 +1517,16 @@ int obj_decay(OBJ_DATA *object) {
 		!OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING) &&
 		!IS_CORPSE(object))) {
 
-		act("$o0 медленно утонул$G.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
-		act("$o0 медленно утонул$G.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
+		act("$o0 медленно утонул$G.", false, world[room]->first_character(), object, nullptr, TO_ROOM);
+		act("$o0 медленно утонул$G.", false, world[room]->first_character(), object, nullptr, TO_CHAR);
 		extract_obj(object);
 		return (1);
 	}
 
 	if (((sect == kSectOnlyFlying) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING))) {
 
-		act("$o0 упал$G вниз.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
-		act("$o0 упал$G вниз.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
+		act("$o0 упал$G вниз.", false, world[room]->first_character(), object, nullptr, TO_ROOM);
+		act("$o0 упал$G вниз.", false, world[room]->first_character(), object, nullptr, TO_CHAR);
 		extract_obj(object);
 		return (1);
 	}
@@ -1546,10 +1534,10 @@ int obj_decay(OBJ_DATA *object) {
 	if (OBJ_FLAGGED(object, EExtraFlag::ITEM_DECAY) ||
 		(OBJ_FLAGGED(object, EExtraFlag::ITEM_ZONEDECAY) &&
 			GET_OBJ_VNUM_ZONE_FROM(object) && GET_OBJ_VNUM_ZONE_FROM(object) != zone_table[world[room]->zone_rn].vnum)) {
-		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
-			world[room]->first_character(), object, 0, TO_ROOM);
-		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
-			world[room]->first_character(), object, 0, TO_CHAR);
+		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
+			world[room]->first_character(), object, nullptr, TO_ROOM);
+		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
+			world[room]->first_character(), object, nullptr, TO_CHAR);
 		extract_obj(object);
 		return (1);
 	}
@@ -1680,7 +1668,7 @@ void extract_obj(OBJ_DATA *obj) {
 			} else {
 				obj_to_char(temp, obj->get_carried_by());
 			}
-		} else if (obj->get_worn_by() != NULL) {
+		} else if (obj->get_worn_by() != nullptr) {
 			if (IS_NPC(obj->get_worn_by())
 				|| (IS_CARRYING_N(obj->get_worn_by()) >= CAN_CARRY_N(obj->get_worn_by()))) {
 				obj_to_room(temp, IN_ROOM(obj->get_worn_by()));
@@ -1699,7 +1687,7 @@ void extract_obj(OBJ_DATA *obj) {
 	}
 	// Содержимое контейнера удалено
 
-	if (obj->get_worn_by() != NULL) {
+	if (obj->get_worn_by() != nullptr) {
 		if (unequip_char(obj->get_worn_by(), obj->get_worn_on(), CharEquipFlags()) != obj) {
 			log("SYSERR: Inconsistent worn_by and worn_on pointers!!");
 		}
@@ -1713,7 +1701,7 @@ void extract_obj(OBJ_DATA *obj) {
 		obj_from_obj(obj);
 	}
 
-	check_auction(NULL, obj);
+	check_auction(nullptr, obj);
 	check_exchange(obj);
 
 	const auto rnum = GET_OBJ_RNUM(obj);
@@ -1749,18 +1737,18 @@ void update_object(OBJ_DATA *obj, int use) {
 void update_char_objects(CHAR_DATA *ch) {
 //Polud раз уж светит любой источник света, то и гаснуть тоже должны все
 	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++) {
-		if (GET_EQ(ch, wear_pos) != NULL) {
+		if (GET_EQ(ch, wear_pos) != nullptr) {
 			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == OBJ_DATA::ITEM_LIGHT) {
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0) {
 					const int i = GET_EQ(ch, wear_pos)->dec_val(2);
 					if (i == 1) {
 						act("$z $o замерцал$G и начал$G угасать.\r\n",
-							FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
+							false, ch, GET_EQ(ch, wear_pos), nullptr, TO_CHAR);
 						act("$o $n1 замерцал$G и начал$G угасать.",
-							FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
+							false, ch, GET_EQ(ch, wear_pos), nullptr, TO_ROOM);
 					} else if (i == 0) {
-						act("$z $o погас$Q.\r\n", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
-						act("$o $n1 погас$Q.", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
+						act("$z $o погас$Q.\r\n", false, ch, GET_EQ(ch, wear_pos), nullptr, TO_CHAR);
+						act("$o $n1 погас$Q.", false, ch, GET_EQ(ch, wear_pos), nullptr, TO_ROOM);
 						if (ch->in_room != kNowhere) {
 							if (world[ch->in_room]->light > 0)
 								world[ch->in_room]->light -= 1;
@@ -1800,17 +1788,17 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 		extract_obj(obj);
 	else {
 		if (inv)
-			act("Вы выбросили $o3 на землю.", FALSE, ch, obj, 0, TO_CHAR);
+			act("Вы выбросили $o3 на землю.", false, ch, obj, nullptr, TO_CHAR);
 		else
-			act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
+			act("Вы сняли $o3 и выбросили на землю.", false, ch, obj, nullptr, TO_CHAR);
 		// Если этот моб трупа не оставит, то не выводить сообщение
 		// иначе ужасно коряво смотрится в бою и в тригах
 		bool msgShown = false;
 		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE)) {
 			if (inv)
-				act("$n бросил$g $o3 на землю.", FALSE, ch, obj, 0, TO_ROOM);
+				act("$n бросил$g $o3 на землю.", false, ch, obj, nullptr, TO_ROOM);
 			else
-				act("$n снял$g $o3 и бросил$g на землю.", FALSE, ch, obj, 0, TO_ROOM);
+				act("$n снял$g $o3 и бросил$g на землю.", false, ch, obj, nullptr, TO_ROOM);
 			msgShown = true;
 		}
 
@@ -1820,7 +1808,7 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 
 		obj_to_room(obj, ch->in_room);
 		if (!obj_decay(obj) && !msgShown) {
-			act("На земле остал$U лежать $o.", FALSE, ch, obj, 0, TO_ROOM);
+			act("На земле остал$U лежать $o.", false, ch, obj, nullptr, TO_ROOM);
 		}
 	}
 }
@@ -1841,16 +1829,15 @@ void change_npc_leader(CHAR_DATA *ch) {
 		return;
 	}
 
-	CHAR_DATA *leader = 0;
-	for (std::vector<CHAR_DATA *>::const_iterator i = tmp_list.begin(),
-			 iend = tmp_list.end(); i != iend; ++i) {
-		if (stop_follower(*i, SF_SILENCE)) {
+	CHAR_DATA *leader = nullptr;
+	for (auto i : tmp_list) {
+		if (stop_follower(i, SF_SILENCE)) {
 			continue;
 		}
 		if (!leader) {
-			leader = *i;
+			leader = i;
 		} else {
-			leader->add_follower_silently(*i);
+			leader->add_follower_silently(i);
 		}
 	}
 }
@@ -1881,7 +1868,7 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 //		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
 			if (t_desc->original.get() == ch) {
-				do_return(t_desc->character.get(), NULL, 0, 0);
+				do_return(t_desc->character.get(), nullptr, 0, 0);
 			}
 		}
 	}
@@ -1890,14 +1877,14 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 //	log("[Extract char] Stop snooping");
 	if (ch->desc) {
 		if (ch->desc->snooping) {
-			ch->desc->snooping->snoop_by = NULL;
-			ch->desc->snooping = NULL;
+			ch->desc->snooping->snoop_by = nullptr;
+			ch->desc->snooping = nullptr;
 		}
 
 		if (ch->desc->snoop_by) {
 			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
-			ch->desc->snoop_by->snooping = NULL;
-			ch->desc->snoop_by = NULL;
+			ch->desc->snoop_by->snooping = nullptr;
+			ch->desc->snoop_by = nullptr;
 		}
 	}
 
@@ -1911,7 +1898,7 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 			}
 
 			remove_otrigger(obj_eq, ch);
-			drop_obj_on_zreset(ch, obj_eq, 0, zone_reset);
+			drop_obj_on_zreset(ch, obj_eq, false, zone_reset);
 		}
 	}
 
@@ -1920,7 +1907,7 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 	while (ch->carrying) {
 		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
-		drop_obj_on_zreset(ch, obj, 1, zone_reset);
+		drop_obj_on_zreset(ch, obj, true, zone_reset);
 	}
 
 	if (IS_NPC(ch)) {
@@ -1933,7 +1920,7 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 		&& ch->followers
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 //		log("[Extract char] Change group leader");
-		change_leader(ch, 0);
+		change_leader(ch, nullptr);
 	} else if (IS_NPC(ch)
 		&& !IS_CHARMICE(ch)
 		&& !ch->has_master()
@@ -1951,11 +1938,11 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 
 //	log("[Extract char] Stop fighting self");
 	if (ch->get_fighting()) {
-		stop_fighting(ch, TRUE);
+		stop_fighting(ch, true);
 	}
 
 //	log("[Extract char] Stop all fight for opponee");
-	change_fighting(ch, TRUE);
+	change_fighting(ch, true);
 
 //	log("[Extract char] Remove char from room");
 	char_from_room(ch);
@@ -1964,13 +1951,13 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 	MOB_FLAGS(ch).set(MOB_DELETE);
 
 	if (ch->desc && ch->desc->original) {
-		do_return(ch, NULL, 0, 0);
+		do_return(ch, nullptr, 0, 0);
 	}
 
 	const bool is_npc = IS_NPC(ch);
 	if (!is_npc) {
 //		log("[Extract char] All save for PC");
-		check_auction(ch, NULL);
+		check_auction(ch, nullptr);
 		ch->save_char();
 		//удаляются рент-файлы, если только персонаж не ушел в ренту
 		Crash_delete_crashfile(ch);
@@ -1985,7 +1972,7 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 
 	bool left_in_game = false;
 	if (!is_npc
-		&& ch->desc != NULL) {
+		&& ch->desc != nullptr) {
 		STATE(ch->desc) = CON_MENU;
 		SEND_TO_Q(MENU, ch->desc);
 		if (!IS_NPC(ch) && NORENTABLE(ch) && clear_objs) {
@@ -2071,7 +2058,7 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA *ch, const char *name) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 CHAR_DATA *get_char_vis(CHAR_DATA *ch, const char *name, int where) {
@@ -2083,7 +2070,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA *ch, const char *name, int where) {
 	if (where == FIND_CHAR_ROOM) {
 		return get_char_room_vis(ch, name);
 	} else if (where == FIND_CHAR_WORLD) {
-		if ((i = get_char_room_vis(ch, name)) != NULL) {
+		if ((i = get_char_room_vis(ch, name)) != nullptr) {
 			return (i);
 		}
 
@@ -2094,11 +2081,11 @@ CHAR_DATA *get_char_vis(CHAR_DATA *ch, const char *name, int where) {
 		}
 
 		int j = 0;
-		for (const auto &i : character_list) {
-			if (HERE(i) && CAN_SEE(ch, i)
-				&& isname(tmp, i->get_pc_name())) {
+		for (const auto &target : character_list) {
+			if (HERE(target) && CAN_SEE(ch, target)
+				&& isname(tmp, target->get_pc_name())) {
 				if (++j == number) {
-					return i.get();
+					return target.get();
 				}
 			}
 		}
@@ -2115,11 +2102,11 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA *ch, const char *name, OBJ_DATA *list, b
 
 	strcpy(tmp, name);
 	if (!(number = get_number(&tmp)))
-		return (NULL);
+		return (nullptr);
 
 	//Запретим локейт 2. 3. n. стафин
 	if (number > 1 && locate_item)
-		return (NULL);
+		return (nullptr);
 
 	for (i = list; i && (j <= number); i = i->get_next_content()) {
 		if (isname(tmp, i->get_aliases())
@@ -2140,7 +2127,7 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA *ch, const char *name, OBJ_DATA *list, b
 		}
 	}
 
-	return (NULL);
+	return (nullptr);
 }
 
 class ExitLoopException : std::exception {};
@@ -2257,12 +2244,12 @@ OBJ_DATA *get_obj_vis_for_locate(CHAR_DATA *ch, const char *name) {
 	char *tmp = tmpname;
 
 	// scan items carried //
-	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != NULL) {
+	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != nullptr) {
 		return i;
 	}
 
 	// scan room //
-	if ((i = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents)) != NULL) {
+	if ((i = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents)) != nullptr) {
 		return i;
 	}
 
@@ -2362,7 +2349,7 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA *ch, const char *arg, OBJ_DATA *equi
 
 	strcpy(tmp, arg);
 	if (!(number = get_number(&tmp)))
-		return (NULL);
+		return (nullptr);
 
 	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++) {
 		if (equipment[(*j)]) {
@@ -2377,7 +2364,7 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA *ch, const char *arg, OBJ_DATA *equi
 		}
 	}
 
-	return (NULL);
+	return (nullptr);
 }
 
 char *money_desc(int amount, int padis) {
@@ -2401,7 +2388,7 @@ char *money_desc(int amount, int padis) {
 
 	if (amount <= 0) {
 		log("SYSERR: Try to create negative or 0 money (%d).", amount);
-		return (NULL);
+		return (nullptr);
 	}
 	if (amount == 1) {
 		sprintf(buf, "одн%s кун%s", single[padis][0], single[padis][1]);
@@ -2439,7 +2426,7 @@ OBJ_DATA::shared_ptr create_money(int amount) {
 
 	if (amount <= 0) {
 		log("SYSERR: Try to create negative or 0 money. (%d)", amount);
-		return (NULL);
+		return (nullptr);
 	}
 	auto obj = world_objects.create_blank();
 	EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
@@ -2468,7 +2455,7 @@ OBJ_DATA::shared_ptr create_money(int amount) {
 		new_descr->keyword = str_dup("coins gold кун денег");
 	}
 
-	new_descr->next = NULL;
+	new_descr->next = nullptr;
 	obj->set_ex_description(new_descr);
 
 	obj->set_type(OBJ_DATA::ITEM_MONEY);
@@ -2495,8 +2482,8 @@ OBJ_DATA::shared_ptr create_money(int amount) {
  *  bitv..   All those bits that you want to "search through".
  *           Bit found will be result of the function
  *  *ch      This is the person that is trying to "find"
- *  **tar_ch Will be NULL if no character was found, otherwise points
- * **tar_obj Will be NULL if no object was found, otherwise points
+ *  **tar_ch Will be nullptr if no character was found, otherwise points
+ * **tar_obj Will be nullptr if no object was found, otherwise points
  *
  * The routine used to return a pointer to the next word in *arg (just
  * like the one_argument routine), but now it returns an integer that
@@ -2505,8 +2492,8 @@ OBJ_DATA::shared_ptr create_money(int amount) {
 int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA *ch, CHAR_DATA **tar_ch, OBJ_DATA **tar_obj) {
 	char name[256];
 
-	*tar_ch = NULL;
-	*tar_obj = NULL;
+	*tar_ch = nullptr;
+	*tar_obj = nullptr;
 
 	OBJ_DATA *i;
 	int l, number, j = 0;
@@ -2520,11 +2507,11 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA *ch, CHAR_DATA **ta
 
 	if (IS_SET(bitvector, FIND_CHAR_ROOM))    // Find person in room
 	{
-		if ((*tar_ch = get_char_vis(ch, name, FIND_CHAR_ROOM)) != NULL)
+		if ((*tar_ch = get_char_vis(ch, name, FIND_CHAR_ROOM)) != nullptr)
 			return (FIND_CHAR_ROOM);
 	}
 	if (IS_SET(bitvector, FIND_CHAR_WORLD)) {
-		if ((*tar_ch = get_char_vis(ch, name, FIND_CHAR_WORLD)) != NULL)
+		if ((*tar_ch = get_char_vis(ch, name, FIND_CHAR_WORLD)) != nullptr)
 			return (FIND_CHAR_WORLD);
 	}
 	if (IS_SET(bitvector, FIND_OBJ_WORLD)) {
@@ -2611,14 +2598,14 @@ int find_all_dots(char *arg) {
 }
 
 // Функции для работы с порталами для "townportal"
-// Возвращает указатель на слово по vnum комнаты или NULL если не найдено
+// Возвращает указатель на слово по vnum комнаты или nullptr если не найдено
 char *find_portal_by_vnum(int vnum) {
 	struct portals_list_type *i;
 	for (i = portals_list; i; i = i->next_portal) {
 		if (i->vnum == vnum)
 			return (i->wrd);
 	}
-	return (NULL);
+	return (nullptr);
 }
 
 // Возвращает минимальный уровень для изучения портала
@@ -2653,7 +2640,7 @@ struct portals_list_type *get_portal(int vnum, char *wrd) {
 /* Добавляет в список чару портал в комнату vnum - с проверкой целостности
    и если есть уже такой - то добавляем его 1м в список */
 void add_portal_to_char(CHAR_DATA *ch, int vnum) {
-	struct char_portal_type *tmp, *dlt = NULL;
+	struct char_portal_type *tmp, *dlt = nullptr;
 
 	// Проверка на то что уже есть портал в списке, если есть, удаляем
 	for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
@@ -2689,7 +2676,7 @@ int has_char_portal(CHAR_DATA *ch, int vnum) {
 // Убирает лишние и несуществующие порталы у чара
 void check_portals(CHAR_DATA *ch) {
 	int max_p, portals;
-	struct char_portal_type *tmp, *dlt = NULL;
+	struct char_portal_type *tmp, *dlt = nullptr;
 	struct portals_list_type *port;
 
 	// Вычисляем максимальное количество порталов, которое может запомнить чар
@@ -2698,7 +2685,7 @@ void check_portals(CHAR_DATA *ch) {
 
 	// Пробегаем max_p порталы
 	for (tmp = GET_PORTALS(ch); tmp;) {
-		port = get_portal(tmp->vnum, NULL);
+		port = get_portal(tmp->vnum, nullptr);
 		if (!port || (portals >= max_p) || (MAX(1, port->level - GET_REAL_REMORT(ch) / 2) > GET_REAL_LEVEL(ch))) {
 			if (dlt) {
 				dlt->next = tmp->next;
@@ -2877,7 +2864,7 @@ int mag_manacost(const CHAR_DATA *ch, int spellnum) {
 void MemQ_init(CHAR_DATA *ch) {
 	ch->MemQueue.stored = 0;
 	ch->MemQueue.total = 0;
-	ch->MemQueue.queue = NULL;
+	ch->MemQueue.queue = nullptr;
 }
 
 void MemQ_flush(CHAR_DATA *ch) {
@@ -2893,7 +2880,7 @@ void MemQ_flush(CHAR_DATA *ch) {
 int MemQ_learn(CHAR_DATA *ch) {
 	int num;
 	struct spell_mem_queue_item *i;
-	if (ch->MemQueue.queue == NULL)
+	if (ch->MemQueue.queue == nullptr)
 		return 0;
 	num = GET_MEM_CURRENT(ch);
 	ch->MemQueue.stored -= num;
@@ -2938,18 +2925,18 @@ void MemQ_remember(CHAR_DATA *ch, int num) {
 	CREATE(i, 1);
 	*pi = i;
 	i->spellnum = num;
-	i->link = NULL;
+	i->link = nullptr;
 }
 
 void MemQ_forget(CHAR_DATA *ch, int num) {
-	struct spell_mem_queue_item **q = NULL, **i;
+	struct spell_mem_queue_item **q = nullptr, **i;
 
 	for (i = &ch->MemQueue.queue; *i; i = &(i[0]->link)) {
 		if (i[0]->spellnum == num)
 			q = i;
 	}
 
-	if (q == NULL) {
+	if (q == nullptr) {
 		send_to_char("Вы и не собирались заучить это заклинание.\r\n", ch);
 	} else {
 		struct spell_mem_queue_item *ptr;
@@ -3024,9 +3011,9 @@ int equip_in_metall(CHAR_DATA *ch) {
 	int i, wgt = 0;
 
 	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return (FALSE);
+		return (false);
 	if (IS_GOD(ch))
-		return (FALSE);
+		return (false);
 
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)
@@ -3037,24 +3024,24 @@ int equip_in_metall(CHAR_DATA *ch) {
 	}
 
 	if (wgt > GET_REAL_STR(ch))
-		return (TRUE);
+		return (true);
 
-	return (FALSE);
+	return (false);
 }
 
 int awake_others(CHAR_DATA *ch) {
 	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return (FALSE);
+		return (false);
 
 	if (IS_GOD(ch))
-		return (FALSE);
+		return (false);
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS) ||
 		AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY) || AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT))
-		return (TRUE);
+		return (true);
 
-	return (FALSE);
+	return (false);
 }
 
 // Учет резиста - возвращается эффект от спелл или умения с учетом резиста

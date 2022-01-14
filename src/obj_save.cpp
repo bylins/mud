@@ -12,7 +12,7 @@
 #include "obj_save.h"
 
 #include "world_objects.h"
-#include "chars/world.characters.h"
+#include "entity_characters/world.characters.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "screen.h"

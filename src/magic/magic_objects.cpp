@@ -4,10 +4,10 @@
 
 #include "magic/spells.h"
 
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "screen.h"
 #include "skills/poison.h"
-#include "chars/char.h"
+#include "entity_characters/char.h"
 #include "utils/utils_char_obj.inl"
 #include "magic/spells_info.h"
 

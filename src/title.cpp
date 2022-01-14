@@ -4,7 +4,7 @@
 
 #include "title.h"
 
-#include "chars/char_player.h"
+#include "entity_characters/char_player.h"
 #include "fightsystem/pk.h"
 /*#include "handler.h"
 #include "interpreter.h"

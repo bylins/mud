@@ -1,8 +1,8 @@
 #include <glory_const.h>
 
 #include "affect_data.h"
-#include "chars/char_player.h"
-#include "chars/world.characters.h"
+#include "entity_characters/char_player.h"
+#include "entity_characters/world.characters.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
 #include "deathtrap.h"

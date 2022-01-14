@@ -19,10 +19,11 @@
 #include "birthplaces.h"
 #include "celebrates.h"
 #include "utils/utils_char_obj.inl"
-#include "chars/char.h"
-#include "chars/char_player.h"
-#include "chars/player_races.h"
-#include "chars/world.characters.h"
+#include "entity_characters/char.h"
+#include "entity_characters/char_player.h"
+#include "entity_characters/player_races.h"
+#include "entity_rooms/room_constants.h"
+#include "entity_characters/world.characters.h"
 #include "cmd_god/stat.h"
 #include "cmd/follow.h"
 #include "comm.h"
@@ -56,14 +57,14 @@
 #include "modify.h"
 #include "names.h"
 #include "noob.h"
-#include "obj.h"
+#include "entity_objects/obj.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
 #include "parcel.h"
 #include "password.h"
 #include "privilege.h"
 #include "pugixml.h"
-#include "room.h"
+#include "entity_rooms/room.h"
 #include "screen.h"
 #include "sets_drop.h"
 #include "shop_ext.h"
@@ -114,7 +115,7 @@ void medit_save_to_disk(int zone_num);
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
-// for chars
+// for entity_characters
 extern const char *pc_class_types[];
 extern struct spellInfo_t spell_info[];
 extern int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0);
