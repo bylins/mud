@@ -1850,8 +1850,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 	if (GET_POS(ch) > POS_STUNNED
 		&& GET_POS(ch) < POS_FIGHTING
 		&& GET_AF_BATTLE(ch, EAF_STAND)) {
-		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n",
-				CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		CLR_AF_BATTLE(ch, EAF_STAND);
 	}
@@ -2085,24 +2084,22 @@ void perform_violence() {
 				|| !AWAKE(ch)) {
 				continue;
 			}
-
 			// If mob cast 'fear', 'teleport', 'recall', etc when initiative setted
-			if (!ch->get_fighting()
-				|| ch->in_room != IN_ROOM(ch->get_fighting())) {
+			if (!ch->get_fighting() || ch->in_room != IN_ROOM(ch->get_fighting())) {
 				continue;
 			}
-
-			if (initiative == 0) //везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
-			{
+			//везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
+			if (initiative == 0) {
 				continue;
 			}
-
 			//* выполнение атак в раунде
 			if (IS_NPC(ch)) {
 				process_npc_attack(ch);
 			} else {
 				process_player_attack(ch, min_init);
 			}
+			// Срабатывание батл-триггеров амуниции
+			fight_otrigger(ch);
 		}
 	}
 
