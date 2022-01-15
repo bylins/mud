@@ -1417,7 +1417,7 @@ void find_replacement(void *go,
 	ROOM_DATA *room, *r = NULL;
 	char *name;
 	int num = 0, count = 0, i;
-	char uid_type = '\0';
+	char uid_type = UID_CHAR_ALL;
 	char tmp[MAX_TRGLINE_LENGTH] = {};
 
 	const char *send_cmd[] = {"msend", "osend", "wsend"};
@@ -1868,6 +1868,7 @@ void find_replacement(void *go,
 	if (c) {
 		if (!IS_NPC(c) && !c->desc && *name == UID_CHAR) {
 			CharacterLinkDrop = true;
+			uid_type = UID_CHAR;
 		}
 
 		auto done = true;
@@ -1938,8 +1939,10 @@ void find_replacement(void *go,
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->set_name(subfield);
 			}
-			else
+			else {
 				strcpy(str, GET_NAME(c));
+				CharacterLinkDrop = false;
+			}
 		}
 		else if (!str_cmp(field, "description")) {
 			if (*subfield) {
@@ -1959,7 +1962,7 @@ void find_replacement(void *go,
 			}
 		}
 		else if (!str_cmp(field, "id"))
-			sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
+			sprintf(str, "%c%ld", uid_type, GET_ID(c));
 		else if (!str_cmp(field, "uniq")) {
 			if (!IS_NPC(c))
 				sprintf(str, "%d", GET_UNIQUE(c));
@@ -2648,7 +2651,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "leader")) {
 			if (c->has_master()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
+				sprintf(str, "%c%ld", uid_type, GET_ID(c->get_master()));
 			}
 		} else if (!str_cmp(field, "group")) {
 			CHAR_DATA *l;
@@ -2661,12 +2664,12 @@ void find_replacement(void *go,
 				l = c;
 			}
 			// l - лидер группы
-			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
+			sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(l));
 			for (f = l->followers; f; f = f->next) {
 				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
 					continue;
 				}
-				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(f->follower));
+				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->follower));
 			}
 		} else if (!str_cmp(field, "attackers")) {
 			CHAR_DATA *t;
@@ -2864,13 +2867,13 @@ void find_replacement(void *go,
 			o->gm_affect_flag(subfield, weapon_affects, str);
 		} else if (!str_cmp(field, "carried_by")) {
 			if (o->get_carried_by()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_carried_by()));
+				sprintf(str, "%c%ld", uid_type, GET_ID(o->get_carried_by()));
 			} else {
 				strcpy(str, "");
 			}
 		} else if (!str_cmp(field, "worn_by")) {
 			if (o->get_worn_by()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_worn_by()));
+				sprintf(str, "%c%ld", uid_type, GET_ID(o->get_worn_by()));
 			} else {
 				strcpy(str, "");
 			}
@@ -2906,7 +2909,7 @@ void find_replacement(void *go,
 			OBJ_DATA *obj_to = NULL;
 			CHAR_DATA *char_to = NULL;
 			ROOM_DATA *room_to = NULL;
-			if (!((*subfield == UID_CHAR) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM))) {
+			if (!((*subfield == uid_type) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM))) {
 				trig_log(trig, "object.put: недопустимый аргумент, необходимо указать UID");
 				return;
 			}
@@ -2918,7 +2921,7 @@ void find_replacement(void *go,
 					return;
 				}
 			}
-			if (*subfield == UID_CHAR) {
+			if (*subfield == uid_type) {
 				char_to = find_char(atoi(subfield + 1));
 				if (!(char_to && can_take_obj(char_to, o))) {
 					trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
