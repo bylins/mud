@@ -441,7 +441,7 @@ CHAR_DATA *get_char(char *name, int/* vnum*/) {
 	if ((*name == UID_OBJ) || (*name == UID_ROOM))
 		return NULL;
 
-	if (*name == UID_CHAR || *name == UID_CHARLD) {
+	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		i = find_char(atoi(name + 1));
 
 		if (i && (IS_NPC(i) || !GET_INVIS_LEV(i))) {
@@ -465,7 +465,7 @@ CHAR_DATA *get_char(char *name, int/* vnum*/) {
 OBJ_DATA *get_obj(char *name, int/* vnum*/) {
 	long id;
 
-	if ((*name == UID_CHAR) || (*name == UID_ROOM) || (*name == UID_CHARLD))
+	if ((*name == UID_CHAR) || (*name == UID_ROOM) || (*name == UID_CHAR_ALL))
 		return NULL;
 
 	if (*name == UID_OBJ) {
@@ -482,7 +482,7 @@ OBJ_DATA *get_obj(char *name, int/* vnum*/) {
 ROOM_DATA *get_room(char *name) {
 	int nr;
 
-	if ((*name == UID_CHAR) || (*name == UID_OBJ) || (*name == UID_CHARLD))
+	if ((*name == UID_CHAR) || (*name == UID_OBJ) || (*name == UID_CHAR_ALL))
 		return NULL;
 
 	if (*name == UID_ROOM)
@@ -503,7 +503,7 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA *obj, char *name) {
 	if ((*name == UID_ROOM) || (*name == UID_OBJ))
 		return NULL;
 
-	if (*name == UID_CHAR || *name == UID_CHARLD) {
+	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		ch = find_char(atoi(name + 1));
 
 		if (ch && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
@@ -547,7 +547,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA *room, char *name) {
 		return NULL;
 	}
 
-	if (*name == UID_CHAR || *name == UID_CHARLD) {
+	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		ch = find_char(atoi(name + 1));
 
 		if (ch
@@ -585,7 +585,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA *obj, char *name) {
 	int rm;
 	long id;
 
-	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHARLD)
+	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHAR_ALL)
 		return NULL;
 
 	if (!str_cmp(name, "self") || !str_cmp(name, "me"))
@@ -628,7 +628,7 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA *room, char *name) {
 	OBJ_DATA *obj;
 	long id;
 
-	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHARLD)
+	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHAR_ALL)
 		return NULL;
 
 	if (*name == UID_OBJ) {
@@ -659,7 +659,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA *ch, char *name) {
 	OBJ_DATA *obj;
 	long id;
 
-	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHARLD)
+	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHAR_ALL)
 		return NULL;
 
 	if (*name == UID_OBJ) {
@@ -855,7 +855,7 @@ void script_stat(CHAR_DATA *ch, SCRIPT_DATA *sc) {
 
 	for (tv = sc->global_vars; tv; tv = tv->next) {
 		sprintf(namebuf, "%s:%ld", tv->name, tv->context);
-		if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHARLD) {
+		if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHAR_ALL) {
 			find_uid_name(tv->value, name);
 			sprintf(buf, "    %15s:  %s\r\n", tv->context ? namebuf : tv->name, name);
 		} else
@@ -903,7 +903,7 @@ void script_stat(CHAR_DATA *ch, SCRIPT_DATA *sc) {
 			send_to_char(buf, ch);
 
 			for (tv = GET_TRIG_VARS(t); tv; tv = tv->next) {
-				if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHARLD) {
+				if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHAR_ALL) {
 					find_uid_name(tv->value, name);
 					sprintf(buf, "    %15s:  %s\r\n", tv->name, name);
 				} else {
@@ -4401,23 +4401,23 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 }
 
 // поиск всех чаров с лд
-void charuidld_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
+void charuidall_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char who[MAX_INPUT_LENGTH], uid[MAX_INPUT_LENGTH];
-	char uid_type = UID_CHARLD;
+	char uid_type = UID_CHAR_ALL;
 
 	int result = -1;
 
 	three_arguments(cmd, arg, varname, who);
 
 	if (!*varname) {
-		sprintf(buf2, "charuidld w/o an arg: '%s'", cmd);
+		sprintf(buf2, "charuidall w/o an arg: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!*who) {
-		sprintf(buf2, "charuidld name is missing: '%s'", cmd);
+		sprintf(buf2, "charuidall name is missing: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -5105,8 +5105,8 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				calcuidall_var(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "charuid ", 8)) {
 				charuid_var(go, sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "charuidld ", 10)) {
-				charuidld_var(go, sc, trig, cmd);
+			} else if (!strn_cmp(cmd, "charuidall ", 11)) {
+				charuidall_var(go, sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "halt", 4)) {
 				break;
 			} else if (!strn_cmp(cmd, "dg_cast ", 8)) {
