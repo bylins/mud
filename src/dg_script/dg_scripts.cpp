@@ -2118,8 +2118,10 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_INITIATIVE(c));
 		} else if (!str_cmp(field, "linkdrop")) {
-			if (!IS_NPC(c) && !c->desc)
+			if (!IS_NPC(c) && !c->desc){
 				sprintf(str, "1");
+				CharacterLinkDrop = false; // чтоб триггер тут не прерывался для упавших в ЛД
+			}
 			else
 				sprintf(str, "0");
 		} else if (!str_cmp(field, "align")) {
