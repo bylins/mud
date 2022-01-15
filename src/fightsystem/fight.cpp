@@ -2096,6 +2096,8 @@ void perform_violence() {
 			} else {
 				process_player_attack(ch, min_init);
 			}
+			// Срабатывание батл-триггеров амуниции
+			fight_otrigger(ch);
 		}
 	}
 
