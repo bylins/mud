@@ -851,6 +851,8 @@ bitvector_t try_run_fight_otriggers(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
 
 	for (auto t : obj->get_script()->trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_FIGHT) && IS_SET(GET_TRIG_NARG(t), mode)) {
+			snprintf(buf, MAX_INPUT_LENGTH, "%d", actor->round_counter);
+			add_var_cntx(&GET_TRIG_VARS(t), "round", buf, 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			SET_BIT(result, script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW));
 		}
@@ -860,7 +862,7 @@ bitvector_t try_run_fight_otriggers(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
 
 bitvector_t fight_otrigger(CHAR_DATA *actor) {
 	bitvector_t result = kNormalRound;
-	for (auto item: (actor)->equipment) {
+	for (auto item: actor->equipment) {
 		if (item) {
 			SET_BIT(result, try_run_fight_otriggers(actor, item, OCMD_EQUIP));
 		}
