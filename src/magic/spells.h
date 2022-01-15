@@ -431,6 +431,7 @@ const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
 */
 #define TYPE_MAGIC                   420
 // new attack types can be added here - up to TYPE_SUFFERING
+#define TYPE_TRIGGERDEATH            495
 #define TYPE_TUNNERLDEATH            496
 #define TYPE_WATERDEATH              497
 #define TYPE_ROOMDEATH               498

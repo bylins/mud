@@ -104,6 +104,12 @@ extern const char *attach_name[];
 #define TRIG_NEW                0    // trigger starts from top  //
 #define TRIG_RESTART            1    // trigger restarting       //
 
+const bitvector_t kNormalRound = 0;
+const bitvector_t kNoCastMagic = 1 << 0;
+const bitvector_t kNoExtraAttack = 1 << 1;
+const bitvector_t kNoLeftHandAttack = 1 << 2;
+const bitvector_t kNoRightHandAttack = 1 << 3;
+
 /*
  * These are slightly off of PULSE_MOBILE so
  * everything isnt happening at the same time
@@ -350,7 +356,7 @@ void hitprcnt_mtrigger(CHAR_DATA *ch);
 int damage_mtrigger(CHAR_DATA *damager, CHAR_DATA *victim);
 void random_mtrigger(CHAR_DATA *ch);
 void random_otrigger(OBJ_DATA *obj);
-void fight_otrigger(CHAR_DATA *actor);
+bitvector_t fight_otrigger(CHAR_DATA *actor);
 void random_wtrigger(ROOM_DATA *room, int num, void *s, int types, const TriggersList &list);
 void reset_wtrigger(ROOM_DATA *ch);
 void load_mtrigger(CHAR_DATA *ch);
@@ -429,7 +435,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 #define UID_OBJ    '\x1c'
 #define UID_ROOM   '\x1d'
 #define UID_CHAR   '\x1e'
-#define UID_CHARLD   '\x1f'
+#define UID_CHAR_ALL   '\x1f'
 
 #define GET_TRIG_NAME(t)          ((t)->get_name().c_str())
 #define GET_TRIG_RNUM(t)          ((t)->get_rnum())

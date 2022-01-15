@@ -141,7 +141,8 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 			break;
 		case WLD_TRIGGER: caster_room = (ROOM_DATA *) go;
 			break;
-		case OBJ_TRIGGER: caster_room = dg_room_of_obj((OBJ_DATA *) go);
+		case OBJ_TRIGGER:
+			caster_room = dg_room_of_obj((OBJ_DATA *) go);
 			caster = dg_caster_owner_obj((OBJ_DATA *) go);
 			if (!caster_room) {
 				trig_log(trig, "dg_do_cast: unknown room for object-caster!");

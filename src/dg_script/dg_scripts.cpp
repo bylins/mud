@@ -442,7 +442,7 @@ CHAR_DATA *get_char(char *name, int/* vnum*/) {
 	if ((*name == UID_OBJ) || (*name == UID_ROOM))
 		return nullptr;
 
-	if (*name == UID_CHAR || *name == UID_CHARLD) {
+	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		i = find_char(atoi(name + 1));
 
 		if (i && (IS_NPC(i) || !GET_INVIS_LEV(i))) {
@@ -466,7 +466,7 @@ CHAR_DATA *get_char(char *name, int/* vnum*/) {
 OBJ_DATA *get_obj(char *name, int/* vnum*/) {
 	long id;
 
-	if ((*name == UID_CHAR) || (*name == UID_ROOM) || (*name == UID_CHARLD))
+	if ((*name == UID_CHAR) || (*name == UID_ROOM) || (*name == UID_CHAR_ALL))
 		return nullptr;
 
 	if (*name == UID_OBJ) {
@@ -483,7 +483,7 @@ OBJ_DATA *get_obj(char *name, int/* vnum*/) {
 ROOM_DATA *get_room(char *name) {
 	int nr;
 
-	if ((*name == UID_CHAR) || (*name == UID_OBJ) || (*name == UID_CHARLD))
+	if ((*name == UID_CHAR) || (*name == UID_OBJ) || (*name == UID_CHAR_ALL))
 		return nullptr;
 
 	if (*name == UID_ROOM)
@@ -504,7 +504,7 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA *obj, char *name) {
 	if ((*name == UID_ROOM) || (*name == UID_OBJ))
 		return nullptr;
 
-	if (*name == UID_CHAR || *name == UID_CHARLD) {
+	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		ch = find_char(atoi(name + 1));
 
 		if (ch && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
@@ -548,7 +548,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA *room, char *name) {
 		return nullptr;
 	}
 
-	if (*name == UID_CHAR || *name == UID_CHARLD) {
+	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
 		ch = find_char(atoi(name + 1));
 
 		if (ch
@@ -586,7 +586,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA *obj, char *name) {
 	int rm;
 	long id;
 
-	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHARLD)
+	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHAR_ALL)
 		return nullptr;
 
 	if (!str_cmp(name, "self") || !str_cmp(name, "me"))
@@ -629,7 +629,7 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA *room, char *name) {
 	OBJ_DATA *obj;
 	long id;
 
-	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHARLD)
+	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHAR_ALL)
 		return nullptr;
 
 	if (*name == UID_OBJ) {
@@ -660,7 +660,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA *ch, char *name) {
 	OBJ_DATA *obj;
 	long id;
 
-	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHARLD)
+	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHAR_ALL)
 		return nullptr;
 
 	if (*name == UID_OBJ) {
@@ -856,7 +856,7 @@ void script_stat(CHAR_DATA *ch, SCRIPT_DATA *sc) {
 
 	for (tv = sc->global_vars; tv; tv = tv->next) {
 		sprintf(namebuf, "%s:%ld", tv->name, tv->context);
-		if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHARLD) {
+		if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHAR_ALL) {
 			find_uid_name(tv->value, name);
 			sprintf(buf, "    %15s:  %s\r\n", tv->context ? namebuf : tv->name, name);
 		} else
@@ -904,7 +904,7 @@ void script_stat(CHAR_DATA *ch, SCRIPT_DATA *sc) {
 			send_to_char(buf, ch);
 
 			for (tv = GET_TRIG_VARS(t); tv; tv = tv->next) {
-				if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHARLD) {
+				if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHAR_ALL) {
 					find_uid_name(tv->value, name);
 					sprintf(buf, "    %15s:  %s\r\n", tv->name, name);
 				} else {
@@ -1418,7 +1418,7 @@ void find_replacement(void *go,
 	ROOM_DATA *room, *r = nullptr;
 	char *name;
 	int num = 0, count = 0, i;
-	char uid_type = '\0';
+	char uid_type = UID_CHAR_ALL;
 	char tmp[kMaxTrglineLength] = {};
 
 	const char *send_cmd[] = {"msend", "osend", "wsend"};
@@ -1869,6 +1869,7 @@ void find_replacement(void *go,
 	if (c) {
 		if (!IS_NPC(c) && !c->desc && *name == UID_CHAR) {
 			CharacterLinkDrop = true;
+			uid_type = UID_CHAR;
 		}
 
 		auto done = true;
@@ -1939,8 +1940,10 @@ void find_replacement(void *go,
 					subfield[MAX_MOB_NAME - 1] = '\0';
 				c->set_name(subfield);
 			}
-			else
+			else {
 				strcpy(str, GET_NAME(c));
+				CharacterLinkDrop = false;
+			}
 		}
 		else if (!str_cmp(field, "description")) {
 			if (*subfield) {
@@ -1960,7 +1963,7 @@ void find_replacement(void *go,
 			}
 		}
 		else if (!str_cmp(field, "id"))
-			sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
+			sprintf(str, "%c%ld", uid_type, GET_ID(c));
 		else if (!str_cmp(field, "uniq")) {
 			if (!IS_NPC(c))
 				sprintf(str, "%d", GET_UNIQUE(c));
@@ -2649,7 +2652,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "leader")) {
 			if (c->has_master()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
+				sprintf(str, "%c%ld", uid_type, GET_ID(c->get_master()));
 			}
 		} else if (!str_cmp(field, "group")) {
 			CHAR_DATA *l;
@@ -2662,12 +2665,12 @@ void find_replacement(void *go,
 				l = c;
 			}
 			// l - лидер группы
-			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
+			sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(l));
 			for (f = l->followers; f; f = f->next) {
 				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
 					continue;
 				}
-				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(f->follower));
+				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->follower));
 			}
 		} else if (!str_cmp(field, "attackers")) {
 			CHAR_DATA *t;
@@ -2865,13 +2868,13 @@ void find_replacement(void *go,
 			o->gm_affect_flag(subfield, weapon_affects, str);
 		} else if (!str_cmp(field, "carried_by")) {
 			if (o->get_carried_by()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_carried_by()));
+				sprintf(str, "%c%ld", uid_type, GET_ID(o->get_carried_by()));
 			} else {
 				strcpy(str, "");
 			}
 		} else if (!str_cmp(field, "worn_by")) {
 			if (o->get_worn_by()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_worn_by()));
+				sprintf(str, "%c%ld", uid_type, GET_ID(o->get_worn_by()));
 			} else {
 				strcpy(str, "");
 			}
@@ -2907,7 +2910,7 @@ void find_replacement(void *go,
 			OBJ_DATA *obj_to = nullptr;
 			CHAR_DATA *char_to = nullptr;
 			ROOM_DATA *room_to = nullptr;
-			if (!((*subfield == UID_CHAR) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM))) {
+			if (!((*subfield == uid_type) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM))) {
 				trig_log(trig, "object.put: недопустимый аргумент, необходимо указать UID");
 				return;
 			}
@@ -2919,7 +2922,7 @@ void find_replacement(void *go,
 					return;
 				}
 			}
-			if (*subfield == UID_CHAR) {
+			if (*subfield == uid_type) {
 				char_to = find_char(atoi(subfield + 1));
 				if (!(char_to && can_take_obj(char_to, o))) {
 					trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
@@ -4402,23 +4405,23 @@ void charuid_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd
 }
 
 // поиск всех чаров с лд
-void charuidld_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
+void charuidall_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *cmd) {
 	char arg[kMaxInputLength], varname[kMaxInputLength];
 	char who[kMaxInputLength], uid[kMaxInputLength];
-	char uid_type = UID_CHARLD;
+	char uid_type = UID_CHAR_ALL;
 
 	int result = -1;
 
 	three_arguments(cmd, arg, varname, who);
 
 	if (!*varname) {
-		sprintf(buf2, "charuidld w/o an arg: '%s'", cmd);
+		sprintf(buf2, "charuidall w/o an arg: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
 	if (!*who) {
-		sprintf(buf2, "charuidld name is missing: '%s'", cmd);
+		sprintf(buf2, "charuidall name is missing: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -5106,8 +5109,8 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				calcuidall_var(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "charuid ", 8)) {
 				charuid_var(go, sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "charuidld ", 10)) {
-				charuidld_var(go, sc, trig, cmd);
+			} else if (!strn_cmp(cmd, "charuidall ", 11)) {
+				charuidall_var(go, sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "halt", 4)) {
 				break;
 			} else if (!strn_cmp(cmd, "dg_cast ", 8)) {
