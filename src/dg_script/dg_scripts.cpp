@@ -1868,9 +1868,9 @@ void find_replacement(void *go,
 	if (c) {
 		if (!IS_NPC(c) && !c->desc && *name == UID_CHAR) {
 			CharacterLinkDrop = true;
-			uid_type = UID_CHAR;
 		}
-
+		if (*name == UID_CHAR)
+			uid_type = UID_CHAR;
 		auto done = true;
 		if (text_processed(field, subfield, vd, str)) {
 			return;
