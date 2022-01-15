@@ -1506,7 +1506,7 @@ bitvector_t getPRFWithFeatureNumber(int featureNum) {
 			break;
 		case AIMING_ATTACK_FEAT: return PRF_AIMINGATTACK;
 			break;
-		case GREAT_AIMING_ATTACK_FEAT: PRF_GREATAIMINGATTACK;
+		case GREAT_AIMING_ATTACK_FEAT: return PRF_GREATAIMINGATTACK;
 			break;
 		case SKIRMISHER_FEAT: return PRF_SKIRMISHER;
 			break;

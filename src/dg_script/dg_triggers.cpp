@@ -844,7 +844,7 @@ void random_otrigger(OBJ_DATA *obj) {
 }
 
 bitvector_t try_run_fight_otriggers(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
-	char buf[MAX_INPUT_LENGTH];
+	char buf[kMaxInputLength];
 	bitvector_t result = kNormalRound;
 	if (!SCRIPT_CHECK(obj, OTRIG_FIGHT) || GET_INVIS_LEV(actor)) {
 		return result;
@@ -852,7 +852,7 @@ bitvector_t try_run_fight_otriggers(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
 
 	for (auto t : obj->get_script()->trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_FIGHT) && IS_SET(GET_TRIG_NARG(t), mode)) {
-			snprintf(buf, MAX_INPUT_LENGTH, "%d", actor->round_counter);
+			snprintf(buf, kMaxInputLength, "%d", actor->round_counter);
 			add_var_cntx(&GET_TRIG_VARS(t), "round", buf, 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			SET_BIT(result, script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW));

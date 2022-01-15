@@ -521,8 +521,8 @@ void ApplyDamage(CHAR_DATA* target, int damage) {
 	if (GET_POS(target) == POS_DEAD) {
 		if (!IS_NPC(target)) {
 			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
-					target->in_room == NOWHERE ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
-			mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
+					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
+			mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, true);
 		}
 		die(target, nullptr);
 	}

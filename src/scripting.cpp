@@ -1178,7 +1178,7 @@ bool check_ingame(std::string name) {
 void char_to_room_wrap(CharacterWrapper &c, int vnum) {
 	CharacterWrapper::Ensurer ch(c);
 	room_rnum location;
-	if (((location = real_room(vnum)) == NOWHERE)) {
+	if (((location = real_room(vnum)) == kNowhere)) {
 		log("[PythonError] Error in char_to_room_wrap. %d vnum invalid.", vnum);
 		return;
 	}
@@ -2533,7 +2533,7 @@ void scripting::heartbeat() {
 			(*cur)();
 		} catch (error_already_set const &) {
 			std::string err = "Error in callable submitted to call_later: " + parse_python_exception();
-			mudlog(err.c_str(), DEF, LVL_BUILDER, ERRLOG, TRUE);
+			mudlog(err.c_str(), DEF, LVL_BUILDER, ERRLOG, true);
 		}
 		objs_to_call_in_main_thread.erase(cur);
 	}
