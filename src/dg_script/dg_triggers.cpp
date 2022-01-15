@@ -842,28 +842,35 @@ void random_otrigger(OBJ_DATA *obj) {
 	}
 }
 
-void run_fight_otrigger(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
+bitvector_t try_run_fight_otriggers(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
 	char buf[MAX_INPUT_LENGTH];
+	bitvector_t result = kNormalRound;
 	if (!SCRIPT_CHECK(obj, OTRIG_FIGHT) || GET_INVIS_LEV(actor)) {
-		return;
+		return result;
 	}
+
 	for (auto t : obj->get_script()->trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_FIGHT) && IS_SET(GET_TRIG_NARG(t), mode)) {
+			snprintf(buf, MAX_INPUT_LENGTH, "%d", actor->round_counter);
+			add_var_cntx(&GET_TRIG_VARS(t), "round", buf, 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			SET_BIT(result, script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW));
 		}
 	}
+	return result;
 }
 
-void fight_otrigger(CHAR_DATA *actor) {
-	for (auto item: (actor)->equipment) {
+bitvector_t fight_otrigger(CHAR_DATA *actor) {
+	bitvector_t result = kNormalRound;
+	for (auto item: actor->equipment) {
 		if (item) {
-			run_fight_otrigger(actor, item, OCMD_EQUIP);
+			SET_BIT(result, try_run_fight_otriggers(actor, item, OCMD_EQUIP));
 		}
 	}
 	for (auto item = actor->carrying; item; item = item->get_next_content()) {
-		run_fight_otrigger(actor, item, OCMD_INVEN);
+		SET_BIT(result, try_run_fight_otriggers(actor, item, OCMD_INVEN));
 	}
+	return result;
 }
 
 void timer_otrigger(OBJ_DATA *obj) {

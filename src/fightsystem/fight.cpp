@@ -1757,8 +1757,11 @@ void process_npc_attack(CHAR_DATA *ch) {
 
 	// Вызываем триггер перед началом боевых моба (магических или физических)
 
-	if (!fight_mtrigger(ch))
+	if (!fight_mtrigger(ch)) {
 		return;
+	}
+	// Срабатывание батл-триггеров амуниции
+	bitvector_t trigger_code = fight_otrigger(ch);
 
 	// переключение
 	if (MAY_LIKES(ch)
@@ -1769,7 +1772,7 @@ void process_npc_attack(CHAR_DATA *ch) {
 	}
 
 	// Cast spells
-	if (MAY_LIKES(ch))
+	if (MAY_LIKES(ch) && !IS_SET(trigger_code, kNoCastMagic))
 		mob_casting(ch);
 
 	if (!ch->get_fighting()
@@ -1782,33 +1785,28 @@ void process_npc_attack(CHAR_DATA *ch) {
 		return;
 	}
 
+	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
 	if ((AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL))
-		&& ch->has_master()
-			// && !IS_NPC(ch->master)
-		&& ch->in_room == IN_ROOM(ch->get_master())
-		&& AWAKE(ch)
-		&& MAY_ACT(ch)
-		&& GET_POS(ch) >= POS_FIGHTING) {
+		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !IS_NPC(ch->master)
+		&& AWAKE(ch) && MAY_ACT(ch) && GET_POS(ch) >= POS_FIGHTING) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->get_fighting() == ch->get_master()
-					&& vict != ch
-					&& vict != ch->get_master()) {
+					&& vict != ch && vict != ch->get_master()) {
 					if (ch->get_skill(SKILL_RESCUE)) {
 						go_rescue(ch, ch->get_master(), vict);
 					} else if (ch->get_skill(SKILL_PROTECT)) {
 						go_protect(ch, ch->get_master());
 					}
-
 					break;
 				}
 			}
 		}
 
-		bool extra_attack_used = false;
+		bool extra_attack_used = no_extra_attack;
 		//* применение экстра скилл-атак
-		if (ch->get_extra_victim() && GET_WAIT(ch) <= 0) {
+		if (!extra_attack_used && ch->get_extra_victim() && GET_WAIT(ch) <= 0) {
 			extra_attack_used = using_extra_attack(ch);
 			if (extra_attack_used) {
 				ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
@@ -1818,30 +1816,31 @@ void process_npc_attack(CHAR_DATA *ch) {
 			// теперь чармис использует свои скилы
 			using_charmice_skills(ch);
 		}
-	} else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+	} else if (!no_extra_attack && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		//* применение скилов
 		using_mob_skills(ch);
 	}
 
-	if (!ch->get_fighting()
-		|| ch->in_room != IN_ROOM(ch->get_fighting())) {
+	if (!ch->get_fighting() || ch->in_room != IN_ROOM(ch->get_fighting())) {
 		return;
 	}
 
 	//**** удар основным оружием или рукой
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT)) {
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) && !IS_SET(trigger_code, kNoRightHandAttack)) {
 		exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::MAIN_HAND);
 	}
 
 	//**** экстраатаки мобов. Первая - оффхэнд
 	for (int i = 1; i <= ch->mob_specials.ExtraAttack; i++) {
-		// левая покалечена - скипуем
-		if (i == 1 && AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT))
+		if (i == 1 && (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || IS_SET(trigger_code, kNoLeftHandAttack))) {
 			continue;
+		}
 		// если хп пробиты - уходим
-		if (MOB_FLAGGED(ch, MOB_EADECREASE))
-			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < i * GET_REAL_MAX_HIT(ch))
+		if (MOB_FLAGGED(ch, MOB_EADECREASE)) {
+			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < i * GET_REAL_MAX_HIT(ch)) {
 				return;
+			}
+		}
 		exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::MOB_ADD);
 	}
 }
@@ -1855,8 +1854,11 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 		CLR_AF_BATTLE(ch, EAF_STAND);
 	}
 
+	// Срабатывание батл-триггеров амуниции
+	bitvector_t trigger_code = fight_otrigger(ch);
+
 	//* каст заклинания
-	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0) {
+	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 			send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 			ch->set_cast(0, 0, 0, 0, 0);
@@ -1881,9 +1883,9 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 		return;
 
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
-	if (ch->get_extra_victim() && GET_WAIT(ch) <= 0
-		&& using_extra_attack(ch)) {
-		ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
+	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->get_extra_victim()
+		&& GET_WAIT(ch) <= 0 && using_extra_attack(ch)) {
+		ch->set_extra_attack(EXTRA_ATTACK_UNUSED, nullptr);
 		if (INITIATIVE(ch) > min_init) {
 			INITIATIVE(ch)--;
 			return;
@@ -1897,10 +1899,8 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 
 	//**** удар основным оружием или рукой
 	if (GET_AF_BATTLE(ch, EAF_FIRST)) {
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT)
-			&& (IS_IMMORTAL(ch)
-				|| GET_GOD_FLAG(ch, GF_GODSLIKE)
-				|| !GET_AF_BATTLE(ch, EAF_USEDRIGHT))) {
+		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT)
+			&& (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || !GET_AF_BATTLE(ch, EAF_USEDRIGHT))) {
 			//Знаю, выглядит страшно, но зато в hit()
 			//можно будет узнать применялось ли оглушить
 			//или молотить, по баттл-аффекту узнать получиться
@@ -1915,8 +1915,9 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 			exthit(ch, tmpSkilltype, FightSystem::AttType::MAIN_HAND);
 		}
 // допатака двуручем
-		if (GET_EQ(ch, WEAR_BOTHS) && can_use_feat(ch, BOTHHANDS_FOCUS_FEAT)
-			&& (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOTHHANDS) && can_use_feat(ch, RELATED_TO_MAGIC_FEAT)) {
+		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, WEAR_BOTHS) && can_use_feat(ch, BOTHHANDS_FOCUS_FEAT)
+			&& (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOTHHANDS)
+			&& can_use_feat(ch, RELATED_TO_MAGIC_FEAT)) {
 			if (ch->get_skill(SKILL_BOTHHANDS) > (number(1, 500)))
 				hit(ch, ch->get_fighting(), ESkill::SKILL_UNDEF, FightSystem::AttType::MAIN_HAND);
 		}
@@ -1929,7 +1930,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 	}
 
 	//**** удар вторым оружием если оно есть и умение позволяет
-	if (GET_EQ(ch, WEAR_HOLD)
+	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, WEAR_HOLD)
 		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, EAF_SECOND)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
@@ -1944,12 +1945,9 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
 		//**** удар второй рукой если она свободна и умение позволяет
-	else if (!GET_EQ(ch, WEAR_HOLD)
-		&& !GET_EQ(ch, WEAR_LIGHT)
-		&& !GET_EQ(ch, WEAR_SHIELD)
-		&& !GET_EQ(ch, WEAR_BOTHS)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
-		&& GET_AF_BATTLE(ch, EAF_SECOND)
+	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !GET_EQ(ch, WEAR_HOLD)
+		&& !GET_EQ(ch, WEAR_LIGHT) && !GET_EQ(ch, WEAR_SHIELD) && !GET_EQ(ch, WEAR_BOTHS)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) && GET_AF_BATTLE(ch, EAF_SECOND)
 		&& ch->get_skill(SKILL_SHIT)) {
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT)) {
 			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::OFF_HAND);
@@ -2098,8 +2096,6 @@ void perform_violence() {
 			} else {
 				process_player_attack(ch, min_init);
 			}
-			// Срабатывание батл-триггеров амуниции
-			fight_otrigger(ch);
 		}
 	}
 
