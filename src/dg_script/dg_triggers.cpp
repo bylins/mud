@@ -91,7 +91,7 @@ const char *otrig_types[] = {"Global",
 							 "Random",
 							 "Command",
 							 "Разрушился",
-							 "UNUSED",
+							 "Fighting round",
 							 "Timer",
 							 "Get",
 							 "Drop",
@@ -843,6 +843,30 @@ void random_otrigger(OBJ_DATA *obj) {
 	}
 }
 
+void run_fight_otrigger(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
+	char buf[MAX_INPUT_LENGTH];
+	if (!SCRIPT_CHECK(obj, OTRIG_FIGHT) || GET_INVIS_LEV(actor)) {
+		return;
+	}
+	for (auto t : obj->get_script()->trig_list) {
+		if (TRIGGER_CHECK(t, OTRIG_FIGHT) && IS_SET(GET_TRIG_NARG(t), mode)) {
+			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+		}
+	}
+}
+
+void fight_otrigger(CHAR_DATA *actor) {
+	for (auto item: (actor)->equipment) {
+		if (item) {
+			run_fight_otrigger(actor, item, OCMD_EQUIP);
+		}
+	}
+	for (auto item = actor->carrying; item; item = item->get_next_content()) {
+		run_fight_otrigger(actor, item, OCMD_INVEN);
+	}
+}
+
 void timer_otrigger(OBJ_DATA *obj) {
 	if (!SCRIPT_CHECK(obj, OTRIG_TIMER)) {
 		return;
@@ -853,8 +877,6 @@ void timer_otrigger(OBJ_DATA *obj) {
 			script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 		}
 	}
-
-	return;
 }
 
 int get_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
@@ -912,7 +934,7 @@ int cmd_otrig(OBJ_DATA *obj, CHAR_DATA *actor, char *cmd, const char *argument, 
 
 			if (IS_SET(GET_TRIG_NARG(t), type)
 				&& (t->arglist[0] == '*'
-					|| 0 == strn_cmp(t->arglist.c_str(), cmd, t->arglist.size()))) {
+				|| 0 == strn_cmp(t->arglist.c_str(), cmd, t->arglist.size()))) {
 				if (!IS_NPC(actor)
 					&& (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
 				{
