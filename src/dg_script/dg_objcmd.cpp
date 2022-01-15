@@ -12,6 +12,7 @@
 #include "chars/char.h"
 #include "cmd/follow.h"
 #include "fightsystem/fight.h"
+#include "fightsystem/pk.h"
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "magic/magic_utils.h"
@@ -405,8 +406,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ch->dismount();
 			look_at_room(ch, TRUE);
 		}
-	}
-	else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
+	} else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
 		rm = obj_room(obj);
 		if (rm == NOWHERE) {
 			obj_log(obj, "oteleport called in NOWHERE");
@@ -445,7 +445,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
 			ch = ch->get_master();
 		const auto people_copy = world[ch->in_room]->people;
-		for (const auto charmee : people_copy) {
+		for (const auto charmee: people_copy) {
 			if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
 				char_from_room(charmee);
 				char_to_room(charmee, target);
@@ -514,42 +514,67 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
+void ApplyDamage(CHAR_DATA* target, int damage) {
+	GET_HIT(target) -= damage;
+	update_pos(target);
+	char_dam_message(damage, target, target, 0);
+	if (GET_POS(target) == POS_DEAD) {
+		if (!IS_NPC(target)) {
+			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
+					target->in_room == NOWHERE ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
+			mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
+		}
+		die(target, nullptr);
+	}
+}
+
 void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
-	int dam = 0;
-	CHAR_DATA *ch;
-
-	two_arguments(argument, name, amount);
-
+	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], damage_type[MAX_INPUT_LENGTH];
+	three_arguments(argument, name, amount, damage_type);
 	if (!*name || !*amount || !a_isdigit(*amount)) {
 		obj_log(obj, "odamage: bad syntax");
 		return;
 	}
 
-	dam = atoi(amount);
+	int dam = atoi(amount);
 
-	if ((ch = get_char_by_obj(obj, name))) {
-		if (world[ch->in_room]->zone_rn != world[up_obj_where(obj)]->zone_rn)
-			return;
-
-		if (IS_IMMORTAL(ch)) {
-			send_to_char
-				("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
-			return;
-		}
-		GET_HIT(ch) -= dam;
-		update_pos(ch);
-		char_dam_message(dam, ch, ch, 0);
-		if (GET_POS(ch) == POS_DEAD) {
-			if (!IS_NPC(ch)) {
-				sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(ch),
-						ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
-			}
-			die(ch, NULL);
-		}
-	} else
+	CHAR_DATA *ch = get_char_by_obj(obj, name);
+	if (!ch) {
 		obj_log(obj, "odamage: target not found");
+		return;
+	}
+	if (world[ch->in_room]->zone_rn != world[up_obj_where(obj)]->zone_rn) {
+		return;
+	}
+
+	if (IS_IMMORTAL(ch)) {
+		send_to_char("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
+		return;
+	}
+
+	CHAR_DATA *damager = dg_caster_owner_obj(obj);
+	if (!damager || damager == ch) {
+		ApplyDamage(ch, dam);
+	} else {
+		const std::map<std::string, FightSystem::DmgType> kDamageTypes = {
+			{"physic", FightSystem::PHYS_DMG},
+			{"magic", FightSystem::MAGE_DMG},
+			{"poisonous", FightSystem::POISON_DMG}
+		};
+		if (!may_kill_here(damager, ch, name)) {
+			return;
+		}
+		FightSystem::DmgType type = FightSystem::PURE_DMG;
+		if (*damage_type) {
+			try {
+				type = kDamageTypes.at(damage_type);
+			} catch (const std::out_of_range &) {
+				obj_log(obj, "odamage: incorrect damage type.");;
+			}
+		}
+		Damage odamage(SimpleDmg(TYPE_TRIGGERDEATH), dam, type);
+		odamage.process(damager, ch);
+	}
 }
 
 void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -946,8 +971,7 @@ void do_ozoneecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::stringstream str_log;
 		str_log << "ozoneecho called for nonexistant zone: " << zone_name;
 		obj_log(obj, str_log.str().c_str());
-	}
-	else {
+	} else {
 		sprintf(buf, "%s\r\n", msg);
 		send_to_zone(buf, zone);
 	}
