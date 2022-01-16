@@ -1415,7 +1415,7 @@ void find_replacement(void *go,
 	CHAR_DATA *ch, *c = NULL, *rndm;
 	OBJ_DATA *obj, *o = NULL;
 	ROOM_DATA *room, *r = NULL;
-	char *name == nullptr;
+	char *name = nullptr;
 	int num = 0, count = 0, i;
 	char uid_type = '\0';
 	char tmp[MAX_TRGLINE_LENGTH] = {};
