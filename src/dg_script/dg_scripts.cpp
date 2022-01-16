@@ -4434,7 +4434,7 @@ void charuidall_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *
 		if (str_cmp(who, GET_NAME(tch))) {
 			continue;
 		}
-		if (IN_ROOM(tch) != NOWHERE && !tch->desc) {
+		if (IN_ROOM(tch) != NOWHERE) {
 			result = GET_ID(tch);
 			break;
 		}
