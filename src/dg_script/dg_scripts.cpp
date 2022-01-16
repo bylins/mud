@@ -1415,9 +1415,9 @@ void find_replacement(void *go,
 	CHAR_DATA *ch, *c = NULL, *rndm;
 	OBJ_DATA *obj, *o = NULL;
 	ROOM_DATA *room, *r = NULL;
-	char *name;
+	char *name = nullptr;
 	int num = 0, count = 0, i;
-	char uid_type = UID_CHAR_ALL;
+	char uid_type = '\0';
 	char tmp[MAX_TRGLINE_LENGTH] = {};
 
 	const char *send_cmd[] = {"msend", "osend", "wsend"};
@@ -1866,11 +1866,14 @@ void find_replacement(void *go,
 	}
 
 	if (c) {
-		if (!IS_NPC(c) && !c->desc && *name == UID_CHAR) {
+		if (!IS_NPC(c) && !c->desc && name && *name == UID_CHAR) {
 			CharacterLinkDrop = true;
 		}
-		if (*name == UID_CHAR)
+		if (name && *name == UID_CHAR_ALL)
+			uid_type = UID_CHAR_ALL;
+		else
 			uid_type = UID_CHAR;
+		
 		auto done = true;
 		if (text_processed(field, subfield, vd, str)) {
 			return;
@@ -4431,7 +4434,7 @@ void charuidall_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *
 		if (str_cmp(who, GET_NAME(tch))) {
 			continue;
 		}
-		if (IN_ROOM(tch) != NOWHERE && !tch->desc) {
+		if (IN_ROOM(tch) != NOWHERE) {
 			result = GET_ID(tch);
 			break;
 		}

@@ -518,10 +518,6 @@ void CHAR_DATA::purge() {
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
 int CHAR_DATA::get_skill(const ESkill skill_num) const {
-	if (AFF_FLAGGED(this, EAffectFlag::AFF_DOMINATION)) {
-		if (skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL)
-			return 180;
-	}
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
 	if (AFF_FLAGGED(this, EAffectFlag::AFF_SKILLS_REDUCE)) {
 		skill -= skill * GET_POISON(this) / 100;
@@ -571,6 +567,10 @@ int CHAR_DATA::get_inborn_skill(const ESkill skill_num) {
 }
 
 int CHAR_DATA::get_trained_skill(const ESkill skill_num) const {
+	if (AFF_FLAGGED(this, EAffectFlag::AFF_DOMINATION)) {
+		if (skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL)
+			return 100;
+	}
 	if (Privilege::check_skills(this)) {
 		//return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
 		return std::clamp(current_morph_->get_trained_skill(skill_num), 0, skill_info[skill_num].cap);

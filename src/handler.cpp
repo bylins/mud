@@ -1544,8 +1544,7 @@ int obj_decay(OBJ_DATA *object) {
 	}
 
 	if (OBJ_FLAGGED(object, EExtraFlag::ITEM_DECAY) ||
-		(OBJ_FLAGGED(object, EExtraFlag::ITEM_ZONEDECAY) &&
-			GET_OBJ_VNUM_ZONE_FROM(object) && GET_OBJ_VNUM_ZONE_FROM(object) != zone_table[world[room]->zone_rn].vnum)) {
+		(OBJ_FLAGGED(object, EExtraFlag::ITEM_ZONEDECAY) && GET_OBJ_VNUM_ZONE_FROM(object) != zone_table[world[room]->zone_rn].vnum)) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
 			world[room]->first_character(), object, 0, TO_ROOM);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
