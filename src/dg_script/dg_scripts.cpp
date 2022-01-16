@@ -2636,6 +2636,29 @@ void find_replacement(void *go,
 			} else if (!WAITLESS(c)) {
 				WAIT_STATE(c, pos * PULSE_VIOLENCE);
 			}
+		} else if (!str_cmp(field, "apply_value")) {
+			int num;
+			sprintf(str, "%d", -1);
+			for (num = 0; num < NUM_APPLIES; num++) {
+				if (!str_cmp(subfield, apply_types[num]))
+				break;
+			}
+			if (num == NUM_APPLIES) {
+				sprintf(buf, "Не найден апплай '%s' в списке apply_types", subfield);
+				trig_log(trig, buf);
+				return;
+			}
+			int sum  = 0;
+			if (!c->affected.empty()) {
+				for (const auto &aff : c->affected) {
+					if (aff->location == num){
+						sum += aff->modifier;
+					}
+				}
+			}
+			if (sum != 0) {
+				sprintf(str, "%d", sum);
+			}
 		} else if (!str_cmp(field, "affect")) {
 			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
 		}
