@@ -2638,7 +2638,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "apply_value")) {
 			int num;
-			sprintf(str, "%d", -1);
+			sprintf(str, "%d", -1000);
 			for (num = 0; num < NUM_APPLIES; num++) {
 				if (!str_cmp(subfield, apply_types[num]))
 				break;
