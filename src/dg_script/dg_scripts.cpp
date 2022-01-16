@@ -2638,7 +2638,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "apply_value")) {
 			int num;
-			sprintf(str, "%d", -1000);
+			int sum  = 0;
 			for (num = 0; num < NUM_APPLIES; num++) {
 				if (!str_cmp(subfield, apply_types[num]))
 				break;
@@ -2648,7 +2648,6 @@ void find_replacement(void *go,
 				trig_log(trig, buf);
 				return;
 			}
-			int sum  = 0;
 			if (!c->affected.empty()) {
 				for (const auto &aff : c->affected) {
 					if (aff->location == num){
@@ -2656,9 +2655,7 @@ void find_replacement(void *go,
 					}
 				}
 			}
-			if (sum != 0) {
-				sprintf(str, "%d", sum);
-			}
+			sprintf(str, "%d", sum);
 		} else if (!str_cmp(field, "affect")) {
 			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
 		}
