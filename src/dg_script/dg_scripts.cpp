@@ -2932,7 +2932,7 @@ void find_replacement(void *go,
 			OBJ_DATA *obj_to = NULL;
 			CHAR_DATA *char_to = NULL;
 			ROOM_DATA *room_to = NULL;
-			if (!((*subfield == uid_type) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM))) {
+			if (!((*subfield == UID_CHAR) || (*subfield == UID_CHAR_ALL) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM))) {
 				trig_log(trig, "object.put: недопустимый аргумент, необходимо указать UID");
 				return;
 			}
@@ -2944,7 +2944,7 @@ void find_replacement(void *go,
 					return;
 				}
 			}
-			if (*subfield == uid_type) {
+			if ((*subfield == UID_CHAR) || (*subfield == UID_CHAR_ALL)) {
 				char_to = find_char(atoi(subfield + 1));
 				if (!(char_to && can_take_obj(char_to, o))) {
 					trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
