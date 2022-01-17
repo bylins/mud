@@ -69,8 +69,6 @@ extern INDEX_DATA *mob_index;*/
 extern char const *class_abbrevs[];
 //extern int max_filesize;
 extern int nameserver_is_slow;
-//extern struct skillvariables_dig dig_vars;
-//extern struct skillvariables_insgem insgem_vars;
 
 // extern procedures
 void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);

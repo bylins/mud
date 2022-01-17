@@ -18,6 +18,9 @@
 
 //#include <map>
 
+skillvariables_insgem insgem_vars;
+insert_wanted_gem iwg;
+
 void InitJewelryVars() {
 	char line[256];
 	FILE *cfg_file;

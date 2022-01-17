@@ -46,8 +46,8 @@ class insert_wanted_gem {
 };
 
 // Это все надо перенести в глобальные объекты
-struct skillvariables_insgem insgem_vars;
-insert_wanted_gem iwg;
+extern  skillvariables_insgem insgem_vars;
+extern insert_wanted_gem iwg;
 
 void InitJewelryVars();
 

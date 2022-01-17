@@ -2380,15 +2380,13 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	}
 
 	switch (GET_SEX(d->character)) {
+		case ESex::kLast: [[fallthrough]];
 		case ESex::kNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
 			break;
-
 		case ESex::kMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 			break;
-
 		case ESex::kFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
 			break;
-
 		case ESex::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
 			break;
 	}

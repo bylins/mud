@@ -13,6 +13,7 @@
 #include "skills_info.h"
 #include "world_objects.h"
 
+skillvariables_dig dig_vars;
 extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 
 void InitMiningVars() {

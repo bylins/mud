@@ -2352,6 +2352,7 @@ void boot_db(void) {
 	boot_profiler.next_step("Assigning spells and skills levels");
 	log("Assigning spell and skill levels.");
 	init_spell_levels();
+	LoadClassSkills();
 
 	boot_profiler.next_step("Reading skills variables.");
 	log("Reading skills variables.");

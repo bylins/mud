@@ -1725,7 +1725,7 @@ void load_skills_definitions() {
 }
 
 //Polud Читает данные из файла хранения параметров умений
-void load_skills() {
+void LoadClassSkills() {
 	const char *CLASS_SKILLS_FILE = LIB_MISC"class.skills.xml";
 
 	pugi::xml_document doc;
@@ -1980,11 +1980,6 @@ void init_spell_levels() {
 				feat_info[sp_num].inbornFeatureOfClass[i[3]][j] = i[6] ? true : false;
 			}
 	}
-	fclose(magic);
-	// End of changed
-
-//	Polud новый файл описания умений Skills.xml, если его нет - читаются старые
-	load_skills();
 	fclose(magic);
 }
 

@@ -42,7 +42,8 @@ struct skillvariables_dig {
 	int glass_vnum = 1919;
 };
 
-struct skillvariables_dig dig_vars;
+// Перенести в глобальные объекты
+extern skillvariables_dig dig_vars;
 
 void InitMiningVars();
 void do_dig(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);

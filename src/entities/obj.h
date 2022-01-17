@@ -20,8 +20,8 @@
 #include <string>
 #include <map>
 
-std::string print_obj_affects(obj_affected_type &affect);
-void print_obj_affects(CHAR_DATA *ch, obj_affected_type &affect);
+std::string print_obj_affects(const obj_affected_type &affect);
+void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 void set_obj_eff(OBJ_DATA *itemobj, EApplyLocation type, int mod);
 void set_obj_aff(OBJ_DATA *itemobj, EAffectFlag bitv);
 
