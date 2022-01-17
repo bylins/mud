@@ -16,7 +16,7 @@ struct spellInfo_t {
 	int slot_forc[NUM_PLAYER_CLASSES][kNumKins];
 	int class_change[NUM_PLAYER_CLASSES][kNumKins];
 	long danger;
-	long routines;
+	bitvector_t routines;
 	byte violent;
 	int targets;        // See below for use with TAR_XXX  //
 	byte spell_class;

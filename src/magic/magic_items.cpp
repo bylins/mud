@@ -137,7 +137,10 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 
 			spellnum = GET_OBJ_VAL(obj, 1);
 			if (!*argument) {
-				if (!IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES)) {
+				for (int slot = 1; slot < 4; slot++) {
+					if (IS_SET(spell_info[GET_OBJ_VAL(obj, slot)].routines, MAG_AREAS | MAG_MASSES)) {
+						break;
+					}
 					tch = ch;
 				}
 			} else if (!FindCastTarget(spellnum, argument, ch, &tch, &tobj, &troom)) {

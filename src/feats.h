@@ -194,7 +194,7 @@
 
 // kMaxFeats определяется в structs.h
 
-#define UNUSED_FTYPE            -1
+#define UNUSED_FTYPE            (-1)
 #define NORMAL_FTYPE            0
 #define AFFECT_FTYPE            1
 #define SKILL_MOD_FTYPE            2
@@ -222,7 +222,7 @@ extern struct FeatureInfoType feat_info[kMaxFeats];
 const char *feat_name(int num);
 int getModifier(int feat, int location);
 int find_feat_num(const char *name, bool alias = false);
-void determineFeaturesSpecification(void);
+void determineFeaturesSpecification();
 void check_berserk(CHAR_DATA *ch);
 void setFeaturesOfRace(CHAR_DATA *ch);
 void unsetFeaturesOfRace(CHAR_DATA *ch);
@@ -240,7 +240,7 @@ class CFeatArray {
 	explicit CFeatArray() : _pos(0), i(MAX_FEAT_AFFECT) {}
 
 	int pos(int pos = -1);
-	void insert(const int location, sbyte modifier);
+	void insert(int location, int modifier);
 	void clear();
 
 	struct CFeatAffect {

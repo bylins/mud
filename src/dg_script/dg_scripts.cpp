@@ -1416,9 +1416,9 @@ void find_replacement(void *go,
 	CHAR_DATA *ch, *c = nullptr, *rndm;
 	OBJ_DATA *obj, *o = nullptr;
 	ROOM_DATA *room, *r = nullptr;
-	char *name;
+	char *name = nullptr;
 	int num = 0, count = 0, i;
-	char uid_type = UID_CHAR_ALL;
+	char uid_type = '\0';
 	char tmp[kMaxTrglineLength] = {};
 
 	const char *send_cmd[] = {"msend", "osend", "wsend"};
@@ -1867,8 +1867,12 @@ void find_replacement(void *go,
 	}
 
 	if (c) {
-		if (!IS_NPC(c) && !c->desc && *name == UID_CHAR) {
+		if (!IS_NPC(c) && !c->desc && name && *name == UID_CHAR) {
 			CharacterLinkDrop = true;
+		}
+		if (name && *name == UID_CHAR_ALL) {
+			uid_type = UID_CHAR_ALL;
+		} else {
 			uid_type = UID_CHAR;
 		}
 
@@ -2634,6 +2638,26 @@ void find_replacement(void *go,
 			} else if (!WAITLESS(c)) {
 				WAIT_STATE(c, pos * PULSE_VIOLENCE);
 			}
+		} else if (!str_cmp(field, "apply_value")) {
+			int num;
+			int sum  = 0;
+			for (num = 0; num < NUM_APPLIES; num++) {
+				if (!str_cmp(subfield, apply_types[num]))
+				break;
+			}
+			if (num == NUM_APPLIES) {
+				sprintf(buf, "Не найден апплай '%s' в списке apply_types", subfield);
+				trig_log(trig, buf);
+				return;
+			}
+			if (!c->affected.empty()) {
+				for (const auto &aff : c->affected) {
+					if (aff->location == num){
+						sum += aff->modifier;
+					}
+				}
+			}
+			sprintf(str, "%d", sum);
 		} else if (!str_cmp(field, "affect")) {
 			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
 		}
@@ -4432,7 +4456,7 @@ void charuidall_var(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, char *
 		if (str_cmp(who, GET_NAME(tch))) {
 			continue;
 		}
-		if (IN_ROOM(tch) != kNowhere && !tch->desc) {
+		if (IN_ROOM(tch) != kNowhere) {
 			result = GET_ID(tch);
 			break;
 		}

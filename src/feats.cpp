@@ -26,28 +26,20 @@ extern const char *unused_spellname;
 struct FeatureInfoType feat_info[kMaxFeats];
 
 /* Служебные функции */
-//extern void fix_name_feat(char *name);
 void initializeFeatureByDefault(int featureNum);
-void determineFeaturesSpecification(void);
-bool can_use_feat(const CHAR_DATA *ch, int feat);
-bool can_get_feat(CHAR_DATA *ch, int feat);
 bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat);
-int getModifier(int feat, int location);
 
 /* Функции для работы с переключаемыми способностями */
-bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument, int /* cmd */, int subcmd);
 bool checkAccessActivatedFeature(CHAR_DATA *ch, int featureNum);
 void activateFeature(CHAR_DATA *ch, int featureNum);
 void deactivateFeature(CHAR_DATA *ch, int featureNum);
 int get_feature_num(char *featureName);
-bitvector_t getPRFWithFeatureNumber(int fetureNum);
 
 /* Ситуативные бонусы, пишутся для специфических способностей по потребности */
 short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA * /* enemy */);
 
 /* Активные способности */
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void check_berserk(CHAR_DATA *ch);
 
 /* Extern */
 extern void setSkillCooldown(CHAR_DATA *ch, ESkill skill, int cooldownInPulses);
@@ -151,9 +143,8 @@ void initializeFeatureByDefault(int featureNum) {
 }
 
 // Инициализация массива структур способностей
-void determineFeaturesSpecification(void) {
+void determineFeaturesSpecification() {
 	CFeatArray feat_app;
-	TechniqueItemKitType *techniqueItemKit;
 	for (int i = 1; i < kMaxFeats; i++) {
 		initializeFeatureByDefault(i);
 	}
@@ -552,14 +543,8 @@ void determineFeaturesSpecification(void) {
 //132
 	initializeFeature(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, true, feat_app);
 //133
-	initializeFeature(SKIRMISHER_FEAT,
-					  "держать строй",
-					  ACTIVATED_FTYPE,
-					  true,
-					  feat_app,
-					  90,
-					  SKILL_RESCUE,
-					  SAVING_REFLEX);
+	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, true, feat_app,
+					  90, SKILL_RESCUE, SAVING_REFLEX);
 	feat_info[SKIRMISHER_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[SKIRMISHER_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //134
@@ -605,30 +590,22 @@ void determineFeaturesSpecification(void) {
 	//TODO: Не забыть переписать этот бордель
 	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.reserve(2);
 
-	techniqueItemKit = new TechniqueItemKitType;
+	//techniqueItemKit = new TechniqueItemKitType;
+	auto techniqueItemKit = std::make_unique<TechniqueItemKitType>();
 	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD,
-											  OBJ_DATA::ITEM_WEAPON,
-											  SKILL_INDEFINITE,
-											  EExtraFlag::ITEM_THROWING));
-	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
+	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, OBJ_DATA::ITEM_WEAPON,
+											  SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
+	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 
-	techniqueItemKit = new TechniqueItemKitType;
+	//techniqueItemKit = new TechniqueItemKitType;
+	techniqueItemKit = std::make_unique<TechniqueItemKitType>();
 	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD,
-											  OBJ_DATA::ITEM_WEAPON,
-											  SKILL_INDEFINITE,
-											  EExtraFlag::ITEM_THROWING));
-	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
+	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, OBJ_DATA::ITEM_WEAPON,
+											  SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
+	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 //145
-	initializeFeature(SHADOW_THROW_FEAT,
-					  "змеево оружие",
-					  TECHNIQUE_FTYPE,
-					  true,
-					  feat_app,
-					  100,
-					  SKILL_DARK_MAGIC,
-					  SAVING_WILL);
+	initializeFeature(SHADOW_THROW_FEAT, "змеево оружие", TECHNIQUE_FTYPE, true, feat_app,
+					  100, SKILL_DARK_MAGIC, SAVING_WILL);
 	feat_info[SHADOW_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[SHADOW_THROW_FEAT].getEffectParameter = &GET_REAL_INT;
 	feat_info[SHADOW_THROW_FEAT].baseDamageBonusPercent = -30;
@@ -643,95 +620,51 @@ void determineFeaturesSpecification(void) {
 		});
 
 	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.reserve(2);
-	techniqueItemKit = new TechniqueItemKitType;
+	//techniqueItemKit = new TechniqueItemKitType;
+	techniqueItemKit = std::make_unique<TechniqueItemKitType>();
 	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD,
-											  OBJ_DATA::ITEM_WEAPON,
-											  SKILL_INDEFINITE,
-											  EExtraFlag::ITEM_THROWING));
-	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
-	techniqueItemKit = new TechniqueItemKitType;
+	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, OBJ_DATA::ITEM_WEAPON,
+											  SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
+	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
+	//techniqueItemKit = new TechniqueItemKitType;
+	techniqueItemKit = std::make_unique<TechniqueItemKitType>();
 	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD,
-											  OBJ_DATA::ITEM_WEAPON,
-											  SKILL_INDEFINITE,
-											  EExtraFlag::ITEM_THROWING));
-	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
+	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, OBJ_DATA::ITEM_WEAPON,
+											  SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
+	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 //146
-	initializeFeature(SHADOW_DAGGER_FEAT,
-					  "змеев кинжал",
-					  NORMAL_FTYPE,
-					  true,
-					  feat_app,
-					  80,
-					  SKILL_DARK_MAGIC,
-					  SAVING_STABILITY);
+	initializeFeature(SHADOW_DAGGER_FEAT, "змеев кинжал", NORMAL_FTYPE, true, feat_app,
+					  80, SKILL_DARK_MAGIC, SAVING_STABILITY);
 	feat_info[SHADOW_DAGGER_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_DAGGER_FEAT].usesWeaponSkill = false;
 //147
-	initializeFeature(SHADOW_SPEAR_FEAT,
-					  "змеево копьё",
-					  NORMAL_FTYPE,
-					  true,
-					  feat_app,
-					  80,
-					  SKILL_DARK_MAGIC,
-					  SAVING_STABILITY);
+	initializeFeature(SHADOW_SPEAR_FEAT, "змеево копьё", NORMAL_FTYPE, true,
+					  feat_app, 80, SKILL_DARK_MAGIC, SAVING_STABILITY);
 	feat_info[SHADOW_SPEAR_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_SPEAR_FEAT].usesWeaponSkill = false;
 //148
-	initializeFeature(SHADOW_CLUB_FEAT,
-					  "змеева палица",
-					  NORMAL_FTYPE,
-					  true,
-					  feat_app,
-					  80,
-					  SKILL_DARK_MAGIC,
-					  SAVING_STABILITY);
+	initializeFeature(SHADOW_CLUB_FEAT, "змеева палица", NORMAL_FTYPE, true, feat_app,
+					  80, SKILL_DARK_MAGIC, SAVING_STABILITY);
 	feat_info[SHADOW_CLUB_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_CLUB_FEAT].usesWeaponSkill = false;
 //149
-	initializeFeature(DOUBLE_THROW_FEAT,
-					  "двойной бросок",
-					  ACTIVATED_FTYPE,
-					  true,
-					  feat_app,
-					  100,
-					  SKILL_PUNCH,
-					  SAVING_REFLEX);
+	initializeFeature(DOUBLE_THROW_FEAT, "двойной бросок", ACTIVATED_FTYPE, true, feat_app,
+					  100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DOUBLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //150
-	initializeFeature(TRIPLE_THROW_FEAT,
-					  "тройной бросок",
-					  ACTIVATED_FTYPE,
-					  true,
-					  feat_app,
-					  100,
-					  SKILL_PUNCH,
-					  SAVING_REFLEX);
+	initializeFeature(TRIPLE_THROW_FEAT, "тройной бросок", ACTIVATED_FTYPE, true, feat_app,
+					  100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[TRIPLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //1151
 	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, true, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[POWER_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //152
-	initializeFeature(DEADLY_THROW_FEAT,
-					  "широкий размах",
-					  NORMAL_FTYPE,
-					  true,
-					  feat_app,
-					  100,
-					  SKILL_PUNCH,
-					  SAVING_REFLEX);
+	initializeFeature(DEADLY_THROW_FEAT, "широкий размах", NORMAL_FTYPE, true, feat_app,
+					  100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //153
-	initializeFeature(TURN_UNDEAD_FEAT,
-					  "turn undead",
-					  TECHNIQUE_FTYPE,
-					  true,
-					  feat_app,
-					  70,
-					  SKILL_TURN_UNDEAD,
-					  SAVING_STABILITY);
+	initializeFeature(TURN_UNDEAD_FEAT, "turn undead", TECHNIQUE_FTYPE, true, feat_app,
+					  70, SKILL_TURN_UNDEAD, SAVING_STABILITY);
 	feat_info[TURN_UNDEAD_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[TURN_UNDEAD_FEAT].getEffectParameter = &GET_REAL_WIS;
 	feat_info[TURN_UNDEAD_FEAT].usesWeaponSkill = false;
@@ -745,7 +678,7 @@ void determineFeaturesSpecification(void) {
 // 156
 	initializeFeature(ANIMAL_MASTER_FEAT, "хозяин животных", NORMAL_FTYPE, true, feat_app);
 }
- 
+
 const char *feat_name(int num) {
 	if (num > 0 && num < kMaxFeats) {
 		return (feat_info[num].name);
@@ -802,13 +735,15 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 		case SHADOW_THROW_FEAT: return (ch->get_skill(SKILL_DARK_MAGIC) > 120);
 			break;
 		case ANIMAL_MASTER_FEAT: return (ch->get_skill(SKILL_MIND_MAGIC) > 80);
-			break;	
+			break;
 			// Костыльный блок работы скирмишера где не нужно
 			// Svent TODO Для абилок не забыть реализовать провкрку состояния персонажа
 		case SKIRMISHER_FEAT:
 			return !(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
 				|| GET_POS(ch) < POS_FIGHTING);
+			break;
+		default: return true;
 			break;
 	}
 	return true;
@@ -917,10 +852,8 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 			break;
 		case SHADOW_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 120));
 			break;
-		case SHADOW_DAGGER_FEAT: return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 130));
-			break;
-		case SHADOW_SPEAR_FEAT: return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 130));
-			break;
+		case SHADOW_DAGGER_FEAT:
+		case SHADOW_SPEAR_FEAT: [[fallthrough]];
 		case SHADOW_CLUB_FEAT: return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 130));
 			break;
 		case DOUBLE_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(SKILL_THROW) > 100));
@@ -930,6 +863,8 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 		case POWER_THROW_FEAT: return (ch->get_skill(SKILL_THROW) > 90);
 			break;
 		case DEADLY_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(SKILL_THROW) > 110));
+			break;
+		default: return true;
 			break;
 	}
 
@@ -967,7 +902,7 @@ bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat) {
 	std::sort(slot_list.begin(), slot_list.end());
 
 	//Посчитаем сколько действительно нижние способности занимают слотов (с учетом пропусков)
-	for (const auto &slot : slot_list) {
+	for (const auto &slot: slot_list) {
 		if (lowfeat < slot) {
 			lowfeat = slot + 1;
 		} else {
@@ -1023,14 +958,14 @@ void check_berserk(CHAR_DATA *ch) {
 		prob = IS_NPC(ch) ? 601 : (751 - GET_REAL_LEVEL(ch) * 5);
 		if (number(1, 1000) < prob) {
 			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
-			act("Вас обуяла предсмертная ярость!", false, ch, 0, 0, TO_CHAR);
-			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, 0, vict, TO_NOTVICT);
-			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, 0, vict, TO_VICT);
+			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, TO_CHAR);
+			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, nullptr, vict, TO_NOTVICT);
+			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, nullptr, vict, TO_VICT);
 		} else {
 			af.bitvector = 0;
-			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", false, ch, 0, 0, TO_CHAR);
-			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, 0, vict, TO_NOTVICT);
-			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, 0, vict, TO_VICT);
+			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", false, ch, nullptr, nullptr, TO_CHAR);
+			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, nullptr, vict, TO_NOTVICT);
+			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, nullptr, vict, TO_VICT);
 		}
 		affect_join(ch, af, true, false, true, false);
 	}
@@ -1045,7 +980,7 @@ void do_lightwalk(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	if (ch->ahorse()) {
-		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, 0, ch->get_horse(), TO_CHAR);
+		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, ch->get_horse(), TO_CHAR);
 		return;
 	}
 
@@ -1265,8 +1200,8 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	act("Вы принялись зачаровывать $N3.", false, ch, 0, follower, TO_CHAR);
-	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, 0, follower, TO_ROOM);
+	act("Вы принялись зачаровывать $N3.", false, ch, nullptr, follower, TO_CHAR);
+	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, TO_ROOM);
 
 	GET_SPELL_MEM(ch, spellnum)--;
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
@@ -1324,17 +1259,17 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 
 void setFeaturesOfRace(CHAR_DATA *ch) {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
-	for (std::vector<int>::iterator i = feat_list.begin(), iend = feat_list.end(); i != iend; ++i) {
-		if (can_get_feat(ch, *i)) {
-			SET_FEAT(ch, *i);
+	for (int &i: feat_list) {
+		if (can_get_feat(ch, i)) {
+			SET_FEAT(ch, i);
 		}
 	}
 }
 
 void unsetFeaturesOfRace(CHAR_DATA *ch) {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
-	for (std::vector<int>::iterator i = feat_list.begin(), iend = feat_list.end(); i != iend; ++i) {
-		UNSET_FEAT(ch, *i);
+	for (int &i: feat_list) {
+		UNSET_FEAT(ch, i);
 	}
 }
 
@@ -1363,7 +1298,7 @@ int CFeatArray::pos(int pos /*= -1*/) {
 	return _pos;
 }
 
-void CFeatArray::insert(const int location, sbyte modifier) {
+void CFeatArray::insert(const int location, int modifier) {
 	affected[_pos].location = location;
 	affected[_pos].modifier = modifier;
 	_pos++;
@@ -1433,7 +1368,7 @@ void activateFeature(CHAR_DATA *ch, int featureNum) {
 			}
 			PRF_FLAGS(ch).set(PRF_SKIRMISHER);
 			send_to_char("Вы протиснулись вперед и встали в строй.\r\n", ch);
-			act("$n0 протиснул$u вперед и встал$g в строй.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n0 протиснул$u вперед и встал$g в строй.", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			break;
 		case DOUBLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
 			PRF_FLAGS(ch).set(PRF_DOUBLE_THROW);
@@ -1441,6 +1376,7 @@ void activateFeature(CHAR_DATA *ch, int featureNum) {
 		case TRIPLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
 			PRF_FLAGS(ch).set(PRF_TRIPLE_THROW);
 			break;
+		default: break;
 	}
 	send_to_char(ch,
 				 "%sВы решили использовать способность '%s'.%s\r\n",
@@ -1462,7 +1398,7 @@ void deactivateFeature(CHAR_DATA *ch, int featureNum) {
 		case SKIRMISHER_FEAT: PRF_FLAGS(ch).unset(PRF_SKIRMISHER);
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 				send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
-				act("$n0 тактически отступил$g в тыл отряда.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n0 тактически отступил$g в тыл отряда.", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			break;
 		case DOUBLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);

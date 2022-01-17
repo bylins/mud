@@ -48,7 +48,9 @@ struct TechniqueItem {
 };
 
 using TechniqueItemKitType = std::vector<TechniqueItem>;
-using TechniqueItemKitsGroupType = std::vector<TechniqueItemKitType *>;
+using TechniqueItemKitPtr = std::unique_ptr<TechniqueItemKitType>;
+//using TechniqueItemKitsGroupType = std::vector<TechniqueItemKitType *>;
+using TechniqueItemKitsGroupType = std::vector<TechniqueItemKitPtr>;
 
 #endif // _FEATURES_ITEMSET_HPP_INCLUDED_
 
