@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "entities/world_characters.h"
+//#include "entities/obj.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
 #include "utils/pugixml.h"
@@ -815,7 +816,7 @@ std::string print_activ_apply(const T &list) {
 	std::string out;
 	for (auto i = list.begin(); i != list.end(); ++i) {
 		if (i->location > 0) {
-			out += " +    " + print_obj_affects(*i);
+			out += " +    " + print_obj_affects(i);
 		}
 	}
 	return out;

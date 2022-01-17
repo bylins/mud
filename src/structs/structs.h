@@ -12,8 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _STRUCTS_H_
-#define _STRUCTS_H_
+#ifndef STRUCTS_STRUCTS_H_
+#define STRUCTS_STRUCTS_H_
 
 //#include "boards/boards_types.h"
 #include "sysdep.h"
@@ -30,16 +30,32 @@
 #include <array>
 #include <memory>
 
-typedef int8_t sbyte;
-typedef uint8_t ubyte;
-typedef int16_t sh_int;
-typedef uint16_t ush_int;
+using sbyte = int8_t;
+using ubyte = uint8_t;
+using sh_int = int16_t ;
+using ush_int = uint16_t;
 
 typedef struct index_data INDEX_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 
 // This structure describe new bitvector structure                  //
-typedef uint32_t bitvector_t;
+using bitvector_t = uint32_t;
+constexpr bitvector_t kIntOne = 1u << 30;
+constexpr bitvector_t kIntTwo = 2u << 30;
+constexpr bitvector_t kIntThree = 3u << 30;
+
+using room_vnum = int;	// A room's vnum type //
+using obj_vnum = int;	// An object's vnum type //
+using mob_vnum = int;	// A mob's vnum type //
+using zone_vnum = int;	// A virtual zone number.  //
+using trg_vnum = int;	// A virtual trigger number.  //
+
+using rnum_t = int;
+using room_rnum = rnum_t;	// A room's real (internal) number type //
+using obj_rnum = rnum_t;	// An object's real (internal) num type //
+using mob_rnum = rnum_t;	// A mobile's real (internal) num type //
+using zone_rnum = rnum_t;	// A zone's real (array index) number. //
+using trg_rnum = rnum_t;	// A trigger's real (array index) number. //
 
 #if !defined(__cplusplus)    // Anyone know a portable method?
 typedef char bool;
@@ -48,19 +64,6 @@ typedef char bool;
 #if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)    // Hm, sysdep.h?
 typedef char byte;
 #endif
-
-typedef int room_vnum;    // A room's vnum type //
-typedef int obj_vnum;    // An object's vnum type //
-typedef int mob_vnum;    // A mob's vnum type //
-typedef int zone_vnum;    // A virtual zone number.  //
-typedef int trg_vnum;    // A virtual trigger number.  //
-
-using rnum_t = int;
-typedef rnum_t room_rnum;    // A room's real (internal) number type //
-typedef rnum_t obj_rnum;    // An object's real (internal) num type //
-typedef rnum_t mob_rnum;    // A mobile's real (internal) num type //
-typedef rnum_t zone_rnum;    // A zone's real (array index) number. //
-typedef rnum_t trg_rnum;    // A trigger's real (array index) number. //
 
 const int kMaxRemort = 75;
 
@@ -71,10 +74,6 @@ const unsigned kTorcBronze = 2;        // бронзовые гривны
 const unsigned kTotalTypes = 3;        // терминатор всегда в конце
 } // namespace ExtMoney
 
-constexpr bitvector_t kIntZero = 0u << 30;
-constexpr bitvector_t kIntOne = 1u << 30;
-constexpr bitvector_t kIntTwo = 2u << 30;
-constexpr bitvector_t kIntThree = 3u << 30;
 
 namespace currency {
 enum { GOLD, GLORY, TORC, ICE, NOGATA };
@@ -264,69 +263,6 @@ template<>
 EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string &name);
 
 typedef std::list<EAffectFlag> affects_list_t;
-
-// Modes of connectedness: used by descriptor_data.state //
-//ОБЕЗАТЕЛЬНО ДОБАВИТЬ В connected_types[]!!!!//
-const __uint8_t CON_PLAYING = 0;        // Playing - Nominal state //
-const __uint8_t CON_CLOSE = 1;            // Disconnecting     //
-const __uint8_t CON_GET_NAME = 2;        // By what name ..?     //
-const __uint8_t CON_NAME_CNFRM = 3;    // Did I get that right, x?   //
-const __uint8_t CON_PASSWORD = 4;        // Password:         //
-const __uint8_t CON_NEWPASSWD = 5;        // Give me a password for x   //
-const __uint8_t CON_CNFPASSWD = 6;        // Please retype password: //
-const __uint8_t CON_QSEX = 7;            // Sex?           //
-const __uint8_t CON_QCLASS = 8;        // Class?         //
-const __uint8_t CON_RMOTD = 9;            // PRESS RETURN after MOTD //
-const __uint8_t CON_MENU = 10;            // Your choice: (main menu)   //
-const __uint8_t CON_EXDESC = 11;        // Enter a new description:   //
-const __uint8_t CON_CHPWD_GETOLD = 12; // Changing passwd: get old   //
-const __uint8_t CON_CHPWD_GETNEW = 13; // Changing passwd: get new   //
-const __uint8_t CON_CHPWD_VRFY = 14;    // Verify new password     //
-const __uint8_t CON_DELCNF1 = 15;        // Delete confirmation 1   //
-const __uint8_t CON_DELCNF2 = 16;        // Delete confirmation 2   //
-const __uint8_t CON_DISCONNECT = 17;    // In-game disconnection   //
-const __uint8_t CON_OEDIT = 18;        //. OLC mode - object edit     . //
-const __uint8_t CON_REDIT = 19;        //. OLC mode - room edit       . //
-const __uint8_t CON_ZEDIT = 20;        //. OLC mode - zone info edit  . //
-const __uint8_t CON_MEDIT = 21;        //. OLC mode - mobile edit     . //
-const __uint8_t CON_TRIGEDIT = 22;        //. OLC mode - trigger edit    . //
-const __uint8_t CON_NAME2 = 23;
-const __uint8_t CON_NAME3 = 24;
-const __uint8_t CON_NAME4 = 25;
-const __uint8_t CON_NAME5 = 26;
-const __uint8_t CON_NAME6 = 27;
-const __uint8_t CON_RELIGION = 28;
-const __uint8_t CON_RACE = 29;
-const __uint8_t CON_LOWS = 30;
-const __uint8_t CON_GET_KEYTABLE = 31;
-const __uint8_t CON_GET_EMAIL = 32;
-const __uint8_t CON_ROLL_STATS = 33;
-const __uint8_t CON_MREDIT = 34;        // OLC mode - make recept edit //
-const __uint8_t CON_QKIN = 35;
-const __uint8_t CON_QCLASSV = 36;
-const __uint8_t CON_QCLASSS = 37;
-const __uint8_t CON_MAP_MENU = 38;
-const __uint8_t CON_COLOR = 39;
-const __uint8_t CON_WRITEBOARD = 40;        // написание на доску
-const __uint8_t CON_CLANEDIT = 41;            // команда house
-const __uint8_t CON_NEW_CHAR = 42;
-const __uint8_t CON_SPEND_GLORY = 43;        // вливание славы через команду у чара
-const __uint8_t CON_RESET_STATS = 44;        // реролл статов при входе в игру
-const __uint8_t CON_BIRTHPLACE = 45;        // выбираем где начать игру
-const __uint8_t CON_WRITE_MOD = 46;        // пишет клановое сообщение дня
-const __uint8_t CON_GLORY_CONST = 47;        // вливает славу2
-const __uint8_t CON_NAMED_STUFF = 48;        // редактирует именной стаф
-const __uint8_t
-	CON_RESET_KIN = 49;        // выбор расы после смены/удаления оной (или иного способа испоганивания значения)
-const __uint8_t CON_RESET_RACE = 50;        // выбор РОДА посла смены/сброса оного
-const __uint8_t CON_CONSOLE = 51;            // Интерактивная скриптовая консоль
-const __uint8_t CON_TORC_EXCH = 52;        // обмен гривен
-const __uint8_t CON_MENU_STATS = 53;        // оплата сброса стартовых статов из главного меню
-const __uint8_t CON_SEDIT = 54;            // sedit - редактирование сетов
-const __uint8_t CON_RESET_RELIGION = 55;    // сброс религии из меню сброса статов
-const __uint8_t CON_RANDOM_NUMBER = 56;    // Verification code entry: where player enter in the game from new location
-const __uint8_t CON_INIT = 57;                // just connected
-// не забываем отражать новые состояния в connected_types -- Krodo
 
 // object-related defines ******************************************* //
 
@@ -735,11 +671,11 @@ class AbstractStringWriter {
  public:
 	using shared_ptr = std::shared_ptr<AbstractStringWriter>;
 
-	virtual ~AbstractStringWriter() {}
-	virtual const char *get_string() const = 0;
+	virtual ~AbstractStringWriter() = default;
+	[[nodiscard]] virtual const char *get_string() const = 0;
 	virtual void set_string(const char *data) = 0;
 	virtual void append_string(const char *data) = 0;
-	virtual size_t length() const = 0;
+	[[nodiscard]] virtual size_t length() const = 0;
 	virtual void clear() = 0;
 };
 
@@ -820,12 +756,12 @@ struct zone_type {
 };
 
 struct int_app_type {
-	int spell_aknowlege;    // chance to know spell               //
+	int spell_aknowlege;    // drop_chance to know spell               //
 	int to_skilluse;        // ADD CHANSE FOR USING SKILL         //
 	int mana_per_tic;
 	int spell_success;        //  max count of spell on 1s level    //
-	int improve;        // chance to improve skill           //
-	int observation;        // chance to use SKILL_AWAKE/CRITICAL //
+	int improve;        // drop_chance to improve skill           //
+	int observation;        // drop_chance to use SKILL_AWAKE/CRITICAL //
 };
 
 struct cha_app_type {
@@ -1058,40 +994,6 @@ struct set_struct {
 	const char type;
 };
 
-//Polos.insert_wanted_gem
-struct int3 {
-	int type;
-	int bit;
-	int qty;
-};
-
-typedef std::unordered_map<std::string, int3> alias_type;
-
-class insert_wanted_gem {
-	std::unordered_map<int, alias_type> content;
-
- public:
-	void init();
-	void show(CHAR_DATA *ch, int gem_vnum);
-	int get_type(int gem_vnum, const std::string &str);
-	int get_bit(int gem_vnum, const std::string &str);
-	int get_qty(int gem_vnum, const std::string &str);
-	int exist(const int gem_vnum, const std::string &str) const;
-	bool is_gem(int get_vnum);
-	std::string get_random_str_for(const int gem_vnum);
-};
-
-//-Polos.insert_wanted_gem
-
-struct mob_guardian {
-	int max_wars_allow;
-	bool agro_killers;
-	bool agro_all_agressors;
-	std::vector<zone_vnum> agro_argressors_in_zones;
-};
-
-typedef std::unordered_map<int, mob_guardian> guardian_type;
-
-#endif // __STRUCTS_H__ //
+#endif // STRUCTS_STRUCTS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

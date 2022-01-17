@@ -1,5 +1,10 @@
-#ifndef __MOBACT_HPP__
-#define __MOBACT_HPP__
+#ifndef MOBACT_HPP_
+#define MOBACT_HPP_
+
+#include "structs/structs.h"
+
+#include <unordered_map>
+#include <vector>
 
 class CHAR_DATA;    // to avoid inclusion of "char.hpp"
 
@@ -12,6 +17,15 @@ void mobRemember(CHAR_DATA *ch, CHAR_DATA *victim);
 void mobForget(CHAR_DATA *ch, CHAR_DATA *victim);
 void clearMemory(CHAR_DATA *ch);
 
-#endif // __MOBACT_HPP__
+struct mob_guardian {
+	int max_wars_allow{};
+	bool agro_killers{};
+	bool agro_all_agressors{};
+	std::vector<zone_vnum> agro_argressors_in_zones{};
+};
+
+typedef std::unordered_map<int, mob_guardian> guardian_type;
+
+#endif // MOBACT_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

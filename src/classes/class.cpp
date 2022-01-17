@@ -56,9 +56,6 @@ extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
 extern double exp_coefficients[];
 
-struct skillvariables_dig dig_vars;
-struct skillvariables_insgem insgem_vars;
-
 // local functions
 int parse_class(char arg);
 long find_class_bitvector(char arg);
@@ -1799,7 +1796,7 @@ void load_skills() {
  * the spell or skill.
  */
 #include "classes/class_spell_slots.h"
-void init_spell_levels(void) {
+void init_spell_levels() {
 	using PlayerClass::mspell_slot;
 
 	FILE *magic;
@@ -1988,137 +1985,10 @@ void init_spell_levels(void) {
 
 //	Polud новый файл описания умений Skills.xml, если его нет - читаются старые
 	load_skills();
-
-	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r"))) {
-		log("Cann't open skillvariables list file...");
-		graceful_exit(1);
-	}
-
-	// Загружаем переменные скилов из файла
-
-	// ГОРНОЕ ДЕЛО
-	// Предварительно ставим значения по дефолту
-
-	dig_vars.hole_max_deep = DIG_DFLT_HOLE_MAX_DEEP;
-	dig_vars.instr_crash_chance = DIG_DFLT_INSTR_CRASH_CHANCE;
-	dig_vars.treasure_chance = DIG_DFLT_TREASURE_CHANCE;
-	dig_vars.pandora_chance = DIG_DFLT_PANDORA_CHANCE;
-	dig_vars.mob_chance = DIG_DFLT_MOB_CHANCE;
-	dig_vars.trash_chance = DIG_DFLT_TRASH_CHANCE;
-	dig_vars.lag = DIG_DFLT_LAG;
-	dig_vars.prob_divide = DIG_DFLT_PROB_DIVIDE;
-	dig_vars.glass_chance = DIG_DFLT_GLASS_CHANCE;
-	dig_vars.need_moves = DIG_DFLT_NEED_MOVES;
-
-	dig_vars.stone1_skill = DIG_DFLT_STONE1_SKILL;
-	dig_vars.stone2_skill = DIG_DFLT_STONE2_SKILL;
-	dig_vars.stone3_skill = DIG_DFLT_STONE3_SKILL;
-	dig_vars.stone4_skill = DIG_DFLT_STONE4_SKILL;
-	dig_vars.stone5_skill = DIG_DFLT_STONE5_SKILL;
-	dig_vars.stone6_skill = DIG_DFLT_STONE6_SKILL;
-	dig_vars.stone7_skill = DIG_DFLT_STONE7_SKILL;
-	dig_vars.stone8_skill = DIG_DFLT_STONE8_SKILL;
-	dig_vars.stone9_skill = DIG_DFLT_STONE9_SKILL;
-
-	dig_vars.stone1_vnum = DIG_DFLT_STONE1_VNUM;
-	dig_vars.trash_vnum_start = DIG_DFLT_TRASH_VNUM_START;
-	dig_vars.trash_vnum_end = DIG_DFLT_TRASH_VNUM_END;
-	dig_vars.mob_vnum_start = DIG_DFLT_MOB_VNUM_START;
-	dig_vars.mob_vnum_end = DIG_DFLT_MOB_VNUM_END;
-	dig_vars.pandora_vnum = DIG_DFLT_PANDORA_VNUM;
-
-	// ЮВЕЛИР
-	// Предварительно ставим значения по дефолту
-
-	insgem_vars.lag = INSGEM_DFLT_LAG;
-	insgem_vars.minus_for_affect = INSGEM_DFLT_MINUS_FOR_AFFECT;
-	insgem_vars.prob_divide = INSGEM_DFLT_PROB_DIVIDE;
-	insgem_vars.dikey_percent = INSGEM_DFLT_DIKEY_PERCENT;
-	insgem_vars.timer_plus_percent = INSGEM_DFLT_TIMER_PLUS_PERCENT;
-	insgem_vars.timer_minus_percent = INSGEM_DFLT_TIMER_MINUS_PERCENT;
-
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-
-		sscanf(name, "dig_hole_max_deep %d", &dig_vars.hole_max_deep);
-		sscanf(name, "dig_instr_crash_chance %d", &dig_vars.instr_crash_chance);
-		sscanf(name, "dig_treasure_chance %d", &dig_vars.treasure_chance);
-		sscanf(name, "dig_pandora_chance %d", &dig_vars.pandora_chance);
-		sscanf(name, "dig_mob_chance %d", &dig_vars.mob_chance);
-		sscanf(name, "dig_trash_chance %d", &dig_vars.trash_chance);
-		sscanf(name, "dig_lag %d", &dig_vars.lag);
-		sscanf(name, "dig_prob_divide %d", &dig_vars.prob_divide);
-		sscanf(name, "dig_glass_chance %d", &dig_vars.glass_chance);
-		sscanf(name, "dig_need_moves %d", &dig_vars.need_moves);
-
-		sscanf(name, "dig_stone1_skill %d", &dig_vars.stone1_skill);
-		sscanf(name, "dig_stone2_skill %d", &dig_vars.stone2_skill);
-		sscanf(name, "dig_stone3_skill %d", &dig_vars.stone3_skill);
-		sscanf(name, "dig_stone4_skill %d", &dig_vars.stone4_skill);
-		sscanf(name, "dig_stone5_skill %d", &dig_vars.stone5_skill);
-		sscanf(name, "dig_stone6_skill %d", &dig_vars.stone6_skill);
-		sscanf(name, "dig_stone7_skill %d", &dig_vars.stone7_skill);
-		sscanf(name, "dig_stone8_skill %d", &dig_vars.stone8_skill);
-		sscanf(name, "dig_stone9_skill %d", &dig_vars.stone9_skill);
-
-		sscanf(name, "dig_stone1_vnum %d", &dig_vars.stone1_vnum);
-		sscanf(name, "dig_trash_vnum_start %d", &dig_vars.trash_vnum_start);
-		sscanf(name, "dig_trash_vnum_end %d", &dig_vars.trash_vnum_end);
-		sscanf(name, "dig_mob_vnum_start %d", &dig_vars.mob_vnum_start);
-		sscanf(name, "dig_mob_vnum_end %d", &dig_vars.mob_vnum_end);
-		sscanf(name, "dig_pandora_vnum %d", &dig_vars.pandora_vnum);
-
-		sscanf(name, "insgem_lag %d", &insgem_vars.lag);
-		sscanf(name, "insgem_minus_for_affect %d", &insgem_vars.minus_for_affect);
-		sscanf(name, "insgem_prob_divide %d", &insgem_vars.prob_divide);
-		sscanf(name, "insgem_dikey_percent %d", &insgem_vars.dikey_percent);
-		sscanf(name, "insgem_timer_plus_percent %d", &insgem_vars.timer_plus_percent);
-		sscanf(name, "insgem_timer_minus_percent %d", &insgem_vars.timer_minus_percent);
-
-		name[0] = '\0';
-	}
 	fclose(magic);
-
-
-	/* Remove to init_im::im.cpp - Gorrah
-	// +newbook.patch (Alisher)
-		if (!(magic = fopen(LIB_MISC "class.recipes.lst", "r"))) {
-			log("Cann't open classrecipe list file...");
-			graceful_exit(1);
-		}
-		while (get_line(magic, name)) {
-			if (!name[0] || name[0] == ';')
-				continue;
-			if (sscanf(name, "%d %s %s", i, line1, line2) != 3) {
-				log("Bad format for magic string!\r\n"
-				    "Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
-				graceful_exit(1);
-			}
-
-			rcpt = im_get_recipe(i[0]);
-
-			if (rcpt < 0) {
-				log("Invalid recipe (%d)", i[0]);
-				graceful_exit(1);
-			}
-
-	// line1 - ограничения для рас еще не реализованы
-
-			for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
-				if (!strchr("1xX!", line2[j]))
-					continue;
-				imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
-				log("Set recipe (%d '%s') classes %d is Know", i[0], imrecipes[rcpt].name, j);
-			}
-		}
-		fclose(magic);
-	// -newbook.patch (Alisher)
-	*/
-	return;
 }
 
-void init_basic_values(void) {
+void init_basic_values() {
 	FILE *magic;
 	char line[256], name[kMaxInputLength];
 	int i[10], c, j, mode = 0, *pointer;

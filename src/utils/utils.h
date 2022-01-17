@@ -1520,7 +1520,7 @@ private:
 #endif
 
 // global buffering system
-#ifdef __DB_C__
+#ifdef DB_C__
 char buf[kMaxStringLength];
 char buf1[kMaxStringLength];
 char buf2[kMaxStringLength];

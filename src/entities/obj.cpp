@@ -17,8 +17,8 @@
 #include "house.h"
 
 extern void get_from_container(CHAR_DATA *ch, OBJ_DATA *cont, char *arg, int mode, int amount, bool autoloot);
-extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
-extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
+void set_obj_eff(OBJ_DATA *itemobj, EApplyLocation type, int mod);
+void set_obj_aff(OBJ_DATA *itemobj, EAffectFlag bitv);
 extern void extract_trigger(TRIG_DATA *trig);
 
 id_to_set_info_map OBJ_DATA::set_table;
@@ -791,6 +791,27 @@ void CObjectPrototype::set_ex_description(const char *keyword, const char *descr
 	d->keyword = strdup(keyword);
 	d->description = strdup(description);
 	m_ex_description = d;
+}
+
+void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv) {
+	for (const auto &i : weapon_affect) {
+		if (i.aff_bitvector == static_cast<bitvector_t>(bitv)) {
+			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));
+		}
+	}
+}
+
+void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod) {
+	for (auto i = 0; i < kMaxObjAffect; i++) {
+		if (itemobj->get_affected(i).location == type) {
+			const auto current_mod = itemobj->get_affected(i).modifier;
+			itemobj->set_affected(i, type, current_mod + mod);
+			break;
+		} else if (itemobj->get_affected(i).location == APPLY_NONE) {
+			itemobj->set_affected(i, type, mod);
+			break;
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

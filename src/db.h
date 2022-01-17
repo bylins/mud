@@ -12,8 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _DB_H_
-#define _DB_H_
+#ifndef DB_H_
+#define DB_H_
 
 #include "boot/boot_constants.h"
 #include "conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
@@ -35,12 +35,12 @@ void room_free(ROOM_DATA *room);
 
 // public procedures in db.cpp
 void tag_argument(char *argument, char *tag);
-void boot_db(void);
-void zone_update(void);
+void boot_db();
+void zone_update();
 bool can_be_reset(zone_rnum zone);
 room_rnum real_room(room_vnum vnum);
 long get_id_by_name(char *name);
-long get_id_by_uid(long uid);
+//long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
@@ -51,19 +51,18 @@ long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 void zone_traffic_save();
 
-int load_char(const char *name, CHAR_DATA *char_element, bool reboot = 0, const bool find_id = true);
+int load_char(const char *name, CHAR_DATA *char_element, bool reboot = false, bool find_id = true);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
 mob_rnum real_mobile(mob_vnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA *ch);
 void clear_char_skills(CHAR_DATA *ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype *obj);
-void SaveGlobalUID(void);
-void flush_player_index(void);
+void SaveGlobalUID();
+void flush_player_index();
 
 #define REAL          0
 #define VIRTUAL       (1 << 0)
-#define OBJ_NO_CALC   (1 << 1)
 
 CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUAL);
 
@@ -97,13 +96,10 @@ struct reset_com {
 	char *sarg2;        // string argument
 };
 
-struct _case {
-	// внум сундука
-	int vnum;
-	// шанс выпадаения
-	int chance;
-	// внумы шмоток, которые выпадают из кейса
-	std::vector<int> vnum_objs;
+struct TreasureCase {
+	obj_vnum vnum;
+	int drop_chance;
+	std::vector<obj_vnum> vnum_objs; // внумы шмоток, которые выпадают из кейса
 };
 
 // для экстраффектов в random_obj
@@ -186,7 +182,7 @@ struct reset_q_type {
 
 class player_index_element {
  public:
-	player_index_element(const int id, const char *name);
+	player_index_element(int id, const char *name);
 
 	//added by WorM индексируюца еще мыло и последний айпи
 	char *mail;
@@ -200,8 +196,8 @@ class player_index_element {
 	int activity;        // When player be saved and checked
 	save_info *timer;
 
-	const char *name() const { return m_name; }
-	int id() const { return m_id; }
+	[[nodiscard]] const char *name() const { return m_name; }
+	[[nodiscard]] int id() const { return m_id; }
 
 	void set_name(const char *name);
 	void set_id(const int id) { m_id = id; }
@@ -329,7 +325,7 @@ class PlayersIndex : public std::vector<player_index_element> {
 	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
 	bool player_exists(const char *name) const { return NOT_FOUND != get_by_name(name); }
 	std::size_t get_by_name(const char *name) const;
-	void set_name(const std::size_t index, const char *name);
+	void set_name(std::size_t index, const char *name);
 
 	NameAdviser &name_adviser() { return m_name_adviser; }
 
@@ -348,7 +344,7 @@ class PlayersIndex : public std::vector<player_index_element> {
 	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
 	using free_names_t = std::deque<std::string>;
 
-	void add_name_to_index(const char *name, const std::size_t index);
+	void add_name_to_index(const char *name, std::size_t index);
 
 	id_to_index_t m_id_to_index;
 	name_to_index_t m_name_to_index;
@@ -360,7 +356,7 @@ extern PlayersIndex &player_table;
 
 extern long top_idnum;
 
-bool player_exists(const long id);
+bool player_exists(long id);
 
 inline save_info *SAVEINFO(const size_t number) {
 	return player_table[number].timer;
@@ -371,7 +367,7 @@ inline void clear_saveinfo(const size_t number) {
 	player_table[number].timer = nullptr;
 }
 
-void recreate_saveinfo(const size_t number);
+void recreate_saveinfo(size_t number);
 
 void set_god_skills(CHAR_DATA *ch);
 void check_room_flags(int rnum);
@@ -387,23 +383,23 @@ void set_test_data(CHAR_DATA *mob);
 
 void set_zone_mob_level();
 
-bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
+//bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
 
-extern insert_wanted_gem iwg;
+//extern insert_wanted_gem iwg;
 
 class GameLoader {
  public:
 	GameLoader();
 
 	void boot_world();
-	void index_boot(const EBootType mode);
+	void index_boot(EBootType mode);
 
  private:
-	static void prepare_global_structures(const EBootType mode, const int rec_count);
+	static void prepare_global_structures(EBootType mode, const int rec_count);
 };
 
 extern GameLoader world_loader;
 
-#endif
+#endif // DB_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

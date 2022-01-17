@@ -40,6 +40,7 @@
 #include "comm.h"
 #include "constants.h"
 #include "crafts/craft_commands.h"
+#include "crafts/jewelry.h"
 #include "db.h"
 #include "depot.h"
 #include "dg_script/dg_scripts.h"

@@ -655,9 +655,7 @@ int other_pc_in_group(CHAR_DATA *ch) {
 }
 
 void split_or_clan_tax(CHAR_DATA *ch, long amount) {
-	if (IS_AFFECTED(ch, AFF_GROUP)
-		&& other_pc_in_group(ch) > 0
-		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
+	if (IS_AFFECTED(ch, AFF_GROUP) && (other_pc_in_group(ch) > 0) && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
 		do_split(ch, buf_, 0, 0);

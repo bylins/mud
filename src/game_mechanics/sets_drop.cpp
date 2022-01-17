@@ -118,7 +118,7 @@ struct DropNode {
 	int obj_rnum;
 	// внум сетины
 	int obj_vnum;
-	// шанс дропа (проценты * 10), chance из 1000
+	// шанс дропа (проценты * 10), drop_chance из 1000
 	int chance;
 	// из соло или груп моб листа эта сетина (для генерации справки)
 	bool solo;
@@ -655,7 +655,7 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum) {
 		// 2.6% .. 3.4% / 38 ... 28
 /*		int mob_lvl = mob_proto[mob->rnum].get_level();
 		int lvl_mod = MIN(MAX(0, mob_lvl - MIN_SOLO_MOB_LVL), 6);
-		chance = (26 + lvl_mod * 1.45) / mob->miw;
+		drop_chance = (26 + lvl_mod * 1.45) / mob->miw;
 */
 		chance = DEFAULT_SOLO_CHANCE;
 	}
@@ -932,10 +932,10 @@ bool load_drop_table() {
 			return false;
 		}
 
-		const int chance = Parse::attr_int(item_node, "chance");
+		const int chance = Parse::attr_int(item_node, "drop_chance");
 		if (chance < 0) {
 			snprintf(buf, sizeof(buf),
-					 "...bad item attributes (chance=%d)", chance);
+					 "...bad item attributes (drop_chance=%d)", chance);
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 			return false;
 		}
@@ -997,7 +997,7 @@ void save_drop_table() {
 		mob_node.set_name("item");
 		mob_node.append_attribute("vnum") = obj_proto[i->second.obj_rnum]->get_vnum();
 		mob_node.append_attribute("mob") = mob_index[i->first].vnum;
-		mob_node.append_attribute("chance") = i->second.chance;
+		mob_node.append_attribute("drop_chance") = i->second.chance;
 		mob_node.append_attribute("solo") = i->second.solo ? "true" : "false";
 		mob_node.append_attribute("can_drop") = i->second.can_drop ? "true" : "false";
 	}
@@ -1117,9 +1117,9 @@ int check_mob(int mob_rnum) {
 //		log("list_size=%d, drop_count=%d, drop_mod=%d", mobs_count, drop_count, drop_mod);
 //		log("num=%d, miw=%d", num, GET_OBJ_MIW(obj_proto[it->second.obj_rnum]));
 		if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum])) {
-//			log("chance1=%d", it->second.chance);
+//			log("chance1=%d", it->second.drop_chance);
 			it->second.chance += MAX(0, drop_mod);
-//			log("chance2=%d", it->second.chance);
+//			log("chance2=%d", it->second.drop_chance);
 			// собственно проверка на лоад
 			if (it->second.chance >= 120 || number(0, 1000) <= it->second.chance) {
 //				log("drop");
@@ -1128,10 +1128,10 @@ int check_mob(int mob_rnum) {
 				rnum = it->second.obj_rnum;
 			}
 		} else {
-//			log("chance3=%d", it->second.chance);
+//			log("chance3=%d", it->second.drop_chance);
 			// шмотка не в лоаде, увеличиваем шансы как на дропе с проверкой переполнения
 			it->second.chance += MAX(0, drop_mod);
-//			log("chance4=%d", it->second.chance);
+//			log("chance4=%d", it->second.drop_chance);
 			if (it->second.chance > 1000) {
 //				log("reset");
 				it->second.reset_chance();

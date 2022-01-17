@@ -78,7 +78,7 @@ struct global_drop_obj {
 	global_drop_obj() : vnum(0), chance(0), day_start(0), day_end(0) {};
 	// vnum шмотки
 	int vnum;
-	// chance шмотки от 0 до 1000
+	// drop_chance шмотки от 0 до 1000
 	int chance;
 	// здесь храним типы рум, в которых может загрузится объект
 	std::list<int> sects;
@@ -147,7 +147,7 @@ void init() {
 		return;
 	}
 	for (pugi::xml_node node = node_list.child("tdrop"); node; node = node.next_sibling("tdrop")) {
-		int chance = Parse::attr_int(node, "chance");
+		int chance = Parse::attr_int(node, "drop_chance");
 		int count_mobs = Parse::attr_int(node, "count_mobs");
 		int vnum_obj = Parse::attr_int(node, "obj_vnum");
 		std::vector<int> list_mobs;
@@ -160,7 +160,7 @@ void init() {
 	for (pugi::xml_node node = node_list.child("freedrop_obj"); node; node = node.next_sibling("freedrop_obj")) {
 		global_drop_obj tmp;
 		int obj_vnum = Parse::attr_int(node, "obj_vnum");
-		int chance = Parse::attr_int(node, "chance");
+		int chance = Parse::attr_int(node, "drop_chance");
 		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
 		int day_end = Parse::attr_int_t(node, "day_end");
 		if (day_start == -1) {
@@ -187,7 +187,7 @@ void init() {
 		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
 		int day_end = Parse::attr_int_t(node, "day_end");
 		int race_mob = Parse::attr_int_t(node, "race_mob");
-		int chance = Parse::attr_int_t(node, "chance");
+		int chance = Parse::attr_int_t(node, "drop_chance");
 		if (chance == -1)
 			chance = 1000;
 		if (day_start == -1)
@@ -199,14 +199,14 @@ void init() {
 
 		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0) {
 			snprintf(buf, kMaxStringLength,
-					 "...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d)",
+					 "...bad drop attributes (obj_vnum=%d, mob_lvl=%d, drop_chance=%d, max_mob_lvl=%d)",
 					 obj_vnum, mob_lvl, count_mob, max_mob_lvl);
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
 			return;
 		}
 		snprintf(buf,
 				 kMaxStringLength,
-				 "GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, count_mob=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, chance=%d)",
+				 "GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, count_mob=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, drop_chance=%d)",
 				 obj_vnum,
 				 mob_lvl,
 				 count_mob,

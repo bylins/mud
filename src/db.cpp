@@ -13,21 +13,22 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#define __DB_C__
+#define DB_C__
 
-#include "db.h"
+//#include "db.h"
 
 #include "cmd_god/ban.h"
 #include "birthplaces.h"
 #include "boards/boards.h"
-#include "game_mechanics/bonus.h"
 #include "boot/boot_data_files.h"
 #include "boot/boot_index.h"
+#include "crafts/jewelry.h"
+#include "crafts/mining.h"
 #include "game_mechanics/celebrates.h"
 #include "entities/char.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
 #include "corpse.h"
@@ -35,7 +36,9 @@
 #include "description.h"
 #include "depot.h"
 #include "ext_money.h"
+#include "game_mechanics/bonus.h"
 #include "fightsystem/fight.h"
+#include "fightsystem/mobact.h"
 #include "utils/file_crc.h"
 #include "global_objects.h"
 #include "game_mechanics/glory.h"
@@ -159,8 +162,6 @@ const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
 
 guardian_type guardian_list;
-
-insert_wanted_gem iwg;
 
 GameLoader::GameLoader() {
 }
@@ -870,16 +871,16 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 	return NodeList;
 };
 
-std::vector<_case> cases;
+std::vector<TreasureCase> cases;
 // Заггрузка сундуков в мире
 void load_cases() {
 	pugi::xml_document doc_cases;
 	pugi::xml_node case_, object_, file_case;
 	file_case = XMLLoad(LIB_MISC CASES_FILE, "cases", "Error loading cases file: cases.xml", doc_cases);
 	for (case_ = file_case.child("casef"); case_; case_ = case_.next_sibling("casef")) {
-		_case __case;
+		TreasureCase __case;
 		__case.vnum = case_.attribute("vnum").as_int();
-		__case.chance = case_.attribute("chance").as_int();
+		__case.drop_chance = case_.attribute("drop_chance").as_int();
 		for (object_ = case_.child("object"); object_; object_ = object_.next_sibling("object")) {
 			__case.vnum_objs.push_back(object_.attribute("vnum").as_int());
 		}
@@ -921,7 +922,7 @@ void load_random_obj() {
 		tmp_robj.vnum = robj.attribute("vnum").as_int();
 		for (object = robj.child("not_to_wear"); object; object = object.next_sibling("not_to_wear")) {
 			tmp_str = object.attribute("value").as_string();
-			tmp_buf2 = object.attribute("chance").as_int();
+			tmp_buf2 = object.attribute("drop_chance").as_int();
 			tmp_robj.not_wear.insert(std::pair<std::string, int>(tmp_str, tmp_buf2));
 		}
 		tmp_robj.min_weight = robj.child("weight").attribute("value_min").as_int();
@@ -940,13 +941,13 @@ void load_random_obj() {
 		tmp_robj.value3_max = robj.child("value_three").attribute("value_max").as_int();
 		for (object = robj.child("affect"); object; object = object.next_sibling("affect")) {
 			tmp_str = object.attribute("value").as_string();
-			tmp_buf2 = object.attribute("chance").as_int();
+			tmp_buf2 = object.attribute("drop_chance").as_int();
 			tmp_robj.affects.insert(std::pair<std::string, int>(tmp_str, tmp_buf2));
 		}
 		for (object = robj.child("extraaffect"); object; object = object.next_sibling("extraaffect")) {
 			ExtraAffects extraAffect;
 			extraAffect.number = object.attribute("value").as_int();
-			extraAffect.chance = object.attribute("chance").as_int();
+			extraAffect.chance = object.attribute("drop_chance").as_int();
 			extraAffect.min_val = object.attribute("min_val").as_int();
 			extraAffect.max_val = object.attribute("max_val").as_int();
 			tmp_robj.extraffect.push_back(extraAffect);
@@ -2351,6 +2352,11 @@ void boot_db(void) {
 	boot_profiler.next_step("Assigning spells and skills levels");
 	log("Assigning spell and skill levels.");
 	init_spell_levels();
+
+	boot_profiler.next_step("Reading skills variables.");
+	log("Reading skills variables.");
+	InitMiningVars();
+	InitJewelryVars();
 
 	boot_profiler.next_step("Sorting command list");
 	log("Sorting command list.");

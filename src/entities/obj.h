@@ -20,8 +20,10 @@
 #include <string>
 #include <map>
 
-std::string print_obj_affects(const obj_affected_type &affect);
-void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
+std::string print_obj_affects(obj_affected_type &affect);
+void print_obj_affects(CHAR_DATA *ch, obj_affected_type &affect);
+void set_obj_eff(OBJ_DATA *itemobj, EApplyLocation type, int mod);
+void set_obj_aff(OBJ_DATA *itemobj, EAffectFlag bitv);
 
 /// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
 /// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()

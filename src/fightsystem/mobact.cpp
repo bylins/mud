@@ -1404,9 +1404,8 @@ bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict) {
 			return true;
 	}
 	if (AGRESSOR(vict))
-		for (auto iter = tmp_guard.agro_argressors_in_zones.begin(); iter != tmp_guard.agro_argressors_in_zones.end();
-			 iter++) {
-			if (*iter == AGRESSOR(vict) / 100) return true;
+		for (int & agro_argressors_in_zone : tmp_guard.agro_argressors_in_zones) {
+			if (agro_argressors_in_zone == AGRESSOR(vict) / 100) return true;
 		}
 
 	return false;

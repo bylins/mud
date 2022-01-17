@@ -230,7 +230,8 @@ set(SOURCES
 		src/cmd/employ.cpp
         src/cmd/follow.cpp
 		src/structs/flag_data.cpp
-		)
+        src/crafts/jewelry.cpp
+		src/crafts/mining.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -440,7 +441,8 @@ set(HEADERS
 		src/graph.h
 		src/structs/flag_data.h
 		src/entities/entity_constants.h
-		)
+		src/crafts/jewelry.h
+		src/crafts/mining.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

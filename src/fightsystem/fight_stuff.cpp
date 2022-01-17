@@ -1132,7 +1132,7 @@ void alterate_object(OBJ_DATA *obj, int dam, int chance) {
 }
 
 void alt_equip(CHAR_DATA *ch, int pos, int dam, int chance) {
-	// calculate chance if
+	// calculate drop_chance if
 	if (pos == kNowhere) {
 		pos = number(0, 100);
 		if (pos < 3)

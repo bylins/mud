@@ -1,5 +1,5 @@
-#ifndef __SPELLS_INFO__
-#define __SPELLS_INFO__
+#ifndef SPELLS_INFO_H_
+#define SPELLS_INFO_H_
 
 #include "classes/class_constants.h"
 #include "structs/structs.h"
@@ -17,9 +17,9 @@ struct spellInfo_t {
 	int class_change[NUM_PLAYER_CLASSES][kNumKins];
 	long danger;
 	bitvector_t routines;
-	byte violent;
-	int targets;        // See below for use with TAR_XXX  //
-	byte spell_class;
+	int violent;
+	int targets;
+	int spell_class;
 	const char *name;
 	const char *syn;
 };
@@ -41,7 +41,7 @@ struct spell_create_type {
 extern struct spellInfo_t spell_info[];
 extern struct spell_create_type spell_create[];
 
-void initSpells(void);
+void initSpells();
 const char *spell_name(int num);
 
-#endif //__SPELLS_INFO__
+#endif //SPELLS_INFO_H_

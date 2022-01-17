@@ -311,20 +311,20 @@ void sedit::show_main(CHAR_DATA *ch) {
 	snprintf(buf_, sizeof(buf_), "%s%2d%s) Добавить активатор\r\n",
 			 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
 	out += buf_;
-	for (auto k = olc_set.activ_list.begin(); k != olc_set.activ_list.end(); ++k) {
-		if (!k->second.prof.all()) {
+	for (auto & k : olc_set.activ_list) {
+		if (!k.second.prof.all()) {
 			std::string prof;
-			print_bitset(k->second.prof, pc_class_name, ",", prof);
+			print_bitset(k.second.prof, pc_class_name, ",", prof);
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Редактировать активатор: %s%d (%s)%s\r\n",
 					 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
-					 CCCYN(ch, C_NRM), k->first, prof.c_str(),
+					 CCCYN(ch, C_NRM), k.first, prof.c_str(),
 					 CCNRM(ch, C_NRM));
 		} else {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Редактировать активатор: %s%d%s\r\n",
 					 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
-					 CCCYN(ch, C_NRM), k->first, CCNRM(ch, C_NRM));
+					 CCCYN(ch, C_NRM), k.first, CCNRM(ch, C_NRM));
 		}
 		out += buf_;
 	}
@@ -417,11 +417,11 @@ void sedit::show_activ_edit(CHAR_DATA *ch) {
 	out += buf_;
 
 	int cnt = 5;
-	for (auto i = activ.apply.begin(); i != activ.apply.end(); ++i) {
-		if (i->location > 0) {
+	for (auto apply : activ.apply) {
+		if (apply.location > 0) {
 			snprintf(buf_, sizeof(buf_), "%s%2d%s) Наводимый аффект : %s",
 					 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
-					 print_obj_affects(*i).c_str());
+					 print_obj_affects(apply).c_str());
 		} else {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Наводимый аффект : %s%s%s\r\n",

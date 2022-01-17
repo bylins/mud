@@ -17,36 +17,36 @@ DESCRIPTOR_DATA::DESCRIPTOR_DATA() : bad_pws(0),
 									 desc_num(0),
 									 input_time(0),
 									 login_time(0),
-									 showstr_head(0),
-									 showstr_vector(0),
+									 showstr_head(nullptr),
+									 showstr_vector(nullptr),
 									 showstr_count(0),
 									 showstr_page(0),
 									 max_str(0),
-									 backstr(0),
+									 backstr(nullptr),
 									 mail_to(0),
 									 has_prompt(0),
-									 output(0),
-									 history(0),
+									 output(nullptr),
+									 history(nullptr),
 									 history_pos(0),
 									 bufptr(0),
 									 bufspace(0),
-									 large_outbuf(0),
-									 character(0),
-									 original(0),
-									 snooping(0),
-									 snoop_by(0),
-									 next(0),
-									 olc(0),
+									 large_outbuf(nullptr),
+									 character(nullptr),
+									 original(nullptr),
+									 snooping(nullptr),
+									 snoop_by(nullptr),
+									 next(),
+									 olc(nullptr),
 									 keytable(0),
 									 options(0),
 									 deflate(nullptr),
 									 mccp_version(0),
 									 ip(0),
-									 registered_email(0),
-									 pers_log(0),
+									 registered_email(false),
+									 pers_log(nullptr),
 									 cur_vnum(0),
 									 old_vnum(0),
-									 snoop_with_map(0),
+									 snoop_with_map(false),
 									 m_msdp_support(false),
 									 m_msdp_last_max_hit(0),
 									 m_msdp_last_max_move(0) {
@@ -85,18 +85,18 @@ void DESCRIPTOR_DATA::msdp_report_changed_vars() {
 	}
 }
 
-void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output) const {
+void DESCRIPTOR_DATA::string_to_client_encoding(const char *in_str, char *out_str) const {
 	switch (keytable) {
-		case kCodePageAlt: for (; *input; *output = KtoA(*input), input++, output++);
+		case kCodePageAlt: for (; *in_str; *out_str = KtoA(*in_str), in_str++, out_str++);
 			break;
 
 		case kCodePageWin:
-			for (; *input; input++, output++) {
-				*output = KtoW(*input);
+			for (; *in_str; in_str++, out_str++) {
+				*out_str = KtoW(*in_str);
 
 				// 0xFF is cp1251 'я' and Telnet IAC, so escape it with another IAC
-				if (*output == '\xFF') {
-					*++output = '\xFF';
+				if (*out_str == '\xFF') {
+					*++out_str = '\xFF';
 				}
 			}
 			break;
@@ -104,20 +104,20 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output)
 		case kCodePageWinzOld:
 		case kCodePageWinzZ:
 			// zMUD before 6.39 or after for backward compatibility  - replace я with z
-			for (; *input; *output = KtoW2(*input), input++, output++);
+			for (; *in_str; *out_str = KtoW2(*in_str), in_str++, out_str++);
 			break;
 
 		case kCodePageWinz:
 			// zMUD after 6.39 and CMUD support 'я' but with some issues
-			for (; *input; input++, output++) {
-				*output = KtoW(*input);
+			for (; *in_str; in_str++, out_str++) {
+				*out_str = KtoW(*in_str);
 
 				// 0xFF is cp1251 'я' and Telnet IAC, so escape it with antother IAC
 				// also there is a bug in zMUD, meaning we need to add an extra byte
-				if (*output == '\xFF') {
-					*++output = '\xFF';
+				if (*out_str == '\xFF') {
+					*++out_str = '\xFF';
 					// make it obvious for other clients something is wrong
-					*++output = '?';
+					*++out_str = '?';
 				}
 			}
 			break;
@@ -126,15 +126,15 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char *input, char *output)
 			// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
 			// contain character with code 0xff which telnet interprets as IAC.
 			// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
-			koi_to_utf8(const_cast<char *>(input), output);
+			koi_to_utf8(const_cast<char *>(in_str), out_str);
 			break;
 
-		default: for (; *input; *output = *input, input++, output++);
+		default: for (; *in_str; *out_str = *in_str, in_str++, out_str++);
 			break;
 	}
 
 	if (keytable != kCodePageUTF8) {
-		*output = '\0';
+		*out_str = '\0';
 	}
 }
 

@@ -1187,7 +1187,7 @@ inline void LOCK_DOOR(const room_rnum room, OBJ_DATA *obj, const int door) {
 }
 
 // для кейсов
-extern std::vector<_case> cases;;
+extern std::vector<TreasureCase> cases;;
 void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 	bool deaf = false;
 	int other_room = 0;
@@ -1271,8 +1271,8 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 					if (GET_OBJ_VNUM(obj) == cases[i].vnum) {
 						if (!deaf)
 							send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
-						// chance = cases[i].chance;
-						// chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
+						// drop_chance = cases[i].drop_chance;
+						// drop_chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
 						const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
 						const int random_number = number(0, maximal_chance);
 						vnum = cases[i].vnum_objs[random_number];

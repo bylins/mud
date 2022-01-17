@@ -22,7 +22,7 @@ const char* nothing_string = "ничего";
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag) {
 
 	long nr = 0;
-	int fail;
+	bitvector_t fail;
 	int plane = 0;
 	char c = 'a';
 

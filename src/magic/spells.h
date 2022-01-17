@@ -8,8 +8,8 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
-#ifndef _SPELLS_H_
-#define _SPELLS_H_
+#ifndef SPELLS_H_
+#define SPELLS_H_
 
 #include "skills.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
@@ -535,6 +535,6 @@ void clear();
 const int HOURS_PER_WARCRY = 4;
 const int HOURS_PER_TURN_UNDEAD = 8;
 
-#endif
+#endif // SPELLS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
