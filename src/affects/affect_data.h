@@ -1,8 +1,8 @@
 #ifndef BYLINS_AFFECT_DATA_H
 #define BYLINS_AFFECT_DATA_H
 
+#include "affect_contants.h"
 #include "structs/flag_data.h"
-
 #include "structs/structs.h"
 
 #include <vector>
@@ -25,9 +25,9 @@ class AFFECT_DATA {
 	using shared_ptr = std::shared_ptr<AFFECT_DATA<TLocation>>;
 
 	AFFECT_DATA() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
-					battleflag(0), bitvector(0), caster_id(0), must_handled(0),
+					battleflag(0), bitvector(0), caster_id(0), must_handled(false),
 					apply_time(0) {};
-	bool removable() const;
+	[[nodiscard]] bool removable() const;
 
 	sh_int type;        // The type of spell that caused this      //
 	int duration;    // For how long its effects will last      //
@@ -51,7 +51,7 @@ void battle_affect_update(CHAR_DATA *ch);
 void mobile_affect_update();
 
 void affect_total(CHAR_DATA *ch);
-void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, bool add);
+void affect_modify(CHAR_DATA *ch, byte loc, int mod, EAffectFlag bitv, bool add);
 void affect_to_char(CHAR_DATA *ch, const AFFECT_DATA<EApplyLocation> &af);
 void affect_from_char(CHAR_DATA *ch, int type);
 bool affected_by_spell(CHAR_DATA *ch, int type);

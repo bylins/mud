@@ -33,7 +33,6 @@ extern const char *resistance_types[];
 extern const char *player_bits[];
 extern const char *action_bits[];
 extern const char *preference_bits[];
-extern const char *affected_bits[];
 extern const char *connected_types[];
 extern const char *where[];
 extern const char *item_types[];
@@ -68,14 +67,10 @@ extern struct int_app_type int_app[];
 extern const size_t INT_APP_SIZE;
 extern struct cha_app_type cha_app[];
 extern struct size_app_type size_app[];
-extern class_app_type class_app[];
 extern struct weapon_app_type weapon_app[];
 extern std::vector<pray_affect_type> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
-
-typedef std::array<weapon_affect_types, WAFF_COUNT> weapon_affect_t;
-extern weapon_affect_t weapon_affect;
 
 extern int mana[];
 extern int mana_gain_cs[];
@@ -84,10 +79,7 @@ extern const char *material_name[];
 extern struct attack_hit_type attack_hit_text[];
 extern const char *godslike_bits[];
 extern std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name;
-
-//MZ.load
 extern struct zone_type *zone_types;
-//-MZ.load
 
 //The number of changing coefficients (the others are unchanged)
 #define    MAX_EXP_COEFFICIENTS_USED 15

@@ -231,7 +231,8 @@ set(SOURCES
         src/cmd/follow.cpp
 		src/structs/flag_data.cpp
         src/crafts/jewelry.cpp
-		src/crafts/mining.cpp)
+		src/crafts/mining.cpp
+		src/classes/class_constants.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -442,7 +443,8 @@ set(HEADERS
 		src/structs/flag_data.h
 		src/entities/entity_constants.h
 		src/crafts/jewelry.h
-		src/crafts/mining.h)
+		src/crafts/mining.h
+		src/affects/affect_contants.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -619,7 +621,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES})
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/affects/affect_contants.cpp)
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)

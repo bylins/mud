@@ -5,6 +5,8 @@
 	Константы классов персонажей
 */
 
+#include "affects/affect_contants.h"
+
 enum {
 	CLASS_UNDEFINED = -1,
 	CLASS_CLERIC = 0,
@@ -46,6 +48,25 @@ enum {
 #define MASK_MAGES        (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER)
 #define MASK_CASTER       (MASK_BATTLEMAGE | MASK_DEFENDERMAGE | MASK_CHARMMAGE | MASK_NECROMANCER | MASK_CLERIC | MASK_DRUID)
 #define MASK_FIGHTERS     (MASK_THIEF | MASK_WARRIOR | MASK_ASSASINE | MASK_GUARD | MASK_PALADINE | MASK_RANGER | MASK_SMITH)
+
+struct extra_affects_type {
+	EAffectFlag affect;
+	bool set_or_clear;
+};
+
+struct class_app_type {
+	using extra_affects_list_t = std::vector<extra_affects_type>;
+
+	int unknown_weapon_fault;
+	int koef_con;
+	int base_con;
+	int min_con;
+	int max_con;
+
+	const extra_affects_list_t *extra_affects;
+};
+
+extern class_app_type class_app[];
 
 #endif // __CLASS_CONSTANTS_HPP__
 

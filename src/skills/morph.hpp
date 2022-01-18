@@ -1,8 +1,9 @@
 #ifndef MORPH_HPP_INCLUDED
 #define MORPH_HPP_INCLUDED
 
-#include "skills.h"
+#include "affects/affect_contants.h"
 #include "comm.h"
+#include "skills.h"
 
 #include <list>
 #include <set>
