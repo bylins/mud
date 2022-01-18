@@ -2484,7 +2484,7 @@ bool is_dark(room_rnum room) {
 
 	// если на комнате висит флаг всегда светло, то добавляем
 	// +2 к коэф
-	if (ROOM_AFFECTED(room, room_spells::EAffect::kLight))
+	if (ROOM_AFFECTED(room, room_spells::ERoomAffect::kLight))
 		coef += 2.0;
 	// если светит луна и комната !помещение и !город
 	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity) && (IS_MOONLIGHT(room)))

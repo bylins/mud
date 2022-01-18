@@ -45,6 +45,25 @@ class AFFECT_DATA {
 template<>
 bool AFFECT_DATA<EApplyLocation>::removable() const;
 
+// Возможно эту структуру следует перенести в отдельный модуль для обкаста предметов.
+struct obj_affected_type {
+	EApplyLocation location;    // Which ability to change (APPLY_XXX) //
+	int modifier;                // How much it changes by              //
+
+	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
+
+	obj_affected_type(EApplyLocation __location, int __modifier)
+		: location(__location), modifier(__modifier) {}
+
+	// для сравнения в sedit
+	bool operator!=(const obj_affected_type &r) const {
+		return (location != r.location || modifier != r.modifier);
+	}
+	bool operator==(const obj_affected_type &r) const {
+		return !(*this != r);
+	}
+};
+
 void pulse_affect_update(CHAR_DATA *ch);
 void player_affect_update();
 void battle_affect_update(CHAR_DATA *ch);

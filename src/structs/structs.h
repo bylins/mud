@@ -174,110 +174,6 @@ constexpr typename std::underlying_type<E>::type to_underlying(E e) {
 	return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
-// Modifier constants used with obj affects ('A' fields) //
-enum EApplyLocation {
-	APPLY_NONE = 0,    // No effect         //
-	APPLY_STR = 1,    // Apply to strength    //
-	APPLY_DEX = 2,    // Apply to dexterity      //
-	APPLY_INT = 3,    // Apply to constitution   //
-	APPLY_WIS = 4,    // Apply to wisdom      //
-	APPLY_CON = 5,    // Apply to constitution   //
-	APPLY_CHA = 6,    // Apply to charisma    //
-	APPLY_CLASS = 7,    // Reserved       //
-	APPLY_LEVEL = 8,    // Reserved       //
-	APPLY_AGE = 9,    // Apply to age         //
-	APPLY_CHAR_WEIGHT = 10,    // Apply to weight      //
-	APPLY_CHAR_HEIGHT = 11,    // Apply to height      //
-	APPLY_MANAREG = 12,    // Apply to max mana    //
-	APPLY_HIT = 13,    // Apply to max hit points //
-	APPLY_MOVE = 14,    // Apply to max move points   //
-	APPLY_GOLD = 15,    // Reserved       //
-	APPLY_EXP = 16,    // Reserved       //
-	APPLY_AC = 17,    // Apply to Armor Class    //
-	APPLY_HITROLL = 18,    // Apply to hitroll     //
-	APPLY_DAMROLL = 19,    // Apply to damage roll    //
-	APPLY_SAVING_WILL = 20,    // Apply to save throw: paralz   //
-	APPLY_RESIST_FIRE = 21,    // Apply to RESIST throw: fire  //
-	APPLY_RESIST_AIR = 22,    // Apply to RESIST throw: air   //
-	APPLY_SAVING_CRITICAL = 23,    // Apply to save throw: breath   //
-	APPLY_SAVING_STABILITY = 24,    // Apply to save throw: spells   //
-	APPLY_HITREG = 25,
-	APPLY_MOVEREG = 26,
-	APPLY_C1 = 27,
-	APPLY_C2 = 28,
-	APPLY_C3 = 29,
-	APPLY_C4 = 30,
-	APPLY_C5 = 31,
-	APPLY_C6 = 32,
-	APPLY_C7 = 33,
-	APPLY_C8 = 34,
-	APPLY_C9 = 35,
-	APPLY_SIZE = 36,
-	APPLY_ARMOUR = 37,
-	APPLY_POISON = 38,
-	APPLY_SAVING_REFLEX = 39,
-	APPLY_CAST_SUCCESS = 40,
-	APPLY_MORALE = 41,
-	APPLY_INITIATIVE = 42,
-	APPLY_RELIGION = 43,
-	APPLY_ABSORBE = 44,
-	APPLY_LIKES = 45,
-	APPLY_RESIST_WATER = 46,    // Apply to RESIST throw: water  //
-	APPLY_RESIST_EARTH = 47,    // Apply to RESIST throw: earth  //
-	APPLY_RESIST_VITALITY = 48,    // Apply to RESIST throw: light, dark, critical damage  //
-	APPLY_RESIST_MIND = 49,    // Apply to RESIST throw: mind magic  //
-	APPLY_RESIST_IMMUNITY = 50,    // Apply to RESIST throw: poison, disease etc.  //
-	APPLY_AR = 51,    // Apply to Magic affect resist //
-	APPLY_MR = 52,    // Apply to Magic damage resist //
-	APPLY_ACONITUM_POISON = 53,
-	APPLY_SCOPOLIA_POISON = 54,
-	APPLY_BELENA_POISON = 55,
-	APPLY_DATURA_POISON = 56,
-	APPLY_FREE_FOR_USE = 57, // занимайте
-	APPLY_BONUS_EXP = 58,
-	APPLY_BONUS_SKILLS = 59,
-	APPLY_PLAQUE = 60,
-	APPLY_MADNESS = 61,
-	APPLY_PR = 62,
-	APPLY_RESIST_DARK = 63,
-	APPLY_VIEW_DT = 64,
-	APPLY_PERCENT_EXP = 65, //бонус +экспа
-	APPLY_PERCENT_DAM = 66, // бонус +повреждение
-	APPLY_SPELL_BLINK = 67, // мигание заклом
-	NUM_APPLIES
-};
-
-template<>
-const std::string &NAME_BY_ITEM<EApplyLocation>(EApplyLocation item);
-template<>
-EApplyLocation ITEM_BY_NAME<EApplyLocation>(const std::string &name);
-
-// APPLY - эффекты для комнат //
-enum ERoomApplyLocation {
-	APPLY_ROOM_NONE = 0,
-	APPLY_ROOM_POISON = 1,    // Изменяет в комнате уровень ядности //
-	APPLY_ROOM_FLAME = 2,    // Изменяет в комнате уровень огня (для потомков) //
-	NUM_ROOM_APPLIES = 3
-};
-
-struct obj_affected_type {
-	EApplyLocation location;    // Which ability to change (APPLY_XXX) //
-	int modifier;                // How much it changes by              //
-
-	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
-
-	obj_affected_type(EApplyLocation __location, int __modifier)
-		: location(__location), modifier(__modifier) {}
-
-	// для сравнения в sedit
-	bool operator!=(const obj_affected_type &r) const {
-		return (location != r.location || modifier != r.modifier);
-	}
-	bool operator==(const obj_affected_type &r) const {
-		return !(*this != r);
-	}
-};
-
 constexpr bitvector_t TRACK_NPC = 1 << 0;
 constexpr bitvector_t TRACK_HIDE = 1 << 1;
 
@@ -752,14 +648,6 @@ struct social_keyword {
 
 extern struct social_messg *soc_mess_list;
 extern struct social_keyword *soc_keys_list;
-
-struct pray_affect_type {
-	int metter;
-	EApplyLocation location;
-	int modifier;
-	uint32_t bitvector;
-	int battleflag;
-};
 
 const __uint8_t GAPPLY_NONE = 0;
 const __uint8_t GAPPLY_SKILL_SUCCESS = 1;

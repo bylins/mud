@@ -5,12 +5,13 @@
 #ifndef ROOM_HPP_INCLUDED
 #define ROOM_HPP_INCLUDED
 
+#include "affects/affect_data.h"
+#include "constants.h"
 #include "dg_script/dg_scripts.h"
 #include "entities/entity_constants.h"
 #include "entities/obj.h"
-#include "constants.h"
+#include "magic/magic_rooms.h"
 #include "sysdep.h"
-#include "affects/affect_data.h"
 
 class EXIT_DATA {
  public:
@@ -60,7 +61,6 @@ struct room_property_data {
 };
 
 struct ROOM_DATA {
-	using room_affects_list_t = std::list<AFFECT_DATA<ERoomApplyLocation>::shared_ptr>;
 	using exit_data_ptr = std::shared_ptr<EXIT_DATA>;
 	using people_t = std::list<CHAR_DATA *>;
 
@@ -91,7 +91,7 @@ struct ROOM_DATA {
 	OBJ_DATA *contents;    // List of items in room              //
 	people_t people;    // List of NPC / PC in room           //
 
-	room_affects_list_t affected;    // affected by what spells       //
+	room_spells::RoomAffects affected;    // affected by what spells       //
 	FLAG_DATA affected_by;    // флаги которые в отличии от room_flags появляются от аффектов
 	//и не могут быть записаны на диск
 

@@ -10,12 +10,13 @@
 #ifndef __ITEM_CREATION_HPP__
 #define __ITEM_CREATION_HPP__
 
+#include "affects/affect_data.h"
 #include "conf.h"
 #include "entities/entity_constants.h"
 #include "features.h"
 #include "interpreter.h"
 #include "skills.h"
-#include "structs/flag_data.h"
+//#include "structs/flag_data.h"
 
 #include <string>
 #include <list>

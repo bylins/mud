@@ -3,6 +3,7 @@
 #include "magic/spells_info.h"
 #include "modify.h"
 #include "entities/char.h"
+//#include "entities/room.h" // посмотреть, мб разумней вынести тип списка аффектов из комнат
 #include "magic.h" //Включено ради material_component_processing, который надо, по-хлорошему, вообще в отдеьный модуль.
 
 #include <iomanip>
@@ -13,33 +14,28 @@ extern int what_sky;
 
 namespace room_spells {
 
-const int TIME_SPELL_RUNE_LABEL = 300;
+const int kRuneLabelDuration = 300;
 
 std::list<ROOM_DATA *> affected_rooms;
 
-void removeSingleRoomAffect(long casterID, int spellnum);
-void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApplyLocation>::shared_ptr &aff);
+void RemoveSingleRoomAffect(long casterID, int spellnum);
+void HandleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApply>::shared_ptr &aff);
 void sendAffectOffMessageToRoom(int aff, room_rnum room);
-void addRoom(ROOM_DATA *room);
-void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApplyLocation> &af);
-void affect_room_join(ROOM_DATA *room,
-					  AFFECT_DATA<ERoomApplyLocation> &af,
-					  bool add_dur,
-					  bool avg_dur,
-					  bool add_mod,
-					  bool avg_mod);
-void affect_room_total(ROOM_DATA *room);
-void affect_to_room(ROOM_DATA *room, const AFFECT_DATA<ERoomApplyLocation> &af);
+void AddRoomToAffected(ROOM_DATA *room);
+void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af);
+void affect_room_join(ROOM_DATA *room, AFFECT_DATA<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+void RefreshRoomAffects(ROOM_DATA *room);
+void affect_to_room(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af);
 void affect_room_modify(ROOM_DATA *room, byte loc, sbyte mod, bitvector_t bitv, bool add);
 
-void RemoveAffect(ROOM_DATA *room, const ROOM_DATA::room_affects_list_t::iterator &affect) {
+void RemoveAffect(ROOM_DATA *room, const RoomAffectIt &affect) {
 	if (room->affected.empty()) {
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
 	}
 	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, false);
 	room->affected.erase(affect);
-	affect_room_total(room);
+	RefreshRoomAffects(room);
 }
 
 RoomAffectIt FindAffect(ROOM_DATA *room, int type) {
@@ -52,9 +48,9 @@ RoomAffectIt FindAffect(ROOM_DATA *room, int type) {
 	return room->affected.end();
 }
 
-bool IsZoneRoomAffected(int zoneVNUM, ESpell spell) {
+bool IsZoneRoomAffected(int zone_vnum, ESpell spell) {
 	for (auto & affected_room : affected_rooms) {
-		if (affected_room->zone_rn == zoneVNUM && IsRoomAffected(affected_room, spell)) {
+		if (affected_room->zone_rn == zone_vnum && IsRoomAffected(affected_room, spell)) {
 			return true;
 		}
 	}
@@ -107,10 +103,10 @@ CHAR_DATA *find_char_in_room(long char_id, ROOM_DATA *room) {
 	return nullptr;
 }
 
-ROOM_DATA *FindAffectedRoom(long casterID, int spellnum) {
+ROOM_DATA *FindAffectedRoom(long caster_id, int spellnum) {
 	for (const auto room : affected_rooms) {
 		for (const auto &af : room->affected) {
-			if (af->type == spellnum && af->caster_id == casterID) {
+			if (af->type == spellnum && af->caster_id == caster_id) {
 				return room;
 			}
 		}
@@ -119,7 +115,7 @@ ROOM_DATA *FindAffectedRoom(long casterID, int spellnum) {
 }
 
 template<typename F>
-int removeAffectFromRooms(int spellnum, const F &filter) {
+int RemoveAffectFromRooms(int spellnum, const F &filter) {
 	for (const auto room : affected_rooms) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
@@ -132,10 +128,10 @@ int removeAffectFromRooms(int spellnum, const F &filter) {
 	return 0;
 }
 
-void removeSingleRoomAffect(long casterID, int spellnum) {
+void RemoveSingleRoomAffect(long casterID, int spellnum) {
 	auto filter =
 		[&casterID, &spellnum](auto &af) { return (af->caster_id == casterID && af->type == spellnum); };
-	removeAffectFromRooms(spellnum, filter);
+	RemoveAffectFromRooms(spellnum, filter);
 }
 
 int removeControlledRoomAffect(CHAR_DATA *ch) {
@@ -144,7 +140,7 @@ int removeControlledRoomAffect(CHAR_DATA *ch) {
 		[&casterID](auto &af) {
 			return (af->caster_id == casterID && IS_SET(spell_info[af->type].routines, MAG_NEED_CONTROL));
 		};
-	return removeAffectFromRooms(0, filter);
+	return RemoveAffectFromRooms(0, filter);
 }
 
 void sendAffectOffMessageToRoom(int affectType, room_rnum room) {
@@ -155,14 +151,14 @@ void sendAffectOffMessageToRoom(int affectType, room_rnum room) {
 	};
 }
 
-void addRoom(ROOM_DATA *room) {
+void AddRoomToAffected(ROOM_DATA *room) {
 	const auto it = std::find(affected_rooms.begin(), affected_rooms.end(), room);
 	if (it == affected_rooms.end())
 		affected_rooms.push_back(room);
 }
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
-void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApplyLocation>::shared_ptr &aff) {
+void HandleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApply>::shared_ptr &aff) {
 	// Аффект в комнате.
 	// Проверяем на то что нам передали бяку в параметрах.
 	assert(aff);
@@ -218,19 +214,23 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_CONE_OF_COLD, ch->get_level());
 					break;
 				case 5: send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
-					act("Из туч хлынул дождь кислоты!\r\n", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					act("Из туч хлынул дождь кислоты!\r\n",
+						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_ACID, ch->get_level());
 					break;
 				case 4: send_to_char("Из туч ударили разряды молний!\r\n", ch);
-					act("Из туч ударили разряды молний!\r\n", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					act("Из туч ударили разряды молний!\r\n",
+						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_LIGHTNING_BOLT, ch->get_level());
 					break;
 				case 3: send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
-					act("Из тучи посыпались шаровые молнии!\r\n", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					act("Из тучи посыпались шаровые молнии!\r\n",
+						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_CALL_LIGHTNING, ch->get_level());
 					break;
 				case 2: send_to_char("Буря завыла, закручиваясь в вихри!\r\n", ch);
-					act("Буря завыла, закручиваясь в вихри!\r\n", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					act("Буря завыла, закручиваясь в вихри!\r\n",
+						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_WHIRLWIND, ch->get_level());
 					break;
 				case 1: what_sky = SKY_CLOUDLESS;
@@ -251,7 +251,7 @@ void handleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 	}
 }
 
-void room_affect_update() {
+void UpdateRoomsAffects() {
 	CHAR_DATA *ch;
 	int spellnum;
 
@@ -311,7 +311,7 @@ void room_affect_update() {
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			affect->apply_time++;
 			if (affect->must_handled) {
-				handleRoomAffect(*room, ch, affect);
+				HandleRoomAffect(*room, ch, affect);
 			}
 		}
 
@@ -341,13 +341,13 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 		return 0;
 	}
 
-	AFFECT_DATA<ERoomApplyLocation> af[MAX_SPELL_AFFECTS];
+	AFFECT_DATA<ERoomApply> af[MAX_SPELL_AFFECTS];
 	for (i = 0; i < MAX_SPELL_AFFECTS; i++) {
 		af[i].type = spellnum;
 		af[i].bitvector = 0;
 		af[i].modifier = 0;
 		af[i].battleflag = 0;
-		af[i].location = APPLY_ROOM_NONE;
+		af[i].location = kNone;
 		af[i].caster_id = 0;
 		af[i].must_handled = false;
 		af[i].apply_time = 0;
@@ -355,10 +355,10 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 
 	switch (spellnum) {
 		case SPELL_FORBIDDEN: af[0].type = spellnum;
-			af[0].location = APPLY_ROOM_NONE;
+			af[0].location = kNone;
 			af[0].duration = (1 + (GET_REAL_LEVEL(ch) + 14) / 15) * 30;
 			af[0].caster_id = GET_ID(ch);
-			af[0].bitvector = EAffect::kForbidden;
+			af[0].bitvector = ERoomAffect::kForbidden;
 			af[0].must_handled = false;
 			accum_duration = false;
 			update_spell = true;
@@ -379,11 +379,11 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			}
 			break;
 		case SPELL_ROOM_LIGHT: af[0].type = spellnum;
-			af[0].location = APPLY_ROOM_NONE;
+			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
 			af[0].caster_id = GET_ID(ch);
-			af[0].bitvector = EAffect::kLight;
+			af[0].bitvector = ERoomAffect::kLight;
 			af[0].must_handled = false;
 			accum_duration = true;
 			update_spell = true;
@@ -392,10 +392,10 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			break;
 
 		case SPELL_POISONED_FOG: af[0].type = spellnum;
-			af[0].location = APPLY_ROOM_POISON;
+			af[0].location = kPoison;
 			af[0].modifier = 50;
 			af[0].duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
-			af[0].bitvector = EAffect::kPoisonFog;
+			af[0].bitvector = ERoomAffect::kPoisonFog;
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
 			update_spell = false;
@@ -403,11 +403,11 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			break;
 
 		case SPELL_METEORSTORM: af[0].type = spellnum;
-			af[0].location = APPLY_ROOM_NONE;
+			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = 3;
 			af[0].caster_id = GET_ID(ch);
-			af[0].bitvector = EAffect::kMeteorstorm;
+			af[0].bitvector = ERoomAffect::kMeteorstorm;
 			af[0].must_handled = true;
 			accum_duration = false;
 			update_spell = false;
@@ -419,7 +419,7 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			af[0].duration = 8;
 			af[0].must_handled = true;
 			af[0].caster_id = GET_ID(ch);
-			af[0].bitvector = EAffect::kThunderstorm;
+			af[0].bitvector = ERoomAffect::kThunderstorm;
 			update_spell = false;
 			to_char = "Вы ощутили в небесах силу бури и призвали ее к себе.";
 			to_room = "$n проревел$g заклинание. Вы услышали раскаты далекой грозы.";
@@ -435,11 +435,11 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 				break;
 			}
 			af[0].type = spellnum;
-			af[0].location = APPLY_ROOM_NONE;
+			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = (TIME_SPELL_RUNE_LABEL + (GET_REAL_REMORT(ch) * 10)) * 3;
+			af[0].duration = (kRuneLabelDuration + (GET_REAL_REMORT(ch) * 10)) * 3;
 			af[0].caster_id = GET_ID(ch);
-			af[0].bitvector = EAffect::kRuneLabel;
+			af[0].bitvector = ERoomAffect::kRuneLabel;
 			af[0].must_handled = false;
 			accum_duration = false;
 			update_spell = true;
@@ -455,11 +455,11 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 				break;
 			}
 			af[0].type = spellnum;
-			af[0].location = APPLY_ROOM_NONE;
+			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = 30 + (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) * dice(1, 3);
 			af[0].caster_id = GET_ID(ch);
-			af[0].bitvector = EAffect::kHypnoticPattern;
+			af[0].bitvector = ERoomAffect::kHypnoticPattern;
 			af[0].must_handled = false;
 			accum_duration = false;
 			update_spell = false;
@@ -474,18 +474,20 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 				break;
 			}
 			af[0].type = spellnum;
-			af[0].location = APPLY_ROOM_NONE;
+			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = 1 + GET_REAL_LEVEL(ch) / 7;
 			af[0].caster_id = GET_ID(ch);
-			af[0].bitvector = EAffect::kBlackTentacles;
+			af[0].bitvector = ERoomAffect::kBlackTentacles;
 			af[0].must_handled = true;
 			accum_duration = false;
 			update_spell = false;
 			to_char =
-				"Вы выкрикнули несколько мерзко звучащих слов и притопнули.\r\nИз-под ваших ног полезли скрюченные мертвые руки.";
+				"Вы выкрикнули несколько мерзко звучащих слов и притопнули.\r\n"
+				"Из-под ваших ног полезли скрюченные мертвые руки.";
 			to_room =
-				"$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g.\r\nИз-под ваших ног полезли скрюченные мертвые руки.";
+				"$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g.\r\n"
+				"Из-под ваших ног полезли скрюченные мертвые руки.";
 			break;
 	}
 	if (success) {
@@ -503,7 +505,7 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			if (RoomAffect && RoomAffect->caster_id == GET_ID(ch) && !update_spell) {
 				success = false;
 			} else if (only_one) {
-				removeSingleRoomAffect(GET_ID(ch), spellnum);
+				RemoveSingleRoomAffect(GET_ID(ch), spellnum);
 			}
 		}
 	}
@@ -512,7 +514,7 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++) {
 		af[i].type = spellnum;
 		if (af[i].bitvector
-			|| af[i].location != APPLY_ROOM_NONE
+			|| af[i].location != kNone
 			|| af[i].must_handled) {
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (update_spell) {
@@ -522,7 +524,7 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 			}
 			//Вставляем указатель на комнату в список обкастованных, с проверкой на наличие
 			//Здесь - потому что все равно надо проверять, может это не первый спелл такого типа на руме
-			addRoom(room);
+			AddRoomToAffected(room);
 		}
 	}
 
@@ -542,10 +544,10 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 
 }
 
-int GetUniqueAffectDuration(long casterID, int spellnum) {
+int GetUniqueAffectDuration(long caster_id, int spellnum) {
 	for (const auto &room : affected_rooms) {
 		for (const auto &af : room->affected) {
-			if (af->type == spellnum && af->caster_id == casterID) {
+			if (af->type == spellnum && af->caster_id == caster_id) {
 				return af->duration;
 			}
 		}
@@ -553,7 +555,7 @@ int GetUniqueAffectDuration(long casterID, int spellnum) {
 	return 0;
 }
 
-void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApplyLocation> &af) {
+void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af) {
 	bool found = false;
 
 	for (const auto &hjp : room->affected) {
@@ -567,7 +569,7 @@ void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApplyLocati
 				hjp->duration = af.duration;
 			}
 
-			affect_room_total(room);
+			RefreshRoomAffects(room);
 			found = true;
 			break;
 		}
@@ -578,12 +580,8 @@ void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApplyLocati
 	}
 }
 
-void affect_room_join(ROOM_DATA *room,
-					  AFFECT_DATA<ERoomApplyLocation> &af,
-					  bool add_dur,
-					  bool avg_dur,
-					  bool add_mod,
-					  bool avg_mod) {
+void affect_room_join(ROOM_DATA *room, AFFECT_DATA<ERoomApply> &af,
+					  bool add_dur, bool avg_dur, bool add_mod, bool avg_mod) {
 	bool found = false;
 
 	if (af.location) {
@@ -622,7 +620,7 @@ void affect_room_join(ROOM_DATA *room,
 }
 
 // Тут осуществляется апдейт аффектов влияющих на комнату
-void affect_room_total(ROOM_DATA *room) {
+void RefreshRoomAffects(ROOM_DATA *room) {
 	// А че тут надо делать пересуммирование аффектов от заклов.
 	/* Вобщем все комнаты имеют (вроде как базовую и
 	   добавочную характеристику) если скажем ввести
@@ -639,13 +637,13 @@ void affect_room_total(ROOM_DATA *room) {
 	}
 }
 
-void affect_to_room(ROOM_DATA *room, const AFFECT_DATA<ERoomApplyLocation> &af) {
-	AFFECT_DATA<ERoomApplyLocation>::shared_ptr new_affect(new AFFECT_DATA<ERoomApplyLocation>(af));
+void affect_to_room(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af) {
+	AFFECT_DATA<ERoomApply>::shared_ptr new_affect(new AFFECT_DATA<ERoomApply>(af));
 
 	room->affected.push_front(new_affect);
 
 	affect_room_modify(room, af.location, af.modifier, af.bitvector, true);
-	affect_room_total(room);
+	RefreshRoomAffects(room);
 }
 
 void affect_room_modify(ROOM_DATA *room, byte loc, sbyte mod, bitvector_t bitv, bool add) {
@@ -657,8 +655,8 @@ void affect_room_modify(ROOM_DATA *room, byte loc, sbyte mod, bitvector_t bitv, 
 	}
 
 	switch (loc) {
-		case APPLY_ROOM_NONE: break;
-		case APPLY_ROOM_POISON:
+		case kNone: break;
+		case kPoison:
 			// Увеличиваем загаженность от аффекта вызываемого SPELL_POISONED_FOG
 			// Хотя это сделанно скорее для примера пока не обрабатывается вообще
 			GET_ROOM_ADD_POISON(room) += mod;

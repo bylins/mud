@@ -67,6 +67,15 @@ extern const size_t INT_APP_SIZE;
 extern struct cha_app_type cha_app[];
 extern struct size_app_type size_app[];
 extern struct weapon_app_type weapon_app[];
+
+struct pray_affect_type {
+	int metter;
+	EApplyLocation location;
+	int modifier;
+	uint32_t bitvector;
+	int battleflag;
+};
+
 extern std::vector<pray_affect_type> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];
