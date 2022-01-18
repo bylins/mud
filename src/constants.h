@@ -39,7 +39,6 @@ extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
 extern const char *apply_negative[];
-extern const char *apply_types[];
 extern const char *weapon_affects[];
 extern const char *anti_bits[];
 extern const char *no_bits[];

@@ -342,4 +342,178 @@ weapon_affect_t weapon_affect = {
 	weapon_affect_types{EWeaponAffectFlag::WAFF_DOMINATION, to_underlying(EAffectFlag::AFF_DOMINATION), 0}
 };
 
+
+// APPLY_x - к чему применяется аффект или бонусы предмета (по сути, урезанные аффекты)
+
+const char *apply_types[] = {"ничего",
+							 "сила",
+							 "ловкость",
+							 "интеллект",
+							 "мудрость",
+							 "телосложение",
+							 "обаяние",
+							 "профессия",
+							 "уровень",
+							 "возраст",
+							 "вес",
+							 "рост",
+							 "запоминание",
+							 "макс.жизнь",
+							 "макс.энергия",
+							 "деньги",
+							 "опыт",
+							 "защита",
+							 "попадание",
+							 "повреждение",
+							 "воля",
+							 "защита.от.стихии.огня",
+							 "защита.от.стихии.воздуха",
+							 "здоровье",
+							 "стойкость",
+							 "восст.жизни",
+							 "восст.энергии",
+							 "слот.1",
+							 "слот.2",
+							 "слот.3",
+							 "слот.4",
+							 "слот.5",
+							 "слот.6",
+							 "слот.7",
+							 "слот.8",
+							 "слот.9",
+							 "размер",
+							 "броня",
+							 "яд",
+							 "реакция",
+							 "успех.колдовства",
+							 "удача",
+							 "инициатива",
+							 "религия(НЕ СТАВИТЬ)",
+							 "поглощение",
+							 "трудолюбие",
+							 "защита.от.стихии.воды",
+							 "защита.от.стихии.земли",
+							 "живучесть",
+							 "разум",
+							 "иммунитет",
+							 "защита.от.чар",
+							 "защита.от.магических.повреждений",
+							 "яд аконита",
+							 "яд скополии",
+							 "яд белены",
+							 "яд дурмана",
+							 "не используется",
+							 "множитель опыта",
+							 "бонус ко всем умениям",
+							 "лихорадка",
+							 "безумное бормотание",
+							 "защита.от.физических.повреждений",
+							 "защита.от.магии.тьмы",
+							 "роковое предчувствие",
+							 "дополнительный бонус опыта",
+							 "дополнительный бонус повреждений",
+							 "заклинание \"волшебное уклонение\"",
+							 "\n"
+};
+
+typedef std::map<EApplyLocation, std::string> EApplyLocation_name_by_value_t;
+typedef std::map<const std::string, EApplyLocation> EApplyLocation_value_by_name_t;
+EApplyLocation_name_by_value_t EApplyLocation_name_by_value;
+EApplyLocation_value_by_name_t EApplyLocation_value_by_name;
+
+void init_EApplyLocation_ITEM_NAMES() {
+	EApplyLocation_name_by_value.clear();
+	EApplyLocation_value_by_name.clear();
+
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_NONE] = "APPLY_NONE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_STR] = "APPLY_STR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_DEX] = "APPLY_DEX";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_INT] = "APPLY_INT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_WIS] = "APPLY_WIS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CON] = "APPLY_CON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHA] = "APPLY_CHA";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CLASS] = "APPLY_CLASS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_LEVEL] = "APPLY_LEVEL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_AGE] = "APPLY_AGE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHAR_WEIGHT] = "APPLY_CHAR_WEIGHT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CHAR_HEIGHT] = "APPLY_CHAR_HEIGHT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MANAREG] = "APPLY_MANAREG";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT] = "APPLY_HIT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MOVE] = "APPLY_MOVE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_GOLD] = "APPLY_GOLD";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_EXP] = "APPLY_EXP";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_AC] = "APPLY_AC";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_HITROLL] = "APPLY_HITROLL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_DAMROLL] = "APPLY_DAMROLL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_WILL] = "APPLY_SAVING_WILL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_FIRE] = "APPLY_RESIST_FIRE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_AIR] = "APPLY_RESIST_AIR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_DARK] = "APPLY_RESIST_DARK";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_CRITICAL] = "APPLY_SAVING_CRITICAL";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_STABILITY] = "APPLY_SAVING_STABILITY";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_HITREG] = "APPLY_HITREG";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MOVEREG] = "APPLY_MOVEREG";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C1] = "APPLY_C1";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C2] = "APPLY_C2";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C3] = "APPLY_C3";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C4] = "APPLY_C4";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C5] = "APPLY_C5";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C6] = "APPLY_C6";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C7] = "APPLY_C7";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C8] = "APPLY_C8";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_C9] = "APPLY_C9";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SIZE] = "APPLY_SIZE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_ARMOUR] = "APPLY_ARMOUR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_POISON] = "APPLY_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SAVING_REFLEX] = "APPLY_SAVING_REFLEX";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_CAST_SUCCESS] = "APPLY_CAST_SUCCESS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MORALE] = "APPLY_MORALE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_INITIATIVE] = "APPLY_INITIATIVE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RELIGION] = "APPLY_RELIGION";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_ABSORBE] = "APPLY_ABSORBE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_LIKES] = "APPLY_LIKES";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_WATER] = "APPLY_RESIST_WATER";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_EARTH] = "APPLY_RESIST_EARTH";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_VITALITY] = "APPLY_RESIST_VITALITY";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_MIND] = "APPLY_RESIST_MIND";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_IMMUNITY] = "APPLY_RESIST_IMMUNITY";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_AR] = "APPLY_AR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MR] = "APPLY_MR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_ACONITUM_POISON] = "APPLY_ACONITUM_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SCOPOLIA_POISON] = "APPLY_SCOPOLIA_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_BELENA_POISON] = "APPLY_BELENA_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_DATURA_POISON] = "APPLY_DATURA_POISON";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_FREE_FOR_USE] = "APPLY_FREE_FOR_USE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_EXP] = "APPLY_BONUS_EXP";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_SKILLS] = "APPLY_BONUS_SKILLS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MADNESS] = "APPLY_MADNESS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_PR";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_DARK] = "APPLY_RESIST_DARK";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_VIEW_DT] = "APPLY_VIEW_DT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_EXP] = "APPLY_PERCENT_EXP";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_DAM] = "APPLY_PERCENT_DAM";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SPELL_BLINK] = "APPLY_SPELL_BLINK";
+	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
+	for (const auto &i : EApplyLocation_name_by_value) {
+		EApplyLocation_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+EApplyLocation ITEM_BY_NAME(const std::string &name) {
+	if (EApplyLocation_name_by_value.empty()) {
+		init_EApplyLocation_ITEM_NAMES();
+	}
+	return EApplyLocation_value_by_name.at(name);
+}
+
+template<>
+const std::string &NAME_BY_ITEM(const EApplyLocation item) {
+	if (EApplyLocation_name_by_value.empty()) {
+		init_EApplyLocation_ITEM_NAMES();
+	}
+	return EApplyLocation_name_by_value.at(item);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

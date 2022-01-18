@@ -2,8 +2,6 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-// комментарий на русском в надежде починить кодировки bitbucket
-
 #include "room.h"
 
 EXIT_DATA::EXIT_DATA() : keyword(nullptr),

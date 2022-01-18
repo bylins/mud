@@ -337,10 +337,10 @@ inline void CREATE(T *&result, const size_t number) {
 	}
 }
 
-template<>
+/*template<>
 inline void CREATE(EXTRA_DESCR_DATA *&, const size_t) {
 	throw std::runtime_error("for EXTRA_DESCR_DATA you have to use operator new");
-}
+}*/
 
 template<typename T>
 inline void RECREATE(T *&result, const size_t number) {

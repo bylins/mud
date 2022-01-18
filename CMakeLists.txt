@@ -232,7 +232,7 @@ set(SOURCES
 		src/structs/flag_data.cpp
         src/crafts/jewelry.cpp
 		src/crafts/mining.cpp
-		src/classes/class_constants.cpp)
+		src/classes/class_constants.cpp src/structs/extra_description_data.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -444,7 +444,7 @@ set(HEADERS
 		src/entities/entity_constants.h
 		src/crafts/jewelry.h
 		src/crafts/mining.h
-		src/affects/affect_contants.h)
+		src/affects/affect_contants.h src/structs/extra_description_data.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

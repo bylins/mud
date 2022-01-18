@@ -5,15 +5,16 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
+#include "cmd/telegram.h"
+#include "conf.h"
 #include "entities/entity_constants.h"
 #include "id.h"
 #include "obj_enchant.h"
 #include "magic/spells.h"
 #include "skills.h"
+#include "structs/extra_description_data.h"
 #include "structs/flag_data.h"
 #include "sysdep.h"
-#include "conf.h"
-#include "cmd/telegram.h"
 
 #include <array>
 #include <vector>

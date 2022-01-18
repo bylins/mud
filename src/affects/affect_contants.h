@@ -171,9 +171,12 @@ struct weapon_affect_types {
 	int aff_spell;
 };
 
+
+
 using weapon_affect_t = std::array<weapon_affect_types, WAFF_COUNT>;
 extern weapon_affect_t weapon_affect;
 extern const char *affected_bits[];
+extern const char *apply_types[];
 
 #endif //BYLINS_SRC_AFFECTS_AFFECT_CONTANTS_H_
 

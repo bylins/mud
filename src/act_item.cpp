@@ -30,6 +30,7 @@
 #include "utils/utils_char_obj.inl"
 #include "global_objects.h"
 #include "skills_info.h"
+#include "structs/extra_description_data.h"
 
 // extern variables
 extern CHAR_DATA *mob_proto;

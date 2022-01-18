@@ -385,19 +385,6 @@ inline bool sprintbit(bitvector_t bitvector, const char *names[], char *result, 
 	return sprintbitwd(bitvector, names, result, ",", print_flag);
 }
 
-// Extra description: used in objects, mobiles, and rooms //
-struct EXTRA_DESCR_DATA {
-	using shared_ptr = std::shared_ptr<EXTRA_DESCR_DATA>;
-	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
-	~EXTRA_DESCR_DATA();
-	void set_keyword(std::string const &keyword);
-	void set_description(std::string const &description);
-
-	char *keyword;        // Keyword in look/examine          //
-	char *description;    // What to see                      //
-	shared_ptr next;    // Next in list                     //
-};
-
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //
 struct save_rent_info {
 	save_rent_info() : time(0), rentcode(0), net_cost_per_diem(0), gold(0),
