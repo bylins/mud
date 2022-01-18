@@ -1815,7 +1815,16 @@ void find_replacement(void *go,
 				sprintf(str, "%d", number(x, y));
 			}
 		return;
-		
+		} else if (!str_cmp(var, "what")) {
+			if (*subfield == UID_CHAR || *subfield == UID_CHAR_ALL)
+				sprintf(str, "%s", "char");
+			else if (*subfield == UID_OBJ)
+				sprintf(str, "%s", "obj");
+			else if (*subfield == UID_ROOM)
+				sprintf(str, "%s", "room");
+			else
+				sprintf(str, "%s", "0");
+			return;
 		} else if (!str_cmp(var, "array")) {
 			if (!str_cmp(field, "item")) {
 				char *p = strchr(subfield, ',');
