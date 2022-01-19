@@ -2769,7 +2769,7 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 	//set_wait(ch, lag, true);
 	// Временный костыль, чтоб пофиксить лищний раунд КД
-	lag = MAX(1, lag - 1);
+	lag = MAX(2, lag - 1);
 	setSkillCooldown(ch, SKILL_STUPOR, lag);
 }
 

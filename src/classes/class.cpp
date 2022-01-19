@@ -662,9 +662,13 @@ byte extend_saving_throws(int class_num, int type, int level) {
 int thaco(int class_num, int level) {
 	switch (class_num) {
 		case CLASS_BATTLEMAGE:
+			[[fallthrough]];
 		case CLASS_DEFENDERMAGE:
+			[[fallthrough]];
 		case CLASS_CHARMMAGE:
+			[[fallthrough]];
 		case CLASS_NECROMANCER: {
+			[[fallthrough]];
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -706,6 +710,7 @@ int thaco(int class_num, int level) {
 			}
 		}
 		case CLASS_CLERIC:
+			[[fallthrough]];
 		case CLASS_DRUID: {
 			switch (level) {
 				case 0: return 100;
@@ -749,6 +754,7 @@ int thaco(int class_num, int level) {
 		}
 		case CLASS_ASSASINE:
 		case CLASS_THIEF:
+			[[fallthrough]];
 		case CLASS_MERCHANT: {
 			switch (level) {
 				case 0: return 100;
@@ -791,6 +797,7 @@ int thaco(int class_num, int level) {
 			}
 		}
 		case CLASS_WARRIOR:
+			[[fallthrough]];
 		case CLASS_GUARD: {
 			switch (level) {
 				case 0: return 100;
@@ -834,6 +841,7 @@ int thaco(int class_num, int level) {
 		}
 		case CLASS_PALADINE:
 		case CLASS_RANGER:
+			[[fallthrough]];
 		case CLASS_SMITH: {
 			switch (level) {
 				case 0: return 100;
@@ -891,6 +899,7 @@ int extra_aco(int class_num, int level) {
 		case CLASS_BATTLEMAGE:
 		case CLASS_DEFENDERMAGE:
 		case CLASS_CHARMMAGE:
+			[[fallthrough]];
 		case CLASS_NECROMANCER:
 			switch (level) {
 				case 0: return 0;
@@ -931,6 +940,7 @@ int extra_aco(int class_num, int level) {
 				default: return 0;
 			}
 		case CLASS_CLERIC:
+			[[fallthrough]];
 		case CLASS_DRUID:
 			switch (level) {
 				case 0: return 0;
@@ -972,6 +982,7 @@ int extra_aco(int class_num, int level) {
 			}
 		case CLASS_ASSASINE:
 		case CLASS_THIEF:
+			[[fallthrough]];
 		case CLASS_MERCHANT:
 			switch (level) {
 				case 0: return 0;
@@ -1012,6 +1023,7 @@ int extra_aco(int class_num, int level) {
 				default: return 0;
 			}
 		case CLASS_WARRIOR:
+			[[fallthrough]];
 		case CLASS_GUARD:
 			switch (level) {
 				case 0: return 0;
@@ -1053,6 +1065,7 @@ int extra_aco(int class_num, int level) {
 			}
 		case CLASS_PALADINE:
 		case CLASS_RANGER:
+			[[fallthrough]];
 		case CLASS_SMITH:
 			switch (level) {
 				case 0: return 0;
@@ -1102,6 +1115,7 @@ int extra_damroll(int class_num, int level) {
 		case CLASS_BATTLEMAGE:
 		case CLASS_DEFENDERMAGE:
 		case CLASS_CHARMMAGE:
+			[[fallthrough]];
 		case CLASS_NECROMANCER:
 			switch (level) {
 				case 0: return 0;
@@ -1142,6 +1156,7 @@ int extra_damroll(int class_num, int level) {
 				default: return 0;
 			}
 		case CLASS_CLERIC:
+			[[fallthrough]];
 		case CLASS_DRUID:
 			switch (level) {
 				case 0: return 0;
@@ -1183,6 +1198,7 @@ int extra_damroll(int class_num, int level) {
 			}
 		case CLASS_ASSASINE:
 		case CLASS_THIEF:
+			[[fallthrough]];
 		case CLASS_MERCHANT:
 			switch (level) {
 				case 0: return 0;
@@ -1223,6 +1239,7 @@ int extra_damroll(int class_num, int level) {
 				default: return 0;
 			}
 		case CLASS_WARRIOR:
+			[[fallthrough]];
 		case CLASS_GUARD:
 			switch (level) {
 				case 0: return 0;
@@ -1264,6 +1281,7 @@ int extra_damroll(int class_num, int level) {
 			}
 		case CLASS_PALADINE:
 		case CLASS_RANGER:
+			[[fallthrough]];
 		case CLASS_SMITH:
 			switch (level) {
 				case 0: return 0;
