@@ -359,12 +359,15 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 		modi = modi - 50;
 	// вводим переменную-модификатор владения школы магии	
 	const int ms_mod = func_koef_modif(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum))); // к кубикам от % владения магии 
+
+//расчет на 30 морт 30 левел 90 мудры
+
 	switch (spellnum) {
 		// ******** ДЛЯ ВСЕХ МАГОВ ********
-		// магическая стрела - для всех с 1го левела 1го круга(8 слотов)
-		// *** мин 15 макс 45 (360)
+		// магическая стрела
+		//  мин 2+10 среднее 5+10 макс 8+10
 		// нейтрал
-		case SPELL_MAGIC_MISSILE: modi += 300;//hotelos by postavit "no_saving = THRUE" no ono po idiotski propisano
+		case SPELL_MAGIC_MISSILE: modi += 300;
 			ndice = 2;
 			sdice = 4;
 			adice = 10;
@@ -374,16 +377,15 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			else
 				count = (level + 9) / 10;
 			break;
-			// ледяное прикосновение - для всех с 7го левела 3го круга(7 слотов)
-			// *** мин 29.5 макс 55.5  (390)
-			// нейтрал
+			// ледяное прикосновение 
+			// мин 15+30 среднее 22.5+30 макс 30+30  
 		case SPELL_CHILL_TOUCH: savetype = SAVING_REFLEX;
 			ndice = 15;
 			sdice = 2;
 			adice = level;
 			break;
-			// кислота - для всех с 18го левела 5го круга (6 слотов)
-			// *** мин 48 макс 70 (420)
+			// кислота 
+			// 6+24 мин 48+24 макс 90+24
 			// нейтрал
 		case SPELL_ACID: savetype = SAVING_REFLEX;
 			obj = nullptr;
@@ -409,9 +411,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			}
 			break;
 
-			// землетрясение чернокнижники 22 уровень 7 круг (4)
-			// *** мин 48 макс 60 (240)
-			// нейтрал
+			// землетрясение
+			// мин 6+16 среднее 48+16 макс 90+16 (240)
 		case SPELL_EARTHQUAKE: savetype = SAVING_REFLEX;
 			ndice = 6;
 			sdice = 15;
@@ -440,7 +441,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			}
 			break;
-
+		//звуковая волна зависит от школы
+		// мин 10+20 среднее 45+20 макс 80+20
 		case SPELL_SONICWAVE: savetype = SAVING_STABILITY;
 			ndice = 5 + ms_mod;
 			sdice = 8;
@@ -457,8 +459,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			break;
 
 			// ********** ДЛЯ ФРАГЕРОВ **********
-			// горящие руки - с 1го левела 1го круга (8 слотов)
-			// *** мин 21 мах 30 (240)
+			// горящие руки
+			// мин 8+10 среднее 16+10 мах 24+10
 			// ОГОНЬ
 		case SPELL_BURNING_HANDS: savetype = SAVING_REFLEX;
 			ndice = 8;
@@ -466,8 +468,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			adice = (level + 2) / 3;
 			break;
 
-			// обжигающая хватка - с 4го левела 2го круга (8 слотов)
-			// *** мин 36 макс 45 (360)
+			// обжигающая хватка
+			// мин 10+10 среднее 35+10 макс 60+10)
 			// ОГОНЬ
 		case SPELL_SHOCKING_GRASP: savetype = SAVING_REFLEX;
 			ndice = 10;
@@ -475,34 +477,39 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			adice = (level + 2) / 3;
 			break;
 
-			// молния - с 7го левела 3го круга (7 слотов)
-			// *** мин 18 - макс 45 (315)
+			// молния
+			// мин 3+6 среднее 9+6 - макс 15+6 
 			// ВОЗДУХ
 		case SPELL_LIGHTNING_BOLT: savetype = SAVING_REFLEX;
 			ndice = 3;
 			sdice = 5;
-			count = (level + 5) / 6;
+			count = (level + 6) / 6;
 			break;
 
-			// яркий блик - с 7го 3го круга (7 слотов)
-			// *** мин 33 - макс 40 (280)
+			// яркий блик нет резиста
+			// мин 10+10 среднее 30+10 макс 50+10
 			// ОГОНЬ
-		case SPELL_SHINEFLASH: ndice = 10;
+		case SPELL_SHINEFLASH:
+			ndice = 10;
 			sdice = 5;
 			adice = (level + 2) / 3;
 			break;
 
-			// шаровая молния - с 10го левела 4го круга (6 слотов)
-			// *** мин 35 макс 55 (330)
+			// шаровая молния ов)
+			// мин 37+30 среднее 129.5 +30 макс 222+30
 			// ВОЗДУХ
+//дебаф
+//			af[0].location = APPLY_HITROLL;
+//			af[1].location = APPLY_CAST_SUCCESS;
+
 		case SPELL_CALL_LIGHTNING: savetype = SAVING_REFLEX;
 			ndice = 7 + GET_REAL_REMORT(ch);
 			sdice = 6;
 			adice = level;
 			break;
 
-			// ледяные стрелы - уровень 14 круг 5 (6 слотов)
-			// *** мин 44 макс 60 (360)
+			// ледяные стрелы
+			// мин 6+30 среднее 18+30 макс 30+30
 			// ОГОНЬ
 		case SPELL_COLOR_SPRAY: savetype = SAVING_STABILITY;
 			ndice = 6;
@@ -510,8 +517,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			adice = level;
 			break;
 
-			// ледяной ветер - уровень 14 круг 5 (6 слотов)
-			// *** мин 44 макс 60 (360)
+			// ледяной ветер
+			// мин 10+30 среднее 30+30 макс 50+30
 			// ВОДА
 		case SPELL_CONE_OF_COLD: savetype = SAVING_STABILITY;
 			ndice = 10;
@@ -519,8 +526,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			adice = level;
 			break;
 
-			// Огненный шар - уровень 25 круг 7 (4 слотов)
-			// *** мин 66 макс 80 (400)
+			// Огненный шар
+			// мин 10+25 среднее 110+25 макс 210+25
 			// ОГОНЬ
 		case SPELL_FIREBALL: savetype = SAVING_REFLEX;
 			ndice = 10;
@@ -528,8 +535,9 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			adice = (level - 25) * 5;
 			break;
 
-			// Огненный поток - уровень 18 круг 6 (5 слотов)
-			// ***  мин 38 макс 50 (250)
+			// Огненный поток 
+			// массовое
+			// мин 40+30 среднее 80+30 макс 120*30
 			// ОГОНЬ, ареа
 		case SPELL_FIREBLAST: savetype = SAVING_STABILITY;
 			ndice = 10 + GET_REAL_REMORT(ch);
@@ -547,8 +555,9 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 		adice = (level - 22) * 3;
 		break;*/
 
-			// цепь молний - уровень 22 круг 7 (4 слота)
-			// *** мин 76 макс 100 (400)
+			// цепь молний
+			// массовое
+			// мин 32+90 среднее 80+90 макс 128+90
 			// ВОЗДУХ, ареа
 		case SPELL_CHAIN_LIGHTNING: savetype = SAVING_STABILITY;
 			ndice = 2 + GET_REAL_REMORT(ch);
@@ -556,8 +565,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			adice = (level + GET_REAL_REMORT(ch)) * 2;
 			break;
 
-			// гнев богов - уровень 26 круг 8 (2 слота)
-			// *** мин 226 макс 250 (500)
+			// гнев богов)
+			// мин 10+180 среднее 70+180 макс 130+180
 			// ВОДА
 		case SPELL_IMPLOSION: savetype = SAVING_WILL;
 			ndice = 10;
@@ -565,8 +574,9 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			adice = level * 6;
 			break;
 
-			// ледяной шторм - 26 левела 8й круг (2)
-			// *** мин 55 макс 75 (150)
+			// ледяной шторм
+			// массовое
+			// мин 5+20 среднее 27.5+20 макс 50+20
 			// ВОДА, ареа
 		case SPELL_ICESTORM: savetype = SAVING_STABILITY;
 			ndice = 5;
@@ -574,11 +584,11 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			adice = (level - 26) * 5;
 			break;
 
-			// суд богов - уровень 28 круг 9 (1 слот)
-			// *** мин 188 макс 200 (200)
+			// суд богов
+			// массовое
+			// мин 16+120 среднее 32+150 макс 38+180
 			// ВОЗДУХ, ареа
 		case SPELL_ARMAGEDDON: savetype = SAVING_WILL;
-			//в современных реалиях колдуны имеют 12+ мортов
 			if (!(IS_NPC(ch))) {
 				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);
 				sdice = level / 9;
@@ -589,18 +599,17 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				adice = level * 6;
 			}
 			break;
-
 			// ******* ХАЙЛЕВЕЛ СУПЕРДАМАДЖ МАГИЯ ******
-			// каменное проклятие - круг 28 уровень 9 (1)
-			// для всех
+			// каменное проклятие
+			//  мин 12+30 среднее 486+30 макс 990+30
 		case SPELL_STUNNING:
 			if (ch == victim ||
 				((number(1, 999) > GET_AR(victim) * 10) &&
 					!general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch))))) {
 				savetype = SAVING_STABILITY;
-				ndice = GET_REAL_WIS(ch) / 5;
-				sdice = GET_REAL_WIS(ch);
-				adice = 5 + (GET_REAL_WIS(ch) - 20) / 6;
+				ndice = GET_REAL_WIS(ch) / 5; 	//18
+				sdice = GET_REAL_WIS(ch);		//90
+				adice = 5 + (GET_REAL_WIS(ch) - 20) / 6;	//5+11
 				int choice_stunning = 750;
 				if (can_use_feat(ch, DARKDEAL_FEAT))
 					choice_stunning -= GET_REAL_REMORT(ch) * 15;
@@ -612,21 +621,22 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 					WAIT_STATE(victim, adice * PULSE_VIOLENCE);
 				}
 			} else {
-				ndice = GET_REAL_WIS(ch) / 7;
-				sdice = GET_REAL_WIS(ch);
+				ndice = GET_REAL_WIS(ch) / 7; 	//12
+				sdice = GET_REAL_WIS(ch);		//80
 				adice = level;
 			}
 			break;
 
 			// круг пустоты - круг 28 уровень 9 (1)
+			// мин 40+17 среднее 1820+17 макс 3600 +17
 			// для всех
 		case SPELL_VACUUM: savetype = SAVING_STABILITY;
-			ndice = MAX(1, (GET_REAL_WIS(ch) - 10) / 2);
-			sdice = MAX(1, GET_REAL_WIS(ch) - 10);
+			ndice = MAX(1, (GET_REAL_WIS(ch) - 10) / 2);	//40
+			sdice = MAX(1, GET_REAL_WIS(ch) - 10);			//90
 			//	    adice = MAX(1, 2 + 30 - GET_REAL_LEVEL(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
 			//	    Ну явно кривота была. Отбалансил на свой вкус. В 50 мудры на 25м леве лаг на 3 на 30 лаг на 4 а не наоборот
 			//чтобы не обижать колдунов
-			adice = 4 + MAX(1, GET_REAL_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;
+			adice = 4 + MAX(1, GET_REAL_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;	//17
 			if (ch == victim ||
 				(!general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
 					(number(1, 999) > GET_AR(victim) * 10) &&
@@ -696,7 +706,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			sdice = ch->mob_specials.damsizedice;
 			adice = GetRealDamroll(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 			break;
-
+		// высосать жизнь
 		case SPELL_SACRIFICE:
 			if (WAITLESS(victim))
 				break;
@@ -704,7 +714,9 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			sdice = 8;
 			adice = level;
 			break;
-
+		// пылевая буря
+		// массовое
+		// мин 5+120 среднее 17.5+120  макс 30+120
 		case SPELL_DUSTSTORM: savetype = SAVING_STABILITY;
 			ndice = 5;
 			sdice = 6;
@@ -719,60 +731,73 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			}
 			break;
-
+		// камнепад
+		// массовое на комнату
+		// мин 8+60 среднее 36+60 макс 64+60
 		case SPELL_EARTHFALL: savetype = SAVING_REFLEX;
 			ndice = 8;
 			sdice = 8;
 			adice = level * 2;
 			break;
-
+		// шок
+		// массовое на комнату
+		// мин 6+90 среднее 48+90 макс 90+90
 		case SPELL_SHOCK: savetype = SAVING_REFLEX;
 			ndice = 6;
 			sdice = level / 2;
 			adice = (level + GET_REAL_REMORT(ch)) * 2;
 			break;
-
+		// вопль
+		// массовое на комнату
+		// мин 10+90 среднее 185+90 макс 360*90
 		case SPELL_SCREAM: savetype = SAVING_STABILITY;
 			ndice = 10;
-			sdice = (level + GET_REAL_REMORT(ch)) / 5;
-			adice = level + GET_REAL_REMORT(ch) * 2;
+			sdice = (level + GET_REAL_REMORT(ch)) / 5;	//36
+			adice = level + GET_REAL_REMORT(ch) * 2;	//90
 			break;
-
+		// вихрь
+		// мин 16+35 среднее 176+40  макс 336+40
 		case SPELL_WHIRLWIND: savetype = SAVING_REFLEX;
 			if (!(IS_NPC(ch))) {
-				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);
-				sdice = 18 + (3 - (30 - level) / 3);
-				adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 4));
+				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);	//16
+				sdice = 18 + (3 - (30 - level) / 3);			//21
+				adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 3));	//35..40..45
 			} else {
 				ndice = 10;
 				sdice = 21;
 				adice = (level - 5) * (number(2, 4));
 			}
 			break;
-
-		case SPELL_INDRIKS_TEETH: ndice = 3 + GET_REAL_REMORT(ch);
+		// зубы индрика - без резиста
+		// мин 33+61 среднее 82,5+61 макс 132+61
+		case SPELL_INDRIKS_TEETH: 
+			ndice = 3 + GET_REAL_REMORT(ch);
 			sdice = 4;
 			adice = level + GET_REAL_REMORT(ch) + 1;
 			break;
-
+		// кислотная стрела
+		// мин 20+35 среднее 210+35 макс 400+35
 		case SPELL_MELFS_ACID_ARROW: savetype = SAVING_REFLEX;
 			ndice = 10 + GET_REAL_REMORT(ch) / 3;
 			sdice = 20;
 			adice = level + GET_REAL_REMORT(ch) - 25;
 			break;
-
+		//громовой камень
+		// мин 33+61 среднее 115.5+61 макс 198+61
 		case SPELL_THUNDERSTONE: savetype = SAVING_REFLEX;
 			ndice = 3 + GET_REAL_REMORT(ch);
 			sdice = 6;
 			adice = 1 + level + GET_REAL_REMORT(ch);
 			break;
-
+		// глыба
+		// мин 20+35 среднее 210 +40 макс 400+45
 		case SPELL_CLOD: savetype = SAVING_REFLEX;
 			ndice = 10 + GET_REAL_REMORT(ch) / 3;
 			sdice = 20;
-			adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 4));
+			adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 3));	//35..40..45
 			break;
-
+		// силы света
+		// мин 10 + 150 среднее 45+150 макс 80+150
 		case SPELL_HOLYSTRIKE:
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_EVILESS)) {
 				dam = -1;
@@ -815,7 +840,8 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 			}
 			break;
 		}
-
+		// стрелы, нет в мире
+		// мин 33+61 среднее 82,5+61 макс 132+61
 		case SPELL_ARROWS_FIRE:
 		case SPELL_ARROWS_WATER:
 		case SPELL_ARROWS_EARTH:
@@ -2066,21 +2092,8 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 				success = FALSE;
 				break;
 			}
-
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														spellnum == SPELL_POWER_SILENCE ? pc_duration(victim,
-																									  2,
-																									  level + 3,
-																									  4,
-																									  6,
-																									  0)
-																						: pc_duration(victim,
-																									  2,
-																									  level + 7,
-																									  8,
-																									  3,
-																									  0))
-				* koef_duration;
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), spellnum == SPELL_POWER_SILENCE ? 
+					pc_duration(victim, 2, level + 3, 4, 6, 0) : pc_duration(victim, 2, level + 7, 8, 3, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 			af[0].battleflag = AF_BATTLEDEC;
 			to_room = "$n0 прикусил$g язык!";
@@ -2235,8 +2248,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			switch (spellnum) {
 				case SPELL_WC_OF_THUNDER: af[0].type = SPELL_DEAFNESS;
 					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																pc_duration(victim, 2, level + 3, 4, 6, 0))
-						* koef_duration;
+							pc_duration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 					af[0].duration = complex_spell_modifier(ch, SPELL_DEAFNESS, GAPPLY_SPELL_EFFECT, af[0].duration);
 					af[0].bitvector = to_underlying(EAffectFlag::AFF_DEAFNESS);
 					af[0].battleflag = AF_BATTLEDEC;
@@ -2259,7 +2271,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 				case SPELL_ICESTORM:
 				case SPELL_EARTHFALL: WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
+							pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
 					af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 					to_room = "$n3 оглушило.";
@@ -2269,7 +2281,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 
 				case SPELL_SHOCK: WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
+							pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
 					af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 					to_room = "$n3 оглушило.";
@@ -2291,7 +2303,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			}
 			af[0].location = APPLY_HIT;
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														pc_duration(victim, 4, 0, 0, 0, 0)) * koef_duration;
+					pc_duration(victim, 4, 0, 0, 0, 0)) * koef_duration;
 			af[0].modifier =
 				-1 * MAX(1,
 						 (MIN(29, GET_REAL_LEVEL(ch)) - MIN(24, GET_REAL_LEVEL(victim)) +
@@ -2300,7 +2312,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			if (IS_NPC(victim)) {
 				af[1].location = APPLY_LIKES;
 				af[1].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-															pc_duration(victim, 5, 0, 0, 0, 0));
+						pc_duration(victim, 5, 0, 0, 0, 0));
 				af[1].modifier = -1 * MAX(1, ((level + 9) / 2 + 9 - GET_REAL_LEVEL(victim) / 2));
 				af[1].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 				af[1].battleflag = AF_BATTLEDEC;
@@ -2325,16 +2337,14 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			//Заклинания Забвение, Бремя времени. Далим.
 		case SPELL_OBLIVION:
 		case SPELL_BURDEN_OF_TIME: {
-			if (WAITLESS(victim)
-				|| general_savingthrow(ch, victim, SAVING_REFLEX,
-									   CALC_SUCCESS(modi, (spellnum == SPELL_OBLIVION ? 40 : 90)))) {
+			if (WAITLESS(victim) || general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, (spellnum == SPELL_OBLIVION ? 40 : 90)))) {
 				send_to_char(NOEFFECT, ch);
 				success = FALSE;
 				break;
 			}
 			WAIT_STATE(victim, (level / 10 + 1) * PULSE_VIOLENCE);
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														pc_duration(victim, 3, 0, 0, 0, 0)) * koef_duration;
+					pc_duration(victim, 3, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_SLOW);
 			af[0].battleflag = AF_BATTLEDEC;
 			to_room = "Облако забвения окружило $n3.";
@@ -2357,7 +2367,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			}
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
+					pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_PEACEFUL);
 			to_room = "Взгляд $n1 потускнел, а сам он успокоился.";
 			to_vict = "Ваша душа очистилась от зла и странно успокоилась.";
@@ -2391,7 +2401,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			}
 			af[0].location = APPLY_MORALE;
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														pc_duration(victim, 2, level, 2, 0, 0)) * koef_duration;
+					pc_duration(victim, 2, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = -5 - (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 2;
 			af[1].location = static_cast<EApplyLocation>(number(1, 6));
 			af[1].duration = af[0].duration;
@@ -2420,7 +2430,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			}
 			af[0].location = APPLY_SAVING_REFLEX;
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														pc_duration(victim, 4, 0, 0, 0, 0)) * koef_duration;
+					pc_duration(victim, 4, 0, 0, 0, 0)) * koef_duration;
 			af[0].modifier = (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 3;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_GLITTERDUST);
 			accum_duration = TRUE;
@@ -2440,7 +2450,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_AFFRIGHT);
 			af[0].location = APPLY_SAVING_WILL;
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														pc_duration(victim, 2, level, 2, 0, 0)) * koef_duration;
+					pc_duration(victim, 2, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = (2 * GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 4;
 
 			af[1].bitvector = to_underlying(EAffectFlag::AFF_AFFRIGHT);
@@ -2513,7 +2523,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			}
 			af[0].location = APPLY_MORALE;
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														pc_duration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
+					pc_duration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 			af[0].modifier = -dice((7 + level) / 8, 3);
 			to_vict = "Похоже, сегодня не ваш день.";
 			to_room = "Удача покинула $n3.";
@@ -2526,7 +2536,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			if (ch == victim || !general_savingthrow(ch, victim, savetype, modi)) {
 				af[0].location = APPLY_INT;
 				af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-															pc_duration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
+						pc_duration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 				af[0].modifier = -dice((7 + level) / 8, 2);
 				to_vict = "Вы потеряли рассудок.";
 				to_room = "$n0 потерял$g рассудок.";
@@ -2550,8 +2560,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 				if (!general_savingthrow(ch, victim, savetype, modi)) {
 					af[0].location = APPLY_CAST_SUCCESS;
 					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																pc_duration(victim, 2, level + 3, 4, 6, 0))
-						* koef_duration;
+							pc_duration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 					af[0].modifier = -(dice((2 + level) / 3, 4) + dice(GET_REAL_REMORT(ch) / 2, 5));
 
 					af[1].location = APPLY_MANAREG;
