@@ -42,8 +42,8 @@ typedef int special_f(CHAR_DATA *, void *, int, char *);
 // extern functions
 void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch);
-void ASSIGNMASTER(mob_vnum mob, special_f, int learn_info);
+int find_first_step(RoomRnum src, RoomRnum target, CHAR_DATA *ch);
+void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
 
 // local functions
 char *how_good(int skill_level, int skill_cap);
@@ -140,7 +140,7 @@ extern int prac_params[4][NUM_PLAYER_CLASSES];
 
 int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	int result = 0;
-	for (result = 1; result < LVL_IMMORT; result++) {
+	for (result = 1; result < kLevelImmortal; result++) {
 		if (result * (5 + remort / slot_for_remort) / 28 == slot) {
 			break;
 		}
@@ -319,7 +319,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 					//	чтобы можно было менять слоты на лету и чтобы не читерили :)
 					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
 							feat_info[sortpos].name, GET_NAME(ch));
-					mudlog(msg, BRF, LVL_IMPL, SYSLOG, true);
+					mudlog(msg, BRF, kLevelImplementator, SYSLOG, true);
 					UNSET_FEAT(ch, sortpos);
 				}
 			}
@@ -741,8 +741,8 @@ void init_guilds(void) {
 				log("Unknown skill, spell or feat for monoguild");
 				graceful_exit(1);
 			}
-			if ((level = atoi(line2)) == 0 || level >= LVL_IMMORT) {
-				log("Use 1-%d level for guilds", LVL_IMMORT);
+			if ((level = atoi(line2)) == 0 || level >= kLevelImmortal) {
+				log("Use 1-%d level for guilds", kLevelImmortal);
 				graceful_exit(1);
 			}
 
@@ -810,8 +810,8 @@ void init_guilds(void) {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
 				graceful_exit(1);
 			}
-			if ((level = atoi(line6)) == 0 || level >= LVL_IMMORT) {
-				log("Use 1-%d level for guilds", LVL_IMMORT);
+			if ((level = atoi(line6)) == 0 || level >= kLevelImmortal) {
+				log("Use 1-%d level for guilds", kLevelImmortal);
 				graceful_exit(1);
 			}
 			ptr->spell_no = MAX(0, spellnum);
@@ -2236,7 +2236,7 @@ int do_npc_steal(CHAR_DATA *ch, CHAR_DATA *victim) {
 	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || victim->get_fighting())
 		return (false);
 
-	if (GET_REAL_LEVEL(victim) >= LVL_IMMORT)
+	if (GET_REAL_LEVEL(victim) >= kLevelImmortal)
 		return (false);
 
 	if (!CAN_SEE(ch, victim))
@@ -2382,7 +2382,7 @@ void npc_group(CHAR_DATA *ch) {
 }
 
 void npc_groupbattle(CHAR_DATA *ch) {
-	struct follow_type *k;
+	struct Follower *k;
 	CHAR_DATA *tch, *helper;
 
 	if (!IS_NPC(ch)
@@ -2397,7 +2397,7 @@ void npc_groupbattle(CHAR_DATA *ch) {
 	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
 	tch = ch->has_master() ? ch->get_master() : ch;
 	for (; k; (k = tch ? k : k->next), tch = nullptr) {
-		helper = tch ? tch : k->follower;
+		helper = tch ? tch : k->ch;
 		if (ch->in_room == IN_ROOM(helper)
 			&& !helper->get_fighting()
 			&& !IS_NPC(helper)
@@ -2549,7 +2549,7 @@ return (false);
 	for (const auto cons : world[ch->in_room]->people)
 	{
 		if (!IS_NPC(cons)
-			&& GET_REAL_LEVEL(cons) < LVL_IMMORT
+			&& GET_REAL_LEVEL(cons) < kLevelImmortal
 			&& !number(0, 4))
 		{
 			do_npc_steal(ch, cons);
@@ -2651,7 +2651,7 @@ int guild_guard(CHAR_DATA *ch, void *me, int cmd, char * /*argument*/) {
 		|| AFF_FLAGGED(guard, EAffectFlag::AFF_HOLD))
 		return (false);
 
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT)
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal)
 		return (false);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
@@ -2773,7 +2773,7 @@ int cityguard(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 	char buf[kMaxStringLength], pet_name[256];
-	room_rnum pet_room;
+	RoomRnum pet_room;
 	CHAR_DATA *pet;
 
 	pet_room = ch->in_room + 1;
@@ -2942,7 +2942,7 @@ int bank(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
 					GET_PAD(vict, 2));
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+			mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 			return (1);
 
 		} else {
@@ -2965,7 +2965,7 @@ int bank(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
 					GET_PAD(vict, 2));
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+			mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 			vict->add_bank(amount);
 			Depot::add_offline_money(GET_UNIQUE(vict), amount);
 			vict->save_char();

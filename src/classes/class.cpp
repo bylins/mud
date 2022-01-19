@@ -1386,7 +1386,7 @@ void do_start(CHAR_DATA *ch, int newbie) {
 
 	advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_REAL_LEVEL(ch));
-	mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
+	mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
 	GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
@@ -1732,7 +1732,7 @@ void LoadClassSkills() {
 	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -1740,7 +1740,7 @@ void LoadClassSkills() {
 
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...class.skills.xml read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -1768,7 +1768,7 @@ void LoadClassSkills() {
 				int value = xNodeSkill.attribute("improve").as_int();
 				skill_info[sk_num].k_improve[PCclass][PCkin] = MAX(1, value);
 				value = xNodeSkill.attribute("level").as_int();
-				if (value > 0 && value < LVL_IMMORT) {
+				if (value > 0 && value < kLevelImmortal) {
 					skill_info[sk_num].min_level[PCclass][PCkin] = value;
 				} else {
 					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d",
@@ -2131,7 +2131,7 @@ int GroupPenalties::init(void) {
 
 // Function to return the exp required for each class/level
 int level_exp(CHAR_DATA *ch, int level) {
-	if (level > LVL_IMPL || level < 0) {
+	if (level > kLevelImplementator || level < 0) {
 		log("SYSERR: Requesting exp for invalid level %d!", level);
 		return 0;
 	}
@@ -2140,8 +2140,8 @@ int level_exp(CHAR_DATA *ch, int level) {
 	 * Gods have exp close to EXP_MAX.  This statement should never have to
 	 * changed, regardless of how many mortal or immortal levels exist.
 	 */
-	if (level > LVL_IMMORT) {
-		return EXP_IMPL - ((LVL_IMPL - level) * 1000);
+	if (level > kLevelImmortal) {
+		return EXP_IMPL - ((kLevelImplementator - level) * 1000);
 	}
 
 	// Exp required for normal mortals is below
@@ -2190,7 +2190,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 47000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 94000000);
+				case kLevelImmortal: return int(exp_modifier * 94000000);
 			}
 			break;
 
@@ -2229,7 +2229,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 47000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 87000000);
+				case kLevelImmortal: return int(exp_modifier * 87000000);
 			}
 			break;
 
@@ -2267,7 +2267,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 28667000);
 				case 30: return int(exp_modifier * 40000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 53000000);
+				case kLevelImmortal: return int(exp_modifier * 53000000);
 			}
 			break;
 
@@ -2306,7 +2306,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 43000000);
 				case 30: return int(exp_modifier * 59000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 79000000);
+				case kLevelImmortal: return int(exp_modifier * 79000000);
 			}
 			break;
 
@@ -2348,7 +2348,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 44000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 79000000);
+				case kLevelImmortal: return int(exp_modifier * 79000000);
 			}
 			break;
 	}
@@ -2405,8 +2405,8 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 		bad = 1;
 	}
 
-	if (level < 1 || level > LVL_IMPL) {
-		log("SYSERR: assigning '%s' to illegal level %d/%d.", skill_name(spell), level, LVL_IMPL);
+	if (level < 1 || level > kLevelImplementator) {
+		log("SYSERR: assigning '%s' to illegal level %d/%d.", skill_name(spell), level, kLevelImplementator);
 		bad = 1;
 	}
 

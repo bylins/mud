@@ -92,7 +92,7 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *k;
-	struct follow_type *f;
+	struct Follower *f;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
@@ -141,20 +141,20 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			//end by WorM
 		}
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& (f->follower != ch)
-				&& !ignores(f->follower, ch, IGNORE_GROUP)) {
-				act(buf, false, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
+			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+				&& (f->ch != ch)
+				&& !ignores(f->ch, ch, IGNORE_GROUP)) {
+				act(buf, false, ch, 0, f->ch, TO_VICT | TO_SLEEP | CHECK_DEAF);
 				// added by WorM  групптелы 2010.10.13
-				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_DEAFNESS)
-					&& GET_POS(f->follower) > POS_DEAD) {
+				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_DEAFNESS)
+					&& GET_POS(f->ch) > POS_DEAD) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
-							tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то",
-							GET_CH_VIS_SUF_1(ch, f->follower),
+							tell_can_see(ch, f->ch) ? GET_NAME(ch) : "Кто-то",
+							GET_CH_VIS_SUF_1(ch, f->ch),
 							argument);
-					f->follower->remember_add(buf1, Remember::ALL);
-					f->follower->remember_add(buf1, Remember::GROUP);
+					f->ch->remember_add(buf1, Remember::ALL);
+					f->ch->remember_add(buf1, Remember::GROUP);
 				}
 				//end by WorM
 			}
@@ -186,7 +186,7 @@ void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg) {
 // соответствующий режим; имморталы могут телять всегда
 	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
 		&& !CAN_SEE(vict, ch)
-		&& GET_REAL_LEVEL(ch) < LVL_IMMORT
+		&& GET_REAL_LEVEL(ch) < kLevelImmortal
 		&& !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		act("$N не любит разговаривать с теми, кого не видит.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return;
@@ -922,7 +922,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
 void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || GET_REAL_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
+	if (IS_NPC(ch) || GET_REAL_LEVEL(ch) >= kLevelImmortal || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -969,7 +969,7 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
 		if (STATE(i) == CON_PLAYING
 			&& i->character
-			&& (GET_REAL_LEVEL(i->character) < LVL_IMMORT || IS_IMPL(i->character))
+			&& (GET_REAL_LEVEL(i->character) < kLevelImmortal || IS_IMPL(i->character))
 			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE)
 			&& !PRF_FLAGGED(i->character, PRF_IGVA_PRONA)
 			&& !ignores(i->character.get(), ch, IGNORE_OFFTOP)) {
@@ -991,7 +991,7 @@ void ignore_usage(CHAR_DATA *ch) {
 int ign_find_id(char *name, long *id) {
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		if (!str_cmp(name, player_table[i].name())) {
-			if (player_table[i].level >= LVL_IMMORT) {
+			if (player_table[i].level >= kLevelImmortal) {
 				return 0;
 			}
 

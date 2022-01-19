@@ -20,7 +20,7 @@
 
 Например:
 
-    using meat_mapping_t = std::pair<obj_vnum, obj_vnum>;
+    using meat_mapping_t = std::pair<ObjVnum, ObjVnum>;
 
 Код должен быть компилируемым на Windows, Linux. При компиляции вы должны
 уделять особое внимание предупреждениям компилятора и исправлять их при первой

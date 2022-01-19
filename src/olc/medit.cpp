@@ -50,7 +50,7 @@
 
 extern INDEX_DATA *mob_index;
 extern CHAR_DATA *mob_proto;
-extern mob_rnum top_of_mobt;
+extern MobRnum top_of_mobt;
 extern DESCRIPTOR_DATA *descriptor_list;
 #if defined(OASIS_MPROG)
 extern const char *mobprog_types[];
@@ -154,7 +154,7 @@ void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src, bool partial_copy)
    partial_copy не тронем падежи и некоторые поля
 --*/
 {
-	struct helper_data_type **pdhd, *shd;
+	struct Helper **pdhd, *shd;
 
 	// сохраняем старые значения
 	CHAR_DATA tmp(*dst);
@@ -193,8 +193,8 @@ void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src, bool partial_copy)
 	while (shd) {
 		CREATE(pdhd[0], 1);
 		pdhd[0]->mob_vnum = shd->mob_vnum;
-		pdhd = &(pdhd[0]->next_helper);
-		shd = shd->next_helper;
+		pdhd = &(pdhd[0]->next);
+		shd = shd->next;
 	}
 	// Копирую скрипт и прототипы
 	SCRIPT(dst)->cleanup();
@@ -248,7 +248,7 @@ void medit_mobile_free(CHAR_DATA *mob)
 	}
 
 	while (mob->helpers) {
-		REMOVE_FROM_LIST(mob->helpers, mob->helpers, [](auto list) -> auto & { return list->next_helper; });
+		REMOVE_FROM_LIST(mob->helpers, mob->helpers, [](auto list) -> auto & { return list->next; });
 	}
 
 	// Скрипт уже NULL
@@ -545,7 +545,7 @@ void medit_save_internally(DESCRIPTOR_DATA *d) {
  * extended fields.  Thanks to Sammy for ideas on this bit of code.
  */
 void medit_save_to_disk(int zone_num) {
-	struct helper_data_type *helper;
+	struct Helper *helper;
 	int i, j, c, n, rmob_num, zone, top, sum;
 	FILE *mob_file;
 	char fname[64];
@@ -559,7 +559,7 @@ void medit_save_to_disk(int zone_num) {
 
 	sprintf(fname, "%s/%d.new", MOB_PREFIX, zone);
 	if (!(mob_file = fopen(fname, "w"))) {
-		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, LVL_BUILDER, SYSLOG, true);
+		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, kLevelBuilder, SYSLOG, true);
 		return;
 	}
 
@@ -567,7 +567,7 @@ void medit_save_to_disk(int zone_num) {
 	for (i = zone * 100; i <= top; i++) {
 		if ((rmob_num = real_mobile(i)) != -1) {
 			if (fprintf(mob_file, "#%d\n", i) < 0) {
-				mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, LVL_BUILDER, SYSLOG, true);
+				mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLevelBuilder, SYSLOG, true);
 				fclose(mob_file);
 				return;
 			}
@@ -700,7 +700,7 @@ void medit_save_to_disk(int zone_num) {
 				}
 			}
 			std::stack<decltype(helper)> stack;
-			for (helper = GET_HELPER(mob); helper; helper = helper->next_helper) {
+			for (helper = GET_HELPER(mob); helper; helper = helper->next) {
 				stack.push(helper);
 			}
 			while (!stack.empty()) {
@@ -722,7 +722,7 @@ void medit_save_to_disk(int zone_num) {
 
 			// Сохраняем список в файл
 			if (mob->dl_list) {
-				load_list::iterator p = mob->dl_list->begin();
+				OnDeadLoadList::iterator p = mob->dl_list->begin();
 				while (p != mob->dl_list->end()) {
 					fprintf(mob_file, "L %d %d %d %d\n",
 							(*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
@@ -1051,14 +1051,14 @@ void medit_disp_attack_types(DESCRIPTOR_DATA *d) {
 //-------------------------------------------------------------------
 void medit_disp_helpers(DESCRIPTOR_DATA *d) {
 	int columns = 0;
-	struct helper_data_type *helper;
+	struct Helper *helper;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
 	send_to_char("Установлены мобы-помощники :\r\n", d->character.get());
-	for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next_helper) {
+	for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next) {
 		sprintf(buf, "%s%6d%s %s", grn, helper->mob_vnum, nrm, !(++columns % 6) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
@@ -1307,7 +1307,7 @@ void disp_dl_list(DESCRIPTOR_DATA *d) {
 
 	if (mob->dl_list != nullptr) {
 		i = 0;
-		load_list::iterator p = mob->dl_list->begin();
+		OnDeadLoadList::iterator p = mob->dl_list->begin();
 		while (p != mob->dl_list->end()) {
 			i++;
 
@@ -1366,7 +1366,7 @@ void medit_disp_clone_menu(DESCRIPTOR_DATA *d) {
 // ************************************************************************
 
 void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
-	struct helper_data_type *helper;
+	struct Helper *helper;
 	int i, number = 0, plane, bit;
 
 	if (OLC_MODE(d) > MEDIT_NUMERICAL_RESPONSE) {
@@ -1390,7 +1390,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					medit_save_internally(d);
 					sprintf(buf, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the mob structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					send_to_char("Mob saved to memory.\r\n", d->character.get());
@@ -1857,7 +1857,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указана величина спас-броска.\r\n", d->character.get());
 			} else {
-				GET_SAVE(OLC_MOB(d), number - 1) = MIN(MAX_SAVE, MAX(-MAX_SAVE, bit));
+				GET_SAVE(OLC_MOB(d), number - 1) = MIN(kMaxSaving, MAX(-kMaxSaving, bit));
 			}
 			medit_disp_saves(d);
 			return;
@@ -1897,7 +1897,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		case MEDIT_D_DESC:
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 
@@ -1905,7 +1905,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			case MEDIT_MPROG_COMLIST:
 				// * We should never get here, but if we do, bail out.
 				cleanup_olc(d, CLEANUP_ALL);
-				mudlog("SYSERR: OLC: medit_parse(): Reached MPROG_COMLIST case!", BRF, LVL_BUILDER, SYSLOG, true);
+				mudlog("SYSERR: OLC: medit_parse(): Reached MPROG_COMLIST case!", BRF, kLevelBuilder, SYSLOG, true);
 				break;
 #endif
 
@@ -2155,7 +2155,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 			if ((plane = real_mobile(number)) < 0) {
 				send_to_char("Нет такого моба.", d->character.get());
 			} else {
-				for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next_helper) {
+				for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next) {
 					if (helper->mob_vnum == number) {
 						break;
 					}
@@ -2164,11 +2164,11 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				if (helper) {
 					REMOVE_FROM_LIST(helper,
 									 OLC_MOB(d)->helpers,
-									 [](auto list) -> auto & { return list->next_helper; });
+									 [](auto list) -> auto & { return list->next; });
 				} else {
 					CREATE(helper, 1);
 					helper->mob_vnum = number;
-					helper->next_helper = OLC_MOB(d)->helpers;
+					helper->next = OLC_MOB(d)->helpers;
 					OLC_MOB(d)->helpers = helper;
 				}
 			}
@@ -2308,7 +2308,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				}
 				// Удаляем указаный элемент.
 				i = 0;
-				load_list::iterator p = OLC_MOB(d)->dl_list->begin();
+				OnDeadLoadList::iterator p = OLC_MOB(d)->dl_list->begin();
 				while (p != OLC_MOB(d)->dl_list->end() && i < number - 1) {
 					p++;
 					i++;
@@ -2400,7 +2400,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		default:
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Oops...\r\n", d->character.get());
 			break;
 	}

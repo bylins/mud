@@ -25,8 +25,10 @@
 #include "noob.h"
 #include "dg_db_scripts.h"
 #include "game_mechanics/bonus.h"
+#include "game_mechanics/weather.h"
 #include "olc/olc.h"
 #include "privilege.h"
+
 #include <string>
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
@@ -59,7 +61,7 @@ extern int can_take_obj(CHAR_DATA *ch, OBJ_DATA *obj);
 extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 
 // external functions
-room_rnum find_target_room(CHAR_DATA *ch, char *rawroomstr, int trig);
+RoomRnum find_target_room(CHAR_DATA *ch, char *rawroomstr, int trig);
 void free_varlist(struct trig_var_data *vd);
 int obj_room(OBJ_DATA *obj);
 bool is_empty(int zone_nr);
@@ -136,7 +138,7 @@ void script_log(const char *msg, LogMode type) {
 	}
 
 	log("%s", tmpbuf);
-	mudlog(tmpbuf, type ? type : NRM, LVL_BUILDER, ERRLOG, true);
+	mudlog(tmpbuf, type ? type : NRM, kLevelBuilder, ERRLOG, true);
 }
 
 /*
@@ -199,7 +201,7 @@ void GlobalTriggersStorage::remove(TRIG_DATA *trigger) {
 	m_rnum2triggers_set[trigger->get_rnum()].erase(trigger);
 }
 
-void GlobalTriggersStorage::shift_rnums_from(const rnum_t rnum) {
+void GlobalTriggersStorage::shift_rnums_from(const Rnum rnum) {
 	// TODO: Get rid of this function when index will not has to be sorted by rnums
 	//       Actually we need to get rid of rnums at all.
 	std::list<TRIG_DATA *> to_rebind;
@@ -1617,7 +1619,7 @@ void find_replacement(void *go,
 				if (num >= 0)
 					sprintf(str, "%d", num);
 			} else if (!str_cmp(field, "zreset") && num > 0) {
-				for (zone_rnum i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++) {
+				for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 					if (zone_table[i].vnum == num) {
 						reset_zone(i);
 					}
@@ -1983,7 +1985,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_HIT(c));
 		} else if (!str_cmp(field, "arenahp")) {
 			CHAR_DATA *k;
-			struct follow_type *f;
+			struct Follower *f;
 			int arena_hp = GET_HIT(c);
 			int can_use = 0;
 
@@ -2005,13 +2007,13 @@ void find_replacement(void *go,
 					}
 					if (!can_use) {
 						for (f = k->followers; f; f = f->next) {
-							if (IS_NPC(f->follower)
-								|| !AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
+							if (IS_NPC(f->ch)
+								|| !AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
 								continue;
 							}
-							if ((GET_CLASS(f->follower) == 8
-								|| GET_CLASS(f->follower) == 13) //чернок или волхв может использовать ужи на согруппов
-								&& world[IN_ROOM(f->follower)]->zone_rn
+							if ((GET_CLASS(f->ch) == 8
+								|| GET_CLASS(f->ch) == 13) //чернок или волхв может использовать ужи на согруппов
+								&& world[IN_ROOM(f->ch)]->zone_rn
 									== world[IN_ROOM(c)]->zone_rn) //но только если находится в той же зоне
 							{
 								can_use = 1;
@@ -2180,7 +2182,7 @@ void find_replacement(void *go,
 					desc_count(value, WHAT_TORCu),
 					GET_TRIG_NAME(trig),
 					GET_TRIG_VNUM(trig));
-				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+				mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 			} else
 				sprintf(str, "%d", c->get_hryvn());
 		} else if (!str_cmp(field, "point_nogata")) {
@@ -2207,8 +2209,8 @@ void find_replacement(void *go,
 							num = 0;
 						}
 						for (auto f = k->followers; f; f = f->next) {
-							if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-									&& !IS_NPC(f->follower) && IN_ROOM(f->follower) == c->in_room) {
+							if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+									&& !IS_NPC(f->ch) && IN_ROOM(f->ch) == c->in_room) {
 								num++;
 							}
 						}
@@ -2218,9 +2220,9 @@ void find_replacement(void *go,
 							if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == c->in_room && !IS_NPC(k) && k != c)
 								k->add_nogata(share);
 							for (auto f = k->followers; f; f = f->next) {
-								if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-										&& !IS_NPC(f->follower) && IN_ROOM(f->follower) == c->in_room && f->follower != c) {
-									f->follower->add_nogata(share);
+								if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+										&& !IS_NPC(f->ch) && IN_ROOM(f->ch) == c->in_room && f->ch != c) {
+									f->ch->add_nogata(share);
 								}
 							}
 							sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
@@ -2255,7 +2257,7 @@ void find_replacement(void *go,
 					desc_count(value, WHAT_MONEYu),
 					GET_TRIG_NAME(trig),
 					GET_TRIG_VNUM(trig));
-				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+				mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 				// клан-налог
 				const long diff = c->get_gold() - before;
 				split_or_clan_tax(c, diff);
@@ -2298,7 +2300,7 @@ void find_replacement(void *go,
 								GET_NAME(c),
 								MAX(1, atoi(subfield + 1)),
 								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+						mudlog(buf, BRF, kLevelGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
 						gain_exp(c, +MAX(1, atoi(subfield + 1)));
 						sprintf(buf,
@@ -2306,14 +2308,14 @@ void find_replacement(void *go,
 								GET_NAME(c),
 								MAX(1, atoi(subfield + 1)),
 								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+						mudlog(buf, BRF, kLevelGreatGod, ERRLOG, 1);
 					} else {
 						sprintf(buf,
 								"SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d",
 								GET_NAME(c),
 								atoi(subfield + 1),
 								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+						mudlog(buf, BRF, kLevelGreatGod, ERRLOG, 1);
 					}
 				} else
 					sprintf(str, "%ld", GET_EXP(c));
@@ -2680,7 +2682,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "group")) {
 			CHAR_DATA *l;
-			struct follow_type *f;
+			struct Follower *f;
 			if (!AFF_FLAGGED(c, EAffectFlag::AFF_GROUP)) {
 				return;
 			}
@@ -2691,10 +2693,10 @@ void find_replacement(void *go,
 			// l - лидер группы
 			sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(l));
 			for (f = l->followers; f; f = f->next) {
-				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
+				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
 					continue;
 				}
-				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->follower));
+				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->ch));
 			}
 		} else if (!str_cmp(field, "attackers")) {
 			CHAR_DATA *t;
@@ -3828,9 +3830,9 @@ void process_wait(void *go, TRIG_DATA *trig, int type, char *cmd, const cmdlist_
 		||(trig->get_attach_type() == WLD_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), WTRIG_KILL_PC))) {
 		sprintf(buf, "&YВНИМАНИЕ&G Используется wait в триггере '%s' (VNUM=%d).",
 				GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
-		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
+		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
 		sprintf(buf, "&GКод триггера после wait выполнен НЕ БУДЕТ!");
-		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
+		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
 	}
 
 	arg = any_one_arg(cmd, buf);
@@ -4241,7 +4243,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 		OBJ_DATA::shared_ptr object;
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			sprintf(buf2, "Add stuf: wrong ObjVnum %d, arg: '%s'", obj_vnum, cmd);
 			trig_log(trig, buf2);
 			return;
 		}
@@ -4255,7 +4257,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 		room_vnum = number(15021, 15084);
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			sprintf(buf2, "Add stuf: wrong ObjVnum %d, arg: '%s'", obj_vnum, cmd);
 			trig_log(trig, buf2);
 			return;
 		}
@@ -4269,7 +4271,7 @@ void add_stuf_zone(TRIG_DATA *trig, char *cmd) {
 		room_vnum = number(15021, 15084);
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
-			sprintf(buf2, "Add stuf: wrong obj_vnum %d, arg: '%s'", obj_vnum, cmd);
+			sprintf(buf2, "Add stuf: wrong ObjVnum %d, arg: '%s'", obj_vnum, cmd);
 			trig_log(trig, buf2);
 			return;
 		}
@@ -5193,7 +5195,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					return ret_val;
 				}
 			} else if (!strn_cmp(cmd, "version", 7)) {
-				mudlog(DG_SCRIPT_VERSION, BRF, LVL_BUILDER, SYSLOG, true);
+				mudlog(DG_SCRIPT_VERSION, BRF, kLevelBuilder, SYSLOG, true);
 			} else {
 				switch (type) {
 					case MOB_TRIGGER:

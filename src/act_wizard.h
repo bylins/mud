@@ -15,7 +15,7 @@ struct inspect_request {
 	char *req;            //собственно сам запрос
 	char *mail;            //мыло
 	int pos;            //позиция в таблице
-	std::vector<logon_data> ip_log;    //айпи адреса по которым идет поиск
+	std::vector<Logon> ip_log;    //айпи адреса по которым идет поиск
 	struct timeval start;        //время когда запустили запрос для отладки
 	std::string out;        //буфер в который накапливается вывод
 	bool sendmail; // отправлять ли на мыло список чаров

@@ -129,7 +129,7 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd) {
 			sprintf(buf,
 					"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 					GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-			mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
+			mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
 		}
 		if (subcmd == SCMD_WSEND)
 			sub_write(msg, ch, true, TO_CHAR);
@@ -140,7 +140,7 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void do_wzoneecho(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
-	zone_rnum zone;
+	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
 	msg = any_one_arg(argument, zone_name);
@@ -357,7 +357,7 @@ void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		//for (const auto ch : people_copy)
 		//{
 		//	if (IS_NPC(ch)
-		//		|| GET_REAL_LEVEL(ch) < LVL_IMMORT)
+		//		|| GET_REAL_LEVEL(ch) < kLevelImmortal)
 		//	{
 		//		command_interpreter(ch, line);
 		//	}
@@ -378,7 +378,7 @@ void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				command_interpreter(ch, line);
-			} else if (GET_REAL_LEVEL(ch) < LVL_IMMORT) {
+			} else if (GET_REAL_LEVEL(ch) < kLevelImmortal) {
 				command_interpreter(ch, line);
 			}
 		} else {
@@ -527,7 +527,7 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!IS_NPC(ch)) {
 				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
 						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, true);
+				mudlog(buf2, BRF, kLevelBuilder, SYSLOG, true);
 			}
 			die(ch, nullptr);
 		}

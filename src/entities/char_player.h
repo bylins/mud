@@ -44,14 +44,14 @@ class Player : public CHAR_DATA {
 	int get_pfilepos() const;
 	void set_pfilepos(int pfilepos);
 
-	room_rnum get_was_in_room() const;
-	void set_was_in_room(room_rnum was_in_room);
+	RoomRnum get_was_in_room() const;
+	void set_was_in_room(RoomRnum was_in_room);
 
 	std::string const &get_passwd() const;
 	void set_passwd(std::string const &passwd);
 
-	room_rnum get_from_room() const;
-	void set_from_room(room_rnum was_in_room);
+	RoomRnum get_from_room() const;
+	void set_from_room(RoomRnum was_in_room);
 
 	void remort();
 	void reset();
@@ -181,12 +181,12 @@ class Player : public CHAR_DATA {
 	// get_ptable_by_name или find_name (дублирование кода кстати) и всякие поиски по ид/уид, если уже имеем чар-дату
 	int pfilepos_;
 	// комната, в которой был чар до того, как его поместили в странную (linkdrop)
-	room_rnum was_in_room_;
+	RoomRnum was_in_room_;
 	// хэш пароля
 	std::string passwd_;
 	// комната, где был чар до вызова char_from_room (was_in_room_ под это использовать не оч хорошо)
 	// в данный момент поле нужно для проверки чара на бд при входе на арену любым способом, но может и еще потом пригодиться
-	room_rnum from_room_;
+	RoomRnum from_room_;
 	// стартовые статы
 	std::array<int, START_STATS_TOTAL> start_stats_;
 	// вспомнить

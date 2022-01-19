@@ -137,19 +137,19 @@ void init() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("globaldrop");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...<globaldrop> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	for (pugi::xml_node node = node_list.child("tdrop"); node; node = node.next_sibling("tdrop")) {
 		int chance = Parse::attr_int(node, "drop_chance");
 		int count_mobs = Parse::attr_int(node, "count_mobs");
-		int vnum_obj = Parse::attr_int(node, "obj_vnum");
+		int vnum_obj = Parse::attr_int(node, "ObjVnum");
 		std::vector<int> list_mobs;
 		for (pugi::xml_node node_ = node.child("mobs"); node_; node_ = node_.next_sibling("mobs")) {
 			list_mobs.push_back(Parse::attr_int(node_, "vnum"));
@@ -159,7 +159,7 @@ void init() {
 	}
 	for (pugi::xml_node node = node_list.child("freedrop_obj"); node; node = node.next_sibling("freedrop_obj")) {
 		global_drop_obj tmp;
-		int obj_vnum = Parse::attr_int(node, "obj_vnum");
+		int obj_vnum = Parse::attr_int(node, "ObjVnum");
 		int chance = Parse::attr_int(node, "drop_chance");
 		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
 		int day_end = Parse::attr_int_t(node, "day_end");
@@ -180,7 +180,7 @@ void init() {
 		drop_list_obj.push_back(tmp);
 	}
 	for (pugi::xml_node node = node_list.child("drop"); node; node = node.next_sibling("drop")) {
-		int obj_vnum = Parse::attr_int(node, "obj_vnum");
+		int obj_vnum = Parse::attr_int(node, "ObjVnum");
 		int mob_lvl = Parse::attr_int(node, "mob_lvl");
 		int max_mob_lvl = Parse::attr_int(node, "max_mob_lvl");
 		int count_mob = Parse::attr_int(node, "count_mob");
@@ -199,14 +199,14 @@ void init() {
 
 		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0) {
 			snprintf(buf, kMaxStringLength,
-					 "...bad drop attributes (obj_vnum=%d, mob_lvl=%d, drop_chance=%d, max_mob_lvl=%d)",
+					 "...bad drop attributes (ObjVnum=%d, mob_lvl=%d, drop_chance=%d, max_mob_lvl=%d)",
 					 obj_vnum, mob_lvl, count_mob, max_mob_lvl);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return;
 		}
 		snprintf(buf,
 				 kMaxStringLength,
-				 "GLOBALDROP: (obj_vnum=%d, mob_lvl=%d, count_mob=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, drop_chance=%d)",
+				 "GLOBALDROP: (ObjVnum=%d, mob_lvl=%d, count_mob=%d, max_mob_lvl=%d, day_start=%d, day_end=%d, race_mob=%d, drop_chance=%d)",
 				 obj_vnum,
 				 mob_lvl,
 				 count_mob,
@@ -215,7 +215,7 @@ void init() {
 				 day_end,
 				 race_mob,
 				 chance);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
 		tmp_node.mob_lvl = mob_lvl;
@@ -229,8 +229,8 @@ void init() {
 		if (obj_vnum >= 0) {
 			int obj_rnum = real_object(obj_vnum);
 			if (obj_rnum < 0) {
-				snprintf(buf, kMaxStringLength, "...incorrect obj_vnum=%d", obj_vnum);
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+				snprintf(buf, kMaxStringLength, "...incorrect ObjVnum=%d", obj_vnum);
+				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 				return;
 			}
 			tmp_node.rnum = obj_rnum;
@@ -241,21 +241,21 @@ void init() {
 				if (item_vnum <= 0) {
 					snprintf(buf, kMaxStringLength,
 							 "...bad shop attributes (item_vnum=%d)", item_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 					return;
 				}
 				// проверяем шмотку
 				int item_rnum = real_object(item_vnum);
 				if (item_rnum < 0) {
 					snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 					return;
 				}
 				tmp_node.olist[item_vnum] = item_rnum;
 			}
 			if (tmp_node.olist.empty()) {
-				snprintf(buf, kMaxStringLength, "...item list empty (obj_vnum=%d)", obj_vnum);
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+				snprintf(buf, kMaxStringLength, "...item list empty (ObjVnum=%d)", obj_vnum);
+				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 				return;
 			}
 		}
@@ -361,7 +361,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob) {
 							obj_proto[obj_rnum]->get_vnum(),
 							GET_NAME(mob),
 							GET_MOB_VNUM(mob));
-					mudlog(buf, CMP, LVL_GRGOD, SYSLOG, true);
+					mudlog(buf, CMP, kLevelGreatGod, SYSLOG, true);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}
 				i->mobs = 0;
@@ -538,7 +538,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 		}
 		return nullptr;
 	} else {
-		room_rnum corpse_room = ch->in_room;
+		RoomRnum corpse_room = ch->in_room;
 		if (corpse_room == STRANGE_ROOM
 			&& ch->get_was_in_room() != kNowhere) {
 			corpse_room = ch->get_was_in_room();

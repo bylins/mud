@@ -598,7 +598,7 @@ int calcDrunkDirection(CHAR_DATA *ch, int direction, bool need_specials_check) {
 
 int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *leader, bool is_flee) {
 	struct track_data *track;
-	room_rnum was_in, go_to;
+	RoomRnum was_in, go_to;
 	int i, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
 	int mob_rnum = -1;
 	CHAR_DATA *horse = nullptr;
@@ -916,8 +916,8 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	}
 	ch->set_motion(true);
 
-	room_rnum was_in;
-	struct follow_type *k, *next;
+	RoomRnum was_in;
+	struct Follower *k, *next;
 
 	if (ch == nullptr || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
 		return false;
@@ -941,31 +941,31 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 				return (false);
 
 			--dir;
-			for (k = ch->followers; k && k->follower->get_master(); k = next) {
+			for (k = ch->followers; k && k->ch->get_master(); k = next) {
 				next = k->next;
-				if (k->follower->in_room == was_in
-					&& !k->follower->get_fighting()
-					&& HERE(k->follower)
-					&& !GET_MOB_HOLD(k->follower)
-					&& AWAKE(k->follower)
-					&& (IS_NPC(k->follower)
-						|| (!PLR_FLAGGED(k->follower, PLR_MAILING)
-							&& !PLR_FLAGGED(k->follower, PLR_WRITING)))
-					&& (!IS_HORSE(k->follower)
-						|| !AFF_FLAGGED(k->follower, EAffectFlag::AFF_TETHERED))) {
-					if (GET_POS(k->follower) < POS_STANDING) {
-						if (IS_NPC(k->follower)
-							&& IS_NPC(k->follower->get_master())
-							&& GET_POS(k->follower) > POS_SLEEPING
-							&& !GET_WAIT(k->follower)) {
-							act("$n поднял$u.", false, k->follower, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-							GET_POS(k->follower) = POS_STANDING;
+				if (k->ch->in_room == was_in
+					&& !k->ch->get_fighting()
+					&& HERE(k->ch)
+					&& !GET_MOB_HOLD(k->ch)
+					&& AWAKE(k->ch)
+					&& (IS_NPC(k->ch)
+						|| (!PLR_FLAGGED(k->ch, PLR_MAILING)
+							&& !PLR_FLAGGED(k->ch, PLR_WRITING)))
+					&& (!IS_HORSE(k->ch)
+						|| !AFF_FLAGGED(k->ch, EAffectFlag::AFF_TETHERED))) {
+					if (GET_POS(k->ch) < POS_STANDING) {
+						if (IS_NPC(k->ch)
+							&& IS_NPC(k->ch->get_master())
+							&& GET_POS(k->ch) > POS_SLEEPING
+							&& !GET_WAIT(k->ch)) {
+							act("$n поднял$u.", false, k->ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+							GET_POS(k->ch) = POS_STANDING;
 						} else {
 							continue;
 						}
 					}
-//                   act("Вы поплелись следом за $N4.",false,k->follower,0,ch,TO_CHAR);
-					perform_move(k->follower, dir, 1, false, ch);
+//                   act("Вы поплелись следом за $N4.",false,k->ch,0,ch,TO_CHAR);
+					perform_move(k->ch, dir, 1, false, ch);
 				}
 			}
 		}
@@ -1116,7 +1116,7 @@ int find_door(CHAR_DATA *ch, const char *type, char *dir, DOOR_SCMD scmd) {
 
 }
 
-int has_key(CHAR_DATA *ch, obj_vnum key) {
+int has_key(CHAR_DATA *ch, ObjVnum key) {
 	for (auto o = ch->carrying; o; o = o->get_next_content()) {
 		if (GET_OBJ_VNUM(o) == key && key != -1) {
 			return (true);
@@ -1166,7 +1166,7 @@ const int flags_door[] =
 
 #define EXITN(room, door)        (world[room]->dir_option[door])
 
-inline void OPEN_DOOR(const room_rnum room, OBJ_DATA *obj, const int door) {
+inline void OPEN_DOOR(const RoomRnum room, OBJ_DATA *obj, const int door) {
 	if (obj) {
 		auto v = obj->get_val(1);
 		TOGGLE_BIT(v, CONT_CLOSED);
@@ -1176,7 +1176,7 @@ inline void OPEN_DOOR(const room_rnum room, OBJ_DATA *obj, const int door) {
 	}
 }
 
-inline void LOCK_DOOR(const room_rnum room, OBJ_DATA *obj, const int door) {
+inline void LOCK_DOOR(const RoomRnum room, OBJ_DATA *obj, const int door) {
 	if (obj) {
 		auto v = obj->get_val(1);
 		TOGGLE_BIT(v, CONT_LOCKED);
@@ -1239,7 +1239,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 						ch->get_name().c_str(),
 						GET_ROOM_VNUM(ch->in_room),
 						get_name_by_unique(GET_OBJ_VAL(obj, 3)));
-				mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+				mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 				system_obj::process_open_purse(ch, obj);
 				return;
 			} else {
@@ -1286,7 +1286,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 							sprintf(local_buf,
 									"[ERROR] do_doorcmd: ошибка при открытии контейнера %d, неизвестное содержимое!",
 									obj->get_vnum());
-							mudlog(local_buf, LogMode::CMP, LVL_GRGOD, MONEY_LOG, true);
+							mudlog(local_buf, LogMode::CMP, kLevelGreatGod, MONEY_LOG, true);
 							return;
 						}
 						// сначала удалим ключ из инвентаря
@@ -1352,7 +1352,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 	}
 }
 
-bool ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int scmd) {
+bool ok_pick(CHAR_DATA *ch, ObjVnum /*keynum*/, OBJ_DATA *obj, int door, int scmd) {
 	const bool pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
 
 	if (scmd != SCMD_PICK) {
@@ -1403,7 +1403,7 @@ bool ok_pick(CHAR_DATA *ch, obj_vnum /*keynum*/, OBJ_DATA *obj, int door, int sc
 
 void do_gen_door(CHAR_DATA *ch, char *argument, int, int subcmd) {
 	int door = -1;
-	obj_vnum keynum;
+	ObjVnum keynum;
 	char type[kMaxInputLength], dir[kMaxInputLength];
 	OBJ_DATA *obj = nullptr;
 	CHAR_DATA *victim = nullptr;
@@ -1498,7 +1498,7 @@ void do_gen_door(CHAR_DATA *ch, char *argument, int, int subcmd) {
 void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int door, from_room;
 	const char *p_str = "пентаграмма";
-	struct follow_type *k, *k_next;
+	struct Follower *k, *k_next;
 
 	one_argument(argument, smallBuf);
 
@@ -1583,35 +1583,35 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// ищем ангела и лошадь
 				for (k = ch->followers; k; k = k_next) {
 					k_next = k->next;
-					if (IS_HORSE(k->follower) &&
-						!k->follower->get_fighting() &&
-						!GET_MOB_HOLD(k->follower) &&
-						IN_ROOM(k->follower) == from_room && AWAKE(k->follower)) {
+					if (IS_HORSE(k->ch) &&
+						!k->ch->get_fighting() &&
+						!GET_MOB_HOLD(k->ch) &&
+						IN_ROOM(k->ch) == from_room && AWAKE(k->ch)) {
 						if (!ROOM_FLAGGED(door, ROOM_NOHORSE)) {
-							char_from_room(k->follower);
-							char_to_room(k->follower, door);
+							char_from_room(k->ch);
+							char_to_room(k->ch, door);
 						}
 					}
-					if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
-						&& !GET_MOB_HOLD(k->follower)
-						&& (MOB_FLAGGED(k->follower, MOB_ANGEL) || MOB_FLAGGED(k->follower, MOB_GHOST))
-						&& !k->follower->get_fighting()
-						&& IN_ROOM(k->follower) == from_room
-						&& AWAKE(k->follower)) {
+					if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
+						&& !GET_MOB_HOLD(k->ch)
+						&& (MOB_FLAGGED(k->ch, MOB_ANGEL) || MOB_FLAGGED(k->ch, MOB_GHOST))
+						&& !k->ch->get_fighting()
+						&& IN_ROOM(k->ch) == from_room
+						&& AWAKE(k->ch)) {
 						act("$n исчез$q в пентаграмме.", true,
-							k->follower, nullptr, nullptr, TO_ROOM);
-						char_from_room(k->follower);
-						char_to_room(k->follower, door);
-						set_wait(k->follower, 3, false);
+							k->ch, nullptr, nullptr, TO_ROOM);
+						char_from_room(k->ch);
+						char_to_room(k->ch, door);
+						set_wait(k->ch, 3, false);
 						act("$n появил$u из пентаграммы.", true,
-							k->follower, nullptr, nullptr, TO_ROOM);
+							k->ch, nullptr, nullptr, TO_ROOM);
 					}
-					if (IS_CHARMICE(k->follower) &&
-						!GET_MOB_HOLD(k->follower) &&
-						GET_POS(k->follower) == POS_STANDING &&
-						IN_ROOM(k->follower) == from_room) {
+					if (IS_CHARMICE(k->ch) &&
+						!GET_MOB_HOLD(k->ch) &&
+						GET_POS(k->ch) == POS_STANDING &&
+						IN_ROOM(k->ch) == from_room) {
 						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
-						command_interpreter(k->follower, buf2);
+						command_interpreter(k->ch, buf2);
 					}
 				}
 				if (ch->desc != nullptr)
@@ -1734,7 +1734,7 @@ void do_rest(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_sleep(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT) {
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal) {
 		send_to_char("Не время вам спать, родина в опасности!\r\n", ch);
 		return;
 	}

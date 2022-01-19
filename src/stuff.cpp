@@ -65,8 +65,8 @@ void oload_class::init() {
 	std::string cppstr;
 	std::istringstream isstream;
 	bool in_block = false;
-	obj_vnum ovnum;
-	mob_vnum mvnum;
+	ObjVnum ovnum;
+	MobVnum mvnum;
 	int oqty, lprob;
 
 	clear();
@@ -75,7 +75,7 @@ void oload_class::init() {
 
 	if (!fp) {
 		cppstr = "oload_class:: Unable open input file !!!";
-		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
+		mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -89,7 +89,7 @@ void oload_class::init() {
 
 			if (cppstr.empty()) {
 				cppstr = "oload_class:: Error in line '#' expected '#<RIGHT_obj_vnum>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 				in_block = false;
 				continue;
 			}
@@ -100,7 +100,7 @@ void oload_class::init() {
 			if (!isstream.eof() || real_object(ovnum) < 0) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '#" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 				in_block = false;
 				continue;
 			}
@@ -117,10 +117,10 @@ void oload_class::init() {
 			if (lprob < 0 || lprob > MAX_LOAD_PROB || oqty < 0 || real_mobile(mvnum) < 0 || !isstream.eof()) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '" + cppstr + "'";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 				cppstr =
 					"oload_class:: \texpected '<RIGHT_mob_vnum>\t<0 <= obj_qty>\t<0 <= load_prob <= MAX_LOAD_PROB>' !!!";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 				continue;
 			}
 
@@ -129,16 +129,16 @@ void oload_class::init() {
 			add_elem(mvnum, ovnum, obj_load_info(oqty, lprob));
 		} else {
 			cppstr = "oload_class:: Error in line '" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
-			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, true);
+			mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 		}
 	}
 }
 
 oload_class oload_table;
 
-obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info> &it) {
-	obj_rnum i = real_object(it.first);
-	obj_rnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob
+ObjRnum ornum_by_info(const std::pair<ObjVnum, obj_load_info> &it) {
+	ObjRnum i = real_object(it.first);
+	ObjRnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob
 						  ? (it.first >= 0 && i >= 0
 							 ? (obj_proto.actual_count(i) < it.second.obj_qty
 								? i
@@ -242,7 +242,7 @@ void generate_warrior_enchant(OBJ_DATA *obj) {
 			break;
 		}
 		default: sprintf(buf2, "SYSERR: Unknown vnum warrior enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf2, BRF, kLevelImmortal, SYSLOG, true);
 			break;
 	}
 }
@@ -289,7 +289,7 @@ void generate_magic_enchant(OBJ_DATA *obj) {
 			break;
 		}
 		default: sprintf(buf2, "SYSERR: Unknown vnum magic enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf2, BRF, kLevelImmortal, SYSLOG, true);
 			break;
 	}
 }
@@ -367,7 +367,7 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
 		return;
 	}
 
-	std::vector<obj_rnum> v(p->second.size());
+	std::vector<ObjRnum> v(p->second.size());
 	std::transform(p->second.begin(), p->second.end(), v.begin(), ornum_by_info);
 
 	for (size_t i = 0; i < v.size(); i++) {

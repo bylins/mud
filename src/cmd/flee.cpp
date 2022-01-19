@@ -6,7 +6,7 @@
 #include "entities/char.h"
 #include "entities/entity_constants.h"
 
-void reduce_exp_after_flee(CHAR_DATA *ch, CHAR_DATA *victim, room_rnum room) {
+void reduce_exp_after_flee(CHAR_DATA *ch, CHAR_DATA *victim, RoomRnum room) {
 	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))
 		return;
 

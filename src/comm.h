@@ -33,7 +33,7 @@ void send_to_char(const char *messg, const CHAR_DATA *ch);
 void send_to_char(const CHAR_DATA *ch, const char *messg, ...) __attribute__((format(printf, 2, 3)));
 void send_to_char(const std::string &buffer, const CHAR_DATA *ch);
 void send_stat_char(const CHAR_DATA *ch);
-void send_to_room(const char *messg, room_rnum room, int to_awake);
+void send_to_room(const char *messg, RoomRnum room, int to_awake);
 void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
 void perform_to_all(const char *messg, CHAR_DATA *ch);
@@ -116,7 +116,7 @@ unsigned long get_ip(const char *addr);
 // I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);
 bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, size_t byffer_size, int &written);
-void write_to_q(const char *txt, struct txt_q *queue, int aliased);
+void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased);
 void write_to_output(const char *txt, DESCRIPTOR_DATA *d);
 void string_add(DESCRIPTOR_DATA *d, char *str);
 void string_write(DESCRIPTOR_DATA *d,

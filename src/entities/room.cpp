@@ -56,11 +56,11 @@ void EXIT_DATA::set_keywords(std::string const &value) {
 	}
 }
 
-room_rnum EXIT_DATA::to_room() const {
+RoomRnum EXIT_DATA::to_room() const {
 	return m_to_room;
 }
 
-void EXIT_DATA::to_room(const room_rnum _) {
+void EXIT_DATA::to_room(const RoomRnum _) {
 	m_to_room = _;
 }
 

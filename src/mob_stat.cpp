@@ -148,13 +148,13 @@ void load() {
 	pugi::xml_parse_result result = doc.load_file(MOB_STAT_FILE_NEW);
 	if (!result) {
 		snprintf(buf_, sizeof(buf_), "...%s", result.description());
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("mob_list");
 	if (!node_list) {
 		snprintf(buf_, sizeof(buf_), "...<mob_stat_new> read fail");
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	for (pugi::xml_node xml_mob = node_list.child("mob"); xml_mob;
@@ -163,7 +163,7 @@ void load() {
 		if (real_mobile(mob_vnum) < 0) {
 			snprintf(buf_, sizeof(buf_),
 					 "...bad mob attributes (vnum=%d)", mob_vnum);
-			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 			continue;
 		}
 
@@ -184,7 +184,7 @@ void load() {
 				snprintf(buf_, sizeof(buf_),
 						 "...bad mob attributes (month=%d, year=%d)",
 						 tmp_mob.month, tmp_mob.year);
-				mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, true);
+				mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 				continue;
 			}
 			auto date = get_date();
@@ -311,9 +311,9 @@ void add_mob(CHAR_DATA *mob, int members) {
 	if (members < 0 || members > MAX_GROUP_SIZE) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_),
-				 "SYSERROR: mob_vnum=%d, members=%d (%s:%d)",
+				 "SYSERROR: MobVnum=%d, members=%d (%s:%d)",
 				 GET_MOB_VNUM(mob), members, __FILE__, __LINE__);
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	auto i = mob_list.find(GET_MOB_VNUM(mob));

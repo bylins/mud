@@ -43,7 +43,7 @@ ELuckTestResult MakeLuckTest(CHAR_DATA *ch, CHAR_DATA *vict);
 void SendSkillRollMsg(CHAR_DATA *ch, CHAR_DATA *victim, ESkill skill_id,
 					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result);
 
-extern struct message_list fight_messages[kMaxMessages];
+extern struct AttackMessages fight_messages[kMaxMessages];
 
 class WeapForAct {
  public:
@@ -292,7 +292,7 @@ void brief_shields::act_with_exception_handling(const char *msg, const int type)
 		}
 	}
 	catch (const WeapForAct::WeaponTypeException &e) {
-		mudlog(e.what(), BRF, LVL_BUILDER, ERRLOG, true);
+		mudlog(e.what(), BRF, kLevelBuilder, ERRLOG, true);
 	}
 }
 
@@ -570,11 +570,11 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 ///
 int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, std::string add) {
 	int i, j, nr;
-	struct message_type *msg;
+	struct AttackMsgSet *msg;
 
 	//log("[SKILL MESSAGE] Message for skill %d",attacktype);
 	for (i = 0; i < kMaxMessages; i++) {
-		if (fight_messages[i].a_type == attacktype) {
+		if (fight_messages[i].attack_type == attacktype) {
 			nr = dice(1, fight_messages[i].number_of_attacks);
 			// log("[SKILL MESSAGE] %d(%d)",fight_messages[i].number_of_attacks,nr);
 			for (j = 1, msg = fight_messages[i].msg; (j < nr) && msg; j++) {
@@ -588,7 +588,7 @@ int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, s
 				brief.reflect = true;
 			}
 
-			if (!IS_NPC(vict) && (GET_REAL_LEVEL(vict) >= LVL_IMMORT) && !PLR_FLAGGED((ch), PLR_WRITING)) {
+			if (!IS_NPC(vict) && (GET_REAL_LEVEL(vict) >= kLevelImmortal) && !PLR_FLAGGED((ch), PLR_WRITING)) {
 				switch (attacktype) {
 					case SKILL_BACKSTAB + TYPE_HIT:
 					case SKILL_THROW + TYPE_HIT:

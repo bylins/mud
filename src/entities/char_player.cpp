@@ -94,11 +94,11 @@ void Player::set_pfilepos(int pfilepos) {
 	pfilepos_ = pfilepos;
 }
 
-room_rnum Player::get_was_in_room() const {
+RoomRnum Player::get_was_in_room() const {
 	return was_in_room_;
 }
 
-void Player::set_was_in_room(room_rnum was_in_room) {
+void Player::set_was_in_room(RoomRnum was_in_room) {
 	was_in_room_ = was_in_room;
 }
 
@@ -123,11 +123,11 @@ void Player::reset() {
 	CHAR_DATA::reset();
 }
 
-room_rnum Player::get_from_room() const {
+RoomRnum Player::get_from_room() const {
 	return from_room_;
 }
 
-void Player::set_from_room(room_rnum from_room) {
+void Player::set_from_room(RoomRnum from_room) {
 	from_room_ = from_room;
 }
 
@@ -392,8 +392,8 @@ void Player::save_char() {
 	int i;
 	time_t li;
 	OBJ_DATA *char_eq[NUM_WEARS];
-	struct timed_type *skj;
-	struct char_portal_type *prt;
+	struct Timed *skj;
+	struct CharacterPortal *prt;
 	int tmp = time(0) - this->player_data.time.logon;
 
 	if (IS_NPC(this) || this->get_pfilepos() < 0)
@@ -544,7 +544,7 @@ void Player::save_char() {
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
 	// способности - added by Gorrah
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
 		fprintf(saved, "Feat:\n");
 		for (i = 1; i < kMaxFeats; i++) {
 			if (HAVE_FEAT(this, i))
@@ -554,7 +554,7 @@ void Player::save_char() {
 	}
 
 	// Задержки на cпособности
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (skj = this->timed_feat; skj; skj = skj->next) {
 			fprintf(saved, "%d %d %s\n", skj->skill, skj->time, feat_info[skj->skill].name);
@@ -563,7 +563,7 @@ void Player::save_char() {
 	}
 
 	// скилы
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
 		fprintf(saved, "Skil:\n");
 		int skill;
 		for (const auto i : AVAILABLE_SKILLS) {
@@ -579,7 +579,7 @@ void Player::save_char() {
 	fprintf(saved, "Cits: %s\n", this->cities_to_str().c_str());
 
 	// Задержки на скилы
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
 		fprintf(saved, "SkTm:\n");
 		for (skj = this->timed; skj; skj = skj->next) {
 			fprintf(saved, "%d %d\n", skj->skill, skj->time);
@@ -589,7 +589,7 @@ void Player::save_char() {
 
 	// спелы
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != CLASS_DRUID) {
 		fprintf(saved, "Spel:\n");
 		for (i = 1; i <= SPELLS_COUNT; i++)
 			if (GET_SPELL_TYPE(this, i))
@@ -597,7 +597,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != CLASS_DRUID) {
 		fprintf(saved, "TSpl:\n");
 		for (auto it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it) {
 			fprintf(saved,
@@ -611,7 +611,7 @@ void Player::save_char() {
 	}
 
 	// Замемленые спелы
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
 		fprintf(saved, "SpMe:\n");
 		for (i = 1; i <= SPELLS_COUNT; i++) {
 			if (GET_SPELL_MEM(this, i))
@@ -621,15 +621,15 @@ void Player::save_char() {
 	}
 
 	// Мемящиеся спелы
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
 		fprintf(saved, "SpTM:\n");
-		for (struct spell_mem_queue_item *qi = this->MemQueue.queue; qi != nullptr; qi = qi->link)
+		for (struct SpellMemQueueItem *qi = this->MemQueue.queue; qi != nullptr; qi = qi->link)
 			fprintf(saved, "%d\n", qi->spellnum);
 		fprintf(saved, "0\n");
 	}
 
 	// Рецепты
-//    if (GET_REAL_LEVEL(this) < LVL_IMMORT)
+//    if (GET_REAL_LEVEL(this) < kLevelImmortal)
 	{
 		im_rskill *rs;
 		im_recipe *r;
@@ -671,11 +671,11 @@ void Player::save_char() {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		fprintf(saved, "St%02d: %i\n", i, this->get_start_stat(i));
 
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT)
+	if (GET_REAL_LEVEL(this) < kLevelImmortal)
 		fprintf(saved, "Hung: %d\n", GET_COND(this, FULL));
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT)
+	if (GET_REAL_LEVEL(this) < kLevelImmortal)
 		fprintf(saved, "Thir: %d\n", GET_COND(this, THIRST));
-	if (GET_REAL_LEVEL(this) < LVL_IMMORT)
+	if (GET_REAL_LEVEL(this) < kLevelImmortal)
 		fprintf(saved, "Drnk: %d\n", GET_COND(this, DRUNK));
 
 	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) GET_SEX(this)]);
@@ -841,25 +841,25 @@ void Player::save_char() {
 	if (this->followers
 		&& can_use_feat(this, EMPLOYER_FEAT)
 		&& !IS_IMMORTAL(this)) {
-		struct follow_type *k = nullptr;
+		struct Follower *k = nullptr;
 		for (k = this->followers; k; k = k->next) {
-			if (k->follower
-				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
-				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)) {
+			if (k->ch
+				&& AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
+				&& AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
 				break;
 			}
 		}
 
 		if (k
-			&& k->follower
-			&& !k->follower->affected.empty()) {
-			for (const auto &aff : k->follower->affected) {
+			&& k->ch
+			&& !k->ch->affected.empty()) {
+			for (const auto &aff : k->ch->affected) {
 				if (aff->type == SPELL_CHARM) {
-					if (k->follower->mob_specials.hire_price == 0) {
+					if (k->ch->mob_specials.hire_price == 0) {
 						break;
 					}
 
-					int i = ((aff->duration - 1) / 2) * k->follower->mob_specials.hire_price;
+					int i = ((aff->duration - 1) / 2) * k->ch->mob_specials.hire_price;
 					if (i != 0) {
 						fprintf(saved, "GldH: %d\n", i);
 					}
@@ -967,7 +967,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	char filename[40];
 	char buf[kMaxRawInputLength], line[kMaxRawInputLength], tag[6];
 	char line1[kMaxRawInputLength];
-	struct timed_type timed;
+	struct Timed timed;
 	*filename = '\0';
 	log("Load ascii char %s", name);
 	if (!find_id) {
@@ -1520,7 +1520,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
 						if (buf[0] != '~') {
-							const logon_data cur_log = {str_dup(buf), lnum, lnum2, false};
+							const Logon cur_log = {str_dup(buf), lnum, lnum2, false};
 							LOGON_LIST(this).push_back(cur_log);
 						} else break;
 					} while (true);
@@ -1528,7 +1528,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					if (!LOGON_LIST(this).empty()) {
 						LOGON_LIST(this).at(0).is_first = true;
 						std::sort(LOGON_LIST(this).begin(), LOGON_LIST(this).end(),
-								  [](const logon_data &a, const logon_data &b) {
+								  [](const Logon &a, const Logon &b) {
 									  return a.lasttime < b.lasttime;
 								  });
 					}
@@ -1794,7 +1794,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							GET_SPELL_MEM(this, num) = num2;
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpTM")) {
-					struct spell_mem_queue_item *qi_cur, **qi = &MemQueue.queue;
+					struct SpellMemQueueItem *qi_cur, **qi = &MemQueue.queue;
 					while (*qi)
 						qi = &((*qi)->link);
 					do {
@@ -1881,7 +1881,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 	PRF_FLAGS(this).set(PRF_COLOR_2); //всегда цвет полный
 	// initialization for imms
-	if (GET_REAL_LEVEL(this) >= LVL_IMMORT) {
+	if (GET_REAL_LEVEL(this) >= kLevelImmortal) {
 		set_god_skills(this);
 		set_god_morphs(this);
 		GET_COND(this, FULL) = -1;

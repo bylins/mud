@@ -141,7 +141,7 @@ void insert_command(const std::string &command, int fill_mode, int other_flags) 
 // * Добавление иммам и демигодам списка команд по умолчанию из групп default и default_demigod.
 void insert_default_command(long uid) {
 	std::map<std::string, std::string>::const_iterator it;
-	if (get_level_by_unique(uid) < LVL_IMMORT)
+	if (get_level_by_unique(uid) < kLevelImmortal)
 		it = group_list.find("default_demigod");
 	else
 		it = group_list.find("default");
@@ -267,7 +267,7 @@ void load_god_boards() {
 	Boards::Static::clear_god_boards();
 	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god) {
 		int level = get_level_by_unique(god->first);
-		if (level < LVL_IMMORT) continue;
+		if (level < kLevelImmortal) continue;
 		// если это имм - делаем блокнот
 		Boards::Static::init_god_board(god->first, god->second.name);
 	}
@@ -280,7 +280,7 @@ void load_god_boards() {
 * \return 0 - нельзя, 1 - можно
 */
 bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
-	if (check_level && !mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT
+	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLevelImmortal
 		&& GET_REAL_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
 	if (IS_NPC(ch)) return false;
@@ -290,7 +290,7 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 #endif
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
-		if (GET_REAL_LEVEL(ch) == LVL_IMPL)
+		if (GET_REAL_LEVEL(ch) == kLevelImplementator)
 			return true;
 		switch (mode) {
 			case 0:
@@ -354,7 +354,7 @@ bool check_spells(const CHAR_DATA *ch, int spellnum) {
 * \return 0 - не может использовать скиллы, 1 - может
 */
 bool check_skills(const CHAR_DATA *ch) {
-	if ((GET_REAL_LEVEL(ch) > LVL_GOD) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
+	if ((GET_REAL_LEVEL(ch) > kLevelGod) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
 //	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;

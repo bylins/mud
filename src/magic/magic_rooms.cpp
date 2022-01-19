@@ -20,7 +20,7 @@ std::list<ROOM_DATA *> affected_rooms;
 
 void RemoveSingleRoomAffect(long casterID, int spellnum);
 void HandleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApply>::shared_ptr &aff);
-void sendAffectOffMessageToRoom(int aff, room_rnum room);
+void sendAffectOffMessageToRoom(int aff, RoomRnum room);
 void AddRoomToAffected(ROOM_DATA *room);
 void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af);
 void affect_room_join(ROOM_DATA *room, AFFECT_DATA<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
@@ -143,7 +143,7 @@ int removeControlledRoomAffect(CHAR_DATA *ch) {
 	return RemoveAffectFromRooms(0, filter);
 }
 
-void sendAffectOffMessageToRoom(int affectType, room_rnum room) {
+void sendAffectOffMessageToRoom(int affectType, RoomRnum room) {
 	// TODO:" refactor and replace int affectType by ESpell
 	const std::string &msg = get_wear_off_text(static_cast<ESpell>(affectType));
 	if (affectType > 0 && affectType <= SPELLS_COUNT && !msg.empty()) {

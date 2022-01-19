@@ -36,26 +36,27 @@ using sh_int = int16_t ;
 using ush_int = uint16_t;
 
 typedef struct index_data INDEX_DATA;
-typedef struct time_info_data TIME_INFO_DATA;
+typedef struct TimeInfoData TIME_INFO_DATA;
 
-// This structure describe new bitvector structure                  //
+// This structure describe new bitvector structure
 using bitvector_t = uint32_t;
 constexpr bitvector_t kIntOne = 1u << 30;
 constexpr bitvector_t kIntTwo = 2u << 30;
 constexpr bitvector_t kIntThree = 3u << 30;
 
-using room_vnum = int;	// A room's vnum type //
-using obj_vnum = int;	// An object's vnum type //
-using mob_vnum = int;	// A mob's vnum type //
-using zone_vnum = int;	// A virtual zone number.  //
-using trg_vnum = int;	// A virtual trigger number.  //
+using Vnum = int;
+using RoomVnum = Vnum;	// A room's vnum type //
+using ObjVnum = Vnum;	// An object's vnum type //
+using MobVnum = Vnum;	// A mob's vnum type //
+using ZoneVnum = Vnum;	// A virtual zone number.  //
+using TrgVnum = Vnum;	// A virtual trigger number.  //
 
-using rnum_t = int;
-using room_rnum = rnum_t;	// A room's real (internal) number type //
-using obj_rnum = rnum_t;	// An object's real (internal) num type //
-using mob_rnum = rnum_t;	// A mobile's real (internal) num type //
-using zone_rnum = rnum_t;	// A zone's real (array index) number. //
-using trg_rnum = rnum_t;	// A trigger's real (array index) number. //
+using Rnum = int;
+using RoomRnum = Rnum;	// A room's real (internal) number type //
+using ObjRnum = Rnum;	// An object's real (internal) num type //
+using MobRnum = Rnum;	// A mobile's real (internal) num type //
+using ZoneRnum = Rnum;	// A zone's real (array index) number. //
+using TrgRnum = Rnum;	// A trigger's real (array index) number. //
 
 #if !defined(__cplusplus)    // Anyone know a portable method?
 typedef char bool;
@@ -83,7 +84,6 @@ const int kMaxAliasLehgt = 100;
 const std::nullptr_t NoArgument = nullptr;
 
 extern const char *nothing_string;
-
 
 /*
  * If you want equipment to be automatically equipped to the same place
@@ -125,25 +125,11 @@ const int kKtSelectmenu = 255;
 
 // room-related defines ************************************************
 
-const int kHolesTime = 1;
-
+// Перенести в аффекты
 constexpr bitvector_t AF_BATTLEDEC = 1 << 0;
 constexpr bitvector_t AF_DEADKEEP = 1 << 1;
 constexpr bitvector_t AF_PULSEDEC = 1 << 2;
 constexpr bitvector_t AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
-
-constexpr bitvector_t WEATHER_QUICKCOOL = 1 << 0;
-constexpr bitvector_t WEATHER_QUICKHOT = 1 << 1;
-constexpr bitvector_t WEATHER_LIGHTRAIN = 1 << 2;
-constexpr bitvector_t WEATHER_MEDIUMRAIN = 1 << 3;
-constexpr bitvector_t WEATHER_BIGRAIN = 1 << 4;
-constexpr bitvector_t WEATHER_GRAD = 1 << 5;
-constexpr bitvector_t WEATHER_LIGHTSNOW = 1 << 6;
-constexpr bitvector_t WEATHER_MEDIUMSNOW = 1 << 7;
-constexpr bitvector_t WEATHER_BIGSNOW = 1 << 8;
-constexpr bitvector_t WEATHER_LIGHTWIND = 1 << 9;
-constexpr bitvector_t WEATHER_MEDIUMWIND = 1 << 10;
-constexpr bitvector_t WEATHER_BIGWIND = 1 << 11;
 
 template<typename T>
 struct Unimplemented {};
@@ -183,22 +169,6 @@ enum { DRUNK, FULL, THIRST };
 // pernalty types
 enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
-// Sun state for weather_data //
-const __uint8_t SUN_DARK = 0;
-const __uint8_t SUN_RISE = 1;
-const __uint8_t SUN_LIGHT = 2;
-const __uint8_t SUN_SET = 3;
-
-// Moon change type //
-const __uint8_t MOON_INCREASE = 0;
-const __uint8_t MOON_DECREASE = 1;
-
-// Sky conditions for weather_data //
-const __uint8_t SKY_CLOUDLESS = 0;
-const __uint8_t SKY_CLOUDY = 1;
-const __uint8_t SKY_RAINING = 2;
-const __uint8_t SKY_LIGHTNING = 3;
-
 constexpr bitvector_t EXTRA_FAILHIDE = 1 << 0;
 constexpr bitvector_t EXTRA_FAILSNEAK = 1 << 1;
 constexpr bitvector_t EXTRA_FAILCAMOUFLAGE = 1 << 2;
@@ -212,18 +182,16 @@ constexpr bitvector_t EXTRA_GRP_KILL_COUNT = 1 << 3; // для избежани�
  * Other changes throughout the code are required.  See coding.doc for
  * details.
  *
- * LVL_IMPL should always be the HIGHEST possible immortal level, and
- * LVL_IMMORT should always be the LOWEST immortal level.  The number of
- * mortal levels will always be LVL_IMMORT - 1.
+ * kLevelImplementator should always be the HIGHEST possible immortal level, and
+ * kLevelImmortal should always be the LOWEST immortal level.  The number of
+ * mortal levels will always be kLevelImmortal - 1.
  */
-const short LVL_IMPL = 34;
-const short LVL_GRGOD = 33;
-const short LVL_BUILDER = 33;
-const short LVL_GOD = 32;
-const short LVL_IMMORT = 31;
-
-// Level of the 'freeze' command //
-const __uint8_t LVL_FREEZE = LVL_GRGOD;
+const short kLevelImplementator = 34;
+const short kLevelGreatGod = 33;
+const short kLevelBuilder = 33;
+const short kLevelGod = 32;
+const short kLevelImmortal = 31;
+const short kLevelFreeze = kLevelGreatGod; // Level of the 'freeze' command //
 
 const __uint8_t NUM_OF_DIRS = 6;        // number of directions in a room (nsewud) //
 const __uint8_t MAGIC_NUMBER = 0x06;    // Arbitrary number that won't be in a string //
@@ -240,10 +208,10 @@ constexpr long long PASSES_PER_SEC = 1000000 / OPT_USEC;
 #define PULSE_LOGROTATE (10 RL_SEC)
 
 // Variables for the output buffering system //
-constexpr __uint16_t kMaxSockBuf = 48 * 1024;        // Size of kernel's sock buf   //
-const __uint16_t kMaxPromptLength = 256;        // Max length of prompt        //
-const __uint8_t kGarbageSpace = 32;                // Space for **OVERFLOW** etc  //
-const __uint16_t kSmallBufsize = 1024;            // Static output buffer size   //
+constexpr __uint16_t kMaxSockBuf = 48 * 1024;	// Size of kernel's sock buf   //
+const __uint16_t kMaxPromptLength = 256;		// Max length of prompt        //
+const __uint8_t kGarbageSpace = 32;				// Space for **OVERFLOW** etc  //
+const __uint16_t kSmallBufsize = 1024;			// Static output buffer size   //
 // Max amount of output that can be buffered //
 constexpr __uint16_t kLargeBufSize = kMaxSockBuf - kGarbageSpace - kMaxPromptLength;
 
@@ -267,13 +235,14 @@ const int kMaxTimedFeats = 16;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
 const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 
-const short INT_STUPID_MOD = 10;
-const short INT_MIDDLE_AI = 30;
-const short INT_HIGH_AI = 40;
-const short CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK = 100;
-const short STRONG_MOB_LEVEL = 30;
-const short MAX_MOB_LEVEL = 100;
-const short MAX_SAVE = 400; //максимальное значение воля, здоровье, стойкость, реакция
+// Перенести в мобакт
+const short kStupidMod = 10;
+const short kMiddleAI = 30;
+const short kHighAI = 40;
+const short kCharacterHPForMobPriorityAttack = 100;
+const short kStrongMobLevel = 30;
+const short kMaxMobLevel = 100;
+const short kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 
@@ -282,10 +251,10 @@ inline bool sprintbit(bitvector_t bitvector, const char *names[], char *result, 
 }
 
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //
-struct save_rent_info {
-	save_rent_info() : time(0), rentcode(0), net_cost_per_diem(0), gold(0),
-					   account(0), nitems(0), oitems(0), spare1(0), spare2(0), spare3(0),
-					   spare4(0), spare5(0), spare6(0), spare7(0) {};
+struct SaveRentInfo {
+	SaveRentInfo() : time(0), rentcode(0), net_cost_per_diem(0), gold(0),
+					 account(0), nitems(0), oitems(0), spare1(0), spare2(0), spare3(0),
+					 spare4(0), spare5(0), spare6(0), spare7(0) {};
 
 	int32_t time;
 	int32_t rentcode;
@@ -303,14 +272,14 @@ struct save_rent_info {
 	int32_t spare7;
 };
 
-struct save_time_info {
+struct SaveTimeInfo {
 	int32_t vnum;
 	int32_t timer;
 };
 
-struct save_info {
-	struct save_rent_info rent;
-	std::vector<save_time_info> time;
+struct SaveInfo {
+	struct SaveRentInfo rent;
+	std::vector<SaveTimeInfo> time;
 };
 
 // =======================================================================
@@ -320,100 +289,88 @@ struct save_info {
 
 
 // memory structure for characters //
-struct memory_rec_struct {
-	long id;
-	long time;
-	struct memory_rec_struct *next;
+struct MemoryRecord {
+	long id = 0;
+	long time = 0;
+	struct MemoryRecord *next = nullptr;
 };
-
-typedef struct memory_rec_struct memory_rec;
 
 // This structure is purely intended to be an easy way to transfer //
 // and return information about time (real or mudwise).            //
-struct time_info_data {
-	int
-		hours, day, month;
-	sh_int year;
+struct TimeInfoData {
+	int hours = 0;
+	int day = 0;
+	int month = 0;
+	sh_int year = 0;
 };
 
-// Alez
-struct logon_data {
+struct Logon {
 	char *ip;
 	long count;
-	time_t lasttime; //by kilnik
+	time_t lasttime;
 	bool is_first;
 };
 
-class punish_data {
- public:
-	punish_data();
-
-	long duration;
-	char *reason;
-	int level;
-	long godid;
+struct Punish {
+	long duration = 0;
+	char *reason = nullptr;
+	int level = 0;
+	long godid = 0;
 };
 
-struct timed_type {
-	ubyte skill;        // Number of used skill/spell //
-	ubyte time;        // Time for next using        //
-	struct timed_type *next;
+struct Timed {
+	ubyte skill = 0;					// Number of used skill/spell //
+	ubyte time = 0;						// Time for next using        //
+	struct Timed *next = nullptr;
 };
 
 // Structure used for entities following other entities //
-struct follow_type {
-	CHAR_DATA *follower;
-	struct follow_type *next;
+struct Follower {
+	CHAR_DATA *ch = nullptr;
+	struct Follower *next = nullptr;
 };
 
 // Structure used for tracking a mob //
 struct track_info {
-	int trk_info;
-	int who;
-	int dirs;
+	int trk_info = 0;
+	int who = 0;
+	int dirs = 0;
 };
 
 // Structure used for helpers //
-struct helper_data_type {
-	int
-		mob_vnum;
-	struct helper_data_type *next_helper;
+struct Helper {
+	MobVnum mob_vnum = 0;
+	struct Helper *next = nullptr;
 };
 
+// Перенести в загрузку предметов
 // Structure used for on_dead object loading //
-struct load_data {
-	int
-		obj_vnum;
-	int
-		load_prob;
-	int
-		load_type;
-	int
-		spec_param;
+struct LoadingItem {
+	ObjVnum obj_vnum = 0;
+	int load_prob = 0;
+	int load_type = 0;
+	int spec_param = 0;
 };
 
-typedef std::list<struct load_data *> load_list;
+using OnDeadLoadList = std::list<struct LoadingItem *>;
 
-struct spell_mem_queue_item {
-	int
-		spellnum;
-	struct spell_mem_queue_item *link;
+// Перенести в работу с очередью мема
+struct SpellMemQueueItem {
+	int spellnum = 0;
+	struct SpellMemQueueItem *link = nullptr;
 };
 
 // descriptor-related structures ****************************************
 
-struct txt_block {
-	char *text;
-	int
-		aliased;
-	struct txt_block *next;
+struct TextBlock {
+	char *text = nullptr;
+	int aliased = 0;
+	struct TextBlock *next = nullptr;
 };
 
-struct txt_q {
-	struct txt_block *head;
-	struct txt_block *tail;
-	txt_q() :
-		head(nullptr), tail(nullptr) {}
+struct TextBlocksQueue {
+	struct TextBlock *head = nullptr;
+	struct TextBlock *tail = nullptr;
 };
 
 namespace Glory {
@@ -467,15 +424,15 @@ class AbstractStringWriter {
 
 class DelegatedStringWriter : public AbstractStringWriter {
  public:
-	DelegatedStringWriter(char *&managed) : m_delegated_string(managed) {}
-	virtual const char *get_string() const override { return m_delegated_string; }
+	DelegatedStringWriter(char *&managed) : m_delegated_string_(managed) {}
+	virtual const char *get_string() const override { return m_delegated_string_; }
 	virtual void set_string(const char *string) override;
 	virtual void append_string(const char *string) override;
-	virtual size_t length() const override { return m_delegated_string ? strlen(m_delegated_string) : 0; }
+	virtual size_t length() const override { return m_delegated_string_ ? strlen(m_delegated_string_) : 0; }
 	virtual void clear() override;
 
  private:
-	char *&m_delegated_string;
+	char *&m_delegated_string_;
 };
 
 class AbstractStdStringWriter : public AbstractStringWriter {
@@ -493,55 +450,54 @@ class AbstractStdStringWriter : public AbstractStringWriter {
 
 class StdStringWriter : public AbstractStdStringWriter {
  private:
-	virtual std::string &string() override { return m_string; }
-	virtual const std::string &string() const override { return m_string; }
+	virtual std::string &string() override { return m_string_; }
+	virtual const std::string &string() const override { return m_string_; }
 
-	std::string m_string;
+	std::string m_string_;
 };
 
 class DelegatedStdStringWriter : public AbstractStringWriter {
  public:
-	DelegatedStdStringWriter(std::string &string) : m_string(string) {}
-	virtual const char *get_string() const override { return m_string.c_str(); }
-	virtual void set_string(const char *string) override { m_string = string; }
-	virtual void append_string(const char *string) override { m_string += string; }
-	virtual size_t length() const override { return m_string.length(); }
-	virtual void clear() override { m_string.clear(); }
+	DelegatedStdStringWriter(std::string &string) : m_string_(string) {}
+	virtual const char *get_string() const override { return m_string_.c_str(); }
+	virtual void set_string(const char *string) override { m_string_ = string; }
+	virtual void append_string(const char *string) override { m_string_ += string; }
+	virtual size_t length() const override { return m_string_.length(); }
+	virtual void clear() override { m_string_.clear(); }
 
  private:
-	std::string &m_string;
+	std::string &m_string_;
 };
 
 // other miscellaneous structures **************************************
 
-
-struct msg_type {
-	char *attacker_msg;    // message to attacker //
-	char *victim_msg;    // message to victim   //
-	char *room_msg;        // message to room     //
+struct AttackMsg {
+	char *attacker_msg = nullptr;	// message to attacker //
+	char *victim_msg = nullptr;		// message to victim   //
+	char *room_msg = nullptr;		// message to room     //
 };
 
-struct message_type {
-	struct msg_type die_msg;        // messages when death        //
-	struct msg_type miss_msg;        // messages when miss         //
-	struct msg_type hit_msg;        // messages when hit       //
-	struct msg_type god_msg;        // messages when hit on god      //
-	struct message_type *next;    // to next messages of this kind.   //
+struct AttackMsgSet {
+	struct AttackMsg die_msg;        // messages when death        //
+	struct AttackMsg miss_msg;        // messages when miss         //
+	struct AttackMsg hit_msg;        // messages when hit       //
+	struct AttackMsg god_msg;        // messages when hit on god      //
+	struct AttackMsgSet *next = nullptr;    // to next messages of this kind.   //
 };
 
-struct message_list {
-	int a_type;        // Attack type          //
-	int number_of_attacks;    // How many attack messages to chose from. //
-	struct message_type *msg;    // List of messages.       //
+struct AttackMessages {
+	int attack_type = 0;				// Attack type          //
+	int number_of_attacks = 0;			// How many attack messages to chose from. //
+	struct AttackMsgSet *msg = nullptr;	// List of messages.       //
 };
 
-struct zone_type {
-	char *name;            // type name //
-	int ingr_qty;        // quantity of ingredient types //
-	int *ingr_types;    // types of ingredients, which are loaded in zones of this type //
+struct ZoneCategory {
+	char *name = nullptr;            // type name //
+	int ingr_qty = 0;        // quantity of ingredient types //
+	int *ingr_types = nullptr;    // types of ingredients, which are loaded in zones of this type //
 };
 
-struct int_app_type {
+struct IntApplies {
 	int spell_aknowlege;    // drop_chance to know spell               //
 	int to_skilluse;        // ADD CHANSE FOR USING SKILL         //
 	int mana_per_tic;
@@ -550,7 +506,7 @@ struct int_app_type {
 	int observation;        // drop_chance to use SKILL_AWAKE/CRITICAL //
 };
 
-struct cha_app_type {
+struct ChaApplies {
 	int leadership;
 	int charms;
 	int morale;
@@ -558,14 +514,14 @@ struct cha_app_type {
 	int dam_to_hit_rate;
 };
 
-struct size_app_type {
+struct SizeApplies {
 	int ac;            // ADD VALUE FOR AC           //
 	int interpolate;        // ADD VALUE FOR SOME SKILLS  //
 	int initiative;
 	int shocking;
 };
 
-struct weapon_app_type {
+struct WeaponApplies {
 	int shocking;
 	int bashing;
 	int parrying;
@@ -576,36 +532,10 @@ struct weapon_app_type {
 	struct obj_affected_type *extra_modifiers;
 };*/
 
-struct weather_data {
-	int hours_go;        // Time life from reboot //
-
-	int pressure;        // How is the pressure ( Mb )            //
-	int press_last_day;    // Average pressure last day             //
-	int press_last_week;    // Average pressure last week            //
-
-	int temperature;        // How is the temperature (C)            //
-	int temp_last_day;        // Average temperature last day          //
-	int temp_last_week;    // Average temperature last week         //
-
-	int rainlevel;        // Level of water from rains             //
-	int snowlevel;        // Level of snow                         //
-	int icelevel;        // Level of ice                          //
-
-	int weather_type;        // bitvector - some values for month     //
-
-	int change;        // How fast and what way does it change. //
-	int sky;            // How is the sky.   //
-	int sunlight;        // And how much sun. //
-	int moon_day;        // And how much moon //
-	int season;
-	int week_day_mono;
-	int week_day_poly;
-};
-
 struct title_type {
-	char *title_m;
-	char *title_f;
-	int exp;
+	char *title_m = nullptr;
+	char *title_f = nullptr;
+	int exp = 0;
 };
 
 struct index_data {
@@ -623,31 +553,30 @@ struct index_data {
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };
 
-struct social_messg        // No argument was supplied //
-{
-	int ch_min_pos;
-	int ch_max_pos;
-	int vict_min_pos;
-	int vict_max_pos;
-	char *char_no_arg;
-	char *others_no_arg;
+struct SocialMessages {
+	int ch_min_pos = 0;
+	int ch_max_pos = 0;
+	int vict_min_pos = 0;
+	int vict_max_pos = 0;
+	char *char_no_arg = nullptr;
+	char *others_no_arg = nullptr;
 
 	// An argument was there, and a victim was found //
-	char *char_found;    // if NULL, read no further, ignore args //
-	char *others_found;
-	char *vict_found;
+	char *char_found = nullptr;    // if NULL, read no further, ignore args //
+	char *others_found = nullptr;
+	char *vict_found = nullptr;
 
 	// An argument was there, but no victim was found //
-	char *not_found;
+	char *not_found = nullptr;
 };
 
-struct social_keyword {
-	char *keyword;
-	int social_message;
+struct SocialKeyword {
+	char *keyword = nullptr;
+	int social_message = 0;
 };
 
-extern struct social_messg *soc_mess_list;
-extern struct social_keyword *soc_keys_list;
+extern struct SocialMessages *soc_mess_list;
+extern struct SocialKeyword *soc_keys_list;
 
 const __uint8_t GAPPLY_NONE = 0;
 const __uint8_t GAPPLY_SKILL_SUCCESS = 1;
@@ -656,39 +585,39 @@ const __uint8_t GAPPLY_SPELL_EFFECT = 3;
 const __uint8_t GAPPLY_MODIFIER = 4;
 const __uint8_t GAPPLY_AFFECT = 5;
 
-/* pclean_criteria_data структура которая определяет через какой время
+/* PCCleanCriteria структура которая определяет через какой время
    неактивности будет удален чар
 */
-struct pclean_criteria_data {
-	int level;            // max уровень для этого временного лимита //
-	int days;            // временной лимит в днях        //
+struct PCCleanCriteria {
+	int level = 0;	// max уровень для этого временного лимита //
+	int days = 0;	// временной лимит в днях        //
 };
 
 // Структрура для описания проталов для спела townportal //
-struct portals_list_type {
-	char *wrd;        // кодовое слово //
-	int vnum;            // vnum комнаты для портала (раньше был rnum, но зачем тут rnum?) //
-	int level;            // минимальный уровень для запоминания портала //
-	struct portals_list_type *next_portal;
+struct Portal {
+	char *wrd = nullptr;			// кодовое слово
+	RoomVnum vnum = 0;				// vnum комнаты для портала
+	int level = 0;					// минимальный уровень для запоминания
+	struct Portal *next = nullptr;
 };
 
-struct char_portal_type {
-	int vnum;            // vnum комнаты для портала //
-	struct char_portal_type *next;
+struct CharacterPortal {
+	int vnum = 0;            // vnum комнаты для портала //
+	struct CharacterPortal *next = nullptr;
 };
 
 // Структуры для act.wizard.cpp //
 
 struct show_struct {
-	const char *cmd;
-	const char level;
+	const char *cmd = nullptr;
+	const char level = 0;
 };
 
 struct set_struct {
-	const char *cmd;
-	const char level;
-	const char pcnpc;
-	const char type;
+	const char *cmd = nullptr;
+	const char level = 0;
+	const char pcnpc = 0;
+	const char type = 0;
 };
 
 #endif // STRUCTS_STRUCTS_H_

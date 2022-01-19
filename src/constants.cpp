@@ -949,7 +949,7 @@ const char *fullness[] =
 // str, dex and con deleted
 
 
-struct int_app_type int_app[] =
+struct IntApplies int_app[] =
 	{
 //Ackn  SkUse  SpLv     SpCnt Impr Obser
 		{10, -10, 10, 0, 2, -5},    // int = 0
@@ -1066,7 +1066,7 @@ const size_t INT_APP_SIZE = sizeof(int_app) / sizeof(*int_app);
 #define s6 (1 << 5)
 #define s7 (1 << 6)
 
-struct size_app_type size_app[] =
+struct SizeApplies size_app[] =
 	{
 // AC  BASH
 		{-2, -10, 5, 1},    // size = 0
@@ -1172,7 +1172,7 @@ struct size_app_type size_app[] =
 		{5, 10, -5, 30}        //size = 200
 	};
 
-struct cha_app_type cha_app[] =
+struct ChaApplies cha_app[] =
 	{
 // Lead Chrm Mr Illu Dam_to_hit_rate
 		{-6, 50, 0, -6, 20},    // size = 0
@@ -1278,7 +1278,7 @@ struct cha_app_type cha_app[] =
 		{85, 9700, 0, 90, 20}    // size = 100
 	};
 
-struct weapon_app_type weapon_app[] =
+struct WeaponApplies weapon_app[] =
 	{
 // Sho   Bash  Parrying
 		{1, -5, -10},        // ww = 0
@@ -1803,7 +1803,7 @@ int mana_cost_cs[][9] = {
 	{1, 1, 1, 1, 1, 1, 1, 1, 1}    // Lev 34
 };
 
-struct zone_type *zone_types = nullptr;
+struct ZoneCategory *zone_types = nullptr;
 
 // Weapon attack texts
 struct attack_hit_type attack_hit_text[] =

@@ -1185,8 +1185,8 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 				af[0].modifier = -1 * ((level / 6 + GET_REAL_REMORT(ch) / 2));
 			else
 				af[0].modifier = -2 * ((level / 6 + GET_REAL_REMORT(ch) / 2));
-			if (IS_NPC(ch) && level >= (LVL_IMMORT))
-				af[0].modifier += (LVL_IMMORT - level - 1);    //1 str per mob level above 30
+			if (IS_NPC(ch) && level >= (kLevelImmortal))
+				af[0].modifier += (kLevelImmortal - level - 1);    //1 str per mob level above 30
 			af[0].battleflag = AF_BATTLEDEC;
 			accum_duration = true;
 			to_room = "$n стал$g немного слабее.";
@@ -1653,8 +1653,8 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 				af[2].location = APPLY_CAST_SUCCESS;
 				af[2].duration = af[0].duration;
 				af[2].modifier = -(level / 3 + GET_REAL_REMORT(ch));
-				if (IS_NPC(ch) && level >= (LVL_IMMORT))
-					af[2].modifier += (LVL_IMMORT - level - 1);    //1 cast per mob level above 30
+				if (IS_NPC(ch) && level >= (kLevelImmortal))
+					af[2].modifier += (kLevelImmortal - level - 1);    //1 cast per mob level above 30
 				af[2].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
 			}
 			accum_duration = true;
@@ -2834,9 +2834,9 @@ const char *mag_summon_fail_msgs[] =
 int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savetype) {
 	CHAR_DATA *tmp_mob, *mob = nullptr;
 	OBJ_DATA *tobj, *next_obj;
-	struct follow_type *k;
+	struct Follower *k;
 	int pfail = 0, msg = 0, fmsg = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
-	mob_vnum mob_num;
+	MobVnum mob_num;
 
 	if (ch == nullptr) {
 		return 0;
@@ -3147,8 +3147,8 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	if (spellnum == SPELL_CLONE) {
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
 		for (k = ch->followers; k; k = k->next) {
-			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-				&& k->follower->get_master() == ch) {
+			if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
+				&& k->ch->get_master() == ch) {
 				cha_num++;
 			}
 		}
@@ -3589,7 +3589,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 						"неизвестный прототип объекта : %s (VNUM=%d)",
 						GET_OBJ_PNAME(obj, 0).c_str(),
 						obj->get_vnum());
-				mudlog(message, BRF, LVL_BUILDER, SYSLOG, 1);
+				mudlog(message, BRF, kLevelBuilder, SYSLOG, 1);
 				break;
 			}
 			if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
@@ -3665,12 +3665,12 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 }
 
 int mag_creations(int/* level*/, CHAR_DATA *ch, int spellnum) {
-	obj_vnum z;
+	ObjVnum z;
 
 	if (ch == nullptr) {
 		return 0;
 	}
-	// level = MAX(MIN(level, LVL_IMPL), 1); - Hm, not used.
+	// level = MAX(MIN(level, kLevelImplementator), 1); - Hm, not used.
 
 	switch (spellnum) {
 		case SPELL_CREATE_FOOD: z = START_BREAD;
@@ -4294,7 +4294,7 @@ int trySendCastMessages(CHAR_DATA *ch, CHAR_DATA *victim, ROOM_DATA *room, int s
 	int msgIndex = findIndexOfSpellMsg(spellnum);
 	if (mag_messages[msgIndex].spell < 0) {
 		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания с номером %d.", spellnum);
-		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, true);
+		mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
 		return msgIndex;
 	}
 	if (room && world[ch->in_room] == room) {

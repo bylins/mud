@@ -20,6 +20,7 @@
 #include "entities/entity_constants.h"
 #include "pugixml.h"
 #include "structs/structs.h"
+#include "game_mechanics/weather.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -90,7 +91,7 @@ inline const char *not_empty(const std::string &s, const char *subst) {
 		   : s.c_str();
 }
 
-extern struct weather_data weather_info;
+//extern struct Weather weather_info;
 extern char AltToKoi[];
 extern char KoiToAlt[];
 extern char WinToKoi[];
@@ -139,7 +140,7 @@ void utf8_to_koi(char *str_i, char *str_o);
 int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vict_obj);
 int roundup(float fl);
-int valid_email(const char *address);
+bool IsValidEmail(const char *address);
 void skip_dots(char **string);
 const char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
@@ -151,7 +152,7 @@ extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
 bool is_head(std::string name);
 
-extern bool is_dark(room_rnum room);
+extern bool is_dark(RoomRnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 extern const char *ACTNULL;
 
@@ -249,9 +250,9 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define PURGE_DEPOT_FILE  8
 
 // breadth-first searching //
-#define BFS_ERROR        -1
-#define BFS_ALREADY_THERE  -2
-#define BFS_NO_PATH         -3
+#define BFS_ERROR        (-1)
+#define BFS_ALREADY_THERE  (-2)
+#define BFS_NO_PATH         (-3)
 
 /*
  * XXX: These constants should be configurable. See act.informative.c
@@ -269,15 +270,6 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define SECS_PER_MUD_DAY      (HOURS_PER_DAY*SECS_PER_MUD_HOUR)
 #define SECS_PER_MUD_MONTH    (DAYS_PER_MONTH*SECS_PER_MUD_DAY)
 #define SECS_PER_MUD_YEAR     (MONTHS_PER_YEAR*SECS_PER_MUD_MONTH)
-#define NEWMOONSTART               27
-#define NEWMOONSTOP                1
-#define HALFMOONSTART              7
-#define FULLMOONSTART              13
-#define FULLMOONSTOP               15
-#define LASTHALFMOONSTART          21
-#define MOON_CYCLE               28
-#define WEEK_CYCLE               7
-#define POLY_WEEK_CYCLE          9
 
 // real-life time (remember Real Life?)
 #define SECS_PER_REAL_MIN  60
@@ -293,11 +285,10 @@ short GET_REAL_REMORT(const CHAR_DATA *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch);
 
-#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMMORT)
-#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GOD)
-#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GRGOD)
-#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMPL)
-#define IS_HIGHGOD(ch)      (IS_IMPL(ch) && (GET_GOD_FLAG(ch,GF_HIGHGOD)))
+#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImmortal)
+#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelGod)
+#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelGreatGod)
+#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
 #define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
@@ -483,13 +474,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
-#define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? \
-                            world[room]->weather.sky : weather_info.sky)
-
-#define IS_MOONLIGHT(room) ((GET_ROOM_SKY(room) == SKY_LIGHTNING && \
-                             weather_info.moon_day >= FULLMOONSTART && \
-                             weather_info.moon_day <= FULLMOONSTOP))
-
+#define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
 #define IS_TIMEDARK(room) is_dark(room)
 #define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ROOM_DARK) || \
                               (SECT(room) != kSectInside && \
@@ -501,7 +486,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define IS_LIGHT(room)  (!IS_DARK(room))
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
+#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
@@ -528,7 +513,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define IS_CODER(ch)    (GET_REAL_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
+#define IS_CODER(ch)    (GET_REAL_LEVEL(ch) < kLevelImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GET_REAL_LEVEL(ch)/3)+GET_REAL_REMORT(ch))
 
@@ -1115,8 +1100,8 @@ void check_horse(CHAR_DATA *ch);
 
 bool same_group(CHAR_DATA *ch, CHAR_DATA *tch);
 
-int is_post(room_rnum room);
-bool is_rent(room_rnum room);
+int is_post(RoomRnum room);
+bool is_rent(RoomRnum room);
 
 int pc_duration(CHAR_DATA *ch, int cnst, int level, int level_divisor, int min, int max);
 

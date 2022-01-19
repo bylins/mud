@@ -20,7 +20,7 @@ class Characters {
 	 public:
 		CL_RNumChangeObserver(Characters &cl);
 
-		virtual void notify(ProtectedCharacterData &character, const mob_rnum old_rnum) override;
+		virtual void notify(ProtectedCharacterData &character, const MobRnum old_rnum) override;
 
 	 private:
 		Characters &m_parent;
@@ -36,7 +36,7 @@ class Characters {
 
 	const auto &get_list() const { return m_list; }
 	const auto get_character_by_address(const CHAR_DATA *character) const;
-	void get_mobs_by_rnum(const mob_rnum rnum, list_t &result);
+	void get_mobs_by_rnum(const MobRnum rnum, list_t &result);
 
 	const auto begin() const { return m_list.begin(); }
 	const auto end() const { return m_list.end(); }
@@ -54,7 +54,7 @@ class Characters {
  private:
 	using character_raw_ptr_to_character_ptr_t = std::unordered_map<const void *, list_t::iterator>;
 	using set_t = std::unordered_set<const CHAR_DATA *>;
-	using rnum_to_characters_set_t = std::unordered_map<mob_rnum, set_t>;
+	using rnum_to_characters_set_t = std::unordered_map<MobRnum, set_t>;
 
 	list_t m_list;
 	character_raw_ptr_to_character_ptr_t m_character_raw_ptr_to_character_ptr;

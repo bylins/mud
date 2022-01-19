@@ -137,7 +137,7 @@ void check_light(CHAR_DATA *ch, int was_equip, int was_single, int was_holylight
 			world[ch->in_room]->gdark = MAX(0, world[ch->in_room]->gdark - koef);
 	}
 
-/*	if (GET_REAL_LEVEL(ch) >= LVL_GOD)
+/*	if (GET_REAL_LEVEL(ch) >= kLevelGod)
 	{
 		sprintf(buf,"Light:%d Glight:%d gdark%d koef:%d\r\n",world[ch->in_room]->light,world[ch->in_room]->glight,world[ch->in_room]->gdark,koef);
 		send_to_char(buf,ch);
@@ -193,7 +193,7 @@ void affect_join_fspell(CHAR_DATA *ch, const AFFECT_DATA<EApplyLocation> &af) {
 }
 
 void decreaseFeatTimer(CHAR_DATA *ch, int featureID) {
-	for (struct timed_type *skj = ch->timed_feat; skj; skj = skj->next) {
+	for (struct Timed *skj = ch->timed_feat; skj; skj = skj->next) {
 		if (skj->skill == featureID) {
 			if (skj->time >= 1) {
 				skj->time--;
@@ -205,8 +205,8 @@ void decreaseFeatTimer(CHAR_DATA *ch, int featureID) {
 	}
 };
 
-void timed_feat_to_char(CHAR_DATA *ch, struct timed_type *timed) {
-	struct timed_type *timed_alloc, *skj;
+void timed_feat_to_char(CHAR_DATA *ch, struct Timed *timed) {
+	struct Timed *timed_alloc, *skj;
 
 	// Карачун. Правка бага. Если такой фит уже есть в списке, просто меняем таймер.
 	for (skj = ch->timed_feat; skj; skj = skj->next) {
@@ -223,7 +223,7 @@ void timed_feat_to_char(CHAR_DATA *ch, struct timed_type *timed) {
 	ch->timed_feat = timed_alloc;
 }
 
-void timed_feat_from_char(CHAR_DATA *ch, struct timed_type *timed) {
+void timed_feat_from_char(CHAR_DATA *ch, struct Timed *timed) {
 	if (ch->timed_feat == nullptr) {
 		log("SYSERR: timed_feat_from_char(%s) when no timed...", GET_NAME(ch));
 		return;
@@ -234,7 +234,7 @@ void timed_feat_from_char(CHAR_DATA *ch, struct timed_type *timed) {
 }
 
 int timed_by_feat(CHAR_DATA *ch, int feat) {
-	struct timed_type *hjp;
+	struct Timed *hjp;
 
 	for (hjp = ch->timed_feat; hjp; hjp = hjp->next)
 		if (hjp->skill == feat)
@@ -243,9 +243,9 @@ int timed_by_feat(CHAR_DATA *ch, int feat) {
 	return (0);
 }
 
-// Insert an timed_type in a char_data structure
-void timed_to_char(CHAR_DATA *ch, struct timed_type *timed) {
-	struct timed_type *timed_alloc, *skj;
+// Insert an Timed in a char_data structure
+void timed_to_char(CHAR_DATA *ch, struct Timed *timed) {
+	struct Timed *timed_alloc, *skj;
 
 	// Карачун. Правка бага. Если такой скилл уже есть в списке, просто меняем таймер.
 	for (skj = ch->timed; skj; skj = skj->next) {
@@ -262,7 +262,7 @@ void timed_to_char(CHAR_DATA *ch, struct timed_type *timed) {
 	ch->timed = timed_alloc;
 }
 
-void timed_from_char(CHAR_DATA *ch, struct timed_type *timed) {
+void timed_from_char(CHAR_DATA *ch, struct Timed *timed) {
 	if (ch->timed == nullptr) {
 		log("SYSERR: timed_from_char(%s) when no timed...", GET_NAME(ch));
 		// core_dump();
@@ -274,7 +274,7 @@ void timed_from_char(CHAR_DATA *ch, struct timed_type *timed) {
 }
 
 int timed_by_skill(CHAR_DATA *ch, int skill) {
-	struct timed_type *hjp;
+	struct Timed *hjp;
 
 	for (hjp = ch->timed; hjp; hjp = hjp->next)
 		if (hjp->skill == skill)
@@ -306,7 +306,7 @@ void char_from_room(CHAR_DATA *ch) {
 	ch->track_dirs = 0;
 }
 
-void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
+void room_affect_process_on_entry(CHAR_DATA *ch, RoomRnum room) {
 	if (IS_IMMORTAL(ch)) {
 		return;
 	}
@@ -340,7 +340,7 @@ void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room) {
 }
 
 // place a character in a room
-void char_to_room(CHAR_DATA *ch, room_rnum room) {
+void char_to_room(CHAR_DATA *ch, RoomRnum room) {
 	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
@@ -406,7 +406,7 @@ void char_to_room(CHAR_DATA *ch, room_rnum room) {
 	}
 }
 // place a character in a room
-void char_flee_to_room(CHAR_DATA *ch, room_rnum room) {
+void char_flee_to_room(CHAR_DATA *ch, RoomRnum room) {
 	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
@@ -484,7 +484,7 @@ void restore_object(OBJ_DATA *obj, CHAR_DATA *ch) {
 		&& ch
 		&& GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)) {
 		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 	}
 }
 
@@ -604,7 +604,7 @@ void obj_to_char(OBJ_DATA *object, CHAR_DATA *ch) {
 		ss << "SYSERR: Object at address 0x" << object
 		   << " is not in the world but we have attempt to put it into character '" << ch->get_name()
 		   << "'. Object won't be placed into character's inventory.";
-		mudlog(ss.str().c_str(), NRM, LVL_IMPL, SYSLOG, true);
+		mudlog(ss.str().c_str(), NRM, kLevelImplementator, SYSLOG, true);
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 
 		return;
@@ -646,7 +646,7 @@ void obj_to_char(OBJ_DATA *object, CHAR_DATA *ch) {
 							GET_OBJ_VNUM(object),
 							GET_NAME(ch),
 							inworld);
-					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+					mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 					// Удаление предмета
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", false, ch, object, nullptr, TO_CHAR);
 					object->set_timer(0); // Хана предмету
@@ -1418,13 +1418,13 @@ OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA *list) {
 }
 
 // search the entire world for an object number, and return a pointer  //
-OBJ_DATA *get_obj_num(obj_rnum nr) {
+OBJ_DATA *get_obj_num(ObjRnum nr) {
 	const auto result = world_objects.find_first_by_rnum(nr);
 	return result.get();
 }
 
 // search a room for a char, and return a pointer if found..  //
-CHAR_DATA *get_char_room(char *name, room_rnum room) {
+CHAR_DATA *get_char_room(char *name, RoomRnum room) {
 	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
@@ -1447,7 +1447,7 @@ CHAR_DATA *get_char_room(char *name, room_rnum room) {
 }
 
 // search all over the world for a char num, and return a pointer if found //
-CHAR_DATA *get_char_num(mob_rnum nr) {
+CHAR_DATA *get_char_num(MobRnum nr) {
 	for (const auto &i : character_list) {
 		if (GET_MOB_RNUM(i) == nr) {
 			return i.get();
@@ -1469,7 +1469,7 @@ const int script_destroy_timer = 10; // * !!! Never set less than ONE * //
 * по коду, т.к. нигде оно нифига не проверяется на валидность после этой функции.
 * \return 0 - невалидный объект или комната, 1 - все ок
 */
-bool obj_to_room(OBJ_DATA *object, room_rnum room) {
+bool obj_to_room(OBJ_DATA *object, RoomRnum room) {
 //	int sect = 0;
 	if (!object || room < FIRST_ROOM || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
@@ -1623,7 +1623,7 @@ void object_list_new_owner(OBJ_DATA *list, CHAR_DATA *ch) {
 	}
 }
 
-room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep) {
+RoomVnum get_room_where_obj(OBJ_DATA *obj, bool deep) {
 	if (GET_ROOM_VNUM(obj->get_in_room()) != kNowhere) {
 		return GET_ROOM_VNUM(obj->get_in_room());
 	} else if (obj->get_in_obj() && !deep) {
@@ -1817,11 +1817,11 @@ namespace {
 void change_npc_leader(CHAR_DATA *ch) {
 	std::vector<CHAR_DATA *> tmp_list;
 
-	for (follow_type *i = ch->followers; i; i = i->next) {
-		if (IS_NPC(i->follower)
-			&& !IS_CHARMICE(i->follower)
-			&& i->follower->get_master() == ch) {
-			tmp_list.push_back(i->follower);
+	for (Follower *i = ch->followers; i; i = i->next) {
+		if (IS_NPC(i->ch)
+			&& !IS_CHARMICE(i->ch)
+			&& i->ch->get_master() == ch) {
+			tmp_list.push_back(i->ch);
 		}
 	}
 	if (tmp_list.empty()) {
@@ -2599,8 +2599,8 @@ int find_all_dots(char *arg) {
 // Функции для работы с порталами для "townportal"
 // Возвращает указатель на слово по vnum комнаты или nullptr если не найдено
 char *find_portal_by_vnum(int vnum) {
-	struct portals_list_type *i;
-	for (i = portals_list; i; i = i->next_portal) {
+	struct Portal *i;
+	for (i = portals_list; i; i = i->next) {
 		if (i->vnum == vnum)
 			return (i->wrd);
 	}
@@ -2609,8 +2609,8 @@ char *find_portal_by_vnum(int vnum) {
 
 // Возвращает минимальный уровень для изучения портала
 int level_portal_by_vnum(int vnum) {
-	struct portals_list_type *i;
-	for (i = portals_list; i; i = i->next_portal) {
+	struct Portal *i;
+	for (i = portals_list; i; i = i->next) {
 		if (i->vnum == vnum)
 			return (i->level);
 	}
@@ -2619,17 +2619,17 @@ int level_portal_by_vnum(int vnum) {
 
 // Возвращает vnum портала по ключевому слову или kNowhere если не найдено
 int find_portal_by_word(char *wrd) {
-	struct portals_list_type *i;
-	for (i = portals_list; i; i = i->next_portal) {
+	struct Portal *i;
+	for (i = portals_list; i; i = i->next) {
 		if (!str_cmp(i->wrd, wrd))
 			return (i->vnum);
 	}
 	return (kNowhere);
 }
 
-struct portals_list_type *get_portal(int vnum, char *wrd) {
-	struct portals_list_type *i;
-	for (i = portals_list; i; i = i->next_portal) {
+struct Portal *get_portal(int vnum, char *wrd) {
+	struct Portal *i;
+	for (i = portals_list; i; i = i->next) {
 		if ((!wrd || !str_cmp(i->wrd, wrd)) && ((vnum == -1) || (i->vnum == vnum)))
 			break;
 	}
@@ -2639,7 +2639,7 @@ struct portals_list_type *get_portal(int vnum, char *wrd) {
 /* Добавляет в список чару портал в комнату vnum - с проверкой целостности
    и если есть уже такой - то добавляем его 1м в список */
 void add_portal_to_char(CHAR_DATA *ch, int vnum) {
-	struct char_portal_type *tmp, *dlt = nullptr;
+	struct CharacterPortal *tmp, *dlt = nullptr;
 
 	// Проверка на то что уже есть портал в списке, если есть, удаляем
 	for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
@@ -2663,7 +2663,7 @@ void add_portal_to_char(CHAR_DATA *ch, int vnum) {
 
 // Проверка на то, знает ли чар портал в комнате vnum
 int has_char_portal(CHAR_DATA *ch, int vnum) {
-	struct char_portal_type *tmp;
+	struct CharacterPortal *tmp;
 
 	for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
 		if (tmp->vnum == vnum)
@@ -2675,8 +2675,8 @@ int has_char_portal(CHAR_DATA *ch, int vnum) {
 // Убирает лишние и несуществующие порталы у чара
 void check_portals(CHAR_DATA *ch) {
 	int max_p, portals;
-	struct char_portal_type *tmp, *dlt = nullptr;
-	struct portals_list_type *port;
+	struct CharacterPortal *tmp, *dlt = nullptr;
+	struct Portal *port;
 
 	// Вычисляем максимальное количество порталов, которое может запомнить чар
 	max_p = MAX_PORTALS(ch);
@@ -2867,7 +2867,7 @@ void MemQ_init(CHAR_DATA *ch) {
 }
 
 void MemQ_flush(CHAR_DATA *ch) {
-	struct spell_mem_queue_item *i;
+	struct SpellMemQueueItem *i;
 	while (ch->MemQueue.queue) {
 		i = ch->MemQueue.queue;
 		ch->MemQueue.queue = i->link;
@@ -2878,7 +2878,7 @@ void MemQ_flush(CHAR_DATA *ch) {
 
 int MemQ_learn(CHAR_DATA *ch) {
 	int num;
-	struct spell_mem_queue_item *i;
+	struct SpellMemQueueItem *i;
 	if (ch->MemQueue.queue == nullptr)
 		return 0;
 	num = GET_MEM_CURRENT(ch);
@@ -2897,7 +2897,7 @@ int MemQ_learn(CHAR_DATA *ch) {
 void MemQ_remember(CHAR_DATA *ch, int num) {
 	int *slots;
 	int slotcnt, slotn;
-	struct spell_mem_queue_item *i, **pi = &ch->MemQueue.queue;
+	struct SpellMemQueueItem *i, **pi = &ch->MemQueue.queue;
 
 	// проверить количество слотов
 	slots = MemQ_slots(ch);
@@ -2928,7 +2928,7 @@ void MemQ_remember(CHAR_DATA *ch, int num) {
 }
 
 void MemQ_forget(CHAR_DATA *ch, int num) {
-	struct spell_mem_queue_item **q = nullptr, **i;
+	struct SpellMemQueueItem **q = nullptr, **i;
 
 	for (i = &ch->MemQueue.queue; *i; i = &(i[0]->link)) {
 		if (i[0]->spellnum == num)
@@ -2938,7 +2938,7 @@ void MemQ_forget(CHAR_DATA *ch, int num) {
 	if (q == nullptr) {
 		send_to_char("Вы и не собирались заучить это заклинание.\r\n", ch);
 	} else {
-		struct spell_mem_queue_item *ptr;
+		struct SpellMemQueueItem *ptr;
 		if (q == &ch->MemQueue.queue)
 			GET_MEM_COMPLETED(ch) = 0;
 		GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, num));
@@ -2953,7 +2953,7 @@ void MemQ_forget(CHAR_DATA *ch, int num) {
 }
 
 int *MemQ_slots(CHAR_DATA *ch) {
-	struct spell_mem_queue_item **q, *qt;
+	struct SpellMemQueueItem **q, *qt;
 	static int slots[MAX_SLOT];
 	int i, n, sloti;
 

@@ -38,17 +38,17 @@
 using PlayerClass::max_slots;
 
 extern int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0);
-extern room_rnum r_unreg_start_room;
+extern RoomRnum r_unreg_start_room;
 extern CHAR_DATA *mob_proto;
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
-extern room_rnum r_mortal_start_room;
-extern room_rnum r_immort_start_room;
-extern room_rnum r_helled_start_room;
-extern room_rnum r_named_start_room;
+extern RoomRnum r_mortal_start_room;
+extern RoomRnum r_immort_start_room;
+extern RoomRnum r_helled_start_room;
+extern RoomRnum r_named_start_room;
 extern struct spell_create_type spell_create[];
 extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DESCRIPTOR_DATA *ch);
@@ -108,7 +108,7 @@ void handle_recall_spells(CHAR_DATA *ch) {
 		int slot_to_restore = aff->modifier++;
 
 		bool found_spells = false;
-		struct spell_mem_queue_item *next = nullptr, *prev = nullptr, *i = ch->MemQueue.queue;
+		struct SpellMemQueueItem *next = nullptr, *prev = nullptr, *i = ch->MemQueue.queue;
 		while (i) {
 			next = i->link;
 			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) {
@@ -384,7 +384,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 			restore = calc_loadroom(i.get());
 		restore = real_room(restore);
 		if (restore == kNowhere) {
-			if (GET_REAL_LEVEL(i) >= LVL_IMMORT)
+			if (GET_REAL_LEVEL(i) >= kLevelImmortal)
 				restore = r_immort_start_room;
 			else
 				restore = r_mortal_start_room;
@@ -415,7 +415,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 		restore = real_room(restore);
 
 		if (restore == kNowhere) {
-			if (GET_REAL_LEVEL(i) >= LVL_IMMORT) {
+			if (GET_REAL_LEVEL(i) >= kLevelImmortal) {
 				restore = r_immort_start_room;
 			} else {
 				restore = r_mortal_start_room;
@@ -474,7 +474,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 			restore = real_room(restore);
 
 			if (restore == kNowhere) {
-				if (GET_REAL_LEVEL(i) >= LVL_IMMORT) {
+				if (GET_REAL_LEVEL(i) >= kLevelImmortal) {
 					restore = r_immort_start_room;
 				} else {
 					restore = r_mortal_start_room;
@@ -523,7 +523,7 @@ void beat_punish(const CHAR_DATA::shared_ptr &i) {
 		}
 		restore = real_room(restore);
 		if (restore == kNowhere) {
-			if (GET_REAL_LEVEL(i) >= LVL_IMMORT)
+			if (GET_REAL_LEVEL(i) >= kLevelImmortal)
 				restore = r_immort_start_room;
 			else
 				restore = r_mortal_start_room;
@@ -763,13 +763,13 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
-	if (!IS_NPC(ch) && ((GET_REAL_LEVEL(ch) < 1 || GET_REAL_LEVEL(ch) >= LVL_IMMORT)))
+	if (!IS_NPC(ch) && ((GET_REAL_LEVEL(ch) < 1 || GET_REAL_LEVEL(ch) >= kLevelImmortal)))
 		return;
 
-	if (gain > 0 && GET_REAL_LEVEL(ch) < LVL_IMMORT) {
+	if (gain > 0 && GET_REAL_LEVEL(ch) < kLevelImmortal) {
 		gain = MIN(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
-		if (GET_EXP(ch) >= level_exp(ch, LVL_IMMORT)) {
+		if (GET_EXP(ch) >= level_exp(ch, kLevelImmortal)) {
 			if (!GET_GOD_FLAG(ch, GF_REMORT) && GET_REAL_REMORT(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					send_to_char(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
@@ -782,8 +782,8 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 				SET_GOD_FLAG(ch, GF_REMORT);
 			}
 		}
-		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, LVL_IMMORT) - 1));
-		while (GET_REAL_LEVEL(ch) < LVL_IMMORT && GET_EXP(ch) >= level_exp(ch, GET_REAL_LEVEL(ch) + 1)) {
+		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, kLevelImmortal) - 1));
+		while (GET_REAL_LEVEL(ch) < kLevelImmortal && GET_EXP(ch) >= level_exp(ch, GET_REAL_LEVEL(ch) + 1)) {
 			ch->set_level(ch->get_level() + 1);
 			num_levels++;
 			sprintf(buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -795,9 +795,9 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 		if (is_altered) {
 			sprintf(buf, "%s advanced %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
-			mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
+			mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 		}
-	} else if (gain < 0 && GET_REAL_LEVEL(ch) < LVL_IMMORT) {
+	} else if (gain < 0 && GET_REAL_LEVEL(ch) < kLevelImmortal) {
 		gain = MAX(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
 		while (GET_REAL_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_REAL_LEVEL(ch))) {
@@ -813,13 +813,13 @@ void gain_exp(CHAR_DATA *ch, int gain) {
 		if (is_altered) {
 			sprintf(buf, "%s decreases %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
-			mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
+			mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 		}
 	}
-	if ((GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
+	if ((GET_EXP(ch) < level_exp(ch, kLevelImmortal) - 1)
 		&& GET_GOD_FLAG(ch, GF_REMORT)
 		&& gain
-		&& (GET_REAL_LEVEL(ch) < LVL_IMMORT)) {
+		&& (GET_REAL_LEVEL(ch) < kLevelImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			send_to_char(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
 						 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -839,7 +839,7 @@ void gain_exp_regardless(CHAR_DATA *ch, int gain) {
 	ch->set_exp(ch->get_exp() + gain);
 	if (!IS_NPC(ch)) {
 		if (gain > 0) {
-			while (GET_REAL_LEVEL(ch) < LVL_IMPL && GET_EXP(ch) >= level_exp(ch, GET_REAL_LEVEL(ch) + 1)) {
+			while (GET_REAL_LEVEL(ch) < kLevelImplementator && GET_EXP(ch) >= level_exp(ch, GET_REAL_LEVEL(ch) + 1)) {
 				ch->set_level(ch->get_level() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
@@ -853,7 +853,7 @@ void gain_exp_regardless(CHAR_DATA *ch, int gain) {
 			if (is_altered) {
 				sprintf(buf, "%s advanced %d level%s to level %d.",
 						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
+				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 			}
 		} else if (gain < 0) {
 			// Pereplut: глупый участок кода.
@@ -874,7 +874,7 @@ void gain_exp_regardless(CHAR_DATA *ch, int gain) {
 			if (is_altered) {
 				sprintf(buf, "%s decreases %d level%s to level %d.",
 						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
+				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 			}
 		}
 
@@ -1009,7 +1009,7 @@ void check_idling(CHAR_DATA *ch) {
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+				mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 				extract_char(ch, false);
 
 				// чара в лд уже посейвило при обрыве коннекта
@@ -1045,9 +1045,9 @@ inline bool NO_TIMER(const OBJ_DATA *obj) {
 		return true;
 // так как таймер всего 30 шмот из тестовой зоны в своей зоне запретим тикать на земле
 // полный вариан
-/*	zone_rnum zrn = 0;
+/*	ZoneRnum zrn = 0;
 	if (GET_OBJ_VNUM_ZONE_FROM(obj) > 0) {
-		for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size() - 1); zrn++) {
+		for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size() - 1); zrn++) {
 			if (zone_table[zrn].vnum == GET_OBJ_VNUM_ZONE_FROM(obj))
 				break;
 		}
@@ -1217,9 +1217,9 @@ void clan_chest_invoice(OBJ_DATA *j) {
 	const int room = GET_ROOM_VNUM(j->get_in_obj()->get_in_room());
 
 	if (room <= 0) {
-		snprintf(buf, sizeof(buf), "clan_chest_invoice: room=%d, obj_vnum=%d",
+		snprintf(buf, sizeof(buf), "clan_chest_invoice: room=%d, ObjVnum=%d",
 				 room, GET_OBJ_VNUM(j));
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -1504,7 +1504,7 @@ void obj_point_update() {
 					if (j->get_timer() <= 0 && j->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
 								 GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->room_vn);
-						mudlog(buf, CMP, LVL_GRGOD, ERRLOG, true);
+						mudlog(buf, CMP, kLevelGreatGod, ERRLOG, true);
 
 					}
 					if (!world[j->get_in_room()]->people.empty()) {
@@ -1564,7 +1564,7 @@ void obj_point_update() {
 }
 
 void point_update(void) {
-	memory_rec *mem, *nmem, *pmem;
+	MemoryRecord *mem, *nmem, *pmem;
 
 	std::vector<int> real_spell(SPELLS_COUNT + 1);
 	for (int count = 0; count <= SPELLS_COUNT; count++) {
@@ -1751,11 +1751,11 @@ void point_update(void) {
 	});
 }
 
-void repop_decay(zone_rnum zone) {
-	const zone_vnum zone_num = zone_table[zone].vnum;
+void repop_decay(ZoneRnum zone) {
+	const ZoneVnum zone_num = zone_table[zone].vnum;
 
 	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr &j) {
-		const zone_vnum obj_zone_num = j->get_vnum() / 100;
+		const ZoneVnum obj_zone_num = j->get_vnum() / 100;
 
 		if (obj_zone_num == zone_num
 			&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {

@@ -192,7 +192,7 @@ int attack_best(CHAR_DATA *ch, CHAR_DATA *victim) {
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
-int check_room_tracks(const room_rnum room, const long victim_id) {
+int check_room_tracks(const RoomRnum room, const long victim_id) {
 	for (auto track = world[room]->track; track; track = track->next) {
 		if (track->who == victim_id) {
 			for (int i = 0; i < NUM_OF_DIRS; i++) {
@@ -458,7 +458,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA *ch, int extmode) {
 	bool kill_this;
 
 	int mobINT = GET_REAL_INT(ch);
-	if (mobINT < INT_STUPID_MOD) {
+	if (mobINT < kStupidMod) {
 		return find_best_stupidmob_victim(ch, extmode);
 	}
 
@@ -559,7 +559,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA *ch, int extmode) {
 			continue;
 		}
 
-		if (GET_HIT(vict) <= CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK) {
+		if (GET_HIT(vict) <= kCharacterHPForMobPriorityAttack) {
 			return vict;
 		}
 		if (IS_CASTER(vict)) {
@@ -573,7 +573,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA *ch, int extmode) {
 		best = currentVictim;
 	}
 
-	if (mobINT < INT_MIDDLE_AI) {
+	if (mobINT < kMiddleAI) {
 		int rand = number(0, 2);
 		if (caster) {
 			best = caster;
@@ -590,7 +590,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA *ch, int extmode) {
 		return selectVictimDependingOnGroupFormation(ch, best);
 	}
 
-	if (mobINT < INT_HIGH_AI) {
+	if (mobINT < kHighAI) {
 		int rand = number(0, 1);
 		if (caster)
 			best = caster;
@@ -655,14 +655,14 @@ int perform_best_mob_attack(CHAR_DATA *ch, int extmode) {
 		}
 
 		if (!IS_NPC(best)) {
-			struct follow_type *f;
+			struct Follower *f;
 			// поиск клонов и отработка атаки в клона персонажа
 			for (f = best->followers; f; f = f->next)
-				if (MOB_FLAGGED(f->follower, MOB_CLONE))
+				if (MOB_FLAGGED(f->ch, MOB_CLONE))
 					clone_number++;
 			for (f = best->followers; f; f = f->next)
-				if (IS_NPC(f->follower) && MOB_FLAGGED(f->follower, MOB_CLONE)
-					&& IN_ROOM(f->follower) == IN_ROOM(best)) {
+				if (IS_NPC(f->ch) && MOB_FLAGGED(f->ch, MOB_CLONE)
+					&& IN_ROOM(f->ch) == IN_ROOM(best)) {
 					if (number(0, clone_number) == 1)
 						break;
 					if ((GET_REAL_INT(ch) < 20) && number(0, clone_number))
@@ -672,7 +672,7 @@ int perform_best_mob_attack(CHAR_DATA *ch, int extmode) {
 					if ((GET_REAL_INT(ch) >= 20)
 						&& number(1, 10 + VPOSI((35 - GET_REAL_INT(ch)), 0, 15) * clone_number) <= 10)
 						break;
-					best = f->follower;
+					best = f->ch;
 					break;
 				}
 		}
@@ -783,7 +783,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak) {
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)) {
 				continue;
 			}
-			for (memory_rec *names = MEMORY(ch); names && !victim; names = names->next) {
+			for (MemoryRecord *names = MEMORY(ch); names && !victim; names = names->next) {
 				if (names->id == GET_IDNUM(vict)) {
 					if (!MAY_SEE(ch, ch, vict) || !may_kill_here(ch, vict, NoArgument)) {
 						continue;
@@ -1302,8 +1302,8 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 // make ch remember victim
 void mobRemember(CHAR_DATA *ch, CHAR_DATA *victim) {
-	struct timed_type timed{};
-	memory_rec *tmp;
+	struct Timed timed{};
+	MemoryRecord *tmp;
 	bool present = false;
 
 	if (!IS_NPC(ch) ||
@@ -1337,7 +1337,7 @@ void mobRemember(CHAR_DATA *ch, CHAR_DATA *victim) {
 
 // make ch forget victim
 void mobForget(CHAR_DATA *ch, CHAR_DATA *victim) {
-	memory_rec *curr, *prev = nullptr;
+	MemoryRecord *curr, *prev = nullptr;
 
 	// Момент спорный, но думаю, что так правильнее
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -1366,7 +1366,7 @@ void mobForget(CHAR_DATA *ch, CHAR_DATA *victim) {
 // Можно заметить, что функция вызывается только при extract char/mob
 // Удаляется все подряд
 void clearMemory(CHAR_DATA *ch) {
-	memory_rec *curr, *next;
+	MemoryRecord *curr, *next;
 
 	curr = MEMORY(ch);
 

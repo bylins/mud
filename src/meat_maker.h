@@ -5,17 +5,17 @@
 
 #include <unordered_map>
 
-class MeatMapping : private std::unordered_map<obj_vnum, obj_vnum> {
+class MeatMapping : private std::unordered_map<ObjVnum, ObjVnum> {
  public:
-	using meat_mapping_t = std::pair<obj_vnum, obj_vnum>;
+	using meat_mapping_t = std::pair<ObjVnum, ObjVnum>;
 	using raw_mapping_t = std::vector<meat_mapping_t>;
 
-	const static obj_vnum ARTEFACT_KEY = 324;
+	const static ObjVnum ARTEFACT_KEY = 324;
 	const static raw_mapping_t RAW_MAPPING;
 
 	MeatMapping();
 
-	using base_t = std::unordered_map<obj_vnum, obj_vnum>;
+	using base_t = std::unordered_map<ObjVnum, ObjVnum>;
 	using base_t::size;
 
 	bool has(const key_type from) const { return end() != find(from); }
@@ -25,7 +25,7 @@ class MeatMapping : private std::unordered_map<obj_vnum, obj_vnum> {
 
  private:
 	void build_randomly_returnable_keys_index();
-	std::vector<obj_vnum> m_randomly_returnable_keys;
+	std::vector<ObjVnum> m_randomly_returnable_keys;
 };
 
 extern MeatMapping meat_mapping;

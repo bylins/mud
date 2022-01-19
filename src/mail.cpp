@@ -22,9 +22,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-extern room_rnum r_helled_start_room;
-extern room_rnum r_named_start_room;
-extern room_rnum r_unreg_start_room;
+extern RoomRnum r_helled_start_room;
+extern RoomRnum r_named_start_room;
+extern RoomRnum r_unreg_start_room;
 
 void postmaster_send_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int cmd, char *arg);
 void postmaster_check_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int cmd, char *arg);
@@ -574,13 +574,13 @@ void load() {
 	pugi::xml_parse_result result = doc.load_file(MAIL_XML_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node mail_n = doc.child("mail");
 	if (!mail_n) {
 		snprintf(buf, kMaxStringLength, "...<mail> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 

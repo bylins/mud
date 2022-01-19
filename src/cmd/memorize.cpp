@@ -104,7 +104,7 @@ void show_wizdom(CHAR_DATA *ch, int bitset) {
 		gcount += sprintf(buf2 + gcount, "\r\n");
 	}
 	if (bitset & 0x02) {
-		struct spell_mem_queue_item *q;
+		struct SpellMemQueueItem *q;
 		char timestr[16];
 		is_full = 0;
 		for (i = 0; i < MAX_SLOT; i++) {

@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-void WorldObjects::WO_VNumChangeObserver::notify(CObjectPrototype &object, const obj_vnum old_vnum) {
+void WorldObjects::WO_VNumChangeObserver::notify(CObjectPrototype &object, const ObjVnum old_vnum) {
 	if (old_vnum != object.get_vnum()) {
 		// find shared_ptr
 		auto i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
@@ -32,7 +32,7 @@ void WorldObjects::WO_VNumChangeObserver::notify(CObjectPrototype &object, const
 	}
 }
 
-void WorldObjects::WO_RNumChangeObserver::notify(CObjectPrototype &object, const obj_rnum old_rnum) {
+void WorldObjects::WO_RNumChangeObserver::notify(CObjectPrototype &object, const ObjRnum old_rnum) {
 	if (old_rnum != object.get_rnum()) {
 		// find shared_ptr
 		auto i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
@@ -90,7 +90,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_blank() {
 	return blank; //вместо -1 вставим реальный объект
 }
 
-OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(obj_vnum vnum) {
+OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(ObjVnum vnum) {
 	const auto rnum = real_object(vnum);
 	if (rnum < 0) {
 		log("Object (V) %d does not exist in database.", vnum);
@@ -100,7 +100,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(obj_vnum vnum) 
 	return create_from_prototype_by_rnum(rnum);
 }
 
-OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum) {
+OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(ObjRnum rnum) {
 	auto new_object = create_raw_from_prototype_by_rnum(rnum);
 	if (new_object) {
 		rnum = obj_proto.zone(rnum);
@@ -129,8 +129,8 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum) 
 	return new_object;
 }
 
-OBJ_DATA::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(obj_rnum rnum) {
-	// and obj_rnum
+OBJ_DATA::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(ObjRnum rnum) {
+	// and ObjRnum
 	if (rnum < 0) {
 		log("SYSERR: Trying to create obj with negative (%d) num!", rnum);
 		return nullptr;
@@ -193,14 +193,14 @@ void WorldObjects::foreach_on_copy_while(const foreach_while_f &function) const 
 	}
 }
 
-void WorldObjects::foreach_with_vnum(const obj_vnum vnum, const foreach_f &function) const {
+void WorldObjects::foreach_with_vnum(const ObjVnum vnum, const foreach_f &function) const {
 	const auto set_i = m_vnum_to_object_ptr.find(vnum);
 	if (set_i != m_vnum_to_object_ptr.end()) {
 		std::for_each(set_i->second.begin(), set_i->second.end(), function);
 	}
 }
 
-void WorldObjects::foreach_with_rnum(const obj_rnum rnum, const foreach_f &function) const {
+void WorldObjects::foreach_with_rnum(const ObjRnum rnum, const foreach_f &function) const {
 	const auto set_i = m_rnum_to_object_ptr.find(rnum);
 	if (set_i != m_rnum_to_object_ptr.end()) {
 		std::for_each(set_i->second.begin(), set_i->second.end(), function);
@@ -260,16 +260,16 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned num
 	return nullptr;
 }
 
-OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned number) const {
+OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const ObjVnum vnum, unsigned number) const {
 	return find_by_vnum_and_dec_number(vnum, number);
 }
 
-OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned &number) const {
+OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number) const {
 	object_id_set_t except;
 	return find_by_vnum_and_dec_number(vnum, number, except);
 }
 
-OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum,
+OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const ObjVnum vnum,
 															   unsigned &number,
 															   const object_id_set_t &except) const {
 	const auto set_i = m_vnum_to_object_ptr.find(vnum);
@@ -288,7 +288,7 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vn
 	return nullptr;
 }
 
-OBJ_DATA::shared_ptr WorldObjects::find_by_rnum(const obj_rnum rnum, unsigned number) const {
+OBJ_DATA::shared_ptr WorldObjects::find_by_rnum(const ObjRnum rnum, unsigned number) const {
 	const auto set_i = m_rnum_to_object_ptr.find(rnum);
 	if (set_i != m_rnum_to_object_ptr.end()) {
 		for (const auto &object : set_i->second) {

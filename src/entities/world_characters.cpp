@@ -15,7 +15,7 @@ Characters::~Characters() {
 	log("~Characters()");
 }
 
-void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData &character, const mob_rnum old_rnum) {
+void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData &character, const MobRnum old_rnum) {
 	const auto character_ptr = dynamic_cast<CHAR_DATA *>(&character);
 	if (nullptr == character_ptr) {
 		log("LOGIC ERROR: Character object passed to RNUM change observer "
@@ -63,7 +63,7 @@ void Characters::push_front(const CHAR_DATA::shared_ptr &character) {
 	}
 }
 
-void Characters::get_mobs_by_rnum(const mob_rnum rnum, list_t &result) {
+void Characters::get_mobs_by_rnum(const MobRnum rnum, list_t &result) {
 	result.clear();
 
 	const auto i = m_rnum_to_characters_set.find(rnum);
@@ -93,7 +93,7 @@ void Characters::remove(CHAR_DATA *character) {
 		const size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
 		snprintf(buffer, BUFFER_SIZE, "Character at address %p requested to remove not found in the world.", character);
-		mudlog(buffer, LGH, LVL_IMPL, SYSLOG, true);
+		mudlog(buffer, LGH, kLevelImplementator, SYSLOG, true);
 
 		return;
 	}

@@ -1236,7 +1236,7 @@ void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 	}
 
 	if (slot < 1 || slot > MAX_SLOT) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", skill_name(spell), slot, LVL_IMPL);
+		log("SYSERR: assigning '%s' to illegal slot %d/%d.", skill_name(spell), slot, kLevelImplementator);
 		bad = 1;
 	}
 

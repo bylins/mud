@@ -24,7 +24,7 @@ namespace MapSystem {
 struct Options;
 }
 
-extern room_rnum r_helled_start_room;
+extern RoomRnum r_helled_start_room;
 
 /**
 * Интерфейс плеера с пустыми функциями, находящийся у моба.
@@ -36,14 +36,14 @@ class PlayerI {
 	virtual int get_pfilepos() const { return -1; };
 	virtual void set_pfilepos(int/* pfilepos*/) {};
 
-	virtual room_rnum get_was_in_room() const { return kNowhere; };
-	virtual void set_was_in_room(room_rnum/* was_in_room*/) {};
+	virtual RoomRnum get_was_in_room() const { return kNowhere; };
+	virtual void set_was_in_room(RoomRnum/* was_in_room*/) {};
 
 	virtual std::string const &get_passwd() const { return empty_const_str; };
 	virtual void set_passwd(std::string const &/* passwd*/) {};
 
-	virtual room_rnum get_from_room() const { return r_helled_start_room; };
-	virtual void set_from_room(room_rnum/* was_in_room*/) {};
+	virtual RoomRnum get_from_room() const { return r_helled_start_room; };
+	virtual void set_from_room(RoomRnum/* was_in_room*/) {};
 
 	virtual void remort() {};
 	virtual void reset() {};

@@ -41,15 +41,15 @@ void assign_rooms(void);
 
 typedef int special_f(CHAR_DATA *, void *, int, char *);
 
-void ASSIGNROOM(room_vnum room, special_f);
-void ASSIGNMOB(mob_vnum mob, special_f);
-void ASSIGNOBJ(obj_vnum obj, special_f);
+void ASSIGNROOM(RoomVnum room, special_f);
+void ASSIGNMOB(MobVnum mob, special_f);
+void ASSIGNOBJ(ObjVnum obj, special_f);
 void clear_mob_charm(CHAR_DATA *mob);
 
 // functions to perform assignments
 
-void ASSIGNMOB(mob_vnum mob, int fname(CHAR_DATA *, void *, int, char *)) {
-	mob_rnum rnum;
+void ASSIGNMOB(MobVnum mob, int fname(CHAR_DATA *, void *, int, char *)) {
+	MobRnum rnum;
 
 	if ((rnum = real_mobile(mob)) >= 0) {
 		mob_index[rnum].func = fname;
@@ -62,8 +62,8 @@ void ASSIGNMOB(mob_vnum mob, int fname(CHAR_DATA *, void *, int, char *)) {
 	}
 }
 
-void ASSIGNOBJ(obj_vnum obj, special_f fname) {
-	const obj_rnum rnum = real_object(obj);
+void ASSIGNOBJ(ObjVnum obj, special_f fname) {
+	const ObjRnum rnum = real_object(obj);
 
 	if (rnum >= 0) {
 		obj_proto.func(rnum, fname);
@@ -72,8 +72,8 @@ void ASSIGNOBJ(obj_vnum obj, special_f fname) {
 	}
 }
 
-void ASSIGNROOM(room_vnum room, special_f fname) {
-	const room_rnum rnum = real_room(room);
+void ASSIGNROOM(RoomVnum room, special_f fname) {
+	const RoomRnum rnum = real_room(room);
 
 	if (rnum != kNowhere) {
 		world[rnum]->func = fname;
@@ -82,8 +82,8 @@ void ASSIGNROOM(room_vnum room, special_f fname) {
 	}
 }
 
-void ASSIGNMASTER(mob_vnum mob, special_f fname, int learn_info) {
-	mob_rnum rnum;
+void ASSIGNMASTER(MobVnum mob, special_f fname, int learn_info) {
+	MobRnum rnum;
 
 	if ((rnum = real_mobile(mob)) >= 0) {
 		mob_index[rnum].func = fname;
@@ -130,7 +130,7 @@ void assign_objects(void) {
 
 // assign special procedures to rooms //
 void assign_rooms(void) {
-	room_rnum i;
+	RoomRnum i;
 
 	if (dts_are_dumps)
 		for (i = FIRST_ROOM; i <= top_of_world; i++)

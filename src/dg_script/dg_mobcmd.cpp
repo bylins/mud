@@ -68,9 +68,9 @@ void mob_log(CHAR_DATA *mob, const char *msg, LogMode type = LogMode::OFF) {
 
 //returns the real room number, or kNowhere if not found or invalid
 //copy from find_target_room except char's messages
-room_rnum dg_find_target_room(CHAR_DATA *ch, char *rawroomstr) {
+RoomRnum dg_find_target_room(CHAR_DATA *ch, char *rawroomstr) {
 	char roomstr[kMaxInputLength];
-	room_rnum location = kNowhere;
+	RoomRnum location = kNowhere;
 
 	one_argument(rawroomstr, roomstr);
 
@@ -280,7 +280,7 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
+		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
 	}
 
 	sub_write(p, victim, true, TO_ROOM);
@@ -319,7 +319,7 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
+		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
 	}
 
 	sub_write(p, victim, true, TO_CHAR);
@@ -343,7 +343,7 @@ void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, true);
+		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
 	}
 
 	sub_write(p, ch, true, TO_ROOM);
@@ -525,7 +525,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int target;
 	CHAR_DATA *vict, *horse;
-	room_rnum from_room;
+	RoomRnum from_room;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -611,11 +611,11 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		from_room = vict->in_room;
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers) {
-			follow_type *ft;
+			Follower *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->follower) == from_room && IS_NPC(ft->follower)) {
-					char_from_room(ft->follower);
-					char_to_room(ft->follower, target);
+				if (IN_ROOM(ft->ch) == from_room && IS_NPC(ft->ch)) {
+					char_from_room(ft->ch);
+					char_to_room(ft->ch, target);
 				}
 			}
 		}
@@ -683,7 +683,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		command_interpreter(victim, argument);
-	} else if (GET_REAL_LEVEL(victim) < LVL_IMMORT) {
+	} else if (GET_REAL_LEVEL(victim) < kLevelImmortal) {
 		command_interpreter(victim, argument);
 	}
 }
@@ -698,7 +698,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (ch->desc && (GET_REAL_LEVEL(ch->desc->original) < LVL_IMPL))
+	if (ch->desc && (GET_REAL_LEVEL(ch->desc->original) < kLevelImplementator))
 		return;
 
 	two_arguments(argument, name, amount);
@@ -1376,7 +1376,7 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_mzoneecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	zone_rnum zone;
+	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
 	msg = any_one_arg(argument, zone_name);

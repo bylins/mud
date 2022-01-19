@@ -61,9 +61,9 @@ void add_mob(CHAR_DATA *mob, int members);
 // когда последний раз убили моба
 void last_kill_mob(CHAR_DATA *mob, std::string &result);
 int last_time_killed_mob(int vnum);
-/// печать статистики имму по конкретной зоне (show mobstat zone_vnum)
+/// печать статистики имму по конкретной зоне (show mobstat ZoneVnum)
 void show_zone(CHAR_DATA *ch, int zone_vnum, int months);
-/// очистка статы по всем мобам из зоны zone_vnum
+/// очистка статы по всем мобам из зоны ZoneVnum
 void clear_zone(int zone_vnum);
 /// выборка моб-статистики за последние months месяцев (0 = все)
 mob_node sum_stat(const std::list<mob_node> &mob_stat, int months);

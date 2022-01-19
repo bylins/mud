@@ -55,7 +55,7 @@ void do_stun(CHAR_DATA *ch, char *argument, int, int) {
 }
 
 void go_stun(CHAR_DATA *ch, CHAR_DATA *vict) {
-	timed_type timed;
+	Timed timed;
 	if (GET_SKILL(ch, SKILL_STUN) < 150) {
 		ImproveSkill(ch, SKILL_STUN, true, vict);
 		timed.skill = SKILL_STUN;

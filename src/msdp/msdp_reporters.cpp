@@ -276,28 +276,28 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	const auto master = ch->has_master() ? ch->get_master() : ch;
 	append_char(group_descriptor, ch, master, true);
 	for (auto f = master->followers; f; f = f->next) {
-		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& !(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(f->follower, MOB_ANGEL)
-				|| MOB_FLAGGED(f->follower, MOB_GHOST))) {
+		if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& !(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+				|| MOB_FLAGGED(f->ch, MOB_ANGEL)
+				|| MOB_FLAGGED(f->ch, MOB_GHOST))) {
 			continue;
 		}
 
-		append_char(group_descriptor, ch, f->follower, false);
+		append_char(group_descriptor, ch, f->ch, false);
 
-		// followers of a follower
-		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
+		// followers of a ch
+		if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
 			continue;
 		}
 
-		for (auto ff = f->follower->followers; ff; ff = ff->next) {
-			if (!(AFF_FLAGGED(ff->follower, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(ff->follower, MOB_ANGEL)
-				|| MOB_FLAGGED(ff->follower, MOB_GHOST))) {
+		for (auto ff = f->ch->followers; ff; ff = ff->next) {
+			if (!(AFF_FLAGGED(ff->ch, EAffectFlag::AFF_CHARM)
+				|| MOB_FLAGGED(ff->ch, MOB_ANGEL)
+				|| MOB_FLAGGED(ff->ch, MOB_GHOST))) {
 				continue;
 			}
 
-			append_char(group_descriptor, ch, ff->follower, false);
+			append_char(group_descriptor, ch, ff->ch, false);
 		}
 	}
 

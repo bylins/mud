@@ -35,7 +35,7 @@ extern int what_sky;
 int CalculateRequiredLevel(const CHAR_DATA *ch, int spellnum) {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 
-	if (required_level >= LVL_GOD)
+	if (required_level >= kLevelGod)
 		return required_level;
 	if (can_use_feat(ch, SECRET_RUNES_FEAT)) {
 		int remort = GET_REAL_REMORT(ch);
@@ -57,7 +57,7 @@ void SaySpell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
 	const auto &cast_phrase_list = get_cast_phrase(spellnum);
 	if (!cast_phrase_list) {
 		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", spellnum);
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
+		mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 		return;
 	}
 	if (IS_NPC(ch)) {
@@ -458,7 +458,7 @@ int FindCastTarget(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, 
 					return true;
 				}
 				if (!IS_NPC(ch)) {
-					struct follow_type *k, *k_next;
+					struct Follower *k, *k_next;
 					char tmpname[kMaxInputLength];
 					char *tmp = tmpname;
 					strcpy(tmp, t);
@@ -466,9 +466,9 @@ int FindCastTarget(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, 
 					int tnum = get_number(&tmp); // возвращает 1, если первая цель
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
-						if (isname(tmp, k->follower->get_pc_name())) {
+						if (isname(tmp, k->ch->get_pc_name())) {
 							if (++fnum == tnum) {// нашли!!
-								*tch = k->follower;
+								*tch = k->ch;
 								return true;
 							}
 						}
@@ -696,7 +696,7 @@ int CalculateCastSuccess(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int
 		prob += 50;
 	}
 
-	if (IS_NPC(ch) && (GET_REAL_LEVEL(ch) >= STRONG_MOB_LEVEL)) {
+	if (IS_NPC(ch) && (GET_REAL_LEVEL(ch) >= kStrongMobLevel)) {
 		prob += GET_REAL_LEVEL(ch) - 20;
 	}
 

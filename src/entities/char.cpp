@@ -43,7 +43,7 @@ ProtectedCharacterData::ProtectedCharacterData(const ProtectedCharacterData &rhv
 	*this = rhv;
 }
 
-void ProtectedCharacterData::set_rnum(const mob_rnum rnum) {
+void ProtectedCharacterData::set_rnum(const MobRnum rnum) {
 	if (rnum != m_rnum) {
 		const auto old_rnum = m_rnum;
 
@@ -425,7 +425,7 @@ void CHAR_DATA::purge() {
 		pk_free_list(this);
 
 		while (this->helpers) {
-			REMOVE_FROM_LIST(this->helpers, this->helpers, [](auto list) -> auto & { return list->next_helper; });
+			REMOVE_FROM_LIST(this->helpers, this->helpers, [](auto list) -> auto & { return list->next; });
 		}
 	} else if ((i = GET_MOB_RNUM(this))
 		>= 0) {    // otherwise, free strings only if the string is not pointing at proto
@@ -463,7 +463,7 @@ void CHAR_DATA::purge() {
 		}
 		// порталы
 		while (GET_PORTALS(this) != nullptr) {
-			struct char_portal_type *prt_next;
+			struct CharacterPortal *prt_next;
 			prt_next = GET_PORTALS(this)->next;
 			free(GET_PORTALS(this));
 			GET_PORTALS(this) = prt_next;
@@ -589,14 +589,14 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
 	if (IS_MANA_CASTER(this) && get_skill(skill_num) > 0) {
 		if (skill_num == SKILL_WATER_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0) {
 			sprintf(buf, "Попытка установить скилл магии воды без скилла магии огня для игрока %s", GET_NAME(this));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 			return;
 		}
 		if (skill_num == SKILL_EARTH_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0) {
 			sprintf(buf,
 					"Попытка установить скилл магии земли без скилла магии огня + воды для игрока %s",
 					GET_NAME(this));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 			return;
 		}
 		if (skill_num == SKILL_AIR_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0
@@ -604,7 +604,7 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
 			sprintf(buf,
 					"Попытка установить скилл магии воздуха без скилла магии огня + воды + земли для игрока %s",
 					GET_NAME(this));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 			return;
 		}
 		if (skill_num == SKILL_DARK_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0
@@ -612,7 +612,7 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
 			sprintf(buf,
 					"Попытка установить скилл магии тьмы без скилла магии огня + воды + земли + воздуха для игрока %s",
 					GET_NAME(this));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 			return;
 		}
 	}
@@ -1023,9 +1023,9 @@ short CHAR_DATA::get_level_add() const {
 
 void CHAR_DATA::set_level(short level) {
 	if (IS_NPC(this)) {
-		level_ = std::max(static_cast<short>(0), std::min(MAX_MOB_LEVEL, level));
+		level_ = std::max(static_cast<short>(0), std::min(kMaxMobLevel, level));
 	} else {
-		level_ = std::max(static_cast<short>(0), std::min(LVL_IMPL, level));
+		level_ = std::max(static_cast<short>(0), std::min(kLevelImplementator, level));
 	}
 }
 
@@ -1753,7 +1753,7 @@ CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const {
 	CHAR_DATA::followers_list_t result;
 	auto pos = followers;
 	while (pos) {
-		const auto follower = pos->follower;
+		const auto follower = pos->ch;
 		result.push_back(follower);
 		pos = pos->next;
 	}
@@ -1775,7 +1775,7 @@ void CHAR_DATA::cleanup_script() {
 }
 
 void CHAR_DATA::add_follower_silently(CHAR_DATA *ch) {
-	struct follow_type *k;
+	struct Follower *k;
 
 	if (ch->has_master()) {
 		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
@@ -1791,7 +1791,7 @@ void CHAR_DATA::add_follower_silently(CHAR_DATA *ch) {
 
 	CREATE(k, 1);
 
-	k->follower = ch;
+	k->ch = ch;
 	k->next = followers;
 	followers = k;
 }
@@ -1988,7 +1988,7 @@ void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const {
 
 	ss << "\nТекущий стек будет распечатан в ERRLOG.";
 	debug::backtrace(runtime_config.logs(ERRLOG).handle());
-	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, false);
+	mudlog(ss.str().c_str(), DEF, kLevelImplementator, ERRLOG, false);
 }
 
 void CHAR_DATA::print_leaders_chain(std::ostream &ss) const {
@@ -2043,7 +2043,7 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
 	if (IS_CHARMICE(this) && !this->has_master()) {
 		sprintf(buf, "[WARNING] CHAR_DATA::send_to_TC. Чармис без хозяина: %s", this->get_name().c_str());
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
+		mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 		return;
 	}
 	if ((IS_CHARMICE(this) && this->get_master()->is_npc()) //если это чармис у нпц
@@ -2071,7 +2071,7 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 
 	if (!tmpbuf) {
 		sprintf(buf, "[WARNING] CHAR_DATA::send_to_TC. Передано пустое сообщение");
-		mudlog(buf, BRF, LVL_GOD, SYSLOG, true);
+		mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 		return;
 	}
 	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру
@@ -2085,15 +2085,15 @@ bool CHAR_DATA::have_mind() const {
 }
 
 bool CHAR_DATA::has_horse(bool same_room) const {
-	struct follow_type *f;
+	struct Follower *f;
 
 	if (IS_NPC(this)) {
 		return false;
 	}
 
 	for (f = this->followers; f; f = f->next) {
-		if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)
-			&& (!same_room || this->in_room == IN_ROOM(f->follower))) {
+		if (IS_NPC(f->ch) && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)
+			&& (!same_room || this->in_room == IN_ROOM(f->ch))) {
 			return true;
 		}
 	}
@@ -2146,14 +2146,14 @@ void CHAR_DATA::dismount() {
 }
 
 CHAR_DATA *CHAR_DATA::get_horse() {
-	struct follow_type *f;
+	struct Follower *f;
 
 	if (IS_NPC(this))
 		return nullptr;
 
 	for (f = this->followers; f; f = f->next) {
-		if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)) {
-			return (f->follower);
+		if (IS_NPC(f->ch) && AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE)) {
+			return (f->ch);
 		}
 	}
 	return nullptr;

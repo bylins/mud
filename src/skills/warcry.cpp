@@ -76,12 +76,12 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (spell_info[spellnum].targets != TAR_IGNORE) {
 		std::stringstream str_log;
 		str_log << "Для клича #" << spellnum << ", установлены некорректные цели: " << spell_info[spellnum].targets;
-		mudlog(str_log.str(), BRF, LVL_GOD, SYSLOG, true);
+		mudlog(str_log.str(), BRF, kLevelGod, SYSLOG, true);
 		send_to_char("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
 		return;
 	}
 
-	struct timed_type timed;
+	struct Timed timed;
 	timed.skill = SKILL_WARCRY;
 	timed.time = timed_by_skill(ch, SKILL_WARCRY) + HOURS_PER_WARCRY;
 

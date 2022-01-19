@@ -62,11 +62,11 @@ extern const char *room_aff_visib_bits[];
 extern const char *room_aff_invis_bits[];
 extern const char *room_self_aff_invis_bits[];
 extern const char *equipment_types[];
-extern struct int_app_type int_app[];
+extern struct IntApplies int_app[];
 extern const size_t INT_APP_SIZE;
-extern struct cha_app_type cha_app[];
-extern struct size_app_type size_app[];
-extern struct weapon_app_type weapon_app[];
+extern struct ChaApplies cha_app[];
+extern struct SizeApplies size_app[];
+extern struct WeaponApplies weapon_app[];
 
 struct pray_affect_type {
 	int metter;
@@ -87,7 +87,7 @@ extern const char *material_name[];
 extern struct attack_hit_type attack_hit_text[];
 extern const char *godslike_bits[];
 extern std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name;
-extern struct zone_type *zone_types;
+extern struct ZoneCategory *zone_types;
 
 //The number of changing coefficients (the others are unchanged)
 #define    MAX_EXP_COEFFICIENTS_USED 15

@@ -1,6 +1,6 @@
 #include "craft_commands.h"
 
-#include "xml_loading_helper.h"
+#include "utils/xml_loading_helper.h"
 #include "craft.h"
 #include "entities/char.h"
 
@@ -40,7 +40,7 @@ void ExportPrototype::execute(const CommandContext::shared_ptr &context,
 
 	auto argument_i = arguments.begin();
 	const auto vnum_str = argument_i->c_str();
-	obj_vnum vnum = 0;
+	ObjVnum vnum = 0;
 	try {
 		CHelper::load_integer(vnum_str, vnum, [&]() { throw std::runtime_error("wrong VNUM value"); });
 	}

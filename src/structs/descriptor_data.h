@@ -53,8 +53,8 @@ struct DESCRIPTOR_DATA {
 	int history_pos;        // Circular array position.      //
 	size_t bufptr;            // ptr to end of current output  //
 	size_t bufspace;        // space left in the output buffer  //
-	struct txt_block *large_outbuf;    // ptr to large buffer, if we need it //
-	struct txt_q input;            // q of unprocessed input     //
+	struct TextBlock *large_outbuf;    // ptr to large buffer, if we need it //
+	struct TextBlocksQueue input;            // q of unprocessed input     //
 
 	std::shared_ptr<CHAR_DATA> character;    // linked to char       //
 	std::shared_ptr<CHAR_DATA> original;    // original char if switched     //
@@ -80,8 +80,8 @@ struct DESCRIPTOR_DATA {
 #if defined WITH_SCRIPTING
 	//std::shared_ptr<scripting::Console> console;	// Скриптовая консоль
 #endif
-	obj_vnum cur_vnum;                    // текущий внум именной шмотки (и что ЭТО тут делает?! убрать)
-	obj_vnum old_vnum;                    // старый внум именной шмотки
+	ObjVnum cur_vnum;                    // текущий внум именной шмотки (и что ЭТО тут делает?! убрать)
+	ObjVnum old_vnum;                    // старый внум именной шмотки
 	std::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
 	bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
 	std::array<int, ExtMoney::kTotalTypes> ext_money{}; // обмен доп.денег

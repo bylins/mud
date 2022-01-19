@@ -134,7 +134,7 @@ inline bool SortRank::operator()(const CHAR_DATA::shared_ptr ch1, const CHAR_DAT
 Clan::ClanListType Clan::ClanList;
 
 // поиск to_room в зонах клан-замков, выставляет за замок, если найдено
-room_rnum Clan::CloseRent(room_rnum to_room) {
+RoomRnum Clan::CloseRent(RoomRnum to_room) {
 	for (auto & clan : Clan::ClanList)
 		if (world[to_room]->zone_rn == world[real_room(clan->rent)]->zone_rn)
 			return real_room(clan->out_rent);
@@ -822,7 +822,7 @@ void Clan::SetClanData(CHAR_DATA *ch) {
 }
 
 // проверка комнаты на принадлежность какому-либо замку
-Clan::shared_ptr Clan::GetClanByRoom(room_rnum room) {
+Clan::shared_ptr Clan::GetClanByRoom(RoomRnum room) {
 	for (const auto &clan : ClanList) {
 		if (world[room]->zone_rn == world[real_room(clan->rent)]->zone_rn) {
 			return clan;
@@ -833,7 +833,7 @@ Clan::shared_ptr Clan::GetClanByRoom(room_rnum room) {
 }
 
 // может ли персонаж зайти в замок
-bool Clan::MayEnter(CHAR_DATA *ch, room_rnum room, bool mode) {
+bool Clan::MayEnter(CHAR_DATA *ch, RoomRnum room, bool mode) {
 	const auto clan = GetClanByRoom(room);
 	if (!clan
 		|| IS_GRGOD(ch)
@@ -1218,7 +1218,7 @@ void Clan::HouseAdd(CHAR_DATA *ch, std::string &buffer) {
 		return;
 	}
 
-	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GET_REAL_LEVEL(d->character) >= LVL_GOD)) {
+	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GET_REAL_LEVEL(d->character) >= kLevelGod)) {
 		send_to_char("Вы не можете приписать этого игрока.\r\n", ch);
 		return;
 	}
@@ -2354,7 +2354,7 @@ void Clan::HcontrolBuild(CHAR_DATA *ch, std::string &buffer) {
 	int out_rent = atoi(buffer2.c_str());
 	// охранник
 	GetOneParam(buffer, buffer2);
-	mob_vnum guard = atoi(buffer2.c_str());
+	MobVnum guard = atoi(buffer2.c_str());
 	// воевода
 	std::string owner;
 	GetOneParam(buffer, owner);
@@ -3272,7 +3272,7 @@ void Clan::load_mod() {
 // казна дружины... команды теже самые с приставкой 'казна' в начале
 // смотреть/вкладывать могут все, снимать по привилегии, висит на стандартных банкирах
 bool Clan::BankManage(CHAR_DATA *ch, char *arg) {
-	if (IS_NPC(ch) || !CLAN(ch) || GET_REAL_LEVEL(ch) >= LVL_IMMORT)
+	if (IS_NPC(ch) || !CLAN(ch) || GET_REAL_LEVEL(ch) >= kLevelImmortal)
 		return false;
 
 	std::string buffer = arg, buffer2;
@@ -4270,7 +4270,7 @@ void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&stufina);
 
 	if (is_abbrev(arg, "характеристики") || is_abbrev(arg, "identify") || is_abbrev(arg, "опознать")) {
-		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
+		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
 			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
@@ -4638,7 +4638,7 @@ bool Clan::ChestShow(OBJ_DATA *obj, CHAR_DATA *ch) {
 // +/- клан-экспы
 void Clan::SetClanExp(CHAR_DATA *ch, int add) {
 	// шоб не читили
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT) {
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal) {
 		return;
 	}
 
@@ -4683,7 +4683,7 @@ void Clan::SetClanExp(CHAR_DATA *ch, int add) {
 // добавление экспы для топа кланов и мемберу в зачетку
 void Clan::AddTopExp(CHAR_DATA *ch, int add_exp) {
 	// шоб не читили
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT)
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal)
 		return;
 
 	CLAN_MEMBER(ch)->exp += add_exp;
@@ -5515,7 +5515,7 @@ void Clan::house_web_url(CHAR_DATA *ch, const std::string &buffer) {
 					 "Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
 
 		snprintf(buf, sizeof(buf), "%s sets new clan website: %s", GET_NAME(ch), url.c_str());
-		mudlog(buf, LGH, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
 	}
 
 	HelpSystem::need_update = true;

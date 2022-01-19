@@ -124,7 +124,7 @@ void string_write(DESCRIPTOR_DATA *d,
 	}
 
 	if (data) {
-		mudlog("SYSERR: string_write: I don't understand special data.", BRF, LVL_IMMORT, SYSLOG, true);
+		mudlog("SYSERR: string_write: I don't understand special data.", BRF, kLevelImmortal, SYSLOG, true);
 	}
 
 	d->writer = writer;
@@ -529,7 +529,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 			break;
 
 		default: SEND_TO_Q("Неверная опция.\r\n", d);
-			mudlog("SYSERR: invalid command passed to parse_action", BRF, LVL_IMPL, SYSLOG, true);
+			mudlog("SYSERR: invalid command passed to parse_action", BRF, kLevelImplementator, SYSLOG, true);
 			return;
 	}
 	//log("[PA] Stop");
@@ -1045,7 +1045,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
-	mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, true);
+	mudlog(buf2, BRF, kLevelImmortal, SYSLOG, true);
 	if (spell >= 0 && spell <= SPELLS_COUNT) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), SPELL_TEMP)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {

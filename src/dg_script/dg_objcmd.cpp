@@ -79,7 +79,7 @@ int obj_room(OBJ_DATA *obj) {
 // returns the real room number, or kNowhere if not found or invalid
 int find_obj_target_room(OBJ_DATA *obj, char *rawroomstr) {
 	char roomstr[kMaxInputLength];
-	room_rnum location = kNowhere;
+	RoomRnum location = kNowhere;
 
 	one_argument(rawroomstr, roomstr);
 
@@ -129,7 +129,7 @@ void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 //	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
-//	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, true);
+//	mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	OneWayPortal::add(world[target], world[curroom]);
 	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_CHAR);
 	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
@@ -150,7 +150,7 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_oat(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 //	int location;
 	char roomstr[kMaxInputLength];
-	room_rnum location = kNowhere;
+	RoomRnum location = kNowhere;
 	if (!*argument) {
 		obj_log(obj, "oat: bad argument");
 		return;
@@ -198,7 +198,7 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (const auto ch : people_copy)
 			{
 				if (IS_NPC(ch)
-					|| GET_REAL_LEVEL(ch) < LVL_IMMORT)
+					|| GET_REAL_LEVEL(ch) < kLevelImmortal)
 				{
 					command_interpreter(ch, line);
 				}
@@ -220,7 +220,7 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				command_interpreter(ch, line);
-			} else if (GET_REAL_LEVEL(ch) < LVL_IMMORT) {
+			} else if (GET_REAL_LEVEL(ch) < kLevelImmortal) {
 				command_interpreter(ch, line);
 			}
 		} else {
@@ -522,7 +522,7 @@ void ApplyDamage(CHAR_DATA* target, int damage) {
 		if (!IS_NPC(target)) {
 			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
 					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
-			mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog(buf2, BRF, kLevelBuilder, SYSLOG, true);
 		}
 		die(target, nullptr);
 	}
@@ -960,7 +960,7 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_ozoneecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	zone_rnum zone;
+	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
 	msg = any_one_arg(argument, zone_name);

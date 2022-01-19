@@ -209,11 +209,11 @@ void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder) {
 				 "---------------------------|--------------------|----------------|-------------|\r\n", coder);
 
 	CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
-	for (follow_type *f = leader->followers; f; f = f->next) {
-		if (f->follower
-			&& !IS_NPC(f->follower)
-			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
-			add_tmp_group_list(f->follower);
+	for (Follower *f = leader->followers; f; f = f->next) {
+		if (f->ch
+			&& !IS_NPC(f->ch)
+			&& AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+			add_tmp_group_list(f->ch);
 		}
 	}
 	add_tmp_group_list(leader);
@@ -352,13 +352,13 @@ std::string PlayerDpsNode::print_charm_stats() const {
 
 // * Распечатка групповой статистики живых чармисов по данному игроку.
 void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const {
-	for (follow_type *f = ch->followers; f; f = f->next) {
-		if (!IS_CHARMICE(f->follower)) {
+	for (Follower *f = ch->followers; f; f = f->next) {
+		if (!IS_CHARMICE(f->ch)) {
 			continue;
 		}
 		CharmListType::const_iterator it = std::find_if(charm_list_.begin(), charm_list_.end(),
 														[&](const DpsNode &dps_node) {
-															return dps_node.get_id() == GET_ID(f->follower);
+															return dps_node.get_id() == GET_ID(f->ch);
 														});
 
 		if (it != charm_list_.end() && it->get_dmg() > 0) {

@@ -27,13 +27,13 @@ extern int track_through_doors;
 extern CHAR_DATA *mob_proto;
 
 // local functions
-void bfs_enqueue(room_rnum room, int dir);
+void bfs_enqueue(RoomRnum room, int dir);
 void bfs_dequeue(void);
 void bfs_clear_queue(void);
-int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch);
+int find_first_step(RoomRnum src, RoomRnum target, CHAR_DATA *ch);
 
 struct bfs_queue_struct {
-	room_rnum room;
+	RoomRnum room;
 	char dir;
 };
 
@@ -48,7 +48,7 @@ struct bfs_queue_struct {
 #define IS_CLOSED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))
 #define IS_LOCKED(x, y)    (EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_LOCKED))
 
-int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
+int VALID_EDGE(RoomRnum x, int y, int edge_range, bool through_locked_doors, bool through_closed_doors, bool through_notrack) {
 	if (world[x]->dir_option[y] == nullptr || TOROOM(x, y) == kNowhere)
 		return 0;
 
@@ -76,12 +76,12 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, bool through_locked_doors, bo
  * Intended usage: in mobile_activity, give a mob a dir to go if they're
  * tracking another mob or a PC.  Or, a 'track' skill for PCs.
  */
-int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch) {
+int find_first_step(RoomRnum src, RoomRnum target, CHAR_DATA *ch) {
 	int curr_dir, edge;
 	bool through_locked_doors = false;
 	bool through_closed_doors = false;
 	bool through_notrack = false;
-	room_rnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
+	RoomRnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
 
 	if (src < FIRST_ROOM || src > top_of_world || target < FIRST_ROOM || target > top_of_world) {
 		log("SYSERR: Illegal value %d or %d passed to find_first_step. (%s)", src, target, __FILE__);

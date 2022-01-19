@@ -30,7 +30,7 @@ void init() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -66,7 +66,7 @@ void init() {
 		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
 		if (id == CLASS_UNDEFINED) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return;
 		}
 

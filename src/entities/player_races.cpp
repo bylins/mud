@@ -133,7 +133,7 @@ void PlayerRace::GetKinNamesList(CHAR_DATA * /*ch*/) {
 	//test message
 	//char buf33[kMaxInputLength];
 	//snprintf(buf33, kMaxStringLength, "!==!...%s", CurNode.child("shename").child_value());
-	//mudlog(buf33, CMP, LVL_IMMORT, SYSLOG, true);
+	//mudlog(buf33, CMP, kLevelImmortal, SYSLOG, true);
 }
 
 //Получение всего списка способностей для указанного рода+расы

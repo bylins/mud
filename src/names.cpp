@@ -362,7 +362,7 @@ void agree_name(CHAR_DATA *d, const char *immname, int immlev) {
 enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
 static void go_name(CHAR_DATA *ch, CHAR_DATA *vict, int action) {
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
 
 	if (GET_REAL_LEVEL(vict) > god_level) {
 		send_to_char("А он ведь старше вас...\r\n", ch);
@@ -391,7 +391,7 @@ static void go_name(CHAR_DATA *ch, CHAR_DATA *vict, int action) {
 		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
 		// В этом теперь нет смысла
-		//mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
+		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
 	} else {
 		NAME_GOD(vict) = god_level;
@@ -401,7 +401,7 @@ static void go_name(CHAR_DATA *ch, CHAR_DATA *vict, int action) {
 		disagree_name(vict, GET_NAME(ch), god_level);
 		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
-		//mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
+		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
 	}
 

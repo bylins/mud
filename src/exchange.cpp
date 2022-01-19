@@ -153,13 +153,13 @@ int exchange(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 			exchange_offers(ch, argument);
 		else if (is_abbrev(arg1, "фильтрация") || is_abbrev(arg1, "filter"))
 			exchange_setfilter(ch, argument);
-		else if (is_abbrev(arg1, "save") && (GET_REAL_LEVEL(ch) >= LVL_IMPL))
+		else if (is_abbrev(arg1, "save") && (GET_REAL_LEVEL(ch) >= kLevelImplementator))
 			exchange_database_save();
-		else if (is_abbrev(arg1, "savebackup") && (GET_REAL_LEVEL(ch) >= LVL_IMPL))
+		else if (is_abbrev(arg1, "savebackup") && (GET_REAL_LEVEL(ch) >= kLevelImplementator))
 			exchange_database_save(true);
-		else if (is_abbrev(arg1, "reload") && (GET_REAL_LEVEL(ch) >= LVL_IMPL))
+		else if (is_abbrev(arg1, "reload") && (GET_REAL_LEVEL(ch) >= kLevelImplementator))
 			exchange_database_reload(false);
-		else if (is_abbrev(arg1, "reloadbackup") && (GET_REAL_LEVEL(ch) >= LVL_IMPL))
+		else if (is_abbrev(arg1, "reloadbackup") && (GET_REAL_LEVEL(ch) >= kLevelImplementator))
 			exchange_database_reload(true);
 		else
 			send_to_char(info_message, ch);
@@ -186,7 +186,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -249,7 +249,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		  ? EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
-		&& (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
+		&& (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
 		send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 		return false;
 	}
@@ -318,7 +318,7 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -335,7 +335,7 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 		send_to_char("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
 		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
@@ -349,7 +349,7 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 	}
 	pay = newcost - GET_EXCHANGE_ITEM_COST(item);
 	if (pay > 0)
-		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
+		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
 			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 			return false;
 		}
@@ -387,7 +387,7 @@ int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -405,7 +405,7 @@ int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 		send_to_char("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
 		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
@@ -525,11 +525,11 @@ int exchange_identify(CHAR_DATA *ch, char *arg) {
 		return false;
 	}
 
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
 		send_to_char("Господи, а ведь смертные за это деньги платят.\r\n", ch);
 		return false;
 	}
-	if ((ch->get_total_gold() < (EXCHANGE_IDENT_PAY)) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
+	if ((ch->get_total_gold() < (EXCHANGE_IDENT_PAY)) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
 		send_to_char("У вас не хватит на это денег!\r\n", ch);
 		return false;
 	}
@@ -561,7 +561,7 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT && GET_REAL_LEVEL(ch) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -583,7 +583,7 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 		send_to_char("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
 		return false;
 	}
-	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GET_REAL_LEVEL(ch) < LVL_IMPL)) {
+	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
 		send_to_char("У вас в банке не хватает денег на этот лот!\r\n", ch);
 		return false;
 	}
@@ -829,7 +829,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 	}
 */
 	else if (is_abbrev(arg1, "аффект") || is_abbrev(arg1, "affect")) {
-		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GET_REAL_LEVEL(ch) < LVL_IMPL) {
+		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GET_REAL_LEVEL(ch) < kLevelImplementator) {
 			send_to_char("У вас не хватит на это денег!\r\n", ch);
 			return 0;
 		}
@@ -1238,7 +1238,7 @@ void exchange_database_save(bool backup) {
 	std::ofstream file(filename);
 	if (!file.is_open()) {
 		sprintf(buf, "[SYSERROR] open exchange db ('%s')", filename);
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	file << out.rdbuf();

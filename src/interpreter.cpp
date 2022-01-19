@@ -132,12 +132,12 @@
 #include <arpa/inet.h>
 #endif
 
-extern room_rnum r_mortal_start_room;
-extern room_rnum r_immort_start_room;
-extern room_rnum r_frozen_start_room;
-extern room_rnum r_helled_start_room;
-extern room_rnum r_named_start_room;
-extern room_rnum r_unreg_start_room;
+extern RoomRnum r_mortal_start_room;
+extern RoomRnum r_immort_start_room;
+extern RoomRnum r_frozen_start_room;
+extern RoomRnum r_helled_start_room;
+extern RoomRnum r_named_start_room;
+extern RoomRnum r_unreg_start_room;
 extern const char *class_menu;
 extern const char *class_menu_vik;
 extern const char *class_menu_step;
@@ -155,7 +155,7 @@ extern int max_bad_pws;
 extern INDEX_DATA *mob_index;
 extern const char *default_race[];
 extern void add_karma(CHAR_DATA *ch, const char *punish, const char *reason);
-extern struct pclean_criteria_data pclean_criteria[];
+extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
 extern char *GREETINGS;
@@ -193,7 +193,7 @@ extern void check_max_hp(CHAR_DATA *ch);
 int perform_dupe_check(DESCRIPTOR_DATA *d);
 struct alias_data *find_alias(struct alias_data *alias_list, char *str);
 void free_alias(struct alias_data *a);
-void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a);
+void perform_complex_alias(struct TextBlocksQueue *input_q, char *orig, struct alias_data *a);
 int perform_alias(DESCRIPTOR_DATA *d, char *orig);
 int reserved_word(const char *argument);
 int _parse_name(char *arg, char *name);
@@ -458,7 +458,7 @@ void do_debug_queues(CHAR_DATA * /*ch*/, char *argument, int /*cmd*/, int /*subc
 		q.second.print_queue(ss, q.first);
 	}
 
-	mudlog(ss.str().c_str(), DEF, LVL_GOD, ERRLOG, true);
+	mudlog(ss.str().c_str(), DEF, kLevelGod, ERRLOG, true);
 }
 
 cpp_extern const struct command_info cmd_info[] =
@@ -496,8 +496,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"боги", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
 		{"божества", POS_DEAD, Boards::DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
 		{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
-		{"бонус", POS_DEAD, Bonus::do_bonus_by_character, LVL_IMPL, 0, 0},
-		{"бонусинфо", POS_DEAD, Bonus::do_bonus_info, LVL_IMPL, 0, 0},
+		{"бонус", POS_DEAD, Bonus::do_bonus_by_character, kLevelImplementator, 0, 0},
+		{"бонусинфо", POS_DEAD, Bonus::do_bonus_info, kLevelImplementator, 0, 0},
 		{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
 		{"варить", POS_RESTING, do_cook, 0, 0, 200},
 		{"версия", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
@@ -529,14 +529,14 @@ cpp_extern const struct command_info cmd_info[] =
 		{"ггруппа", POS_SLEEPING, do_gsay, 0, 0, 500},
 		{"гговорить", POS_SLEEPING, do_gsay, 0, 0, 500},
 		{"гдругам", POS_SLEEPING, DoClanChannel, 0, SCMD_CHANNEL, 0},
-		{"где", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
+		{"где", POS_RESTING, do_where, kLevelImmortal, 0, 0},
 		{"гдея", POS_RESTING, do_zone, 0, 0, 0},
 		{"глоток", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
 		{"города", POS_DEAD, do_cities, 0, 0, 0},
 		{"группа", POS_SLEEPING, do_group, 1, 0, -1},
 		{"гсоюзникам", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},
-		{"гэхо", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
-		{"гбогам", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
+		{"гэхо", POS_DEAD, do_gecho, kLevelGod, 0, 0},
+		{"гбогам", POS_DEAD, do_wiznet, kLevelImmortal, 0, 0},
 
 		{"дать", POS_RESTING, do_give, 0, 0, 500},
 		{"дата", POS_DEAD, do_date, 0, SCMD_DATE, 0},
@@ -549,7 +549,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"дрновости", POS_DEAD, Boards::DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
 		{"дрвече", POS_DEAD, Boards::DoBoard, 1, Boards::CLAN_BOARD, -1},
 		{"дрлист", POS_DEAD, DoClanPkList, 0, 1, 0},
-		//{"добавить", POS_DEAD, do_add_wizard, LVL_IMPL, 0, 0 },
+		//{"добавить", POS_DEAD, do_add_wizard, kLevelImplementator, 0, 0 },
 		{"есть", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
 
 		{"жертвовать", POS_STANDING, do_pray, 1, SCMD_DONATE, -1},
@@ -558,28 +558,28 @@ cpp_extern const struct command_info cmd_info[] =
 		{"забыть", POS_RESTING, do_forget, 0, 0, 0},
 		{"задержать", POS_STANDING, do_not_here, 1, 0, -1},
 		{"заклинания", POS_SLEEPING, do_spells, 0, 0, 0},
-		{"заклстат", POS_DEAD, do_spellstat, LVL_GRGOD, 0, 0},
+		{"заклстат", POS_DEAD, do_spellstat, kLevelGreatGod, 0, 0},
 		{"закрыть", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
 		{"замакс", POS_RESTING, do_show_mobmax, 1, 0, -1},
 		{"замести", POS_STANDING, do_hidetrack, 1, 0, -1},
-		{"замолчать", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},
-		{"заморозить", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
-		{"занятость", POS_DEAD, do_check_occupation, LVL_GOD, 0, 0},
+		{"замолчать", POS_DEAD, do_wizutil, kLevelGod, SCMD_MUTE, 0},
+		{"заморозить", POS_DEAD, do_wizutil, kLevelFreeze, SCMD_FREEZE, 0},
+		{"занятость", POS_DEAD, do_check_occupation, kLevelGod, 0, 0},
 		{"запомнить", POS_RESTING, do_memorize, 0, 0, 0},
 		{"запереть", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
-		{"запрет", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
+		{"запрет", POS_DEAD, do_ban, kLevelGreatGod, 0, 0},
 		{"заснуть", POS_SLEEPING, do_sleep, 0, 0, -1},
 		{"заставка", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
-		{"заставить", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
+		{"заставить", POS_SLEEPING, do_force, kLevelGreatGod, 0, 0},
 		{"затоптать", POS_STANDING, do_extinguish, 0, 0, 0},
 		{"заточить", POS_RESTING, do_upgrade, 0, 0, 500},
 		{"заучить", POS_RESTING, do_memorize, 0, 0, 0},
 		{"зачитать", POS_RESTING, do_employ, 0, SCMD_RECITE, 500},
 		{"зачаровать", POS_STANDING, do_spell_capable, 1, 0, 0},
-		{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
+		{"зачистить", POS_DEAD, do_sanitize, kLevelGreatGod, 0, 0},
 		{"золото", POS_RESTING, do_gold, 0, 0, 0},
 		{"зона", POS_RESTING, do_zone, 0, 0, 0},
-		{"зоныстат", POS_DEAD, do_showzonestats, LVL_IMMORT, 0, 0},
+		{"зоныстат", POS_DEAD, do_showzonestats, kLevelImmortal, 0, 0},
 		{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
 		{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
 		{"идеи", POS_DEAD, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
@@ -588,7 +588,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"информация", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 		{"испить", POS_RESTING, do_employ, 0, SCMD_QUAFF, 500},
 		{"использовать", POS_RESTING, do_style, 0, 0, 0},
-		{"имя", POS_SLEEPING, do_name, LVL_IMMORT, 0, 0},
+		{"имя", POS_SLEEPING, do_name, kLevelImmortal, 0, 0},
 
 		{"колдовать", POS_SITTING, do_cast, 1, 0, -1},
 		{"казна", POS_RESTING, do_not_here, 1, 0, 0},
@@ -614,7 +614,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"лучшие", POS_DEAD, DoBest, 0, 0, 0},
 
 		{"маскировка", POS_RESTING, do_camouflage, 0, 0, 500},
-		{"магазины", POS_DEAD, do_shops_list, LVL_IMMORT, 0, 0},
+		{"магазины", POS_DEAD, do_shops_list, kLevelImmortal, 0, 0},
 		{"метнуть", POS_FIGHTING, do_throw, 0, SCMD_PHYSICAL_THROW, -1},
 		{"менять", POS_STANDING, do_not_here, 0, 0, -1},
 		{"месть", POS_RESTING, do_revenge, 0, 0, 0},
@@ -701,7 +701,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"политика", POS_SLEEPING, DoShowPolitics, 0, 0, 0},
 		{"помочь", POS_FIGHTING, do_assist, 1, 0, -1},
 		{"помощь", POS_DEAD, do_help, 0, 0, 0},
-		{"пометить", POS_DEAD, do_mark, LVL_IMPL, 0, 0},
+		{"пометить", POS_DEAD, do_mark, kLevelImplementator, 0, 0},
 		{"порез", POS_FIGHTING, do_expedient_cut, 0, 0, -1},
 		{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
 		{"постой", POS_STANDING, do_not_here, 1, 0, -1},
@@ -729,7 +729,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"сожрать", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
 		{"продать", POS_STANDING, do_not_here, 0, 0, -1},
 		{"фильтровать", POS_STANDING, do_not_here, 0, 0, -1},
-		{"прыжок", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
+		{"прыжок", POS_SLEEPING, do_goto, kLevelGod, 0, 0},
 
 		{"разбудить", POS_RESTING, do_wake, 0, SCMD_WAKEUP, -1},
 		{"разгруппировать", POS_DEAD, do_ungroup, 0, 0, 500},
@@ -751,7 +751,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"сглазить", POS_FIGHTING, do_manadrain, 0, 0, -1},
 		{"сесть", POS_RESTING, do_sit, 0, 0, -1},
 		{"синоним", POS_DEAD, do_alias, 0, 0, 0},
-		{"сдемигодам", POS_DEAD, do_sdemigod, LVL_IMMORT, 0, 0},
+		{"сдемигодам", POS_DEAD, do_sdemigod, kLevelImmortal, 0, 0},
 		{"сказать", POS_RESTING, do_tell, 0, 0, -1},
 		{"скользить", POS_STANDING, do_lightwalk, 0, 0, 0},
 		{"следовать", POS_RESTING, do_follow, 0, 0, 500},
@@ -792,7 +792,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"убрать", POS_RESTING, do_remove, 0, 0, 400},
 		{"ударить", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
 		{"удавить", POS_FIGHTING, do_strangle, 0, 0, -1},
-		{"удалить", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0},
+		{"удалить", POS_STANDING, do_delete_obj, kLevelImplementator, 0, 0},
 		{"уклониться", POS_FIGHTING, do_deviate, 1, 0, -1},
 		{"украсть", POS_STANDING, do_steal, 1, 0, 0},
 		{"укрепить", POS_RESTING, do_armored, 0, 0, -1},
@@ -808,7 +808,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"шептать", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
 		{"экипировка", POS_SLEEPING, do_equipment, 0, 0, 0},
 		{"эмоция", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-		{"эхо", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, -1},
+		{"эхо", POS_SLEEPING, do_echo, kLevelImmortal, SCMD_ECHO, -1},
 		{"ярость", POS_RESTING, do_courage, 0, 0, -1},
 
 		// God commands for listing
@@ -819,20 +819,20 @@ cpp_extern const struct command_info cmd_info[] =
 
 		{"'", POS_RESTING, do_say, 0, 0, -1},
 		{":", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-		{";", POS_DEAD, do_wiznet, LVL_IMMORT, 0, -1},
-		{"advance", POS_DEAD, do_advance, LVL_IMPL, 0, 0},
+		{";", POS_DEAD, do_wiznet, kLevelImmortal, 0, -1},
+		{"advance", POS_DEAD, do_advance, kLevelImplementator, 0, 0},
 		{"alias", POS_DEAD, do_alias, 0, 0, 0},
 		{"alter", POS_RESTING, do_fit, 0, SCMD_MAKE_OVER, 500},
 		{"ask", POS_RESTING, do_spec_comm, 0, SCMD_ASK, -1},
 		{"assist", POS_FIGHTING, do_assist, 1, 0, -1},
 		{"attack", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
 		{"auction", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, -1},
-		{"arenarestore", POS_SLEEPING, do_arena_restore, LVL_GOD, 0, 0},
+		{"arenarestore", POS_SLEEPING, do_arena_restore, kLevelGod, 0, 0},
 		{"backstab", POS_STANDING, do_backstab, 1, 0, 1},
 		{"balance", POS_STANDING, do_not_here, 1, 0, -1},
-		{"ban", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
+		{"ban", POS_DEAD, do_ban, kLevelGreatGod, 0, 0},
 		{"bash", POS_FIGHTING, do_bash, 1, 0, -1},
-		{"beep", POS_DEAD, do_beep, LVL_IMMORT, 0, 0},
+		{"beep", POS_DEAD, do_beep, kLevelImmortal, 0, 0},
 		{"block", POS_FIGHTING, do_block, 0, 0, -1},
 		{"bug", POS_DEAD, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
 		{"buy", POS_STANDING, do_not_here, 0, 0, -1},
@@ -846,8 +846,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"commands", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
 		{"consider", POS_RESTING, do_consider, 0, 0, 500},
 		{"credits", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
-		{"date", POS_DEAD, do_date, LVL_IMMORT, SCMD_DATE, 0},
-		{"dc", POS_DEAD, do_dc, LVL_GRGOD, 0, 0},
+		{"date", POS_DEAD, do_date, kLevelImmortal, SCMD_DATE, 0},
+		{"dc", POS_DEAD, do_dc, kLevelGreatGod, 0, 0},
 		{"deposit", POS_STANDING, do_not_here, 1, 0, 500},
 		{"deviate", POS_FIGHTING, do_deviate, 0, 0, -1},
 		{"diagnose", POS_RESTING, do_diagnose, 0, 0, 500},
@@ -856,43 +856,43 @@ cpp_extern const struct command_info cmd_info[] =
 		{"display", POS_DEAD, do_display, 0, 0, 0},
 		{"drink", POS_RESTING, do_drink, 0, SCMD_DRINK, 500},
 		{"drop", POS_RESTING, do_drop, 0, SCMD_DROP, 500},
-		{"dumb", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_DUMB, 0},
+		{"dumb", POS_DEAD, do_wizutil, kLevelImmortal, SCMD_DUMB, 0},
 		{"eat", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
 		{"devour", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
-		{"echo", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, 0},
+		{"echo", POS_SLEEPING, do_echo, kLevelImmortal, SCMD_ECHO, 0},
 		{"emote", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
 		{"enter", POS_STANDING, do_enter, 0, 0, -2},
 		{"equipment", POS_SLEEPING, do_equipment, 0, 0, 0},
 		{"examine", POS_RESTING, do_examine, 0, 0, 500},
 		{"exchange", POS_RESTING, do_exchange, 1, 0, -1},
 		{"exits", POS_RESTING, do_exits, 0, 0, 500},
-		{"featset", POS_SLEEPING, do_featset, LVL_IMPL, 0, 0},
+		{"featset", POS_SLEEPING, do_featset, kLevelImplementator, 0, 0},
 		{"features", POS_SLEEPING, do_features, 0, 0, 0},
 		{"fill", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 		{"fit", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
 		{"flee", POS_FIGHTING, do_flee, 1, 0, -1},
 		{"follow", POS_RESTING, do_follow, 0, 0, -1},
-		{"force", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
-		{"forcetime", POS_DEAD, do_forcetime, LVL_IMPL, 0, 0},
-		{"freeze", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
-		{"gecho", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
+		{"force", POS_SLEEPING, do_force, kLevelGreatGod, 0, 0},
+		{"forcetime", POS_DEAD, do_forcetime, kLevelImplementator, 0, 0},
+		{"freeze", POS_DEAD, do_wizutil, kLevelFreeze, SCMD_FREEZE, 0},
+		{"gecho", POS_DEAD, do_gecho, kLevelGod, 0, 0},
 		{"get", POS_RESTING, do_get, 0, 0, 500},
 		{"give", POS_RESTING, do_give, 0, 0, 500},
 		{"godnews", POS_DEAD, Boards::DoBoard, 1, Boards::GODNEWS_BOARD, -1},
 		{"gold", POS_RESTING, do_gold, 0, 0, 0},
 		{"glide", POS_STANDING, do_lightwalk, 0, 0, 0},
-		{"glory", POS_RESTING, GloryConst::do_glory, LVL_IMPL, 0, 0},
-		{"glorytemp", POS_RESTING, do_glory, LVL_BUILDER, 0, 0},
+		{"glory", POS_RESTING, GloryConst::do_glory, kLevelImplementator, 0, 0},
+		{"glorytemp", POS_RESTING, do_glory, kLevelBuilder, 0, 0},
 		{"gossip", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
-		{"goto", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
+		{"goto", POS_SLEEPING, do_goto, kLevelGod, 0, 0},
 		{"grab", POS_RESTING, do_grab, 0, 0, 500},
 		{"group", POS_RESTING, do_group, 1, 0, 500},
 		{"gsay", POS_SLEEPING, do_gsay, 0, 0, -1},
 		{"gtell", POS_SLEEPING, do_gsay, 0, 0, -1},
-		{"handbook", POS_DEAD, do_gen_ps, LVL_IMMORT, SCMD_HANDBOOK, 0},
-		{"hcontrol", POS_DEAD, DoHcontrol, LVL_GRGOD, 0, 0},
+		{"handbook", POS_DEAD, do_gen_ps, kLevelImmortal, SCMD_HANDBOOK, 0},
+		{"hcontrol", POS_DEAD, DoHcontrol, kLevelGreatGod, 0, 0},
 		{"help", POS_DEAD, do_help, 0, 0, 0},
-		{"hell", POS_DEAD, do_wizutil, LVL_GOD, SCMD_HELL, 0},
+		{"hell", POS_DEAD, do_wizutil, kLevelGod, SCMD_HELL, 0},
 		{"hide", POS_STANDING, do_hide, 1, 0, 0},
 		{"hit", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
 		{"hold", POS_RESTING, do_grab, 1, 0, 500},
@@ -906,17 +906,17 @@ cpp_extern const struct command_info cmd_info[] =
 		{"index", POS_RESTING, do_help, 1, 0, 500},
 		{"info", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 		{"insert", POS_STANDING, do_insertgem, 0, SKILL_INSERTGEM, -1},
-		{"inspect", POS_DEAD, do_inspect, LVL_BUILDER, 0, 0},
+		{"inspect", POS_DEAD, do_inspect, kLevelBuilder, 0, 0},
 		{"insult", POS_RESTING, do_insult, 0, 0, -1},
 		{"inventory", POS_SLEEPING, do_inventory, 0, 0, 0},
-		{"invis", POS_DEAD, do_invis, LVL_GOD, 0, -1},
+		{"invis", POS_DEAD, do_invis, kLevelGod, 0, -1},
 		{"kick", POS_FIGHTING, do_kick, 1, 0, -1},
 		{"kill", POS_FIGHTING, do_kill, 0, 0, -1},
-		{"last", POS_DEAD, do_last, LVL_GOD, 0, 0},
+		{"last", POS_DEAD, do_last, kLevelGod, 0, 0},
 		{"levels", POS_DEAD, do_levels, 0, 0, 0},
 		{"list", POS_STANDING, do_not_here, 0, 0, -1},
-		{"load", POS_DEAD, do_load, LVL_BUILDER, 0, 0},
-		{"loadstat", POS_DEAD, do_loadstat, LVL_IMPL, 0, 0},
+		{"load", POS_DEAD, do_load, kLevelBuilder, 0, 0},
+		{"loadstat", POS_DEAD, do_loadstat, kLevelImplementator, 0, 0},
 		{"look", POS_RESTING, do_look, 0, SCMD_LOOK, 200},
 		{"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
 		{"map", POS_RESTING, do_map, 0, 0, 0},
@@ -926,34 +926,34 @@ cpp_extern const struct command_info cmd_info[] =
 		{"mshout", POS_RESTING, do_mobshout, 0, 0, -1},
 		{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
 		{"murder", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
-		{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_MUTE, 0},
+		{"mute", POS_DEAD, do_wizutil, kLevelImmortal, SCMD_MUTE, 0},
 		{"medit", POS_DEAD, do_olc, 0, SCMD_OLC_MEDIT, 0},
-		{"name", POS_DEAD, do_wizutil, LVL_GOD, SCMD_NAME, 0},
-		{"nedit", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
+		{"name", POS_DEAD, do_wizutil, kLevelGod, SCMD_NAME, 0},
+		{"nedit", POS_RESTING, NamedStuff::do_named, kLevelBuilder, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
 		{"news", POS_DEAD, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
-		{"nlist", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_LIST, 0}, //Именной стаф список
-		{"notitle", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_NOTITLE, 0},
-		{"odelete", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0},
+		{"nlist", POS_RESTING, NamedStuff::do_named, kLevelBuilder, SCMD_NAMED_LIST, 0}, //Именной стаф список
+		{"notitle", POS_DEAD, do_wizutil, kLevelGreatGod, SCMD_NOTITLE, 0},
+		{"odelete", POS_STANDING, do_delete_obj, kLevelImplementator, 0, 0},
 		{"oedit", POS_DEAD, do_olc, 0, SCMD_OLC_OEDIT, 0},
 		{"offer", POS_STANDING, do_not_here, 1, 0, 0},
-		{"olc", POS_DEAD, do_olc, LVL_GOD, SCMD_OLC_SAVEINFO, 0},
+		{"olc", POS_DEAD, do_olc, kLevelGod, SCMD_OLC_SAVEINFO, 0},
 		{"open", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
 		{"order", POS_RESTING, do_order, 1, 0, -1},
-		{"overstuff", POS_DEAD, do_overstuff, LVL_GRGOD, 0, 0},
-		{"page", POS_DEAD, do_page, LVL_GOD, 0, 0},
+		{"overstuff", POS_DEAD, do_overstuff, kLevelGreatGod, 0, 0},
+		{"page", POS_DEAD, do_page, kLevelGod, 0, 0},
 		{"parry", POS_FIGHTING, do_parry, 0, 0, -1},
 		{"pick", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
 		{"poisoned", POS_FIGHTING, do_poisoned, 0, 0, -1},
 		{"policy", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
-		{"poofin", POS_DEAD, do_poofset, LVL_GOD, SCMD_POOFIN, 0},
-		{"poofout", POS_DEAD, do_poofset, LVL_GOD, SCMD_POOFOUT, 0},
+		{"poofin", POS_DEAD, do_poofset, kLevelGod, SCMD_POOFIN, 0},
+		{"poofout", POS_DEAD, do_poofset, kLevelGod, SCMD_POOFOUT, 0},
 		{"pour", POS_STANDING, do_pour, 0, SCMD_POUR, -1},
 		{"practice", POS_STANDING, do_not_here, 0, 0, -1},
 		{"prompt", POS_DEAD, do_display, 0, 0, 0},
-		{"proxy", POS_DEAD, do_proxy, LVL_GRGOD, 0, 0},
-		{"purge", POS_DEAD, do_purge, LVL_GOD, 0, 0},
+		{"proxy", POS_DEAD, do_proxy, kLevelGreatGod, 0, 0},
+		{"purge", POS_DEAD, do_purge, kLevelGod, 0, 0},
 		{"put", POS_RESTING, do_put, 0, 0, 500},
-//	{"python", POS_DEAD, do_console, LVL_GOD, 0, 0},
+//	{"python", POS_DEAD, do_console, kLevelGod, 0, 0},
 		{"quaff", POS_RESTING, do_employ, 0, SCMD_QUAFF, 500},
 		{"qui", POS_SLEEPING, do_quit, 0, 0, 0},
 		{"quit", POS_SLEEPING, do_quit, 0, SCMD_QUIT, -1},
@@ -962,62 +962,62 @@ cpp_extern const struct command_info cmd_info[] =
 		{"recipes", POS_RESTING, do_recipes, 0, 0, 0},
 		{"recite", POS_RESTING, do_employ, 0, SCMD_RECITE, 500},
 		{"redit", POS_DEAD, do_olc, 0, SCMD_OLC_REDIT, 0},
-		{"register", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_REGISTER, 0},
-		{"unregister", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_UNREGISTER, 0},
-		{"reload", POS_DEAD, do_reboot, LVL_IMPL, 0, 0},
+		{"register", POS_DEAD, do_wizutil, kLevelImmortal, SCMD_REGISTER, 0},
+		{"unregister", POS_DEAD, do_wizutil, kLevelImmortal, SCMD_UNREGISTER, 0},
+		{"reload", POS_DEAD, do_reboot, kLevelImplementator, 0, 0},
 		{"remove", POS_RESTING, do_remove, 0, 0, 500},
 		{"rent", POS_STANDING, do_not_here, 1, 0, -1},
 		{"reply", POS_RESTING, do_reply, 0, 0, -1},
 		{"report", POS_RESTING, do_report, 0, 0, -1},
-		{"reroll", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_REROLL, 0},
+		{"reroll", POS_DEAD, do_wizutil, kLevelGreatGod, SCMD_REROLL, 0},
 		{"rescue", POS_FIGHTING, do_rescue, 1, 0, -1},
 		{"rest", POS_RESTING, do_rest, 0, 0, -1},
-		{"restore", POS_DEAD, do_restore, LVL_GRGOD, SCMD_RESTORE_GOD, 0},
+		{"restore", POS_DEAD, do_restore, kLevelGreatGod, SCMD_RESTORE_GOD, 0},
 		{"return", POS_DEAD, do_return, 0, 0, -1},
-		{"rset", POS_SLEEPING, do_rset, LVL_BUILDER, 0, 0},
-		{"rules", POS_DEAD, do_gen_ps, LVL_IMMORT, SCMD_RULES, 0},
+		{"rset", POS_SLEEPING, do_rset, kLevelBuilder, 0, 0},
+		{"rules", POS_DEAD, do_gen_ps, kLevelImmortal, SCMD_RULES, 0},
 		{"runes", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
 		{"save", POS_SLEEPING, do_save, 0, 0, 0},
 		{"say", POS_RESTING, do_say, 0, 0, -1},
 		{"scan", POS_RESTING, do_sides, 0, 0, 500},
 		{"score", POS_DEAD, do_score, 0, 0, 0},
 		{"sell", POS_STANDING, do_not_here, 0, 0, -1},
-		{"send", POS_SLEEPING, do_send, LVL_GRGOD, 0, 0},
+		{"send", POS_SLEEPING, do_send, kLevelGreatGod, 0, 0},
 		{"sense", POS_STANDING, do_sense, 0, 0, 500},
-		{"set", POS_DEAD, do_set, LVL_IMMORT, 0, 0},
+		{"set", POS_DEAD, do_set, kLevelImmortal, 0, 0},
 		{"settle", POS_STANDING, do_not_here, 1, 0, -1},
 		{"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
-		{"show", POS_DEAD, do_show, LVL_IMMORT, 0, 0},
-		{"shutdown", POS_DEAD, do_shutdown, LVL_IMPL, SCMD_SHUTDOWN, 0},
+		{"show", POS_DEAD, do_show, kLevelImmortal, 0, 0},
+		{"shutdown", POS_DEAD, do_shutdown, kLevelImplementator, SCMD_SHUTDOWN, 0},
 		{"sip", POS_RESTING, do_drink, 0, SCMD_SIP, 500},
 		{"sit", POS_RESTING, do_sit, 0, 0, -1},
 		{"skills", POS_RESTING, do_skills, 0, 0, 0},
-		{"skillset", POS_SLEEPING, do_skillset, LVL_IMPL, 0, 0},
-		{"morphset", POS_SLEEPING, do_morphset, LVL_IMPL, 0, 0},
-		{"setall", POS_DEAD, do_setall, LVL_IMPL, 0, 0},
+		{"skillset", POS_SLEEPING, do_skillset, kLevelImplementator, 0, 0},
+		{"morphset", POS_SLEEPING, do_morphset, kLevelImplementator, 0, 0},
+		{"setall", POS_DEAD, do_setall, kLevelImplementator, 0, 0},
 		{"sleep", POS_SLEEPING, do_sleep, 0, 0, -1},
 		{"sneak", POS_STANDING, do_sneak, 1, 0, -2},
-		{"snoop", POS_DEAD, do_snoop, LVL_GRGOD, 0, 0},
+		{"snoop", POS_DEAD, do_snoop, kLevelGreatGod, 0, 0},
 		{"socials", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
 		{"spells", POS_RESTING, do_spells, 0, 0, 0},
 		{"split", POS_RESTING, do_split, 1, 0, 0},
 		{"stand", POS_RESTING, do_stand, 0, 0, -1},
-		{"stat", POS_DEAD, do_stat, LVL_GOD, 0, 0},
+		{"stat", POS_DEAD, do_stat, kLevelGod, 0, 0},
 		{"steal", POS_STANDING, do_steal, 1, 0, 300},
 		{"strangle", POS_FIGHTING, do_strangle, 0, 0, -1},
 		{"stupor", POS_FIGHTING, do_stupor, 0, 0, -1},
-		{"switch", POS_DEAD, do_switch, LVL_GRGOD, 0, 0},
-		{"syslog", POS_DEAD, do_syslog, LVL_IMMORT, SYSLOG, 0},
+		{"switch", POS_DEAD, do_switch, kLevelGreatGod, 0, 0},
+		{"syslog", POS_DEAD, do_syslog, kLevelImmortal, SYSLOG, 0},
 		{"suggest", POS_DEAD, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
-		{"slist", POS_DEAD, do_slist, LVL_IMPL, 0, 0},
-		{"sedit", POS_DEAD, do_sedit, LVL_IMPL, 0, 0},
-		{"errlog", POS_DEAD, do_syslog, LVL_BUILDER, ERRLOG, 0},
-		{"imlog", POS_DEAD, do_syslog, LVL_BUILDER, IMLOG, 0},
+		{"slist", POS_DEAD, do_slist, kLevelImplementator, 0, 0},
+		{"sedit", POS_DEAD, do_sedit, kLevelImplementator, 0, 0},
+		{"errlog", POS_DEAD, do_syslog, kLevelBuilder, ERRLOG, 0},
+		{"imlog", POS_DEAD, do_syslog, kLevelBuilder, IMLOG, 0},
 		{"take", POS_RESTING, do_get, 0, 0, 500},
 		{"taste", POS_RESTING, do_eat, 0, SCMD_TASTE, 500},
-		{"t2c", POS_RESTING, do_send_text_to_char, LVL_GRGOD, 0, -1},
-		{"telegram", POS_DEAD, do_telegram, LVL_IMMORT, 0, -1},
-		{"teleport", POS_DEAD, do_teleport, LVL_GRGOD, 0, -1},
+		{"t2c", POS_RESTING, do_send_text_to_char, kLevelGreatGod, 0, -1},
+		{"telegram", POS_DEAD, do_telegram, kLevelImmortal, 0, -1},
+		{"teleport", POS_DEAD, do_teleport, kLevelGreatGod, 0, -1},
 		{"tell", POS_RESTING, do_tell, 0, 0, -1},
 		{"time", POS_DEAD, do_time, 0, 0, 0},
 		{"title", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
@@ -1027,25 +1027,25 @@ cpp_extern const struct command_info cmd_info[] =
 		{"trigedit", POS_DEAD, do_olc, 0, SCMD_OLC_TRIGEDIT, 0},
 		{"turn undead", POS_RESTING, do_turn_undead, 0, 0, -1},
 		{"typo", POS_DEAD, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
-		{"unaffect", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_UNAFFECT, 0},
-		{"unban", POS_DEAD, do_unban, LVL_GRGOD, 0, 0},
-		{"unfreeze", POS_DEAD, do_unfreeze, LVL_IMPL, 0, 0},
+		{"unaffect", POS_DEAD, do_wizutil, kLevelGreatGod, SCMD_UNAFFECT, 0},
+		{"unban", POS_DEAD, do_unban, kLevelGreatGod, 0, 0},
+		{"unfreeze", POS_DEAD, do_unfreeze, kLevelImplementator, 0, 0},
 		{"ungroup", POS_DEAD, do_ungroup, 0, 0, -1},
 		{"unlock", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 500},
-		{"uptime", POS_DEAD, do_date, LVL_IMMORT, SCMD_UPTIME, 0},
+		{"uptime", POS_DEAD, do_date, kLevelImmortal, SCMD_UPTIME, 0},
 		{"use", POS_SITTING, do_employ, 1, SCMD_USE, 500},
-		{"users", POS_DEAD, do_users, LVL_IMMORT, 0, 0},
+		{"users", POS_DEAD, do_users, kLevelImmortal, 0, 0},
 		{"value", POS_STANDING, do_not_here, 0, 0, -1},
 		{"version", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
 		{"visible", POS_RESTING, do_visible, 1, 0, -1},
-		{"vnum", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},
-		{"вномер", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},  //тупой копипаст для использования русского синтаксиса
-		{"vstat", POS_DEAD, do_vstat, LVL_GRGOD, 0, 0},
+		{"vnum", POS_DEAD, do_vnum, kLevelGreatGod, 0, 0},
+		{"вномер", POS_DEAD, do_vnum, kLevelGreatGod, 0, 0},  //тупой копипаст для использования русского синтаксиса
+		{"vstat", POS_DEAD, do_vstat, kLevelGreatGod, 0, 0},
 		{"wake", POS_SLEEPING, do_wake, 0, 0, -1},
 		{"warcry", POS_FIGHTING, do_warcry, 1, 0, -1},
 		{"wear", POS_RESTING, do_wear, 0, 0, 500},
 		{"weather", POS_RESTING, do_weather, 0, 0, 0},
-		{"where", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
+		{"where", POS_RESTING, do_where, kLevelImmortal, 0, 0},
 		{"whirl", POS_FIGHTING, do_iron_wind, 0, 0, -1},
 		{"whisper", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
 		{"who", POS_RESTING, do_who, 0, 0, 0},
@@ -1053,22 +1053,22 @@ cpp_extern const struct command_info cmd_info[] =
 		{"wield", POS_RESTING, do_wield, 0, 0, 500},
 		{"wimpy", POS_DEAD, do_wimpy, 0, 0, 0},
 		{"withdraw", POS_STANDING, do_not_here, 1, 0, -1},
-		{"wizhelp", POS_SLEEPING, do_commands, LVL_IMMORT, SCMD_WIZHELP, 0},
-		{"wizlock", POS_DEAD, do_wizlock, LVL_IMPL, 0, 0},
-		{"wiznet", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
-		{"wizat", POS_DEAD, do_at, LVL_GRGOD, 0, 0},
+		{"wizhelp", POS_SLEEPING, do_commands, kLevelImmortal, SCMD_WIZHELP, 0},
+		{"wizlock", POS_DEAD, do_wizlock, kLevelImplementator, 0, 0},
+		{"wiznet", POS_DEAD, do_wiznet, kLevelImmortal, 0, 0},
+		{"wizat", POS_DEAD, do_at, kLevelGreatGod, 0, 0},
 		{"write", POS_STANDING, do_write, 1, 0, -1},
 		{"zedit", POS_DEAD, do_olc, 0, SCMD_OLC_ZEDIT, 0},
 		{"zone", POS_RESTING, do_zone, 0, 0, 0},
-		{"zreset", POS_DEAD, do_zreset, LVL_GRGOD, 0, 0},
+		{"zreset", POS_DEAD, do_zreset, kLevelGreatGod, 0, 0},
 
 		// test command for gods
-		{"godtest", POS_DEAD, do_godtest, LVL_IMPL, 0, 0},
-		{"armor", POS_DEAD, do_print_armor, LVL_IMPL, 0, 0},
+		{"godtest", POS_DEAD, do_godtest, kLevelImplementator, 0, 0},
+		{"armor", POS_DEAD, do_print_armor, kLevelImplementator, 0, 0},
 
 		// Команды крафтинга - для тестига пока уровня имма
-		{"mrlist", POS_DEAD, do_list_make, LVL_BUILDER, 0, 0},
-		{"mredit", POS_DEAD, do_edit_make, LVL_BUILDER, 0, 0},
+		{"mrlist", POS_DEAD, do_list_make, kLevelBuilder, 0, 0},
+		{"mredit", POS_DEAD, do_edit_make, kLevelBuilder, 0, 0},
 		{"сшить", POS_STANDING, do_make_item, 0, MAKE_WEAR, 0},
 		{"выковать", POS_STANDING, do_make_item, 0, MAKE_METALL, 0},
 		{"смастерить", POS_STANDING, do_make_item, 0, MAKE_CRAFT, 0},
@@ -1078,14 +1078,14 @@ cpp_extern const struct command_info cmd_info[] =
 		{"olist", POS_DEAD, do_liblist, 0, SCMD_OLIST, 0},
 		{"rlist", POS_DEAD, do_liblist, 0, SCMD_RLIST, 0},
 		{"zlist", POS_DEAD, do_liblist, 0, SCMD_ZLIST, 0},
-		{"clist", POS_DEAD, do_liblist, LVL_GOD, SCMD_CLIST, 0},
+		{"clist", POS_DEAD, do_liblist, kLevelGod, SCMD_CLIST, 0},
 
-		{"attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0},
-		{"detach", POS_DEAD, do_detach, LVL_IMPL, 0, 0},
+		{"attach", POS_DEAD, do_attach, kLevelImplementator, 0, 0},
+		{"detach", POS_DEAD, do_detach, kLevelImplementator, 0, 0},
 		{"tlist", POS_DEAD, do_tlist, 0, 0, 0},
 		{"tstat", POS_DEAD, do_tstat, 0, 0, 0},
-		{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
-		{"debug_queues", POS_DEAD, do_debug_queues, LVL_IMPL, 0, 0},
+		{"vdelete", POS_DEAD, do_vdelete, kLevelImplementator, 0, 0},
+		{"debug_queues", POS_DEAD, do_debug_queues, kLevelImplementator, 0, 0},
 
 		{heartbeat::cmd::HEARTBEAT_COMMAND, heartbeat::cmd::MINIMAL_POSITION, heartbeat::cmd::do_heartbeat,
 		 heartbeat::cmd::MINIMAL_LEVEL, heartbeat::SCMD_NOTHING, heartbeat::cmd::UNHIDE_PROBABILITY},
@@ -1186,7 +1186,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 			GlobalObjects::heartbeat().pulse_number(),
 			GET_ROOM_VNUM(ch->in_room),
 			argument);
-		if (GET_REAL_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
+		if (GET_REAL_LEVEL(ch) >= kLevelImmortal || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
@@ -1277,7 +1277,7 @@ void command_interpreter(CHAR_DATA *ch, char *argument) {
 		return;
 	}
 
-	if (!social && IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT) {
+	if (!social && IS_NPC(ch) && cmd_info[cmd].minimum_level >= kLevelImmortal) {
 		send_to_char("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 		return;
 	}
@@ -1411,8 +1411,8 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  */
 #define NUM_TOKENS       9
 
-void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a) {
-	struct txt_q temp_queue;
+void perform_complex_alias(struct TextBlocksQueue *input_q, char *orig, struct alias_data *a) {
+	struct TextBlocksQueue temp_queue;
 	char *tokens[NUM_TOKENS], *temp, *write_point;
 	int num_of_tokens = 0, num;
 
@@ -1835,7 +1835,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Персонаж = %s Хост = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
 
@@ -1857,7 +1857,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Name = %s Host = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
 
@@ -1935,7 +1935,7 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
 			act("$n восстановил$g связь.", true, d->character.get(), 0, 0, TO_ROOM);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			login_change_invoice(d->character.get());
 			break;
 
@@ -1943,12 +1943,12 @@ int perform_dupe_check(DESCRIPTOR_DATA *d) {
 			act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
 				"Тело $s было захвачено новым духом!", true, d->character.get(), 0, 0, TO_ROOM);
 			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		case UNSWITCH: SEND_TO_Q("Пересоединяемся для перевключения игрока.", d);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		default:
@@ -2017,7 +2017,7 @@ int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
 							"Вошел - %s, в игре - %s, IP - %s.\r\n"
 							"Игрок помещен в комнату незарегистрированных игроков.",
 							GET_NAME(d->character), GET_NAME(i->character), d->host);
-					mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					return 0;
 
 				case 1:
@@ -2065,12 +2065,12 @@ void add_logon_record(DESCRIPTOR_DATA *d) {
 	d->character->get_account()->add_login(std::string(d->host));
 
 	const auto logon = std::find_if(LOGON_LIST(d->character).begin(), LOGON_LIST(d->character).end(),
-									[&](const logon_data &l) -> bool {
+									[&](const Logon &l) -> bool {
 										return !strcmp(l.ip, d->host);
 									});
 
 	if (logon == LOGON_LIST(d->character).end()) {
-		const logon_data cur_log = {str_dup(d->host), 1, time(0), false};
+		const Logon cur_log = {str_dup(d->host), 1, time(0), false};
 		LOGON_LIST(d->character).push_back(cur_log);
 	} else {
 		++logon->count;
@@ -2104,27 +2104,27 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	d->character->reset();
 	read_aliases(d->character.get());
 
-	if (GET_REAL_LEVEL(d->character) == LVL_IMMORT) {
-		d->character->set_level(LVL_GOD);
+	if (GET_REAL_LEVEL(d->character) == kLevelImmortal) {
+		d->character->set_level(kLevelGod);
 	}
 
-	if (GET_REAL_LEVEL(d->character) > LVL_IMPL) {
+	if (GET_REAL_LEVEL(d->character) > kLevelImplementator) {
 		d->character->set_level(1);
 	}
 
-	if (GET_INVIS_LEV(d->character) > LVL_IMPL
+	if (GET_INVIS_LEV(d->character) > kLevelImplementator
 		|| GET_INVIS_LEV(d->character) < 0) {
 		SET_INVIS_LEV(d->character, 0);
 	}
 
-	if (GET_REAL_LEVEL(d->character) > LVL_IMMORT
-		&& GET_REAL_LEVEL(d->character) < LVL_BUILDER
+	if (GET_REAL_LEVEL(d->character) > kLevelImmortal
+		&& GET_REAL_LEVEL(d->character) < kLevelBuilder
 		&& (d->character->get_gold() > 0 || d->character->get_bank() > 0)) {
 		d->character->set_gold(0);
 		d->character->set_bank(0);
 	}
 
-	if (GET_REAL_LEVEL(d->character) >= LVL_IMMORT && GET_REAL_LEVEL(d->character) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(d->character) >= kLevelImmortal && GET_REAL_LEVEL(d->character) < kLevelImplementator) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog")) {
 				if (Privilege::can_do_priv(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
@@ -2139,9 +2139,9 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		}
 	}
 
-	if (GET_REAL_LEVEL(d->character) < LVL_IMPL) {
+	if (GET_REAL_LEVEL(d->character) < kLevelImplementator) {
 		if (PLR_FLAGGED(d->character, PLR_INVSTART)) {
-			SET_INVIS_LEV(d->character, LVL_IMMORT);
+			SET_INVIS_LEV(d->character, kLevelImmortal);
 		}
 		if (GET_INVIS_LEV(d->character) > GET_REAL_LEVEL(d->character)) {
 			SET_INVIS_LEV(d->character, GET_REAL_LEVEL(d->character));
@@ -2150,12 +2150,12 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		if (PRF_FLAGGED(d->character, PRF_CODERINFO)) {
 			PRF_FLAGS(d->character).unset(PRF_CODERINFO);
 		}
-		if (GET_REAL_LEVEL(d->character) < LVL_GOD) {
+		if (GET_REAL_LEVEL(d->character) < kLevelGod) {
 			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT)) {
 				PRF_FLAGS(d->character).unset(PRF_HOLYLIGHT);
 			}
 		}
-		if (GET_REAL_LEVEL(d->character) < LVL_GOD) {
+		if (GET_REAL_LEVEL(d->character) < kLevelGod) {
 			if (PRF_FLAGGED(d->character, PRF_NOHASSLE)) {
 				PRF_FLAGS(d->character).unset(PRF_NOHASSLE);
 			}
@@ -2165,7 +2165,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 		}
 
 		if (GET_INVIS_LEV(d->character) > 0
-			&& GET_REAL_LEVEL(d->character) < LVL_IMMORT) {
+			&& GET_REAL_LEVEL(d->character) < kLevelImmortal) {
 			SET_INVIS_LEV(d->character, 0);
 		}
 	}
@@ -2205,7 +2205,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 
 	// If char was saved with kNowhere, or real_room above failed...
 	if (load_room == kNowhere) {
-		if (GET_REAL_LEVEL(d->character) >= LVL_IMMORT)
+		if (GET_REAL_LEVEL(d->character) >= kLevelImmortal)
 			load_room = r_immort_start_room;
 		else
 			load_room = r_mortal_start_room;
@@ -2371,11 +2371,11 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
 	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character))
-		&& (GET_REAL_LEVEL(d->character) < LVL_GOD)) {
+		&& (GET_REAL_LEVEL(d->character) < kLevelGod)) {
 		SET_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
-	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_REAL_LEVEL(d->character) >= LVL_GOD)) {
+	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_REAL_LEVEL(d->character) >= kLevelGod)) {
 		CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 
@@ -2391,7 +2391,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 			break;
 	}
 
-	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, true);
+	mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());
@@ -2461,14 +2461,14 @@ void DoAfterPassword(DESCRIPTOR_DATA *d) {
 		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
-		mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+		mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 		return;
 	}
 	if (GET_REAL_LEVEL(d->character) < circle_restrict) {
 		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
-		mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+		mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 		return;
 	}
 	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0) {
@@ -2488,7 +2488,7 @@ void DoAfterPassword(DESCRIPTOR_DATA *d) {
 	if (!subnets.empty()) {
 		if (subnets.count(inet_addr(d->host) & MASK) == 0) {
 			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
-			mudlog(buf, CMP, LVL_GOD, SYSLOG, true);
+			mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 			if (PRF_FLAGGED(d->character, PRF_IPCONTROL)) {
 				int random_number = number(1000000, 9999999);
 				new_loc_codes[GET_EMAIL(d->character)] = random_number;
@@ -2563,7 +2563,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	if (0 == player_table.size())
 	{
 		// При собирании через make test первый чар в маде становится иммом 34
-		ch->set_level(LVL_IMPL);
+		ch->set_level(kLevelImplementator);
 	}
 #endif
 
@@ -2600,13 +2600,13 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	element.mail = nullptr;//added by WorM mail
 	element.last_ip = nullptr;//added by WorM последний айпи
 
-	if (GET_REAL_LEVEL(ch) > LVL_GOD) {
+	if (GET_REAL_LEVEL(ch) > kLevelGod) {
 		set_god_skills(ch);
 		set_god_morphs(ch);
 	}
 
 	for (i = 1; i <= SPELLS_COUNT; i++) {
-		if (GET_REAL_LEVEL(ch) < LVL_GRGOD)
+		if (GET_REAL_LEVEL(ch) < kLevelGreatGod)
 			GET_SPELL_TYPE(ch, i) = 0;
 		else
 			GET_SPELL_TYPE(ch, i) = SPELL_KNOW;
@@ -2618,7 +2618,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
 		GET_RESIST(ch, i) = 0;
 
-	if (GET_REAL_LEVEL(ch) == LVL_IMPL) {
+	if (GET_REAL_LEVEL(ch) == kLevelImplementator) {
 		ch->set_str(25);
 		ch->set_int(25);
 		ch->set_wis(25);
@@ -2629,7 +2629,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 	ch->real_abils.size = 50;
 
 	for (i = 0; i < 3; i++) {
-		GET_COND(ch, i) = (GET_REAL_LEVEL(ch) == LVL_IMPL ? -1 : i == DRUNK ? 0 : 24);
+		GET_COND(ch, i) = (GET_REAL_LEVEL(ch) == kLevelImplementator ? -1 : i == DRUNK ? 0 : 24);
 	}
 	GET_LASTIP(ch)[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;
@@ -2881,7 +2881,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						if (!PLR_FLAGGED(d->character, PLR_DELETED)) {
 							sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-							mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+							mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 						}
 
 						d->character.reset();
@@ -3001,7 +3001,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
 					sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 							GET_PC_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+					mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 					SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
 					STATE(d) = CON_CLOSE;
 					return;
@@ -3011,7 +3011,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 					sprintf(buf, "Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 							GET_PC_NAME(d->character), d->host);
-					mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+					mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 					STATE(d) = CON_CLOSE;
 					return;
 				}
@@ -3098,7 +3098,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
 				sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 						GET_PC_NAME(d->character), d->host);
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+				mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 				SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
 				STATE(d) = CON_CLOSE;
 				return;
@@ -3109,7 +3109,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 				sprintf(buf,
 						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 						GET_PC_NAME(d->character), d->host);
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+				mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 				STATE(d) = CON_CLOSE;
 				return;
 			}
@@ -3152,7 +3152,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			} else {
 				if (!Password::compare_password(d->character.get(), arg)) {
 					sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
-					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+					mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 					GET_BAD_PWS(d->character)++;
 					d->character->save_char();
 					if (++(d->bad_pws) >= max_bad_pws)    // 3 strikes and you're out.
@@ -3464,7 +3464,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 			if (!*arg) {
 				SEND_TO_Q("\r\nВаш E-mail : ", d);
 				return;
-			} else if (!valid_email(arg)) {
+			} else if (!IsValidEmail(arg)) {
 				SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 				return;
 			}
@@ -3694,13 +3694,13 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					STATE(d) = CON_CLOSE;
 					return;
 				}
-				if (GET_REAL_LEVEL(d->character) >= LVL_GRGOD)
+				if (GET_REAL_LEVEL(d->character) >= kLevelGreatGod)
 					return;
 				delete_char(GET_NAME(d->character));
 				sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 				SEND_TO_Q(buf, d);
 				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_REAL_LEVEL(d->character));
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, true);
+				mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 				d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
 				STATE(d) = CON_CLOSE;
 				return;
@@ -4086,7 +4086,7 @@ long GetUniqueByName(const std::string &name, bool god) {
 			if (!god)
 				return player_table[i].unique;
 			else {
-				if (player_table[i].level < LVL_IMMORT)
+				if (player_table[i].level < kLevelImmortal)
 					return player_table[i].unique;
 				else
 					return -1;
@@ -4119,7 +4119,7 @@ std::string GetNameByUnique(long unique, bool god) {
 			if (!god) {
 				return player_table[i].name();
 			} else {
-				if (player_table[i].level < LVL_IMMORT) {
+				if (player_table[i].level < kLevelImmortal) {
 					return player_table[i].name();
 				} else {
 					return empty;

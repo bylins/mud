@@ -274,7 +274,7 @@ bool check_equal_exch(CHAR_DATA *ch) {
 	if (before != after) {
 		sprintf(buf, "SYSERROR: Torc exch by %s not equal: %d -> %d",
 				GET_NAME(ch), before, after);
-		mudlog(buf, DEF, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, DEF, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 	return true;
@@ -412,12 +412,12 @@ bool has_connected_bosses(CHAR_DATA *ch) {
 		}
 	}
 	// если у данного моба есть живые последователи-боссы
-	for (follow_type *i = ch->followers; i; i = i->next) {
-		if (i->follower != ch
-			&& IS_NPC(i->follower)
-			&& !IS_CHARMICE(i->follower)
-			&& i->follower->get_master() == ch
-			&& i->follower->get_role(MOB_ROLE_BOSS)) {
+	for (Follower *i = ch->followers; i; i = i->next) {
+		if (i->ch != ch
+			&& IS_NPC(i->ch)
+			&& !IS_CHARMICE(i->ch)
+			&& i->ch->get_master() == ch
+			&& i->ch->get_role(MOB_ROLE_BOSS)) {
 			return true;
 		}
 	}
@@ -579,10 +579,10 @@ void drop_torc(CHAR_DATA *mob) {
 						: d->character.get();
 
 	int members = 1;
-	for (follow_type *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->follower)) {
+	for (Follower *f = leader->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(mob)
+			&& !IS_NPC(f->ch)) {
 			++members;
 		}
 	}
@@ -600,13 +600,13 @@ void drop_torc(CHAR_DATA *mob) {
 		gain_torc(leader, drop);
 	}
 
-	for (follow_type *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->follower)
-			&& GET_GOD_FLAG(f->follower, GF_REMORT)
-			&& mob->get_attacker(f->follower, ATTACKER_ROUNDS) >= damager.second / 2) {
-			gain_torc(f->follower, drop);
+	for (Follower *f = leader->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(mob)
+			&& !IS_NPC(f->ch)
+			&& GET_GOD_FLAG(f->ch, GF_REMORT)
+			&& mob->get_attacker(f->ch, ATTACKER_ROUNDS) >= damager.second / 2) {
+			gain_torc(f->ch, drop);
 		}
 	}
 }
@@ -634,14 +634,14 @@ void init() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
 	pugi::xml_node main_node = doc.child("remort");
 	if (!main_node) {
 		snprintf(buf, kMaxStringLength, "...<remort> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 

@@ -175,14 +175,14 @@ class Clan {
 	static void HconShow(CHAR_DATA *ch);
 	static void SetClanData(CHAR_DATA *ch);
 	static void ChestUpdate();
-	static bool MayEnter(CHAR_DATA *ch, room_rnum room, bool mode);
+	static bool MayEnter(CHAR_DATA *ch, RoomRnum room, bool mode);
 	static bool InEnemyZone(CHAR_DATA *ch);
 	static bool PutChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);
 	static bool TakeChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);
 	static void ChestInvoice();
 	static bool BankManage(CHAR_DATA *ch, char *arg);
-	static room_rnum CloseRent(room_rnum to_room);
-	static shared_ptr GetClanByRoom(room_rnum room);
+	static RoomRnum CloseRent(RoomRnum to_room);
+	static shared_ptr GetClanByRoom(RoomRnum room);
 	static void CheckPkList(CHAR_DATA *ch);
 	static void SyncTopExp();
 	static bool ChestShow(OBJ_DATA *list, CHAR_DATA *ch);
@@ -280,7 +280,7 @@ class Clan {
 	std::string title;  // что будет видно в титуле членов клана (лучше род.падеж, если это не аббревиатура)
 	std::string title_female; // title для персонажей женского рода
 	std::string owner;  // имя воеводы
-	mob_vnum guard;     // охранник замка
+	MobVnum guard;     // охранник замка
 	time_t builtOn;     // дата создания
 	double bankBuffer;  // буффер для более точного снятия за хранилище
 	bool entranceMode;  // вход в замок для всех/только свои и альянс

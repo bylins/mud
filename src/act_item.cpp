@@ -16,7 +16,7 @@
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "entities/char.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "depot.h"
 #include "fightsystem/fight.h"
 #include "handler.h"
@@ -30,12 +30,13 @@
 #include "utils/utils_char_obj.inl"
 #include "global_objects.h"
 #include "skills_info.h"
-#include "structs/extra_description_data.h"
+//#include "structs/extra_description_data.h"
+#include "game_mechanics/weather.h"
 
 // extern variables
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
-extern std::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels;
+extern std::array<int, kMaxMobLevel / 11 + 1> animals_levels;
 // from act.informative.cpp
 char *find_exdesc(const char *word, const EXTRA_DESCR_DATA::shared_ptr &list);
 
@@ -349,7 +350,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch) {
 	const auto skin = world_objects.create_from_prototype_by_vnum(vnum);
 	if (!skin) {
 		mudlog("Неверно задан номер прототипа для освежевания в act.item.cpp::create_skin!",
-			   NRM, LVL_GRGOD, ERRLOG, true);
+			   NRM, kLevelGreatGod, ERRLOG, true);
 		return nullptr;
 	}
 
@@ -645,10 +646,10 @@ int can_take_obj(CHAR_DATA *ch, OBJ_DATA *obj) {
 int other_pc_in_group(CHAR_DATA *ch) {
 	int num = 0;
 	CHAR_DATA *k = ch->has_master() ? ch->get_master() : ch;
-	for (follow_type *f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(f->follower)
-			&& IN_ROOM(f->follower) == ch->in_room) {
+	for (Follower *f = k->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& !IS_NPC(f->ch)
+			&& IN_ROOM(f->ch) == ch->in_room) {
 			++num;
 		}
 	}
@@ -717,7 +718,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont) {
 				GET_ROOM_VNUM(ch->in_room),
 				value,
 				desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
 		do_split(ch, local_buf, 0, 0);
@@ -726,13 +727,13 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont) {
 		// налогом не облагается, т.к. уже все уплочено
 		// на данном этапе cont уже не содержит владельца
 		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value, desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
 		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value, desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 		ch->add_gold(value, true, true);
 	} else {
 		sprintf(buf,
@@ -741,7 +742,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont) {
 				GET_ROOM_VNUM(ch->in_room),
 				value,
 				desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	}
 
@@ -1120,7 +1121,7 @@ void perform_drop_gold(CHAR_DATA *ch, int amount) {
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
 					desc_count(amount, WHAT_MONEYu));
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+			mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 			sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 			act(buf, true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
@@ -1317,7 +1318,7 @@ void perform_give_gold(CHAR_DATA *ch, CHAR_DATA *vict, int amount) {
 				GET_ROOM_VNUM(ch->in_room),
 				amount,
 				GET_PAD(vict, 4));
-		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 	}
 	if (IS_NPC(ch) || !IS_IMPL(ch)) {
 		ch->remove_gold(amount);
@@ -1495,7 +1496,7 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		extract_obj(meet);
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 	} else {
-		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, LVL_GRGOD, ERRLOG, true);
+		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, kLevelGreatGod, ERRLOG, true);
 	}
 }
 
@@ -2655,7 +2656,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int success = false, need = false, spellnum = 0;
-	struct timed_type timed;
+	struct Timed timed;
 
 	if (!ch->get_skill(SKILL_AID)) {
 		send_to_char("Вам следует этому научиться.\r\n", ch);
@@ -2848,7 +2849,7 @@ void do_poisoned(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	OBJ_DATA *obj;
 	int prob, percent = 0, decay;
-	struct timed_type timed;
+	struct Timed timed;
 
 	if (!ch->get_skill(SKILL_REPAIR)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
@@ -3090,7 +3091,7 @@ void feed_charmice(CHAR_DATA *ch, char *arg) {
 	OBJ_DATA *obj;
 	int max_charm_duration = 1;
 	int chance_to_eat = 0;
-	struct follow_type *k;
+	struct Follower *k;
 	int reformed_hp_summ = 0;
 
 	obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
@@ -3100,9 +3101,9 @@ void feed_charmice(CHAR_DATA *ch, char *arg) {
 	}
 
 	for (k = ch->get_master()->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-			&& k->follower->get_master() == ch->get_master()) {
-			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->follower, SPELL_ANIMATE_DEAD);
+		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
+			&& k->ch->get_master() == ch->get_master()) {
+			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->ch, SPELL_ANIMATE_DEAD);
 		}
 	}
 
@@ -3142,10 +3143,7 @@ void feed_charmice(CHAR_DATA *ch, char *arg) {
 		max_charm_duration =
 			pc_duration(ch,
 						GET_REAL_WIS(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14),
-						0,
-						0,
-						0,
-						0);
+						0, 0, 0, 0);
 	}
 
 	AFFECT_DATA<EApplyLocation> af;
@@ -3161,11 +3159,7 @@ void feed_charmice(CHAR_DATA *ch, char *arg) {
 	act("Громко чавкая, $N сожрал$G труп.", true, ch, obj, ch, TO_ROOM | TO_ARENA_LISTEN);
 	act("Похоже, лакомство пришлось по вкусу.", true, ch, nullptr, ch->get_master(), TO_VICT);
 	act("От омерзительного зрелища вас едва не вывернуло.",
-		true,
-		ch,
-		nullptr,
-		ch->get_master(),
-		TO_NOTVICT | TO_ARENA_LISTEN);
+		true, ch, nullptr, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 
 	if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
 		GET_HIT(ch) = MIN(GET_HIT(ch) + MIN(max_heal_hp, GET_MAX_HIT(ch)), GET_MAX_HIT(ch));
@@ -3174,11 +3168,7 @@ void feed_charmice(CHAR_DATA *ch, char *arg) {
 	if (GET_HIT(ch) >= GET_MAX_HIT(ch)) {
 		act("$n сыто рыгнул$g и благодарно посмотрел$g на вас.", true, ch, nullptr, ch->get_master(), TO_VICT);
 		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.",
-			true,
-			ch,
-			nullptr,
-			ch->get_master(),
-			TO_NOTVICT | TO_ARENA_LISTEN);
+			true, ch, nullptr, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	extract_obj(obj);

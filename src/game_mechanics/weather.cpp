@@ -20,13 +20,13 @@
 #include "utils/random.h"
 #include "game_mechanics/celebrates.h"
 
+Weather weather_info;
 extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
 extern TIME_INFO_DATA time_info;
 
 void another_hour(int mode);
-void weather_change(void);
-
-void calc_easter(void);
+void weather_change();
+void calc_easter();
 
 int EasterMonth = 0;
 int EasterDay = 0;

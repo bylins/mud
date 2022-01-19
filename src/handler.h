@@ -52,11 +52,11 @@ int getResisTypeWithSpellClass(int spellClass);
 int get_resist_type(int spellnum);
 
 // handling the affected-structures //
-void timed_feat_to_char(CHAR_DATA *ch, struct timed_type *timed);
-void timed_feat_from_char(CHAR_DATA *ch, struct timed_type *timed);
+void timed_feat_to_char(CHAR_DATA *ch, struct Timed *timed);
+void timed_feat_from_char(CHAR_DATA *ch, struct Timed *timed);
 int timed_by_feat(CHAR_DATA *ch, int skill);
-void timed_to_char(CHAR_DATA *ch, struct timed_type *timed);
-void timed_from_char(CHAR_DATA *ch, struct timed_type *timed);
+void timed_to_char(CHAR_DATA *ch, struct Timed *timed);
+void timed_from_char(CHAR_DATA *ch, struct Timed *timed);
 int timed_by_skill(CHAR_DATA *ch, int skill);
 void decreaseFeatTimer(CHAR_DATA *ch, int featureID);
 
@@ -67,7 +67,7 @@ char *fname(const char *namelist);
 int get_number(char **name);
 int get_number(std::string &name);
 
-room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep = false);
+RoomVnum get_room_where_obj(OBJ_DATA *obj, bool deep = false);
 
 // ******** objects *********** //
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
@@ -83,10 +83,10 @@ OBJ_DATA *get_obj_in_list_num(int num, OBJ_DATA *list);
 OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA *list);
 
 OBJ_DATA *get_obj(char *name, int vnum = 0);
-OBJ_DATA *get_obj_num(obj_rnum nr);
+OBJ_DATA *get_obj_num(ObjRnum nr);
 
 int obj_decay(OBJ_DATA *object);
-bool obj_to_room(OBJ_DATA *object, room_rnum room);
+bool obj_to_room(OBJ_DATA *object, RoomRnum room);
 void obj_from_room(OBJ_DATA *object);
 void obj_to_obj(OBJ_DATA *obj, OBJ_DATA *obj_to);
 void obj_from_obj(OBJ_DATA *obj);
@@ -96,18 +96,18 @@ void extract_obj(OBJ_DATA *obj);
 
 // ******* characters ********* //
 
-CHAR_DATA *get_char_room(char *name, room_rnum room);
-CHAR_DATA *get_char_num(mob_rnum nr);
+CHAR_DATA *get_char_room(char *name, RoomRnum room);
+CHAR_DATA *get_char_num(MobRnum nr);
 CHAR_DATA *get_char(char *name, int vnum = 0);
 
 void char_from_room(CHAR_DATA *ch);
 inline void char_from_room(const CHAR_DATA::shared_ptr &ch) { char_from_room(ch.get()); }
-void char_to_room(CHAR_DATA *ch, room_rnum room);
-void char_flee_to_room(CHAR_DATA *ch, room_rnum room);
-inline void char_to_room(const CHAR_DATA::shared_ptr &ch, room_rnum room) { char_to_room(ch.get(), room); }
-inline void char_flee_to_room(const CHAR_DATA::shared_ptr &ch, room_rnum room) { char_flee_to_room(ch.get(), room); }
+void char_to_room(CHAR_DATA *ch, RoomRnum room);
+void char_flee_to_room(CHAR_DATA *ch, RoomRnum room);
+inline void char_to_room(const CHAR_DATA::shared_ptr &ch, RoomRnum room) { char_to_room(ch.get(), room); }
+inline void char_flee_to_room(const CHAR_DATA::shared_ptr &ch, RoomRnum room) { char_flee_to_room(ch.get(), room); }
 void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset = 0);
-void room_affect_process_on_entry(CHAR_DATA *ch, room_rnum room);
+void room_affect_process_on_entry(CHAR_DATA *ch, RoomRnum room);
 
 // find if character can see //
 CHAR_DATA *get_char_room_vis(CHAR_DATA *ch, const char *name);
@@ -199,7 +199,7 @@ int find_portal_by_word(char *wrd);
 void add_portal_to_char(CHAR_DATA *ch, int vnum);
 int has_char_portal(CHAR_DATA *ch, int vnum);
 void check_portals(CHAR_DATA *ch);
-struct portals_list_type *get_portal(int vnum, char *wrd);
+struct Portal *get_portal(int vnum, char *wrd);
 
 // charm //
 

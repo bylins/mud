@@ -383,7 +383,7 @@ void script_log(const char *msg,
 				LogMode type = LogMode::OFF);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(TRIG_DATA *trig, const char *msg, LogMode type = LogMode::OFF);
 
-using obj2triggers_t = std::unordered_map<obj_vnum, std::list<trg_vnum>>;
+using obj2triggers_t = std::unordered_map<ObjVnum, std::list<TrgVnum>>;
 extern obj2triggers_t &obj2triggers;
 
 class GlobalTriggersStorage {
@@ -392,18 +392,18 @@ class GlobalTriggersStorage {
 
 	void add(TRIG_DATA *trigger);
 	void remove(TRIG_DATA *trigger);
-	void shift_rnums_from(const rnum_t rnum);
-	bool has_triggers_with_rnum(const rnum_t rnum) const {
+	void shift_rnums_from(const Rnum rnum);
+	bool has_triggers_with_rnum(const Rnum rnum) const {
 		return m_rnum2triggers_set.find(rnum) != m_rnum2triggers_set.end();
 	}
-	const auto &get_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2triggers_set.at(rnum); }
+	const auto &get_triggers_with_rnum(const Rnum rnum) const { return m_rnum2triggers_set.at(rnum); }
 	void register_remove_observer(TRIG_DATA *trigger, const TriggerEventObserver::shared_ptr &observer);
 	void unregister_remove_observer(TRIG_DATA *trigger, const TriggerEventObserver::shared_ptr &observer);
 
  private:
 	using triggers_set_t = std::unordered_set<TRIG_DATA *>;
 	using storage_t = triggers_set_t;
-	using rnum2triggers_set_t = std::unordered_map<rnum_t, triggers_set_t>;
+	using rnum2triggers_set_t = std::unordered_map<Rnum, triggers_set_t>;
 	using observers_set_t = std::unordered_set<TriggerEventObserver::shared_ptr>;
 	using observers_t = std::unordered_map<TRIG_DATA *, observers_set_t>;
 

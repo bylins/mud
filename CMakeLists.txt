@@ -162,7 +162,7 @@ set(SOURCES
 		src/top.cpp
 		src/utils/utils.cpp
 		src/version.cpp
-		src/weather.cpp
+        src/game_mechanics/weather.cpp
 		src/olc/zedit.cpp
 		src/utils/utils_string.cpp
 		src/world_objects.cpp
@@ -282,7 +282,7 @@ set(HEADERS
 		src/blocking_queue.h
 		src/influxdb.h
 		src/heartbeat_commands.h
-		src/weather.h
+        src/game_mechanics/weather.h
 		src/game_limits.h
 		src/act_wizard.h
 		src/heartbeat.h
@@ -426,7 +426,7 @@ set(HEADERS
 		src/title.h
 		src/top.h
 		src/utils/utils.h
-		src/xml_loading_helper.h
+		src/utils/xml_loading_helper.h
 		src/utils/utils_debug.h
 		src/stigmas.h
 		src/zone.table.h

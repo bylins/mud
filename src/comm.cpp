@@ -376,7 +376,7 @@ extern void log_code_date();
 
 // local globals
 DESCRIPTOR_DATA *descriptor_list = nullptr;    // master desc list
-struct txt_block *bufpool = 0;    // pool of large output buffers
+struct TextBlock *bufpool = 0;    // pool of large output buffers
 int buf_largecount = 0;        // # of large buffers which exist
 int buf_overflows = 0;        // # of overflows of output
 int buf_switches = 0;        // # of switches from small to large buf
@@ -496,7 +496,7 @@ void gifts() {
 	int rand_vnum_r = vnum_room_new_year[number(0, 30)];
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
-	obj_rnum rnum;
+	ObjRnum rnum;
 	if ((rnum = real_object(rand_vnum)) < 0) {
 		log("Ошибка в таблице НГ подарков!");
 		return;
@@ -522,7 +522,7 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left);
 ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length);
 void sanity_check(void);
 void circle_sleep(struct timeval *timeout);
-int get_from_q(struct txt_q *queue, char *dest, int *aliased);
+int get_from_q(struct TextBlocksQueue *queue, char *dest, int *aliased);
 void stop_game(ush_int port);
 void signal_setup(void);
 #ifdef HAS_EPOLL
@@ -1817,8 +1817,8 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 	return prompt;
 }
 
-void write_to_q(const char *txt, struct txt_q *queue, int aliased) {
-	struct txt_block *newt;
+void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased) {
+	struct TextBlock *newt;
 
 	CREATE(newt, 1);
 	newt->text = str_dup(txt);
@@ -1835,8 +1835,8 @@ void write_to_q(const char *txt, struct txt_q *queue, int aliased) {
 	}
 }
 
-int get_from_q(struct txt_q *queue, char *dest, int *aliased) {
-	struct txt_block *tmp;
+int get_from_q(struct TextBlocksQueue *queue, char *dest, int *aliased) {
+	struct TextBlock *tmp;
 
 	// queue empty?
 	if (!queue->head)
@@ -2101,7 +2101,7 @@ int new_descriptor(socket_t s)
 	 * your site, but you are wizinvis upon login.
 	 */
 	sprintf(buf2, "New connection from [%s]", newd->host);
-	mudlog(buf2, CMP, LVL_GOD, SYSLOG, false);
+	mudlog(buf2, CMP, kLevelGod, SYSLOG, false);
 #endif
 	if (ban->is_banned(newd->host) == BanList::BAN_ALL) {
 		time_t bantime = ban->getBanDate(newd->host);
@@ -2110,7 +2110,7 @@ int new_descriptor(socket_t s)
 		write_to_descriptor(desc, buf, strlen(buf));
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
-		// mudlog(buf2, CMP, LVL_GOD, SYSLOG, true);
+		// mudlog(buf2, CMP, kLevelGod, SYSLOG, true);
 		delete newd;
 		return (-3);
 	}
@@ -2320,7 +2320,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 				(pos < 0 ? (pos == -1 ? "NULL buffer" : "zero length buffer") : "go out of buffer"),
 				pos,
 				GET_NAME(t->character));
-		mudlog(buf, BRF, LVL_GOD, SYSLOG, true);
+		mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 	}
 
 	/*
@@ -2782,7 +2782,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
 				// Иммам или морталам с GF_DEMIGOD разрешено использовать ";".
-				if (GET_REAL_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
+				if (GET_REAL_LEVEL(t->character) < kLevelImmortal && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
 			if (*ptr == '&'
@@ -2790,7 +2790,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_REAL_LEVEL(t->character) < LVL_IMPL)
+				if (GET_REAL_LEVEL(t->character) < kLevelImplementator)
 					*ptr = '8';
 			}
 			if (*ptr == '$'
@@ -2798,7 +2798,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_REAL_LEVEL(t->character) < LVL_IMPL)
+				if (GET_REAL_LEVEL(t->character) < kLevelImplementator)
 					*ptr = '4';
 			}
 			if (*ptr == '\\'
@@ -2806,7 +2806,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_REAL_LEVEL(t->character) < LVL_GRGOD)
+				if (GET_REAL_LEVEL(t->character) < kLevelGreatGod)
 					*ptr = '/';
 			}
 			if (*ptr == '\b' || *ptr == 127)    // handle backspacing or delete key
@@ -3113,7 +3113,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				Crash_ldsave(d->character.get());
 
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
-				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
 			d->character->desc = nullptr;
 		} else {
@@ -3240,7 +3240,7 @@ void nonblock(socket_t s) {
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
 RETSIGTYPE unrestrict_game(int/* sig*/) {
-	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, LVL_IMMORT, SYSLOG, true);
+	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, kLevelImmortal, SYSLOG, true);
 	ban->clear_all();
 	circle_restrict = 0;
 	num_invalid = 0;
@@ -3442,7 +3442,7 @@ void send_to_gods(const char *messg) {
 	}
 }
 
-void send_to_room(const char *messg, room_rnum room, int to_awake) {
+void send_to_room(const char *messg, RoomRnum room, int to_awake) {
 	if (messg == nullptr) {
 		return;
 	}

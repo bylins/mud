@@ -77,7 +77,7 @@ void doBring(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos, char *bank) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	const int cost = MERC::BASE_COST * (GET_REAL_REMORT(ch) + 1);
-	mob_rnum rnum;
+	MobRnum rnum;
 	std::map<int, MERCDATA>::iterator it = m->begin();
 	for (unsigned int num = 1; it != m->end(); ++it, ++num) {
 		if (num != pos)

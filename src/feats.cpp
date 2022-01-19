@@ -754,7 +754,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 	if (feat <= 0 || feat >= kMaxFeats) {
 		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
 				feat, ch->get_name().c_str());
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 	// Если фит доступен всем и всегда - неачем его куда-то "заучиввать".
@@ -931,7 +931,7 @@ int getModifier(int feat, int location) {
 }
 
 void check_berserk(CHAR_DATA *ch) {
-	struct timed_type timed;
+	struct Timed timed;
 	int prob;
 
 	if (affected_by_spell(ch, SPELL_BERSERK) &&
@@ -972,7 +972,7 @@ void check_berserk(CHAR_DATA *ch) {
 }
 
 void do_lightwalk(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct timed_type timed;
+	struct Timed timed;
 
 	if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT)) {
 		send_to_char("Вы не можете этого.\r\n", ch);
@@ -1023,7 +1023,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	char arg2[kMaxInputLength];
 
 	//отключено пока для не-иммов
-	if (GET_REAL_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(ch) < kLevelImmortal) {
 		send_to_char("Вы не можете этого.", ch);
 		return;
 	};
@@ -1119,7 +1119,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 
 	using PlayerClass::slot_for_char;
 
-	struct timed_type timed;
+	struct Timed timed;
 
 	if (!IS_IMPL(ch) && (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT))) {
 		send_to_char("Вы не столь могущественны.\r\n", ch);
@@ -1161,7 +1161,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
-		(GET_REAL_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) {
+		(GET_REAL_LEVEL(ch) < kLevelGreatGod) && (!IS_NPC(ch))) {
 		if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			|| slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
@@ -1178,15 +1178,15 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	follow_type *k;
+	Follower *k;
 	CHAR_DATA *follower = nullptr;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-			&& k->follower->get_master() == ch
-			&& MOB_FLAGGED(k->follower, MOB_CLONE)
-			&& !affected_by_spell(k->follower, SPELL_CAPABLE)
-			&& ch->in_room == IN_ROOM(k->follower)) {
-			follower = k->follower;
+		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
+			&& k->ch->get_master() == ch
+			&& MOB_FLAGGED(k->ch, MOB_CLONE)
+			&& !affected_by_spell(k->ch, SPELL_CAPABLE)
+			&& ch->in_room == IN_ROOM(k->ch)) {
+			follower = k->ch;
 			break;
 		}
 	}
@@ -1294,7 +1294,7 @@ int CFeatArray::pos(int pos /*= -1*/) {
 		return _pos;
 	}
 	sprintf(buf, "SYSERR: invalid argument (%d) was sended to features::aff_aray.pos!", pos);
-	mudlog(buf, BRF, LVL_GOD, SYSLOG, true);
+	mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 	return _pos;
 }
 

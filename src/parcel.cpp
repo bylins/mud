@@ -15,9 +15,9 @@
 
 #include <iomanip>
 
-extern room_rnum r_helled_start_room;
-extern room_rnum r_named_start_room;
-extern room_rnum r_unreg_start_room;
+extern RoomRnum r_helled_start_room;
+extern RoomRnum r_named_start_room;
+extern RoomRnum r_unreg_start_room;
 
 extern CHAR_DATA *get_player_of_name(const char *name);
 extern int get_buf_line(char **source, char *target);

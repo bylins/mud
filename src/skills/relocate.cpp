@@ -10,7 +10,7 @@
 extern void check_auto_nosummon(CHAR_DATA *ch);
 
 void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	struct timed_type timed;
+	struct Timed timed;
 
 	if (!can_use_feat(ch, RELOCATE_FEAT)) {
 		send_to_char("Вам это недоступно.\r\n", ch);
@@ -26,7 +26,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	room_rnum to_room, fnd_room;
+	RoomRnum to_room, fnd_room;
 	one_argument(argument, arg);
 	if (!*arg) {
 		send_to_char("Переместиться на кого?", ch);

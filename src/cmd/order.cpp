@@ -6,7 +6,7 @@
 void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], message[kMaxInputLength];
 	bool found = false;
-	room_rnum org_room;
+	RoomRnum org_room;
 	CHAR_DATA *vict;
 
 	if (!ch)

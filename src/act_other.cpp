@@ -52,6 +52,7 @@
 #include "sysdep.h"
 #include "world_objects.h"
 #include "skills_info.h"
+#include "game_mechanics/weather.h"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -110,7 +111,7 @@ void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-//bool is_dark(room_rnum room);
+//bool is_dark(RoomRnum room);
 
 void do_antigods(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMMORTAL(ch)) {
@@ -153,7 +154,7 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (!GET_INVIS_LEV(ch))
 			act("$n покинул$g игру.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		send_to_char("До свидания, странник... Мы ждем тебя снова!\r\n", ch);
 
 		long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
@@ -363,7 +364,7 @@ void do_sneak(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_camouflage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct timed_type timed;
+	struct Timed timed;
 	int prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_CAMOUFLAGE)) {
@@ -630,7 +631,7 @@ void go_steal(CHAR_DATA *ch, CHAR_DATA *vict, char *obj_name) {
 							GET_ROOM_VNUM(ch->in_room),
 							gold,
 							GET_PAD(vict, 0));
-					mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, true);
+					mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 					split_or_clan_tax(ch, gold);
 					vict->remove_gold(gold);
 				} else
@@ -750,7 +751,7 @@ void do_visible(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	OBJ_DATA *obj;
 	int prob, dur;
-	struct timed_type timed;
+	struct Timed timed;
 	int i;
 	if (IS_NPC(ch))        // Cannot use GET_COND() on mobs.
 		return;
@@ -862,13 +863,13 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict) {
 	CHAR_DATA *leader = vict;
 	if (!leader) {
 		// лидер умер, ищем согрупника с максимальным скиллом лидерки
-		for (struct follow_type *l = ch->followers; l; l = l->next) {
-			if (!is_group_member(ch, l->follower))
+		for (struct Follower *l = ch->followers; l; l = l->next) {
+			if (!is_group_member(ch, l->ch))
 				continue;
 			if (!leader)
-				leader = l->follower;
-			else if (l->follower->get_skill(SKILL_LEADERSHIP) > leader->get_skill(SKILL_LEADERSHIP))
-				leader = l->follower;
+				leader = l->ch;
+			else if (l->ch->get_skill(SKILL_LEADERSHIP) > leader->get_skill(SKILL_LEADERSHIP))
+				leader = l->ch;
 		}
 	}
 
@@ -878,12 +879,12 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict) {
 
 	// для реследования используем стандартные функции
 	std::vector<CHAR_DATA *> temp_list;
-	for (struct follow_type *n = nullptr, *l = ch->followers; l; l = n) {
+	for (struct Follower *n = nullptr, *l = ch->followers; l; l = n) {
 		n = l->next;
-		if (!is_group_member(ch, l->follower)) {
+		if (!is_group_member(ch, l->ch)) {
 			continue;
 		} else {
-			CHAR_DATA *temp_vict = l->follower;
+			CHAR_DATA *temp_vict = l->ch;
 			if (temp_vict->has_master()
 				&& stop_follower(temp_vict, SF_SILENCE)) {
 				continue;
@@ -918,9 +919,9 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict) {
 	ch->dps_copy(leader);
 	perform_group(leader, leader);
 	int followers = 0;
-	for (struct follow_type *f = leader->followers; f; f = f->next) {
+	for (struct Follower *f = leader->followers; f; f = f->next) {
 		if (followers < max_group_size(leader)) {
-			if (perform_group(leader, f->follower))
+			if (perform_group(leader, f->ch))
 				++followers;
 		} else {
 			send_to_char("Вы больше никого не можете принять в группу.\r\n", ch);
@@ -1084,7 +1085,7 @@ void print_one_line(CHAR_DATA *ch, CHAR_DATA *k, int leader, int header) {
 
 void print_list_group(CHAR_DATA *ch) {
 	CHAR_DATA *k;
-	struct follow_type *f;
+	struct Follower *f;
 	int count = 1;
 	k = (ch->has_master() ? ch->get_master() : ch);
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
@@ -1095,10 +1096,10 @@ void print_list_group(CHAR_DATA *ch) {
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
+			if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
 				continue;
 			}
-			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f->follower));
+			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f->ch));
 			send_to_char(buf1, ch);
 			count++;
 		}
@@ -1110,7 +1111,7 @@ void print_list_group(CHAR_DATA *ch) {
 void print_group(CHAR_DATA *ch) {
 	int gfound = 0, cfound = 0;
 	CHAR_DATA *k;
-	struct follow_type *f, *g;
+	struct Follower *f, *g;
 
 	k = ch->has_master() ? ch->get_master() : ch;
 	if (!IS_NPC(ch))
@@ -1123,21 +1124,21 @@ void print_group(CHAR_DATA *ch) {
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
+			if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
 				continue;
 			}
-			print_one_line(ch, f->follower, false, gfound++);
+			print_one_line(ch, f->ch, false, gfound++);
 		}
 	}
 
 	for (f = ch->followers; f; f = f->next) {
-		if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(f->follower, MOB_ANGEL) || MOB_FLAGGED(f->follower, MOB_GHOST))) {
+		if (!(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(f->ch, MOB_ANGEL) || MOB_FLAGGED(f->ch, MOB_GHOST))) {
 			continue;
 		}
 		if (!cfound)
 			send_to_char("Ваши последователи:\r\n", ch);
-		print_one_line(ch, f->follower, false, cfound++);
+		print_one_line(ch, f->ch, false, cfound++);
 	}
 	if (!gfound && !cfound) {
 		send_to_char("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
@@ -1145,51 +1146,51 @@ void print_group(CHAR_DATA *ch) {
 	}
 	if (PRF_FLAGGED(ch, PRF_SHOWGROUP)) {
 		for (g = k->followers, cfound = 0; g; g = g->next) {
-			for (f = g->follower->followers; f; f = f->next) {
-				if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(f->follower, MOB_ANGEL) || MOB_FLAGGED(f->follower, MOB_GHOST))
+			for (f = g->ch->followers; f; f = f->next) {
+				if (!(AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+					|| MOB_FLAGGED(f->ch, MOB_ANGEL) || MOB_FLAGGED(f->ch, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 					continue;
 				}
 
-				if (f->follower->get_master() == ch
-					|| !AFF_FLAGGED(f->follower->get_master(), EAffectFlag::AFF_GROUP)) {
+				if (f->ch->get_master() == ch
+					|| !AFF_FLAGGED(f->ch->get_master(), EAffectFlag::AFF_GROUP)) {
 					continue;
 				}
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, PRF_NOCLONES)
-					&& IS_NPC(f->follower)
-					&& (MOB_FLAGGED(f->follower, MOB_CLONE)
-						|| GET_MOB_VNUM(f->follower) == MOB_KEEPER)) {
+					&& IS_NPC(f->ch)
+					&& (MOB_FLAGGED(f->ch, MOB_CLONE)
+						|| GET_MOB_VNUM(f->ch) == MOB_KEEPER)) {
 					continue;
 				}
 
 				if (!cfound) {
 					send_to_char("Последователи членов вашей группы:\r\n", ch);
 				}
-				print_one_line(ch, f->follower, false, cfound++);
+				print_one_line(ch, f->ch, false, cfound++);
 			}
 
 			if (ch->has_master()) {
-				if (!(AFF_FLAGGED(g->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(g->follower, MOB_ANGEL) || MOB_FLAGGED(g->follower, MOB_GHOST))
+				if (!(AFF_FLAGGED(g->ch, EAffectFlag::AFF_CHARM)
+					|| MOB_FLAGGED(g->ch, MOB_ANGEL) || MOB_FLAGGED(g->ch, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 					continue;
 				}
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, PRF_NOCLONES)
-					&& IS_NPC(g->follower)
-					&& (MOB_FLAGGED(g->follower, MOB_CLONE)
-						|| GET_MOB_VNUM(g->follower) == MOB_KEEPER)) {
+					&& IS_NPC(g->ch)
+					&& (MOB_FLAGGED(g->ch, MOB_CLONE)
+						|| GET_MOB_VNUM(g->ch) == MOB_KEEPER)) {
 					continue;
 				}
 
 				if (!cfound) {
 					send_to_char("Последователи членов вашей группы:\r\n", ch);
 				}
-				print_one_line(ch, g->follower, false, cfound++);
+				print_one_line(ch, g->ch, false, cfound++);
 			}
 		}
 	}
@@ -1197,7 +1198,7 @@ void print_group(CHAR_DATA *ch) {
 
 void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *vict;
-	struct follow_type *f;
+	struct Follower *f;
 	int found, f_number;
 
 	argument = one_argument(argument, buf);
@@ -1231,7 +1232,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // вычисляем количество последователей
 	for (f_number = 0, f = ch->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
 			f_number++;
 		}
 	}
@@ -1244,7 +1245,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Вы больше никого не можете принять в группу.\r\n", ch);
 				return;
 			}
-			found += perform_group(ch, f->follower);
+			found += perform_group(ch, f->ch);
 		}
 
 		if (!found) {
@@ -1313,7 +1314,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	struct follow_type *f, *next_fol;
+	struct Follower *f, *next_fol;
 	CHAR_DATA *tch;
 
 	one_argument(argument, buf);
@@ -1328,14 +1329,14 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf2, "Вы исключены из группы %s.\r\n", GET_PAD(ch, 1));
 		for (f = ch->followers; f; f = next_fol) {
 			next_fol = f->next;
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
-				//AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
-				f->follower->removeGroupFlags();
-				send_to_char(buf2, f->follower);
-				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-					&& !(IS_NPC(f->follower)
-						&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE))) {
-					stop_follower(f->follower, SF_EMPTY);
+			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) {
+				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
+				f->ch->removeGroupFlags();
+				send_to_char(buf2, f->ch);
+				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+					&& !(IS_NPC(f->ch)
+						&& AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE))) {
+					stop_follower(f->ch, SF_EMPTY);
 				}
 			}
 		}
@@ -1346,7 +1347,7 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	for (f = ch->followers; f; f = next_fol) {
 		next_fol = f->next;
-		tch = f->follower;
+		tch = f->ch;
 		if (isname(buf, tch->get_pc_name())
 			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 			&& !IS_HORSE(tch)) {
@@ -1364,7 +1365,7 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_report(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *k;
-	struct follow_type *f;
+	struct Follower *f;
 
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		send_to_char("И перед кем вы отчитываетесь?\r\n", ch);
@@ -1398,10 +1399,10 @@ void do_report(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	CAP(buf);
 	k = ch->has_master() ? ch->get_master() : ch;
 	for (f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower != ch
-			&& !AFF_FLAGGED(f->follower, EAffectFlag::AFF_DEAFNESS)) {
-			send_to_char(buf, f->follower);
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch != ch
+			&& !AFF_FLAGGED(f->ch, EAffectFlag::AFF_DEAFNESS)) {
+			send_to_char(buf, f->ch);
 		}
 	}
 
@@ -1417,7 +1418,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
 	int amount, num, share, rest;
 	CHAR_DATA *k;
-	struct follow_type *f;
+	struct Follower *f;
 
 	if (IS_NPC(ch))
 		return;
@@ -1454,9 +1455,9 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cu
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& !IS_NPC(f->follower)
-				&& IN_ROOM(f->follower) == ch->in_room) {
+			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+				&& !IS_NPC(f->ch)
+				&& IN_ROOM(f->ch) == ch->in_room) {
 				num++;
 			}
 		}
@@ -1493,15 +1494,15 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cu
 			}
 		}
 		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& !IS_NPC(f->follower)
-				&& IN_ROOM(f->follower) == ch->in_room
-				&& f->follower != ch) {
-				send_to_char(buf, f->follower);
+			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+				&& !IS_NPC(f->ch)
+				&& IN_ROOM(f->ch) == ch->in_room
+				&& f->ch != ch) {
+				send_to_char(buf, f->ch);
 				switch (currency) {
-					case currency::ICE : f->follower->add_ice_currency(share);
+					case currency::ICE : f->ch->add_ice_currency(share);
 						break;
-					case currency::GOLD : f->follower->add_gold(share, true, true);
+					case currency::GOLD : f->ch->add_gold(share, true, true);
 						break;
 				}
 			}
@@ -1756,14 +1757,14 @@ struct gen_tog_param_type {
 			0, SCMD_NOEXCHANGE, false}, {
 			0, SCMD_QUEST, false}, {
 			0, SCMD_AUTOMEM, false}, {
-			LVL_GRGOD, SCMD_NOHASSLE, false}, {
+			kLevelGreatGod, SCMD_NOHASSLE, false}, {
 			0, SCMD_NOSUMMON, false}, {
-			LVL_GOD, SCMD_NOWIZ, false}, {
-			LVL_GRGOD, SCMD_ROOMFLAGS, false}, {
-			LVL_IMPL, SCMD_SLOWNS, false}, {
-			LVL_GOD, SCMD_TRACK, false}, {
-			LVL_GOD, SCMD_HOLYLIGHT, false}, {
-			LVL_IMPL, SCMD_CODERINFO, false}, {
+			kLevelGod, SCMD_NOWIZ, false}, {
+			kLevelGreatGod, SCMD_ROOMFLAGS, false}, {
+			kLevelImplementator, SCMD_SLOWNS, false}, {
+			kLevelGod, SCMD_TRACK, false}, {
+			kLevelGod, SCMD_HOLYLIGHT, false}, {
+			kLevelImplementator, SCMD_CODERINFO, false}, {
 			0, SCMD_GOAHEAD, false}, {
 			0, SCMD_SHOWGROUP, false}, {
 			0, SCMD_NOCLONES, false}, {
@@ -1789,10 +1790,10 @@ struct gen_tog_param_type {
 			0, SCMD_NOTIFY_EXCH, false}, {
 			0, SCMD_DRAW_MAP, false}, {
 			0, SCMD_ENTER_ZONE, false}, {
-			LVL_GOD, SCMD_MISPRINT, false}, {
+			kLevelGod, SCMD_MISPRINT, false}, {
 			0, SCMD_BRIEF_SHIELDS, false}, {
 			0, SCMD_AUTO_NOSUMMON, false}, {
-			LVL_IMPL, SCMD_SDEMIGOD, false}, {
+			kLevelImplementator, SCMD_SDEMIGOD, false}, {
 			0, SCMD_BLIND, false}, {
 			0, SCMD_MAPPER, false}, {
 			0, SCMD_TESTER, true}, {
@@ -2218,7 +2219,7 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	int metter = -1;
 	OBJ_DATA *obj = nullptr;
-	struct timed_type timed;
+	struct Timed timed;
 
 	if (IS_NPC(ch)) {
 		return;
@@ -2479,7 +2480,7 @@ void do_bandage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-bool is_dark(room_rnum room) {
+bool is_dark(RoomRnum room) {
 	double coef = 0.0;
 
 	// если на комнате висит флаг всегда светло, то добавляем
@@ -2487,7 +2488,10 @@ bool is_dark(room_rnum room) {
 	if (ROOM_AFFECTED(room, room_spells::ERoomAffect::kLight))
 		coef += 2.0;
 	// если светит луна и комната !помещение и !город
-	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity) && (IS_MOONLIGHT(room)))
+	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity)
+		&& (GET_ROOM_SKY(room) == SKY_LIGHTNING
+			&& weather_info.moon_day >= FULLMOONSTART
+			&& weather_info.moon_day <= FULLMOONSTOP))
 		coef += 1.0;
 
 	// если ночь и мы не внутри и не в городе

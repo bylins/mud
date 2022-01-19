@@ -24,7 +24,7 @@ void do_turn_undead(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 	};
 
 	int skillTurnUndead = ch->get_skill(SKILL_TURN_UNDEAD);
-	timed_type timed;
+	Timed timed;
 	timed.skill = SKILL_TURN_UNDEAD;
 	if (can_use_feat(ch, EXORCIST_FEAT)) {
 		timed.time = timed_by_skill(ch, SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD - 2;

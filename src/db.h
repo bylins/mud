@@ -37,8 +37,8 @@ void room_free(ROOM_DATA *room);
 void tag_argument(char *argument, char *tag);
 void boot_db();
 void zone_update();
-bool can_be_reset(zone_rnum zone);
-room_rnum real_room(room_vnum vnum);
+bool can_be_reset(ZoneRnum zone);
+RoomRnum real_room(RoomVnum vnum);
 long get_id_by_name(char *name);
 //long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
@@ -52,8 +52,8 @@ int get_zone_rooms(int, int *, int *);
 void zone_traffic_save();
 
 int load_char(const char *name, CHAR_DATA *char_element, bool reboot = false, bool find_id = true);
-CHAR_DATA *read_mobile(mob_vnum nr, int type);
-mob_rnum real_mobile(mob_vnum vnum);
+CHAR_DATA *read_mobile(MobVnum nr, int type);
+MobRnum real_mobile(MobVnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA *ch);
 void clear_char_skills(CHAR_DATA *ch);
 int correct_unique(int unique);
@@ -64,7 +64,7 @@ void flush_player_index();
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 
-CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUAL);
+CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type = VIRTUAL);
 
 int vnum_object(char *searchname, CHAR_DATA *ch);
 int vnum_flag(char *searchname, CHAR_DATA *ch);
@@ -97,9 +97,9 @@ struct reset_com {
 };
 
 struct TreasureCase {
-	obj_vnum vnum;
+	ObjVnum vnum;
 	int drop_chance;
-	std::vector<obj_vnum> vnum_objs; // внумы шмоток, которые выпадают из кейса
+	std::vector<ObjVnum> vnum_objs; // внумы шмоток, которые выпадают из кейса
 };
 
 // для экстраффектов в random_obj
@@ -166,7 +166,7 @@ class RandomObj {
 
 // for queueing zones for update
 struct reset_q_element {
-	zone_rnum zone_to_reset;    // ref to zone_data
+	ZoneRnum zone_to_reset;    // ref to zone_data
 	struct reset_q_element *next;
 };
 
@@ -194,7 +194,7 @@ class player_index_element {
 	int plr_class;
 	int last_logon;
 	int activity;        // When player be saved and checked
-	save_info *timer;
+	SaveInfo *timer;
 
 	[[nodiscard]] const char *name() const { return m_name; }
 	[[nodiscard]] int id() const { return m_id; }
@@ -236,7 +236,7 @@ struct month_temperature_type {
 struct ingredient {
 	int imtype;
 	std::string imname;
-	std::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
+	std::array<int, kMaxMobLevel + 1> prob; // вероятность загрузки для каждого уровня моба
 };
 
 class MobRace {
@@ -252,7 +252,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 
 //-Polud
 
-extern room_rnum top_of_world;
+extern RoomRnum top_of_world;
 
 void add_trig_index_entry(int nr, TRIG_DATA *proto);
 extern INDEX_DATA **trig_index;
@@ -283,30 +283,30 @@ class Rooms : public std::vector<ROOM_DATA *> {
 extern Rooms &world;
 
 extern INDEX_DATA *mob_index;
-extern mob_rnum top_of_mobt;
+extern MobRnum top_of_mobt;
 
-inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
+inline ObjVnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
 
 //extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern const char *MENU;
 
-extern struct portals_list_type *portals_list;
+extern struct Portal *portals_list;
 extern TIME_INFO_DATA time_info;
 
 extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
 
-int dl_parse(load_list **dl_list, char *line);
+int dl_parse(OnDeadLoadList **dl_list, char *line);
 int dl_load_obj(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *chr, int DL_LOAD_TYPE);
 int trans_obj_name(OBJ_DATA *obj, CHAR_DATA *ch);
-void dl_list_copy(load_list **pdst, load_list *src);
+void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src);
 void paste_mobiles();
 
-extern room_rnum r_helled_start_room;
-extern room_rnum r_mortal_start_room;
-extern room_rnum r_immort_start_room;
-extern room_rnum r_named_start_room;
-extern room_rnum r_unreg_start_room;
+extern RoomRnum r_helled_start_room;
+extern RoomRnum r_mortal_start_room;
+extern RoomRnum r_immort_start_room;
+extern RoomRnum r_named_start_room;
+extern RoomRnum r_unreg_start_room;
 
 long get_ptable_by_name(const char *name);
 void free_alias(struct alias_data *a);
@@ -358,7 +358,7 @@ extern long top_idnum;
 
 bool player_exists(long id);
 
-inline save_info *SAVEINFO(const size_t number) {
+inline SaveInfo *SAVEINFO(const size_t number) {
 	return player_table[number].timer;
 }
 

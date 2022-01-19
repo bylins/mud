@@ -10,7 +10,7 @@
 #include "craft_logger.h"
 #include "craft_static.h"
 #include "utils/utils_time.h"
-#include "xml_loading_helper.h"
+#include "utils/xml_loading_helper.h"
 #include "parse.h"
 #include "db.h"
 #include "utils/pugixml.h"
@@ -1195,7 +1195,7 @@ bool CCraftModel::load_prototype(const pugi::xml_node *prototype, const size_t n
 		return false;
 	}
 
-	obj_vnum vnum = prototype->attribute("vnum").as_int(0);
+	ObjVnum vnum = prototype->attribute("vnum").as_int(0);
 	if (0 == vnum) {
 		logger("Failed to get VNUM of the %zd-%s prototype. This prototype entry will be skipped.\n",
 			   number, suffix(number));
@@ -1429,7 +1429,7 @@ bool CCraftModel::load_vnum_ranges(const pugi::xml_node *node) {
 				logger("WARNING: Required attribute \"min\" for VNum range is missing. Range will be ignored.\n");
 				continue;
 			}
-			obj_vnum min = 0;
+			ObjVnum min = 0;
 			CHelper::load_integer(min_node.child_value(), min,
 								  [&]() {
 									  logger(
@@ -1444,7 +1444,7 @@ bool CCraftModel::load_vnum_ranges(const pugi::xml_node *node) {
 				logger("WARNING: Required attribute \"max\" for VNum range is missing. Range will be ignored.\n");
 				continue;
 			}
-			obj_vnum max = 0;
+			ObjVnum max = 0;
 			CHelper::load_integer(max_node.child_value(), max,
 								  [&]() {
 									  logger(
@@ -1477,7 +1477,7 @@ bool CCraftModel::load_vnum_ranges(const pugi::xml_node *node) {
 	return true;
 }
 
-craft::CCraftModel::EAddVNumResult CCraftModel::check_vnum(const obj_vnum vnum) const {
+craft::CCraftModel::EAddVNumResult CCraftModel::check_vnum(const ObjVnum vnum) const {
 	const bool exists = m_existing_vnums.find(vnum) != m_existing_vnums.end();
 	if (exists) {
 		return EAVNR_ALREADY_EXISTS;
@@ -1496,7 +1496,7 @@ craft::CCraftModel::EAddVNumResult CCraftModel::check_vnum(const obj_vnum vnum) 
 	return EAVNR_OUT_OF_RANGE;
 }
 
-CCraftModel::EAddVNumResult CCraftModel::add_vnum(const obj_vnum vnum) {
+CCraftModel::EAddVNumResult CCraftModel::add_vnum(const ObjVnum vnum) {
 	const auto result = check_vnum(vnum);
 	if (EAVNR_OK == result) {
 		m_existing_vnums.insert(vnum);
@@ -1504,7 +1504,7 @@ CCraftModel::EAddVNumResult CCraftModel::add_vnum(const obj_vnum vnum) {
 	return result;
 }
 
-void CCraftModel::report_vnum_error(const obj_vnum vnum, const EAddVNumResult add_vnum_result) {
+void CCraftModel::report_vnum_error(const ObjVnum vnum, const EAddVNumResult add_vnum_result) {
 	std::string reason;
 	switch (add_vnum_result) {
 		case EAVNR_ALREADY_EXISTS: reason = "VNUM already exists in the model";
@@ -1524,7 +1524,7 @@ void CCraftModel::report_vnum_error(const obj_vnum vnum, const EAddVNumResult ad
 		   vnum, reason.c_str());
 }
 
-bool CCraftModel::export_object(const obj_vnum vnum, const char *filename) {
+bool CCraftModel::export_object(const ObjVnum vnum, const char *filename) {
 	const auto rnum = obj_proto.rnum(vnum);
 	if (-1 == rnum) {
 		logger("WARNING: Failed to export prototype with VNUM %d", vnum);

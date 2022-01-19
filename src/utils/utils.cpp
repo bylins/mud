@@ -70,34 +70,28 @@ extern const char *weapon_class[];
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void prune_crlf(char *txt);
-int valid_email(const char *address);
+bool IsValidEmail(const char *address);
 
 // external functions
 void perform_drop_gold(CHAR_DATA *ch, int amount);
 void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-char AltToKoi[] =
-	{
+char AltToKoi[] = {
 		"АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡+++╣║╗╝+╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨++╙╘╒++╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁё╫╜╢╓╤╕╥╖·√??■ "
 	};
-char KoiToAlt[] =
-	{
+char KoiToAlt[] = {
 		"дЁз©юыц╢баеъэшщч╟╠╡+Ч+Ш+++Ъ+++З+м╨уЯУиВЫ╩тсх╬С╪фгл╣ПТ╧ЖЬкопйьРн+Н═║Ф╓╔ДёЕ╗╘╙╚╛╜╝╞ОЮАБЦ╕╒ЛК╖ХМИГЙ·─│√└┘■┐∙┬┴┼▀▄█▌▐÷░▒▓⌠├┌°⌡┤≤²≥≈ "
 	};
-char WinToKoi[] =
-	{
+char WinToKoi[] = {
 		"++++++++++++++++++++++++++++++++ ++++╫++Ё©╢++++╥°+╤╕╜++·ё+╓++++╖АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя"
 	};
-char KoiToWin[] =
-	{
+char KoiToWin[] = {
 		"++++++++++++++++++++++++++═+╟+╥++++╦╨+Ё©+++++╢+++++╗╙+╡╞+++++╔+╘ЧЮАЖДЕТЦУХИЙКЛМНОЪПЯРСФБЭШГЬЩЫВЗчюаждетцухийклмноъпярсфбэшгьщывз"
 	};
-char KoiToWin2[] =
-	{
+char KoiToWin2[] = {
 		"++++++++++++++++++++++++++═+╟+╥++++╦╨+Ё©+++++╢+++++╗╙+╡╞+++++╔+╘ЧЮАЖДЕТЦУХИЙКЛМНОzПЯРСФБЭШГЬЩЫВЗчюаждетцухийклмноъпярсфбэшгьщывз"
 	};
-char AltToLat[] =
-	{
+char AltToLat[] = {
 		"─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ё╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡Ё╢╣╤╥╦╧╨╩╪╫╬©0abcdefghijklmnopqrstY1v23z456780ABCDEFGHIJKLMNOPQRSTY1V23Z45678"
 	};
 
@@ -269,9 +263,9 @@ CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
 	} else {
 		k = ch;
 	}
-	for (follow_type *i = k->followers; i; i = i->next) {
-		if (!IS_NPC(k) && !IS_CHARMICE(i->follower) && (k != i->follower) && (k->in_room == i->follower->in_room)) {
-			tmp_list.push_back(i->follower);
+	for (Follower *i = k->followers; i; i = i->next) {
+		if (!IS_NPC(k) && !IS_CHARMICE(i->ch) && (k != i->ch) && (k->in_room == i->ch->in_room)) {
+			tmp_list.push_back(i->ch);
 		}
 	}
 	if (tmp_list.empty()) {
@@ -1005,7 +999,7 @@ bool same_group(CHAR_DATA *ch, CHAR_DATA *tch) {
 }
 
 // Проверка является комната рентой.
-bool is_rent(room_rnum room) {
+bool is_rent(RoomRnum room) {
 	// комната с флагом замок, но клан мертвый
 	if (ROOM_FLAGGED(room, ROOM_HOUSE)) {
 		const auto clan = Clan::GetClanByRoom(room);
@@ -1024,7 +1018,7 @@ bool is_rent(room_rnum room) {
 }
 
 // Проверка является комната почтой.
-int is_post(room_rnum room) {
+int is_post(RoomRnum room) {
 	for (const auto ch : world[room]->people) {
 		if (IS_NPC(ch)
 			&& IS_POSTKEEPER(ch)) {
@@ -1307,20 +1301,20 @@ bool ignores(CHAR_DATA *who, CHAR_DATA *whom, unsigned int flag) {
 	return false;
 }
 
-//Gorrah
-int valid_email(const char *address) {
+bool IsValidEmail(const char *address) {
 	int count = 0;
 	static std::string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
 	std::string addr = address;
 	std::string::size_type dog_pos = 0, pos = 0;
 
 	// Наличие запрещенных символов или кириллицы //
-	if (addr.find_first_of(special_symbols) != std::string::npos)
-		return 0;
+	if (addr.find_first_of(special_symbols) != std::string::npos) {
+		return false;
+	}
 	size_t size = addr.size();
 	for (size_t i = 0; i < size; i++) {
 		if (addr[i] <= ' ' || addr[i] >= 127) {
-			return 0;
+			return false;
 		}
 	}
 	// Собака должна быть только одна и на второй и далее позиции //
@@ -1329,17 +1323,20 @@ int valid_email(const char *address) {
 		++count;
 		++pos;
 	}
-	if (count != 1 || dog_pos == 0)
-		return 0;
+	if (count != 1 || dog_pos == 0) {
+		return false;
+	}
 	// Проверяем правильность синтаксиса домена //
 	// В доменной части должно быть как минимум 4 символа, считая собаку //
-	if (size - dog_pos <= 3)
-		return 0;
+	if (size - dog_pos <= 3) {
+		return false;
+	}
 	// Точка отсутствует, расположена сразу после собаки, или на последнем месте //
-	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == std::string::npos)
-		return 0;
+	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == std::string::npos) {
+		return false;
+	}
 
-	return 1;
+	return true;
 }
 
 /**
@@ -1546,7 +1543,7 @@ int CalcPcDamrollBonus(CHAR_DATA *ch) {
 
 int CalcNpcDamrollBonus(CHAR_DATA *ch) {
 	int bonus = 0;
-	if (GET_REAL_LEVEL(ch) > STRONG_MOB_LEVEL) {
+	if (GET_REAL_LEVEL(ch) > kStrongMobLevel) {
 		bonus += GET_REAL_LEVEL(ch) * number(100, 200) / 100.0;
 	}
 	return bonus;
@@ -2430,7 +2427,7 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const {
 			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
 					 proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
-			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 		} else {
 			int tm_pct;
 			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
@@ -2722,7 +2719,7 @@ short GET_REAL_LEVEL(const CHAR_DATA *ch)
 {
 	// обрезаем максимальный уровень мобов
 	if (IS_NPC(ch)) {
-		return std::clamp(ch->get_level() + ch->get_level_add(), 1, static_cast<int>(MAX_MOB_LEVEL));
+		return std::clamp(ch->get_level() + ch->get_level_add(), 1, static_cast<int>(kMaxMobLevel));
 	}
 
 	// игнорируем get_level_add для иммов
@@ -2730,7 +2727,7 @@ short GET_REAL_LEVEL(const CHAR_DATA *ch)
 		return ch->get_level();
 	}
 
-	return std::clamp(ch->get_level() + ch->get_level_add(), 0, LVL_IMMORT - 1);
+	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLevelImmortal - 1);
 }
 
 short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> ch)

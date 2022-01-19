@@ -137,7 +137,7 @@ std::map<int, int> get_unique_mob() {
 	return unique_mobs;
 }
 
-// финальный список дропа по мобам (mob_rnum)
+// финальный список дропа по мобам (MobRnum)
 std::map<int, DropNode> drop_list;
 
 // проверяется макс в мире шмотки и флаг возможности дропа, при необходимости
@@ -213,12 +213,12 @@ void init_obj_list() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("set_list");
 	if (!node_list) {
-		mudlog("...<set_list> read fail", CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog("...<set_list> read fail", CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	for (pugi::xml_node set_node = node_list.child("set");
@@ -228,7 +228,7 @@ void init_obj_list() {
 		node.alias_list = Parse::attr_str(set_node, "help_alias");
 		if (node.alias_list.empty()) {
 			mudlog("...bad set attributes (empty help_alias)",
-				   CMP, LVL_IMMORT, SYSLOG, true);
+				   CMP, kLevelImmortal, SYSLOG, true);
 			continue;
 		}
 
@@ -236,7 +236,7 @@ void init_obj_list() {
 		if (type.empty() || (type != "auto" && type != "manual")) {
 			snprintf(buf, sizeof(buf),
 					 "...bad set attributes (type=%s)", type.c_str());
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			continue;
 		}
 
@@ -250,7 +250,7 @@ void init_obj_list() {
 				if (obj_rnum < 0) {
 					snprintf(buf, sizeof(buf),
 							 "...bad obj_node attributes (vnum=%d)", obj_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 					continue;
 				}
 
@@ -258,9 +258,9 @@ void init_obj_list() {
 				if (list_type.empty()
 					|| (list_type != "solo" && list_type != "group")) {
 					snprintf(buf, sizeof(buf),
-							 "...bad manual obj attributes (list=%s, obj_vnum=%d)",
+							 "...bad manual obj attributes (list=%s, ObjVnum=%d)",
 							 list_type.c_str(), obj_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 					continue;
 				}
 
@@ -287,7 +287,7 @@ void init_obj_list() {
 						}
 					}
 				}
-				//create_clone_miniset(obj_vnum);
+				//create_clone_miniset(ObjVnum);
 			}
 		} else {
 			// список сета сортированный по макс.активаторам
@@ -298,7 +298,7 @@ void init_obj_list() {
 				if (real_object(obj_vnum) < 0) {
 					snprintf(buf, sizeof(buf),
 							 "...bad obj_node attributes (vnum=%d)", obj_vnum);
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 					continue;
 				}
 				// заполнение списка активаторов
@@ -861,14 +861,14 @@ bool load_unique_mobs() {
 	int level = 0;
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 
 	pugi::xml_node node_list = doc.child("mobs");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...<mobs> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 
@@ -885,14 +885,14 @@ bool load_drop_table() {
 	pugi::xml_parse_result result = doc.load_file(DROP_TABLE_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 
 	pugi::xml_node node_list = doc.child("drop_list");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...<drop_list> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 
@@ -904,11 +904,11 @@ bool load_drop_table() {
 		}
 		catch (...) {
 			snprintf(buf, kMaxStringLength, "...timer (%s) lexical_cast fail", timer.c_str());
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return false;
 		}
 	} else {
-		mudlog("...empty reset time", CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog("...empty reset time", CMP, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 
@@ -919,7 +919,7 @@ bool load_drop_table() {
 		if (obj_vnum <= 0 || obj_rnum < 0) {
 			snprintf(buf, sizeof(buf),
 					 "...bad item attributes (vnum=%d)", obj_vnum);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return false;
 		}
 
@@ -928,7 +928,7 @@ bool load_drop_table() {
 		if (mob_vnum <= 0 || mob_rnum < 0) {
 			snprintf(buf, sizeof(buf),
 					 "...bad item attributes (mob=%d)", mob_vnum);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return false;
 		}
 
@@ -936,21 +936,21 @@ bool load_drop_table() {
 		if (chance < 0) {
 			snprintf(buf, sizeof(buf),
 					 "...bad item attributes (drop_chance=%d)", chance);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return false;
 		}
 
 		std::string solo = Parse::attr_str(item_node, "solo");
 		if (solo.empty()) {
 			snprintf(buf, sizeof(buf), "...bad item attributes (solo=empty)");
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return false;
 		}
 
 		std::string can_drop = Parse::attr_str(item_node, "can_drop");
 		if (can_drop.empty()) {
 			snprintf(buf, sizeof(buf), "...bad item attributes (can_drop=empty)");
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return false;
 		}
 
@@ -1100,7 +1100,7 @@ int check_mob(int mob_rnum) {
 			}
 			return rnum;
 		}
-//		log("->sd: %d", it->second.obj_vnum);
+//		log("->sd: %d", it->second.ObjVnum);
 		// соло сетины - на необходимость резета проверяется вся группа
 		if (it->second.linked_mobs.need_reset()) {
 			log("reset");
@@ -1115,7 +1115,7 @@ int check_mob(int mob_rnum) {
 		const int drop_count = it->second.linked_mobs.drop_count();
 		const int drop_mod = mobs_count - drop_count;
 //		log("list_size=%d, drop_count=%d, drop_mod=%d", mobs_count, drop_count, drop_mod);
-//		log("num=%d, miw=%d", num, GET_OBJ_MIW(obj_proto[it->second.obj_rnum]));
+//		log("num=%d, miw=%d", num, GET_OBJ_MIW(obj_proto[it->second.ObjRnum]));
 		if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum])) {
 //			log("chance1=%d", it->second.drop_chance);
 			it->second.chance += MAX(0, drop_mod);
@@ -1150,7 +1150,7 @@ void renumber_obj_rnum(const int mob_rnum) {
 	if (mob_rnum < 0) {
 		snprintf(buf, kMaxStringLength,
 				 "SetsDrop: renumber_obj_rnum wrong parameters...");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 

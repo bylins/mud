@@ -207,7 +207,7 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		} else {
 			send_to_char(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
-	} else if ((GET_REAL_LEVEL(ch) < LVL_IMMORT || IS_IMPL(ch)) && is_abbrev(arg, "оффтоп")) {
+	} else if ((GET_REAL_LEVEL(ch) < kLevelImmortal || IS_IMPL(ch)) && is_abbrev(arg, "оффтоп")) {
 		if (!PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
 			send_to_char(ch->remember_get(Remember::OFFTOP), ch);
 		} else {

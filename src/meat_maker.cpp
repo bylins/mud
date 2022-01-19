@@ -2,7 +2,7 @@
 
 #include "utils/random.h"
 
-const obj_vnum MeatMapping::ARTEFACT_KEY;
+const ObjVnum MeatMapping::ARTEFACT_KEY;
 
 const MeatMapping::raw_mapping_t MeatMapping::RAW_MAPPING = {
 	meat_mapping_t(320, 334),
@@ -23,7 +23,7 @@ MeatMapping::MeatMapping() {
 MeatMapping::key_type MeatMapping::random_key() const {
 	const auto index = number(0, static_cast<int>(m_randomly_returnable_keys.size() - 1));
 	//	sprintf(buf, "Размер мясного массива %d выпал предмет под номером %d с vnum %d", static_cast<int>(size()), index, m_index_mapping[index]);
-	//	mudlog(buf, NRM, LVL_IMMORT, SYSLOG, true);
+	//	mudlog(buf, NRM, kLevelImmortal, SYSLOG, true);
 	return m_randomly_returnable_keys[index];
 }
 

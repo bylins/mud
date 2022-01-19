@@ -41,7 +41,7 @@
 #include <utility>*/
 
 
-/*extern room_rnum r_mortal_start_room;
+/*extern RoomRnum r_mortal_start_room;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern const char *material_name[];
 extern const char *weapon_affects[];
@@ -168,7 +168,7 @@ void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DAT
 	int water;
 	if (ch == nullptr || (obj == nullptr && victim == nullptr))
 		return;
-	// level = MAX(MIN(level, LVL_IMPL), 1);       - not used
+	// level = MAX(MIN(level, kLevelImplementator), 1);       - not used
 
 	if (obj
 		&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON) {
@@ -247,10 +247,10 @@ int get_teleport_target_room(CHAR_DATA *ch, int rnum_start, int rnum_stop) {
 }
 
 void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
-	room_rnum to_room = kNowhere, fnd_room = kNowhere;
-	room_rnum rnum_start, rnum_stop;
+	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
+	RoomRnum rnum_start, rnum_stop;
 
-	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_REAL_LEVEL(victim) >= LVL_IMMORT) {
+	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_REAL_LEVEL(victim) >= kLevelImmortal) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -318,8 +318,8 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 
 // ПРЫЖОК в рамках зоны
 void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA * /* obj*/) {
-	room_rnum in_room = ch->in_room, fnd_room = kNowhere;
-	room_rnum rnum_start, rnum_stop;
+	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
+	RoomRnum rnum_start, rnum_stop;
 
 	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT))) {
 		send_to_char(SUMMON_FAIL, ch);
@@ -353,7 +353,7 @@ void check_auto_nosummon(CHAR_DATA *ch) {
 
 // ПЕРЕМЕСТИТЬСЯ
 void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
-	room_rnum to_room, fnd_room;
+	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
 		return;
@@ -416,7 +416,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 }
 
 void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
-	room_rnum to_room, fnd_room;
+	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
 		return;
@@ -527,8 +527,8 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 }
 
 void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
-	room_rnum ch_room, vic_room;
-	struct follow_type *k, *k_next;
+	RoomRnum ch_room, vic_room;
+	struct Follower *k, *k_next;
 
 	if (ch == nullptr || victim == nullptr || ch == victim) {
 		return;
@@ -644,16 +644,16 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	// призываем чармисов
 	for (k = victim->followers; k; k = k_next) {
 		k_next = k->next;
-		if (IN_ROOM(k->follower) == vic_room) {
-			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)) {
-				if (!k->follower->get_fighting()) {
+		if (IN_ROOM(k->ch) == vic_room) {
+			if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
+				if (!k->ch->get_fighting()) {
 					act("$n растворил$u на ваших глазах.",
-						true, k->follower, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					char_from_room(k->follower);
-					char_to_room(k->follower, ch_room);
+						true, k->ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					char_from_room(k->ch);
+					char_to_room(k->ch, ch_room);
 					act("$n прибыл$g за хозяином.",
-						true, k->follower, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					act("$n призвал$g вас!", false, ch, nullptr, k->follower, TO_VICT);
+						true, k->ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n призвал$g вас!", false, ch, nullptr, k->ch, TO_VICT);
 				}
 			}
 		}
@@ -683,7 +683,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
 		if (!obj_ptr) {
 			sprintf(buf, "SYSERR: Illegal object iterator while locate");
-			mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
+			mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 
 			return false;
 		}
@@ -717,7 +717,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 
 			if (!carried_by_ptr) {
 				sprintf(buf, "SYSERR: Illegal carried_by ptr. Создана кора для исследований");
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
+				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 				return false;
 			}
 
@@ -726,7 +726,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 						"SYSERR: Illegal room %d, char %s. Создана кора для исследований",
 						IN_ROOM(carried_by),
 						carried_by->get_name().c_str());
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, true);
+				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 				return false;
 			}
 
@@ -864,18 +864,18 @@ void spell_create_weapon(int/* level*/,
 }
 
 int check_charmee(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
-	struct follow_type *k;
+	struct Follower *k;
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;
 
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-			&& k->follower->get_master() == ch) {
+		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
+			&& k->ch->get_master() == ch) {
 			cha_summ++;
-			//hp_summ += GET_REAL_MAX_HIT(k->follower);
-			reformed_hp_summ += get_reformed_charmice_hp(ch, k->follower, spellnum);
+			//hp_summ += GET_REAL_MAX_HIT(k->ch);
+			reformed_hp_summ += get_reformed_charmice_hp(ch, k->ch, spellnum);
 // Проверка на тип последователей -- некрасиво, зато эффективно
-			if (MOB_FLAGGED(k->follower, MOB_CORPSE)) {
+			if (MOB_FLAGGED(k->ch, MOB_CORPSE)) {
 				undead_in_group = true;
 			} else {
 				living_in_group = true;
@@ -884,7 +884,7 @@ int check_charmee(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
 	}
 
 	if (undead_in_group && living_in_group) {
-		mudlog("SYSERR: Undead and living in group simultaniously", NRM, LVL_GOD, ERRLOG, true);
+		mudlog("SYSERR: Undead and living in group simultaniously", NRM, kLevelGod, ERRLOG, true);
 		return (false);
 	}
 
@@ -1447,7 +1447,7 @@ void show_weapon(CHAR_DATA *ch, OBJ_DATA *obj) {
 void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	const int skill_num = GET_OBJ_VAL(obj, 1);
 	if (skill_num < 1 || skill_num >= MAX_SKILL_NUM) {
-		log("SYSERR: invalid skill_num: %d, ch_name=%s, obj_vnum=%d (%s %s %d)",
+		log("SYSERR: invalid skill_num: %d, ch_name=%s, ObjVnum=%d (%s %s %d)",
 			skill_num,
 			ch->get_name().c_str(),
 			GET_OBJ_VNUM(obj),
@@ -1614,7 +1614,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 						if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL) {
 							drsdice = min_skill_level_with_req(ch, drndice, GET_OBJ_VAL(obj, 2));
 						} else {
-							drsdice = LVL_IMPL;
+							drsdice = kLevelImplementator;
 						}
 						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", skill_info[drndice].name);
 						send_to_char(buf, ch);
@@ -1631,14 +1631,14 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 						drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 						int count = imrecipes[drndice].remort;
 						if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
-							drsdice = LVL_IMPL;
+							drsdice = kLevelImplementator;
 						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 						send_to_char(buf, ch);
 						if (drsdice == -1 || count == -1) {
 							send_to_char(CCIRED(ch, C_NRM), ch);
 							send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 							send_to_char(CCNRM(ch, C_NRM), ch);
-						} else if (drsdice == LVL_IMPL) {
+						} else if (drsdice == kLevelImplementator) {
 							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
 							send_to_char(buf, ch);
 						} else {
@@ -1654,7 +1654,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 						if (can_get_feat(ch, drndice)) {
 							drsdice = feat_info[drndice].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
 						} else {
-							drsdice = LVL_IMPL;
+							drsdice = kLevelImplementator;
 						}
 						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", feat_info[drndice].name);
 						send_to_char(buf, ch);
@@ -2088,7 +2088,7 @@ void do_sacrifice(CHAR_DATA *ch, int dam) {
 
 void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*obj*/) {
 	int dam, d0 = GET_HIT(victim);
-	struct follow_type *f;
+	struct Follower *f;
 
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
 	// *** мин 54 макс 66 (330)
@@ -2111,11 +2111,11 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *
 	do_sacrifice(ch, dam);
 	if (!IS_NPC(ch)) {
 		for (f = ch->followers; f; f = f->next) {
-			if (IS_NPC(f->follower)
-				&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-				&& MOB_FLAGGED(f->follower, MOB_CORPSE)
-				&& ch->in_room == IN_ROOM(f->follower)) {
-				do_sacrifice(f->follower, dam);
+			if (IS_NPC(f->ch)
+				&& AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
+				&& MOB_FLAGGED(f->ch, MOB_CORPSE)
+				&& ch->in_room == IN_ROOM(f->ch)) {
+				do_sacrifice(f->ch, dam);
 			}
 		}
 	}
@@ -2166,21 +2166,21 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_
 }
 
 void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA * /*obj*/) {
-	mob_vnum mob_num = 108;
+	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CHAR_DATA *mob = nullptr;
-	struct follow_type *k, *k_next;
+	struct Follower *k, *k_next;
 
 	auto eff_cha = get_effective_cha(ch);
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower,
+		if (MOB_FLAGGED(k->ch,
 						MOB_ANGEL))    //send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
 		{
 			//return;
 			//пуржим старого ангела
-			stop_follower(k->follower, SF_CHARMLOST);
+			stop_follower(k->ch, SF_CHARMLOST);
 		}
 	}
 
@@ -2356,14 +2356,14 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 	// подготовка контейнера для создания заклинания ментальная тень
 	// все предложения пишем мад почтой
 
-	mob_vnum mob_num = MOB_MENTAL_SHADOW;
+	MobVnum mob_num = MOB_MENTAL_SHADOW;
 
 	CHAR_DATA *mob = nullptr;
-	struct follow_type *k, *k_next;
+	struct Follower *k, *k_next;
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower, MOB_GHOST)) {
-			stop_follower(k->follower, false);
+		if (MOB_FLAGGED(k->ch, MOB_GHOST)) {
+			stop_follower(k->ch, false);
 		}
 	}
 	auto eff_int = get_effective_int(ch);

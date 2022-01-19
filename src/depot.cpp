@@ -1398,7 +1398,7 @@ void reload_char(long uid, CHAR_DATA *ch) {
 	}
 
 	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
-	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	imm_log("%s", buf);
 }
 

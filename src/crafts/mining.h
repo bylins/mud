@@ -42,6 +42,8 @@ struct skillvariables_dig {
 	int glass_vnum = 1919;
 };
 
+const int kHolesTime = 1;
+
 // Перенести в глобальные объекты
 extern skillvariables_dig dig_vars;
 

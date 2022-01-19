@@ -45,7 +45,7 @@ void update_times() {
 }
 
 void update_char_times(CHAR_DATA *ch, time_t now) {
-	struct spell_mem_queue_item **i, *ptr;
+	struct SpellMemQueueItem **i, *ptr;
 
 	for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end();) {
 		if ((it->second.set_time + it->second.duration) < now) {

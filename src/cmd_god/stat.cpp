@@ -49,12 +49,12 @@ void do_statip(CHAR_DATA *ch, CHAR_DATA *k) {
 void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	int i, i2, found = 0;
 	OBJ_DATA *j;
-	struct follow_type *fol;
+	struct Follower *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
 	int k_room = -1;
-	if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k)))) {
+	if (!virt && (god_level == kLevelImplementator || (god_level == kLevelGreatGod && !IS_NPC(k)))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
 	}
 	// пишем пол  (мужчина)
@@ -236,7 +236,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 				k->get_hryvn(), k->get_nogata());
 
 		//. Display OLC zone for immorts .
-		if (GET_REAL_LEVEL(ch) >= LVL_IMMORT) {
+		if (GET_REAL_LEVEL(ch) >= kLevelImmortal) {
 			sprintf(buf1, ", %sOLC[%d]%s", CCGRN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
 			strcat(buf, buf1);
 		}
@@ -397,9 +397,9 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 			}
 
 			// пытаемся просчитать маршрут на несколько клеток вперед
-			std::vector<room_vnum> predictive_path_vnum_list;
+			std::vector<RoomVnum> predictive_path_vnum_list;
 			static const int max_path_size = 25;
-			room_vnum current_room = world[k->in_room]->room_vn;
+			RoomVnum current_room = world[k->in_room]->room_vn;
 			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > kNowhere) {
 				const auto direction = find_first_step(real_room(current_room), real_room(GET_DEST(k)), k);
 				if (direction >= 0) {
@@ -474,11 +474,11 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 		send_to_char(buf, ch);
 	}
 
-	if (god_level >= LVL_GRGOD) {
+	if (god_level >= kLevelGreatGod) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next) {
-			sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->follower, ch, 0));
+			sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->ch, ch, 0));
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62) {
 				if (fol->next)
@@ -524,10 +524,10 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	}
 
 	// check mobiles for a script
-	if (IS_NPC(k) && god_level >= LVL_BUILDER) {
+	if (IS_NPC(k) && god_level >= kLevelBuilder) {
 		do_sstat_character(ch, k);
 		if (MEMORY(k)) {
-			struct memory_rec_struct *memchar;
+			struct MemoryRecord *memchar;
 			send_to_char("Помнит:\r\n", ch);
 			for (memchar = MEMORY(k); memchar; memchar = memchar->next) {
 				sprintf(buf, "%10ld - %10ld\r\n",
@@ -586,7 +586,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 
 void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	int i, found;
-	obj_vnum rnum, vnum;
+	ObjVnum rnum, vnum;
 	OBJ_DATA *j2;
 	long int li;
 	bool is_grgod = (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) ? true : false;
@@ -1132,9 +1132,9 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
+	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
 
-	if (is_abbrev(buf1, "room") && level >= LVL_BUILDER) {
+	if (is_abbrev(buf1, "room") && level >= kLevelBuilder) {
 		int vnum, rnum = kNowhere;
 		if (*buf2 && (vnum = atoi(buf2))) {
 			if ((rnum = real_room(vnum)) != kNowhere)
@@ -1144,7 +1144,7 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (!*buf2)
 			do_stat_room(ch);
-	} else if (is_abbrev(buf1, "mob") && level >= LVL_BUILDER) {
+	} else if (is_abbrev(buf1, "mob") && level >= kLevelBuilder) {
 		if (!*buf2)
 			send_to_char("Состояние какого создания?\r\n", ch);
 		else {
@@ -1197,7 +1197,7 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
 		}
-	} else if (is_abbrev(buf1, "object") && level >= LVL_BUILDER) {
+	} else if (is_abbrev(buf1, "object") && level >= kLevelBuilder) {
 		if (!*buf2)
 			send_to_char("Состояние какого предмета?\r\n", ch);
 		else {
@@ -1207,7 +1207,7 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Нет такого предмета в игре.\r\n", ch);
 		}
 	} else {
-		if (level >= LVL_BUILDER) {
+		if (level >= kLevelBuilder) {
 			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr)
 				do_stat_object(ch, object);
 			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != nullptr)

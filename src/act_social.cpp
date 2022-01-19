@@ -21,8 +21,8 @@ extern DESCRIPTOR_DATA *descriptor_list;
 // local globals
 int number_of_social_messages = -1;
 int number_of_social_commands = -1;
-struct social_messg *soc_mess_list = nullptr;
-struct social_keyword *soc_keys_list = nullptr;
+struct SocialMessages *soc_mess_list = nullptr;
+struct SocialKeyword *soc_keys_list = nullptr;
 
 // local functions
 int find_action(char *cmd);
@@ -63,7 +63,7 @@ const char *deaf_social = "&K$n попытал$u очень эмоциональ
 int do_social(CHAR_DATA *ch, char *argument) {
 	int act_nr;
 	char social[kMaxInputLength];
-	struct social_messg *action;
+	struct SocialMessages *action;
 	CHAR_DATA *vict;
 
 	if (!argument || !*argument)

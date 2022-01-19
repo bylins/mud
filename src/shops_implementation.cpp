@@ -191,12 +191,12 @@ void ItemNode::replace_descs(OBJ_DATA *obj, const int vnum) const {
 	}
 }
 
-void ItemsList::add(const obj_vnum vnum, const long price, const ItemNode::uid_t uid) {
+void ItemsList::add(const ObjVnum vnum, const long price, const ItemNode::uid_t uid) {
 	const auto item = std::make_shared<ItemNode>(vnum, price, uid);
 	m_items_list.push_back(std::move(item));
 }
 
-void ItemsList::add(const obj_vnum vnum, const long price) {
+void ItemsList::add(const ObjVnum vnum, const long price) {
 	const auto item = std::make_shared<ItemNode>(vnum, price);
 	m_items_list.push_back(std::move(item));
 }
@@ -405,7 +405,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 
 			total_money += price;
 		} else {
-			log("SYSERROR : не удалось загрузить предмет obj_vnum=%d (%s:%d)",
+			log("SYSERROR : не удалось загрузить предмет ObjVnum=%d (%s:%d)",
 				GET_OBJ_VNUM(proto), __FILE__, __LINE__);
 			send_to_char("Ошибочка вышла.\r\n", ch);
 			return;
@@ -452,7 +452,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument) {
 					 total_money,
 					 GET_OBJ_COST(obj),
 					 price);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		}
 		send_to_char(ch, "Теперь вы стали %s %s.\r\n",
 					 IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
@@ -963,7 +963,7 @@ OBJ_DATA *shop_node::get_from_shelve(const size_t index) const {
 	const auto uid = node->uid();
 	if (ItemNode::NO_UID == uid) {
 		sprintf(buf, "ERROR: get_from_shelve: вернул NULL, index: %zu", index);
-		mudlog(buf, LogMode::BRF, LVL_IMPL, SYSLOG, true);
+		mudlog(buf, LogMode::BRF, kLevelImplementator, SYSLOG, true);
 		return nullptr;
 	}
 

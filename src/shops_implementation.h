@@ -69,14 +69,14 @@ class ItemNode {
 
 	const static uid_t NO_UID = ~0u;
 
-	ItemNode(const obj_vnum vnum, const long price) : m_vnum(vnum), m_price(price) {}
-	ItemNode(const obj_vnum vnum, const long price, const uid_t uid) : m_vnum(vnum), m_price(price) { add_uid(uid); }
+	ItemNode(const ObjVnum vnum, const long price) : m_vnum(vnum), m_price(price) {}
+	ItemNode(const ObjVnum vnum, const long price, const uid_t uid) : m_vnum(vnum), m_price(price) { add_uid(uid); }
 
 	const std::string &get_item_name(int keeper_vnum, int pad = 0) const;
 
-	void add_desc(const mob_vnum vnum, const item_desc_node &desc) { m_descs[vnum] = desc; }
+	void add_desc(const MobVnum vnum, const item_desc_node &desc) { m_descs[vnum] = desc; }
 	void replace_descs(OBJ_DATA *obj, const int vnum) const;
-	bool has_desc(const obj_vnum vnum) const { return m_descs.find(vnum) != m_descs.end(); }
+	bool has_desc(const ObjVnum vnum) const { return m_descs.find(vnum) != m_descs.end(); }
 
 	bool empty() const { return m_item_uids.empty(); }
 	const auto size() const { return m_item_uids.size(); }
@@ -104,8 +104,8 @@ class ItemsList {
 
 	ItemsList() {}
 
-	void add(const obj_vnum vnum, const long price);
-	void add(const obj_vnum vnum, const long price, const ItemNode::uid_t uid);
+	void add(const ObjVnum vnum, const long price);
+	void add(const ObjVnum vnum, const long price, const ItemNode::uid_t uid);
 	void remove(const size_t index) { m_items_list.erase(m_items_list.begin() + index); }
 
 	const items_list_t::value_type &node(const size_t index) const;
@@ -119,7 +119,7 @@ class ItemsList {
 class shop_node : public DictionaryItem {
  public:
 	using shared_ptr = std::shared_ptr<shop_node>;
-	using mob_vnums_t = std::list<mob_vnum>;
+	using mob_vnums_t = std::list<MobVnum>;
 
 	shop_node() : waste_time_min(0), can_buy(true) {};
 
@@ -129,8 +129,8 @@ class shop_node : public DictionaryItem {
 	int waste_time_min;
 	bool can_buy;
 
-	void add_item(const obj_vnum vnum, const long price) { m_items_list.add(vnum, price); }
-	void add_item(const obj_vnum vnum, const long price, const ItemNode::uid_t uid) {
+	void add_item(const ObjVnum vnum, const long price) { m_items_list.add(vnum, price); }
+	void add_item(const ObjVnum vnum, const long price, const ItemNode::uid_t uid) {
 		m_items_list.add(vnum,
 						 price,
 						 uid);
@@ -138,7 +138,7 @@ class shop_node : public DictionaryItem {
 
 	const auto &items_list() const { return m_items_list; }
 
-	void add_mob_vnum(const mob_vnum vnum) { m_mob_vnums.push_back(vnum); }
+	void add_mob_vnum(const MobVnum vnum) { m_mob_vnums.push_back(vnum); }
 
 	const auto &mob_vnums() const { return m_mob_vnums; }
 

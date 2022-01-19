@@ -52,6 +52,7 @@
 #include "entities/player_races.h"
 #include "corpse.h"
 #include "game_mechanics/sets_drop.h"
+#include "game_mechanics/weather.h"
 #include "help.h"
 #include "mapsystem.h"
 #include "ext_money.h"
@@ -69,6 +70,8 @@
 #include "magic/magic_rooms.h"
 #include "exchange.h"
 #include "act_other.h"
+#include "crafts/mining.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -1487,7 +1490,7 @@ void do_exits(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				if (IS_DARK(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
 					strcat(buf2, "слишком темно\r\n");
 				else {
-					const room_rnum rnum_exit_room = EXIT(ch, door)->to_room();
+					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
 					if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
 						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
 						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
@@ -1525,7 +1528,7 @@ void do_blind_exits(CHAR_DATA *ch) {
 				if (IS_DARK(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
 					strcat(buf2, "слишком темно");
 				else {
-					const room_rnum rnum_exit_room = EXIT(ch, door)->to_room();
+					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
 					if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER)
 						&& !ROOM_FLAGGED(rnum_exit_room, ROOM_NOMAPPER)) {
 						sprintf(buf2 + strlen(buf2), "[%d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
@@ -1957,11 +1960,11 @@ void look_at_room(CHAR_DATA *ch, int ignore_brief) {
 
 	// вход в новую зону
 	if (!IS_NPC(ch)) {
-		zone_rnum inroom = world[ch->in_room]->zone_rn;
+		ZoneRnum inroom = world[ch->in_room]->zone_rn;
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
 			if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
 				print_zone_info(ch);
-			if ((ch->get_level() < LVL_IMMORT) && !ch->get_master())
+			if ((ch->get_level() < kLevelImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
 		}
 	}
@@ -2357,10 +2360,10 @@ void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]) {
  */
 bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd) {
 	int bits, found = false, fnum, i = 0, cn = 0;
-	struct portals_list_type *port;
+	struct Portal *port;
 	CHAR_DATA *found_char = nullptr;
 	OBJ_DATA *found_obj = nullptr;
-	struct char_portal_type *tmp;
+	struct CharacterPortal *tmp;
 	char *desc, *what, whatp[kMaxInputLength], where[kMaxInputLength];
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
@@ -3403,7 +3406,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 		sprintf(buf + strlen(buf),
 				" || &RВНИМАНИЕ!&n ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.   &c||\r\n");
 	}
-	if (GET_REAL_LEVEL(ch) < LVL_IMMORT)
+	if (GET_REAL_LEVEL(ch) < kLevelImmortal)
 		sprintf(buf + strlen(buf),
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
 				" || %sв %2d %-75s%s||\r\n",
@@ -3640,7 +3643,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT));
-	if (GET_REAL_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(ch) < kLevelImmortal) {
 		if (PRF_FLAGGED(ch, PRF_BLIND)) {
 			sprintf(buf + strlen(buf), "\r\n");
 		}
@@ -3663,7 +3666,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		strcat(buf, ".\r\n");
 
-	if (GET_REAL_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_REAL_LEVEL(ch) < kLevelImmortal) {
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
 				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
@@ -4088,7 +4091,6 @@ void do_weather(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 							   "Убывающая луна.",
 							   "Убывающий серп луны."
 	};
-
 	if (OUTSIDE(ch)) {
 		*buf = '\0';
 		if (world[ch->in_room]->weather.duration > 0) {
@@ -4127,8 +4129,9 @@ void do_weather(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 			strcat(buf, "Моросит дождик.\r\n");
 
 		send_to_char(buf, ch);
-	} else
+	} else {
 		send_to_char("Вы ничего не можете сказать о погоде сегодня.\r\n", ch);
+	}
 	if (IS_GOD(ch)) {
 		sprintf(buf, "День: %d Месяц: %s Час: %d Такт = %d\r\n"
 					 "Температура =%-5d, за день = %-8d, за неделю = %-8d\r\n"
@@ -4161,7 +4164,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	name_search[0] = '\0';
 
 	// Флаги для опций
-	int low = 0, high = LVL_IMPL;
+	int low = 0, high = kLevelImplementator;
 	int showclass = 0, num_can_see = 0;
 	int imms_num = 0, morts_num = 0, demigods_num = 0;
 	bool localwho = false, short_list = false;
@@ -4174,8 +4177,8 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while (*buf) {
 		half_chop(buf, arg, buf1);
 		if (!str_cmp(arg, "боги") && strlen(arg) == 4) {
-			low = LVL_IMMORT;
-			high = LVL_IMPL;
+			low = kLevelImmortal;
+			high = kLevelImplementator;
 			strcpy(buf, buf1);
 		} else if (a_isdigit(*arg)) {
 			if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -4258,7 +4261,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!HERE(tch))
 			continue;
 
-		if (!*argument && GET_REAL_LEVEL(tch) < LVL_IMMORT)
+		if (!*argument && GET_REAL_LEVEL(tch) < kLevelImmortal)
 			++all;
 
 		if (*name_search && !(isname(name_search, GET_NAME(tch))))
@@ -4347,7 +4350,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							genders[static_cast<int>(GET_SEX(tch))]);
 				}
 			}
-			if ((GET_REAL_LEVEL(ch) == LVL_IMPL) && (NORENTABLE(tch)))
+			if ((GET_REAL_LEVEL(ch) == kLevelImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
@@ -4448,7 +4451,7 @@ void do_statistic(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	for (const auto &tch : character_list) {
-		if (IS_NPC(tch) || GET_REAL_LEVEL(tch) >= LVL_IMMORT || !HERE(tch))
+		if (IS_NPC(tch) || GET_REAL_LEVEL(tch) >= kLevelImmortal || !HERE(tch))
 			continue;
 
 		if (CLAN(tch))
@@ -4584,7 +4587,7 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int showremorts = 0, showemail = 0, locating = 0;
 	char sorting = '!';
 	DESCRIPTOR_DATA *d;
-	int low = 0, high = LVL_IMPL, num_can_see = 0;
+	int low = 0, high = kLevelImplementator, num_can_see = 0;
 	int showclass = 0, outlaws = 0, playing = 0, deadweight = 0;
 
 	host_search[0] = name_search[0] = '\0';
@@ -4785,7 +4788,7 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(classname, "      -      ");
 		}
 
-		if (GET_REAL_LEVEL(ch) < LVL_IMPL && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		if (GET_REAL_LEVEL(ch) < kLevelImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			strcpy(classname, "      -      ");
 		}
 
@@ -4905,7 +4908,7 @@ void sendWhoami(CHAR_DATA *ch) {
 
 		static const char *by_rank_god = "Богом";
 		static const char *by_rank_privileged = "привилегированным игроком";
-		const char *by_rank = god_level < LVL_IMMORT ? by_rank_privileged : by_rank_god;
+		const char *by_rank = god_level < kLevelImmortal ? by_rank_privileged : by_rank_god;
 
 		if (NAME_GOD(ch) < 1000)
 			snprintf(buf, kMaxStringLength, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
@@ -5119,7 +5122,7 @@ void perform_immort_where(CHAR_DATA *ch, char *arg) {
 	int num = 1, found = 0;
 
 	if (!*arg) {
-		if (GET_REAL_LEVEL(ch) < LVL_IMPL && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		if (GET_REAL_LEVEL(ch) < kLevelImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			send_to_char("Где КТО конкретно?", ch);
 		} else {
 			send_to_char("ИГРОКИ\r\n------\r\n", ch);
@@ -5188,7 +5191,7 @@ void do_levels(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	*ptr = '\0';
 
 	ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
-	for (i = 1; i < LVL_IMMORT; i++) {
+	for (i = 1; i < kLevelImmortal; i++) {
 		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (ch->get_level() == i) ? CCICYN(ch, C_NRM) : "", i,
 					   thousands_sep(level_exp(ch, i)).c_str(),
 					   thousands_sep(level_exp(ch, i + 1) - 1).c_str(),
@@ -5197,9 +5200,9 @@ void do_levels(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	ptr += sprintf(ptr, "%s[%2d] %13s               (БЕССМЕРТИЕ)%s\r\n",
-				   (ch->get_level() >= LVL_IMMORT) ? CCICYN(ch, C_NRM) : "", LVL_IMMORT,
-				   thousands_sep(level_exp(ch, LVL_IMMORT)).c_str(),
-				   (ch->get_level() >= LVL_IMMORT) ? CCNRM(ch, C_NRM) : "");
+				   (ch->get_level() >= kLevelImmortal) ? CCICYN(ch, C_NRM) : "", kLevelImmortal,
+				   thousands_sep(level_exp(ch, kLevelImmortal)).c_str(),
+				   (ch->get_level() >= kLevelImmortal) ? CCNRM(ch, C_NRM) : "");
 	page_string(ch->desc, buf, 1);
 }
 
@@ -5276,7 +5279,7 @@ void do_toggle(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal || PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		snprintf(buf, kMaxStringLength,
 				 " Нет агров     : %-3s     "
 				 " Супервидение  : %-3s     "
@@ -5489,7 +5492,7 @@ void do_commands(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (cmd_info[i].minimum_level >= 0
 				&& (Privilege::can_do_priv(vict, std::string(cmd_info[i].command), i, 0))
-				&& (cmd_info[i].minimum_level >= LVL_IMMORT) == wizhelp
+				&& (cmd_info[i].minimum_level >= kLevelImmortal) == wizhelp
 				&& (wizhelp || socials == cmd_sort_info[i].is_social)) {
 				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
 				if (!(no % 5))

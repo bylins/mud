@@ -593,7 +593,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	OBJ_DATA *obj;
-	struct timed_type timed;
+	struct Timed timed;
 	int amount, weight, prob, percent, duration;
 	int on_ground = 0;
 

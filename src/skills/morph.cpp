@@ -279,13 +279,13 @@ void load_morphs() {
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"morphs.xml");
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("animalMorphs");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...morphs list read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	MIN_WIS_FOR_MORPH = node_list.attribute("minWis").as_int();
@@ -294,7 +294,7 @@ void load_morphs() {
 		std::string id = std::string(morph.attribute("id").value());
 		if (id.empty()) {
 			snprintf(buf, kMaxStringLength, "...morph id read fail");
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return;
 		}
 		DescListType descList;
@@ -331,7 +331,7 @@ void load_morphs() {
 				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
 			} else {
 				snprintf(buf, kMaxStringLength, "...skills read fail for morph %s", name.c_str());
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 				return;
 			}
 		}
@@ -343,7 +343,7 @@ void load_morphs() {
 				affs.insert(affNum);
 			} else {
 				snprintf(buf, kMaxStringLength, "...affects read fail for morph %s", name.c_str());
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, true);
+				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 				return;
 			}
 		}

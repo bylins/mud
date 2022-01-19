@@ -11,7 +11,7 @@ using namespace FightSystem;
 
 void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-	struct timed_type timed;
+	struct Timed timed;
 	int drained_mana, prob, percent, skill;
 
 	one_argument(argument, arg);

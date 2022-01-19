@@ -85,7 +85,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		}
 	}
 
-	timed_type timed;
+	Timed timed;
 	timed.skill = SKILL_STRANGLE;
 	timed.time = delay;
 	timed_to_char(ch, &timed);

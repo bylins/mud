@@ -28,7 +28,7 @@ struct obj_load_info {
 	obj_load_info(int __i, int __j) : obj_qty(__i), load_prob(__j) {}
 };
 
-typedef double_map<obj_vnum, mob_vnum, obj_load_info> oload_map;
+typedef double_map<ObjVnum, MobVnum, obj_load_info> oload_map;
 
 class oload_class : public oload_map {
  public:

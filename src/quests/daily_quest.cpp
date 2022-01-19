@@ -55,7 +55,7 @@ std::string DailyQuestLoader::log_message() const
 bool DailyQuestLoader::load()
 {
 	do_load();
-	mudlog(std::string(m_log_msg.str()).c_str(), CMP, LVL_IMMORT, SYSLOG, true);
+	mudlog(std::string(m_log_msg.str()).c_str(), CMP, kLevelImmortal, SYSLOG, true);
 	return m_load_status;
 }
 

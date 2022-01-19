@@ -75,15 +75,15 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 				}
 			}
 
-			for (struct follow_type *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+			for (struct Follower *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) ++total_group_members;
+				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
 					++cnt;
 					if (leader_partner) {
-						if (!IS_NPC(f->follower)) {
+						if (!IS_NPC(f->ch)) {
 							partner_feat++;
-							partner = f->follower;
+							partner = f->ch;
 						}
 					}
 				}
@@ -108,10 +108,10 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 			if (IN_ROOM(master) == IN_ROOM(killer)) {
 				members_to_mobmax.push_back(master);
 			}
-			for (struct follow_type *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
-					members_to_mobmax.push_back(f->follower);
+			for (struct Follower *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
+					members_to_mobmax.push_back(f->ch);
 				}
 			}
 
@@ -127,11 +127,11 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 			// выберем случайным образом мембера группы для замакса
 			auto n = number(0, cnt);
 			int i = 0;
-			for (struct follow_type *f = master->followers; f && i < n; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+			for (struct Follower *f = master->followers; f && i < n; f = f->next) {
+				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
 					++i;
-					master = f->follower;
+					master = f->ch;
 				}
 			}
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_REAL_LEVEL(ch));
@@ -160,7 +160,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp) {
 			snprintf(buf, kMaxStringLength,
 					 "die: %s killed by %s (without master)",
 					 GET_PAD(ch, 0), GET_PAD(rkiller, 0));
-			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
 			rkiller = nullptr;
 		}
 	}
@@ -260,7 +260,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer) {
 }
 
 bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
-	room_rnum rnum_start, rnum_stop;
+	RoomRnum rnum_start, rnum_stop;
 	if (IS_NPC(ch)){
 		return false;
 	}
@@ -426,7 +426,7 @@ void forget_all_spells(CHAR_DATA *ch) {
 		slots[i] = slot_for_char(ch, i + 1);
 		if (slots[i]) max_slot = i + 1;
 	}
-	struct spell_mem_queue_item *qi_cur, **qi = &ch->MemQueue.queue;
+	struct SpellMemQueueItem *qi_cur, **qi = &ch->MemQueue.queue;
 	while (*qi) {
 		--slots[spell_info[(*(qi))->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
 		qi = &((*qi)->link);
@@ -521,10 +521,10 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 		HELL_DURATION(ch) = time(0) + 6;
 		to_room = r_helled_start_room;
 	}
-	for (follow_type *f = ch->followers; f; f = f->next) {
-		if (IS_CHARMICE(f->follower) && (IN_ROOM(f->follower) == ch->in_room)) {
-			char_from_room(f->follower);
-			char_to_room(f->follower, to_room);
+	for (Follower *f = ch->followers; f; f = f->next) {
+		if (IS_CHARMICE(f->ch) && (IN_ROOM(f->ch) == ch->in_room)) {
+			char_from_room(f->ch);
+			char_to_room(f->ch, to_room);
 		}
 	}
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
@@ -715,7 +715,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		mudlog("SYSERR: Опять где-то кто-то спуржился не в то в время, не в том месте. Сброшен текущий стек и кора.",
 			   NRM,
-			   LVL_GOD,
+			   kLevelGod,
 			   ERRLOG,
 			   true);
 		return;
@@ -914,7 +914,7 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 				std::stringstream str_log;
 				str_log << "[INFO] " << ch_with_bonus->get_name() << " получил(а) x" << long_live_exp_bounus_miltiplier << " опыта за убийство моба: [";
 				str_log << GET_MOB_VNUM(victim) << "] " << victim->get_name();
-				mudlog(str_log.str(), NRM, LVL_IMMORT, SYSLOG, true);
+				mudlog(str_log.str(), NRM, kLevelImmortal, SYSLOG, true);
 			}
 		}
 
@@ -962,7 +962,7 @@ int grouping_koef(int player_class, int player_remort) {
 --*/
 void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 	int inroom_members, koef = 100, maxlevel;
-	struct follow_type *f;
+	struct Follower *f;
 	int partner_count = 0;
 	int total_group_members = 1;
 	bool use_partner_exp = false;
@@ -993,20 +993,20 @@ void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 
 	// Вычисляем максимальный уровень в группе
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(killer)) {
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) ++total_group_members;
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(killer)) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (can_use_feat(f->follower, CYNIC_FEAT)) {
+			if (can_use_feat(f->ch, CYNIC_FEAT)) {
 				maxlevel = 300;
 			}
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
-			maxlevel = MAX(maxlevel, GET_REAL_LEVEL(f->follower));
-			if (!IS_NPC(f->follower)) {
+			maxlevel = MAX(maxlevel, GET_REAL_LEVEL(f->ch));
+			if (!IS_NPC(f->ch)) {
 				partner_count++;
 			}
 		}
@@ -1051,9 +1051,9 @@ void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 	}
 
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(killer)) {
-			perform_group_gain(f->follower, victim, inroom_members, koef);
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(killer)) {
+			perform_group_gain(f->ch, victim, inroom_members, koef);
 		}
 	}
 }

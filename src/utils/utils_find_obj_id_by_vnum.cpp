@@ -141,7 +141,7 @@ bool FindObjIDByVNUM::lookup_worn(const CHAR_DATA *character) {
 	return false;
 }
 
-bool FindObjIDByVNUM::lookup_room(const room_rnum room) {
+bool FindObjIDByVNUM::lookup_room(const RoomRnum room) {
 	const auto room_contents = world[room]->contents;
 	if (!room_contents) {
 		return false;
@@ -193,7 +193,7 @@ TriggerLookup::shared_ptr TriggerLookup::create(FindObjIDByVNUM &finder, const i
 	return nullptr;
 }
 
-int find_obj_by_id_vnum__find_replacement(const obj_vnum vnum) {
+int find_obj_by_id_vnum__find_replacement(const ObjVnum vnum) {
 	FindObjIDByVNUM finder(vnum, 0);
 
 	finder.lookup_world_objects();
@@ -202,7 +202,7 @@ int find_obj_by_id_vnum__find_replacement(const obj_vnum vnum) {
 	return result;
 }
 
-int find_obj_by_id_vnum__calcuid(const obj_vnum vnum, const unsigned number, const int type, const void *go) {
+int find_obj_by_id_vnum__calcuid(const ObjVnum vnum, const unsigned number, const int type, const void *go) {
 	FindObjIDByVNUM finder(vnum, number);
 
 	finder.lookup_for_caluid(type, go);

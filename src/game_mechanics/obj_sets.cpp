@@ -111,7 +111,7 @@ void update_char_sets() {
 /// запись индексов сетов в список индексов предметов (не в OBJ_DATA)
 /// здесь же обновляется справка по активаторам сетов
 void init_obj_index() {
-	std::unordered_map<obj_vnum, size_t> tmp;
+	std::unordered_map<ObjVnum, size_t> tmp;
 	tmp.reserve(obj_proto.size());
 
 	for (size_t i = 0; i < obj_proto.size(); ++i) {
@@ -563,7 +563,7 @@ std::set<int> vnum_list_add(int vnum) {
 	size_t idx = setidx_by_objvnum(vnum);
 
 	if (static_cast<size_t>(-1) == idx) {
-		mudlog("setidx_by_objvnum returned -1", BRF, LVL_BUILDER, ERRLOG, true);
+		mudlog("setidx_by_objvnum returned -1", BRF, kLevelBuilder, ERRLOG, true);
 		return list_vnum;
 	}
 
@@ -1003,7 +1003,7 @@ std::string print_total_activ(const set_node &set) {
 void init_xhelp() {
 	char buf_[128];
 	for (size_t i = 0; i < sets_list.size(); ++i) {
-		const int lvl = (sets_list.at(i)->enabled ? 0 : LVL_IMMORT);
+		const int lvl = (sets_list.at(i)->enabled ? 0 : kLevelImmortal);
 		if (sets_list.at(i)->alias.empty()) {
 			snprintf(buf_, sizeof(buf_), "актив%02d", static_cast<int>(i + 1));
 			HelpSystem::add_static(buf_,

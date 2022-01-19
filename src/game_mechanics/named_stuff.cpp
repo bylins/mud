@@ -25,9 +25,9 @@
 #include <iomanip>
 #include <vector>
 
-extern room_rnum r_helled_start_room;
-extern room_rnum r_named_start_room;
-extern room_rnum r_unreg_start_room;
+extern RoomRnum r_helled_start_room;
+extern RoomRnum r_named_start_room;
+extern RoomRnum r_unreg_start_room;
 
 extern void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
 
@@ -321,7 +321,7 @@ void nedit_menu(CHAR_DATA *ch) {
 }
 
 void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
-	mob_rnum r_num;
+	MobRnum r_num;
 	std::string out;
 	bool have_missed_items = false;
 	int first = 0, last = 0, found = 0, uid = -1;
@@ -486,7 +486,7 @@ void receive_items(CHAR_DATA *ch, CHAR_DATA *mailman) {
 		return;
 	}
 
-	mob_rnum r_num;
+	MobRnum r_num;
 	int found = 0;
 	int in_world = 0;
 	snprintf(buf1, kMaxStringLength, "не найден именной предмет");
@@ -521,7 +521,7 @@ void receive_items(CHAR_DATA *ch, CHAR_DATA *mailman) {
 				in_world++;
 			}
 			snprintf(buf, kMaxStringLength, "NamedStuff: %s vnum:%ld %s", GET_PAD(ch, 0), it->first, buf1);
-			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, true);
+			mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
 		}
 	}
 
@@ -550,14 +550,14 @@ void load() {
 			std::string name;
 			if (stuff_list.find(vnum) != stuff_list.end()) {
 				snprintf(buf, kMaxStringLength, "NamedStuff: дубликат записи vnum=%ld пропущен", vnum);
-				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, true);
+				mudlog(buf, NRM, kLevelBuilder, SYSLOG, true);
 				continue;
 			}
 
 			if (real_object(vnum) < 0) {
 				snprintf(buf, kMaxStringLength,
 						 "NamedStuff: предмет vnum=%ld не существует.", vnum);
-				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, true);
+				mudlog(buf, NRM, kLevelBuilder, SYSLOG, true);
 			}
 			if (node.attribute("uid")) {
 				tmp_node->uid = std::stol(node.attribute("uid").value(), nullptr, 10);
@@ -568,7 +568,7 @@ void load() {
 							 "NamedStuff: Unique=%d - персонажа не существует(владелец предмета vnum=%ld).",
 							 tmp_node->uid,
 							 vnum);
-					mudlog(buf, NRM, LVL_BUILDER, SYSLOG, true);
+					mudlog(buf, NRM, kLevelBuilder, SYSLOG, true);
 				}
 			}
 			if (node.attribute("mail")) {
@@ -592,7 +592,7 @@ void load() {
 			if (node.attribute("cant_msg_a")) {
 				tmp_node->cant_msg_a = node.attribute("cant_msg_a").value();
 			}
-			if (!valid_email(tmp_node->mail.c_str())) {
+			if (!IsValidEmail(tmp_node->mail.c_str())) {
 				std::string name = GetNameByUnique(tmp_node->uid, false);
 				snprintf(buf,
 						 kMaxStringLength,
@@ -600,7 +600,7 @@ void load() {
 						 tmp_node->mail.c_str(),
 						 vnum,
 						 (name.empty() ? "неизвестен" : name.c_str()));
-				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, true);
+				mudlog(buf, NRM, kLevelBuilder, SYSLOG, true);
 			}
 			if (node.attribute("can_clan"))
 				tmp_node->can_clan = std::stoi(node.attribute("can_clan").value(), nullptr, 10);
@@ -619,7 +619,7 @@ void load() {
 	snprintf(buf, kMaxStringLength,
 			 "NamedStuff: список именных вещей загружен, всего объектов: %lu.",
 			 static_cast<unsigned long>(stuff_list.size()));
-	mudlog(buf, CMP, LVL_BUILDER, SYSLOG, true);
+	mudlog(buf, CMP, kLevelBuilder, SYSLOG, true);
 }
 
 } // namespace NamedStuff

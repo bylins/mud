@@ -154,7 +154,7 @@ struct mob_special_data {
 	byte last_direction;    // The last direction the monster went
 	int attack_type;        // The Attack Type Bitvector for NPC's
 	byte default_pos;    // Default position for NPC
-	memory_rec *memory;    // List of attackers to remember
+	MemoryRecord *memory;    // List of attackers to remember
 	byte damnodice;        // The number of damage dice's
 	byte damsizedice;    // The size of the damage dice's
 	std::array<int, kMaxDest> dest;
@@ -178,7 +178,7 @@ struct mob_special_data {
 
 // очередь запоминания заклинаний
 struct spell_mem_queue {
-	struct spell_mem_queue_item *queue;
+	struct SpellMemQueueItem *queue;
 	int stored;        // накоплено манны
 	int total;            // полное время мема всей очереди
 };
@@ -202,7 +202,7 @@ struct player_special_data_saved {
 
 	int wimp_level;        // Below this # of hit points, flee!
 	int invis_level;        // level of invisibility
-	room_vnum load_room;    // Which room to place char in
+	RoomVnum load_room;    // Which room to place char in
 	FLAG_DATA pref;        // preference flags for PC's.
 	int bad_pws;        // number of bad password attemps
 	std::array<int, 3> conditions{};        // Drunk, full, thirsty
@@ -266,23 +266,23 @@ struct player_special_data {
 	int agressor;        // Agression room(it is also a flag)
 	time_t agro_time;        // Last agression time (it is also a flag)
 	im_rskill *rskill;    // Известные рецепты
-	struct char_portal_type *portals;    // порталы теперь живут тут
+	struct CharacterPortal *portals;    // порталы теперь живут тут
 	int *logs;        // уровни подробности каналов log
 
 	char *Exchange_filter;
 	ignores_t ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
-	std::vector<logon_data> logons; //Записи о входах чара
+	std::vector<Logon> logons; //Записи о входах чара
 
 // Punishments structs
-	punish_data pmute;
-	punish_data pdumb;
-	punish_data phell;
-	punish_data pname;
-	punish_data pfreeze;
-	punish_data pgcurse;
-	punish_data punreg;
+	Punish pmute;
+	Punish pdumb;
+	Punish phell;
+	Punish pname;
+	Punish pfreeze;
+	Punish pgcurse;
+	Punish punreg;
 
 	char *clanStatus; // строка для отображения приписки по кто
 	// TODO: однозначно переписать
@@ -336,7 +336,7 @@ class CharacterRNum_ChangeObserver {
 	CharacterRNum_ChangeObserver() {}
 	virtual ~CharacterRNum_ChangeObserver() {}
 
-	virtual void notify(ProtectedCharacterData &character, const mob_rnum old_rnum) = 0;
+	virtual void notify(ProtectedCharacterData &character, const MobRnum old_rnum) = 0;
 };
 
 class ProtectedCharacterData : public PlayerI {
@@ -346,7 +346,7 @@ class ProtectedCharacterData : public PlayerI {
 	ProtectedCharacterData &operator=(const ProtectedCharacterData &rhv);
 
 	auto get_rnum() const { return m_rnum; }
-	void set_rnum(const mob_rnum rnum);
+	void set_rnum(const MobRnum rnum);
 
 	void subscribe_for_rnum_changes(const CharacterRNum_ChangeObserver::shared_ptr &observer) {
 		m_rnum_change_observers.insert(observer);
@@ -356,7 +356,7 @@ class ProtectedCharacterData : public PlayerI {
 	}
 
  private:
-	mob_rnum m_rnum;        // Mob's rnum
+	MobRnum m_rnum;        // Mob's rnum
 
 	std::unordered_set<CharacterRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
 };
@@ -767,7 +767,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 
  public:
 	bool isInSameRoom(const CHAR_DATA *ch) const { return (this->in_room == ch->in_room); };
-	room_rnum in_room;    // Location (real room number)
+	RoomRnum in_room;    // Location (real room number)
 
  private:
 	void report_loop_error(const CHAR_DATA::ptr_t master) const;
@@ -790,8 +790,8 @@ class CHAR_DATA : public ProtectedCharacterData {
 	player_special_data::shared_ptr player_specials;    // PC specials
 
 	char_affects_list_t affected;    // affected by what spells
-	struct timed_type *timed;    // use which timed skill/spells
-	struct timed_type *timed_feat;    // use which timed feats
+	struct Timed *timed;    // use which timed skill/spells
+	struct Timed *timed_feat;    // use which timed feats
 	OBJ_DATA *equipment[NUM_WEARS];    // Equipment array
 
 	OBJ_DATA *carrying;    // Head of list
@@ -810,7 +810,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 	int CasterLevel;
 	int DamageLevel;
 	struct PK_Memory_type *pk_list;
-	struct helper_data_type *helpers;
+	struct Helper *helpers;
 	int track_dirs;
 	int CheckAggressive;
 	int ExtractTimer;
@@ -825,7 +825,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 
 	int Poisoner;
 
-	load_list *dl_list;    // загружаемые в труп предметы
+	OnDeadLoadList *dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет
 
 	std::map<int, temporary_spell_data> temp_spells;
@@ -833,7 +833,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 	std::vector<int> kill_list; //used only for MTRIG_KILL
  public:
 	// FOLLOWERS
-	struct follow_type *followers;
+	struct Follower *followers;
 	CHAR_DATA::ptr_t get_master() const { return m_master; }
 	void set_master(CHAR_DATA::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }

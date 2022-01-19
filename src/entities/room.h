@@ -22,8 +22,8 @@ class EXIT_DATA {
 	void set_vkeyword(std::string const &value);
 	// установить оба падежа - именительный и винительный, разделённые "|"
 	void set_keywords(std::string const &value);
-	room_rnum to_room() const;
-	void to_room(const room_rnum _);
+	RoomRnum to_room() const;
+	void to_room(const RoomRnum _);
 
 	std::string general_description;    // When look DIR.         //
 
@@ -32,10 +32,10 @@ class EXIT_DATA {
 
 	byte exit_info;    // Exit info             //
 	ubyte lock_complexity; //Polud сложность замка
-	obj_vnum key;        // Key's number (-1 for no key) //
+	ObjVnum key;        // Key's number (-1 for no key) //
 
  private:
-	room_rnum m_to_room;    // Where direction leads (kNowhere) //
+	RoomRnum m_to_room;    // Where direction leads (kNowhere) //
 };
 
 struct track_data {
@@ -67,8 +67,8 @@ struct ROOM_DATA {
 	ROOM_DATA();
 	~ROOM_DATA();
 
-	room_vnum room_vn;    // Rooms number  (vnum)                //
-	zone_rnum zone_rn;        // Room zone (for resetting)          //
+	RoomVnum room_vn;    // Rooms number  (vnum)                //
+	ZoneRnum zone_rn;        // Room zone (for resetting)          //
 	int sector_type;        // sector type (move/hide)            //
 	int sector_state;        //*** External, change by weather     //
 

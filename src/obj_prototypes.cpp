@@ -2,11 +2,11 @@
 
 #include "logger.h"
 
-size_t CObjectPrototypes::add(CObjectPrototype *prototype, const obj_vnum vnum) {
+size_t CObjectPrototypes::add(CObjectPrototype *prototype, const ObjVnum vnum) {
 	return add(CObjectPrototype::shared_ptr(prototype, [&](auto ptr) { delete (OBJ_DATA *) ptr; }), vnum);
 }
 
-size_t CObjectPrototypes::add(const CObjectPrototype::shared_ptr &prototype, const obj_vnum vnum) {
+size_t CObjectPrototypes::add(const CObjectPrototype::shared_ptr &prototype, const ObjVnum vnum) {
 	const auto index = m_index.size();
 	prototype->set_rnum(static_cast<int>(index));
 	m_vnum2index[vnum] = index;
@@ -23,7 +23,7 @@ void CObjectPrototypes::dec_number(const size_t rnum) {
 	--m_index[rnum].number;
 }
 
-int CObjectPrototypes::rnum(const obj_vnum vnum) const {
+int CObjectPrototypes::rnum(const ObjVnum vnum) const {
 	vnum2index_t::const_iterator i = m_vnum2index.find(vnum);
 	return i == m_vnum2index.end() ? -1 : static_cast<int>(i->second);
 }

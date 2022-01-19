@@ -27,7 +27,7 @@ class ZoneData {
 
 	int lifespan;        // how long between resets (minutes)
 	int age;        // current age of this zone (minutes)
-	room_vnum top;        // upper limit for rooms in this zone
+	RoomVnum top;        // upper limit for rooms in this zone
 
 	/**
 	 * Conditions for reset.
@@ -40,7 +40,7 @@ class ZoneData {
 	 */
 	int reset_mode;
 
-	zone_vnum vnum;    // virtual number of this zone
+	ZoneVnum vnum;    // virtual number of this zone
 	// Местоположение зоны
 	char *location;
 	// Описание зоны

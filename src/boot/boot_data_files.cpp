@@ -52,7 +52,7 @@ void DataFile::close() {
 
 void DataFile::get_one_line(char *buf) {
 	if (fgets(buf, READ_SIZE, file()) == nullptr) {
-		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, LVL_IMMORT, SYSLOG, true);
+		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, kLevelImmortal, SYSLOG, true);
 		buf[0] = '$';
 		buf[1] = 0;
 		return;
@@ -336,7 +336,7 @@ void TriggersFile::parse_trigger(int vnum) {
 
 			std::smatch match;
 			if (std::regex_search(line, match, *m_load_obj_exp)) {
-				obj_vnum obj_num = std::stoi(match.str(1));
+				ObjVnum obj_num = std::stoi(match.str(1));
 				const auto tlist_it = obj2triggers.find(obj_num);
 				if (tlist_it != obj2triggers.end()) {
 					//const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), top_of_trigt);
@@ -346,7 +346,7 @@ void TriggersFile::parse_trigger(int vnum) {
 						tlist_it->second.push_back(vnum);
 					}
 				} else {
-					std::list<trg_vnum> tlist = {vnum};
+					std::list<TrgVnum> tlist = {vnum};
 					obj2triggers.emplace(obj_num, tlist);
 				}
 			}
@@ -391,7 +391,7 @@ void WorldFile::read_entry(const int nr) {
 
 void WorldFile::parse_room(int virtual_nr) {
 	static int room_nr = FIRST_ROOM;
-	static zone_rnum zone = 0;
+	static ZoneRnum zone = 0;
 
 	int t[10], i;
 	char line[256], flags[128];
@@ -404,7 +404,7 @@ void WorldFile::parse_room(int virtual_nr) {
 		exit(1);
 	}
 	while (virtual_nr > zone_table[zone].top) {
-		if (++zone >= static_cast<zone_rnum>(zone_table.size())) {
+		if (++zone >= static_cast<ZoneRnum>(zone_table.size())) {
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
@@ -929,7 +929,7 @@ bool ObjectFile::check_object(OBJ_DATA *obj) {
 bool ObjectFile::check_object_level(OBJ_DATA *obj, int val) {
 	bool error = false;
 
-	if (GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > LVL_IMPL) {
+	if (GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > kLevelImplementator) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has out of range level #%d.",
 			GET_OBJ_VNUM(obj),
@@ -1251,7 +1251,7 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
  * function!  No other changes need to be made anywhere in the code.
  */
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr) {
-	struct helper_data_type *helper;
+	struct Helper *helper;
 	int k, num_arg, matched = 0, t[4];
 
 	num_arg = atoi(value);
@@ -1285,7 +1285,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (k = 0; k < SAVING_COUNT; k++)
-			GET_SAVE(mob_proto + i, k) = MIN(MAX_SAVE, MAX(-MAX_SAVE, t[k]));
+			GET_SAVE(mob_proto + i, k) = MIN(kMaxSaving, MAX(-kMaxSaving, t[k]));
 	}
 
 	CASE("HPReg") {
@@ -1469,7 +1469,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	CASE("Helper") {
 		CREATE(helper, 1);
 		helper->mob_vnum = num_arg;
-		helper->next_helper = GET_HELPER(mob_proto + i);
+		helper->next = GET_HELPER(mob_proto + i);
 		GET_HELPER(mob_proto + i) = helper;
 	}
 
@@ -1687,7 +1687,7 @@ bool ZoneFile::load_regular_zone() {
 	zone.under_construction = !str_cmp(t1, "test");
 	zone.locked = !str_cmp(t2, "locked");
 
-	const room_vnum expected_zone_top = zone.vnum * 100 + 99;
+	const RoomVnum expected_zone_top = zone.vnum * 100 + 99;
 	if (zone.top != expected_zone_top) {
 		log("Zone: %d contains wrong top: %d, should be: %d", zone.vnum, zone.top, expected_zone_top);
 		zone.top = expected_zone_top;
@@ -1834,7 +1834,7 @@ bool HelpFile::load_help() {
 			if ((*line == '$') && (*(line + 1) == 0)) {
 				std::stringstream str_log;
 				str_log << "SYSERR: unexpected EOF in help file: \"" << file_name() << "\"";
-				mudlog(str_log.str().c_str(), DEF, LVL_IMMORT, SYSLOG, true);
+				mudlog(str_log.str().c_str(), DEF, kLevelImmortal, SYSLOG, true);
 				break;
 			}
 			strcat(entry, strcat(line, "\r\n"));
@@ -1845,7 +1845,7 @@ bool HelpFile::load_help() {
 		if ((*line == '#') && (*(line + 1) != 0)) {
 			min_level = atoi((line + 1));
 		}
-		min_level = MAX(0, MIN(min_level, LVL_IMPL));
+		min_level = MAX(0, MIN(min_level, kLevelImplementator));
 		// now, add the entry to the index with each keyword on the keyword line
 		std::string entry_str(entry);
 		scan = one_word(key, next_key);

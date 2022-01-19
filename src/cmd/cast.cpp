@@ -84,7 +84,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// Caster is lower than spell level
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
-		(GET_REAL_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) {
+		(GET_REAL_LEVEL(ch) < kLevelGreatGod) && (!IS_NPC(ch))) {
 		if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
 			|| PlayerClass::slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])

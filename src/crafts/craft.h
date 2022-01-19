@@ -60,7 +60,7 @@ class Cases {
 class CObject : public CObjectPrototype {
  public:
 	CObject(const CObjectPrototype &object) : CObjectPrototype(object) {}
-	CObject(const obj_vnum vnum) : CObjectPrototype(vnum) {}
+	CObject(const ObjVnum vnum) : CObjectPrototype(vnum) {}
 	~CObject() {}
 
 	bool load_from_node(const pugi::xml_node *node);
@@ -177,7 +177,7 @@ class CRecipe {
 	bool load(const pugi::xml_node *node);
 
 	struct ResultObject {
-		obj_vnum m_vnum;
+		ObjVnum m_vnum;
 	};
 
 	id_t m_id;                          ///< Recipe ID.
@@ -287,7 +287,7 @@ class CCraftModel {
 	const auto base_top() const { return m_base_top; }
 	const auto remorts_bonus() const { return m_remorts_bonus; }
 
-	bool export_object(const obj_vnum vnum, const char *filename);
+	bool export_object(const ObjVnum vnum, const char *filename);
 
  private:
 	/**
@@ -295,15 +295,15 @@ class CCraftModel {
 	*/
 	class CVNumRange {
 	 public:
-		CVNumRange(const obj_vnum min, const obj_vnum max) : m_min(min), m_max(max) {}
+		CVNumRange(const ObjVnum min, const ObjVnum max) : m_min(min), m_max(max) {}
 		bool operator<(const CVNumRange &right) const { return m_min < right.m_min; }
 
-		const obj_vnum &min() const { return m_min; }
-		const obj_vnum &max() const { return m_max; }
+		const ObjVnum &min() const { return m_min; }
+		const ObjVnum &max() const { return m_max; }
 
 	 private:
-		obj_vnum m_min;
-		obj_vnum m_max;
+		ObjVnum m_min;
+		ObjVnum m_max;
 	};
 
 	enum EAddVNumResult {
@@ -334,9 +334,9 @@ class CCraftModel {
 
 	bool load_vnum_ranges(const pugi::xml_node *model);
 
-	EAddVNumResult check_vnum(const obj_vnum vnum) const;
-	EAddVNumResult add_vnum(const obj_vnum vnum);
-	void report_vnum_error(const obj_vnum vnum, const EAddVNumResult add_vnum_result);
+	EAddVNumResult check_vnum(const ObjVnum vnum) const;
+	EAddVNumResult add_vnum(const ObjVnum vnum);
+	void report_vnum_error(const ObjVnum vnum, const EAddVNumResult add_vnum_result);
 
 	crafts_t m_crafts;            ///< List of crafts defined for the game.
 	skills_t m_skills;            ///< List of skills defined for the game.
@@ -362,7 +362,7 @@ class CCraftModel {
 	std::map<id_t, const CRecipe *> m_id2recipe;        ///< Maps recipe ID to pointer to recipe descriptor.
 
 	std::set<CVNumRange> m_allowed_vnums;
-	std::set<obj_vnum> m_existing_vnums;
+	std::set<ObjVnum> m_existing_vnums;
 };
 }
 

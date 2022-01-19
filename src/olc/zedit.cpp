@@ -29,7 +29,7 @@ extern char const *equipment_types[];
 extern char const *dirs[];
 
 //MZ.load
-extern struct zone_type *zone_types;
+extern struct ZoneCategory *zone_types;
 //-MZ.load
 //------------------------------------------------------------------------
 
@@ -439,7 +439,7 @@ void zedit_save_to_disk(int zone_num) {
 	sprintf(fname, "%s/%d.new", ZON_PREFIX, zone_table[zone_num].vnum);
 	if (!(zfile = fopen(fname, "w"))) {
 		sprintf(buf, "SYSERR: OLC: zedit_save_to_disk:  Can't write zone %d.", zone_table[zone_num].vnum);
-		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, true);
+		mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
 		return;
 	}
 
@@ -572,7 +572,7 @@ void zedit_save_to_disk(int zone_num) {
 				continue;
 
 			default: sprintf(buf, "SYSERR: OLC: z_save_to_disk(): Unknown cmd '%c' - NOT saving", ZCMD.command);
-				mudlog(buf, BRF, LVL_BUILDER, SYSLOG, true);
+				mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
 				continue;
 		}
 
@@ -1068,7 +1068,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_arg1(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: zedit_disp_arg1(): Help!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Oops...\r\n", d->character.get());
 			return;
 	}
@@ -1144,7 +1144,7 @@ void zedit_disp_arg2(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1223,7 +1223,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, just in case.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_arg3(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: zedit_disp_arg3(): Help!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1262,7 +1262,7 @@ void zedit_disp_arg4(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1296,7 +1296,7 @@ void zedit_disp_sarg1(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_sarg1(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: zedit_disp_sarg1(): Help!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1330,7 +1330,7 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA *d) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_disp_sarg2(): Help!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: zedit_disp_sarg2(): Help!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			return;
 	}
@@ -1366,7 +1366,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 					zedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits zone info for room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit zone %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// FALL THROUGH
 				case 'n':
 				case 'N':
@@ -1483,7 +1483,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				case 'p':
 				case 'P':
 					// * Edit top of zone.
-					if (GET_REAL_LEVEL(d->character) < LVL_IMPL)
+					if (GET_REAL_LEVEL(d->character) < kLevelImplementator)
 						zedit_disp_menu(d);
 					else {
 						send_to_char("Введите новую старшую комнату зоны.\r\n"
@@ -1653,7 +1653,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				default:
 					// * We should never get here.
 					cleanup_olc(d, CLEANUP_ALL);
-					mudlog("SYSERR: OLC: zedit_parse(): case ARG1: Ack!", BRF, LVL_BUILDER, SYSLOG, true);
+					mudlog("SYSERR: OLC: zedit_parse(): case ARG1: Ack!", BRF, kLevelBuilder, SYSLOG, true);
 					send_to_char("Опаньки...\r\n", d->character.get());
 					break;
 			}
@@ -1714,7 +1714,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				default:
 					// * We should never get here, but just in case...
 					cleanup_olc(d, CLEANUP_ALL);
-					mudlog("SYSERR: OLC: zedit_parse(): case ARG2: Ack!", BRF, LVL_BUILDER, SYSLOG, true);
+					mudlog("SYSERR: OLC: zedit_parse(): case ARG2: Ack!", BRF, kLevelBuilder, SYSLOG, true);
 					send_to_char("Опаньки...\r\n", d->character.get());
 					break;
 			}
@@ -1771,7 +1771,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				default:
 					// * We should never get here, but just in case...
 					cleanup_olc(d, CLEANUP_ALL);
-					mudlog("SYSERR: OLC: zedit_parse(): case ARG3: Ack!", BRF, LVL_BUILDER, SYSLOG, true);
+					mudlog("SYSERR: OLC: zedit_parse(): case ARG3: Ack!", BRF, kLevelBuilder, SYSLOG, true);
 					send_to_char("Опаньки...\r\n", d->character.get());
 					break;
 			}
@@ -1808,7 +1808,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				default:
 					// * We should never get here, but just in case...
 					cleanup_olc(d, CLEANUP_ALL);
-					mudlog("SYSERR: OLC: zedit_parse(): case ARG4: Ack!", BRF, LVL_BUILDER, SYSLOG, true);
+					mudlog("SYSERR: OLC: zedit_parse(): case ARG4: Ack!", BRF, kLevelBuilder, SYSLOG, true);
 					send_to_char("Опаньки...\r\n", d->character.get());
 					break;
 			}
@@ -2002,7 +2002,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 		case ZEDIT_ZONE_TOP:
 			// * Parse and add new top room in zone and return to main menu.
-			if (OLC_ZNUM(d) == static_cast<zone_rnum>(zone_table.size()) - 1) {
+			if (OLC_ZNUM(d) == static_cast<ZoneRnum>(zone_table.size()) - 1) {
 				OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(99900, atoi(arg)));
 			} else {
 				OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(zone_table[OLC_ZNUM(d) + 1].vnum * 100, atoi(arg)));
@@ -2069,7 +2069,7 @@ void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 		default:
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: zedit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, true);
+			mudlog("SYSERR: OLC: zedit_parse(): Reached default case!", BRF, kLevelBuilder, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 	}

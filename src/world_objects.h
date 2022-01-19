@@ -13,7 +13,7 @@ class WorldObjects {
 	 public:
 		WO_VNumChangeObserver(WorldObjects &parent) : m_parent(parent) {}
 
-		virtual void notify(CObjectPrototype &object, const obj_vnum old_vnum) override;
+		virtual void notify(CObjectPrototype &object, const ObjVnum old_vnum) override;
 
 	 private:
 		WorldObjects &m_parent;
@@ -23,7 +23,7 @@ class WorldObjects {
 	 public:
 		WO_RNumChangeObserver(WorldObjects &parent) : m_parent(parent) {}
 
-		virtual void notify(CObjectPrototype &object, const obj_rnum old_rnum) override;
+		virtual void notify(CObjectPrototype &object, const ObjRnum old_rnum) override;
 
 	 private:
 		WorldObjects &m_parent;
@@ -58,12 +58,12 @@ class WorldObjects {
 	*/
 	OBJ_DATA::shared_ptr create_blank(); 
 	// create a new object from a prototype
-	OBJ_DATA::shared_ptr create_from_prototype_by_vnum(obj_vnum vnum);
+	OBJ_DATA::shared_ptr create_from_prototype_by_vnum(ObjVnum vnum);
 
 	// create a new object from a prototype
-	OBJ_DATA::shared_ptr create_from_prototype_by_rnum(obj_rnum rnum);
+	OBJ_DATA::shared_ptr create_from_prototype_by_rnum(ObjRnum rnum);
 
-	OBJ_DATA::shared_ptr create_raw_from_prototype_by_rnum(obj_rnum rnum);
+	OBJ_DATA::shared_ptr create_raw_from_prototype_by_rnum(ObjRnum rnum);
 
 	void add(const OBJ_DATA::shared_ptr &object);
 	void remove(OBJ_DATA *object);
@@ -72,8 +72,8 @@ class WorldObjects {
 	void foreach(const foreach_f &function) const;
 	void foreach_on_copy(const foreach_f &function) const;
 	void foreach_on_copy_while(const foreach_while_f &function) const;
-	void foreach_with_vnum(const obj_vnum vnum, const foreach_f &function) const;
-	void foreach_with_rnum(const obj_rnum rnum, const foreach_f &function) const;
+	void foreach_with_vnum(const ObjVnum vnum, const foreach_f &function) const;
+	void foreach_with_rnum(const ObjRnum rnum, const foreach_f &function) const;
 	void foreach_with_id(const object_id_t id, const foreach_f &function) const;
 	OBJ_DATA::shared_ptr find_if(const predicate_f &predicate) const;
 	OBJ_DATA::shared_ptr find_if(const predicate_f &predicate, unsigned number) const;
@@ -81,14 +81,14 @@ class WorldObjects {
 	OBJ_DATA::shared_ptr find_by_name(const char *name) const;
 	OBJ_DATA::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
 	OBJ_DATA::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 0); }
-	OBJ_DATA::shared_ptr find_by_vnum(const obj_vnum vnum, unsigned number) const;
-	OBJ_DATA::shared_ptr find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned &number) const;
-	OBJ_DATA::shared_ptr find_by_vnum_and_dec_number(const obj_vnum vnum,
+	OBJ_DATA::shared_ptr find_by_vnum(const ObjVnum vnum, unsigned number) const;
+	OBJ_DATA::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number) const;
+	OBJ_DATA::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum,
 													 unsigned &number,
 													 const object_id_set_t &except) const;
-	OBJ_DATA::shared_ptr find_first_by_vnum(const obj_vnum vnum) const { return find_by_vnum(vnum, 0); }
-	OBJ_DATA::shared_ptr find_by_rnum(const obj_rnum rnum, unsigned number) const;
-	OBJ_DATA::shared_ptr find_first_by_rnum(const obj_rnum rnum) const { return find_by_rnum(rnum, 0); }
+	OBJ_DATA::shared_ptr find_first_by_vnum(const ObjVnum vnum) const { return find_by_vnum(vnum, 0); }
+	OBJ_DATA::shared_ptr find_by_rnum(const ObjRnum rnum, unsigned number) const;
+	OBJ_DATA::shared_ptr find_first_by_rnum(const ObjRnum rnum) const { return find_by_rnum(rnum, 0); }
 	OBJ_DATA::shared_ptr get_by_raw_ptr(OBJ_DATA *object) const;
 	auto size() const { return m_objects_list.size(); }
 	void purge() { m_purge_list.clear(); }
@@ -96,8 +96,8 @@ class WorldObjects {
  private:
 	using objects_set_t = std::unordered_set<OBJ_DATA::shared_ptr>;
 	using object_raw_ptr_to_object_ptr_t = std::unordered_map<void *, list_t::iterator>;
-	using vnum_to_object_ptr_t = std::unordered_map<obj_vnum, objects_set_t>;
-	using rnum_to_object_ptr_t = std::unordered_map<obj_rnum, objects_set_t>;
+	using vnum_to_object_ptr_t = std::unordered_map<ObjVnum, objects_set_t>;
+	using rnum_to_object_ptr_t = std::unordered_map<ObjRnum, objects_set_t>;
 	using id_to_object_ptr_t = std::unordered_map<object_id_t, objects_set_t>;
 
 	void add_to_index(const list_t::iterator &object_i);

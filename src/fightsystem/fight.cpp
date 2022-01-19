@@ -54,8 +54,8 @@ void npc_wield(CHAR_DATA *ch);
 void npc_armor(CHAR_DATA *ch);
 
 void go_autoassist(CHAR_DATA *ch) {
-	struct follow_type *k;
-	struct follow_type *d;
+	struct Follower *k;
+	struct Follower *d;
 	CHAR_DATA *ch_lider = 0;
 	if (ch->has_master()) {
 		ch_lider = ch->get_master();
@@ -65,18 +65,18 @@ void go_autoassist(CHAR_DATA *ch) {
 
 	buf2[0] = '\0';
 	for (k = ch_lider->followers; k; k = k->next) {
-		if (PRF_FLAGGED(k->follower, PRF_AUTOASSIST) &&
-			(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->get_fighting() &&
-			(GET_POS(k->follower) == POS_STANDING) && !CHECK_WAIT(k->follower)) {
+		if (PRF_FLAGGED(k->ch, PRF_AUTOASSIST) &&
+			(IN_ROOM(k->ch) == IN_ROOM(ch)) && !k->ch->get_fighting() &&
+			(GET_POS(k->ch) == POS_STANDING) && !CHECK_WAIT(k->ch)) {
 			// Здесь проверяем на кастеров
-			if (IS_CASTER(k->follower)) {
+			if (IS_CASTER(k->ch)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
-				for (d = k->follower->followers; d; d = d->next)
-					if ((IN_ROOM(d->follower) == IN_ROOM(ch)) && !d->follower->get_fighting() &&
-						(GET_POS(d->follower) == POS_STANDING) && !CHECK_WAIT(d->follower))
-						do_assist(d->follower, buf2, 0, 0);
+				for (d = k->ch->followers; d; d = d->next)
+					if ((IN_ROOM(d->ch) == IN_ROOM(ch)) && !d->ch->get_fighting() &&
+						(GET_POS(d->ch) == POS_STANDING) && !CHECK_WAIT(d->ch))
+						do_assist(d->ch, buf2, 0, 0);
 			} else {
-				do_assist(k->follower, buf2, 0, 0);
+				do_assist(k->ch, buf2, 0, 0);
 			}
 		}
 	}
@@ -811,7 +811,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch) {
 
 	int mobINT = GET_REAL_INT(ch);
 
-	if (mobINT < INT_STUPID_MOD) {
+	if (mobINT < kStupidMod) {
 		return find_damagee(ch);
 	}
 
@@ -855,7 +855,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch) {
 			continue;
 		}
 
-		if (GET_HIT(vict) <= CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK) {
+		if (GET_HIT(vict) <= kCharacterHPForMobPriorityAttack) {
 			return vict;
 		}
 
@@ -871,7 +871,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch) {
 		best = currentVictim;
 	}
 
-	if (mobINT < INT_MIDDLE_AI) {
+	if (mobINT < kMiddleAI) {
 		int rand = number(0, 2);
 		if (caster)
 			best = caster;
@@ -884,7 +884,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch) {
 		return best;
 	}
 
-	if (mobINT < INT_HIGH_AI) {
+	if (mobINT < kHighAI) {
 		int rand = number(0, 1);
 		if (caster)
 			best = caster;
@@ -1154,8 +1154,8 @@ void mob_casting(CHAR_DATA *ch) {
 #define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT) || GET_MOB_HOLD(ch) || GET_WAIT(ch)))
 
 void summon_mob_helpers(CHAR_DATA *ch) {
-	for (struct helper_data_type *helpee = GET_HELPER(ch);
-		 helpee; helpee = helpee->next_helper) {
+	for (struct Helper *helpee = GET_HELPER(ch);
+		 helpee; helpee = helpee->next) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
 		character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr &vict) {
@@ -1218,24 +1218,24 @@ void check_mob_helpers() {
 }
 
 void try_angel_rescue(CHAR_DATA *ch) {
-	struct follow_type *k, *k_next;
+	struct Follower *k, *k_next;
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
-			&& MOB_FLAGGED(k->follower, MOB_ANGEL)
-			&& !k->follower->get_fighting()
-			&& IN_ROOM(k->follower) == ch->in_room
-			&& CAN_SEE(k->follower, ch)
-			&& AWAKE(k->follower)
-			&& MAY_ACT(k->follower)
-			&& GET_POS(k->follower) >= POS_FIGHTING) {
+		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
+			&& MOB_FLAGGED(k->ch, MOB_ANGEL)
+			&& !k->ch->get_fighting()
+			&& IN_ROOM(k->ch) == ch->in_room
+			&& CAN_SEE(k->ch, ch)
+			&& AWAKE(k->ch)
+			&& MAY_ACT(k->ch)
+			&& GET_POS(k->ch) >= POS_FIGHTING) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->get_fighting() == ch
 					&& vict != ch
-					&& vict != k->follower) {
-					if (k->follower->get_skill(SKILL_RESCUE)) {
-						go_rescue(k->follower, ch, vict);
+					&& vict != k->ch) {
+					if (k->ch->get_skill(SKILL_RESCUE)) {
+						go_rescue(k->ch, ch, vict);
 					}
 
 					break;
@@ -1608,7 +1608,7 @@ void using_mob_skills(CHAR_DATA *ch) {
 				if (sk_num == SKILL_BASH) {
 //send_to_char(caster, "Баш предфункция\r\n");
 //sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
-//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, true);
+//mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 					if (GET_POS(caster) >= POS_FIGHTING
 						|| CalcCurrentSkill(ch, SKILL_BASH, caster) > number(50, 80)) {
 						sk_use = 0;
@@ -1617,7 +1617,7 @@ void using_mob_skills(CHAR_DATA *ch) {
 				} else {
 //send_to_char(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
-//                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, true);
+//                mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 					if (GET_POS(caster) >= POS_FIGHTING
 						|| CalcCurrentSkill(ch, SKILL_CHOPOFF, caster) > number(50, 80)) {

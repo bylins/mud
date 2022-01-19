@@ -7,7 +7,7 @@
 void do_identify(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *cvict = nullptr, *caster = ch;
 	OBJ_DATA *ovict = nullptr;
-	struct timed_type timed;
+	struct Timed timed;
 	int k, level = 0;
 
 	if (IS_NPC(ch) || ch->get_skill(SKILL_IDENTIFY) <= 0) {

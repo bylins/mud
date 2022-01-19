@@ -62,8 +62,8 @@ int max_pc_corpse_time = 30;
 int idle_void = 10;
 int idle_rent_time = 40;
 
-// This level and up is immune to idling, LVL_IMPL+1 will disable it.
-int idle_max_level = LVL_IMMORT;
+// This level and up is immune to idling, kLevelImplementator+1 will disable it.
+int idle_max_level = kLevelImmortal;
 
 // should items in death traps automatically be junked?
 int dts_are_dumps = YES;
@@ -126,7 +126,7 @@ int free_crashrent_period = 2;
    они физически попуржатся.
    Если количество дней равно -1, то не удалять никогда
 */
-struct pclean_criteria_data pclean_criteria[] =
+struct PCCleanCriteria pclean_criteria[] =
 	{
 		//     УРОВЕНЬ           ДНИ
 		{-1, 0},        // Удаленные чары - удалять сразу
@@ -156,7 +156,7 @@ struct pclean_criteria_data pclean_criteria[] =
 		{23, 161},
 		{24, 168},
 		{25, 360},
-		{LVL_IMPL, -1},        // c 25го и дальше живут вечно
+		{kLevelImplementator, -1},        // c 25го и дальше живут вечно
 		{-2, 0}            // Последняя обязательная строка
 	};
 
@@ -164,18 +164,18 @@ struct pclean_criteria_data pclean_criteria[] =
 // ROOM NUMBERS
 
 // virtual number of room that mortals should enter at
-room_vnum mortal_start_room = 4056;    // tavern in village
+RoomVnum mortal_start_room = 4056;    // tavern in village
 
 // virtual number of room that immorts should enter at by default
-room_vnum immort_start_room = 100;    // place  in castle
+RoomVnum immort_start_room = 100;    // place  in castle
 
 // virtual number of room that frozen players should enter at
-room_vnum frozen_start_room = 101;    // something in castle
+RoomVnum frozen_start_room = 101;    // something in castle
 
 // virtual number of room that helled players should enter at
-room_vnum helled_start_room = 101;    // something in castle
-room_vnum named_start_room = 105;
-room_vnum unreg_start_room = 103;
+RoomVnum helled_start_room = 101;    // something in castle
+RoomVnum named_start_room = 105;
+RoomVnum unreg_start_room = 103;
 
 
 // GAME OPERATION OPTIONS

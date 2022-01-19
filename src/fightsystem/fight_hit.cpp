@@ -1619,7 +1619,7 @@ void appear(CHAR_DATA *ch) {
 
 	if (appear_msg) {
 		if (IS_NPC(ch)
-			|| GET_REAL_LEVEL(ch) < LVL_IMMORT) {
+			|| GET_REAL_LEVEL(ch) < kLevelImmortal) {
 			act("$n медленно появил$u из пустоты.", false, ch, 0, 0, TO_ROOM);
 		} else {
 			act("Вы почувствовали странное присутствие $n1.", false, ch, 0, 0, TO_ROOM);
@@ -2095,13 +2095,13 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim) {
 			&& !IS_NPC(ch->get_master())))
 		&& NORENTABLE(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)) {
-		mudlog(buf2, BRF, LVL_IMPL, SYSLOG, 0);
+		mudlog(buf2, BRF, kLevelImplementator, SYSLOG, 0);
 		if (IS_NPC(ch)
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || IS_HORSE(ch))
 			&& ch->has_master()
 			&& !IS_NPC(ch->get_master())) {
 			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));
-			mudlog(buf2, BRF, LVL_IMPL, SYSLOG, true);
+			mudlog(buf2, BRF, kLevelImplementator, SYSLOG, true);
 		}
 	}
 }
@@ -3607,7 +3607,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 			|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
     if (IS_NPC(ch)) {
-		mag_damage(std::min(LVL_IMPL, GET_REAL_LEVEL(ch)), ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+		mag_damage(std::min(kLevelImplementator, GET_REAL_LEVEL(ch)), ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
 	} else {
 		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
     }

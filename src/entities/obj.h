@@ -92,7 +92,7 @@ class VNumChangeObserver {
 
 	virtual ~VNumChangeObserver() {}
 
-	virtual void notify(CObjectPrototype &object, const obj_vnum old_vnum) = 0;
+	virtual void notify(CObjectPrototype &object, const ObjVnum old_vnum) = 0;
 };
 
 class IDChangeObserver {
@@ -110,7 +110,7 @@ class ObjectRNum_ChangeObserver {
 
 	virtual ~ObjectRNum_ChangeObserver() {}
 
-	virtual void notify(CObjectPrototype &object, const obj_rnum old_rnum) = 0;
+	virtual void notify(CObjectPrototype &object, const ObjRnum old_rnum) = 0;
 };
 
 class UIDChangeObserver {
@@ -219,32 +219,32 @@ class CObjectPrototype {
 	using vals_t = std::array<int, VALS_COUNT>;
 	using wear_flags_t = std::underlying_type<EWearFlag>::type;
 	using pnames_t = std::array<std::string, NUM_PADS>;
-	using triggers_list_t = std::list<obj_vnum>;
+	using triggers_list_t = std::list<ObjVnum>;
 	using triggers_list_ptr = std::shared_ptr<triggers_list_t>;
 	using affected_t = std::array<obj_affected_type, kMaxObjAffect>;
 
-	CObjectPrototype(const obj_vnum vnum) : m_vnum(vnum),
-											m_type(DEFAULT_TYPE),
-											m_weight(DEFAULT_WEIGHT),
-											m_proto_script(new triggers_list_t()),
-											m_max_in_world(DEFAULT_MAX_IN_WORLD),
-											m_vals({0, 0, 0, 0}),
-											m_destroyer(DEFAULT_DESTROYER),
-											m_spell(SPELL_NO_SPELL),
-											m_level(DEFAULT_LEVEL),
-											m_skill(SKILL_INVALID),
-											m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
-											m_current_durability(DEFAULT_CURRENT_DURABILITY),
-											m_material(DEFAULT_MATERIAL),
-											m_sex(kDefaultSex),
-											m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
-											m_timer(DEFAULT_TIMER),
-											m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
+	CObjectPrototype(const ObjVnum vnum) : m_vnum(vnum),
+										   m_type(DEFAULT_TYPE),
+										   m_weight(DEFAULT_WEIGHT),
+										   m_proto_script(new triggers_list_t()),
+										   m_max_in_world(DEFAULT_MAX_IN_WORLD),
+										   m_vals({0, 0, 0, 0}),
+										   m_destroyer(DEFAULT_DESTROYER),
+										   m_spell(SPELL_NO_SPELL),
+										   m_level(DEFAULT_LEVEL),
+										   m_skill(SKILL_INVALID),
+										   m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
+										   m_current_durability(DEFAULT_CURRENT_DURABILITY),
+										   m_material(DEFAULT_MATERIAL),
+										   m_sex(kDefaultSex),
+										   m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
+										   m_timer(DEFAULT_TIMER),
+										   m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
 											m_cost(DEFAULT_COST),
-											m_rent_on(DEFAULT_RENT_ON),
-											m_rent_off(DEFAULT_RENT_OFF),
-											m_ilevel(0),
-											m_rnum(DEFAULT_RNUM) {}
+										   m_rent_on(DEFAULT_RENT_ON),
+										   m_rent_off(DEFAULT_RENT_OFF),
+										   m_ilevel(0),
+										   m_rnum(DEFAULT_RNUM) {}
 	virtual    ~CObjectPrototype() {};
 
 	auto &get_skills() const { return m_skills; }
@@ -295,7 +295,7 @@ class CObjectPrototype {
 	void add_extra_flags(const FLAG_DATA &flags) { m_extra_flags += flags; }
 	void add_maximum(const int amount) { m_maximum_durability += amount; }
 	void add_no_flags(const FLAG_DATA &flags) { m_no_flags += flags; }
-	void add_proto_script(const obj_vnum vnum) { m_proto_script->push_back(vnum); }
+	void add_proto_script(const ObjVnum vnum) { m_proto_script->push_back(vnum); }
 	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
 	void add_weight(const int _) { m_weight += _; }
 	void clear_action_description() { m_action_description.clear(); }
@@ -398,7 +398,7 @@ class CObjectPrototype {
 	float get_ilevel() const;    ///< разные системы расчета привлекательности предмета
 	void set_ilevel(float ilvl);
 	auto get_rnum() const { return m_rnum; }
-	void set_rnum(const obj_rnum _);
+	void set_rnum(const ObjRnum _);
 	auto get_vnum() const { return m_vnum; }
 
 	void subscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr &observer) {
@@ -420,11 +420,11 @@ class CObjectPrototype {
  protected:
 	void zero_init();
 	CObjectPrototype &operator=(const CObjectPrototype &from);    ///< makes shallow copy of all fields except VNUM
-	void set_vnum(const obj_vnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
+	void set_vnum(const ObjVnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
 	void tag_ex_description(const char *tag);
 
  private:
-	obj_vnum m_vnum;
+	ObjVnum m_vnum;
 
 	EObjectType m_type;
 	int m_weight;
@@ -475,7 +475,7 @@ class CObjectPrototype {
 	int m_rent_off;    ///< стоимость ренты, если в инве
 
 	float m_ilevel;    ///< расчетный уровень шмотки, не сохраняется
-	obj_vnum m_rnum;    ///< Where in data-base
+	ObjVnum m_rnum;    ///< Where in data-base
 
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;
 	std::unordered_set<ObjectRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
@@ -642,12 +642,12 @@ class activation {
 typedef std::map<unique_bit_flag_data, activation> class_to_act_map;
 typedef std::map<unsigned int, class_to_act_map> qty_to_camap_map;
 
-class set_info : public std::map<obj_vnum, qty_to_camap_map> {
+class set_info : public std::map<ObjVnum, qty_to_camap_map> {
 	std::string name;
 	std::string alias;
 
  public:
-	typedef std::map<obj_vnum, qty_to_camap_map> ovnum_to_qamap_map;
+	typedef std::map<ObjVnum, qty_to_camap_map> ovnum_to_qamap_map;
 
 	set_info() {}
 
@@ -727,7 +727,7 @@ class OBJ_DATA : public CObjectPrototype {
 	constexpr static const int DEFAULT_OWNER = 0;
 	constexpr static const int DEFAULT_PARENT = 0;
 
-	OBJ_DATA(const obj_vnum vnum);
+	OBJ_DATA(const ObjVnum vnum);
 	OBJ_DATA(const OBJ_DATA &);
 	OBJ_DATA(const CObjectPrototype &);
 	~OBJ_DATA();
@@ -789,7 +789,7 @@ class OBJ_DATA : public CObjectPrototype {
 	void set_custom_label(custom_label *_) { m_custom_label.reset(_); }
 	void set_id(const long _);
 	void set_in_obj(OBJ_DATA *_) { m_in_obj = _; }
-	void set_in_room(const room_rnum _) { m_in_room = _; }
+	void set_in_room(const RoomRnum _) { m_in_room = _; }
 	void set_is_rename(const bool _) { m_is_rename = _; }
 	void set_next(OBJ_DATA *_) { m_next = _; }
 	void set_next_content(OBJ_DATA *_) { m_next_content = _; }
@@ -810,7 +810,7 @@ class OBJ_DATA : public CObjectPrototype {
 
 	void copy_name_from(const CObjectPrototype *src);
 
-	bool clone_olc_object_from_prototype(const obj_vnum vnum);
+	bool clone_olc_object_from_prototype(const ObjVnum vnum);
 	void copy_from(const CObjectPrototype *src);
 
 	void swap(OBJ_DATA &object);
@@ -834,7 +834,7 @@ class OBJ_DATA : public CObjectPrototype {
 	void detach_ex_description();
 
 	unsigned int m_uid;
-	room_rnum m_in_room;    // In what room -1 when conta/carr //
+	RoomRnum m_in_room;    // In what room -1 when conta/carr //
 	int m_room_was_in;
 
 	int m_maker;

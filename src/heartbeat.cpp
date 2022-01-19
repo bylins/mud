@@ -20,7 +20,7 @@
 #include "game_mechanics/sets_drop.h"
 #include "mail.h"
 #include "mob_stat.h"
-#include "weather.h"
+#include "game_mechanics/weather.h"
 #include "magic/magic.h"
 #include "magic/magic_rooms.h"
 #include "obj_save.h"
@@ -186,7 +186,7 @@ void CheckTriggeredRebootCall::perform(int, int) {
 
 	if (m_external_trigger_checker
 		&& m_external_trigger_checker->check()) {
-		mudlog("Сработал внешний триггер перезагрузки.", DEF, LVL_IMPL, SYSLOG, true);
+		mudlog("Сработал внешний триггер перезагрузки.", DEF, kLevelImplementator, SYSLOG, true);
 		shutdown_parameters.reboot();
 	}
 }

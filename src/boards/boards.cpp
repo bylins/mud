@@ -282,7 +282,7 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		tempMessage->author = name;
 		tempMessage->unique = GET_UNIQUE(ch);
 		// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
-		PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = LVL_IMPL : tempMessage->level = GET_REAL_LEVEL(ch);
+		PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = kLevelImplementator : tempMessage->level = GET_REAL_LEVEL(ch);
 
 		// клановым еще ранг
 		if (CLAN(ch)) {

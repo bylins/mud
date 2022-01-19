@@ -434,7 +434,7 @@ struct help_node {
 	std::string keyword;
 	// текст справки
 	std::string entry;
-	// требуемый уровень для чтения (демигоды могут читать LVL_IMMORT)
+	// требуемый уровень для чтения (демигоды могут читать kLevelImmortal)
 	int min_level;
 	// для сгенерированных страниц дропа сетов
 	// не спамят в иммлог при чтении, выводят перед страницей таймер
@@ -623,7 +623,7 @@ void UserSearch::process(int flag) {
 
 void UserSearch::print_not_found() const {
 	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (not found)", GET_NAME(ch), arg_str.c_str());
-	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, true);
+	mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
 	snprintf(buf, sizeof(buf),
 			 "&WПо вашему запросу '&w%s&W' ничего не было найдено.&n\r\n"
 			 "\r\n&cИнформация:&n\r\n"
@@ -644,7 +644,7 @@ void UserSearch::print_curr_topic(const help_node &node) const {
 	if (!node.no_immlog) {
 		snprintf(buf, sizeof(buf), "%s uses command HELP: %s (read)",
 				 GET_NAME(ch), arg_str.c_str());
-		mudlog(buf, LGH, LVL_IMMORT, SYSLOG, true);
+		mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
 	}
 	page_string(ch->desc, node.entry);
 }
@@ -673,7 +673,7 @@ void UserSearch::print_key_list() const {
 		<< HELP_USE_EXMAPLES;
 
 	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (list)", GET_NAME(ch), arg_str.c_str());
-	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, true);
+	mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
 	page_string(ch->desc, out.str());
 }
 
@@ -739,8 +739,8 @@ void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	UserSearch user_search(ch);
-	// trust_level справки для демигодов - LVL_IMMORT
-	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? LVL_IMMORT : GET_REAL_LEVEL(ch);
+	// trust_level справки для демигодов - kLevelImmortal
+	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? kLevelImmortal : GET_REAL_LEVEL(ch);
 	// первый аргумент без пробелов, заодно в нижний регистр
 	one_argument(argument, arg);
 	// Получаем topic_num для индексации топика

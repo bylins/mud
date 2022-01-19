@@ -318,7 +318,7 @@ int pk_increment_revenge(CHAR_DATA *agressor, CHAR_DATA *victim) {
 		}
 	}
 	if (!pk) {
-		mudlog("Инкремент реализации без флага мести!", CMP, LVL_GOD, SYSLOG, true);
+		mudlog("Инкремент реализации без флага мести!", CMP, kLevelGod, SYSLOG, true);
 		return 0;
 	}
 	if (CLAN(agressor) && (CLAN(victim) || pk->clan_exp > time(nullptr))) {
@@ -341,7 +341,7 @@ void pk_increment_gkill(CHAR_DATA *agressor, CHAR_DATA *victim) {
 	}
 
 	CHAR_DATA *leader;
-	struct follow_type *f;
+	struct Follower *f;
 	bool has_clanmember = false;
 	if (!IS_GOD(victim)) {
 		has_clanmember = has_clan_members_in_group(victim);
@@ -355,10 +355,10 @@ void pk_increment_gkill(CHAR_DATA *agressor, CHAR_DATA *victim) {
 		pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
 	}
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& IN_ROOM(f->follower) == IN_ROOM(victim)
-			&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT) {
-			pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& IN_ROOM(f->ch) == IN_ROOM(victim)
+			&& pk_action_type(agressor, f->ch) > PK_ACTION_FIGHT) {
+			pk_increment_kill(agressor, f->ch, f->ch == victim, has_clanmember);
 		}
 	}
 }
@@ -465,7 +465,7 @@ void pk_thiefs_action(CHAR_DATA *thief, CHAR_DATA *victim) {
 
 	pk_translate_pair(&thief, &victim);
 	if (victim == nullptr) {
-//		mudlog("Противник исчез при ПК куда-то! функция 3", CMP, LVL_GOD, SYSLOG, true);
+//		mudlog("Противник исчез при ПК куда-то! функция 3", CMP, kLevelGod, SYSLOG, true);
 		return;
 	}
 
@@ -1016,7 +1016,7 @@ int check_pkill(CHAR_DATA *ch, CHAR_DATA *opponent, const std::string &arg) {
 // в одной с ним комнате
 bool has_clan_members_in_group(CHAR_DATA *ch) {
 	CHAR_DATA *leader;
-	struct follow_type *f;
+	struct Follower *f;
 	leader = ch->has_master() ? ch->get_master() : ch;
 
 	// проверяем, был ли в группе клановый чар
@@ -1024,8 +1024,8 @@ bool has_clan_members_in_group(CHAR_DATA *ch) {
 		return true;
 	} else {
 		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && IN_ROOM(f->follower) == ch->in_room
-				&& CLAN(f->follower)) {
+			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP) && IN_ROOM(f->ch) == ch->in_room
+				&& CLAN(f->ch)) {
 				return true;
 			}
 		}

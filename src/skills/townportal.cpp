@@ -8,7 +8,7 @@
 namespace OneWayPortal {
 
 // список односторонних порталов <куда указывает, откуда поставлен>
-std::unordered_map<room_vnum /*to*/, ROOM_DATA * /*from*/> portal_list;
+std::unordered_map<RoomVnum /*to*/, ROOM_DATA * /*from*/> portal_list;
 
 /**
 * Добавление портала в список
@@ -48,11 +48,11 @@ ROOM_DATA *get_from_room(ROOM_DATA *to_room) {
 void spell_townportal(CHAR_DATA *ch, char *arg) {
 	int gcount = 0, cn = 0, ispr = 0;
 	bool has_label_portal = false;
-	struct timed_type timed;
+	struct Timed timed;
 	char *nm;
-	struct char_portal_type *tmp;
-	struct portals_list_type *port;
-	struct portals_list_type label_port;
+	struct CharacterPortal *tmp;
+	struct Portal *port;
+	struct Portal label_port;
 	ROOM_DATA *label_room;
 
 	port = get_portal(-1, arg);
@@ -146,7 +146,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 
 void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-	struct char_portal_type *tmp, *dlt = nullptr;
+	struct CharacterPortal *tmp, *dlt = nullptr;
 	char arg2[kMaxInputLength];
 	int vnum = 0;
 

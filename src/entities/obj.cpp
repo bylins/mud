@@ -23,7 +23,7 @@ extern void extract_trigger(TRIG_DATA *trig);
 
 id_to_set_info_map OBJ_DATA::set_table;
 
-OBJ_DATA::OBJ_DATA(const obj_vnum vnum) :
+OBJ_DATA::OBJ_DATA(const ObjVnum vnum) :
 	CObjectPrototype(vnum),
 	m_uid(0),
 	m_in_room(0),
@@ -316,7 +316,7 @@ void CObjectPrototype::zero_init() {
 	m_ilevel = 0;
 }
 
-void CObjectPrototype::set_vnum(const obj_vnum vnum) {
+void CObjectPrototype::set_vnum(const ObjVnum vnum) {
 	if (vnum != m_vnum) {
 		const auto old_vnum = m_vnum;
 
@@ -514,7 +514,7 @@ void OBJ_DATA::unset_enchant() {
 	unset_extraflag(EExtraFlag::ITEM_TRANSFORMED);
 }
 
-bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum) {
+bool OBJ_DATA::clone_olc_object_from_prototype(const ObjVnum vnum) {
 	const auto rnum = real_object(vnum);
 
 	if (rnum < 0) {
@@ -592,7 +592,7 @@ void OBJ_DATA::swap(OBJ_DATA &object) {
 	object = *this;
 	*this = tmpobj;
 
-	obj_vnum vnum = get_vnum();
+	ObjVnum vnum = get_vnum();
 	set_vnum(object.get_vnum());
 	object.set_vnum(vnum);
 
@@ -697,7 +697,7 @@ void CObjectPrototype::set_ilevel(float ilvl) {
 	m_ilevel = ilvl;
 }
 
-void CObjectPrototype::set_rnum(const obj_rnum _) {
+void CObjectPrototype::set_rnum(const ObjRnum _) {
 	if (_ != m_rnum) {
 		const auto old_rnum = m_rnum;
 
@@ -1434,7 +1434,7 @@ void delete_item(const std::size_t pt_num, int vnum) {
 	bool need_save = false;
 	// рента
 	if (player_table[pt_num].timer) {
-		for (std::vector<save_time_info>::iterator i = player_table[pt_num].timer->time.begin(),
+		for (std::vector<SaveTimeInfo>::iterator i = player_table[pt_num].timer->time.begin(),
 				 iend = player_table[pt_num].timer->time.end(); i != iend; ++i) {
 			if (i->vnum == vnum) {
 				log("[TO] Player %s : set-item %d deleted", player_table[pt_num].name(), i->vnum);
@@ -1465,7 +1465,7 @@ void check_rented() {
 		reset_set_list();
 		// рента
 		if (player_table[i].timer) {
-			for (std::vector<save_time_info>::iterator it = player_table[i].timer->time.begin(),
+			for (std::vector<SaveTimeInfo>::iterator it = player_table[i].timer->time.begin(),
 					 it_end = player_table[i].timer->time.end(); it != it_end; ++it) {
 				if (it->timer >= 0) {
 					check_item(it->vnum);
@@ -1601,19 +1601,19 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj, bool clan_chest) {
 
 	// чармисы
 	if (ch->followers) {
-		for (struct follow_type *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->follower)
-				|| !k->follower->has_master()) {
+		for (struct Follower *k = ch->followers; k; k = k->next) {
+			if (!IS_CHARMICE(k->ch)
+				|| !k->ch->has_master()) {
 				continue;
 			}
 
 			for (int j = 0; j < NUM_WEARS; j++) {
-				if (find_set_item(GET_EQ(k->follower, j))) {
+				if (find_set_item(GET_EQ(k->ch, j))) {
 					return false;
 				}
 			}
 
-			if (find_set_item(k->follower->carrying)) {
+			if (find_set_item(k->ch->carrying)) {
 				return false;
 			}
 		}
