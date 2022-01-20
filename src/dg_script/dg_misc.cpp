@@ -15,75 +15,70 @@
 #include "dg_event.h"
 #include "magic/magic.h"
 
-extern const char *item_types[];
+/*extern const char *item_types[];
 extern const char *apply_types[];
-extern const char *affected_bits[];
+extern const char *affected_bits[];*/
 extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];
 
-extern int pc_duration(CHAR_DATA *ch, int cnst, int level, int level_divisor, int min, int max);
+extern int pc_duration(CharacterData *ch, int cnst, int level, int level_divisor, int min, int max);
+
 /*
  * Функция осуществляет поиск цели для DG_CAST
  * Облегченная версия FindCastTarget
  */
-int find_dg_cast_target(int spellnum,
-						const char *t,
-						CHAR_DATA *ch,
-						CHAR_DATA **tch,
-						OBJ_DATA **tobj,
-						ROOM_DATA **troom) {
-	*tch = NULL;
-	*tobj = NULL;
-	if (NOWHERE
-		== ch->in_room)  //если чар есть но он по каким-то причинам в NOWHERE крешает как минимум в mag_masses так как указатель на комнату nullptr
-	{
-		return FALSE;
+int find_dg_cast_target(int spellnum, const char *t, CharacterData *ch, CharacterData **tch, ObjectData **tobj, RoomData **troom) {
+	*tch = nullptr;
+	*tobj = nullptr;
+	//если чар есть но он по каким-то причинам в kNowhere крешает как минимум в mag_masses так как указатель на комнату nullptr
+	if (ch->in_room == kNowhere) {
+		return false;
 	}
 	*troom = world[ch->in_room];
 
 	if (spellnum == SPELL_CONTROL_WEATHER) {
-		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
+		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
 			sprintf(buf2, "dg_cast (Не указан тип погоды)");
 			script_log(buf2);
-			return FALSE;
+			return false;
 		} else
 			what_sky >>= 1;
 	}
 	if (spellnum == SPELL_CREATE_WEAPON) {
-		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0) {
+		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
 			sprintf(buf2, "dg_cast (Не указан тип оружия)");
 			script_log(buf2);
-			return FALSE;
+			return false;
 		} else
 			what_sky = 5 + (what_sky >> 1);
 	}
 
 	if (IS_SET(spell_info[spellnum].targets, TAR_IGNORE))
-		return TRUE;
+		return true;
 
 	if (IS_SET(spell_info[spellnum].targets, TAR_ROOM_THIS))
-		return TRUE;
+		return true;
 
 	if (*t) {
 		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_ROOM)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL) {
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
-//                 return FALSE;
-				return TRUE;
+//                 return false;
+				return true;
 			}
 		}
 		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_WORLD)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL) {
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
-//                 return FALSE;
-				return TRUE;
+//                 return false;
+				return true;
 			}
 		}
 
 		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_INV)) {
-			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != NULL) {
-				return TRUE;
+			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr) {
+				return true;
 			}
 		}
 
@@ -92,36 +87,36 @@ int find_dg_cast_target(int spellnum,
 			for (i = 0; i < NUM_WEARS; i++) {
 				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases())) {
 					*tobj = GET_EQ(ch, i);
-					return TRUE;
+					return true;
 				}
 			}
 		}
 
 		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_ROOM))
-			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != NULL)
-				return TRUE;
+			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
+				return true;
 
 		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_WORLD))
-			if ((*tobj = get_obj_vis(ch, t)) != NULL)
-				return TRUE;
+			if ((*tobj = get_obj_vis(ch, t)) != nullptr)
+				return true;
 	} else {
 		if (IS_SET(spell_info[spellnum].targets, TAR_FIGHT_SELF))
-			if (ch->get_fighting() != NULL) {
+			if (ch->get_fighting() != nullptr) {
 				*tch = ch;
-				return TRUE;
+				return true;
 			}
 		if (IS_SET(spell_info[spellnum].targets, TAR_FIGHT_VICT))
-			if (ch->get_fighting() != NULL) {
+			if (ch->get_fighting() != nullptr) {
 				*tch = ch->get_fighting();
-				return TRUE;
+				return true;
 			}
 		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_ROOM) && !spell_info[spellnum].violent) {
 			*tch = ch;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 // cast a spell; can be called by mobiles, objects and rooms, and no
@@ -132,9 +127,9 @@ int find_dg_cast_target(int spellnum,
 // LIMITATION: a target MUST exist for the spell unless the spell is
 // set to TAR_IGNORE. Also, group spells are not permitted
 // code borrowed from do_cast()
-void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char *cmd) {
-	CHAR_DATA *caster = NULL;
-	ROOM_DATA *caster_room = NULL;
+void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
+	CharacterData *caster = nullptr;
+	RoomData *caster_room = nullptr;
 	char *s, *t;
 	int spellnum, target = 0;
 	bool dummy_mob = false;
@@ -142,13 +137,13 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 
 	// need to get the caster or the room of the temporary caster
 	switch (type) {
-		case MOB_TRIGGER: caster = (CHAR_DATA *) go;
+		case MOB_TRIGGER: caster = (CharacterData *) go;
 			break;
-		case WLD_TRIGGER: caster_room = (ROOM_DATA *) go;
+		case WLD_TRIGGER: caster_room = (RoomData *) go;
 			break;
 		case OBJ_TRIGGER:
-			caster_room = dg_room_of_obj((OBJ_DATA *) go);
-			caster = dg_caster_owner_obj((OBJ_DATA *) go);
+			caster_room = dg_room_of_obj((ObjectData *) go);
+			caster = dg_caster_owner_obj((ObjectData *) go);
 			if (!caster_room) {
 				trig_log(trig, "dg_do_cast: unknown room for object-caster!");
 				return;
@@ -160,18 +155,18 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 
 	// get: blank, spell name, target name
 	s = strtok(cmd, "'");
-	if (s == NULL) {
+	if (s == nullptr) {
 		sprintf(buf2, "dg_cast: needs spell name.");
 		trig_log(trig, buf2);
 		return;
 	}
-	s = strtok(NULL, "'");
-	if (s == NULL) {
+	s = strtok(nullptr, "'");
+	if (s == nullptr) {
 		sprintf(buf2, "dg_cast: needs spell name in `'s.");
 		trig_log(trig, buf2);
 		return;
 	}
-	t = strtok(NULL, "\0");
+	t = strtok(nullptr, "\0");
 
 	// spellnum = search_block(s, spells, 0);
 	spellnum = FixNameAndFindSpellNum(s);
@@ -191,19 +186,19 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 		// take select pieces from char_to_room();
 		dummy_mob = true;
 		if (type == OBJ_TRIGGER) {
-			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "дух %s", ((ObjectData *) go)->get_PName(1).c_str());
 			caster->set_npc_name(buf);
-			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "дух %s", ((ObjectData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[0] = std::string(buf);
-			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "духа %s", ((ObjectData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[1] = std::string(buf);
-			sprintf(buf, "духу %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "духу %s", ((ObjectData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[2] = std::string(buf);
-			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "духа %s", ((ObjectData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[3] = std::string(buf);
-			sprintf(buf, "духом %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "духом %s", ((ObjectData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[4] = std::string(buf);
-			sprintf(buf, "духе %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "духе %s", ((ObjectData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[5] = std::string(buf);
 		} else if (type == WLD_TRIGGER) {
 			caster->set_npc_name("Боги");
@@ -226,23 +221,23 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 	}
 */
 	// Find the target
-	if (t != NULL)
+	if (t != nullptr)
 		one_argument(t, arg);
 	else
 		*arg = '\0';
 
 	// в find_dg_cast_target можем и не попасть для инита нулями и в CallMagic пойдет мусор
-	CHAR_DATA *tch = 0;
-	OBJ_DATA *tobj = 0;
-	ROOM_DATA *troom = 0;
+	CharacterData *tch = nullptr;
+	ObjectData *tobj = nullptr;
+	RoomData *troom = nullptr;
 
 	if (*arg == UID_CHAR) {
 		tch = get_char(arg);
 		if (tch == nullptr) {
 			sprintf(buf2, "dg_cast: victim (%s) not found", arg + 1);
 			trig_log(trig, buf2);
-		} else if (NOWHERE == caster->in_room) {
-			sprintf(buf2, "dg_cast: caster (%s) in NOWHERE", GET_NAME(caster));
+		} else if (kNowhere == caster->in_room) {
+			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", GET_NAME(caster));
 			trig_log(trig, buf2);
 		} else if (tch->in_room != caster->in_room) {
 			sprintf(buf2,
@@ -264,7 +259,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
 		trig_log(trig, buf2);
 	}
 	if (dummy_mob)
-		extract_char(caster, FALSE);
+		extract_char(caster, false);
 }
 
 /* modify an affection on the target. affections can be of the AFF_x
@@ -275,14 +270,14 @@ void do_dg_cast(void *go, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int type, char 
    if duration < 1 - function removes affect */
 #define APPLY_TYPE    1
 #define AFFECT_TYPE    2
-void do_dg_affect(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* script_type*/, char *cmd) {
-	CHAR_DATA *ch = NULL;
+void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_type*/, char *cmd) {
+	CharacterData *ch = nullptr;
 	int value = 0, duration = 0, battle = 0;
-	char junk[MAX_INPUT_LENGTH];    // will be set to "dg_affect"
-	char charname[MAX_INPUT_LENGTH], property[MAX_INPUT_LENGTH];
-	char value_p[MAX_INPUT_LENGTH], duration_p[MAX_INPUT_LENGTH];
-	char battle_p[MAX_INPUT_LENGTH];
-	char spell[MAX_INPUT_LENGTH];
+	char junk[kMaxInputLength];    // will be set to "dg_affect"
+	char charname[kMaxInputLength], property[kMaxInputLength];
+	char value_p[kMaxInputLength], duration_p[kMaxInputLength];
+	char battle_p[kMaxInputLength];
+	char spell[kMaxInputLength];
 	int index = 0, type = 0, index_s = 0, i;
 
 	half_chop(cmd, junk, cmd);
@@ -317,11 +312,11 @@ void do_dg_affect(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* sc
 		return;
 	}
 	// find the property -- first search apply_types
-	if ((index = search_block(property, apply_types, FALSE)) != -1) {
+	if ((index = search_block(property, apply_types, false)) != -1) {
 		type = APPLY_TYPE;
 	} else {
 		//search affect_types now
-		if ((index = ext_search_block(property, affected_bits, FALSE)) != 0)
+		if ((index = ext_search_block(property, affected_bits, false)) != 0)
 			type = AFFECT_TYPE;
 	}
 
@@ -354,7 +349,7 @@ void do_dg_affect(void * /*go*/, SCRIPT_DATA * /*sc*/, TRIG_DATA *trig, int/* sc
 
 	if (duration > 0) {
 		// add the affect
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = index_s;
 
 		af.battleflag = battle;

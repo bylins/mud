@@ -1,7 +1,7 @@
 #include "magic_items.h"
 
 //#include "obj.h"
-#include "chars/char.h"
+#include "entities/char.h"
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "magic/spells_info.h"
@@ -10,21 +10,21 @@
 const short DEFAULT_STAFF_LVL = 12;
 const short DEFAULT_WAND_LVL = 12;
 
-extern char cast_argument[MAX_INPUT_LENGTH];
+extern char cast_argument[kMaxInputLength];
 
-void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
+void employMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 	int i, spellnum;
 	int level;
-	CHAR_DATA *tch = nullptr;
-	OBJ_DATA *tobj = nullptr;
-	ROOM_DATA *troom = nullptr;
+	CharacterData *tch = nullptr;
+	ObjectData *tobj = nullptr;
+	RoomData *troom = nullptr;
 
 	one_argument(argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0) {
-		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF) {
+		if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_STAFF) {
 			level = DEFAULT_STAFF_LVL;
-		} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND) {
+		} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WAND) {
 			level = DEFAULT_WAND_LVL;
 		}
 	}
@@ -37,21 +37,21 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case OBJ_DATA::ITEM_STAFF:
+		case ObjectData::ITEM_STAFF:
 			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_CHAR);
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_CHAR);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
-				act("Вы ударили $o4 о землю.", FALSE, ch, obj, nullptr, TO_CHAR);
-				act("$n ударил$g $o4 о землю.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("Вы ударили $o4 о землю.", false, ch, obj, nullptr, TO_CHAR);
+				act("$n ударил$g $o4 о землю.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				send_to_char("Похоже, кончились заряды :)\r\n", ch);
-				act("И ничего не случилось.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("И ничего не случилось.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
 				obj->dec_val(2);
-				WAIT_STATE(ch, PULSE_VIOLENCE);
+				WAIT_STATE(ch, kPulseViolence);
 				if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS)) {
 					CallMagic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 				} else {
@@ -66,7 +66,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 
 			break;
 
-		case OBJ_DATA::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
+		case ObjectData::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				send_to_char("Похоже, магия кончилась.\r\n", ch);
@@ -86,46 +86,46 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 			if (tch) {
 				if (tch == ch) {
 					if (!obj->get_action_description().empty()) {
-						act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-						act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+						act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_CHAR);
+						act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 					} else {
-						act("Вы указали $o4 на себя.", FALSE, ch, obj, nullptr, TO_CHAR);
-						act("$n указал$g $o4 на себя.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						act("Вы указали $o4 на себя.", false, ch, obj, nullptr, TO_CHAR);
+						act("$n указал$g $o4 на себя.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 					}
 				} else {
 					if (!obj->get_action_description().empty()) {
-						act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-						act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+						act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_CHAR);
+						act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 					} else {
-						act("Вы ткнули $o4 в $N3.", FALSE, ch, obj, tch, TO_CHAR);
-						act("$N указал$G $o4 на вас.", FALSE, tch, obj, ch, TO_CHAR);
-						act("$n ткнул$g $o4 в $N3.", TRUE, ch, obj, tch, TO_NOTVICT | TO_ARENA_LISTEN);
+						act("Вы ткнули $o4 в $N3.", false, ch, obj, tch, TO_CHAR);
+						act("$N указал$G $o4 на вас.", false, tch, obj, ch, TO_CHAR);
+						act("$n ткнул$g $o4 в $N3.", true, ch, obj, tch, TO_NOTVICT | TO_ARENA_LISTEN);
 					}
 				}
 			} else if (tobj) {
 				if (!obj->get_action_description().empty()) {
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tobj, TO_CHAR);
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+					act(obj->get_action_description().c_str(), false, ch, obj, tobj, TO_CHAR);
+					act(obj->get_action_description().c_str(), false, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
 				} else {
-					act("Вы прикоснулись $o4 к $O2.", FALSE, ch, obj, tobj, TO_CHAR);
-					act("$n прикоснул$u $o4 к $O2.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+					act("Вы прикоснулись $o4 к $O2.", false, ch, obj, tobj, TO_CHAR);
+					act("$n прикоснул$u $o4 к $O2.", true, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
 				}
 			} else {
 				if (!obj->get_action_description().empty()) {
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+					act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_CHAR);
+					act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 				} else {
-					act("Вы обвели $o4 вокруг комнаты.", FALSE, ch, obj, nullptr, TO_CHAR);
-					act("$n обвел$g $o4 вокруг комнаты.", TRUE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					act("Вы обвели $o4 вокруг комнаты.", false, ch, obj, nullptr, TO_CHAR);
+					act("$n обвел$g $o4 вокруг комнаты.", true, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				}
 			}
 
 			obj->dec_val(2);
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
+		case ObjectData::ITEM_SCROLL:
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 				send_to_char("Вы немы, как рыба.\r\n", ch);
 				return;
@@ -148,14 +148,14 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 			}
 
 			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_CHAR);
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_CHAR);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
-				act("Вы зачитали $o3, котор$W рассыпался в прах.", TRUE, ch, obj, nullptr, TO_CHAR);
-				act("$n зачитал$g $o3.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("Вы зачитали $o3, котор$W рассыпался в прах.", true, ch, obj, nullptr, TO_CHAR);
+				act("$n зачитал$g $o3.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			for (i = 1; i <= 3; i++) {
 				if (CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
 					break;
@@ -168,21 +168,21 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 			extract_obj(obj);
 			break;
 
-		case OBJ_DATA::ITEM_POTION:
+		case ObjectData::ITEM_POTION:
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 				send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;
 			}
 			tch = ch;
 			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), TRUE, ch, obj, nullptr, TO_CHAR);
-				act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act(obj->get_action_description().c_str(), true, ch, obj, nullptr, TO_CHAR);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
-				act("Вы осушили $o3.", FALSE, ch, obj, nullptr, TO_CHAR);
-				act("$n осушил$g $o3.", TRUE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("Вы осушили $o3.", false, ch, obj, nullptr, TO_CHAR);
+				act("$n осушил$g $o3.", true, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			for (i = 1; i <= 3; i++) {
 				if (CallMagic(ch, ch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
 					break;

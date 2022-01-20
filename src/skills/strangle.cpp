@@ -6,13 +6,13 @@
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/common.h"
 #include "handler.h"
-#include "random.h"
+#include "utils/random.h"
 #include "protect.h"
 #include "skills_info.h"
 
 using namespace FightSystem;
 
-void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_strangle(CharacterData *ch, CharacterData *vict) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || dontCanAct(ch)) {
 		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
 		return;
@@ -23,7 +23,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING) {
+	if (GET_POS(ch) < EPosition::kFight) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -33,7 +33,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		return;
 	}
 
-	act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, nullptr, vict, TO_CHAR);
+	act("Вы попытались накинуть удавку на шею $N2.\r\n", false, ch, nullptr, vict, TO_CHAR);
 
 	int prob = CalcCurrentSkill(ch, SKILL_STRANGLE, vict);
 	int delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
@@ -46,10 +46,10 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		Damage dmg(SkillDmg(SKILL_STRANGLE), ZERO_DMG, PHYS_DMG);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		//set_wait(ch, 3, TRUE);
+		//set_wait(ch, 3, true);
 		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 3);
 	} else {
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = SPELL_STRANGLE;
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;
@@ -64,14 +64,14 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, PHYS_DMG);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		if (GET_POS(vict) > POS_DEAD) {
-			set_wait(vict, 2, TRUE);
+		if (GET_POS(vict) > EPosition::kDead) {
+			set_wait(vict, 2, true);
 			//vict->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 			if (vict->ahorse()) {
-				act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, nullptr, ch, TO_CHAR);
-				act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, nullptr, ch, TO_VICT);
+				act("Рванув на себя, $N стащил$G Вас на землю.", false, vict, nullptr, ch, TO_CHAR);
+				act("Рванув на себя, Вы стащили $n3 на землю.", false, vict, nullptr, ch, TO_VICT);
 				act("Рванув на себя, $N стащил$G $n3 на землю.",
-					FALSE,
+					false,
 					vict,
 					nullptr,
 					ch,
@@ -85,13 +85,13 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		}
 	}
 
-	timed_type timed;
+	Timed timed;
 	timed.skill = SKILL_STRANGLE;
 	timed.time = delay;
 	timed_to_char(ch, &timed);
 }
 
-void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_strangle(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(SKILL_STRANGLE)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
@@ -102,7 +102,7 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы жаждете удавить?\r\n", ch);
 		return;

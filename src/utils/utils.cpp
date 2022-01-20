@@ -14,10 +14,10 @@
 
 #include "utils.h"
 
-#include "chars/world.characters.h"
+#include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
-#include "obj.h"
+#include "entities/obj.h"
 #include "db.h"
 #include "comm.h"
 #include "screen.h"
@@ -29,22 +29,22 @@
 #include "dg_script/dg_scripts.h"
 #include "features.h"
 #include "privilege.h"
-#include "chars/char.h"
-#include "room.h"
+#include "entities/char.h"
+#include "entities/room.h"
 #include "modify.h"
 #include "house.h"
-#include "chars/player_races.h"
+#include "entities/player_races.h"
 #include "depot.h"
 #include "obj_save.h"
 #include "fightsystem/fight.h"
 #include "skills.h"
 #include "exchange.h"
-#include "sets_drop.h"
-#include "structs.h"
+#include "game_mechanics/sets_drop.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "obj_sets.h"
-#include "utils.string.h"
+#include "game_mechanics/obj_sets.h"
+#include "utils_string.h"
 
 #include <algorithm>
 
@@ -63,48 +63,42 @@
 #include <sstream>
 #include <sstream>
 
-extern DESCRIPTOR_DATA *descriptor_list;
-extern CHAR_DATA *mob_proto;
+extern DescriptorData *descriptor_list;
+extern CharacterData *mob_proto;
 extern const char *weapon_class[];
 // local functions
-TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
-TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
+TimeInfoData *real_time_passed(time_t t2, time_t t1);
+TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void prune_crlf(char *txt);
-int valid_email(const char *address);
+bool IsValidEmail(const char *address);
 
 // external functions
-void perform_drop_gold(CHAR_DATA *ch, int amount);
-void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void perform_drop_gold(CharacterData *ch, int amount);
+void do_echo(CharacterData *ch, char *argument, int cmd, int subcmd);
 
-char AltToKoi[] =
-	{
+char AltToKoi[] = {
 		"АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡+++╣║╗╝+╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨++╙╘╒++╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁё╫╜╢╓╤╕╥╖·√??■ "
 	};
-char KoiToAlt[] =
-	{
+char KoiToAlt[] = {
 		"дЁз©юыц╢баеъэшщч╟╠╡+Ч+Ш+++Ъ+++З+м╨уЯУиВЫ╩тсх╬С╪фгл╣ПТ╧ЖЬкопйьРн+Н═║Ф╓╔ДёЕ╗╘╙╚╛╜╝╞ОЮАБЦ╕╒ЛК╖ХМИГЙ·─│√└┘■┐∙┬┴┼▀▄█▌▐÷░▒▓⌠├┌°⌡┤≤²≥≈ "
 	};
-char WinToKoi[] =
-	{
+char WinToKoi[] = {
 		"++++++++++++++++++++++++++++++++ ++++╫++Ё©╢++++╥°+╤╕╜++·ё+╓++++╖АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя"
 	};
-char KoiToWin[] =
-	{
+char KoiToWin[] = {
 		"++++++++++++++++++++++++++═+╟+╥++++╦╨+Ё©+++++╢+++++╗╙+╡╞+++++╔+╘ЧЮАЖДЕТЦУХИЙКЛМНОЪПЯРСФБЭШГЬЩЫВЗчюаждетцухийклмноъпярсфбэшгьщывз"
 	};
-char KoiToWin2[] =
-	{
+char KoiToWin2[] = {
 		"++++++++++++++++++++++++++═+╟+╥++++╦╨+Ё©+++++╢+++++╗╙+╡╞+++++╔+╘ЧЮАЖДЕТЦУХИЙКЛМНОzПЯРСФБЭШГЬЩЫВЗчюаждетцухийклмноъпярсфбэшгьщывз"
 	};
-char AltToLat[] =
-	{
+char AltToLat[] = {
 		"─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ё╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡Ё╢╣╤╥╦╧╨╩╪╫╬©0abcdefghijklmnopqrstY1v23z456780ABCDEFGHIJKLMNOPQRSTY1V23Z45678"
 	};
 
 const char *ACTNULL = "<NULL>";
 
 // return char with UID n
-CHAR_DATA *find_char(long n) {
+CharacterData *find_char(long n) {
 	for (const auto &ch : character_list) {
 		if (GET_ID(ch) == n) {
 			return ch.get();
@@ -114,7 +108,7 @@ CHAR_DATA *find_char(long n) {
 	return nullptr;
 }
 
-bool check_spell_on_player(CHAR_DATA *ch, int spell_num) {
+bool check_spell_on_player(CharacterData *ch, int spell_num) {
 	for (const auto &af : ch->affected) {
 		if (af->type == spell_num) {
 			return true;
@@ -209,7 +203,7 @@ char *CAP(char *txt) {
 
 // Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src) {
-	if (dst == NULL) {
+	if (dst == nullptr) {
 		dst = (char *) malloc(strlen(src) + 1);
 		strcpy(dst, src);
 	} else {
@@ -221,7 +215,7 @@ char *str_add(char *dst, const char *src) {
 
 // Create a duplicate of a string
 char *str_dup(const char *source) {
-	char *new_z = NULL;
+	char *new_z = nullptr;
 	if (source) {
 		CREATE(new_z, strlen(source) + 1);
 		return (strcpy(new_z, source));
@@ -245,7 +239,7 @@ bool is_head(std::string name) {
 	return false;
 }
 
-int get_virtual_race(CHAR_DATA *mob) {
+int get_virtual_race(CharacterData *mob) {
 	if (mob->get_role(MOB_ROLE_BOSS)) {
 		return NPC_BOSS;
 	}
@@ -258,10 +252,10 @@ int get_virtual_race(CHAR_DATA *mob) {
 	return -1;
 }
 
-CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
-	std::vector<CHAR_DATA *> tmp_list;
-	CHAR_DATA *victim;
-	CHAR_DATA *k;
+CharacterData *get_random_pc_group(CharacterData *ch) {
+	std::vector<CharacterData *> tmp_list;
+	CharacterData *victim;
+	CharacterData *k;
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		return nullptr;
 	if (ch->has_master()) {
@@ -269,9 +263,9 @@ CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
 	} else {
 		k = ch;
 	}
-	for (follow_type *i = k->followers; i; i = i->next) {
-		if (!IS_NPC(k) && !IS_CHARMICE(i->follower) && (k != i->follower) && (k->in_room == i->follower->in_room)) {
-			tmp_list.push_back(i->follower);
+	for (Follower *i = k->followers; i; i = i->next) {
+		if (!IS_NPC(k) && !IS_CHARMICE(i->ch) && (k != i->ch) && (k->in_room == i->ch->in_room)) {
+			tmp_list.push_back(i->ch);
 		}
 	}
 	if (tmp_list.empty()) {
@@ -292,8 +286,8 @@ CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
 int str_cmp(const char *arg1, const char *arg2) {
 	int chk, i;
 
-	if (arg1 == NULL || arg2 == NULL) {
-		log("SYSERR: str_cmp() passed a NULL pointer, %p or %p.", arg1, arg2);
+	if (arg1 == nullptr || arg2 == nullptr) {
+		log("SYSERR: str_cmp() passed a nullptr pointer, %p or %p.", arg1, arg2);
 		return (0);
 	}
 
@@ -308,7 +302,7 @@ int str_cmp(const std::string &arg1, const char *arg2) {
 	int chk;
 	std::string::size_type i;
 
-	if (arg2 == NULL) {
+	if (arg2 == nullptr) {
 		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg2);
 		return (0);
 	}
@@ -329,7 +323,7 @@ int str_cmp(const char *arg1, const std::string &arg2) {
 	int chk;
 	std::string::size_type i;
 
-	if (arg1 == NULL) {
+	if (arg1 == nullptr) {
 		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg1);
 		return (0);
 	}
@@ -372,7 +366,7 @@ int str_cmp(const std::string &arg1, const std::string &arg2) {
 int strn_cmp(const char *arg1, const char *arg2, size_t n) {
 	int chk, i;
 
-	if (arg1 == NULL || arg2 == NULL) {
+	if (arg1 == nullptr || arg2 == nullptr) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p or %p.", arg1, arg2);
 		return (0);
 	}
@@ -388,7 +382,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n) {
 	int chk;
 	std::string::size_type i;
 
-	if (arg2 == NULL) {
+	if (arg2 == nullptr) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg2);
 		return (0);
 	}
@@ -410,7 +404,7 @@ int strn_cmp(const char *arg1, const std::string &arg2, size_t n) {
 	int chk;
 	std::string::size_type i;
 
-	if (arg1 == NULL) {
+	if (arg1 == nullptr) {
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg1);
 		return (0);
 	}
@@ -473,9 +467,9 @@ void sprinttype(int type, const char *names[], char *result) {
 }
 
 // * Calculate the REAL time passed over the last t2-t1 centuries (secs)
-TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1) {
+TimeInfoData *real_time_passed(time_t t2, time_t t1) {
 	long secs;
-	static TIME_INFO_DATA now;
+	static TimeInfoData now;
 
 	secs = (long) (t2 - t1);
 
@@ -492,9 +486,9 @@ TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1) {
 }
 
 // Calculate the MUD time passed over the last t2-t1 centuries (secs) //
-TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1) {
+TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 	long secs;
-	static TIME_INFO_DATA now;
+	static TimeInfoData now;
 
 	secs = (long) (t2 - t1);
 
@@ -512,8 +506,8 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1) {
 	return (&now);
 }
 
-TIME_INFO_DATA *age(const CHAR_DATA *ch) {
-	static TIME_INFO_DATA player_age;
+TimeInfoData *age(const CharacterData *ch) {
+	static TimeInfoData player_age;
 
 	player_age = *mud_time_passed(time(0), ch->player_data.time.birth);
 
@@ -552,7 +546,7 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 	const char *prefix, *middle, *suffix;
 	char name[64], *ptr;
 
-	if (orig_name == NULL || *orig_name == '\0' || filename == NULL) {
+	if (orig_name == nullptr || *orig_name == '\0' || filename == nullptr) {
 		log("SYSERR: NULL pointer or empty string passed to get_filename(), %p or %p.", orig_name, filename);
 		return (0);
 	}
@@ -633,7 +627,7 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 	return (1);
 }
 
-int num_pc_in_room(ROOM_DATA *room) {
+int num_pc_in_room(RoomData *room) {
 	int i = 0;
 	for (const auto ch : room->people) {
 		if (!IS_NPC(ch)) {
@@ -699,11 +693,8 @@ std::string koi_to_alt(const std::string &input) {
 // completely rewritten by Anton Gorev 05/08/2016 (kvirund@gmail.com) //
 // substitute appearances of 'pattern' with 'replacement' in string //
 // and return the # of replacements //
-int replace_str(const AbstractStringWriter::shared_ptr &writer,
-				const char *pattern,
-				const char *replacement,
-				int rep_all,
-				int max_size) {
+int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const char *pattern,
+				const char *replacement, int rep_all, int max_size) {
 	char *replace_buffer = nullptr;
 	CREATE(replace_buffer, max_size);
 	std::shared_ptr<char> guard(replace_buffer, free);
@@ -758,13 +749,14 @@ int replace_str(const AbstractStringWriter::shared_ptr &writer,
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCRIPTOR_DATA * /*d*/, size_t maxlen) {
+void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
+				 int mode, DescriptorData * /*d*/, size_t maxlen) {
 	size_t total_chars = 0;
-	int cap_next = TRUE, cap_next_next = FALSE;
+	int cap_next = true, cap_next_next = false;
 	const char *flow;
-	const char *start = NULL;
+	const char *start = nullptr;
 	// warning: do not edit messages with max_str's of over this value //
-	char formatted[MAX_STRING_LENGTH];
+	char formatted[kMaxStringLength];
 	char *pos = formatted;
 
 	flow = writer->get_string();
@@ -772,7 +764,7 @@ void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCR
 		return;
 	}
 
-	if (IS_SET(mode, FORMAT_INDENT)) {
+	if (IS_SET(mode, kFormatIndent)) {
 		strcpy(pos, "   ");
 		total_chars = 3;
 		pos += 3;
@@ -807,13 +799,13 @@ void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCR
 			}
 
 			if (cap_next_next) {
-				cap_next_next = FALSE;
-				cap_next = TRUE;
+				cap_next_next = false;
+				cap_next = true;
 			}
 
 			// this is so that if we stopped on a sentance .. we move off the sentance delim. //
 			while ((*flow == '.') || (*flow == '!') || (*flow == '?')) {
-				cap_next_next = TRUE;
+				cap_next_next = true;
 				flow++;
 			}
 
@@ -834,7 +826,7 @@ void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCR
 			total_chars += flow - start;
 			strncpy(pos, start, flow - start);
 			if (cap_next) {
-				cap_next = FALSE;
+				cap_next = false;
 				*pos = UPPER(*pos);
 			}
 			pos += flow - start;
@@ -887,15 +879,15 @@ const char *desc_count(long how_many, int of_what) {
 		return some_pads[2][of_what];
 }
 
-int check_moves(CHAR_DATA *ch, int how_moves) {
+int check_moves(CharacterData *ch, int how_moves) {
 	if (IS_IMMORTAL(ch) || IS_NPC(ch))
-		return (TRUE);
+		return (true);
 	if (GET_MOVE(ch) < how_moves) {
 		send_to_char("Вы слишком устали.\r\n", ch);
-		return (FALSE);
+		return (false);
 	}
 	GET_MOVE(ch) -= how_moves;
-	return (TRUE);
+	return (true);
 }
 
 int real_sector(int room) {
@@ -904,61 +896,61 @@ int real_sector(int room) {
 	if (ROOM_FLAGGED(room, ROOM_NOWEATHER))
 		return sector;
 	switch (sector) {
-		case SECT_INSIDE:
-		case SECT_CITY:
-		case SECT_FLYING:
-		case SECT_UNDERWATER:
-		case SECT_SECRET:
-		case SECT_STONEROAD:
-		case SECT_ROAD:
-		case SECT_WILDROAD: return sector;
+		case kSectInside:
+		case kSectCity:
+		case kSectOnlyFlying:
+		case kSectUnderwater:
+		case kSectSecret:
+		case kSectStoneroad:
+		case kSectRoad:
+		case kSectWildroad: return sector;
 			break;
-		case SECT_FIELD:
+		case kSectField:
 			if (world[room]->weather.snowlevel > 20)
-				return SECT_FIELD_SNOW;
+				return kSectFieldSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return SECT_FIELD_RAIN;
+				return kSectFieldRain;
 			else
-				return SECT_FIELD;
+				return kSectField;
 			break;
-		case SECT_FOREST:
+		case kSectForest:
 			if (world[room]->weather.snowlevel > 20)
-				return SECT_FOREST_SNOW;
+				return kSectForestSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return SECT_FOREST_RAIN;
+				return kSectForestRain;
 			else
-				return SECT_FOREST;
+				return kSectForest;
 			break;
-		case SECT_HILLS:
+		case kSectHills:
 			if (world[room]->weather.snowlevel > 20)
-				return SECT_HILLS_SNOW;
+				return kSectHillsSnow;
 			else if (world[room]->weather.rainlevel > 20)
-				return SECT_HILLS_RAIN;
+				return kSectHillsRain;
 			else
-				return SECT_HILLS;
+				return kSectHills;
 			break;
-		case SECT_MOUNTAIN:
+		case kSectMountain:
 			if (world[room]->weather.snowlevel > 20)
-				return SECT_MOUNTAIN_SNOW;
+				return kSectMountainSnow;
 			else
-				return SECT_MOUNTAIN;
+				return kSectMountain;
 			break;
-		case SECT_WATER_SWIM:
-		case SECT_WATER_NOSWIM:
+		case kSectWaterSwim:
+		case kSectWaterNoswim:
 			if (world[room]->weather.icelevel > 30)
-				return SECT_THICK_ICE;
+				return kSectThickIce;
 			else if (world[room]->weather.icelevel > 20)
-				return SECT_NORMAL_ICE;
+				return kSectNormalIce;
 			else if (world[room]->weather.icelevel > 10)
-				return SECT_THIN_ICE;
+				return kSectThinIce;
 			else
 				return sector;
 			break;
 	}
-	return SECT_INSIDE;
+	return kSectInside;
 }
 
-bool same_group(CHAR_DATA *ch, CHAR_DATA *tch) {
+bool same_group(CharacterData *ch, CharacterData *tch) {
 	if (!ch || !tch)
 		return false;
 
@@ -1005,7 +997,7 @@ bool same_group(CHAR_DATA *ch, CHAR_DATA *tch) {
 }
 
 // Проверка является комната рентой.
-bool is_rent(room_rnum room) {
+bool is_rent(RoomRnum room) {
 	// комната с флагом замок, но клан мертвый
 	if (ROOM_FLAGGED(room, ROOM_HOUSE)) {
 		const auto clan = Clan::GetClanByRoom(room);
@@ -1024,30 +1016,30 @@ bool is_rent(room_rnum room) {
 }
 
 // Проверка является комната почтой.
-int is_post(room_rnum room) {
+int is_post(RoomRnum room) {
 	for (const auto ch : world[room]->people) {
 		if (IS_NPC(ch)
 			&& IS_POSTKEEPER(ch)) {
-			return (TRUE);
+			return (true);
 		}
 	}
-	return (FALSE);
+	return (false);
 
 }
 
 // Форматирование вывода в соответствии с форматом act-a
 // output act format//
-char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vict_obj) {
-	const char *i = NULL;
+char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const void *vict_obj) {
+	const char *i = nullptr;
 	char *buf, *lbuf;
 	ubyte padis;
 	int stopbyte;
-//	CHAR_DATA *dg_victim = NULL;
+//	CharacterData *dg_victim = nullptr;
 
-	buf = (char *) malloc(MAX_STRING_LENGTH);
+	buf = (char *) malloc(kMaxStringLength);
 	lbuf = buf;
 
-	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++) {
+	for (stopbyte = 0; stopbyte < kMaxStringLength; stopbyte++) {
 		if (*orig == '$') {
 			switch (*(++orig)) {
 				case 'n':
@@ -1060,37 +1052,37 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 					break;
 				case 'N':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, GET_PAD((const CHAR_DATA *) vict_obj, 0));
+						CHECK_NULL(vict_obj, GET_PAD((const CharacterData *) vict_obj, 0));
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, GET_PAD((const CHAR_DATA *) vict_obj, padis));
+						CHECK_NULL(vict_obj, GET_PAD((const CharacterData *) vict_obj, padis));
 					}
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'm': i = HMHR(ch);
 					break;
 				case 'M':
 					if (vict_obj)
-						i = HMHR((const CHAR_DATA *) vict_obj);
+						i = HMHR((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, OMHR(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 's': i = HSHR(ch);
 					break;
 				case 'S':
 					if (vict_obj)
-						i = HSHR((const CHAR_DATA *) vict_obj);
+						i = HSHR((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, OSHR(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'e': i = HSSH(ch);
 					break;
 				case 'E':
 					if (vict_obj)
-						i = HSSH((const CHAR_DATA *) vict_obj);
+						i = HSSH((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, OSSH(obj));
 					break;
 
@@ -1104,12 +1096,12 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 					break;
 				case 'O':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, ((const OBJ_DATA *) vict_obj)->get_PName(0).c_str());
+						CHECK_NULL(vict_obj, ((const ObjectData *) vict_obj)->get_PName(0).c_str());
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, ((const OBJ_DATA *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
+						CHECK_NULL(vict_obj, ((const ObjectData *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
 					}
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 't': CHECK_NULL(obj, (const char *) obj);
@@ -1128,54 +1120,54 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 					break;
 				case 'A':
 					if (vict_obj)
-						i = GET_CH_SUF_6((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_6((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_6(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'g': i = GET_CH_SUF_1(ch);
 					break;
 				case 'G':
 					if (vict_obj)
-						i = GET_CH_SUF_1((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_1((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_1(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'y': i = GET_CH_SUF_5(ch);
 					break;
 				case 'Y':
 					if (vict_obj)
-						i = GET_CH_SUF_5((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_5((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_5(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'u': i = GET_CH_SUF_2(ch);
 					break;
 				case 'U':
 					if (vict_obj)
-						i = GET_CH_SUF_2((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_2((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_2(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'w': i = GET_CH_SUF_3(ch);
 					break;
 				case 'W':
 					if (vict_obj)
-						i = GET_CH_SUF_3((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_3((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_3(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'q': i = GET_CH_SUF_4(ch);
 					break;
 				case 'Q':
 					if (vict_obj)
-						i = GET_CH_SUF_4((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_4((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 //Polud Добавил склонение местоимения ваш(е,а,и)
 				case 'z':
@@ -1185,8 +1177,8 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 					break;
 				case 'Z':
 					if (vict_obj)
-						i = HYOU((const CHAR_DATA *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CHAR_DATA *) vict_obj));
+						i = HYOU((const CharacterData *) vict_obj);
+					else CHECK_NULL(vict_obj, HYOU((const CharacterData *) vict_obj));
 					break;
 //-Polud
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
@@ -1244,7 +1236,7 @@ int roundup(float fl) {
 
 // Функция проверяет может ли ch нести предмет obj и загружает предмет
 // в инвентарь игрока или в комнату, где игрок находится
-void can_carry_obj(CHAR_DATA *ch, OBJ_DATA *obj) {
+void can_carry_obj(CharacterData *ch, ObjectData *obj) {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не можете нести столько предметов.", ch);
 		obj_to_room(obj, ch->in_room);
@@ -1266,7 +1258,7 @@ void can_carry_obj(CHAR_DATA *ch, OBJ_DATA *obj) {
    (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
  */
-bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj) {
+bool CAN_CARRY_OBJ(const CharacterData *ch, const ObjectData *obj) {
 	// для анлимного лута мобами из трупов
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		return true;
@@ -1281,14 +1273,14 @@ bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj) {
 }
 
 // shapirus: проверка, игнорирет ли чар who чара whom
-bool ignores(CHAR_DATA *who, CHAR_DATA *whom, unsigned int flag) {
+bool ignores(CharacterData *who, CharacterData *whom, unsigned int flag) {
 	if (IS_NPC(who)) return false;
 
 	long ign_id;
 
 // имморталов не игнорит никто
 	if (IS_IMMORTAL(whom)) {
-		return FALSE;
+		return false;
 	}
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
@@ -1301,26 +1293,26 @@ bool ignores(CHAR_DATA *who, CHAR_DATA *whom, unsigned int flag) {
 	for (const auto &ignore : who->get_ignores()) {
 		if ((ignore->id == ign_id || ignore->id == -1)
 			&& IS_SET(ignore->mode, flag)) {
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-//Gorrah
-int valid_email(const char *address) {
+bool IsValidEmail(const char *address) {
 	int count = 0;
 	static std::string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
 	std::string addr = address;
 	std::string::size_type dog_pos = 0, pos = 0;
 
 	// Наличие запрещенных символов или кириллицы //
-	if (addr.find_first_of(special_symbols) != std::string::npos)
-		return 0;
+	if (addr.find_first_of(special_symbols) != std::string::npos) {
+		return false;
+	}
 	size_t size = addr.size();
 	for (size_t i = 0; i < size; i++) {
 		if (addr[i] <= ' ' || addr[i] >= 127) {
-			return 0;
+			return false;
 		}
 	}
 	// Собака должна быть только одна и на второй и далее позиции //
@@ -1329,17 +1321,20 @@ int valid_email(const char *address) {
 		++count;
 		++pos;
 	}
-	if (count != 1 || dog_pos == 0)
-		return 0;
+	if (count != 1 || dog_pos == 0) {
+		return false;
+	}
 	// Проверяем правильность синтаксиса домена //
 	// В доменной части должно быть как минимум 4 символа, считая собаку //
-	if (size - dog_pos <= 3)
-		return 0;
+	if (size - dog_pos <= 3) {
+		return false;
+	}
 	// Точка отсутствует, расположена сразу после собаки, или на последнем месте //
-	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == std::string::npos)
-		return 0;
+	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == std::string::npos) {
+		return false;
+	}
 
-	return 1;
+	return true;
 }
 
 /**
@@ -1395,14 +1390,14 @@ std::string time_format(int in_timer, int flag) {
 
 // * Для обрезания точек в карме при сете славы.
 void skip_dots(char **string) {
-	for (; **string && (strchr(" .", **string) != NULL); (*string)++);
+	for (; **string && (strchr(" .", **string) != nullptr); (*string)++);
 }
 
 // Return pointer to first occurrence in string ct in
-// cs, or NULL if not present.  Case insensitive
+// cs, or nullptr if not present.  Case insensitive
 const char *str_str(const char *cs, const char *ct) {
 	if (!cs || !ct) {
-		return NULL;
+		return nullptr;
 	}
 
 	while (*cs) {
@@ -1423,7 +1418,7 @@ const char *str_str(const char *cs, const char *ct) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 // remove ^M's from file output
@@ -1530,7 +1525,7 @@ size_t strl_cpy(char *dst, const char *src, size_t siz) {
 	return (s - src - 1);    // count does not include NUL
 }
 
-int CalcPcDamrollBonus(CHAR_DATA *ch) {
+int CalcPcDamrollBonus(CharacterData *ch) {
 	const short kMaxRemortForDamrollBonus = 35;
 	const short kRemortDamrollBonus[kMaxRemortForDamrollBonus + 1] =
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
@@ -1544,9 +1539,9 @@ int CalcPcDamrollBonus(CHAR_DATA *ch) {
 	return bonus;
 }
 
-int CalcNpcDamrollBonus(CHAR_DATA *ch) {
+int CalcNpcDamrollBonus(CharacterData *ch) {
 	int bonus = 0;
-	if (GET_REAL_LEVEL(ch) > STRONG_MOB_LEVEL) {
+	if (GET_REAL_LEVEL(ch) > kStrongMobLevel) {
 		bonus += GET_REAL_LEVEL(ch) * number(100, 200) / 100.0;
 	}
 	return bonus;
@@ -1555,7 +1550,7 @@ int CalcNpcDamrollBonus(CHAR_DATA *ch) {
 /**
 * еще есть рандом дамролы, в данный момент максимум 30d127
 */
-int GetRealDamroll(CHAR_DATA *ch) {
+int GetRealDamroll(CharacterData *ch) {
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
@@ -1564,7 +1559,7 @@ int GetRealDamroll(CHAR_DATA *ch) {
 	return std::clamp(GET_DR(ch) + GET_DR_ADD(ch) + 2 * bonus, -50, (IS_MORTIFIER(ch) ? 100 : 50) + 2 * bonus);
 }
 
-int GetAutoattackDamroll(CHAR_DATA *ch, int weapon_skill) {
+int GetAutoattackDamroll(CharacterData *ch, int weapon_skill) {
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
@@ -1589,7 +1584,7 @@ void add(int zone_vnum, long money) {
 	}
 }
 
-void print(CHAR_DATA *ch) {
+void print(CharacterData *ch) {
 	if (!IS_GRGOD(ch)) {
 		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;
@@ -1668,7 +1663,7 @@ void add(int zone_vnum, long exp) {
 	}
 }
 
-void print_gain(CHAR_DATA *ch) {
+void print_gain(CharacterData *ch) {
 	if (!PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		send_to_char(ch, "Пока в разработке.\r\n");
 		return;
@@ -1903,8 +1898,8 @@ int calc_str_req(int weight, int type) {
 	return str;
 }
 
-void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type) {
-	if (GET_POS(ch) == POS_DEAD)
+void message_str_need(CharacterData *ch, ObjectData *obj, int type) {
+	if (GET_POS(ch) == EPosition::kDead)
 		return;
 	int need_str = 0;
 	switch (type) {
@@ -1983,20 +1978,20 @@ size_t strlen_no_colors(const char *str) {
 }
 
 // Симуляция телла от моба
-void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg) {
-	char local_buf[MAX_INPUT_LENGTH];
+void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg) {
+	char local_buf[kMaxInputLength];
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
 		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 		return;
 	}
-	snprintf(local_buf, MAX_INPUT_LENGTH,
+	snprintf(local_buf, kMaxInputLength,
 			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
 	send_to_char(ch, "%s%s%s\r\n",
 				 CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
-int CAN_CARRY_N(const CHAR_DATA *ch) {
+int CAN_CARRY_N(const CharacterData *ch) {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_REAL_LEVEL(ch) / 2;
 	if (HAVE_FEAT(ch, JUGGLER_FEAT)) {
 		n += GET_REAL_LEVEL(ch) / 2;
@@ -2013,59 +2008,59 @@ int CAN_CARRY_N(const CHAR_DATA *ch) {
 bool ParseFilter::init_type(const char *str) {
 	if (is_abbrev(str, "свет")
 		|| is_abbrev(str, "light")) {
-		type = OBJ_DATA::ITEM_LIGHT;
+		type = ObjectData::ITEM_LIGHT;
 	} else if (is_abbrev(str, "свиток")
 		|| is_abbrev(str, "scroll")) {
-		type = OBJ_DATA::ITEM_SCROLL;
+		type = ObjectData::ITEM_SCROLL;
 	} else if (is_abbrev(str, "палочка")
 		|| is_abbrev(str, "wand")) {
-		type = OBJ_DATA::ITEM_WAND;
+		type = ObjectData::ITEM_WAND;
 	} else if (is_abbrev(str, "посох")
 		|| is_abbrev(str, "staff")) {
-		type = OBJ_DATA::ITEM_STAFF;
+		type = ObjectData::ITEM_STAFF;
 	} else if (is_abbrev(str, "оружие")
 		|| is_abbrev(str, "weapon")) {
-		type = OBJ_DATA::ITEM_WEAPON;
+		type = ObjectData::ITEM_WEAPON;
 	} else if (is_abbrev(str, "броня")
 		|| is_abbrev(str, "armor")) {
-		type = OBJ_DATA::ITEM_ARMOR;
+		type = ObjectData::ITEM_ARMOR;
 	} else if (is_abbrev(str, "напиток")
 		|| is_abbrev(str, "potion")) {
-		type = OBJ_DATA::ITEM_POTION;
+		type = ObjectData::ITEM_POTION;
 	} else if (is_abbrev(str, "прочее")
 		|| is_abbrev(str, "другое")
 		|| is_abbrev(str, "other")) {
-		type = OBJ_DATA::ITEM_OTHER;
+		type = ObjectData::ITEM_OTHER;
 	} else if (is_abbrev(str, "контейнер")
 		|| is_abbrev(str, "container")) {
-		type = OBJ_DATA::ITEM_CONTAINER;
+		type = ObjectData::ITEM_CONTAINER;
 	} else if (is_abbrev(str, "материал")
 		|| is_abbrev(str, "material")) {
-		type = OBJ_DATA::ITEM_MATERIAL;
+		type = ObjectData::ITEM_MATERIAL;
 	} else if (is_abbrev(str, "зачарованный")
 		|| is_abbrev(str, "enchant")) {
-		type = OBJ_DATA::ITEM_ENCHANT;
+		type = ObjectData::ITEM_ENCHANT;
 	} else if (is_abbrev(str, "емкость")
 		|| is_abbrev(str, "tank")) {
-		type = OBJ_DATA::ITEM_DRINKCON;
+		type = ObjectData::ITEM_DRINKCON;
 	} else if (is_abbrev(str, "книга")
 		|| is_abbrev(str, "book")) {
-		type = OBJ_DATA::ITEM_BOOK;
+		type = ObjectData::ITEM_BOOK;
 	} else if (is_abbrev(str, "руна")
 		|| is_abbrev(str, "rune")) {
-		type = OBJ_DATA::ITEM_INGREDIENT;
+		type = ObjectData::ITEM_INGREDIENT;
 	} else if (is_abbrev(str, "ингредиент")
 		|| is_abbrev(str, "ingradient")) {
-		type = OBJ_DATA::ITEM_MING;
+		type = ObjectData::ITEM_MING;
 	} else if (is_abbrev(str, "легкие")
 		|| is_abbrev(str, "легкая")) {
-		type = OBJ_DATA::ITEM_ARMOR_LIGHT;
+		type = ObjectData::ITEM_ARMOR_LIGHT;
 	} else if (is_abbrev(str, "средние")
 		|| is_abbrev(str, "средняя")) {
-		type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
+		type = ObjectData::ITEM_ARMOR_MEDIAN;
 	} else if (is_abbrev(str, "тяжелые")
 		|| is_abbrev(str, "тяжелая")) {
-		type = OBJ_DATA::ITEM_ARMOR_HEAVY;
+		type = ObjectData::ITEM_ARMOR_HEAVY;
 	} else {
 		return false;
 	}
@@ -2217,7 +2212,7 @@ bool ParseFilter::init_weap_class(const char *str) {
 		return false;
 	}
 
-	type = OBJ_DATA::ITEM_WEAPON;
+	type = ObjectData::ITEM_WEAPON;
 
 	return true;
 }
@@ -2389,16 +2384,16 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 }
 
 /// имя, метка для клан-хранов
-bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const {
+bool ParseFilter::check_name(ObjectData *obj, CharacterData *ch) const {
 	bool result = false;
-	char name_obj[MAX_STRING_LENGTH];
+	char name_obj[kMaxStringLength];
 	strcpy(name_obj, GET_OBJ_PNAME(obj, 0).c_str());
 	utils::remove_colors(name_obj);
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;
-	} else if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
+	} else if ((GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT)
 		&& GET_OBJ_RNUM(obj) >= 0
 		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str())) {
 		result = true;
@@ -2411,7 +2406,7 @@ bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const {
 	return result;
 }
 
-bool ParseFilter::check_type(OBJ_DATA *obj) const {
+bool ParseFilter::check_type(ObjectData *obj) const {
 	if (type < 0
 		|| type == GET_OBJ_TYPE(obj)) {
 		return true;
@@ -2420,17 +2415,17 @@ bool ParseFilter::check_type(OBJ_DATA *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_state(OBJ_DATA *obj) const {
+bool ParseFilter::check_state(ObjectData *obj) const {
 	bool result = false;
 	if (state < 0) {
 		result = true;
 	} else if (GET_OBJ_RNUM(obj) >= 0) {
 		int proto_tm = obj_proto.at(GET_OBJ_RNUM(obj))->get_timer();
 		if (proto_tm <= 0) {
-			char buf_[MAX_INPUT_LENGTH];
+			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
 					 proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
-			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 		} else {
 			int tm_pct;
 			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
@@ -2452,7 +2447,7 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const {
 	return result;
 }
 
-bool ParseFilter::check_wear(OBJ_DATA *obj) const {
+bool ParseFilter::check_wear(ObjectData *obj) const {
 	if (wear == EWearFlag::ITEM_WEAR_UNDEFINED
 		|| CAN_WEAR(obj, wear)) {
 		return true;
@@ -2460,7 +2455,7 @@ bool ParseFilter::check_wear(OBJ_DATA *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_weap_class(OBJ_DATA *obj) const {
+bool ParseFilter::check_weap_class(ObjectData *obj) const {
 	if (weap_class < 0 || weap_class == GET_OBJ_SKILL(obj)) {
 		return true;
 	}
@@ -2493,7 +2488,7 @@ bool ParseFilter::check_rent(int obj_price) const {
 	return result;
 }
 
-bool ParseFilter::check_remorts(OBJ_DATA *obj) const {
+bool ParseFilter::check_remorts(ObjectData *obj) const {
     int result;
     int obj_remorts = obj->get_auto_mort_req();
 
@@ -2517,7 +2512,7 @@ bool ParseFilter::check_remorts(OBJ_DATA *obj) const {
 
 
 // заколебали эти флаги... сравниваем num и все поля в flags
-bool CompareBits(const FLAG_DATA &flags, const char *names[], int affect) {
+bool CompareBits(const FlagData &flags, const char *names[], int affect) {
 	int i;
 	for (i = 0; i < 4; i++) {
 		int nr = 0;
@@ -2542,7 +2537,7 @@ bool CompareBits(const FLAG_DATA &flags, const char *names[], int affect) {
 	return 0;
 }
 
-bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const {
+bool ParseFilter::check_affect_weap(ObjectData *obj) const {
 	if (!affect_weap.empty()) {
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it) {
 			if (!CompareBits(obj->get_affect_flags(), weapon_affects, *it)) {
@@ -2553,13 +2548,13 @@ bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const {
 	return true;
 }
 
-std::string ParseFilter::show_obj_aff(OBJ_DATA *obj) {
+std::string ParseFilter::show_obj_aff(ObjectData *obj) {
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it) {
-			for (int i = 0; i < MAX_OBJ_AFFECT; ++i) {
+			for (int i = 0; i < kMaxObjAffect; ++i) {
 				if (obj->get_affected(i).location == *it) {
 					int mod = obj->get_affected(i).modifier;
-					char buf_[MAX_INPUT_LENGTH];
+					char buf_[kMaxInputLength];
 					sprinttype(obj->get_affected(i).location, apply_types, buf_);
 					for (int j = 0; *apply_negative[j] != '\n'; j++) {
 						if (!str_cmp(buf_, apply_negative[j])) {
@@ -2580,15 +2575,15 @@ std::string ParseFilter::show_obj_aff(OBJ_DATA *obj) {
 	return " ";
 }
 
-bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const {
+bool ParseFilter::check_affect_apply(ObjectData *obj) const {
 	bool result = true;
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end() && result; ++it) {
 			result = false;
-			for (int i = 0; i < MAX_OBJ_AFFECT; ++i) {
+			for (int i = 0; i < kMaxObjAffect; ++i) {
 				if (obj->get_affected(i).location == *it) {
 					int mod = obj->get_affected(i).modifier;
-					char buf_[MAX_INPUT_LENGTH];
+					char buf_[kMaxInputLength];
 					sprinttype(obj->get_affected(i).location, apply_types, buf_);
 					for (int j = 0; *apply_negative[j] != '\n'; j++) {
 						if (!str_cmp(buf_, apply_negative[j])) {
@@ -2605,7 +2600,7 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const {
 	return result;
 }
 
-bool ParseFilter::check_affect_extra(OBJ_DATA *obj) const {
+bool ParseFilter::check_affect_extra(ObjectData *obj) const {
 	if (!affect_extra.empty()) {
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it) {
 			if (!CompareBits(GET_OBJ_EXTRA(obj), extra_bits, *it)) {
@@ -2616,7 +2611,7 @@ bool ParseFilter::check_affect_extra(OBJ_DATA *obj) const {
 	return true;
 }
 
-bool ParseFilter::check_owner(exchange_item_data *exch_obj) const {
+bool ParseFilter::check_owner(ExchangeItem *exch_obj) const {
 	if (owner.empty()
 		|| isname(owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(exch_obj)))) {
 		return true;
@@ -2624,7 +2619,7 @@ bool ParseFilter::check_owner(exchange_item_data *exch_obj) const {
 	return false;
 }
 
-bool ParseFilter::check_realtime(exchange_item_data *exch_obj) const {
+bool ParseFilter::check_realtime(ExchangeItem *exch_obj) const {
 	bool result = false;
 
 	if (new_timesign == '\0')
@@ -2640,7 +2635,7 @@ bool ParseFilter::check_realtime(exchange_item_data *exch_obj) const {
 	return result;
 }
 
-bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch) {
+bool ParseFilter::check(ObjectData *obj, CharacterData *ch) {
 	if (check_name(obj, ch)
 		&& check_type(obj)
 		&& check_state(obj)
@@ -2657,8 +2652,8 @@ bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch) {
 	return false;
 }
 
-bool ParseFilter::check(exchange_item_data *exch_obj) {
-	OBJ_DATA *obj = GET_EXCHANGE_ITEM(exch_obj);
+bool ParseFilter::check(ExchangeItem *exch_obj) {
+	ObjectData *obj = GET_EXCHANGE_ITEM(exch_obj);
 	if (check_name(obj)
 		&& check_owner(exch_obj)
 			//&& (owner_id == -1 || owner_id == GET_EXCHANGE_ITEM_SELLERID(exch_obj))
@@ -2694,13 +2689,13 @@ const char *print_obj_state(int tm_pct) {
 }
 
 void sanity_check(void) {
-	int ok = TRUE;
+	int ok = true;
 
 	// * If any line is false, 'ok' will become false also.
-	ok &= (test_magic(buf) == MAGIC_NUMBER || test_magic(buf) == '\0');
-	ok &= (test_magic(buf1) == MAGIC_NUMBER || test_magic(buf1) == '\0');
-	ok &= (test_magic(buf2) == MAGIC_NUMBER || test_magic(buf2) == '\0');
-	ok &= (test_magic(arg) == MAGIC_NUMBER || test_magic(arg) == '\0');
+	ok &= (test_magic(buf) == kMagicNumber || test_magic(buf) == '\0');
+	ok &= (test_magic(buf1) == kMagicNumber || test_magic(buf1) == '\0');
+	ok &= (test_magic(buf2) == kMagicNumber || test_magic(buf2) == '\0');
+	ok &= (test_magic(arg) == kMagicNumber || test_magic(arg) == '\0');
 
 	/*
 	* This isn't exactly the safest thing to do (referencing known bad memory)
@@ -2718,11 +2713,11 @@ void sanity_check(void) {
 	}
 }
 
-short GET_REAL_LEVEL(const CHAR_DATA *ch)
+short GET_REAL_LEVEL(const CharacterData *ch)
 {
 	// обрезаем максимальный уровень мобов
 	if (IS_NPC(ch)) {
-		return std::clamp(ch->get_level() + ch->get_level_add(), 1, static_cast<int>(MAX_MOB_LEVEL));
+		return std::clamp(ch->get_level() + ch->get_level_add(), 1, static_cast<int>(kMaxMobLevel));
 	}
 
 	// игнорируем get_level_add для иммов
@@ -2730,30 +2725,30 @@ short GET_REAL_LEVEL(const CHAR_DATA *ch)
 		return ch->get_level();
 	}
 
-	return std::clamp(ch->get_level() + ch->get_level_add(), 0, LVL_IMMORT - 1);
+	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLevelImmortal - 1);
 }
 
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> ch)
+short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> ch)
 {
 	return GET_REAL_LEVEL(ch.get());
 }
 
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> &ch)
+short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> &ch)
 {
 	return GET_REAL_LEVEL(ch.get());
 }
 
-short GET_REAL_REMORT(const CHAR_DATA *ch)
+short GET_REAL_REMORT(const CharacterData *ch)
 {
-	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, MAX_REMORT);
+	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> ch)
+short GET_REAL_REMORT(const std::shared_ptr<CharacterData> ch)
 {
 	return GET_REAL_REMORT(ch.get());
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch)
+short GET_REAL_REMORT(const std::shared_ptr<CharacterData> &ch)
 {
 	return GET_REAL_REMORT(ch.get());
 }
@@ -3261,7 +3256,7 @@ void CCheckTable::check() const
 void koi_to_utf8(char *str_i, char *str_o)
 {
 	iconv_t cd;
-	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t len_i, len_o = kMaxSockBuf * 6;
 	size_t i;
 
 	if ((cd = iconv_open("UTF-8","KOI8-R")) == (iconv_t) - 1)
@@ -3287,7 +3282,7 @@ void koi_to_utf8(char *str_i, char *str_o)
 void utf8_to_koi(char *str_i, char *str_o)
 {
 	iconv_t cd;
-	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t len_i, len_o = kMaxSockBuf * 6;
 	size_t i;
 
 	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)

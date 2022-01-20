@@ -14,19 +14,27 @@
 #include <vector>
 #include <ctime>
 
-class CHAR_DATA;    // to avoid inclusion of "char.hpp"
-class OBJ_DATA;        // to avoid inclusion of "obj.hpp"
+class CharacterData;    // to avoid inclusion of "char.hpp"
+class ObjectData;        // to avoid inclusion of "obj.hpp"
 
-int exchange(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int exchange(CharacterData *ch, void *me, int cmd, char *argument);
 
-typedef struct exchange_item_data EXCHANGE_ITEM_DATA;
+struct ExchangeItem {
+	int lot_id;        //Номер лота
+	int seller_id;        //Номер продавца
+	int obj_cost;        //цена лота
+	time_t time; // время
+	char *comment;        //коментарий
+	ObjectData *obj;        //собственно предмет
+	ExchangeItem *next;    //для списка объектов базара
+};
 
-extern EXCHANGE_ITEM_DATA *exchange_item_list;
+extern ExchangeItem *exchange_item_list;
 extern std::vector<bool> lot_usage;
 
 #define EXCHANGE_AUTOSAVETIME 300    //Кол-во секунд между автосохранениями Базара (0 для отключения)
 #define EXCHANGE_AUTOSAVEBACKUPTIME 750    //Кол-во секунд между автосохранениями Базара (0 для отключения)
-#define EXCHANGE_SAVEONEVERYOPERATION FALSE    //Сохранять базар после каждой операции
+#define EXCHANGE_SAVEONEVERYOPERATION false    //Сохранять базар после каждой операции
 #define EXCHANGE_DATABASE_FILE LIB_PLRSTUFF"exchange.db"
 #define EXCHANGE_DATABASE_BACKUPFILE LIB_PLRSTUFF"exchange.backup"
 #define EX_NEW_ITEM_CHAR '#'
@@ -46,18 +54,8 @@ const int EXCHANGE_MIN_CHAR_LEV = 8;
 #define GET_EXCHANGE_ITEM(item)  ((item)->obj)
 #define GET_EXCHANGE_ITEM_TIME(item)  ((item)->time)
 
-void extract_exchange_item(EXCHANGE_ITEM_DATA *item);
-void check_exchange(OBJ_DATA *obj);
-
-struct exchange_item_data {
-	int lot_id;        //Номер лота
-	int seller_id;        //Номер продавца
-	int obj_cost;        //цена лота
-	time_t time; // время
-	char *comment;        //коментарий
-	OBJ_DATA *obj;        //собственно предмет
-	EXCHANGE_ITEM_DATA *next;    //для списка объектов базара
-};
+void extract_exchange_item(ExchangeItem *item);
+void check_exchange(ObjectData *obj);
 
 void exchange_database_save(bool backup = false);
 

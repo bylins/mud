@@ -6,7 +6,7 @@
 #include "privilege.h"
 #include "magic/spells_info.h"
 
-void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_mixture(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (IS_NPC(ch))
 		return;
 	if (IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::USE_SKILLS)) {
@@ -14,9 +14,9 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	CHAR_DATA *tch;
-	OBJ_DATA *tobj;
-	ROOM_DATA *troom;
+	CharacterData *tch;
+	ObjectData *tobj;
+	RoomData *troom;
 	char *s, *t;
 	int spellnum, target = 0;
 
@@ -29,12 +29,12 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("Что вы хотите смешать?\r\n", ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
+	s = strtok(nullptr, "'*!");
 	if (!s) {
 		send_to_char("Название вызываемой магии смеси должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	t = strtok(NULL, "\0");
+	t = strtok(nullptr, "\0");
 
 	spellnum = FixNameAndFindSpellNum(s);
 
@@ -51,10 +51,10 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!check_recipe_values(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE))
+	if (!check_recipe_values(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, false))
 		return;
 
-	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE)) {
+	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, false)) {
 		if (subcmd == SCMD_ITEMS)
 			send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		else if (subcmd == SCMD_RUNES)
@@ -63,7 +63,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	// Find the target
-	if (t != NULL)
+	if (t != nullptr)
 		one_argument(t, arg);
 	else
 		*arg = '\0';
@@ -99,9 +99,9 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, TRUE, tch)) {
+	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, true, tch)) {
 		if (!CalculateCastSuccess(ch, tch, SAVING_NONE, spellnum)) {
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			if (!tch || !SendSkillMessages(0, ch, tch, spellnum)) {
 				if (subcmd == SCMD_ITEMS)
 					send_to_char("Вы неправильно смешали ингредиенты!\r\n", ch);
@@ -111,7 +111,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			if (CallMagic(ch, tch, tobj, world[ch->in_room], spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
-					WAIT_STATE(ch, PULSE_VIOLENCE);
+					WAIT_STATE(ch, kPulseViolence);
 			}
 		}
 	}

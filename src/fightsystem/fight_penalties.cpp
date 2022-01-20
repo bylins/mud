@@ -1,6 +1,6 @@
 #include "fight_penalties.h"
 
-#include "chars/char.h"
+#include "entities/char.h"
 
 int GroupPenaltyCalculator::get() const {
 	const bool leader_is_npc = IS_NPC(m_leader);
@@ -16,9 +16,9 @@ int GroupPenaltyCalculator::get() const {
 	}
 
 	for (auto f = m_leader->followers; f; f = f->next) {
-		const bool follower_is_npc = IS_NPC(f->follower);
-		const bool follower_is_in_room = AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(m_killer);
+		const bool follower_is_npc = IS_NPC(f->ch);
+		const bool follower_is_in_room = AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(m_killer);
 
 		if (follower_is_npc
 			|| !follower_is_in_room) {
@@ -26,7 +26,7 @@ int GroupPenaltyCalculator::get() const {
 		}
 
 		int penalty = 0;
-		if (penalty_by_leader(f->follower, penalty)) {
+		if (penalty_by_leader(f->ch, penalty)) {
 			if (0 < penalty) {
 				return penalty;
 			}
@@ -36,7 +36,7 @@ int GroupPenaltyCalculator::get() const {
 	return 0;
 }
 
-bool GroupPenaltyCalculator::penalty_by_leader(const CHAR_DATA *player, int &penalty) const {
+bool GroupPenaltyCalculator::penalty_by_leader(const CharacterData *player, int &penalty) const {
 	const int player_remorts = static_cast<int>(GET_REAL_REMORT(player));
 	const int player_class = static_cast<int>(GET_CLASS(player));
 	const int player_level = GET_REAL_LEVEL(player);
@@ -59,7 +59,7 @@ bool GroupPenaltyCalculator::penalty_by_leader(const CHAR_DATA *player, int &pen
 	}
 
 	if (0 > player_remorts
-		|| player_remorts > MAX_REMORT) {
+		|| player_remorts > kMaxRemort) {
 		log("LOGIC ERROR: wrong number of remorts: %d for player [%s]",
 			player_remorts,
 			player->get_name().c_str());

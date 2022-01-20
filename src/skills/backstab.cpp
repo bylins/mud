@@ -12,7 +12,7 @@
 using namespace FightSystem;
 
 // делегат обработки команды заколоть
-void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_BACKSTAB) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -27,13 +27,13 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING) {
+	if (GET_POS(ch) < EPosition::kFight) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
-	CHAR_DATA *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharacterData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 	if (!vict) {
 		send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;
@@ -73,7 +73,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // *********************** BACKSTAB VICTIM
 // Проверка на стаб в бою происходит до вызова этой функции
-void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_backstab(CharacterData *ch, CharacterData *vict) {
 
 	if (ch->isHorsePrevents())
 		return;
@@ -84,9 +84,9 @@ void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
 		return;
 
 	if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch)) {
-		act("Вы заметили, что $N попытал$u вас заколоть!", FALSE, vict, nullptr, ch, TO_CHAR);
-		act("$n заметил$g вашу попытку заколоть $s!", FALSE, vict, nullptr, ch, TO_VICT);
-		act("$n заметил$g попытку $N1 заколоть $s!", FALSE, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, TO_CHAR);
+		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, TO_VICT);
+		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_hit(vict, ch);
 		return;
 	}

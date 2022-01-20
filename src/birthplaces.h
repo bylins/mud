@@ -16,9 +16,9 @@ const int BIRTH_PLACE_UNDEFINED = -1;
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
-#include <pugixml.h>
+#include <utils/pugixml.h>
 
 #include <vector>
 

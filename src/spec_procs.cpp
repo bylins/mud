@@ -14,10 +14,10 @@
 
 #include "act_movement.h"
 #include "utils/utils_char_obj.inl"
-#include "chars/char_player.h"
-#include "chars/mount.h"
-#include "chars/player_races.h"
-#include "chars/world.characters.h"
+#include "entities/char_player.h"
+#include "game_mechanics/mount.h"
+#include "entities/player_races.h"
+#include "entities/world_characters.h"
 #include "cmd/follow.h"
 #include "depot.h"
 #include "fightsystem/fight.h"
@@ -31,39 +31,39 @@
 #include "skills_info.h"
 
 //   external vars
-extern DESCRIPTOR_DATA *descriptor_list;
-extern INDEX_DATA *mob_index;
-extern TIME_INFO_DATA time_info;
+extern DescriptorData *descriptor_list;
+extern IndexData *mob_index;
+extern TimeInfoData time_info;
 extern struct spell_create_type spell_create[];
 extern int guild_info[][3];
 
-typedef int special_f(CHAR_DATA *, void *, int, char *);
+typedef int special_f(CharacterData *, void *, int, char *);
 
 // extern functions
-void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int find_first_step(room_rnum src, room_rnum target, CHAR_DATA *ch);
-void ASSIGNMASTER(mob_vnum mob, special_f, int learn_info);
+void do_drop(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_say(CharacterData *ch, char *argument, int cmd, int subcmd);
+int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch);
+void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
 
 // local functions
 char *how_good(int skill_level, int skill_cap);
 int feat_slot_lvl(int remort, int slot_for_remort, int slot);
-void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);
-void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter = NULL);
-void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells);
-int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int dump(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int mayor(CHAR_DATA *ch, void *me, int cmd, char *argument);
-//int thief(CHAR_DATA *ch, void *me, int cmd, char* argument);
-int magic_user(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild_guard(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int fido(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int janitor(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int cityguard(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int pet_shops(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int bank(CHAR_DATA *ch, void *me, int cmd, char *argument);
+void list_feats(CharacterData *ch, CharacterData *vict, bool all_feats);
+void list_skills(CharacterData *ch, CharacterData *vict, const char *filter = nullptr);
+void list_spells(CharacterData *ch, CharacterData *vict, int all_spells);
+int guild_mono(CharacterData *ch, void *me, int cmd, char *argument);
+int guild_poly(CharacterData *ch, void *me, int cmd, char *argument);
+int guild(CharacterData *ch, void *me, int cmd, char *argument);
+int dump(CharacterData *ch, void *me, int cmd, char *argument);
+int mayor(CharacterData *ch, void *me, int cmd, char *argument);
+//int thief(CharacterData *ch, void *me, int cmd, char* argument);
+int magic_user(CharacterData *ch, void *me, int cmd, char *argument);
+int guild_guard(CharacterData *ch, void *me, int cmd, char *argument);
+int fido(CharacterData *ch, void *me, int cmd, char *argument);
+int janitor(CharacterData *ch, void *me, int cmd, char *argument);
+int cityguard(CharacterData *ch, void *me, int cmd, char *argument);
+int pet_shops(CharacterData *ch, void *me, int cmd, char *argument);
+int bank(CharacterData *ch, void *me, int cmd, char *argument);
 
 // ********************************************************************
 // *  Special procedures for mobiles                                  *
@@ -140,7 +140,7 @@ extern int prac_params[4][NUM_PLAYER_CLASSES];
 
 int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	int result = 0;
-	for (result = 1; result < LVL_IMMORT; result++) {
+	for (result = 1; result < kLevelImmortal; result++) {
 		if (result * (5 + remort / slot_for_remort) / 28 == slot) {
 			break;
 		}
@@ -165,16 +165,16 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 Примечание: удаление реализовано с целью сделать возможнным изменение слота в процессе игры.
 Лишние способности у персонажей удалятся автоматически при использовании команды "способности".
 */
-void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
+void list_feats(CharacterData *ch, CharacterData *vict, bool all_feats) {
 	int i = 0, j = 0, sortpos, slot, max_slot = 0;
-	char msg[MAX_STRING_LENGTH];
+	char msg[kMaxStringLength];
 	bool sfound;
 
 	//Найдем максимальный слот, который вобще может потребоваться данному персонажу на текущем морте
 	max_slot = MAX_ACC_FEAT(ch);
 	char **names = new char *[max_slot];
 	for (int k = 0; k < max_slot; k++)
-		names[k] = new char[MAX_STRING_LENGTH];
+		names[k] = new char[kMaxStringLength];
 
 	if (all_feats) {
 		sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");
@@ -203,7 +203,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 						 " Пометкой [И] выделены уже изученные способности.\r\n"
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
-		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++) {
+		for (sortpos = 1; sortpos < kMaxFeats; sortpos++) {
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 				&& !PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos))
 				continue;
@@ -231,7 +231,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 		}
 		sprintf(buf1, "--------------------------------------");
 		for (i = 0; i < max_slot; i++) {
-			if (strlen(buf1) >= MAX_STRING_LENGTH - 60) {
+			if (strlen(buf1) >= kMaxStringLength - 60) {
 				strcat(buf1, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 				break;
 			}
@@ -255,8 +255,8 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
-	for (sortpos = 1; sortpos < MAX_FEATS; sortpos++) {
-		if (strlen(buf2) >= MAX_STRING_LENGTH - 60) {
+	for (sortpos = 1; sortpos < kMaxFeats; sortpos++) {
+		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;
 		}
@@ -303,13 +303,13 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 				j++;
 			} else {
 				slot = FEAT_SLOT(ch, sortpos);
-				sfound = FALSE;
+				sfound = false;
 				while (slot < max_slot) {
 					if (*names[slot] == '\0') {
 						sprintf(names[slot], " %s%-2d%s) ",
 								CCGRN(vict, C_NRM), slot + 1, CCNRM(vict, C_NRM));
 						strcat(names[slot], buf);
-						sfound = TRUE;
+						sfound = true;
 						break;
 					} else
 						slot++;
@@ -319,7 +319,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 					//	чтобы можно было менять слоты на лету и чтобы не читерили :)
 					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
 							feat_info[sortpos].name, GET_NAME(ch));
-					mudlog(msg, BRF, LVL_IMPL, SYSLOG, TRUE);
+					mudlog(msg, BRF, kLevelImplementator, SYSLOG, true);
 					UNSET_FEAT(ch, sortpos);
 				}
 			}
@@ -345,7 +345,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 	delete[] names;
 }
 
-void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter/* = NULL*/) {
+void list_skills(CharacterData *ch, CharacterData *vict, const char *filter/* = nullptr*/) {
 	int i = 0;
 
 	sprintf(buf, "Вы владеете следующими умениями:\r\n");
@@ -362,7 +362,7 @@ void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter/* = NULL*/) 
 			}
 			// filter out skill that does not correspond to filter condition
 			if (filter
-				&& NULL == strstr(skill_info[sortpos].name, filter)) {
+				&& nullptr == strstr(skill_info[sortpos].name, filter)) {
 				continue;
 			}
 			switch (sortpos) {
@@ -411,7 +411,7 @@ void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter/* = NULL*/) 
 	}
 
 	if (!i) {
-		if (NULL == filter) {
+		if (nullptr == filter) {
 			sprintf(buf2 + strlen(buf2), "Нет умений.\r\n");
 		} else {
 			sprintf(buf2 + strlen(buf2), "Нет умений, удовлетворяющих фильтру.\r\n");
@@ -421,7 +421,7 @@ void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter/* = NULL*/) 
 		size_t buf2_length = strlen(buf2);
 		for (skills_t::const_iterator i = skills.begin(); i != skills.end(); ++i) {
 			// why 60?
-			if (buf2_length + i->length() >= MAX_STRING_LENGTH - 60) {
+			if (buf2_length + i->length() >= kMaxStringLength - 60) {
 				strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 				break;
 			}
@@ -470,12 +470,12 @@ const char *spells_color(int spellnum) {
 /* Параметр all_spells введен для того чтобы предметные кастеры
    смогли посмотреть заклинания которые они могут колдовать
    на своем уровне, но на которые у них нет необходимых предметов
-   при параметре TRUE */
+   при параметре true */
 #include "classes/class_spell_slots.h"
-void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
+void list_spells(CharacterData *ch, CharacterData *vict, int all_spells) {
 	using PlayerClass::slot_for_char;
 
-	char names[MAX_SLOT][MAX_STRING_LENGTH];
+	char names[MAX_SLOT][kMaxStringLength];
 	std::string time_str;
 	int slots[MAX_SLOT], i, max_slot = 0, slot_num, is_full, gcount = 0, can_cast = 1;
 
@@ -498,7 +498,7 @@ void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
 		if (!spell_info[i].name || *spell_info[i].name == '!')
 			continue;
 
-		if ((GET_SPELL_TYPE(ch, i) & 0xFF) == SPELL_RUNES && !check_recipe_items(ch, i, SPELL_RUNES, FALSE)) {
+		if ((GET_SPELL_TYPE(ch, i) & 0xFF) == SPELL_RUNES && !check_recipe_items(ch, i, SPELL_RUNES, false)) {
 			if (all_spells) {
 				can_cast = 0;
 			} else {
@@ -615,7 +615,7 @@ struct guild_poly_type **guild_poly_info = nullptr;
 
 void init_guilds(void) {
 	FILE *magic;
-	char name[MAX_INPUT_LENGTH],
+	char name[kMaxInputLength],
 		line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
 	int i, spellnum, skillnum, featnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
 	std::unique_ptr<struct guild_poly_type, decltype(free) *> poly_guild(nullptr, free);
@@ -731,7 +731,7 @@ void init_guilds(void) {
 				skillnum = FixNameAndFindSkillNum(line1);
 			}
 
-			if ((featnum = atoi(line1)) == 0 || featnum >= MAX_FEATS) {
+			if ((featnum = atoi(line1)) == 0 || featnum >= kMaxFeats) {
 				if ((pos = strchr(line1, '.')))
 					*pos = ' ';
 				featnum = find_feat_num(line1);
@@ -741,8 +741,8 @@ void init_guilds(void) {
 				log("Unknown skill, spell or feat for monoguild");
 				graceful_exit(1);
 			}
-			if ((level = atoi(line2)) == 0 || level >= LVL_IMMORT) {
-				log("Use 1-%d level for guilds", LVL_IMMORT);
+			if ((level = atoi(line2)) == 0 || level >= kLevelImmortal) {
+				log("Use 1-%d level for guilds", kLevelImmortal);
 				graceful_exit(1);
 			}
 
@@ -798,7 +798,7 @@ void init_guilds(void) {
 				skillnum = FixNameAndFindSkillNum(line5);
 			}
 
-			if ((featnum = atoi(line5)) == 0 || featnum >= MAX_FEATS) {
+			if ((featnum = atoi(line5)) == 0 || featnum >= kMaxFeats) {
 				if ((pos = strchr(line5, '.')))
 					*pos = ' ';
 
@@ -810,8 +810,8 @@ void init_guilds(void) {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
 				graceful_exit(1);
 			}
-			if ((level = atoi(line6)) == 0 || level >= LVL_IMMORT) {
-				log("Use 1-%d level for guilds", LVL_IMMORT);
+			if ((level = atoi(line6)) == 0 || level >= kLevelImmortal) {
+				log("Use 1-%d level for guilds", kLevelImmortal);
 				graceful_exit(1);
 			}
 			ptr->spell_no = MAX(0, spellnum);
@@ -827,9 +827,9 @@ void init_guilds(void) {
 
 #define SCMD_LEARN 1
 
-int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
-	int command = 0, gcount = 0, info_num = 0, found = FALSE, sfound = FALSE, i, bits;
-	CHAR_DATA *victim = (CHAR_DATA *) me;
+int guild_mono(CharacterData *ch, void *me, int cmd, char *argument) {
+	int command = 0, gcount = 0, info_num = 0, found = false, sfound = false, i, bits;
+	CharacterData *victim = (CharacterData *) me;
 
 	if (IS_NPC(ch)) {
 		return 0;
@@ -845,7 +845,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	info_num = mob_index[victim->get_rnum()].stored;
 	if (info_num <= 0
 		|| info_num > GUILDS_MONO_USED) {
-		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", false, ch, 0, victim, TO_CHAR);
 		return (1);
 	}
 
@@ -853,7 +853,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	if (!IS_BITS(guild_mono_info[info_num].classes, GET_CLASS(ch))
 		|| !IS_BITS(guild_mono_info[info_num].races, GET_RACE(ch))
 		|| !IS_BITS(guild_mono_info[info_num].religion, GET_RELIGION(ch))) {
-		act("$N сказал$g : '$n, я не учу таких, как ты.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N сказал$g : '$n, я не учу таких, как ты.'", false, ch, 0, victim, TO_CHAR);
 		return 1;
 	}
 
@@ -863,7 +863,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 		case SCMD_LEARN:
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -876,7 +876,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 						&& IsAbleToGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
-						found = TRUE;
+						found = true;
 					}
 
 					if (!(bits = -2 * bits)
@@ -890,7 +890,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 							|| IS_GRGOD(ch))) {
 						gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
-						found = TRUE;
+						found = true;
 					}
 
 					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
@@ -899,12 +899,12 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 						&& can_get_feat(ch, feat_no)) {
 						gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
-						found = TRUE;
+						found = true;
 					}
 				}
 
 				if (!found) {
-					act("$N сказал$G : 'Похоже, твои знания полнее моих.'", FALSE, ch, 0, victim, TO_CHAR);
+					act("$N сказал$G : 'Похоже, твои знания полнее моих.'", false, ch, 0, victim, TO_CHAR);
 					return (1);
 				} else {
 					send_to_char(buf, ch);
@@ -913,7 +913,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			}
 
 			if (!strn_cmp(argument, "все", strlen(argument)) || !strn_cmp(argument, "all", strlen(argument))) {
-				for (i = 0, found = FALSE, sfound = TRUE;
+				for (i = 0, found = false, sfound = true;
 					 (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch))
 						continue;
@@ -924,9 +924,9 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 						&& !ch->get_trained_skill(skill_no))    // sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 					{
 						//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
-						// act(buf,FALSE,ch,0,victim,TO_CHAR);
+						// act(buf,false,ch,0,victim,TO_CHAR);
 						// ch->get_skill(skill_no) = 10;
-						sfound = TRUE;
+						sfound = true;
 					}
 
 					if (!(bits = -2 * bits) || bits == SPELL_TEMP) {
@@ -938,7 +938,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 						&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
 						gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 										  CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
-						act(buf, FALSE, ch, 0, victim, TO_CHAR);
+						act(buf, false, ch, 0, victim, TO_CHAR);
 						if (IS_SET(bits, SPELL_KNOW))
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_KNOW);
 						if (IS_SET(bits, SPELL_ITEMS))
@@ -957,14 +957,14 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
 							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 						}
-						found = TRUE;
+						found = true;
 					}
 
 					const int feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
 					if (feat_no > 0
-						&& feat_no < MAX_FEATS) {
+						&& feat_no < kMaxFeats) {
 						if (!HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
-							sfound = TRUE;
+							sfound = true;
 						}
 					}
 				}
@@ -972,19 +972,19 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 				if (sfound) {
 					act("$N сказал$G : \r\n"
 						"'$n, к сожалению, это может сильно затруднить твое постижение умений.'\r\n"
-						"'Выбери лишь самые необходимые тебе умения.'", FALSE, ch, 0, victim, TO_CHAR);
+						"'Выбери лишь самые необходимые тебе умения.'", false, ch, 0, victim, TO_CHAR);
 				}
 
 				if (!found) {
-					act("$N ничему новому вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
+					act("$N ничему новому вас не научил$G.", false, ch, 0, victim, TO_CHAR);
 				}
 
 				return (1);
 			}
 
 			const int feat_no = find_feat_num(argument);
-			if ((feat_no > 0 && feat_no < MAX_FEATS)) {
-				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
+			if ((feat_no > 0 && feat_no < kMaxFeats)) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -992,25 +992,25 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 					if (feat_no == (guild_mono_info[info_num].learn_info + i)->feat_no) {
 						if (HAVE_FEAT(ch, feat_no)) {
 							act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'",
-								FALSE,
+								false,
 								ch,
 								0,
 								victim,
 								TO_CHAR);
 						} else if (!can_get_feat(ch, feat_no)) {
-							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, TO_CHAR);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
 									CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
-							act(buf, FALSE, ch, 0, victim, TO_CHAR);
+							act(buf, false, ch, 0, victim, TO_CHAR);
 							SET_FEAT(ch, feat_no);
 						}
-						found = TRUE;
+						found = true;
 					}
 				}
 
 				if (!found) {
-					act("$N сказал$G : 'Мне не ведомо такое мастерство.'", FALSE, ch, 0, victim, TO_CHAR);
+					act("$N сказал$G : 'Мне не ведомо такое мастерство.'", false, ch, 0, victim, TO_CHAR);
 				}
 
 				return (1);
@@ -1019,7 +1019,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			const ESkill skill_no = FixNameAndFindSkillNum(argument);
 			if ((SKILL_INVALID != skill_no
 				&& skill_no <= MAX_SKILL_NUM)) {
-				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -1027,25 +1027,25 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 					if (skill_no == (guild_mono_info[info_num].learn_info + i)->skill_no) {
 						if (ch->get_trained_skill(skill_no)) {
 							act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'",
-								FALSE,
+								false,
 								ch,
 								0,
 								victim,
 								TO_CHAR);
 						} else if (!IsAbleToGetSkill(ch, skill_no)) {
-							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, TO_CHAR);
 						} else {
 							sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
 									CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
-							act(buf, FALSE, ch, 0, victim, TO_CHAR);
+							act(buf, false, ch, 0, victim, TO_CHAR);
 							ch->set_skill(skill_no, 10);
 						}
-						found = TRUE;
+						found = true;
 					}
 				}
 
 				if (!found) {
-					act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+					act("$N сказал$G : 'Мне не ведомо такое умение.'", false, ch, 0, victim, TO_CHAR);
 				}
 
 				return (1);
@@ -1054,7 +1054,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			const int spell_no = FixNameAndFindSpellNum(argument);
 			if (spell_no > 0
 				&& spell_no <= SPELLS_COUNT) {
-				for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -1087,11 +1087,11 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 							} else {
 								strcpy(buf, "Вы уже умеете это.");
 							}
-							act(buf, FALSE, ch, 0, victim, TO_CHAR);
+							act(buf, false, ch, 0, victim, TO_CHAR);
 						} else {
 							sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 									CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
-							act(buf, FALSE, ch, 0, victim, TO_CHAR);
+							act(buf, false, ch, 0, victim, TO_CHAR);
 							if (IS_SET(bits, SPELL_KNOW)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_KNOW);
 							}
@@ -1114,27 +1114,27 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 								ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 							}
 						}
-						found = TRUE;
+						found = true;
 					}
 				}
 
 				if (!found) {
-					act("$N сказал$G : 'Я и сам$G не знаю такой магии.'", FALSE, ch, 0, victim, TO_CHAR);
+					act("$N сказал$G : 'Я и сам$G не знаю такой магии.'", false, ch, 0, victim, TO_CHAR);
 				}
 
 				return (1);
 			}
 
-			act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);
+			act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", false, ch, 0, victim, TO_CHAR);
 			return (1);
 	}
 
 	return (0);
 }
 
-int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
-	int command = 0, gcount = 0, info_num = 0, found = FALSE, sfound = FALSE, i, bits;
-	CHAR_DATA *victim = (CHAR_DATA *) me;
+int guild_poly(CharacterData *ch, void *me, int cmd, char *argument) {
+	int command = 0, gcount = 0, info_num = 0, found = false, sfound = false, i, bits;
+	CharacterData *victim = (CharacterData *) me;
 
 	if (IS_NPC(ch)) {
 		return 0;
@@ -1147,7 +1147,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	}
 
 	if ((info_num = mob_index[victim->get_rnum()].stored) <= 0 || info_num > GUILDS_POLY_USED) {
-		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", false, ch, 0, victim, TO_CHAR);
 		return 1;
 	}
 
@@ -1159,7 +1159,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 		case SCMD_LEARN:
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
-				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -1177,7 +1177,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 						&& IsAbleToGetSkill(ch, skill_no)) {
 						gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
-						found = TRUE;
+						found = true;
 					}
 
 					if (!(bits = -2 * bits)
@@ -1191,22 +1191,22 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 							|| IS_GRGOD(ch))) {
 						gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 										  CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
-						found = TRUE;
+						found = true;
 					}
 
 					const int feat_no = (guild_poly_info[info_num] + i)->feat_no;
 					if (feat_no > 0
-						&& feat_no < MAX_FEATS) {
+						&& feat_no < kMaxFeats) {
 						if (!HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
 							gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 											  CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
-							found = TRUE;
+							found = true;
 						}
 					}
 				}
 
 				if (!found) {
-					act("$N сказал$G : 'Похоже, я не смогу тебе помочь.'", FALSE, ch, 0, victim, TO_CHAR);
+					act("$N сказал$G : 'Похоже, я не смогу тебе помочь.'", false, ch, 0, victim, TO_CHAR);
 					return (1);
 				} else {
 					send_to_char(buf, ch);
@@ -1216,7 +1216,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 			if (!strn_cmp(argument, "все", strlen(argument))
 				|| !strn_cmp(argument, "all", strlen(argument))) {
-				for (i = 0, found = FALSE, sfound = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false, sfound = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -1232,17 +1232,17 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 						&& !ch->get_trained_skill(skill_no))    // sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 					{
 						//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
-						// act(buf,FALSE,ch,0,victim,TO_CHAR);
+						// act(buf,false,ch,0,victim,TO_CHAR);
 						// ch->get_skill(skill_no) = 10;
-						sfound = TRUE;
+						sfound = true;
 					}
 
 					const int feat_no = (guild_poly_info[info_num] + i)->feat_no;
 					if (feat_no > 0
-						&& feat_no < MAX_FEATS) {
+						&& feat_no < kMaxFeats) {
 						if (!HAVE_FEAT(ch, feat_no)
 							&& can_get_feat(ch, feat_no)) {
-							sfound = TRUE;
+							sfound = true;
 						}
 					}
 
@@ -1255,7 +1255,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 						&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)) {
 						gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 										  CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
-						act(buf, FALSE, ch, 0, victim, TO_CHAR);
+						act(buf, false, ch, 0, victim, TO_CHAR);
 
 						if (IS_SET(bits, SPELL_KNOW))
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_KNOW);
@@ -1275,18 +1275,18 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
 							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 						}
-						found = TRUE;
+						found = true;
 					}
 				}
 
 				if (sfound) {
 					act("$N сказал$G : \r\n"
 						"'$n, к сожалению, это может сильно затруднить твое постижение умений.'\r\n"
-						"'Выбери лишь самые необходимые тебе умения.'", FALSE, ch, 0, victim, TO_CHAR);
+						"'Выбери лишь самые необходимые тебе умения.'", false, ch, 0, victim, TO_CHAR);
 				}
 
 				if (!found) {
-					act("$N ничему новому вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
+					act("$N ничему новому вас не научил$G.", false, ch, 0, victim, TO_CHAR);
 				}
 
 				return (1);
@@ -1295,7 +1295,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			const ESkill skill_no = FixNameAndFindSkillNum(argument);
 			if (SKILL_INVALID != skill_no
 				&& skill_no <= MAX_SKILL_NUM) {
-				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -1307,36 +1307,36 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 					if (skill_no == (guild_poly_info[info_num] + i)->skill_no) {
 						if (ch->get_trained_skill(skill_no)) {
-							act("$N сказал$G вам : 'Ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
+							act("$N сказал$G вам : 'Ты уже владеешь этим умением.'", false, ch, 0, victim, TO_CHAR);
 						} else if (!IsAbleToGetSkill(ch, skill_no)) {
-							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, TO_CHAR);
 						} else {
 							sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
 									CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
-							act(buf, FALSE, ch, 0, victim, TO_CHAR);
+							act(buf, false, ch, 0, victim, TO_CHAR);
 							ch->set_skill(skill_no, 10);
 						}
-						found = TRUE;
+						found = true;
 					}
 				}
 
 				if (!found) {
-					//				found_skill = FALSE;
-					//				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+					//				found_skill = false;
+					//				act("$N сказал$G : 'Мне не ведомо такое умение.'", false, ch, 0, victim, TO_CHAR);
 				} else {
 					return (1);
 				}
 			}
 
 			int feat_no = find_feat_num(argument);
-			if (feat_no < 0 || feat_no >= MAX_FEATS) {
+			if (feat_no < 0 || feat_no >= kMaxFeats) {
 				std::string str(argument);
 				std::replace_if(str.begin(), str.end(), boost::is_any_of("_:"), ' ');
 				feat_no = find_feat_num(str.c_str(), true);
 			}
 
-			if (feat_no > 0 && feat_no < MAX_FEATS) {
-				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->feat_no >= 0; i++) {
+			if (feat_no > 0 && feat_no < kMaxFeats) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->feat_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -1348,26 +1348,26 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 					if (feat_no == (guild_poly_info[info_num] + i)->feat_no) {
 						if (HAVE_FEAT(ch, feat_no)) {
 							act("$N сказал$G вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'",
-								FALSE,
+								false,
 								ch,
 								0,
 								victim,
 								TO_CHAR);
 						} else if (!can_get_feat(ch, feat_no)) {
-							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, TO_CHAR);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
 									CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
-							act(buf, FALSE, ch, 0, victim, TO_CHAR);
+							act(buf, false, ch, 0, victim, TO_CHAR);
 							SET_FEAT(ch, feat_no);
 						}
-						found = TRUE;
+						found = true;
 					}
 				}
 
 				if (!found) {
-					//				found_feat = FALSE;
-					//				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+					//				found_feat = false;
+					//				act("$N сказал$G : 'Мне не ведомо такое умение.'", false, ch, 0, victim, TO_CHAR);
 				} else {
 					return (1);
 				}
@@ -1375,7 +1375,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 			const int spell_no = FixNameAndFindSpellNum(argument);
 			if (spell_no > 0 && spell_no <= SPELLS_COUNT) {
-				for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
+				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
 					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
 						continue;
 					}
@@ -1412,11 +1412,11 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 							} else {
 								strcpy(buf, "Вы уже умеете это.");
 							}
-							act(buf, FALSE, ch, 0, victim, TO_CHAR);
+							act(buf, false, ch, 0, victim, TO_CHAR);
 						} else {
 							sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 									CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
-							act(buf, FALSE, ch, 0, victim, TO_CHAR);
+							act(buf, false, ch, 0, victim, TO_CHAR);
 							if (IS_SET(bits, SPELL_KNOW)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_KNOW);
 							}
@@ -1439,27 +1439,27 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 								ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 							}
 						}
-						found = TRUE;
+						found = true;
 					}
 				}
 
 				if (!found) {
-					//				found_spell = FALSE;
-					//				act("$N сказал$G : 'Я и сам$G не знаю такого заклинания.'", FALSE, ch, 0, victim, TO_CHAR);
+					//				found_spell = false;
+					//				act("$N сказал$G : 'Я и сам$G не знаю такого заклинания.'", false, ch, 0, victim, TO_CHAR);
 				} else {
 					return (1);
 				}
 			}
 
-			act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);
+			act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", false, ch, 0, victim, TO_CHAR);
 			return (1);
 	}
 
 	return (0);
 }
 
-int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char *argument) {
-	CHAR_DATA *victim = (CHAR_DATA *) me, *horse = NULL;
+int horse_keeper(CharacterData *ch, void *me, int cmd, char *argument) {
+	CharacterData *victim = (CharacterData *) me, *horse = nullptr;
 
 	if (IS_NPC(ch))
 		return (0);
@@ -1469,7 +1469,7 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 	if (ch->is_morphed()) {
 		send_to_char("Лошадка испугается вас в таком виде... \r\n", ch);
-		return (TRUE);
+		return (true);
 	}
 
 	skip_spaces(&argument);
@@ -1477,85 +1477,85 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	if (!*argument) {
 		if (ch->has_horse(false)) {
 			act("$N поинтересовал$U : \"$n, зачем тебе второй скакун? У тебя ведь одно седалище.\"",
-				FALSE, ch, 0, victim, TO_CHAR);
-			return (TRUE);
+				false, ch, 0, victim, TO_CHAR);
+			return (true);
 		}
 		sprintf(buf, "$N сказал$G : \"Я продам тебе скакуна за %d %s.\"",
 				HORSE_COST, desc_count(HORSE_COST, WHAT_MONEYa));
-		act(buf, FALSE, ch, 0, victim, TO_CHAR);
-		return (TRUE);
+		act(buf, false, ch, 0, victim, TO_CHAR);
+		return (true);
 	}
 
 	if (!strn_cmp(argument, "купить", strlen(argument)) || !strn_cmp(argument, "buy", strlen(argument))) {
 		if (ch->has_horse(false)) {
-			act("$N засмеял$U : \"$n, ты шутишь, у тебя же есть скакун.\"", FALSE, ch, 0, victim, TO_CHAR);
-			return (TRUE);
+			act("$N засмеял$U : \"$n, ты шутишь, у тебя же есть скакун.\"", false, ch, 0, victim, TO_CHAR);
+			return (true);
 		}
 		if (ch->get_gold() < HORSE_COST) {
 			act("\"Ступай отсюда, злыдень, у тебя нет таких денег!\"-заорал$G $N",
-				FALSE, ch, 0, victim, TO_CHAR);
-			return (TRUE);
+				false, ch, 0, victim, TO_CHAR);
+			return (true);
 		}
 		if (!(horse = read_mobile(HORSE_VNUM, VIRTUAL))) {
 			act("\"Извини, у меня нет для тебя скакуна.\"-смущенно произнес$Q $N",
-				FALSE, ch, 0, victim, TO_CHAR);
-			return (TRUE);
+				false, ch, 0, victim, TO_CHAR);
+			return (true);
 		}
 		make_horse(horse, ch);
 		char_to_room(horse, ch->in_room);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
-		act(buf, FALSE, ch, 0, victim, TO_CHAR);
+		act(buf, false, ch, 0, victim, TO_CHAR);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
-		act(buf, FALSE, ch, 0, victim, TO_ROOM);
+		act(buf, false, ch, 0, victim, TO_ROOM);
 		ch->remove_gold(HORSE_COST);
 		PLR_FLAGS(ch).set(PLR_CRASH);
-		return (TRUE);
+		return (true);
 	}
 
 	if (!strn_cmp(argument, "продать", strlen(argument)) || !strn_cmp(argument, "sell", strlen(argument))) {
 		if (!ch->has_horse(true)) {
-			act("$N засмеял$U : \"$n, ты не влезешь в мое стойло.\"", FALSE, ch, 0, victim, TO_CHAR);
-			return (TRUE);
+			act("$N засмеял$U : \"$n, ты не влезешь в мое стойло.\"", false, ch, 0, victim, TO_CHAR);
+			return (true);
 		}
 		if (ch->ahorse()) {
 			act("\"Я не собираюсь платить еще и за всадника.\"-усмехнул$U $N",
-				FALSE, ch, 0, victim, TO_CHAR);
-			return (TRUE);
+				false, ch, 0, victim, TO_CHAR);
+			return (true);
 		}
 
 		if (!(horse = ch->get_horse()) || GET_MOB_VNUM(horse) != HORSE_VNUM) {
-			act("\"Извини, твой скакун мне не подходит.\"- заявил$G $N", FALSE, ch, 0, victim, TO_CHAR);
-			return (TRUE);
+			act("\"Извини, твой скакун мне не подходит.\"- заявил$G $N", false, ch, 0, victim, TO_CHAR);
+			return (true);
 		}
 
 		if (IN_ROOM(horse) != IN_ROOM(victim)) {
-			act("\"Извини, твой скакун где-то бродит.\"- заявил$G $N", FALSE, ch, 0, victim, TO_CHAR);
-			return (TRUE);
+			act("\"Извини, твой скакун где-то бродит.\"- заявил$G $N", false, ch, 0, victim, TO_CHAR);
+			return (true);
 		}
 
 		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
-		act(buf, FALSE, ch, 0, victim, TO_CHAR);
+		act(buf, false, ch, 0, victim, TO_CHAR);
 		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
-		act(buf, FALSE, ch, 0, victim, TO_ROOM);
-		extract_char(horse, FALSE);
+		act(buf, false, ch, 0, victim, TO_ROOM);
+		extract_char(horse, false);
 		ch->add_gold((HORSE_COST >> 1));
 		PLR_FLAGS(ch).set(PLR_CRASH);
-		return (TRUE);
+		return (true);
 	}
 
 	return (0);
 }
 
-bool item_nouse(OBJ_DATA *obj) {
+bool item_nouse(ObjectData *obj) {
 	switch (GET_OBJ_TYPE(obj)) {
-		case OBJ_DATA::ITEM_LIGHT:
+		case ObjectData::ITEM_LIGHT:
 			if (GET_OBJ_VAL(obj, 2) == 0) {
 				return true;
 			}
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION:
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_POTION:
 			if (!GET_OBJ_VAL(obj, 1)
 				&& !GET_OBJ_VAL(obj, 2)
 				&& !GET_OBJ_VAL(obj, 3)) {
@@ -1563,29 +1563,29 @@ bool item_nouse(OBJ_DATA *obj) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_STAFF:
-		case OBJ_DATA::ITEM_WAND:
+		case ObjectData::ITEM_STAFF:
+		case ObjectData::ITEM_WAND:
 			if (!GET_OBJ_VAL(obj, 2)) {
 				return true;
 			}
 			break;
 
-		case OBJ_DATA::ITEM_CONTAINER:
+		case ObjectData::ITEM_CONTAINER:
 			if (!system_obj::is_purse(obj)) {
 				return true;
 			}
 			break;
 
-		case OBJ_DATA::ITEM_OTHER:
-		case OBJ_DATA::ITEM_TRASH:
-		case OBJ_DATA::ITEM_TRAP:
-		case OBJ_DATA::ITEM_NOTE:
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOOD:
-		case OBJ_DATA::ITEM_PEN:
-		case OBJ_DATA::ITEM_BOAT:
-		case OBJ_DATA::ITEM_FOUNTAIN:
-		case OBJ_DATA::ITEM_MING: return true;
+		case ObjectData::ITEM_OTHER:
+		case ObjectData::ITEM_TRASH:
+		case ObjectData::ITEM_TRAP:
+		case ObjectData::ITEM_NOTE:
+		case ObjectData::ITEM_DRINKCON:
+		case ObjectData::ITEM_FOOD:
+		case ObjectData::ITEM_PEN:
+		case ObjectData::ITEM_BOAT:
+		case ObjectData::ITEM_FOUNTAIN:
+		case ObjectData::ITEM_MING: return true;
 
 		default: break;
 	}
@@ -1593,44 +1593,44 @@ bool item_nouse(OBJ_DATA *obj) {
 	return false;
 }
 
-void npc_dropunuse(CHAR_DATA *ch) {
-	OBJ_DATA *obj, *nobj;
+void npc_dropunuse(CharacterData *ch) {
+	ObjectData *obj, *nobj;
 	for (obj = ch->carrying; obj; obj = nobj) {
 		nobj = obj->get_next_content();
 		if (item_nouse(obj)) {
-			act("$n выбросил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n выбросил$g $o3.", false, ch, obj, 0, TO_ROOM);
 			obj_from_char(obj);
 			obj_to_room(obj, ch->in_room);
 		}
 	}
 }
 
-int npc_scavenge(CHAR_DATA *ch) {
+int npc_scavenge(CharacterData *ch) {
 	int max = 1;
-	OBJ_DATA *obj, *best_obj, *cont, *best_cont, *cobj;
+	ObjectData *obj, *best_obj, *cont, *best_cont, *cobj;
 
 	if (!MOB_FLAGGED(ch, MOB_SCAVENGER)) {
-		return (FALSE);
+		return (false);
 	}
 
 	if (IS_SHOPKEEPER(ch)) {
-		return (FALSE);
+		return (false);
 	}
 
 	npc_dropunuse(ch);
 	if (world[ch->in_room]->contents && number(0, 25) <= GET_REAL_INT(ch)) {
 		max = 1;
-		best_obj = NULL;
-		cont = NULL;
-		best_cont = NULL;
+		best_obj = nullptr;
+		cont = nullptr;
+		best_cont = nullptr;
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
-			if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
+			if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING
 				|| Clan::is_clan_chest(obj)
 				|| ClanSystem::is_ingr_chest(obj)) {
 				continue;
 			}
 
-			if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
+			if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER
 				&& !system_obj::is_purse(obj)) {
 				if (IS_CORPSE(obj)) {
 					continue;
@@ -1674,10 +1674,10 @@ int npc_scavenge(CHAR_DATA *ch) {
 				max = GET_OBJ_COST(obj);
 			}
 		}
-		if (best_obj != NULL) {
+		if (best_obj != nullptr) {
 			if (best_obj != best_cont) {
-				act("$n поднял$g $o3.", FALSE, ch, best_obj, 0, TO_ROOM);
-				if (GET_OBJ_TYPE(best_obj) == OBJ_DATA::ITEM_MONEY) {
+				act("$n поднял$g $o3.", false, ch, best_obj, 0, TO_ROOM);
+				if (GET_OBJ_TYPE(best_obj) == ObjectData::ITEM_MONEY) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
 				} else {
@@ -1686,8 +1686,8 @@ int npc_scavenge(CHAR_DATA *ch) {
 				}
 			} else {
 				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(1).c_str());
-				act(buf, FALSE, ch, best_obj, 0, TO_ROOM);
-				if (GET_OBJ_TYPE(best_obj) == OBJ_DATA::ITEM_MONEY) {
+				act(buf, false, ch, best_obj, 0, TO_ROOM);
+				if (GET_OBJ_TYPE(best_obj) == ObjectData::ITEM_MONEY) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
 				} else {
@@ -1700,14 +1700,14 @@ int npc_scavenge(CHAR_DATA *ch) {
 	return (max > 1);
 }
 
-int npc_loot(CHAR_DATA *ch) {
-	int max = FALSE;
-	OBJ_DATA *obj, *loot_obj, *next_loot, *cobj, *cnext_obj;
+int npc_loot(CharacterData *ch) {
+	int max = false;
+	ObjectData *obj, *loot_obj, *next_loot, *cobj, *cnext_obj;
 
 	if (!MOB_FLAGGED(ch, MOB_LOOTER))
-		return (FALSE);
+		return (false);
 	if (IS_SHOPKEEPER(ch))
-		return (FALSE);
+		return (false);
 	npc_dropunuse(ch);
 	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10) {
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
@@ -1715,13 +1715,13 @@ int npc_loot(CHAR_DATA *ch) {
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if ((GET_OBJ_TYPE(loot_obj) != OBJ_DATA::ITEM_CONTAINER
+					if ((GET_OBJ_TYPE(loot_obj) != ObjectData::ITEM_CONTAINER
 						|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj)) {
 						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
-						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
-						if (GET_OBJ_TYPE(loot_obj) == OBJ_DATA::ITEM_MONEY) {
+						act(buf, false, ch, loot_obj, 0, TO_ROOM);
+						if (GET_OBJ_TYPE(loot_obj) == ObjectData::ITEM_MONEY) {
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
 							extract_obj(loot_obj);
 						} else {
@@ -1734,7 +1734,7 @@ int npc_loot(CHAR_DATA *ch) {
 				// Теперь не запертые контейнеры
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if (GET_OBJ_TYPE(loot_obj) == OBJ_DATA::ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(loot_obj) == ObjectData::ITEM_CONTAINER) {
 						if (IS_CORPSE(loot_obj)
 							|| OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							|| system_obj::is_purse(loot_obj)) {
@@ -1747,8 +1747,8 @@ int npc_loot(CHAR_DATA *ch) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
-								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
-								if (GET_OBJ_TYPE(cobj) == OBJ_DATA::ITEM_MONEY) {
+								act(buf, false, ch, cobj, 0, TO_ROOM);
+								if (GET_OBJ_TYPE(cobj) == ObjectData::ITEM_MONEY) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
 								} else {
@@ -1763,7 +1763,7 @@ int npc_loot(CHAR_DATA *ch) {
 				// И наконец, лутим запертые контейнеры если есть ключ или можем взломать
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if (GET_OBJ_TYPE(loot_obj) == OBJ_DATA::ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(loot_obj) == ObjectData::ITEM_CONTAINER) {
 						if (IS_CORPSE(loot_obj)
 							|| !OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							|| system_obj::is_purse(loot_obj)) {
@@ -1793,8 +1793,8 @@ int npc_loot(CHAR_DATA *ch) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
-								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
-								if (GET_OBJ_TYPE(cobj) == OBJ_DATA::ITEM_MONEY) {
+								act(buf, false, ch, cobj, 0, TO_ROOM);
+								if (GET_OBJ_TYPE(cobj) == ObjectData::ITEM_MONEY) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
 								} else {
@@ -1812,21 +1812,21 @@ int npc_loot(CHAR_DATA *ch) {
 	return (max);
 }
 
-int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
-	int need_close = FALSE, need_lock = FALSE;
-	int rev_dir[] = {SOUTH, WEST, NORTH, EAST, DOWN, UP};
-	int retval = FALSE;
+int npc_move(CharacterData *ch, int dir, int/* need_specials_check*/) {
+	int need_close = false, need_lock = false;
+	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
+	int retval = false;
 
-	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting()) {
-		return (FALSE);
-	} else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == NOWHERE) {
-		return (FALSE);
+	if (ch == nullptr || dir < 0 || dir >= kDirMaxNumber || ch->get_fighting()) {
+		return (false);
+	} else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere) {
+		return (false);
 	} else if (ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())) {
-		return (FALSE);
+		return (false);
 	} else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED)) {
 		if (!EXIT_FLAGGED(EXIT(ch, dir), EX_ISDOOR)) {
-			return (FALSE);
+			return (false);
 		}
 
 		const auto &rdata = EXIT(ch, dir);
@@ -1837,29 +1837,29 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 					&& !EXIT_FLAGGED(rdata, EX_BROKEN)
 					&& CalcCurrentSkill(ch, SKILL_PICK, 0) >= number(0, 100))) {
 				do_doorcmd(ch, 0, dir, SCMD_UNLOCK);
-				need_lock = TRUE;
+				need_lock = true;
 			} else {
-				return (FALSE);
+				return (false);
 			}
 		}
 		if (EXIT_FLAGGED(rdata, EX_CLOSED)) {
 			if (GET_REAL_INT(ch) >= 15
-				|| GET_DEST(ch) != NOWHERE
+				|| GET_DEST(ch) != kNowhere
 				|| MOB_FLAGGED(ch, MOB_OPENDOOR)) {
 				do_doorcmd(ch, 0, dir, SCMD_OPEN);
-				need_close = TRUE;
+				need_close = true;
 			}
 		}
 	}
 
-	retval = perform_move(ch, dir, 1, FALSE, 0);
+	retval = perform_move(ch, dir, 1, false, 0);
 
 	if (need_close) {
 		const int close_direction = retval ? rev_dir[dir] : dir;
 		// закрываем за собой только существующую дверь
 		if (EXIT(ch, close_direction) &&
 			EXIT_FLAGGED(EXIT(ch, close_direction), EX_ISDOOR) &&
-			EXIT(ch, close_direction)->to_room() != NOWHERE) {
+			EXIT(ch, close_direction)->to_room() != kNowhere) {
 			do_doorcmd(ch, 0, close_direction, SCMD_CLOSE);
 		}
 	}
@@ -1869,7 +1869,7 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 		// запираем за собой только существующую дверь
 		if (EXIT(ch, lock_direction) &&
 			EXIT_FLAGGED(EXIT(ch, lock_direction), EX_ISDOOR) &&
-			EXIT(ch, lock_direction)->to_room() != NOWHERE) {
+			EXIT(ch, lock_direction)->to_room() != kNowhere) {
 			do_doorcmd(ch, 0, lock_direction, SCMD_LOCK);
 		}
 	}
@@ -1877,30 +1877,30 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 	return (retval);
 }
 
-int has_curse(OBJ_DATA *obj) {
+int has_curse(ObjectData *obj) {
 	for (const auto &i : weapon_affect) {
 		// Замена выражения на макрос
 		if (i.aff_spell <= 0 || !IS_OBJ_AFF(obj, i.aff_pos)) {
 			continue;
 		}
 		if (IS_SET(spell_info[i.aff_spell].routines, NPC_AFFECT_PC | NPC_DAMAGE_PC)) {
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-int calculate_weapon_class(CHAR_DATA *ch, OBJ_DATA *weapon) {
+int calculate_weapon_class(CharacterData *ch, ObjectData *weapon) {
 	int damage = 0, hits = 0, i;
 
 	if (!weapon
-		|| GET_OBJ_TYPE(weapon) != OBJ_DATA::ITEM_WEAPON) {
+		|| GET_OBJ_TYPE(weapon) != ObjectData::ITEM_WEAPON) {
 		return 0;
 	}
 
 	hits = CalcCurrentSkill(ch, static_cast<ESkill>(GET_OBJ_SKILL(weapon)), 0);
 	damage = (GET_OBJ_VAL(weapon, 1) + 1) * (GET_OBJ_VAL(weapon, 2)) / 2;
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+	for (i = 0; i < kMaxObjAffect; i++) {
 		auto &affected = weapon->get_affected(i);
 		if (affected.location == APPLY_DAMROLL) {
 			damage += affected.modifier;
@@ -1917,8 +1917,8 @@ int calculate_weapon_class(CHAR_DATA *ch, OBJ_DATA *weapon) {
 	return (damage + (hits > 200 ? 10 : hits / 20));
 }
 
-void best_weapon(CHAR_DATA *ch, OBJ_DATA *sweapon, OBJ_DATA **dweapon) {
-	if (*dweapon == NULL) {
+void best_weapon(CharacterData *ch, ObjectData *sweapon, ObjectData **dweapon) {
+	if (*dweapon == nullptr) {
 		if (calculate_weapon_class(ch, sweapon) > 0) {
 			*dweapon = sweapon;
 		}
@@ -1927,8 +1927,8 @@ void best_weapon(CHAR_DATA *ch, OBJ_DATA *sweapon, OBJ_DATA **dweapon) {
 	}
 }
 
-void npc_wield(CHAR_DATA *ch) {
-	OBJ_DATA *obj, *next, *right = NULL, *left = NULL, *both = NULL;
+void npc_wield(CharacterData *ch) {
+	ObjectData *obj, *next, *right = nullptr, *left = nullptr, *both = nullptr;
 
 	if (!NPC_FLAGGED(ch, NPC_WIELDING))
 		return;
@@ -1942,15 +1942,15 @@ void npc_wield(CHAR_DATA *ch) {
 		return;
 
 	if (GET_EQ(ch, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjectData::ITEM_WEAPON) {
 		left = GET_EQ(ch, WEAR_HOLD);
 	}
 	if (GET_EQ(ch, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ObjectData::ITEM_WEAPON) {
 		right = GET_EQ(ch, WEAR_WIELD);
 	}
 	if (GET_EQ(ch, WEAR_BOTHS)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == ObjectData::ITEM_WEAPON) {
 		both = GET_EQ(ch, WEAR_BOTHS);
 	}
 
@@ -1959,7 +1959,7 @@ void npc_wield(CHAR_DATA *ch) {
 
 	for (obj = ch->carrying; obj; obj = next) {
 		next = obj->get_next_content();
-		if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON
+		if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_WEAPON
 			|| GET_OBJ_UID(obj) != 0) {
 			continue;
 		}
@@ -1982,19 +1982,19 @@ void npc_wield(CHAR_DATA *ch) {
 			return;
 		}
 		if (GET_EQ(ch, WEAR_BOTHS)) {
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, WEAR_WIELD)) {
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, WEAR_SHIELD)) {
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlag::show_msg), ch);
 		}
 		if (GET_EQ(ch, WEAR_HOLD)) {
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(both);
@@ -2002,15 +2002,15 @@ void npc_wield(CHAR_DATA *ch) {
 	} else {
 		if (left && GET_EQ(ch, WEAR_HOLD) != left) {
 			if (GET_EQ(ch, WEAR_BOTHS)) {
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, WEAR_SHIELD)) {
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, WEAR_HOLD)) {
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(left);
@@ -2018,11 +2018,11 @@ void npc_wield(CHAR_DATA *ch) {
 		}
 		if (right && GET_EQ(ch, WEAR_WIELD) != right) {
 			if (GET_EQ(ch, WEAR_BOTHS)) {
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
 			}
 			if (GET_EQ(ch, WEAR_WIELD)) {
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(right);
@@ -2031,8 +2031,8 @@ void npc_wield(CHAR_DATA *ch) {
 	}
 }
 
-void npc_armor(CHAR_DATA *ch) {
-	OBJ_DATA *obj, *next;
+void npc_armor(CharacterData *ch) {
+	ObjectData *obj, *next;
 	int where = 0;
 
 	if (!NPC_FLAGGED(ch, NPC_ARMORING))
@@ -2125,7 +2125,7 @@ void npc_armor(CHAR_DATA *ch) {
 				|| has_curse(obj)) {
 				continue;
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, where), 0, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, where), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, where, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(obj);
@@ -2134,8 +2134,8 @@ void npc_armor(CHAR_DATA *ch) {
 	}
 }
 
-void npc_light(CHAR_DATA *ch) {
-	OBJ_DATA *obj, *next;
+void npc_light(CharacterData *ch) {
+	ObjectData *obj, *next;
 
 	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
@@ -2144,18 +2144,18 @@ void npc_light(CHAR_DATA *ch) {
 		return;
 
 	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(ch->in_room))) {
-		act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n прекратил$g использовать $o3.", false, ch, obj, 0, TO_ROOM);
 		obj_to_char(unequip_char(ch, WEAR_LIGHT, CharEquipFlag::show_msg), ch);
 	}
 
 	if (!GET_EQ(ch, WEAR_LIGHT) && IS_DARK(ch->in_room)) {
 		for (obj = ch->carrying; obj; obj = next) {
 			next = obj->get_next_content();
-			if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_LIGHT) {
+			if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_LIGHT) {
 				continue;
 			}
 			if (GET_OBJ_VAL(obj, 2) == 0) {
-				act("$n выбросил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+				act("$n выбросил$g $o3.", false, ch, obj, 0, TO_ROOM);
 				obj_from_char(obj);
 				obj_to_room(obj, ch->in_room);
 				continue;
@@ -2167,15 +2167,15 @@ void npc_light(CHAR_DATA *ch) {
 	}
 }
 
-int npc_battle_scavenge(CHAR_DATA *ch) {
-	int max = FALSE;
-	OBJ_DATA *obj, *next_obj = NULL;
+int npc_battle_scavenge(CharacterData *ch) {
+	int max = false;
+	ObjectData *obj, *next_obj = nullptr;
 
 	if (!MOB_FLAGGED(ch, MOB_SCAVENGER))
-		return (FALSE);
+		return (false);
 
 	if (IS_SHOPKEEPER(ch))
-		return (FALSE);
+		return (false);
 
 	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10)
 		for (obj = world[ch->in_room]->contents; obj; obj = next_obj) {
@@ -2183,23 +2183,23 @@ int npc_battle_scavenge(CHAR_DATA *ch) {
 			if (CAN_GET_OBJ(ch, obj)
 				&& !has_curse(obj)
 				&& (ObjSystem::is_armor_type(obj)
-					|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)) {
+					|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON)) {
 				obj_from_room(obj);
 				obj_to_char(obj, ch);
-				act("$n поднял$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
-				max = TRUE;
+				act("$n поднял$g $o3.", false, ch, obj, 0, TO_ROOM);
+				max = true;
 			}
 		}
 	return (max);
 }
 
-int npc_walk(CHAR_DATA *ch) {
+int npc_walk(CharacterData *ch) {
 	int rnum, door = BFS_ERROR;
 
-	if (ch->in_room == NOWHERE)
+	if (ch->in_room == kNowhere)
 		return (BFS_ERROR);
 
-	if (GET_DEST(ch) == NOWHERE || (rnum = real_room(GET_DEST(ch))) == NOWHERE)
+	if (GET_DEST(ch) == kNowhere || (rnum = real_room(GET_DEST(ch))) == kNowhere)
 		return (BFS_ERROR);
 
 	if (ch->in_room == rnum) {
@@ -2210,7 +2210,7 @@ int npc_walk(CHAR_DATA *ch) {
 		if (!ch->mob_specials.dest_pos && ch->mob_specials.dest_dir < 0)
 			ch->mob_specials.dest_dir = 0;
 		ch->mob_specials.dest_pos += ch->mob_specials.dest_dir >= 0 ? 1 : -1;
-		if (((rnum = real_room(GET_DEST(ch))) == NOWHERE)
+		if (((rnum = real_room(GET_DEST(ch))) == kNowhere)
 			|| rnum == ch->in_room)
 			return (BFS_ERROR);
 		else
@@ -2222,29 +2222,29 @@ int npc_walk(CHAR_DATA *ch) {
 	return (door);
 }
 
-int do_npc_steal(CHAR_DATA *ch, CHAR_DATA *victim) {
-	OBJ_DATA *obj, *best = NULL;
+int do_npc_steal(CharacterData *ch, CharacterData *victim) {
+	ObjectData *obj, *best = nullptr;
 	int gold;
 	int max = 0;
 
 	if (!NPC_FLAGGED(ch, NPC_STEALING))
-		return (FALSE);
+		return (false);
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
-		return (FALSE);
+		return (false);
 
 	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || victim->get_fighting())
-		return (FALSE);
+		return (false);
 
-	if (GET_REAL_LEVEL(victim) >= LVL_IMMORT)
-		return (FALSE);
+	if (GET_REAL_LEVEL(victim) >= kLevelImmortal)
+		return (false);
 
 	if (!CAN_SEE(ch, victim))
-		return (FALSE);
+		return (false);
 
 	if (AWAKE(victim) && (number(0, MAX(0, GET_REAL_LEVEL(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0)) {
-		act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, victim, TO_VICT);
-		act("$n пытал$u обокрасть $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
+		act("Вы обнаружили руку $n1 в своем кармане.", false, ch, 0, victim, TO_VICT);
+		act("$n пытал$u обокрасть $N3.", true, ch, 0, victim, TO_NOTVICT);
 	} else        // Steal some gold coins
 	{
 		gold = (int) ((victim->get_gold() * number(1, 10)) / 100);
@@ -2269,12 +2269,12 @@ int do_npc_steal(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return (max);
 }
 
-int npc_steal(CHAR_DATA *ch) {
+int npc_steal(CharacterData *ch) {
 	if (!NPC_FLAGGED(ch, NPC_STEALING))
-		return (FALSE);
+		return (false);
 
-	if (GET_POS(ch) != POS_STANDING || IS_SHOPKEEPER(ch) || ch->get_fighting())
-		return (FALSE);
+	if (GET_POS(ch) != EPosition::kStand || IS_SHOPKEEPER(ch) || ch->get_fighting())
+		return (false);
 
 	for (const auto cons : world[ch->in_room]->people) {
 		if (!IS_NPC(cons)
@@ -2284,17 +2284,17 @@ int npc_steal(CHAR_DATA *ch) {
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 #define ZONE(ch)  (GET_MOB_VNUM(ch) / 100)
 #define GROUP(ch) ((GET_MOB_VNUM(ch) % 100) / 10)
 
-void npc_group(CHAR_DATA *ch) {
-	CHAR_DATA *leader = NULL;
+void npc_group(CharacterData *ch) {
+	CharacterData *leader = nullptr;
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
-	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
+	if (GET_DEST(ch) == kNowhere || ch->in_room == kNowhere)
 		return;
 
 	// ноугруп мобы не вступают в группу
@@ -2313,14 +2313,14 @@ void npc_group(CHAR_DATA *ch) {
 
 	if (leader
 		&& (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM)
-			|| GET_POS(leader) < POS_SLEEPING)) {
-		leader = NULL;
+			|| GET_POS(leader) < EPosition::kSleep)) {
+		leader = nullptr;
 	}
 
 	// ноугруп моб не может быть лидером
 	if (leader
 		&& MOB_FLAGGED(leader, MOB_NOGROUP)) {
-		leader = NULL;
+		leader = nullptr;
 	}
 
 	// Find leader
@@ -2331,7 +2331,7 @@ void npc_group(CHAR_DATA *ch) {
 			|| group != GROUP(vict)
 			|| MOB_FLAGGED(vict, MOB_NOGROUP)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| GET_POS(vict) < POS_SLEEPING) {
+			|| GET_POS(vict) < EPosition::kSleep) {
 			continue;
 		}
 
@@ -2362,7 +2362,7 @@ void npc_group(CHAR_DATA *ch) {
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| GET_POS(vict) < POS_SLEEPING) {
+			|| GET_POS(vict) < EPosition::kSleep) {
 			continue;
 		}
 
@@ -2381,40 +2381,40 @@ void npc_group(CHAR_DATA *ch) {
 	}
 }
 
-void npc_groupbattle(CHAR_DATA *ch) {
-	struct follow_type *k;
-	CHAR_DATA *tch, *helper;
+void npc_groupbattle(CharacterData *ch) {
+	struct Follower *k;
+	CharacterData *tch, *helper;
 
 	if (!IS_NPC(ch)
 		|| !ch->get_fighting()
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| !ch->has_master()
-		|| ch->in_room == NOWHERE
+		|| ch->in_room == kNowhere
 		|| !ch->followers) {
 		return;
 	}
 
 	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
 	tch = ch->has_master() ? ch->get_master() : ch;
-	for (; k; (k = tch ? k : k->next), tch = NULL) {
-		helper = tch ? tch : k->follower;
+	for (; k; (k = tch ? k : k->next), tch = nullptr) {
+		helper = tch ? tch : k->ch;
 		if (ch->in_room == IN_ROOM(helper)
 			&& !helper->get_fighting()
 			&& !IS_NPC(helper)
-			&& GET_POS(helper) > POS_STUNNED) {
-			GET_POS(helper) = POS_STANDING;
+			&& GET_POS(helper) > EPosition::kStun) {
+			GET_POS(helper) = EPosition::kStand;
 			set_fighting(helper, ch->get_fighting());
-			act("$n вступил$u за $N3.", FALSE, helper, 0, ch, TO_ROOM);
+			act("$n вступил$u за $N3.", false, helper, 0, ch, TO_ROOM);
 		}
 	}
 }
 
-int dump(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
-	OBJ_DATA *k;
+int dump(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
+	ObjectData *k;
 	int value = 0;
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
-		act("$p рассыпал$U в прах!", FALSE, 0, k, 0, TO_ROOM);
+		act("$p рассыпал$U в прах!", false, 0, k, 0, TO_ROOM);
 		extract_obj(k);
 	}
 
@@ -2424,14 +2424,14 @@ int dump(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 	do_drop(ch, argument, cmd, 0);
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
-		act("$p рассыпал$U в прах!", FALSE, 0, k, 0, TO_ROOM);
+		act("$p рассыпал$U в прах!", false, 0, k, 0, TO_ROOM);
 		value += MAX(1, MIN(1, GET_OBJ_COST(k) / 10));
 		extract_obj(k);
 	}
 
 	if (value) {
 		send_to_char("Боги оценили вашу жертву.\r\n", ch);
-		act("$n оценен$y Богами.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n оценен$y Богами.", true, ch, 0, 0, TO_ROOM);
 		if (GET_REAL_LEVEL(ch) < 3)
 			gain_exp(ch, value);
 		else
@@ -2441,32 +2441,32 @@ int dump(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 }
 
 #if 0
-void mayor(CHAR_DATA *ch, void *me, int cmd, char* argument)
+void mayor(CharacterData *ch, void *me, int cmd, char* argument)
 {
 const char open_path[] = "W3a3003b33000c111d0d111Oe333333Oe22c222112212111a1S.";
 const char close_path[] = "W3a3003b33000c111d0d111CE333333CE22c222112212111a1S.";
 
-static const char *path = NULL;
+static const char *path = nullptr;
 static int index;
-static bool move = FALSE;
+static bool move = false;
 
 if (!move)
 {
 if (time_info.hours == 6)
 {
-move = TRUE;
+move = true;
 path = open_path;
 index = 0;
 }
 else if (time_info.hours == 20)
 {
-move = TRUE;
+move = true;
 path = close_path;
 index = 0;
 }
 }
-if (cmd || !move || (GET_POS(ch) < POS_SLEEPING) || (GET_POS(ch) == POS_FIGHTING))
-return (FALSE);
+if (cmd || !move || (GET_POS(ch) < EPosition::kSleep) || (GET_POS(ch) == EPosition::kFight))
+return (false);
 
 switch (path[index])
 {
@@ -2474,42 +2474,42 @@ case '0':
 case '1':
 case '2':
 case '3':
-perform_move(ch, path[index] - '0', 1, FALSE);
+perform_move(ch, path[index] - '0', 1, false);
 break;
 
 case 'W':
-GET_POS(ch) = POS_STANDING;
-act("$n awakens and groans loudly.", FALSE, ch, 0, 0, TO_ROOM);
+GET_POS(ch) = EPosition::kStand;
+act("$n awakens and groans loudly.", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'S':
-GET_POS(ch) = POS_SLEEPING;
-act("$n lies down and instantly falls asleep.", FALSE, ch, 0, 0, TO_ROOM);
+GET_POS(ch) = EPosition::kSleep;
+act("$n lies down and instantly falls asleep.", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'a':
-act("$n says 'Hello Honey!'", FALSE, ch, 0, 0, TO_ROOM);
-act("$n smirks.", FALSE, ch, 0, 0, TO_ROOM);
+act("$n says 'Hello Honey!'", false, ch, 0, 0, TO_ROOM);
+act("$n smirks.", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'b':
-act("$n says 'What a view!  I must get something done about that dump!'", FALSE, ch, 0, 0, TO_ROOM);
+act("$n says 'What a view!  I must get something done about that dump!'", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'c':
-act("$n says 'Vandals!  Youngsters nowadays have no respect for anything!'", FALSE, ch, 0, 0, TO_ROOM);
+act("$n says 'Vandals!  Youngsters nowadays have no respect for anything!'", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'd':
-act("$n says 'Good day, citizens!'", FALSE, ch, 0, 0, TO_ROOM);
+act("$n says 'Good day, citizens!'", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'e':
-act("$n says 'I hereby declare the bazaar open!'", FALSE, ch, 0, 0, TO_ROOM);
+act("$n says 'I hereby declare the bazaar open!'", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'E':
-act("$n says 'I hereby declare Midgaard closed!'", FALSE, ch, 0, 0, TO_ROOM);
+act("$n says 'I hereby declare Midgaard closed!'", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'O':
@@ -2523,13 +2523,13 @@ do_gen_door(ch, "gate", 0, SCMD_LOCK);
 break;
 
 case '.':
-move = FALSE;
+move = false;
 break;
 
 }
 
 index++;
-return (FALSE);
+return (false);
 }
 #endif
 
@@ -2537,36 +2537,36 @@ return (FALSE);
 // *  General special procedures for mobiles                          *
 // ********************************************************************
 
-//int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
+//int thief(CharacterData *ch, void* /*me*/, int cmd, char* /*argument*/)
 /*
 {
 	if (cmd)
-		return (FALSE);
+		return (false);
 
-	if (GET_POS(ch) != POS_STANDING)
-		return (FALSE);
+	if (GET_POS(ch) != EPosition::kStand)
+		return (false);
 
 	for (const auto cons : world[ch->in_room]->people)
 	{
 		if (!IS_NPC(cons)
-			&& GET_REAL_LEVEL(cons) < LVL_IMMORT
+			&& GET_REAL_LEVEL(cons) < kLevelImmortal
 			&& !number(0, 4))
 		{
 			do_npc_steal(ch, cons);
 
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 */
-int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	if (cmd || GET_POS(ch) != POS_FIGHTING) {
-		return (FALSE);
+int magic_user(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
+	if (cmd || GET_POS(ch) != EPosition::kFight) {
+		return (false);
 	}
 
-	CHAR_DATA *target = nullptr;
+	CharacterData *target = nullptr;
 	// pseudo-randomly choose someone in the room who is fighting me //
 	for (const auto vict : world[ch->in_room]->people) {
 		if (vict->get_fighting() == ch
@@ -2585,55 +2585,55 @@ int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	// Hm...didn't pick anyone...I'll wait a round. //
 	if (target == nullptr) {
-		return (TRUE);
+		return (true);
 	}
 
 	if ((GET_REAL_LEVEL(ch) > 13) && (number(0, 10) == 0)) {
-		CastSpell(ch, target, NULL, NULL, SPELL_SLEEP, SPELL_SLEEP);
+		CastSpell(ch, target, nullptr, nullptr, SPELL_SLEEP, SPELL_SLEEP);
 	}
 
 	if ((GET_REAL_LEVEL(ch) > 7) && (number(0, 8) == 0)) {
-		CastSpell(ch, target, NULL, NULL, SPELL_BLINDNESS, SPELL_BLINDNESS);
+		CastSpell(ch, target, nullptr, nullptr, SPELL_BLINDNESS, SPELL_BLINDNESS);
 	}
 
 	if ((GET_REAL_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch)) {
-			CastSpell(ch, target, NULL, NULL, SPELL_ENERGY_DRAIN, SPELL_ENERGY_DRAIN);
+			CastSpell(ch, target, nullptr, nullptr, SPELL_ENERGY_DRAIN, SPELL_ENERGY_DRAIN);
 		} else if (IS_GOOD(ch)) {
-			CastSpell(ch, target, NULL, NULL, SPELL_DISPEL_EVIL, SPELL_DISPEL_EVIL);
+			CastSpell(ch, target, nullptr, nullptr, SPELL_DISPEL_EVIL, SPELL_DISPEL_EVIL);
 		}
 	}
 
 	if (number(0, 4)) {
-		return (TRUE);
+		return (true);
 	}
 
 	switch (GET_REAL_LEVEL(ch)) {
 		case 4:
-		case 5: CastSpell(ch, target, NULL, NULL, SPELL_MAGIC_MISSILE, SPELL_MAGIC_MISSILE);
+		case 5: CastSpell(ch, target, nullptr, nullptr, SPELL_MAGIC_MISSILE, SPELL_MAGIC_MISSILE);
 			break;
 		case 6:
-		case 7: CastSpell(ch, target, NULL, NULL, SPELL_CHILL_TOUCH, SPELL_CHILL_TOUCH);
+		case 7: CastSpell(ch, target, nullptr, nullptr, SPELL_CHILL_TOUCH, SPELL_CHILL_TOUCH);
 			break;
 		case 8:
-		case 9: CastSpell(ch, target, NULL, NULL, SPELL_BURNING_HANDS, SPELL_BURNING_HANDS);
+		case 9: CastSpell(ch, target, nullptr, nullptr, SPELL_BURNING_HANDS, SPELL_BURNING_HANDS);
 			break;
 		case 10:
-		case 11: CastSpell(ch, target, NULL, NULL, SPELL_SHOCKING_GRASP, SPELL_SHOCKING_GRASP);
+		case 11: CastSpell(ch, target, nullptr, nullptr, SPELL_SHOCKING_GRASP, SPELL_SHOCKING_GRASP);
 			break;
 		case 12:
-		case 13: CastSpell(ch, target, NULL, NULL, SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT);
+		case 13: CastSpell(ch, target, nullptr, nullptr, SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT);
 			break;
 		case 14:
 		case 15:
 		case 16:
-		case 17: CastSpell(ch, target, NULL, NULL, SPELL_COLOR_SPRAY, SPELL_COLOR_SPRAY);
+		case 17: CastSpell(ch, target, nullptr, nullptr, SPELL_COLOR_SPRAY, SPELL_COLOR_SPRAY);
 			break;
-		default: CastSpell(ch, target, NULL, NULL, SPELL_FIREBALL, SPELL_FIREBALL);
+		default: CastSpell(ch, target, nullptr, nullptr, SPELL_FIREBALL, SPELL_FIREBALL);
 			break;
 	}
 
-	return (TRUE);
+	return (true);
 }
 
 
@@ -2641,91 +2641,91 @@ int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 // *  Special procedures for mobiles                                  *
 // ********************************************************************
 
-int guild_guard(CHAR_DATA *ch, void *me, int cmd, char * /*argument*/) {
+int guild_guard(CharacterData *ch, void *me, int cmd, char * /*argument*/) {
 	int i;
-	CHAR_DATA *guard = (CHAR_DATA *) me;
+	CharacterData *guard = (CharacterData *) me;
 	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
 	const char *buf2 = "Охранник остановил $n, преградив $m дорогу.";
 
 	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, EAffectFlag::AFF_BLIND)
 		|| AFF_FLAGGED(guard, EAffectFlag::AFF_HOLD))
-		return (FALSE);
+		return (false);
 
-	if (GET_REAL_LEVEL(ch) >= LVL_IMMORT)
-		return (FALSE);
+	if (GET_REAL_LEVEL(ch) >= kLevelImmortal)
+		return (false);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
 		if ((IS_NPC(ch) || GET_CLASS(ch) != guild_info[i][0]) &&
 			GET_ROOM_VNUM(ch->in_room) == guild_info[i][1] && cmd == guild_info[i][2]) {
 			send_to_char(buf, ch);
-			act(buf2, FALSE, ch, 0, 0, TO_ROOM);
-			return (TRUE);
+			act(buf2, false, ch, 0, 0, TO_ROOM);
+			return (true);
 		}
 	}
 
-	return (FALSE);
+	return (false);
 }
 
 // TODO: повырезать все это
-int puff(CHAR_DATA * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
+int puff(CharacterData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
 	return 0;
 }
 
-int fido(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	OBJ_DATA *i, *temp, *next_obj;
+int fido(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
+	ObjectData *i, *temp, *next_obj;
 
 	if (cmd || !AWAKE(ch))
-		return (FALSE);
+		return (false);
 
 	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
 		if (IS_CORPSE(i)) {
-			act("$n savagely devours a corpse.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n savagely devours a corpse.", false, ch, 0, 0, TO_ROOM);
 			for (temp = i->get_contains(); temp; temp = next_obj) {
 				next_obj = temp->get_next_content();
 				obj_from_obj(temp);
 				obj_to_room(temp, ch->in_room);
 			}
 			extract_obj(i);
-			return (TRUE);
+			return (true);
 		}
 	}
-	return (FALSE);
+	return (false);
 }
 
-int janitor(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	OBJ_DATA *i;
+int janitor(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
+	ObjectData *i;
 
 	if (cmd || !AWAKE(ch))
-		return (FALSE);
+		return (false);
 
 	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
 		if (!CAN_WEAR(i, EWearFlag::ITEM_WEAR_TAKE)) {
 			continue;
 		}
 
-		if (GET_OBJ_TYPE(i) != OBJ_DATA::ITEM_DRINKCON
+		if (GET_OBJ_TYPE(i) != ObjectData::ITEM_DRINKCON
 			&& GET_OBJ_COST(i) >= 15) {
 			continue;
 		}
 
-		act("$n picks up some trash.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n picks up some trash.", false, ch, 0, 0, TO_ROOM);
 		obj_from_room(i);
 		obj_to_char(i, ch);
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-int cityguard(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	CHAR_DATA *evil;
+int cityguard(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
+	CharacterData *evil;
 	int max_evil;
 
 	if (cmd
 		|| !AWAKE(ch)
 		|| ch->get_fighting()) {
-		return (FALSE);
+		return (false);
 	}
 
 	max_evil = 1000;
@@ -2733,19 +2733,19 @@ int cityguard(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	for (const auto tch : world[ch->in_room]->people) {
 		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_KILLER)) {
-			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", false, ch, 0, 0, TO_ROOM);
 			hit(ch, tch, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 
-			return (TRUE);
+			return (true);
 		}
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
 		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_THIEF)) {
-			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", false, ch, 0, 0, TO_ROOM);
 			hit(ch, tch, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 
-			return (TRUE);
+			return (true);
 		}
 	}
 
@@ -2760,21 +2760,21 @@ int cityguard(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	if (evil
 		&& (GET_ALIGNMENT(evil->get_fighting()) >= 0)) {
-		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", false, ch, 0, 0, TO_ROOM);
 		hit(ch, evil, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 
-		return (TRUE);
+		return (true);
 	}
 
-	return (FALSE);
+	return (false);
 }
 
 #define PET_PRICE(pet) (GET_REAL_LEVEL(pet) * 300)
 
-int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
-	char buf[MAX_STRING_LENGTH], pet_name[256];
-	room_rnum pet_room;
-	CHAR_DATA *pet;
+int pet_shops(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
+	char buf[kMaxStringLength], pet_name[256];
+	RoomRnum pet_room;
+	CharacterData *pet;
 
 	pet_room = ch->in_room + 1;
 
@@ -2785,17 +2785,17 @@ int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 			send_to_char(buf, ch);
 		}
 
-		return (TRUE);
+		return (true);
 	} else if (CMD_IS("buy")) {
 		two_arguments(argument, buf, pet_name);
 
 		if (!(pet = get_char_room(buf, pet_room))) {
 			send_to_char("There is no such pet!\r\n", ch);
-			return (TRUE);
+			return (true);
 		}
 		if (ch->get_gold() < PET_PRICE(pet)) {
 			send_to_char("You don't have enough gold!\r\n", ch);
-			return (TRUE);
+			return (true);
 		}
 		ch->remove_gold(PET_PRICE(pet));
 
@@ -2823,7 +2823,7 @@ int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 		IS_CARRYING_N(pet) = 100;
 
 		send_to_char("May you enjoy your pet.\r\n", ch);
-		act("$n buys $N as a pet.", FALSE, ch, 0, pet, TO_ROOM);
+		act("$n buys $N as a pet.", false, ch, 0, pet, TO_ROOM);
 
 		return (1);
 	}
@@ -2832,7 +2832,7 @@ int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 	return (0);
 }
 
-CHAR_DATA *get_player_of_name(const char *name) {
+CharacterData *get_player_of_name(const char *name) {
 	for (const auto &i : character_list) {
 		if (IS_NPC(i)) {
 			continue;
@@ -2851,9 +2851,9 @@ CHAR_DATA *get_player_of_name(const char *name) {
 // ********************************************************************
 // *  Special procedures for objects                                  *
 // ********************************************************************
-int bank(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
+int bank(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
 	int amount;
-	CHAR_DATA *vict;
+	CharacterData *vict;
 
 	if (CMD_IS("balance") || CMD_IS("баланс") || CMD_IS("сальдо")) {
 		if (ch->get_bank() > 0)
@@ -2876,7 +2876,7 @@ int bank(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 		ch->add_bank(amount, false);
 		sprintf(buf, "Вы вложили %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		send_to_char(buf, ch);
-		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, TO_ROOM);
 		return (1);
 	} else if (CMD_IS("withdraw") || CMD_IS("получить")) {
 		if ((amount = atoi(argument)) <= 0) {
@@ -2891,7 +2891,7 @@ int bank(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 		ch->remove_bank(amount, false);
 		sprintf(buf, "Вы сняли %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		send_to_char(buf, ch);
-		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, TO_ROOM);
 		return (1);
 	} else if (CMD_IS("transfer") || CMD_IS("перевести")) {
 		argument = one_argument(argument, arg);
@@ -2942,7 +2942,7 @@ int bank(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
 					GET_PAD(vict, 2));
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 			return (1);
 
 		} else {
@@ -2965,7 +2965,7 @@ int bank(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
 					GET_PAD(vict, 2));
-			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
 			vict->add_bank(amount);
 			Depot::add_offline_money(GET_UNIQUE(vict), amount);
 			vict->save_char();

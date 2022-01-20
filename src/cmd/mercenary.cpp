@@ -1,16 +1,16 @@
 #include "cmd/mercenary.h"
-#include "chars/char_player.h"
+#include "entities/char_player.h"
 #include "modify.h"
 #include "mob_stat.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-int do_social(CHAR_DATA *ch, char *argument);
+int do_social(CharacterData *ch, char *argument);
 
 namespace MERC {
 const int BASE_COST = 1000;
-CHAR_DATA *findMercboss(int room_rnum) {
+CharacterData *findMercboss(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people)
 		if (GET_MOB_SPEC(tch) == mercenary)
 			return tch;
@@ -19,12 +19,12 @@ CHAR_DATA *findMercboss(int room_rnum) {
 	return nullptr;
 };
 
-void doList(CHAR_DATA *ch, CHAR_DATA *boss, bool isFavList) {
+void doList(CharacterData *ch, CharacterData *boss, bool isFavList) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	if (m->empty()) {
 		if (ch->get_class() == CLASS_MERCHANT)
-			tell_to_char(boss, ch, "Ступай, поначалу, заведи знакомства, потом ко мне приходи.");
+			tell_to_char(boss, ch, "Ступай, поначалу заведи знакомства, потом ко мне приходи.");
 		else if (ch->get_class() == CLASS_CHARMMAGE)
 			tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
 		else if (IS_IMMORTAL(ch))
@@ -32,7 +32,7 @@ void doList(CHAR_DATA *ch, CHAR_DATA *boss, bool isFavList) {
 		return;
 	}
 	if (IS_IMMORTAL(ch)) {
-		sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел волею своей:",
+		sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел:",
 				isFavList ? "краткий список" : "полный список");
 	} else if (ch->get_class() == CLASS_MERCHANT) {
 		sprintf(buf, "%s тех, с кем знакомство ты водишь:",
@@ -63,21 +63,21 @@ void doList(CHAR_DATA *ch, CHAR_DATA *boss, bool isFavList) {
 			"А всего за %d кун моя ватага приведёт тебе любого из них живым и невредимым.",
 			1000 * (GET_REAL_REMORT(ch) + 1));
 	tell_to_char(boss, ch, buf);
-	snprintf(buf, MAX_INPUT_LENGTH, "ухмы %s", GET_NAME(ch));
+	snprintf(buf, kMaxInputLength, "ухмы %s", GET_NAME(ch));
 	do_social(boss, buf);
 };
 
-void doStat(CHAR_DATA *ch) {
+void doStat(CharacterData *ch) {
 	if (!ch) return;
 	return;
 };
 
-void doBring(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos, char *bank) {
-	CHAR_DATA *mob;
+void doBring(CharacterData *ch, CharacterData *boss, unsigned int pos, char *bank) {
+	CharacterData *mob;
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	const int cost = MERC::BASE_COST * (GET_REAL_REMORT(ch) + 1);
-	mob_rnum rnum;
+	MobRnum rnum;
 	std::map<int, MERCDATA>::iterator it = m->begin();
 	for (unsigned int num = 1; it != m->end(); ++it, ++num) {
 		if (num != pos)
@@ -105,12 +105,12 @@ void doBring(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos, char *bank) {
 		mob = read_mobile(rnum, REAL);
 		char_to_room(mob, ch->in_room);
 		if (ch->get_class() == CLASS_CHARMMAGE) {
-			act("$n окрикнул$g своих парней и скрыл$u из виду.", TRUE, boss, 0, 0, TO_ROOM);
-			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", TRUE, mob, 0, 0, TO_ROOM);
+			act("$n окрикнул$g своих парней и скрыл$u из виду.", true, boss, 0, 0, TO_ROOM);
+			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", true, mob, 0, 0, TO_ROOM);
 		} else {
-			act("$n вскочил$g и скрыл$u из виду.", TRUE, boss, 0, 0, TO_ROOM);
+			act("$n вскочил$g и скрыл$u из виду.", true, boss, 0, 0, TO_ROOM);
 			sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
-			act(buf, TRUE, mob, 0, ch, TO_ROOM);
+			act(buf, true, mob, 0, ch, TO_ROOM);
 		}
 		if (!WAITLESS(ch)) {
 			if (isname(bank, "банк bank"))
@@ -122,7 +122,7 @@ void doBring(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos, char *bank) {
 	return;
 };
 
-void doForget(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos) {
+void doForget(CharacterData *ch, CharacterData *boss, unsigned int pos) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	std::map<int, MERCDATA>::iterator it = m->begin();
@@ -147,7 +147,7 @@ void doForget(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos) {
 	return;
 };
 
-unsigned int getPos(char *arg, CHAR_DATA *ch, CHAR_DATA *boss) {
+unsigned int getPos(char *arg, CharacterData *ch, CharacterData *boss) {
 	unsigned int pos = 0;
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
@@ -167,13 +167,13 @@ unsigned int getPos(char *arg, CHAR_DATA *ch, CHAR_DATA *boss) {
 
 }
 
-int mercenary(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
+int mercenary(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
 	if (!ch || !ch->desc || IS_NPC(ch))
 		return 0;
 	if (!(CMD_IS("наемник") || CMD_IS("mercenary")))
 		return 0;
 
-	CHAR_DATA *boss = MERC::findMercboss(ch->in_room);
+	CharacterData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;
 
 	if (!IS_IMMORTAL(ch) && ch->get_class() != CLASS_MERCHANT && ch->get_class() != CLASS_CHARMMAGE) {
@@ -181,9 +181,9 @@ int mercenary(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 		return 0;
 	}
 
-	char subCmd[MAX_INPUT_LENGTH];
-	char cmdParam[MAX_INPUT_LENGTH];
-	char bank[MAX_INPUT_LENGTH];
+	char subCmd[kMaxInputLength];
+	char cmdParam[kMaxInputLength];
+	char bank[kMaxInputLength];
 	unsigned int pos;
 
 	three_arguments(argument, subCmd, cmdParam, bank);

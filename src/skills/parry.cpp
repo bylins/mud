@@ -7,7 +7,7 @@
 using namespace FightSystem;
 
 // **************** MULTYPARRY PROCEDURES
-void go_multyparry(CHAR_DATA *ch) {
+void go_multyparry(CharacterData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -17,7 +17,7 @@ void go_multyparry(CHAR_DATA *ch) {
 	send_to_char("Вы попробуете использовать веерную защиту.\r\n", ch);
 }
 
-void do_multyparry(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_multyparry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_MULTYPARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -31,12 +31,12 @@ void do_multyparry(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
+	ObjectData *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
 	if (!(IS_NPC(ch)
 		|| (primary
-			&& GET_OBJ_TYPE(primary) == OBJ_DATA::ITEM_WEAPON
+			&& GET_OBJ_TYPE(primary) == ObjectData::ITEM_WEAPON
 			&& offhand
-			&& GET_OBJ_TYPE(offhand) == OBJ_DATA::ITEM_WEAPON)
+			&& GET_OBJ_TYPE(offhand) == ObjectData::ITEM_WEAPON)
 		|| IS_IMMORTAL(ch)
 		|| GET_GOD_FLAG(ch, GF_GODSLIKE))) {
 		send_to_char("Вы не можете отражать атаки безоружным.\r\n", ch);
@@ -50,7 +50,7 @@ void do_multyparry(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 }
 
 // **************** PARRY PROCEDURES
-void go_parry(CHAR_DATA *ch) {
+void go_parry(CharacterData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -60,7 +60,7 @@ void go_parry(CHAR_DATA *ch) {
 	send_to_char("Вы попробуете отклонить следующую атаку.\r\n", ch);
 }
 
-void do_parry(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_parry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_PARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -82,10 +82,10 @@ void do_parry(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		bool prim = 0, offh = 0;
-		if (GET_EQ(ch, WEAR_WIELD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON) {
+		if (GET_EQ(ch, WEAR_WIELD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ObjectData::ITEM_WEAPON) {
 			prim = 1;
 		}
-		if (GET_EQ(ch, WEAR_HOLD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON) {
+		if (GET_EQ(ch, WEAR_HOLD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjectData::ITEM_WEAPON) {
 			offh = 1;
 		}
 
@@ -105,7 +105,7 @@ void do_parry(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	go_parry(ch);
 }
 
-void parry_override(CHAR_DATA *ch) {
+void parry_override(CharacterData *ch) {
 	std::string message = "";
 	if (GET_AF_BATTLE(ch, EAF_BLOCK)) {
 		message = "Вы прекратили прятаться за щит и бросились в бой.";
@@ -119,7 +119,7 @@ void parry_override(CHAR_DATA *ch) {
 		message = "Вы забыли о защите и бросились в бой.";
 		CLR_AF_BATTLE(ch, EAF_MULTYPARRY);
 	}
-	act(message.c_str(), FALSE, ch, 0, 0, TO_CHAR);
+	act(message.c_str(), false, ch, 0, 0, TO_CHAR);
 }
 
 

@@ -1,10 +1,10 @@
 #ifndef BYLINS_FLEE_H
 #define BYLINS_FLEE_H
 
-class CHAR_DATA;
+class CharacterData;
 
-void go_flee(CHAR_DATA *ch);
-void do_flee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_flee(CharacterData *ch);
+void do_flee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_FLEE_H
 

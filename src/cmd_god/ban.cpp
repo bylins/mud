@@ -17,20 +17,20 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 
-void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_ban(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_unban(CharacterData *ch, char *argument, int cmd, int subcmd);
 int Valid_Name(char *newname);
 void Read_Invalid_List(void);
 
-void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ban(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
 		ban->ShowBannedIp(BanList::SORT_BY_DATE, ch);
 		return;
 	}
 
-	char flag[MAX_INPUT_LENGTH], site[MAX_INPUT_LENGTH];
+	char flag[kMaxInputLength], site[kMaxInputLength];
 	argument = two_arguments(argument, flag, site);
 
 	if (!str_cmp(flag, "proxy")) {
@@ -92,7 +92,7 @@ void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	char length[MAX_INPUT_LENGTH], *reason;
+	char length[kMaxInputLength], *reason;
 	int len, ban_type = BanList::BAN_ALL;
 	reason = one_argument(argument, length);
 	skip_spaces(&reason);
@@ -115,8 +115,8 @@ void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("Site banned.\r\n", ch);
 }
 
-void do_unban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char site[MAX_INPUT_LENGTH];
+void do_unban(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	char site[kMaxInputLength];
 	one_argument(argument, site);
 	if (!*site) {
 		send_to_char("A site to unban might help.\r\n", ch);
@@ -142,7 +142,7 @@ int num_invalid = 0;
 
 int Is_Valid_Name(char *newname) {
 	int i;
-	char tempname[MAX_INPUT_LENGTH];
+	char tempname[kMaxInputLength];
 
 	if (!*invalid_list || num_invalid < 1)
 		return (1);
@@ -161,7 +161,7 @@ int Is_Valid_Name(char *newname) {
 }
 
 int Is_Valid_Dc(char *newname) {
-	DESCRIPTOR_DATA *dt;
+	DescriptorData *dt;
 
 	for (dt = descriptor_list; dt; dt = dt->next)
 		if (dt->character && GET_NAME(dt->character)
@@ -300,7 +300,7 @@ void LoadProxyList() {
 
 // проверка на присутствие в списке зарегистрированных ip и кол-ва соединений
 // 0 - нету, 1 - в маде уже макс. число коннектов с данного ip, 2 - все ок
-int CheckProxy(DESCRIPTOR_DATA *ch) {
+int CheckProxy(DescriptorData *ch) {
 	//сначала ищем в списке, зачем зря коннекты считать
 	ProxyListType::const_iterator it;
 	// мысль простая - есть второй ип, знач смотрим диапазон, нету - знач сверяем на равенство ип
@@ -315,7 +315,7 @@ int CheckProxy(DESCRIPTOR_DATA *ch) {
 		return 0;
 
 	// терь можно и посчитать
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 	int num_ip = 0;
 	for (i = descriptor_list; i; i = i->next)
 		if (i != ch && i->character && !IS_IMMORTAL(i->character) && (i->ip == ch->ip))
@@ -329,7 +329,7 @@ int CheckProxy(DESCRIPTOR_DATA *ch) {
 }
 
 // команда proxy
-void do_proxy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_proxy(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 
@@ -598,7 +598,7 @@ bool BanList::add_ban(std::string BannedIp, std::string BanReason, std::string B
 
 	sprintf(buf, "%s has banned %s for %s players(%s) (%dh).",
 			BannerName.c_str(), BannedIp.c_str(), ban_types[BanType], temp_node_ptr->BanReason.c_str(), UnbanDate);
-	mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+	mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 	imm_log("%s has banned %s for %s players(%s) (%dh).", BannerName.c_str(),
 			BannedIp.c_str(), ban_types[BanType], temp_node_ptr->BanReason.c_str(), UnbanDate);
 
@@ -643,7 +643,7 @@ bool BanList::add_proxy_ban(std::string BannedIp, std::string BannerName) {
 ///////////////////////////////////////////////////////////////////////
 	disconnectBannedIp(BannedIp);
 	sprintf(buf, "%s has banned proxy %s", BannerName.c_str(), BannedIp.c_str());
-	mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+	mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 	imm_log("%s has banned proxy %s", BannerName.c_str(), BannedIp.c_str());
 ///////////////////////////////////////////////////////////////////////
 	return true;
@@ -835,14 +835,14 @@ bool BanList::save_proxy(void) {
 	return false;
 }
 
-void BanList::ShowBannedIp(int sort_mode, CHAR_DATA *ch) {
+void BanList::ShowBannedIp(int sort_mode, CharacterData *ch) {
 	if (Ban_List.empty()) {
 		send_to_char("No sites are banned.\r\n", ch);
 		return;
 	}
 
 	sort_ip(sort_mode);
-	char format[MAX_INPUT_LENGTH], to_unban[MAX_INPUT_LENGTH], buff[MAX_INPUT_LENGTH], *listbuf = 0, *timestr;
+	char format[kMaxInputLength], to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = 0, *timestr;
 	strcpy(format, "%-25.25s  %-8.8s  %-10.10s  %-16.16s %-8.8s\r\n");
 	sprintf(buf, format, "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban");
 
@@ -858,7 +858,7 @@ void BanList::ShowBannedIp(int sort_mode, CHAR_DATA *ch) {
 		timestr = asctime(localtime(&((*i)->BanDate)));
 		*(timestr + 10) = 0;
 		strcpy(to_unban, timestr);
-		sprintf(buff, "%ldh", static_cast<long int>((*i)->UnbanDate - time(NULL)) / 3600);
+		sprintf(buff, "%ldh", static_cast<long int>((*i)->UnbanDate - time(nullptr)) / 3600);
 		sprintf(buf, format, (*i)->BannedIp.c_str(), ban_types[(*i)->BanType],
 				to_unban, (*i)->BannerName.c_str(), buff);
 		listbuf = str_add(listbuf, buf);
@@ -870,15 +870,15 @@ void BanList::ShowBannedIp(int sort_mode, CHAR_DATA *ch) {
 	free(listbuf);
 }
 
-void BanList::ShowBannedIpByMask(int sort_mode, CHAR_DATA *ch, const char *mask) {
-	bool is_find = FALSE;
+void BanList::ShowBannedIpByMask(int sort_mode, CharacterData *ch, const char *mask) {
+	bool is_find = false;
 	if (Ban_List.empty()) {
 		send_to_char("No sites are banned.\r\n", ch);
 		return;
 	}
 
 	sort_ip(sort_mode);
-	char format[MAX_INPUT_LENGTH], to_unban[MAX_INPUT_LENGTH], buff[MAX_INPUT_LENGTH], *listbuf = 0, *timestr;
+	char format[kMaxInputLength], to_unban[kMaxInputLength], buff[kMaxInputLength], *listbuf = 0, *timestr;
 	strcpy(format, "%-25.25s  %-8.8s  %-10.10s  %-16.16s %-8.8s\r\n");
 	sprintf(buf, format, "Banned Site Name", "Ban Type", "Banned On", "Banned By", "To Unban");
 
@@ -895,14 +895,14 @@ void BanList::ShowBannedIpByMask(int sort_mode, CHAR_DATA *ch, const char *mask)
 			timestr = asctime(localtime(&((*i)->BanDate)));
 			*(timestr + 10) = 0;
 			strcpy(to_unban, timestr);
-			sprintf(buff, "%ldh", static_cast<long int>((*i)->UnbanDate - time(NULL)) / 3600);
+			sprintf(buff, "%ldh", static_cast<long int>((*i)->UnbanDate - time(nullptr)) / 3600);
 			sprintf(buf, format, (*i)->BannedIp.c_str(), ban_types[(*i)->BanType],
 					to_unban, (*i)->BannerName.c_str(), buff);
 			listbuf = str_add(listbuf, buf);
 			strcpy(buf, (*i)->BanReason.c_str());
 			strcat(buf, "\r\n");
 			listbuf = str_add(listbuf, buf);
-			is_find = TRUE;
+			is_find = true;
 		};
 
 	}
@@ -914,13 +914,13 @@ void BanList::ShowBannedIpByMask(int sort_mode, CHAR_DATA *ch, const char *mask)
 	free(listbuf);
 }
 
-void BanList::ShowBannedProxy(int sort_mode, CHAR_DATA *ch) {
+void BanList::ShowBannedProxy(int sort_mode, CharacterData *ch) {
 	if (Proxy_Ban_List.empty()) {
 		send_to_char("No proxies are banned.\r\n", ch);
 		return;
 	}
 	sort_proxy(sort_mode);
-	char format[MAX_INPUT_LENGTH];
+	char format[kMaxInputLength];
 	strcpy(format, "%-25.25s  %-16.16s\r\n");
 	sprintf(buf, format, "Banned Site Name", "Banned By");
 	send_to_char(buf, ch);
@@ -951,7 +951,7 @@ int BanList::is_banned(std::string ip) {
 	if (j != Ban_List.end()) {
 		if ((*j)->UnbanDate <= time(0)) {
 			sprintf(buf, "Site %s is unbaned (time expired).", (*j)->BannedIp.c_str());
-			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+			mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 			Ban_List.erase(j);
 			save_ip();
 			return BAN_NO;
@@ -961,7 +961,7 @@ int BanList::is_banned(std::string ip) {
 	return BAN_NO;
 }
 
-bool BanList::unban_ip(std::string ip, CHAR_DATA *ch) {
+bool BanList::unban_ip(std::string ip, CharacterData *ch) {
 	std::list<BanNodePtr>::iterator i =
 		std::find_if(Ban_List.begin(), Ban_List.end(), [&](const BanNodePtr ptr) {
 			return this->ban_compare(ptr, BAN_IP_COMPARE, &ip);
@@ -972,7 +972,7 @@ bool BanList::unban_ip(std::string ip, CHAR_DATA *ch) {
 		send_to_char("Site unbanned.\r\n", ch);
 		sprintf(buf, "%s removed the %s-player ban on %s.",
 				GET_NAME(ch), ban_types[(*i)->BanType], (*i)->BannedIp.c_str());
-		mudlog(buf, BRF, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, BRF, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s removed the %s-player ban on %s.", GET_NAME(ch),
 				ban_types[(*i)->BanType], (*i)->BannedIp.c_str());
 ////////////////////////////////////////////////////////////////////////
@@ -983,7 +983,7 @@ bool BanList::unban_ip(std::string ip, CHAR_DATA *ch) {
 	return false;
 }
 
-bool BanList::unban_proxy(std::string ip, CHAR_DATA *ch) {
+bool BanList::unban_proxy(std::string ip, CharacterData *ch) {
 	std::list<ProxyBanNodePtr>::iterator i =
 		std::find_if(Proxy_Ban_List.begin(), Proxy_Ban_List.end(), [&](const ProxyBanNodePtr ptr) {
 			return this->proxy_ban_compare(ptr, BAN_IP_COMPARE, &ip);
@@ -993,7 +993,7 @@ bool BanList::unban_proxy(std::string ip, CHAR_DATA *ch) {
 ////////////////////////////////////////////////////////////////////////
 		send_to_char("Proxy unbanned.\r\n", ch);
 		sprintf(buf, "%s removed the proxy ban on %s.", GET_NAME(ch), (*i)->BannedIp.c_str());
-		mudlog(buf, BRF, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, BRF, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s removed the proxy ban on %s.", GET_NAME(ch), (*i)->BannedIp.c_str());
 ////////////////////////////////////////////////////////////////////////
 		Proxy_Ban_List.erase(i);
@@ -1003,7 +1003,7 @@ bool BanList::unban_proxy(std::string ip, CHAR_DATA *ch) {
 	return false;
 }
 
-bool BanList::unban(std::string Ip, CHAR_DATA *ch) {
+bool BanList::unban(std::string Ip, CharacterData *ch) {
 	bool flag1 = false, flag2 = false;
 	flag1 = unban_ip(Ip, ch);
 	flag2 = unban_proxy(Ip, ch);
@@ -1061,7 +1061,7 @@ time_t BanList::getBanDate(std::string ip) {
 }
 
 void BanList::disconnectBannedIp(std::string Ip) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->host == Ip) {
@@ -1102,7 +1102,7 @@ bool need_save = 0;
 } // namespace RegisterSystem
 
 // * Добавления мыла в список + проставления флага PLR_REGISTERED, registered_email не выставляется
-void RegisterSystem::add(CHAR_DATA *ch, const char *text, const char *reason) {
+void RegisterSystem::add(CharacterData *ch, const char *text, const char *reason) {
 	PLR_FLAGS(ch).set(PLR_REGISTERED);
 	if (!text || !reason) return;
 	std::stringstream out;
@@ -1118,7 +1118,7 @@ void RegisterSystem::add(CHAR_DATA *ch, const char *text, const char *reason) {
 * Удаление мыла из списка, снятие флага PLR_REGISTERED и registered_email.
 * В течении секунды персонаж помещается в комнату незареганных игроков, если он не один с данного ип
 */
-void RegisterSystem::remove(CHAR_DATA *ch) {
+void RegisterSystem::remove(CharacterData *ch) {
 	PLR_FLAGS(ch).unset(PLR_REGISTERED);
 	EmailListType::iterator it = email_list.find(GET_EMAIL(ch));
 	if (it != email_list.end()) {
@@ -1133,7 +1133,7 @@ void RegisterSystem::remove(CHAR_DATA *ch) {
 * Проверка, является ли персонаж зарегистрированным каким-нить образом
 * \return 0 - нет, 1 - да
 */
-bool RegisterSystem::is_registered(CHAR_DATA *ch) {
+bool RegisterSystem::is_registered(CharacterData *ch) {
 	if (PLR_FLAGGED(ch, PLR_REGISTERED) || (ch->desc && ch->desc->registered_email))
 		return 1;
 	return 0;

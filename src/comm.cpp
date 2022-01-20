@@ -34,7 +34,8 @@
 #include "global_objects.h"
 #include "magic/magic.h"
 #include "world_objects.h"
-#include "chars/world.characters.h"
+#include "entities/world_characters.h"
+#include "entities/entity_constants.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "obj_prototypes.h"
 #include "external_trigger.h"
@@ -46,13 +47,13 @@
 #include "exchange.h"
 #include "title.h"
 #include "depot.h"
-#include "glory.h"
-#include "file_crc.h"
+#include "game_mechanics/glory.h"
+#include "utils/file_crc.h"
 #include "corpse.h"
-#include "glory_misc.h"
-#include "glory_const.h"
+#include "game_mechanics/glory_misc.h"
+#include "game_mechanics/glory_const.h"
 #include "shop_ext.h"
-#include "sets_drop.h"
+#include "game_mechanics/sets_drop.h"
 #include "mail.h"
 #include "mob_stat.h"
 #include "utils/utils_char_obj.inl"
@@ -61,7 +62,7 @@
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"
 #include "heartbeat.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "db.h"
 #include "utils/utils.h"
 #include "skills_info.h"
@@ -165,7 +166,7 @@
 
 #define MXPMODE(arg) ESC "[" #arg "z"
 extern void log_zone_count_reset();
-extern int perform_move(CHAR_DATA *ch, int dir, int following, int checkmob, CHAR_DATA *leader);
+extern int perform_move(CharacterData *ch, int dir, int following, int checkmob, CharacterData *leader);
 // flags for show_list_to_char
 
 enum {
@@ -186,8 +187,8 @@ int count_mxp_tags(const int bMXP, const char *txt, int length) {
 	char c;
 	const char *p;
 	int count;
-	int bInTag = FALSE;
-	int bInEntity = FALSE;
+	int bInTag = false;
+	int bInEntity = false;
 
 	for (p = txt, count = 0;
 		 length > 0;
@@ -199,19 +200,19 @@ int count_mxp_tags(const int bMXP, const char *txt, int length) {
 			if (!bMXP)
 				count--;     /* not output if not MXP */
 			if (c == MXP_ENDc)
-				bInTag = FALSE;
+				bInTag = false;
 		} /* end of being inside a tag */
 		else if (bInEntity)  /* in a tag, eg. <send> */
 		{
 			if (!bMXP)
 				count--;     /* not output if not MXP */
 			if (c == ';')
-				bInEntity = FALSE;
+				bInEntity = false;
 		} /* end of being inside a tag */
 		else
 			switch (c) {
 
-				case MXP_BEGc:bInTag = TRUE;
+				case MXP_BEGc:bInTag = true;
 					if (!bMXP)
 						count--;     /* not output if not MXP */
 					break;
@@ -221,7 +222,7 @@ int count_mxp_tags(const int bMXP, const char *txt, int length) {
 						count--;     /* not output if not MXP */
 					break;
 
-				case MXP_AMPc:bInEntity = TRUE;
+				case MXP_AMPc:bInEntity = true;
 					if (!bMXP)
 						count--;     /* not output if not MXP */
 					break;
@@ -254,8 +255,8 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 	char c;
 	const char *ps;
 	char *pd;
-	int bInTag = FALSE;
-	int bInEntity = FALSE;
+	int bInTag = false;
+	int bInEntity = false;
 
 	for (ps = src, pd = dest;
 		 length > 0;
@@ -264,7 +265,7 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 		if (bInTag)  /* in a tag, eg. <send> */
 		{
 			if (c == MXP_ENDc) {
-				bInTag = FALSE;
+				bInTag = false;
 				if (bMXP)
 					*pd++ = '>';
 			} else if (bMXP)
@@ -275,11 +276,11 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 			if (bMXP)
 				*pd++ = c;  /* copy tag only in MXP mode */
 			if (c == ';')
-				bInEntity = FALSE;
+				bInEntity = false;
 		} /* end of being inside a tag */
 		else
 			switch (c) {
-				case MXP_BEGc:bInTag = TRUE;
+				case MXP_BEGc:bInTag = true;
 					if (bMXP)
 						*pd++ = '<';
 					break;
@@ -289,7 +290,7 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 						*pd++ = '>';
 					break;
 
-				case MXP_AMPc:bInEntity = TRUE;
+				case MXP_AMPc:bInEntity = true;
 					if (bMXP)
 						*pd++ = '&';
 					break;
@@ -331,7 +332,7 @@ void convert_mxp_tags(const int bMXP, char *dest, const char *src, int length) {
 void our_terminate();
 
 namespace {
-static const bool SET_TERMINATE = NULL != std::set_terminate(our_terminate);
+static const bool SET_TERMINATE = nullptr != std::set_terminate(our_terminate);
 }
 
 void our_terminate() {
@@ -368,14 +369,14 @@ extern int max_playing;
 extern int nameserver_is_slow;    // see config.cpp
 extern int mana[];
 extern const char *save_info_msg[];    // In olc.cpp
-extern CHAR_DATA *combat_list;
+extern CharacterData *combat_list;
 extern int proc_color(char *inbuf, int color);
 extern void tact_auction(void);
 extern void log_code_date();
 
 // local globals
-DESCRIPTOR_DATA *descriptor_list = NULL;    // master desc list
-struct txt_block *bufpool = 0;    // pool of large output buffers
+DescriptorData *descriptor_list = nullptr;    // master desc list
+struct TextBlock *bufpool = 0;    // pool of large output buffers
 int buf_largecount = 0;        // # of large buffers which exist
 int buf_overflows = 0;        // # of overflows of output
 int buf_switches = 0;        // # of switches from small to large buf
@@ -495,7 +496,7 @@ void gifts() {
 	int rand_vnum_r = vnum_room_new_year[number(0, 30)];
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
-	obj_rnum rnum;
+	ObjRnum rnum;
 	if ((rnum = real_object(rand_vnum)) < 0) {
 		log("Ошибка в таблице НГ подарков!");
 		return;
@@ -521,7 +522,7 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left);
 ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length);
 void sanity_check(void);
 void circle_sleep(struct timeval *timeout);
-int get_from_q(struct txt_q *queue, char *dest, int *aliased);
+int get_from_q(struct TextBlocksQueue *queue, char *dest, int *aliased);
 void stop_game(ush_int port);
 void signal_setup(void);
 #ifdef HAS_EPOLL
@@ -535,14 +536,14 @@ int new_descriptor(socket_t s);
 socket_t init_socket(ush_int port);
 
 int get_max_players(void);
-int process_output(DESCRIPTOR_DATA *t);
-int process_input(DESCRIPTOR_DATA *t);
+int process_output(DescriptorData *t);
+int process_input(DescriptorData *t);
 void timeadd(struct timeval *sum, struct timeval *a, struct timeval *b);
-void flush_queues(DESCRIPTOR_DATA *d);
+void flush_queues(DescriptorData *d);
 void nonblock(socket_t s);
-int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst);
-int perform_alias(DESCRIPTOR_DATA *d, char *orig);
-char *make_prompt(DESCRIPTOR_DATA *point);
+int perform_subst(DescriptorData *t, char *orig, char *subst);
+int perform_alias(DescriptorData *d, char *orig);
+char *make_prompt(DescriptorData *point);
 struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
@@ -555,14 +556,14 @@ void *zlib_alloc(void *opaque, unsigned int items, unsigned int size);
 void zlib_free(void *opaque, void *address);
 #endif
 
-void show_string(DESCRIPTOR_DATA *d, char *input);
+void show_string(DescriptorData *d, char *input);
 void redit_save_to_disk(int zone_num);
 void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
-void Crash_ldsave(CHAR_DATA *ch);
+void Crash_ldsave(CharacterData *ch);
 void Crash_save_all_rent();
-int level_exp(CHAR_DATA *ch, int level);
+int level_exp(CharacterData *ch, int level);
 unsigned long TxtToIp(const char *text);
 
 #ifdef __CXREF__
@@ -597,8 +598,8 @@ unsigned long TxtToIp(const char *text);
  * Compression ends on a Z_STREAM_END, no other marker is used
  */
 
-int mccp_start(DESCRIPTOR_DATA *t, int ver);
-int mccp_end(DESCRIPTOR_DATA *t, int ver);
+int mccp_start(DescriptorData *t, int ver);
+int mccp_end(DescriptorData *t, int ver);
 
 const char compress_will[] = {(char) IAC, (char) WILL, (char) TELOPT_COMPRESS2,
 							  (char) IAC, (char) WILL, (char) TELOPT_COMPRESS
@@ -765,7 +766,7 @@ void stop_game(ush_int port) {
 #ifdef HAS_EPOLL
 	int epoll;
 	struct epoll_event event;
-	DESCRIPTOR_DATA *mother_d;
+	DescriptorData *mother_d;
 #endif
 
 	// We don't want to restart if we crash before we get up.
@@ -803,7 +804,7 @@ void stop_game(ush_int port) {
 	// а поскольку для клиентских сокетов нам нужны ptr, то и для родительского
 	// дескриптора, где нам наоборот нужен fd, придется создать псевдоструктуру,
 	// в которой инициализируем только поле descriptor
-	mother_d = (DESCRIPTOR_DATA *) calloc(1, sizeof(DESCRIPTOR_DATA));
+	mother_d = (DescriptorData *) calloc(1, sizeof(DescriptorData));
 	mother_d->descriptor = mother_desc;
 	event.data.ptr = mother_d;
 	event.events = EPOLLIN;
@@ -862,10 +863,10 @@ void stop_game(ush_int port) {
 	log("Closing all sockets.");
 #ifdef HAS_EPOLL
 	while (descriptor_list)
-		close_socket(descriptor_list, TRUE, epoll, NULL, 0);
+		close_socket(descriptor_list, true, epoll, nullptr, 0);
 #else
 	while (descriptor_list)
-		close_socket(descriptor_list, TRUE);
+		close_socket(descriptor_list, true);
 #endif
 	// должно идти после дисконекта плееров
 	FileCRC::save(true);
@@ -1097,17 +1098,17 @@ int shutting_down(void) {
 	int wait;
 
 	if (shutdown_parameters.no_shutdown()) {
-		return FALSE;
+		return false;
 	}
 
 	if (!shutdown_parameters.get_shutdown_timeout()
 		|| time(nullptr) >= shutdown_parameters.get_shutdown_timeout()) {
-		return TRUE;
+		return true;
 	}
 
 	if (lastmessage == shutdown_parameters.get_shutdown_timeout()
 		|| lastmessage == time(nullptr)) {
-		return FALSE;
+		return false;
 	}
 	wait = shutdown_parameters.get_shutdown_timeout() - time(nullptr);
 
@@ -1124,12 +1125,12 @@ int shutting_down(void) {
 		else
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, desc_count(wait / 60, WHAT_MINu));
 		send_to_all(buf);
-		lastmessage = time(NULL);
+		lastmessage = time(nullptr);
 		// на десятой секунде засейвим нужное нам в сислог
 		if (wait == 10)
 			log_zone_count_reset();
 	}
-	return (FALSE);
+	return (false);
 }
 
 #ifdef HAS_EPOLL
@@ -1139,8 +1140,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					   socket_t mother_desc, int maxdesc)
 #endif
 {
-	DESCRIPTOR_DATA *d, *next_d;
-	char comm[MAX_INPUT_LENGTH];
+	DescriptorData *d, *next_d;
+	char comm[kMaxInputLength];
 	int aliased;
 
 #ifdef HAS_EPOLL
@@ -1158,8 +1159,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 
 	for (i = 0; i < n; i++)
 		if (events[i].events & EPOLLIN) {
-			d = (DESCRIPTOR_DATA *) events[i].data.ptr;
-			if (d == NULL)
+			d = (DescriptorData *) events[i].data.ptr;
+			if (d == nullptr)
 				continue;
 			if (mother_desc == d->descriptor) // событие на mother_desc: принимаем все ждущие соединения
 			{
@@ -1169,11 +1170,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				while (desc > 0 || desc == -3);
 			} else // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
 			if (process_input(d) < 0)
-				close_socket(d, FALSE, epoll, events, n);
+				close_socket(d, false, epoll, events, n);
 		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
 		{
 			// надо будет помониторить сислог на предмет этих сообщений
-			char tmp[MAX_INPUT_LENGTH];
+			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in %s() at %s:%d",
 					 static_cast<unsigned>(events[i].events),
 					 __func__, __FILE__, __LINE__);
@@ -1199,7 +1200,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		{
 			FD_CLR(d->descriptor, &input_set);
 			FD_CLR(d->descriptor, &output_set);
-			close_socket(d, TRUE);
+			close_socket(d, true);
 		}
 	}
 
@@ -1209,7 +1210,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		next_d = d->next;
 		if (FD_ISSET(d->descriptor, &input_set))
 			if (process_input(d) < 0)
-				close_socket(d, FALSE);
+				close_socket(d, false);
 	}
 #endif
 
@@ -1243,24 +1244,24 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (!get_from_q(&d->input, comm, &aliased)) {
 			if (STATE(d) != CON_PLAYING &&
 				STATE(d) != CON_DISCONNECT &&
-				time(NULL) - d->input_time > 300 && d->character && !IS_GOD(d->character))
+				time(nullptr) - d->input_time > 300 && d->character && !IS_GOD(d->character))
 #ifdef HAS_EPOLL
-				close_socket(d, TRUE, epoll, events, n);
+				close_socket(d, true, epoll, events, n);
 #else
-			close_socket(d, TRUE);
+			close_socket(d, true);
 #endif
 			continue;
 		}
-		d->input_time = time(NULL);
+		d->input_time = time(nullptr);
 		if (d->character)    // Reset the idle timer & pull char back from void if necessary
 		{
 			d->character->char_specials.timer = 0;
-			if (STATE(d) == CON_PLAYING && d->character->get_was_in_room() != NOWHERE) {
-				if (d->character->in_room != NOWHERE)
+			if (STATE(d) == CON_PLAYING && d->character->get_was_in_room() != kNowhere) {
+				if (d->character->in_room != kNowhere)
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
-				d->character->set_was_in_room(NOWHERE);
-				act("$n вернул$u.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				d->character->set_was_in_room(kNowhere);
+				act("$n вернул$u.", true, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				d->character->set_wait(1u);
 			}
 		}
@@ -1286,12 +1287,12 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 
 #ifdef HAS_EPOLL
 	for (i = 0; i < n; i++) {
-		d = (DESCRIPTOR_DATA *) events[i].data.ptr;
-		if (d == NULL)
+		d = (DescriptorData *) events[i].data.ptr;
+		if (d == nullptr)
 			continue;
 		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output))) {
 			if (process_output(d) < 0) // сокет умер
-				close_socket(d, FALSE, epoll, events, n);
+				close_socket(d, false, epoll, events, n);
 			else
 				d->has_prompt = 1;   // признак того, что промпт уже выводил
 			// следующий после команды или очередной
@@ -1305,7 +1306,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
 			if (process_output(d) < 0)
-				close_socket(d, FALSE);	// закрыл соединение
+				close_socket(d, false);	// закрыл соединение
 			else
 				d->has_prompt = 1;	// признак того, что промпт уже выводил
 			// следующий после команды или очередной
@@ -1322,9 +1323,9 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		next_d = d->next;
 		if (STATE(d) == CON_CLOSE || STATE(d) == CON_DISCONNECT)
 #ifdef HAS_EPOLL
-			close_socket(d, FALSE, epoll, events, n);
+			close_socket(d, false, epoll, events, n);
 #else
-		close_socket(d, FALSE);
+		close_socket(d, false);
 #endif
 	}
 
@@ -1348,7 +1349,7 @@ void game_loop(socket_t mother_desc)
 #ifdef HAS_EPOLL
 	struct epoll_event *events;
 #else
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	fd_set input_set, output_set, exc_set, null_set;
 	int maxdesc;
 #endif
@@ -1360,7 +1361,7 @@ void game_loop(socket_t mother_desc)
 	// initialize various time values
 	null_time.tv_sec = 0;
 	null_time.tv_usec = 0;
-	opt_time.tv_usec = OPT_USEC;
+	opt_time.tv_usec = kOptUsec;
 	opt_time.tv_sec = 0;
 
 #ifdef HAS_EPOLL
@@ -1374,7 +1375,7 @@ void game_loop(socket_t mother_desc)
 	// The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The..
 	while (!shutting_down())    // Sleep if we don't have any connections
 	{
-		if (descriptor_list == NULL) {
+		if (descriptor_list == nullptr) {
 			log("No connections.  Going to sleep.");
 			//make_who2html();
 #ifdef HAS_EPOLL
@@ -1382,7 +1383,7 @@ void game_loop(socket_t mother_desc)
 #else
 				FD_ZERO(&input_set);
 				FD_SET(mother_desc, &input_set);
-				if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, NULL) < 0)
+				if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, nullptr) < 0)
 #endif
 			{
 				if (errno == EINTR)
@@ -1434,13 +1435,13 @@ void game_loop(socket_t mother_desc)
 			 * If we were asleep for more than one pass, count missed pulses and sleep
 			 * until we're resynchronized with the next upcoming pulse.
 			 */
-			if (process_time.tv_sec == 0 && process_time.tv_usec < OPT_USEC) {
+			if (process_time.tv_sec == 0 && process_time.tv_usec < kOptUsec) {
 				missed_pulses = 0;
 			} else {
-				missed_pulses = process_time.tv_sec * PASSES_PER_SEC;
-				missed_pulses += process_time.tv_usec / OPT_USEC;
+				missed_pulses = process_time.tv_sec * kPassesPerSec;
+				missed_pulses += process_time.tv_usec / kOptUsec;
 				process_time.tv_sec = 0;
-				process_time.tv_usec = process_time.tv_usec % OPT_USEC;
+				process_time.tv_usec = process_time.tv_usec % kOptUsec;
 			}
 
 			// Calculate the time we should wake up
@@ -1476,12 +1477,12 @@ void game_loop(socket_t mother_desc)
 		// If we missed more than 30 seconds worth of pulses, just do 30 secs
 		// изменили на 4 сек
 		// изменили на 1 сек -- слишком уж опасно лагает :)
-		if (missed_pulses > (1 * PASSES_PER_SEC)) {
-			const auto missed_seconds = missed_pulses / PASSES_PER_SEC;
+		if (missed_pulses > (1 * kPassesPerSec)) {
+			const auto missed_seconds = missed_pulses / kPassesPerSec;
 			const auto current_pulse = GlobalObjects::heartbeat().pulse_number();
 			log("SYSERR: Missed %d seconds worth of pulses (%d) on the pulse %d.",
 				static_cast<int>(missed_seconds), missed_pulses, current_pulse);
-			missed_pulses = 1 * PASSES_PER_SEC;
+			missed_pulses = 1 * kPassesPerSec;
 		}
 
 		// Now execute the heartbeat functions
@@ -1554,7 +1555,7 @@ void timeadd(struct timeval *rslt, struct timeval *a, struct timeval *b) {
 	}
 }
 
-char *color_value(CHAR_DATA * /*ch*/, int real, int max) {
+char *color_value(CharacterData * /*ch*/, int real, int max) {
 	static char color[8];
 	switch (posi_value(real, max)) {
 		case -1:
@@ -1578,7 +1579,7 @@ char *color_value(CHAR_DATA * /*ch*/, int real, int max) {
 }
 
 /*
-char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
+char *show_state(CharacterData *ch, CharacterData *victim)
 { int ch_hp = 11;
   static char *WORD_STATE[12] =
               {"Умирает",
@@ -1604,7 +1605,7 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
 }
 */
 
-char *show_state(CHAR_DATA *ch, CHAR_DATA *victim) {
+char *show_state(CharacterData *ch, CharacterData *victim) {
 	static const char *WORD_STATE[12] = {"Смертельно ранен",
 										 "О.тяжело ранен",
 										 "О.тяжело ранен",
@@ -1626,15 +1627,15 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return buf;
 }
 
-char *make_prompt(DESCRIPTOR_DATA *d) {
-	static char prompt[MAX_PROMPT_LENGTH + 1];
+char *make_prompt(DescriptorData *d) {
+	static char prompt[kMaxPromptLength + 1];
 	static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
 
 	int ch_hp, sec_hp;
 	int door;
 	int perc;
 
-	// Note, prompt is truncated at MAX_PROMPT_LENGTH chars (structs.h )
+	// Note, prompt is truncated at kMaxPromptLength entities (structs.h )
 	if (d->showstr_count) {
 		sprintf(prompt,
 				"\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).",
@@ -1780,9 +1781,9 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 			if (PRF_FLAGGED(d->character, PRF_DISPEXITS)) {
 				count += sprintf(prompt + count, "Вых:");
 				if (!AFF_FLAGGED(d->character, EAffectFlag::AFF_BLIND)) {
-					for (door = 0; door < NUM_OF_DIRS; door++) {
+					for (door = 0; door < kDirMaxNumber; door++) {
 						if (EXIT(d->character, door)
-							&& EXIT(d->character, door)->to_room() != NOWHERE
+							&& EXIT(d->character, door)->to_room() != kNowhere
 							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN)) {
 							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)
 									 ? sprintf(prompt + count, "(%s)", dirs[door])
@@ -1816,8 +1817,8 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 	return prompt;
 }
 
-void write_to_q(const char *txt, struct txt_q *queue, int aliased) {
-	struct txt_block *newt;
+void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased) {
+	struct TextBlock *newt;
 
 	CREATE(newt, 1);
 	newt->text = str_dup(txt);
@@ -1825,17 +1826,17 @@ void write_to_q(const char *txt, struct txt_q *queue, int aliased) {
 
 	// queue empty?
 	if (!queue->head) {
-		newt->next = NULL;
+		newt->next = nullptr;
 		queue->head = queue->tail = newt;
 	} else {
 		queue->tail->next = newt;
 		queue->tail = newt;
-		newt->next = NULL;
+		newt->next = nullptr;
 	}
 }
 
-int get_from_q(struct txt_q *queue, char *dest, int *aliased) {
-	struct txt_block *tmp;
+int get_from_q(struct TextBlocksQueue *queue, char *dest, int *aliased) {
+	struct TextBlock *tmp;
 
 	// queue empty?
 	if (!queue->head)
@@ -1853,7 +1854,7 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased) {
 }
 
 // Empty the queues before closing connection
-void flush_queues(DESCRIPTOR_DATA *d) {
+void flush_queues(DescriptorData *d) {
 	int dummy;
 
 	if (d->large_outbuf) {
@@ -1864,7 +1865,7 @@ void flush_queues(DESCRIPTOR_DATA *d) {
 }
 
 // Add a new string to a player's output queue
-void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
+void write_to_output(const char *txt, DescriptorData *t) {
 	// if we're in the overflow state already, ignore this new output
 	if (t->bufptr == ~0ull)
 		return;
@@ -1887,7 +1888,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
 	 * If the text is too big to fit into even a large buffer, chuck the
 	 * new text and switch to the overflow state.
 	 */
-	if (size + t->bufptr > LARGE_BUFSIZE - 1) {
+	if (size + t->bufptr > kLargeBufSize - 1) {
 		t->bufptr = ~0ull;
 		buf_overflows++;
 		return;
@@ -1895,13 +1896,13 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
 	buf_switches++;
 
 	// if the pool has a buffer in it, grab it
-	if (bufpool != NULL) {
+	if (bufpool != nullptr) {
 		t->large_outbuf = bufpool;
 		bufpool = bufpool->next;
 	} else        // else create a new one
 	{
 		CREATE(t->large_outbuf, 1);
-		CREATE(t->large_outbuf->text, LARGE_BUFSIZE);
+		CREATE(t->large_outbuf->text, kLargeBufSize);
 		buf_largecount++;
 	}
 
@@ -1912,7 +1913,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
 	// set the pointer for the next write
 	t->bufptr = strlen(t->output);
 	// calculate how much space is left in the buffer
-	t->bufspace = LARGE_BUFSIZE - 1 - t->bufptr;
+	t->bufspace = kLargeBufSize - 1 - t->bufptr;
 }
 
 
@@ -1937,7 +1938,7 @@ struct in_addr *get_bind_addr() {
 	memset((char *) &bind_addr, 0, sizeof(bind_addr));
 
 	// If DLFT_IP is unspecified, use INADDR_ANY
-	if (DFLT_IP == NULL) {
+	if (DFLT_IP == nullptr) {
 		bind_addr.s_addr = htonl(INADDR_ANY);
 	} else {
 		// If the parsing fails, use INADDR_ANY
@@ -1999,7 +2000,7 @@ unsigned long get_ip(const char *addr) {
 // Sets the kernel's send buffer size for the descriptor
 int set_sendbuf(socket_t s) {
 #if defined(SO_SNDBUF) && !defined(CIRCLE_MACINTOSH)
-	int opt = MAX_SOCK_BUF;
+	int opt = kMaxSockBuf;
 
 	if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char *) &opt, sizeof(opt)) < 0) {
 		perror("SYSERR: setsockopt SNDBUF");
@@ -2032,7 +2033,7 @@ int new_descriptor(socket_t s)
 	int sockets_connected = 0;
 	socklen_t i;
 	static int last_desc = 0;    // last descriptor number
-	DESCRIPTOR_DATA *newd;
+	DescriptorData *newd;
 	struct sockaddr_in peer;
 	struct hostent *from;
 #ifdef HAS_EPOLL
@@ -2082,11 +2083,11 @@ int new_descriptor(socket_t s)
 			perror("SYSERR: gethostbyaddr");
 
 		// find the numeric site address
-		strncpy(newd->host, (char *) inet_ntoa(peer.sin_addr), HOST_LENGTH);
-		*(newd->host + HOST_LENGTH) = '\0';
+		strncpy(newd->host, (char *) inet_ntoa(peer.sin_addr), kHostLength);
+		*(newd->host + kHostLength) = '\0';
 	} else {
-		strncpy(newd->host, from->h_name, HOST_LENGTH);
-		*(newd->host + HOST_LENGTH) = '\0';
+		strncpy(newd->host, from->h_name, kHostLength);
+		*(newd->host + kHostLength) = '\0';
 	}
 
 	// ип в виде числа
@@ -2100,7 +2101,7 @@ int new_descriptor(socket_t s)
 	 * your site, but you are wizinvis upon login.
 	 */
 	sprintf(buf2, "New connection from [%s]", newd->host);
-	mudlog(buf2, CMP, LVL_GOD, SYSLOG, FALSE);
+	mudlog(buf2, CMP, kLevelGod, SYSLOG, false);
 #endif
 	if (ban->is_banned(newd->host) == BanList::BAN_ALL) {
 		time_t bantime = ban->getBanDate(newd->host);
@@ -2109,7 +2110,7 @@ int new_descriptor(socket_t s)
 		write_to_descriptor(desc, buf, strlen(buf));
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
-		// mudlog(buf2, CMP, LVL_GOD, SYSLOG, TRUE);
+		// mudlog(buf2, CMP, kLevelGod, SYSLOG, true);
 		delete newd;
 		return (-3);
 	}
@@ -2130,10 +2131,10 @@ int new_descriptor(socket_t s)
 	// событиях для данного сокета становится уже невалидным, и при попытке
 	// обработки этих событий произойдет чудесный креш.
 	//
-	// Предотвращается этот возможный креш принудительной установкой data.ptr в NULL
+	// Предотвращается этот возможный креш принудительной установкой data.ptr в nullptr
 	// для всех событий, пришедших от данного сокета. Это делается в close_socket(),
 	// которому для этой цели теперь передается ссылка на массив событий.
-	// Также добавлена проверка аргумента на NULL в close_socket(), process_input()
+	// Также добавлена проверка аргумента на nullptr в close_socket(), process_input()
 	// и process_output().
 	//
 	// Для алгоритма с использованием select() это было неактуально, поскольку
@@ -2158,20 +2159,20 @@ int new_descriptor(socket_t s)
 	newd->descriptor = desc;
 	newd->idle_tics = 0;
 	newd->output = newd->small_outbuf;
-	newd->bufspace = SMALL_BUFSIZE - 1;
+	newd->bufspace = kSmallBufsize - 1;
 	newd->login_time = newd->input_time = time(0);
 	*newd->output = '\0';
 	newd->bufptr = 0;
 	newd->mxp = false;
 	newd->has_prompt = 1;    // prompt is part of greetings
-	newd->keytable = KT_SELECTMENU;
+	newd->keytable = kKtSelectmenu;
 	STATE(newd) = CON_INIT;
 	/*
 	 * This isn't exactly optimal but allows us to make a design choice.
 	 * Do we embed the history in descriptor_data or keep it dynamically
 	 * allocated and allow a user defined history size?
 	 */
-	CREATE(newd->history, HISTORY_SIZE);
+	CREATE(newd->history, kHistorySize);
 
 	if (++last_desc == 1000)
 		last_desc = 1;
@@ -2195,9 +2196,9 @@ int new_descriptor(socket_t s)
 	return newd->descriptor;
 }
 
-bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, size_t buffer_size, int &written) {
+bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t buffer_size, int &written) {
 #if defined(HAVE_ZLIB)
-	Bytef compressed[SMALL_BUFSIZE];
+	Bytef compressed[kSmallBufsize];
 
 	if (t->deflate)    // Complex case, compression, write it out.
 	{
@@ -2207,16 +2208,16 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
 		t->deflate->avail_in = static_cast<uInt>(buffer_size);
 		t->deflate->next_in = (Bytef *) (buffer);
 		t->deflate->next_out = compressed;
-		t->deflate->avail_out = SMALL_BUFSIZE;
+		t->deflate->avail_out = kSmallBufsize;
 
 		int counter = 0;
 		do {
 			++counter;
-			int df, prevsize = SMALL_BUFSIZE - t->deflate->avail_out;
+			int df, prevsize = kSmallBufsize - t->deflate->avail_out;
 
 			// If there is input or the output has reset from being previously full, run compression again.
 			if (t->deflate->avail_in
-				|| t->deflate->avail_out == SMALL_BUFSIZE) {
+				|| t->deflate->avail_out == kSmallBufsize) {
 				if ((df = deflate(t->deflate, Z_SYNC_FLUSH)) != Z_OK) {
 					log("SYSERR: process_output: deflate() returned %d.", df);
 				}
@@ -2224,11 +2225,11 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
 
 			// There should always be something new to write out.
 			written = write_to_descriptor(t->descriptor, (char *) compressed + prevsize,
-										  SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
+										  kSmallBufsize - t->deflate->avail_out - prevsize);
 
 			// Wrap the buffer when we've run out of buffer space for the output.
 			if (t->deflate->avail_out == 0) {
-				t->deflate->avail_out = SMALL_BUFSIZE;
+				t->deflate->avail_out = kSmallBufsize;
 				t->deflate->next_out = compressed;
 			}
 
@@ -2238,7 +2239,7 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
 			}
 
 			// Need to loop while we still have input or when the output buffer was previously full.
-		} while (t->deflate->avail_out == SMALL_BUFSIZE || t->deflate->avail_in);
+		} while (t->deflate->avail_out == kSmallBufsize || t->deflate->avail_in);
 	} else {
 		written = write_to_descriptor(t->descriptor, buffer, buffer_size);
 	}
@@ -2253,12 +2254,12 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
  * Send all of the output that we've accumulated for a player out to
  * the player's descriptor.
  */
-int process_output(DESCRIPTOR_DATA *t) {
-	char i[MAX_SOCK_BUF * 2], o[MAX_SOCK_BUF * 2 * 3], *pi, *po;
+int process_output(DescriptorData *t) {
+	char i[kMaxSockBuf * 2], o[kMaxSockBuf * 2 * 3], *pi, *po;
 	int written = 0, offset, result;
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
-	if (t == NULL) {
+	if (t == nullptr) {
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 								 % __func__ % __FILE__ % __LINE__).c_str());
 		return -1;
@@ -2309,7 +2310,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 		t->msdp_report_changed_vars();
 
 	// add a prompt
-	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);
+	strncat(i, make_prompt(t), kMaxPromptLength);
 
 	// easy color
 	int pos;
@@ -2319,7 +2320,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 				(pos < 0 ? (pos == -1 ? "NULL buffer" : "zero length buffer") : "go out of buffer"),
 				pos,
 				GET_NAME(t->character));
-		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+		mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 	}
 
 	/*
@@ -2339,7 +2340,7 @@ int process_output(DESCRIPTOR_DATA *t) {
 		offset = 2;
 
 	if (t->character && PRF_FLAGGED(t->character, PRF_GOAHEAD))
-		strncat(o, str_goahead, MAX_PROMPT_LENGTH);
+		strncat(o, str_goahead, kMaxPromptLength);
 
 	if (!write_to_descriptor_with_options(t, o + offset, strlen(o + offset), result)) {
 		return -1;
@@ -2354,11 +2355,11 @@ int process_output(DESCRIPTOR_DATA *t) {
 	if (t->large_outbuf) {
 		t->large_outbuf->next = bufpool;
 		bufpool = t->large_outbuf;
-		t->large_outbuf = NULL;
+		t->large_outbuf = nullptr;
 		t->output = t->small_outbuf;
 	}
 	// reset total bufspace back to that of a small buffer
-	t->bufspace = SMALL_BUFSIZE - 1;
+	t->bufspace = kSmallBufsize - 1;
 	t->bufptr = 0;
 	*(t->output) = '\0';
 
@@ -2603,20 +2604,20 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left) 
  * ASSUMPTION: There will be no newlines in the raw input buffer when this
  * function is called.  We must maintain that before returning.
  */
-int process_input(DESCRIPTOR_DATA *t) {
+int process_input(DescriptorData *t) {
 	int failed_subst;
 	ssize_t bytes_read;
 	size_t space_left;
 	char *ptr, *read_point, *write_point, *nl_pos;
-	char tmp[MAX_INPUT_LENGTH];
+	char tmp[kMaxInputLength];
 
 	// first, find the point where we left off reading data
 	size_t buf_length = strlen(t->inbuf);
 	read_point = t->inbuf + buf_length;
-	space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
+	space_left = kMaxRawInputLength - buf_length - 1;
 
 	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
-	if (t == NULL) {
+	if (t == nullptr) {
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 								 % __func__ % __FILE__ % __LINE__).c_str());
 		return -1;
@@ -2651,7 +2652,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 			if (ptr[1] == (char) IAC) {
 				// последовательность IAC IAC
 				// следует заменить просто на один IAC, но
-				// для раскладок KT_WIN/KT_WINZ это произойдет ниже.
+				// для раскладок kCodePageWin/kCodePageWinz это произойдет ниже.
 				// Почему так сделано - не знаю, но заменять не буду.
 				// II: потому что второй IAC может прочитаться в другом socket_read
 				++ptr;
@@ -2732,7 +2733,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 		}
 
 		// search for a newline in the data we just read
-		for (ptr = read_point, nl_pos = NULL; *ptr && !nl_pos;) {
+		for (ptr = read_point, nl_pos = nullptr; *ptr && !nl_pos;) {
 			if (ISNEWL(*ptr))
 				nl_pos = ptr;
 			ptr++;
@@ -2752,12 +2753,12 @@ int process_input(DESCRIPTOR_DATA *t) {
 		 * this descriptor is in the read set).  JE 2/23/95.
 		 */
 #if !defined(POSIX_NONBLOCK_BROKEN)
-	} while (nl_pos == NULL);
+	} while (nl_pos == nullptr);
 #else
 	}
 	while (0);
 
-	if (nl_pos == NULL)
+	if (nl_pos == nullptr)
 		return (0);
 #endif                // POSIX_NONBLOCK_BROKEN
 
@@ -2768,10 +2769,10 @@ int process_input(DESCRIPTOR_DATA *t) {
 
 	read_point = t->inbuf;
 
-	while (nl_pos != NULL) {
+	while (nl_pos != nullptr) {
 		int tilde = 0;
 		write_point = tmp;
-		space_left = MAX_INPUT_LENGTH - 1;
+		space_left = kMaxInputLength - 1;
 
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++) {
 			// Нафиг точку с запятой - задрали уроды с тригерами (Кард)
@@ -2781,7 +2782,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
 				// Иммам или морталам с GF_DEMIGOD разрешено использовать ";".
-				if (GET_REAL_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
+				if (GET_REAL_LEVEL(t->character) < kLevelImmortal && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
 			if (*ptr == '&'
@@ -2789,7 +2790,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_REAL_LEVEL(t->character) < LVL_IMPL)
+				if (GET_REAL_LEVEL(t->character) < kLevelImplementator)
 					*ptr = '8';
 			}
 			if (*ptr == '$'
@@ -2797,7 +2798,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_REAL_LEVEL(t->character) < LVL_IMPL)
+				if (GET_REAL_LEVEL(t->character) < kLevelImplementator)
 					*ptr = '4';
 			}
 			if (*ptr == '\\'
@@ -2805,7 +2806,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GET_REAL_LEVEL(t->character) < LVL_GRGOD)
+				if (GET_REAL_LEVEL(t->character) < kLevelGreatGod)
 					*ptr = '/';
 			}
 			if (*ptr == '\b' || *ptr == 127)    // handle backspacing or delete key
@@ -2830,17 +2831,17 @@ int process_input(DESCRIPTOR_DATA *t) {
 					default: t->keytable = 0;
 						// fall through
 					case 0:
-					case KT_UTF8: *(write_point++) = *ptr;
+					case kCodePageUTF8: *(write_point++) = *ptr;
 						break;
-					case KT_ALT: *(write_point++) = AtoK(*ptr);
+					case kCodePageAlt: *(write_point++) = AtoK(*ptr);
 						break;
-					case KT_WIN:
-					case KT_WINZ:
-					case KT_WINZ_Z: *(write_point++) = WtoK(*ptr);
+					case kCodePageWin:
+					case kCodePageWinz:
+					case kCodePageWinzZ: *(write_point++) = WtoK(*ptr);
 						if (*ptr == (char) 255 && *(ptr + 1) == (char) 255 && ptr + 1 < nl_pos)
 							ptr++;
 						break;
-					case KT_WINZ_OLD: *(write_point++) = WtoK(*ptr);
+					case kCodePageWinzOld: *(write_point++) = WtoK(*ptr);
 						break;
 				}
 				space_left--;
@@ -2849,7 +2850,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 			// Для того чтобы работали все триги в старом zMUD, заменяем все вводимые 'z' на 'я'
 			// Увы, это кое-что ломает, напр. wizhelp, или "г я использую zMUD"
 			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC)) {
-				if (t->keytable == KT_WINZ_Z || t->keytable == KT_WINZ_OLD) {
+				if (t->keytable == kCodePageWinzZ || t->keytable == kCodePageWinzOld) {
 					if (*(write_point - 1) == 'z') {
 						*(write_point - 1) = 'я';
 					}
@@ -2860,24 +2861,24 @@ int process_input(DESCRIPTOR_DATA *t) {
 
 		*write_point = '\0';
 
-		if (t->keytable == KT_UTF8) {
+		if (t->keytable == kCodePageUTF8) {
 			int i;
-			char utf8_tmp[MAX_SOCK_BUF * 2 * 3];
+			char utf8_tmp[kMaxSockBuf * 2 * 3];
 			size_t len_i, len_o;
 
 			len_i = strlen(tmp);
 
-			for (i = 0; i < MAX_SOCK_BUF * 2 * 3; i++) {
+			for (i = 0; i < kMaxSockBuf * 2 * 3; i++) {
 				utf8_tmp[i] = 0;
 			}
 			utf8_to_koi(tmp, utf8_tmp);
 			len_o = strlen(utf8_tmp);
-			strncpy(tmp, utf8_tmp, MAX_INPUT_LENGTH - 1);
+			strncpy(tmp, utf8_tmp, kMaxInputLength - 1);
 			space_left = space_left + len_i - len_o;
 		}
 
 		if ((space_left <= 0) && (ptr < nl_pos)) {
-			char buffer[MAX_INPUT_LENGTH + 64];
+			char buffer[kMaxInputLength + 64];
 
 			sprintf(buffer, "Line too long.  Truncated to:\r\n%s\r\n", tmp);
 			SEND_TO_Q(buffer, t);
@@ -2903,7 +2904,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 		else if (*tmp == '!' && *(tmp + 1)) {
 			char *commandln = (tmp + 1);
 			int starting_pos = t->history_pos,
-				cnt = (t->history_pos == 0 ? HISTORY_SIZE - 1 : t->history_pos - 1);
+				cnt = (t->history_pos == 0 ? kHistorySize - 1 : t->history_pos - 1);
 
 			skip_spaces(&commandln);
 			for (; cnt != starting_pos; cnt--) {
@@ -2915,7 +2916,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 					break;
 				}
 				if (cnt == 0)    // At top, loop to bottom.
-					cnt = HISTORY_SIZE;
+					cnt = kHistorySize;
 			}
 		} else if (*tmp == '^') {
 			if (!(failed_subst = perform_subst(t, t->last_input, tmp)))
@@ -2925,7 +2926,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 			if (t->history[t->history_pos])
 				free(t->history[t->history_pos]);    // Clear the old line.
 			t->history[t->history_pos] = str_dup(tmp);    // Save the new.
-			if (++t->history_pos >= HISTORY_SIZE)    // Wrap to top.
+			if (++t->history_pos >= kHistorySize)    // Wrap to top.
 				t->history_pos = 0;
 		}
 
@@ -2938,7 +2939,7 @@ int process_input(DESCRIPTOR_DATA *t) {
 
 		// see if there's another newline in the input buffer
 		read_point = ptr = nl_pos;
-		for (nl_pos = NULL; *ptr && !nl_pos; ptr++)
+		for (nl_pos = nullptr; *ptr && !nl_pos; ptr++)
 			if (ISNEWL(*ptr))
 				nl_pos = ptr;
 	}
@@ -2956,8 +2957,8 @@ int process_input(DESCRIPTOR_DATA *t) {
  * orig string, i.e. the one being modified.  subst contains the
  * substition string, i.e. "^telm^tell"
  */
-int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst) {
-	char newsub[MAX_INPUT_LENGTH + 5];
+int perform_subst(DescriptorData *t, char *orig, char *subst) {
+	char newsub[kMaxInputLength + 5];
 
 	char *first, *second, *strpos;
 
@@ -2988,15 +2989,15 @@ int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst) {
 	newsub[(strpos - orig)] = '\0';
 
 	// now, the replacement string
-	strncat(newsub, second, (MAX_INPUT_LENGTH - strlen(newsub) - 1));
+	strncat(newsub, second, (kMaxInputLength - strlen(newsub) - 1));
 
 	/* now, if there's anything left in the original after the string to
 	 * replaced, copy that too. */
 	if (((strpos - orig) + strlen(first)) < strlen(orig))
-		strncat(newsub, strpos + strlen(first), (MAX_INPUT_LENGTH - strlen(newsub) - 1));
+		strncat(newsub, strpos + strlen(first), (kMaxInputLength - strlen(newsub) - 1));
 
 	// terminate the string in case of an overflow from strncat
-	newsub[MAX_INPUT_LENGTH - 1] = '\0';
+	newsub[kMaxInputLength - 1] = '\0';
 	strcpy(subst, newsub);
 
 	return (0);
@@ -3008,7 +3009,7 @@ int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst) {
 * в оффлайн хранилище чара или нет, потому что втыкать это во всех случаях тупо,
 * а менять систему с пасами/дубликатами обламывает.
 */
-bool any_other_ch(CHAR_DATA *ch) {
+bool any_other_ch(CharacterData *ch) {
 	for (const auto &vict : character_list) {
 		if (!IS_NPC(vict)
 			&& vict.get() != ch
@@ -3021,12 +3022,12 @@ bool any_other_ch(CHAR_DATA *ch) {
 }
 
 #ifdef HAS_EPOLL
-void close_socket(DESCRIPTOR_DATA *d, int direct, int epoll, struct epoll_event *events, int n_ev)
+void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev)
 #else
-void close_socket(DESCRIPTOR_DATA * d, int direct)
+void close_socket(DescriptorData * d, int direct)
 #endif
 {
-	if (d == NULL) {
+	if (d == nullptr) {
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
 								 % __func__ % __FILE__ % __LINE__).c_str());
 		return;
@@ -3042,25 +3043,25 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 	REMOVE_FROM_LIST(d, descriptor_list);
 #ifdef HAS_EPOLL
-	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, NULL) == -1)
+	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, nullptr) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
 	// см. комментарии в new_descriptor()
 	int i;
-	if (events != NULL)
+	if (events != nullptr)
 		for (i = 0; i < n_ev; i++)
 			if (events[i].data.ptr == d)
-				events[i].data.ptr = NULL;
+				events[i].data.ptr = nullptr;
 #endif
 	CLOSE_SOCKET(d->descriptor);
 	flush_queues(d);
 
 	// Forget snooping
 	if (d->snooping)
-		d->snooping->snoop_by = NULL;
+		d->snooping->snoop_by = nullptr;
 
 	if (d->snoop_by) {
 		SEND_TO_Q("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
-		d->snoop_by->snooping = NULL;
+		d->snoop_by->snooping = nullptr;
 	}
 	//. Kill any OLC stuff .
 	switch (d->connected) {
@@ -3101,7 +3102,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		}
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT) {
-			act("$n потерял$g связь.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n потерял$g связь.", true, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE)) {
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
 				command_interpreter(d->character.get(), buf2);
@@ -3112,9 +3113,9 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				Crash_ldsave(d->character.get());
 
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
-				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+				mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
-			d->character->desc = NULL;
+			d->character->desc = nullptr;
 		} else {
 			if (!any_other_ch(d->character.get())) {
 				Depot::exit_char(d->character.get());
@@ -3128,12 +3129,12 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 	// JE 2/22/95 -- part of my unending quest to make switch stable
 	if (d->original && d->original->desc)
-		d->original->desc = NULL;
+		d->original->desc = nullptr;
 
 	// Clear the command history.
 	if (d->history) {
 		int cnt;
-		for (cnt = 0; cnt < HISTORY_SIZE; cnt++)
+		for (cnt = 0; cnt < kHistorySize; cnt++)
 			if (d->history[cnt])
 				free(d->history[cnt]);
 		free(d->history);
@@ -3239,7 +3240,7 @@ void nonblock(socket_t s) {
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
 RETSIGTYPE unrestrict_game(int/* sig*/) {
-	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, kLevelImmortal, SYSLOG, true);
 	ban->clear_all();
 	circle_restrict = 0;
 	num_invalid = 0;
@@ -3249,7 +3250,7 @@ RETSIGTYPE unrestrict_game(int/* sig*/) {
 
 // clean up our zombie kids to avoid defunct processes
 RETSIGTYPE reap(int/* sig*/) {
-	while (waitpid(-1, (int *) NULL, WNOHANG) > 0);
+	while (waitpid(-1, (int *) nullptr, WNOHANG) > 0);
 
 	my_signal(SIGCHLD, reap);
 }
@@ -3338,7 +3339,7 @@ void signal_setup(void) {
 	interval.tv_usec = 0;
 	itime.it_interval = interval;
 	itime.it_value = interval;
-	setitimer(ITIMER_VIRTUAL, &itime, NULL);
+	setitimer(ITIMER_VIRTUAL, &itime, nullptr);
 	my_signal(SIGVTALRM, checkpointing);
 
 	// just to be on the safe side:
@@ -3359,22 +3360,22 @@ void signal_setup(void) {
 /* ****************************************************************
 *       Public routines for system-to-player-communication        *
 **************************************************************** */
-void send_stat_char(const CHAR_DATA *ch) {
+void send_stat_char(const CharacterData *ch) {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
 			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), ch->get_gold(), GET_REAL_LEVEL(ch));
 	SEND_TO_Q(fline, ch->desc);
 }
 
-void send_to_char(const char *messg, const CHAR_DATA *ch) {
+void send_to_char(const char *messg, const CharacterData *ch) {
 	if (ch->desc && messg)
 		SEND_TO_Q(messg, ch->desc);
 }
 
 // New edition :)
-void send_to_char(const CHAR_DATA *ch, const char *messg, ...) {
+void send_to_char(const CharacterData *ch, const char *messg, ...) {
 	va_list args;
-	char tmpbuf[MAX_STRING_LENGTH];
+	char tmpbuf[kMaxStringLength];
 
 	va_start(args, messg);
 	vsnprintf(tmpbuf, sizeof(tmpbuf), messg, args);
@@ -3383,13 +3384,13 @@ void send_to_char(const CHAR_DATA *ch, const char *messg, ...) {
 }
 
 // а вот те еще одна едишн Ж)
-void send_to_char(const std::string &buffer, const CHAR_DATA *ch) {
+void send_to_char(const std::string &buffer, const CharacterData *ch) {
 	if (ch->desc && !buffer.empty())
 		send_to_char(buffer.c_str(), ch);
 }
 
 void send_to_all(const char *messg) {
-	if (messg == NULL)
+	if (messg == nullptr)
 		return;
 	for (auto i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING) {
@@ -3400,25 +3401,25 @@ void send_to_all(const char *messg) {
 
 void send_to_outdoor(const char *messg, int control) {
 	int room;
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	if (!messg || !*messg)
 		return;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == NULL)
+		if (STATE(i) != CON_PLAYING || i->character == nullptr)
 			continue;
 		if (!AWAKE(i->character) || !OUTSIDE(i->character))
 			continue;
 		room = IN_ROOM(i->character);
 		if (!control
 			|| (IS_SET(control, SUN_CONTROL)
-				&& room != NOWHERE
-				&& SECT(room) != SECT_UNDERWATER
+				&& room != kNowhere
+				&& SECT(room) != kSectUnderwater
 				&& !AFF_FLAGGED(i->character, EAffectFlag::AFF_BLIND))
 			|| (IS_SET(control, WEATHER_CONTROL)
-				&& room != NOWHERE
-				&& SECT(room) != SECT_UNDERWATER
+				&& room != kNowhere
+				&& SECT(room) != kSectUnderwater
 				&& !ROOM_FLAGGED(room, ROOM_NOWEATHER)
 				&& world[IN_ROOM(i->character)]->weather.duration <= 0)) {
 			SEND_TO_Q(messg, i);
@@ -3427,13 +3428,13 @@ void send_to_outdoor(const char *messg, int control) {
 }
 
 void send_to_gods(const char *messg) {
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	if (!messg || !*messg)
 		return;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == NULL)
+		if (STATE(i) != CON_PLAYING || i->character == nullptr)
 			continue;
 		if (!IS_GOD(i->character))
 			continue;
@@ -3441,8 +3442,8 @@ void send_to_gods(const char *messg) {
 	}
 }
 
-void send_to_room(const char *messg, room_rnum room, int to_awake) {
-	if (messg == NULL) {
+void send_to_room(const char *messg, RoomRnum room, int to_awake) {
+	if (messg == nullptr) {
 		return;
 	}
 
@@ -3458,30 +3459,30 @@ void send_to_room(const char *messg, room_rnum room, int to_awake) {
 }
 
 #define CHK_NULL(pointer, expression) \
-  ((pointer) == NULL) ? ACTNULL : (expression)
+  ((pointer) == nullptr) ? ACTNULL : (expression)
 
 // higher-level communication: the act() function
 void perform_act(const char *orig,
-				 CHAR_DATA *ch,
-				 const OBJ_DATA *obj,
+				 CharacterData *ch,
+				 const ObjectData *obj,
 				 const void *vict_obj,
-				 CHAR_DATA *to,
+				 CharacterData *to,
 				 const int arena,
 				 const std::string &kick_type) {
-	const char *i = NULL;
+	const char *i = nullptr;
 	char nbuf[256];
-	char lbuf[MAX_STRING_LENGTH], *buf;
+	char lbuf[kMaxStringLength], *buf;
 	ubyte padis;
 	int stopbyte, cap = 0;
-	CHAR_DATA *dg_victim = NULL;
-	OBJ_DATA *dg_target = NULL;
-	char *dg_arg = NULL;
+	CharacterData *dg_victim = nullptr;
+	ObjectData *dg_target = nullptr;
+	char *dg_arg = nullptr;
 
 	buf = lbuf;
 
-	if (orig == NULL)
-		return mudlog("perform_act: NULL *orig string", BRF, -1, ERRLOG, TRUE);
-	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++) {
+	if (orig == nullptr)
+		return mudlog("perform_act: NULL *orig string", BRF, -1, ERRLOG, true);
+	for (stopbyte = 0; stopbyte < kMaxStringLength; stopbyte++) {
 		if (*orig == '$') {
 			switch (*(++orig)) {
 				case 'n':
@@ -3509,44 +3510,44 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, APERS((const CHAR_DATA *) vict_obj, to, 0, arena)));
+								 CHK_NULL(vict_obj, APERS((const CharacterData *) vict_obj, to, 0, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, APERS((const CHAR_DATA *) vict_obj, to, padis, arena)));
+								 CHK_NULL(vict_obj, APERS((const CharacterData *) vict_obj, to, padis, arena)));
 						i = nbuf;
 					}
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'm': i = HMHR(ch);
 					break;
 				case 'M':
 					if (vict_obj)
-						i = HMHR((const CHAR_DATA *) vict_obj);
+						i = HMHR((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, OMHR(obj));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 's': i = HSHR(ch);
 					break;
 				case 'S':
 					if (vict_obj)
-						i = CHK_NULL(vict_obj, HSHR((const CHAR_DATA *) vict_obj));
+						i = CHK_NULL(vict_obj, HSHR((const CharacterData *) vict_obj));
 					else CHECK_NULL(obj, OSHR(obj));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'e': i = HSSH(ch);
 					break;
 				case 'E':
 					if (vict_obj)
-						i = CHK_NULL(vict_obj, HSSH((const CHAR_DATA *) vict_obj));
+						i = CHK_NULL(vict_obj, HSSH((const CharacterData *) vict_obj));
 					else CHECK_NULL(obj, OSSH(obj));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'o':
@@ -3567,24 +3568,24 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, AOBJN((const OBJ_DATA *) vict_obj, to, 0, arena)));
+								 CHK_NULL(vict_obj, AOBJN((const ObjectData *) vict_obj, to, 0, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj,
-																		AOBJN((const OBJ_DATA *) vict_obj,
+																		AOBJN((const ObjectData *) vict_obj,
 																			  to,
 																			  padis > 5 ? 0 : padis,
 																			  arena)));
 						i = nbuf;
 					}
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'p': CHECK_NULL(obj, AOBJS(obj, to, arena));
 					break;
-				case 'P': CHECK_NULL(vict_obj, AOBJS((const OBJ_DATA *) vict_obj, to, arena));
-					dg_victim = (CHAR_DATA *) vict_obj;
+				case 'P': CHECK_NULL(vict_obj, AOBJS((const ObjectData *) vict_obj, to, arena));
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 't': i = kick_type.c_str();
@@ -3603,80 +3604,80 @@ void perform_act(const char *orig,
 					break;
 				case 'A':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_6((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_6((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_6((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_6((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_6(obj) : GET_OBJ_VIS_SUF_6(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'g': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_1(ch) : GET_CH_VIS_SUF_1(ch, to);
 					break;
 				case 'G':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_1((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_1((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_1((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_1((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_1(obj) : GET_OBJ_VIS_SUF_1(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'y': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_5(ch) : GET_CH_VIS_SUF_5(ch, to);
 					break;
 				case 'Y':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_5((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_5((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_5((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_5((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_5(obj) : GET_OBJ_VIS_SUF_5(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'u': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_2(ch) : GET_CH_VIS_SUF_2(ch, to);
 					break;
 				case 'U':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_2((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_2((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_2((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_2((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_2(obj) : GET_OBJ_VIS_SUF_2(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'w': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_3(ch) : GET_CH_VIS_SUF_3(ch, to);
 					break;
 				case 'W':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_3((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_3((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_3((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_3((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_3(obj) : GET_OBJ_VIS_SUF_3(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'q': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_4(ch) : GET_CH_VIS_SUF_4(ch, to);
 					break;
 				case 'Q':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_4((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_4((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_4((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_4((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 //WorM Добавил суффикс глуп(ым,ой,ыми)
 				case 'r': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
 					break;
 				case 'R':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_7((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_7((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_7((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_7((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 //WorM Добавил суффикс как(ое,ой,ая,ие)
 				case 'x': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
 					break;
 				case 'X':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_8((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_8((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_8((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_8((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 //Polud Добавил склонение местоимения Ваш(е,а,и)
 				case 'z':
@@ -3686,8 +3687,8 @@ void perform_act(const char *orig,
 					break;
 				case 'Z':
 					if (vict_obj)
-						i = HYOU((const CHAR_DATA *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CHAR_DATA *) vict_obj))
+						i = HYOU((const CharacterData *) vict_obj);
+					else CHECK_NULL(vict_obj, HYOU((const CharacterData *) vict_obj))
 					break;
 //-Polud
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
@@ -3756,8 +3757,8 @@ void perform_act(const char *orig,
 
 void act(const char *str,
 		 int hide_invisible,
-		 CHAR_DATA *ch,
-		 const OBJ_DATA *obj,
+		 CharacterData *ch,
+		 const ObjectData *obj,
 		 const void *vict_obj,
 		 int type,
 		 const std::string &kick_type) {
@@ -3800,7 +3801,7 @@ void act(const char *str,
 	if (type == TO_CHAR) {
 		if (ch
 			&& SENDOK(ch)
-			&& ch->in_room != NOWHERE
+			&& ch->in_room != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
@@ -3811,10 +3812,10 @@ void act(const char *str,
 	}
 
 	if (type == TO_VICT) {
-		CHAR_DATA *to = (CHAR_DATA *) vict_obj;
-		if (to != NULL
+		CharacterData *to = (CharacterData *) vict_obj;
+		if (to != nullptr
 			&& SENDOK(to)
-			&& IN_ROOM(to) != NOWHERE
+			&& IN_ROOM(to) != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 			&& (!check_nodeaf || AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 			&& (!to_brief_shields || PRF_FLAGGED(to, PRF_BRIEF_SHIELDS))
@@ -3828,9 +3829,9 @@ void act(const char *str,
 	// or TO_ROOM_HIDE
 
 	size_t room_number = ~0;
-	if (ch && ch->in_room != NOWHERE) {
+	if (ch && ch->in_room != kNowhere) {
 		room_number = ch->in_room;
-	} else if (obj && obj->get_in_room() != NOWHERE) {
+	} else if (obj && obj->get_in_room() != kNowhere) {
 		room_number = obj->get_in_room();
 	} else {
 		log("No valid target to act('%s')!", str);
@@ -3876,7 +3877,7 @@ void act(const char *str,
 		}
 	}
 	//Реализация флага слышно арену
-	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& ROOM_FLAGGED(ch->in_room, ROOM_ARENASEND) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV)) {
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне
@@ -3940,7 +3941,7 @@ void zlib_free(void * /*opaque*/, void *address) {
 
 #if defined(HAVE_ZLIB)
 
-int mccp_start(DESCRIPTOR_DATA *t, int ver) {
+int mccp_start(DescriptorData *t, int ver) {
 	int derr;
 
 	if (t->deflate) {
@@ -3951,13 +3952,13 @@ int mccp_start(DESCRIPTOR_DATA *t, int ver) {
 	CREATE(t->deflate, 1);
 	t->deflate->zalloc = zlib_alloc;
 	t->deflate->zfree = zlib_free;
-	t->deflate->opaque = NULL;
+	t->deflate->opaque = nullptr;
 
 	// Initialize.
 	if ((derr = deflateInit(t->deflate, Z_DEFAULT_COMPRESSION)) != 0) {
 		log("SYSERR: deflateEnd returned %d.", derr);
 		free(t->deflate);
-		t->deflate = NULL;
+		t->deflate = nullptr;
 		return 0;
 	}
 
@@ -3971,12 +3972,12 @@ int mccp_start(DESCRIPTOR_DATA *t, int ver) {
 	return 1;
 }
 
-int mccp_end(DESCRIPTOR_DATA *t, int ver) {
+int mccp_end(DescriptorData *t, int ver) {
 	int derr;
 	int prevsize, pending;
 	unsigned char tmp[1];
 
-	if (t->deflate == NULL)
+	if (t->deflate == nullptr)
 		return 1;
 
 	if (t->mccp_version != ver)
@@ -3984,7 +3985,7 @@ int mccp_end(DESCRIPTOR_DATA *t, int ver) {
 
 	t->deflate->avail_in = 0;
 	t->deflate->next_in = tmp;
-	prevsize = SMALL_BUFSIZE - t->deflate->avail_out;
+	prevsize = kSmallBufsize - t->deflate->avail_out;
 
 	log("SYSERR: about to deflate Z_FINISH.");
 
@@ -3994,7 +3995,7 @@ int mccp_end(DESCRIPTOR_DATA *t, int ver) {
 		return 0;
 	}
 
-	pending = SMALL_BUFSIZE - t->deflate->avail_out - prevsize;
+	pending = kSmallBufsize - t->deflate->avail_out - prevsize;
 
 	if (!write_to_descriptor(t->descriptor, t->small_outbuf + prevsize, pending))
 		return 0;
@@ -4004,17 +4005,17 @@ int mccp_end(DESCRIPTOR_DATA *t, int ver) {
 			t->deflate->avail_in, t->deflate->avail_out);
 
 	free(t->deflate);
-	t->deflate = NULL;
+	t->deflate = nullptr;
 
 	return 1;
 }
 #endif
 
-int toggle_compression(DESCRIPTOR_DATA *t) {
+int toggle_compression(DescriptorData *t) {
 #if defined(HAVE_ZLIB)
 	if (t->mccp_version == 0)
 		return 0;
-	if (t->deflate == NULL) {
+	if (t->deflate == nullptr) {
 		return mccp_start(t, t->mccp_version) ? 1 : 0;
 	} else {
 		return mccp_end(t, t->mccp_version) ? 0 : 1;

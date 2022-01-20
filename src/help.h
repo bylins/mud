@@ -5,10 +5,11 @@
 #ifndef HELP_HPP_INCLUDED
 #define HELP_HPP_INCLUDED
 
+#include "entities/char_player.h"
 #include "conf.h"
-#include "sysdep.h"
 #include "interpreter.h"
-#include "chars/char_player.h"
+#include "structs/flag_data.h"
+#include "sysdep.h"
 
 #include <string>
 #include <map>
@@ -50,7 +51,7 @@ struct clss_activ_node {
 	clss_activ_node() { total_affects = clear_flags; };
 
 	// аффекты
-	FLAG_DATA total_affects;
+	FlagData total_affects;
 	// свойства
 	std::vector<obj_affected_type> affected;
 	// скилы
@@ -112,7 +113,7 @@ void add_map(T &target, const T &add) {
 
 } // namespace PrintActivators
 
-void do_help(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_help(CharacterData *ch, char *argument, int cmd, int subcmd);
 
 #endif // HELP_HPP_INCLUDED
 

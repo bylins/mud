@@ -7,20 +7,20 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include <string>
 
-class CHAR_DATA;
+class CharacterData;
 
 namespace ExtMoney {
 
-void torc_exch_menu(CHAR_DATA *ch);
-void torc_exch_parse(CHAR_DATA *ch, const char *arg);
+void torc_exch_menu(CharacterData *ch);
+void torc_exch_parse(CharacterData *ch, const char *arg);
 
-void drop_torc(CHAR_DATA *mob);
-std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat = false);
+void drop_torc(CharacterData *mob);
+std::string draw_daily_limit(CharacterData *ch, bool imm_stat = false);
 
-void player_drop_log(CHAR_DATA *ch, unsigned type, int num);
+void player_drop_log(CharacterData *ch, unsigned type, int num);
 std::string name_currency_plural(std::string name);
 
 } // namespace ExtMoney
@@ -29,14 +29,14 @@ namespace Remort {
 
 extern std::string WHERE_TO_REMORT_STR;
 
-bool can_remort_now(CHAR_DATA *ch);
+bool can_remort_now(CharacterData *ch);
 void init();
-void show_config(CHAR_DATA *ch);
-bool need_torc(CHAR_DATA *ch);
+void show_config(CharacterData *ch);
+bool need_torc(CharacterData *ch);
 
 } // namespace Remort
 
-int torc(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int torc(CharacterData *ch, void *me, int cmd, char *argument);
 
 #endif // EXT_MONEY_HPP_INCLUDED
 

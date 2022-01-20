@@ -14,11 +14,14 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "config.h"
-#include "structs.h"
-#include "conf.h"
-#include "pugixml.h"
 #include "classes/class_constants.h"
+#include "conf.h"
+#include "config.h"
+#include "entities/entity_constants.h"
+#include "pugixml.h"
+#include "structs/structs.h"
+#include "game_mechanics/weather.h"
+#include "utils_string.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -28,8 +31,9 @@
 #include <vector>
 #include <sstream>
 
-struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct DescriptorData;
 
 // external declarations and prototypes *********************************
 
@@ -54,7 +58,7 @@ class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and an
 //	'\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7', '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'	//256
 //};
 
-// Full ASCII table for fast erase chars
+// Full ASCII table for fast erase entities
 //const bool a_isdigit_table[] = {
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
@@ -88,7 +92,7 @@ inline const char *not_empty(const std::string &s, const char *subst) {
 		   : s.c_str();
 }
 
-extern struct weather_data weather_info;
+//extern struct Weather weather_info;
 extern char AltToKoi[];
 extern char KoiToAlt[];
 extern char WinToKoi[];
@@ -99,8 +103,8 @@ extern char AltToLat[];
 extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
 
 // public functions in utils.cpp
-CHAR_DATA *find_char(long n);
-CHAR_DATA *get_random_pc_group(CHAR_DATA *ch);
+CharacterData *find_char(long n);
+CharacterData *get_random_pc_group(CharacterData *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -119,42 +123,42 @@ int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE *fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
-TIME_INFO_DATA *age(const CHAR_DATA *ch);
-int num_pc_in_room(ROOM_DATA *room);
+TimeInfoData *age(const CharacterData *ch);
+int num_pc_in_room(RoomData *room);
 void core_dump_real(const char *, int);
-int replace_str(const AbstractStringWriter::shared_ptr &writer,
+int replace_str(const utils::AbstractStringWriter::shared_ptr &writer,
 				const char *pattern,
 				const char *replacement,
 				int rep_all,
 				int max_size);
-void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCRIPTOR_DATA *d, size_t maxlen);
-int check_moves(CHAR_DATA *ch, int how_moves);
+void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
+int check_moves(CharacterData *ch, int how_moves);
 void koi_to_alt(char *str, int len);
 std::string koi_to_alt(const std::string &input);
 void koi_to_win(char *str, int len);
 void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
 int real_sector(int room);
-char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vict_obj);
+char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const void *vict_obj);
 int roundup(float fl);
-int valid_email(const char *address);
+bool IsValidEmail(const char *address);
 void skip_dots(char **string);
 const char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-int GetRealDamroll(CHAR_DATA *ch);
-int GetAutoattackDamroll(CHAR_DATA *ch, int weapon_skill);
+int GetRealDamroll(CharacterData *ch);
+int GetAutoattackDamroll(CharacterData *ch, int weapon_skill);
 extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
-void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
+void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg);
 bool is_head(std::string name);
 
-extern bool is_dark(room_rnum room);
+extern bool is_dark(RoomRnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
-  if ((pointer) == NULL) i = ACTNULL; else i = (expression);
+  if ((pointer) == nullptr) i = ACTNULL; else i = (expression);
 
 #define MIN_TITLE_LEV   25
 
@@ -209,31 +213,31 @@ char *CAP(char *txt);
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
 
 // in act.informative.cpp //
-void look_at_room(CHAR_DATA *ch, int mode);
+void look_at_room(CharacterData *ch, int mode);
 
 // in act.movmement.cpp //
-int do_simple_move(CHAR_DATA *ch, int dir, int following, CHAR_DATA *leader, bool is_flee);
-int perform_move(CHAR_DATA *ch, int dir, int following, int checkmob, CHAR_DATA *leader);
+int do_simple_move(CharacterData *ch, int dir, int following, CharacterData *leader, bool is_flee);
+int perform_move(CharacterData *ch, int dir, int following, int checkmob, CharacterData *leader);
 
 // in limits.cpp //
-int mana_gain(const CHAR_DATA *ch);
-int hit_gain(CHAR_DATA *ch);
-int move_gain(CHAR_DATA *ch);
-void advance_level(CHAR_DATA *ch);
-void gain_exp(CHAR_DATA *ch, int gain);
-void gain_exp_regardless(CHAR_DATA *ch, int gain);
-void gain_condition(CHAR_DATA *ch, unsigned condition, int value);
-void check_idling(CHAR_DATA *ch);
+int mana_gain(const CharacterData *ch);
+int hit_gain(CharacterData *ch);
+int move_gain(CharacterData *ch);
+void advance_level(CharacterData *ch);
+void gain_exp(CharacterData *ch, int gain);
+void gain_exp_regardless(CharacterData *ch, int gain);
+void gain_condition(CharacterData *ch, unsigned condition, int value);
+void check_idling(CharacterData *ch);
 void point_update(void);
 void room_point_update();
 void exchange_point_update();
 void obj_point_update();
-void update_pos(CHAR_DATA *victim);
+void update_pos(CharacterData *victim);
 
 // various constants ****************************************************
 
 // проверяет, висит ли заданный спелл на чаре
-bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
+bool check_spell_on_player(CharacterData *ch, int spell_num);
 
 
 // get_filename() //
@@ -247,9 +251,9 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define PURGE_DEPOT_FILE  8
 
 // breadth-first searching //
-#define BFS_ERROR        -1
-#define BFS_ALREADY_THERE  -2
-#define BFS_NO_PATH         -3
+#define BFS_ERROR        (-1)
+#define BFS_ALREADY_THERE  (-2)
+#define BFS_NO_PATH         (-3)
 
 /*
  * XXX: These constants should be configurable. See act.informative.c
@@ -267,15 +271,6 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define SECS_PER_MUD_DAY      (HOURS_PER_DAY*SECS_PER_MUD_HOUR)
 #define SECS_PER_MUD_MONTH    (DAYS_PER_MONTH*SECS_PER_MUD_DAY)
 #define SECS_PER_MUD_YEAR     (MONTHS_PER_YEAR*SECS_PER_MUD_MONTH)
-#define NEWMOONSTART               27
-#define NEWMOONSTOP                1
-#define HALFMOONSTART              7
-#define FULLMOONSTART              13
-#define FULLMOONSTOP               15
-#define LASTHALFMOONSTART          21
-#define MOON_CYCLE               28
-#define WEEK_CYCLE               7
-#define POLY_WEEK_CYCLE          9
 
 // real-life time (remember Real Life?)
 #define SECS_PER_REAL_MIN  60
@@ -283,29 +278,28 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
 
-short GET_REAL_LEVEL(const CHAR_DATA *ch);
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> *ch);
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> &ch);
+short GET_REAL_LEVEL(const CharacterData *ch);
+short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> *ch);
+short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> &ch);
 
-short GET_REAL_REMORT(const CHAR_DATA *ch);
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> *ch);
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch);
+short GET_REAL_REMORT(const CharacterData *ch);
+short GET_REAL_REMORT(const std::shared_ptr<CharacterData> *ch);
+short GET_REAL_REMORT(const std::shared_ptr<CharacterData> &ch);
 
-#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMMORT)
-#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GOD)
-#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GRGOD)
-#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMPL)
-#define IS_HIGHGOD(ch)      (IS_IMPL(ch) && (GET_GOD_FLAG(ch,GF_HIGHGOD)))
+#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImmortal)
+#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelGod)
+#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelGreatGod)
+#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
 #define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
 #define IS_MAGE(ch)          (IS_BITS(MASK_MAGES, GET_CLASS(ch)))
 
-extern int receptionist(CHAR_DATA *, void *, int, char *);
-extern int postmaster(CHAR_DATA *, void *, int, char *);
-extern int bank(CHAR_DATA *, void *, int, char *);
-extern int shop_ext(CHAR_DATA *, void *, int, char *);
-extern int mercenary(CHAR_DATA *, void *, int, char *);
+extern int receptionist(CharacterData *, void *, int, char *);
+extern int postmaster(CharacterData *, void *, int, char *);
+extern int bank(CharacterData *, void *, int, char *);
+extern int shop_ext(CharacterData *, void *, int, char *);
+extern int mercenary(CharacterData *, void *, int, char *);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
@@ -323,7 +317,6 @@ extern int mercenary(CHAR_DATA *, void *, int, char *);
 #define LATIN(c)   (a_lat(c))
 
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
-#define IF_STR(st) ((st) ? (st) : "\0")
 
 // memory utils *********************************************************
 
@@ -336,10 +329,10 @@ inline void CREATE(T *&result, const size_t number) {
 	}
 }
 
-template<>
-inline void CREATE(EXTRA_DESCR_DATA *&, const size_t) {
-	throw std::runtime_error("for EXTRA_DESCR_DATA you have to use operator new");
-}
+/*template<>
+inline void CREATE(ExtraDescription *&, const size_t) {
+	throw std::runtime_error("for ExtraDescription you have to use operator new");
+}*/
 
 template<typename T>
 inline void RECREATE(T *&result, const size_t number) {
@@ -472,7 +465,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, mask)   (obj->get_wear_mask(mask))
-#define DESC_FLAGGED(d, flag) (IS_SET(DESC_FLAGS(d), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 
 // IS_AFFECTED for backwards compatibility
@@ -483,66 +475,20 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
-#define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? \
-                            world[room]->weather.sky : weather_info.sky)
-
-#define IS_MOONLIGHT(room) ((GET_ROOM_SKY(room) == SKY_LIGHTNING && \
-                             weather_info.moon_day >= FULLMOONSTART && \
-                             weather_info.moon_day <= FULLMOONSTOP))
-
+#define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
 #define IS_TIMEDARK(room) is_dark(room)
-
-/*((world[room]->gdark > world[room]->glight) || \
-                            (!(world[room]->light+world[room]->fires+world[room]->glight) && \
-                              (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
-                               ( weather_info.sunlight == SUN_SET || \
-                                 weather_info.sunlight == SUN_DARK )) ) ) )*/
-
 #define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
+                              (SECT(room) != kSectInside && \
+                               SECT(room) != kSectCity   && \
                                ( weather_info.sunlight == SUN_SET || \
                                  weather_info.sunlight == SUN_DARK )) )
 
 #define IS_DARK(room) is_dark(room)
-
-#define IS_DARKOLD(room)      ((world[room]->gdark > (world[room]->glight + world[room]->light + world[room]->fires)) || \
-                            (!(world[room]->gdark < (world[room]->glight + world[room]->light + world[room]->fires)) && \
-                              !ROOM_AFFECTED(room, AFF_ROOM_LIGHT) && \
-                (ROOM_FLAGGED(room, ROOM_DARK) || \
-                              (SECT(room) != SECT_INSIDE && \
-                               SECT(room) != SECT_CITY   && \
-                               ( weather_info.sunlight == SUN_SET || \
-                                 (weather_info.sunlight == SUN_DARK && \
-                                  !IS_MOONLIGHT(room)) )) ) ) )
-
-#define IS_DARKTHIS(room)      ((world[room]->gdark > world[room]->glight) || \
-                                (!(world[room]->gdark < world[room]->glight) && \
-                                 !(world[room]->light+world[room]->fires) && \
-                                  (ROOM_FLAGGED(room, ROOM_DARK) || \
-                                  (SECT(room) != SECT_INSIDE && \
-                                   SECT(room) != SECT_CITY   && \
-                                   ( weather_info.sunlight == SUN_DARK && \
-                                     !IS_MOONLIGHT(room) )) ) ) )
-
-#define IS_DARKSIDE(room)      ((world[room]->gdark > world[room]->glight) || \
-                                (!(world[room]->gdark < world[room]->glight) && \
-                                 !(world[room]->light+world[room]->fires) && \
-                                  (ROOM_FLAGGED(room, ROOM_DARK) || \
-                                  (SECT(room) != SECT_INSIDE && \
-                                   SECT(room) != SECT_CITY   && \
-                                   ( weather_info.sunlight == SUN_SET  || \
-                                     weather_info.sunlight == SUN_RISE || \
-                                     (weather_info.sunlight == SUN_DARK && \
-                                      !IS_MOONLIGHT(room) )) ) ) )
-
-#define IS_LIGHT(room)     (!IS_DARK(room))
+#define IS_LIGHT(room)  (!IS_DARK(room))
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : NOWHERE))
-#define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
+#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
+#define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
@@ -555,13 +501,12 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define SAME_ROOM(ch, tch)        (IN_ROOM(ch) == IN_ROOM(tch))
 #define GET_MANA_COST(ch, spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
 #define GET_MEM_CURRENT(ch)   (MEMQUEUE_EMPTY(ch)?0:mag_manacost(ch,(ch)->MemQueue.queue->spellnum))
 #define GET_MEM_TOTAL(ch)     ((ch)->MemQueue.total)
-#define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == NULL)
+#define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == nullptr)
 #define INITIATIVE(ch)        ((ch)->Initiative)
 #define BATTLECNTR(ch)        ((ch)->BattleCounter)
 #define ROUND_COUNTER(ch)     ((ch)->round_counter)
@@ -569,8 +514,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define CLR_MEMORY(ch)  (memset((ch)->Memory,0,SPELLS_COUNT+1))
-#define IS_CODER(ch)    (GET_REAL_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
+#define IS_CODER(ch)    (GET_REAL_LEVEL(ch) < kLevelImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GET_REAL_LEVEL(ch)/3)+GET_REAL_REMORT(ch))
 
@@ -691,8 +635,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
-#define GET_REAL_SAVING_STABILITY(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)    + (ch->ahorse() ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)        (dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)        + (ch->ahorse() ? -20 : 0))
+#define GET_REAL_SAVING_STABILITY(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)    + ((ch)->ahorse() ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)        (dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)        + ((ch)->ahorse() ? -20 : 0))
 #define GET_REAL_SAVING_CRITICAL(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_CRITICAL))
 #define GET_REAL_SAVING_WILL(ch)        (dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, SAVING_WILL))
 
@@ -714,12 +658,10 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define ALIG_NEUT 0
 #define ALIG_GOOD 1
 #define ALIG_EVIL 2
-#define ALIG_EVIL_LESS     -300
+#define ALIG_EVIL_LESS     (-300)
 #define ALIG_GOOD_MORE     300
 
 #define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
-#define CALC_ALIGNMENT(ch)    ((GET_ALIGNMENT(ch) <= ALIG_EVIL_LESS) ? ALIG_EVIL : \
-                               (GET_ALIGNMENT(ch) >= ALIG_GOOD_MORE) ? ALIG_GOOD : ALIG_NEUT)
 
 #define NAME_LEVEL 5
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
@@ -802,7 +744,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : NULL)
+#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : nullptr)
 #define GET_MOB_RNUM(mob)  (mob)->get_rnum()
 #define GET_MOB_VNUM(mob)  (IS_MOB(mob) ? mob_index[(mob)->get_rnum()].vnum : -1)
 
@@ -810,7 +752,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define MEMORY(ch)          ((ch)->mob_specials.memory)
 #define GET_DEST(ch)        (((ch)->mob_specials.dest_count ? \
                               (ch)->mob_specials.dest[(ch)->mob_specials.dest_pos] : \
-                              NOWHERE))
+                              kNowhere))
 #define GET_ACTIVITY(ch)    ((ch)->mob_specials.activity)
 #define GET_GOLD_NoDs(ch)   ((ch)->mob_specials.GoldNoDs)
 #define GET_GOLD_SiDs(ch)   ((ch)->mob_specials.GoldSiDs)
@@ -892,9 +834,9 @@ inline T VPOSI(const T val, const T min, const T max) {
                           IS_FEMALE(ch) ? "ая" : "ие")
 
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_NEUTRAL)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
+#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == ESex::kNeutral)
+#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == ESex::kMale)
+#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == ESex::kFemale)
 
 #define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
 
@@ -961,8 +903,8 @@ inline T VPOSI(const T val, const T min, const T max) {
                             IS_FEMALE(ch) ? "ей" : "ими")
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
+#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
+#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
@@ -1019,8 +961,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define IS_OBJ_NO(obj, stat) ((obj)->get_no_flag(stat))
 #define IS_OBJ_AFF(obj, stat) (obj->get_affect(stat))
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER && \
-               GET_OBJ_VAL((obj), 3) == OBJ_DATA::CORPSE_INDICATOR)
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER && \
+               GET_OBJ_VAL((obj), 3) == ObjectData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 // compound utilities and other macros *********************************
@@ -1032,15 +974,15 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define CIRCLEMUD_VERSION(major, minor, patchlevel) \
    (((major) << 16) + ((minor) << 8) + (patchlevel))
 
-#define HSHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
+#define HSSH(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
+#define HMHR(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (ESex::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
-#define OSHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "его": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ее" : "их")) :"его")
-#define OSSH(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "он": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "она" : "они")) :"оно")
-#define OMHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ей" : "им")) :"ему")
-#define OYOU(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
+#define OSHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "его": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ее" : "их")) :"его")
+#define OSSH(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "он": (GET_OBJ_SEX(ch) == ESex::kFemale ? "она" : "они")) :"оно")
+#define OMHR(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ему": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ей" : "им")) :"ему")
+#define OYOU(ch) (ESex::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::kMale ? "ваш": (GET_OBJ_SEX(ch) == ESex::kFemale ? "ваша" : "ваши")) :"ваше")
 
 #define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || NORENTABLE(ch)))
 
@@ -1088,12 +1030,12 @@ inline T VPOSI(const T val, const T min, const T max) {
                            : GET_PAD_OBJ(pad))
 
 #define EXITDATA(room, door) ((room >= 0 && room <= top_of_world) ? \
-                             world[room]->dir_option[door] : NULL)
+                             world[room]->dir_option[door] : nullptr)
 
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])
 
 #define CAN_GO(ch, door) (ch?((EXIT(ch,door) && \
-          (EXIT(ch,door)->to_room() != NOWHERE) && \
+          (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
 
 #define CLASS_ABBR(ch) (IS_NPC(ch) ? "--" : class_abbrevs[(int)GET_CLASS(ch)])
@@ -1150,31 +1092,31 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
 
-int on_horse(const CHAR_DATA *ch);
-int has_horse(const CHAR_DATA *ch, int same_room);
-CHAR_DATA *get_horse(CHAR_DATA *ch);
-void horse_drop(CHAR_DATA *ch);
-void make_horse(CHAR_DATA *horse, CHAR_DATA *ch);
-void check_horse(CHAR_DATA *ch);
+int on_horse(const CharacterData *ch);
+int has_horse(const CharacterData *ch, int same_room);
+CharacterData *get_horse(CharacterData *ch);
+void horse_drop(CharacterData *ch);
+void make_horse(CharacterData *horse, CharacterData *ch);
+void check_horse(CharacterData *ch);
 
-bool same_group(CHAR_DATA *ch, CHAR_DATA *tch);
+bool same_group(CharacterData *ch, CharacterData *tch);
 
-int is_post(room_rnum room);
-bool is_rent(room_rnum room);
+int is_post(RoomRnum room);
+bool is_rent(RoomRnum room);
 
-int pc_duration(CHAR_DATA *ch, int cnst, int level, int level_divisor, int min, int max);
+int pc_duration(CharacterData *ch, int cnst, int level, int level_divisor, int min, int max);
 
 // Modifier functions
-int day_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
-int weather_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
-int complex_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
+int day_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
+int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
+int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
 
-int day_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-int weather_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-int complex_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-void can_carry_obj(CHAR_DATA *ch, OBJ_DATA *obj);
-bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj);
-bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
+int day_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
+int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
+int complex_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
+void can_carry_obj(CharacterData *ch, ObjectData *obj);
+bool CAN_CARRY_OBJ(const CharacterData *ch, const ObjectData *obj);
+bool ignores(CharacterData *, CharacterData *, unsigned int);
 
 // PADS for something ***************************************************
 const char *desc_count(long how_many, int of_what);
@@ -1231,33 +1173,17 @@ const char *desc_count(long how_many, int of_what);
 #define ACHECK_GLOWING (1 << 3)
 #define ACHECK_WEIGHT  (1 << 4)
 
-int check_awake(CHAR_DATA *ch, int what);
-int awake_hide(CHAR_DATA *ch);
-int awake_invis(CHAR_DATA *ch);
-int awake_camouflage(CHAR_DATA *ch);
-int awake_sneak(CHAR_DATA *ch);
-int awaking(CHAR_DATA *ch, int mode);
+int check_awake(CharacterData *ch, int what);
+int awake_hide(CharacterData *ch);
+int awake_invis(CharacterData *ch);
+int awake_camouflage(CharacterData *ch);
+int awake_sneak(CharacterData *ch);
+int awaking(CharacterData *ch, int mode);
 std::string time_format(int timer, int flag = 0);
 
 size_t count_colors(const char *str, size_t len = 0);
 char *colored_name(const char *str, size_t len, const bool left_align = false);
 size_t strlen_no_colors(const char *str);
-
-// OS compatibility *****************************************************
-
-
-// there could be some strange OS which doesn't have NULL...
-#ifndef NULL
-#define NULL (void *)0
-#endif
-
-#if !defined(FALSE)
-#define FALSE 0
-#endif
-
-#if !defined(TRUE)
-#define TRUE  (!FALSE)
-#endif
 
 // defines for fseek
 #ifndef SEEK_SET
@@ -1414,7 +1340,7 @@ void skip_spaces(T string) {
 namespace MoneyDropStat {
 
 void add(int zone_vnum, long money);
-void print(CHAR_DATA *ch);
+void print(CharacterData *ch);
 void print_log();
 
 } // MoneyDropStat
@@ -1422,7 +1348,7 @@ void print_log();
 namespace ZoneExpStat {
 
 void add(int zone_vnum, long exp);
-void print_gain(CHAR_DATA *ch);
+void print_gain(CharacterData *ch);
 void print_log();
 
 } // ZoneExpStat
@@ -1436,9 +1362,9 @@ int str_bonus(int str, int type);
 int dex_bonus(int dex);
 int dex_ac_bonus(int dex);
 int calc_str_req(int weight, int type);
-void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
+void message_str_need(CharacterData *ch, ObjectData *obj, int type);
 int wis_bonus(int stat, int type);
-int CAN_CARRY_N(const CHAR_DATA *ch);
+int CAN_CARRY_N(const CharacterData *ch);
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 
@@ -1491,7 +1417,7 @@ void print_bitset(const N &bits, const T &names,
 
 const char *print_obj_state(int tm_pct);
 
-struct exchange_item_data;
+struct ExchangeItem;
 // для парса строки с фильтрами в клан-хранах и базаре
 struct ParseFilter {
 	enum { CLAN, EXCHANGE };
@@ -1511,8 +1437,8 @@ struct ParseFilter {
 	bool init_affect(char *str, size_t str_len);
 	bool init_realtime(const char *str);
 	size_t affects_cnt() const;
-	bool check(OBJ_DATA *obj, CHAR_DATA *ch);
-	bool check(exchange_item_data *exch_obj);
+	bool check(ObjectData *obj, CharacterData *ch);
+	bool check(ExchangeItem *exch_obj);
 	std::string print() const;
 
 	std::string name;      // имя предмета
@@ -1539,25 +1465,25 @@ struct ParseFilter {
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
 
-	std::string show_obj_aff(OBJ_DATA *obj);
+	std::string show_obj_aff(ObjectData *obj);
 
  private:
-	bool check_name(OBJ_DATA *obj, CHAR_DATA *ch = 0) const;
-	bool check_type(OBJ_DATA *obj) const;
-	bool check_state(OBJ_DATA *obj) const;
-	bool check_wear(OBJ_DATA *obj) const;
-	bool check_weap_class(OBJ_DATA *obj) const;
+	bool check_name(ObjectData *obj, CharacterData *ch = 0) const;
+	bool check_type(ObjectData *obj) const;
+	bool check_state(ObjectData *obj) const;
+	bool check_wear(ObjectData *obj) const;
+	bool check_weap_class(ObjectData *obj) const;
 	bool check_cost(int obj_price) const;
 	bool check_rent(int obj_price) const;
-    bool check_remorts(OBJ_DATA *obj) const;
-	bool check_affect_weap(OBJ_DATA *obj) const;
-	bool check_affect_apply(OBJ_DATA *obj) const;
-	bool check_affect_extra(OBJ_DATA *obj) const;
-	bool check_owner(exchange_item_data *exch_obj) const;
-	bool check_realtime(exchange_item_data *exch_obj) const;
+    bool check_remorts(ObjectData *obj) const;
+	bool check_affect_weap(ObjectData *obj) const;
+	bool check_affect_apply(ObjectData *obj) const;
+	bool check_affect_extra(ObjectData *obj) const;
+	bool check_owner(ExchangeItem *exch_obj) const;
+	bool check_realtime(ExchangeItem *exch_obj) const;
 };
 
-int get_virtual_race(CHAR_DATA *mob);
+int get_virtual_race(CharacterData *mob);
 
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)
@@ -1580,21 +1506,21 @@ private:
 #endif
 
 // global buffering system
-#ifdef __DB_C__
-char buf[MAX_STRING_LENGTH];
-char buf1[MAX_STRING_LENGTH];
-char buf2[MAX_STRING_LENGTH];
-char arg[MAX_STRING_LENGTH];
-char smallBuf[MAX_RAW_INPUT_LENGTH];
+#ifdef DB_C__
+char buf[kMaxStringLength];
+char buf1[kMaxStringLength];
+char buf2[kMaxStringLength];
+char arg[kMaxStringLength];
+char smallBuf[kMaxRawInputLength];
 #else
-extern char buf[MAX_STRING_LENGTH];
-extern char buf1[MAX_STRING_LENGTH];
-extern char buf2[MAX_STRING_LENGTH];
-extern char arg[MAX_STRING_LENGTH];
-extern char smallBuf[MAX_RAW_INPUT_LENGTH];
+extern char buf[kMaxStringLength];
+extern char buf1[kMaxStringLength];
+extern char buf2[kMaxStringLength];
+extern char arg[kMaxStringLength];
+extern char smallBuf[kMaxRawInputLength];
 #endif
 
-#define plant_magic(x)    do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)
+#define plant_magic(x)    do { (x)[sizeof(x) - 1] = kMagicNumber; } while (0)
 #define test_magic(x)    ((x)[sizeof(x) - 1])
 
 /*

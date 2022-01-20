@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-#include "chars/char.h"
+#include "entities/char.h"
 #include "handler.h"
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string.hpp>
@@ -14,7 +14,7 @@ struct Stigma
 		// имя 
 		std::string name;
 		// функция активации татуировки
-		void(*activation_stigma)(CHAR_DATA*);
+		void(*activation_stigma)(CharacterData*);
 		// время релоада
 		unsigned reload;
 	};

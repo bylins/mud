@@ -4,26 +4,26 @@
 
 #include "depot.h"
 
-#include "chars/world.characters.h"
+#include "entities/world_characters.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
-#include "chars/char_player.h"
+#include "entities/char_player.h"
 #include "modify.h"
 #include "obj_save.h"
 #include "house.h"
 #include "utils/utils_char_obj.inl"
-#include "named_stuff.h"
+#include "game_mechanics/named_stuff.h"
 
-extern int bank(CHAR_DATA *, void *, int, char *);
-extern int can_take_obj(CHAR_DATA *ch, OBJ_DATA *obj);
-extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
+extern int bank(CharacterData *, void *, int, char *);
+extern int can_take_obj(CharacterData *ch, ObjectData *obj);
+extern void olc_update_object(int robj_num, ObjectData *obj, ObjectData *olc_proto);
 namespace Depot {
 
 // максимальное кол-во шмоток в персональном хранилище (волхвам * 2)
-inline unsigned int MAX_PERS_SLOTS(CHAR_DATA *ch) {return GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) * 3;};
+inline unsigned int MAX_PERS_SLOTS(CharacterData *ch) {return GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) * 3;};
 //const unsigned int MAX_PERS_INGR_SLOTS = 50;
 
 // * Для оффлайнового списка шмоток в хранилище.
@@ -36,7 +36,7 @@ class OfflineNode {
 	unsigned int uid; // глобальный уид
 };
 
-typedef std::list<OBJ_DATA::shared_ptr> ObjListType; // имя, шмотка
+typedef std::list<ObjectData::shared_ptr> ObjListType; // имя, шмотка
 typedef std::list<OfflineNode> TimerListType; // список шмота, находящегося в оффлайне
 
 class CharNode {
@@ -47,7 +47,7 @@ class CharNode {
 	// шмотки в персональном хранилище онлайн
 	ObjListType pers_online;
 	// чар (онлайн бабло и флаг наличия онлайна)
-	CHAR_DATA *ch;
+	CharacterData *ch;
 // оффлайн
 	// шмотки в хранилищах оффлайн
 	TimerListType offline_list;
@@ -73,9 +73,9 @@ class CharNode {
 	void reset();
 	bool removal_period_cost();
 
-	void take_item(CHAR_DATA *vict, char *arg, int howmany);
-	void remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHAR_DATA *vict);
-	bool obj_from_obj_list(char *name, CHAR_DATA *vict);
+	void take_item(CharacterData *vict, char *arg, int howmany);
+	void remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CharacterData *vict);
+	bool obj_from_obj_list(char *name, CharacterData *vict);
 	void load_online_objs(int file_type, bool reload = 0);
 	void online_to_offline(ObjListType &cont);
 
@@ -85,7 +85,7 @@ class CharNode {
 	void reset_cost_per_day() {
 		cost_per_day = 0;
 	}
-	void add_cost_per_day(OBJ_DATA *obj);
+	void add_cost_per_day(ObjectData *obj);
 	void add_cost_per_day(int amount);
 };
 
@@ -160,7 +160,7 @@ std::string generate_purged_filename(long uid) {
 	if (name.empty())
 		return "";
 
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (!get_filename(name.c_str(), filename, PURGE_DEPOT_FILE))
 		return "";
 
@@ -180,7 +180,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 	if (load_char(name.c_str(), ch) < 0)
 		return out.str();
 
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (!get_filename(name.c_str(), filename, PERS_DEPOT_FILE)) {
 		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
@@ -273,7 +273,7 @@ void delete_purged_entry(long uid) {
 	}
 }
 
-bool show_purged_message(CHAR_DATA *ch) {
+bool show_purged_message(CharacterData *ch) {
 	auto it = purged_list.find(GET_UNIQUE(ch));
 	if (it != purged_list.end()) {
 		// имя у нас канеш и так есть, но че зря код дублировать
@@ -328,7 +328,7 @@ void init_purged_list() {
 void remove_pers_file(const std::string &name) {
 	if (name.empty()) return;
 
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (get_filename(name.c_str(), filename, PERS_DEPOT_FILE))
 		remove(filename);
 }
@@ -482,8 +482,8 @@ void CharNode::add_cost_per_day(int amount) {
 		cost_per_day += amount;
 }
 
-// * Версия add_cost_per_day(int amount) для принятия *OBJ_DATA.
-void CharNode::add_cost_per_day(OBJ_DATA *obj) {
+// * Версия add_cost_per_day(int amount) для принятия *ObjectData.
+void CharNode::add_cost_per_day(ObjectData *obj) {
 	add_cost_per_day(get_object_low_rent(obj));
 }
 
@@ -535,7 +535,7 @@ void save_timedata() {
 void write_obj_file(const std::string &name, int file_type, const ObjListType &cont) {
 	// генерим имя файла
 	depot_log("write_obj_file: %s", name.c_str());
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (!get_filename(name.c_str(), filename, file_type)) {
 		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
@@ -761,7 +761,7 @@ void CharNode::reset() {
 * Проверка, является ли obj персональным хранилищем.
 * \return 0 - не является, 1- является.
 */
-bool is_depot(OBJ_DATA *obj) {
+bool is_depot(ObjectData *obj) {
 	if (system_obj::PERS_CHEST_RNUM < 0
 		|| obj->get_rnum() != system_obj::PERS_CHEST_RNUM) {
 		return false;
@@ -772,9 +772,9 @@ bool is_depot(OBJ_DATA *obj) {
 
 // * Распечатка отдельного предмета при осмотре хранилища.
 void print_obj(std::stringstream &i_out, std::stringstream &s_out,
-			   OBJ_DATA *obj, int count, CHAR_DATA *ch) {
-	const bool output_to_i = GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MATERIAL;
+			   ObjectData *obj, int count, CharacterData *ch) {
+	const bool output_to_i = GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_MATERIAL;
 	std::stringstream &out = output_to_i ? i_out : s_out;
 
 	out << obj->get_short_description();
@@ -787,7 +787,7 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 }
 
 // * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
-unsigned int get_max_pers_slots(CHAR_DATA *ch) {
+unsigned int get_max_pers_slots(CharacterData *ch) {
 	if (can_use_feat(ch, THRIFTY_FEAT))
 		return MAX_PERS_SLOTS(ch) * 2;
 	else
@@ -798,8 +798,8 @@ unsigned int get_max_pers_slots(CHAR_DATA *ch) {
 * Для читаемости show_depot - вывод списка предметов персонажу.
 * Сортировка по алиасам и группировка одинаковых предметов.
 */
-std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont) {
-	cont.sort([](OBJ_DATA::shared_ptr lrs, OBJ_DATA::shared_ptr rhs) {
+std::string print_obj_list(CharacterData *ch, ObjListType &cont) {
+	cont.sort([](ObjectData::shared_ptr lrs, ObjectData::shared_ptr rhs) {
 		return lrs->get_aliases() < rhs->get_aliases();
 	});
 
@@ -811,8 +811,8 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont) {
 
 	auto prev_obj_it = cont.cend();
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it) {
-		if (GET_OBJ_TYPE(*obj_it) == OBJ_DATA::ITEM_MING
-			|| GET_OBJ_TYPE(*obj_it) == OBJ_DATA::ITEM_MATERIAL) {
+		if (GET_OBJ_TYPE(*obj_it) == ObjectData::ITEM_MING
+			|| GET_OBJ_TYPE(*obj_it) == ObjectData::ITEM_MATERIAL) {
 			++i_cnt;
 		} else {
 			++s_cnt;
@@ -870,7 +870,7 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont) {
 * Возврат итератора за списком означает, что чара в плеер-таблице мы не нашли (что странно).
 * \param ch - проставляет в зависимости от наличия чара онлайн, иначе будет нулевым.
 */
-DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0) {
+DepotListType::iterator create_depot(long uid, CharacterData *ch = 0) {
 	DepotListType::iterator it = depot_list.find(uid);
 	if (it == depot_list.end()) {
 		CharNode tmp_node;
@@ -887,7 +887,7 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0) {
 }
 
 // * Выводим персональное хранилище вместо просмотра контейнера.
-void show_depot(CHAR_DATA *ch) {
+void show_depot(CharacterData *ch) {
 	if (IS_NPC(ch)) return;
 
 #ifndef TEST_BUILD
@@ -919,8 +919,8 @@ void show_depot(CHAR_DATA *ch) {
 * В случае переполнения денег на счете - кладем сколько можем, остальное возвращаем чару на руки.
 * На руках при возврате переполняться уже некуда, т.к. вложение идет с этих самых рук.
 */
-void put_gold_chest(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
-	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY) {
+void put_gold_chest(CharacterData *ch, const ObjectData::shared_ptr &obj) {
+	if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_MONEY) {
 		return;
 	}
 	long gold = GET_OBJ_VAL(obj, 0);
@@ -934,25 +934,25 @@ void put_gold_chest(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
 * Проверка возможности положить шмотку в хранилище.
 * FIXME с кланами копипаст.
 */
-bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj) {
+bool can_put_chest(CharacterData *ch, ObjectData *obj) {
 	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
+		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
 //		|| (NamedStuff::check_named(ch, obj, 0) && GET_UNIQUE(ch) != GET_OBJ_OWNER(obj))) {
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
 		return 0;
-	} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
+	} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER
 		&& obj->get_contains()) {
 		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
-		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return 0;
 	}
@@ -962,8 +962,8 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj) {
 unsigned count_inrg(const ObjListType &cont) {
 	unsigned ingr_cnt = 0;
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it) {
-		if (GET_OBJ_TYPE(*obj_it) == OBJ_DATA::ITEM_MING
-			|| GET_OBJ_TYPE(*obj_it) == OBJ_DATA::ITEM_MATERIAL) {
+		if (GET_OBJ_TYPE(*obj_it) == ObjectData::ITEM_MING
+			|| GET_OBJ_TYPE(*obj_it) == ObjectData::ITEM_MATERIAL) {
 			++ingr_cnt;
 		}
 	}
@@ -971,7 +971,7 @@ unsigned count_inrg(const ObjListType &cont) {
 }
 
 // * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
-bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
+bool put_depot(CharacterData *ch, const ObjectData::shared_ptr &obj) {
 	if (IS_NPC(ch)) return 0;
 
 #ifndef TEST_BUILD
@@ -988,7 +988,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MONEY) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_MONEY) {
 		put_gold_chest(ch, obj);
 		return 1;
 	}
@@ -1008,8 +1008,8 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
 
 	const size_t ingr_cnt = count_inrg(it->second.pers_online);
 	const size_t staff_cnt = it->second.pers_online.size() - ingr_cnt;
-	const bool is_ingr = GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MATERIAL;
+	const bool is_ingr = GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_MATERIAL;
 
 	if (is_ingr && ingr_cnt >= (MAX_PERS_SLOTS(ch) * 2)) {
 		send_to_char("В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
@@ -1030,11 +1030,11 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
 
-	act("Вы положили $o3 в персональное хранилище.", FALSE, ch, obj.get(), 0, TO_CHAR);
-	act("$n положил$g $o3 в персональное хранилище.", TRUE, ch, obj.get(), 0, TO_ROOM);
+	act("Вы положили $o3 в персональное хранилище.", false, ch, obj.get(), 0, TO_CHAR);
+	act("$n положил$g $o3 в персональное хранилище.", true, ch, obj.get(), 0, TO_ROOM);
 
 	obj_from_char(obj.get());
-	check_auction(NULL, obj.get());
+	check_auction(nullptr, obj.get());
 	world_objects.remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
@@ -1042,7 +1042,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj) {
 }
 
 // * Взятие чего-то из персонального хранилища.
-void take_depot(CHAR_DATA *vict, char *arg, int howmany) {
+void take_depot(CharacterData *vict, char *arg, int howmany) {
 	if (IS_NPC(vict)) return;
 
 #ifndef TEST_BUILD
@@ -1068,7 +1068,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany) {
 }
 
 // * Берем шмотку из хранилища.
-void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHAR_DATA *vict) {
+void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CharacterData *vict) {
 	depot_log("remove_item %s: %s %d %d",
 			  name.c_str(),
 			  (*obj_it)->get_short_description().c_str(),
@@ -1076,16 +1076,16 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHA
 			  GET_OBJ_VNUM(obj_it->get()));
 	world_objects.add(*obj_it);
 	obj_to_char(obj_it->get(), vict);
-	act("Вы взяли $o3 из персонального хранилища.", FALSE, vict, obj_it->get(), 0, TO_CHAR);
-	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, obj_it->get(), 0, TO_ROOM);
+	act("Вы взяли $o3 из персонального хранилища.", false, vict, obj_it->get(), 0, TO_CHAR);
+	act("$n взял$g $o3 из персонального хранилища.", true, vict, obj_it->get(), 0, TO_ROOM);
 	cont.erase(obj_it++);
 	need_save = true;
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 }
 
 // * Поиск шмотки в контейнере (со всякими точками), удаляем ее тут же.
-bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict) {
-	char tmpname[MAX_INPUT_LENGTH];
+bool CharNode::obj_from_obj_list(char *name, CharacterData *vict) {
+	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 	strcpy(tmp, name);
 
@@ -1106,7 +1106,7 @@ bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict) {
 }
 
 // * Поиск шмотки в хранилище и ее взятие.
-void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany) {
+void CharNode::take_item(CharacterData *vict, char *arg, int howmany) {
 	ObjListType &cont = pers_online;
 
 	int obj_dotmode = find_all_dots(arg);
@@ -1151,7 +1151,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany) {
 * Рента за шмот в день, но с учетом персонального хранилища онлайн, для вывода перед рентой.
 * Эта функция зовется ДО того, как поизройдет перекидывание шиота в оффлайн список.
 */
-int get_total_cost_per_day(CHAR_DATA *ch) {
+int get_total_cost_per_day(CharacterData *ch) {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end()) {
 		int cost = 0;
@@ -1170,7 +1170,7 @@ int get_total_cost_per_day(CHAR_DATA *ch) {
 * Вывод инфы в show stats.
 * TODO: добавить вывод расходов, может еще процент наполненности персональных хранилищ.
 */
-void show_stats(CHAR_DATA *ch) {
+void show_stats(CharacterData *ch) {
 	std::stringstream out;
 	size_t pers_count = 0;
 	size_t offline_count = 0;
@@ -1197,7 +1197,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 		return;
 	}
 
-	char filename[MAX_STRING_LENGTH];
+	char filename[kMaxStringLength];
 	if (!get_filename(name.c_str(), filename, file_type)) {
 		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
@@ -1231,7 +1231,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 	*(data + fsize) = '\0';
 	int error = 0;
 
-	OBJ_DATA::shared_ptr obj;
+	ObjectData::shared_ptr obj;
 	for (fsize = 0; *data && *data != '$'; fsize++) {
 		obj = read_one_object_new(&data, &error);
 		if (!obj) {
@@ -1284,7 +1284,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 }
 
 // * Вход чара в игру - снятие за хранилище, пурж шмоток, оповещение о кол-ве снятых денег, перевод списков в онлайн.
-void enter_char(CHAR_DATA *ch) {
+void enter_char(CharacterData *ch) {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end()) {
 		// снимаем бабло, если что-то было потрачено на ренту
@@ -1348,7 +1348,7 @@ void CharNode::online_to_offline(ObjListType &cont) {
 * не вышли из меню (при ренте/смерти) - в данный момент мы считаем этого чара все еще онлайн.
 * TODO: так же мы сейчас дергаем эту функцию для пустых чаров, у которых уид заведомо нулевой.
 */
-void exit_char(CHAR_DATA *ch) {
+void exit_char(CharacterData *ch) {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end()) {
 		// тут лучше дернуть сейв руками до тика, т.к. есть вариант зайти и тут же выйти
@@ -1363,7 +1363,7 @@ void exit_char(CHAR_DATA *ch) {
 }
 
 // * Релоад шмоток чара на случай отката.
-void reload_char(long uid, CHAR_DATA *ch) {
+void reload_char(long uid, CharacterData *ch) {
 	DepotListType::iterator it = create_depot(uid);
 	if (it == depot_list.end()) {
 		log("Хранилище: UID %ld - возвращен некорректный уид персонажа.", uid);
@@ -1373,13 +1373,13 @@ void reload_char(long uid, CHAR_DATA *ch) {
 	it->second.reset();
 
 	// после чего надо записать ему бабла, иначе при входе все спуржится (бабло проставит в exit_char)
-	CHAR_DATA::shared_ptr vict;
-	DESCRIPTOR_DATA *d = DescByUID(uid);
+	CharacterData::shared_ptr vict;
+	DescriptorData *d = DescByUID(uid);
 	if (d) {
 		vict = d->character; // чар онлайн
 	} else {
 		// чар соответственно оффлайн
-		const CHAR_DATA::shared_ptr t_vict(new Player);
+		const CharacterData::shared_ptr t_vict(new Player);
 		if (load_char(it->second.name.c_str(), t_vict.get()) < 0) {
 			// вообще эт нереальная ситуация после проверки в do_reboot
 			send_to_char(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
@@ -1397,8 +1397,8 @@ void reload_char(long uid, CHAR_DATA *ch) {
 		}
 	}
 
-	snprintf(buf, MAX_STRING_LENGTH, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
-	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
+	mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	imm_log("%s", buf);
 }
 
@@ -1406,7 +1406,7 @@ void reload_char(long uid, CHAR_DATA *ch) {
 * Учет локейт в персональных хранилищах.
 * \param count - оставшееся кол-во возможных показываемых шмоток после прохода по основному обж-списку.
 */
-int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
+int print_spell_locate_object(CharacterData *ch, int count, std::string name) {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
@@ -1424,7 +1424,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
 				continue;
 			}
 
-			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",
+			snprintf(buf, kMaxStringLength, "%s наход%sся у кого-то в персональном хранилище.\r\n",
 					 (*obj_it)->get_short_description().c_str(), GET_OBJ_POLY_1(ch, (*obj_it)));
 //			CAP(buf); issue #59
 			send_to_char(buf, ch);
@@ -1437,7 +1437,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
 	return count;
 }
 
-int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
+int print_imm_where_obj(CharacterData *ch, char *arg, int num) {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
@@ -1456,7 +1456,7 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.
-void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto) {
+void olc_update_from_proto(int robj_num, ObjectData *olc_proto) {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
@@ -1468,7 +1468,7 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto) {
 }
 
 // * Обработка ренейма персонажа.
-void rename_char(CHAR_DATA *ch) {
+void rename_char(CharacterData *ch) {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end()) {
 		it->second.name = GET_NAME(ch);
@@ -1476,7 +1476,7 @@ void rename_char(CHAR_DATA *ch) {
 }
 
 // * Поиск цели для каста локейта.
-OBJ_DATA *locate_object(const char *str) {
+ObjectData *locate_object(const char *str) {
 	for (DepotListType::const_iterator i = depot_list.begin(); i != depot_list.end(); ++i) {
 		for (ObjListType::const_iterator k = i->second.pers_online.begin(); k != i->second.pers_online.end(); ++k) {
 			if (isname(str, (*k)->get_aliases())) {
@@ -1496,7 +1496,7 @@ void add_offline_money(long uid, int money) {
 }
 
 // * Поиск в хранилище внума из списка vnum_list.
-bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list) {
+bool find_set_item(CharacterData *ch, const std::set<int> &vnum_list) {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end()) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
@@ -1510,16 +1510,16 @@ bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list) {
 }
 
 // * Запрет на ренту при наличии единственной сетины в хранилище с сообщением от рент-кипера.
-int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep) {
+int report_unrentables(CharacterData *ch, CharacterData *recep) {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end()) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 				 obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it) {
 			if (SetSystem::is_norent_set(ch, obj_it->get())) {
-				snprintf(buf, MAX_STRING_LENGTH,
+				snprintf(buf, kMaxStringLength,
 						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
 						 OBJN(obj_it->get(), ch, 3));
-				act(buf, FALSE, recep, 0, ch, TO_VICT);
+				act(buf, false, recep, 0, ch, TO_VICT);
 				return 1;
 			}
 		}

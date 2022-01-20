@@ -1,9 +1,9 @@
 #include "cast.h"
 
-#include "chars/char.h"
-#include "obj.h"
-#include "room.h"
-#include "structs.h"
+#include "entities/char.h"
+#include "entities/obj.h"
+#include "entities/room.h"
+#include "structs/structs.h"
 #include "comm.h"
 #include "skills.h"
 #include "magic/spells.h"
@@ -20,10 +20,10 @@
  * the spell can be cast, checks for sufficient mana and subtracts it, and
  * passes control to CastSpell().
  */
-void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	CHAR_DATA *tch;
-	OBJ_DATA *tobj;
-	ROOM_DATA *troom;
+void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+	CharacterData *tch;
+	ObjectData *tobj;
+	RoomData *troom;
 
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
@@ -61,16 +61,16 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	// get: blank, spell name, target name
 	s = strtok(argument, "'*!");
-	if (s == NULL) {
+	if (s == nullptr) {
 		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
-	if (s == NULL) {
+	s = strtok(nullptr, "'*!");
+	if (s == nullptr) {
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	t = strtok(NULL, "\0");
+	t = strtok(nullptr, "\0");
 
 	spellnum = FixNameAndFindSpellNum(s);
 	spell_subst = spellnum;
@@ -84,7 +84,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// Caster is lower than spell level
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
-		(GET_REAL_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) {
+		(GET_REAL_LEVEL(ch) < kLevelGreatGod) && (!IS_NPC(ch))) {
 		if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
 			|| PlayerClass::slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
@@ -121,7 +121,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	// Find the target
-	if (t != NULL)
+	if (t != nullptr)
 		one_argument(t, arg);
 	else
 		*arg = '\0';
@@ -146,7 +146,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	ch->set_cast(0, 0, 0, 0, 0);
 	if (!CalculateCastSuccess(ch, tch, SAVING_STABILITY, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 		if (GET_SPELL_MEM(ch, spell_subst)) {
 			GET_SPELL_MEM(ch, spell_subst)--;
 		}
@@ -165,10 +165,10 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), spell_info[spellnum].name, CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
-			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
+			act(buf, false, ch, tobj, tch, TO_CHAR);
 		} else if (CastSpell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
 			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
-				WAIT_STATE(ch, PULSE_VIOLENCE);
+				WAIT_STATE(ch, kPulseViolence);
 		}
 	}
 }

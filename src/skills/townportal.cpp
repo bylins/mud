@@ -8,14 +8,14 @@
 namespace OneWayPortal {
 
 // список односторонних порталов <куда указывает, откуда поставлен>
-std::unordered_map<room_vnum /*to*/, ROOM_DATA * /*from*/> portal_list;
+std::unordered_map<RoomVnum /*to*/, RoomData * /*from*/> portal_list;
 
 /**
 * Добавление портала в список
 * \param to_room - куда ставится пента
 * \param from_room - откуда ставится
 */
-void add(ROOM_DATA *to_room, ROOM_DATA *from_room) {
+void add(RoomData *to_room, RoomData *from_room) {
 	portal_list.emplace(to_room->room_vn, from_room);
 }
 
@@ -23,7 +23,7 @@ void add(ROOM_DATA *to_room, ROOM_DATA *from_room) {
 * Удаление портала из списка
 * \param to_room - куда указывает пента
 */
-void remove(ROOM_DATA *to_room) {
+void remove(RoomData *to_room) {
 	const auto it = portal_list.find(to_room->room_vn);
 	if (it != portal_list.end())
 		portal_list.erase(it);
@@ -34,7 +34,7 @@ void remove(ROOM_DATA *to_room) {
 * \param to_room - куда указывает пента
 * \return указатель на источник пенты
 */
-ROOM_DATA *get_from_room(ROOM_DATA *to_room) {
+RoomData *get_from_room(RoomData *to_room) {
 
 	const auto it = portal_list.find(to_room->room_vn);
 	if (it != portal_list.end())
@@ -45,22 +45,22 @@ ROOM_DATA *get_from_room(ROOM_DATA *to_room) {
 
 } // namespace OneWayPortal
 
-void spell_townportal(CHAR_DATA *ch, char *arg) {
+void spell_townportal(CharacterData *ch, char *arg) {
 	int gcount = 0, cn = 0, ispr = 0;
 	bool has_label_portal = false;
-	struct timed_type timed;
+	struct Timed timed;
 	char *nm;
-	struct char_portal_type *tmp;
-	struct portals_list_type *port;
-	struct portals_list_type label_port;
-	ROOM_DATA *label_room;
+	struct CharacterPortal *tmp;
+	struct Portal *port;
+	struct Portal label_port;
+	RoomData *label_room;
 
 	port = get_portal(-1, arg);
 
 	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
 	if (!port && name_cmp(ch, arg)) {
 
-		label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+		label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 		if (label_room) {
 			label_port.vnum = label_room->room_vn;
 			label_port.level = 1;
@@ -79,14 +79,14 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 			return;
 		}
 
-		if (RoomSpells::isRoomAffected(world[ch->in_room], SPELL_RUNE_LABEL)) {
+		if (room_spells::IsRoomAffected(world[ch->in_room], SPELL_RUNE_LABEL)) {
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}
 
 		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch)) {
 			send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
-			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
+			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, 0, 0, TO_ROOM);
 			return;
 		}
 		//удаляем переходы
@@ -99,15 +99,15 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 		}
 
 		// Открываем пентаграмму в комнату rnum //
-		ImproveSkill(ch, SKILL_TOWNPORTAL, 1, NULL);
-		ROOM_DATA *from_room = world[ch->in_room];
+		ImproveSkill(ch, SKILL_TOWNPORTAL, 1, nullptr);
+		RoomData *from_room = world[ch->in_room];
 		from_room->portal_room = real_room(port->vnum);
 		from_room->portal_time = 1;
 		from_room->pkPenterUnique = 0;
 		OneWayPortal::add(world[from_room->portal_room], from_room);
-		act("Лазурная пентаграмма возникла в воздухе.", FALSE, ch, 0, 0, TO_CHAR);
-		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", FALSE, ch, 0, 0, TO_ROOM);
-		act("Лазурная пентаграмма возникла в воздухе.", FALSE, ch, 0, 0, TO_ROOM);
+		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, TO_CHAR);
+		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, 0, 0, TO_ROOM);
+		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, TO_ROOM);
 		if (!IS_IMMORTAL(ch)) {
 			timed.skill = SKILL_TOWNPORTAL;
 			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
@@ -144,10 +144,10 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 	page_string(ch->desc, buf2, 1);
 }
 
-void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_townportal(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-	struct char_portal_type *tmp, *dlt = NULL;
-	char arg2[MAX_INPUT_LENGTH];
+	struct CharacterPortal *tmp, *dlt = nullptr;
+	char arg2[kMaxInputLength];
 	int vnum = 0;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOWNPORTAL)) {

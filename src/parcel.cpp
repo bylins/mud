@@ -9,20 +9,20 @@
 #include "handler.h"
 #include "auction.h"
 #include "screen.h"
-#include "chars/char_player.h"
+#include "entities/char_player.h"
 #include "mail.h"
 #include "obj_save.h"
 
 #include <iomanip>
 
-extern room_rnum r_helled_start_room;
-extern room_rnum r_named_start_room;
-extern room_rnum r_unreg_start_room;
+extern RoomRnum r_helled_start_room;
+extern RoomRnum r_named_start_room;
+extern RoomRnum r_unreg_start_room;
 
-extern CHAR_DATA *get_player_of_name(const char *name);
+extern CharacterData *get_player_of_name(const char *name);
 extern int get_buf_line(char **source, char *target);
-extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
-extern int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj);
+extern void olc_update_object(int robj_num, ObjectData *obj, ObjectData *olc_proto);
+extern int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
 
 namespace Parcel {
 void parcel_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
@@ -48,11 +48,11 @@ static int send_reserved_buffer = 0;
 
 class Node {
  public:
-	Node(int money, const OBJ_DATA::shared_ptr &obj) : money_(money), timer_(0), obj_(obj) {};
+	Node(int money, const ObjectData::shared_ptr &obj) : money_(money), timer_(0), obj_(obj) {};
 	Node() : money_(0), timer_(0), obj_(nullptr) {};
 	int money_; // резервированные средства
 	int timer_; // сколько минут шмотка уже ждет получателя (при значении выще KEEP_TIMER возвращается отправителю)
-	OBJ_DATA::shared_ptr
+	ObjectData::shared_ptr
 		obj_; // шмотка (здесь же берется таймер, при уходе в ноль - пурж и возврат оставшегося резерва)
 };
 
@@ -94,7 +94,7 @@ void parcel_log(const char *format, ...) {
 
 // * Уведомление чара (если он онлайна) о новой посылке.
 void invoice(long uid) {
-	DESCRIPTOR_DATA *d = DescByUID(uid);
+	DescriptorData *d = DescByUID(uid);
 	if (d) {
 		if (!has_parcel(d->character.get())) {
 			send_to_char(d->character.get(), "%sВам пришла посылка, зайдите на почту и распишитесь!%s\r\n",
@@ -126,7 +126,7 @@ void add_parcel(long target, long sender, const Node &tmp_node) {
 }
 
 // * Сколько всего предметов уже посылается данным персонажем (для ограничения).
-int total_sended(CHAR_DATA *ch) {
+int total_sended(CharacterData *ch) {
 	int sended = 0;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
 		SenderListType::const_iterator it2 = it->second.find(GET_UNIQUE(ch));
@@ -140,30 +140,30 @@ int total_sended(CHAR_DATA *ch) {
 }
 
 // * Проверка возможности отправить шмотку почтой.
-bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid) {
+bool can_send(CharacterData *ch, CharacterData *mailman, ObjectData *obj, long vict_uid) {
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_DECAY)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
+		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| GET_OBJ_OWNER(obj)) {
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
+		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
 				 obj->get_PName(0).c_str());
-		act(buf, FALSE, mailman, 0, ch, TO_VICT);
+		act(buf, false, mailman, 0, ch, TO_VICT);
 		return 0;
-	} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
+	} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER
 		&& obj->get_contains()) {
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(5).c_str());
-		act(buf, FALSE, mailman, 0, ch, TO_VICT);
+		snprintf(buf, kMaxStringLength, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(5).c_str());
+		act(buf, false, mailman, 0, ch, TO_VICT);
 		return 0;
 	} else if (SetSystem::is_big_set(obj)) {
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
+		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
 				 obj->get_PName(0).c_str());
-		act(buf, FALSE, mailman, 0, ch, TO_VICT);
+		act(buf, false, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
 	Player t_vict;
@@ -172,19 +172,19 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj, long vict_uid) {
 	}
 	if (invalid_anti_class(&t_vict, obj)) {
 		switch (GET_SEX(&t_vict)) {
-			case ESex::SEX_MALE:
+			case ESex::kMale:
 				act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
-					FALSE, mailman, 0, ch, TO_VICT);
+					false, mailman, 0, ch, TO_VICT);
 				break;
 
-			case ESex::SEX_FEMALE:
+			case ESex::kFemale:
 				act("$n сказал$g вам : 'Знаю я такую красну девицу - эта вещь явно на нее не налезет.'\r\n",
-					FALSE, mailman, 0, ch, TO_VICT);
+					false, mailman, 0, ch, TO_VICT);
 				break;
 
 			default:
 				act("$n сказал$g вам : 'Знаю я сие чудо бесполое - эта вещь явно на него не налезет.'\r\n",
-					FALSE, mailman, 0, ch, TO_VICT);
+					false, mailman, 0, ch, TO_VICT);
 		}
 		return 0;
 	}
@@ -206,7 +206,7 @@ std::vector<int> get_objs(long char_uid) {
 }
 
 // * Отправка предмета (снятие/резервирование денег, вывод из списка предметов).
-void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj) {
+void send_object(CharacterData *ch, CharacterData *mailman, long vict_uid, ObjectData *obj) {
 	if (!ch || !mailman || !vict_uid || !obj) {
 		log("Parcel: нулевой входной параметр: %d, %d, %d, %d (%s %s %d)",
 			ch ? 1 : 0, mailman ? 1 : 0, vict_uid ? 1 : 0, obj ? 1 : 0, __FILE__, __func__, __LINE__);
@@ -219,23 +219,23 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	const int total_cost = reserved_cost + SEND_COST;
 
 	if (ch->get_total_gold() < total_cost) {
-		act("$n сказал$g вам : 'Да у тебя ведь нет столько денег!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Да у тебя ведь нет столько денег!'", false, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	if (total_sended(ch) >= MAX_SLOTS) {
 		act("$n сказал$g вам : 'Ты уже и так отправил кучу вещей! Подожди, пока их получат адресаты!'",
-			FALSE, mailman, 0, ch, TO_VICT);
+			false, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
 	std::string name = GetNameByUnique(vict_uid);
 	if (name.empty()) {
-		act("$n сказал$g вам : 'Ошибка в имени получателя, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Ошибка в имени получателя, сообщите Богам!'", false, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	if (SetSystem::is_norent_set(ch, obj)
 		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_UNIQUE(ch)))) {
-		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return;
 	}
@@ -258,26 +258,26 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	obj_from_char(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
-	check_auction(NULL, obj);
+	check_auction(nullptr, obj);
 	world_objects.remove(obj);
 }
 
 // * Отправка предмета, дергается из спешиала почты ('отправить имя предмет)'.
-void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg) {
+void send(CharacterData *ch, CharacterData *mailman, long vict_uid, char *arg) {
 	if (IS_NPC(ch)) return;
 
 	if (GET_UNIQUE(ch) == vict_uid) {
-		act("$n сказал$g вам : 'Не загружай понапрасну почту!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Не загружай понапрасну почту!'", false, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	if (NORENTABLE(ch)) {
-		act("$n сказал$g вам : 'Да у тебя руки по локоть в крови, проваливай!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Да у тебя руки по локоть в крови, проваливай!'", false, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
-	OBJ_DATA *obj, *next_obj;
-	char tmp_arg[MAX_INPUT_LENGTH];
-	char tmp_arg2[MAX_INPUT_LENGTH];
+	ObjectData *obj, *next_obj;
+	char tmp_arg[kMaxInputLength];
+	char tmp_arg2[kMaxInputLength];
 
 	two_arguments(arg, tmp_arg, tmp_arg2);
 
@@ -285,7 +285,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg) {
 		int amount = atoi(tmp_arg);
 		if (!strn_cmp("coin", tmp_arg2, 4) || !strn_cmp("кун", tmp_arg2, 5) || !str_cmp("денег", tmp_arg2)) {
 			act("$n сказал$g вам : 'Для перевода денег воспользуйтесь услугами банка.'",
-				FALSE,
+				false,
 				mailman,
 				0,
 				ch,
@@ -358,7 +358,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg) {
 }
 
 // * Дергается из спешиала почты ('почта'). Распечатка отправленных посылок, которые еще не доставлены.
-void print_sending_stuff(CHAR_DATA *ch) {
+void print_sending_stuff(CharacterData *ch) {
 	std::stringstream out;
 	out << "\r\nВаши текущие посылки:";
 	bool print = false;
@@ -384,7 +384,7 @@ void print_sending_stuff(CHAR_DATA *ch) {
 }
 
 // * Для учитывания предметов на почте в локейте.
-int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
+int print_spell_locate_object(CharacterData *ch, int count, std::string name) {
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
 		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
@@ -403,7 +403,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
 					continue;
 				}
 
-				snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у почтового голубя в инвентаре.\r\n",
+				snprintf(buf, kMaxStringLength, "%s наход%sся у почтового голубя в инвентаре.\r\n",
 						 it3->obj_->get_short_description().c_str(), GET_OBJ_POLY_1(ch, it3->obj_));
 //				CAP(buf); issue #59
 				send_to_char(buf, ch);
@@ -418,7 +418,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
 }
 
 // * Есть ли на чара какие-нить посылки.
-bool has_parcel(CHAR_DATA *ch) {
+bool has_parcel(CharacterData *ch) {
 	ParcelListType::const_iterator it = parcel_list.find(GET_UNIQUE(ch));
 	if (it != parcel_list.end())
 		return true;
@@ -433,7 +433,7 @@ void return_money(std::string const &name, int money, bool add) {
 		return;
 	}
 
-	CHAR_DATA *vict = 0;
+	CharacterData *vict = 0;
 	if ((vict = get_player_of_name(name.c_str()))) {
 		if (add) {
 			vict->add_bank(money);
@@ -453,7 +453,7 @@ void return_money(std::string const &name, int money, bool add) {
 }
 
 // * Экстра-описание на самой посылке при получении.
-void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender) {
+void fill_ex_desc(CharacterData *ch, ObjectData *obj, std::string sender) {
 	size_t size = std::max(strlen(GET_NAME(ch)), sender.size());
 	std::stringstream out;
 	out.setf(std::ios_base::left);
@@ -475,7 +475,7 @@ int calculate_timer_cost(std::list<Node>::iterator const &it) {
 }
 
 // * Генерим сам контейнер посылку.
-OBJ_DATA *create_parcel() {
+ObjectData *create_parcel() {
 	const auto obj = world_objects.create_blank();
 
 	obj->set_aliases("посылка бандероль пакет ящик parcel box case chest");
@@ -487,8 +487,8 @@ OBJ_DATA *create_parcel() {
 	obj->set_PName(3, "посылку");
 	obj->set_PName(4, "посылкой");
 	obj->set_PName(5, "посылке");
-	obj->set_sex(ESex::SEX_FEMALE);
-	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
+	obj->set_sex(ESex::kFemale);
+	obj->set_type(ObjectData::ITEM_CONTAINER);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	obj->set_weight(1);
 	obj->set_cost(1);
@@ -502,12 +502,12 @@ OBJ_DATA *create_parcel() {
 }
 
 // * Получение посылки на почте, дергается из спешиала почты. ('получить').
-void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
+void receive(CharacterData *ch, CharacterData *mailman) {
 	if (((ch->in_room == r_helled_start_room) ||
 		(ch->in_room == r_named_start_room) ||
 		(ch->in_room == r_unreg_start_room)) &&
 		has_parcel(ch)) {
-		act("$n сказал$g вам : 'А посылку-то не получишь, сюда не доставляем.'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'А посылку-то не получишь, сюда не доставляем.'", false, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
@@ -517,7 +517,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
 			std::string name = GetNameByUnique(it2->first);
 			name_convert(name);
 
-			OBJ_DATA *obj = create_parcel();
+			ObjectData *obj = create_parcel();
 			fill_ex_desc(ch, obj, name);
 
 			int money = 0;
@@ -530,9 +530,9 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
 			return_money(name, money, RETURN_WITH_MONEY);
 
 			obj_to_char(obj, ch);
-			snprintf(buf, MAX_STRING_LENGTH, "$n дал$g вам посылку (отправитель %s).", name.c_str());
-			act(buf, FALSE, mailman, 0, ch, TO_VICT);
-			act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
+			snprintf(buf, kMaxStringLength, "$n дал$g вам посылку (отправитель %s).", name.c_str());
+			act(buf, false, mailman, 0, ch, TO_VICT);
+			act("$N дал$G $n2 посылку.", false, ch, 0, mailman, TO_ROOM);
 			++was_sended;
 		}
 		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
@@ -543,7 +543,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
 // * Отправка сообщения через письмо, с уведомлением чару, если тот онлайн.
 void create_mail(int to_uid, int from_uid, char *text) {
 	mail::add(to_uid, from_uid, text);
-	const DESCRIPTOR_DATA *i = DescByUID(to_uid);
+	const DescriptorData *i = DescByUID(to_uid);
 	if (i) {
 		send_to_char(i->character.get(), "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
 					 CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
@@ -579,7 +579,7 @@ void return_parcel() {
 
 // * Дикей предмета на почте и уведомление об этом отправителя и получателя через письма.
 void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::iterator &it) {
-	snprintf(buf, MAX_STRING_LENGTH, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
+	snprintf(buf, kMaxStringLength, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
 			 it->obj_->get_short_description().c_str(),
 			 GET_OBJ_SUF_2(it->obj_));
 
@@ -600,8 +600,8 @@ void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::itera
 }
 
 // * Генерация письма о возврате посылки.
-void return_invoice(int uid, OBJ_DATA *obj) {
-	snprintf(buf, MAX_STRING_LENGTH, "Посылка возвращена отправителю: %s.\r\n",
+void return_invoice(int uid, ObjectData *obj) {
+	snprintf(buf, kMaxStringLength, "Посылка возвращена отправителю: %s.\r\n",
 			 obj->get_short_description().c_str());
 	char *tmp = str_dup(buf);
 	create_mail(uid, -1, tmp);
@@ -620,7 +620,7 @@ LoadNode parcel_read_one_object(char **data, int *error) {
 
 	// Пропустим #
 	(*data)++;
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 
 	*error = 2;
 	// отправитель
@@ -788,7 +788,7 @@ void update_timers() {
 }
 
 // * Иммский 'show stats' интересу и статистики ради.
-void show_stats(CHAR_DATA *ch) {
+void show_stats(CharacterData *ch) {
 	int targets = 0, returned = 0, objs = 0, reserved_money = 0;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
 		++targets;
@@ -820,7 +820,7 @@ int delete_obj(int vnum) {
 }
 
 // * Иммское 'где' для учета предметов на почте.
-int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
+int print_imm_where_obj(CharacterData *ch, char *arg, int num) {
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
 		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
@@ -843,7 +843,7 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.
-void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto) {
+void olc_update_from_proto(int robj_num, ObjectData *olc_proto) {
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
 		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
@@ -856,7 +856,7 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto) {
 }
 
 // * Поиск цели для каста локейта.
-OBJ_DATA *locate_object(const char *str) {
+ObjectData *locate_object(const char *str) {
 	for (ParcelListType::const_iterator i = parcel_list.begin(); i != parcel_list.end(); ++i) {
 		for (SenderListType::const_iterator k = i->second.begin(); k != i->second.end(); ++k) {
 			for (std::list<Node>::const_iterator o = k->second.begin(); o != k->second.end(); ++o) {
@@ -870,7 +870,7 @@ OBJ_DATA *locate_object(const char *str) {
 }
 
 // * Возврат всех ждущих посылок их отправителю.
-void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman) {
+void bring_back(CharacterData *ch, CharacterData *mailman) {
 	int money = 0;
 	bool empty = true;
 	for (ParcelListType::iterator i = parcel_list.begin(); i != parcel_list.end(); /* empty */) {
@@ -880,7 +880,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman) {
 			continue;
 		}
 		empty = false;
-		OBJ_DATA *obj = create_parcel();
+		ObjectData *obj = create_parcel();
 		fill_ex_desc(ch, obj, std::string("Отдел возвратов"));
 		for (std::list<Node>::iterator l = k->second.begin(); l != k->second.end(); ++l) {
 			money += l->money_ - calculate_timer_cost(l);
@@ -888,9 +888,9 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman) {
 			obj_to_obj(l->obj_.get(), obj);
 		}
 		obj_to_char(obj, ch);
-		snprintf(buf, MAX_STRING_LENGTH, "$n дал$g вам посылку.");
-		act(buf, FALSE, mailman, 0, ch, TO_VICT);
-		act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
+		snprintf(buf, kMaxStringLength, "$n дал$g вам посылку.");
+		act(buf, false, mailman, 0, ch, TO_VICT);
+		act("$N дал$G $n2 посылку.", false, ch, 0, mailman, TO_ROOM);
 
 		i->second.erase(k);
 		if (i->second.empty()) {
@@ -901,12 +901,12 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman) {
 	}
 	if (!empty && money > 0) {
 		act("$n сказал$g вам : 'За экстренный возврат посылок с вас удержана половина зарезервированных кун.'",
-			FALSE, mailman, 0, ch, TO_VICT);
+			false, mailman, 0, ch, TO_VICT);
 		std::string name = GET_NAME(ch);
 		return_money(name, money / 2, RETURN_WITH_MONEY);
 		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 	} else if (empty) {
-		act("$n сказал$g вам : 'У нас нет ни одной вашей посылки!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'У нас нет ни одной вашей посылки!'", false, mailman, 0, ch, TO_VICT);
 	}
 }
 

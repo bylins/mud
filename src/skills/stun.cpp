@@ -9,7 +9,7 @@
 
 using namespace FightSystem;
 
-void do_stun(CHAR_DATA *ch, char *argument, int, int) {
+void do_stun(CharacterData *ch, char *argument, int, int) {
 	if (ch->get_skill(SKILL_STUN) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -35,7 +35,7 @@ void do_stun(CHAR_DATA *ch, char *argument, int, int) {
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кто это так сильно путается у вас под руками?\r\n", ch);
 		return;
@@ -54,17 +54,17 @@ void do_stun(CHAR_DATA *ch, char *argument, int, int) {
 	go_stun(ch, vict);
 }
 
-void go_stun(CHAR_DATA *ch, CHAR_DATA *vict) {
-	timed_type timed;
+void go_stun(CharacterData *ch, CharacterData *vict) {
+	Timed timed;
 	if (GET_SKILL(ch, SKILL_STUN) < 150) {
-		ImproveSkill(ch, SKILL_STUN, TRUE, vict);
+		ImproveSkill(ch, SKILL_STUN, true, vict);
 		timed.skill = SKILL_STUN;
 		timed.time = 7;
 		timed_to_char(ch, &timed);
-		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-		act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", false, ch, 0, vict, TO_CHAR);
+		act("$N3 попытал$U ошеломить вас, но не получилось.", false, vict, 0, ch, TO_CHAR);
 		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.",
-			TRUE,
+			true,
 			ch,
 			0,
 			vict,
@@ -86,25 +86,25 @@ void go_stun(CHAR_DATA *ch, CHAR_DATA *vict) {
 	TrainSkill(ch, SKILL_STUN, success, vict);
 	SendSkillBalanceMsg(ch, skill_info[SKILL_STUN].name, percent, prob, success);
 	if (!success) {
-		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
-		act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
+		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", false, ch, 0, vict, TO_CHAR);
+		act("$N3 попытал$U ошеломить вас, но не получилось.", false, vict, 0, ch, TO_CHAR);
 		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.",
 			true, ch, nullptr, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_hit(ch, vict);
 	} else {
 		if (GET_EQ(ch, WEAR_BOTHS) && GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS) {
-			act("Точным выстрелом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
-			act("Точный выстрел $N1 повалил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n точным выстрелом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			act("Точным выстрелом вы ошеломили $N3!", false, ch, 0, vict, TO_CHAR);
+			act("Точный выстрел $N1 повалил вас с ног и лишил сознания.", false, vict, 0, ch, TO_CHAR);
+			act("$n точным выстрелом ошеломил$g $N3!", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		} else {
-			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
-			act("Ошеломляющий удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n мощным ударом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			act("Мощным ударом вы ошеломили $N3!", false, ch, 0, vict, TO_CHAR);
+			act("Ошеломляющий удар $N1 сбил вас с ног и лишил сознания.", false, vict, 0, ch, TO_CHAR);
+			act("$n мощным ударом ошеломил$g $N3!", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
-		GET_POS(vict) = POS_INCAP;
-		WAIT_STATE(vict, (2 + GET_REAL_REMORT(ch) / 5) * PULSE_VIOLENCE);
-		//WAIT_STATE(ch, (3 * PULSE_VIOLENCE));
-		ch->setSkillCooldown(SKILL_STUN, 3 * PULSE_VIOLENCE);
+		GET_POS(vict) = EPosition::kIncap;
+		WAIT_STATE(vict, (2 + GET_REAL_REMORT(ch) / 5) * kPulseViolence);
+		//WAIT_STATE(ch, (3 * kPulseViolence));
+		ch->setSkillCooldown(SKILL_STUN, 3 * kPulseViolence);
 		set_hit(ch, vict);
 	}
 }

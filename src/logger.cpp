@@ -10,7 +10,7 @@
 // дескрипторы открытых файлов логов для сброса буфера при креше
 std::list<FILE *> opened_files;
 
-void pers_log(CHAR_DATA *ch, const char *format, ...) {
+void pers_log(CharacterData *ch, const char *format, ...) {
 	if (!ch) {
 		log("NULL character resieved! (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
@@ -83,12 +83,12 @@ void vlog(const char *format, va_list args, FILE *logfile) {
 		return;
 	}
 
-	if (logfile == NULL) {
+	if (logfile == nullptr) {
 		puts("SYSERR: Using log() before stream was initialized!");
 		return;
 	}
 
-	if (format == NULL) {
+	if (format == nullptr) {
 		format = "SYSERR: log() received a NULL format.";
 	}
 
@@ -203,7 +203,7 @@ void imm_log(const char *format, ...) {
 }
 
 void err_log(const char *format, ...) {
-	static char buf_[MAX_RAW_INPUT_LENGTH];
+	static char buf_[kMaxRawInputLength];
 	int cnt = snprintf(buf_, sizeof(buf_), "SYSERROR: ");
 
 	va_list args;
@@ -211,7 +211,7 @@ void err_log(const char *format, ...) {
 	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
 	va_end(args);
 
-	mudlog(buf_, DEF, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(buf_, DEF, kLevelImmortal, SYSLOG, true);
 }
 
 void ip_log(const char *ip) {
@@ -238,10 +238,10 @@ void mudlog(std::string str, LogMode type, int level, EOutputStream channel, int
 * file - номер файла для вывода (0..NLOG), -1 не выводить в файл
 */
 void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int file) {
-	char tmpbuf[MAX_STRING_LENGTH];
-	DESCRIPTOR_DATA *i;
+	char tmpbuf[kMaxStringLength];
+	DescriptorData *i;
 
-	if (str == NULL) {
+	if (str == nullptr) {
 		return;        // eh, oh well.
 	}
 
@@ -267,7 +267,7 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int
 			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
 			continue;
-		if (type == DEF && GET_REAL_LEVEL(i->character) < LVL_IMMORT && !PRF_FLAGGED(i->character, PRF_CODERINFO))
+		if (type == DEF && GET_REAL_LEVEL(i->character) < kLevelImmortal && !PRF_FLAGGED(i->character, PRF_CODERINFO))
 			continue;
 		if (GET_REAL_LEVEL(i->character) < level && !PRF_FLAGGED(i->character, PRF_CODERINFO))
 			continue;

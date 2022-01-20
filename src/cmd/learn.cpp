@@ -4,23 +4,24 @@
 #include "classes/class_spell_slots.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
+#include "entities/entity_constants.h"
 
-class OBJ_DATA;
+class ObjectData;
 
-void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj) {
+void book_upgrd_fail_message(CharacterData *ch, ObjectData *obj) {
 	send_to_char(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
 				 obj->get_PName(3).c_str());
 	act("$n с интересом принял$u читать $o3.\r\n"
 		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-		FALSE, ch, obj, 0, TO_ROOM);
+		false, ch, obj, 0, TO_ROOM);
 }
 
-void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	using PlayerClass::slot_for_char;
 
-	OBJ_DATA *obj;
+	ObjectData *obj;
 	int spellnum = 0, addchance = 10, rcpt = -1;
-	im_rskill *rs = NULL;
+	im_rskill *rs = nullptr;
 	const char *spellname = "";
 
 	const char *stype0[] =
@@ -57,7 +58,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (!*arg) {
 		send_to_char("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
 		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.",
-			FALSE,
+			false,
 			ch,
 			0,
 			0,
@@ -70,16 +71,16 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK) {
-		act("Вы уставились на $o3, как баран на новые ворота.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n начал$g внимательно изучать устройство $o1.", FALSE, ch, obj, 0, TO_ROOM);
+	if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_BOOK) {
+		act("Вы уставились на $o3, как баран на новые ворота.", false, ch, obj, 0, TO_CHAR);
+		act("$n начал$g внимательно изучать устройство $o1.", false, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
 	if (GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_SKILL &&
 		GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT &&
 		GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
-		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!", FALSE, ch, obj, 0, TO_CHAR);
+		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!", false, ch, obj, 0, TO_CHAR);
 		return;
 	}
 
@@ -122,12 +123,12 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT
 		&& (GET_OBJ_VAL(obj, 1) < 1
-			|| GET_OBJ_VAL(obj, 1) >= MAX_FEATS)) {
+			|| GET_OBJ_VAL(obj, 1) >= kMaxFeats)) {
 		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
 
-	//	skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
+	//	skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == kKnowSkill)
 	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && can_get_skill_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2))) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
@@ -169,7 +170,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		act("$n с интересом принял$u читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-			FALSE, ch, obj, 0, TO_ROOM);
+			false, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
@@ -193,14 +194,14 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		const char *where = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
 		const char *what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
 		const char
-			*whom = obj->get_sex() == ESex::SEX_FEMALE ? "нее" : (obj->get_sex() == ESex::SEX_POLY ? "них" : "него");
+			*whom = obj->get_sex() == ESex::kFemale ? "нее" : (obj->get_sex() == ESex::kPoly ? "них" : "него");
 		sprintf(buf,
 				"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
 				"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
 				"долга закрыли %s. До %s вы еще не доросли.\r\n",
 				where, what, obj->get_PName(3).c_str(), whom);
 		send_to_char(buf, ch);
-		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.", false, ch, obj, 0, TO_ROOM);
 		return;
 	}
 

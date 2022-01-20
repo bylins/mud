@@ -1,25 +1,26 @@
-#ifndef __SPELLS_INFO__
-#define __SPELLS_INFO__
+#ifndef SPELLS_INFO_H_
+#define SPELLS_INFO_H_
 
 #include "classes/class_constants.h"
-#include "structs.h"
+#include "entities/entity_constants.h"
+#include "structs/structs.h"
 
 extern const char *unused_spellname;
 
 struct spellInfo_t {
-	byte min_position;    // Position for caster   //
+	EPosition min_position;    // Position for caster   //
 	int mana_min;        // Min amount of mana used by a spell (highest lev) //
 	int mana_max;        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change;    // Change in mana used by spell from lev to lev //
-	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
-	int min_level[NUM_PLAYER_CLASSES][NUM_KIN];
-	int slot_forc[NUM_PLAYER_CLASSES][NUM_KIN];
-	int class_change[NUM_PLAYER_CLASSES][NUM_KIN];
+	int min_remort[NUM_PLAYER_CLASSES][kNumKins];
+	int min_level[NUM_PLAYER_CLASSES][kNumKins];
+	int slot_forc[NUM_PLAYER_CLASSES][kNumKins];
+	int class_change[NUM_PLAYER_CLASSES][kNumKins];
 	long danger;
 	bitvector_t routines;
-	byte violent;
-	int targets;        // See below for use with TAR_XXX  //
-	byte spell_class;
+	int violent;
+	int targets;
+	int spell_class;
 	const char *name;
 	const char *syn;
 };
@@ -41,7 +42,7 @@ struct spell_create_type {
 extern struct spellInfo_t spell_info[];
 extern struct spell_create_type spell_create[];
 
-void initSpells(void);
+void initSpells();
 const char *spell_name(int num);
 
-#endif //__SPELLS_INFO__
+#endif //SPELLS_INFO_H_

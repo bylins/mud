@@ -1,11 +1,11 @@
 #include "ignores_loader.h"
 
-#include "chars/char.h"
+#include "entities/char.h"
 
 #include <boost/algorithm/string.hpp>
 class IgnoreParser {
  public:
-	IgnoreParser(const char *line, const CHAR_DATA *character) : m_pos(line), m_character(character) {}
+	IgnoreParser(const char *line, const CharacterData *character) : m_pos(line), m_character(character) {}
 
 	ignore_data::shared_ptr parse();
 
@@ -15,7 +15,7 @@ class IgnoreParser {
 	bool skip_all_spaces();
 
 	std::string m_pos;
-	const CHAR_DATA *m_character;
+	const CharacterData *m_character;
 };
 
 ignore_data::shared_ptr IgnoreParser::parse() {

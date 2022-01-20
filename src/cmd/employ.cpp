@@ -1,17 +1,17 @@
 #include "employ.h"
 
-#include "comm.h"
-#include "structs.h"
-#include "features.h"
-#include "chars/char.h"
-#include "interpreter.h"
+//#include "comm.h"
+//#include "structs/structs.h"
+//#include "features.h"
+#include "entities/char.h"
+//#include "interpreter.h"
 #include "handler.h"
 #include "magic/magic_items.h"
 
-void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text);
+void apply_enchant(CharacterData *ch, ObjectData *obj, std::string text);
 
-void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
-	OBJ_DATA *mag_item;
+void do_employ(CharacterData *ch, char *argument, int cmd, int subcmd) {
+	ObjectData *mag_item;
 	int do_hold = 0;
 	two_arguments(argument, arg, buf);
 	char *buf_temp = str_dup(buf);
@@ -33,15 +33,15 @@ void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			case SCMD_RECITE:
 			case SCMD_QUAFF:
 				if (!(mag_item = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-					snprintf(buf2, MAX_STRING_LENGTH, "Окститесь, нет у вас %s.\r\n", arg);
+					snprintf(buf2, kMaxStringLength, "Окститесь, нет у вас %s.\r\n", arg);
 					send_to_char(buf2, ch);
 					return;
 				}
 				break;
 			case SCMD_USE: mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
 				if (!mag_item
-					|| GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_ENCHANT) {
-					snprintf(buf2, MAX_STRING_LENGTH, "Возьмите в руку '%s' перед применением!\r\n", arg);
+					|| GET_OBJ_TYPE(mag_item) != ObjectData::ITEM_ENCHANT) {
+					snprintf(buf2, kMaxStringLength, "Возьмите в руку '%s' перед применением!\r\n", arg);
 					send_to_char(buf2, ch);
 					return;
 				}
@@ -56,26 +56,26 @@ void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 				send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 				return;
 			}
-			if (GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_POTION) {
+			if (GET_OBJ_TYPE(mag_item) != ObjectData::ITEM_POTION) {
 				send_to_char("Осушить вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
 				return;
 			}
 			do_hold = 1;
 			break;
 		case SCMD_RECITE:
-			if (GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_SCROLL) {
+			if (GET_OBJ_TYPE(mag_item) != ObjectData::ITEM_SCROLL) {
 				send_to_char("Пригодны для зачитывания только свитки.\r\n", ch);
 				return;
 			}
 			do_hold = 1;
 			break;
 		case SCMD_USE:
-			if (GET_OBJ_TYPE(mag_item) == OBJ_DATA::ITEM_ENCHANT) {
+			if (GET_OBJ_TYPE(mag_item) == ObjectData::ITEM_ENCHANT) {
 				apply_enchant(ch, mag_item, buf);
 				return;
 			}
-			if (GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_WAND
-				&& GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_STAFF) {
+			if (GET_OBJ_TYPE(mag_item) != ObjectData::ITEM_WAND
+				&& GET_OBJ_TYPE(mag_item) != ObjectData::ITEM_STAFF) {
 				send_to_char("Применять можно только магические предметы!\r\n", ch);
 				return;
 			}
@@ -99,8 +99,8 @@ void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			do_hold = WEAR_HOLD;
 
 		if (GET_EQ(ch, do_hold)) {
-			act("Вы прекратили использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_CHAR);
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("Вы прекратили использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, TO_CHAR);
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, TO_ROOM | TO_ARENA_LISTEN);
 			obj_to_char(unequip_char(ch, do_hold, CharEquipFlags()), ch);
 		}
 		if (GET_EQ(ch, WEAR_HOLD))
@@ -114,7 +114,7 @@ void do_employ(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 
 }
 
-void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text) {
+void apply_enchant(CharacterData *ch, ObjectData *obj, std::string text) {
 	std::string tmp_buf;
 	GetOneParam(text, tmp_buf);
 	if (tmp_buf.empty()) {
@@ -122,7 +122,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text) {
 		return;
 	}
 
-	OBJ_DATA *target = get_obj_in_list_vis(ch, tmp_buf, ch->carrying);
+	ObjectData *target = get_obj_in_list_vis(ch, tmp_buf, ch->carrying);
 	if (!target) {
 		send_to_char(ch, "Окститесь, у вас нет такого предмета для зачаровывания.\r\n");
 		return;
@@ -132,7 +132,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text) {
 		send_to_char(ch, "Сетовый предмет не может быть зачарован.\r\n");
 		return;
 	}
-	if (GET_OBJ_TYPE(target) == OBJ_DATA::ITEM_ENCHANT) {
+	if (GET_OBJ_TYPE(target) == ObjectData::ITEM_ENCHANT) {
 		send_to_char(ch, "Этот предмет уже магический и не может быть зачарован.\r\n");
 		return;
 	}

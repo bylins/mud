@@ -31,7 +31,7 @@ TEST_F(FightPenalties, TheSameLevels)
 	leader_builder.create_new();
 	leader_builder.make_group(killer_builder);
 
-	for (int level = 1; level < LVL_IMMORT; ++level)
+	for (int level = 1; level < kLevelImmortal; ++level)
 	{
 		killer_builder.set_level(level);
 		leader_builder.set_level(level);
@@ -133,11 +133,11 @@ void iterate_over_group_penalties_ext(HeaderHandler header_handler, NewRowHandle
 			leader_builder.make_group(killer_builder);
 
 			header_handler(killer_class, leader_class);
-			for (int killer_level = 1; killer_level < LVL_IMMORT; ++killer_level)
+			for (int killer_level = 1; killer_level < kLevelImmortal; ++killer_level)
 			{
 				killer_builder.set_level(killer_level);
 				new_row_handler(killer_level);
-				for (int leader_level = 1; leader_level < LVL_IMMORT; ++leader_level)
+				for (int leader_level = 1; leader_level < kLevelImmortal; ++leader_level)
 				{
 					leader_builder.set_level(leader_level);
 
@@ -209,12 +209,12 @@ TEST_F(FightPenalties, DISABLED_PrintTable)
 		{
 			std::cout << "Combination: " << killer_class << "/" << leader_class << std::endl
 				<< "===================" << std::endl << std::setw(1 + PLACEHOLDER_LENGTH) << "|";
-			for (int leader_level = 1; leader_level < LVL_IMMORT; ++leader_level)
+			for (int leader_level = 1; leader_level < kLevelImmortal; ++leader_level)
 			{
 				std::cout << std::setw(PLACEHOLDER_LENGTH) << leader_level;
 			}
 			std::cout << std::endl << "----+";
-			for (int i = 1; i < LVL_IMMORT; ++i)
+			for (int i = 1; i < kLevelImmortal; ++i)
 			{
 				std::cout << "----";
 			}

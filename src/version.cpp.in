@@ -4,7 +4,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "comm.h"
 #include "logger.h"
 
@@ -18,7 +18,7 @@ const char* build_datetime = __DATE__ " " __TIME__;
 
 // * Весь файл - исключительно как попытка автоматической вставки в код нормальной даты сборки.
 
-void show_code_date(CHAR_DATA *ch)
+void show_code_date(CharacterData *ch)
 {
 	send_to_char(ch, "МПМ Былины, версия от %s, ревизия: %s\n", build_datetime, revision);
 }

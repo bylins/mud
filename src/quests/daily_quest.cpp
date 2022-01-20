@@ -1,6 +1,6 @@
 #include "quests/daily_quest.h"
 
-#include "chars/char.h"
+#include "entities/char.h"
 #include "global_objects.h"
 
 namespace DailyQuest {
@@ -55,7 +55,7 @@ std::string DailyQuestLoader::log_message() const
 bool DailyQuestLoader::load()
 {
 	do_load();
-	mudlog(std::string(m_log_msg.str()).c_str(), CMP, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(std::string(m_log_msg.str()).c_str(), CMP, kLevelImmortal, SYSLOG, true);
 	return m_load_status;
 }
 
@@ -114,7 +114,7 @@ bool DailyQuestLoader::do_load()
 	return m_load_status;
 }
 
-void load_from_file(CHAR_DATA *ch)
+void load_from_file(CharacterData *ch)
 {
 	DailyQuestLoader quest_loader;
 	if (quest_loader.load()) {

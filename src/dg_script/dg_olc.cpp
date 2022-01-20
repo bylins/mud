@@ -16,25 +16,25 @@
 
 #include "dg_olc.h"
 
-#include "obj.h"
+#include "entities/obj.h"
 #include "olc/olc.h"
 #include "dg_event.h"
-#include "chars/char.h"
-#include "zone.table.h"
+#include "entities/char.h"
+#include "entities/zone.h"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern int top_of_trigt;
 
 // prototype externally defined functions
-void free_varlist(struct trig_var_data *vd);
+void free_varlist(struct TriggerVar *vd);
 
-void trigedit_disp_menu(DESCRIPTOR_DATA *d);
-void trigedit_save(DESCRIPTOR_DATA *d);
+void trigedit_disp_menu(DescriptorData *d);
+void trigedit_save(DescriptorData *d);
 void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
 
-inline void fprint_script(FILE *fp, const OBJ_DATA::triggers_list_t &scripts) {
+inline void fprint_script(FILE *fp, const ObjectData::triggers_list_t &scripts) {
 	for (const auto vnum : scripts) {
 		fprintf(fp, "T %d\n", vnum);
 	}
@@ -44,11 +44,11 @@ inline void fprint_script(FILE *fp, const OBJ_DATA::triggers_list_t &scripts) {
 // be saved
 void script_save_to_disk(FILE *fp, const void *item, int type) {
 	if (type == MOB_TRIGGER) {
-		fprint_script(fp, *static_cast<const CHAR_DATA *>(item)->proto_script);
+		fprint_script(fp, *static_cast<const CharacterData *>(item)->proto_script);
 	} else if (type == OBJ_TRIGGER) {
 		fprint_script(fp, static_cast<const CObjectPrototype *>(item)->get_proto_script());
 	} else if (type == WLD_TRIGGER) {
-		fprint_script(fp, *static_cast<const ROOM_DATA *>(item)->proto_script);
+		fprint_script(fp, *static_cast<const RoomData *>(item)->proto_script);
 	} else {
 		log("SYSERR: Invalid type passed to script_save_mobobj_to_disk()");
 		return;
@@ -60,8 +60,8 @@ void script_save_to_disk(FILE *fp, const void *item, int type) {
  *  trigedit
  **************************************************************************/
 
-void trigedit_setup_new(DESCRIPTOR_DATA *d) {
-	TRIG_DATA *trig = new TRIG_DATA(-1, "new trigger", MTRIG_GREET);
+void trigedit_setup_new(DescriptorData *d) {
+	Trigger *trig = new Trigger(-1, "new trigger", MTRIG_GREET);
 
 	// cmdlist will be a large char string until the trigger is saved
 	CREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
@@ -74,9 +74,9 @@ void trigedit_setup_new(DESCRIPTOR_DATA *d) {
 	trigedit_disp_menu(d);
 }
 
-void trigedit_setup_existing(DESCRIPTOR_DATA *d, int rtrg_num) {
+void trigedit_setup_existing(DescriptorData *d, int rtrg_num) {
 	// Allocate a scratch trigger structure
-	TRIG_DATA *trig = new TRIG_DATA(*trig_index[rtrg_num]->proto);
+	Trigger *trig = new Trigger(*trig_index[rtrg_num]->proto);
 
 	// convert cmdlist to a char string
 	auto c = *trig->cmdlist;
@@ -97,8 +97,8 @@ void trigedit_setup_existing(DESCRIPTOR_DATA *d, int rtrg_num) {
 	trigedit_disp_menu(d);
 }
 
-void trigedit_disp_menu(DESCRIPTOR_DATA *d) {
-	TRIG_DATA *trig = OLC_TRIG(d);
+void trigedit_disp_menu(DescriptorData *d) {
+	Trigger *trig = OLC_TRIG(d);
 	const char *attach_type;
 	char trgtypes[256];
 
@@ -143,7 +143,7 @@ void trigedit_disp_menu(DESCRIPTOR_DATA *d) {
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
 }
 
-void trigedit_disp_types(DESCRIPTOR_DATA *d) {
+void trigedit_disp_types(DescriptorData *d) {
 	int i, columns = 0;
 	const char **types;
 
@@ -169,11 +169,11 @@ void trigedit_disp_types(DESCRIPTOR_DATA *d) {
 	}
 
 	sprintbit(GET_TRIG_TYPE(OLC_TRIG(d)), types, buf1, 2);
-	snprintf(buf, MAX_STRING_LENGTH, "\r\nCurrent types : %s%s%s\r\nEnter type (0 to quit) : ", cyn, buf1, nrm);
+	snprintf(buf, kMaxStringLength, "\r\nCurrent types : %s%s%s\r\nEnter type (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
-void trigedit_parse(DESCRIPTOR_DATA *d, char *arg) {
+void trigedit_parse(DescriptorData *d, char *arg) {
 	int i = 0;
 
 	switch (OLC_MODE(d)) {
@@ -213,12 +213,12 @@ void trigedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 
 				case '6': OLC_MODE(d) = TRIGEDIT_COMMANDS;
 					send_to_char("Enter trigger commands: (/s saves /h for help)\r\n\r\n", d->character.get());
-					d->backstr = NULL;
+					d->backstr = nullptr;
 					if (OLC_STORAGE(d)) {
 						send_to_char(d->character.get(), "&S%s&s", OLC_STORAGE(d));
 						d->backstr = str_dup(OLC_STORAGE(d));
 					}
-					d->writer.reset(new DelegatedStringWriter(OLC_STORAGE(d)));
+					d->writer.reset(new utils::DelegatedStringWriter(OLC_STORAGE(d)));
 					d->max_str = MAX_CMD_LENGTH;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;
@@ -234,7 +234,7 @@ void trigedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 				case 'y': trigedit_save(d);
 					sprintf(buf, "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+					mudlog(buf, NRM, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// fall through
 
 				case 'n': cleanup_olc(d, CLEANUP_ALL);
@@ -302,20 +302,20 @@ void sprintbyts(int data, char *dest) {
 }
 
 // save the zone's triggers to internal memory and to disk
-void trigedit_save(DESCRIPTOR_DATA *d) {
+void trigedit_save(DescriptorData *d) {
 	int trig_rnum, i;
 	int found = 0;
 	char *s;
-	TRIG_DATA *proto;
-	TRIG_DATA *trig = OLC_TRIG(d);
-	INDEX_DATA **new_index;
-	DESCRIPTOR_DATA *dsc;
+	Trigger *proto;
+	Trigger *trig = OLC_TRIG(d);
+	IndexData **new_index;
+	DescriptorData *dsc;
 	FILE *trig_file;
 	int zone, top;
-	char buf[MAX_STRING_LENGTH];
-	char bitBuf[MAX_INPUT_LENGTH];
-	char fname[MAX_INPUT_LENGTH];
-	char logbuf[MAX_INPUT_LENGTH];
+	char buf[kMaxStringLength];
+	char bitBuf[kMaxInputLength];
+	char fname[kMaxInputLength];
+	char logbuf[kMaxInputLength];
 
 	// Recompile the command list from the new script
 	s = OLC_STORAGE(d);
@@ -327,7 +327,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 	cmdlist->cmd = cmd_token ? cmd_token : "";
 	auto cmd = cmdlist;
 
-	while ((s = strtok(NULL, "\n\r"))) {
+	while ((s = strtok(nullptr, "\n\r"))) {
 		cmd->next.reset(new cmdlist_element());
 		cmd = cmd->next;
 		cmd->cmd = s;
@@ -372,15 +372,15 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 		for (i = 0; i < top_of_trigt; i++) {
 			if (!found) {
 				if (trig_index[i]->vnum > OLC_NUM(d)) {
-					found = TRUE;
+					found = true;
 					trig_rnum = i;
 
 					CREATE(new_index[trig_rnum], 1);
 					OLC_TRIG(d)->set_rnum(trig_rnum);
 					new_index[trig_rnum]->vnum = OLC_NUM(d);
 					new_index[trig_rnum]->number = 0;
-					new_index[trig_rnum]->func = NULL;
-					new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
+					new_index[trig_rnum]->func = nullptr;
+					new_index[trig_rnum]->proto = new Trigger(*trig);
 					--i;
 					continue;    // повторить копирование еще раз, но уже по-другому
 				} else {
@@ -400,8 +400,8 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 			OLC_TRIG(d)->set_rnum(trig_rnum);
 			new_index[trig_rnum]->vnum = OLC_NUM(d);
 			new_index[trig_rnum]->number = 0;
-			new_index[trig_rnum]->func = NULL;
-			new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
+			new_index[trig_rnum]->func = nullptr;
+			new_index[trig_rnum]->proto = new Trigger(*trig);
 		}
 		free(trig_index);
 		trig_index = new_index;
@@ -437,8 +437,8 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 #endif
 
 	if (!(trig_file = fopen(fname, "w"))) {
-		snprintf(logbuf, MAX_INPUT_LENGTH, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
-		mudlog(logbuf, BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
+		mudlog(logbuf, BRF, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 		return;
 	}
 
@@ -448,7 +448,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 
 			if (fprintf(trig_file, "#%d\n", i) < 0) {
 				sprintf(logbuf, "SYSERR: OLC: Can't write trig file!");
-				mudlog(logbuf, BRF, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+				mudlog(logbuf, BRF, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				fclose(trig_file);
 				return;
 			}
@@ -481,7 +481,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 				// замена одиночного '~' на '~~'
 				p = strtok(buf, "~");
 				fprintf(trig_file, "%s", p);
-				while ((p = strtok(NULL, "~")) != NULL) {
+				while ((p = strtok(nullptr, "~")) != nullptr) {
 					fprintf(trig_file, "~~%s", p);
 				}
 				fprintf(trig_file, "~\n");
@@ -510,7 +510,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 void trigedit_create_index(int znum, const char *type) {
 	FILE *newfile, *oldfile;
 	char new_name[32], old_name[32];
-	int num, found = FALSE;
+	int num, found = false;
 
 	const char *prefix = TRG_PREFIX;
 
@@ -518,12 +518,12 @@ void trigedit_create_index(int znum, const char *type) {
 	sprintf(new_name, "%s/newindex", prefix);
 
 	if (!(oldfile = fopen(old_name, "r"))) {
-		snprintf(buf1, MAX_STRING_LENGTH, "SYSERR: TRIGEDIT: Failed to open %s", buf);
-		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
+		snprintf(buf1, kMaxStringLength, "SYSERR: TRIGEDIT: Failed to open %s", buf);
+		mudlog(buf1, BRF, kLevelImplementator, SYSLOG, true);
 		return;
 	} else if (!(newfile = fopen(new_name, "w"))) {
-		snprintf(buf1, MAX_STRING_LENGTH, "SYSERR: TRIGEDIT: Failed to open %s", buf);
-		mudlog(buf1, BRF, LVL_IMPL, SYSLOG, TRUE);
+		snprintf(buf1, kMaxStringLength, "SYSERR: TRIGEDIT: Failed to open %s", buf);
+		mudlog(buf1, BRF, kLevelImplementator, SYSLOG, true);
 		return;
 	}
 
@@ -537,9 +537,9 @@ void trigedit_create_index(int znum, const char *type) {
 		} else if (!found) {
 			sscanf(buf, "%d", &num);
 			if (num == znum)
-				found = TRUE;
+				found = true;
 			else if (num > znum) {
-				found = TRUE;
+				found = true;
 				fprintf(newfile, "%s\n", buf1);
 			}
 		}
@@ -564,13 +564,13 @@ void trigedit_create_index(int znum, const char *type) {
  **************************************************************************/
 
 
-void dg_olc_script_free(DESCRIPTOR_DATA *d)
+void dg_olc_script_free(DescriptorData *d)
 //   Удаление прототипа в OLC_SCRIPT
 {
 	OLC_SCRIPT(d).clear();
 }
 
-void dg_olc_script_copy(DESCRIPTOR_DATA *d)
+void dg_olc_script_copy(DescriptorData *d)
 //   Создание копии прототипа скрипта для текщего редактируемого моба/объекта/комнаты
 {
 	switch (OLC_ITEM_TYPE(d)) {
@@ -584,7 +584,7 @@ void dg_olc_script_copy(DESCRIPTOR_DATA *d)
 	}
 }
 
-void dg_script_menu(DESCRIPTOR_DATA *d) {
+void dg_script_menu(DescriptorData *d) {
 	int i = 0;
 
 	// make sure our input parser gets used
@@ -625,7 +625,7 @@ void dg_script_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-int dg_script_edit_parse(DESCRIPTOR_DATA *d, char *arg) {
+int dg_script_edit_parse(DescriptorData *d, char *arg) {
 	int count, pos, vnum;
 
 	switch (OLC_SCRIPT_EDIT_MODE(d)) {

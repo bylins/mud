@@ -1,12 +1,12 @@
 #include "magic/magic_temp_spells.h"
 
-#include "chars/world.characters.h"
+#include "entities/world_characters.h"
 #include "screen.h"
 #include "handler.h"
 #include "magic/spells_info.h"
 
 namespace Temporary_Spells {
-void add_spell(CHAR_DATA *ch, int spellnum, time_t set_time, time_t duration) {
+void add_spell(CharacterData *ch, int spellnum, time_t set_time, time_t duration) {
 	temporary_spell_data sp;
 	sp.spell = spellnum;
 	sp.set_time = set_time;
@@ -23,7 +23,7 @@ void add_spell(CHAR_DATA *ch, int spellnum, time_t set_time, time_t duration) {
 	}
 }
 
-time_t spell_left_time(CHAR_DATA *ch, int spellnum) {
+time_t spell_left_time(CharacterData *ch, int spellnum) {
 	auto it = ch->temp_spells.find(spellnum);
 	if (it != ch->temp_spells.end()) {
 		return (it->second.set_time + it->second.duration) - time(0);
@@ -44,8 +44,8 @@ void update_times() {
 	}
 }
 
-void update_char_times(CHAR_DATA *ch, time_t now) {
-	struct spell_mem_queue_item **i, *ptr;
+void update_char_times(CharacterData *ch, time_t now) {
+	struct SpellMemQueueItem **i, *ptr;
 
 	for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end();) {
 		if ((it->second.set_time + it->second.duration) < now) {

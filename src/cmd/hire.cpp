@@ -7,7 +7,7 @@ constexpr short MAX_HIRE_TIME = 10080 / 2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);
 
 //Функции для модифицированного чарма
-float get_damage_per_round(CHAR_DATA *victim) {
+float get_damage_per_round(CharacterData *victim) {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffectFlag::AFF_CLOUD_OF_ARROWS) ? 14 : 0);
@@ -24,7 +24,7 @@ float get_damage_per_round(CHAR_DATA *victim) {
 	return dam_per_round;
 }
 
-float calc_cha_for_hire(CHAR_DATA *victim) {
+float calc_cha_for_hire(CharacterData *victim) {
 	int i;
 	float reformed_hp = 0.0, needed_cha = 0.0;
 	for (i = 0; i < 50; i++) {
@@ -37,7 +37,7 @@ float calc_cha_for_hire(CHAR_DATA *victim) {
 	return VPOSI<float>(needed_cha, 1.0, 50.0);
 }
 
-long calc_hire_price(CHAR_DATA *ch, CHAR_DATA *victim) {
+long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 	float price = 0; // стоимость найма
 	int m_str = victim->get_str() * 20;
 	int m_int = victim->get_int() * 20;
@@ -138,7 +138,7 @@ long calc_hire_price(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return std::min(finalPrice, MAX_HIRE_PRICE);
 }
 
-int get_reformed_charmice_hp(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
+int get_reformed_charmice_hp(CharacterData *ch, CharacterData *victim, int spellnum) {
 	float r_hp = 0;
 	float eff_cha = 0.0;
 	float max_cha;
@@ -170,7 +170,7 @@ int get_reformed_charmice_hp(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
 	return (int) r_hp;
 }
 
-void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
@@ -180,17 +180,17 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
 
 	if (!*arg) {
-		follow_type *k;
+		Follower *k;
 		for (k = ch->followers; k; k = k->next) {
-			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER) && AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)) {
+			if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER) && AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
 				break;
 			}
 		}
 
 		if (k) {
-			act("Вашим наемником является $N.", FALSE, ch, 0, k->follower, TO_CHAR);
+			act("Вашим наемником является $N.", false, ch, 0, k->ch, TO_CHAR);
 		} else {
-			act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
+			act("У вас нет наемников!", false, ch, 0, 0, TO_CHAR);
 		}
 		return;
 	}
@@ -201,9 +201,9 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	follow_type *k;
+	Follower *k;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER) && AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)) {
+		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER) && AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
 			break;
 		}
 	}
@@ -213,21 +213,21 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!IS_NPC(helpee))
 		send_to_char("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, NPC_HELPED))
-		act("$N не нанимается!", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_CHARM) && (!k || (k && helpee != k->follower)))
-		act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
+		act("$N не нанимается!", false, ch, 0, helpee, TO_CHAR);
+	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_CHARM) && (!k || (k && helpee != k->ch)))
+		act("$N под чьим-то контролем.", false, ch, 0, helpee, TO_CHAR);
 	else if (AFF_FLAGGED(helpee, EAffectFlag::AFF_DEAFNESS))
-		act("$N не слышит вас.", FALSE, ch, 0, helpee, TO_CHAR);
+		act("$N не слышит вас.", false, ch, 0, helpee, TO_CHAR);
 	else if (IS_HORSE(helpee))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (helpee->get_fighting() || GET_POS(helpee) < POS_RESTING)
-		act("$M сейчас, похоже, не до вас.", FALSE, ch, 0, helpee, TO_CHAR);
+	else if (helpee->get_fighting() || GET_POS(helpee) < EPosition::kRest)
+		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, TO_CHAR);
 	else if (circle_follow(helpee, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else {
 		// Вы издеваетесь? Блок else на три экрана, реально?
 		// Svent TODO: Вынести проверку на корректность чармиса в отдельную функицю.
-		char isbank[MAX_STRING_LENGTH];
+		char isbank[kMaxStringLength];
 		two_arguments(argument, arg, isbank);
 
 		unsigned int times = 0;
@@ -236,12 +236,12 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto cost = calc_hire_price(ch, helpee);
 			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
 					cost, desc_count(cost, WHAT_MONEYu));
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			act(buf, false, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 			return;
 		}
 
-		if (k && helpee != k->follower) {
-			act("Вы уже наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+		if (k && helpee != k->ch) {
+			act("Вы уже наняли $N3.", false, ch, 0, k->ch, TO_CHAR);
 			return;
 		}
 
@@ -258,7 +258,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf,
 					"$n сказал$g вам : \" Мои услуги за %d %s стоят %ld %s - это тебе не по карману.\"",
 					times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			act(buf, false, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 			return;
 		}
 
@@ -270,19 +270,19 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (MOB_FLAGGED(helpee, MOB_NOGROUP))
 			MOB_FLAGS(helpee).unset(MOB_NOGROUP);
 
-		AFFECT_DATA<EApplyLocation> af;
-		if (!(k && k->follower == helpee)) {
+		Affect<EApplyLocation> af;
+		if (!(k && k->ch == helpee)) {
 			ch->add_follower(helpee);
 			af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
 		} else {
-			auto aff = k->follower->affected.begin();
-			for (; aff != k->follower->affected.end(); ++aff) {
+			auto aff = k->ch->affected.begin();
+			for (; aff != k->ch->affected.end(); ++aff) {
 				if ((*aff)->type == SPELL_CHARM) {
 					break;
 				}
 			}
 
-			if (aff != k->follower->affected.end()) {
+			if (aff != k->ch->affected.end()) {
 				af.duration = (*aff)->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
 			}
 		}
@@ -314,7 +314,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		affect_to_char(helpee, af);
 
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
-		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+		act(buf, false, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 
 		if (IS_NPC(helpee)) {
 			for (auto i = 0; i < NUM_WEARS; i++) {
@@ -322,8 +322,8 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
 						continue;
 
-					act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
-					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
+					act("Вы прекратили использовать $o3.", false, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
+					act("$n прекратил$g использовать $o3.", true, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
 					obj_to_char(unequip_char(helpee, i, CharEquipFlag::show_msg), helpee);
 				}
 			}
@@ -341,43 +341,43 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_freehelpee(CHAR_DATA *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_freehelpee(CharacterData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}
 
-	follow_type *k;
+	Follower *k;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
-			&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)) {
+		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_HELPER)
+			&& AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
 			break;
 		}
 	}
 
 	if (!k) {
-		act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
+		act("У вас нет наемников!", false, ch, 0, 0, TO_CHAR);
 		return;
 	}
 
-	if (ch->in_room != IN_ROOM(k->follower)) {
-		act("Вам следует встретиться с $N4 для этого.", FALSE, ch, 0, k->follower, TO_CHAR);
+	if (ch->in_room != IN_ROOM(k->ch)) {
+		act("Вам следует встретиться с $N4 для этого.", false, ch, 0, k->ch, TO_CHAR);
 		return;
 	}
 
-	if (GET_POS(k->follower) < POS_STANDING) {
-		act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, k->follower, TO_CHAR);
+	if (GET_POS(k->ch) < EPosition::kStand) {
+		act("$N2 сейчас, похоже, не до вас.", false, ch, 0, k->ch, TO_CHAR);
 		return;
 	}
 
 	if (!IS_IMMORTAL(ch)) {
-		for (const auto &aff : k->follower->affected) {
+		for (const auto &aff : k->ch->affected) {
 			if (aff->type == SPELL_CHARM) {
 				const auto
-					cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->follower->mob_specials.hire_price));
+					cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->ch->mob_specials.hire_price));
 				if (cost > 0) {
-					if (k->follower->mob_specials.hire_price < 0) {
+					if (k->ch->mob_specials.hire_price < 0) {
 						ch->add_bank(cost);
 					} else {
 						ch->add_gold(cost);
@@ -389,9 +389,9 @@ void do_freehelpee(CHAR_DATA *ch, char * /* argument*/, int/* cmd*/, int/* subcm
 		}
 	}
 
-	act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
-	affect_from_char(k->follower, SPELL_CHARM);
-	stop_follower(k->follower, SF_CHARMLOST);
+	act("Вы рассчитали $N3.", false, ch, 0, k->ch, TO_CHAR);
+	affect_from_char(k->ch, SPELL_CHARM);
+	stop_follower(k->ch, SF_CHARMLOST);
 }
 
 

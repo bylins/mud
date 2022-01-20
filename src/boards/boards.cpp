@@ -11,8 +11,9 @@
 #include "house.h"
 #include "screen.h"
 #include "privilege.h"
-#include "chars/char.h"
+#include "entities/char.h"
 #include "modify.h"
+#include "structs/descriptor_data.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -27,20 +28,20 @@ boards_list_t board_list;
 
 std::string dg_script_text;
 
-void set_last_read(CHAR_DATA *ch, BoardTypes type, time_t date) {
+void set_last_read(CharacterData *ch, BoardTypes type, time_t date) {
 	if (ch->get_board_date(type) < date) {
 		ch->set_board_date(type, date);
 	}
 }
 
-bool lvl_no_write(CHAR_DATA *ch) {
+bool lvl_no_write(CharacterData *ch) {
 	if (GET_REAL_LEVEL(ch) < MIN_WRITE_LEVEL && GET_REAL_REMORT(ch) <= 0) {
 		return true;
 	}
 	return false;
 }
 
-void message_no_write(CHAR_DATA *ch) {
+void message_no_write(CharacterData *ch) {
 	if (lvl_no_write(ch)) {
 		send_to_char(ch,
 					 "Вам нужно достигнуть %d уровня, чтобы писать в этот раздел.\r\n",
@@ -50,7 +51,7 @@ void message_no_write(CHAR_DATA *ch) {
 	}
 }
 
-void message_no_read(CHAR_DATA *ch, const Board &board) {
+void message_no_read(CharacterData *ch, const Board &board) {
 	std::string out("У вас нет возможности читать этот раздел.\r\n");
 	if (board.is_special()) {
 		std::string name = board.get_name();
@@ -122,7 +123,7 @@ void changelog_message() {
 	loader->load(file);
 }
 
-bool is_spamer(CHAR_DATA *ch, const Board &board) {
+bool is_spamer(CharacterData *ch, const Board &board) {
 	if (IS_IMMORTAL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
 		return false;
 	}
@@ -141,7 +142,7 @@ bool is_spamer(CHAR_DATA *ch, const Board &board) {
 	return true;
 }
 
-void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void DoBoard(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!ch->desc) {
 		return;
 	}
@@ -281,7 +282,7 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		tempMessage->author = name;
 		tempMessage->unique = GET_UNIQUE(ch);
 		// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
-		PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = LVL_IMPL : tempMessage->level = GET_REAL_LEVEL(ch);
+		PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = kLevelImplementator : tempMessage->level = GET_REAL_LEVEL(ch);
 
 		// клановым еще ранг
 		if (CLAN(ch)) {
@@ -309,8 +310,8 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
 		STATE(ch->desc) = CON_WRITEBOARD;
-		AbstractStringWriter::shared_ptr writer(new StdStringWriter());
-		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, NULL);
+		utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
+		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, nullptr);
 	} else if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove")) {
 		if (!is_number(buffer2.c_str())) {
 			send_to_char("Укажите корректный номер сообщения.\r\n", ch);
@@ -358,7 +359,7 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-bool act_board(CHAR_DATA *ch, int vnum, char *buf_) {
+bool act_board(CharacterData *ch, int vnum, char *buf_) {
 	switch (vnum) {
 		case GENERAL_BOARD_OBJ: DoBoard(ch, buf_, 0, GENERAL_BOARD);
 			break;
@@ -395,8 +396,8 @@ std::string print_access(const std::bitset<Boards::ACCESS_NUM> &acess_flags) {
 	return access;
 }
 // чтобы не травмировать народ спешиалы вешаем на старые доски с новым содержимым
-int Static::Special(CHAR_DATA *ch, void *me, int cmd, char *argument) {
-	OBJ_DATA *board = (OBJ_DATA *) me;
+int Static::Special(CharacterData *ch, void *me, int cmd, char *argument) {
+	ObjectData *board = (ObjectData *) me;
 	if (!ch->desc) {
 		return 0;
 	}
@@ -414,7 +415,7 @@ int Static::Special(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			return 0;
 		}
 
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s", "список");
 
 		if (act_board(ch, GET_OBJ_VNUM(board), buf_)) {
@@ -446,7 +447,7 @@ int Static::Special(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 			}
 		}
 		// общая доска
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%s%s", cmd_info[cmd].command, argument);
 
 		if (act_board(ch, GET_OBJ_VNUM(board), buf_)) {
@@ -461,7 +462,7 @@ int Static::Special(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 
 // выводит при заходе в игру инфу о новых сообщениях на досках
 // возвращает false если ничего не было показано
-bool Static::LoginInfo(CHAR_DATA *ch) {
+bool Static::LoginInfo(CharacterData *ch) {
 	std::ostringstream buffer, news;
 	bool has_message = 0;
 	buffer << "\r\nВас ожидают сообщения:\r\n";
@@ -529,7 +530,7 @@ Boards::Board::shared_ptr Static::create_board(BoardTypes type,
 	return board;
 }
 
-void Static::do_list(CHAR_DATA *ch, const Board::shared_ptr board_ptr) {
+void Static::do_list(CharacterData *ch, const Board::shared_ptr board_ptr) {
 	if (!can_read(ch, board_ptr)) {
 		const auto &board = *board_ptr;
 		message_no_read(ch, board);
@@ -553,22 +554,22 @@ void Static::do_list(CHAR_DATA *ch, const Board::shared_ptr board_ptr) {
 	page_string(ch->desc, body.str());
 }
 
-bool Static::can_see(CHAR_DATA *ch, const Board::shared_ptr board) {
+bool Static::can_see(CharacterData *ch, const Board::shared_ptr board) {
 	auto access_ = get_access(ch, board);
 	return access_.test(ACCESS_CAN_SEE);
 }
 
-bool Static::can_read(CHAR_DATA *ch, const Board::shared_ptr board) {
+bool Static::can_read(CharacterData *ch, const Board::shared_ptr board) {
 	auto access_ = get_access(ch, board);
 	return access_.test(ACCESS_CAN_READ);
 }
 
-bool Static::can_write(CHAR_DATA *ch, const Board::shared_ptr board) {
+bool Static::can_write(CharacterData *ch, const Board::shared_ptr board) {
 	auto access_ = get_access(ch, board);
 	return access_.test(ACCESS_CAN_WRITE);
 }
 
-bool Static::full_access(CHAR_DATA *ch, const Board::shared_ptr board) {
+bool Static::full_access(CharacterData *ch, const Board::shared_ptr board) {
 	auto access_ = get_access(ch, board);
 	return access_.test(ACCESS_FULL);
 }
@@ -586,13 +587,13 @@ void Static::new_message_notify(const Board::shared_ptr board) {
 		&& board->get_type() != CODER_BOARD
 		&& !board->empty()) {
 		const Message &msg = *board->get_last_message();
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_),
 				 "Новое сообщение в разделе '%s' от %s, тема: %s\r\n",
 				 board->get_name().c_str(), msg.author.c_str(),
 				 msg.subject.c_str());
 		// оповещаем весь мад кто с правами чтения
-		for (DESCRIPTOR_DATA *f = descriptor_list; f; f = f->next) {
+		for (DescriptorData *f = descriptor_list; f; f = f->next) {
 			if (f->character
 				&& STATE(f) == CON_PLAYING
 				&& PRF_FLAGGED(f->character, PRF_BOARD_MODE)
@@ -699,7 +700,7 @@ void Static::reload_all() {
 	ClanInit();
 }
 
-std::string Static::print_stats(CHAR_DATA *ch, const Board::shared_ptr board, int num) {
+std::string Static::print_stats(CharacterData *ch, const Board::shared_ptr board, int num) {
 	const std::string access = print_access(get_access(ch, board));
 	if (access.empty()) {
 		return "";
@@ -725,7 +726,7 @@ std::string Static::print_stats(CHAR_DATA *ch, const Board::shared_ptr board, in
 	return out;
 }
 
-std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_ptr board) {
+std::bitset<ACCESS_NUM> Static::get_access(CharacterData *ch, const Board::shared_ptr board) {
 	std::bitset<ACCESS_NUM> access;
 
 	switch (board->get_type()) {
@@ -869,7 +870,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 	return access;
 }
 
-void DoBoardList(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void DoBoardList(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 
@@ -893,7 +894,7 @@ void DoBoardList(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	send_to_char(out, ch);
 }
 
-void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void report_on_board(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (IS_NPC(ch)) return;
 	skip_spaces(&argument);
 	delete_doubledollar(argument);

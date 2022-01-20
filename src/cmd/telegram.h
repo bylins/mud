@@ -7,9 +7,9 @@
 
 #include <string>
 
-class CHAR_DATA;
+class CharacterData;
 
-void do_telegram(CHAR_DATA *ch, char *argument, int, int);
+void do_telegram(CharacterData *ch, char *argument, int, int);
 
 class TelegramBot {
  private:

@@ -11,7 +11,7 @@
 
 using namespace FightSystem;
 
-ESkill ExpedientWeaponSkill(CHAR_DATA *ch) {
+ESkill ExpedientWeaponSkill(CharacterData *ch) {
 	ESkill skill = SKILL_PUNCH;
 
 	if (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == CObjectPrototype::ITEM_WEAPON)) {
@@ -24,7 +24,7 @@ ESkill ExpedientWeaponSkill(CHAR_DATA *ch) {
 
 	return skill;
 }
-int GetExpedientKeyParameter(CHAR_DATA *ch, ESkill skill) {
+int GetExpedientKeyParameter(CharacterData *ch, ESkill skill) {
 	switch (skill) {
 		case SKILL_PUNCH:
 		case SKILL_CLUBS:
@@ -44,10 +44,10 @@ int GetExpedientKeyParameter(CHAR_DATA *ch, ESkill skill) {
 int ParameterBonus(int parameter) {
 	return ((parameter - 20) / 4);
 }
-int ExpedientRating(CHAR_DATA *ch, ESkill skill) {
+int ExpedientRating(CharacterData *ch, ESkill skill) {
 	return floor(ch->get_skill(skill) / 2.00 + ParameterBonus(GetExpedientKeyParameter(ch, skill)));
 }
-int ExpedientCap(CHAR_DATA *ch, ESkill skill) {
+int ExpedientCap(CharacterData *ch, ESkill skill) {
 	if (!IS_NPC(ch)) {
 		return floor(1.33 * (CalcSkillRemortCap(ch) / 2.00 + ParameterBonus(GetExpedientKeyParameter(ch, skill))));
 	} else {
@@ -59,7 +59,7 @@ int DegreeOfSuccess(int roll, int rating) {
 	return ((rating - roll) / 5);
 }
 
-bool CheckExpedientSuccess(CHAR_DATA *ch, CHAR_DATA *victim) {
+bool CheckExpedientSuccess(CharacterData *ch, CharacterData *victim) {
 	ESkill DoerSkill = ExpedientWeaponSkill(ch);
 	int DoerRating = ExpedientRating(ch, DoerSkill);
 	int DoerCap = ExpedientCap(ch, DoerSkill);
@@ -99,31 +99,31 @@ bool CheckExpedientSuccess(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return CheckExpedientSuccess(ch, victim);
 }
 
-void ApplyNoFleeAffect(CHAR_DATA *ch, int duration) {
+void ApplyNoFleeAffect(CharacterData *ch, int duration) {
 	//Это жутко криво, но почемук-то при простановке сразу 2 флагов битвектора начинаются глюки, хотя все должно быть нормально
 	//По-видимому, где-то просто не учтено, что ненулевых битов может быть более 1
-	AFFECT_DATA<EApplyLocation> Noflee;
+	Affect<EApplyLocation> Noflee;
 	Noflee.type = SPELL_BATTLE;
 	Noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 	Noflee.location = EApplyLocation::APPLY_NONE;
 	Noflee.modifier = 0;
 	Noflee.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
 	Noflee.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, Noflee, TRUE, FALSE, TRUE, FALSE);
+	affect_join(ch, Noflee, true, false, true, false);
 
-	AFFECT_DATA<EApplyLocation> Battle;
+	Affect<EApplyLocation> Battle;
 	Battle.type = SPELL_BATTLE;
 	Battle.bitvector = to_underlying(EAffectFlag::AFF_EXPEDIENT);
 	Battle.location = EApplyLocation::APPLY_NONE;
 	Battle.modifier = 0;
 	Battle.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
 	Battle.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, Battle, TRUE, FALSE, TRUE, FALSE);
+	affect_join(ch, Battle, true, false, true, false);
 
 	send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
 
-void go_cut_shorts(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -138,38 +138,38 @@ void go_cut_shorts(CHAR_DATA *ch, CHAR_DATA *vict) {
 	vict = try_protect(vict, ch);
 
 	if (!CheckExpedientSuccess(ch, vict)) {
-		act("Ваши свистящие удары пропали втуне, не задев $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		act("Ваши свистящие удары пропали втуне, не задев $N3.", false, ch, 0, vict, TO_CHAR);
 		Damage dmg(SkillDmg(SKILL_SHORTS), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
 		return;
 	}
 
-	act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", FALSE, ch, 0, vict, TO_VICT);
+	act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", false, ch, 0, vict, TO_VICT);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
-		TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::OFF_HAND);
 
-	AFFECT_DATA<EApplyLocation> AffectImmunPhysic;
+	Affect<EApplyLocation> AffectImmunPhysic;
 	AffectImmunPhysic.type = SPELL_EXPEDIENT;
 	AffectImmunPhysic.location = EApplyLocation::APPLY_PR;
 	AffectImmunPhysic.modifier = 100;
 	AffectImmunPhysic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	AffectImmunPhysic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, AffectImmunPhysic, FALSE, FALSE, FALSE, FALSE);
-	AFFECT_DATA<EApplyLocation> AffectImmunMagic;
+	affect_join(ch, AffectImmunPhysic, false, false, false, false);
+	Affect<EApplyLocation> AffectImmunMagic;
 	AffectImmunMagic.type = SPELL_EXPEDIENT;
 	AffectImmunMagic.location = EApplyLocation::APPLY_MR;
 	AffectImmunMagic.modifier = 100;
 	AffectImmunMagic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	AffectImmunMagic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	affect_join(ch, AffectImmunMagic, FALSE, FALSE, FALSE, FALSE);
+	affect_join(ch, AffectImmunMagic, false, false, false, false);
 
 	ApplyNoFleeAffect(ch, 3);
 }
 
-void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim) {
+void SetExtraAttackCutShorts(CharacterData *ch, CharacterData *victim) {
 	if (!isHaveNoExtraAttack(ch)) {
 		return;
 	}
@@ -179,16 +179,16 @@ void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 
 	if (!ch->get_fighting()) {
-		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".", FALSE, ch, 0, victim, TO_CHAR);
+		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".", false, ch, 0, victim, TO_CHAR);
 		set_fighting(ch, victim);
 		ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
 	} else {
-		act("Хорошо. Вы попытаетесь порезать $N3.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, 0, victim, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
 	}
 }
 
-void SetExtraAttackCutPick(CHAR_DATA *ch, CHAR_DATA *victim) {
+void SetExtraAttackCutPick(CharacterData *ch, CharacterData *victim) {
 	if (!isHaveNoExtraAttack(ch)) {
 		return;
 	}
@@ -197,16 +197,16 @@ void SetExtraAttackCutPick(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 
 	if (!ch->get_fighting()) {
-		act("Вы перехватили оружие обратным хватом и проскользнули за спину $N1.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Вы перехватили оружие обратным хватом и проскользнули за спину $N1.", false, ch, 0, victim, TO_CHAR);
 		set_fighting(ch, victim);
 		ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
 	} else {
-		act("Хорошо. Вы попытаетесь порезать $N3.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, 0, victim, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
 	}
 }
 
-ESkill GetExpedientCutSkill(CHAR_DATA *ch) {
+ESkill GetExpedientCutSkill(CharacterData *ch) {
 	ESkill skill = SKILL_INVALID;
 
 	if (GET_EQ(ch, WEAR_WIELD) && GET_EQ(ch, WEAR_HOLD)) {
@@ -230,7 +230,7 @@ ESkill GetExpedientCutSkill(CHAR_DATA *ch) {
 	return skill;
 }
 
-void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+void do_expedient_cut(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	ESkill skill;
 
@@ -244,7 +244,7 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING) {
+	if (GET_POS(ch) < EPosition::kFight) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -259,7 +259,7 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		return;
 	}
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы хотите порезать?\r\n", ch);
 		return;
@@ -270,7 +270,7 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		return;
 	}
 	if (ch->get_fighting() && vict->get_fighting() != ch) {
-		act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N не сражается с вами, не трогайте $S.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 

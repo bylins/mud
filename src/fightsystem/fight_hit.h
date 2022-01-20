@@ -8,41 +8,41 @@
 #include "utils/utils.h"
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 struct HitData {
-	HitData() : weapon(FightSystem::MAIN_HAND), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
+	HitData() : weapon(FightSystem::MAIN_HAND), wielded(nullptr), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
 				weap_skill_is(0), skill_num(SKILL_UNDEF), hit_type(0), hit_no_parry(false),
-				ch_start_pos(-1), victim_start_pos(-1), victim_ac(0), calc_thaco(0),
+				ch_start_pos(EPosition::kIncorrect), victim_start_pos(EPosition::kIncorrect), victim_ac(0), calc_thaco(0),
 				dam(0), dam_critic(0) {
 		diceroll = number(100, 2099) / 100;
 	};
 
 	// hit
-	void init(CHAR_DATA *ch, CHAR_DATA *victim);
-	void calc_base_hr(CHAR_DATA *ch);
-	void calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim);
-	void calc_stat_hr(CHAR_DATA *ch);
-	void calc_ac(CHAR_DATA *victim);
-	void add_weapon_damage(CHAR_DATA *ch, bool need_dice);
-	void add_hand_damage(CHAR_DATA *ch, bool need_dice);
-	void check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim);
-	void calc_crit_chance(CHAR_DATA *ch);
-	int calc_damage(CHAR_DATA *ch, bool need_dice);
-	double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim);
+	void init(CharacterData *ch, CharacterData *victim);
+	void calc_base_hr(CharacterData *ch);
+	void calc_rand_hr(CharacterData *ch, CharacterData *victim);
+	void calc_stat_hr(CharacterData *ch);
+	void calc_ac(CharacterData *victim);
+	void add_weapon_damage(CharacterData *ch, bool need_dice);
+	void add_hand_damage(CharacterData *ch, bool need_dice);
+	void check_defense_skills(CharacterData *ch, CharacterData *victim);
+	void calc_crit_chance(CharacterData *ch);
+	int calc_damage(CharacterData *ch, bool need_dice);
+	double crit_backstab_multiplier(CharacterData *ch, CharacterData *victim);
 
 	// extdamage
-	int extdamage(CHAR_DATA *ch, CHAR_DATA *victim);
-	void try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	void try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	void compute_critical(CHAR_DATA *ch, CHAR_DATA *victim);
+	int extdamage(CharacterData *ch, CharacterData *victim);
+	void try_mighthit_dam(CharacterData *ch, CharacterData *victim);
+	void try_stupor_dam(CharacterData *ch, CharacterData *victim);
+	void compute_critical(CharacterData *ch, CharacterData *victim);
 
 	// init()
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),
 	// 2 - атака левой рукой (LEFT_WEAPON)
 	FightSystem::AttType weapon;
 	// пушка, которой в данный момент производится удар
-	OBJ_DATA *wielded;
+	ObjectData *wielded;
 	// номер позиции (NUM_WEARS) пушки
 	int weapon_pos;
 	// номер скила, взятый из пушки или голых рук
@@ -61,9 +61,9 @@ struct HitData {
 	// true - удар не парируется/не блочится/не веерится и т.п.
 	bool hit_no_parry;
 	// позиция атакующего на начало атаки
-	int ch_start_pos;
+	EPosition ch_start_pos;
 	// позиция жертвы на начало атаки
-	int victim_start_pos;
+	EPosition victim_start_pos;
 
 	// высчитывается по мере сил
 	// ац жертвы для расчета попадания
@@ -82,28 +82,28 @@ struct HitData {
 	const flags_t &get_flags() const { return m_flags; }
 	void set_flag(const size_t flag) { m_flags.set(flag); }
 	void reset_flag(const size_t flag) { m_flags.reset(flag); }
-	static void check_weap_feats(const CHAR_DATA *ch, int weap_skill, int &calc_thaco, int &dam);
+	static void check_weap_feats(const CharacterData *ch, int weap_skill, int &calc_thaco, int &dam);
  private:
 	// какой-никакой набор флагов, так же передается в damage()
 	flags_t m_flags;
 };
 
-int compute_armor_class(CHAR_DATA *ch);
+int compute_armor_class(CharacterData *ch);
 
-int check_agro_follower(CHAR_DATA *ch, CHAR_DATA *victim);
-void set_battle_pos(CHAR_DATA *ch);
+int check_agro_follower(CharacterData *ch, CharacterData *victim);
+void set_battle_pos(CharacterData *ch);
 
-void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam);
-void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef);
-void group_gain(CHAR_DATA *ch, CHAR_DATA *victim);
+void gain_battle_exp(CharacterData *ch, CharacterData *victim, int dam);
+void perform_group_gain(CharacterData *ch, CharacterData *victim, int members, int koef);
+void group_gain(CharacterData *ch, CharacterData *victim);
 
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
-bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int line);
+bool check_valid_chars(CharacterData *ch, CharacterData *victim, const char *fname, int line);
 
-void exthit(CHAR_DATA *ch, ESkill type, FightSystem::AttType weapon);
-void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType weapon);
+void exthit(CharacterData *ch, ESkill type, FightSystem::AttType weapon);
+void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::AttType weapon);
 
-void appear(CHAR_DATA *ch);
+void appear(CharacterData *ch);
 
 #endif // _FIGHT_HIT_HPP_
 

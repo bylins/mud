@@ -139,8 +139,8 @@ int cast_to_int(const char *text) {
 		result = std::stoi(text, nullptr, 10);
 	}
 	catch (...) {
-		snprintf(buf, MAX_STRING_LENGTH, "...lexical_cast<int> fail (value='%s')", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...lexical_cast<int> fail (value='%s')", text);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 	}
 
 	return result;
@@ -154,8 +154,8 @@ int cast_to_int(const char *text) {
 int attr_int(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
 	if (!attr) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...%s read fail", text);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 	}
 	return cast_to_int(attr.value());
 }
@@ -176,8 +176,8 @@ int attr_int_t(const pugi::xml_node &node, const char *text) {
 int child_value_int(const pugi::xml_node &node, const char *text) {
 	pugi::xml_node child_node = node.child(text);
 	if (!child_node) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...%s read fail", text);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 	}
 	return cast_to_int(child_node.child_value());
 }
@@ -188,8 +188,8 @@ int child_value_int(const pugi::xml_node &node, const char *text) {
 std::string attr_str(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
 	if (!attr) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...%s read fail", text);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 	} else {
 		return attr.value();
 	}
@@ -202,8 +202,8 @@ std::string attr_str(const pugi::xml_node &node, const char *text) {
 std::string child_value_str(const pugi::xml_node &node, const char *text) {
 	pugi::xml_node child_node = node.child(text);
 	if (!child_node) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...%s read fail", text);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 	} else {
 		return child_node.child_value();
 	}
@@ -216,7 +216,7 @@ pugi::xml_node get_child_template(const T &node, const char *name) {
 	if (!tmp_node) {
 		char tmp[100];
 		snprintf(tmp, sizeof(tmp), "...<%s> read fail", name);
-		mudlog(tmp, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(tmp, CMP, kLevelImmortal, SYSLOG, true);
 	}
 	return tmp_node;
 }
@@ -236,7 +236,7 @@ pugi::xml_node get_child(const pugi::xml_node &node, const char *name) {
 bool valid_obj_vnum(int vnum) {
 	if (real_object(vnum) < 0) {
 		snprintf(buf, sizeof(buf), "...bad obj vnum (%d)", vnum);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 

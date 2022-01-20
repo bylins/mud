@@ -1,15 +1,16 @@
 #include "relocate.h"
 
-#include "features.h"
-#include "chars/char.h"
+//#include "features.h"
+#include "entities/char.h"
+#include "entities/entity_constants.h"
 #include "house.h"
 #include "screen.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
-extern void check_auto_nosummon(CHAR_DATA *ch);
+extern void check_auto_nosummon(CharacterData *ch);
 
-void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	struct timed_type timed;
+void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	struct Timed timed;
 
 	if (!can_use_feat(ch, RELOCATE_FEAT)) {
 		send_to_char("Вам это недоступно.\r\n", ch);
@@ -25,14 +26,14 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	room_rnum to_room, fnd_room;
+	RoomRnum to_room, fnd_room;
 	one_argument(argument, arg);
 	if (!*arg) {
 		send_to_char("Переместиться на кого?", ch);
 		return;
 	}
 
-	CHAR_DATA *victim = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharacterData *victim = get_player_vis(ch, arg, FIND_CHAR_WORLD);
 
 	if (!victim) {
 		send_to_char(NOPERSON, ch);
@@ -62,7 +63,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	to_room = IN_ROOM(victim);
 
-	if (to_room == NOWHERE) {
+	if (to_room == kNowhere) {
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -78,7 +79,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!IS_GOD(ch) &&
-		(SECT(fnd_room) == SECT_SECRET ||
+		(SECT(fnd_room) == kSectSecret ||
 			ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
 			ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
 			ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
@@ -90,27 +91,27 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	timed.skill = RELOCATE_FEAT;
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 			return;
-	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, TO_ROOM);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	ch->dismount();
-	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, TO_ROOM);
 	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch)
 		|| ROOM_FLAGGED(fnd_room, ROOM_ARENA))) {
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
 		timed.time = 18 - MIN(GET_REAL_REMORT(ch), 15);
-		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
-		AFFECT_DATA<EApplyLocation> af;
+		WAIT_STATE(ch, 3 * kPulseViolence);
+		Affect<EApplyLocation> af;
 		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 		af.battleflag = AF_PULSEDEC;
 		affect_to_char(ch, af);
 	} else {
 		timed.time = 2;
-		WAIT_STATE(ch, PULSE_VIOLENCE);
+		WAIT_STATE(ch, kPulseViolence);
 	}
 	timed_feat_to_char(ch, &timed);
 	look_at_room(ch, 0);

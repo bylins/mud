@@ -1160,7 +1160,7 @@ const int PALADINE_SLOTS[][MAX_PA_SLOT] = {{1, 0, 0, 0},    // lvl 8 wis 10,11
 
 MaxClassSlot max_slots;
 
-int slot_for_char(CHAR_DATA *ch, int slot_num) {
+int slot_for_char(CharacterData *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
 	if (slot_num < 1 || slot_num > MAX_SLOT || GET_REAL_LEVEL(ch) < 1 || IS_NPC(ch)) {
@@ -1225,8 +1225,8 @@ void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+	if (kin < 0 || kin >= kNumKins) {
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 
@@ -1236,7 +1236,7 @@ void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 	}
 
 	if (slot < 1 || slot > MAX_SLOT) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", skill_name(spell), slot, LVL_IMPL);
+		log("SYSERR: assigning '%s' to illegal slot %d/%d.", skill_name(spell), slot, kLevelImplementator);
 		bad = 1;
 	}
 
@@ -1250,7 +1250,7 @@ void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 
 MaxClassSlot::MaxClassSlot() {
 	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i) {
-		for (int k = 0; k < NUM_KIN; ++k) {
+		for (int k = 0; k < kNumKins; ++k) {
 			_max_class_slot[i][k] = 0;
 		}
 	}
@@ -1264,7 +1264,7 @@ void MaxClassSlot::init(int chclass, int kin, int slot) {
 
 int MaxClassSlot::get(int chclass, int kin) const {
 	if (kin < 0
-		|| kin >= NUM_KIN
+		|| kin >= kNumKins
 		|| chclass < 0
 		|| chclass >= NUM_PLAYER_CLASSES) {
 		return 0;
@@ -1272,7 +1272,7 @@ int MaxClassSlot::get(int chclass, int kin) const {
 	return _max_class_slot[chclass][kin];
 }
 
-int MaxClassSlot::get(const CHAR_DATA *ch) const {
+int MaxClassSlot::get(const CharacterData *ch) const {
 	return this->get(GET_CLASS(ch), GET_KIN(ch));
 }
 

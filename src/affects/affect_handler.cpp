@@ -12,14 +12,14 @@ void LackyAffectHandler::Handle(DamageVictimParameters &params) {
 	}
 }
 
-AFFECT_DATA<EApplyLocation>::shared_ptr find_affect(CHAR_DATA *ch, int afftype) {
+Affect<EApplyLocation>::shared_ptr find_affect(CharacterData *ch, int afftype) {
 	for (const auto &aff : ch->affected) {
 		if (aff->type == afftype) {
 			return aff;
 		}
 	}
 
-	return AFFECT_DATA<EApplyLocation>::shared_ptr();
+	return Affect<EApplyLocation>::shared_ptr();
 }
 
 void LackyAffectHandler::Handle(BattleRoundParameters &params) {

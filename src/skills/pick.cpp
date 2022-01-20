@@ -2,11 +2,11 @@
 
 #include <algorithm>
 
-#include "chars/char.h"
+#include "entities/char.h"
 #include "skills_info.h"
 
 
-PickProbabilityInformation get_pick_probability(CHAR_DATA *ch, int lock_complexity) {
+PickProbabilityInformation get_pick_probability(CharacterData *ch, int lock_complexity) {
 	// для прокачки умения скилл должен быть в промежутке от -10 сложности замка, до сложности замка
 	const int allowed_difference = 10;
 	const bool skill_train_allowed = (lock_complexity > ch->get_skill(SKILL_PICK_LOCK)) &&

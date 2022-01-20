@@ -21,7 +21,7 @@
 #include "class.h"
 
 #include "world_objects.h"
-#include "obj.h"
+#include "entities/obj.h"
 #include "comm.h"
 #include "db.h"
 #include "magic/magic_utils.h"
@@ -34,17 +34,17 @@
 #include "top.h"
 #include "features.h"
 #include "crafts/im.h"
-#include "chars/char.h"
+#include "entities/char.h"
 #include "spam.h"
 #include "screen.h"
-#include "chars/char_player.h"
-#include "named_stuff.h"
-#include "chars/player_races.h"
+#include "entities/char_player.h"
+#include "game_mechanics/named_stuff.h"
+#include "entities/player_races.h"
 #include "noob.h"
 #include "exchange.h"
 #include "logger.h"
 #include "utils/utils.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 #include "skills_info.h"
@@ -56,24 +56,21 @@ extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
 extern double exp_coefficients[];
 
-struct skillvariables_dig dig_vars;
-struct skillvariables_insgem insgem_vars;
-
 // local functions
 int parse_class(char arg);
 long find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
-void do_start(CHAR_DATA *ch, int newbie);
-int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-int level_exp(CHAR_DATA *ch, int level);
+void do_start(CharacterData *ch, int newbie);
+int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
+int invalid_no_class(CharacterData *ch, const ObjectData *obj);
+int level_exp(CharacterData *ch, int level);
 byte extend_saving_throws(int class_num, int type, int level);
-int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj);
+int invalid_unique(CharacterData *ch, const ObjectData *obj);
 void mspell_level(char *name, int spell, int kin, int chclass, int level);
 void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
 void mspell_change(char *name, int spell, int kin, int chclass, int class_change);
-extern bool char_to_pk_clan(CHAR_DATA *ch);
+extern bool char_to_pk_clan(CharacterData *ch);
 // Names first
 
 const char *class_abbrevs[] = {"Ле",
@@ -205,8 +202,8 @@ const char *religion_menu =
 
 #define RELIGION_ANY 100
 
-/* Соответствие классов и религий. RELIGION_POLY-класс не может быть христианином
-                                   RELIGION_MONO-класс не может быть язычником  (Кард)
+/* Соответствие классов и религий. kReligionPoly-класс не может быть христианином
+                                   kReligionMono-класс не может быть язычником  (Кард)
 				   RELIGION_ANY - класс может быть кем угодно */
 const int class_religion[] = {RELIGION_ANY,        //Лекарь
 							  RELIGION_ANY,        //Колдун
@@ -221,7 +218,7 @@ const int class_religion[] = {RELIGION_ANY,        //Лекарь
 							  RELIGION_ANY,        //Охотник
 							  RELIGION_ANY,        //Кузнец
 							  RELIGION_ANY,        //Купец
-							  RELIGION_POLY        //Волхв
+							  kReligionPoly        //Волхв
 };
 
 //str dex con wis int cha
@@ -671,7 +668,6 @@ int thaco(int class_num, int level) {
 		case CLASS_CHARMMAGE:
 			[[fallthrough]];
 		case CLASS_NECROMANCER: {
-			[[fallthrough]];
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -1329,7 +1325,7 @@ int extra_damroll(int class_num, int level) {
 }
 
 // Some initializations for characters, including initial skills
-void init_warcry(CHAR_DATA *ch) // проставление кличей в обход античита
+void init_warcry(CharacterData *ch) // проставление кличей в обход античита
 {
 	if (GET_CLASS(ch) == CLASS_GUARD)
 		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
@@ -1348,7 +1344,7 @@ void init_warcry(CHAR_DATA *ch) // проставление кличей в об
 
 }
 
-void do_start(CHAR_DATA *ch, int newbie) {
+void do_start(CharacterData *ch, int newbie) {
 	ch->set_level(1);
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
@@ -1365,7 +1361,7 @@ void do_start(CHAR_DATA *ch, int newbie) {
 	if (newbie) {
 		std::vector<int> outfit_list(Noob::get_start_outfit(ch));
 		for (auto i = outfit_list.begin(); i != outfit_list.end(); ++i) {
-			const OBJ_DATA::shared_ptr obj = world_objects.create_from_prototype_by_vnum(*i);
+			const ObjectData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(*i);
 			if (obj) {
 				obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 				obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
@@ -1407,7 +1403,7 @@ void do_start(CHAR_DATA *ch, int newbie) {
 
 	advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_REAL_LEVEL(ch));
-	mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+	mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
 	GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
@@ -1424,12 +1420,12 @@ void do_start(CHAR_DATA *ch, int newbie) {
 
 // * Перерасчет максимальных родных хп персонажа.
 // * При входе в игру, левеле/делевеле, добавлении/удалении славы.
-void check_max_hp(CHAR_DATA *ch) {
+void check_max_hp(CharacterData *ch) {
 	GET_MAX_HIT(ch) = PlayerSystem::con_natural_hp(ch);
 }
 
 // * Обработка событий при левел-апе.
-void levelup_events(CHAR_DATA *ch) {
+void levelup_events(CharacterData *ch) {
 	if (SpamSystem::MIN_OFFTOP_LVL == GET_REAL_LEVEL(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
 		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
@@ -1450,7 +1446,7 @@ void levelup_events(CHAR_DATA *ch) {
 	}
 }
 
-void advance_level(CHAR_DATA *ch) {
+void advance_level(CharacterData *ch) {
 	int add_move = 0, i;
 
 	switch (GET_CLASS(ch)) {
@@ -1495,7 +1491,7 @@ void advance_level(CHAR_DATA *ch) {
 	ch->save_char();
 }
 
-void decrease_level(CHAR_DATA *ch) {
+void decrease_level(CharacterData *ch) {
 	int add_move = 0;
 
 	switch (GET_CLASS(ch)) {
@@ -1539,12 +1535,12 @@ void decrease_level(CHAR_DATA *ch) {
  * usable by a particular class, based on the ITEM_ANTI_{class} bitvectors.
  */
 
-int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj) {
-	OBJ_DATA *object;
+int invalid_unique(CharacterData *ch, const ObjectData *obj) {
+	ObjectData *object;
 	if (!IS_CORPSE(obj)) {
 		for (object = obj->get_contains(); object; object = object->get_next_content()) {
 			if (invalid_unique(ch, object)) {
-				return (TRUE);
+				return (true);
 			}
 		}
 	}
@@ -1555,12 +1551,12 @@ int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj) {
 		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
 		|| obj->get_owner() == GET_UNIQUE(ch)) {
-		return (FALSE);
+		return (false);
 	}
-	return (TRUE);
+	return (true);
 }
 
-bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj) {
+bool unique_stuff(const CharacterData *ch, const ObjectData *obj) {
 	for (unsigned int i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i) && (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj))) {
 			return true;
@@ -1568,27 +1564,27 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj) {
 	return false;
 }
 
-int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
+int invalid_anti_class(CharacterData *ch, const ObjectData *obj) {
 	if (!IS_CORPSE(obj)) {
-		for (const OBJ_DATA *object = obj->get_contains(); object; object = object->get_next_content()) {
+		for (const ObjectData *object = obj->get_contains(); object; object = object->get_next_content()) {
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0)) {
-				return (TRUE);
+				return (true);
 			}
 		}
 	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMICE)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-		return (TRUE);
+		return (true);
 	}
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch)) {
-		return (FALSE);
+		return (false);
 	}
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_NOT_FOR_NOPK) && char_to_pk_clan(ch))) {
-		return (TRUE);
+		return (true);
 	}
 
-	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
+	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == kReligionMono)
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == kReligionPoly)
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch))
@@ -1610,25 +1606,25 @@ int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BD) && check_agrobd(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_COLORED) && IS_COLORED(ch))) {
-		return (TRUE);
+		return (true);
 	}
-	return (FALSE);
+	return (false);
 }
 
-int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
+int invalid_no_class(CharacterData *ch, const ObjectData *obj) {
 	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-		return TRUE;
+		return true;
 	}
 
 	if (!IS_CHARMICE(ch)
 		&& (IS_NPC(ch)
 			|| WAITLESS(ch))) {
-		return FALSE;
+		return false;
 	}
 
-	if ((IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
+	if ((IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO) && GET_RELIGION(ch) == kReligionMono)
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY) && GET_RELIGION(ch) == kReligionPoly)
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MAGIC_USER) && IS_MAGIC_USER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE) && IS_BATTLEMAGE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE) && IS_CHARMMAGE(ch))
@@ -1651,10 +1647,10 @@ int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj) {
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))
 		|| (!IS_SMITH(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch))) {
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void load_skills_definitions() {
@@ -1685,7 +1681,7 @@ void load_skills_definitions() {
 			log("Skill '%s' not found...", name);
 			graceful_exit(1);
 		}
-		if (PlayerRace::GetKinNameByNum(i[0], ESex::SEX_MALE) == RACE_NAME_UNDEFINED) {
+		if (PlayerRace::GetKinNameByNum(i[0], ESex::kMale) == RACE_NAME_UNDEFINED) {
 			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
 			graceful_exit(1);
 		}
@@ -1693,7 +1689,7 @@ void load_skills_definitions() {
 			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
 			graceful_exit(1);
 		}
-		if (i[2] < 0 || i[2] >= MAX_REMORT) {
+		if (i[2] < 0 || i[2] >= kMaxRemort) {
 			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
 			graceful_exit(1);
 		}
@@ -1731,13 +1727,13 @@ void load_skills_definitions() {
 			log("Skill '%s' not found...", name);
 			graceful_exit(1);
 		}
-		for (l = 0; line3[l] && l < NUM_KIN; l++) {
+		for (l = 0; line3[l] && l < kNumKins; l++) {
 			if (!strchr("1xX!", line3[l]))
 				continue;
 			for (j = 0; line4[j] && j < NUM_PLAYER_CLASSES; j++) {
 				if (!strchr("1xX!", line4[j]))
 					continue;
-				skill_info[sp_num].classknow[j][l] = KNOW_SKILL;
+				skill_info[sp_num].classknow[j][l] = kKnowSkill;
 				log("Set skill '%s' kin %d classes %d is Know", skill_info[sp_num].name, l, j);
 			}
 		}
@@ -1746,22 +1742,22 @@ void load_skills_definitions() {
 }
 
 //Polud Читает данные из файла хранения параметров умений
-void load_skills() {
+void LoadClassSkills() {
 	const char *CLASS_SKILLS_FILE = LIB_MISC"class.skills.xml";
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
 	pugi::xml_node node_list = doc.child("skills");
 
 	if (!node_list) {
-		snprintf(buf, MAX_STRING_LENGTH, "...class.skills.xml read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...class.skills.xml read fail");
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -1779,8 +1775,8 @@ void load_skills() {
 					log("Skill '%s' not found...", name.c_str());
 					graceful_exit(1);
 				}
-				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
-				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > MAX_REMORT) {
+				skill_info[sk_num].classknow[PCclass][PCkin] = kKnowSkill;
+				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > kMaxRemort) {
 					log("ERROR: Недопустимый параметр level decrement класса %d.", PCclass);
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;
 				} else {
@@ -1789,7 +1785,7 @@ void load_skills() {
 				int value = xNodeSkill.attribute("improve").as_int();
 				skill_info[sk_num].k_improve[PCclass][PCkin] = MAX(1, value);
 				value = xNodeSkill.attribute("level").as_int();
-				if (value > 0 && value < LVL_IMMORT) {
+				if (value > 0 && value < kLevelImmortal) {
 					skill_info[sk_num].min_level[PCclass][PCkin] = value;
 				} else {
 					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d",
@@ -1798,7 +1794,7 @@ void load_skills() {
 					graceful_exit(1);
 				}
 				value = xNodeSkill.attribute("remort").as_int();
-				if (value >= 0 && value < MAX_REMORT) {
+				if (value >= 0 && value < kMaxRemort) {
 					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
 				} else {
 					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d",
@@ -1817,7 +1813,7 @@ void load_skills() {
  * the spell or skill.
  */
 #include "classes/class_spell_slots.h"
-void init_spell_levels(void) {
+void init_spell_levels() {
 	using PlayerClass::mspell_slot;
 
 	FILE *magic;
@@ -1852,7 +1848,7 @@ void init_spell_levels(void) {
 			graceful_exit(1);
 		}
 
-		if (i[0] < 0 || i[0] >= NUM_KIN) {
+		if (i[0] < 0 || i[0] >= kNumKins) {
 			log("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
 			graceful_exit(1);
 		}
@@ -1860,7 +1856,7 @@ void init_spell_levels(void) {
 			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
 			graceful_exit(1);
 		}
-		if (i[2] < 0 || i[2] >= MAX_REMORT) {
+		if (i[2] < 0 || i[2] >= kMaxRemort) {
 			log("Bad remort type for spell '%s'  \"%d\"...", name, sp_num);
 			graceful_exit(1);
 		}
@@ -1966,7 +1962,7 @@ void init_spell_levels(void) {
 			log("Feat '%s' not found...", name);
 			graceful_exit(1);
 		}
-		for (j = 0; j < NUM_KIN; j++)
+		for (j = 0; j < kNumKins; j++)
 			if (i[j] < 0 || i[j] > 1) {
 				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
 				graceful_exit(1);
@@ -1975,7 +1971,7 @@ void init_spell_levels(void) {
 			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
 			graceful_exit(1);
 		}
-		if (i[4] < 0 || i[4] >= MAX_REMORT) {
+		if (i[4] < 0 || i[4] >= kMaxRemort) {
 			log("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
 			graceful_exit(1);
 		}
@@ -1983,10 +1979,10 @@ void init_spell_levels(void) {
 			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
 			graceful_exit(1);
 		}
-		for (j = 0; j < NUM_KIN; j++)
+		for (j = 0; j < kNumKins; j++)
 			if (i[j] == 1) {
 				//log("Setting up feat '%s'", feat_info[sp_num].name);
-				feat_info[sp_num].classknow[i[3]][j] = TRUE;
+				feat_info[sp_num].classknow[i[3]][j] = true;
 				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
 					feat_info[sp_num].name,
 					sp_num,
@@ -2002,143 +1998,11 @@ void init_spell_levels(void) {
 			}
 	}
 	fclose(magic);
-	// End of changed
-
-//	Polud новый файл описания умений Skills.xml, если его нет - читаются старые
-	load_skills();
-
-	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r"))) {
-		log("Cann't open skillvariables list file...");
-		graceful_exit(1);
-	}
-
-	// Загружаем переменные скилов из файла
-
-	// ГОРНОЕ ДЕЛО
-	// Предварительно ставим значения по дефолту
-
-	dig_vars.hole_max_deep = DIG_DFLT_HOLE_MAX_DEEP;
-	dig_vars.instr_crash_chance = DIG_DFLT_INSTR_CRASH_CHANCE;
-	dig_vars.treasure_chance = DIG_DFLT_TREASURE_CHANCE;
-	dig_vars.pandora_chance = DIG_DFLT_PANDORA_CHANCE;
-	dig_vars.mob_chance = DIG_DFLT_MOB_CHANCE;
-	dig_vars.trash_chance = DIG_DFLT_TRASH_CHANCE;
-	dig_vars.lag = DIG_DFLT_LAG;
-	dig_vars.prob_divide = DIG_DFLT_PROB_DIVIDE;
-	dig_vars.glass_chance = DIG_DFLT_GLASS_CHANCE;
-	dig_vars.need_moves = DIG_DFLT_NEED_MOVES;
-
-	dig_vars.stone1_skill = DIG_DFLT_STONE1_SKILL;
-	dig_vars.stone2_skill = DIG_DFLT_STONE2_SKILL;
-	dig_vars.stone3_skill = DIG_DFLT_STONE3_SKILL;
-	dig_vars.stone4_skill = DIG_DFLT_STONE4_SKILL;
-	dig_vars.stone5_skill = DIG_DFLT_STONE5_SKILL;
-	dig_vars.stone6_skill = DIG_DFLT_STONE6_SKILL;
-	dig_vars.stone7_skill = DIG_DFLT_STONE7_SKILL;
-	dig_vars.stone8_skill = DIG_DFLT_STONE8_SKILL;
-	dig_vars.stone9_skill = DIG_DFLT_STONE9_SKILL;
-
-	dig_vars.stone1_vnum = DIG_DFLT_STONE1_VNUM;
-	dig_vars.trash_vnum_start = DIG_DFLT_TRASH_VNUM_START;
-	dig_vars.trash_vnum_end = DIG_DFLT_TRASH_VNUM_END;
-	dig_vars.mob_vnum_start = DIG_DFLT_MOB_VNUM_START;
-	dig_vars.mob_vnum_end = DIG_DFLT_MOB_VNUM_END;
-	dig_vars.pandora_vnum = DIG_DFLT_PANDORA_VNUM;
-
-	// ЮВЕЛИР
-	// Предварительно ставим значения по дефолту
-
-	insgem_vars.lag = INSGEM_DFLT_LAG;
-	insgem_vars.minus_for_affect = INSGEM_DFLT_MINUS_FOR_AFFECT;
-	insgem_vars.prob_divide = INSGEM_DFLT_PROB_DIVIDE;
-	insgem_vars.dikey_percent = INSGEM_DFLT_DIKEY_PERCENT;
-	insgem_vars.timer_plus_percent = INSGEM_DFLT_TIMER_PLUS_PERCENT;
-	insgem_vars.timer_minus_percent = INSGEM_DFLT_TIMER_MINUS_PERCENT;
-
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-
-		sscanf(name, "dig_hole_max_deep %d", &dig_vars.hole_max_deep);
-		sscanf(name, "dig_instr_crash_chance %d", &dig_vars.instr_crash_chance);
-		sscanf(name, "dig_treasure_chance %d", &dig_vars.treasure_chance);
-		sscanf(name, "dig_pandora_chance %d", &dig_vars.pandora_chance);
-		sscanf(name, "dig_mob_chance %d", &dig_vars.mob_chance);
-		sscanf(name, "dig_trash_chance %d", &dig_vars.trash_chance);
-		sscanf(name, "dig_lag %d", &dig_vars.lag);
-		sscanf(name, "dig_prob_divide %d", &dig_vars.prob_divide);
-		sscanf(name, "dig_glass_chance %d", &dig_vars.glass_chance);
-		sscanf(name, "dig_need_moves %d", &dig_vars.need_moves);
-
-		sscanf(name, "dig_stone1_skill %d", &dig_vars.stone1_skill);
-		sscanf(name, "dig_stone2_skill %d", &dig_vars.stone2_skill);
-		sscanf(name, "dig_stone3_skill %d", &dig_vars.stone3_skill);
-		sscanf(name, "dig_stone4_skill %d", &dig_vars.stone4_skill);
-		sscanf(name, "dig_stone5_skill %d", &dig_vars.stone5_skill);
-		sscanf(name, "dig_stone6_skill %d", &dig_vars.stone6_skill);
-		sscanf(name, "dig_stone7_skill %d", &dig_vars.stone7_skill);
-		sscanf(name, "dig_stone8_skill %d", &dig_vars.stone8_skill);
-		sscanf(name, "dig_stone9_skill %d", &dig_vars.stone9_skill);
-
-		sscanf(name, "dig_stone1_vnum %d", &dig_vars.stone1_vnum);
-		sscanf(name, "dig_trash_vnum_start %d", &dig_vars.trash_vnum_start);
-		sscanf(name, "dig_trash_vnum_end %d", &dig_vars.trash_vnum_end);
-		sscanf(name, "dig_mob_vnum_start %d", &dig_vars.mob_vnum_start);
-		sscanf(name, "dig_mob_vnum_end %d", &dig_vars.mob_vnum_end);
-		sscanf(name, "dig_pandora_vnum %d", &dig_vars.pandora_vnum);
-
-		sscanf(name, "insgem_lag %d", &insgem_vars.lag);
-		sscanf(name, "insgem_minus_for_affect %d", &insgem_vars.minus_for_affect);
-		sscanf(name, "insgem_prob_divide %d", &insgem_vars.prob_divide);
-		sscanf(name, "insgem_dikey_percent %d", &insgem_vars.dikey_percent);
-		sscanf(name, "insgem_timer_plus_percent %d", &insgem_vars.timer_plus_percent);
-		sscanf(name, "insgem_timer_minus_percent %d", &insgem_vars.timer_minus_percent);
-
-		name[0] = '\0';
-	}
-	fclose(magic);
-
-
-	/* Remove to init_im::im.cpp - Gorrah
-	// +newbook.patch (Alisher)
-		if (!(magic = fopen(LIB_MISC "class.recipes.lst", "r"))) {
-			log("Cann't open classrecipe list file...");
-			graceful_exit(1);
-		}
-		while (get_line(magic, name)) {
-			if (!name[0] || name[0] == ';')
-				continue;
-			if (sscanf(name, "%d %s %s", i, line1, line2) != 3) {
-				log("Bad format for magic string!\r\n"
-				    "Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
-				graceful_exit(1);
-			}
-
-			rcpt = im_get_recipe(i[0]);
-
-			if (rcpt < 0) {
-				log("Invalid recipe (%d)", i[0]);
-				graceful_exit(1);
-			}
-
-	// line1 - ограничения для рас еще не реализованы
-
-			for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
-				if (!strchr("1xX!", line2[j]))
-					continue;
-				imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
-				log("Set recipe (%d '%s') classes %d is Know", i[0], imrecipes[rcpt].name, j);
-			}
-		}
-		fclose(magic);
-	// -newbook.patch (Alisher)
-	*/
-	return;
 }
 
-void init_basic_values(void) {
+void init_basic_values() {
 	FILE *magic;
-	char line[256], name[MAX_INPUT_LENGTH];
+	char line[256], name[kMaxInputLength];
 	int i[10], c, j, mode = 0, *pointer;
 	if (!(magic = fopen(LIB_MISC "basic.lst", "r"))) {
 		log("Can't open basic values list file...");
@@ -2177,7 +2041,7 @@ void init_basic_values(void) {
 					fields = sizeof(weapon_app[c]) / sizeof(int);
 					break;
 
-				default: pointer = NULL;
+				default: pointer = nullptr;
 			}
 
 			if (pointer)    //log("Mode %d - %d = %d %d %d %d %d %d",mode,c,
@@ -2204,8 +2068,8 @@ void init_basic_values(void) {
 	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
 */
 int GroupPenalties::init(void) {
-	char buf[MAX_INPUT_LENGTH];
-	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = MAX_REMORT + 1;
+	char buf[kMaxInputLength];
+	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = kMaxRemort + 1;
 
 	// пре-инициализация
 	for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
@@ -2242,10 +2106,10 @@ int GroupPenalties::init(void) {
 						LIB_MISC "grouping", remorts);
 					return 2;
 				}
-				if (remorts > MAX_REMORT || remorts < 0) {
+				if (remorts > kMaxRemort || remorts < 0) {
 					log("Ошибка при чтении файла %s: неверное значение количества ремортов: %d, "
 						"должно быть в промежутке от 0 до %d",
-						LIB_MISC "grouping", remorts, MAX_REMORT);
+						LIB_MISC "grouping", remorts, kMaxRemort);
 					return 3;
 				}
 			} else {
@@ -2283,8 +2147,8 @@ int GroupPenalties::init(void) {
  */
 
 // Function to return the exp required for each class/level
-int level_exp(CHAR_DATA *ch, int level) {
-	if (level > LVL_IMPL || level < 0) {
+int level_exp(CharacterData *ch, int level) {
+	if (level > kLevelImplementator || level < 0) {
 		log("SYSERR: Requesting exp for invalid level %d!", level);
 		return 0;
 	}
@@ -2293,8 +2157,8 @@ int level_exp(CHAR_DATA *ch, int level) {
 	 * Gods have exp close to EXP_MAX.  This statement should never have to
 	 * changed, regardless of how many mortal or immortal levels exist.
 	 */
-	if (level > LVL_IMMORT) {
-		return EXP_IMPL - ((LVL_IMPL - level) * 1000);
+	if (level > kLevelImmortal) {
+		return EXP_IMPL - ((kLevelImplementator - level) * 1000);
 	}
 
 	// Exp required for normal mortals is below
@@ -2343,7 +2207,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 47000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 94000000);
+				case kLevelImmortal: return int(exp_modifier * 94000000);
 			}
 			break;
 
@@ -2382,7 +2246,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 47000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 87000000);
+				case kLevelImmortal: return int(exp_modifier * 87000000);
 			}
 			break;
 
@@ -2420,7 +2284,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 28667000);
 				case 30: return int(exp_modifier * 40000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 53000000);
+				case kLevelImmortal: return int(exp_modifier * 53000000);
 			}
 			break;
 
@@ -2459,7 +2323,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 43000000);
 				case 30: return int(exp_modifier * 59000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 79000000);
+				case kLevelImmortal: return int(exp_modifier * 79000000);
 			}
 			break;
 
@@ -2501,7 +2365,7 @@ int level_exp(CHAR_DATA *ch, int level) {
 				case 29: return int(exp_modifier * 44000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case LVL_IMMORT: return int(exp_modifier * 79000000);
+				case kLevelImmortal: return int(exp_modifier * 79000000);
 			}
 			break;
 	}
@@ -2522,16 +2386,16 @@ void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
 		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
 		return;
 	}
-	if (kin < 0 || kin >= NUM_KIN) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+	if (kin < 0 || kin >= kNumKins) {
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
 		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
-	if (remort < 0 || remort > MAX_REMORT) {
-		log("SYSERR: assigning '%s' to illegal remort %d/%d.", skill_name(spell), remort, MAX_REMORT);
+	if (remort < 0 || remort > kMaxRemort) {
+		log("SYSERR: assigning '%s' to illegal remort %d/%d.", skill_name(spell), remort, kMaxRemort);
 		bad = 1;
 	}
 	if (!bad) {
@@ -2548,8 +2412,8 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+	if (kin < 0 || kin >= kNumKins) {
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 
@@ -2558,8 +2422,8 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 		bad = 1;
 	}
 
-	if (level < 1 || level > LVL_IMPL) {
-		log("SYSERR: assigning '%s' to illegal level %d/%d.", skill_name(spell), level, LVL_IMPL);
+	if (level < 1 || level > kLevelImplementator) {
+		log("SYSERR: assigning '%s' to illegal level %d/%d.", skill_name(spell), level, kLevelImplementator);
 		bad = 1;
 	}
 
@@ -2577,8 +2441,8 @@ void mspell_change(char *name, int spell, int kin, int chclass, int class_change
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, NUM_KIN);
+	if (kin < 0 || kin >= kNumKins) {
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 

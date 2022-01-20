@@ -2,7 +2,7 @@
 
 #include <string>
 
-class CHAR_DATA;
+class CharacterData;
 
 struct PickProbabilityInformation {
 	// показываемый текст игроку при осмотре замка
@@ -21,6 +21,6 @@ struct PickProbabilityInformation {
 	bool skill_train_allowed;
 };
 
-PickProbabilityInformation get_pick_probability(CHAR_DATA *ch, int lock_complexity);
+PickProbabilityInformation get_pick_probability(CharacterData *ch, int lock_complexity);
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -27,12 +27,12 @@
 #include "feats.h"
 #include "house.h"
 #include "privilege.h"
-#include "chars/char.h"
+#include "entities/char.h"
 #include "skills.h"
 #include "genchar.h"
 #include "logger.h"
 #include "utils/utils.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 #include "skills_info.h"
@@ -42,7 +42,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
-void show_string(DESCRIPTOR_DATA *d, char *input);
+void show_string(DescriptorData *d, char *input);
 
 #define PARSE_FORMAT      0
 #define PARSE_REPLACE     1
@@ -58,10 +58,10 @@ extern const char *unused_spellname;
 
 // local functions
 void smash_tilde(char *str);
-void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-char *next_page(char *str, CHAR_DATA *ch);
-int count_pages(char *str, CHAR_DATA *ch);
-void paginate_string(char *str, DESCRIPTOR_DATA *d);
+void do_skillset(CharacterData *ch, char *argument, int cmd, int subcmd);
+char *next_page(char *str, CharacterData *ch);
+int count_pages(char *str, CharacterData *ch);
+void paginate_string(char *str, DescriptorData *d);
 
 const char *string_fields[] =
 	{
@@ -103,7 +103,7 @@ void smash_tilde(char *str) {
 	 * Derived from an idea by Sammy <samedi@dhc.net> (who happens to like
 	 * his tildes thank you very much.), -gg 2/20/98
 	 */
-	while ((str = strchr(str, '~')) != NULL)
+	while ((str = strchr(str, '~')) != nullptr)
 		*str = ' ';
 }
 
@@ -114,17 +114,14 @@ void smash_tilde(char *str) {
  * else you may want through it.  The improved editor patch when updated
  * could use it to pass the old text buffer, for instance.
  */
-void string_write(DESCRIPTOR_DATA *d,
-				  const AbstractStringWriter::shared_ptr &writer,
-				  size_t len,
-				  int mailto,
-				  void *data) {
+void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_ptr &writer,
+				  size_t len, int mailto, void *data) {
 	if (d->character && !IS_NPC(d->character)) {
 		PLR_FLAGS(d->character).set(PLR_WRITING);
 	}
 
 	if (data) {
-		mudlog("SYSERR: string_write: I don't understand special data.", BRF, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog("SYSERR: string_write: I don't understand special data.", BRF, kLevelImmortal, SYSLOG, true);
 	}
 
 	d->writer = writer;
@@ -133,7 +130,7 @@ void string_write(DESCRIPTOR_DATA *d,
 }
 
 // * Handle some editor commands.
-void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
+void parse_action(int command, char *string, DescriptorData *d) {
 	int indent = 0, rep_all = 0, flags = 0, replaced;
 	int j = 0;
 	int i, line_low, line_high;
@@ -164,8 +161,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				switch (string[j]) {
 					case 'i':
 						if (!indent) {
-							indent = TRUE;
-							flags += FORMAT_INDENT;
+							indent = true;
+							flags += kFormatIndent;
 						}
 						break;
 					default: break;
@@ -190,16 +187,16 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				}
 				j++;
 			}
-			if ((s = strtok(string, "'")) == NULL) {
+			if ((s = strtok(string, "'")) == nullptr) {
 				SEND_TO_Q("Неверный формат.\r\n", d);
 				return;
-			} else if ((s = strtok(NULL, "'")) == NULL) {
+			} else if ((s = strtok(nullptr, "'")) == nullptr) {
 				SEND_TO_Q("Шаблон должен быть заключен в апострофы.\r\n", d);
 				return;
-			} else if ((t = strtok(NULL, "'")) == NULL) {
+			} else if ((t = strtok(nullptr, "'")) == nullptr) {
 				SEND_TO_Q("No replacement string.\r\n", d);
 				return;
-			} else if ((t = strtok(NULL, "'")) == NULL) {
+			} else if ((t = strtok(nullptr, "'")) == nullptr) {
 				SEND_TO_Q("Замещающая строка должна быть заключена в апострофы.\r\n", d);
 				return;
 			} else {
@@ -246,24 +243,24 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				} else if (line_low > 0) {
 					unsigned int total_len = 1;
 					while (s && (i < line_low)) {
-						if ((s = strchr(s, '\n')) != NULL) {
+						if ((s = strchr(s, '\n')) != nullptr) {
 							i++;
 							s++;
 						}
 					}
-					if ((i < line_low) || (s == NULL)) {
+					if ((i < line_low) || (s == nullptr)) {
 						SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 						return;
 					}
 					t = s;
 					while (s && (i < line_high)) {
-						if ((s = strchr(s, '\n')) != NULL) {
+						if ((s = strchr(s, '\n')) != nullptr) {
 							i++;
 							total_len++;
 							s++;
 						}
 					}
-					if ((s) && ((s = strchr(s, '\n')) != NULL)) {
+					if ((s) && ((s = strchr(s, '\n')) != nullptr)) {
 						s++;
 						while (*s != '\0') {
 							*(t++) = *(s++);
@@ -316,20 +313,20 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 
 				unsigned int total_len = 0;
 				while (pos && (i < line_low)) {
-					if ((pos = strchr(pos, '\n')) != NULL) {
+					if ((pos = strchr(pos, '\n')) != nullptr) {
 						i++;
 						pos++;
 					}
 				}
 
-				if ((i < line_low) || (pos == NULL)) {
+				if ((i < line_low) || (pos == nullptr)) {
 					SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 					return;
 				}
 
 				const char *beginning = pos;
 				while (pos && (i <= line_high)) {
-					if ((pos = strchr(pos, '\n')) != NULL) {
+					if ((pos = strchr(pos, '\n')) != nullptr) {
 						i++;
 						total_len++;
 						pos++;
@@ -342,7 +339,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 					strcat(buf, beginning);
 				}
 
-				page_string(d, buf, TRUE);
+				page_string(d, buf, true);
 			}
 
 			break;
@@ -379,25 +376,25 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				unsigned int total_len = 0;
 
 				while (pos && (i < line_low)) {
-					if ((pos = strchr(pos, '\n')) != NULL) {
+					if ((pos = strchr(pos, '\n')) != nullptr) {
 						i++;
 						pos++;
 					}
 				}
 
-				if ((i < line_low) || (pos == NULL)) {
+				if ((i < line_low) || (pos == nullptr)) {
 					SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 					return;
 				}
 
 				const char *beginning = pos;
 				while (pos && (i <= line_high)) {
-					if ((pos = strchr(pos, '\n')) != NULL) {
+					if ((pos = strchr(pos, '\n')) != nullptr) {
 						i++;
 						total_len++;
 						pos++;
 						sprintf(buf1, "%s", buf);
-						snprintf(buf, MAX_STRING_LENGTH, "%s%4d:\r\n", buf1, (i - 1));
+						snprintf(buf, kMaxStringLength, "%s%4d:\r\n", buf1, (i - 1));
 						strncat(buf, beginning, pos - beginning);
 						beginning = pos;
 					}
@@ -410,7 +407,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 				}
 			}
 
-			page_string(d, buf, TRUE);
+			page_string(d, buf, true);
 			break;
 
 		case PARSE_INSERT: half_chop(string, buf, buf2);
@@ -426,18 +423,18 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 			{
 				const char *pos = d->writer->get_string();
 				const char *beginning = pos;
-				if (pos == NULL) {
+				if (pos == nullptr) {
 					SEND_TO_Q("Буфер пуст - ничего не вставлено.\r\n", d);
 					return;
 				}
 				if (line_low > 0) {
 					while (pos && (i < line_low)) {
-						if ((pos = strchr(pos, '\n')) != NULL) {
+						if ((pos = strchr(pos, '\n')) != nullptr) {
 							i++;
 							pos++;
 						}
 					}
-					if ((i < line_low) || (pos == NULL)) {
+					if ((i < line_low) || (pos == nullptr)) {
 						SEND_TO_Q("Номер строки вне диапазона - прервано.\r\n", d);
 						return;
 					}
@@ -481,14 +478,14 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 
 				if (line_low > 0) {    // Loop through the text counting \\n characters until we get to the line/
 					while (s && (i < line_low)) {
-						if ((s = strchr(s, '\n')) != NULL) {
+						if ((s = strchr(s, '\n')) != nullptr) {
 							i++;
 							s++;
 						}
 					}
 
 					// * Make sure that there was a THAT line in the text.
-					if ((i < line_low) || (s == NULL)) {
+					if ((i < line_low) || (s == nullptr)) {
 						SEND_TO_Q("Строка вне диапазона - прервано.\r\n", d);
 						return;
 					}
@@ -501,7 +498,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 					}
 					// Put the new 'good' line into place.
 					strcat(buf, buf2);
-					if ((s = strchr(s, '\n')) != NULL) {
+					if ((s = strchr(s, '\n')) != nullptr) {
 						/*
 						* This means that we are at the END of the line, we want out of
 						* there, but we want s to point to the beginning of the line
@@ -529,17 +526,17 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 			break;
 
 		default: SEND_TO_Q("Неверная опция.\r\n", d);
-			mudlog("SYSERR: invalid command passed to parse_action", BRF, LVL_IMPL, SYSLOG, TRUE);
+			mudlog("SYSERR: invalid command passed to parse_action", BRF, kLevelImplementator, SYSLOG, true);
 			return;
 	}
 	//log("[PA] Stop");
 }
 
 // Add user input to the 'current' string (as defined by d->str) //
-void string_add(DESCRIPTOR_DATA *d, char *str) {
+void string_add(DescriptorData *d, char *str) {
 	int terminator = 0, action = 0;
 	int i = 2, j = 0;
-	char actions[MAX_INPUT_LENGTH];
+	char actions[kMaxInputLength];
 
 	// determine if this is the terminal string, and truncate if so //
 	// changed to only accept '@' at the beginning of line - J. Elson 1/17/94 //
@@ -648,23 +645,23 @@ void string_add(DESCRIPTOR_DATA *d, char *str) {
 			send_to_char(d->character.get(),
 						 "Слишком длинное послание > %lu симв. Последняя строка проигнорирована.\r\n",
 						 d->max_str - 3);
-			action = TRUE;
+			action = true;
 		} else {
 			d->writer->append_string(str);
 		}
 	}
 
 	if (terminator) {    // OLC Edits
-		extern void oedit_disp_menu(DESCRIPTOR_DATA *d);
-		extern void oedit_disp_extradesc_menu(DESCRIPTOR_DATA *d);
-		extern void redit_disp_menu(DESCRIPTOR_DATA *d);
-		extern void redit_disp_extradesc_menu(DESCRIPTOR_DATA *d);
-		extern void redit_disp_exit_menu(DESCRIPTOR_DATA *d);
-		extern void medit_disp_menu(DESCRIPTOR_DATA *d);
-		extern void trigedit_disp_menu(DESCRIPTOR_DATA *d);
+		extern void oedit_disp_menu(DescriptorData *d);
+		extern void oedit_disp_extradesc_menu(DescriptorData *d);
+		extern void redit_disp_menu(DescriptorData *d);
+		extern void redit_disp_extradesc_menu(DescriptorData *d);
+		extern void redit_disp_exit_menu(DescriptorData *d);
+		extern void medit_disp_menu(DescriptorData *d);
+		extern void trigedit_disp_menu(DescriptorData *d);
 
 #if defined(OASIS_MPROG)
-		extern void medit_change_mprog(DESCRIPTOR_DATA * d);
+		extern void medit_change_mprog(DescriptorData * d);
 
 		if (STATE(d) == CON_MEDIT)
 		{
@@ -853,10 +850,10 @@ void string_add(DESCRIPTOR_DATA *d, char *str) {
 // * Set of character features                                           *
 // ***********************************************************************
 
-void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
-	char name[MAX_INPUT_LENGTH], buf2[128];
-	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
+void do_featset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
+	char name[kMaxInputLength], buf2[128];
+	char buf[kMaxInputLength], help[kMaxStringLength];
 	int feat = -1, value, i, qend;
 
 	argument = one_argument(argument, name);
@@ -865,7 +862,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		send_to_char("Формат: featset <игрок> '<способность>' <значение>\r\n", ch);
 		strcpy(help, "Возможные способности:\r\n");
-		for (qend = 0, i = 1; i < MAX_FEATS; i++) {
+		for (qend = 0, i = 1; i < kMaxFeats; i++) {
 			if (feat_info[i].type == UNUSED_FTYPE)    // This is valid. //
 				continue;
 			sprintf(help + strlen(help), "%30s", feat_info[i].name);
@@ -887,7 +884,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	skip_spaces(&argument);
 
-	// If there is no chars in argument //
+	// If there is no entities in argument //
 	if (!*argument) {
 		send_to_char("Пропущено название способности.\r\n", ch);
 		return;
@@ -933,9 +930,9 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
 			feat_info[feat].name, value ? "enabled" : "disabled");
-	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
+	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
-	if (feat >= 0 && feat < MAX_FEATS) {
+	if (feat >= 0 && feat < kMaxFeats) {
 		if (value)
 			SET_FEAT(vict, feat);
 		else
@@ -953,10 +950,10 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // *  Modification of character skills                                  *
 // **********************************************************************
 
-void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
-	char name[MAX_INPUT_LENGTH], buf2[128];
-	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
+void do_skillset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
+	char name[kMaxInputLength], buf2[128];
+	char buf[kMaxInputLength], help[kMaxStringLength];
 	int spell = -1, value, i, qend;
 	ESkill skill = SKILL_INVALID;
 
@@ -989,7 +986,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	skip_spaces(&argument);
 
-	// If there is no chars in argument
+	// If there is no entities in argument
 	if (!*argument) {
 		send_to_char("Пропущено название умения.\r\n", ch);
 		return;
@@ -1045,7 +1042,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
-	mudlog(buf2, BRF, LVL_IMMORT, SYSLOG, TRUE);
+	mudlog(buf2, BRF, kLevelImmortal, SYSLOG, true);
 	if (spell >= 0 && spell <= SPELLS_COUNT) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), SPELL_TEMP)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
@@ -1079,14 +1076,14 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // * Traverse down the string until the begining of the next page has been
 // * reached.  Return NULL if this is the last page of the string.
-char *next_page(char *str, CHAR_DATA *ch) {
-	int col = 1, line = 1, spec_code = FALSE;
+char *next_page(char *str, CharacterData *ch) {
+	int col = 1, line = 1, spec_code = false;
 	const char *color;
 
 	for (;; str++)    // If end of string, return NULL. //
 	{
 		if (*str == '\0')
-			return (NULL);
+			return (nullptr);
 
 			// If we're at the start of the next page, return this fact. //
 		else if (STRING_WIDTH(ch) && line > STRING_WIDTH(ch))
@@ -1135,11 +1132,11 @@ char *next_page(char *str, CHAR_DATA *ch) {
 			strncpy(str, color, strlen(color));
 			str += (strlen(color) - 1);
 		} else if (*str == '\x1B' && !spec_code)
-			spec_code = TRUE;
+			spec_code = true;
 
 			// Check for the end of an ANSI color code block. //
 		else if (*str == 'm' && spec_code)
-			spec_code = FALSE;
+			spec_code = false;
 
 			// Check for everything else. //
 		else if (!spec_code)    // Carriage return puts us in column one. //
@@ -1161,7 +1158,7 @@ char *next_page(char *str, CHAR_DATA *ch) {
 }
 
 // Function that returns the number of pages in the string.
-int count_pages(char *str, CHAR_DATA *ch) {
+int count_pages(char *str, CharacterData *ch) {
 	int pages;
 
 	for (pages = 1; (str = next_page(str, ch)); pages++);
@@ -1172,7 +1169,7 @@ int count_pages(char *str, CHAR_DATA *ch) {
  * page_string function, after showstr_vector has been allocated and
  * showstr_count set.
  */
-void paginate_string(char *str, DESCRIPTOR_DATA *d) {
+void paginate_string(char *str, DescriptorData *d) {
 	int i;
 
 	if (d->showstr_count) {
@@ -1187,7 +1184,7 @@ void paginate_string(char *str, DESCRIPTOR_DATA *d) {
 }
 
 // The call that gets the paging ball rolling...
-void page_string(DESCRIPTOR_DATA *d, char *str, int keep_internal) {
+void page_string(DescriptorData *d, char *str, int keep_internal) {
 	if (!d)
 		return;
 
@@ -1210,7 +1207,7 @@ void page_string(DESCRIPTOR_DATA *d, char *str, int keep_internal) {
 }
 
 // TODO типа временно для стрингов
-void page_string(DESCRIPTOR_DATA *d, const std::string &buf) {
+void page_string(DescriptorData *d, const std::string &buf) {
 	// TODO: при keep_internal == true (а в 99% случаев так оно есть)
 	// получаем дальше в page_string повторный str_dup.
 	// как бы собраться с силами и переписать все это :/
@@ -1220,8 +1217,8 @@ void page_string(DESCRIPTOR_DATA *d, const std::string &buf) {
 }
 
 // The call that displays the next page.
-void show_string(DESCRIPTOR_DATA *d, char *input) {
-	char buffer[MAX_STRING_LENGTH];
+void show_string(DescriptorData *d, char *input) {
+	char buffer[kMaxStringLength];
 	int diff;
 
 	any_one_arg(input, buf);
@@ -1232,7 +1229,7 @@ void show_string(DESCRIPTOR_DATA *d, char *input) {
 		d->showstr_count = 0;
 		if (d->showstr_head) {
 			free(d->showstr_head);
-			d->showstr_head = NULL;
+			d->showstr_head = nullptr;
 		}
 		print_con_prompt(d);
 		return;
@@ -1264,15 +1261,15 @@ void show_string(DESCRIPTOR_DATA *d, char *input) {
 		d->showstr_count = 0;
 		if (d->showstr_head) {
 			free(d->showstr_head);
-			d->showstr_head = NULL;
+			d->showstr_head = nullptr;
 		}
 		print_con_prompt(d);
 	}
 		// Or if we have more to show....
 	else {
 		diff = d->showstr_vector[d->showstr_page + 1] - d->showstr_vector[d->showstr_page];
-		if (diff >= MAX_STRING_LENGTH)
-			diff = MAX_STRING_LENGTH - 1;
+		if (diff >= kMaxStringLength)
+			diff = kMaxStringLength - 1;
 		strncpy(buffer, d->showstr_vector[d->showstr_page], diff);
 		buffer[diff] = '\0';
 		send_to_char(buffer, d->character.get());
@@ -1287,7 +1284,7 @@ void show_string(DESCRIPTOR_DATA *d, char *input) {
 /// 2) после последней страницы не ждать втихую нажатия от игрока, а вывести меню текущего CON_STATE
 /// 3) напечатать тоже самое при выходе из пролистывания через Q/К
 ///
-void print_con_prompt(DESCRIPTOR_DATA *d) {
+void print_con_prompt(DescriptorData *d) {
 	if (d->showstr_count) {
 		return;
 	}

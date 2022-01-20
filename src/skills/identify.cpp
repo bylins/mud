@@ -1,13 +1,13 @@
 #include "identify.h"
 
-#include "chars/char.h"
+#include "entities/char.h"
 
 #include "handler.h"
 
-void do_identify(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *cvict = NULL, *caster = ch;
-	OBJ_DATA *ovict = NULL;
-	struct timed_type timed;
+void do_identify(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *cvict = nullptr, *caster = ch;
+	ObjectData *ovict = nullptr;
+	struct Timed timed;
 	int k, level = 0;
 
 	if (IS_NPC(ch) || ch->get_skill(SKILL_IDENTIFY) <= 0) {

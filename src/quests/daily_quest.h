@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 
-class CHAR_DATA;
+class CharacterData;
 
 namespace DailyQuest {
 
@@ -20,7 +20,7 @@ using DailyQuestMap = std::unordered_map<int, DailyQuest>;
 
 // загрузка файла с дейликами
 // если ch будет валиден - то он получит сообщение с статусом загрузки файла
-void load_from_file(CHAR_DATA *ch = NULL);
+void load_from_file(CharacterData *ch = nullptr);
 
 }
 

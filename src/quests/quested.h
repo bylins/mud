@@ -9,11 +9,11 @@
 #include <string>
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 class Quested {
  public:
-	void add(CHAR_DATA *ch, int vnum, char *text);
+	void add(CharacterData *ch, int vnum, char *text);
 	bool remove(int vnum);
 	void clear();
 
