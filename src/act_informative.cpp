@@ -5023,7 +5023,8 @@ void perform_mortal_where(CHAR_DATA *ch, char *arg) {
 	}
 }
 
-void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
+// возвращает true если объект был выведен
+bool print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 	if (num > 0) {
 		sprintf(buf, "%2d. ", num);
 		if (IS_GRGOD(ch)) {
@@ -5058,7 +5059,7 @@ void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 	} else if (obj->get_in_obj()) {
 		if (Clan::is_clan_chest(obj->get_in_obj()))// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
 		{
-			return; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
+			return false; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 		} else {
 			sprintf(buf + strlen(buf), "лежит в [%d]%s, который находится \r\n",
 					GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(5).c_str());
@@ -5071,7 +5072,7 @@ void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 				sprintf(buf + strlen(buf), "на базаре однако, лот #%d\r\n", GET_EXCHANGE_ITEM_LOT(j));
 //				strcat(buf, buf1);
 				send_to_char(buf, ch);
-				return;
+				return true;
 			}
 		}
 
@@ -5084,7 +5085,7 @@ void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 				if (item_list.node(i)->uid() == obj->get_uid()) {
 					sprintf(buf + strlen(buf), "можно купить в магазине: %s\r\n", shop->GetDictionaryName().c_str());
 					send_to_char(buf, ch);
-					return;
+					return true;
 				}
 			}
 
@@ -5093,7 +5094,10 @@ void print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.\r\n");
 //		strcat(buf, buf1);
 		send_to_char(buf, ch);
+		return true;
 	}
+
+	return true;
 }
 
 /**
@@ -5106,15 +5110,17 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
 	world_objects.foreach([&](const OBJ_DATA::shared_ptr object)    /* maybe it is possible to create some index instead of linear search */
 						  {
 							  if (isname(arg, object->get_aliases())) {
-								  found = true;
-								  print_object_location(num++, object.get(), ch);
+								if (print_object_location(num, object.get(), ch)) {
+									found = true;
+									num++;
+								}
 							  }
 						  });
 
 	int tmp_num = num;
 	if (IS_GOD(ch)
 		|| PRF_FLAGGED(ch, PRF_CODERINFO)) {
-		tmp_num = Clan::print_spell_locate_object(ch, tmp_num, arg);
+		tmp_num = Clan::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
 	}
