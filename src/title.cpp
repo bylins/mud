@@ -60,7 +60,7 @@ std::string print_agree_string(bool new_petittion);
 std::string print_title_string(CHAR_DATA *ch, const std::string &pre_title, const std::string &title);
 std::string print_title_string(const std::string &name, const std::string &pre_title, const std::string &title);
 void do_title_empty(CHAR_DATA *ch);
-DESCRIPTOR_DATA *send_result_message(long unique, bool action);
+DescriptorData *send_result_message(long unique, bool action);
 
 } // namespace TitleSystem
 
@@ -276,8 +276,8 @@ bool TitleSystem::check_alphabet(const std::string &text, CHAR_DATA *ch, const s
 * \param unique - уид персонажа, которого хоим уведомить
 * \param action - 0 если запрещаем, 1 если одобряем
 */
-DESCRIPTOR_DATA *TitleSystem::send_result_message(long unique, bool action) {
-	DESCRIPTOR_DATA *d = DescByUID(unique);
+DescriptorData *TitleSystem::send_result_message(long unique, bool action) {
+	DescriptorData *d = DescByUID(unique);
 	if (d) {
 		send_to_char(d->character.get(), "Ваш титул был %s Богами.\r\n", action ? "одобрен" : "запрещен");
 	}
@@ -294,7 +294,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 	TitleListType::iterator it = title_list.find(name);
 	if (it != title_list.end()) {
 		if (action) {
-			DESCRIPTOR_DATA *d = send_result_message(it->second->unique, action);
+			DescriptorData *d = send_result_message(it->second->unique, action);
 			// Что внизу за хрень ?
 			if (d) {
 				set_player_title(d->character.get(), it->second->pre_title, it->second->title, GET_NAME(ch));
@@ -315,7 +315,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 		} else {
 			send_result_message(it->second->unique, action);
 
-			DESCRIPTOR_DATA *d = send_result_message(it->second->unique, action);
+			DescriptorData *d = send_result_message(it->second->unique, action);
 			if (d) {
 				sprintf(buf, "&c%s запретил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(d->character));
 				send_to_gods(buf, true);

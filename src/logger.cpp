@@ -239,7 +239,7 @@ void mudlog(std::string str, LogMode type, int level, EOutputStream channel, int
 */
 void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int file) {
 	char tmpbuf[kMaxStringLength];
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	if (str == nullptr) {
 		return;        // eh, oh well.

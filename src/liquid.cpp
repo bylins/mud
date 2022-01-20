@@ -280,7 +280,7 @@ int cast_potion(CHAR_DATA *ch, OBJ_DATA *jar) {
 			if (cast_potion_spell(ch, jar, i) <= 0)
 				break;
 
-		WAIT_STATE(ch, PULSE_VIOLENCE);
+		WAIT_STATE(ch, kPulseViolence);
 		jar->dec_weight();
 		// все выпито
 		jar->dec_val(1);

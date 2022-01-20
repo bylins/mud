@@ -1734,7 +1734,7 @@ void load_skills_definitions() {
 			for (j = 0; line4[j] && j < NUM_PLAYER_CLASSES; j++) {
 				if (!strchr("1xX!", line4[j]))
 					continue;
-				skill_info[sp_num].classknow[j][l] = KNOW_SKILL;
+				skill_info[sp_num].classknow[j][l] = kKnowSkill;
 				log("Set skill '%s' kin %d classes %d is Know", skill_info[sp_num].name, l, j);
 			}
 		}
@@ -1776,7 +1776,7 @@ void LoadClassSkills() {
 					log("Skill '%s' not found...", name.c_str());
 					graceful_exit(1);
 				}
-				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
+				skill_info[sk_num].classknow[PCclass][PCkin] = kKnowSkill;
 				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > kMaxRemort) {
 					log("ERROR: Недопустимый параметр level decrement класса %d.", PCclass);
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;

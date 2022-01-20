@@ -200,7 +200,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
 						send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 						act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
 						GET_POS(vict) = POS_SITTING;
-						WAIT_STATE(vict, 3 * PULSE_VIOLENCE);
+						WAIT_STATE(vict, 3 * kPulseViolence);
 					}
 					break;
 				}

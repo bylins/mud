@@ -35,7 +35,7 @@
 #include "constants.h"
 #include "game_mechanics/sets_drop.h"
 #include "entities/obj.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
 
@@ -57,7 +57,7 @@ extern const char *material_name[];
 extern const char *ingradient_bits[];
 extern const char *magic_container_bits[];
 extern struct spellInfo_t spell_info[];
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern int top_imrecipes;
 extern void extract_obj(OBJ_DATA *obj);
 
@@ -67,38 +67,38 @@ extern void extract_obj(OBJ_DATA *obj);
 #define S_PRODUCT(s, i) ((s)->producing[(i)])
 
 //------------------------------------------------------------------------
-void oedit_setup(DESCRIPTOR_DATA *d, int real_num);
+void oedit_setup(DescriptorData *d, int real_num);
 
 void oedit_object_copy(OBJ_DATA *dst, CObjectPrototype *src);
 
-void oedit_save_internally(DESCRIPTOR_DATA *d);
+void oedit_save_internally(DescriptorData *d);
 void oedit_save_to_disk(int zone);
 
-void oedit_parse(DESCRIPTOR_DATA *d, char *arg);
-void oedit_disp_spells_menu(DESCRIPTOR_DATA *d);
-void oedit_liquid_type(DESCRIPTOR_DATA *d);
-void oedit_disp_container_flags_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_extradesc_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_weapon_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_val1_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_val2_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_val3_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_val4_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_type_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_extra_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_wear_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_skills_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_receipts_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_feats_menu(DESCRIPTOR_DATA *d);
-void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA *d);
+void oedit_parse(DescriptorData *d, char *arg);
+void oedit_disp_spells_menu(DescriptorData *d);
+void oedit_liquid_type(DescriptorData *d);
+void oedit_disp_container_flags_menu(DescriptorData *d);
+void oedit_disp_extradesc_menu(DescriptorData *d);
+void oedit_disp_weapon_menu(DescriptorData *d);
+void oedit_disp_val1_menu(DescriptorData *d);
+void oedit_disp_val2_menu(DescriptorData *d);
+void oedit_disp_val3_menu(DescriptorData *d);
+void oedit_disp_val4_menu(DescriptorData *d);
+void oedit_disp_type_menu(DescriptorData *d);
+void oedit_disp_extra_menu(DescriptorData *d);
+void oedit_disp_wear_menu(DescriptorData *d);
+void oedit_disp_menu(DescriptorData *d);
+void oedit_disp_skills_menu(DescriptorData *d);
+void oedit_disp_receipts_menu(DescriptorData *d);
+void oedit_disp_feats_menu(DescriptorData *d);
+void oedit_disp_skills_mod_menu(DescriptorData *d);
 
 // ------------------------------------------------------------------------
 //  Utility and exported functions
 // ------------------------------------------------------------------------
 //***********************************************************************
 
-void oedit_setup(DESCRIPTOR_DATA *d, int real_num)
+void oedit_setup(DescriptorData *d, int real_num)
 /*++
    Подготовка данных для редактирования объекта.
       d        - OLC дескриптор
@@ -242,7 +242,7 @@ void olc_update_objects(int robj_num, OBJ_DATA *olc_obj) {
 
 #define ZCMD zone_table[zone].cmd[cmd_no]
 
-void oedit_save_internally(DESCRIPTOR_DATA *d) {
+void oedit_save_internally(DescriptorData *d) {
 	int robj_num;
 
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
@@ -409,7 +409,7 @@ void oedit_save_to_disk(int zone_num) {
 // **************************************************************************
 
 // * For container flags.
-void oedit_disp_container_flags_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_container_flags_menu(DescriptorData *d) {
 	get_char_cols(d->character.get());
 	sprintbit(GET_OBJ_VAL(OLC_OBJ(d), 1), container_bits, buf1);
 #if defined(CLEAR_SCREEN)
@@ -426,7 +426,7 @@ void oedit_disp_container_flags_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * For extra descriptions.
-void oedit_disp_extradesc_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_extradesc_menu(DescriptorData *d) {
 	auto extra_desc = OLC_DESC(d);
 
 	strcpy(buf1, !extra_desc->next ? "<Not set>\r\n" : "Set.");
@@ -450,7 +450,7 @@ void oedit_disp_extradesc_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Ask for *which* apply to edit.
-void oedit_disp_prompt_apply_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_prompt_apply_menu(DescriptorData *d) {
 	int counter;
 
 	get_char_cols(d->character.get());
@@ -473,7 +473,7 @@ void oedit_disp_prompt_apply_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Ask for liquid type.
-void oedit_liquid_type(DESCRIPTOR_DATA *d) {
+void oedit_liquid_type(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -490,7 +490,7 @@ void oedit_liquid_type(DESCRIPTOR_DATA *d) {
 	OLC_MODE(d) = OEDIT_VALUE_3;
 }
 
-void show_apply_olc(DESCRIPTOR_DATA *d) {
+void show_apply_olc(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -506,13 +506,13 @@ void show_apply_olc(DESCRIPTOR_DATA *d) {
 }
 
 // * The actual apply to set.
-void oedit_disp_apply_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_apply_menu(DescriptorData *d) {
 	show_apply_olc(d);
 	OLC_MODE(d) = OEDIT_APPLY;
 }
 
 // * Weapon type.
-void oedit_disp_weapon_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_weapon_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -528,7 +528,7 @@ void oedit_disp_weapon_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Spell type.
-void oedit_disp_spells_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_spells_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -546,7 +546,7 @@ void oedit_disp_spells_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_skills2_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_skills2_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -566,7 +566,7 @@ void oedit_disp_skills2_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_receipts_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_receipts_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -582,7 +582,7 @@ void oedit_disp_receipts_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_feats_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_feats_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -602,7 +602,7 @@ void oedit_disp_feats_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_skills_mod_menu(DescriptorData *d) {
 	int columns = 0, counter;
 
 	get_char_cols(d->character.get());
@@ -629,7 +629,7 @@ void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Object value #1
-void oedit_disp_val1_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_val1_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_1;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 		case OBJ_DATA::ITEM_LIGHT:
@@ -723,7 +723,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Object value #2
-void oedit_disp_val2_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_val2_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_2;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 		case OBJ_DATA::ITEM_SCROLL:
@@ -808,7 +808,7 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Object value #3
-void oedit_disp_val3_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_val3_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_3;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 		case OBJ_DATA::ITEM_LIGHT:
@@ -862,7 +862,7 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Object value #4
-void oedit_disp_val4_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_val4_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_4;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 		case OBJ_DATA::ITEM_SCROLL:
@@ -909,7 +909,7 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Object type.
-void oedit_disp_type_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_type_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -925,7 +925,7 @@ void oedit_disp_type_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * Object extra flags.
-void oedit_disp_extra_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_extra_menu(DescriptorData *d) {
 	disp_planes_values(d, extra_bits, 2);
 	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", 5);
 	snprintf(buf,
@@ -937,7 +937,7 @@ void oedit_disp_extra_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_anti_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_anti_menu(DescriptorData *d) {
 	disp_planes_values(d, anti_bits, 2);
 	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, ",", 5);
 	snprintf(buf,
@@ -949,7 +949,7 @@ void oedit_disp_anti_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_no_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_no_menu(DescriptorData *d) {
 	disp_planes_values(d, no_bits, 2);
 	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, ",", 5);
 	snprintf(buf,
@@ -961,7 +961,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags) {
+void show_weapon_affects_olc(DescriptorData *d, const FLAG_DATA &flags) {
 	disp_planes_values(d, weapon_affects, 2);
 	flags.sprintbits(weapon_affects, buf1, ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nНакладываемые аффекты : %s%s%s\r\n"
@@ -969,12 +969,12 @@ void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_affects_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_affects_menu(DescriptorData *d) {
 	show_weapon_affects_olc(d, OLC_OBJ(d)->get_affect_flags());
 }
 
 // * Object wear flags.
-void oedit_disp_wear_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_wear_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -996,7 +996,7 @@ void oedit_disp_wear_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_mater_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_mater_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -1013,7 +1013,7 @@ void oedit_disp_mater_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_ingradient_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_ingradient_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -1030,7 +1030,7 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_disp_magic_container_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_magic_container_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -1054,7 +1054,7 @@ std::string print_spell_value(OBJ_DATA *obj, const ObjVal::EValueKey key1, const
 	return buf_;
 }
 
-void drinkcon_values_menu(DESCRIPTOR_DATA *d) {
+void drinkcon_values_menu(DescriptorData *d) {
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
@@ -1098,7 +1098,7 @@ std::array<const char *, 9> wskill_bits =
 		 "луки(154)"
 	 }};
 
-void oedit_disp_skills_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_skills_menu(DescriptorData *d) {
 	if (GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_INGREDIENT) {
 		oedit_disp_ingradient_menu(d);
 		return;
@@ -1136,7 +1136,7 @@ std::string print_values2_menu(OBJ_DATA *obj) {
 }
 
 // * Display main menu.
-void oedit_disp_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_menu(DescriptorData *d) {
 	OBJ_DATA *obj;
 
 	obj = OLC_OBJ(d);
@@ -1260,7 +1260,7 @@ void check_potion_proto(OBJ_DATA *obj) {
 	}
 }
 
-bool parse_val_spell_num(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int val) {
+bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val) {
 	if (val < 1
 		|| val > SPELLS_COUNT) {
 		if (val != 0) {
@@ -1279,7 +1279,7 @@ bool parse_val_spell_num(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int va
 	return true;
 }
 
-void parse_val_spell_lvl(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int val) {
+void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val) {
 	if (val <= 0 || val > 50) {
 		if (val != 0) {
 			send_to_char("Некорректный уровень заклинания.\r\n", d->character.get());
@@ -1310,7 +1310,7 @@ void parse_val_spell_lvl(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int va
 	drinkcon_values_menu(d);
 }
 
-void oedit_disp_clone_menu(DESCRIPTOR_DATA *d) {
+void oedit_disp_clone_menu(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 	sprintf(buf,
@@ -1328,7 +1328,7 @@ void oedit_disp_clone_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
+void oedit_parse(DescriptorData *d, char *arg) {
 	int number = 0;
 	int max_val, min_val, plane, bit;
 
@@ -2017,7 +2017,7 @@ void oedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 						SEND_TO_Q(OLC_DESC(d)->description, d);
 						d->backstr = str_dup(OLC_DESC(d)->description);
 					}
-					d->writer.reset(new DelegatedStringWriter(OLC_DESC(d)->description));
+					d->writer.reset(new utils::DelegatedStringWriter(OLC_DESC(d)->description));
 					d->max_str = 4096;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;

@@ -106,7 +106,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 						dam *= 2;
 						break;
 					case 4:
-					case 5:WAIT_STATE(vict, number(2, 5) * PULSE_VIOLENCE);
+					case 5:WAIT_STATE(vict, number(2, 5) * kPulseViolence);
 						if (GET_POS(vict) > POS_SITTING) {
 							GET_POS(vict) = POS_SITTING;
 						}

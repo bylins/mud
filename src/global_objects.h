@@ -12,7 +12,7 @@
 #include "entities/world_characters.h"
 #include "act_wizard.h"
 #include "influxdb.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "quests/daily_quest.h"
 #include "strengthening.h"
 class BanList;    // to avoid inclusion of ban.hpp

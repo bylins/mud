@@ -149,7 +149,7 @@ extern char *background;
 extern const char *MENU;
 extern const char *WELC_MESSG;
 extern const char *START_MESSG;
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
@@ -182,23 +182,23 @@ int Is_Valid_Dc(char *newname);
 void read_aliases(CHAR_DATA *ch);
 void write_aliases(CHAR_DATA *ch);
 void read_saved_vars(CHAR_DATA *ch);
-void oedit_parse(DESCRIPTOR_DATA *d, char *arg);
-void redit_parse(DESCRIPTOR_DATA *d, char *arg);
-void zedit_parse(DESCRIPTOR_DATA *d, char *arg);
-void medit_parse(DESCRIPTOR_DATA *d, char *arg);
-void trigedit_parse(DESCRIPTOR_DATA *d, char *arg);
+void oedit_parse(DescriptorData *d, char *arg);
+void redit_parse(DescriptorData *d, char *arg);
+void zedit_parse(DescriptorData *d, char *arg);
+void medit_parse(DescriptorData *d, char *arg);
+void trigedit_parse(DescriptorData *d, char *arg);
 int find_social(char *name);
-extern int CheckProxy(DESCRIPTOR_DATA *ch);
+extern int CheckProxy(DescriptorData *ch);
 extern void check_max_hp(CHAR_DATA *ch);
 // local functions
-int perform_dupe_check(DESCRIPTOR_DATA *d);
+int perform_dupe_check(DescriptorData *d);
 struct alias_data *find_alias(struct alias_data *alias_list, char *str);
 void free_alias(struct alias_data *a);
 void perform_complex_alias(struct TextBlocksQueue *input_q, char *orig, struct alias_data *a);
-int perform_alias(DESCRIPTOR_DATA *d, char *orig);
+int perform_alias(DescriptorData *d, char *orig);
 int reserved_word(const char *argument);
 int _parse_name(char *arg, char *name);
-void add_logon_record(DESCRIPTOR_DATA *d);
+void add_logon_record(DescriptorData *d);
 // prototypes for all do_x functions.
 int find_action(char *cmd);
 int do_social(CHAR_DATA *ch, char *argument);
@@ -1399,7 +1399,7 @@ void do_alias(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_ALIASES(ch) = a;
 			send_to_char("Алиас успешно добавлен.\r\n", ch);
 		}
-		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+		WAIT_STATE(ch, 1 * kPulseViolence);
 		write_aliases(ch);
 	}
 }
@@ -1470,7 +1470,7 @@ void perform_complex_alias(struct TextBlocksQueue *input_q, char *orig, struct a
  *   1: String was _not_ modified in place; rather, the expanded aliases
  *      have been placed at the front of the character's input queue.
  */
-int perform_alias(DESCRIPTOR_DATA *d, char *orig) {
+int perform_alias(DescriptorData *d, char *orig) {
 	char first_arg[kMaxInputLength], *ptr;
 	struct alias_data *a, *tmp;
 
@@ -1813,8 +1813,8 @@ enum Mode {
  * XXX: Make immortals 'return' instead of being disconnected when switched
  *      into person returns.  This function seems a bit over-extended too.
  */
-int perform_dupe_check(DESCRIPTOR_DATA *d) {
-	DESCRIPTOR_DATA *k, *next_k;
+int perform_dupe_check(DescriptorData *d) {
+	DescriptorData *k, *next_k;
 	Mode mode = UNDEFINED;
 
 	int id = GET_IDNUM(d->character);
@@ -1978,7 +1978,7 @@ int pre_help(CHAR_DATA *ch, char *arg) {
 // вобщем флажок для зареганных ип, потому что при очередной автопроверке, если превышен
 // лимит коннектов с ип - сядут все сместе, что выглядит имхо странно, может там комп новый воткнули
 // и просто еще до иммов не достучались лимит поднять... вобщем сидит тот, кто не успел Ж)
-int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
+int check_dupes_host(DescriptorData *d, bool autocheck = 0) {
 	if (!d->character || IS_IMMORTAL(d->character))
 		return 1;
 
@@ -1994,7 +1994,7 @@ int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
 		}
 	}
 
-	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next) {
+	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		if (i != d
 			&& i->ip == d->ip
 			&& i->character
@@ -2037,7 +2037,7 @@ int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0) {
 	return 1;
 }
 
-int check_dupes_email(DESCRIPTOR_DATA *d) {
+int check_dupes_email(DescriptorData *d) {
 	if (!d->character
 		|| IS_IMMORTAL(d->character)) {
 		return (1);
@@ -2060,7 +2060,7 @@ int check_dupes_email(DESCRIPTOR_DATA *d) {
 	return 1;
 }
 
-void add_logon_record(DESCRIPTOR_DATA *d) {
+void add_logon_record(DescriptorData *d) {
 	log("Enter logon list");
 	// Добавляем запись в LOG_LIST
 	d->character->get_account()->add_login(std::string(d->host));
@@ -2099,7 +2099,7 @@ void check_religion(CHAR_DATA *ch) {
 	}
 }
 
-void do_entergame(DESCRIPTOR_DATA *d) {
+void do_entergame(DescriptorData *d) {
 	int load_room, cmd, flag = 0;
 
 	d->character->reset();
@@ -2306,7 +2306,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 	//нефиг левыми скиллами размахивать если не имм
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto i : AVAILABLE_SKILLS) {
-			if (skill_info[i].classknow[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)] != KNOW_SKILL) {
+			if (skill_info[i].classknow[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)] != kKnowSkill) {
 				d->character->set_skill(i, 0);
 			}
 		}
@@ -2414,7 +2414,7 @@ void do_entergame(DESCRIPTOR_DATA *d) {
 //Все это засунуто в одну функцию для того
 //Чтобы в случае некорректности сразу нескольких параметров
 //Они все были корректно обработаны
-bool ValidateStats(DESCRIPTOR_DATA *d) {
+bool ValidateStats(DescriptorData *d) {
 	//Требуется рерол статов
 	if (!GloryMisc::check_stats(d->character.get())) {
 		return false;
@@ -2450,7 +2450,7 @@ bool ValidateStats(DESCRIPTOR_DATA *d) {
 	return true;
 }
 
-void DoAfterPassword(DESCRIPTOR_DATA *d) {
+void DoAfterPassword(DescriptorData *d) {
 	int load_result;
 
 	// Password was correct.
@@ -2536,7 +2536,7 @@ void DoAfterPassword(DESCRIPTOR_DATA *d) {
 	STATE(d) = CON_RMOTD;
 }
 
-void CreateChar(DESCRIPTOR_DATA *d) {
+void CreateChar(DescriptorData *d) {
 	if (d->character) {
 		return;
 	}
@@ -2662,7 +2662,7 @@ int create_entry(PlayerIndexElement &element) {
 	return static_cast<int>(player_table.append(element));
 }
 
-void DoAfterEmailConfirm(DESCRIPTOR_DATA *d) {
+void DoAfterEmailConfirm(DescriptorData *d) {
 	PlayerIndexElement element(-1, GET_PC_NAME(d->character));
 
 	// Now GET_NAME() will work properly.
@@ -2712,7 +2712,7 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d) {
                                 "\xd0\xb0\xd0\xb7\xd0\xb1\xd1\x83\xd0\xba\xd0\xb0: "\
                                 "\"\xd0\xb0\xd0\xb1\xd0\xb2...\xd1\x8d\xd1\x8e\xd1\x8f\"."
 
-static void ShowEncodingPrompt(DESCRIPTOR_DATA *d, bool withHints = false) {
+static void ShowEncodingPrompt(DescriptorData *d, bool withHints = false) {
 	if (withHints) {
 		SEND_TO_Q(
 			"\r\n"
@@ -2745,7 +2745,7 @@ static void ShowEncodingPrompt(DESCRIPTOR_DATA *d, bool withHints = false) {
 }
 
 // deal with newcomers and other non-playing sockets
-void nanny(DESCRIPTOR_DATA *d, char *arg) {
+void nanny(DescriptorData *d, char *arg) {
 	char buf[kMaxStringLength];
 	int player_i = 0, load_result;
 	char tmp_name[kMaxInputLength], pwd_name[kMaxInputLength], pwd_pwd[kMaxInputLength];
@@ -3583,7 +3583,7 @@ void nanny(DESCRIPTOR_DATA *d, char *arg) {
 					SEND_TO_Q("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 					SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
 
-					d->writer.reset(new DelegatedStdStringWriter(d->character->player_data.description));
+					d->writer.reset(new utils::DelegatedStdStringWriter(d->character->player_data.description));
 					d->max_str = kExdscrLength;
 					STATE(d) = CON_EXDESC;
 
@@ -4044,8 +4044,8 @@ bool CompareParam(const std::string &buffer, const std::string &buffer2, bool fu
 }
 
 // ищет дескриптор игрока(онлайн состояние) по его УИДу
-DESCRIPTOR_DATA *DescByUID(int uid) {
-	DESCRIPTOR_DATA *d = 0;
+DescriptorData *DescByUID(int uid) {
+	DescriptorData *d = 0;
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->character && GET_UNIQUE(d->character) == uid)
@@ -4058,8 +4058,8 @@ DESCRIPTOR_DATA *DescByUID(int uid) {
 * \param id - ид, который ищем
 * \param playing - 0 если ищем игрока в любом состоянии, 1 (дефолт) если ищем только незанятых
 */
-DESCRIPTOR_DATA *get_desc_by_id(long id, bool playing) {
-	DESCRIPTOR_DATA *d = 0;
+DescriptorData *get_desc_by_id(long id, bool playing) {
+	DescriptorData *d = 0;
 
 	if (playing) {
 		for (d = descriptor_list; d; d = d->next)
@@ -4187,7 +4187,7 @@ bool single_god_invoice(CHAR_DATA *ch) {
 
 // * Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут
 void god_work_invoice() {
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character && STATE(d) == CON_PLAYING) {
 			if (IS_IMMORTAL(d->character)
 				|| GET_GOD_FLAG(d->character, GF_DEMIGOD)) {

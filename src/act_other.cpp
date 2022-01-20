@@ -65,7 +65,7 @@
 #include <iomanip>
 
 // extern variables
-/*extern DESCRIPTOR_DATA *descriptor_list;
+/*extern DescriptorData *descriptor_list;
 extern IndexData *mob_index;*/
 extern char const *class_abbrevs[];
 //extern int max_filesize;
@@ -129,7 +129,7 @@ void do_antigods(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 }
 
 void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	DESCRIPTOR_DATA *d, *next_d;
+	DescriptorData *d, *next_d;
 
 	if (IS_NPC(ch) || !ch->desc)
 		return;
@@ -214,7 +214,7 @@ void do_save(CHAR_DATA *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
 	// Only tell the char we're saving if they actually typed "save"
 	if (cmd) {
 		send_to_char("Сохраняю игрока, синонимы и вещи.\r\n", ch);
-		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
+		WAIT_STATE(ch, 3 * kPulseViolence);
 	}
 	write_aliases(ch);
 	ch->save_char();
@@ -642,7 +642,7 @@ void go_steal(CHAR_DATA *ch, CHAR_DATA *vict, char *obj_name) {
 			ImproveSkill(ch, SKILL_STEAL, 0, vict);
 	}
 	if (!WAITLESS(ch) && ohoh)
-		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
+		WAIT_STATE(ch, 3 * kPulseViolence);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && IS_NPC(vict) && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
 		hit(vict, ch, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
@@ -1162,7 +1162,7 @@ void print_group(CHAR_DATA *ch) {
 				if (PRF_FLAGGED(ch, PRF_NOCLONES)
 					&& IS_NPC(f->ch)
 					&& (MOB_FLAGGED(f->ch, MOB_CLONE)
-						|| GET_MOB_VNUM(f->ch) == MOB_KEEPER)) {
+						|| GET_MOB_VNUM(f->ch) == kMobKeeper)) {
 					continue;
 				}
 
@@ -1183,7 +1183,7 @@ void print_group(CHAR_DATA *ch) {
 				if (PRF_FLAGGED(ch, PRF_NOCLONES)
 					&& IS_NPC(g->ch)
 					&& (MOB_FLAGGED(g->ch, MOB_CLONE)
-						|| GET_MOB_VNUM(g->ch) == MOB_KEEPER)) {
+						|| GET_MOB_VNUM(g->ch) == kMobKeeper)) {
 					continue;
 				}
 

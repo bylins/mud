@@ -230,7 +230,7 @@ void postmaster_send_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int/* cmd*/, char *
 	PLR_FLAGS(ch).set(PLR_MAILING);    // string_write() sets writing.
 
 	// Start writing!
-	AbstractStringWriter::shared_ptr writer(new StdStringWriter());
+	utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
 	string_write(ch->desc, writer, MAX_MAIL_SIZE, recipient, nullptr);
 }
 
@@ -399,7 +399,7 @@ void print_notices() {
 		if (!has_mail(*i)) {
 			continue;
 		}
-		DESCRIPTOR_DATA *d = DescByUID(*i);
+		DescriptorData *d = DescByUID(*i);
 		if (d) {
 			send_to_char(d->character.get(),
 						 "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",

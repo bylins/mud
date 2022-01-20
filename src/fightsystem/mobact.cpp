@@ -941,7 +941,7 @@ void extract_charmice(CHAR_DATA *ch) {
 
 void mobile_activity(int activity_level, int missed_pulses) {
 	int door, max, was_in = -1, activity_lev, i, ch_activity;
-	int std_lev = activity_level % PULSE_MOBILE;
+	int std_lev = activity_level % kPulseMobile;
 
 	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr &ch) {
 		if (!IS_MOB(ch)
@@ -968,7 +968,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		if (ch->mob_specials.speed <= 0) {
 			activity_lev = std_lev;
 		} else {
-			activity_lev = activity_level % (ch->mob_specials.speed RL_SEC);
+			activity_lev = activity_level % (ch->mob_specials.speed*kRealSec);
 		}
 
 		ch_activity = GET_ACTIVITY(ch);

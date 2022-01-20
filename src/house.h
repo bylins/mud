@@ -201,7 +201,7 @@ class Clan {
 	bool is_clan_member(int unique);//Возвращает true если чар с данным unique в клане
 	bool is_alli_member(int unique);//Возвращает true если чар с данным unique в альянсе
 
-	void Manage(DESCRIPTOR_DATA *d, const char *arg);
+	void Manage(DescriptorData *d, const char *arg);
 	void AddTopExp(CHAR_DATA *ch, int add_exp);
 
 	const char *GetAbbrev() { return this->abbrev.c_str(); };
@@ -335,9 +335,9 @@ class Clan {
 	void house_web_url(CHAR_DATA *ch, const std::string &buffer);
 
 	// house аля олц
-	void MainMenu(DESCRIPTOR_DATA *d);
-	void PrivilegeMenu(DESCRIPTOR_DATA *d, unsigned num);
-	void AllMenu(DESCRIPTOR_DATA *d, unsigned flag);
+	void MainMenu(DescriptorData *d);
+	void PrivilegeMenu(DescriptorData *d, unsigned num);
+	void AllMenu(DescriptorData *d, unsigned flag);
 	void GodToChannel(CHAR_DATA *ch, std::string text, int subcmd);
 	void CharToChannel(CHAR_DATA *ch, std::string text, int subcmd);
 

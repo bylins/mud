@@ -146,7 +146,7 @@ void init_make_items() {
 	make_recepts.load();
 }
 // Парсим ввод пользователя в меню правки рецепта
-void mredit_parse(DESCRIPTOR_DATA *d, char *arg) {
+void mredit_parse(DescriptorData *d, char *arg) {
 	string sagr = string(arg);
 	char tmpbuf[kMaxInputLength];
 	string tmpstr;
@@ -363,7 +363,7 @@ void mredit_parse(DESCRIPTOR_DATA *d, char *arg) {
 // Входим в режим редактирования рецептов для предметов.
 void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	string tmpstr;
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	char tmpbuf[kMaxInputLength];
 	MakeRecept *trec;
 
@@ -406,7 +406,7 @@ void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // Отображение меню параметров ингридиента.
-void mredit_disp_ingr_menu(DESCRIPTOR_DATA *d) {
+void mredit_disp_ingr_menu(DescriptorData *d) {
 	// Рисуем меню ...
 	MakeRecept *trec;
 	string objname, ingrname, tmpstr;
@@ -446,7 +446,7 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA *d) {
 }
 
 // Отображение главного меню.
-void mredit_disp_menu(DESCRIPTOR_DATA *d) {
+void mredit_disp_menu(DescriptorData *d) {
 	// Рисуем меню ...
 	MakeRecept *trec;
 	char tmpbuf[kMaxInputLength];

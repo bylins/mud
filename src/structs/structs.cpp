@@ -84,32 +84,4 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 	return true;
 }
 
-void DelegatedStringWriter::set_string(const char *string) {
-	const size_t l = strlen(string);
-	if (nullptr == m_delegated_string_) {
-		CREATE(m_delegated_string_, l + 1);
-	} else {
-		RECREATE(m_delegated_string_, l + 1);
-	}
-	strcpy(m_delegated_string_, string);
-}
-
-void DelegatedStringWriter::append_string(const char *string) {
-	const size_t l = length() + strlen(string);
-	if (nullptr == m_delegated_string_) {
-		CREATE(m_delegated_string_, l + 1);
-		*m_delegated_string_ = '\0';
-	} else {
-		RECREATE(m_delegated_string_, l + 1);
-	}
-	strcat(m_delegated_string_, string);
-}
-
-void DelegatedStringWriter::clear() {
-	if (m_delegated_string_) {
-		free(m_delegated_string_);
-	}
-	m_delegated_string_ = nullptr;
-}
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

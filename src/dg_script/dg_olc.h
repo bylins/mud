@@ -19,15 +19,15 @@
 
 #include "dg_scripts.h"
 
-struct DESCRIPTOR_DATA;
+struct DescriptorData;
 
 // prototype exported functions from trigedit.cpp
 //void script_copy(void *dst, void *src, int type);
 void script_save_to_disk(FILE *fp, const void *item, int type);
-//void dg_olc_script_free(DESCRIPTOR_DATA *d);
-void dg_olc_script_copy(DESCRIPTOR_DATA *d);
-void dg_script_menu(DESCRIPTOR_DATA *d);
-int dg_script_edit_parse(DESCRIPTOR_DATA *d, char *arg);
+//void dg_olc_script_free(DescriptorData *d);
+void dg_olc_script_copy(DescriptorData *d);
+void dg_script_menu(DescriptorData *d);
+int dg_script_edit_parse(DescriptorData *d, char *arg);
 void indent_trigger(std::string &cmd, int *level);
 
 // define the largest set of commands for as trigger

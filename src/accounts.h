@@ -53,14 +53,14 @@ class Account {
 	int zero_hryvn(CHAR_DATA *ch, int val);
 	void complete_quest(int id);
 	static const std::shared_ptr<Account> get_account(const std::string &email);
-	void show_list_players(DESCRIPTOR_DATA *d);
+	void show_list_players(DescriptorData *d);
 	void add_player(int uid);
 	void remove_player(int uid);
 	time_t get_last_login();
 	void set_last_login();
 	void set_password(const std::string &password);
 	bool compare_password(const std::string &password);
-	void show_history_logins(DESCRIPTOR_DATA *d);
+	void show_history_logins(DescriptorData *d);
 	void add_login(const std::string &ip_addr);
 };
 

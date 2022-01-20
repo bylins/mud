@@ -79,7 +79,7 @@
 #include "utils/utils.h"
 #include "utils/id_converter.h"
 #include "world_objects.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "classes/class_constants.h"
 #include "magic/spells_info.h"
 #include "magic/magic_rooms.h"
@@ -100,7 +100,7 @@ using std::fstream;
 extern bool need_warn;
 extern FILE *player_fl;
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern IndexData *mob_index;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
@@ -118,7 +118,7 @@ extern unsigned long int number_of_bytes_written;
 // for entities
 extern const char *pc_class_types[];
 extern struct spellInfo_t spell_info[];
-extern int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0);
+extern int check_dupes_host(DescriptorData *d, bool autocheck = 0);
 extern bool CompareBits(const FLAG_DATA &flags, const char *names[], int affect);    // to avoid inclusion of utils.h
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void log_zone_count_reset();
@@ -278,7 +278,7 @@ void do_overstuff(CHAR_DATA *ch, char *, int, int) {
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
 void send_to_gods(char *text, bool demigod) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		// Чар должен быть в игре
 		if (STATE(d) == CON_PLAYING) {
@@ -870,7 +870,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 }
 
 void is_empty_ch(ZoneRnum zone_nr, CHAR_DATA *ch) {
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 	int rnum_start, rnum_stop;
 	bool found = false;
 
@@ -987,9 +987,9 @@ void setall_inspect() {
 		return;
 	SetAllInspReqListType::iterator it = setall_inspect_list.begin();
 	CHAR_DATA *ch = 0;
-	DESCRIPTOR_DATA *d_vict = 0;
+	DescriptorData *d_vict = 0;
 
-	DESCRIPTOR_DATA *imm_d = DescByUID(player_table[it->first].unique);
+	DescriptorData *imm_d = DescByUID(player_table[it->first].unique);
 	if (!imm_d
 		|| (STATE(imm_d) != CON_PLAYING)
 		|| !(ch = imm_d->character.get())) {
@@ -1006,7 +1006,7 @@ void setall_inspect() {
 		vict = new Player;
 		gettimeofday(&stop, nullptr);
 		timediff(&result, &stop, &start);
-		if (result.tv_sec > 0 || result.tv_usec >= OPT_USEC) {
+		if (result.tv_sec > 0 || result.tv_usec >= kOptUsec) {
 			delete vict;
 			return;
 		}
@@ -1910,7 +1910,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // отправка сообщения вообще всем
 void send_to_all(char *buffer) {
-	DESCRIPTOR_DATA *pt;
+	DescriptorData *pt;
 	for (pt = descriptor_list; pt; pt = pt->next) {
 		if (STATE(pt) == CON_PLAYING && pt->character) {
 			send_to_char(buffer, pt->character.get());
@@ -2089,7 +2089,7 @@ void inspecting() {
 	InspReqListType::iterator it = inspect_list.begin();
 
 	CHAR_DATA *ch = 0;
-	DESCRIPTOR_DATA *d_vict = 0;
+	DescriptorData *d_vict = 0;
 
 	//если нет дескриптора или он где-то там по меню шарица, то запрос отменяется
 	if (!(d_vict = DescByUID(player_table[it->first].unique))
@@ -2109,7 +2109,7 @@ void inspecting() {
 	for (; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++) {
 		gettimeofday(&stop, nullptr);
 		timediff(&result, &stop, &start);
-		if (result.tv_sec > 0 || result.tv_usec >= OPT_USEC) {
+		if (result.tv_sec > 0 || result.tv_usec >= kOptUsec) {
 			return;
 		}
 
@@ -2265,7 +2265,7 @@ void inspecting() {
 
 //added by WorM Команда для поиска чаров с одинаковым(похожим) mail и/или ip
 void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d_vict = 0;
+	DescriptorData *d_vict = 0;
 	int i = 0;
 
 	if (ch->get_pfilepos() < 0)
@@ -2649,7 +2649,7 @@ void do_invis(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_gecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *pt;
+	DescriptorData *pt;
 
 	skip_spaces(&argument);
 	delete_doubledollar(argument);
@@ -2699,7 +2699,7 @@ void do_poofset(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	int num_to_dc;
 	one_argument(argument, arg);
 	if (!(num_to_dc = atoi(arg))) {
@@ -2843,7 +2843,7 @@ void do_last(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *i, *next_desc;
+	DescriptorData *i, *next_desc;
 	char to_force[kMaxInputLength + 2];
 
 	half_chop(argument, arg, to_force);
@@ -2914,7 +2914,7 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_sdemigod(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	// убираем пробелы
 	skip_spaces(&argument);
 
@@ -2945,7 +2945,7 @@ void do_sdemigod(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	char emote = false;
 	char bookmark1 = false;
 	char bookmark2 = false;
@@ -3394,7 +3394,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ZoneVnum zvn;
 	char self = 0;
 	CHAR_DATA *vict;
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	char field[kMaxInputLength], value[kMaxInputLength], value1[kMaxInputLength];
 	// char bf[kMaxExtendLength];
 	char *bf = nullptr;
@@ -5138,8 +5138,8 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 	}
 
-	for (m = 0; m < t * PASSES_PER_SEC; m++) {
-		GlobalObjects::heartbeat()(t * PASSES_PER_SEC - m);
+	for (m = 0; m < t * kPassesPerSec; m++) {
+		GlobalObjects::heartbeat()(t * kPassesPerSec - m);
 	}
 
 	send_to_char(ch, "Вы перевели игровое время на %d сек вперед.\r\n", t);

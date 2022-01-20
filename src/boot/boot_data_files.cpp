@@ -12,7 +12,7 @@
 //#include "entities/entity_constants.h"
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "magic/spells_info.h"
 
 #include <regex>

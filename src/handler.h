@@ -19,7 +19,7 @@
 
 #include "entities/char.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
-#include "utils/flags.hpp"
+#include "structs/flags.hpp"
 
 struct ROOM_DATA;
 

@@ -33,7 +33,7 @@
 #include "screen.h"
 #include "magic/magic_utils.h"
 #include "world_objects.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "classes/class_spell_slots.h"
 #include "magic/magic_rooms.h"
 
@@ -51,7 +51,7 @@ void perform_drop_gold(CHAR_DATA *ch, int amount);
 int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj);
 int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj);
 int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-void do_entergame(DESCRIPTOR_DATA *d);
+void do_entergame(DescriptorData *d);
 void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern std::vector<City> cities;
 extern int global_uid;
@@ -1853,7 +1853,7 @@ void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset) {
 		return;
 	}
 
-	DESCRIPTOR_DATA *t_desc;
+	DescriptorData *t_desc;
 	int i;
 
 	if (MOB_FLAGGED(ch, MOB_FREE)

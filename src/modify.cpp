@@ -42,7 +42,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
-void show_string(DESCRIPTOR_DATA *d, char *input);
+void show_string(DescriptorData *d, char *input);
 
 #define PARSE_FORMAT      0
 #define PARSE_REPLACE     1
@@ -61,7 +61,7 @@ void smash_tilde(char *str);
 void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 char *next_page(char *str, CHAR_DATA *ch);
 int count_pages(char *str, CHAR_DATA *ch);
-void paginate_string(char *str, DESCRIPTOR_DATA *d);
+void paginate_string(char *str, DescriptorData *d);
 
 const char *string_fields[] =
 	{
@@ -114,11 +114,8 @@ void smash_tilde(char *str) {
  * else you may want through it.  The improved editor patch when updated
  * could use it to pass the old text buffer, for instance.
  */
-void string_write(DESCRIPTOR_DATA *d,
-				  const AbstractStringWriter::shared_ptr &writer,
-				  size_t len,
-				  int mailto,
-				  void *data) {
+void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_ptr &writer,
+				  size_t len, int mailto, void *data) {
 	if (d->character && !IS_NPC(d->character)) {
 		PLR_FLAGS(d->character).set(PLR_WRITING);
 	}
@@ -133,7 +130,7 @@ void string_write(DESCRIPTOR_DATA *d,
 }
 
 // * Handle some editor commands.
-void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
+void parse_action(int command, char *string, DescriptorData *d) {
 	int indent = 0, rep_all = 0, flags = 0, replaced;
 	int j = 0;
 	int i, line_low, line_high;
@@ -536,7 +533,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA *d) {
 }
 
 // Add user input to the 'current' string (as defined by d->str) //
-void string_add(DESCRIPTOR_DATA *d, char *str) {
+void string_add(DescriptorData *d, char *str) {
 	int terminator = 0, action = 0;
 	int i = 2, j = 0;
 	char actions[kMaxInputLength];
@@ -655,16 +652,16 @@ void string_add(DESCRIPTOR_DATA *d, char *str) {
 	}
 
 	if (terminator) {    // OLC Edits
-		extern void oedit_disp_menu(DESCRIPTOR_DATA *d);
-		extern void oedit_disp_extradesc_menu(DESCRIPTOR_DATA *d);
-		extern void redit_disp_menu(DESCRIPTOR_DATA *d);
-		extern void redit_disp_extradesc_menu(DESCRIPTOR_DATA *d);
-		extern void redit_disp_exit_menu(DESCRIPTOR_DATA *d);
-		extern void medit_disp_menu(DESCRIPTOR_DATA *d);
-		extern void trigedit_disp_menu(DESCRIPTOR_DATA *d);
+		extern void oedit_disp_menu(DescriptorData *d);
+		extern void oedit_disp_extradesc_menu(DescriptorData *d);
+		extern void redit_disp_menu(DescriptorData *d);
+		extern void redit_disp_extradesc_menu(DescriptorData *d);
+		extern void redit_disp_exit_menu(DescriptorData *d);
+		extern void medit_disp_menu(DescriptorData *d);
+		extern void trigedit_disp_menu(DescriptorData *d);
 
 #if defined(OASIS_MPROG)
-		extern void medit_change_mprog(DESCRIPTOR_DATA * d);
+		extern void medit_change_mprog(DescriptorData * d);
 
 		if (STATE(d) == CON_MEDIT)
 		{
@@ -1172,7 +1169,7 @@ int count_pages(char *str, CHAR_DATA *ch) {
  * page_string function, after showstr_vector has been allocated and
  * showstr_count set.
  */
-void paginate_string(char *str, DESCRIPTOR_DATA *d) {
+void paginate_string(char *str, DescriptorData *d) {
 	int i;
 
 	if (d->showstr_count) {
@@ -1187,7 +1184,7 @@ void paginate_string(char *str, DESCRIPTOR_DATA *d) {
 }
 
 // The call that gets the paging ball rolling...
-void page_string(DESCRIPTOR_DATA *d, char *str, int keep_internal) {
+void page_string(DescriptorData *d, char *str, int keep_internal) {
 	if (!d)
 		return;
 
@@ -1210,7 +1207,7 @@ void page_string(DESCRIPTOR_DATA *d, char *str, int keep_internal) {
 }
 
 // TODO типа временно для стрингов
-void page_string(DESCRIPTOR_DATA *d, const std::string &buf) {
+void page_string(DescriptorData *d, const std::string &buf) {
 	// TODO: при keep_internal == true (а в 99% случаев так оно есть)
 	// получаем дальше в page_string повторный str_dup.
 	// как бы собраться с силами и переписать все это :/
@@ -1220,7 +1217,7 @@ void page_string(DESCRIPTOR_DATA *d, const std::string &buf) {
 }
 
 // The call that displays the next page.
-void show_string(DESCRIPTOR_DATA *d, char *input) {
+void show_string(DescriptorData *d, char *input) {
 	char buffer[kMaxStringLength];
 	int diff;
 
@@ -1287,7 +1284,7 @@ void show_string(DESCRIPTOR_DATA *d, char *input) {
 /// 2) после последней страницы не ждать втихую нажатия от игрока, а вывести меню текущего CON_STATE
 /// 3) напечатать тоже самое при выходе из пролистывания через Q/К
 ///
-void print_con_prompt(DESCRIPTOR_DATA *d) {
+void print_con_prompt(DescriptorData *d) {
 	if (d->showstr_count) {
 		return;
 	}

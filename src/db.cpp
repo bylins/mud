@@ -70,6 +70,7 @@
 #include "title.h"
 #include "top.h"
 //#include "magic/magic_rooms.h"
+//#include "skills.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
 
@@ -121,7 +122,7 @@ void load_speedwalk();
 void load_class_limit();
 int global_uid = 0;
 
-struct AttackMessages fight_messages[kMaxMessages];    // fighting messages
+//extern struct AttackMessages fight_messages[kMaxMessages];    // fighting messages
 PlayersIndex &player_table = GlobalObjects::player_table();    // index to plr file
 
 bool player_exists(const long id) { return player_table.player_exists(id); }
@@ -237,7 +238,7 @@ extern RoomVnum frozen_start_room;
 extern RoomVnum helled_start_room;
 extern RoomVnum named_start_room;
 extern RoomVnum unreg_start_room;
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern struct month_temperature_type year_temp[];
 extern const char *pc_class_types[];
 extern char *house_rank[];
@@ -2073,7 +2074,7 @@ bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void load_messages(void) {
+void load_messages() {
 	FILE *fl;
 	int i, type;
 	struct AttackMsgSet *messages;
@@ -2086,7 +2087,7 @@ void load_messages(void) {
 	for (i = 0; i < kMaxMessages; i++) {
 		fight_messages[i].attack_type = 0;
 		fight_messages[i].number_of_attacks = 0;
-		fight_messages[i].msg = 0;
+		fight_messages[i].msg = nullptr;
 	}
 
 	const char *dummyc = fgets(chk, 128, fl);
@@ -3522,7 +3523,7 @@ CHAR_DATA *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	GET_HORSESTATE(mob) = 800;
 	GET_LASTROOM(mob) = kNowhere;
 	if (mob->mob_specials.speed <= -1)
-		GET_ACTIVITY(mob) = number(0, PULSE_MOBILE - 1);
+		GET_ACTIVITY(mob) = number(0, kPulseMobile - 1);
 	else
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
 	EXTRACT_TIMER(mob) = 0;
@@ -3603,10 +3604,10 @@ void zone_update(void) {
 	static int timer = 0;
 
 	// jelson 10/22/92
-	if (((++timer * PULSE_ZONE) / PASSES_PER_SEC) >= 60)    // one minute has passed
+	if (((++timer * kPulseZone) / kPassesPerSec) >= 60)    // one minute has passed
 	{
 		/*
-		 * NOT accurate unless PULSE_ZONE is a multiple of PASSES_PER_SEC or a
+		 * NOT accurate unless kPulseZone is a multiple of kPassesPerSec or a
 		 * factor of 60
 		 */
 
@@ -3641,7 +3642,7 @@ void zone_update(void) {
 
 	// end - one minute has passed
 	// dequeue zones (if possible) and reset
-	// this code is executed every 10 seconds (i.e. PULSE_ZONE)
+	// this code is executed every 10 seconds (i.e. kPulseZone)
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
@@ -3683,7 +3684,7 @@ void zone_update(void) {
 
 			free(update_u);
 			k++;
-			if (k >= ZONES_RESET)
+			if (k >= kZonesReset)
 				break;
 		}
 }
@@ -4958,7 +4959,7 @@ int load_char(const char *name, CHAR_DATA *char_element, bool reboot, const bool
  */
 int file_to_string_alloc(const char *name, char **buf) {
 	char temp[kMaxExtendLength];
-	DESCRIPTOR_DATA *in_use;
+	DescriptorData *in_use;
 
 	for (in_use = descriptor_list; in_use; in_use = in_use->next) {
 		if (in_use->showstr_vector && *in_use->showstr_vector == *buf) {
@@ -5781,7 +5782,7 @@ void init() {
 		block_list.push_back(buffer);
 	}
 
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character) {
 			set_flag(d->character.get());
 		}

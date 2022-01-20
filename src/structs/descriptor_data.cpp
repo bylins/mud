@@ -11,57 +11,57 @@
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"
 
-DESCRIPTOR_DATA::DESCRIPTOR_DATA() : bad_pws(0),
-									 idle_tics(0),
-									 connected(0),
-									 desc_num(0),
-									 input_time(0),
-									 login_time(0),
-									 showstr_head(nullptr),
-									 showstr_vector(nullptr),
-									 showstr_count(0),
-									 showstr_page(0),
-									 max_str(0),
-									 backstr(nullptr),
-									 mail_to(0),
-									 has_prompt(0),
-									 output(nullptr),
-									 history(nullptr),
-									 history_pos(0),
-									 bufptr(0),
-									 bufspace(0),
-									 large_outbuf(nullptr),
-									 character(nullptr),
-									 original(nullptr),
-									 snooping(nullptr),
-									 snoop_by(nullptr),
-									 next(),
-									 olc(nullptr),
-									 keytable(0),
-									 options(0),
-									 deflate(nullptr),
-									 mccp_version(0),
-									 ip(0),
-									 registered_email(false),
-									 pers_log(nullptr),
-									 cur_vnum(0),
-									 old_vnum(0),
-									 snoop_with_map(false),
-									 m_msdp_support(false),
-									 m_msdp_last_max_hit(0),
-									 m_msdp_last_max_move(0) {
+DescriptorData::DescriptorData() : bad_pws(0),
+								   idle_tics(0),
+								   connected(0),
+								   desc_num(0),
+								   input_time(0),
+								   login_time(0),
+								   showstr_head(nullptr),
+								   showstr_vector(nullptr),
+								   showstr_count(0),
+								   showstr_page(0),
+								   max_str(0),
+								   backstr(nullptr),
+								   mail_to(0),
+								   has_prompt(0),
+								   output(nullptr),
+								   history(nullptr),
+								   history_pos(0),
+								   bufptr(0),
+								   bufspace(0),
+								   large_outbuf(nullptr),
+								   character(nullptr),
+								   original(nullptr),
+								   snooping(nullptr),
+								   snoop_by(nullptr),
+								   next(),
+								   olc(nullptr),
+								   keytable(0),
+								   options(0),
+								   deflate(nullptr),
+								   mccp_version(0),
+								   ip(0),
+								   registered_email(false),
+								   pers_log(nullptr),
+								   cur_vnum(0),
+								   old_vnum(0),
+								   snoop_with_map(false),
+								   m_msdp_support(false),
+								   m_msdp_last_max_hit(0),
+								   m_msdp_last_max_move(0) {
 	host[0] = 0;
 	inbuf[0] = 0;
 	last_input[0] = 0;
 	small_outbuf[0] = 0;
 }
 
-void DESCRIPTOR_DATA::msdp_support(bool on) {
+void DescriptorData::msdp_support(bool on) {
 	log("INFO: MSDP support enabled for client %s.\n", host);
 	m_msdp_support = on;
 }
 
-void DESCRIPTOR_DATA::msdp_report(const std::string &name) {
+void DescriptorData::msdp_report(const std::string &name) {
 	if (m_msdp_support && msdp_need_report(name)) {
 		msdp::report(this, name);
 	}
@@ -69,7 +69,7 @@ void DESCRIPTOR_DATA::msdp_report(const std::string &name) {
 
 // Should be called periodically to update changing msdp variables.
 // this is mostly to overcome complication of hunting every possible place affect are added/removed to/from char.
-void DESCRIPTOR_DATA::msdp_report_changed_vars() {
+void DescriptorData::msdp_report_changed_vars() {
 	if (!m_msdp_support || !character) {
 		return;
 	}
@@ -85,7 +85,7 @@ void DESCRIPTOR_DATA::msdp_report_changed_vars() {
 	}
 }
 
-void DESCRIPTOR_DATA::string_to_client_encoding(const char *in_str, char *out_str) const {
+void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str) const {
 	switch (keytable) {
 		case kCodePageAlt: for (; *in_str; *out_str = KtoA(*in_str), in_str++, out_str++);
 			break;

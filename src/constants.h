@@ -116,7 +116,6 @@ extern const char *material_name[];
 extern struct attack_hit_type attack_hit_text[];
 extern const char *godslike_bits[];
 extern std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name;
-extern struct ZoneCategory *zone_types;
 
 //The number of changing coefficients (the others are unchanged)
 #define    MAX_EXP_COEFFICIENTS_USED 15

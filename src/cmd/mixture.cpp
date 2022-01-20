@@ -101,7 +101,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, true, tch)) {
 		if (!CalculateCastSuccess(ch, tch, SAVING_NONE, spellnum)) {
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			if (!tch || !SendSkillMessages(0, ch, tch, spellnum)) {
 				if (subcmd == SCMD_ITEMS)
 					send_to_char("Вы неправильно смешали ингредиенты!\r\n", ch);
@@ -111,7 +111,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			if (CallMagic(ch, tch, tobj, world[ch->in_room], spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
-					WAIT_STATE(ch, PULSE_VIOLENCE);
+					WAIT_STATE(ch, kPulseViolence);
 			}
 		}
 	}

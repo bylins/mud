@@ -9,9 +9,9 @@
 #include <boost/format.hpp>
 
 extern void add_karma(CHAR_DATA *ch, const char *punish, const char *reason);
-extern bool ValidateStats(DESCRIPTOR_DATA *d);
-extern int check_dupes_email(DESCRIPTOR_DATA *d);
-extern void do_entergame(DESCRIPTOR_DATA *d);
+extern bool ValidateStats(DescriptorData *d);
+extern int check_dupes_email(DescriptorData *d);
+extern void do_entergame(DescriptorData *d);
 
 namespace ResetStats {
 
@@ -114,7 +114,7 @@ void reset_stats(CHAR_DATA *ch, Type type) {
 ///
 /// Распечатка меню сброса характеристик
 ///
-void print_menu(DESCRIPTOR_DATA *d) {
+void print_menu(DescriptorData *d) {
 	const int stats_price = calc_price(d->character.get(), Type::MAIN_STATS);
 	const int race_price = calc_price(d->character.get(), Type::RACE);
 	const int feats_price = calc_price(d->character.get(), Type::FEATS);
@@ -139,7 +139,7 @@ void print_menu(DESCRIPTOR_DATA *d) {
 ///
 /// Обработка конкретного типа сброса характеристик из меню
 ///
-void process(DESCRIPTOR_DATA *d, Type type) {
+void process(DescriptorData *d, Type type) {
 	const auto &ch = d->character;
 	const int price = calc_price(ch.get(), type);
 
@@ -192,7 +192,7 @@ void process(DESCRIPTOR_DATA *d, Type type) {
 ///
 /// Обработка нажатий в меню сброса характеристик для выбора типа
 ///
-void parse_menu(DESCRIPTOR_DATA *d, const char *arg) {
+void parse_menu(DescriptorData *d, const char *arg) {
 	bool result = false;
 
 	if (arg && a_isdigit(*arg)) {

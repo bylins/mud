@@ -32,7 +32,7 @@ const int LOC_INVENTORY = 0;
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //
 
 extern IndexData *mob_index;
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;
 extern int free_rent;
@@ -2842,7 +2842,7 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 					GET_ROOM_VNUM(save_room));
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
 			mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+			WAIT_STATE(ch, 1 * kPulseViolence);
 			ch->save_char();
 		}
 	}
@@ -2858,7 +2858,7 @@ int cryogenicist(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 }
 
 void Crash_frac_save_all(int frac_part) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	for (d = descriptor_list; d; d = d->next) {
 		if ((STATE(d) == CON_PLAYING) && !IS_NPC(d->character) && GET_ACTIVITY(d->character) == frac_part) {
@@ -2870,7 +2870,7 @@ void Crash_frac_save_all(int frac_part) {
 }
 
 void Crash_save_all(void) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, PLR_CRASH)) {
 			Crash_crashsave(d->character.get());

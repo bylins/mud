@@ -18,7 +18,7 @@
 #include "screen.h"
 #include "mob_stat.h"
 #include "modify.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
 

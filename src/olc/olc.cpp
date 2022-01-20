@@ -28,33 +28,33 @@
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #include <vector>
 
 // * External data structures.
 extern CHAR_DATA *mob_proto;
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 
 // * External functions.
-void zedit_setup(DESCRIPTOR_DATA *d, int room_num);
+void zedit_setup(DescriptorData *d, int room_num);
 void zedit_save_to_disk(int zone);
 int zedit_new_zone(CHAR_DATA *ch, int new_zone);
-void medit_setup(DESCRIPTOR_DATA *d, int rmob_num);
+void medit_setup(DescriptorData *d, int rmob_num);
 void medit_save_to_disk(int zone);
-void redit_setup(DESCRIPTOR_DATA *d, int rroom_num);
+void redit_setup(DescriptorData *d, int rroom_num);
 void redit_save_to_disk(int zone);
-void oedit_setup(DESCRIPTOR_DATA *d, int robj_num);
+void oedit_setup(DescriptorData *d, int robj_num);
 void oedit_save_to_disk(int zone);
-void sedit_setup_new(DESCRIPTOR_DATA *d);
-void sedit_setup_existing(DESCRIPTOR_DATA *d, int robj_num);
+void sedit_setup_new(DescriptorData *d);
+void sedit_setup_existing(DescriptorData *d, int robj_num);
 void room_free(ROOM_DATA *room);
 void medit_mobile_free(CHAR_DATA *mob);
-void trigedit_setup_new(DESCRIPTOR_DATA *d);
-void trigedit_setup_existing(DESCRIPTOR_DATA *d, int rtrg_num);
+void trigedit_setup_new(DescriptorData *d);
+void trigedit_setup_existing(DescriptorData *d, int rtrg_num);
 int real_trigger(int vnum);
-void dg_olc_script_free(DESCRIPTOR_DATA *d);
+void dg_olc_script_free(DescriptorData *d);
 
 // Internal function prototypes.
 void olc_saveinfo(CHAR_DATA *ch);
@@ -116,7 +116,7 @@ olc_data::olc_data()
 void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	int number = -1, save = 0, real_num;
 	bool lock = 0, unlock = 0;
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	// * No screwing around as a mobile.
 	if (IS_NPC(ch))
@@ -393,7 +393,7 @@ void get_char_cols(CHAR_DATA *ch) {
 	iyel = CCIYEL(ch, C_NRM);
 	ired = CCIRED(ch, C_NRM);
 }
-void disp_planes_values(DESCRIPTOR_DATA *d, const char *names[], short num_column) {
+void disp_planes_values(DescriptorData *d, const char *names[], short num_column) {
 	int counter, column = 0, plane = 0;
 	char c;
 	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++) {
@@ -434,7 +434,7 @@ void strip_string(char *buffer) {
  * attatched to a descriptor, sets all flags back to how they
  * should be.
  */
-void cleanup_olc(DESCRIPTOR_DATA *d, byte cleanup_type) {
+void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 	if (d->olc) {
 
 		// Освободить редактируемый триггер
@@ -505,7 +505,7 @@ void cleanup_olc(DESCRIPTOR_DATA *d, byte cleanup_type) {
 	}
 }
 
-void xedit_disp_ing(DESCRIPTOR_DATA *d, int *ping) {
+void xedit_disp_ing(DescriptorData *d, int *ping) {
 	char str[128];
 	int i = 0;
 
@@ -521,7 +521,7 @@ void xedit_disp_ing(DESCRIPTOR_DATA *d, int *ping) {
 				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character.get());
 }
 
-int xparse_ing(DESCRIPTOR_DATA * /*d*/, int **pping, char *arg) {
+int xparse_ing(DescriptorData * /*d*/, int **pping, char *arg) {
 	switch (*arg) {
 		case 'у':
 		case 'У': ++arg;

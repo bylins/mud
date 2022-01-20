@@ -45,7 +45,7 @@ void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
 	SendSkillBalanceMsg(ch, skill_info[SKILL_RESCUE].name, percent, prob, success);
 	if (!success) {
 		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, TO_CHAR);
-		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, PULSE_VIOLENCE);
+		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, kPulseViolence);
 		return;
 	}
 

@@ -7,7 +7,7 @@
 #include "entities/char_player.h"
 #include "noob.h"
 #include "utils/utils_char_obj.inl"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #include "boost/multi_array.hpp"
 #include <boost/format.hpp>

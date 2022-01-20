@@ -155,7 +155,7 @@ set(SOURCES
 		src/structs/descriptor_data.cpp
         src/structs/structs.cpp
 		src/stuff.cpp
-		src/utils/flags.hpp
+        src/structs/flags.hpp
 		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
 		src/title.cpp
@@ -179,7 +179,7 @@ set(SOURCES
         src/structs/compact_trie.cpp
 		src/id.cpp
 		src/stigmas.cpp
-		src/zone.table.cpp
+		src/entities/zone.cpp
 		src/strengthening.cpp
 		src/skills/backstab.cpp
 		src/skills/bash.cpp
@@ -431,7 +431,7 @@ set(HEADERS
 		src/utils/xml_loading_helper.h
 		src/utils/utils_debug.h
 		src/stigmas.h
-		src/zone.table.h
+		src/entities/zone.h
 		src/skills/backstab.h
 		src/skills/bash.h
 		src/skills/stun.h

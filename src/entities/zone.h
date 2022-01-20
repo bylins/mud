@@ -5,6 +5,14 @@
 
 #include <vector>
 
+struct ZoneCategory {
+	char *name = nullptr;            // type name //
+	int ingr_qty = 0;        // quantity of ingredient types //
+	int *ingr_types = nullptr;    // types of ingredients, which are loaded in zones of this type //
+};
+
+extern struct ZoneCategory *zone_types;
+
 // zone definition structure. for the 'zone-table'
 class ZoneData {
  public:

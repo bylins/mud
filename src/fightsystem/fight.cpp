@@ -43,7 +43,7 @@ CHAR_DATA *next_combat_list = nullptr;
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
 extern CHAR_DATA *mob_proto;
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 // External procedures
 // void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void battle_affect_update(CHAR_DATA *ch);
@@ -210,10 +210,10 @@ void set_fighting(CHAR_DATA *ch, CHAR_DATA *vict) {
 	// раундов в большую сторону (для подножки, должно давать чару зазор в две
 	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
 	if (IS_NPC(ch) && GET_WAIT(ch) > 0) {
-//		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(PULSE_VIOLENCE));
-		auto tmp = div(ch->get_wait(), PULSE_VIOLENCE);
+//		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(kPulseViolence));
+		auto tmp = div(ch->get_wait(), kPulseViolence);
 		if (tmp.rem > 0) {
-			WAIT_STATE(ch, (tmp.quot + 1) * PULSE_VIOLENCE);
+			WAIT_STATE(ch, (tmp.quot + 1) * kPulseViolence);
 		}
 	}
 	if (!IS_NPC(ch) && (!ch->get_skill(SKILL_AWAKE))) {
@@ -1698,15 +1698,15 @@ void update_round_affs() {
 
 		if (GET_AF_BATTLE(ch, EAF_BLOCK)) {
 			CLR_AF_BATTLE(ch, EAF_BLOCK);
-			if (!WAITLESS(ch) && GET_WAIT(ch) < PULSE_VIOLENCE)
-				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+			if (!WAITLESS(ch) && GET_WAIT(ch) < kPulseViolence)
+				WAIT_STATE(ch, 1 * kPulseViolence);
 		}
 
 //		if (GET_AF_BATTLE(ch, EAF_DEVIATE))
 //		{
 //			CLR_AF_BATTLE(ch, EAF_DEVIATE);
-//			if (!WAITLESS(ch) && GET_WAIT(ch) < PULSE_VIOLENCE)
-//				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+//			if (!WAITLESS(ch) && GET_WAIT(ch) < kPulseViolence)
+//				WAIT_STATE(ch, 1 * kPulseViolence);
 //		}
 
 		if (GET_AF_BATTLE(ch, EAF_POISONED)) {
@@ -1869,7 +1869,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 			if (!(IS_IMMORTAL(ch)
 				|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 				|| CHECK_WAIT(ch))) {
-				WAIT_STATE(ch, PULSE_VIOLENCE);
+				WAIT_STATE(ch, kPulseViolence);
 			}
 			ch->set_cast(0, 0, 0, 0, 0);
 		}

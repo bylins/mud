@@ -32,7 +32,7 @@ void go_flee(CHAR_DATA *ch) {
 	}
 
 	if (!WAITLESS(ch))
-		WAIT_STATE(ch, PULSE_VIOLENCE);
+		WAIT_STATE(ch, kPulseViolence);
 
 	if (ch->ahorse() && (GET_POS(ch->get_horse()) < POS_FIGHTING || GET_MOB_HOLD(ch->get_horse()))) {
 		send_to_char("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
@@ -104,7 +104,7 @@ void go_dir_flee(CHAR_DATA *ch, int direction) {
 			}
 
 			if (!WAITLESS(ch)) {
-				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+				WAIT_STATE(ch, 1 * kPulseViolence);
 			}
 			return;
 		}

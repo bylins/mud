@@ -62,7 +62,7 @@
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"
 #include "heartbeat.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "db.h"
 #include "utils/utils.h"
 #include "skills_info.h"
@@ -375,7 +375,7 @@ extern void tact_auction(void);
 extern void log_code_date();
 
 // local globals
-DESCRIPTOR_DATA *descriptor_list = nullptr;    // master desc list
+DescriptorData *descriptor_list = nullptr;    // master desc list
 struct TextBlock *bufpool = 0;    // pool of large output buffers
 int buf_largecount = 0;        // # of large buffers which exist
 int buf_overflows = 0;        // # of overflows of output
@@ -536,14 +536,14 @@ int new_descriptor(socket_t s);
 socket_t init_socket(ush_int port);
 
 int get_max_players(void);
-int process_output(DESCRIPTOR_DATA *t);
-int process_input(DESCRIPTOR_DATA *t);
+int process_output(DescriptorData *t);
+int process_input(DescriptorData *t);
 void timeadd(struct timeval *sum, struct timeval *a, struct timeval *b);
-void flush_queues(DESCRIPTOR_DATA *d);
+void flush_queues(DescriptorData *d);
 void nonblock(socket_t s);
-int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst);
-int perform_alias(DESCRIPTOR_DATA *d, char *orig);
-char *make_prompt(DESCRIPTOR_DATA *point);
+int perform_subst(DescriptorData *t, char *orig, char *subst);
+int perform_alias(DescriptorData *d, char *orig);
+char *make_prompt(DescriptorData *point);
 struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
@@ -556,7 +556,7 @@ void *zlib_alloc(void *opaque, unsigned int items, unsigned int size);
 void zlib_free(void *opaque, void *address);
 #endif
 
-void show_string(DESCRIPTOR_DATA *d, char *input);
+void show_string(DescriptorData *d, char *input);
 void redit_save_to_disk(int zone_num);
 void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
@@ -598,8 +598,8 @@ unsigned long TxtToIp(const char *text);
  * Compression ends on a Z_STREAM_END, no other marker is used
  */
 
-int mccp_start(DESCRIPTOR_DATA *t, int ver);
-int mccp_end(DESCRIPTOR_DATA *t, int ver);
+int mccp_start(DescriptorData *t, int ver);
+int mccp_end(DescriptorData *t, int ver);
 
 const char compress_will[] = {(char) IAC, (char) WILL, (char) TELOPT_COMPRESS2,
 							  (char) IAC, (char) WILL, (char) TELOPT_COMPRESS
@@ -766,7 +766,7 @@ void stop_game(ush_int port) {
 #ifdef HAS_EPOLL
 	int epoll;
 	struct epoll_event event;
-	DESCRIPTOR_DATA *mother_d;
+	DescriptorData *mother_d;
 #endif
 
 	// We don't want to restart if we crash before we get up.
@@ -804,7 +804,7 @@ void stop_game(ush_int port) {
 	// а поскольку для клиентских сокетов нам нужны ptr, то и для родительского
 	// дескриптора, где нам наоборот нужен fd, придется создать псевдоструктуру,
 	// в которой инициализируем только поле descriptor
-	mother_d = (DESCRIPTOR_DATA *) calloc(1, sizeof(DESCRIPTOR_DATA));
+	mother_d = (DescriptorData *) calloc(1, sizeof(DescriptorData));
 	mother_d->descriptor = mother_desc;
 	event.data.ptr = mother_d;
 	event.events = EPOLLIN;
@@ -1140,7 +1140,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					   socket_t mother_desc, int maxdesc)
 #endif
 {
-	DESCRIPTOR_DATA *d, *next_d;
+	DescriptorData *d, *next_d;
 	char comm[kMaxInputLength];
 	int aliased;
 
@@ -1159,7 +1159,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 
 	for (i = 0; i < n; i++)
 		if (events[i].events & EPOLLIN) {
-			d = (DESCRIPTOR_DATA *) events[i].data.ptr;
+			d = (DescriptorData *) events[i].data.ptr;
 			if (d == nullptr)
 				continue;
 			if (mother_desc == d->descriptor) // событие на mother_desc: принимаем все ждущие соединения
@@ -1287,7 +1287,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 
 #ifdef HAS_EPOLL
 	for (i = 0; i < n; i++) {
-		d = (DESCRIPTOR_DATA *) events[i].data.ptr;
+		d = (DescriptorData *) events[i].data.ptr;
 		if (d == nullptr)
 			continue;
 		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output))) {
@@ -1349,7 +1349,7 @@ void game_loop(socket_t mother_desc)
 #ifdef HAS_EPOLL
 	struct epoll_event *events;
 #else
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	fd_set input_set, output_set, exc_set, null_set;
 	int maxdesc;
 #endif
@@ -1361,7 +1361,7 @@ void game_loop(socket_t mother_desc)
 	// initialize various time values
 	null_time.tv_sec = 0;
 	null_time.tv_usec = 0;
-	opt_time.tv_usec = OPT_USEC;
+	opt_time.tv_usec = kOptUsec;
 	opt_time.tv_sec = 0;
 
 #ifdef HAS_EPOLL
@@ -1435,13 +1435,13 @@ void game_loop(socket_t mother_desc)
 			 * If we were asleep for more than one pass, count missed pulses and sleep
 			 * until we're resynchronized with the next upcoming pulse.
 			 */
-			if (process_time.tv_sec == 0 && process_time.tv_usec < OPT_USEC) {
+			if (process_time.tv_sec == 0 && process_time.tv_usec < kOptUsec) {
 				missed_pulses = 0;
 			} else {
-				missed_pulses = process_time.tv_sec * PASSES_PER_SEC;
-				missed_pulses += process_time.tv_usec / OPT_USEC;
+				missed_pulses = process_time.tv_sec * kPassesPerSec;
+				missed_pulses += process_time.tv_usec / kOptUsec;
 				process_time.tv_sec = 0;
-				process_time.tv_usec = process_time.tv_usec % OPT_USEC;
+				process_time.tv_usec = process_time.tv_usec % kOptUsec;
 			}
 
 			// Calculate the time we should wake up
@@ -1477,12 +1477,12 @@ void game_loop(socket_t mother_desc)
 		// If we missed more than 30 seconds worth of pulses, just do 30 secs
 		// изменили на 4 сек
 		// изменили на 1 сек -- слишком уж опасно лагает :)
-		if (missed_pulses > (1 * PASSES_PER_SEC)) {
-			const auto missed_seconds = missed_pulses / PASSES_PER_SEC;
+		if (missed_pulses > (1 * kPassesPerSec)) {
+			const auto missed_seconds = missed_pulses / kPassesPerSec;
 			const auto current_pulse = GlobalObjects::heartbeat().pulse_number();
 			log("SYSERR: Missed %d seconds worth of pulses (%d) on the pulse %d.",
 				static_cast<int>(missed_seconds), missed_pulses, current_pulse);
-			missed_pulses = 1 * PASSES_PER_SEC;
+			missed_pulses = 1 * kPassesPerSec;
 		}
 
 		// Now execute the heartbeat functions
@@ -1627,7 +1627,7 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return buf;
 }
 
-char *make_prompt(DESCRIPTOR_DATA *d) {
+char *make_prompt(DescriptorData *d) {
 	static char prompt[kMaxPromptLength + 1];
 	static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
 
@@ -1854,7 +1854,7 @@ int get_from_q(struct TextBlocksQueue *queue, char *dest, int *aliased) {
 }
 
 // Empty the queues before closing connection
-void flush_queues(DESCRIPTOR_DATA *d) {
+void flush_queues(DescriptorData *d) {
 	int dummy;
 
 	if (d->large_outbuf) {
@@ -1865,7 +1865,7 @@ void flush_queues(DESCRIPTOR_DATA *d) {
 }
 
 // Add a new string to a player's output queue
-void write_to_output(const char *txt, DESCRIPTOR_DATA *t) {
+void write_to_output(const char *txt, DescriptorData *t) {
 	// if we're in the overflow state already, ignore this new output
 	if (t->bufptr == ~0ull)
 		return;
@@ -2033,7 +2033,7 @@ int new_descriptor(socket_t s)
 	int sockets_connected = 0;
 	socklen_t i;
 	static int last_desc = 0;    // last descriptor number
-	DESCRIPTOR_DATA *newd;
+	DescriptorData *newd;
 	struct sockaddr_in peer;
 	struct hostent *from;
 #ifdef HAS_EPOLL
@@ -2196,7 +2196,7 @@ int new_descriptor(socket_t s)
 	return newd->descriptor;
 }
 
-bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, size_t buffer_size, int &written) {
+bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t buffer_size, int &written) {
 #if defined(HAVE_ZLIB)
 	Bytef compressed[kSmallBufsize];
 
@@ -2254,7 +2254,7 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, si
  * Send all of the output that we've accumulated for a player out to
  * the player's descriptor.
  */
-int process_output(DESCRIPTOR_DATA *t) {
+int process_output(DescriptorData *t) {
 	char i[kMaxSockBuf * 2], o[kMaxSockBuf * 2 * 3], *pi, *po;
 	int written = 0, offset, result;
 
@@ -2604,7 +2604,7 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left) 
  * ASSUMPTION: There will be no newlines in the raw input buffer when this
  * function is called.  We must maintain that before returning.
  */
-int process_input(DESCRIPTOR_DATA *t) {
+int process_input(DescriptorData *t) {
 	int failed_subst;
 	ssize_t bytes_read;
 	size_t space_left;
@@ -2957,7 +2957,7 @@ int process_input(DESCRIPTOR_DATA *t) {
  * orig string, i.e. the one being modified.  subst contains the
  * substition string, i.e. "^telm^tell"
  */
-int perform_subst(DESCRIPTOR_DATA *t, char *orig, char *subst) {
+int perform_subst(DescriptorData *t, char *orig, char *subst) {
 	char newsub[kMaxInputLength + 5];
 
 	char *first, *second, *strpos;
@@ -3022,9 +3022,9 @@ bool any_other_ch(CHAR_DATA *ch) {
 }
 
 #ifdef HAS_EPOLL
-void close_socket(DESCRIPTOR_DATA *d, int direct, int epoll, struct epoll_event *events, int n_ev)
+void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev)
 #else
-void close_socket(DESCRIPTOR_DATA * d, int direct)
+void close_socket(DescriptorData * d, int direct)
 #endif
 {
 	if (d == nullptr) {
@@ -3401,7 +3401,7 @@ void send_to_all(const char *messg) {
 
 void send_to_outdoor(const char *messg, int control) {
 	int room;
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	if (!messg || !*messg)
 		return;
@@ -3428,7 +3428,7 @@ void send_to_outdoor(const char *messg, int control) {
 }
 
 void send_to_gods(const char *messg) {
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	if (!messg || !*messg)
 		return;
@@ -3941,7 +3941,7 @@ void zlib_free(void * /*opaque*/, void *address) {
 
 #if defined(HAVE_ZLIB)
 
-int mccp_start(DESCRIPTOR_DATA *t, int ver) {
+int mccp_start(DescriptorData *t, int ver) {
 	int derr;
 
 	if (t->deflate) {
@@ -3972,7 +3972,7 @@ int mccp_start(DESCRIPTOR_DATA *t, int ver) {
 	return 1;
 }
 
-int mccp_end(DESCRIPTOR_DATA *t, int ver) {
+int mccp_end(DescriptorData *t, int ver) {
 	int derr;
 	int prevsize, pending;
 	unsigned char tmp[1];
@@ -4011,7 +4011,7 @@ int mccp_end(DESCRIPTOR_DATA *t, int ver) {
 }
 #endif
 
-int toggle_compression(DESCRIPTOR_DATA *t) {
+int toggle_compression(DescriptorData *t) {
 #if defined(HAVE_ZLIB)
 	if (t->mccp_version == 0)
 		return 0;

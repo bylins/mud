@@ -795,7 +795,7 @@ class CHAR_DATA : public ProtectedCharacterData {
 	OBJ_DATA *equipment[NUM_WEARS];    // Equipment array
 
 	OBJ_DATA *carrying;    // Head of list
-	DESCRIPTOR_DATA *desc;    // NULL for mobiles
+	DescriptorData *desc;    // NULL for mobiles
 	long id;            // used by DG triggers
 	OBJ_DATA::triggers_list_ptr proto_script;    // list of default triggers
 	SCRIPT_DATA::shared_ptr script;    // script info for the object

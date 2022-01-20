@@ -306,7 +306,7 @@ void add_glory(long uid, int amount) {
 		glory_list[uid] = temp_node;
 	}
 	save_glory();
-	DESCRIPTOR_DATA *d = DescByUID(uid);
+	DescriptorData *d = DescByUID(uid);
 	if (d)
 		send_to_char(d->character.get(), "Вы заслужили %d %s славы.\r\n",
 					 amount, desc_count(amount, WHAT_POINT));
@@ -828,7 +828,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 
 // * Удаление статов у чара, если он онлайн.
 void remove_stat_online(long uid, int stat, int glory) {
-	DESCRIPTOR_DATA *d = DescByUID(uid);
+	DescriptorData *d = DescByUID(uid);
 	if (d) {
 		switch (stat) {
 			case G_STR: d->character->inc_str(-glory);
@@ -870,7 +870,7 @@ void timers_update() {
 			it->second->denial -= 1;
 
 		if (removed) {
-			DESCRIPTOR_DATA *d = DescByUID(it->first);
+			DescriptorData *d = DescByUID(it->first);
 			if (d) {
 				send_to_char("Вы долго не совершали достойных деяний и слава вас покинула...\r\n",
 							 d->character.get());
@@ -881,7 +881,7 @@ void timers_update() {
 
 	// тут еще есть момент, что в меню таймеры не идут, в случае последующей записи изменений
 	// в принципе фигня канеш, но тем не менее - хорошо бы учесть
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (STATE(d) != CON_SPEND_GLORY || !d->glory) continue;
 		for (GloryTimeType::iterator d_it = d->glory->olc_node->timers.begin();
 			 d_it != d->glory->olc_node->timers.end(); ++d_it) {
@@ -983,7 +983,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 		return;
 	}
 
-	DESCRIPTOR_DATA *d_vict = DescByUID(vict_uid);
+	DescriptorData *d_vict = DescByUID(vict_uid);
 	CHAR_DATA::shared_ptr vict;
 	if (d_vict) {
 		vict = d_vict->character;
@@ -1064,7 +1064,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	glory_list.erase(it);
 	// и выставляем ему новые статы (он то полюбому уже загружен канеш,
 	// но тут стройная картина через дескриптор везде) и если он был оффлайн - обнулится при входе
-	DESCRIPTOR_DATA *k = DescByUID(GET_UNIQUE(ch));
+	DescriptorData *k = DescByUID(GET_UNIQUE(ch));
 	if (k) {
 		GloryMisc::recalculate_stats(k->character.get());
 	}

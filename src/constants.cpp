@@ -1803,8 +1803,6 @@ int mana_cost_cs[][9] = {
 	{1, 1, 1, 1, 1, 1, 1, 1, 1}    // Lev 34
 };
 
-struct ZoneCategory *zone_types = nullptr;
-
 // Weapon attack texts
 struct attack_hit_type attack_hit_text[] =
 	{

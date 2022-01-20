@@ -29,7 +29,7 @@
 #include "world_objects.h"
 
 extern int what_sky;
-//extern DESCRIPTOR_DATA *descriptor_list;
+//extern DescriptorData *descriptor_list;
 //extern struct spell_create_type spell_create[];
 extern int interpolate(int min_value, int pulse);
 extern int attack_best(CHAR_DATA *ch, CHAR_DATA *victim);
@@ -438,7 +438,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
 				GET_POS(victim) = POS_SITTING;
 				update_pos(victim);
-				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
 			break;
 		//звуковая волна зависит от школы
@@ -454,7 +454,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
 				GET_POS(victim) = POS_SITTING;
 				update_pos(victim);
-				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
 			break;
 
@@ -618,7 +618,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, TO_NOTVICT);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, TO_VICT);
 					GET_POS(victim) = POS_STUNNED;
-					WAIT_STATE(victim, adice * PULSE_VIOLENCE);
+					WAIT_STATE(victim, adice * kPulseViolence);
 				}
 			} else {
 				ndice = GET_REAL_WIS(ch) / 7; 	//12
@@ -642,7 +642,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 					(number(1, 999) > GET_AR(victim) * 10) &&
 					number(0, 1000) <= 500)) {
 				GET_POS(victim) = POS_STUNNED;
-				WAIT_STATE(victim, adice * PULSE_VIOLENCE);
+				WAIT_STATE(victim, adice * kPulseViolence);
 			}
 			break;
 
@@ -728,7 +728,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
 				GET_POS(victim) = POS_SITTING;
 				update_pos(victim);
-				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
 			break;
 		// камнепад
@@ -836,7 +836,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
 				GET_POS(victim) = POS_SITTING;
 				update_pos(victim);
-				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
 			break;
 		}
@@ -1139,8 +1139,8 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 		return 0;
 	}
 
-	AFFECT_DATA<EApplyLocation> af[MAX_SPELL_AFFECTS];
-	for (i = 0; i < MAX_SPELL_AFFECTS; i++) {
+	AFFECT_DATA<EApplyLocation> af[kMaxSpellAffects];
+	for (i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spellnum;
 		af[i].bitvector = 0;
 		af[i].modifier = 0;
@@ -2269,7 +2269,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 					break;
 
 				case SPELL_ICESTORM:
-				case SPELL_EARTHFALL: WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+				case SPELL_EARTHFALL: WAIT_STATE(victim, 2 * kPulseViolence);
 					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 							pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
@@ -2279,7 +2279,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 					spellnum = SPELL_MAGICBATTLE;
 					break;
 
-				case SPELL_SHOCK: WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+				case SPELL_SHOCK: WAIT_STATE(victim, 2 * kPulseViolence);
 					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 							pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
@@ -2342,7 +2342,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 				success = false;
 				break;
 			}
-			WAIT_STATE(victim, (level / 10 + 1) * PULSE_VIOLENCE);
+			WAIT_STATE(victim, (level / 10 + 1) * kPulseViolence);
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 					pc_duration(victim, 3, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_SLOW);
@@ -2364,7 +2364,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			if (victim->get_fighting()) {
 				stop_fighting(victim, true);
 				change_fighting(victim, true);
-				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 					pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
@@ -2375,7 +2375,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 		}
 
 		case SPELL_STONEBONES: {
-			if (GET_MOB_VNUM(victim) < MOB_SKELETON || GET_MOB_VNUM(victim) > LAST_NECRO_MOB) {
+			if (GET_MOB_VNUM(victim) < kMobSkeleton || GET_MOB_VNUM(victim) > kLastNecroMob) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
 			}
@@ -2751,7 +2751,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
 	//чтобы этот аффект не очистился, при спадении спелла
 	if (IS_NPC(victim) && success) {
-		for (i = 0; i < MAX_SPELL_AFFECTS && success; ++i) {
+		for (i = 0; i < kMaxSpellAffects && success; ++i) {
 			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffectFlag>(af[i].bitvector))) {
 				if (ch->in_room == IN_ROOM(victim)) {
 					send_to_char(NOEFFECT, ch);
@@ -2771,7 +2771,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 		success = false;
 	}
 
-	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++) {
+	for (i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spellnum;
 		if (af[i].bitvector || af[i].location != APPLY_NONE) {
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
@@ -2854,7 +2854,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	switch (spellnum) {
 		case SPELL_CLONE: msg = 10;
 			fmsg = number(3, 5);    // Random fail message.
-			mob_num = MOB_DOUBLE;
+			mob_num = kMobDouble;
 			pfail =
 				50 - GET_CAST_SUCCESS(ch) - GET_REAL_REMORT(ch) * 5;    // 50% failure, should be based on something later.
 			keeper = true;
@@ -2862,7 +2862,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 
 		case SPELL_SUMMON_KEEPER: msg = 12;
 			fmsg = number(2, 6);
-			mob_num = MOB_KEEPER;
+			mob_num = kMobKeeper;
 			if (ch->get_fighting())
 				pfail = 50 - GET_CAST_SUCCESS(ch) - GET_REAL_REMORT(ch);
 			else
@@ -2872,7 +2872,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 
 		case SPELL_SUMMON_FIREKEEPER: msg = 13;
 			fmsg = number(2, 6);
-			mob_num = MOB_FIREKEEPER;
+			mob_num = kMobFirekeeper;
 			if (ch->get_fighting())
 				pfail = 50 - GET_CAST_SUCCESS(ch) - GET_REAL_REMORT(ch);
 			else
@@ -2887,7 +2887,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 			}
 			mob_num = GET_OBJ_VAL(obj, 2);
 			if (mob_num <= 0)
-				mob_num = MOB_SKELETON;
+				mob_num = kMobSkeleton;
 			else {
 				const int real_mob_num = real_mobile(mob_num);
 				tmp_mob = (mob_proto + real_mob_num);
@@ -2897,33 +2897,33 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 
 				int corpse_mob_level = GET_REAL_LEVEL(mob_proto + real_mob_num);
 				if (corpse_mob_level <= 5) {
-					mob_num = MOB_SKELETON;
+					mob_num = kMobSkeleton;
 				} else if (corpse_mob_level <= 10) {
-					mob_num = MOB_ZOMBIE;
+					mob_num = kMobZombie;
 				} else if (corpse_mob_level <= 15) {
-					mob_num = MOB_BONEDOG;
+					mob_num = kMobBonedog;
 				} else if (corpse_mob_level <= 20) {
-					mob_num = MOB_BONEDRAGON;
+					mob_num = kMobBonedragon;
 				} else if (corpse_mob_level <= 25) {
-					mob_num = MOB_BONESPIRIT;
+					mob_num = kMobBonespirit;
 				} else if (corpse_mob_level <= 34) {
-					mob_num = MOB_NECROTANK;
+					mob_num = kMobNecrotank;
 				} else {
 					int rnd = number(1, 100);
-					mob_num = MOB_NECRODAMAGER;
+					mob_num = kMobNecrodamager;
 					if (rnd > 50) {
-						mob_num = MOB_NECROBREATHER;
+						mob_num = kMobNecrobreather;
 					}
 				}
 
-				// MOB_NECROCASTER disabled, cant cast
+				// kMobNecrocaster disabled, cant cast
 
-				if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 15 && mob_num > MOB_ZOMBIE) {
-					mob_num = MOB_ZOMBIE;
-				} else if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 25 && mob_num > MOB_BONEDOG) {
-					mob_num = MOB_BONEDOG;
-				} else if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 32 && mob_num > MOB_BONEDRAGON) {
-					mob_num = MOB_BONEDRAGON;
+				if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 15 && mob_num > kMobZombie) {
+					mob_num = kMobZombie;
+				} else if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 25 && mob_num > kMobBonedog) {
+					mob_num = kMobBonedog;
+				} else if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 32 && mob_num > kMobBonedragon) {
+					mob_num = kMobBonedragon;
 				}
 			}
 
@@ -3038,7 +3038,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 		return 0;
 	}
 
-	if (spellnum == SPELL_ANIMATE_DEAD && mob_num >= MOB_NECRODAMAGER && mob_num <= LAST_NECRO_MOB) {
+	if (spellnum == SPELL_ANIMATE_DEAD && mob_num >= kMobNecrodamager && mob_num <= kLastNecroMob) {
 		// add 10% mob health by remort
 		mob->set_max_hit(mob->get_max_hit() * (1.0 + GET_REAL_REMORT(ch) / 10.0));
 		mob->set_hit(mob->get_max_hit());
@@ -3168,10 +3168,10 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	}
 	if (spellnum == SPELL_ANIMATE_DEAD) {
 		MOB_FLAGS(mob).set(MOB_RESURRECTED);
-		if (mob_num == MOB_SKELETON && can_use_feat(ch, LOYALASSIST_FEAT))
+		if (mob_num == kMobSkeleton && can_use_feat(ch, LOYALASSIST_FEAT))
 			mob->set_skill(SKILL_RESCUE, 100);
 
-		if (mob_num == MOB_BONESPIRIT && can_use_feat(ch, HAUNTINGSPIRIT_FEAT))
+		if (mob_num == kMobBonespirit && can_use_feat(ch, HAUNTINGSPIRIT_FEAT))
 			mob->set_skill(SKILL_RESCUE, 120);
 
 		// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.

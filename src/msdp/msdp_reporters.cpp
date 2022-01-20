@@ -4,7 +4,7 @@
 #include "entities/entity_constants.h"
 #include "magic/magic.h"
 #include "msdp_constants.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 namespace msdp {
 void RoomReporter::get(Variable::shared_ptr &response) {
@@ -165,7 +165,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	if (PRF_FLAGGED(ch, PRF_NOCLONES)
 		&& IS_NPC(character)
 		&& (MOB_FLAGGED(character, MOB_CLONE)
-			|| GET_MOB_VNUM(character) == MOB_KEEPER)) {
+			|| GET_MOB_VNUM(character) == kMobKeeper)) {
 		return;
 	}
 	const auto member = std::make_shared<TableValue>();

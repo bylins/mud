@@ -42,7 +42,7 @@
 
 
 /*extern RoomRnum r_mortal_start_room;
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern const char *material_name[];
 extern const char *weapon_affects[];
 extern TimeInfoData time_info;
@@ -410,7 +410,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	ch->dismount();
 	look_at_room(ch, 0);
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, TO_ROOM);
-	WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+	WAIT_STATE(ch, 2 * kPulseViolence);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }
@@ -1611,7 +1611,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 				case BOOK_SKILL:
 					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL) {
+						if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == kKnowSkill) {
 							drsdice = min_skill_level_with_req(ch, drndice, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLevelImplementator;
@@ -2356,7 +2356,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 	// подготовка контейнера для создания заклинания ментальная тень
 	// все предложения пишем мад почтой
 
-	MobVnum mob_num = MOB_MENTAL_SHADOW;
+	MobVnum mob_num = kMobMentalShadow;
 
 	CHAR_DATA *mob = nullptr;
 	struct Follower *k, *k_next;

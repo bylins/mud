@@ -141,7 +141,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	percent = number(1, skill_info[SKILL_INSERTGEM].difficulty);
 	prob = ch->get_skill(SKILL_INSERTGEM);
 
-	WAIT_STATE(ch, PULSE_VIOLENCE);
+	WAIT_STATE(ch, kPulseViolence);
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (itemobj->get_affected(i).location == APPLY_NONE) {

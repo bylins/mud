@@ -102,9 +102,9 @@ void go_stun(CHAR_DATA *ch, CHAR_DATA *vict) {
 			act("$n мощным ударом ошеломил$g $N3!", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
 		GET_POS(vict) = POS_INCAP;
-		WAIT_STATE(vict, (2 + GET_REAL_REMORT(ch) / 5) * PULSE_VIOLENCE);
-		//WAIT_STATE(ch, (3 * PULSE_VIOLENCE));
-		ch->setSkillCooldown(SKILL_STUN, 3 * PULSE_VIOLENCE);
+		WAIT_STATE(vict, (2 + GET_REAL_REMORT(ch) / 5) * kPulseViolence);
+		//WAIT_STATE(ch, (3 * kPulseViolence));
+		ch->setSkillCooldown(SKILL_STUN, 3 * kPulseViolence);
 		set_hit(ch, vict);
 	}
 }

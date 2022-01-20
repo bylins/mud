@@ -28,7 +28,7 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
 	if ((GET_POS(vict) < POS_FIGHTING)) {
 		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF)) {
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			ch->setSkillCooldown(SKILL_CHOPOFF, PULSE_VIOLENCE / 6);
+			ch->setSkillCooldown(SKILL_CHOPOFF, kPulseViolence / 6);
 			return;
 		}
 	}

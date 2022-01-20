@@ -12,20 +12,20 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "interpreter.h"
+//#include "interpreter.h"
 #include "handler.h"
 #include "screen.h"
 #include "auction.h"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "house.h"
 #include "spam.h"
 #include "utils/utils_char_obj.inl"
 
 
 // extern variables
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern TimeInfoData time_info;
 
 // local functions
@@ -505,13 +505,13 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// assign the descriptor's->str the value of the pointer to the text
 		// pointer so that we can reallocate as needed (hopefully that made
 		// sense :>)
-		const AbstractStringWriter::shared_ptr writer(new CActionDescriptionWriter(*paper));
+		const utils::AbstractStringWriter::shared_ptr writer(new CActionDescriptionWriter(*paper));
 		string_write(ch->desc, writer, MAX_NOTE_LENGTH, 0, nullptr);
 	}
 }
 
 void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	CHAR_DATA *vict;
 
 	half_chop(argument, arg, buf2);
@@ -564,7 +564,7 @@ struct communication_type {
 };
 
 void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 	char color_on[24];
 	int ign_flag;
 	/*
@@ -808,7 +808,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	// to keep pets, etc from being ordered to shout
 	if (!(IS_NPC(ch) || WAITLESS(ch)))
@@ -840,7 +840,7 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength];
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 	CHAR_DATA *victim = nullptr;
 
 	skip_spaces(&argument);
@@ -964,7 +964,7 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	snprintf(buf, kMaxStringLength, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
 	snprintf(buf1, kMaxStringLength, "&c%s&n", buf);
-	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next) {
+	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
 		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
 		if (STATE(i) == CON_PLAYING

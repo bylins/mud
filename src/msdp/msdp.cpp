@@ -9,17 +9,17 @@
 namespace msdp {
 class ReporterFactory {
  public:
-	static AbstractReporter::shared_ptr create(const DESCRIPTOR_DATA *descriptor, const std::string &name);
+	static AbstractReporter::shared_ptr create(const DescriptorData *descriptor, const std::string &name);
 	const static Variable::shared_ptr &reportable_variables();
 
  private:
-	using handler_t = std::function<AbstractReporter::shared_ptr(const DESCRIPTOR_DATA *)>;
+	using handler_t = std::function<AbstractReporter::shared_ptr(const DescriptorData *)>;
 	using handlers_t = std::unordered_map<std::string, handler_t>;
 
 	const static handlers_t &handlers();
 };
 
-AbstractReporter::shared_ptr ReporterFactory::create(const DESCRIPTOR_DATA *descriptor, const std::string &name) {
+AbstractReporter::shared_ptr ReporterFactory::create(const DescriptorData *descriptor, const std::string &name) {
 	const auto reporter = handlers().find(name);
 	if (reporter != handlers().end()) {
 		return reporter->second(descriptor);
@@ -75,7 +75,7 @@ const ReporterFactory::handlers_t &ReporterFactory::handlers() {
 
 class ConversationHandler {
  public:
-	ConversationHandler(DESCRIPTOR_DATA *descriptor) : m_descriptor(descriptor) {}
+	ConversationHandler(DescriptorData *descriptor) : m_descriptor(descriptor) {}
 	size_t operator()(const char *buffer, const size_t length);
 
  private:
@@ -88,7 +88,7 @@ class ConversationHandler {
 	void handle_send_command(const Variable::shared_ptr &request);
 	bool handle_request(const Variable::shared_ptr &request);
 
-	DESCRIPTOR_DATA *m_descriptor;
+	DescriptorData *m_descriptor;
 };
 
 size_t ConversationHandler::operator()(const char *buffer, const size_t length) {
@@ -216,12 +216,12 @@ bool ConversationHandler::handle_request(const Variable::shared_ptr &request) {
 	return true;
 }
 
-size_t handle_conversation(DESCRIPTOR_DATA *t, const char *buffer, const size_t length) {
+size_t handle_conversation(DescriptorData *t, const char *buffer, const size_t length) {
 	ConversationHandler handler(t);
 	return handler(buffer, length);
 }
 
-void Report::operator()(DESCRIPTOR_DATA *d, const std::string &name) {
+void Report::operator()(DescriptorData *d, const std::string &name) {
 	ReportSender sender(d);
 
 	const auto reporter = ReporterFactory::create(d, name);

@@ -100,7 +100,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (CallMagic(ch, nullptr, nullptr, nullptr, spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 		if (!WAITLESS(ch)) {
 			if (!CHECK_WAIT(ch))
-				WAIT_STATE(ch, PULSE_VIOLENCE);
+				WAIT_STATE(ch, kPulseViolence);
 			timed_to_char(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}

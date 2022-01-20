@@ -1085,7 +1085,7 @@ void perform_drop_gold(CHAR_DATA *ch, int amount) {
 	} else if (ch->get_gold() < amount) {
 		send_to_char("У вас нет такой суммы!\r\n", ch);
 	} else {
-		WAIT_STATE(ch, PULSE_VIOLENCE);    // to prevent coin-bombing
+		WAIT_STATE(ch, kPulseViolence);    // to prevent coin-bombing
 		if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM)) {
 			act("Неведомая сила помешала вам сделать это!", false, ch, 0, 0, TO_CHAR);
 			return;
@@ -1494,7 +1494,7 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (tobj) {
 		can_carry_obj(ch, tobj.get());
 		extract_obj(meet);
-		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+		WAIT_STATE(ch, 1 * kPulseViolence);
 	} else {
 		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, kLevelGreatGod, ERRLOG, true);
 	}
@@ -2650,7 +2650,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	//Выдадим-ка лаг за эти дела.
 	if (!WAITLESS(ch)) {
-		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+		WAIT_STATE(ch, lag * kPulseViolence);
 	}
 }
 

@@ -25,7 +25,7 @@
 #include "corpse.h"
 #include "game_mechanics/sets_drop.h"
 #include "fightsystem/fight.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "logger.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
@@ -51,7 +51,7 @@
 extern IndexData *mob_index;
 extern CHAR_DATA *mob_proto;
 extern MobRnum top_of_mobt;
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 #if defined(OASIS_MPROG)
 extern const char *mobprog_types[];
 #endif
@@ -78,27 +78,27 @@ void clear_mob_charm(CHAR_DATA *mob);
 //-------------------------------------------------------------------
 
 // * Function prototypes.
-void medit_setup(DESCRIPTOR_DATA *d, int rmob_num);
+void medit_setup(DescriptorData *d, int rmob_num);
 
 void medit_mobile_init(CHAR_DATA *mob);
 void medit_mobile_copy(CHAR_DATA *dst, CHAR_DATA *src, bool partial_copy);
 void medit_mobile_free(CHAR_DATA *mob);
 
-void medit_save_internally(DESCRIPTOR_DATA *d);
+void medit_save_internally(DescriptorData *d);
 void medit_save_to_disk(int zone_num);
 
-void medit_parse(DESCRIPTOR_DATA *d, char *arg);
-void medit_disp_menu(DESCRIPTOR_DATA *d);
-void medit_disp_positions(DESCRIPTOR_DATA *d);
-void medit_disp_mob_flags(DESCRIPTOR_DATA *d);
-void medit_disp_aff_flags(DESCRIPTOR_DATA *d);
-void medit_disp_attack_types(DESCRIPTOR_DATA *d);
-void medit_disp_resistances(DESCRIPTOR_DATA *d);
-void medit_disp_race(DESCRIPTOR_DATA *d);
+void medit_parse(DescriptorData *d, char *arg);
+void medit_disp_menu(DescriptorData *d);
+void medit_disp_positions(DescriptorData *d);
+void medit_disp_mob_flags(DescriptorData *d);
+void medit_disp_aff_flags(DescriptorData *d);
+void medit_disp_attack_types(DescriptorData *d);
+void medit_disp_resistances(DescriptorData *d);
+void medit_disp_race(DescriptorData *d);
 
 #if defined(OASIS_MPROG)
-void medit_disp_mprog(DESCRIPTOR_DATA * d);
-void medit_change_mprog(DESCRIPTOR_DATA * d);
+void medit_disp_mprog(DescriptorData * d);
+void medit_change_mprog(DescriptorData * d);
 const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 #endif
 
@@ -262,7 +262,7 @@ void medit_mobile_free(CHAR_DATA *mob)
 
 // ***********************************************************************
 
-void medit_setup(DESCRIPTOR_DATA *d, int real_num)
+void medit_setup(DescriptorData *d, int real_num)
 /*++
    Подготовка данных для редактирования моба.
 	  d        - OLC дескриптор
@@ -345,11 +345,11 @@ void medit_setup(DESCRIPTOR_DATA *d, int real_num)
 * только потому, что в деструкторе сейчас не очищаются аллокации прототипов.
 * TODO: ес-сно это муть все
 */
-void medit_save_internally(DESCRIPTOR_DATA *d) {
+void medit_save_internally(DescriptorData *d) {
 	int rmob_num, found = 0, new_mob_num = 0, cmd_no, j;
 	CHAR_DATA *new_proto;
 	IndexData *new_index;
-	DESCRIPTOR_DATA *dsc;
+	DescriptorData *dsc;
 
 	//  rmob_num = real_mobile(OLC_NUM(d));
 	rmob_num = GET_MOB_RNUM(OLC_MOB(d));
@@ -760,7 +760,7 @@ void medit_save_to_disk(int zone_num) {
 // **************************************************************************
 
 // * Display positions. (sitting, standing, etc)
-void medit_disp_positions(DESCRIPTOR_DATA *d) {
+void medit_disp_positions(DescriptorData *d) {
 	int i;
 
 	get_char_cols(d->character.get());
@@ -776,7 +776,7 @@ void medit_disp_positions(DESCRIPTOR_DATA *d) {
 }
 
 // *  Display add parameters - added by Adept
-void medit_disp_add_parameters(DESCRIPTOR_DATA *d) {
+void medit_disp_add_parameters(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 #if defined(CLEAR_SCREEN)
@@ -808,7 +808,7 @@ void medit_disp_add_parameters(DESCRIPTOR_DATA *d) {
 }
 
 // *  Display resistances - added by Adept
-void medit_disp_resistances(DESCRIPTOR_DATA *d) {
+void medit_disp_resistances(DescriptorData *d) {
 	int i;
 
 	get_char_cols(d->character.get());
@@ -824,7 +824,7 @@ void medit_disp_resistances(DESCRIPTOR_DATA *d) {
 }
 
 // *  Display saves - added by Adept
-void medit_disp_saves(DESCRIPTOR_DATA *d) {
+void medit_disp_saves(DescriptorData *d) {
 	int i;
 
 	get_char_cols(d->character.get());
@@ -874,7 +874,7 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog)
 }
 
 // * Display the MobProgs.
-void medit_disp_mprog(DESCRIPTOR_DATA * d)
+void medit_disp_mprog(DescriptorData * d)
 {
 	struct mob_prog_data *mprog = OLC_MPROGL(d);
 
@@ -902,7 +902,7 @@ void medit_disp_mprog(DESCRIPTOR_DATA * d)
 //-------------------------------------------------------------------
 
 // * Change the MobProgs.
-void medit_change_mprog(DESCRIPTOR_DATA * d)
+void medit_change_mprog(DescriptorData * d)
 {
 #if defined(CLEAR_SCREEN)
 	send_to_char("^[[H^[[J", d->character);
@@ -923,7 +923,7 @@ void medit_change_mprog(DESCRIPTOR_DATA * d)
 //-------------------------------------------------------------------
 
 // * Change the MobProg type.
-void medit_disp_mprog_types(DESCRIPTOR_DATA * d)
+void medit_disp_mprog_types(DescriptorData * d)
 {
 	int i;
 
@@ -945,7 +945,7 @@ void medit_disp_mprog_types(DESCRIPTOR_DATA * d)
 //-------------------------------------------------------------------
 
 // * Display the gender of the mobile.
-void medit_disp_sex(DESCRIPTOR_DATA *d) {
+void medit_disp_sex(DescriptorData *d) {
 	int i;
 
 	get_char_cols(d->character.get());
@@ -960,7 +960,7 @@ void medit_disp_sex(DESCRIPTOR_DATA *d) {
 	send_to_char("Выберите пол : ", d->character.get());
 }
 
-void medit_disp_role(DESCRIPTOR_DATA *d) {
+void medit_disp_role(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 #if defined(CLEAR_SCREEN)
@@ -991,7 +991,7 @@ void medit_disp_role(DESCRIPTOR_DATA *d) {
 
 //-------------------------------------------------------------------
 // *  Display features - added by Gorrah
-void medit_disp_features(DESCRIPTOR_DATA *d) {
+void medit_disp_features(DescriptorData *d) {
 	int columns = 0, counter;
 
 	get_char_cols(d->character.get());
@@ -1017,7 +1017,7 @@ void medit_disp_features(DESCRIPTOR_DATA *d) {
 // Конец изменений Gorrah'ом
 
 //Polud npc race menu
-void medit_disp_race(DESCRIPTOR_DATA *d) {
+void medit_disp_race(DescriptorData *d) {
 	int i;
 
 	get_char_cols(d->character.get());
@@ -1034,7 +1034,7 @@ void medit_disp_race(DESCRIPTOR_DATA *d) {
 //-Polud
 
 // * Display attack types menu.
-void medit_disp_attack_types(DESCRIPTOR_DATA *d) {
+void medit_disp_attack_types(DescriptorData *d) {
 	int i;
 
 	get_char_cols(d->character.get());
@@ -1049,7 +1049,7 @@ void medit_disp_attack_types(DESCRIPTOR_DATA *d) {
 }
 
 //-------------------------------------------------------------------
-void medit_disp_helpers(DESCRIPTOR_DATA *d) {
+void medit_disp_helpers(DescriptorData *d) {
 	int columns = 0;
 	struct Helper *helper;
 
@@ -1069,7 +1069,7 @@ void medit_disp_helpers(DESCRIPTOR_DATA *d) {
 	send_to_char("\r\nУкажите vnum моба-помощника (0 - конец) : ", d->character.get());
 }
 
-void medit_disp_skills(DESCRIPTOR_DATA *d) {
+void medit_disp_skills(DescriptorData *d) {
 	int columns = 0;
 
 	get_char_cols(d->character.get());
@@ -1095,7 +1095,7 @@ void medit_disp_skills(DESCRIPTOR_DATA *d) {
 	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
 }
 
-void medit_disp_spells(DESCRIPTOR_DATA *d) {
+void medit_disp_spells(DescriptorData *d) {
 	int columns = 0, counter;
 
 	get_char_cols(d->character.get());
@@ -1120,14 +1120,14 @@ void medit_disp_spells(DESCRIPTOR_DATA *d) {
 }
 
 // * Display mob-flags menu.
-void medit_disp_mob_flags(DESCRIPTOR_DATA *d) {
+void medit_disp_mob_flags(DescriptorData *d) {
 	disp_planes_values(d, action_bits, 2);
 	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
-void medit_disp_npc_flags(DESCRIPTOR_DATA *d) {
+void medit_disp_npc_flags(DescriptorData *d) {
 	disp_planes_values(d, function_bits, 2);
 	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
@@ -1135,7 +1135,7 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA *d) {
 }
 
 // * Display affection flags menu.
-void medit_disp_aff_flags(DESCRIPTOR_DATA *d) {
+void medit_disp_aff_flags(DescriptorData *d) {
 	disp_planes_values(d, affected_bits, 2);
 	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
@@ -1143,7 +1143,7 @@ void medit_disp_aff_flags(DESCRIPTOR_DATA *d) {
 }
 
 // * Display main menu.
-void medit_disp_menu(DESCRIPTOR_DATA *d) {
+void medit_disp_menu(DescriptorData *d) {
 	int i;
 	CHAR_DATA *mob;
 
@@ -1284,7 +1284,7 @@ void medit_disp_menu(DESCRIPTOR_DATA *d) {
 }
 
 // Display on_death load object list
-void disp_dl_list(DESCRIPTOR_DATA *d) {
+void disp_dl_list(DescriptorData *d) {
 	// Список загружаемых посмертно объектов:
 	// - VNUM - Prob - SpecParam -
 	// (Объекты не определены)
@@ -1341,7 +1341,7 @@ void disp_dl_list(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void medit_disp_clone_menu(DESCRIPTOR_DATA *d) {
+void medit_disp_clone_menu(DescriptorData *d) {
 	get_char_cols(d->character.get());
 
 	sprintf(buf,
@@ -1365,7 +1365,7 @@ void medit_disp_clone_menu(DESCRIPTOR_DATA *d) {
 // *      The GARGANTAUN event handler                                    *
 // ************************************************************************
 
-void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
+void medit_parse(DescriptorData *d, char *arg) {
 	struct Helper *helper;
 	int i, number = 0, plane, bit;
 
@@ -1496,7 +1496,7 @@ void medit_parse(DESCRIPTOR_DATA *d, char *arg) {
 						SEND_TO_Q(OLC_MOB(d)->player_data.description.c_str(), d);
 						d->backstr = str_dup(OLC_MOB(d)->player_data.description.c_str());
 					}
-					d->writer.reset(new DelegatedStdStringWriter(OLC_MOB(d)->player_data.description));
+					d->writer.reset(new utils::DelegatedStdStringWriter(OLC_MOB(d)->player_data.description));
 					d->max_str = MAX_MOB_DESC;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;

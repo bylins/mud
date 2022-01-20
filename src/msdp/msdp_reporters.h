@@ -21,22 +21,22 @@ class AbstractReporter {
 
 class DescriptorBasedReporter : public AbstractReporter {
  public:
-	DescriptorBasedReporter(const DESCRIPTOR_DATA *descriptor) : m_descriptor(descriptor) {}
+	DescriptorBasedReporter(const DescriptorData *descriptor) : m_descriptor(descriptor) {}
 
  protected:
 	const auto descriptor() const { return m_descriptor; }
 
  private:
-	const DESCRIPTOR_DATA *m_descriptor;
+	const DescriptorData *m_descriptor;
 };
 
 class RoomReporter : public DescriptorBasedReporter {
  public:
-	RoomReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	RoomReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<RoomReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<RoomReporter>(descriptor); }
 
  private:
 	bool blockReport() const;
@@ -44,74 +44,74 @@ class RoomReporter : public DescriptorBasedReporter {
 
 class GoldReporter : public DescriptorBasedReporter {
  public:
-	GoldReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	GoldReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<GoldReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<GoldReporter>(descriptor); }
 };
 
 class MaxHitReporter : public DescriptorBasedReporter {
  public:
-	MaxHitReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	MaxHitReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<MaxHitReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<MaxHitReporter>(descriptor); }
 };
 
 class MaxMoveReporter : public DescriptorBasedReporter {
  public:
-	MaxMoveReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	MaxMoveReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<MaxMoveReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<MaxMoveReporter>(descriptor); }
 };
 
 class MaxManaReporter : public DescriptorBasedReporter {
  public:
-	MaxManaReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	MaxManaReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<MaxManaReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<MaxManaReporter>(descriptor); }
 };
 
 class LevelReporter : public DescriptorBasedReporter {
  public:
-	LevelReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	LevelReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<LevelReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<LevelReporter>(descriptor); }
 };
 
 class ExperienceReporter : public DescriptorBasedReporter {
  public:
-	ExperienceReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	ExperienceReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<ExperienceReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<ExperienceReporter>(descriptor); }
 };
 
 class StateReporter : public DescriptorBasedReporter {
  public:
-	StateReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	StateReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<StateReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<StateReporter>(descriptor); }
 };
 
 class GroupReporter : public DescriptorBasedReporter {
  public:
-	GroupReporter(const DESCRIPTOR_DATA *descriptor) : DescriptorBasedReporter(descriptor) {}
+	GroupReporter(const DescriptorData *descriptor) : DescriptorBasedReporter(descriptor) {}
 
 	virtual void get(Variable::shared_ptr &response) override;
 
-	static shared_ptr create(const DESCRIPTOR_DATA *descriptor) { return std::make_shared<GroupReporter>(descriptor); }
+	static shared_ptr create(const DescriptorData *descriptor) { return std::make_shared<GroupReporter>(descriptor); }
 
  private:
 	void append_char(const std::shared_ptr<ArrayValue> &group,

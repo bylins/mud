@@ -13,7 +13,7 @@
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
 #include "fightsystem/pk.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>

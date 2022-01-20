@@ -43,8 +43,6 @@ ELuckTestResult MakeLuckTest(CHAR_DATA *ch, CHAR_DATA *vict);
 void SendSkillRollMsg(CHAR_DATA *ch, CHAR_DATA *victim, ESkill skill_id,
 					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result);
 
-extern struct AttackMessages fight_messages[kMaxMessages];
-
 class WeapForAct {
  public:
 	enum WeapType {
@@ -1999,7 +1997,7 @@ int min_skill_level(CHAR_DATA *ch, int skill) {
 
 bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl) {
 	if (GET_REAL_REMORT(ch) < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
-		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL)) {
+		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != kKnowSkill)) {
 		return false;
 	}
 	if (ch->get_level() < min_skill_level_with_req(ch, skill, req_lvl)) {
@@ -2010,7 +2008,7 @@ bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl) {
 
 bool IsAbleToGetSkill(CHAR_DATA *ch, int skill) {
 	if (GET_REAL_REMORT(ch) < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
-		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL)) {
+		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != kKnowSkill)) {
 		return false;
 	}
 	if (ch->get_level() < min_skill_level(ch, skill)) {

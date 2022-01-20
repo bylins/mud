@@ -20,17 +20,17 @@
 #include "olc/olc.h"
 #include "dg_event.h"
 #include "entities/char.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern int top_of_trigt;
 
 // prototype externally defined functions
 void free_varlist(struct trig_var_data *vd);
 
-void trigedit_disp_menu(DESCRIPTOR_DATA *d);
-void trigedit_save(DESCRIPTOR_DATA *d);
+void trigedit_disp_menu(DescriptorData *d);
+void trigedit_save(DescriptorData *d);
 void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
 
@@ -60,7 +60,7 @@ void script_save_to_disk(FILE *fp, const void *item, int type) {
  *  trigedit
  **************************************************************************/
 
-void trigedit_setup_new(DESCRIPTOR_DATA *d) {
+void trigedit_setup_new(DescriptorData *d) {
 	TRIG_DATA *trig = new TRIG_DATA(-1, "new trigger", MTRIG_GREET);
 
 	// cmdlist will be a large char string until the trigger is saved
@@ -74,7 +74,7 @@ void trigedit_setup_new(DESCRIPTOR_DATA *d) {
 	trigedit_disp_menu(d);
 }
 
-void trigedit_setup_existing(DESCRIPTOR_DATA *d, int rtrg_num) {
+void trigedit_setup_existing(DescriptorData *d, int rtrg_num) {
 	// Allocate a scratch trigger structure
 	TRIG_DATA *trig = new TRIG_DATA(*trig_index[rtrg_num]->proto);
 
@@ -97,7 +97,7 @@ void trigedit_setup_existing(DESCRIPTOR_DATA *d, int rtrg_num) {
 	trigedit_disp_menu(d);
 }
 
-void trigedit_disp_menu(DESCRIPTOR_DATA *d) {
+void trigedit_disp_menu(DescriptorData *d) {
 	TRIG_DATA *trig = OLC_TRIG(d);
 	const char *attach_type;
 	char trgtypes[256];
@@ -143,7 +143,7 @@ void trigedit_disp_menu(DESCRIPTOR_DATA *d) {
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
 }
 
-void trigedit_disp_types(DESCRIPTOR_DATA *d) {
+void trigedit_disp_types(DescriptorData *d) {
 	int i, columns = 0;
 	const char **types;
 
@@ -173,7 +173,7 @@ void trigedit_disp_types(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void trigedit_parse(DESCRIPTOR_DATA *d, char *arg) {
+void trigedit_parse(DescriptorData *d, char *arg) {
 	int i = 0;
 
 	switch (OLC_MODE(d)) {
@@ -218,7 +218,7 @@ void trigedit_parse(DESCRIPTOR_DATA *d, char *arg) {
 						send_to_char(d->character.get(), "&S%s&s", OLC_STORAGE(d));
 						d->backstr = str_dup(OLC_STORAGE(d));
 					}
-					d->writer.reset(new DelegatedStringWriter(OLC_STORAGE(d)));
+					d->writer.reset(new utils::DelegatedStringWriter(OLC_STORAGE(d)));
 					d->max_str = MAX_CMD_LENGTH;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;
@@ -302,14 +302,14 @@ void sprintbyts(int data, char *dest) {
 }
 
 // save the zone's triggers to internal memory and to disk
-void trigedit_save(DESCRIPTOR_DATA *d) {
+void trigedit_save(DescriptorData *d) {
 	int trig_rnum, i;
 	int found = 0;
 	char *s;
 	TRIG_DATA *proto;
 	TRIG_DATA *trig = OLC_TRIG(d);
 	IndexData **new_index;
-	DESCRIPTOR_DATA *dsc;
+	DescriptorData *dsc;
 	FILE *trig_file;
 	int zone, top;
 	char buf[kMaxStringLength];
@@ -564,13 +564,13 @@ void trigedit_create_index(int znum, const char *type) {
  **************************************************************************/
 
 
-void dg_olc_script_free(DESCRIPTOR_DATA *d)
+void dg_olc_script_free(DescriptorData *d)
 //   Удаление прототипа в OLC_SCRIPT
 {
 	OLC_SCRIPT(d).clear();
 }
 
-void dg_olc_script_copy(DESCRIPTOR_DATA *d)
+void dg_olc_script_copy(DescriptorData *d)
 //   Создание копии прототипа скрипта для текщего редактируемого моба/объекта/комнаты
 {
 	switch (OLC_ITEM_TYPE(d)) {
@@ -584,7 +584,7 @@ void dg_olc_script_copy(DESCRIPTOR_DATA *d)
 	}
 }
 
-void dg_script_menu(DESCRIPTOR_DATA *d) {
+void dg_script_menu(DescriptorData *d) {
 	int i = 0;
 
 	// make sure our input parser gets used
@@ -625,7 +625,7 @@ void dg_script_menu(DESCRIPTOR_DATA *d) {
 	send_to_char(buf, d->character.get());
 }
 
-int dg_script_edit_parse(DESCRIPTOR_DATA *d, char *arg) {
+int dg_script_edit_parse(DescriptorData *d, char *arg) {
 	int count, pos, vnum;
 
 	switch (OLC_SCRIPT_EDIT_MODE(d)) {

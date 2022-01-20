@@ -111,13 +111,11 @@ const bitvector_t kNoLeftHandAttack = 1 << 2;
 const bitvector_t kNoRightHandAttack = 1 << 3;
 
 /*
- * These are slightly off of PULSE_MOBILE so
+ * These are slightly off of kPulseMobile so
  * everything isnt happening at the same time
  */
-#define PULSE_DG_SCRIPT         (13 RL_SEC)
-
-// maximum depth triggers can recurse into each other
-#define MAX_SCRIPT_DEPTH        512
+constexpr long long PULSE_DG_SCRIPT = 13*kRealSec;
+const int kMaxScriptDepth = 512;					 // maximum depth triggers can recurse into each other
 
 struct wait_event_data {
 	TRIG_DATA *trigger;

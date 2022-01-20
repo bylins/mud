@@ -25,12 +25,12 @@ class AbstractSender {
 
 class ReportSender : public AbstractSender {
  public:
-	explicit ReportSender(DESCRIPTOR_DATA *descriptor);
+	explicit ReportSender(DescriptorData *descriptor);
 
 	void send(const AbstractReporter::shared_ptr &reporter) override;
 
  private:
-	DESCRIPTOR_DATA *m_descriptor;
+	DescriptorData *m_descriptor;
 };
 
 class StreamSender : public AbstractSender {

@@ -10,11 +10,12 @@
 #include "boards/boards_types.h"
 #include "structs.h"
 #include "sysdep.h"
+#include "utils/utils_string.h"
 
 #include <string>
 
-struct DESCRIPTOR_DATA {
-	DESCRIPTOR_DATA();
+struct DescriptorData {
+	DescriptorData();
 
 	void msdp_support(bool on);
 	void msdp_add_report_variable(const std::string &name) { m_msdp_requested_report.insert(name); }
@@ -40,7 +41,7 @@ struct DESCRIPTOR_DATA {
 	char **showstr_vector;    // for paging through texts      //
 	int showstr_count;        // number of pages to page through  //
 	int showstr_page;        // which page are we currently showing?   //
-	AbstractStringWriter::shared_ptr writer;        // for the modify-str system     //
+	utils::AbstractStringWriter::shared_ptr writer;        // for the modify-str system     //
 	size_t max_str;        //      -        //
 	char *backstr;        // added for handling abort buffers //
 	int mail_to;        // uid for mail system
@@ -59,9 +60,9 @@ struct DESCRIPTOR_DATA {
 	std::shared_ptr<CHAR_DATA> character;    // linked to char       //
 	std::shared_ptr<CHAR_DATA> original;    // original char if switched     //
 
-	DESCRIPTOR_DATA *snooping;    // Who is this char snooping  //
-	DESCRIPTOR_DATA *snoop_by;    // And who is snooping this char //
-	DESCRIPTOR_DATA *next;    // link to next descriptor     //
+	DescriptorData *snooping;    // Who is this char snooping  //
+	DescriptorData *snoop_by;    // And who is snooping this char //
+	DescriptorData *next;    // link to next descriptor     //
 	struct olc_data *olc;    //. OLC info - defined in olc.h   . //
 	ubyte keytable;
 	int options;        // descriptor flags       //

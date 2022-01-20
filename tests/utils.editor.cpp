@@ -64,7 +64,7 @@ const char* SAMPLE_NUMBERS_STRING_R2 = SAMPLE_NUMBERS_PIECE;
 
 AbstractStringWriter::shared_ptr create_delegated_string_writer(char*& delegated_string)
 {
-	const auto result = AbstractStringWriter::shared_ptr(new DelegatedStringWriter(delegated_string));
+	const auto result = AbstractStringWriter::shared_ptr(new utils::DelegatedStringWriter(delegated_string));
 	return result;
 }
 

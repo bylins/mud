@@ -25,7 +25,7 @@ extern const char *genders[];
 extern void send_to_gods(char *text, bool demigod);
 
 // Check if name agree (name must be parsed)
-int was_agree_name(DESCRIPTOR_DATA *d) {
+int was_agree_name(DescriptorData *d) {
 	log("was_agree_name start");
 	FILE *fp;
 	char temp[kMaxInputLength];
@@ -70,7 +70,7 @@ int was_agree_name(DESCRIPTOR_DATA *d) {
 	return (1);
 }
 
-int was_disagree_name(DESCRIPTOR_DATA *d) {
+int was_disagree_name(DescriptorData *d) {
 	log("was_disagree_name start");
 	FILE *fp;
 	char temp[kMaxInputLength];
@@ -263,7 +263,7 @@ bool NewNames::show(CHAR_DATA *actor) {
 }
 
 // Name auto-agreement
-int NewNames::auto_authorize(DESCRIPTOR_DATA *d) {
+int NewNames::auto_authorize(DescriptorData *d) {
 	// Check for name ...
 	if (!was_agree_name(d))
 		return AUTO_ALLOW;

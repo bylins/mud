@@ -23,23 +23,23 @@ class OBJ_DATA;
 class ROOM_DATA;
 
 // VNUM'ы мобов для заклинаний, создающих мобов
-const int MOB_DOUBLE = 3000; //внум прототипа для клона
-const int MOB_SKELETON = 3001;
-const int MOB_ZOMBIE = 3002;
-const int MOB_BONEDOG = 3003;
-const int MOB_BONEDRAGON = 3004;
-const int MOB_BONESPIRIT = 3005;
-const int MOB_NECRODAMAGER = 3007;
-const int MOB_NECROTANK = 3008;
-const int MOB_NECROBREATHER = 3009;
-const int MOB_NECROCASTER = 3010;
-const int LAST_NECRO_MOB = 3010;
+const int kMobDouble = 3000; //внум прототипа для клона
+const int kMobSkeleton = 3001;
+const int kMobZombie = 3002;
+const int kMobBonedog = 3003;
+const int kMobBonedragon = 3004;
+const int kMobBonespirit = 3005;
+const int kMobNecrodamager = 3007;
+const int kMobNecrotank = 3008;
+const int kMobNecrobreather = 3009;
+const int kMobNecrocaster = 3010;
+const int kLastNecroMob = 3010;
 // резерв для некротических забав
-const int MOB_MENTAL_SHADOW = 3020;
-const int MOB_KEEPER = 3021;
-const int MOB_FIREKEEPER = 3022;
+const int kMobMentalShadow = 3020;
+const int kMobKeeper = 3021;
+const int kMobFirekeeper = 3022;
 
-const int MAX_SPELL_AFFECTS = 16; // change it if you need more
+const int kMaxSpellAffects = 16; // change it if you need more
 
 #define SpINFO spell_info[spellnum]
 

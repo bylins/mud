@@ -16,8 +16,8 @@
 #include "ext_money.h"
 #include "magic/magic_temp_spells.h"
 #include "accounts.h"
-#include "zone.table.h"
-#include "quests/daily_quest.h"
+//#include "zone.h"
+//#include "quests/daily_quest.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
 
@@ -1764,7 +1764,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
 						if (num != 0) {
-							if (skill_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)] == KNOW_SKILL) {
+							if (skill_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kKnowSkill) {
 								this->set_skill(static_cast<ESkill>(num), num2);
 							}
 						}

@@ -13,7 +13,7 @@
 #include "entities/char.h"
 #include "entities/room.h"
 #include "help.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"
@@ -31,20 +31,20 @@ extern struct ZoneCategory *zone_types;
 //------------------------------------------------------------------------
 
 // * Function prototypes.
-void zedit_disp_menu(DESCRIPTOR_DATA *d);
-void zedit_setup(DESCRIPTOR_DATA *d, int room_num);
+void zedit_disp_menu(DescriptorData *d);
+void zedit_setup(DescriptorData *d, int room_num);
 //void add_cmd_to_list(struct reset_com **list, struct reset_com *newcmd, int pos);
 //void remove_cmd_from_list(struct reset_com **list, int pos);
-int delete_command(DESCRIPTOR_DATA *d, int pos);
-int move_command(DESCRIPTOR_DATA *d, int src, int dst);
-int new_command(DESCRIPTOR_DATA *d, int pos);
-int start_change_command(DESCRIPTOR_DATA *d, int pos);
-void zedit_disp_comtype(DESCRIPTOR_DATA *d);
-void zedit_disp_arg1(DESCRIPTOR_DATA *d);
-void zedit_disp_arg2(DESCRIPTOR_DATA *d);
-void zedit_disp_arg3(DESCRIPTOR_DATA *d);
-void zedit_disp_arg4(DESCRIPTOR_DATA *d);
-void zedit_save_internally(DESCRIPTOR_DATA *d);
+int delete_command(DescriptorData *d, int pos);
+int move_command(DescriptorData *d, int src, int dst);
+int new_command(DescriptorData *d, int pos);
+int start_change_command(DescriptorData *d, int pos);
+void zedit_disp_comtype(DescriptorData *d);
+void zedit_disp_arg1(DescriptorData *d);
+void zedit_disp_arg2(DescriptorData *d);
+void zedit_disp_arg3(DescriptorData *d);
+void zedit_disp_arg4(DescriptorData *d);
+void zedit_save_internally(DescriptorData *d);
 void zedit_save_to_disk(int zone_num);
 void zedit_create_index(int znum, char *type);
 void zedit_new_zone(CHAR_DATA *ch, int vzone_num);
@@ -92,7 +92,7 @@ int zedit_count_cmdlist(pzcmd head) {
 }
 
 // Построение циклического буфера с трансляцией в VNUM
-pzcmd zedit_build_cmdlist(DESCRIPTOR_DATA *d) {
+pzcmd zedit_build_cmdlist(DescriptorData *d) {
 	pzcmd head, item;
 	int subcmd;
 
@@ -194,7 +194,7 @@ pzcmd zedit_seek_cmd(pzcmd head, int pos) {
 }
 
 // Удаляю команду номер pos
-int delete_command(DESCRIPTOR_DATA *d, int pos) {
+int delete_command(DescriptorData *d, int pos) {
 	pzcmd head, item;
 	head = (pzcmd) OLC_ZONE(d)->cmd;
 	item = zedit_seek_cmd(head, pos);
@@ -205,7 +205,7 @@ int delete_command(DESCRIPTOR_DATA *d, int pos) {
 }
 
 // Перемещаю команду src на позицию dst
-int move_command(DESCRIPTOR_DATA *d, int src, int dst) {
+int move_command(DescriptorData *d, int src, int dst) {
 	pzcmd head, isrc, idst;
 	if (src == dst)
 		return 0;    // нечего делать
@@ -225,7 +225,7 @@ int move_command(DESCRIPTOR_DATA *d, int src, int dst) {
 	return 1;
 }
 
-int start_change_command(DESCRIPTOR_DATA *d, int pos) {
+int start_change_command(DescriptorData *d, int pos) {
 	pzcmd head, item;
 	head = (pzcmd) OLC_ZONE(d)->cmd;
 	item = zedit_seek_cmd(head, pos);
@@ -235,7 +235,7 @@ int start_change_command(DESCRIPTOR_DATA *d, int pos) {
 	return 1;
 }
 
-int new_command(DESCRIPTOR_DATA *d, int pos) {
+int new_command(DescriptorData *d, int pos) {
 	pzcmd head, item;
 	head = (pzcmd) OLC_ZONE(d)->cmd;
 	item = zedit_seek_cmd(head, pos);
@@ -256,7 +256,7 @@ int new_command(DESCRIPTOR_DATA *d, int pos) {
 
 // Процедура пролистывает список команд
 // Правильность не отслеживается, корректируется при выводе на экран
-void zedit_scroll_list(DESCRIPTOR_DATA *d, char *arg) {
+void zedit_scroll_list(DescriptorData *d, char *arg) {
 	pzcmd head;
 	int last;
 	long pos;
@@ -289,7 +289,7 @@ void zedit_scroll_list(DESCRIPTOR_DATA *d, char *arg) {
 	d->olc->bitmask |= pos;
 }
 
-void zedit_setup(DESCRIPTOR_DATA *d, int/* room_num*/) {
+void zedit_setup(DescriptorData *d, int/* room_num*/) {
 	ZoneData *zone;
 	int i;
 
@@ -343,7 +343,7 @@ void zedit_setup(DESCRIPTOR_DATA *d, int/* room_num*/) {
 //------------------------------------------------------------------------
 
 // * Save all the information in the player's temporary buffer back into the current zone table.
-void zedit_save_internally(DESCRIPTOR_DATA *d) {
+void zedit_save_internally(DescriptorData *d) {
 	int subcmd;
 	int count, i;
 	pzcmd head, item;
@@ -658,7 +658,7 @@ const char *if_flag_text(int if_flag) {
 	return if_flag_msg[if_flag & 3];
 }
 
-void zedit_disp_commands(DESCRIPTOR_DATA *d) {
+void zedit_disp_commands(DescriptorData *d) {
 	pzcmd head, item;
 	int room, counter = 0;
 	int hl = 0;        // требуется ли подсветка
@@ -831,7 +831,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA *d) {
 }
 
 // the main menu
-void zedit_disp_menu(DESCRIPTOR_DATA *d) {
+void zedit_disp_menu(DescriptorData *d) {
 //	char *buf = (char *) malloc(32 * 1024);
 	char *type1_zones = (char *) malloc(1024);
 	char *type2_zones = (char *) malloc(1024);
@@ -970,7 +970,7 @@ void zedit_disp_menu(DESCRIPTOR_DATA *d) {
 }
 
 //MZ.load
-void zedit_disp_type_menu(DESCRIPTOR_DATA *d) {
+void zedit_disp_type_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 	get_char_cols(d->character.get());
@@ -989,7 +989,7 @@ void zedit_disp_type_menu(DESCRIPTOR_DATA *d) {
 //------------------------------------------------------------------------
 
 // * Print the command type menu and setup response catch.
-void zedit_disp_comtype(DESCRIPTOR_DATA *d) {
+void zedit_disp_comtype(DescriptorData *d) {
 	pzcmd item = SEEK_CMD(d);
 	get_char_cols(d->character.get());
 	send_to_char("\r\n", d->character.get());
@@ -1016,7 +1016,7 @@ void zedit_disp_comtype(DESCRIPTOR_DATA *d) {
  * Print the appropriate message for the command type for arg1 and set
  * up the input catch clause
  */
-void zedit_disp_arg1(DESCRIPTOR_DATA *d) {
+void zedit_disp_arg1(DescriptorData *d) {
 	pzcmd item = SEEK_CMD(d);
 
 	send_to_char("\r\n", d->character.get());
@@ -1078,7 +1078,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA *d) {
  * Print the appropriate message for the command type for arg2 and set
  * up the input catch clause.
  */
-void zedit_disp_arg2(DESCRIPTOR_DATA *d) {
+void zedit_disp_arg2(DescriptorData *d) {
 	pzcmd item = SEEK_CMD(d);
 
 	int i = 0;
@@ -1156,7 +1156,7 @@ void zedit_disp_arg2(DESCRIPTOR_DATA *d) {
  * Print the appropriate message for the command type for arg3 and set
  * up the input catch clause.
  */
-void zedit_disp_arg3(DESCRIPTOR_DATA *d) {
+void zedit_disp_arg3(DescriptorData *d) {
 	pzcmd item = SEEK_CMD(d);
 
 	int i = 0;
@@ -1229,7 +1229,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA *d) {
 	OLC_MODE(d) = ZEDIT_ARG3;
 }
 
-void zedit_disp_arg4(DESCRIPTOR_DATA *d) {
+void zedit_disp_arg4(DescriptorData *d) {
 	pzcmd item = SEEK_CMD(d);
 
 	send_to_char("\r\n", d->character.get());
@@ -1268,7 +1268,7 @@ void zedit_disp_arg4(DESCRIPTOR_DATA *d) {
 	OLC_MODE(d) = ZEDIT_ARG4;
 }
 
-void zedit_disp_sarg1(DESCRIPTOR_DATA *d) {
+void zedit_disp_sarg1(DescriptorData *d) {
 	pzcmd item = SEEK_CMD(d);
 
 	send_to_char("\r\n", d->character.get());
@@ -1302,7 +1302,7 @@ void zedit_disp_sarg1(DESCRIPTOR_DATA *d) {
 	OLC_MODE(d) = ZEDIT_SARG1;
 }
 
-void zedit_disp_sarg2(DESCRIPTOR_DATA *d) {
+void zedit_disp_sarg2(DescriptorData *d) {
 	pzcmd item = SEEK_CMD(d);
 
 	send_to_char("\r\n", d->character.get());
@@ -1346,7 +1346,7 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA *d) {
 #define CHECK_TRIG(d, n) if(real_trigger(n)<0)  {send_to_char("Неверный номер триггера, повторите : ",d->character.get());return;}
 #define CHECK_NUM(d, n)  if(!is_signednumber(n)){send_to_char("Ожидается число, повторите : ",d->character.get());return;}
 
-void zedit_parse(DESCRIPTOR_DATA *d, char *arg) {
+void zedit_parse(DescriptorData *d, char *arg) {
 	pzcmd item;
 	int pos, i, j;
 	int *temp = nullptr;

@@ -22,7 +22,7 @@
 #include "entities/room.h"
 #include "house.h"
 #include "entities/world_characters.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"
@@ -42,32 +42,32 @@ extern RoomRnum r_mortal_start_room;
 extern RoomRnum r_immort_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 
 //------------------------------------------------------------------------
 int planebit(const char *str, int *plane, int *bit);
 // * Function Prototypes
-void redit_setup(DESCRIPTOR_DATA *d, int real_num);
+void redit_setup(DescriptorData *d, int real_num);
 
 void room_copy(ROOM_DATA *dst, ROOM_DATA *src);
 void room_free(ROOM_DATA *room);
 
-void redit_save_internally(DESCRIPTOR_DATA *d);
+void redit_save_internally(DescriptorData *d);
 void redit_save_to_disk(int zone);
 
-void redit_parse(DESCRIPTOR_DATA *d, char *arg);
-void redit_disp_extradesc_menu(DESCRIPTOR_DATA *d);
-void redit_disp_exit_menu(DESCRIPTOR_DATA *d);
-void redit_disp_exit_flag_menu(DESCRIPTOR_DATA *d);
-void redit_disp_flag_menu(DESCRIPTOR_DATA *d);
-void redit_disp_sector_menu(DESCRIPTOR_DATA *d);
-void redit_disp_menu(DESCRIPTOR_DATA *d);
+void redit_parse(DescriptorData *d, char *arg);
+void redit_disp_extradesc_menu(DescriptorData *d);
+void redit_disp_exit_menu(DescriptorData *d);
+void redit_disp_exit_flag_menu(DescriptorData *d);
+void redit_disp_flag_menu(DescriptorData *d);
+void redit_disp_sector_menu(DescriptorData *d);
+void redit_disp_menu(DescriptorData *d);
 
 //***************************************************************************
 #define  W_EXIT(room, num) (world[(room)]->dir_option[(num)])
 //***************************************************************************
 
-void redit_setup(DESCRIPTOR_DATA *d, int real_num)
+void redit_setup(DescriptorData *d, int real_num)
 /*++
    Подготовка данных для редактирования комнаты.
       d        - OLC дескриптор
@@ -96,7 +96,7 @@ void redit_setup(DESCRIPTOR_DATA *d, int real_num)
 #define ZCMD (zone_table[zone].cmd[cmd_no])
 
 // * Сохранить новую комнату в памяти
-void redit_save_internally(DESCRIPTOR_DATA *d) {
+void redit_save_internally(DescriptorData *d) {
 	int j, room_num, cmd_no;
 	OBJ_DATA *temp_obj;
 
@@ -375,7 +375,7 @@ void redit_save_to_disk(int zone_num) {
 // *************************************************************************
 
 // * For extra descriptions.
-void redit_disp_extradesc_menu(DESCRIPTOR_DATA *d) {
+void redit_disp_extradesc_menu(DescriptorData *d) {
 	auto extra_desc = OLC_DESC(d);
 
 	sprintf(buf,
@@ -392,7 +392,7 @@ void redit_disp_extradesc_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * For exits.
-void redit_disp_exit_menu(DESCRIPTOR_DATA *d) {
+void redit_disp_exit_menu(DescriptorData *d) {
 	// * if exit doesn't exist, alloc/create it
 	if (!OLC_EXIT(d)) {
 		OLC_EXIT(d).reset(new EXIT_DATA());
@@ -441,7 +441,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * For exit flags.
-void redit_disp_exit_flag_menu(DESCRIPTOR_DATA *d) {
+void redit_disp_exit_flag_menu(DescriptorData *d) {
 	get_char_cols(d->character.get());
 	sprintf(buf,
 			"ВНИМАНИЕ! Созданная здесь дверь будет всегда отперта и открыта.\r\n"
@@ -459,7 +459,7 @@ void redit_disp_exit_flag_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * For room flags.
-void redit_disp_flag_menu(DESCRIPTOR_DATA *d) {
+void redit_disp_flag_menu(DescriptorData *d) {
 	disp_planes_values(d, room_bits, 2);
 	OLC_ROOM(d)->flags_sprint(buf1, ",", true);
 	snprintf(buf,
@@ -473,7 +473,7 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * For sector type.
-void redit_disp_sector_menu(DESCRIPTOR_DATA *d) {
+void redit_disp_sector_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
 #if defined(CLEAR_SCREEN)
@@ -489,7 +489,7 @@ void redit_disp_sector_menu(DESCRIPTOR_DATA *d) {
 }
 
 // * The main menu.
-void redit_disp_menu(DESCRIPTOR_DATA *d) {
+void redit_disp_menu(DescriptorData *d) {
 	ROOM_DATA *room;
 
 	get_char_cols(d->character.get());
@@ -550,7 +550,7 @@ void redit_disp_menu(DESCRIPTOR_DATA *d) {
 // *************************************************************************
 // *  The main loop                                                        *
 // *************************************************************************
-void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
+void redit_parse(DescriptorData *d, char *arg) {
 	int number, plane, bit;
 
 	switch (OLC_MODE(d)) {
@@ -609,7 +609,7 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 						SEND_TO_Q(OLC_ROOM(d)->temp_description, d);
 						d->backstr = str_dup(OLC_ROOM(d)->temp_description);
 					}
-					d->writer.reset(new DelegatedStringWriter(OLC_ROOM(d)->temp_description));
+					d->writer.reset(new utils::DelegatedStringWriter(OLC_ROOM(d)->temp_description));
 					d->max_str = MAX_ROOM_DESC;
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;
@@ -816,7 +816,7 @@ void redit_parse(DESCRIPTOR_DATA *d, char *arg) {
 						SEND_TO_Q(OLC_DESC(d)->description, d);
 						d->backstr = str_dup(OLC_DESC(d)->description);
 					}
-					d->writer.reset(new DelegatedStringWriter(OLC_DESC(d)->description));
+					d->writer.reset(new utils::DelegatedStringWriter(OLC_DESC(d)->description));
 					d->max_str = 4096;
 					d->mail_to = 0;
 					return;

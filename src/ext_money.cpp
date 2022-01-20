@@ -8,7 +8,7 @@
 #include "screen.h"
 #include "utils/pugixml.h"
 #include "parse.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -566,7 +566,7 @@ void drop_torc(CHAR_DATA *mob) {
 	log("[Extract char] Checking %s for ExtMoney.", mob->get_name().c_str());
 
 	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
-	DESCRIPTOR_DATA *d = 0;
+	DescriptorData *d = 0;
 	if (damager.first > 0) {
 		d = DescByUID(damager.first);
 	}

@@ -250,7 +250,7 @@ void do_dig(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	ch->set_int(old_int);
 	ch->set_wis(old_wis);
 
-	WAIT_STATE(ch, dig_vars.lag * PULSE_VIOLENCE);
+	WAIT_STATE(ch, dig_vars.lag * kPulseViolence);
 
 	if (percent > prob / dig_vars.prob_divide) {
 		send_to_char("Вы только зря расковыряли землю и раскидали камни.\r\n", ch);

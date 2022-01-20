@@ -65,6 +65,8 @@ typedef char byte;
 
 const int kMaxRemort = 75;
 
+// Структуры валют надо вынести в отдельный модуль с механикой валют ***************************************
+
 namespace ExtMoney {
 const unsigned kTorcGold = 0;        // золотые гривны
 const unsigned kTorcSilver = 1;        // серебряные гривны
@@ -184,16 +186,15 @@ const short kLevelFreeze = kLevelGreatGod; // Level of the 'freeze' command //
 
 const __uint8_t kMagicNumber = 0x06;    // Arbitrary number that won't be in a string //
 
-constexpr long long OPT_USEC = 40000;    // 25 passes per second //
-constexpr long long PASSES_PER_SEC = 1000000 / OPT_USEC;
+constexpr long long kOptUsec = 40000;    // 25 passes per second //
+constexpr long long kPassesPerSec = 1000000 / kOptUsec;
+constexpr long long kRealSec = kPassesPerSec;
+constexpr long long kPulseZone = (1*kRealSec);
+constexpr long long kPulseMobile = (10*kRealSec);
+constexpr long long kPulseViolence = (2*kRealSec);
 
-#define RL_SEC    * PASSES_PER_SEC
-
-#define PULSE_ZONE      (1 RL_SEC)
-#define PULSE_MOBILE    (10 RL_SEC)
-#define PULSE_VIOLENCE  (2 RL_SEC)
-#define ZONES_RESET    1    // number of zones to reset at one time //
-#define PULSE_LOGROTATE (10 RL_SEC)
+const int kZonesReset = 1;    // number of zones to reset at one time //
+//#define PULSE_LOGROTATE (10 kRealSec)
 
 // Variables for the output buffering system //
 constexpr __uint16_t kMaxSockBuf = 48 * 1024;	// Size of kernel's sock buf   //
@@ -210,16 +211,13 @@ const int kMaxExtendLength = 0xFFFF;
 const int kMaxTrglineLength = 1024;
 const int kMaxInputLength = 1024;   // Max length per *line* of input //
 const int kMaxRawInputLength = 1024;   // Max size of *raw* input //
-const int kMaxMessages = 600;
 const int kMaxNameLength = 20;
 const int kMinNameLength = 5;
 const int kHostLength = 30;
 const int kExdscrLength = 512;
 const int kMaxAffect = 128;
 const int kMaxObjAffect = 8;
-const int kMaxTimedSkills = 16;
 const int kMaxFeats = 256;
-const int kMaxTimedFeats = 16;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
 const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 
@@ -279,20 +277,23 @@ struct Follower {
 };
 
 // Structure used for tracking a mob //
-struct track_info {
+/*struct track_info {
 	int trk_info = 0;
 	int who = 0;
 	int dirs = 0;
-};
+};*/
 
 // Structure used for helpers //
+// Это следует перенести в spec_proc после ее распиливания (сейчас вряд ли есть смысл огромный хедер везде тащить)
 struct Helper {
 	MobVnum mob_vnum = 0;
 	struct Helper *next = nullptr;
 };
 
-// Перенести в загрузку предметов
+
+// ===============================================================
 // Structure used for on_dead object loading //
+// Эту механику следует вырезать.
 struct LoadingItem {
 	ObjVnum obj_vnum = 0;
 	int load_prob = 0;
@@ -301,6 +302,7 @@ struct LoadingItem {
 };
 
 using OnDeadLoadList = std::list<struct LoadingItem *>;
+// ===============================================================
 
 // Перенести в работу с очередью мема
 struct SpellMemQueueItem {
@@ -320,6 +322,7 @@ struct TextBlocksQueue {
 	struct TextBlock *head = nullptr;
 	struct TextBlock *tail = nullptr;
 };
+// ===============================================================
 
 namespace Glory {
 
@@ -357,104 +360,10 @@ class sedit;
 #ifndef HAVE_ZLIB
 struct z_stream;
 #endif
+// ===============================================================
 
-class AbstractStringWriter {
- public:
-	using shared_ptr = std::shared_ptr<AbstractStringWriter>;
-
-	virtual ~AbstractStringWriter() = default;
-	[[nodiscard]] virtual const char *get_string() const = 0;
-	virtual void set_string(const char *data) = 0;
-	virtual void append_string(const char *data) = 0;
-	[[nodiscard]] virtual size_t length() const = 0;
-	virtual void clear() = 0;
-};
-
-class DelegatedStringWriter : public AbstractStringWriter {
- public:
-	DelegatedStringWriter(char *&managed) : m_delegated_string_(managed) {}
-	virtual const char *get_string() const override { return m_delegated_string_; }
-	virtual void set_string(const char *string) override;
-	virtual void append_string(const char *string) override;
-	virtual size_t length() const override { return m_delegated_string_ ? strlen(m_delegated_string_) : 0; }
-	virtual void clear() override;
-
- private:
-	char *&m_delegated_string_;
-};
-
-class AbstractStdStringWriter : public AbstractStringWriter {
- public:
-	virtual const char *get_string() const override { return string().c_str(); }
-	virtual void set_string(const char *string) override { this->string() = string; }
-	virtual void append_string(const char *string) override { this->string() += string; }
-	virtual size_t length() const override { return string().length(); }
-	virtual void clear() override { string().clear(); }
-
- private:
-	virtual std::string &string() = 0;
-	virtual const std::string &string() const = 0;
-};
-
-class StdStringWriter : public AbstractStdStringWriter {
- private:
-	virtual std::string &string() override { return m_string_; }
-	virtual const std::string &string() const override { return m_string_; }
-
-	std::string m_string_;
-};
-
-class DelegatedStdStringWriter : public AbstractStringWriter {
- public:
-	DelegatedStdStringWriter(std::string &string) : m_string_(string) {}
-	virtual const char *get_string() const override { return m_string_.c_str(); }
-	virtual void set_string(const char *string) override { m_string_ = string; }
-	virtual void append_string(const char *string) override { m_string_ += string; }
-	virtual size_t length() const override { return m_string_.length(); }
-	virtual void clear() override { m_string_.clear(); }
-
- private:
-	std::string &m_string_;
-};
-
+// ===============================================================
 // other miscellaneous structures **************************************
-
-struct AttackMsg {
-	char *attacker_msg = nullptr;	// message to attacker //
-	char *victim_msg = nullptr;		// message to victim   //
-	char *room_msg = nullptr;		// message to room     //
-};
-
-struct AttackMsgSet {
-	struct AttackMsg die_msg;        // messages when death        //
-	struct AttackMsg miss_msg;        // messages when miss         //
-	struct AttackMsg hit_msg;        // messages when hit       //
-	struct AttackMsg god_msg;        // messages when hit on god      //
-	struct AttackMsgSet *next = nullptr;    // to next messages of this kind.   //
-};
-
-struct AttackMessages {
-	int attack_type = 0;				// Attack type          //
-	int number_of_attacks = 0;			// How many attack messages to chose from. //
-	struct AttackMsgSet *msg = nullptr;	// List of messages.       //
-};
-
-struct ZoneCategory {
-	char *name = nullptr;            // type name //
-	int ingr_qty = 0;        // quantity of ingredient types //
-	int *ingr_types = nullptr;    // types of ingredients, which are loaded in zones of this type //
-};
-
-/*struct race_app_type {
-	struct extra_affects_type *extra_affects;
-	struct obj_affected_type *extra_modifiers;
-};*/
-
-struct title_type {
-	char *title_m = nullptr;
-	char *title_f = nullptr;
-	int exp = 0;
-};
 
 struct IndexData {
 	IndexData() : vnum(0), number(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
@@ -470,6 +379,7 @@ struct IndexData {
 	int zone;            // mob/obj zone rnum //
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };
+// ===============================================================
 
 const __uint8_t GAPPLY_NONE = 0;
 const __uint8_t GAPPLY_SKILL_SUCCESS = 1;
@@ -478,15 +388,10 @@ const __uint8_t GAPPLY_SPELL_EFFECT = 3;
 const __uint8_t GAPPLY_MODIFIER = 4;
 const __uint8_t GAPPLY_AFFECT = 5;
 
-/* PCCleanCriteria структура которая определяет через какой время
-   неактивности будет удален чар
-*/
-struct PCCleanCriteria {
-	int level = 0;	// max уровень для этого временного лимита //
-	int days = 0;	// временной лимит в днях        //
-};
-
+// ===============================================================
 // Структрура для описания проталов для спела townportal //
+// Механику порталов надо обобщить и вынести в отдельный файл в game_mechanics
+// После чего использовать ее для врат, !перехода! и триггерной постановки портала.
 struct Portal {
 	char *wrd = nullptr;			// кодовое слово
 	RoomVnum vnum = 0;				// vnum комнаты для портала
@@ -498,9 +403,9 @@ struct CharacterPortal {
 	int vnum = 0;            // vnum комнаты для портала //
 	struct CharacterPortal *next = nullptr;
 };
-
+// ===============================================================
 // Структуры для act.wizard.cpp //
-
+// После распиливания акт.визард надо вынести в соответтующие файлы
 struct show_struct {
 	const char *cmd = nullptr;
 	const char level = 0;
@@ -512,7 +417,7 @@ struct set_struct {
 	const char pcnpc = 0;
 	const char type = 0;
 };
-
+// ===============================================================
 #endif // STRUCTS_STRUCTS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

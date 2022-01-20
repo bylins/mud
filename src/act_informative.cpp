@@ -60,7 +60,7 @@
 #include "mob_stat.h"
 #include "utils/utils_char_obj.inl"
 #include "classes/class.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "game_mechanics/bonus.h"
@@ -2449,7 +2449,7 @@ bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd) {
 				found = CalcCurrentSkill(ch, SKILL_LOOK_HIDE, found_char);
 				TrainSkill(ch, SKILL_LOOK_HIDE, found < fnum, found_char);
 				if (!WAITLESS(ch))
-					WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+					WAIT_STATE(ch, 1 * kPulseViolence);
 				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
 					return false;
 			}
@@ -2617,7 +2617,7 @@ void do_looking(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 			for (i = 0; i < kDirMaxNumber; i++)
 				look_in_direction(ch, i, EXIT_SHOW_LOOKING);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
-				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+				WAIT_STATE(ch, 1 * kPulseViolence);
 		}
 	} else
 		send_to_char("Вам явно не хватает этого умения.\r\n", ch);
@@ -2644,7 +2644,7 @@ void do_hearing(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 			for (i = 0; i < kDirMaxNumber; i++)
 				hear_in_direction(ch, i, 0);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
-				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+				WAIT_STATE(ch, 1 * kPulseViolence);
 		}
 	} else
 		send_to_char("Выучите сначала как это следует делать.\r\n", ch);
@@ -4580,14 +4580,14 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
 // Хорс
 	char host_by_name[kMaxInputLength] = "\0";
-	DESCRIPTOR_DATA *list_players[MAX_LIST_LEN];
-	DESCRIPTOR_DATA *d_tmp;
+	DescriptorData *list_players[MAX_LIST_LEN];
+	DescriptorData *d_tmp;
 	int count_pl;
 	int cycle_i, is, flag_change;
 	unsigned long a1, a2;
 	int showremorts = 0, showemail = 0, locating = 0;
 	char sorting = '!';
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	int low = 0, high = kLevelImplementator, num_can_see = 0;
 	int showclass = 0, outlaws = 0, playing = 0, deadweight = 0;
 
@@ -4928,7 +4928,7 @@ void sendWhoami(CHAR_DATA *ch) {
 
 // Generic page_string function for displaying text
 void do_gen_ps(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
-	//DESCRIPTOR_DATA *d;
+	//DescriptorData *d;
 	switch (subcmd) {
 		case SCMD_CREDITS: page_string(ch->desc, credits, 0);
 			break;
@@ -4958,7 +4958,7 @@ void do_gen_ps(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 }
 
 void perform_mortal_where(CHAR_DATA *ch, char *arg) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	send_to_char("Кто много знает, тот плохо спит.\r\n", ch);
 	return;
@@ -5119,7 +5119,7 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
 }
 
 void perform_immort_where(CHAR_DATA *ch, char *arg) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	int num = 1, found = 0;
 
 	if (!*arg) {
@@ -5626,7 +5626,7 @@ void do_affects(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 // Create web-page with users list
 void make_who2html(void) {
 	FILE *opf;
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	int imms_num = 0, morts_num = 0;
 

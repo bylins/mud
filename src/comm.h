@@ -25,7 +25,7 @@
 class CObjectPrototype;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 
 // comm.cpp
 void send_to_all(const char *messg);
@@ -38,9 +38,9 @@ void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
 void perform_to_all(const char *messg, CHAR_DATA *ch);
 #ifdef HAS_EPOLL
-void close_socket(DESCRIPTOR_DATA *d, int direct, int epoll, struct epoll_event *events, int n_ev);
+void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev);
 #else
-void close_socket(DESCRIPTOR_DATA * d, int direct);
+void close_socket(DescriptorData * d, int direct);
 #endif
 
 void perform_act(const char *orig,
@@ -115,17 +115,13 @@ unsigned long get_ip(const char *addr);
 
 // I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);
-bool write_to_descriptor_with_options(DESCRIPTOR_DATA *t, const char *buffer, size_t byffer_size, int &written);
+bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t byffer_size, int &written);
 void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased);
-void write_to_output(const char *txt, DESCRIPTOR_DATA *d);
-void string_add(DESCRIPTOR_DATA *d, char *str);
-void string_write(DESCRIPTOR_DATA *d,
-				  const AbstractStringWriter::shared_ptr &writer,
-				  size_t len,
-				  int mailto,
-				  void *data);
-
-int toggle_compression(DESCRIPTOR_DATA *d);
+void write_to_output(const char *txt, DescriptorData *d);
+void string_add(DescriptorData *d, char *str);
+void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_ptr &writer,
+				  size_t len, int mailto, void *data);
+int toggle_compression(DescriptorData *d);
 
 #define SEND_TO_Q(messg, desc)        write_to_output((messg), desc)
 #define SEND_TO_SOCKET(messg, desc)    write_to_descriptor((desc), (messg), strlen(messg))

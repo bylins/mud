@@ -13,13 +13,13 @@
 #include "crafts/im.h"
 
 #include "entities/world_characters.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "screen.h"
 #include "modify.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, kLevelBuilder, IMLOG, true)
@@ -732,7 +732,7 @@ void init_im(void) {
 		free(imtypes[i].tlst.types);
 	}
 
-	// Прописываем для зарегестрированных рецептов всем классам KNOW_SKILL,
+	// Прописываем для зарегестрированных рецептов всем классам kKnowSkill,
 	// но уровни и реморты равные -1, т.о. если файл classrecipe.lst поврежден,
 	// рецепты не будут обнулятся, просто станут недоступны для изучения
 	for (i = 0; i <= top_imrecipes; i++) {

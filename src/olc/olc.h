@@ -57,9 +57,9 @@
 
 // * Utilities exported from olc.c.
 void strip_string(char *);
-void cleanup_olc(DESCRIPTOR_DATA *d, byte cleanup_type);
+void cleanup_olc(DescriptorData *d, byte cleanup_type);
 void get_char_cols(CHAR_DATA *ch);
-void disp_planes_values(DESCRIPTOR_DATA *d, const char *names[], short num_column);
+void disp_planes_values(DescriptorData *d, const char *names[], short num_column);
 void olc_add_to_save_list(int zone, byte type);
 void olc_remove_from_save_list(int zone, byte type);
 
@@ -387,8 +387,8 @@ extern struct olc_save_info *olc_save_list;
 #define MAX_MOB_DESC    512
 #define MAX_OBJ_DESC    512
 
-void xedit_disp_ing(DESCRIPTOR_DATA *d, int *ping);
-int xparse_ing(DESCRIPTOR_DATA *d, int **pping, char *arg);
+void xedit_disp_ing(DescriptorData *d, int *ping);
+int xparse_ing(DescriptorData *d, int **pping, char *arg);
 
 #endif
 

@@ -464,7 +464,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 }
 
 void message_auction(char *message, CHAR_DATA *ch) {
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next) {

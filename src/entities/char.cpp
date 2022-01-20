@@ -15,7 +15,7 @@
 #include "house.h"
 #include "msdp/msdp_constants.h"
 #include "backtrace.h"
-#include "zone.table.h"
+#include "zone.h"
 #include "skills_info.h"
 
 #include <boost/format.hpp>
@@ -533,7 +533,7 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const {
 
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
-	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
+	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == kKnowSkill;
 	//int is_native = true;
 	for (int i = 0; i < NUM_WEARS; ++i) {
 		if (equipment[i]) {
@@ -569,7 +569,7 @@ int CHAR_DATA::get_inborn_skill(const ESkill skill_num) {
 
 int CHAR_DATA::get_trained_skill(const ESkill skill_num) const {
 	if (AFF_FLAGGED(this, EAffectFlag::AFF_DOMINATION)) {
-		if (skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL)
+		if (skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == kKnowSkill)
 			return 100;
 	}
 	if (Privilege::check_skills(this)) {
@@ -675,8 +675,8 @@ unsigned CHAR_DATA::getSkillCooldown(ESkill skillID) {
 };
 
 int CHAR_DATA::getSkillCooldownInPulses(ESkill skillID) {
-	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + PULSE_VIOLENCE)));
-	return static_cast<int>(std::ceil(getSkillCooldown(skillID) / (0.0 + PULSE_VIOLENCE)));
+	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + kPulseViolence)));
+	return static_cast<int>(std::ceil(getSkillCooldown(skillID) / (0.0 + kPulseViolence)));
 };
 
 /* Понадобится - тогда и раскомментим...
@@ -2129,7 +2129,7 @@ bool CHAR_DATA::drop_from_horse() {
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
 	act(buf, false, plr, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	AFF_FLAGS(plr).unset(EAffectFlag::AFF_HORSE);
-	WAIT_STATE(this, 3 * PULSE_VIOLENCE);
+	WAIT_STATE(this, 3 * kPulseViolence);
 	if (GET_POS(plr) > POS_SITTING)
 		GET_POS(plr) = POS_SITTING;
 	return true;

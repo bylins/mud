@@ -63,7 +63,7 @@
 #include <sstream>
 #include <sstream>
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern const char *weapon_class[];
 // local functions
@@ -693,11 +693,8 @@ std::string koi_to_alt(const std::string &input) {
 // completely rewritten by Anton Gorev 05/08/2016 (kvirund@gmail.com) //
 // substitute appearances of 'pattern' with 'replacement' in string //
 // and return the # of replacements //
-int replace_str(const AbstractStringWriter::shared_ptr &writer,
-				const char *pattern,
-				const char *replacement,
-				int rep_all,
-				int max_size) {
+int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const char *pattern,
+				const char *replacement, int rep_all, int max_size) {
 	char *replace_buffer = nullptr;
 	CREATE(replace_buffer, max_size);
 	std::shared_ptr<char> guard(replace_buffer, free);
@@ -752,7 +749,8 @@ int replace_str(const AbstractStringWriter::shared_ptr &writer,
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCRIPTOR_DATA * /*d*/, size_t maxlen) {
+void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
+				 int mode, DescriptorData * /*d*/, size_t maxlen) {
 	size_t total_chars = 0;
 	int cap_next = true, cap_next_next = false;
 	const char *flow;

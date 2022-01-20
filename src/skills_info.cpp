@@ -6,9 +6,9 @@ const byte kDefaultMinPosition = 0;
 const int kDefaultFailPercent = 200;
 const unsigned short kDefaultCap = 200;
 
+struct AttackMessages fight_messages[kMaxMessages];
 struct SkillInfoType skill_info[MAX_SKILL_NUM + 1];
 
-const char *skill_name(int num);
 void InitSingleSkill(int skill, const char *name, const char *short_name,
 					 int save_type, int difficulty, unsigned short cap);
 void InitSkills();

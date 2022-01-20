@@ -34,7 +34,7 @@
 #include "skills/townportal.h"
 #include "skills_info.h"
 #include "utils/id_converter.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 struct mob_command_info {
 	const char *command;
@@ -1074,7 +1074,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (isSkill) {
-		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == KNOW_SKILL) {
+		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == kKnowSkill) {
 			trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");

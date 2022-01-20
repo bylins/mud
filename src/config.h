@@ -43,6 +43,14 @@ EOutputStream ITEM_BY_NAME<EOutputStream>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EOutputStream>(const EOutputStream spell);
 
+/* PCCleanCriteria структура которая определяет через какой время
+   неактивности будет удален чар
+*/
+struct PCCleanCriteria {
+	int level = 0;	// max уровень для этого временного лимита //
+	int days = 0;	// временной лимит в днях        //
+};
+
 class CLogInfo {
  private:
 	CLogInfo() {}

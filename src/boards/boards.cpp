@@ -310,7 +310,7 @@ void DoBoard(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
 		STATE(ch->desc) = CON_WRITEBOARD;
-		AbstractStringWriter::shared_ptr writer(new StdStringWriter());
+		utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
 		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, nullptr);
 	} else if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove")) {
 		if (!is_number(buffer2.c_str())) {
@@ -593,7 +593,7 @@ void Static::new_message_notify(const Board::shared_ptr board) {
 				 board->get_name().c_str(), msg.author.c_str(),
 				 msg.subject.c_str());
 		// оповещаем весь мад кто с правами чтения
-		for (DESCRIPTOR_DATA *f = descriptor_list; f; f = f->next) {
+		for (DescriptorData *f = descriptor_list; f; f = f->next) {
 			if (f->character
 				&& STATE(f) == CON_PLAYING
 				&& PRF_FLAGGED(f->character, PRF_BOARD_MODE)

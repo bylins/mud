@@ -5,7 +5,7 @@
 #include "accounts.h"
 #include "password.h"
 #include <boost/algorithm/string.hpp>
-#include "zone.table.h"
+#include "entities/zone.h"
 
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
@@ -63,7 +63,7 @@ void Account::complete_quest(int id) {
 	this->dquests.push_back(dq_tmp);
 }
 
-void Account::show_list_players(DESCRIPTOR_DATA *d) {
+void Account::show_list_players(DescriptorData *d) {
 	SEND_TO_Q("Ваши персонажи:\r\n", d);
 	int count = 1;
 	for (auto &x : this->players_list) {
@@ -189,7 +189,7 @@ void Account::add_login(const std::string &ip_addr) {
 	this->history_logins.insert(std::pair<std::string, login_index>(ip_addr, tmp));
 }
 /* Показ хистори логинов */
-void Account::show_history_logins(DESCRIPTOR_DATA *d) {
+void Account::show_history_logins(DescriptorData *d) {
 	char temp_buf[256] = "\0";
 	for (auto &x : this->history_logins) {
 		sprintf(temp_buf,

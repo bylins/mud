@@ -30,7 +30,7 @@ AbstractSender::buffer_t AbstractSender::build(const AbstractReporter::shared_pt
 	return buffer;
 }
 
-ReportSender::ReportSender(DESCRIPTOR_DATA *descriptor) : m_descriptor(descriptor) {
+ReportSender::ReportSender(DescriptorData *descriptor) : m_descriptor(descriptor) {
 }
 
 void ReportSender::send(const AbstractReporter::shared_ptr &reporter) {

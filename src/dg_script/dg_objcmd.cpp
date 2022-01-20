@@ -20,7 +20,7 @@
 #include "skills/townportal.h"
 #include "skills_info.h"
 #include "utils/id_converter.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA *obj);
@@ -769,7 +769,7 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (isSkill) {
-		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL) {
+		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == kKnowSkill) {
 			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");

@@ -28,8 +28,8 @@
 #include <array>
 #include <algorithm>
 
-void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags);
-void show_apply_olc(DESCRIPTOR_DATA *d);
+void show_weapon_affects_olc(DescriptorData *d, const FLAG_DATA &flags);
+void show_apply_olc(DescriptorData *d);
 int planebit(const char *str, int *plane, int *bit);
 
 using namespace obj_sets;

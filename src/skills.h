@@ -142,7 +142,7 @@ enum ESkill : int {
 	MAX_SKILL_NUM = SKILL_INDEFINITE
 };
 
-#define KNOW_SKILL  1
+const int kKnowSkill = 1;
 
 struct SkillRollResult {
 	bool success = true;

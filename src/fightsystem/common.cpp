@@ -33,13 +33,13 @@ int isHaveNoExtraAttack(CHAR_DATA *ch) {
 
 void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room) {
 	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())))) {
-		WAIT_STATE(ch, waittime * PULSE_VIOLENCE);
+		WAIT_STATE(ch, waittime * kPulseViolence);
 	}
 }
 
 void setSkillCooldown(CHAR_DATA *ch, ESkill skill, int cooldownInPulses) {
 	if (ch->getSkillCooldownInPulses(skill) < cooldownInPulses) {
-		ch->setSkillCooldown(skill, cooldownInPulses * PULSE_VIOLENCE);
+		ch->setSkillCooldown(skill, cooldownInPulses * kPulseViolence);
 	}
 }
 
@@ -47,7 +47,7 @@ void setSkillCooldownInFight(CHAR_DATA *ch, ESkill skill, int cooldownInPulses) 
 	if (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
 		setSkillCooldown(ch, skill, cooldownInPulses);
 	} else {
-		WAIT_STATE(ch, PULSE_VIOLENCE / 6);
+		WAIT_STATE(ch, kPulseViolence / 6);
 	}
 }
 

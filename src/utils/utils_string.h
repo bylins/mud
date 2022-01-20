@@ -1,8 +1,10 @@
-#ifndef __UTILS_STRING_HPP__
-#define __UTILS_STRING_HPP__
+#ifndef UTILS_STRING_HPP_
+#define UTILS_STRING_HPP_
 
+#include <cstring>
 #include <memory>
 #include <string>
+
 
 namespace utils {
 using shared_string_ptr = std::shared_ptr<char>;
@@ -42,8 +44,68 @@ class SpacedPadding : public Padding {
 };
 
 inline std::ostream &operator<<(std::ostream &os, const SpacedPadding &padding) { return padding.output(os); }
+
+class AbstractStringWriter {
+ public:
+	using shared_ptr = std::shared_ptr<AbstractStringWriter>;
+
+	virtual ~AbstractStringWriter() = default;
+	[[nodiscard]] virtual const char *get_string() const = 0;
+	virtual void set_string(const char *data) = 0;
+	virtual void append_string(const char *data) = 0;
+	[[nodiscard]] virtual size_t length() const = 0;
+	virtual void clear() = 0;
+};
+
+class DelegatedStringWriter : public AbstractStringWriter {
+ public:
+	DelegatedStringWriter(char *&managed) : m_delegated_string_(managed) {}
+	virtual const char *get_string() const override { return m_delegated_string_; }
+	virtual void set_string(const char *string) override;
+	virtual void append_string(const char *string) override;
+	virtual size_t length() const override { return m_delegated_string_ ? strlen(m_delegated_string_) : 0; }
+	virtual void clear() override;
+
+ private:
+	char *&m_delegated_string_;
+};
+
+class AbstractStdStringWriter : public AbstractStringWriter {
+ public:
+	virtual const char *get_string() const override { return string().c_str(); }
+	virtual void set_string(const char *string) override { this->string() = string; }
+	virtual void append_string(const char *string) override { this->string() += string; }
+	virtual size_t length() const override { return string().length(); }
+	virtual void clear() override { string().clear(); }
+
+ private:
+	virtual std::string &string() = 0;
+	virtual const std::string &string() const = 0;
+};
+
+class StdStringWriter : public AbstractStdStringWriter {
+ private:
+	virtual std::string &string() override { return m_string_; }
+	virtual const std::string &string() const override { return m_string_; }
+
+	std::string m_string_;
+};
+
+class DelegatedStdStringWriter : public AbstractStringWriter {
+ public:
+	DelegatedStdStringWriter(std::string &string) : m_string_(string) {}
+	virtual const char *get_string() const override { return m_string_.c_str(); }
+	virtual void set_string(const char *string) override { m_string_ = string; }
+	virtual void append_string(const char *string) override { m_string_ += string; }
+	virtual size_t length() const override { return m_string_.length(); }
+	virtual void clear() override { m_string_.clear(); }
+
+ private:
+	std::string &m_string_;
+};
+
 }
 
-#endif
+#endif // UTILS_STRING_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

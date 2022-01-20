@@ -192,7 +192,7 @@ void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->is_morphed()) {
 		if (is_abbrev(arg, "назад")) {
 			ch->reset_morph();
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			return;
 		}
 		send_to_char("Когти подстригите сначала...\r\n", ch);
@@ -223,7 +223,7 @@ void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Ваша левая лапа не удержала " + ch->equipment[WEAR_HOLD]->get_PName(3) + ".\r\n", ch);
 		perform_remove(ch, WEAR_HOLD);
 	}
-	WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
+	WAIT_STATE(ch, 3 * kPulseViolence);
 }
 
 void PrintAllMorphsList(CHAR_DATA *ch) {

@@ -18,25 +18,25 @@
 #include "screen.h"
 #include "house.h"
 #include "entities/char_player.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
 #include "magic/magic_utils.h"
 #include "noob.h"
 #include "dg_db_scripts.h"
 #include "game_mechanics/bonus.h"
-#include "game_mechanics/weather.h"
+//#include "game_mechanics/weather.h"
 #include "olc/olc.h"
 #include "privilege.h"
 
-#include <string>
+//#include <string>
 
-#define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
+constexpr long long kPulsesPerMudHour = SECS_PER_MUD_HOUR*kPassesPerSec;
 
-#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+inline bool IS_CHARMED(CHAR_DATA* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));};
 
 // Вывод сообщений о неверных управляющих конструкциях DGScript
-#define    DG_CODE_ANALYZE
+#define DG_CODE_ANALYZE
 
 // external vars from triggers.cpp
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
@@ -2647,7 +2647,7 @@ void find_replacement(void *go,
 			if (!*subfield || (pos = atoi(subfield)) <= 0) {
 				sprintf(str, "%d", GET_WAIT(c));
 			} else if (!WAITLESS(c)) {
-				WAIT_STATE(c, pos * PULSE_VIOLENCE);
+				WAIT_STATE(c, pos * kPulseViolence);
 			}
 		} else if (!str_cmp(field, "apply_value")) {
 			int num;
@@ -3858,22 +3858,22 @@ void process_wait(void *go, TRIG_DATA *trig, int type, char *cmd, const cmdlist_
 			min = (hr % 100) + ((hr / 100) * 60);
 
 		// calculate the pulse of the day of "until" time
-		ntime = (min * SECS_PER_MUD_HOUR * PASSES_PER_SEC) / 60;
+		ntime = (min * SECS_PER_MUD_HOUR * kPassesPerSec) / 60;
 
 		// calculate pulse of day of current time
-		time = (GlobalObjects::heartbeat().global_pulse_number() % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))
-			+ (time_info.hours * SECS_PER_MUD_HOUR * PASSES_PER_SEC);
+		time = (GlobalObjects::heartbeat().global_pulse_number() % (SECS_PER_MUD_HOUR * kPassesPerSec))
+			+ (time_info.hours * SECS_PER_MUD_HOUR * kPassesPerSec);
 
 		if (time >= ntime)    // adjust for next day
-			time = (SECS_PER_MUD_DAY * PASSES_PER_SEC) - time + ntime;
+			time = (SECS_PER_MUD_DAY * kPassesPerSec) - time + ntime;
 		else
 			time = ntime - time;
 	} else {
 		if (sscanf(arg, "%ld %c", &time, &c) == 2) {
 			if (c == 't')
-				time *= PULSES_PER_MUD_HOUR;
+				time *= kPulsesPerMudHour;
 			else if (c == 's')
-				time *= PASSES_PER_SEC;
+				time *= kPassesPerSec;
 		}
 	}
 
@@ -4985,7 +4985,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	void obj_command_interpreter(OBJ_DATA *obj, char *argument);
 	void wld_command_interpreter(ROOM_DATA *room, char *argument);
 
-	if (depth > MAX_SCRIPT_DEPTH) {
+	if (depth > kMaxScriptDepth) {
 		trig_log(trig, "Triggers recursed beyond maximum allowed depth.");
 		return ret_val;
 	}

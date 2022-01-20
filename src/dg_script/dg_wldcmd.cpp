@@ -18,10 +18,10 @@
 #include "skills/townportal.h"
 #include "magic/magic_utils.h"
 #include "world_objects.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "skills_info.h"
 #include "utils/id_converter.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 extern const char *dirs[];
 
@@ -645,7 +645,7 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isSkill) {
-		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == KNOW_SKILL) {
+		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == kKnowSkill) {
 			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "wskillturn: несоответсвие устанавливаемого умения классу игрока");

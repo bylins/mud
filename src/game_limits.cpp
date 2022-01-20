@@ -24,24 +24,25 @@
 #include "depot.h"
 #include "game_mechanics/glory.h"
 #include "entities/char_player.h"
-#include "entities/entity_constants.h"
-#include "obj_save.h"
+//#include "entities/entity_constants.h"
+//#include "obj_save.h"
 #include "fightsystem/fight.h"
 #include "ext_money.h"
 #include "mob_stat.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "classes/class_spell_slots.h"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>
+#include <random>
 
 using PlayerClass::max_slots;
 
-extern int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0);
+extern int check_dupes_host(DescriptorData *d, bool autocheck = 0);
 extern RoomRnum r_unreg_start_room;
 extern CHAR_DATA *mob_proto;
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
@@ -51,7 +52,7 @@ extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern struct spell_create_type spell_create[];
 extern const unsigned RECALL_SPELLS_INTERVAL;
-extern int CheckProxy(DESCRIPTOR_DATA *ch);
+extern int CheckProxy(DescriptorData *ch);
 extern int check_death_ice(int room, CHAR_DATA *ch);
 
 void decrease_level(CHAR_DATA *ch);
@@ -961,7 +962,7 @@ void gain_condition(CHAR_DATA *ch, unsigned condition, int value) {
 }
 
 void underwater_check() {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& SECT(d->character->in_room) == kSectUnderwater
@@ -1072,7 +1073,7 @@ int up_obj_where(OBJ_DATA *obj) {
 }
 
 void hour_update(void) {
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, PLR_WRITING))
@@ -1223,7 +1224,7 @@ void clan_chest_invoice(OBJ_DATA *j) {
 		return;
 	}
 
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& STATE(d) == CON_PLAYING
 			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
@@ -1563,14 +1564,14 @@ void obj_point_update() {
 	});
 }
 
-void point_update(void) {
+void point_update() {
 	MemoryRecord *mem, *nmem, *pmem;
 
 	std::vector<int> real_spell(SPELLS_COUNT + 1);
 	for (int count = 0; count <= SPELLS_COUNT; count++) {
 		real_spell[count] = count;
 	}
-	std::random_shuffle(real_spell.begin(), real_spell.end());
+	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
 
 	for (const auto &character : character_list) {
 		const auto i = character.get();
@@ -1636,12 +1637,12 @@ void point_update(void) {
 						case kSectWaterSwim:
 						case kSectWaterNoswim:
 						case kSectThickIce:
-						case kSectNormalIce:
+						case kSectNormalIce: [[fallthrough]];
 						case kSectThinIce: mana = 0;
 							break;
 						case kSectCity: mana = 20;
 							break;
-						case kSectField:
+						case kSectField: [[fallthrough]];
 						case kSectFieldRain: mana = 100;
 							break;
 						case kSectFieldSnow: mana = 40;
@@ -1651,11 +1652,10 @@ void point_update(void) {
 							break;
 						case kSectForestSnow: mana = 30;
 							break;
-						case kSectHills:
+						case kSectHills: [[fallthrough]];
 						case kSectHillsRain: mana = 70;
 							break;
-						case kSectHillsSnow: mana = 25;
-							break;
+						case kSectHillsSnow: [[fallthrough]];
 						case kSectMountain: mana = 25;
 							break;
 						case kSectMountainSnow: mana = 10;
@@ -1714,11 +1714,9 @@ void point_update(void) {
 			// Restore moves
 			if (IS_NPC(i)
 				|| !UPDATE_PC_ON_BEAT) {
-				//MZ.overflow_fix
 				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i)) {
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
 				}
-				//-MZ.overflow_fix
 			}
 
 			// Update PC/NPC position

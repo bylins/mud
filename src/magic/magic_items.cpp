@@ -51,7 +51,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 				act("И ничего не случилось.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
 				obj->dec_val(2);
-				WAIT_STATE(ch, PULSE_VIOLENCE);
+				WAIT_STATE(ch, kPulseViolence);
 				if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS)) {
 					CallMagic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 				} else {
@@ -121,7 +121,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 			}
 
 			obj->dec_val(2);
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			break;
 
@@ -155,7 +155,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 				act("$n зачитал$g $o3.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			for (i = 1; i <= 3; i++) {
 				if (CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
 					break;
@@ -182,7 +182,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 				act("$n осушил$g $o3.", true, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 
-			WAIT_STATE(ch, PULSE_VIOLENCE);
+			WAIT_STATE(ch, kPulseViolence);
 			for (i = 1; i <= 3; i++) {
 				if (CallMagic(ch, ch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0) {
 					break;

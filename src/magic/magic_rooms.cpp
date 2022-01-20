@@ -341,8 +341,8 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 		return 0;
 	}
 
-	AFFECT_DATA<ERoomApply> af[MAX_SPELL_AFFECTS];
-	for (i = 0; i < MAX_SPELL_AFFECTS; i++) {
+	AFFECT_DATA<ERoomApply> af[kMaxSpellAffects];
+	for (i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spellnum;
 		af[i].bitvector = 0;
 		af[i].modifier = 0;
@@ -511,7 +511,7 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 	}
 
 	// Перебираем заклы чтобы понять не производиться ли рефрешь закла
-	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++) {
+	for (i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spellnum;
 		if (af[i].bitvector
 			|| af[i].location != kNone
@@ -538,7 +538,7 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 		send_to_char(NOEFFECT, ch);
 
 	if (!WAITLESS(ch))
-		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+		WAIT_STATE(ch, lag * kPulseViolence);
 
 	return 0;
 

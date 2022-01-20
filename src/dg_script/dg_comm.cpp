@@ -14,7 +14,7 @@
 #include "handler.h"
 #include "utils/utils_char_obj.inl"
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 
 // same as any_one_arg except that it stops at punctuation 
 char *any_one_name(char *argument, char *first_arg) {
@@ -178,7 +178,7 @@ void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets) {
 }
 
 void send_to_zone(char *messg, int zone_rnum) {
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 
 	if (!messg || !*messg)
 		return;

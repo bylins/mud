@@ -21,6 +21,7 @@
 #include "pugixml.h"
 #include "structs/structs.h"
 #include "game_mechanics/weather.h"
+#include "utils_string.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -32,7 +33,7 @@
 
 struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-struct DESCRIPTOR_DATA;
+struct DescriptorData;
 
 // external declarations and prototypes *********************************
 
@@ -125,12 +126,12 @@ int get_filename(const char *orig_name, char *filename, int mode);
 TimeInfoData *age(const CHAR_DATA *ch);
 int num_pc_in_room(ROOM_DATA *room);
 void core_dump_real(const char *, int);
-int replace_str(const AbstractStringWriter::shared_ptr &writer,
+int replace_str(const utils::AbstractStringWriter::shared_ptr &writer,
 				const char *pattern,
 				const char *replacement,
 				int rep_all,
 				int max_size);
-void format_text(const AbstractStringWriter::shared_ptr &writer, int mode, DESCRIPTOR_DATA *d, size_t maxlen);
+void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
 int check_moves(CHAR_DATA *ch, int how_moves);
 void koi_to_alt(char *str, int len);
 std::string koi_to_alt(const std::string &input);

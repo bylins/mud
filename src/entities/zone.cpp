@@ -1,6 +1,8 @@
-#include "zone.table.h"
+#include "zone.h"
 
 #include "global_objects.h"
+
+struct ZoneCategory *zone_types = nullptr;
 
 ZoneData::ZoneData() : name(nullptr),
 					   comment(nullptr),

@@ -18,7 +18,7 @@ void remove(CHAR_DATA *ch);
 void remove(const std::string &name, CHAR_DATA *actor);
 void load();
 bool show(CHAR_DATA *actor);
-int auto_authorize(DESCRIPTOR_DATA *d);
+int auto_authorize(DescriptorData *d);
 } // namespace NewNames
 
 void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

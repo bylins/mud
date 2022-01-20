@@ -163,7 +163,7 @@ void pulse_affect_update(CHAR_DATA *ch) {
 			if (IS_NPC(ch)) {
 				affect->duration--;
 			} else {
-				affect->duration -= MIN(affect->duration, SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC);
+				affect->duration -= MIN(affect->duration, SECS_PER_PLAYER_AFFECT * kPassesPerSec);
 			}
 		} else if (affect->duration == -1)    // No action //
 		{

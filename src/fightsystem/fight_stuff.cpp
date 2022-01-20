@@ -21,7 +21,7 @@
 #include "game_mechanics/bonus.h"
 #include "backtrace.h"
 #include "magic/magic_utils.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "entities/char_player.h"
 
 #include <algorithm>
@@ -291,7 +291,7 @@ bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
 					act("$n медленно появил$u откуда-то.", false, ch, 0, 0, TO_ROOM);
-					WAIT_STATE(ch, 10 * PULSE_VIOLENCE);
+					WAIT_STATE(ch, 10 * kPulseViolence);
 					return true;
 				}
 			}
@@ -374,7 +374,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 		look_at_room(ch, 0);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
-//		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
+//		WAIT_STATE(ch, 10 * kPulseViolence); лаг лучше ставить триггерами
 		return;
 	}
 

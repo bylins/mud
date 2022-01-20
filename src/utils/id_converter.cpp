@@ -1,7 +1,7 @@
 #include "id_converter.h"
 
 #include "world_objects.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 ZoneRnum get_zone_rnum_by_room_vnum(RoomVnum vnum) {
 	for (ZoneRnum counter = 0; counter < static_cast<ZoneRnum>(zone_table.size()); counter++)

@@ -15,6 +15,7 @@
 #include "structs/extra_description_data.h"
 #include "structs/flag_data.h"
 #include "sysdep.h"
+#include "utils/utils_string.h"
 
 #include <array>
 #include <vector>
@@ -900,7 +901,7 @@ inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffectFlag weap
 	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
 
-class CActionDescriptionWriter : public AbstractStringWriter {
+class CActionDescriptionWriter : public utils::AbstractStringWriter {
  public:
 	CActionDescriptionWriter(OBJ_DATA &object) : m_object(object) {}
 

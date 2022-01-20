@@ -31,7 +31,7 @@
 #include "skills_info.h"
 
 //   external vars
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
 extern struct spell_create_type spell_create[];

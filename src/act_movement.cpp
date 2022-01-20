@@ -1562,7 +1562,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					act("$n с визгом отлетел$g от пентаграммы.\r\n", true, ch,
 						nullptr, nullptr, TO_ROOM | CHECK_DEAF);
 					act("$n отлетел$g от пентаграммы.\r\n", true, ch, nullptr, nullptr, TO_ROOM | CHECK_NODEAF);
-					WAIT_STATE(ch, PULSE_VIOLENCE);
+					WAIT_STATE(ch, kPulseViolence);
 					return;
 				}
 				if (!enter_wtrigger(world[door], ch, -1))

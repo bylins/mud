@@ -17,7 +17,7 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
-extern DESCRIPTOR_DATA *descriptor_list;
+extern DescriptorData *descriptor_list;
 
 void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -161,7 +161,7 @@ int Is_Valid_Name(char *newname) {
 }
 
 int Is_Valid_Dc(char *newname) {
-	DESCRIPTOR_DATA *dt;
+	DescriptorData *dt;
 
 	for (dt = descriptor_list; dt; dt = dt->next)
 		if (dt->character && GET_NAME(dt->character)
@@ -300,7 +300,7 @@ void LoadProxyList() {
 
 // проверка на присутствие в списке зарегистрированных ip и кол-ва соединений
 // 0 - нету, 1 - в маде уже макс. число коннектов с данного ip, 2 - все ок
-int CheckProxy(DESCRIPTOR_DATA *ch) {
+int CheckProxy(DescriptorData *ch) {
 	//сначала ищем в списке, зачем зря коннекты считать
 	ProxyListType::const_iterator it;
 	// мысль простая - есть второй ип, знач смотрим диапазон, нету - знач сверяем на равенство ип
@@ -315,7 +315,7 @@ int CheckProxy(DESCRIPTOR_DATA *ch) {
 		return 0;
 
 	// терь можно и посчитать
-	DESCRIPTOR_DATA *i;
+	DescriptorData *i;
 	int num_ip = 0;
 	for (i = descriptor_list; i; i = i->next)
 		if (i != ch && i->character && !IS_IMMORTAL(i->character) && (i->ip == ch->ip))
@@ -1061,7 +1061,7 @@ time_t BanList::getBanDate(std::string ip) {
 }
 
 void BanList::disconnectBannedIp(std::string Ip) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->host == Ip) {

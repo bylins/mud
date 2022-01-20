@@ -104,7 +104,7 @@ void prepare_write_mod(CHAR_DATA *ch, std::string &param) {
 	}
 	send_to_char("Можете писать сообщение.  (/s записать /h помощь)\r\n", ch);
 	STATE(ch->desc) = CON_WRITE_MOD;
-	AbstractStringWriter::shared_ptr writer(new StdStringWriter());
+	utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
 	string_write(ch->desc, writer, MAX_MOD_LENGTH, 0, nullptr);
 }
 
@@ -1174,7 +1174,7 @@ void Clan::HouseAdd(CHAR_DATA *ch, std::string &buffer) {
 		for (auto it = this->ranks.begin() + rank; it != this->ranks.end(); ++it, ++temp_rank) {
 			if (CompareParam(buffer2, *it)) {
 				CHAR_DATA::shared_ptr editedChar;
-				DESCRIPTOR_DATA *d = DescByUID(unique);
+				DescriptorData *d = DescByUID(unique);
 				m_members.set_rank(unique, temp_rank);
 				if (d) {
 					editedChar = d->character;
@@ -1186,7 +1186,7 @@ void Clan::HouseAdd(CHAR_DATA *ch, std::string &buffer) {
 				}
 
 				// оповещение соклановцев о изменении звания
-				for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+				for (DescriptorData *d = descriptor_list; d; d = d->next) {
 					if (d->character
 						&& CLAN(d->character)
 						&& CLAN(d->character)->GetRent() == this->GetRent()
@@ -1212,7 +1212,7 @@ void Clan::HouseAdd(CHAR_DATA *ch, std::string &buffer) {
 		return;
 	}
 
-	DESCRIPTOR_DATA *d = DescByUID(unique);
+	DescriptorData *d = DescByUID(unique);
 	if (!d || !CAN_SEE(ch, d->character)) {
 		send_to_char("Этого персонажа нет в игре!\r\n", ch);
 		return;
@@ -1304,7 +1304,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 	long unique = it->first;
 	m_members.erase(it);
 
-	DESCRIPTOR_DATA *k = DescByUID(unique);
+	DescriptorData *k = DescByUID(unique);
 	if (k && k->character) {
 		Clan::SetClanData(k->character.get());
 		send_to_char(k->character.get(), "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
@@ -1325,7 +1325,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key) {
 		}
 	}
 
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == this->GetRent()) {
@@ -1430,7 +1430,7 @@ void Clan::GodToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 	switch (subcmd) {
 		// большой БОГ говорит какой-то дружине
 		case SCMD_CHANNEL:
-			for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+			for (DescriptorData *d = descriptor_list; d; d = d->next) {
 				if (d->character
 					&& CLAN(d->character)
 					&& ch != d->character.get()
@@ -1453,7 +1453,7 @@ void Clan::GodToChannel(CHAR_DATA *ch, std::string text, int subcmd) {
 
 			// он же в канал союзников этой дружины, если они вообще есть
 		case SCMD_ACHANNEL:
-			for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+			for (DescriptorData *d = descriptor_list; d; d = d->next) {
 				if (d->character
 					&& CLAN(d->character)
 					&& STATE(d) == CON_PLAYING
@@ -1971,7 +1971,7 @@ void DoShowPolitics(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 void Clan::ManagePolitics(CHAR_DATA *ch, std::string &buffer) {
 	std::string buffer2;
 	GetOneParam(buffer, buffer2);
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 
 	ClanListType::const_iterator vict;
 
@@ -2131,7 +2131,7 @@ void Clan::hcontrol_title(CHAR_DATA *ch, std::string &text) {
 	(*clan)->title_female = title_female;
 
 	Clan::ClanSave();
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& CLAN(d->character)
 			&& CLAN(d->character) == *clan) {
@@ -2188,7 +2188,7 @@ void Clan::hcontrol_rank(CHAR_DATA *ch, std::string &text) {
 	}
 
 	Clan::ClanSave();
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& CLAN(d->character)
 			&& CLAN(d->character) == *clan) {
@@ -2461,7 +2461,7 @@ void Clan::HcontrolBuild(CHAR_DATA *ch, std::string &buffer) {
 	Boards::Static::ClanInit();
 
 	// уведомляем счастливых воеводу и имма
-	DESCRIPTOR_DATA *d = DescByUID(unique);
+	DescriptorData *d = DescByUID(unique);
 	if (d) {
 		Clan::SetClanData(d->character.get());
 		send_to_char(d->character.get(), "Вы стали хозяином нового замка. Добро пожаловать!\r\n");
@@ -2494,7 +2494,7 @@ void Clan::HcontrolDestroy(CHAR_DATA *ch, std::string &buffer) {
 
 void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
 	CHAR_DATA *cbuf;
-	DESCRIPTOR_DATA *tch;
+	DescriptorData *tch;
 
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		const auto unique = player_table[i].unique;
@@ -2575,7 +2575,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan) {
 	Clan::ClanSave();
 
 	for (const auto &it : members) {
-		DESCRIPTOR_DATA *d = DescByUID(it.first);
+		DescriptorData *d = DescByUID(it.first);
 		if (d) {
 			Clan::SetClanData(d->character.get());
 			send_to_char(d->character.get(), "Ваша дружина распущена. Желаем удачи!\r\n");
@@ -2593,7 +2593,7 @@ void DoWhoClan(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	std::ostringstream buffer;
 	buffer << boost::format(" Ваша дружина: %s%s%s.\r\n") % CCIRED(ch, C_NRM) % CLAN(ch)->abbrev % CCNRM(ch, C_NRM);
 	buffer << boost::format(" %sСейчас в игре Ваши соратники:%s\r\n\r\n") % CCWHT(ch, C_NRM) % CCNRM(ch, C_NRM);
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	int num = 0;
 
 	for (d = descriptor_list, num = 0; d; d = d->next)
@@ -2764,7 +2764,7 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		else
 			CLAN(ch)->frList[unique] = tempRecord;
 
-		DESCRIPTOR_DATA *d = DescByUID(unique);
+		DescriptorData *d = DescByUID(unique);
 		if (d && PRF_FLAGGED(d->character, PRF_PKL_MODE)) {
 			if (!subcmd) {
 				send_to_char(d->character.get(),
@@ -2840,7 +2840,7 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		if (removed) {
 			send_to_char("Запись удалена.\r\n", ch);
-			DESCRIPTOR_DATA *d;
+			DescriptorData *d;
 			if ((d = DescByUID(unique))
 				&& PRF_FLAGGED(d->character, PRF_PKL_MODE)) {
 				if (!subcmd) {
@@ -2987,7 +2987,7 @@ bool Clan::PutChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		CLAN(ch)->chest_log.add(log_text);
 
 		// канал хранилища
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character
 				&& STATE(d) == CON_PLAYING
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
@@ -3033,7 +3033,7 @@ bool Clan::TakeChest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest) {
 		CLAN(ch)->chest_log.add(log_text);
 
 		// канал хранилища
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character
 				&& STATE(d) == CON_PLAYING
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
@@ -3375,7 +3375,7 @@ bool Clan::BankManage(CHAR_DATA *ch, char *arg) {
 	return true;
 }
 
-void Clan::Manage(DESCRIPTOR_DATA *d, const char *arg) {
+void Clan::Manage(DescriptorData *d, const char *arg) {
 	unsigned num = atoi(arg);
 
 	switch (d->clan_olc->mode) {
@@ -3649,7 +3649,7 @@ void Clan::Manage(DESCRIPTOR_DATA *d, const char *arg) {
 	}
 }
 
-void Clan::MainMenu(DESCRIPTOR_DATA *d) {
+void Clan::MainMenu(DescriptorData *d) {
 	std::ostringstream buffer;
 	buffer << "Раздел добавления и удаления привилегий.\r\n"
 		   << "Выберите редактируемое звание или действие:\r\n";
@@ -3706,7 +3706,7 @@ void Clan::MainMenu(DESCRIPTOR_DATA *d) {
 	d->clan_olc->mode = CLAN_MAIN_MENU;
 }
 
-void Clan::PrivilegeMenu(DESCRIPTOR_DATA *d, unsigned num) {
+void Clan::PrivilegeMenu(DescriptorData *d, unsigned num) {
 	if (num > d->clan_olc->clan->ranks.size()) {
 		log("Different size clan->ranks and clan->privileges! (%s %s %d)", __FILE__, __func__, __LINE__);
 		if (d->character) {
@@ -3877,7 +3877,7 @@ void Clan::PrivilegeMenu(DESCRIPTOR_DATA *d, unsigned num) {
 
 // меню добавления/удаления привилегий у всех званий, решил не нагружать все в одну функцию
 // flag 0 - добавление, 1 - удаление
-void Clan::AllMenu(DESCRIPTOR_DATA *d, unsigned flag) {
+void Clan::AllMenu(DescriptorData *d, unsigned flag) {
 	std::ostringstream buffer;
 	if (flag == 0)
 		buffer << "Выберите привилегии, которые вы хотите " << CCIRED(d->character, C_NRM)
@@ -4062,7 +4062,7 @@ void Clan::ClanAddMember(CHAR_DATA *ch, int rank) {
 	this->add_offline_member(ch->get_name_str(), GET_UNIQUE(ch), rank);
 
 	Clan::SetClanData(ch);
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& CLAN(d->character)
@@ -4091,7 +4091,7 @@ void Clan::HouseOwner(CHAR_DATA *ch, std::string &buffer) {
 	std::string buffer2;
 	GetOneParam(buffer, buffer2);
 	long unique = GetUniqueByName(buffer2);
-	DESCRIPTOR_DATA *d = DescByUID(unique);
+	DescriptorData *d = DescByUID(unique);
 
 	if (buffer2.empty())
 		send_to_char("Укажите имя персонажа.\r\n", ch);
@@ -4197,7 +4197,7 @@ void Clan::hcon_owner(CHAR_DATA *ch, std::string &text) {
 	}
 
 	// новый воевода онлайн
-	DESCRIPTOR_DATA *d = DescByUID(member_uid);
+	DescriptorData *d = DescByUID(member_uid);
 	if (d && d->character) {
 		Clan::SetClanData(d->character.get());
 		send_to_char(d->character.get(), "%sВы стали новым воеводой дружины %s. Желаем удачи!%s\r\n",
@@ -4205,7 +4205,7 @@ void Clan::hcon_owner(CHAR_DATA *ch, std::string &text) {
 	}
 	if ((*clan)->m_members.size() > 0) {
 		// оповещение
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == (*clan)->GetRent()) {
 				send_to_char(d->character.get(),
 							 "%sОсуществлена принудительная смена воеводы вашей дружины: %s -> %s.%s\r\n",
@@ -4499,7 +4499,7 @@ void Clan::HouseStat(CHAR_DATA *ch, std::string &buffer) {
 	for (const auto &it : m_members) {
 		it.second->level = 0;
 		if (!all && !name) {
-			DESCRIPTOR_DATA *d = DescByUID(it.first);
+			DescriptorData *d = DescByUID(it.first);
 			if (!d) {
 				continue;
 			} else if (!IS_IMMORTAL(d->character)) {
@@ -4572,7 +4572,7 @@ void Clan::ChestInvoice() {
 			continue;
 		}
 
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && STATE(d) == CON_PLAYING
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
 				&& CLAN(d->character)
@@ -4653,7 +4653,7 @@ void Clan::SetClanExp(CHAR_DATA *ch, int add) {
 	if (this->clan_exp > clan_level_exp[this->clan_level + 1]
 		&& this->clan_level < MAX_CLANLEVEL) {
 		this->clan_level++;
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && STATE(d) == CON_PLAYING
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
 				&& CLAN(d->character)
@@ -4666,7 +4666,7 @@ void Clan::SetClanExp(CHAR_DATA *ch, int add) {
 	} else if (this->clan_exp < clan_level_exp[this->clan_level]
 		&& this->clan_level > 0) {
 		this->clan_level--;
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character && STATE(d) == CON_PLAYING
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
 				&& CLAN(d->character)
@@ -4930,7 +4930,7 @@ void Clan::clan_invoice(CHAR_DATA *ch, bool enter) {
 		return;
 	}
 
-	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& d->character.get() != ch
 			&& STATE(d) == CON_PLAYING

@@ -103,7 +103,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					 CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
 		timed.time = 18 - MIN(GET_REAL_REMORT(ch), 15);
-		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
+		WAIT_STATE(ch, 3 * kPulseViolence);
 		AFFECT_DATA<EApplyLocation> af;
 		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
@@ -111,7 +111,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		affect_to_char(ch, af);
 	} else {
 		timed.time = 2;
-		WAIT_STATE(ch, PULSE_VIOLENCE);
+		WAIT_STATE(ch, kPulseViolence);
 	}
 	timed_feat_to_char(ch, &timed);
 	look_at_room(ch, 0);

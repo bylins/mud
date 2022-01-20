@@ -11,7 +11,7 @@
 #include "help.h"
 #include "parse.h"
 #include "mob_stat.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -1014,7 +1014,7 @@ void reload_by_timer() {
 }
 
 void message_for_players() {
-	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next) {
+	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING && i->character) {
 			send_to_char(i->character.get(), "%s%s%s\r\n",
 						 CCICYN(i->character, C_NRM), RESET_MESSAGE,

@@ -112,7 +112,7 @@ CHAR_DATA *try_protect(CHAR_DATA *victim, CHAR_DATA *ch) {
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, TO_CHAR);
 				vict->set_protecting(0);
 				vict->BattleAffects.unset(EAF_PROTECT);
-				WAIT_STATE(vict, PULSE_VIOLENCE);
+				WAIT_STATE(vict, kPulseViolence);
 				AFFECT_DATA<EApplyLocation> af;
 				af.type = SPELL_BATTLE;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);

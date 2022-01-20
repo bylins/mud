@@ -34,7 +34,7 @@ int search_block(const char *arg, const char **list, int exact);
 int search_block(const std::string &arg, const char **list, int exact);
 int fill_word(const char *argument);
 void half_chop(char const *string, char *arg1, char *arg2);
-void nanny(DESCRIPTOR_DATA *d, char *arg);
+void nanny(DescriptorData *d, char *arg);
 
 /**
 * returns 1 if arg1 is an abbreviation of arg2
@@ -48,8 +48,8 @@ int find_command(const char *command);
 void GetOneParam(std::string &buffer, std::string &buffer2);
 bool CompareParam(const std::string &buffer, const char *arg, bool full = 0);
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = 0);
-DESCRIPTOR_DATA *DescByUID(int uid);
-DESCRIPTOR_DATA *get_desc_by_id(long id, bool playing = 1);
+DescriptorData *DescByUID(int uid);
+DescriptorData *get_desc_by_id(long id, bool playing = 1);
 long GetUniqueByName(const std::string &name, bool god = false);
 std::string GetNameByUnique(long unique, bool god = false);
 bool IsActiveUser(long unique);
