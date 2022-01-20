@@ -21,7 +21,7 @@
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
 #include "structs/flags.hpp"
 
-struct ROOM_DATA;
+struct RoomData;
 
 #define LIGHT_NO    0
 #define LIGHT_YES   1
@@ -41,123 +41,123 @@ FLAGS_DECLARE_FROM_ENUM(CharEquipFlags, CharEquipFlag);
 FLAGS_DECLARE_OPERATORS(CharEquipFlags, CharEquipFlag);
 
 int get_room_sky(int rnum);
-int equip_in_metall(CHAR_DATA *ch);
-int awake_others(CHAR_DATA *ch);
+int equip_in_metall(CharacterData *ch);
+int awake_others(CharacterData *ch);
 
-void check_light(CHAR_DATA *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
+void check_light(CharacterData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
 // Resistance calculate //
-int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
+int calculate_resistance_coeff(CharacterData *ch, int resist_type, int effect);
 int getResisTypeWithSpellClass(int spellClass);
 int get_resist_type(int spellnum);
 
 // handling the affected-structures //
-void timed_feat_to_char(CHAR_DATA *ch, struct Timed *timed);
-void timed_feat_from_char(CHAR_DATA *ch, struct Timed *timed);
-int timed_by_feat(CHAR_DATA *ch, int skill);
-void timed_to_char(CHAR_DATA *ch, struct Timed *timed);
-void timed_from_char(CHAR_DATA *ch, struct Timed *timed);
-int timed_by_skill(CHAR_DATA *ch, int skill);
-void decreaseFeatTimer(CHAR_DATA *ch, int featureID);
+void timed_feat_to_char(CharacterData *ch, struct Timed *timed);
+void timed_feat_from_char(CharacterData *ch, struct Timed *timed);
+int timed_by_feat(CharacterData *ch, int skill);
+void timed_to_char(CharacterData *ch, struct Timed *timed);
+void timed_from_char(CharacterData *ch, struct Timed *timed);
+int timed_by_skill(CharacterData *ch, int skill);
+void decreaseFeatTimer(CharacterData *ch, int featureID);
 
 // utility //
 char *money_desc(int amount, int padis);
-OBJ_DATA::shared_ptr create_money(int amount);
+ObjectData::shared_ptr create_money(int amount);
 char *fname(const char *namelist);
 int get_number(char **name);
 int get_number(std::string &name);
 
-RoomVnum get_room_where_obj(OBJ_DATA *obj, bool deep = false);
+RoomVnum get_room_where_obj(ObjectData *obj, bool deep = false);
 
 // ******** objects *********** //
-bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
-void obj_to_char(OBJ_DATA *object, CHAR_DATA *ch);
-void obj_from_char(OBJ_DATA *object);
+bool equal_obj(ObjectData *obj_one, ObjectData *obj_two);
+void obj_to_char(ObjectData *object, CharacterData *ch);
+void obj_from_char(ObjectData *object);
 
-void equip_char(CHAR_DATA *ch, OBJ_DATA *obj, int pos, const CharEquipFlags& equip_flags);
-OBJ_DATA *unequip_char(CHAR_DATA *ch, int pos, const CharEquipFlags& equip_flags);
-int invalid_align(CHAR_DATA *ch, OBJ_DATA *obj);
+void equip_char(CharacterData *ch, ObjectData *obj, int pos, const CharEquipFlags& equip_flags);
+ObjectData *unequip_char(CharacterData *ch, int pos, const CharEquipFlags& equip_flags);
+int invalid_align(CharacterData *ch, ObjectData *obj);
 
-OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA *list);
-OBJ_DATA *get_obj_in_list_num(int num, OBJ_DATA *list);
-OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA *list);
+ObjectData *get_obj_in_list(char *name, ObjectData *list);
+ObjectData *get_obj_in_list_num(int num, ObjectData *list);
+ObjectData *get_obj_in_list_vnum(int num, ObjectData *list);
 
-OBJ_DATA *get_obj(char *name, int vnum = 0);
-OBJ_DATA *get_obj_num(ObjRnum nr);
+ObjectData *get_obj(char *name, int vnum = 0);
+ObjectData *get_obj_num(ObjRnum nr);
 
-int obj_decay(OBJ_DATA *object);
-bool obj_to_room(OBJ_DATA *object, RoomRnum room);
-void obj_from_room(OBJ_DATA *object);
-void obj_to_obj(OBJ_DATA *obj, OBJ_DATA *obj_to);
-void obj_from_obj(OBJ_DATA *obj);
-void object_list_new_owner(OBJ_DATA *list, CHAR_DATA *ch);
+int obj_decay(ObjectData *object);
+bool obj_to_room(ObjectData *object, RoomRnum room);
+void obj_from_room(ObjectData *object);
+void obj_to_obj(ObjectData *obj, ObjectData *obj_to);
+void obj_from_obj(ObjectData *obj);
+void object_list_new_owner(ObjectData *list, CharacterData *ch);
 
-void extract_obj(OBJ_DATA *obj);
+void extract_obj(ObjectData *obj);
 
 // ******* characters ********* //
 
-CHAR_DATA *get_char_room(char *name, RoomRnum room);
-CHAR_DATA *get_char_num(MobRnum nr);
-CHAR_DATA *get_char(char *name, int vnum = 0);
+CharacterData *get_char_room(char *name, RoomRnum room);
+CharacterData *get_char_num(MobRnum nr);
+CharacterData *get_char(char *name, int vnum = 0);
 
-void char_from_room(CHAR_DATA *ch);
-inline void char_from_room(const CHAR_DATA::shared_ptr &ch) { char_from_room(ch.get()); }
-void char_to_room(CHAR_DATA *ch, RoomRnum room);
-void char_flee_to_room(CHAR_DATA *ch, RoomRnum room);
-inline void char_to_room(const CHAR_DATA::shared_ptr &ch, RoomRnum room) { char_to_room(ch.get(), room); }
-inline void char_flee_to_room(const CHAR_DATA::shared_ptr &ch, RoomRnum room) { char_flee_to_room(ch.get(), room); }
-void extract_char(CHAR_DATA *ch, int clear_objs, bool zone_reset = 0);
-void room_affect_process_on_entry(CHAR_DATA *ch, RoomRnum room);
+void char_from_room(CharacterData *ch);
+inline void char_from_room(const CharacterData::shared_ptr &ch) { char_from_room(ch.get()); }
+void char_to_room(CharacterData *ch, RoomRnum room);
+void char_flee_to_room(CharacterData *ch, RoomRnum room);
+inline void char_to_room(const CharacterData::shared_ptr &ch, RoomRnum room) { char_to_room(ch.get(), room); }
+inline void char_flee_to_room(const CharacterData::shared_ptr &ch, RoomRnum room) { char_flee_to_room(ch.get(), room); }
+void extract_char(CharacterData *ch, int clear_objs, bool zone_reset = 0);
+void room_affect_process_on_entry(CharacterData *ch, RoomRnum room);
 
 // find if character can see //
-CHAR_DATA *get_char_room_vis(CHAR_DATA *ch, const char *name);
-inline CHAR_DATA *get_char_room_vis(CHAR_DATA *ch, const std::string &name) {
+CharacterData *get_char_room_vis(CharacterData *ch, const char *name);
+inline CharacterData *get_char_room_vis(CharacterData *ch, const std::string &name) {
 	return get_char_room_vis(ch,
 							 name.c_str());
 }
 
-CHAR_DATA *get_player_vis(CHAR_DATA *ch, const char *name, int inroom);
-inline CHAR_DATA *get_player_vis(CHAR_DATA *ch, const std::string &name, int inroom) {
+CharacterData *get_player_vis(CharacterData *ch, const char *name, int inroom);
+inline CharacterData *get_player_vis(CharacterData *ch, const std::string &name, int inroom) {
 	return get_player_vis(ch,
 						  name.c_str(),
 						  inroom);
 }
 
-CHAR_DATA *get_player_pun(CHAR_DATA *ch, const char *name, int inroom);
-inline CHAR_DATA *get_player_pun(CHAR_DATA *ch, const std::string &name, int inroom) {
+CharacterData *get_player_pun(CharacterData *ch, const char *name, int inroom);
+inline CharacterData *get_player_pun(CharacterData *ch, const std::string &name, int inroom) {
 	return get_player_pun(ch,
 						  name.c_str(),
 						  inroom);
 }
 
-CHAR_DATA *get_char_vis(CHAR_DATA *ch, const char *name, int where);
-inline CHAR_DATA *get_char_vis(CHAR_DATA *ch, const std::string &name, int where) {
+CharacterData *get_char_vis(CharacterData *ch, const char *name, int where);
+inline CharacterData *get_char_vis(CharacterData *ch, const std::string &name, int where) {
 	return get_char_vis(ch,
 						name.c_str(),
 						where);
 }
 
-OBJ_DATA *get_obj_in_list_vis(CHAR_DATA *ch, const char *name, OBJ_DATA *list, bool locate_item = false);
-inline OBJ_DATA *get_obj_in_list_vis(CHAR_DATA *ch,
-									 const std::string &name,
-									 OBJ_DATA *list) { return get_obj_in_list_vis(ch, name.c_str(), list); }
+ObjectData *get_obj_in_list_vis(CharacterData *ch, const char *name, ObjectData *list, bool locate_item = false);
+inline ObjectData *get_obj_in_list_vis(CharacterData *ch,
+									   const std::string &name,
+									   ObjectData *list) { return get_obj_in_list_vis(ch, name.c_str(), list); }
 
-OBJ_DATA *get_obj_vis(CHAR_DATA *ch, const char *name);
-inline OBJ_DATA *get_obj_vis(CHAR_DATA *ch, const std::string &name) { return get_obj_vis(ch, name.c_str()); }
+ObjectData *get_obj_vis(CharacterData *ch, const char *name);
+inline ObjectData *get_obj_vis(CharacterData *ch, const std::string &name) { return get_obj_vis(ch, name.c_str()); }
 
-OBJ_DATA *get_obj_vis_for_locate(CHAR_DATA *ch, const char *name);
-inline OBJ_DATA *get_obj_vis_for_locate(CHAR_DATA *ch, const std::string &name) {
+ObjectData *get_obj_vis_for_locate(CharacterData *ch, const char *name);
+inline ObjectData *get_obj_vis_for_locate(CharacterData *ch, const std::string &name) {
 	return get_obj_vis_for_locate(ch,
 								  name.c_str());
 }
 
-bool try_locate_obj(CHAR_DATA *ch, OBJ_DATA *i);
+bool try_locate_obj(CharacterData *ch, ObjectData *i);
 
-OBJ_DATA *get_object_in_equip_vis(CHAR_DATA *ch, const char *arg, OBJ_DATA *equipment[], int *j);
-inline OBJ_DATA *get_object_in_equip_vis(CHAR_DATA *ch,
-										 const std::string &arg,
-										 OBJ_DATA *equipment[],
-										 int *j) { return get_object_in_equip_vis(ch, arg.c_str(), equipment, j); }
+ObjectData *get_object_in_equip_vis(CharacterData *ch, const char *arg, ObjectData *equipment[], int *j);
+inline ObjectData *get_object_in_equip_vis(CharacterData *ch,
+										   const std::string &arg,
+										   ObjectData *equipment[],
+										   int *j) { return get_object_in_equip_vis(ch, arg.c_str(), equipment, j); }
 // find all dots //
 
 int find_all_dots(char *arg);
@@ -169,7 +169,7 @@ int find_all_dots(char *arg);
 
 // Generic Find //
 
-int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA *ch, CHAR_DATA **tar_ch, OBJ_DATA **tar_obj);
+int generic_find(char *arg, bitvector_t bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj);
 
 #define FIND_CHAR_ROOM     (1 << 0)
 #define FIND_CHAR_WORLD    (1 << 1)
@@ -184,44 +184,44 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA *ch, CHAR_DATA **ta
 #define CRASH_DELETE_NEW   (1 << 1)
 
 // prototypes from crash save system //
-int Crash_delete_crashfile(CHAR_DATA *ch);
-void Crash_listrent(CHAR_DATA *ch, char *name);
-int Crash_load(CHAR_DATA *ch);
-void Crash_crashsave(CHAR_DATA *ch);
-void Crash_idlesave(CHAR_DATA *ch);
+int Crash_delete_crashfile(CharacterData *ch);
+void Crash_listrent(CharacterData *ch, char *name);
+int Crash_load(CharacterData *ch);
+void Crash_crashsave(CharacterData *ch);
+void Crash_idlesave(CharacterData *ch);
 
-bool stop_follower(CHAR_DATA *ch, int mode);
+bool stop_follower(CharacterData *ch, int mode);
 
 // townportal //
 char *find_portal_by_vnum(int vnum);
 int level_portal_by_vnum(int vnum);
 int find_portal_by_word(char *wrd);
-void add_portal_to_char(CHAR_DATA *ch, int vnum);
-int has_char_portal(CHAR_DATA *ch, int vnum);
-void check_portals(CHAR_DATA *ch);
+void add_portal_to_char(CharacterData *ch, int vnum);
+int has_char_portal(CharacterData *ch, int vnum);
+void check_portals(CharacterData *ch);
 struct Portal *get_portal(int vnum, char *wrd);
 
 // charm //
 
-float get_effective_cha(CHAR_DATA *ch);
-float get_effective_wis(CHAR_DATA *ch, int spellnum);
-float get_effective_int(CHAR_DATA *ch);
-int get_player_charms(CHAR_DATA *ch, int spellnum);
+float get_effective_cha(CharacterData *ch);
+float get_effective_wis(CharacterData *ch, int spellnum);
+float get_effective_int(CharacterData *ch);
+int get_player_charms(CharacterData *ch, int spellnum);
 
 // mem queue //
-int mag_manacost(const CHAR_DATA *ch, int spellnum);
-void MemQ_init(CHAR_DATA *ch);
-void MemQ_flush(CHAR_DATA *ch);
-int MemQ_learn(CHAR_DATA *ch);
-inline int MemQ_learn(const CHAR_DATA::shared_ptr &ch) { return MemQ_learn(ch.get()); }
-void MemQ_remember(CHAR_DATA *ch, int num);
-void MemQ_forget(CHAR_DATA *ch, int num);
-int *MemQ_slots(CHAR_DATA *ch);
+int mag_manacost(const CharacterData *ch, int spellnum);
+void MemQ_init(CharacterData *ch);
+void MemQ_flush(CharacterData *ch);
+int MemQ_learn(CharacterData *ch);
+inline int MemQ_learn(const CharacterData::shared_ptr &ch) { return MemQ_learn(ch.get()); }
+void MemQ_remember(CharacterData *ch, int num);
+void MemQ_forget(CharacterData *ch, int num);
+int *MemQ_slots(CharacterData *ch);
 
-int get_object_low_rent(OBJ_DATA *obj);
-void set_uid(OBJ_DATA *object);
+int get_object_low_rent(ObjectData *obj);
+void set_uid(ObjectData *object);
 
-void remove_rune_label(CHAR_DATA *ch);
+void remove_rune_label(CharacterData *ch);
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

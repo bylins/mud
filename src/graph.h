@@ -1,8 +1,8 @@
 #ifndef BYLINS_GRAPH_H
 #define BYLINS_GRAPH_H
 
-class CHAR_DATA;
+class CharacterData;
 
-int find_first_step(RoomRnum src, RoomRnum target, CHAR_DATA *ch);
+int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch);
 
 #endif //BYLINS_GRAPH_H

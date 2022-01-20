@@ -85,7 +85,7 @@ int add_message(int mode, long uid) {
 
 namespace SpamSystem {
 
-bool check(CHAR_DATA *ch, int mode) {
+bool check(CharacterData *ch, int mode) {
 	int flag = add_message(mode, GET_UNIQUE(ch));
 	if (NORMAL_FLAG != flag) {
 		std::stringstream text;

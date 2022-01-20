@@ -46,7 +46,7 @@ void InitJewelryVars() {
 	fclose(cfg_file);
 }
 
-bool is_dig_stone(OBJ_DATA *obj) {
+bool is_dig_stone(ObjectData *obj) {
 	if ((obj->get_vnum() >= dig_vars.stone1_vnum
 		&& obj->get_vnum() <= dig_vars.last_stone_vnum)
 		|| obj->get_vnum() == dig_vars.glass_vnum
@@ -57,14 +57,14 @@ bool is_dig_stone(OBJ_DATA *obj) {
 	return false;
 }
 
-void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	int percent, prob;
 	char arg1[kMaxInputLength];
 	char arg2[kMaxInputLength];
 	char arg3[kMaxInputLength];
 	char buf[300];
 	char *gem, *item;
-	OBJ_DATA *gemobj, *itemobj;
+	ObjectData *gemobj, *itemobj;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -124,8 +124,8 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		return;
 	}
-	if (GET_OBJ_MATER(itemobj) == OBJ_DATA::MAT_NONE || (GET_OBJ_MATER(itemobj) > OBJ_DATA::MAT_COLOR)) {
-		if (!(GET_OBJ_MATER(itemobj) == OBJ_DATA::MAT_BONE || GET_OBJ_MATER(itemobj) == OBJ_DATA::MAT_ROCK)) {
+	if (GET_OBJ_MATER(itemobj) == ObjectData::MAT_NONE || (GET_OBJ_MATER(itemobj) > ObjectData::MAT_COLOR)) {
+		if (!(GET_OBJ_MATER(itemobj) == ObjectData::MAT_BONE || GET_OBJ_MATER(itemobj) == ObjectData::MAT_ROCK)) {
 			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
 			send_to_char(buf, ch);
 			return;
@@ -229,7 +229,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		itemobj->set_timer(timer);
 	}
 
-	if (GET_OBJ_MATER(gemobj) == OBJ_DATA::MAT_DIAMOND) {
+	if (GET_OBJ_MATER(gemobj) == ObjectData::MAT_DIAMOND) {
 		std::string effect;
 		if (!*arg3) {
 			int gem_vnum = GET_OBJ_VNUM(gemobj);
@@ -273,7 +273,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	extract_obj(gemobj);
 }
 
-void insert_wanted_gem::show(CHAR_DATA *ch, int gem_vnum) {
+void insert_wanted_gem::show(CharacterData *ch, int gem_vnum) {
 	alias_type::iterator alias_it;
 	char buf[kMaxInputLength];
 

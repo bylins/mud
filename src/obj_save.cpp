@@ -44,31 +44,31 @@ extern RoomRnum r_unreg_start_room;
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
 
 // Extern functions
-void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int receptionist(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int cryogenicist(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj);
-int min_rent_cost(CHAR_DATA *ch);
+void do_tell(CharacterData *ch, char *argument, int cmd, int subcmd);
+int receptionist(CharacterData *ch, void *me, int cmd, char *argument);
+int cryogenicist(CharacterData *ch, void *me, int cmd, char *argument);
+int invalid_no_class(CharacterData *ch, const ObjectData *obj);
+int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
+int invalid_unique(CharacterData *ch, const ObjectData *obj);
+int min_rent_cost(CharacterData *ch);
 extern bool check_obj_in_system_zone(int vnum);
 // local functions
-void Crash_extract_norent_eq(CHAR_DATA *ch);
-int auto_equip(CHAR_DATA *ch, OBJ_DATA *obj, int location);
-int Crash_report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj);
-void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj,
-int *cost, long *nitems, int rentshow, int factor, int equip, int recursive);
-int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char *arg, int mode);
-void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA *obj, int location, int savetype);
-void Crash_rent_deadline(CHAR_DATA *ch, CHAR_DATA *recep, long cost);
-void Crash_restore_weight(OBJ_DATA *obj);
-void Crash_extract_objs(OBJ_DATA *obj);
-int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA *obj);
-void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA *obj);
-int Crash_calculate_rent(OBJ_DATA *obj);
-int Crash_calculate_rent_eq(OBJ_DATA *obj);
+void Crash_extract_norent_eq(CharacterData *ch);
+int auto_equip(CharacterData *ch, ObjectData *obj, int location);
+int Crash_report_unrentables(CharacterData *ch, CharacterData *recep, ObjectData *obj);
+void Crash_report_rent(CharacterData *ch, CharacterData *recep, ObjectData *obj,
+					   int *cost, long *nitems, int rentshow, int factor, int equip, int recursive);
+int gen_receptionist(CharacterData *ch, CharacterData *recep, int cmd, char *arg, int mode);
+void Crash_save(std::stringstream &write_buffer, int iplayer, ObjectData *obj, int location, int savetype);
+void Crash_rent_deadline(CharacterData *ch, CharacterData *recep, long cost);
+void Crash_restore_weight(ObjectData *obj);
+void Crash_extract_objs(ObjectData *obj);
+int Crash_is_unrentable(CharacterData *ch, ObjectData *obj);
+void Crash_extract_norents(CharacterData *ch, ObjectData *obj);
+int Crash_calculate_rent(ObjectData *obj);
+int Crash_calculate_rent_eq(ObjectData *obj);
 void Crash_save_all_rent();
-int Crash_calc_charmee_items(CHAR_DATA *ch);
+int Crash_calc_charmee_items(CharacterData *ch);
 
 #define DIV_CHAR  '#'
 #define END_CHAR  '$'
@@ -131,12 +131,12 @@ int get_buf_lines(char **source, char *target) {
 
 // Данная процедура выбирает предмет из буфера.
 // с поддержкой нового формата вещей игроков [от 10.12.04].
-OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
+ObjectData::shared_ptr read_one_object_new(char **data, int *error) {
 	char buffer[kMaxStringLength];
 	char read_line[kMaxStringLength];
 	int t[2];
 	int vnum;
-	OBJ_DATA::shared_ptr object;
+	ObjectData::shared_ptr object;
 
 	*error = 1;
 	// Станем на начало предмета
@@ -229,7 +229,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_current_durability(atoi(buffer));
 			} else if (!strcmp(read_line, "Mter")) {
 				*error = 18;
-				object->set_material(static_cast<OBJ_DATA::EObjectMaterial>(atoi(buffer)));
+				object->set_material(static_cast<ObjectData::EObjectMaterial>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Sexx")) {
 				*error = 19;
 				object->set_sex(static_cast<ESex>(atoi(buffer)));
@@ -260,12 +260,12 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 				object->load_extra_flags(buffer);
 			} else if (!strcmp(read_line, "Wear")) {
 				*error = 27;
-				OBJ_DATA::wear_flags_t wear_flags = 0;
+				ObjectData::wear_flags_t wear_flags = 0;
 				asciiflag_conv(buffer, &wear_flags);
 				object->set_wear_flags(wear_flags);
 			} else if (!strcmp(read_line, "Type")) {
 				*error = 28;
-				object->set_type(static_cast<OBJ_DATA::EObjectType>(atoi(buffer)));
+				object->set_type(static_cast<ObjectData::EObjectType>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Val0")) {
 				*error = 29;
 				object->set_val(0, atoi(buffer));
@@ -333,7 +333,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_affected(7, static_cast<EApplyLocation>(t[0]), t[1]);
 			} else if (!strcmp(read_line, "Edes")) {
 				*error = 46;
-				EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
+				ExtraDescription::shared_ptr new_descr(new ExtraDescription());
 				new_descr->keyword = str_dup(buffer);
 				if (!strcmp(new_descr->keyword, "None")) {
 					object->set_ex_description(nullptr);
@@ -499,21 +499,21 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 	*error = 0;
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(object) == ObjectData::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == ObjectData::ITEM_FOUNTAIN) {
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
 	}
 	// проставляем имя жидкости
-	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON) {
+	if (GET_OBJ_TYPE(object) == ObjectData::ITEM_DRINKCON) {
 		name_from_drinkcon(object.get());
 		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2)) {
 			name_to_drinkcon(object.get(), GET_OBJ_VAL(object, 2));
 		}
 	}
 	// Проверка на ингры
-	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_MING) {
+	if (GET_OBJ_TYPE(object) == ObjectData::ITEM_MING) {
 		int err = im_assign_power(object.get());
 		if (err) {
 			*error = 100 + err;
@@ -532,7 +532,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error) {
 // Данная процедура выбирает предмет из буфера
 // ВНИМАНИЕ!!! эта функция используется только для чтения вещей персонажа,
 // сохраненных в старом формате, для чтения нового формата применяется ф-ия read_one_object_new
-OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
+ObjectData::shared_ptr read_one_object(char **data, int *error) {
 	char buffer[kMaxStringLength], f0[kMaxStringLength], f1[kMaxStringLength], f2[kMaxStringLength];
 	int vnum, i, j, t[5];
 
@@ -555,7 +555,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 		return nullptr;
 	}
 
-	OBJ_DATA::shared_ptr object;
+	ObjectData::shared_ptr object;
 	if (vnum < 0)        // Предмет не имеет прототипа
 	{
 		object = world_objects.create_blank();
@@ -609,7 +609,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 
 	object->set_maximum_durability(t[1]);
 	object->set_current_durability(t[2]);
-	object->set_material(static_cast<OBJ_DATA::EObjectMaterial>(t[3]));
+	object->set_material(static_cast<ObjectData::EObjectMaterial>(t[3]));
 
 	*error = 10;
 	if (!get_buf_line(data, buffer)
@@ -638,7 +638,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 		|| sscanf(buffer, " %d %s %s", t, f1, f2) != 3) {
 		return object;
 	}
-	object->set_type(static_cast<OBJ_DATA::EObjectType>(t[0]));
+	object->set_type(static_cast<ObjectData::EObjectType>(t[0]));
 	object->set_extra_flags(clear_flags);
 	object->set_wear_flags(0);
 	object->load_extra_flags(f1);
@@ -680,8 +680,8 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 	object->set_owner(t[1]);
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_FOUNTAIN) {
+	if (GET_OBJ_TYPE(object) == ObjectData::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(object) == ObjectData::ITEM_FOUNTAIN) {
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
@@ -697,7 +697,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 				object->set_affected(j, APPLY_NONE, 0);
 			}
 
-			if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_MING) {
+			if (GET_OBJ_TYPE(object) == ObjectData::ITEM_MING) {
 				int err = im_assign_power(object.get());
 				if (err) {
 					*error = 100 + err;
@@ -709,7 +709,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 
 		switch (*buffer) {
 			case 'E': {
-				EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
+				ExtraDescription::shared_ptr new_descr(new ExtraDescription());
 				if (!get_buf_lines(data, buffer)) {
 					*error = 16;
 					return object;
@@ -775,7 +775,7 @@ OBJ_DATA::shared_ptr read_one_object(char **data, int *error) {
 }
 
 // shapirus: функция проверки наличия доп. описания в прототипе
-inline bool proto_has_descr(const EXTRA_DESCR_DATA::shared_ptr &odesc, const EXTRA_DESCR_DATA::shared_ptr &pdesc) {
+inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const ExtraDescription::shared_ptr &pdesc) {
 	for (auto desc = pdesc; desc; desc = desc->next) {
 		if (!str_cmp(odesc->keyword, desc->keyword)
 			&& !str_cmp(odesc->description, desc->description)) {
@@ -788,7 +788,7 @@ inline bool proto_has_descr(const EXTRA_DESCR_DATA::shared_ptr &odesc, const EXT
 
 // Данная процедура помещает предмет в буфер
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
-void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
+void write_one_object(std::stringstream &out, ObjectData *object, int location) {
 	char buf[kMaxStringLength];
 	char buf2[kMaxStringLength];
 	int i, j;
@@ -982,15 +982,15 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 			out << "RntQ: " << GET_OBJ_RENTEQ(object) << "~\n";
 		}
 		// Владелец
-		if (GET_OBJ_OWNER(object) != OBJ_DATA::DEFAULT_OWNER) {
+		if (GET_OBJ_OWNER(object) != ObjectData::DEFAULT_OWNER) {
 			out << "Ownr: " << GET_OBJ_OWNER(object) << "~\n";
 		}
 		// Создатель
-		if (GET_OBJ_MAKER(object) != OBJ_DATA::DEFAULT_MAKER) {
+		if (GET_OBJ_MAKER(object) != ObjectData::DEFAULT_MAKER) {
 			out << "Mker: " << GET_OBJ_MAKER(object) << "~\n";
 		}
 		// Родитель
-		if (GET_OBJ_PARENT(object) != OBJ_DATA::DEFAULT_PARENT) {
+		if (GET_OBJ_PARENT(object) != ObjectData::DEFAULT_PARENT) {
 			out << "Prnt: " << GET_OBJ_PARENT(object) << "~\n";
 		}
 
@@ -1211,7 +1211,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA *object, int location) {
 	}
 }
 
-int auto_equip(CHAR_DATA *ch, OBJ_DATA *obj, int location) {
+int auto_equip(CharacterData *ch, ObjectData *obj, int location) {
 	// Lots of checks...
 	if (location > 0)    // Was wearing it.
 	{
@@ -1404,7 +1404,7 @@ int Crash_delete_files(const std::size_t index) {
 	return (retcode);
 }
 
-int Crash_delete_crashfile(CHAR_DATA *ch) {
+int Crash_delete_crashfile(CharacterData *ch) {
 	int index;
 
 	index = GET_INDEX(ch);
@@ -1647,7 +1647,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	}
 }
 
-void Crash_list_objects(CHAR_DATA *ch, int index) {
+void Crash_list_objects(CharacterData *ch, int index) {
 	int i = 0, rnum;
 	struct SaveTimeInfo data;
 	long timer_dec;
@@ -1703,7 +1703,7 @@ void Crash_list_objects(CHAR_DATA *ch, int index) {
 	send_to_char(buf, ch);
 }
 
-void Crash_listrent(CHAR_DATA *ch, char *name) {
+void Crash_listrent(CharacterData *ch, char *name) {
 	int index;
 
 	index = get_ptable_by_name(name);
@@ -1734,19 +1734,19 @@ void Crash_listrent(CHAR_DATA *ch, char *name) {
 }
 
 struct container_list_type {
-	OBJ_DATA *tank;
+	ObjectData *tank;
 	struct container_list_type *next;
 	int location;
 };
 
 // разобраться с возвращаемым значением
 // *******************  load_char_objects ********************
-int Crash_load(CHAR_DATA *ch) {
+int Crash_load(CharacterData *ch) {
 	FILE *fl;
 	char fname[kMaxStringLength], *data, *readdata;
 	int cost, i = 0, reccount, fsize, error, index;
 	float num_of_days;
-	OBJ_DATA *obj2, *obj_list = nullptr;
+	ObjectData *obj2, *obj_list = nullptr;
 	int location, rnum;
 	struct container_list_type *tank_list = nullptr, *tank, *tank_to;
 	bool need_convert_character_objects = 0;    // add by Pereplut
@@ -1897,7 +1897,7 @@ int Crash_load(CHAR_DATA *ch) {
 	for (fsize = 0, reccount = SAVEINFO(index)->rent.nitems;
 		 reccount > 0 && *data && *data != END_CHAR; reccount--, fsize++) {
 		i++;
-		OBJ_DATA::shared_ptr obj;
+		ObjectData::shared_ptr obj;
 		if (need_convert_character_objects) {
 			// Формат новый => используем новую функцию
 			obj = read_one_object_new(&data, &error);
@@ -2014,7 +2014,7 @@ int Crash_load(CHAR_DATA *ch) {
 		{
 			if (obj2
 				&& obj2->get_worn_on() < 0
-				&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER)    // This is container and it is not free
+				&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER)    // This is container and it is not free
 			{
 				CREATE(tank, 1);
 				tank->next = tank_list;
@@ -2037,7 +2037,7 @@ int Crash_load(CHAR_DATA *ch) {
 		} else {
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
-				&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER)    // This is container and it is not free
+				&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER)    // This is container and it is not free
 			{
 				tank_to = tank_list;
 				CREATE(tank, 1);
@@ -2083,7 +2083,7 @@ int Crash_load(CHAR_DATA *ch) {
 
 // ********** Some util functions for objects save... **********
 
-void Crash_restore_weight(OBJ_DATA *obj) {
+void Crash_restore_weight(ObjectData *obj) {
 	for (; obj; obj = obj->get_next_content()) {
 		Crash_restore_weight(obj->get_contains());
 		if (obj->get_in_obj()) {
@@ -2092,8 +2092,8 @@ void Crash_restore_weight(OBJ_DATA *obj) {
 	}
 }
 
-void Crash_extract_objs(OBJ_DATA *obj) {
-	OBJ_DATA *next;
+void Crash_extract_objs(ObjectData *obj) {
+	ObjectData *next;
 	for (; obj; obj = next) {
 		next = obj->get_next_content();
 		Crash_extract_objs(obj->get_contains());
@@ -2104,7 +2104,7 @@ void Crash_extract_objs(OBJ_DATA *obj) {
 	}
 }
 
-int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA *obj) {
+int Crash_is_unrentable(CharacterData *ch, ObjectData *obj) {
 	if (!obj) {
 		return false;
 	}
@@ -2114,8 +2114,8 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA *obj) {
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
 		|| (GET_OBJ_RNUM(obj) <= kNothing
-			&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
+			&& GET_OBJ_TYPE(obj) != ObjectData::ITEM_MONEY)
+		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_KEY
 		|| SetSystem::is_norent_set(ch, obj)) {
 		return true;
 	}
@@ -2123,8 +2123,8 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA *obj) {
 	return false;
 }
 
-void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA *obj) {
-	OBJ_DATA *next;
+void Crash_extract_norents(CharacterData *ch, ObjectData *obj) {
+	ObjectData *next;
 	for (; obj; obj = next) {
 		next = obj->get_next_content();
 		Crash_extract_norents(ch, obj->get_contains());
@@ -2134,7 +2134,7 @@ void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA *obj) {
 	}
 }
 
-void Crash_extract_norent_eq(CHAR_DATA *ch) {
+void Crash_extract_norent_eq(CharacterData *ch) {
 	for (int j = 0; j < NUM_WEARS; j++) {
 		if (GET_EQ(ch, j) == nullptr) {
 			continue;
@@ -2148,7 +2148,7 @@ void Crash_extract_norent_eq(CHAR_DATA *ch) {
 	}
 }
 
-void Crash_extract_norent_charmee(CHAR_DATA *ch) {
+void Crash_extract_norent_charmee(CharacterData *ch) {
 	if (ch->followers) {
 		for (struct Follower *k = ch->followers; k; k = k->next) {
 			if (!IS_CHARMICE(k->ch)
@@ -2171,7 +2171,7 @@ void Crash_extract_norent_charmee(CHAR_DATA *ch) {
 	}
 }
 
-int Crash_calculate_rent(OBJ_DATA *obj) {
+int Crash_calculate_rent(ObjectData *obj) {
 	int cost = 0;
 	for (; obj; obj = obj->get_next_content()) {
 		cost += Crash_calculate_rent(obj->get_contains());
@@ -2180,7 +2180,7 @@ int Crash_calculate_rent(OBJ_DATA *obj) {
 	return (cost);
 }
 
-int Crash_calculate_rent_eq(OBJ_DATA *obj) {
+int Crash_calculate_rent_eq(ObjectData *obj) {
 	int cost = 0;
 	for (; obj; obj = obj->get_next_content()) {
 		cost += Crash_calculate_rent(obj->get_contains());
@@ -2189,7 +2189,7 @@ int Crash_calculate_rent_eq(OBJ_DATA *obj) {
 	return (cost);
 }
 
-int Crash_calculate_charmee_rent(CHAR_DATA *ch) {
+int Crash_calculate_charmee_rent(CharacterData *ch) {
 	int cost = 0;
 	if (ch->followers) {
 		for (struct Follower *k = ch->followers; k; k = k->next) {
@@ -2207,7 +2207,7 @@ int Crash_calculate_charmee_rent(CHAR_DATA *ch) {
 	return cost;
 }
 
-int Crash_calcitems(OBJ_DATA *obj) {
+int Crash_calcitems(ObjectData *obj) {
 	int i = 0;
 	for (; obj; obj = obj->get_next_content(), i++) {
 		i += Crash_calcitems(obj->get_contains());
@@ -2215,7 +2215,7 @@ int Crash_calcitems(OBJ_DATA *obj) {
 	return (i);
 }
 
-int Crash_calc_charmee_items(CHAR_DATA *ch) {
+int Crash_calc_charmee_items(CharacterData *ch) {
 	int num = 0;
 	if (ch->followers) {
 		for (struct Follower *k = ch->followers; k; k = k->next) {
@@ -2230,7 +2230,7 @@ int Crash_calc_charmee_items(CHAR_DATA *ch) {
 	return num;
 }
 
-void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA *obj, int location, int savetype) {
+void Crash_save(std::stringstream &write_buffer, int iplayer, ObjectData *obj, int location, int savetype) {
 	for (; obj; obj = obj->get_next_content()) {
 		if (obj->get_in_obj()) {
 			obj->get_in_obj()->sub_weight(GET_OBJ_WEIGHT(obj));
@@ -2253,7 +2253,7 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA *obj, int
 
 void crash_save_and_restore_weight(std::stringstream &write_buffer,
 								   int iplayer,
-								   OBJ_DATA *obj,
+								   ObjectData *obj,
 								   int location,
 								   int savetype) {
 	Crash_save(write_buffer, iplayer, obj, location, savetype);
@@ -2261,7 +2261,7 @@ void crash_save_and_restore_weight(std::stringstream &write_buffer,
 }
 
 // ********************* save_char_objects ********************************
-int save_char_objects(CHAR_DATA *ch, int savetype, int rentcost) {
+int save_char_objects(CharacterData *ch, int savetype, int rentcost) {
 	char fname[kMaxStringLength];
 	struct SaveRentInfo rent;
 	int j, num = 0, iplayer = -1, cost;
@@ -2417,23 +2417,23 @@ int save_char_objects(CHAR_DATA *ch, int savetype, int rentcost) {
 
 //some dummy functions
 
-void Crash_crashsave(CHAR_DATA *ch) {
+void Crash_crashsave(CharacterData *ch) {
 	save_char_objects(ch, RENT_CRASH, 0);
 }
 
-void Crash_ldsave(CHAR_DATA *ch) {
+void Crash_ldsave(CharacterData *ch) {
 	Crash_crashsave(ch);
 }
 
-void Crash_idlesave(CHAR_DATA *ch) {
+void Crash_idlesave(CharacterData *ch) {
 	save_char_objects(ch, RENT_TIMEDOUT, 0);
 }
 
-void Crash_rentsave(CHAR_DATA *ch, int cost) {
+void Crash_rentsave(CharacterData *ch, int cost) {
 	save_char_objects(ch, RENT_RENTED, cost);
 }
 
-int Crash_cryosave(CHAR_DATA *ch, int cost) {
+int Crash_cryosave(CharacterData *ch, int cost) {
 	return save_char_objects(ch, RENT_TIMEDOUT, cost);
 }
 
@@ -2441,7 +2441,7 @@ int Crash_cryosave(CHAR_DATA *ch, int cost) {
 // * Routines used for the receptionist                                     *
 // **************************************************************************
 
-void Crash_rent_deadline(CHAR_DATA *ch, CHAR_DATA *recep, long cost) {
+void Crash_rent_deadline(CharacterData *ch, CharacterData *recep, long cost) {
 	long rent_deadline;
 
 	if (!cost) {
@@ -2463,7 +2463,7 @@ void Crash_rent_deadline(CHAR_DATA *ch, CHAR_DATA *recep, long cost) {
 	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline, desc_count(rent_deadline, WHAT_DAY));
 }
 
-int Crash_report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj) {
+int Crash_report_unrentables(CharacterData *ch, CharacterData *recep, ObjectData *obj) {
 	char buf[128];
 	int has_norents = 0;
 
@@ -2488,9 +2488,9 @@ int Crash_report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj) {
 
 // added by WorM (Видолюб)
 //процедура для вывода стоимости ренты одной и той же шмотки(count кол-ва)
-void Crash_report_rent_item(CHAR_DATA *ch,
-							CHAR_DATA *recep,
-							OBJ_DATA *obj,
+void Crash_report_rent_item(CharacterData *ch,
+							CharacterData *recep,
+							ObjectData *obj,
 							int count,
 							int factor,
 							int equip,
@@ -2526,9 +2526,9 @@ void Crash_report_rent_item(CHAR_DATA *ch,
 }
 // end by WorM
 
-void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost,
-		long *nitems, int rentshow, int factor, int equip, int recursive) {
-	OBJ_DATA *i, *push = nullptr;
+void Crash_report_rent(CharacterData *ch, CharacterData *recep, ObjectData *obj, int *cost,
+					   long *nitems, int rentshow, int factor, int equip, int recursive) {
+	ObjectData *i, *push = nullptr;
 	int push_count = 0;
 
 	if (obj) {
@@ -2617,7 +2617,7 @@ void Crash_report_rent(CHAR_DATA *ch, CHAR_DATA *recep, OBJ_DATA *obj, int *cost
 	}
 }
 
-int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int rentshow, int factor, int *totalcost) {
+int Crash_offer_rent(CharacterData *ch, CharacterData *receptionist, int rentshow, int factor, int *totalcost) {
 	char buf[kMaxExtendLength];
 	int i;
 	long numitems = 0, norent;
@@ -2715,7 +2715,7 @@ int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int rentshow, int f
 	return (true);
 }
 
-int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, int mode) {
+int gen_receptionist(CharacterData *ch, CharacterData *recep, int cmd, char * /*arg*/, int mode) {
 	RoomRnum save_room;
 	int cost, rentshow = true;
 
@@ -2849,12 +2849,12 @@ int gen_receptionist(CHAR_DATA *ch, CHAR_DATA *recep, int cmd, char * /*arg*/, i
 	return (true);
 }
 
-int receptionist(CHAR_DATA *ch, void *me, int cmd, char *argument) {
-	return (gen_receptionist(ch, (CHAR_DATA *) me, cmd, argument, RENT_FACTOR));
+int receptionist(CharacterData *ch, void *me, int cmd, char *argument) {
+	return (gen_receptionist(ch, (CharacterData *) me, cmd, argument, RENT_FACTOR));
 }
 
-int cryogenicist(CHAR_DATA *ch, void *me, int cmd, char *argument) {
-	return (gen_receptionist(ch, (CHAR_DATA *) me, cmd, argument, CRYO_FACTOR));
+int cryogenicist(CharacterData *ch, void *me, int cmd, char *argument) {
+	return (gen_receptionist(ch, (CharacterData *) me, cmd, argument, CRYO_FACTOR));
 }
 
 void Crash_frac_save_all(int frac_part) {

@@ -23,7 +23,7 @@
 #include <vector>
 
 // * External data structures.
-extern CHAR_DATA *mob_proto;
+extern CharacterData *mob_proto;
 extern IndexData *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
@@ -47,7 +47,7 @@ void zedit_disp_arg4(DescriptorData *d);
 void zedit_save_internally(DescriptorData *d);
 void zedit_save_to_disk(int zone_num);
 void zedit_create_index(int znum, char *type);
-void zedit_new_zone(CHAR_DATA *ch, int vzone_num);
+void zedit_new_zone(CharacterData *ch, int vzone_num);
 
 void renum_single_table(int zone);
 int is_number(const char *str);

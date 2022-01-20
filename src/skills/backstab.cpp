@@ -12,7 +12,7 @@
 using namespace FightSystem;
 
 // делегат обработки команды заколоть
-void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_BACKSTAB) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -33,7 +33,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	one_argument(argument, arg);
-	CHAR_DATA *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharacterData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 	if (!vict) {
 		send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;
@@ -73,7 +73,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // *********************** BACKSTAB VICTIM
 // Проверка на стаб в бою происходит до вызова этой функции
-void go_backstab(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_backstab(CharacterData *ch, CharacterData *vict) {
 
 	if (ch->isHorsePrevents())
 		return;

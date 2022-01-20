@@ -20,11 +20,11 @@
 #include "comm.h"
 
 // * define statics
-static struct event_info *event_list = nullptr;
+static struct TriggerEvent *event_list = nullptr;
 
 // * Add an event to the current list
-struct event_info *add_event(int time, EVENT(*func), void *info) {
-	struct event_info *this_data, *prev, *curr;
+struct TriggerEvent *add_event(int time, EVENT(*func), void *info) {
+	struct TriggerEvent *this_data, *prev, *curr;
 
 	CREATE(this_data, 1);
 	this_data->time_remaining = time;
@@ -53,8 +53,8 @@ struct event_info *add_event(int time, EVENT(*func), void *info) {
 	return this_data;
 }
 
-void remove_event(struct event_info *event) {
-	struct event_info *curr;
+void remove_event(struct TriggerEvent *event) {
+	struct TriggerEvent *curr;
 
 	if (event_list == event) {
 		event_list = event->next;
@@ -70,8 +70,8 @@ void remove_event(struct event_info *event) {
 }
 
 void process_events(void) {
-	struct event_info *e = event_list;
-	struct event_info *del;
+	struct TriggerEvent *e = event_list;
+	struct TriggerEvent *del;
 	struct timeval start, stop, result;
 	int trig_vnum;
 

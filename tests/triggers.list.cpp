@@ -6,7 +6,7 @@
 class TriggersList_F : public ::testing::Test
 {
 protected:
-	using test_triggers_list_t = std::list<TRIG_DATA*>;
+	using test_triggers_list_t = std::list<Trigger*>;
 
 	constexpr static int TRIGGERS_NUMBER = 12;
 
@@ -30,7 +30,7 @@ protected:
 			delete[] trig_index;
 		}
 	} m_trig_index_remover;
-	SCRIPT_DATA m_script;
+	Script m_script;
 	test_triggers_list_t m_test_triggers;	// so far triggers are being deleted when they are being removed from TriggersList. So, we shouldn't care about that.
 };
 
@@ -44,7 +44,7 @@ void TriggersList_F::SetUp()
 
 	for (int i = 0; i < TRIGGERS_NUMBER; ++i)
 	{
-		const auto trigger = new TRIG_DATA();
+		const auto trigger = new Trigger();
 
 		trigger->set_rnum(i);
 
@@ -56,7 +56,7 @@ void TriggersList_F::populate_tests_triggers_list()
 {
 	for (int i = 0; i < top_of_trigt; ++i)
 	{
-		TRIG_DATA* trigger = read_trigger(i);
+		Trigger* trigger = read_trigger(i);
 		m_test_triggers.push_back(trigger);
 
 		EXPECT_NO_THROW(add_trigger(&m_script, trigger, -1));
@@ -67,7 +67,7 @@ TEST_F(TriggersList_F, AddBack)
 {
 	for (test_triggers_list_t::const_iterator i = m_test_triggers.begin(); i != m_test_triggers.end(); ++i)
 	{
-		TRIG_DATA* trigger = read_trigger((*i)->get_rnum());
+		Trigger* trigger = read_trigger((*i)->get_rnum());
 
 		EXPECT_NO_THROW(add_trigger(&m_script, trigger, -1));
 	}
@@ -85,7 +85,7 @@ TEST_F(TriggersList_F, AddFront)
 {
 	for (test_triggers_list_t::const_iterator i = m_test_triggers.begin(); i != m_test_triggers.end(); ++i)
 	{
-		TRIG_DATA* trigger = read_trigger((*i)->get_rnum());
+		Trigger* trigger = read_trigger((*i)->get_rnum());
 
 		EXPECT_NO_THROW(add_trigger(&m_script, trigger, 0));
 	}

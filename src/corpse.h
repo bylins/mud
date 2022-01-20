@@ -8,13 +8,13 @@
 #include "sysdep.h"
 #include "structs/structs.h"
 
-void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer);
-OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer = nullptr);
+void make_arena_corpse(CharacterData *ch, CharacterData *killer);
+ObjectData *make_corpse(CharacterData *ch, CharacterData *killer = nullptr);
 
 namespace GlobalDrop {
 void init();
 void save();
-bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch);
+bool check_mob(ObjectData *corpse, CharacterData *ch);
 void reload_tables();
 
 // период сохранения временного файла с мобами (в минутах)

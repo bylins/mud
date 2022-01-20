@@ -13,10 +13,10 @@
 #include "magic/magic_rooms.h"
 #include "sysdep.h"
 
-class EXIT_DATA {
+class ExitData {
  public:
-	EXIT_DATA();
-	~EXIT_DATA();
+	ExitData();
+	~ExitData();
 
 	void set_keyword(std::string const &value);
 	void set_vkeyword(std::string const &value);
@@ -35,18 +35,18 @@ class EXIT_DATA {
 	ObjVnum key;        // Key's number (-1 for no key) //
 
  private:
-	RoomRnum m_to_room;    // Where direction leads (kNowhere) //
+	RoomRnum to_room_;    // Where direction leads (kNowhere) //
 };
 
-struct track_data {
+struct TrackData {
 	int track_info;        // bitvector //
 	int who;            // real_number for NPC, IDNUM for PC //
 	std::array<int, 6> time_income;    // time bitvector //
 	std::array<int, 6> time_outgone;
-	struct track_data *next;
+	struct TrackData *next;
 };
 
-struct weather_control {
+struct WeatherControl {
 	int rainlevel;
 	int snowlevel;
 	int icelevel;
@@ -56,16 +56,16 @@ struct weather_control {
 };
 
 // Структура хранит разннобразные характеристики комнат //
-struct room_property_data {
+struct RoomState {
 	int poison; //Пока только степень зараженности для SPELL_POISONED_FOG//
 };
 
-struct ROOM_DATA {
-	using exit_data_ptr = std::shared_ptr<EXIT_DATA>;
-	using people_t = std::list<CHAR_DATA *>;
+struct RoomData {
+	using exit_data_ptr = std::shared_ptr<ExitData>;
+	using people_t = std::list<CharacterData *>;
 
-	ROOM_DATA();
-	~ROOM_DATA();
+	RoomData();
+	~RoomData();
 
 	RoomVnum room_vn;    // Rooms number  (vnum)                //
 	ZoneRnum zone_rn;        // Room zone (for resetting)          //
@@ -75,24 +75,24 @@ struct ROOM_DATA {
 	char *name;        // Rooms name 'You are ...'           //
 	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
-	EXTRA_DESCR_DATA::shared_ptr ex_description;    // for examine/look       //
+	ExtraDescription::shared_ptr ex_description;    // for examine/look       //
 	std::array<exit_data_ptr, kDirMaxNumber> dir_option;    // Directions //
 
 	byte light;        // Number of lightsources in room //
 	byte glight;        // Number of lightness person     //
 	byte gdark;        // Number of darkness  person     //
-	struct weather_control weather;        // Weather state for room //
-	int (*func)(CHAR_DATA *, void *, int, char *);
+	struct WeatherControl weather;        // Weather state for room //
+	int (*func)(CharacterData *, void *, int, char *);
 
-	OBJ_DATA::triggers_list_ptr proto_script;    // list of default triggers  //
-	SCRIPT_DATA::shared_ptr script;    // script info for the object //
-	struct track_data *track;
+	ObjectData::triggers_list_ptr proto_script;    // list of default triggers  //
+	Script::shared_ptr script;    // script info for the object //
+	struct TrackData *track;
 
-	OBJ_DATA *contents;    // List of items in room              //
+	ObjectData *contents;    // List of items in room              //
 	people_t people;    // List of NPC / PC in room           //
 
 	room_spells::RoomAffects affected;    // affected by what spells       //
-	FLAG_DATA affected_by;    // флаги которые в отличии от room_flags появляются от аффектов
+	FlagData affected_by;    // флаги которые в отличии от room_flags появляются от аффектов
 	//и не могут быть записаны на диск
 
 	// Всякие характеристики комнаты
@@ -106,9 +106,9 @@ struct ROOM_DATA {
 	int holes;        // Дырки для камне - копателей //
 
 	// Параметры которые грузяться из файла (по крайней мере так планируется)
-	struct room_property_data base_property;
+	struct RoomState base_property;
 	// Добавки к параметрам  которые модифицируются аффектами ...
-	struct room_property_data add_property;
+	struct RoomState add_property;
 
 	int poison;        // Степень заражения территории в SPELL_POISONED_FOG //
 
@@ -133,13 +133,13 @@ struct ROOM_DATA {
 							 res);
 	}
 
-	CHAR_DATA *first_character() const;
+	CharacterData *first_character() const;
 
 	void cleanup_script();
 	void set_name(std::string const &name);
 
  private:
-	FLAG_DATA m_room_flags;    // DEATH,DARK ... etc //
+	FlagData m_room_flags;    // DEATH,DARK ... etc //
 };
 
 #endif // ROOM_HPP_INCLUDED

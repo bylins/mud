@@ -16,19 +16,19 @@ namespace room_spells {
 
 const int kRuneLabelDuration = 300;
 
-std::list<ROOM_DATA *> affected_rooms;
+std::list<RoomData *> affected_rooms;
 
 void RemoveSingleRoomAffect(long casterID, int spellnum);
-void HandleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApply>::shared_ptr &aff);
+void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply>::shared_ptr &aff);
 void sendAffectOffMessageToRoom(int aff, RoomRnum room);
-void AddRoomToAffected(ROOM_DATA *room);
-void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af);
-void affect_room_join(ROOM_DATA *room, AFFECT_DATA<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
-void RefreshRoomAffects(ROOM_DATA *room);
-void affect_to_room(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af);
-void affect_room_modify(ROOM_DATA *room, byte loc, sbyte mod, bitvector_t bitv, bool add);
+void AddRoomToAffected(RoomData *room);
+void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
+void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+void RefreshRoomAffects(RoomData *room);
+void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
+void affect_room_modify(RoomData *room, byte loc, sbyte mod, bitvector_t bitv, bool add);
 
-void RemoveAffect(ROOM_DATA *room, const RoomAffectIt &affect) {
+void RemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 	if (room->affected.empty()) {
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
@@ -38,7 +38,7 @@ void RemoveAffect(ROOM_DATA *room, const RoomAffectIt &affect) {
 	RefreshRoomAffects(room);
 }
 
-RoomAffectIt FindAffect(ROOM_DATA *room, int type) {
+RoomAffectIt FindAffect(RoomData *room, int type) {
 	for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i) {
 		const auto affect = *affect_i;
 		if (affect->type == type) {
@@ -57,7 +57,7 @@ bool IsZoneRoomAffected(int zone_vnum, ESpell spell) {
 	return false;
 }
 
-bool IsRoomAffected(ROOM_DATA *room, ESpell spell) {
+bool IsRoomAffected(RoomData *room, ESpell spell) {
 	for (const auto &af : room->affected) {
 		if (af->type == spell) {
 			return true;
@@ -66,7 +66,7 @@ bool IsRoomAffected(ROOM_DATA *room, ESpell spell) {
 	return false;
 }
 
-void ShowAffectedRooms(CHAR_DATA *ch) {
+void ShowAffectedRooms(CharacterData *ch) {
 	const int vnumCW = 7;
 	const int spellCW = 25;
 	const int casterCW = 21;
@@ -93,7 +93,7 @@ void ShowAffectedRooms(CHAR_DATA *ch) {
 	page_string(ch->desc, buffer.str());
 }
 
-CHAR_DATA *find_char_in_room(long char_id, ROOM_DATA *room) {
+CharacterData *find_char_in_room(long char_id, RoomData *room) {
 	assert(room);
 	for (const auto tch : room->people) {
 		if (GET_ID(tch) == char_id) {
@@ -103,7 +103,7 @@ CHAR_DATA *find_char_in_room(long char_id, ROOM_DATA *room) {
 	return nullptr;
 }
 
-ROOM_DATA *FindAffectedRoom(long caster_id, int spellnum) {
+RoomData *FindAffectedRoom(long caster_id, int spellnum) {
 	for (const auto room : affected_rooms) {
 		for (const auto &af : room->affected) {
 			if (af->type == spellnum && af->caster_id == caster_id) {
@@ -134,7 +134,7 @@ void RemoveSingleRoomAffect(long casterID, int spellnum) {
 	RemoveAffectFromRooms(spellnum, filter);
 }
 
-int removeControlledRoomAffect(CHAR_DATA *ch) {
+int removeControlledRoomAffect(CharacterData *ch) {
 	long casterID = GET_ID(ch);
 	auto filter =
 		[&casterID](auto &af) {
@@ -151,14 +151,14 @@ void sendAffectOffMessageToRoom(int affectType, RoomRnum room) {
 	};
 }
 
-void AddRoomToAffected(ROOM_DATA *room) {
+void AddRoomToAffected(RoomData *room) {
 	const auto it = std::find(affected_rooms.begin(), affected_rooms.end(), room);
 	if (it == affected_rooms.end())
 		affected_rooms.push_back(room);
 }
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
-void HandleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApply>::shared_ptr &aff) {
+void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	// Аффект в комнате.
 	// Проверяем на то что нам передали бяку в параметрах.
 	assert(aff);
@@ -252,7 +252,7 @@ void HandleRoomAffect(ROOM_DATA *room, CHAR_DATA *ch, const AFFECT_DATA<ERoomApp
 }
 
 void UpdateRoomsAffects() {
-	CHAR_DATA *ch;
+	CharacterData *ch;
 	int spellnum;
 
 	for (auto room = affected_rooms.begin(); room != affected_rooms.end();) {
@@ -328,7 +328,7 @@ void UpdateRoomsAffects() {
 // =============================================================== //
 
 // Применение заклинания к комнате //
-int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnum) {
+int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spellnum) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	// Должен ли данный спелл быть только 1 в мире от этого кастера?
@@ -341,7 +341,7 @@ int ImposeSpellToRoom(int/* level*/, CHAR_DATA *ch, ROOM_DATA *room, int spellnu
 		return 0;
 	}
 
-	AFFECT_DATA<ERoomApply> af[kMaxSpellAffects];
+	Affect<ERoomApply> af[kMaxSpellAffects];
 	for (i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spellnum;
 		af[i].bitvector = 0;
@@ -555,7 +555,7 @@ int GetUniqueAffectDuration(long caster_id, int spellnum) {
 	return 0;
 }
 
-void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af) {
+void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af) {
 	bool found = false;
 
 	for (const auto &hjp : room->affected) {
@@ -580,7 +580,7 @@ void affect_room_join_fspell(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af)
 	}
 }
 
-void affect_room_join(ROOM_DATA *room, AFFECT_DATA<ERoomApply> &af,
+void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 					  bool add_dur, bool avg_dur, bool add_mod, bool avg_mod) {
 	bool found = false;
 
@@ -620,7 +620,7 @@ void affect_room_join(ROOM_DATA *room, AFFECT_DATA<ERoomApply> &af,
 }
 
 // Тут осуществляется апдейт аффектов влияющих на комнату
-void RefreshRoomAffects(ROOM_DATA *room) {
+void RefreshRoomAffects(RoomData *room) {
 	// А че тут надо делать пересуммирование аффектов от заклов.
 	/* Вобщем все комнаты имеют (вроде как базовую и
 	   добавочную характеристику) если скажем ввести
@@ -629,7 +629,7 @@ void RefreshRoomAffects(ROOM_DATA *room) {
 	   + но не обнулять это значение. */
 
 	// обнуляем все добавочные характеристики
-	memset(&room->add_property, 0, sizeof(room_property_data));
+	memset(&room->add_property, 0, sizeof(RoomState));
 
 	// перенакладываем аффекты
 	for (const auto &af : room->affected) {
@@ -637,8 +637,8 @@ void RefreshRoomAffects(ROOM_DATA *room) {
 	}
 }
 
-void affect_to_room(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af) {
-	AFFECT_DATA<ERoomApply>::shared_ptr new_affect(new AFFECT_DATA<ERoomApply>(af));
+void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
+	Affect<ERoomApply>::shared_ptr new_affect(new Affect<ERoomApply>(af));
 
 	room->affected.push_front(new_affect);
 
@@ -646,7 +646,7 @@ void affect_to_room(ROOM_DATA *room, const AFFECT_DATA<ERoomApply> &af) {
 	RefreshRoomAffects(room);
 }
 
-void affect_room_modify(ROOM_DATA *room, byte loc, sbyte mod, bitvector_t bitv, bool add) {
+void affect_room_modify(RoomData *room, byte loc, sbyte mod, bitvector_t bitv, bool add) {
 	if (add) {
 		ROOM_AFF_FLAGS(room).set(bitv);
 	} else {

@@ -1,9 +1,9 @@
 #ifndef BYLINS_RELOCATE_H
 #define BYLINS_RELOCATE_H
 
-class CHAR_DATA;
+class CharacterData;
 
-void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_RELOCATE_H
 

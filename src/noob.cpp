@@ -9,7 +9,7 @@
 #include "handler.h"
 #include "logger.h"
 
-int find_eq_pos(CHAR_DATA *ch, OBJ_DATA *obj, char *arg);
+int find_eq_pos(CharacterData *ch, ObjectData *obj, char *arg);
 
 namespace Noob {
 
@@ -85,7 +85,7 @@ void init() {
 ///
 /// \return true - если ch в коде считается нубом и соотв-но претендует на помощь
 ///
-bool is_noob(const CHAR_DATA *ch) {
+bool is_noob(const CharacterData *ch) {
 	if (ch->get_level() > MAX_LEVEL || GET_REAL_REMORT(ch) > 0) {
 		return false;
 	}
@@ -95,7 +95,7 @@ bool is_noob(const CHAR_DATA *ch) {
 ///
 /// Пустой спешиал, чтобы не морочить голову с перебором тригов в карте
 ///
-int outfit(CHAR_DATA * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
+int outfit(CharacterData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
 	return 0;
 }
 
@@ -103,7 +103,7 @@ int outfit(CHAR_DATA * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) 
 /// \return строка с внумами стартовых предметов персонажа
 /// нужно для тригов (%actor.noob_outfit%)
 ///
-std::string print_start_outfit(CHAR_DATA *ch) {
+std::string print_start_outfit(CharacterData *ch) {
 	std::stringstream out;
 	std::vector<int> tmp(get_start_outfit(ch));
 	for (const auto &item : tmp) {
@@ -116,7 +116,7 @@ std::string print_start_outfit(CHAR_DATA *ch) {
 /// \return список внумов стартовых шмоток из noob_help.xml
 /// + шмоток, завясящих от местонахождения чара из birthplaces.xml
 ///
-std::vector<int> get_start_outfit(CHAR_DATA *ch) {
+std::vector<int> get_start_outfit(CharacterData *ch) {
 	// стаф из noob_help.xml
 	std::vector<int> out_list;
 	const int ch_class = ch->get_class();
@@ -136,7 +136,7 @@ std::vector<int> get_start_outfit(CHAR_DATA *ch) {
 ///
 /// \return указатель на моба-рентера в данной комнате или 0
 ///
-CHAR_DATA *find_renter(int room_rnum) {
+CharacterData *find_renter(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people) {
 		if (GET_MOB_SPEC(tch) == receptionist) {
 			return tch;
@@ -151,14 +151,14 @@ CHAR_DATA *find_renter(int room_rnum) {
 /// сообщения о возможности получить стартовую экипу у кладовщика.
 /// Сообщение берется из birthplaces.xml или дефолтное из BirthPlace::GetRentHelp
 ///
-void check_help_message(CHAR_DATA *ch) {
+void check_help_message(CharacterData *ch) {
 	if (Noob::is_noob(ch)
 		&& GET_HIT(ch) <= 1
 		&& IS_CARRYING_N(ch) <= 0
 		&& IS_CARRYING_W(ch) <= 0) {
 		int birth_id = BirthPlace::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
 		if (birth_id >= 0) {
-			CHAR_DATA *renter = find_renter(ch->in_room);
+			CharacterData *renter = find_renter(ch->in_room);
 			std::string text = BirthPlace::GetRentHelp(birth_id);
 			if (renter && !text.empty()) {
 				act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, 0, ch, TO_VICT);
@@ -174,8 +174,8 @@ void check_help_message(CHAR_DATA *ch) {
 /// в игру со стартовой экипой. При вооржении пушки чару ставится ее скилл.
 /// Богатырям при надевании перчаток сетится кулачный бой.
 ///
-void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj) {
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR) {
+void equip_start_outfit(CharacterData *ch, ObjectData *obj) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ARMOR) {
 		int where = find_eq_pos(ch, obj, 0);
 		if (where >= 0) {
 			equip_char(ch, obj, where, CharEquipFlags());
@@ -184,7 +184,7 @@ void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj) {
 				ch->set_skill(SKILL_PUNCH, 10);
 			}
 		}
-	} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+	} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)
 			&& !GET_EQ(ch, WEAR_WIELD)) {
 			equip_char(ch, obj, WEAR_WIELD, CharEquipFlags());

@@ -7,7 +7,7 @@
 
 #include "structs/descriptor_data.h"
 
-class CHAR_DATA;        // to avoid inclusion of "char.hpp"
+class CharacterData;        // to avoid inclusion of "char.hpp"
 
 namespace msdp {
 class AbstractReporter {
@@ -115,11 +115,11 @@ class GroupReporter : public DescriptorBasedReporter {
 
  private:
 	void append_char(const std::shared_ptr<ArrayValue> &group,
-					 const CHAR_DATA *ch,
-					 const CHAR_DATA *character,
+					 const CharacterData *ch,
+					 const CharacterData *character,
 					 const bool leader);
 
-	int get_mem(const CHAR_DATA *character) const;
+	int get_mem(const CharacterData *character) const;
 };
 }
 

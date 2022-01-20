@@ -16,13 +16,13 @@
 
 // extern
 int extra_aco(int class_num, int level);
-void alt_equip(CHAR_DATA *ch, int pos, int dam, int chance);
+void alt_equip(CharacterData *ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
-void npc_groupbattle(CHAR_DATA *ch);
-void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
-void go_autoassist(CHAR_DATA *ch);
+void npc_groupbattle(CharacterData *ch);
+void set_wait(CharacterData *ch, int waittime, int victim_in_room);
+void go_autoassist(CharacterData *ch);
 
-int armor_class_limit(CHAR_DATA *ch) {
+int armor_class_limit(CharacterData *ch) {
 	if (IS_CHARMICE(ch)) {
 		return -200;
 	};
@@ -54,7 +54,7 @@ int armor_class_limit(CHAR_DATA *ch) {
 	return -300;
 }
 
-int compute_armor_class(CHAR_DATA *ch) {
+int compute_armor_class(CharacterData *ch) {
 	int armorclass = GET_REAL_AC(ch);
 
 	if (AWAKE(ch)) {
@@ -100,8 +100,8 @@ int compute_armor_class(CHAR_DATA *ch) {
 	return (MAX(armor_class_limit(ch), armorclass));
 }
 
-void haemorragia(CHAR_DATA *ch, int percent) {
-	AFFECT_DATA<EApplyLocation> af[3];
+void haemorragia(CharacterData *ch, int percent) {
+	Affect<EApplyLocation> af[3];
 
 	af[0].type = SPELL_HAEMORRAGIA;
 	af[0].location = APPLY_HITREG;
@@ -128,10 +128,10 @@ void haemorragia(CHAR_DATA *ch, int percent) {
 	}
 }
 
-void HitData::compute_critical(CHAR_DATA *ch, CHAR_DATA *victim) {
+void HitData::compute_critical(CharacterData *ch, CharacterData *victim) {
 	const char *to_char = nullptr, *to_vict = nullptr;
-	AFFECT_DATA<EApplyLocation> af[4];
-	OBJ_DATA *obj;
+	Affect<EApplyLocation> af[4];
+	ObjectData *obj;
 	int unequip_pos = 0;
 
 	for (int i = 0; i < 4; i++) {
@@ -755,8 +755,8 @@ void HitData::compute_critical(CHAR_DATA *ch, CHAR_DATA *victim) {
 					af[i].duration /= 5;
 					// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
 					sh_int extra_duration = 0;
-					OBJ_DATA *both = GET_EQ(ch, WEAR_BOTHS);
-					OBJ_DATA *wield = GET_EQ(ch, WEAR_WIELD);
+					ObjectData *both = GET_EQ(ch, WEAR_BOTHS);
+					ObjectData *wield = GET_EQ(ch, WEAR_WIELD);
 					if (both) {
 						extra_duration = GET_OBJ_WEIGHT(both) / 5;
 					} else if (wield) {
@@ -777,7 +777,7 @@ void HitData::compute_critical(CHAR_DATA *ch, CHAR_DATA *victim) {
 * распределением 62.5% на силу и 37.5% на уровни + штрафы до 5 ремов.
 * Способность не плюсуется при железном ветре и оглушении.
 */
-int calculate_strconc_damage(CHAR_DATA *ch, OBJ_DATA * /*wielded*/, int damage) {
+int calculate_strconc_damage(CharacterData *ch, ObjectData * /*wielded*/, int damage) {
 	if (IS_NPC(ch)
 		|| GET_REAL_STR(ch) <= 25
 		|| !can_use_feat(ch, STRENGTH_CONCETRATION_FEAT)
@@ -797,7 +797,7 @@ int calculate_strconc_damage(CHAR_DATA *ch, OBJ_DATA * /*wielded*/, int damage) 
 * Расчет прибавки дамаги со скрытого стиля.
 * (скилл/5 + реморты*3) * (среднее/(10 + среднее/2)) * (левел/30)
 */
-int calculate_noparryhit_dmg(CHAR_DATA *ch, OBJ_DATA *wielded) {
+int calculate_noparryhit_dmg(CharacterData *ch, ObjectData *wielded) {
 	if (!ch->get_skill(SKILL_NOPARRYHIT)) return 0;
 
 	float weap_dmg = (((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1));
@@ -808,7 +808,7 @@ int calculate_noparryhit_dmg(CHAR_DATA *ch, OBJ_DATA *wielded) {
 	return static_cast<int>((skill_mod + GET_REAL_REMORT(ch) * 3) * weap_mod * level_mod);
 }
 
-void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim) {
+void might_hit_bash(CharacterData *ch, CharacterData *victim) {
 	if (MOB_FLAGGED(victim, MOB_NOBASH) || !GET_MOB_HOLD(victim)) {
 		return;
 	}
@@ -822,7 +822,7 @@ void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 }
 
-bool check_mighthit_weapon(CHAR_DATA *ch) {
+bool check_mighthit_weapon(CharacterData *ch) {
 	if (!GET_EQ(ch, WEAR_BOTHS)
 		&& !GET_EQ(ch, WEAR_WIELD)
 		&& !GET_EQ(ch, WEAR_HOLD)
@@ -834,7 +834,7 @@ bool check_mighthit_weapon(CHAR_DATA *ch) {
 }
 
 // * При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
-void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim) {
+void try_remove_extrahits(CharacterData *ch, CharacterData *victim) {
 	if (((!IS_NPC(ch) && ch != victim)
 		|| (ch->has_master()
 			&& !IS_NPC(ch->get_master())
@@ -859,7 +859,7 @@ void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim) {
 * На заднице 70% от итоговых процентов.
 * У чармисов 100% и 60% без остальных допов.
 */
-void addshot_damage(CHAR_DATA *ch, ESkill type, FightSystem::AttType weapon) {
+void addshot_damage(CharacterData *ch, ESkill type, FightSystem::AttType weapon) {
 	int prob = CalcCurrentSkill(ch, SKILL_ADDSHOT, ch->get_fighting());
 	TrainSkill(ch, SKILL_ADDSHOT, true, ch->get_fighting());
 	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
@@ -1196,7 +1196,7 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 	*hitroll = calc_thaco;
 }
 
-int do_punctual(CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA *wielded) {
+int do_punctual(CharacterData *ch, CharacterData * /*victim*/, ObjectData *wielded) {
 	int dam_critic = 0, wapp = 0;
 
 	if (wielded) {
@@ -1246,12 +1246,12 @@ int backstab_mult(int level) {
 * Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30)
 * Влияение по 50% от скилла и дексы, максимум 36,18%.
 */
-int calculate_crit_backstab_percent(CHAR_DATA *ch) {
+int calculate_crit_backstab_percent(CharacterData *ch) {
 	return static_cast<int>(ch->get_skill(SKILL_BACKSTAB) / 11.0 + (GET_REAL_DEX(ch) - 20) / (GET_REAL_DEX(ch) / 30.0));
 }
 
 // * Расчет множителя крит.стаба (по игрокам только для татей).
-double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim) {
+double HitData::crit_backstab_multiplier(CharacterData *ch, CharacterData *victim) {
 	double bs_coeff = 1.0;
 	if (IS_NPC(victim)) {
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
@@ -1290,7 +1290,7 @@ double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim) {
 }
 
 // * Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
-bool can_auto_block(CHAR_DATA *ch) {
+bool can_auto_block(CharacterData *ch) {
 	if (GET_EQ(ch, WEAR_SHIELD) && GET_AF_BATTLE(ch, EAF_AWAKE) && GET_AF_BATTLE(ch, EAF_AUTOBLOCK))
 		return true;
 	else
@@ -1298,7 +1298,7 @@ bool can_auto_block(CHAR_DATA *ch) {
 }
 
 // * Проверка на фит "любимое оружие".
-void HitData::check_weap_feats(const CHAR_DATA *ch, int weap_skill, int &calc_thaco, int &dam) {
+void HitData::check_weap_feats(const CharacterData *ch, int weap_skill, int &calc_thaco, int &dam) {
 	switch (weap_skill) {
 		case SKILL_PUNCH:
 			if (HAVE_FEAT(ch, PUNCH_FOCUS_FEAT)) {
@@ -1365,7 +1365,7 @@ void HitData::check_weap_feats(const CHAR_DATA *ch, int weap_skill, int &calc_th
 }
 
 // * Захват.
-void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam) {
+void hit_touching(CharacterData *ch, CharacterData *vict, int *dam) {
 	if (vict->get_touching() == ch
 		&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
@@ -1410,7 +1410,7 @@ void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam) {
 	}
 }
 
-void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
+void hit_deviate(CharacterData *ch, CharacterData *victim, int *dam) {
 	int range = number(1, skill_info[SKILL_DEVIATE].difficulty);
 	int prob = CalcCurrentSkill(victim, SKILL_DEVIATE, ch);
 	if (GET_GOD_FLAG(victim, GF_GODSCURSE)) {
@@ -1448,11 +1448,11 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
 	BATTLECNTR(victim)++;
 }
 
-void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *dam) {
+void hit_parry(CharacterData *ch, CharacterData *victim, int skill, int hit_type, int *dam) {
 	if (!((GET_EQ(victim, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == ObjectData::ITEM_WEAPON
 		&& GET_EQ(victim, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == ObjectData::ITEM_WEAPON)
 		|| IS_NPC(victim)
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонить атаку противника\r\n", victim);
@@ -1509,11 +1509,11 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *d
 	}
 }
 
-void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *dam) {
+void hit_multyparry(CharacterData *ch, CharacterData *victim, int skill, int hit_type, int *dam) {
 	if (!((GET_EQ(victim, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == ObjectData::ITEM_WEAPON
 		&& GET_EQ(victim, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON)
+		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == ObjectData::ITEM_WEAPON)
 		|| IS_NPC(victim)
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонять атаки противников\r\n", victim);
@@ -1560,7 +1560,7 @@ void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, i
 	}
 }
 
-void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
+void hit_block(CharacterData *ch, CharacterData *victim, int *dam) {
 	if (!(GET_EQ(victim, WEAR_SHIELD)
 		|| IS_NPC(victim)
 		|| IS_IMMORTAL(victim))) {
@@ -1598,7 +1598,7 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam) {
 	}
 }
 
-void appear(CHAR_DATA *ch) {
+void appear(CharacterData *ch) {
 	const bool appear_msg = AFF_FLAGGED(ch, EAffectFlag::AFF_INVISIBLE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE);
@@ -1628,7 +1628,7 @@ void appear(CHAR_DATA *ch) {
 }
 
 // message for doing damage with a weapon
-void Damage::dam_message(CHAR_DATA *ch, CHAR_DATA *victim) const {
+void Damage::dam_message(CharacterData *ch, CharacterData *victim) const {
 	int dam_msgnum;
 	int w_type = msg_num;
 
@@ -1801,7 +1801,7 @@ void Damage::dam_message(CHAR_DATA *ch, CHAR_DATA *victim) const {
 // если бьют клоны (проверка на MOB_CLONE), тоже помнит всегда.
 // если бьют храны или чармис (все остальные под чармом), то только если
 // моб может видеть их хозяина.
-void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim) {
+void update_mob_memory(CharacterData *ch, CharacterData *victim) {
 	// первое -- бьют моба, он запоминает обидчика
 	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY)) {
 		if (!IS_NPC(ch)) {
@@ -1835,7 +1835,7 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 }
 
-bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
+bool Damage::magic_shields_dam(CharacterData *ch, CharacterData *victim) {
 	if (dam <= 0) {
 		return false;
 	}
@@ -1936,7 +1936,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return false;
 }
 
-void Damage::armor_dam_reduce(CHAR_DATA *victim) {
+void Damage::armor_dam_reduce(CharacterData *victim) {
 	// броня на физ дамаг
 	if (dam > 0 && dmg_type == FightSystem::PHYS_DMG) {
 		alt_equip(victim, kNowhere, dam, 50);
@@ -1962,7 +1962,7 @@ void Damage::armor_dam_reduce(CHAR_DATA *victim) {
  * Обработка поглощения физ урона.
  * \return true - полное поглощение
  */
-bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim) {
+bool Damage::dam_absorb(CharacterData *ch, CharacterData *victim) {
 	if (dmg_type == FightSystem::PHYS_DMG
 		&& skill_num < 0
 		&& spell_num < 0
@@ -1991,7 +1991,7 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return false;
 }
 
-void Damage::send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim) {
+void Damage::send_critical_message(CharacterData *ch, CharacterData *victim) {
 	// Блочить мессагу крита при ледяном щите вроде нелогично,
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
 	if (!flags[FightSystem::VICTIM_ICE_SHIELD]) {
@@ -2017,7 +2017,7 @@ void Damage::send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim) {
 	//act("Меткое попадание $N1 заставило $n3 пошатнуться.", true, victim, 0, ch, TO_NOTVICT);
 }
 
-void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam) {
+void update_dps_stats(CharacterData *ch, int real_dam, int over_dam) {
 	if (!IS_NPC(ch)) {
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
@@ -2028,7 +2028,7 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam) {
 			real_dam,
 			over_dam);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
-			CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
+			CharacterData *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
 		}
 	} else if (IS_CHARMICE(ch)
@@ -2041,13 +2041,13 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam) {
 		}
 
 		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)) {
-			CHAR_DATA *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
+			CharacterData *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
 			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
 		}
 	}
 }
 
-void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim) {
+void try_angel_sacrifice(CharacterData *ch, CharacterData *victim) {
 	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
 	if (GET_HIT(victim) <= 0
 		&& !IS_NPC(victim)
@@ -2059,10 +2059,10 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim) {
 				&& MOB_FLAGGED(keeper, MOB_ANGEL)
 				&& keeper->has_master()
 				&& AFF_FLAGGED(keeper->get_master(), EAffectFlag::AFF_GROUP)) {
-				CHAR_DATA *keeper_leader = keeper->get_master()->has_master()
+				CharacterData *keeper_leader = keeper->get_master()->has_master()
 										   ? keeper->get_master()->get_master()
 										   : keeper->get_master();
-				CHAR_DATA *victim_leader = victim->has_master()
+				CharacterData *victim_leader = victim->has_master()
 										   ? victim->get_master()
 										   : victim;
 
@@ -2084,7 +2084,7 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 }
 
-void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim) {
+void update_pk_logs(CharacterData *ch, CharacterData *victim) {
 	ClanPkLog::check(ch, victim);
 	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
 			IN_ROOM(victim) != kNowhere ? world[IN_ROOM(victim)]->name : "kNowhere", GET_ROOM_VNUM(IN_ROOM(victim)));
@@ -2106,8 +2106,8 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 }
 
-void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim) {
-	CHAR_DATA *killer = nullptr;
+void Damage::process_death(CharacterData *ch, CharacterData *victim) {
+	CharacterData *killer = nullptr;
 
 	if (IS_NPC(victim) || victim->desc) {
 		if (victim == ch && IN_ROOM(victim) != kNowhere) {
@@ -2195,7 +2195,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim) {
 
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
-int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
+int Damage::process(CharacterData *ch, CharacterData *victim) {
 	post_init(ch, victim);
 
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
@@ -2613,7 +2613,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return dam;
 }
 
-void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
+void HitData::try_mighthit_dam(CharacterData *ch, CharacterData *victim) {
 	int percent = number(1, skill_info[SKILL_MIGHTHIT].difficulty);
 	int prob = CalcCurrentSkill(ch, SKILL_MIGHTHIT, victim);
 	TrainSkill(ch, SKILL_MIGHTHIT, percent <= prob, victim);
@@ -2646,7 +2646,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 			send_to_char(buf, ch);
 			lag = 1;
 			WAIT_STATE(victim, kPulseViolence);
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.type = SPELL_BATTLE;
 			af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af.location = APPLY_NONE;
@@ -2666,7 +2666,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 			lag = 2;
 			dam += (dam / 1);
 			WAIT_STATE(victim, 2 * kPulseViolence);
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.type = SPELL_BATTLE;
 			af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af.location = APPLY_NONE;
@@ -2686,7 +2686,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 			lag = 2;
 			dam *= 4;
 			WAIT_STATE(victim, 3 * kPulseViolence);
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.type = SPELL_BATTLE;
 			af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af.location = APPLY_NONE;
@@ -2706,7 +2706,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 	setSkillCooldown(ch, SKILL_MIGHTHIT, lag);
 }
 
-void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
+void HitData::try_stupor_dam(CharacterData *ch, CharacterData *victim) {
 	int percent = number(1, skill_info[SKILL_STUPOR].difficulty);
 	int prob = CalcCurrentSkill(ch, SKILL_STUPOR, victim);
 	TrainSkill(ch, SKILL_STUPOR, prob >= percent, victim);
@@ -2773,7 +2773,7 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim) {
 	setSkillCooldown(ch, SKILL_STUPOR, lag);
 }
 
-int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim) {
+int HitData::extdamage(CharacterData *ch, CharacterData *victim) {
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
 		return 0;
 	}
@@ -2875,7 +2875,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim) {
  * Инициализация всех нужных первичных полей (отделены в хедере), после
  * этой функции уже начинаются подсчеты собсна хитролов/дамролов и прочего.
  */
-void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim) {
+void HitData::init(CharacterData *ch, CharacterData *victim) {
 	// Find weapon for attack number weapon //
 
 	if (weapon == FightSystem::AttType::MAIN_HAND) {
@@ -2894,7 +2894,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 
 	if (wielded
-		&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON) {
 		// для всех типов атак скилл берется из пушки, если она есть
 		weap_skill = static_cast<ESkill>(GET_OBJ_SKILL(wielded));
 	} else {
@@ -2918,7 +2918,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim) {
 		hit_no_parry = true;
 	}
 
-	if (wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON) {
+	if (wielded && GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON) {
 		hit_type = GET_OBJ_VAL(wielded, 3);
 	} else {
 		weapon_pos = 0;
@@ -2938,10 +2938,10 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim) {
  * Предполагается, что в итоге это пойдет в 'счет все' через что-то вроде
  * test_self_hitroll() в данный момент.
  */
-void HitData::calc_base_hr(CHAR_DATA *ch) {
+void HitData::calc_base_hr(CharacterData *ch) {
 	if (skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB) {
 		if (wielded
-			&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON
+			&& GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON
 			&& !IS_NPC(ch)) {
 			// Apply HR for light weapon
 			int percent = 0;
@@ -3043,7 +3043,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch) {
 	if ((skill_num == SKILL_THROW
 		|| skill_num == SKILL_BACKSTAB)
 		&& wielded
-		&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON) {
 		if (skill_num == SKILL_BACKSTAB) {
 			calc_thaco -= MAX(0, (ch->get_skill(SKILL_SNEAK) + ch->get_skill(SKILL_HIDE) - 100) / 30);
 		}
@@ -3066,7 +3066,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch) {
  * Все, что меняется от раза к разу или при разных противниках
  * При любом изменении содержимого нужно поддерживать адекватность calc_stat_hr()
  */
-void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
+void HitData::calc_rand_hr(CharacterData *ch, CharacterData *victim) {
 	//считаем штраф за голод
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 	// штраф в размере 1 хитролла за каждые
@@ -3075,7 +3075,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
 	if (weapon == FightSystem::AttType::OFF_HAND
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
-		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
+		&& !(wielded && GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON)
 		&& !IS_NPC(ch)) {
 			calc_thaco += std::max(0, (CalcSkillMinCap(victim, SKILL_SHIT) - CalcCurrentSkill(ch, SKILL_SHIT, victim)) / 10);
 	}
@@ -3147,7 +3147,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim) {
 }
 
 // * Версия calc_rand_hr для показа по 'счет', без рандомов и статов жертвы.
-void HitData::calc_stat_hr(CHAR_DATA *ch) {
+void HitData::calc_stat_hr(CharacterData *ch) {
 	//считаем штраф за голод
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 	// штраф в размере 1 хитролла за каждые
@@ -3155,7 +3155,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch) {
 	if (weapon == FightSystem::AttType::OFF_HAND
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
-		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
+		&& !(wielded && GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON)
 		&& !IS_NPC(ch)) {
 		calc_thaco += (skill_info[SKILL_SHIT].difficulty - ch->get_skill(SKILL_SHIT)) / 10;
 	}
@@ -3189,7 +3189,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch) {
 }
 
 // * Подсчет армор класса жертвы.
-void HitData::calc_ac(CHAR_DATA *victim) {
+void HitData::calc_ac(CharacterData *victim) {
 
 
 	// Calculate the raw armor including magic armor.  Lower AC is better.
@@ -3218,7 +3218,7 @@ void HitData::calc_ac(CHAR_DATA *victim) {
 }
 
 // * Обработка защитных скиллов: захват, уклон, веер, блок.
-void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim) {
+void HitData::check_defense_skills(CharacterData *ch, CharacterData *victim) {
 	if (!hit_no_parry) {
 		// обработаем ситуацию ЗАХВАТ
 		const auto &people = world[ch->in_room]->people;
@@ -3283,7 +3283,7 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim) {
  * добавление дамролов с пушек
  * добавление дамага от концентрации силы
  */
-void HitData::add_weapon_damage(CHAR_DATA *ch, bool need_dice) {
+void HitData::add_weapon_damage(CharacterData *ch, bool need_dice) {
 	int damroll;
  	if (need_dice) {
 		damroll = dice(GET_OBJ_VAL(wielded, 1), GET_OBJ_VAL(wielded, 2));
@@ -3304,7 +3304,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch, bool need_dice) {
 }
 
 // * Добавление дамага от голых рук и молота.
-void HitData::add_hand_damage(CHAR_DATA *ch, bool need_dice) {
+void HitData::add_hand_damage(CharacterData *ch, bool need_dice) {
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STONEHAND)) {
 		dam += need_dice? dice(2, 4) : 5;
@@ -3335,7 +3335,7 @@ void HitData::add_hand_damage(CHAR_DATA *ch, bool need_dice) {
 }
 
 // * Расчет шанса на критический удар (не точкой).
-void HitData::calc_crit_chance(CHAR_DATA *ch) {
+void HitData::calc_crit_chance(CharacterData *ch) {
 	dam_critic = 0;
 	int calc_critic = 0;
 
@@ -3375,7 +3375,7 @@ void HitData::calc_crit_chance(CHAR_DATA *ch) {
 		reset_flag(FightSystem::CRIT_HIT);
 	}
 }
-int HitData::calc_damage(CHAR_DATA *ch, bool need_dice) {
+int HitData::calc_damage(CharacterData *ch, bool need_dice) {
 	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
 		send_to_char(ch, "&YДамага без бонусов == %d&n\r\n", dam);
 	if (ch->get_skill(weap_skill) == 0) {
@@ -3436,7 +3436,7 @@ int HitData::calc_damage(CHAR_DATA *ch, bool need_dice) {
 	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
 		send_to_char(ch, "&YДамага с бонусами от силы или ловкости == %d str_bonus == %d str == %d&n\r\n", dam, str_bonus(GET_REAL_STR(ch), STR_TO_DAM), GET_REAL_STR(ch));
 	// оружие/руки и модификаторы урона скилов, с ними связанных
-	if (wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON) {
+	if (wielded && GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON) {
 		add_weapon_damage(ch, need_dice);
 		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
 			send_to_char(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam, GET_OBJ_PNAME(wielded,1).c_str(), GET_OBJ_VNUM(wielded));
@@ -3514,7 +3514,7 @@ int HitData::calc_damage(CHAR_DATA *ch, bool need_dice) {
 
 }
 
-ESpell breathFlag2Spellnum(CHAR_DATA *ch) {
+ESpell breathFlag2Spellnum(CharacterData *ch) {
 	ESpell t = SPELL_NO_SPELL;
 	// наркоманский код с объездом в двух циклах битвекторов флагов заменил на читаемый код
 	// извините..
@@ -3534,7 +3534,7 @@ ESpell breathFlag2Spellnum(CHAR_DATA *ch) {
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
 */
-void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType weapon) {
+void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::AttType weapon) {
 	if (!victim) {
 		return;
 	}
@@ -3857,7 +3857,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 }
 
 // реализация скилла "железный ветер"
-void performIronWindAttacks(CHAR_DATA *ch, FightSystem::AttType weapon) {
+void performIronWindAttacks(CharacterData *ch, FightSystem::AttType weapon) {
 	int percent = 0, prob = 0, div = 0, moves = 0;
 	/*
 	первая дополнительная атака правой наносится 100%
@@ -3893,8 +3893,8 @@ void performIronWindAttacks(CHAR_DATA *ch, FightSystem::AttType weapon) {
 
 }
 
-OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, FightSystem::AttType AttackType) {
-	OBJ_DATA *UsedWeapon = nullptr;
+ObjectData *GetUsedWeapon(CharacterData *ch, FightSystem::AttType AttackType) {
+	ObjectData *UsedWeapon = nullptr;
 
 	if (AttackType == FightSystem::AttType::MAIN_HAND) {
 		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
@@ -3906,7 +3906,7 @@ OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, FightSystem::AttType AttackType) {
 }
 
 // Обработка доп.атак
-void exthit(CHAR_DATA *ch, ESkill type, FightSystem::AttType weapon) {
+void exthit(CharacterData *ch, ESkill type, FightSystem::AttType weapon) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
@@ -3914,7 +3914,7 @@ void exthit(CHAR_DATA *ch, ESkill type, FightSystem::AttType weapon) {
 	// обрабатываем доп.атаки от железного ветра
 	performIronWindAttacks(ch, weapon);
 
-	OBJ_DATA *wielded = nullptr;
+	ObjectData *wielded = nullptr;
 
 	wielded = GetUsedWeapon(ch, weapon);
 	if (wielded

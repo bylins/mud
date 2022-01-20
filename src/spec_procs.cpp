@@ -37,33 +37,33 @@ extern TimeInfoData time_info;
 extern struct spell_create_type spell_create[];
 extern int guild_info[][3];
 
-typedef int special_f(CHAR_DATA *, void *, int, char *);
+typedef int special_f(CharacterData *, void *, int, char *);
 
 // extern functions
-void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int find_first_step(RoomRnum src, RoomRnum target, CHAR_DATA *ch);
+void do_drop(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_say(CharacterData *ch, char *argument, int cmd, int subcmd);
+int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch);
 void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
 
 // local functions
 char *how_good(int skill_level, int skill_cap);
 int feat_slot_lvl(int remort, int slot_for_remort, int slot);
-void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);
-void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter = nullptr);
-void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells);
-int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int dump(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int mayor(CHAR_DATA *ch, void *me, int cmd, char *argument);
-//int thief(CHAR_DATA *ch, void *me, int cmd, char* argument);
-int magic_user(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild_guard(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int fido(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int janitor(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int cityguard(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int pet_shops(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int bank(CHAR_DATA *ch, void *me, int cmd, char *argument);
+void list_feats(CharacterData *ch, CharacterData *vict, bool all_feats);
+void list_skills(CharacterData *ch, CharacterData *vict, const char *filter = nullptr);
+void list_spells(CharacterData *ch, CharacterData *vict, int all_spells);
+int guild_mono(CharacterData *ch, void *me, int cmd, char *argument);
+int guild_poly(CharacterData *ch, void *me, int cmd, char *argument);
+int guild(CharacterData *ch, void *me, int cmd, char *argument);
+int dump(CharacterData *ch, void *me, int cmd, char *argument);
+int mayor(CharacterData *ch, void *me, int cmd, char *argument);
+//int thief(CharacterData *ch, void *me, int cmd, char* argument);
+int magic_user(CharacterData *ch, void *me, int cmd, char *argument);
+int guild_guard(CharacterData *ch, void *me, int cmd, char *argument);
+int fido(CharacterData *ch, void *me, int cmd, char *argument);
+int janitor(CharacterData *ch, void *me, int cmd, char *argument);
+int cityguard(CharacterData *ch, void *me, int cmd, char *argument);
+int pet_shops(CharacterData *ch, void *me, int cmd, char *argument);
+int bank(CharacterData *ch, void *me, int cmd, char *argument);
 
 // ********************************************************************
 // *  Special procedures for mobiles                                  *
@@ -165,7 +165,7 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 Примечание: удаление реализовано с целью сделать возможнным изменение слота в процессе игры.
 Лишние способности у персонажей удалятся автоматически при использовании команды "способности".
 */
-void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
+void list_feats(CharacterData *ch, CharacterData *vict, bool all_feats) {
 	int i = 0, j = 0, sortpos, slot, max_slot = 0;
 	char msg[kMaxStringLength];
 	bool sfound;
@@ -345,7 +345,7 @@ void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats) {
 	delete[] names;
 }
 
-void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter/* = nullptr*/) {
+void list_skills(CharacterData *ch, CharacterData *vict, const char *filter/* = nullptr*/) {
 	int i = 0;
 
 	sprintf(buf, "Вы владеете следующими умениями:\r\n");
@@ -472,7 +472,7 @@ const char *spells_color(int spellnum) {
    на своем уровне, но на которые у них нет необходимых предметов
    при параметре true */
 #include "classes/class_spell_slots.h"
-void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells) {
+void list_spells(CharacterData *ch, CharacterData *vict, int all_spells) {
 	using PlayerClass::slot_for_char;
 
 	char names[MAX_SLOT][kMaxStringLength];
@@ -827,9 +827,9 @@ void init_guilds(void) {
 
 #define SCMD_LEARN 1
 
-int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
+int guild_mono(CharacterData *ch, void *me, int cmd, char *argument) {
 	int command = 0, gcount = 0, info_num = 0, found = false, sfound = false, i, bits;
-	CHAR_DATA *victim = (CHAR_DATA *) me;
+	CharacterData *victim = (CharacterData *) me;
 
 	if (IS_NPC(ch)) {
 		return 0;
@@ -1132,9 +1132,9 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	return (0);
 }
 
-int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
+int guild_poly(CharacterData *ch, void *me, int cmd, char *argument) {
 	int command = 0, gcount = 0, info_num = 0, found = false, sfound = false, i, bits;
-	CHAR_DATA *victim = (CHAR_DATA *) me;
+	CharacterData *victim = (CharacterData *) me;
 
 	if (IS_NPC(ch)) {
 		return 0;
@@ -1458,8 +1458,8 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	return (0);
 }
 
-int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char *argument) {
-	CHAR_DATA *victim = (CHAR_DATA *) me, *horse = nullptr;
+int horse_keeper(CharacterData *ch, void *me, int cmd, char *argument) {
+	CharacterData *victim = (CharacterData *) me, *horse = nullptr;
 
 	if (IS_NPC(ch))
 		return (0);
@@ -1546,16 +1546,16 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	return (0);
 }
 
-bool item_nouse(OBJ_DATA *obj) {
+bool item_nouse(ObjectData *obj) {
 	switch (GET_OBJ_TYPE(obj)) {
-		case OBJ_DATA::ITEM_LIGHT:
+		case ObjectData::ITEM_LIGHT:
 			if (GET_OBJ_VAL(obj, 2) == 0) {
 				return true;
 			}
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION:
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_POTION:
 			if (!GET_OBJ_VAL(obj, 1)
 				&& !GET_OBJ_VAL(obj, 2)
 				&& !GET_OBJ_VAL(obj, 3)) {
@@ -1563,29 +1563,29 @@ bool item_nouse(OBJ_DATA *obj) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_STAFF:
-		case OBJ_DATA::ITEM_WAND:
+		case ObjectData::ITEM_STAFF:
+		case ObjectData::ITEM_WAND:
 			if (!GET_OBJ_VAL(obj, 2)) {
 				return true;
 			}
 			break;
 
-		case OBJ_DATA::ITEM_CONTAINER:
+		case ObjectData::ITEM_CONTAINER:
 			if (!system_obj::is_purse(obj)) {
 				return true;
 			}
 			break;
 
-		case OBJ_DATA::ITEM_OTHER:
-		case OBJ_DATA::ITEM_TRASH:
-		case OBJ_DATA::ITEM_TRAP:
-		case OBJ_DATA::ITEM_NOTE:
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOOD:
-		case OBJ_DATA::ITEM_PEN:
-		case OBJ_DATA::ITEM_BOAT:
-		case OBJ_DATA::ITEM_FOUNTAIN:
-		case OBJ_DATA::ITEM_MING: return true;
+		case ObjectData::ITEM_OTHER:
+		case ObjectData::ITEM_TRASH:
+		case ObjectData::ITEM_TRAP:
+		case ObjectData::ITEM_NOTE:
+		case ObjectData::ITEM_DRINKCON:
+		case ObjectData::ITEM_FOOD:
+		case ObjectData::ITEM_PEN:
+		case ObjectData::ITEM_BOAT:
+		case ObjectData::ITEM_FOUNTAIN:
+		case ObjectData::ITEM_MING: return true;
 
 		default: break;
 	}
@@ -1593,8 +1593,8 @@ bool item_nouse(OBJ_DATA *obj) {
 	return false;
 }
 
-void npc_dropunuse(CHAR_DATA *ch) {
-	OBJ_DATA *obj, *nobj;
+void npc_dropunuse(CharacterData *ch) {
+	ObjectData *obj, *nobj;
 	for (obj = ch->carrying; obj; obj = nobj) {
 		nobj = obj->get_next_content();
 		if (item_nouse(obj)) {
@@ -1605,9 +1605,9 @@ void npc_dropunuse(CHAR_DATA *ch) {
 	}
 }
 
-int npc_scavenge(CHAR_DATA *ch) {
+int npc_scavenge(CharacterData *ch) {
 	int max = 1;
-	OBJ_DATA *obj, *best_obj, *cont, *best_cont, *cobj;
+	ObjectData *obj, *best_obj, *cont, *best_cont, *cobj;
 
 	if (!MOB_FLAGGED(ch, MOB_SCAVENGER)) {
 		return (false);
@@ -1624,13 +1624,13 @@ int npc_scavenge(CHAR_DATA *ch) {
 		cont = nullptr;
 		best_cont = nullptr;
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
-			if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
+			if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING
 				|| Clan::is_clan_chest(obj)
 				|| ClanSystem::is_ingr_chest(obj)) {
 				continue;
 			}
 
-			if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
+			if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER
 				&& !system_obj::is_purse(obj)) {
 				if (IS_CORPSE(obj)) {
 					continue;
@@ -1677,7 +1677,7 @@ int npc_scavenge(CHAR_DATA *ch) {
 		if (best_obj != nullptr) {
 			if (best_obj != best_cont) {
 				act("$n поднял$g $o3.", false, ch, best_obj, 0, TO_ROOM);
-				if (GET_OBJ_TYPE(best_obj) == OBJ_DATA::ITEM_MONEY) {
+				if (GET_OBJ_TYPE(best_obj) == ObjectData::ITEM_MONEY) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
 				} else {
@@ -1687,7 +1687,7 @@ int npc_scavenge(CHAR_DATA *ch) {
 			} else {
 				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(1).c_str());
 				act(buf, false, ch, best_obj, 0, TO_ROOM);
-				if (GET_OBJ_TYPE(best_obj) == OBJ_DATA::ITEM_MONEY) {
+				if (GET_OBJ_TYPE(best_obj) == ObjectData::ITEM_MONEY) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
 				} else {
@@ -1700,9 +1700,9 @@ int npc_scavenge(CHAR_DATA *ch) {
 	return (max > 1);
 }
 
-int npc_loot(CHAR_DATA *ch) {
+int npc_loot(CharacterData *ch) {
 	int max = false;
-	OBJ_DATA *obj, *loot_obj, *next_loot, *cobj, *cnext_obj;
+	ObjectData *obj, *loot_obj, *next_loot, *cobj, *cnext_obj;
 
 	if (!MOB_FLAGGED(ch, MOB_LOOTER))
 		return (false);
@@ -1715,13 +1715,13 @@ int npc_loot(CHAR_DATA *ch) {
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if ((GET_OBJ_TYPE(loot_obj) != OBJ_DATA::ITEM_CONTAINER
+					if ((GET_OBJ_TYPE(loot_obj) != ObjectData::ITEM_CONTAINER
 						|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj)) {
 						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 						act(buf, false, ch, loot_obj, 0, TO_ROOM);
-						if (GET_OBJ_TYPE(loot_obj) == OBJ_DATA::ITEM_MONEY) {
+						if (GET_OBJ_TYPE(loot_obj) == ObjectData::ITEM_MONEY) {
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
 							extract_obj(loot_obj);
 						} else {
@@ -1734,7 +1734,7 @@ int npc_loot(CHAR_DATA *ch) {
 				// Теперь не запертые контейнеры
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if (GET_OBJ_TYPE(loot_obj) == OBJ_DATA::ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(loot_obj) == ObjectData::ITEM_CONTAINER) {
 						if (IS_CORPSE(loot_obj)
 							|| OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							|| system_obj::is_purse(loot_obj)) {
@@ -1748,7 +1748,7 @@ int npc_loot(CHAR_DATA *ch) {
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 								act(buf, false, ch, cobj, 0, TO_ROOM);
-								if (GET_OBJ_TYPE(cobj) == OBJ_DATA::ITEM_MONEY) {
+								if (GET_OBJ_TYPE(cobj) == ObjectData::ITEM_MONEY) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
 								} else {
@@ -1763,7 +1763,7 @@ int npc_loot(CHAR_DATA *ch) {
 				// И наконец, лутим запертые контейнеры если есть ключ или можем взломать
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->get_next_content();
-					if (GET_OBJ_TYPE(loot_obj) == OBJ_DATA::ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(loot_obj) == ObjectData::ITEM_CONTAINER) {
 						if (IS_CORPSE(loot_obj)
 							|| !OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							|| system_obj::is_purse(loot_obj)) {
@@ -1794,7 +1794,7 @@ int npc_loot(CHAR_DATA *ch) {
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
 								act(buf, false, ch, cobj, 0, TO_ROOM);
-								if (GET_OBJ_TYPE(cobj) == OBJ_DATA::ITEM_MONEY) {
+								if (GET_OBJ_TYPE(cobj) == ObjectData::ITEM_MONEY) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
 								} else {
@@ -1812,7 +1812,7 @@ int npc_loot(CHAR_DATA *ch) {
 	return (max);
 }
 
-int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
+int npc_move(CharacterData *ch, int dir, int/* need_specials_check*/) {
 	int need_close = false, need_lock = false;
 	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 	int retval = false;
@@ -1877,7 +1877,7 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 	return (retval);
 }
 
-int has_curse(OBJ_DATA *obj) {
+int has_curse(ObjectData *obj) {
 	for (const auto &i : weapon_affect) {
 		// Замена выражения на макрос
 		if (i.aff_spell <= 0 || !IS_OBJ_AFF(obj, i.aff_pos)) {
@@ -1890,11 +1890,11 @@ int has_curse(OBJ_DATA *obj) {
 	return false;
 }
 
-int calculate_weapon_class(CHAR_DATA *ch, OBJ_DATA *weapon) {
+int calculate_weapon_class(CharacterData *ch, ObjectData *weapon) {
 	int damage = 0, hits = 0, i;
 
 	if (!weapon
-		|| GET_OBJ_TYPE(weapon) != OBJ_DATA::ITEM_WEAPON) {
+		|| GET_OBJ_TYPE(weapon) != ObjectData::ITEM_WEAPON) {
 		return 0;
 	}
 
@@ -1917,7 +1917,7 @@ int calculate_weapon_class(CHAR_DATA *ch, OBJ_DATA *weapon) {
 	return (damage + (hits > 200 ? 10 : hits / 20));
 }
 
-void best_weapon(CHAR_DATA *ch, OBJ_DATA *sweapon, OBJ_DATA **dweapon) {
+void best_weapon(CharacterData *ch, ObjectData *sweapon, ObjectData **dweapon) {
 	if (*dweapon == nullptr) {
 		if (calculate_weapon_class(ch, sweapon) > 0) {
 			*dweapon = sweapon;
@@ -1927,8 +1927,8 @@ void best_weapon(CHAR_DATA *ch, OBJ_DATA *sweapon, OBJ_DATA **dweapon) {
 	}
 }
 
-void npc_wield(CHAR_DATA *ch) {
-	OBJ_DATA *obj, *next, *right = nullptr, *left = nullptr, *both = nullptr;
+void npc_wield(CharacterData *ch) {
+	ObjectData *obj, *next, *right = nullptr, *left = nullptr, *both = nullptr;
 
 	if (!NPC_FLAGGED(ch, NPC_WIELDING))
 		return;
@@ -1942,15 +1942,15 @@ void npc_wield(CHAR_DATA *ch) {
 		return;
 
 	if (GET_EQ(ch, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjectData::ITEM_WEAPON) {
 		left = GET_EQ(ch, WEAR_HOLD);
 	}
 	if (GET_EQ(ch, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ObjectData::ITEM_WEAPON) {
 		right = GET_EQ(ch, WEAR_WIELD);
 	}
 	if (GET_EQ(ch, WEAR_BOTHS)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == ObjectData::ITEM_WEAPON) {
 		both = GET_EQ(ch, WEAR_BOTHS);
 	}
 
@@ -1959,7 +1959,7 @@ void npc_wield(CHAR_DATA *ch) {
 
 	for (obj = ch->carrying; obj; obj = next) {
 		next = obj->get_next_content();
-		if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON
+		if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_WEAPON
 			|| GET_OBJ_UID(obj) != 0) {
 			continue;
 		}
@@ -2031,8 +2031,8 @@ void npc_wield(CHAR_DATA *ch) {
 	}
 }
 
-void npc_armor(CHAR_DATA *ch) {
-	OBJ_DATA *obj, *next;
+void npc_armor(CharacterData *ch) {
+	ObjectData *obj, *next;
 	int where = 0;
 
 	if (!NPC_FLAGGED(ch, NPC_ARMORING))
@@ -2134,8 +2134,8 @@ void npc_armor(CHAR_DATA *ch) {
 	}
 }
 
-void npc_light(CHAR_DATA *ch) {
-	OBJ_DATA *obj, *next;
+void npc_light(CharacterData *ch) {
+	ObjectData *obj, *next;
 
 	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
@@ -2151,7 +2151,7 @@ void npc_light(CHAR_DATA *ch) {
 	if (!GET_EQ(ch, WEAR_LIGHT) && IS_DARK(ch->in_room)) {
 		for (obj = ch->carrying; obj; obj = next) {
 			next = obj->get_next_content();
-			if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_LIGHT) {
+			if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_LIGHT) {
 				continue;
 			}
 			if (GET_OBJ_VAL(obj, 2) == 0) {
@@ -2167,9 +2167,9 @@ void npc_light(CHAR_DATA *ch) {
 	}
 }
 
-int npc_battle_scavenge(CHAR_DATA *ch) {
+int npc_battle_scavenge(CharacterData *ch) {
 	int max = false;
-	OBJ_DATA *obj, *next_obj = nullptr;
+	ObjectData *obj, *next_obj = nullptr;
 
 	if (!MOB_FLAGGED(ch, MOB_SCAVENGER))
 		return (false);
@@ -2183,7 +2183,7 @@ int npc_battle_scavenge(CHAR_DATA *ch) {
 			if (CAN_GET_OBJ(ch, obj)
 				&& !has_curse(obj)
 				&& (ObjSystem::is_armor_type(obj)
-					|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)) {
+					|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON)) {
 				obj_from_room(obj);
 				obj_to_char(obj, ch);
 				act("$n поднял$g $o3.", false, ch, obj, 0, TO_ROOM);
@@ -2193,7 +2193,7 @@ int npc_battle_scavenge(CHAR_DATA *ch) {
 	return (max);
 }
 
-int npc_walk(CHAR_DATA *ch) {
+int npc_walk(CharacterData *ch) {
 	int rnum, door = BFS_ERROR;
 
 	if (ch->in_room == kNowhere)
@@ -2222,8 +2222,8 @@ int npc_walk(CHAR_DATA *ch) {
 	return (door);
 }
 
-int do_npc_steal(CHAR_DATA *ch, CHAR_DATA *victim) {
-	OBJ_DATA *obj, *best = nullptr;
+int do_npc_steal(CharacterData *ch, CharacterData *victim) {
+	ObjectData *obj, *best = nullptr;
 	int gold;
 	int max = 0;
 
@@ -2269,7 +2269,7 @@ int do_npc_steal(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return (max);
 }
 
-int npc_steal(CHAR_DATA *ch) {
+int npc_steal(CharacterData *ch) {
 	if (!NPC_FLAGGED(ch, NPC_STEALING))
 		return (false);
 
@@ -2290,8 +2290,8 @@ int npc_steal(CHAR_DATA *ch) {
 #define ZONE(ch)  (GET_MOB_VNUM(ch) / 100)
 #define GROUP(ch) ((GET_MOB_VNUM(ch) % 100) / 10)
 
-void npc_group(CHAR_DATA *ch) {
-	CHAR_DATA *leader = nullptr;
+void npc_group(CharacterData *ch) {
+	CharacterData *leader = nullptr;
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
 	if (GET_DEST(ch) == kNowhere || ch->in_room == kNowhere)
@@ -2381,9 +2381,9 @@ void npc_group(CHAR_DATA *ch) {
 	}
 }
 
-void npc_groupbattle(CHAR_DATA *ch) {
+void npc_groupbattle(CharacterData *ch) {
 	struct Follower *k;
-	CHAR_DATA *tch, *helper;
+	CharacterData *tch, *helper;
 
 	if (!IS_NPC(ch)
 		|| !ch->get_fighting()
@@ -2409,8 +2409,8 @@ void npc_groupbattle(CHAR_DATA *ch) {
 	}
 }
 
-int dump(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
-	OBJ_DATA *k;
+int dump(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
+	ObjectData *k;
 	int value = 0;
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
@@ -2441,7 +2441,7 @@ int dump(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 }
 
 #if 0
-void mayor(CHAR_DATA *ch, void *me, int cmd, char* argument)
+void mayor(CharacterData *ch, void *me, int cmd, char* argument)
 {
 const char open_path[] = "W3a3003b33000c111d0d111Oe333333Oe22c222112212111a1S.";
 const char close_path[] = "W3a3003b33000c111d0d111CE333333CE22c222112212111a1S.";
@@ -2537,7 +2537,7 @@ return (false);
 // *  General special procedures for mobiles                          *
 // ********************************************************************
 
-//int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
+//int thief(CharacterData *ch, void* /*me*/, int cmd, char* /*argument*/)
 /*
 {
 	if (cmd)
@@ -2561,12 +2561,12 @@ return (false);
 	return false;
 }
 */
-int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
+int magic_user(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	if (cmd || GET_POS(ch) != POS_FIGHTING) {
 		return (false);
 	}
 
-	CHAR_DATA *target = nullptr;
+	CharacterData *target = nullptr;
 	// pseudo-randomly choose someone in the room who is fighting me //
 	for (const auto vict : world[ch->in_room]->people) {
 		if (vict->get_fighting() == ch
@@ -2641,9 +2641,9 @@ int magic_user(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 // *  Special procedures for mobiles                                  *
 // ********************************************************************
 
-int guild_guard(CHAR_DATA *ch, void *me, int cmd, char * /*argument*/) {
+int guild_guard(CharacterData *ch, void *me, int cmd, char * /*argument*/) {
 	int i;
-	CHAR_DATA *guard = (CHAR_DATA *) me;
+	CharacterData *guard = (CharacterData *) me;
 	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
 	const char *buf2 = "Охранник остановил $n, преградив $m дорогу.";
 
@@ -2667,12 +2667,12 @@ int guild_guard(CHAR_DATA *ch, void *me, int cmd, char * /*argument*/) {
 }
 
 // TODO: повырезать все это
-int puff(CHAR_DATA * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
+int puff(CharacterData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
 	return 0;
 }
 
-int fido(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	OBJ_DATA *i, *temp, *next_obj;
+int fido(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
+	ObjectData *i, *temp, *next_obj;
 
 	if (cmd || !AWAKE(ch))
 		return (false);
@@ -2692,8 +2692,8 @@ int fido(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	return (false);
 }
 
-int janitor(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	OBJ_DATA *i;
+int janitor(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
+	ObjectData *i;
 
 	if (cmd || !AWAKE(ch))
 		return (false);
@@ -2703,7 +2703,7 @@ int janitor(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 			continue;
 		}
 
-		if (GET_OBJ_TYPE(i) != OBJ_DATA::ITEM_DRINKCON
+		if (GET_OBJ_TYPE(i) != ObjectData::ITEM_DRINKCON
 			&& GET_OBJ_COST(i) >= 15) {
 			continue;
 		}
@@ -2718,8 +2718,8 @@ int janitor(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	return false;
 }
 
-int cityguard(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	CHAR_DATA *evil;
+int cityguard(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
+	CharacterData *evil;
 	int max_evil;
 
 	if (cmd
@@ -2771,10 +2771,10 @@ int cityguard(CHAR_DATA *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 #define PET_PRICE(pet) (GET_REAL_LEVEL(pet) * 300)
 
-int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
+int pet_shops(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
 	char buf[kMaxStringLength], pet_name[256];
 	RoomRnum pet_room;
-	CHAR_DATA *pet;
+	CharacterData *pet;
 
 	pet_room = ch->in_room + 1;
 
@@ -2832,7 +2832,7 @@ int pet_shops(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 	return (0);
 }
 
-CHAR_DATA *get_player_of_name(const char *name) {
+CharacterData *get_player_of_name(const char *name) {
 	for (const auto &i : character_list) {
 		if (IS_NPC(i)) {
 			continue;
@@ -2851,9 +2851,9 @@ CHAR_DATA *get_player_of_name(const char *name) {
 // ********************************************************************
 // *  Special procedures for objects                                  *
 // ********************************************************************
-int bank(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
+int bank(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
 	int amount;
-	CHAR_DATA *vict;
+	CharacterData *vict;
 
 	if (CMD_IS("balance") || CMD_IS("баланс") || CMD_IS("сальдо")) {
 		if (ch->get_bank() > 0)

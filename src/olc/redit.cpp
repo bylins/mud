@@ -32,7 +32,7 @@
 #include <vector>
 
 // * External data structures.
-extern CHAR_DATA *mob_proto;
+extern CharacterData *mob_proto;
 extern const char *room_bits[];
 extern const char *sector_types[];
 extern const char *exit_bits[];
@@ -49,8 +49,8 @@ int planebit(const char *str, int *plane, int *bit);
 // * Function Prototypes
 void redit_setup(DescriptorData *d, int real_num);
 
-void room_copy(ROOM_DATA *dst, ROOM_DATA *src);
-void room_free(ROOM_DATA *room);
+void room_copy(RoomData *dst, RoomData *src);
+void room_free(RoomData *room);
 
 void redit_save_internally(DescriptorData *d);
 void redit_save_to_disk(int zone);
@@ -74,7 +74,7 @@ void redit_setup(DescriptorData *d, int real_num)
       real_num - RNUM исходной комнаты, новая -1
 --*/
 {
-	ROOM_DATA *room = new ROOM_DATA;
+	RoomData *room = new RoomData;
 	if (real_num == kNowhere) {
 		room->name = str_dup("Недоделанная комната.\r\n");
 		room->temp_description =
@@ -98,7 +98,7 @@ void redit_setup(DescriptorData *d, int real_num)
 // * Сохранить новую комнату в памяти
 void redit_save_internally(DescriptorData *d) {
 	int j, room_num, cmd_no;
-	OBJ_DATA *temp_obj;
+	ObjectData *temp_obj;
 
 	room_num = real_room(OLC_ROOM(d)->room_vn);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
@@ -125,7 +125,7 @@ void redit_save_internally(DescriptorData *d) {
 			}
 		}
 
-		ROOM_DATA *new_room = new ROOM_DATA;
+		RoomData *new_room = new RoomData;
 		room_copy(new_room, OLC_ROOM(d));
 		new_room->room_vn = OLC_NUM(d);
 		new_room->zone_rn = OLC_ZNUM(d);
@@ -267,7 +267,7 @@ void redit_save_internally(DescriptorData *d) {
 void redit_save_to_disk(int zone_num) {
 	int counter, counter2, realcounter;
 	FILE *fp;
-	ROOM_DATA *room;
+	RoomData *room;
 
 	if (zone_num < 0 || zone_num >= static_cast<int>(zone_table.size())) {
 		log("SYSERR: redit_save_to_disk: Invalid real zone passed!");
@@ -395,7 +395,7 @@ void redit_disp_extradesc_menu(DescriptorData *d) {
 void redit_disp_exit_menu(DescriptorData *d) {
 	// * if exit doesn't exist, alloc/create it
 	if (!OLC_EXIT(d)) {
-		OLC_EXIT(d).reset(new EXIT_DATA());
+		OLC_EXIT(d).reset(new ExitData());
 		OLC_EXIT(d)->to_room(kNowhere);
 	}
 
@@ -490,7 +490,7 @@ void redit_disp_sector_menu(DescriptorData *d) {
 
 // * The main menu.
 void redit_disp_menu(DescriptorData *d) {
-	ROOM_DATA *room;
+	RoomData *room;
 
 	get_char_cols(d->character.get());
 	room = OLC_ROOM(d);
@@ -650,7 +650,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case 'B':
 					// * If the extra description doesn't exist.
 					if (!OLC_ROOM(d)->ex_description) {
-						OLC_ROOM(d)->ex_description.reset(new EXTRA_DESCR_DATA());
+						OLC_ROOM(d)->ex_description.reset(new ExtraDescription());
 					}
 					OLC_DESC(d) = OLC_ROOM(d)->ex_description;
 					redit_disp_extradesc_menu(d);
@@ -831,7 +831,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 							OLC_DESC(d) = OLC_DESC(d)->next;
 						} else {
 							// * Make new extra description and attach at end.
-							EXTRA_DESCR_DATA::shared_ptr new_extra(new EXTRA_DESCR_DATA());
+							ExtraDescription::shared_ptr new_extra(new ExtraDescription());
 							OLC_DESC(d)->next = new_extra;
 							OLC_DESC(d) = new_extra;
 						}

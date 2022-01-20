@@ -7,7 +7,7 @@
 #include "mobact.h"
 #include "common.h"
 
-int set_hit(CHAR_DATA *ch, CHAR_DATA *victim) {
+int set_hit(CharacterData *ch, CharacterData *victim) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return (false);
@@ -87,8 +87,8 @@ int set_hit(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return (true);
 };
 
-void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	CHAR_DATA *vict = findVictim(ch, argument);
+void do_hit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Вы не видите цели.\r\n", ch);
 		return;
@@ -139,12 +139,12 @@ void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
+void do_kill(CharacterData *ch, char *argument, int cmd, int subcmd) {
 	if (!IS_GRGOD(ch)) {
 		do_hit(ch, argument, cmd, subcmd);
 		return;
 	};
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы жизни лишить хотите-то?\r\n", ch);
 		return;

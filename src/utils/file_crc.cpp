@@ -270,7 +270,7 @@ void check_crc(const char *filename, int mode, long uid) {
 }
 
 // * Вывод лога событий имму по show crc.
-void show(CHAR_DATA *ch) {
+void show(CharacterData *ch) {
 	if (message.empty())
 		send_to_char("Вроде ничего не происходило...\r\n", ch);
 	else

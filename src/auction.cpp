@@ -18,17 +18,17 @@
 #include "fightsystem/pk.h"
 
 // external functions
-extern int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-extern int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj);
-extern int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-extern int invalid_align(CHAR_DATA *ch, OBJ_DATA *obj);
+extern int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
+extern int invalid_unique(CharacterData *ch, const ObjectData *obj);
+extern int invalid_no_class(CharacterData *ch, const ObjectData *obj);
+extern int invalid_align(CharacterData *ch, ObjectData *obj);
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
-extern char *diag_timer_to_char(const OBJ_DATA *obj);
-extern void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
-extern void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]);
-extern void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll);
+extern char *diag_timer_to_char(const ObjectData *obj);
+extern void set_wait(CharacterData *ch, int waittime, int victim_in_room);
+extern void obj_info(CharacterData *ch, ObjectData *obj, char buf[kMaxStringLength]);
+extern void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness, bool enhansed_scroll);
 
-AUCTION_DATA auction_lots[MAX_AUCTION_LOT] = {{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
+AuctionItem auction_lots[MAX_AUCTION_LOT] = {{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
 											  {-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
 											  {-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0}    /*,
 	{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
@@ -53,12 +53,12 @@ const char *auction_cmd[] = {"поставить", "set",
 							 "\n"
 };
 
-void showlots(CHAR_DATA *ch) {
+void showlots(CharacterData *ch) {
 	char tmpbuf[kMaxInputLength];
 
-	CHAR_DATA *sch;
-	//CHAR_DATA *bch;
-	OBJ_DATA *obj;
+	CharacterData *sch;
+	//CharacterData *bch;
+	ObjectData *obj;
 
 	for (int i = 0; i < MAX_AUCTION_LOT; i++) {
 		sch = GET_LOT(i)->seller;
@@ -88,11 +88,11 @@ void showlots(CHAR_DATA *ch) {
 	}
 }
 
-bool auction_drive(CHAR_DATA *ch, char *argument) {
+bool auction_drive(CharacterData *ch, char *argument) {
 	int mode = -1, value = -1, lot = -1;
-	CHAR_DATA *tch = nullptr;
-	AUCTION_DATA *lotis;
-	OBJ_DATA *obj;
+	CharacterData *tch = nullptr;
+	AuctionItem *lotis;
+	ObjectData *obj;
 	char operation[kMaxInputLength], whom[kMaxInputLength];
 	char tmpbuf[kMaxInputLength];
 
@@ -127,7 +127,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 				send_to_char("У вас этого нет.\r\n", ch);
 				return false;
 			}
-			if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK) {
+			if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_BOOK) {
 				if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
 					|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)) {
 					send_to_char("Этот предмет не предназначен для аукциона.\r\n", ch);
@@ -356,7 +356,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 			return true;
 			break;
 		case 5:        //Info
-			OBJ_DATA *obj;
+			ObjectData *obj;
 			if (!sscanf(argument, "%d", &lot)) {
 				send_to_char("Не указан номер лота для изучения.\r\n", ch);
 				return false;
@@ -378,8 +378,8 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 			}
 			obj = GET_LOT(lot)->item;
 			sprintf(buf, "Предмет \"%s\", ", obj->get_short_description().c_str());
-			if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND)
-				|| (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF)) {
+			if ((GET_OBJ_TYPE(obj) == ObjectData::ITEM_WAND)
+				|| (GET_OBJ_TYPE(obj) == ObjectData::ITEM_STAFF)) {
 				if (GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1)) {
 					strcat(buf, "(б/у), ");
 				}
@@ -410,7 +410,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 			return true;
 			break;
 		case 6:        //Identify
-			OBJ_DATA *iobj;
+			ObjectData *iobj;
 			if (!sscanf(argument, "%d", &lot)) {
 				send_to_char("Не указан номер лота для изучения.\r\n", ch);
 				return false;
@@ -463,7 +463,7 @@ bool auction_drive(CHAR_DATA *ch, char *argument) {
 	return false;
 }
 
-void message_auction(char *message, CHAR_DATA *ch) {
+void message_auction(char *message, CharacterData *ch) {
 	DescriptorData *i;
 
 	// now send all the strings out
@@ -497,8 +497,8 @@ void clear_auction(int lot) {
 }
 
 int check_sell(int lot) {
-	CHAR_DATA *ch, *tch;
-	OBJ_DATA *obj;
+	CharacterData *ch, *tch;
+	ObjectData *obj;
 	char tmpbuf[kMaxInputLength];
 
 	if (lot < 0 || lot >= MAX_AUCTION_LOT || !(ch = GET_LOT(lot)->seller)
@@ -543,8 +543,8 @@ int check_sell(int lot) {
 }
 
 void trans_auction(int lot) {
-	CHAR_DATA *ch, *tch;
-	OBJ_DATA *obj;
+	CharacterData *ch, *tch;
+	ObjectData *obj;
 	std::string tmpstr;
 	char tmpbuff[kMaxInputLength];
 
@@ -687,8 +687,8 @@ void trans_auction(int lot) {
 }
 
 void sell_auction(int lot) {
-	CHAR_DATA *ch, *tch;
-	OBJ_DATA *obj;
+	CharacterData *ch, *tch;
+	ObjectData *obj;
 	std::string tmpstr;
 	char tmpbuff[kMaxInputLength];
 
@@ -745,7 +745,7 @@ void sell_auction(int lot) {
 	return;
 }
 
-void check_auction(CHAR_DATA *ch, OBJ_DATA *obj) {
+void check_auction(CharacterData *ch, ObjectData *obj) {
 	int i;
 	char tmpbuf[kMaxInputLength];
 	if (ch) {
@@ -827,7 +827,7 @@ void tact_auction(void) {
 	}
 }
 
-AUCTION_DATA *free_auction(int *lotnum) {
+AuctionItem *free_auction(int *lotnum) {
 	int i;
 	for (i = 0; i < MAX_AUCTION_LOT; i++) {
 		if (!GET_LOT(i)->seller && !GET_LOT(i)->item) {
@@ -839,7 +839,7 @@ AUCTION_DATA *free_auction(int *lotnum) {
 	return (nullptr);
 }
 
-int obj_on_auction(OBJ_DATA *obj) {
+int obj_on_auction(ObjectData *obj) {
 	int i;
 	for (i = 0; i < MAX_AUCTION_LOT; i++) {
 		if (GET_LOT(i)->item == obj && GET_LOT(i)->item_id == obj->get_id())

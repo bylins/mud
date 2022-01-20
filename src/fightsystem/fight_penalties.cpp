@@ -36,7 +36,7 @@ int GroupPenaltyCalculator::get() const {
 	return 0;
 }
 
-bool GroupPenaltyCalculator::penalty_by_leader(const CHAR_DATA *player, int &penalty) const {
+bool GroupPenaltyCalculator::penalty_by_leader(const CharacterData *player, int &penalty) const {
 	const int player_remorts = static_cast<int>(GET_REAL_REMORT(player));
 	const int player_class = static_cast<int>(GET_CLASS(player));
 	const int player_level = GET_REAL_LEVEL(player);

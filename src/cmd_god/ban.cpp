@@ -19,12 +19,12 @@
 
 extern DescriptorData *descriptor_list;
 
-void do_ban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_ban(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_unban(CharacterData *ch, char *argument, int cmd, int subcmd);
 int Valid_Name(char *newname);
 void Read_Invalid_List(void);
 
-void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ban(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
 		ban->ShowBannedIp(BanList::SORT_BY_DATE, ch);
 		return;
@@ -115,7 +115,7 @@ void do_ban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("Site banned.\r\n", ch);
 }
 
-void do_unban(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_unban(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char site[kMaxInputLength];
 	one_argument(argument, site);
 	if (!*site) {
@@ -329,7 +329,7 @@ int CheckProxy(DescriptorData *ch) {
 }
 
 // команда proxy
-void do_proxy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_proxy(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 
@@ -835,7 +835,7 @@ bool BanList::save_proxy(void) {
 	return false;
 }
 
-void BanList::ShowBannedIp(int sort_mode, CHAR_DATA *ch) {
+void BanList::ShowBannedIp(int sort_mode, CharacterData *ch) {
 	if (Ban_List.empty()) {
 		send_to_char("No sites are banned.\r\n", ch);
 		return;
@@ -870,7 +870,7 @@ void BanList::ShowBannedIp(int sort_mode, CHAR_DATA *ch) {
 	free(listbuf);
 }
 
-void BanList::ShowBannedIpByMask(int sort_mode, CHAR_DATA *ch, const char *mask) {
+void BanList::ShowBannedIpByMask(int sort_mode, CharacterData *ch, const char *mask) {
 	bool is_find = false;
 	if (Ban_List.empty()) {
 		send_to_char("No sites are banned.\r\n", ch);
@@ -914,7 +914,7 @@ void BanList::ShowBannedIpByMask(int sort_mode, CHAR_DATA *ch, const char *mask)
 	free(listbuf);
 }
 
-void BanList::ShowBannedProxy(int sort_mode, CHAR_DATA *ch) {
+void BanList::ShowBannedProxy(int sort_mode, CharacterData *ch) {
 	if (Proxy_Ban_List.empty()) {
 		send_to_char("No proxies are banned.\r\n", ch);
 		return;
@@ -961,7 +961,7 @@ int BanList::is_banned(std::string ip) {
 	return BAN_NO;
 }
 
-bool BanList::unban_ip(std::string ip, CHAR_DATA *ch) {
+bool BanList::unban_ip(std::string ip, CharacterData *ch) {
 	std::list<BanNodePtr>::iterator i =
 		std::find_if(Ban_List.begin(), Ban_List.end(), [&](const BanNodePtr ptr) {
 			return this->ban_compare(ptr, BAN_IP_COMPARE, &ip);
@@ -983,7 +983,7 @@ bool BanList::unban_ip(std::string ip, CHAR_DATA *ch) {
 	return false;
 }
 
-bool BanList::unban_proxy(std::string ip, CHAR_DATA *ch) {
+bool BanList::unban_proxy(std::string ip, CharacterData *ch) {
 	std::list<ProxyBanNodePtr>::iterator i =
 		std::find_if(Proxy_Ban_List.begin(), Proxy_Ban_List.end(), [&](const ProxyBanNodePtr ptr) {
 			return this->proxy_ban_compare(ptr, BAN_IP_COMPARE, &ip);
@@ -1003,7 +1003,7 @@ bool BanList::unban_proxy(std::string ip, CHAR_DATA *ch) {
 	return false;
 }
 
-bool BanList::unban(std::string Ip, CHAR_DATA *ch) {
+bool BanList::unban(std::string Ip, CharacterData *ch) {
 	bool flag1 = false, flag2 = false;
 	flag1 = unban_ip(Ip, ch);
 	flag2 = unban_proxy(Ip, ch);
@@ -1102,7 +1102,7 @@ bool need_save = 0;
 } // namespace RegisterSystem
 
 // * Добавления мыла в список + проставления флага PLR_REGISTERED, registered_email не выставляется
-void RegisterSystem::add(CHAR_DATA *ch, const char *text, const char *reason) {
+void RegisterSystem::add(CharacterData *ch, const char *text, const char *reason) {
 	PLR_FLAGS(ch).set(PLR_REGISTERED);
 	if (!text || !reason) return;
 	std::stringstream out;
@@ -1118,7 +1118,7 @@ void RegisterSystem::add(CHAR_DATA *ch, const char *text, const char *reason) {
 * Удаление мыла из списка, снятие флага PLR_REGISTERED и registered_email.
 * В течении секунды персонаж помещается в комнату незареганных игроков, если он не один с данного ип
 */
-void RegisterSystem::remove(CHAR_DATA *ch) {
+void RegisterSystem::remove(CharacterData *ch) {
 	PLR_FLAGS(ch).unset(PLR_REGISTERED);
 	EmailListType::iterator it = email_list.find(GET_EMAIL(ch));
 	if (it != email_list.end()) {
@@ -1133,7 +1133,7 @@ void RegisterSystem::remove(CHAR_DATA *ch) {
 * Проверка, является ли персонаж зарегистрированным каким-нить образом
 * \return 0 - нет, 1 - да
 */
-bool RegisterSystem::is_registered(CHAR_DATA *ch) {
+bool RegisterSystem::is_registered(CharacterData *ch) {
 	if (PLR_FLAGGED(ch, PLR_REGISTERED) || (ch->desc && ch->desc->registered_email))
 		return 1;
 	return 0;

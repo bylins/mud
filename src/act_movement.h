@@ -3,8 +3,8 @@
 
 #include "structs/structs.h"
 
-class CHAR_DATA;    // to avoid inclusion
-class OBJ_DATA;
+class CharacterData;    // to avoid inclusion
+class ObjectData;
 
 enum DOOR_SCMD : int {
 	SCMD_OPEN = 0,    // открыть
@@ -22,23 +22,23 @@ enum FD_RESULT : int {
 	FD_DOORNAME_WRONG = -5   // -5 НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ
 };
 
-void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd);
-void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_doorcmd(CharacterData *ch, ObjectData *obj, int door, DOOR_SCMD scmd);
+void do_gen_door(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_enter(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_stand(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_sit(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_rest(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_sleep(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_wake(CharacterData *ch, char *argument, int cmd, int subcmd);
 
-int has_boat(CHAR_DATA *ch);
-int has_key(CHAR_DATA *ch, ObjVnum key);
-bool ok_pick(CHAR_DATA* ch, ObjVnum keynum, OBJ_DATA* obj, int door, int scmd);
-int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg);
+int has_boat(CharacterData *ch);
+int has_key(CharacterData *ch, ObjVnum key);
+bool ok_pick(CharacterData* ch, ObjVnum keynum, ObjectData* obj, int door, int scmd);
+int legal_dir(CharacterData *ch, int dir, int need_specials_check, int show_msg);
 
-int skip_hiding(CHAR_DATA *ch, CHAR_DATA *vict);
-int skip_sneaking(CHAR_DATA *ch, CHAR_DATA *vict);
-int skip_camouflage(CHAR_DATA *ch, CHAR_DATA *vict);
+int skip_hiding(CharacterData *ch, CharacterData *vict);
+int skip_sneaking(CharacterData *ch, CharacterData *vict);
+int skip_camouflage(CharacterData *ch, CharacterData *vict);
 
 #endif // _ACT_MOVEMENT_HPP_
 

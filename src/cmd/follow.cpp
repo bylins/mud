@@ -3,14 +3,14 @@
 #include "fightsystem/fight.h"
 #include "handler.h"
 
-void perform_drop_gold(CHAR_DATA *ch, int amount);
+void perform_drop_gold(CharacterData *ch, int amount);
 
 // Called when stop following persons, or stopping charm //
 // This will NOT do if a character quits/dies!!          //
 // При возврате 1 использовать ch нельзя, т.к. прошли через extract_char
 // TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
 // при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
-bool stop_follower(CHAR_DATA *ch, int mode) {
+bool stop_follower(CharacterData *ch, int mode) {
 	struct Follower *j, *k;
 	int i;
 
@@ -95,7 +95,7 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 		ch->restore_npc();
 			// сначало бросаем лишнее
 				while (ch->carrying) {
-						OBJ_DATA *obj = ch->carrying;
+						ObjectData *obj = ch->carrying;
 							obj_from_char(obj);
 							obj_to_room(obj, ch->in_room);
 					}
@@ -108,7 +108,7 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 					obj_to_char(unequip_char(ch, i, CharEquipFlag::show_msg), ch);
 					//extract_obj(tmp);
 					while (ch->carrying) {
-						OBJ_DATA *obj = ch->carrying;
+						ObjectData *obj = ch->carrying;
 							extract_obj(obj);
 					}
 				}
@@ -127,7 +127,7 @@ bool stop_follower(CHAR_DATA *ch, int mode) {
 }
 
 // * Called when a character that follows/is followed dies
-bool die_follower(CHAR_DATA *ch) {
+bool die_follower(CharacterData *ch) {
 	struct Follower *j, *k = ch->followers;
 
 	if (ch->has_master() && stop_follower(ch, SF_FOLLOWERDIE)) {
@@ -148,7 +148,7 @@ bool die_follower(CHAR_DATA *ch) {
 
 // Check if making CH follow VICTIM will create an illegal //
 // Follow "Loop/circle"                                    //
-bool circle_follow(CHAR_DATA *ch, CHAR_DATA *victim) {
+bool circle_follow(CharacterData *ch, CharacterData *victim) {
 	for (auto k = victim; k; k = k->get_master()) {
 		if (k->get_master() == k) {
 			k->set_master(nullptr);
@@ -161,8 +161,8 @@ bool circle_follow(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return false;
 }
 
-void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *leader;
+void do_follow(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *leader;
 	struct Follower *f;
 	one_argument(argument, smallBuf);
 

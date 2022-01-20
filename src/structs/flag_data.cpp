@@ -96,7 +96,7 @@ void asciiflag_conv(const char *flag, void *to) {
 	}
 }
 
-void FLAG_DATA::from_string(const char *flag) {
+void FlagData::from_string(const char *flag) {
 	uint32_t is_number = 1;
 	int i;
 
@@ -130,7 +130,7 @@ void FLAG_DATA::from_string(const char *flag) {
 	}
 }
 
-void FLAG_DATA::tascii(int num_planes, char *ascii) const {
+void FlagData::tascii(int num_planes, char *ascii) const {
 	bool found = false;
 
 	for (int i = 0; i < num_planes; i++) {
@@ -146,7 +146,7 @@ void FLAG_DATA::tascii(int num_planes, char *ascii) const {
 }
 
 
-bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, const int print_flag) const {
+bool FlagData::sprintbits(const char *names[], char *result, const char *div, const int print_flag) const {
 	bool have_flags = false;
 	char buffer[kMaxStringLength];
 	*result = '\0';
@@ -170,7 +170,7 @@ bool FLAG_DATA::sprintbits(const char *names[], char *result, const char *div, c
 	return have_flags;
 }
 
-void FLAG_DATA::gm_flag(const char *subfield, const char *const *const list, char *res) {
+void FlagData::gm_flag(const char *subfield, const char *const *const list, char *res) {
 	strcpy(res, "0");
 
 	if ('\0' == *subfield) {

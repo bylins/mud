@@ -25,7 +25,7 @@
 #include <stack>
 
 //External functions
-extern void extract_trigger(TRIG_DATA *trig);
+extern void extract_trigger(Trigger *trig);
 
 //внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
 trigger_to_owners_map_t owner_trig;
@@ -121,7 +121,7 @@ void indent_trigger(std::string &cmd, int *level) {
  * create a new trigger from a prototype.
  * nr is the real number of the trigger.
  */
-TRIG_DATA *read_trigger(int nr) {
+Trigger *read_trigger(int nr) {
 	IndexData *index;
 	if (nr >= top_of_trigt || nr == -1) {
 		return nullptr;
@@ -131,7 +131,7 @@ TRIG_DATA *read_trigger(int nr) {
 		return nullptr;
 	}
 
-	TRIG_DATA *trig = new TRIG_DATA(*index->proto);
+	Trigger *trig = new Trigger(*index->proto);
 	index->number++;
 
 	return trig;
@@ -154,7 +154,7 @@ void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum) {
 	}
 }
 
-void dg_obj_trigger(char *line, OBJ_DATA *obj) {
+void dg_obj_trigger(char *line, ObjectData *obj) {
 	char junk[8];
 	int vnum, rnum, count;
 
@@ -183,17 +183,17 @@ void dg_obj_trigger(char *line, OBJ_DATA *obj) {
 	obj->add_proto_script(vnum);
 }
 
-extern CHAR_DATA *mob_proto;
+extern CharacterData *mob_proto;
 
 void assign_triggers(void *i, int type) {
-	CHAR_DATA *mob;
-	OBJ_DATA *obj;
-	ROOM_DATA *room;
+	CharacterData *mob;
+	ObjectData *obj;
+	RoomData *room;
 	int rnum;
 	char buf[256];
 
 	switch (type) {
-		case MOB_TRIGGER: mob = (CHAR_DATA *) i;
+		case MOB_TRIGGER: mob = (CharacterData *) i;
 			for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script) {
 				rnum = real_trigger(trigger_vnum);
 				if (rnum == -1) {
@@ -224,7 +224,7 @@ void assign_triggers(void *i, int type) {
 			}
 			break;
 
-		case OBJ_TRIGGER: obj = (OBJ_DATA *) i;
+		case OBJ_TRIGGER: obj = (ObjectData *) i;
 			for (const auto trigger_vnum : obj_proto.proto_script(GET_OBJ_RNUM(obj))) {
 				rnum = real_trigger(trigger_vnum);
 				if (rnum == -1) {
@@ -254,7 +254,7 @@ void assign_triggers(void *i, int type) {
 			}
 			break;
 
-		case WLD_TRIGGER: room = (ROOM_DATA *) i;
+		case WLD_TRIGGER: room = (RoomData *) i;
 			for (const auto trigger_vnum : *room->proto_script) {
 				rnum = real_trigger(trigger_vnum);
 				if (rnum == -1) {
@@ -288,7 +288,7 @@ void assign_triggers(void *i, int type) {
 	}
 }
 
-void trg_featturn(CHAR_DATA *ch, int featnum, int featdiff, int vnum) {
+void trg_featturn(CharacterData *ch, int featnum, int featdiff, int vnum) {
 	if (HAVE_FEAT(ch, featnum)) {
 		if (featdiff)
 			return;
@@ -310,7 +310,7 @@ void trg_featturn(CHAR_DATA *ch, int featnum, int featdiff, int vnum) {
 	}
 }
 
-void trg_skillturn(CHAR_DATA *ch, const ESkill skillnum, int skilldiff, int vnum) {
+void trg_skillturn(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	const int ch_kin = static_cast<int>(GET_KIN(ch));
 	const int ch_class = static_cast<int>(GET_CLASS(ch));
 
@@ -330,7 +330,7 @@ void trg_skillturn(CHAR_DATA *ch, const ESkill skillnum, int skilldiff, int vnum
 	}
 }
 
-void trg_skilladd(CHAR_DATA *ch, const ESkill skillnum, int skilldiff, int vnum) {
+void trg_skilladd(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	int skill = ch->get_trained_skill(skillnum);
 	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_trained_skill(skillnum) + skilldiff, skill_info[skillnum].cap))));
 
@@ -364,7 +364,7 @@ void trg_skilladd(CHAR_DATA *ch, const ESkill skillnum, int skilldiff, int vnum)
 	}
 }
 
-void trg_spellturn(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {
+void trg_spellturn(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
 	int spell = GET_SPELL_TYPE(ch, spellnum);
 
 	if (!can_get_spell(ch, spellnum)) {
@@ -387,7 +387,7 @@ void trg_spellturn(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {
 	}
 }
 
-void trg_spellturntemp(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {
+void trg_spellturntemp(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
 	if (!can_get_spell(ch, spellnum)) {
 		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 		return;
@@ -398,7 +398,7 @@ void trg_spellturntemp(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {
 	log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d", spell_name(spellnum), spelldiff, GET_NAME(ch), vnum);
 }
 
-void trg_spelladd(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {
+void trg_spelladd(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
 	int spell = GET_SPELL_MEM(ch, spellnum);
 	GET_SPELL_MEM(ch, spellnum) = MAX(0, MIN(spell + spelldiff, 50));
 
@@ -420,7 +420,7 @@ void trg_spelladd(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum) {
 	}
 }
 
-void trg_spellitem(CHAR_DATA *ch, int spellnum, int spelldiff, int spell) {
+void trg_spellitem(CharacterData *ch, int spellnum, int spelldiff, int spell) {
 	char type[kMaxStringLength];
 
 	if ((spelldiff && IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)) ||

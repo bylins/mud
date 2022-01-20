@@ -6,9 +6,9 @@
 #include "magic/spells_info.h"
 #include "entities/entity_constants.h"
 
-class OBJ_DATA;
+class ObjectData;
 
-void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj) {
+void book_upgrd_fail_message(CharacterData *ch, ObjectData *obj) {
 	send_to_char(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
 				 obj->get_PName(3).c_str());
 	act("$n с интересом принял$u читать $o3.\r\n"
@@ -16,10 +16,10 @@ void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj) {
 		false, ch, obj, 0, TO_ROOM);
 }
 
-void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	using PlayerClass::slot_for_char;
 
-	OBJ_DATA *obj;
+	ObjectData *obj;
 	int spellnum = 0, addchance = 10, rcpt = -1;
 	im_rskill *rs = nullptr;
 	const char *spellname = "";
@@ -71,7 +71,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK) {
+	if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_BOOK) {
 		act("Вы уставились на $o3, как баран на новые ворота.", false, ch, obj, 0, TO_CHAR);
 		act("$n начал$g внимательно изучать устройство $o1.", false, ch, obj, 0, TO_ROOM);
 		return;

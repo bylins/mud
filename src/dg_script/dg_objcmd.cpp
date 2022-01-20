@@ -23,23 +23,23 @@
 #include "entities/zone.h"
 
 extern const char *dirs[];
-extern int up_obj_where(OBJ_DATA *obj);
+extern int up_obj_where(ObjectData *obj);
 extern int reloc_target;
 
-CHAR_DATA *get_char_by_obj(OBJ_DATA *obj, char *name);
-OBJ_DATA *get_obj_by_obj(OBJ_DATA *obj, char *name);
-void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets);
-void die(CHAR_DATA *ch, CHAR_DATA *killer);
-void obj_command_interpreter(OBJ_DATA *obj, char *argument);
+CharacterData *get_char_by_obj(ObjectData *obj, char *name);
+ObjectData *get_obj_by_obj(ObjectData *obj, char *name);
+void sub_write(char *arg, CharacterData *ch, byte find_invis, int targets);
+void die(CharacterData *ch, CharacterData *killer);
+void obj_command_interpreter(ObjectData *obj, char *argument);
 void send_to_zone(char *messg, int zone_rnum);
 
-ROOM_DATA *get_room(char *name);
+RoomData *get_room(char *name);
 
-bool mob_script_command_interpreter(CHAR_DATA *ch, char *argument);
+bool mob_script_command_interpreter(CharacterData *ch, char *argument);
 
 struct obj_command_info {
 	const char *command;
-	typedef void(*handler_f)(OBJ_DATA *obj, char *argument, int cmd, int subcmd);
+	typedef void(*handler_f)(ObjectData *obj, char *argument, int cmd, int subcmd);
 	handler_f command_pointer;
 	int subcmd;
 };
@@ -49,7 +49,7 @@ struct obj_command_info {
 #define SCMD_OECHOAROUND   1
 
 // attaches object name and vnum to msg and sends it to script_log
-void obj_log(OBJ_DATA *obj, const char *msg, LogMode type = LogMode::OFF) {
+void obj_log(ObjectData *obj, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 
 	sprintf(buf,
@@ -62,7 +62,7 @@ void obj_log(OBJ_DATA *obj, const char *msg, LogMode type = LogMode::OFF) {
 }
 
 // returns the real room number that the object or object's carrier is in
-int obj_room(OBJ_DATA *obj) {
+int obj_room(ObjectData *obj) {
 	if (obj->get_in_room() != kNowhere) {
 		return obj->get_in_room();
 	} else if (obj->get_carried_by()) {
@@ -77,7 +77,7 @@ int obj_room(OBJ_DATA *obj) {
 }
 
 // returns the real room number, or kNowhere if not found or invalid
-int find_obj_target_room(OBJ_DATA *obj, char *rawroomstr) {
+int find_obj_target_room(ObjectData *obj, char *rawroomstr) {
 	char roomstr[kMaxInputLength];
 	RoomRnum location = kNowhere;
 
@@ -101,7 +101,7 @@ int find_obj_target_room(OBJ_DATA *obj, char *rawroomstr) {
 	return location;
 }
 
-void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oportal(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int target, howlong, curroom, nr;
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
@@ -135,7 +135,7 @@ void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 // Object commands
-void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oecho(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	int room;
@@ -147,7 +147,7 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 }
-void do_oat(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oat(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 //	int location;
 	char roomstr[kMaxInputLength];
 	RoomRnum location = kNowhere;
@@ -171,8 +171,8 @@ void do_oat(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	world_objects.remove(tmp_obj);
 }
 
-void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *ch;
+void do_oforce(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *ch;
 	char arg1[kMaxInputLength], *line;
 
 	line = one_argument(argument, arg1);
@@ -229,9 +229,9 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_osend(OBJ_DATA *obj, char *argument, int/* cmd*/, int subcmd) {
+void do_osend(ObjectData *obj, char *argument, int/* cmd*/, int subcmd) {
 	char buf[kMaxInputLength], *msg;
-	CHAR_DATA *ch;
+	CharacterData *ch;
 
 	msg = any_one_arg(argument, buf);
 
@@ -256,8 +256,8 @@ void do_osend(OBJ_DATA *obj, char *argument, int/* cmd*/, int subcmd) {
 }
 
 // increases the target's exp
-void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *ch;
+void do_oexp(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *ch;
 	char name[kMaxInputLength], amount[kMaxInputLength];
 
 	two_arguments(argument, name, amount);
@@ -278,7 +278,7 @@ void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // set the object's timer value
-void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_otimer(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 
 	one_argument(argument, arg);
@@ -295,9 +295,9 @@ void do_otimer(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 // transform into a different object
 // note: this shouldn't be used with containers unless both objects
 // are containers!
-void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_otransform(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
-	CHAR_DATA *wearer = nullptr;
+	CharacterData *wearer = nullptr;
 	int pos = -1;
 
 	one_argument(argument, arg);
@@ -334,10 +334,10 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // purge all objects an npcs in room, or specified object or mob
-void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_opurge(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
-	CHAR_DATA *ch;
-	OBJ_DATA *o;
+	CharacterData *ch;
+	ObjectData *o;
 
 	one_argument(argument, arg);
 
@@ -365,8 +365,8 @@ void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	extract_char(ch, false);
 }
 
-void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *ch, *horse;
+void do_oteleport(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *ch, *horse;
 	int target, rm;
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
@@ -465,10 +465,10 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_dgoload(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int number = 0, room;
-	CHAR_DATA *mob;
+	CharacterData *mob;
 
 	two_arguments(argument, arg1, arg2);
 
@@ -514,7 +514,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void ApplyDamage(CHAR_DATA* target, int damage) {
+void ApplyDamage(CharacterData* target, int damage) {
 	GET_HIT(target) -= damage;
 	update_pos(target);
 	char_dam_message(damage, target, target, 0);
@@ -528,7 +528,7 @@ void ApplyDamage(CHAR_DATA* target, int damage) {
 	}
 }
 
-void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_odamage(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], amount[kMaxInputLength], damage_type[kMaxInputLength];
 	three_arguments(argument, name, amount, damage_type);
 	if (!*name || !*amount || !a_isdigit(*amount)) {
@@ -538,7 +538,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	int dam = atoi(amount);
 
-	CHAR_DATA *ch = get_char_by_obj(obj, name);
+	CharacterData *ch = get_char_by_obj(obj, name);
 	if (!ch) {
 		obj_log(obj, "odamage: target not found");
 		return;
@@ -552,7 +552,7 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *damager = dg_caster_owner_obj(obj);
+	CharacterData *damager = dg_caster_owner_obj(obj);
 	if (!damager || damager == ch) {
 		ApplyDamage(ch, dam);
 	} else {
@@ -578,10 +578,10 @@ void do_odamage(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_odoor(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char target[kMaxInputLength], direction[kMaxInputLength];
 	char field[kMaxInputLength], *value;
-	ROOM_DATA *rm;
+	RoomData *rm;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] = {"purge",
@@ -627,7 +627,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (!exit) {
-			exit.reset(new EXIT_DATA());
+			exit.reset(new ExitData());
 			rm->dir_option[dir] = exit;
 		}
 
@@ -668,7 +668,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_osetval(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_osetval(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int position, new_value;
 
@@ -680,16 +680,16 @@ void do_osetval(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	position = atoi(arg1);
 	new_value = atoi(arg2);
-	if (position >= 0 && position < OBJ_DATA::VALS_COUNT) {
+	if (position >= 0 && position < ObjectData::VALS_COUNT) {
 		obj->set_val(position, new_value);
 	} else {
 		obj_log(obj, "osetval: position out of bounds!");
 	}
 }
 
-void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ofeatturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
-	CHAR_DATA *ch;
+	CharacterData *ch;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
 	int featnum = 0, featdiff = 0;
 
@@ -731,9 +731,9 @@ void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		trg_featturn(ch, featnum, featdiff, last_trig_vnum);
 }
 
-void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool isSkill = false;
-	CHAR_DATA *ch;
+	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
@@ -780,9 +780,9 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_oskilladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool isSkill = false;
-	CHAR_DATA *ch;
+	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
@@ -817,8 +817,8 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *ch;
+void do_ospellturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0;
 
@@ -851,8 +851,8 @@ void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *ch;
+void do_ospellturntemp(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelltime = 0;
 
@@ -883,8 +883,8 @@ void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*
 	}
 }
 
-void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *ch;
+void do_ospelladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0;
 
@@ -910,8 +910,8 @@ void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *ch;
+void do_ospellitem(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *ch;
 	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
@@ -959,7 +959,7 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ozoneecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ozoneecho(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
@@ -1008,7 +1008,7 @@ const struct obj_command_info obj_cmd_info[] =
 	};
 
 // *  This is the command interpreter used by objects, called by script_driver.
-void obj_command_interpreter(OBJ_DATA *obj, char *argument) {
+void obj_command_interpreter(ObjectData *obj, char *argument) {
 	char *line, arg[kMaxInputLength];
 
 	skip_spaces(&argument);

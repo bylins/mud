@@ -46,7 +46,7 @@ class Cases {
 
 	const auto &get_case(const size_t number) const { return m_cases[number]; }
 	const auto &aliases() const { return m_joined_aliases; }
-	OBJ_DATA::pnames_t build_pnames() const;
+	ObjectData::pnames_t build_pnames() const;
 
  private:
 	cases_t m_cases;
@@ -69,13 +69,13 @@ class CObject : public CObjectPrototype {
 	bool save_to_node(pugi::xml_node *node) const;
 
 	/**
-	 * Builds OBJ_DATA instance suitable for add it into the list of objects prototypes.
+	 * Builds ObjectData instance suitable for add it into the list of objects prototypes.
 	 *
-	 * Allocates memory for OBJ_DATA instance and fill this memory by appropriate values.
+	 * Allocates memory for ObjectData instance and fill this memory by appropriate values.
 	 *
 	 * \return Pointer to created instance.
 	 */
-	OBJ_DATA *build_object() const;
+	ObjectData *build_object() const;
 
  private:
 	constexpr static int VALS_COUNT = 4;
@@ -171,7 +171,7 @@ class CRecipe {
 
 	const auto &id() const { return m_id; }
 
-	bool satisfy(const CHAR_DATA *) const { return false; }
+	bool satisfy(const CharacterData *) const { return false; }
 
  private:
 	bool load(const pugi::xml_node *node);

@@ -33,14 +33,14 @@
 #include <vector>
 
 // * External data structures.
-extern CHAR_DATA *mob_proto;
+extern CharacterData *mob_proto;
 
 extern DescriptorData *descriptor_list;
 
 // * External functions.
 void zedit_setup(DescriptorData *d, int room_num);
 void zedit_save_to_disk(int zone);
-int zedit_new_zone(CHAR_DATA *ch, int new_zone);
+int zedit_new_zone(CharacterData *ch, int new_zone);
 void medit_setup(DescriptorData *d, int rmob_num);
 void medit_save_to_disk(int zone);
 void redit_setup(DescriptorData *d, int rroom_num);
@@ -49,15 +49,15 @@ void oedit_setup(DescriptorData *d, int robj_num);
 void oedit_save_to_disk(int zone);
 void sedit_setup_new(DescriptorData *d);
 void sedit_setup_existing(DescriptorData *d, int robj_num);
-void room_free(ROOM_DATA *room);
-void medit_mobile_free(CHAR_DATA *mob);
+void room_free(RoomData *room);
+void medit_mobile_free(CharacterData *mob);
 void trigedit_setup_new(DescriptorData *d);
 void trigedit_setup_existing(DescriptorData *d, int rtrg_num);
 int real_trigger(int vnum);
 void dg_olc_script_free(DescriptorData *d);
 
 // Internal function prototypes.
-void olc_saveinfo(CHAR_DATA *ch);
+void olc_saveinfo(CharacterData *ch);
 
 // global data
 const char *save_info_msg[5] = {"Rooms", "Objects", "Zone info", "Mobiles", "Shops"};
@@ -113,7 +113,7 @@ olc_data::olc_data()
  * generic OLC stuff, then passes control to the sub-olc sections.
  */
 
-void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
+void do_olc(CharacterData *ch, char *argument, int cmd, int subcmd) {
 	int number = -1, save = 0, real_num;
 	bool lock = 0, unlock = 0;
 	DescriptorData *d;
@@ -332,7 +332,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 // Internal utilities
 // ------------------------------------------------------------
 
-void olc_saveinfo(CHAR_DATA *ch) {
+void olc_saveinfo(CharacterData *ch) {
 	struct olc_save_info *entry;
 
 	if (olc_save_list) {
@@ -385,7 +385,7 @@ void olc_remove_from_save_list(int zone, byte type) {
 * Set the colour string pointers for that which this char will
 * see at color level NRM.  Changing the entries here will change
 * the colour scheme throughout the OLC. */
-void get_char_cols(CHAR_DATA *ch) {
+void get_char_cols(CharacterData *ch) {
 	nrm = CCNRM(ch, C_NRM);
 	grn = CCGRN(ch, C_NRM);
 	cyn = CCCYN(ch, C_NRM);

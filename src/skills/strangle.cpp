@@ -12,7 +12,7 @@
 
 using namespace FightSystem;
 
-void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_strangle(CharacterData *ch, CharacterData *vict) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || dontCanAct(ch)) {
 		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
 		return;
@@ -49,7 +49,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 		//set_wait(ch, 3, true);
 		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 3);
 	} else {
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = SPELL_STRANGLE;
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;
@@ -91,7 +91,7 @@ void go_strangle(CHAR_DATA *ch, CHAR_DATA *vict) {
 	timed_to_char(ch, &timed);
 }
 
-void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_strangle(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(SKILL_STRANGLE)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
@@ -102,7 +102,7 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы жаждете удавить?\r\n", ch);
 		return;

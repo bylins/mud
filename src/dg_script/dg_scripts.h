@@ -17,7 +17,7 @@
 #include "logger.h"
 #include <optional>
 
-struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 #define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
 
@@ -118,7 +118,7 @@ constexpr long long PULSE_DG_SCRIPT = 13*kRealSec;
 const int kMaxScriptDepth = 512;					 // maximum depth triggers can recurse into each other
 
 struct wait_event_data {
-	TRIG_DATA *trigger;
+	Trigger *trigger;
 	void *go;
 	int type;
 };
@@ -133,29 +133,29 @@ class cmdlist_element {
 	shared_ptr next;
 };
 
-struct trig_var_data {
+struct TriggerVar {
 	char *name;        // name of variable  //
 	char *value;        // value of variable //
 	long context;        // 0: global context //
 
-	struct trig_var_data *next;
+	struct TriggerVar *next;
 };
 
 // structure for triggers //
-class TRIG_DATA {
+class Trigger {
  public:
 	using cmdlist_ptr = std::shared_ptr<cmdlist_element::shared_ptr>;
 
 	static const char *DEFAULT_TRIGGER_NAME;
 
-	TRIG_DATA();
-	TRIG_DATA(const TRIG_DATA &from);
-	TRIG_DATA &operator=(const TRIG_DATA &right);
-	TRIG_DATA(const sh_int rnum, const char *name, const long trigger_type);
-	TRIG_DATA(const sh_int rnum, const char *name, const byte attach_type, const long trigger_type);
-	TRIG_DATA(const sh_int rnum, std::string &&name, const byte attach_type, const long trigger_type);
+	Trigger();
+	Trigger(const Trigger &from);
+	Trigger &operator=(const Trigger &right);
+	Trigger(const sh_int rnum, const char *name, const long trigger_type);
+	Trigger(const sh_int rnum, const char *name, const byte attach_type, const long trigger_type);
+	Trigger(const sh_int rnum, std::string &&name, const byte attach_type, const long trigger_type);
 
-	virtual ~TRIG_DATA() {}    // make constructor virtual to be able to create a mock for this class
+	virtual ~Trigger() {}    // make constructor virtual to be able to create a mock for this class
 
 	auto get_rnum() const { return nr; }
 	void set_rnum(const sh_int _) { nr = _; }
@@ -174,8 +174,8 @@ class TRIG_DATA {
 	std::string arglist;        // argument list                   //
 	int depth;        // depth into nest ifs/whiles/etc  //
 	int loops;        // loop iteration counter          //
-	struct event_info *wait_event;    // event to pause the trigger      //
-	struct trig_var_data *var_list;    // list of local vars for trigger  //
+	struct TriggerEvent *wait_event;    // event to pause the trigger      //
+	struct TriggerVar *var_list;    // list of local vars for trigger  //
 
  private:
 	void reset();
@@ -192,7 +192,7 @@ class TriggerEventObserver {
 
 	~TriggerEventObserver() {}
 
-	virtual void notify(TRIG_DATA *trigger) = 0;
+	virtual void notify(Trigger *trigger) = 0;
 };
 
 /**
@@ -201,7 +201,7 @@ class TriggerEventObserver {
 */
 class TriggersList {
  public:
-	using triggers_list_t = std::list<TRIG_DATA *>;
+	using triggers_list_t = std::list<Trigger *>;
 
 	enum IteratorPosition {
 		BEGIN,
@@ -213,8 +213,8 @@ class TriggersList {
 		iterator(const iterator &rhv);
 		~iterator();
 
-		TRIG_DATA *operator*() { return *m_iterator; }
-		TRIG_DATA *operator->() { return *m_iterator; }
+		Trigger *operator*() { return *m_iterator; }
+		Trigger *operator->() { return *m_iterator; }
 		iterator &operator++();
 		operator bool() const { return m_iterator != m_owner->m_list.end(); }
 
@@ -225,7 +225,7 @@ class TriggersList {
 		friend class TriggersList;
 
 		void setup_observer();
-		void remove_event(TRIG_DATA *trigger);
+		void remove_event(Trigger *trigger);
 
 		TriggersList *m_owner;
 		triggers_list_t::const_iterator m_iterator;
@@ -236,17 +236,17 @@ class TriggersList {
 	TriggersList();
 	~TriggersList();
 
-	bool add(TRIG_DATA *trigger, const bool to_front = false);
-	void remove(TRIG_DATA *trigger);
-	TRIG_DATA *find(const bool by_name, const char *name, const int vnum_or_position);
-	TRIG_DATA *find_by_name(const char *name, const int number);
-	TRIG_DATA *find_by_vnum_or_position(const int vnum_or_position);
-	TRIG_DATA *find_by_vnum(const int vnum);
-	TRIG_DATA *remove_by_name(const char *name, const int number);
-	TRIG_DATA *remove_by_vnum_or_position(const int vnum_or_position);
-	TRIG_DATA *remove_by_vnum(const int vnum);
+	bool add(Trigger *trigger, const bool to_front = false);
+	void remove(Trigger *trigger);
+	Trigger *find(const bool by_name, const char *name, const int vnum_or_position);
+	Trigger *find_by_name(const char *name, const int number);
+	Trigger *find_by_vnum_or_position(const int vnum_or_position);
+	Trigger *find_by_vnum(const int vnum);
+	Trigger *remove_by_name(const char *name, const int number);
+	Trigger *remove_by_vnum_or_position(const int vnum_or_position);
+	Trigger *remove_by_vnum(const int vnum);
 	long get_type() const;
-	bool has_trigger(const TRIG_DATA *const trigger);
+	bool has_trigger(const Trigger *const trigger);
 	void clear();
 	bool empty() const { return m_list.empty(); }
 
@@ -274,14 +274,14 @@ inline std::ostream &operator<<(std::ostream &os, const TriggersList &triggers_l
 }
 
 // a complete script (composed of several triggers) //
-class SCRIPT_DATA {
+class Script {
  public:
-	using shared_ptr = std::shared_ptr<SCRIPT_DATA>;
+	using shared_ptr = std::shared_ptr<Script>;
 
 	// привет костыли
-	SCRIPT_DATA();
-	SCRIPT_DATA(const SCRIPT_DATA &script);
-	~SCRIPT_DATA();
+	Script();
+	Script(const Script &script);
+	~Script();
 
 	/*
 	*  removes the trigger specified by name, and the script of o if
@@ -291,7 +291,7 @@ class SCRIPT_DATA {
 	*  you might need to check to see if all the triggers were removed after
 	*  this function returns, in order to remove the script.
 	*/
-	int remove_trigger(char *name, TRIG_DATA *&trig_addr);
+	int remove_trigger(char *name, Trigger *&trig_addr);
 	int remove_trigger(char *name);
 
 	void clear_global_vars();
@@ -303,11 +303,11 @@ class SCRIPT_DATA {
 
 	long types;        // bitvector of trigger types //
 	TriggersList trig_list;    // list of triggers           //
-	struct trig_var_data *global_vars;    // list of global variables   //
+	struct TriggerVar *global_vars;    // list of global variables   //
 	long context;        // current context for statics //
 
  private:
-	SCRIPT_DATA &operator=(const SCRIPT_DATA &script) = delete;
+	Script &operator=(const Script &script) = delete;
 
 	bool m_purged;
 };
@@ -320,66 +320,66 @@ struct script_memory {
 };
 
 // function prototypes from triggers.cpp (and others) //
-void act_mtrigger(CHAR_DATA *ch,
+void act_mtrigger(CharacterData *ch,
 				  char *str,
-				  CHAR_DATA *actor,
-				  CHAR_DATA *victim,
-				  const OBJ_DATA *object,
-				  const OBJ_DATA *target,
+				  CharacterData *actor,
+				  CharacterData *victim,
+				  const ObjectData *object,
+				  const ObjectData *target,
 				  char *arg);
-void speech_mtrigger(CHAR_DATA *actor, char *str);
-void speech_wtrigger(CHAR_DATA *actor, char *str);
-void greet_mtrigger(CHAR_DATA *actor, int dir);
-int entry_mtrigger(CHAR_DATA *ch);
-void income_mtrigger(CHAR_DATA *actor, int dir);
-int enter_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir);
-int drop_otrigger(OBJ_DATA *obj, CHAR_DATA *actor);
-void timer_otrigger(OBJ_DATA *obj);
-int get_otrigger(OBJ_DATA *obj, CHAR_DATA *actor);
-int drop_wtrigger(OBJ_DATA *obj, CHAR_DATA *actor);
-int give_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, CHAR_DATA *victim);
-void greet_otrigger(CHAR_DATA *actor, int dir);
-int receive_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, OBJ_DATA *obj);
-void bribe_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int amount);
-int wear_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int where);
-int remove_otrigger(OBJ_DATA *obj, CHAR_DATA *actor);
-int put_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, OBJ_DATA *cont);
-int command_mtrigger(CHAR_DATA *actor, char *cmd, const char *argument);
-int command_otrigger(CHAR_DATA *actor, char *cmd, const char *argument);
-int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument);
-int death_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
-int kill_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
-int fight_mtrigger(CHAR_DATA *ch);
-void hitprcnt_mtrigger(CHAR_DATA *ch);
-int damage_mtrigger(CHAR_DATA *damager, CHAR_DATA *victim);
-void random_mtrigger(CHAR_DATA *ch);
-void random_otrigger(OBJ_DATA *obj);
-bitvector_t fight_otrigger(CHAR_DATA *actor);
-void random_wtrigger(ROOM_DATA *room, int num, void *s, int types, const TriggersList &list);
-void reset_wtrigger(ROOM_DATA *ch);
-void load_mtrigger(CHAR_DATA *ch);
-void load_otrigger(OBJ_DATA *obj);
-void purge_otrigger(OBJ_DATA *obj);
-void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
-void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
-int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
-void kill_pc_wtrigger(CHAR_DATA *killer, CHAR_DATA *victim);
+void speech_mtrigger(CharacterData *actor, char *str);
+void speech_wtrigger(CharacterData *actor, char *str);
+void greet_mtrigger(CharacterData *actor, int dir);
+int entry_mtrigger(CharacterData *ch);
+void income_mtrigger(CharacterData *actor, int dir);
+int enter_wtrigger(RoomData *room, CharacterData *actor, int dir);
+int drop_otrigger(ObjectData *obj, CharacterData *actor);
+void timer_otrigger(ObjectData *obj);
+int get_otrigger(ObjectData *obj, CharacterData *actor);
+int drop_wtrigger(ObjectData *obj, CharacterData *actor);
+int give_otrigger(ObjectData *obj, CharacterData *actor, CharacterData *victim);
+void greet_otrigger(CharacterData *actor, int dir);
+int receive_mtrigger(CharacterData *ch, CharacterData *actor, ObjectData *obj);
+void bribe_mtrigger(CharacterData *ch, CharacterData *actor, int amount);
+int wear_otrigger(ObjectData *obj, CharacterData *actor, int where);
+int remove_otrigger(ObjectData *obj, CharacterData *actor);
+int put_otrigger(ObjectData *obj, CharacterData *actor, ObjectData *cont);
+int command_mtrigger(CharacterData *actor, char *cmd, const char *argument);
+int command_otrigger(CharacterData *actor, char *cmd, const char *argument);
+int command_wtrigger(CharacterData *actor, char *cmd, const char *argument);
+int death_mtrigger(CharacterData *ch, CharacterData *actor);
+int kill_mtrigger(CharacterData *ch, CharacterData *actor);
+int fight_mtrigger(CharacterData *ch);
+void hitprcnt_mtrigger(CharacterData *ch);
+int damage_mtrigger(CharacterData *damager, CharacterData *victim);
+void random_mtrigger(CharacterData *ch);
+void random_otrigger(ObjectData *obj);
+bitvector_t fight_otrigger(CharacterData *actor);
+void random_wtrigger(RoomData *room, int num, void *s, int types, const TriggersList &list);
+void reset_wtrigger(RoomData *ch);
+void load_mtrigger(CharacterData *ch);
+void load_otrigger(ObjectData *obj);
+void purge_otrigger(ObjectData *obj);
+void start_fight_mtrigger(CharacterData *ch, CharacterData *actor);
+void round_num_mtrigger(CharacterData *ch, CharacterData *actor);
+int cast_mtrigger(CharacterData *ch, CharacterData *actor, int spellnum);
+void kill_pc_wtrigger(CharacterData *killer, CharacterData *victim);
 
 // function prototypes from scripts.cpp //
 void script_trigger_check(void);
 void script_timechange_trigger_check(const int time);
-bool add_trigger(SCRIPT_DATA *sc, TRIG_DATA *t, int loc);
+bool add_trigger(Script *sc, Trigger *t, int loc);
 
-void do_stat_trigger(CHAR_DATA *ch, TRIG_DATA *trig);
-void do_sstat_room(ROOM_DATA *rm, CHAR_DATA *ch);
-void do_sstat_room(CHAR_DATA *ch);
-void do_sstat_object(CHAR_DATA *ch, OBJ_DATA *j);
-void do_sstat_character(CHAR_DATA *ch, CHAR_DATA *k);
-void print_worlds_vars(CHAR_DATA *ch, std::optional<long> context);
+void do_stat_trigger(CharacterData *ch, Trigger *trig);
+void do_sstat_room(RoomData *rm, CharacterData *ch);
+void do_sstat_room(CharacterData *ch);
+void do_sstat_object(CharacterData *ch, ObjectData *j);
+void do_sstat_character(CharacterData *ch, CharacterData *k);
+void print_worlds_vars(CharacterData *ch, std::optional<long> context);
 
 void script_log(const char *msg,
 				LogMode type = LogMode::OFF);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
-void trig_log(TRIG_DATA *trig, const char *msg, LogMode type = LogMode::OFF);
+void trig_log(Trigger *trig, const char *msg, LogMode type = LogMode::OFF);
 
 using obj2triggers_t = std::unordered_map<ObjVnum, std::list<TrgVnum>>;
 extern obj2triggers_t &obj2triggers;
@@ -388,22 +388,22 @@ class GlobalTriggersStorage {
  public:
 	~GlobalTriggersStorage();
 
-	void add(TRIG_DATA *trigger);
-	void remove(TRIG_DATA *trigger);
+	void add(Trigger *trigger);
+	void remove(Trigger *trigger);
 	void shift_rnums_from(const Rnum rnum);
 	bool has_triggers_with_rnum(const Rnum rnum) const {
 		return m_rnum2triggers_set.find(rnum) != m_rnum2triggers_set.end();
 	}
 	const auto &get_triggers_with_rnum(const Rnum rnum) const { return m_rnum2triggers_set.at(rnum); }
-	void register_remove_observer(TRIG_DATA *trigger, const TriggerEventObserver::shared_ptr &observer);
-	void unregister_remove_observer(TRIG_DATA *trigger, const TriggerEventObserver::shared_ptr &observer);
+	void register_remove_observer(Trigger *trigger, const TriggerEventObserver::shared_ptr &observer);
+	void unregister_remove_observer(Trigger *trigger, const TriggerEventObserver::shared_ptr &observer);
 
  private:
-	using triggers_set_t = std::unordered_set<TRIG_DATA *>;
+	using triggers_set_t = std::unordered_set<Trigger *>;
 	using storage_t = triggers_set_t;
 	using rnum2triggers_set_t = std::unordered_map<Rnum, triggers_set_t>;
 	using observers_set_t = std::unordered_set<TriggerEventObserver::shared_ptr>;
-	using observers_t = std::unordered_map<TRIG_DATA *, observers_set_t>;
+	using observers_t = std::unordered_map<Trigger *, observers_set_t>;
 
 	storage_t m_triggers;
 	rnum2triggers_set_t m_rnum2triggers_set;
@@ -412,21 +412,21 @@ class GlobalTriggersStorage {
 
 extern GlobalTriggersStorage &trigger_list;
 
-void dg_obj_trigger(char *line, OBJ_DATA *obj);
+void dg_obj_trigger(char *line, ObjectData *obj);
 void assign_triggers(void *i, int type);
 int real_trigger(int vnum);
 void extract_script_mem(struct script_memory *sc);
 
-TRIG_DATA *read_trigger(int nr);
-// void add_var(struct trig_var_data **var_list, char *name, char *value, long id);
-CHAR_DATA *dg_caster_owner_obj(OBJ_DATA *obj);
-ROOM_DATA *dg_room_of_obj(OBJ_DATA *obj);
-void do_dg_cast(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd);
-void do_dg_affect(void *go, SCRIPT_DATA *sc, TRIG_DATA *trig, int type, char *cmd);
+Trigger *read_trigger(int nr);
+// void add_var(struct TriggerVar **var_list, char *name, char *value, long id);
+CharacterData *dg_caster_owner_obj(ObjectData *obj);
+RoomData *dg_room_of_obj(ObjectData *obj);
+void do_dg_cast(void *go, Script *sc, Trigger *trig, int type, char *cmd);
+void do_dg_affect(void *go, Script *sc, Trigger *trig, int type, char *cmd);
 
-void add_var_cntx(struct trig_var_data **var_list, const char *name, const char *value, long id);
-struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name, long id);
-int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
+void add_var_cntx(struct TriggerVar **var_list, const char *name, const char *value, long id);
+struct TriggerVar *find_var_cntx(struct TriggerVar **var_list, char *name, long id);
+int remove_var_cntx(struct TriggerVar **var_list, char *name, long id);
 
 // Macros for scripts //
 
@@ -456,9 +456,9 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 #define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
 
-bool SCRIPT_CHECK(const OBJ_DATA *go, const long type);
-bool SCRIPT_CHECK(const CHAR_DATA *go, const long type);
-bool SCRIPT_CHECK(const ROOM_DATA *go, const long type);
+bool SCRIPT_CHECK(const ObjectData *go, const long type);
+bool SCRIPT_CHECK(const CharacterData *go, const long type);
+bool SCRIPT_CHECK(const RoomData *go, const long type);
 
 #define TRIGGER_CHECK(t, type)   (IS_SET(GET_TRIG_TYPE(t), type) && \
                   !GET_TRIG_DEPTH(t))
@@ -466,26 +466,24 @@ bool SCRIPT_CHECK(const ROOM_DATA *go, const long type);
 #define SCRIPT(o)          ((o)->script)
 
 // typedefs that the dg functions rely on //
-typedef IndexData index_data;
-typedef ROOM_DATA ROOM_DATA;
 
-void timechange_mtrigger(CHAR_DATA *ch, const int time);
-int pick_otrigger(OBJ_DATA *obj, CHAR_DATA *actor);
-int open_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int unlock);
-int close_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int lock);
-int timechange_otrigger(OBJ_DATA *obj, const int time);
-int pick_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir);
-int open_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir, int unlock);
-int close_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir, int lock);
-int timechange_wtrigger(ROOM_DATA *room, const int time);
+void timechange_mtrigger(CharacterData *ch, const int time);
+int pick_otrigger(ObjectData *obj, CharacterData *actor);
+int open_otrigger(ObjectData *obj, CharacterData *actor, int unlock);
+int close_otrigger(ObjectData *obj, CharacterData *actor, int lock);
+int timechange_otrigger(ObjectData *obj, const int time);
+int pick_wtrigger(RoomData *room, CharacterData *actor, int dir);
+int open_wtrigger(RoomData *room, CharacterData *actor, int dir, int unlock);
+int close_wtrigger(RoomData *room, CharacterData *actor, int dir, int lock);
+int timechange_wtrigger(RoomData *room, const int time);
 
-void trg_featturn(CHAR_DATA *ch, int featnum, int featdiff, int vnum);
-void trg_skillturn(CHAR_DATA *ch, const ESkill skillnum, int skilldiff, int vnum);
-void trg_skilladd(CHAR_DATA *ch, const ESkill skillnum, int skilldiff, int vnum);
-void trg_spellturn(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum);
-void trg_spellturntemp(CHAR_DATA *ch, int spellnum, int spelltime, int vnum);
-void trg_spelladd(CHAR_DATA *ch, int spellnum, int spelldiff, int vnum);
-void trg_spellitem(CHAR_DATA *ch, int spellnum, int spelldiff, int spell);
+void trg_featturn(CharacterData *ch, int featnum, int featdiff, int vnum);
+void trg_skillturn(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum);
+void trg_skilladd(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum);
+void trg_spellturn(CharacterData *ch, int spellnum, int spelldiff, int vnum);
+void trg_spellturntemp(CharacterData *ch, int spellnum, int spelltime, int vnum);
+void trg_spelladd(CharacterData *ch, int spellnum, int spelldiff, int vnum);
+void trg_spellitem(CharacterData *ch, int spellnum, int spelldiff, int spell);
 
 // external vars from db.cpp //
 extern int top_of_trigt;
@@ -493,7 +491,7 @@ extern int last_trig_vnum;//последний триг в котором про
 
 const int MAX_TRIG_USEC = 30000;
 
-void save_char_vars(CHAR_DATA *ch);
+void save_char_vars(CharacterData *ch);
 
 #endif
 

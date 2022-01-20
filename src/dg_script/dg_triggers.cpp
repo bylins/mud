@@ -24,30 +24,30 @@
 #include <boost/lexical_cast.hpp>
 
 //extrernal functions
-extern void mob_command_interpreter(CHAR_DATA *ch, char *argument);
+extern void mob_command_interpreter(CharacterData *ch, char *argument);
 
 extern const char *dirs[];
 
 // external functions from scripts.cpp
-extern int script_driver(void *go, TRIG_DATA *trig, int type, int mode);
+extern int script_driver(void *go, Trigger *trig, int type, int mode);
 char *matching_quote(char *p);
 
-void ADD_UID_CHAR_VAR(char *buf, TRIG_DATA *trig, const OBJ_DATA *go, const char *name, const long context) {
+void ADD_UID_CHAR_VAR(char *buf, Trigger *trig, const ObjectData *go, const char *name, const long context) {
 	sprintf(buf, "%c%ld", UID_CHAR, go->get_id());
 	add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context);
 }
 
-void ADD_UID_CHAR_VAR(char *buf, TRIG_DATA *trig, const CHAR_DATA *go, const char *name, const long context) {
+void ADD_UID_CHAR_VAR(char *buf, Trigger *trig, const CharacterData *go, const char *name, const long context) {
 	sprintf(buf, "%c%ld", UID_CHAR, GET_ID(go));
 	add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context);
 }
 
-void ADD_UID_OBJ_VAR(char *buf, TRIG_DATA *trig, const OBJ_DATA *go, const char *name, const long context) {
+void ADD_UID_OBJ_VAR(char *buf, Trigger *trig, const ObjectData *go, const char *name, const long context) {
 	sprintf(buf, "%c%ld", UID_OBJ, go->get_id());
 	add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context);
 }
 
-void ADD_UID_OBJ_VAR(char *buf, TRIG_DATA *trig, const CHAR_DATA *go, const char *name, const long context) {
+void ADD_UID_OBJ_VAR(char *buf, Trigger *trig, const CharacterData *go, const char *name, const long context) {
 	sprintf(buf, "%c%ld", UID_OBJ, GET_ID(go));
 	add_var_cntx(&GET_TRIG_VARS(trig), name, buf, context);
 }
@@ -214,7 +214,7 @@ int word_check(const char *str, const char *wordlist) {
 }
 
 // *  mob triggers
-void random_mtrigger(CHAR_DATA *ch) {
+void random_mtrigger(CharacterData *ch) {
 	if (!ch || ch->purged()) {
 		return;
 	}
@@ -233,7 +233,7 @@ void random_mtrigger(CHAR_DATA *ch) {
 	}
 }
 
-void bribe_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int amount) {
+void bribe_mtrigger(CharacterData *ch, CharacterData *actor, int amount) {
 	char buf[kMaxInputLength];
 
 	if (!ch || ch->purged()
@@ -260,7 +260,7 @@ void bribe_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int amount) {
 	}
 }
 
-void greet_mtrigger(CHAR_DATA *actor, int dir) {
+void greet_mtrigger(CharacterData *actor, int dir) {
 	char buf[kMaxInputLength];
 	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 
@@ -308,10 +308,10 @@ void greet_mtrigger(CHAR_DATA *actor, int dir) {
 	}
 }
 
-void income_mtrigger(CHAR_DATA *ch, int dir) {
+void income_mtrigger(CharacterData *ch, int dir) {
 	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 	int ispcinroom = 0;
-	CHAR_DATA *actor = nullptr;
+	CharacterData *actor = nullptr;
 
 	if (!ch || ch->purged())
 		return;
@@ -350,7 +350,7 @@ void income_mtrigger(CHAR_DATA *ch, int dir) {
 	return;
 }
 
-int entry_mtrigger(CHAR_DATA *ch) {
+int entry_mtrigger(CharacterData *ch) {
 	if (!ch || ch->purged())
 		return 1;
 
@@ -390,7 +390,7 @@ int compare_cmd(int mode, const char *source, const char *dest) {
 	return (result);
 }
 
-int command_mtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
+int command_mtrigger(CharacterData *actor, char *cmd, const char *argument) {
 	char buf[kMaxInputLength];
 
 	const auto people_copy = world[IN_ROOM(actor)]->people;
@@ -455,7 +455,7 @@ int command_mtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 	return 0;
 }
 
-void speech_mtrigger(CHAR_DATA *actor, char *str) {
+void speech_mtrigger(CharacterData *actor, char *str) {
 	char buf[kMaxInputLength];
 
 	if (!actor || actor->purged())
@@ -495,8 +495,8 @@ void speech_mtrigger(CHAR_DATA *actor, char *str) {
 	}
 }
 
-void act_mtrigger(CHAR_DATA *ch, char *str, CHAR_DATA *actor, CHAR_DATA *victim,
-				  const OBJ_DATA *object, const OBJ_DATA *target, char *arg) {
+void act_mtrigger(CharacterData *ch, char *str, CharacterData *actor, CharacterData *victim,
+				  const ObjectData *object, const ObjectData *target, char *arg) {
 	char buf[kMaxInputLength];
 
 	if (!ch || ch->purged())
@@ -542,7 +542,7 @@ void act_mtrigger(CHAR_DATA *ch, char *str, CHAR_DATA *actor, CHAR_DATA *victim,
 		}
 }
 
-int fight_mtrigger(CHAR_DATA *ch) {
+int fight_mtrigger(CharacterData *ch) {
 	char buf[kMaxInputLength];
 
 	if (!ch || ch->purged()) {
@@ -563,7 +563,7 @@ int fight_mtrigger(CHAR_DATA *ch) {
 	return 1;
 }
 
-int damage_mtrigger(CHAR_DATA *damager, CHAR_DATA *victim) {
+int damage_mtrigger(CharacterData *damager, CharacterData *victim) {
 	if (!damager
 		|| damager->purged()
 		|| !victim
@@ -592,7 +592,7 @@ int damage_mtrigger(CHAR_DATA *damager, CHAR_DATA *victim) {
 	return 0;
 }
 
-void hitprcnt_mtrigger(CHAR_DATA *ch) {
+void hitprcnt_mtrigger(CharacterData *ch) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return;
@@ -613,7 +613,7 @@ void hitprcnt_mtrigger(CHAR_DATA *ch) {
 	}
 }
 
-int receive_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, OBJ_DATA *obj) {
+int receive_mtrigger(CharacterData *ch, CharacterData *actor, ObjectData *obj) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return 1;
@@ -637,7 +637,7 @@ int receive_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, OBJ_DATA *obj) {
 	return 1;
 }
 
-int death_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
+int death_mtrigger(CharacterData *ch, CharacterData *actor) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return 1;
@@ -663,7 +663,7 @@ int death_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
 	return 1;
 }
 
-int kill_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
+int kill_mtrigger(CharacterData *ch, CharacterData *actor) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return 0;
@@ -698,7 +698,7 @@ int kill_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
 	return 0;
 }
 
-void load_mtrigger(CHAR_DATA *ch) {
+void load_mtrigger(CharacterData *ch) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return;
@@ -717,7 +717,7 @@ void load_mtrigger(CHAR_DATA *ch) {
 	}
 }
 
-void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
+void start_fight_mtrigger(CharacterData *ch, CharacterData *actor) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
 		log("SYSERROR: ch = %s, actor = %s (%s:%d)",
 			ch ? (ch->purged() ? "purged" : "true") : "false",
@@ -743,7 +743,7 @@ void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
 	}
 }
 
-void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
+void round_num_mtrigger(CharacterData *ch, CharacterData *actor) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
 		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 			actor ? (actor->purged() ? "purged" : "true") : "false",
@@ -773,7 +773,7 @@ void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor) {
 * \param actor - кастер, идет в скрипт как %actor%
 * \param spellnum - номер закла, идет в скрипт как %cast_num% и %castname%
 */
-int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
+int cast_mtrigger(CharacterData *ch, CharacterData *actor, int spellnum) {
 	if (!ch || ch->purged() || !actor || actor->purged()) {
 //		log("SYSERROR: ch_purged: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 //			actor ? (actor->purged() ? "purged" : "true") : "false",
@@ -800,7 +800,7 @@ int cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum) {
 	return 1;
 }
 
-void timechange_mtrigger(CHAR_DATA *ch, const int time) {
+void timechange_mtrigger(CharacterData *ch, const int time) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return;
@@ -824,7 +824,7 @@ void timechange_mtrigger(CHAR_DATA *ch, const int time) {
 }
 
 // *  object triggers
-void random_otrigger(OBJ_DATA *obj) {
+void random_otrigger(ObjectData *obj) {
 	if (!SCRIPT_CHECK(obj, OTRIG_RANDOM)) {
 		return;
 	}
@@ -839,7 +839,7 @@ void random_otrigger(OBJ_DATA *obj) {
 	}
 }
 
-bitvector_t try_run_fight_otriggers(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
+bitvector_t try_run_fight_otriggers(CharacterData *actor, ObjectData *obj, int mode) {
 	char buf[kMaxInputLength];
 	bitvector_t result = kNormalRound;
 	if (!SCRIPT_CHECK(obj, OTRIG_FIGHT) || GET_INVIS_LEV(actor)) {
@@ -857,7 +857,7 @@ bitvector_t try_run_fight_otriggers(CHAR_DATA *actor, OBJ_DATA *obj, int mode) {
 	return result;
 }
 
-bitvector_t fight_otrigger(CHAR_DATA *actor) {
+bitvector_t fight_otrigger(CharacterData *actor) {
 	bitvector_t result = kNormalRound;
 	for (auto item: actor->equipment) {
 		if (item) {
@@ -870,7 +870,7 @@ bitvector_t fight_otrigger(CHAR_DATA *actor) {
 	return result;
 }
 
-void timer_otrigger(OBJ_DATA *obj) {
+void timer_otrigger(ObjectData *obj) {
 	if (!SCRIPT_CHECK(obj, OTRIG_TIMER)) {
 		return;
 	}
@@ -882,7 +882,7 @@ void timer_otrigger(OBJ_DATA *obj) {
 	}
 }
 
-int get_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
+int get_otrigger(ObjectData *obj, CharacterData *actor) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(obj, OTRIG_GET) || GET_INVIS_LEV(actor)) {
@@ -901,7 +901,7 @@ int get_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
 }
 
 // checks for command trigger on specific object. assumes obj has cmd trig
-int cmd_otrig(OBJ_DATA *obj, CHAR_DATA *actor, char *cmd, const char *argument, int type) {
+int cmd_otrig(ObjectData *obj, CharacterData *actor, char *cmd, const char *argument, int type) {
 	char buf[kMaxInputLength];
 
 	if ((obj && SCRIPT_CHECK(obj, OTRIG_COMMAND)) && !GET_INVIS_LEV(actor)) {
@@ -960,7 +960,7 @@ int cmd_otrig(OBJ_DATA *obj, CHAR_DATA *actor, char *cmd, const char *argument, 
 	return 0;
 }
 
-int command_otrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
+int command_otrigger(CharacterData *actor, char *cmd, const char *argument) {
 	if (GET_INVIS_LEV(actor))
 		return 0;
 
@@ -970,13 +970,13 @@ int command_otrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 		}
 	}
 
-	for (OBJ_DATA *obj = actor->carrying; obj; obj = obj->get_next_content()) {
+	for (ObjectData *obj = actor->carrying; obj; obj = obj->get_next_content()) {
 		if (cmd_otrig(obj, actor, cmd, argument, OCMD_INVEN)) {
 			return 1;
 		}
 	}
 
-	for (OBJ_DATA *obj = world[IN_ROOM(actor)]->contents; obj; obj = obj->get_next_content()) {
+	for (ObjectData *obj = world[IN_ROOM(actor)]->contents; obj; obj = obj->get_next_content()) {
 		if (cmd_otrig(obj, actor, cmd, argument, OCMD_ROOM)) {
 			return 1;
 		}
@@ -985,7 +985,7 @@ int command_otrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 	return 0;
 }
 
-int wear_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int where) {
+int wear_otrigger(ObjectData *obj, CharacterData *actor, int where) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(obj, OTRIG_WEAR) || GET_INVIS_LEV(actor)) {
@@ -1004,7 +1004,7 @@ int wear_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int where) {
 	return 1;
 }
 
-int put_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, OBJ_DATA *cont) {
+int put_otrigger(ObjectData *obj, CharacterData *actor, ObjectData *cont) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(cont, OTRIG_PUT) || GET_INVIS_LEV(actor)) {
@@ -1022,7 +1022,7 @@ int put_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, OBJ_DATA *cont) {
 	return 1;
 }
 
-int remove_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
+int remove_otrigger(ObjectData *obj, CharacterData *actor) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(obj, OTRIG_REMOVE) || GET_INVIS_LEV(actor)) {
@@ -1039,7 +1039,7 @@ int remove_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
 	return 1;
 }
 
-int drop_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
+int drop_otrigger(ObjectData *obj, CharacterData *actor) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(obj, OTRIG_DROP) || GET_INVIS_LEV(actor)) {
@@ -1057,7 +1057,7 @@ int drop_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
 	return 1;
 }
 
-int give_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, CHAR_DATA *victim) {
+int give_otrigger(ObjectData *obj, CharacterData *actor, CharacterData *victim) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(obj, OTRIG_GIVE) || GET_INVIS_LEV(actor)) {
@@ -1076,7 +1076,7 @@ int give_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, CHAR_DATA *victim) {
 	return 1;
 }
 
-void load_otrigger(OBJ_DATA *obj) {
+void load_otrigger(ObjectData *obj) {
 	if (!SCRIPT_CHECK(obj, OTRIG_LOAD)) {
 		return;
 	}
@@ -1090,7 +1090,7 @@ void load_otrigger(OBJ_DATA *obj) {
 	}
 }
 
-void purge_otrigger(OBJ_DATA *obj) {
+void purge_otrigger(ObjectData *obj) {
 	if (!SCRIPT_CHECK(obj, OTRIG_PURGE)) {
 		return;
 	}
@@ -1102,7 +1102,7 @@ void purge_otrigger(OBJ_DATA *obj) {
 	}
 }
 
-int pick_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
+int pick_otrigger(ObjectData *obj, CharacterData *actor) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(obj, OTRIG_PICK) || GET_INVIS_LEV(actor)) {
@@ -1119,7 +1119,7 @@ int pick_otrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
 	return 1;
 }
 
-int open_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int unlock) {
+int open_otrigger(ObjectData *obj, CharacterData *actor, int unlock) {
 	char buf[kMaxInputLength];
 	int open_mode = unlock ? OTRIG_UNLOCK : OTRIG_OPEN;
 
@@ -1140,7 +1140,7 @@ int open_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int unlock) {
 	return 1;
 }
 
-int close_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int lock) {
+int close_otrigger(ObjectData *obj, CharacterData *actor, int lock) {
 	char buf[kMaxInputLength];
 	int close_mode = lock ? OTRIG_LOCK : OTRIG_CLOSE;
 
@@ -1161,9 +1161,9 @@ int close_otrigger(OBJ_DATA *obj, CHAR_DATA *actor, int lock) {
 	return 1;
 }
 
-void greet_otrigger(CHAR_DATA *actor, int dir) {
+void greet_otrigger(CharacterData *actor, int dir) {
 	char buf[kMaxInputLength];
-	OBJ_DATA *obj;
+	ObjectData *obj;
 	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 
 	if (IS_NPC(actor) || GET_INVIS_LEV(actor)) {
@@ -1189,7 +1189,7 @@ void greet_otrigger(CHAR_DATA *actor, int dir) {
 	}
 }
 
-int timechange_otrigger(OBJ_DATA *obj, const int time) {
+int timechange_otrigger(ObjectData *obj, const int time) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(obj, OTRIG_TIMECHANGE)) {
@@ -1211,7 +1211,7 @@ int timechange_otrigger(OBJ_DATA *obj, const int time) {
 
 // *  world triggers
 
-void reset_wtrigger(ROOM_DATA *room) {
+void reset_wtrigger(RoomData *room) {
 	if (!SCRIPT_CHECK(room, WTRIG_RESET)) {
 		return;
 	}
@@ -1225,7 +1225,7 @@ void reset_wtrigger(ROOM_DATA *room) {
 	}
 }
 
-void random_wtrigger(ROOM_DATA *room, int/* num*/, void * /*s*/, int/* types*/, const TriggersList & /*list*/) {
+void random_wtrigger(RoomData *room, int/* num*/, void * /*s*/, int/* types*/, const TriggersList & /*list*/) {
 	if (!SCRIPT_CHECK(room, WTRIG_RANDOM))
 		return;
 
@@ -1238,7 +1238,7 @@ void random_wtrigger(ROOM_DATA *room, int/* num*/, void * /*s*/, int/* types*/, 
 	}
 }
 
-int enter_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir) {
+int enter_wtrigger(RoomData *room, CharacterData *actor, int dir) {
 	char buf[kMaxInputLength];
 	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 
@@ -1267,8 +1267,8 @@ int enter_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir) {
 	return 1;
 }
 
-int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
-	ROOM_DATA *room;
+int command_wtrigger(CharacterData *actor, char *cmd, const char *argument) {
+	RoomData *room;
 	char buf[kMaxInputLength];
 
 	if (!actor || IN_ROOM(actor) == kNowhere || !SCRIPT_CHECK(world[IN_ROOM(actor)], WTRIG_COMMAND)
@@ -1329,7 +1329,7 @@ int command_wtrigger(CHAR_DATA *actor, char *cmd, const char *argument) {
 	return 0;
 }
 
-void kill_pc_wtrigger(CHAR_DATA *killer, CHAR_DATA *victim) {
+void kill_pc_wtrigger(CharacterData *killer, CharacterData *victim) {
 	if (!killer || !victim || !SCRIPT_CHECK(world[IN_ROOM(killer)], WTRIG_KILL_PC) || GET_INVIS_LEV(killer))
 		return;
 	auto room = world[IN_ROOM(victim)];
@@ -1344,7 +1344,7 @@ void kill_pc_wtrigger(CHAR_DATA *killer, CHAR_DATA *victim) {
 	}
 
 }
-void speech_wtrigger(CHAR_DATA *actor, char *str) {
+void speech_wtrigger(CharacterData *actor, char *str) {
 	char buf[kMaxInputLength];
 
 	if (!actor || !SCRIPT_CHECK(world[IN_ROOM(actor)], WTRIG_SPEECH) || GET_INVIS_LEV(actor))
@@ -1373,7 +1373,7 @@ void speech_wtrigger(CHAR_DATA *actor, char *str) {
 	}
 }
 
-int drop_wtrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
+int drop_wtrigger(ObjectData *obj, CharacterData *actor) {
 	char buf[kMaxInputLength];
 
 	if (!actor
@@ -1396,7 +1396,7 @@ int drop_wtrigger(OBJ_DATA *obj, CHAR_DATA *actor) {
 	return 1;
 }
 
-int pick_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir) {
+int pick_wtrigger(RoomData *room, CharacterData *actor, int dir) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(room, WTRIG_PICK)
@@ -1417,7 +1417,7 @@ int pick_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir) {
 	return 1;
 }
 
-int open_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir, int unlock) {
+int open_wtrigger(RoomData *room, CharacterData *actor, int dir, int unlock) {
 	char buf[kMaxInputLength];
 	int open_mode = unlock ? WTRIG_UNLOCK : WTRIG_OPEN;
 
@@ -1439,7 +1439,7 @@ int open_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir, int unlock) {
 	return 1;
 }
 
-int close_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir, int lock) {
+int close_wtrigger(RoomData *room, CharacterData *actor, int dir, int lock) {
 	char buf[kMaxInputLength];
 	int close_mode = lock ? WTRIG_LOCK : WTRIG_CLOSE;
 
@@ -1462,7 +1462,7 @@ int close_wtrigger(ROOM_DATA *room, CHAR_DATA *actor, int dir, int lock) {
 	return 1;
 }
 
-int timechange_wtrigger(ROOM_DATA *room, const int time) {
+int timechange_wtrigger(RoomData *room, const int time) {
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(room, WTRIG_TIMECHANGE)) {

@@ -23,20 +23,20 @@
 #define NUM_RESERVED_DESCS    8
 
 class CObjectPrototype;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 extern DescriptorData *descriptor_list;
 
 // comm.cpp
 void send_to_all(const char *messg);
-void send_to_char(const char *messg, const CHAR_DATA *ch);
-void send_to_char(const CHAR_DATA *ch, const char *messg, ...) __attribute__((format(printf, 2, 3)));
-void send_to_char(const std::string &buffer, const CHAR_DATA *ch);
-void send_stat_char(const CHAR_DATA *ch);
+void send_to_char(const char *messg, const CharacterData *ch);
+void send_to_char(const CharacterData *ch, const char *messg, ...) __attribute__((format(printf, 2, 3)));
+void send_to_char(const std::string &buffer, const CharacterData *ch);
+void send_stat_char(const CharacterData *ch);
 void send_to_room(const char *messg, RoomRnum room, int to_awake);
 void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
-void perform_to_all(const char *messg, CHAR_DATA *ch);
+void perform_to_all(const char *messg, CharacterData *ch);
 #ifdef HAS_EPOLL
 void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev);
 #else
@@ -44,53 +44,53 @@ void close_socket(DescriptorData * d, int direct);
 #endif
 
 void perform_act(const char *orig,
-				 CHAR_DATA *ch,
-				 const OBJ_DATA *obj,
+				 CharacterData *ch,
+				 const ObjectData *obj,
 				 const void *vict_obj,
-				 CHAR_DATA *to,
+				 CharacterData *to,
 				 const int arena,
 				 const std::string &kick_type);
 
 inline void perform_act(const char *orig,
-						CHAR_DATA *ch,
-						const OBJ_DATA *obj,
+						CharacterData *ch,
+						const ObjectData *obj,
 						const void *vict_obj,
-						CHAR_DATA *to,
+						CharacterData *to,
 						const std::string &kick_type) {
 	perform_act(orig, ch, obj, vict_obj, to, 0, kick_type);
 }
 inline void perform_act(const char *orig,
-						CHAR_DATA *ch,
-						const OBJ_DATA *obj,
+						CharacterData *ch,
+						const ObjectData *obj,
 						const void *vict_obj,
-						CHAR_DATA *to,
+						CharacterData *to,
 						const int arena) {
 	perform_act(orig, ch, obj, vict_obj, to, arena, "");
 }
-inline void perform_act(const char *orig, CHAR_DATA *ch, const OBJ_DATA *obj, const void *vict_obj, CHAR_DATA *to) {
+inline void perform_act(const char *orig, CharacterData *ch, const ObjectData *obj, const void *vict_obj, CharacterData *to) {
 	perform_act(orig, ch, obj, vict_obj, to, 0, "");
 }
 
 void act(const char *str,
 		 int hide_invisible,
-		 CHAR_DATA *ch,
-		 const OBJ_DATA *obj,
+		 CharacterData *ch,
+		 const ObjectData *obj,
 		 const void *vict_obj,
 		 int type,
 		 const std::string &kick_type);
 
 inline void act(const char *str,
 				int hide_invisible,
-				CHAR_DATA *ch,
-				const OBJ_DATA *obj,
+				CharacterData *ch,
+				const ObjectData *obj,
 				const void *vict_obj,
 				int type) {
 	act(str, hide_invisible, ch, obj, vict_obj, type, "");
 }
 inline void act(const std::stringstream &str,
 				int hide_invisible,
-				CHAR_DATA *ch,
-				const OBJ_DATA *obj,
+				CharacterData *ch,
+				const ObjectData *obj,
 				const void *vict_obj,
 				int type) {
 	act(str.str().c_str(), hide_invisible, ch, obj, vict_obj, type);

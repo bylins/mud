@@ -6,10 +6,10 @@
 
 #include <boost/algorithm/string.hpp>
 
-WeaponMagicalAttack::WeaponMagicalAttack(CHAR_DATA *ch) { ch_ = ch; }
+WeaponMagicalAttack::WeaponMagicalAttack(CharacterData *ch) { ch_ = ch; }
 
-void WeaponMagicalAttack::set_attack(CHAR_DATA *ch, CHAR_DATA *victim) {
-	OBJ_DATA *mag_cont;
+void WeaponMagicalAttack::set_attack(CharacterData *ch, CharacterData *victim) {
+	ObjectData *mag_cont;
 
 	mag_cont = GET_EQ(ch, WEAR_QUIVER);
 	if (GET_OBJ_VAL(mag_cont, 2) <= 0) {
@@ -22,13 +22,13 @@ void WeaponMagicalAttack::set_attack(CHAR_DATA *ch, CHAR_DATA *victim) {
 	mag_single_target(GET_REAL_LEVEL(ch), ch, victim, nullptr, GET_OBJ_VAL(mag_cont, 0), SAVING_REFLEX);
 }
 
-bool WeaponMagicalAttack::set_count_attack(CHAR_DATA *ch) {
-	OBJ_DATA *mag_cont;
+bool WeaponMagicalAttack::set_count_attack(CharacterData *ch) {
+	ObjectData *mag_cont;
 	mag_cont = GET_EQ(ch, WEAR_QUIVER);
 	//sprintf(buf, "Количество выстрелов %d", get_count());
 	//act(buf, true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	//выстрел из колчана
-	if ((GET_EQ(ch, WEAR_BOTHS) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == OBJ_DATA::ITEM_WEAPON))
+	if ((GET_EQ(ch, WEAR_BOTHS) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == ObjectData::ITEM_WEAPON))
 		&& (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS)
 		&& (GET_EQ(ch, WEAR_QUIVER))) {
 		//если у нас в руках лук и носим колчан

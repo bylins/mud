@@ -21,15 +21,15 @@
 
 #include <string>
 
-class CHAR_DATA;    // to avoid inclusion of "char.hpp"
+class CharacterData;    // to avoid inclusion of "char.hpp"
 
-void do_move(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_move(CharacterData *ch, char *argument, int cmd, int subcmd);
 
 #define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
 #define IS_MOVE(cmdnum) (cmd_info[cmdnum].command_pointer == do_move)
 
-void command_interpreter(CHAR_DATA *ch, char *argument);
+void command_interpreter(CharacterData *ch, char *argument);
 int search_block(const char *arg, const char **list, int exact);
 int search_block(const std::string &arg, const char **list, int exact);
 int fill_word(const char *argument);
@@ -59,10 +59,10 @@ void lower_convert(std::string &text);
 void lower_convert(char *text);
 void name_convert(std::string &text);
 void god_work_invoice();
-int special(CHAR_DATA *ch, int cmd, char *arg, int fnum);
+int special(CharacterData *ch, int cmd, char *arg, int fnum);
 int find_name(const char *name);
 
-void check_hiding_cmd(CHAR_DATA *ch, int percent);
+void check_hiding_cmd(CharacterData *ch, int percent);
 
 char *delete_doubledollar(char *string);
 // Cоответствие классов и религий (Кард)
@@ -74,7 +74,7 @@ extern const int class_religion[];
 struct command_info {
 	const char *command;
 	byte minimum_position;
-	void (*command_pointer)(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	void (*command_pointer)(CharacterData *ch, char *argument, int cmd, int subcmd);
 	sh_int minimum_level;
 	int subcmd;                ///< Subcommand. See SCMD_* constants.
 	int unhide_percent;
@@ -352,8 +352,8 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 #define WHO_LISTNAME 1
 #define WHO_LISTCLAN 2
 
-bool login_change_invoice(CHAR_DATA *ch);
-bool who_spamcontrol(CHAR_DATA *, unsigned short int);
+bool login_change_invoice(CharacterData *ch);
+bool who_spamcontrol(CharacterData *, unsigned short int);
 
 #endif // _INTERPRETER_H_
 

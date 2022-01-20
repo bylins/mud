@@ -64,7 +64,7 @@
 #include <sstream>
 
 extern DescriptorData *descriptor_list;
-extern CHAR_DATA *mob_proto;
+extern CharacterData *mob_proto;
 extern const char *weapon_class[];
 // local functions
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
@@ -73,8 +73,8 @@ void prune_crlf(char *txt);
 bool IsValidEmail(const char *address);
 
 // external functions
-void perform_drop_gold(CHAR_DATA *ch, int amount);
-void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void perform_drop_gold(CharacterData *ch, int amount);
+void do_echo(CharacterData *ch, char *argument, int cmd, int subcmd);
 
 char AltToKoi[] = {
 		"АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡+++╣║╗╝+╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨++╙╘╒++╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁё╫╜╢╓╤╕╥╖·√??■ "
@@ -98,7 +98,7 @@ char AltToLat[] = {
 const char *ACTNULL = "<NULL>";
 
 // return char with UID n
-CHAR_DATA *find_char(long n) {
+CharacterData *find_char(long n) {
 	for (const auto &ch : character_list) {
 		if (GET_ID(ch) == n) {
 			return ch.get();
@@ -108,7 +108,7 @@ CHAR_DATA *find_char(long n) {
 	return nullptr;
 }
 
-bool check_spell_on_player(CHAR_DATA *ch, int spell_num) {
+bool check_spell_on_player(CharacterData *ch, int spell_num) {
 	for (const auto &af : ch->affected) {
 		if (af->type == spell_num) {
 			return true;
@@ -239,7 +239,7 @@ bool is_head(std::string name) {
 	return false;
 }
 
-int get_virtual_race(CHAR_DATA *mob) {
+int get_virtual_race(CharacterData *mob) {
 	if (mob->get_role(MOB_ROLE_BOSS)) {
 		return NPC_BOSS;
 	}
@@ -252,10 +252,10 @@ int get_virtual_race(CHAR_DATA *mob) {
 	return -1;
 }
 
-CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
-	std::vector<CHAR_DATA *> tmp_list;
-	CHAR_DATA *victim;
-	CHAR_DATA *k;
+CharacterData *get_random_pc_group(CharacterData *ch) {
+	std::vector<CharacterData *> tmp_list;
+	CharacterData *victim;
+	CharacterData *k;
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		return nullptr;
 	if (ch->has_master()) {
@@ -506,7 +506,7 @@ TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 	return (&now);
 }
 
-TimeInfoData *age(const CHAR_DATA *ch) {
+TimeInfoData *age(const CharacterData *ch) {
 	static TimeInfoData player_age;
 
 	player_age = *mud_time_passed(time(0), ch->player_data.time.birth);
@@ -627,7 +627,7 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 	return (1);
 }
 
-int num_pc_in_room(ROOM_DATA *room) {
+int num_pc_in_room(RoomData *room) {
 	int i = 0;
 	for (const auto ch : room->people) {
 		if (!IS_NPC(ch)) {
@@ -879,7 +879,7 @@ const char *desc_count(long how_many, int of_what) {
 		return some_pads[2][of_what];
 }
 
-int check_moves(CHAR_DATA *ch, int how_moves) {
+int check_moves(CharacterData *ch, int how_moves) {
 	if (IS_IMMORTAL(ch) || IS_NPC(ch))
 		return (true);
 	if (GET_MOVE(ch) < how_moves) {
@@ -950,7 +950,7 @@ int real_sector(int room) {
 	return kSectInside;
 }
 
-bool same_group(CHAR_DATA *ch, CHAR_DATA *tch) {
+bool same_group(CharacterData *ch, CharacterData *tch) {
 	if (!ch || !tch)
 		return false;
 
@@ -1029,12 +1029,12 @@ int is_post(RoomRnum room) {
 
 // Форматирование вывода в соответствии с форматом act-a
 // output act format//
-char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vict_obj) {
+char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const void *vict_obj) {
 	const char *i = nullptr;
 	char *buf, *lbuf;
 	ubyte padis;
 	int stopbyte;
-//	CHAR_DATA *dg_victim = nullptr;
+//	CharacterData *dg_victim = nullptr;
 
 	buf = (char *) malloc(kMaxStringLength);
 	lbuf = buf;
@@ -1052,37 +1052,37 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 					break;
 				case 'N':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, GET_PAD((const CHAR_DATA *) vict_obj, 0));
+						CHECK_NULL(vict_obj, GET_PAD((const CharacterData *) vict_obj, 0));
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, GET_PAD((const CHAR_DATA *) vict_obj, padis));
+						CHECK_NULL(vict_obj, GET_PAD((const CharacterData *) vict_obj, padis));
 					}
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'm': i = HMHR(ch);
 					break;
 				case 'M':
 					if (vict_obj)
-						i = HMHR((const CHAR_DATA *) vict_obj);
+						i = HMHR((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, OMHR(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 's': i = HSHR(ch);
 					break;
 				case 'S':
 					if (vict_obj)
-						i = HSHR((const CHAR_DATA *) vict_obj);
+						i = HSHR((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, OSHR(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'e': i = HSSH(ch);
 					break;
 				case 'E':
 					if (vict_obj)
-						i = HSSH((const CHAR_DATA *) vict_obj);
+						i = HSSH((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, OSSH(obj));
 					break;
 
@@ -1096,12 +1096,12 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 					break;
 				case 'O':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, ((const OBJ_DATA *) vict_obj)->get_PName(0).c_str());
+						CHECK_NULL(vict_obj, ((const ObjectData *) vict_obj)->get_PName(0).c_str());
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, ((const OBJ_DATA *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
+						CHECK_NULL(vict_obj, ((const ObjectData *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
 					}
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 't': CHECK_NULL(obj, (const char *) obj);
@@ -1120,54 +1120,54 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 					break;
 				case 'A':
 					if (vict_obj)
-						i = GET_CH_SUF_6((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_6((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_6(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'g': i = GET_CH_SUF_1(ch);
 					break;
 				case 'G':
 					if (vict_obj)
-						i = GET_CH_SUF_1((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_1((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_1(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'y': i = GET_CH_SUF_5(ch);
 					break;
 				case 'Y':
 					if (vict_obj)
-						i = GET_CH_SUF_5((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_5((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_5(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'u': i = GET_CH_SUF_2(ch);
 					break;
 				case 'U':
 					if (vict_obj)
-						i = GET_CH_SUF_2((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_2((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_2(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'w': i = GET_CH_SUF_3(ch);
 					break;
 				case 'W':
 					if (vict_obj)
-						i = GET_CH_SUF_3((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_3((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_3(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'q': i = GET_CH_SUF_4(ch);
 					break;
 				case 'Q':
 					if (vict_obj)
-						i = GET_CH_SUF_4((const CHAR_DATA *) vict_obj);
+						i = GET_CH_SUF_4((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
-					//dg_victim = (CHAR_DATA *) vict_obj;
+					//dg_victim = (CharacterData *) vict_obj;
 					break;
 //Polud Добавил склонение местоимения ваш(е,а,и)
 				case 'z':
@@ -1177,8 +1177,8 @@ char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vic
 					break;
 				case 'Z':
 					if (vict_obj)
-						i = HYOU((const CHAR_DATA *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CHAR_DATA *) vict_obj));
+						i = HYOU((const CharacterData *) vict_obj);
+					else CHECK_NULL(vict_obj, HYOU((const CharacterData *) vict_obj));
 					break;
 //-Polud
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
@@ -1236,7 +1236,7 @@ int roundup(float fl) {
 
 // Функция проверяет может ли ch нести предмет obj и загружает предмет
 // в инвентарь игрока или в комнату, где игрок находится
-void can_carry_obj(CHAR_DATA *ch, OBJ_DATA *obj) {
+void can_carry_obj(CharacterData *ch, ObjectData *obj) {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не можете нести столько предметов.", ch);
 		obj_to_room(obj, ch->in_room);
@@ -1258,7 +1258,7 @@ void can_carry_obj(CHAR_DATA *ch, OBJ_DATA *obj) {
    (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
  */
-bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj) {
+bool CAN_CARRY_OBJ(const CharacterData *ch, const ObjectData *obj) {
 	// для анлимного лута мобами из трупов
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		return true;
@@ -1273,7 +1273,7 @@ bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj) {
 }
 
 // shapirus: проверка, игнорирет ли чар who чара whom
-bool ignores(CHAR_DATA *who, CHAR_DATA *whom, unsigned int flag) {
+bool ignores(CharacterData *who, CharacterData *whom, unsigned int flag) {
 	if (IS_NPC(who)) return false;
 
 	long ign_id;
@@ -1525,7 +1525,7 @@ size_t strl_cpy(char *dst, const char *src, size_t siz) {
 	return (s - src - 1);    // count does not include NUL
 }
 
-int CalcPcDamrollBonus(CHAR_DATA *ch) {
+int CalcPcDamrollBonus(CharacterData *ch) {
 	const short kMaxRemortForDamrollBonus = 35;
 	const short kRemortDamrollBonus[kMaxRemortForDamrollBonus + 1] =
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
@@ -1539,7 +1539,7 @@ int CalcPcDamrollBonus(CHAR_DATA *ch) {
 	return bonus;
 }
 
-int CalcNpcDamrollBonus(CHAR_DATA *ch) {
+int CalcNpcDamrollBonus(CharacterData *ch) {
 	int bonus = 0;
 	if (GET_REAL_LEVEL(ch) > kStrongMobLevel) {
 		bonus += GET_REAL_LEVEL(ch) * number(100, 200) / 100.0;
@@ -1550,7 +1550,7 @@ int CalcNpcDamrollBonus(CHAR_DATA *ch) {
 /**
 * еще есть рандом дамролы, в данный момент максимум 30d127
 */
-int GetRealDamroll(CHAR_DATA *ch) {
+int GetRealDamroll(CharacterData *ch) {
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
@@ -1559,7 +1559,7 @@ int GetRealDamroll(CHAR_DATA *ch) {
 	return std::clamp(GET_DR(ch) + GET_DR_ADD(ch) + 2 * bonus, -50, (IS_MORTIFIER(ch) ? 100 : 50) + 2 * bonus);
 }
 
-int GetAutoattackDamroll(CHAR_DATA *ch, int weapon_skill) {
+int GetAutoattackDamroll(CharacterData *ch, int weapon_skill) {
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
 	}
@@ -1584,7 +1584,7 @@ void add(int zone_vnum, long money) {
 	}
 }
 
-void print(CHAR_DATA *ch) {
+void print(CharacterData *ch) {
 	if (!IS_GRGOD(ch)) {
 		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;
@@ -1663,7 +1663,7 @@ void add(int zone_vnum, long exp) {
 	}
 }
 
-void print_gain(CHAR_DATA *ch) {
+void print_gain(CharacterData *ch) {
 	if (!PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		send_to_char(ch, "Пока в разработке.\r\n");
 		return;
@@ -1898,7 +1898,7 @@ int calc_str_req(int weight, int type) {
 	return str;
 }
 
-void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type) {
+void message_str_need(CharacterData *ch, ObjectData *obj, int type) {
 	if (GET_POS(ch) == POS_DEAD)
 		return;
 	int need_str = 0;
@@ -1978,7 +1978,7 @@ size_t strlen_no_colors(const char *str) {
 }
 
 // Симуляция телла от моба
-void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg) {
+void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg) {
 	char local_buf[kMaxInputLength];
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
@@ -1991,7 +1991,7 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg) {
 				 CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
-int CAN_CARRY_N(const CHAR_DATA *ch) {
+int CAN_CARRY_N(const CharacterData *ch) {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_REAL_LEVEL(ch) / 2;
 	if (HAVE_FEAT(ch, JUGGLER_FEAT)) {
 		n += GET_REAL_LEVEL(ch) / 2;
@@ -2008,59 +2008,59 @@ int CAN_CARRY_N(const CHAR_DATA *ch) {
 bool ParseFilter::init_type(const char *str) {
 	if (is_abbrev(str, "свет")
 		|| is_abbrev(str, "light")) {
-		type = OBJ_DATA::ITEM_LIGHT;
+		type = ObjectData::ITEM_LIGHT;
 	} else if (is_abbrev(str, "свиток")
 		|| is_abbrev(str, "scroll")) {
-		type = OBJ_DATA::ITEM_SCROLL;
+		type = ObjectData::ITEM_SCROLL;
 	} else if (is_abbrev(str, "палочка")
 		|| is_abbrev(str, "wand")) {
-		type = OBJ_DATA::ITEM_WAND;
+		type = ObjectData::ITEM_WAND;
 	} else if (is_abbrev(str, "посох")
 		|| is_abbrev(str, "staff")) {
-		type = OBJ_DATA::ITEM_STAFF;
+		type = ObjectData::ITEM_STAFF;
 	} else if (is_abbrev(str, "оружие")
 		|| is_abbrev(str, "weapon")) {
-		type = OBJ_DATA::ITEM_WEAPON;
+		type = ObjectData::ITEM_WEAPON;
 	} else if (is_abbrev(str, "броня")
 		|| is_abbrev(str, "armor")) {
-		type = OBJ_DATA::ITEM_ARMOR;
+		type = ObjectData::ITEM_ARMOR;
 	} else if (is_abbrev(str, "напиток")
 		|| is_abbrev(str, "potion")) {
-		type = OBJ_DATA::ITEM_POTION;
+		type = ObjectData::ITEM_POTION;
 	} else if (is_abbrev(str, "прочее")
 		|| is_abbrev(str, "другое")
 		|| is_abbrev(str, "other")) {
-		type = OBJ_DATA::ITEM_OTHER;
+		type = ObjectData::ITEM_OTHER;
 	} else if (is_abbrev(str, "контейнер")
 		|| is_abbrev(str, "container")) {
-		type = OBJ_DATA::ITEM_CONTAINER;
+		type = ObjectData::ITEM_CONTAINER;
 	} else if (is_abbrev(str, "материал")
 		|| is_abbrev(str, "material")) {
-		type = OBJ_DATA::ITEM_MATERIAL;
+		type = ObjectData::ITEM_MATERIAL;
 	} else if (is_abbrev(str, "зачарованный")
 		|| is_abbrev(str, "enchant")) {
-		type = OBJ_DATA::ITEM_ENCHANT;
+		type = ObjectData::ITEM_ENCHANT;
 	} else if (is_abbrev(str, "емкость")
 		|| is_abbrev(str, "tank")) {
-		type = OBJ_DATA::ITEM_DRINKCON;
+		type = ObjectData::ITEM_DRINKCON;
 	} else if (is_abbrev(str, "книга")
 		|| is_abbrev(str, "book")) {
-		type = OBJ_DATA::ITEM_BOOK;
+		type = ObjectData::ITEM_BOOK;
 	} else if (is_abbrev(str, "руна")
 		|| is_abbrev(str, "rune")) {
-		type = OBJ_DATA::ITEM_INGREDIENT;
+		type = ObjectData::ITEM_INGREDIENT;
 	} else if (is_abbrev(str, "ингредиент")
 		|| is_abbrev(str, "ingradient")) {
-		type = OBJ_DATA::ITEM_MING;
+		type = ObjectData::ITEM_MING;
 	} else if (is_abbrev(str, "легкие")
 		|| is_abbrev(str, "легкая")) {
-		type = OBJ_DATA::ITEM_ARMOR_LIGHT;
+		type = ObjectData::ITEM_ARMOR_LIGHT;
 	} else if (is_abbrev(str, "средние")
 		|| is_abbrev(str, "средняя")) {
-		type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
+		type = ObjectData::ITEM_ARMOR_MEDIAN;
 	} else if (is_abbrev(str, "тяжелые")
 		|| is_abbrev(str, "тяжелая")) {
-		type = OBJ_DATA::ITEM_ARMOR_HEAVY;
+		type = ObjectData::ITEM_ARMOR_HEAVY;
 	} else {
 		return false;
 	}
@@ -2212,7 +2212,7 @@ bool ParseFilter::init_weap_class(const char *str) {
 		return false;
 	}
 
-	type = OBJ_DATA::ITEM_WEAPON;
+	type = ObjectData::ITEM_WEAPON;
 
 	return true;
 }
@@ -2384,7 +2384,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 }
 
 /// имя, метка для клан-хранов
-bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const {
+bool ParseFilter::check_name(ObjectData *obj, CharacterData *ch) const {
 	bool result = false;
 	char name_obj[kMaxStringLength];
 	strcpy(name_obj, GET_OBJ_PNAME(obj, 0).c_str());
@@ -2392,8 +2392,8 @@ bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const {
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;
-	} else if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
+	} else if ((GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT)
 		&& GET_OBJ_RNUM(obj) >= 0
 		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str())) {
 		result = true;
@@ -2406,7 +2406,7 @@ bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const {
 	return result;
 }
 
-bool ParseFilter::check_type(OBJ_DATA *obj) const {
+bool ParseFilter::check_type(ObjectData *obj) const {
 	if (type < 0
 		|| type == GET_OBJ_TYPE(obj)) {
 		return true;
@@ -2415,7 +2415,7 @@ bool ParseFilter::check_type(OBJ_DATA *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_state(OBJ_DATA *obj) const {
+bool ParseFilter::check_state(ObjectData *obj) const {
 	bool result = false;
 	if (state < 0) {
 		result = true;
@@ -2447,7 +2447,7 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const {
 	return result;
 }
 
-bool ParseFilter::check_wear(OBJ_DATA *obj) const {
+bool ParseFilter::check_wear(ObjectData *obj) const {
 	if (wear == EWearFlag::ITEM_WEAR_UNDEFINED
 		|| CAN_WEAR(obj, wear)) {
 		return true;
@@ -2455,7 +2455,7 @@ bool ParseFilter::check_wear(OBJ_DATA *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_weap_class(OBJ_DATA *obj) const {
+bool ParseFilter::check_weap_class(ObjectData *obj) const {
 	if (weap_class < 0 || weap_class == GET_OBJ_SKILL(obj)) {
 		return true;
 	}
@@ -2488,7 +2488,7 @@ bool ParseFilter::check_rent(int obj_price) const {
 	return result;
 }
 
-bool ParseFilter::check_remorts(OBJ_DATA *obj) const {
+bool ParseFilter::check_remorts(ObjectData *obj) const {
     int result;
     int obj_remorts = obj->get_auto_mort_req();
 
@@ -2512,7 +2512,7 @@ bool ParseFilter::check_remorts(OBJ_DATA *obj) const {
 
 
 // заколебали эти флаги... сравниваем num и все поля в flags
-bool CompareBits(const FLAG_DATA &flags, const char *names[], int affect) {
+bool CompareBits(const FlagData &flags, const char *names[], int affect) {
 	int i;
 	for (i = 0; i < 4; i++) {
 		int nr = 0;
@@ -2537,7 +2537,7 @@ bool CompareBits(const FLAG_DATA &flags, const char *names[], int affect) {
 	return 0;
 }
 
-bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const {
+bool ParseFilter::check_affect_weap(ObjectData *obj) const {
 	if (!affect_weap.empty()) {
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it) {
 			if (!CompareBits(obj->get_affect_flags(), weapon_affects, *it)) {
@@ -2548,7 +2548,7 @@ bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const {
 	return true;
 }
 
-std::string ParseFilter::show_obj_aff(OBJ_DATA *obj) {
+std::string ParseFilter::show_obj_aff(ObjectData *obj) {
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it) {
 			for (int i = 0; i < kMaxObjAffect; ++i) {
@@ -2575,7 +2575,7 @@ std::string ParseFilter::show_obj_aff(OBJ_DATA *obj) {
 	return " ";
 }
 
-bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const {
+bool ParseFilter::check_affect_apply(ObjectData *obj) const {
 	bool result = true;
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end() && result; ++it) {
@@ -2600,7 +2600,7 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const {
 	return result;
 }
 
-bool ParseFilter::check_affect_extra(OBJ_DATA *obj) const {
+bool ParseFilter::check_affect_extra(ObjectData *obj) const {
 	if (!affect_extra.empty()) {
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it) {
 			if (!CompareBits(GET_OBJ_EXTRA(obj), extra_bits, *it)) {
@@ -2611,7 +2611,7 @@ bool ParseFilter::check_affect_extra(OBJ_DATA *obj) const {
 	return true;
 }
 
-bool ParseFilter::check_owner(exchange_item_data *exch_obj) const {
+bool ParseFilter::check_owner(ExchangeItem *exch_obj) const {
 	if (owner.empty()
 		|| isname(owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(exch_obj)))) {
 		return true;
@@ -2619,7 +2619,7 @@ bool ParseFilter::check_owner(exchange_item_data *exch_obj) const {
 	return false;
 }
 
-bool ParseFilter::check_realtime(exchange_item_data *exch_obj) const {
+bool ParseFilter::check_realtime(ExchangeItem *exch_obj) const {
 	bool result = false;
 
 	if (new_timesign == '\0')
@@ -2635,7 +2635,7 @@ bool ParseFilter::check_realtime(exchange_item_data *exch_obj) const {
 	return result;
 }
 
-bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch) {
+bool ParseFilter::check(ObjectData *obj, CharacterData *ch) {
 	if (check_name(obj, ch)
 		&& check_type(obj)
 		&& check_state(obj)
@@ -2652,8 +2652,8 @@ bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch) {
 	return false;
 }
 
-bool ParseFilter::check(exchange_item_data *exch_obj) {
-	OBJ_DATA *obj = GET_EXCHANGE_ITEM(exch_obj);
+bool ParseFilter::check(ExchangeItem *exch_obj) {
+	ObjectData *obj = GET_EXCHANGE_ITEM(exch_obj);
 	if (check_name(obj)
 		&& check_owner(exch_obj)
 			//&& (owner_id == -1 || owner_id == GET_EXCHANGE_ITEM_SELLERID(exch_obj))
@@ -2713,7 +2713,7 @@ void sanity_check(void) {
 	}
 }
 
-short GET_REAL_LEVEL(const CHAR_DATA *ch)
+short GET_REAL_LEVEL(const CharacterData *ch)
 {
 	// обрезаем максимальный уровень мобов
 	if (IS_NPC(ch)) {
@@ -2728,27 +2728,27 @@ short GET_REAL_LEVEL(const CHAR_DATA *ch)
 	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLevelImmortal - 1);
 }
 
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> ch)
+short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> ch)
 {
 	return GET_REAL_LEVEL(ch.get());
 }
 
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> &ch)
+short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> &ch)
 {
 	return GET_REAL_LEVEL(ch.get());
 }
 
-short GET_REAL_REMORT(const CHAR_DATA *ch)
+short GET_REAL_REMORT(const CharacterData *ch)
 {
 	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> ch)
+short GET_REAL_REMORT(const std::shared_ptr<CharacterData> ch)
 {
 	return GET_REAL_REMORT(ch.get());
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch)
+short GET_REAL_REMORT(const std::shared_ptr<CharacterData> &ch)
 {
 	return GET_REAL_REMORT(ch.get());
 }

@@ -6,8 +6,8 @@
 
 #include <deque>
 
-class CHAR_DATA;    // to avoid inclusion of the "char.hpp"
-class TRIG_DATA;    // to avoid inclusion of the "dg_script.h"
+class CharacterData;    // to avoid inclusion of the "char.hpp"
+class Trigger;    // to avoid inclusion of the "dg_script.h"
 
 class CObjectPrototypes {
  private:
@@ -16,9 +16,9 @@ class CObjectPrototypes {
 
 		int number;        // number of existing units of this mob/obj //
 		int stored;        // number of things in rent file            //
-		int (*func)(CHAR_DATA *, void *, int, char *);
+		int (*func)(CharacterData *, void *, int, char *);
 		char *farg;        // string argument for special function     //
-		TRIG_DATA *proto;    // for triggers... the trigger     //
+		Trigger *proto;    // for triggers... the trigger     //
 		int zone;            // mob/obj zone rnum //
 		size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 	};

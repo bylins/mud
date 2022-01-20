@@ -23,7 +23,7 @@ struct idx_node {
 	// индекс сета
 	size_t set_idx;
 	// предметы на чаре из данного сета
-	std::vector<OBJ_DATA *> obj_list;
+	std::vector<ObjectData *> obj_list;
 	// кол-во уже активированных шмоток (для сообщений активации/деактиваций)
 	int activated_cnt;
 	// показывать или нет сообщения активации
@@ -37,9 +37,9 @@ class WornSets {
 	/// очистка перед каждым использованием
 	void clear();
 	/// заполнение списка сетов idx_list_ при обходе предметов на чаре
-	void add(OBJ_DATA *obj);
+	void add(ObjectData *obj);
 	/// проверка активаторов (вся магия здесь)
-	void check(CHAR_DATA *ch);
+	void check(CharacterData *ch);
 
  private:
 	std::array<idx_node, NUM_WEARS> idx_list_;
@@ -85,15 +85,15 @@ struct activ_sum {
 	bool empty() const;
 	void clear();
 
-	void update(CHAR_DATA *ch);
-	void apply_affects(CHAR_DATA *ch) const;
+	void update(CharacterData *ch);
+	void apply_affects(CharacterData *ch) const;
 
 	int get_skill(const ESkill num) const;
 	int calc_phys_dmg(int dam) const;
 	int calc_mage_dmg(int dam) const;
 
 	// аффекты (obj_flags.affects)
-	FLAG_DATA affects;
+	FlagData affects;
 	// APPLY_XXX аффекты (affected[kMaxObjAffect])
 	std::vector<obj_affected_type> apply;
 	// +скилы в обход текущего обхода шмоток
@@ -106,23 +106,23 @@ struct activ_sum {
 
 void load();
 void save();
-void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj);
-void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj);
+void print_off_msg(CharacterData *ch, ObjectData *obj);
+void print_identify(CharacterData *ch, const ObjectData *obj);
 void init_xhelp();
 std::set<int> vnum_list_add(int vnum);
 std::string get_name(size_t idx);
-bool is_set_item(OBJ_DATA *obj);
+bool is_set_item(ObjectData *obj);
 
 } // namespace obj_sets
 
 namespace obj_sets_olc {
 
-void parse_input(CHAR_DATA *ch, const char *arg);
+void parse_input(CharacterData *ch, const char *arg);
 
 } // namespace obj_sets_olc
 
-void do_slist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sedit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_slist(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_sedit(CharacterData *ch, char *argument, int cmd, int subcmd);
 
 #endif // OBJ_SETS_HPP_INCLUDED
 

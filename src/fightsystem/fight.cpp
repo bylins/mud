@@ -37,26 +37,26 @@
 #include "magic/magic_items.h"
 
 // Structures
-CHAR_DATA *combat_list = nullptr;    // head of l-list of fighting entities
-CHAR_DATA *next_combat_list = nullptr;
+CharacterData *combat_list = nullptr;    // head of l-list of fighting entities
+CharacterData *next_combat_list = nullptr;
 
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
-extern CHAR_DATA *mob_proto;
+extern CharacterData *mob_proto;
 extern DescriptorData *descriptor_list;
 // External procedures
-// void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void battle_affect_update(CHAR_DATA *ch);
-void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch);
-void go_touch(CHAR_DATA *ch, CHAR_DATA *vict);
-int npc_battle_scavenge(CHAR_DATA *ch);
-void npc_wield(CHAR_DATA *ch);
-void npc_armor(CHAR_DATA *ch);
+// void do_assist(CharacterData *ch, char *argument, int cmd, int subcmd);
+void battle_affect_update(CharacterData *ch);
+void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch);
+void go_touch(CharacterData *ch, CharacterData *vict);
+int npc_battle_scavenge(CharacterData *ch);
+void npc_wield(CharacterData *ch);
+void npc_armor(CharacterData *ch);
 
-void go_autoassist(CHAR_DATA *ch) {
+void go_autoassist(CharacterData *ch) {
 	struct Follower *k;
 	struct Follower *d;
-	CHAR_DATA *ch_lider = 0;
+	CharacterData *ch_lider = 0;
 	if (ch->has_master()) {
 		ch_lider = ch->get_master();
 	} else {
@@ -87,7 +87,7 @@ void go_autoassist(CHAR_DATA *ch) {
 
 // Добавил проверку на лаг, чтобы правильно работали Каменное проклятие и
 // Круг пустоты, ибо позицию делают меньше чем поз_станнед.
-void update_pos(CHAR_DATA *victim) {
+void update_pos(CharacterData *victim) {
 	if ((GET_HIT(victim) > 0) && (GET_POS(victim) > POS_STUNNED))
 		GET_POS(victim) = GET_POS(victim);
 	else if (GET_HIT(victim) > 0 && GET_WAIT(victim) <= 0 && !GET_MOB_HOLD(victim))
@@ -113,7 +113,7 @@ void update_pos(CHAR_DATA *victim) {
 		victim->drop_from_horse();
 }
 
-void set_battle_pos(CHAR_DATA *ch) {
+void set_battle_pos(CharacterData *ch) {
 	switch (GET_POS(ch)) {
 		case POS_STANDING: GET_POS(ch) = POS_FIGHTING;
 			break;
@@ -140,7 +140,7 @@ void set_battle_pos(CHAR_DATA *ch) {
 	}
 }
 
-void restore_battle_pos(CHAR_DATA *ch) {
+void restore_battle_pos(CharacterData *ch) {
 	switch (GET_POS(ch)) {
 		case POS_FIGHTING: GET_POS(ch) = POS_STANDING;
 			break;
@@ -161,7 +161,7 @@ void restore_battle_pos(CHAR_DATA *ch) {
 }
 
 // start one char fighting another (yes, it is horrible, I know... )
-void set_fighting(CHAR_DATA *ch, CHAR_DATA *vict) {
+void set_fighting(CharacterData *ch, CharacterData *vict) {
 	if (ch == vict)
 		return;
 
@@ -242,8 +242,8 @@ void set_fighting(CHAR_DATA *ch, CHAR_DATA *vict) {
 }
 
 // remove a char from the list of fighting entities
-void stop_fighting(CHAR_DATA *ch, int switch_others) {
-	CHAR_DATA *temp, *found;
+void stop_fighting(CharacterData *ch, int switch_others) {
+	CharacterData *temp, *found;
 
 	if (ch == next_combat_list)
 		next_combat_list = ch->next_fighting;
@@ -307,14 +307,14 @@ void stop_fighting(CHAR_DATA *ch, int switch_others) {
 	};
 }
 
-int GET_MAXDAMAGE(CHAR_DATA *ch) {
+int GET_MAXDAMAGE(CharacterData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD))
 		return 0;
 	else
 		return GET_DAMAGE(ch);
 }
 
-int GET_MAXCASTER(CHAR_DATA *ch) {
+int GET_MAXCASTER(CharacterData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
 		|| GET_WAIT(ch) > 0)
@@ -328,9 +328,9 @@ int GET_MAXCASTER(CHAR_DATA *ch) {
 #define POOR_CASTER  5
 #define MAX_PROBES   0
 
-int in_same_battle(CHAR_DATA *npc, CHAR_DATA *pc, int opponent) {
+int in_same_battle(CharacterData *npc, CharacterData *pc, int opponent) {
 	int ch_friend_npc, ch_friend_pc, vict_friend_npc, vict_friend_pc;
-	CHAR_DATA *vict, *npc_master, *pc_master, *ch_master, *vict_master;
+	CharacterData *vict, *npc_master, *pc_master, *ch_master, *vict_master;
 
 	if (npc == pc)
 		return (!opponent);
@@ -389,8 +389,8 @@ int in_same_battle(CHAR_DATA *npc, CHAR_DATA *pc, int opponent) {
 	return (!opponent);
 }
 
-CHAR_DATA *find_friend_cure(CHAR_DATA *caster, int spellnum) {
-	CHAR_DATA *victim = nullptr;
+CharacterData *find_friend_cure(CharacterData *caster, int spellnum) {
+	CharacterData *victim = nullptr;
 	int vict_val = 0, AFF_USED = 0;
 	switch (spellnum) {
 		case SPELL_CURE_LIGHT: AFF_USED = 80;
@@ -445,8 +445,8 @@ CHAR_DATA *find_friend_cure(CHAR_DATA *caster, int spellnum) {
 	return victim;
 }
 
-CHAR_DATA *find_friend(CHAR_DATA *caster, int spellnum) {
-	CHAR_DATA *victim = nullptr;
+CharacterData *find_friend(CharacterData *caster, int spellnum) {
+	CharacterData *victim = nullptr;
 	int vict_val = 0, spellreal = -1;
 	affects_list_t AFF_USED;
 	switch (spellnum) {
@@ -525,8 +525,8 @@ CHAR_DATA *find_friend(CHAR_DATA *caster, int spellnum) {
 	return victim;
 }
 
-CHAR_DATA *find_caster(CHAR_DATA *caster, int spellnum) {
-	CHAR_DATA *victim = nullptr;
+CharacterData *find_caster(CharacterData *caster, int spellnum) {
+	CharacterData *victim = nullptr;
 	int vict_val = 0, spellreal = -1;
 	affects_list_t AFF_USED;
 	switch (spellnum) {
@@ -599,8 +599,8 @@ CHAR_DATA *find_caster(CHAR_DATA *caster, int spellnum) {
 	return victim;
 }
 
-CHAR_DATA *find_affectee(CHAR_DATA *caster, int spellnum) {
-	CHAR_DATA *victim = nullptr;
+CharacterData *find_affectee(CharacterData *caster, int spellnum) {
+	CharacterData *victim = nullptr;
 	int vict_val = 0, spellreal = spellnum;
 
 	if (spellreal == SPELL_GROUP_ARMOR)
@@ -682,8 +682,8 @@ CHAR_DATA *find_affectee(CHAR_DATA *caster, int spellnum) {
 	return victim;
 }
 
-CHAR_DATA *find_opp_affectee(CHAR_DATA *caster, int spellnum) {
-	CHAR_DATA *victim = nullptr;
+CharacterData *find_opp_affectee(CharacterData *caster, int spellnum) {
+	CharacterData *victim = nullptr;
 	int vict_val = 0, spellreal = spellnum;
 
 	if (spellreal == SPELL_POWER_HOLD || spellreal == SPELL_MASS_HOLD)
@@ -735,8 +735,8 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA *caster, int spellnum) {
 	return victim;
 }
 
-CHAR_DATA *find_opp_caster(CHAR_DATA *caster) {
-	CHAR_DATA *victim = nullptr;
+CharacterData *find_opp_caster(CharacterData *caster) {
+	CharacterData *victim = nullptr;
 	int vict_val = 0;
 
 	for (const auto vict : world[IN_ROOM(caster)]->people) {
@@ -761,8 +761,8 @@ CHAR_DATA *find_opp_caster(CHAR_DATA *caster) {
 	return (victim);
 }
 
-CHAR_DATA *find_damagee(CHAR_DATA *caster) {
-	CHAR_DATA *victim = nullptr;
+CharacterData *find_damagee(CharacterData *caster) {
+	CharacterData *victim = nullptr;
 	int vict_val = 0;
 
 	if (GET_REAL_INT(caster) > number(10, 20)) {
@@ -803,9 +803,9 @@ CHAR_DATA *find_damagee(CHAR_DATA *caster) {
 	return victim;
 }
 
-CHAR_DATA *find_target(CHAR_DATA *ch) {
-	CHAR_DATA *currentVictim, *caster = nullptr, *best = nullptr;
-	CHAR_DATA *druid = nullptr, *cler = nullptr, *charmmage = nullptr;
+CharacterData *find_target(CharacterData *ch) {
+	CharacterData *currentVictim, *caster = nullptr, *best = nullptr;
+	CharacterData *druid = nullptr, *cler = nullptr, *charmmage = nullptr;
 
 	currentVictim = ch->get_fighting();
 
@@ -911,8 +911,8 @@ CHAR_DATA *find_target(CHAR_DATA *ch) {
 	return best;
 }
 
-CHAR_DATA *find_minhp(CHAR_DATA *caster) {
-	CHAR_DATA *victim = nullptr;
+CharacterData *find_minhp(CharacterData *caster) {
+	CharacterData *victim = nullptr;
 	int vict_val = 0;
 
 	if (GET_REAL_INT(caster) > number(10, 20)) {
@@ -946,7 +946,7 @@ CHAR_DATA *find_minhp(CHAR_DATA *caster) {
 	return victim;
 }
 
-CHAR_DATA *find_cure(CHAR_DATA *caster, CHAR_DATA *patient, int *spellnum) {
+CharacterData *find_cure(CharacterData *caster, CharacterData *patient, int *spellnum) {
 	if (GET_HP_PERC(patient) <= number(20, 33)) {
 		if (GET_SPELL_MEM(caster, SPELL_EXTRA_HITS))
 			*spellnum = SPELL_EXTRA_HITS;
@@ -970,11 +970,11 @@ CHAR_DATA *find_cure(CHAR_DATA *caster, CHAR_DATA *patient, int *spellnum) {
 		return (nullptr);
 }
 
-void mob_casting(CHAR_DATA *ch) {
-	CHAR_DATA *victim;
+void mob_casting(CharacterData *ch) {
+	CharacterData *victim;
 	int battle_spells[kMaxStringLength];
 	int spellnum, spells = 0, sp_num;
-	OBJ_DATA *item;
+	ObjectData *item;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
@@ -996,8 +996,8 @@ void mob_casting(CHAR_DATA *ch) {
 		&& GET_RACE(ch) == NPC_RACE_HUMAN
 		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))) {
 		switch (GET_OBJ_TYPE(item)) {
-			case OBJ_DATA::ITEM_WAND:
-			case OBJ_DATA::ITEM_STAFF:
+			case ObjectData::ITEM_WAND:
+			case ObjectData::ITEM_STAFF:
 				if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > SPELLS_COUNT) {
 					log("SYSERR: Не верно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ",
 						GET_OBJ_VNUM(item),
@@ -1012,7 +1012,7 @@ void mob_casting(CHAR_DATA *ch) {
 				}
 				break;
 
-			case OBJ_DATA::ITEM_POTION:
+			case ObjectData::ITEM_POTION:
 				for (int i = 1; i <= 3; i++) {
 					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > SPELLS_COUNT) {
 						log("SYSERR: Не верно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ",
@@ -1029,7 +1029,7 @@ void mob_casting(CHAR_DATA *ch) {
 				}
 				break;
 
-			case OBJ_DATA::ITEM_SCROLL:
+			case ObjectData::ITEM_SCROLL:
 				for (int i = 1; i <= 3; i++) {
 					if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > SPELLS_COUNT) {
 						log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ",
@@ -1104,8 +1104,8 @@ void mob_casting(CHAR_DATA *ch) {
 			&& item
 			&& GET_RACE(ch) == NPC_RACE_HUMAN) {
 			switch (GET_OBJ_TYPE(item)) {
-				case OBJ_DATA::ITEM_WAND:
-				case OBJ_DATA::ITEM_STAFF:
+				case ObjectData::ITEM_WAND:
+				case ObjectData::ITEM_STAFF:
 					if (GET_OBJ_VAL(item, 2) > 0
 						&& GET_OBJ_VAL(item, 3) == spellnum) {
 						employMagicItem(ch, item, GET_NAME(victim));
@@ -1113,7 +1113,7 @@ void mob_casting(CHAR_DATA *ch) {
 					}
 					break;
 
-				case OBJ_DATA::ITEM_POTION:
+				case ObjectData::ITEM_POTION:
 					for (int i = 1; i <= 3; i++) {
 						if (GET_OBJ_VAL(item, i) == spellnum) {
 							if (ch != victim) {
@@ -1129,7 +1129,7 @@ void mob_casting(CHAR_DATA *ch) {
 					}
 					break;
 
-				case OBJ_DATA::ITEM_SCROLL:
+				case ObjectData::ITEM_SCROLL:
 					for (int i = 1; i <= 3; i++) {
 						if (GET_OBJ_VAL(item, i) == spellnum) {
 							employMagicItem(ch, item, GET_NAME(victim));
@@ -1153,12 +1153,12 @@ void mob_casting(CHAR_DATA *ch) {
 
 #define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT) || GET_MOB_HOLD(ch) || GET_WAIT(ch)))
 
-void summon_mob_helpers(CHAR_DATA *ch) {
+void summon_mob_helpers(CharacterData *ch) {
 	for (struct Helper *helpee = GET_HELPER(ch);
 		 helpee; helpee = helpee->next) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
-		character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr &vict) {
+		character_list.foreach_on_copy([&](const CharacterData::shared_ptr &vict) {
 			if (!IS_NPC(vict)
 				|| GET_MOB_VNUM(vict) != helpee->mob_vnum
 				|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
@@ -1192,7 +1192,7 @@ void summon_mob_helpers(CHAR_DATA *ch) {
 }
 
 void check_mob_helpers() {
-	for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list) {
+	for (CharacterData *ch = combat_list; ch; ch = next_combat_list) {
 		next_combat_list = ch->next_fighting;
 		// Extract battler if no opponent
 		if (ch->get_fighting() == nullptr
@@ -1217,7 +1217,7 @@ void check_mob_helpers() {
 	}
 }
 
-void try_angel_rescue(CHAR_DATA *ch) {
+void try_angel_rescue(CharacterData *ch) {
 	struct Follower *k, *k_next;
 
 	for (k = ch->followers; k; k = k_next) {
@@ -1245,7 +1245,7 @@ void try_angel_rescue(CHAR_DATA *ch) {
 	}
 }
 
-void stand_up_or_sit(CHAR_DATA *ch) {
+void stand_up_or_sit(CharacterData *ch) {
 	if (IS_NPC(ch)) {
 		act("$n поднял$u.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_FIGHTING;
@@ -1260,7 +1260,7 @@ void stand_up_or_sit(CHAR_DATA *ch) {
 	}
 }
 
-void set_mob_skills_flags(CHAR_DATA *ch) {
+void set_mob_skills_flags(CharacterData *ch) {
 	bool sk_use = false;
 	// 1) parry
 	int do_this = number(0, 100);
@@ -1301,7 +1301,7 @@ void set_mob_skills_flags(CHAR_DATA *ch) {
 	}
 }
 
-int calc_initiative(CHAR_DATA *ch, bool mode) {
+int calc_initiative(CharacterData *ch, bool mode) {
 	int initiative = size_app[GET_POS_SIZE(ch)].initiative;
 	if (mode) //Добавим булевую переменную, чтобы счет все выдавал постоянное значение, а не каждый раз рандом
 	{
@@ -1346,16 +1346,16 @@ int calc_initiative(CHAR_DATA *ch, bool mode) {
 	return initiative;
 }
 
-void using_charmice_skills(CHAR_DATA *ch) {
+void using_charmice_skills(CharacterData *ch) {
 	// если чармис вооружен и может глушить - будем глушить
 	// если нет оружия но есть молот - будем молотить
 	const bool charmice_wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
 	const bool charmice_not_wielded = !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD));
-	OBJ_DATA *wielded = GET_EQ(ch, WEAR_WIELD);
+	ObjectData *wielded = GET_EQ(ch, WEAR_WIELD);
 	const bool charmice_wielded_for_throw = (GET_EQ(ch, WEAR_WIELD) && wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)); // Кудояр
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
-	CHAR_DATA *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : nullptr;
+	CharacterData *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : nullptr;
 
 	if (charmice_wielded_for_stupor && ch->get_skill(SKILL_STUPOR) > 0) { // оглушить
 		const bool skill_ready = ch->getSkillCooldown(SKILL_GLOBAL_COOLDOWN) <= 0 && ch->getSkillCooldown(SKILL_STUPOR) <= 0;
@@ -1424,7 +1424,7 @@ void using_charmice_skills(CHAR_DATA *ch) {
 	}
 }
 
-void using_mob_skills(CHAR_DATA *ch) {
+void using_mob_skills(CharacterData *ch) {
 	ESkill sk_num = SKILL_INVALID;
 	for (int sk_use = GET_REAL_INT(ch); MAY_LIKES(ch) && sk_use > 0; sk_use--) {
 		int do_this = number(0, 100);
@@ -1494,7 +1494,7 @@ void using_mob_skills(CHAR_DATA *ch) {
 				}
 			}
 
-			CHAR_DATA *caster = 0;
+			CharacterData *caster = 0;
 			if (i > 0) {
 				i = number(1, i);
 				for (const auto vict : world[ch->in_room]->people) {
@@ -1517,11 +1517,11 @@ void using_mob_skills(CHAR_DATA *ch) {
 		if (!(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
 			&& ch->has_master()
 			&& (sk_num == SKILL_RESCUE || sk_num == SKILL_PROTECT)) {
-			CHAR_DATA *caster = 0, *damager = 0;
+			CharacterData *caster = 0, *damager = 0;
 			int dumb_mob = (int) (GET_REAL_INT(ch) < number(5, 20));
 
 			for (const auto attacker : world[ch->in_room]->people) {
-				CHAR_DATA *vict = attacker->get_fighting();    // выяснение жертвы
+				CharacterData *vict = attacker->get_fighting();    // выяснение жертвы
 				if (!vict    // жертвы нет
 					|| (!IS_NPC(vict) // жертва - не моб
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
@@ -1569,7 +1569,7 @@ void using_mob_skills(CHAR_DATA *ch) {
 		if (sk_num == SKILL_BASH
 			|| sk_num == SKILL_CHOPOFF
 			|| sk_num == SKILL_DISARM) {
-			CHAR_DATA *caster = 0, *damager = 0;
+			CharacterData *caster = 0, *damager = 0;
 
 			if (GET_REAL_INT(ch) < number(15, 25)) {
 				caster = ch->get_fighting();
@@ -1673,7 +1673,7 @@ void using_mob_skills(CHAR_DATA *ch) {
 	}
 }
 
-void add_attackers_round(CHAR_DATA *ch) {
+void add_attackers_round(CharacterData *ch) {
 	for (const auto i : world[ch->in_room]->people) {
 		if (!IS_NPC(i) && i->desc) {
 			ch->add_attacker(i, ATTACKER_ROUNDS, 1);
@@ -1682,7 +1682,7 @@ void add_attackers_round(CHAR_DATA *ch) {
 }
 
 void update_round_affs() {
-	for (CHAR_DATA *ch = combat_list; ch; ch = ch->next_fighting) {
+	for (CharacterData *ch = combat_list; ch; ch = ch->next_fighting) {
 		if (ch->in_room == kNowhere)
 			continue;
 
@@ -1721,7 +1721,7 @@ void update_round_affs() {
 	}
 }
 
-bool using_extra_attack(CHAR_DATA *ch) {
+bool using_extra_attack(CharacterData *ch) {
 	bool used = false;
 
 	switch (ch->get_extra_attack_mode()) {
@@ -1751,7 +1751,7 @@ bool using_extra_attack(CHAR_DATA *ch) {
 	return used;
 }
 
-void process_npc_attack(CHAR_DATA *ch) {
+void process_npc_attack(CharacterData *ch) {
 	// if (GET_AF_BATTLE(ch,EAF_MULTYPARRY))
 	//    continue;
 
@@ -1845,7 +1845,7 @@ void process_npc_attack(CHAR_DATA *ch) {
 	}
 }
 
-void process_player_attack(CHAR_DATA *ch, int min_init) {
+void process_player_attack(CharacterData *ch, int min_init) {
 	if (GET_POS(ch) > POS_STUNNED
 		&& GET_POS(ch) < POS_FIGHTING
 		&& GET_AF_BATTLE(ch, EAF_STAND)) {
@@ -1931,7 +1931,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON
+		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjectData::ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, EAF_SECOND)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
 		&& (IS_IMMORTAL(ch)
@@ -1961,7 +1961,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init) {
 }
 
 // * \return false - чар не участвует в расчете инициативы
-bool stuff_before_round(CHAR_DATA *ch) {
+bool stuff_before_round(CharacterData *ch) {
 	// Initialize initiative
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
@@ -2030,10 +2030,10 @@ void perform_violence() {
 	check_mob_helpers();
 
 	// храним список писей, которым надо показать состояние группы по msdp
-	std::unordered_set<CHAR_DATA *> msdp_report_chars;
+	std::unordered_set<CharacterData *> msdp_report_chars;
 
 	//* действия до раунда и расчет инициативы
-	for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list) {
+	for (CharacterData *ch = combat_list; ch; ch = next_combat_list) {
 		next_combat_list = ch->next_fighting;
 
 		if (ch->desc) {
@@ -2069,7 +2069,7 @@ void perform_violence() {
 
 	//* обработка раунда по очередности инициативы
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
-		for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list) {
+		for (CharacterData *ch = combat_list; ch; ch = next_combat_list) {
 			next_combat_list = ch->next_fighting;
 			if (INITIATIVE(ch) != initiative || ch->in_room == kNowhere) {
 				continue;
@@ -2126,8 +2126,8 @@ void perform_violence() {
 // returns 2 if only victim was outcasted
 // returns 4 if both were outcasted
 // returns 0 if none was outcasted
-int check_agro_follower(CHAR_DATA *ch, CHAR_DATA *victim) {
-	CHAR_DATA *cleader, *vleader;
+int check_agro_follower(CharacterData *ch, CharacterData *victim) {
+	CharacterData *cleader, *vleader;
 	int return_value = 0;
 
 	if (ch == victim) {
@@ -2230,9 +2230,9 @@ int check_agro_follower(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return return_value;
 }
 
-int calc_leadership(CHAR_DATA *ch) {
+int calc_leadership(CharacterData *ch) {
 	int prob, percent;
-	CHAR_DATA *leader = 0;
+	CharacterData *leader = 0;
 
 	if (IS_NPC(ch)
 		|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)

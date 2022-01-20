@@ -16,10 +16,10 @@ Characters::~Characters() {
 }
 
 void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData &character, const MobRnum old_rnum) {
-	const auto character_ptr = dynamic_cast<CHAR_DATA *>(&character);
+	const auto character_ptr = dynamic_cast<CharacterData *>(&character);
 	if (nullptr == character_ptr) {
 		log("LOGIC ERROR: Character object passed to RNUM change observer "
-			"is not an instance of CHAR_DATA class. Old RNUM: %d.",
+			"is not an instance of CharacterData class. Old RNUM: %d.",
 			old_rnum);
 
 		return;
@@ -40,7 +40,7 @@ Characters::Characters() {
 	m_rnum_change_observer = std::make_shared<CL_RNumChangeObserver>(*this);
 }
 
-void Characters::push_front(const CHAR_DATA::shared_ptr &character) {
+void Characters::push_front(const CharacterData::shared_ptr &character) {
 	m_list.push_front(character);
 	m_character_raw_ptr_to_character_ptr[character.get()] = m_list.begin();
 
@@ -87,7 +87,7 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 	std::for_each(list.begin(), list.end(), function);
 }
 
-void Characters::remove(CHAR_DATA *character) {
+void Characters::remove(CharacterData *character) {
 	const auto index_i = m_character_raw_ptr_to_character_ptr.find(character);
 	if (index_i == m_character_raw_ptr_to_character_ptr.end()) {
 		const size_t BUFFER_SIZE = 1024;
@@ -129,7 +129,7 @@ void Characters::purge() {
 	m_purge_list.clear();
 }
 
-bool Characters::has(const CHAR_DATA *character) const {
+bool Characters::has(const CharacterData *character) const {
 	return m_character_raw_ptr_to_character_ptr.find(character) != m_character_raw_ptr_to_character_ptr.end()
 		|| m_purge_set.find(character) != m_purge_set.end();
 }

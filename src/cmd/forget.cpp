@@ -11,7 +11,7 @@ inline bool in_mem(char *arg) {
 			!strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
 }
 
-void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_forget(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *s = 0, *t = 0;
 	int spellnum, is_in_mem;
 

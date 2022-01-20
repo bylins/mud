@@ -49,23 +49,23 @@ typedef std::map<std::string, WaitingTitlePtr> TitleListType;
 TitleListType title_list;
 TitleListType temp_title_list;
 
-bool check_title(const std::string &text, CHAR_DATA *ch);
-bool check_pre_title(std::string text, CHAR_DATA *ch);
-bool check_alphabet(const std::string &text, CHAR_DATA *ch, const std::string &allowed);
-bool is_new_petition(CHAR_DATA *ch);
-bool manage_title_list(std::string &name, bool action, CHAR_DATA *ch);
-void set_player_title(CHAR_DATA *ch, const std::string &pre_title, const std::string &title, const char *god);
-const char *print_help_string(CHAR_DATA *ch);
+bool check_title(const std::string &text, CharacterData *ch);
+bool check_pre_title(std::string text, CharacterData *ch);
+bool check_alphabet(const std::string &text, CharacterData *ch, const std::string &allowed);
+bool is_new_petition(CharacterData *ch);
+bool manage_title_list(std::string &name, bool action, CharacterData *ch);
+void set_player_title(CharacterData *ch, const std::string &pre_title, const std::string &title, const char *god);
+const char *print_help_string(CharacterData *ch);
 std::string print_agree_string(bool new_petittion);
-std::string print_title_string(CHAR_DATA *ch, const std::string &pre_title, const std::string &title);
+std::string print_title_string(CharacterData *ch, const std::string &pre_title, const std::string &title);
 std::string print_title_string(const std::string &name, const std::string &pre_title, const std::string &title);
-void do_title_empty(CHAR_DATA *ch);
+void do_title_empty(CharacterData *ch);
 DescriptorData *send_result_message(long unique, bool action);
 
 } // namespace TitleSystem
 
 // * Команда титул, title. ACMD(do_title), для игроков и для иммов все одной командой.
-void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void TitleSystem::do_title(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) return;
 
 	if (!Privilege::check_flag(ch, Privilege::TITLE) && PLR_FLAGGED(ch, PLR_NOTITLE)) {
@@ -87,7 +87,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 		boost::trim(buffer);
 		if (CompareParam(buffer, "удалить")) {
 			boost::trim(buffer2);
-			CHAR_DATA *vict = get_player_pun(ch, buffer2, FIND_CHAR_WORLD);
+			CharacterData *vict = get_player_pun(ch, buffer2, FIND_CHAR_WORLD);
 			if (!vict) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
@@ -204,7 +204,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 * для игроков 25+ левел или наличие реморта, иммов не касается
 * \return 0 не сканало, 1 сканало
 */
-bool TitleSystem::check_title(const std::string &text, CHAR_DATA *ch) {
+bool TitleSystem::check_title(const std::string &text, CharacterData *ch) {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return 0;
 
 	if (GET_REAL_LEVEL(ch) < 25 && !GET_REAL_REMORT(ch) && !IS_GOD(ch) && !Privilege::check_flag(ch, Privilege::TITLE)) {
@@ -221,7 +221,7 @@ bool TitleSystem::check_title(const std::string &text, CHAR_DATA *ch) {
 * до 3 букв - считаем как предлог. Не более 3 слов и 3 предлогов, иммов не касается.
 * \return 0 не сканало, 1 сканало
 */
-bool TitleSystem::check_pre_title(std::string text, CHAR_DATA *ch) {
+bool TitleSystem::check_pre_title(std::string text, CharacterData *ch) {
 	if (!check_alphabet(text, ch, " .-?Ёё")) return 0;
 
 	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) return 1;
@@ -257,7 +257,7 @@ bool TitleSystem::check_pre_title(std::string text, CHAR_DATA *ch) {
 * \param allowed - строка с допустимыми символами помимо русского алфавита (для титула и предтитула разная)
 * \return 0 не сканало, 1 сканало
 */
-bool TitleSystem::check_alphabet(const std::string &text, CHAR_DATA *ch, const std::string &allowed) {
+bool TitleSystem::check_alphabet(const std::string &text, CharacterData *ch, const std::string &allowed) {
 	int i = 0;
 	std::string::size_type idx;
 	for (std::string::const_iterator it = text.begin(); it != text.end(); ++it, ++i) {
@@ -289,7 +289,7 @@ DescriptorData *TitleSystem::send_result_message(long unique, bool action) {
 * Оповещение игрока об одобрении, если он онлайн. Запись в файл, если оффлайн.
 * \param action - 0 запрет титула, 1 одобрение
 */
-bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *ch) {
+bool TitleSystem::manage_title_list(std::string &name, bool action, CharacterData *ch) {
 	name_convert(name);
 	TitleListType::iterator it = title_list.find(name);
 	if (it != title_list.end()) {
@@ -338,7 +338,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 }
 
 // * Вывод иммам титулов, ждущих одобрения
-bool TitleSystem::show_title_list(CHAR_DATA *ch) {
+bool TitleSystem::show_title_list(CharacterData *ch) {
 	if (title_list.empty())
 		return false;
 
@@ -366,7 +366,7 @@ std::string TitleSystem::print_title_string(const std::string &name,
 }
 
 // * Распечатка титула игроку, как оно будет видно в игре с учетом цвета пк
-std::string TitleSystem::print_title_string(CHAR_DATA *ch, const std::string &pre_title, const std::string &title) {
+std::string TitleSystem::print_title_string(CharacterData *ch, const std::string &pre_title, const std::string &title) {
 	std::stringstream out;
 	out << CCPK(ch, C_NRM, ch);
 	if (!pre_title.empty())
@@ -383,7 +383,7 @@ std::string TitleSystem::print_title_string(CHAR_DATA *ch, const std::string &pr
 * \param ch - кому ставим
 * \param god - имя одобрившего титул имма
 */
-void TitleSystem::set_player_title(CHAR_DATA *ch,
+void TitleSystem::set_player_title(CharacterData *ch,
 								   const std::string &pre_title,
 								   const std::string &title,
 								   const char *god) {
@@ -396,7 +396,7 @@ void TitleSystem::set_player_title(CHAR_DATA *ch,
 }
 
 // * Для распечатки разных подсказок имму и игроку
-const char *TitleSystem::print_help_string(CHAR_DATA *ch) {
+const char *TitleSystem::print_help_string(CharacterData *ch) {
 	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE))
 		return GOD_DO_TITLE_FORMAT;
 
@@ -444,7 +444,7 @@ void TitleSystem::load_title_list() {
 * Для решения вопроса брать или нет денег за заявку (не берем, если уже была необработанная заявка)
 * \return 0 от данного игрока в обработке уже есть заявка, 1 новая заявка
 */
-bool TitleSystem::is_new_petition(CHAR_DATA *ch) {
+bool TitleSystem::is_new_petition(CharacterData *ch) {
 	TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
 	if (it != temp_title_list.end())
 		return 0;
@@ -465,7 +465,7 @@ std::string TitleSystem::print_agree_string(bool new_petition) {
 }
 
 // * Обработка пустого вызова команды титул
-void TitleSystem::do_title_empty(CHAR_DATA *ch) {
+void TitleSystem::do_title_empty(CharacterData *ch) {
 	if ((IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) && !title_list.empty())
 		show_title_list(ch);
 	else {

@@ -48,11 +48,11 @@ struct SaveInfo {
 	std::vector<SaveTimeInfo> time;
 };
 
-OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error);
-void write_one_object(std::stringstream &out, OBJ_DATA *object, int location);
-int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int display, int factor, int *totalcost);
-void Crash_rentsave(CHAR_DATA *ch, int cost);
-void Crash_crashsave(CHAR_DATA *ch);
+ObjectData::shared_ptr read_one_object_new(char **data, int *error);
+void write_one_object(std::stringstream &out, ObjectData *object, int location);
+int Crash_offer_rent(CharacterData *ch, CharacterData *receptionist, int display, int factor, int *totalcost);
+void Crash_rentsave(CharacterData *ch, int cost);
+void Crash_crashsave(CharacterData *ch);
 int Crash_write_timer(std::size_t index);
 void Crash_rent_time(int dectime);
 void Crash_save_all();

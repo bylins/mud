@@ -16,14 +16,14 @@
 
 #include <cstring>
 
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 namespace mail {
 
 bool has_mail(int uid);
 void add(int to_uid, int from_uid, const char *message);
 void add_by_id(int to_uid, int from_uid, char *message);
-void receive(CHAR_DATA *ch, CHAR_DATA *mailman);
+void receive(CharacterData *ch, CharacterData *mailman);
 void save();
 void load();
 size_t get_msg_count();

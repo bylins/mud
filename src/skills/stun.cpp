@@ -9,7 +9,7 @@
 
 using namespace FightSystem;
 
-void do_stun(CHAR_DATA *ch, char *argument, int, int) {
+void do_stun(CharacterData *ch, char *argument, int, int) {
 	if (ch->get_skill(SKILL_STUN) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -35,7 +35,7 @@ void do_stun(CHAR_DATA *ch, char *argument, int, int) {
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кто это так сильно путается у вас под руками?\r\n", ch);
 		return;
@@ -54,7 +54,7 @@ void do_stun(CHAR_DATA *ch, char *argument, int, int) {
 	go_stun(ch, vict);
 }
 
-void go_stun(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_stun(CharacterData *ch, CharacterData *vict) {
 	Timed timed;
 	if (GET_SKILL(ch, SKILL_STUN) < 150) {
 		ImproveSkill(ch, SKILL_STUN, true, vict);

@@ -33,8 +33,8 @@
 //#include <cmath>
 
 // external functs
-void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
-int find_eq_pos(CHAR_DATA *ch, OBJ_DATA *obj, char *arg);
+void set_wait(CharacterData *ch, int waittime, int victim_in_room);
+int find_eq_pos(CharacterData *ch, ObjectData *obj, char *arg);
 // local functions
 void check_ice(int room);
 
@@ -51,7 +51,7 @@ const char *DirIs[] =
 	};
 
 // check ice in room
-int check_death_ice(int room, CHAR_DATA * /*ch*/) {
+int check_death_ice(int room, CharacterData * /*ch*/) {
 	int sector, mass = 0, result = false;
 
 	if (room == kNowhere)
@@ -91,8 +91,8 @@ int check_death_ice(int room, CHAR_DATA * /*ch*/) {
 }
 
 // simple function to determine if char can walk on water
-int has_boat(CHAR_DATA *ch) {
-	OBJ_DATA *obj;
+int has_boat(CharacterData *ch) {
+	ObjectData *obj;
 	int i;
 
 	//if (ROOM_IDENTITY(ch->in_room) == DEAD_SEA)
@@ -112,7 +112,7 @@ int has_boat(CHAR_DATA *ch) {
 
 	// non-wearable boats in inventory will do it
 	for (obj = ch->carrying; obj; obj = obj->get_next_content()) {
-		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_BOAT
+		if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_BOAT
 			&& (find_eq_pos(ch, obj, nullptr) < 0)) {
 			return true;
 		}
@@ -121,7 +121,7 @@ int has_boat(CHAR_DATA *ch) {
 	// and any boat you're wearing will do it too
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)
-			&& GET_OBJ_TYPE(GET_EQ(ch, i)) == OBJ_DATA::ITEM_BOAT) {
+			&& GET_OBJ_TYPE(GET_EQ(ch, i)) == ObjectData::ITEM_BOAT) {
 			return true;
 		}
 	}
@@ -129,7 +129,7 @@ int has_boat(CHAR_DATA *ch) {
 	return false;
 }
 
-void make_visible(CHAR_DATA *ch, const EAffectFlag affect) {
+void make_visible(CharacterData *ch, const EAffectFlag affect) {
 	char to_room[kMaxStringLength], to_char[kMaxStringLength];
 
 	*to_room = *to_char = 0;
@@ -153,7 +153,7 @@ void make_visible(CHAR_DATA *ch, const EAffectFlag affect) {
 		act(to_room, false, ch, nullptr, nullptr, TO_ROOM);
 }
 
-int skip_hiding(CHAR_DATA *ch, CHAR_DATA *vict) {
+int skip_hiding(CharacterData *ch, CharacterData *vict) {
 	int percent, prob;
 
 	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) || affected_by_spell(ch, SPELL_HIDE))) {
@@ -182,7 +182,7 @@ int skip_hiding(CHAR_DATA *ch, CHAR_DATA *vict) {
 	return (false);
 }
 
-int skip_camouflage(CHAR_DATA *ch, CHAR_DATA *vict) {
+int skip_camouflage(CharacterData *ch, CharacterData *vict) {
 	int percent, prob;
 
 	if (MAY_SEE(ch, vict, ch)
@@ -213,7 +213,7 @@ int skip_camouflage(CHAR_DATA *ch, CHAR_DATA *vict) {
 	return (false);
 }
 
-int skip_sneaking(CHAR_DATA *ch, CHAR_DATA *vict) {
+int skip_sneaking(CharacterData *ch, CharacterData *vict) {
 	int percent, prob, absolute_fail;
 	bool try_fail;
 
@@ -301,7 +301,7 @@ int real_mountains_paths_sect(int sect) {
 	return sect;
 }
 
-int calculate_move_cost(CHAR_DATA *ch, int dir) {
+int calculate_move_cost(CharacterData *ch, int dir) {
 	// move points needed is avg. move loss for src and destination sect type
 	auto ch_inroom = real_sector(ch->in_room);
 	auto ch_toroom = real_sector(EXIT(ch, dir)->to_room());
@@ -329,7 +329,7 @@ int calculate_move_cost(CHAR_DATA *ch, int dir) {
 	return need_movement;
 }
 
-int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
+int legal_dir(CharacterData *ch, int dir, int need_specials_check, int show_msg) {
 	buf2[0] = '\0';
 	if (need_specials_check && special(ch, dir + 1, buf2, 1))
 		return (false);
@@ -538,7 +538,7 @@ int legal_dir(CHAR_DATA *ch, int dir, int need_specials_check, int show_msg) {
 #define MAX_DRUNK_SONG 6
 #define MAX_DRUNK_VOICE 5
 
-void performDunkSong(CHAR_DATA *ch) {
+void performDunkSong(CharacterData *ch) {
 	const char *drunk_songs[MAX_DRUNK_SONG] = {"\"Шумел камыш, и-к-к..., деревья гнулися\"",
 											   "\"Куда ты, тропинка, меня завела\"",
 											   "\"Пабабам, пара пабабам\"",
@@ -565,7 +565,7 @@ void performDunkSong(CHAR_DATA *ch) {
 	}
 }
 
-int calcDrunkDirection(CHAR_DATA *ch, int direction, bool need_specials_check) {
+int calcDrunkDirection(CharacterData *ch, int direction, bool need_specials_check) {
 
 	int drunk_move = direction;
 	//пересчет направления, в зависимости от степени опьянения
@@ -596,12 +596,12 @@ int calcDrunkDirection(CHAR_DATA *ch, int direction, bool need_specials_check) {
 	return drunk_move;
 }
 
-int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *leader, bool is_flee) {
-	struct track_data *track;
+int do_simple_move(CharacterData *ch, int dir, int need_specials_check, CharacterData *leader, bool is_flee) {
+	struct TrackData *track;
 	RoomRnum was_in, go_to;
 	int i, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
 	int mob_rnum = -1;
-	CHAR_DATA *horse = nullptr;
+	CharacterData *horse = nullptr;
 
 	if (ch->purged()) {
 		return false;
@@ -909,7 +909,7 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
 	return direction;
 }
 
-int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, CHAR_DATA *master) {
+int perform_move(CharacterData *ch, int dir, int need_specials_check, int checkmob, CharacterData *master) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BANDAGE)) {
 		send_to_char("Перевязка была прервана!\r\n", ch);
 		affect_from_char(ch, SPELL_BANDAGE);
@@ -977,7 +977,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	return (false);
 }
 
-void do_move(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
+void do_move(CharacterData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	/*
 	 * This is basically a mapping of cmd numbers to perform_move indices.
 	 * It cannot be done in perform_move because perform_move is called
@@ -986,7 +986,7 @@ void do_move(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	perform_move(ch, subcmd - 1, 0, true, nullptr);
 }
 
-void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_hidemove(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int dir = 0, sneaking = affected_by_spell(ch, SPELL_SNEAK);
 
 	skip_spaces(&argument);
@@ -1009,7 +1009,7 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (!sneaking) {
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = SPELL_SNEAK;
 		af.location = EApplyLocation::APPLY_NONE;
 		af.modifier = 0;
@@ -1027,7 +1027,7 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 #define DOOR_IS_OPENABLE(ch, obj, door)    ((obj) ? \
-            ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER) && \
+            ((GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER) && \
             OBJVAL_FLAGGED(obj, CONT_CLOSEABLE)) :\
             (EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
 #define DOOR_IS(ch, door)    ((EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
@@ -1055,7 +1055,7 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
             (GET_OBJ_VAL(obj,3)) :\
             (EXIT(ch, door)->lock_complexity))
 
-int find_door(CHAR_DATA *ch, const char *type, char *dir, DOOR_SCMD scmd) {
+int find_door(CharacterData *ch, const char *type, char *dir, DOOR_SCMD scmd) {
 	int door;
 	bool found = false;
 
@@ -1116,7 +1116,7 @@ int find_door(CHAR_DATA *ch, const char *type, char *dir, DOOR_SCMD scmd) {
 
 }
 
-int has_key(CHAR_DATA *ch, ObjVnum key) {
+int has_key(CharacterData *ch, ObjVnum key) {
 	for (auto o = ch->carrying; o; o = o->get_next_content()) {
 		if (GET_OBJ_VNUM(o) == key && key != -1) {
 			return (true);
@@ -1166,7 +1166,7 @@ const int flags_door[] =
 
 #define EXITN(room, door)        (world[room]->dir_option[door])
 
-inline void OPEN_DOOR(const RoomRnum room, OBJ_DATA *obj, const int door) {
+inline void OPEN_DOOR(const RoomRnum room, ObjectData *obj, const int door) {
 	if (obj) {
 		auto v = obj->get_val(1);
 		TOGGLE_BIT(v, CONT_CLOSED);
@@ -1176,7 +1176,7 @@ inline void OPEN_DOOR(const RoomRnum room, OBJ_DATA *obj, const int door) {
 	}
 }
 
-inline void LOCK_DOOR(const RoomRnum room, OBJ_DATA *obj, const int door) {
+inline void LOCK_DOOR(const RoomRnum room, ObjectData *obj, const int door) {
 	if (obj) {
 		auto v = obj->get_val(1);
 		TOGGLE_BIT(v, CONT_LOCKED);
@@ -1188,7 +1188,7 @@ inline void LOCK_DOOR(const RoomRnum room, OBJ_DATA *obj, const int door) {
 
 // для кейсов
 extern std::vector<TreasureCase> cases;;
-void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
+void do_doorcmd(CharacterData *ch, ObjectData *obj, int door, DOOR_SCMD scmd) {
 	bool deaf = false;
 	int other_room = 0;
 	int r_num, vnum;
@@ -1200,7 +1200,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 		deaf = true;
 	// ищем парную дверь в другой клетке
-	ROOM_DATA::exit_data_ptr back;
+	RoomData::exit_data_ptr back;
 	if (!obj && EXIT(ch, door) && ((other_room = EXIT(ch, door)->to_room()) != kNowhere)) {
 		back = world[other_room]->dir_option[rev_dir[door]];
 		if (back) {
@@ -1292,8 +1292,8 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 						// сначала удалим ключ из инвентаря
 						int vnum_key = GET_OBJ_VAL(obj, 2);
 						// первый предмет в инвентаре
-						OBJ_DATA *obj_inv = ch->carrying;
-						OBJ_DATA *i;
+						ObjectData *obj_inv = ch->carrying;
+						ObjectData *i;
 						for (i = obj_inv; i; i = i->get_next_content()) {
 							if (GET_OBJ_VNUM(i) == vnum_key) {
 								extract_obj(i);
@@ -1352,7 +1352,7 @@ void do_doorcmd(CHAR_DATA *ch, OBJ_DATA *obj, int door, DOOR_SCMD scmd) {
 	}
 }
 
-bool ok_pick(CHAR_DATA *ch, ObjVnum /*keynum*/, OBJ_DATA *obj, int door, int scmd) {
+bool ok_pick(CharacterData *ch, ObjVnum /*keynum*/, ObjectData *obj, int door, int scmd) {
 	const bool pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
 
 	if (scmd != SCMD_PICK) {
@@ -1401,12 +1401,12 @@ bool ok_pick(CHAR_DATA *ch, ObjVnum /*keynum*/, OBJ_DATA *obj, int door, int scm
 	return pick_success;
 }
 
-void do_gen_door(CHAR_DATA *ch, char *argument, int, int subcmd) {
+void do_gen_door(CharacterData *ch, char *argument, int, int subcmd) {
 	int door = -1;
 	ObjVnum keynum;
 	char type[kMaxInputLength], dir[kMaxInputLength];
-	OBJ_DATA *obj = nullptr;
-	CHAR_DATA *victim = nullptr;
+	ObjectData *obj = nullptr;
+	CharacterData *victim = nullptr;
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
@@ -1495,7 +1495,7 @@ void do_gen_door(CHAR_DATA *ch, char *argument, int, int subcmd) {
 	}
 }
 
-void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_enter(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int door, from_room;
 	const char *p_str = "пентаграмма";
 	struct Follower *k, *k_next;
@@ -1645,7 +1645,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_stand(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_stand(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (GET_POS(ch) > POS_SLEEPING && AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {
 		send_to_char("Вы сладко зевнули и решили еще немного подремать.\r\n", ch);
 		act("$n сладко зевнул$a и решил$a еще немного подремать.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
@@ -1679,7 +1679,7 @@ void do_stand(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_sit(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_sit(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->ahorse()) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), TO_CHAR);
 		return;
@@ -1706,7 +1706,7 @@ void do_sit(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_rest(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_rest(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->ahorse()) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), TO_CHAR);
 		return;
@@ -1733,7 +1733,7 @@ void do_rest(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_sleep(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_sleep(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (GET_REAL_LEVEL(ch) >= kLevelImmortal) {
 		send_to_char("Не время вам спать, родина в опасности!\r\n", ch);
 		return;
@@ -1760,8 +1760,8 @@ void do_sleep(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wake(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	CHAR_DATA *vict;
+void do_wake(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+	CharacterData *vict;
 	int self = 0;
 
 	one_argument(argument, arg);

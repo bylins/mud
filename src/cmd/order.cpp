@@ -3,11 +3,11 @@
 #include "handler.h"
 
 // ****************** CHARM ORDERS PROCEDURES
-void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_order(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], message[kMaxInputLength];
 	bool found = false;
 	RoomRnum org_room;
-	CHAR_DATA *vict;
+	CharacterData *vict;
 
 	if (!ch)
 		return;
@@ -70,7 +70,7 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			org_room = ch->in_room;
 			act("$n отдал$g приказ.", false, ch, 0, 0, TO_ROOM | CHECK_DEAF);
 
-			CHAR_DATA::followers_list_t followers = ch->get_followers_list();
+			CharacterData::followers_list_t followers = ch->get_followers_list();
 
 			for (const auto follower : followers) {
 				if (org_room != follower->in_room) {

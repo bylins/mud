@@ -8,7 +8,7 @@
 
 using namespace FightSystem;
 
-void go_iron_wind(CHAR_DATA *ch, CHAR_DATA *victim) {
+void go_iron_wind(CharacterData *ch, CharacterData *victim) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -29,7 +29,7 @@ void go_iron_wind(CHAR_DATA *ch, CHAR_DATA *victim) {
 	parry_override(ch);
 
 	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", false, ch, 0, victim, TO_CHAR);
-	OBJ_DATA *weapon;
+	ObjectData *weapon;
 	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS))) {
 		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!");
 		strcpy(buf2, "$N взревел$G и ринул$U на вас, бешено размахивая $o4!");
@@ -53,7 +53,7 @@ void go_iron_wind(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 }
 
-void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_iron_wind(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_IRON_WIND)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -75,7 +75,7 @@ void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы слишком здравомыслящи для этого...\r\n", ch);
 		return;
 	};
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вам угодно изрубить в капусту?\r\n", ch);
 		return;

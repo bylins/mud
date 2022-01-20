@@ -1,9 +1,9 @@
 #ifndef BYLINS_WARCRY_H
 #define BYLINS_WARCRY_H
 
-class CHAR_DATA;
+class CharacterData;
 
-void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_WARCRY_H
 

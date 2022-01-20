@@ -33,7 +33,7 @@ std::string time_format() {
 * Формирование имени болтающего/орущего при записе во 'вспом все' в обход act().
 * Иммы видны всегда, кто-ты с большой буквы.
 */
-std::string format_gossip_name(CHAR_DATA *ch, CHAR_DATA *vict) {
+std::string format_gossip_name(CharacterData *ch, CharacterData *vict) {
 	if (ch->get_name().empty()) {
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 		return "";
@@ -47,7 +47,7 @@ std::string format_gossip_name(CHAR_DATA *ch, CHAR_DATA *vict) {
 * Болтовня ch, пишущаяся во вспом все к vict'иму. Изврат конечно, но переделывать
 * систему в do_gen_comm чет облом пока, а возвращать сформированную строку из act() не хочется.
 */
-std::string format_gossip(CHAR_DATA *ch, CHAR_DATA *vict, int cmd, const char *argument) {
+std::string format_gossip(CharacterData *ch, CharacterData *vict, int cmd, const char *argument) {
 	return str(boost::format("%1%%2% %3%%4% : '%5%'%6%\r\n")
 				   % (cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM))
 				   % format_gossip_name(ch, vict).c_str()
@@ -187,7 +187,7 @@ unsigned int CharRemember::get_num_str() const {
 	return num_str_;
 }
 
-void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_remember_char(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 
 	if (IS_NPC(ch))

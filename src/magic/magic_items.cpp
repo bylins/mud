@@ -12,19 +12,19 @@ const short DEFAULT_WAND_LVL = 12;
 
 extern char cast_argument[kMaxInputLength];
 
-void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
+void employMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 	int i, spellnum;
 	int level;
-	CHAR_DATA *tch = nullptr;
-	OBJ_DATA *tobj = nullptr;
-	ROOM_DATA *troom = nullptr;
+	CharacterData *tch = nullptr;
+	ObjectData *tobj = nullptr;
+	RoomData *troom = nullptr;
 
 	one_argument(argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0) {
-		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF) {
+		if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_STAFF) {
 			level = DEFAULT_STAFF_LVL;
-		} else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND) {
+		} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WAND) {
 			level = DEFAULT_WAND_LVL;
 		}
 	}
@@ -37,7 +37,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case OBJ_DATA::ITEM_STAFF:
+		case ObjectData::ITEM_STAFF:
 			if (!obj->get_action_description().empty()) {
 				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_CHAR);
 				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
@@ -66,7 +66,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 
 			break;
 
-		case OBJ_DATA::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
+		case ObjectData::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				send_to_char("Похоже, магия кончилась.\r\n", ch);
@@ -125,7 +125,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
+		case ObjectData::ITEM_SCROLL:
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 				send_to_char("Вы немы, как рыба.\r\n", ch);
 				return;
@@ -168,7 +168,7 @@ void employMagicItem(CHAR_DATA *ch, OBJ_DATA *obj, const char *argument) {
 			extract_obj(obj);
 			break;
 
-		case OBJ_DATA::ITEM_POTION:
+		case ObjectData::ITEM_POTION:
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 				send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;

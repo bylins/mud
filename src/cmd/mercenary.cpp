@@ -6,11 +6,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-int do_social(CHAR_DATA *ch, char *argument);
+int do_social(CharacterData *ch, char *argument);
 
 namespace MERC {
 const int BASE_COST = 1000;
-CHAR_DATA *findMercboss(int room_rnum) {
+CharacterData *findMercboss(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people)
 		if (GET_MOB_SPEC(tch) == mercenary)
 			return tch;
@@ -19,7 +19,7 @@ CHAR_DATA *findMercboss(int room_rnum) {
 	return nullptr;
 };
 
-void doList(CHAR_DATA *ch, CHAR_DATA *boss, bool isFavList) {
+void doList(CharacterData *ch, CharacterData *boss, bool isFavList) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	if (m->empty()) {
@@ -67,13 +67,13 @@ void doList(CHAR_DATA *ch, CHAR_DATA *boss, bool isFavList) {
 	do_social(boss, buf);
 };
 
-void doStat(CHAR_DATA *ch) {
+void doStat(CharacterData *ch) {
 	if (!ch) return;
 	return;
 };
 
-void doBring(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos, char *bank) {
-	CHAR_DATA *mob;
+void doBring(CharacterData *ch, CharacterData *boss, unsigned int pos, char *bank) {
+	CharacterData *mob;
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	const int cost = MERC::BASE_COST * (GET_REAL_REMORT(ch) + 1);
@@ -122,7 +122,7 @@ void doBring(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos, char *bank) {
 	return;
 };
 
-void doForget(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos) {
+void doForget(CharacterData *ch, CharacterData *boss, unsigned int pos) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	std::map<int, MERCDATA>::iterator it = m->begin();
@@ -147,7 +147,7 @@ void doForget(CHAR_DATA *ch, CHAR_DATA *boss, unsigned int pos) {
 	return;
 };
 
-unsigned int getPos(char *arg, CHAR_DATA *ch, CHAR_DATA *boss) {
+unsigned int getPos(char *arg, CharacterData *ch, CharacterData *boss) {
 	unsigned int pos = 0;
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
@@ -167,13 +167,13 @@ unsigned int getPos(char *arg, CHAR_DATA *ch, CHAR_DATA *boss) {
 
 }
 
-int mercenary(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
+int mercenary(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
 	if (!ch || !ch->desc || IS_NPC(ch))
 		return 0;
 	if (!(CMD_IS("наемник") || CMD_IS("mercenary")))
 		return 0;
 
-	CHAR_DATA *boss = MERC::findMercboss(ch->in_room);
+	CharacterData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;
 
 	if (!IS_IMMORTAL(ch) && ch->get_class() != CLASS_MERCHANT && ch->get_class() != CLASS_CHARMMAGE) {

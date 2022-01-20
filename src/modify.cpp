@@ -58,9 +58,9 @@ extern const char *unused_spellname;
 
 // local functions
 void smash_tilde(char *str);
-void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-char *next_page(char *str, CHAR_DATA *ch);
-int count_pages(char *str, CHAR_DATA *ch);
+void do_skillset(CharacterData *ch, char *argument, int cmd, int subcmd);
+char *next_page(char *str, CharacterData *ch);
+int count_pages(char *str, CharacterData *ch);
 void paginate_string(char *str, DescriptorData *d);
 
 const char *string_fields[] =
@@ -850,8 +850,8 @@ void string_add(DescriptorData *d, char *str) {
 // * Set of character features                                           *
 // ***********************************************************************
 
-void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_featset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
 	char name[kMaxInputLength], buf2[128];
 	char buf[kMaxInputLength], help[kMaxStringLength];
 	int feat = -1, value, i, qend;
@@ -950,8 +950,8 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // *  Modification of character skills                                  *
 // **********************************************************************
 
-void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_skillset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
 	char name[kMaxInputLength], buf2[128];
 	char buf[kMaxInputLength], help[kMaxStringLength];
 	int spell = -1, value, i, qend;
@@ -1076,7 +1076,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // * Traverse down the string until the begining of the next page has been
 // * reached.  Return NULL if this is the last page of the string.
-char *next_page(char *str, CHAR_DATA *ch) {
+char *next_page(char *str, CharacterData *ch) {
 	int col = 1, line = 1, spec_code = false;
 	const char *color;
 
@@ -1158,7 +1158,7 @@ char *next_page(char *str, CHAR_DATA *ch) {
 }
 
 // Function that returns the number of pages in the string.
-int count_pages(char *str, CHAR_DATA *ch) {
+int count_pages(char *str, CharacterData *ch) {
 	int pages;
 
 	for (pages = 1; (str = next_page(str, ch)); pages++);

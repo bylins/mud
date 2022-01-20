@@ -20,10 +20,10 @@
  * the spell can be cast, checks for sufficient mana and subtracts it, and
  * passes control to CastSpell().
  */
-void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	CHAR_DATA *tch;
-	OBJ_DATA *tobj;
-	ROOM_DATA *troom;
+void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+	CharacterData *tch;
+	ObjectData *tobj;
+	RoomData *troom;
 
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;

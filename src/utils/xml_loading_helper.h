@@ -11,7 +11,7 @@ namespace loading {
 class CHelper {
  private:
 	template<typename EnumType>
-	static void set_bit(FLAG_DATA &flags, const EnumType flag) { flags.set(flag); }
+	static void set_bit(FlagData &flags, const EnumType flag) { flags.set(flag); }
 	template<typename EnumType>
 	static void set_bit(uint32_t &flags, const EnumType flag) { SET_BIT(flags, flag); }
 
@@ -103,7 +103,7 @@ class CHelper {
 		pugi::xml_node &node,
 		const char *node_name,
 		const char *item_name,
-		const FLAG_DATA &flags,
+		const FlagData &flags,
 		const TListNodeFailHandler list_node_fail_handler,
 		const TItemNodeFailHandler item_node_fail_handler);
 
@@ -389,13 +389,13 @@ template<typename FlagType, typename TListNodeFailHandler, typename TItemNodeFai
 void CHelper::save_list(pugi::xml_node &node,
 						const char *node_name,
 						const char *item_name,
-						const FLAG_DATA &flags,
+						const FlagData &flags,
 						const TListNodeFailHandler list_node_fail_handler,
 						const TItemNodeFailHandler item_node_fail_handler) {
 	std::list<FlagType> list;
-	for (uint32_t i = 0; i < FLAG_DATA::PLANES_NUMBER; ++i) {
+	for (uint32_t i = 0; i < FlagData::kPlanesNumber; ++i) {
 		const auto plane = flags.get_plane(i);
-		for (uint32_t j = 0; j < FLAG_DATA::PLANE_SIZE; ++j) {
+		for (uint32_t j = 0; j < FlagData::PLANE_SIZE; ++j) {
 			if (IS_SET(plane, 1 << j)) {
 				const uint32_t flag_bit = (i << 30) | (1 << j);
 				list.push_back(static_cast<FlagType>(flag_bit));

@@ -4,7 +4,7 @@
 
 #include <entities/obj.h>
 
-void do_telegram(CHAR_DATA *ch, char *argument, int, int) {
+void do_telegram(CharacterData *ch, char *argument, int, int) {
 #if defined(HAVE_TG)
 	unsigned long int tgId = 0;
 	bool found = false;

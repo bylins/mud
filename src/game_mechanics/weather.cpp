@@ -31,7 +31,7 @@ void calc_easter();
 int EasterMonth = 0;
 int EasterDay = 0;
 
-void gods_day_now(CHAR_DATA *ch) {
+void gods_day_now(CharacterData *ch) {
 	char mono[kMaxInputLength], poly[kMaxInputLength], real[kMaxInputLength];
 	*mono = 0;
 	*poly = 0;
@@ -825,7 +825,7 @@ void calc_easter(void) {
 const int moon_modifiers[28] = {-10, -9, -7, -5, -3, 0, 0, 0, 0, 0, 0, 0, 1, 5, 10, 5, 1, 0, 0, 0, 0, 0,
 								0, 0, -2, -5, -7, -9};
 
-int day_spell_modifier(CHAR_DATA *ch, int/* spellnum*/, int type, int value) {
+int day_spell_modifier(CharacterData *ch, int/* spellnum*/, int type, int value) {
 	int modi = value;
 	if (IS_NPC(ch) || ch->in_room == kNowhere)
 		return (modi);
@@ -839,7 +839,7 @@ int day_spell_modifier(CHAR_DATA *ch, int/* spellnum*/, int type, int value) {
 	return (modi);
 }
 
-int weather_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value) {
+int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value) {
 	int modi = value, sky = weather_info.sky, season = weather_info.season;
 
 	if (IS_NPC(ch) ||
@@ -900,18 +900,18 @@ int weather_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value) {
 	return (modi);
 }
 
-int complex_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value) {
+int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value) {
 	int modi = value;
 	modi = day_spell_modifier(ch, spellnum, type, modi);
 	modi = weather_spell_modifier(ch, spellnum, type, modi);
 	return (modi);
 }
 
-int day_skill_modifier(CHAR_DATA * /*ch*/, int/* skillnum*/, int/* type*/, int value) {
+int day_skill_modifier(CharacterData * /*ch*/, int/* skillnum*/, int/* type*/, int value) {
 	return value;
 }
 
-int weather_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value) {
+int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 
 	if (IS_NPC(ch) ||
@@ -952,7 +952,7 @@ int weather_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value) {
 	return (modi);
 }
 
-int complex_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value) {
+int complex_skill_modifier(CharacterData *ch, int skillnum, int type, int value) {
 	int modi = value;
 	modi = day_skill_modifier(ch, skillnum, type, modi);
 	modi = weather_skill_modifier(ch, skillnum, type, modi);

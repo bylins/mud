@@ -7,7 +7,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-extern void extract_trigger(TRIG_DATA *trig);
+extern void extract_trigger(Trigger *trig);
 
 namespace Celebrates {
 int tab_day[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};//да и хрен с ним, с 29 февраля!
@@ -28,17 +28,17 @@ void make_CelebratedMobs_list_from_CelebrateMobs(const CelebrateMobs &input, Cel
 	}
 }
 
-void add_mob_to_attach_list(long uid, CHAR_DATA *mob) {
+void add_mob_to_attach_list(long uid, CharacterData *mob) {
 	attached_mobs[uid] = mob;
 }
 
-void add_mob_to_load_list(long uid, CHAR_DATA *mob) {
+void add_mob_to_load_list(long uid, CharacterData *mob) {
 	loaded_mobs[uid] = mob;
 }
-void add_obj_to_attach_list(long uid, OBJ_DATA *obj) {
+void add_obj_to_attach_list(long uid, ObjectData *obj) {
 	attached_objs[uid] = obj;
 }
-void add_obj_to_load_list(long uid, OBJ_DATA *obj) {
+void add_obj_to_load_list(long uid, ObjectData *obj) {
 	loaded_objs[uid] = obj;
 }
 
@@ -389,7 +389,7 @@ void sc_Checker::report_null_sc() const {
 	mudlog(ss.str().c_str(), DEF, kLevelImplementator, ERRLOG, false);
 }
 
-void remove_triggers(TrigList trigs, SCRIPT_DATA *sc) {
+void remove_triggers(TrigList trigs, Script *sc) {
 	sc_Checker checker(trigs);
 	if (nullptr == sc) {
 		checker.report_null_sc();
@@ -404,7 +404,7 @@ void remove_triggers(TrigList trigs, SCRIPT_DATA *sc) {
 			return;
 		}
 
-		TRIG_DATA *removed = sc->trig_list.remove_by_vnum(*it);
+		Trigger *removed = sc->trig_list.remove_by_vnum(*it);
 		if (removed) {
 			extract_trigger(removed);
 			SCRIPT_TYPES(sc) = sc->trig_list.get_type();

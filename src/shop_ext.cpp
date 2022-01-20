@@ -50,7 +50,7 @@
 </shop_list>
 */
 
-extern int do_social(CHAR_DATA *ch, char *argument);    // implemented in the act.social.cpp
+extern int do_social(CharacterData *ch, char *argument);    // implemented in the act.social.cpp
 // здесь хранятся все предметы из магазинов вида внум_предмета, цена
 //std::map<int, int> items_list_for_checks;
 namespace ShopExt {
@@ -396,7 +396,7 @@ int get_spent_today() {
 
 using namespace ShopExt;
 
-int shop_ext(CHAR_DATA *ch, void *me, int cmd, char *argument) {
+int shop_ext(CharacterData *ch, void *me, int cmd, char *argument) {
 	if (!ch->desc
 		|| IS_NPC(ch)) {
 		return 0;
@@ -424,7 +424,7 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 	}
 
 	char argm[kMaxInputLength];
-	CHAR_DATA *const keeper = reinterpret_cast<CHAR_DATA *>(me);
+	CharacterData *const keeper = reinterpret_cast<CharacterData *>(me);
 	shop_node::shared_ptr shop;
 	for (const auto &s : shop_list) {
 		const auto found =
@@ -512,7 +512,7 @@ void town_shop_keepers() {
 			&& zone_list.find(world[ch->in_room]->zone_rn) == zone_list.end()) {
 			int rnum_start, rnum_end;
 			if (get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
-				CHAR_DATA *mob = read_mobile(1901, VIRTUAL);
+				CharacterData *mob = read_mobile(1901, VIRTUAL);
 				if (mob) {
 					char_to_room(mob, number(rnum_start, rnum_end));
 				}
@@ -522,7 +522,7 @@ void town_shop_keepers() {
 	}
 }
 
-void do_shops_list(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_shops_list(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();
 	std::ostringstream out;

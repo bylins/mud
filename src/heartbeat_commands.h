@@ -20,7 +20,7 @@ constexpr int MINIMAL_LEVEL = kLevelImplementator;
 // Probability to stop hide when using heartbeat command
 constexpr int UNHIDE_PROBABILITY = 0;    // -1 - always, 0 - never
 
-extern void do_heartbeat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+extern void do_heartbeat(CharacterData *ch, char *argument, int cmd, int subcmd);
 }
 }
 

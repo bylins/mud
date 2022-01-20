@@ -29,24 +29,24 @@ int get_glory(long uid);
 void add_glory(long uid, int amount);
 int remove_glory(long uid, int amount);
 
-void do_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_spend_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void spend_glory_menu(CHAR_DATA *ch);
-bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg);
-void glory_hide(CHAR_DATA *ch, bool mode);
+void do_glory(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_spend_glory(CharacterData *ch, char *argument, int cmd, int subcmd);
+void spend_glory_menu(CharacterData *ch);
+bool parse_spend_glory_menu(CharacterData *ch, char *arg);
+void glory_hide(CharacterData *ch, bool mode);
 
 void save();
 void load();
 
-void set_stats(CHAR_DATA *ch);
-int main_stats_count(CHAR_DATA *ch);
+void set_stats(CharacterData *ch);
+int main_stats_count(CharacterData *ch);
 
-void show_stats(CHAR_DATA *ch);
+void show_stats(CharacterData *ch);
 
 void transfer_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void add_total_spent(int amount);
-void apply_modifiers(CHAR_DATA *ch);
-void print_glory_top(CHAR_DATA *ch);
+void apply_modifiers(CharacterData *ch);
+void print_glory_top(CharacterData *ch);
 
 } // namespace GloryConst
 

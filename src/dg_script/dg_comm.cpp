@@ -39,7 +39,7 @@ char *any_one_name(char *argument, char *first_arg) {
 	return argument;
 }
 
-void sub_write_to_char(CHAR_DATA *ch, char *tokens[], void *otokens[], char type[]) {
+void sub_write_to_char(CharacterData *ch, char *tokens[], void *otokens[], char type[]) {
 	char sb[kMaxStringLength];
 	int i;
 
@@ -51,54 +51,54 @@ void sub_write_to_char(CHAR_DATA *ch, char *tokens[], void *otokens[], char type
 			case '~':
 				if (!otokens[i])
 					strcat(sb, "Кто-то");
-				else if ((CHAR_DATA *) otokens[i] == ch)
+				else if ((CharacterData *) otokens[i] == ch)
 					strcat(sb, "Вы");
 				else
-					strcat(sb, PERS((CHAR_DATA *) otokens[i], ch, 0));
+					strcat(sb, PERS((CharacterData *) otokens[i], ch, 0));
 				break;
 
 			case '@':
 				if (!otokens[i])
 					strcat(sb, "чей-то");
-				else if ((CHAR_DATA *) otokens[i] == ch)
+				else if ((CharacterData *) otokens[i] == ch)
 					strcat(sb, "ваш");
 				else {
-					strcat(sb, PERS((CHAR_DATA *) otokens[i], ch, 1));
+					strcat(sb, PERS((CharacterData *) otokens[i], ch, 1));
 				}
 				break;
 
 			case '^':
-				if (!otokens[i] || !CAN_SEE(ch, (CHAR_DATA *) otokens[i]))
+				if (!otokens[i] || !CAN_SEE(ch, (CharacterData *) otokens[i]))
 					strcat(sb, "чей-то");
 				else if (otokens[i] == ch)
 					strcat(sb, "ваш");
 				else
-					strcat(sb, HSHR((CHAR_DATA *) otokens[i]));
+					strcat(sb, HSHR((CharacterData *) otokens[i]));
 				break;
 
 			case '}':
-				if (!otokens[i] || !CAN_SEE(ch, (CHAR_DATA *) otokens[i]))
+				if (!otokens[i] || !CAN_SEE(ch, (CharacterData *) otokens[i]))
 					strcat(sb, "Он");
 				else if (otokens[i] == ch)
 					strcat(sb, "Вы");
 				else
-					strcat(sb, HSSH((CHAR_DATA *) otokens[i]));
+					strcat(sb, HSSH((CharacterData *) otokens[i]));
 				break;
 
 			case '*':
-				if (!otokens[i] || !CAN_SEE(ch, (CHAR_DATA *) otokens[i]))
+				if (!otokens[i] || !CAN_SEE(ch, (CharacterData *) otokens[i]))
 					strcat(sb, "ему");
 				else if (otokens[i] == ch)
 					strcat(sb, "вам");
 				else
-					strcat(sb, HMHR((CHAR_DATA *) otokens[i]));
+					strcat(sb, HMHR((CharacterData *) otokens[i]));
 				break;
 
 			case '`':
 				if (!otokens[i])
 					strcat(sb, "что-то");
 				else
-					strcat(sb, OBJS(((OBJ_DATA *) otokens[i]), ch));
+					strcat(sb, OBJS(((ObjectData *) otokens[i]), ch));
 				break;
 		}
 	}
@@ -110,12 +110,12 @@ void sub_write_to_char(CHAR_DATA *ch, char *tokens[], void *otokens[], char type
 	send_to_char(sb, ch);
 }
 
-void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets) {
+void sub_write(char *arg, CharacterData *ch, byte find_invis, int targets) {
 	char str[kMaxInputLength * 2];
 	char type[kMaxInputLength], name[kMaxInputLength];
 	char *tokens[kMaxInputLength], *s, *p;
 	void *otokens[kMaxInputLength];
-	OBJ_DATA *obj;
+	ObjectData *obj;
 	int i, tmp;
 	int to_sleeping = 0;    // mainly for windows compiles
 
@@ -131,7 +131,7 @@ void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets) {
 			case '^':
 			case '}':
 			case '*':
-				// get CHAR_DATA and move to next token
+				// get CharacterData and move to next token
 				type[i] = *p;
 				*s = '\0';
 				p = any_one_name(++p, name);
@@ -140,7 +140,7 @@ void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets) {
 				break;
 
 			case '`':
-				// get OBJ_DATA, move to next token
+				// get ObjectData, move to next token
 				type[i] = *p;
 				*s = '\0';
 				p = any_one_name(++p, name);

@@ -47,7 +47,7 @@
  *
  */
 
-int level_exp(CHAR_DATA *ch, int level);
+int level_exp(CharacterData *ch, int level);
 
 // GAME PLAY OPTIONS
 
@@ -102,7 +102,7 @@ int free_rent = YES;
 //int max_obj_save = 120;
 
 // receptionist's surcharge on top of item costs
-int min_rent_cost(CHAR_DATA *ch) {
+int min_rent_cost(CharacterData *ch) {
 	if ((GET_REAL_LEVEL(ch) < 15) && (GET_REAL_REMORT(ch) == 0))
 		return (0);
 	else
@@ -279,7 +279,7 @@ const char *START_MESSG =
 	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
 	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
 
-int max_exp_gain_pc(CHAR_DATA *ch) {
+int max_exp_gain_pc(CharacterData *ch) {
 	int result = 1;
 	if (!IS_NPC(ch)) {
 		int max_per_lev =
@@ -289,11 +289,11 @@ int max_exp_gain_pc(CHAR_DATA *ch) {
 	return result;
 }
 
-int max_exp_loss_pc(CHAR_DATA *ch) {
+int max_exp_loss_pc(CharacterData *ch) {
 	return (IS_NPC(ch) ? 1 : (level_exp(ch, GET_REAL_LEVEL(ch) + 1) - level_exp(ch, GET_REAL_LEVEL(ch) + 0)) / 3);
 }
 
-int calc_loadroom(const CHAR_DATA *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
+int calc_loadroom(const CharacterData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {
 	if (IS_IMMORTAL(ch)) {
 		return (immort_start_room);
 	} else if (PLR_FLAGGED(ch, PLR_FROZEN)) {

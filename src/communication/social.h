@@ -35,6 +35,6 @@ extern struct SocialMessages *soc_mess_list;
 extern struct SocialKeyword *soc_keys_list;
 
 int find_action(char *cmd);
-int do_social(CHAR_DATA *ch, char *argument);
+int do_social(CharacterData *ch, char *argument);
 
 #endif //BYLINS_SRC_COMMUNICATION_SOCIAL_H_

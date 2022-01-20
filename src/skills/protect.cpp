@@ -8,7 +8,7 @@
 #include "skills_info.h"
 
 // ************** PROTECT PROCEDURES
-void go_protect(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_protect(CharacterData *ch, CharacterData *vict) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -19,7 +19,7 @@ void go_protect(CHAR_DATA *ch, CHAR_DATA *vict) {
 	SET_AF_BATTLE(ch, EAF_PROTECT);
 }
 
-void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_protect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!*arg) {
 		if (ch->get_protecting()) {
@@ -41,7 +41,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CHAR_DATA *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharacterData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 	if (!vict) {
 		send_to_char("И кто так сильно мил вашему сердцу?\r\n", ch);
 		return;
@@ -57,7 +57,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *tch = nullptr;
+	CharacterData *tch = nullptr;
 	for (const auto i : world[ch->in_room]->people) {
 		if (i->get_fighting() == vict) {
 			tch = i;
@@ -87,7 +87,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	go_protect(ch, vict);
 }
 
-CHAR_DATA *try_protect(CHAR_DATA *victim, CHAR_DATA *ch) {
+CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 	int percent = 0;
 	int prob = 0;
 	bool protect = false;
@@ -113,7 +113,7 @@ CHAR_DATA *try_protect(CHAR_DATA *victim, CHAR_DATA *ch) {
 				vict->set_protecting(0);
 				vict->BattleAffects.unset(EAF_PROTECT);
 				WAIT_STATE(vict, kPulseViolence);
-				AFFECT_DATA<EApplyLocation> af;
+				Affect<EApplyLocation> af;
 				af.type = SPELL_BATTLE;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af.location = EApplyLocation::APPLY_NONE;

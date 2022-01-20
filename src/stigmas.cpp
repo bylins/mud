@@ -2,13 +2,13 @@
 #include "entities/char.h"
 
 
-/*void do_touch_stigma(CHAR_DATA *ch, char*, int, int);
+/*void do_touch_stigma(CharacterData *ch, char*, int, int);
 
 std::vector<Stigma> stigmas;
 
-void do_touch_stigma(CHAR_DATA *ch, char* argument, int, int)
+void do_touch_stigma(CharacterData *ch, char* argument, int, int)
 {
-	CHAR_DATA *vict = NULL;
+	CharacterData *vict = NULL;
 
 	one_argument(argument, buf);
 
@@ -35,7 +35,7 @@ std::string StigmaWear::get_name() const
 }
 
 // стигма огненный дракон
-void stigma_fire_dragon(CHAR_DATA *ch)
+void stigma_fire_dragon(CharacterData *ch)
 {
 	send_to_char(ch, "Вы прикоснулись к стигме с изображением огненного дракона.\r\n");
 	send_to_char(ch, "Рисунок вспыхнул и вы почуствовали небольшую боль.");

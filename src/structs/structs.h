@@ -96,9 +96,9 @@ extern const char *nothing_string;
 
 const __uint8_t kMaxDest = 50;
 
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-class OBJ_DATA;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
-class TRIG_DATA;
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class ObjectData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class Trigger;
 
 // preamble ************************************************************
 
@@ -272,7 +272,7 @@ struct Timed {
 
 // Structure used for entities following other entities //
 struct Follower {
-	CHAR_DATA *ch = nullptr;
+	CharacterData *ch = nullptr;
 	struct Follower *next = nullptr;
 };
 
@@ -373,9 +373,9 @@ struct IndexData {
 	int vnum;            // virtual number of this mob/obj       //
 	int number;        // number of existing units of this mob/obj //
 	int stored;        // number of things in rent file            //
-	int (*func)(CHAR_DATA *, void *, int, char *);
+	int (*func)(CharacterData *, void *, int, char *);
 	char *farg;        // string argument for special function     //
-	TRIG_DATA *proto;    // for triggers... the trigger     //
+	Trigger *proto;    // for triggers... the trigger     //
 	int zone;            // mob/obj zone rnum //
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };

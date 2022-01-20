@@ -15,10 +15,10 @@
 
 #include "entities/char.h"
 
-void write_aliases(CHAR_DATA *ch);
-void read_aliases(CHAR_DATA *ch);
+void write_aliases(CharacterData *ch);
+void read_aliases(CharacterData *ch);
 
-void write_aliases(CHAR_DATA *ch) {
+void write_aliases(CharacterData *ch) {
 	FILE *file;
 	char fn[kMaxStringLength];
 	struct alias_data *temp;
@@ -53,7 +53,7 @@ void write_aliases(CHAR_DATA *ch) {
 	fclose(file);
 }
 
-void read_aliases(CHAR_DATA *ch) {
+void read_aliases(CharacterData *ch) {
 	FILE *file;
 	char xbuf[kMaxStringLength];
 	struct alias_data *t2;

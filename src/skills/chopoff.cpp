@@ -11,7 +11,7 @@
 using namespace FightSystem;
 
 // ************************* CHOPOFF PROCEDURES
-void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_chopoff(CharacterData *ch, CharacterData *vict) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -64,7 +64,7 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
 		GET_POS(ch) = POS_SITTING;
 		prob = 3;
 		if (can_use_feat(ch, EVASION_FEAT)) {
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.type = SPELL_EXPEDIENT;
 			af.location = EApplyLocation::APPLY_PR;
 			af.modifier = 50;
@@ -116,7 +116,7 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
 	}
 }
 
-void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_chopoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_CHOPOFF) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -131,7 +131,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы собираетесь подсечь?\r\n", ch);
 		return;

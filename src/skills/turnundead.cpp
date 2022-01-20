@@ -12,7 +12,7 @@
 using namespace FightSystem;
 using namespace AbilitySystem;
 
-void do_turn_undead(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (!ch->get_skill(SKILL_TURN_UNDEAD)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
@@ -53,7 +53,7 @@ void do_turn_undead(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 	turnUndeadDamage.magic_type = STYPE_LIGHT;
 	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;
-	ActionTargeting::FoesRosterType roster{ch, [](CHAR_DATA *, CHAR_DATA *target) { return IS_UNDEAD(target); }};
+	ActionTargeting::FoesRosterType roster{ch, [](CharacterData *, CharacterData *target) { return IS_UNDEAD(target); }};
 	for (const auto target : roster) {
 		turnUndeadDamage.dam = ZERO_DMG;
 		turnUndeadRoll.initialize(ch, TURN_UNDEAD_FEAT, target);
@@ -73,7 +73,7 @@ void do_turn_undead(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 				0,
 				ch,
 				TO_NOTVICT | TO_ARENA_LISTEN);
-			AFFECT_DATA<EApplyLocation> af[2];
+			Affect<EApplyLocation> af[2];
 			af[0].type = SPELL_COURAGE;
 			af[0].duration = pc_duration(target, 3, 0, 0, 0, 0);
 			af[0].modifier = MAX(1, turnUndeadRoll.getDegreeOfSuccess() * 2);

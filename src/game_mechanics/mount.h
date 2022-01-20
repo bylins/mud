@@ -1,17 +1,17 @@
 #ifndef BYLINS_MOUNT_H
 #define BYLINS_MOUNT_H
 
-class CHAR_DATA;
+class CharacterData;
 
-CHAR_DATA *get_horse(CHAR_DATA *ch);
-void make_horse(CHAR_DATA *horse, CHAR_DATA *ch);
+CharacterData *get_horse(CharacterData *ch);
+void make_horse(CharacterData *horse, CharacterData *ch);
 
-void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_horseoff(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
-void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_givehorse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_stophorse(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+void do_horseon(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_horseoff(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+void do_horseget(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_horseput(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_horsetake(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_givehorse(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_stophorse(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_MOUNT_H

@@ -28,7 +28,7 @@
 #include <array>
 #include <algorithm>
 
-void show_weapon_affects_olc(DescriptorData *d, const FLAG_DATA &flags);
+void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags);
 void show_apply_olc(DescriptorData *d);
 int planebit(const char *str, int *plane, int *bit);
 
@@ -52,35 +52,35 @@ class sedit {
 	// идет создание нового сета
 	bool new_entry;
 
-	void parse_global_msg(CHAR_DATA *ch, const char *arg);
-	void parse_activ_mage_dmg(CHAR_DATA *ch, const char *arg);
-	void parse_activ_phys_dmg(CHAR_DATA *ch, const char *arg);
-	void parse_activ_weight_val(CHAR_DATA *ch, const char *arg);
-	void parse_activ_ench_sdice(CHAR_DATA *ch, const char *arg);
-	void parse_activ_ench_ndice(CHAR_DATA *ch, const char *arg);
-	void parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg);
-	void parse_activ_skill(CHAR_DATA *ch, const char *arg);
-	void parse_activ_apply_mod(CHAR_DATA *ch, const char *arg);
-	void parse_activ_apply_loc(CHAR_DATA *ch, const char *arg);
-	void parse_activ_prof(CHAR_DATA *ch, const char *arg);
-	void parse_activ_change(CHAR_DATA *ch, const char *arg);
-	void parse_activ_remove(CHAR_DATA *ch, const char *arg);
-	void parse_activ_affects(CHAR_DATA *ch, const char *arg);
-	void parse_activ_edit(CHAR_DATA *ch, const char *arg);
-	void parse_activ_add(CHAR_DATA *ch, const char *arg);
-	void parse_obj_remove(CHAR_DATA *ch, const char *arg);
-	void parse_obj_change(CHAR_DATA *ch, const char *arg);
-	void parse_obj_edit(CHAR_DATA *ch, const char *arg);
-	void parse_obj_add(CHAR_DATA *ch, const char *arg);
-	void parse_setmsg(CHAR_DATA *ch, const char *arg);
-	void parse_setcomment(CHAR_DATA *ch, const char *arg);
-	void parse_setalias(CHAR_DATA *ch, const char *arg);
-	void parse_setname(CHAR_DATA *ch, const char *arg);
-	void parse_main(CHAR_DATA *ch, const char *arg);
+	void parse_global_msg(CharacterData *ch, const char *arg);
+	void parse_activ_mage_dmg(CharacterData *ch, const char *arg);
+	void parse_activ_phys_dmg(CharacterData *ch, const char *arg);
+	void parse_activ_weight_val(CharacterData *ch, const char *arg);
+	void parse_activ_ench_sdice(CharacterData *ch, const char *arg);
+	void parse_activ_ench_ndice(CharacterData *ch, const char *arg);
+	void parse_activ_ench_vnum(CharacterData *ch, const char *arg);
+	void parse_activ_skill(CharacterData *ch, const char *arg);
+	void parse_activ_apply_mod(CharacterData *ch, const char *arg);
+	void parse_activ_apply_loc(CharacterData *ch, const char *arg);
+	void parse_activ_prof(CharacterData *ch, const char *arg);
+	void parse_activ_change(CharacterData *ch, const char *arg);
+	void parse_activ_remove(CharacterData *ch, const char *arg);
+	void parse_activ_affects(CharacterData *ch, const char *arg);
+	void parse_activ_edit(CharacterData *ch, const char *arg);
+	void parse_activ_add(CharacterData *ch, const char *arg);
+	void parse_obj_remove(CharacterData *ch, const char *arg);
+	void parse_obj_change(CharacterData *ch, const char *arg);
+	void parse_obj_edit(CharacterData *ch, const char *arg);
+	void parse_obj_add(CharacterData *ch, const char *arg);
+	void parse_setmsg(CharacterData *ch, const char *arg);
+	void parse_setcomment(CharacterData *ch, const char *arg);
+	void parse_setalias(CharacterData *ch, const char *arg);
+	void parse_setname(CharacterData *ch, const char *arg);
+	void parse_main(CharacterData *ch, const char *arg);
 
-	void save_olc(CHAR_DATA *ch);
-	void show_main(CHAR_DATA *ch);
-	void show_global_msg(CHAR_DATA *ch);
+	void save_olc(CharacterData *ch);
+	void show_main(CharacterData *ch);
+	void show_global_msg(CharacterData *ch);
 
  private:
 	// если правится предмет - его внум
@@ -90,13 +90,13 @@ class sedit {
 	// если правится аффект - его индекс в списке
 	size_t apply_edit;
 
-	void show_activ_ench_vnum(CHAR_DATA *ch);
-	void show_activ_prof(CHAR_DATA *ch);
-	void show_activ_skill(CHAR_DATA *ch);
-	void show_activ_apply(CHAR_DATA *ch);
-	void show_activ_affects(CHAR_DATA *ch);
-	void show_activ_edit(CHAR_DATA *ch);
-	void show_obj_edit(CHAR_DATA *ch);
+	void show_activ_ench_vnum(CharacterData *ch);
+	void show_activ_prof(CharacterData *ch);
+	void show_activ_skill(CharacterData *ch);
+	void show_activ_apply(CharacterData *ch);
+	void show_activ_affects(CharacterData *ch);
+	void show_activ_edit(CharacterData *ch);
+	void show_obj_edit(CharacterData *ch);
 	// проверка поменялось ли что-то в сете,
 	// чтобы не спамить про сохранения при выходе
 	bool changed();
@@ -172,7 +172,7 @@ const auto MISSING_OBJECT_NAME = "&R<объект с таким VNUM не сущ
 
 /// распечатка форматированного списка шмоток сета, форматирование идет как
 /// как по столбцам, так и по длине имени и внума шмоток, вобщем чтоб красиво
-std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu) {
+std::string main_menu_objlist(CharacterData *ch, const set_node &set, int menu) {
 	std::string out;
 	char buf_[128];
 	char format[128];
@@ -229,7 +229,7 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu) {
 	return out;
 }
 
-const char *main_menu_str(CHAR_DATA *ch, set_node &olc_set, int num) {
+const char *main_menu_str(CharacterData *ch, set_node &olc_set, int num) {
 	static char buf_[1024];
 	switch (num) {
 		case MAIN_SET_REMOVE: return "Удалить набор";
@@ -270,7 +270,7 @@ const char *main_menu_str(CHAR_DATA *ch, set_node &olc_set, int num) {
 	return buf_;
 }
 
-void sedit::show_main(CHAR_DATA *ch) {
+void sedit::show_main(CharacterData *ch) {
 	state = STATE_MAIN;
 
 	char buf_[1024];
@@ -338,7 +338,7 @@ void sedit::show_main(CHAR_DATA *ch) {
 	send_to_char(out, ch);
 }
 
-void sedit::show_obj_edit(CHAR_DATA *ch) {
+void sedit::show_obj_edit(CharacterData *ch) {
 	state = STATE_OBJ_EDIT;
 
 	auto obj = olc_set.obj_list.find(obj_edit);
@@ -378,7 +378,7 @@ void sedit::show_obj_edit(CHAR_DATA *ch) {
 	send_to_char(buf_, ch);
 }
 
-void sedit::show_activ_edit(CHAR_DATA *ch) {
+void sedit::show_activ_edit(CharacterData *ch) {
 	state = STATE_ACTIV_EDIT;
 
 	auto i = olc_set.activ_list.find(activ_edit);
@@ -447,7 +447,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch) {
 		const int rnum = real_object(activ.enchant.first);
 		const char *name =
 			(rnum >= 0 ? obj_proto[rnum]->get_short_description().c_str() : "<null>");
-		if (GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_WEAPON) {
+		if (GET_OBJ_TYPE(obj_proto[rnum]) == ObjectData::ITEM_WEAPON) {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
 					 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
@@ -502,7 +502,7 @@ bool sedit::changed() {
 	return false;
 }
 
-void sedit::save_olc(CHAR_DATA *ch) {
+void sedit::save_olc(CharacterData *ch) {
 	if (new_entry) {
 		std::shared_ptr<set_node> set_ptr = std::make_shared<set_node>(olc_set);
 		sets_list.push_back(set_ptr);
@@ -523,7 +523,7 @@ void sedit::save_olc(CHAR_DATA *ch) {
 	}
 }
 
-void parse_main_exit(CHAR_DATA *ch, const char *arg) {
+void parse_main_exit(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	switch (*arg) {
 		case 'y':
@@ -549,7 +549,7 @@ void parse_main_exit(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void parse_set_remove(CHAR_DATA *ch, const char *arg) {
+void parse_set_remove(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	switch (*arg) {
 		case 'y':
@@ -583,7 +583,7 @@ void parse_set_remove(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_obj_remove(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_obj_remove(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	switch (*arg) {
 		case 'y':
@@ -611,7 +611,7 @@ void sedit::parse_obj_remove(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_activ_remove(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_remove(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	switch (*arg) {
 		case 'y':
@@ -639,7 +639,7 @@ void sedit::parse_activ_remove(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::show_global_msg(CHAR_DATA *ch) {
+void sedit::show_global_msg(CharacterData *ch) {
 	state = STATE_GLOBAL_MSG;
 
 	char buf_[1024];
@@ -659,7 +659,7 @@ void sedit::show_global_msg(CHAR_DATA *ch) {
 	send_to_char(buf_, ch);
 }
 
-void sedit::parse_global_msg(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_global_msg(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
 		send_to_char("Неверный выбор!\r\n", ch);
@@ -719,7 +719,7 @@ void sedit::parse_global_msg(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void parse_global_msg_exit(CHAR_DATA *ch, const char *arg) {
+void parse_global_msg_exit(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	switch (*arg) {
 		case 'y':
@@ -746,7 +746,7 @@ void parse_global_msg_exit(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_main(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_main(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
 		send_to_char("Неверный выбор!\r\n", ch);
@@ -866,7 +866,7 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_setname(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_setname(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
 		send_to_char("Имя набора удалено.\r\n", ch);
@@ -877,7 +877,7 @@ void sedit::parse_setname(CHAR_DATA *ch, const char *arg) {
 	show_main(ch);
 }
 
-void sedit::parse_setalias(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_setalias(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
 		send_to_char("Алиас набора удален.\r\n", ch);
@@ -888,7 +888,7 @@ void sedit::parse_setalias(CHAR_DATA *ch, const char *arg) {
 	show_main(ch);
 }
 
-void sedit::parse_setcomment(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_setcomment(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
 		send_to_char("Комментарий набора удален.\r\n", ch);
@@ -903,7 +903,7 @@ void sedit::parse_setcomment(CHAR_DATA *ch, const char *arg) {
 /// чтобы в одном месте срау обработать все три вида сообщений
 enum { PARSE_GLB_MSG, PARSE_SET_MSG, PARSE_OBJ_MSG };
 
-void sedit::parse_setmsg(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_setmsg(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	int parse_type = PARSE_GLB_MSG;
 
@@ -962,7 +962,7 @@ void sedit::parse_setmsg(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_activ_add(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_add(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	unsigned num = 0;
 	if (!*arg || !a_isdigit(*arg)
@@ -987,14 +987,14 @@ void sedit::parse_activ_add(CHAR_DATA *ch, const char *arg) {
 	show_main(ch);
 }
 
-void sedit::show_activ_ench_vnum(CHAR_DATA *ch) {
+void sedit::show_activ_ench_vnum(CharacterData *ch) {
 	state = STATE_ACTIV_ENCH_VNUM;
 	std::string out = main_menu_objlist(ch, olc_set, 1);
 	out += "Укажите vnum предмета (0 - удалить и выйти, пустой ввод - выход) :";
 	send_to_char(out, ch);
 }
 
-void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_ench_vnum(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 
 	if (!*arg || !a_isdigit(*arg)) {
@@ -1040,7 +1040,7 @@ void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg) {
 	olc_set.activ_list.at(activ_edit).enchant.first = vnum;
 
 	if (rnum >= 0
-		&& GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(obj_proto[rnum]) == ObjectData::ITEM_WEAPON) {
 		state = STATE_ACTIV_ENCH_NDICE;
 		send_to_char("Укажите изменение бросков кубика (0 - без изменений) :", ch);
 	} else {
@@ -1051,7 +1051,7 @@ void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_activ_weight_val(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_weight_val(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 
 	const int weight = atoi(arg);
@@ -1061,7 +1061,7 @@ void sedit::parse_activ_weight_val(CHAR_DATA *ch, const char *arg) {
 	show_activ_edit(ch);
 }
 
-void sedit::parse_activ_ench_ndice(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_ench_ndice(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 
 	const int ndice = atoi(arg);
@@ -1072,7 +1072,7 @@ void sedit::parse_activ_ench_ndice(CHAR_DATA *ch, const char *arg) {
 	send_to_char("Укажите изменение граней кубиков (0 - без изменений) :", ch);
 }
 
-void sedit::parse_activ_ench_sdice(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_ench_sdice(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 
 	const int sdice = atoi(arg);
@@ -1083,7 +1083,7 @@ void sedit::parse_activ_ench_sdice(CHAR_DATA *ch, const char *arg) {
 	send_to_char("Укажите прибавляемый вес (0 - без изменений) :", ch);
 }
 
-void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_obj_add(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 
 	if (!*arg || !a_isdigit(*arg)) {
@@ -1125,7 +1125,7 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg) {
 	show_main(ch);
 }
 
-void sedit::parse_obj_edit(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_obj_edit(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg) {
 		send_to_char("Неверный выбор!\r\n", ch);
@@ -1174,18 +1174,18 @@ void sedit::parse_obj_edit(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::show_activ_affects(CHAR_DATA *ch) {
+void sedit::show_activ_affects(CharacterData *ch) {
 	state = STATE_ACTIV_AFFECTS;
 	show_weapon_affects_olc(ch->desc,
 							olc_set.activ_list.at(activ_edit).affects);
 }
 
-void sedit::show_activ_apply(CHAR_DATA *ch) {
+void sedit::show_activ_apply(CharacterData *ch) {
 	state = STATE_ACTIV_APPLY_LOC;
 	show_apply_olc(ch->desc);
 }
 
-void sedit::show_activ_skill(CHAR_DATA *ch) {
+void sedit::show_activ_skill(CharacterData *ch) {
 	state = STATE_ACTIV_SKILL;
 
 	int col = 0;
@@ -1206,7 +1206,7 @@ void sedit::show_activ_skill(CHAR_DATA *ch) {
 		"\r\nУкажите номер и уровень владения умением (0 - конец) : ", ch);
 }
 
-void sedit::show_activ_prof(CHAR_DATA *ch) {
+void sedit::show_activ_prof(CharacterData *ch) {
 	state = STATE_ACTIV_PROF;
 	char buf_[128];
 	std::string out;
@@ -1235,7 +1235,7 @@ void sedit::show_activ_prof(CHAR_DATA *ch) {
 	send_to_char(out, ch);
 }
 
-void sedit::parse_activ_prof(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_prof(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg)) {
 		send_to_char("Некорректный ввод.\r\n", ch);
@@ -1262,7 +1262,7 @@ void sedit::parse_activ_prof(CHAR_DATA *ch, const char *arg) {
 	show_activ_prof(ch);
 }
 
-void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_skill(CharacterData *ch, const char *arg) {
 	auto &skill = olc_set.activ_list.at(activ_edit).skill;
 	skip_spaces(&arg);
 	int num = atoi(arg), ssnum = 0, ssval = 0;
@@ -1293,7 +1293,7 @@ void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_activ_phys_dmg(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_phys_dmg(CharacterData *ch, const char *arg) {
 	bonus_type &bonus = olc_set.activ_list.at(activ_edit).bonus;
 	skip_spaces(&arg);
 	int num = atoi(arg);
@@ -1306,7 +1306,7 @@ void sedit::parse_activ_phys_dmg(CHAR_DATA *ch, const char *arg) {
 	show_activ_edit(ch);
 }
 
-void sedit::parse_activ_mage_dmg(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_mage_dmg(CharacterData *ch, const char *arg) {
 	bonus_type &bonus = olc_set.activ_list.at(activ_edit).bonus;
 	skip_spaces(&arg);
 	int num = atoi(arg);
@@ -1319,7 +1319,7 @@ void sedit::parse_activ_mage_dmg(CHAR_DATA *ch, const char *arg) {
 	show_activ_edit(ch);
 }
 
-void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_edit(CharacterData *ch, const char *arg) {
 	auto i = olc_set.activ_list.find(activ_edit);
 	if (i == olc_set.activ_list.end()) {
 		send_to_char(ch,
@@ -1396,7 +1396,7 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_activ_affects(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_affects(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	int bit = 0, plane = 0;
 	int num = planebit(arg, &plane, &bit);
@@ -1412,7 +1412,7 @@ void sedit::parse_activ_affects(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_activ_apply_loc(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_apply_loc(CharacterData *ch, const char *arg) {
 	obj_affected_type &apply =
 		olc_set.activ_list.at(activ_edit).apply.at(apply_edit);
 
@@ -1433,7 +1433,7 @@ void sedit::parse_activ_apply_loc(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_activ_apply_mod(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_apply_mod(CharacterData *ch, const char *arg) {
 	obj_affected_type &apply =
 		olc_set.activ_list.at(activ_edit).apply.at(apply_edit);
 
@@ -1450,7 +1450,7 @@ void sedit::parse_activ_apply_mod(CHAR_DATA *ch, const char *arg) {
 	}
 }
 
-void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_obj_change(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg)) {
 		send_to_char("Некорректный виртуальный номер предмета.\r\n", ch);
@@ -1489,7 +1489,7 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg) {
 	show_obj_edit(ch);
 }
 
-void sedit::parse_activ_change(CHAR_DATA *ch, const char *arg) {
+void sedit::parse_activ_change(CharacterData *ch, const char *arg) {
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg)) {
 		send_to_char("Некорректное кол-во предметов для активации.\r\n", ch);
@@ -1524,7 +1524,7 @@ void sedit::parse_activ_change(CHAR_DATA *ch, const char *arg) {
 /// наружу при обработке команд в олц торчит только эта функция
 /// плюс она обернута в try/catch для ловли возможных out_of_range, т.к. внутри
 /// все через .at и местами код на это закладывается вместо ручных сравнений
-void parse_input(CHAR_DATA *ch, const char *arg) {
+void parse_input(CharacterData *ch, const char *arg) {
 	sedit &olc = *(ch->desc->sedit);
 
 	switch (olc.state) {
@@ -1612,7 +1612,7 @@ using namespace obj_sets_olc;
 
 namespace {
 
-void start_sedit(CHAR_DATA *ch, size_t idx) {
+void start_sedit(CharacterData *ch, size_t idx) {
 	STATE(ch->desc) = CON_SEDIT;
 	ch->desc->sedit = std::make_shared<obj_sets_olc::sedit>();
 	if (idx == static_cast<size_t>(-1)) {
@@ -1633,7 +1633,7 @@ const char *SEDIT_HELP =
 } // namespace
 
 /// иммский sedit, см. SEDIT_HELP
-void do_sedit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_sedit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		return;
 	}

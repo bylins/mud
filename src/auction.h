@@ -11,36 +11,34 @@
 #ifndef _AUCTION_HPP_
 #define _AUCTION_HPP_
 
-typedef struct auction_data AUCTION_DATA;
+class ObjectData; // to avoid inclusion of obj.hpp
+class CharacterData; // to avoid inclusion of char.hpp
 
-class OBJ_DATA; // to avoid inclusion of obj.hpp
-class CHAR_DATA; // to avoid inclusion of char.hpp
-
-struct auction_data {
+struct AuctionItem {
 	int item_id;
-	OBJ_DATA *item;
+	ObjectData *item;
 	int seller_unique;
-	CHAR_DATA *seller;
+	CharacterData *seller;
 	int buyer_unique;
-	CHAR_DATA *buyer;
+	CharacterData *buyer;
 	int prefect_unique;
-	CHAR_DATA *prefect;
+	CharacterData *prefect;
 	int cost;
 	int tact;
 };
 
 // Auction functions  ***************************************************
-void showlots(CHAR_DATA *ch);
-bool auction_drive(CHAR_DATA *ch, char *argument);
+void showlots(CharacterData *ch);
+bool auction_drive(CharacterData *ch, char *argument);
 
-void message_auction(char *message, CHAR_DATA *ch);
+void message_auction(char *message, CharacterData *ch);
 void clear_auction(int lot);
 void sell_auction(int lot);
 void trans_auction(int lot);
-void check_auction(CHAR_DATA *ch, OBJ_DATA *obj);
+void check_auction(CharacterData *ch, ObjectData *obj);
 void tact_auction(void);
-AUCTION_DATA *free_auction(int *lotnum);
-int obj_on_auction(OBJ_DATA *obj);
+AuctionItem *free_auction(int *lotnum);
+int obj_on_auction(ObjectData *obj);
 
 #define GET_LOT(value) ((auction_lots+value))
 #define AUCTION_IDENT_PAY 110    //цена за опознание

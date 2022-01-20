@@ -19,11 +19,11 @@
 
 extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);
-extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
-extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
+extern void set_obj_eff(ObjectData *itemobj, const EApplyLocation type, int mod);
+extern void set_obj_aff(ObjectData *itemobj, const EAffectFlag bitv);
 extern int planebit(const char *str, int *plane, int *bit);
 
-void LoadRandomObj(OBJ_DATA *obj) {
+void LoadRandomObj(ObjectData *obj) {
 	// костыли, привет
 	int plane, bit;
 	for (auto robj : random_objs) {
@@ -189,7 +189,7 @@ int get_stat_mod(int stat) {
 	return mod;
 }
 
-void generate_book_upgrd(OBJ_DATA *obj) {
+void generate_book_upgrd(ObjectData *obj) {
 	const auto skill_list = make_array<int>(
 		SKILL_BACKSTAB, SKILL_PUNCTUAL, SKILL_BASH, SKILL_MIGHTHIT,
 		SKILL_STUPOR, SKILL_ADDSHOT, SKILL_AWAKE, SKILL_NOPARRYHIT,
@@ -210,7 +210,7 @@ void generate_book_upgrd(OBJ_DATA *obj) {
 	obj->set_PName(5, "книге секретов умения: " + book_name);
 }
 
-void generate_warrior_enchant(OBJ_DATA *obj) {
+void generate_warrior_enchant(ObjectData *obj) {
 	const auto main_list = make_array<EApplyLocation>(
 		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL);
 
@@ -247,7 +247,7 @@ void generate_warrior_enchant(OBJ_DATA *obj) {
 	}
 }
 
-void generate_magic_enchant(OBJ_DATA *obj) {
+void generate_magic_enchant(ObjectData *obj) {
 	const auto main_list = make_array<EApplyLocation>(
 		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT, APPLY_WIS,
 		APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR);
@@ -298,7 +298,7 @@ void generate_magic_enchant(OBJ_DATA *obj) {
  * \param setload = true - лоад через систему дропа сетов
  *        setload = false - лоад через глобал дроп
  */
-void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload) {
+void obj_to_corpse(ObjectData *corpse, CharacterData *ch, int rnum, bool setload) {
 	const auto o = world_objects.create_from_prototype_by_rnum(rnum);
 	if (!o) {
 		log("SYSERROR: null from read_object rnum=%d (%s:%d)", rnum, __FILE__, __LINE__);
@@ -344,7 +344,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload) {
 	}
 }
 
-void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
+void obj_load_on_death(ObjectData *corpse, CharacterData *ch) {
 	if (ch == nullptr
 		|| !IS_NPC(ch)
 		|| (!MOB_FLAGGED(ch, MOB_CORPSE)
@@ -378,7 +378,7 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch) {
 }
 
 // готовим прототипы шмоток для зверюшек (Кудояр)
-void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
+void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 	const auto obj = world_objects.create_blank();
 	int position = 0;
 	obj->set_aliases("острые когти");
@@ -393,7 +393,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 	obj->set_PName(4, "острыми когтями");
 	obj->set_PName(5, "острых когтях");
 	obj->set_sex(ESex::kPoly);
-	obj->set_type(OBJ_DATA::ITEM_WEAPON);
+	obj->set_type(ObjectData::ITEM_WEAPON);
 	// среднее оружки
 	obj->set_val(1, floorf(diff/18.0)); // при 100 скила куб. = 5  	при 200 скила = 11
 	obj->set_val(2, floorf(diff/27.0)); // при 100 скила граней = d4  при 200 скила = d7
@@ -416,7 +416,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 
 	obj->set_maximum_durability(5000);
 	obj->set_current_durability(5000);
-	obj->set_material(OBJ_DATA::MAT_CRYSTALL);
+	obj->set_material(ObjectData::MAT_CRYSTALL);
 
 	obj->set_weight(floorf(diff/9.0));
 
@@ -476,7 +476,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 18;
 		break;
 	case SKILL_PUNCH: // кулачка
-		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+		obj->set_type(ObjectData::ITEM_ARMOR);
 		obj->set_affected(0, APPLY_DAMROLL, floorf(diff/10.0));
 		create_charmice_stuff(ch, SKILL_INVALID, diff);
 		position = 9;
@@ -492,7 +492,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		position = 16;
 		break;
 	case SKILL_BLOCK: // блок щитом ? делаем щит
-		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+		obj->set_type(ObjectData::ITEM_ARMOR);
 		obj->set_description("Роговые пластины лежат здесь.");
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
 		obj->set_aliases("роговые пластины");
@@ -523,7 +523,7 @@ void create_charmice_stuff(CHAR_DATA *ch, const ESkill skill_id, int diff) {
 		obj->set_PName(3, "прочную шкуру");
 		obj->set_PName(4, "прочной шкурой");
 		obj->set_PName(5, "прочной шкуре");
-		obj->set_type(OBJ_DATA::ITEM_ARMOR);
+		obj->set_type(ObjectData::ITEM_ARMOR);
 		if (diff == -1) { // тут делаем сапоги 
 			obj->set_sex(ESex::kPoly);
 			obj->set_weight(50);

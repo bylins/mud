@@ -6,7 +6,7 @@
 #include "entities/entity_constants.h"
 #include "handler.h"
 
-void make_horse(CHAR_DATA *horse, CHAR_DATA *ch) {
+void make_horse(CharacterData *horse, CharacterData *ch) {
 	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
 	ch->add_follower(horse);
 	MOB_FLAGS(horse).unset(MOB_WIMPY);
@@ -17,8 +17,8 @@ void make_horse(CHAR_DATA *horse, CHAR_DATA *ch) {
 	AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
 }
 
-void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *horse;
+void do_horseon(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *horse;
 
 	if (IS_NPC(ch))
 		return;
@@ -67,8 +67,8 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_horseoff(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *horse;
+void do_horseoff(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *horse;
 
 	if (IS_NPC(ch))
 		return;
@@ -85,8 +85,8 @@ void do_horseoff(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 }
 
-void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *horse;
+void do_horseget(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *horse;
 
 	if (IS_NPC(ch))
 		return;
@@ -124,8 +124,8 @@ void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *horse;
+void do_horseput(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *horse;
 
 	if (IS_NPC(ch))
 		return;
@@ -161,8 +161,8 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *horse = nullptr;
+void do_horsetake(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *horse = nullptr;
 
 	if (IS_NPC(ch))
 		return;
@@ -218,8 +218,8 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	make_horse(horse, ch);
 }
 
-void do_givehorse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *horse, *victim;
+void do_givehorse(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *horse, *victim;
 
 	if (IS_NPC(ch))
 		return;
@@ -265,8 +265,8 @@ void do_givehorse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	make_horse(horse, victim);
 }
 
-void do_stophorse(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *horse;
+void do_stophorse(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *horse;
 
 	if (IS_NPC(ch))
 		return;

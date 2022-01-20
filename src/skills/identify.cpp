@@ -4,9 +4,9 @@
 
 #include "handler.h"
 
-void do_identify(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *cvict = nullptr, *caster = ch;
-	OBJ_DATA *ovict = nullptr;
+void do_identify(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *cvict = nullptr, *caster = ch;
+	ObjectData *ovict = nullptr;
 	struct Timed timed;
 	int k, level = 0;
 

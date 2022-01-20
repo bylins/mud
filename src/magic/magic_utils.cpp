@@ -32,7 +32,7 @@ char cast_argument[kMaxStringLength];
 extern int what_sky;
 
 
-int CalculateRequiredLevel(const CHAR_DATA *ch, int spellnum) {
+int CalculateRequiredLevel(const CharacterData *ch, int spellnum) {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 
 	if (required_level >= kLevelGod)
@@ -46,7 +46,7 @@ int CalculateRequiredLevel(const CHAR_DATA *ch, int spellnum) {
 }
 
 // SaySpell erodes buf, buf1, buf2
-void SaySpell(CHAR_DATA *ch, int spellnum, CHAR_DATA *tch, OBJ_DATA *tobj) {
+void SaySpell(CharacterData *ch, int spellnum, CharacterData *tch, ObjectData *tobj) {
 	char lbuf[256];
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 		*helpee_vict, *damagee_vict, *format;
@@ -266,7 +266,7 @@ int FixNameAndFindSpellNum(std::string &name) {
 	return FindSpellNum(name.c_str());
 }
 
-bool MayCastInNomagic(CHAR_DATA *caster, int spellnum) {
+bool MayCastInNomagic(CharacterData *caster, int spellnum) {
 	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, MAG_WARCRY)) {
 		return true;
 	}
@@ -274,7 +274,7 @@ bool MayCastInNomagic(CHAR_DATA *caster, int spellnum) {
 	return false;
 }
 
-bool MayCastHere(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum) {
+bool MayCastHere(CharacterData *caster, CharacterData *victim, int spellnum) {
 	int ignore;
 
 	if (IS_GRGOD(caster) || !ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL)) {
@@ -335,7 +335,7 @@ bool MayCastHere(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum) {
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int CallMagic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level) {
+int CallMagic(CharacterData *caster, CharacterData *cvict, ObjectData *ovict, RoomData *rvict, int spellnum, int level) {
 
 	if (spellnum < 1 || spellnum > SPELLS_COUNT)
 		return 0;
@@ -401,9 +401,9 @@ const char *what_weapon[] = {"плеть",
 * Поиск предмета для каста локейта (без учета видимости для чара и с поиском
 * как в основном списке, так и в личных хранилищах с почтой).
 */
-OBJ_DATA *FindObjForLocate(CHAR_DATA *ch, const char *name) {
-//	OBJ_DATA *obj = ObjectAlias::locate_object(name);
-	OBJ_DATA *obj = get_obj_vis_for_locate(ch, name);
+ObjectData *FindObjForLocate(CharacterData *ch, const char *name) {
+//	ObjectData *obj = ObjectAlias::locate_object(name);
+	ObjectData *obj = get_obj_vis_for_locate(ch, name);
 	if (!obj) {
 		obj = Depot::locate_object(name);
 		if (!obj) {
@@ -413,7 +413,7 @@ OBJ_DATA *FindObjForLocate(CHAR_DATA *ch, const char *name) {
 	return obj;
 }
 
-int FindCastTarget(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, OBJ_DATA **tobj, ROOM_DATA **troom) {
+int FindCastTarget(int spellnum, const char *t, CharacterData *ch, CharacterData **tch, ObjectData **tobj, RoomData **troom) {
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
@@ -540,7 +540,7 @@ int FindCastTarget(int spellnum, const char *t, CHAR_DATA *ch, CHAR_DATA **tch, 
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, int spellnum, int spell_subst) {
+int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData *troom, int spellnum, int spell_subst) {
 	int ignore;
 
 	if (spellnum < 0 || spellnum > SPELLS_COUNT) {
@@ -658,7 +658,7 @@ int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, i
 	return (CallMagic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)));
 }
 
-int CalculateCastSuccess(CHAR_DATA *ch, CHAR_DATA *victim, int casting_type, int spellnum) {
+int CalculateCastSuccess(CharacterData *ch, CharacterData *victim, int casting_type, int spellnum) {
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
 		return true;
 	}

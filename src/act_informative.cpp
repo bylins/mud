@@ -97,66 +97,66 @@ extern char const *kin_abbrevs[];
 //extern const char *material_name[];
 extern im_type *imtypes;
 extern int top_imtypes;
-extern void show_code_date(CHAR_DATA *ch);
+extern void show_code_date(CharacterData *ch);
 extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
 // extern functions
 long find_class_bitvector(char arg);
-int level_exp(CHAR_DATA *ch, int level);
+int level_exp(CharacterData *ch, int level);
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
 // local functions
-const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show_state, int how);
-void list_obj_to_char(OBJ_DATA *list, CHAR_DATA *ch, int mode, int show);
-char *diag_obj_to_char(CHAR_DATA *i, OBJ_DATA *obj, int mode);
-const char *diag_obj_timer(const OBJ_DATA *obj);
-char *diag_timer_to_char(const OBJ_DATA *obj);
+const char *show_obj_to_char(ObjectData *object, CharacterData *ch, int mode, int show_state, int how);
+void list_obj_to_char(ObjectData *list, CharacterData *ch, int mode, int show);
+char *diag_obj_to_char(CharacterData *i, ObjectData *obj, int mode);
+const char *diag_obj_timer(const ObjectData *obj);
+char *diag_timer_to_char(const ObjectData *obj);
 int thaco(int class_num, int level);
 
-void do_affects(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_look(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_examine(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gold(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_score(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_inventory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_equipment(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_time(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_weather(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_who(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_users(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gen_ps(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void perform_mortal_where(CHAR_DATA *ch, char *arg);
-void perform_immort_where(CHAR_DATA *ch, char *arg);
-void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_affects(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_look(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_examine(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_gold(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_score(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_inventory(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_equipment(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_time(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_weather(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_who(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_users(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_gen_ps(CharacterData *ch, char *argument, int cmd, int subcmd);
+void perform_mortal_where(CharacterData *ch, char *arg);
+void perform_immort_where(CharacterData *ch, char *arg);
+void do_where(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_levels(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_consider(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_diagnose(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_toggle(CharacterData *ch, char *argument, int cmd, int subcmd);
 void sort_commands();
-void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_looking(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_quest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_check(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_cities(CHAR_DATA *ch, char *, int, int);
-void diag_char_to_char(CHAR_DATA *i, CHAR_DATA *ch);
-void look_at_char(CHAR_DATA *i, CHAR_DATA *ch);
-void list_one_char(CHAR_DATA *i, CHAR_DATA *ch, int skill_mode);
-void list_char_to_char(const ROOM_DATA::people_t &list, CHAR_DATA *ch);
-void do_auto_exits(CHAR_DATA *ch);
-void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void look_in_direction(CHAR_DATA *ch, int dir, int info_is);
-void look_in_obj(CHAR_DATA *ch, char *arg);
-char *find_exdesc(const char *word, const EXTRA_DESCR_DATA::shared_ptr &list);
-bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd);
-void gods_day_now(CHAR_DATA *ch);
-void do_blind_exits(CHAR_DATA *ch);
-const char *diag_liquid_timer(const OBJ_DATA *obj);
-char *daig_filling_drink(const OBJ_DATA *obj, const CHAR_DATA *ch);
+void do_commands(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_looking(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_hearing(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_sides(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_quest(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_check(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_cities(CharacterData *ch, char *, int, int);
+void diag_char_to_char(CharacterData *i, CharacterData *ch);
+void look_at_char(CharacterData *i, CharacterData *ch);
+void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode);
+void list_char_to_char(const RoomData::people_t &list, CharacterData *ch);
+void do_auto_exits(CharacterData *ch);
+void do_exits(CharacterData *ch, char *argument, int cmd, int subcmd);
+void look_in_direction(CharacterData *ch, int dir, int info_is);
+void look_in_obj(CharacterData *ch, char *arg);
+char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
+bool look_at_target(CharacterData *ch, char *arg, int subcmd);
+void gods_day_now(CharacterData *ch);
+void do_blind_exits(CharacterData *ch);
+const char *diag_liquid_timer(const ObjectData *obj);
+char *daig_filling_drink(const ObjectData *obj, const CharacterData *ch);
 #define EXIT_SHOW_WALL    (1 << 0)
 #define EXIT_SHOW_LOOKING (1 << 1)
 
-void do_quest(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_quest(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	send_to_char("У Вас нет никаких ежедневных поручений.\r\nЧтобы взять новые, наберите &Wпоручения получить&n.\r\n",
 				 ch);
@@ -185,12 +185,12 @@ const char *ObjState[8][2] = {{"рассыпается", "рассыпается
 							  {"великолепно", "в великолепном состоянии"}
 };
 
-void do_check(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_check(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!login_change_invoice(ch))
 		send_to_char("Проверка показала: новых сообщений нет.\r\n", ch);
 }
 
-char *diag_obj_to_char(CHAR_DATA *i, OBJ_DATA *obj, int mode) {
+char *diag_obj_to_char(CharacterData *i, ObjectData *obj, int mode) {
 	static char out_str[80] = "\0";
 	const char *color;
 	int percent;
@@ -250,7 +250,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 	int need_str = 0;
 
 	*out_str = '\0';
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 		switch (GET_OBJ_SKILL(obj)) {
 			case SKILL_BOWS: skill = 1;
 				break;
@@ -362,7 +362,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 }
 
 // Чтобы можно было получить только строку состяния
-const char *diag_obj_timer(const OBJ_DATA *obj) {
+const char *diag_obj_timer(const ObjectData *obj) {
 	int prot_timer;
 	if (GET_OBJ_RNUM(obj) != kNothing) {
 		if (check_unlimited_timer(obj)) {
@@ -385,18 +385,18 @@ const char *diag_obj_timer(const OBJ_DATA *obj) {
 	return "";
 }
 
-char *diag_timer_to_char(const OBJ_DATA *obj) {
+char *diag_timer_to_char(const ObjectData *obj) {
 	static char out_str[kMaxStringLength];
 	*out_str = 0;
 	sprintf(out_str, "Состояние: %s.", diag_obj_timer(obj));
 	return (out_str);
 }
 
-char *diag_uses_to_char(OBJ_DATA *obj, CHAR_DATA *ch) {
+char *diag_uses_to_char(ObjectData *obj, CharacterData *ch) {
 	static char out_str[kMaxStringLength];
 
 	*out_str = 0;
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT
 		&& IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
 		&& GET_CLASS(ch) == CLASS_DRUID) {
 		int i = -1;
@@ -410,11 +410,11 @@ char *diag_uses_to_char(OBJ_DATA *obj, CHAR_DATA *ch) {
 	return (out_str);
 }
 
-char *diag_shot_to_char(OBJ_DATA *obj, CHAR_DATA *ch) {
+char *diag_shot_to_char(ObjectData *obj, CharacterData *ch) {
 	static char out_str[kMaxStringLength];
 
 	*out_str = 0;
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_MAGIC_CONTAINER
 		&& (GET_CLASS(ch) == CLASS_RANGER || GET_CLASS(ch) == CLASS_CHARMMAGE || GET_CLASS(ch) == CLASS_DRUID)) {
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
@@ -450,14 +450,14 @@ std::string space_before_string(std::string text) {
 
 namespace {
 
-std::string diag_armor_type_to_char(const OBJ_DATA *obj) {
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_LIGHT) {
+std::string diag_armor_type_to_char(const ObjectData *obj) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ARMOR_LIGHT) {
 		return "Легкий тип доспехов.\r\n";
 	}
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_MEDIAN) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ARMOR_MEDIAN) {
 		return "Средний тип доспехов.\r\n";
 	}
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_HEAVY) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ARMOR_HEAVY) {
 		return "Тяжелый тип доспехов.\r\n";
 	}
 	return "";
@@ -467,7 +467,7 @@ std::string diag_armor_type_to_char(const OBJ_DATA *obj) {
 
 // для использования с чарами:
 // возвращает метки предмета, если они есть и смотрящий является их автором или является членом соотв. клана
-std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch) {
+std::string char_get_custom_label(ObjectData *obj, CharacterData *ch) {
 	const char *delim_l = nullptr;
 	const char *delim_r = nullptr;
 
@@ -489,7 +489,7 @@ std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch) {
 }
 
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
-const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show_state, int how) {
+const char *show_obj_to_char(ObjectData *object, CharacterData *ch, int mode, int show_state, int how) {
 	*buf = '\0';
 	if ((mode < 5) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
 		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
@@ -502,7 +502,7 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 		strcat(buf, object->get_short_description().c_str());
 		strcat(buf, char_get_custom_label(object, ch).c_str());
 	} else if (mode == 5) {
-		if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_NOTE) {
+		if (GET_OBJ_TYPE(object) == ObjectData::ITEM_NOTE) {
 			if (!object->get_action_description().empty()) {
 				strcpy(buf, "Вы прочитали следующее :\r\n\r\n");
 				strcat(buf, space_before_string(object->get_action_description().c_str()).c_str());
@@ -511,12 +511,12 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 				send_to_char("Чисто.\r\n", ch);
 			}
 			return nullptr;
-		} else if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_BANDAGE) {
+		} else if (GET_OBJ_TYPE(object) == ObjectData::ITEM_BANDAGE) {
 			strcpy(buf, "Бинты для перевязки ран ('перевязать').\r\n");
 			snprintf(buf2, kMaxStringLength, "Осталось применений: %d, восстановление: %d",
 					 GET_OBJ_WEIGHT(object), GET_OBJ_VAL(object, 0) * 10);
 			strcat(buf, buf2);
-		} else if (GET_OBJ_TYPE(object) != OBJ_DATA::ITEM_DRINKCON) {
+		} else if (GET_OBJ_TYPE(object) != ObjectData::ITEM_DRINKCON) {
 			strcpy(buf, "Вы не видите ничего необычного.");
 		} else        // ITEM_TYPE == ITEM_DRINKCON||FOUNTAIN
 		{
@@ -527,7 +527,7 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 	if (show_state && show_state != 3 && show_state != 4) {
 		*buf2 = '\0';
 		if (mode == 1 && how <= 1) {
-			if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_LIGHT) {
+			if (GET_OBJ_TYPE(object) == ObjectData::ITEM_LIGHT) {
 				if (GET_OBJ_VAL(object, 2) == -1)
 					strcpy(buf2, " (вечный свет)");
 				else if (GET_OBJ_VAL(object, 2) == 0)
@@ -541,7 +541,7 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 							CCNRM(ch, C_NRM), diag_obj_to_char(ch, object, 1));
 				} else {
 					sprintf(buf2, " %s ", diag_obj_to_char(ch, object, 1));
-					if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON) {
+					if (GET_OBJ_TYPE(object) == ObjectData::ITEM_DRINKCON) {
 							char *tmp = daig_filling_drink(object, ch);
 							char tmp2[128];
 							*tmp = LOWER(*tmp);
@@ -550,7 +550,7 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 					}
 				}
 			}
-			if ((GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_CONTAINER)
+			if ((GET_OBJ_TYPE(object) == ObjectData::ITEM_CONTAINER)
 				&& !OBJVAL_FLAGGED(object, CONT_CLOSED)) // если закрыто, содержимое не показываем
 			{
 				if (object->get_contains()) {
@@ -563,7 +563,7 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 		} else if (mode >= 2 && how <= 1) {
 			std::string obj_name = OBJN(object, ch, 0);
 			obj_name[0] = UPPER(obj_name[0]);
-			if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_LIGHT) {
+			if (GET_OBJ_TYPE(object) == ObjectData::ITEM_LIGHT) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
 					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());
 				} else if (GET_OBJ_VAL(object, 2) == 0) {
@@ -638,7 +638,7 @@ const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show
 	return nullptr;
 }
 
-void do_cities(CHAR_DATA *ch, char *, int, int) {
+void do_cities(CharacterData *ch, char *, int, int) {
 	send_to_char("Города на Руси:\r\n", ch);
 	for (unsigned int i = 0; i < cities.size(); i++) {
 		sprintf(buf, "%3d.", i + 1);
@@ -655,15 +655,15 @@ void do_cities(CHAR_DATA *ch, char *, int, int) {
 	}
 }
 
-bool quest_item(OBJ_DATA *obj) {
+bool quest_item(ObjectData *obj) {
 	if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY)) && (!(CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE)))) {
 		return true;
 	}
 	return false;
 }
 
-void list_obj_to_char(OBJ_DATA *list, CHAR_DATA *ch, int mode, int show) {
-	OBJ_DATA *i, *push = nullptr;
+void list_obj_to_char(ObjectData *list, CharacterData *ch, int mode, int show) {
+	ObjectData *i, *push = nullptr;
 	bool found = false;
 	int push_count = 0;
 	std::ostringstream buffer;
@@ -716,7 +716,7 @@ void list_obj_to_char(OBJ_DATA *list, CHAR_DATA *ch, int mode, int show) {
 		page_string(ch->desc, buffer.str());
 }
 
-void diag_char_to_char(CHAR_DATA *i, CHAR_DATA *ch) {
+void diag_char_to_char(CharacterData *i, CharacterData *ch) {
 	int percent;
 
 	if (GET_REAL_MAX_HIT(i) > 0)
@@ -789,9 +789,9 @@ void diag_char_to_char(CHAR_DATA *i, CHAR_DATA *ch) {
 
 }
 
-void look_at_char(CHAR_DATA *i, CHAR_DATA *ch) {
+void look_at_char(CharacterData *i, CharacterData *ch) {
 	int j, found, push_count = 0;
-	OBJ_DATA *tmp_obj, *push = nullptr;
+	ObjectData *tmp_obj, *push = nullptr;
 
 	if (!ch->desc)
 		return;
@@ -969,7 +969,7 @@ void look_at_char(CHAR_DATA *i, CHAR_DATA *ch) {
 	}
 }
 
-void list_one_char(CHAR_DATA *i, CHAR_DATA *ch, int skill_mode) {
+void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode) {
 	int sector = kSectCity;
 	int n;
 	char aura_txt[200];
@@ -1227,7 +1227,7 @@ void list_one_char(CHAR_DATA *i, CHAR_DATA *ch, int skill_mode) {
 
 	if (GET_POS(i) != POS_FIGHTING) {
 		if (i->ahorse()) {
-			CHAR_DATA *horse = i->get_horse();
+			CharacterData *horse = i->get_horse();
 			if (horse) {
 				const char *msg =
 					AFF_FLAGGED(horse, EAffectFlag::AFF_FLY) ? "летает" : "сидит";
@@ -1415,7 +1415,7 @@ void list_one_char(CHAR_DATA *i, CHAR_DATA *ch, int skill_mode) {
 
 }
 
-void list_char_to_char(const ROOM_DATA::people_t &list, CHAR_DATA *ch) {
+void list_char_to_char(const RoomData::people_t &list, CharacterData *ch) {
 	for (const auto i : list) {
 		if (ch != i) {
 			if (HERE(i) && (GET_RACE(i) != NPC_RACE_THING)
@@ -1431,8 +1431,8 @@ void list_char_to_char(const ROOM_DATA::people_t &list, CHAR_DATA *ch) {
 		}
 	}
 }
-void list_char_to_char_thing(const ROOM_DATA::people_t &list,
-							 CHAR_DATA *ch)   //мобы рассы предмет будем выводить вместе с предметами желтеньким
+void list_char_to_char_thing(const RoomData::people_t &list,
+							 CharacterData *ch)   //мобы рассы предмет будем выводить вместе с предметами желтеньким
 {
 	for (const auto i : list) {
 		if (ch != i) {
@@ -1443,7 +1443,7 @@ void list_char_to_char_thing(const ROOM_DATA::people_t &list,
 	}
 }
 
-void do_auto_exits(CHAR_DATA *ch) {
+void do_auto_exits(CharacterData *ch) {
 	int door, slen = 0;
 
 	*buf = '\0';
@@ -1467,7 +1467,7 @@ void do_auto_exits(CHAR_DATA *ch) {
 	send_to_char(buf2, ch);
 }
 
-void do_exits(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_exits(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int door;
 
 	*buf = '\0';
@@ -1509,7 +1509,7 @@ void do_exits(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else
 		send_to_char(" Замуровали, ДЕМОНЫ!\r\n", ch);
 }
-void do_blind_exits(CHAR_DATA *ch) {
+void do_blind_exits(CharacterData *ch) {
 	int door;
 
 	*buf = '\0';
@@ -1611,7 +1611,7 @@ int paste_description(char *string, const char *tag, int need) {
 	return (true);
 }
 
-void show_extend_room(const char *const description, CHAR_DATA *ch) {
+void show_extend_room(const char *const description, CharacterData *ch) {
 	int found = false;
 	char string[kMaxStringLength], *pos;
 
@@ -1679,7 +1679,7 @@ bool put_delim(std::stringstream &out, bool delim) {
 	return true;
 }
 
-void print_zone_info(CHAR_DATA *ch) {
+void print_zone_info(CharacterData *ch) {
 	ZoneData *zone = &zone_table[world[ch->in_room]->zone_rn];
 	std::stringstream out;
 	out << "\r\n" << zone->name;
@@ -1702,9 +1702,9 @@ void print_zone_info(CHAR_DATA *ch) {
 	send_to_char(out.str(), ch);
 }
 
-void show_glow_objs(CHAR_DATA *ch) {
+void show_glow_objs(CharacterData *ch) {
 	unsigned cnt = 0;
-	for (OBJ_DATA *obj = world[ch->in_room]->contents;
+	for (ObjectData *obj = world[ch->in_room]->contents;
 		 obj; obj = obj->get_next_content()) {
 		if (obj->get_extra_flag(EExtraFlag::ITEM_GLOW)) {
 			++cnt;
@@ -1721,7 +1721,7 @@ void show_glow_objs(CHAR_DATA *ch) {
 	send_to_char(str, ch);
 }
 
-void show_room_affects(CHAR_DATA *ch, const char *name_affects[], const char *name_self_affects[]) {
+void show_room_affects(CharacterData *ch, const char *name_affects[], const char *name_self_affects[]) {
 	bitvector_t bitvector = 0;
 	std::ostringstream buffer;
 
@@ -1815,7 +1815,7 @@ void show_room_affects(CHAR_DATA *ch, const char *name_affects[], const char *na
 	}
 }
 
-void look_at_room(CHAR_DATA *ch, int ignore_brief) {
+void look_at_room(CharacterData *ch, int ignore_brief) {
 	if (!ch->desc)
 		return;
 
@@ -1971,9 +1971,9 @@ void look_at_room(CHAR_DATA *ch, int ignore_brief) {
 	}
 }
 
-void look_in_direction(CHAR_DATA *ch, int dir, int info_is) {
+void look_in_direction(CharacterData *ch, int dir, int info_is) {
 	int count = 0, probe, percent;
-	ROOM_DATA::exit_data_ptr rdata;
+	RoomData::exit_data_ptr rdata;
 
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
@@ -2046,9 +2046,9 @@ void look_in_direction(CHAR_DATA *ch, int dir, int info_is) {
 		send_to_char("И что вы там мечтаете увидеть?\r\n", ch);
 }
 
-void hear_in_direction(CHAR_DATA *ch, int dir, int info_is) {
+void hear_in_direction(CharacterData *ch, int dir, int info_is) {
 	int count = 0, percent = 0, probe = 0;
-	ROOM_DATA::exit_data_ptr rdata;
+	RoomData::exit_data_ptr rdata;
 	int fight_count = 0;
 	string tmpstr;
 
@@ -2134,9 +2134,9 @@ void hear_in_direction(CHAR_DATA *ch, int dir, int info_is) {
 	}
 }
 
-void look_in_obj(CHAR_DATA *ch, char *arg) {
-	OBJ_DATA *obj = nullptr;
-	CHAR_DATA *dummy = nullptr;
+void look_in_obj(CharacterData *ch, char *arg) {
+	ObjectData *obj = nullptr;
+	CharacterData *dummy = nullptr;
 	char whatp[kMaxInputLength], where[kMaxInputLength];
 	int amt, bits;
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
@@ -2158,9 +2158,9 @@ void look_in_obj(CHAR_DATA *ch, char *arg) {
 	if ((obj == nullptr) || !bits) {
 		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
 		send_to_char(buf, ch);
-	} else if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_DRINKCON
-		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_FOUNTAIN
-		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_CONTAINER) {
+	} else if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(obj) != ObjectData::ITEM_FOUNTAIN
+		&& GET_OBJ_TYPE(obj) != ObjectData::ITEM_CONTAINER) {
 		send_to_char("Ничего в нем нет!\r\n", ch);
 	} else {
 		if (Clan::ChestShow(obj, ch)) {
@@ -2174,7 +2174,7 @@ void look_in_obj(CHAR_DATA *ch, char *arg) {
 			return;
 		}
 
-		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER) {
+		if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER) {
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED)) {
 				act("Закрыт$A.", false, ch, obj, nullptr, TO_CHAR);
 				const int skill_pick = ch->get_skill(SKILL_PICK_LOCK);
@@ -2228,7 +2228,7 @@ void look_in_obj(CHAR_DATA *ch, char *arg) {
 	}
 }
 
-char *find_exdesc(const char *word, const EXTRA_DESCR_DATA::shared_ptr &list) {
+char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list) {
 	for (auto i = list; i; i = i->next) {
 		if (isname(word, i->keyword)) {
 			return i->description;
@@ -2237,7 +2237,7 @@ char *find_exdesc(const char *word, const EXTRA_DESCR_DATA::shared_ptr &list) {
 
 	return nullptr;
 }
-char *daig_filling_drink(const OBJ_DATA *obj, const CHAR_DATA *ch) {
+char *daig_filling_drink(const ObjectData *obj, const CharacterData *ch) {
 	char tmp[256];
 	if (GET_OBJ_VAL(obj, 1) <= 0) {
 		sprintf(buf1, "Пусто");
@@ -2259,7 +2259,7 @@ char *daig_filling_drink(const OBJ_DATA *obj, const CHAR_DATA *ch) {
 		}
 }
 
-const char *diag_liquid_timer(const OBJ_DATA *obj) {
+const char *diag_liquid_timer(const ObjectData *obj) {
 	int tm;
 	if (GET_OBJ_VAL(obj, 3) == 1)
 		return "испортилось!";
@@ -2279,7 +2279,7 @@ const char *diag_liquid_timer(const OBJ_DATA *obj) {
 
 //ф-ция вывода доп инфы об объекте
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
-void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]) {
+void obj_info(CharacterData *ch, ObjectData *obj, char buf[kMaxStringLength]) {
 	int j;
 	if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT) || ch->get_skill(SKILL_INSERTGEM)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
@@ -2287,7 +2287,7 @@ void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]) {
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING
 		&& (can_use_feat(ch, BREW_POTION_FEAT)
 			|| PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
@@ -2359,11 +2359,11 @@ void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]) {
  * suggested fix to this problem.
  * \return флаг если смотрим в клан-сундук, чтобы после осмотра не смотреть второй раз по look_in_obj
  */
-bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd) {
+bool look_at_target(CharacterData *ch, char *arg, int subcmd) {
 	int bits, found = false, fnum, i = 0, cn = 0;
 	struct Portal *port;
-	CHAR_DATA *found_char = nullptr;
-	OBJ_DATA *found_obj = nullptr;
+	CharacterData *found_char = nullptr;
+	ObjectData *found_obj = nullptr;
 	struct CharacterPortal *tmp;
 	char *desc, *what, whatp[kMaxInputLength], where[kMaxInputLength];
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
@@ -2504,7 +2504,7 @@ bool look_at_target(CHAR_DATA *ch, char *arg, int subcmd) {
 	return false;
 }
 
-void skip_hide_on_look(CHAR_DATA *ch) {
+void skip_hide_on_look(CharacterData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) &&
 		((!ch->get_skill(SKILL_LOOK_HIDE) ||
 			((number(1, 100) -
@@ -2517,7 +2517,7 @@ void skip_hide_on_look(CHAR_DATA *ch) {
 	}
 }
 
-void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_look(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char arg2[kMaxInputLength];
 	int look_type;
 
@@ -2580,7 +2580,7 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-void do_sides(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_sides(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;
 
 	if (!ch->desc)
@@ -2599,7 +2599,7 @@ void do_sides(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_looking(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_looking(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;
 
 	if (!ch->desc)
@@ -2623,7 +2623,7 @@ void do_looking(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вам явно не хватает этого умения.\r\n", ch);
 }
 
-void do_hearing(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_hearing(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;
 
 	if (!ch->desc)
@@ -2650,9 +2650,9 @@ void do_hearing(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Выучите сначала как это следует делать.\r\n", ch);
 }
 
-void do_examine(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	CHAR_DATA *tmp_char;
-	OBJ_DATA *tmp_object;
+void do_examine(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+	CharacterData *tmp_char;
+	ObjectData *tmp_object;
 	char where[kMaxInputLength];
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
@@ -2693,15 +2693,15 @@ void do_examine(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	generic_find(arg, where_bits, ch, &tmp_char, &tmp_object);
 	if (tmp_object) {
-		if (GET_OBJ_TYPE(tmp_object) == OBJ_DATA::ITEM_DRINKCON
-			|| GET_OBJ_TYPE(tmp_object) == OBJ_DATA::ITEM_FOUNTAIN
-			|| GET_OBJ_TYPE(tmp_object) == OBJ_DATA::ITEM_CONTAINER) {
+		if (GET_OBJ_TYPE(tmp_object) == ObjectData::ITEM_DRINKCON
+			|| GET_OBJ_TYPE(tmp_object) == ObjectData::ITEM_FOUNTAIN
+			|| GET_OBJ_TYPE(tmp_object) == ObjectData::ITEM_CONTAINER) {
 			look_in_obj(ch, argument);
 		}
 	}
 }
 
-void do_gold(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_gold(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_gold() == 0)
 		send_to_char("Вы разорены!\r\n", ch);
 	else if (ch->get_gold() == 1)
@@ -2801,13 +2801,13 @@ const char *ac_text[] =
 		"&rВы почти полностью уязвимы",
 		"&rВы полностью уязвимы",    // 10
 	};
-int calc_hr_info(CHAR_DATA *ch) {
+int calc_hr_info(CharacterData *ch) {
 	ESkill skill = SKILL_BOTHHANDS;
 	int hr = 0;
 	int max_dam = 0;
-	OBJ_DATA *weapon = GET_EQ(ch, WEAR_BOTHS);
+	ObjectData *weapon = GET_EQ(ch, WEAR_BOTHS);
 	if (weapon) {
-		if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
+		if (GET_OBJ_TYPE(weapon) == ObjectData::ITEM_WEAPON) {
 			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 			if (ch->get_skill(skill) == SKILL_INVALID) {
 				hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
@@ -2818,7 +2818,7 @@ int calc_hr_info(CHAR_DATA *ch) {
 	} else {
 		weapon = GET_EQ(ch, WEAR_HOLD);
 		if (weapon) {
-			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
+			if (GET_OBJ_TYPE(weapon) == ObjectData::ITEM_WEAPON) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 				if (ch->get_skill(skill) == SKILL_INVALID) {
 					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
@@ -2829,7 +2829,7 @@ int calc_hr_info(CHAR_DATA *ch) {
 		}
 		weapon = GET_EQ(ch, WEAR_WIELD);
 		if (weapon) {
-			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON) {
+			if (GET_OBJ_TYPE(weapon) == ObjectData::ITEM_WEAPON) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
 				if (ch->get_skill(skill) == SKILL_INVALID) {
 					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
@@ -2869,7 +2869,7 @@ int calc_hr_info(CHAR_DATA *ch) {
 	return hr;
 }
 
-const char *list_score_pos(CHAR_DATA *ch) {
+const char *list_score_pos(CharacterData *ch) {
 	switch (GET_POS(ch)) {
 		case POS_DEAD: 
 			return "Вы МЕРТВЫ!\r\n";
@@ -2909,7 +2909,7 @@ const char *list_score_pos(CHAR_DATA *ch) {
 return "Вы незнамо что делаете!!!\r\n";
 }
 
-void print_do_score_list(CHAR_DATA *ch) {
+void print_do_score_list(CharacterData *ch) {
 
 	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)).c_str());
 	buf[0] = LOWER(buf[0]);
@@ -3000,7 +3000,7 @@ void print_do_score_list(CHAR_DATA *ch) {
 		send_to_char(ch, "Вы защищены от призыва.\r\n");
 	send_to_char(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > NORM_COND_VALUE)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	ROOM_DATA *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room) {
 		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
 		if (timer_room_label > 0) {
@@ -3027,7 +3027,7 @@ void print_do_score_list(CHAR_DATA *ch) {
 
 }
 
-void print_do_score_all(CHAR_DATA *ch) {
+void print_do_score_all(CharacterData *ch) {
 	int ac, max_dam = 0;
 
 	std::string sum = string("Вы ") + string(ch->get_name()) + string(", ")
@@ -3344,7 +3344,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	ROOM_DATA *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room) {
 		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
 		sprintf(buf + strlen(buf),
@@ -3548,7 +3548,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 		test_self_hitroll(ch);
 }
 
-void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_score(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	TimeInfoData playing_time;
 	int ac, ac_t;
 
@@ -3675,7 +3675,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	ROOM_DATA *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
@@ -3871,7 +3871,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 //29.11.09 Отображение количества рипов (с) Василиса
 // edited by WorM 2011.05.21
-void do_mystat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mystat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 	if (is_abbrev(argument, "очистить") || is_abbrev(argument, "clear")) {
 		GET_RIP_MOBTHIS(ch) = GET_EXP_MOBTHIS(ch) = GET_RIP_MOB(ch) = GET_EXP_MOB(ch) =
@@ -3914,12 +3914,12 @@ void do_mystat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // end by WorM
 // конец правки (с) Василиса
 
-void do_inventory(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_inventory(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("Вы несете:\r\n", ch);
 	list_obj_to_char(ch->carrying, ch, 1, 2);
 }
 
-void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_equipment(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, found = 0;
 	skip_spaces(&argument);
 
@@ -3942,7 +3942,7 @@ void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if ((i == 16) || (i == 17))
 						continue;
 				if ((i == 19) && (GET_EQ(ch, WEAR_BOTHS))) {
-					if (!(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON)
+					if (!(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == ObjectData::ITEM_WEAPON)
 						&& (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS)))
 						continue;
 				} else if (i == 19)
@@ -3969,7 +3969,7 @@ void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_time(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_time(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int day, month, days_go;
 	if (IS_NPC(ch))
 		return;
@@ -4078,7 +4078,7 @@ int get_moon(int sky) {
 	return (0);
 }
 
-void do_weather(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_weather(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int sky = weather_info.sky, weather_type = weather_info.weather_type;
 	const char *sky_look[] = {"облачное",
 							  "пасмурное",
@@ -4160,7 +4160,7 @@ const char *MORT_WHO_FORMAT = "Формат: кто [имя] [-?]\r\n";
 
 } // namespace
 
-void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_who(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name_search[kMaxInputLength];
 	name_search[0] = '\0';
 
@@ -4440,7 +4440,7 @@ std::string print_server_uptime() {
 	return boost::str(boost::format("Времени с перезагрузки: %dд %02d:%02d:%02d\r\n") % d % h % m % s);
 }
 
-void do_statistic(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_statistic(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int proff[NUM_PLAYER_CLASSES][2];
 	int ptot[NUM_PLAYER_CLASSES];
 	int i, clan = 0, noclan = 0, hilvl = 0, lowlvl = 0, all = 0, rem = 0, norem = 0, pk = 0, nopk = 0;
@@ -4573,7 +4573,7 @@ void do_statistic(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 #define USERS_FORMAT \
 "Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
 #define MAX_LIST_LEN 200
-void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_users(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const char *format = "%3d %-7s %-12s %-14s %-3s %-8s ";
 	char line[200], line2[220], idletime[10], classname[20];
 	char state[30] = "\0", *timeptr, mode;
@@ -4887,7 +4887,7 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	page_string(ch->desc, line, true);
 }
 
-void sendWhoami(CHAR_DATA *ch) {
+void sendWhoami(CharacterData *ch) {
 	sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
 	sprintf(buf + strlen(buf),
 			"Падежи : &W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n\r\n",
@@ -4927,7 +4927,7 @@ void sendWhoami(CHAR_DATA *ch) {
 }
 
 // Generic page_string function for displaying text
-void do_gen_ps(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
+void do_gen_ps(CharacterData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	//DescriptorData *d;
 	switch (subcmd) {
 		case SCMD_CREDITS: page_string(ch->desc, credits, 0);
@@ -4957,7 +4957,7 @@ void do_gen_ps(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	}
 }
 
-void perform_mortal_where(CHAR_DATA *ch, char *arg) {
+void perform_mortal_where(CharacterData *ch, char *arg) {
 	DescriptorData *d;
 
 	send_to_char("Кто много знает, тот плохо спит.\r\n", ch);
@@ -5014,7 +5014,7 @@ void perform_mortal_where(CHAR_DATA *ch, char *arg) {
 }
 
 // возвращает true если объект был выведен
-bool print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
+bool print_object_location(int num, const ObjectData *obj, CharacterData *ch) {
 	if (num > 0) {
 		sprintf(buf, "%2d. ", num);
 		if (IS_GRGOD(ch)) {
@@ -5057,7 +5057,7 @@ bool print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 			print_object_location(0, obj->get_in_obj(), ch);
 		}
 	} else {
-		for (EXCHANGE_ITEM_DATA *j = exchange_item_list; j; j = j->next) {
+		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 			if (GET_EXCHANGE_ITEM(j)->get_uid() == obj->get_uid()) {
 				sprintf(buf + strlen(buf), "на базаре однако, лот #%d\r\n", GET_EXCHANGE_ITEM_LOT(j));
 //				strcat(buf, buf1);
@@ -5094,10 +5094,10 @@ bool print_object_location(int num, const OBJ_DATA *obj, CHAR_DATA *ch) {
 * Иммский поиск шмоток по 'где' с проходом как по глобальному списку, так
 * и по спискам хранилищ и почты.
 */
-bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
+bool print_imm_where_obj(CharacterData *ch, char *arg, int num) {
 	bool found = false;
 
-	world_objects.foreach([&](const OBJ_DATA::shared_ptr object)    /* maybe it is possible to create some index instead of linear search */
+	world_objects.foreach([&](const ObjectData::shared_ptr object)    /* maybe it is possible to create some index instead of linear search */
 						  {
 							  if (isname(arg, object->get_aliases())) {
 								if (print_object_location(num, object.get(), ch)) {
@@ -5124,7 +5124,7 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
 	}
 }
 
-void perform_immort_where(CHAR_DATA *ch, char *arg) {
+void perform_immort_where(CharacterData *ch, char *arg) {
 	DescriptorData *d;
 	int num = 1, found = 0;
 
@@ -5178,7 +5178,7 @@ void perform_immort_where(CHAR_DATA *ch, char *arg) {
 	}
 }
 
-void do_where(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_where(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -5187,7 +5187,7 @@ void do_where(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		perform_mortal_where(ch, arg);
 }
 
-void do_levels(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_levels(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int i;
 	char *ptr = &buf[0];
 
@@ -5213,8 +5213,8 @@ void do_levels(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	page_string(ch->desc, buf, 1);
 }
 
-void do_consider(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_consider(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 	int diff;
 
 	one_argument(argument, buf);
@@ -5258,8 +5258,8 @@ void do_consider(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 }
 
-void do_diagnose(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_diagnose(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
 
 	one_argument(argument, buf);
 
@@ -5278,7 +5278,7 @@ void do_diagnose(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 const char *ctypes[] = {"выключен", "простой", "обычный", "полный", "\n"};
 
-void do_toggle(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_toggle(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 	if (GET_WIMP_LEV(ch) == 0)
@@ -5410,7 +5410,7 @@ void do_toggle(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	send_to_char(buf, ch);
 }
 
-void do_zone(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_zone(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->desc
 		&& !(IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
@@ -5467,10 +5467,10 @@ void sort_commands() {
 			}
 }
 
-void do_commands(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_commands(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int no, i, cmd_num, num_of;
 	int wizhelp = 0, socials = 0;
-	CHAR_DATA *vict = ch;
+	CharacterData *vict = ch;
 
 	one_argument(argument, arg);
 
@@ -5514,7 +5514,7 @@ void do_commands(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 std::array<EAffectFlag, 3> hiding = {EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_HIDE, EAffectFlag::AFF_CAMOUFLAGE};
 
-void do_affects(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_affects(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	char sp_name[kMaxStringLength];
 
 	// Show the bitset without "hiding" etc.

@@ -105,7 +105,7 @@ const char *default_race[] = {
 	"Веляне" //волхв
 };
 
-void genchar_disp_menu(CHAR_DATA *ch) {
+void genchar_disp_menu(CharacterData *ch) {
 	char buf[kMaxStringLength];
 
 	sprintf(buf,
@@ -133,7 +133,7 @@ void genchar_disp_menu(CHAR_DATA *ch) {
 	send_to_char(" Ваш выбор: ", ch);
 }
 
-int genchar_parse(CHAR_DATA *ch, char *arg) {
+int genchar_parse(CharacterData *ch, char *arg) {
 	int tmp_class;
 	switch (*arg) {
 		case 'А':
@@ -212,7 +212,7 @@ int genchar_parse(CHAR_DATA *ch, char *arg) {
  * the best 3 out of 4 rolls of a 6-sided die.  Each class then decides
  * which priority will be given for the best to worst stats.
  */
-void roll_real_abils(CHAR_DATA *ch) {
+void roll_real_abils(CharacterData *ch) {
 	int i;
 
 	switch (ch->get_class()) {

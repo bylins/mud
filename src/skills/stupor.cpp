@@ -10,7 +10,7 @@
 using namespace FightSystem;
 
 // ************************* STUPOR PROCEDURES
-void go_stupor(CHAR_DATA *ch, CHAR_DATA *victim) {
+void go_stupor(CharacterData *ch, CharacterData *victim) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -42,7 +42,7 @@ void go_stupor(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 }
 
-void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_stupor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_STUPOR) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -52,7 +52,7 @@ void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы хотите оглушить?\r\n", ch);
 		return;

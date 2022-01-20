@@ -18,7 +18,7 @@ using namespace AbilitySystem;
 // Временная костыльная функция до реализации встроенного механизма работы сайдскиллов
 // TODO Не забыть реализовать постоянный механизм
 void performShadowThrowSideAbilities(TechniqueRollType &technique) {
-	OBJ_DATA *weapon = GET_EQ(technique.actor(), technique.getWeaponEquipPosition());
+	ObjectData *weapon = GET_EQ(technique.actor(), technique.getWeaponEquipPosition());
 	if (!weapon) {
 		return;
 	}
@@ -50,7 +50,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 			to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
 			doSideAction = ([](TechniqueRollType &technique) {
-				AFFECT_DATA<EApplyLocation> af;
+				Affect<EApplyLocation> af;
 				af.type = SPELL_BATTLE;
 				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 				af.duration = pc_duration(technique.rival(), 2, GET_REAL_LEVEL(technique.actor()), 9, 6, 2);
@@ -64,7 +64,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
 			doSideAction = ([](TechniqueRollType &technique) {
-				AFFECT_DATA<EApplyLocation> af;
+				Affect<EApplyLocation> af;
 				af.type = SPELL_BATTLE;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
@@ -106,7 +106,7 @@ void performWeaponThrow(TechniqueRollType &technique, Damage &techniqueDamage) {
 		};
 	} else {
 		if (technique.isCriticalFail()) {
-			OBJ_DATA *weapon = unequip_char(technique.actor(), technique.getWeaponEquipPosition(), CharEquipFlags());
+			ObjectData *weapon = unequip_char(technique.actor(), technique.getWeaponEquipPosition(), CharEquipFlags());
 			if (weapon) {
 				obj_to_char(weapon, technique.actor());
 				send_to_char(technique.actor(), "&BВы выронили %s!&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());
@@ -116,7 +116,7 @@ void performWeaponThrow(TechniqueRollType &technique, Damage &techniqueDamage) {
 	techniqueDamage.process(technique.actor(), technique.rival());
 };
 
-void go_throw(CHAR_DATA *ch, CHAR_DATA *victim) {
+void go_throw(CharacterData *ch, CharacterData *victim) {
 
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -145,7 +145,7 @@ void go_throw(CHAR_DATA *ch, CHAR_DATA *victim) {
 	throwDamage.magic_type = STYPE_DARK;
 
 	ActionTargeting::FoesRosterType
-		roster{ch, victim, [](CHAR_DATA *ch, CHAR_DATA *victim) { return CAN_SEE(ch, victim); }};
+		roster{ch, victim, [](CharacterData *ch, CharacterData *victim) { return CAN_SEE(ch, victim); }};
 	for (auto target : roster) {
 		target = try_protect(target, ch);
 		weaponThrowRoll.initialize(ch, techniqueID, target);
@@ -166,7 +166,7 @@ void go_throw(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 }
 
-void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
 	if (!ch->get_skill(SKILL_THROW)) {
 		send_to_char("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
@@ -182,7 +182,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 	}
 */
-	CHAR_DATA *victim = findVictim(ch, argument);
+	CharacterData *victim = findVictim(ch, argument);
 	if (!victim) {
 		send_to_char("В кого мечем?\r\n", ch);
 		return;

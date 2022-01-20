@@ -6,7 +6,7 @@
 #include "entities/char.h"
 #include "entities/entity_constants.h"
 
-void reduce_exp_after_flee(CHAR_DATA *ch, CHAR_DATA *victim, RoomRnum room) {
+void reduce_exp_after_flee(CharacterData *ch, CharacterData *victim, RoomRnum room) {
 	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))
 		return;
 
@@ -15,7 +15,7 @@ void reduce_exp_after_flee(CHAR_DATA *ch, CHAR_DATA *victim, RoomRnum room) {
 }
 
 // ********************* FLEE PROCEDURE
-void go_flee(CHAR_DATA *ch) {
+void go_flee(CharacterData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || GET_WAIT(ch) > 0) {
 		return;
 	}
@@ -75,7 +75,7 @@ void go_flee(CHAR_DATA *ch) {
 	}
 }
 
-void go_dir_flee(CHAR_DATA *ch, int direction) {
+void go_dir_flee(CharacterData *ch, int direction) {
 	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0) {
 		return;
 	}
@@ -120,7 +120,7 @@ const char *FleeDirs[] = {"север",
 						  "вниз",
 						  "\n"};
 
-void do_flee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_flee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction = -1;
 	if (!ch->get_fighting()) {
 		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);

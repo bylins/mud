@@ -22,7 +22,7 @@
 #include "skills_info.h"
 #include "magic/spells_info.h"
 
-void do_statip(CHAR_DATA *ch, CHAR_DATA *k) {
+void do_statip(CharacterData *ch, CharacterData *k) {
 	log("Start logon list stat");
 
 	// Отображаем список ip-адресов с которых персонаж входил
@@ -46,9 +46,9 @@ void do_statip(CHAR_DATA *ch, CHAR_DATA *k) {
 	log("End logon list stat");
 }
 
-void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
+void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) {
 	int i, i2, found = 0;
-	OBJ_DATA *j;
+	ObjectData *j;
 	struct Follower *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
@@ -539,7 +539,7 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	} else        // this is a PC, display their global variables
 	{
 		if (SCRIPT(k)->global_vars) {
-			struct trig_var_data *tv;
+			struct TriggerVar *tv;
 			char name[kMaxInputLength];
 			void find_uid_name(char *uid, char *name);
 			send_to_char("Глобальные переменные:\r\n", ch);
@@ -584,10 +584,10 @@ void do_stat_character(CHAR_DATA *ch, CHAR_DATA *k, const int virt = 0) {
 	}
 }
 
-void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
+void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 	int i, found;
 	ObjVnum rnum, vnum;
-	OBJ_DATA *j2;
+	ObjectData *j2;
 	long int li;
 	bool is_grgod = (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) ? true : false;
 
@@ -730,7 +730,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	send_to_char(buf, ch);
 
 	switch (GET_OBJ_TYPE(j)) {
-		case OBJ_DATA::ITEM_BOOK:
+		case ObjectData::ITEM_BOOK:
 
 			switch (GET_OBJ_VAL(j, 0)) {
 				case BOOK_SPELL:
@@ -790,7 +790,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 					break;
 			}
 			break;
-		case OBJ_DATA::ITEM_LIGHT:
+		case ObjectData::ITEM_LIGHT:
 			if (GET_OBJ_VAL(j, 2) < 0) {
 				strcpy(buf, "Вечный свет!");
 			} else {
@@ -798,8 +798,8 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION:
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_POTION:
 			sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
 					GET_OBJ_VAL(j, 0),
 					spell_name(GET_OBJ_VAL(j, 1)),
@@ -807,8 +807,8 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 					spell_name(GET_OBJ_VAL(j, 3)));
 			break;
 
-		case OBJ_DATA::ITEM_WAND:
-		case OBJ_DATA::ITEM_STAFF:
+		case ObjectData::ITEM_WAND:
+		case ObjectData::ITEM_STAFF:
 			sprintf(buf, "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
 					spell_name(GET_OBJ_VAL(j, 3)),
 					GET_OBJ_VAL(j, 0),
@@ -816,23 +816,23 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 					GET_OBJ_VAL(j, 1));
 			break;
 
-		case OBJ_DATA::ITEM_WEAPON:
+		case ObjectData::ITEM_WEAPON:
 			sprintf(buf, "Повреждения: %dd%d, Тип повреждения: %d",
 					GET_OBJ_VAL(j, 1),
 					GET_OBJ_VAL(j, 2),
 					GET_OBJ_VAL(j, 3));
 			break;
 
-		case OBJ_DATA::ITEM_ARMOR:
-		case OBJ_DATA::ITEM_ARMOR_LIGHT:
-		case OBJ_DATA::ITEM_ARMOR_MEDIAN:
-		case OBJ_DATA::ITEM_ARMOR_HEAVY:sprintf(buf, "AC: [%d]  Броня: [%d]", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
+		case ObjectData::ITEM_ARMOR:
+		case ObjectData::ITEM_ARMOR_LIGHT:
+		case ObjectData::ITEM_ARMOR_MEDIAN:
+		case ObjectData::ITEM_ARMOR_HEAVY:sprintf(buf, "AC: [%d]  Броня: [%d]", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 			break;
 
-		case OBJ_DATA::ITEM_TRAP:sprintf(buf, "Spell: %d, - Hitpoints: %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
+		case ObjectData::ITEM_TRAP:sprintf(buf, "Spell: %d, - Hitpoints: %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 			break;
 
-		case OBJ_DATA::ITEM_CONTAINER:sprintbit(GET_OBJ_VAL(j, 1), container_bits, smallBuf);
+		case ObjectData::ITEM_CONTAINER:sprintbit(GET_OBJ_VAL(j, 1), container_bits, smallBuf);
 			//sprintf(buf, "Объем: %d, Тип ключа: %s, Номер ключа: %d, Труп: %s",
 			//	GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), YESNO(GET_OBJ_VAL(j, 3)));
 			if (IS_CORPSE(j)) {
@@ -844,8 +844,8 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOUNTAIN:sprinttype(GET_OBJ_VAL(j, 2), drinks, smallBuf);
+		case ObjectData::ITEM_DRINKCON:
+		case ObjectData::ITEM_FOUNTAIN:sprinttype(GET_OBJ_VAL(j, 2), drinks, smallBuf);
 			{
 				std::string spells = drinkcon::print_spells(ch, j);
 				boost::trim(spells);
@@ -854,20 +854,20 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_NOTE:sprintf(buf, "Tongue: %d", GET_OBJ_VAL(j, 0));
+		case ObjectData::ITEM_NOTE:sprintf(buf, "Tongue: %d", GET_OBJ_VAL(j, 0));
 			break;
 
-		case OBJ_DATA::ITEM_KEY:strcpy(buf, "");
+		case ObjectData::ITEM_KEY:strcpy(buf, "");
 			break;
 
-		case OBJ_DATA::ITEM_FOOD:
+		case ObjectData::ITEM_FOOD:
 			sprintf(buf,
 					"Насыщает(час): %d, Таймер (если 1 отравлено): %d",
 					GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 3));
 			break;
 
-		case OBJ_DATA::ITEM_MONEY:
+		case ObjectData::ITEM_MONEY:
 			sprintf(buf, "Сумма: %d\r\nВалюта: %s", GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 1) == currency::GOLD ? "куны" :
 					GET_OBJ_VAL(j, 1) == currency::ICE ? "искристые снежинки" :
@@ -875,7 +875,7 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 			);
 			break;
 
-		case OBJ_DATA::ITEM_INGREDIENT:sprintbit(GET_OBJ_SKILL(j), ingradient_bits, smallBuf);
+		case ObjectData::ITEM_INGREDIENT:sprintbit(GET_OBJ_SKILL(j), ingradient_bits, smallBuf);
 			sprintf(buf, "ingr bits %s", smallBuf);
 
 			if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_USES)) {
@@ -901,8 +901,8 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 						CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 			}
 			break;
-		case OBJ_DATA::ITEM_MAGIC_CONTAINER:
-		case OBJ_DATA::ITEM_MAGIC_ARROW:
+		case ObjectData::ITEM_MAGIC_CONTAINER:
+		case ObjectData::ITEM_MAGIC_ARROW:
 			sprintf(buf, "Заклинание: [%s]. Объем [%d]. Осталось стрел[%d].",
 					spell_name(GET_OBJ_VAL(j, 0)), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
 			break;
@@ -994,11 +994,11 @@ void do_stat_object(CHAR_DATA *ch, OBJ_DATA *j, const int virt = 0) {
 	}
 }
 
-void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
-	ROOM_DATA *rm = world[ch->in_room];
+void do_stat_room(CharacterData *ch, const int rnum = 0) {
+	RoomData *rm = world[ch->in_room];
 	int i, found;
-	OBJ_DATA *j;
-	CHAR_DATA *k;
+	ObjectData *j;
+	CharacterData *k;
 	char tmpBuf[255];
 
 	if (rnum != 0) {
@@ -1120,9 +1120,9 @@ void do_stat_room(CHAR_DATA *ch, const int rnum = 0) {
 	do_sstat_room(rm, ch);
 }
 
-void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
-	OBJ_DATA *object;
+void do_stat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
+	ObjectData *object;
 	int tmp;
 
 	half_chop(argument, buf1, buf2);

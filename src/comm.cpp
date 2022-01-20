@@ -166,7 +166,7 @@
 
 #define MXPMODE(arg) ESC "[" #arg "z"
 extern void log_zone_count_reset();
-extern int perform_move(CHAR_DATA *ch, int dir, int following, int checkmob, CHAR_DATA *leader);
+extern int perform_move(CharacterData *ch, int dir, int following, int checkmob, CharacterData *leader);
 // flags for show_list_to_char
 
 enum {
@@ -369,7 +369,7 @@ extern int max_playing;
 extern int nameserver_is_slow;    // see config.cpp
 extern int mana[];
 extern const char *save_info_msg[];    // In olc.cpp
-extern CHAR_DATA *combat_list;
+extern CharacterData *combat_list;
 extern int proc_color(char *inbuf, int color);
 extern void tact_auction(void);
 extern void log_code_date();
@@ -561,9 +561,9 @@ void redit_save_to_disk(int zone_num);
 void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
-void Crash_ldsave(CHAR_DATA *ch);
+void Crash_ldsave(CharacterData *ch);
 void Crash_save_all_rent();
-int level_exp(CHAR_DATA *ch, int level);
+int level_exp(CharacterData *ch, int level);
 unsigned long TxtToIp(const char *text);
 
 #ifdef __CXREF__
@@ -1555,7 +1555,7 @@ void timeadd(struct timeval *rslt, struct timeval *a, struct timeval *b) {
 	}
 }
 
-char *color_value(CHAR_DATA * /*ch*/, int real, int max) {
+char *color_value(CharacterData * /*ch*/, int real, int max) {
 	static char color[8];
 	switch (posi_value(real, max)) {
 		case -1:
@@ -1579,7 +1579,7 @@ char *color_value(CHAR_DATA * /*ch*/, int real, int max) {
 }
 
 /*
-char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
+char *show_state(CharacterData *ch, CharacterData *victim)
 { int ch_hp = 11;
   static char *WORD_STATE[12] =
               {"Умирает",
@@ -1605,7 +1605,7 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
 }
 */
 
-char *show_state(CHAR_DATA *ch, CHAR_DATA *victim) {
+char *show_state(CharacterData *ch, CharacterData *victim) {
 	static const char *WORD_STATE[12] = {"Смертельно ранен",
 										 "О.тяжело ранен",
 										 "О.тяжело ранен",
@@ -3009,7 +3009,7 @@ int perform_subst(DescriptorData *t, char *orig, char *subst) {
 * в оффлайн хранилище чара или нет, потому что втыкать это во всех случаях тупо,
 * а менять систему с пасами/дубликатами обламывает.
 */
-bool any_other_ch(CHAR_DATA *ch) {
+bool any_other_ch(CharacterData *ch) {
 	for (const auto &vict : character_list) {
 		if (!IS_NPC(vict)
 			&& vict.get() != ch
@@ -3360,20 +3360,20 @@ void signal_setup(void) {
 /* ****************************************************************
 *       Public routines for system-to-player-communication        *
 **************************************************************** */
-void send_stat_char(const CHAR_DATA *ch) {
+void send_stat_char(const CharacterData *ch) {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
 			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), ch->get_gold(), GET_REAL_LEVEL(ch));
 	SEND_TO_Q(fline, ch->desc);
 }
 
-void send_to_char(const char *messg, const CHAR_DATA *ch) {
+void send_to_char(const char *messg, const CharacterData *ch) {
 	if (ch->desc && messg)
 		SEND_TO_Q(messg, ch->desc);
 }
 
 // New edition :)
-void send_to_char(const CHAR_DATA *ch, const char *messg, ...) {
+void send_to_char(const CharacterData *ch, const char *messg, ...) {
 	va_list args;
 	char tmpbuf[kMaxStringLength];
 
@@ -3384,7 +3384,7 @@ void send_to_char(const CHAR_DATA *ch, const char *messg, ...) {
 }
 
 // а вот те еще одна едишн Ж)
-void send_to_char(const std::string &buffer, const CHAR_DATA *ch) {
+void send_to_char(const std::string &buffer, const CharacterData *ch) {
 	if (ch->desc && !buffer.empty())
 		send_to_char(buffer.c_str(), ch);
 }
@@ -3463,10 +3463,10 @@ void send_to_room(const char *messg, RoomRnum room, int to_awake) {
 
 // higher-level communication: the act() function
 void perform_act(const char *orig,
-				 CHAR_DATA *ch,
-				 const OBJ_DATA *obj,
+				 CharacterData *ch,
+				 const ObjectData *obj,
 				 const void *vict_obj,
-				 CHAR_DATA *to,
+				 CharacterData *to,
 				 const int arena,
 				 const std::string &kick_type) {
 	const char *i = nullptr;
@@ -3474,8 +3474,8 @@ void perform_act(const char *orig,
 	char lbuf[kMaxStringLength], *buf;
 	ubyte padis;
 	int stopbyte, cap = 0;
-	CHAR_DATA *dg_victim = nullptr;
-	OBJ_DATA *dg_target = nullptr;
+	CharacterData *dg_victim = nullptr;
+	ObjectData *dg_target = nullptr;
 	char *dg_arg = nullptr;
 
 	buf = lbuf;
@@ -3510,44 +3510,44 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, APERS((const CHAR_DATA *) vict_obj, to, 0, arena)));
+								 CHK_NULL(vict_obj, APERS((const CharacterData *) vict_obj, to, 0, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, APERS((const CHAR_DATA *) vict_obj, to, padis, arena)));
+								 CHK_NULL(vict_obj, APERS((const CharacterData *) vict_obj, to, padis, arena)));
 						i = nbuf;
 					}
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'm': i = HMHR(ch);
 					break;
 				case 'M':
 					if (vict_obj)
-						i = HMHR((const CHAR_DATA *) vict_obj);
+						i = HMHR((const CharacterData *) vict_obj);
 					else CHECK_NULL(obj, OMHR(obj));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 's': i = HSHR(ch);
 					break;
 				case 'S':
 					if (vict_obj)
-						i = CHK_NULL(vict_obj, HSHR((const CHAR_DATA *) vict_obj));
+						i = CHK_NULL(vict_obj, HSHR((const CharacterData *) vict_obj));
 					else CHECK_NULL(obj, OSHR(obj));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'e': i = HSSH(ch);
 					break;
 				case 'E':
 					if (vict_obj)
-						i = CHK_NULL(vict_obj, HSSH((const CHAR_DATA *) vict_obj));
+						i = CHK_NULL(vict_obj, HSSH((const CharacterData *) vict_obj));
 					else CHECK_NULL(obj, OSSH(obj));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'o':
@@ -3568,24 +3568,24 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, AOBJN((const OBJ_DATA *) vict_obj, to, 0, arena)));
+								 CHK_NULL(vict_obj, AOBJN((const ObjectData *) vict_obj, to, 0, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj,
-																		AOBJN((const OBJ_DATA *) vict_obj,
+																		AOBJN((const ObjectData *) vict_obj,
 																			  to,
 																			  padis > 5 ? 0 : padis,
 																			  arena)));
 						i = nbuf;
 					}
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'p': CHECK_NULL(obj, AOBJS(obj, to, arena));
 					break;
-				case 'P': CHECK_NULL(vict_obj, AOBJS((const OBJ_DATA *) vict_obj, to, arena));
-					dg_victim = (CHAR_DATA *) vict_obj;
+				case 'P': CHECK_NULL(vict_obj, AOBJS((const ObjectData *) vict_obj, to, arena));
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 't': i = kick_type.c_str();
@@ -3604,80 +3604,80 @@ void perform_act(const char *orig,
 					break;
 				case 'A':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_6((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_6((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_6((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_6((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_6(obj) : GET_OBJ_VIS_SUF_6(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'g': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_1(ch) : GET_CH_VIS_SUF_1(ch, to);
 					break;
 				case 'G':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_1((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_1((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_1((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_1((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_1(obj) : GET_OBJ_VIS_SUF_1(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'y': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_5(ch) : GET_CH_VIS_SUF_5(ch, to);
 					break;
 				case 'Y':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_5((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_5((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_5((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_5((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_5(obj) : GET_OBJ_VIS_SUF_5(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'u': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_2(ch) : GET_CH_VIS_SUF_2(ch, to);
 					break;
 				case 'U':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_2((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_2((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_2((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_2((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_2(obj) : GET_OBJ_VIS_SUF_2(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'w': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_3(ch) : GET_CH_VIS_SUF_3(ch, to);
 					break;
 				case 'W':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_3((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_3((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_3((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_3((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_3(obj) : GET_OBJ_VIS_SUF_3(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 
 				case 'q': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_4(ch) : GET_CH_VIS_SUF_4(ch, to);
 					break;
 				case 'Q':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_4((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_4((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_4((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_4((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 //WorM Добавил суффикс глуп(ым,ой,ыми)
 				case 'r': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
 					break;
 				case 'R':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_7((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_7((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_7((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_7((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 //WorM Добавил суффикс как(ое,ой,ая,ие)
 				case 'x': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
 					break;
 				case 'X':
 					if (vict_obj)
-						i = arena ? GET_CH_SUF_8((const CHAR_DATA *) vict_obj)
-								  : GET_CH_VIS_SUF_8((const CHAR_DATA *) vict_obj, to);
+						i = arena ? GET_CH_SUF_8((const CharacterData *) vict_obj)
+								  : GET_CH_VIS_SUF_8((const CharacterData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
-					dg_victim = (CHAR_DATA *) vict_obj;
+					dg_victim = (CharacterData *) vict_obj;
 					break;
 //Polud Добавил склонение местоимения Ваш(е,а,и)
 				case 'z':
@@ -3687,8 +3687,8 @@ void perform_act(const char *orig,
 					break;
 				case 'Z':
 					if (vict_obj)
-						i = HYOU((const CHAR_DATA *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CHAR_DATA *) vict_obj))
+						i = HYOU((const CharacterData *) vict_obj);
+					else CHECK_NULL(vict_obj, HYOU((const CharacterData *) vict_obj))
 					break;
 //-Polud
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
@@ -3757,8 +3757,8 @@ void perform_act(const char *orig,
 
 void act(const char *str,
 		 int hide_invisible,
-		 CHAR_DATA *ch,
-		 const OBJ_DATA *obj,
+		 CharacterData *ch,
+		 const ObjectData *obj,
 		 const void *vict_obj,
 		 int type,
 		 const std::string &kick_type) {
@@ -3812,7 +3812,7 @@ void act(const char *str,
 	}
 
 	if (type == TO_VICT) {
-		CHAR_DATA *to = (CHAR_DATA *) vict_obj;
+		CharacterData *to = (CharacterData *) vict_obj;
 		if (to != nullptr
 			&& SENDOK(to)
 			&& IN_ROOM(to) != kNowhere

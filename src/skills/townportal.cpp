@@ -8,14 +8,14 @@
 namespace OneWayPortal {
 
 // список односторонних порталов <куда указывает, откуда поставлен>
-std::unordered_map<RoomVnum /*to*/, ROOM_DATA * /*from*/> portal_list;
+std::unordered_map<RoomVnum /*to*/, RoomData * /*from*/> portal_list;
 
 /**
 * Добавление портала в список
 * \param to_room - куда ставится пента
 * \param from_room - откуда ставится
 */
-void add(ROOM_DATA *to_room, ROOM_DATA *from_room) {
+void add(RoomData *to_room, RoomData *from_room) {
 	portal_list.emplace(to_room->room_vn, from_room);
 }
 
@@ -23,7 +23,7 @@ void add(ROOM_DATA *to_room, ROOM_DATA *from_room) {
 * Удаление портала из списка
 * \param to_room - куда указывает пента
 */
-void remove(ROOM_DATA *to_room) {
+void remove(RoomData *to_room) {
 	const auto it = portal_list.find(to_room->room_vn);
 	if (it != portal_list.end())
 		portal_list.erase(it);
@@ -34,7 +34,7 @@ void remove(ROOM_DATA *to_room) {
 * \param to_room - куда указывает пента
 * \return указатель на источник пенты
 */
-ROOM_DATA *get_from_room(ROOM_DATA *to_room) {
+RoomData *get_from_room(RoomData *to_room) {
 
 	const auto it = portal_list.find(to_room->room_vn);
 	if (it != portal_list.end())
@@ -45,7 +45,7 @@ ROOM_DATA *get_from_room(ROOM_DATA *to_room) {
 
 } // namespace OneWayPortal
 
-void spell_townportal(CHAR_DATA *ch, char *arg) {
+void spell_townportal(CharacterData *ch, char *arg) {
 	int gcount = 0, cn = 0, ispr = 0;
 	bool has_label_portal = false;
 	struct Timed timed;
@@ -53,7 +53,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 	struct CharacterPortal *tmp;
 	struct Portal *port;
 	struct Portal label_port;
-	ROOM_DATA *label_room;
+	RoomData *label_room;
 
 	port = get_portal(-1, arg);
 
@@ -100,7 +100,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 
 		// Открываем пентаграмму в комнату rnum //
 		ImproveSkill(ch, SKILL_TOWNPORTAL, 1, nullptr);
-		ROOM_DATA *from_room = world[ch->in_room];
+		RoomData *from_room = world[ch->in_room];
 		from_room->portal_room = real_room(port->vnum);
 		from_room->portal_time = 1;
 		from_room->pkPenterUnique = 0;
@@ -144,7 +144,7 @@ void spell_townportal(CHAR_DATA *ch, char *arg) {
 	page_string(ch->desc, buf2, 1);
 }
 
-void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_townportal(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct CharacterPortal *tmp, *dlt = nullptr;
 	char arg2[kMaxInputLength];

@@ -31,8 +31,8 @@
 #include <vector>
 #include <sstream>
 
-struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 struct DescriptorData;
 
 // external declarations and prototypes *********************************
@@ -103,8 +103,8 @@ extern char AltToLat[];
 extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
 
 // public functions in utils.cpp
-CHAR_DATA *find_char(long n);
-CHAR_DATA *get_random_pc_group(CHAR_DATA *ch);
+CharacterData *find_char(long n);
+CharacterData *get_random_pc_group(CharacterData *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -123,8 +123,8 @@ int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE *fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
-TimeInfoData *age(const CHAR_DATA *ch);
-int num_pc_in_room(ROOM_DATA *room);
+TimeInfoData *age(const CharacterData *ch);
+int num_pc_in_room(RoomData *room);
 void core_dump_real(const char *, int);
 int replace_str(const utils::AbstractStringWriter::shared_ptr &writer,
 				const char *pattern,
@@ -132,14 +132,14 @@ int replace_str(const utils::AbstractStringWriter::shared_ptr &writer,
 				int rep_all,
 				int max_size);
 void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
-int check_moves(CHAR_DATA *ch, int how_moves);
+int check_moves(CharacterData *ch, int how_moves);
 void koi_to_alt(char *str, int len);
 std::string koi_to_alt(const std::string &input);
 void koi_to_win(char *str, int len);
 void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
 int real_sector(int room);
-char *format_act(const char *orig, CHAR_DATA *ch, OBJ_DATA *obj, const void *vict_obj);
+char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const void *vict_obj);
 int roundup(float fl);
 bool IsValidEmail(const char *address);
 void skip_dots(char **string);
@@ -147,10 +147,10 @@ const char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-int GetRealDamroll(CHAR_DATA *ch);
-int GetAutoattackDamroll(CHAR_DATA *ch, int weapon_skill);
+int GetRealDamroll(CharacterData *ch);
+int GetAutoattackDamroll(CharacterData *ch, int weapon_skill);
 extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
-void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
+void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg);
 bool is_head(std::string name);
 
 extern bool is_dark(RoomRnum room);
@@ -213,31 +213,31 @@ char *CAP(char *txt);
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
 
 // in act.informative.cpp //
-void look_at_room(CHAR_DATA *ch, int mode);
+void look_at_room(CharacterData *ch, int mode);
 
 // in act.movmement.cpp //
-int do_simple_move(CHAR_DATA *ch, int dir, int following, CHAR_DATA *leader, bool is_flee);
-int perform_move(CHAR_DATA *ch, int dir, int following, int checkmob, CHAR_DATA *leader);
+int do_simple_move(CharacterData *ch, int dir, int following, CharacterData *leader, bool is_flee);
+int perform_move(CharacterData *ch, int dir, int following, int checkmob, CharacterData *leader);
 
 // in limits.cpp //
-int mana_gain(const CHAR_DATA *ch);
-int hit_gain(CHAR_DATA *ch);
-int move_gain(CHAR_DATA *ch);
-void advance_level(CHAR_DATA *ch);
-void gain_exp(CHAR_DATA *ch, int gain);
-void gain_exp_regardless(CHAR_DATA *ch, int gain);
-void gain_condition(CHAR_DATA *ch, unsigned condition, int value);
-void check_idling(CHAR_DATA *ch);
+int mana_gain(const CharacterData *ch);
+int hit_gain(CharacterData *ch);
+int move_gain(CharacterData *ch);
+void advance_level(CharacterData *ch);
+void gain_exp(CharacterData *ch, int gain);
+void gain_exp_regardless(CharacterData *ch, int gain);
+void gain_condition(CharacterData *ch, unsigned condition, int value);
+void check_idling(CharacterData *ch);
 void point_update(void);
 void room_point_update();
 void exchange_point_update();
 void obj_point_update();
-void update_pos(CHAR_DATA *victim);
+void update_pos(CharacterData *victim);
 
 // various constants ****************************************************
 
 // проверяет, висит ли заданный спелл на чаре
-bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
+bool check_spell_on_player(CharacterData *ch, int spell_num);
 
 
 // get_filename() //
@@ -278,13 +278,13 @@ bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 #define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
 
-short GET_REAL_LEVEL(const CHAR_DATA *ch);
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> *ch);
-short GET_REAL_LEVEL(const std::shared_ptr<CHAR_DATA> &ch);
+short GET_REAL_LEVEL(const CharacterData *ch);
+short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> *ch);
+short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> &ch);
 
-short GET_REAL_REMORT(const CHAR_DATA *ch);
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> *ch);
-short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch);
+short GET_REAL_REMORT(const CharacterData *ch);
+short GET_REAL_REMORT(const std::shared_ptr<CharacterData> *ch);
+short GET_REAL_REMORT(const std::shared_ptr<CharacterData> &ch);
 
 #define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImmortal)
 #define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelGod)
@@ -295,11 +295,11 @@ short GET_REAL_REMORT(const std::shared_ptr<CHAR_DATA> &ch);
 #define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
 #define IS_MAGE(ch)          (IS_BITS(MASK_MAGES, GET_CLASS(ch)))
 
-extern int receptionist(CHAR_DATA *, void *, int, char *);
-extern int postmaster(CHAR_DATA *, void *, int, char *);
-extern int bank(CHAR_DATA *, void *, int, char *);
-extern int shop_ext(CHAR_DATA *, void *, int, char *);
-extern int mercenary(CHAR_DATA *, void *, int, char *);
+extern int receptionist(CharacterData *, void *, int, char *);
+extern int postmaster(CharacterData *, void *, int, char *);
+extern int bank(CharacterData *, void *, int, char *);
+extern int shop_ext(CharacterData *, void *, int, char *);
+extern int mercenary(CharacterData *, void *, int, char *);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
@@ -330,8 +330,8 @@ inline void CREATE(T *&result, const size_t number) {
 }
 
 /*template<>
-inline void CREATE(EXTRA_DESCR_DATA *&, const size_t) {
-	throw std::runtime_error("for EXTRA_DESCR_DATA you have to use operator new");
+inline void CREATE(ExtraDescription *&, const size_t) {
+	throw std::runtime_error("for ExtraDescription you have to use operator new");
 }*/
 
 template<typename T>
@@ -961,8 +961,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define IS_OBJ_NO(obj, stat) ((obj)->get_no_flag(stat))
 #define IS_OBJ_AFF(obj, stat) (obj->get_affect(stat))
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER && \
-               GET_OBJ_VAL((obj), 3) == OBJ_DATA::CORPSE_INDICATOR)
+#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER && \
+               GET_OBJ_VAL((obj), 3) == ObjectData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 // compound utilities and other macros *********************************
@@ -1092,31 +1092,31 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
 
-int on_horse(const CHAR_DATA *ch);
-int has_horse(const CHAR_DATA *ch, int same_room);
-CHAR_DATA *get_horse(CHAR_DATA *ch);
-void horse_drop(CHAR_DATA *ch);
-void make_horse(CHAR_DATA *horse, CHAR_DATA *ch);
-void check_horse(CHAR_DATA *ch);
+int on_horse(const CharacterData *ch);
+int has_horse(const CharacterData *ch, int same_room);
+CharacterData *get_horse(CharacterData *ch);
+void horse_drop(CharacterData *ch);
+void make_horse(CharacterData *horse, CharacterData *ch);
+void check_horse(CharacterData *ch);
 
-bool same_group(CHAR_DATA *ch, CHAR_DATA *tch);
+bool same_group(CharacterData *ch, CharacterData *tch);
 
 int is_post(RoomRnum room);
 bool is_rent(RoomRnum room);
 
-int pc_duration(CHAR_DATA *ch, int cnst, int level, int level_divisor, int min, int max);
+int pc_duration(CharacterData *ch, int cnst, int level, int level_divisor, int min, int max);
 
 // Modifier functions
-int day_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
-int weather_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
-int complex_spell_modifier(CHAR_DATA *ch, int spellnum, int type, int value);
+int day_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
+int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
+int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
 
-int day_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-int weather_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-int complex_skill_modifier(CHAR_DATA *ch, int skillnum, int type, int value);
-void can_carry_obj(CHAR_DATA *ch, OBJ_DATA *obj);
-bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj);
-bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
+int day_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
+int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
+int complex_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
+void can_carry_obj(CharacterData *ch, ObjectData *obj);
+bool CAN_CARRY_OBJ(const CharacterData *ch, const ObjectData *obj);
+bool ignores(CharacterData *, CharacterData *, unsigned int);
 
 // PADS for something ***************************************************
 const char *desc_count(long how_many, int of_what);
@@ -1173,12 +1173,12 @@ const char *desc_count(long how_many, int of_what);
 #define ACHECK_GLOWING (1 << 3)
 #define ACHECK_WEIGHT  (1 << 4)
 
-int check_awake(CHAR_DATA *ch, int what);
-int awake_hide(CHAR_DATA *ch);
-int awake_invis(CHAR_DATA *ch);
-int awake_camouflage(CHAR_DATA *ch);
-int awake_sneak(CHAR_DATA *ch);
-int awaking(CHAR_DATA *ch, int mode);
+int check_awake(CharacterData *ch, int what);
+int awake_hide(CharacterData *ch);
+int awake_invis(CharacterData *ch);
+int awake_camouflage(CharacterData *ch);
+int awake_sneak(CharacterData *ch);
+int awaking(CharacterData *ch, int mode);
 std::string time_format(int timer, int flag = 0);
 
 size_t count_colors(const char *str, size_t len = 0);
@@ -1340,7 +1340,7 @@ void skip_spaces(T string) {
 namespace MoneyDropStat {
 
 void add(int zone_vnum, long money);
-void print(CHAR_DATA *ch);
+void print(CharacterData *ch);
 void print_log();
 
 } // MoneyDropStat
@@ -1348,7 +1348,7 @@ void print_log();
 namespace ZoneExpStat {
 
 void add(int zone_vnum, long exp);
-void print_gain(CHAR_DATA *ch);
+void print_gain(CharacterData *ch);
 void print_log();
 
 } // ZoneExpStat
@@ -1362,9 +1362,9 @@ int str_bonus(int str, int type);
 int dex_bonus(int dex);
 int dex_ac_bonus(int dex);
 int calc_str_req(int weight, int type);
-void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
+void message_str_need(CharacterData *ch, ObjectData *obj, int type);
 int wis_bonus(int stat, int type);
-int CAN_CARRY_N(const CHAR_DATA *ch);
+int CAN_CARRY_N(const CharacterData *ch);
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 
@@ -1417,7 +1417,7 @@ void print_bitset(const N &bits, const T &names,
 
 const char *print_obj_state(int tm_pct);
 
-struct exchange_item_data;
+struct ExchangeItem;
 // для парса строки с фильтрами в клан-хранах и базаре
 struct ParseFilter {
 	enum { CLAN, EXCHANGE };
@@ -1437,8 +1437,8 @@ struct ParseFilter {
 	bool init_affect(char *str, size_t str_len);
 	bool init_realtime(const char *str);
 	size_t affects_cnt() const;
-	bool check(OBJ_DATA *obj, CHAR_DATA *ch);
-	bool check(exchange_item_data *exch_obj);
+	bool check(ObjectData *obj, CharacterData *ch);
+	bool check(ExchangeItem *exch_obj);
 	std::string print() const;
 
 	std::string name;      // имя предмета
@@ -1465,25 +1465,25 @@ struct ParseFilter {
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
 
-	std::string show_obj_aff(OBJ_DATA *obj);
+	std::string show_obj_aff(ObjectData *obj);
 
  private:
-	bool check_name(OBJ_DATA *obj, CHAR_DATA *ch = 0) const;
-	bool check_type(OBJ_DATA *obj) const;
-	bool check_state(OBJ_DATA *obj) const;
-	bool check_wear(OBJ_DATA *obj) const;
-	bool check_weap_class(OBJ_DATA *obj) const;
+	bool check_name(ObjectData *obj, CharacterData *ch = 0) const;
+	bool check_type(ObjectData *obj) const;
+	bool check_state(ObjectData *obj) const;
+	bool check_wear(ObjectData *obj) const;
+	bool check_weap_class(ObjectData *obj) const;
 	bool check_cost(int obj_price) const;
 	bool check_rent(int obj_price) const;
-    bool check_remorts(OBJ_DATA *obj) const;
-	bool check_affect_weap(OBJ_DATA *obj) const;
-	bool check_affect_apply(OBJ_DATA *obj) const;
-	bool check_affect_extra(OBJ_DATA *obj) const;
-	bool check_owner(exchange_item_data *exch_obj) const;
-	bool check_realtime(exchange_item_data *exch_obj) const;
+    bool check_remorts(ObjectData *obj) const;
+	bool check_affect_weap(ObjectData *obj) const;
+	bool check_affect_apply(ObjectData *obj) const;
+	bool check_affect_extra(ObjectData *obj) const;
+	bool check_owner(ExchangeItem *exch_obj) const;
+	bool check_realtime(ExchangeItem *exch_obj) const;
 };
 
-int get_virtual_race(CHAR_DATA *mob);
+int get_virtual_race(CharacterData *mob);
 
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)

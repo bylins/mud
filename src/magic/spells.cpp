@@ -52,21 +52,21 @@ extern im_type *imtypes;
 extern int top_imtypes;
 
 /*ESkill get_magic_skill_number_by_spell(int spellnum);
-bool can_get_spell(CHAR_DATA *ch, int spellnum);
-bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);*/
-void weight_change_object(OBJ_DATA *obj, int weight);
-int compute_armor_class(CHAR_DATA *ch);
+bool can_get_spell(CharacterData *ch, int spellnum);
+bool can_get_spell_with_req(CharacterData *ch, int spellnum, int req_lvl);*/
+void weight_change_object(ObjectData *obj, int weight);
+int compute_armor_class(CharacterData *ch);
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
-int calc_anti_savings(CHAR_DATA *ch);
+int calc_anti_savings(CharacterData *ch);
 
-void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_tell(CharacterData *ch, char *argument, int cmd, int subcmd);
 
-void perform_remove(CHAR_DATA *ch, int pos);
+void perform_remove(CharacterData *ch, int pos);
 
 
-int pk_action_type_summon(CHAR_DATA *agressor, CHAR_DATA *victim);
-int pk_increment_revenge(CHAR_DATA *agressor, CHAR_DATA *victim);
+int pk_action_type_summon(CharacterData *agressor, CharacterData *victim);
+int pk_increment_revenge(CharacterData *agressor, CharacterData *victim);
 
 int what_sky = SKY_CLOUDLESS;
 // * Special spells appear below.
@@ -104,14 +104,14 @@ ESkill get_magic_skill_number_by_spell(int spellnum) {
 
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
-int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl) {
+int min_spell_lvl_with_req(CharacterData *ch, int spellnum, int req_lvl) {
 	int min_lvl = MAX(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
 		- (MAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
 
 	return MAX(1, min_lvl);
 }
 
-bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl) {
+bool can_get_spell_with_req(CharacterData *ch, int spellnum, int req_lvl) {
 	if (min_spell_lvl_with_req(ch, spellnum, req_lvl) > GET_REAL_LEVEL(ch)
 		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
 		return false;
@@ -120,7 +120,7 @@ bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl) {
 };
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
-bool can_get_spell(CHAR_DATA *ch, int spellnum) {
+bool can_get_spell(CharacterData *ch, int spellnum) {
 	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GET_REAL_LEVEL(ch)
 		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
 		return false;
@@ -164,14 +164,14 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
 	return EIngredientFlag_name_by_value.at(item);
 }
 
-void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+void spell_create_water(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
 	int water;
 	if (ch == nullptr || (obj == nullptr && victim == nullptr))
 		return;
 	// level = MAX(MIN(level, kLevelImplementator), 1);       - not used
 
 	if (obj
-		&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON) {
+		&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_DRINKCON) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
 			send_to_char("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
@@ -210,7 +210,7 @@ void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DAT
 
 // Поиск комнаты для перемещающего заклинания
 // ch - кого перемещают, rnum_start - первая комната диапазона, rnum_stop - последняя комната диапазона
-int get_teleport_target_room(CHAR_DATA *ch, int rnum_start, int rnum_stop) {
+int get_teleport_target_room(CharacterData *ch, int rnum_start, int rnum_stop) {
 	int *r_array;
 	int n, i, j;
 	int fnd_room = kNowhere;
@@ -246,7 +246,7 @@ int get_teleport_target_room(CHAR_DATA *ch, int rnum_start, int rnum_stop) {
 	return n ? fnd_room : kNowhere;
 }
 
-void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
+void spell_recall(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData * /* obj*/) {
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -317,7 +317,7 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 }
 
 // ПРЫЖОК в рамках зоны
-void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA * /* obj*/) {
+void spell_teleport(int/* level*/, CharacterData *ch, CharacterData * /*victim*/, ObjectData * /* obj*/) {
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -344,7 +344,7 @@ void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DA
 	greet_otrigger(ch, -1);
 }
 
-void check_auto_nosummon(CHAR_DATA *ch) {
+void check_auto_nosummon(CharacterData *ch) {
 	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
 		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
 		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
@@ -352,7 +352,7 @@ void check_auto_nosummon(CHAR_DATA *ch) {
 }
 
 // ПЕРЕМЕСТИТЬСЯ
-void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
+void spell_relocate(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData * /* obj*/) {
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
@@ -415,7 +415,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * 
 	greet_otrigger(ch, -1);
 }
 
-void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
+void spell_portal(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData * /* obj*/) {
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
@@ -526,7 +526,7 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	}
 }
 
-void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
+void spell_summon(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData * /* obj*/) {
 	RoomRnum ch_room, vic_room;
 	struct Follower *k, *k_next;
 
@@ -662,7 +662,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*
 	greet_otrigger(victim, -1);
 }
 
-void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA *obj) {
+void spell_locate_object(int level, CharacterData *ch, CharacterData * /*victim*/, ObjectData *obj) {
 	/*
 	   * FIXME: This is broken.  The spell parser routines took the argument
 	   * the player gave to the spell and located an object with that keyword.
@@ -679,7 +679,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 
 	int tmp_lvl = (IS_GOD(ch)) ? 300 : level;
 	unsigned count = tmp_lvl;
-	const auto result = world_objects.find_if_and_dec_number([&](const OBJ_DATA::shared_ptr &i) {
+	const auto result = world_objects.find_if_and_dec_number([&](const ObjectData::shared_ptr &i) {
 		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
 		if (!obj_ptr) {
 			sprintf(buf, "SYSERR: Illegal object iterator while locate");
@@ -821,9 +821,9 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_D
 	}
 }
 
-bool catch_bloody_corpse(OBJ_DATA *l) {
+bool catch_bloody_corpse(ObjectData *l) {
 	bool temp_bloody = false;
-	OBJ_DATA *next_element;
+	ObjectData *next_element;
 
 	if (!l->get_contains()) {
 		return false;
@@ -857,13 +857,13 @@ bool catch_bloody_corpse(OBJ_DATA *l) {
 }
 
 void spell_create_weapon(int/* level*/,
-						 CHAR_DATA * /*ch*/,
-						 CHAR_DATA * /*victim*/,
-						 OBJ_DATA * /* obj*/) {                //go_create_weapon(ch,nullptr,what_sky);
+						 CharacterData * /*ch*/,
+						 CharacterData * /*victim*/,
+						 ObjectData * /* obj*/) {                //go_create_weapon(ch,nullptr,what_sky);
 // отключено, так как не реализовано
 }
 
-int check_charmee(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
+int check_charmee(CharacterData *ch, CharacterData *victim, int spellnum) {
 	struct Follower *k;
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;
@@ -916,7 +916,7 @@ int check_charmee(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
 	return (true);
 }
 
-void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* obj*/) {
+void spell_charm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData * /* obj*/) {
 	int k_skills = 0;
 	ESkill skill_id;
 	if (victim == nullptr || ch == nullptr)
@@ -980,7 +980,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 
 		affect_from_char(victim, SPELL_CHARM);
 		ch->add_follower(victim);
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
@@ -1423,8 +1423,8 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /* 
 	if (MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) create_charmice_stuff(victim, skill_id, k_skills);
 }
 
-void show_weapon(CHAR_DATA *ch, OBJ_DATA *obj) {
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+void show_weapon(CharacterData *ch, ObjectData *obj) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
 			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
@@ -1444,7 +1444,7 @@ void show_weapon(CHAR_DATA *ch, OBJ_DATA *obj) {
 	}
 }
 
-void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj) {
+void print_book_uprgd_skill(CharacterData *ch, const ObjectData *obj) {
 	const int skill_num = GET_OBJ_VAL(obj, 1);
 	if (skill_num < 1 || skill_num >= MAX_SKILL_NUM) {
 		log("SYSERR: invalid skill_num: %d, ch_name=%s, ObjVnum=%d (%s %s %d)",
@@ -1465,7 +1465,7 @@ void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj) {
 	}
 }
 
-void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll) {
+void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness, bool enhansed_scroll) {
 	int i, found, drndice = 0, drsdice = 0, j;
 	long int li;
 
@@ -1554,8 +1554,8 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 		return;
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= SPELLS_COUNT)
 				sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) <= SPELLS_COUNT)
@@ -1566,25 +1566,25 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 			send_to_char(buf, ch);
 			break;
 
-		case OBJ_DATA::ITEM_WAND:
-		case OBJ_DATA::ITEM_STAFF: sprintf(buf, "Вызывает заклинания: ");
+		case ObjectData::ITEM_WAND:
+		case ObjectData::ITEM_STAFF: sprintf(buf, "Вызывает заклинания: ");
 			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= SPELLS_COUNT)
 				sprintf(buf + strlen(buf), " %s\r\n", spell_name(GET_OBJ_VAL(obj, 3)));
 			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
 			break;
 
-		case OBJ_DATA::ITEM_WEAPON: drndice = GET_OBJ_VAL(obj, 1);
+		case ObjectData::ITEM_WEAPON: drndice = GET_OBJ_VAL(obj, 1);
 			drsdice = GET_OBJ_VAL(obj, 2);
 			sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
 			sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
 			send_to_char(buf, ch);
 			break;
 
-		case OBJ_DATA::ITEM_ARMOR:
-		case OBJ_DATA::ITEM_ARMOR_LIGHT:
-		case OBJ_DATA::ITEM_ARMOR_MEDIAN:
-		case OBJ_DATA::ITEM_ARMOR_HEAVY: drndice = GET_OBJ_VAL(obj, 0);
+		case ObjectData::ITEM_ARMOR:
+		case ObjectData::ITEM_ARMOR_LIGHT:
+		case ObjectData::ITEM_ARMOR_MEDIAN:
+		case ObjectData::ITEM_ARMOR_HEAVY: drndice = GET_OBJ_VAL(obj, 0);
 			drsdice = GET_OBJ_VAL(obj, 1);
 			sprintf(buf, "защита (AC) : %d\r\n", drndice);
 			send_to_char(buf, ch);
@@ -1592,7 +1592,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 			send_to_char(buf, ch);
 			break;
 
-		case OBJ_DATA::ITEM_BOOK:
+		case ObjectData::ITEM_BOOK:
 			switch (GET_OBJ_VAL(obj, 0)) {
 				case BOOK_SPELL:
 					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= SPELLS_COUNT) {
@@ -1670,7 +1670,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 			}
 			break;
 
-		case OBJ_DATA::ITEM_INGREDIENT: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
+		case ObjectData::ITEM_INGREDIENT: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 			send_to_char(buf, ch);
 
@@ -1702,7 +1702,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 			}
 			break;
 
-		case OBJ_DATA::ITEM_MING:
+		case ObjectData::ITEM_MING:
 			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 				j++;
 			}
@@ -1736,16 +1736,16 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 			break;
 
 			//Информация о контейнерах (Купала)
-		case OBJ_DATA::ITEM_CONTAINER: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
+		case ObjectData::ITEM_CONTAINER: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 			send_to_char(buf, ch);
 			break;
 
 			//Информация о емкостях (Купала)
-		case OBJ_DATA::ITEM_DRINKCON: drinkcon::identify(ch, obj);
+		case ObjectData::ITEM_DRINKCON: drinkcon::identify(ch, obj);
 			break;
 
-		case OBJ_DATA::ITEM_MAGIC_ARROW:
-		case OBJ_DATA::ITEM_MAGIC_CONTAINER: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		case ObjectData::ITEM_MAGIC_ARROW:
+		case ObjectData::ITEM_MAGIC_CONTAINER: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
 			sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
 					GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
@@ -1781,7 +1781,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 		}
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ENCHANT
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ENCHANT
 		&& GET_OBJ_VAL(obj, 0) != 0) {
 		if (!found) {
 			send_to_char("Дополнительные свойства :\r\n", ch);
@@ -1813,9 +1813,9 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 		}
 	}
 
-	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
+	id_to_set_info_map::iterator it = ObjectData::set_table.begin();
 	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
-		for (; it != OBJ_DATA::set_table.end(); it++) {
+		for (; it != ObjectData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				sprintf(buf,
 						"Часть набора предметов: %s%s%s\r\n",
@@ -1845,7 +1845,7 @@ void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool
 
 #define IDENT_SELF_LEVEL 6
 
-void mort_show_char_values(CHAR_DATA *victim, CHAR_DATA *ch, int fullness) {
+void mort_show_char_values(CharacterData *victim, CharacterData *ch, int fullness) {
 	int val0, val1, val2;
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
@@ -1943,7 +1943,7 @@ void mort_show_char_values(CHAR_DATA *victim, CHAR_DATA *ch, int fullness) {
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
 
-void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+void skill_identify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
 	bool full = false;
 	if (obj) {
 		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, SKILL_IDENTIFY, nullptr), full);
@@ -1959,7 +1959,7 @@ void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *o
 }
 
 
-void spell_full_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+void spell_full_identify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
 	bool full = true;
 	if (obj)
 		mort_show_obj_values(obj, ch, 100, full);
@@ -1969,7 +1969,7 @@ void spell_full_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DA
 	}
 }
 
-void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+void spell_identify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
 	bool full = false;
 	if (obj)
 		mort_show_obj_values(obj, ch, 100, full);
@@ -1986,7 +1986,7 @@ void spell_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *o
 	}
 }
 
-void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA * /*obj*/) {
+void spell_control_weather(int/* level*/, CharacterData *ch, CharacterData * /*victim*/, ObjectData * /*obj*/) {
 	const char *sky_info = nullptr;
 	int i, duration, zone, sky_type = 0;
 
@@ -2036,7 +2036,7 @@ void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/,
 	}
 }
 
-void spell_fear(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*obj*/) {
+void spell_fear(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData * /*obj*/) {
 	int modi = 0;
 	if (ch != victim) {
 		modi = calc_anti_savings(ch);
@@ -2054,7 +2054,7 @@ void spell_fear(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*ob
 		go_flee(victim);
 }
 
-void spell_energydrain(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*obj*/) {
+void spell_energydrain(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData * /*obj*/) {
 	// истощить энергию - круг 28 уровень 9 (1)
 	// для всех
 	int modi = 0;
@@ -2078,7 +2078,7 @@ void spell_energydrain(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA
 }
 
 // накачка хитов
-void do_sacrifice(CHAR_DATA *ch, int dam) {
+void do_sacrifice(CharacterData *ch, int dam) {
 //MZ.overflow_fix
 	GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam), GET_REAL_MAX_HIT(ch)
 		+ GET_REAL_MAX_HIT(ch) * GET_REAL_LEVEL(ch) / 10));
@@ -2086,7 +2086,7 @@ void do_sacrifice(CHAR_DATA *ch, int dam) {
 	update_pos(ch);
 }
 
-void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA * /*obj*/) {
+void spell_sacrifice(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData * /*obj*/) {
 	int dam, d0 = GET_HIT(victim);
 	struct Follower *f;
 
@@ -2121,7 +2121,7 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *
 	}
 }
 
-void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA * /*obj*/) {
+void spell_holystrike(int/* level*/, CharacterData *ch, CharacterData * /*victim*/, ObjectData * /*obj*/) {
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
 
@@ -2151,7 +2151,7 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_
 	act(msg2, false, ch, nullptr, nullptr, TO_CHAR);
 	act(msg2, false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 
-	OBJ_DATA *o = nullptr;
+	ObjectData *o = nullptr;
 	do {
 		for (o = world[ch->in_room]->contents; o; o = o->get_next_content()) {
 			if (!IS_CORPSE(o)) {
@@ -2165,10 +2165,10 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_
 	} while (o);
 }
 
-void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA * /*obj*/) {
+void spell_angel(int/* level*/, CharacterData *ch, CharacterData * /*victim*/, ObjectData * /*obj*/) {
 	MobVnum mob_num = 108;
 	//int modifier = 0;
-	CHAR_DATA *mob = nullptr;
+	CharacterData *mob = nullptr;
 	struct Follower *k, *k_next;
 
 	auto eff_cha = get_effective_cha(ch);
@@ -2218,7 +2218,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 	float additional_armour_for_charisma = 0.5; // 8 armour for 16 charisma, 25 armour for 50 charisma
 
 	clear_char_skills(mob);
-	AFFECT_DATA<EApplyLocation> af;
+	Affect<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	af.duration = pc_duration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
 	af.modifier = 0;
@@ -2349,16 +2349,16 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA 
 	}
 }
 
-void spell_vampire(int/* level*/, CHAR_DATA * /*ch*/, CHAR_DATA * /*victim*/, OBJ_DATA * /*obj*/) {
+void spell_vampire(int/* level*/, CharacterData * /*ch*/, CharacterData * /*victim*/, ObjectData * /*obj*/) {
 }
 
-void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, OBJ_DATA * /*obj*/) {
+void spell_mental_shadow(int/* level*/, CharacterData *ch, CharacterData * /*victim*/, ObjectData * /*obj*/) {
 	// подготовка контейнера для создания заклинания ментальная тень
 	// все предложения пишем мад почтой
 
 	MobVnum mob_num = kMobMentalShadow;
 
-	CHAR_DATA *mob = nullptr;
+	CharacterData *mob = nullptr;
 	struct Follower *k, *k_next;
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
@@ -2380,7 +2380,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA *ch, CHAR_DATA * /*victim*/, O
 		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
-	AFFECT_DATA<EApplyLocation> af;
+	Affect<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
@@ -3249,7 +3249,7 @@ ESpell ITEM_BY_NAME(const std::string &name) {
 
 std::map<int /* vnum */, int /* count */> rune_list;
 
-void add_rune_stats(CHAR_DATA *ch, int vnum, int spelltype) {
+void add_rune_stats(CharacterData *ch, int vnum, int spelltype) {
 	if (IS_NPC(ch) || SPELL_RUNES != spelltype) {
 		return;
 	}
@@ -3261,7 +3261,7 @@ void add_rune_stats(CHAR_DATA *ch, int vnum, int spelltype) {
 	}
 }
 
-void extract_item(CHAR_DATA *ch, OBJ_DATA *obj, int spelltype) {
+void extract_item(CharacterData *ch, ObjectData *obj, int spelltype) {
 	int extract = false;
 	if (!obj) {
 		return;
@@ -3290,7 +3290,7 @@ void extract_item(CHAR_DATA *ch, OBJ_DATA *obj, int spelltype) {
 	}
 }
 
-int check_recipe_values(CHAR_DATA *ch, int spellnum, int spelltype, int showrecipe) {
+int check_recipe_values(CharacterData *ch, int spellnum, int spelltype, int showrecipe) {
 	int item0 = -1, item1 = -1, item2 = -1, obj_num = -1;
 	struct spell_create_item *items;
 
@@ -3366,15 +3366,15 @@ int check_recipe_values(CHAR_DATA *ch, int spellnum, int spelltype, int showreci
  * it to implement your own spells which require ingredients (i.e., some
  * heal spell which requires a rare herb or some such.)
  */
-bool mag_item_ok(CHAR_DATA *ch, OBJ_DATA *obj, int spelltype) {
+bool mag_item_ok(CharacterData *ch, ObjectData *obj, int spelltype) {
 	int num = 0;
 
 	if (spelltype == SPELL_RUNES
-		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT) {
+		&& GET_OBJ_TYPE(obj) != ObjectData::ITEM_INGREDIENT) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT) {
 		if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
 			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype != SPELL_RUNES)) {
 			return false;
@@ -3427,8 +3427,8 @@ bool mag_item_ok(CHAR_DATA *ch, OBJ_DATA *obj, int spelltype) {
 	return true;
 }
 
-int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, const CHAR_DATA *targ) {
-	OBJ_DATA *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
+int check_recipe_items(CharacterData *ch, int spellnum, int spelltype, int extract, const CharacterData *targ) {
+	ObjectData *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
 	ESkill skillnum = SKILL_INVALID;
@@ -3523,7 +3523,7 @@ int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, 
 			strcpy(buf, "Вы взяли ");
 		}
 
-		OBJ_DATA::shared_ptr obj;
+		ObjectData::shared_ptr obj;
 		if (create) {
 			obj = world_objects.create_from_prototype_by_vnum(obj_num);
 			if (!obj) {
@@ -3613,7 +3613,7 @@ int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, 
 	return (true);
 }
 
-void print_rune_stats(CHAR_DATA *ch) {
+void print_rune_stats(CharacterData *ch) {
 	if (!IS_GRGOD(ch)) {
 		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;

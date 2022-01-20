@@ -14,7 +14,7 @@
 #include "world_objects.h"
 
 skillvariables_dig dig_vars;
-extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
+extern void split_or_clan_tax(CharacterData *ch, long amount);
 
 void InitMiningVars() {
 	char line[256];
@@ -62,7 +62,7 @@ void InitMiningVars() {
 	fclose(cfg_file);
 }
 
-int make_hole(CHAR_DATA *ch) {
+int make_hole(CharacterData *ch) {
 	if (roundup(world[ch->in_room]->holes / kHolesTime) >= dig_vars.hole_max_deep) {
 		send_to_char("Тут и так все перекопано.\r\n", ch);
 		return 0;
@@ -71,7 +71,7 @@ int make_hole(CHAR_DATA *ch) {
 	return 1;
 }
 
-void break_inst(CHAR_DATA *ch) {
+void break_inst(CharacterData *ch) {
 	int i;
 	char buf[300];
 
@@ -96,7 +96,7 @@ void break_inst(CHAR_DATA *ch) {
 
 }
 
-int check_for_dig(CHAR_DATA *ch) {
+int check_for_dig(CharacterData *ch) {
 	int i;
 
 	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++) {
@@ -109,11 +109,11 @@ int check_for_dig(CHAR_DATA *ch) {
 	return 0;
 }
 
-void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj) {
+void dig_obj(CharacterData *ch, ObjectData *obj) {
 	char textbuf[300];
 
 	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj->get_rnum())
-		|| GET_OBJ_MIW(obj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM) {
+		|| GET_OBJ_MIW(obj) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM) {
 		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(3).c_str());
 		send_to_char(textbuf, ch);
 		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(3).c_str());
@@ -130,8 +130,8 @@ void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj) {
 	}
 }
 
-void do_dig(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *mob;
+void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *mob;
 	char textbuf[300];
 	int percent, prob;
 	int stone_num, random_stone;
@@ -213,7 +213,7 @@ void do_dig(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Не найден прототип обжекта!", ch);
 	}
 	// копнули шкатулку пандоры
-	OBJ_DATA::shared_ptr obj;
+	ObjectData::shared_ptr obj;
 	if (number(1, dig_vars.pandora_chance) == 1) {
 		vnum = dig_vars.pandora_vnum;
 
@@ -292,9 +292,9 @@ void do_dig(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	obj = world_objects.create_from_prototype_by_vnum(vnum);
 	if (obj) {
 		if (number(1, dig_vars.glass_chance) != 1) {
-			obj->set_material(OBJ_DATA::MAT_GLASS);
+			obj->set_material(ObjectData::MAT_GLASS);
 		} else {
-			obj->set_material(OBJ_DATA::MAT_DIAMOND);
+			obj->set_material(ObjectData::MAT_DIAMOND);
 		}
 
 		dig_obj(ch, obj.get());

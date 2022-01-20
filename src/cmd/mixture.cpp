@@ -6,7 +6,7 @@
 #include "privilege.h"
 #include "magic/spells_info.h"
 
-void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_mixture(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (IS_NPC(ch))
 		return;
 	if (IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::USE_SKILLS)) {
@@ -14,9 +14,9 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	CHAR_DATA *tch;
-	OBJ_DATA *tobj;
-	ROOM_DATA *troom;
+	CharacterData *tch;
+	ObjectData *tobj;
+	RoomData *troom;
 	char *s, *t;
 	int spellnum, target = 0;
 

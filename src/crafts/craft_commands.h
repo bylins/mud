@@ -24,7 +24,7 @@ constexpr int MINIMAL_LEVEL = 0;
 // Probability to stop hide when using base crafts command
 constexpr int UNHIDE_PROBABILITY = 0;    // -1 - always, 0 - never
 
-extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+extern void do_craft(CharacterData *ch, char *argument, int cmd, int subcmd);
 }
 }
 

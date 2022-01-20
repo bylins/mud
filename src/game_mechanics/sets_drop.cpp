@@ -279,7 +279,7 @@ void init_obj_list() {
 					if (obj_proto.set_idx(obj_rnum) != static_cast<size_t>(-1)) {
 						node.title = obj_sets::get_name(obj_proto.set_idx(obj_rnum));
 					} else {
-						for (const auto &it : OBJ_DATA::set_table) {
+						for (const auto &it : ObjectData::set_table) {
 							const auto k = it.second.find(obj_vnum);
 							if (k != it.second.end()) {
 								node.title = it.second.get_name();
@@ -302,8 +302,8 @@ void init_obj_list() {
 					continue;
 				}
 				// заполнение списка активаторов
-				for (id_to_set_info_map::const_iterator it = OBJ_DATA::set_table.begin(),
-						 iend = OBJ_DATA::set_table.end(); it != iend; ++it) {
+				for (id_to_set_info_map::const_iterator it = ObjectData::set_table.begin(),
+						 iend = ObjectData::set_table.end(); it != iend; ++it) {
 					set_info::const_iterator k = it->second.find(obj_vnum);
 					if (k != it->second.end() && !k->second.empty()) {
 						// берется последний (максимальный) в списке активатор
@@ -531,7 +531,7 @@ void filter_dupe_names() {
 				continue;
 			}
 			// редко появляющиеся мобы, мобы без экспы
-			const CHAR_DATA *mob = &mob_proto[k->rnum];
+			const CharacterData *mob = &mob_proto[k->rnum];
 			if (MOB_FLAGGED(mob, MOB_LIKE_FULLMOON)
 				|| MOB_FLAGGED(mob, MOB_LIKE_WINTER)
 				|| MOB_FLAGGED(mob, MOB_LIKE_SPRING)
@@ -1168,7 +1168,7 @@ void renumber_obj_rnum(const int mob_rnum) {
 	}
 }
 
-void print_timer_str(CHAR_DATA *ch) {
+void print_timer_str(CharacterData *ch) {
 	char time_buf[17];
 	strftime(time_buf, sizeof(time_buf), "%H:%M %d-%m-%Y", localtime(&next_reset_time));
 

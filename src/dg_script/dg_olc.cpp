@@ -27,14 +27,14 @@ extern DescriptorData *descriptor_list;
 extern int top_of_trigt;
 
 // prototype externally defined functions
-void free_varlist(struct trig_var_data *vd);
+void free_varlist(struct TriggerVar *vd);
 
 void trigedit_disp_menu(DescriptorData *d);
 void trigedit_save(DescriptorData *d);
 void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
 
-inline void fprint_script(FILE *fp, const OBJ_DATA::triggers_list_t &scripts) {
+inline void fprint_script(FILE *fp, const ObjectData::triggers_list_t &scripts) {
 	for (const auto vnum : scripts) {
 		fprintf(fp, "T %d\n", vnum);
 	}
@@ -44,11 +44,11 @@ inline void fprint_script(FILE *fp, const OBJ_DATA::triggers_list_t &scripts) {
 // be saved
 void script_save_to_disk(FILE *fp, const void *item, int type) {
 	if (type == MOB_TRIGGER) {
-		fprint_script(fp, *static_cast<const CHAR_DATA *>(item)->proto_script);
+		fprint_script(fp, *static_cast<const CharacterData *>(item)->proto_script);
 	} else if (type == OBJ_TRIGGER) {
 		fprint_script(fp, static_cast<const CObjectPrototype *>(item)->get_proto_script());
 	} else if (type == WLD_TRIGGER) {
-		fprint_script(fp, *static_cast<const ROOM_DATA *>(item)->proto_script);
+		fprint_script(fp, *static_cast<const RoomData *>(item)->proto_script);
 	} else {
 		log("SYSERR: Invalid type passed to script_save_mobobj_to_disk()");
 		return;
@@ -61,7 +61,7 @@ void script_save_to_disk(FILE *fp, const void *item, int type) {
  **************************************************************************/
 
 void trigedit_setup_new(DescriptorData *d) {
-	TRIG_DATA *trig = new TRIG_DATA(-1, "new trigger", MTRIG_GREET);
+	Trigger *trig = new Trigger(-1, "new trigger", MTRIG_GREET);
 
 	// cmdlist will be a large char string until the trigger is saved
 	CREATE(OLC_STORAGE(d), MAX_CMD_LENGTH);
@@ -76,7 +76,7 @@ void trigedit_setup_new(DescriptorData *d) {
 
 void trigedit_setup_existing(DescriptorData *d, int rtrg_num) {
 	// Allocate a scratch trigger structure
-	TRIG_DATA *trig = new TRIG_DATA(*trig_index[rtrg_num]->proto);
+	Trigger *trig = new Trigger(*trig_index[rtrg_num]->proto);
 
 	// convert cmdlist to a char string
 	auto c = *trig->cmdlist;
@@ -98,7 +98,7 @@ void trigedit_setup_existing(DescriptorData *d, int rtrg_num) {
 }
 
 void trigedit_disp_menu(DescriptorData *d) {
-	TRIG_DATA *trig = OLC_TRIG(d);
+	Trigger *trig = OLC_TRIG(d);
 	const char *attach_type;
 	char trgtypes[256];
 
@@ -306,8 +306,8 @@ void trigedit_save(DescriptorData *d) {
 	int trig_rnum, i;
 	int found = 0;
 	char *s;
-	TRIG_DATA *proto;
-	TRIG_DATA *trig = OLC_TRIG(d);
+	Trigger *proto;
+	Trigger *trig = OLC_TRIG(d);
 	IndexData **new_index;
 	DescriptorData *dsc;
 	FILE *trig_file;
@@ -380,7 +380,7 @@ void trigedit_save(DescriptorData *d) {
 					new_index[trig_rnum]->vnum = OLC_NUM(d);
 					new_index[trig_rnum]->number = 0;
 					new_index[trig_rnum]->func = nullptr;
-					new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
+					new_index[trig_rnum]->proto = new Trigger(*trig);
 					--i;
 					continue;    // повторить копирование еще раз, но уже по-другому
 				} else {
@@ -401,7 +401,7 @@ void trigedit_save(DescriptorData *d) {
 			new_index[trig_rnum]->vnum = OLC_NUM(d);
 			new_index[trig_rnum]->number = 0;
 			new_index[trig_rnum]->func = nullptr;
-			new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
+			new_index[trig_rnum]->proto = new Trigger(*trig);
 		}
 		free(trig_index);
 		trig_index = new_index;

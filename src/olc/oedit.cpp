@@ -59,7 +59,7 @@ extern const char *magic_container_bits[];
 extern struct spellInfo_t spell_info[];
 extern DescriptorData *descriptor_list;
 extern int top_imrecipes;
-extern void extract_obj(OBJ_DATA *obj);
+extern void extract_obj(ObjectData *obj);
 
 //------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ extern void extract_obj(OBJ_DATA *obj);
 //------------------------------------------------------------------------
 void oedit_setup(DescriptorData *d, int real_num);
 
-void oedit_object_copy(OBJ_DATA *dst, CObjectPrototype *src);
+void oedit_object_copy(ObjectData *dst, CObjectPrototype *src);
 
 void oedit_save_internally(DescriptorData *d);
 void oedit_save_to_disk(int zone);
@@ -105,7 +105,7 @@ void oedit_setup(DescriptorData *d, int real_num)
       real_num - RNUM исходного объекта, новый -1
 --*/
 {
-	OBJ_DATA *obj;
+	ObjectData *obj;
 	const auto vnum = OLC_NUM(d);
 
 	NEWCREATE(obj, vnum);
@@ -124,7 +124,7 @@ void oedit_setup(DescriptorData *d, int real_num)
 	} else {
 		obj->clone_olc_object_from_prototype(vnum);
 		obj->set_rnum(real_num);
-		if (obj->get_type() == OBJ_DATA::ITEM_DRINKCON) {
+		if (obj->get_type() == ObjectData::ITEM_DRINKCON) {
 //			if (obj->get_val(1) > 0) {
 				name_from_drinkcon(obj);
 //			}
@@ -138,7 +138,7 @@ void oedit_setup(DescriptorData *d, int real_num)
 }
 
 // * Обновление данных у конкретной шмотки
-void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj) {
+void olc_update_object(int robj_num, ObjectData *obj, ObjectData *olc_obj) {
 	// Итак, нашел объект
 	// Внимание! Таймер объекта, его состояние и т.д. обновятся!
 
@@ -162,7 +162,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj) {
 
 
 	// Сохраняю текущую игровую информацию
-	OBJ_DATA tmp(*obj);
+	ObjectData tmp(*obj);
 
 	// Копируем все поля из отредактированного нами объекта OLC_OBJ
 	*obj = *olc_obj;
@@ -197,8 +197,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj) {
 		obj->set_timer(tmp.get_timer());
 	}
 	// емкостям сохраняем жидкость и кол-во глотков, во избежание жалоб
-	if (GET_OBJ_TYPE(&tmp) == OBJ_DATA::ITEM_DRINKCON
-		&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON) {
+	if (GET_OBJ_TYPE(&tmp) == ObjectData::ITEM_DRINKCON
+		&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_DRINKCON) {
 		obj->set_val(1, GET_OBJ_VAL(&tmp, 1)); //кол-во глотков
 		if (is_potion(&tmp)) {
 			obj->set_val(2, GET_OBJ_VAL(&tmp, 2)); //описание жидкости
@@ -230,8 +230,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_obj) {
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.
-void olc_update_objects(int robj_num, OBJ_DATA *olc_obj) {
-	world_objects.foreach_with_rnum(robj_num, [&](const OBJ_DATA::shared_ptr &object) {
+void olc_update_objects(int robj_num, ObjectData *olc_obj) {
+	world_objects.foreach_with_rnum(robj_num, [&](const ObjectData::shared_ptr &object) {
 		olc_update_object(robj_num, object.get(), olc_obj);
 	});
 	Depot::olc_update_from_proto(robj_num, olc_obj);
@@ -268,7 +268,7 @@ void oedit_save_internally(DescriptorData *d) {
 		// прототипов
 	} else {
 		// It's a new object, we must build new tables to contain it.
-		log("[OEdit] Save mem new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(OBJ_DATA));
+		log("[OEdit] Save mem new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(ObjectData));
 
 		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
 		obj_proto.zone(index, get_zone_rnum_by_obj_vnum(OLC_NUM(d)));
@@ -632,46 +632,46 @@ void oedit_disp_skills_mod_menu(DescriptorData *d) {
 void oedit_disp_val1_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_1;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
-		case OBJ_DATA::ITEM_LIGHT:
+		case ObjectData::ITEM_LIGHT:
 			// * values 0 and 1 are unused.. jump to 2
 			oedit_disp_val3_menu(d);
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_WAND:
-		case OBJ_DATA::ITEM_STAFF:
-		case OBJ_DATA::ITEM_POTION: send_to_char("Уровень заклинания : ", d->character.get());
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_WAND:
+		case ObjectData::ITEM_STAFF:
+		case ObjectData::ITEM_POTION: send_to_char("Уровень заклинания : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_WEAPON:
+		case ObjectData::ITEM_WEAPON:
 			// * This doesn't seem to be used if I remember right.
 			send_to_char("Модификатор попадания : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_ARMOR:
-		case OBJ_DATA::ITEM_ARMOR_LIGHT:
-		case OBJ_DATA::ITEM_ARMOR_MEDIAN:
-		case OBJ_DATA::ITEM_ARMOR_HEAVY: send_to_char("Изменяет АС на : ", d->character.get());
+		case ObjectData::ITEM_ARMOR:
+		case ObjectData::ITEM_ARMOR_LIGHT:
+		case ObjectData::ITEM_ARMOR_MEDIAN:
+		case ObjectData::ITEM_ARMOR_HEAVY: send_to_char("Изменяет АС на : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_CONTAINER: send_to_char("Максимально вместимый вес : ", d->character.get());
+		case ObjectData::ITEM_CONTAINER: send_to_char("Максимально вместимый вес : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOUNTAIN: send_to_char("Количество глотков : ", d->character.get());
+		case ObjectData::ITEM_DRINKCON:
+		case ObjectData::ITEM_FOUNTAIN: send_to_char("Количество глотков : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_FOOD: send_to_char("На сколько часов насыщает : ", d->character.get());
+		case ObjectData::ITEM_FOOD: send_to_char("На сколько часов насыщает : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_MONEY: send_to_char("Сумма : ", d->character.get());
+		case ObjectData::ITEM_MONEY: send_to_char("Сумма : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_NOTE:
+		case ObjectData::ITEM_NOTE:
 			// * This is supposed to be language, but it's unused.
 			break;
 
-		case OBJ_DATA::ITEM_BOOK:
+		case ObjectData::ITEM_BOOK:
 			sprintf(buf,
 					"%s0%s) %sКнига заклинаний\r\n"
 					"%s1%s) %sКнига умений\r\n"
@@ -698,24 +698,24 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 			send_to_char(buf, d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_INGREDIENT:
+		case ObjectData::ITEM_INGREDIENT:
 			send_to_char("Первый байт - лаг после применения в сек, 5 бит - уровень : ",
 						 d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_MING: oedit_disp_val4_menu(d);
+		case ObjectData::ITEM_MING: oedit_disp_val4_menu(d);
 			break;
 
-		case OBJ_DATA::ITEM_MATERIAL: send_to_char("Уровень игрока для использования + морт * 2: ", d->character.get());
+		case ObjectData::ITEM_MATERIAL: send_to_char("Уровень игрока для использования + морт * 2: ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_BANDAGE: send_to_char("Хитов в секунду: ", d->character.get());
+		case ObjectData::ITEM_BANDAGE: send_to_char("Хитов в секунду: ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_ENCHANT: send_to_char("Изменяет вес: ", d->character.get());
+		case ObjectData::ITEM_ENCHANT: send_to_char("Изменяет вес: ", d->character.get());
 			break;
-		case OBJ_DATA::ITEM_MAGIC_CONTAINER:
-		case OBJ_DATA::ITEM_MAGIC_ARROW: oedit_disp_spells_menu(d);
+		case ObjectData::ITEM_MAGIC_CONTAINER:
+		case ObjectData::ITEM_MAGIC_ARROW: oedit_disp_spells_menu(d);
 			break;
 
 		default: oedit_disp_menu(d);
@@ -726,29 +726,29 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 void oedit_disp_val2_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_2;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION: oedit_disp_spells_menu(d);
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_POTION: oedit_disp_spells_menu(d);
 			break;
 
-		case OBJ_DATA::ITEM_WAND:
-		case OBJ_DATA::ITEM_STAFF: send_to_char("Количество зарядов : ", d->character.get());
+		case ObjectData::ITEM_WAND:
+		case ObjectData::ITEM_STAFF: send_to_char("Количество зарядов : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_WEAPON: send_to_char("Количество бросков кубика : ", d->character.get());
+		case ObjectData::ITEM_WEAPON: send_to_char("Количество бросков кубика : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_ARMOR:
-		case OBJ_DATA::ITEM_ARMOR_LIGHT:
-		case OBJ_DATA::ITEM_ARMOR_MEDIAN:
-		case OBJ_DATA::ITEM_ARMOR_HEAVY: send_to_char("Изменяет броню на : ", d->character.get());
+		case ObjectData::ITEM_ARMOR:
+		case ObjectData::ITEM_ARMOR_LIGHT:
+		case ObjectData::ITEM_ARMOR_MEDIAN:
+		case ObjectData::ITEM_ARMOR_HEAVY: send_to_char("Изменяет броню на : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_FOOD:
+		case ObjectData::ITEM_FOOD:
 			// * Values 2 and 3 are unused, jump to 4...Odd.
 			oedit_disp_val4_menu(d);
 			break;
 
-		case OBJ_DATA::ITEM_MONEY:
+		case ObjectData::ITEM_MONEY:
 			sprintf(buf,
 					"%s0%s) %sКуны\r\n"
 					"%s1%s) %sСлава\r\n"
@@ -763,16 +763,16 @@ void oedit_disp_val2_menu(DescriptorData *d) {
 			send_to_char(buf, d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_CONTAINER:
+		case ObjectData::ITEM_CONTAINER:
 			// * These are flags, needs a bit of special handling.
 			oedit_disp_container_flags_menu(d);
 			break;
 
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOUNTAIN: send_to_char("Начальное количество глотков : ", d->character.get());
+		case ObjectData::ITEM_DRINKCON:
+		case ObjectData::ITEM_FOUNTAIN: send_to_char("Начальное количество глотков : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_BOOK:
+		case ObjectData::ITEM_BOOK:
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
 				case BOOK_SPELL: oedit_disp_spells_menu(d);
 					break;
@@ -791,16 +791,16 @@ void oedit_disp_val2_menu(DescriptorData *d) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_INGREDIENT: send_to_char("Виртуальный номер прототипа  : ", d->character.get());
+		case ObjectData::ITEM_INGREDIENT: send_to_char("Виртуальный номер прототипа  : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_MATERIAL: send_to_char("Введите VNUM прототипа: ", d->character.get());
+		case ObjectData::ITEM_MATERIAL: send_to_char("Введите VNUM прототипа: ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_MAGIC_CONTAINER: send_to_char("Объем колчана: ", d->character.get());
+		case ObjectData::ITEM_MAGIC_CONTAINER: send_to_char("Объем колчана: ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_MAGIC_ARROW: send_to_char("Размер пучка: ", d->character.get());
+		case ObjectData::ITEM_MAGIC_ARROW: send_to_char("Размер пучка: ", d->character.get());
 			break;
 
 		default: oedit_disp_menu(d);
@@ -811,32 +811,32 @@ void oedit_disp_val2_menu(DescriptorData *d) {
 void oedit_disp_val3_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_3;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
-		case OBJ_DATA::ITEM_LIGHT:
+		case ObjectData::ITEM_LIGHT:
 			send_to_char("Длительность горения (0 = погасла, -1 - вечный свет) : ",
 						 d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION: oedit_disp_spells_menu(d);
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_POTION: oedit_disp_spells_menu(d);
 			break;
 
-		case OBJ_DATA::ITEM_WAND:
-		case OBJ_DATA::ITEM_STAFF: send_to_char("Осталось зарядов : ", d->character.get());
+		case ObjectData::ITEM_WAND:
+		case ObjectData::ITEM_STAFF: send_to_char("Осталось зарядов : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_WEAPON: send_to_char("Количество граней кубика : ", d->character.get());
+		case ObjectData::ITEM_WEAPON: send_to_char("Количество граней кубика : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_CONTAINER:
+		case ObjectData::ITEM_CONTAINER:
 			send_to_char("Vnum ключа для контейнера (-1 - нет ключа) : ",
 						 d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOUNTAIN: oedit_liquid_type(d);
+		case ObjectData::ITEM_DRINKCON:
+		case ObjectData::ITEM_FOUNTAIN: oedit_liquid_type(d);
 			break;
 
-		case OBJ_DATA::ITEM_BOOK:
+		case ObjectData::ITEM_BOOK:
 //		send_to_char("Уровень изучения (+ к умению если тип = 2 ) : ", d->character);
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
 				case BOOK_SKILL: send_to_char("Введите уровень изучения : ", d->character.get());
@@ -847,14 +847,14 @@ void oedit_disp_val3_menu(DescriptorData *d) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_INGREDIENT: send_to_char("Сколько раз можно использовать : ", d->character.get());
+		case ObjectData::ITEM_INGREDIENT: send_to_char("Сколько раз можно использовать : ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_MATERIAL: send_to_char("Введите силу ингридиента: ", d->character.get());
+		case ObjectData::ITEM_MATERIAL: send_to_char("Введите силу ингридиента: ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_MAGIC_CONTAINER:
-		case OBJ_DATA::ITEM_MAGIC_ARROW: send_to_char("Количество стрел: ", d->character.get());
+		case ObjectData::ITEM_MAGIC_CONTAINER:
+		case ObjectData::ITEM_MAGIC_ARROW: send_to_char("Количество стрел: ", d->character.get());
 			break;
 
 		default: oedit_disp_menu(d);
@@ -865,23 +865,23 @@ void oedit_disp_val3_menu(DescriptorData *d) {
 void oedit_disp_val4_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_4;
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION:
-		case OBJ_DATA::ITEM_WAND:
-		case OBJ_DATA::ITEM_STAFF: oedit_disp_spells_menu(d);
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_POTION:
+		case ObjectData::ITEM_WAND:
+		case ObjectData::ITEM_STAFF: oedit_disp_spells_menu(d);
 			break;
 
-		case OBJ_DATA::ITEM_WEAPON: oedit_disp_weapon_menu(d);
+		case ObjectData::ITEM_WEAPON: oedit_disp_weapon_menu(d);
 			break;
 
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOUNTAIN:
-		case OBJ_DATA::ITEM_FOOD:
+		case ObjectData::ITEM_DRINKCON:
+		case ObjectData::ITEM_FOUNTAIN:
+		case ObjectData::ITEM_FOOD:
 			send_to_char("Отравлено (0 - не отравлено, 1 - отравлено, >1 - таймер) : ",
 						 d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_BOOK:
+		case ObjectData::ITEM_BOOK:
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
 				case BOOK_UPGRD:
 					send_to_char("Максимальный % умения :\r\n"
@@ -895,13 +895,13 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_MING: send_to_char("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character.get());
+		case ObjectData::ITEM_MING: send_to_char("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_MATERIAL: send_to_char("Введите условный уровень: ", d->character.get());
+		case ObjectData::ITEM_MATERIAL: send_to_char("Введите условный уровень: ", d->character.get());
 			break;
 
-		case OBJ_DATA::ITEM_CONTAINER: send_to_char("Введите сложность замка (0-255): ", d->character.get());
+		case ObjectData::ITEM_CONTAINER: send_to_char("Введите сложность замка (0-255): ", d->character.get());
 			break;
 
 		default: oedit_disp_menu(d);
@@ -961,7 +961,7 @@ void oedit_disp_no_menu(DescriptorData *d) {
 	send_to_char(buf, d->character.get());
 }
 
-void show_weapon_affects_olc(DescriptorData *d, const FLAG_DATA &flags) {
+void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags) {
 	disp_planes_values(d, weapon_affects, 2);
 	flags.sprintbits(weapon_affects, buf1, ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nНакладываемые аффекты : %s%s%s\r\n"
@@ -1045,7 +1045,7 @@ void oedit_disp_magic_container_menu(DescriptorData *d) {
 	send_to_char(buf, d->character.get());
 }
 
-std::string print_spell_value(OBJ_DATA *obj, const ObjVal::EValueKey key1, const ObjVal::EValueKey key2) {
+std::string print_spell_value(ObjectData *obj, const ObjVal::EValueKey key1, const ObjVal::EValueKey key2) {
 	if (obj->get_value(key1) < 0) {
 		return "нет";
 	}
@@ -1099,7 +1099,7 @@ std::array<const char *, 9> wskill_bits =
 	 }};
 
 void oedit_disp_skills_menu(DescriptorData *d) {
-	if (GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(OLC_OBJ(d)) == ObjectData::ITEM_INGREDIENT) {
 		oedit_disp_ingradient_menu(d);
 		return;
 	}
@@ -1124,9 +1124,9 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 	send_to_char(buf, d->character.get());
 }
 
-std::string print_values2_menu(OBJ_DATA *obj) {
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN) {
+std::string print_values2_menu(ObjectData *obj) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_DRINKCON
+		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_FOUNTAIN) {
 		return "Спец.параметры";
 	}
 
@@ -1137,7 +1137,7 @@ std::string print_values2_menu(OBJ_DATA *obj) {
 
 // * Display main menu.
 void oedit_disp_menu(DescriptorData *d) {
-	OBJ_DATA *obj;
+	ObjectData *obj;
 
 	obj = OLC_OBJ(d);
 	get_char_cols(d->character.get());
@@ -1250,7 +1250,7 @@ int planebit(const char *str, int *plane, int *bit) {
 	return (1);
 }
 
-void check_potion_proto(OBJ_DATA *obj) {
+void check_potion_proto(ObjectData *obj) {
 	if (obj->get_value(ObjVal::EValueKey::POTION_SPELL1_NUM) > 0
 		|| obj->get_value(ObjVal::EValueKey::POTION_SPELL2_NUM) > 0
 		|| obj->get_value(ObjVal::EValueKey::POTION_SPELL3_NUM) > 0) {
@@ -1505,12 +1505,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case 'n':
 				case 'N':
-					if (GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_WEAPON
-						|| GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_INGREDIENT) {
+					if (GET_OBJ_TYPE(OLC_OBJ(d)) == ObjectData::ITEM_WEAPON
+						|| GET_OBJ_TYPE(OLC_OBJ(d)) == ObjectData::ITEM_INGREDIENT) {
 						oedit_disp_skills_menu(d);
 						OLC_MODE(d) = OEDIT_SKILL;
-					} else if (GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_DRINKCON
-						|| GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_FOUNTAIN) {
+					} else if (GET_OBJ_TYPE(OLC_OBJ(d)) == ObjectData::ITEM_DRINKCON
+						|| GET_OBJ_TYPE(OLC_OBJ(d)) == ObjectData::ITEM_FOUNTAIN) {
 						drinkcon_values_menu(d);
 						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 					} else {
@@ -1541,7 +1541,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 'T':
 					// * If extra descriptions don't exist.
 					if (!OLC_OBJ(d)->get_ex_description()) {
-						OLC_OBJ(d)->set_ex_description(new EXTRA_DESCR_DATA());
+						OLC_OBJ(d)->set_ex_description(new ExtraDescription());
 					}
 					OLC_DESC(d) = OLC_OBJ(d)->get_ex_description();
 					oedit_disp_extradesc_menu(d);
@@ -1624,11 +1624,11 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				send_to_char("Invalid choice, try again : ", d->character.get());
 				return;
 			} else {
-				OLC_OBJ(d)->set_type(static_cast<OBJ_DATA::EObjectType>(number));
+				OLC_OBJ(d)->set_type(static_cast<ObjectData::EObjectType>(number));
 				sprintf(buf, "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
 				mudlog(buf, BRF, kLevelGod, SYSLOG, true);
-				if (number != OBJ_DATA::ITEM_WEAPON
-					&& number != OBJ_DATA::ITEM_INGREDIENT) {
+				if (number != ObjectData::ITEM_WEAPON
+					&& number != ObjectData::ITEM_INGREDIENT) {
 					OLC_OBJ(d)->set_skill(SKILL_INVALID);
 				}
 			}
@@ -1723,7 +1723,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				oedit_disp_mater_menu(d);
 				return;
 			} else if (number > 0) {
-				OLC_OBJ(d)->set_material(static_cast<OBJ_DATA::EObjectMaterial>(number - 1));
+				OLC_OBJ(d)->set_material(static_cast<ObjectData::EObjectMaterial>(number - 1));
 			}
 			break;
 
@@ -1741,12 +1741,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_INGREDIENT) {
+			if (GET_OBJ_TYPE(OLC_OBJ(d)) == ObjectData::ITEM_INGREDIENT) {
 				OLC_OBJ(d)->toggle_skill(1 << (number - 1));
 				oedit_disp_skills_menu(d);
 				return;
 			}
-			if (GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_WEAPON)
+			if (GET_OBJ_TYPE(OLC_OBJ(d)) == ObjectData::ITEM_WEAPON)
 				switch (number) {
 					case 1: number = 141;
 						break;
@@ -1779,7 +1779,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			// * Hmm, I'm not so sure - Rv
 			number = atoi(arg);
 
-			if (GET_OBJ_TYPE(OLC_OBJ(d)) == OBJ_DATA::ITEM_BOOK
+			if (GET_OBJ_TYPE(OLC_OBJ(d)) == ObjectData::ITEM_BOOK
 				&& (number < 0
 					|| number > 4)) {
 				send_to_char("Неправильный тип книги, повторите.\r\n", d->character.get());
@@ -1796,8 +1796,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			// * Here, I do need to check for out of range values.
 			number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
-				case OBJ_DATA::ITEM_SCROLL:
-				case OBJ_DATA::ITEM_POTION:
+				case ObjectData::ITEM_SCROLL:
+				case ObjectData::ITEM_POTION:
 					if (number < 1
 						|| number > SPELLS_COUNT) {
 						oedit_disp_val2_menu(d);
@@ -1807,7 +1807,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					}
 					return;
 
-				case OBJ_DATA::ITEM_CONTAINER:
+				case ObjectData::ITEM_CONTAINER:
 					// Needs some special handling since we are dealing with flag values
 					// here.
 					if (number < 0
@@ -1822,7 +1822,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					}
 					return;
 
-				case OBJ_DATA::ITEM_BOOK:
+				case ObjectData::ITEM_BOOK:
 					switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
 						case BOOK_SPELL:
 							if (number == 0) {
@@ -1888,26 +1888,26 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		case OEDIT_VALUE_3: number = atoi(arg);
 			// * Quick'n'easy error checking.
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
-				case OBJ_DATA::ITEM_SCROLL:
-				case OBJ_DATA::ITEM_POTION: min_val = -1;
+				case ObjectData::ITEM_SCROLL:
+				case ObjectData::ITEM_POTION: min_val = -1;
 					max_val = SPELLS_COUNT;
 					break;
 
-				case OBJ_DATA::ITEM_WEAPON: min_val = 1;
+				case ObjectData::ITEM_WEAPON: min_val = 1;
 					max_val = 50;
 					break;
 
-				case OBJ_DATA::ITEM_WAND:
-				case OBJ_DATA::ITEM_STAFF: min_val = 0;
+				case ObjectData::ITEM_WAND:
+				case ObjectData::ITEM_STAFF: min_val = 0;
 					max_val = 20;
 					break;
 
-				case OBJ_DATA::ITEM_DRINKCON:
-				case OBJ_DATA::ITEM_FOUNTAIN: min_val = 0;
+				case ObjectData::ITEM_DRINKCON:
+				case ObjectData::ITEM_FOUNTAIN: min_val = 0;
 					max_val = NUM_LIQ_TYPES - 1;
 					break;
 
-				case OBJ_DATA::ITEM_MATERIAL: min_val = 0;
+				case ObjectData::ITEM_MATERIAL: min_val = 0;
 					max_val = 1000;
 					break;
 
@@ -1921,24 +1921,24 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 		case OEDIT_VALUE_4: number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
-				case OBJ_DATA::ITEM_SCROLL:
-				case OBJ_DATA::ITEM_POTION: min_val = -1;
+				case ObjectData::ITEM_SCROLL:
+				case ObjectData::ITEM_POTION: min_val = -1;
 					max_val = SPELLS_COUNT;
 					break;
 
-				case OBJ_DATA::ITEM_WAND:
-				case OBJ_DATA::ITEM_STAFF: min_val = 1;
+				case ObjectData::ITEM_WAND:
+				case ObjectData::ITEM_STAFF: min_val = 1;
 					max_val = SPELLS_COUNT;
 					break;
 
-				case OBJ_DATA::ITEM_WEAPON: min_val = 0;
+				case ObjectData::ITEM_WEAPON: min_val = 0;
 					max_val = NUM_ATTACK_TYPES - 1;
 					break;
-				case OBJ_DATA::ITEM_MING: min_val = 0;
+				case ObjectData::ITEM_MING: min_val = 0;
 					max_val = 2;
 					break;
 
-				case OBJ_DATA::ITEM_MATERIAL: min_val = 0;
+				case ObjectData::ITEM_MATERIAL: min_val = 0;
 					max_val = 100;
 					break;
 
@@ -2030,7 +2030,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 							OLC_DESC(d) = OLC_DESC(d)->next;
 						} else    // Make new extra description and attach at end.
 						{
-							EXTRA_DESCR_DATA::shared_ptr new_extra(new EXTRA_DESCR_DATA());
+							ExtraDescription::shared_ptr new_extra(new ExtraDescription());
 							OLC_DESC(d)->next = new_extra;
 							OLC_DESC(d) = OLC_DESC(d)->next;
 						}

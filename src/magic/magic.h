@@ -18,9 +18,9 @@
 
 #include <cstdlib>
 
-class CHAR_DATA;
-class OBJ_DATA;
-class ROOM_DATA;
+class CharacterData;
+class ObjectData;
+class RoomData;
 
 // VNUM'ы мобов для заклинаний, создающих мобов
 const int kMobDouble = 3000; //внум прототипа для клона
@@ -43,28 +43,28 @@ const int kMaxSpellAffects = 16; // change it if you need more
 
 #define SpINFO spell_info[spellnum]
 
-bool is_room_forbidden(ROOM_DATA *room);
+bool is_room_forbidden(RoomData *room);
 void mobile_affect_update(void);
 void player_affect_update(void);
 void print_rune_log();
-void show_spell_off(int aff, CHAR_DATA *ch);
+void show_spell_off(int aff, CharacterData *ch);
 
-int callMagicToGroup(int level, CHAR_DATA *ch, int spellnum);
-int callMagicToArea(CHAR_DATA *ch, CHAR_DATA *victim, ROOM_DATA *room, int spellnum, int level);
+int callMagicToGroup(int level, CharacterData *ch, int spellnum);
+int callMagicToArea(CharacterData *ch, CharacterData *victim, RoomData *room, int spellnum, int level);
 
-int CallMagic(CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, ROOM_DATA *rvict, int spellnum, int level);
-int CastSpell(CHAR_DATA *ch, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
+int CallMagic(CharacterData *caster, CharacterData *cvict, ObjectData *ovict, RoomData *rvict, int spellnum, int level);
+int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData *troom, int spellnum, int spell_subst);
 
-int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int savetype);
-int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int savetype);
-int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savetype);
-int mag_points(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int savetype);
-int mag_unaffects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int type);
-int mag_alter_objs(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int type);
-int mag_creations(int level, CHAR_DATA *ch, int spellnum);
-int mag_single_target(int level, CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, int spellnum, int casttype);
+int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum, int savetype);
+int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnum, int savetype);
+int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int savetype);
+int mag_points(int level, CharacterData *ch, CharacterData *victim, int spellnum, int savetype);
+int mag_unaffects(int level, CharacterData *ch, CharacterData *victim, int spellnum, int type);
+int mag_alter_objs(int level, CharacterData *ch, ObjectData *obj, int spellnum, int type);
+int mag_creations(int level, CharacterData *ch, int spellnum);
+int mag_single_target(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, int casttype);
 
-bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
+bool material_component_processing(CharacterData *caster, CharacterData *victim, int spellnum);
 float func_koef_duration(int spellnum, int percent); 
 float func_koef_modif(int spellnum, int percent);
 

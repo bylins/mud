@@ -52,11 +52,11 @@ int find_action(char *cmd) {
 
 const char *deaf_social = "&K$n попытал$u очень эмоционально выразить свою мысль.&n";
 
-int do_social(CHAR_DATA *ch, char *argument) {
+int do_social(CharacterData *ch, char *argument) {
 	int act_nr;
 	char social[kMaxInputLength];
 	struct SocialMessages *action;
-	CHAR_DATA *vict;
+	CharacterData *vict;
 
 	if (!argument || !*argument)
 		return (false);

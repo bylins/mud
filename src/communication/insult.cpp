@@ -7,8 +7,8 @@
 #include "entities/char.h"
 #include "handler.h"
 
-void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_insult(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 
 	one_argument(argument, arg);
 

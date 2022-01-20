@@ -72,48 +72,48 @@ extern char const *class_abbrevs[];
 extern int nameserver_is_slow;
 
 // extern procedures
-void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);
-void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter = nullptr);
-void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells);
-//void appear(CHAR_DATA *ch);
-void write_aliases(CHAR_DATA *ch);
-void perform_immort_vis(CHAR_DATA *ch);
-void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-extern char *color_value(CHAR_DATA *ch, int real, int max);
+void list_feats(CharacterData *ch, CharacterData *vict, bool all_feats);
+void list_skills(CharacterData *ch, CharacterData *vict, const char *filter = nullptr);
+void list_spells(CharacterData *ch, CharacterData *vict, int all_spells);
+//void appear(CharacterData *ch);
+void write_aliases(CharacterData *ch);
+void perform_immort_vis(CharacterData *ch);
+void do_gen_comm(CharacterData *ch, char *argument, int cmd, int subcmd);
+extern char *color_value(CharacterData *ch, int real, int max);
 //int posi_value(int real, int max);
-int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
-extern bool is_wear_light(CHAR_DATA *ch);
+int invalid_no_class(CharacterData *ch, const ObjectData *obj);
+extern void split_or_clan_tax(CharacterData *ch, long amount);
+extern bool is_wear_light(CharacterData *ch);
 // local functions
-void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_quit(CHAR_DATA *ch, char *argument, int /* cmd */, int subcmd);
-void do_save(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_hide(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void print_group(CHAR_DATA *ch);
-void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd, int currency);
-void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gen_tog(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_antigods(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_quit(CharacterData *ch, char *argument, int /* cmd */, int subcmd);
+void do_save(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_not_here(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_sneak(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_hide(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_steal(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_spells(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_features(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_skills(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_visible(CharacterData *ch, char *argument, int cmd, int subcmd);
+void print_group(CharacterData *ch);
+void do_group(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_ungroup(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_report(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_split(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_split(CharacterData *ch, char *argument, int cmd, int subcmd, int currency);
+void do_wimpy(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_display(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_gen_tog(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_courage(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_toggle(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_color(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_recall(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_dig(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_summon(CharacterData *ch, char *argument, int cmd, int subcmd);
 //bool is_dark(RoomRnum room);
 
-void do_antigods(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_antigods(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMMORTAL(ch)) {
 		send_to_char("Оно вам надо?\r\n", ch);
 		return;
@@ -128,7 +128,7 @@ void do_antigods(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		send_to_char("Вы и так не под защитой богов.\r\n", ch);
 }
 
-void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_quit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	DescriptorData *d, *next_d;
 
 	if (IS_NPC(ch) || !ch->desc)
@@ -184,9 +184,9 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-void do_summon(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_summon(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	// для начала проверяем, есть ли вообще лошадь у чара
-	CHAR_DATA *horse = nullptr;
+	CharacterData *horse = nullptr;
 	horse = ch->get_horse();
 	if (!horse) {
 		send_to_char("У вас нет скакуна!\r\n", ch);
@@ -206,7 +206,7 @@ void do_summon(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	act("$n появил$u из голубого пламени!", true, horse, nullptr, nullptr, TO_ROOM);
 }
 
-void do_save(CHAR_DATA *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
+void do_save(CharacterData *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->desc) {
 		return;
 	}
@@ -223,11 +223,11 @@ void do_save(CHAR_DATA *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
 
 // generic function for commands which are normally overridden by
 // special procedures - i.e., shop commands, mail commands, etc.
-void do_not_here(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_not_here(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("Эта команда недоступна в этом месте!\r\n", ch);
 }
 
-int check_awake(CHAR_DATA *ch, int what) {
+int check_awake(CharacterData *ch, int what) {
 	int i, retval = 0, wgt = 0;
 
 	if (!IS_GOD(ch)) {
@@ -252,13 +252,13 @@ int check_awake(CHAR_DATA *ch, int what) {
 
 			if (IS_SET(what, ACHECK_LIGHT)
 				&& IS_DEFAULTDARK(ch->in_room)
-				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == OBJ_DATA::ITEM_LIGHT
+				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == ObjectData::ITEM_LIGHT
 				&& GET_OBJ_VAL(GET_EQ(ch, i), 2)) {
 				SET_BIT(retval, ACHECK_LIGHT);
 			}
 
 			if (ObjSystem::is_armor_type(GET_EQ(ch, i))
-				&& GET_OBJ_MATER(GET_EQ(ch, i)) <= OBJ_DATA::MAT_COLOR) {
+				&& GET_OBJ_MATER(GET_EQ(ch, i)) <= ObjectData::MAT_COLOR) {
 				wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
 			}
 		}
@@ -269,29 +269,29 @@ int check_awake(CHAR_DATA *ch, int what) {
 	return (retval);
 }
 
-int awake_hide(CHAR_DATA *ch) {
+int awake_hide(CharacterData *ch) {
 	if (IS_GOD(ch))
 		return (false);
 	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING
 		| ACHECK_GLOWING | ACHECK_WEIGHT);
 }
 
-int awake_sneak(CHAR_DATA *ch) {
+int awake_sneak(CharacterData *ch) {
 	return awake_hide(ch);
 }
 
-int awake_invis(CHAR_DATA *ch) {
+int awake_invis(CharacterData *ch) {
 	if (IS_GOD(ch))
 		return (false);
 	return check_awake(ch, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING
 		| ACHECK_GLOWING);
 }
 
-int awake_camouflage(CHAR_DATA *ch) {
+int awake_camouflage(CharacterData *ch) {
 	return awake_invis(ch);
 }
 
-int awaking(CHAR_DATA *ch, int mode) {
+int awaking(CharacterData *ch, int mode) {
 	if (IS_GOD(ch))
 		return (false);
 	if (IS_SET(mode, AW_HIDE) && awake_hide(ch))
@@ -305,7 +305,7 @@ int awaking(CHAR_DATA *ch, int mode) {
 	return (false);
 }
 
-int char_humming(CHAR_DATA *ch) {
+int char_humming(CharacterData *ch) {
 	int i;
 
 	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -318,7 +318,7 @@ int char_humming(CHAR_DATA *ch) {
 	return (false);
 }
 
-void do_sneak(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_sneak(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_SNEAK)) {
@@ -348,7 +348,7 @@ void do_sneak(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	percent = number(1, skill_info[SKILL_SNEAK].difficulty);
 	prob = CalcCurrentSkill(ch, SKILL_SNEAK, nullptr);
 
-	AFFECT_DATA<EApplyLocation> af;
+	Affect<EApplyLocation> af;
 	af.type = SPELL_SNEAK;
 	af.duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch), 8, 0, 1);
 	af.modifier = 0;
@@ -363,7 +363,7 @@ void do_sneak(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	affect_to_char(ch, af);
 }
 
-void do_camouflage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_camouflage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct Timed timed;
 	int prob, percent;
 
@@ -401,7 +401,7 @@ void do_camouflage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	percent = number(1, skill_info[SKILL_CAMOUFLAGE].difficulty);
 	prob = CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, nullptr);
 
-	AFFECT_DATA<EApplyLocation> af;
+	Affect<EApplyLocation> af;
 	af.type = SPELL_CAMOUFLAGE;
 	af.duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch), 6, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
@@ -422,7 +422,7 @@ void do_camouflage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	}
 }
 
-void do_hide(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_hide(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDE)) {
@@ -457,7 +457,7 @@ void do_hide(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	percent = number(1, skill_info[SKILL_HIDE].difficulty);
 	prob = CalcCurrentSkill(ch, SKILL_HIDE, nullptr);
 
-	AFFECT_DATA<EApplyLocation> af;
+	Affect<EApplyLocation> af;
 	af.type = SPELL_HIDE;
 	af.duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch), 8, 0, 1);
 	af.modifier = 0;
@@ -473,9 +473,9 @@ void do_hide(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	affect_to_char(ch, af);
 }
 
-void go_steal(CHAR_DATA *ch, CHAR_DATA *vict, char *obj_name) {
+void go_steal(CharacterData *ch, CharacterData *vict, char *obj_name) {
 	int percent, gold, eq_pos, ohoh = 0, success = 0, prob;
-	OBJ_DATA *obj;
+	ObjectData *obj;
 
 	if (!vict)
 		return;
@@ -648,8 +648,8 @@ void go_steal(CHAR_DATA *ch, CHAR_DATA *vict, char *obj_name) {
 		hit(vict, ch, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 }
 
-void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_steal(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
 	char vict_name[kMaxInputLength], obj_name[kMaxInputLength];
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_STEAL)) {
@@ -685,7 +685,7 @@ void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	go_steal(ch, vict, obj_name);
 }
 
-void do_features(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_features(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 	skip_spaces(&argument);
@@ -695,7 +695,7 @@ void do_features(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		list_feats(ch, ch, false);
 }
 
-void do_skills(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_skills(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		return;
 	}
@@ -722,7 +722,7 @@ void do_skills(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	list_skills(ch, ch, argument);
 }
 
-void do_spells(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_spells(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 	skip_spaces(&argument);
@@ -732,7 +732,7 @@ void do_spells(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		list_spells(ch, ch, false);
 }
 
-void do_visible(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_visible(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMMORTAL(ch)) {
 		perform_immort_vis(ch);
 		return;
@@ -748,8 +748,8 @@ void do_visible(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы и так видимы.\r\n", ch);
 }
 
-void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	OBJ_DATA *obj;
+void do_courage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	ObjectData *obj;
 	int prob, dur;
 	struct Timed timed;
 	int i;
@@ -771,7 +771,7 @@ void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	timed_to_char(ch, &timed);
 	prob = CalcCurrentSkill(ch, SKILL_COURAGE, nullptr) / 20;
 	dur = 1 + MIN(5, ch->get_skill(SKILL_COURAGE) / 40);
-	AFFECT_DATA<EApplyLocation> af[4];
+	Affect<EApplyLocation> af[4];
 	af[0].type = SPELL_COURAGE;
 	af[0].duration = pc_duration(ch, dur, 0, 0, 0, 0);
 	af[0].modifier = 40;
@@ -810,7 +810,7 @@ void do_courage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	act(buf, false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 }
 
-int max_group_size(CHAR_DATA *ch) {
+int max_group_size(CharacterData *ch) {
 	int bonus_commander = 0;
 //	if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER))
 //		bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 120) / 10, 0, 8);
@@ -818,7 +818,7 @@ int max_group_size(CHAR_DATA *ch) {
 	return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4) + bonus_commander;
 }
 
-bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict) {
+bool is_group_member(CharacterData *ch, CharacterData *vict) {
 	if (IS_NPC(vict)
 		|| !AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
 		|| vict->get_master() != ch) {
@@ -828,7 +828,7 @@ bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict) {
 	}
 }
 
-int perform_group(CHAR_DATA *ch, CHAR_DATA *vict) {
+int perform_group(CharacterData *ch, CharacterData *vict) {
 	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
 		|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 		|| MOB_FLAGGED(vict, MOB_ANGEL)
@@ -853,14 +853,14 @@ int perform_group(CHAR_DATA *ch, CHAR_DATA *vict) {
 * старый лидер соответственно группится обратно, если нулевой, то считаем, что
 * произошла смерть старого лидера и новый выбирается по наибольшей лидерке.
 */
-void change_leader(CHAR_DATA *ch, CHAR_DATA *vict) {
+void change_leader(CharacterData *ch, CharacterData *vict) {
 	if (IS_NPC(ch)
 		|| ch->has_master()
 		|| !ch->followers) {
 		return;
 	}
 
-	CHAR_DATA *leader = vict;
+	CharacterData *leader = vict;
 	if (!leader) {
 		// лидер умер, ищем согрупника с максимальным скиллом лидерки
 		for (struct Follower *l = ch->followers; l; l = l->next) {
@@ -878,13 +878,13 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict) {
 	}
 
 	// для реследования используем стандартные функции
-	std::vector<CHAR_DATA *> temp_list;
+	std::vector<CharacterData *> temp_list;
 	for (struct Follower *n = nullptr, *l = ch->followers; l; l = n) {
 		n = l->next;
 		if (!is_group_member(ch, l->ch)) {
 			continue;
 		} else {
-			CHAR_DATA *temp_vict = l->ch;
+			CharacterData *temp_vict = l->ch;
 			if (temp_vict->has_master()
 				&& stop_follower(temp_vict, SF_SILENCE)) {
 				continue;
@@ -899,7 +899,7 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict) {
 	// вся эта фигня только для того, чтобы при реследовании пройтись по списку в обратном
 	// направлении и сохранить относительный порядок следования в группе
 	if (!temp_list.empty()) {
-		for (std::vector<CHAR_DATA *>::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
+		for (std::vector<CharacterData *>::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
 			leader->add_follower_silently(*it);
 		}
 	}
@@ -930,7 +930,7 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict) {
 	}
 }
 
-void print_one_line(CHAR_DATA *ch, CHAR_DATA *k, int leader, int header) {
+void print_one_line(CharacterData *ch, CharacterData *k, int leader, int header) {
 	int ok, ok2, div;
 	const char *WORD_STATE[] = {"При смерти",
 								"Оч.тяж.ран",
@@ -1083,8 +1083,8 @@ void print_one_line(CHAR_DATA *ch, CHAR_DATA *k, int leader, int header) {
 	}
 }
 
-void print_list_group(CHAR_DATA *ch) {
-	CHAR_DATA *k;
+void print_list_group(CharacterData *ch) {
+	CharacterData *k;
 	struct Follower *f;
 	int count = 1;
 	k = (ch->has_master() ? ch->get_master() : ch);
@@ -1108,9 +1108,9 @@ void print_list_group(CHAR_DATA *ch) {
 	}
 }
 
-void print_group(CHAR_DATA *ch) {
+void print_group(CharacterData *ch) {
 	int gfound = 0, cfound = 0;
-	CHAR_DATA *k;
+	CharacterData *k;
 	struct Follower *f, *g;
 
 	k = ch->has_master() ? ch->get_master() : ch;
@@ -1196,8 +1196,8 @@ void print_group(CHAR_DATA *ch) {
 	}
 }
 
-void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_group(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
 	struct Follower *f;
 	int found, f_number;
 
@@ -1313,9 +1313,9 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ungroup(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct Follower *f, *next_fol;
-	CHAR_DATA *tch;
+	CharacterData *tch;
 
 	one_argument(argument, buf);
 
@@ -1363,8 +1363,8 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("Этот игрок не входит в состав вашей группы.\r\n", ch);
 }
 
-void do_report(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *k;
+void do_report(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *k;
 	struct Follower *f;
 
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
@@ -1411,13 +1411,13 @@ void do_report(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	}
 	send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
-void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_split(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	do_split(ch, argument, 0, 0, 0);
 }
 
-void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
+void do_split(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
 	int amount, num, share, rest;
-	CHAR_DATA *k;
+	CharacterData *k;
 	struct Follower *f;
 
 	if (IS_NPC(ch))
@@ -1527,16 +1527,16 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cu
 	}
 }
 
-OBJ_DATA *get_obj_equip_or_carry(CHAR_DATA *ch, const std::string &text) {
+ObjectData *get_obj_equip_or_carry(CharacterData *ch, const std::string &text) {
 	int eq_num = 0;
-	OBJ_DATA *obj = get_object_in_equip_vis(ch, text, ch->equipment, &eq_num);
+	ObjectData *obj = get_object_in_equip_vis(ch, text, ch->equipment, &eq_num);
 	if (!obj) {
 		obj = get_obj_in_list_vis(ch, text, ch->carrying);
 	}
 	return obj;
 }
 
-void do_wimpy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wimpy(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int wimp_lev;
 
 	// 'wimp_level' is a player_special. -gg 2/25/98
@@ -1579,7 +1579,7 @@ void do_wimpy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			 ch);
 }
 
-void set_display_bits(CHAR_DATA *ch, bool flag) {
+void set_display_bits(CharacterData *ch, bool flag) {
 	if (flag) {
 		PRF_FLAGS(ch).set(PRF_DISPHP);
 		PRF_FLAGS(ch).set(PRF_DISPMANA);
@@ -1610,7 +1610,7 @@ void set_display_bits(CHAR_DATA *ch, bool flag) {
 const char *DISPLAY_HELP =
 	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П | К } | все | нет }\r\n";
 
-void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_display(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		send_to_char("И зачем это монстру? Не юродствуйте.\r\n", ch);
 		return;
@@ -1800,7 +1800,7 @@ struct gen_tog_param_type {
 			0, SCMD_IPCONTROL, false}
 	};
 
-void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mode(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, showhelp = false;
 	if (IS_NPC(ch))
 		return;
@@ -1843,7 +1843,7 @@ void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // установки экрана flag: 0 - ширина, 1 - высота
-void SetScreen(CHAR_DATA *ch, char *argument, int flag) {
+void SetScreen(CharacterData *ch, char *argument, int flag) {
 	if (IS_NPC(ch))
 		return;
 	skip_spaces(&argument);
@@ -1870,7 +1870,7 @@ void SetScreen(CHAR_DATA *ch, char *argument, int flag) {
 }
 
 // * 'режим автограбеж все|ингредиенты', по дефолту - все
-void set_autoloot_mode(CHAR_DATA *ch, char *argument) {
+void set_autoloot_mode(CharacterData *ch, char *argument) {
 	static const char *message_on = "Автоматический грабеж трупов включен.\r\n";
 	static const char
 		*message_no_ingr = "Автоматический грабеж трупов, исключая ингредиенты и магические компоненты, включен.\r\n";
@@ -1901,7 +1901,7 @@ void set_autoloot_mode(CHAR_DATA *ch, char *argument) {
 }
 
 //Polud установка оффлайн-уведомлений базара
-void setNotifyEchange(CHAR_DATA *ch, char *argument) {
+void setNotifyEchange(CharacterData *ch, char *argument) {
 	skip_spaces(&argument);
 	if (!*argument) {
 		send_to_char(ch, "Формат команды: режим уведомления <минимальная цена, число от 0 до %d>.\r\n", 0x7fffffff);
@@ -1927,7 +1927,7 @@ void setNotifyEchange(CHAR_DATA *ch, char *argument) {
 }
 
 //-Polud
-void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_gen_tog(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	long result = 0;
 
 	const char *tog_messages[][2] =
@@ -2216,9 +2216,9 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char(tog_messages[subcmd][TOG_OFF], ch);
 }
 
-void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_pray(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int metter = -1;
-	OBJ_DATA *obj = nullptr;
+	ObjectData *obj = nullptr;
 	struct Timed timed;
 
 	if (IS_NPC(ch)) {
@@ -2282,8 +2282,8 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char("Вы должны пожертвовать что-то стоящее.\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_FOOD
-			&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_TREASURE) {
+		if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_FOOD
+			&& GET_OBJ_TYPE(obj) != ObjectData::ITEM_TREASURE) {
 			send_to_char("Богам неугодна эта жертва.\r\n", ch);
 			return;
 		}
@@ -2307,7 +2307,7 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	for (const auto &i : pray_affect) {
 		if (i.metter == metter) {
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.type = SPELL_RELIGION;
 			af.duration = pc_duration(ch, 12, 0, 0, 0, 0);
 			af.modifier = i.modifier;
@@ -2334,7 +2334,7 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-void do_recall(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_recall(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		send_to_char("Монстрам некуда возвращаться!\r\n", ch);
 		return;
@@ -2379,7 +2379,7 @@ void do_recall(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	}
 }
 
-void perform_beep(CHAR_DATA *ch, CHAR_DATA *vict) {
+void perform_beep(CharacterData *ch, CharacterData *vict) {
 	send_to_char(CCRED(vict, C_NRM), vict);
 	sprintf(buf, "\007\007 $n вызывает вас!");
 	act(buf, false, ch, nullptr, vict, TO_VICT | TO_SLEEP);
@@ -2395,8 +2395,8 @@ void perform_beep(CHAR_DATA *ch, CHAR_DATA *vict) {
 	}
 }
 
-void do_beep(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict = nullptr;
+void do_beep(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict = nullptr;
 
 	one_argument(argument, buf);
 
@@ -2420,7 +2420,7 @@ void do_beep(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 extern struct IndexData *obj_index;
 
-void do_bandage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_bandage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		return;
 	}
@@ -2441,9 +2441,9 @@ void do_bandage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	OBJ_DATA *bandage = nullptr;
-	for (OBJ_DATA *i = ch->carrying; i; i = i->get_next_content()) {
-		if (GET_OBJ_TYPE(i) == OBJ_DATA::ITEM_BANDAGE) {
+	ObjectData *bandage = nullptr;
+	for (ObjectData *i = ch->carrying; i; i = i->get_next_content()) {
+		if (GET_OBJ_TYPE(i) == ObjectData::ITEM_BANDAGE) {
 			bandage = i;
 			break;
 		}
@@ -2456,7 +2456,7 @@ void do_bandage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	send_to_char("Вы достали бинты и начали оказывать себе первую помощь...\r\n", ch);
 	act("$n начал$g перевязывать свои раны.&n", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 
-	AFFECT_DATA<EApplyLocation> af;
+	Affect<EApplyLocation> af;
 	af.type = SPELL_BANDAGE;
 	af.location = APPLY_NONE;
 	af.modifier = GET_OBJ_VAL(bandage, 0);

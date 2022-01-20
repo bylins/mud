@@ -3,7 +3,7 @@
 #include "entities/char.h"
 
 namespace commands {
-Shutdown::Shutdown(CHAR_DATA *character, const char *argument, ShutdownParameters &shutdown_parameters) :
+Shutdown::Shutdown(CharacterData *character, const char *argument, ShutdownParameters &shutdown_parameters) :
 	m_character(character),
 	m_argument(argument),
 	m_timeout(0),

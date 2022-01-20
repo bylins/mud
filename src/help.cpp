@@ -110,14 +110,14 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
 		out << boost::format("Наносимые повреждения '%dD%d' среднее %.1f\r\n")
 			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
 		out << "Вес : " << GET_OBJ_WEIGHT(obj) << "\r\n";
@@ -163,7 +163,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	}
 	out << "\r\n";
 
-	FLAG_DATA affects = activ->second.get_affects();
+	FlagData affects = activ->second.get_affects();
 	if (affects.sprintbits(weapon_affects, buf2, ",")) {
 		out << " + Аффекты : " << buf2 << "\r\n";
 	}
@@ -179,7 +179,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 		out << " + Свойства :\r\n" << tmp_str;
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 		int drndice = 0, drsdice = 0;
 		activ->second.get_dices(drsdice, drndice);
 		if (drsdice > 0 && drndice > 0) {
@@ -212,8 +212,8 @@ struct activators_obj {
 	// номер профы и ее суммарные активы
 	std::map<int, clss_activ_node> clss_list;
 	// суммарные статы шмоток
-	FLAG_DATA native_no_flag;
-	FLAG_DATA native_affects;
+	FlagData native_no_flag;
+	FlagData native_affects;
 	std::vector<obj_affected_type> native_affected;
 	CObjectPrototype::skills_t native_skills;
 
@@ -369,8 +369,8 @@ std::string print_fullset_stats(const set_info &set) {
 
 // инициация распечатки справки по активаторам
 void process() {
-	for (id_to_set_info_map::const_iterator it = OBJ_DATA::set_table.begin(),
-			 iend = OBJ_DATA::set_table.end(); it != iend; ++it) {
+	for (id_to_set_info_map::const_iterator it = ObjectData::set_table.begin(),
+			 iend = ObjectData::set_table.end(); it != iend; ++it) {
 		std::stringstream out;
 		// it->first = int_id, it->second = set_info
 		out << "---------------------------------------------------------------------------\r\n";
@@ -462,11 +462,11 @@ const char *HELP_USE_EXMAPLES =
 
 class UserSearch {
  public:
-	UserSearch(CHAR_DATA *in_ch)
+	UserSearch(CharacterData *in_ch)
 		: strong(false), stop(false), diff_keys(false), level(0), topic_num(0), curr_topic_num(0) { ch = in_ch; };
 
 	// ищущий чар
-	CHAR_DATA *ch;
+	CharacterData *ch;
 	// строгий поиск (! на конце)
 	bool strong;
 	// флаг остановки прохода по спискам справок
@@ -725,7 +725,7 @@ void UserSearch::search(const std::vector<help_node> &cont) {
 
 using namespace HelpSystem;
 
-void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_help(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->desc) {
 		return;
 	}

@@ -7,7 +7,7 @@ constexpr short MAX_HIRE_TIME = 10080 / 2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);
 
 //Функции для модифицированного чарма
-float get_damage_per_round(CHAR_DATA *victim) {
+float get_damage_per_round(CharacterData *victim) {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffectFlag::AFF_CLOUD_OF_ARROWS) ? 14 : 0);
@@ -24,7 +24,7 @@ float get_damage_per_round(CHAR_DATA *victim) {
 	return dam_per_round;
 }
 
-float calc_cha_for_hire(CHAR_DATA *victim) {
+float calc_cha_for_hire(CharacterData *victim) {
 	int i;
 	float reformed_hp = 0.0, needed_cha = 0.0;
 	for (i = 0; i < 50; i++) {
@@ -37,7 +37,7 @@ float calc_cha_for_hire(CHAR_DATA *victim) {
 	return VPOSI<float>(needed_cha, 1.0, 50.0);
 }
 
-long calc_hire_price(CHAR_DATA *ch, CHAR_DATA *victim) {
+long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 	float price = 0; // стоимость найма
 	int m_str = victim->get_str() * 20;
 	int m_int = victim->get_int() * 20;
@@ -138,7 +138,7 @@ long calc_hire_price(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return std::min(finalPrice, MAX_HIRE_PRICE);
 }
 
-int get_reformed_charmice_hp(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
+int get_reformed_charmice_hp(CharacterData *ch, CharacterData *victim, int spellnum) {
 	float r_hp = 0;
 	float eff_cha = 0.0;
 	float max_cha;
@@ -170,7 +170,7 @@ int get_reformed_charmice_hp(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum) {
 	return (int) r_hp;
 }
 
-void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT))) {
 		send_to_char("Вам недоступно это!\r\n", ch);
@@ -270,7 +270,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (MOB_FLAGGED(helpee, MOB_NOGROUP))
 			MOB_FLAGS(helpee).unset(MOB_NOGROUP);
 
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		if (!(k && k->ch == helpee)) {
 			ch->add_follower(helpee);
 			af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
@@ -341,7 +341,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_freehelpee(CHAR_DATA *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_freehelpee(CharacterData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT))) {
 		send_to_char("Вам недоступно это!\r\n", ch);

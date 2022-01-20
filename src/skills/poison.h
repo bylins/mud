@@ -10,16 +10,16 @@
 #include "structs/structs.h"
 #include "affects/affect_data.h"
 
-void poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int modifier);
-void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num);
+void poison_victim(CharacterData *ch, CharacterData *vict, int modifier);
+void try_weap_poison(CharacterData *ch, CharacterData *vict, int spell_num);
 
 bool poison_in_vessel(int liquid_num);
-void set_weap_poison(OBJ_DATA *weapon, int liquid_num);
+void set_weap_poison(ObjectData *weapon, int liquid_num);
 
 std::string get_poison_by_spell(int spell);
 bool check_poison(int spell);
 
-int processPoisonDamage(CHAR_DATA *ch, const AFFECT_DATA<EApplyLocation>::shared_ptr &af);
+int processPoisonDamage(CharacterData *ch, const Affect<EApplyLocation>::shared_ptr &af);
 
 #endif // POISON_HPP_INCLUDED
 

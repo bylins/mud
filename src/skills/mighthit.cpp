@@ -10,7 +10,7 @@
 using namespace FightSystem;
 
 // ************************* MIGHTHIT PROCEDURES
-void go_mighthit(CHAR_DATA *ch, CHAR_DATA *victim) {
+void go_mighthit(CharacterData *ch, CharacterData *victim) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -47,7 +47,7 @@ void go_mighthit(CHAR_DATA *ch, CHAR_DATA *victim) {
 	}
 }
 
-void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mighthit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_MIGHTHIT) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -57,7 +57,7 @@ void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы хотите СИЛЬНО ударить?\r\n", ch);
 		return;

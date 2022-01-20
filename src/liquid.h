@@ -50,20 +50,20 @@ extern const char *drinknames[];
 extern const int drink_aff[][3];
 extern const char *color_liquid[];
 
-void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_drink(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_drunkoff(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_pour(CharacterData *ch, char *argument, int cmd, int subcmd);
 
-void name_from_drinkcon(OBJ_DATA *obj);
-void name_to_drinkcon(OBJ_DATA *obj, int type);
-bool is_potion(const OBJ_DATA *obj);
+void name_from_drinkcon(ObjectData *obj);
+void name_to_drinkcon(ObjectData *obj, int type);
+bool is_potion(const ObjectData *obj);
 
 class CObjectPrototype;    // to avoit inclusion of "obj.hpp"
 
 namespace drinkcon {
 
-void identify(CHAR_DATA *ch, const OBJ_DATA *obj);
-std::string print_spells(CHAR_DATA *ch, const OBJ_DATA *obj);
+void identify(CharacterData *ch, const ObjectData *obj);
+std::string print_spells(CharacterData *ch, const ObjectData *obj);
 void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_obj);
 
 } // namespace drinkcon

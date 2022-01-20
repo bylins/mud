@@ -40,29 +40,29 @@
 
 // external structs
 extern int no_specials;
-extern int guild_poly(CHAR_DATA *, void *, int, char *);
+extern int guild_poly(CharacterData *, void *, int, char *);
 extern guardian_type guardian_list;
 extern struct ZoneData *zone_table;
 
-int npc_scavenge(CHAR_DATA *ch);
-int npc_loot(CHAR_DATA *ch);
-int npc_move(CHAR_DATA *ch, int dir, int need_specials_check);
-void npc_wield(CHAR_DATA *ch);
-void npc_armor(CHAR_DATA *ch);
-void npc_group(CHAR_DATA *ch);
-void npc_groupbattle(CHAR_DATA *ch);
-int npc_walk(CHAR_DATA *ch);
-int npc_steal(CHAR_DATA *ch);
-void npc_light(CHAR_DATA *ch);
-extern void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
-bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict);
-void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset);
+int npc_scavenge(CharacterData *ch);
+int npc_loot(CharacterData *ch);
+int npc_move(CharacterData *ch, int dir, int need_specials_check);
+void npc_wield(CharacterData *ch);
+void npc_armor(CharacterData *ch);
+void npc_group(CharacterData *ch);
+void npc_groupbattle(CharacterData *ch);
+int npc_walk(CharacterData *ch);
+int npc_steal(CharacterData *ch);
+void npc_light(CharacterData *ch);
+extern void set_wait(CharacterData *ch, int waittime, int victim_in_room);
+bool guardian_attack(CharacterData *ch, CharacterData *vict);
+void drop_obj_on_zreset(CharacterData *ch, ObjectData *obj, bool inv, bool zone_reset);
 
 // local functions
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
 
-int extra_aggressive(CHAR_DATA *ch, CHAR_DATA *victim) {
+int extra_aggressive(CharacterData *ch, CharacterData *victim) {
 	int time_ok = false, no_time = true, month_ok = false, no_month = true, agro = false;
 
 	if (!IS_NPC(ch))
@@ -140,8 +140,8 @@ int extra_aggressive(CHAR_DATA *ch, CHAR_DATA *victim) {
 		return (false);
 }
 
-int attack_best(CHAR_DATA *ch, CHAR_DATA *victim) {
-	OBJ_DATA *wielded = GET_EQ(ch, WEAR_WIELD);
+int attack_best(CharacterData *ch, CharacterData *victim) {
+	ObjectData *wielded = GET_EQ(ch, WEAR_WIELD);
 	if (victim) {
 		if (ch->get_skill(SKILL_STRANGLE) && !timed_by_skill(ch, SKILL_STRANGLE)) {
 			go_strangle(ch, victim);
@@ -165,7 +165,7 @@ int attack_best(CHAR_DATA *ch, CHAR_DATA *victim) {
 		}
 		if (ch->get_skill(SKILL_THROW)
 			&& wielded
-			&& GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON
+			&& GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON
 			&& wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)) {
 			go_throw(ch, victim);
 		}
@@ -206,7 +206,7 @@ int check_room_tracks(const RoomRnum room, const long victim_id) {
 	return BFS_ERROR;
 }
 
-int find_door(CHAR_DATA *ch, const bool track_method) {
+int find_door(CharacterData *ch, const bool track_method) {
 	bool msg = false;
 
 	for (const auto &vict : character_list) {
@@ -235,15 +235,15 @@ int find_door(CHAR_DATA *ch, const bool track_method) {
 	return BFS_ERROR;
 }
 
-int npc_track(CHAR_DATA *ch) {
+int npc_track(CharacterData *ch) {
 	const auto result = find_door(ch, GET_REAL_INT(ch) < number(15, 20));
 
 	return result;
 }
 
-CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
+CharacterData *selectRandomSkirmisherFromGroup(CharacterData *leader) {
 	ActionTargeting::FriendsRosterType roster{leader};
-	auto isSkirmisher = [](CHAR_DATA *ch) { return PRF_FLAGGED(ch, PRF_SKIRMISHER); };
+	auto isSkirmisher = [](CharacterData *ch) { return PRF_FLAGGED(ch, PRF_SKIRMISHER); };
 	int skirmishers = roster.count(isSkirmisher);
 	if (skirmishers == 0 || skirmishers == roster.amount()) {
 		return nullptr;
@@ -251,13 +251,13 @@ CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
 	return roster.getRandomItem(isSkirmisher);
 }
 
-CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim) {
+CharacterData *selectVictimDependingOnGroupFormation(CharacterData *assaulter, CharacterData *initialVictim) {
 	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffectFlag::AFF_GROUP) || MOB_FLAGGED(assaulter, MOB_IGNORE_FORMATION)) {
 		return initialVictim;
 	}
 
-	CHAR_DATA *leader = initialVictim;
-	CHAR_DATA *newVictim = initialVictim;
+	CharacterData *leader = initialVictim;
+	CharacterData *newVictim = initialVictim;
 
 	if (initialVictim->has_master()) {
 		leader = initialVictim->get_master();
@@ -289,8 +289,8 @@ CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 	return newVictim;
 }
 
-CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA *ch, int extmode) {
-	CHAR_DATA *victim, *use_light = nullptr, *min_hp = nullptr, *min_lvl = nullptr, *caster = nullptr, *best = nullptr;
+CharacterData *find_best_stupidmob_victim(CharacterData *ch, int extmode) {
+	CharacterData *victim, *use_light = nullptr, *min_hp = nullptr, *min_lvl = nullptr, *caster = nullptr, *best = nullptr;
 	int kill_this, extra_aggr = 0;
 
 	victim = ch->get_fighting();
@@ -383,8 +383,8 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA *ch, int extmode) {
 			victim = vict;
 
 		if (IS_DEFAULTDARK(ch->in_room)
-			&& ((GET_EQ(vict, OBJ_DATA::ITEM_LIGHT)
-				&& GET_OBJ_VAL(GET_EQ(vict, OBJ_DATA::ITEM_LIGHT), 2))
+			&& ((GET_EQ(vict, ObjectData::ITEM_LIGHT)
+				&& GET_OBJ_VAL(GET_EQ(vict, ObjectData::ITEM_LIGHT), 2))
 				|| (!AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYDARK)
 					&& (AFF_FLAGGED(vict, EAffectFlag::AFF_SINGLELIGHT)
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HOLYLIGHT))))
@@ -437,7 +437,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA *ch, int extmode) {
 	return selectVictimDependingOnGroupFormation(ch, best);
 }
 // TODO invert and rename for clarity: -> isStrayCharmice(), to return true if a charmice, and master is absent =II
-bool find_master_charmice(CHAR_DATA *charmice) {
+bool find_master_charmice(CharacterData *charmice) {
 	// проверяем на спелл чарма, ищем хозяина и сравниваем румы
 	if (!IS_CHARMICE(charmice) || !charmice->has_master()) {
 		return true;
@@ -451,9 +451,9 @@ bool find_master_charmice(CHAR_DATA *charmice) {
 }
 
 // пока тестово
-CHAR_DATA *find_best_mob_victim(CHAR_DATA *ch, int extmode) {
-	CHAR_DATA *currentVictim, *caster = nullptr, *best = nullptr;
-	CHAR_DATA *druid = nullptr, *cler = nullptr, *charmmage = nullptr;
+CharacterData *find_best_mob_victim(CharacterData *ch, int extmode) {
+	CharacterData *currentVictim, *caster = nullptr, *best = nullptr;
+	CharacterData *druid = nullptr, *cler = nullptr, *charmmage = nullptr;
 	int extra_aggr = 0;
 	bool kill_this;
 
@@ -617,8 +617,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA *ch, int extmode) {
 	return selectVictimDependingOnGroupFormation(ch, best);
 }
 
-int perform_best_mob_attack(CHAR_DATA *ch, int extmode) {
-	CHAR_DATA *best;
+int perform_best_mob_attack(CharacterData *ch, int extmode) {
+	CharacterData *best;
 	int clone_number = 0;
 	best = find_best_mob_victim(ch, extmode);
 
@@ -683,7 +683,7 @@ int perform_best_mob_attack(CHAR_DATA *ch, int extmode) {
 	return (false);
 }
 
-int perform_best_horde_attack(CHAR_DATA *ch, int extmode) {
+int perform_best_horde_attack(CharacterData *ch, int extmode) {
 	if (perform_best_mob_attack(ch, extmode)) {
 		return (true);
 	}
@@ -708,8 +708,8 @@ int perform_best_horde_attack(CHAR_DATA *ch, int extmode) {
 	return (false);
 }
 
-int perform_mob_switch(CHAR_DATA *ch) {
-	CHAR_DATA *best;
+int perform_mob_switch(CharacterData *ch) {
+	CharacterData *best;
 	best = find_best_mob_victim(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | CHECK_OPPONENT);
 
 	if (!best)
@@ -734,7 +734,7 @@ int perform_mob_switch(CHAR_DATA *ch) {
 	return true;
 }
 
-void do_aggressive_mob(CHAR_DATA *ch, int check_sneak) {
+void do_aggressive_mob(CharacterData *ch, int check_sneak) {
 	if (!ch || ch->in_room == kNowhere || !IS_NPC(ch) || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		return;
 	}
@@ -773,7 +773,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak) {
 
 	// *****************  Mob Memory
 	if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch)) {
-		CHAR_DATA *victim = nullptr;
+		CharacterData *victim = nullptr;
 		// Find memory in room
 		const auto people_copy = world[ch->in_room]->people;
 		for (auto vict_i = people_copy.begin(); vict_i != people_copy.end() && !victim; ++vict_i) {
@@ -842,7 +842,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak) {
 * в результате агра на себя кого-то в комнате и начале атаки
 * например с глуша.
 */
-void do_aggressive_room(CHAR_DATA *ch, int check_sneak) {
+void do_aggressive_room(CharacterData *ch, int check_sneak) {
 	if (!ch || ch->in_room == kNowhere) {
 		return;
 	}
@@ -861,7 +861,7 @@ void do_aggressive_room(CHAR_DATA *ch, int check_sneak) {
  * \param ch - входящий моб
  * \return true - можно войти, false - нельзя
  */
-bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch) {
+bool allow_enter(RoomData *room, CharacterData *ch) {
 	if (!IS_NPC(ch) || !GET_MOB_SPEC(ch)) {
 		return true;
 	}
@@ -877,7 +877,7 @@ bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch) {
 }
 
 namespace {
-OBJ_DATA *create_charmice_box(CHAR_DATA *ch) {
+ObjectData *create_charmice_box(CharacterData *ch) {
 	const auto obj = world_objects.create_blank();
 
 	obj->set_aliases("узелок вещами");
@@ -892,7 +892,7 @@ OBJ_DATA *create_charmice_box(CHAR_DATA *ch) {
 	obj->set_PName(4, "узелком");
 	obj->set_PName(5, "узелке");
 	obj->set_sex(ESex::kMale);
-	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
+	obj->set_type(ObjectData::ITEM_CONTAINER);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 	obj->set_weight(1);
 	obj->set_cost(1);
@@ -909,11 +909,11 @@ OBJ_DATA *create_charmice_box(CHAR_DATA *ch) {
 	return obj.get();
 }
 
-void extract_charmice(CHAR_DATA *ch) {
-	std::vector<OBJ_DATA *> objects;
+void extract_charmice(CharacterData *ch) {
+	std::vector<ObjectData *> objects;
 	for (int i = 0; i < NUM_WEARS; ++i) {
 		if (GET_EQ(ch, i)) {
-			OBJ_DATA *obj = unequip_char(ch, i, CharEquipFlags());
+			ObjectData *obj = unequip_char(ch, i, CharEquipFlags());
 			if (obj) {
 				remove_otrigger(obj, ch);
 				objects.push_back(obj);
@@ -922,13 +922,13 @@ void extract_charmice(CHAR_DATA *ch) {
 	}
 
 	while (ch->carrying) {
-		OBJ_DATA *obj = ch->carrying;
+		ObjectData *obj = ch->carrying;
 		obj_from_char(obj);
 		objects.push_back(obj);
 	}
 
 	if (!objects.empty()) {
-		OBJ_DATA *charmice_box = create_charmice_box(ch);
+		ObjectData *charmice_box = create_charmice_box(ch);
 		for (auto it = objects.begin(); it != objects.end(); ++it) {
 			obj_to_obj(*it, charmice_box);
 		}
@@ -943,7 +943,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	int door, max, was_in = -1, activity_lev, i, ch_activity;
 	int std_lev = activity_level % kPulseMobile;
 
-	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr &ch) {
+	character_list.foreach_on_copy([&](const CharacterData::shared_ptr &ch) {
 		if (!IS_MOB(ch)
 			|| !ch->in_used_zone()) {
 			return;
@@ -1185,7 +1185,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& !ch->has_master()
 			&& GET_POS(ch) == POS_STANDING) {
 			for (found = false, door = 0; door < kDirMaxNumber; door++) {
-				ROOM_DATA::exit_data_ptr rdata = EXIT(ch, door);
+				RoomData::exit_data_ptr rdata = EXIT(ch, door);
 				if (!rdata
 					|| rdata->to_room() == kNowhere
 					|| !legal_dir(ch.get(), door, true, false)
@@ -1301,7 +1301,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 // 11.07.2002 - у зачармленных мобов не работает механизм памяти на время чарма
 
 // make ch remember victim
-void mobRemember(CHAR_DATA *ch, CHAR_DATA *victim) {
+void mobRemember(CharacterData *ch, CharacterData *victim) {
 	struct Timed timed{};
 	MemoryRecord *tmp;
 	bool present = false;
@@ -1336,7 +1336,7 @@ void mobRemember(CHAR_DATA *ch, CHAR_DATA *victim) {
 }
 
 // make ch forget victim
-void mobForget(CHAR_DATA *ch, CHAR_DATA *victim) {
+void mobForget(CharacterData *ch, CharacterData *victim) {
 	MemoryRecord *curr, *prev = nullptr;
 
 	// Момент спорный, но думаю, что так правильнее
@@ -1365,7 +1365,7 @@ void mobForget(CHAR_DATA *ch, CHAR_DATA *victim) {
 // erase ch's memory
 // Можно заметить, что функция вызывается только при extract char/mob
 // Удаляется все подряд
-void clearMemory(CHAR_DATA *ch) {
+void clearMemory(CharacterData *ch) {
 	MemoryRecord *curr, *next;
 
 	curr = MEMORY(ch);
@@ -1379,7 +1379,7 @@ void clearMemory(CHAR_DATA *ch) {
 }
 //Polud Функция проверяет, является ли моб ch стражником (описан в файле guards.xml)
 //и должен ли он сагрить на эту жертву vict
-bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict) {
+bool guardian_attack(CharacterData *ch, CharacterData *vict) {
 	struct mob_guardian tmp_guard;
 	int num_wars_vict = 0;
 

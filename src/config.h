@@ -208,6 +208,6 @@ class RuntimeConfiguration {
 
 extern RuntimeConfiguration runtime_config;
 
-int calc_loadroom(const CHAR_DATA *ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
+int calc_loadroom(const CharacterData *ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
 #endif // __CONFIG_HPP__

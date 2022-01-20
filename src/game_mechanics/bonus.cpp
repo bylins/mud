@@ -31,11 +31,11 @@ BonusInfo bonus_info;
 typedef std::list<std::string> bonus_log_t;
 bonus_log_t bonus_log;
 
-void do_bonus_info(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_bonus_info(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	show_log(ch);
 }
 
-bool can_get_bonus_exp(CHAR_DATA *ch) {
+bool can_get_bonus_exp(CharacterData *ch) {
 	if (IS_NPC(ch)) {
 		return false;
 	}
@@ -74,14 +74,14 @@ class AbstractErrorReporter {
 
 class CharacterReporter : public AbstractErrorReporter {
  public:
-	CharacterReporter(CHAR_DATA *character) : m_character(character) {}
+	CharacterReporter(CharacterData *character) : m_character(character) {}
 
 	virtual void report(const std::string &message) override;
 
-	static shared_ptr create(CHAR_DATA *character) { return std::make_shared<CharacterReporter>(character); }
+	static shared_ptr create(CharacterData *character) { return std::make_shared<CharacterReporter>(character); }
 
  private:
-	CHAR_DATA *m_character;
+	CharacterData *m_character;
 };
 
 void CharacterReporter::report(const std::string &message) {
@@ -131,7 +131,7 @@ void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *arg
 	}
 }
 
-void do_bonus_by_character(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_bonus_by_character(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const auto reporter = CharacterReporter::create(ch);
 	do_bonus(reporter, argument);
 }
@@ -219,7 +219,7 @@ void bonus_log_load() {
 }
 
 // выводит весь лог в обратном порядке
-void show_log(CHAR_DATA *ch) {
+void show_log(CharacterData *ch) {
 	if (bonus_log.empty()) {
 		send_to_char(ch, "Лог пустой!\r\n");
 		return;

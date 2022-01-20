@@ -29,7 +29,7 @@ extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
-extern void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
+extern void set_wait(CharacterData *ch, int waittime, int victim_in_room);
 
 namespace NamedStuff {
 
@@ -63,7 +63,7 @@ void save() {
 	doc.save_file(LIB_PLRSTUFF"named_stuff_list.xml");
 }
 
-bool check_named(CHAR_DATA *ch, const OBJ_DATA *obj, const bool simple) {
+bool check_named(CharacterData *ch, const ObjectData *obj, const bool simple) {
 	if (!obj->get_extra_flag(EExtraFlag::ITEM_NAMED)) {
 		return false; // если шмотка не именная - остальное и проверять не нужно
 	}
@@ -76,7 +76,7 @@ bool check_named(CHAR_DATA *ch, const OBJ_DATA *obj, const bool simple) {
 
 		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
 		{
-			CHAR_DATA *master = ch->get_master();
+			CharacterData *master = ch->get_master();
 			if (WAITLESS(master)) // Чармис имма
 			{
 				return false;
@@ -126,7 +126,7 @@ bool check_named(CHAR_DATA *ch, const OBJ_DATA *obj, const bool simple) {
 		return false;
 }
 
-bool wear_msg(CHAR_DATA *ch, OBJ_DATA *obj) {
+bool wear_msg(CharacterData *ch, ObjectData *obj) {
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end()) {
 		if (check_named(ch, obj, true)) {
@@ -152,7 +152,7 @@ bool wear_msg(CHAR_DATA *ch, OBJ_DATA *obj) {
 	return false;
 }
 
-bool parse_nedit_menu(CHAR_DATA *ch, char *arg) {
+bool parse_nedit_menu(CharacterData *ch, char *arg) {
 	int num;
 	StuffNodePtr tmp_node(new stuff_node);
 	char i[256];
@@ -292,7 +292,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg) {
 	return false;
 }
 
-void nedit_menu(CHAR_DATA *ch) {
+void nedit_menu(CharacterData *ch) {
 	std::ostringstream out;
 
 	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: "
@@ -320,7 +320,7 @@ void nedit_menu(CHAR_DATA *ch) {
 	send_to_char(out.str().c_str(), ch);
 }
 
-void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
+void do_named(CharacterData *ch, char *argument, int cmd, int subcmd) {
 	MobRnum r_num;
 	std::string out;
 	bool have_missed_items = false;
@@ -478,7 +478,7 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	}
 }
 
-void receive_items(CHAR_DATA *ch, CHAR_DATA *mailman) {
+void receive_items(CharacterData *ch, CharacterData *mailman) {
 	if ((ch->in_room == r_helled_start_room) ||
 		(ch->in_room == r_named_start_room) ||
 		(ch->in_room == r_unreg_start_room)) {

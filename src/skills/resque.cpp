@@ -9,7 +9,7 @@
 using namespace FightSystem;
 
 // ******************* RESCUE PROCEDURES
-void fighting_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
+void fighting_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 	if (vict->get_fighting() == tmp_ch)
 		stop_fighting(vict, false);
 	if (ch->get_fighting())
@@ -22,7 +22,7 @@ void fighting_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
 		set_fighting(tmp_ch, ch);
 }
 
-void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
+void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -73,7 +73,7 @@ void go_rescue(CHAR_DATA *ch, CHAR_DATA *vict, CHAR_DATA *tmp_ch) {
 	set_wait(vict, 2, false);
 }
 
-void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(SKILL_RESCUE)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
@@ -83,7 +83,7 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кто это так сильно путается под вашими ногами?\r\n", ch);
 		return;
@@ -98,7 +98,7 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *enemy = nullptr;
+	CharacterData *enemy = nullptr;
 	for (const auto i : world[ch->in_room]->people) {
 		if (i->get_fighting() == vict) {
 			enemy = i;

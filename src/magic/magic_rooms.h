@@ -6,7 +6,7 @@
 
 #include <list>
 
-class CHAR_DATA;
+class CharacterData;
 
 namespace room_spells {
 
@@ -30,20 +30,20 @@ enum ERoomApply {
 	kNumApplies [[maybe_unused]]
 };
 
-using RoomAffects = std::list<AFFECT_DATA<ERoomApply>::shared_ptr>;
+using RoomAffects = std::list<Affect<ERoomApply>::shared_ptr>;
 using RoomAffectIt = RoomAffects::iterator;
 
-extern std::list<ROOM_DATA *> affected_rooms;
+extern std::list<RoomData *> affected_rooms;
 
 void UpdateRoomsAffects();
-void ShowAffectedRooms(CHAR_DATA *ch);
-void RemoveAffect(ROOM_DATA *room, const RoomAffectIt &affect);
-bool IsRoomAffected(ROOM_DATA *room, ESpell spell);
+void ShowAffectedRooms(CharacterData *ch);
+void RemoveAffect(RoomData *room, const RoomAffectIt &affect);
+bool IsRoomAffected(RoomData *room, ESpell spell);
 bool IsZoneRoomAffected(int zone_vnum, ESpell spell);
-int ImposeSpellToRoom(int level, CHAR_DATA *ch, ROOM_DATA *room, int spellnum);
+int ImposeSpellToRoom(int level, CharacterData *ch, RoomData *room, int spellnum);
 int GetUniqueAffectDuration(long caster_id, int spellnum);
-RoomAffectIt FindAffect(ROOM_DATA *room, int type);
-ROOM_DATA *FindAffectedRoom(long caster_id, int spellnum);
+RoomAffectIt FindAffect(RoomData *room, int type);
+RoomData *FindAffectedRoom(long caster_id, int spellnum);
 
 }
 

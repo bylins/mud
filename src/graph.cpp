@@ -19,18 +19,18 @@
 #include "skills_info.h"
 
 // Externals
-void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_say(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_sense(CharacterData *ch, char *argument, int cmd, int subcmd);
 extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
-extern CHAR_DATA *mob_proto;
+extern CharacterData *mob_proto;
 
 // local functions
 void bfs_enqueue(RoomRnum room, int dir);
 void bfs_dequeue(void);
 void bfs_clear_queue(void);
-int find_first_step(RoomRnum src, RoomRnum target, CHAR_DATA *ch);
+int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch);
 
 struct bfs_queue_struct {
 	RoomRnum room;
@@ -76,7 +76,7 @@ int VALID_EDGE(RoomRnum x, int y, int edge_range, bool through_locked_doors, boo
  * Intended usage: in mobile_activity, give a mob a dir to go if they're
  * tracking another mob or a PC.  Or, a 'track' skill for PCs.
  */
-int find_first_step(RoomRnum src, RoomRnum target, CHAR_DATA *ch) {
+int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch) {
 	int curr_dir, edge;
 	bool through_locked_doors = false;
 	bool through_closed_doors = false;
@@ -160,7 +160,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CHAR_DATA *ch) {
 	return (BFS_NO_PATH);
 }
 
-int go_sense(CHAR_DATA *ch, CHAR_DATA *victim) {
+int go_sense(CharacterData *ch, CharacterData *victim) {
 	int percent, dir, skill = CalcCurrentSkill(ch, SKILL_SENSE, victim);
 
 	skill = skill
@@ -180,8 +180,8 @@ int go_sense(CHAR_DATA *ch, CHAR_DATA *victim) {
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_sense(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
 	int dir;
 
 	// The character must have the track skill.

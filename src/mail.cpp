@@ -26,14 +26,14 @@ extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
-void postmaster_send_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int cmd, char *arg);
-void postmaster_check_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int cmd, char *arg);
-void postmaster_receive_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int cmd, char *arg);
-int postmaster(CHAR_DATA *ch, void *me, int cmd, char *argument);
+void postmaster_send_mail(CharacterData *ch, CharacterData *mailman, int cmd, char *arg);
+void postmaster_check_mail(CharacterData *ch, CharacterData *mailman, int cmd, char *arg);
+void postmaster_receive_mail(CharacterData *ch, CharacterData *mailman, int cmd, char *arg);
+int postmaster(CharacterData *ch, void *me, int cmd, char *argument);
 
 namespace mail {
 
-bool check_poster_cnt(CHAR_DATA *ch);
+bool check_poster_cnt(CharacterData *ch);
 
 /// для undelivered_list
 struct undelivered_node {
@@ -71,7 +71,7 @@ void add_undelivered(int from_uid, const char *name, int to_uid) {
 	}
 }
 
-void print_undelivered(CHAR_DATA *ch) {
+void print_undelivered(CharacterData *ch) {
 	auto i = undelivered_list.find(ch->get_uid());
 	if (i != undelivered_list.end()) {
 		std::string out(
@@ -98,7 +98,7 @@ const int MAX_MAIL_SIZE = 32768;
 //* Below is the spec_proc for a postmaster using the above      *
 //* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
 //****************************************************************
-int postmaster(CHAR_DATA *ch, void *me, int cmd, char *argument) {
+int postmaster(CharacterData *ch, void *me, int cmd, char *argument) {
 	if (!ch->desc || IS_NPC(ch))
 		return (0);    // so mobs don't get caught here
 
@@ -108,27 +108,27 @@ int postmaster(CHAR_DATA *ch, void *me, int cmd, char *argument) {
 		return (0);
 
 	if (CMD_IS("mail") || CMD_IS("отправить")) {
-		postmaster_send_mail(ch, (CHAR_DATA *) me, cmd, argument);
+		postmaster_send_mail(ch, (CharacterData *) me, cmd, argument);
 		return (1);
 	} else if (CMD_IS("check") || CMD_IS("почта")) {
-		postmaster_check_mail(ch, (CHAR_DATA *) me, cmd, argument);
+		postmaster_check_mail(ch, (CharacterData *) me, cmd, argument);
 		return (1);
 	} else if (CMD_IS("receive") || CMD_IS("получить")) {
 		one_argument(argument, arg);
 		if (is_abbrev(arg, "вещи")) {
-			NamedStuff::receive_items(ch, (CHAR_DATA *) me);
+			NamedStuff::receive_items(ch, (CharacterData *) me);
 		} else {
-			postmaster_receive_mail(ch, (CHAR_DATA *) me, cmd, argument);
+			postmaster_receive_mail(ch, (CharacterData *) me, cmd, argument);
 		}
 		return (1);
 	} else if (CMD_IS("return") || CMD_IS("вернуть")) {
-		Parcel::bring_back(ch, (CHAR_DATA *) me);
+		Parcel::bring_back(ch, (CharacterData *) me);
 		return (1);
 	} else
 		return (0);
 }
 
-void postmaster_check_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int/* cmd*/, char * /*arg*/) {
+void postmaster_check_mail(CharacterData *ch, CharacterData *mailman, int/* cmd*/, char * /*arg*/) {
 	bool empty = true;
 	if (mail::has_mail(ch->get_uid())) {
 		empty = false;
@@ -147,7 +147,7 @@ void postmaster_check_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int/* cmd*/, char 
 	print_undelivered(ch);
 }
 
-void postmaster_receive_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int/* cmd*/, char * /*arg*/) {
+void postmaster_receive_mail(CharacterData *ch, CharacterData *mailman, int/* cmd*/, char * /*arg*/) {
 	if (!Parcel::has_parcel(ch) && !mail::has_mail(ch->get_uid())) {
 		act("$n удивленно сказал$g вам : 'Но для вас нет писем!?'",
 			false, mailman, 0, ch, TO_VICT);
@@ -157,7 +157,7 @@ void postmaster_receive_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int/* cmd*/, cha
 	mail::receive(ch, mailman);
 }
 
-void postmaster_send_mail(CHAR_DATA *ch, CHAR_DATA *mailman, int/* cmd*/, char *arg) {
+void postmaster_send_mail(CharacterData *ch, CharacterData *mailman, int/* cmd*/, char *arg) {
 	int recipient;
 	int cost;
 	char buf[256];
@@ -432,7 +432,7 @@ void sub_poster(int uid) {
 	}
 }
 
-bool check_poster_cnt(CHAR_DATA *ch) {
+bool check_poster_cnt(CharacterData *ch) {
 	auto i = poster_list.find(ch->get_uid());
 	if (i != poster_list.end()) {
 		if (GET_REAL_REMORT(ch) <= 0
@@ -498,7 +498,7 @@ std::string get_author_name(int uid) {
 	return out;
 }
 
-void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
+void receive(CharacterData *ch, CharacterData *mailman) {
 	auto rng = mail_list.equal_range(ch->get_uid());
 	for (auto i = rng.first; i != rng.second; ++i) {
 		const auto obj = world_objects.create_blank();
@@ -512,10 +512,10 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman) {
 		obj->set_PName(4, "письмом");
 		obj->set_PName(5, "письме");
 		obj->set_sex(ESex::kNeutral);
-		obj->set_type(OBJ_DATA::ITEM_NOTE);
+		obj->set_type(ObjectData::ITEM_NOTE);
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
 		obj->set_weight(1);
-		obj->set_material(OBJ_DATA::MAT_PAPER);
+		obj->set_material(ObjectData::MAT_PAPER);
 		obj->set_cost(0);
 		obj->set_rent_off(10);
 		obj->set_rent_on(10);

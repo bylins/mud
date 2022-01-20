@@ -5,14 +5,14 @@
 #include "pk.h"
 #include "fight_start.h"
 
-void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_assist(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_fighting()) {
 		send_to_char("Невозможно. Вы сражаетесь сами.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
-	CHAR_DATA *helpee, *opponent;
+	CharacterData *helpee, *opponent;
 	if (!*arg) {
 		helpee = nullptr;
 		for (const auto i : world[ch->in_room]->people) {

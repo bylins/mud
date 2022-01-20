@@ -7,9 +7,9 @@
 #ifndef BYLINS_SRC_COMMUNICATION_INSULT_H_
 #define BYLINS_SRC_COMMUNICATION_INSULT_H_
 
-class CHAR_DATA;
+class CharacterData;
 
-void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_insult(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_SRC_COMMUNICATION_INSULT_H_
 

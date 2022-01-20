@@ -1160,7 +1160,7 @@ const int PALADINE_SLOTS[][MAX_PA_SLOT] = {{1, 0, 0, 0},    // lvl 8 wis 10,11
 
 MaxClassSlot max_slots;
 
-int slot_for_char(CHAR_DATA *ch, int slot_num) {
+int slot_for_char(CharacterData *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
 	if (slot_num < 1 || slot_num > MAX_SLOT || GET_REAL_LEVEL(ch) < 1 || IS_NPC(ch)) {
@@ -1272,7 +1272,7 @@ int MaxClassSlot::get(int chclass, int kin) const {
 	return _max_class_slot[chclass][kin];
 }
 
-int MaxClassSlot::get(const CHAR_DATA *ch) const {
+int MaxClassSlot::get(const CharacterData *ch) const {
 	return this->get(GET_CLASS(ch), GET_KIN(ch));
 }
 

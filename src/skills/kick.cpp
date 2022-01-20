@@ -10,7 +10,7 @@
 using namespace FightSystem;
 
 // ******************  KICK PROCEDURES
-void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_kick(CharacterData *ch, CharacterData *vict) {
 	const char *to_char = nullptr, *to_vict = nullptr, *to_room = nullptr;
 
 	if (dontCanAct(ch)) {
@@ -59,7 +59,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 			dam = modi * dam / 100;
 		}
 		if (ch->ahorse() && (ch->get_skill(SKILL_HORSE) >= 150) && (ch->get_skill(SKILL_KICK) >= 150)) {
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.location = APPLY_NONE;
 			af.type = SPELL_BATTLE;
 			af.modifier = 0;
@@ -151,7 +151,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 }
 
-void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_kick(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_KICK) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -161,7 +161,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кто это так сильно путается под вашими ногами?\r\n", ch);
 		return;

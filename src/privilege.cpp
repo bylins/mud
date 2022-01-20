@@ -244,7 +244,7 @@ void load() {
 }
 
 /**
-* Ищет имма в списке по уиду и полному совпадению имени. Вариант с CHAR_DATA на входе убран за ненадобностью.
+* Ищет имма в списке по уиду и полному совпадению имени. Вариант с CharacterData на входе убран за ненадобностью.
 * Имм вне списка ниче из wiz команд не сможет, при сборке через make test или под студией поиск в этом списке не производится.
 * Напоминание: в этом списке не только иммы, но и демигоды...
 * \param name - имя имма, unique - его уид
@@ -279,7 +279,7 @@ void load_god_boards() {
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
+bool can_do_priv(CharacterData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLevelImmortal
 		&& GET_REAL_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
@@ -320,7 +320,7 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 * \param flag - список флагов в начале файла, кол-во FLAGS_NUM
 * \return 0 - не нашли, 1 - нашли
 */
-bool check_flag(const CHAR_DATA *ch, int flag) {
+bool check_flag(const CharacterData *ch, int flag) {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
@@ -337,7 +337,7 @@ bool check_flag(const CHAR_DATA *ch, int flag) {
 * Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool check_spells(const CHAR_DATA *ch, int spellnum) {
+bool check_spells(const CharacterData *ch, int spellnum) {
 	// флаг use_skills - везде и что угодно
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
@@ -353,7 +353,7 @@ bool check_spells(const CHAR_DATA *ch, int spellnum) {
 * У морталов, мобов и 34х проверка не производится.
 * \return 0 - не может использовать скиллы, 1 - может
 */
-bool check_skills(const CHAR_DATA *ch) {
+bool check_skills(const CharacterData *ch) {
 	if ((GET_REAL_LEVEL(ch) > kLevelGod) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
 //	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;

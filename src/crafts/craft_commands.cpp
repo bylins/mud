@@ -241,7 +241,7 @@ void Root::execute(const CommandContext::shared_ptr &context, const arguments_t 
 class CommandsHandler : public commands::AbstractCommandsHanler {
  public:
 	virtual void initialize() override;
-	virtual void process(CHAR_DATA *character, char *arguments) override;
+	virtual void process(CharacterData *character, char *arguments) override;
 
  private:
 	CommandEmbranchment::shared_ptr m_command;
@@ -269,7 +269,7 @@ void CommandsHandler::initialize() {
 		.rebuild_help();
 }
 
-void CommandsHandler::process(CHAR_DATA *character, char *arguments) {
+void CommandsHandler::process(CharacterData *character, char *arguments) {
 	AbstractCommand::arguments_t arguments_list(arguments);
 	const auto context = std::make_shared<ReplyableContext>(character);
 	AbstractCommand::arguments_t path;
@@ -296,7 +296,7 @@ const commands::AbstractCommandsHanler::shared_ptr &commands_handler() {
 * crafts list materials						- list of materials loaded by crafts system.
 * crafts export prototype <vnum> <filename>	- exports prototype with <vnum> into file <filename>
 */
-void do_craft(CHAR_DATA *ch, char *arguments, int /*cmd*/, int /*subcmd*/) {
+void do_craft(CharacterData *ch, char *arguments, int /*cmd*/, int /*subcmd*/) {
 	commands_handler()->process(ch, arguments);
 }
 }

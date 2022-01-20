@@ -7,9 +7,9 @@
 #include "screen.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
-extern void check_auto_nosummon(CHAR_DATA *ch);
+extern void check_auto_nosummon(CharacterData *ch);
 
-void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct Timed timed;
 
 	if (!can_use_feat(ch, RELOCATE_FEAT)) {
@@ -33,7 +33,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *victim = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharacterData *victim = get_player_vis(ch, arg, FIND_CHAR_WORLD);
 
 	if (!victim) {
 		send_to_char(NOPERSON, ch);
@@ -104,7 +104,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		pkPortal(ch);
 		timed.time = 18 - MIN(GET_REAL_REMORT(ch), 15);
 		WAIT_STATE(ch, 3 * kPulseViolence);
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 		af.battleflag = AF_PULSEDEC;

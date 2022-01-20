@@ -5,12 +5,12 @@
 
 #include "structs/structs.h"
 
-class CHAR_DATA;    // to avoid inclusion of "char.hpp"
+class CharacterData;    // to avoid inclusion of "char.hpp"
 
 namespace commands {
 class Shutdown {
  public:
-	Shutdown(CHAR_DATA *character, const char *argument, ShutdownParameters &shutdown_parameters);
+	Shutdown(CharacterData *character, const char *argument, ShutdownParameters &shutdown_parameters);
 
 	bool parse_arguments();
 	void reboot() const;
@@ -24,7 +24,7 @@ class Shutdown {
  private:
 	static char const *HELP_MESSAGE;
 
-	CHAR_DATA *m_character;
+	CharacterData *m_character;
 	const char *m_argument;
 	int m_timeout;
 	ShutdownParameters &m_shutdown_parameters;

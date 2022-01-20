@@ -98,7 +98,7 @@ void save_log() {
 }
 
 // * Добавление записи в лог славы (время, тип, кол-во, строка из кармы).
-void add_log(int type, int num, std::string punish, std::string reason, CHAR_DATA *vict) {
+void add_log(int type, int num, std::string punish, std::string reason, CharacterData *vict) {
 	if (!vict || vict->get_name().empty()) {
 		return;
 	}
@@ -117,7 +117,7 @@ void add_log(int type, int num, std::string punish, std::string reason, CHAR_DAT
 * Показ лога славы (show glory), отсортированного по убыванию даты, с возможностью фильтрациии.
 * Фильтры: show glory число|transfer|remove|hide
 */
-void show_log(CHAR_DATA *ch, char const *const value) {
+void show_log(CharacterData *ch, char const *const value) {
 	if (glory_log.empty()) {
 		send_to_char("Пусто, слава те господи!\r\n", ch);
 		return;
@@ -155,7 +155,7 @@ void show_log(CHAR_DATA *ch, char const *const value) {
 }
 
 // * Суммарное кол-во стартовых статов у чара (должно совпадать с SUM_ALL_STATS)
-int start_stats_count(CHAR_DATA *ch) {
+int start_stats_count(CharacterData *ch) {
 	int count = 0;
 	for (int i = 0; i < START_STATS_TOTAL; ++i) {
 		count += ch->get_start_stat(i);
@@ -167,7 +167,7 @@ int start_stats_count(CHAR_DATA *ch) {
 * Стартовые статы при любых условиях должны соответствовать границам ролла.
 * В случае старого ролла тут это всплывет из-за нулевых статов.
 */
-bool bad_start_stats(CHAR_DATA *ch) {
+bool bad_start_stats(CharacterData *ch) {
 	if (ch->get_start_stat(G_STR) > MAX_STR(ch)
 		|| ch->get_start_stat(G_STR) < MIN_STR(ch)
 		|| ch->get_start_stat(G_DEX) > MAX_DEX(ch)
@@ -190,7 +190,7 @@ bool bad_start_stats(CHAR_DATA *ch) {
 * Считаем реальные статы с учетом мортов и влитой славы.
 * \return 0 - все ок, любое другое число - все плохо
 */
-int bad_real_stats(CHAR_DATA *ch, int check) {
+int bad_real_stats(CharacterData *ch, int check) {
 	check -= SUM_ALL_STATS; // стартовые статы у всех по 95
 	check -= 6 * GET_REAL_REMORT(ch); // реморты
 	// влитая слава
@@ -204,7 +204,7 @@ int bad_real_stats(CHAR_DATA *ch, int check) {
 * Если невалидные стартовые статы - чар отправляется на реролл.
 * Если невалидные только итоговые статы - идет перезапись со стартовых с учетом мортов и славы.
 */
-bool check_stats(CHAR_DATA *ch) {
+bool check_stats(CharacterData *ch) {
 	// иммов травмировать не стоит
 	if (IS_IMMORTAL(ch)) {
 		return 1;
@@ -249,7 +249,7 @@ bool check_stats(CHAR_DATA *ch) {
 }
 
 // * Пересчет статов чара на основании стартовых статов, ремортов и славы.
-void recalculate_stats(CHAR_DATA *ch) {
+void recalculate_stats(CharacterData *ch) {
 	// стартовые статы
 	ch->set_str(ch->get_start_stat(G_STR));
 	ch->set_dex(ch->get_start_stat(G_DEX));

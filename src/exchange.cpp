@@ -43,43 +43,43 @@
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
 
-extern int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-extern int invalid_unique(CHAR_DATA *ch, const OBJ_DATA *obj);
-extern int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);
-extern int invalid_align(CHAR_DATA *ch, const OBJ_DATA *obj);
+extern int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
+extern int invalid_unique(CharacterData *ch, const ObjectData *obj);
+extern int invalid_no_class(CharacterData *ch, const ObjectData *obj);
+extern int invalid_align(CharacterData *ch, const ObjectData *obj);
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
-extern const char *diag_obj_timer(const OBJ_DATA *obj);
-extern char *diag_timer_to_char(const OBJ_DATA *obj);
-extern void mort_show_obj_values(const OBJ_DATA *obj, CHAR_DATA *ch, int fullness, bool enhansed_scroll);
-extern void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
-extern bool is_dig_stone(OBJ_DATA *obj);
+extern const char *diag_obj_timer(const ObjectData *obj);
+extern char *diag_timer_to_char(const ObjectData *obj);
+extern void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness, bool enhansed_scroll);
+extern void set_wait(CharacterData *ch, int waittime, int victim_in_room);
+extern bool is_dig_stone(ObjectData *obj);
 
 //свои ф-ии
-int exchange_exhibit(CHAR_DATA *ch, char *arg);
-int exchange_change_cost(CHAR_DATA *ch, char *arg);
-int exchange_withdraw(CHAR_DATA *ch, char *arg);
-int exchange_information(CHAR_DATA *ch, char *arg);
-int exchange_identify(CHAR_DATA *ch, char *arg);
-int exchange_purchase(CHAR_DATA *ch, char *arg);
-int exchange_offers(CHAR_DATA *ch, char *arg);
-int exchange_setfilter(CHAR_DATA *ch, char *arg);
+int exchange_exhibit(CharacterData *ch, char *arg);
+int exchange_change_cost(CharacterData *ch, char *arg);
+int exchange_withdraw(CharacterData *ch, char *arg);
+int exchange_information(CharacterData *ch, char *arg);
+int exchange_identify(CharacterData *ch, char *arg);
+int exchange_purchase(CharacterData *ch, char *arg);
+int exchange_offers(CharacterData *ch, char *arg);
+int exchange_setfilter(CharacterData *ch, char *arg);
 
 int exchange_database_load();
 int exchange_database_reload(bool loadbackup);
-void check_exchange(OBJ_DATA *obj);
-void extract_exchange_item(EXCHANGE_ITEM_DATA *item);
+void check_exchange(ObjectData *obj);
+void extract_exchange_item(ExchangeItem *item);
 int get_unique_lot();
-void message_exchange(char *message, CHAR_DATA *ch, EXCHANGE_ITEM_DATA *j);
-void show_lots(char *filter, short int show_type, CHAR_DATA *ch);
+void message_exchange(char *message, CharacterData *ch, ExchangeItem *j);
+void show_lots(char *filter, short int show_type, CharacterData *ch);
 int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects);
-void clear_exchange_lot(EXCHANGE_ITEM_DATA *lot);
-extern void obj_info(CHAR_DATA *ch, OBJ_DATA *obj, char buf[kMaxStringLength]);
+void clear_exchange_lot(ExchangeItem *lot);
+extern void obj_info(CharacterData *ch, ObjectData *obj, char buf[kMaxStringLength]);
 
-void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_exchange(CharacterData *ch, char *argument, int cmd, int subcmd);
 
-EXCHANGE_ITEM_DATA *create_exchange_item();
+ExchangeItem *create_exchange_item();
 
-EXCHANGE_ITEM_DATA *exchange_item_list = nullptr;
+ExchangeItem *exchange_item_list = nullptr;
 std::vector<bool> lot_usage;
 
 char arg1[kMaxInputLength], arg2[kMaxInputLength];
@@ -105,7 +105,7 @@ char info_message[] = ("базар выставить <предмет> <цена
 					   "базар предложения аффект имя.аффекта    - поиск по аффекту (цена услуги 55 кун)\r\n"
 					   "базар фильтрация <фильтр>               - фильтрация товара на базаре\r\n");
 
-int exchange(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
+int exchange(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("exchange") || CMD_IS("базар")) {
 		if (IS_NPC(ch))
 			return 0;
@@ -170,14 +170,14 @@ int exchange(CHAR_DATA *ch, void * /*me*/, int cmd, char *argument) {
 
 }
 
-int exchange_exhibit(CHAR_DATA *ch, char *arg) {
+int exchange_exhibit(CharacterData *ch, char *arg) {
 
 	char obj_name[kMaxInputLength];
 	int item_cost = 0, lot;
-	OBJ_DATA *obj;
+	ObjectData *obj;
 	char tmpbuf[kMaxInputLength];
-	EXCHANGE_ITEM_DATA *item = nullptr;
-	EXCHANGE_ITEM_DATA *j, *next_thing = nullptr;
+	ExchangeItem *item = nullptr;
+	ExchangeItem *j, *next_thing = nullptr;
 	int counter;
 	int counter_ming; //количиство ингридиентов
 	int tax;    //налог
@@ -213,7 +213,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK) {
+	if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_BOOK) {
 		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
@@ -245,7 +245,7 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		item_cost = MAX(1, GET_OBJ_COST(obj));
 	}
 
-	tax = (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING)
+	tax = (GET_OBJ_TYPE(obj) != ObjectData::ITEM_MING)
 		  ? EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
@@ -258,8 +258,8 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 		 j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch)) {
-			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_MING
-				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_INGREDIENT) {
+			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_MING
+				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_INGREDIENT) {
 				counter++;
 			} else {
 				counter_ming++;
@@ -309,8 +309,8 @@ int exchange_exhibit(CHAR_DATA *ch, char *arg) {
 	return (true);
 }
 
-int exchange_change_cost(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
+int exchange_change_cost(CharacterData *ch, char *arg) {
+	ExchangeItem *item = nullptr, *j, *next_thing = nullptr;
 	int lot, newcost, pay;
 	char tmpbuf[kMaxInputLength];
 
@@ -378,8 +378,8 @@ int exchange_change_cost(CHAR_DATA *ch, char *arg) {
 	return true;
 }
 
-int exchange_withdraw(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
+int exchange_withdraw(CharacterData *ch, char *arg) {
+	ExchangeItem *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	char tmpbuf[kMaxInputLength];
 
@@ -432,8 +432,8 @@ int exchange_withdraw(CHAR_DATA *ch, char *arg) {
 	return true;
 }
 
-int exchange_information(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
+int exchange_information(CharacterData *ch, char *arg) {
+	ExchangeItem *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	char buf[kMaxStringLength], buf2[kMaxInputLength];
 
@@ -458,8 +458,8 @@ int exchange_information(CHAR_DATA *ch, char *arg) {
 	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
 
 	sprintf(buf + strlen(buf), "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
-	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == OBJ_DATA::ITEM_WAND
-		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == OBJ_DATA::ITEM_STAFF) {
+	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ObjectData::ITEM_WAND
+		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ObjectData::ITEM_STAFF) {
 		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1)) {
 			strcat(buf, "(б/у), ");
 		}
@@ -504,8 +504,8 @@ int exchange_information(CHAR_DATA *ch, char *arg) {
 	return true;
 }
 
-int exchange_identify(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
+int exchange_identify(CharacterData *ch, char *arg) {
+	ExchangeItem *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	if (!*arg) {
 		send_to_char(info_message, ch);
@@ -542,7 +542,7 @@ int exchange_identify(CHAR_DATA *ch, char *arg) {
 	return true;
 }
 
-CHAR_DATA *get_char_by_id(int id) {
+CharacterData *get_char_by_id(int id) {
 	for (const auto &i : character_list) {
 		if (!IS_NPC(i) && GET_IDNUM(i) == id) {
 			return i.get();
@@ -551,11 +551,11 @@ CHAR_DATA *get_char_by_id(int id) {
 	return 0;
 }
 
-int exchange_purchase(CHAR_DATA *ch, char *arg) {
-	EXCHANGE_ITEM_DATA *item = nullptr, *j, *next_thing = nullptr;
+int exchange_purchase(CharacterData *ch, char *arg) {
+	ExchangeItem *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
 	char tmpbuf[kMaxInputLength];
-	CHAR_DATA *seller;
+	CharacterData *seller;
 
 	if (!*arg) {
 		send_to_char(info_message, ch);
@@ -681,7 +681,7 @@ int exchange_purchase(CHAR_DATA *ch, char *arg) {
 * \return false - перебор
 *         true - корректный
 */
-bool correct_filter_length(CHAR_DATA *ch, const char *str) {
+bool correct_filter_length(CharacterData *ch, const char *str) {
 	if (strlen(str) >= FILTER_LENGTH) {
 		send_to_char(ch, "Слишком длинный фильтр, максимальная длина: %d символа.\r\n", FILTER_LENGTH - 1);
 		return false;
@@ -689,7 +689,7 @@ bool correct_filter_length(CHAR_DATA *ch, const char *str) {
 	return true;
 }
 
-int exchange_offers(CHAR_DATA *ch, char *arg) {
+int exchange_offers(CharacterData *ch, char *arg) {
 //влом байты считать. Если кто хочет оптимизировать, посчитайте точно.
 	char filter[kMaxInputLength];
 	char multifilter[kMaxStringLength];
@@ -858,7 +858,7 @@ int exchange_offers(CHAR_DATA *ch, char *arg) {
 	return 1;
 }
 
-int exchange_setfilter(CHAR_DATA *ch, char *arg) {
+int exchange_setfilter(CharacterData *ch, char *arg) {
 	if (!*arg) {
 		if (!EXCHANGE_FILTER(ch)) {
 			send_to_char("Ваш фильтр базара пуст.\r\n", ch);
@@ -921,8 +921,8 @@ int exchange_setfilter(CHAR_DATA *ch, char *arg) {
 	return true;
 }
 
-EXCHANGE_ITEM_DATA *create_exchange_item(void) {
-	EXCHANGE_ITEM_DATA *item;
+ExchangeItem *create_exchange_item(void) {
+	ExchangeItem *item;
 	CREATE(item, 1);
 	GET_EXCHANGE_ITEM_LOT(item) = -1;
 	GET_EXCHANGE_ITEM_SELLERID(item) = -1;
@@ -935,7 +935,7 @@ EXCHANGE_ITEM_DATA *create_exchange_item(void) {
 	return (item);
 }
 
-void extract_exchange_item(EXCHANGE_ITEM_DATA *item) {
+void extract_exchange_item(ExchangeItem *item) {
 	REMOVE_FROM_LIST(item, exchange_item_list);
 	if (GET_EXCHANGE_ITEM_LOT(item) > 0 && GET_EXCHANGE_ITEM_LOT(item) <= (int) lot_usage.size())
 		lot_usage[GET_EXCHANGE_ITEM_LOT(item) - 1] = false;
@@ -947,11 +947,11 @@ void extract_exchange_item(EXCHANGE_ITEM_DATA *item) {
 
 }
 
-void check_exchange(OBJ_DATA *obj) {
+void check_exchange(ObjectData *obj) {
 	if (!obj) {
 		return;
 	}
-	EXCHANGE_ITEM_DATA *j, *next_thing;
+	ExchangeItem *j, *next_thing;
 
 	for (j = exchange_item_list; j; j = next_thing) {
 		next_thing = j->next;
@@ -967,9 +967,9 @@ void check_exchange(OBJ_DATA *obj) {
 	}
 }
 
-EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error) {
+ExchangeItem *exchange_read_one_object_new(char **data, int *error) {
 	char buffer[kMaxStringLength];
-	EXCHANGE_ITEM_DATA *item = nullptr;
+	ExchangeItem *item = nullptr;
 	//char *d;
 
 	*error = 1;
@@ -1034,7 +1034,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error) {
 	return (item);
 }
 
-void exchange_write_one_object_new(std::stringstream &out, EXCHANGE_ITEM_DATA *item) {
+void exchange_write_one_object_new(std::stringstream &out, ExchangeItem *item) {
 	out << "#" << GET_EXCHANGE_ITEM_LOT(item) << "\n"
 		<< GET_EXCHANGE_ITEM_SELLERID(item) << "\n"
 		<< GET_EXCHANGE_ITEM_COST(item) << "\n"
@@ -1048,7 +1048,7 @@ void exchange_write_one_object_new(std::stringstream &out, EXCHANGE_ITEM_DATA *i
 int exchange_database_load() {
 	FILE *fl;
 	char *data, *readdata;
-	EXCHANGE_ITEM_DATA *item;
+	ExchangeItem *item;
 	int fsize, error, max_lot = 0;
 	char buffer[kMaxStringLength];
 
@@ -1123,7 +1123,7 @@ int exchange_database_load() {
 int exchange_database_reload(bool loadbackup) {
 	FILE *fl;
 	char *data, *readdata;
-	EXCHANGE_ITEM_DATA *item, *j, *next_thing;
+	ExchangeItem *item, *j, *next_thing;
 	int fsize, error, max_lot = 0;
 	char buffer[kMaxStringLength];
 
@@ -1227,7 +1227,7 @@ void exchange_database_save(bool backup) {
 
 	std::stringstream out;
 	out << "!NEW!\n";
-	EXCHANGE_ITEM_DATA *j, *next_thing;
+	ExchangeItem *j, *next_thing;
 	for (j = exchange_item_list; j; j = next_thing) {
 		next_thing = j->next;
 		exchange_write_one_object_new(out, j);
@@ -1263,7 +1263,7 @@ int get_unique_lot(void) {
 		return -1;
 }
 
-void message_exchange(char *message, CHAR_DATA *ch, EXCHANGE_ITEM_DATA *j) {
+void message_exchange(char *message, CharacterData *ch, ExchangeItem *j) {
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING
 			&& (!ch || i != ch->desc)
@@ -1273,8 +1273,8 @@ void message_exchange(char *message, CHAR_DATA *ch, EXCHANGE_ITEM_DATA *j) {
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
 			&& GET_POS(i->character) > POS_SLEEPING) {
 			if (!PRF_FLAGGED(i->character, PRF_NOINGR_MODE)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == OBJ_DATA::ITEM_INGREDIENT
-					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == OBJ_DATA::ITEM_MING)) {
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjectData::ITEM_INGREDIENT
+					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjectData::ITEM_MING)) {
 				continue;
 			}
 			ParseFilter params(ParseFilter::EXCHANGE);
@@ -1295,7 +1295,7 @@ void message_exchange(char *message, CHAR_DATA *ch, EXCHANGE_ITEM_DATA *j) {
 	}
 }
 
-void show_lots(char *filter, short int show_type, CHAR_DATA *ch) {
+void show_lots(char *filter, short int show_type, CharacterData *ch) {
 	/*
 	show_type
 	0 - все
@@ -1329,40 +1329,40 @@ void show_lots(char *filter, short int show_type, CHAR_DATA *ch) {
 		" Лот     Предмет                                                     Цена  Состояние\r\n"
 		"--------------------------------------------------------------------------------------------\r\n";
 
-	for (EXCHANGE_ITEM_DATA *j = exchange_item_list; j; j = j->next) {
+	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 		if (!params.check(j)
 			|| ((show_type == 1)
 				&& (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
 			|| ((show_type == 2)
-				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_INGREDIENT)
+				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_INGREDIENT)
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
 			|| ((show_type == 3)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_ARMOR)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_ARMOR_LIGHT)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_ARMOR_MEDIAN)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_ARMOR_HEAVY))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_ARMOR)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_ARMOR_LIGHT)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_ARMOR_MEDIAN)
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_ARMOR_HEAVY))
 			|| ((show_type == 4)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_WEAPON))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_WEAPON))
 			|| ((show_type == 5)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_BOOK))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_BOOK))
 			|| (show_type == 6
-				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_MING
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_INGREDIENT
+				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_MING
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_INGREDIENT
 					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200
 						&& GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
 			|| ((show_type == 7)
-				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == OBJ_DATA::ITEM_INGREDIENT)
+				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjectData::ITEM_INGREDIENT)
 					|| ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == OBJ_DATA::ITEM_WEAPON)
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == OBJ_DATA::ITEM_BOOK)
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == OBJ_DATA::ITEM_MING)))
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjectData::ITEM_WEAPON)
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjectData::ITEM_BOOK)
+					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjectData::ITEM_MING)))
 			|| ((show_type == 8)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_ARMOR_LIGHT))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_ARMOR_LIGHT))
 			|| ((show_type == 9)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_ARMOR_MEDIAN))
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_ARMOR_MEDIAN))
 			|| ((show_type == 10)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != OBJ_DATA::ITEM_ARMOR_HEAVY))) {
+				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ObjectData::ITEM_ARMOR_HEAVY))) {
 			continue;
 		}
 		// ну идиотизм сидеть статить 5-10 страниц резных
@@ -1416,7 +1416,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA *ch) {
 						 GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str(), buf);
 			}
 		} else if (is_dig_stone(GET_EXCHANGE_ITEM(j))
-			&& GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == OBJ_DATA::MAT_GLASS) {
+			&& GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == ObjectData::MAT_GLASS) {
 			sprintf(tmpbuf,
 					"[%4d]   %s (стекло)",
 					GET_EXCHANGE_ITEM_LOT(j),
@@ -1518,7 +1518,7 @@ int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects) {
 
 }
 
-void clear_exchange_lot(EXCHANGE_ITEM_DATA *lot) {
+void clear_exchange_lot(ExchangeItem *lot) {
 	if (lot == nullptr) {
 		return;
 	}
@@ -1532,7 +1532,7 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA *lot) {
 }
 
 //Polud дублируем кучку кода, чтобы можно было часть команд базара выполнять в любой комнате
-void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/) {
+void do_exchange(CharacterData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char *arg = str_dup(argument);
 	argument = one_argument(argument, arg1);
 

@@ -24,7 +24,7 @@
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
-extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
+extern void obj_to_corpse(ObjectData *corpse, CharacterData *ch, int rnum, bool setload);
 
 namespace GlobalDrop {
 std::vector<table_drop> tables_drop;
@@ -296,7 +296,7 @@ void save() {
 int get_obj_to_drop(DropListType::iterator &i) {
 	std::vector<int> tmp_list;
 	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k) {
-		if ((GET_OBJ_MIW(obj_proto[k->second]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
+		if ((GET_OBJ_MIW(obj_proto[k->second]) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM)
 			|| (k->second >= 0
 				&& obj_proto.actual_count(k->second) < GET_OBJ_MIW(obj_proto[k->second])))
 			tmp_list.push_back(k->second);
@@ -312,7 +312,7 @@ int get_obj_to_drop(DropListType::iterator &i) {
  * Глобальный дроп с мобов заданных параметров.
  * Если vnum отрицательный, то поиск идет по списку общего дропа.
  */
-bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob) {
+bool check_mob(ObjectData *corpse, CharacterData *mob) {
 	if (MOB_FLAGGED(mob, MOB_MOUNTING))
 		return false;
 	for (size_t i = 0; i < tables_drop.size(); i++) {
@@ -352,7 +352,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob) {
 					continue;
 				}
 				if (number(1, 1000) <= i->chance
-					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
+					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM)
 						|| (obj_rnum >= 0
 							&& obj_proto.actual_count(obj_rnum) < GET_OBJ_MIW(obj_proto[obj_rnum])))) {
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, TO_ROOM);
@@ -374,7 +374,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob) {
 
 } // namespace GlobalDrop
 
-void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
+void make_arena_corpse(CharacterData *ch, CharacterData *killer) {
 	auto corpse = world_objects.create_blank();
 	corpse->set_sex(ESex::kPoly);
 
@@ -399,7 +399,7 @@ void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
-	corpse->set_type(OBJ_DATA::ITEM_CONTAINER);
+	corpse->set_type(ObjectData::ITEM_CONTAINER);
 	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
@@ -413,7 +413,7 @@ void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	} else {
 		corpse->set_timer(0);
 	}
-	EXTRA_DESCR_DATA::shared_ptr exdesc(new EXTRA_DESCR_DATA());
+	ExtraDescription::shared_ptr exdesc(new ExtraDescription());
 	exdesc->keyword = str_dup(corpse->get_PName(0).c_str());    // косметика
 	if (killer) {
 		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
@@ -426,8 +426,8 @@ void make_arena_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	obj_to_room(corpse.get(), ch->in_room);
 }
 
-OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
-	OBJ_DATA *o;
+ObjectData *make_corpse(CharacterData *ch, CharacterData *killer) {
+	ObjectData *o;
 	int i;
 
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
@@ -453,14 +453,14 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
-	corpse->set_type(OBJ_DATA::ITEM_CONTAINER);
+	corpse->set_type(ObjectData::ITEM_CONTAINER);
 	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NORENT);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
 	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
-	corpse->set_val(3, OBJ_DATA::CORPSE_INDICATOR);    // corpse identifier
+	corpse->set_val(3, ObjectData::CORPSE_INDICATOR);    // corpse identifier
 	corpse->set_rent_off(100000);
 
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
@@ -497,7 +497,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 		} else {
 			const int amount = ch->get_gold();
 			const auto money = create_money(amount);
-			OBJ_DATA *purse = 0;
+			ObjectData *purse = 0;
 			if (amount >= 100) {
 				purse = system_obj::create_purse(ch, amount);
 				if (purse) {
@@ -520,7 +520,7 @@ OBJ_DATA *make_corpse(CHAR_DATA *ch, CHAR_DATA *killer) {
 	//Polud привязываем загрузку ингров к расе (типу) моба
 	if (IS_NPC(ch) && GET_RACE(ch) > NPC_RACE_BASIC && !NPC_FLAGGED(ch, NPC_NOINGRDROP)
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
-		OBJ_DATA *ingr = try_make_ingr(ch, 1000);
+		ObjectData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {
 			obj_to_obj(ingr, corpse.get());
 		}

@@ -11,7 +11,7 @@
 
 namespace PlayerClass {
 
-int slot_for_char(CHAR_DATA *ch, int slot_num);
+int slot_for_char(CharacterData *ch, int slot_num);
 void mspell_slot(char *name, int spell, int kin, int chclass, int slot);
 
 class MaxClassSlot {
@@ -20,7 +20,7 @@ class MaxClassSlot {
 
 	void init(int chclass, int kin, int slot);
 	int get(int chclass, int kin) const;
-	int get(const CHAR_DATA *ch) const;
+	int get(const CharacterData *ch) const;
 
  private:
 	int _max_class_slot[NUM_PLAYER_CLASSES][kNumKins];

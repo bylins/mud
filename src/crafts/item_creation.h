@@ -63,9 +63,9 @@ void mredit_parse(struct DescriptorData *d, char *arg);
 void mredit_disp_menu(struct DescriptorData *d);
 void mredit_disp_ingr_menu(struct DescriptorData *d);
 
-void do_list_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_edit_make(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_make_item(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_list_make(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_edit_make(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_make_item(CharacterData *ch, char *argument, int cmd, int subcmd);
 
 void init_make_items();
 // Старая структура мы ее используем в перековке.
@@ -102,7 +102,7 @@ class MakeReceptList {
 	~MakeReceptList();
 
 	// Вывод списка рецептов по всем компонентам у персонажа
-	int can_make_list(CHAR_DATA *ch);
+	int can_make_list(CharacterData *ch);
 
 	// загрузить рецепты .
 	int load();
@@ -113,7 +113,7 @@ class MakeReceptList {
 	// сделать рецепт по названию его прототипа из листа.
 	MakeRecept *get_by_name(string &rname);
 
-	MakeReceptList *can_make(CHAR_DATA *ch, MakeReceptList *canlist, int use_skill);
+	MakeReceptList *can_make(CharacterData *ch, MakeReceptList *canlist, int use_skill);
 
 	// число элементов рецептов
 	size_t size();
@@ -133,28 +133,28 @@ class MakeReceptList {
 };
 
 class MakeRecept {
-	int stat_modify(CHAR_DATA *ch, int value, float devider);
+	int stat_modify(CharacterData *ch, int value, float devider);
 
-	int add_flags(CHAR_DATA *ch, FLAG_DATA *base_flag, const FLAG_DATA *add_flag, int delta);
+	int add_flags(CharacterData *ch, FlagData *base_flag, const FlagData *add_flag, int delta);
 
-	int add_affects(CHAR_DATA *ch,
+	int add_affects(CharacterData *ch,
 					std::array<obj_affected_type, kMaxObjAffect> &base,
 					const std::array<obj_affected_type, kMaxObjAffect> &add,
 					int delta);
 
-	int get_ingr_lev(OBJ_DATA *ingrobj);
+	int get_ingr_lev(ObjectData *ingrobj);
 
-	void make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt);
+	void make_object(CharacterData *ch, ObjectData *obj, ObjectData *ingrs[MAX_PARTS], int ingr_cnt);
 
-	void make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS]);
+	void make_value_wear(CharacterData *ch, ObjectData *obj, ObjectData *ingrs[MAX_PARTS]);
 	//к сожалению у нас не прототип. прийдется расчитывать отдельно
-	float count_mort_requred(OBJ_DATA *obj);
+	float count_mort_requred(ObjectData *obj);
 
 	float count_affect_weight(int num, int mod);
 
-	int get_ingr_pow(OBJ_DATA *ingrobj);
+	int get_ingr_pow(ObjectData *ingrobj);
 
-	void add_rnd_skills(CHAR_DATA *ch, OBJ_DATA *obj_from, OBJ_DATA *obj_to);
+	void add_rnd_skills(CharacterData *ch, ObjectData *obj_from, ObjectData *obj_to);
 
  public:
 	bool locked;
@@ -167,9 +167,9 @@ class MakeRecept {
 	// изготовление рецепта указанным чаром.
 	MakeRecept();
 	// определяем может ли в принципе из компонентов находящихся в инвентаре
-	int can_make(CHAR_DATA *ch);
+	int can_make(CharacterData *ch);
 	// создать предмет по рецепту
-	int make(CHAR_DATA *ch);
+	int make(CharacterData *ch);
 	// вытащить рецепт из строки.
 	int load_from_str(string &rstr);
 	// сохранить рецепт в строку.

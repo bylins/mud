@@ -23,7 +23,7 @@
 extern const int kSkillCapOnZeroRemort;
 extern const int kSkillCapBonusPerRemort;
 
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 #define SAVING_WILL       0
 #define SAVING_CRITICAL   1
@@ -157,24 +157,24 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item);
 
 extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
 
-int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, std::string add = "");
+int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attacktype, std::string add = "");
 
-int CalcCurrentSkill(CHAR_DATA *ch, ESkill skill, CHAR_DATA *vict);
-void ImproveSkill(CHAR_DATA *ch, ESkill skill, int success, CHAR_DATA *victim);
-void TrainSkill(CHAR_DATA *ch, ESkill skill, bool success, CHAR_DATA *vict);
+int CalcCurrentSkill(CharacterData *ch, ESkill skill, CharacterData *vict);
+void ImproveSkill(CharacterData *ch, ESkill skill, int success, CharacterData *victim);
+void TrainSkill(CharacterData *ch, ESkill skill, bool success, CharacterData *vict);
 
-int min_skill_level(CHAR_DATA *ch, int skill);
-int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl);
-bool IsAbleToGetSkill(CHAR_DATA *ch, int skill);
-bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
+int min_skill_level(CharacterData *ch, int skill);
+int min_skill_level_with_req(CharacterData *ch, int skill, int req_lvl);
+bool IsAbleToGetSkill(CharacterData *ch, int skill);
+bool can_get_skill_with_req(CharacterData *ch, int skill, int req_lvl);
 int FindWeaponMasterBySkill(ESkill skill);
-int CalcSkillRemortCap(const CHAR_DATA *ch);
-int CalcSkillSoftCap(const CHAR_DATA *ch);
-int CalcSkillHardCap(const CHAR_DATA *ch, ESkill skill);
-int CalcSkillMinCap(const CHAR_DATA *ch, ESkill skill);
-SkillRollResult MakeSkillTest(CHAR_DATA *ch, ESkill skill_id, CHAR_DATA *vict);
-void SendSkillBalanceMsg(CHAR_DATA *ch, const char *skill_name, int percent, int prob, bool success);
-int CalculateSkillAwakeModifier(CHAR_DATA *killer, CHAR_DATA *victim);
+int CalcSkillRemortCap(const CharacterData *ch);
+int CalcSkillSoftCap(const CharacterData *ch);
+int CalcSkillHardCap(const CharacterData *ch, ESkill skill);
+int CalcSkillMinCap(const CharacterData *ch, ESkill skill);
+SkillRollResult MakeSkillTest(CharacterData *ch, ESkill skill_id, CharacterData *vict);
+void SendSkillBalanceMsg(CharacterData *ch, const char *skill_name, int percent, int prob, bool success);
+int CalculateSkillAwakeModifier(CharacterData *killer, CharacterData *victim);
 
 #endif // SKILLS_H_
 

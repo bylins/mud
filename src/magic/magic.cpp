@@ -32,17 +32,17 @@ extern int what_sky;
 //extern DescriptorData *descriptor_list;
 //extern struct spell_create_type spell_create[];
 extern int interpolate(int min_value, int pulse);
-extern int attack_best(CHAR_DATA *ch, CHAR_DATA *victim);
+extern int attack_best(CharacterData *ch, CharacterData *victim);
 
 byte saving_throws(int class_num, int type, int level);    // class.cpp
 byte extend_saving_throws(int class_num, int type, int level);
-int check_charmee(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum);
-void cast_reaction(CHAR_DATA *victim, CHAR_DATA *caster, int spellnum);
+int check_charmee(CharacterData *ch, CharacterData *victim, int spellnum);
+void cast_reaction(CharacterData *victim, CharacterData *caster, int spellnum);
 
-//bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
-bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum);
+//bool material_component_processing(CharacterData *caster, CharacterData *victim, int spellnum);
+bool material_component_processing(CharacterData *caster, int vnum, int spellnum);
 
-bool is_room_forbidden(ROOM_DATA *room) {
+bool is_room_forbidden(RoomData *room) {
 	for (const auto &af : room->affected) {
 		if (af->type == SPELL_FORBIDDEN && (number(1, 100) <= af->modifier)) {
 			return true;
@@ -61,7 +61,7 @@ bool is_room_forbidden(ROOM_DATA *room) {
  * in some other systems.
  */
 
-int calc_anti_savings(CHAR_DATA *ch) {
+int calc_anti_savings(CharacterData *ch) {
 	int modi = 0;
 
 	if (WAITLESS(ch))
@@ -80,7 +80,7 @@ int calc_anti_savings(CHAR_DATA *ch) {
 	return modi;
 }
 
-int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply) {
+int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int ext_apply) {
 	int temp_save_stat = 0, temp_awake_mod = 0;
 
 	if (-GET_SAVE(victim, type) / 10 > number(1, 100)) {
@@ -173,7 +173,7 @@ int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_appl
 	return save;
 }
 
-int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply) {
+int general_savingthrow(CharacterData *killer, CharacterData *victim, int type, int ext_apply) {
 	int save = calculateSaving(killer, victim, type, ext_apply);
 	if (MAX(10, save) <= number(1, 200))
 		return (true);
@@ -182,7 +182,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	return (false);
 }
 
-int multi_cast_say(CHAR_DATA *ch) {
+int multi_cast_say(CharacterData *ch) {
 	if (!IS_NPC(ch))
 		return 1;
 	switch (GET_RACE(ch)) {
@@ -195,7 +195,7 @@ int multi_cast_say(CHAR_DATA *ch) {
 	return 0;
 }
 
-void show_spell_off(int aff, CHAR_DATA *ch) {
+void show_spell_off(int aff, CharacterData *ch) {
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_WRITING))
 		return;
 
@@ -255,7 +255,7 @@ float func_koef_modif(int spellnum, int percent) {
 	return 0;
 }
 
-int magic_skill_damage_calc(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int dam) {
+int magic_skill_damage_calc(CharacterData *ch, CharacterData *victim, int spellnum, int dam) {
 	if (IS_NPC(ch)) {
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
 		return (dam);
@@ -279,9 +279,9 @@ int magic_skill_damage_calc(CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int 
 	return (dam);
 }
 
-int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int savetype) {
+int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum, int savetype) {
 	int dam = 0, rand = 0, count = 1, modi = 0, ndice = 0, sdice = 0, adice = 0, no_savings = false;
-	OBJ_DATA *obj = nullptr;
+	ObjectData *obj = nullptr;
 
 	if (victim == nullptr || IN_ROOM(victim) == kNowhere || ch == nullptr)
 		return (0);
@@ -952,7 +952,7 @@ int mag_damage(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int sa
 	return rand;
 }
 
-int pc_duration(CHAR_DATA *ch, int cnst, int level, int level_divisor, int min, int max) {
+int pc_duration(CharacterData *ch, int cnst, int level, int level_divisor, int min, int max) {
 	int result = 0;
 	if (IS_NPC(ch)) {
 		result = cnst;
@@ -979,13 +979,13 @@ int pc_duration(CHAR_DATA *ch, int cnst, int level, int level_divisor, int min, 
 	return (result);
 }
 
-bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum) {
+bool material_component_processing(CharacterData *caster, CharacterData *victim, int spellnum) {
 	int vnum = 0;
 	const char *missing = nullptr, *use = nullptr, *exhausted = nullptr;
 	switch (spellnum) {
 		case SPELL_FASCINATION:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (GET_OBJ_TYPE(i) == OBJ_DATA::ITEM_INGREDIENT && i->get_val(1) == 3000) {
+				if (GET_OBJ_TYPE(i) == ObjectData::ITEM_INGREDIENT && i->get_val(1) == 3000) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}
@@ -996,7 +996,7 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 			break;
 		case SPELL_HYPNOTIC_PATTERN:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (GET_OBJ_TYPE(i) == OBJ_DATA::ITEM_INGREDIENT && i->get_val(1) == 3006) {
+				if (GET_OBJ_TYPE(i) == ObjectData::ITEM_INGREDIENT && i->get_val(1) == 3006) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}
@@ -1007,7 +1007,7 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 			break;
 		case SPELL_ENCHANT_WEAPON:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (GET_OBJ_TYPE(i) == OBJ_DATA::ITEM_INGREDIENT && i->get_val(1) == 1930) {
+				if (GET_OBJ_TYPE(i) == ObjectData::ITEM_INGREDIENT && i->get_val(1) == 1930) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}
@@ -1020,7 +1020,7 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 		default: log("WARNING: wrong spellnum %d in %s:%d", spellnum, __FILE__, __LINE__);
 			return false;
 	}
-	OBJ_DATA *tobj = get_obj_in_list_vnum(vnum, caster->carrying);
+	ObjectData *tobj = get_obj_in_list_vnum(vnum, caster->carrying);
 	if (!tobj) {
 		act(missing, false, victim, nullptr, caster, TO_CHAR);
 		return (true);
@@ -1035,7 +1035,7 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 	return (false);
 }
 
-bool material_component_processing(CHAR_DATA *caster, int /*vnum*/, int spellnum) {
+bool material_component_processing(CharacterData *caster, int /*vnum*/, int spellnum) {
 	const char *missing = nullptr, *use = nullptr, *exhausted = nullptr;
 	switch (spellnum) {
 		case SPELL_ENCHANT_WEAPON: use = "Вы подготовили дополнительные компоненты для зачарования.\r\n";
@@ -1046,7 +1046,7 @@ bool material_component_processing(CHAR_DATA *caster, int /*vnum*/, int spellnum
 		default: log("WARNING: wrong spellnum %d in %s:%d", spellnum, __FILE__, __LINE__);
 			return false;
 	}
-	OBJ_DATA *tobj = GET_EQ(caster, WEAR_HOLD);
+	ObjectData *tobj = GET_EQ(caster, WEAR_HOLD);
 	if (!tobj) {
 		act(missing, false, caster, nullptr, caster, TO_CHAR);
 		return (true);
@@ -1061,7 +1061,7 @@ bool material_component_processing(CHAR_DATA *caster, int /*vnum*/, int spellnum
 	return (false);
 }
 
-int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int savetype) {
+int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnum, int savetype) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	const char *to_vict = nullptr, *to_room = nullptr;
@@ -1139,7 +1139,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 		return 0;
 	}
 
-	AFFECT_DATA<EApplyLocation> af[kMaxSpellAffects];
+	Affect<EApplyLocation> af[kMaxSpellAffects];
 	for (i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spellnum;
 		af[i].bitvector = 0;
@@ -2206,7 +2206,7 @@ int mag_affects(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int s
 			if (!AFF_FLAGGED(victim, EAffectFlag::AFF_EVILESS)) {
 				af[2].modifier = GET_REAL_MAX_HIT(victim);
 				// не очень красивый способ передать сигнал на лечение в mag_points
-				AFFECT_DATA<EApplyLocation> tmpaf;
+				Affect<EApplyLocation> tmpaf;
 				tmpaf.type = SPELL_EVILESS;
 				tmpaf.duration = 1;
 				tmpaf.modifier = 0;
@@ -2840,9 +2840,9 @@ const char *mag_summon_fail_msgs[] =
 		"У вас нет подходящего трупа!\r\n"
 	};
 
-int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savetype) {
-	CHAR_DATA *tmp_mob, *mob = nullptr;
-	OBJ_DATA *tobj, *next_obj;
+int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int savetype) {
+	CharacterData *tmp_mob, *mob = nullptr;
+	ObjectData *tobj, *next_obj;
 	struct Follower *k;
 	int pfail = 0, msg = 0, fmsg = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
 	MobVnum mob_num;
@@ -3082,7 +3082,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	const auto days_from_full_moon =
 		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
 	const auto duration = pc_duration(mob, GET_REAL_WIS(ch) + number(0, days_from_full_moon), 0, 0, 0, 0);
-	AFFECT_DATA<EApplyLocation> af;
+	Affect<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	af.duration = duration;
 	af.modifier = 0;
@@ -3182,7 +3182,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 			//affect_to_char(mob, af);
 		}
 		if (eff_wis >= 75) {
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.type = SPELL_NO_SPELL;
 			af.duration = duration * (1 + GET_REAL_REMORT(ch));
 			af.modifier = 0;
@@ -3209,7 +3209,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	}
 
 	if (spellnum == SPELL_SUMMON_FIREKEEPER) {
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 		af.duration = duration;
 		af.modifier = 0;
@@ -3251,7 +3251,7 @@ int mag_summons(int level, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int savet
 	return 1;
 }
 
-int mag_points(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int) {
+int mag_points(int level, CharacterData *ch, CharacterData *victim, int spellnum, int) {
 	int hit = 0; //если выставить больше нуля, то лечит
 	int move = 0; //если выставить больше нуля, то реген хп
 	bool extraHealing = false; //если true, то лечит сверх макс.хп
@@ -3349,7 +3349,7 @@ int mag_points(int level, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int) {
 	return 1;
 }
 
-inline bool NODISPELL(const AFFECT_DATA<EApplyLocation>::shared_ptr &affect) {
+inline bool NODISPELL(const Affect<EApplyLocation>::shared_ptr &affect) {
 	return !affect
 		|| !spell_info[affect->type].name
 		|| *spell_info[affect->type].name == '!'
@@ -3361,7 +3361,7 @@ inline bool NODISPELL(const AFFECT_DATA<EApplyLocation>::shared_ptr &affect) {
 		|| affect->type == SPELL_EVILESS;
 }
 
-int mag_unaffects(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum, int/* type*/) {
+int mag_unaffects(int/* level*/, CharacterData *ch, CharacterData *victim, int spellnum, int/* type*/) {
 	int spell = 0, remove = 0;
 	const char *to_vict = nullptr, *to_room = nullptr;
 
@@ -3474,7 +3474,7 @@ int mag_unaffects(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, int spellnum,
 	return 1;
 }
 
-int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, int/* savetype*/) {
+int mag_alter_objs(int/* level*/, CharacterData *ch, ObjectData *obj, int spellnum, int/* savetype*/) {
 	const char *to_char = nullptr;
 
 	if (obj == nullptr) {
@@ -3493,7 +3493,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 				obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
 				if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 					obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
-					if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+					if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 						obj->inc_val(2);
 					}
 				}
@@ -3507,7 +3507,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 		case SPELL_CURSE:
 			if (!obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 				obj->set_extra_flag(EExtraFlag::ITEM_NODROP);
-				if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+				if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 					if (GET_OBJ_VAL(obj, 2) > 0) {
 						obj->dec_val(2);
 					}
@@ -3533,9 +3533,9 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 
 		case SPELL_POISON:
 			if (!GET_OBJ_VAL(obj, 3)
-				&& (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON
-					|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
-					|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOOD)) {
+				&& (GET_OBJ_TYPE(obj) == ObjectData::ITEM_DRINKCON
+					|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_FOUNTAIN
+					|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_FOOD)) {
 				obj->set_val(3, 1);
 				to_char = "$o отравлен$G.";
 			}
@@ -3544,7 +3544,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 		case SPELL_REMOVE_CURSE:
 			if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 				obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
-				if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+				if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 					obj->inc_val(2);
 				}
 				to_char = "$o вспыхнул$G розовым светом и тут же погас$Q.";
@@ -3557,7 +3557,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 			}
 
 			// Either already enchanted or not a weapon.
-			if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON) {
+			if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_WEAPON) {
 				to_char = "Еще раз ударьтесь головой об стену, авось зрение вернется...";
 				break;
 			} else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)) {
@@ -3606,9 +3606,9 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 				break;
 			}
 			if ((GET_OBJ_VAL(obj, 3) == 1)
-				&& ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
-					|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
-					|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOOD)) {
+				&& ((GET_OBJ_TYPE(obj) == ObjectData::ITEM_DRINKCON)
+					|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_FOUNTAIN
+					|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_FOOD)) {
 				obj->set_val(3, 0);
 				to_char = "$o стал$G вполне пригодным к применению.";
 			}
@@ -3673,7 +3673,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA *ch, OBJ_DATA *obj, int spellnum, in
 	return 1;
 }
 
-int mag_creations(int/* level*/, CHAR_DATA *ch, int spellnum) {
+int mag_creations(int/* level*/, CharacterData *ch, int spellnum) {
 	ObjVnum z;
 
 	if (ch == nullptr) {
@@ -3719,7 +3719,7 @@ int mag_creations(int/* level*/, CHAR_DATA *ch, int spellnum) {
 	return 1;
 }
 
-int mag_manual(int level, CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, int spellnum, int/* savetype*/) {
+int mag_manual(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, int/* savetype*/) {
 	switch (spellnum) {
 		case SPELL_GROUP_RECALL:
 		case SPELL_WORD_OF_RECALL: MANUAL_SPELL(spell_recall);
@@ -3771,7 +3771,7 @@ int mag_manual(int level, CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, 
 //******************************************************************************
 //******************************************************************************
 
-int check_mobile_list(CHAR_DATA *ch) {
+int check_mobile_list(CharacterData *ch) {
 	for (const auto &vict : character_list) {
 		if (vict.get() == ch) {
 			return (true);
@@ -3781,7 +3781,7 @@ int check_mobile_list(CHAR_DATA *ch) {
 	return (false);
 }
 
-void cast_reaction(CHAR_DATA *victim, CHAR_DATA *caster, int spellnum) {
+void cast_reaction(CharacterData *victim, CharacterData *caster, int spellnum) {
 	if (caster == victim)
 		return;
 
@@ -3827,7 +3827,7 @@ void cast_reaction(CHAR_DATA *victim, CHAR_DATA *caster, int spellnum) {
 
 // Применение заклинания к одной цели
 //---------------------------------------------------------
-int mag_single_target(int level, CHAR_DATA *caster, CHAR_DATA *cvict, OBJ_DATA *ovict, int spellnum, int savetype) {
+int mag_single_target(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, int savetype) {
 	/*
 	if (IS_SET(SpINFO.routines, 0)){
 			send_to_char(NOEFFECT, caster);
@@ -4299,7 +4299,7 @@ int findIndexOfSpellMsg(int spellNumber) {
 	return i;
 }
 
-int trySendCastMessages(CHAR_DATA *ch, CHAR_DATA *victim, ROOM_DATA *room, int spellnum) {
+int trySendCastMessages(CharacterData *ch, CharacterData *victim, RoomData *room, int spellnum) {
 	int msgIndex = findIndexOfSpellMsg(spellnum);
 	if (mag_messages[msgIndex].spell < 0) {
 		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания с номером %d.", spellnum);
@@ -4320,19 +4320,19 @@ int trySendCastMessages(CHAR_DATA *ch, CHAR_DATA *victim, ROOM_DATA *room, int s
 	return msgIndex;
 };
 
-int calculateAmountTargetsOfSpell(const CHAR_DATA *ch, const int &msgIndex, const int &spellnum) {
+int calculateAmountTargetsOfSpell(const CharacterData *ch, const int &msgIndex, const int &spellnum) {
 	int amount = ch->get_skill(get_magic_skill_number_by_spell(spellnum));
 	amount = dice(amount / mag_messages[msgIndex].skillDivisor, mag_messages[msgIndex].diceSize);
 	return mag_messages[msgIndex].minTargetsAmount + MIN(amount, mag_messages[msgIndex].maxTargetsAmount);
 }
 
-int callMagicToArea(CHAR_DATA *ch, CHAR_DATA *victim, ROOM_DATA *room, int spellnum, int level) {
+int callMagicToArea(CharacterData *ch, CharacterData *victim, RoomData *room, int spellnum, int level) {
 	if (ch == nullptr || IN_ROOM(ch) == kNowhere) {
 		return 0;
 	}
 
 	ActionTargeting::FoesRosterType
-		roster{ch, victim, [](CHAR_DATA *, CHAR_DATA *target) { return !IS_HORSE(target); }};
+		roster{ch, victim, [](CharacterData *, CharacterData *target) { return !IS_HORSE(target); }};
 	int msgIndex = trySendCastMessages(ch, victim, room, spellnum);
 	int targetsAmount = calculateAmountTargetsOfSpell(ch, msgIndex, spellnum);
 	int targetsCounter = 1;
@@ -4381,7 +4381,7 @@ int callMagicToArea(CHAR_DATA *ch, CHAR_DATA *victim, ROOM_DATA *room, int spell
 
 // Применение заклинания к группе в комнате
 //---------------------------------------------------------
-int callMagicToGroup(int level, CHAR_DATA *ch, int spellnum) {
+int callMagicToGroup(int level, CharacterData *ch, int spellnum) {
 	if (ch == nullptr) {
 		return 0;
 	}

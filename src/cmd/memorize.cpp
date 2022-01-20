@@ -12,10 +12,10 @@
 
 using PlayerClass::slot_for_char;
 
-void show_wizdom(CHAR_DATA *ch, int bitset);
-void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void show_wizdom(CharacterData *ch, int bitset);
+void do_memorize(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
-void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_memorize(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *s;
 	int spellnum;
 
@@ -59,7 +59,7 @@ void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	return;
 }
 
-void show_wizdom(CHAR_DATA *ch, int bitset) {
+void show_wizdom(CharacterData *ch, int bitset) {
 	char names[MAX_SLOT][kMaxStringLength];
 	int slots[MAX_SLOT], i, max_slot, count, slot_num, is_full, gcount = 0, imax_slot = 0;
 	for (i = 1; i <= MAX_SLOT; i++) {

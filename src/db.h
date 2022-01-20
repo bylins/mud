@@ -27,12 +27,12 @@
 #include <list>
 #include <memory>
 
-struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // room manage functions
-void room_copy(ROOM_DATA *dst, ROOM_DATA *src);
-void room_free(ROOM_DATA *room);
+void room_copy(RoomData *dst, RoomData *src);
+void room_free(RoomData *room);
 
 // public procedures in db.cpp
 void tag_argument(char *argument, char *tag);
@@ -52,11 +52,11 @@ long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 void zone_traffic_save();
 
-int load_char(const char *name, CHAR_DATA *char_element, bool reboot = false, bool find_id = true);
-CHAR_DATA *read_mobile(MobVnum nr, int type);
+int load_char(const char *name, CharacterData *char_element, bool reboot = false, bool find_id = true);
+CharacterData *read_mobile(MobVnum nr, int type);
 MobRnum real_mobile(MobVnum vnum);
-int vnum_mobile(char *searchname, CHAR_DATA *ch);
-void clear_char_skills(CHAR_DATA *ch);
+int vnum_mobile(char *searchname, CharacterData *ch);
+void clear_char_skills(CharacterData *ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype *obj);
 void SaveGlobalUID();
@@ -67,10 +67,10 @@ void flush_player_index();
 
 CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type = VIRTUAL);
 
-int vnum_object(char *searchname, CHAR_DATA *ch);
-int vnum_flag(char *searchname, CHAR_DATA *ch);
-int vnum_room(char *searchname, CHAR_DATA *ch);
-int vnum_obj_trig(char *searchname, CHAR_DATA *ch);
+int vnum_object(char *searchname, CharacterData *ch);
+int vnum_flag(char *searchname, CharacterData *ch);
+int vnum_room(char *searchname, CharacterData *ch);
+int vnum_obj_trig(char *searchname, CharacterData *ch);
 
 // structure for the reset commands
 struct reset_com {
@@ -255,7 +255,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 
 extern RoomRnum top_of_world;
 
-void add_trig_index_entry(int nr, TRIG_DATA *proto);
+void add_trig_index_entry(int nr, Trigger *proto);
 extern IndexData **trig_index;
 
 #ifndef __CONFIG_C__
@@ -270,12 +270,12 @@ extern const int sunrise[][2];
 extern const int Reverse[];
 
 // external vars
-extern CHAR_DATA *combat_list;
+extern CharacterData *combat_list;
 
 #include <vector>
 #include <deque>
 
-class Rooms : public std::vector<ROOM_DATA *> {
+class Rooms : public std::vector<RoomData *> {
  public:
 	static constexpr int UNDEFINED_ROOM_VNUM = -1;
 	~Rooms();
@@ -288,7 +288,7 @@ extern MobRnum top_of_mobt;
 
 inline ObjVnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
 
-extern CHAR_DATA *mob_proto;
+extern CharacterData *mob_proto;
 extern const char *MENU;
 
 extern struct Portal *portals_list;
@@ -297,8 +297,8 @@ extern TimeInfoData time_info;
 extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
 
 int dl_parse(OnDeadLoadList **dl_list, char *line);
-int dl_load_obj(OBJ_DATA *corpse, CHAR_DATA *ch, CHAR_DATA *chr, int DL_LOAD_TYPE);
-int trans_obj_name(OBJ_DATA *obj, CHAR_DATA *ch);
+int dl_load_obj(ObjectData *corpse, CharacterData *ch, CharacterData *chr, int DL_LOAD_TYPE);
+int trans_obj_name(ObjectData *obj, CharacterData *ch);
 void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src);
 void paste_mobiles();
 
@@ -369,21 +369,21 @@ inline void clear_saveinfo(const size_t number) {
 
 void recreate_saveinfo(size_t number);
 
-void set_god_skills(CHAR_DATA *ch);
+void set_god_skills(CharacterData *ch);
 void check_room_flags(int rnum);
 
 namespace OfftopSystem {
 void init();
-void set_flag(CHAR_DATA *ch);
+void set_flag(CharacterData *ch);
 } // namespace OfftopSystem
 
 void delete_char(const char *name);
 
-void set_test_data(CHAR_DATA *mob);
+void set_test_data(CharacterData *mob);
 
 void set_zone_mob_level();
 
-//bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
+//bool can_snoop(CharacterData *imm, CharacterData *vict);
 
 //extern insert_wanted_gem iwg;
 

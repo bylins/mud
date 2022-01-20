@@ -17,7 +17,7 @@ const char *track_when[] = {"совсем свежие",
 							"совсем старые"
 };
 
-int age_track(CHAR_DATA * /*ch*/, int time, int calc_track) {
+int age_track(CharacterData * /*ch*/, int time, int calc_track) {
 	int when = 0;
 
 	if (calc_track >= number(1, 50)) {
@@ -41,7 +41,7 @@ int age_track(CHAR_DATA * /*ch*/, int time, int calc_track) {
 }
 
 // * Functions and Commands which use the above functions. *
-int go_track(CHAR_DATA *ch, CHAR_DATA *victim, const ESkill skill_no) {
+int go_track(CharacterData *ch, CharacterData *victim, const ESkill skill_no) {
 	int percent, dir;
 	int if_sense;
 
@@ -71,9 +71,9 @@ int go_track(CHAR_DATA *ch, CHAR_DATA *victim, const ESkill skill_no) {
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict = nullptr;
-	struct track_data *track;
+void do_track(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict = nullptr;
+	struct TrackData *track;
 	int found = false, calc_track = 0, track_t, i;
 	char name[kMaxInputLength];
 
@@ -191,8 +191,8 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char(buf, ch);
 }
 
-void do_hidetrack(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct track_data *track[kDirMaxNumber + 1], *temp;
+void do_hidetrack(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	struct TrackData *track[kDirMaxNumber + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDETRACK)) {

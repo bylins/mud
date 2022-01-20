@@ -6,7 +6,7 @@
 #include "magic/magic_utils.h"
 #include "handler.h"
 
-void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_create(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char *s;
 	int spellnum, itemnum = 0;
 

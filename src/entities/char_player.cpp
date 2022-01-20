@@ -34,7 +34,7 @@
 #include <sstream>
 #include <bitset>
 
-int level_exp(CHAR_DATA *ch, int level);
+int level_exp(CharacterData *ch, int level);
 extern std::vector<City> cities;
 extern std::string default_str_cities;
 namespace {
@@ -120,7 +120,7 @@ void Player::reset() {
 	remember_.reset();
 	last_tell_ = "";
 	answer_id_ = kNobody;
-	CHAR_DATA::reset();
+	CharacterData::reset();
 }
 
 RoomRnum Player::get_from_room() const {
@@ -287,7 +287,7 @@ std::string const &Player::get_last_tell() {
 	return last_tell_;
 }
 
-void Player::quested_add(CHAR_DATA *ch, int vnum, char *text) {
+void Player::quested_add(CharacterData *ch, int vnum, char *text) {
 	quested_.add(ch, vnum, text);
 }
 
@@ -315,11 +315,11 @@ int Player::mobmax_get(int vnum) const {
 	return mobmax_.get_kill_count(vnum);
 }
 
-void Player::mobmax_add(CHAR_DATA *ch, int vnum, int count, int level) {
+void Player::mobmax_add(CharacterData *ch, int vnum, int count, int level) {
 	mobmax_.add(ch, vnum, count, level);
 }
 
-void Player::mobmax_load(CHAR_DATA *ch, int vnum, int count, int level) {
+void Player::mobmax_load(CharacterData *ch, int vnum, int count, int level) {
 	mobmax_.load(ch, vnum, count, level);
 }
 
@@ -345,7 +345,7 @@ void Player::show_mobmax() {
 	}
 }
 
-void Player::dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch) {
+void Player::dps_add_dmg(int type, int dmg, int over_dmg, CharacterData *ch) {
 	dps_.add_dmg(type, ch, dmg, over_dmg);
 }
 
@@ -353,11 +353,11 @@ void Player::dps_clear(int type) {
 	dps_.clear(type);
 }
 
-void Player::dps_print_stats(CHAR_DATA *coder) {
+void Player::dps_print_stats(CharacterData *coder) {
 	dps_.print_stats(this, coder);
 }
 
-void Player::dps_print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder) {
+void Player::dps_print_group_stats(CharacterData *ch, CharacterData *coder) {
 	dps_.print_group_stats(ch, coder);
 }
 
@@ -367,11 +367,11 @@ void Player::dps_set(DpsSystem::Dps *dps) {
 }
 
 // * Нужно только для копирования всего этого дела при передаче лидера.
-void Player::dps_copy(CHAR_DATA *ch) {
+void Player::dps_copy(CharacterData *ch) {
 	ch->dps_set(&dps_);
 }
 
-void Player::dps_end_round(int type, CHAR_DATA *ch) {
+void Player::dps_end_round(int type, CharacterData *ch) {
 	dps_.end_round(type, ch);
 }
 
@@ -391,7 +391,7 @@ void Player::save_char() {
 	char filename[kMaxStringLength];
 	int i;
 	time_t li;
-	OBJ_DATA *char_eq[NUM_WEARS];
+	ObjectData *char_eq[NUM_WEARS];
 	struct Timed *skj;
 	struct CharacterPortal *prt;
 	int tmp = time(0) - this->player_data.time.logon;
@@ -428,7 +428,7 @@ void Player::save_char() {
 			char_eq[i] = nullptr;
 	}
 
-	AFFECT_DATA<EApplyLocation> tmp_aff[kMaxAffect];
+	Affect<EApplyLocation> tmp_aff[kMaxAffect];
 	{
 		auto aff_i = affected.begin();
 		for (i = 0; i < kMaxAffect; i++) {
@@ -1273,7 +1273,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
 						if (num > 0) {
-							AFFECT_DATA<EApplyLocation> af;
+							Affect<EApplyLocation> af;
 							af.type = num;
 							af.duration = num2;
 							af.modifier = num3;
@@ -1989,7 +1989,7 @@ const MapSystem::Options *Player::get_map_options() const {
 	return &map_options_;
 }
 
-void Player::map_print_to_snooper(CHAR_DATA *imm) {
+void Player::map_print_to_snooper(CharacterData *imm) {
 	MapSystem::Options tmp;
 	tmp = map_options_;
 	map_options_ = *(imm->get_map_options());
@@ -2148,7 +2148,7 @@ namespace PlayerSystem {
 ///
 /// \return кол-во хп, втыкаемых чару от родного тела
 ///
-int con_natural_hp(CHAR_DATA *ch) {
+int con_natural_hp(CharacterData *ch) {
 	double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
 		+ (VPOSI_MOB(ch, 2, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
 			* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
@@ -2158,7 +2158,7 @@ int con_natural_hp(CHAR_DATA *ch) {
 ///
 /// \return кол-во хп, втыкаемых чару от добавленного шмотом/аффектами тела
 ///
-int con_add_hp(CHAR_DATA *ch) {
+int con_add_hp(CharacterData *ch) {
 	int con_add = MAX(0, GET_REAL_CON(ch) - ch->get_con());
 	return class_app[(int) GET_CLASS(ch)].koef_con * con_add * GET_REAL_LEVEL(ch) / 100;
 }
@@ -2166,14 +2166,14 @@ int con_add_hp(CHAR_DATA *ch) {
 ///
 /// \return кол-во хп, втыкаемых чару от общего кол-ва тела
 ///
-int con_total_hp(CHAR_DATA *ch) {
+int con_total_hp(CharacterData *ch) {
 	return con_natural_hp(ch) + con_add_hp(ch);
 }
 
 ///
 /// \return величина минуса к дексе в случае перегруза (case -> проценты от макс)
 ///
-unsigned weight_dex_penalty(CHAR_DATA *ch) {
+unsigned weight_dex_penalty(CharacterData *ch) {
 	int n = 0;
 	switch (IS_CARRYING_W(ch) * 10 / MAX(1, CAN_CARRY_W(ch))) {
 		case 10:

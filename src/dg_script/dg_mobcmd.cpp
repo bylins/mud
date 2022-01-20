@@ -39,7 +39,7 @@
 struct mob_command_info {
 	const char *command;
 	byte minimum_position;
-	typedef void(*handler_f)(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	typedef void(*handler_f)(CharacterData *ch, char *argument, int cmd, int subcmd);
 	handler_f command_pointer;
 	int subcmd;                ///< Subcommand. See SCMD_* constants.
 	bool use_in_lag;
@@ -48,18 +48,18 @@ struct mob_command_info {
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
 extern int reloc_target;
-extern TRIG_DATA *cur_trig;
+extern Trigger *cur_trig;
 
-void sub_write(char *arg, CHAR_DATA *ch, byte find_invis, int targets);
-ROOM_DATA *get_room(char *name);
-OBJ_DATA *get_obj_by_char(CHAR_DATA *ch, char *name);
+void sub_write(char *arg, CharacterData *ch, byte find_invis, int targets);
+RoomData *get_room(char *name);
+ObjectData *get_obj_by_char(CharacterData *ch, char *name);
 // * Local functions.
-void mob_command_interpreter(CHAR_DATA *ch, char *argument);
-bool mob_script_command_interpreter(CHAR_DATA *ch, char *argument);
+void mob_command_interpreter(CharacterData *ch, char *argument);
+bool mob_script_command_interpreter(CharacterData *ch, char *argument);
 void send_to_zone(char *messg, int zone_rnum);
 
 // attaches mob's name and vnum to msg and sends it to script_log
-void mob_log(CHAR_DATA *mob, const char *msg, LogMode type = LogMode::OFF) {
+void mob_log(CharacterData *mob, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 
 	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg);
@@ -68,7 +68,7 @@ void mob_log(CHAR_DATA *mob, const char *msg, LogMode type = LogMode::OFF) {
 
 //returns the real room number, or kNowhere if not found or invalid
 //copy from find_target_room except char's messages
-RoomRnum dg_find_target_room(CHAR_DATA *ch, char *rawroomstr) {
+RoomRnum dg_find_target_room(CharacterData *ch, char *rawroomstr) {
 	char roomstr[kMaxInputLength];
 	RoomRnum location = kNowhere;
 
@@ -92,7 +92,7 @@ RoomRnum dg_find_target_room(CHAR_DATA *ch, char *rawroomstr) {
 	return location;
 }
 
-void do_mportal(CHAR_DATA *mob, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mportal(CharacterData *mob, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int target, howlong, curroom, nr;
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 
@@ -124,7 +124,7 @@ void do_mportal(CHAR_DATA *mob, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 // prints the argument to all the rooms aroud the mobile
-void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_masound(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
@@ -150,9 +150,9 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // lets the mobile kill any player or mobile without murder
-void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mkill(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
-	CHAR_DATA *victim;
+	CharacterData *victim;
 
 	if (MOB_FLAGGED(ch, MOB_NOFIGHT)) {
 		mob_log(ch, "mkill called for mob with NOFIGHT flag");
@@ -205,11 +205,11 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  * it can also destroy a worn object and it can destroy
  * items using all.xxxxx or just plain all of them
  */
-void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mjunk(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 	int pos, junk_all = 0;
-	OBJ_DATA *obj;
-	OBJ_DATA *obj_next;
+	ObjectData *obj;
+	ObjectData *obj_next;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -248,9 +248,9 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // prints the message to everyone in the room other than the mob and victim
-void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mechoaround(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
-	CHAR_DATA *victim;
+	CharacterData *victim;
 	char *p;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -287,9 +287,9 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 }
 
 // sends the message to only the victim
-void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_msend(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
-	CHAR_DATA *victim;
+	CharacterData *victim;
 	char *p;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -326,7 +326,7 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // prints the message to the room at large
-void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mecho(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *p;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -353,10 +353,10 @@ void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  * lets the mobile load an item or mobile.  All items
  * are loaded into inventory, unless it is NO-TAKE.
  */
-void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mload(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int number = 0;
-	CHAR_DATA *mob;
+	CharacterData *mob;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		mob_log(ch, "mload: попытка почармленным мобом загрузать моба/предмет.");
@@ -414,10 +414,10 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  * or purge a specified object or mob in the room.  It can purge
  *  itself, but this will be the last command it does.
  */
-void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mpurge(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
-	CHAR_DATA *victim;
-	OBJ_DATA *obj;
+	CharacterData *victim;
+	ObjectData *obj;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -456,7 +456,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // lets the mobile goto any location it wishes that is not private
-void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mgoto(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 	int location;
 
@@ -486,7 +486,7 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // lets the mobile do a command at another location. Very useful
-void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 	int location;
 	int original;
@@ -521,10 +521,10 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  * lets the mobile transfer people.  the all argument transfers
  * everyone in the current room to the specified location
  */
-void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mteleport(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
 	int target;
-	CHAR_DATA *vict, *horse;
+	CharacterData *vict, *horse;
 	RoomRnum from_room;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -633,7 +633,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  * lets the mobile force someone to do something.  must be mortal level
  * and the all argument only affects those in the room with the mobile
  */
-void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mforce(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -652,7 +652,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *victim = nullptr;
+	CharacterData *victim = nullptr;
 
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg))) {
@@ -689,8 +689,8 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // increases the target's exp
-void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_mexp(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 	char name[kMaxInputLength], amount[kMaxInputLength];
 
 	mob_log(ch, "WARNING: mexp command is depracated! Use: %actor.exp(amount-to-add)%");
@@ -725,8 +725,8 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // increases the target's gold
-void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_mgold(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 	char name[kMaxInputLength], amount[kMaxInputLength];
 
 	mob_log(ch, "WARNING: mgold command is depracated! Use: %actor.gold(amount-to-add)%");
@@ -765,10 +765,10 @@ void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // transform into a different mobile
-void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mtransform(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
-	CHAR_DATA *m;
-	OBJ_DATA *obj[NUM_WEARS];
+	CharacterData *m;
+	ObjectData *obj[NUM_WEARS];
 	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
 	int pos;
 
@@ -817,7 +817,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		char_to_room(m, ch->in_room);
 
 // Обмен содержимым
-		CHAR_DATA tmpmob(*m);
+		CharacterData tmpmob(*m);
 		*m = *ch;
 		*ch = tmpmob;
 		ch->set_normal_morph();
@@ -872,10 +872,10 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mdoor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char target[kMaxInputLength], direction[kMaxInputLength];
 	char field[kMaxInputLength], *value;
-	ROOM_DATA *rm;
+	RoomData *rm;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] =
@@ -926,7 +926,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (!exit) {
-			exit.reset(new EXIT_DATA());
+			exit.reset(new ExitData());
 			rm->dir_option[dir] = exit;
 		}
 
@@ -972,9 +972,9 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int FixNameAndFindSpellNum(char *name);
 
-void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mfeatturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int isFeat = 0;
-	CHAR_DATA *victim;
+	CharacterData *victim;
 	char name[kMaxInputLength], featname[kMaxInputLength], amount[kMaxInputLength], *pos;
 	int featnum = 0, featdiff = 0;
 
@@ -1025,9 +1025,9 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		trg_featturn(victim, featnum, featdiff, last_trig_vnum);
 }
 
-void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool isSkill = false;
-	CHAR_DATA *victim;
+	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
@@ -1085,9 +1085,9 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	bool isSkill = false;
-	CHAR_DATA *victim;
+	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
@@ -1133,8 +1133,8 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_mspellturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	int skillnum = 0, skilldiff = 0;
 
@@ -1182,8 +1182,8 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	trg_spellturn(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
-void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_mspellturntemp(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 	char name[kMaxInputLength], spellname[kMaxInputLength], amount[kMaxInputLength];
 	int spellnum = 0, spelltime = 0;
 
@@ -1226,8 +1226,8 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 	trg_spellturntemp(victim, spellnum, spelltime, last_trig_vnum);
 }
 
-void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_mspelladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
 	int skillnum = 0, skilldiff = 0;
 
@@ -1263,8 +1263,8 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	trg_spelladd(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
-void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_mspellitem(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 	char name[kMaxInputLength], spellname[kMaxInputLength], type[kMaxInputLength], turn[kMaxInputLength];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
@@ -1323,7 +1323,7 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	trg_spellitem(victim, spellnum, spelldiff, spell);
 }
 
-void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mdamage(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name[kMaxInputLength], amount[kMaxInputLength];
 	int dam = 0;
 
@@ -1375,7 +1375,7 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_mzoneecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mzoneecho(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ZoneRnum zone;
 	char zone_name[kMaxInputLength], buf[kMaxInputLength], *msg;
 
@@ -1427,7 +1427,7 @@ const struct mob_command_info mob_cmd_info[] =
 		{"\n", 0, 0, 0, 0}        // this must be last
 	};
 
-bool mob_script_command_interpreter(CHAR_DATA *ch, char *argument) {
+bool mob_script_command_interpreter(CharacterData *ch, char *argument) {
 	char *line, arg[kMaxInputLength];
 
 	// just drop to next line for hitting CR
@@ -1471,7 +1471,7 @@ bool mob_script_command_interpreter(CHAR_DATA *ch, char *argument) {
 }
 
 // *  This is the command interpreter used by mob, include common interpreter's commands
-void mob_command_interpreter(CHAR_DATA *ch, char *argument) {
+void mob_command_interpreter(CharacterData *ch, char *argument) {
 	if (!mob_script_command_interpreter(ch, argument)) {
 		command_interpreter(ch, argument);
 	}

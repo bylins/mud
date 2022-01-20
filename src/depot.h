@@ -22,30 +22,30 @@ void save_all_online_objs();
 void update_timers();
 void save_char_by_uid(int uid);
 
-bool is_depot(OBJ_DATA *obj);
-void show_depot(CHAR_DATA *ch);
-bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr &obj);
-void take_depot(CHAR_DATA *ch, char *arg, int howmany);
+bool is_depot(ObjectData *obj);
+void show_depot(CharacterData *ch);
+bool put_depot(CharacterData *ch, const ObjectData::shared_ptr &obj);
+void take_depot(CharacterData *ch, char *arg, int howmany);
 int delete_obj(int vnum);
 
-int get_total_cost_per_day(CHAR_DATA *ch);
-void show_stats(CHAR_DATA *ch);
+int get_total_cost_per_day(CharacterData *ch);
+void show_stats(CharacterData *ch);
 
-void enter_char(CHAR_DATA *ch);
-void exit_char(CHAR_DATA *ch);
-void reload_char(long uid, CHAR_DATA *ch);
+void enter_char(CharacterData *ch);
+void exit_char(CharacterData *ch);
+void reload_char(long uid, CharacterData *ch);
 
-int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name);
-bool show_purged_message(CHAR_DATA *ch);
-int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num);
-OBJ_DATA *locate_object(const char *str);
+int print_spell_locate_object(CharacterData *ch, int count, std::string name);
+bool show_purged_message(CharacterData *ch);
+int print_imm_where_obj(CharacterData *ch, char *arg, int num);
+ObjectData *locate_object(const char *str);
 
-void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto);
-void rename_char(CHAR_DATA *ch);
+void olc_update_from_proto(int robj_num, ObjectData *olc_proto);
+void rename_char(CharacterData *ch);
 void add_offline_money(long uid, int money);
 
-bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list);
-int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep);
+bool find_set_item(CharacterData *ch, const std::set<int> &vnum_list);
+int report_unrentables(CharacterData *ch, CharacterData *recep);
 
 void check_rented(int uid);
 void delete_set_item(int uid, int vnum);

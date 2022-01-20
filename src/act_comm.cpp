@@ -29,29 +29,29 @@ extern DescriptorData *descriptor_list;
 extern TimeInfoData time_info;
 
 // local functions
-void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg);
-int is_tell_ok(CHAR_DATA *ch, CHAR_DATA *vict);
-bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
+void perform_tell(CharacterData *ch, CharacterData *vict, char *arg);
+int is_tell_ok(CharacterData *ch, CharacterData *vict);
+bool tell_can_see(CharacterData *ch, CharacterData *vict);
 
 // external functions
-extern char *diag_timer_to_char(const OBJ_DATA *obj);
-extern void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
+extern char *diag_timer_to_char(const ObjectData *obj);
+extern void set_wait(CharacterData *ch, int waittime, int victim_in_room);
 
-void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gsay(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_write(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_page(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_pray_gods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_say(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_gsay(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_tell(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_reply(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_spec_comm(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_write(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_page(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_gen_comm(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_pray_gods(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_ignore(CharacterData *ch, char *argument, int cmd, int subcmd);
 
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
-void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_say(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
@@ -90,8 +90,8 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *k;
+void do_gsay(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *k;
 	struct Follower *f;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
@@ -173,7 +173,7 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict) {
+bool tell_can_see(CharacterData *ch, CharacterData *vict) {
 	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) {
 		return true;
 	} else {
@@ -181,7 +181,7 @@ bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict) {
 	}
 }
 
-void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg) {
+void perform_tell(CharacterData *ch, CharacterData *vict, char *arg) {
 // shapirus: не позволим телять, если жертва не видит и включила
 // соответствующий режим; имморталы могут телять всегда
 	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
@@ -226,7 +226,7 @@ void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg) {
 	}
 }
 
-int is_tell_ok(CHAR_DATA *ch, CHAR_DATA *vict) {
+int is_tell_ok(CharacterData *ch, CharacterData *vict) {
 	if (ch == vict) {
 		send_to_char("Вы начали потихоньку разговаривать с самим собой.\r\n", ch);
 		return (false);
@@ -263,8 +263,8 @@ int is_tell_ok(CHAR_DATA *ch, CHAR_DATA *vict) {
  * Yes, do_tell probably could be combined with whisper and ask, but
  * called frequently, and should IMHO be kept as tight as possible.
  */
-void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict = nullptr;
+void do_tell(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict = nullptr;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -297,7 +297,7 @@ void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_reply(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 
@@ -350,8 +350,8 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	CHAR_DATA *vict;
+void do_spec_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+	CharacterData *vict;
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[kMaxInputLength];
 
@@ -417,8 +417,8 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 #define MAX_NOTE_LENGTH 4096    // arbitrary
 
-void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	OBJ_DATA *paper, *pen = nullptr;
+void do_write(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	ObjectData *paper, *pen = nullptr;
 	char *papername, *penname;
 
 	papername = buf1;
@@ -453,11 +453,11 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(paper) == OBJ_DATA::ITEM_PEN)    // oops, a pen..
+		if (GET_OBJ_TYPE(paper) == ObjectData::ITEM_PEN)    // oops, a pen..
 		{
 			pen = paper;
 			paper = nullptr;
-		} else if (GET_OBJ_TYPE(paper) != OBJ_DATA::ITEM_NOTE) {
+		} else if (GET_OBJ_TYPE(paper) != ObjectData::ITEM_NOTE) {
 			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
 		}
@@ -479,9 +479,9 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 
 	// ok.. now let's see what kind of stuff we've found
-	if (GET_OBJ_TYPE(pen) != OBJ_DATA::ITEM_PEN) {
+	if (GET_OBJ_TYPE(pen) != ObjectData::ITEM_PEN) {
 		act("Вы не умеете писать $o4.", false, ch, pen, 0, TO_CHAR);
-	} else if (GET_OBJ_TYPE(paper) != OBJ_DATA::ITEM_NOTE) {
+	} else if (GET_OBJ_TYPE(paper) != ObjectData::ITEM_NOTE) {
 		act("Вы не можете писать на $o5.", false, ch, paper, 0, TO_CHAR);
 	} else if (!paper->get_action_description().empty()) {
 		send_to_char("Там уже что-то записано.\r\n", ch);
@@ -510,9 +510,9 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_page(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;
-	CHAR_DATA *vict;
+	CharacterData *vict;
 
 	half_chop(argument, arg, buf2);
 
@@ -563,7 +563,7 @@ struct communication_type {
 	int noflag;
 };
 
-void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_gen_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	DescriptorData *i;
 	char color_on[24];
 	int ign_flag;
@@ -807,7 +807,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mobshout(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *i;
 
 	// to keep pets, etc from being ordered to shout
@@ -838,10 +838,10 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_pray_gods(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength];
 	DescriptorData *i;
-	CHAR_DATA *victim = nullptr;
+	CharacterData *victim = nullptr;
 
 	skip_spaces(&argument);
 
@@ -921,7 +921,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 /**
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
-void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_offtop(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || GET_REAL_LEVEL(ch) >= kLevelImmortal || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
@@ -981,7 +981,7 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // shapirus
-void ignore_usage(CHAR_DATA *ch) {
+void ignore_usage(CharacterData *ch) {
 	send_to_char("Формат команды: игнорировать <имя|все> <режим|все> <добавить|убрать>\r\n"
 				 "Доступные режимы:\r\n"
 				 "  сказать говорить шептать спросить эмоция кричать\r\n"
@@ -1042,7 +1042,7 @@ char *text_ignore_modes(unsigned long mode, char *buf) {
 	return buf;
 }
 
-void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ignore(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength];
 	char arg2[kMaxInputLength];
 	char arg3[kMaxInputLength];
