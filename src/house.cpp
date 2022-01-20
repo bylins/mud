@@ -4949,6 +4949,30 @@ void Clan::clan_invoice(CHAR_DATA *ch, bool enter) {
 	}
 }
 
+// иммское где для кланхранилищ
+int Clan::print_imm_where_obj(CHAR_DATA *ch, const char *name, int count) {
+	for (Clan::shared_ptr ptr_clan : Clan::ClanList) {
+		for (OBJ_DATA *chest = world[real_room(ptr_clan->chest_room)]->contents; chest; chest = chest->get_next_content()) {
+			if (Clan::is_clan_chest(chest)) {
+				for (OBJ_DATA *chest_content = chest->get_contains(); chest_content; chest_content = chest_content->get_next_content()) {
+					if (!isname(name, chest_content->get_aliases().c_str())) {
+						continue;
+					}
+					send_to_char(ch,
+								"%2d. [%6d] %-25s - наход%sся в хранилище дружины '%s'.\r\n",
+								count++,
+								GET_OBJ_VNUM(chest_content),
+								chest_content->get_short_description().c_str(),
+								GET_OBJ_POLY_1(ch, (chest_content)),
+								ptr_clan->GetAbbrev());
+				}
+			}
+		}
+	}
+
+	return count;
+}
+
 int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name) {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		OBJ_DATA *temp, *chest;

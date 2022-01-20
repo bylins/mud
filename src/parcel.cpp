@@ -828,8 +828,9 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
 					std::string target = GetNameByUnique(it->first);
 					std::string sender = GetNameByUnique(it2->first);
 
-					send_to_char(ch, "O%3d. %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
+					send_to_char(ch, "%2d. [%6d] %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
 								 num++,
+								 GET_OBJ_VNUM(it3->obj_.get()),
 								 it3->obj_->get_short_description().c_str(),
 								 GET_OBJ_POLY_1(ch, it3->obj_),
 								 sender.c_str(),
