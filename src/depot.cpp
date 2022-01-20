@@ -1443,8 +1443,9 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num) {
 			 ++obj_it) {
 			if (isname(arg, (*obj_it)->get_aliases())) {
 				send_to_char(ch,
-							 "O%3d. %-25s - наход%sся в персональном хранилище (%s).\r\n",
+							 "%2d. [%6d] %-25s - наход%sся в персональном хранилище (%s).\r\n",
 							 num++,
+							 GET_OBJ_VNUM((*obj_it).get()),
 							 (*obj_it)->get_short_description().c_str(),
 							 GET_OBJ_POLY_1(ch, (*obj_it)),
 							 it->second.name.c_str());
