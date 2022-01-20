@@ -1,5 +1,5 @@
-#ifndef __SKILLS_INFO__
-#define __SKILLS_INFO__
+#ifndef SKILLS_INFO_
+#define SKILLS_INFO_
 
 #include "skills.h"
 #include "classes/class_constants.h"
@@ -47,4 +47,4 @@ extern AttackMessages fight_messages[kMaxMessages];
 
 const char *skill_name(int num);
 
-#endif //__SKILLS_INFO__
+#endif // SKILLS_INFO_

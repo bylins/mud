@@ -227,7 +227,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	member->add(std::make_shared<Variable>("ROLE", std::make_shared<StringValue>(leader_value)));
 
 	char position[kMaxInputLength];
-	sprinttype(GET_POS(character), position_types, position);
+	sprinttype(static_cast<int>(GET_POS(character)), position_types, position);
 	descriptor()->string_to_client_encoding(position, buffer);
 	member->add(std::make_shared<Variable>("POSITION", std::make_shared<StringValue>(buffer)));
 

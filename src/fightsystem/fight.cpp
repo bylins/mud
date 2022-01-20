@@ -67,13 +67,13 @@ void go_autoassist(CharacterData *ch) {
 	for (k = ch_lider->followers; k; k = k->next) {
 		if (PRF_FLAGGED(k->ch, PRF_AUTOASSIST) &&
 			(IN_ROOM(k->ch) == IN_ROOM(ch)) && !k->ch->get_fighting() &&
-			(GET_POS(k->ch) == kPosStanding) && !CHECK_WAIT(k->ch)) {
+			(GET_POS(k->ch) == EPosition::kStand) && !CHECK_WAIT(k->ch)) {
 			// Здесь проверяем на кастеров
 			if (IS_CASTER(k->ch)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
 				for (d = k->ch->followers; d; d = d->next)
 					if ((IN_ROOM(d->ch) == IN_ROOM(ch)) && !d->ch->get_fighting() &&
-						(GET_POS(d->ch) == kPosStanding) && !CHECK_WAIT(d->ch))
+						(GET_POS(d->ch) == EPosition::kStand) && !CHECK_WAIT(d->ch))
 						do_assist(d->ch, buf2, 0, 0);
 			} else {
 				do_assist(k->ch, buf2, 0, 0);
@@ -88,76 +88,80 @@ void go_autoassist(CharacterData *ch) {
 // Добавил проверку на лаг, чтобы правильно работали Каменное проклятие и
 // Круг пустоты, ибо позицию делают меньше чем поз_станнед.
 void update_pos(CharacterData *victim) {
-	if ((GET_HIT(victim) > 0) && (GET_POS(victim) > kPosStunned))
+	if ((GET_HIT(victim) > 0) && (GET_POS(victim) > EPosition::kStun))
 		GET_POS(victim) = GET_POS(victim);
 	else if (GET_HIT(victim) > 0 && GET_WAIT(victim) <= 0 && !GET_MOB_HOLD(victim))
-		GET_POS(victim) = kPosStanding;
+		GET_POS(victim) = EPosition::kStand;
 	else if (GET_HIT(victim) <= -11)
-		GET_POS(victim) = kPosDead;
+		GET_POS(victim) = EPosition::kDead;
 	else if (GET_HIT(victim) <= -6)
-		GET_POS(victim) = kPosMortallyw;
+		GET_POS(victim) = EPosition::kPerish;
 	else if (GET_HIT(victim) <= -3)
-		GET_POS(victim) = kPosIncap;
-	else if (GET_POS(victim) == kPosIncap && GET_WAIT(victim) > 0)
-		GET_POS(victim) = kPosIncap;
+		GET_POS(victim) = EPosition::kIncap;
+	else if (GET_POS(victim) == EPosition::kIncap && GET_WAIT(victim) > 0)
+		GET_POS(victim) = EPosition::kIncap;
 	else
-		GET_POS(victim) = kPosStunned;
+		GET_POS(victim) = EPosition::kStun;
 
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_SLEEP) && GET_POS(victim) != kPosSleeping)
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_SLEEP) && GET_POS(victim) != EPosition::kSleep)
 		affect_from_char(victim, SPELL_SLEEP);
 
 	// поплохело седоку или лошади - сбрасываем седока
-	if (victim->ahorse() && GET_POS(victim) < kPosFighting)
+	if (victim->ahorse() && GET_POS(victim) < EPosition::kFight)
 		victim->drop_from_horse();
-	if (IS_HORSE(victim) && GET_POS(victim) < kPosFighting && victim->get_master()->ahorse())
+	if (IS_HORSE(victim) && GET_POS(victim) < EPosition::kFight && victim->get_master()->ahorse())
 		victim->drop_from_horse();
 }
 
 void set_battle_pos(CharacterData *ch) {
 	switch (GET_POS(ch)) {
-		case kPosStanding: GET_POS(ch) = kPosFighting;
+		case EPosition::kStand: GET_POS(ch) = EPosition::kFight;
 			break;
-		case kPosResting:
-		case kPosSitting:
-		case kPosSleeping:
+		case EPosition::kRest:
+		case EPosition::kSit:
+		case EPosition::kSleep:
 			if (GET_WAIT(ch) <= 0 &&
 				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 				if (IS_NPC(ch)) {
 					act("$n поднял$u.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-					GET_POS(ch) = kPosFighting;
-				} else if (GET_POS(ch) == kPosSleeping) {
+					GET_POS(ch) = EPosition::kFight;
+				} else if (GET_POS(ch) == EPosition::kSleep) {
 					act("Вы проснулись и сели.", false, ch, 0, 0, TO_CHAR);
 					act("$n проснул$u и сел$g.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-					GET_POS(ch) = kPosSitting;
-				} else if (GET_POS(ch) == kPosResting) {
+					GET_POS(ch) = EPosition::kSit;
+				} else if (GET_POS(ch) == EPosition::kRest) {
 					act("Вы прекратили отдых и сели.", false, ch, 0, 0, TO_CHAR);
 					act("$n прекратил$g отдых и сел$g.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-					GET_POS(ch) = kPosSitting;
+					GET_POS(ch) = EPosition::kSit;
 				}
 			}
+			break;
+		default:
 			break;
 	}
 }
 
 void restore_battle_pos(CharacterData *ch) {
 	switch (GET_POS(ch)) {
-		case kPosFighting: GET_POS(ch) = kPosStanding;
+		case EPosition::kFight: GET_POS(ch) = EPosition::kStand;
 			break;
-		case kPosResting:
-		case kPosSitting:
-		case kPosSleeping:
+		case EPosition::kRest:
+		case EPosition::kSit:
+		case EPosition::kSleep:
 			if (IS_NPC(ch) &&
 				GET_WAIT(ch) <= 0 &&
 				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 				act("$n поднял$u.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				GET_POS(ch) = kPosStanding;
+				GET_POS(ch) = EPosition::kStand;
 			}
+			break;
+		default:
 			break;
 	}
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
-		GET_POS(ch) = kPosSleeping;
+		GET_POS(ch) = EPosition::kSleep;
 }
 
 // start one char fighting another (yes, it is horrible, I know... )
@@ -294,7 +298,7 @@ void stop_fighting(CharacterData *ch, int switch_others) {
 		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
 		if ((ch->get_fighting() == nullptr) && PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
 			PRF_FLAGS(ch).unset(PRF_IRON_WIND);
-			if (GET_POS(ch) > kPosIncap) {
+			if (GET_POS(ch) > EPosition::kIncap) {
 				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.",
 					false,
@@ -1166,7 +1170,7 @@ void summon_mob_helpers(CharacterData *ch) {
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND)
 				|| GET_WAIT(vict) > 0
-				|| GET_POS(vict) < kPosStanding
+				|| GET_POS(vict) < EPosition::kStand
 				|| IN_ROOM(vict) == kNowhere
 				|| vict->get_fighting()) {
 				return;
@@ -1204,7 +1208,7 @@ void check_mob_helpers() {
 		if (GET_MOB_HOLD(ch)
 			|| !IS_NPC(ch)
 			|| GET_WAIT(ch) > 0
-			|| GET_POS(ch) < kPosFighting
+			|| GET_POS(ch) < EPosition::kFight
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
@@ -1229,7 +1233,7 @@ void try_angel_rescue(CharacterData *ch) {
 			&& CAN_SEE(k->ch, ch)
 			&& AWAKE(k->ch)
 			&& MAY_ACT(k->ch)
-			&& GET_POS(k->ch) >= kPosFighting) {
+			&& GET_POS(k->ch) >= EPosition::kFight) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->get_fighting() == ch
 					&& vict != ch
@@ -1248,15 +1252,15 @@ void try_angel_rescue(CharacterData *ch) {
 void stand_up_or_sit(CharacterData *ch) {
 	if (IS_NPC(ch)) {
 		act("$n поднял$u.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		GET_POS(ch) = kPosFighting;
-	} else if (GET_POS(ch) == kPosSleeping) {
+		GET_POS(ch) = EPosition::kFight;
+	} else if (GET_POS(ch) == EPosition::kSleep) {
 		act("Вы проснулись и сели.", true, ch, 0, 0, TO_CHAR);
 		act("$n проснул$u и сел$g.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		GET_POS(ch) = kPosSitting;
-	} else if (GET_POS(ch) == kPosResting) {
+		GET_POS(ch) = EPosition::kSit;
+	} else if (GET_POS(ch) == EPosition::kRest) {
 		act("Вы прекратили отдых и сели.", true, ch, 0, 0, TO_CHAR);
 		act("$n прекратил$g отдых и сел$g.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		GET_POS(ch) = kPosSitting;
+		GET_POS(ch) = EPosition::kSit;
 	}
 }
 
@@ -1404,7 +1408,7 @@ void using_charmice_skills(CharacterData *ch) {
 			master->send_to_TC(true, true, true, msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
-			if (GET_POS(ch) < kPosFighting) return;
+			if (GET_POS(ch) < EPosition::kFight) return;
 		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, ch->get_fighting());
 		} 
 	}   else if (((ch->get_extra_attack_mode() != EXTRA_ATTACK_THROW) || (ch->get_extra_attack_mode() != EXTRA_ATTACK_CHOPOFF))
@@ -1418,7 +1422,7 @@ void using_charmice_skills(CharacterData *ch) {
 			master->send_to_TC(true, true, true, msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
-			if (GET_POS(ch) < kPosFighting) return;
+			if (GET_POS(ch) < EPosition::kFight) return;
 			go_iron_wind(ch, ch->get_fighting());
 		}
 	}
@@ -1582,7 +1586,7 @@ void using_mob_skills(CharacterData *ch) {
 						|| !vict->get_fighting()) {
 						continue;
 					}
-					if ((AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) && GET_POS(vict) < kPosFighting)
+					if ((AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) && GET_POS(vict) < EPosition::kFight)
 						|| (IS_CASTER(vict)
 							&& (AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
 								|| AFF_FLAGGED(vict, EAffectFlag::AFF_SILENCE)
@@ -1609,7 +1613,7 @@ void using_mob_skills(CharacterData *ch) {
 //send_to_char(caster, "Баш предфункция\r\n");
 //sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
 //mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-					if (GET_POS(caster) >= kPosFighting
+					if (GET_POS(caster) >= EPosition::kFight
 						|| CalcCurrentSkill(ch, SKILL_BASH, caster) > number(50, 80)) {
 						sk_use = 0;
 						go_bash(ch, caster);
@@ -1619,7 +1623,7 @@ void using_mob_skills(CharacterData *ch) {
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 
-					if (GET_POS(caster) >= kPosFighting
+					if (GET_POS(caster) >= EPosition::kFight
 						|| CalcCurrentSkill(ch, SKILL_CHOPOFF, caster) > number(50, 80)) {
 						sk_use = 0;
 						go_chopoff(ch, caster);
@@ -1641,7 +1645,7 @@ void using_mob_skills(CharacterData *ch) {
 							sk_use = 0;
 							go_bash(ch, damager->get_horse());
 						}
-					} else if (GET_POS(damager) >= kPosFighting
+					} else if (GET_POS(damager) >= EPosition::kFight
 						|| CalcCurrentSkill(ch, SKILL_BASH, damager) > number(50, 80)) {
 						sk_use = 0;
 						go_bash(ch, damager);
@@ -1650,7 +1654,7 @@ void using_mob_skills(CharacterData *ch) {
 					if (damager->ahorse()) {
 						sk_use = 0;
 						go_chopoff(ch, damager->get_horse());
-					} else if (GET_POS(damager) >= kPosFighting
+					} else if (GET_POS(damager) >= EPosition::kFight
 						|| CalcCurrentSkill(ch, SKILL_CHOPOFF, damager) > number(50, 80)) {
 						sk_use = 0;
 						go_chopoff(ch, damager);
@@ -1788,7 +1792,7 @@ void process_npc_attack(CharacterData *ch) {
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
 	if ((AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL))
 		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !IS_NPC(ch->master)
-		&& AWAKE(ch) && MAY_ACT(ch) && GET_POS(ch) >= kPosFighting) {
+		&& AWAKE(ch) && MAY_ACT(ch) && GET_POS(ch) >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
 			for (const auto vict : world[ch->in_room]->people) {
@@ -1846,8 +1850,8 @@ void process_npc_attack(CharacterData *ch) {
 }
 
 void process_player_attack(CharacterData *ch, int min_init) {
-	if (GET_POS(ch) > kPosStunned
-		&& GET_POS(ch) < kPosFighting
+	if (GET_POS(ch) > EPosition::kStun
+		&& GET_POS(ch) < EPosition::kFight
 		&& GET_AF_BATTLE(ch, EAF_STAND)) {
 		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
@@ -1985,8 +1989,8 @@ bool stuff_before_round(CharacterData *ch) {
 	}
 
 	// Mobs stand up and players sit
-	if (GET_POS(ch) < kPosFighting
-		&& GET_POS(ch) > kPosStunned
+	if (GET_POS(ch) < EPosition::kFight
+		&& GET_POS(ch) > EPosition::kStun
 		&& GET_WAIT(ch) <= 0
 		&& !GET_MOB_HOLD(ch)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {

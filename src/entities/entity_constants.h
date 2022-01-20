@@ -34,15 +34,22 @@ const std::string &NAME_BY_ITEM(ESex item);
  */
 
 // Positions
-const __uint8_t kPosDead = 0;
-const __uint8_t kPosMortallyw = 1;    // mortally wounded  //
-const __uint8_t kPosIncap = 2;
-const __uint8_t kPosStunned = 3;
-const __uint8_t kPosSleeping = 4;
-const __uint8_t kPosResting = 5;
-const __uint8_t kPosSitting = 6;
-const __uint8_t kPosFighting = 7;
-const __uint8_t kPosStanding = 8;
+
+enum class EPosition {
+	kIncorrect = -1, // Это неправильно, но за каким-то псом в классах Hit и Damage есть позиция -1, надо переделывать.
+	kDead = 0,
+	kPerish = 1,	// mortally wounded  //
+	kIncap = 2,
+	kStun = 3,
+	kSleep = 4,
+	kRest = 5,
+	kSit = 6,
+	kFight = 7,
+	kStand = 8,
+	kLast};
+
+int operator-(EPosition p1,  EPosition p2);
+EPosition operator--(const EPosition &p);
 
 // Character equipment positions: used as index for char_data.equipment[] //
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors

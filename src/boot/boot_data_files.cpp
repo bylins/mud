@@ -1177,8 +1177,8 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 			exit(1);
 	}
 
-	mob_proto[i].char_specials.position = t[0];
-	mob_proto[i].mob_specials.default_pos = t[1];
+	mob_proto[i].char_specials.position = static_cast<EPosition>(t[0]);
+	mob_proto[i].mob_specials.default_pos = static_cast<EPosition>(t[1]);
 	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
@@ -1903,16 +1903,14 @@ bool SocialsFile::load_socials() {
 			if (scan && *scan && *scan != ';') {
 				switch (what) {
 					case 0:
-						if (sscanf
-							(scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos,
-							 &v_min_pos, &v_max_pos) < 4) {
+						if (sscanf(scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos, &v_min_pos, &v_max_pos) < 4) {
 							log("SYSERR: format error in %d social file near social '%s' #d #d #d #d\n", message, line);
 							exit(1);
 						}
-						soc_mess_list[message].ch_min_pos = c_min_pos;
-						soc_mess_list[message].ch_max_pos = c_max_pos;
-						soc_mess_list[message].vict_min_pos = v_min_pos;
-						soc_mess_list[message].vict_max_pos = v_max_pos;
+						soc_mess_list[message].ch_min_pos = static_cast<EPosition>(c_min_pos);
+						soc_mess_list[message].ch_max_pos = static_cast<EPosition>(c_max_pos);
+						soc_mess_list[message].vict_min_pos = static_cast<EPosition>(v_min_pos);
+						soc_mess_list[message].vict_max_pos = static_cast<EPosition>(v_max_pos);
 						break;
 					case 1: soc_mess_list[message].char_no_arg = str_dup_bl(scan);
 						break;

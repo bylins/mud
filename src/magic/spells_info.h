@@ -2,12 +2,13 @@
 #define SPELLS_INFO_H_
 
 #include "classes/class_constants.h"
+#include "entities/entity_constants.h"
 #include "structs/structs.h"
 
 extern const char *unused_spellname;
 
 struct spellInfo_t {
-	byte min_position;    // Position for caster   //
+	EPosition min_position;    // Position for caster   //
 	int mana_min;        // Min amount of mana used by a spell (highest lev) //
 	int mana_max;        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change;    // Change in mana used by spell from lev to lev //

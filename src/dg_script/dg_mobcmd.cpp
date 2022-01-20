@@ -38,7 +38,7 @@
 
 struct mob_command_info {
 	const char *command;
-	byte minimum_position;
+	EPosition minimum_position;
 	typedef void(*handler_f)(CharacterData *ch, char *argument, int cmd, int subcmd);
 	handler_f command_pointer;
 	int subcmd;                ///< Subcommand. See SCMD_* constants.
@@ -1359,7 +1359,7 @@ void do_mdamage(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 
 		update_pos(victim);
 		char_dam_message(dam, victim, victim, 0);
-		if (GET_POS(victim) == kPosDead) {
+		if (GET_POS(victim) == EPosition::kDead) {
 			if (!IS_NPC(victim)) {
 				sprintf(buf2,
 						"%s killed by mobdamage at %s [%d]",
@@ -1397,34 +1397,36 @@ void do_mzoneecho(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 
 const struct mob_command_info mob_cmd_info[] =
 	{
-		{"RESERVED", 0, 0, 0, 0},    // this must be first -- for specprocs
-		{"masound", kPosDead, do_masound, -1, false},
-		{"mkill", kPosStanding, do_mkill, -1, false},
-		{"mjunk", kPosSitting, do_mjunk, -1, true},
-		{"mdamage", kPosDead, do_mdamage, -1, false},
-		{"mdoor", kPosDead, do_mdoor, -1, false},
-		{"mecho", kPosDead, do_mecho, -1, false},
-		{"mechoaround", kPosDead, do_mechoaround, -1, false},
-		{"msend", kPosDead, do_msend, -1, false},
-		{"mload", kPosDead, do_mload, -1, false},
-		{"mpurge", kPosDead, do_mpurge, -1, true},
-		{"mgoto", kPosDead, do_mgoto, -1, false},
-		{"mat", kPosDead, do_mat, -1, false},
-		{"mteleport", kPosDead, do_mteleport, -1, false},
-		{"mforce", kPosDead, do_mforce, -1, false},
-		{"mexp", kPosDead, do_mexp, -1, false},
-		{"mgold", kPosDead, do_mgold, -1, false},
-		{"mtransform", kPosDead, do_mtransform, -1, false},
-		{"mfeatturn", kPosDead, do_mfeatturn, -1, false},
-		{"mskillturn", kPosDead, do_mskillturn, -1, false},
-		{"mskilladd", kPosDead, do_mskilladd, -1, false},
-		{"mspellturn", kPosDead, do_mspellturn, -1, false},
-		{"mspellturntemp", kPosDead, do_mspellturntemp, -1, false},
-		{"mspelladd", kPosDead, do_mspelladd, -1, false},
-		{"mspellitem", kPosDead, do_mspellitem, -1, false},
-		{"mportal", kPosDead, do_mportal, -1, false},
-		{"mzoneecho", kPosDead, do_mzoneecho, -1, false},
-		{"\n", 0, 0, 0, 0}        // this must be last
+		// this must be first -- for specprocs
+		{"RESERVED", EPosition::kDead, nullptr, 0, false},
+		{"masound", EPosition::kDead, do_masound, -1, false},
+		{"mkill", EPosition::kStand, do_mkill, -1, false},
+		{"mjunk", EPosition::kSit, do_mjunk, -1, true},
+		{"mdamage", EPosition::kDead, do_mdamage, -1, false},
+		{"mdoor", EPosition::kDead, do_mdoor, -1, false},
+		{"mecho", EPosition::kDead, do_mecho, -1, false},
+		{"mechoaround", EPosition::kDead, do_mechoaround, -1, false},
+		{"msend", EPosition::kDead, do_msend, -1, false},
+		{"mload", EPosition::kDead, do_mload, -1, false},
+		{"mpurge", EPosition::kDead, do_mpurge, -1, true},
+		{"mgoto", EPosition::kDead, do_mgoto, -1, false},
+		{"mat", EPosition::kDead, do_mat, -1, false},
+		{"mteleport", EPosition::kDead, do_mteleport, -1, false},
+		{"mforce", EPosition::kDead, do_mforce, -1, false},
+		{"mexp", EPosition::kDead, do_mexp, -1, false},
+		{"mgold", EPosition::kDead, do_mgold, -1, false},
+		{"mtransform", EPosition::kDead, do_mtransform, -1, false},
+		{"mfeatturn", EPosition::kDead, do_mfeatturn, -1, false},
+		{"mskillturn", EPosition::kDead, do_mskillturn, -1, false},
+		{"mskilladd", EPosition::kDead, do_mskilladd, -1, false},
+		{"mspellturn", EPosition::kDead, do_mspellturn, -1, false},
+		{"mspellturntemp", EPosition::kDead, do_mspellturntemp, -1, false},
+		{"mspelladd", EPosition::kDead, do_mspelladd, -1, false},
+		{"mspellitem", EPosition::kDead, do_mspellitem, -1, false},
+		{"mportal", EPosition::kDead, do_mportal, -1, false},
+		{"mzoneecho", EPosition::kDead, do_mzoneecho, -1, false},
+		{"\n", EPosition::kDead, nullptr, 0, false}
+		// this must be last
 	};
 
 bool mob_script_command_interpreter(CharacterData *ch, char *argument) {

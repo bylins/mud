@@ -557,7 +557,7 @@ void spell_summon(int/* level*/, CharacterData *ch, CharacterData *victim, Objec
 	if (!IS_NPC(ch) && IS_NPC(victim)) {
 		if (victim->get_master() != ch  //поправим это, тут и так понято что чармис (Кудояр)
 			|| victim->get_fighting()
-			|| GET_POS(victim) < kPosResting) {
+			|| GET_POS(victim) < EPosition::kRest) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -639,7 +639,7 @@ void spell_summon(int/* level*/, CharacterData *ch, CharacterData *victim, Objec
 	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 	act("$n призвал$g вас!", false, ch, nullptr, victim, TO_VICT);
 	check_auto_nosummon(victim);
-	GET_POS(victim) = kPosStanding;
+	GET_POS(victim) = EPosition::kStand;
 	look_at_room(victim, 0);
 	// призываем чармисов
 	for (k = victim->followers; k; k = k_next) {
@@ -952,7 +952,7 @@ void spell_charm(int/* level*/, CharacterData *ch, CharacterData *victim, Object
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (victim->get_fighting() || GET_POS(victim) < kPosResting)
+	else if (victim->get_fighting() || GET_POS(victim) < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, TO_CHAR);
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
@@ -2312,8 +2312,8 @@ void spell_angel(int/* level*/, CharacterData *ch, CharacterData * /*victim*/, O
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 
-	GET_POS(mob) = kPosStanding;
-	GET_DEFAULT_POS(mob) = kPosStanding;
+	GET_POS(mob) = EPosition::kStand;
+	GET_DEFAULT_POS(mob) = EPosition::kStand;
 
 	mob->set_skill(SKILL_RESCUE, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));
 	mob->set_skill(SKILL_AWAKE, floorf(base_awake + additional_awake_for_charisma * eff_cha));

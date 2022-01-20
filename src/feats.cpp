@@ -741,7 +741,7 @@ bool can_use_feat(const CharacterData *ch, int feat) {
 		case SKIRMISHER_FEAT:
 			return !(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
-				|| GET_POS(ch) < kPosFighting);
+				|| GET_POS(ch) < EPosition::kFight);
 			break;
 		default: return true;
 			break;

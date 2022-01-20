@@ -13,7 +13,7 @@ void go_iron_wind(CharacterData *ch, CharacterData *victim) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (GET_POS(ch) < kPosFighting) {
+	if (GET_POS(ch) < EPosition::kFight) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}

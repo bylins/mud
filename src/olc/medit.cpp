@@ -605,11 +605,10 @@ void medit_save_to_disk(int zone_num) {
 			fprintf(mob_file,
 					"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 					buf2, GET_ALIGNMENT(mob),
-					GET_REAL_LEVEL(mob), 20 - GET_HR(mob), GET_AC(mob) / 10,
-					GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob), GET_HIT(mob),
-					GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
-					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob),
-					GET_POS(mob), GET_DEFAULT_POS(mob), static_cast<int>(GET_SEX(mob)));
+					GET_REAL_LEVEL(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, GET_MEM_TOTAL(mob),
+					GET_MEM_COMPLETED(mob), GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
+					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(GET_POS(mob)),
+					static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
 
 			// * Deal with Extra stats in case they are there.
 			sum = 0;
@@ -2107,12 +2106,14 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_GOLD_SIZE: GET_GOLD_SiDs(OLC_MOB(d)) = MAX(0, atoi(arg));
 			break;
 
-		case MEDIT_POS: GET_POS(OLC_MOB(d)) = MAX(0, MIN(NUM_POSITIONS - 1, atoi(arg)));
+		case MEDIT_POS:
+			GET_POS(OLC_MOB(d)) =
+				std::clamp(static_cast<EPosition>(atoi(arg)), EPosition::kDead, --EPosition::kLast);
 			break;
-
-		case MEDIT_DEFAULT_POS: GET_DEFAULT_POS(OLC_MOB(d)) = MAX(0, MIN(NUM_POSITIONS - 1, atoi(arg)));
+		case MEDIT_DEFAULT_POS:
+			GET_DEFAULT_POS(OLC_MOB(d)) =
+				std::clamp(static_cast<EPosition>(atoi(arg)), EPosition::kDead, --EPosition::kLast);
 			break;
-
 		case MEDIT_ATTACK: GET_ATTACK(OLC_MOB(d)) = MAX(0, MIN(NUM_ATTACK_TYPES - 1, atoi(arg)));
 			break;
 

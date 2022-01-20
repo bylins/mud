@@ -136,9 +136,9 @@ void do_quit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd != SCMD_QUIT)
 		send_to_char("Вам стоит набрать эту команду полностью во избежание недоразумений!\r\n", ch);
-	else if (GET_POS(ch) == kPosFighting)
+	else if (GET_POS(ch) == EPosition::kFight)
 		send_to_char("Угу! Щаз-з-з! Вы, батенька, деретесь!\r\n", ch);
-	else if (GET_POS(ch) < kPosStunned) {
+	else if (GET_POS(ch) < EPosition::kStun) {
 		send_to_char("Вас пригласила к себе владелица косы...\r\n", ch);
 		die(ch, nullptr);
 	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {
@@ -493,7 +493,7 @@ void go_steal(CharacterData *ch, CharacterData *vict, char *obj_name) {
 	// 101% is a complete failure
 	percent = number(1, skill_info[SKILL_STEAL].difficulty);
 
-	if (WAITLESS(ch) || (GET_POS(vict) <= kPosSleeping && !AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP)))
+	if (WAITLESS(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
 
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
@@ -1213,7 +1213,7 @@ void do_group(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_POS(ch) < kPosResting) {
+	if (GET_POS(ch) < EPosition::kRest) {
 		send_to_char("Трудно управлять группой в таком состоянии.\r\n", ch);
 		return;
 	}

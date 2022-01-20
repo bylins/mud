@@ -16,7 +16,7 @@ namespace cmd {
 extern const char *CRAFT_COMMAND;
 
 /// Minimal position for base crafts command
-constexpr int MINIMAL_POSITION = kPosSitting;
+constexpr EPosition MINIMAL_POSITION = EPosition::kSit;
 
 // Minimal level for base crafts command
 constexpr int MINIMAL_LEVEL = 0;

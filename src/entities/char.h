@@ -139,7 +139,8 @@ struct char_special_data_saved {
 
 // Special playing constants shared by PCs and NPCs which aren't in pfile
 struct char_special_data {
-	byte position;        // Standing, fighting, sleeping, etc.
+	//byte position;        // Standing, fighting, sleeping, etc.
+	EPosition position;        // Standing, fighting, sleeping, etc.
 
 	int carry_weight;        // Carried weight
 	int carry_items;        // Number of items carried
@@ -153,7 +154,7 @@ struct char_special_data {
 struct mob_special_data {
 	byte last_direction;    // The last direction the monster went
 	int attack_type;        // The Attack Type Bitvector for NPC's
-	byte default_pos;    // Default position for NPC
+	EPosition default_pos;    // Default position for NPC
 	MemoryRecord *memory;    // List of attackers to remember
 	byte damnodice;        // The number of damage dice's
 	byte damsizedice;    // The size of the damage dice's

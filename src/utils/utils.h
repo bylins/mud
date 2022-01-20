@@ -635,8 +635,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
-#define GET_REAL_SAVING_STABILITY(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)    + (ch->ahorse() ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)        (dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)        + (ch->ahorse() ? -20 : 0))
+#define GET_REAL_SAVING_STABILITY(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)    + ((ch)->ahorse() ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)        (dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)        + ((ch)->ahorse() ? -20 : 0))
 #define GET_REAL_SAVING_CRITICAL(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_CRITICAL))
 #define GET_REAL_SAVING_WILL(ch)        (dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, SAVING_WILL))
 

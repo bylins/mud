@@ -16,8 +16,9 @@
 #define _INTERPRETER_H_
 
 #include "conf.h"
-#include "structs/structs.h"
+//#include "structs/structs.h"
 #include "structs/descriptor_data.h"
+#include "entities/entity_constants.h"
 
 #include <string>
 
@@ -73,7 +74,7 @@ extern const int class_religion[];
 
 struct command_info {
 	const char *command;
-	byte minimum_position;
+	EPosition minimum_position;
 	void (*command_pointer)(CharacterData *ch, char *argument, int cmd, int subcmd);
 	sh_int minimum_level;
 	int subcmd;                ///< Subcommand. See SCMD_* constants.

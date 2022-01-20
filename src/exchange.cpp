@@ -1271,7 +1271,7 @@ void message_exchange(char *message, CharacterData *ch, ExchangeItem *j) {
 			&& !PRF_FLAGGED(i->character, PRF_NOEXCHANGE)
 			&& !PLR_FLAGGED(i->character, PLR_WRITING)
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF)
-			&& GET_POS(i->character) > kPosSleeping) {
+			&& GET_POS(i->character) > EPosition::kSleep) {
 			if (!PRF_FLAGGED(i->character, PRF_NOINGR_MODE)
 				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjectData::ITEM_INGREDIENT
 					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ObjectData::ITEM_MING)) {

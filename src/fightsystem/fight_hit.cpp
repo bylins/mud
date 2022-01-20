@@ -157,15 +157,15 @@ void HitData::compute_critical(CharacterData *ch, CharacterData *victim) {
 				case 4:    // Hit genus, victim bashed, speed/2
 					SET_AF_BATTLE(victim, EAF_SLOW);
 					dam *= (ch->get_skill(SKILL_PUNCTUAL) / 10);
-					if (GET_POS(victim) > kPosSitting)
-						GET_POS(victim) = kPosSitting;
+					if (GET_POS(victim) > EPosition::kSit)
+						GET_POS(victim) = EPosition::kSit;
 					WAIT_STATE(victim, 2 * kPulseViolence);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
 					break;
 				case 5:    // victim bashed
-					if (GET_POS(victim) > kPosSitting)
-						GET_POS(victim) = kPosSitting;
+					if (GET_POS(victim) > EPosition::kSit)
+						GET_POS(victim) = EPosition::kSit;
 					WAIT_STATE(victim, 2 * kPulseViolence);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
@@ -336,8 +336,8 @@ void HitData::compute_critical(CharacterData *ch, CharacterData *victim) {
 					return;
 				case 4:    // waits 1d4, bashed
 					WAIT_STATE(victim, number(2, 5) * kPulseViolence);
-					if (GET_POS(victim) > kPosSitting)
-						GET_POS(victim) = kPosSitting;
+					if (GET_POS(victim) > EPosition::kSit)
+						GET_POS(victim) = EPosition::kSit;
 					to_char = "повредило $N2 грудь, свалив $S с ног";
 					to_vict = "повредило вам грудь, свалив вас с ног";
 					break;
@@ -816,8 +816,8 @@ void might_hit_bash(CharacterData *ch, CharacterData *victim) {
 	act("$n обреченно повалил$u на землю.", true, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	WAIT_STATE(victim, 3 * kPulseViolence);
 
-	if (GET_POS(victim) > kPosSitting) {
-		GET_POS(victim) = kPosSitting;
+	if (GET_POS(victim) > EPosition::kSit) {
+		GET_POS(victim) = EPosition::kSit;
 		send_to_char(victim, "&R&qБогатырский удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 	}
 }
@@ -840,7 +840,7 @@ void try_remove_extrahits(CharacterData *ch, CharacterData *victim) {
 			&& !IS_NPC(ch->get_master())
 			&& ch->get_master() != victim))
 		&& !IS_NPC(victim)
-		&& GET_POS(victim) != kPosDead
+		&& GET_POS(victim) != EPosition::kDead
 		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
 		&& number(1, 100) == 5)// пусть будет 5, а то 1 по субъективным ощущениям выпадает как-то часто
 	{
@@ -871,7 +871,7 @@ void addshot_damage(CharacterData *ch, ESkill type, FightSystem::AttType weapon)
 		remort_mod = 1;
 	}
 	// на жопе процентовка снижается на 70% от текущего максимума каждого допа
-	float sit_mod = (GET_POS(ch) >= kPosFighting) ? 1 : 0.7;
+	float sit_mod = (GET_POS(ch) >= EPosition::kFight) ? 1 : 0.7;
 
 	// у чармисов никаких плюшек от 100+ скилла и максимум 2 доп атаки
 	if (IS_CHARMICE(ch)) {
@@ -1374,7 +1374,7 @@ void hit_touching(CharacterData *ch, CharacterData *vict, int *dam) {
 		&& !GET_MOB_HOLD(vict)
 		&& (IS_IMMORTAL(vict) || IS_NPC(vict)
 			|| !(GET_EQ(vict, WEAR_WIELD) || GET_EQ(vict, WEAR_BOTHS)))
-		&& GET_POS(vict) > kPosSleeping) {
+		&& GET_POS(vict) > EPosition::kSleep) {
 		int percent = number(1, skill_info[SKILL_TOUCH].difficulty);
 		int prob = CalcCurrentSkill(vict, SKILL_TOUCH, ch);
 		TrainSkill(vict, SKILL_TOUCH, prob >= percent, ch);
@@ -1854,7 +1854,7 @@ bool Damage::magic_shields_dam(CharacterData *ch, CharacterData *victim) {
 		const int mg_damage = dam * pct / 100;
 		if (mg_damage > 0
 			&& victim->get_fighting()
-			&& GET_POS(victim) > kPosStunned
+			&& GET_POS(victim) > EPosition::kStun
 			&& IN_ROOM(victim) != kNowhere) {
 			flags.set(FightSystem::DRAW_BRIEF_MAG_MIRROR);
 			Damage dmg(SpellDmg(SPELL_MAGICGLASS), mg_damage, FightSystem::UNDEF_DMG);
@@ -2210,7 +2210,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 		return 0;
 	}
 
-	if (GET_POS(victim) <= kPosDead) {
+	if (GET_POS(victim) <= EPosition::kDead) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
 			GET_NAME(victim), GET_ROOM_VNUM(IN_ROOM(victim)), GET_NAME(ch));
 		die(victim, nullptr);
@@ -2250,14 +2250,14 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 
 	if (victim != ch)    // Start the attacker fighting the victim
 	{
-		if (GET_POS(ch) > kPosStunned && (ch->get_fighting() == nullptr)) {
+		if (GET_POS(ch) > EPosition::kStun && (ch->get_fighting() == nullptr)) {
 			if (!pk_agro_action(ch, victim))
 				return (0);
 			set_fighting(ch, victim);
 			npc_groupbattle(ch);
 		}
 		// Start the victim fighting the attacker
-		if (GET_POS(victim) > kPosDead && (victim->get_fighting() == nullptr)) {
+		if (GET_POS(victim) > EPosition::kDead && (victim->get_fighting() == nullptr)) {
 			set_fighting(victim, ch);
 			npc_groupbattle(victim);
 		}
@@ -2279,7 +2279,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	}
 
 	// нельзя драться в состоянии нестояния
-	if (GET_POS(ch) <= kPosIncap) {
+	if (GET_POS(ch) <= EPosition::kIncap) {
 		return 0;
 	}
 
@@ -2328,19 +2328,19 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	// values of the POSITION_XXX constants.
 
 	// физ дамага атакера из сидячего положения
-	if (ch_start_pos < kPosFighting
+	if (ch_start_pos < EPosition::kFight
 		&& dmg_type == FightSystem::PHYS_DMG) {
-		dam -= dam * (kPosFighting - ch_start_pos) / 4;
+		dam -= dam * (EPosition::kFight - ch_start_pos) / 4;
 	}
 
 	// дамаг не увеличивается если:
 	// на жертве есть воздушный щит
 	// атака - каст моба (в mage_damage увеличение дамага от позиции было только у колдунов)
-	if (victim_start_pos < kPosFighting
+	if (victim_start_pos < EPosition::kFight
 		&& !flags[FightSystem::VICTIM_AIR_SHIELD]
 		&& !(dmg_type == FightSystem::MAGE_DMG
 			&& IS_NPC(ch))) {
-		dam += dam * (kPosFighting - victim_start_pos) / 4;
+		dam += dam * (EPosition::kFight - victim_start_pos) / 4;
 	}
 
 	// прочие множители
@@ -2506,7 +2506,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	}
 	// если у чара есть жатва жизни
 	if (can_use_feat(victim, HARVESTLIFE_FEAT)) {
-		if (GET_POS(victim) == kPosDead) {
+		if (GET_POS(victim) == EPosition::kDead) {
 			int souls = victim->get_souls();
 			if (souls >= 10) {
 				GET_HIT(victim) = 0 + souls * 10;
@@ -2562,7 +2562,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 		SendSkillMessages(dam, ch, victim, msg_num, brief_shields_);
 	} else {
 		// простой удар рукой/оружием
-		if (GET_POS(victim) == kPosDead || dam == 0) {
+		if (GET_POS(victim) == EPosition::kDead || dam == 0) {
 			if (!SendSkillMessages(dam, ch, victim, msg_num, brief_shields_)) {
 				dam_message(ch, victim);
 			}
@@ -2586,15 +2586,15 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	}
 
 	// Stop someone from fighting if they're stunned or worse
-	/*if ((GET_POS(victim) <= kPosStunned)
+	/*if ((GET_POS(victim) <= EPosition::kStun)
 		&& (victim->get_fighting() != NULL))
 	{
-		stop_fighting(victim, GET_POS(victim) <= kPosDead);
+		stop_fighting(victim, GET_POS(victim) <= EPosition::kDead);
 	} */
 
 
 	// жертва умирает //
-	if (GET_POS(victim) == kPosDead) {
+	if (GET_POS(victim) == EPosition::kDead) {
 		process_death(ch, victim);
 		return -1;
 	}
@@ -2602,7 +2602,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	// обратка от огненного щита
 	if (fs_damage > 0
 		&& victim->get_fighting()
-		&& GET_POS(victim) > kPosStunned
+		&& GET_POS(victim) > EPosition::kStun
 		&& IN_ROOM(victim) != kNowhere) {
 		Damage dmg(SpellDmg(SPELL_FIRE_SHIELD), fs_damage, FightSystem::UNDEF_DMG);
 		dmg.flags.set(FightSystem::NO_FLEE_DMG);
@@ -2758,8 +2758,8 @@ void HitData::try_stupor_dam(CharacterData *ch, CharacterData *victim) {
 		}
 		dam *= MAX(3, number(1, k));
 		WAIT_STATE(victim, 3 * kPulseViolence);
-		if (GET_POS(victim) > kPosSitting && !MOB_FLAGGED(victim, MOB_NOBASH)) {
-			GET_POS(victim) = kPosSitting;
+		if (GET_POS(victim) > EPosition::kSit && !MOB_FLAGGED(victim, MOB_NOBASH)) {
+			GET_POS(victim) = EPosition::kSit;
 			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 		} else {
@@ -3207,9 +3207,9 @@ void HitData::calc_ac(CharacterData *victim) {
 		}
 	}
 
-	if (GET_POS(victim) < kPosFighting)
+	if (GET_POS(victim) < EPosition::kFight)
 		victim_ac += 4;
-	if (GET_POS(victim) < kPosResting)
+	if (GET_POS(victim) < EPosition::kRest)
 		victim_ac += 3;
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD))
 		victim_ac += 4;
@@ -3266,7 +3266,7 @@ void HitData::check_defense_skills(CharacterData *ch, CharacterData *victim) {
 		hit_multyparry(ch, victim, weap_skill, hit_type, &dam);
 	} else if (dam > 0
 		&& !hit_no_parry
-		&& ((GET_AF_BATTLE(victim, EAF_BLOCK) || can_auto_block(victim)) && GET_POS(victim) > kPosSitting)
+		&& ((GET_AF_BATTLE(victim, EAF_BLOCK) || can_auto_block(victim)) && GET_POS(victim) > EPosition::kSit)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT)

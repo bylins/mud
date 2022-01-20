@@ -132,7 +132,7 @@ void do_hit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 		return;
 	}
-	if ((GET_POS(ch) == kPosStanding) && (vict != ch->get_fighting())) {
+	if ((GET_POS(ch) == EPosition::kStand) && (vict != ch->get_fighting())) {
 		set_hit(ch, vict);
 	} else {
 		send_to_char("Вам явно не до боя!\r\n", ch);

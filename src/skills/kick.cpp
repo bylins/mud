@@ -107,8 +107,8 @@ void go_kick(CharacterData *ch, CharacterData *vict) {
 						break;
 					case 4:
 					case 5:WAIT_STATE(vict, number(2, 5) * kPulseViolence);
-						if (GET_POS(vict) > kPosSitting) {
-							GET_POS(vict) = kPosSitting;
+						if (GET_POS(vict) > EPosition::kSit) {
+							GET_POS(vict) = EPosition::kSit;
 						}
 						to_char = "Ваш мощный пинок выбил пару зубов $N2, усадив $S на землю!";
 						to_vict = "Мощный удар ноги $n1 попал точно в голову, свалив вас с ног.";

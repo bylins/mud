@@ -27,7 +27,7 @@ void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (GET_POS(ch) < kPosFighting) {
+	if (GET_POS(ch) < EPosition::kFight) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}

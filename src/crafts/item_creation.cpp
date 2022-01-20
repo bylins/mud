@@ -1855,7 +1855,7 @@ int MakeRecept::make(CharacterData *ch) {
 			GET_HIT(ch) -= dam;
 			update_pos(ch);
 			char_dam_message(dam, ch, ch, 0);
-			if (GET_POS(ch) == kPosDead) {
+			if (GET_POS(ch) == EPosition::kDead) {
 				// Убился веником.
 				if (!IS_NPC(ch)) {
 					sprintf(tmpbuf, "%s killed by a crafting at %s",

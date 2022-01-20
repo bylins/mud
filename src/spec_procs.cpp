@@ -2273,7 +2273,7 @@ int npc_steal(CharacterData *ch) {
 	if (!NPC_FLAGGED(ch, NPC_STEALING))
 		return (false);
 
-	if (GET_POS(ch) != kPosStanding || IS_SHOPKEEPER(ch) || ch->get_fighting())
+	if (GET_POS(ch) != EPosition::kStand || IS_SHOPKEEPER(ch) || ch->get_fighting())
 		return (false);
 
 	for (const auto cons : world[ch->in_room]->people) {
@@ -2313,7 +2313,7 @@ void npc_group(CharacterData *ch) {
 
 	if (leader
 		&& (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM)
-			|| GET_POS(leader) < kPosSleeping)) {
+			|| GET_POS(leader) < EPosition::kSleep)) {
 		leader = nullptr;
 	}
 
@@ -2331,7 +2331,7 @@ void npc_group(CharacterData *ch) {
 			|| group != GROUP(vict)
 			|| MOB_FLAGGED(vict, MOB_NOGROUP)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| GET_POS(vict) < kPosSleeping) {
+			|| GET_POS(vict) < EPosition::kSleep) {
 			continue;
 		}
 
@@ -2362,7 +2362,7 @@ void npc_group(CharacterData *ch) {
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| GET_POS(vict) < kPosSleeping) {
+			|| GET_POS(vict) < EPosition::kSleep) {
 			continue;
 		}
 
@@ -2401,8 +2401,8 @@ void npc_groupbattle(CharacterData *ch) {
 		if (ch->in_room == IN_ROOM(helper)
 			&& !helper->get_fighting()
 			&& !IS_NPC(helper)
-			&& GET_POS(helper) > kPosStunned) {
-			GET_POS(helper) = kPosStanding;
+			&& GET_POS(helper) > EPosition::kStun) {
+			GET_POS(helper) = EPosition::kStand;
 			set_fighting(helper, ch->get_fighting());
 			act("$n вступил$u за $N3.", false, helper, 0, ch, TO_ROOM);
 		}
@@ -2465,7 +2465,7 @@ path = close_path;
 index = 0;
 }
 }
-if (cmd || !move || (GET_POS(ch) < kPosSleeping) || (GET_POS(ch) == kPosFighting))
+if (cmd || !move || (GET_POS(ch) < EPosition::kSleep) || (GET_POS(ch) == EPosition::kFight))
 return (false);
 
 switch (path[index])
@@ -2478,12 +2478,12 @@ perform_move(ch, path[index] - '0', 1, false);
 break;
 
 case 'W':
-GET_POS(ch) = kPosStanding;
+GET_POS(ch) = EPosition::kStand;
 act("$n awakens and groans loudly.", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'S':
-GET_POS(ch) = kPosSleeping;
+GET_POS(ch) = EPosition::kSleep;
 act("$n lies down and instantly falls asleep.", false, ch, 0, 0, TO_ROOM);
 break;
 
@@ -2543,7 +2543,7 @@ return (false);
 	if (cmd)
 		return (false);
 
-	if (GET_POS(ch) != kPosStanding)
+	if (GET_POS(ch) != EPosition::kStand)
 		return (false);
 
 	for (const auto cons : world[ch->in_room]->people)
@@ -2562,7 +2562,7 @@ return (false);
 }
 */
 int magic_user(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	if (cmd || GET_POS(ch) != kPosFighting) {
+	if (cmd || GET_POS(ch) != EPosition::kFight) {
 		return (false);
 	}
 

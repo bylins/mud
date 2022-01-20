@@ -11,9 +11,9 @@
 #include "structs/structs.h"
 
 struct HitData {
-	HitData() : weapon(FightSystem::MAIN_HAND), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
+	HitData() : weapon(FightSystem::MAIN_HAND), wielded(nullptr), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
 				weap_skill_is(0), skill_num(SKILL_UNDEF), hit_type(0), hit_no_parry(false),
-				ch_start_pos(-1), victim_start_pos(-1), victim_ac(0), calc_thaco(0),
+				ch_start_pos(EPosition::kIncorrect), victim_start_pos(EPosition::kIncorrect), victim_ac(0), calc_thaco(0),
 				dam(0), dam_critic(0) {
 		diceroll = number(100, 2099) / 100;
 	};
@@ -61,9 +61,9 @@ struct HitData {
 	// true - удар не парируется/не блочится/не веерится и т.п.
 	bool hit_no_parry;
 	// позиция атакующего на начало атаки
-	int ch_start_pos;
+	EPosition ch_start_pos;
 	// позиция жертвы на начало атаки
-	int victim_start_pos;
+	EPosition victim_start_pos;
 
 	// высчитывается по мере сил
 	// ац жертвы для расчета попадания

@@ -188,8 +188,8 @@ void CharacterData::reset() {
 	BattleAffects = clear_flags;
 	Poisoner = 0;
 	set_fighting(0);
-	char_specials.position = kPosStanding;
-	mob_specials.default_pos = kPosStanding;
+	char_specials.position = EPosition::kStand;
+	mob_specials.default_pos = EPosition::kStand;
 	char_specials.carry_weight = 0;
 	char_specials.carry_items = 0;
 
@@ -379,8 +379,8 @@ void CharacterData::zero_init() {
 	memset(&MemQueue, 0, sizeof(spell_mem_queue));
 	memset(&Temporary, 0, sizeof(FlagData));
 	memset(&BattleAffects, 0, sizeof(FlagData));
-	char_specials.position = kPosStanding;
-	mob_specials.default_pos = kPosStanding;
+	char_specials.position = EPosition::kStand;
+	mob_specials.default_pos = EPosition::kStand;
 	souls = 0;
 }
 
@@ -826,11 +826,11 @@ bool MAY_ATTACK(const CharacterData *sub) {
 		&& !MOB_FLAGGED((sub), MOB_NOFIGHT)
 		&& GET_WAIT(sub) <= 0
 		&& !sub->get_fighting()
-		&& GET_POS(sub) >= kPosResting);
+		&& GET_POS(sub) >= EPosition::kRest);
 }
 
 bool AWAKE(const CharacterData *ch) {
-	return GET_POS(ch) > kPosSleeping
+	return GET_POS(ch) > EPosition::kSleep
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP);
 }
 
@@ -2130,8 +2130,8 @@ bool CharacterData::drop_from_horse() {
 	act(buf, false, plr, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	AFF_FLAGS(plr).unset(EAffectFlag::AFF_HORSE);
 	WAIT_STATE(this, 3 * kPulseViolence);
-	if (GET_POS(plr) > kPosSitting)
-		GET_POS(plr) = kPosSitting;
+	if (GET_POS(plr) > EPosition::kSit)
+		GET_POS(plr) = EPosition::kSit;
 	return true;
 };
 

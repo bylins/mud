@@ -38,7 +38,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				if (technique.rival()->ahorse()) { //если на лошади - падение с лагом 3
 					technique.rival()->drop_from_horse();
 				} else { // иначе просто садится на попу с лагом 2
-					GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), kPosSitting);
+					GET_POS(technique.rival()) = std::min(GET_POS(technique.rival()), EPosition::kSit);
 					set_wait(technique.rival(), 2, false);
 				}
 			});
@@ -124,7 +124,7 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 	}
 
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
-	short victimsAmount = 1 + PRF_FLAGGED(ch, PRF_DOUBLE_THROW) + 2 * PRF_FLAGGED(ch, PRF_TRIPLE_THROW);
+	int victimsAmount = 1 + PRF_FLAGGED(ch, PRF_DOUBLE_THROW) + 2 * PRF_FLAGGED(ch, PRF_TRIPLE_THROW);
 
 	int techniqueID = THROW_WEAPON_FEAT;
 	DmgType throwDamageKind = PHYS_DMG;

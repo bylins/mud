@@ -25,7 +25,7 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 	if (ch->isHorsePrevents())
 		return;
 
-	if ((GET_POS(vict) < kPosFighting)) {
+	if ((GET_POS(vict) < EPosition::kFight)) {
 		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF)) {
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			ch->setSkillCooldown(SKILL_CHOPOFF, kPulseViolence / 6);
@@ -50,7 +50,7 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
 		GET_GOD_FLAG(vict, GF_GODSLIKE) ||
-		vict->ahorse() || GET_POS(vict) < kPosFighting || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
+		vict->ahorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -61,7 +61,7 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 		act(buf, false, ch, 0, vict, TO_CHAR);
 		act("$n попытал$u подсечь вас, но упал$g сам$g.", false, ch, 0, vict, TO_VICT);
 		act("$n попытал$u подсечь $N3, но упал$g сам$g.", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-		GET_POS(ch) = kPosSitting;
+		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
 		if (can_use_feat(ch, EVASION_FEAT)) {
 			Affect<EApplyLocation> af;
@@ -94,7 +94,7 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 		set_wait(vict, 3, false);
 
 		if (ch->isInSameRoom(vict)) {
-			GET_POS(vict) = kPosSitting;
+			GET_POS(vict) = EPosition::kSit;
 		}
 
 		if (IS_HORSE(vict) && vict->get_master()->ahorse()) {

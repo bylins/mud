@@ -186,7 +186,7 @@ void weap_crit_poison(CharacterData *ch, CharacterData *vict, int/* spell_num*/)
 		switch (number(1, 5)) {
 			case 1:
 				// аналог баша с лагом
-				if (GET_POS(vict) >= kPosFighting) {
+				if (GET_POS(vict) >= EPosition::kFight) {
 					if (vict->ahorse()) {
 						send_to_char(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 									 CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
@@ -199,7 +199,7 @@ void weap_crit_poison(CharacterData *ch, CharacterData *vict, int/* spell_num*/)
 									 CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 						send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 						act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
-						GET_POS(vict) = kPosSitting;
+						GET_POS(vict) = EPosition::kSit;
 						WAIT_STATE(vict, 3 * kPulseViolence);
 					}
 					break;

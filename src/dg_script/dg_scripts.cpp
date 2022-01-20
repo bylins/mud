@@ -2631,15 +2631,17 @@ void find_replacement(void *go,
 				strcpy(str, "");
 			}
 		} else if (!str_cmp(field, "position")) {
-			int pos;
-
-			if (!*subfield || (pos = atoi(subfield)) <= kPosDead)
+			if (!*subfield) {
 				sprintf(str, "%d", GET_POS(c));
-			else if (!WAITLESS(c)) {
-				if (c->ahorse()) {
-					c->dismount();
+			} else {
+				auto pos =
+					std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
+				if (!WAITLESS(c)) {
+					if (c->ahorse()) {
+						c->dismount();
+					}
+					GET_POS(c) = pos;
 				}
-				GET_POS(c) = pos;
 			}
 		} else if (!str_cmp(field, "wait") || !str_cmp(field, "lag")) {
 			int pos;

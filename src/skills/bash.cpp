@@ -34,7 +34,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 		return;
 	}
 
-	if (GET_POS(ch) < kPosFighting) {
+	if (GET_POS(ch) < EPosition::kFight) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -57,11 +57,11 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 	if (!success) {
 		Damage dmg(SkillDmg(SKILL_BASH), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
-		GET_POS(ch) = kPosSitting;
+		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
 	} else {
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
-		if (GET_POS(vict) <= kPosStunned && GET_WAIT(vict) > 0) {
+		if (GET_POS(vict) <= EPosition::kStun && GET_WAIT(vict) > 0) {
 			send_to_char("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
 			ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, kPulseViolence);
 			return;
@@ -77,7 +77,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 				&& PRF_FLAGGED(vict, PRF_AWAKE)
 				&& vict->get_skill(SKILL_AWAKE)
 				&& vict->get_skill(SKILL_BLOCK)
-				&& GET_POS(vict) > kPosSitting))
+				&& GET_POS(vict) > EPosition::kSit))
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
@@ -124,7 +124,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD))) {
 			prob = 2;
 			if (!vict->drop_from_horse()) {
-				GET_POS(vict) = kPosSitting;
+				GET_POS(vict) = EPosition::kSit;
 				set_wait(vict, 3, false);
 			}
 		}

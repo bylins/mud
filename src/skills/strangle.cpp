@@ -23,7 +23,7 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 		return;
 	}
 
-	if (GET_POS(ch) < kPosFighting) {
+	if (GET_POS(ch) < EPosition::kFight) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -64,7 +64,7 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, PHYS_DMG);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		if (GET_POS(vict) > kPosDead) {
+		if (GET_POS(vict) > EPosition::kDead) {
 			set_wait(vict, 2, true);
 			//vict->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 			if (vict->ahorse()) {

@@ -102,9 +102,9 @@ class Damage {
 	// набор флагов из HitType
 	std::bitset<FightSystem::HIT_TYPE_FLAGS_NUM> flags;
 	// позиция атакующего на начало атаки (по дефолту будет = текущему положению)
-	int ch_start_pos;
+	EPosition ch_start_pos;
 	// позиция жертвы на начало атаки (по дефолту будет = текущему положению)
-	int victim_start_pos;
+	EPosition victim_start_pos;
 
  private:
 	// инит всех полей дефолтными значениями для конструкторов

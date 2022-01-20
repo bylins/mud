@@ -12,7 +12,7 @@ namespace cmd {
 extern const char *HEARTBEAT_COMMAND;
 
 /// Minimal position for heartbeat command
-constexpr int MINIMAL_POSITION = kPosSitting;
+constexpr EPosition MINIMAL_POSITION = EPosition::kSit;
 
 // Minimal level for heartbeat command
 constexpr int MINIMAL_LEVEL = kLevelImplementator;

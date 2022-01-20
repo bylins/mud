@@ -752,21 +752,21 @@ void diag_char_to_char(CharacterData *i, CharacterData *ch) {
 
 	if (!i->ahorse())
 		switch (GET_POS(i)) {
-			case kPosMortallyw: strcat(buf, ".");
+			case EPosition::kPerish: strcat(buf, ".");
 				break;
-			case kPosIncap: strcat(buf, IS_POLY(i) ? ", лежат без сознания." : ", лежит без сознания.");
+			case EPosition::kIncap: strcat(buf, IS_POLY(i) ? ", лежат без сознания." : ", лежит без сознания.");
 				break;
-			case kPosStunned: strcat(buf, IS_POLY(i) ? ", лежат в обмороке." : ", лежит в обмороке.");
+			case EPosition::kStun: strcat(buf, IS_POLY(i) ? ", лежат в обмороке." : ", лежит в обмороке.");
 				break;
-			case kPosSleeping: strcat(buf, IS_POLY(i) ? ", спят." : ", спит.");
+			case EPosition::kSleep: strcat(buf, IS_POLY(i) ? ", спят." : ", спит.");
 				break;
-			case kPosResting: strcat(buf, IS_POLY(i) ? ", отдыхают." : ", отдыхает.");
+			case EPosition::kRest: strcat(buf, IS_POLY(i) ? ", отдыхают." : ", отдыхает.");
 				break;
-			case kPosSitting: strcat(buf, IS_POLY(i) ? ", сидят." : ", сидит.");
+			case EPosition::kSit: strcat(buf, IS_POLY(i) ? ", сидят." : ", сидит.");
 				break;
-			case kPosStanding: strcat(buf, IS_POLY(i) ? ", стоят." : ", стоит.");
+			case EPosition::kStand: strcat(buf, IS_POLY(i) ? ", стоят." : ", стоит.");
 				break;
-			case kPosFighting:
+			case EPosition::kFight:
 				if (i->get_fighting())
 					strcat(buf, IS_POLY(i) ? ", сражаются." : ", сражается.");
 				else
@@ -1225,7 +1225,7 @@ void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode) {
 	if (!IS_NPC(i) && PLR_FLAGGED(i, PLR_WRITING))
 		strcat(buf, "(пишет) ");
 
-	if (GET_POS(i) != kPosFighting) {
+	if (GET_POS(i) != EPosition::kFight) {
 		if (i->ahorse()) {
 			CharacterData *horse = i->get_horse();
 			if (horse) {
@@ -1240,7 +1240,7 @@ void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode) {
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == kSectUnderwater)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
-		else if (GET_POS(i) > kPosSleeping && AFF_FLAGGED(i, EAffectFlag::AFF_FLY))
+		else if (GET_POS(i) > EPosition::kSleep && AFF_FLAGGED(i, EAffectFlag::AFF_FLY))
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == kSectWaterSwim || sector == kSectWaterNoswim)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
@@ -1826,7 +1826,7 @@ void look_at_room(CharacterData *ch, int ignore_brief) {
 	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		send_to_char("Вы все еще слепы...\r\n", ch);
 		return;
-	} else if (GET_POS(ch) < kPosSleeping) {
+	} else if (GET_POS(ch) < EPosition::kSleep) {
 		return;
 	}
 
@@ -2524,7 +2524,7 @@ void do_look(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!ch->desc)
 		return;
 
-	if (GET_POS(ch) < kPosSleeping) {
+	if (GET_POS(ch) < EPosition::kSleep) {
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		send_to_char("Вы ослеплены!\r\n", ch);
@@ -2586,7 +2586,7 @@ void do_sides(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	if (!ch->desc)
 		return;
 
-	if (GET_POS(ch) <= kPosSleeping)
+	if (GET_POS(ch) <= EPosition::kSleep)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 		send_to_char("Вы ослеплены!\r\n", ch);
@@ -2605,9 +2605,9 @@ void do_looking(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 	if (!ch->desc)
 		return;
 
-	if (GET_POS(ch) < kPosSleeping)
+	if (GET_POS(ch) < EPosition::kSleep)
 		send_to_char("Белый Ангел возник перед вами, маняще помахивая крыльями.\r\n", ch);
-	if (GET_POS(ch) == kPosSleeping)
+	if (GET_POS(ch) == EPosition::kSleep)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 		send_to_char("Вы ослеплены!\r\n", ch);
@@ -2634,9 +2634,9 @@ void do_hearing(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 		return;
 	}
 
-	if (GET_POS(ch) < kPosSleeping)
+	if (GET_POS(ch) < EPosition::kSleep)
 		send_to_char("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
-	if (GET_POS(ch) == kPosSleeping)
+	if (GET_POS(ch) == EPosition::kSleep)
 		send_to_char("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
 	else if (ch->get_skill(SKILL_HEARING)) {
 		if (check_moves(ch, HEARING_MOVES)) {
@@ -2656,7 +2656,7 @@ void do_examine(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char where[kMaxInputLength];
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
-	if (GET_POS(ch) < kPosSleeping) {
+	if (GET_POS(ch) < EPosition::kSleep) {
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 		return;
 	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
@@ -2871,28 +2871,28 @@ int calc_hr_info(CharacterData *ch) {
 
 const char *list_score_pos(CharacterData *ch) {
 	switch (GET_POS(ch)) {
-		case kPosDead:
+		case EPosition::kDead:
 			return "Вы МЕРТВЫ!\r\n";
 			break;
-		case kPosMortallyw:
+		case EPosition::kPerish:
 			return "Вы смертельно ранены и нуждаетесь в помощи!\r\n";
 			break;
-		case kPosIncap:
+		case EPosition::kIncap:
 			return "Вы без сознания и медленно умираете...\r\n";
 			break;
-		case kPosStunned:
+		case EPosition::kStun:
 			return "Вы в обмороке!\r\n";
 			break;
-		case kPosSleeping:
+		case EPosition::kSleep:
 			return "Вы спите.\r\n";
 			break;
-		case kPosResting:
+		case EPosition::kRest:
 			return "Вы отдыхаете.\r\n";
 			break;
-		case kPosSitting:
+		case EPosition::kSit:
 			return "Вы сидите.\r\n";
 			break;
-		case kPosFighting:
+		case EPosition::kFight:
 			if (ch->get_fighting()) {
 				sprintf(buf1, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
 				return buf1;
@@ -2900,7 +2900,7 @@ const char *list_score_pos(CharacterData *ch) {
 			else
 				return "Вы машете кулаками по воздуху.\r\n";
 			break;
-		case kPosStanding:
+		case EPosition::kStand:
 			return "Вы стоите.\r\n";
 			break;
 		default:
@@ -3185,35 +3185,35 @@ void print_do_score_all(CharacterData *ch) {
 
 	if (!ch->ahorse())
 		switch (GET_POS(ch)) {
-			case kPosDead:
+			case EPosition::kDead:
 				sprintf(buf + strlen(buf), " || %s%-19s%s|",
 						CCIRED(ch, C_NRM), string("Вы МЕРТВЫ!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
-			case kPosMortallyw:
+			case EPosition::kPerish:
 				sprintf(buf + strlen(buf), " || %s%-19s%s|",
 						CCIRED(ch, C_NRM), string("Вы умираете!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
-			case kPosIncap:
+			case EPosition::kIncap:
 				sprintf(buf + strlen(buf), " || %s%-19s%s|",
 						CCRED(ch, C_NRM), string("Вы без сознания.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
-			case kPosStunned:
+			case EPosition::kStun:
 				sprintf(buf + strlen(buf), " || %s%-19s%s|",
 						CCIYEL(ch, C_NRM), string("Вы в обмороке!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
-			case kPosSleeping:
+			case EPosition::kSleep:
 				sprintf(buf + strlen(buf), " || %s%-19s%s|",
 						CCIGRN(ch, C_NRM), string("Вы спите.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
-			case kPosResting:
+			case EPosition::kRest:
 				sprintf(buf + strlen(buf), " || %s%-19s%s|",
 						CCGRN(ch, C_NRM), string("Вы отдыхаете.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
-			case kPosSitting:
+			case EPosition::kSit:
 				sprintf(buf + strlen(buf), " || %s%-19s%s|",
 						CCIGRN(ch, C_NRM), string("Вы сидите.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
-			case kPosFighting:
+			case EPosition::kFight:
 				if (ch->get_fighting())
 					sprintf(buf + strlen(buf), " || %s%-19s%s|",
 							CCIRED(ch, C_NRM), string("Вы сражаетесь!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
@@ -3221,7 +3221,7 @@ void print_do_score_all(CharacterData *ch) {
 					sprintf(buf + strlen(buf), " || %s%-19s%s|",
 							CCRED(ch, C_NRM), string("Вы машете кулаками.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
-			case kPosStanding:
+			case EPosition::kStand:
 				sprintf(buf + strlen(buf), " || %s%-19s%s|",
 						CCNRM(ch, C_NRM), string("Вы стоите.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;

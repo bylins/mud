@@ -7,13 +7,15 @@
 #ifndef BYLINS_SRC_COMMUNICATION_SOCIAL_H_
 #define BYLINS_SRC_COMMUNICATION_SOCIAL_H_
 
+#include "entities/entity_constants.h"
+
 class CHAR_DATE;
 
 struct SocialMessages {
-	int ch_min_pos = 0;
-	int ch_max_pos = 0;
-	int vict_min_pos = 0;
-	int vict_max_pos = 0;
+	EPosition ch_min_pos = EPosition::kDead;
+	EPosition ch_max_pos = EPosition::kDead;
+	EPosition vict_min_pos = EPosition::kDead;
+	EPosition vict_max_pos = EPosition::kDead;
 	char *char_no_arg = nullptr;
 	char *others_no_arg = nullptr;
 

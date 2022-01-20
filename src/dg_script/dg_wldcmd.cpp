@@ -523,7 +523,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		update_pos(ch);
 		char_dam_message(dam, ch, ch, 0);
-		if (GET_POS(ch) == kPosDead) {
+		if (GET_POS(ch) == EPosition::kDead) {
 			if (!IS_NPC(ch)) {
 				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
 						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));

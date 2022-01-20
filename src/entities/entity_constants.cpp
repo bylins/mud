@@ -352,4 +352,13 @@ const religion_names_t religion_name = {
 	religion_genders_t{"", "", "", ""}        // for undefined religion
 };
 
+int operator-(EPosition p1,  EPosition p2) {
+	return (static_cast<int>(p1) - static_cast<int>(p2));
+}
+
+EPosition operator--(const EPosition &p) {
+	auto pp = (p == EPosition::kDead) ? EPosition::kDead : static_cast<EPosition>(static_cast<int>(p)-1);
+	return pp;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

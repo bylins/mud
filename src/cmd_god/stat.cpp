@@ -331,7 +331,7 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 			GET_INITIATIVE(k));
 	send_to_char(buf, ch);
 
-	sprinttype(GET_POS(k), position_types, smallBuf);
+	sprinttype(static_cast<int>(GET_POS(k)), position_types, smallBuf);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
 			smallBuf, (k->get_fighting() ? GET_NAME(k->get_fighting()) : "Нет"), (equip_in_metall(k) ? "Да" : "Нет"));
 
@@ -347,7 +347,7 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 	send_to_char(strcat(buf, "\r\n"), ch);
 
 	strcpy(buf, "Позиция по умолчанию: ");
-	sprinttype((k->mob_specials.default_pos), position_types, buf2);
+	sprinttype(static_cast<int>(k->mob_specials.default_pos), position_types, buf2);
 	strcat(buf, buf2);
 
 	sprintf(buf2, ", Таймер отсоединения (тиков) [%d]\r\n", k->char_specials.timer);

@@ -668,7 +668,6 @@ int thaco(int class_num, int level) {
 		case CLASS_CHARMMAGE:
 			[[fallthrough]];
 		case CLASS_NECROMANCER: {
-			[[fallthrough]];
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;

@@ -560,13 +560,13 @@ int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData 
 
 	if (GET_POS(ch) < SpINFO.min_position) {
 		switch (GET_POS(ch)) {
-			case kPosSleeping: send_to_char("Вы спите и не могете думать больше ни о чем.\r\n", ch);
+			case EPosition::kSleep: send_to_char("Вы спите и не могете думать больше ни о чем.\r\n", ch);
 				break;
-			case kPosResting: send_to_char("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
+			case EPosition::kRest: send_to_char("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
 				break;
-			case kPosSitting: send_to_char("Похоже, в этой позе Вы много не наколдуете.\r\n", ch);
+			case EPosition::kSit: send_to_char("Похоже, в этой позе Вы много не наколдуете.\r\n", ch);
 				break;
-			case kPosFighting: send_to_char("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
+			case EPosition::kFight: send_to_char("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
 				break;
 			default: send_to_char("Вам вряд ли это удастся.\r\n", ch);
 				break;
