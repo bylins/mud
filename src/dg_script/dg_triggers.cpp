@@ -432,7 +432,7 @@ int command_mtrigger(CharacterData *actor, char *cmd, const char *argument) {
 
 				if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd)) {
 					if (!IS_NPC(actor)
-						&& (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+						&& (GET_POS(actor) == kPosSleeping))   // command триггер не будет срабатывать если игрок спит
 					{
 						send_to_char("Сделать это в ваших снах?\r\n", actor);
 						return 1;
@@ -939,7 +939,7 @@ int cmd_otrig(ObjectData *obj, CharacterData *actor, char *cmd, const char *argu
 				&& (t->arglist[0] == '*'
 				|| 0 == strn_cmp(t->arglist.c_str(), cmd, t->arglist.size()))) {
 				if (!IS_NPC(actor)
-					&& (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+					&& (GET_POS(actor) == kPosSleeping))   // command триггер не будет срабатывать если игрок спит
 				{
 					send_to_char("Сделать это в ваших снах?\r\n", actor);
 					return 1;
@@ -1306,13 +1306,13 @@ int command_wtrigger(CharacterData *actor, char *cmd, const char *argument) {
 
 		if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd)) {
 			if (!IS_NPC(actor)
-				&& (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+				&& (GET_POS(actor) == kPosSleeping))   // command триггер не будет срабатывать если игрок спит
 			{
 				send_to_char("Сделать это в ваших снах?\r\n", actor);
 				return 1;
 			}
 // в идеале бы в триггере бой проверять а не хардкодом, ленивые скотины....
-			if (GET_POS(actor) == POS_FIGHTING && t->arglist[0] != '*') {
+			if (GET_POS(actor) == kPosFighting && t->arglist[0] != '*') {
 				send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
 				return 1;
 			}

@@ -517,7 +517,7 @@ int legal_dir(CharacterData *ch, int dir, int need_specials_check, int show_msg)
 				continue;
 			if (NPC_FLAGGED(tch, 1 << dir)
 				&& AWAKE(tch)
-				&& GET_POS(tch) > POS_SLEEPING
+				&& GET_POS(tch) > kPosSleeping
 				&& CAN_SEE(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_HOLD)
@@ -885,17 +885,17 @@ int do_simple_move(CharacterData *ch, int dir, int need_specials_check, Characte
 				|| AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)
 				|| AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)
 				|| vict->get_fighting()
-				|| GET_POS(vict) < POS_RESTING) {
+				|| GET_POS(vict) < kPosResting) {
 				continue;
 			}
 
 			// AWARE mobs
 			if (MOB_FLAGGED(vict, MOB_AWARE)
-				&& GET_POS(vict) < POS_FIGHTING
+				&& GET_POS(vict) < kPosFighting
 				&& !AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
-				&& GET_POS(vict) > POS_SLEEPING) {
+				&& GET_POS(vict) > kPosSleeping) {
 				act("$n поднял$u.", false, vict, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-				GET_POS(vict) = POS_STANDING;
+				GET_POS(vict) = kPosStanding;
 			}
 		}
 	}
@@ -953,13 +953,13 @@ int perform_move(CharacterData *ch, int dir, int need_specials_check, int checkm
 							&& !PLR_FLAGGED(k->ch, PLR_WRITING)))
 					&& (!IS_HORSE(k->ch)
 						|| !AFF_FLAGGED(k->ch, EAffectFlag::AFF_TETHERED))) {
-					if (GET_POS(k->ch) < POS_STANDING) {
+					if (GET_POS(k->ch) < kPosStanding) {
 						if (IS_NPC(k->ch)
 							&& IS_NPC(k->ch->get_master())
-							&& GET_POS(k->ch) > POS_SLEEPING
+							&& GET_POS(k->ch) > kPosSleeping
 							&& !GET_WAIT(k->ch)) {
 							act("$n поднял$u.", false, k->ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-							GET_POS(k->ch) = POS_STANDING;
+							GET_POS(k->ch) = kPosStanding;
 						} else {
 							continue;
 						}
@@ -1608,7 +1608,7 @@ void do_enter(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					if (IS_CHARMICE(k->ch) &&
 						!GET_MOB_HOLD(k->ch) &&
-						GET_POS(k->ch) == POS_STANDING &&
+						GET_POS(k->ch) == kPosStanding &&
 						IN_ROOM(k->ch) == from_room) {
 						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
 						command_interpreter(k->ch, buf2);
@@ -1646,10 +1646,10 @@ void do_enter(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_stand(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (GET_POS(ch) > POS_SLEEPING && AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {
+	if (GET_POS(ch) > kPosSleeping && AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {
 		send_to_char("Вы сладко зевнули и решили еще немного подремать.\r\n", ch);
 		act("$n сладко зевнул$a и решил$a еще немного подремать.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-		GET_POS(ch) = POS_SLEEPING;
+		GET_POS(ch) = kPosSleeping;
 	}
 
 	if (ch->ahorse()) {
@@ -1657,24 +1657,24 @@ void do_stand(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 	switch (GET_POS(ch)) {
-		case POS_STANDING: send_to_char("А вы уже стоите.\r\n", ch);
+		case kPosStanding: send_to_char("А вы уже стоите.\r\n", ch);
 			break;
-		case POS_SITTING: send_to_char("Вы встали.\r\n", ch);
+		case kPosSitting: send_to_char("Вы встали.\r\n", ch);
 			act("$n поднял$u.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			// Will be sitting after a successful bash and may still be fighting.
-			GET_POS(ch) = ch->get_fighting() ? POS_FIGHTING : POS_STANDING;
+			GET_POS(ch) = ch->get_fighting() ? kPosFighting : kPosStanding;
 			break;
-		case POS_RESTING: send_to_char("Вы прекратили отдыхать и встали.\r\n", ch);
+		case kPosResting: send_to_char("Вы прекратили отдыхать и встали.\r\n", ch);
 			act("$n прекратил$g отдых и поднял$u.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = ch->get_fighting() ? POS_FIGHTING : POS_STANDING;
+			GET_POS(ch) = ch->get_fighting() ? kPosFighting : kPosStanding;
 			break;
-		case POS_SLEEPING: send_to_char("Пожалуй, сначала стоит проснуться!\r\n", ch);
+		case kPosSleeping: send_to_char("Пожалуй, сначала стоит проснуться!\r\n", ch);
 			break;
-		case POS_FIGHTING: send_to_char("Вы дрались лежа? Это что-то новенькое.\r\n", ch);
+		case kPosFighting: send_to_char("Вы дрались лежа? Это что-то новенькое.\r\n", ch);
 			break;
 		default: send_to_char("Вы прекратили летать и опустились на грешную землю.\r\n", ch);
 			act("$n опустил$u на землю.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_STANDING;
+			GET_POS(ch) = kPosStanding;
 			break;
 	}
 }
@@ -1685,23 +1685,23 @@ void do_sit(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	switch (GET_POS(ch)) {
-		case POS_STANDING: send_to_char("Вы сели.\r\n", ch);
+		case kPosStanding: send_to_char("Вы сели.\r\n", ch);
 			act("$n сел$g.", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_SITTING;
+			GET_POS(ch) = kPosSitting;
 			break;
-		case POS_SITTING: send_to_char("А вы и так сидите.\r\n", ch);
+		case kPosSitting: send_to_char("А вы и так сидите.\r\n", ch);
 			break;
-		case POS_RESTING: send_to_char("Вы прекратили отдыхать и сели.\r\n", ch);
+		case kPosResting: send_to_char("Вы прекратили отдыхать и сели.\r\n", ch);
 			act("$n прервал$g отдых и сел$g.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_SITTING;
+			GET_POS(ch) = kPosSitting;
 			break;
-		case POS_SLEEPING: send_to_char("Вам стоит проснуться.\r\n", ch);
+		case kPosSleeping: send_to_char("Вам стоит проснуться.\r\n", ch);
 			break;
-		case POS_FIGHTING: send_to_char("Сесть? Во время боя? Вы явно не в себе.\r\n", ch);
+		case kPosFighting: send_to_char("Сесть? Во время боя? Вы явно не в себе.\r\n", ch);
 			break;
 		default: send_to_char("Вы прекратили свой полет и сели.\r\n", ch);
 			act("$n прекратил$g свой полет и сел$g.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_SITTING;
+			GET_POS(ch) = kPosSitting;
 			break;
 	}
 }
@@ -1712,23 +1712,23 @@ void do_rest(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 	switch (GET_POS(ch)) {
-		case POS_STANDING: send_to_char("Вы присели отдохнуть.\r\n", ch);
+		case kPosStanding: send_to_char("Вы присели отдохнуть.\r\n", ch);
 			act("$n присел$g отдохнуть.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_RESTING;
+			GET_POS(ch) = kPosResting;
 			break;
-		case POS_SITTING: send_to_char("Вы пристроились поудобнее для отдыха.\r\n", ch);
+		case kPosSitting: send_to_char("Вы пристроились поудобнее для отдыха.\r\n", ch);
 			act("$n пристроил$u поудобнее для отдыха.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_RESTING;
+			GET_POS(ch) = kPosResting;
 			break;
-		case POS_RESTING: send_to_char("Вы и так отдыхаете.\r\n", ch);
+		case kPosResting: send_to_char("Вы и так отдыхаете.\r\n", ch);
 			break;
-		case POS_SLEEPING: send_to_char("Вам лучше сначала проснуться.\r\n", ch);
+		case kPosSleeping: send_to_char("Вам лучше сначала проснуться.\r\n", ch);
 			break;
-		case POS_FIGHTING: send_to_char("Отдыха в бою вам не будет!\r\n", ch);
+		case kPosFighting: send_to_char("Отдыха в бою вам не будет!\r\n", ch);
 			break;
 		default: send_to_char("Вы прекратили полет и присели отдохнуть.\r\n", ch);
 			act("$n прекратил$g полет и пристроил$u поудобнее для отдыха.", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_SITTING;
+			GET_POS(ch) = kPosSitting;
 			break;
 	}
 }
@@ -1743,19 +1743,19 @@ void do_sleep(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 	switch (GET_POS(ch)) {
-		case POS_STANDING:
-		case POS_SITTING:
-		case POS_RESTING: send_to_char("Вы заснули.\r\n", ch);
+		case kPosStanding:
+		case kPosSitting:
+		case kPosResting: send_to_char("Вы заснули.\r\n", ch);
 			act("$n сладко зевнул$g и задал$g храпака.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_SLEEPING;
+			GET_POS(ch) = kPosSleeping;
 			break;
-		case POS_SLEEPING: send_to_char("А вы и так спите.\r\n", ch);
+		case kPosSleeping: send_to_char("А вы и так спите.\r\n", ch);
 			break;
-		case POS_FIGHTING: send_to_char("Вам нужно сражаться! Отоспитесь после смерти.\r\n", ch);
+		case kPosFighting: send_to_char("Вам нужно сражаться! Отоспитесь после смерти.\r\n", ch);
 			break;
 		default: send_to_char("Вы прекратили свой полет и отошли ко сну.\r\n", ch);
 			act("$n прекратил$g летать и нагло заснул$g.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(ch) = POS_SLEEPING;
+			GET_POS(ch) = kPosSleeping;
 			break;
 	}
 }
@@ -1776,7 +1776,7 @@ void do_wake(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (*arg) {
-		if (GET_POS(ch) == POS_SLEEPING)
+		if (GET_POS(ch) == kPosSleeping)
 			send_to_char("Может быть вам лучше проснуться?\r\n", ch);
 		else if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)) == nullptr)
 			send_to_char(NOPERSON, ch);
@@ -1784,24 +1784,24 @@ void do_wake(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			self = 1;
 		else if (AWAKE(vict))
 			act("$E и не спал$G.", false, ch, nullptr, vict, TO_CHAR);
-		else if (GET_POS(vict) < POS_SLEEPING)
+		else if (GET_POS(vict) < kPosSleeping)
 			act("$M так плохо! Оставьте $S в покое!", false, ch, nullptr, vict, TO_CHAR);
 		else {
 			act("Вы $S разбудили.", false, ch, nullptr, vict, TO_CHAR);
 			act("$n растолкал$g вас.", false, ch, nullptr, vict, TO_VICT | TO_SLEEP);
-			GET_POS(vict) = POS_SITTING;
+			GET_POS(vict) = kPosSitting;
 		}
 		if (!self)
 			return;
 	}
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
 		send_to_char("Вы не можете проснуться!\r\n", ch);
-	else if (GET_POS(ch) > POS_SLEEPING)
+	else if (GET_POS(ch) > kPosSleeping)
 		send_to_char("А вы и не спали...\r\n", ch);
 	else {
 		send_to_char("Вы проснулись и сели.\r\n", ch);
 		act("$n проснул$u.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-		GET_POS(ch) = POS_SITTING;
+		GET_POS(ch) = kPosSitting;
 	}
 }
 

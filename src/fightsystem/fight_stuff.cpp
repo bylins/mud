@@ -286,7 +286,7 @@ bool stone_rebirth(CharacterData *ch, CharacterData *killer) {
 							ch->affect_remove(ch->affected.begin());
 						}
 					}
-					GET_POS(ch) = POS_STANDING;
+					GET_POS(ch) = kPosStanding;
 					look_at_room(ch, 0);
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
@@ -336,7 +336,7 @@ bool check_tester_death(CharacterData *ch, CharacterData *killer) {
 			ch->affect_remove(ch->affected.begin());
 		}
 	}
-	GET_POS(ch) = POS_STANDING;
+	GET_POS(ch) = kPosStanding;
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
@@ -468,7 +468,7 @@ int can_loot(CharacterData *ch) {
 			&& GET_MOB_HOLD(ch) == 0 // если под холдом
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) // парализован точкой
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)    // слеп
-			&& (GET_POS(ch) >= POS_RESTING)) // мертв, умирает, без сознания, спит
+			&& (GET_POS(ch) >= kPosResting)) // мертв, умирает, без сознания, спит
 		{
 			return true;
 		}
@@ -510,7 +510,7 @@ void arena_kill(CharacterData *ch, CharacterData *killer) {
 	}
 	change_fighting(ch, true);
 	GET_HIT(ch) = 1;
-	GET_POS(ch) = POS_SITTING;
+	GET_POS(ch) = kPosSitting;
 	int to_room = real_room(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
 	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL)) {
@@ -603,7 +603,7 @@ void check_spell_capable(CharacterData *ch, CharacterData *killer) {
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
-		GET_POS(ch) = POS_STANDING;
+		GET_POS(ch) = kPosStanding;
 		CallMagic(ch, killer, nullptr, world[ch->in_room], ch->mob_specials.capable_spell, GET_REAL_LEVEL(ch));
 		GET_POS(ch) = pos;
 	}
@@ -1219,7 +1219,7 @@ void char_dam_message(int dam, CharacterData *ch, CharacterData *victim, bool no
 	if (!victim || victim->purged())
 		return;
 	switch (GET_POS(victim)) {
-		case POS_MORTALLYW:
+		case kPosMortallyw:
 			if (IS_POLY(victim))
 				act("$n смертельно ранены и умрут, если им не помогут.", true, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			else
@@ -1231,7 +1231,7 @@ void char_dam_message(int dam, CharacterData *ch, CharacterData *victim, bool no
 					TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
 			break;
-		case POS_INCAP:
+		case kPosIncap:
 			if (IS_POLY(victim))
 				act("$n без сознания и медленно умирают. Помогите же им.",
 					true,
@@ -1248,7 +1248,7 @@ void char_dam_message(int dam, CharacterData *ch, CharacterData *victim, bool no
 					TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
 			break;
-		case POS_STUNNED:
+		case kPosStunned:
 			if (IS_POLY(victim))
 				act("$n без сознания, но возможно они еще повоюют (попозже :).",
 					true,
@@ -1265,7 +1265,7 @@ void char_dam_message(int dam, CharacterData *ch, CharacterData *victim, bool no
 					TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
 			break;
-		case POS_DEAD:
+		case kPosDead:
 			if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE))) {
 				act("$n вспыхнул$g и рассыпал$u в прах.", false, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				send_to_char("Похоже вас убили и даже тела не оставили!\r\n", victim);
@@ -1304,12 +1304,12 @@ void char_dam_message(int dam, CharacterData *ch, CharacterData *victim, bool no
 				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)
 				&& MOB_FLAGGED(victim, MOB_WIMPY)
 				&& !noflee
-				&& GET_POS(victim) > POS_SITTING) {
+				&& GET_POS(victim) > kPosSitting) {
 				do_flee(victim, nullptr, 0, 0);
 			}
 
 			if (ch != victim
-				&& GET_POS(victim) > POS_SITTING
+				&& GET_POS(victim) > kPosSitting
 				&& !IS_NPC(victim)
 				&& HERE(victim)
 				&& GET_WIMP_LEV(victim)

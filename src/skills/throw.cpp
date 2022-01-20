@@ -38,7 +38,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				if (technique.rival()->ahorse()) { //если на лошади - падение с лагом 3
 					technique.rival()->drop_from_horse();
 				} else { // иначе просто садится на попу с лагом 2
-					GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), POS_SITTING);
+					GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), kPosSitting);
 					set_wait(technique.rival(), 2, false);
 				}
 			});

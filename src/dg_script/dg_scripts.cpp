@@ -2633,7 +2633,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "position")) {
 			int pos;
 
-			if (!*subfield || (pos = atoi(subfield)) <= POS_DEAD)
+			if (!*subfield || (pos = atoi(subfield)) <= kPosDead)
 				sprintf(str, "%d", GET_POS(c));
 			else if (!WAITLESS(c)) {
 				if (c->ahorse()) {

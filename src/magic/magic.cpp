@@ -430,13 +430,13 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 					break;
 				}
 			}
-			if (GET_POS(victim) > POS_SITTING && !WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
+			if (GET_POS(victim) > kPosSitting && !WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30)))) {
 				if (IS_HORSE(ch))
 					ch->drop_from_horse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
-				GET_POS(victim) = POS_SITTING;
+				GET_POS(victim) = kPosSitting;
 				update_pos(victim);
 				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
@@ -447,12 +447,12 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			ndice = 5 + ms_mod;
 			sdice = 8;
 			adice = level/3 + 2*ms_mod;
-			if (GET_POS(victim) > POS_SITTING &&
+			if (GET_POS(victim) > kPosSitting &&
 				!WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, CALC_SUCCESS(modi, 60)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
-				GET_POS(victim) = POS_SITTING;
+				GET_POS(victim) = kPosSitting;
 				update_pos(victim);
 				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
@@ -617,7 +617,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 					act("Ваше каменное проклятие отшибло сознание у $N1.", false, ch, nullptr, victim, TO_CHAR);
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, TO_NOTVICT);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, TO_VICT);
-					GET_POS(victim) = POS_STUNNED;
+					GET_POS(victim) = kPosStunned;
 					WAIT_STATE(victim, adice * kPulseViolence);
 				}
 			} else {
@@ -641,7 +641,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 				(!general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
 					(number(1, 999) > GET_AR(victim) * 10) &&
 					number(0, 1000) <= 500)) {
-				GET_POS(victim) = POS_STUNNED;
+				GET_POS(victim) = kPosStunned;
 				WAIT_STATE(victim, adice * kPulseViolence);
 			}
 			break;
@@ -721,12 +721,12 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			ndice = 5;
 			sdice = 6;
 			adice = level + GET_REAL_REMORT(ch) * 3;
-			if (GET_POS(victim) > POS_SITTING &&
+			if (GET_POS(victim) > kPosSitting &&
 				!WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
 				(!general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
-				GET_POS(victim) = POS_SITTING;
+				GET_POS(victim) = kPosSitting;
 				update_pos(victim);
 				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
@@ -829,12 +829,12 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 		case SPELL_WC_OF_THUNDER: {
 			ndice = GET_REAL_REMORT(ch) + (level + 2) / 3;
 			sdice = 5;
-			if (GET_POS(victim) > POS_SITTING &&
+			if (GET_POS(victim) > kPosSitting &&
 				!WAITLESS(victim) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, GET_REAL_CON(ch)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
-				GET_POS(victim) = POS_SITTING;
+				GET_POS(victim) = kPosSitting;
 				update_pos(victim);
 				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
@@ -927,8 +927,8 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
 			&& IN_ROOM(victim) != kNowhere
-			&& GET_POS(ch) > POS_STUNNED
-			&& GET_POS(victim) > POS_DEAD) {
+			&& GET_POS(ch) > kPosStunned
+			&& GET_POS(victim) > kPosDead) {
 			// инит полей для дамага
 			Damage dmg(SpellDmg(spellnum), dam, FightSystem::MAGE_DMG);
 			dmg.ch_start_pos = ch_start_pos;
@@ -1910,14 +1910,14 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 														pc_duration(victim, 1, level, 6, 1, 6)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_SLEEP);
 			af[0].battleflag = AF_BATTLEDEC;
-			if (GET_POS(victim) > POS_SLEEPING && success) {
+			if (GET_POS(victim) > kPosSleeping && success) {
 				// add by Pereplut
 				if (victim->ahorse())
 					victim->drop_from_horse();
 				send_to_char("Вы слишком устали... Спать... Спа...\r\n", victim);
 				act("$n прилег$q подремать.", true, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 
-				GET_POS(victim) = POS_SLEEPING;
+				GET_POS(victim) = kPosSleeping;
 			}
 			break;
 
@@ -3137,8 +3137,8 @@ int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int
 		GET_GOLD_SiDs(mob) = 0;
 		mob->set_exp(0);
 
-		GET_POS(mob) = POS_STANDING;
-		GET_DEFAULT_POS(mob) = POS_STANDING;
+		GET_POS(mob) = kPosStanding;
+		GET_DEFAULT_POS(mob) = kPosStanding;
 		mob->set_sex(ESex::kMale);
 
 		mob->set_class(ch->get_class());

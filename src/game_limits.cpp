@@ -189,7 +189,7 @@ int mana_gain(const CharacterData *ch) {
 			percent -= 90;
 	} else
 		switch (GET_POS(ch)) {
-			case POS_SLEEPING:
+			case kPosSleeping:
 				if (IS_MANA_CASTER(ch)) {
 					percent += 80;
 				} else {
@@ -197,11 +197,11 @@ int mana_gain(const CharacterData *ch) {
 					percent = 0;
 				}
 				break;
-			case POS_RESTING: percent += 45;
+			case kPosResting: percent += 45;
 				break;
-			case POS_SITTING: percent += 30;
+			case kPosSitting: percent += 30;
 				break;
-			case POS_STANDING: break;
+			case kPosStanding: break;
 			default: stopmem = true;
 				percent = 0;
 				break;
@@ -264,11 +264,11 @@ int hit_gain(CharacterData *ch) {
 
 	// Position calculations    //
 	switch (GET_POS(ch)) {
-		case POS_SLEEPING: percent += 25;
+		case kPosSleeping: percent += 25;
 			break;
-		case POS_RESTING: percent += 15;
+		case kPosResting: percent += 15;
 			break;
-		case POS_SITTING: percent += 10;
+		case kPosSitting: percent += 10;
 			break;
 	}
 
@@ -283,7 +283,7 @@ int hit_gain(CharacterData *ch) {
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	if (!IS_NPC(ch)) {
-		if (GET_POS(ch) == POS_INCAP || GET_POS(ch) == POS_MORTALLYW)
+		if (GET_POS(ch) == kPosIncap || GET_POS(ch) == kPosMortallyw)
 			gain = 0;
 	}
 	return (gain);
@@ -322,11 +322,11 @@ int move_gain(CharacterData *ch) {
 
 	// Position calculations    //
 	switch (GET_POS(ch)) {
-		case POS_SLEEPING: percent += 25;
+		case kPosSleeping: percent += 25;
 			break;
-		case POS_RESTING: percent += 15;
+		case kPosResting: percent += 15;
 			break;
-		case POS_SITTING: percent += 10;
+		case kPosSitting: percent += 10;
 			break;
 	}
 
@@ -641,14 +641,14 @@ void beat_points_update(int pulse) {
 		beat_punish(i);
 
 		// This line is used only to control all situations when someone is
-		// dead (POS_DEAD). You can comment it to minimize heartbeat function
+		// dead (kPosDead). You can comment it to minimize heartbeat function
 		// working time, if you're sure, that you control these situations
 		// everywhere. To the time of this code revision I've fix some of them
 		// and haven't seen any other.
-		//             if (GET_POS(i) == POS_DEAD)
+		//             if (GET_POS(i) == kPosDead)
 		//                     die(i, NULL);
 
-		if (GET_POS(i) < POS_STUNNED) {
+		if (GET_POS(i) < kPosStunned) {
 			return;
 		}
 
@@ -1583,8 +1583,8 @@ void point_update() {
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP)
-			&& GET_POS(i) > POS_SLEEPING) {
-			GET_POS(i) = POS_SLEEPING;
+			&& GET_POS(i) > kPosSleeping) {
+			GET_POS(i) = kPosSleeping;
 			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", true, i, 0, 0, TO_ROOM);
 		}
@@ -1613,7 +1613,7 @@ void point_update() {
 	character_list.foreach_on_copy([&](const auto &character) {
 		const auto i = character.get();
 
-		if (GET_POS(i) >= POS_STUNNED)    // Restore hit points
+		if (GET_POS(i) >= kPosStunned)    // Restore hit points
 		{
 			if (IS_NPC(i)
 				|| !UPDATE_PC_ON_BEAT) {
@@ -1720,17 +1720,17 @@ void point_update() {
 			}
 
 			// Update PC/NPC position
-			if (GET_POS(i) <= POS_STUNNED) {
+			if (GET_POS(i) <= kPosStunned) {
 				update_pos(i);
 			}
-		} else if (GET_POS(i) == POS_INCAP) {
+		} else if (GET_POS(i) == kPosIncap) {
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 1, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) == -1) {
 				return;
 			}
-		} else if (GET_POS(i) == POS_MORTALLYW) {
+		} else if (GET_POS(i) == kPosMortallyw) {
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 2, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 

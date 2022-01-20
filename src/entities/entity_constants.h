@@ -34,15 +34,15 @@ const std::string &NAME_BY_ITEM(ESex item);
  */
 
 // Positions
-const __uint8_t POS_DEAD = 0;
-const __uint8_t POS_MORTALLYW = 1;    // mortally wounded  //
-const __uint8_t POS_INCAP = 2;
-const __uint8_t POS_STUNNED = 3;
-const __uint8_t POS_SLEEPING = 4;
-const __uint8_t POS_RESTING = 5;
-const __uint8_t POS_SITTING = 6;
-const __uint8_t POS_FIGHTING = 7;
-const __uint8_t POS_STANDING = 8;
+const __uint8_t kPosDead = 0;
+const __uint8_t kPosMortallyw = 1;    // mortally wounded  //
+const __uint8_t kPosIncap = 2;
+const __uint8_t kPosStunned = 3;
+const __uint8_t kPosSleeping = 4;
+const __uint8_t kPosResting = 5;
+const __uint8_t kPosSitting = 6;
+const __uint8_t kPosFighting = 7;
+const __uint8_t kPosStanding = 8;
 
 // Character equipment positions: used as index for char_data.equipment[] //
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors
@@ -297,14 +297,12 @@ constexpr bitvector_t MOB_CLONE = kIntOne | (1 << 17);
 constexpr bitvector_t MOB_NOTKILLPUNCTUAL = kIntOne | (1 << 18);
 constexpr bitvector_t MOB_NOTRIP = kIntOne | (1 << 19);
 constexpr bitvector_t MOB_ANGEL = kIntOne | (1 << 20);
-constexpr bitvector_t
-	MOB_GUARDIAN = kIntOne | (1 << 21); //Polud моб-стражник, ставится программно, берется из файла guards.xml
+constexpr bitvector_t MOB_GUARDIAN = kIntOne | (1 << 21); //моб-стражник, ставится программно из файла guards.xml
 constexpr bitvector_t MOB_IGNORE_FORBIDDEN = kIntOne | (1 << 22); // игнорирует печать
 constexpr bitvector_t MOB_NO_BATTLE_EXP = kIntOne | (1 << 23); // не дает экспу за удары
 constexpr bitvector_t MOB_NOMIGHTHIT = kIntOne | (1 << 24); // нельзя оглушить богатырским молотом
 constexpr bitvector_t MOB_GHOST = kIntOne | (1 << 25); // Используется для ментальной тени
-constexpr bitvector_t
-	MOB_PLAYER_SUMMON = kIntOne | (1 << 26); // Моб является суммоном игрока (ангел, тень, храны, трупы, умки)
+constexpr bitvector_t MOB_PLAYER_SUMMON = kIntOne | (1 << 26); // (ангел, тень, храны, трупы, умки)
 
 constexpr bitvector_t MOB_FIREBREATH = kIntTwo | (1 << 0);
 constexpr bitvector_t MOB_GASBREATH = kIntTwo | (1 << 1);
@@ -319,8 +317,7 @@ constexpr bitvector_t MOB_NOHELPS = kIntTwo | (1 << 9);
 constexpr bitvector_t MOB_OPENDOOR = kIntTwo | (1 << 10);
 constexpr bitvector_t MOB_IGNORNOMOB = kIntTwo | (1 << 11);
 constexpr bitvector_t MOB_IGNORPEACE = kIntTwo | (1 << 12);
-constexpr bitvector_t MOB_RESURRECTED =
-	kIntTwo | (1 << 13);    // поднят через !поднять труп! или !оживить труп! Ставится только програмно//
+constexpr bitvector_t MOB_RESURRECTED = kIntTwo | (1 << 13); // !поднять труп! или !оживить труп! только програмно//
 constexpr bitvector_t MOB_RUSICH = kIntTwo | (1 << 14);
 constexpr bitvector_t MOB_VIKING = kIntTwo | (1 << 15);
 constexpr bitvector_t MOB_STEPNYAK = kIntTwo | (1 << 16);

@@ -244,7 +244,7 @@ void do_expedient_cut(CharacterData *ch, char *argument, int/* cmd*/, int /*subc
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING) {
+	if (GET_POS(ch) < kPosFighting) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}

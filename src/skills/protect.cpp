@@ -101,7 +101,7 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND)
 			&& !GET_MOB_HOLD(vict)
-			&& GET_POS(vict) >= POS_FIGHTING) {
+			&& GET_POS(vict) >= kPosFighting) {
 			if (vict == ch) {
 				act("Вы попытались напасть на того, кого прикрывали, и замерли в глубокой задумчивости.",
 					false,

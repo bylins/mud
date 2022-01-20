@@ -26,7 +26,7 @@ void go_flee(CharacterData *ch) {
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING) {
+	if (GET_POS(ch) < kPosFighting) {
 		send_to_char("Вы не можете сбежать из этого положения.\r\n", ch);
 		return;
 	}
@@ -34,7 +34,7 @@ void go_flee(CharacterData *ch) {
 	if (!WAITLESS(ch))
 		WAIT_STATE(ch, kPulseViolence);
 
-	if (ch->ahorse() && (GET_POS(ch->get_horse()) < POS_FIGHTING || GET_MOB_HOLD(ch->get_horse()))) {
+	if (ch->ahorse() && (GET_POS(ch->get_horse()) < kPosFighting || GET_MOB_HOLD(ch->get_horse()))) {
 		send_to_char("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
 		return;
 	}
@@ -86,7 +86,7 @@ void go_dir_flee(CharacterData *ch, int direction) {
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING) {
+	if (GET_POS(ch) < kPosFighting) {
 		send_to_char("Вы не сможете сбежать из этого положения.\r\n", ch);
 		return;
 	}

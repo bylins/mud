@@ -4,8 +4,8 @@
  \brief Класс экстра-описаний предметов, мобов и комнат.
 */
 
-#ifndef BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_DATA_H_
-#define BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_DATA_H_
+#ifndef BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_H_
+#define BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_H_
 
 #include <memory>
 #include <string>
@@ -23,6 +23,6 @@ struct ExtraDescription {
 	shared_ptr next;    // Next in list                     //
 };
 
-#endif //BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_DATA_H_
+#endif //BYLINS_SRC_STRUCTS_EXTRA_DESCRIPTION_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

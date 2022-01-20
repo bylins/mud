@@ -12,7 +12,7 @@
 #include "obj_enchant.h"
 #include "magic/spells.h"
 #include "skills.h"
-#include "structs/extra_description_data.h"
+#include "structs/extra_description.h"
 #include "structs/flag_data.h"
 #include "sysdep.h"
 #include "utils/utils_string.h"

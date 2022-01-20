@@ -233,7 +233,7 @@ set(SOURCES
         src/crafts/jewelry.cpp
 		src/crafts/mining.cpp
 		src/classes/class_constants.cpp
-		src/structs/extra_description_data.cpp
+        src/structs/extra_description.cpp
 		src/communication/insult.cpp)
 
 set(HEADERS
@@ -447,7 +447,7 @@ set(HEADERS
 		src/crafts/jewelry.h
 		src/crafts/mining.h
 		src/affects/affect_contants.h
-		src/structs/extra_description_data.h
+        src/structs/extra_description.h
 		src/communication/insult.h
 		src/communication/social.h)
 

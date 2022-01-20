@@ -4,7 +4,7 @@
  \brief Класс экстра-описаний предметов, мобов и комнат.
 */
 
-#include "extra_description_data.h"
+#include "extra_description.h"
 
 #include "utils/utils.h"
 

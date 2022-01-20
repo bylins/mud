@@ -129,7 +129,7 @@ void do_gsay(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act(buf, false, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
 			// added by WorM  групптелы 2010.10.13
 			if (!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
-				&& GET_POS(k) > POS_DEAD) {
+				&& GET_POS(k) > kPosDead) {
 				sprintf(buf1,
 						"%s сообщил%s группе : '%s'\r\n",
 						tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то",
@@ -147,7 +147,7 @@ void do_gsay(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act(buf, false, ch, 0, f->ch, TO_VICT | TO_SLEEP | CHECK_DEAF);
 				// added by WorM  групптелы 2010.10.13
 				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_DEAFNESS)
-					&& GET_POS(f->ch) > POS_DEAD) {
+					&& GET_POS(f->ch) > kPosDead) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
 							tell_can_see(ch, f->ch) ? GET_NAME(ch) : "Кто-то",
@@ -251,7 +251,7 @@ int is_tell_ok(CharacterData *ch, CharacterData *vict) {
 		(PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
 		ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
 		act("$N не сможет вас услышать.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
-	else if (GET_POS(vict) < POS_RESTING || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
+	else if (GET_POS(vict) < kPosResting || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
 		act("$N вас не услышит.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else
 		return (true);
@@ -780,7 +780,7 @@ void do_gen_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
 			!PRF_FLAGGED(i->character, com_msgs[subcmd].noflag) &&
 			!PLR_FLAGGED(i->character, PLR_WRITING) &&
-			!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > POS_SLEEPING) {
+			!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > kPosSleeping) {
 			if (ignores(i->character.get(), ch, ign_flag)) {
 				continue;
 			}
@@ -824,7 +824,7 @@ void do_mobshout(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (STATE(i) == CON_PLAYING
 			&& i->character
 			&& !PLR_FLAGGED(i->character, PLR_WRITING)
-			&& GET_POS(i->character) > POS_SLEEPING) {
+			&& GET_POS(i->character) > kPosSleeping) {
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				send_to_char(KIYEL, i->character.get());
 			}

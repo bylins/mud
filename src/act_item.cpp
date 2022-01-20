@@ -1924,7 +1924,7 @@ void do_wear(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (dotmode == FIND_ALL) {
-		for (obj = ch->carrying; obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > POS_SLEEPING; obj = next_obj) {
+		for (obj = ch->carrying; obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > kPosSleeping; obj = next_obj) {
 			next_obj = obj->get_next_content();
 			if (CAN_SEE_OBJ(ch, obj)
 				&& (where = find_eq_pos(ch, obj, 0)) >= 0) {
@@ -1944,7 +1944,7 @@ void do_wear(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
 			send_to_char(buf, ch);
 		} else
-			while (obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > POS_SLEEPING) {
+			while (obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > kPosSleeping) {
 				next_obj = get_obj_in_list_vis(ch, arg1, obj->get_next_content());
 				if ((where = find_eq_pos(ch, obj, 0)) >= 0) {
 					perform_wear(ch, obj, where);
@@ -3130,7 +3130,7 @@ void feed_charmice(CharacterData *ch, char *arg) {
 		GET_HIT(ch) -= 3 * mob_level;
 		update_pos(ch);
 		// Подавился насмерть.
-		if (GET_POS(ch) == POS_DEAD) {
+		if (GET_POS(ch) == kPosDead) {
 			die(ch, nullptr);
 		}
 		extract_obj(obj);

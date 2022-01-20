@@ -1899,7 +1899,7 @@ int calc_str_req(int weight, int type) {
 }
 
 void message_str_need(CharacterData *ch, ObjectData *obj, int type) {
-	if (GET_POS(ch) == POS_DEAD)
+	if (GET_POS(ch) == kPosDead)
 		return;
 	int need_str = 0;
 	switch (type) {

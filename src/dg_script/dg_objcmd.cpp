@@ -518,7 +518,7 @@ void ApplyDamage(CharacterData* target, int damage) {
 	GET_HIT(target) -= damage;
 	update_pos(target);
 	char_dam_message(damage, target, target, 0);
-	if (GET_POS(target) == POS_DEAD) {
+	if (GET_POS(target) == kPosDead) {
 		if (!IS_NPC(target)) {
 			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
 					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
