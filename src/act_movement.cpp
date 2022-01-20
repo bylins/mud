@@ -38,7 +38,7 @@ int find_eq_pos(CHAR_DATA *ch, OBJ_DATA *obj, char *arg);
 // local functions
 void check_ice(int room);
 
-const int Reverse[NUM_OF_DIRS] = {2, 3, 0, 1, 5, 4};
+const int Reverse[kDirMaxNumber] = {2, 3, 0, 1, 5, 4};
 const char *DirIs[] =
 	{
 		"север",
@@ -573,10 +573,10 @@ int calcDrunkDirection(CHAR_DATA *ch, int direction, bool need_specials_check) {
 		&& GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED
 		&& !ch->ahorse()
 		&& GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50)) {
-		int possibleDirs[NUM_OF_DIRS];
+		int possibleDirs[kDirMaxNumber];
 		int correct_dirs = 0;
 
-		for (auto i = 0; i < NUM_OF_DIRS; ++i) {
+		for (auto i = 0; i < kDirMaxNumber; ++i) {
 			if (legal_dir(ch, i, need_specials_check, true)) {
 				possibleDirs[correct_dirs] = i;
 				++correct_dirs;
@@ -584,7 +584,7 @@ int calcDrunkDirection(CHAR_DATA *ch, int direction, bool need_specials_check) {
 		}
 
 		if (correct_dirs > 0
-			&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS))) {
+			&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / kDirMaxNumber), kDirMaxNumber))) {
 			drunk_move = possibleDirs[number(0, correct_dirs - 1)];
 		}
 	}
@@ -731,7 +731,7 @@ int do_simple_move(CHAR_DATA *ch, int dir, int need_specials_check, CHAR_DATA *l
 	}
 
 	if (PRF_FLAGGED(ch, PRF_BLIND)) {
-		for (int i = 0; i < NUM_OF_DIRS; i++) {
+		for (int i = 0; i < kDirMaxNumber; i++) {
 			if (CAN_GO(ch, i)
 				|| (EXIT(ch, i)
 					&& EXIT(ch, i)->to_room() != kNowhere)) {
@@ -919,7 +919,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	RoomRnum was_in;
 	struct Follower *k, *next;
 
-	if (ch == nullptr || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
+	if (ch == nullptr || dir < 0 || dir >= kDirMaxNumber || ch->get_fighting())
 		return false;
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere)
 		send_to_char("Вы не сможете туда пройти...\r\n", ch);
@@ -1089,7 +1089,7 @@ int find_door(CHAR_DATA *ch, const char *type, char *dir, DOOR_SCMD scmd) {
 		if (!*type) { //Названия не указано
 			return (FD_DOORNAME_EMPTY); //НЕ УКАЗАНО АРГУМЕНТОВ
 		}
-		for (door = 0; door < NUM_OF_DIRS; door++) {//Проверяем все направления, не найдется ли двери?
+		for (door = 0; door < kDirMaxNumber; door++) {//Проверяем все направления, не найдется ли двери?
 			found = false;
 			if (EXIT(ch, door)) {//Есть выход в этом направлении
 				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) { //Дверь как-то по-особенному называется?
@@ -1618,7 +1618,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					look_at_room(ch, 0);
 			}
 		} else {    // an argument was supplied, search for door keyword
-			for (door = 0; door < NUM_OF_DIRS; door++) {
+			for (door = 0; door < kDirMaxNumber; door++) {
 				if (EXIT(ch, door)
 					&& (isname(smallBuf, EXIT(ch, door)->keyword)
 						|| isname(smallBuf, EXIT(ch, door)->vkeyword))) {
@@ -1633,7 +1633,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы уже внутри.\r\n", ch);
 	else            // try to locate an entrance
 	{
-		for (door = 0; door < NUM_OF_DIRS; door++)
+		for (door = 0; door < kDirMaxNumber; door++)
 			if (EXIT(ch, door))
 				if (EXIT(ch, door)->to_room() != kNowhere)
 					if (!EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED) &&

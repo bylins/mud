@@ -48,7 +48,7 @@
 
 // * External variable declarations.
 
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 extern CHAR_DATA *mob_proto;
 extern MobRnum top_of_mobt;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -348,7 +348,7 @@ void medit_setup(DESCRIPTOR_DATA *d, int real_num)
 void medit_save_internally(DESCRIPTOR_DATA *d) {
 	int rmob_num, found = 0, new_mob_num = 0, cmd_no, j;
 	CHAR_DATA *new_proto;
-	INDEX_DATA *new_index;
+	IndexData *new_index;
 	DESCRIPTOR_DATA *dsc;
 
 	//  rmob_num = real_mobile(OLC_NUM(d));

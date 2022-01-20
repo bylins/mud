@@ -67,8 +67,8 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern const char *weapon_class[];
 // local functions
-TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
-TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
+TimeInfoData *real_time_passed(time_t t2, time_t t1);
+TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void prune_crlf(char *txt);
 bool IsValidEmail(const char *address);
 
@@ -467,9 +467,9 @@ void sprinttype(int type, const char *names[], char *result) {
 }
 
 // * Calculate the REAL time passed over the last t2-t1 centuries (secs)
-TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1) {
+TimeInfoData *real_time_passed(time_t t2, time_t t1) {
 	long secs;
-	static TIME_INFO_DATA now;
+	static TimeInfoData now;
 
 	secs = (long) (t2 - t1);
 
@@ -486,9 +486,9 @@ TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1) {
 }
 
 // Calculate the MUD time passed over the last t2-t1 centuries (secs) //
-TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1) {
+TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 	long secs;
-	static TIME_INFO_DATA now;
+	static TimeInfoData now;
 
 	secs = (long) (t2 - t1);
 
@@ -506,8 +506,8 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1) {
 	return (&now);
 }
 
-TIME_INFO_DATA *age(const CHAR_DATA *ch) {
-	static TIME_INFO_DATA player_age;
+TimeInfoData *age(const CHAR_DATA *ch) {
+	static TimeInfoData player_age;
 
 	player_age = *mud_time_passed(time(0), ch->player_data.time.birth);
 
@@ -2694,10 +2694,10 @@ void sanity_check(void) {
 	int ok = true;
 
 	// * If any line is false, 'ok' will become false also.
-	ok &= (test_magic(buf) == MAGIC_NUMBER || test_magic(buf) == '\0');
-	ok &= (test_magic(buf1) == MAGIC_NUMBER || test_magic(buf1) == '\0');
-	ok &= (test_magic(buf2) == MAGIC_NUMBER || test_magic(buf2) == '\0');
-	ok &= (test_magic(arg) == MAGIC_NUMBER || test_magic(arg) == '\0');
+	ok &= (test_magic(buf) == kMagicNumber || test_magic(buf) == '\0');
+	ok &= (test_magic(buf1) == kMagicNumber || test_magic(buf1) == '\0');
+	ok &= (test_magic(buf2) == kMagicNumber || test_magic(buf2) == '\0');
+	ok &= (test_magic(arg) == kMagicNumber || test_magic(arg) == '\0');
 
 	/*
 	* This isn't exactly the safest thing to do (referencing known bad memory)

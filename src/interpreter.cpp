@@ -21,6 +21,7 @@
 #include "entities/char.h"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
+#include "communication/insult.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/godtest.h"
 #include "cmd/follow.h"
@@ -152,7 +153,7 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 extern const char *default_race[];
 extern void add_karma(CHAR_DATA *ch, const char *punish, const char *reason);
 extern struct PCCleanCriteria pclean_criteria[];
@@ -2556,7 +2557,7 @@ int create_unique(void) {
 }
 
 // initialize a new character only if class is set
-void init_char(CHAR_DATA *ch, player_index_element &element) {
+void init_char(CHAR_DATA *ch, PlayerIndexElement &element) {
 	int i;
 
 #ifdef TEST_BUILD
@@ -2653,7 +2654,7 @@ void init_char(CHAR_DATA *ch, player_index_element &element) {
 * If the name already exists, by overwriting a deleted character, then
 * we re-use the old position.
 */
-int create_entry(player_index_element &element) {
+int create_entry(PlayerIndexElement &element) {
 	// create new save activity
 	element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 	element.timer = nullptr;
@@ -2662,7 +2663,7 @@ int create_entry(player_index_element &element) {
 }
 
 void DoAfterEmailConfirm(DESCRIPTOR_DATA *d) {
-	player_index_element element(-1, GET_PC_NAME(d->character));
+	PlayerIndexElement element(-1, GET_PC_NAME(d->character));
 
 	// Now GET_NAME() will work properly.
 	init_char(d->character.get(), element);

@@ -437,7 +437,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 		put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 	}
 
-	for (int i = 0; i < NUM_OF_DIRS; ++i) {
+	for (int i = 0; i < kDirMaxNumber; ++i) {
 		int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
 		switch (i) {
 			case kDirNorth: cur_y -= 1;

@@ -468,7 +468,7 @@ bool SCRIPT_CHECK(const ROOM_DATA *go, const long type);
 #define SCRIPT(o)          ((o)->script)
 
 // typedefs that the dg functions rely on //
-typedef INDEX_DATA index_data;
+typedef IndexData index_data;
 typedef ROOM_DATA ROOM_DATA;
 
 void timechange_mtrigger(CHAR_DATA *ch, const int time);

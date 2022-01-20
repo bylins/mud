@@ -66,7 +66,7 @@
 
 // extern variables
 /*extern DESCRIPTOR_DATA *descriptor_list;
-extern INDEX_DATA *mob_index;*/
+extern IndexData *mob_index;*/
 extern char const *class_abbrevs[];
 //extern int max_filesize;
 extern int nameserver_is_slow;
@@ -2418,7 +2418,7 @@ void do_beep(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		perform_beep(ch, vict);
 }
 
-extern struct index_data *obj_index;
+extern struct IndexData *obj_index;
 
 void do_bandage(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {

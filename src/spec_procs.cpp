@@ -32,8 +32,8 @@
 
 //   external vars
 extern DESCRIPTOR_DATA *descriptor_list;
-extern INDEX_DATA *mob_index;
-extern TIME_INFO_DATA time_info;
+extern IndexData *mob_index;
+extern TimeInfoData time_info;
 extern struct spell_create_type spell_create[];
 extern int guild_info[][3];
 
@@ -1817,7 +1817,7 @@ int npc_move(CHAR_DATA *ch, int dir, int/* need_specials_check*/) {
 	int rev_dir[] = {kDirSouth, kDirWest, kDirNorth, kDirEast, kDirDown, kDirUp};
 	int retval = false;
 
-	if (ch == nullptr || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting()) {
+	if (ch == nullptr || dir < 0 || dir >= kDirMaxNumber || ch->get_fighting()) {
 		return (false);
 	} else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere) {
 		return (false);

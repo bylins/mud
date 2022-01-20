@@ -122,7 +122,7 @@ int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE *fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
-TIME_INFO_DATA *age(const CHAR_DATA *ch);
+TimeInfoData *age(const CHAR_DATA *ch);
 int num_pc_in_room(ROOM_DATA *room);
 void core_dump_real(const char *, int);
 int replace_str(const AbstractStringWriter::shared_ptr &writer,
@@ -1519,7 +1519,7 @@ extern char arg[kMaxStringLength];
 extern char smallBuf[kMaxRawInputLength];
 #endif
 
-#define plant_magic(x)    do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)
+#define plant_magic(x)    do { (x)[sizeof(x) - 1] = kMagicNumber; } while (0)
 #define test_magic(x)    ((x)[sizeof(x) - 1])
 
 /*

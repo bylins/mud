@@ -18,6 +18,7 @@
 #include "boot/boot_constants.h"
 #include "conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 #include "name_adviser.h"
+#include "obj_save.h"
 #include "entities/obj.h"
 #include "structs/descriptor_data.h"
 #include "structs/structs.h"
@@ -176,13 +177,13 @@ struct reset_q_type {
 	struct reset_q_element *tail;
 };
 
-#define OBJECT_SAVE_ACTIVITY 300
-#define PLAYER_SAVE_ACTIVITY 300
-#define MAX_SAVED_ITEMS      1000
+const int OBJECT_SAVE_ACTIVITY = 300;
+const int PLAYER_SAVE_ACTIVITY = 300;
+const int MAX_SAVED_ITEMS = 1000;
 
-class player_index_element {
+class PlayerIndexElement {
  public:
-	player_index_element(int id, const char *name);
+	PlayerIndexElement(int id, const char *name);
 
 	//added by WorM индексируюца еще мыло и последний айпи
 	char *mail;
@@ -207,24 +208,24 @@ class player_index_element {
 	const char *m_name;
 };
 
-#define SEASON_WINTER        0
-#define SEASON_SPRING        1
-#define SEASON_SUMMER        2
-#define SEASON_AUTUMN        3
+const int SEASON_WINTER = 0;
+const int SEASON_SPRING = 1;
+const int SEASON_SUMMER = 2;
+const int SEASON_AUTUMN = 3;
 
-#define MONTH_JANUARY    0
-#define MONTH_FEBRUARY    1
-#define MONTH_MART            2
-#define MONTH_APRIL            3
-#define MONTH_MAY            4
-#define MONTH_JUNE            5
-#define MONTH_JULY            6
-#define MONTH_AUGUST        7
-#define MONTH_SEPTEMBER        8
-#define MONTH_OCTOBER        9
-#define MONTH_NOVEMBER        10
-#define MONTH_DECEMBER        11
-#define DAYS_PER_WEEK        7
+const int MONTH_JANUARY = 0;
+const int MONTH_FEBRUARY = 1;
+const int MONTH_MART = 2;
+const int MONTH_APRIL = 3;
+const int MONTH_MAY = 4;
+const int MONTH_JUNE = 5;
+const int MONTH_JULY = 6;
+const int MONTH_AUGUST = 7;
+const int MONTH_SEPTEMBER = 8;
+const int MONTH_OCTOBER = 9;
+const int MONTH_NOVEMBER = 10;
+const int MONTH_DECEMBER = 11;
+const int DAYS_PER_WEEK = 7;
 
 struct month_temperature_type {
 	int min;
@@ -255,7 +256,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 extern RoomRnum top_of_world;
 
 void add_trig_index_entry(int nr, TRIG_DATA *proto);
-extern INDEX_DATA **trig_index;
+extern IndexData **trig_index;
 
 #ifndef __CONFIG_C__
 extern char const *OK;
@@ -282,17 +283,16 @@ class Rooms : public std::vector<ROOM_DATA *> {
 
 extern Rooms &world;
 
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 extern MobRnum top_of_mobt;
 
 inline ObjVnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
 
-//extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern const char *MENU;
 
 extern struct Portal *portals_list;
-extern TIME_INFO_DATA time_info;
+extern TimeInfoData time_info;
 
 extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
 
@@ -311,9 +311,9 @@ extern RoomRnum r_unreg_start_room;
 long get_ptable_by_name(const char *name);
 void free_alias(struct alias_data *a);
 
-class PlayersIndex : public std::vector<player_index_element> {
+class PlayersIndex : public std::vector<PlayerIndexElement> {
  public:
-	using parent_t = std::vector<player_index_element>;
+	using parent_t = std::vector<PlayerIndexElement>;
 	using parent_t::operator[];
 	using parent_t::size;
 
@@ -321,7 +321,7 @@ class PlayersIndex : public std::vector<player_index_element> {
 
 	~PlayersIndex();
 
-	std::size_t append(const player_index_element &element);
+	std::size_t append(const PlayerIndexElement &element);
 	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
 	bool player_exists(const char *name) const { return NOT_FOUND != get_by_name(name); }
 	std::size_t get_by_name(const char *name) const;

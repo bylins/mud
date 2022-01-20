@@ -101,7 +101,7 @@ extern bool need_warn;
 extern FILE *player_fl;
 
 extern DESCRIPTOR_DATA *descriptor_list;
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
 extern const char *weapon_affects[];
@@ -3244,7 +3244,7 @@ std::string print_zone_exits(ZoneRnum zone) {
 
 	for (int n = FIRST_ROOM; n <= top_of_world; n++) {
 		if (world[n]->zone_rn == zone) {
-			for (int dir = 0; dir < NUM_OF_DIRS; dir++) {
+			for (int dir = 0; dir < kDirMaxNumber; dir++) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn != zone
 					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
@@ -3274,7 +3274,7 @@ std::string print_zone_enters(ZoneRnum zone) {
 
 	for (int n = FIRST_ROOM; n <= top_of_world; n++) {
 		if (world[n]->zone_rn != zone) {
-			for (int dir = 0; dir < NUM_OF_DIRS; dir++) {
+			for (int dir = 0; dir < kDirMaxNumber; dir++) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn == zone
 					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
@@ -3602,7 +3602,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			int k = 0;
 			strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
 			for (i = FIRST_ROOM; i <= top_of_world; i++) {
-				for (j = 0; j < NUM_OF_DIRS; j++) {
+				for (j = 0; j < kDirMaxNumber; j++) {
 					if (world[i]->dir_option[j]
 						&& world[i]->dir_option[j]->to_room() == 0) {
 						sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,

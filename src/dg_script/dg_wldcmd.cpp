@@ -86,7 +86,7 @@ void do_wasound(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	for (door = 0; door < NUM_OF_DIRS; door++) {
+	for (door = 0; door < kDirMaxNumber; door++) {
 		const auto &exit = room->dir_option[door];
 
 		if (exit

@@ -53,8 +53,8 @@ extern const char *genders[];
 extern const char *pc_class_types[];
 //extern const char *race_types[];
 extern const char *exit_bits[];
-extern INDEX_DATA *mob_index;
-extern TIME_INFO_DATA time_info;
+extern IndexData *mob_index;
+extern TimeInfoData time_info;
 const char *spell_name(int num);
 
 extern int can_take_obj(CHAR_DATA *ch, OBJ_DATA *obj);
@@ -3832,7 +3832,7 @@ void process_wait(void *go, TRIG_DATA *trig, int type, char *cmd, const cmdlist_
 	long time = 0, hr, min, ntime;
 	char c;
 
-	extern TIME_INFO_DATA time_info;
+	extern TimeInfoData time_info;
 
 	if ((trig->get_attach_type() == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
 		||(trig->get_attach_type() == OBJ_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), OTRIG_PURGE))

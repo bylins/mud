@@ -136,7 +136,7 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	const int temp_in_room = ch->in_room;
-	for (int door = 0; door < NUM_OF_DIRS; door++) {
+	for (int door = 0; door < kDirMaxNumber; door++) {
 		const auto &exit = world[temp_in_room]->dir_option[door];
 		if (exit
 			&& exit->to_room() != kNowhere

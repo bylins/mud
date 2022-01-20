@@ -8,6 +8,12 @@
 
 class CHAR_DATA;    // to avoid inclusion of "char.hpp"
 
+// Настройки, кхм, ИИ мобов.
+const short kStupidMod = 10;
+const short kMiddleAI = 30;
+const short kHighAI = 40;
+const short kCharacterHPForMobPriorityAttack = 100;
+
 void mobile_activity(int activity_level, int missed_pulses);
 int perform_mob_switch(CHAR_DATA *ch);
 void do_aggressive_room(CHAR_DATA *ch, int check_sneak);

@@ -26,7 +26,7 @@
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
-extern TIME_INFO_DATA time_info;
+extern TimeInfoData time_info;
 
 // local functions
 void perform_tell(CHAR_DATA *ch, CHAR_DATA *vict, char *arg);

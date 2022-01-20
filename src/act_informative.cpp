@@ -17,6 +17,7 @@
 #include "entities/entity_constants.h"
 #include "obj_prototypes.h"
 #include "logger.h"
+#include "communication/social.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "entities/obj.h"
 #include "comm.h"
@@ -102,7 +103,7 @@ extern std::vector<City> cities;
 // extern functions
 long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA *ch, int level);
-TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
+TimeInfoData *real_time_passed(time_t t2, time_t t1);
 // local functions
 const char *show_obj_to_char(OBJ_DATA *object, CHAR_DATA *ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA *list, CHAR_DATA *ch, int mode, int show);
@@ -165,13 +166,13 @@ void do_quest(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
  * This function screams bitvector... -gg 6/45/98
  */
 
-const char *Dirs[NUM_OF_DIRS + 1] = {"Север",
-									 "Восток",
-									 "Юг",
-									 "Запад",
-									 "Вверх",
-									 "Вниз",
-									 "\n"
+const char *Dirs[kDirMaxNumber + 1] = {"Север",
+									   "Восток",
+									   "Юг",
+									   "Запад",
+									   "Вверх",
+									   "Вниз",
+									   "\n"
 };
 
 const char *ObjState[8][2] = {{"рассыпается", "рассыпается"},
@@ -1447,7 +1448,7 @@ void do_auto_exits(CHAR_DATA *ch) {
 
 	*buf = '\0';
 
-	for (door = 0; door < NUM_OF_DIRS; door++) {
+	for (door = 0; door < kDirMaxNumber; door++) {
 		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere) {
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
@@ -1480,7 +1481,7 @@ void do_exits(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
-	for (door = 0; door < NUM_OF_DIRS; door++)
+	for (door = 0; door < kDirMaxNumber; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 			if (IS_GOD(ch))
 				sprintf(buf2, "%-6s - [%5d] %s\r\n", Dirs[door],
@@ -1518,7 +1519,7 @@ void do_blind_exits(CHAR_DATA *ch) {
 		send_to_char("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
-	for (door = 0; door < NUM_OF_DIRS; door++)
+	for (door = 0; door < kDirMaxNumber; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)) {
 			if (IS_GOD(ch))
 				sprintf(buf2, "&W%s - [%d] %s ", Dirs[door],
@@ -2592,7 +2593,7 @@ void do_sides(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else {
 		skip_hide_on_look(ch);
 		send_to_char("Вы посмотрели по сторонам.\r\n", ch);
-		for (i = 0; i < NUM_OF_DIRS; i++) {
+		for (i = 0; i < kDirMaxNumber; i++) {
 			look_in_direction(ch, i, 0);
 		}
 	}
@@ -2613,7 +2614,7 @@ void do_looking(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	else if (ch->get_skill(SKILL_LOOKING)) {
 		if (check_moves(ch, LOOKING_MOVES)) {
 			send_to_char("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
-			for (i = 0; i < NUM_OF_DIRS; i++)
+			for (i = 0; i < kDirMaxNumber; i++)
 				look_in_direction(ch, i, EXIT_SHOW_LOOKING);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
@@ -2640,7 +2641,7 @@ void do_hearing(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	else if (ch->get_skill(SKILL_HEARING)) {
 		if (check_moves(ch, HEARING_MOVES)) {
 			send_to_char("Вы начали сосредоточенно прислушиваться.\r\n", ch);
-			for (i = 0; i < NUM_OF_DIRS; i++)
+			for (i = 0; i < kDirMaxNumber; i++)
 				hear_in_direction(ch, i, 0);
 			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
@@ -3548,7 +3549,7 @@ void print_do_score_all(CHAR_DATA *ch) {
 }
 
 void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	TIME_INFO_DATA playing_time;
+	TimeInfoData playing_time;
 	int ac, ac_t;
 
 	skip_spaces(&argument);
@@ -5426,7 +5427,7 @@ struct sort_struct {
 
 int num_of_cmds;
 
-void sort_commands(void) {
+void sort_commands() {
 	int a, b, tmp;
 
 	num_of_cmds = 0;

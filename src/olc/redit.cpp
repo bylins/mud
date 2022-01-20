@@ -218,7 +218,7 @@ void redit_save_internally(DESCRIPTOR_DATA *d) {
 				world[i]->portal_room++;
 			}
 
-			for (j = 0; j < NUM_OF_DIRS; j++) {
+			for (j = 0; j < kDirMaxNumber; j++) {
 				if (W_EXIT(i, j)) {
 					const auto to_room = W_EXIT(i, j)->to_room();
 
@@ -232,7 +232,7 @@ void redit_save_internally(DESCRIPTOR_DATA *d) {
 		// * Update any rooms being edited.
 		for (auto dsc = descriptor_list; dsc; dsc = dsc->next) {
 			if (dsc->connected == CON_REDIT) {
-				for (j = 0; j < NUM_OF_DIRS; j++) {
+				for (j = 0; j < kDirMaxNumber; j++) {
 					if (OLC_ROOM(dsc)->dir_option[j]) {
 						const auto to_room = OLC_ROOM(dsc)->dir_option[j]->to_room();
 
@@ -302,7 +302,7 @@ void redit_save_to_disk(int zone_num) {
 					zone_table[room->zone_rn].vnum, buf2, room->sector_type);
 
 			// * Handle exits.
-			for (counter2 = 0; counter2 < NUM_OF_DIRS; counter2++) {
+			for (counter2 = 0; counter2 < kDirMaxNumber; counter2++) {
 				if (room->dir_option[counter2]) {
 					// * Again, strip out the garbage.
 					if (!room->dir_option[counter2]->general_description.empty()) {

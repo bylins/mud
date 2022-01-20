@@ -22,7 +22,7 @@ set(SOURCES
 		src/act_item.cpp
 		src/act_movement.cpp
 		src/act_other.cpp
-		src/act_social.cpp
+		src/communication/social.cpp
 		src/act_wizard.cpp
 		src/affects/affect_handler.cpp
 		src/alias.cpp
@@ -232,7 +232,9 @@ set(SOURCES
 		src/structs/flag_data.cpp
         src/crafts/jewelry.cpp
 		src/crafts/mining.cpp
-		src/classes/class_constants.cpp src/structs/extra_description_data.cpp)
+		src/classes/class_constants.cpp
+		src/structs/extra_description_data.cpp
+		src/communication/insult.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -444,7 +446,10 @@ set(HEADERS
 		src/entities/entity_constants.h
 		src/crafts/jewelry.h
 		src/crafts/mining.h
-		src/affects/affect_contants.h src/structs/extra_description_data.h)
+		src/affects/affect_contants.h
+		src/structs/extra_description_data.h
+		src/communication/insult.h
+		src/communication/social.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -849,7 +854,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 # Main executable file.
-set(MAIN_EXECUTABLE src/main.cpp)
+set(MAIN_EXECUTABLE src/main.cpp src/communication/insult.cpp src/communication/insult.h)
 
 add_executable(circle ${MAIN_EXECUTABLE})
 if (NOT UNIX)

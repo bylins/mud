@@ -35,9 +35,6 @@ using ubyte = uint8_t;
 using sh_int = int16_t ;
 using ush_int = uint16_t;
 
-typedef struct index_data INDEX_DATA;
-typedef struct TimeInfoData TIME_INFO_DATA;
-
 // This structure describe new bitvector structure
 using bitvector_t = uint32_t;
 constexpr bitvector_t kIntOne = 1u << 30;
@@ -123,14 +120,6 @@ const __uint8_t kCodePageLast = 7;
 
 const int kKtSelectmenu = 255;
 
-// room-related defines ************************************************
-
-// Перенести в аффекты
-constexpr bitvector_t AF_BATTLEDEC = 1 << 0;
-constexpr bitvector_t AF_DEADKEEP = 1 << 1;
-constexpr bitvector_t AF_PULSEDEC = 1 << 2;
-constexpr bitvector_t AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
-
 template<typename T>
 struct Unimplemented {};
 
@@ -151,7 +140,7 @@ inline E ITEM_BY_NAME(const char *name) { return ITEM_BY_NAME<E>(std::string(nam
 const __uint8_t kNumKins = 3;
 
 // Descriptor flags //
-constexpr bitvector_t DESC_CANZLIB = 1 << 0;    // Client says compression capable.   //
+//constexpr bitvector_t DESC_CANZLIB = 1 << 0;    // Client says compression capable.   //
 
 // object-related defines ******************************************* //
 
@@ -193,8 +182,7 @@ const short kLevelGod = 32;
 const short kLevelImmortal = 31;
 const short kLevelFreeze = kLevelGreatGod; // Level of the 'freeze' command //
 
-const __uint8_t NUM_OF_DIRS = 6;        // number of directions in a room (nsewud) //
-const __uint8_t MAGIC_NUMBER = 0x06;    // Arbitrary number that won't be in a string //
+const __uint8_t kMagicNumber = 0x06;    // Arbitrary number that won't be in a string //
 
 constexpr long long OPT_USEC = 40000;    // 25 passes per second //
 constexpr long long PASSES_PER_SEC = 1000000 / OPT_USEC;
@@ -235,14 +223,9 @@ const int kMaxTimedFeats = 16;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
 const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 
-// Перенести в мобакт
-const short kStupidMod = 10;
-const short kMiddleAI = 30;
-const short kHighAI = 40;
-const short kCharacterHPForMobPriorityAttack = 100;
-const short kStrongMobLevel = 30;
 const short kMaxMobLevel = 100;
 const short kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
+const short kStrongMobLevel = 30;
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 
@@ -250,44 +233,9 @@ inline bool sprintbit(bitvector_t bitvector, const char *names[], char *result, 
 	return sprintbitwd(bitvector, names, result, ",", print_flag);
 }
 
-// header block for rent files.  BEWARE: Changing it will ruin rent files  //
-struct SaveRentInfo {
-	SaveRentInfo() : time(0), rentcode(0), net_cost_per_diem(0), gold(0),
-					 account(0), nitems(0), oitems(0), spare1(0), spare2(0), spare3(0),
-					 spare4(0), spare5(0), spare6(0), spare7(0) {};
-
-	int32_t time;
-	int32_t rentcode;
-	int32_t net_cost_per_diem;
-	int32_t gold;
-	int32_t account;
-	int32_t nitems;
-	int32_t oitems;
-	int32_t spare1;
-	int32_t spare2;
-	int32_t spare3;
-	int32_t spare4;
-	int32_t spare5;
-	int32_t spare6;
-	int32_t spare7;
-};
-
-struct SaveTimeInfo {
-	int32_t vnum;
-	int32_t timer;
-};
-
-struct SaveInfo {
-	struct SaveRentInfo rent;
-	std::vector<SaveTimeInfo> time;
-};
-
 // =======================================================================
 
-
 // char-related structures ***********************************************
-
-
 // memory structure for characters //
 struct MemoryRecord {
 	long id = 0;
@@ -497,36 +445,6 @@ struct ZoneCategory {
 	int *ingr_types = nullptr;    // types of ingredients, which are loaded in zones of this type //
 };
 
-struct IntApplies {
-	int spell_aknowlege;    // drop_chance to know spell               //
-	int to_skilluse;        // ADD CHANSE FOR USING SKILL         //
-	int mana_per_tic;
-	int spell_success;        //  max count of spell on 1s level    //
-	int improve;        // drop_chance to improve skill           //
-	int observation;        // drop_chance to use SKILL_AWAKE/CRITICAL //
-};
-
-struct ChaApplies {
-	int leadership;
-	int charms;
-	int morale;
-	int illusive;
-	int dam_to_hit_rate;
-};
-
-struct SizeApplies {
-	int ac;            // ADD VALUE FOR AC           //
-	int interpolate;        // ADD VALUE FOR SOME SKILLS  //
-	int initiative;
-	int shocking;
-};
-
-struct WeaponApplies {
-	int shocking;
-	int bashing;
-	int parrying;
-};
-
 /*struct race_app_type {
 	struct extra_affects_type *extra_affects;
 	struct obj_affected_type *extra_modifiers;
@@ -538,9 +456,9 @@ struct title_type {
 	int exp = 0;
 };
 
-struct index_data {
-	index_data() : vnum(0), number(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
-	index_data(int _vnum)
+struct IndexData {
+	IndexData() : vnum(0), number(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
+	IndexData(int _vnum)
 		: vnum(_vnum), number(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
 
 	int vnum;            // virtual number of this mob/obj       //
@@ -552,31 +470,6 @@ struct index_data {
 	int zone;            // mob/obj zone rnum //
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };
-
-struct SocialMessages {
-	int ch_min_pos = 0;
-	int ch_max_pos = 0;
-	int vict_min_pos = 0;
-	int vict_max_pos = 0;
-	char *char_no_arg = nullptr;
-	char *others_no_arg = nullptr;
-
-	// An argument was there, and a victim was found //
-	char *char_found = nullptr;    // if NULL, read no further, ignore args //
-	char *others_found = nullptr;
-	char *vict_found = nullptr;
-
-	// An argument was there, but no victim was found //
-	char *not_found = nullptr;
-};
-
-struct SocialKeyword {
-	char *keyword = nullptr;
-	int social_message = 0;
-};
-
-extern struct SocialMessages *soc_mess_list;
-extern struct SocialKeyword *soc_keys_list;
 
 const __uint8_t GAPPLY_NONE = 0;
 const __uint8_t GAPPLY_SKILL_SUCCESS = 1;

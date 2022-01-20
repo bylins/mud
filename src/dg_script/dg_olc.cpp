@@ -308,7 +308,7 @@ void trigedit_save(DESCRIPTOR_DATA *d) {
 	char *s;
 	TRIG_DATA *proto;
 	TRIG_DATA *trig = OLC_TRIG(d);
-	INDEX_DATA **new_index;
+	IndexData **new_index;
 	DESCRIPTOR_DATA *dsc;
 	FILE *trig_file;
 	int zone, top;

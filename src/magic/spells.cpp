@@ -45,7 +45,7 @@
 extern DESCRIPTOR_DATA *descriptor_list;
 extern const char *material_name[];
 extern const char *weapon_affects[];
-extern TIME_INFO_DATA time_info;
+extern TimeInfoData time_info;
 extern int cmd_tell;*/
 extern char cast_argument[kMaxInputLength];
 extern im_type *imtypes;

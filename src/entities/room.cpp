@@ -89,7 +89,7 @@ ROOM_DATA::ROOM_DATA() : room_vn(0),
 						 pkPenterUnique(0),
 						 holes(0),
 						 poison(0) {
-	for (auto i = 0; i < NUM_OF_DIRS; ++i) {
+	for (auto i = 0; i < kDirMaxNumber; ++i) {
 		dir_option[i].reset();
 	}
 

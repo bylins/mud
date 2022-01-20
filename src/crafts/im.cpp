@@ -30,7 +30,7 @@ const short kMaxRecipeLevel = 200;
 char *how_good(int skill_level, int skill_cap);
 
 extern CHAR_DATA *mob_proto;
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 
 void do_rset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

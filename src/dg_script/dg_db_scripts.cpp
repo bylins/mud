@@ -32,7 +32,7 @@ trigger_to_owners_map_t owner_trig;
 
 extern int top_of_trigt;
 
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 
 // TODO: Get rid of me
 char *dirty_indent_trigger(char *cmd, int *level) {
@@ -122,7 +122,7 @@ void indent_trigger(std::string &cmd, int *level) {
  * nr is the real number of the trigger.
  */
 TRIG_DATA *read_trigger(int nr) {
-	index_data *index;
+	IndexData *index;
 	if (nr >= top_of_trigt || nr == -1) {
 		return nullptr;
 	}

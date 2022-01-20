@@ -1781,7 +1781,7 @@ char *make_prompt(DESCRIPTOR_DATA *d) {
 			if (PRF_FLAGGED(d->character, PRF_DISPEXITS)) {
 				count += sprintf(prompt + count, "Вых:");
 				if (!AFF_FLAGGED(d->character, EAffectFlag::AFF_BLIND)) {
-					for (door = 0; door < NUM_OF_DIRS; door++) {
+					for (door = 0; door < kDirMaxNumber; door++) {
 						if (EXIT(d->character, door)
 							&& EXIT(d->character, door)->to_room() != kNowhere
 							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN)) {

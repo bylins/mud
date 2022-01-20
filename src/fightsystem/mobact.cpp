@@ -195,7 +195,7 @@ int attack_best(CHAR_DATA *ch, CHAR_DATA *victim) {
 int check_room_tracks(const RoomRnum room, const long victim_id) {
 	for (auto track = world[room]->track; track; track = track->next) {
 		if (track->who == victim_id) {
-			for (int i = 0; i < NUM_OF_DIRS; i++) {
+			for (int i = 0; i < kDirMaxNumber; i++) {
 				if (IS_SET(track->time_outgone[i], 7)) {
 					return i;
 				}
@@ -1184,7 +1184,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
 			&& !ch->has_master()
 			&& GET_POS(ch) == POS_STANDING) {
-			for (found = false, door = 0; door < NUM_OF_DIRS; door++) {
+			for (found = false, door = 0; door < kDirMaxNumber; door++) {
 				ROOM_DATA::exit_data_ptr rdata = EXIT(ch, door);
 				if (!rdata
 					|| rdata->to_room() == kNowhere
@@ -1242,7 +1242,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		// Mob Movement
 		if (!MOB_FLAGGED(ch, MOB_SENTINEL)
 			&& GET_POS(ch) == POS_STANDING
-			&& (door >= 0 && door < NUM_OF_DIRS)
+			&& (door >= 0 && door < kDirMaxNumber)
 			&& EXIT(ch, door)
 			&& EXIT(ch, door)->to_room() != kNowhere
 			&& legal_dir(ch.get(), door, true, false)

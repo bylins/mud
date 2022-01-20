@@ -12,16 +12,16 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#ifndef _SKILLS_H_
-#define _SKILLS_H_
+#ifndef SKILLS_H_
+#define SKILLS_H_
 
 #include "structs/structs.h"
-#include "utils/pugixml.h"
+//#include "utils/pugixml.h"
 
 #include <map>
 
-extern const byte kSkillCapOnZeroRemort;
-extern const byte kSkillCapBonusPerRemort;
+extern const int kSkillCapOnZeroRemort;
+extern const int kSkillCapBonusPerRemort;
 
 class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
@@ -159,24 +159,23 @@ extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
 
 int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, std::string add = "");
 
-int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict);
-void ImproveSkill(CHAR_DATA *ch, const ESkill skill, int success, CHAR_DATA *victim);
-void TrainSkill(CHAR_DATA *ch, const ESkill skill, bool success, CHAR_DATA *vict);
+int CalcCurrentSkill(CHAR_DATA *ch, ESkill skill, CHAR_DATA *vict);
+void ImproveSkill(CHAR_DATA *ch, ESkill skill, int success, CHAR_DATA *victim);
+void TrainSkill(CHAR_DATA *ch, ESkill skill, bool success, CHAR_DATA *vict);
 
 int min_skill_level(CHAR_DATA *ch, int skill);
 int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 bool IsAbleToGetSkill(CHAR_DATA *ch, int skill);
 bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
-bool IsWeaponSkill(ESkill skill);
 int FindWeaponMasterBySkill(ESkill skill);
 int CalcSkillRemortCap(const CHAR_DATA *ch);
 int CalcSkillSoftCap(const CHAR_DATA *ch);
-int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill);
-int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill);
+int CalcSkillHardCap(const CHAR_DATA *ch, ESkill skill);
+int CalcSkillMinCap(const CHAR_DATA *ch, ESkill skill);
 SkillRollResult MakeSkillTest(CHAR_DATA *ch, ESkill skill_id, CHAR_DATA *vict);
 void SendSkillBalanceMsg(CHAR_DATA *ch, const char *skill_name, int percent, int prob, bool success);
 int CalculateSkillAwakeModifier(CHAR_DATA *killer, CHAR_DATA *victim);
 
-#endif
+#endif // SKILLS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

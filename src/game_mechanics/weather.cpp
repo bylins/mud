@@ -22,7 +22,7 @@
 
 Weather weather_info;
 extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
-extern TIME_INFO_DATA time_info;
+extern TimeInfoData time_info;
 
 void another_hour(int mode);
 void weather_change();
@@ -763,7 +763,7 @@ void weather_change(void) {
 }
 
 void calc_easter(void) {
-	TIME_INFO_DATA t = time_info;
+	TimeInfoData t = time_info;
 	int moon_day = weather_info.moon_day, week_day = weather_info.week_day_mono;
 
 	log("Сейчас>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);

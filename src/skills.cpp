@@ -13,8 +13,8 @@
 #include "utils/random.h"
 #include "skills_info.h"
 
-extern const byte kSkillCapOnZeroRemort = 80;
-extern const byte kSkillCapBonusPerRemort = 5;;
+const int kSkillCapOnZeroRemort = 80;
+const int kSkillCapBonusPerRemort = 5;;
 
 const int kNoviceSkillThreshold = 75;
 const short kSkillDiceSize = 100;

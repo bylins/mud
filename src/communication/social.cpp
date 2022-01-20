@@ -12,22 +12,14 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "interpreter.h"
 #include "handler.h"
-
-// extern variables
-extern DESCRIPTOR_DATA *descriptor_list;
+#include "social.h"
 
 // local globals
 int number_of_social_messages = -1;
 int number_of_social_commands = -1;
 struct SocialMessages *soc_mess_list = nullptr;
 struct SocialKeyword *soc_keys_list = nullptr;
-
-// local functions
-int find_action(char *cmd);
-int do_social(CHAR_DATA *ch, char *argument);
-void do_insult(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 int find_action(char *cmd) {
 	int bot, top, mid, chk;
@@ -99,8 +91,8 @@ int do_social(CHAR_DATA *ch, char *argument) {
 				continue;
 			}
 
-			act(action->others_no_arg, false, ch, 0, to, TO_VICT | CHECK_DEAF);
-			act(deaf_social, false, ch, 0, to, TO_VICT | CHECK_NODEAF);
+			act(action->others_no_arg, false, ch, nullptr, to, TO_VICT | CHECK_DEAF);
+			act(deaf_social, false, ch, nullptr, to, TO_VICT | CHECK_NODEAF);
 		}
 		return (true);
 	}
@@ -119,14 +111,14 @@ int do_social(CHAR_DATA *ch, char *argument) {
 				continue;
 			}
 
-			act(action->others_no_arg, false, ch, 0, to, TO_VICT | CHECK_DEAF);
-			act(deaf_social, false, ch, 0, to, TO_VICT | CHECK_NODEAF);
+			act(action->others_no_arg, false, ch, nullptr, to, TO_VICT | CHECK_DEAF);
+			act(deaf_social, false, ch, nullptr, to, TO_VICT | CHECK_NODEAF);
 		}
 	} else {
 		if (GET_POS(vict) < action->vict_min_pos || GET_POS(vict) > action->vict_max_pos)
-			act("$N2 сейчас, похоже, не до вас.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+			act("$N2 сейчас, похоже, не до вас.", false, ch, nullptr, vict, TO_CHAR | TO_SLEEP);
 		else {
-			act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
+			act(action->char_found, 0, ch, nullptr, vict, TO_CHAR | TO_SLEEP);
 // здесь зарылся баг, связанный с тем, что я не знаю,
 // как без грязных хаков сделать так, чтобы
 // можно было этот вызов делать в цикле для каждого чара в клетке и при этом
@@ -134,99 +126,13 @@ int do_social(CHAR_DATA *ch, char *argument) {
 // в итоге даже если чар в клетке игнорирует чара ch, то все равно он
 // будет видеть его действия, имеющие цель, если при этом цель -- не он сам.
 // для глухих -- то же самое.
-			act(action->others_found, false, ch, 0, vict, TO_NOTVICT | CHECK_DEAF);
-			act(deaf_social, false, ch, 0, 0, TO_ROOM | CHECK_NODEAF);
+			act(action->others_found, false, ch, nullptr, vict, TO_NOTVICT | CHECK_DEAF);
+			act(deaf_social, false, ch, nullptr, nullptr, TO_ROOM | CHECK_NODEAF);
 			if (!ignores(vict, ch, IGNORE_EMOTE))
-				act(action->vict_found, false, ch, 0, vict, TO_VICT | CHECK_DEAF);
+				act(action->vict_found, false, ch, nullptr, vict, TO_VICT | CHECK_DEAF);
 		}
 	}
 	return (true);
-}
-
-void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
-
-	one_argument(argument, arg);
-
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
-		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
-		return;
-	}
-	if (*arg) {
-		if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-			send_to_char("&KА он вас и не услышит :(&n\r\n", ch);
-		else {
-			if (victim != ch) {
-				sprintf(buf, "&KВы оскорбили %s.&n\r\n", GET_PAD(victim, 3));
-				send_to_char(buf, ch);
-
-				switch (number(0, 2)) {
-					case 0:
-						if (IS_MALE(ch)) {
-							if (IS_MALE(victim))
-								act("&K$n высмеял$g вашу манеру держать меч !&n",
-									false, ch, 0, victim, TO_VICT);
-							else
-								act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n",
-									false,
-									ch,
-									0,
-									victim,
-									TO_VICT);
-						} else    // Ch == Woman
-						{
-							if (IS_MALE(victim))
-								act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n",
-									false,
-									ch,
-									0,
-									victim,
-									TO_VICT);
-							else
-								act("&K$n обьявил$g всем о вашем близком родстве с Бабой-Ягой.&n",
-									false,
-									ch,
-									0,
-									victim,
-									TO_VICT);
-						}
-						break;
-					case 1:
-						act("&K$n1 чем-то не удовлетворила ваша мама!&n", false,
-							ch, 0, victim, TO_VICT);
-						break;
-					default:
-						act("&K$n предложил$g вам посетить ближайший хутор!\r\n"
-							"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
-							false, ch, 0, victim, TO_VICT);
-						break;
-				}    // end switch
-
-				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", true, ch, 0, victim, TO_NOTVICT);
-			} else    // ch == victim
-			{
-				send_to_char("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
-			}
-		}
-	} else
-		send_to_char("&KВы уверены, что стоит оскорблять такими словами всех?&n\r\n", ch);
-}
-
-char *fread_action(FILE *fl, int nr) {
-	char buf[kMaxStringLength];
-
-	const char *result = fgets(buf, kMaxStringLength, fl);
-	UNUSED_ARG(result);
-
-	if (feof(fl)) {
-		log("SYSERR: fread_action: unexpected EOF near action #%d", nr);
-		exit(1);
-	}
-	if (*buf == '#')
-		return (nullptr);
-
-	buf[strlen(buf) - 1] = '\0';
-	return (str_dup(buf));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

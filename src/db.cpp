@@ -22,6 +22,7 @@
 #include "boards/boards.h"
 #include "boot/boot_data_files.h"
 #include "boot/boot_index.h"
+#include "communication/social.h"
 #include "crafts/jewelry.h"
 #include "crafts/mining.h"
 #include "game_mechanics/celebrates.h"
@@ -68,7 +69,7 @@
 #include "utils/id_converter.h"
 #include "title.h"
 #include "top.h"
-#include "magic/magic_rooms.h"
+//#include "magic/magic_rooms.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
 
@@ -100,7 +101,7 @@ Rooms &world = GlobalObjects::world();
 RoomRnum top_of_world = 0;    // ref to top element of world
 
 void add_trig_index_entry(int nr, TRIG_DATA *trig) {
-	index_data *index;
+	IndexData *index;
 	CREATE(index, 1);
 	index->vnum = nr;
 	index->number = 0;
@@ -110,10 +111,10 @@ void add_trig_index_entry(int nr, TRIG_DATA *trig) {
 	trig_index[top_of_trigt++] = index;
 }
 
-INDEX_DATA **trig_index;    // index table for triggers
+IndexData **trig_index;    // index table for triggers
 int top_of_trigt = 0;        // top of trigger index table
 
-INDEX_DATA *mob_index;        // index table for mobile file
+IndexData *mob_index;        // index table for mobile file
 MobRnum top_of_mobt = 0;    // top of mobile index table
 void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 void load_speedwalk();
@@ -148,7 +149,7 @@ char *handbook = nullptr;        // handbook for new immortals
 char *policies = nullptr;        // policies page
 char *name_rules = nullptr;        // rules of character's names
 
-TIME_INFO_DATA time_info;    // the infomation about the time
+TimeInfoData time_info;    // the infomation about the time
 //struct Weather weather_info;    // the infomation about the weather
 struct reset_q_type reset_q;    // queue of zones to be reset
 
@@ -205,7 +206,7 @@ void init_zone_types();
 void load_guardians();
 
 // external functions
-TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
+TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages(void);
 void initSpells(void);
@@ -225,7 +226,7 @@ void calc_easter(void);
 void do_start(CHAR_DATA *ch, int newbie);
 extern void repop_decay(ZoneRnum zone);    // рассыпание обьектов ITEM_REPOP_DECAY
 int level_exp(CHAR_DATA *ch, int level);
-extern char *fread_action(FILE *fl, int nr);
+//extern char *fread_action(FILE *fl, int nr);
 void load_mobraces();
 
 // external vars
@@ -244,6 +245,23 @@ extern struct PCCleanCriteria pclean_criteria[];
 extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
 extern void LoadProxyList();
 extern void add_karma(CHAR_DATA *ch, const char *punish, const char *reason);
+
+char *fread_action(FILE *fl, int nr) {
+	char buf[kMaxStringLength];
+
+	const char *result = fgets(buf, kMaxStringLength, fl);
+	UNUSED_ARG(result);
+
+	if (feof(fl)) {
+		log("SYSERR: fread_action: unexpected EOF near action #%d", nr);
+		exit(1);
+	}
+	if (*buf == '#')
+		return (nullptr);
+
+	buf[strlen(buf) - 1] = '\0';
+	return (str_dup(buf));
+}
 
 int strchrn(const char *s, int c) {
 
@@ -745,7 +763,7 @@ void tag_argument(char *argument, char *tag) {
 *  routines for booting the system                                       *
 *************************************************************************/
 
-void go_boot_socials(void) {
+void go_boot_socials() {
 	int i;
 
 	if (soc_mess_list) {
@@ -2706,7 +2724,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 		case DB_BOOT_MOB: {
 			mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
 			CREATE(mob_index, rec_count);
-			const size_t index_size = sizeof(INDEX_DATA) * rec_count;
+			const size_t index_size = sizeof(IndexData) * rec_count;
 			const size_t characters_size = sizeof(CHAR_DATA) * rec_count;
 			log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.", rec_count, index_size, characters_size);
 		}
@@ -2839,7 +2857,7 @@ void renum_world(void) {
 	int room, door;
 
 	for (room = FIRST_ROOM; room <= top_of_world; room++) {
-		for (door = 0; door < NUM_OF_DIRS; door++) {
+		for (door = 0; door < kDirMaxNumber; door++) {
 			if (world[room]->dir_option[door]) {
 				if (world[room]->dir_option[door]->to_room() != kNowhere) {
 					const auto to_room = real_room(world[room]->dir_option[door]->to_room());
@@ -4487,7 +4505,7 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 
-					if (ZCMD.arg2 < 0 || ZCMD.arg2 >= NUM_OF_DIRS ||
+					if (ZCMD.arg2 < 0 || ZCMD.arg2 >= kDirMaxNumber ||
 						(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == nullptr)) {
 						ZONE_ERROR("door does not exist, command disabled");
 						ZCMD.command = '*';
@@ -5292,7 +5310,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 			if (!must_be_deleted(short_ch)) {
 				deleted = 0;
 
-				player_index_element element(GET_IDNUM(short_ch), GET_NAME(short_ch));
+				PlayerIndexElement element(GET_IDNUM(short_ch), GET_NAME(short_ch));
 
 				//added by WorM 2010.08.27 в индексе чистим мыло и ip
 				CREATE(element.mail, strlen(GET_EMAIL(short_ch)) + 1);
@@ -5510,7 +5528,7 @@ void room_copy(ROOM_DATA *dst, ROOM_DATA *src)
 	dst->temp_description = 0; // так надо
 
 	// Выходы и входы
-	for (i = 0; i < NUM_OF_DIRS; ++i) {
+	for (i = 0; i < kDirMaxNumber; ++i) {
 		const auto &rdd = src->dir_option[i];
 		if (rdd) {
 			dst->dir_option[i].reset(new EXIT_DATA());
@@ -5562,7 +5580,7 @@ void room_free(ROOM_DATA *room)
 	}
 
 	// Выходы и входы
-	for (int i = 0; i < NUM_OF_DIRS; i++) {
+	for (int i = 0; i < kDirMaxNumber; i++) {
 		if (room->dir_option[i]) {
 			room->dir_option[i].reset();
 		}
@@ -5870,7 +5888,7 @@ PlayersIndex::~PlayersIndex() {
 	log("~PlayersIndex()");
 }
 
-std::size_t PlayersIndex::append(const player_index_element &element) {
+std::size_t PlayersIndex::append(const PlayerIndexElement &element) {
 	const auto index = size();
 
 	push_back(element);
@@ -5905,7 +5923,7 @@ void PlayersIndex::add_name_to_index(const char *name, const std::size_t index) 
 	m_name_to_index.emplace(name, index);
 }
 
-player_index_element::player_index_element(const int id, const char *name) :
+PlayerIndexElement::PlayerIndexElement(const int id, const char *name) :
 	mail(nullptr),
 	last_ip(nullptr),
 	unique(0),
@@ -5920,7 +5938,7 @@ player_index_element::player_index_element(const int id, const char *name) :
 	set_name(name);
 }
 
-void player_index_element::set_name(const char *name) {
+void PlayerIndexElement::set_name(const char *name) {
 	delete[] m_name;
 
 	char *new_name = new char[strlen(name) + 1];

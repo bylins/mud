@@ -39,7 +39,7 @@ const int TriggersList_F::TRIGGERS_NUMBER;
 void TriggersList_F::SetUp()
 {
 	trigger_list = GlobalTriggersStorage(); // reset global triggers storage before each test
-	trig_index = new INDEX_DATA*[TRIGGERS_NUMBER];
+	trig_index = new IndexData*[TRIGGERS_NUMBER];
 	top_of_trigt = 0;
 
 	for (int i = 0; i < TRIGGERS_NUMBER; ++i)

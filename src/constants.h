@@ -20,6 +20,44 @@
 #include <vector>
 #include <array>
 
+struct IntApplies {
+	int spell_aknowlege;    // drop_chance to know spell               //
+	int to_skilluse;        // ADD CHANSE FOR USING SKILL         //
+	int mana_per_tic;
+	int spell_success;        //  max count of spell on 1s level    //
+	int improve;        // drop_chance to improve skill           //
+	int observation;        // drop_chance to use SKILL_AWAKE/CRITICAL //
+};
+
+struct ChaApplies {
+	int leadership;
+	int charms;
+	int morale;
+	int illusive;
+	int dam_to_hit_rate;
+};
+
+struct SizeApplies {
+	int ac;
+	int interpolate;        // ADD VALUE FOR SOME SKILLS  //
+	int initiative;
+	int shocking;
+};
+
+struct WeaponApplies {
+	int shocking;
+	int bashing;
+	int parrying;
+};
+
+struct pray_affect_type {
+	int metter;
+	EApplyLocation location;
+	int modifier;
+	uint32_t bitvector;
+	int battleflag;
+};
+
 extern const char *circlemud_version;
 extern const char *dirs[];
 extern const char *DirsFrom[];
@@ -67,15 +105,6 @@ extern const size_t INT_APP_SIZE;
 extern struct ChaApplies cha_app[];
 extern struct SizeApplies size_app[];
 extern struct WeaponApplies weapon_app[];
-
-struct pray_affect_type {
-	int metter;
-	EApplyLocation location;
-	int modifier;
-	uint32_t bitvector;
-	int battleflag;
-};
-
 extern std::vector<pray_affect_type> pray_affect;
 extern int rev_dir[];
 extern int movement_loss[];

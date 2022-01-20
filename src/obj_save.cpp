@@ -25,11 +25,13 @@
 
 #include <boost/algorithm/string.hpp>
 
-#define LOC_INVENTORY    0
-#define MAX_BAG_ROWS    5
-#define ITEM_DESTROYED  100
+const int LOC_INVENTORY = 0;
+//const int MAX_BAG_ROWS = 5;
+//const int ITEM_DESTROYED = 100;
 
-extern INDEX_DATA *mob_index;
+// header block for rent files.  BEWARE: Changing it will ruin rent files  //
+
+extern IndexData *mob_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;

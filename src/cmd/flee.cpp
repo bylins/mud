@@ -39,10 +39,10 @@ void go_flee(CHAR_DATA *ch) {
 		return;
 	}
 
-	int dirs[NUM_OF_DIRS];
+	int dirs[kDirMaxNumber];
 	int correct_dirs = 0;
 
-	for (auto i = 0; i < NUM_OF_DIRS; ++i) {
+	for (auto i = 0; i < kDirMaxNumber; ++i) {
 		if (legal_dir(ch, i, true, false) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ROOM_DEATH)) {
 			dirs[correct_dirs] = i;
 			++correct_dirs;
@@ -50,7 +50,7 @@ void go_flee(CHAR_DATA *ch) {
 	}
 
 	if (correct_dirs > 0
-		&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS))) {
+		&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / kDirMaxNumber), kDirMaxNumber))) {
 		const auto direction = dirs[number(0, correct_dirs - 1)];
 		const auto was_fighting = ch->get_fighting();
 		const auto was_in = ch->in_room;

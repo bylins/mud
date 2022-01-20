@@ -9,6 +9,12 @@
 
 #include "structs/structs.h"
 
+// Типы таймеров аффектов.
+constexpr bitvector_t AF_BATTLEDEC = 1 << 0;
+constexpr bitvector_t AF_DEADKEEP = 1 << 1;
+constexpr bitvector_t AF_PULSEDEC = 1 << 2;
+constexpr bitvector_t AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
+
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
 enum class EAffectFlag : bitvector_t {
@@ -171,8 +177,9 @@ struct weapon_affect_types {
 	int aff_spell;
 };
 
-
 // Modifier constants used with obj affects ('A' fields) //
+// Applies используются как в предметах, так и в аффектах. Разумней разместить их тут, т.к. по сути
+// applies на предметах - это урезанные аффекты.
 enum EApplyLocation {
 	APPLY_NONE = 0,    // No effect         //
 	APPLY_STR = 1,    // Apply to strength    //

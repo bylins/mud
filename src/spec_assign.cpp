@@ -24,7 +24,7 @@
 
 extern int dts_are_dumps;
 
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 
 int dump(CHAR_DATA *ch, void *me, int cmd, char *argument);
 int puff(CHAR_DATA *ch, void *me, int cmd, char *argument);

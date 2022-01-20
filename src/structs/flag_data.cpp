@@ -9,8 +9,6 @@
 
 #include "utils/utils.h"
 
-//const char *nothing_string = "ничего";
-
 int ext_search_block(const char *arg, const char *const *const list, int exact) {
 	unsigned int i, j, o;
 

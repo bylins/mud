@@ -24,13 +24,10 @@
 
 // * External data structures.
 extern CHAR_DATA *mob_proto;
-extern INDEX_DATA *mob_index;
+extern IndexData *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
-
-//MZ.load
 extern struct ZoneCategory *zone_types;
-//-MZ.load
 //------------------------------------------------------------------------
 
 // * Function prototypes.

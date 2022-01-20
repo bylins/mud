@@ -26,10 +26,10 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 	const auto directions = world[rnum]->dir_option;
 	std::string from_direction = "-";
 
-	for (int i = 0; i < NUM_OF_DIRS; ++i) {
+	for (int i = 0; i < kDirMaxNumber; ++i) {
 		if (directions[i]
 			&& !EXIT_FLAGGED(directions[i], EX_HIDDEN)) {
-			const static std::string direction_commands[NUM_OF_DIRS] = {"n", "e", "s", "w", "u", "d"};
+			const static std::string direction_commands[kDirMaxNumber] = {"n", "e", "s", "w", "u", "d"};
 			const auto to_rnum = directions[i]->to_room();
 			if (to_rnum == from_rnum) {
 				from_direction = direction_commands[i];

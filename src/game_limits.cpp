@@ -1168,7 +1168,7 @@ void room_point_update() {
 			}
 
 			int restore;
-			for (mana = 0, restore = false; mana < NUM_OF_DIRS; mana++) {
+			for (mana = 0, restore = false; mana < kDirMaxNumber; mana++) {
 				if ((track->time_income[mana] <<= spellnum)) {
 					restore = true;
 				}
