@@ -3049,17 +3049,13 @@ int calculate_resistance_coeff(CharacterData *ch, int resist_type, int effect) {
 	int result, resistance;
 
 	resistance = GET_RESIST(ch, resist_type);
-
 	if (resistance <= 0) {
 		return effect - resistance * effect / 100;
-	}
-	if (IS_NPC(ch) && resistance > 300) {
-		return 0;
 	}
 	if (!IS_NPC(ch)) {
 		resistance = MIN(75, resistance);
 	}
-	const float divisor = IS_NPC(ch) ? 400 : 200; 
+	const float divisor = 200; 
 	result = effect - (resistance + number(0, resistance)) * effect / divisor;
 	result = MAX(0, result);
 	return result;

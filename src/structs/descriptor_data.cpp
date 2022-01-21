@@ -87,9 +87,9 @@ void DescriptorData::msdp_report_changed_vars() {
 
 void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str) const {
 	switch (keytable) {
-		case kCodePageAlt: for (; *in_str; *out_str = KtoA(*in_str), in_str++, out_str++);
+		case kCodePageAlt:
+			for (; *in_str; *out_str = KtoA(*in_str), in_str++, out_str++);
 			break;
-
 		case kCodePageWin:
 			for (; *in_str; in_str++, out_str++) {
 				*out_str = KtoW(*in_str);
@@ -129,7 +129,8 @@ void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str
 			koi_to_utf8(const_cast<char *>(in_str), out_str);
 			break;
 
-		default: for (; *in_str; *out_str = *in_str, in_str++, out_str++);
+		default:
+			for (; *in_str; *out_str = *in_str, in_str++, out_str++);
 			break;
 	}
 

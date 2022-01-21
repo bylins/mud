@@ -618,12 +618,9 @@ void medit_save_to_disk(int zone_num) {
 				fprintf(mob_file, "Saves: %d %d %d %d\n",
 						GET_SAVE(mob, 0), GET_SAVE(mob, 1), GET_SAVE(mob, 2), GET_SAVE(mob, 3));
 			sum = 0;
-			for (n = 0; n < MAX_NUMBER_RESISTANCE; n++)
-				sum += GET_RESIST(mob, n);
-			if (sum != 0)
-				fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
-						GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
-						GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6), GET_RESIST(mob, 7));
+			fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
+					GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
+					GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6), GET_RESIST(mob, 7));
 			if (GET_HITREG(mob) != 0)
 				fprintf(mob_file, "HPreg: %d\n", GET_HITREG(mob));
 			if (GET_ARMOUR(mob) != 0)
@@ -819,7 +816,7 @@ void medit_disp_resistances(DescriptorData *d) {
 				grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Введите номер и величину сопротивления (0 - конец) : ", d->character.get());
+	send_to_char("Введите номер и величину сопротивления (-100..100\%) (0 - конец) : ", d->character.get());
 }
 
 // *  Display saves - added by Adept
@@ -1797,7 +1794,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указан уровень сопротивления.\r\n", d->character.get());
 			} else {
-				GET_RESIST(OLC_MOB(d), number - 1) = MIN(300, MAX(-1000, bit));
+				GET_RESIST(OLC_MOB(d), number - 1) = MIN(100, MAX(-100, bit));
 			}
 			medit_disp_resistances(d);
 			return;
