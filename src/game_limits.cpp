@@ -270,6 +270,8 @@ int hit_gain(CharacterData *ch) {
 			break;
 		case EPosition::kSit: percent += 10;
 			break;
+		default:
+			break;
 	}
 
 	percent += GET_HITREG(ch);

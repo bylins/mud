@@ -12,44 +12,6 @@
 
 #include <boost/algorithm/string.hpp>
 
-/*
-Пример конфига (sample configuration) (plrstuff/shop/test.xml):
-<?xml version="1.0"?>
-<shop_item_sets>
-	<shop_item_set id="GEMS">
-	        <item vnum="909" price="100" />
-        	<item vnum="910" price="100" />
-	        <item vnum="911" price="100" />
-        	<item vnum="912" price="100" />
-	        <item vnum="913" price="100" />
-        	<item vnum="914" price="100" />
-	        <item vnum="915" price="100" />
-	        <item vnum="916" price="100" />
-        	<item vnum="917" price="100" />
-	</shop_item_set>
-</shop_item_sets>
-
-<shop_list>
-    <shop currency="куны" id="GEMS_SHOP" profit="40" waste_time_min="0">
-	<mob MobVnum="4010" />
-	<mob MobVnum="4015" />
-	<item_set>GEMS</item_set>
-        <item vnum="4001" price="500" />
-    </shop>
-    <shop currency="куны" id="BANDAGE_SHOP" profit="60" waste_time_min="15">
-	<mob MobVnum="4018"/>
-	<mob MobVnum="4019"/>
-        <item vnum="1913" price="500" />
-       	<item vnum="1914" price="1000" />
-        <item vnum="1915" price="2000" />
-       	<item vnum="1916" price="4000" />
-        <item vnum="1917" price="8000" />
-       	<item vnum="1918" price="16000" />
-        <item vnum="1919" price="25" />
-    </shop>
-</shop_list>
-*/
-
 extern int do_social(CharacterData *ch, char *argument);    // implemented in the act.social.cpp
 // здесь хранятся все предметы из магазинов вида внум_предмета, цена
 //std::map<int, int> items_list_for_checks;
@@ -263,11 +225,11 @@ void load(bool reload) {
 		std::map<int, std::string> mob_to_template;
 
 		for (pugi::xml_node mob = node.child("mob"); mob; mob = mob.next_sibling("mob")) {
-			int mob_vnum = Parse::attr_int(mob, "MobVnum");
+			int mob_vnum = Parse::attr_int(mob, "mob_vnum");
 			std::string templateId = mob.attribute("template").value();
 			if (mob_vnum < 0) {
 				snprintf(buf, kMaxStringLength,
-						 "...bad shop attributes (MobVnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
+						 "...bad shop attributes (mob_vnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
 				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 				return;
 			}
@@ -279,18 +241,18 @@ void load(bool reload) {
 			tmp_shop->add_mob_vnum(mob_vnum);
 			// проверяем и сетим мобу спешиал
 			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
-			int mob_rnum = real_mobile(mob_vnum);
+			auto mob_rnum = real_mobile(mob_vnum);
 			if (mob_rnum >= 0) {
 				if (mob_index[mob_rnum].func
 					&& mob_index[mob_rnum].func != shop_ext) {
 					snprintf(buf, kMaxStringLength,
-							 "...shopkeeper already with special (MobVnum=%d)", mob_vnum);
+							 "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
 					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 				} else {
 					mob_index[mob_rnum].func = shop_ext;
 				}
 			} else {
-				snprintf(buf, kMaxStringLength, "...incorrect MobVnum=%d", mob_vnum);
+				snprintf(buf, kMaxStringLength, "...incorrect mob_vnum=%d", mob_vnum);
 				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			}
 		}
@@ -436,7 +398,7 @@ int shop_ext(CharacterData *ch, void *me, int cmd, char *argument) {
 	}
 
 	if (!shop) {
-		log("SYSERROR : магазин не найден MobVnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
+		log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
 		send_to_char("Ошибочка вышла.\r\n", ch);
 
 		return 1;

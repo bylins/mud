@@ -1098,6 +1098,8 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				case EPosition::kSleep: act("$n уснул$g.", false, ch.get(), 0, 0, TO_ROOM);
 					GET_POS(ch) = EPosition::kSleep;
 					break;
+				default:
+					break;
 			}
 		}
 		// continue, if the mob is an angel
