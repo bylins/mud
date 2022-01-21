@@ -2489,7 +2489,7 @@ bool is_dark(RoomRnum room) {
 		coef += 2.0;
 	// если светит луна и комната !помещение и !город
 	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity)
-		&& (GET_ROOM_SKY(room) == SKY_LIGHTNING
+		&& (GET_ROOM_SKY(room) == kSkyLightning
 			&& weather_info.moon_day >= FULLMOONSTART
 			&& weather_info.moon_day <= FULLMOONSTOP))
 		coef += 1.0;

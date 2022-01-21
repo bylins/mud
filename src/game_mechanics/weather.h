@@ -23,10 +23,10 @@ const __uint8_t MOON_INCREASE = 0;
 const __uint8_t MOON_DECREASE = 1;
 
 // Sky conditions for Weather //
-const __uint8_t SKY_CLOUDLESS = 0;
-const __uint8_t SKY_CLOUDY = 1;
-const __uint8_t SKY_RAINING = 2;
-const __uint8_t SKY_LIGHTNING = 3;
+const __uint8_t kSkyCloudless = 0;
+const __uint8_t kSkyCloudy = 1;
+const __uint8_t kSkyRaining = 2;
+const __uint8_t kSkyLightning = 3;
 
 constexpr bitvector_t WEATHER_QUICKCOOL = 1 << 0;
 constexpr bitvector_t WEATHER_QUICKHOT = 1 << 1;

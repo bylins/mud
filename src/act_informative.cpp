@@ -4061,7 +4061,7 @@ void do_time(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 }
 
 int get_moon(int sky) {
-	if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT || sky == SKY_RAINING)
+	if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT || sky == kSkyRaining)
 		return (0);
 	else if (weather_info.moon_day <= NEWMOONSTOP || weather_info.moon_day >= NEWMOONSTART)
 		return (1);

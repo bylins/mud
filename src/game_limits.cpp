@@ -1090,10 +1090,10 @@ void room_point_update() {
 	for (int count = FIRST_ROOM; count <= top_of_world; count++) {
 		if (world[count]->fires) {
 			switch (get_room_sky(count)) {
-				case SKY_CLOUDY:
-				case SKY_CLOUDLESS: mana = number(1, 2);
+				case kSkyCloudy:
+				case kSkyCloudless: mana = number(1, 2);
 					break;
-				case SKY_RAINING: mana = 2;
+				case kSkyRaining: mana = 2;
 					break;
 				default: mana = 1;
 			}

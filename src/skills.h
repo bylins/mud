@@ -25,12 +25,12 @@ extern const int kSkillCapBonusPerRemort;
 
 class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
-#define SAVING_WILL       0
-#define SAVING_CRITICAL   1
-#define SAVING_STABILITY  2
-#define SAVING_REFLEX     3
-#define SAVING_COUNT      4
-#define SAVING_NONE    5 //Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.
+const int SAVING_WILL = 0;
+const int SAVING_CRITICAL = 1;
+const int SAVING_STABILITY = 2;
+const int SAVING_REFLEX = 3;
+const int SAVING_COUNT = 4;
+const int SAVING_NONE = 5; //Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.
 
 enum ExtraAttackEnumType {
 	EXTRA_ATTACK_UNUSED,

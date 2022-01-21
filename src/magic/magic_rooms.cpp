@@ -198,7 +198,7 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 						aff->duration = 0;
 						break;
 					}
-					what_sky = SKY_CLOUDY;
+					what_sky = kSkyCloudy;
 					send_to_char("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
 					act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
 						false, 	ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
@@ -233,7 +233,7 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_WHIRLWIND, ch->get_level());
 					break;
-				case 1: what_sky = SKY_CLOUDLESS;
+				case 1: what_sky = kSkyCloudless;
 					break;
 				default: send_to_char("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);

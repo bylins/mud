@@ -19,7 +19,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
 
-using namespace AbilitySystemConstants;
+using namespace abilities;
 
 extern const char *unused_spellname;
 
@@ -122,8 +122,8 @@ void initializeFeatureByDefault(int featureNum) {
 	feat_info[featureNum].oppositeSaving = SAVING_STABILITY;
 	feat_info[featureNum].dicerollBonus = MAX_ABILITY_DICEROLL_BONUS;
 	feat_info[featureNum].baseSkill = SKILL_INVALID;
-	feat_info[featureNum].criticalFailThreshold = DEFAULT_CRITICAL_FAIL_THRESHOLD;
-	feat_info[featureNum].criticalSuccessThreshold = DEFAULT_CRITICAL_SUCCESS_THRESHOLD;
+	feat_info[featureNum].criticalFailThreshold = kDefaultCriticalFailThreshold;
+	feat_info[featureNum].criticalSuccessThreshold = kDefaultCriticalSuccessThreshold;
 
 	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
 		feat_info[featureNum].affected[i].location = APPLY_NONE;
@@ -1466,9 +1466,9 @@ short calculateSituationalRollBonusOfGroupFormation(CharacterData *ch, Character
 	int skirmishers = roster.count([](CharacterData *ch) { return PRF_FLAGGED(ch, PRF_SKIRMISHER); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
-		return (skirmishers * 2 - uncoveredSquadMembers) * SITUATIONABLE_FACTOR - 40;
+		return (skirmishers * 2 - uncoveredSquadMembers) * kCircumstanceFactor - 40;
 	};
-	return (skirmishers * 2 - uncoveredSquadMembers) * SITUATIONABLE_FACTOR;
+	return (skirmishers * 2 - uncoveredSquadMembers) * kCircumstanceFactor;
 };
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -234,7 +234,8 @@ set(SOURCES
 		src/crafts/mining.cpp
 		src/classes/class_constants.cpp
         src/structs/extra_description.cpp
-		src/communication/insult.cpp)
+		src/communication/insult.cpp
+		src/abilities/abilities_info.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -449,7 +450,8 @@ set(HEADERS
 		src/affects/affect_contants.h
         src/structs/extra_description.h
 		src/communication/insult.h
-		src/communication/social.h)
+		src/communication/social.h
+		src/abilities/abilities_info.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

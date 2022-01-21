@@ -2653,9 +2653,9 @@ void reset_time(void) {
 		weather_info.season = SEASON_WINTER;
 
 	if (weather_info.pressure <= 980)
-		weather_info.sky = SKY_LIGHTNING;
+		weather_info.sky = kSkyLightning;
 	else if (weather_info.pressure <= 1000) {
-		weather_info.sky = SKY_RAINING;
+		weather_info.sky = kSkyRaining;
 		if (time_info.month >= MONTH_APRIL && time_info.month <= MONTH_OCTOBER)
 			create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTRAIN, 40, 40, 20);
 		else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY)
@@ -2667,9 +2667,9 @@ void reset_time(void) {
 				create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTSNOW, 80, 20, 0);
 		}
 	} else if (weather_info.pressure <= 1020)
-		weather_info.sky = SKY_CLOUDY;
+		weather_info.sky = kSkyCloudy;
 	else
-		weather_info.sky = SKY_CLOUDLESS;
+		weather_info.sky = kSkyCloudless;
 }
 
 // generate index table for the player file

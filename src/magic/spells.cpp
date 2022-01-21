@@ -68,7 +68,7 @@ void perform_remove(CharacterData *ch, int pos);
 int pk_action_type_summon(CharacterData *agressor, CharacterData *victim);
 int pk_increment_revenge(CharacterData *agressor, CharacterData *victim);
 
-int what_sky = SKY_CLOUDLESS;
+int what_sky = kSkyCloudless;
 // * Special spells appear below.
 
 ESkill get_magic_skill_number_by_spell(int spellnum) {
@@ -1990,15 +1990,15 @@ void spell_control_weather(int/* level*/, CharacterData *ch, CharacterData * /*v
 	const char *sky_info = nullptr;
 	int i, duration, zone, sky_type = 0;
 
-	if (what_sky > SKY_LIGHTNING)
-		what_sky = SKY_LIGHTNING;
+	if (what_sky > kSkyLightning)
+		what_sky = kSkyLightning;
 
 	switch (what_sky) {
-		case SKY_CLOUDLESS: sky_info = "Небо покрылось облаками.";
+		case kSkyCloudless: sky_info = "Небо покрылось облаками.";
 			break;
-		case SKY_CLOUDY: sky_info = "Небо покрылось тяжелыми тучами.";
+		case kSkyCloudy: sky_info = "Небо покрылось тяжелыми тучами.";
 			break;
-		case SKY_RAINING:
+		case kSkyRaining:
 			if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_OCTOBER) {
 				sky_info = "Начался проливной дождь.";
 				create_rainsnow(&sky_type, WEATHER_LIGHTRAIN, 0, 50, 50);
@@ -2015,7 +2015,7 @@ void spell_control_weather(int/* level*/, CharacterData *ch, CharacterData * /*v
 				}
 			}
 			break;
-		case SKY_LIGHTNING: sky_info = "На небе не осталось ни единого облачка.";
+		case kSkyLightning: sky_info = "На небе не осталось ни единого облачка.";
 			break;
 		default: break;
 	}

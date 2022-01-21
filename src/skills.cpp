@@ -1160,9 +1160,9 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 		}
 
 		case SKILL_FIRE: {
-			if (get_room_sky(ch->in_room) == SKY_RAINING)
+			if (get_room_sky(ch->in_room) == kSkyRaining)
 				bonus -= 50;
-			else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
+			else if (get_room_sky(ch->in_room) != kSkyLightning)
 				bonus -= number(10, 25);
 			break;
 		}
@@ -1760,9 +1760,9 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 		}
 
 		case SKILL_FIRE: {
-			if (get_room_sky(ch->in_room) == SKY_RAINING)
+			if (get_room_sky(ch->in_room) == kSkyRaining)
 				bonus -= 50;
-			else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
+			else if (get_room_sky(ch->in_room) != kSkyLightning)
 				bonus -= number(10, 25);
 			break;
 		}
