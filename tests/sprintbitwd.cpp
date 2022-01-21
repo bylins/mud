@@ -1,4 +1,4 @@
-#include <structs.h>
+#include <structs/structs.h>
 
 #include <gtest/gtest.h>
 

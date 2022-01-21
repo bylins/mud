@@ -4,14 +4,14 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/fight_start.h"
-#include "random.h"
+#include "utils/random.h"
 #include "screen.h"
 #include "skills_info.h"
 
 using namespace FightSystem;
 
 // ************************* CHOPOFF PROCEDURES
-void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_chopoff(CharacterData *ch, CharacterData *vict) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -25,12 +25,10 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
 	if (ch->isHorsePrevents())
 		return;
 
-	if ((GET_POS(vict) < POS_FIGHTING)) {
+	if ((GET_POS(vict) < EPosition::kFight)) {
 		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF)) {
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			//set_wait(ch, 1, FALSE);
-			//setSkillCooldown(ch, SKILL_CHOPOFF, 1);
-			ch->setSkillCooldown(SKILL_CHOPOFF, PULSE_VIOLENCE / 6);
+			ch->setSkillCooldown(SKILL_CHOPOFF, kPulseViolence / 6);
 			return;
 		}
 	}
@@ -52,7 +50,7 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
 
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
 		GET_GOD_FLAG(vict, GF_GODSLIKE) ||
-		vict->ahorse() || GET_POS(vict) < POS_FIGHTING || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
+		vict->ahorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
 		prob = 0;
 
 	bool success = percent <= prob;
@@ -60,30 +58,30 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
 	SendSkillBalanceMsg(ch, skill_info[SKILL_CHOPOFF].name, percent, prob, success);
 	if (!success) {
 		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		act(buf, FALSE, ch, 0, vict, TO_CHAR);
-		act("$n попытал$u подсечь вас, но упал$g сам$g.", FALSE, ch, 0, vict, TO_VICT);
-		act("$n попытал$u подсечь $N3, но упал$g сам$g.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-		GET_POS(ch) = POS_SITTING;
+		act(buf, false, ch, 0, vict, TO_CHAR);
+		act("$n попытал$u подсечь вас, но упал$g сам$g.", false, ch, 0, vict, TO_VICT);
+		act("$n попытал$u подсечь $N3, но упал$g сам$g.", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
 		if (can_use_feat(ch, EVASION_FEAT)) {
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.type = SPELL_EXPEDIENT;
 			af.location = EApplyLocation::APPLY_PR;
 			af.modifier = 50;
 			af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, false, false, false, false);
 			af.location = EApplyLocation::APPLY_AR;
-			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, false, false, false, false);
 			af.location = EApplyLocation::APPLY_MR;
-			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, false, false, false, false);
 			send_to_char(ch,
 						 "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n",
 						 CCIGRN(ch, C_NRM),
 						 GET_PAD(vict, 1),
 						 CCNRM(ch, C_NRM));
-			act("$n покатил$u по земле, пытаясь избежать ваших атак.", FALSE, ch, 0, vict, TO_VICT);
-			act("$n покатил$u по земле, пытаясь избежать атак $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+			act("$n покатил$u по земле, пытаясь избежать ваших атак.", false, ch, 0, vict, TO_VICT);
+			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
 	} else {
 		send_to_char(ch,
@@ -91,12 +89,12 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
 					 CCIBLU(ch, C_NRM),
 					 GET_PAD(vict, 3),
 					 CCNRM(ch, C_NRM));
-		act("$n ловко подсек$q вас, усадив на попу.", FALSE, ch, 0, vict, TO_VICT);
-		act("$n ловко подсек$q $N3, уронив $S на землю.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-		set_wait(vict, 3, FALSE);
+		act("$n ловко подсек$q вас, усадив на попу.", false, ch, 0, vict, TO_VICT);
+		act("$n ловко подсек$q $N3, уронив $S на землю.", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		set_wait(vict, 3, false);
 
 		if (ch->isInSameRoom(vict)) {
-			GET_POS(vict) = POS_SITTING;
+			GET_POS(vict) = EPosition::kSit;
 		}
 
 		if (IS_HORSE(vict) && vict->get_master()->ahorse()) {
@@ -111,14 +109,14 @@ void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict) {
 	}
 
 	if (!success) {
-		set_wait(ch, prob, FALSE);
+		set_wait(ch, prob, false);
 	} else {
 		setSkillCooldownInFight(ch, SKILL_CHOPOFF, prob);
 		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 	}
 }
 
-void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_chopoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_CHOPOFF) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -133,7 +131,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы собираетесь подсечь?\r\n", ch);
 		return;
@@ -153,7 +151,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		go_chopoff(ch, vict);
 	else if (isHaveNoExtraAttack(ch)) {
 		if (!IS_NPC(ch))
-			act("Хорошо. Вы попытаетесь подсечь $N3.", FALSE, ch, 0, vict, TO_CHAR);
+			act("Хорошо. Вы попытаетесь подсечь $N3.", false, ch, 0, vict, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, vict);
 	}
 }

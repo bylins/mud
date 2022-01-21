@@ -15,7 +15,7 @@ namespace ActionTargeting {
 	isCorrectSingleFriend нет, потому что не имеется дружественных ареакастов
 	Если таковые вводить - стоит добавить
 */
-bool isIncorrectVictim(CHAR_DATA *actor, CHAR_DATA *target, char *arg) {
+bool isIncorrectVictim(CharacterData *actor, CharacterData *target, char *arg) {
 	if (actor == target) {
 		return true;
 	}
@@ -31,18 +31,18 @@ bool isIncorrectVictim(CHAR_DATA *actor, CHAR_DATA *target, char *arg) {
 // ===== list of filters ===
 const FilterType emptyFilter;
 
-const FilterType isNotCorrectTarget = [](CHAR_DATA *actor, CHAR_DATA *target) {
-	return (!HERE(target) || IN_ROOM(target) == NOWHERE || !actor->isInSameRoom(target));
+const FilterType isNotCorrectTarget = [](CharacterData *actor, CharacterData *target) {
+	return (!HERE(target) || IN_ROOM(target) == kNowhere || !actor->isInSameRoom(target));
 };
 
-const FilterType isCorrectFriend = [](CHAR_DATA *actor, CHAR_DATA *target) {
+const FilterType isCorrectFriend = [](CharacterData *actor, CharacterData *target) {
 	if (isNotCorrectTarget(actor, target)) {
 		return false;
 	};
 	return (same_group(actor, target));
 };
 
-const FilterType isCorrectVictim = [](CHAR_DATA *actor, CHAR_DATA *target) {
+const FilterType isCorrectVictim = [](CharacterData *actor, CharacterData *target) {
 	if (isNotCorrectTarget(actor, target)) {
 		return false;
 	};
@@ -60,7 +60,7 @@ const FilterType isCorrectVictim = [](CHAR_DATA *actor, CHAR_DATA *target) {
 void TargetsRosterType::setFilter(const FilterType &baseFilter, const FilterType &extraFilter) {
 	if (extraFilter) {
 		_passesThroughFilter =
-			[&baseFilter, &extraFilter](CHAR_DATA *actor, CHAR_DATA *target) {
+			[&baseFilter, &extraFilter](CharacterData *actor, CharacterData *target) {
 				return (baseFilter(actor, target) && extraFilter(actor, target));
 			};
 	} else {
@@ -71,10 +71,10 @@ void TargetsRosterType::setFilter(const FilterType &baseFilter, const FilterType
 void TargetsRosterType::fillRoster() {
 	_roster.reserve(world[_actor->in_room]->people.size() + 1);
 	std::copy_if(world[_actor->in_room]->people.begin(), world[_actor->in_room]->people.end(),
-				 std::back_inserter(_roster), [this](CHAR_DATA *ch) { return _passesThroughFilter(_actor, ch); });
+				 std::back_inserter(_roster), [this](CharacterData *ch) { return _passesThroughFilter(_actor, ch); });
 };
 
-void TargetsRosterType::setPriorityTarget(CHAR_DATA *target) {
+void TargetsRosterType::setPriorityTarget(CharacterData *target) {
 	if (!target) {
 		return;
 	}
@@ -85,7 +85,7 @@ void TargetsRosterType::setPriorityTarget(CHAR_DATA *target) {
 	_roster.push_back(target);
 };
 
-void TargetsRosterType::makeRosterOfFoes(CHAR_DATA *priorityTarget,
+void TargetsRosterType::makeRosterOfFoes(CharacterData *priorityTarget,
 										 const FilterType &baseFilter,
 										 const FilterType &extraFilter) {
 	setFilter(baseFilter, extraFilter);
@@ -103,7 +103,7 @@ void TargetsRosterType::makeRosterOfFoes(CHAR_DATA *priorityTarget,
 	В очень многих местах по коду (особенно в fight) идут проверки типа "если моб не непись, не ангел"
 	и так далее, чтобы выбрать _дружественную_ цель для моба. Логично вынести это в одно место.
 */
-void TargetsRosterType::makeRosterOfFriends(CHAR_DATA *priorityTarget,
+void TargetsRosterType::makeRosterOfFriends(CharacterData *priorityTarget,
 											const FilterType &baseFilter,
 											const FilterType &extraFilter) {
 	setFilter(baseFilter, extraFilter);
@@ -123,7 +123,7 @@ int TargetsRosterType::count(const PredicateType &predicate) {
 	return std::count_if(_roster.begin(), _roster.end(), predicate);
 };
 
-CHAR_DATA *TargetsRosterType::getRandomItem(const PredicateType &predicate) {
+CharacterData *TargetsRosterType::getRandomItem(const PredicateType &predicate) {
 	int amountOfItems = std::count_if(_roster.begin(), _roster.end(), predicate);
 	if (amountOfItems == 0) {
 		return nullptr;
@@ -136,7 +136,7 @@ CHAR_DATA *TargetsRosterType::getRandomItem(const PredicateType &predicate) {
 	return (*item);
 };
 
-CHAR_DATA *TargetsRosterType::getRandomItem() {
+CharacterData *TargetsRosterType::getRandomItem() {
 	if (_roster.empty()) {
 		return nullptr;
 	}

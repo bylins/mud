@@ -2,7 +2,7 @@
 
 #include "heartbeat.h"
 #include "global_objects.h"
-#include "utils/utils.string.h"
+#include "utils/utils_string.h"
 
 #include <iomanip>
 
@@ -13,7 +13,7 @@ using namespace commands::utils;
 
 class HeartbeatCommandContext : public ReplyableContext {
  public:
-	HeartbeatCommandContext(CHAR_DATA *character, Heartbeat &heartbeat)
+	HeartbeatCommandContext(CharacterData *character, Heartbeat &heartbeat)
 		: ReplyableContext(character), m_heartbeat(heartbeat) {}
 
 	Heartbeat &operator()() const { return m_heartbeat; }
@@ -267,7 +267,7 @@ void ShowHeartbeatStats::print_steps(std::ostream &os,
 class CommandsHandler : public commands::AbstractCommandsHanler {
  public:
 	virtual void initialize() override;
-	virtual void process(CHAR_DATA *character, char *arguments) override;
+	virtual void process(CharacterData *character, char *arguments) override;
 
  private:
 	CommandEmbranchment::shared_ptr m_command;
@@ -293,7 +293,7 @@ void CommandsHandler::initialize() {
 		.rebuild_help();
 }
 
-void CommandsHandler::process(CHAR_DATA *character, char *arguments) {
+void CommandsHandler::process(CharacterData *character, char *arguments) {
 	AbstractCommand::arguments_t arguments_list(arguments);
 	const auto context = std::make_shared<HeartbeatCommandContext>(character, GlobalObjects::heartbeat());
 	AbstractCommand::arguments_t path;
@@ -308,7 +308,7 @@ const commands::AbstractCommandsHanler::shared_ptr &commands_handler() {
 }
 }
 
-void do_heartbeat(CHAR_DATA *ch, char *arguments, int /*cmd*/, int /*subcmd*/) {
+void do_heartbeat(CharacterData *ch, char *arguments, int /*cmd*/, int /*subcmd*/) {
 	commands_handler()->process(ch, arguments);
 }
 

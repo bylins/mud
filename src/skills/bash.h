@@ -1,10 +1,10 @@
 #ifndef BYLINS_BASH_H
 #define BYLINS_BASH_H
 
-class CHAR_DATA;
+class CharacterData;
 
-void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void go_bash(CHAR_DATA *ch, CHAR_DATA *vict);
+void do_bash(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_bash(CharacterData *ch, CharacterData *vict);
 
 #endif //BYLINS_BASH_H
 

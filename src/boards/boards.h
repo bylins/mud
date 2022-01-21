@@ -8,7 +8,7 @@
 #include "boards_types.h"
 #include "db.h"
 #include "interpreter.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "sysdep.h"
 
@@ -21,20 +21,20 @@ extern std::string dg_script_text;
 
 class Static {
  public:
-	static bool LoginInfo(CHAR_DATA *ch);
+	static bool LoginInfo(CharacterData *ch);
 	static void BoardInit();
 	static void ClanInit();
-	static int Special(CHAR_DATA *, void *, int, char *);
-	static std::string print_stats(CHAR_DATA *ch, Board::shared_ptr board, int num);
+	static int Special(CharacterData *, void *, int, char *);
+	static std::string print_stats(CharacterData *ch, Board::shared_ptr board, int num);
 	static void reload_all();
 	static void clear_god_boards();
 	static void init_god_board(long uid, std::string name);
-	static void do_list(CHAR_DATA *ch, const Board::shared_ptr board);
+	static void do_list(CharacterData *ch, const Board::shared_ptr board);
 
-	static bool can_see(CHAR_DATA *ch, const Board::shared_ptr board);
-	static bool can_read(CHAR_DATA *ch, const Board::shared_ptr board);
-	static bool can_write(CHAR_DATA *ch, const Board::shared_ptr board);
-	static bool full_access(CHAR_DATA *ch, const Board::shared_ptr board);
+	static bool can_see(CharacterData *ch, const Board::shared_ptr board);
+	static bool can_read(CharacterData *ch, const Board::shared_ptr board);
+	static bool can_write(CharacterData *ch, const Board::shared_ptr board);
+	static bool full_access(CharacterData *ch, const Board::shared_ptr board);
 	static void clan_delete_message(const std::string &name, int vnum);
 	static void new_message_notify(const Board::shared_ptr board);
 
@@ -42,12 +42,12 @@ class Static {
 										  const std::string &desc, const std::string &file);
 
  private:
-	static std::bitset<ACCESS_NUM> get_access(CHAR_DATA *ch, const Board::shared_ptr board);
+	static std::bitset<ACCESS_NUM> get_access(CharacterData *ch, const Board::shared_ptr board);
 };
 
-void report_on_board(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoBoard(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoBoardList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void report_on_board(CharacterData *ch, char *argument, int cmd, int subcmd);
+void DoBoard(CharacterData *ch, char *argument, int cmd, int subcmd);
+void DoBoardList(CharacterData *ch, char *argument, int cmd, int subcmd);
 
 } // namespace BoardSystem
 

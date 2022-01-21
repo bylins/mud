@@ -5,24 +5,24 @@
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/fight_start.h"
 #include "handler.h"
-#include "random.h"
+#include "utils/random.h"
 #include "screen.h"
 #include "skills_info.h"
 
 using namespace FightSystem;
 
 // ************* DISARM PROCEDURES
-void go_disarm(CHAR_DATA *ch, CHAR_DATA *vict) {
-	OBJ_DATA *wielded = GET_EQ(vict, WEAR_WIELD) ? GET_EQ(vict, WEAR_WIELD) :
-						GET_EQ(vict, WEAR_BOTHS), *helded = GET_EQ(vict, WEAR_HOLD);
+void go_disarm(CharacterData *ch, CharacterData *vict) {
+	ObjectData *wielded = GET_EQ(vict, WEAR_WIELD) ? GET_EQ(vict, WEAR_WIELD) :
+						  GET_EQ(vict, WEAR_BOTHS), *helded = GET_EQ(vict, WEAR_HOLD);
 
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (!((wielded && GET_OBJ_TYPE(wielded) != OBJ_DATA::ITEM_LIGHT)
-		|| (helded && GET_OBJ_TYPE(helded) != OBJ_DATA::ITEM_LIGHT))) {
+	if (!((wielded && GET_OBJ_TYPE(wielded) != ObjectData::ITEM_LIGHT)
+		|| (helded && GET_OBJ_TYPE(helded) != ObjectData::ITEM_LIGHT))) {
 		return;
 	}
 	int pos = 0;
@@ -60,7 +60,7 @@ void go_disarm(CHAR_DATA *ch, CHAR_DATA *vict) {
 					 CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 		send_to_char(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
-		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		unequip_char(vict, pos, CharEquipFlags());
 		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, IS_NPC(vict) ? 1 : 2);
 		prob = 2;
@@ -81,7 +81,7 @@ void go_disarm(CHAR_DATA *ch, CHAR_DATA *vict) {
 	setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
 }
 
-void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_disarm(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_DISARM)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -91,7 +91,7 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого обезоруживаем?\r\n", ch);
 		return;
@@ -108,11 +108,11 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (!((GET_EQ(vict, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != OBJ_DATA::ITEM_LIGHT)
+		&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != ObjectData::ITEM_LIGHT)
 		|| (GET_EQ(vict, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != OBJ_DATA::ITEM_LIGHT)
+			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != ObjectData::ITEM_LIGHT)
 		|| (GET_EQ(vict, WEAR_BOTHS)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != OBJ_DATA::ITEM_LIGHT))) {
+			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != ObjectData::ITEM_LIGHT))) {
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
 	}
@@ -120,7 +120,7 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_disarm(ch, vict);
 	} else if (isHaveNoExtraAttack(ch)) {
-		act("Хорошо. Вы попытаетесь разоружить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, 0, vict, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_DISARM, vict);
 	}
 }

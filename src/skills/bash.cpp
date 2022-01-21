@@ -9,7 +9,7 @@
 using namespace FightSystem;
 
 // ************************* BASH PROCEDURES
-void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
+void go_bash(CharacterData *ch, CharacterData *vict) {
 	if (dontCanAct(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -34,7 +34,7 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING) {
+	if (GET_POS(ch) < EPosition::kFight) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -57,14 +57,13 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
 	if (!success) {
 		Damage dmg(SkillDmg(SKILL_BASH), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
-		GET_POS(ch) = POS_SITTING;
+		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
 	} else {
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
-		if (GET_POS(vict) <= POS_STUNNED && GET_WAIT(vict) > 0) {
+		if (GET_POS(vict) <= EPosition::kStun && GET_WAIT(vict) > 0) {
 			send_to_char("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
-			//set_wait(ch, 1, FALSE);
-			ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, PULSE_VIOLENCE);
+			ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, kPulseViolence);
 			return;
 		}
 
@@ -78,7 +77,7 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
 				&& PRF_FLAGGED(vict, PRF_AWAKE)
 				&& vict->get_skill(SKILL_AWAKE)
 				&& vict->get_skill(SKILL_BLOCK)
-				&& GET_POS(vict) > POS_SITTING))
+				&& GET_POS(vict) > EPosition::kSit))
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
@@ -94,22 +93,22 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
 				TrainSkill(vict, SKILL_BLOCK, success2, ch);
 				if (!success2) {
 					act("Вы не смогли блокировать попытку $N1 сбить вас.",
-						FALSE, vict, 0, ch, TO_CHAR);
+						false, vict, 0, ch, TO_CHAR);
 					act("$N не смог$Q блокировать вашу попытку сбить $S.",
-						FALSE, ch, 0, vict, TO_CHAR);
+						false, ch, 0, vict, TO_CHAR);
 					act("$n не смог$q блокировать попытку $N1 сбить $s.",
-						TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+						true, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 				} else {
 					act("Вы блокировали попытку $N1 сбить вас с ног.",
-						FALSE, vict, 0, ch, TO_CHAR);
+						false, vict, 0, ch, TO_CHAR);
 					act("Вы хотели сбить $N1, но он$G блокировал$G Вашу попытку.",
-						FALSE, ch, 0, vict, TO_CHAR);
+						false, ch, 0, vict, TO_CHAR);
 					act("$n блокировал$g попытку $N1 сбить $s.",
-						TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+						true, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 					alt_equip(vict, WEAR_SHIELD, 30, 10);
 					if (!ch->get_fighting()) {
 						set_fighting(ch, vict);
-						set_wait(ch, 1, TRUE);
+						set_wait(ch, 1, true);
 						//setSkillCooldownInFight(ch, SKILL_BASH, 1);
 					}
 					return;
@@ -125,15 +124,15 @@ void go_bash(CHAR_DATA *ch, CHAR_DATA *vict) {
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD))) {
 			prob = 2;
 			if (!vict->drop_from_horse()) {
-				GET_POS(vict) = POS_SITTING;
-				set_wait(vict, 3, FALSE);
+				GET_POS(vict) = EPosition::kSit;
+				set_wait(vict, 3, false);
 			}
 		}
 	}
-	set_wait(ch, prob, TRUE);
+	set_wait(ch, prob, true);
 }
 
-void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_bash(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(SKILL_BASH)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -148,7 +147,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого же вы так сильно желаете сбить?\r\n", ch);
 		return;
@@ -168,7 +167,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		go_bash(ch, vict);
 	} else if (isHaveNoExtraAttack(ch)) {
 		if (!IS_NPC(ch))
-			act("Хорошо. Вы попытаетесь сбить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+			act("Хорошо. Вы попытаетесь сбить $N3.", false, ch, 0, vict, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_BASH, vict);
 	}
 }

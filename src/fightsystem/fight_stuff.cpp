@@ -2,9 +2,10 @@
 
 #include "affects/affect_data.h"
 #include "mobact.h"
-#include "obj.h"
+#include "entities/obj.h"
+#include "entities/entity_constants.h"
 #include "cmd/flee.h"
-#include "chars/world.characters.h"
+#include "entities/world_characters.h"
 #include "fight.h"
 #include "fight_penalties.h"
 #include "fight_hit.h"
@@ -17,21 +18,21 @@
 #include "screen.h"
 #include "magic/magic.h"
 #include "mob_stat.h"
-#include "bonus.h"
+#include "game_mechanics/bonus.h"
 #include "backtrace.h"
 #include "magic/magic_utils.h"
-#include "zone.table.h"
-#include "chars/char_player.h"
+#include "entities/zone.h"
+#include "entities/char_player.h"
 
 #include <algorithm>
 
 // extern
-void perform_drop_gold(CHAR_DATA *ch, int amount);
-int level_exp(CHAR_DATA *ch, int chlevel);
-int max_exp_gain_pc(CHAR_DATA *ch);
-int max_exp_loss_pc(CHAR_DATA *ch);
-void get_from_container(CHAR_DATA *ch, OBJ_DATA *cont, char *arg, int mode, int amount, bool autoloot);
-void set_wait(CHAR_DATA *ch, int waittime, int victim_in_room);
+void perform_drop_gold(CharacterData *ch, int amount);
+int level_exp(CharacterData *ch, int chlevel);
+int max_exp_gain_pc(CharacterData *ch);
+int max_exp_loss_pc(CharacterData *ch);
+void get_from_container(CharacterData *ch, ObjectData *cont, char *arg, int mode, int amount, bool autoloot);
+void set_wait(CharacterData *ch, int waittime, int victim_in_room);
 
 extern int material_value[];
 extern int max_exp_gain_npc;
@@ -39,13 +40,13 @@ extern int max_exp_gain_npc;
 //интервал в секундах между восстановлением кругов после рипа
 extern const unsigned RECALL_SPELLS_INTERVAL;
 const unsigned RECALL_SPELLS_INTERVAL = 28;
-void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
+void process_mobmax(CharacterData *ch, CharacterData *killer) {
 	bool leader_partner = false;
 	int partner_feat = 0;
 	int total_group_members = 1;
-	CHAR_DATA *partner = nullptr;
+	CharacterData *partner = nullptr;
 
-	CHAR_DATA *master = nullptr;
+	CharacterData *master = nullptr;
 	if (IS_NPC(killer)
 		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
 			|| MOB_FLAGGED(killer, MOB_ANGEL)
@@ -74,15 +75,15 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 				}
 			}
 
-			for (struct follow_type *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+			for (struct Follower *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) ++total_group_members;
+				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
 					++cnt;
 					if (leader_partner) {
-						if (!IS_NPC(f->follower)) {
+						if (!IS_NPC(f->ch)) {
 							partner_feat++;
-							partner = f->follower;
+							partner = f->ch;
 						}
 					}
 				}
@@ -103,14 +104,14 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 			const int mobmax_members = (above_limit / 4) + 2;
 
 			// выбираем всех мемберов в группе в комнате с убивецом
-			std::vector<CHAR_DATA *> members_to_mobmax;
+			std::vector<CharacterData *> members_to_mobmax;
 			if (IN_ROOM(master) == IN_ROOM(killer)) {
 				members_to_mobmax.push_back(master);
 			}
-			for (struct follow_type *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
-					members_to_mobmax.push_back(f->follower);
+			for (struct Follower *f = master->followers; f; f = f->next) {
+				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
+					members_to_mobmax.push_back(f->ch);
 				}
 			}
 
@@ -126,11 +127,11 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 			// выберем случайным образом мембера группы для замакса
 			auto n = number(0, cnt);
 			int i = 0;
-			for (struct follow_type *f = master->followers; f && i < n; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+			for (struct Follower *f = master->followers; f && i < n; f = f->next) {
+				if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->ch) == IN_ROOM(killer)) {
 					++i;
-					master = f->follower;
+					master = f->ch;
 				}
 			}
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_REAL_LEVEL(ch));
@@ -138,14 +139,14 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer) {
 	}
 }
 
-void gift_new_year(CHAR_DATA * /*vict*/) {
+void gift_new_year(CharacterData * /*vict*/) {
 }
 
 // 29.11.09 Увеличиваем счетчики рипов (с) Василиса
 //edited by WorM
-void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp) {
+void update_die_counts(CharacterData *ch, CharacterData *killer, int dec_exp) {
 	//настоящий убийца мастер чармиса/коня/ангела
-	CHAR_DATA *rkiller = killer;
+	CharacterData *rkiller = killer;
 
 	if (rkiller
 		&& IS_NPC(rkiller)
@@ -156,11 +157,11 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp) {
 		if (rkiller->has_master()) {
 			rkiller = rkiller->get_master();
 		} else {
-			snprintf(buf, MAX_STRING_LENGTH,
+			snprintf(buf, kMaxStringLength,
 					 "die: %s killed by %s (without master)",
 					 GET_PAD(ch, 0), GET_PAD(rkiller, 0));
-			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
-			rkiller = NULL;
+			mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
+			rkiller = nullptr;
 		}
 	}
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
@@ -222,7 +223,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp) {
 //end by WorM
 //конец правки (с) Василиса
 
-void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer) {
+void update_leadership(CharacterData *ch, CharacterData *killer) {
 	// train LEADERSHIP
 	if (IS_NPC(ch) && killer) // Убили моба
 	{
@@ -258,20 +259,20 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer) {
 	}
 }
 
-bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
-	room_rnum rnum_start, rnum_stop;
+bool stone_rebirth(CharacterData *ch, CharacterData *killer) {
+	RoomRnum rnum_start, rnum_stop;
 	if (IS_NPC(ch)){
 		return false;
 	}
 	if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && (ch != killer)) { //не нычка в ПК
 		return false;
 	}
-	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n погиб$q смертью храбрых.", false, ch, 0, 0, TO_ROOM);
 	get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_stop);
 	for (; rnum_start <= rnum_stop; rnum_start++) {
-		ROOM_DATA *rm = world[rnum_start];
+		RoomData *rm = world[rnum_start];
 		if (rm->contents) {
-			for (OBJ_DATA *j = rm->contents; j; j = j->get_next_content()) {
+			for (ObjectData *j = rm->contents; j; j = j->get_next_content()) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					send_to_char("Божественная сила спасла вашу жизнь!\r\n", ch);
 //					enter_wtrigger(world[rnum_start], ch, -1);
@@ -285,12 +286,12 @@ bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
 							ch->affect_remove(ch->affected.begin());
 						}
 					}
-					GET_POS(ch) = POS_STANDING;
+					GET_POS(ch) = EPosition::kStand;
 					look_at_room(ch, 0);
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
-					act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
-					WAIT_STATE(ch, 10 * PULSE_VIOLENCE);
+					act("$n медленно появил$u откуда-то.", false, ch, 0, 0, TO_ROOM);
+					WAIT_STATE(ch, 10 * kPulseViolence);
 					return true;
 				}
 			}
@@ -299,7 +300,7 @@ bool stone_rebirth(CHAR_DATA *ch, CHAR_DATA *killer) {
 	return false;
 }
 
-bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
+bool check_tester_death(CharacterData *ch, CharacterData *killer) {
 	const bool player_died = !IS_NPC(ch);
 	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone_rn].under_construction;
 
@@ -316,9 +317,9 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
 
 	// Сюда попадают только тестеры на волоске от смерти. Для инх функция должна вернуть true.
 	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
-	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n погиб$q смертью храбрых.", false, ch, 0, 0, TO_ROOM);
 	const int rent_room = real_room(GET_LOADROOM(ch));
-	if (rent_room == NOWHERE) {
+	if (rent_room == kNowhere) {
 		send_to_char("Вам некуда возвращаться!\r\n", ch);
 		return true;
 	}
@@ -329,13 +330,13 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
 	ch->dismount();
 	GET_HIT(ch) = 1;
 	update_pos(ch);
-	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n медленно появил$u откуда-то.", false, ch, 0, 0, TO_ROOM);
 	if (!ch->affected.empty()) {
 		while (!ch->affected.empty()) {
 			ch->affect_remove(ch->affected.begin());
 		}
 	}
-	GET_POS(ch) = POS_STANDING;
+	GET_POS(ch) = EPosition::kStand;
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
@@ -343,11 +344,11 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer) {
 	return true;
 }
 
-void die(CHAR_DATA *ch, CHAR_DATA *killer) {
+void die(CharacterData *ch, CharacterData *killer) {
 	int dec_exp = 0, e = GET_EXP(ch);
 
-	if (!IS_NPC(ch) && (ch->in_room == NOWHERE)) {
-		log("SYSERR: %s is dying in room NOWHERE.", GET_NAME(ch));
+	if (!IS_NPC(ch) && (ch->in_room == kNowhere)) {
+		log("SYSERR: %s is dying in room kNowhere.", GET_NAME(ch));
 		return;
 	}
 
@@ -360,7 +361,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone_rn].vnum == 759)
 		&& (GET_REAL_LEVEL(ch) < 15)) //нуб помер в мадшколе
 	{
-		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n глупо погиб$q не закончив обучение.", false, ch, 0, 0, TO_ROOM);
 //		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
 //		send_to_char(buf, ch);  // все мессаги писать в грит триггере
 //		enter_wtrigger(world[real_room(75989)], ch, -1);
@@ -369,11 +370,11 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 		ch->dismount();
 		GET_HIT(ch) = 1;
 		update_pos(ch);
-		act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n медленно появил$u откуда-то.", false, ch, 0, 0, TO_ROOM);
 		look_at_room(ch, 0);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
-//		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
+//		WAIT_STATE(ch, 10 * kPulseViolence); лаг лучше ставить триггерами
 		return;
 	}
 
@@ -415,7 +416,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer) {
 }
 
 #include "classes/class_spell_slots.h"
-void forget_all_spells(CHAR_DATA *ch) {
+void forget_all_spells(CharacterData *ch) {
 	using PlayerClass::slot_for_char;
 
 	GET_MEM_COMPLETED(ch) = 0;
@@ -425,7 +426,7 @@ void forget_all_spells(CHAR_DATA *ch) {
 		slots[i] = slot_for_char(ch, i + 1);
 		if (slots[i]) max_slot = i + 1;
 	}
-	struct spell_mem_queue_item *qi_cur, **qi = &ch->MemQueue.queue;
+	struct SpellMemQueueItem *qi_cur, **qi = &ch->MemQueue.queue;
 	while (*qi) {
 		--slots[spell_info[(*(qi))->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
 		qi = &((*qi)->link);
@@ -440,14 +441,14 @@ void forget_all_spells(CHAR_DATA *ch) {
 				CREATE(qi_cur, 1);
 				*qi = qi_cur;
 				qi_cur->spellnum = i;
-				qi_cur->link = NULL;
+				qi_cur->link = nullptr;
 				qi = &qi_cur->link;
 			}
 		}
 		ch->real_abils.SplMem[i] = 0;
 	}
 	if (max_slot) {
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = SPELL_RECALL_SPELLS;
 		af.location = APPLY_NONE;
 		af.modifier = 1; // номер круга, который восстанавливаем
@@ -461,69 +462,69 @@ void forget_all_spells(CHAR_DATA *ch) {
 
 /* Функция используемая при "автограбеже" и "автолуте",
    чтобы не было лута под холдом или в слепи             */
-int can_loot(CHAR_DATA *ch) {
-	if (ch != NULL) {
+int can_loot(CharacterData *ch) {
+	if (ch != nullptr) {
 		if (!IS_NPC(ch)
 			&& GET_MOB_HOLD(ch) == 0 // если под холдом
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) // парализован точкой
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)    // слеп
-			&& (GET_POS(ch) >= POS_RESTING)) // мертв, умирает, без сознания, спит
+			&& (GET_POS(ch) >= EPosition::kRest)) // мертв, умирает, без сознания, спит
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-void death_cry(CHAR_DATA *ch, CHAR_DATA *killer) {
+void death_cry(CharacterData *ch, CharacterData *killer) {
 	int door;
 	if (killer) {
 		if (IS_CHARMICE(killer)) {
 			act("Кровушка стынет в жилах от предсмертного крика $N1.",
-				FALSE, killer->get_master(), 0, ch, TO_ROOM | CHECK_DEAF);
+				false, killer->get_master(), 0, ch, TO_ROOM | CHECK_DEAF);
 		} else {
 			act("Кровушка стынет в жилах от предсмертного крика $N1.",
-				FALSE, killer, 0, ch, TO_ROOM | CHECK_DEAF);
+				false, killer, 0, ch, TO_ROOM | CHECK_DEAF);
 		}
 	}
 
-	for (door = 0; door < NUM_OF_DIRS; door++) {
+	for (door = 0; door < kDirMaxNumber; door++) {
 		if (CAN_GO(ch, door)) {
 			const auto room_number = world[ch->in_room]->dir_option[door]->to_room();
 			const auto room = world[room_number];
 			if (!room->people.empty()) {
 				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
-					FALSE, room->first_character(), 0, 0, TO_CHAR | CHECK_DEAF);
+					false, room->first_character(), 0, 0, TO_CHAR | CHECK_DEAF);
 				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
-					FALSE, room->first_character(), 0, 0, TO_ROOM | CHECK_DEAF);
+					false, room->first_character(), 0, 0, TO_ROOM | CHECK_DEAF);
 			}
 		}
 	}
 }
-void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
+void arena_kill(CharacterData *ch, CharacterData *killer) {
 	make_arena_corpse(ch, killer);
 	//Если убил палач то все деньги перекачивают к нему
 	if (killer && PRF_FLAGGED(killer, PRF_EXECUTOR)) {
 		killer->set_gold(ch->get_gold() + killer->get_gold());
 		ch->set_gold(0);
 	}
-	change_fighting(ch, TRUE);
+	change_fighting(ch, true);
 	GET_HIT(ch) = 1;
-	GET_POS(ch) = POS_SITTING;
+	GET_POS(ch) = EPosition::kSit;
 	int to_room = real_room(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
 	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL)) {
 		to_room = Clan::CloseRent(to_room);
 	}
-	if (to_room == NOWHERE) {
+	if (to_room == kNowhere) {
 		PLR_FLAGS(ch).set(PLR_HELLED);
 		HELL_DURATION(ch) = time(0) + 6;
 		to_room = r_helled_start_room;
 	}
-	for (follow_type *f = ch->followers; f; f = f->next) {
-		if (IS_CHARMICE(f->follower) && (IN_ROOM(f->follower) == ch->in_room)) {
-			char_from_room(f->follower);
-			char_to_room(f->follower, to_room);
+	for (Follower *f = ch->followers; f; f = f->next) {
+		if (IS_CHARMICE(f->ch) && (IN_ROOM(f->ch) == ch->in_room)) {
+			char_from_room(f->ch);
+			char_to_room(f->ch, to_room);
 		}
 	}
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
@@ -532,11 +533,11 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	char_from_room(ch);
 	char_to_room(ch, to_room);
 	look_at_room(ch, to_room);
-	act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n со стонами упал$g с небес...", false, ch, 0, 0, TO_ROOM);
 	enter_wtrigger(world[ch->in_room], ch, -1);
 }
 
-void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gold) {
+void auto_loot(CharacterData *ch, CharacterData *killer, ObjectData *corpse, int local_gold) {
 	char obj[256];
 
 	if (IS_DARK(IN_ROOM(killer))
@@ -551,7 +552,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	if (IS_NPC(ch)
 		&& !IS_NPC(killer)
 		&& PRF_FLAGGED(killer, PRF_AUTOLOOT)
-		&& (corpse != NULL)
+		&& (corpse != nullptr)
 		&& can_loot(killer)) {
 		sprintf(obj, "all");
 		get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, true);
@@ -559,7 +560,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 		&& !IS_NPC(killer)
 		&& local_gold
 		&& PRF_FLAGGED(killer, PRF_AUTOMONEY)
-		&& (corpse != NULL)
+		&& (corpse != nullptr)
 		&& can_loot(killer)) {
 		sprintf(obj, "all.coin");
 		get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, false);
@@ -568,7 +569,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
 			|| MOB_FLAGGED(killer, MOB_ANGEL)
 			|| MOB_FLAGGED(killer, MOB_GHOST))
-		&& (corpse != NULL)
+		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
 		&& PRF_FLAGGED(killer->get_master(), PRF_AUTOLOOT)
@@ -581,7 +582,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
 			|| MOB_FLAGGED(killer, MOB_ANGEL)
 			|| MOB_FLAGGED(killer, MOB_GHOST))
-		&& (corpse != NULL)
+		&& (corpse != nullptr)
 		&& killer->has_master()
 		&& killer->in_room == killer->get_master()->in_room
 		&& PRF_FLAGGED(killer->get_master(), PRF_AUTOMONEY)
@@ -591,7 +592,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 	}
 }
 
-void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer) {
+void check_spell_capable(CharacterData *ch, CharacterData *killer) {
 	if (IS_NPC(ch)
 		&& killer
 		&& killer != ch
@@ -600,15 +601,15 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer) {
 		&& affected_by_spell(ch, SPELL_CAPABLE)) {
 		affect_from_char(ch, SPELL_CAPABLE);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
-			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
-		int pos = GET_POS(ch);
-		GET_POS(ch) = POS_STANDING;
-		CallMagic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell, GET_REAL_LEVEL(ch));
+			false, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
+		auto pos = GET_POS(ch);
+		GET_POS(ch) = EPosition::kStand;
+		CallMagic(ch, killer, nullptr, world[ch->in_room], ch->mob_specials.capable_spell, GET_REAL_LEVEL(ch));
 		GET_POS(ch) = pos;
 	}
 }
 
-void clear_mobs_memory(CHAR_DATA *ch) {
+void clear_mobs_memory(CharacterData *ch) {
 	for (const auto &hitter : character_list) {
 		if (IS_NPC(hitter) && MEMORY(hitter)) {
 			mobForget(hitter.get(), ch);
@@ -616,7 +617,7 @@ void clear_mobs_memory(CHAR_DATA *ch) {
 	}
 }
 
-bool change_rep(CHAR_DATA *ch, CHAR_DATA *killer) {
+bool change_rep(CharacterData *ch, CharacterData *killer) {
 	return false;
 	// проверяем, в кланах ли оба игрока
 	if ((!CLAN(ch)) || (!CLAN(killer)))
@@ -639,9 +640,9 @@ bool change_rep(CHAR_DATA *ch, CHAR_DATA *killer) {
 	return true;
 }
 
-void real_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
+void real_kill(CharacterData *ch, CharacterData *killer) {
 	const long local_gold = ch->get_gold();
-	OBJ_DATA *corpse = make_corpse(ch, killer);
+	ObjectData *corpse = make_corpse(ch, killer);
 	bloody::handle_corpse(corpse, ch, killer);
 
 	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
@@ -670,7 +671,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 			perform_drop_gold(ch, local_gold);
 			ch->set_gold(0);
 		}
-		dl_load_obj(corpse, ch, NULL, DL_ORDINARY);
+		dl_load_obj(corpse, ch, nullptr, DL_ORDINARY);
 //		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION); вот зачем это неработающее?
 #if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
@@ -693,17 +694,17 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
 	// а здесь, после создания соответствующего трупа. Кроме того,
 	// если убил чармис и хозяин в комнате, то автолут происходит хозяину
-	if ((ch != NULL) && (killer != NULL)) {
+	if ((ch != nullptr) && (killer != nullptr)) {
 		auto_loot(ch, killer, corpse, local_gold);
 	}
 }
 
-void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
+void raw_kill(CharacterData *ch, CharacterData *killer) {
 	check_spell_capable(ch, killer);
 	if (ch->get_fighting())
-		stop_fighting(ch, TRUE);
+		stop_fighting(ch, true);
 
-	for (CHAR_DATA *hitter = combat_list; hitter; hitter = hitter->next_fighting) {
+	for (CharacterData *hitter = combat_list; hitter; hitter = hitter->next_fighting) {
 		if (hitter->get_fighting() == ch) {
 			WAIT_STATE(hitter, 0);
 		}
@@ -714,14 +715,14 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		mudlog("SYSERR: Опять где-то кто-то спуржился не в то в время, не в том месте. Сброшен текущий стек и кора.",
 			   NRM,
-			   LVL_GOD,
+			   kLevelGod,
 			   ERRLOG,
-			   TRUE);
+			   true);
 		return;
 	}
 	reset_affects(ch);
 	// для начала проверяем, активны ли евенты
-	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != NOWHERE) {
+	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != kNowhere) {
 		death_cry(ch, killer);
 	}
 
@@ -738,14 +739,14 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 		if (can_use_feat(killer, COLLECTORSOULS_FEAT)) {
 			if (GET_REAL_LEVEL(ch) >= GET_REAL_LEVEL(killer)) {
 				if (killer->get_souls() < (GET_REAL_REMORT(killer) + 1)) {
-					act("&GВы забрали душу $N1 себе!&n", FALSE, killer, 0, ch, TO_CHAR);
-					act("$n забрал душу $N1 себе!", FALSE, killer, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+					act("&GВы забрали душу $N1 себе!&n", false, killer, 0, ch, TO_CHAR);
+					act("$n забрал душу $N1 себе!", false, killer, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 					killer->inc_souls();
 				}
 			}
 		}
 	}
-	if (ch->in_room != NOWHERE) {
+	if (ch->in_room != kNowhere) {
 		if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && !IS_NPC(ch))
  			kill_pc_wtrigger(killer, ch);
 		if (!IS_NPC(ch) && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))) {
@@ -757,12 +758,12 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer) {
 
 		} else {
 			real_kill(ch, killer);
-			extract_char(ch, TRUE);
+			extract_char(ch, true);
 		}
 	}
 }
 
-int get_remort_mobmax(CHAR_DATA *ch) {
+int get_remort_mobmax(CharacterData *ch) {
 	int remort = GET_REAL_REMORT(ch);
 	if (remort >= 18)
 		return 15;
@@ -775,7 +776,7 @@ int get_remort_mobmax(CHAR_DATA *ch) {
 
 // даем увеличенную экспу за давно не убитых мобов.
 // за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
-int get_npc_long_live_exp_bounus(CHAR_DATA *victim) {
+int get_npc_long_live_exp_bounus(CharacterData *victim) {
 	if (GET_MOB_VNUM(victim) == -1) {
 		return 1;
 	}
@@ -795,7 +796,7 @@ int get_npc_long_live_exp_bounus(CHAR_DATA *victim) {
 	return exp_multiplier;
 }
 
-int get_extend_exp(int exp, CHAR_DATA *ch, CHAR_DATA *victim) {
+int get_extend_exp(int exp, CharacterData *ch, CharacterData *victim) {
 	int base, diff;
 	int koef;
 
@@ -821,7 +822,7 @@ int get_extend_exp(int exp, CHAR_DATA *ch, CHAR_DATA *victim) {
 }
 
 // When ch kills victim
-void change_alignment(CHAR_DATA *ch, CHAR_DATA *victim) {
+void change_alignment(CharacterData *ch, CharacterData *victim) {
 	/*
 	 * new alignment change algorithm: if you kill a monster with alignment A,
 	 * you move 1/16th of the way to having alignment -A.  Simple and fast.
@@ -835,7 +836,7 @@ void change_alignment(CHAR_DATA *ch, CHAR_DATA *victim) {
            Вызов этой функции для NPC смысла не имеет, но все равно
            какие-то проверки внутри зачем то делаются
 --*/
-void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef) {
+void perform_group_gain(CharacterData *ch, CharacterData *victim, int members, int koef) {
 
 
 // Странно, но для NPC эта функция тоже должна работать
@@ -908,12 +909,12 @@ void perform_group_gain(CHAR_DATA *ch, CHAR_DATA *victim, int members, int koef)
 			send_to_char(mess.c_str(), ch);
 		}
 		if (long_live_exp_bounus_miltiplier >= 10) {
-			const CHAR_DATA *ch_with_bonus = IS_NPC(ch) ? ch->get_master() : ch;
+			const CharacterData *ch_with_bonus = IS_NPC(ch) ? ch->get_master() : ch;
 			if (ch_with_bonus && !IS_NPC(ch_with_bonus)) {
 				std::stringstream str_log;
 				str_log << "[INFO] " << ch_with_bonus->get_name() << " получил(а) x" << long_live_exp_bounus_miltiplier << " опыта за убийство моба: [";
 				str_log << GET_MOB_VNUM(victim) << "] " << victim->get_name();
-				mudlog(str_log.str(), NRM, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(str_log.str(), NRM, kLevelImmortal, SYSLOG, true);
 			}
 		}
 
@@ -959,9 +960,9 @@ int grouping_koef(int player_class, int player_remort) {
    Просто для PC-последователей эта функция не вызывается
 
 --*/
-void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
+void group_gain(CharacterData *killer, CharacterData *victim) {
 	int inroom_members, koef = 100, maxlevel;
-	struct follow_type *f;
+	struct Follower *f;
 	int partner_count = 0;
 	int total_group_members = 1;
 	bool use_partner_exp = false;
@@ -992,20 +993,20 @@ void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 
 	// Вычисляем максимальный уровень в группе
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(killer)) {
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)) ++total_group_members;
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(killer)) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (can_use_feat(f->follower, CYNIC_FEAT)) {
+			if (can_use_feat(f->ch, CYNIC_FEAT)) {
 				maxlevel = 300;
 			}
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
-			maxlevel = MAX(maxlevel, GET_REAL_LEVEL(f->follower));
-			if (!IS_NPC(f->follower)) {
+			maxlevel = MAX(maxlevel, GET_REAL_LEVEL(f->ch));
+			if (!IS_NPC(f->ch)) {
 				partner_count++;
 			}
 		}
@@ -1050,14 +1051,14 @@ void group_gain(CHAR_DATA *killer, CHAR_DATA *victim) {
 	}
 
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(killer)) {
-			perform_group_gain(f->follower, victim, inroom_members, koef);
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(killer)) {
+			perform_group_gain(f->ch, victim, inroom_members, koef);
 		}
 	}
 }
 
-void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
+void gain_battle_exp(CharacterData *ch, CharacterData *victim, int dam) {
 	// не даем получать батлу с себя по зеркалу?
 	if (ch == victim) { return; }
 	// не даем получать экспу с !эксп мобов
@@ -1083,7 +1084,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
 
 	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-		CHAR_DATA *master = ch->get_master();
+		CharacterData *master = ch->get_master();
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && OK_GAIN_EXP(master, victim)) {
 			int max_exp = MIN(max_exp_gain_pc(master), (GET_REAL_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
@@ -1101,7 +1102,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam) {
 }
 
 // * Alterate equipment
-void alterate_object(OBJ_DATA *obj, int dam, int chance) {
+void alterate_object(ObjectData *obj, int dam, int chance) {
 	if (!obj)
 		return;
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
@@ -1117,22 +1118,22 @@ void alterate_object(OBJ_DATA *obj, int dam, int chance) {
 		obj->sub_current(dam);
 		if (obj->get_current_durability() <= 0) {
 			if (obj->get_worn_by()) {
-				snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U, не выдержав повреждений.",
+				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
 						 char_get_custom_label(obj, obj->get_worn_by()).c_str());
-				act(buf, FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
+				act(buf, false, obj->get_worn_by(), obj, 0, TO_CHAR);
 			} else if (obj->get_carried_by()) {
-				snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U, не выдержав повреждений.",
+				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
 						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
-				act(buf, FALSE, obj->get_carried_by(), obj, 0, TO_CHAR);
+				act(buf, false, obj->get_carried_by(), obj, 0, TO_CHAR);
 			}
 			extract_obj(obj);
 		}
 	}
 }
 
-void alt_equip(CHAR_DATA *ch, int pos, int dam, int chance) {
-	// calculate chance if
-	if (pos == NOWHERE) {
+void alt_equip(CharacterData *ch, int pos, int dam, int chance) {
+	// calculate drop_chance if
+	if (pos == kNowhere) {
 		pos = number(0, 100);
 		if (pos < 3)
 			pos = WEAR_FINGER_R + number(0, 1);
@@ -1194,7 +1195,7 @@ char *replace_string(const char *str, const char *weapon_singular, const char *w
 	return (buf);
 }
 
-bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int line) {
+bool check_valid_chars(CharacterData *ch, CharacterData *victim, const char *fname, int line) {
 	if (!ch || ch->purged() || !victim || victim->purged()) {
 		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
 			ch ? (ch->purged() ? "purged" : "true") : "false",
@@ -1212,73 +1213,73 @@ bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int 
  *	> 0	How much damage done.
  */
 
-void char_dam_message(int dam, CHAR_DATA *ch, CHAR_DATA *victim, bool noflee) {
-	if (ch->in_room == NOWHERE)
+void char_dam_message(int dam, CharacterData *ch, CharacterData *victim, bool noflee) {
+	if (ch->in_room == kNowhere)
 		return;
 	if (!victim || victim->purged())
 		return;
 	switch (GET_POS(victim)) {
-		case POS_MORTALLYW:
+		case EPosition::kPerish:
 			if (IS_POLY(victim))
-				act("$n смертельно ранены и умрут, если им не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n смертельно ранены и умрут, если им не помогут.", true, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			else
 				act("$n смертельно ранен$a и умрет, если $m не помогут.",
-					TRUE,
+					true,
 					victim,
 					0,
 					0,
 					TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
 			break;
-		case POS_INCAP:
+		case EPosition::kIncap:
 			if (IS_POLY(victim))
 				act("$n без сознания и медленно умирают. Помогите же им.",
-					TRUE,
+					true,
 					victim,
 					0,
 					0,
 					TO_ROOM | TO_ARENA_LISTEN);
 			else
 				act("$n без сознания и медленно умирает. Помогите же $m.",
-					TRUE,
+					true,
 					victim,
 					0,
 					0,
 					TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
 			break;
-		case POS_STUNNED:
+		case EPosition::kStun:
 			if (IS_POLY(victim))
 				act("$n без сознания, но возможно они еще повоюют (попозже :).",
-					TRUE,
+					true,
 					victim,
 					0,
 					0,
 					TO_ROOM | TO_ARENA_LISTEN);
 			else
 				act("$n без сознания, но возможно $e еще повоюет (попозже :).",
-					TRUE,
+					true,
 					victim,
 					0,
 					0,
 					TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
 			break;
-		case POS_DEAD:
+		case EPosition::kDead:
 			if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE))) {
-				act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n вспыхнул$g и рассыпал$u в прах.", false, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				send_to_char("Похоже вас убили и даже тела не оставили!\r\n", victim);
 			} else {
 				if (IS_POLY(victim))
 					act("$n мертвы, их души медленно подымаются в небеса.",
-						FALSE,
+						false,
 						victim,
 						0,
 						0,
 						TO_ROOM | TO_ARENA_LISTEN);
 				else
 					act("$n мертв$a, $s душа медленно подымается в небеса.",
-						FALSE,
+						false,
 						victim,
 						0,
 						0,
@@ -1303,26 +1304,26 @@ void char_dam_message(int dam, CHAR_DATA *ch, CHAR_DATA *victim, bool noflee) {
 				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)
 				&& MOB_FLAGGED(victim, MOB_WIMPY)
 				&& !noflee
-				&& GET_POS(victim) > POS_SITTING) {
-				do_flee(victim, NULL, 0, 0);
+				&& GET_POS(victim) > EPosition::kSit) {
+				do_flee(victim, nullptr, 0, 0);
 			}
 
 			if (ch != victim
-				&& GET_POS(victim) > POS_SITTING
+				&& GET_POS(victim) > EPosition::kSit
 				&& !IS_NPC(victim)
 				&& HERE(victim)
 				&& GET_WIMP_LEV(victim)
 				&& GET_HIT(victim) < GET_WIMP_LEV(victim)
 				&& !noflee) {
 				send_to_char("Вы запаниковали и попытались убежать!\r\n", victim);
-				do_flee(victim, NULL, 0, 0);
+				do_flee(victim, nullptr, 0, 0);
 			}
 
 			break;
 	}
 }
 
-void test_self_hitroll(CHAR_DATA *ch) {
+void test_self_hitroll(CharacterData *ch) {
 	HitData hit;
 	hit.weapon = FightSystem::AttType::MAIN_HAND;
 	hit.init(ch, ch);
@@ -1344,7 +1345,7 @@ void test_self_hitroll(CHAR_DATA *ch) {
  * Разный инит щитов у мобов и чаров.
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
  */
-void Damage::post_init_shields(CHAR_DATA *victim) {
+void Damage::post_init_shields(CharacterData *victim) {
 	if (IS_NPC(victim) && !IS_CHARMICE(victim)) {
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD)) {
 			flags.set(FightSystem::VICTIM_FIRE_SHIELD);
@@ -1389,7 +1390,7 @@ void Damage::post_init_shields(CHAR_DATA *victim) {
 	}
 }
 
-void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim) {
+void Damage::post_init(CharacterData *ch, CharacterData *victim) {
 	if (msg_num == -1) {
 		if (skill_num >= 0) {
 			msg_num = skill_num + TYPE_HIT;
@@ -1402,18 +1403,18 @@ void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim) {
 		}
 	}
 
-	if (ch_start_pos == -1) {
+	if (ch_start_pos == EPosition::kIncorrect) {
 		ch_start_pos = GET_POS(ch);
 	}
 
-	if (victim_start_pos == -1) {
+	if (victim_start_pos == EPosition::kIncorrect) {
 		victim_start_pos = GET_POS(victim);
 	}
 
 	post_init_shields(victim);
 }
 
-void do_show_mobmax(CHAR_DATA *ch, char *, int, int) {
+void do_show_mobmax(CharacterData *ch, char *, int, int) {
 	const auto player = dynamic_cast<Player *>(ch);
 	if (nullptr == player) {
 		// написать в лог, что show_mobmax была вызвана не игроком
@@ -1433,8 +1434,8 @@ void Damage::zero_init() {
 	spell_num = -1;
 	hit_type = -1;
 	msg_num = -1;
-	ch_start_pos = -1;
-	victim_start_pos = -1;
+	ch_start_pos = EPosition::kIncorrect;
+	victim_start_pos = EPosition::kIncorrect;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

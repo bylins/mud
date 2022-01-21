@@ -10,8 +10,8 @@
 #ifndef _STUFF_HPP_
 #define _STUFF_HPP_
 
-#include "structs_double_map.h"
-#include "structs.h"
+#include "structs/structs_double_map.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "skills.h"
 
@@ -28,7 +28,7 @@ struct obj_load_info {
 	obj_load_info(int __i, int __j) : obj_qty(__i), load_prob(__j) {}
 };
 
-typedef double_map<obj_vnum, mob_vnum, obj_load_info> oload_map;
+typedef double_map<ObjVnum, MobVnum, obj_load_info> oload_map;
 
 class oload_class : public oload_map {
  public:
@@ -37,8 +37,8 @@ class oload_class : public oload_map {
 
 extern oload_class oload_table;
 
-void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch);
-void create_charmice_stuff(CHAR_DATA *ch, ESkill skill_id, int diff);
+void obj_load_on_death(ObjectData *corpse, CharacterData *ch);
+void create_charmice_stuff(CharacterData *ch, ESkill skill_id, int diff);
 
 #endif
 

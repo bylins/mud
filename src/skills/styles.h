@@ -1,14 +1,14 @@
 #ifndef BYLINS_STYLES_H
 #define BYLINS_STYLES_H
 
-class CHAR_DATA;
+class CharacterData;
 
-void go_touch(CHAR_DATA *ch, CHAR_DATA *vict);
-void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_touch(CharacterData *ch, CharacterData *vict);
+void do_touch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
-void go_deviate(CHAR_DATA *ch);
-void do_deviate(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+void go_deviate(CharacterData *ch);
+void do_deviate(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 
-void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_STYLES_H

@@ -6,7 +6,7 @@
 #include "magic/magic_utils.h"
 #include "handler.h"
 
-void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_create(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char *s;
 	int spellnum, itemnum = 0;
 
@@ -48,21 +48,21 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		itemnum = SPELL_RUNES;
 	} else {
 		if (subcmd == SCMD_RECIPE)
-			snprintf(buf, MAX_INPUT_LENGTH, "Состав '%s' уже давно утерян.\r\n", arg);
+			snprintf(buf, kMaxInputLength, "Состав '%s' уже давно утерян.\r\n", arg);
 		else
-			snprintf(buf, MAX_INPUT_LENGTH, "Создание '%s' доступно только Великим Богам.\r\n", arg);
+			snprintf(buf, kMaxInputLength, "Создание '%s' доступно только Великим Богам.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
 
 	s = strtok(argument, "'*!");
-	if (s == NULL) {
+	if (s == nullptr) {
 		sprintf(buf, "Уточните тип состава!\r\n");
 		send_to_char(buf, ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
-	if (s == NULL) {
+	s = strtok(nullptr, "'*!");
+	if (s == nullptr) {
 		send_to_char("Название состава должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
@@ -82,16 +82,16 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_RECIPE) {
-		check_recipe_values(ch, spellnum, itemnum, TRUE);
+		check_recipe_values(ch, spellnum, itemnum, true);
 		return;
 	}
 
-	if (!check_recipe_values(ch, spellnum, itemnum, FALSE)) {
+	if (!check_recipe_values(ch, spellnum, itemnum, false)) {
 		send_to_char("Боги хранят в тайне этот состав.\r\n", ch);
 		return;
 	}
 
-	if (!check_recipe_items(ch, spellnum, itemnum, TRUE)) {
+	if (!check_recipe_items(ch, spellnum, itemnum, true)) {
 		send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		return;
 	}

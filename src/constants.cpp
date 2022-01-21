@@ -14,7 +14,7 @@
 
 #include "constants.h"
 #include "magic/spells.h"
-#include "house.h"
+//#include "house.h"
 
 const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
 
@@ -457,98 +457,6 @@ const char *preference_bits[] = {"краткий",
 								 "\n"
 };
 
-// AFF_x
-const char *affected_bits[] = {"слепота",    // 0
-							   "невидимость",
-							   "определение наклонностей",
-							   "определение невидимости",
-							   "определение магии",
-							   "чувствовать жизнь",
-							   "хождение по воде",
-							   "освящение",
-							   "состоит в группе",
-							   "проклятие",
-							   "инфравидение",        // 10
-							   "яд",
-							   "защита от тьмы",
-							   "защита от света",
-							   "магический сон",
-							   "нельзя выследить",
-							   "привязан",
-							   "доблесть",
-							   "подкрадывается",
-							   "прячется",
-							   "ярость",        // 20
-							   "зачарован",
-							   "оцепенение",
-							   "летит",
-							   "молчание",
-							   "настороженность",
-							   "мигание",
-							   "верхом или под седлом",
-							   "не сбежать",
-							   "свет",
-							   "\n",
-							   "освещение",        // 0
-							   "затемнение",
-							   "определение яда",
-							   "под мухой",
-							   "отходняк",
-							   "декстраплегия",
-							   "синистроплегия",
-							   "параплегия",
-							   "кровотечение",
-							   "маскировка",
-							   "дышать водой",
-							   "медлительность",
-							   "ускорение",
-							   "защита богов",
-							   "воздушный щит",
-							   "огненный щит",
-							   "ледяной щит",
-							   "зеркало магии",
-							   "звезды",
-							   "каменная рука",
-							   "призматическая.аура",
-							   "нанят",
-							   "силы зла",
-							   "воздушная аура",
-							   "огненная аура",
-							   "ледяная аура",
-							   "глухота",
-							   "плач",
-							   "смирение",
-							   "маг параплегия",
-							   "\n",
-							   "предсмертная ярость",
-							   "легкая поступь",
-							   "разбитые оковы",
-							   "облако стрел",
-							   "мантия теней",
-							   "блестящая пыль",
-							   "испуг",
-							   "яд скополии",
-							   "яд дурмана",
-							   "понижение умений",
-							   "не переключается",
-							   "яд белены",
-							   "прикован",
-							   "боевое везение",
-							   "перевязка",
-							   "не может перевязываться",
-							   "превращен",
-							   "удушье",
-							   "вспоминает заклинания",
-							   "регенерация новичка",
-							   "вампиризм",
-							   "потеря равновесия",
-							   "полководец",
-							   "земной поклон",
-							   "доминирование",
-							   "\n",
-							   "\n",
-};
-
 // AFF_ROOM_x
 // Список описаний аффектов на комнатах которые видны - без DETECT_MAGIC
 const char *room_aff_visib_bits[] =
@@ -967,78 +875,6 @@ const char *apply_negative[] = {"защита",
 								"\n"
 };
 
-// APPLY_x
-const char *apply_types[] = {"ничего",
-							 "сила",
-							 "ловкость",
-							 "интеллект",
-							 "мудрость",
-							 "телосложение",
-							 "обаяние",
-							 "профессия",
-							 "уровень",
-							 "возраст",
-							 "вес",
-							 "рост",
-							 "запоминание",
-							 "макс.жизнь",
-							 "макс.энергия",
-							 "деньги",
-							 "опыт",
-							 "защита",
-							 "попадание",
-							 "повреждение",
-							 "воля",
-							 "защита.от.стихии.огня",
-							 "защита.от.стихии.воздуха",
-							 "здоровье",
-							 "стойкость",
-							 "восст.жизни",
-							 "восст.энергии",
-							 "слот.1",
-							 "слот.2",
-							 "слот.3",
-							 "слот.4",
-							 "слот.5",
-							 "слот.6",
-							 "слот.7",
-							 "слот.8",
-							 "слот.9",
-							 "размер",
-							 "броня",
-							 "яд",
-							 "реакция",
-							 "успех.колдовства",
-							 "удача",
-							 "инициатива",
-							 "религия(НЕ СТАВИТЬ)",
-							 "поглощение",
-							 "трудолюбие",
-							 "защита.от.стихии.воды",
-							 "защита.от.стихии.земли",
-							 "живучесть",
-							 "разум",
-							 "иммунитет",
-							 "защита.от.чар",
-							 "защита.от.магических.повреждений",
-							 "яд аконита",
-							 "яд скополии",
-							 "яд белены",
-							 "яд дурмана",
-							 "не используется",
-							 "множитель опыта",
-							 "бонус ко всем умениям",
-							 "лихорадка",
-							 "безумное бормотание",
-							 "защита.от.физических.повреждений",
-							 "защита.от.магии.тьмы",
-							 "роковое предчувствие",
-							 "дополнительный бонус опыта",
-							 "дополнительный бонус повреждений",
-							 "заклинание \"волшебное уклонение\"",
-							 "\n"
-};
-
 // MAT_
 const char *material_name[] = {"НЕИЗВЕСТЕН",
 							   "БУЛАТ",
@@ -1113,7 +949,7 @@ const char *fullness[] =
 // str, dex and con deleted
 
 
-struct int_app_type int_app[] =
+struct IntApplies int_app[] =
 	{
 //Ackn  SkUse  SpLv     SpCnt Impr Obser
 		{10, -10, 10, 0, 2, -5},    // int = 0
@@ -1230,7 +1066,7 @@ const size_t INT_APP_SIZE = sizeof(int_app) / sizeof(*int_app);
 #define s6 (1 << 5)
 #define s7 (1 << 6)
 
-struct size_app_type size_app[] =
+struct SizeApplies size_app[] =
 	{
 // AC  BASH
 		{-2, -10, 5, 1},    // size = 0
@@ -1336,7 +1172,7 @@ struct size_app_type size_app[] =
 		{5, 10, -5, 30}        //size = 200
 	};
 
-struct cha_app_type cha_app[] =
+struct ChaApplies cha_app[] =
 	{
 // Lead Chrm Mr Illu Dam_to_hit_rate
 		{-6, 50, 0, -6, 20},    // size = 0
@@ -1442,7 +1278,7 @@ struct cha_app_type cha_app[] =
 		{85, 9700, 0, 90, 20}    // size = 100
 	};
 
-struct weapon_app_type weapon_app[] =
+struct WeaponApplies weapon_app[] =
 	{
 // Sho   Bash  Parrying
 		{1, -5, -10},        // ww = 0
@@ -1546,45 +1382,6 @@ struct weapon_app_type weapon_app[] =
 		{50, 50, 50},
 		{50, 50, 50},
 		{50, 50, 50},        // ww = 100
-	};
-
-const class_app_type::extra_affects_list_t ClericAffects = {};
-const class_app_type::extra_affects_list_t MageAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
-const class_app_type::extra_affects_list_t ThiefAffects = {
-	{EAffectFlag::AFF_INFRAVISION, 1},
-	{EAffectFlag::AFF_SENSE_LIFE, 1},
-	{EAffectFlag::AFF_BLINK, 1}};
-const class_app_type::extra_affects_list_t WarriorAffects = {};
-const class_app_type::extra_affects_list_t AssasineAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
-const class_app_type::extra_affects_list_t GuardAffects = {};
-const class_app_type::extra_affects_list_t DefenderAffects = {};
-const class_app_type::extra_affects_list_t CharmerAffects = {};
-const class_app_type::extra_affects_list_t NecromancerAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
-const class_app_type::extra_affects_list_t PaladineAffects = {};
-const class_app_type::extra_affects_list_t RangerAffects = {
-	{EAffectFlag::AFF_INFRAVISION, 1},
-	{EAffectFlag::AFF_SENSE_LIFE, 1}};
-const class_app_type::extra_affects_list_t SmithAffects = {};
-const class_app_type::extra_affects_list_t MerchantAffects = {};
-const class_app_type::extra_affects_list_t DruidAffects = {};
-
-struct class_app_type class_app[NUM_PLAYER_CLASSES] =
-	{
-// unknown_weapon_fault koef_con base_con min_con max_con extra_affects
-		{5, 40, 10, 12, 50, &ClericAffects},
-		{3, 35, 10, 10, 50, &MageAffects},
-		{3, 55, 10, 14, 50, &ThiefAffects},
-		{2, 105, 10, 22, 50, &WarriorAffects},
-		{3, 50, 10, 14, 50, &AssasineAffects},
-		{2, 105, 10, 17, 50, &GuardAffects},
-		{5, 35, 10, 10, 50, &DefenderAffects},
-		{5, 35, 10, 10, 50, &CharmerAffects},
-		{5, 35, 10, 11, 50, &NecromancerAffects},
-		{2, 100, 10, 14, 50, &PaladineAffects},
-		{2, 100, 10, 14, 50, &RangerAffects},
-		{2, 100, 10, 14, 50, &SmithAffects},
-		{3, 50, 10, 14, 50, &MerchantAffects},
-		{5, 40, 10, 12, 50, &DruidAffects}
 	};
 
 namespace {
@@ -1823,56 +1620,6 @@ const char *weapon_affects[] = {"слепота",
 								"\n"
 };
 
-weapon_affect_t weapon_affect = {
-	weapon_affect_types{EWeaponAffectFlag::WAFF_BLINDNESS, 0, SPELL_BLINDNESS},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_INVISIBLE, to_underlying(EAffectFlag::AFF_INVISIBLE), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_DETECT_ALIGN, to_underlying(EAffectFlag::AFF_DETECT_ALIGN), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_DETECT_INVISIBLE, to_underlying(EAffectFlag::AFF_DETECT_INVIS), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_DETECT_MAGIC, to_underlying(EAffectFlag::AFF_DETECT_MAGIC), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_SENSE_LIFE, to_underlying(EAffectFlag::AFF_SENSE_LIFE), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_WATER_WALK, to_underlying(EAffectFlag::AFF_WATERWALK), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_SANCTUARY, to_underlying(EAffectFlag::AFF_SANCTUARY), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_CURSE, to_underlying(EAffectFlag::AFF_CURSE), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_INFRAVISION, to_underlying(EAffectFlag::AFF_INFRAVISION), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_POISON, 0, SPELL_POISON},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_PROTECT_EVIL, to_underlying(EAffectFlag::AFF_PROTECT_EVIL), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_PROTECT_GOOD, to_underlying(EAffectFlag::AFF_PROTECT_GOOD), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_SLEEP, 0, SPELL_SLEEP},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_NOTRACK, to_underlying(EAffectFlag::AFF_NOTRACK), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_BLESS, to_underlying(EAffectFlag::AFF_BLESS), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_SNEAK, to_underlying(EAffectFlag::AFF_SNEAK), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_HIDE, to_underlying(EAffectFlag::AFF_HIDE), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_HOLD, 0, SPELL_HOLD},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_FLY, to_underlying(EAffectFlag::AFF_FLY), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_SILENCE, to_underlying(EAffectFlag::AFF_SILENCE), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_AWARENESS, to_underlying(EAffectFlag::AFF_AWARNESS), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_BLINK, to_underlying(EAffectFlag::AFF_BLINK), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_NOFLEE, to_underlying(EAffectFlag::AFF_NOFLEE), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_SINGLE_LIGHT, to_underlying(EAffectFlag::AFF_SINGLELIGHT), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_HOLY_LIGHT, to_underlying(EAffectFlag::AFF_HOLYLIGHT), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_HOLY_DARK, to_underlying(EAffectFlag::AFF_HOLYDARK), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_DETECT_POISON, to_underlying(EAffectFlag::AFF_DETECT_POISON), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_SLOW, to_underlying(EAffectFlag::AFF_SLOW), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_HASTE, to_underlying(EAffectFlag::AFF_HASTE), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_WATER_BREATH, to_underlying(EAffectFlag::AFF_WATERBREATH), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_HAEMORRAGIA, to_underlying(EAffectFlag::AFF_HAEMORRAGIA), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_CAMOUFLAGE, to_underlying(EAffectFlag::AFF_CAMOUFLAGE), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_SHIELD, to_underlying(EAffectFlag::AFF_SHIELD), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_AIR_SHIELD, to_underlying(EAffectFlag::AFF_AIRSHIELD), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_FIRE_SHIELD, to_underlying(EAffectFlag::AFF_FIRESHIELD), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_ICE_SHIELD, to_underlying(EAffectFlag::AFF_ICESHIELD), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_MAGIC_GLASS, to_underlying(EAffectFlag::AFF_MAGICGLASS), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_STONE_HAND, to_underlying(EAffectFlag::AFF_STONEHAND), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_PRISMATIC_AURA, to_underlying(EAffectFlag::AFF_PRISMATICAURA), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_AIR_AURA, to_underlying(EAffectFlag::AFF_AIRAURA), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_FIRE_AURA, to_underlying(EAffectFlag::AFF_FIREAURA), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_ICE_AURA, to_underlying(EAffectFlag::AFF_ICEAURA), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_DEAFNESS, to_underlying(EAffectFlag::AFF_DEAFNESS), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_COMMANDER, to_underlying(EAffectFlag::AFF_COMMANDER), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_EARTHAURA, to_underlying(EAffectFlag::AFF_EARTHAURA), 0},
-	weapon_affect_types{EWeaponAffectFlag::WAFF_DOMINATION, to_underlying(EAffectFlag::AFF_DOMINATION), 0}
-};
-
 const char *pray_metter[] = {"- Яриле",
 							 "- Макоши",
 							 "- Перуну",
@@ -2056,312 +1803,6 @@ int mana_cost_cs[][9] = {
 	{1, 1, 1, 1, 1, 1, 1, 1, 1}    // Lev 34
 };
 
-//MZ.load
-struct zone_type *zone_types = NULL;
-//-MZ.load
-
-// Круги, доступные волхвам в зависимости от уровня
-// НЕ ИСПОЛЬЗУЕТСЯ
-/*
-int druid_circles[] =
-{
-   0, //0
-   1, //1
-   1, //2
-   2, //3
-   2, //4
-   2, //5
-   2, //6
-   3, //7
-   3, //8
-   3, //9
-   3, //10
-   3, //11
-   4, //12
-   4, //13
-   4, //14
-   4, //15
-   5, //16
-   5, //17
-   5, //18
-   6, //19
-   6, //20
-   6, //21
-   6, //22
-   6, //23
-   7, //24
-   7, //25
-   7, //26
-   8, //27
-   8, //28
-   8, //29
-   9, //30
-   10, //31
-   10, //32
-   10, //33
-   10, //34
-};
-*/
-/* !!!!! ПЕРЕНОС ПОКА НЕ ОСУЩЕСТВЛЕН -- ВСЕ ЧТО НИЖЕ ПОКА НЕ СООТВЕТСТВУЕТ ИСТИНЕ
-// Раньше находилось в basic.lst в ManaPerTic (параметр для int) -- реген маны немановыми кастерами, будет использоваться,
-// пока все спеллы не будут переведены на новый стандарт
-int mana_gain_old[] =
-{    10,   // Int= 0
-     10,   // Int= 1
-     10,   // Int= 2
-     10,   // Int= 3
-     15,   // Int= 4
-     20,   // Int= 5
-     25,   // Int= 6
-     30,   // Int= 7
-     40,   // Int= 8
-     50,   // Int= 9
-     60,   // Int=10
-     63,   // Int=11
-     66,   // Int=12
-     69,   // Int=13
-     72,   // Int=14
-    75,   // Int=15
-    78,   // Int=16
-    81,   // Int=17
-    84,   // Int=18
-    87,   // Int=19
-    90,   // Int=20
-    92,   // Int=21
-    94,   // Int=22
-    96,   // Int=23
-    98,   // Int=24
-    100,   // Int=25
-    105,   // Int=26
-    110,   // Int=27
-    115,   // Int=28
-    120,   // Int=29
-    130,   // Int=30
-    135,   // Int=31
-    140,   // Int=32
-    145,   // Int=33
-    150,   // Int=34
-    153,   // Int=35
-    155,   // Int=36
-    158,   // Int=37
-    160,   // Int=38
-    163,   // Int=39
-    165,   // Int=40
-    168,   // Int=41
-    170,   // Int=42
-    173,   // Int=43
-    175,   // Int=44
-    178,   // Int=45
-    180,   // Int=46
-    185,   // Int=47
-    190,   // Int=48
-    195,   // Int=49
-    200    // Int=50
-};
-*/
-
-
-// Круги, доступные волхвам в зависимости от уровня
-// НЕ ИСПОЛЬЗУЕТСЯ
-/*
-int druid_circles[] =
-{
-   0, //0
-   1, //1
-   1, //2
-   2, //3
-   2, //4
-   2, //5
-   2, //6
-   3, //7
-   3, //8
-   3, //9
-   3, //10
-   3, //11
-   4, //12
-   4, //13
-   4, //14
-   4, //15
-   5, //16
-   5, //17
-   5, //18
-   6, //19
-   6, //20
-   6, //21
-   6, //22
-   6, //23
-   7, //24
-   7, //25
-   7, //26
-   8, //27
-   8, //28
-   8, //29
-   9, //30
-   10, //31
-   10, //32
-   10, //33
-   10, //34
-};
-*/
-/* !!!!! ПЕРЕНОС ПОКА НЕ ОСУЩЕСТВЛЕН -- ВСЕ ЧТО НИЖЕ ПОКА НЕ СООТВЕТСТВУЕТ ИСТИНЕ
-// Раньше находилось в basic.lst в ManaPerTic (параметр для int) -- реген маны немановыми кастерами, будет использоваться,
-// пока все спеллы не будут переведены на новый стандарт
-int mana_gain_old[] =
-{    10,   // Int= 0
-     10,   // Int= 1
-     10,   // Int= 2
-     10,   // Int= 3
-     15,   // Int= 4
-     20,   // Int= 5
-     25,   // Int= 6
-     30,   // Int= 7
-     40,   // Int= 8
-     50,   // Int= 9
-     60,   // Int=10
-     63,   // Int=11
-     66,   // Int=12
-     69,   // Int=13
-     72,   // Int=14
-    75,   // Int=15
-    78,   // Int=16
-    81,   // Int=17
-    84,   // Int=18
-    87,   // Int=19
-    90,   // Int=20
-    92,   // Int=21
-    94,   // Int=22
-    96,   // Int=23
-    98,   // Int=24
-    100,   // Int=25
-    105,   // Int=26
-    110,   // Int=27
-    115,   // Int=28
-    120,   // Int=29
-    130,   // Int=30
-    135,   // Int=31
-    140,   // Int=32
-    145,   // Int=33
-    150,   // Int=34
-    153,   // Int=35
-    155,   // Int=36
-    158,   // Int=37
-    160,   // Int=38
-    163,   // Int=39
-    165,   // Int=40
-    168,   // Int=41
-    170,   // Int=42
-    173,   // Int=43
-    175,   // Int=44
-    178,   // Int=45
-    180,   // Int=46
-    185,   // Int=47
-    190,   // Int=48
-    195,   // Int=49
-    200    // Int=50
-};
-*/
-
-
-// Круги, доступные волхвам в зависимости от уровня
-// НЕ ИСПОЛЬЗУЕТСЯ
-/*
-int druid_circles[] =
-{
-   0, //0
-   1, //1
-   1, //2
-   2, //3
-   2, //4
-   2, //5
-   2, //6
-   3, //7
-   3, //8
-   3, //9
-   3, //10
-   3, //11
-   4, //12
-   4, //13
-   4, //14
-   4, //15
-   5, //16
-   5, //17
-   5, //18
-   6, //19
-   6, //20
-   6, //21
-   6, //22
-   6, //23
-   7, //24
-   7, //25
-   7, //26
-   8, //27
-   8, //28
-   8, //29
-   9, //30
-   10, //31
-   10, //32
-   10, //33
-   10, //34
-};
-*/
-/* !!!!! ПЕРЕНОС ПОКА НЕ ОСУЩЕСТВЛЕН -- ВСЕ ЧТО НИЖЕ ПОКА НЕ СООТВЕТСТВУЕТ ИСТИНЕ
-// Раньше находилось в basic.lst в ManaPerTic (параметр для int) -- реген маны немановыми кастерами, будет использоваться,
-// пока все спеллы не будут переведены на новый стандарт
-int mana_gain_old[] =
-{    10,   // Int= 0
-     10,   // Int= 1
-     10,   // Int= 2
-     10,   // Int= 3
-     15,   // Int= 4
-     20,   // Int= 5
-     25,   // Int= 6
-     30,   // Int= 7
-     40,   // Int= 8
-     50,   // Int= 9
-     60,   // Int=10
-     63,   // Int=11
-     66,   // Int=12
-     69,   // Int=13
-     72,   // Int=14
-    75,   // Int=15
-    78,   // Int=16
-    81,   // Int=17
-    84,   // Int=18
-    87,   // Int=19
-    90,   // Int=20
-    92,   // Int=21
-    94,   // Int=22
-    96,   // Int=23
-    98,   // Int=24
-    100,   // Int=25
-    105,   // Int=26
-    110,   // Int=27
-    115,   // Int=28
-    120,   // Int=29
-    130,   // Int=30
-    135,   // Int=31
-    140,   // Int=32
-    145,   // Int=33
-    150,   // Int=34
-    153,   // Int=35
-    155,   // Int=36
-    158,   // Int=37
-    160,   // Int=38
-    163,   // Int=39
-    165,   // Int=40
-    168,   // Int=41
-    170,   // Int=42
-    173,   // Int=43
-    175,   // Int=44
-    178,   // Int=45
-    180,   // Int=46
-    185,   // Int=47
-    190,   // Int=48
-    195,   // Int=49
-    200    // Int=50
-};
-*/
-
 // Weapon attack texts
 struct attack_hit_type attack_hit_text[] =
 	{
@@ -2398,23 +1839,5 @@ const char *godslike_bits[] =
 		"GF_TESTER",
 		"\n"
 	};
-
-std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name =
-	{{
-		 "лекарь",
-		 "колдун",
-		 "тать",
-		 "богатырь",
-		 "наемник",
-		 "дружинник",
-		 "кудесник",
-		 "волшебник",
-		 "чернокнижник",
-		 "витязь",
-		 "охотник",
-		 "кузнец",
-		 "купец",
-		 "волхв"
-	 }};
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

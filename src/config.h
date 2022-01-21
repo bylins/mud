@@ -3,7 +3,7 @@
 
 #include "blocking_queue.h"
 #include "birthplaces.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <cstdio>
 #include <array>
@@ -42,6 +42,14 @@ template<>
 EOutputStream ITEM_BY_NAME<EOutputStream>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EOutputStream>(const EOutputStream spell);
+
+/* PCCleanCriteria структура которая определяет через какой время
+   неактивности будет удален чар
+*/
+struct PCCleanCriteria {
+	int level = 0;	// max уровень для этого временного лимита //
+	int days = 0;	// временной лимит в днях        //
+};
 
 class CLogInfo {
  private:
@@ -200,6 +208,6 @@ class RuntimeConfiguration {
 
 extern RuntimeConfiguration runtime_config;
 
-int calc_loadroom(const CHAR_DATA *ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
+int calc_loadroom(const CharacterData *ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
 #endif // __CONFIG_HPP__

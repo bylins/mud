@@ -1,17 +1,18 @@
 #ifndef __CLASS_HPP__
 #define __CLASS_HPP__
 
-#include "structs.h"
+#include "structs/structs.h"
 #include "class_constants.h"
 
 #include <array>
 
-int invalid_no_class(CHAR_DATA *ch, const OBJ_DATA *obj);
+int invalid_no_class(CharacterData *ch, const ObjectData *obj);
 int extra_damroll(int class_num, int level);
+void LoadClassSkills();
 
 class GroupPenalties {
  public:
-	using class_penalties_t = std::array<int, MAX_REMORT + 1>;
+	using class_penalties_t = std::array<int, kMaxRemort + 1>;
 	using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
 
 	int init();

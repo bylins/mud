@@ -4,14 +4,14 @@
 
 #include "quests/quested.h"
 
-#include "chars/char.h"
+#include "entities/char.h"
 
 #include <boost/algorithm/string/predicate.hpp>
 
 void smash_tilde(char *str);
 
 // * Добавление выполненного квеста номер/строка данных (128 символов).
-void Quested::add(CHAR_DATA *ch, int vnum, char *text) {
+void Quested::add(CharacterData *ch, int vnum, char *text) {
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch)) {
 		smash_tilde(text);
 		skip_spaces(&text);

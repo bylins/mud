@@ -2,17 +2,17 @@
 #define __GLOBAL_OBJECTS_HPP__
 
 #include "fightsystem/pk.h"
-#include "celebrates.h"
+#include "game_mechanics/celebrates.h"
 #include "logger.h"
 #include "heartbeat.h"
 #include "speedwalks.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "shops_implementation.h"
 #include "world_objects.h"
-#include "chars/world.characters.h"
+#include "entities/world_characters.h"
 #include "act_wizard.h"
 #include "influxdb.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "quests/daily_quest.h"
 #include "strengthening.h"
 class BanList;    // to avoid inclusion of ban.hpp

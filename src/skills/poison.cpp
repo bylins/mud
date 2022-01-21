@@ -4,8 +4,8 @@
 
 #include "skills/poison.h"
 
-#include "obj.h"
-#include "chars/char.h"
+#include "entities/obj.h"
+#include "entities/char.h"
 #include "liquid.h"
 #include "screen.h"
 #include "fightsystem/fight.h"
@@ -15,7 +15,7 @@ extern int interpolate(int min_value, int pulse);
 
 namespace {
 // * Наложение ядов с пушек, аффект стакается до трех раз.
-bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation> &af) {
+bool poison_affect_join(CharacterData *ch, Affect<EApplyLocation> &af) {
 	bool found = false;
 
 	for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end() && af.location; ++affect_i) {
@@ -51,13 +51,13 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation> &af) {
 }
 
 // * Отравление с пушек.
-bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num) {
+bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 	if (GET_AF_BATTLE(ch, EAF_POISONED))
 		return false;
 
 	if (spell_num == SPELL_ACONITUM_POISON) {
 		// урон 5 + левел/2, от 5 до 20 за стак
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = SPELL_ACONITUM_POISON;
 		af.location = APPLY_ACONITUM_POISON;
 		af.duration = 7;
@@ -71,7 +71,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num) {
 		}
 	} else if (spell_num == SPELL_SCOPOLIA_POISON) {
 		// по +5% дамаги по целе за стак (кроме стаба)
-		AFFECT_DATA<EApplyLocation> af;
+		Affect<EApplyLocation> af;
 		af.type = SPELL_SCOPOLIA_POISON;
 		af.location = APPLY_SCOPOLIA_POISON;
 		af.duration = 7;
@@ -87,7 +87,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num) {
 		// не переключается (моб)
 		// -хитролы/хп-рег/дамаг-физ.атак/скилы
 
-		AFFECT_DATA<EApplyLocation> af[3];
+		Affect<EApplyLocation> af[3];
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(SKILL_POISONED) >= 80) {
@@ -133,7 +133,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num) {
 		// -каст/мем-рег/дамаг-заклов/скилы
 		// AFF_DATURA_POISON - флаг на снижение дамага с заклов
 
-		AFFECT_DATA<EApplyLocation> af[3];
+		Affect<EApplyLocation> af[3];
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(SKILL_POISONED) >= 80)
@@ -178,15 +178,15 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num) {
 }
 
 // * Крит при отравлении с пушек.
-void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
-	AFFECT_DATA<EApplyLocation> af;
+void weap_crit_poison(CharacterData *ch, CharacterData *vict, int/* spell_num*/) {
+	Affect<EApplyLocation> af;
 	int percent = number(1, skill_info[SKILL_POISONED].difficulty * 3);
 	int prob = CalcCurrentSkill(ch, SKILL_POISONED, vict);
 	if (prob >= percent) {
 		switch (number(1, 5)) {
 			case 1:
 				// аналог баша с лагом
-				if (GET_POS(vict) >= POS_FIGHTING) {
+				if (GET_POS(vict) >= EPosition::kFight) {
 					if (vict->ahorse()) {
 						send_to_char(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 									 CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
@@ -199,8 +199,8 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
 									 CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 						send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 						act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
-						GET_POS(vict) = POS_SITTING;
-						WAIT_STATE(vict, 3 * PULSE_VIOLENCE);
+						GET_POS(vict) = EPosition::kSit;
+						WAIT_STATE(vict, 3 * kPulseViolence);
 					}
 					break;
 				}
@@ -277,8 +277,8 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
 } // namespace
 
 // * Отравление с заклинания 'яд'.
-void poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int modifier) {
-	AFFECT_DATA<EApplyLocation> af[4];
+void poison_victim(CharacterData *ch, CharacterData *vict, int modifier) {
+	Affect<EApplyLocation> af[4];
 
 	// change strength
 	af[0].type = SPELL_POISON;
@@ -321,14 +321,14 @@ void poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int modifier) {
 }
 
 // * Попытка травануть с пушки при ударе.
-void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num) {
+void try_weap_poison(CharacterData *ch, CharacterData *vict, int spell_num) {
 	if (spell_num < 0) {
 		return;
 	}
 
 	if (number(1, 200) <= 25
 		|| (!GET_AF_BATTLE(vict, EAF_FIRST_POISON) && !AFF_FLAGGED(vict, EAffectFlag::AFF_POISON))) {
-		ImproveSkill(ch, SKILL_POISONED, TRUE, vict);
+		ImproveSkill(ch, SKILL_POISONED, true, vict);
 		if (weap_poison_vict(ch, vict, spell_num)) {
 			if (spell_num == SPELL_ACONITUM_POISON) {
 				send_to_char(ch, "Кровоточащие язвы покрыли тело %s.\r\n",
@@ -372,7 +372,7 @@ bool poison_in_vessel(int liquid_num) {
 }
 
 // * Сет яда на пушку в зависимости от типа жидкости.
-void set_weap_poison(OBJ_DATA *weapon, int liquid_num) {
+void set_weap_poison(ObjectData *weapon, int liquid_num) {
 	const int poison_timer = 30;
 	if (liquid_num == LIQ_POISON_ACONITUM)
 		weapon->add_timed_spell(SPELL_ACONITUM_POISON, poison_timer);
@@ -413,7 +413,7 @@ bool check_poison(int spell) {
 * APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
 * Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
 */
-int processPoisonDamage(CHAR_DATA *ch, const AFFECT_DATA<EApplyLocation>::shared_ptr &af) {
+int processPoisonDamage(CharacterData *ch, const Affect<EApplyLocation>::shared_ptr &af) {
 	int result = 0;
 	if (af->location == APPLY_POISON) {
 		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 4 : 5);

@@ -17,7 +17,7 @@ const char *track_when[] = {"совсем свежие",
 							"совсем старые"
 };
 
-int age_track(CHAR_DATA * /*ch*/, int time, int calc_track) {
+int age_track(CharacterData * /*ch*/, int time, int calc_track) {
 	int when = 0;
 
 	if (calc_track >= number(1, 50)) {
@@ -41,7 +41,7 @@ int age_track(CHAR_DATA * /*ch*/, int time, int calc_track) {
 }
 
 // * Functions and Commands which use the above functions. *
-int go_track(CHAR_DATA *ch, CHAR_DATA *victim, const ESkill skill_no) {
+int go_track(CharacterData *ch, CharacterData *victim, const ESkill skill_no) {
 	int percent, dir;
 	int if_sense;
 
@@ -62,7 +62,7 @@ int go_track(CHAR_DATA *ch, CHAR_DATA *victim, const ESkill skill_no) {
 		int tries = 10;
 		// Find a random direction. :)
 		do {
-			dir = number(0, NUM_OF_DIRS - 1);
+			dir = number(0, kDirMaxNumber - 1);
 		} while (!CAN_GO(ch, dir) && --tries);
 		return dir;
 	}
@@ -71,11 +71,11 @@ int go_track(CHAR_DATA *ch, CHAR_DATA *victim, const ESkill skill_no) {
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict = NULL;
-	struct track_data *track;
-	int found = FALSE, calc_track = 0, track_t, i;
-	char name[MAX_INPUT_LENGTH];
+void do_track(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict = nullptr;
+	struct TrackData *track;
+	int found = false, calc_track = 0, track_t, i;
+	char name[kMaxInputLength];
 
 	// The character must have the track skill.
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK)) {
@@ -92,7 +92,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	calc_track = CalcCurrentSkill(ch, SKILL_TRACK, 0);
-	act("Похоже, $n кого-то выслеживает.", FALSE, ch, 0, 0, TO_ROOM);
+	act("Похоже, $n кого-то выслеживает.", false, ch, 0, 0, TO_ROOM);
 	one_argument(argument, arg);
 
 	// No argument - show all
@@ -112,14 +112,14 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (*name && calc_track > number(1, 40)) {
 				CAP(name);
-				for (track_t = i = 0; i < NUM_OF_DIRS; i++) {
+				for (track_t = i = 0; i < kDirMaxNumber; i++) {
 					track_t |= track->time_outgone[i];
 					track_t |= track->time_income[i];
 				}
 				sprintf(buf, "%s : следы %s.\r\n", name,
 						track_when[age_track(ch, track_t, calc_track)]);
 				send_to_char(buf, ch);
-				found = TRUE;
+				found = true;
 			}
 		}
 		if (!found)
@@ -128,7 +128,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
-		act("Вы же в одной комнате с $N4!", FALSE, ch, 0, vict, TO_CHAR);
+		act("Вы же в одной комнате с $N4!", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
@@ -161,11 +161,11 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CAP(name);
 	sprintf(buf, "%s:\r\n", name);
 
-	for (int c = 0; c < NUM_OF_DIRS; c++) {
+	for (int c = 0; c < kDirMaxNumber; c++) {
 		if ((track && track->time_income[c]
 			&& calc_track >= number(0, skill_info[SKILL_TRACK].difficulty))
 			|| (!track && calc_track < number(0, skill_info[SKILL_TRACK].difficulty))) {
-			found = TRUE;
+			found = true;
 			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
 					track_when[age_track
 						(ch,
@@ -175,7 +175,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if ((track && track->time_outgone[c]
 			&& calc_track >= number(0, skill_info[SKILL_TRACK].difficulty))
 			|| (!track && calc_track < number(0, skill_info[SKILL_TRACK].difficulty))) {
-			found = TRUE;
+			found = true;
 			SET_BIT(ch->track_dirs, 1 << c);
 			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
 					track_when[age_track
@@ -191,9 +191,9 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char(buf, ch);
 }
 
-void do_hidetrack(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct track_data *track[NUM_OF_DIRS + 1], *temp;
-	int percent, prob, i, croom, found = FALSE, dir, rdir;
+void do_hidetrack(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	struct TrackData *track[kDirMaxNumber + 1], *temp;
+	int percent, prob, i, croom, found = false, dir, rdir;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDETRACK)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
@@ -202,8 +202,8 @@ void do_hidetrack(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 	croom = ch->in_room;
 
-	for (dir = 0; dir < NUM_OF_DIRS; dir++) {
-		track[dir] = NULL;
+	for (dir = 0; dir < kDirMaxNumber; dir++) {
+		track[dir] = nullptr;
 		rdir = Reverse[dir];
 		if (EXITDATA(croom, dir) &&
 			EXITDATA(EXITDATA(croom, dir)->to_room(), rdir) &&
@@ -212,19 +212,19 @@ void do_hidetrack(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 				if (!IS_SET(temp->track_info, TRACK_NPC)
 					&& GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)
 					&& IS_SET(temp->time_outgone[rdir], 3)) {
-					found = TRUE;
+					found = true;
 					track[dir] = temp;
 					break;
 				}
 		}
 	}
 
-	track[NUM_OF_DIRS] = NULL;
+	track[kDirMaxNumber] = nullptr;
 	for (temp = world[ch->in_room]->track; temp; temp = temp->next)
 		if (!IS_SET(temp->track_info, TRACK_NPC) &&
 			GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)) {
-			found = TRUE;
-			track[NUM_OF_DIRS] = temp;
+			found = true;
+			track[kDirMaxNumber] = temp;
 			break;
 		}
 
@@ -239,18 +239,18 @@ void do_hidetrack(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	if (percent > prob) {
 		send_to_char("Вы безуспешно попытались замести свои следы.\r\n", ch);
 		if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))
-			ImproveSkill(ch, SKILL_HIDETRACK, FALSE, 0);
+			ImproveSkill(ch, SKILL_HIDETRACK, false, 0);
 	} else {
 		send_to_char("Вы успешно замели свои следы.\r\n", ch);
 		if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))
-			ImproveSkill(ch, SKILL_HIDETRACK, TRUE, 0);
+			ImproveSkill(ch, SKILL_HIDETRACK, true, 0);
 		prob -= percent;
-		for (i = 0; i <= NUM_OF_DIRS; i++)
+		for (i = 0; i <= kDirMaxNumber; i++)
 			if (track[i]) {
-				if (i < NUM_OF_DIRS)
+				if (i < kDirMaxNumber)
 					track[i]->time_outgone[Reverse[i]] <<= MIN(31, prob);
 				else
-					for (rdir = 0; rdir < NUM_OF_DIRS; rdir++) {
+					for (rdir = 0; rdir < kDirMaxNumber; rdir++) {
 						track[i]->time_income[rdir] <<= MIN(31, prob);
 						track[i]->time_outgone[rdir] <<= MIN(31, prob);
 					}
@@ -259,7 +259,7 @@ void do_hidetrack(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 			}
 	}
 
-	for (i = 0; i <= NUM_OF_DIRS; i++)
+	for (i = 0; i <= kDirMaxNumber; i++)
 		if (track[i])
 			SET_BIT(track[i]->track_info, TRACK_HIDE);
 }

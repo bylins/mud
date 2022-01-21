@@ -4,14 +4,14 @@
 #include "genchar.h"
 #include "screen.h"
 #include "parse.h"
-#include "chars/char.h"
+#include "entities/char.h"
 
 #include <boost/format.hpp>
 
-extern void add_karma(CHAR_DATA *ch, const char *punish, const char *reason);
-extern bool ValidateStats(DESCRIPTOR_DATA *d);
-extern int check_dupes_email(DESCRIPTOR_DATA *d);
-extern void do_entergame(DESCRIPTOR_DATA *d);
+extern void add_karma(CharacterData *ch, const char *punish, const char *reason);
+extern bool ValidateStats(DescriptorData *d);
+extern int check_dupes_email(DescriptorData *d);
+extern void do_entergame(DescriptorData *d);
 
 namespace ResetStats {
 
@@ -53,15 +53,15 @@ void init() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
 	pugi::xml_node main_node = doc.child("reset_stats");
 	if (!main_node) {
-		snprintf(buf, MAX_STRING_LENGTH, "...<reset_stats> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...<reset_stats> read fail");
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -80,7 +80,7 @@ void init() {
 ///
 /// \return стоимость очередного сброса характеристик type через меню
 ///
-int calc_price(CHAR_DATA *ch, Type type) {
+int calc_price(CharacterData *ch, Type type) {
 	int price = reset_prices[type].base_price
 		+ ch->get_reset_stats_cnt(type) * reset_prices[type].add_price;
 	return std::min(price, reset_prices[type].max_price);
@@ -90,7 +90,7 @@ int calc_price(CHAR_DATA *ch, Type type) {
 /// Подготовка чара на резет характеристик type:
 /// снятие денег, логирование, запись в карму
 ///
-void reset_stats(CHAR_DATA *ch, Type type) {
+void reset_stats(CharacterData *ch, Type type) {
 	switch (type) {
 		case Type::MAIN_STATS: ch->set_start_stat(G_STR, 0);
 			break;
@@ -101,9 +101,9 @@ void reset_stats(CHAR_DATA *ch, Type type) {
 		case Type::FEATS: ch->real_abils.Feats.reset();
 			setAllInbornFeatures(ch);
 			break;
-		case Type::RELIGION: ch->player_data.Religion = 2; //RELIGION_MONO + 1
+		case Type::RELIGION: ch->player_data.Religion = 2; //kReligionMono + 1
 			break;
-		default: mudlog("SYSERROR: reset_stats() switch", NRM, LVL_IMMORT, SYSLOG, TRUE);
+		default: mudlog("SYSERROR: reset_stats() switch", NRM, kLevelImmortal, SYSLOG, true);
 			return;
 	}
 
@@ -114,7 +114,7 @@ void reset_stats(CHAR_DATA *ch, Type type) {
 ///
 /// Распечатка меню сброса характеристик
 ///
-void print_menu(DESCRIPTOR_DATA *d) {
+void print_menu(DescriptorData *d) {
 	const int stats_price = calc_price(d->character.get(), Type::MAIN_STATS);
 	const int race_price = calc_price(d->character.get(), Type::RACE);
 	const int feats_price = calc_price(d->character.get(), Type::FEATS);
@@ -139,7 +139,7 @@ void print_menu(DESCRIPTOR_DATA *d) {
 ///
 /// Обработка конкретного типа сброса характеристик из меню
 ///
-void process(DESCRIPTOR_DATA *d, Type type) {
+void process(DescriptorData *d, Type type) {
 	const auto &ch = d->character;
 	const int price = calc_price(ch.get(), type);
 
@@ -148,7 +148,7 @@ void process(DESCRIPTOR_DATA *d, Type type) {
 		SEND_TO_Q(MENU, d);
 		STATE(d) = CON_MENU;
 	} else {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		reset_stats(ch.get(), type);
 
 		if ((type == Type::MAIN_STATS || type == Type::RACE || type == Type::RELIGION)
@@ -160,7 +160,7 @@ void process(DESCRIPTOR_DATA *d, Type type) {
 			STATE(d) = CON_MENU;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
 					 d->character->get_name().c_str(), reset_prices.at(type).log_text.c_str());
-			mudlog(buf_, NRM, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf_, NRM, kLevelImmortal, SYSLOG, true);
 		} else {
 			// в любом другом случае изменения можно считать состояшимися
 			snprintf(buf_, sizeof(buf_), "changed %s, price=%d",
@@ -172,7 +172,7 @@ void process(DESCRIPTOR_DATA *d, Type type) {
 
 			snprintf(buf_, sizeof(buf_), "%s changed %s, price=%d",
 					 ch->get_name().c_str(), reset_prices.at(type).log_text.c_str(), price);
-			mudlog(buf_, NRM, LVL_BUILDER, SYSLOG, TRUE);
+			mudlog(buf_, NRM, kLevelBuilder, SYSLOG, true);
 		}
 
 		// при сбросе не через ValidateStats нужно отправлять чара дальше в игру
@@ -192,7 +192,7 @@ void process(DESCRIPTOR_DATA *d, Type type) {
 ///
 /// Обработка нажатий в меню сброса характеристик для выбора типа
 ///
-void parse_menu(DESCRIPTOR_DATA *d, const char *arg) {
+void parse_menu(DescriptorData *d, const char *arg) {
 	bool result = false;
 
 	if (arg && a_isdigit(*arg)) {

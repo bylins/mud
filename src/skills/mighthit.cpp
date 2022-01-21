@@ -10,7 +10,7 @@
 using namespace FightSystem;
 
 // ************************* MIGHTHIT PROCEDURES
-void go_mighthit(CHAR_DATA *ch, CHAR_DATA *victim) {
+void go_mighthit(CharacterData *ch, CharacterData *victim) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -29,25 +29,25 @@ void go_mighthit(CHAR_DATA *ch, CHAR_DATA *victim) {
 		if (ch->getSkillCooldown(SKILL_MIGHTHIT) > 0) {
 			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 		}
-		//set_wait(ch, 2, TRUE);
+		//set_wait(ch, 2, true);
 		return;
 	}
 
 	if ((victim->get_fighting() != ch) && (ch->get_fighting() != victim)) {
-		act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N не сражается с вами, не трогайте $S.", false, ch, 0, victim, TO_CHAR);
 	} else {
-		act("Вы попытаетесь нанести богатырский удар по $N2.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Вы попытаетесь нанести богатырский удар по $N2.", false, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, 2);
 			set_fighting(ch, victim);
 			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 2);
-			//set_wait(ch, 2, TRUE);
+			//set_wait(ch, 2, true);
 		}
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 	}
 }
 
-void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mighthit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_MIGHTHIT) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -57,7 +57,7 @@ void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы хотите СИЛЬНО ударить?\r\n", ch);
 		return;

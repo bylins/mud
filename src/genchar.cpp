@@ -16,13 +16,13 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "comm.h"
 #include "logger.h"
 #include "utils/utils.h"
 #include "magic/spells.h"
-#include "chars/char.h"
-#include "chars/char_player.h"
+#include "entities/char.h"
+#include "entities/char_player.h"
 #include "db.h"
 
 const char *genchar_help =
@@ -105,8 +105,8 @@ const char *default_race[] = {
 	"Веляне" //волхв
 };
 
-void genchar_disp_menu(CHAR_DATA *ch) {
-	char buf[MAX_STRING_LENGTH];
+void genchar_disp_menu(CharacterData *ch) {
+	char buf[kMaxStringLength];
 
 	sprintf(buf,
 			"\r\n              -      +\r\n"
@@ -133,7 +133,7 @@ void genchar_disp_menu(CHAR_DATA *ch) {
 	send_to_char(" Ваш выбор: ", ch);
 }
 
-int genchar_parse(CHAR_DATA *ch, char *arg) {
+int genchar_parse(CharacterData *ch, char *arg) {
 	int tmp_class;
 	switch (*arg) {
 		case 'А':
@@ -212,7 +212,7 @@ int genchar_parse(CHAR_DATA *ch, char *arg) {
  * the best 3 out of 4 rolls of a 6-sided die.  Each class then decides
  * which priority will be given for the best to worst stats.
  */
-void roll_real_abils(CHAR_DATA *ch) {
+void roll_real_abils(CharacterData *ch) {
 	int i;
 
 	switch (ch->get_class()) {
@@ -478,7 +478,7 @@ void roll_real_abils(CHAR_DATA *ch) {
 // Функция для склонения имени по падежам.
 // Буквы должны быть заранее переведены в нижний регистр.
 // name - имя в именительном падеже
-// sex - пол (SEX_MALE или SEX_FEMALE)
+// sex - пол (kMale или kFemale)
 // caseNum - номер падежа (0 - 5)
 //  0 - именительный (кто? что?)
 //  1 - родительный (кого? чего?)
@@ -490,8 +490,8 @@ void roll_real_abils(CHAR_DATA *ch) {
 void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 	size_t len = strlen(name);
 
-	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != NULL
-		&& sex == ESex::SEX_MALE) {
+	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != nullptr
+		&& sex == ESex::kMale) {
 		strcpy(result, name);
 		if (caseNum == 1)
 			strcat(result, "а"); // Ивана
@@ -519,7 +519,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		else
 			strcat(result, "я"); // Аня, Ваня
 	} else if (name[len - 1] == 'й'
-		&& sex == ESex::SEX_MALE) {
+		&& sex == ESex::kMale) {
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
 		if (caseNum == 1)
@@ -538,7 +538,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
 		if (caseNum == 1) {
-			if (strchr("шщжч", name[len - 2]) != NULL)
+			if (strchr("шщжч", name[len - 2]) != nullptr)
 				strcat(result, "и"); // Маши, Паши
 			else
 				strcat(result, "ы"); // Анны
@@ -547,7 +547,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		else if (caseNum == 3)
 			strcat(result, "у"); // Пашу, Анну
 		else if (caseNum == 4) {
-			if (strchr("шщч", name[len - 2]) != NULL)
+			if (strchr("шщч", name[len - 2]) != nullptr)
 				strcat(result, "ей"); // Машей, Пашей
 			else
 				strcat(result, "ой"); // Анной, Ханжой

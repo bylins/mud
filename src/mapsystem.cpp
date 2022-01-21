@@ -4,29 +4,29 @@
 
 #include "act_movement.h"
 #include "screen.h"
-#include "chars/char_player.h"
+#include "entities/char_player.h"
 #include "noob.h"
 #include "utils/utils_char_obj.inl"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #include "boost/multi_array.hpp"
 #include <boost/format.hpp>
 
 #include <iomanip>
 
-int shop_ext(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int receptionist(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int postmaster(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int bank(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int exchange(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int torc(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int shop_ext(CharacterData *ch, void *me, int cmd, char *argument);
+int receptionist(CharacterData *ch, void *me, int cmd, char *argument);
+int postmaster(CharacterData *ch, void *me, int cmd, char *argument);
+int bank(CharacterData *ch, void *me, int cmd, char *argument);
+int exchange(CharacterData *ch, void *me, int cmd, char *argument);
+int horse_keeper(CharacterData *ch, void *me, int cmd, char *argument);
+int guild_mono(CharacterData *ch, void *me, int cmd, char *argument);
+int guild_poly(CharacterData *ch, void *me, int cmd, char *argument);
+int torc(CharacterData *ch, void *me, int cmd, char *argument);
 extern std::vector<City> cities;
 
 namespace Noob {
-int outfit(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int outfit(CharacterData *ch, void *me, int cmd, char *argument);
 }
 
 namespace MapSystem {
@@ -270,7 +270,7 @@ void put_on_screen(unsigned y, unsigned x, int num, int depth) {
 // затирают символы выходов ^ и v, но не затирают друг друга, т.е. что
 // первое отрисовалось, то и остается, поэтому идут по важности
 void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int depth, int exit_num) {
-	if (exit_num == UP) {
+	if (exit_num == kDirUp) {
 		switch (sign_num) {
 			case SCREEN_DEATH_TRAP:
 			case SCREEN_WATER:
@@ -279,7 +279,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 			case SCREEN_FLYING_RED: put_on_screen(next_y - 1, next_x + 1, sign_num, depth);
 				return;
 		}
-	} else if (exit_num == DOWN) {
+	} else if (exit_num == kDirDown) {
 		switch (sign_num) {
 			case SCREEN_DEATH_TRAP:
 			case SCREEN_WATER:
@@ -293,7 +293,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 	}
 }
 
-void draw_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x) {
+void draw_mobs(const CharacterData *ch, int room_rnum, int next_y, int next_x) {
 	if (IS_DARK(room_rnum) && !IS_IMMORTAL(ch)) {
 		put_on_screen(next_y, next_x - 1, SCREEN_MOB_UNDEF, 1);
 	} else {
@@ -323,13 +323,13 @@ void draw_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x) {
 	}
 }
 
-void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x) {
+void draw_objs(const CharacterData *ch, int room_rnum, int next_y, int next_x) {
 	if (IS_DARK(room_rnum) && !IS_IMMORTAL(ch)) {
 		put_on_screen(next_y, next_x + 1, SCREEN_OBJ_UNDEF, 1);
 	} else {
 		int cnt = 0;
 
-		for (OBJ_DATA *obj = world[room_rnum]->contents; obj; obj = obj->get_next_content()) {
+		for (ObjectData *obj = world[room_rnum]->contents; obj; obj = obj->get_next_content()) {
 			if (IS_CORPSE(obj) && GET_OBJ_VAL(obj, 2) >= 0
 				&& !ch->map_check_option(MAP_MODE_MOBS_CORPSES)) {
 				continue;
@@ -339,13 +339,13 @@ void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x) {
 				continue;
 			}
 			if (!ch->map_check_option(MAP_MODE_INGREDIENTS)
-				&& (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT
-					|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MING)) {
+				&& (GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT
+					|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING)) {
 				continue;
 			}
 			if (!IS_CORPSE(obj)
-				&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT
-				&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING
+				&& GET_OBJ_TYPE(obj) != ObjectData::ITEM_INGREDIENT
+				&& GET_OBJ_TYPE(obj) != ObjectData::ITEM_MING
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS)) {
 				continue;
 			}
@@ -361,7 +361,7 @@ void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x) {
 	}
 }
 
-void draw_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, int cur_depth) {
+void draw_spec_mobs(const CharacterData *ch, int room_rnum, int next_y, int next_x, int cur_depth) {
 	bool all = ch->map_check_option(MAP_MODE_MOB_SPEC_ALL) ? true : false;
 
 	for (const auto tch : world[room_rnum]->people) {
@@ -398,7 +398,7 @@ void draw_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, 
 	}
 }
 
-bool mode_allow(const CHAR_DATA *ch, int cur_depth) {
+bool mode_allow(const CharacterData *ch, int cur_depth) {
 	if (ch->map_check_option(MAP_MODE_1_DEPTH)
 		&& !ch->map_check_option(MAP_MODE_2_DEPTH)
 		&& cur_depth > 1) {
@@ -412,7 +412,7 @@ bool mode_allow(const CHAR_DATA *ch, int cur_depth) {
 	return true;
 }
 
-void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x) {
+void draw_room(CharacterData *ch, const RoomData *room, int cur_depth, int y, int x) {
 	// чтобы не ходить по комнатам вторично, но с проверкой на глубину
 	std::map<int, int>::iterator i = check_dupe.find(room->room_vn);
 	if (i != check_dupe.end()) {
@@ -437,30 +437,30 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 		put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 	}
 
-	for (int i = 0; i < NUM_OF_DIRS; ++i) {
+	for (int i = 0; i < kDirMaxNumber; ++i) {
 		int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
 		switch (i) {
-			case NORTH: cur_y -= 1;
+			case kDirNorth: cur_y -= 1;
 				next_y -= 2;
 				cur_sign = SCREEN_Y_OPEN;
 				break;
-			case EAST: cur_x += 2;
+			case kDirEast: cur_x += 2;
 				next_x += 4;
 				cur_sign = SCREEN_X_OPEN;
 				break;
-			case SOUTH: cur_y += 1;
+			case kDirSouth: cur_y += 1;
 				next_y += 2;
 				cur_sign = SCREEN_Y_OPEN;
 				break;
-			case WEST: cur_x -= 2;
+			case kDirWest: cur_x -= 2;
 				next_x -= 4;
 				cur_sign = SCREEN_X_OPEN;
 				break;
-			case UP: cur_y -= 1;
+			case kDirUp: cur_y -= 1;
 				cur_x += 1;
 				cur_sign = SCREEN_UP_OPEN;
 				break;
-			case DOWN: cur_y += 1;
+			case kDirDown: cur_y += 1;
 				cur_x -= 1;
 				cur_sign = SCREEN_DOWN_OPEN;
 				break;
@@ -469,7 +469,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 		}
 
 		if (room->dir_option[i]
-			&& room->dir_option[i]->to_room() != NOWHERE
+			&& room->dir_option[i]->to_room() != kNowhere
 			&& (!EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN) || IS_IMMORTAL(ch))) {
 			// отрисовка выхода
 			if (EXIT_FLAGGED(room->dir_option[i], EX_CLOSED)) {
@@ -484,7 +484,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 				continue;
 			}
 			// здесь важна очередность, что первое отрисовалось - то и будет
-			const ROOM_DATA *next_room = world[room->dir_option[i]->to_room()];
+			const RoomData *next_room = world[room->dir_option[i]->to_room()];
 			bool view_dt = false;
 			for (const auto &aff : ch->affected) {
 				if (aff->location == APPLY_VIEW_DT) // скушал свиток с эксп бонусом
@@ -499,7 +499,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}
 			// можно утонуть
-			if (next_room->sector_type == SECT_WATER_NOSWIM) {
+			if (next_room->sector_type == kSectWaterNoswim) {
 				if (!has_boat(ch)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {
@@ -507,7 +507,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 				}
 			}
 			// можно задохнуться
-			if (next_room->sector_type == SECT_UNDERWATER) {
+			if (next_room->sector_type == kSectUnderwater) {
 				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_WATERBREATH)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {
@@ -515,7 +515,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 				}
 			}
 			// Флай-дт
-			if (next_room->sector_type == SECT_FLYING) {
+			if (next_room->sector_type == kSectOnlyFlying) {
 				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
 				} else {
@@ -523,7 +523,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 				}
 			}
 			// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
-			if (i != UP && i != DOWN) {
+			if (i != kDirUp && i != kDirDown) {
 				// переход в другую зону
 				if (next_room->zone_rn != world[ch->in_room]->zone_rn) {
 					put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
@@ -564,7 +564,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 				}
 			}
 			// проход по следующей в глубину комнате
-			if (i != UP && i != DOWN
+			if (i != kDirUp && i != kDirDown
 				&& cur_depth < MAX_DEPTH_ROOMS
 				&& (!EXIT_FLAGGED(room->dir_option[i], EX_CLOSED) || IS_IMMORTAL(ch))
 				&& next_room->zone_rn == world[ch->in_room]->zone_rn
@@ -578,7 +578,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 }
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
-void print_map(CHAR_DATA *ch, CHAR_DATA *imm) {
+void print_map(CharacterData *ch, CharacterData *imm) {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER))
 		return;
 	MAX_LINES = MAX_LINES_STANDART;
@@ -718,7 +718,7 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm) {
 	}
 }
 
-void Options::olc_menu(CHAR_DATA *ch) {
+void Options::olc_menu(CharacterData *ch) {
 	std::stringstream out;
 	out << "Доступно для отображения на карте:\r\n";
 	boost::format menu1("%s%2d%s) %s %-30s");
@@ -849,7 +849,7 @@ void Options::olc_menu(CHAR_DATA *ch) {
 	send_to_char(out.str(), ch);
 }
 
-void Options::parse_menu(CHAR_DATA *ch, const char *arg) {
+void Options::parse_menu(CharacterData *ch, const char *arg) {
 	if (!*arg) {
 		send_to_char("Неверный выбор!\r\n", ch);
 		olc_menu(ch);
@@ -903,7 +903,7 @@ const char *message =
 	"      - однократно показывает карту с выбранными опциями, не изменяя настроек\r\n"
 	"   &Wкарта справка|помощь&n - вывод данной справки\r\n";
 
-bool parse_text_olc(CHAR_DATA *ch, const std::string &str, std::bitset<TOTAL_MAP_OPTIONS> &bits, bool flag) {
+bool parse_text_olc(CharacterData *ch, const std::string &str, std::bitset<TOTAL_MAP_OPTIONS> &bits, bool flag) {
 	std::vector<std::string> str_list;
 	boost::split(str_list, str, boost::is_any_of(","), boost::token_compress_on);
 	bool error = false;
@@ -969,7 +969,7 @@ bool parse_text_olc(CHAR_DATA *ch, const std::string &str, std::bitset<TOTAL_MAP
 	return error;
 }
 
-void Options::text_olc(CHAR_DATA *ch, const char *arg) {
+void Options::text_olc(CharacterData *ch, const char *arg) {
 	std::string str(arg), first_arg;
 	GetOneParam(str, first_arg);
 	boost::trim(str);
@@ -1013,7 +1013,7 @@ void Options::text_olc(CHAR_DATA *ch, const char *arg) {
 
 } // namespace MapSystem
 
-void do_map(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_map(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		return;
 	}

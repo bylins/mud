@@ -1,15 +1,15 @@
-#include <glory_const.h>
+#include <game_mechanics/glory_const.h>
 
 #include "affect_data.h"
-#include "chars/char_player.h"
-#include "chars/world.characters.h"
+#include "entities/char_player.h"
+#include "entities/world_characters.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
-#include "deathtrap.h"
+#include "game_mechanics/deathtrap.h"
 #include "magic/magic.h"
 #include "skills/poison.h"
 
-bool no_bad_affects(OBJ_DATA *obj) {
+bool no_bad_affects(ObjectData *obj) {
 	static std::list<EWeaponAffectFlag> bad_waffects =
 		{
 			EWeaponAffectFlag::WAFF_HOLD,
@@ -32,7 +32,7 @@ bool no_bad_affects(OBJ_DATA *obj) {
 }
 
 // Return the effect of a piece of armor in position eq_pos
-int apply_ac(CHAR_DATA *ch, int eq_pos) {
+int apply_ac(CharacterData *ch, int eq_pos) {
 	int factor = 1;
 
 	if (GET_EQ(ch, eq_pos) == nullptr) {
@@ -61,9 +61,9 @@ int apply_ac(CHAR_DATA *ch, int eq_pos) {
 	return (factor * GET_OBJ_VAL(GET_EQ(ch, eq_pos), 0));
 }
 
-int apply_armour(CHAR_DATA *ch, int eq_pos) {
+int apply_armour(CharacterData *ch, int eq_pos) {
 	int factor = 1;
-	OBJ_DATA *obj = GET_EQ(ch, eq_pos);
+	ObjectData *obj = GET_EQ(ch, eq_pos);
 
 	if (!obj) {
 		log("SYSERR: apply_armor(%s,%d) when no equip...", GET_NAME(ch), eq_pos);
@@ -97,11 +97,11 @@ int apply_armour(CHAR_DATA *ch, int eq_pos) {
 ///
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
-void apply_natural_affects(CHAR_DATA *ch) {
+void apply_natural_affects(CharacterData *ch) {
 	if (GET_REAL_REMORT(ch) <= 3 && !IS_IMMORTAL(ch)) {
-		affect_modify(ch, APPLY_HITREG, 60 - (GET_REAL_REMORT(ch) * 10), EAffectFlag::AFF_NOOB_REGEN, TRUE);
-		affect_modify(ch, APPLY_MOVEREG, 100, EAffectFlag::AFF_NOOB_REGEN, TRUE);
-		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REAL_REMORT(ch) * 20), EAffectFlag::AFF_NOOB_REGEN, TRUE);
+		affect_modify(ch, APPLY_HITREG, 60 - (GET_REAL_REMORT(ch) * 10), EAffectFlag::AFF_NOOB_REGEN, true);
+		affect_modify(ch, APPLY_MOVEREG, 100, EAffectFlag::AFF_NOOB_REGEN, true);
+		affect_modify(ch, APPLY_MANAREG, 100 - (GET_REAL_REMORT(ch) * 20), EAffectFlag::AFF_NOOB_REGEN, true);
 	}
 }
 
@@ -119,7 +119,7 @@ std::array<EAffectFlag, 3> char_stealth_aff =
 	};
 
 template<>
-bool AFFECT_DATA<EApplyLocation>::removable() const {
+bool Affect<EApplyLocation>::removable() const {
 	return !spell_info[type].name
 		|| *spell_info[type].name == '!'
 		|| type == SPELL_SLEEP
@@ -142,8 +142,8 @@ bool AFFECT_DATA<EApplyLocation>::removable() const {
 }
 
 // This file update pulse affects only
-void pulse_affect_update(CHAR_DATA *ch) {
-	bool pulse_aff = FALSE;
+void pulse_affect_update(CharacterData *ch) {
+	bool pulse_aff = false;
 
 	if (ch->get_fighting()) {
 		return;
@@ -158,12 +158,12 @@ void pulse_affect_update(CHAR_DATA *ch) {
 			continue;
 		}
 
-		pulse_aff = TRUE;
+		pulse_aff = true;
 		if (affect->duration >= 1) {
 			if (IS_NPC(ch)) {
 				affect->duration--;
 			} else {
-				affect->duration -= MIN(affect->duration, SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC);
+				affect->duration -= MIN(affect->duration, SECS_PER_PLAYER_AFFECT * kPassesPerSec);
 			}
 		} else if (affect->duration == -1)    // No action //
 		{
@@ -190,7 +190,7 @@ void pulse_affect_update(CHAR_DATA *ch) {
 }
 
 void player_affect_update() {
-	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr &i) {
+	character_list.foreach_on_copy([](const CharacterData::shared_ptr &i) {
 		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
 		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
 		// добавлялись в чар-лист в начало списка и идут до самого чара
@@ -250,7 +250,7 @@ void player_affect_update() {
 }
 
 // This file update battle affects only
-void battle_affect_update(CHAR_DATA *ch) {
+void battle_affect_update(CharacterData *ch) {
 	auto next_affect_i = ch->affected.begin();
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
@@ -267,7 +267,7 @@ void battle_affect_update(CHAR_DATA *ch) {
 				if (processPoisonDamage(ch, affect) == -1) // жертва умерла
 					return;
 				if (ch->purged()) {
-					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, LVL_IMPL, SYSLOG, TRUE);
+					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, kLevelImplementator, SYSLOG, true);
 					return;
 				}
 				affect->duration--;
@@ -295,8 +295,8 @@ void battle_affect_update(CHAR_DATA *ch) {
 }
 
 void mobile_affect_update() {
-	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr &i) {
-		int was_charmed = FALSE, charmed_msg = FALSE;
+	character_list.foreach_on_copy([](const CharacterData::shared_ptr &i) {
+		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
 
 		if (IS_NPC(i)) {
@@ -319,12 +319,12 @@ void mobile_affect_update() {
 					affect->duration--;
 					if (affect->type == SPELL_CHARM && !charmed_msg && affect->duration <= 1) {
 						act("$n начал$g растерянно оглядываться по сторонам.",
-							FALSE,
+							false,
 							i.get(),
 							nullptr,
 							nullptr,
 							TO_ROOM | TO_ARENA_LISTEN);
-						charmed_msg = TRUE;
+						charmed_msg = true;
 					}
 				} else if (affect->duration == -1) {
 					affect->duration = -1;    // GODS - unlimited
@@ -339,7 +339,7 @@ void mobile_affect_update() {
 								show_spell_off(affect->type, i.get());
 								if (affect->type == SPELL_CHARM
 									|| affect->bitvector == to_underlying(EAffectFlag::AFF_CHARM)) {
-									was_charmed = TRUE;
+									was_charmed = true;
 								}
 							}
 						}
@@ -384,7 +384,7 @@ void mobile_affect_update() {
 }
 
 // Call affect_remove with every spell of spelltype "skill"
-void affect_from_char(CHAR_DATA *ch, int type) {
+void affect_from_char(CharacterData *ch, int type) {
 	auto next_affect_i = ch->affected.begin();
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
@@ -402,7 +402,7 @@ void affect_from_char(CHAR_DATA *ch, int type) {
 
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
-void affect_total(CHAR_DATA *ch) {
+void affect_total(CharacterData *ch) {
 	if (ch->purged()) {
 		// we don't care of affects of removed character.
 		return;
@@ -412,9 +412,9 @@ void affect_total(CHAR_DATA *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
 		domination = true;
 	}
-	OBJ_DATA *obj;
+	ObjectData *obj;
 
-	FLAG_DATA saved;
+	FlagData saved;
 
 	// Init struct
 	saved.clear();
@@ -465,8 +465,8 @@ void affect_total(CHAR_DATA *ch) {
 				GET_ARMOUR(ch) += apply_armour(ch, i);
 			}
 			// Update weapon applies
-			for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
-				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location,  GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffectFlag>(0), TRUE);
+			for (int j = 0; j < kMaxObjAffect; j++) {
+				affect_modify(ch, GET_EQ(ch, i)->get_affected(j).location, GET_EQ(ch, i)->get_affected(j).modifier, static_cast<EAffectFlag>(0), true);
 			}
 			// Update weapon bitvectors
 			for (const auto &j : weapon_affect) {
@@ -474,7 +474,7 @@ void affect_total(CHAR_DATA *ch) {
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
-				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
+				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), true);
 			}
 		}
 	}
@@ -485,14 +485,14 @@ void affect_total(CHAR_DATA *ch) {
 	}
 */
 	// move features modifiers - added by Gorrah
-	for (int i = 1; i < MAX_FEATS; i++) {
+	for (int i = 1; i < kMaxFeats; i++) {
 		if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE)) {
 			for (int j = 0; j < MAX_FEAT_AFFECT; j++) {
 				affect_modify(ch,
 							  feat_info[i].affected[j].location,
 							  feat_info[i].affected[j].modifier,
 							  static_cast<EAffectFlag>(0),
-							  TRUE);
+							  true);
 			}
 		}
 	}
@@ -504,25 +504,25 @@ void affect_total(CHAR_DATA *ch) {
 						  feat_info[IMPREGNABLE_FEAT].affected[j].location,
 						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier * GET_REAL_REMORT(ch)),
 						  static_cast<EAffectFlag>(0),
-						  TRUE);
+						  true);
 		}
 	}
 
 	// Обработка изворотливости (с) Числобог
 	if (can_use_feat(ch, DODGER_FEAT)) {
-		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
+		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), true);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!IS_NPC(ch)) {
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
+			affect_modify(ch, APPLY_MOVE, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), true);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
-			affect_modify(ch, APPLY_HIT, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), TRUE);
+			affect_modify(ch, APPLY_HIT, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), true);
 		if (!domination) // мы на новой арене
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
@@ -530,7 +530,7 @@ void affect_total(CHAR_DATA *ch) {
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
+		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), true);
 	}
 
 	// move race and class modifiers
@@ -573,19 +573,19 @@ void affect_total(CHAR_DATA *ch) {
 	if (!IS_IMMORTAL(ch)) {
 		if ((obj = GET_EQ(ch, WEAR_BOTHS)) && !OK_BOTH(ch, obj)) {
 			if (!IS_NPC(ch)) {
-				act("Вам слишком тяжело держать $o3 в обоих руках!", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, TO_CHAR);
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_WIELD)) && !OK_WIELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
-				act("Вам слишком тяжело держать $o3 в правой руке!", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в правой руке!", false, ch, obj, nullptr, TO_CHAR);
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlags()), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
@@ -601,25 +601,25 @@ void affect_total(CHAR_DATA *ch) {
 		}
 		if ((obj = GET_EQ(ch, WEAR_HOLD)) && !OK_HELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
-				act("Вам слишком тяжело держать $o3 в левой руке!", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в левой руке!", false, ch, obj, nullptr, TO_CHAR);
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_SHIELD)) && !OK_SHIELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
-				act("Вам слишком тяжело держать $o3 на левой руке!", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 на левой руке!", false, ch, obj, nullptr, TO_CHAR);
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS)) {
 			send_to_char("Нету лука, нет и стрел.\r\n", ch);
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, nullptr, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_QUIVER, CharEquipFlags()), ch);
 			return;
 		}
@@ -628,16 +628,16 @@ void affect_total(CHAR_DATA *ch) {
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
 	if ((obj = GET_EQ(ch, WEAR_BOTHS))
-		&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+		&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
 			>> 1; // правильный расчет среднего у оружия
 	} else {
 		if ((obj = GET_EQ(ch, WEAR_WIELD))
-			&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+			&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 		if ((obj = GET_EQ(ch, WEAR_HOLD))
-			&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON) {
+			&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 	}
@@ -657,7 +657,7 @@ void affect_total(CHAR_DATA *ch) {
 		for (const auto &i : char_stealth_aff) {
 			if (saved.get(i)
 				&& !AFF_FLAGS(ch).get(i)) {
-				CHECK_AGRO(ch) = TRUE;
+				CHECK_AGRO(ch) = true;
 			}
 		}
 	}
@@ -670,8 +670,8 @@ void affect_total(CHAR_DATA *ch) {
 	}
 }
 
-void affect_join(CHAR_DATA *ch,
-				 AFFECT_DATA<EApplyLocation> &af,
+void affect_join(CharacterData *ch,
+				 Affect<EApplyLocation> &af,
 				 bool add_dur,
 				 bool avg_dur,
 				 bool add_mod,
@@ -715,24 +715,24 @@ void affect_join(CHAR_DATA *ch,
 
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
-void affect_to_char(CHAR_DATA *ch, const AFFECT_DATA<EApplyLocation> &af) {
+void affect_to_char(CharacterData *ch, const Affect<EApplyLocation> &af) {
 	long was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 
-	AFFECT_DATA<EApplyLocation>::shared_ptr affected_alloc(new AFFECT_DATA<EApplyLocation>(af));
+	Affect<EApplyLocation>::shared_ptr affected_alloc(new Affect<EApplyLocation>(af));
 
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
 	if (af.bitvector)
-		affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), TRUE);
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, bool add) {
+void affect_modify(CharacterData *ch, byte loc, int mod, const EAffectFlag bitv, bool add) {
 	if (add) {
 		AFF_FLAGS(ch).set(bitv);
 	} else {
@@ -860,7 +860,7 @@ void affect_modify(CHAR_DATA *ch, byte loc, int mod, const EAffectFlag bitv, boo
 }
 
 // * Снятие аффектов с чара при смерти/уходе в дт.
-void reset_affects(CHAR_DATA *ch) {
+void reset_affects(CharacterData *ch) {
 	auto naf = ch->affected.begin();
 
 	for (auto af = naf; af != ch->affected.end(); af = naf) {

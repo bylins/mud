@@ -11,14 +11,14 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 */
 #include "scripting.h"
 
-#include "chars/world.characters.h"
+#include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
 #include "utils/utils.h"
 #include "comm.h"
-#include "chars/char.h"
+#include "entities/char.h"
 #include "interpreter.h"
-#include "obj.h"
+#include "entities/obj.h"
 #include "db.h"
 #include "cache.h"
 #include "magic/magic_utils.h"
@@ -46,7 +46,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 using namespace boost::python;
 namespace py = boost::python;
 using namespace scripting;
-extern room_rnum find_target_room(CHAR_DATA *ch, char *rawroomstr, int trig);
+extern room_rnum find_target_room(CharacterData *ch, char *rawroomstr, int trig);
 namespace {
 std::list<object> objs_to_call_in_main_thread;
 object events;
@@ -134,9 +134,9 @@ class Wrapper {
 	caching::id_t id;
 };
 
-class CharacterWrapper : public Wrapper<CHAR_DATA> {
+class CharacterWrapper : public Wrapper<CharacterData> {
  public:
-	CharacterWrapper(CHAR_DATA *ch) : Wrapper<CHAR_DATA>(ch, caching::character_cache) {}
+	CharacterWrapper(CharacterData *ch) : Wrapper<CharacterData>(ch, caching::character_cache) {}
 	const char *get_name() const {
 		Ensurer ch(*this);
 		return ch->get_name().c_str();
@@ -149,7 +149,7 @@ class CharacterWrapper : public Wrapper<CHAR_DATA> {
 
 	void send(const std::string &msg) {
 		Ensurer ch(*this);
-		send_to_char(msg, (CHAR_DATA *) ch);
+		send_to_char(msg, (CharacterData *) ch);
 	}
 
 	void _page_string(const std::string &msg) {
@@ -159,15 +159,15 @@ class CharacterWrapper : public Wrapper<CHAR_DATA> {
 
 	void act_on_char(const char *str,
 					 bool hide_invisible,
-					 const OBJ_DATA *obj,
+					 const ObjectData *obj,
 					 const CharacterWrapper &victim,
 					 int type) {
 		Ensurer ch(*this);
 		Ensurer v(victim);
-		act(str, hide_invisible, ch, obj, (CHAR_DATA *) victim, type);
+		act(str, hide_invisible, ch, obj, (CharacterData *) victim, type);
 	}
 
-	void act_on_obj(const char *str, bool hide_invisible, const OBJ_DATA *obj, const OBJ_DATA *victim, int type) {
+	void act_on_obj(const char *str, bool hide_invisible, const ObjectData *obj, const ObjectData *victim, int type) {
 		Ensurer ch(*this);
 		act(str, hide_invisible, ch, obj, victim, type);
 	}
@@ -563,7 +563,7 @@ class CharacterWrapper : public Wrapper<CHAR_DATA> {
 
 	CharacterWrapper get_vis(const char *name, int where) const {
 		Ensurer ch(*this);
-		CHAR_DATA *r = get_char_vis(ch, name, where);
+		CharacterData *r = get_char_vis(ch, name, where);
 		if (!r) {
 			PyErr_SetString(PyExc_ValueError, "Character not found");
 			throw_error_already_set();
@@ -584,7 +584,7 @@ class CharacterWrapper : public Wrapper<CHAR_DATA> {
 
 	void quested_add(const CharacterWrapper &ch, int vnum, char *text) {
 		Ensurer self(*this);
-		self->quested_add((CHAR_DATA *) Ensurer(ch), vnum, text);
+		self->quested_add((CharacterData *) Ensurer(ch), vnum, text);
 	}
 
 	bool quested_remove(int vnum) {
@@ -673,11 +673,11 @@ CharacterWrapper get_mob_proto(const mob_rnum rnum) {
 	return CharacterWrapper(NULL);
 }
 
-CHAR_DATA *character_get_master(CHAR_DATA *ch) {
+CharacterData *character_get_master(CharacterData *ch) {
 	return ch->get_master();
 }
 
-void character_set_master(CHAR_DATA *ch, CHAR_DATA *master) {
+void character_set_master(CharacterData *ch, CharacterData *master) {
 	ch->set_master(master);
 }
 
@@ -747,14 +747,14 @@ struct _arrayN {
 	}
 };
 
-class ObjWrapper : private std::shared_ptr<OBJ_DATA>, public Wrapper<OBJ_DATA> {
+class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectData> {
  public:
-	ObjWrapper(OBJ_DATA *obj) : Wrapper<OBJ_DATA>(obj, caching::obj_cache) {
+	ObjWrapper(ObjectData *obj) : Wrapper<ObjectData>(obj, caching::obj_cache) {
 	}
 
 	ObjWrapper(const CObjectPrototype::shared_ptr &obj) :
-		std::shared_ptr<OBJ_DATA>(new OBJ_DATA(*obj)),
-		Wrapper<OBJ_DATA>(get(), caching::obj_cache) {
+		std::shared_ptr<ObjectData>(new ObjectData(*obj)),
+		Wrapper<ObjectData>(get(), caching::obj_cache) {
 	}
 
 	std::string get_aliases() const {
@@ -812,7 +812,7 @@ class ObjWrapper : private std::shared_ptr<OBJ_DATA>, public Wrapper<OBJ_DATA> {
 	}
 
 	int get_value(const unsigned i) const {
-		if (i >= OBJ_DATA::VALS_COUNT) {
+		if (i >= ObjectData::VALS_COUNT) {
 			PyErr_SetString(PyExc_ValueError, "argument out of range");
 			throw_error_already_set();
 		}
@@ -821,7 +821,7 @@ class ObjWrapper : private std::shared_ptr<OBJ_DATA>, public Wrapper<OBJ_DATA> {
 	}
 
 	void set_value(const int i, const int v) {
-		if (i >= OBJ_DATA::VALS_COUNT) {
+		if (i >= ObjectData::VALS_COUNT) {
 			PyErr_SetString(PyExc_ValueError, "argument out of range");
 			throw_error_already_set();
 		}
@@ -836,7 +836,7 @@ class ObjWrapper : private std::shared_ptr<OBJ_DATA>, public Wrapper<OBJ_DATA> {
 
 	void set_obj_type(const int v) {
 		Ensurer obj(*this);
-		obj->set_type(static_cast<OBJ_DATA::EObjectType>(v));
+		obj->set_type(static_cast<ObjectData::EObjectType>(v));
 	}
 
 	int get_wear_flags() const {
@@ -957,7 +957,7 @@ class ObjWrapper : private std::shared_ptr<OBJ_DATA>, public Wrapper<OBJ_DATA> {
 
 	void set_mater(const int v) {
 		Ensurer obj(*this);
-		obj->set_material(static_cast<OBJ_DATA::EObjectMaterial>(v));
+		obj->set_material(static_cast<ObjectData::EObjectMaterial>(v));
 	}
 	int get_owner() const {
 		Ensurer obj(*this);
@@ -1082,7 +1082,7 @@ ObjWrapper get_obj_proto(const obj_rnum rnum) {
 	}
 	PyErr_SetString(PyExc_ValueError, "obj rnum is out of range");
 	throw_error_already_set();
-	return ObjWrapper(static_cast<OBJ_DATA *>(nullptr));
+	return ObjWrapper(static_cast<ObjectData *>(nullptr));
 }
 
 object get_char_equipment(const CharacterWrapper &c, const unsigned num) {
@@ -1091,7 +1091,7 @@ object get_char_equipment(const CharacterWrapper &c, const unsigned num) {
 		throw_error_already_set();
 	}
 	CharacterWrapper::Ensurer ch(c);
-	OBJ_DATA *r = ch->equipment[num];
+	ObjectData *r = ch->equipment[num];
 	if (!r)
 		return object();
 	else
@@ -1178,7 +1178,7 @@ bool check_ingame(std::string name) {
 void char_to_room_wrap(CharacterWrapper &c, int vnum) {
 	CharacterWrapper::Ensurer ch(c);
 	room_rnum location;
-	if (((location = real_room(vnum)) == NOWHERE)) {
+	if (((location = real_room(vnum)) == kNowhere)) {
 		log("[PythonError] Error in char_to_room_wrap. %d vnum invalid.", vnum);
 		return;
 	}
@@ -1507,7 +1507,7 @@ BOOST_PYTHON_MODULE (mud) {
 					  "п²п╟ п╨п╬п╪ п©я─п╣п╢п╪п╣я┌ п╬п╢п╣я┌ п╡ я█п╨п╦п©п╦я─п╬п╡п╨п╣");
 
 	//implicitly_convertible<Character*, CharacterWrapper>();
-	implicitly_convertible<CharacterWrapper, CHAR_DATA *>();
+	implicitly_convertible<CharacterWrapper, CharacterData *>();
 
 	class_<CharacterListWrapper::iterator>("CharacterListIterator",
 										   "п≤я┌п╣я─п╟я┌п╬я─ п©п╬ я│п©п╦я│п╨я┐ mud.character_list",
@@ -1890,7 +1890,6 @@ BOOST_PYTHON_MODULE (constants) {
 	DEFINE_CONSTANT(NPC_WIELDING);
 	DEFINE_CONSTANT(NPC_ARMORING);
 	DEFINE_CONSTANT(NPC_USELIGHT);
-	DEFINE_CONSTANT(DESC_CANZLIB);
 	DEFINE_CONSTANT(PRF_BRIEF);
 	DEFINE_CONSTANT(PRF_COMPACT);
 	DEFINE_CONSTANT(PRF_NOHOLLER);
@@ -2132,42 +2131,42 @@ BOOST_PYTHON_MODULE (constants) {
 	DEFINE_CONSTANT(WEAR_BOTHS);
 	DEFINE_CONSTANT(WEAR_QUIVER);
 	DEFINE_CONSTANT(NUM_WEARS);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_LIGHT);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_SCROLL);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_WAND);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_STAFF);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_WEAPON);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_FIREWEAPON);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MISSILE);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_TREASURE);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ARMOR);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_POTION);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_WORN);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_OTHER);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_TRASH);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_TRAP);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_CONTAINER);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_NOTE);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_DRINKCON);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_KEY);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_FOOD);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MONEY);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_PEN);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_BOAT);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_FOUNTAIN);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_BOOK);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_INGREDIENT);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MING);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MATERIAL);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_BANDAGE);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ARMOR_LIGHT);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ARMOR_MEDIAN);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ARMOR_HEAVY);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_ENCHANT);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MAGIC_MATERIAL);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MAGIC_ARROW);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_MAGIC_CONTAINER);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::ITEM_CRAFT_MATERIAL);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_LIGHT);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_SCROLL);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_WAND);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_STAFF);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_WEAPON);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_FIREWEAPON);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_MISSILE);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_TREASURE);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_ARMOR);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_POTION);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_WORN);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_OTHER);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_TRASH);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_TRAP);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_CONTAINER);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_NOTE);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_DRINKCON);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_KEY);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_FOOD);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_MONEY);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_PEN);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_BOAT);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_FOUNTAIN);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_BOOK);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_INGREDIENT);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_MING);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_MATERIAL);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_BANDAGE);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_ARMOR_LIGHT);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_ARMOR_MEDIAN);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_ARMOR_HEAVY);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_ENCHANT);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_MAGIC_MATERIAL);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_MAGIC_ARROW);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_MAGIC_CONTAINER);
+	DEFINE_ENUM_CONSTANT(ObjectData::ITEM_CRAFT_MATERIAL);
 	DEFINE_CONSTANT(BOOK_SPELL);
 	DEFINE_CONSTANT(BOOK_SKILL);
 	DEFINE_CONSTANT(BOOK_UPGRD);
@@ -2373,25 +2372,25 @@ BOOST_PYTHON_MODULE (constants) {
 	DEFINE_CONSTANT(APPLY_ROOM_POISON);
 	DEFINE_CONSTANT(APPLY_ROOM_FLAME);
 	DEFINE_CONSTANT(NUM_ROOM_APPLIES);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_NONE);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_BULAT);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_BRONZE);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_IRON);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_STEEL);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_SWORDSSTEEL);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_COLOR);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_CRYSTALL);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_WOOD);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_SUPERWOOD);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_FARFOR);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_GLASS);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_ROCK);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_BONE);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_MATERIA);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_SKIN);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_ORGANIC);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_PAPER);
-	DEFINE_ENUM_CONSTANT(OBJ_DATA::EObjectMaterial::MAT_DIAMOND);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_NONE);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_BULAT);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_BRONZE);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_IRON);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_STEEL);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_SWORDSSTEEL);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_COLOR);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_CRYSTALL);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_WOOD);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_SUPERWOOD);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_FARFOR);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_GLASS);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_ROCK);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_BONE);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_MATERIA);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_SKIN);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_ORGANIC);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_PAPER);
+	DEFINE_ENUM_CONSTANT(ObjectData::EObjectMaterial::MAT_DIAMOND);
 	DEFINE_CONSTANT(TRACK_NPC);
 	DEFINE_CONSTANT(TRACK_HIDE);
 	DEFINE_CONSTANT(CONT_CLOSEABLE);
@@ -2418,9 +2417,9 @@ BOOST_PYTHON_MODULE (constants) {
 	DEFINE_CONSTANT(MAGIC_NUMBER);
 	DEFINE_CONSTANT(OPT_USEC);
 	DEFINE_CONSTANT(PASSES_PER_SEC);
-	DEFINE_CONSTANT(PULSE_ZONE);
-	DEFINE_CONSTANT(PULSE_MOBILE);
-	DEFINE_CONSTANT(PULSE_VIOLENCE);
+	DEFINE_CONSTANT(kPulseZone);
+	DEFINE_CONSTANT(kPulseMobile);
+	DEFINE_CONSTANT(kPulseViolence);
 	DEFINE_CONSTANT(ZONES_RESET);
 	DEFINE_CONSTANT(PULSE_LOGROTATE);
 	DEFINE_CONSTANT(MAX_SOCK_BUF);
@@ -2533,7 +2532,7 @@ void scripting::heartbeat() {
 			(*cur)();
 		} catch (error_already_set const &) {
 			std::string err = "Error in callable submitted to call_later: " + parse_python_exception();
-			mudlog(err.c_str(), DEF, LVL_BUILDER, ERRLOG, TRUE);
+			mudlog(err.c_str(), DEF, LVL_BUILDER, ERRLOG, true);
 		}
 		objs_to_call_in_main_thread.erase(cur);
 	}
@@ -2579,10 +2578,10 @@ struct PythonUserCommand {
 typedef std::vector<PythonUserCommand> python_command_list_t;
 python_command_list_t global_commands;
 
-extern void check_hiding_cmd(CHAR_DATA *ch, int percent);
+extern void check_hiding_cmd(CharacterData *ch, int percent);
 
 bool check_command_on_list(const python_command_list_t &lst,
-						   CHAR_DATA *ch,
+						   CharacterData *ch,
 						   const std::string &command,
 						   const std::string &args) {
 	for (python_command_list_t::const_iterator i = lst.begin(); i != lst.end(); ++i) {
@@ -2664,7 +2663,7 @@ void unregister_global_command(const std::string &command) {
 }
 
 // returns true if command is found & dispatched
-bool scripting::execute_player_command(CHAR_DATA *ch, const char *command, const char *args) {
+bool scripting::execute_player_command(CharacterData *ch, const char *command, const char *args) {
 	GILAcquirer acquire_gil;
 	return check_command_on_list(global_commands, ch, command, args);
 }

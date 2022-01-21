@@ -11,7 +11,7 @@
 
 #include "abilities/abilities_items_set.h"
 #include "skills.h"
-#include "structs.h"
+#include "structs/structs.h"
 #include "conf.h"
 #include "classes/class_constants.h"
 
@@ -192,9 +192,9 @@
 #define ANIMAL_MASTER_FEAT    156 // хозяин животных
 
 
-// MAX_FEATS определяется в structs.h
+// kMaxFeats определяется в structs.h
 
-#define UNUSED_FTYPE            -1
+#define UNUSED_FTYPE            (-1)
 #define NORMAL_FTYPE            0
 #define AFFECT_FTYPE            1
 #define SKILL_MOD_FTYPE            2
@@ -211,25 +211,25 @@ const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = {5, 6, 4, 4, 4, 4, 6, 6, 6,
 // Количество пар "параметр-значение" у способности
 const short MAX_FEAT_AFFECT = 5;
 // Максимально доступное на морте количество не-врожденных способностей
-#define MAX_ACC_FEAT(ch)    ((int) 1+(LVL_IMMORT-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+#define MAX_ACC_FEAT(ch)    ((int) 1+(kLevelImmortal-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 
 // Поля изменений для способностей (кроме AFFECT_FTYPE, для них используются стардартные поля APPLY)
 #define FEAT_TIMER 1
 #define FEAT_SKILL 2
 
-extern struct FeatureInfoType feat_info[MAX_FEATS];
+extern struct FeatureInfoType feat_info[kMaxFeats];
 
 const char *feat_name(int num);
 int getModifier(int feat, int location);
 int find_feat_num(const char *name, bool alias = false);
-void determineFeaturesSpecification(void);
-void check_berserk(CHAR_DATA *ch);
-void setFeaturesOfRace(CHAR_DATA *ch);
-void unsetFeaturesOfRace(CHAR_DATA *ch);
-void setAllInbornFeatures(CHAR_DATA *ch);
-bool can_use_feat(const CHAR_DATA *ch, int feat);
-bool can_get_feat(CHAR_DATA *ch, int feat);
-bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument);
+void determineFeaturesSpecification();
+void check_berserk(CharacterData *ch);
+void setFeaturesOfRace(CharacterData *ch);
+void unsetFeaturesOfRace(CharacterData *ch);
+void setAllInbornFeatures(CharacterData *ch);
+bool can_use_feat(const CharacterData *ch, int feat);
+bool can_get_feat(CharacterData *ch, int feat);
+bool tryFlipActivatedFeature(CharacterData *ch, char *argument);
 bitvector_t getPRFWithFeatureNumber(int featureNum);
 
 /*
@@ -240,7 +240,7 @@ class CFeatArray {
 	explicit CFeatArray() : _pos(0), i(MAX_FEAT_AFFECT) {}
 
 	int pos(int pos = -1);
-	void insert(const int location, sbyte modifier);
+	void insert(int location, int modifier);
 	void clear();
 
 	struct CFeatAffect {
@@ -269,10 +269,10 @@ class CFeatArray {
 struct FeatureInfoType {
 	int ID;
 	int type;
-	int minRemort[NUM_PLAYER_CLASSES][NUM_KIN];
-	int slot[NUM_PLAYER_CLASSES][NUM_KIN];
-	bool classknow[NUM_PLAYER_CLASSES][NUM_KIN];
-	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][NUM_KIN];
+	int minRemort[NUM_PLAYER_CLASSES][kNumKins];
+	int slot[NUM_PLAYER_CLASSES][kNumKins];
+	bool classknow[NUM_PLAYER_CLASSES][kNumKins];
+	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][kNumKins];
 	bool up_slot;
 	bool usesWeaponSkill;
 	bool alwaysAvailable;
@@ -291,10 +291,10 @@ struct FeatureInfoType {
 
 	TechniqueItemKitsGroupType techniqueItemKitsGroup;
 
-	int (*getBaseParameter)(const CHAR_DATA *ch);
-	int (*getEffectParameter)(const CHAR_DATA *ch);
-	float (*calculateSituationalDamageFactor)(CHAR_DATA * /* ch */);
-	short (*calculateSituationalRollBonus)(CHAR_DATA * /* ch */, CHAR_DATA * /* enemy */);
+	int (*getBaseParameter)(const CharacterData *ch);
+	int (*getEffectParameter)(const CharacterData *ch);
+	float (*calculateSituationalDamageFactor)(CharacterData * /* ch */);
+	short (*calculateSituationalRollBonus)(CharacterData * /* ch */, CharacterData * /* enemy */);
 };
 
 #endif // __FEATURES_HPP__

@@ -1,16 +1,16 @@
 #include "telegram.h"
-#include "chars/char_player.h"
-#include "chars/world.characters.h"
+#include "entities/char_player.h"
+#include "entities/world_characters.h"
 
-#include <obj.h>
+#include <entities/obj.h>
 
-void do_telegram(CHAR_DATA *ch, char *argument, int, int) {
+void do_telegram(CharacterData *ch, char *argument, int, int) {
 #if defined(HAVE_TG)
 	unsigned long int tgId = 0;
 	bool found = false;
 	char playerName[24];
-	char output[MAX_INPUT_LENGTH];
-	char utfBuf[MAX_RAW_INPUT_LENGTH];
+	char output[kMaxInputLength];
+	char utfBuf[kMaxRawInputLength];
 
 	half_chop(argument, playerName, output);
 	if (!*playerName) {
@@ -44,7 +44,7 @@ void do_telegram(CHAR_DATA *ch, char *argument, int, int) {
 		return;
 	}
 
-	snprintf(smallBuf, MAX_INPUT_LENGTH, "Поступила телега от %s, сообщают следующее:\r\n%s", GET_NAME(ch), output);
+	snprintf(smallBuf, kMaxInputLength, "Поступила телега от %s, сообщают следующее:\r\n%s", GET_NAME(ch), output);
 	koi_to_utf8(const_cast<char *>(smallBuf), utfBuf);
 	if (strlen(utfBuf) < 10) {
 		send_to_char("Ошибочка вышла..\r\n", ch);

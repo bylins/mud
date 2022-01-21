@@ -8,23 +8,54 @@
 #define OBJSAVE_HPP_INCLUDED
 
 #include "obj_save.h"
-#include "obj.h"
-#include "structs.h"
+#include "entities/obj.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
 
 // these factors should be unique integers
-#define RENT_FACTOR    1
-#define CRYO_FACTOR    4
+const int RENT_FACTOR = 1;
+const int CRYO_FACTOR = 4;
 
-OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error);
-void write_one_object(std::stringstream &out, OBJ_DATA *object, int location);
-int Crash_offer_rent(CHAR_DATA *ch, CHAR_DATA *receptionist, int display, int factor, int *totalcost);
-void Crash_rentsave(CHAR_DATA *ch, int cost);
-void Crash_crashsave(CHAR_DATA *ch);
-int Crash_write_timer(const std::size_t index);
+struct SaveRentInfo {
+	SaveRentInfo() : time(0), rentcode(0), net_cost_per_diem(0), gold(0),
+					 account(0), nitems(0), oitems(0), spare1(0), spare2(0), spare3(0),
+					 spare4(0), spare5(0), spare6(0), spare7(0) {};
+
+	int32_t time;
+	int32_t rentcode;
+	int32_t net_cost_per_diem;
+	int32_t gold;
+	int32_t account;
+	int32_t nitems;
+	int32_t oitems;
+	int32_t spare1;
+	int32_t spare2;
+	int32_t spare3;
+	int32_t spare4;
+	int32_t spare5;
+	int32_t spare6;
+	int32_t spare7;
+};
+
+struct SaveTimeInfo {
+	int32_t vnum;
+	int32_t timer;
+};
+
+struct SaveInfo {
+	struct SaveRentInfo rent;
+	std::vector<SaveTimeInfo> time;
+};
+
+ObjectData::shared_ptr read_one_object_new(char **data, int *error);
+void write_one_object(std::stringstream &out, ObjectData *object, int location);
+int Crash_offer_rent(CharacterData *ch, CharacterData *receptionist, int display, int factor, int *totalcost);
+void Crash_rentsave(CharacterData *ch, int cost);
+void Crash_crashsave(CharacterData *ch);
+int Crash_write_timer(std::size_t index);
 void Crash_rent_time(int dectime);
-void Crash_save_all(void);
+void Crash_save_all();
 void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
 

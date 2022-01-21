@@ -1,8 +1,8 @@
 #include "commands.h"
 
-#include "chars/char.h"
-#include "levenshtein.h"
-#include "compact_trie.h"
+#include "entities/char.h"
+#include "utils/levenshtein.h"
+#include "structs/compact_trie.h"
 
 #include <iomanip>
 

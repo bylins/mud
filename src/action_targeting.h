@@ -10,43 +10,43 @@
 	Сейчас это не сделано, потому что при текущей логике исполнения команд это ничего особо не даст.
 */
 
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <functional>
 
-class CHAR_DATA;
+class CharacterData;
 
 namespace ActionTargeting {
 
-using FilterType = std::function<bool(CHAR_DATA *, CHAR_DATA *)>;
-using PredicateType = std::function<bool(CHAR_DATA *)>;
+using FilterType = std::function<bool(CharacterData *, CharacterData *)>;
+using PredicateType = std::function<bool(CharacterData *)>;
 extern const FilterType emptyFilter;
 extern const FilterType isCorrectFriend;
 extern const FilterType isCorrectVictim;
 
-bool isIncorrectVictim(CHAR_DATA *actor, CHAR_DATA *target, char *arg);
+bool isIncorrectVictim(CharacterData *actor, CharacterData *target, char *arg);
 
 class TargetsRosterType {
  protected:
-	CHAR_DATA *_actor;
-	std::vector<CHAR_DATA *> _roster;
+	CharacterData *_actor;
+	std::vector<CharacterData *> _roster;
 	FilterType _passesThroughFilter;
 
 	void setFilter(const FilterType &baseFilter, const FilterType &extraFilter);
 	void fillRoster();
 	void shuffle();
-	void setPriorityTarget(CHAR_DATA *target);
-	void makeRosterOfFoes(CHAR_DATA *priorityTarget, const FilterType &baseFilter, const FilterType &extraFilter);
-	void makeRosterOfFriends(CHAR_DATA *priorityTarget, const FilterType &baseFilter, const FilterType &extraFilter);
+	void setPriorityTarget(CharacterData *target);
+	void makeRosterOfFoes(CharacterData *priorityTarget, const FilterType &baseFilter, const FilterType &extraFilter);
+	void makeRosterOfFriends(CharacterData *priorityTarget, const FilterType &baseFilter, const FilterType &extraFilter);
 
 	TargetsRosterType();
-	TargetsRosterType(CHAR_DATA *actor) :
+	TargetsRosterType(CharacterData *actor) :
 		_actor{actor} {};
  public:
 	auto begin() const noexcept { return std::make_reverse_iterator(std::end(_roster)); };
 	auto end() const noexcept { return std::make_reverse_iterator(std::begin(_roster)); };
-	CHAR_DATA *getRandomItem(const PredicateType &predicate);
-	CHAR_DATA *getRandomItem();
+	CharacterData *getRandomItem(const PredicateType &predicate);
+	CharacterData *getRandomItem();
 	int amount() { return _roster.size(); };
 	int count(const PredicateType &predicate);
 	void flip();
@@ -59,15 +59,15 @@ class FoesRosterType : public TargetsRosterType {
 	FoesRosterType();
 
  public:
-	FoesRosterType(CHAR_DATA *actor, CHAR_DATA *priorityTarget, const FilterType &extraFilter) :
+	FoesRosterType(CharacterData *actor, CharacterData *priorityTarget, const FilterType &extraFilter) :
 		TargetsRosterType(actor) {
 		makeRosterOfFoes(priorityTarget, isCorrectVictim, extraFilter);
 	};
-	FoesRosterType(CHAR_DATA *actor, const FilterType &extraFilter) :
+	FoesRosterType(CharacterData *actor, const FilterType &extraFilter) :
 		FoesRosterType(actor, nullptr, extraFilter) {};
-	FoesRosterType(CHAR_DATA *actor, CHAR_DATA *priorityTarget) :
+	FoesRosterType(CharacterData *actor, CharacterData *priorityTarget) :
 		FoesRosterType(actor, priorityTarget, emptyFilter) {};
-	FoesRosterType(CHAR_DATA *actor) :
+	FoesRosterType(CharacterData *actor) :
 		FoesRosterType(actor, nullptr, emptyFilter) {};
 };
 
@@ -78,15 +78,15 @@ class FriendsRosterType : public TargetsRosterType {
 	FriendsRosterType();
 
  public:
-	FriendsRosterType(CHAR_DATA *actor, CHAR_DATA *priorityTarget, const FilterType &extraFilter) :
+	FriendsRosterType(CharacterData *actor, CharacterData *priorityTarget, const FilterType &extraFilter) :
 		TargetsRosterType(actor) {
 		makeRosterOfFriends(priorityTarget, isCorrectFriend, extraFilter);
 	};
-	FriendsRosterType(CHAR_DATA *actor, const FilterType &extraFilter) :
+	FriendsRosterType(CharacterData *actor, const FilterType &extraFilter) :
 		FriendsRosterType(actor, nullptr, extraFilter) {};
-	FriendsRosterType(CHAR_DATA *actor, CHAR_DATA *priorityTarget) :
+	FriendsRosterType(CharacterData *actor, CharacterData *priorityTarget) :
 		FriendsRosterType(actor, priorityTarget, emptyFilter) {};
-	FriendsRosterType(CHAR_DATA *actor) :
+	FriendsRosterType(CharacterData *actor) :
 		FriendsRosterType(actor, nullptr, emptyFilter) {};
 };
 

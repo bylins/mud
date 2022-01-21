@@ -7,7 +7,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 #include <list>
 #include <map>
@@ -24,8 +24,8 @@ class MobMax {
 	static int get_level_by_vnum(int vnum);
 
 	int get_kill_count(int vnum) const;
-	void add(CHAR_DATA *ch, int vnum, int count, int level);
-	void load(CHAR_DATA *ch, int vnum, int count, int level);
+	void add(CharacterData *ch, int vnum, int count, int level);
+	void load(CharacterData *ch, int vnum, int count, int level);
 	void remove(int vnum);
 	void save(FILE *saved) const;
 	void clear();

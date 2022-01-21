@@ -13,24 +13,24 @@
 *  $Revision$                                                      *
 *********************************************************************** */
 
-#include "chars/char.h"
+#include "entities/char.h"
 
-void write_aliases(CHAR_DATA *ch);
-void read_aliases(CHAR_DATA *ch);
+void write_aliases(CharacterData *ch);
+void read_aliases(CharacterData *ch);
 
-void write_aliases(CHAR_DATA *ch) {
+void write_aliases(CharacterData *ch) {
 	FILE *file;
-	char fn[MAX_STRING_LENGTH];
+	char fn[kMaxStringLength];
 	struct alias_data *temp;
 
 	log("Write alias %s", GET_NAME(ch));
 	get_filename(GET_NAME(ch), fn, ALIAS_FILE);
 	remove(fn);
 
-	if (GET_ALIASES(ch) == NULL)
+	if (GET_ALIASES(ch) == nullptr)
 		return;
 
-	if ((file = fopen(fn, "w")) == NULL) {
+	if ((file = fopen(fn, "w")) == nullptr) {
 		log("SYSERR: Couldn't save aliases for %s in '%s'.", GET_NAME(ch), fn);
 		perror("SYSERR: write_aliases");
 		return;
@@ -53,16 +53,16 @@ void write_aliases(CHAR_DATA *ch) {
 	fclose(file);
 }
 
-void read_aliases(CHAR_DATA *ch) {
+void read_aliases(CharacterData *ch) {
 	FILE *file;
-	char xbuf[MAX_STRING_LENGTH];
+	char xbuf[kMaxStringLength];
 	struct alias_data *t2;
 	int length;
 
 	log("Read alias %s", GET_NAME(ch));
 	get_filename(GET_NAME(ch), xbuf, ALIAS_FILE);
 
-	if ((file = fopen(xbuf, "r")) == NULL) {
+	if ((file = fopen(xbuf, "r")) == nullptr) {
 		if (errno != ENOENT) {
 			log("SYSERR: Couldn't open alias file '%s' for %s.", xbuf, GET_NAME(ch));
 			perror("SYSERR: read_aliases");

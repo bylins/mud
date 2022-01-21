@@ -1,7 +1,8 @@
 #ifndef __HEARTBEAT_COMMANDS_HPP__
 #define __HEARTBEAT_COMMANDS_HPP__
 
-#include "structs.h"
+#include "entities/entity_constants.h"
+//#include "structs/structs.h"
 #include "commands.h"
 
 namespace heartbeat {
@@ -11,15 +12,15 @@ namespace cmd {
 extern const char *HEARTBEAT_COMMAND;
 
 /// Minimal position for heartbeat command
-constexpr int MINIMAL_POSITION = POS_SITTING;
+constexpr EPosition MINIMAL_POSITION = EPosition::kSit;
 
 // Minimal level for heartbeat command
-constexpr int MINIMAL_LEVEL = LVL_IMPL;
+constexpr int MINIMAL_LEVEL = kLevelImplementator;
 
 // Probability to stop hide when using heartbeat command
 constexpr int UNHIDE_PROBABILITY = 0;    // -1 - always, 0 - never
 
-extern void do_heartbeat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+extern void do_heartbeat(CharacterData *ch, char *argument, int cmd, int subcmd);
 }
 }
 

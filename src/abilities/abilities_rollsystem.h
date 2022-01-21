@@ -9,7 +9,7 @@
 */
 
 #include "abilities_constants.h"
-#include "chars/char.h"
+#include "entities/char.h"
 //#include "fightsystem/fight_constants.h"
 //#include "features.h"
 //#include "skills.h"
@@ -20,7 +20,7 @@ namespace AbilitySystem {
 
 class AbilityRollType {
  protected:
-	CHAR_DATA *_actor;
+	CharacterData *_actor;
 	short _actorRating;
 	short _degreeOfSuccess;
 	const FeatureInfoType *_ability;
@@ -43,7 +43,7 @@ class AbilityRollType {
 		_baseSkill{SKILL_INVALID},
 		_denyMessage{"Если вы это прочитали, значит, у кодера проблема.\r\n"} {};
 
-	virtual void initialize(CHAR_DATA *abilityActor, int usedAbility);
+	virtual void initialize(CharacterData *abilityActor, int usedAbility);
 	virtual void processingResult(short result, short diceRoll);
 	virtual void performAbilityTest();
 	virtual void determineBaseSkill();
@@ -70,7 +70,7 @@ class AbilityRollType {
 	bool isWrongConditions() { return _wrongConditions; };
 	int ID() { return _ability->ID; };
 	int getDegreeOfSuccess() { return _degreeOfSuccess; };
-	CHAR_DATA *actor() { return _actor; };
+	CharacterData *actor() { return _actor; };
 	void sendDenyMessageToActor();
 };
 
@@ -78,7 +78,7 @@ class AbilityRollType {
 
 class AgainstRivalRollType : public AbilityRollType {
  protected:
-	CHAR_DATA *_rival;
+	CharacterData *_rival;
 
 	void trainBaseSkill(bool success);
 	short calculateTargetRating();
@@ -87,8 +87,8 @@ class AgainstRivalRollType : public AbilityRollType {
 	bool isActorMoraleFailure();
 
  public:
-	void initialize(CHAR_DATA *abilityActor, int usedAbility, CHAR_DATA *abilityVictim);
-	CHAR_DATA *rival() { return _rival; };
+	void initialize(CharacterData *abilityActor, int usedAbility, CharacterData *abilityVictim);
+	CharacterData *rival() { return _rival; };
 
 	AgainstRivalRollType() :
 		_rival{nullptr} {};

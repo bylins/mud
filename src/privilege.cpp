@@ -5,7 +5,7 @@
 #include "privilege.h"
 
 #include "logger.h"
-#include "chars/char.h"
+#include "entities/char.h"
 #include "boards/boards.h"
 
 #include <boost/tokenizer.hpp>
@@ -141,7 +141,7 @@ void insert_command(const std::string &command, int fill_mode, int other_flags) 
 // * Добавление иммам и демигодам списка команд по умолчанию из групп default и default_demigod.
 void insert_default_command(long uid) {
 	std::map<std::string, std::string>::const_iterator it;
-	if (get_level_by_unique(uid) < LVL_IMMORT)
+	if (get_level_by_unique(uid) < kLevelImmortal)
 		it = group_list.find("default_demigod");
 	else
 		it = group_list.find("default");
@@ -244,7 +244,7 @@ void load() {
 }
 
 /**
-* Ищет имма в списке по уиду и полному совпадению имени. Вариант с CHAR_DATA на входе убран за ненадобностью.
+* Ищет имма в списке по уиду и полному совпадению имени. Вариант с CharacterData на входе убран за ненадобностью.
 * Имм вне списка ниче из wiz команд не сможет, при сборке через make test или под студией поиск в этом списке не производится.
 * Напоминание: в этом списке не только иммы, но и демигоды...
 * \param name - имя имма, unique - его уид
@@ -267,7 +267,7 @@ void load_god_boards() {
 	Boards::Static::clear_god_boards();
 	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god) {
 		int level = get_level_by_unique(god->first);
-		if (level < LVL_IMMORT) continue;
+		if (level < kLevelImmortal) continue;
 		// если это имм - делаем блокнот
 		Boards::Static::init_god_board(god->first, god->second.name);
 	}
@@ -279,8 +279,8 @@ void load_god_boards() {
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
-	if (check_level && !mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT
+bool can_do_priv(CharacterData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
+	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLevelImmortal
 		&& GET_REAL_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
 	if (IS_NPC(ch)) return false;
@@ -290,7 +290,7 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 #endif
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
-		if (GET_REAL_LEVEL(ch) == LVL_IMPL)
+		if (GET_REAL_LEVEL(ch) == kLevelImplementator)
 			return true;
 		switch (mode) {
 			case 0:
@@ -320,7 +320,7 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 * \param flag - список флагов в начале файла, кол-во FLAGS_NUM
 * \return 0 - не нашли, 1 - нашли
 */
-bool check_flag(const CHAR_DATA *ch, int flag) {
+bool check_flag(const CharacterData *ch, int flag) {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
@@ -337,7 +337,7 @@ bool check_flag(const CHAR_DATA *ch, int flag) {
 * Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool check_spells(const CHAR_DATA *ch, int spellnum) {
+bool check_spells(const CharacterData *ch, int spellnum) {
 	// флаг use_skills - везде и что угодно
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
@@ -353,8 +353,8 @@ bool check_spells(const CHAR_DATA *ch, int spellnum) {
 * У морталов, мобов и 34х проверка не производится.
 * \return 0 - не может использовать скиллы, 1 - может
 */
-bool check_skills(const CHAR_DATA *ch) {
-	if ((GET_REAL_LEVEL(ch) > LVL_GOD) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
+bool check_skills(const CharacterData *ch) {
+	if ((GET_REAL_LEVEL(ch) > kLevelGod) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
 //	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;

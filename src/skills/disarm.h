@@ -1,10 +1,10 @@
 #ifndef BYLINS_DISARM_H
 #define BYLINS_DISARM_H
 
-class CHAR_DATA;
+class CharacterData;
 
-void go_disarm(CHAR_DATA *ch, CHAR_DATA *vict);
-void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_disarm(CharacterData *ch, CharacterData *vict);
+void do_disarm(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_DISARM_H
 

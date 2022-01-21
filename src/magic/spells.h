@@ -8,16 +8,16 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
-#ifndef _SPELLS_H_
-#define _SPELLS_H_
+#ifndef SPELLS_H_
+#define SPELLS_H_
 
 #include "skills.h"
-#include "structs.h"    // there was defined type "byte" if it had been missing
+#include "structs/structs.h"    // there was defined type "byte" if it had been missing
 #include "classes/class_constants.h"
 
 #include <optional>
 
-struct ROOM_DATA;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 // *******************************
 // * Spells type                 *
@@ -459,29 +459,29 @@ struct attack_hit_type {
 
 #define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
-void spell_create_water(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_recall(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_teleport(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_summon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_relocate(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_portal(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_charm(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_information(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_full_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_enchant_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_control_weather(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_create_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_energydrain(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_fear(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_sacrifice(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_forbidden(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_holystrike(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void skill_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_angel(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_vampire(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_mental_shadow(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
+void spell_create_water(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_recall(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_teleport(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_summon(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_relocate(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_portal(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_locate_object(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_charm(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_information(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_identify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_full_identify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_enchant_weapon(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_control_weather(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_create_weapon(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_energydrain(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_fear(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_sacrifice(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_forbidden(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_holystrike(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void skill_identify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_angel(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_vampire(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void spell_mental_shadow(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
 
 // возращает текст выводимый при спадении скила
 std::string get_wear_off_text(ESpell spell);
@@ -503,20 +503,20 @@ std::optional<CastPhraseList> get_cast_phrase(int spell);
 
 int FixNameAndFindSpellNum(char *name);
 
-bool catch_bloody_corpse(OBJ_DATA *l);
+bool catch_bloody_corpse(ObjectData *l);
 
 // other prototypes //
 void init_spell_levels(void);
 const char *skill_name(int num);
 const char *spell_name(int num);
-int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
-int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
-bool can_get_spell(CHAR_DATA *ch, int spellnum);
-int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
-bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
+int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int ext_apply);
+int general_savingthrow(CharacterData *killer, CharacterData *victim, int type, int ext_apply);
+bool can_get_spell(CharacterData *ch, int spellnum);
+int min_spell_lvl_with_req(CharacterData *ch, int spellnum, int req_lvl);
+bool can_get_spell_with_req(CharacterData *ch, int spellnum, int req_lvl);
 ESkill get_magic_skill_number_by_spell(int spellnum);
-int check_recipe_values(CHAR_DATA *ch, int spellnum, int spelltype, int showrecipe);
-int check_recipe_items(CHAR_DATA *ch, int spellnum, int spelltype, int extract, const CHAR_DATA *targ = NULL);
+int check_recipe_values(CharacterData *ch, int spellnum, int spelltype, int showrecipe);
+int check_recipe_items(CharacterData *ch, int spellnum, int spelltype, int extract, const CharacterData *targ = nullptr);
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;
@@ -535,6 +535,6 @@ void clear();
 const int HOURS_PER_WARCRY = 4;
 const int HOURS_PER_TURN_UNDEAD = 8;
 
-#endif
+#endif // SPELLS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

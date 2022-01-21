@@ -11,7 +11,7 @@ inline bool in_mem(char *arg) {
 			!strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
 }
 
-void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_forget(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *s = 0, *t = 0;
 	int spellnum, is_in_mem;
 
@@ -31,7 +31,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!strn_cmp(arg, "все", i) || !strn_cmp(arg, "all", i)) {
-		char arg2[MAX_INPUT_LENGTH];
+		char arg2[kMaxInputLength];
 		two_arguments(argument, arg, arg2);
 		if (in_mem(arg2)) {
 			MemQ_flush(ch);
@@ -42,7 +42,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			sprintf(buf,
 					"Вы удалили все заклинания из %s.\r\n",
-					GET_RELIGION(ch) == RELIGION_MONO ? "своего часослова" : "своих рез");
+					GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
 			send_to_char(buf, ch);
 		}
 		return;
@@ -53,12 +53,12 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	s = strtok(argument, "'*!");
-	if (s == NULL) {
+	if (s == nullptr) {
 		send_to_char("Какое заклинание вы хотите забыть?\r\n", ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
-	if (s == NULL) {
+	s = strtok(nullptr, "'*!");
+	if (s == nullptr) {
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
@@ -72,9 +72,9 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Трудно забыть то, чего не знаешь...\r\n", ch);
 		return;
 	}
-	t = strtok(NULL, "\0");
+	t = strtok(nullptr, "\0");
 	is_in_mem = 0;
-	if (t != NULL) {
+	if (t != nullptr) {
 		one_argument(t, arg);
 		is_in_mem = in_mem(arg);
 	}
@@ -87,7 +87,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			GET_CASTER(ch) -= spell_info[spellnum].danger;
 			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
 					KICYN, spell_info[spellnum].name,
-					KNRM, GET_RELIGION(ch) == RELIGION_MONO ? "своего часослова" : "своих рез");
+					KNRM, GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
 			send_to_char(buf, ch);
 		}
 	else

@@ -7,7 +7,7 @@
 
 #include <boost/tokenizer.hpp>
 
-void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int spellnum, cnt;
 
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -36,7 +36,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 								   spell_info[spellnum].syn
 									   && *spell_info[spellnum].syn
 								   ? spell_info[spellnum].syn
-								   : NULL;
+								   : nullptr;
 
 			if (realname
 				&& IS_SET(spell_info[spellnum].routines, MAG_WARCRY)
@@ -76,12 +76,12 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (spell_info[spellnum].targets != TAR_IGNORE) {
 		std::stringstream str_log;
 		str_log << "Для клича #" << spellnum << ", установлены некорректные цели: " << spell_info[spellnum].targets;
-		mudlog(str_log.str(), BRF, LVL_GOD, SYSLOG, TRUE);
+		mudlog(str_log.str(), BRF, kLevelGod, SYSLOG, true);
 		send_to_char("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
 		return;
 	}
 
-	struct timed_type timed;
+	struct Timed timed;
 	timed.skill = SKILL_WARCRY;
 	timed.time = timed_by_skill(ch, SKILL_WARCRY) + HOURS_PER_WARCRY;
 
@@ -100,7 +100,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (CallMagic(ch, nullptr, nullptr, nullptr, spellnum, GET_REAL_LEVEL(ch)) >= 0) {
 		if (!WAITLESS(ch)) {
 			if (!CHECK_WAIT(ch))
-				WAIT_STATE(ch, PULSE_VIOLENCE);
+				WAIT_STATE(ch, kPulseViolence);
 			timed_to_char(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}

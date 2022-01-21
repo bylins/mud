@@ -4,22 +4,24 @@
 #include "dg_script/dg_scripts.h"
 #include "dg_script/dg_olc.h"
 #include "boards/boards.h"
-#include "constants.h"
+//#include "constants.h"
+#include "communication/social.h"
 #include "description.h"
 #include "crafts/im.h"
-#include "chars/char.h"
+#include "entities/char.h"
+//#include "entities/entity_constants.h"
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "magic/spells_info.h"
 
 #include <regex>
 
 extern int scheck;                        // TODO: get rid of this line
 extern const char *unused_spellname;    // TODO: get rid of this line
-CHAR_DATA *mob_proto;                    // TODO: get rid of this global variable
+CharacterData *mob_proto;                    // TODO: get rid of this global variable
 
-extern void extract_trigger(TRIG_DATA *trig);
+extern void extract_trigger(Trigger *trig);
 
 class DataFile : public BaseDataFile {
  protected:
@@ -50,8 +52,8 @@ void DataFile::close() {
 }
 
 void DataFile::get_one_line(char *buf) {
-	if (fgets(buf, READ_SIZE, file()) == NULL) {
-		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, LVL_IMMORT, SYSLOG, TRUE);
+	if (fgets(buf, READ_SIZE, file()) == nullptr) {
+		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, kLevelImmortal, SYSLOG, true);
 		buf[0] = '$';
 		buf[1] = 0;
 		return;
@@ -146,8 +148,8 @@ void DiscreteFile::read_next_line(const int nr) {
 }
 
 std::string DiscreteFile::fread_string(void) {
-	char bufferIn[MAX_RAW_INPUT_LENGTH];
-	char bufferOut[MAX_STRING_LENGTH];
+	char bufferIn[kMaxRawInputLength];
+	char bufferOut[kMaxStringLength];
 	char *to = bufferOut;
 	const char *end = bufferOut + sizeof(bufferOut) - 1;
 	bool isEscaped = false;
@@ -196,11 +198,11 @@ char DiscreteFile::fread_letter(FILE *fp) {
 }
 
 void DiscreteFile::dg_read_trigger(void *proto, int type) {
-	char line[MAX_TRGLINE_LENGTH];
+	char line[kMaxTrglineLength];
 	char junk[8];
 	int vnum, rnum, count;
-	CHAR_DATA *mob;
-	ROOM_DATA *room;
+	CharacterData *mob;
+	RoomData *room;
 
 	get_line(file(), line);
 	count = sscanf(line, "%s %d", junk, &vnum);
@@ -219,7 +221,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 	}
 
 	switch (type) {
-		case MOB_TRIGGER: mob = (CHAR_DATA *) proto;
+		case MOB_TRIGGER: mob = (CharacterData *) proto;
 			mob->proto_script->push_back(vnum);
 			if (owner_trig.find(vnum) == owner_trig.end()) {
 				owner_to_triggers_map_t tmp_map;
@@ -228,7 +230,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 			add_trig_to_owner(-1, vnum, GET_MOB_VNUM(mob));
 			break;
 
-		case WLD_TRIGGER: room = (ROOM_DATA *) proto;
+		case WLD_TRIGGER: room = (RoomData *) proto;
 			room->proto_script->push_back(vnum);
 
 			if (rnum >= 0) {
@@ -313,7 +315,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	asciiflag_conv(flags, &trigger_type);
 
 	const auto rnum = top_of_trigt;
-	TRIG_DATA *trig = new TRIG_DATA(rnum, std::move(name), static_cast<byte>(attach_type), trigger_type);
+	Trigger *trig = new Trigger(rnum, std::move(name), static_cast<byte>(attach_type), trigger_type);
 
 	trig->narg = (k == 3) ? t[0] : 0;
 	trig->arglist = fread_string();
@@ -335,7 +337,7 @@ void TriggersFile::parse_trigger(int vnum) {
 
 			std::smatch match;
 			if (std::regex_search(line, match, *m_load_obj_exp)) {
-				obj_vnum obj_num = std::stoi(match.str(1));
+				ObjVnum obj_num = std::stoi(match.str(1));
 				const auto tlist_it = obj2triggers.find(obj_num);
 				if (tlist_it != obj2triggers.end()) {
 					//const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), top_of_trigt);
@@ -345,7 +347,7 @@ void TriggersFile::parse_trigger(int vnum) {
 						tlist_it->second.push_back(vnum);
 					}
 				} else {
-					std::list<trg_vnum> tlist = {vnum};
+					std::list<TrgVnum> tlist = {vnum};
 					obj2triggers.emplace(obj_num, tlist);
 				}
 			}
@@ -356,7 +358,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	} while (pos != std::string::npos);
 
 	if (indlev > 0) {
-		char tmp[MAX_INPUT_LENGTH];
+		char tmp[kMaxInputLength];
 		snprintf(tmp, sizeof(tmp), "Positive indent-level on trigger #%d end.", vnum);
 		log("%s", tmp);
 		Boards::dg_script_text += tmp + std::string("\r\n");
@@ -390,7 +392,7 @@ void WorldFile::read_entry(const int nr) {
 
 void WorldFile::parse_room(int virtual_nr) {
 	static int room_nr = FIRST_ROOM;
-	static zone_rnum zone = 0;
+	static ZoneRnum zone = 0;
 
 	int t[10], i;
 	char line[256], flags[128];
@@ -403,13 +405,13 @@ void WorldFile::parse_room(int virtual_nr) {
 		exit(1);
 	}
 	while (virtual_nr > zone_table[zone].top) {
-		if (++zone >= static_cast<zone_rnum>(zone_table.size())) {
+		if (++zone >= static_cast<ZoneRnum>(zone_table.size())) {
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
 	}
 	// Создаем новую комнату
-	world.push_back(new ROOM_DATA);
+	world.push_back(new RoomData);
 
 	world[room_nr]->zone_rn = zone;
 	world[room_nr]->room_vn = virtual_nr;
@@ -439,25 +441,25 @@ void WorldFile::parse_room(int virtual_nr) {
 	// Обнуляем флаги от аффектов и сами аффекты на комнате.
 	world[room_nr]->affected_by.clear();
 	// Обнуляем базовые параметры (пока нет их загрузки)
-	memset(&world[room_nr]->base_property, 0, sizeof(room_property_data));
+	memset(&world[room_nr]->base_property, 0, sizeof(RoomState));
 
 	// Обнуляем добавочные параметры комнаты
-	memset(&world[room_nr]->add_property, 0, sizeof(room_property_data));
+	memset(&world[room_nr]->add_property, 0, sizeof(RoomState));
 
-	world[room_nr]->func = NULL;
-	world[room_nr]->contents = NULL;
-	world[room_nr]->track = NULL;
+	world[room_nr]->func = nullptr;
+	world[room_nr]->contents = nullptr;
+	world[room_nr]->track = nullptr;
 	world[room_nr]->light = 0;    // Zero light sources
 	world[room_nr]->fires = 0;
 	world[room_nr]->gdark = 0;
 	world[room_nr]->glight = 0;
-	world[room_nr]->proto_script.reset(new OBJ_DATA::triggers_list_t());
+	world[room_nr]->proto_script.reset(new ObjectData::triggers_list_t());
 
-	for (i = 0; i < NUM_OF_DIRS; i++) {
-		world[room_nr]->dir_option[i] = NULL;
+	for (i = 0; i < kDirMaxNumber; i++) {
+		world[room_nr]->dir_option[i] = nullptr;
 	}
 
-	world[room_nr]->ex_description = NULL;
+	world[room_nr]->ex_description = nullptr;
 
 	sprintf(buf, "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
 
@@ -471,7 +473,7 @@ void WorldFile::parse_room(int virtual_nr) {
 				break;
 
 			case 'E': {
-				const EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA);
+				const ExtraDescription::shared_ptr new_descr(new ExtraDescription);
 				new_descr->set_keyword(fread_string());
 				new_descr->set_description(fread_string());
 				if (new_descr->keyword && new_descr->description) {
@@ -521,7 +523,7 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 
 	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
-	world[room]->dir_option[dir].reset(new EXIT_DATA());
+	world[room]->dir_option[dir].reset(new ExitData());
 	world[room]->dir_option[dir]->general_description = fread_string();
 
 	// парс строки алиаса двери на имя; вининельный падеж, если он есть
@@ -580,12 +582,12 @@ class ObjectFile : public DiscreteFile {
 	*
 	* TODO: Add checks for unknown bitvectors.
 	*/
-	bool check_object(OBJ_DATA *obj);
+	bool check_object(ObjectData *obj);
 
-	bool check_object_level(OBJ_DATA *obj, int val);
-	bool check_object_spell_number(OBJ_DATA *obj, unsigned val);
+	bool check_object_level(ObjectData *obj, int val);
+	bool check_object_spell_number(ObjectData *obj, unsigned val);
 
-	char m_buffer[MAX_STRING_LENGTH];
+	char m_buffer[kMaxStringLength];
 };
 
 void ObjectFile::read_next_line(const int nr) {
@@ -602,15 +604,15 @@ void ObjectFile::parse_object(const int nr) {
 	int t[10], j = 0;
 	char f0[256], f1[256], f2[256];
 
-	OBJ_DATA *tobj = new OBJ_DATA(nr);
+	ObjectData *tobj = new ObjectData(nr);
 
 	// *** Add some initialization fields
-	tobj->set_maximum_durability(OBJ_DATA::DEFAULT_MAXIMUM_DURABILITY);
-	tobj->set_current_durability(OBJ_DATA::DEFAULT_CURRENT_DURABILITY);
-	tobj->set_sex(DEFAULT_SEX);
-	tobj->set_timer(OBJ_DATA::DEFAULT_TIMER);
+	tobj->set_maximum_durability(ObjectData::DEFAULT_MAXIMUM_DURABILITY);
+	tobj->set_current_durability(ObjectData::DEFAULT_CURRENT_DURABILITY);
+	tobj->set_sex(kDefaultSex);
+	tobj->set_timer(ObjectData::DEFAULT_TIMER);
 	tobj->set_level(1);
-	tobj->set_destroyer(OBJ_DATA::DEFAULT_DESTROYER);
+	tobj->set_destroyer(ObjectData::DEFAULT_DESTROYER);
 
 	sprintf(m_buffer, "object #%d", nr);
 
@@ -650,7 +652,7 @@ void ObjectFile::parse_object(const int nr) {
 
 	tobj->set_maximum_durability(t[1]);
 	tobj->set_current_durability(MIN(t[1], t[2]));
-	tobj->set_material(static_cast<OBJ_DATA::EObjectMaterial>(t[3]));
+	tobj->set_material(static_cast<ObjectData::EObjectMaterial>(t[3]));
 
 	if (tobj->get_current_durability() > tobj->get_maximum_durability()) {
 		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
@@ -667,10 +669,10 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 	tobj->set_sex(static_cast<ESex>(t[0]));
-	int timer = t[1] > 0 ? t[1] : OBJ_DATA::SEVEN_DAYS;
+	int timer = t[1] > 0 ? t[1] : ObjectData::SEVEN_DAYS;
 	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
 	// не должно быть
-	if (timer == OBJ_DATA::UNLIMITED_TIMER) {
+	if (timer == ObjectData::UNLIMITED_TIMER) {
 		timer--;
 		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 	}
@@ -707,7 +709,7 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 
-	tobj->set_type(static_cast<OBJ_DATA::EObjectType>(t[0]));        // ** What's a object
+	tobj->set_type(static_cast<ObjectData::EObjectType>(t[0]));        // ** What's a object
 	tobj->load_extra_flags(f1);
 	// ** Its effects
 	int wear_flags = 0;
@@ -749,8 +751,8 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_rent_on(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->get_type() == OBJ_DATA::ITEM_DRINKCON
-		|| tobj->get_type() == OBJ_DATA::ITEM_FOUNTAIN) {
+	if (tobj->get_type() == ObjectData::ITEM_DRINKCON
+		|| tobj->get_type() == ObjectData::ITEM_FOUNTAIN) {
 		if (tobj->get_weight() < tobj->get_val(1)) {
 			tobj->set_weight(tobj->get_val(1) + 5);
 		}
@@ -767,7 +769,7 @@ void ObjectFile::parse_object(const int nr) {
 		}
 		switch (*m_line) {
 			case 'E': {
-				const EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
+				const ExtraDescription::shared_ptr new_descr(new ExtraDescription());
 				new_descr->set_keyword(fread_string());
 				new_descr->set_description(fread_string());
 				if (new_descr->keyword && new_descr->description) {
@@ -784,8 +786,8 @@ void ObjectFile::parse_object(const int nr) {
 				break;
 
 			case 'A':
-				if (j >= MAX_OBJ_AFFECT) {
-					log("SYSERR: Too many A fields (%d max), %s", MAX_OBJ_AFFECT, m_buffer);
+				if (j >= kMaxObjAffect) {
+					log("SYSERR: Too many A fields (%d max), %s", kMaxObjAffect, m_buffer);
 					exit(1);
 				}
 
@@ -851,7 +853,7 @@ void ObjectFile::parse_object(const int nr) {
 	}
 }
 
-bool ObjectFile::check_object(OBJ_DATA *obj) {
+bool ObjectFile::check_object(ObjectData *obj) {
 	bool error = false;
 
 	if (GET_OBJ_WEIGHT(obj) < 0) {
@@ -890,8 +892,8 @@ bool ObjectFile::check_object(OBJ_DATA *obj) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case OBJ_DATA::ITEM_DRINKCON:
-		case OBJ_DATA::ITEM_FOUNTAIN:
+		case ObjectData::ITEM_DRINKCON:
+		case ObjectData::ITEM_FOUNTAIN:
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
 				error = true;
 				log("SYSERR: Object #%d (%s) contains (%d) more than maximum (%d).",
@@ -899,18 +901,18 @@ bool ObjectFile::check_object(OBJ_DATA *obj) {
 			}
 			break;
 
-		case OBJ_DATA::ITEM_SCROLL:
-		case OBJ_DATA::ITEM_POTION: error = error || check_object_level(obj, 0);
+		case ObjectData::ITEM_SCROLL:
+		case ObjectData::ITEM_POTION: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 1);
 			error = error || check_object_spell_number(obj, 2);
 			error = error || check_object_spell_number(obj, 3);
 			break;
 
-		case OBJ_DATA::ITEM_BOOK: error = error || check_object_spell_number(obj, 1);
+		case ObjectData::ITEM_BOOK: error = error || check_object_spell_number(obj, 1);
 			break;
 
-		case OBJ_DATA::ITEM_WAND:
-		case OBJ_DATA::ITEM_STAFF: error = error || check_object_level(obj, 0);
+		case ObjectData::ITEM_WAND:
+		case ObjectData::ITEM_STAFF: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 3);
 			if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1)) {
 				error = true;
@@ -925,10 +927,10 @@ bool ObjectFile::check_object(OBJ_DATA *obj) {
 	return error;
 }
 
-bool ObjectFile::check_object_level(OBJ_DATA *obj, int val) {
+bool ObjectFile::check_object_level(ObjectData *obj, int val) {
 	bool error = false;
 
-	if (GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > LVL_IMPL) {
+	if (GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > kLevelImplementator) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has out of range level #%d.",
 			GET_OBJ_VNUM(obj),
@@ -938,8 +940,8 @@ bool ObjectFile::check_object_level(OBJ_DATA *obj, int val) {
 	return error;
 }
 
-bool ObjectFile::check_object_spell_number(OBJ_DATA *obj, unsigned val) {
-	if (val >= OBJ_DATA::VALS_COUNT) {
+bool ObjectFile::check_object_spell_number(ObjectData *obj, unsigned val) {
+	if (val >= ObjectData::VALS_COUNT) {
 		log("SYSERROR : val=%d (%s:%d)", val, __FILE__, __LINE__);
 		return true;
 	}
@@ -1012,7 +1014,7 @@ void MobileFile::parse_mobile(const int nr) {
 	char f1[128], f2[128];
 	mob_index[i].vnum = nr;
 	mob_index[i].number = 0;
-	mob_index[i].func = NULL;
+	mob_index[i].func = nullptr;
 	mob_index[i].set_idx = -1;
 
 	sprintf(buf2, "mob vnum %d", nr);
@@ -1030,7 +1032,7 @@ void MobileFile::parse_mobile(const int nr) {
 	}
 	mob_proto[i].player_data.long_descr = colorCAP(fread_string());
 	mob_proto[i].player_data.description = fread_string();
-	mob_proto[i].mob_specials.Questor = NULL;
+	mob_proto[i].mob_specials.Questor = nullptr;
 	mob_proto[i].player_data.title = "";
 	mob_proto[i].set_level(1);
 
@@ -1095,11 +1097,11 @@ void MobileFile::parse_mobile(const int nr) {
 	} while (letter != 0);
 
 	for (j = 0; j < NUM_WEARS; j++) {
-		mob_proto[i].equipment[j] = NULL;
+		mob_proto[i].equipment[j] = nullptr;
 	}
 
 	mob_proto[i].set_rnum(i);
-	mob_proto[i].desc = NULL;
+	mob_proto[i].desc = nullptr;
 	if ((mob_proto + 1)->get_level() == 0)
 		set_test_data(mob_proto + i);
 
@@ -1175,8 +1177,8 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 			exit(1);
 	}
 
-	mob_proto[i].char_specials.position = t[0];
-	mob_proto[i].mob_specials.default_pos = t[1];
+	mob_proto[i].char_specials.position = static_cast<EPosition>(t[0]);
+	mob_proto[i].mob_specials.default_pos = static_cast<EPosition>(t[1]);
 	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
@@ -1225,13 +1227,13 @@ void MobileFile::parse_enhanced_mob(int i, int nr) {
 void MobileFile::parse_espec(char *buf, int i, int nr) {
 	char *ptr;
 
-	if ((ptr = strchr(buf, ':')) != NULL) {
+	if ((ptr = strchr(buf, ':')) != nullptr) {
 		*(ptr++) = '\0';
 		while (a_isspace(*ptr)) {
 			ptr++;
 		}
 	} else {
-		ptr = NULL;
+		ptr = nullptr;
 	}
 	interpret_espec(buf, ptr, i, nr);
 }
@@ -1250,7 +1252,7 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
  * function!  No other changes need to be made anywhere in the code.
  */
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr) {
-	struct helper_data_type *helper;
+	struct Helper *helper;
 	int k, num_arg, matched = 0, t[4];
 
 	num_arg = atoi(value);
@@ -1284,7 +1286,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (k = 0; k < SAVING_COUNT; k++)
-			GET_SAVE(mob_proto + i, k) = MIN(MAX_SAVE, MAX(-MAX_SAVE, t[k]));
+			GET_SAVE(mob_proto + i, k) = MIN(kMaxSaving, MAX(-kMaxSaving, t[k]));
 	}
 
 	CASE("HPReg") {
@@ -1342,7 +1344,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Destination") {
-		if (mob_proto[i].mob_specials.dest_count < MAX_DEST) {
+		if (mob_proto[i].mob_specials.dest_count < kMaxDest) {
 			mob_proto[i].mob_specials.dest[mob_proto[i].mob_specials.dest_count] = num_arg;
 			mob_proto[i].mob_specials.dest_count++;
 		}
@@ -1432,7 +1434,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
 			return;
 		}
-		if (t[0] >= MAX_FEATS || t[0] <= 0) {
+		if (t[0] >= kMaxFeats || t[0] <= 0) {
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}
@@ -1468,14 +1470,14 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	CASE("Helper") {
 		CREATE(helper, 1);
 		helper->mob_vnum = num_arg;
-		helper->next_helper = GET_HELPER(mob_proto + i);
+		helper->next = GET_HELPER(mob_proto + i);
 		GET_HELPER(mob_proto + i) = helper;
 	}
 
 	CASE("Role") {
 		if (value && *value) {
 			std::string str(value);
-			CHAR_DATA::role_t tmp(str);
+			CharacterData::role_t tmp(str);
 			tmp.resize(mob_proto[i].get_role().size());
 			mob_proto[i].set_role(tmp);
 		}
@@ -1518,9 +1520,9 @@ bool ZoneFile::load_zone() {
 
 	zone.typeA_count = 0;
 	zone.typeB_count = 0;
-	zone.locked = FALSE;
-	zone.reset_idle = FALSE;
-	zone.used = FALSE;
+	zone.locked = false;
+	zone.reset_idle = false;
+	zone.used = false;
 	zone.activity = 0;
 	zone.comment = nullptr;
 	zone.location = nullptr;
@@ -1594,7 +1596,7 @@ bool ZoneFile::load_regular_zone() {
 		CREATE(zone.typeB_flag, zone.typeB_count);
 		// сбрасываем все флаги
 		for (b_number = zone.typeB_count; b_number > 0; b_number--) {
-			zone.typeB_flag[b_number - 1] = FALSE;
+			zone.typeB_flag[b_number - 1] = false;
 		}
 	}
 
@@ -1686,7 +1688,7 @@ bool ZoneFile::load_regular_zone() {
 	zone.under_construction = !str_cmp(t1, "test");
 	zone.locked = !str_cmp(t2, "locked");
 
-	const room_vnum expected_zone_top = zone.vnum * 100 + 99;
+	const RoomVnum expected_zone_top = zone.vnum * 100 + 99;
 	if (zone.top != expected_zone_top) {
 		log("Zone: %d contains wrong top: %d, should be: %d", zone.vnum, zone.top, expected_zone_top);
 		zone.top = expected_zone_top;
@@ -1734,7 +1736,7 @@ bool ZoneFile::load_regular_zone() {
 		auto if_flag = 0;
 		auto error = 0;
 		zone.cmd[cmd_no].arg4 = -1;
-		if (strchr("MOEGPDTVQF", zone.cmd[cmd_no].command) == NULL)    // a 3-arg command
+		if (strchr("MOEGPDTVQF", zone.cmd[cmd_no].command) == nullptr)    // a 3-arg command
 		{
 			const auto count = sscanf(ptr, " %d %d %d ",
 									  &if_flag,
@@ -1833,7 +1835,7 @@ bool HelpFile::load_help() {
 			if ((*line == '$') && (*(line + 1) == 0)) {
 				std::stringstream str_log;
 				str_log << "SYSERR: unexpected EOF in help file: \"" << file_name() << "\"";
-				mudlog(str_log.str().c_str(), DEF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(str_log.str().c_str(), DEF, kLevelImmortal, SYSLOG, true);
 				break;
 			}
 			strcat(entry, strcat(line, "\r\n"));
@@ -1844,7 +1846,7 @@ bool HelpFile::load_help() {
 		if ((*line == '#') && (*(line + 1) != 0)) {
 			min_level = atoi((line + 1));
 		}
-		min_level = MAX(0, MIN(min_level, LVL_IMPL));
+		min_level = MAX(0, MIN(min_level, kLevelImplementator));
 		// now, add the entry to the index with each keyword on the keyword line
 		std::string entry_str(entry);
 		scan = one_word(key, next_key);
@@ -1876,7 +1878,7 @@ class SocialsFile : public DataFile {
 };
 
 bool SocialsFile::load_socials() {
-	char line[MAX_INPUT_LENGTH], next_key[MAX_INPUT_LENGTH];
+	char line[kMaxInputLength], next_key[kMaxInputLength];
 	const char *scan;
 	int key = -1, message = -1, c_min_pos, c_max_pos, v_min_pos, v_max_pos, what;
 
@@ -1901,16 +1903,14 @@ bool SocialsFile::load_socials() {
 			if (scan && *scan && *scan != ';') {
 				switch (what) {
 					case 0:
-						if (sscanf
-							(scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos,
-							 &v_min_pos, &v_max_pos) < 4) {
+						if (sscanf(scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos, &v_min_pos, &v_max_pos) < 4) {
 							log("SYSERR: format error in %d social file near social '%s' #d #d #d #d\n", message, line);
 							exit(1);
 						}
-						soc_mess_list[message].ch_min_pos = c_min_pos;
-						soc_mess_list[message].ch_max_pos = c_max_pos;
-						soc_mess_list[message].vict_min_pos = v_min_pos;
-						soc_mess_list[message].vict_max_pos = v_max_pos;
+						soc_mess_list[message].ch_min_pos = static_cast<EPosition>(c_min_pos);
+						soc_mess_list[message].ch_max_pos = static_cast<EPosition>(c_max_pos);
+						soc_mess_list[message].vict_min_pos = static_cast<EPosition>(v_min_pos);
+						soc_mess_list[message].vict_max_pos = static_cast<EPosition>(v_max_pos);
 						break;
 					case 1: soc_mess_list[message].char_no_arg = str_dup_bl(scan);
 						break;
@@ -1941,7 +1941,7 @@ bool SocialsFile::load_socials() {
 }
 
 char *SocialsFile::str_dup_bl(const char *source) {
-	char line[MAX_INPUT_LENGTH];
+	char line[kMaxInputLength];
 
 	line[0] = 0;
 	if (source[0]) {

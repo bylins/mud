@@ -6,7 +6,8 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/descriptor_data.h"
+//#include "structs/structs.h"
 
 ///
 /// Платный сброс/перераспределение характеристик персонажа через главное меню.
@@ -22,8 +23,8 @@ enum Type : int {
 };
 
 void init();
-void print_menu(DESCRIPTOR_DATA *d);
-void parse_menu(DESCRIPTOR_DATA *d, const char *arg);
+void print_menu(DescriptorData *d);
+void parse_menu(DescriptorData *d, const char *arg);
 
 } // namespace ResetStats
 

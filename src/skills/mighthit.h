@@ -1,10 +1,10 @@
 #ifndef BYLINS_MIGHTHIT_H
 #define BYLINS_MIGHTHIT_H
 
-class CHAR_DATA;
+class CharacterData;
 
-void go_mighthit(CHAR_DATA *ch, CHAR_DATA *victim);
-void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_mighthit(CharacterData *ch, CharacterData *victim);
+void do_mighthit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_MIGHTHIT_H
 

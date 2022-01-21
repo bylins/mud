@@ -3,7 +3,7 @@
 
 #include "utils/utils.h"
 #include "interpreter.h"
-#include "pugixml.h"
+#include "utils/pugixml.h"
 
 const char *DEFAULT_RENT_HELP = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";
 
@@ -76,7 +76,7 @@ std::vector<int> BirthPlace::GetItemList(short Id) {
 // Получение строчки меню для точки входа по ID
 std::string BirthPlace::GetMenuStr(short Id) {
 	BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
-	if (BPPtr != NULL)
+	if (BPPtr != nullptr)
 		return BPPtr->MenuStr();
 
 	return BIRTH_PLACE_NAME_UNDEFINED;
@@ -90,7 +90,7 @@ std::string BirthPlace::ShowMenu(std::vector<int> BPList) {
 	i = 1;
 	for (std::vector<int>::iterator it = BPList.begin(); it != BPList.end(); ++it) {
 		BPPtr = BirthPlace::GetBirthPlaceById(*it);
-		if (BPPtr != NULL) {
+		if (BPPtr != nullptr) {
 			buffer << " " << i << ") " << BPPtr->_MenuStr << "\r\n";
 			i++;
 		};
@@ -115,7 +115,7 @@ short BirthPlace::ParseSelect(char *arg) {
 // Проверка наличия точки входа с указанным ID
 bool BirthPlace::CheckId(short Id) {
 	BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
-	if (BPPtr != NULL)
+	if (BPPtr != nullptr)
 		return true;
 
 	return false;
@@ -132,7 +132,7 @@ int BirthPlace::GetIdByRoom(int room_vnum) {
 
 std::string BirthPlace::GetRentHelp(short Id) {
 	BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
-	if (BPPtr != NULL && !BPPtr->RentHelp().empty()) {
+	if (BPPtr != nullptr && !BPPtr->RentHelp().empty()) {
 		return BPPtr->RentHelp();
 	}
 	return DEFAULT_RENT_HELP;

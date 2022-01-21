@@ -10,8 +10,8 @@
 using namespace FightSystem;
 
 // ******************  KICK PROCEDURES
-void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
-	const char *to_char = NULL, *to_vict = NULL, *to_room = NULL;
+void go_kick(CharacterData *ch, CharacterData *vict) {
+	const char *to_char = nullptr, *to_vict = nullptr, *to_room = nullptr;
 
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -59,7 +59,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 			dam = modi * dam / 100;
 		}
 		if (ch->ahorse() && (ch->get_skill(SKILL_HORSE) >= 150) && (ch->get_skill(SKILL_KICK) >= 150)) {
-			AFFECT_DATA<EApplyLocation> af;
+			Affect<EApplyLocation> af;
 			af.location = APPLY_NONE;
 			af.type = SPELL_BATTLE;
 			af.modifier = 0;
@@ -106,9 +106,9 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 						dam *= 2;
 						break;
 					case 4:
-					case 5:WAIT_STATE(vict, number(2, 5) * PULSE_VIOLENCE);
-						if (GET_POS(vict) > POS_SITTING) {
-							GET_POS(vict) = POS_SITTING;
+					case 5:WAIT_STATE(vict, number(2, 5) * kPulseViolence);
+						if (GET_POS(vict) > EPosition::kSit) {
+							GET_POS(vict) = EPosition::kSit;
 						}
 						to_char = "Ваш мощный пинок выбил пару зубов $N2, усадив $S на землю!";
 						to_vict = "Мощный удар ноги $n1 попал точно в голову, свалив вас с ног.";
@@ -126,18 +126,18 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 			if (to_char) {
 				if (!IS_NPC(ch)) {
 					sprintf(buf, "&G&q%s&Q&n", to_char);
-					act(buf, FALSE, ch, 0, vict, TO_CHAR);
+					act(buf, false, ch, 0, vict, TO_CHAR);
 					sprintf(buf, "%s", to_room);
-					act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+					act(buf, true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 				}
 			}
 			if (to_vict) {
 				if (!IS_NPC(vict)) {
 					sprintf(buf, "&R&q%s&Q&n", to_vict);
-					act(buf, FALSE, ch, 0, vict, TO_VICT);
+					act(buf, false, ch, 0, vict, TO_VICT);
 				}
 			}
-			affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(vict, af, true, false, true, false);
 		}
 
 		if (GET_AF_BATTLE(vict, EAF_AWAKE)) {
@@ -151,7 +151,7 @@ void go_kick(CHAR_DATA *ch, CHAR_DATA *vict) {
 	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 }
 
-void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_kick(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(SKILL_KICK) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -161,7 +161,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кто это так сильно путается под вашими ногами?\r\n", ch);
 		return;
@@ -180,7 +180,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_kick(ch, vict);
 	} else if (isHaveNoExtraAttack(ch)) {
-		act("Хорошо. Вы попытаетесь пнуть $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		act("Хорошо. Вы попытаетесь пнуть $N3.", false, ch, 0, vict, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_KICK, vict);
 	}
 }

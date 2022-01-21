@@ -1,10 +1,10 @@
 #ifndef BYLINS_CHOPOFF_H
 #define BYLINS_CHOPOFF_H
 
-#include "chars/char.h"
+#include "entities/char.h"
 
-void go_chopoff(CHAR_DATA *ch, CHAR_DATA *vict);
-void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_chopoff(CharacterData *ch, CharacterData *vict);
+void do_chopoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_CHOPOFF_H
 

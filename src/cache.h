@@ -6,8 +6,8 @@
 
 #include <boost/unordered_map.hpp>
 
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-class OBJ_DATA;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class ObjectData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
 namespace caching {
 typedef unsigned int id_t;
@@ -36,7 +36,7 @@ class Cache {
 		typename id_map_t::const_iterator it = id_map.find(id);
 		if (it != id_map.end())
 			return it->second;
-		else return NULL; //dirty
+		else return nullptr; //dirty
 	}
 
 	inline id_t get_id(t &obj) {
@@ -51,10 +51,10 @@ class Cache {
 	ptr_map_t ptr_map;
 	static id_t max_id;
 };
-typedef Cache<CHAR_DATA *> CharacterCache;
+typedef Cache<CharacterData *> CharacterCache;
 extern CharacterCache character_cache;
 
-typedef Cache<OBJ_DATA *> ObjCache;
+typedef Cache<ObjectData *> ObjCache;
 extern ObjCache obj_cache;
 }
 

@@ -12,14 +12,14 @@
 
 namespace ShopExt {
 
-void do_shops_list(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_shops_list(CharacterData *ch, char *argument, int cmd, int subcmd);
 void load(bool reload);
 int get_spent_today();
 void update_timers();
 
 } // namespace ShopExt
 
-int shop_ext(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int shop_ext(CharacterData *ch, void *me, int cmd, char *argument);
 void town_shop_keepers();
 void fill_shop_dictionary(DictionaryType &dic);
 

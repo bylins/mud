@@ -5,15 +5,15 @@
 
 #include <ostream>
 
-struct DESCRIPTOR_DATA;    // to avoid inclusion of "structs.h"
+#include "structs/descriptor_data.h"
 
 namespace msdp {
-size_t handle_conversation(DESCRIPTOR_DATA *t, const char *pos, const size_t length);
+size_t handle_conversation(DescriptorData *t, const char *pos, const size_t length);
 void debug(const bool on);
 
 class Report {
  public:
-	void operator()(DESCRIPTOR_DATA *d, const std::string &type);
+	void operator()(DescriptorData *d, const std::string &type);
 };
 
 extern Report report;

@@ -1,9 +1,9 @@
 #include "cmd_god/shutdown.h"
 
-#include "chars/char.h"
+#include "entities/char.h"
 
 namespace commands {
-Shutdown::Shutdown(CHAR_DATA *character, const char *argument, ShutdownParameters &shutdown_parameters) :
+Shutdown::Shutdown(CharacterData *character, const char *argument, ShutdownParameters &shutdown_parameters) :
 	m_character(character),
 	m_argument(argument),
 	m_timeout(0),
@@ -11,7 +11,7 @@ Shutdown::Shutdown(CHAR_DATA *character, const char *argument, ShutdownParameter
 }
 
 bool Shutdown::parse_arguments() {
-	char buffer[MAX_STRING_LENGTH];
+	char buffer[kMaxStringLength];
 
 	two_arguments(m_argument, m_argument_buffer, buffer);
 

@@ -3,9 +3,9 @@
 
 #include "mob_stat.h"
 
-#include "pugixml.h"
+#include "utils/pugixml.h"
 #include "parse.h"
-#include "chars/char.h"
+#include "entities/char.h"
 #include "screen.h"
 
 #include <iomanip>
@@ -46,7 +46,7 @@ void add_class_exp(unsigned class_num, int exp) {
 	}
 }
 
-std::string print_curr_class(CHAR_DATA *ch, const class_exp_node &node,
+std::string print_curr_class(CharacterData *ch, const class_exp_node &node,
 							 unsigned long long top_exp) {
 	std::string out;
 	out += CCICYN(ch, C_NRM);
@@ -60,14 +60,14 @@ std::string print_curr_class(CHAR_DATA *ch, const class_exp_node &node,
 	}
 	out += CCNRM(ch, C_NRM);
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "%-13s %s",
 			 node.class_name.c_str(), out.c_str());
 
 	return buf_;
 }
 
-std::string print_class_exp(CHAR_DATA *ch) {
+std::string print_class_exp(CharacterData *ch) {
 	auto tmp_array = class_exp;
 
 	std::sort(tmp_array.begin(), tmp_array.end(),
@@ -142,19 +142,19 @@ std::pair<int, int> get_date() {
 void load() {
 	mob_list.clear();
 
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(MOB_STAT_FILE_NEW);
 	if (!result) {
 		snprintf(buf_, sizeof(buf_), "...%s", result.description());
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("mob_list");
 	if (!node_list) {
 		snprintf(buf_, sizeof(buf_), "...<mob_stat_new> read fail");
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	for (pugi::xml_node xml_mob = node_list.child("mob"); xml_mob;
@@ -163,7 +163,7 @@ void load() {
 		if (real_mobile(mob_vnum) < 0) {
 			snprintf(buf_, sizeof(buf_),
 					 "...bad mob attributes (vnum=%d)", mob_vnum);
-			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 			continue;
 		}
 
@@ -184,7 +184,7 @@ void load() {
 				snprintf(buf_, sizeof(buf_),
 						 "...bad mob attributes (month=%d, year=%d)",
 						 tmp_mob.month, tmp_mob.year);
-				mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 				continue;
 			}
 			auto date = get_date();
@@ -214,7 +214,7 @@ void save() {
 	pugi::xml_document doc;
 	doc.append_child().set_name("mob_list");
 	pugi::xml_node xml_mob_list = doc.child("mob_list");
-	char buf_[MAX_INPUT_LENGTH];
+	char buf_[kMaxInputLength];
 
 	for (auto i = mob_list.cbegin(), iend = mob_list.cend(); i != iend; ++i) {
 		pugi::xml_node mob_node = xml_mob_list.append_child();
@@ -249,7 +249,7 @@ void clear_zone(int zone_vnum) {
 	save();
 }
 
-void show_stats(CHAR_DATA *ch) {
+void show_stats(CharacterData *ch) {
 	std::stringstream out;
 	out << "  Всего уникальных мобов в статистике убийств: " << mob_list.size() << "\r\n"
 		<< "  Количество уникальных мобов по месяцам:";
@@ -297,7 +297,7 @@ int last_time_killed_mob(int vnum) {
 	}
 }
 
-void last_kill_mob(CHAR_DATA *mob, std::string &result) {
+void last_kill_mob(CharacterData *mob, std::string &result) {
 	auto i = mob_list.find(GET_MOB_VNUM(mob));
 	if (i != mob_list.end() && i->second.date != 0) {
 		const auto killtime = i->second.date;
@@ -307,13 +307,13 @@ void last_kill_mob(CHAR_DATA *mob, std::string &result) {
 	}
 
 }
-void add_mob(CHAR_DATA *mob, int members) {
+void add_mob(CharacterData *mob, int members) {
 	if (members < 0 || members > MAX_GROUP_SIZE) {
-		char buf_[MAX_INPUT_LENGTH];
+		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_),
-				 "SYSERROR: mob_vnum=%d, members=%d (%s:%d)",
+				 "SYSERROR: MobVnum=%d, members=%d (%s:%d)",
 				 GET_MOB_VNUM(mob), members, __FILE__, __LINE__);
-		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 	auto i = mob_list.find(GET_MOB_VNUM(mob));
@@ -366,7 +366,7 @@ mob_node sum_stat(const std::list<mob_node> &mob_list, int months) {
 	return tmp_stat;
 }
 
-void show_zone(CHAR_DATA *ch, int zone_vnum, int months) {
+void show_zone(CharacterData *ch, int zone_vnum, int months) {
 	std::map<int, mob_node> sort_list;
 	for (auto i = mob_list.begin(), iend = mob_list.end(); i != iend; ++i) {
 		if (i->first / 100 == zone_vnum) {

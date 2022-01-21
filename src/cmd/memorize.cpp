@@ -2,20 +2,20 @@
 
 #include "magic/spells_info.h"
 #include "handler.h"
-#include "crafts/im.h"
+//#include "crafts/im.h"
 #include "screen.h"
-#include "game_limits.h"
+//#include "game_limits.h"
 #include "classes/class_spell_slots.h"
-#include "magic/spells.h"
+//#include "magic/spells.h"
 
 #include "magic/magic_utils.h" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
 
 using PlayerClass::slot_for_char;
 
-void show_wizdom(CHAR_DATA *ch, int bitset);
-void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void show_wizdom(CharacterData *ch, int bitset);
+void do_memorize(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
-void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_memorize(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char *s;
 	int spellnum;
 
@@ -29,12 +29,12 @@ void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	s = strtok(argument, "'*!");
-	if (s == NULL) {
+	if (s == nullptr) {
 		send_to_char("Какое заклинание вы хотите заучить?\r\n", ch);
 		return;
 	}
-	s = strtok(NULL, "'*!");
-	if (s == NULL) {
+	s = strtok(nullptr, "'*!");
+	if (s == nullptr) {
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
@@ -59,8 +59,8 @@ void do_memorize(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	return;
 }
 
-void show_wizdom(CHAR_DATA *ch, int bitset) {
-	char names[MAX_SLOT][MAX_STRING_LENGTH];
+void show_wizdom(CharacterData *ch, int bitset) {
+	char names[MAX_SLOT][kMaxStringLength];
 	int slots[MAX_SLOT], i, max_slot, count, slot_num, is_full, gcount = 0, imax_slot = 0;
 	for (i = 1; i <= MAX_SLOT; i++) {
 		*names[i - 1] = '\0';
@@ -104,7 +104,7 @@ void show_wizdom(CHAR_DATA *ch, int bitset) {
 		gcount += sprintf(buf2 + gcount, "\r\n");
 	}
 	if (bitset & 0x02) {
-		struct spell_mem_queue_item *q;
+		struct SpellMemQueueItem *q;
 		char timestr[16];
 		is_full = 0;
 		for (i = 0; i < MAX_SLOT; i++) {

@@ -1,9 +1,9 @@
 #ifndef BYLINS_IDENTIFY_H
 #define BYLINS_IDENTIFY_H
 
-class CHAR_DATA;
+class CharacterData;
 
-void do_identify(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_identify(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_IDENTIFY_H
 

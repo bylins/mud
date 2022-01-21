@@ -3,11 +3,11 @@
 
 #include "db.h"
 #include "comm.h"
-#include "room.h"
+#include "entities/room.h"
 
-class CHAR_DATA;
+class CharacterData;
 
-void spell_townportal(CHAR_DATA *ch, char *arg);
+void spell_townportal(CharacterData *ch, char *arg);
 
 inline void decay_portal(const int room_num) {
 	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, TO_ROOM);
@@ -22,9 +22,9 @@ inline void decay_portal(const int room_num) {
 */
 namespace OneWayPortal {
 
-void add(ROOM_DATA *to_room, ROOM_DATA *from_room);
-void remove(ROOM_DATA *to_room);
-ROOM_DATA *get_from_room(ROOM_DATA *to_room);
+void add(RoomData *to_room, RoomData *from_room);
+void remove(RoomData *to_room);
+RoomData *get_from_room(RoomData *to_room);
 
 } // namespace OneWayPortal
 

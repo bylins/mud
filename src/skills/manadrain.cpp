@@ -9,9 +9,9 @@
 
 using namespace FightSystem;
 
-void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-	struct timed_type timed;
+	struct Timed timed;
 	int drained_mana, prob, percent, skill;
 
 	one_argument(argument, arg);
@@ -26,7 +26,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA *vict = findVictim(ch, argument);
+	CharacterData *vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы столь сильно ненавидите?\r\n", ch);
 		return;

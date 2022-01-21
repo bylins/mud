@@ -12,18 +12,18 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#ifndef _SKILLS_H_
-#define _SKILLS_H_
+#ifndef SKILLS_H_
+#define SKILLS_H_
 
-#include "structs.h"
-#include "pugixml.h"
+#include "structs/structs.h"
+//#include "utils/pugixml.h"
 
 #include <map>
 
-extern const byte kSkillCapOnZeroRemort;
-extern const byte kSkillCapBonusPerRemort;
+extern const int kSkillCapOnZeroRemort;
+extern const int kSkillCapBonusPerRemort;
 
-class CHAR_DATA;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 #define SAVING_WILL       0
 #define SAVING_CRITICAL   1
@@ -142,7 +142,7 @@ enum ESkill : int {
 	MAX_SKILL_NUM = SKILL_INDEFINITE
 };
 
-#define KNOW_SKILL  1
+const int kKnowSkill = 1;
 
 struct SkillRollResult {
 	bool success = true;
@@ -157,147 +157,25 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item);
 
 extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
 
-int SendSkillMessages(int dam, CHAR_DATA *ch, CHAR_DATA *vict, int attacktype, std::string add = "");
+int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attacktype, std::string add = "");
 
-int CalcCurrentSkill(CHAR_DATA *ch, const ESkill skill, CHAR_DATA *vict);
-void ImproveSkill(CHAR_DATA *ch, const ESkill skill, int success, CHAR_DATA *victim);
-void TrainSkill(CHAR_DATA *ch, const ESkill skill, bool success, CHAR_DATA *vict);
+int CalcCurrentSkill(CharacterData *ch, ESkill skill, CharacterData *vict);
+void ImproveSkill(CharacterData *ch, ESkill skill, int success, CharacterData *victim);
+void TrainSkill(CharacterData *ch, ESkill skill, bool success, CharacterData *vict);
 
-int min_skill_level(CHAR_DATA *ch, int skill);
-int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl);
-bool IsAbleToGetSkill(CHAR_DATA *ch, int skill);
-bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
-bool IsWeaponSkill(ESkill skill);
+int min_skill_level(CharacterData *ch, int skill);
+int min_skill_level_with_req(CharacterData *ch, int skill, int req_lvl);
+bool IsAbleToGetSkill(CharacterData *ch, int skill);
+bool can_get_skill_with_req(CharacterData *ch, int skill, int req_lvl);
 int FindWeaponMasterBySkill(ESkill skill);
-int CalcSkillRemortCap(const CHAR_DATA *ch);
-int CalcSkillSoftCap(const CHAR_DATA *ch);
-int CalcSkillHardCap(const CHAR_DATA *ch, const ESkill skill);
-int CalcSkillMinCap(const CHAR_DATA *ch, const ESkill skill);
-SkillRollResult MakeSkillTest(CHAR_DATA *ch, ESkill skill_id, CHAR_DATA *vict);
-void SendSkillBalanceMsg(CHAR_DATA *ch, const char *skill_name, int percent, int prob, bool success);
-int CalculateSkillAwakeModifier(CHAR_DATA *killer, CHAR_DATA *victim);
+int CalcSkillRemortCap(const CharacterData *ch);
+int CalcSkillSoftCap(const CharacterData *ch);
+int CalcSkillHardCap(const CharacterData *ch, ESkill skill);
+int CalcSkillMinCap(const CharacterData *ch, ESkill skill);
+SkillRollResult MakeSkillTest(CharacterData *ch, ESkill skill_id, CharacterData *vict);
+void SendSkillBalanceMsg(CharacterData *ch, const char *skill_name, int percent, int prob, bool success);
+int CalculateSkillAwakeModifier(CharacterData *killer, CharacterData *victim);
 
-// ГОРНОЕ ДЕЛО
-
-#define DIG_DFLT_HOLE_MAX_DEEP        10
-#define DIG_DFLT_INSTR_CRASH_CHANCE    2
-#define DIG_DFLT_TREASURE_CHANCE    30000
-#define DIG_DFLT_PANDORA_CHANCE        80000
-#define DIG_DFLT_MOB_CHANCE        300
-#define DIG_DFLT_TRASH_CHANCE        100
-#define DIG_DFLT_LAG            4
-#define DIG_DFLT_PROB_DIVIDE        3
-#define DIG_DFLT_GLASS_CHANCE        3
-#define DIG_DFLT_NEED_MOVES        15
-
-#define DIG_DFLT_STONE1_SKILL        15
-#define DIG_DFLT_STONE2_SKILL        25
-#define    DIG_DFLT_STONE3_SKILL        35
-#define DIG_DFLT_STONE4_SKILL        50
-#define DIG_DFLT_STONE5_SKILL        70
-#define    DIG_DFLT_STONE6_SKILL        80
-#define    DIG_DFLT_STONE7_SKILL        90
-#define    DIG_DFLT_STONE8_SKILL        95
-#define    DIG_DFLT_STONE9_SKILL        99
-
-#define DIG_DFLT_STONE1_VNUM        900
-#define DIG_DFLT_TRASH_VNUM_START    920
-#define DIG_DFLT_TRASH_VNUM_END        922
-#define DIG_DFLT_MOB_VNUM_START        100
-#define DIG_DFLT_MOB_VNUM_END        103
-#define DIG_DFLT_PANDORA_VNUM        919
-// предмет с названием 'стекло' для продажи в магазине
-const int DIG_GLASS_VNUM = 1919;
-
-struct skillvariables_dig {
-	int hole_max_deep;
-	int instr_crash_chance;
-	int treasure_chance;
-	int pandora_chance;
-	int mob_chance;
-	int trash_chance;
-	int lag;
-	int prob_divide;
-	int glass_chance;
-	int need_moves;
-
-	int stone1_skill;
-	int stone2_skill;
-	int stone3_skill;
-	int stone4_skill;
-	int stone5_skill;
-	int stone6_skill;
-	int stone7_skill;
-	int stone8_skill;
-	int stone9_skill;
-
-	int stone1_vnum;
-	int trash_vnum_start;
-	int trash_vnum_end;
-	int mob_vnum_start;
-	int mob_vnum_end;
-	int pandora_vnum;
-};
-
-// ЮВЕЛИР
-
-#define INSGEM_DFLT_LAG            4
-#define INSGEM_DFLT_MINUS_FOR_AFFECT    5
-#define INSGEM_DFLT_PROB_DIVIDE        1
-#define INSGEM_DFLT_DIKEY_PERCENT    10
-#define INSGEM_DFLT_TIMER_PLUS_PERCENT    10
-#define INSGEM_DFLT_TIMER_MINUS_PERCENT    10
-
-struct skillvariables_insgem {
-	int lag;
-	int minus_for_affect;
-	int prob_divide;
-	int dikey_percent;
-	int timer_plus_percent;
-	int timer_minus_percent;
-};
-
-/*
-    В перспективе описанный далее класс должен будет содержать
-    всю информацию по скиллам и использоваться вместо скилл_инфо
-    и прочего.
-    Пока что тут только распарс файла и перевод идентификатора
-    в номер скилла.
-    Это все нужно для совместимости со старой системой.
-*/
-/*
-#define SKILL_UNDEFINED -1
-#define SKILL_NAME_UNDEFINED "undefined"
-#define SKILLS_FILE "skills.xml"
-#define SKILLS_MAIN_TAG "skills"
-#define SKILLS_ERROR_STR "...skills.xml reading fail"
-*/
-class Skill;
-
-typedef std::shared_ptr<Skill> SkillPtr;
-typedef std::map<std::string, SkillPtr> SkillListType;
-
-class Skill {
- public:
-	Skill();
-
-	static int GetNumByID(const std::string &ID);   // Получение номера скилла по ИД
-	static void Load(const pugi::xml_node &XMLSkillList);  // Парсинг конфига скиллов
-	static SkillListType SkillList;                 // Глобальный скилллист
-
-	// Доступ к полям
-	std::string Name() { return this->_Name; }
-	int Number() { return this->_Number; }
-	int MaxPercent() { return this->_MaxPercent; }
-
- private:
-	std::string _Name;  // Имя скилла на русском
-	int _Number;        // Номер скилла
-	int _MaxPercent;    // Максимальная процент
-
-	static void ParseSkill(pugi::xml_node SkillNode);   // Парсинг описания одного скилла
-};
-
-#endif
+#endif // SKILLS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

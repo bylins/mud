@@ -10,12 +10,12 @@ namespace AbilitySystem {
 
 using namespace AbilitySystemConstants;
 
-void AgainstRivalRollType::initialize(CHAR_DATA *abilityActor, int usedAbility, CHAR_DATA *abilityVictim) {
+void AgainstRivalRollType::initialize(CharacterData *abilityActor, int usedAbility, CharacterData *abilityVictim) {
 	_rival = abilityVictim;
 	AbilityRollType::initialize(abilityActor, usedAbility);
 };
 
-void AbilityRollType::initialize(CHAR_DATA *abilityActor, int usedAbility) {
+void AbilityRollType::initialize(CharacterData *abilityActor, int usedAbility) {
 	_actor = abilityActor;
 	_ability = &feat_info[usedAbility];
 	if (tryRevealWrongConditions()) {
@@ -184,9 +184,9 @@ bool TechniqueRollType::checkTechniqueKit() {
 };
 
 bool TechniqueRollType::isSuitableItem(const TechniqueItem &techniqueItem) {
-	OBJ_DATA *characterItem = GET_EQ(_actor, techniqueItem._wearPosition);
+	ObjectData *characterItem = GET_EQ(_actor, techniqueItem._wearPosition);
 	if (techniqueItem == characterItem) {
-		if (GET_OBJ_TYPE(characterItem) == OBJ_DATA::ITEM_WEAPON) {
+		if (GET_OBJ_TYPE(characterItem) == ObjectData::ITEM_WEAPON) {
 			_weaponEquipPosition = techniqueItem._wearPosition;
 			if (_ability->usesWeaponSkill) {
 				_baseSkill = static_cast<ESkill>GET_OBJ_SKILL(characterItem);
@@ -212,7 +212,7 @@ int AbilityRollType::calculateAddDamage() {
 }
 
 int TechniqueRollType::calculateAddDamage() {
-	OBJ_DATA *weapon = GET_EQ(_actor, _weaponEquipPosition);
+	ObjectData *weapon = GET_EQ(_actor, _weaponEquipPosition);
 	if (weapon) {
 		short dicePool = _ability->getEffectParameter(_actor) + GET_OBJ_VAL(weapon, 1);
 		short diceSize = GET_OBJ_VAL(weapon, 2);

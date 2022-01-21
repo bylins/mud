@@ -4,11 +4,11 @@
 
 #include "ext_money.h"
 
-#include "chars/char.h"
+#include "entities/char.h"
 #include "screen.h"
-#include "pugixml.h"
+#include "utils/pugixml.h"
 #include "parse.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -20,7 +20,7 @@ using namespace Remort;
 
 namespace {
 
-void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_text);
+void message_low_torc(CharacterData *ch, unsigned type, int amount, const char *add_text);
 
 } // namespace
 
@@ -30,10 +30,10 @@ const char *CONFIG_FILE = LIB_MISC"remort.xml";
 std::string WHERE_TO_REMORT_STR;
 
 void init();
-bool can_remort_now(CHAR_DATA *ch);
-void show_config(CHAR_DATA *ch);
+bool can_remort_now(CharacterData *ch);
+void show_config(CharacterData *ch);
 int calc_torc_daily(int rmrt);
-bool need_torc(CHAR_DATA *ch);
+bool need_torc(CharacterData *ch);
 
 } // namespace Remort
 
@@ -84,7 +84,7 @@ struct type_node {
 };
 
 // список типов гривен со всеми их параметрами
-std::array<type_node, TOTAL_TYPES> type_list;
+std::array<type_node, kTotalTypes> type_list;
 
 struct TorcReq {
 	TorcReq(int rmrt);
@@ -96,17 +96,17 @@ struct TorcReq {
 
 TorcReq::TorcReq(int rmrt) {
 	// type
-	if (rmrt >= type_list[TORC_GOLD].MORT_NUM) {
-		type = TORC_GOLD;
-	} else if (rmrt >= type_list[TORC_SILVER].MORT_NUM) {
-		type = TORC_SILVER;
-	} else if (rmrt >= type_list[TORC_BRONZE].MORT_NUM) {
-		type = TORC_BRONZE;
+	if (rmrt >= type_list[kTorcGold].MORT_NUM) {
+		type = kTorcGold;
+	} else if (rmrt >= type_list[kTorcSilver].MORT_NUM) {
+		type = kTorcSilver;
+	} else if (rmrt >= type_list[kTorcBronze].MORT_NUM) {
+		type = kTorcBronze;
 	} else {
-		type = TOTAL_TYPES;
+		type = kTotalTypes;
 	}
 	// amount
-	if (type != TOTAL_TYPES) {
+	if (type != kTotalTypes) {
 		amount = type_list[type].MORT_REQ +
 			(rmrt - type_list[type].MORT_NUM) * type_list[type].MORT_REQ_ADD_PER_MORT;
 	} else {
@@ -115,27 +115,27 @@ TorcReq::TorcReq(int rmrt) {
 }
 
 // обмен гривн
-void torc_exch_menu(CHAR_DATA *ch);
-void parse_inc_exch(CHAR_DATA *ch, int amount, int num);
-void parse_dec_exch(CHAR_DATA *ch, int amount, int num);
-int check_input_amount(CHAR_DATA *ch, int num1, int num2);
-bool check_equal_exch(CHAR_DATA *ch);
-void torc_exch_parse(CHAR_DATA *ch, const char *arg);
+void torc_exch_menu(CharacterData *ch);
+void parse_inc_exch(CharacterData *ch, int amount, int num);
+void parse_dec_exch(CharacterData *ch, int amount, int num);
+int check_input_amount(CharacterData *ch, int num1, int num2);
+bool check_equal_exch(CharacterData *ch);
+void torc_exch_parse(CharacterData *ch, const char *arg);
 // дроп гривн
-std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze);
-bool has_connected_bosses(CHAR_DATA *ch);
+std::string create_message(CharacterData *ch, int gold, int silver, int bronze);
+bool has_connected_bosses(CharacterData *ch);
 unsigned calc_type_by_zone_lvl(int zone_lvl);
 int calc_drop_torc(int zone_lvl, int members);
-int check_daily_limit(CHAR_DATA *ch, int drop);
-void gain_torc(CHAR_DATA *ch, int drop);
-void drop_torc(CHAR_DATA *mob);
+int check_daily_limit(CharacterData *ch, int drop);
+void gain_torc(CharacterData *ch, int drop);
+void drop_torc(CharacterData *mob);
 
 } // namespace ExtMoney
 
 namespace ExtMoney {
 
 // распечатка меню обмена гривен ('менять' у глашатая)
-void torc_exch_menu(CHAR_DATA *ch) {
+void torc_exch_menu(CharacterData *ch) {
 	boost::format menu("   %s%d) %s%-17s%s -> %s%-17s%s [%d -> %d]\r\n");
 	std::stringstream out;
 
@@ -145,9 +145,9 @@ void torc_exch_menu(CHAR_DATA *ch) {
 									  "   " << TORC_EXCH_RATE << " серебряных <-> 1 золотая\r\n\r\n";
 
 	out << "   Текущий баланс: "
-		<< CCIYEL(ch, C_NRM) << ch->desc->ext_money[TORC_GOLD] << "з "
-		<< CCWHT(ch, C_NRM) << ch->desc->ext_money[TORC_SILVER] << "с "
-		<< CCYEL(ch, C_NRM) << ch->desc->ext_money[TORC_BRONZE] << "б\r\n\r\n";
+		<< CCIYEL(ch, C_NRM) << ch->desc->ext_money[kTorcGold] << "з "
+		<< CCWHT(ch, C_NRM) << ch->desc->ext_money[kTorcSilver] << "с "
+		<< CCYEL(ch, C_NRM) << ch->desc->ext_money[kTorcBronze] << "б\r\n\r\n";
 
 	out << menu
 		% CCGRN(ch, C_NRM) % 1
@@ -185,14 +185,14 @@ void torc_exch_menu(CHAR_DATA *ch) {
 }
 
 // обмен в сторону больших гривен
-void parse_inc_exch(CHAR_DATA *ch, int amount, int num) {
-	int torc_from = TORC_BRONZE;
-	int torc_to = TORC_SILVER;
+void parse_inc_exch(CharacterData *ch, int amount, int num) {
+	int torc_from = kTorcBronze;
+	int torc_to = kTorcSilver;
 	int torc_rate = TORC_EXCH_RATE;
 
 	if (num == 2) {
-		torc_from = TORC_SILVER;
-		torc_to = TORC_GOLD;
+		torc_from = kTorcSilver;
+		torc_to = kTorcGold;
 	}
 
 	if (ch->desc->ext_money[torc_from] < amount) {
@@ -217,14 +217,14 @@ void parse_inc_exch(CHAR_DATA *ch, int amount, int num) {
 }
 
 // обмен в сторону меньших гривен
-void parse_dec_exch(CHAR_DATA *ch, int amount, int num) {
-	int torc_from = TORC_GOLD;
-	int torc_to = TORC_SILVER;
+void parse_dec_exch(CharacterData *ch, int amount, int num) {
+	int torc_from = kTorcGold;
+	int torc_to = kTorcSilver;
 	int torc_rate = TORC_EXCH_RATE;
 
 	if (num == 4) {
-		torc_from = TORC_SILVER;
-		torc_to = TORC_BRONZE;
+		torc_from = kTorcSilver;
+		torc_to = kTorcBronze;
 	}
 
 	if (ch->desc->ext_money[torc_from] < amount) {
@@ -246,7 +246,7 @@ void parse_dec_exch(CHAR_DATA *ch, int amount, int num) {
 }
 
 // кол-во меняемых гривен
-int check_input_amount(CHAR_DATA * /*ch*/, int num1, int num2) {
+int check_input_amount(CharacterData * /*ch*/, int num1, int num2) {
 	if ((num1 == 1 || num1 == 2) && num2 < TORC_EXCH_RATE) {
 		return TORC_EXCH_RATE;
 	} else if ((num1 == 3 || num1 == 4) && num2 < 1) {
@@ -256,17 +256,17 @@ int check_input_amount(CHAR_DATA * /*ch*/, int num1, int num2) {
 }
 
 // проверка после обмена, что ничего лишнего не сгенерили случайно
-bool check_equal_exch(CHAR_DATA *ch) {
+bool check_equal_exch(CharacterData *ch) {
 	int before = 0, after = 0;
-	for (unsigned i = 0; i < TOTAL_TYPES; ++i) {
-		if (i == TORC_BRONZE) {
+	for (unsigned i = 0; i < kTotalTypes; ++i) {
+		if (i == kTorcBronze) {
 			before += ch->get_ext_money(i);
 			after += ch->desc->ext_money[i];
 		}
-		if (i == TORC_SILVER) {
+		if (i == kTorcSilver) {
 			before += ch->get_ext_money(i) * TORC_EXCH_RATE;
 			after += ch->desc->ext_money[i] * TORC_EXCH_RATE;
-		} else if (i == TORC_GOLD) {
+		} else if (i == kTorcGold) {
 			before += ch->get_ext_money(i) * TORC_EXCH_RATE * TORC_EXCH_RATE;
 			after += ch->desc->ext_money[i] * TORC_EXCH_RATE * TORC_EXCH_RATE;
 		}
@@ -274,14 +274,14 @@ bool check_equal_exch(CHAR_DATA *ch) {
 	if (before != after) {
 		sprintf(buf, "SYSERROR: Torc exch by %s not equal: %d -> %d",
 				GET_NAME(ch), before, after);
-		mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog(buf, DEF, kLevelImmortal, SYSLOG, true);
 		return false;
 	}
 	return true;
 }
 
 // парс ввода при обмене гривен
-void torc_exch_parse(CHAR_DATA *ch, const char *arg) {
+void torc_exch_parse(CharacterData *ch, const char *arg) {
 	if (!*arg || !a_isdigit(*arg)) {
 		send_to_char("Неверный выбор!\r\n", ch);
 		torc_exch_menu(ch);
@@ -339,7 +339,7 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg) {
 		if (!check_equal_exch(ch)) {
 			send_to_char("Обмен отменен по техническим причинам, обратитесь к Богам.\r\n", ch);
 		} else {
-			for (unsigned i = 0; i < TOTAL_TYPES; ++i) {
+			for (unsigned i = 0; i < kTotalTypes; ++i) {
 				ch->set_ext_money(i, ch->desc->ext_money[i]);
 			}
 			STATE(ch->desc) = CON_PLAYING;
@@ -354,13 +354,13 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg) {
 
 // формирование сообщения о награде гривнами при смерти босса
 // пишет в одну строку о нескольких видах гривен, если таковые были
-std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze) {
+std::string create_message(CharacterData *ch, int gold, int silver, int bronze) {
 	std::stringstream out;
 	int cnt = 0;
 
 	if (gold > 0) {
 		out << CCIYEL(ch, C_NRM) << gold << " "
-			<< desc_count(gold, type_list[TORC_GOLD].DESC_MESSAGE_U_NUM);
+			<< desc_count(gold, type_list[kTorcGold].DESC_MESSAGE_U_NUM);
 		if (silver <= 0 && bronze <= 0) {
 			out << " " << desc_count(gold, WHAT_TORCu);
 		}
@@ -371,17 +371,17 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze) {
 		if (cnt > 0) {
 			if (bronze > 0) {
 				out << ", " << CCWHT(ch, C_NRM) << silver << " "
-					<< desc_count(silver, type_list[TORC_SILVER].DESC_MESSAGE_U_NUM)
+					<< desc_count(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
 					<< CCNRM(ch, C_NRM) << " и ";
 			} else {
 				out << " и " << CCWHT(ch, C_NRM) << silver << " "
-					<< desc_count(silver, type_list[TORC_SILVER].DESC_MESSAGE_U_NUM)
+					<< desc_count(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
 					<< " " << desc_count(silver, WHAT_TORCu)
 					<< CCNRM(ch, C_NRM);
 			}
 		} else {
 			out << CCWHT(ch, C_NRM) << silver << " "
-				<< desc_count(silver, type_list[TORC_SILVER].DESC_MESSAGE_U_NUM);
+				<< desc_count(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM);
 			if (bronze > 0) {
 				out << CCNRM(ch, C_NRM) << " и ";
 			} else {
@@ -391,7 +391,7 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze) {
 	}
 	if (bronze > 0) {
 		out << CCYEL(ch, C_NRM) << bronze << " "
-			<< desc_count(bronze, type_list[TORC_BRONZE].DESC_MESSAGE_U_NUM)
+			<< desc_count(bronze, type_list[kTorcBronze].DESC_MESSAGE_U_NUM)
 			<< " " << desc_count(bronze, WHAT_TORCu)
 			<< CCNRM(ch, C_NRM);
 	}
@@ -401,7 +401,7 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze) {
 
 // проверка на случай нескольких физических боссов,
 // которые логически являются одной группой, предотвращающая лишний дроп гривен
-bool has_connected_bosses(CHAR_DATA *ch) {
+bool has_connected_bosses(CharacterData *ch) {
 	// если в комнате есть другие живые боссы
 	for (const auto i : world[ch->in_room]->people) {
 		if (i != ch
@@ -412,12 +412,12 @@ bool has_connected_bosses(CHAR_DATA *ch) {
 		}
 	}
 	// если у данного моба есть живые последователи-боссы
-	for (follow_type *i = ch->followers; i; i = i->next) {
-		if (i->follower != ch
-			&& IS_NPC(i->follower)
-			&& !IS_CHARMICE(i->follower)
-			&& i->follower->get_master() == ch
-			&& i->follower->get_role(MOB_ROLE_BOSS)) {
+	for (Follower *i = ch->followers; i; i = i->next) {
+		if (i->ch != ch
+			&& IS_NPC(i->ch)
+			&& !IS_CHARMICE(i->ch)
+			&& i->ch->get_master() == ch
+			&& i->ch->get_role(MOB_ROLE_BOSS)) {
 			return true;
 		}
 	}
@@ -431,30 +431,30 @@ bool has_connected_bosses(CHAR_DATA *ch) {
 
 // выясняет какой тип гривен дропать с зоны
 unsigned calc_type_by_zone_lvl(int zone_lvl) {
-	if (zone_lvl >= type_list[TORC_GOLD].DROP_LVL) {
-		return TORC_GOLD;
-	} else if (zone_lvl >= type_list[TORC_SILVER].DROP_LVL) {
-		return TORC_SILVER;
-	} else if (zone_lvl >= type_list[TORC_BRONZE].DROP_LVL) {
-		return TORC_BRONZE;
+	if (zone_lvl >= type_list[kTorcGold].DROP_LVL) {
+		return kTorcGold;
+	} else if (zone_lvl >= type_list[kTorcSilver].DROP_LVL) {
+		return kTorcSilver;
+	} else if (zone_lvl >= type_list[kTorcBronze].DROP_LVL) {
+		return kTorcBronze;
 	}
-	return TOTAL_TYPES;
+	return kTotalTypes;
 }
 
 // возвращает кол-во гривен с босса зоны уровня zone_lvl, поделенных
 // с учетом группы members и пересчитанных в бронзу
 int calc_drop_torc(int zone_lvl, int members) {
 	const unsigned type = calc_type_by_zone_lvl(zone_lvl);
-	if (type >= TOTAL_TYPES) {
+	if (type >= kTotalTypes) {
 		return 0;
 	}
 	const int add = zone_lvl - type_list[type].DROP_LVL;
 	int drop = type_list[type].DROP_AMOUNT + add * type_list[type].DROP_AMOUNT_ADD_PER_LVL;
 
 	// пересчитываем дроп к минимальному типу
-	if (type == TORC_GOLD) {
+	if (type == kTorcGold) {
 		drop = drop * TORC_EXCH_RATE * TORC_EXCH_RATE;
-	} else if (type == TORC_SILVER) {
+	} else if (type == kTorcSilver) {
 		drop = drop * TORC_EXCH_RATE;
 	}
 
@@ -473,13 +473,13 @@ int calc_drop_torc(int zone_lvl, int members) {
 
 // по дефолту отрисовка * за каждую 1/5 от суточного лимита гривен
 // если imm_stat == true, то вместо звездочек конкретные цифры тек/макс
-std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat) {
+std::string draw_daily_limit(CharacterData *ch, bool imm_stat) {
 	const int today_torc = ch->get_today_torc();
 	const int torc_req_daily = calc_torc_daily(GET_REAL_REMORT(ch));
 
 	TorcReq torc_req(GET_REAL_REMORT(ch));
-	if (torc_req.type >= TOTAL_TYPES) {
-		torc_req.type = TORC_BRONZE;
+	if (torc_req.type >= kTotalTypes) {
+		torc_req.type = kTorcBronze;
 	}
 	const int daily_torc_limit = torc_req_daily / type_list[torc_req.type].MINIMUM_DAYS;
 
@@ -501,15 +501,15 @@ std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat) {
 }
 
 // проверка дропа гривен на суточный замакс
-int check_daily_limit(CHAR_DATA *ch, int drop) {
+int check_daily_limit(CharacterData *ch, int drop) {
 	const int today_torc = ch->get_today_torc();
 	const int torc_req_daily = calc_torc_daily(GET_REAL_REMORT(ch));
 
 	// из calc_torc_daily в любом случае взялось какое-то число бронзы
 	// даже если чар не имеет мортов для требования гривен
 	TorcReq torc_req(GET_REAL_REMORT(ch));
-	if (torc_req.type >= TOTAL_TYPES) {
-		torc_req.type = TORC_BRONZE;
+	if (torc_req.type >= kTotalTypes) {
+		torc_req.type = kTorcBronze;
 	}
 	const int daily_torc_limit = torc_req_daily / type_list[torc_req.type].MINIMUM_DAYS;
 
@@ -528,7 +528,7 @@ int check_daily_limit(CHAR_DATA *ch, int drop) {
 }
 
 // процесс дропа гривен конкретному чару
-void gain_torc(CHAR_DATA *ch, int drop) {
+void gain_torc(CharacterData *ch, int drop) {
 	// проверка на индивидуальный суточный замакс гривн
 	int bronze = check_daily_limit(ch, drop);
 	if (bronze <= 0) {
@@ -539,14 +539,14 @@ void gain_torc(CHAR_DATA *ch, int drop) {
 	if (bronze >= TORC_EXCH_RATE * TORC_EXCH_RATE) {
 		gold += bronze / (TORC_EXCH_RATE * TORC_EXCH_RATE);
 		bronze -= gold * TORC_EXCH_RATE * TORC_EXCH_RATE;
-		ch->set_ext_money(TORC_GOLD, gold + ch->get_ext_money(TORC_GOLD));
+		ch->set_ext_money(kTorcGold, gold + ch->get_ext_money(kTorcGold));
 	}
 	if (bronze >= TORC_EXCH_RATE) {
 		silver += bronze / TORC_EXCH_RATE;
 		bronze -= silver * TORC_EXCH_RATE;
-		ch->set_ext_money(TORC_SILVER, silver + ch->get_ext_money(TORC_SILVER));
+		ch->set_ext_money(kTorcSilver, silver + ch->get_ext_money(kTorcSilver));
 	}
-	ch->set_ext_money(TORC_BRONZE, bronze + ch->get_ext_money(TORC_BRONZE));
+	ch->set_ext_money(kTorcBronze, bronze + ch->get_ext_money(kTorcBronze));
 
 	std::string out = create_message(ch, gold, silver, bronze);
 	send_to_char(ch, "В награду за свершенный подвиг вы получили от Богов %s.\r\n", out.c_str());
@@ -557,7 +557,7 @@ void gain_torc(CHAR_DATA *ch, int drop) {
 // в той же комнате, группе готорого и раскидываются гривны, если есть
 // кому раскидывать (флаг GF_REMORT, проверка на делимость гривен, проверка на
 // то, что чар находился в комнате с мобом не менее половины раундов дамагера)
-void drop_torc(CHAR_DATA *mob) {
+void drop_torc(CharacterData *mob) {
 	if (!mob->get_role(MOB_ROLE_BOSS)
 		|| has_connected_bosses(mob)) {
 		return;
@@ -566,7 +566,7 @@ void drop_torc(CHAR_DATA *mob) {
 	log("[Extract char] Checking %s for ExtMoney.", mob->get_name().c_str());
 
 	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
-	DESCRIPTOR_DATA *d = 0;
+	DescriptorData *d = 0;
 	if (damager.first > 0) {
 		d = DescByUID(damager.first);
 	}
@@ -574,15 +574,15 @@ void drop_torc(CHAR_DATA *mob) {
 		return;
 	}
 
-	CHAR_DATA *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
+	CharacterData *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
 						? d->character->get_master()
 						: d->character.get();
 
 	int members = 1;
-	for (follow_type *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->follower)) {
+	for (Follower *f = leader->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(mob)
+			&& !IS_NPC(f->ch)) {
 			++members;
 		}
 	}
@@ -600,27 +600,27 @@ void drop_torc(CHAR_DATA *mob) {
 		gain_torc(leader, drop);
 	}
 
-	for (follow_type *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->follower)
-			&& GET_GOD_FLAG(f->follower, GF_REMORT)
-			&& mob->get_attacker(f->follower, ATTACKER_ROUNDS) >= damager.second / 2) {
-			gain_torc(f->follower, drop);
+	for (Follower *f = leader->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
+			&& f->ch->in_room == IN_ROOM(mob)
+			&& !IS_NPC(f->ch)
+			&& GET_GOD_FLAG(f->ch, GF_REMORT)
+			&& mob->get_attacker(f->ch, ATTACKER_ROUNDS) >= damager.second / 2) {
+			gain_torc(f->ch, drop);
 		}
 	}
 }
 
-void player_drop_log(CHAR_DATA *ch, unsigned type, int diff) {
-	int total_bronze = ch->get_ext_money(TORC_BRONZE);
-	total_bronze += ch->get_ext_money(TORC_SILVER) * TORC_EXCH_RATE;
-	total_bronze += ch->get_ext_money(TORC_GOLD) * TORC_EXCH_RATE * TORC_EXCH_RATE;
+void player_drop_log(CharacterData *ch, unsigned type, int diff) {
+	int total_bronze = ch->get_ext_money(kTorcBronze);
+	total_bronze += ch->get_ext_money(kTorcSilver) * TORC_EXCH_RATE;
+	total_bronze += ch->get_ext_money(kTorcGold) * TORC_EXCH_RATE * TORC_EXCH_RATE;
 
 	log("ExtMoney: %s%s%d%s, sum=%d",
 		ch->get_name().c_str(),
 		(diff > 0 ? " +" : " "),
 		diff,
-		((type == TORC_GOLD) ? "g" : (type == TORC_SILVER) ? "s" : "b"),
+		((type == kTorcGold) ? "g" : (type == kTorcSilver) ? "s" : "b"),
 		total_bronze);
 }
 
@@ -633,58 +633,58 @@ void init() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...%s", result.description());
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
 	pugi::xml_node main_node = doc.child("remort");
 	if (!main_node) {
-		snprintf(buf, MAX_STRING_LENGTH, "...<remort> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		snprintf(buf, kMaxStringLength, "...<remort> read fail");
+		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
 	WHERE_TO_REMORT_STR = Parse::child_value_str(main_node, "WHERE_TO_REMORT_STR");
 	TORC_EXCH_RATE = Parse::child_value_int(main_node, "TORC_EXCH_RATE");
 
-	type_list[TORC_GOLD].MORT_NUM = Parse::child_value_int(main_node, "GOLD_MORT_NUM");
-	type_list[TORC_GOLD].MORT_REQ = Parse::child_value_int(main_node, "GOLD_MORT_REQ");
-	type_list[TORC_GOLD].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "GOLD_MORT_REQ_ADD_PER_MORT");
-	type_list[TORC_GOLD].DROP_LVL = Parse::child_value_int(main_node, "GOLD_DROP_LVL");
-	type_list[TORC_GOLD].DROP_AMOUNT = Parse::child_value_int(main_node, "GOLD_DROP_AMOUNT");
-	type_list[TORC_GOLD].DROP_AMOUNT_ADD_PER_LVL = Parse::child_value_int(main_node, "GOLD_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[TORC_GOLD].MINIMUM_DAYS = Parse::child_value_int(main_node, "GOLD_MINIMUM_DAYS");
+	type_list[kTorcGold].MORT_NUM = Parse::child_value_int(main_node, "GOLD_MORT_NUM");
+	type_list[kTorcGold].MORT_REQ = Parse::child_value_int(main_node, "GOLD_MORT_REQ");
+	type_list[kTorcGold].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "GOLD_MORT_REQ_ADD_PER_MORT");
+	type_list[kTorcGold].DROP_LVL = Parse::child_value_int(main_node, "GOLD_DROP_LVL");
+	type_list[kTorcGold].DROP_AMOUNT = Parse::child_value_int(main_node, "GOLD_DROP_AMOUNT");
+	type_list[kTorcGold].DROP_AMOUNT_ADD_PER_LVL = Parse::child_value_int(main_node, "GOLD_DROP_AMOUNT_ADD_PER_LVL");
+	type_list[kTorcGold].MINIMUM_DAYS = Parse::child_value_int(main_node, "GOLD_MINIMUM_DAYS");
 
-	type_list[TORC_SILVER].MORT_NUM = Parse::child_value_int(main_node, "SILVER_MORT_NUM");
-	type_list[TORC_SILVER].MORT_REQ = Parse::child_value_int(main_node, "SILVER_MORT_REQ");
-	type_list[TORC_SILVER].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "SILVER_MORT_REQ_ADD_PER_MORT");
-	type_list[TORC_SILVER].DROP_LVL = Parse::child_value_int(main_node, "SILVER_DROP_LVL");
-	type_list[TORC_SILVER].DROP_AMOUNT = Parse::child_value_int(main_node, "SILVER_DROP_AMOUNT");
-	type_list[TORC_SILVER].DROP_AMOUNT_ADD_PER_LVL =
+	type_list[kTorcSilver].MORT_NUM = Parse::child_value_int(main_node, "SILVER_MORT_NUM");
+	type_list[kTorcSilver].MORT_REQ = Parse::child_value_int(main_node, "SILVER_MORT_REQ");
+	type_list[kTorcSilver].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "SILVER_MORT_REQ_ADD_PER_MORT");
+	type_list[kTorcSilver].DROP_LVL = Parse::child_value_int(main_node, "SILVER_DROP_LVL");
+	type_list[kTorcSilver].DROP_AMOUNT = Parse::child_value_int(main_node, "SILVER_DROP_AMOUNT");
+	type_list[kTorcSilver].DROP_AMOUNT_ADD_PER_LVL =
 		Parse::child_value_int(main_node, "SILVER_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[TORC_SILVER].MINIMUM_DAYS = Parse::child_value_int(main_node, "SILVER_MINIMUM_DAYS");
+	type_list[kTorcSilver].MINIMUM_DAYS = Parse::child_value_int(main_node, "SILVER_MINIMUM_DAYS");
 
-	type_list[TORC_BRONZE].MORT_NUM = Parse::child_value_int(main_node, "BRONZE_MORT_NUM");
-	type_list[TORC_BRONZE].MORT_REQ = Parse::child_value_int(main_node, "BRONZE_MORT_REQ");
-	type_list[TORC_BRONZE].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "BRONZE_MORT_REQ_ADD_PER_MORT");
-	type_list[TORC_BRONZE].DROP_LVL = Parse::child_value_int(main_node, "BRONZE_DROP_LVL");
-	type_list[TORC_BRONZE].DROP_AMOUNT = Parse::child_value_int(main_node, "BRONZE_DROP_AMOUNT");
-	type_list[TORC_BRONZE].DROP_AMOUNT_ADD_PER_LVL =
+	type_list[kTorcBronze].MORT_NUM = Parse::child_value_int(main_node, "BRONZE_MORT_NUM");
+	type_list[kTorcBronze].MORT_REQ = Parse::child_value_int(main_node, "BRONZE_MORT_REQ");
+	type_list[kTorcBronze].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "BRONZE_MORT_REQ_ADD_PER_MORT");
+	type_list[kTorcBronze].DROP_LVL = Parse::child_value_int(main_node, "BRONZE_DROP_LVL");
+	type_list[kTorcBronze].DROP_AMOUNT = Parse::child_value_int(main_node, "BRONZE_DROP_AMOUNT");
+	type_list[kTorcBronze].DROP_AMOUNT_ADD_PER_LVL =
 		Parse::child_value_int(main_node, "BRONZE_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[TORC_BRONZE].MINIMUM_DAYS = Parse::child_value_int(main_node, "BRONZE_MINIMUM_DAYS");
+	type_list[kTorcBronze].MINIMUM_DAYS = Parse::child_value_int(main_node, "BRONZE_MINIMUM_DAYS");
 
 	// не из конфига, но инится заодно со всеми
-	type_list[TORC_GOLD].DESC_MESSAGE_NUM = WHAT_TGOLD;
-	type_list[TORC_SILVER].DESC_MESSAGE_NUM = WHAT_TSILVER;
-	type_list[TORC_BRONZE].DESC_MESSAGE_NUM = WHAT_TBRONZE;
-	type_list[TORC_GOLD].DESC_MESSAGE_U_NUM = WHAT_TGOLDu;
-	type_list[TORC_SILVER].DESC_MESSAGE_U_NUM = WHAT_TSILVERu;
-	type_list[TORC_BRONZE].DESC_MESSAGE_U_NUM = WHAT_TBRONZEu;
+	type_list[kTorcGold].DESC_MESSAGE_NUM = WHAT_TGOLD;
+	type_list[kTorcSilver].DESC_MESSAGE_NUM = WHAT_TSILVER;
+	type_list[kTorcBronze].DESC_MESSAGE_NUM = WHAT_TBRONZE;
+	type_list[kTorcGold].DESC_MESSAGE_U_NUM = WHAT_TGOLDu;
+	type_list[kTorcSilver].DESC_MESSAGE_U_NUM = WHAT_TSILVERu;
+	type_list[kTorcBronze].DESC_MESSAGE_U_NUM = WHAT_TBRONZEu;
 }
 
 // проверка, мешает ли что-то чару уйти в реморт
-bool can_remort_now(CHAR_DATA *ch) {
+bool can_remort_now(CharacterData *ch) {
 	if (PRF_FLAGGED(ch, PRF_CAN_REMORT) || !need_torc(ch)) {
 		return true;
 	}
@@ -692,35 +692,35 @@ bool can_remort_now(CHAR_DATA *ch) {
 }
 
 // распечатка переменных из конфига
-void show_config(CHAR_DATA *ch) {
+void show_config(CharacterData *ch) {
 	std::stringstream out;
 	out << "&SТекущие значения основных параметров:\r\n"
 		<< "WHERE_TO_REMORT_STR = " << WHERE_TO_REMORT_STR << "\r\n"
 		<< "TORC_EXCH_RATE = " << TORC_EXCH_RATE << "\r\n"
 
-		<< "GOLD_MORT_NUM = " << type_list[TORC_GOLD].MORT_NUM << "\r\n"
-		<< "GOLD_MORT_REQ = " << type_list[TORC_GOLD].MORT_REQ << "\r\n"
-		<< "GOLD_MORT_REQ_ADD_PER_MORT = " << type_list[TORC_GOLD].MORT_REQ_ADD_PER_MORT << "\r\n"
-		<< "GOLD_DROP_LVL = " << type_list[TORC_GOLD].DROP_LVL << "\r\n"
-		<< "GOLD_DROP_AMOUNT = " << type_list[TORC_GOLD].DROP_AMOUNT << "\r\n"
-		<< "GOLD_DROP_AMOUNT_ADD_PER_LVL = " << type_list[TORC_GOLD].DROP_AMOUNT_ADD_PER_LVL << "\r\n"
-		<< "GOLD_MINIMUM_DAYS = " << type_list[TORC_GOLD].MINIMUM_DAYS << "\r\n"
+		<< "GOLD_MORT_NUM = " << type_list[kTorcGold].MORT_NUM << "\r\n"
+		<< "GOLD_MORT_REQ = " << type_list[kTorcGold].MORT_REQ << "\r\n"
+		<< "GOLD_MORT_REQ_ADD_PER_MORT = " << type_list[kTorcGold].MORT_REQ_ADD_PER_MORT << "\r\n"
+		<< "GOLD_DROP_LVL = " << type_list[kTorcGold].DROP_LVL << "\r\n"
+		<< "GOLD_DROP_AMOUNT = " << type_list[kTorcGold].DROP_AMOUNT << "\r\n"
+		<< "GOLD_DROP_AMOUNT_ADD_PER_LVL = " << type_list[kTorcGold].DROP_AMOUNT_ADD_PER_LVL << "\r\n"
+		<< "GOLD_MINIMUM_DAYS = " << type_list[kTorcGold].MINIMUM_DAYS << "\r\n"
 
-		<< "SILVER_MORT_NUM = " << type_list[TORC_SILVER].MORT_NUM << "\r\n"
-		<< "SILVER_MORT_REQ = " << type_list[TORC_SILVER].MORT_REQ << "\r\n"
-		<< "SILVER_MORT_REQ_ADD_PER_MORT = " << type_list[TORC_SILVER].MORT_REQ_ADD_PER_MORT << "\r\n"
-		<< "SILVER_DROP_LVL = " << type_list[TORC_SILVER].DROP_LVL << "\r\n"
-		<< "SILVER_DROP_AMOUNT = " << type_list[TORC_SILVER].DROP_AMOUNT << "\r\n"
-		<< "SILVER_DROP_AMOUNT_ADD_PER_LVL = " << type_list[TORC_SILVER].DROP_AMOUNT_ADD_PER_LVL << "\r\n"
-		<< "SILVER_MINIMUM_DAYS = " << type_list[TORC_SILVER].MINIMUM_DAYS << "\r\n"
+		<< "SILVER_MORT_NUM = " << type_list[kTorcSilver].MORT_NUM << "\r\n"
+		<< "SILVER_MORT_REQ = " << type_list[kTorcSilver].MORT_REQ << "\r\n"
+		<< "SILVER_MORT_REQ_ADD_PER_MORT = " << type_list[kTorcSilver].MORT_REQ_ADD_PER_MORT << "\r\n"
+		<< "SILVER_DROP_LVL = " << type_list[kTorcSilver].DROP_LVL << "\r\n"
+		<< "SILVER_DROP_AMOUNT = " << type_list[kTorcSilver].DROP_AMOUNT << "\r\n"
+		<< "SILVER_DROP_AMOUNT_ADD_PER_LVL = " << type_list[kTorcSilver].DROP_AMOUNT_ADD_PER_LVL << "\r\n"
+		<< "SILVER_MINIMUM_DAYS = " << type_list[kTorcSilver].MINIMUM_DAYS << "\r\n"
 
-		<< "BRONZE_MORT_NUM = " << type_list[TORC_BRONZE].MORT_NUM << "\r\n"
-		<< "BRONZE_MORT_REQ = " << type_list[TORC_BRONZE].MORT_REQ << "\r\n"
-		<< "BRONZE_MORT_REQ_ADD_PER_MORT = " << type_list[TORC_BRONZE].MORT_REQ_ADD_PER_MORT << "\r\n"
-		<< "BRONZE_DROP_LVL = " << type_list[TORC_BRONZE].DROP_LVL << "\r\n"
-		<< "BRONZE_DROP_AMOUNT = " << type_list[TORC_BRONZE].DROP_AMOUNT << "\r\n"
-		<< "BRONZE_DROP_AMOUNT_ADD_PER_LVL = " << type_list[TORC_BRONZE].DROP_AMOUNT_ADD_PER_LVL << "\r\n"
-		<< "BRONZE_MINIMUM_DAYS = " << type_list[TORC_BRONZE].MINIMUM_DAYS << "\r\n";
+		<< "BRONZE_MORT_NUM = " << type_list[kTorcBronze].MORT_NUM << "\r\n"
+		<< "BRONZE_MORT_REQ = " << type_list[kTorcBronze].MORT_REQ << "\r\n"
+		<< "BRONZE_MORT_REQ_ADD_PER_MORT = " << type_list[kTorcBronze].MORT_REQ_ADD_PER_MORT << "\r\n"
+		<< "BRONZE_DROP_LVL = " << type_list[kTorcBronze].DROP_LVL << "\r\n"
+		<< "BRONZE_DROP_AMOUNT = " << type_list[kTorcBronze].DROP_AMOUNT << "\r\n"
+		<< "BRONZE_DROP_AMOUNT_ADD_PER_LVL = " << type_list[kTorcBronze].DROP_AMOUNT_ADD_PER_LVL << "\r\n"
+		<< "BRONZE_MINIMUM_DAYS = " << type_list[kTorcBronze].MINIMUM_DAYS << "\r\n";
 
 	send_to_char(out.str(), ch);
 }
@@ -731,26 +731,26 @@ int calc_torc_daily(int rmrt) {
 	TorcReq torc_req(rmrt);
 	int num = 0;
 
-	if (torc_req.type < TOTAL_TYPES) {
+	if (torc_req.type < kTotalTypes) {
 		num = type_list[torc_req.type].MORT_REQ;
 
-		if (torc_req.type == TORC_GOLD) {
+		if (torc_req.type == kTorcGold) {
 			num = num * TORC_EXCH_RATE * TORC_EXCH_RATE;
-		} else if (torc_req.type == TORC_SILVER) {
+		} else if (torc_req.type == kTorcSilver) {
 			num = num * TORC_EXCH_RATE;
 		}
 	} else {
-		num = type_list[TORC_BRONZE].MORT_REQ;
+		num = type_list[kTorcBronze].MORT_REQ;
 	}
 
 	return num;
 }
 
 // проверка, требуется ли от чара жертвовать для реморта
-bool need_torc(CHAR_DATA *ch) {
+bool need_torc(CharacterData *ch) {
 	TorcReq torc_req(GET_REAL_REMORT(ch));
 
-	if (torc_req.type < TOTAL_TYPES && torc_req.amount > 0) {
+	if (torc_req.type < kTotalTypes && torc_req.amount > 0) {
 		return true;
 	}
 
@@ -762,7 +762,7 @@ bool need_torc(CHAR_DATA *ch) {
 namespace {
 
 // жертвование гривен
-void donat_torc(CHAR_DATA *ch, const std::string &mob_name, unsigned type, int amount) {
+void donat_torc(CharacterData *ch, const std::string &mob_name, unsigned type, int amount) {
 	const int balance = ch->get_ext_money(type) - amount;
 	ch->set_ext_money(type, balance);
 	PRF_FLAGS(ch).set(PRF_CAN_REMORT);
@@ -790,8 +790,8 @@ void donat_torc(CHAR_DATA *ch, const std::string &mob_name, unsigned type, int a
 }
 
 // дергается как при нехватке гривен, так и при попытке реморта без пожертвований
-void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_text) {
-	if (type < TOTAL_TYPES) {
+void message_low_torc(CharacterData *ch, unsigned type, int amount, const char *add_text) {
+	if (type < kTotalTypes) {
 		const int money = ch->get_ext_money(type);
 		send_to_char(ch,
 					 "Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
@@ -809,14 +809,14 @@ void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_
 } // namespace
 
 // глашатаи
-int torc(CHAR_DATA *ch, void *me, int cmd, char * /*argument*/) {
+int torc(CharacterData *ch, void *me, int cmd, char * /*argument*/) {
 	if (!ch->desc || IS_NPC(ch)) {
 		return 0;
 	}
 	if (CMD_IS("менять") || CMD_IS("обмен") || CMD_IS("обменять")) {
 		// олц для обмена гривен в обе стороны
 		STATE(ch->desc) = CON_TORC_EXCH;
-		for (unsigned i = 0; i < TOTAL_TYPES; ++i) {
+		for (unsigned i = 0; i < kTotalTypes; ++i) {
 			ch->desc->ext_money[i] = ch->get_ext_money(i);
 		}
 		torc_exch_menu(ch);
@@ -852,7 +852,7 @@ int torc(CHAR_DATA *ch, void *me, int cmd, char * /*argument*/) {
 			// пробуем пожертвовать
 			TorcReq torc_req(GET_REAL_REMORT(ch));
 			if (ch->get_ext_money(torc_req.type) >= torc_req.amount) {
-				const CHAR_DATA *mob = reinterpret_cast<CHAR_DATA *>(me);
+				const CharacterData *mob = reinterpret_cast<CharacterData *>(me);
 				donat_torc(ch, mob->get_name_str(), torc_req.type, torc_req.amount);
 			} else {
 				message_low_torc(ch, torc_req.type, torc_req.amount, ". Попробуйте позже.");

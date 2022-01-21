@@ -15,7 +15,7 @@
 ************************************************************************ */
 
 #include "sysdep.h"
-#include "structs.h"
+#include "structs/structs.h"
 
 #define CNRM  "\x1B[0;0m"
 #define CBLK  "\x1B[0;30m"
@@ -152,14 +152,14 @@ int is_colour(char code) {
 	return -1;
 }
 
-#define MAX_COLOR_STRING_LENGTH        (MAX_SOCK_BUF * 2 - GARBAGE_SPACE)
+#define MAX_COLOR_STRING_LENGTH        (kMaxSockBuf * 2 - kGarbageSpace)
 int proc_color(char *inbuf, int colour) {
 	int p = 0;
 	int c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
 	bool show_all = false;
-	char out_buf[MAX_SOCK_BUF * 2];
+	char out_buf[kMaxSockBuf * 2];
 
-	if (inbuf == NULL)
+	if (inbuf == nullptr)
 		return -1;
 
 	size_t len = strlen(inbuf);
@@ -170,7 +170,7 @@ int proc_color(char *inbuf, int colour) {
 	size_t j = 0;
 	while (j < len) {
 		if (p > MAX_COLOR_STRING_LENGTH) {
-			snprintf(&out_buf[p], MAX_SOCK_BUF * 2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
+			snprintf(&out_buf[p], kMaxSockBuf * 2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
 			strcpy(inbuf, out_buf);
 			return 0;
 		}

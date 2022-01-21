@@ -17,12 +17,13 @@
 #include "action_targeting.h"
 #include "cmd_god/ban.h"
 #include "birthplaces.h"
-#include "celebrates.h"
+#include "game_mechanics/celebrates.h"
 #include "utils/utils_char_obj.inl"
-#include "chars/char.h"
-#include "chars/char_player.h"
-#include "chars/player_races.h"
-#include "chars/world.characters.h"
+#include "entities/char.h"
+#include "entities/char_player.h"
+#include "entities/player_races.h"
+#include "entities/entity_constants.h"
+#include "entities/world_characters.h"
 #include "cmd_god/stat.h"
 #include "cmd/follow.h"
 #include "comm.h"
@@ -38,12 +39,12 @@
 #include "ext_money.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
-#include "file_crc.h"
+#include "utils/file_crc.h"
 #include "genchar.h"
 #include "global_objects.h"
-#include "glory.h"
-#include "glory_const.h"
-#include "glory_misc.h"
+#include "game_mechanics/glory.h"
+#include "game_mechanics/glory_const.h"
+#include "game_mechanics/glory_misc.h"
 #include "handler.h"
 #include "heartbeat.h"
 #include "house.h"
@@ -56,20 +57,21 @@
 #include "modify.h"
 #include "names.h"
 #include "noob.h"
-#include "obj.h"
+#include "entities/obj.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
 #include "parcel.h"
 #include "password.h"
 #include "privilege.h"
-#include "pugixml.h"
-#include "room.h"
+#include "utils/pugixml.h"
+#include "entities/room.h"
 #include "screen.h"
-#include "sets_drop.h"
+#include "game_mechanics/sets_drop.h"
 #include "shop_ext.h"
 #include "skills.h"
 #include "magic/spells.h"
-#include "structs.h"
+#include "structs/descriptor_data.h"
+#include "structs/structs.h"
 #include "sysdep.h"
 #include "utils/utils_time.h"
 #include "title.h"
@@ -77,7 +79,7 @@
 #include "utils/utils.h"
 #include "utils/id_converter.h"
 #include "world_objects.h"
-#include "zone.table.h"
+#include "entities/zone.h"
 #include "classes/class_constants.h"
 #include "magic/spells_info.h"
 #include "magic/magic_rooms.h"
@@ -98,8 +100,8 @@ using std::fstream;
 extern bool need_warn;
 extern FILE *player_fl;
 
-extern DESCRIPTOR_DATA *descriptor_list;
-extern INDEX_DATA *mob_index;
+extern DescriptorData *descriptor_list;
+extern IndexData *mob_index;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
 extern const char *weapon_affects[];
@@ -107,86 +109,86 @@ extern int circle_restrict;
 extern int load_into_inventory;
 extern int buf_switches, buf_largecount, buf_overflows;
 extern time_t zones_stat_date;
-extern mob_rnum top_of_mobt;
-extern CHAR_DATA *mob_proto;
+extern MobRnum top_of_mobt;
+extern CharacterData *mob_proto;
 void medit_save_to_disk(int zone_num);
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
-// for chars
+// for entities
 extern const char *pc_class_types[];
 extern struct spellInfo_t spell_info[];
-extern int check_dupes_host(DESCRIPTOR_DATA *d, bool autocheck = 0);
-extern bool CompareBits(const FLAG_DATA &flags, const char *names[], int affect);    // to avoid inclusion of utils.h
-void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+extern int check_dupes_host(DescriptorData *d, bool autocheck = 0);
+extern bool CompareBits(const FlagData &flags, const char *names[], int affect);    // to avoid inclusion of utils.h
+void do_recall(CharacterData *ch, char *argument, int cmd, int subcmd);
 void log_zone_count_reset();
 // extern functions
-int level_exp(CHAR_DATA *ch, int level);
-void appear(CHAR_DATA *ch);
-void reset_zone(zone_rnum zone);
+int level_exp(CharacterData *ch, int level);
+void appear(CharacterData *ch);
+void reset_zone(ZoneRnum zone);
 int parse_class(char arg);
-extern CHAR_DATA *find_char(long n);
-void rename_char(CHAR_DATA *ch, char *oname);
+extern CharacterData *find_char(long n);
+void rename_char(CharacterData *ch, char *oname);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
-int compute_armor_class(CHAR_DATA *ch);
-extern bool can_be_reset(zone_rnum zone);
-extern bool is_empty(zone_rnum zone_nr);
-void list_feats(CHAR_DATA *ch, CHAR_DATA *vict, bool all_feats);
-void list_skills(CHAR_DATA *ch, CHAR_DATA *vict, const char *filter = NULL);
-void list_spells(CHAR_DATA *ch, CHAR_DATA *vict, int all_spells);
-extern void print_rune_stats(CHAR_DATA *ch);
+int compute_armor_class(CharacterData *ch);
+extern bool can_be_reset(ZoneRnum zone);
+extern bool is_empty(ZoneRnum zone_nr);
+void list_feats(CharacterData *ch, CharacterData *vict, bool all_feats);
+void list_skills(CharacterData *ch, CharacterData *vict, const char *filter = nullptr);
+void list_spells(CharacterData *ch, CharacterData *vict, int all_spells);
+extern void print_rune_stats(CharacterData *ch);
 // local functions
-int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg);
-void perform_immort_invis(CHAR_DATA *ch, int level);
-void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_send(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-room_rnum find_target_room(CHAR_DATA *ch, char *rawroomstr, int trig);
-void do_at(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_goto(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_teleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_vnum(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_shutdown(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void stop_snooping(CHAR_DATA *ch);
-void do_snoop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_load(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_vstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_purge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_inspect(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_syslog(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_advance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void perform_immort_vis(CHAR_DATA *ch);
-void do_invis(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_poofset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_dc(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wizlock(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_date(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_last(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_force(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wiznet(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_zreset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wizutil(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void print_zone_to_buf(char **bufptr, zone_rnum zone);
-void do_show(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_set(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+int perform_set(CharacterData *ch, CharacterData *vict, int mode, char *val_arg);
+void perform_immort_invis(CharacterData *ch, int level);
+void do_echo(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_send(CharacterData *ch, char *argument, int cmd, int subcmd);
+RoomRnum find_target_room(CharacterData *ch, char *rawroomstr, int trig);
+void do_at(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_goto(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_teleport(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_vnum(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_shutdown(CharacterData *ch, char *argument, int cmd, int subcmd);
+void stop_snooping(CharacterData *ch);
+void do_snoop(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_switch(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_return(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_load(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_vstat(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_purge(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_inspect(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_syslog(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_advance(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_restore(CharacterData *ch, char *argument, int cmd, int subcmd);
+void perform_immort_vis(CharacterData *ch);
+void do_invis(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_gecho(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_poofset(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_dc(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_wizlock(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_date(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_last(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_force(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_wiznet(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_zreset(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_wizutil(CharacterData *ch, char *argument, int cmd, int subcmd);
+void print_zone_to_buf(char **bufptr, ZoneRnum zone);
+void do_show(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_set(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_liblist(CharacterData *ch, char *argument, int cmd, int subcmd);
 //
-void do_sdemigod(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_unfreeze(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_showzonestats(CHAR_DATA *, char *, int, int);
-void do_overstuff(CHAR_DATA *ch, char *, int, int);
-void do_send_text_to_char(CHAR_DATA *ch, char *, int, int);
-void generate_magic_enchant(OBJ_DATA *obj);
-void do_add_wizard(CHAR_DATA *ch, char *, int, int);
+void do_sdemigod(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_unfreeze(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_setall(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_check_occupation(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_delete_obj(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_arena_restore(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_showzonestats(CharacterData *, char *, int, int);
+void do_overstuff(CharacterData *ch, char *, int, int);
+void do_send_text_to_char(CharacterData *ch, char *, int, int);
+void generate_magic_enchant(ObjectData *obj);
+void do_add_wizard(CharacterData *ch, char *, int, int);
 
 //extern std::vector<Stigma> stigmas;
 
@@ -198,8 +200,8 @@ void log_zone_count_reset() {
 }
 
 // Отправляет любой текст выбранному чару
-void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int) {
-	CHAR_DATA *vict = NULL;
+void do_send_text_to_char(CharacterData *ch, char *argument, int, int) {
+	CharacterData *vict = nullptr;
 
 	half_chop(argument, buf, buf2);
 
@@ -210,14 +212,14 @@ void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int) {
 	} else if (IS_NPC(vict))
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	else {
-		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
+		snprintf(buf1, kMaxStringLength, "%s\r\n", buf2);
 		send_to_char(buf1, vict);
 	}
 }
 
 // добавляет что-нибудь чару (пока что только стигмы)
-void do_add_wizard(CHAR_DATA *, char *, int, int) {
-	/*CHAR_DATA *vict = NULL;
+void do_add_wizard(CharacterData *, char *, int, int) {
+	/*CharacterData *vict = NULL;
 
 	half_chop(argument, buf, buf2);
 	one_argument(buf2, buf1);
@@ -247,13 +249,13 @@ void do_add_wizard(CHAR_DATA *, char *, int, int) {
 }
 
 // показывает количество вещей (чтобы носить которые, нужно больше 8 ремортов) в хранах кланов
-void do_overstuff(CHAR_DATA *ch, char *, int, int) {
+void do_overstuff(CharacterData *ch, char *, int, int) {
 	std::map<std::string, int> objects;
 	for (Clan::ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
-		for (OBJ_DATA *chest = world[real_room((*clan)->get_chest_room())]->contents; chest;
+		for (ObjectData *chest = world[real_room((*clan)->get_chest_room())]->contents; chest;
 			 chest = chest->get_next_content()) {
 			if (Clan::is_clan_chest(chest)) {
-				for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
+				for (ObjectData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
 					if (temp->get_auto_mort_req() > 8) {
 						if (objects.count((*clan)->get_abbrev())) {
 							objects[(*clan)->get_abbrev()] += 1;
@@ -276,13 +278,13 @@ void do_overstuff(CHAR_DATA *ch, char *, int, int) {
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
 void send_to_gods(char *text, bool demigod) {
-	DESCRIPTOR_DATA *d;
+	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		// Чар должен быть в игре
 		if (STATE(d) == CON_PLAYING) {
 			// Чар должен быть имморталом
 			// Либо же демигодом (при demigod = true)
-			if ((GET_REAL_LEVEL(d->character) >= LVL_GOD) ||
+			if ((GET_REAL_LEVEL(d->character) >= kLevelGod) ||
 				(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod)) {
 				send_to_char(text, d->character.get());
 			}
@@ -295,15 +297,15 @@ void send_to_gods(char *text, bool demigod) {
 extern const char *deaf_social;
 
 // Adds karma string to KARMA
-void add_karma(CHAR_DATA *ch, const char *punish, const char *reason) {
+void add_karma(CharacterData *ch, const char *punish, const char *reason) {
 	if (reason && (reason[0] != '.')) {
-		time_t nt = time(NULL);
+		time_t nt = time(nullptr);
 		sprintf(buf1, "%s :: %s [%s]\r\n", rustime(localtime(&nt)), punish, reason);
 		KARMA(ch) = str_add(KARMA(ch), buf1);
 	}
 }
 
-void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_delete_obj(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int vnum;
 	one_argument(argument, buf);
 	int num = 0;
@@ -316,7 +318,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	world_objects.foreach_with_vnum(vnum, [&](const OBJ_DATA::shared_ptr &k) {
+	world_objects.foreach_with_vnum(vnum, [&](const ObjectData::shared_ptr &k) {
 		k->set_timer(0);
 		++num;
 	});
@@ -329,7 +331,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char(buf2, ch);
 }
 
-void do_showzonestats(CHAR_DATA *ch, char *argument, int, int) {
+void do_showzonestats(CharacterData *ch, char *argument, int, int) {
 	std::string buffer = "";
 	one_argument(argument, arg);
 	if (!strcmp(arg, "очистить")) {
@@ -358,8 +360,8 @@ void do_showzonestats(CHAR_DATA *ch, char *argument, int, int) {
 	page_string(ch->desc, buffer);
 }
 
-void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_arena_restore(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
 
 	one_argument(argument, buf);
 	if (!*buf)
@@ -375,7 +377,7 @@ void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
 		}
 		if (GET_CLASS(vict) == CLASS_WARRIOR) {
-			struct timed_type wctimed;
+			struct Timed wctimed;
 			wctimed.skill = SKILL_WARCRY;
 			wctimed.time = 0;
 			timed_to_char(vict, &wctimed);
@@ -405,24 +407,24 @@ void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 				extract_obj(unequip_char(vict, i, CharEquipFlags()));
 			}
 		}
-		OBJ_DATA *obj;
+		ObjectData *obj;
 		for (obj = vict->carrying; obj; obj = vict->carrying) {
 			obj_from_char(obj);
 			extract_obj(obj);
 		}
-		act("Все ваши вещи были удалены и все аффекты сняты $N4!", FALSE, vict, 0, ch, TO_CHAR);
+		act("Все ваши вещи были удалены и все аффекты сняты $N4!", false, vict, 0, ch, TO_CHAR);
 	}
 }
 
-int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long times) {
-	punish_data *pundata = 0;
+int set_punish(CharacterData *ch, CharacterData *vict, int punish, char *reason, long times) {
+	Punish *pundata = 0;
 	int result;
 	if (ch == vict) {
 		send_to_char("Это слишком жестоко...\r\n", ch);
 		return 0;
 	}
 
-	if ((GET_REAL_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || IS_IMPL(vict)) {
+	if ((GET_REAL_LEVEL(vict) >= kLevelImmortal && !IS_IMPL(ch)) || IS_IMPL(vict)) {
 		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return 0;
 	}
@@ -479,7 +481,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				PLR_FLAGS(vict).unset(PLR_MUTE);
 
 				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
@@ -499,21 +501,21 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				Glory::remove_freeze(GET_UNIQUE(vict));
 
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
-					act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
+				if (IN_ROOM(vict) != kNowhere) {
+					act("$n выпущен$a из темницы!", false, vict, 0, 0, TO_ROOM);
 
-					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
 
-					if (result == NOWHERE) {
-						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
+					if (result == kNowhere) {
+						if (GET_REAL_LEVEL(vict) >= kLevelImmortal)
 							result = r_immort_start_room;
 						else
 							result = r_mortal_start_room;
@@ -542,7 +544,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				PLR_FLAGS(vict).unset(PLR_DUMB);
 
 				sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
@@ -563,22 +565,22 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				PLR_FLAGS(vict).unset(PLR_HELLED);
 
 				sprintf(buf, "%s removed FROM hell by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
-					act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
+				if (IN_ROOM(vict) != kNowhere) {
+					act("$n выпущен$a из темницы!", false, vict, 0, 0, TO_ROOM);
 
-					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
 
-					if (result == NOWHERE) {
-						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
+					if (result == kNowhere) {
+						if (GET_REAL_LEVEL(vict) >= kLevelImmortal)
 							result = r_immort_start_room;
 						else
 							result = r_mortal_start_room;
@@ -603,20 +605,20 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				PLR_FLAGS(vict).unset(PLR_NAMED);
 
 				sprintf(buf, "%s removed FROM name room by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
-					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+				if (IN_ROOM(vict) != kNowhere) {
+					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
 
-					if (result == NOWHERE) {
-						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
+					if (result == kNowhere) {
+						if (GET_REAL_LEVEL(vict) >= kLevelImmortal)
 							result = r_immort_start_room;
 						else
 							result = r_mortal_start_room;
@@ -625,7 +627,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 					char_from_room(vict);
 					char_to_room(vict, result);
 					look_at_room(vict, result);
-					act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
+					act("$n выпущен$a из комнаты имени!", false, vict, 0, 0, TO_ROOM);
 				};
 				sprintf(buf, "%s%s выпустил$G вас из комнаты имени.%s",
 						CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -641,24 +643,24 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				};
 
 				sprintf(buf, "%s registered by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Registered by %s", GET_NAME(ch));
 				RegisterSystem::add(vict, buf, reason);
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 
-					act("$n зарегистрирован$a!", FALSE, vict, 0, 0, TO_ROOM);
+					act("$n зарегистрирован$a!", false, vict, 0, 0, TO_ROOM);
 
-					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
 
-					if (result == NOWHERE) {
-						if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
+					if (result == kNowhere) {
+						if (GET_REAL_LEVEL(vict) >= kLevelImmortal)
 							result = r_immort_start_room;
 						else
 							result = r_mortal_start_room;
@@ -679,23 +681,23 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				};
 
 				sprintf(buf, "%s unregistered by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Unregistered by %s", GET_NAME(ch));
 				RegisterSystem::remove(vict);
 				add_karma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != NOWHERE) {
-					act("C $n1 снята метка регистрации!", FALSE, vict, 0, 0, TO_ROOM);
-					/*				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+				if (IN_ROOM(vict) != kNowhere) {
+					act("C $n1 снята метка регистрации!", false, vict, 0, 0, TO_ROOM);
+					/*				if ((result = GET_LOADROOM(vict)) == kNowhere)
 									result = r_unreg_start_room;
 
 								result = real_room(result);
 
-								if (result == NOWHERE)
+								if (result == kNowhere)
 								{
-									if (GET_REAL_LEVEL(vict) >= LVL_IMMORT)
+									if (GET_REAL_LEVEL(vict) >= kLevelImmortal)
 										result = r_immort_start_room;
 									else
 										result = r_mortal_start_room;
@@ -718,7 +720,7 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 		} else
 			skip_spaces(&reason);
 
-		pundata->level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
+		pundata->level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
 		pundata->godid = GET_UNIQUE(ch);
 
 		// Добавляем в причину имя имма
@@ -728,10 +730,10 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 
 		switch (punish) {
 			case SCMD_MUTE: PLR_FLAGS(vict).set(PLR_MUTE);
-				pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Mute ON (%ldh) by %s", times, GET_NAME(ch));
@@ -746,10 +748,10 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 
 			case SCMD_FREEZE: PLR_FLAGS(vict).set(PLR_FROZEN);
 				Glory::set_freeze(GET_UNIQUE(vict));
-				pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Freeze ON (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -757,8 +759,8 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
 						CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
 				sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
-				if (IN_ROOM(vict) != NOWHERE) {
-					act("$n водворен$a в темницу!", FALSE, vict, 0, 0, TO_ROOM);
+				if (IN_ROOM(vict) != kNowhere) {
+					act("$n водворен$a в темницу!", false, vict, 0, 0, TO_ROOM);
 
 					char_from_room(vict);
 					char_to_room(vict, r_helled_start_room);
@@ -767,10 +769,10 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				break;
 
 			case SCMD_DUMB: PLR_FLAGS(vict).set(PLR_DUMB);
-				pundata->duration = (times > 0) ? time(NULL) + times * 60 : MAX_TIME;
+				pundata->duration = (times > 0) ? time(nullptr) + times * 60 : MAX_TIME;
 
 				sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 
 				sprintf(buf, "Dumb ON (%ldm) by %s", times, GET_NAME(ch));
@@ -783,19 +785,19 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				break;
 			case SCMD_HELL: PLR_FLAGS(vict).set(PLR_HELLED);
 
-				pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
-				if (IN_ROOM(vict) != NOWHERE) {
-					act("$n водворен$a в темницу!", FALSE, vict, 0, 0, TO_ROOM);
+				if (IN_ROOM(vict) != kNowhere) {
+					act("$n водворен$a в темницу!", false, vict, 0, 0, TO_ROOM);
 
 					char_from_room(vict);
 					char_to_room(vict, r_helled_start_room);
 					look_at_room(vict, r_helled_start_room);
 				};
-				vict->set_was_in_room(NOWHERE);
+				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Moved TO hell (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -807,18 +809,18 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 
 			case SCMD_NAME: PLR_FLAGS(vict).set(PLR_NAMED);
 
-				pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
-				if (IN_ROOM(vict) != NOWHERE) {
-					act("$n водворен$a в комнату имени!", FALSE, vict, 0, 0, TO_ROOM);
+				if (IN_ROOM(vict) != kNowhere) {
+					act("$n водворен$a в комнату имени!", false, vict, 0, 0, TO_ROOM);
 					char_from_room(vict);
 					char_to_room(vict, r_named_start_room);
 					look_at_room(vict, r_named_start_room);
 				};
-				vict->set_was_in_room(NOWHERE);
+				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Removed TO nameroom (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -828,13 +830,13 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 				sprintf(buf2, "$n помещен$a в комнату имени!");
 				break;
 
-			case SCMD_UNREGISTER: pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+			case SCMD_UNREGISTER: pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 				RegisterSystem::remove(vict);
 
-				if (IN_ROOM(vict) != NOWHERE) {
+				if (IN_ROOM(vict) != kNowhere) {
 					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) {
 						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
-							FALSE,
+							false,
 							vict,
 							0,
 							0,
@@ -844,10 +846,10 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 						look_at_room(vict, r_unreg_start_room);
 					}
 				}
-				vict->set_was_in_room(NOWHERE);
+				vict->set_was_in_room(kNowhere);
 
 				sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Unregistered (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
@@ -860,28 +862,28 @@ int set_punish(CHAR_DATA *ch, CHAR_DATA *vict, int punish, char *reason, long ti
 
 		}
 	}
-	if (ch->in_room != NOWHERE) {
-		act(buf, FALSE, vict, 0, ch, TO_CHAR);
-		act(buf2, FALSE, vict, 0, ch, TO_ROOM);
+	if (ch->in_room != kNowhere) {
+		act(buf, false, vict, 0, ch, TO_CHAR);
+		act(buf2, false, vict, 0, ch, TO_ROOM);
 	};
 	return 1;
 }
 
-void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
-	DESCRIPTOR_DATA *i;
+void is_empty_ch(ZoneRnum zone_nr, CharacterData *ch) {
+	DescriptorData *i;
 	int rnum_start, rnum_stop;
 	bool found = false;
 
-	if (RoomSpells::isZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
 		send_to_char("В зоне имеется рунная метка.\r\n", ch);
 	}
 
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING)
 			continue;
-		if (IN_ROOM(i->character) == NOWHERE)
+		if (IN_ROOM(i->character) == kNowhere)
 			continue;
-		if (GET_REAL_LEVEL(i->character) >= LVL_IMMORT)
+		if (GET_REAL_LEVEL(i->character) >= kLevelImmortal)
 			continue;
 		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
@@ -906,7 +908,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 		// num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		{
 			for (const auto c : world[rnum_start]->people) {
-				if (!IS_NPC(c) && (GET_REAL_LEVEL(c) < LVL_IMMORT)) {
+				if (!IS_NPC(c) && (GET_REAL_LEVEL(c) < kLevelImmortal)) {
 					sprintf(buf2,
 							"Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n",
 							zone_table[zone_nr].vnum,
@@ -922,8 +924,8 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 	// теперь проверю всех товарищей в void комнате STRANGE_ROOM
 	for (const auto c : world[STRANGE_ROOM]->people) {
 		int was = c->get_was_in_room();
-		if (was == NOWHERE
-			|| GET_REAL_LEVEL(c) >= LVL_IMMORT
+		if (was == kNowhere
+			|| GET_REAL_LEVEL(c) >= kLevelImmortal
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}
@@ -943,9 +945,9 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch) {
 	}
 }
 
-void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_check_occupation(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int number;
-	zone_rnum zrn;
+	ZoneRnum zrn;
 	one_argument(argument, buf);
 	bool is_found = false;
 	if (!*buf || !a_isdigit(*buf)) {
@@ -959,7 +961,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 	}
 
 	// что-то по другому не нашел, как проверить существует такая зона или нет
-	for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+	for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 		if (zone_table[zrn].vnum == number) {
 			is_empty_ch(zrn, ch);
 			is_found = true;
@@ -984,10 +986,10 @@ void setall_inspect() {
 	if (setall_inspect_list.size() == 0)
 		return;
 	SetAllInspReqListType::iterator it = setall_inspect_list.begin();
-	CHAR_DATA *ch = 0;
-	DESCRIPTOR_DATA *d_vict = 0;
+	CharacterData *ch = 0;
+	DescriptorData *d_vict = 0;
 
-	DESCRIPTOR_DATA *imm_d = DescByUID(player_table[it->first].unique);
+	DescriptorData *imm_d = DescByUID(player_table[it->first].unique);
 	if (!imm_d
 		|| (STATE(imm_d) != CON_PLAYING)
 		|| !(ch = imm_d->character.get())) {
@@ -998,13 +1000,13 @@ void setall_inspect() {
 	struct timeval start, stop, result;
 	int is_online;
 	need_warn = false;
-	gettimeofday(&start, NULL);
+	gettimeofday(&start, nullptr);
 	Player *vict;
 	for (; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++) {
 		vict = new Player;
-		gettimeofday(&stop, NULL);
+		gettimeofday(&stop, nullptr);
 		timediff(&result, &stop, &start);
-		if (result.tv_sec > 0 || result.tv_usec >= OPT_USEC) {
+		if (result.tv_sec > 0 || result.tv_usec >= kOptUsec) {
 			delete vict;
 			return;
 		}
@@ -1018,7 +1020,7 @@ void setall_inspect() {
 				it->second->found++;
 				if (it->second->type_req == SETALL_FREEZE) {
 					if (is_online) {
-						if (GET_REAL_LEVEL(d_vict->character) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(d_vict->character) >= kLevelGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1035,7 +1037,7 @@ void setall_inspect() {
 							it->second->out += buf1;
 							continue;
 						} else {
-							if (GET_REAL_LEVEL(vict) >= LVL_GOD) {
+							if (GET_REAL_LEVEL(vict) >= kLevelGod) {
 								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 								it->second->out += buf1;
 								continue;
@@ -1050,7 +1052,7 @@ void setall_inspect() {
 					}
 				} else if (it->second->type_req == SETALL_EMAIL) {
 					if (is_online) {
-						if (GET_REAL_LEVEL(d_vict->character) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(d_vict->character) >= kLevelGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1072,7 +1074,7 @@ void setall_inspect() {
 							delete vict;
 							continue;
 						} else {
-							if (GET_REAL_LEVEL(vict) >= LVL_GOD) {
+							if (GET_REAL_LEVEL(vict) >= kLevelGod) {
 								it->second->out += buf1;
 								continue;
 							}
@@ -1090,7 +1092,7 @@ void setall_inspect() {
 					}
 				} else if (it->second->type_req == SETALL_PSWD) {
 					if (is_online) {
-						if (GET_REAL_LEVEL(d_vict->character) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(d_vict->character) >= kLevelGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1108,7 +1110,7 @@ void setall_inspect() {
 							delete vict;
 							continue;
 						}
-						if (GET_REAL_LEVEL(vict) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(vict) >= kLevelGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1125,7 +1127,7 @@ void setall_inspect() {
 					}
 				} else if (it->second->type_req == SETALL_HELL) {
 					if (is_online) {
-						if (GET_REAL_LEVEL(d_vict->character) >= LVL_GOD) {
+						if (GET_REAL_LEVEL(d_vict->character) >= kLevelGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
@@ -1142,7 +1144,7 @@ void setall_inspect() {
 							it->second->out += buf1;
 							continue;
 						} else {
-							if (GET_REAL_LEVEL(vict) >= LVL_GOD) {
+							if (GET_REAL_LEVEL(vict) >= kLevelGod) {
 								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 								it->second->out += buf1;
 								continue;
@@ -1171,7 +1173,7 @@ void setall_inspect() {
 	if (it->second->mail)
 		free(it->second->mail);
 	need_warn = true;
-	gettimeofday(&stop, NULL);
+	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d.\r\n", it->second->found);
 	it->second->out += buf1;
@@ -1179,7 +1181,7 @@ void setall_inspect() {
 	setall_inspect_list.erase(it->first);
 }
 
-void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_setall(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int type_request = 0;
 	int times = 0;
 	if (ch->get_pfilepos() < 0)
@@ -1195,17 +1197,17 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	argument = three_arguments(argument, buf, buf1, buf2);
 	SetAllInspReqPtr req(new setall_inspect_request);
-	req->newmail = NULL;
-	req->mail = NULL;
-	req->reason = NULL;
-	req->pwd = NULL;
+	req->newmail = nullptr;
+	req->mail = nullptr;
+	req->reason = nullptr;
+	req->pwd = nullptr;
 
 	if (!*buf) {
 		send_to_char("Usage: setall <e-mail> <email|passwd|frozen|hell> <arguments>\r\n", ch);
 		return;
 	}
 
-	if (!valid_email(buf)) {
+	if (!IsValidEmail(buf)) {
 		send_to_char("Некорректный e-mail!\r\n", ch);
 		return;
 	}
@@ -1229,7 +1231,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Укажите новый e-mail!\r\n", ch);
 			return;
 		}
-		if (!valid_email(buf2)) {
+		if (!IsValidEmail(buf2)) {
 			send_to_char("Новый e-mail некорректен!\r\n", ch);
 			return;
 		}
@@ -1265,7 +1267,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	setall_inspect_list[ch->get_pfilepos()] = req;
 }
 
-void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_echo(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Вы не в состоянии что-либо продемонстрировать окружающим.\r\n", ch);
 		return;
@@ -1297,14 +1299,14 @@ void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			}
 
-			act(buf, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
-			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
+			act(buf, false, ch, 0, to, TO_VICT | CHECK_DEAF);
+			act(deaf_social, false, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) {
 			send_to_char(OK, ch);
 		} else {
-			act(buf, FALSE, ch, 0, 0, TO_CHAR);
+			act(buf, false, ch, 0, 0, TO_CHAR);
 		}
 	}
 }
@@ -1316,13 +1318,13 @@ void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 #define SUB_TRANS    4
 #define SUB_HIDE    5
 
-void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// Команда простановки славы (оффлайн/онлайн)
 	// Без параметров выводит славу у игрока
 	// + cлава прибавляет славу
 	// - cлава убавляет славу
-	char num[MAX_INPUT_LENGTH];
-	char arg1[MAX_INPUT_LENGTH];
+	char num[kMaxInputLength];
+	char arg1[kMaxInputLength];
 	int mode = 0;
 	char *reason;
 
@@ -1370,7 +1372,7 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharacterData *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
 	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict) {
 		if (load_char(arg, &t_vict) < 0) {
@@ -1433,8 +1435,8 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	vict->save_char();
 }
 
-void do_send(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
+void do_send(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
 
 	half_chop(argument, arg, buf);
 
@@ -1451,66 +1453,66 @@ void do_send(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char("Послано.\r\n", ch);
 	else {
-		snprintf(buf2, MAX_STRING_LENGTH, "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
+		snprintf(buf2, kMaxStringLength, "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
 		send_to_char(buf2, ch);
 	}
 }
 
 // take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93
-room_rnum find_target_room(CHAR_DATA *ch, char *rawroomstr, int trig) {
-	room_vnum tmp;
-	room_rnum location;
-	CHAR_DATA *target_mob;
-	OBJ_DATA *target_obj;
-	char roomstr[MAX_INPUT_LENGTH];
+RoomRnum find_target_room(CharacterData *ch, char *rawroomstr, int trig) {
+	RoomVnum tmp;
+	RoomRnum location;
+	CharacterData *target_mob;
+	ObjectData *target_obj;
+	char roomstr[kMaxInputLength];
 
 	one_argument(rawroomstr, roomstr);
 
 	if (!*roomstr) {
 		send_to_char("Укажите номер или название комнаты.\r\n", ch);
-		return (NOWHERE);
+		return (kNowhere);
 	}
 	if (a_isdigit(*roomstr) && !strchr(roomstr, '.')) {
 		tmp = atoi(roomstr);
-		if ((location = real_room(tmp)) == NOWHERE) {
+		if ((location = real_room(tmp)) == kNowhere) {
 			send_to_char("Нет комнаты с таким номером.\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
-	} else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != NULL) {
+	} else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != nullptr) {
 		location = target_mob->in_room;
-	} else if ((target_obj = get_obj_vis(ch, roomstr)) != NULL) {
-		if (target_obj->get_in_room() != NOWHERE) {
+	} else if ((target_obj = get_obj_vis(ch, roomstr)) != nullptr) {
+		if (target_obj->get_in_room() != kNowhere) {
 			location = target_obj->get_in_room();
 		} else {
 			send_to_char("Этот объект вам недоступен.\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 	} else {
 		send_to_char("В округе нет похожего предмета или создания.\r\n", ch);
-		return (NOWHERE);
+		return (kNowhere);
 	}
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
 	if (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
-		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GET_REAL_LEVEL(ch) < LVL_GRGOD) {
+		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GET_REAL_LEVEL(ch) < kLevelGreatGod) {
 			send_to_char("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 		if (ROOM_FLAGGED(location, ROOM_NOTELEPORTIN) && trig != 1) {
 			send_to_char("В комнату не телепортировать!\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 		if (!Clan::MayEnter(ch, location, HCE_PORTAL)) {
 			send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
-			return (NOWHERE);
+			return (kNowhere);
 		}
 	}
 	return (location);
 }
 
-void do_at(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char command[MAX_INPUT_LENGTH];
-	room_rnum location, original_loc;
+void do_at(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	char command[kMaxInputLength];
+	RoomRnum location, original_loc;
 
 	half_chop(argument, buf, command);
 	if (!*buf) {
@@ -1523,7 +1525,7 @@ void do_at(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((location = find_target_room(ch, buf, 0)) == NOWHERE)
+	if ((location = find_target_room(ch, buf, 0)) == kNowhere)
 		return;
 
 	// a location has been found.
@@ -1540,14 +1542,14 @@ void do_at(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->dismount();
 }
 
-void do_unfreeze(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_unfreeze(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	/*Формат файл unfreeze.lst
 	Первая строка email
 	Вторая строка причина по которой разфриз
 	Все остальные строки полные имена чаров*/
 	//char email[50], reason[50];
 	Player t_vict;
-	CHAR_DATA *vict;
+	CharacterData *vict;
 	char *reason_c; // для функции set_punish, она не умеет принимать тип string :(
 	std::string email;
 	std::string reason;
@@ -1589,10 +1591,10 @@ void do_unfreeze(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 }
 
-void do_goto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	room_rnum location;
+void do_goto(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	RoomRnum location;
 
-	if ((location = find_target_room(ch, argument, 0)) == NOWHERE)
+	if ((location = find_target_room(ch, argument, 0)) == kNowhere)
 		return;
 
 	if (POOFOUT(ch))
@@ -1600,7 +1602,7 @@ void do_goto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		strcpy(buf, "$n растворил$u в клубах дыма.");
 
-	act(buf, TRUE, ch, 0, 0, TO_ROOM);
+	act(buf, true, ch, 0, 0, TO_ROOM);
 	char_from_room(ch);
 
 	char_to_room(ch, location);
@@ -1610,13 +1612,13 @@ void do_goto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf, "$n %s", POOFIN(ch));
 	else
 		strcpy(buf, "$n возник$q посреди комнаты.");
-	act(buf, TRUE, ch, 0, 0, TO_ROOM);
+	act(buf, true, ch, 0, 0, TO_ROOM);
 	look_at_room(ch, 0);
 }
 
-void do_teleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
-	room_rnum target;
+void do_teleport(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
+	RoomRnum target;
 
 	two_arguments(argument, buf, buf2);
 
@@ -1629,20 +1631,20 @@ void do_teleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (GET_REAL_LEVEL(victim) >= GET_REAL_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		send_to_char("Попробуйте придумать что-то другое.\r\n", ch);
 	else if (!*buf2)
-		act("Куда вы хотите $S переместить?", FALSE, ch, 0, victim, TO_CHAR);
-	else if ((target = find_target_room(ch, buf2, 0)) != NOWHERE) {
+		act("Куда вы хотите $S переместить?", false, ch, 0, victim, TO_CHAR);
+	else if ((target = find_target_room(ch, buf2, 0)) != kNowhere) {
 		send_to_char(OK, ch);
-		act("$n растворил$u в клубах дыма.", FALSE, victim, 0, 0, TO_ROOM);
+		act("$n растворил$u в клубах дыма.", false, victim, 0, 0, TO_ROOM);
 		char_from_room(victim);
 		char_to_room(victim, target);
 		victim->dismount();
-		act("$n появил$u, окутанн$w розовым туманом.", FALSE, victim, 0, 0, TO_ROOM);
-		act("$n переместил$g вас!", FALSE, ch, 0, (char *) victim, TO_VICT);
+		act("$n появил$u, окутанн$w розовым туманом.", false, victim, 0, 0, TO_ROOM);
+		act("$n переместил$g вас!", false, ch, 0, (char *) victim, TO_VICT);
 		look_at_room(victim, 0);
 	}
 }
 
-void do_vnum(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_vnum(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	half_chop(argument, buf, buf2);
 
 	if (!*buf || !*buf2
@@ -1675,25 +1677,25 @@ void do_vnum(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Нет триггеров, загружаемых такой объект\r\n", ch);
 }
 
-void do_shutdown(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_shutdown(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	commands::Shutdown command(ch, argument, shutdown_parameters);
 	if (command.parse_arguments()) {
 		command.execute();
 	}
 }
 
-void stop_snooping(CHAR_DATA *ch) {
+void stop_snooping(CharacterData *ch) {
 	if (!ch->desc->snooping)
 		send_to_char("Вы не подслушиваете.\r\n", ch);
 	else {
 		send_to_char("Вы прекратили подслушивать.\r\n", ch);
-		ch->desc->snooping->snoop_by = NULL;
-		ch->desc->snooping = NULL;
+		ch->desc->snooping->snoop_by = nullptr;
+		ch->desc->snooping = nullptr;
 	}
 }
 
-void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim, *tch;
+void do_snoop(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim, *tch;
 
 	if (!ch->desc)
 		return;
@@ -1705,7 +1707,7 @@ void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!(victim = get_player_vis(ch, arg, FIND_CHAR_WORLD)))
 		send_to_char("Нет такого создания в игре.\r\n", ch);
 	else if (!victim->desc)
-		act("Вы не можете $S подслушать - он$G потерял$G связь..\r\n", FALSE, ch, 0, victim, TO_CHAR);
+		act("Вы не можете $S подслушать - он$G потерял$G связь..\r\n", false, ch, 0, victim, TO_CHAR);
 	else if (victim == ch)
 		stop_snooping(ch);
 	else if (victim->desc->snooping == ch->desc)
@@ -1720,8 +1722,8 @@ void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		else
 			tch = victim;
 
-		const int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
-		const int victim_level = PRF_FLAGGED(tch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(tch);
+		const int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
+		const int victim_level = PRF_FLAGGED(tch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(tch);
 
 		if (victim_level >= god_level) {
 			send_to_char("Вы не можете.\r\n", ch);
@@ -1730,7 +1732,7 @@ void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(OK, ch);
 
 		ch->desc->snoop_with_map = false;
-		if (god_level >= LVL_IMPL && argument && *argument) {
+		if (god_level >= kLevelImplementator && argument && *argument) {
 			skip_spaces(&argument);
 			if (isname(argument, "map") || isname(argument, "карта")) {
 				ch->desc->snoop_with_map = true;
@@ -1738,14 +1740,14 @@ void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (ch->desc->snooping)
-			ch->desc->snooping->snoop_by = NULL;
+			ch->desc->snooping->snoop_by = nullptr;
 
 		ch->desc->snooping = victim->desc;
 		victim->desc->snoop_by = ch->desc;
 	}
 }
 
-void do_switch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_switch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (ch->desc->original) {
@@ -1763,7 +1765,7 @@ void do_switch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else if (!IS_IMPL(ch)
 			&& !IS_NPC(visible_character)) {
 			send_to_char("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
-		} else if (GET_REAL_LEVEL(ch) < LVL_GRGOD
+		} else if (GET_REAL_LEVEL(ch) < kLevelGreatGod
 			&& ROOM_FLAGGED(IN_ROOM(visible_character), ROOM_GODROOM)) {
 			send_to_char("Вы не можете находиться в той комнате.\r\n", ch);
 		} else if (!IS_GRGOD(ch)
@@ -1783,12 +1785,12 @@ void do_switch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ch->desc->original = me;
 
 			victim->desc = ch->desc;
-			ch->desc = NULL;
+			ch->desc = nullptr;
 		}
 	}
 }
 
-void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
+void do_return(CharacterData *ch, char *argument, int cmd, int subcmd) {
 	if (ch->desc && ch->desc->original) {
 		send_to_char("Вы вернулись в свое тело.\r\n", ch);
 
@@ -1802,23 +1804,23 @@ void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 		 * (which is assigned below in this function). 12/17/99
 		 */
 		if (ch->desc->original->desc) {
-			ch->desc->original->desc->character = NULL;
+			ch->desc->original->desc->character = nullptr;
 			STATE(ch->desc->original->desc) = CON_DISCONNECT;
 		}
 		ch->desc->character = ch->desc->original;
-		ch->desc->original = NULL;
+		ch->desc->original = nullptr;
 
 		ch->desc->character->desc = ch->desc;
-		ch->desc = NULL;
+		ch->desc = nullptr;
 	} else {
 		do_recall(ch, argument, cmd, subcmd);
 	}
 }
 
-void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *mob;
-	mob_vnum number;
-	mob_rnum r_num;
+void do_load(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *mob;
+	MobVnum number;
+	MobRnum r_num;
 	char *iname;
 
 	iname = two_arguments(argument, buf, buf2);
@@ -1837,15 +1839,15 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
 		}
-		if ((zone_table[get_zone_rnum_by_mob_vnum(number)].locked) && (GET_REAL_LEVEL(ch) != LVL_IMPL)) {
+		if ((zone_table[get_zone_rnum_by_mob_vnum(number)].locked) && (GET_REAL_LEVEL(ch) != kLevelImplementator)) {
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
 		mob = read_mobile(r_num, REAL);
 		char_to_room(mob, ch->in_room);
-		act("$n порыл$u в МУДе.", TRUE, ch, 0, 0, TO_ROOM);
-		act("$n создал$g $N3!", FALSE, ch, 0, mob, TO_ROOM);
-		act("Вы создали $N3.", FALSE, ch, 0, mob, TO_CHAR);
+		act("$n порыл$u в МУДе.", true, ch, 0, 0, TO_ROOM);
+		act("$n создал$g $N3!", false, ch, 0, mob, TO_ROOM);
+		act("Вы создали $N3.", false, ch, 0, mob, TO_CHAR);
 		load_mtrigger(mob);
 		olc_log("%s load mob %s #%d", GET_NAME(ch), GET_NAME(mob), number);
 	} else if (is_abbrev(buf, "obj")) {
@@ -1853,7 +1855,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
 		}
-		if ((zone_table[get_zone_rnum_by_obj_vnum(number)].locked) && (GET_REAL_LEVEL(ch) != LVL_IMPL)) {
+		if ((zone_table[get_zone_rnum_by_obj_vnum(number)].locked) && (GET_REAL_LEVEL(ch) != kLevelImplementator)) {
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
@@ -1872,9 +1874,9 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			obj_to_room(obj.get(), ch->in_room);
 		}
 
-		act("$n покопал$u в МУДе.", TRUE, ch, 0, 0, TO_ROOM);
-		act("$n создал$g $o3!", FALSE, ch, obj.get(), 0, TO_ROOM);
-		act("Вы создали $o3.", FALSE, ch, obj.get(), 0, TO_CHAR);
+		act("$n покопал$u в МУДе.", true, ch, 0, 0, TO_ROOM);
+		act("$n создал$g $o3!", false, ch, obj.get(), 0, TO_ROOM);
+		act("Вы создали $o3.", false, ch, obj.get(), 0, TO_CHAR);
 		load_otrigger(obj.get());
 		obj_decay(obj.get());
 		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
@@ -1893,11 +1895,11 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		obj_to_char(obj, ch);
-		act("$n покопал$u в МУДе.", TRUE, ch, 0, 0, TO_ROOM);
-		act("$n создал$g $o3!", FALSE, ch, obj, 0, TO_ROOM);
-		act("Вы создали $o3.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n покопал$u в МУДе.", true, ch, 0, 0, TO_ROOM);
+		act("$n создал$g $o3!", false, ch, obj, 0, TO_ROOM);
+		act("Вы создали $o3.", false, ch, obj, 0, TO_CHAR);
 		sprintf(buf, "%s load ing %d %s", GET_NAME(ch), power, iname);
-		mudlog(buf, NRM, LVL_BUILDER, IMLOG, TRUE);
+		mudlog(buf, NRM, kLevelBuilder, IMLOG, true);
 		load_otrigger(obj);
 		obj_decay(obj);
 		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), power);
@@ -1908,7 +1910,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // отправка сообщения вообще всем
 void send_to_all(char *buffer) {
-	DESCRIPTOR_DATA *pt;
+	DescriptorData *pt;
 	for (pt = descriptor_list; pt; pt = pt->next) {
 		if (STATE(pt) == CON_PLAYING && pt->character) {
 			send_to_char(buffer, pt->character.get());
@@ -1916,10 +1918,10 @@ void send_to_all(char *buffer) {
 	}
 }
 
-void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *mob;
-	mob_vnum number;    // or obj_vnum ...
-	mob_rnum r_num;        // or obj_rnum ...
+void do_vstat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *mob;
+	MobVnum number;    // or ObjVnum ...
+	MobRnum r_num;        // or ObjRnum ...
 
 	two_arguments(argument, buf, buf2);
 
@@ -1939,7 +1941,7 @@ void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mob = read_mobile(r_num, REAL);
 		char_to_room(mob, 1);
 		do_stat_character(ch, mob, 1);
-		extract_char(mob, FALSE);
+		extract_char(mob, false);
 	} else if (is_abbrev(buf, "obj")) {
 		if ((r_num = real_object(number)) < 0) {
 			send_to_char("Этот предмет явно перенесли в РМУД.\r\n", ch);
@@ -1954,27 +1956,27 @@ void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // clean a room of all mobiles and objects
-void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict;
-	OBJ_DATA *obj, *next_o;
+void do_purge(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict;
+	ObjectData *obj, *next_o;
 
 	one_argument(argument, buf);
 
 	if (*buf) {        // argument supplied. destroy single object or char
-		if ((vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)) != NULL) {
+		if ((vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)) != nullptr) {
 			if (!IS_NPC(vict) && GET_REAL_LEVEL(ch) <= GET_REAL_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 				send_to_char("Да я вас за это...\r\n", ch);
 				return;
 			}
-			act("$n обратил$g в прах $N3.", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$n обратил$g в прах $N3.", false, ch, 0, vict, TO_NOTVICT);
 			if (!IS_NPC(vict)) {
 				sprintf(buf, "(GC) %s has purged %s.", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, CMP, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, CMP, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s has purged %s.", GET_NAME(ch), GET_NAME(vict));
 				if (vict->desc) {
 					STATE(vict->desc) = CON_CLOSE;
-					vict->desc->character = NULL;
-					vict->desc = NULL;
+					vict->desc->character = nullptr;
+					vict->desc = nullptr;
 				}
 			}
 			// TODO: честно говоря дублирование куска из экстракта не ясно
@@ -1985,10 +1987,10 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (!vict->purged()) {
-				extract_char(vict, FALSE);
+				extract_char(vict, false);
 			}
-		} else if ((obj = get_obj_in_list_vis(ch, buf, world[ch->in_room]->contents)) != NULL) {
-			act("$n просто разметал$g $o3 на молекулы.", FALSE, ch, obj, 0, TO_ROOM);
+		} else if ((obj = get_obj_in_list_vis(ch, buf, world[ch->in_room]->contents)) != nullptr) {
+			act("$n просто разметал$g $o3 на молекулы.", false, ch, obj, 0, TO_ROOM);
 			extract_obj(obj);
 		} else {
 			send_to_char("Ничего похожего с таким именем нет.\r\n", ch);
@@ -1997,8 +1999,8 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(OK, ch);
 	} else        // no argument. clean out the room
 	{
-		act("$n произнес$q СЛОВО... вас окружило пламя!", FALSE, ch, 0, 0, TO_ROOM);
-		send_to_room("Мир стал немного чище.\r\n", ch->in_room, FALSE);
+		act("$n произнес$q СЛОВО... вас окружило пламя!", false, ch, 0, 0, TO_ROOM);
+		send_to_room("Мир стал немного чище.\r\n", ch->in_room, false);
 
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
@@ -2009,7 +2011,7 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				if (!vict->purged()) {
-					extract_char(vict, FALSE);
+					extract_char(vict, false);
 				}
 			}
 		}
@@ -2047,36 +2049,36 @@ char *show_pun_time(int time) {
 	return time_buf;
 }
 //выводим наказания для чара
-void show_pun(CHAR_DATA *vict, char *buf) {
+void show_pun(CharacterData *vict, char *buf) {
 	if (PLR_FLAGGED(vict, PLR_FROZEN)
 		&& FREEZE_DURATION(vict))
 		sprintf(buf + strlen(buf), "FREEZE : %s [%s].\r\n",
-				show_pun_time(FREEZE_DURATION(vict) - time(NULL)),
+				show_pun_time(FREEZE_DURATION(vict) - time(nullptr)),
 				FREEZE_REASON(vict) ? FREEZE_REASON(vict)
 									: "-");
 
 	if (PLR_FLAGGED(vict, PLR_MUTE)
 		&& MUTE_DURATION(vict))
 		sprintf(buf + strlen(buf), "MUTE   : %s [%s].\r\n",
-				show_pun_time(MUTE_DURATION(vict) - time(NULL)),
+				show_pun_time(MUTE_DURATION(vict) - time(nullptr)),
 				MUTE_REASON(vict) ? MUTE_REASON(vict) : "-");
 
 	if (PLR_FLAGGED(vict, PLR_DUMB)
 		&& DUMB_DURATION(vict))
 		sprintf(buf + strlen(buf), "DUMB   : %s [%s].\r\n",
-				show_pun_time(DUMB_DURATION(vict) - time(NULL)),
+				show_pun_time(DUMB_DURATION(vict) - time(nullptr)),
 				DUMB_REASON(vict) ? DUMB_REASON(vict) : "-");
 
 	if (PLR_FLAGGED(vict, PLR_HELLED)
 		&& HELL_DURATION(vict))
 		sprintf(buf + strlen(buf), "HELL   : %s [%s].\r\n",
-				show_pun_time(HELL_DURATION(vict) - time(NULL)),
+				show_pun_time(HELL_DURATION(vict) - time(nullptr)),
 				HELL_REASON(vict) ? HELL_REASON(vict) : "-");
 
 	if (!PLR_FLAGGED(vict, PLR_REGISTERED)
 		&& UNREG_DURATION(vict))
 		sprintf(buf + strlen(buf), "UNREG  : %s [%s].\r\n",
-				show_pun_time(UNREG_DURATION(vict) - time(NULL)),
+				show_pun_time(UNREG_DURATION(vict) - time(nullptr)),
 				UNREG_REASON(vict) ? UNREG_REASON(vict) : "-");
 }
 
@@ -2086,8 +2088,8 @@ void inspecting() {
 
 	InspReqListType::iterator it = inspect_list.begin();
 
-	CHAR_DATA *ch = 0;
-	DESCRIPTOR_DATA *d_vict = 0;
+	CharacterData *ch = 0;
+	DescriptorData *d_vict = 0;
 
 	//если нет дескриптора или он где-то там по меню шарица, то запрос отменяется
 	if (!(d_vict = DescByUID(player_table[it->first].unique))
@@ -2103,11 +2105,11 @@ void inspecting() {
 	int is_online;
 	need_warn = false;
 
-	gettimeofday(&start, NULL);
+	gettimeofday(&start, nullptr);
 	for (; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++) {
-		gettimeofday(&stop, NULL);
+		gettimeofday(&stop, nullptr);
 		timediff(&result, &stop, &start);
-		if (result.tv_sec > 0 || result.tv_usec >= OPT_USEC) {
+		if (result.tv_sec > 0 || result.tv_usec >= kOptUsec) {
 			return;
 		}
 
@@ -2123,7 +2125,7 @@ void inspecting() {
 
 		if ((it->second->sfor == ICHAR
 			&& it->second->unique == player_table[it->second->pos].unique)//Это тот же перс которого мы статим
-			|| (player_table[it->second->pos].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
+			|| (player_table[it->second->pos].level >= kLevelImmortal && !IS_GRGOD(ch))//Иммов могут чекать только 33+
 			|| (player_table[it->second->pos].level > GET_REAL_LEVEL(ch) && !IS_IMPL(ch)
 				&& !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
 		{
@@ -2134,7 +2136,7 @@ void inspecting() {
 		buf2[0] = '\0';
 		is_online = 0;
 
-		CHAR_DATA::shared_ptr vict;
+		CharacterData::shared_ptr vict;
 		d_vict = DescByUID(player_table[it->second->pos].unique);
 		if (d_vict) {
 			is_online = 1;
@@ -2217,7 +2219,7 @@ void inspecting() {
 			sprinttype(player.plr_class, pc_class_types, smallBuf);
 			mytime = player_table[it->second->pos].last_logon;
 			Player vict;
-			char clanstatus[MAX_INPUT_LENGTH];
+			char clanstatus[kMaxInputLength];
 			sprintf(clanstatus, "%s", "нет");
 			if ((load_char(player.name(), &vict)) > -1) {
 				Clan::SetClanData(&vict);
@@ -2244,7 +2246,7 @@ void inspecting() {
 	}
 
 	need_warn = true;
-	gettimeofday(&stop, NULL);
+	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d за %ldсек.\r\n", it->second->found, result.tv_sec);
 	it->second->out += buf1;
@@ -2262,8 +2264,8 @@ void inspecting() {
 }
 
 //added by WorM Команда для поиска чаров с одинаковым(похожим) mail и/или ip
-void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d_vict = 0;
+void do_inspect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	DescriptorData *d_vict = 0;
 	int i = 0;
 
 	if (ch->get_pfilepos() < 0)
@@ -2298,7 +2300,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	InspReqPtr req(new inspect_request);
-	req->mail = NULL;
+	req->mail = nullptr;
 	req->fullsearch = 0;
 	req->req = str_dup(buf2);
 	req->sendmail = false;
@@ -2318,7 +2320,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (is_abbrev(buf, "ip")) {
 		req->sfor = IIP;
 		if (req->fullsearch) {
-			const logon_data logon = {str_dup(req->req), 0, 0, false};
+			const Logon logon = {str_dup(req->req), 0, 0, false};
 			req->ip_log.push_back(logon);
 		}
 	} else if (is_abbrev(buf, "char")) {
@@ -2326,7 +2328,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		req->unique = GetUniqueByName(req->req);
 		i = get_ptable_by_unique(req->unique);
 		if ((req->unique <= 0)//Перс не существует
-			|| (player_table[i].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
+			|| (player_table[i].level >= kLevelImmortal && !IS_GRGOD(ch))//Иммов могут чекать только 33+
 			|| (player_table[i].level > GET_REAL_LEVEL(ch) && !IS_IMPL(ch)
 				&& !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
 		{
@@ -2354,7 +2356,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				player_table[i].last_ip,
 				CCNRM(ch, C_SPR));
 		Player vict;
-		char clanstatus[MAX_INPUT_LENGTH];
+		char clanstatus[kMaxInputLength];
 		sprintf(clanstatus, "%s", "нет");
 		if ((load_char(player_table[i].name(), &vict)) > -1) {
 			Clan::SetClanData(&vict);
@@ -2369,7 +2371,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		strcat(buf, buf1);
 
 		if (req->fullsearch) {
-			CHAR_DATA::shared_ptr vict;
+			CharacterData::shared_ptr vict;
 			if (d_vict) {
 				vict = d_vict->character;
 			} else {
@@ -2386,12 +2388,12 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				log("filling logon list");
 #endif
 				for (const auto &cur_log : LOGON_LIST(vict)) {
-					const logon_data logon = {str_dup(cur_log.ip), cur_log.count, cur_log.lasttime, false};
+					const Logon logon = {str_dup(cur_log.ip), cur_log.count, cur_log.lasttime, false};
 					req->ip_log.push_back(logon);
 				}
 			}
 		} else {
-			const logon_data logon = {str_dup(player_table[i].last_ip), 0, player_table[i].last_logon, false};
+			const Logon logon = {str_dup(player_table[i].last_ip), 0, player_table[i].last_logon, false};
 			req->ip_log.push_back(logon);
 		}
 	}
@@ -2405,7 +2407,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	req->out += buf;
 	req->out += buf2;
 
-	gettimeofday(&req->start, NULL);
+	gettimeofday(&req->start, nullptr);
 	inspect_list[ch->get_pfilepos()] = req;
 }
 
@@ -2415,7 +2417,7 @@ const char *logtypes[] =
 	};
 
 // subcmd - канал
-void do_syslog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_syslog(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int tp;
 
 	if (subcmd < 0 || subcmd > LAST_LOG) {
@@ -2431,18 +2433,18 @@ void do_syslog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
 
 	if (*arg) {
-		if (GET_REAL_LEVEL(ch) == LVL_IMMORT)
+		if (GET_REAL_LEVEL(ch) == kLevelImmortal)
 			logtypes[2] = "\n";
 		else
 			logtypes[2] = "краткий";
-		if (GET_REAL_LEVEL(ch) == LVL_GOD)
+		if (GET_REAL_LEVEL(ch) == kLevelGod)
 			logtypes[4] = "\n";
 		else
 			logtypes[4] = "полный";
-		if ((tp = search_block(arg, logtypes, FALSE)) == -1) {
-			if (GET_REAL_LEVEL(ch) == LVL_IMMORT)
+		if ((tp = search_block(arg, logtypes, false)) == -1) {
+			if (GET_REAL_LEVEL(ch) == kLevelImmortal)
 				send_to_char("Формат: syslog { нет | начальный }\r\n", ch);
-			else if (GET_REAL_LEVEL(ch) == LVL_GOD)
+			else if (GET_REAL_LEVEL(ch) == kLevelGod)
 				send_to_char("Формат: syslog { нет | начальный | краткий | нормальный }\r\n", ch);
 			else
 				send_to_char
@@ -2459,8 +2461,8 @@ void do_syslog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	return;
 }
 
-void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *victim;
+void do_advance(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *victim;
 	char *name = arg, *level = buf2;
 	int newlevel, oldlevel;
 
@@ -2484,8 +2486,8 @@ void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Это не похоже на уровень.\r\n", ch);
 		return;
 	}
-	if (newlevel > LVL_IMPL) {
-		sprintf(buf, "%d - максимальный возможный уровень.\r\n", LVL_IMPL);
+	if (newlevel > kLevelImplementator) {
+		sprintf(buf, "%d - максимальный возможный уровень.\r\n", kLevelImplementator);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -2494,7 +2496,7 @@ void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (newlevel == GET_REAL_LEVEL(victim)) {
-		act("$E и так этого уровня.", FALSE, ch, 0, victim, TO_CHAR);
+		act("$E и так этого уровня.", false, ch, 0, victim, TO_CHAR);
 		return;
 	}
 	oldlevel = GET_REAL_LEVEL(victim);
@@ -2503,7 +2505,7 @@ void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		act("$n сделал$g несколько странных пасов.\r\n"
 			"Вам показалось, будто неземное тепло разлилось по каждой клеточке\r\n"
-			"Вашего тела, наполняя его доселе невиданными вами ощущениями.\r\n", FALSE, ch, 0, victim, TO_VICT);
+			"Вашего тела, наполняя его доселе невиданными вами ощущениями.\r\n", false, ch, 0, victim, TO_VICT);
 	}
 
 	send_to_char(OK, ch);
@@ -2521,8 +2523,8 @@ void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	victim->save_char();
 }
 
-void do_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	CHAR_DATA *vict;
+void do_restore(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+	CharacterData *vict;
 
 	one_argument(argument, buf);
 	if (!*buf)
@@ -2547,7 +2549,7 @@ void do_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
 		}
 		if (GET_CLASS(vict) == CLASS_WARRIOR) {
-			struct timed_type wctimed;
+			struct Timed wctimed;
 			wctimed.skill = SKILL_WARCRY;
 			wctimed.time = 0;
 			timed_to_char(vict, &wctimed);
@@ -2573,12 +2575,12 @@ void do_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		if (subcmd == SCMD_RESTORE_GOD) {
 			send_to_char(OK, ch);
-			act("Вы были полностью восстановлены $N4!", FALSE, vict, 0, ch, TO_CHAR);
+			act("Вы были полностью восстановлены $N4!", false, vict, 0, ch, TO_CHAR);
 		}
 	}
 }
 
-void perform_immort_vis(CHAR_DATA *ch) {
+void perform_immort_vis(CharacterData *ch) {
 	if (GET_INVIS_LEV(ch) == 0 &&
 		!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_INVISIBLE)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)) {
@@ -2591,7 +2593,7 @@ void perform_immort_vis(CHAR_DATA *ch) {
 	send_to_char("Вы теперь полностью видны.\r\n", ch);
 }
 
-void perform_immort_invis(CHAR_DATA *ch, int level) {
+void perform_immort_invis(CharacterData *ch, int level) {
 	if (IS_NPC(ch)) {
 		return;
 	}
@@ -2602,11 +2604,11 @@ void perform_immort_invis(CHAR_DATA *ch, int level) {
 		}
 
 		if (GET_REAL_LEVEL(tch) >= GET_INVIS_LEV(ch) && GET_REAL_LEVEL(tch) < level) {
-			act("Вы вздрогнули, когда $n растворил$u на ваших глазах.", FALSE, ch, 0, tch, TO_VICT);
+			act("Вы вздрогнули, когда $n растворил$u на ваших глазах.", false, ch, 0, tch, TO_VICT);
 		}
 
 		if (GET_REAL_LEVEL(tch) < GET_INVIS_LEV(ch) && GET_REAL_LEVEL(tch) >= level) {
-			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, tch, TO_VICT);
+			act("$n медленно появил$u из пустоты.", false, ch, 0, tch, TO_VICT);
 		}
 	}
 
@@ -2615,7 +2617,7 @@ void perform_immort_invis(CHAR_DATA *ch, int level) {
 	send_to_char(buf, ch);
 }
 
-void do_invis(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_invis(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int level;
 
 	if (IS_NPC(ch)) {
@@ -2628,17 +2630,17 @@ void do_invis(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (GET_INVIS_LEV(ch) > 0)
 			perform_immort_vis(ch);
 		else {
-			if (GET_REAL_LEVEL(ch) < LVL_IMPL)
-				perform_immort_invis(ch, LVL_IMMORT);
+			if (GET_REAL_LEVEL(ch) < kLevelImplementator)
+				perform_immort_invis(ch, kLevelImmortal);
 			else
 				perform_immort_invis(ch, GET_REAL_LEVEL(ch));
 		}
 	} else {
-		level = MIN(atoi(arg), LVL_IMPL);
+		level = MIN(atoi(arg), kLevelImplementator);
 		if (level > GET_REAL_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			send_to_char("Вы не можете достичь невидимости выше вашего уровня.\r\n", ch);
-		else if (GET_REAL_LEVEL(ch) < LVL_IMPL && level > LVL_IMMORT && !PRF_FLAGGED(ch, PRF_CODERINFO))
-			perform_immort_invis(ch, LVL_IMMORT);
+		else if (GET_REAL_LEVEL(ch) < kLevelImplementator && level > kLevelImmortal && !PRF_FLAGGED(ch, PRF_CODERINFO))
+			perform_immort_invis(ch, kLevelImmortal);
 		else if (level < 1)
 			perform_immort_vis(ch);
 		else
@@ -2646,8 +2648,8 @@ void do_invis(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_gecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *pt;
+void do_gecho(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	DescriptorData *pt;
 
 	skip_spaces(&argument);
 	delete_doubledollar(argument);
@@ -2672,7 +2674,7 @@ void do_gecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_poofset(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_poofset(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char **msg;
 
 	switch (subcmd) {
@@ -2689,15 +2691,15 @@ void do_poofset(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		free(*msg);
 
 	if (!*argument)
-		*msg = NULL;
+		*msg = nullptr;
 	else
 		*msg = str_dup(argument);
 
 	send_to_char(OK, ch);
 }
 
-void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d;
+void do_dc(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	DescriptorData *d;
 	int num_to_dc;
 	one_argument(argument, arg);
 	if (!(num_to_dc = atoi(arg))) {
@@ -2713,8 +2715,8 @@ void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (d->character) //Чтоб не крешило при попытке разъединить незалогиненного
 	{
-		int victim_level = PRF_FLAGGED(d->character, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(d->character);
-		int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_REAL_LEVEL(ch);
+		int victim_level = PRF_FLAGGED(d->character, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(d->character);
+		int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
 		if (victim_level >= god_level) {
 			if (!CAN_SEE(ch, d->character))
 				send_to_char("Нет такого соединения.\r\n", ch);
@@ -2754,15 +2756,15 @@ void do_dc(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wizlock(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_wizlock(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int value;
 	const char *when;
 
 	one_argument(argument, arg);
 	if (*arg) {
 		value = atoi(arg);
-		if (value > LVL_IMPL)
-			value = LVL_IMPL; // 34е всегда должны иметь возможность зайти
+		if (value > kLevelImplementator)
+			value = kLevelImplementator; // 34е всегда должны иметь возможность зайти
 		if (value < 0 || (value > GET_REAL_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))) {
 			send_to_char("Неверное значение для wizlock.\r\n", ch);
 			return;
@@ -2785,7 +2787,7 @@ void do_wizlock(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char(buf, ch);
 }
 
-void do_date(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
+void do_date(CharacterData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	char *tmstr;
 	time_t mytime;
 	int d, h, m, s;
@@ -2814,7 +2816,7 @@ void do_date(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	send_to_char(buf, ch);
 }
 
-void do_last(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_last(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!*arg) {
 		send_to_char("Кого вы хотите найти?\r\n", ch);
@@ -2840,9 +2842,9 @@ void do_last(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *i, *next_desc;
-	char to_force[MAX_INPUT_LENGTH + 2];
+void do_force(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	DescriptorData *i, *next_desc;
+	char to_force[kMaxInputLength + 2];
 
 	half_chop(argument, arg, to_force);
 
@@ -2860,12 +2862,12 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			char *pstr;
 			send_to_char(OK, ch);
-			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
+			act(buf1, true, ch, nullptr, vict, TO_VICT);
 			sprintf(buf, "(GC) %s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
-			while ((pstr = strchr(buf, '%')) != NULL) {
+			while ((pstr = strchr(buf, '%')) != nullptr) {
 				pstr[0] = '*';
 			}
-			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+			mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
 			command_interpreter(vict, to_force);
 		}
@@ -2873,7 +2875,7 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		|| !str_cmp("здесь", arg)) {
 		send_to_char(OK, ch);
 		sprintf(buf, "(GC) %s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
-		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
 
 		const auto people_copy = world[ch->in_room]->people;
@@ -2884,14 +2886,14 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
+			act(buf1, true, ch, nullptr, vict, TO_VICT);
 			command_interpreter(vict, to_force);
 		}
 	} else        // force all
 	{
 		send_to_char(OK, ch);
 		sprintf(buf, "(GC) %s forced all to %s", GET_NAME(ch), to_force);
-		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s forced all to %s", GET_NAME(ch), to_force);
 
 		for (i = descriptor_list; i; i = next_desc) {
@@ -2905,14 +2907,14 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			act(buf1, TRUE, ch, NULL, vict.get(), TO_VICT);
+			act(buf1, true, ch, nullptr, vict.get(), TO_VICT);
 			command_interpreter(vict.get(), to_force);
 		}
 	}
 }
 
-void do_sdemigod(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d;
+void do_sdemigod(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	DescriptorData *d;
 	// убираем пробелы
 	skip_spaces(&argument);
 
@@ -2928,7 +2930,7 @@ void do_sdemigod(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (STATE(d) == CON_PLAYING) {
 			// Если в игре, то проверяем, демигод ли чар
 			// Иммы 34-левела тоже могут смотреть канал
-			if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GET_REAL_LEVEL(d->character) == LVL_IMPL)) {
+			if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GET_REAL_LEVEL(d->character) == kLevelImplementator)) {
 				// Проверяем пишет ли чар или отправляет письмо
 				// А так же на реж сдемигод
 				if ((!PLR_FLAGGED(d->character, PLR_WRITING)) &&
@@ -2942,12 +2944,12 @@ void do_sdemigod(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DESCRIPTOR_DATA *d;
-	char emote = FALSE;
-	char bookmark1 = FALSE;
-	char bookmark2 = FALSE;
-	int level = LVL_GOD;
+void do_wiznet(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	DescriptorData *d;
+	char emote = false;
+	char bookmark1 = false;
+	char bookmark2 = false;
+	int level = kLevelGod;
 
 	skip_spaces(&argument);
 	delete_doubledollar(argument);
@@ -2963,18 +2965,18 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Опускаем level для gf_demigod
 	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
-		level = LVL_IMMORT;
+		level = kLevelImmortal;
 
 	// использование доп. аргументов
 	switch (*argument) {
-		case '*': emote = TRUE;
+		case '*': emote = true;
 			break;
 		case '#':
 			// Установить уровень имм канала
 			one_argument(argument + 1, buf1);
 			if (is_number(buf1)) {
 				half_chop(argument + 1, buf1, argument);
-				level = MAX(atoi(buf1), LVL_IMMORT);
+				level = MAX(atoi(buf1), kLevelImmortal);
 				if (level > GET_REAL_LEVEL(ch)) {
 					send_to_char("Вы не можете изрекать выше вашего уровня.\r\n", ch);
 					return;
@@ -2991,7 +2993,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (!bookmark1) {
 						strcpy(buf1,
 							   "Боги/привилегированные которые смогут (наверное) вас услышать:\r\n");
-						bookmark1 = TRUE;
+						bookmark1 = true;
 					}
 					sprintf(buf1 + strlen(buf1), "  %s", GET_NAME(d->character));
 					if (PLR_FLAGGED(d->character, PLR_WRITING))
@@ -3014,7 +3016,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							strcat(buf1,
 								   "Боги/привилегированные которые не смогут вас услышать:\r\n");
 
-						bookmark2 = TRUE;
+						bookmark2 = true;
 					}
 					sprintf(buf1 + strlen(buf1), "  %s\r\n", GET_NAME(d->character));
 				}
@@ -3036,13 +3038,13 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Не думаю, что Боги одобрят это.\r\n", ch);
 		return;
 	}
-	if (level != LVL_GOD) {
+	if (level != kLevelGod) {
 		sprintf(buf1, "%s%s: <%d> %s%s\r\n", GET_NAME(ch),
 				emote ? "" : " богам", level, emote ? "<--- " : "", argument);
 	} else {
 		sprintf(buf1, "%s%s: %s%s\r\n", GET_NAME(ch), emote ? "" : " богам", emote ? "<--- " : "", argument);
 	}
-	snprintf(buf2, MAX_STRING_LENGTH, "&c%s&n", buf1);
+	snprintf(buf2, kMaxStringLength, "&c%s&n", buf1);
 	Remember::add_to_flaged_cont(Remember::wiznet_, buf2, level);
 
 	// пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов
@@ -3055,7 +3057,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			(!PLR_FLAGGED(d->character, PLR_MAILING)))    // отправляющий письмо не видит имм канала
 		{
 			// отправляем сообщение чару
-			snprintf(buf2, MAX_STRING_LENGTH, "%s%s%s",
+			snprintf(buf2, kMaxStringLength, "%s%s%s",
 					 CCCYN(d->character, C_NRM), buf1, CCNRM(d->character, C_NRM));
 			d->character->remember_add(buf2, Remember::ALL);
 			// не видино своих мессаг если 'режим repeat'
@@ -3071,9 +3073,9 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	zone_rnum i;
-	zone_vnum j;
+void do_zreset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	ZoneRnum i;
+	ZoneVnum j;
 
 	one_argument(argument, arg);
 	if (!*arg) {
@@ -3081,32 +3083,32 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (*arg == '*') {
-		for (i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++) {
+		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 			reset_zone(i);
 		}
 
 		send_to_char("Перезагружаю мир.\r\n", ch);
 		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, NRM, MAX(kLevelGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s reset entire world.", GET_NAME(ch));
 		return;
 	} else if (*arg == '.') {
 		i = world[ch->in_room]->zone_rn;
 	} else {
 		j = atoi(arg);
-		for (i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++) {
+		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 			if (zone_table[i].vnum == j) {
 				break;
 			}
 		}
 	}
 
-	if (i >= 0 && i < static_cast<zone_rnum>(zone_table.size())) {
+	if (i >= 0 && i < static_cast<ZoneRnum>(zone_table.size())) {
 		reset_zone(i);
 		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].vnum, zone_table[i].name);
 		send_to_char(buf, ch);
 		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name);
-		mudlog(buf, NRM, MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+		mudlog(buf, NRM, MAX(kLevelGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name);
 	} else {
 		send_to_char("Нет такой зоны.\r\n", ch);
@@ -3116,12 +3118,12 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // Функции установки разных наказаний.
 
 // *  General fn for wizcommands of the sort: cmd <player>
-void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	CHAR_DATA *vict;
+void do_wizutil(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+	CharacterData *vict;
 	long result;
 	int times = 0;
 	char *reason;
-	char num[MAX_INPUT_LENGTH];
+	char num[kMaxInputLength];
 
 	//  one_argument(argument, arg);
 	reason = two_arguments(argument, arg, num);
@@ -3132,7 +3134,7 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Нет такого игрока.\r\n", ch);
 	else if (GET_REAL_LEVEL(vict) > GET_REAL_LEVEL(ch) && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		send_to_char("А он ведь старше вас....\r\n", ch);
-	else if (GET_REAL_LEVEL(vict) >= LVL_IMMORT && GET_GOD_FLAG(ch, GF_DEMIGOD))
+	else if (GET_REAL_LEVEL(vict) >= kLevelImmortal && GET_GOD_FLAG(ch, GF_DEMIGOD))
 		send_to_char("А он ведь старше вас....\r\n", ch);
 	else {
 		switch (subcmd) {
@@ -3148,7 +3150,7 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 				break;
 			case SCMD_NOTITLE: result = PLR_TOG_CHK(vict, PLR_NOTITLE);
 				sprintf(buf, "(GC) Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
 				strcat(buf, "\r\n");
 				send_to_char(buf, ch);
@@ -3201,7 +3203,7 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 // single zone printing fn used by "show zone" so it's not repeated in the
 // code 3 times ... -je, 4/6/93
 
-void print_zone_to_buf(char **bufptr, zone_rnum zone) {
+void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 	const size_t BUFFER_SIZE = 1024;
 	int rfirst, rlast;
 	get_zone_rooms(zone, &rfirst, &rlast);
@@ -3232,7 +3234,7 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone) {
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
-std::string print_zone_exits(zone_rnum zone) {
+std::string print_zone_exits(ZoneRnum zone) {
 	bool found = false;
 	char tmp[128];
 
@@ -3242,7 +3244,7 @@ std::string print_zone_exits(zone_rnum zone) {
 
 	for (int n = FIRST_ROOM; n <= top_of_world; n++) {
 		if (world[n]->zone_rn == zone) {
-			for (int dir = 0; dir < NUM_OF_DIRS; dir++) {
+			for (int dir = 0; dir < kDirMaxNumber; dir++) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn != zone
 					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
@@ -3262,7 +3264,7 @@ std::string print_zone_exits(zone_rnum zone) {
 	return out;
 }
 
-std::string print_zone_enters(zone_rnum zone) {
+std::string print_zone_enters(ZoneRnum zone) {
 	bool found = true;
 	char tmp[128];
 
@@ -3272,7 +3274,7 @@ std::string print_zone_enters(zone_rnum zone) {
 
 	for (int n = FIRST_ROOM; n <= top_of_world; n++) {
 		if (world[n]->zone_rn != zone) {
-			for (int dir = 0; dir < NUM_OF_DIRS; dir++) {
+			for (int dir = 0; dir < kDirMaxNumber; dir++) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn == zone
 					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
@@ -3298,7 +3300,7 @@ bool sort_by_zone_mob_level(int rnum1, int rnum2) {
 	return !(zone_table[mob_index[rnum1].zone].mob_level < zone_table[mob_index[rnum2].zone].mob_level);
 }
 
-void print_mob_bosses(CHAR_DATA *ch, bool lvl_sort) {
+void print_mob_bosses(CharacterData *ch, bool lvl_sort) {
 	std::vector<int> tmp_list;
 	for (int i = 0; i <= top_of_mobt; ++i) {
 		if (mob_proto[i].get_role(MOB_ROLE_BOSS)) {
@@ -3337,13 +3339,13 @@ void print_mob_bosses(CHAR_DATA *ch, bool lvl_sort) {
 }
 } // namespace
 
-void show_apply(CHAR_DATA *ch, CHAR_DATA *vict) {
-	OBJ_DATA *obj = nullptr;
+void show_apply(CharacterData *ch, CharacterData *vict) {
+	ObjectData *obj = nullptr;
 	for (int i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_EQ(vict, i))) {
 			send_to_char(ch, "Предмет: %s (%d)\r\n", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 			// Update weapon applies
-			for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+			for (int j = 0; j < kMaxObjAffect; j++) {
 				if (GET_EQ(vict, i)->get_affected(j).modifier != 0) {
 						send_to_char(ch, "Добавляет (apply): %s, модификатор: %d\r\n", 
 							apply_types[(int) GET_EQ(vict, i)->get_affected(j).location], GET_EQ(vict, i)->get_affected(j).modifier);
@@ -3355,48 +3357,48 @@ void show_apply(CHAR_DATA *ch, CHAR_DATA *vict) {
 
 struct show_struct show_fields[] = {
 		{"nothing", 0},        // 0
-		{"zones", LVL_IMMORT},    // 1
-		{"player", LVL_IMMORT},
-		{"rent", LVL_GRGOD},
-		{"stats", LVL_IMMORT},
-		{"errors", LVL_IMPL},    // 5
-		{"death", LVL_GOD},
-		{"godrooms", LVL_GOD},
-		{"snoop", LVL_GRGOD},
-		{"linkdrop", LVL_GRGOD},
-		{"punishment", LVL_IMMORT}, // 10
-		{"paths", LVL_GRGOD},
-		{"loadrooms", LVL_GRGOD},
-		{"skills", LVL_IMPL},
-		{"spells", LVL_IMPL},
-		{"ban", LVL_IMMORT}, // 15
-		{"features", LVL_IMPL},
-		{"glory", LVL_IMPL},
-		{"crc", LVL_IMMORT},
-		{"affectedrooms", LVL_IMMORT},
-		{"money", LVL_IMPL}, // 20
-		{"expgain", LVL_IMPL},
-		{"runes", LVL_IMPL},
-		{"mobstat", LVL_IMPL},
-		{"bosses", LVL_IMPL},
-		{"remort", LVL_IMPL}, // 25
-		{"apply", LVL_GOD}, // 26
-		{"worlds", LVL_IMMORT},
+		{"zones", kLevelImmortal},    // 1
+		{"player", kLevelImmortal},
+		{"rent", kLevelGreatGod},
+		{"stats", kLevelImmortal},
+		{"errors", kLevelImplementator},    // 5
+		{"death", kLevelGod},
+		{"godrooms", kLevelGod},
+		{"snoop", kLevelGreatGod},
+		{"linkdrop", kLevelGreatGod},
+		{"punishment", kLevelImmortal}, // 10
+		{"paths", kLevelGreatGod},
+		{"loadrooms", kLevelGreatGod},
+		{"skills", kLevelImplementator},
+		{"spells", kLevelImplementator},
+		{"ban", kLevelImmortal}, // 15
+		{"features", kLevelImplementator},
+		{"glory", kLevelImplementator},
+		{"crc", kLevelImmortal},
+		{"affectedrooms", kLevelImmortal},
+		{"money", kLevelImplementator}, // 20
+		{"expgain", kLevelImplementator},
+		{"runes", kLevelImplementator},
+		{"mobstat", kLevelImplementator},
+		{"bosses", kLevelImplementator},
+		{"remort", kLevelImplementator}, // 25
+		{"apply", kLevelGod}, // 26
+		{"worlds", kLevelImmortal},
 		{"\n", 0}
 };
 
-void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_show(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int i, j, l, con;    // i, j, k to specifics?
 
-	zone_rnum zrn;
-	zone_vnum zvn;
+	ZoneRnum zrn;
+	ZoneVnum zvn;
 	char self = 0;
-	CHAR_DATA *vict;
-	DESCRIPTOR_DATA *d;
-	char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH], value1[MAX_INPUT_LENGTH];
-	// char bf[MAX_EXTEND_LENGTH];
-	char *bf = NULL;
-	char rem[MAX_INPUT_LENGTH];
+	CharacterData *vict;
+	DescriptorData *d;
+	char field[kMaxInputLength], value[kMaxInputLength], value1[kMaxInputLength];
+	// char bf[kMaxExtendLength];
+	char *bf = nullptr;
+	char rem[kMaxInputLength];
 
 	skip_spaces(&argument);
 
@@ -3435,7 +3437,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				int zstart = atoi(value);
 				int zend = atoi(value1);
 
-				for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+				for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 					if (zone_table[zrn].vnum >= zstart
 						&& zone_table[zrn].vnum <= zend) {
 						print_zone_to_buf(&bf, zrn);
@@ -3449,19 +3451,19 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			} else if (*value && is_number(value)) {
 				for (zvn = atoi(value), zrn = 0;
-					zrn < static_cast<zone_rnum>(zone_table.size()) && zone_table[zrn].vnum != zvn;
+					zrn < static_cast<ZoneRnum>(zone_table.size()) && zone_table[zrn].vnum != zvn;
 					 zrn++) {
 					/* empty loop */
 				}
 
-				if (zrn < static_cast<zone_rnum>(zone_table.size())) {
+				if (zrn < static_cast<ZoneRnum>(zone_table.size())) {
 					print_zone_to_buf(&bf, zrn);
 				} else {
 					send_to_char("Нет такой зоны.\r\n", ch);
 					return;
 				}
 			} else if (*value && !strcmp(value, "-g")) {
-				for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+				for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 					if (zone_table[zrn].group > 1) {
 						print_zone_to_buf(&bf, zrn);
 					}
@@ -3470,7 +3472,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				one_argument(arg, value);
 				if (*value && is_number(value)) {
 					// show zones -l x y
-					for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+					for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 						if (zone_table[zrn].mob_level >= atoi(value1)
 							&& zone_table[zrn].mob_level <= atoi(value)) {
 							print_zone_to_buf(&bf, zrn);
@@ -3478,19 +3480,19 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				} else {
 					// show zones -l x
-					for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+					for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 						if (zone_table[zrn].mob_level == atoi(value1)) {
 							print_zone_to_buf(&bf, zrn);
 						}
 					}
 				}
 			} else {
-				for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+				for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 					print_zone_to_buf(&bf, zrn);
 				}
 			}
 
-			page_string(ch->desc, bf, TRUE);
+			page_string(ch->desc, bf, true);
 			free(bf);
 			break;
 
@@ -3514,11 +3516,11 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else if (NAME_GOD(vict) < 1000) {
 				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(vict)));
 				*buf1 = UPPER(*buf1);
-				snprintf(buf + strlen(buf), MAX_STRING_LENGTH, "Имя запрещено богом %s\r\n", buf1);
+				snprintf(buf + strlen(buf), kMaxStringLength, "Имя запрещено богом %s\r\n", buf1);
 			} else {
 				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(vict)));
 				*buf1 = UPPER(*buf1);
-				snprintf(buf + strlen(buf), MAX_STRING_LENGTH, "Имя одобрено богом %s\r\n", buf1);
+				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
 			if (GET_REAL_REMORT(vict) < 4)
 				sprintf(rem, "Перевоплощений: %d\r\n", GET_REAL_REMORT(vict));
@@ -3600,7 +3602,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			int k = 0;
 			strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
 			for (i = FIRST_ROOM; i <= top_of_world; i++) {
-				for (j = 0; j < NUM_OF_DIRS; j++) {
+				for (j = 0; j < kDirMaxNumber; j++) {
 					if (world[i]->dir_option[j]
 						&& world[i]->dir_option[j]->to_room() == 0) {
 						sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,
@@ -3608,7 +3610,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 			}
-			page_string(ch->desc, buf, TRUE);
+			page_string(ch->desc, buf, true);
 		}
 			break;
 
@@ -3616,13 +3618,13 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (i = FIRST_ROOM, j = 0; i <= top_of_world; i++)
 				if (ROOM_FLAGGED(i, ROOM_DEATH))
 					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
-			page_string(ch->desc, buf, TRUE);
+			page_string(ch->desc, buf, true);
 			break;
 		case 7: strcpy(buf, "Комнаты для богов\r\n" "-----------------\r\n");
 			for (i = FIRST_ROOM, j = 0; i <= top_of_world; i++)
 				if (ROOM_FLAGGED(i, ROOM_GODROOM))
 					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
-			page_string(ch->desc, buf, TRUE);
+			page_string(ch->desc, buf, true);
 			break;
 		case 8: *buf = '\0';
 			send_to_char("Система негласного контроля:\r\n", ch);
@@ -3631,7 +3633,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (d->snooping
 					&& d->character
 					&& STATE(d) == CON_PLAYING
-					&& IN_ROOM(d->character) != NOWHERE
+					&& IN_ROOM(d->character) != kNowhere
 					&& ((CAN_SEE(ch, d->character) && GET_REAL_LEVEL(ch) >= GET_REAL_LEVEL(d->character))
 						|| PRF_FLAGGED(ch, PRF_CODERINFO))) {
 					sprintf(buf + strlen(buf),
@@ -3649,7 +3651,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(buf, ch);
 			i = 0;
 			for (const auto &vict : character_list) {
-				if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE) {
+				if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != nullptr || IN_ROOM(vict) == kNowhere) {
 					continue;
 				}
 				++i;
@@ -3664,42 +3666,42 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 10:        // show punishment
 			send_to_char("  Список наказанных игроков.\r\n", ch);
 			for (d = descriptor_list; d; d = d->next) {
-				if (d->snooping != NULL && d->character != NULL)
+				if (d->snooping != nullptr && d->character != nullptr)
 					continue;
 				if (STATE(d) != CON_PLAYING
 					|| (GET_REAL_LEVEL(ch) < GET_REAL_LEVEL(d->character) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
 					continue;
-				if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == NOWHERE)
+				if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == kNowhere)
 					continue;
 				buf[0] = 0;
 				if (PLR_FLAGGED(d->character, PLR_FROZEN)
 					&& FREEZE_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Заморожен : %ld час [%s].\r\n",
-							static_cast<long>((FREEZE_DURATION(d->character) - time(NULL)) / 3600),
+							static_cast<long>((FREEZE_DURATION(d->character) - time(nullptr)) / 3600),
 							FREEZE_REASON(d->character) ? FREEZE_REASON(d->character) : "-");
 
 				if (PLR_FLAGGED(d->character, PLR_MUTE)
 					&& MUTE_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет молчать : %ld час [%s].\r\n",
-							static_cast<long>((MUTE_DURATION(d->character) - time(NULL)) / 3600),
+							static_cast<long>((MUTE_DURATION(d->character) - time(nullptr)) / 3600),
 							MUTE_REASON(d->character) ? MUTE_REASON(d->character) : "-");
 
 				if (PLR_FLAGGED(d->character, PLR_DUMB)
 					&& DUMB_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет нем : %ld час [%s].\r\n",
-							static_cast<long>((DUMB_DURATION(d->character) - time(NULL)) / 3600),
+							static_cast<long>((DUMB_DURATION(d->character) - time(nullptr)) / 3600),
 							DUMB_REASON(d->character) ? DUMB_REASON(d->character) : "-");
 
 				if (PLR_FLAGGED(d->character, PLR_HELLED)
 					&& HELL_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет в аду : %ld час [%s].\r\n",
-							static_cast<long>((HELL_DURATION(d->character) - time(NULL)) / 3600),
+							static_cast<long>((HELL_DURATION(d->character) - time(nullptr)) / 3600),
 							HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
 
 				if (!PLR_FLAGGED(d->character, PLR_REGISTERED)
 					&& UNREG_DURATION(d->character)) {
 					sprintf(buf + strlen(buf), "Не сможет заходить с одного IP : %ld час [%s].\r\n",
-							static_cast<long>((UNREG_DURATION(d->character) - time(NULL)) / 3600),
+							static_cast<long>((UNREG_DURATION(d->character) - time(nullptr)) / 3600),
 							UNREG_REASON(d->character) ? UNREG_REASON(d->character) : "-");
 				}
 
@@ -3717,12 +3719,12 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				page_string(ch->desc, out);
 			} else if (*value && is_number(value)) {
 				for (zvn = atoi(value), zrn = 0;
-					 zone_table[zrn].vnum != zvn && zrn < static_cast<zone_rnum>(zone_table.size());
+					 zone_table[zrn].vnum != zvn && zrn < static_cast<ZoneRnum>(zone_table.size());
 					 zrn++) {
 					// empty
 				}
 
-				if (zrn < static_cast<zone_rnum>(zone_table.size())) {
+				if (zrn < static_cast<ZoneRnum>(zone_table.size())) {
 					auto out = print_zone_exits(zrn);
 					out += print_zone_enters(zrn);
 					page_string(ch->desc, out);
@@ -3757,7 +3759,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			list_spells(vict, ch, FALSE);
+			list_spells(vict, ch, false);
 			break;
 		case 15:        //Show ban. Далим.
 			if (!*value) {
@@ -3775,7 +3777,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			list_feats(vict, ch, FALSE);
+			list_feats(vict, ch, false);
 			break;
 		case 17:        // show glory
 			GloryMisc::show_log(ch, value);
@@ -3783,7 +3785,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 18:        // show crc
 			FileCRC::show(ch);
 			break;
-		case 19: RoomSpells::showAffectedRooms(ch);
+		case 19: room_spells::ShowAffectedRooms(ch);
 			break;
 		case 20: // money
 			MoneyDropStat::print(ch);
@@ -3853,7 +3855,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 #define BINARY    1
 #define NUMBER    2
 
-inline void SET_OR_REMOVE(const bool on, const bool off, FLAG_DATA &flagset, const uint32_t packed_flag) {
+inline void SET_OR_REMOVE(const bool on, const bool off, FlagData &flagset, const uint32_t packed_flag) {
 	if (on) {
 		flagset.set(packed_flag);
 	} else if (off) {
@@ -3871,86 +3873,86 @@ struct set_struct        /*
 				   const char type;
 				   } */ set_fields[] =
 	{
-		{"brief", LVL_GOD, PC, BINARY},    // 0
-		{"invstart", LVL_GOD, PC, BINARY},    // 1
-		{"nosummon", LVL_GRGOD, PC, BINARY},
-		{"maxhit", LVL_IMPL, BOTH, NUMBER},
-		{"maxmana", LVL_GRGOD, BOTH, NUMBER},
-		{"maxmove", LVL_IMPL, BOTH, NUMBER},    // 5
-		{"hit", LVL_GRGOD, BOTH, NUMBER},
-		{"mana", LVL_GRGOD, BOTH, NUMBER},
-		{"move", LVL_GRGOD, BOTH, NUMBER},
-		{"race", LVL_GRGOD, BOTH, NUMBER},
-		{"size", LVL_IMPL, BOTH, NUMBER},    // 10
-		{"ac", LVL_GRGOD, BOTH, NUMBER},
-		{"gold", LVL_IMPL, BOTH, NUMBER},
-		{"bank", LVL_IMPL, PC, NUMBER},
-		{"exp", LVL_IMPL, BOTH, NUMBER},
-		{"hitroll", LVL_IMPL, BOTH, NUMBER}, // 15
-		{"damroll", LVL_IMPL, BOTH, NUMBER},
-		{"invis", LVL_IMPL, PC, NUMBER},
-		{"nohassle", LVL_IMPL, PC, BINARY},
-		{"frozen", LVL_GRGOD, PC, MISC},
-		{"practices", LVL_GRGOD, PC, NUMBER}, // 20
-		{"lessons", LVL_GRGOD, PC, NUMBER},
-		{"drunk", LVL_GRGOD, BOTH, MISC},
-		{"hunger", LVL_GRGOD, BOTH, MISC},
-		{"thirst", LVL_GRGOD, BOTH, MISC},
-		{"thief", LVL_GOD, PC, BINARY}, // 25
-		{"level", LVL_IMPL, BOTH, NUMBER},
-		{"room", LVL_IMPL, BOTH, NUMBER},
-		{"roomflag", LVL_GRGOD, PC, BINARY},
-		{"siteok", LVL_GRGOD, PC, BINARY},
-		{"deleted", LVL_IMPL, PC, BINARY}, // 30
-		{"class", LVL_IMPL, BOTH, MISC},
-		{"demigod", LVL_IMPL, PC, BINARY},
-		{"loadroom", LVL_GRGOD, PC, MISC},
-		{"color", LVL_GOD, PC, BINARY},
-		{"idnum", LVL_IMPL, PC, NUMBER}, // 35
-		{"passwd", LVL_IMPL, PC, MISC},
-		{"nodelete", LVL_GOD, PC, BINARY},
-		{"sex", LVL_GRGOD, BOTH, MISC},
-		{"age", LVL_GRGOD, BOTH, NUMBER},
-		{"height", LVL_GOD, BOTH, NUMBER}, // 40
-		{"weight", LVL_GOD, BOTH, NUMBER},
-		{"godslike", LVL_IMPL, BOTH, BINARY},
-		{"godscurse", LVL_IMPL, BOTH, BINARY},
-		{"olc", LVL_IMPL, PC, NUMBER},
-		{"name", LVL_GRGOD, PC, MISC}, // 45
-		{"trgquest", LVL_IMPL, PC, MISC},
-		{"mkill", LVL_IMPL, PC, MISC},
-		{"highgod", LVL_IMPL, PC, MISC},
-		{"hell", LVL_GOD, PC, MISC},
-		{"email", LVL_GOD, PC, MISC}, //50
-		{"religion", LVL_GOD, PC, MISC},
-		{"perslog", LVL_IMPL, PC, BINARY},
-		{"mute", LVL_GOD, PC, MISC},
-		{"dumb", LVL_GOD, PC, MISC},
-		{"karma", LVL_IMPL, PC, MISC},
-		{"unreg", LVL_GOD, PC, MISC}, // 56
-		{"палач", LVL_IMPL, PC, BINARY}, // 57
-		{"killer", LVL_IMPL, PC, BINARY}, // 58
-		{"remort", LVL_IMPL, PC, NUMBER}, // 59
-		{"tester", LVL_IMPL, PC, BINARY}, // 60
-		{"autobot", LVL_IMPL, PC, BINARY}, // 61
-		{"hryvn", LVL_IMPL, PC, NUMBER}, // 62
-		{"scriptwriter", LVL_IMPL, PC, BINARY}, // 63
-		{"spammer", LVL_GOD, PC, BINARY}, // 64
-		{"gloryhide", LVL_IMPL, PC, BINARY}, // 65
-		{"telegram", LVL_IMPL, PC, MISC}, // 66
-		{"nogata", LVL_IMPL, PC, NUMBER}, // 67
+		{"brief", kLevelGod, PC, BINARY},    // 0
+		{"invstart", kLevelGod, PC, BINARY},    // 1
+		{"nosummon", kLevelGreatGod, PC, BINARY},
+		{"maxhit", kLevelImplementator, BOTH, NUMBER},
+		{"maxmana", kLevelGreatGod, BOTH, NUMBER},
+		{"maxmove", kLevelImplementator, BOTH, NUMBER},    // 5
+		{"hit", kLevelGreatGod, BOTH, NUMBER},
+		{"mana", kLevelGreatGod, BOTH, NUMBER},
+		{"move", kLevelGreatGod, BOTH, NUMBER},
+		{"race", kLevelGreatGod, BOTH, NUMBER},
+		{"size", kLevelImplementator, BOTH, NUMBER},    // 10
+		{"ac", kLevelGreatGod, BOTH, NUMBER},
+		{"gold", kLevelImplementator, BOTH, NUMBER},
+		{"bank", kLevelImplementator, PC, NUMBER},
+		{"exp", kLevelImplementator, BOTH, NUMBER},
+		{"hitroll", kLevelImplementator, BOTH, NUMBER}, // 15
+		{"damroll", kLevelImplementator, BOTH, NUMBER},
+		{"invis", kLevelImplementator, PC, NUMBER},
+		{"nohassle", kLevelImplementator, PC, BINARY},
+		{"frozen", kLevelGreatGod, PC, MISC},
+		{"practices", kLevelGreatGod, PC, NUMBER}, // 20
+		{"lessons", kLevelGreatGod, PC, NUMBER},
+		{"drunk", kLevelGreatGod, BOTH, MISC},
+		{"hunger", kLevelGreatGod, BOTH, MISC},
+		{"thirst", kLevelGreatGod, BOTH, MISC},
+		{"thief", kLevelGod, PC, BINARY}, // 25
+		{"level", kLevelImplementator, BOTH, NUMBER},
+		{"room", kLevelImplementator, BOTH, NUMBER},
+		{"roomflag", kLevelGreatGod, PC, BINARY},
+		{"siteok", kLevelGreatGod, PC, BINARY},
+		{"deleted", kLevelImplementator, PC, BINARY}, // 30
+		{"class", kLevelImplementator, BOTH, MISC},
+		{"demigod", kLevelImplementator, PC, BINARY},
+		{"loadroom", kLevelGreatGod, PC, MISC},
+		{"color", kLevelGod, PC, BINARY},
+		{"idnum", kLevelImplementator, PC, NUMBER}, // 35
+		{"passwd", kLevelImplementator, PC, MISC},
+		{"nodelete", kLevelGod, PC, BINARY},
+		{"sex", kLevelGreatGod, BOTH, MISC},
+		{"age", kLevelGreatGod, BOTH, NUMBER},
+		{"height", kLevelGod, BOTH, NUMBER}, // 40
+		{"weight", kLevelGod, BOTH, NUMBER},
+		{"godslike", kLevelImplementator, BOTH, BINARY},
+		{"godscurse", kLevelImplementator, BOTH, BINARY},
+		{"olc", kLevelImplementator, PC, NUMBER},
+		{"name", kLevelGreatGod, PC, MISC}, // 45
+		{"trgquest", kLevelImplementator, PC, MISC},
+		{"mkill", kLevelImplementator, PC, MISC},
+		{"highgod", kLevelImplementator, PC, MISC},
+		{"hell", kLevelGod, PC, MISC},
+		{"email", kLevelGod, PC, MISC}, //50
+		{"religion", kLevelGod, PC, MISC},
+		{"perslog", kLevelImplementator, PC, BINARY},
+		{"mute", kLevelGod, PC, MISC},
+		{"dumb", kLevelGod, PC, MISC},
+		{"karma", kLevelImplementator, PC, MISC},
+		{"unreg", kLevelGod, PC, MISC}, // 56
+		{"палач", kLevelImplementator, PC, BINARY}, // 57
+		{"killer", kLevelImplementator, PC, BINARY}, // 58
+		{"remort", kLevelImplementator, PC, NUMBER}, // 59
+		{"tester", kLevelImplementator, PC, BINARY}, // 60
+		{"autobot", kLevelImplementator, PC, BINARY}, // 61
+		{"hryvn", kLevelImplementator, PC, NUMBER}, // 62
+		{"scriptwriter", kLevelImplementator, PC, BINARY}, // 63
+		{"spammer", kLevelGod, PC, BINARY}, // 64
+		{"gloryhide", kLevelImplementator, PC, BINARY}, // 65
+		{"telegram", kLevelImplementator, PC, MISC}, // 66
+		{"nogata", kLevelImplementator, PC, NUMBER}, // 67
 		{"\n", 0, BOTH, MISC}
 	};
 
-int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
+int perform_set(CharacterData *ch, CharacterData *vict, int mode, char *val_arg) {
 	int i, j, c, value = 0, return_code = 1, ptnum, times = 0;
 	bool on = false;
 	bool off = false;
 	char npad[CObjectPrototype::NUM_PADS][256];
 	char *reason;
-	room_rnum rnum;
-	room_vnum rvnum;
-	char output[MAX_STRING_LENGTH], num[MAX_INPUT_LENGTH];
+	RoomRnum rnum;
+	RoomVnum rvnum;
+	char output[kMaxStringLength], num[kMaxInputLength];
 	int rod;
 
 	// Check to make sure all the levels are correct
@@ -3962,7 +3964,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 					return (0);
 				}
 			} else {
-				if (GET_REAL_LEVEL(vict) >= LVL_IMMORT || PRF_FLAGGED(vict, PRF_CODERINFO)) {
+				if (GET_REAL_LEVEL(vict) >= kLevelImmortal || PRF_FLAGGED(vict, PRF_CODERINFO)) {
 					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
 				}
@@ -3979,7 +3981,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 		send_to_char("Эта тварь недостойна такой чести!\r\n", ch);
 		return (0);
 	} else if (!IS_NPC(vict) && !(set_fields[mode].pcnpc & PC)) {
-		act("Вы оскорбляете $S - $E ведь не моб!", FALSE, ch, 0, vict, TO_CHAR);
+		act("Вы оскорбляете $S - $E ведь не моб!", false, ch, 0, vict, TO_CHAR);
 		return (0);
 	}
 
@@ -4045,7 +4047,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			break;
 		case 14:
 			//vict->points.exp = RANGE(0, 7000000);
-			RANGE(0, level_exp(vict, LVL_IMMORT) - 1);
+			RANGE(0, level_exp(vict, kLevelImmortal) - 1);
 			gain_exp_regardless(vict, value - GET_EXP(vict));
 			break;
 		case 15: vict->real_abils.hitroll = RANGE(-20, 20);
@@ -4117,19 +4119,19 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			break;
 		case 26:
 			if (!PRF_FLAGGED(ch, PRF_CODERINFO)
-				&& (value > GET_REAL_LEVEL(ch) || value > LVL_IMPL || GET_REAL_LEVEL(vict) > GET_REAL_LEVEL(ch))) {
+				&& (value > GET_REAL_LEVEL(ch) || value > kLevelImplementator || GET_REAL_LEVEL(vict) > GET_REAL_LEVEL(ch))) {
 				send_to_char("Вы не можете установить уровень игрока выше собственного.\r\n", ch);
 				return (0);
 			}
-			RANGE(0, LVL_IMPL);
+			RANGE(0, kLevelImplementator);
 			vict->set_level(value);
 			break;
 		case 27:
-			if ((rnum = real_room(value)) == NOWHERE) {
+			if ((rnum = real_room(value)) == kNowhere) {
 				send_to_char("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 				return (0);
 			}
-			if (IN_ROOM(vict) != NOWHERE)    // Another Eric Green special.
+			if (IN_ROOM(vict) != kNowhere)    // Another Eric Green special.
 				char_from_room(vict);
 			char_to_room(vict, rnum);
 			vict->dismount();
@@ -4173,7 +4175,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 		case 33:
 			if (is_number(val_arg)) {
 				rvnum = atoi(val_arg);
-				if (real_room(rvnum) != NOWHERE) {
+				if (real_room(rvnum) != kNowhere) {
 					GET_LOADROOM(vict) = rvnum;
 					sprintf(output, "%s будет входить в игру из комнаты #%d.",
 							GET_NAME(vict), GET_LOADROOM(vict));
@@ -4219,7 +4221,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 		case 37: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_NODELETE);
 			break;
 		case 38:
-			if ((i = search_block(val_arg, genders, FALSE)) < 0) {
+			if ((i = search_block(val_arg, genders, false)) < 0) {
 				send_to_char
 					("Может быть 'мужчина', 'женщина', или 'бесполое'(а вот это я еще не оценил :).\r\n", ch);
 				return (0);
@@ -4254,11 +4256,11 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			if (on) {
 				SET_GOD_FLAG(vict, GF_GODSLIKE);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
-					GCURSE_DURATION(vict) = (i > 0) ? time(NULL) + i * 60 * 60 : MAX_TIME;
+					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
 				else
 					GCURSE_DURATION(vict) = 0;
 				sprintf(buf, "%s установил GUDSLIKE персонажу %s.", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, 0);
+				mudlog(buf, BRF, kLevelImplementator, SYSLOG, 0);
 
 			} else if (off)
 				CLR_GOD_FLAG(vict, GF_GODSLIKE);
@@ -4267,7 +4269,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			if (on) {
 				SET_GOD_FLAG(vict, GF_GODSCURSE);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
-					GCURSE_DURATION(vict) = (i > 0) ? time(NULL) + i * 60 * 60 : MAX_TIME;
+					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
 				else
 					GCURSE_DURATION(vict) = 0;
 			} else if (off)
@@ -4301,7 +4303,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				send_to_char(buf, ch);
 			} else {
 				for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
-					if (strlen(npad[i]) < MIN_NAME_LENGTH || strlen(npad[i]) > MAX_NAME_LENGTH) {
+					if (strlen(npad[i]) < kMinNameLength || strlen(npad[i]) > kMaxNameLength) {
 						sprintf(buf, "Падеж номер %d некорректен.\r\n", ++i);
 						send_to_char(buf, ch);
 						return (0);
@@ -4309,8 +4311,8 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				}
 
 				if (_parse_name(npad[0], npad[0]) ||
-					strlen(npad[0]) < MIN_NAME_LENGTH ||
-					strlen(npad[0]) > MAX_NAME_LENGTH ||
+					strlen(npad[0]) < kMinNameLength ||
+					strlen(npad[0]) > kMaxNameLength ||
 					!Valid_Name(npad[0]) || reserved_word(npad[0]) || fill_word(npad[0])) {
 					send_to_char("Некорректное имя.\r\n", ch);
 					return (0);
@@ -4368,7 +4370,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 
 			if (!str_cmp(npad[0], "off") || !str_cmp(npad[0], "выкл")) {
 				if (!vict->quested_remove(ptnum)) {
-					act("$N не выполнял$G этого квеста.", FALSE, ch, 0, vict, TO_CHAR);
+					act("$N не выполнял$G этого квеста.", false, ch, 0, vict, TO_CHAR);
 					return 0;
 				}
 			} else if (!str_cmp(npad[0], "on") || !str_cmp(npad[0], "вкл")) {
@@ -4382,7 +4384,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 		case 47:
 
 			if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2) {
-				send_to_char("Формат : set <имя> mkill <mob_vnum> <off|num>\r\n", ch);
+				send_to_char("Формат : set <имя> mkill <MobVnum> <off|num>\r\n", ch);
 				return (0);
 			}
 			if (!str_cmp(npad[0], "off") || !str_cmp(npad[0], "выкл"))
@@ -4391,7 +4393,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				if ((c = vict->mobmax_get(ptnum)) != j)
 					vict->mobmax_add(vict, ptnum, j - c, MobMax::get_level_by_vnum(ptnum));
 				else {
-					act("$N убил$G именно столько этих мобов.", FALSE, ch, 0, vict, TO_CHAR);
+					act("$N убил$G именно столько этих мобов.", false, ch, 0, vict, TO_CHAR);
 					return (0);
 				}
 			} else {
@@ -4424,7 +4426,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			}
 			break;
 		case 50:
-			if (valid_email(val_arg)) {
+			if (IsValidEmail(val_arg)) {
 				lower_convert(val_arg);
 				sprintf(buf, "Email changed from %s to %s", GET_EMAIL(vict), val_arg);
 				add_karma(vict, buf, GET_NAME(ch));
@@ -4499,7 +4501,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 			}
 			break;
 		case 55:
-			if (GET_REAL_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+			if (GET_REAL_LEVEL(vict) >= kLevelImmortal && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 				send_to_char("Кем вы себя возомнили?\r\n", ch);
 				return 0;
 			}
@@ -4512,7 +4514,7 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 						free(KARMA(vict));
 
 					KARMA(vict) = 0;
-					act("Вы отпустили $N2 все грехи.", FALSE, ch, 0, vict, TO_CHAR);
+					act("Вы отпустили $N2 все грехи.", false, ch, 0, vict, TO_CHAR);
 					sprintf(buf, "%s", GET_NAME(ch));
 					add_karma(vict, "Очистка грехов", buf);
 
@@ -4560,11 +4562,11 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				CLR_GOD_FLAG(vict, GF_TESTER);
 				PRF_FLAGS(vict).unset(PRF_TESTER); // обнулим реж тестер
 				sprintf(buf, "%s убрал флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 			} else {
 				SET_GOD_FLAG(vict, GF_TESTER);
 				sprintf(buf, "%s установил флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 				//			send_to_gods(buf);
 			}
 			break;
@@ -4581,13 +4583,13 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 				PLR_FLAGS(vict).unset(PLR_SCRIPTWRITER);
 				add_karma(vict, "Снятие флага скриптера", buf);
 				sprintf(buf, "%s убрал флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 				return (1);
 			} else if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
 				PLR_FLAGS(vict).set(PLR_SCRIPTWRITER);
 				add_karma(vict, "Установка флага скриптера", buf);
 				sprintf(buf, "%s установил  флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 				return (1);
 			} else {
 				send_to_char(ch, "Значение может быть только on/off или вкл/выкл.\r\n");
@@ -4629,9 +4631,9 @@ int perform_set(CHAR_DATA *ch, CHAR_DATA *vict, int mode, char *val_arg) {
 	return (return_code);
 }
 
-void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CHAR_DATA *vict = NULL;
-	char field[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], val_arg[MAX_INPUT_LENGTH], OName[MAX_INPUT_LENGTH];
+void do_set(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharacterData *vict = nullptr;
+	char field[kMaxInputLength], name[kMaxInputLength], val_arg[kMaxInputLength], OName[kMaxInputLength];
 	int mode, player_i = 0, retval;
 	char is_file = 0, is_player = 0;
 
@@ -4666,7 +4668,7 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CHAR_DATA::shared_ptr cbuf;
+	CharacterData::shared_ptr cbuf;
 	// find the target
 	if (!is_file) {
 		if (is_player) {
@@ -4683,7 +4685,7 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 			} else {
-				if (GET_REAL_LEVEL(vict) >= LVL_IMMORT) {
+				if (GET_REAL_LEVEL(vict) >= kLevelImmortal) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
 				}
@@ -4712,7 +4714,7 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 			} else {
-				if (GET_REAL_LEVEL(cbuf) >= LVL_IMMORT) {
+				if (GET_REAL_LEVEL(cbuf) >= kLevelImmortal) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
 				}
@@ -4755,18 +4757,18 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imm_log("%s try to set: %s", GET_NAME(ch), argument);
 }
 
-int shop_ext(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int receptionist(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int postmaster(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int bank(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int exchange(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild_mono(CHAR_DATA *ch, void *me, int cmd, char *argument);
-int guild_poly(CHAR_DATA *ch, void *me, int cmd, char *argument);
+int shop_ext(CharacterData *ch, void *me, int cmd, char *argument);
+int receptionist(CharacterData *ch, void *me, int cmd, char *argument);
+int postmaster(CharacterData *ch, void *me, int cmd, char *argument);
+int bank(CharacterData *ch, void *me, int cmd, char *argument);
+int exchange(CharacterData *ch, void *me, int cmd, char *argument);
+int horse_keeper(CharacterData *ch, void *me, int cmd, char *argument);
+int guild_mono(CharacterData *ch, void *me, int cmd, char *argument);
+int guild_poly(CharacterData *ch, void *me, int cmd, char *argument);
 
 namespace Mlist {
 
-std::string print_race(CHAR_DATA *mob) {
+std::string print_race(CharacterData *mob) {
 	std::string out;
 	if (GET_RACE(mob) < NPC_RACE_NEXT) {
 		out += npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC];
@@ -4776,7 +4778,7 @@ std::string print_race(CHAR_DATA *mob) {
 	return out;
 }
 
-std::string print_role(CHAR_DATA *mob) {
+std::string print_role(CharacterData *mob) {
 	std::string out;
 	if (mob->get_role_bits().any()) {
 		print_bitset(mob->get_role_bits(), npc_role_types, ",", out);
@@ -4786,7 +4788,7 @@ std::string print_role(CHAR_DATA *mob) {
 	return out;
 }
 
-std::string print_script(CHAR_DATA *mob, const std::string &key) {
+std::string print_script(CharacterData *mob, const std::string &key) {
 	std::string out;
 
 	bool print_name = false;
@@ -4820,7 +4822,7 @@ std::string print_script(CHAR_DATA *mob, const std::string &key) {
 	return out;
 }
 
-std::string print_special(CHAR_DATA *mob) {
+std::string print_special(CharacterData *mob) {
 	std::string out;
 
 	if (mob_index[GET_MOB_RNUM(mob)].func) {
@@ -4852,7 +4854,7 @@ std::string print_special(CHAR_DATA *mob) {
 	return out;
 }
 
-std::string print_flag(CHAR_DATA *ch, CHAR_DATA *mob, const std::string &options) {
+std::string print_flag(CharacterData *ch, CharacterData *mob, const std::string &options) {
 	std::vector<std::string> option_list;
 	boost::split(option_list, options, boost::is_any_of(", "), boost::token_compress_on);
 
@@ -4877,7 +4879,7 @@ std::string print_flag(CHAR_DATA *ch, CHAR_DATA *mob, const std::string &options
 	return out;
 }
 
-void print(CHAR_DATA *ch, int first, int last, const std::string &options) {
+void print(CharacterData *ch, int first, int last, const std::string &options) {
 	std::stringstream out;
 	out << "Список мобов от " << first << " до " << last << "\r\n";
 	int cnt = 0;
@@ -4913,7 +4915,7 @@ void print(CHAR_DATA *ch, int first, int last, const std::string &options) {
 
 } // namespace Mlist
 
-int print_olist(const CHAR_DATA *ch, const int first, const int last, std::string &out) {
+int print_olist(const CharacterData *ch, const int first, const int last, std::string &out) {
 	int result = 0;
 
 	char buf_[256] = {0};
@@ -4932,7 +4934,7 @@ int print_olist(const CHAR_DATA *ch, const int first, const int last, std::strin
 				 vnum, prototype->get_ilevel(), prototype->get_auto_mort_req());
 		ss << buf_;
 
-		if (GET_REAL_LEVEL(ch) >= LVL_GRGOD
+		if (GET_REAL_LEVEL(ch) >= kLevelGreatGod
 			|| PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
 					 obj_proto.number(rnum),
@@ -4958,7 +4960,7 @@ int print_olist(const CHAR_DATA *ch, const int first, const int last, std::strin
 	return result;
 }
 
-void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
+void do_liblist(CharacterData *ch, char *argument, int cmd, int subcmd) {
 
 	int first, last, nr, found = 0;
 
@@ -4989,7 +4991,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 							 ch);
 				break;
 			default: sprintf(buf, "SYSERR:: invalid SCMD passed to ACMDdo_build_list!");
-				mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+				mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 				break;
 		}
 		return;
@@ -5062,7 +5064,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 					 first, last);
 			out += buf_;
 
-			for (nr = 0; nr < static_cast<zone_rnum>(zone_table.size()) && (zone_table[nr].vnum <= last); nr++) {
+			for (nr = 0; nr < static_cast<ZoneRnum>(zone_table.size()) && (zone_table[nr].vnum <= last); nr++) {
 				if (zone_table[nr].vnum >= first) {
 					snprintf(buf_, sizeof(buf_),
 							 "%5d. [%s%s] [%5d] (%3d) (%2d/%2d) (%2d) %s\r\n",
@@ -5084,7 +5086,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			break;
 
 		default: sprintf(buf, "SYSERR:: invalid SCMD passed to ACMDdo_build_list!");
-			mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+			mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 			return;
 	}
 
@@ -5097,7 +5099,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 			case SCMD_ZLIST: send_to_char("Нет зон в этом промежутке.\r\n", ch);
 				break;
 			default: sprintf(buf, "SYSERR:: invalid SCMD passed to do_build_list!");
-				mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+				mudlog(buf, BRF, kLevelGod, SYSLOG, true);
 				break;
 		}
 		return;
@@ -5106,12 +5108,12 @@ void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	page_string(ch->desc, out);
 }
 
-void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_forcetime(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int m, t = 0;
 	char *ca;
 
 	// Parse command line
-	for (ca = strtok(argument, " "); ca; ca = strtok(NULL, " ")) {
+	for (ca = strtok(argument, " "); ca; ca = strtok(nullptr, " ")) {
 		m = LOWER(ca[strlen(ca) - 1]);
 		if (m == 'h')    // hours
 			m = 60 * 60;
@@ -5136,13 +5138,13 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 	}
 
-	for (m = 0; m < t * PASSES_PER_SEC; m++) {
-		GlobalObjects::heartbeat()(t * PASSES_PER_SEC - m);
+	for (m = 0; m < t * kPassesPerSec; m++) {
+		GlobalObjects::heartbeat()(t * kPassesPerSec - m);
 	}
 
 	send_to_char(ch, "Вы перевели игровое время на %d сек вперед.\r\n", t);
 	sprintf(buf, "(GC) %s перевел игровое время на %d сек вперед.", GET_NAME(ch), t);
-	mudlog(buf, NRM, LVL_IMMORT, IMLOG, FALSE);
+	mudlog(buf, NRM, kLevelImmortal, IMLOG, false);
 	send_to_char(OK, ch);
 
 }
@@ -5198,7 +5200,7 @@ void SpellUsage::AddSpellStat(int charClass, int spellNum) {
 	usage[charClass][spellNum]++;
 }
 
-void do_spellstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_spellstat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	if (!*argument) {
@@ -5243,12 +5245,12 @@ void do_spellstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("заклстат: неизвестный аргумент\r\n", ch);
 }
 
-void do_sanitize(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_sanitize(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("Запущена процедура сбора мусора после праздника...\r\n", ch);
 	Celebrates::sanitize();
 }
 
-void do_loadstat(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_loadstat(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	std::ifstream istream(LOAD_LOG_FOLDER LOAD_LOG_FILE, std::ifstream::in);
 	int length;
 
@@ -5261,7 +5263,7 @@ void do_loadstat(CHAR_DATA *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	istream.seekg(0, istream.end);
 	length = istream.tellg();
 	istream.seekg(0, istream.beg);
-	istream.read(buf, MIN(length, MAX_STRING_LENGTH - 1));
+	istream.read(buf, MIN(length, kMaxStringLength - 1));
 	buf[istream.gcount()] = '\0';
 	send_to_char(buf, ch);
 }
@@ -5289,54 +5291,54 @@ struct filter_type {
 
 } // namespace
 
-void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_print_armor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
 	filter_type filter;
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[kMaxInputLength];
 	bool find_param = false;
 	while (*argument) {
 		switch (*argument) {
 			case 'М': argument = one_argument(++argument, tmpbuf);
 				if (is_abbrev(tmpbuf, "булат")) {
-					filter.material = OBJ_DATA::MAT_BULAT;
+					filter.material = ObjectData::MAT_BULAT;
 				} else if (is_abbrev(tmpbuf, "бронза")) {
-					filter.material = OBJ_DATA::MAT_BRONZE;
+					filter.material = ObjectData::MAT_BRONZE;
 				} else if (is_abbrev(tmpbuf, "железо")) {
-					filter.material = OBJ_DATA::MAT_IRON;
+					filter.material = ObjectData::MAT_IRON;
 				} else if (is_abbrev(tmpbuf, "сталь")) {
-					filter.material = OBJ_DATA::MAT_STEEL;
+					filter.material = ObjectData::MAT_STEEL;
 				} else if (is_abbrev(tmpbuf, "кованая.сталь")) {
-					filter.material = OBJ_DATA::MAT_SWORDSSTEEL;
+					filter.material = ObjectData::MAT_SWORDSSTEEL;
 				} else if (is_abbrev(tmpbuf, "драг.металл")) {
-					filter.material = OBJ_DATA::MAT_COLOR;
+					filter.material = ObjectData::MAT_COLOR;
 				} else if (is_abbrev(tmpbuf, "кристалл")) {
-					filter.material = OBJ_DATA::MAT_CRYSTALL;
+					filter.material = ObjectData::MAT_CRYSTALL;
 				} else if (is_abbrev(tmpbuf, "дерево")) {
-					filter.material = OBJ_DATA::MAT_WOOD;
+					filter.material = ObjectData::MAT_WOOD;
 				} else if (is_abbrev(tmpbuf, "прочное.дерево")) {
-					filter.material = OBJ_DATA::MAT_SUPERWOOD;
+					filter.material = ObjectData::MAT_SUPERWOOD;
 				} else if (is_abbrev(tmpbuf, "керамика")) {
-					filter.material = OBJ_DATA::MAT_FARFOR;
+					filter.material = ObjectData::MAT_FARFOR;
 				} else if (is_abbrev(tmpbuf, "стекло")) {
-					filter.material = OBJ_DATA::MAT_GLASS;
+					filter.material = ObjectData::MAT_GLASS;
 				} else if (is_abbrev(tmpbuf, "камень")) {
-					filter.material = OBJ_DATA::MAT_ROCK;
+					filter.material = ObjectData::MAT_ROCK;
 				} else if (is_abbrev(tmpbuf, "кость")) {
-					filter.material = OBJ_DATA::MAT_BONE;
+					filter.material = ObjectData::MAT_BONE;
 				} else if (is_abbrev(tmpbuf, "ткань")) {
-					filter.material = OBJ_DATA::MAT_MATERIA;
+					filter.material = ObjectData::MAT_MATERIA;
 				} else if (is_abbrev(tmpbuf, "кожа")) {
-					filter.material = OBJ_DATA::MAT_SKIN;
+					filter.material = ObjectData::MAT_SKIN;
 				} else if (is_abbrev(tmpbuf, "органика")) {
-					filter.material = OBJ_DATA::MAT_ORGANIC;
+					filter.material = ObjectData::MAT_ORGANIC;
 				} else if (is_abbrev(tmpbuf, "береста")) {
-					filter.material = OBJ_DATA::MAT_PAPER;
+					filter.material = ObjectData::MAT_PAPER;
 				} else if (is_abbrev(tmpbuf, "драг.камень")) {
-					filter.material = OBJ_DATA::MAT_DIAMOND;
+					filter.material = ObjectData::MAT_DIAMOND;
 				} else {
 					send_to_char("Неверный материал предмета.\r\n", ch);
 					return;
@@ -5345,13 +5347,13 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 				break;
 			case 'Т': argument = one_argument(++argument, tmpbuf);
 				if (is_abbrev(tmpbuf, "броня") || is_abbrev(tmpbuf, "armor")) {
-					filter.type = OBJ_DATA::ITEM_ARMOR;
+					filter.type = ObjectData::ITEM_ARMOR;
 				} else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая")) {
-					filter.type = OBJ_DATA::ITEM_ARMOR_LIGHT;
+					filter.type = ObjectData::ITEM_ARMOR_LIGHT;
 				} else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя")) {
-					filter.type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
+					filter.type = ObjectData::ITEM_ARMOR_MEDIAN;
 				} else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая")) {
-					filter.type = OBJ_DATA::ITEM_ARMOR_HEAVY;
+					filter.type = ObjectData::ITEM_ARMOR_HEAVY;
 				} else {
 					send_to_char("Неверный тип предмета.\r\n", ch);
 					return;
@@ -5536,7 +5538,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			for (std::vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find;
 				 ++it) {
 				find = false;
-				for (int k = 0; k < MAX_OBJ_AFFECT; ++k) {
+				for (int k = 0; k < kMaxObjAffect; ++k) {
 					if (i->get_affected(k).location == *it) {
 						find = true;
 						break;
@@ -5565,7 +5567,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 
 		if (find) {
 			const auto vnum = i->get_vnum() / 100;
-			for (auto nr = 0; nr < static_cast<zone_rnum>(zone_table.size()); nr++) {
+			for (auto nr = 0; nr < static_cast<ZoneRnum>(zone_table.size()); nr++) {
 				if (vnum == zone_table[nr].vnum) {
 					tmp_list.insert(std::make_pair(zone_table[nr].mob_level, GET_OBJ_RNUM(i)));
 				}
@@ -5583,7 +5585,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			<< std::setw(14) << material_name[GET_OBJ_MATER(obj)] << " | "
 			<< GET_OBJ_PNAME(obj, 0) << "\r\n";
 
-		for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+		for (int i = 0; i < kMaxObjAffect; i++) {
 			int drndice = obj->get_affected(i).location;
 			int drsdice = obj->get_affected(i).modifier;
 			if (drndice == APPLY_NONE || !drsdice) {
@@ -5600,7 +5602,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			if (obj->get_affected(i).modifier < 0) {
 				negative = !negative;
 			}
-			snprintf(buf, MAX_STRING_LENGTH, "   %s%s%s%s%s%d%s\r\n",
+			snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
 					 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 					 CCCYN(ch, C_NRM),
 					 negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));

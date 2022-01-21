@@ -5,13 +5,13 @@
 #ifndef TITLE_HPP_INCLUDED
 #define TITLE_HPP_INCLUDED
 
-class CHAR_DATA;
+class CharacterData;
 
 // * Система титулов: команда титул, ведение списка на одобрение, сохранение, лоад.
 namespace TitleSystem {
 
-void do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-bool show_title_list(CHAR_DATA *ch);
+void do_title(CharacterData *ch, char *argument, int cmd, int subcmd);
+bool show_title_list(CharacterData *ch);
 void load_title_list();
 void save_title_list();
 

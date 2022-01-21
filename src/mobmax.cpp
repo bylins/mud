@@ -4,9 +4,9 @@
 
 #include "mobmax.h"
 
-#include "chars/char.h"
+#include "entities/char.h"
 
-std::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels = {{0}};
+std::array<int, kMaxMobLevel / 11 + 1> animals_levels = {{0}};
 namespace {
 
 // Минимальное количество мобов одного уровня в списке замакса по левелам
@@ -16,7 +16,7 @@ const int MAX_MOB_IN_MOBKILL = 100;
 // Во сколько раз надо убить мобов меньше, чем их есть в мире, чтобы начать размаксивать
 const int MOBKILL_KOEFF = 3;
 // кол-во мобов каждого уровня
-std::array<int, MAX_MOB_LEVEL + 1> num_levels = {{0}};
+std::array<int, kMaxMobLevel + 1> num_levels = {{0}};
 
 // мап соответствий внумов и левелов (для быстрого чтения плеер-файла)
 typedef std::map<int/* внум моба */, int/* левел моба */> VnumToLevelType;
@@ -29,7 +29,7 @@ int get_max_kills(const int level) {
 }
 
 void MobMax::get_stats(mobmax_stats_t &result) const {
-	mob_rnum r_num;
+	MobRnum r_num;
 	result.clear();
 	for (const auto &item : mobmax_) {
 		if ((r_num = real_mobile(item.vnum)) < 0) {
@@ -47,10 +47,10 @@ void MobMax::get_stats(mobmax_stats_t &result) const {
 
 // * Иним массив кол-ва мобов каждого левела и мап соответствий внумов и левелов.
 void MobMax::init() {
-	std::array<int, MAX_MOB_LEVEL + 1> num_animals_levels = {{0}};
+	std::array<int, kMaxMobLevel + 1> num_animals_levels = {{0}};
 	for (int i = 0; i <= top_of_mobt; ++i) {
 		int level = GET_REAL_LEVEL(mob_proto + i);
-		if (level > MAX_MOB_LEVEL)
+		if (level > kMaxMobLevel)
 			log("Warning! Mob >MAXIMUN lev!");
 		else if (level < 0)
 			log("Warning! Mob <0 lev!");
@@ -62,7 +62,7 @@ void MobMax::init() {
 		}
 	}
 
-	for (int i = 0; i <= MAX_MOB_LEVEL; ++i) {
+	for (int i = 0; i <= kMaxMobLevel; ++i) {
 		log("Mob lev %d. Num of mobs %d", i, num_levels[i]);
 		log("Mob animals lev %d. Num of animals mobs %d", i, num_animals_levels[i]);
 		num_levels[i] = num_levels[i] / MOBKILL_KOEFF;
@@ -106,8 +106,8 @@ void MobMax::refresh(int level) {
 }
 
 // * Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
-void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level) {
-	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
+void MobMax::add(CharacterData *ch, int vnum, int count, int level) {
+	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
 										   [&](const mobmax_data &data) {
@@ -124,8 +124,8 @@ void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level) {
 }
 
 // * Версия add без лишних расчетов для инита во время загрузки персонажа.
-void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level) {
-	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
+void MobMax::load(CharacterData *ch, int vnum, int count, int level) {
+	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
 	mobmax_data tmp_data(vnum, count, level);
 	mobmax_.push_front(tmp_data);

@@ -9,12 +9,12 @@ struct Route {
 	int wait;
 };
 
-class CHAR_DATA;    // to avoid inclusion of char.hpp
+class CharacterData;    // to avoid inclusion of char.hpp
 
 struct SpeedWalk {
 	using mob_vnums_t = std::vector<int>;
 	using routes_t = std::vector<Route>;
-	using mobs_t = std::vector<CHAR_DATA *>;
+	using mobs_t = std::vector<CharacterData *>;
 
 	int default_wait;
 	mob_vnums_t vnum_mobs;
