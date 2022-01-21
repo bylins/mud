@@ -1267,7 +1267,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (unsigned kk = 0; kk < array_string.size(); kk++) {
-			GET_RESIST(mob_proto + i, kk) = MIN(300, MAX(-1000, atoi(array_string[kk].c_str())));
+			GET_RESIST(mob_proto + i, kk) = MIN(100, MAX(-100, atoi(array_string[kk].c_str())));
 		}
 
 
