@@ -2632,10 +2632,9 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "position")) {
 			if (!*subfield) {
-				sprintf(str, "%d", GET_POS(c));
+				sprintf(str, "%d", static_cast<int>(GET_POS(c)));
 			} else {
-				auto pos =
-					std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
+				auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
 				if (!WAITLESS(c)) {
 					if (c->ahorse()) {
 						c->dismount();
@@ -2905,13 +2904,13 @@ void find_replacement(void *go,
 			o->gm_affect_flag(subfield, weapon_affects, str);
 		} else if (!str_cmp(field, "carried_by")) {
 			if (o->get_carried_by()) {
-				sprintf(str, "%c%ld", uid_type, GET_ID(o->get_carried_by()));
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_carried_by()));
 			} else {
 				strcpy(str, "");
 			}
 		} else if (!str_cmp(field, "worn_by")) {
 			if (o->get_worn_by()) {
-				sprintf(str, "%c%ld", uid_type, GET_ID(o->get_worn_by()));
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_worn_by()));
 			} else {
 				strcpy(str, "");
 			}
