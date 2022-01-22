@@ -51,6 +51,20 @@ enum class EPosition {
 int operator-(EPosition p1,  EPosition p2);
 EPosition operator--(const EPosition &p);
 
+enum class EBaseStat : int {
+	kStr = 0,
+	kDex = 1,
+	kCon = 2,
+	kWis = 3,
+	kInt = 4,
+	kCha = 5,
+};
+
+template<>
+const std::string &NAME_BY_ITEM<EBaseStat>(EBaseStat item);
+template<>
+EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name);
+
 // Character equipment positions: used as index for char_data.equipment[] //
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors
 //       which control the valid places you can wear a piece of equipment

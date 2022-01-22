@@ -745,12 +745,12 @@ CharacterData *CharacterData::get_fighting() const {
 	return fighting_;
 }
 
-void CharacterData::set_extra_attack(ExtraAttackEnumType Attack, CharacterData *vict) {
+void CharacterData::set_extra_attack(EExtraAttack Attack, CharacterData *vict) {
 	extra_attack_.used_attack = Attack;
 	extra_attack_.victim = vict;
 }
 
-ExtraAttackEnumType CharacterData::get_extra_attack_mode() const {
+EExtraAttack CharacterData::get_extra_attack_mode() const {
 	return extra_attack_.used_attack;
 }
 

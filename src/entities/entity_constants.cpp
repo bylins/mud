@@ -345,6 +345,43 @@ EAntiFlag ITEM_BY_NAME(const std::string &name) {
 	return EAntiFlag_value_by_name.at(name);
 }
 
+typedef std::map<EBaseStat, std::string> EBaseStat_name_by_value_t;
+typedef std::map<const std::string, EBaseStat> EBaseStat_value_by_name_t;
+EBaseStat_name_by_value_t EBaseStat_name_by_value;
+EBaseStat_value_by_name_t EBaseStat_value_by_name;
+
+void init_EBaseStat_ITEM_NAMES() {
+	EBaseStat_name_by_value.clear();
+	EBaseStat_value_by_name.clear();
+
+	EBaseStat_name_by_value[EBaseStat::kStr] = "kStr";
+	EBaseStat_name_by_value[EBaseStat::kDex] = "kDex";
+	EBaseStat_name_by_value[EBaseStat::kCon] = "kCon";
+	EBaseStat_name_by_value[EBaseStat::kWis] = "kWin";
+	EBaseStat_name_by_value[EBaseStat::kInt] = "kInt";
+	EBaseStat_name_by_value[EBaseStat::kCha] = "kCha";
+
+	for (const auto &i : EBaseStat_name_by_value) {
+		EBaseStat_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EBaseStat>(const EBaseStat item) {
+	if (EBaseStat_name_by_value.empty()) {
+		init_EBaseStat_ITEM_NAMES();
+	}
+	return EBaseStat_name_by_value.at(item);
+}
+
+template<>
+EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name) {
+	if (EBaseStat_name_by_value.empty()) {
+		init_EBaseStat_ITEM_NAMES();
+	}
+	return EBaseStat_value_by_name.at(name);
+}
+
 // Все, связанное с религиями, нужно вынести в отдельный модуль
 const religion_names_t religion_name = {
 	religion_genders_t{"Язычник", "Язычник", "Язычница", "Язычники"},

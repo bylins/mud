@@ -54,7 +54,7 @@ AbilitiesInfo::AbilitiesInfoBuilder::CharacteristicGettersRegister AbilitiesInfo
 //AbilitiesInfo::AbilitiesInfoBuilder::SavingGettersRegister AbilitiesInfo::AbilitiesInfoBuilder::saving_getters_register_;
 AbilitiesInfo::AbilitiesInfoBuilder::CircumstanceHandlersRegister AbilitiesInfo::AbilitiesInfoBuilder::circumstance_handlers_register_;
 
-/// Для удобства написания файлов настроек. См. vocabulary.h
+/// Для удобства написания файлов настроек.
 template<typename T>
 T FindConstantByName(const char *attribute_name, const xml_node &node) {
 	auto constants_name = node.attribute(attribute_name).value();
@@ -127,7 +127,7 @@ void AbilitiesInfo::AbilitiesInfoBuilder::ParseBase(AbilityPtr &ability, const x
 	ability->name_ = node.child(kNameEntity).attribute(kValueAttribute).value();
 	ability->base_skill_id_ = FindConstantByName<ESkill>(kValueAttribute, node.child(kBaseSkillEntity));
 	ability->base_characteristic_id_ =
-		FindConstantByName<EStat>(kValueAttribute, node.child(kBaseCharacteristicEntity));
+		FindConstantByName<EBaseStat>(kValueAttribute, node.child(kBaseCharacteristicEntity));
 //	ability->saving_id_ = FindConstantByName<ESaving>(kValueAttribute, node.child(kSavingEntity));
 	ability->abbreviation_ = node.child(kAbbreviationEntity).attribute(kValueAttribute).value();
 	ability->difficulty_ = node.child(kDifficultyEntity).attribute(kValueAttribute).as_int();
@@ -201,12 +201,12 @@ void AbilitiesInfo::AbilitiesInfoBuilder::AppointHandlers(AbilitiesRegisterPtr &
 
 AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 	if (characteristic_getters_register_.empty()) {
-		characteristic_getters_register_[EStat::kDex] = GET_REAL_DEX;
-		characteristic_getters_register_[EStat::kStr] = GET_REAL_STR;
-		characteristic_getters_register_[EStat::kCon] = GET_REAL_CON;
-		characteristic_getters_register_[EStat::kInt] = GET_REAL_INT;
-		characteristic_getters_register_[EStat::kWis] = GET_REAL_WIS;
-		characteristic_getters_register_[EStat::kCha] = GET_REAL_CHA;
+		characteristic_getters_register_[EBaseStat::kDex] = GET_REAL_DEX;
+		characteristic_getters_register_[EBaseStat::kStr] = GET_REAL_STR;
+		characteristic_getters_register_[EBaseStat::kCon] = GET_REAL_CON;
+		characteristic_getters_register_[EBaseStat::kInt] = GET_REAL_INT;
+		characteristic_getters_register_[EBaseStat::kWis] = GET_REAL_WIS;
+		characteristic_getters_register_[EBaseStat::kCha] = GET_REAL_CHA;
 	}
 
 /*	if (saving_getters_register_.empty()) {
@@ -220,10 +220,12 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 		circumstance_handlers_register_[ECirumstance::kDarkRoom] =
 			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
 //				return IsDark(ch->in_room);
+				return false; //заглушка
 			};
 		circumstance_handlers_register_[ECirumstance::kMetalEquipment] =
 			[](CharacterData *ch, CharacterData * /* victim */ ) -> bool {
 //				return IsEquipInMetal(ch);
+				return false; //заглушка
 			};
 		circumstance_handlers_register_[ECirumstance::kDrawingAttention] =
 			[](CharacterData *ch, CharacterData */* victim */) -> bool {
@@ -291,7 +293,7 @@ const AbilityInfo &AbilitiesInfo::operator[](EAbility ability_id) {
 	try {
 		return *abilities_->at(ability_id);
 	} catch (const std::out_of_range &) {
-		err_log("Incorrect ability id (%d) passed into abilities_info", ability_id);
+		err_log("Incorrect ability id (%d) passed into abilities_info", to_underlying(ability_id));
 		return *abilities_->at(EAbility::kUndefined);
 	}
 }
@@ -309,8 +311,8 @@ std::string AbilityInfo::Print() const {
 		   << " Difficulty: " << KGRN << GetDifficulty() << KNRM << "\n"
 		   << " Critical fail threshold: " << KGRN << GetCriticalFailThreshold() << KNRM << "\n"
 		   << " Critical success threshold: " << KGRN << GetCriticalSuccessThreshold() << KNRM << "\n"
-		   << " Mob vs PC penalty: " << KGRN << GetMobVsPcPenalty() << KNRM << "\n"
-		   << " PC vs PC penalty: " << KGRN << GetPcVsPcPenalty() << KNRM << "\n"*/
+		   << " Mob vs PC penalty: " << KGRN << GetMVPPenalty() << KNRM << "\n"
+		   << " PC vs PC penalty: " << KGRN << GetPVPPenalty() << KNRM << "\n"*/
 		   << " Circumstance modificators:\n";
 	for (auto &item : circumstance_handlers_) {
 //		buffer << "   " << NAME_BY_ITEM<ECirumstance>(item.id_) << ": " << KGRN << item.mod_ << KNRM << "\n";

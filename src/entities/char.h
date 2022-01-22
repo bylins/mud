@@ -186,7 +186,7 @@ struct spell_mem_queue {
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type {
-	ExtraAttackEnumType used_attack;
+	EExtraAttack used_attack;
 	CharacterData *victim;
 };
 
@@ -400,9 +400,9 @@ class CharacterData : public ProtectedCharacterData {
 	CharacterData *get_protecting() const;
 	void set_protecting(CharacterData *vict);
 
-	ExtraAttackEnumType get_extra_attack_mode() const;
+	EExtraAttack get_extra_attack_mode() const;
 	CharacterData *get_extra_victim() const;
-	void set_extra_attack(ExtraAttackEnumType Attack, CharacterData *vict);
+	void set_extra_attack(EExtraAttack Attack, CharacterData *vict);
 
 	CharacterData *get_fighting() const;
 	void set_fighting(CharacterData *vict);
@@ -966,42 +966,33 @@ bool IS_NOSEXY(const CharacterData *ch);
 inline bool IS_NOSEXY(const CharacterData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CharacterData *ch);
 
-inline int VPOSI_MOB(const CharacterData *ch, const int stat_id, const int val) {
+inline int VPOSI_MOB(const CharacterData *ch, const EBaseStat stat_id, const int val) {
 	const int character_class = ch->get_class();
 	return ch->is_npc()
 		   ? VPOSI(val, 1, 100)
-		   : VPOSI(val, 1, class_stats_limit[character_class][stat_id]);
+		   : VPOSI(val, 1, class_stats_limit[character_class][to_underlying(stat_id)]);
 }
-inline int VPOSI_MOB(const CharacterData::shared_ptr &ch, const int stat_id, const int val) {
-	return VPOSI_MOB(ch.get(),
-					 stat_id,
-					 val);
+inline int VPOSI_MOB(const CharacterData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
+	return VPOSI_MOB(ch.get(), stat_id, val);
 }
-enum char_stat_id : int {
-	stat_str = 0,
-	stat_dex = 1,
-	stat_con = 2,
-	stat_wis = 3,
-	stat_int = 4,
-	stat_cha = 5,
-};
+
 inline auto GET_REAL_STR(const CharacterData *ch) {
-	return VPOSI_MOB(ch, char_stat_id::stat_str, ch->get_str() + ch->get_str_add());
+	return VPOSI_MOB(ch, EBaseStat::kStr, ch->get_str() + ch->get_str_add());
 };
 inline auto GET_REAL_DEX(const CharacterData *ch) {
-	return VPOSI_MOB(ch, char_stat_id::stat_dex, ch->get_dex() + ch->get_dex_add());
+	return VPOSI_MOB(ch, EBaseStat::kDex, ch->get_dex() + ch->get_dex_add());
 }
 inline auto GET_REAL_CON(const CharacterData *ch) {
-	return VPOSI_MOB(ch, char_stat_id::stat_con, ch->get_con() + ch->get_con_add());
+	return VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con() + ch->get_con_add());
 };
 inline auto GET_REAL_WIS(const CharacterData *ch) {
-	return VPOSI_MOB(ch, char_stat_id::stat_wis, ch->get_wis() + ch->get_wis_add());
+	return VPOSI_MOB(ch, EBaseStat::kWis, ch->get_wis() + ch->get_wis_add());
 };
 inline auto GET_REAL_INT(const CharacterData *ch) {
-	return VPOSI_MOB(ch, char_stat_id::stat_int, ch->get_int() + ch->get_int_add());
+	return VPOSI_MOB(ch, EBaseStat::kInt, ch->get_int() + ch->get_int_add());
 };
 inline auto GET_REAL_CHA(const CharacterData *ch) {
-	return VPOSI_MOB(ch, char_stat_id::stat_cha, ch->get_cha() + ch->get_cha_add());
+	return VPOSI_MOB(ch, EBaseStat::kCha, ch->get_cha() + ch->get_cha_add());
 };
 
 void change_fighting(CharacterData *ch, int need_stop);

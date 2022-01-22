@@ -1,9 +1,11 @@
 /*
-	Константы-настройки ядра игровой системы.
+	Константы-настройки навыков (abilities) и тестов навыков.
 */
 
 #ifndef BYLINS_SRC_ABILITIES_ABILITIES_CONSTANTS_H_
 #define BYLINS_SRC_ABILITIES_ABILITIES_CONSTANTS_H_
+
+#include "structs/structs.h"
 
 namespace abilities {
 
@@ -14,6 +16,12 @@ enum class EAbility {
 	kKick,
 	kThrowWeapon,
 	kTurnUndead,
+	kLastPCAbility,
+	// Below abilities is for mob or game events only.
+	kTriggerDamage,
+	kUnderwater,
+	kSlowDeathTrap,
+	kOneRoomDamage
 };
 
 /// Идентификаторы типов сообщений навыков
@@ -64,17 +72,6 @@ enum class ECirumstance {
 	kWeatherLighting
 };
 
-/// Идентификаторы основных параметров
-/// todo Вынести в файл констант entities
-enum class EStat {
-	kStr,
-	kDex,
-	kCon,
-	kInt,
-	kWis,
-	kCha
-};
-
 const int kNoviceSkillThreshold = 75;
 const int kMinDegree = 0;
 const int kMaxDegree = 10;
@@ -106,6 +103,22 @@ const int MIN_ABILITY_DICEROLL_BONUS = -150;
 const int MAX_ABILITY_DICEROLL_BONUS = 150;
 
 }; // namespace abilities
+
+template<>
+const std::string &NAME_BY_ITEM<abilities::EAbility>(abilities::EAbility item);
+template<>
+abilities::EAbility ITEM_BY_NAME<abilities::EAbility>(const std::string &name);
+
+template<>
+const std::string &NAME_BY_ITEM<abilities::EAbilityMsg>(abilities::EAbilityMsg item);
+template<>
+abilities::EAbilityMsg ITEM_BY_NAME<abilities::EAbilityMsg>(const std::string &name);
+
+template<>
+const std::string &NAME_BY_ITEM<abilities::ECirumstance>(abilities::ECirumstance item);
+template<>
+abilities::ECirumstance ITEM_BY_NAME<abilities::ECirumstance>(const std::string &name);
+
 
 #endif // BYLINS_SRC_ABILITIES_ABILITIES_CONSTANTS_H_
 

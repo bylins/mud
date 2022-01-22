@@ -16,6 +16,7 @@
 
 #include "abilities_constants.h"
 #include "boot/boot_constants.h"
+#include "entities/entity_constants.h"
 #include "logger.h"
 #include "skills.h"
 
@@ -80,7 +81,7 @@ class AbilityInfo {
 	std::string name_;
 	std::string abbreviation_;
 	ESkill base_skill_id_;
-	EStat base_characteristic_id_;
+	EBaseStat base_characteristic_id_;
 //	ESaving saving_id_;
 	int difficulty_;
 	int critical_fail_threshold_;
@@ -99,7 +100,7 @@ class AbilityInfo {
 		  name_("!undefined"),
 		  abbreviation_("!undefined"),
 		  base_skill_id_(SKILL_UNDEF),
-		  base_characteristic_id_(EStat::kDex),
+		  base_characteristic_id_(EBaseStat::kDex),
 //		  saving_id_(kSavingReflex),
 		  difficulty_(kDefaultDifficulty),
 		  critical_fail_threshold_(kDefaultCriticalFailThreshold),
@@ -122,7 +123,7 @@ class AbilityInfo {
 	ESkill GetBaseSkillId() const {
 		return base_skill_id_;
 	}
-	EStat GetBaseCharacteristicId() const {
+	EBaseStat GetBaseCharacteristicId() const {
 		return base_characteristic_id_;
 	};
 	int GetBaseCharacteristic(CharacterData *ch) const {
@@ -143,10 +144,10 @@ class AbilityInfo {
 	int GetCriticalSuccessThreshold() const {
 		return critical_success_threshold_;
 	}
-	int GetMobVsPcPenalty() const {
+	int GetMVPPenalty() const {
 		return mob_vs_pc_penalty_;
 	}
-	int GetPcVsPcPenalty() const {
+	int GetPVPPenalty() const {
 		return pc_vs_pc_penalty_;
 	}
 	int GetCircumstanceMod(CharacterData *ch, CharacterData *victim) const;
@@ -163,7 +164,7 @@ class AbilitiesInfo::AbilitiesInfoBuilder {
 	static AbilitiesOptional Build(bool strict_parsing);
 
  private:
-	using CharacteristicGettersRegister = std::unordered_map<EStat, AbilityInfo::IntGetter>;
+	using CharacteristicGettersRegister = std::unordered_map<EBaseStat, AbilityInfo::IntGetter>;
 //	using SavingGettersRegister = std::unordered_map<ESaving, AbilityInfo::IntGetter>;
 	using CircumstanceHandlersRegister = std::unordered_map<ECirumstance, AbilityInfo::CircumstanceHandler>;
 

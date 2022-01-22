@@ -171,9 +171,9 @@ EWeaponAffectFlag ITEM_BY_NAME<EWeaponAffectFlag>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM(EWeaponAffectFlag item);
 
-struct weapon_affect_types {
+struct WeaponAffect {
 	EWeaponAffectFlag aff_pos;
-	uint32_t aff_bitvector;
+	bitvector_t aff_bitvector;
 	int aff_spell;
 };
 
@@ -257,7 +257,7 @@ const std::string &NAME_BY_ITEM<EApplyLocation>(EApplyLocation item);
 template<>
 EApplyLocation ITEM_BY_NAME<EApplyLocation>(const std::string &name);
 
-using weapon_affect_t = std::array<weapon_affect_types, WAFF_COUNT>;
+using weapon_affect_t = std::array<WeaponAffect, WAFF_COUNT>;
 extern weapon_affect_t weapon_affect;
 extern const char *affected_bits[];
 extern const char *apply_types[];

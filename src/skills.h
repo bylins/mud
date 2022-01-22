@@ -32,7 +32,7 @@ const int SAVING_REFLEX = 3;
 const int SAVING_COUNT = 4;
 const int SAVING_NONE = 5; //Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.
 
-enum ExtraAttackEnumType {
+enum EExtraAttack {
 	EXTRA_ATTACK_UNUSED,
 	EXTRA_ATTACK_THROW,
 	EXTRA_ATTACK_BASH,

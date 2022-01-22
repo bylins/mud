@@ -235,7 +235,7 @@ set(SOURCES
 		src/classes/class_constants.cpp
         src/structs/extra_description.cpp
 		src/communication/insult.cpp
-		src/abilities/abilities_info.cpp)
+		src/abilities/abilities_info.cpp src/abilities/abilities_constants.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
