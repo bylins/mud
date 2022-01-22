@@ -225,7 +225,7 @@ void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, TO_CHAR);
 	else if (circle_follow(helpee, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
-	else if (GET_REMORT(ch) < GET_REMORT(helpee))
+	else if (GET_REAL_REMORT(ch) < GET_REAL_REMORT(helpee))
 		act("$N сказал вам: \"Ты слишком слаб, чтобы нанять меня\".", false, ch, 0, helpee, TO_CHAR);
 	else {
 		// Вы издеваетесь? Блок else на три экрана, реально?
