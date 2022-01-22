@@ -123,6 +123,7 @@ long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 	hirePoints = hirePoints * 5 * GET_REAL_LEVEL(ch);
 
 	int min_price = MAX((m_dr / 300 * GET_REAL_LEVEL(victim)), (GET_REAL_LEVEL(victim) * 5));
+	min_price = MAX(min_price, mob_proto[GET_MOB_RNUM(victim)].get_gold());
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
 	ch->send_to_TC(true,
@@ -224,6 +225,8 @@ void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, TO_CHAR);
 	else if (circle_follow(helpee, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
+	else if (GET_REMORT(ch) < GET_REMORT(helpee))
+		act("$N сказал вам: \"Ты слишком слаб, чтобы нанять меня\".", false, ch, 0, helpee, TO_CHAR);
 	else {
 		// Вы издеваетесь? Блок else на три экрана, реально?
 		// Svent TODO: Вынести проверку на корректность чармиса в отдельную функицю.
