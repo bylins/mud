@@ -130,6 +130,7 @@ void go_backstab(CharacterData *ch, CharacterData *vict) {
 	} else {
 		hit(ch, vict, SKILL_BACKSTAB, FightSystem::MAIN_HAND);
 	}
+	set_wait(ch, 1, true);
 	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 	setSkillCooldownInFight(ch, SKILL_BACKSTAB, 2);
 }

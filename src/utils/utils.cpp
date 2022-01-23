@@ -126,24 +126,6 @@ int MAX(int a, int b) {
 	return (a > b ? a : b);
 }
 
-std::string to_string(int x) { return std::to_string(x); }
-std::string to_string(unsigned int x) { return std::to_string(x); }
-std::string to_string(long x) { return std::to_string(x); }
-std::string to_string(unsigned long x) { return std::to_string(x); }
-std::string to_string(long long x) { return std::to_string(x); }
-std::string to_string(unsigned long long x) { return std::to_string(x); }
-std::string to_string(float x) { return std::to_string(x); }
-std::string to_string(double x) { return std::to_string(x); }
-std::string to_string(long double x) { return std::to_string(x); }
-std::string to_string(const char *x) { return std::string(x); }
-std::string to_string(const std::string &x) { return x; }
-
-template<typename T> std::string to_string(const T &t) {
-	std::stringstream ss;
-	ss << t;
-	return ss.str();
-}
-
 const char *first_letter(const char *txt) {
 	if (txt) {
 		while (*txt && !a_isalpha(*txt)) {

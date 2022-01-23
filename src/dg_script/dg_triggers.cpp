@@ -581,9 +581,9 @@ int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, c
 	for (auto t : SCRIPT(victim)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_DAMAGE) && (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, damager, "damager", 0);
-			add_var_cntx(&GET_TRIG_VARS(t), "amount", to_string(amount).c_str(), 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "amount", std::to_string(amount).c_str(), 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "skillorspell", skillorspell, 0);
-			ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
+//			ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
 			return script_driver(victim, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}
