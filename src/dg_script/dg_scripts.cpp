@@ -3119,8 +3119,10 @@ void find_replacement(void *go,
 			if (*subfield) {
 				for (int i = 0; i < kDirMaxNumber; i++) {
 					if (!str_cmp(subfield, dirs[i])) {
-						sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[i]->to_room())));
-						break;
+						if (r->dir_option[i]) {
+							sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[i]->to_room())));
+							break;
+						}
 					}
 				}
 			}
