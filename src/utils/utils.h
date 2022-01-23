@@ -152,6 +152,7 @@ int GetAutoattackDamroll(CharacterData *ch, int weapon_skill);
 extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
 void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg);
 bool is_head(std::string name);
+template<typename T> std::string to_string(const T &t);
 
 extern bool is_dark(RoomRnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
