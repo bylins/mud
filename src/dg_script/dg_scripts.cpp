@@ -3115,6 +3115,15 @@ void find_replacement(void *go,
 				r->name = str_dup(subfield);
 			} else
 				strcpy(str, r->name);
+		} else if (!str_cmp(field, "direction")) {
+			if (*subfield) {
+				for (int i = 0; i < kDirMaxNumber; i++) {
+					if (!str_cmp(subfield, dirs[i])) {
+						sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[i]->to_room())));
+						break;
+					}
+				}
+			}
 		} else if (!str_cmp(field, "north")) {
 			if (r->dir_option[kDirNorth]) {
 				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirNorth]->to_room())));

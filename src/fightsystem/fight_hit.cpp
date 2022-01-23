@@ -2193,6 +2193,18 @@ void Damage::process_death(CharacterData *ch, CharacterData *victim) {
 	die(victim, ch);
 }
 
+ObjectData *GetUsedWeapon(CharacterData *ch, FightSystem::AttType AttackType) {
+	ObjectData *UsedWeapon = nullptr;
+
+	if (AttackType == FightSystem::AttType::MAIN_HAND) {
+		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
+			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
+	} else if (AttackType == FightSystem::AttType::OFF_HAND)
+		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
+
+	return UsedWeapon;
+}
+
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
 int Damage::process(CharacterData *ch, CharacterData *victim) {
@@ -2218,7 +2230,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	}
 
 	// первая такая проверка идет в hit перед ломанием пушек
-	if (dam >= 0 && damage_mtrigger(ch, victim))
+	if (dam >= 0 && damage_mtrigger(ch, victim, dam, skill_info[skill_num].name, nullptr))
 		return 0;
 
 	// No fight mobiles
@@ -3694,7 +3706,7 @@ void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::Att
 	hit_params.calc_crit_chance(ch);
 
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
-	if (damage_mtrigger(ch, victim)) {
+	if (damage_mtrigger(ch, victim, hit_params.dam, skill_info[hit_params.skill_num].name, GetUsedWeapon(ch, weapon))) {
 		return;
 	}
 
@@ -3890,19 +3902,6 @@ void performIronWindAttacks(CharacterData *ch, FightSystem::AttType weapon) {
 			div -= prob;
 		};
 	};
-
-}
-
-ObjectData *GetUsedWeapon(CharacterData *ch, FightSystem::AttType AttackType) {
-	ObjectData *UsedWeapon = nullptr;
-
-	if (AttackType == FightSystem::AttType::MAIN_HAND) {
-		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
-			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
-	} else if (AttackType == FightSystem::AttType::OFF_HAND)
-		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
-
-	return UsedWeapon;
 }
 
 // Обработка доп.атак

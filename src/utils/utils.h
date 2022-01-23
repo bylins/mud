@@ -153,6 +153,12 @@ extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
 void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg);
 bool is_head(std::string name);
 
+template<typename T> inline std::string to_string(const T &t) {
+	std::stringstream ss;
+	ss << t;
+	return ss.str();
+};
+
 extern bool is_dark(RoomRnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 extern const char *ACTNULL;
