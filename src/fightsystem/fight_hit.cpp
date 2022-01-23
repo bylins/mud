@@ -2193,6 +2193,18 @@ void Damage::process_death(CharacterData *ch, CharacterData *victim) {
 	die(victim, ch);
 }
 
+ObjectData *GetUsedWeapon(CharacterData *ch, FightSystem::AttType AttackType) {
+	ObjectData *UsedWeapon = nullptr;
+
+	if (AttackType == FightSystem::AttType::MAIN_HAND) {
+		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
+			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
+	} else if (AttackType == FightSystem::AttType::OFF_HAND)
+		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
+
+	return UsedWeapon;
+}
+
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
 int Damage::process(CharacterData *ch, CharacterData *victim) {
@@ -2216,11 +2228,16 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 		die(victim, nullptr);
 		return 0;    // -je, 7/7/92
 	}
-
 	// первая такая проверка идет в hit перед ломанием пушек
-	if (dam >= 0 && damage_mtrigger(ch, victim))
-		return 0;
-
+	if (dam >= 0) {
+		if (dmg_type == FightSystem::PHYS_DMG) {
+			if (damage_mtrigger(ch, victim, dam, skill_info[skill_num].name, nullptr))
+				return 0;
+		} else if (dmg_type == FightSystem::MAGE_DMG) {
+			if (damage_mtrigger(ch, victim, dam, spell_info[spell_num].name, nullptr))
+				return 0;
+		}
+	}
 	// No fight mobiles
 	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
 		|| (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))) {
@@ -3692,12 +3709,12 @@ void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::Att
 
 	// расчет критических ударов
 	hit_params.calc_crit_chance(ch);
-
+/* не поймуу зачем 2 раза то?
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
-	if (damage_mtrigger(ch, victim)) {
+	if (damage_mtrigger(ch, victim, hit_params.dam, skill_info[hit_params.skill_num].name, GetUsedWeapon(ch, weapon))) {
 		return;
 	}
-
+*/
 	if (hit_params.weapon_pos) {
 		alt_equip(ch, hit_params.weapon_pos, hit_params.dam, 10);
 	}
@@ -3890,19 +3907,6 @@ void performIronWindAttacks(CharacterData *ch, FightSystem::AttType weapon) {
 			div -= prob;
 		};
 	};
-
-}
-
-ObjectData *GetUsedWeapon(CharacterData *ch, FightSystem::AttType AttackType) {
-	ObjectData *UsedWeapon = nullptr;
-
-	if (AttackType == FightSystem::AttType::MAIN_HAND) {
-		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
-			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
-	} else if (AttackType == FightSystem::AttType::OFF_HAND)
-		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
-
-	return UsedWeapon;
 }
 
 // Обработка доп.атак

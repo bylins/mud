@@ -126,13 +126,6 @@ int MAX(int a, int b) {
 	return (a > b ? a : b);
 }
 
-template <typename T> 
-std::string number_to_string(T val) {
-    std::stringstream ss;
-    ss << val;
-return ss.str();
-}
-
 const char *first_letter(const char *txt) {
 	if (txt) {
 		while (*txt && !a_isalpha(*txt)) {

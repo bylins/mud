@@ -351,7 +351,7 @@ int death_mtrigger(CharacterData *ch, CharacterData *actor);
 int kill_mtrigger(CharacterData *ch, CharacterData *actor);
 int fight_mtrigger(CharacterData *ch);
 void hitprcnt_mtrigger(CharacterData *ch);
-int damage_mtrigger(CharacterData *damager, CharacterData *victim);
+int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, const char* skillorspell, ObjectData *obj);
 void random_mtrigger(CharacterData *ch);
 void random_otrigger(ObjectData *obj);
 bitvector_t fight_otrigger(CharacterData *actor);
