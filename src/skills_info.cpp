@@ -2,7 +2,6 @@
 
 const char *kUnusedSkillName = "!UNUSED!";
 const char *kUnidentifiedSkillName = "!UNIDENTIFIED!";
-const byte kDefaultMinPosition = 0;
 const int kDefaultFailPercent = 200;
 const unsigned short kDefaultCap = 200;
 
@@ -10,7 +9,7 @@ struct AttackMessages fight_messages[kMaxMessages];
 struct SkillInfoType skill_info[MAX_SKILL_NUM + 1];
 
 void InitSingleSkill(int skill, const char *name, const char *short_name,
-					 int save_type, int difficulty, unsigned short cap);
+					 ESaving saving, int difficulty, unsigned short cap);
 void InitSkills();
 
 const char *skill_name(int num) {
@@ -35,15 +34,14 @@ void InitUnusedSkill(int skill) {
 			skill_info[skill].k_improve[i][j] = 0;
 		}
 	}
-	skill_info[skill].min_position = kDefaultMinPosition;
-	skill_info[skill].save_type = SAVING_REFLEX;
+	skill_info[skill].save_type = ESaving::kReflex;
 	skill_info[skill].difficulty = kDefaultFailPercent;
 	skill_info[skill].cap = kDefaultCap;
 	skill_info[skill].name = kUnusedSkillName;
 }
 
 void InitSingleSkill(int skill, const char *name, const char *short_name,
-					 int save_type, int difficulty, unsigned short cap) {
+					 ESaving saving, int difficulty, unsigned short cap) {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
 		for (j = 0; j < kNumKins; j++) {
@@ -52,10 +50,10 @@ void InitSingleSkill(int skill, const char *name, const char *short_name,
 			skill_info[skill].k_improve[i][j] = 0;
 		}
 	}
-	skill_info[skill].min_position = 0;
+	//skill_info[skill].min_position = 0;
 	skill_info[skill].name = name;
 	skill_info[skill].shortName = short_name;
-	skill_info[skill].save_type = save_type;
+	skill_info[skill].save_type = saving;
 	skill_info[skill].difficulty = difficulty;
 	skill_info[skill].cap = cap;
 }
@@ -66,87 +64,87 @@ void InitSkills() {
 		InitUnusedSkill(i);
 	}
 
-	InitSingleSkill(SKILL_GLOBAL_COOLDOWN, "!global cooldown", "ОЗ", SAVING_REFLEX, 1, 1);
-	InitSingleSkill(SKILL_BACKSTAB, "заколоть", "Зк", SAVING_REFLEX, 25, 1000);
-	InitSingleSkill(SKILL_BASH, "сбить", "Сб", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_HIDE, "спрятаться", "Сп", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_KICK, "пнуть", "Пн", SAVING_STABILITY, 0, 200);
-	InitSingleSkill(SKILL_PICK_LOCK, "взломать", "Вз", SAVING_REFLEX, 120, 200);
-	InitSingleSkill(SKILL_PUNCH, "кулачный бой", "Кб", SAVING_REFLEX, 100, 1000);
-	InitSingleSkill(SKILL_RESCUE, "спасти", "Спс", SAVING_REFLEX, 130, 1000);
-	InitSingleSkill(SKILL_SNEAK, "подкрасться", "Пд", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_STEAL, "украсть", "Ук", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_TRACK, "выследить", "Выс", SAVING_REFLEX, 100, 1000);
-	InitSingleSkill(SKILL_PARRY, "парировать", "Пр", SAVING_REFLEX, 120, 1000);
-	InitSingleSkill(SKILL_BLOCK, "блокировать щитом", "Бщ", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_TOUCH, "перехватить атаку", "Пр", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_PROTECT, "прикрыть", "Пр", SAVING_REFLEX, 120, 200);
-	InitSingleSkill(SKILL_BOTHHANDS, "двуручники", "Дв", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_LONGS, "длинные лезвия", "Дл", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_SPADES, "копья и рогатины", "Кр", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_SHORTS, "короткие лезвия", "Кл", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_BOWS, "луки", "Лк", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_CLUBS, "палицы и дубины", "Пд", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_PICK, "проникающее оружие", "Прн", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_NONSTANDART, "иное оружие", "Ин", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_AXES, "секиры", "Ск", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_SATTACK, "атака левой рукой", "Ал", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_LOOKING, "приглядеться", "Прг", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_HEARING, "прислушаться", "Прс", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_DISARM, "обезоружить", "Об", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_HEAL, "!heal!", "Hl", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_MORPH, "оборотничество", "Об", SAVING_REFLEX, 150, 200);
-	InitSingleSkill(SKILL_ADDSHOT, "дополнительный выстрел", "Доп", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_CAMOUFLAGE, "маскировка", "Мск", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_DEVIATE, "уклониться", "Укл", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_CHOPOFF, "подножка", "Пд", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_REPAIR, "ремонт", "Рм", SAVING_REFLEX, 180, 200);
-	InitSingleSkill(SKILL_COURAGE, "ярость", "Яр", SAVING_REFLEX, 100, 1000);
-	InitSingleSkill(SKILL_IDENTIFY, "опознание", "Оп", SAVING_REFLEX, 100, 1000);
-	InitSingleSkill(SKILL_LOOK_HIDE, "подсмотреть", "Пдм", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_UPGRADE, "заточить", "Зат", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_ARMORED, "укрепить", "Укр", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_DRUNKOFF, "опохмелиться", "Опх", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_AID, "лечить", "Лч", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_FIRE, "разжечь костер", "Рк", SAVING_REFLEX, 160, 1000);
-	InitSingleSkill(SKILL_SHIT, "удар левой рукой", "Улр", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_MIGHTHIT, "богатырский молот", "Бм", SAVING_STABILITY, 200, 200);
-	InitSingleSkill(SKILL_STUPOR, "оглушить", "Ог", SAVING_STABILITY, 200, 200);
-	InitSingleSkill(SKILL_POISONED, "отравить", "Отр", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_LEADERSHIP, "лидерство", "Лд", SAVING_REFLEX, 100, 1000);
-	InitSingleSkill(SKILL_PUNCTUAL, "точный стиль", "Тс", SAVING_CRITICAL, 110, 200);
-	InitSingleSkill(SKILL_AWAKE, "осторожный стиль", "Ос", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_SENSE, "найти", "Нйт", SAVING_REFLEX, 160, 200);
-	InitSingleSkill(SKILL_HORSE, "сражение верхом", "Срв", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_HIDETRACK, "замести следы", "Зс", SAVING_REFLEX, 120, 200);
-	InitSingleSkill(SKILL_RELIGION, "!молитва или жертва!", "Error", SAVING_REFLEX, 1, 1);
-	InitSingleSkill(SKILL_MAKEFOOD, "освежевать", "Осв", SAVING_REFLEX, 120, 200);
-	InitSingleSkill(SKILL_MULTYPARRY, "веерная защита", "Вз", SAVING_REFLEX, 140, 200);
-	InitSingleSkill(SKILL_TRANSFORMWEAPON, "перековать", "Прк", SAVING_REFLEX, 140, 200);
-	InitSingleSkill(SKILL_THROW, "метнуть", "Мт", SAVING_REFLEX, 150, 1000);
-	InitSingleSkill(SKILL_MAKE_BOW, "смастерить лук", "Сл", SAVING_REFLEX, 140, 200);
-	InitSingleSkill(SKILL_MAKE_WEAPON, "выковать оружие", "Вкр", SAVING_REFLEX, 140, 200);
-	InitSingleSkill(SKILL_MAKE_ARMOR, "выковать доспех", "Вкд", SAVING_REFLEX, 140, 200);
-	InitSingleSkill(SKILL_MAKE_WEAR, "сшить одежду", "Сш", SAVING_REFLEX, 140, 200);
-	InitSingleSkill(SKILL_MAKE_JEWEL, "смастерить диковинку", "Сд", SAVING_REFLEX, 140, 200);
-	InitSingleSkill(SKILL_MANADRAIN, "сглазить", "Сг", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_NOPARRYHIT, "скрытый удар", "Сд", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_TOWNPORTAL, "врата", "Вр", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_DIG, "горное дело", "Гд", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_INSERTGEM, "ювелир", "Юв", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_WARCRY, "боевой клич", "Бк", SAVING_REFLEX, 100, 200);
-	InitSingleSkill(SKILL_TURN_UNDEAD, "изгнать нежить", "Из", SAVING_REFLEX, 100, 1000);
-	InitSingleSkill(SKILL_IRON_WIND, "железный ветер", "Жв", SAVING_REFLEX, 150, 1000);
-	InitSingleSkill(SKILL_STRANGLE, "удавить", "Уд", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_AIR_MAGIC, "магия воздуха", "Ма", SAVING_REFLEX, 200, 1000);
-	InitSingleSkill(SKILL_FIRE_MAGIC, "магия огня", "Мо", SAVING_REFLEX, 1000, 1000);
-	InitSingleSkill(SKILL_WATER_MAGIC, "магия воды", "Мвд", SAVING_REFLEX, 1000, 1000);
-	InitSingleSkill(SKILL_EARTH_MAGIC, "магия земли", "Мз", SAVING_REFLEX, 1000, 1000);
-	InitSingleSkill(SKILL_LIGHT_MAGIC, "магия света", "Мс", SAVING_REFLEX, 1000, 1000);
-	InitSingleSkill(SKILL_DARK_MAGIC, "магия тьмы", "Мт", SAVING_REFLEX, 1000, 1000);
-	InitSingleSkill(SKILL_MIND_MAGIC, "магия разума", "Мр", SAVING_REFLEX, 1000, 1000);
-	InitSingleSkill(SKILL_LIFE_MAGIC, "магия жизни", "Мж", SAVING_REFLEX, 1000, 1000);
-	InitSingleSkill(SKILL_STUN, "ошеломить", "Ош", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_MAKE_AMULET, "смастерить оберег", "Со", SAVING_REFLEX, 200, 200);
-	InitSingleSkill(SKILL_INDEFINITE, "!неопределен", "Error", SAVING_REFLEX, 1, 1);
+	InitSingleSkill(SKILL_GLOBAL_COOLDOWN, "!global cooldown", "ОЗ", ESaving::kReflex, 1, 1);
+	InitSingleSkill(SKILL_BACKSTAB, "заколоть", "Зк", ESaving::kReflex, 25, 1000);
+	InitSingleSkill(SKILL_BASH, "сбить", "Сб", ESaving::kReflex, 200, 200);
+	InitSingleSkill(SKILL_HIDE, "спрятаться", "Сп", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_KICK, "пнуть", "Пн", ESaving::kStability, 0, 200);
+	InitSingleSkill(SKILL_PICK_LOCK, "взломать", "Вз", ESaving::kReflex, 120, 200);
+	InitSingleSkill(SKILL_PUNCH, "кулачный бой", "Кб", ESaving::kReflex, 100, 1000);
+	InitSingleSkill(SKILL_RESCUE, "спасти", "Спс", ESaving::kReflex, 130, 1000);
+	InitSingleSkill(SKILL_SNEAK, "подкрасться", "Пд", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_STEAL, "украсть", "Ук", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_TRACK, "выследить", "Выс", ESaving::kReflex, 100, 1000);
+	InitSingleSkill(SKILL_PARRY, "парировать", "Пр", ESaving::kReflex, 120, 1000);
+	InitSingleSkill(SKILL_BLOCK, "блокировать щитом", "Бщ", ESaving::kReflex, 200, 200);
+	InitSingleSkill(SKILL_TOUCH, "перехватить атаку", "Пр", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_PROTECT, "прикрыть", "Пр", ESaving::kReflex, 120, 200);
+	InitSingleSkill(SKILL_BOTHHANDS, "двуручники", "Дв", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_LONGS, "длинные лезвия", "Дл", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_SPADES, "копья и рогатины", "Кр", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_SHORTS, "короткие лезвия", "Кл", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_BOWS, "луки", "Лк", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_CLUBS, "палицы и дубины", "Пд", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_PICK, "проникающее оружие", "Прн", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_NONSTANDART, "иное оружие", "Ин", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_AXES, "секиры", "Ск", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_SATTACK, "атака левой рукой", "Ал", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_LOOKING, "приглядеться", "Прг", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_HEARING, "прислушаться", "Прс", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_DISARM, "обезоружить", "Об", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_HEAL, "!heal!", "Hl", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_MORPH, "оборотничество", "Об", ESaving::kReflex, 150, 200);
+	InitSingleSkill(SKILL_ADDSHOT, "дополнительный выстрел", "Доп", ESaving::kReflex, 200, 200);
+	InitSingleSkill(SKILL_CAMOUFLAGE, "маскировка", "Мск", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_DEVIATE, "уклониться", "Укл", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_CHOPOFF, "подножка", "Пд", ESaving::kReflex, 200, 200);
+	InitSingleSkill(SKILL_REPAIR, "ремонт", "Рм", ESaving::kReflex, 180, 200);
+	InitSingleSkill(SKILL_COURAGE, "ярость", "Яр", ESaving::kReflex, 100, 1000);
+	InitSingleSkill(SKILL_IDENTIFY, "опознание", "Оп", ESaving::kReflex, 100, 1000);
+	InitSingleSkill(SKILL_LOOK_HIDE, "подсмотреть", "Пдм", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_UPGRADE, "заточить", "Зат", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_ARMORED, "укрепить", "Укр", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_DRUNKOFF, "опохмелиться", "Опх", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_AID, "лечить", "Лч", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_FIRE, "разжечь костер", "Рк", ESaving::kReflex, 160, 1000);
+	InitSingleSkill(SKILL_SHIT, "удар левой рукой", "Улр", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_MIGHTHIT, "богатырский молот", "Бм", ESaving::kStability, 200, 200);
+	InitSingleSkill(SKILL_STUPOR, "оглушить", "Ог", ESaving::kStability, 200, 200);
+	InitSingleSkill(SKILL_POISONED, "отравить", "Отр", ESaving::kReflex, 200, 200);
+	InitSingleSkill(SKILL_LEADERSHIP, "лидерство", "Лд", ESaving::kReflex, 100, 1000);
+	InitSingleSkill(SKILL_PUNCTUAL, "точный стиль", "Тс", ESaving::kCritical, 110, 200);
+	InitSingleSkill(SKILL_AWAKE, "осторожный стиль", "Ос", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_SENSE, "найти", "Нйт", ESaving::kReflex, 160, 200);
+	InitSingleSkill(SKILL_HORSE, "сражение верхом", "Срв", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_HIDETRACK, "замести следы", "Зс", ESaving::kReflex, 120, 200);
+	InitSingleSkill(SKILL_RELIGION, "!молитва или жертва!", "Error", ESaving::kReflex, 1, 1);
+	InitSingleSkill(SKILL_MAKEFOOD, "освежевать", "Осв", ESaving::kReflex, 120, 200);
+	InitSingleSkill(SKILL_MULTYPARRY, "веерная защита", "Вз", ESaving::kReflex, 140, 200);
+	InitSingleSkill(SKILL_TRANSFORMWEAPON, "перековать", "Прк", ESaving::kReflex, 140, 200);
+	InitSingleSkill(SKILL_THROW, "метнуть", "Мт", ESaving::kReflex, 150, 1000);
+	InitSingleSkill(SKILL_MAKE_BOW, "смастерить лук", "Сл", ESaving::kReflex, 140, 200);
+	InitSingleSkill(SKILL_MAKE_WEAPON, "выковать оружие", "Вкр", ESaving::kReflex, 140, 200);
+	InitSingleSkill(SKILL_MAKE_ARMOR, "выковать доспех", "Вкд", ESaving::kReflex, 140, 200);
+	InitSingleSkill(SKILL_MAKE_WEAR, "сшить одежду", "Сш", ESaving::kReflex, 140, 200);
+	InitSingleSkill(SKILL_MAKE_JEWEL, "смастерить диковинку", "Сд", ESaving::kReflex, 140, 200);
+	InitSingleSkill(SKILL_MANADRAIN, "сглазить", "Сг", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_NOPARRYHIT, "скрытый удар", "Сд", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_TOWNPORTAL, "врата", "Вр", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_DIG, "горное дело", "Гд", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_INSERTGEM, "ювелир", "Юв", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_WARCRY, "боевой клич", "Бк", ESaving::kReflex, 100, 200);
+	InitSingleSkill(SKILL_TURN_UNDEAD, "изгнать нежить", "Из", ESaving::kReflex, 100, 1000);
+	InitSingleSkill(SKILL_IRON_WIND, "железный ветер", "Жв", ESaving::kReflex, 150, 1000);
+	InitSingleSkill(SKILL_STRANGLE, "удавить", "Уд", ESaving::kReflex, 200, 200);
+	InitSingleSkill(SKILL_AIR_MAGIC, "магия воздуха", "Ма", ESaving::kReflex, 200, 1000);
+	InitSingleSkill(SKILL_FIRE_MAGIC, "магия огня", "Мо", ESaving::kReflex, 1000, 1000);
+	InitSingleSkill(SKILL_WATER_MAGIC, "магия воды", "Мвд", ESaving::kReflex, 1000, 1000);
+	InitSingleSkill(SKILL_EARTH_MAGIC, "магия земли", "Мз", ESaving::kReflex, 1000, 1000);
+	InitSingleSkill(SKILL_LIGHT_MAGIC, "магия света", "Мс", ESaving::kReflex, 1000, 1000);
+	InitSingleSkill(SKILL_DARK_MAGIC, "магия тьмы", "Мт", ESaving::kReflex, 1000, 1000);
+	InitSingleSkill(SKILL_MIND_MAGIC, "магия разума", "Мр", ESaving::kReflex, 1000, 1000);
+	InitSingleSkill(SKILL_LIFE_MAGIC, "магия жизни", "Мж", ESaving::kReflex, 1000, 1000);
+	InitSingleSkill(SKILL_STUN, "ошеломить", "Ош", ESaving::kReflex, 200, 200);
+	InitSingleSkill(SKILL_MAKE_AMULET, "смастерить оберег", "Со", ESaving::kReflex, 200, 200);
+	InitSingleSkill(SKILL_INDEFINITE, "!неопределен", "Error", ESaving::kReflex, 1, 1);
 }

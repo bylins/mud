@@ -72,7 +72,7 @@ int find_feat_num(const char *name, bool alias) {
 
 void initializeFeature(int featureNum, const char *name, int type, bool can_up_slot, CFeatArray app,
 					   short dicerollBonus = MAX_ABILITY_DICEROLL_BONUS, ESkill baseSkill = SKILL_INVALID,
-					   short oppositeSaving = SAVING_STABILITY) {
+					   ESaving oppositeSaving = ESaving::kStability) {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
 		for (j = 0; j < kNumKins; j++) {
@@ -119,7 +119,7 @@ void initializeFeatureByDefault(int featureNum) {
 	feat_info[featureNum].usesWeaponSkill = false;
 	feat_info[featureNum].baseDamageBonusPercent = 0;
 	feat_info[featureNum].degreeOfSuccessDamagePercent = 5;
-	feat_info[featureNum].oppositeSaving = SAVING_STABILITY;
+	feat_info[featureNum].oppositeSaving = ESaving::kStability;
 	feat_info[featureNum].dicerollBonus = MAX_ABILITY_DICEROLL_BONUS;
 	feat_info[featureNum].baseSkill = SKILL_INVALID;
 	feat_info[featureNum].criticalFailThreshold = kDefaultCriticalFailThreshold;
@@ -544,11 +544,11 @@ void determineFeaturesSpecification() {
 	initializeFeature(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, true, feat_app);
 //133
 	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, true, feat_app,
-					  90, SKILL_RESCUE, SAVING_REFLEX);
+					  90, SKILL_RESCUE, ESaving::kReflex);
 	feat_info[SKIRMISHER_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[SKIRMISHER_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //134
-	initializeFeature(TACTICIAN_FEAT, "десяцкий", ACTIVATED_FTYPE, true, feat_app, 90, SKILL_LEADERSHIP, SAVING_REFLEX);
+	initializeFeature(TACTICIAN_FEAT, "десяцкий", ACTIVATED_FTYPE, true, feat_app, 90, SKILL_LEADERSHIP, ESaving::kReflex);
 	feat_info[TACTICIAN_FEAT].getBaseParameter = &GET_REAL_CHA;
 	feat_info[TACTICIAN_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //135
@@ -557,7 +557,7 @@ void determineFeaturesSpecification() {
 //138
 	initializeFeature(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, true, feat_app);
 //139
-	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", TECHNIQUE_FTYPE, true, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", TECHNIQUE_FTYPE, true, feat_app, 100, SKILL_PUNCH, ESaving::kReflex);
 //140
 	initializeFeature(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, true, feat_app);
 //141
@@ -567,7 +567,7 @@ void determineFeaturesSpecification() {
 //143
 	initializeFeature(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, true, feat_app);
 //144
-	initializeFeature(THROW_WEAPON_FEAT, "метнуть", TECHNIQUE_FTYPE, true, feat_app, 100, SKILL_THROW, SAVING_REFLEX);
+	initializeFeature(THROW_WEAPON_FEAT, "метнуть", TECHNIQUE_FTYPE, true, feat_app, 100, SKILL_THROW, ESaving::kReflex);
 	feat_info[THROW_WEAPON_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[THROW_WEAPON_FEAT].getEffectParameter = &GET_REAL_STR;
 	feat_info[THROW_WEAPON_FEAT].usesWeaponSkill = false;
@@ -605,7 +605,7 @@ void determineFeaturesSpecification() {
 	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 //145
 	initializeFeature(SHADOW_THROW_FEAT, "змеево оружие", TECHNIQUE_FTYPE, true, feat_app,
-					  100, SKILL_DARK_MAGIC, SAVING_WILL);
+					  100, SKILL_DARK_MAGIC, ESaving::kWill);
 	feat_info[SHADOW_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[SHADOW_THROW_FEAT].getEffectParameter = &GET_REAL_INT;
 	feat_info[SHADOW_THROW_FEAT].baseDamageBonusPercent = -30;
@@ -634,37 +634,37 @@ void determineFeaturesSpecification() {
 	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 //146
 	initializeFeature(SHADOW_DAGGER_FEAT, "змеев кинжал", NORMAL_FTYPE, true, feat_app,
-					  80, SKILL_DARK_MAGIC, SAVING_STABILITY);
+					  80, SKILL_DARK_MAGIC, ESaving::kStability);
 	feat_info[SHADOW_DAGGER_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_DAGGER_FEAT].usesWeaponSkill = false;
 //147
 	initializeFeature(SHADOW_SPEAR_FEAT, "змеево копьё", NORMAL_FTYPE, true,
-					  feat_app, 80, SKILL_DARK_MAGIC, SAVING_STABILITY);
+					  feat_app, 80, SKILL_DARK_MAGIC, ESaving::kStability);
 	feat_info[SHADOW_SPEAR_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_SPEAR_FEAT].usesWeaponSkill = false;
 //148
 	initializeFeature(SHADOW_CLUB_FEAT, "змеева палица", NORMAL_FTYPE, true, feat_app,
-					  80, SKILL_DARK_MAGIC, SAVING_STABILITY);
+					  80, SKILL_DARK_MAGIC, ESaving::kStability);
 	feat_info[SHADOW_CLUB_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_CLUB_FEAT].usesWeaponSkill = false;
 //149
 	initializeFeature(DOUBLE_THROW_FEAT, "двойной бросок", ACTIVATED_FTYPE, true, feat_app,
-					  100, SKILL_PUNCH, SAVING_REFLEX);
+					  100, SKILL_PUNCH, ESaving::kReflex);
 	feat_info[DOUBLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //150
 	initializeFeature(TRIPLE_THROW_FEAT, "тройной бросок", ACTIVATED_FTYPE, true, feat_app,
-					  100, SKILL_PUNCH, SAVING_REFLEX);
+					  100, SKILL_PUNCH, ESaving::kReflex);
 	feat_info[TRIPLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //1151
-	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, true, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, true, feat_app, 100, SKILL_PUNCH, ESaving::kReflex);
 	feat_info[POWER_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //152
 	initializeFeature(DEADLY_THROW_FEAT, "широкий размах", NORMAL_FTYPE, true, feat_app,
-					  100, SKILL_PUNCH, SAVING_REFLEX);
+					  100, SKILL_PUNCH, ESaving::kReflex);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //153
 	initializeFeature(TURN_UNDEAD_FEAT, "turn undead", TECHNIQUE_FTYPE, true, feat_app,
-					  70, SKILL_TURN_UNDEAD, SAVING_STABILITY);
+					  70, SKILL_TURN_UNDEAD, ESaving::kStability);
 	feat_info[TURN_UNDEAD_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[TURN_UNDEAD_FEAT].getEffectParameter = &GET_REAL_WIS;
 	feat_info[TURN_UNDEAD_FEAT].usesWeaponSkill = false;

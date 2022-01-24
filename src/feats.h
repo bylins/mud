@@ -284,9 +284,9 @@ struct FeatureInfoType {
 	short baseDamageBonusPercent;
 	short degreeOfSuccessDamagePercent;
 	short dicerollBonus;
-	short oppositeSaving;
 	short criticalFailThreshold;
 	short criticalSuccessThreshold;
+	ESaving oppositeSaving;
 	ESkill baseSkill;
 
 	TechniqueItemKitsGroupType techniqueItemKitsGroup;

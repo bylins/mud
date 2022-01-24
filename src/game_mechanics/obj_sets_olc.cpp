@@ -1628,7 +1628,7 @@ const char *SEDIT_HELP =
 	"   sedit - создание нового сета\r\n"
 	"   sedit <прядковый номер сета из slist> - редактирование существующего сета\r\n"
 	"   sedit <vnum любого предмета из сета> - редактирование существующего сета\r\n"
-	"   sedit <msg|messages> - редактирование глобальных сообщений сетов\r\n";
+	"   sedit <msg_set|messages> - редактирование глобальных сообщений сетов\r\n";
 
 } // namespace
 
@@ -1666,7 +1666,7 @@ void do_sedit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							 "В сетах предметов с vnum %s не найдено.\r\n", argument);
 			}
 		}
-	} else if (!str_cmp(argument, "msg") || !str_cmp(argument, "messages")) {
+	} else if (!str_cmp(argument, "msg_set") || !str_cmp(argument, "messages")) {
 		// редактирование глобальных сообщений
 		STATE(ch->desc) = CON_SEDIT;
 		ch->desc->sedit = std::make_shared<obj_sets_olc::sedit>();

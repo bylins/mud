@@ -995,6 +995,14 @@ inline auto GET_REAL_CHA(const CharacterData *ch) {
 	return VPOSI_MOB(ch, EBaseStat::kCha, ch->get_cha() + ch->get_cha_add());
 };
 
+inline auto GET_SAVE(CharacterData *ch, ESaving save) {
+	return ch->add_abils.apply_saving_throw[to_underlying(save)];
+}
+
+inline void SET_SAVE(CharacterData *ch, ESaving save, int mod) {
+	ch->add_abils.apply_saving_throw[to_underlying(save)] = mod;
+}
+
 void change_fighting(CharacterData *ch, int need_stop);
 
 #endif // CHAR_HPP_INCLUDED

@@ -19,6 +19,7 @@
 #include "skills_info.h"
 
 #include <boost/format.hpp>
+#include <random>
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
@@ -183,11 +184,11 @@ void CharacterData::reset() {
 	in_room = kNowhere;
 	carrying = nullptr;
 	next_fighting = nullptr;
-	set_protecting(0);
-	set_touching(0);
+	set_protecting(nullptr);
+	set_touching(nullptr);
 	BattleAffects = clear_flags;
 	Poisoner = 0;
-	set_fighting(0);
+	set_fighting(nullptr);
 	char_specials.position = EPosition::kStand;
 	mob_specials.default_pos = EPosition::kStand;
 	char_specials.carry_weight = 0;
@@ -220,15 +221,15 @@ void CharacterData::set_abstinent() {
 
 	af.location = APPLY_AC;
 	af.modifier = 20;
-	affect_join(this, af, 0, 0, 0, 0);
+	affect_join(this, af, false, false, false, false);
 
 	af.location = APPLY_HITROLL;
 	af.modifier = -2;
-	affect_join(this, af, 0, 0, 0, 0);
+	affect_join(this, af, false, false, false, false);
 
 	af.location = APPLY_DAMROLL;
 	af.modifier = -2;
-	affect_join(this, af, 0, 0, 0, 0);
+	affect_join(this, af, false, false, false, false);
 }
 
 void CharacterData::affect_remove(const char_affects_list_t::iterator &affect_i) {
@@ -283,7 +284,7 @@ size_t CharacterData::remove_random_affects(const size_t count) {
 	}
 
 	const auto to_remove = std::min(count, removable_affects.size());
-	std::random_shuffle(removable_affects.begin(), removable_affects.end());
+	std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
 	for (auto counter = 0u; counter < to_remove; ++counter) {
 		const auto affect_i = removable_affects[counter];
 		affect_from_char(this, affect_i->get()->type);
@@ -299,11 +300,11 @@ size_t CharacterData::remove_random_affects(const size_t count) {
 void CharacterData::zero_init() {
 	set_sex(ESex::kMale);
 	set_race(0);
-	protecting_ = 0;
-	touching_ = 0;
-	fighting_ = 0;
+	protecting_ = nullptr;
+	touching_ = nullptr;
+	fighting_ = nullptr;
 	serial_num_ = 0;
-	purged_ = 0;
+	purged_ = false;
 	// на плеер-таблицу
 	chclass_ = 0;
 	level_ = 0;
@@ -338,20 +339,20 @@ void CharacterData::zero_init() {
 	in_room = 0;
 	set_wait(0u);
 	punctual_wait = 0;
-	last_comm = 0;
-	player_specials = 0;
-	timed = 0;
-	timed_feat = 0;
-	carrying = 0;
-	desc = 0;
+	last_comm = nullptr;
+	player_specials = nullptr;
+	timed = nullptr;
+	timed_feat = nullptr;
+	carrying = nullptr;
+	desc = nullptr;
 	id = 0;
-	next_fighting = 0;
-	followers = 0;
+	next_fighting = nullptr;
+	followers = nullptr;
 	m_master = nullptr;
 	CasterLevel = 0;
 	DamageLevel = 0;
-	pk_list = 0;
-	helpers = 0;
+	pk_list = nullptr;
+	helpers = nullptr;
 	track_dirs = 0;
 	CheckAggressive = 0;
 	ExtractTimer = 0;
@@ -359,7 +360,7 @@ void CharacterData::zero_init() {
 	BattleCounter = 0;
 	round_counter = 0;
 	Poisoner = 0;
-	dl_list = 0;
+	dl_list = nullptr;
 	agrobd = false;
 
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
@@ -372,8 +373,8 @@ void CharacterData::zero_init() {
 	memset(&char_specials, 0, sizeof(char_special_data));
 	memset(&mob_specials, 0, sizeof(mob_special_data));
 
-	for (int i = 0; i < NUM_WEARS; i++) {
-		equipment[i] = 0;
+	for (auto & i : equipment) {
+		i = nullptr;
 	}
 
 	memset(&MemQueue, 0, sizeof(spell_mem_queue));
@@ -558,7 +559,7 @@ int CharacterData::get_equipped_skill(const ESkill skill_num) const {
 // * Родной тренированный скилл чара.
 int CharacterData::get_inborn_skill(const ESkill skill_num) {
 	if (Privilege::check_skills(this)) {
-		CharSkillsType::iterator it = skills.find(skill_num);
+		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
 			//return normalize_skill(it->second.skillLevel, skill_num);
 			return std::clamp(it->second.skillLevel, 0, skill_info[skill_num].cap);
@@ -1023,9 +1024,9 @@ short CharacterData::get_level_add() const {
 
 void CharacterData::set_level(short level) {
 	if (IS_NPC(this)) {
-		level_ = std::max(static_cast<short>(0), std::min(kMaxMobLevel, level));
+		level_ = std::clamp(level, kMinCharLevel, kMaxMobLevel);
 	} else {
-		level_ = std::max(static_cast<short>(0), std::min(kLevelImplementator, level));
+		level_ = std::clamp(level, kMinCharLevel, kLevelImplementator);
 	}
 }
 

@@ -298,15 +298,12 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 			GetRealDamroll(k) + str_bonus(GET_REAL_STR(k), STR_TO_DAM));
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Защитн.аффекты: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Поглощ: [%d], Стойк: [%d], Реакц: [%d], Воля: [%d]\r\n",
-			GET_SAVE(k, 0),
-			GET_SAVE(k, 1),
-			GET_SAVE(k, 2),
-			GET_SAVE(k, 3),
+			"Защитн.аффекты: [Will:%d/Crit.:%d/Stab.:%d/Reflex:%d], Поглощ: [%d], Воля: [%d], Здор.: [%d], Стойк.: [%d], Реакц.: [%d]\r\n",
+			GET_SAVE(k, ESaving::kWill), GET_SAVE(k, ESaving::kCritical),
+			GET_SAVE(k, ESaving::kStability), GET_SAVE(k, ESaving::kReflex),
 			GET_ABSORBE(k),
-			GET_REAL_SAVING_STABILITY(k),
-			GET_REAL_SAVING_REFLEX(k),
-			GET_REAL_SAVING_WILL(k));
+			GET_REAL_SAVING_WILL(k), GET_REAL_SAVING_CRITICAL(k),
+			GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d/Тьма:%d]\r\n",

@@ -144,7 +144,7 @@ void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// You throws the dice and you takes your chances.. 101% is total failure
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	ch->set_cast(0, 0, 0, 0, 0);
-	if (!CalculateCastSuccess(ch, tch, SAVING_STABILITY, spellnum)) {
+	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 			WAIT_STATE(ch, kPulseViolence);
 		if (GET_SPELL_MEM(ch, spell_subst)) {

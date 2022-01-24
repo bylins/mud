@@ -34,8 +34,8 @@ extern int what_sky;
 extern int interpolate(int min_value, int pulse);
 extern int attack_best(CharacterData *ch, CharacterData *victim);
 
-byte saving_throws(int class_num, int type, int level);    // class.cpp
-byte extend_saving_throws(int class_num, int type, int level);
+byte saving_throws(int class_num, ESaving saving, int level);    // class.cpp
+byte extend_saving_throws(int class_num, ESaving saving, int level);
 int check_charmee(CharacterData *ch, CharacterData *victim, int spellnum);
 void cast_reaction(CharacterData *victim, CharacterData *caster, int spellnum);
 
@@ -80,10 +80,10 @@ int calc_anti_savings(CharacterData *ch) {
 	return modi;
 }
 
-int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int ext_apply) {
+int calculateSaving(CharacterData *killer, CharacterData *victim, ESaving saving, int ext_apply) {
 	int temp_save_stat = 0, temp_awake_mod = 0;
 
-	if (-GET_SAVE(victim, type) / 10 > number(1, 100)) {
+	if (-GET_SAVE(victim, saving) / 10 > number(1, 100)) {
 		return 1;
 	}
 
@@ -99,10 +99,10 @@ int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int 
 	}
 
 	// Базовые спасброски профессии/уровня
-	save = extend_saving_throws(class_sav, type, GET_REAL_LEVEL(victim));
+	save = extend_saving_throws(class_sav, saving, GET_REAL_LEVEL(victim));
 
-	switch (type) {
-		case SAVING_REFLEX:      //3 реакция
+	switch (saving) {
+		case ESaving::kReflex:      //3 реакция
 			if ((save > 0) && can_use_feat(victim, DODGER_FEAT))
 				save >>= 1;
 			save -= dex_bonus(GET_REAL_DEX(victim));
@@ -110,24 +110,24 @@ int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int 
 			if (victim->ahorse())
 				save += 20;
 			break;
-		case SAVING_STABILITY:   //2  стойкость
+		case ESaving::kStability:   //2  стойкость
 			save += -GET_REAL_CON(victim);
 			if (victim->ahorse())
 				save -= 20;
 			temp_save_stat = GET_REAL_CON(victim);
 			break;
-		case SAVING_WILL:        //1  воля
+		case ESaving::kWill:        //1  воля
 			save += -GET_REAL_WIS(victim);
 			temp_save_stat = GET_REAL_WIS(victim);
 			break;
-		case SAVING_CRITICAL:   //0   здоровье
+		case ESaving::kCritical:   //0   здоровье
 			save += -GET_REAL_CON(victim);
 			temp_save_stat = GET_REAL_CON(victim);
 			break;
 	}
 
 	// Ослабление магических атак
-	if (type != SAVING_REFLEX) {
+	if (saving != ESaving::kReflex) {
 		if ((save > 0) &&
 			(AFF_FLAGGED(victim, EAffectFlag::AFF_AIRAURA)
 				|| AFF_FLAGGED(victim, EAffectFlag::AFF_FIREAURA)
@@ -146,7 +146,7 @@ int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int 
 		save -= CalculateSkillAwakeModifier(killer, victim);
 	}
 
-	save += GET_SAVE(victim, type);    // одежда
+	save += GET_SAVE(victim, saving);    // одежда
 	save += ext_apply;    // внешний модификатор
 
 	if (IS_GOD(victim))
@@ -156,16 +156,16 @@ int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int 
 	else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
 		save += 50;
 	if (IS_NPC(victim) && !IS_NPC(killer))
-		log("SAVING: Caster==%s  Mob==%s vnum==%d Level==%d type==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d cast_apply==%d result==%d new_random==%d",
+		log("SAVING: Caster==%s  Mob==%s vnum==%d Level==%d saving==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d cast_apply==%d result==%d new_random==%d",
 			GET_NAME(killer),
 			GET_NAME(victim),
 			GET_MOB_VNUM(victim),
 			GET_REAL_LEVEL(victim),
-			type,
-			extend_saving_throws(class_sav, type, GET_REAL_LEVEL(victim)),
+			to_underlying(saving), // Зачем это тут вообще?
+			extend_saving_throws(class_sav, saving, GET_REAL_LEVEL(victim)),
 			temp_save_stat,
 			temp_awake_mod,
-			GET_SAVE(victim, type),
+			GET_SAVE(victim, saving),
 			ext_apply,
 			save,
 			number(1, 200));
@@ -173,7 +173,7 @@ int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int 
 	return save;
 }
 
-int general_savingthrow(CharacterData *killer, CharacterData *victim, int type, int ext_apply) {
+int general_savingthrow(CharacterData *killer, CharacterData *victim, ESaving type, int ext_apply) {
 	int save = calculateSaving(killer, victim, type, ext_apply);
 	if (MAX(10, save) <= number(1, 200))
 		return (true);
@@ -279,7 +279,7 @@ int magic_skill_damage_calc(CharacterData *ch, CharacterData *victim, int spelln
 	return (dam);
 }
 
-int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum, int savetype) {
+int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum, ESaving savetype) {
 	int dam = 0, rand = 0, count = 1, modi = 0, ndice = 0, sdice = 0, adice = 0, no_savings = false;
 	ObjectData *obj = nullptr;
 
@@ -379,7 +379,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			break;
 			// ледяное прикосновение 
 			// мин 15+30 среднее 22.5+30 макс 30+30  
-		case SPELL_CHILL_TOUCH: savetype = SAVING_REFLEX;
+		case SPELL_CHILL_TOUCH: savetype = ESaving::kReflex;
 			ndice = 15;
 			sdice = 2;
 			adice = level;
@@ -387,7 +387,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// кислота 
 			// 6+24 мин 48+24 макс 90+24
 			// нейтрал
-		case SPELL_ACID: savetype = SAVING_REFLEX;
+		case SPELL_ACID: savetype = ESaving::kReflex;
 			obj = nullptr;
 			if (IS_NPC(victim)) {
 				rand = number(1, 50);
@@ -413,7 +413,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 
 			// землетрясение
 			// мин 6+16 среднее 48+16 макс 90+16 (240)
-		case SPELL_EARTHQUAKE: savetype = SAVING_REFLEX;
+		case SPELL_EARTHQUAKE: savetype = ESaving::kReflex;
 			ndice = 6;
 			sdice = 15;
 			adice = (level - 22) * 2;
@@ -431,7 +431,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 				}
 			}
 			if (GET_POS(victim) > EPosition::kSit && !WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
-				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30)))) {
+				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
 				if (IS_HORSE(ch))
 					ch->drop_from_horse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
@@ -443,13 +443,13 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			break;
 		//звуковая волна зависит от школы
 		// мин 10+20 среднее 45+20 макс 80+20
-		case SPELL_SONICWAVE: savetype = SAVING_STABILITY;
+		case SPELL_SONICWAVE: savetype = ESaving::kStability;
 			ndice = 5 + ms_mod;
 			sdice = 8;
 			adice = level/3 + 2*ms_mod;
 			if (GET_POS(victim) > EPosition::kSit &&
 				!WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
-				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, CALC_SUCCESS(modi, 60)))) {
+				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, ESaving::kStability, CALC_SUCCESS(modi, 60)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
 				GET_POS(victim) = EPosition::kSit;
@@ -462,7 +462,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// горящие руки
 			// мин 8+10 среднее 16+10 мах 24+10
 			// ОГОНЬ
-		case SPELL_BURNING_HANDS: savetype = SAVING_REFLEX;
+		case SPELL_BURNING_HANDS: savetype = ESaving::kReflex;
 			ndice = 8;
 			sdice = 3;
 			adice = (level + 2) / 3;
@@ -471,7 +471,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// обжигающая хватка
 			// мин 10+10 среднее 35+10 макс 60+10)
 			// ОГОНЬ
-		case SPELL_SHOCKING_GRASP: savetype = SAVING_REFLEX;
+		case SPELL_SHOCKING_GRASP: savetype = ESaving::kReflex;
 			ndice = 10;
 			sdice = 6;
 			adice = (level + 2) / 3;
@@ -480,7 +480,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// молния
 			// мин 3+6 среднее 9+6 - макс 15+6 
 			// ВОЗДУХ
-		case SPELL_LIGHTNING_BOLT: savetype = SAVING_REFLEX;
+		case SPELL_LIGHTNING_BOLT: savetype = ESaving::kReflex;
 			ndice = 3;
 			sdice = 5;
 			count = (level + 6) / 6;
@@ -502,7 +502,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 //			af[0].location = APPLY_HITROLL;
 //			af[1].location = APPLY_CAST_SUCCESS;
 
-		case SPELL_CALL_LIGHTNING: savetype = SAVING_REFLEX;
+		case SPELL_CALL_LIGHTNING: savetype = ESaving::kReflex;
 			ndice = 7 + GET_REAL_REMORT(ch);
 			sdice = 6;
 			adice = level;
@@ -511,7 +511,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// ледяные стрелы
 			// мин 6+30 среднее 18+30 макс 30+30
 			// ОГОНЬ
-		case SPELL_COLOR_SPRAY: savetype = SAVING_STABILITY;
+		case SPELL_COLOR_SPRAY: savetype = ESaving::kStability;
 			ndice = 6;
 			sdice = 5;
 			adice = level;
@@ -520,7 +520,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// ледяной ветер
 			// мин 10+30 среднее 30+30 макс 50+30
 			// ВОДА
-		case SPELL_CONE_OF_COLD: savetype = SAVING_STABILITY;
+		case SPELL_CONE_OF_COLD: savetype = ESaving::kStability;
 			ndice = 10;
 			sdice = 5;
 			adice = level;
@@ -529,7 +529,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// Огненный шар
 			// мин 10+25 среднее 110+25 макс 210+25
 			// ОГОНЬ
-		case SPELL_FIREBALL: savetype = SAVING_REFLEX;
+		case SPELL_FIREBALL: savetype = ESaving::kReflex;
 			ndice = 10;
 			sdice = 21;
 			adice = (level - 25) * 5;
@@ -539,7 +539,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// массовое
 			// мин 40+30 среднее 80+30 макс 120*30
 			// ОГОНЬ, ареа
-		case SPELL_FIREBLAST: savetype = SAVING_STABILITY;
+		case SPELL_FIREBLAST: savetype = ESaving::kStability;
 			ndice = 10 + GET_REAL_REMORT(ch);
 			sdice = 3;
 			adice = level;
@@ -549,7 +549,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// *** мин 66 макс 80  (240)
 			// нейтрал, ареа
 /*	case SPELL_METEORSTORM:
-		savetype = SAVING_REFLEX;
+		savetype = kReflex;
 		ndice = 11+GET_REAL_REMORT(ch);
 		sdice = 11;
 		adice = (level - 22) * 3;
@@ -559,7 +559,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// массовое
 			// мин 32+90 среднее 80+90 макс 128+90
 			// ВОЗДУХ, ареа
-		case SPELL_CHAIN_LIGHTNING: savetype = SAVING_STABILITY;
+		case SPELL_CHAIN_LIGHTNING: savetype = ESaving::kStability;
 			ndice = 2 + GET_REAL_REMORT(ch);
 			sdice = 4;
 			adice = (level + GET_REAL_REMORT(ch)) * 2;
@@ -568,7 +568,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// гнев богов)
 			// мин 10+180 среднее 70+180 макс 130+180
 			// ВОДА
-		case SPELL_IMPLOSION: savetype = SAVING_WILL;
+		case SPELL_IMPLOSION: savetype = ESaving::kWill;
 			ndice = 10;
 			sdice = 13;
 			adice = level * 6;
@@ -578,7 +578,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// массовое
 			// мин 5+20 среднее 27.5+20 макс 50+20
 			// ВОДА, ареа
-		case SPELL_ICESTORM: savetype = SAVING_STABILITY;
+		case SPELL_ICESTORM: savetype = ESaving::kStability;
 			ndice = 5;
 			sdice = 10;
 			adice = (level - 26) * 5;
@@ -588,7 +588,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// массовое
 			// мин 16+120 среднее 32+150 макс 38+180
 			// ВОЗДУХ, ареа
-		case SPELL_ARMAGEDDON: savetype = SAVING_WILL;
+		case SPELL_ARMAGEDDON: savetype = ESaving::kWill;
 			if (!(IS_NPC(ch))) {
 				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);
 				sdice = level / 9;
@@ -605,8 +605,8 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 		case SPELL_STUNNING:
 			if (ch == victim ||
 				((number(1, 999) > GET_AR(victim) * 10) &&
-					!general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch))))) {
-				savetype = SAVING_STABILITY;
+					!general_savingthrow(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))))) {
+				savetype = ESaving::kStability;
 				ndice = GET_REAL_WIS(ch) / 5; 	//18
 				sdice = GET_REAL_WIS(ch);		//90
 				adice = 5 + (GET_REAL_WIS(ch) - 20) / 6;	//5+11
@@ -630,7 +630,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// круг пустоты - круг 28 уровень 9 (1)
 			// мин 40+17 среднее 1820+17 макс 3600 +17
 			// для всех
-		case SPELL_VACUUM: savetype = SAVING_STABILITY;
+		case SPELL_VACUUM: savetype = ESaving::kStability;
 			ndice = MAX(1, (GET_REAL_WIS(ch) - 10) / 2);	//40
 			sdice = MAX(1, GET_REAL_WIS(ch) - 10);			//90
 			//	    adice = MAX(1, 2 + 30 - GET_REAL_LEVEL(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
@@ -638,7 +638,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			//чтобы не обижать колдунов
 			adice = 4 + MAX(1, GET_REAL_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;	//17
 			if (ch == victim ||
-				(!general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
+				(!general_savingthrow(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
 					(number(1, 999) > GET_AR(victim) * 10) &&
 					number(0, 1000) <= 500)) {
 				GET_POS(victim) = EPosition::kStun;
@@ -647,17 +647,17 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			break;
 
 			// ********* СПЕЦИФИЧНАЯ ДЛЯ КЛЕРИКОВ МАГИЯ **********
-		case SPELL_DAMAGE_LIGHT: savetype = SAVING_CRITICAL;
+		case SPELL_DAMAGE_LIGHT: savetype = ESaving::kCritical;
 			ndice = 4;
 			sdice = 3;
 			adice = (level + 2) / 3;
 			break;
-		case SPELL_DAMAGE_SERIOUS: savetype = SAVING_CRITICAL;
+		case SPELL_DAMAGE_SERIOUS: savetype = ESaving::kCritical;
 			ndice = 10;
 			sdice = 3;
 			adice = (level + 1) / 2;
 			break;
-		case SPELL_DAMAGE_CRITIC: savetype = SAVING_CRITICAL;
+		case SPELL_DAMAGE_CRITIC: savetype = ESaving::kCritical;
 			ndice = 15;
 			sdice = 4;
 			adice = (level + 1) / 2;
@@ -688,7 +688,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 				return (0);
 			};
 			break;
-		case SPELL_HARM: savetype = SAVING_CRITICAL;
+		case SPELL_HARM: savetype = ESaving::kCritical;
 			ndice = 7;
 			sdice = level;
 			adice = level * GET_REAL_REMORT(ch) / 4;
@@ -699,7 +699,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 		case SPELL_FROST_BREATH:
 		case SPELL_ACID_BREATH:
 		case SPELL_LIGHTNING_BREATH:
-		case SPELL_GAS_BREATH: savetype = SAVING_STABILITY;
+		case SPELL_GAS_BREATH: savetype = ESaving::kStability;
 			if (!IS_NPC(ch))
 				return (0);
 			ndice = ch->mob_specials.damnodice;
@@ -717,13 +717,13 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 		// пылевая буря
 		// массовое
 		// мин 5+120 среднее 17.5+120  макс 30+120
-		case SPELL_DUSTSTORM: savetype = SAVING_STABILITY;
+		case SPELL_DUSTSTORM: savetype = ESaving::kStability;
 			ndice = 5;
 			sdice = 6;
 			adice = level + GET_REAL_REMORT(ch) * 3;
 			if (GET_POS(victim) > EPosition::kSit &&
 				!WAITLESS(victim) && (number(1, 999) > GET_AR(victim) * 10) &&
-				(!general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30)))) {
+				(!general_savingthrow(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, 30)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
 				GET_POS(victim) = EPosition::kSit;
@@ -734,7 +734,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 		// камнепад
 		// массовое на комнату
 		// мин 8+60 среднее 36+60 макс 64+60
-		case SPELL_EARTHFALL: savetype = SAVING_REFLEX;
+		case SPELL_EARTHFALL: savetype = ESaving::kReflex;
 			ndice = 8;
 			sdice = 8;
 			adice = level * 2;
@@ -742,7 +742,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 		// шок
 		// массовое на комнату
 		// мин 6+90 среднее 48+90 макс 90+90
-		case SPELL_SHOCK: savetype = SAVING_REFLEX;
+		case SPELL_SHOCK: savetype = ESaving::kReflex;
 			ndice = 6;
 			sdice = level / 2;
 			adice = (level + GET_REAL_REMORT(ch)) * 2;
@@ -750,14 +750,14 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 		// вопль
 		// массовое на комнату
 		// мин 10+90 среднее 185+90 макс 360*90
-		case SPELL_SCREAM: savetype = SAVING_STABILITY;
+		case SPELL_SCREAM: savetype = ESaving::kStability;
 			ndice = 10;
 			sdice = (level + GET_REAL_REMORT(ch)) / 5;	//36
 			adice = level + GET_REAL_REMORT(ch) * 2;	//90
 			break;
 		// вихрь
 		// мин 16+35 среднее 176+40  макс 336+40
-		case SPELL_WHIRLWIND: savetype = SAVING_REFLEX;
+		case SPELL_WHIRLWIND: savetype = ESaving::kReflex;
 			if (!(IS_NPC(ch))) {
 				ndice = 10 + ((GET_REAL_REMORT(ch) / 3) - 4);	//16
 				sdice = 18 + (3 - (30 - level) / 3);			//21
@@ -777,21 +777,21 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			break;
 		// кислотная стрела
 		// мин 20+35 среднее 210+35 макс 400+35
-		case SPELL_MELFS_ACID_ARROW: savetype = SAVING_REFLEX;
+		case SPELL_MELFS_ACID_ARROW: savetype = ESaving::kReflex;
 			ndice = 10 + GET_REAL_REMORT(ch) / 3;
 			sdice = 20;
 			adice = level + GET_REAL_REMORT(ch) - 25;
 			break;
 		//громовой камень
 		// мин 33+61 среднее 115.5+61 макс 198+61
-		case SPELL_THUNDERSTONE: savetype = SAVING_REFLEX;
+		case SPELL_THUNDERSTONE: savetype = ESaving::kReflex;
 			ndice = 3 + GET_REAL_REMORT(ch);
 			sdice = 6;
 			adice = 1 + level + GET_REAL_REMORT(ch);
 			break;
 		// глыба
 		// мин 20+35 среднее 210 +40 макс 400+45
-		case SPELL_CLOD: savetype = SAVING_REFLEX;
+		case SPELL_CLOD: savetype = ESaving::kReflex;
 			ndice = 10 + GET_REAL_REMORT(ch) / 3;
 			sdice = 20;
 			adice = (level + GET_REAL_REMORT(ch) - 25) * (number(1, 3));	//35..40..45
@@ -803,7 +803,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 				dam = -1;
 				no_savings = true;
 				// смерть или диспелл :)
-				if (general_savingthrow(ch, victim, SAVING_WILL, modi)) {
+				if (general_savingthrow(ch, victim, ESaving::kWill, modi)) {
 					act("Черное облако вокруг вас нейтрализовало действие тумана, растворившись в нем.",
 						false, victim, nullptr, nullptr, TO_CHAR);
 					act("Черное облако вокруг $n1 нейтрализовало действие тумана.",
@@ -831,7 +831,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			sdice = 5;
 			if (GET_POS(victim) > EPosition::kSit &&
 				!WAITLESS(victim) &&
-				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, GET_REAL_CON(ch)))) {
+				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, ESaving::kStability, GET_REAL_CON(ch)))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, TO_CHAR);
 				GET_POS(victim) = EPosition::kSit;
@@ -1061,7 +1061,7 @@ bool material_component_processing(CharacterData *caster, int /*vnum*/, int spel
 	return (false);
 }
 
-int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnum, int savetype) {
+int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnum, ESaving savetype) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	const char *to_vict = nullptr, *to_room = nullptr;
@@ -1171,7 +1171,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 	const int koef_modifier = func_koef_modif(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
 
 	switch (spellnum) {
-		case SPELL_CHILL_TOUCH: savetype = SAVING_STABILITY;
+		case SPELL_CHILL_TOUCH: savetype = ESaving::kStability;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -1188,7 +1188,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			break;
 
 		case SPELL_ENERGY_DRAIN:
-		case SPELL_WEAKNESS: savetype = SAVING_WILL;
+		case SPELL_WEAKNESS: savetype = ESaving::kWill;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -1577,7 +1577,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		case SPELL_SHINEFLASH:
 		case SPELL_MASS_BLINDNESS:
 		case SPELL_POWER_BLINDNESS:
-		case SPELL_BLINDNESS: savetype = SAVING_STABILITY;
+		case SPELL_BLINDNESS: savetype = ESaving::kStability;
 			if (MOB_FLAGGED(victim, MOB_NOBLIND) ||
 				WAITLESS(victim) ||
 				((ch != victim) &&
@@ -1613,7 +1613,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			spellnum = SPELL_BLINDNESS;
 			break;
 
-		case SPELL_MADNESS: savetype = SAVING_WILL;
+		case SPELL_MADNESS: savetype = ESaving::kWill;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -1630,7 +1630,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			to_vict = "Вас обуяло безумие!";
 			break;
 
-		case SPELL_WEB: savetype = SAVING_REFLEX;
+		case SPELL_WEB: savetype = ESaving::kReflex;
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi))) {
 				send_to_char(NOEFFECT, ch);
@@ -1654,7 +1654,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			break;
 
 		case SPELL_MASS_CURSE:
-		case SPELL_CURSE: savetype = SAVING_WILL;
+		case SPELL_CURSE: savetype = ESaving::kWill;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -1691,7 +1691,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			break;
 
 		case SPELL_MASS_SLOW:
-		case SPELL_SLOW: savetype = SAVING_STABILITY;
+		case SPELL_SLOW: savetype = ESaving::kStability;
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi * number(1, koef_modifier / 2)))) {
 				send_to_char(NOEFFECT, ch);
@@ -1788,7 +1788,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			spellnum = SPELL_INVISIBLE;
 			break;
 
-		case SPELL_PLAQUE: savetype = SAVING_STABILITY;
+		case SPELL_PLAQUE: savetype = ESaving::kStability;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -1824,7 +1824,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			to_room = "$n3 скрутило в жестокой лихорадке.";
 			break;
 
-		case SPELL_POISON: savetype = SAVING_CRITICAL;
+		case SPELL_POISON: savetype = ESaving::kCritical;
 			if (ch != victim && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) ||
 				general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2))) {
 				if (ch->in_room
@@ -1896,9 +1896,9 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			spellnum = SPELL_SANCTUARY;
 			break;
 
-		case SPELL_SLEEP: savetype = SAVING_WILL;
+		case SPELL_SLEEP: savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD) || MOB_FLAGGED(victim, MOB_NOSLEEP)
-				|| (ch != victim && general_savingthrow(ch, victim, SAVING_WILL, modi))) {
+				|| (ch != victim && general_savingthrow(ch, victim, ESaving::kWill, modi))) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
 				break;
@@ -2012,7 +2012,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		case SPELL_HOLD:
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_SLEEP)
 				|| MOB_FLAGGED(victim, MOB_NOHOLD) || AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
-				|| (ch != victim && general_savingthrow(ch, victim, SAVING_WILL, modi))) {
+				|| (ch != victim && general_savingthrow(ch, victim, ESaving::kWill, modi))) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
 				break;
@@ -2045,13 +2045,13 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		case SPELL_POWER_DEAFNESS:
 		case SPELL_DEAFNESS:
 			switch (spellnum) {
-				case SPELL_WC_OF_RAGE: savetype = SAVING_WILL;
+				case SPELL_WC_OF_RAGE: savetype = ESaving::kWill;
 					modi = GET_REAL_CON(ch);
 					break;
 				case SPELL_SONICWAVE:
 				case SPELL_MASS_DEAFNESS:
 				case SPELL_POWER_DEAFNESS:
-				case SPELL_DEAFNESS: savetype = SAVING_STABILITY;
+				case SPELL_DEAFNESS: savetype = ESaving::kStability;
 					break;
 			}
 			if (  //MOB_FLAGGED(victim, MOB_NODEAFNESS) ||
@@ -2085,7 +2085,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 
 		case SPELL_MASS_SILENCE:
 		case SPELL_POWER_SILENCE:
-		case SPELL_SILENCE: savetype = SAVING_WILL;
+		case SPELL_SILENCE: savetype = ESaving::kWill;
 			if (MOB_FLAGGED(victim, MOB_NOSIELENCE) ||
 				(ch != victim && general_savingthrow(ch, victim, savetype, modi))) {
 				send_to_char(NOEFFECT, ch);
@@ -2142,7 +2142,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		case SPELL_NOFLEE: // "приковать противника"
 		case SPELL_INDRIKS_TEETH:
 		case SPELL_MASS_NOFLEE: af[0].battleflag = AF_BATTLEDEC;
-			savetype = SAVING_WILL;
+			savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi))) {
 				send_to_char(NOEFFECT, ch);
@@ -2224,16 +2224,16 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		case SPELL_EARTHFALL:
 		case SPELL_SHOCK: {
 			switch (spellnum) {
-				case SPELL_WC_OF_THUNDER: savetype = SAVING_WILL;
+				case SPELL_WC_OF_THUNDER: savetype = ESaving::kWill;
 					modi = GET_REAL_CON(ch) * 3 / 2;
 					break;
-				case SPELL_ICESTORM: savetype = SAVING_REFLEX;
+				case SPELL_ICESTORM: savetype = ESaving::kReflex;
 					modi = CALC_SUCCESS(modi, 30);
 					break;
-				case SPELL_EARTHFALL: savetype = SAVING_REFLEX;
+				case SPELL_EARTHFALL: savetype = ESaving::kReflex;
 					modi = CALC_SUCCESS(modi, 95);
 					break;
-				case SPELL_SHOCK: savetype = SAVING_REFLEX;
+				case SPELL_SHOCK: savetype = ESaving::kReflex;
 					if (GET_CLASS(ch) == CLASS_CLERIC) {
 						modi = CALC_SUCCESS(modi, 75);
 					} else {
@@ -2287,7 +2287,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
 					spellnum = SPELL_MAGICBATTLE;
-					mag_affects(level, ch, victim, SPELL_BLINDNESS, SAVING_STABILITY);
+					mag_affects(level, ch, victim, SPELL_BLINDNESS, ESaving::kStability);
 					break;
 			}
 			break;
@@ -2337,7 +2337,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			//Заклинания Забвение, Бремя времени. Далим.
 		case SPELL_OBLIVION:
 		case SPELL_BURDEN_OF_TIME: {
-			if (WAITLESS(victim) || general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, (spellnum == SPELL_OBLIVION ? 40 : 90)))) {
+			if (WAITLESS(victim) || general_savingthrow(ch, victim, ESaving::kReflex, CALC_SUCCESS(modi, (spellnum == SPELL_OBLIVION ? 40 : 90)))) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
 				break;
@@ -2393,7 +2393,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 
 		case SPELL_FAILURE:
 		case SPELL_MASS_FAILURE: {
-			savetype = SAVING_WILL;
+			savetype = ESaving::kWill;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -2412,7 +2412,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		}
 
 		case SPELL_GLITTERDUST: {
-			savetype = SAVING_REFLEX;
+			savetype = ESaving::kReflex;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi + 50)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -2441,7 +2441,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		}
 
 		case SPELL_SCREAM: {
-			savetype = SAVING_STABILITY;
+			savetype = ESaving::kStability;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -2514,7 +2514,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		}
 
 		case SPELL_WC_OF_MENACE: {
-			savetype = SAVING_WILL;
+			savetype = ESaving::kWill;
 			modi = GET_REAL_CON(ch);
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
@@ -2531,7 +2531,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		}
 
 		case SPELL_WC_OF_MADNESS: {
-			savetype = SAVING_STABILITY;
+			savetype = ESaving::kStability;
 			modi = GET_REAL_CON(ch) * 3 / 2;
 			if (ch == victim || !general_savingthrow(ch, victim, savetype, modi)) {
 				af[0].location = APPLY_INT;
@@ -2541,7 +2541,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 				to_vict = "Вы потеряли рассудок.";
 				to_room = "$n0 потерял$g рассудок.";
 
-				savetype = SAVING_STABILITY;
+				savetype = ESaving::kStability;
 				modi = GET_REAL_CON(ch) * 2;
 				if (ch == victim || !general_savingthrow(ch, victim, savetype, modi)) {
 					af[1].location = APPLY_CAST_SUCCESS;
@@ -2555,7 +2555,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 					to_room = "$n0 обезумел$g.";
 				}
 			} else {
-				savetype = SAVING_STABILITY;
+				savetype = ESaving::kStability;
 				modi = GET_REAL_CON(ch) * 2;
 				if (!general_savingthrow(ch, victim, savetype, modi)) {
 					af[0].location = APPLY_CAST_SUCCESS;
@@ -3251,7 +3251,7 @@ int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int
 	return 1;
 }
 
-int mag_points(int level, CharacterData *ch, CharacterData *victim, int spellnum, int) {
+int mag_points(int level, CharacterData *ch, CharacterData *victim, int spellnum, ESaving /*savetype*/ ) {
 	int hit = 0; //если выставить больше нуля, то лечит
 	int move = 0; //если выставить больше нуля, то реген хп
 	bool extraHealing = false; //если true, то лечит сверх макс.хп
@@ -3361,7 +3361,7 @@ inline bool NODISPELL(const Affect<EApplyLocation>::shared_ptr &affect) {
 		|| affect->type == SPELL_EVILESS;
 }
 
-int mag_unaffects(int/* level*/, CharacterData *ch, CharacterData *victim, int spellnum, int/* type*/) {
+int mag_unaffects(int/* level*/, CharacterData *ch, CharacterData *victim, int spellnum, ESaving/* type*/) {
 	int spell = 0, remove = 0;
 	const char *to_vict = nullptr, *to_room = nullptr;
 
@@ -3474,7 +3474,7 @@ int mag_unaffects(int/* level*/, CharacterData *ch, CharacterData *victim, int s
 	return 1;
 }
 
-int mag_alter_objs(int/* level*/, CharacterData *ch, ObjectData *obj, int spellnum, int/* savetype*/) {
+int mag_alter_objs(int/* level*/, CharacterData *ch, ObjectData *obj, int spellnum, ESaving /* savetype*/) {
 	const char *to_char = nullptr;
 
 	if (obj == nullptr) {
@@ -3719,7 +3719,7 @@ int mag_creations(int/* level*/, CharacterData *ch, int spellnum) {
 	return 1;
 }
 
-int mag_manual(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, int/* savetype*/) {
+int mag_manual(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, ESaving /*saving*/) {
 	switch (spellnum) {
 		case SPELL_GROUP_RECALL:
 		case SPELL_WORD_OF_RECALL: MANUAL_SPELL(spell_recall);
@@ -3827,7 +3827,7 @@ void cast_reaction(CharacterData *victim, CharacterData *caster, int spellnum) {
 
 // Применение заклинания к одной цели
 //---------------------------------------------------------
-int mag_single_target(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, int savetype) {
+int mag_single_target(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, ESaving saving) {
 	/*
 	if (IS_SET(SpINFO.routines, 0)){
 			send_to_char(NOEFFECT, caster);
@@ -3851,29 +3851,29 @@ int mag_single_target(int level, CharacterData *caster, CharacterData *cvict, Ob
 		return 1;
 
 	if (IS_SET(SpINFO.routines, MAG_DAMAGE))
-		if (mag_damage(level, caster, cvict, spellnum, savetype) == -1)
+		if (mag_damage(level, caster, cvict, spellnum, saving) == -1)
 			return (-1);    // Successful and target died, don't cast again.
 
 	if (IS_SET(SpINFO.routines, MAG_AFFECTS))
-		mag_affects(level, caster, cvict, spellnum, savetype);
+		mag_affects(level, caster, cvict, spellnum, saving);
 
 	if (IS_SET(SpINFO.routines, MAG_UNAFFECTS))
-		mag_unaffects(level, caster, cvict, spellnum, savetype);
+		mag_unaffects(level, caster, cvict, spellnum, saving);
 
 	if (IS_SET(SpINFO.routines, MAG_POINTS))
-		mag_points(level, caster, cvict, spellnum, savetype);
+		mag_points(level, caster, cvict, spellnum, saving);
 
 	if (IS_SET(SpINFO.routines, MAG_ALTER_OBJS))
-		mag_alter_objs(level, caster, ovict, spellnum, savetype);
+		mag_alter_objs(level, caster, ovict, spellnum, saving);
 
 	if (IS_SET(SpINFO.routines, MAG_SUMMONS))
-		mag_summons(level, caster, ovict, spellnum, 1);    // savetype =1 -- ВРЕМЕННО, показатель что фэйлить надо
+		mag_summons(level, caster, ovict, spellnum, 1);    // saving =1 -- ВРЕМЕННО, показатель что фэйлить надо
 
 	if (IS_SET(SpINFO.routines, MAG_CREATIONS))
 		mag_creations(level, caster, spellnum);
 
 	if (IS_SET(SpINFO.routines, MAG_MANUAL))
-		mag_manual(level, caster, cvict, ovict, spellnum, savetype);
+		mag_manual(level, caster, cvict, ovict, spellnum, saving);
 
 	cast_reaction(cvict, caster, spellnum);
 	return 1;
@@ -4351,7 +4351,7 @@ int callMagicToArea(CharacterData *ch, CharacterData *victim, RoomData *room, in
 		if (mag_messages[msgIndex].to_vict != nullptr && target->desc) {
 			act(mag_messages[msgIndex].to_vict, false, ch, nullptr, target, TO_VICT);
 		}
-		mag_single_target(level, ch, target, nullptr, spellnum, SAVING_STABILITY);
+		mag_single_target(level, ch, target, nullptr, spellnum, ESaving::kStability);
 		if (ch->purged()) {
 			return 1;
 		}
@@ -4391,7 +4391,7 @@ int callMagicToGroup(int level, CharacterData *ch, int spellnum) {
 	ActionTargeting::FriendsRosterType roster{ch, ch};
 	roster.flip();
 	for (const auto target : roster) {
-		mag_single_target(level, ch, target, nullptr, spellnum, SAVING_STABILITY);
+		mag_single_target(level, ch, target, nullptr, spellnum, ESaving::kStability);
 	}
 	return 1;
 }

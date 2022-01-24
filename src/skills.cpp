@@ -575,7 +575,7 @@ int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attac
 		if (fight_messages[i].attack_type == attacktype) {
 			nr = dice(1, fight_messages[i].number_of_attacks);
 			// log("[SKILL MESSAGE] %d(%d)",fight_messages[i].number_of_attacks,nr);
-			for (j = 1, msg = fight_messages[i].msg; (j < nr) && msg; j++) {
+			for (j = 1, msg = fight_messages[i].msg_set; (j < nr) && msg; j++) {
 				msg = msg->next;
 			}
 
@@ -800,7 +800,7 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 		}
 	}
 
-	if (skill_info[skill_id].save_type != SAVING_NONE) {
+	if (!skill_info[skill_id].autosuccess) {
 		rate -= static_cast<int>(round(GET_SAVE(vict, skill_info[skill_id].save_type) * kSaveWeight));
 	}
 

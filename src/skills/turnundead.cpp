@@ -91,7 +91,7 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 		};
 		turnUndeadDamage.process(ch, target);
 		if (!target->purged() && turnUndeadRoll.isSuccess() && !MOB_FLAGGED(target, MOB_NOFEAR)
-			&& !general_savingthrow(ch, target, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
+			&& !general_savingthrow(ch, target, ESaving::kWill, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
 			go_flee(target);
 		};
 		--victimsAmount;

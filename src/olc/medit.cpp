@@ -546,7 +546,7 @@ void medit_save_internally(DescriptorData *d) {
  */
 void medit_save_to_disk(int zone_num) {
 	struct Helper *helper;
-	int i, j, c, n, rmob_num, zone, top, sum;
+	int i, j, c, rmob_num, zone, top, sum;
 	FILE *mob_file;
 	char fname[64];
 	CharacterData *mob;
@@ -612,11 +612,13 @@ void medit_save_to_disk(int zone_num) {
 
 			// * Deal with Extra stats in case they are there.
 			sum = 0;
-			for (n = 0; n < SAVING_COUNT; n++)
-				sum += GET_SAVE(mob, n);
+			for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+				sum += GET_SAVE(mob, save);
+			}
 			if (sum != 0)
 				fprintf(mob_file, "Saves: %d %d %d %d\n",
-						GET_SAVE(mob, 0), GET_SAVE(mob, 1), GET_SAVE(mob, 2), GET_SAVE(mob, 3));
+						GET_SAVE(mob, ESaving::kWill), GET_SAVE(mob, ESaving::kCritical),
+						GET_SAVE(mob, ESaving::kStability), GET_SAVE(mob, ESaving::kReflex));
 			sum = 0;
 			fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
 					GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
@@ -819,17 +821,16 @@ void medit_disp_resistances(DescriptorData *d) {
 	send_to_char("Введите номер и величину сопротивления (-100..100\%) (0 - конец) : ", d->character.get());
 }
 
-// *  Display saves - added by Adept
+// *  Display saves
 void medit_disp_saves(DescriptorData *d) {
-	int i;
-
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 1; *apply_negative[i] != '\n'; i++) {
+	for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
+		auto i = to_underlying(s);
 		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
-				grn, i, nrm, apply_negative[i], cyn, GET_SAVE(OLC_MOB(d), i - 1), nrm);
+				grn, i+1, nrm, apply_negative[i+1], cyn, GET_SAVE(OLC_MOB(d), s), nrm);
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("Введите номер и величину спас-броска (0 - конец) : ", d->character.get());
@@ -1843,21 +1844,22 @@ void medit_parse(DescriptorData *d, char *arg) {
 			medit_disp_add_parameters(d);
 			return;
 
-		case MEDIT_SAVES: number = atoi(arg);
+		case MEDIT_SAVES: {
+			number = atoi(arg);
 			if (number == 0) {
 				break;
-			}
-
-			if (number > SAVING_COUNT || number < 0) {
+			};
+			auto saving = static_cast<ESaving>(number - 1);
+			if (saving < ESaving::kFirst || saving > ESaving::kLast) {
 				send_to_char("Неверный номер.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указана величина спас-броска.\r\n", d->character.get());
 			} else {
-				GET_SAVE(OLC_MOB(d), number - 1) = MIN(kMaxSaving, MAX(-kMaxSaving, bit));
+				SET_SAVE(OLC_MOB(d), saving, std::clamp(bit, kMinSaving, kMaxSaving));
 			}
 			medit_disp_saves(d);
 			return;
-
+		}
 		case MEDIT_ALIAS: OLC_MOB(d)->set_pc_name(not_null(arg, "неопределен"));
 			break;
 

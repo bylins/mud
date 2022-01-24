@@ -86,7 +86,7 @@ void do_mixture(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (IS_MANA_CASTER(ch)) {
-		if (GET_REAL_LEVEL(ch) < CalculateRequiredLevel(ch, spellnum)) {
+		if (GET_REAL_LEVEL(ch) < CalcRequiredLevel(ch, spellnum)) {
 			send_to_char("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
 			return;
 		}
@@ -100,7 +100,7 @@ void do_mixture(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, true, tch)) {
-		if (!CalculateCastSuccess(ch, tch, SAVING_NONE, spellnum)) {
+		if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
 			WAIT_STATE(ch, kPulseViolence);
 			if (!tch || !SendSkillMessages(0, ch, tch, spellnum)) {
 				if (subcmd == SCMD_ITEMS)

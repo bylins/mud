@@ -2087,7 +2087,7 @@ void load_messages() {
 	for (i = 0; i < kMaxMessages; i++) {
 		fight_messages[i].attack_type = 0;
 		fight_messages[i].number_of_attacks = 0;
-		fight_messages[i].msg = nullptr;
+		fight_messages[i].msg_set = nullptr;
 	}
 
 	const char *dummyc = fgets(chk, 128, fl);
@@ -2111,8 +2111,8 @@ void load_messages() {
 		CREATE(messages, 1);
 		fight_messages[i].number_of_attacks++;
 		fight_messages[i].attack_type = type;
-		messages->next = fight_messages[i].msg;
-		fight_messages[i].msg = messages;
+		messages->next = fight_messages[i].msg_set;
+		fight_messages[i].msg_set = messages;
 
 		messages->die_msg.attacker_msg = fread_action(fl, i);
 		messages->die_msg.victim_msg = fread_action(fl, i);
@@ -3201,10 +3201,9 @@ void set_test_data(CharacterData *mob) {
 						int min_save = -(10 + 4 * (mob->get_level() - 31));
 						min_save = calc_boss_value(mob, min_save);
 
-						for (int i = 0; i < 4; ++i) {
-							if (GET_SAVE(mob, i) > min_save) {
-								//log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
-								GET_SAVE(mob, i) = min_save;
+						for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
+							if (GET_SAVE(mob, s) > min_save) {
+								SET_SAVE(mob, s, min_save);
 							}
 						}
 						// 20..77

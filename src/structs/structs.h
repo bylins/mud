@@ -221,9 +221,13 @@ const int kMaxFeats = 256;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
 const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 
+const short kMinCharLevel = 0;
 const short kMaxMobLevel = 100;
-const short kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
-const short kStrongMobLevel = 30;
+const int kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
+constexpr int kMinSaving = -kMaxSaving;
+const int kMaxResistance = 100;
+constexpr int kMinResistance = -kMaxResistance;
+const int kStrongMobLevel = 30;
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 

@@ -2849,7 +2849,7 @@ int HitData::extdamage(CharacterData *ch, CharacterData *victim) {
 		&& GET_WAIT(ch) <= 0
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_POISON)
 		&& number(0, 100) < GET_LIKES(ch) + GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(victim)
-		&& !general_savingthrow(ch, victim, SAVING_CRITICAL, -GET_REAL_CON(victim))) {
+		&& !general_savingthrow(ch, victim, ESaving::kCritical, -GET_REAL_CON(victim))) {
 		poison_victim(ch, victim, MAX(1, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(victim)) * 10);
 	}
 		//* точный стиль //
@@ -3579,13 +3579,13 @@ void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::Att
 					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || IN_ROOM(tch) == kNowhere)
 						continue;
 					if (tch != ch && !same_group(ch, tch)) {
-						mag_damage(GET_REAL_LEVEL(ch), ch, tch, spellnum, SAVING_STABILITY);
+						mag_damage(GET_REAL_LEVEL(ch), ch, tch, spellnum, ESaving::kStability);
 					}
 				}
 				return;
 			}
 			// а теперь просто дышащие
-			mag_damage(GET_REAL_LEVEL(ch), ch, victim, spellnum, SAVING_STABILITY);
+			mag_damage(GET_REAL_LEVEL(ch), ch, victim, spellnum, ESaving::kStability);
 			return;
 		}
 	}
@@ -3607,9 +3607,9 @@ void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::Att
 			|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
     if (IS_NPC(ch)) {
-		mag_damage(std::min(kLevelImplementator, GET_REAL_LEVEL(ch)), ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+		mag_damage(std::min(kLevelImplementator, GET_REAL_LEVEL(ch)), ch, victim, SPELL_MAGIC_MISSILE, ESaving::kReflex);
 	} else {
-		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, ESaving::kReflex);
     }
 		if (ch->purged() || victim->purged()) {
 			return;
@@ -3739,7 +3739,7 @@ void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::Att
 		}
 
 		if (number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL)
-			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch)))) {
+			&& !general_savingthrow(ch, victim, ESaving::kReflex, dex_bonus(GET_REAL_DEX(ch)))) {
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 			if ((hit_params.dam > 0)
 				&& !AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)

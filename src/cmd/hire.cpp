@@ -68,10 +68,10 @@ long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 
 	price += m_hit + m_lvl + m_ac + m_hr + m_armor + m_absorb;
 
-	int m_stab = GET_SAVE(victim, SAVING_STABILITY) * (-4);
-	int m_ref = GET_SAVE(victim, SAVING_REFLEX) * (-4);
-	int m_crit = GET_SAVE(victim, SAVING_CRITICAL) * (-4);
-	int m_wil = GET_SAVE(victim, SAVING_WILL) * (-4);
+	int m_stab = GET_SAVE(victim, ESaving::kStability) * (-4);
+	int m_ref = GET_SAVE(victim, ESaving::kReflex) * (-4);
+	int m_crit = GET_SAVE(victim, ESaving::kCritical) * (-4);
+	int m_wil = GET_SAVE(victim, ESaving::kWill) * (-4);
 	ch->send_to_TC(true, true, true, "Сейвы: STAB:%d REF:%d CRIT:%d WILL:%d\r\n",
 				   m_stab, m_ref, m_crit, m_wil);
 	price += m_stab + m_ref + m_crit + m_wil;
@@ -84,19 +84,9 @@ long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 	int m_mind = GET_RESIST(victim, MIND_RESISTANCE) * 4;
 	int m_immu = GET_RESIST(victim, IMMUNITY_RESISTANCE) * 4;
 	int m_dark = GET_RESIST(victim, DARK_RESISTANCE) * 4;
-	ch->send_to_TC(true,
-				   true,
-				   true,
+	ch->send_to_TC(true, true, true,
 				   "Маг.резисты: Fire:%d Air:%d Water:%d Earth:%d Vita:%d Mind:%d Immu:%d Dark:%d\r\n",
-				   m_fire,
-				   m_air,
-				   m_water,
-				   m_earth,
-				   m_vita,
-				   m_mind,
-				   m_immu,
-				   m_dark);
-
+				   m_fire, m_air, m_water, m_earth, m_vita, m_mind, m_immu, m_dark);
 	price += m_fire + m_air + m_water + m_earth + m_vita + m_mind + m_immu + m_dark;
 	// удача и инициатива
 	int m_luck = victim->calc_morale() * 10;
@@ -125,16 +115,9 @@ long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 	int min_price = MAX((m_dr / 300 * GET_REAL_LEVEL(victim)), (GET_REAL_LEVEL(victim) * 5));
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
-	ch->send_to_TC(true,
-				   true,
-				   true,
+	ch->send_to_TC(true, true, true,
 				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
-				   rem_hirePoints,
-				   cha_hirePoints,
-				   int_hirePoints,
-				   hirePoints,
-				   price,
-				   finalPrice);
+				   rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, price, finalPrice);
 	return std::min(finalPrice, MAX_HIRE_PRICE);
 }
 

@@ -2614,8 +2614,9 @@ void init_char(CharacterData *ch, PlayerIndexElement &element) {
 	}
 
 	ch->char_specials.saved.affected_by = clear_flags;
-	for (i = 0; i < SAVING_COUNT; i++)
-		GET_SAVE(ch, i) = 0;
+	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+		SET_SAVE(ch, save, 0);
+	}
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
 		GET_RESIST(ch, i) = 0;
 

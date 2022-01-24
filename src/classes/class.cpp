@@ -65,7 +65,7 @@ void do_start(CharacterData *ch, int newbie);
 int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
 int invalid_no_class(CharacterData *ch, const ObjectData *obj);
 int level_exp(CharacterData *ch, int level);
-byte extend_saving_throws(int class_num, int type, int level);
+byte extend_saving_throws(int class_num, ESaving saving, int level);
 int invalid_unique(CharacterData *ch, const ObjectData *obj);
 void mspell_level(char *name, int spell, int kin, int chclass, int level);
 void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
@@ -599,63 +599,47 @@ const byte sav_18[100] =
 	};
 
 // {CLASS,{PARA,ROD,AFFECT,BREATH,SPELL,BASIC}}
-struct std_saving_type {
+struct ClassSavings {
 	int chclass;
-	const byte *saves[SAVING_COUNT];
+	const byte *saves[to_underlying(ESaving::kLast) + 1];
 };
 
-std_saving_type std_saving[] =
-	{
-		{
-			CLASS_CLERIC, {
-			sav_01, sav_10, sav_08, sav_14}}, {
-			CLASS_BATTLEMAGE, {
-			sav_01, sav_09, sav_02, sav_14}}, {
-			CLASS_CHARMMAGE, {
-			sav_02, sav_09, sav_02, sav_14}}, {
-			CLASS_DEFENDERMAGE, {
-			sav_01, sav_09, sav_01, sav_14}}, {
-			CLASS_NECROMANCER, {
-			sav_01, sav_09, sav_01, sav_14}}, {
-			CLASS_DRUID, {
-			sav_03, sav_10, sav_03, sav_14}}, {
-			CLASS_THIEF, {
-			sav_08, sav_11, sav_08, sav_15}}, {
-			CLASS_ASSASINE, {
-			sav_08, sav_11, sav_08, sav_15}}, {
-			CLASS_MERCHANT, {
-			sav_08, sav_11, sav_08, sav_15}}, {
-			CLASS_WARRIOR, {
-			sav_04, sav_12, sav_04, sav_16}}, {
-			CLASS_GUARD, {
-			sav_04, sav_12, sav_04, sav_16}}, {
-			CLASS_SMITH, {
-			sav_04, sav_12, sav_04, sav_16}}, {
-			CLASS_PALADINE, {
-			sav_05, sav_12, sav_05, sav_17}}, {
-			CLASS_RANGER, {
-			sav_05, sav_12, sav_05, sav_17}}, {
-			CLASS_MOB, {
-			sav_06, sav_13, sav_06, sav_18}}, {
-			-1, {
-			sav_02, sav_12, sav_02, sav_16}}
-	};
+const ClassSavings std_saving[] = {
+	{CLASS_CLERIC, {sav_01, sav_10, sav_08, sav_14}},
+	{CLASS_BATTLEMAGE, {sav_01, sav_09, sav_02, sav_14}},
+	{CLASS_CHARMMAGE, {sav_02, sav_09, sav_02, sav_14}},
+	{CLASS_DEFENDERMAGE, {sav_01, sav_09, sav_01, sav_14}},
+	{CLASS_NECROMANCER, {sav_01, sav_09, sav_01, sav_14}},
+	{CLASS_DRUID, {sav_03, sav_10, sav_03, sav_14}},
+	{CLASS_THIEF, {sav_08, sav_11, sav_08, sav_15}},
+	{CLASS_ASSASINE, {sav_08, sav_11, sav_08, sav_15}},
+	{CLASS_MERCHANT, {sav_08, sav_11, sav_08, sav_15}},
+	{CLASS_WARRIOR, {sav_04, sav_12, sav_04, sav_16}},
+	{CLASS_GUARD, {sav_04, sav_12, sav_04, sav_16}},
+	{CLASS_SMITH, {sav_04, sav_12, sav_04, sav_16}},
+	{CLASS_PALADINE, {sav_05, sav_12, sav_05, sav_17}},
+	{CLASS_RANGER, {sav_05, sav_12, sav_05, sav_17}},
+	{CLASS_MOB, {sav_06, sav_13, sav_06, sav_18}},
+	{-1, {sav_02, sav_12, sav_02, sav_16}}
+};
 
-byte saving_throws(int class_num, int type, int level) {
+byte saving_throws(int class_num, ESaving type, int level) {
 	return extend_saving_throws(class_num, type, level);
 }
 
-byte extend_saving_throws(int class_num, int type, int level) {
+byte extend_saving_throws(int class_num, ESaving save, int level) {
 	int i;
-	if (type < 0 || type >= SAVING_COUNT)
+	if (save < ESaving::kFirst || save > ESaving::kLast) {
+		return 100; // Что за 100? Почему 100? kMaxSaving равен 400. Идиотизм.
+	}
+	if (level <= 0 || level > 100) {
 		return 100;
-	if (level <= 0 || level > 100)
-		return 100;
+	}
 	--level;
 
 	for (i = 0; std_saving[i].chclass != -1 && std_saving[i].chclass != class_num; ++i);
 
-	return std_saving[i].saves[type][level];
+	return std_saving[i].saves[to_underlying(save)][level];
 }
 
 // THAC0 for classes and levels.  (To Hit Armor Class 0)
@@ -2067,7 +2051,7 @@ void init_basic_values() {
 	класса. На момент написания этого в конфиге присутствует 26 строк, макс.
 	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
 */
-int GroupPenalties::init(void) {
+int GroupPenalties::init() {
 	char buf[kMaxInputLength];
 	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = kMaxRemort + 1;
 

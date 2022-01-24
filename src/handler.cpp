@@ -877,7 +877,7 @@ unsigned int activate_stuff(CharacterData *ch, ObjectData *obj, id_to_set_info_m
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, TO_CHAR);
 								} else {
-									mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
+									mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, ESaving::kWill);
 								}
 							}
 						}
@@ -909,7 +909,7 @@ unsigned int activate_stuff(CharacterData *ch, ObjectData *obj, id_to_set_info_m
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, TO_CHAR);
 							} else {
-								mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
+								mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, ESaving::kWill);
 							}
 						}
 					}
@@ -1094,7 +1094,7 @@ void equip_char(CharacterData *ch, ObjectData *obj, int pos, const CharEquipFlag
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, TO_CHAR);
 					} else {
-						mag_affects(GET_REAL_LEVEL(ch), ch, ch, j.aff_spell, SAVING_WILL);
+						mag_affects(GET_REAL_LEVEL(ch), ch, ch, j.aff_spell, ESaving::kWill);
 					}
 				}
 			}
@@ -2828,7 +2828,7 @@ int mag_manacost(const CharacterData *ch, int spellnum) {
 	}
 
 //	Мем рунных профессий(на сегодня только волхвы)
-	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= CalculateRequiredLevel(ch, spellnum)) {
+	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= CalcRequiredLevel(ch, spellnum)) {
 		result = static_cast<int>(DRUID_MANA_COST_MODIFIER
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic

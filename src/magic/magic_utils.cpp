@@ -32,7 +32,7 @@ char cast_argument[kMaxStringLength];
 extern int what_sky;
 
 
-int CalculateRequiredLevel(const CharacterData *ch, int spellnum) {
+int CalcRequiredLevel(const CharacterData *ch, int spellnum) {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 
 	if (required_level >= kLevelGod)
@@ -376,7 +376,7 @@ int CallMagic(CharacterData *caster, CharacterData *cvict, ObjectData *ovict, Ro
 	if (IS_SET(SpINFO.routines, MAG_ROOM))
 		return room_spells::ImposeSpellToRoom(level, caster, rvict, spellnum);
 
-	return mag_single_target(level, caster, cvict, ovict, spellnum, SAVING_STABILITY);
+	return mag_single_target(level, caster, cvict, ovict, spellnum, ESaving::kStability);
 }
 
 const char *what_sky_type[] = {"пасмурно",
@@ -658,15 +658,15 @@ int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData 
 	return (CallMagic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)));
 }
 
-int CalculateCastSuccess(CharacterData *ch, CharacterData *victim, int casting_type, int spellnum) {
+int CalcCastSuccess(CharacterData *ch, CharacterData *victim, ESaving saving, int spellnum) {
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
 		return true;
 	}
 
 	int prob;
-	switch (casting_type) {
-		case SAVING_STABILITY:
-		case SAVING_NONE:
+	// Svent: Это очевидно какой-то тупой костыль, но пока не буду исправлять.
+	switch (saving) {
+		case ESaving::kStability:
 			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
 			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MAGE))
 				|| (IS_CLERIC(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))

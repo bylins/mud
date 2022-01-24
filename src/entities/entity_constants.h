@@ -65,6 +65,17 @@ const std::string &NAME_BY_ITEM<EBaseStat>(EBaseStat item);
 template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name);
 
+enum class ESaving : int {
+	kWill = 0,
+	kCritical = 1,
+	kStability = 2,
+	kReflex = 3,
+	kFirst = kWill,
+	kLast = kReflex, // Не забываем менять при добаввлении новых элементов.
+};
+
+ESaving& operator++(ESaving &s);
+
 // Character equipment positions: used as index for char_data.equipment[] //
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors
 //       which control the valid places you can wear a piece of equipment

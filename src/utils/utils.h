@@ -626,7 +626,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AGE_ADD(ch)   ((ch)->add_abils.age_add)
 #define GET_HIT_ADD(ch)   ((ch)->add_abils.hit_add)
 #define GET_MOVE_ADD(ch)  ((ch)->add_abils.move_add)
-#define GET_SAVE(ch, i)    ((ch)->add_abils.apply_saving_throw[i])
 #define GET_RESIST(ch, i)  ((ch)->add_abils.apply_resistance_throw[i])
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
@@ -635,10 +634,10 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
-#define GET_REAL_SAVING_STABILITY(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)    + ((ch)->ahorse() ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)        (dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)        + ((ch)->ahorse() ? -20 : 0))
-#define GET_REAL_SAVING_CRITICAL(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_CRITICAL))
-#define GET_REAL_SAVING_WILL(ch)        (dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, SAVING_WILL))
+#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->ahorse() ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, ESaving::kReflex) + ((ch)->ahorse() ? -20 : 0))
+#define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kCritical))
+#define GET_REAL_SAVING_WILL(ch)	(dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, ESaving::kWill))
 
 #define GET_POS(ch)        ((ch)->char_specials.position)
 #define GET_IDNUM(ch)     ((ch)->get_idnum())

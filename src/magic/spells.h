@@ -11,6 +11,7 @@
 #ifndef SPELLS_H_
 #define SPELLS_H_
 
+#include "entities/entity_constants.h"
 #include "skills.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
 #include "classes/class_constants.h"
@@ -30,15 +31,15 @@ struct RoomData;    // forward declaration to avoid inclusion of room.hpp and an
 // * Spells class                *
 // *******************************
 
-#define STYPE_NEUTRAL    0
-#define STYPE_AIR    1
-#define STYPE_FIRE    2
-#define STYPE_WATER    3
-#define STYPE_EARTH    4
-#define STYPE_LIGHT    6
-#define STYPE_DARK    7
-#define STYPE_MIND    8
-#define STYPE_LIFE    9
+const int STYPE_NEUTRAL = 0;
+const int STYPE_AIR = 1;
+const int STYPE_FIRE = 2;
+const int STYPE_WATER = 3;
+const int STYPE_EARTH = 4;
+const int STYPE_LIGHT = 6;
+const int STYPE_DARK = 7;
+const int STYPE_MIND = 8;
+const int STYPE_LIFE = 9;
 
 #define MAG_DAMAGE            (1 << 0)
 #define MAG_AFFECTS            (1 << 1)
@@ -396,7 +397,7 @@ ESpell ITEM_BY_NAME<ESpell>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
 
-#define MAX_SLOT 13
+const int MAX_SLOT = 13;
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
@@ -509,8 +510,8 @@ bool catch_bloody_corpse(ObjectData *l);
 void init_spell_levels(void);
 const char *skill_name(int num);
 const char *spell_name(int num);
-int calculateSaving(CharacterData *killer, CharacterData *victim, int type, int ext_apply);
-int general_savingthrow(CharacterData *killer, CharacterData *victim, int type, int ext_apply);
+int calculateSaving(CharacterData *killer, CharacterData *victim, ESaving saving, int ext_apply);
+int general_savingthrow(CharacterData *killer, CharacterData *victim, ESaving type, int ext_apply);
 bool can_get_spell(CharacterData *ch, int spellnum);
 int min_spell_lvl_with_req(CharacterData *ch, int spellnum, int req_lvl);
 bool can_get_spell_with_req(CharacterData *ch, int spellnum, int req_lvl);
@@ -522,11 +523,11 @@ int check_recipe_items(CharacterData *ch, int spellnum, int spelltype, int extra
 typedef std::map<int, int> SpellCountType;
 
 namespace SpellUsage {
-extern bool isActive;
-extern time_t start;
-void AddSpellStat(int charClass, int spellNum);
-void save();
-void clear();
+	extern bool isActive;
+	extern time_t start;
+	void AddSpellStat(int charClass, int spellNum);
+	void save();
+	void clear();
 };
 //-Polud
 

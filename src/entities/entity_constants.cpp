@@ -398,4 +398,9 @@ EPosition operator--(const EPosition &p) {
 	return pp;
 }
 
+ESaving& operator++(ESaving &s) {
+	s =  static_cast<ESaving>(to_underlying(s) + 1);
+	return s;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

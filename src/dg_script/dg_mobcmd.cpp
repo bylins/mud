@@ -58,7 +58,7 @@ void mob_command_interpreter(CharacterData *ch, char *argument);
 bool mob_script_command_interpreter(CharacterData *ch, char *argument);
 void send_to_zone(char *messg, int zone_rnum);
 
-// attaches mob's name and vnum to msg and sends it to script_log
+// attaches mob's name and vnum to msg_set and sends it to script_log
 void mob_log(CharacterData *mob, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 

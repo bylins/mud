@@ -49,7 +49,7 @@ struct wld_command_info {
 #define SCMD_WSEND        0
 #define SCMD_WECHOAROUND  1
 
-// attaches room vnum to msg and sends it to script_log
+// attaches room vnum to msg_set and sends it to script_log
 void wld_log(RoomData *room, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 

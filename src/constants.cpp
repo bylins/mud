@@ -868,10 +868,10 @@ const char *anti_bits[] = {"!христиане",
 };
 
 const char *apply_negative[] = {"защита",
-								"воля",        // SAVING_WILL
-								"здоровье",    // SAVING_CRITICAL
-								"стойкость",    // SAVING_STABILITY
-								"реакция",    // SAVING_REFLEX
+								"воля",        // kWill
+								"здоровье",    // kCritical
+								"стойкость",    // kStability
+								"реакция",    // kReflex
 								"\n"
 };
 

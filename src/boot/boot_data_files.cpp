@@ -1109,7 +1109,7 @@ void MobileFile::parse_mobile(const int nr) {
 }
 
 void MobileFile::parse_simple_mob(int i, int nr) {
-	int j, t[10];
+	int t[10];
 	char line[256];
 
 	mob_proto[i].set_str(11);
@@ -1190,8 +1190,9 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	* these are now save applies; base save numbers for MOBs are now from
 	* the warrior save table.
 	*/
-	for (j = 0; j < SAVING_COUNT; j++)
-		GET_SAVE(mob_proto + i, j) = 0;
+	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+		SET_SAVE(mob_proto + i, save, 0);
+	}
 }
 
 void MobileFile::parse_enhanced_mob(int i, int nr) {
@@ -1267,7 +1268,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (unsigned kk = 0; kk < array_string.size(); kk++) {
-			GET_RESIST(mob_proto + i, kk) = MIN(100, MAX(-100, atoi(array_string[kk].c_str())));
+			GET_RESIST(mob_proto + i, kk) = std::clamp(atoi(array_string[kk].c_str()), kMinResistance, kMaxResistance);
 		}
 
 
@@ -1285,8 +1286,8 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <# # # #> for SAVES in MOB #%d", i);
 			return;
 		}
-		for (k = 0; k < SAVING_COUNT; k++)
-			GET_SAVE(mob_proto + i, k) = MIN(kMaxSaving, MAX(-kMaxSaving, t[k]));
+		for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save)
+			SET_SAVE(mob_proto + i, save, std::clamp(t[to_underlying(save)], kMinSaving, kMaxSaving));
 	}
 
 	CASE("HPReg") {

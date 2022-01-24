@@ -48,7 +48,7 @@ struct obj_command_info {
 #define SCMD_OSEND         0
 #define SCMD_OECHOAROUND   1
 
-// attaches object name and vnum to msg and sends it to script_log
+// attaches object name and vnum to msg_set and sends it to script_log
 void obj_log(ObjectData *obj, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 

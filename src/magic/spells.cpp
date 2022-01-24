@@ -274,7 +274,7 @@ void spell_recall(int/* level*/, CharacterData *ch, CharacterData *victim, Objec
 			return;
 		}
 
-		if ((IS_NPC(ch) && general_savingthrow(ch, victim, SAVING_WILL, GET_REAL_INT(ch))) || IS_GOD(victim)) {
+		if ((IS_NPC(ch) && general_savingthrow(ch, victim, ESaving::kWill, GET_REAL_INT(ch))) || IS_GOD(victim)) {
 			return;
 		}
 	}
@@ -957,7 +957,7 @@ void spell_charm(int/* level*/, CharacterData *ch, CharacterData *victim, Object
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch)
-		&& general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 4 + GET_REAL_REMORT(ch) * 3)) //предлагаю завязать на каст
+		&& general_savingthrow(ch, victim, ESaving::kWill, (GET_REAL_CHA(ch) - 10) * 4 + GET_REAL_REMORT(ch) * 3)) //предлагаю завязать на каст
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
 		if (!check_charmee(ch, victim, SPELL_CHARM)) {
@@ -2050,7 +2050,7 @@ void spell_fear(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLESS))
 		modi -= 25;
 
-	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(ch, victim, SAVING_WILL, modi))
+	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(ch, victim, ESaving::kWill, modi))
 		go_flee(victim);
 }
 
@@ -2068,7 +2068,7 @@ void spell_energydrain(int/* level*/, CharacterData *ch, CharacterData *victim, 
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
 
-	if (ch == victim || !general_savingthrow(ch, victim, SAVING_WILL, CALC_SUCCESS(modi, 33))) {
+	if (ch == victim || !general_savingthrow(ch, victim, ESaving::kWill, CALC_SUCCESS(modi, 33))) {
 		int i;
 		for (i = 0; i <= SPELLS_COUNT; GET_SPELL_MEM(victim, i++) = 0);
 		GET_CASTER(victim) = 0;
@@ -2098,7 +2098,7 @@ void spell_sacrifice(int/* level*/, CharacterData *ch, CharacterData *victim, Ob
 		return;
 	}
 
-	dam = mag_damage(GET_REAL_LEVEL(ch), ch, victim, SPELL_SACRIFICE, SAVING_STABILITY);
+	dam = mag_damage(GET_REAL_LEVEL(ch), ch, victim, SPELL_SACRIFICE, ESaving::kStability);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -2144,8 +2144,8 @@ void spell_holystrike(int/* level*/, CharacterData *ch, CharacterData * /*victim
 			}
 		}
 
-		mag_affects(GET_REAL_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);
-		mag_damage(GET_REAL_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);
+		mag_affects(GET_REAL_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, ESaving::kStability);
+		mag_damage(GET_REAL_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, ESaving::kStability);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, TO_CHAR);
