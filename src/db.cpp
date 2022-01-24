@@ -4875,7 +4875,7 @@ const char *get_name_by_unique(int unique) {
 			return player_table[i].name();
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 int get_level_by_unique(long unique) {
