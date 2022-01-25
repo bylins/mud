@@ -72,7 +72,7 @@
 #include "password.h"
 #include "privilege.h"
 #include "entities/room.h"
-#include "screen.h"
+#include "color.h"
 #include "skills.h"
 #include "skills/bash.h"
 #include "skills/block.h"

@@ -1,7 +1,7 @@
 #include "warcry.h"
 
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/magic_utils.h"
 #include "magic/spells_info.h"
 

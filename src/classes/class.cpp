@@ -36,7 +36,7 @@
 #include "crafts/im.h"
 #include "entities/char.h"
 #include "spam.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
 #include "entities/player_races.h"

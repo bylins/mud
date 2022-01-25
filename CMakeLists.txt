@@ -235,7 +235,8 @@ set(SOURCES
 		src/classes/class_constants.cpp
         src/structs/extra_description.cpp
 		src/communication/insult.cpp
-		src/abilities/abilities_info.cpp src/abilities/abilities_constants.cpp)
+		src/abilities/abilities_info.cpp
+		src/abilities/abilities_constants.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -413,7 +414,7 @@ set(HEADERS
 		src/remember.h
 		src/reset_stats.h
 		src/entities/room.h
-		src/screen.h
+		src/color.h
 		src/game_mechanics/sets_drop.h
 		src/shop_ext.h
 		src/cmd_god/shutdown_parameters.h

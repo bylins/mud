@@ -30,7 +30,7 @@
 #include "magic/magic.h"
 #include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/magic_utils.h"
 #include "world_objects.h"
 #include "entities/zone.h"

@@ -5,7 +5,7 @@
 #include "magic/spells.h"
 
 #include "entities/obj.h"
-#include "screen.h"
+#include "color.h"
 #include "skills/poison.h"
 #include "entities/char.h"
 #include "utils/utils_char_obj.inl"

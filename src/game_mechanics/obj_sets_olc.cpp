@@ -13,7 +13,7 @@
 #include "handler.h"
 #include "entities/char_player.h"
 #include "skills.h"
-#include "screen.h"
+#include "color.h"
 #include "modify.h"
 #include "magic/spells.h"
 #include "utils/utils.h"

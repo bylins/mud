@@ -16,7 +16,7 @@
 #include "comm.h"
 #include "db.h"
 #include "dg_script/dg_olc.h"
-#include "screen.h"
+#include "color.h"
 #include "crafts/item_creation.h"
 #include "crafts/im.h"
 #include "privilege.h"

@@ -5,7 +5,7 @@
 #include "ext_money.h"
 
 #include "entities/char.h"
-#include "screen.h"
+#include "color.h"
 #include "utils/pugixml.h"
 #include "parse.h"
 #include "entities/zone.h"

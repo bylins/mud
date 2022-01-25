@@ -9,7 +9,7 @@
 #include "boards_constants.h"
 #include "boards_formatters.h"
 #include "house.h"
-#include "screen.h"
+#include "color.h"
 #include "privilege.h"
 #include "entities/char.h"
 #include "modify.h"

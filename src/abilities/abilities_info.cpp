@@ -11,7 +11,7 @@
 #include "abilities/abilities_info.h"
 
 #include "entities/char.h"
-//#include "color.h"
+#include "color.h"
 #include "utils/pugixml.h"
 #include "game_mechanics/weather.h"
 
@@ -305,18 +305,18 @@ const AbilityInfo &AbilitiesInfo::operator[](EAbility ability_id) {
 std::string AbilityInfo::Print() const {
 	std::stringstream buffer;
 	buffer << "Print ability:" << "\n"
-/*		   << " Id: " << KGRN << NAME_BY_ITEM<EAbility>(GetId()) << KNRM << "\n"
+		   << " Id: " << KGRN << NAME_BY_ITEM<EAbility>(GetId()) << KNRM << "\n"
 		   << " Name: " << KGRN << GetName() << KNRM << "\n"
 		   << " Abbreviation: " << KGRN << GetAbbreviation() << KNRM << "\n"
 		   << " Base skill: " << KGRN << NAME_BY_ITEM<ESkill>(GetBaseSkillId()) << KNRM << "\n"
-		   << " Base characteristic: " << KGRN << NAME_BY_ITEM<EStat>(GetBaseStatId()) << KNRM
+		   << " Base characteristic: " << KGRN << NAME_BY_ITEM<EBaseStat>(GetBaseStatId()) << KNRM
 		   << "\n"
 		   << " Saving type: " << KGRN << NAME_BY_ITEM<ESaving>(GetSavingId()) << KNRM << "\n"
 		   << " Difficulty: " << KGRN << GetDifficulty() << KNRM << "\n"
 		   << " Critical fail threshold: " << KGRN << GetCritfailThreshold() << KNRM << "\n"
 		   << " Critical success threshold: " << KGRN << GetCritsuccessThreshold() << KNRM << "\n"
 		   << " Mob vs PC penalty: " << KGRN << GetMVPPenalty() << KNRM << "\n"
-		   << " PC vs PC penalty: " << KGRN << GetPVPPenalty() << KNRM << "\n"*/
+		   << " PC vs PC penalty: " << KGRN << GetPVPPenalty() << KNRM << "\n"
 		   << " Circumstance modificators:\n";
 	for (auto &item : circumstance_handlers_) {
 //		buffer << "   " << NAME_BY_ITEM<ECirumstance>(item.id_) << ": " << KGRN << item.mod_ << KNRM << "\n";

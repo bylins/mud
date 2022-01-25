@@ -20,7 +20,7 @@
 #include "entities/obj.h"
 #include "db.h"
 #include "comm.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/spells.h"
 #include "handler.h"
 #include "interpreter.h"

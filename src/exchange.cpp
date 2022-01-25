@@ -18,7 +18,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-#include "screen.h"
+#include "color.h"
 #include "crafts/im.h"
 #include "constants.h"
 #include "skills.h"

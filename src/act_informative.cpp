@@ -28,7 +28,7 @@
 #include "skills.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
-#include "screen.h"
+#include "color.h"
 #include "constants.h"
 #include "fightsystem/pk.h"
 #include "dg_script/dg_scripts.h"

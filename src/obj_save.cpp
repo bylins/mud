@@ -15,7 +15,7 @@
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "house.h"
 #include "depot.h"
 #include "liquid.h"

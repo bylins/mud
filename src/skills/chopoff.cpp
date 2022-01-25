@@ -5,7 +5,7 @@
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/fight_start.h"
 #include "utils/random.h"
-#include "screen.h"
+#include "color.h"
 #include "skills_info.h"
 
 using namespace FightSystem;

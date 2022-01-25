@@ -65,7 +65,7 @@
 #include "privilege.h"
 #include "utils/pugixml.h"
 #include "entities/room.h"
-#include "screen.h"
+#include "color.h"
 #include "game_mechanics/sets_drop.h"
 #include "shop_ext.h"
 #include "skills.h"

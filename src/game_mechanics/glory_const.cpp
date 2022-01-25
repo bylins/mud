@@ -8,7 +8,7 @@
 #include "utils/utils.h"
 #include "utils/pugixml.h"
 #include "structs/structs.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char.h"
 #include "comm.h"
 #include "db.h"

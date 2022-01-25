@@ -15,7 +15,7 @@
 #include "pk.h"
 #include "stuff.h"
 #include "top.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/magic.h"
 #include "mob_stat.h"
 #include "game_mechanics/bonus.h"

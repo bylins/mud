@@ -9,7 +9,7 @@
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "auction.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char_player.h"
 #include "modify.h"
 #include "obj_save.h"

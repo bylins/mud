@@ -2,7 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "genchar.h"
-#include "screen.h"
+#include "color.h"
 #include "parse.h"
 #include "entities/char.h"
 

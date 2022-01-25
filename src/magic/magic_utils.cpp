@@ -16,7 +16,7 @@
 
 #include "entities/char.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "fightsystem/pk.h"
 #include "depot.h"
 #include "parcel.h"

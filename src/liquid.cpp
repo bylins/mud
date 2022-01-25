@@ -14,7 +14,7 @@
 #include "utils/utils_char_obj.inl"
 #include "handler.h"
 #include "magic/magic.h"
-#include "screen.h"
+#include "color.h"
 #include "skills_info.h"
 
 #include <cmath>

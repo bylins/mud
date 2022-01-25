@@ -15,7 +15,7 @@
 #include "house.h"
 #include "liquid.h"
 #include "obj_prototypes.h"
-#include "screen.h"
+#include "color.h"
 #include "mob_stat.h"
 #include "modify.h"
 #include "entities/zone.h"

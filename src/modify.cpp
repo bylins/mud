@@ -22,7 +22,7 @@
 #include "magic/spells.h"
 #include "mail.h"
 #include "boards/boards.h"
-#include "screen.h"
+#include "color.h"
 #include "olc/olc.h"
 #include "feats.h"
 #include "house.h"

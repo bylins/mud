@@ -7,7 +7,7 @@
 #include "entities/obj.h"
 #include "entities/char.h"
 #include "liquid.h"
-#include "screen.h"
+#include "color.h"
 #include "fightsystem/fight.h"
 #include "skills_info.h"
 

@@ -16,7 +16,7 @@
 #include "entities/world_characters.h"
 #include "skills/townportal.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "house.h"
 #include "exchange.h"
 #include "game_mechanics/deathtrap.h"

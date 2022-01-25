@@ -24,7 +24,7 @@
 #include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
 #include "privilege.h"
-#include "screen.h"
+#include "color.h"
 #include "skills_info.h"
 #include "skills/pick.h"
 #include "utils/random.h"

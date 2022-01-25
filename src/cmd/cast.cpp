@@ -12,7 +12,7 @@
 #include "classes/class_spell_slots.h"
 #include "magic/spells_info.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 
 /*
  * do_cast is the entry point for PC-casted spells.  It parses the arguments,

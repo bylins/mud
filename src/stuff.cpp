@@ -13,7 +13,7 @@
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "corpse.h"
-#include "screen.h"
+#include "color.h"
 #include "game_mechanics/sets_drop.h"
 
 

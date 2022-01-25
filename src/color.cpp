@@ -14,7 +14,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "sysdep.h"
+//#include "sysdep.h"
 #include "structs/structs.h"
 
 #define CNRM  "\x1B[0;0m"
@@ -61,7 +61,7 @@ const char *COLOURLIST[] = {CNRM, CRED, CGRN, CYEL, CBLU, CMAG, CCYN, CWHT,
 							CAMP, CSLH, BKBLK, CBLK, CFSH, CRVS, CUDL, BBLK
 };
 
-#define MAX_COLORS 30
+const int kMaxColors = 30;
 
 int isnum(char s) {
 	return ((s >= '0') && (s <= '9'));
@@ -152,15 +152,16 @@ int is_colour(char code) {
 	return -1;
 }
 
-#define MAX_COLOR_STRING_LENGTH        (kMaxSockBuf * 2 - kGarbageSpace)
+constexpr auto kMaxColorStringLength = kMaxSockBuf*2 - kGarbageSpace;
 int proc_color(char *inbuf, int colour) {
 	int p = 0;
 	int c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
 	bool show_all = false;
-	char out_buf[kMaxSockBuf * 2];
+	char out_buf[kMaxSockBuf*2];
 
-	if (inbuf == nullptr)
+	if (inbuf == nullptr) {
 		return -1;
+	}
 
 	size_t len = strlen(inbuf);
 	if (len == 0) {
@@ -169,8 +170,8 @@ int proc_color(char *inbuf, int colour) {
 
 	size_t j = 0;
 	while (j < len) {
-		if (p > MAX_COLOR_STRING_LENGTH) {
-			snprintf(&out_buf[p], kMaxSockBuf * 2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
+		if (p > kMaxColorStringLength) {
+			snprintf(&out_buf[p], kMaxSockBuf*2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
 			strcpy(inbuf, out_buf);
 			return 0;
 		}
@@ -206,7 +207,7 @@ int proc_color(char *inbuf, int colour) {
 			p++;
 			continue;
 		}
-		if (c >= MAX_COLORS) {
+		if (c >= kMaxColors) {
 			c = 0;
 		}
 		size_t max = strlen(COLOURLIST[(c == 0 && nc != 0 ? nc : c)]);

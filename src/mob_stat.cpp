@@ -6,7 +6,7 @@
 #include "utils/pugixml.h"
 #include "parse.h"
 #include "entities/char.h"
-#include "screen.h"
+#include "color.h"
 
 #include <iomanip>
 

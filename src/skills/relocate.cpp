@@ -4,7 +4,7 @@
 #include "entities/char.h"
 #include "entities/entity_constants.h"
 #include "house.h"
-#include "screen.h"
+#include "color.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
 extern void check_auto_nosummon(CharacterData *ch);

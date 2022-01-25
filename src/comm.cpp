@@ -42,7 +42,7 @@
 #include "handler.h"
 #include "house.h"
 #include "olc/olc.h"
-#include "screen.h"
+#include "color.h"
 #include "cmd_god/ban.h"
 #include "exchange.h"
 #include "title.h"

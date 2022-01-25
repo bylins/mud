@@ -28,7 +28,7 @@
 #include "fight_hit.h"
 #include "fightsystem/mobact.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "utils/random.h"
 #include "entities/char_player.h"
 #include "magic/magic.h"

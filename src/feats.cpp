@@ -13,7 +13,7 @@
 #include "action_targeting.h"
 #include "handler.h"
 #include "entities/player_races.h"
-#include "screen.h"
+#include "color.h"
 #include "fightsystem/pk.h"
 
 #include <boost/algorithm/string.hpp>

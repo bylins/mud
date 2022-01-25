@@ -28,7 +28,7 @@
 #include "obj_prototypes.h"
 #include "parcel.h"
 #include "privilege.h"
-#include "screen.h"
+#include "color.h"
 #include "skills/townportal.h"
 #include "skills_info.h"
 #include "cmd/flee.h"

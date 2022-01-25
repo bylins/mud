@@ -14,7 +14,7 @@
 #include "pk.h"
 
 #include "structs/global_objects.h"
-#include "screen.h"
+#include "color.h"
 #include "house.h"
 #include "handler.h"
 #include "fightsystem/fight.h"

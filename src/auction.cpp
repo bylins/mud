@@ -10,7 +10,7 @@
 
 #include "entities/obj.h"
 #include "entities/entity_constants.h"
-#include "screen.h"
+#include "color.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "auction.h"

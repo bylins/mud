@@ -3,7 +3,7 @@
 //
 
 #include "styles.h"
-#include "screen.h"
+#include "color.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/common.h"

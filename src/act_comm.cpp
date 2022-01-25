@@ -14,7 +14,7 @@
 
 //#include "interpreter.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "auction.h"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"

@@ -15,7 +15,7 @@
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "dg_event.h"
-#include "screen.h"
+#include "color.h"
 #include "house.h"
 #include "entities/char_player.h"
 //#include "entities/entity_constants.h"

@@ -3,7 +3,7 @@
 #include "magic/spells_info.h"
 #include "handler.h"
 #include "crafts/im.h"
-#include "screen.h"
+#include "color.h"
 
 inline bool in_mem(char *arg) {
 	return (strlen(arg) != 0) &&

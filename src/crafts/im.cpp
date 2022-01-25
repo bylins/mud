@@ -17,7 +17,7 @@
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "modify.h"
 #include "entities/zone.h"
 

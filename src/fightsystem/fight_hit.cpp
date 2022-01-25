@@ -2,7 +2,7 @@
 
 #include "handler.h"
 #include "entities/entity_constants.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/magic.h"
 #include "pk.h"
 #include "dps.h"

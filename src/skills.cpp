@@ -9,7 +9,7 @@
 
 #include "obj_prototypes.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "utils/random.h"
 #include "skills_info.h"
 

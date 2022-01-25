@@ -6,7 +6,7 @@
 #include "obj_sets_stuff.h"
 #include "utils/pugixml.h"
 #include "parse.h"
-#include "screen.h"
+#include "color.h"
 #include "modify.h"
 #include "help.h"
 #include "game_mechanics/sets_drop.h"

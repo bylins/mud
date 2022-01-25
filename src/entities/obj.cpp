@@ -9,7 +9,7 @@
 #include "obj_prototypes.h"
 #include "parse.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "game_mechanics/celebrates.h"
 #include "fightsystem/pk.h"
 #include "cache.h"

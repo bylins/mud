@@ -15,7 +15,7 @@
 #include "comm.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
-#include "screen.h"
+#include "color.h"
 #include "boards/boards.h"
 #include "skills.h"
 #include "magic/spells.h"

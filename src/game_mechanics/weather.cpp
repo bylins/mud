@@ -16,7 +16,7 @@
 
 #include "magic/spells.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "utils/random.h"
 #include "game_mechanics/celebrates.h"
 

@@ -8,7 +8,7 @@
 #include "modify.h"
 #include "house.h"
 #include "game_mechanics/sets_drop.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/zone.h"
 #include "skills_info.h"
 

@@ -1,7 +1,7 @@
 #include "skills/morph.hpp"
 
 #include "entities/obj.h"
-#include "screen.h"
+#include "color.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "magic/magic_utils.h"

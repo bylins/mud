@@ -25,7 +25,7 @@
 #include "house.h"
 #include "logger.h"
 #include "magic/magic.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/magic_utils.h"
 #include "magic/magic_temp_spells.h"
 #include "skills_info.h"

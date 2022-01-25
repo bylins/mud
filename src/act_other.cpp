@@ -44,7 +44,7 @@
 #include "utils/random.h"
 #include "remember.h"
 #include "entities/room.h"
-#include "screen.h"
+#include "color.h"
 #include "shop_ext.h"
 #include "skills.h"
 #include "magic/spells.h"

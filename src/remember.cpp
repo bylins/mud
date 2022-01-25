@@ -6,7 +6,7 @@
 
 #include "logger.h"
 #include "entities/char.h"
-#include "screen.h"
+#include "color.h"
 #include "house.h"
 
 #include <boost/format.hpp>

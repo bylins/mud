@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#include "screen.h"
+#include "color.h"
 #include "top.h"
 #include "game_mechanics/glory_const.h"
 #include "entities/char.h"

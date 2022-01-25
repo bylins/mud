@@ -3,7 +3,7 @@
 #include "magic/spells_info.h"
 #include "handler.h"
 //#include "crafts/im.h"
-#include "screen.h"
+#include "color.h"
 //#include "game_limits.h"
 #include "classes/class_spell_slots.h"
 //#include "magic/spells.h"

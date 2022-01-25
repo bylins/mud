@@ -3,7 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "act_movement.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char_player.h"
 #include "noob.h"
 #include "utils/utils_char_obj.inl"
