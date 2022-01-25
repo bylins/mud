@@ -4,7 +4,7 @@
 #include "config.h"
 #include "logger.h"
 #include "utils/utils.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 
 Characters &character_list = GlobalObjects::characters();    // global container of entities
 

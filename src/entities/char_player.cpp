@@ -10,7 +10,7 @@
 #include "fightsystem/pk.h"
 #include "diskio.h"
 #include "genchar.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "affects/affect_handler.h"
 #include "player_races.h"
 #include "ext_money.h"

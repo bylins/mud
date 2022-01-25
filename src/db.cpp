@@ -17,6 +17,7 @@
 
 //#include "db.h"
 
+#include "abilities/abilities_info.h"
 #include "cmd_god/ban.h"
 #include "birthplaces.h"
 #include "boards/boards.h"
@@ -41,7 +42,7 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/mobact.h"
 #include "utils/file_crc.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
@@ -173,47 +174,47 @@ GameLoader world_loader;
 QuestBodrich qb;
 
 // local functions
-void LoadGlobalUID(void);
+void LoadGlobalUID();
 void parse_room(FILE *fl, int virtual_nr, int virt);
 void parse_object(FILE *obj_f, const int nr);
 void load_help(FILE *fl);
-void assign_mobiles(void);
-void assign_objects(void);
-void assign_rooms(void);
-void init_spec_procs(void);
-void build_player_index(void);
+void assign_mobiles();
+void assign_objects();
+void assign_rooms();
+void init_spec_procs();
+void build_player_index();
 bool is_empty(ZoneRnum zone_nr);
 void reset_zone(ZoneRnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
 void do_reboot(CharacterData *ch, char *argument, int cmd, int subcmd);
-void check_start_rooms(void);
+void check_start_rooms();
 void add_vrooms_to_all_zones();
-void renum_world(void);
-void renum_zone_table(void);
+void renum_world();
+void renum_zone_table();
 void log_zone_error(ZoneRnum zone, int cmd_no, const char *message);
-void reset_time(void);
+void reset_time();
 int mobs_in_room(int m_num, int r_num);
-void new_build_player_index(void);
-void renum_obj_zone(void);
-void renum_mob_zone(void);
+void new_build_player_index();
+void renum_obj_zone();
+void renum_mob_zone();
 //int get_zone_rooms(int, int *, int *);
 //int get_zone_rooms1(int, int *, int *);
-void init_guilds(void);
-void init_basic_values(void);
-void init_portals(void);
-void init_im(void);
+void init_guilds();
+void init_basic_values();
+void init_portals();
+void init_im();
 void init_zone_types();
-void load_guardians();
+void LoadGuardians();
 
 // external functions
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
-void load_messages(void);
+void load_messages();
 void initSpells(void);
-void InitSkills(void);
-void sort_commands(void);
-void Read_Invalid_List(void);
+void InitSkills();
+void sort_commands();
+void Read_Invalid_List();
 int find_name(const char *name);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
@@ -1078,6 +1079,8 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		DailyQuest::load_from_file();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
+	else if (!str_cmp(arg, "abilities"))
+		GlobalObjects::abilities_info().Reload();
 	else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -2242,12 +2245,11 @@ void boot_db(void) {
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
-	boot_profiler.next_step("Loading new skills definitions");
-	log("Loading NEW skills definitions");
+	boot_profiler.next_step("Loading abilities definitions");
+	log("Loading abilities.");
+	GlobalObjects::abilities_info().Init();
 	pugi::xml_document doc;
 
-	//Svent TODO: Не забыть включить загрузку обратно после переписывания
-	//Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
 	load_dquest();
 	boot_profiler.next_step("Loading criterion");
 	log("Loading Criterion...");
@@ -2319,7 +2321,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading gurdians");
 	log("Load guardians.");
-	load_guardians();
+	LoadGuardians();
 
 	boot_profiler.next_step("Loading world");
 	world_loader.boot_world();
@@ -4787,12 +4789,12 @@ int mobs_in_room(int m_num, int r_num) {
 *************************************************************************/
 
 long cmp_ptable_by_name(char *name, int len) {
-	len = MIN(len, static_cast<int>(strlen(name)));
+	len = std::min(len, static_cast<int>(strlen(name)));
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here. TODO: make map helper (MAPHELPER). */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		const char *pname = player_table[i].name();
-		if (!strn_cmp(pname, arg, MIN(len, static_cast<int>(strlen(pname))))) {
+		if (!strn_cmp(pname, arg, std::min(len, static_cast<int>(strlen(pname))))) {
 			return static_cast<long>(i);
 		}
 	}
@@ -5337,8 +5339,8 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 				log("entry: char:%s level:%d mail:%s ip:%s", element.name(), element.level, element.mail, element.last_ip);
 #endif
 
-				top_idnum = MAX(top_idnum, GET_IDNUM(short_ch));
-				TopPlayer::Refresh(short_ch, 1);
+				top_idnum = std::max(top_idnum, GET_IDNUM(short_ch));
+				TopPlayer::Refresh(short_ch, true);
 
 				log("Adding new player %s", element.name());
 				player_table.append(element);
@@ -5368,10 +5370,9 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 			remove(filename);
 		}
 	}
-	return;
 }
 
-void new_build_player_index(void) {
+void new_build_player_index() {
 	FILE *players;
 	char name[kMaxInputLength], playername[kMaxInputLength];
 
@@ -5396,7 +5397,7 @@ void new_build_player_index(void) {
 	player_table.name_adviser().init();
 }
 
-void flush_player_index(void) {
+void flush_player_index() {
 	FILE *players;
 	char name[kMaxStringLength];
 
@@ -5591,7 +5592,7 @@ void room_free(RoomData *room)
 	room->affected.clear();
 }
 
-void LoadGlobalUID(void) {
+void LoadGlobalUID() {
 	FILE *guid;
 	char buffer[256];
 
@@ -5604,10 +5605,9 @@ void LoadGlobalUID(void) {
 	get_line(guid, buffer);
 	global_uid = atoi(buffer);
 	fclose(guid);
-	return;
 }
 
-void SaveGlobalUID(void) {
+void SaveGlobalUID() {
 	FILE *guid;
 
 	if (!(guid = fopen(LIB_MISC "globaluid", "w"))) {
@@ -5617,10 +5617,9 @@ void SaveGlobalUID(void) {
 
 	fprintf(guid, "%d\n", global_uid);
 	fclose(guid);
-	return;
 }
 
-void load_guardians() {
+void LoadGuardians() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"guards.xml");
 	if (!result) {

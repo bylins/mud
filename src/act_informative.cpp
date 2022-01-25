@@ -49,7 +49,7 @@
 #include "modify.h"
 #include "entities/room.h"
 #include "game_mechanics/glory_const.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "entities/player_races.h"
 #include "corpse.h"
 #include "game_mechanics/sets_drop.h"

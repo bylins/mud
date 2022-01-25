@@ -41,7 +41,7 @@
 #include "fightsystem/pk.h"
 #include "utils/file_crc.h"
 #include "genchar.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"

@@ -11,7 +11,7 @@
 #include "handler.h"
 #include "ban.h"
 #include "modify.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/format.hpp>

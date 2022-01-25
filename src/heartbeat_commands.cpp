@@ -1,7 +1,7 @@
 #include "heartbeat_commands.h"
 
 #include "heartbeat.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "utils/utils_string.h"
 
 #include <iomanip>

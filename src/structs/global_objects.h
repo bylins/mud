@@ -1,6 +1,7 @@
-#ifndef __GLOBAL_OBJECTS_HPP__
-#define __GLOBAL_OBJECTS_HPP__
+#ifndef GLOBAL_OBJECTS_HPP_
+#define GLOBAL_OBJECTS_HPP_
 
+#include "abilities/abilities_info.h"
 #include "fightsystem/pk.h"
 #include "game_mechanics/celebrates.h"
 #include "logger.h"
@@ -31,18 +32,19 @@ class BanList;    // to avoid inclusion of ban.hpp
 */
 class GlobalObjects {
  public:
+	static abilities::AbilitiesInfo &abilities_info();
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &shop_list();
 	static Characters &characters();
 	static ShutdownParameters &shutdown_parameters();
-	static speedwalks_t &speedwalks();
+	static Speedwalks &speedwalks();
 	static InspReqListType &inspect_list();
 	static SetAllInspReqListType &setall_inspect_list();
 	static BanList *&ban();
 	static Heartbeat &heartbeat();
 	static influxdb::Sender &stats_sender();
 	static OutputThread &output_thread();
-	static zone_table_t &zone_table();
+	static ZoneTable &zone_table();
 
 	static Celebrates::CelebrateList &mono_celebrates();
 	static Celebrates::CelebrateList &poly_celebrates();
@@ -61,6 +63,6 @@ class GlobalObjects {
 	static obj2triggers_t &obj_triggers();
 };
 
-#endif // __GLOBAL_OBJECTS_HPP__
+#endif // GLOBAL_OBJECTS_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

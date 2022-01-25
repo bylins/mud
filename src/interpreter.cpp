@@ -117,7 +117,7 @@
 #include "conf.h"
 #include "game_mechanics/bonus.h"
 #include "utils/utils_debug.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "accounts.h"
 #include "fightsystem/pk.h"
 

@@ -22,18 +22,19 @@ struct GlobalObjectsStorage {
 	Rooms world;
 	BloodyInfoMap bloody_map;
 
+	abilities::AbilitiesInfo abilities_info;
 	WorldObjects world_objects;
 	ShopExt::ShopListType shop_list;
 	PlayersIndex player_table;
 	Characters characters;
 	ShutdownParameters shutdown_parameters;
-	speedwalks_t speedwalks;
+	Speedwalks speedwalks;
 	SetAllInspReqListType setall_inspect_list;
 	InspReqListType inspect_list;
 	BanList *ban;
 	Heartbeat heartbeat;
 	std::shared_ptr<influxdb::Sender> stats_sender;
-	zone_table_t zone_table;
+	ZoneTable zone_table;
 	DailyQuest::DailyQuestMap daily_quests;
 	Strengthening strengthening;
 	obj2triggers_t obj2triggers;
@@ -49,6 +50,10 @@ GlobalObjectsStorage &global_objects() {
 
 	return storage;
 }
+}
+
+abilities::AbilitiesInfo &GlobalObjects::abilities_info() {
+	return global_objects().abilities_info;
 }
 
 WorldObjects &GlobalObjects::world_objects() {
@@ -67,7 +72,7 @@ ShutdownParameters &GlobalObjects::shutdown_parameters() {
 	return global_objects().shutdown_parameters;
 }
 
-speedwalks_t &GlobalObjects::speedwalks() {
+Speedwalks &GlobalObjects::speedwalks() {
 	return global_objects().speedwalks;
 }
 
@@ -104,7 +109,7 @@ OutputThread &GlobalObjects::output_thread() {
 	return *global_objects().output_thread;
 }
 
-zone_table_t &GlobalObjects::zone_table() {
+ZoneTable &GlobalObjects::zone_table() {
 	return global_objects().zone_table;
 }
 

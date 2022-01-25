@@ -81,21 +81,21 @@ const double kParameterWeight = 3.0;
 const double kSaveWeight = 1.0;
 
 const int kMainDiceSize = 100;
-const int kDamageDiceSize = 5;
-const int kDamageDicepoolSkillDivider = 5;
+const int kDmgDiceSize = 5;
+const int kDmgDicepoolSkillDivider = 5;
 const int kDefaultDifficulty = 0;
 const int kMinAbilityDifficulty = -150;
 const int kMaxAbilityDifficulty = 150;
 const int kSuccessThreshold = 0;
-const int kDefaultCriticalFailThreshold = 95;
-const int kDefaultCriticalSuccessThreshold = 6;
-const int kDefaultMobVsPcPenalty = 30;
-const int kDefaultPcVsPcPenalty = 12;
+const int kDefaultCritfailThreshold = 95;
+const int kDefaultCritsuccessThreshold = 6;
+const int kDefaultMvPPenalty = 30;
+const int kDefaultPvPPenalty = 12;
 const int kMaxFailDegree = -10;
 const int kMaxSuccessDegree = 10;
 const int kDegreeDivider = 10;
 const int kSkillRatingDivider = 2;
-const int kParameterRatingDivider = 2;
+const int kStatRatingDivider = 2;
 const int kCircumstanceFactor = 5;
 constexpr int kMinimalFailResult = kSuccessThreshold - 1;
 
@@ -118,7 +118,6 @@ template<>
 const std::string &NAME_BY_ITEM<abilities::ECirumstance>(abilities::ECirumstance item);
 template<>
 abilities::ECirumstance ITEM_BY_NAME<abilities::ECirumstance>(const std::string &name);
-
 
 #endif // BYLINS_SRC_ABILITIES_ABILITIES_CONSTANTS_H_
 

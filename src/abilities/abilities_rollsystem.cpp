@@ -127,7 +127,7 @@ bool AgainstRivalRollType::isActorMoraleFailure() {
 // TODO: переделать на static, чтобы иметь возможность считать рейтинги, к примеру, при наложении аффектов
 short AbilityRollType::calculateActorRating() {
 	short baseSkillRating = calculatBaseSkillRating();
-	short baseParameterRating = _ability->getBaseParameter(_actor) / kParameterRatingDivider;
+	short baseParameterRating = _ability->getBaseParameter(_actor) / kStatRatingDivider;
 	short dicerollBonus = calculateDicerollBonus();
 	return (baseSkillRating + baseParameterRating + dicerollBonus);
 };
@@ -200,14 +200,14 @@ bool TechniqueRollType::isSuitableItem(const TechniqueItem &techniqueItem) {
 //	TODO: Привести подсчет дамага к одному знаменателю с несколькими возможными точками входа.
 int AbilityRollType::calculateBaseDamage() {
 	short abilityBaseParameter = _ability->getBaseParameter(_actor);
-	short dicePool = GET_SKILL(_actor, _baseSkill) / kDamageDicepoolSkillDivider;
+	short dicePool = GET_SKILL(_actor, _baseSkill) / kDmgDicepoolSkillDivider;
 	dicePool = MIN(dicePool, abilityBaseParameter);
-	return dice(MAX(1, dicePool), kDamageDiceSize);
+	return dice(MAX(1, dicePool), kDmgDiceSize);
 };
 
 int AbilityRollType::calculateAddDamage() {
 	short dicePool = _ability->getEffectParameter(_actor);
-	short diceSize = kDamageDiceSize;
+	short diceSize = kDmgDiceSize;
 	return dice(dicePool, diceSize);
 }
 

@@ -109,8 +109,7 @@ void InitCircumstanceNameIdTable() {
 	circumstance_name_id_table["kWeatherRaining"] = abilities::ECirumstance::kWeatherRaining;
 	circumstance_name_id_table["kWeatherLighting"] = abilities::ECirumstance::kWeatherLighting;
 
-
-	for (const auto &i : circumstance_name_id_table) {
+	for (const auto &i: circumstance_name_id_table) {
 		circumstance_id_name_table[i.second] = i.first;
 	}
 }

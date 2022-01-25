@@ -122,8 +122,8 @@ void initializeFeatureByDefault(int featureNum) {
 	feat_info[featureNum].oppositeSaving = ESaving::kStability;
 	feat_info[featureNum].dicerollBonus = MAX_ABILITY_DICEROLL_BONUS;
 	feat_info[featureNum].baseSkill = SKILL_INVALID;
-	feat_info[featureNum].criticalFailThreshold = kDefaultCriticalFailThreshold;
-	feat_info[featureNum].criticalSuccessThreshold = kDefaultCriticalSuccessThreshold;
+	feat_info[featureNum].criticalFailThreshold = kDefaultCritfailThreshold;
+	feat_info[featureNum].criticalSuccessThreshold = kDefaultCritsuccessThreshold;
 
 	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
 		feat_info[featureNum].affected[i].location = APPLY_NONE;

@@ -30,7 +30,7 @@
 #include "corpse.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "utils/utils_time.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"

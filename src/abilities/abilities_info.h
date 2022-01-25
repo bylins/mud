@@ -3,7 +3,7 @@
 \date 21.01.2022.
 \brief Модуль информации о навыках для умений.
 \details Содержит структуры, включающие в себя всю информацию, описывающую особенности каждого навыка.
- Для добавления нового навыка нужно вписать новую константу в abilities_constants и добавить ее в vocabulary.cpp.
+ Для добавления нового навыка нужно вписать новую константу в abilities_constants и добавить ее струкутры парсинга.
  Последнее нужно исключительно для парсинга. После этого достаточно создать в конфиге секцию описания нового навыка.
  Если помимо стандартных полей нужны какие-то относительно нестандартные действия - см. abilities_info.cpp.
  Если действия нужны _совсем_ нестандартные - то это уже делается чисто кодом, который связывается с нужной
@@ -81,16 +81,16 @@ class AbilityInfo {
 	std::string name_;
 	std::string abbreviation_;
 	ESkill base_skill_id_;
-	EBaseStat base_characteristic_id_;
-//	ESaving saving_id_;
+	EBaseStat base_stat_id_;
+	ESaving saving_id_;
 	int difficulty_;
-	int critical_fail_threshold_;
-	int critical_success_threshold_;
+	int critfail_threshold_;
+	int critsuccess_threshold_;
 	int mob_vs_pc_penalty_;
 	int pc_vs_pc_penalty_;
 
 	MsgRegister messages_;
-	IntGetter base_characteristic_getter_;
+	IntGetter base_stat_getter_;
 	IntGetter saving_getter_;
 	std::forward_list<CircumstanceInfo> circumstance_handlers_;
 
@@ -100,13 +100,13 @@ class AbilityInfo {
 		  name_("!undefined"),
 		  abbreviation_("!undefined"),
 		  base_skill_id_(SKILL_UNDEF),
-		  base_characteristic_id_(EBaseStat::kDex),
-//		  saving_id_(kSavingReflex),
+		  base_stat_id_(EBaseStat::kDex),
+		  saving_id_(ESaving::kReflex),
 		  difficulty_(kDefaultDifficulty),
-		  critical_fail_threshold_(kDefaultCriticalFailThreshold),
-		  critical_success_threshold_(kDefaultCriticalSuccessThreshold),
-		  mob_vs_pc_penalty_(kDefaultMobVsPcPenalty),
-		  pc_vs_pc_penalty_(kDefaultPcVsPcPenalty) {};
+		  critfail_threshold_(kDefaultCritfailThreshold),
+		  critsuccess_threshold_(kDefaultCritsuccessThreshold),
+		  mob_vs_pc_penalty_(kDefaultMvPPenalty),
+		  pc_vs_pc_penalty_(kDefaultPvPPenalty) {};
 
 	AbilityInfo(const AbilityInfo&) = delete;
 	AbilityInfo(AbilityInfo&&) = delete;
@@ -123,26 +123,26 @@ class AbilityInfo {
 	ESkill GetBaseSkillId() const {
 		return base_skill_id_;
 	}
-	EBaseStat GetBaseCharacteristicId() const {
-		return base_characteristic_id_;
+	EBaseStat GetBaseStatId() const {
+		return base_stat_id_;
 	};
-	int GetBaseCharacteristic(CharacterData *ch) const {
-		return base_characteristic_getter_(ch);
+	int GetBaseStat(CharacterData *ch) const {
+		return base_stat_getter_(ch);
 	};
-/*	ESaving GetSavingId() const {
+	ESaving GetSavingId() const {
 		return saving_id_;
-	}*/
+	}
 	int GetSaving(CharacterData *ch) const {
 		return saving_getter_(ch);
 	}
 	int GetDifficulty() const {
 		return difficulty_;
 	}
-	int GetCriticalFailThreshold() const {
-		return critical_fail_threshold_;
+	int GetCritfailThreshold() const {
+		return critfail_threshold_;
 	}
-	int GetCriticalSuccessThreshold() const {
-		return critical_success_threshold_;
+	int GetCritsuccessThreshold() const {
+		return critsuccess_threshold_;
 	}
 	int GetMVPPenalty() const {
 		return mob_vs_pc_penalty_;
@@ -151,8 +151,8 @@ class AbilityInfo {
 		return pc_vs_pc_penalty_;
 	}
 	int GetCircumstanceMod(CharacterData *ch, CharacterData *victim) const;
-	const std::string &GetMessage(EAbilityMsg msg_id) const;
-	const std::string &GetDefaultMessage(EAbilityMsg msg_id) const;
+	const std::string &GetMsg(EAbilityMsg msg_id) const;
+	const std::string &GetDefaultMsg(EAbilityMsg msg_id) const;
 
 	std::string Print() const;
 };
@@ -164,12 +164,12 @@ class AbilitiesInfo::AbilitiesInfoBuilder {
 	static AbilitiesOptional Build(bool strict_parsing);
 
  private:
-	using CharacteristicGettersRegister = std::unordered_map<EBaseStat, AbilityInfo::IntGetter>;
-//	using SavingGettersRegister = std::unordered_map<ESaving, AbilityInfo::IntGetter>;
+	using BaseStatGettersRegister = std::unordered_map<EBaseStat, AbilityInfo::IntGetter>;
+	using SavingGettersRegister = std::unordered_map<ESaving, AbilityInfo::IntGetter>;
 	using CircumstanceHandlersRegister = std::unordered_map<ECirumstance, AbilityInfo::CircumstanceHandler>;
 
-	static CharacteristicGettersRegister characteristic_getters_register_;
-//	static SavingGettersRegister saving_getters_register_;
+	static BaseStatGettersRegister characteristic_getters_register_;
+	static SavingGettersRegister saving_getters_register_;
 	static CircumstanceHandlersRegister circumstance_handlers_register_;
 	static bool strict_parsing_;
 
@@ -183,7 +183,7 @@ class AbilitiesInfo::AbilitiesInfoBuilder {
 	static void ProcessLoadErrors(const AbilityPtr &ability, std::exception const &e);
 	static void AppointHandlers(AbilitiesRegisterPtr &abilities);
 	static void EmplaceCircumstanceInfo(AbilityPtr &ability, const pugi::xml_node &node);
-	static void ParseBase(AbilityPtr &ability, const pugi::xml_node &node);
+	static void ParseBaseValues(AbilityPtr &ability, const pugi::xml_node &node);
 };
 
 }

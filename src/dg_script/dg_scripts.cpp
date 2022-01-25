@@ -10,7 +10,7 @@
 
 #include "dg_scripts.h"
 
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "utils/utils_find_obj_id_by_vnum.h"
 #include "obj_prototypes.h"
 #include "handler.h"

@@ -13,7 +13,7 @@
 
 #include "pk.h"
 
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "screen.h"
 #include "house.h"
 #include "handler.h"

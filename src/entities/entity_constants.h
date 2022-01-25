@@ -33,8 +33,6 @@ const std::string &NAME_BY_ITEM(ESex item);
  *  Mutual PC-NPC constants
  */
 
-// Positions
-
 enum class EPosition {
 	kIncorrect = -1, // Это неправильно, но за каким-то псом в классах Hit и Damage есть позиция -1, надо переделывать.
 	kDead = 0,
@@ -75,6 +73,11 @@ enum class ESaving : int {
 };
 
 ESaving& operator++(ESaving &s);
+
+template<>
+const std::string &NAME_BY_ITEM<ESaving>(ESaving item);
+template<>
+ESaving ITEM_BY_NAME<ESaving>(const std::string &name);
 
 // Character equipment positions: used as index for char_data.equipment[] //
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors

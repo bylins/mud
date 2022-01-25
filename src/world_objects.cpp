@@ -5,7 +5,7 @@
 #include "liquid.h"
 #include "dg_script/dg_scripts.h"
 #include "utils/utils.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 
 #include <algorithm>
 

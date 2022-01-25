@@ -28,7 +28,7 @@
 #include "skills/poison.h"
 #include "meat_maker.h"
 #include "utils/utils_char_obj.inl"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "skills_info.h"
 //#include "structs/extra_description_data.h"
 #include "game_mechanics/weather.h"

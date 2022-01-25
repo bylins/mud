@@ -31,7 +31,7 @@
 
 #include "comm.h"
 
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "magic/magic.h"
 #include "world_objects.h"
 #include "entities/world_characters.h"

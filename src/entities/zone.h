@@ -76,8 +76,8 @@ class ZoneData {
 	int count_reset;
 };
 
-using zone_table_t = std::vector<ZoneData>;
-extern zone_table_t &zone_table;
+using ZoneTable = std::vector<ZoneData>;
+extern ZoneTable &zone_table;
 
 #endif // __ZONE_TABLE_HPP__
 

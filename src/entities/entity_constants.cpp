@@ -382,6 +382,41 @@ EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name) {
 	return EBaseStat_value_by_name.at(name);
 }
 
+typedef std::map<ESaving, std::string> ESaving_name_by_value_t;
+typedef std::map<const std::string, ESaving> ESaving_value_by_name_t;
+ESaving_name_by_value_t ESaving_name_by_value;
+ESaving_value_by_name_t ESaving_value_by_name;
+
+void init_ESaving_ITEM_NAMES() {
+	ESaving_name_by_value.clear();
+	ESaving_value_by_name.clear();
+
+	ESaving_name_by_value[ESaving::kWill] = "kWill";
+	ESaving_name_by_value[ESaving::kStability] = "kStability";
+	ESaving_name_by_value[ESaving::kCritical] = "kCritical";
+	ESaving_name_by_value[ESaving::kReflex] = "kReflex";
+
+	for (const auto &i : ESaving_name_by_value) {
+		ESaving_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<ESaving>(const ESaving item) {
+	if (ESaving_name_by_value.empty()) {
+		init_ESaving_ITEM_NAMES();
+	}
+	return ESaving_name_by_value.at(item);
+}
+
+template<>
+ESaving ITEM_BY_NAME<ESaving>(const std::string &name) {
+	if (ESaving_name_by_value.empty()) {
+		init_ESaving_ITEM_NAMES();
+	}
+	return ESaving_value_by_name.at(name);
+}
+
 // Все, связанное с религиями, нужно вынести в отдельный модуль
 const religion_names_t religion_name = {
 	religion_genders_t{"Язычник", "Язычник", "Язычница", "Язычники"},

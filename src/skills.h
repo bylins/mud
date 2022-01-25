@@ -146,7 +146,7 @@ struct SkillRollResult {
 template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
-const std::string &NAME_BY_ITEM<ESkill>(const ESkill item);
+const std::string &NAME_BY_ITEM<ESkill>(ESkill item);
 
 extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
 

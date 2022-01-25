@@ -362,6 +362,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value.clear();
 	ESkill_value_by_name.clear();
 
+	ESkill_name_by_value[ESkill::SKILL_UNDEF] = "SKILL_UNDEF";
 	ESkill_name_by_value[ESkill::SKILL_GLOBAL_COOLDOWN] = "SKILL_GLOBAL_COOLDOWN";
 	ESkill_name_by_value[ESkill::SKILL_PROTECT] = "SKILL_PROTECT";
 	ESkill_name_by_value[ESkill::SKILL_TOUCH] = "SKILL_TOUCH";

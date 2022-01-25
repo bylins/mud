@@ -24,9 +24,9 @@ struct SpeedWalk {
 	mobs_t mobs;
 };
 
-using speedwalks_t = std::vector<SpeedWalk>;
+using Speedwalks = std::vector<SpeedWalk>;
 
-extern speedwalks_t &speedwalks;
+extern Speedwalks &speedwalks;
 
 #endif // __SPEEDWALKS_HPP__
 

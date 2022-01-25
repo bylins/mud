@@ -169,7 +169,7 @@ set(SOURCES
 		src/obj_prototypes.cpp
 		src/id.cpp
 		src/utils/utils_find_obj_id_by_vnum.cpp
-		src/global_objects.cpp
+        src/structs/global_objects.cpp
 		src/shops_implementation.cpp
 		src/entities/world_characters.cpp
 		src/utils/utils_debug.cpp
@@ -292,7 +292,7 @@ set(HEADERS
 		src/speedwalks.h
 		src/entities/world_characters.h
 		src/shops_implementation.h
-		src/global_objects.h
+        src/structs/global_objects.h
 		src/utils/id_converter.h
 		src/utils/utils_find_obj_id_by_vnum.h
 		src/id.h
