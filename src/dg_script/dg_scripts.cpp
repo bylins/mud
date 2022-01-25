@@ -2632,10 +2632,9 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "position")) {
 			if (!*subfield) {
-				sprintf(str, "%d", GET_POS(c));
+				sprintf(str, "%d", static_cast<int>(GET_POS(c)));
 			} else {
-				auto pos =
-					std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
+				auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
 				if (!WAITLESS(c)) {
 					if (c->ahorse()) {
 						c->dismount();
@@ -2905,13 +2904,13 @@ void find_replacement(void *go,
 			o->gm_affect_flag(subfield, weapon_affects, str);
 		} else if (!str_cmp(field, "carried_by")) {
 			if (o->get_carried_by()) {
-				sprintf(str, "%c%ld", uid_type, GET_ID(o->get_carried_by()));
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_carried_by()));
 			} else {
 				strcpy(str, "");
 			}
 		} else if (!str_cmp(field, "worn_by")) {
 			if (o->get_worn_by()) {
-				sprintf(str, "%c%ld", uid_type, GET_ID(o->get_worn_by()));
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_worn_by()));
 			} else {
 				strcpy(str, "");
 			}
@@ -3116,6 +3115,17 @@ void find_replacement(void *go,
 				r->name = str_dup(subfield);
 			} else
 				strcpy(str, r->name);
+		} else if (!str_cmp(field, "direction")) {
+			if (*subfield) {
+				for (int i = 0; i < kDirMaxNumber; i++) {
+					if (!str_cmp(subfield, dirs[i])) {
+						if (r->dir_option[i]) {
+							sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[i]->to_room())));
+							break;
+						}
+					}
+				}
+			}
 		} else if (!str_cmp(field, "north")) {
 			if (r->dir_option[kDirNorth]) {
 				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[kDirNorth]->to_room())));

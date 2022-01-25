@@ -52,6 +52,10 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
+	if (!may_kill_here(ch, vict, argument)) {
+		return;
+	}
+
 	skill = ch->get_skill(SKILL_MANADRAIN);
 
 	percent = number(1, skill_info[SKILL_MANADRAIN].difficulty);

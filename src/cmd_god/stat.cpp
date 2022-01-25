@@ -622,7 +622,11 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 //	if (GET_OBJ_ZONE(j))
 	send_to_char(ch, ", Принадлежит зоне VNUM : %d", GET_OBJ_VNUM_ZONE_FROM(j));
 	if (GET_OBJ_MAKER(j)) {
-		send_to_char(ch, ", Создатель : %s", get_name_by_unique(GET_OBJ_MAKER(j)));
+		const char *to_name = get_name_by_unique(GET_OBJ_MAKER(j));
+		if (to_name)
+			send_to_char(ch, ", Создатель : %s", to_name);
+		else
+			send_to_char(ch, ", Создатель : не найден");
 	}
 	if (GET_OBJ_PARENT(j)) {
 		send_to_char(ch, ", Родитель(VNum) : [%d]", GET_OBJ_PARENT(j));

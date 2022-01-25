@@ -1424,7 +1424,6 @@ void obj_point_update() {
 				if (j->get_timer() > 0 && j->get_extra_flag(EExtraFlag::ITEM_TICKTIMER)) {
 					j->dec_timer();
 				}
-
 				if (!j->get_timer()) {
 					timer_otrigger(j.get());
 					return;
@@ -1433,13 +1432,9 @@ void obj_point_update() {
 				&& !NO_DESTROY(j.get())) {
 				j->dec_destroyer();
 			}
-
-			if (j && (j->get_in_room() != kNowhere)
-				&& j->get_timer() > 0
-				&& !NO_TIMER(j.get())) {
+			if (j && (j->get_in_room() != kNowhere) && j->get_timer() > 0 && !NO_TIMER(j.get())) {
 				j->dec_timer();
 			}
-
 			if (j && ((j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
 					&& GET_OBJ_VNUM_ZONE_FROM(j)
 					&& up_obj_where(j.get()) != kNowhere

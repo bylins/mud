@@ -662,12 +662,29 @@ void ObjectData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, time);
 	}
-
 	if (!ignore_utimer && check_unlimited_timer(this)) {
 		return;
 	}
+	if (get_timer()  > 100000 && (GET_OBJ_TYPE(this) == ObjectData::ITEM_ARMOR
+			|| GET_OBJ_TYPE(this) == ObjectData::ITEM_STAFF
+			|| GET_OBJ_TYPE(this) == ObjectData::ITEM_WORN
+			|| GET_OBJ_TYPE(this) == ObjectData::ITEM_WEAPON)) {
+	if (get_in_room() != kNowhere) {
+		sprintf(buf2, "Находится в комнате vnum: %d", world[get_in_room()]->room_vn);
+	} else if (get_carried_by()) {
+		sprintf(buf2, "Затарено %s[%d] в комнате [%d]", GET_NAME(get_carried_by()),
+				GET_MOB_VNUM(get_carried_by()),
+				world[get_carried_by()->in_room]->room_vn);
+	} else if (get_in_obj()) {
+		sprintf(buf2, "Находится в сумке %s", GET_OBJ_PNAME(get_in_obj(), 0).c_str());
+	}
+		snprintf(buf, kMaxStringLength, "У предмета [%d] имя: %s, id: %ld, таймер > 100к равен %d. %s", GET_OBJ_VNUM(this), 
+				GET_OBJ_PNAME(this, 0).c_str(), get_id(), get_timer(), buf2);
+		mudlog(buf, BRF, kLevelGod, SYSLOG, true);
+	}
 
 	if (time > 0) {
+
 		set_timer(get_timer() - time);
 	}
 
