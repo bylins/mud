@@ -1455,6 +1455,30 @@ int print_imm_where_obj(CharacterData *ch, char *arg, int num) {
 	return num;
 }
 
+char *look_obj_depot(ObjectData *obj) {
+	for (auto it = depot_list.begin(); it != depot_list.end(); ++it) {
+		for (auto obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it) {
+			if (obj->get_id() == (*obj_it)->get_id()) {
+				sprintf(buf1, "В хранилище игрока %s", it->second.name.c_str());
+				return buf1;
+			}
+		}
+	}
+	return nullptr;
+}
+
+ObjectData *find_obj_from_depot(char *arg) {
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
+		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
+			 ++obj_it) {
+			if (isname(arg, (*obj_it)->get_aliases())) {
+				return (*obj_it).get();
+			}
+		}
+	}
+	return nullptr;
+}
+
 // * Обновление полей объектов при изменении их прототипа через олц.
 void olc_update_from_proto(int robj_num, ObjectData *olc_proto) {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
