@@ -678,7 +678,7 @@ void spell_locate_object(int level, CharacterData *ch, CharacterData * /*victim*
 	strcpy(name, cast_argument);
 
 	int tmp_lvl = (IS_GOD(ch)) ? 300 : level;
-	unsigned count = tmp_lvl;
+	int count = tmp_lvl;
 	const auto result = world_objects.find_if_and_dec_number([&](const ObjectData::shared_ptr &i) {
 		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
 		if (!obj_ptr) {

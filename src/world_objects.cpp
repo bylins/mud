@@ -215,18 +215,19 @@ void WorldObjects::foreach_with_id(const object_id_t id, const foreach_f &functi
 }
 
 ObjectData::shared_ptr WorldObjects::find_if(const predicate_f &predicate) const {
-	return find_if(predicate, 0);
+	int tmp = 0;
+	return find_if(predicate, tmp);
 }
 
-ObjectData::shared_ptr WorldObjects::find_if(const predicate_f &predicate, unsigned number) const {
+ObjectData::shared_ptr WorldObjects::find_if(const predicate_f &predicate, int &number) const {
 	return find_if_and_dec_number(predicate, number);
 }
 
-ObjectData::shared_ptr WorldObjects::find_if_and_dec_number(const predicate_f &predicate, unsigned &number) const {
+ObjectData::shared_ptr WorldObjects::find_if_and_dec_number(const predicate_f &predicate, int &number) const {
 	auto result_i = std::find_if(m_objects_list.begin(), m_objects_list.end(), predicate);
 
 	while (result_i != m_objects_list.end()
-		&& 0 < number) {
+		&& number > 1) {
 		result_i = std::find_if(++result_i, m_objects_list.end(), predicate);
 		--number;
 	}

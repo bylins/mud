@@ -36,6 +36,7 @@
 #include "entities/zone.h"
 #include "classes/class_spell_slots.h"
 #include "magic/magic_rooms.h"
+#include "depot.h"
 
 using PlayerClass::slot_for_char;
 
@@ -2231,8 +2232,15 @@ ObjectData *get_obj_vis(CharacterData *ch, const char *name) {
 			&& (id_obj_set.count(i.get()->get_id()) == 0);
 		return result;
 	};
-
-	return world_objects.find_if(predicate, number - 1).get();
+	obj = world_objects.find_if(predicate, number).get();
+		if (obj) {
+		return obj;
+	}
+	obj = Depot::find_obj_from_depot_and_dec_number(tmp, number);
+		if (obj) {
+		return obj;
+	}
+	return nullptr;
 }
 
 // search the entire world for an object, and return a pointer

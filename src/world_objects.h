@@ -76,16 +76,14 @@ class WorldObjects {
 	void foreach_with_rnum(const ObjRnum rnum, const foreach_f &function) const;
 	void foreach_with_id(const object_id_t id, const foreach_f &function) const;
 	ObjectData::shared_ptr find_if(const predicate_f &predicate) const;
-	ObjectData::shared_ptr find_if(const predicate_f &predicate, unsigned number) const;
-	ObjectData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, unsigned &number) const;
+	ObjectData::shared_ptr find_if(const predicate_f &predicate, int &number) const;
+	ObjectData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, int &number) const;
 	ObjectData::shared_ptr find_by_name(const char *name) const;
 	ObjectData::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
 	ObjectData::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 0); }
 	ObjectData::shared_ptr find_by_vnum(const ObjVnum vnum, unsigned number) const;
 	ObjectData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number) const;
-	ObjectData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum,
-													   unsigned &number,
-													   const object_id_set_t &except) const;
+	ObjectData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number, const object_id_set_t &except) const;
 	ObjectData::shared_ptr find_first_by_vnum(const ObjVnum vnum) const { return find_by_vnum(vnum, 0); }
 	ObjectData::shared_ptr find_by_rnum(const ObjRnum rnum, unsigned number) const;
 	ObjectData::shared_ptr find_first_by_rnum(const ObjRnum rnum) const { return find_by_rnum(rnum, 0); }
