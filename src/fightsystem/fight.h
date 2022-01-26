@@ -54,11 +54,12 @@ class Damage {
 	Damage() { zero_init(); };
 
 	// скилы
-	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type, ObjectData *wielded_obj) {
 		zero_init();
 		skill_num = obj.skill_num;
 		dam = in_dam;
 		dmg_type = in_dmg_type;
+		wielded = wielded_obj;
 	};
 
 	// заклинания
@@ -105,6 +106,8 @@ class Damage {
 	EPosition ch_start_pos;
 	// позиция жертвы на начало атаки (по дефолту будет = текущему положению)
 	EPosition victim_start_pos;
+	// Оружие которым нанесли дамаг
+	ObjectData *wielded;
 
  private:
 	// инит всех полей дефолтными значениями для конструкторов

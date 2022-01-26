@@ -139,7 +139,8 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 
 	if (!CheckExpedientSuccess(ch, vict)) {
 		act("Ваши свистящие удары пропали втуне, не задев $N3.", false, ch, 0, vict, TO_CHAR);
-		Damage dmg(SkillDmg(SKILL_SHORTS), ZERO_DMG, PHYS_DMG);
+		Damage dmg(SkillDmg(SKILL_SHORTS), ZERO_DMG, PHYS_DMG, nullptr); //подумать как вычислить скилл оружия
+		dmg.skill_num = SKILL_UNDEF;
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
 		return;
