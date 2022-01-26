@@ -2228,16 +2228,6 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 		die(victim, nullptr);
 		return 0;    // -je, 7/7/92
 	}
-	// первая такая проверка идет в hit перед ломанием пушек
-	if (dam >= 0) {
-		if (dmg_type == FightSystem::PHYS_DMG) {
-			if (damage_mtrigger(ch, victim, dam, skill_info[skill_num].name, nullptr))
-				return 0;
-		} else if (dmg_type == FightSystem::MAGE_DMG) {
-			if (damage_mtrigger(ch, victim, dam, spell_info[spell_num].name, nullptr))
-				return 0;
-		}
-	}
 	// No fight mobiles
 	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
 		|| (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))) {
@@ -2473,6 +2463,15 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	}
 
 	dam = MAX(0, MIN(dam, kMaxHits));
+	if (dam >= 0) {
+		if (dmg_type == FightSystem::PHYS_DMG) {
+			if (!damage_mtrigger(ch, victim, dam, skill_name(skill_num), 1, wielded))
+				return 0;
+		} else if (dmg_type == FightSystem::MAGE_DMG) {
+			if (!damage_mtrigger(ch, victim, dam, spell_name(spell_num), 0, wielded))
+				return 0;
+		}
+	}
 
 	// расчет бэтл-экспы для чаров
 	gain_battle_exp(ch, victim, dam);
@@ -2878,7 +2877,7 @@ int HitData::extdamage(CharacterData *ch, CharacterData *victim) {
 	// Вызывается damage с отрицательным уроном
 	dam = mem_dam >= 0 ? dam : -1;
 
-	Damage dmg(SkillDmg(skill_num), dam, FightSystem::PHYS_DMG);
+	Damage dmg(SkillDmg(skill_num), dam, FightSystem::PHYS_DMG, wielded);
 	dmg.hit_type = hit_type;
 	dmg.dam_critic = dam_critic;
 	dmg.flags = get_flags();

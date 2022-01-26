@@ -1436,6 +1436,7 @@ void Damage::zero_init() {
 	msg_num = -1;
 	ch_start_pos = EPosition::kIncorrect;
 	victim_start_pos = EPosition::kIncorrect;
+	wielded = nullptr;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

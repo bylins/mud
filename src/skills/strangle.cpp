@@ -43,7 +43,7 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 	TrainSkill(ch, SKILL_STRANGLE, success, vict);
 	SendSkillBalanceMsg(ch, skill_info[SKILL_STRANGLE].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(SKILL_STRANGLE), ZERO_DMG, PHYS_DMG);
+		Damage dmg(SkillDmg(SKILL_STRANGLE), ZERO_DMG, PHYS_DMG, nullptr);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		//set_wait(ch, 3, true);
@@ -61,7 +61,7 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 		int dam =
 			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(SKILL_STRANGLE)) / 70, 7.0, 1, 30)) / 100;
 		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
-		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, PHYS_DMG);
+		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, PHYS_DMG, nullptr);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {

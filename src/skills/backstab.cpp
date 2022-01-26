@@ -125,7 +125,7 @@ void go_backstab(CharacterData *ch, CharacterData *vict) {
 
 	TrainSkill(ch, SKILL_BACKSTAB, success, vict);
 	if (!success) {
-		Damage dmg(SkillDmg(SKILL_BACKSTAB), ZERO_DMG, PHYS_DMG);
+		Damage dmg(SkillDmg(SKILL_BACKSTAB), ZERO_DMG, PHYS_DMG, GET_EQ(ch, WEAR_WIELD));
 		dmg.process(ch, vict);
 	} else {
 		hit(ch, vict, SKILL_BACKSTAB, FightSystem::MAIN_HAND);
