@@ -15,6 +15,7 @@
 #include "cache.h"
 #include "depot.h"
 #include "house.h"
+#include <sstream>
 
 extern void get_from_container(CharacterData *ch, ObjectData *cont, char *arg, int mode, int amount, bool autoloot);
 void set_obj_eff(ObjectData *itemobj, EApplyLocation type, int mod);
@@ -666,34 +667,30 @@ void ObjectData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	if (!ignore_utimer && check_unlimited_timer(this)) {
 		return;
 	}
+	std::stringstream buffer;
+
 	if (get_timer()  > 100000 && (GET_OBJ_TYPE(this) == ObjectData::ITEM_ARMOR
 			|| GET_OBJ_TYPE(this) == ObjectData::ITEM_STAFF
 			|| GET_OBJ_TYPE(this) == ObjectData::ITEM_WORN
 			|| GET_OBJ_TYPE(this) == ObjectData::ITEM_WEAPON)) {
-	if (get_in_room() != kNowhere) {
-		sprintf(buf2, "Находится в комнате vnum: %d", world[get_in_room()]->room_vn);
-	} else if (get_carried_by()) {
-		sprintf(buf2, "Затарено %s[%d] в комнате [%d]", GET_NAME(get_carried_by()),
-				GET_MOB_VNUM(get_carried_by()),
-				world[this->get_carried_by()->in_room]->room_vn);
-	} else if (get_worn_by()) {
-		sprintf(buf2, "надет на %s[%d] в комнате [%d]",
-				GET_NAME(get_worn_by()),
-				GET_MOB_VNUM(get_worn_by()),
-				world[this->get_worn_by()->in_room]->room_vn);
-	} else if (get_in_obj()) {
-		sprintf(buf2, "Находится в сумке %s", GET_OBJ_PNAME(get_in_obj(), 0).c_str());
+		buffer << "У предмета [" << GET_OBJ_VNUM(this)
+				<< "] имя: " << GET_OBJ_PNAME(this, 0).c_str() << ", id: " <<  get_id() << ", таймер > 100к равен: " << get_timer();
+		if (get_in_room() != kNowhere) {
+			buffer << ", находится в комнате vnum: " << world[get_in_room()]->room_vn;
+		} else if (get_carried_by()) {
+			buffer << ", затарено: " <<  GET_NAME(get_carried_by()) << "["
+					<< GET_MOB_VNUM(get_carried_by()) <<"] в комнате: [" << world[this->get_carried_by()->in_room]->room_vn << "]";
+		} else if (get_worn_by()) {
+			buffer << ", надет на перс: " << GET_NAME(get_worn_by()) << "[" << GET_MOB_VNUM(get_worn_by()) << "] в комнате: [" 
+					<< world[get_worn_by()->in_room]->room_vn <<"]";
+		} else if (get_in_obj()) {
+			buffer << ", находится в сумке: " << GET_OBJ_PNAME(get_in_obj(), 0) << " в комнате: [" << world[get_in_obj()->get_in_room()]->room_vn << "]";
+		}
+		mudlog(buffer.str(), BRF, kLevelGod, SYSLOG, true);
 	}
-		snprintf(buf, kMaxStringLength, "У предмета [%d] имя: %s, id: %ld, таймер > 100к равен %d. %s", GET_OBJ_VNUM(this), 
-				GET_OBJ_PNAME(this, 0).c_str(), get_id(), get_timer(), buf2);
-		mudlog(buf, BRF, kLevelGod, SYSLOG, true);
-	}
-
 	if (time > 0) {
-
 		set_timer(get_timer() - time);
 	}
-
 	if (!exchange) {
 		if (((GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_DRINKCON)
 			|| (GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_FOOD))
