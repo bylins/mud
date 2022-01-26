@@ -21,6 +21,7 @@
 #include "entities/zone.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
+#include "depot.h"
 
 void do_statip(CharacterData *ch, CharacterData *k) {
 	log("Start logon list stat");
@@ -709,7 +710,10 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 		sprintf(buf2, "[%d] %s", GET_OBJ_VNUM(j->get_in_obj()), j->get_in_obj()->get_short_description().c_str());
 		strcat(buf, buf2);
 	} else {
-		strcat(buf, "Нет");
+		if (Depot::look_obj_depot(j) != nullptr)
+			strcat(buf, Depot::look_obj_depot(j));
+		else
+			strcat(buf, "Нет");
 	}
 
 	strcat(buf, ", В инвентаре: ");
@@ -1223,6 +1227,8 @@ void do_stat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if ((victim = get_char_vis(ch, buf1, FIND_CHAR_WORLD)) != nullptr)
 				do_stat_character(ch, victim);
 			else if ((object = get_obj_vis(ch, buf1)) != nullptr)
+				do_stat_object(ch, object);
+			else if ((object = Depot::find_obj_from_depot(buf1)) != nullptr)
 				do_stat_object(ch, object);
 			else
 				send_to_char("Ничего похожего с этим именем нет.\r\n", ch);
