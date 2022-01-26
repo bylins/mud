@@ -529,12 +529,13 @@ void do_mteleport(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
-
+	char *textstr = argument;
 	argument = two_arguments(argument, arg1, arg2);
 	skip_spaces(&argument);
 
 	if (!*arg1 || !*arg2) {
-		mob_log(ch, "mteleport: bad syntax");
+		sprintf(buf, "mteleport: bad syntax, arg: %s", textstr);
+		mob_log(ch, buf);
 		return;
 	}
 
