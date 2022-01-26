@@ -659,6 +659,7 @@ float count_unlimited_timer(const CObjectPrototype *obj);
 * \param time по дефолту 1.
 */
 void ObjectData::dec_timer(int time, bool ignore_utimer, bool exchange) {
+	*buf2 = '\0';
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, time);
 	}
@@ -674,7 +675,12 @@ void ObjectData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	} else if (get_carried_by()) {
 		sprintf(buf2, "Затарено %s[%d] в комнате [%d]", GET_NAME(get_carried_by()),
 				GET_MOB_VNUM(get_carried_by()),
-				world[get_carried_by()->in_room]->room_vn);
+				world[this->get_carried_by()->in_room]->room_vn);
+	} else if (get_worn_by()) {
+		sprintf(buf2, "надет на %s[%d] в комнате [%d]",
+				GET_NAME(get_worn_by()),
+				GET_MOB_VNUM(get_worn_by()),
+				world[this->get_worn_by()->in_room]->room_vn);
 	} else if (get_in_obj()) {
 		sprintf(buf2, "Находится в сумке %s", GET_OBJ_PNAME(get_in_obj(), 0).c_str());
 	}
