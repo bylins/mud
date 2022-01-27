@@ -39,7 +39,7 @@ int print_spell_locate_object(CharacterData *ch, int count, std::string name);
 bool show_purged_message(CharacterData *ch);
 int print_imm_where_obj(CharacterData *ch, char *arg, int num);
 char *look_obj_depot(ObjectData *obj);
-ObjectData *find_obj_from_depot(char *arg);
+ObjectData *find_obj_from_depot_and_dec_number(char *arg, int &number);
 ObjectData *locate_object(const char *str);
 
 void olc_update_from_proto(int robj_num, ObjectData *olc_proto);

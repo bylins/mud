@@ -1467,12 +1467,14 @@ char *look_obj_depot(ObjectData *obj) {
 	return nullptr;
 }
 
-ObjectData *find_obj_from_depot(char *arg) {
+ObjectData *find_obj_from_depot_and_dec_number(char *arg, int &number) {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
 			if (isname(arg, (*obj_it)->get_aliases())) {
-				return (*obj_it).get();
+				if (--number == 0) {
+					return (*obj_it).get();
+				}
 			}
 		}
 	}
