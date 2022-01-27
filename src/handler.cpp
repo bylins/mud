@@ -2232,7 +2232,8 @@ ObjectData *get_obj_vis(CharacterData *ch, const char *name) {
 			&& (id_obj_set.count(i.get()->get_id()) == 0);
 		return result;
 	};
-	obj = world_objects.find_if(predicate, number).get();
+	// не совсем понял зачем вычитать единицу
+	obj = world_objects.find_if(predicate, number - 1).get();
 		if (obj) {
 		return obj;
 	}

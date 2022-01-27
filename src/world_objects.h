@@ -76,7 +76,7 @@ class WorldObjects {
 	void foreach_with_rnum(const ObjRnum rnum, const foreach_f &function) const;
 	void foreach_with_id(const object_id_t id, const foreach_f &function) const;
 	ObjectData::shared_ptr find_if(const predicate_f &predicate) const;
-	ObjectData::shared_ptr find_if(const predicate_f &predicate, int &number) const;
+	ObjectData::shared_ptr find_if(const predicate_f &predicate, int number) const;
 	ObjectData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, int &number) const;
 	ObjectData::shared_ptr find_by_name(const char *name) const;
 	ObjectData::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
