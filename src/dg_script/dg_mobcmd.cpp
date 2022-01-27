@@ -1451,14 +1451,15 @@ bool mob_script_command_interpreter(CharacterData *ch, char *argument) {
 		}
 		cmd++;
 	}
-
-	if (!mob_cmd_info[cmd].use_in_lag &&
-		(GET_MOB_HOLD(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))) {
+// damage mtrigger срабатывает всегда
+	if (!SCRIPT_CHECK(ch, MTRIG_DAMAGE)) {
+		if (!mob_cmd_info[cmd].use_in_lag && 
+				(GET_MOB_HOLD(ch)
+				|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))) {
 		return false;
+		}
 	}
-
 	if (*mob_cmd_info[cmd].command == '\n') {
 		return false;
 	} else if (GET_POS(ch) < mob_cmd_info[cmd].minimum_position) {
