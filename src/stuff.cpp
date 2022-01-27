@@ -15,7 +15,7 @@
 #include "corpse.h"
 #include "screen.h"
 #include "game_mechanics/sets_drop.h"
-
+#include "entities/zone.h"
 
 extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);
@@ -329,7 +329,7 @@ void obj_to_corpse(ObjectData *corpse, CharacterData *ch, int rnum, bool setload
 			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n", CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}
 	}
-
+	o->set_vnum_zone_from(99999);
 	if (MOB_FLAGGED(ch, MOB_CORPSE)) {
 		obj_to_room(o.get(), ch->in_room);
 	} else {
