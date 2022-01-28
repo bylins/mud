@@ -23,7 +23,7 @@
 #include "magic/magic_utils.h"
 #include "entities/zone.h"
 #include "entities/char_player.h"
-
+#include <cmath>
 #include <algorithm>
 
 // extern

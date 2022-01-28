@@ -17,6 +17,7 @@
 #include "fightsystem/fight.h"
 #include "skills_info.h"
 #include "entities/entity_constants.h"
+#include <cmath>
 
 extern int material_value[];
 void die(CharacterData *ch, CharacterData *killer);

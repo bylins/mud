@@ -16,6 +16,7 @@
 #include "house.h"
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/named_stuff.h"
+#include <cmath>
 
 extern int bank(CharacterData *, void *, int, char *);
 extern int can_take_obj(CharacterData *ch, ObjectData *obj);
@@ -660,7 +661,7 @@ int delete_obj(int vnum) {
 bool CharNode::removal_period_cost() {
 	double i;
 	buffer_cost += static_cast<double>(cost_per_day) / SECS_PER_MUD_DAY;
-	std::modf(buffer_cost, &i);
+	modf(buffer_cost, &i);
 	if (i >= 1.0f) {
 		unsigned diff = static_cast<unsigned>(i);
 		money -= diff;

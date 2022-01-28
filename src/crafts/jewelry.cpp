@@ -15,6 +15,7 @@
 #include "mining.h"
 #include "skills_info.h"
 #include "utils/random.h"
+#include <cmath>
 
 //#include <map>
 

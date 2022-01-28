@@ -8,7 +8,7 @@
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"
 #include "skills/protect.h"
-
+#include <cmath>
 using namespace FightSystem;
 
 ESkill ExpedientWeaponSkill(CharacterData *ch) {
