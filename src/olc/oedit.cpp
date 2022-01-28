@@ -38,6 +38,7 @@
 #include "entities/zone.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
+#include "structs/global_objects.h"
 
 #include <array>
 #include <vector>
@@ -381,7 +382,7 @@ void oedit_save_to_disk(int zone_num) {
 				CObjectPrototype::skills_t skills;
 				obj->get_skills(skills);
 				for (const auto &it : skills) {
-					fprintf(fp, "S\n%d %d\n", it.first, it.second);
+					fprintf(fp, "S\n%d %d\n", to_underlying(it.first), it.second);
 				}
 			}
 
@@ -547,19 +548,19 @@ void oedit_disp_spells_menu(DescriptorData *d) {
 }
 
 void oedit_disp_skills2_menu(DescriptorData *d) {
-	int counter, columns = 0;
+	int columns = 0;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < MAX_SKILL_NUM; counter++) {
-		if (!skill_info[counter].name || *skill_info[counter].name == '!') {
+	for (auto skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
+		if (!MUD::Skills()[skill_id].GetName() || *MUD::Skills()[skill_id].GetName() == '!') {
 			continue;
 		}
 
-		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
-				skill_info[counter].name, !(++columns % 3) ? "\r\n" : "");
+		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, to_underlying(skill_id), nrm, yel,
+				MUD::Skills()[skill_id].GetName(), !(++columns % 3) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 	sprintf(buf, "\r\n%sВыберите умение (0 - выход) : ", nrm);
@@ -603,26 +604,26 @@ void oedit_disp_feats_menu(DescriptorData *d) {
 }
 
 void oedit_disp_skills_mod_menu(DescriptorData *d) {
-	int columns = 0, counter;
+	int columns = 0;
 
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
 	int percent;
-	for (counter = 1; counter <= MAX_SKILL_NUM; ++counter) {
-		if (!skill_info[counter].name || *skill_info[counter].name == '!') {
+	for (auto skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
+		if (!MUD::Skills()[skill_id].GetName() || *MUD::Skills()[skill_id].GetName() == '!') {
 			continue;
 		}
 
-		percent = OLC_OBJ(d)->get_skill(counter);
+		percent = OLC_OBJ(d)->get_skill(skill_id);
 		if (percent != 0) {
 			sprintf(buf1, "%s[%3d]%s", cyn, percent, nrm);
 		} else {
 			strcpy(buf1, "     ");
 		}
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-				 skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill_id), nrm,
+				 MUD::Skills()[skill_id].GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
@@ -1329,8 +1330,9 @@ void oedit_disp_clone_menu(DescriptorData *d) {
 }
 
 void oedit_parse(DescriptorData *d, char *arg) {
-	int number = 0;
+	int number{};
 	int max_val, min_val, plane, bit;
+	ESkill skill_id{};
 
 	switch (OLC_MODE(d)) {
 		case OEDIT_CONFIRM_SAVESTRING:
@@ -1627,9 +1629,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				OLC_OBJ(d)->set_type(static_cast<ObjectData::EObjectType>(number));
 				sprintf(buf, "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
 				mudlog(buf, BRF, kLevelGod, SYSLOG, true);
-				if (number != ObjectData::ITEM_WEAPON
-					&& number != ObjectData::ITEM_INGREDIENT) {
-					OLC_OBJ(d)->set_skill(SKILL_INVALID);
+				if (number != ObjectData::ITEM_WEAPON && number != ObjectData::ITEM_INGREDIENT) {
+					OLC_OBJ(d)->set_skill(0);
 				}
 			}
 			break;
@@ -1845,9 +1846,10 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number > MAX_SKILL_NUM
-								|| !skill_info[number].name
-								|| *skill_info[number].name == '!') {
+							skill_id = static_cast<ESkill>(number);
+							if (skill_id > ESkill::kLast
+								|| !MUD::Skills()[skill_id].GetName()
+								|| *MUD::Skills()[skill_id].GetName() == '!') {
 								send_to_char("Неизвестное умение, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
 								return;
@@ -2043,21 +2045,18 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			}
 			break;
 
-		case OEDIT_SKILLS: number = atoi(arg);
-			if (number == 0) {
-				break;
-			}
-			if (number > MAX_SKILL_NUM
-				|| number < 0
-				|| !skill_info[number].name
-				|| *skill_info[number].name == '!') {
+		case OEDIT_SKILLS:
+			skill_id = static_cast<ESkill>(atoi(arg));
+			if (skill_id < ESkill::kFirst || skill_id > ESkill::kLast
+				|| !MUD::Skills()[skill_id].GetName()
+				|| *MUD::Skills()[skill_id].GetName() == '!') {
 				send_to_char("Неизвестное умение.\r\n", d->character.get());
-			} else if (OLC_OBJ(d)->get_skill(number) != 0) {
-				OLC_OBJ(d)->set_skill(number, 0);
+			} else if (OLC_OBJ(d)->get_skill(skill_id) != 0) {
+				OLC_OBJ(d)->set_skill(skill_id, 0);
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
-				OLC_OBJ(d)->set_skill(number, (MIN(200, MAX(-200, bit))));
+				OLC_OBJ(d)->set_skill(skill_id, std::clamp(bit, -200, 200));
 			}
 			oedit_disp_skills_mod_menu(d);
 			return;

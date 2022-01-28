@@ -7,7 +7,7 @@
 
 #include "affects/affect_contants.h"
 
-enum {
+enum ECharClass : int {
 	CLASS_UNDEFINED = -1,
 	CLASS_CLERIC = 0,
 	CLASS_BATTLEMAGE,
@@ -23,12 +23,16 @@ enum {
 	CLASS_SMITH,
 	CLASS_MERCHANT,
 	CLASS_DRUID,
-	NUM_PLAYER_CLASSES,
-	PLAYER_CLASS_NEXT = NUM_PLAYER_CLASSES,
+	PLAYER_CLASS_FIRST = CLASS_CLERIC,
+	PLAYER_CLASS_LAST = CLASS_DRUID, // Не забываем менять при изменении числа классов
 	CLASS_MOB = 20,
 	NPC_CLASS_BASE = 100,
 	NPC_CLASS_LAST = 107
 };
+
+constexpr int NUM_PLAYER_CLASSES = PLAYER_CLASS_LAST + 1;
+
+ECharClass& operator++(ECharClass &c);
 
 #define MASK_BATTLEMAGE   (1 << CLASS_BATTLEMAGE)
 #define MASK_CLERIC       (1 << CLASS_CLERIC)

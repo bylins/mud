@@ -1,5 +1,5 @@
-#ifndef _ABILITY_ROLLSYSTEM_HPP_INCLUDED_
-#define _ABILITY_ROLLSYSTEM_HPP_INCLUDED_
+#ifndef ABILITY_ROLLSYSTEM_HPP_INCLUDED_
+#define ABILITY_ROLLSYSTEM_HPP_INCLUDED_
 
 /*
 	Классы, реализующие базовые броски на успех и провал
@@ -10,9 +10,6 @@
 
 #include "abilities_constants.h"
 #include "entities/char.h"
-//#include "fightsystem/fight_constants.h"
-//#include "features.h"
-//#include "skills.h"
 
 #include <string>
 
@@ -40,7 +37,7 @@ class AbilityRollType {
 		_criticalFail{false},
 		_criticalSuccess{false},
 		_wrongConditions(false),
-		_baseSkill{SKILL_INVALID},
+		_baseSkill{ESkill::kIncorrect},
 		_denyMessage{"Если вы это прочитали, значит, у кодера проблема.\r\n"} {};
 
 	virtual void initialize(CharacterData *abilityActor, int usedAbility);
@@ -115,6 +112,6 @@ class TechniqueRollType : public AgainstRivalRollType {
 
 }; //namespace AbilitySystem
 
-#endif // _ABILITYROLL_INTERFACE_HPP_INCLUDED_
+#endif // ABILITY_ROLLSYSTEM_HPP_INCLUDED_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

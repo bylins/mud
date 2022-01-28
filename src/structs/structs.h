@@ -64,6 +64,7 @@ typedef char byte;
 #endif
 
 const int kMaxRemort = 75;
+const int kMaxPlayerLevel = 30;
 
 // Структуры валют надо вынести в отдельный модуль с механикой валют ***************************************
 
@@ -266,12 +267,6 @@ struct Punish {
 	char *reason = nullptr;
 	int level = 0;
 	long godid = 0;
-};
-
-struct Timed {
-	ubyte skill = 0;					// Number of used skill/spell //
-	ubyte time = 0;						// Time for next using        //
-	struct Timed *next = nullptr;
 };
 
 // Structure used for entities following other entities //

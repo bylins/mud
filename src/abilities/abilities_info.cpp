@@ -297,7 +297,7 @@ const AbilityInfo &AbilitiesInfo::operator[](EAbility ability_id) {
 	try {
 		return *abilities_->at(ability_id);
 	} catch (const std::out_of_range &) {
-		err_log("Incorrect ability id (%d) passed into abilities_info", to_underlying(ability_id));
+		err_log("Incorrect ability id (%d) passed into Abilities", to_underlying(ability_id));
 		return *abilities_->at(EAbility::kUndefined);
 	}
 }

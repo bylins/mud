@@ -9,9 +9,9 @@
 ************************************************************************ */
 
 #include "entities/obj.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "color.h"
-#include "interpreter.h"
+//#include "interpreter.h"
 #include "handler.h"
 #include "auction.h"
 #include "game_mechanics/named_stuff.h"

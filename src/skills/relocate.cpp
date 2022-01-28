@@ -2,22 +2,23 @@
 
 //#include "features.h"
 #include "entities/char.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "house.h"
 #include "color.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
+
 extern void check_auto_nosummon(CharacterData *ch);
 
 void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	struct Timed timed;
+	struct TimedFeat timed;
 
 	if (!can_use_feat(ch, RELOCATE_FEAT)) {
 		send_to_char("Вам это недоступно.\r\n", ch);
 		return;
 	}
 
-	if (timed_by_feat(ch, RELOCATE_FEAT)
+	if (IsTimed(ch, RELOCATE_FEAT)
 #ifdef TEST_BUILD
 		&& !IS_IMMORTAL(ch)
 #endif
@@ -88,7 +89,7 @@ void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
-	timed.skill = RELOCATE_FEAT;
+	timed.feat = RELOCATE_FEAT;
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 			return;
 	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, TO_ROOM);
@@ -113,7 +114,7 @@ void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		timed.time = 2;
 		WAIT_STATE(ch, kPulseViolence);
 	}
-	timed_feat_to_char(ch, &timed);
+	ImposeTimedFeat(ch, &timed);
 	look_at_room(ch, 0);
 	check_auto_nosummon(victim);
 	greet_mtrigger(ch, -1);

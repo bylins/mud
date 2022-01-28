@@ -3,6 +3,7 @@
 #include "affect_data.h"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
+#include "fightsystem/fight_hit.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
 #include "game_mechanics/deathtrap.h"
@@ -353,9 +354,9 @@ void mobile_affect_update() {
 		if (!was_purged) {
 			affect_total(i.get());
 
-			decltype(i->timed) timed_next;
-			for (auto timed = i->timed; timed; timed = timed_next) {
-				timed_next = timed->next;
+			decltype(i->timed) timed_skill;
+			for (auto timed = i->timed; timed; timed = timed_skill) {
+				timed_skill = timed->next;
 				if (timed->time >= 1) {
 					timed->time--;
 				} else {
@@ -363,12 +364,13 @@ void mobile_affect_update() {
 				}
 			}
 
-			for (auto timed = i->timed_feat; timed; timed = timed_next) {
-				timed_next = timed->next;
+			decltype(i->timed_feat) timed_feat;
+			for (auto timed = i->timed_feat; timed; timed = timed_feat) {
+				timed_feat = timed->next;
 				if (timed->time >= 1) {
 					timed->time--;
 				} else {
-					timed_feat_from_char(i.get(), timed);
+					ExpireTimedFeat(i.get(), timed);
 				}
 			}
 

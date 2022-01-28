@@ -258,26 +258,26 @@ constexpr bitvector_t IGNORE_OFFTOP = 1 << 11;
  */
 
 // NPC races
-const __uint8_t NPC_RACE_BASIC = 100;
-const __uint8_t NPC_RACE_HUMAN = 101;
-const __uint8_t NPC_RACE_HUMAN_ANIMAL = 102;
-const __uint8_t NPC_RACE_BIRD = 103;
-const __uint8_t NPC_RACE_ANIMAL = 104;
-const __uint8_t NPC_RACE_REPTILE = 105;
-const __uint8_t NPC_RACE_FISH = 106;
-const __uint8_t NPC_RACE_INSECT = 107;
-const __uint8_t NPC_RACE_PLANT = 108;
-const __uint8_t NPC_RACE_THING = 109;
-const __uint8_t NPC_RACE_ZOMBIE = 110;
-const __uint8_t NPC_RACE_GHOST = 111;
-const __uint8_t NPC_RACE_EVIL_SPIRIT = 112;
-const __uint8_t NPC_RACE_SPIRIT = 113;
-const __uint8_t NPC_RACE_MAGIC_CREATURE = 114;
-const __uint8_t NPC_RACE_NEXT = 115;
+const int NPC_RACE_BASIC = 100;
+const int NPC_RACE_HUMAN = 101;
+const int NPC_RACE_HUMAN_ANIMAL = 102;
+const int NPC_RACE_BIRD = 103;
+const int NPC_RACE_ANIMAL = 104;
+const int NPC_RACE_REPTILE = 105;
+const int NPC_RACE_FISH = 106;
+const int NPC_RACE_INSECT = 107;
+const int NPC_RACE_PLANT = 108;
+const int NPC_RACE_THING = 109;
+const int NPC_RACE_ZOMBIE = 110;
+const int NPC_RACE_GHOST = 111;
+const int NPC_RACE_EVIL_SPIRIT = 112;
+const int NPC_RACE_SPIRIT = 113;
+const int NPC_RACE_MAGIC_CREATURE = 114;
+const int NPC_RACE_NEXT = 115;
 
 // Virtual NPC races
-const __uint8_t NPC_BOSS = 200;
-const __uint8_t NPC_UNIQUE = 201;
+const int NPC_BOSS = 200;
+const int NPC_UNIQUE = 201;
 
 // Mobile flags: used by char_data.char_specials.act
 constexpr bitvector_t MOB_SPEC = 1 << 0;            // Mob has a callable spec-proc  //

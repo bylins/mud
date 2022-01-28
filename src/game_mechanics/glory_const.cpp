@@ -748,7 +748,7 @@ void do_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mode = ADD_GLORY;
 	} else if (*num == '-') {
 		mode = SUB_GLORY;
-	} else if (is_abbrev(num, "reset")) {
+	} else if (utils::IsAbbrev(num, "reset")) {
 		mode = RESET_GLORY;
 	}
 	// точки убираем, чтобы карма всегда писалась

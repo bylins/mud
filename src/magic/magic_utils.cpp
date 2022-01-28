@@ -14,20 +14,16 @@
 
 #include "magic_utils.h"
 
-#include "entities/char.h"
+#include "structs/global_objects.h"
 #include "handler.h"
 #include "color.h"
-#include "fightsystem/pk.h"
 #include "depot.h"
 #include "parcel.h"
 #include "magic.h"
-#include "skills_info.h"
-#include "magic_rooms.h"
 
 char cast_argument[kMaxStringLength];
 
 #define SpINFO spell_info[spellnum]
-#define SkINFO skill_info[skillnum]
 
 extern int what_sky;
 
@@ -185,16 +181,16 @@ ESkill FindSkillNum(const char *name) {
 	char first[256], first2[256];
 
 	for (const auto index : AVAILABLE_SKILLS) {
-		if (is_abbrev(name, skill_info[index].name)) {
+		if (utils::IsAbbrev(name, MUD::Skills()[index].GetName())) {
 			return (index);
 		}
 
 		ok = true;
 		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(skill_info[index].name, first);
+		temp = any_one_arg(MUD::Skills()[index].GetName(), first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
-			if (!is_abbrev(first2, first)) {
+			if (!utils::IsAbbrev(first2, first)) {
 				ok = false;
 			}
 			temp = any_one_arg(temp, first);
@@ -206,7 +202,7 @@ ESkill FindSkillNum(const char *name) {
 		}
 	}
 
-	return SKILL_INVALID;
+	return ESkill::kIncorrect;
 }
 
 int FindSpellNum(const char *name) {
@@ -223,14 +219,14 @@ int FindSpellNum(const char *name) {
 
 		if (!realname || !*realname)
 			continue;
-		if (is_abbrev(name, realname))
+		if (utils::IsAbbrev(name, realname))
 			return (index);
 		ok = true;
 		// It won't be changed, but other uses of this function elsewhere may.
 		temp = any_one_arg(realname, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
-			if (!is_abbrev(first2, first))
+			if (!utils::IsAbbrev(first2, first))
 				ok = false;
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
@@ -632,7 +628,7 @@ int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData 
 	}
 
 	ESkill skillnum = get_magic_skill_number_by_spell(spellnum);
-	if (skillnum != SKILL_INVALID && skillnum != SKILL_UNDEF) {
+	if (skillnum != ESkill::kIncorrect && skillnum != ESkill::kUndefined) {
 		TrainSkill(ch, skillnum, true, tch);
 	}
 	// Комнату тут в SaySpell не обрабатываем - будет сказал "что-то"
@@ -701,7 +697,7 @@ int CalcCastSuccess(CharacterData *ch, CharacterData *victim, ESaving saving, in
 	}
 
 	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
-	if (skill_number > 0) {
+	if (skill_number != ESkill::kIncorrect) {
 		prob += ch->get_skill(skill_number) / 20;
 	}
 

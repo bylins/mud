@@ -20,17 +20,13 @@
 #include "fightsystem/mobact.h"
 #include "handler.h"
 #include "house.h"
-//#include "interpreter.h"
 #include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
 #include "privilege.h"
 #include "color.h"
-#include "skills_info.h"
 #include "skills/pick.h"
 #include "utils/random.h"
-#include "world_objects.h"
-
-//#include <cmath>
+#include "structs/global_objects.h"
 
 // external functs
 void set_wait(CharacterData *ch, int waittime, int victim_in_room);
@@ -165,15 +161,15 @@ int skip_hiding(CharacterData *ch, CharacterData *vict) {
 			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
 		} else if (affected_by_spell(ch, SPELL_HIDE)) {
 			percent = number(1, 82 + GET_REAL_INT(vict));
-			prob = CalcCurrentSkill(ch, SKILL_HIDE, vict);
+			prob = CalcCurrentSkill(ch, ESkill::SKILL_HIDE, vict);
 			if (percent > prob) {
 				affect_from_char(ch, SPELL_HIDE);
 				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
-					ImproveSkill(ch, SKILL_HIDE, false, vict);
+					ImproveSkill(ch, ESkill::SKILL_HIDE, false, vict);
 					act("Вы не сумели остаться незаметным.", false, ch, nullptr, vict, TO_CHAR);
 				}
 			} else {
-				ImproveSkill(ch, SKILL_HIDE, true, vict);
+				ImproveSkill(ch, ESkill::SKILL_HIDE, true, vict);
 				act("Вам удалось остаться незаметным.\r\n", false, ch, nullptr, vict, TO_CHAR);
 				return (true);
 			}
@@ -196,15 +192,15 @@ int skip_camouflage(CharacterData *ch, CharacterData *vict) {
 			EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
 		} else if (affected_by_spell(ch, SPELL_CAMOUFLAGE)) {
 			percent = number(1, 82 + GET_REAL_INT(vict));
-			prob = CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, vict);
+			prob = CalcCurrentSkill(ch, ESkill::SKILL_CAMOUFLAGE, vict);
 			if (percent > prob) {
 				affect_from_char(ch, SPELL_CAMOUFLAGE);
 				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)) {
-					ImproveSkill(ch, SKILL_CAMOUFLAGE, false, vict);
+					ImproveSkill(ch, ESkill::SKILL_CAMOUFLAGE, false, vict);
 					act("Вы не сумели правильно замаскироваться.", false, ch, nullptr, vict, TO_CHAR);
 				}
 			} else {
-				ImproveSkill(ch, SKILL_CAMOUFLAGE, true, vict);
+				ImproveSkill(ch, ESkill::SKILL_CAMOUFLAGE, true, vict);
 				act("Ваша маскировка оказалась на высоте.\r\n", false, ch, nullptr, vict, TO_CHAR);
 				return (true);
 			}
@@ -234,7 +230,7 @@ int skip_sneaking(CharacterData *ch, CharacterData *vict) {
 							 (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112)
 								 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1))
 								 + (GET_REAL_LEVEL(vict) > 30 ? GET_REAL_LEVEL(vict) : 0));
-			prob = CalcCurrentSkill(ch, SKILL_SNEAK, vict);
+			prob = CalcCurrentSkill(ch, ESkill::SKILL_SNEAK, vict);
 
 			int catch_level = (GET_REAL_LEVEL(vict) - GET_REAL_LEVEL(ch));
 			if (catch_level > 5) {
@@ -249,11 +245,11 @@ int skip_sneaking(CharacterData *ch, CharacterData *vict) {
 				if (affected_by_spell(ch, SPELL_HIDE))
 					affect_from_char(ch, SPELL_HIDE);
 				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
-					ImproveSkill(ch, SKILL_SNEAK, false, vict);
+					ImproveSkill(ch, ESkill::SKILL_SNEAK, false, vict);
 					act("Вы не сумели пробраться незаметно.", false, ch, nullptr, vict, TO_CHAR);
 				}
 			} else {
-				ImproveSkill(ch, SKILL_SNEAK, true, vict);
+				ImproveSkill(ch, ESkill::SKILL_SNEAK, true, vict);
 				act("Вам удалось прокрасться незаметно.\r\n", false, ch, nullptr, vict, TO_CHAR);
 				return (true);
 			}
@@ -625,24 +621,24 @@ int do_simple_move(CharacterData *ch, int dir, int need_specials_check, Characte
 	if (!IS_IMMORTAL(ch) && !IS_NPC(ch))
 		GET_MOVE(ch) -= calculate_move_cost(ch, dir);
 
-	i = skill_info[SKILL_SNEAK].difficulty;
+	i = MUD::Skills()[ESkill::SKILL_SNEAK].difficulty;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) && !is_flee) {
 		if (IS_NPC(ch))
 			invis = 1;
 		else if (awake_sneak(ch)) {
 			affect_from_char(ch, SPELL_SNEAK);
-		} else if (!affected_by_spell(ch, SPELL_SNEAK) || CalcCurrentSkill(ch, SKILL_SNEAK, nullptr) >= number(1, i))
+		} else if (!affected_by_spell(ch, SPELL_SNEAK) || CalcCurrentSkill(ch, ESkill::SKILL_SNEAK, nullptr) >= number(1, i))
 			invis = 1;
 	}
 
-	i = skill_info[SKILL_CAMOUFLAGE].difficulty;
+	i = MUD::Skills()[ESkill::SKILL_CAMOUFLAGE].difficulty;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE) && !is_flee) {
 		if (IS_NPC(ch))
 			invis = 1;
 		else if (awake_camouflage(ch)) {
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
 		} else if (!affected_by_spell(ch, SPELL_CAMOUFLAGE) ||
-			CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, nullptr) >= number(1, i))
+			CalcCurrentSkill(ch, ESkill::SKILL_CAMOUFLAGE, nullptr) >= number(1, i))
 			invis = 1;
 	}
 
@@ -715,7 +711,7 @@ int do_simple_move(CharacterData *ch, int dir, int need_specials_check, Characte
 
 	if (!IS_NPC(ch) && IS_BITS(ch->track_dirs, dir)) {
 		send_to_char("Вы двинулись по следу.\r\n", ch);
-		ImproveSkill(ch, SKILL_TRACK, true, nullptr);
+		ImproveSkill(ch, ESkill::SKILL_TRACK, true, nullptr);
 	}
 
 	char_from_room(ch);
@@ -990,7 +986,7 @@ void do_hidemove(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int dir = 0, sneaking = affected_by_spell(ch, SPELL_SNEAK);
 
 	skip_spaces(&argument);
-	if (!ch->get_skill(SKILL_SNEAK)) {
+	if (!ch->get_skill(ESkill::SKILL_SNEAK)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -1014,8 +1010,8 @@ void do_hidemove(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		af.location = EApplyLocation::APPLY_NONE;
 		af.modifier = 0;
 		af.duration = 1;
-		const int calculated_skill = CalcCurrentSkill(ch, SKILL_SNEAK, nullptr);
-		const int chance = number(1, skill_info[SKILL_SNEAK].difficulty);
+		const int calculated_skill = CalcCurrentSkill(ch, ESkill::SKILL_SNEAK, nullptr);
+		const int chance = number(1, MUD::Skills()[ESkill::SKILL_SNEAK].difficulty);
 		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlag::AFF_SNEAK) : 0;
 		af.battleflag = 0;
 		affect_join(ch, af, false, false, false, false);
@@ -1075,7 +1071,7 @@ int find_door(CharacterData *ch, const char *type, char *dir, DOOR_SCMD scmd) {
 					return (door);
 				else
 					return (FD_WRONG_DOOR_NAME); //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
-			} else if (is_abbrev(type, "дверь") || is_abbrev(type, "door")) {
+			} else if (utils::IsAbbrev(type, "дверь") || utils::IsAbbrev(type, "door")) {
 				//Аргумент соответствует "дверь" или "door" и есть в указанном направлении
 				return (door);
 			} else
@@ -1096,7 +1092,7 @@ int find_door(CharacterData *ch, const char *type, char *dir, DOOR_SCMD scmd) {
 					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
 						//Аргумент соответствует имени этой двери
 						found = true;
-				} else if (DOOR_IS(ch, door) && (is_abbrev(type, "дверь") || is_abbrev(type, "door")))
+				} else if (DOOR_IS(ch, door) && (utils::IsAbbrev(type, "дверь") || utils::IsAbbrev(type, "door")))
 					//Дверь не имеет особых алиасов, аргумент соответствует двери
 					found = true;
 			}
@@ -1373,7 +1369,7 @@ bool ok_pick(CharacterData *ch, ObjVnum /*keynum*/, ObjectData *obj, int door, i
 	const bool pick_success = pbi.unlock_probability >= number(1, 100);
 
 	if (pbi.skill_train_allowed) {
-		TrainSkill(ch, SKILL_PICK_LOCK, pick_success, nullptr);
+		TrainSkill(ch, ESkill::SKILL_PICK_LOCK, pick_success, nullptr);
 	}
 
 	if (!pick_success) {
@@ -1414,7 +1410,7 @@ void do_gen_door(CharacterData *ch, char *argument, int, int subcmd) {
 		return;
 	}
 
-	if (subcmd == SCMD_PICK && !ch->get_skill(SKILL_PICK_LOCK)) {
+	if (subcmd == SCMD_PICK && !ch->get_skill(ESkill::SKILL_PICK_LOCK)) {
 		send_to_char("Это умение вам недоступно.\r\n", ch);
 		return;
 	}

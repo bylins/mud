@@ -30,11 +30,10 @@
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "magic/magic_utils.h"
-#include "world_objects.h"
 #include "skills/townportal.h"
-#include "skills_info.h"
 #include "utils/id_converter.h"
 #include "entities/zone.h"
+#include "structs/global_objects.h"
 
 struct mob_command_info {
 	const char *command;
@@ -120,8 +119,10 @@ void do_mportal(CharacterData *mob, char *argument, int/* cmd*/, int/* subcmd*/)
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
+	act("Лазурная пентаграмма возникла в воздухе.",
+		false, world[curroom]->first_character(), nullptr, nullptr, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.",
+		false, world[curroom]->first_character(), nullptr, nullptr, TO_ROOM);
 }
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -197,7 +198,7 @@ void do_mkill(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+	hit(ch, victim, ESkill::kUndefined, FightSystem::MAIN_HAND);
 }
 
 /*
@@ -370,7 +371,7 @@ void do_mload(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (is_abbrev(arg1, "mob")) {
+	if (utils::IsAbbrev(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			mob_log(ch, "mload: bad mob vnum");
 			return;
@@ -378,7 +379,7 @@ void do_mload(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
 		char_to_room(mob, ch->in_room);
 		load_mtrigger(mob);
-	} else if (is_abbrev(arg1, "obj")) {
+	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			mob_log(ch, "mload: bad object vnum");
@@ -968,7 +969,6 @@ void do_mdoor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // increases spells & skills
-const char *skill_name(int num);
 const char *spell_name(int num);
 int FixNameAndFindSpellNum(char *name);
 
@@ -1029,7 +1029,7 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	bool isSkill = false;
 	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = SKILL_INVALID;
+	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -1044,8 +1044,8 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
-		isSkill = 1;
+	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst  && skillnum <= ESkill::kLast) {
+		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskillturn: %s skill/recipe not found", skillname);
 		mob_log(ch, buf);
@@ -1074,7 +1074,7 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	}
 
 	if (isSkill) {
-		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == kKnowSkill) {
+		if (MUD::Classes()[ch->get_class()].Knows(skillnum)) {
 			trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
@@ -1089,7 +1089,7 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	bool isSkill = false;
 	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = SKILL_INVALID;
+	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -1104,7 +1104,7 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
+	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst  && skillnum <= ESkill::kLast) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskilladd: %s skill/recipe not found", skillname);

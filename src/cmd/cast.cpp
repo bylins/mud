@@ -1,14 +1,14 @@
 #include "cast.h"
 
 #include "entities/char.h"
-#include "entities/obj.h"
+/*#include "entities/obj.h"
 #include "entities/room.h"
 #include "structs/structs.h"
 #include "comm.h"
 #include "skills.h"
-#include "magic/spells.h"
+#include "magic/spells.h"*/
 #include "magic/magic_utils.h"
-#include "features.h"
+//#include "features.h"
 #include "classes/class_spell_slots.h"
 #include "magic/spells_info.h"
 #include "handler.h"
@@ -35,7 +35,7 @@ void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+	if (ch->haveCooldown(ESkill::SKILL_GLOBAL_COOLDOWN)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

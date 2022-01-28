@@ -109,6 +109,38 @@ void DelegatedStringWriter::clear() {
 	m_delegated_string_ = nullptr;
 }
 
+bool IsAbbrev(const char *arg1, const char *arg2) {
+	if (!*arg1) {
+		return false;
+	}
+
+	for (; *arg1 && *arg2; arg1++, arg2++) {
+		if (LOWER(*arg1) != LOWER(*arg2)) {
+			return false;
+		}
+	}
+
+	if (!*arg1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+// * Конвертация входной строки в нижний регистр
+void ConvertToLow(std::string &text) {
+	for (std::string::iterator it = text.begin(); it != text.end(); ++it)
+		*it = LOWER(*it);
+}
+
+// * Конвертация входной строки в нижний регистр
+void ConvertToLow(char *text) {
+	while (*text) {
+		*text = LOWER(*text);
+		text++;
+	}
+}
+
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

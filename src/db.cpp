@@ -19,7 +19,7 @@
 
 #include "abilities/abilities_info.h"
 #include "cmd_god/ban.h"
-#include "birthplaces.h"
+//#include "birthplaces.h"
 #include "boards/boards.h"
 #include "boot/boot_data_files.h"
 #include "boot/boot_index.h"
@@ -72,7 +72,7 @@
 #include "top.h"
 //#include "magic/magic_rooms.h"
 //#include "skills.h"
-#include "skills_info.h"
+//#include "skills_info.h"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>
@@ -212,7 +212,6 @@ TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages();
 void initSpells(void);
-void InitSkills();
 void sort_commands();
 void Read_Invalid_List();
 int find_name(const char *name);
@@ -1080,7 +1079,7 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "abilities"))
-		GlobalObjects::abilities_info().Reload();
+		GlobalObjects::Abilities().Reload();
 	else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -1277,7 +1276,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 				}
 			}
 		}
-		obj->set_skill(SKILL_INVALID);
+		obj->set_skill(to_underlying(ESkill::kIncorrect));
 
 		return 1;
 	}
@@ -2247,7 +2246,8 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
-	GlobalObjects::abilities_info().Init();
+	MUD::Abilities().Init();
+
 	pugi::xml_document doc;
 
 	load_dquest();
@@ -2289,7 +2289,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading birth places definitions");
 	log("Loading birth places definitions.");
-	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
+	Birthplaces::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
 	boot_profiler.next_step("Loading player races definitions");
 	log("Loading player races definitions.");
@@ -2299,9 +2299,9 @@ void boot_db(void) {
 	log("Loading spell definitions.");
 	initSpells();
 
-	boot_profiler.next_step("Loading skill definitions");
-	log("Loading skill definitions.");
-	InitSkills();
+	boot_profiler.next_step("Loading skills definitions");
+	log("Loading skills definitions.");
+	MUD::Skills().Init();
 
 	boot_profiler.next_step("Loading feature definitions");
 	log("Loading feature definitions.");
@@ -2310,6 +2310,12 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
 	init_im();
+
+	boot_profiler.next_step("Assigning spells and skills levels");
+	log("Assigning spell and skill levels.");
+	MUD::Classes().Init();
+	init_spell_levels();
+	LoadClassSkills(); // ABYRVALG - перенести логику парсинга в класс-инфо
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");
@@ -2369,11 +2375,6 @@ void boot_db(void) {
 		log("   Rooms.");
 		assign_rooms();
 	}
-
-	boot_profiler.next_step("Assigning spells and skills levels");
-	log("Assigning spell and skill levels.");
-	init_spell_levels();
-	LoadClassSkills();
 
 	boot_profiler.next_step("Reading skills variables.");
 	log("Reading skills variables.");
@@ -3291,7 +3292,7 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 			plane_offset = 0;
 			continue;
 		};
-		if (is_abbrev(searchname, extra_bits[counter])) {
+		if (utils::IsAbbrev(searchname, extra_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -3310,7 +3311,7 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 	f = false;
 // ---------------------
 	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
-		if (is_abbrev(searchname, apply_types[counter])) {
+		if (utils::IsAbbrev(searchname, apply_types[counter])) {
 			f = true;
 			break;
 		}
@@ -3337,7 +3338,7 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 			plane_offset = 0;
 			continue;
 		};
-		if (is_abbrev(searchname, weapon_affects[counter])) {
+		if (utils::IsAbbrev(searchname, weapon_affects[counter])) {
 			f = true;
 			break;
 		}
@@ -3356,8 +3357,9 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 	}
 
 	f = false;
-	for (counter = 0; counter <= MAX_SKILL_NUM; ++counter) {
-		if (is_abbrev(searchname, skill_info[counter].name)) {
+	ESkill skill_id;
+	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
+		if (utils::IsAbbrev(searchname, MUD::Skills()[skill_id].GetName())) {
 			f = true;
 			break;
 		}
@@ -3365,12 +3367,12 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->has_skills()) {
-				auto it = i->get_skills().find(static_cast<ESkill>(counter));
+				auto it = i->get_skills().find(skill_id);
 				if (it != i->get_skills().end()) {
 					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
-							 skill_info[counter].name, it->second);
+							 MUD::Skills()[skill_id].GetName(), it->second);
 					out += buf;
 				}
 			}
@@ -3531,9 +3533,9 @@ CharacterData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	mob->points.move = mob->points.max_move;
 	mob->add_gold(dice(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
-	mob->player_data.time.birth = time(0);
+	mob->player_data.time.birth = time(nullptr);
 	mob->player_data.time.played = 0;
-	mob->player_data.time.logon = time(0);
+	mob->player_data.time.logon = time(nullptr);
 
 	mob->id = max_id.allocate();
 
@@ -3577,7 +3579,7 @@ CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type) {
 	}
 
 	if (i > obj_proto.size()) {
-		return 0;
+		return nullptr;
 	}
 	return obj_proto[i];
 }
@@ -3627,7 +3629,7 @@ void zone_update(void) {
 
 				CREATE(update_u, 1);
 				update_u->zone_to_reset = static_cast<ZoneRnum>(i);
-				update_u->next = 0;
+				update_u->next = nullptr;
 
 				if (!reset_q.head)
 					reset_q.head = reset_q.tail = update_u;
@@ -5058,16 +5060,16 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");
 		sprintf(buf + strlen(buf),
 				"%s",
-				string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch), GET_RACE(ch)))).c_str());
+				string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch), GET_RACE(ch)))).c_str());
 		send_to_char(buf, ch);
 		return;
 	} else {
 		// Сначала проверим по словам - может нам текстом сказали?
-		place_of_destination = BirthPlace::ParseSelect(arg);
+		place_of_destination = Birthplaces::ParseSelect(arg);
 		if (place_of_destination == BIRTH_PLACE_UNDEFINED) {
 			//Нет, значит или ерунда в аргументе, или цифирь, смотрим
 			place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
-			if (!BirthPlace::CheckId(place_of_destination)) {
+			if (!Birthplaces::CheckId(place_of_destination)) {
 				send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
 				return;
 			}
@@ -5076,7 +5078,7 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	log("Remort %s", GET_NAME(ch));
 	ch->remort();
-	act(remort_msg2, false, ch, 0, 0, TO_ROOM);
+	act(remort_msg2, false, ch, nullptr, nullptr, TO_ROOM);
 
 	if (ch->is_morphed()) ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
@@ -5113,7 +5115,7 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	while (ch->timed_feat) {
-		timed_feat_from_char(ch, ch->timed_feat);
+		ExpireTimedFeat(ch, ch->timed_feat);
 	}
 	for (i = 1; i < kMaxFeats; i++) {
 		UNSET_FEAT(ch, i);
@@ -5757,7 +5759,7 @@ std::vector<std::string> block_list;
 /// Проверка на наличие чара в стоп-списке и сет флага
 void set_flag(CharacterData *ch) {
 	std::string mail(GET_EMAIL(ch));
-	lower_convert(mail);
+	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end()) {
 		PRF_FLAGS(ch).set(PRF_IGVA_PRONA);
@@ -5776,7 +5778,7 @@ void init() {
 	}
 	std::string buffer;
 	while (file >> buffer) {
-		lower_convert(buffer);
+		utils::ConvertToLow(buffer);
 		block_list.push_back(buffer);
 	}
 

@@ -2,7 +2,7 @@
 
 #include "entities/obj.h"
 #include "color.h"
-#include "interpreter.h"
+//#include "interpreter.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
 #include "utils/pugixml.h"
@@ -64,7 +64,7 @@ void AnimalMorph::set_skill(const ESkill skill_num, int percent) {
 					CCICYN(ch_, C_NRM),
 					CCINRM(ch_, C_NRM));
 			send_to_char(buf, ch_);
-			skills_[SKILL_MORPH] += diff;
+			skills_[ESkill::SKILL_MORPH] += diff;
 		}
 	}
 }
@@ -102,8 +102,8 @@ void ShowKnownMorphs(CharacterData *ch) {
 std::string FindMorphId(CharacterData *ch, char *arg) {
 	std::list<std::string> morphsList = ch->get_morphs();
 	for (std::list<std::string>::const_iterator it = morphsList.begin(); it != morphsList.end(); ++it) {
-		if (is_abbrev(arg, IdToMorphMap[*it]->PadName().c_str())
-			|| is_abbrev(arg, IdToMorphMap[*it]->Name().c_str())) {
+		if (utils::IsAbbrev(arg, IdToMorphMap[*it]->PadName().c_str())
+			|| utils::IsAbbrev(arg, IdToMorphMap[*it]->Name().c_str())) {
 			return *it;
 		}
 	}
@@ -112,8 +112,8 @@ std::string FindMorphId(CharacterData *ch, char *arg) {
 
 std::string GetMorphIdByName(char *arg) {
 	for (MorphListType::const_iterator it = IdToMorphMap.begin(); it != IdToMorphMap.end(); ++it) {
-		if (is_abbrev(arg, it->second->PadName().c_str())
-			|| is_abbrev(arg, it->second->Name().c_str())) {
+		if (utils::IsAbbrev(arg, it->second->PadName().c_str())
+			|| utils::IsAbbrev(arg, it->second->Name().c_str())) {
 			return it->first;
 		}
 	}
@@ -126,7 +126,7 @@ void AnimalMorph::InitSkills(int value) {
 			it->second = value;
 		}
 	}
-	skills_[SKILL_MORPH] = value;
+	skills_[ESkill::SKILL_MORPH] = value;
 };
 
 void AnimalMorph::InitAbils() {
@@ -176,7 +176,7 @@ MorphPtr GetNormalMorphNew(CharacterData *ch) {
 void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
-	if (!ch->get_skill(SKILL_MORPH)) {
+	if (!ch->get_skill(ESkill::SKILL_MORPH)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -190,7 +190,7 @@ void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (ch->is_morphed()) {
-		if (is_abbrev(arg, "назад")) {
+		if (utils::IsAbbrev(arg, "назад")) {
 			ch->reset_morph();
 			WAIT_STATE(ch, kPulseViolence);
 			return;
@@ -327,7 +327,7 @@ void load_morphs() {
 		for (pugi::xml_node skill = skillsList.child("skill"); skill; skill = skill.next_sibling("skill")) {
 			std::string strt(skill.child_value());
 			const ESkill skillNum = FixNameFndFindSkillNum(strt);
-			if (skillNum != -SKILL_INVALID) {
+			if (skillNum != ESkill::kIncorrect) {
 				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
 			} else {
 				snprintf(buf, kMaxStringLength, "...skills read fail for morph %s", name.c_str());

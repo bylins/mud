@@ -147,8 +147,8 @@ const char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-int GetRealDamroll(CharacterData *ch);
-int GetAutoattackDamroll(CharacterData *ch, int weapon_skill);
+
+
 extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
 void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg);
 bool is_head(std::string name);
@@ -1128,9 +1128,6 @@ int day_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
 int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
 int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
 
-int day_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
-int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
-int complex_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
 void can_carry_obj(CharacterData *ch, ObjectData *obj);
 bool CAN_CARRY_OBJ(const CharacterData *ch, const ObjectData *obj);
 bool ignores(CharacterData *, CharacterData *, unsigned int);
@@ -1433,72 +1430,6 @@ void print_bitset(const N &bits, const T &names,
 }
 
 const char *print_obj_state(int tm_pct);
-
-struct ExchangeItem;
-// для парса строки с фильтрами в клан-хранах и базаре
-struct ParseFilter {
-	enum { CLAN, EXCHANGE };
-
-	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
-							weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
-							new_timesign('\0'), new_timedown(time(0)), new_timeup(time(0)),
-							filter_type(type) {};
-
-	bool init_type(const char *str);
-	bool init_state(const char *str);
-	bool init_wear(const char *str);
-	bool init_cost(const char *str);
-	bool init_rent(const char *str);
-    bool init_remorts(const char *str);
-	bool init_weap_class(const char *str);
-	bool init_affect(char *str, size_t str_len);
-	bool init_realtime(const char *str);
-	size_t affects_cnt() const;
-	bool check(ObjectData *obj, CharacterData *ch);
-	bool check(ExchangeItem *exch_obj);
-	std::string print() const;
-
-	std::string name;      // имя предмета
-	std::string owner;     // имя продавца (базар)
-	int type;              // тип оружия
-	int state;             // состояние
-	EWearFlag wear;              // куда одевается
-	int wear_message;      // для названия куда одеть
-	int weap_class;        // класс оружие
-	int weap_message;      // для названия оружия
-	int cost;              // для цены
-	char cost_sign;        // знак цены +/-
-	int rent;             // для стоимости ренты
-	char rent_sign;        // знак ренты +/-
-    int filter_remorts_count = -1;
-    int remorts[2] = {-1,-1}; //для количества ремортов
-    char remorts_sign[2] = "\0"; // знак ремортов
-	char new_timesign;       // знак времени < > =
-	time_t new_timedown;   // нижняя граница времени
-	time_t new_timeup;       // верхняя граница времени
-	int filter_type;       // CLAN/EXCHANGE
-
-	std::vector<int> affect_apply; // аффекты apply_types
-	std::vector<int> affect_weap;  // аффекты weapon_affects
-	std::vector<int> affect_extra; // аффекты extra_bits
-
-	std::string show_obj_aff(ObjectData *obj);
-
- private:
-	bool check_name(ObjectData *obj, CharacterData *ch = 0) const;
-	bool check_type(ObjectData *obj) const;
-	bool check_state(ObjectData *obj) const;
-	bool check_wear(ObjectData *obj) const;
-	bool check_weap_class(ObjectData *obj) const;
-	bool check_cost(int obj_price) const;
-	bool check_rent(int obj_price) const;
-    bool check_remorts(ObjectData *obj) const;
-	bool check_affect_weap(ObjectData *obj) const;
-	bool check_affect_apply(ObjectData *obj) const;
-	bool check_affect_extra(ObjectData *obj) const;
-	bool check_owner(ExchangeItem *exch_obj) const;
-	bool check_realtime(ExchangeItem *exch_obj) const;
-};
 
 int get_virtual_race(CharacterData *mob);
 

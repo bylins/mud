@@ -8,10 +8,10 @@
 ************************************************************************ */
 
 #include "obj_prototypes.h"
+#include "structs/global_objects.h"
 #include "handler.h"
 #include "color.h"
 #include "utils/random.h"
-#include "skills_info.h"
 
 const int kSkillCapOnZeroRemort = 80;
 const int kSkillCapBonusPerRemort = 5;;
@@ -21,8 +21,8 @@ const short kSkillDiceSize = 100;
 const short kSkillCriticalFailure = 6;
 const short kSkillCriticalSuccess = 95;
 const short kSkillDegreeDivider = 5;
-const short kMinSkillDegree = 0;
-const short kMaxSkillDegree = 10;
+const int kMinSkillDegree = 0;
+const int kMaxSkillDegree = 10;
 const double kSkillWeight = 1.0;
 const double kNoviceSkillWeight = 0.75;
 const double kParameterWeight = 3.0;
@@ -306,11 +306,12 @@ void brief_shields::act_add(const char *msg, int type) {
 
 const WeapForAct init_weap(CharacterData *ch, int dam, int attacktype) {
 	// Нижеследующий код повергает в ужас
+	// ААА, ШОЭТО*ЛЯ?! Что ЭТО вообще делает?
 	WeapForAct weap;
 	int weap_i = 0;
 
 	switch (attacktype) {
-		case SKILL_BACKSTAB + TYPE_HIT: weap = GET_EQ(ch, WEAR_WIELD);
+		case to_underlying(ESkill::SKILL_BACKSTAB) + kTypeHit: weap = GET_EQ(ch, WEAR_WIELD);
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = real_object(kDummyKnight);
 				if (0 <= weap_i) {
@@ -319,7 +320,7 @@ const WeapForAct init_weap(CharacterData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case SKILL_THROW + TYPE_HIT: weap = GET_EQ(ch, WEAR_WIELD);
+		case to_underlying(ESkill::SKILL_THROW) + kTypeHit: weap = GET_EQ(ch, WEAR_WIELD);
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = real_object(kDummyKnight);
 				if (0 <= weap_i) {
@@ -328,7 +329,7 @@ const WeapForAct init_weap(CharacterData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case SKILL_BASH + TYPE_HIT: weap = GET_EQ(ch, WEAR_SHIELD);
+		case to_underlying(ESkill::SKILL_BASH) + kTypeHit: weap = GET_EQ(ch, WEAR_SHIELD);
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = real_object(kDummyShield);
 				if (0 <= weap_i) {
@@ -337,12 +338,12 @@ const WeapForAct init_weap(CharacterData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case SKILL_KICK + TYPE_HIT:
+		case to_underlying(ESkill::SKILL_KICK) + kTypeHit:
 			// weap - текст силы удара
 			weap.set_damage_string(dam);
 			break;
 
-		case TYPE_HIT: break;
+		case kTypeHit: break;
 
 		default: weap_i = real_object(kDummyWeapon);
 			if (0 <= weap_i) {
@@ -362,7 +363,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value.clear();
 	ESkill_value_by_name.clear();
 
-	ESkill_name_by_value[ESkill::SKILL_UNDEF] = "SKILL_UNDEF";
+	ESkill_name_by_value[ESkill::kUndefined] = "kUndefined";
 	ESkill_name_by_value[ESkill::SKILL_GLOBAL_COOLDOWN] = "SKILL_GLOBAL_COOLDOWN";
 	ESkill_name_by_value[ESkill::SKILL_PROTECT] = "SKILL_PROTECT";
 	ESkill_name_by_value[ESkill::SKILL_TOUCH] = "SKILL_TOUCH";
@@ -451,7 +452,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::SKILL_LIFE_MAGIC] = "SKILL_LIFE_MAGIC";
 	ESkill_name_by_value[ESkill::SKILL_MAKE_AMULET] = "SKILL_MAKE_AMULET";
 
-	for (const auto &i : ESkill_name_by_value) {
+	for (const auto &i: ESkill_name_by_value) {
 		ESkill_value_by_name[i.second] = i.first;
 	}
 }
@@ -472,96 +473,96 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item) {
 	return ESkill_name_by_value.at(item);
 }
 
-std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
+std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS =
 	{
-		SKILL_PROTECT,
-		SKILL_TOUCH,
-		SKILL_SHIT,
-		SKILL_MIGHTHIT,
-		SKILL_STUPOR,
-		SKILL_POISONED,
-		SKILL_SENSE,
-		SKILL_HORSE,
-		SKILL_HIDETRACK,
-		SKILL_RELIGION,
-		SKILL_MAKEFOOD,
-		SKILL_MULTYPARRY,
-		SKILL_TRANSFORMWEAPON,
-		SKILL_LEADERSHIP,
-		SKILL_PUNCTUAL,
-		SKILL_AWAKE,
-		SKILL_IDENTIFY,
-		SKILL_HEARING,
-		SKILL_CREATE_POTION,
-		SKILL_CREATE_SCROLL,
-		SKILL_CREATE_WAND,
-		SKILL_LOOK_HIDE,
-		SKILL_ARMORED,
-		SKILL_DRUNKOFF,
-		SKILL_AID,
-		SKILL_FIRE,
-		SKILL_CREATEBOW,
-		SKILL_THROW,
-		SKILL_BACKSTAB,
-		SKILL_BASH,
-		SKILL_HIDE,
-		SKILL_KICK,
-		SKILL_PICK_LOCK,
-		SKILL_PUNCH,
-		SKILL_RESCUE,
-		SKILL_SNEAK,
-		SKILL_STEAL,
-		SKILL_TRACK,
-		SKILL_CLUBS,
-		SKILL_AXES,
-		SKILL_LONGS,
-		SKILL_SHORTS,
-		SKILL_NONSTANDART,
-		SKILL_BOTHHANDS,
-		SKILL_PICK,
-		SKILL_SPADES,
-		SKILL_SATTACK,
-		SKILL_DISARM,
-		SKILL_PARRY,
-		SKILL_HEAL,
-		SKILL_MORPH,
-		SKILL_BOWS,
-		SKILL_ADDSHOT,
-		SKILL_CAMOUFLAGE,
-		SKILL_DEVIATE,
-		SKILL_BLOCK,
-		SKILL_LOOKING,
-		SKILL_CHOPOFF,
-		SKILL_REPAIR,
-		SKILL_UPGRADE,
-		SKILL_COURAGE,
-		SKILL_MANADRAIN,
-		SKILL_NOPARRYHIT,
-		SKILL_TOWNPORTAL,
-		SKILL_MAKE_STAFF,
-		SKILL_MAKE_BOW,
-		SKILL_MAKE_WEAPON,
-		SKILL_MAKE_ARMOR,
-		SKILL_MAKE_JEWEL,
-		SKILL_MAKE_WEAR,
-		SKILL_MAKE_POTION,
-		SKILL_DIG,
-		SKILL_INSERTGEM,
-		SKILL_WARCRY,
-		SKILL_TURN_UNDEAD,
-		SKILL_IRON_WIND,
-		SKILL_STRANGLE,
-		SKILL_AIR_MAGIC,
-		SKILL_FIRE_MAGIC,
-		SKILL_WATER_MAGIC,
-		SKILL_EARTH_MAGIC,
-		SKILL_LIGHT_MAGIC,
-		SKILL_DARK_MAGIC,
-		SKILL_MIND_MAGIC,
-		SKILL_LIFE_MAGIC,
-		SKILL_STUN,
-		SKILL_MAKE_AMULET,
-		SKILL_INDEFINITE
+		ESkill::kUndefined,
+		ESkill::SKILL_PROTECT,
+		ESkill::SKILL_TOUCH,
+		ESkill::SKILL_SHIT,
+		ESkill::SKILL_MIGHTHIT,
+		ESkill::SKILL_STUPOR,
+		ESkill::SKILL_POISONED,
+		ESkill::SKILL_SENSE,
+		ESkill::SKILL_HORSE,
+		ESkill::SKILL_HIDETRACK,
+		ESkill::SKILL_RELIGION,
+		ESkill::SKILL_MAKEFOOD,
+		ESkill::SKILL_MULTYPARRY,
+		ESkill::SKILL_TRANSFORMWEAPON,
+		ESkill::SKILL_LEADERSHIP,
+		ESkill::SKILL_PUNCTUAL,
+		ESkill::SKILL_AWAKE,
+		ESkill::SKILL_IDENTIFY,
+		ESkill::SKILL_HEARING,
+		ESkill::SKILL_CREATE_POTION,
+		ESkill::SKILL_CREATE_SCROLL,
+		ESkill::SKILL_CREATE_WAND,
+		ESkill::SKILL_LOOK_HIDE,
+		ESkill::SKILL_ARMORED,
+		ESkill::SKILL_DRUNKOFF,
+		ESkill::SKILL_AID,
+		ESkill::SKILL_FIRE,
+		ESkill::SKILL_CREATEBOW,
+		ESkill::SKILL_THROW,
+		ESkill::SKILL_BACKSTAB,
+		ESkill::SKILL_BASH,
+		ESkill::SKILL_HIDE,
+		ESkill::SKILL_KICK,
+		ESkill::SKILL_PICK_LOCK,
+		ESkill::SKILL_PUNCH,
+		ESkill::SKILL_RESCUE,
+		ESkill::SKILL_SNEAK,
+		ESkill::SKILL_STEAL,
+		ESkill::SKILL_TRACK,
+		ESkill::SKILL_CLUBS,
+		ESkill::SKILL_AXES,
+		ESkill::SKILL_LONGS,
+		ESkill::SKILL_SHORTS,
+		ESkill::SKILL_NONSTANDART,
+		ESkill::SKILL_BOTHHANDS,
+		ESkill::SKILL_PICK,
+		ESkill::SKILL_SPADES,
+		ESkill::SKILL_SATTACK,
+		ESkill::SKILL_DISARM,
+		ESkill::SKILL_PARRY,
+		ESkill::SKILL_HEAL,
+		ESkill::SKILL_MORPH,
+		ESkill::SKILL_BOWS,
+		ESkill::SKILL_ADDSHOT,
+		ESkill::SKILL_CAMOUFLAGE,
+		ESkill::SKILL_DEVIATE,
+		ESkill::SKILL_BLOCK,
+		ESkill::SKILL_LOOKING,
+		ESkill::SKILL_CHOPOFF,
+		ESkill::SKILL_REPAIR,
+		ESkill::SKILL_UPGRADE,
+		ESkill::SKILL_COURAGE,
+		ESkill::SKILL_MANADRAIN,
+		ESkill::SKILL_NOPARRYHIT,
+		ESkill::SKILL_TOWNPORTAL,
+		ESkill::SKILL_MAKE_STAFF,
+		ESkill::SKILL_MAKE_BOW,
+		ESkill::SKILL_MAKE_WEAPON,
+		ESkill::SKILL_MAKE_ARMOR,
+		ESkill::SKILL_MAKE_JEWEL,
+		ESkill::SKILL_MAKE_WEAR,
+		ESkill::SKILL_MAKE_POTION,
+		ESkill::SKILL_DIG,
+		ESkill::SKILL_INSERTGEM,
+		ESkill::SKILL_WARCRY,
+		ESkill::SKILL_TURN_UNDEAD,
+		ESkill::SKILL_IRON_WIND,
+		ESkill::SKILL_STRANGLE,
+		ESkill::SKILL_AIR_MAGIC,
+		ESkill::SKILL_FIRE_MAGIC,
+		ESkill::SKILL_WATER_MAGIC,
+		ESkill::SKILL_EARTH_MAGIC,
+		ESkill::SKILL_LIGHT_MAGIC,
+		ESkill::SKILL_DARK_MAGIC,
+		ESkill::SKILL_MIND_MAGIC,
+		ESkill::SKILL_LIFE_MAGIC,
+		ESkill::SKILL_STUN,
+		ESkill::SKILL_MAKE_AMULET
 	};
 
 ///
@@ -589,10 +590,10 @@ int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attac
 
 			if (!IS_NPC(vict) && (GET_REAL_LEVEL(vict) >= kLevelImmortal) && !PLR_FLAGGED((ch), PLR_WRITING)) {
 				switch (attacktype) {
-					case SKILL_BACKSTAB + TYPE_HIT:
-					case SKILL_THROW + TYPE_HIT:
-					case SKILL_BASH + TYPE_HIT:
-					case SKILL_KICK + TYPE_HIT: send_to_char("&W&q", ch);
+					case to_underlying(ESkill::SKILL_BACKSTAB) + kTypeHit:
+					case to_underlying(ESkill::SKILL_THROW) + kTypeHit:
+					case to_underlying(ESkill::SKILL_BASH) + kTypeHit:
+					case to_underlying(ESkill::SKILL_KICK) + kTypeHit: send_to_char("&W&q", ch);
 						break;
 
 					default: send_to_char("&y&q", ch);
@@ -623,10 +624,10 @@ int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attac
 			} else if (ch != vict)    // Dam == 0
 			{
 				switch (attacktype) {
-					case SKILL_BACKSTAB + TYPE_HIT:
-					case SKILL_THROW + TYPE_HIT:
-					case SKILL_BASH + TYPE_HIT:
-					case SKILL_KICK + TYPE_HIT: send_to_char("&W&q", ch);
+					case to_underlying(ESkill::SKILL_BACKSTAB) + kTypeHit:
+					case to_underlying(ESkill::SKILL_THROW) + kTypeHit:
+					case to_underlying(ESkill::SKILL_BASH) + kTypeHit:
+					case to_underlying(ESkill::SKILL_KICK) + kTypeHit: send_to_char("&W&q", ch);
 						break;
 
 					default: send_to_char("&y&q", ch);
@@ -654,7 +655,7 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 
 	switch (skill_id) {
 
-		case SKILL_BACKSTAB: {
+		case ESkill::SKILL_BACKSTAB: {
 			if ((GET_POS(vict) >= EPosition::kFight) && AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS)) {
 				rate += 30;
 			}
@@ -663,7 +664,7 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 			break;
 		}
 
-		case SKILL_BASH: {
+		case ESkill::SKILL_BASH: {
 			if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) > EPosition::kSleep) {
 				rate -= 20;
 			}
@@ -673,14 +674,14 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 			break;
 		}
 
-		case SKILL_HIDE: {
+		case ESkill::SKILL_HIDE: {
 			if (AWAKE(vict)) {
 				rate -= int_app[GET_REAL_INT(vict)].observation;
 			}
 			break;
 		}
 
-		case SKILL_KICK: {
+		case ESkill::SKILL_KICK: {
 			//rate += size_app[GET_POS_SIZE(vict)].interpolate;
 			rate += GET_REAL_CON(vict);
 			if (PRF_FLAGGED(vict, PRF_AWAKE)) {
@@ -689,43 +690,43 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 			break;
 		}
 
-		case SKILL_SNEAK: {
+		case ESkill::SKILL_SNEAK: {
 			if (AWAKE(vict)) {
 				rate -= int_app[GET_REAL_INT(vict)].observation;
 			}
 			break;
 		}
 
-		case SKILL_STEAL: {
+		case ESkill::SKILL_STEAL: {
 			if (AWAKE(vict)) {
 				rate -= int_app[GET_REAL_INT(vict)].observation;
 			}
 			break;
 		}
 
-		case SKILL_TRACK: {
+		case ESkill::SKILL_TRACK: {
 			rate += GET_REAL_CON(vict) / 2;
 			break;
 		}
 
-		case SKILL_MULTYPARRY:
-		case SKILL_PARRY: {
+		case ESkill::SKILL_MULTYPARRY:
+		case ESkill::SKILL_PARRY: {
 			rate = 100;
 			break;
 		}
 
-		case SKILL_TOUCH: {
+		case ESkill::SKILL_TOUCH: {
 			rate -= dex_bonus(GET_REAL_DEX(vict));
 			rate -= size_app[GET_POS_SIZE(vict)].interpolate;
 			break;
 		}
 
-		case SKILL_PROTECT: {
+		case ESkill::SKILL_PROTECT: {
 			rate = 50;
 			break;
 		}
 
-		case SKILL_DISARM: {
+		case ESkill::SKILL_DISARM: {
 			rate -= dex_bonus(GET_REAL_STR(ch));
 			if (GET_EQ(vict, WEAR_BOTHS))
 				rate -= 10;
@@ -734,18 +735,18 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 			break;
 		}
 
-		case SKILL_CAMOUFLAGE: {
+		case ESkill::SKILL_CAMOUFLAGE: {
 			if (AWAKE(vict))
 				rate -= int_app[GET_REAL_INT(vict)].observation;
 			break;
 		}
 
-		case SKILL_DEVIATE: {
+		case ESkill::SKILL_DEVIATE: {
 			rate -= dex_bonus(GET_REAL_DEX(vict));
 			break;
 		}
 
-		case SKILL_CHOPOFF: {
+		case ESkill::SKILL_CHOPOFF: {
 			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS) || MOB_FLAGGED(vict, MOB_AWAKE))
 				rate -= 20;
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
@@ -753,7 +754,7 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 			break;
 		}
 
-		case SKILL_MIGHTHIT: {
+		case ESkill::SKILL_MIGHTHIT: {
 			if (IS_NPC(vict))
 				rate -= size_app[GET_POS_SIZE(vict)].shocking / 2;
 			else
@@ -761,36 +762,36 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 			break;
 		}
 
-		case SKILL_STUPOR: {
+		case ESkill::SKILL_STUPOR: {
 			rate -= GET_REAL_CON(vict);
 			break;
 		}
 
-		case SKILL_PUNCTUAL: {
+		case ESkill::SKILL_PUNCTUAL: {
 			rate -= int_app[GET_REAL_INT(vict)].observation;
 			break;
 		}
 
-		case SKILL_AWAKE: {
+		case ESkill::SKILL_AWAKE: {
 			rate -= int_app[GET_REAL_INT(vict)].observation;
 		}
 			break;
 
-		case SKILL_LOOK_HIDE: {
+		case ESkill::SKILL_LOOK_HIDE: {
 			if (CAN_SEE(vict, ch) && AWAKE(vict)) {
 				rate -= int_app[GET_REAL_INT(ch)].observation;
 			}
 			break;
 		}
 
-		case SKILL_STRANGLE: {
+		case ESkill::SKILL_STRANGLE: {
 			if (CAN_SEE(ch, vict) && PRF_FLAGGED(vict, PRF_AWAKE)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
-		case SKILL_STUN: {
+		case ESkill::SKILL_STUN: {
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			break;
@@ -801,8 +802,8 @@ int CalculateVictimRate(CharacterData *ch, const ESkill skill_id, CharacterData 
 		}
 	}
 
-	if (!skill_info[skill_id].autosuccess) {
-		rate -= static_cast<int>(round(GET_SAVE(vict, skill_info[skill_id].save_type) * kSaveWeight));
+	if (!MUD::Skills()[skill_id].autosuccess) {
+		rate -= static_cast<int>(round(GET_SAVE(vict, MUD::Skills()[skill_id].save_type) * kSaveWeight));
 	}
 
 	return rate;
@@ -823,7 +824,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 	}
 
 	if (!IS_NPC(ch) && !ch->affected.empty()) {
-		for (const auto &aff : ch->affected) {
+		for (const auto &aff: ch->affected) {
 			if (aff->location == APPLY_PLAQUE) {
 				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
 			}
@@ -838,13 +839,13 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 
 	switch (skill_id) {
 
-		case SKILL_HIDETRACK: {
+		case ESkill::SKILL_HIDETRACK: {
 			parameter_bonus += GET_REAL_INT(ch);
 			bonus += can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0;
 			break;
 		}
 
-		case SKILL_BACKSTAB: {
+		case ESkill::SKILL_BACKSTAB: {
 			parameter_bonus += GET_REAL_DEX(ch);
 			if (awake_others(ch) || equip_in_metall(ch)) {
 				bonus += -50;
@@ -860,7 +861,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_BASH: {
+		case ESkill::SKILL_BASH: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			bonus = size + (GET_EQ(ch, WEAR_SHIELD) ?
 							weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing : 0);
@@ -870,7 +871,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_HIDE: {
+		case ESkill::SKILL_HIDE: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			bonus = size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 			if (awake_others(ch) || equip_in_metall(ch)) {
@@ -892,7 +893,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_KICK: {
+		case ESkill::SKILL_KICK: {
 			if (!ch->ahorse() && vict->ahorse()) {
 				base_percent = 0;
 			} else {
@@ -904,18 +905,18 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_PICK_LOCK: {
+		case ESkill::SKILL_PICK_LOCK: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			bonus += can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0;
 			break;
 		}
 
-		case SKILL_RESCUE: {
+		case ESkill::SKILL_RESCUE: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			break;
 		}
 
-		case SKILL_SNEAK: {
+		case ESkill::SKILL_SNEAK: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			bonus += can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0;
 			if (awake_others(ch) || equip_in_metall(ch))
@@ -932,7 +933,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_STEAL: {
+		case ESkill::SKILL_STEAL: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			bonus += (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 			if (awake_others(ch) || equip_in_metall(ch))
@@ -950,7 +951,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_TRACK: {
+		case ESkill::SKILL_TRACK: {
 			parameter_bonus = int_app[GET_REAL_INT(ch)].observation;
 			bonus += can_use_feat(ch, TRACKER_FEAT) ? 10 : 0;
 			if (SECT(ch->in_room) == kSectForest
@@ -960,7 +961,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			if (SECT(ch->in_room) == kSectUnderwater) {
 				bonus -= 30;
 			}
-			bonus = complex_skill_modifier(ch, SKILL_INDEFINITE, GAPPLY_SKILL_SUCCESS, bonus);
+			bonus = complex_skill_modifier(ch, ESkill::kUndefined, GAPPLY_SKILL_SUCCESS, bonus);
 			if (SECT(ch->in_room) == kSectWaterSwim
 				|| SECT(ch->in_room) == kSectWaterNoswim
 				|| SECT(ch->in_room) == kSectOnlyFlying
@@ -974,17 +975,17 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_SENSE: {
+		case ESkill::SKILL_SENSE: {
 			parameter_bonus += int_app[GET_REAL_INT(ch)].observation;
 			bonus += can_use_feat(ch, TRACKER_FEAT) ? 20 : 0;
 			break;
 		}
 
-		case SKILL_MULTYPARRY:
-		case SKILL_PARRY: {
+		case ESkill::SKILL_MULTYPARRY:
+		case ESkill::SKILL_PARRY: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			if (GET_AF_BATTLE(ch, EAF_AWAKE)) {
-				bonus += ch->get_skill(SKILL_AWAKE);
+				bonus += ch->get_skill(ESkill::SKILL_AWAKE);
 			}
 			if (GET_EQ(ch, WEAR_HOLD)
 				&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjectData::ITEM_WEAPON) {
@@ -993,14 +994,14 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_BLOCK: {
+		case ESkill::SKILL_BLOCK: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			bonus += GET_EQ(ch, WEAR_SHIELD) ?
 					 MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
 			break;
 		}
 
-		case SKILL_TOUCH: {
+		case ESkill::SKILL_TOUCH: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			if (vict) {
 				bonus += size_app[GET_POS_SIZE(vict)].interpolate;
@@ -1008,40 +1009,40 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_PROTECT: {
+		case ESkill::SKILL_PROTECT: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch)) + size;
 			break;
 		}
 
-		case SKILL_BOWS: {
+		case ESkill::SKILL_BOWS: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			break;
 		}
 
-		case SKILL_LOOKING:[[fallthrough]];
-		case SKILL_HEARING: {
+		case ESkill::SKILL_LOOKING:[[fallthrough]];
+		case ESkill::SKILL_HEARING: {
 			parameter_bonus += int_app[GET_REAL_INT(ch)].observation;
 			break;
 		}
 
-		case SKILL_DISARM: {
+		case ESkill::SKILL_DISARM: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
 			break;
 		}
 
-		case SKILL_ADDSHOT: {
+		case ESkill::SKILL_ADDSHOT: {
 			if (equip_in_metall(ch)) {
 				bonus -= 20;
 			}
 			break;
 		}
 
-		case SKILL_NOPARRYHIT: {
+		case ESkill::SKILL_NOPARRYHIT: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			break;
 		}
 
-		case SKILL_CAMOUFLAGE: {
+		case ESkill::SKILL_CAMOUFLAGE: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac;
 			bonus += (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 			if (awake_others(ch))
@@ -1061,14 +1062,14 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_DEVIATE: {
+		case ESkill::SKILL_DEVIATE: {
 			parameter_bonus = -size_app[GET_POS_SIZE(ch)].ac + dex_bonus(GET_REAL_DEX(ch));
 			if (equip_in_metall(ch))
 				bonus -= 40;
 			break;
 		}
 
-		case SKILL_CHOPOFF: {
+		case ESkill::SKILL_CHOPOFF: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			if (equip_in_metall(ch)) {
 				bonus -= 10;
@@ -1082,12 +1083,12 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_MIGHTHIT: {
+		case ESkill::SKILL_MIGHTHIT: {
 			bonus = size + dex_bonus(GET_REAL_STR(ch));
 			break;
 		}
 
-		case SKILL_STUPOR: {
+		case ESkill::SKILL_STUPOR: {
 			bonus = dex_bonus(GET_REAL_STR(ch));
 			if (GET_EQ(ch, WEAR_WIELD)) {
 				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
@@ -1099,13 +1100,14 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_POISONED: break;
-		case SKILL_LEADERSHIP: {
+		case ESkill::SKILL_POISONED: break;
+		case ESkill::SKILL_LEADERSHIP: {
 			parameter_bonus += cha_app[GET_REAL_CHA(ch)].leadership;
+			bonus += can_use_feat(ch, MAGNETIC_PERSONALITY_FEAT) ? 5 : 0;
 			break;
 		}
 
-		case SKILL_PUNCTUAL: {
+		case ESkill::SKILL_PUNCTUAL: {
 			parameter_bonus = dex_bonus(GET_REAL_INT(ch));
 			if (GET_EQ(ch, WEAR_WIELD))
 				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
@@ -1121,25 +1123,25 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_AWAKE: {
+		case ESkill::SKILL_AWAKE: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			bonus += int_app[GET_REAL_INT(ch)].observation;
 			/* if (real_dex < INT_APP_SIZE) {
 				bonus = int_app[real_dex].observation;
 			} else {
-				log("SYSERR: Global buffer overflow for SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
+				log("SYSERR: Global buffer overflow for ESkill::SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
 					real_dex, INT_APP_SIZE);
 			} */
 		}
 			break;
 
-		case SKILL_IDENTIFY: {
+		case ESkill::SKILL_IDENTIFY: {
 			parameter_bonus = int_app[GET_REAL_INT(ch)].observation;
 			bonus += (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
 			break;
 		}
 
-		case SKILL_LOOK_HIDE: {
+		case ESkill::SKILL_LOOK_HIDE: {
 			parameter_bonus = cha_app[GET_REAL_CHA(ch)].illusive;
 			if (vict) {
 				if (!CAN_SEE(vict, ch)) {
@@ -1149,18 +1151,18 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_DRUNKOFF: {
+		case ESkill::SKILL_DRUNKOFF: {
 			parameter_bonus = GET_REAL_CON(ch) / 2;
 			bonus += (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
 			break;
 		}
 
-		case SKILL_AID: {
+		case ESkill::SKILL_AID: {
 			bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
 			break;
 		}
 
-		case SKILL_FIRE: {
+		case ESkill::SKILL_FIRE: {
 			if (get_room_sky(ch->in_room) == kSkyRaining)
 				bonus -= 50;
 			else if (get_room_sky(ch->in_room) != kSkyLightning)
@@ -1168,12 +1170,12 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_HORSE: {
+		case ESkill::SKILL_HORSE: {
 			bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 			break;
 		}
 
-		case SKILL_STRANGLE: {
+		case ESkill::SKILL_STRANGLE: {
 			bonus = dex_bonus(GET_REAL_DEX(ch));
 			if (GET_MOB_HOLD(vict)) {
 				bonus += 30;
@@ -1184,7 +1186,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 			break;
 		}
 
-		case SKILL_STUN: {
+		case ESkill::SKILL_STUN: {
 			parameter_bonus = dex_bonus(GET_REAL_STR(ch));
 			if (GET_EQ(ch, WEAR_WIELD))
 				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
@@ -1241,7 +1243,7 @@ SkillRollResult MakeSkillTest(CharacterData *ch, ESkill skill_id, CharacterData 
 	int actor_rate = CalculateSkillRate(ch, skill_id, vict);
 	int victim_rate = CalculateVictimRate(ch, skill_id, vict);
 
-	int success_threshold = std::max(0, actor_rate - victim_rate - skill_info[skill_id].difficulty);
+	int success_threshold = std::max(0, actor_rate - victim_rate - MUD::Skills()[skill_id].difficulty);
 	int dice_roll = number(1, kSkillDiceSize);
 
 	// \TODO Механика критфейла и критуспеха пока не реализована.
@@ -1259,11 +1261,11 @@ void SendSkillRollMsg(CharacterData *ch, CharacterData *victim, ESkill skill_id,
 					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
 	buffer << KICYN
-		   << "Skill: '" << skill_info[skill_id].name << "'"
+		   << "Skill: '" << MUD::Skills()[skill_id].name << "'"
 		   << " Rate: " << actor_rate
 		   << " Victim: " << victim->get_name()
 		   << " V.Rate: " << victim_rate
-		   << " Difficulty: " << skill_info[skill_id].difficulty
+		   << " Difficulty: " << MUD::Skills()[skill_id].difficulty
 		   << " Threshold: " << threshold
 		   << " Roll: " << roll
 		   << " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
@@ -1273,20 +1275,20 @@ void SendSkillRollMsg(CharacterData *ch, CharacterData *victim, ESkill skill_id,
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
-// \TODO Не забыть убрать после ребаланса умений
-void SendSkillBalanceMsg(CharacterData *ch, const char *skill_name, int percent, int prob, bool success) {
+// \TODO Не забыть убрать после ребаланса умений ABYRVALG - переделать на стринг
+void SendSkillBalanceMsg(CharacterData *ch, const std::string &skill_name, int percent, int prob, bool success) {
 	std::stringstream buffer;
 	buffer << KICYN
-		<< "Skill: " << skill_name
-		<< " Percent: " << percent
-		<< " Prob: " << prob
-		<< " Success: " << (success ? "yes" : "no")
-		<< KNRM << std::endl;
+		   << "Skill: " << skill_name
+		   << " Percent: " << percent
+		   << " Prob: " << prob
+		   << " Success: " << (success ? "yes" : "no")
+		   << KNRM << std::endl;
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
 int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict) {
-	if (skill < SKILL_FIRST || skill > MAX_SKILL_NUM) {
+	if (skill < ESkill::kFirst || skill > ESkill::kLast) {
 		return 0;
 	}
 
@@ -1303,7 +1305,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 	}
 
 	if (!IS_NPC(ch) && !ch->affected.empty()) {
-		for (const auto &aff : ch->affected) {
+		for (const auto &aff: ch->affected) {
 			if (aff->location == APPLY_PLAQUE) {
 				base_percent -= number(ch->get_skill(skill) * 0.4,
 									   ch->get_skill(skill) * 0.05);
@@ -1320,12 +1322,12 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 
 	switch (skill) {
 
-		case SKILL_HIDETRACK: {
+		case ESkill::SKILL_HIDETRACK: {
 			bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 			break;
 		}
 
-		case SKILL_BACKSTAB: {
+		case ESkill::SKILL_BACKSTAB: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
 			if (awake_others(ch)
@@ -1349,7 +1351,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_BASH: {
+		case ESkill::SKILL_BASH: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = size
 				+ dex_bonus(GET_REAL_DEX(ch))
@@ -1367,7 +1369,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_HIDE: {
+		case ESkill::SKILL_HIDE: {
 			bonus =
 				dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 			if (awake_others(ch) || equip_in_metall(ch)) {
@@ -1397,7 +1399,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_KICK: {
+		case ESkill::SKILL_KICK: {
 			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
 			if (vict) {
@@ -1410,22 +1412,22 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_PICK_LOCK: {
+		case ESkill::SKILL_PICK_LOCK: {
 			bonus = dex_bonus(GET_REAL_DEX(ch)) + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 			break;
 		}
 
-		case SKILL_PUNCH: {
+		case ESkill::SKILL_PUNCH: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			break;
 		}
 
-		case SKILL_RESCUE: {
+		case ESkill::SKILL_RESCUE: {
 			bonus = dex_bonus(GET_REAL_DEX(ch));
 			break;
 		}
 
-		case SKILL_SNEAK: {
+		case ESkill::SKILL_SNEAK: {
 			bonus = dex_bonus(GET_REAL_DEX(ch))
 				+ (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
@@ -1449,7 +1451,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_STEAL: {
+		case ESkill::SKILL_STEAL: {
 			bonus = dex_bonus(GET_REAL_DEX(ch))
 				+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
@@ -1471,7 +1473,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_TRACK: {
+		case ESkill::SKILL_TRACK: {
 			ignore_luck = true;
 			total_percent =
 				base_percent + int_app[GET_REAL_INT(ch)].observation + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
@@ -1480,7 +1482,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 				total_percent += 10;
 			}
 
-			total_percent = complex_skill_modifier(ch, SKILL_INDEFINITE, GAPPLY_SKILL_SUCCESS, total_percent);
+			total_percent = complex_skill_modifier(ch, ESkill::kUndefined, GAPPLY_SKILL_SUCCESS, total_percent);
 
 			if (SECT(ch->in_room) == kSectWaterSwim
 				|| SECT(ch->in_room) == kSectWaterNoswim
@@ -1496,18 +1498,18 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_SENSE: {
+		case ESkill::SKILL_SENSE: {
 			bonus = int_app[GET_REAL_INT(ch)].observation
 				+ (can_use_feat(ch, TRACKER_FEAT) ? 20 : 0);
 			break;
 		}
 
-		case SKILL_MULTYPARRY:
-		case SKILL_PARRY: {
+		case ESkill::SKILL_MULTYPARRY:
+		case ESkill::SKILL_PARRY: {
 			victim_sav = dex_bonus(GET_REAL_DEX(vict));
 			bonus = dex_bonus(GET_REAL_DEX(ch));
 			if (GET_AF_BATTLE(ch, EAF_AWAKE)) {
-				bonus += ch->get_skill(SKILL_AWAKE);
+				bonus += ch->get_skill(ESkill::SKILL_AWAKE);
 			}
 
 			if (GET_EQ(ch, WEAR_HOLD)
@@ -1518,7 +1520,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_BLOCK: {
+		case ESkill::SKILL_BLOCK: {
 			int shield_mod =
 				GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
 			int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20) / 3);
@@ -1526,7 +1528,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_TOUCH: {
+		case ESkill::SKILL_TOUCH: {
 			victim_sav = dex_bonus(GET_REAL_DEX(vict));
 			bonus = dex_bonus(GET_REAL_DEX(ch)) +
 				size_app[GET_POS_SIZE(vict)].interpolate;
@@ -1538,37 +1540,37 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_PROTECT: {
+		case ESkill::SKILL_PROTECT: {
 			bonus = dex_bonus(GET_REAL_DEX(ch)) + size;
 			victim_modi = 50;
 			break;
 		}
 
-		case SKILL_BOWS: {
+		case ESkill::SKILL_BOWS: {
 			bonus = dex_bonus(GET_REAL_DEX(ch));
 			break;
 		}
 
-		case SKILL_BOTHHANDS: break;
-		case SKILL_LONGS: break;
-		case SKILL_SPADES: break;
-		case SKILL_SHORTS: break;
-		case SKILL_CLUBS: break;
-		case SKILL_PICK: break;
-		case SKILL_NONSTANDART: break;
-		case SKILL_AXES: break;
-		case SKILL_SATTACK: {
+		case ESkill::SKILL_BOTHHANDS: break;
+		case ESkill::SKILL_LONGS: break;
+		case ESkill::SKILL_SPADES: break;
+		case ESkill::SKILL_SHORTS: break;
+		case ESkill::SKILL_CLUBS: break;
+		case ESkill::SKILL_PICK: break;
+		case ESkill::SKILL_NONSTANDART: break;
+		case ESkill::SKILL_AXES: break;
+		case ESkill::SKILL_SATTACK: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GET_REAL_DEX(ch)); //equal
 			break;
 		}
 
-		case SKILL_LOOKING:[[fallthrough]];
-		case SKILL_HEARING: {
+		case ESkill::SKILL_LOOKING:[[fallthrough]];
+		case ESkill::SKILL_HEARING: {
 			bonus = int_app[GET_REAL_INT(ch)].observation;
 			break;
 		}
 
-		case SKILL_DISARM: {
+		case ESkill::SKILL_DISARM: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
 			if (vict) {
@@ -1581,20 +1583,20 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_HEAL: break;
-		case SKILL_ADDSHOT: {
+		case ESkill::SKILL_HEAL: break;
+		case ESkill::SKILL_ADDSHOT: {
 			if (equip_in_metall(ch))
 				bonus -= 5;
 			ignore_luck = true;
 			break;
 		}
 
-		case SKILL_NOPARRYHIT: {
+		case ESkill::SKILL_NOPARRYHIT: {
 			bonus = dex_bonus(GET_REAL_DEX(ch));
 			break;
 		}
 
-		case SKILL_CAMOUFLAGE: {
+		case ESkill::SKILL_CAMOUFLAGE: {
 			bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
 				+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
@@ -1621,7 +1623,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_DEVIATE: {
+		case ESkill::SKILL_DEVIATE: {
 			bonus = -size_app[GET_POS_SIZE(ch)].ac +
 				dex_bonus(GET_REAL_DEX(ch));
 
@@ -1634,7 +1636,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_CHOPOFF: {
+		case ESkill::SKILL_CHOPOFF: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch)) + ((dex_bonus(GET_REAL_DEX(ch)) * 5) / 10)
 				+ size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
@@ -1653,12 +1655,12 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_REPAIR: break;
-		case SKILL_UPGRADE: break;
-		case SKILL_WARCRY: break;
-		case SKILL_COURAGE: break;
-		case SKILL_SHIT: break;
-		case SKILL_MIGHTHIT: {
+		case ESkill::SKILL_REPAIR: break;
+		case ESkill::SKILL_UPGRADE: break;
+		case ESkill::SKILL_WARCRY: break;
+		case ESkill::SKILL_COURAGE: break;
+		case ESkill::SKILL_SHIT: break;
+		case ESkill::SKILL_MIGHTHIT: {
 			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			bonus = size + dex_bonus(GET_REAL_STR(ch));
 
@@ -1669,7 +1671,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_STUPOR: {
+		case ESkill::SKILL_STUPOR: {
 			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			bonus = dex_bonus(GET_REAL_STR(ch));
 			if (GET_EQ(ch, WEAR_WIELD))
@@ -1685,13 +1687,13 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_POISONED: break;
-		case SKILL_LEADERSHIP: {
+		case ESkill::SKILL_POISONED: break;
+		case ESkill::SKILL_LEADERSHIP: {
 			bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 			break;
 		}
 
-		case SKILL_PUNCTUAL: {
+		case ESkill::SKILL_PUNCTUAL: {
 			victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
 			bonus = dex_bonus(GET_REAL_INT(ch));
 			if (GET_EQ(ch, WEAR_WIELD))
@@ -1711,7 +1713,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_AWAKE: {
+		case ESkill::SKILL_AWAKE: {
 			const size_t real_dex = static_cast<size_t>(GET_REAL_DEX(ch));
 			if (real_dex < INT_APP_SIZE) {
 				bonus = int_app[real_dex].observation;
@@ -1720,23 +1722,23 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 				}
 			} else {
-				log("SYSERR: Global buffer overflow for SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
+				log("SYSERR: Global buffer overflow for ESkill::SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
 					real_dex, INT_APP_SIZE);
 			}
 		}
 			break;
 
-		case SKILL_IDENTIFY: {
+		case ESkill::SKILL_IDENTIFY: {
 			bonus = int_app[GET_REAL_INT(ch)].observation
 				+ (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
 			break;
 		}
 
-		case SKILL_CREATE_POTION:
-		case SKILL_CREATE_SCROLL:
-		case SKILL_CREATE_WAND: break;
+		case ESkill::SKILL_CREATE_POTION:
+		case ESkill::SKILL_CREATE_SCROLL:
+		case ESkill::SKILL_CREATE_WAND: break;
 
-		case SKILL_LOOK_HIDE: {
+		case ESkill::SKILL_LOOK_HIDE: {
 			bonus = cha_app[GET_REAL_CHA(ch)].illusive;
 			if (vict) {
 				if (!CAN_SEE(vict, ch))
@@ -1747,20 +1749,20 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_ARMORED: break;
+		case ESkill::SKILL_ARMORED: break;
 
-		case SKILL_DRUNKOFF: {
+		case ESkill::SKILL_DRUNKOFF: {
 			bonus = -GET_REAL_CON(ch) / 2
 				+ (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
 			break;
 		}
 
-		case SKILL_AID: {
+		case ESkill::SKILL_AID: {
 			bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
 			break;
 		}
 
-		case SKILL_FIRE: {
+		case ESkill::SKILL_FIRE: {
 			if (get_room_sky(ch->in_room) == kSkyRaining)
 				bonus -= 50;
 			else if (get_room_sky(ch->in_room) != kSkyLightning)
@@ -1768,13 +1770,13 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_HORSE: {
+		case ESkill::SKILL_HORSE: {
 			bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 			break;
 		}
 
-		case SKILL_MORPH: break;
-		case SKILL_STRANGLE: {
+		case ESkill::SKILL_MORPH: break;
+		case ESkill::SKILL_STRANGLE: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch));
 			if (GET_MOB_HOLD(vict)) {
@@ -1788,7 +1790,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case SKILL_STUN: {
+		case ESkill::SKILL_STUN: {
 			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			if (!IS_NPC(vict))
 				victim_sav *= 2;
@@ -1812,26 +1814,24 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 
 	if (!ignore_luck) {
 		switch (MakeLuckTest(ch, vict)) {
-			case ELuckTestResult::kLuckTestSuccess:
-				break;
-			case ELuckTestResult::kLuckTestFail:
-				base_percent = 0;
+			case ELuckTestResult::kLuckTestSuccess: break;
+			case ELuckTestResult::kLuckTestFail: base_percent = 0;
 				bonus = 0;
 				break;
-			case ELuckTestResult::kLuckTestCriticalSuccess:
-				base_percent = CalcSkillHardCap(ch, skill);
+			case ELuckTestResult::kLuckTestCriticalSuccess: base_percent = CalcSkillHardCap(ch, skill);
 				break;
 		}
 	}
 
-	total_percent = std::clamp(base_percent + bonus + victim_sav + victim_modi / 2, 0, skill_info[skill].cap);
+	auto percent = base_percent + bonus + victim_sav + victim_modi/2;
+	total_percent = std::clamp(percent, 0, MUD::Skills()[skill].cap);
 
-	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill == SKILL_BASH)) {
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill == ESkill::SKILL_BASH)) {
 		total_percent /= 2;
 	}
 
 	if (IS_IMMORTAL(ch) || (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))) {
-		total_percent = skill_info[skill].cap;
+		total_percent = MUD::Skills()[skill].cap;
 	} else if (GET_GOD_FLAG(ch, GF_GODSCURSE)) {
 		total_percent = 0;
 	}
@@ -1858,7 +1858,7 @@ void ImproveSkill(CharacterData *ch, const ESkill skill, int success, CharacterD
 		return;
 	}
 
-	if ((skill == SKILL_STEAL) && (!IS_NPC(victim))) {
+	if ((skill == ESkill::SKILL_STEAL) && (!IS_NPC(victim))) {
 		return;
 	}
 
@@ -1883,8 +1883,8 @@ void ImproveSkill(CharacterData *ch, const ESkill skill, int success, CharacterD
 		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);
 
 	int div = int_app[INT_PLAYER].improve;
-	if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_PLAYER_CLASSES) {
-		div += (skill_info[skill].k_improve[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] / 100);
+	if ((ch)->get_class() >= ECharClass::PLAYER_CLASS_FIRST && (ch)->get_class() <= ECharClass::PLAYER_CLASS_LAST) {
+		div += MUD::Classes()[(ch)->get_class()].GetImprove(skill) / 100;
 	}
 
 	int prob = success ? 20000 : 15000;
@@ -1897,10 +1897,10 @@ void ImproveSkill(CharacterData *ch, const ESkill skill, int success, CharacterD
 		|| (!victim && skill_is <= GET_REAL_INT(ch))) {
 		if (success) {
 			sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
-					CCICYN(ch, C_NRM), skill_name(skill), CCNRM(ch, C_NRM));
+					CCICYN(ch, C_NRM), MUD::Skills()[skill].GetName(), CCNRM(ch, C_NRM));
 		} else {
 			sprintf(buf, "%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
-					CCICYN(ch, C_NRM), skill_name(skill), CCNRM(ch, C_NRM));
+					CCICYN(ch, C_NRM), MUD::Skills()[skill].GetName(), CCNRM(ch, C_NRM));
 		}
 		send_to_char(buf, ch);
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
@@ -1916,7 +1916,7 @@ void ImproveSkill(CharacterData *ch, const ESkill skill, int success, CharacterD
 
 void TrainSkill(CharacterData *ch, const ESkill skill, bool success, CharacterData *vict) {
 	if (!IS_NPC(ch)) {
-		if (skill != SKILL_SATTACK
+		if (skill != ESkill::SKILL_SATTACK
 			&& ch->get_trained_skill(skill) > 0
 			&& (!vict
 				|| (IS_NPC(vict)
@@ -1929,7 +1929,7 @@ void TrainSkill(CharacterData *ch, const ESkill skill, bool success, CharacterDa
 	} else if (!IS_CHARMICE(ch)) {
 		if (ch->get_skill(skill) > 0
 			&& GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch))
-			&& ch->get_skill(skill) < skill_info[skill].difficulty) {
+			&& ch->get_skill(skill) < MUD::Skills()[skill].difficulty) {
 			ch->set_skill(skill, ch->get_trained_skill(skill) + 1);
 		}
 	}
@@ -1944,34 +1944,34 @@ int CalculateSkillAwakeModifier(CharacterData *killer, CharacterData *victim) {
 	if (!killer || !victim) {
 		log("SYSERROR: zero character in CalculateSkillAwakeModifier.");
 	} else if (IS_NPC(killer) || IS_NPC(victim)) {
-		result = victim->get_skill(SKILL_AWAKE);
+		result = victim->get_skill(ESkill::SKILL_AWAKE);
 	} else {
-		result = victim->get_skill(SKILL_AWAKE) / 2;
+		result = victim->get_skill(ESkill::SKILL_AWAKE) / 2;
 	}
 	return result;
 }
 
-int FindWeaponMasterBySkill(ESkill skill) {
+int FindWeaponMasterFeat(ESkill skill) {
 	switch (skill) {
-		case SKILL_PUNCH: return PUNCH_MASTER_FEAT;
+		case ESkill::SKILL_PUNCH: return PUNCH_MASTER_FEAT;
 			break;
-		case SKILL_CLUBS: return CLUBS_MASTER_FEAT;
+		case ESkill::SKILL_CLUBS: return CLUBS_MASTER_FEAT;
 			break;
-		case SKILL_AXES: return AXES_MASTER_FEAT;
+		case ESkill::SKILL_AXES: return AXES_MASTER_FEAT;
 			break;
-		case SKILL_LONGS: return LONGS_MASTER_FEAT;
+		case ESkill::SKILL_LONGS: return LONGS_MASTER_FEAT;
 			break;
-		case SKILL_SHORTS: return SHORTS_MASTER_FEAT;
+		case ESkill::SKILL_SHORTS: return SHORTS_MASTER_FEAT;
 			break;
-		case SKILL_NONSTANDART: return NONSTANDART_MASTER_FEAT;
+		case ESkill::SKILL_NONSTANDART: return NONSTANDART_MASTER_FEAT;
 			break;
-		case SKILL_BOTHHANDS: return BOTHHANDS_MASTER_FEAT;
+		case ESkill::SKILL_BOTHHANDS: return BOTHHANDS_MASTER_FEAT;
 			break;
-		case SKILL_PICK: return PICK_MASTER_FEAT;
+		case ESkill::SKILL_PICK: return PICK_MASTER_FEAT;
 			break;
-		case SKILL_SPADES: return SPADES_MASTER_FEAT;
+		case ESkill::SKILL_SPADES: return SPADES_MASTER_FEAT;
 			break;
-		case SKILL_BOWS: return BOWS_MASTER_FEAT;
+		case ESkill::SKILL_BOWS: return BOWS_MASTER_FEAT;
 			break;
 		default: return INCORRECT_FEAT;
 	}
@@ -1979,10 +1979,9 @@ int FindWeaponMasterBySkill(ESkill skill) {
 
 //Определим мин уровень для изучения скилла из книги
 //req_lvl - требуемый уровень из книги
-int min_skill_level_with_req(CharacterData *ch, int skill, int req_lvl) {
-	int min_lvl = MAX(req_lvl, skill_info[skill].min_level[ch->get_class()][ch->get_kin()])
-		- MAX(0, GET_REAL_REMORT(ch) / skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]);
-
+int GetSkillMinLevel(CharacterData *ch, ESkill skill, int req_lvl) {
+	int min_lvl = MAX(req_lvl, MUD::Classes()[ch->get_class()].GetMinLevel(skill))
+		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetLevelDecrement(skill));
 	return MAX(1, min_lvl);
 };
 
@@ -1990,29 +1989,29 @@ int min_skill_level_with_req(CharacterData *ch, int skill, int req_lvl) {
  * функция определяет, может ли персонаж илучить скилл
  * \TODO нужно перенести в класс "инфа о классе персонажа" (как и требования по классу, собственно)
  */
-int min_skill_level(CharacterData *ch, int skill) {
-	int min_lvl = skill_info[skill].min_level[ch->get_class()][ch->get_kin()]
-		- MAX(0, GET_REAL_REMORT(ch) / skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]);
+int GetSkillMinLevel(CharacterData *ch, ESkill skill) {
+	int min_lvl = MUD::Classes()[ch->get_class()].GetMinLevel(skill)
+		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetLevelDecrement(skill));
 	return MAX(1, min_lvl);
 };
 
-bool can_get_skill_with_req(CharacterData *ch, int skill, int req_lvl) {
-	if (GET_REAL_REMORT(ch) < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
-		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != kKnowSkill)) {
+bool IsAbleToGetSkill(CharacterData *ch, ESkill skill, int req_lvl) {
+	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].GetMinRemort(skill)
+		|| MUD::Classes()[ch->get_class()].NotKnows(skill)) {
 		return false;
 	}
-	if (ch->get_level() < min_skill_level_with_req(ch, skill, req_lvl)) {
+	if (ch->get_level() < GetSkillMinLevel(ch, skill, req_lvl)) {
 		return false;
 	}
 	return true;
 }
 
-bool IsAbleToGetSkill(CharacterData *ch, int skill) {
-	if (GET_REAL_REMORT(ch) < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
-		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != kKnowSkill)) {
+bool IsAbleToGetSkill(CharacterData *ch, ESkill skill) {
+	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].GetMinRemort(skill)
+		|| MUD::Classes()[ch->get_class()].NotKnows(skill)) {
 		return false;
 	}
-	if (ch->get_level() < min_skill_level(ch, skill)) {
+	if (ch->get_level() < GetSkillMinLevel(ch, skill)) {
 		return false;
 	}
 
@@ -2023,16 +2022,21 @@ int CalcSkillRemortCap(const CharacterData *ch) {
 	return kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * kSkillCapBonusPerRemort;
 }
 
-int CalcSkillSoftCap(const CharacterData *ch) {
+int CalcSkillWisdomCap(const CharacterData *ch) {
 	return std::min(CalcSkillRemortCap(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_REAL_LEVEL(ch) / 20);
 }
 
 int CalcSkillHardCap(const CharacterData *ch, const ESkill skill) {
-	return std::min(CalcSkillRemortCap(ch), skill_info[skill].cap);
+	return std::min(CalcSkillRemortCap(ch), MUD::Skills()[skill].cap);
 }
 
 int CalcSkillMinCap(const CharacterData *ch, const ESkill skill) {
-	return std::min(CalcSkillSoftCap(ch), skill_info[skill].cap);
+	return std::min(CalcSkillWisdomCap(ch), MUD::Skills()[skill].cap);
+}
+
+const ESkill &operator++(ESkill &s) {
+	s = static_cast<ESkill>(to_underlying(s) + 1);
+	return s;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -438,8 +438,8 @@ class CharacterData : public ProtectedCharacterData {
 	void set_long_descr(const char *);
 	const char *get_description() const;
 	void set_description(const char *);
-	short get_class() const;
-	void set_class(short chclass);
+	ECharClass get_class() const;
+	void set_class(ECharClass chclass);
 
 	bool is_druid() const { return chclass_ == CLASS_DRUID; }
 
@@ -696,7 +696,7 @@ class CharacterData : public ProtectedCharacterData {
 	// имя моба (им.падеж)
 	std::string short_descr_;
 	// профессия чара/класс моба
-	short chclass_;
+	ECharClass chclass_;
 	// уровень
 	short level_;
 	// плюс на уровень
@@ -791,8 +791,8 @@ class CharacterData : public ProtectedCharacterData {
 	player_special_data::shared_ptr player_specials;    // PC specials
 
 	char_affects_list_t affected;    // affected by what spells
-	struct Timed *timed;    // use which timed skill/spells
-	struct Timed *timed_feat;    // use which timed feats
+	struct TimedSkill *timed;    // use which timed skill/spells
+	struct TimedFeat *timed_feat;    // use which timed feats
 	ObjectData *equipment[NUM_WEARS];    // Equipment array
 
 	ObjectData *carrying;    // Head of list

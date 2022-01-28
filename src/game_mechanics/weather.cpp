@@ -907,11 +907,12 @@ int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 	return (modi);
 }
 
-int day_skill_modifier(CharacterData * /*ch*/, int/* skillnum*/, int/* type*/, int value) {
+// По идее все это скорее относится к скиллам, чем к погоде, и должно находиться в скиллпроцессоре.
+int day_skill_modifier(CharacterData * /*ch*/, ESkill/* skillnum*/, int/* type*/, int value) {
 	return value;
 }
 
-int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value) {
+int weather_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 
 	if (IS_NPC(ch) ||
@@ -925,7 +926,7 @@ int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value)
 	switch (type) {
 		case GAPPLY_SKILL_SUCCESS:
 			switch (skillnum) {
-				case SKILL_INDEFINITE:
+				case ESkill::kUndefined:
 					if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK) {
 						switch (sky) {
 							case kSkyCloudless: modi = modi * 90 / 100;
@@ -944,6 +945,7 @@ int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value)
 						}
 					}
 					break;
+				default: break;
 			}
 			break;
 	}
@@ -952,7 +954,7 @@ int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value)
 	return (modi);
 }
 
-int complex_skill_modifier(CharacterData *ch, int skillnum, int type, int value) {
+int complex_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int value) {
 	int modi = value;
 	modi = day_skill_modifier(ch, skillnum, type, modi);
 	modi = weather_skill_modifier(ch, skillnum, type, modi);

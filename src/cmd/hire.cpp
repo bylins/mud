@@ -12,7 +12,7 @@ float get_damage_per_round(CharacterData *victim) {
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffectFlag::AFF_CLOUD_OF_ARROWS) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.ExtraAttack
-		+ (victim->get_skill(SKILL_ADDSHOT) ? 2 : 0);
+		+ (victim->get_skill(ESkill::SKILL_ADDSHOT) ? 2 : 0);
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
@@ -318,7 +318,7 @@ void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 			MOB_FLAGS(helpee).unset(MOB_SPEC);
 			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
-			helpee->set_skill(SKILL_PUNCTUAL, 0);
+			helpee->set_skill(ESkill::SKILL_PUNCTUAL, 0);
 			ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
 
 			Crash_crashsave(ch);

@@ -29,6 +29,7 @@
 #include "game_mechanics/named_stuff.h"
 #include "help.h"
 #include "conf.h"
+#include "utils/objects_filter.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -116,7 +117,7 @@ void check_rank(std::string &rank) {
 	if (rank.size() > MAX_RANK_LENGHT) {
 		rank = rank.substr(0, MAX_RANK_LENGHT);
 	}
-	lower_convert(rank);
+	utils::ConvertToLow(rank);
 }
 
 } // namespace
@@ -2171,9 +2172,9 @@ void Clan::hcontrol_rank(CharacterData *ch, std::string &text) {
 		return;
 	}
 
-	lower_convert(old_rank);
-	lower_convert(rank_male);
-	lower_convert(rank_female);
+	utils::ConvertToLow(old_rank);
+	utils::ConvertToLow(rank_male);
+	utils::ConvertToLow(rank_female);
 
 	try {
 		for (unsigned i = 0; i < (*clan)->ranks.size(); ++i) {
@@ -3194,7 +3195,7 @@ void Clan::ChestUpdate() {
 		cost = (*clan)->ChestTax() + (*clan)->ingr_chest_tax();
 		cost += (*clan)->calculate_clan_tax();
 		// расчет и снимание за ренту (целой части по возможности)
-		cost = (cost * CHEST_UPDATE_PERIOD) / (60 * 24);
+		cost = (cost * kChestUpdatePeriod) / (60 * 24);
 
 		(*clan)->bankBuffer += cost;
 		std::modf((*clan)->bankBuffer, &i);
@@ -4269,7 +4270,7 @@ void DoStoreHouse(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	char *stufina = one_argument(argument, arg);
 	skip_spaces(&stufina);
 
-	if (is_abbrev(arg, "характеристики") || is_abbrev(arg, "identify") || is_abbrev(arg, "опознать")) {
+	if (utils::IsAbbrev(arg, "характеристики") || utils::IsAbbrev(arg, "identify") || utils::IsAbbrev(arg, "опознать")) {
 		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
 			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
@@ -4423,13 +4424,13 @@ void Clan::HouseStat(CharacterData *ch, std::string &buffer) {
 	// клан стат [!опыт/!заработанным/!последнему/!имя] [имя/все]
 	sortParameter = SORT_STAT_BY_EXP;
 	if (buffer2.length() > 1) {
-		if ((buffer2[0] == '!') && (is_abbrev(buffer2.c_str() + 1, "опыту"))) // опыту дружине
+		if ((buffer2[0] == '!') && (utils::IsAbbrev(buffer2.c_str() + 1, "опыту"))) // опыту дружине
 			sortParameter = SORT_STAT_BY_CLANEXP;
-		else if ((buffer2[0] == '!') && (is_abbrev(buffer2.c_str() + 1, "заработанным")))
+		else if ((buffer2[0] == '!') && (utils::IsAbbrev(buffer2.c_str() + 1, "заработанным")))
 			sortParameter = SORT_STAT_BY_MONEY;
-		else if ((buffer2[0] == '!') && (is_abbrev(buffer2.c_str() + 1, "последнему")))
+		else if ((buffer2[0] == '!') && (utils::IsAbbrev(buffer2.c_str() + 1, "последнему")))
 			sortParameter = SORT_STAT_BY_LOGON;
-		else if ((buffer2[0] == '!') && (is_abbrev(buffer2.c_str() + 1, "имя")))
+		else if ((buffer2[0] == '!') && (utils::IsAbbrev(buffer2.c_str() + 1, "имя")))
 			sortParameter = SORT_STAT_BY_NAME;
 
 		// берем следующий параметр
@@ -5339,7 +5340,7 @@ void Clan::purge_ingr_chest() {
 }
 
 int Clan::calculate_clan_tax() const {
-	int cost = CLAN_TAX + (storehouse * CLAN_STOREHOUSE_TAX);
+	int cost = kClanTax + (storehouse * kClanStorehouseTax);
 
 	if (ingr_chest_active()) {
 		cost += INGR_CHEST_TAX;

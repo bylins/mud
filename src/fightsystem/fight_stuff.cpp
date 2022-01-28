@@ -3,7 +3,7 @@
 #include "affects/affect_data.h"
 #include "mobact.h"
 #include "entities/obj.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "cmd/flee.h"
 #include "entities/world_characters.h"
 #include "fight.h"
@@ -24,7 +24,7 @@
 #include "entities/zone.h"
 #include "entities/char_player.h"
 
-#include <algorithm>
+//#include <algorithm>
 
 // extern
 void perform_drop_gold(CharacterData *ch, int amount);
@@ -230,18 +230,18 @@ void update_leadership(CharacterData *ch, CharacterData *killer) {
 		if (!IS_NPC(killer) // Убил загрупленный чар
 			&& AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)
 			&& killer->has_master()
-			&& killer->get_master()->get_skill(SKILL_LEADERSHIP) > 0
+			&& killer->get_master()->get_skill(ESkill::SKILL_LEADERSHIP) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
-			ImproveSkill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
+			ImproveSkill(killer->get_master(), ESkill::SKILL_LEADERSHIP, number(0, 1), ch);
 		} else if (IS_NPC(killer) // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
 			&& killer->has_master()
 			&& AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->get_skill(SKILL_LEADERSHIP) > 0
+				&& killer->get_master()->get_master()->get_skill(ESkill::SKILL_LEADERSHIP) > 0
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master())) {
-				ImproveSkill(killer->get_master()->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
+				ImproveSkill(killer->get_master()->get_master(), ESkill::SKILL_LEADERSHIP, number(0, 1), ch);
 			}
 		}
 	}
@@ -253,9 +253,9 @@ void update_leadership(CharacterData *ch, CharacterData *killer) {
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
 		&& ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())
-		&& ch->get_master()->get_inborn_skill(SKILL_LEADERSHIP) > 1) {
-		const auto current_skill = ch->get_master()->get_trained_skill(SKILL_LEADERSHIP);
-		ch->get_master()->set_skill(SKILL_LEADERSHIP, current_skill - 1);
+		&& ch->get_master()->get_inborn_skill(ESkill::SKILL_LEADERSHIP) > 1) {
+		const auto current_skill = ch->get_master()->get_trained_skill(ESkill::SKILL_LEADERSHIP);
+		ch->get_master()->set_skill(ESkill::SKILL_LEADERSHIP, current_skill - 1);
 	}
 }
 
@@ -1108,7 +1108,8 @@ void alterate_object(ObjectData *obj, int dam, int chance) {
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
 		MAX(1, GET_OBJ_MAX(obj) *
 			(obj->get_extra_flag(EExtraFlag::ITEM_NODROP) ? 5 :
-			 obj->get_extra_flag(EExtraFlag::ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
+			 obj->get_extra_flag(EExtraFlag::ITEM_BLESS) ? 15 : 10)
+			 * (static_cast<ESkill>(GET_OBJ_SKILL(obj)) == ESkill::SKILL_BOWS ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100)) {
 		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), WEAR_SHIELD) == obj) {
@@ -1392,14 +1393,15 @@ void Damage::post_init_shields(CharacterData *victim) {
 
 void Damage::post_init(CharacterData *ch, CharacterData *victim) {
 	if (msg_num == -1) {
-		if (skill_num >= 0) {
-			msg_num = skill_num + TYPE_HIT;
+		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
+		if (skill_num >= ESkill::kFirst) {
+			msg_num = to_underlying(skill_num) + kTypeHit;
 		} else if (spell_num >= 0) {
 			msg_num = spell_num;
 		} else if (hit_type >= 0) {
-			msg_num = hit_type + TYPE_HIT;
+			msg_num = hit_type + kTypeHit;
 		} else {
-			msg_num = TYPE_HIT;
+			msg_num = kTypeHit;
 		}
 	}
 
@@ -1430,7 +1432,7 @@ void Damage::zero_init() {
 	fs_damage = 0;
 	magic_type = 0;
 	dmg_type = -1;
-	skill_num = -1;
+	skill_num = ESkill::kUndefined;
 	spell_num = -1;
 	hit_type = -1;
 	msg_num = -1;

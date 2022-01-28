@@ -562,7 +562,7 @@ int fight_mtrigger(CharacterData *ch) {
 	return 1;
 }
 
-int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, const char* skillorspell, ObjectData *obj) {
+int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, const char* skillorspell, ObjectData */*obj*/) {
 	if (!damager || damager->purged() || !victim  || victim->purged()) {
 		log("SYSERROR: damager = %s, victim = %s (%s:%d)",
 			damager ? (damager->purged() ? "purged" : "true") : "false",

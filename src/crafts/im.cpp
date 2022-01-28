@@ -85,14 +85,14 @@ int im_get_recipe_by_name(char *name) {
 		return -1;
 
 	for (rid = top_imrecipes; rid >= 0; --rid) {
-		if (is_abbrev(name, imrecipes[rid].name))
+		if (utils::IsAbbrev(name, imrecipes[rid].name))
 			break;
 
 		ok = true;
 		temp = any_one_arg(imrecipes[rid].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
-			if (!is_abbrev(first2, first))
+			if (!utils::IsAbbrev(first2, first))
 				ok = false;
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
@@ -1050,7 +1050,7 @@ void do_recipes(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	if (IS_NPC(ch))
 		return;
 	skip_spaces(&argument);
-	if (is_abbrev(argument, "все") || is_abbrev(argument, "all"))
+	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
 		list_recipes(ch, true);
 	else
 		list_recipes(ch, false);
@@ -1158,7 +1158,7 @@ void im_improve_recipe(CharacterData *ch, im_rskill *rs, int success) {
 	if (IS_NPC(ch) || (rs->perc >= kMaxRecipeLevel))
 		return;
 
-	if (ch->in_room != kNowhere && (CalcSkillSoftCap(ch) - rs->perc > 0)) {
+	if (ch->in_room != kNowhere && (CalcSkillWisdomCap(ch) - rs->perc > 0)) {
 		int n = ch->get_skills_count();
 		n = (n + 1) >> 1;
 		n += im_get_char_rskill_count(ch);

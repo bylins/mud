@@ -257,12 +257,12 @@ void CObjectPrototype::toggle_wear_flag(const uint32_t flag) {
 	TOGGLE_BIT(m_wear_flags, flag);
 }
 
-void CObjectPrototype::set_skill(int skill_num, int percent) {
+void CObjectPrototype::set_skill(ESkill skill_num, int percent) {
 	if (!m_skills.empty()) {
-		const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
+		const auto skill = m_skills.find(skill_num);
 		if (skill == m_skills.end()) {
 			if (percent != 0) {
-				m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
+				m_skills.insert(std::make_pair(skill_num, percent));
 			}
 		} else {
 			if (percent != 0) {
@@ -274,7 +274,7 @@ void CObjectPrototype::set_skill(int skill_num, int percent) {
 	} else {
 		if (percent != 0) {
 			m_skills.clear();
-			m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
+			m_skills.insert(std::make_pair(skill_num, percent));
 		}
 	}
 }
@@ -373,12 +373,11 @@ CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
 	return *this;
 }
 
-int CObjectPrototype::get_skill(int skill_num) const {
-	const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
+int CObjectPrototype::get_skill(ESkill skill_num) const {
+	const auto skill = m_skills.find(skill_num);
 	if (skill != m_skills.end()) {
 		return skill->second;
 	}
-
 	return 0;
 }
 

@@ -12,11 +12,11 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "interpreter.h"
-#include "constants.h"
+/*#include "interpreter.h"
+#include "constants.h"*/
 #include "handler.h"
 #include "utils/random.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 // Externals
 void do_say(CharacterData *ch, char *argument, int cmd, int subcmd);
@@ -161,13 +161,13 @@ int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch) {
 }
 
 int go_sense(CharacterData *ch, CharacterData *victim) {
-	int percent, dir, skill = CalcCurrentSkill(ch, SKILL_SENSE, victim);
+	int percent, dir, skill = CalcCurrentSkill(ch, ESkill::SKILL_SENSE, victim);
 
 	skill = skill
 		- MAX(1, (GET_REAL_REMORT(victim) - GET_REAL_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
 	skill = skill - MAX(1, (GET_REAL_LEVEL(victim) - GET_REAL_LEVEL(ch)) * 5);
 	skill = MAX(0, skill);
-	percent = number(0, skill_info[SKILL_SENSE].difficulty);
+	percent = number(0, MUD::Skills()[ESkill::SKILL_SENSE].difficulty);
 	if (percent > skill) {
 		int tries = 10;
 		do {
@@ -185,7 +185,7 @@ void do_sense(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int dir;
 
 	// The character must have the track skill.
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_SENSE)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_SENSE)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -228,7 +228,7 @@ void do_sense(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case BFS_NO_PATH: strcpy(buf, "Ваши чувства молчат.");
 			break;
 		default:        // Success!
-			ImproveSkill(ch, SKILL_SENSE, true, vict);
+			ImproveSkill(ch, ESkill::SKILL_SENSE, true, vict);
 			sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
 			break;
 	}

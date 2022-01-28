@@ -11,8 +11,8 @@
 #include "structs/structs.h"
 
 struct HitData {
-	HitData() : weapon(FightSystem::MAIN_HAND), wielded(nullptr), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
-				weap_skill_is(0), skill_num(SKILL_UNDEF), hit_type(0), hit_no_parry(false),
+	HitData() : weapon(FightSystem::MAIN_HAND), wielded(nullptr), weapon_pos(WEAR_WIELD), weap_skill(ESkill::kIncorrect),
+				weap_skill_is(0), skill_num(ESkill::kUndefined), hit_type(0), hit_no_parry(false),
 				ch_start_pos(EPosition::kIncorrect), victim_start_pos(EPosition::kIncorrect), victim_ac(0), calc_thaco(0),
 				dam(0), dam_critic(0) {
 		diceroll = number(100, 2099) / 100;
@@ -51,7 +51,7 @@ struct HitData {
 	int weap_skill_is;
 	// брошенные кубики на момент расчета попадания
 	int diceroll;
-	// номер скила, пришедший из вызова hit(), может быть SKILL_UNDEF
+	// номер скила, пришедший из вызова hit(), может быть kUndefined
 	// в целом если < 0 - считается, что бьем простой атакой hit_type
 	// если >= 0 - считается, что бьем скилом
 	ESkill skill_num;
@@ -82,7 +82,7 @@ struct HitData {
 	const flags_t &get_flags() const { return m_flags; }
 	void set_flag(const size_t flag) { m_flags.set(flag); }
 	void reset_flag(const size_t flag) { m_flags.reset(flag); }
-	static void check_weap_feats(const CharacterData *ch, int weap_skill, int &calc_thaco, int &dam);
+	static void CheckWeapFeats(const CharacterData *ch, ESkill weap_skill, int &calc_thaco, int &dam);
  private:
 	// какой-никакой набор флагов, так же передается в damage()
 	flags_t m_flags;
@@ -104,6 +104,9 @@ void exthit(CharacterData *ch, ESkill type, FightSystem::AttType weapon);
 void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::AttType weapon);
 
 void appear(CharacterData *ch);
+
+int GetRealDamroll(CharacterData *ch);
+int GetAutoattackDamroll(CharacterData *ch, int weapon_skill);
 
 #endif // _FIGHT_HIT_HPP_
 

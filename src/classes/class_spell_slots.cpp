@@ -1207,6 +1207,7 @@ int slot_for_char(CharacterData *ch, int slot_num) {
 				wis_is = MERCHANT_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
 			}
 			break;
+		default: break;
 	}
 
 	if (wis_is == -1) {
@@ -1226,17 +1227,17 @@ void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_name(spell), chclass, kNumKins);
 		bad = 1;
 	}
 
 	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 
 	if (slot < 1 || slot > MAX_SLOT) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", skill_name(spell), slot, kLevelImplementator);
+		log("SYSERR: assigning '%s' to illegal slot %d/%d.", spell_name(spell), slot, kLevelImplementator);
 		bad = 1;
 	}
 

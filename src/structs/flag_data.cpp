@@ -205,5 +205,30 @@ void FlagData::gm_flag(const char *subfield, const char *const *const list, char
 	}
 }
 
+// заколебали эти флаги... сравниваем num и все поля в flags
+bool CompareBits(const FlagData &flags, const char *names[], int affect) {
+	int i;
+	for (i = 0; i < 4; i++) {
+		int nr = 0;
+		int fail = i;
+		bitvector_t bitvector = flags.get_plane(i);
+
+		while (fail) {
+			if (*names[nr] == '\n')
+				fail--;
+			nr++;
+		}
+
+		for (; bitvector; bitvector >>= 1) {
+			if (IS_SET(bitvector, 1))
+				if (*names[nr] != '\n')
+					if (nr == affect)
+						return true;
+			if (*names[nr] != '\n')
+				nr++;
+		}
+	}
+	return false;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

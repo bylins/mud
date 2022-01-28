@@ -412,7 +412,7 @@ const int MAX_SLOT = 13;
 
 // WEAPON ATTACK TYPES
 
-#define TYPE_HIT                     400
+const int kTypeHit = 400;
 /*
 #define TYPE_STING                   401
 #define TYPE_WHIP                    402
@@ -508,7 +508,6 @@ bool catch_bloody_corpse(ObjectData *l);
 
 // other prototypes //
 void init_spell_levels(void);
-const char *skill_name(int num);
 const char *spell_name(int num);
 int calculateSaving(CharacterData *killer, CharacterData *victim, ESaving saving, int ext_apply);
 int general_savingthrow(CharacterData *killer, CharacterData *victim, ESaving type, int ext_apply);

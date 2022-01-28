@@ -21,14 +21,14 @@ struct TechniqueItem {
 	bool operator==(const ObjectData *item) const {
 		return (item
 			&& (_type == GET_OBJ_TYPE(item))
-			&& ((_skill == SKILL_INDEFINITE) || (_skill == GET_OBJ_SKILL(item)))
+			&& ((_skill == ESkill::kAny) || (_skill == static_cast<ESkill>(item->get_skill())))
 			&& (_flagged && OBJ_FLAGGED(item, _flag)));
 	};
 
 	TechniqueItem() :
 		_wearPosition{-1},
 		_type{ObjectData::ITEM_UNDEFINED},
-		_skill{SKILL_INDEFINITE},
+		_skill{ESkill::kAny},
 		_flagged{false},
 		_flag{EExtraFlag::ITEM_GLOW} {};
 

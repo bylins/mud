@@ -7,7 +7,7 @@
 #include "handler.h"
 #include "utils/random.h"
 #include "color.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 using namespace FightSystem;
 
@@ -36,8 +36,8 @@ void go_disarm(CharacterData *ch, CharacterData *vict) {
 		return;
 	if (!pk_agro_action(ch, vict))
 		return;
-	int percent = number(1, skill_info[SKILL_DISARM].difficulty);
-	int prob = CalcCurrentSkill(ch, SKILL_DISARM, vict);
+	int percent = number(1, MUD::Skills()[ESkill::SKILL_DISARM].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::SKILL_DISARM, vict);
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 		prob = percent;
 	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSLIKE)
@@ -45,8 +45,8 @@ void go_disarm(CharacterData *ch, CharacterData *vict) {
 		prob = 0;
 
 	bool success = percent <= prob;
-	TrainSkill(ch, SKILL_DISARM, success, vict);
-	SendSkillBalanceMsg(ch, skill_info[SKILL_DISARM].name, percent, prob, success);
+	TrainSkill(ch, ESkill::SKILL_DISARM, success, vict);
+	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::SKILL_DISARM].name, percent, prob, success);
 	if (!success || GET_EQ(vict, pos)->get_extra_flag(EExtraFlag::ITEM_NODISARM)) {
 		send_to_char(ch,
 					 "%sВы не сумели обезоружить %s...%s\r\n",
@@ -62,7 +62,7 @@ void go_disarm(CharacterData *ch, CharacterData *vict) {
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		unequip_char(vict, pos, CharEquipFlags());
-		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, IS_NPC(vict) ? 1 : 2);
+		setSkillCooldown(ch, ESkill::SKILL_GLOBAL_COOLDOWN, IS_NPC(vict) ? 1 : 2);
 		prob = 2;
 
 		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA) || (!IS_MOB(vict)) || vict->has_master()) {
@@ -77,16 +77,16 @@ void go_disarm(CharacterData *ch, CharacterData *vict) {
 	if (IS_NPC(vict) && CAN_SEE(vict, ch) && vict->have_mind() && GET_WAIT(ch) <= 0) {
 		set_hit(vict, ch);
 	}
-	setSkillCooldown(ch, SKILL_DISARM, prob);
-	setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldown(ch, ESkill::SKILL_DISARM, prob);
+	setSkillCooldown(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
 }
 
 void do_disarm(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_DISARM)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_DISARM)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_DISARM)) {
+	if (ch->haveCooldown(ESkill::SKILL_DISARM)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -120,7 +120,7 @@ void do_disarm(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_disarm(ch, vict);
 	} else if (isHaveNoExtraAttack(ch)) {
-		act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, 0, vict, TO_CHAR);
+		act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_DISARM, vict);
 	}
 }

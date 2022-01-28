@@ -220,7 +220,7 @@ ObjectData::shared_ptr read_one_object_new(char **data, int *error) {
 				if (sscanf(buffer, "%d %d", &tmp_a_, &tmp_b_) != 2) {
 					continue;
 				}
-				object->set_skill(tmp_a_, tmp_b_);
+				object->set_skill(static_cast<ESkill>(tmp_a_), tmp_b_);
 			} else if (!strcmp(read_line, "Maxx")) {
 				*error = 16;
 				object->set_maximum_durability(atoi(buffer));
@@ -849,7 +849,7 @@ void write_one_object(std::stringstream &out, ObjectData *object, int location) 
 			// Тренируемый скилл
 			if (tmp_skills_object_ != tmp_skills_proto_) {
 				for (const auto &it : tmp_skills_object_) {
-					out << "Skil: " << it.first << " " << it.second << "~\n";
+					out << "Skil: " << to_underlying(it.first) << " " << it.second << "~\n";
 				}
 
 			}
@@ -1062,7 +1062,7 @@ void write_one_object(std::stringstream &out, ObjectData *object, int location) 
 			CObjectPrototype::skills_t tmp_skills_object_;
 			object->get_skills(tmp_skills_object_);
 			for (const auto &it : tmp_skills_object_) {
-				out << "Skil: " << it.first << " " << it.second << "~\n";
+				out << "Skil: " << to_underlying(it.first) << " " << it.second << "~\n";
 			}
 		}
 

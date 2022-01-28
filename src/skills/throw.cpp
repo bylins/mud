@@ -27,8 +27,9 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 	void (*doSideAction)(TechniqueRollType &technique);
 	uint32_t mobNoFlag = MOB_DELETE;
 
-	switch (GET_OBJ_SKILL(weapon)) {
-		case SKILL_SPADES:mobNoFlag = MOB_NOBASH;
+	switch (static_cast<ESkill>(weapon->get_skill())) {
+		case ESkill::SKILL_SPADES:
+			mobNoFlag = MOB_NOBASH;
 			featureID = SHADOW_SPEAR_FEAT;
 			to_char = "Попадание копья повалило $n3 наземь.";
 			to_vict =
@@ -43,8 +44,9 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				}
 			});
 			break;
-		case SKILL_SHORTS:
-		case SKILL_PICK:mobNoFlag = MOB_NOSIELENCE;
+		case ESkill::SKILL_SHORTS:
+		case ESkill::SKILL_PICK:
+			mobNoFlag = MOB_NOSIELENCE;
 			featureID = SHADOW_DAGGER_FEAT;
 			to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
 			to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
@@ -58,7 +60,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				affect_join(technique.rival(), af, false, false, false, false);
 			});
 			break;
-		case SKILL_CLUBS:mobNoFlag = MOB_NOSTUPOR;
+		case ESkill::SKILL_CLUBS:mobNoFlag = MOB_NOSTUPOR;
 			featureID = SHADOW_CLUB_FEAT;
 			to_char = "Попадание булавы ошеломило $n3.";
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
@@ -72,6 +74,9 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				affect_join(technique.rival(), af, false, false, false, false);
 				set_wait(technique.rival(), 3, false);
 			});
+			break;
+		default:
+			featureID = INCORRECT_FEAT;
 			break;
 	};
 
@@ -98,7 +103,7 @@ void performWeaponThrow(TechniqueRollType &technique, Damage &techniqueDamage) {
 			techniqueDamage.flags.set(IGNORE_ARMOR);
 			techniqueDamage.flags.set(CRIT_HIT);
 		};
-		if (timed_by_feat(technique.actor(), SHADOW_THROW_FEAT)) {
+		if (IsTimed(technique.actor(), SHADOW_THROW_FEAT)) {
 			decreaseFeatTimer(technique.actor(), SHADOW_THROW_FEAT);
 		};
 		if (technique.ID() == SHADOW_THROW_FEAT) {
@@ -134,14 +139,14 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 			true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		techniqueID = SHADOW_THROW_FEAT;
 		throwDamageKind = MAGE_DMG;
-		struct Timed shadowThrowTimed;
-		shadowThrowTimed.skill = SHADOW_THROW_FEAT;
+		struct TimedFeat shadowThrowTimed;
+		shadowThrowTimed.feat = SHADOW_THROW_FEAT;
 		shadowThrowTimed.time = 6;
-		timed_feat_to_char(ch, &shadowThrowTimed);
+		ImposeTimedFeat(ch, &shadowThrowTimed);
 		PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
 	}
 	TechniqueRollType weaponThrowRoll;
-	Damage throwDamage(SkillDmg(SKILL_THROW), ZERO_DMG, throwDamageKind);
+	Damage throwDamage(SkillDmg(ESkill::SKILL_THROW), ZERO_DMG, throwDamageKind);
 	throwDamage.magic_type = STYPE_DARK;
 
 	ActionTargeting::FoesRosterType
@@ -160,19 +165,19 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 		};
 	};
 
-	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
 	if (techniqueID == THROW_WEAPON_FEAT) {
-		setSkillCooldownInFight(ch, SKILL_THROW, 3);
+		setSkillCooldownInFight(ch, ESkill::SKILL_THROW, 3);
 	}
 }
 
 void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
-	if (!ch->get_skill(SKILL_THROW)) {
+	if (!ch->get_skill(ESkill::SKILL_THROW)) {
 		send_to_char("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_THROW)) {
+	if (ch->haveCooldown(ESkill::SKILL_THROW)) {
 		send_to_char("Так и рука отвалится, нужно передохнуть.\r\n", ch);
 		return;
 	};
@@ -201,7 +206,7 @@ void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (subcmd == SCMD_SHADOW_THROW) {
-		if (timed_by_feat(ch, SHADOW_THROW_FEAT)) {
+		if (IsTimed(ch, SHADOW_THROW_FEAT)) {
 			send_to_char("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
 		}

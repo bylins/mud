@@ -2,6 +2,7 @@
 #define GLOBAL_OBJECTS_HPP_
 
 #include "abilities/abilities_info.h"
+#include "classes/classes_info.h"
 #include "fightsystem/pk.h"
 #include "game_mechanics/celebrates.h"
 #include "logger.h"
@@ -15,6 +16,7 @@
 #include "influxdb.h"
 #include "entities/zone.h"
 #include "quests/daily_quest.h"
+#include "skills_info.h"
 #include "strengthening.h"
 class BanList;    // to avoid inclusion of ban.hpp
 
@@ -32,9 +34,11 @@ class BanList;    // to avoid inclusion of ban.hpp
 */
 class GlobalObjects {
  public:
-	static abilities::AbilitiesInfo &abilities_info();
+	static abilities::AbilitiesInfo &Abilities();
+	static SkillsInfo &Skills();
+	static classes::ClassesInfo &Classes();
 	static WorldObjects &world_objects();
-	static ShopExt::ShopListType &shop_list();
+	static ShopExt::ShopListType &Shops();
 	static Characters &characters();
 	static ShutdownParameters &shutdown_parameters();
 	static Speedwalks &speedwalks();
@@ -62,6 +66,8 @@ class GlobalObjects {
 	static Strengthening &strengthening();
 	static obj2triggers_t &obj_triggers();
 };
+
+using MUD = GlobalObjects;
 
 #endif // GLOBAL_OBJECTS_HPP_
 

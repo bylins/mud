@@ -173,7 +173,7 @@ extern char *name_rules;
 
 // external functions
 void do_start(CharacterData *ch, int newbie);
-int parse_class(char arg);
+ECharClass ParseClass(char arg);
 int parse_class_vik(char arg);
 int parse_class_step(char arg);
 int Valid_Name(char *newname);
@@ -436,9 +436,6 @@ void do_show_mobmax(CharacterData *ch, char *, int, int);
  * priority.
  */
 
-#define MAGIC_NUM 419
-#define MAGIC_LEN 8
-
 // здесь храним коды, которые отправили игрокам на почту
 // строка - это мыло, если один чар вошел с необычного места, то блочим сразу всех чаров на этом мыле,
 // пока не введет код (или до ребута)
@@ -515,7 +512,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"вооружиться", EPosition::kRest, do_wield, 0, 0, 200},
 		{"возврат", EPosition::kRest, do_recall, 0, 0, -1},
 		{"воззвать", EPosition::kDead, do_pray_gods, 0, 0, -1},
-		{"вплавить", EPosition::kStand, do_insertgem, 0, SKILL_INSERTGEM, -1},
+		{"вплавить", EPosition::kStand, do_insertgem, 0, 0, -1},
 		{"время", EPosition::kDead, do_time, 0, 0, 0},
 		{"врата", EPosition::kSit, do_townportal, 1, 0, -1},
 		{"вскочить", EPosition::kFight, do_horseon, 0, 0, 500},
@@ -600,7 +597,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"команды", EPosition::kDead, do_commands, 0, SCMD_COMMANDS, 0},
 		{"коне", EPosition::kSleep, do_quit, 0, 0, 0},
 		{"конец", EPosition::kSleep, do_quit, 0, SCMD_QUIT, 0},
-		{"копать", EPosition::kStand, do_dig, 0, SKILL_DIG, -1},
+		{"копать", EPosition::kStand, do_dig, 0, 0, -1},
 		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
 		{"кричать", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
 		{"кто", EPosition::kRest, do_who, 0, 0, 0},
@@ -677,7 +674,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 		{"парировать", EPosition::kFight, do_parry, 0, 0, -1},
 		{"перехватить", EPosition::kFight, do_touch, 0, 0, -1},
-		{"перековать", EPosition::kStand, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON, -1},
+		{"перековать", EPosition::kStand, do_transform_weapon, 0, SCMD_TRANSFORMWEAPON, -1},
 		{"передать", EPosition::kStand, do_givehorse, 0, 0, -1},
 		{"перевести", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"переместиться", EPosition::kStand, do_relocate, 1, 0, 0},
@@ -761,7 +758,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"слава2", EPosition::kStand, GloryConst::do_spend_glory, 0, 0, 0},
 		{"смотреть", EPosition::kRest, do_look, 0, SCMD_LOOK, 0},
 		{"смешать", EPosition::kStand, do_mixture, 0, SCMD_ITEMS, -1},
-//  { "смастерить",     EPosition::kStand, do_transform_weapon, 0, SKILL_CREATEBOW, -1 },
+//  { "смастерить",     EPosition::kStand, do_transform_weapon, 0, SCMD_CREATEBOW, -1 },
 		{"снять", EPosition::kRest, do_remove, 0, 0, 500},
 		{"создать", EPosition::kSit, do_create, 0, 0, -1},
 		{"сон", EPosition::kSleep, do_sleep, 0, 0, -1},
@@ -852,7 +849,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"deposit", EPosition::kStand, do_not_here, 1, 0, 500},
 		{"deviate", EPosition::kFight, do_deviate, 0, 0, -1},
 		{"diagnose", EPosition::kRest, do_diagnose, 0, 0, 500},
-		{"dig", EPosition::kStand, do_dig, 0, SKILL_DIG, -1},
+		{"dig", EPosition::kStand, do_dig, 0, 0, -1},
 		{"disarm", EPosition::kFight, do_disarm, 0, 0, -1},
 		{"display", EPosition::kDead, do_display, 0, 0, 0},
 		{"drink", EPosition::kRest, do_drink, 0, SCMD_DRINK, 500},
@@ -906,7 +903,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"immlist", EPosition::kDead, do_gen_ps, 0, SCMD_IMMLIST, 0},
 		{"index", EPosition::kRest, do_help, 1, 0, 500},
 		{"info", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
-		{"insert", EPosition::kStand, do_insertgem, 0, SKILL_INSERTGEM, -1},
+		{"insert", EPosition::kStand, do_insertgem, 0, 0, -1},
 		{"inspect", EPosition::kDead, do_inspect, kLevelBuilder, 0, 0},
 		{"insult", EPosition::kRest, do_insult, 0, 0, -1},
 		{"inventory", EPosition::kSleep, do_inventory, 0, 0, 0},
@@ -1120,8 +1117,8 @@ void check_hiding_cmd(CharacterData *ch, int percent) {
 	if (affected_by_spell(ch, SPELL_HIDE)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
-				remove_hide = number(1, skill_info[SKILL_SNEAK].difficulty) >
-					CalcCurrentSkill(ch, SKILL_SNEAK, 0);
+				remove_hide = number(1, MUD::Skills()[ESkill::SKILL_SNEAK].difficulty) >
+					CalcCurrentSkill(ch, ESkill::SKILL_SNEAK, nullptr);
 			} else {
 				percent = 500;
 			}
@@ -1130,7 +1127,7 @@ void check_hiding_cmd(CharacterData *ch, int percent) {
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > CalcCurrentSkill(ch, SKILL_HIDE, 0);
+			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::SKILL_HIDE, 0);
 		}
 
 		if (remove_hide) {
@@ -1604,20 +1601,6 @@ int fill_word(const char *argument) {
 
 int reserved_word(const char *argument) {
 	return (search_block(argument, reserved, true) >= 0);
-}
-
-int is_abbrev(const char *arg1, const char *arg2) {
-	if (!*arg1)
-		return (0);
-
-	for (; *arg1 && *arg2; arg1++, arg2++)
-		if (LOWER(*arg1) != LOWER(*arg2))
-			return (0);
-
-	if (!*arg1)
-		return (1);
-	else
-		return (0);
 }
 
 template<typename T>
@@ -2248,12 +2231,12 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_PUNCTUAL)
-		&& !d->character->get_skill(SKILL_PUNCTUAL)) {
+		&& !d->character->get_skill(ESkill::SKILL_PUNCTUAL)) {
 		PRF_FLAGS(d->character).unset(PRF_PUNCTUAL);
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_AWAKE)
-		&& !d->character->get_skill(SKILL_AWAKE)) {
+		&& !d->character->get_skill(ESkill::SKILL_AWAKE)) {
 		PRF_FLAGS(d->character).unset(PRF_AWAKE);
 	}
 
@@ -2303,10 +2286,9 @@ void do_entergame(DescriptorData *d) {
 
 	setFeaturesOfRace(d->character.get());
 
-	//нефиг левыми скиллами размахивать если не имм
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto i : AVAILABLE_SKILLS) {
-			if (skill_info[i].classknow[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)] != kKnowSkill) {
+			if (MUD::Classes()[(d->character)->get_class()].NotKnows(i)) {
 				d->character->set_skill(i, 0);
 			}
 		}
@@ -3326,7 +3308,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 			break;
 
-		case CON_QCLASS:
+		case CON_QCLASS: {
 			if (pre_help(d->character.get(), arg)) {
 				SEND_TO_Q(class_menu, d);
 				SEND_TO_Q("\r\nВаша профессия : ", d);
@@ -3334,20 +3316,21 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			load_result = parse_class(*arg);
-			if (load_result == CLASS_UNDEFINED) {
+			auto class_id = ParseClass(*arg);
+			if (class_id == ECharClass::CLASS_UNDEFINED) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
 			} else {
-				d->character->set_class(load_result);
+				d->character->set_class(class_id);
 			}
 
 			SEND_TO_Q(religion_menu, d);
 			SEND_TO_Q("\n\rРелигия :", d);
 			STATE(d) = CON_RELIGION;
 			break;
-
-		case CON_QCLASSS:
+		}
+		// ABYRVALG - вырезать
+		case CON_QCLASSS: {
 			if (pre_help(d->character.get(), arg)) {
 				SEND_TO_Q(class_menu_step, d);
 				SEND_TO_Q("\r\nВаша профессия : ", d);
@@ -3355,13 +3338,12 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			load_result = parse_class_step(*arg);
-
-			if (load_result == CLASS_UNDEFINED) {
+			auto class_id = static_cast<ECharClass>(parse_class_step(*arg));
+			if (class_id == CLASS_UNDEFINED) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
 			} else {
-				d->character->set_class(load_result);
+				d->character->set_class(class_id);
 			}
 
 			SEND_TO_Q(religion_menu, d);
@@ -3369,8 +3351,8 @@ void nanny(DescriptorData *d, char *arg) {
 			STATE(d) = CON_RELIGION;
 
 			break;
-
-		case CON_QCLASSV:
+		}
+		case CON_QCLASSV: {
 			if (pre_help(d->character.get(), arg)) {
 				SEND_TO_Q(class_menu_vik, d);
 				SEND_TO_Q("\r\nВаша профессия : ", d);
@@ -3378,13 +3360,12 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			load_result = parse_class_vik(*arg);
-
-			if (load_result == CLASS_UNDEFINED) {
+			auto class_id = static_cast<ECharClass>(parse_class_vik(*arg));
+			if (class_id == CLASS_UNDEFINED) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
 			} else {
-				d->character->set_class(load_result);
+				d->character->set_class(class_id);
 			}
 
 			SEND_TO_Q(religion_menu, d);
@@ -3392,7 +3373,7 @@ void nanny(DescriptorData *d, char *arg) {
 			STATE(d) = CON_RELIGION;
 
 			break;
-
+		}
 		case CON_RACE:        // query race
 			if (pre_help(d->character.get(), arg)) {
 				SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
@@ -3410,8 +3391,8 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			GET_RACE(d->character) = load_result;
-			SEND_TO_Q(string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
-																				 GET_RACE(d->character)))).c_str(), d);
+			SEND_TO_Q(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
+																				  GET_RACE(d->character)))).c_str(), d);
 			SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
 			STATE(d) = CON_BIRTHPLACE;
 
@@ -3419,8 +3400,8 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_BIRTHPLACE:
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
-																					 GET_RACE(d->character)))).c_str(),
+				SEND_TO_Q(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
+																					  GET_RACE(d->character)))).c_str(),
 						  d);
 				SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
 				STATE(d) = CON_BIRTHPLACE;
@@ -3429,7 +3410,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 			load_result = PlayerRace::CheckBirthPlace(GET_KIN(d->character), GET_RACE(d->character), arg);
 
-			if (!BirthPlace::CheckId(load_result)) {
+			if (!Birthplaces::CheckId(load_result)) {
 				SEND_TO_Q("Не уверены? Бывает.\r\n"
 						  "Подумайте еще разок, и выберите:", d);
 				return;
@@ -3473,7 +3454,7 @@ void nanny(DescriptorData *d, char *arg) {
 #ifdef TEST_BUILD
 			strncpy(GET_EMAIL(d->character), arg, 127);
 			*(GET_EMAIL(d->character) + 127) = '\0';
-			lower_convert(GET_EMAIL(d->character));
+			utils::lower_convert(GET_EMAIL(d->character));
 			DoAfterEmailConfirm(d);
 			break;
 #endif
@@ -3482,7 +3463,7 @@ void nanny(DescriptorData *d, char *arg) {
 				new_char_codes[d->character->get_pc_name()] = random_number;
 				strncpy(GET_EMAIL(d->character), arg, 127);
 				*(GET_EMAIL(d->character) + 127) = '\0';
-				lower_convert(GET_EMAIL(d->character));
+				utils::ConvertToLow(GET_EMAIL(d->character));
 				std::string cmd_line =
 					str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
 				auto result = system(cmd_line.c_str());
@@ -4156,24 +4137,10 @@ std::string ExpFormat(long long exp) {
 		return (prefix + boost::lexical_cast<std::string>(exp / 1000000000LL) + " млрд");
 }
 
-// * Конвертация входной строки в нижний регистр
-void lower_convert(std::string &text) {
-	for (std::string::iterator it = text.begin(); it != text.end(); ++it)
-		*it = LOWER(*it);
-}
-
-// * Конвертация входной строки в нижний регистр
-void lower_convert(char *text) {
-	while (*text) {
-		*text = LOWER(*text);
-		text++;
-	}
-}
-
 // * Конвертация имени в нижний регистр + первый сивмол в верхний (для единообразного поиска в контейнерах)
 void name_convert(std::string &text) {
 	if (!text.empty()) {
-		lower_convert(text);
+		utils::ConvertToLow(text);
 		*text.begin() = UPPER(*text.begin());
 	}
 }

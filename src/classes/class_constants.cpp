@@ -63,4 +63,9 @@ struct class_app_type class_app[NUM_PLAYER_CLASSES] =
 		{5, 40, 10, 12, 50, &DruidAffects}
 	};
 
+ECharClass& operator++(ECharClass &c) {
+	c =  static_cast<ECharClass>(to_underlying(c) + 1);
+	return c;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

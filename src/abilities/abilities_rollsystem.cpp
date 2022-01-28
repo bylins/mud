@@ -52,7 +52,7 @@ bool AbilityRollType::tryRevealWrongConditions() {
 		return true;
 	};
 	determineBaseSkill();
-	if (_baseSkill == SKILL_INVALID) {
+	if (_baseSkill == ESkill::kIncorrect) {
 		return true;
 	};
 	return false;
@@ -153,7 +153,7 @@ short AgainstRivalRollType::calculateDicerollBonus() {
 
 void TechniqueRollType::determineBaseSkill() {
 	if (checkTechniqueKit()) {
-		if (_baseSkill == SKILL_INVALID) {
+		if (_baseSkill == ESkill::kIncorrect) {
 			_baseSkill = _ability->baseSkill;
 		}
 	} else {

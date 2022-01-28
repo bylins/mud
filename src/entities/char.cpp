@@ -5,7 +5,6 @@
 #include "world_characters.h"
 #include "fightsystem/pk.h"
 #include "handler.h"
-#include "entity_constants.h"
 #include "privilege.h"
 #include "char_player.h"
 #include "player_races.h"
@@ -16,7 +15,7 @@
 #include "msdp/msdp_constants.h"
 #include "backtrace.h"
 #include "zone.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 #include <boost/format.hpp>
 #include <random>
@@ -76,7 +75,7 @@ CharacterData::CharacterData() :
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.add(this);
-	this->set_skill(SKILL_GLOBAL_COOLDOWN, 1);
+	this->set_skill(ESkill::SKILL_GLOBAL_COOLDOWN, 1);
 }
 
 CharacterData::~CharacterData() {
@@ -306,7 +305,7 @@ void CharacterData::zero_init() {
 	serial_num_ = 0;
 	purged_ = false;
 	// на плеер-таблицу
-	chclass_ = 0;
+	chclass_ = ECharClass::CLASS_UNDEFINED;
 	level_ = 0;
 	level_add_ = 0,
 	idnum_ = 0;
@@ -524,22 +523,19 @@ int CharacterData::get_skill(const ESkill skill_num) const {
 	if (AFF_FLAGGED(this, EAffectFlag::AFF_SKILLS_REDUCE)) {
 		skill -= skill * GET_POISON(this) / 100;
 	}
-	//return normalize_skill(skill, skill_num);
-	return std::clamp(skill, 0, skill_info[skill_num].cap);
+	return std::clamp(skill, 0, MUD::Skills()[skill_num].cap);
 }
 
-// * Скилл со шмоток.
-int CharacterData::get_equipped_skill(const ESkill skill_num) const {
-	int skill = 0;
-
+//  Скилл со шмоток.
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
-	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == kKnowSkill;
-	//int is_native = true;
-	for (int i = 0; i < NUM_WEARS; ++i) {
-		if (equipment[i]) {
+int CharacterData::get_equipped_skill(const ESkill skill_num) const {
+	int skill = 0;
+	bool is_native = IS_NPC(this) || MUD::Classes()[chclass_].Knows(skill_num);
+	for (auto i : equipment) {
+		if (i) {
 			if (is_native) {
-				skill += equipment[i]->get_skill(skill_num);
+				skill += i->get_skill(skill_num);
 			}
 			// На новый год включаем
 			/*else
@@ -548,10 +544,12 @@ int CharacterData::get_equipped_skill(const ESkill skill_num) const {
 			}*/
 		}
 	}
-	if (is_native)
+	if (is_native) {
 		skill += obj_bonus_.get_skill(skill_num);
-	if(get_trained_skill(skill_num) > 0)
+	}
+	if(get_trained_skill(skill_num) > 0) {
 		skill += get_skill_bonus();
+	}
 	
 	return skill;
 }
@@ -562,7 +560,7 @@ int CharacterData::get_inborn_skill(const ESkill skill_num) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
 			//return normalize_skill(it->second.skillLevel, skill_num);
-			return std::clamp(it->second.skillLevel, 0, skill_info[skill_num].cap);
+			return std::clamp(it->second.skillLevel, 0, MUD::Skills()[skill_num].cap);
 		}
 	}
 	return 0;
@@ -570,54 +568,24 @@ int CharacterData::get_inborn_skill(const ESkill skill_num) {
 
 int CharacterData::get_trained_skill(const ESkill skill_num) const {
 	if (AFF_FLAGGED(this, EAffectFlag::AFF_DOMINATION)) {
-		if (skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == kKnowSkill)
+		if (MUD::Classes()[chclass_].Knows(skill_num)) {
 			return 100;
+		}
 	}
 	if (Privilege::check_skills(this)) {
 		//return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
-		return std::clamp(current_morph_->get_trained_skill(skill_num), 0, skill_info[skill_num].cap);
+		return std::clamp(current_morph_->get_trained_skill(skill_num), 0, MUD::Skills()[skill_num].cap);
 	}
 	return 0;
 }
 
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
 void CharacterData::set_skill(const ESkill skill_num, int percent) {
-	if (skill_num < 0 || skill_num > MAX_SKILL_NUM) {
-		log("SYSERROR: неизвесный номер скилла %d в set_skill.", skill_num);
+	if (skill_num < ESkill::kFirst || skill_num > ESkill::kLast) {
+		log("SYSERROR: неизвесный номер скилла %d в set_skill.", to_underlying(skill_num));
 		return;
 	}
-	//костыль на волхва чтоб билдеры не чудили
-	if (IS_MANA_CASTER(this) && get_skill(skill_num) > 0) {
-		if (skill_num == SKILL_WATER_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0) {
-			sprintf(buf, "Попытка установить скилл магии воды без скилла магии огня для игрока %s", GET_NAME(this));
-			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
-			return;
-		}
-		if (skill_num == SKILL_EARTH_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0) {
-			sprintf(buf,
-					"Попытка установить скилл магии земли без скилла магии огня + воды для игрока %s",
-					GET_NAME(this));
-			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
-			return;
-		}
-		if (skill_num == SKILL_AIR_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0
-			&& get_skill(SKILL_WATER_MAGIC) == 0) {
-			sprintf(buf,
-					"Попытка установить скилл магии воздуха без скилла магии огня + воды + земли для игрока %s",
-					GET_NAME(this));
-			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
-			return;
-		}
-		if (skill_num == SKILL_DARK_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0
-			&& get_skill(SKILL_EARTH_MAGIC) == 0 && get_skill(SKILL_AIR_MAGIC) == 0) {
-			sprintf(buf,
-					"Попытка установить скилл магии тьмы без скилла магии огня + воды + земли + воздуха для игрока %s",
-					GET_NAME(this));
-			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
-			return;
-		}
-	}
-	CharSkillsType::iterator it = skills.find(skill_num);
+	auto it = skills.find(skill_num);
 	if (it != skills.end()) {
 		if (percent) {
 			it->second.skillLevel = percent;
@@ -632,10 +600,10 @@ void CharacterData::set_skill(const ESkill skill_num, int percent) {
 void CharacterData::set_skill(short remort) {
 	int skill;
 	int maxSkillLevel = kSkillCapOnZeroRemort + remort * kSkillCapBonusPerRemort;
-	for (auto it = skills.begin(); it != skills.end(); it++) {
-		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
+	for (auto & it : skills) {
+		skill = get_trained_skill(it.first) + get_equipped_skill(it.first);
 		if (skill > maxSkillLevel) {
-			it->second.skillLevel = maxSkillLevel;
+			it.second.skillLevel = maxSkillLevel;
 		};
 	}
 }
@@ -703,7 +671,7 @@ bool CharacterData::haveSkillCooldown(ESkill skillID) {
 };
 
 bool CharacterData::haveCooldown(ESkill skillID) {
-	if (skills[SKILL_GLOBAL_COOLDOWN].cooldown > 0) {
+	if (skills[ESkill::SKILL_GLOBAL_COOLDOWN].cooldown > 0) {
 		return true;
 	}
 	return haveSkillCooldown(skillID);
@@ -1001,14 +969,15 @@ void CharacterData::set_description(const char *s) {
 	player_data.description = std::string(s);
 }
 
-short CharacterData::get_class() const {
+ECharClass CharacterData::get_class() const {
 	return chclass_;
 }
 
-void CharacterData::set_class(short chclass) {
-	if (chclass < 0 || chclass
-		> NPC_CLASS_LAST)    // Range includes player classes and NPC classes (and does not consider gaps between them).
-	{
+void CharacterData::set_class(ECharClass chclass) {
+	// Range includes player classes and NPC classes (and does not consider gaps between them).
+	// Почему классы не пронумеровать подряд - загадка...
+	if ((chclass < ECharClass::PLAYER_CLASS_FIRST || chclass > ECharClass::PLAYER_CLASS_LAST)
+		&& chclass != ECharClass::NPC_CLASS_BASE && chclass != ECharClass::CLASS_MOB) {
 		log("WARNING: chclass=%d (%s:%d %s)", chclass, __FILE__, __LINE__, __func__);
 	}
 	chclass_ = chclass;
@@ -1674,17 +1643,17 @@ std::string CharacterData::get_cover_desc() {
 
 void CharacterData::set_morph(MorphPtr morph) {
 	morph->SetChar(this);
-	morph->InitSkills(this->get_skill(SKILL_MORPH));
+	morph->InitSkills(this->get_skill(ESkill::SKILL_MORPH));
 	morph->InitAbils();
 	this->current_morph_ = morph;
 };
 
 void CharacterData::reset_morph() {
-	int value = this->get_trained_skill(SKILL_MORPH);
+	int value = this->get_trained_skill(ESkill::SKILL_MORPH);
 	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, TO_ROOM);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(SKILL_MORPH, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
+	this->set_morphed_skill(ESkill::SKILL_MORPH, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 
@@ -1934,8 +1903,8 @@ void CharacterData::restore_npc() {
 	// this->mob_specials.ExtraAttack = 0;
 	//флаги
 	MOB_FLAGS(this) = MOB_FLAGS(proto);
-	this->set_touching(0);
-	this->set_protecting(0);
+	this->set_touching(nullptr);
+	this->set_protecting(nullptr);
 	// ресторим статы
 	proto->set_normal_morph();
 	this->set_str(GET_REAL_STR(proto));

@@ -19,7 +19,7 @@
 #include "utils/utils_char_obj.inl"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
 #include "cmd/follow.h"
 #include "exchange.h"
 #include "ext_money.h"
@@ -35,7 +35,7 @@
 #include "world_objects.h"
 #include "entities/zone.h"
 #include "classes/class_spell_slots.h"
-#include "magic/magic_rooms.h"
+//#include "magic/magic_rooms.h"
 
 using PlayerClass::slot_for_char;
 
@@ -193,24 +193,23 @@ void affect_join_fspell(CharacterData *ch, const Affect<EApplyLocation> &af) {
 }
 
 void decreaseFeatTimer(CharacterData *ch, int featureID) {
-	for (struct Timed *skj = ch->timed_feat; skj; skj = skj->next) {
-		if (skj->skill == featureID) {
+	for (auto *skj = ch->timed_feat; skj; skj = skj->next) {
+		if (skj->feat == featureID) {
 			if (skj->time >= 1) {
 				skj->time--;
 			} else {
-				timed_feat_from_char(ch, skj);
+				ExpireTimedFeat(ch, skj);
 			}
 			return;
 		}
 	}
 };
 
-void timed_feat_to_char(CharacterData *ch, struct Timed *timed) {
-	struct Timed *timed_alloc, *skj;
+void ImposeTimedFeat(CharacterData *ch, TimedFeat *timed) {
+	struct TimedFeat *timed_alloc, *skj;
 
-	// Карачун. Правка бага. Если такой фит уже есть в списке, просто меняем таймер.
 	for (skj = ch->timed_feat; skj; skj = skj->next) {
-		if (skj->skill == timed->skill) {
+		if (skj->feat == timed->feat) {
 			skj->time = timed->time;
 			return;
 		}
@@ -223,7 +222,7 @@ void timed_feat_to_char(CharacterData *ch, struct Timed *timed) {
 	ch->timed_feat = timed_alloc;
 }
 
-void timed_feat_from_char(CharacterData *ch, struct Timed *timed) {
+void ExpireTimedFeat(CharacterData *ch, TimedFeat *timed) {
 	if (ch->timed_feat == nullptr) {
 		log("SYSERR: timed_feat_from_char(%s) when no timed...", GET_NAME(ch));
 		return;
@@ -233,19 +232,19 @@ void timed_feat_from_char(CharacterData *ch, struct Timed *timed) {
 	free(timed);
 }
 
-int timed_by_feat(CharacterData *ch, int feat) {
-	struct Timed *hjp;
+int IsTimed(CharacterData *ch, int feat) {
+	struct TimedFeat *hjp;
 
 	for (hjp = ch->timed_feat; hjp; hjp = hjp->next)
-		if (hjp->skill == feat)
+		if (hjp->feat == feat)
 			return (hjp->time);
 
 	return (0);
 }
 
-// Insert an Timed in a char_data structure
-void timed_to_char(CharacterData *ch, struct Timed *timed) {
-	struct Timed *timed_alloc, *skj;
+// Insert an TimedSkill in a char_data structure
+void timed_to_char(CharacterData *ch, struct TimedSkill *timed) {
+	struct TimedSkill *timed_alloc, *skj;
 
 	// Карачун. Правка бага. Если такой скилл уже есть в списке, просто меняем таймер.
 	for (skj = ch->timed; skj; skj = skj->next) {
@@ -262,7 +261,7 @@ void timed_to_char(CharacterData *ch, struct Timed *timed) {
 	ch->timed = timed_alloc;
 }
 
-void timed_from_char(CharacterData *ch, struct Timed *timed) {
+void timed_from_char(CharacterData *ch, struct TimedSkill *timed) {
 	if (ch->timed == nullptr) {
 		log("SYSERR: timed_from_char(%s) when no timed...", GET_NAME(ch));
 		// core_dump();
@@ -273,11 +272,11 @@ void timed_from_char(CharacterData *ch, struct Timed *timed) {
 	free(timed);
 }
 
-int timed_by_skill(CharacterData *ch, int skill) {
-	struct Timed *hjp;
+int IsTimedBySkill(CharacterData *ch, ESkill id) {
+	struct TimedSkill *hjp;
 
 	for (hjp = ch->timed; hjp; hjp = hjp->next)
-		if (hjp->skill == skill)
+		if (hjp->skill == id)
 			return (hjp->time);
 
 	return (0);
@@ -1112,7 +1111,7 @@ void equip_char(CharacterData *ch, ObjectData *obj, int pos, const CharEquipFlag
 	// Раз показываем сообщение, значит, предмет надевает сам персонаж
 	// А вообще эта порнография из-за того, что одна функция используется с кучей флагов в разных вариантах
 	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON || pos == WEAR_SHIELD)) {
-		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 2);
+		setSkillCooldown(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 2);
 	}
 }
 

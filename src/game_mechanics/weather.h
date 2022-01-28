@@ -2,6 +2,7 @@
 #define __WEATHER_HPP__
 
 #include "structs/structs.h"
+#include "skills.h" // ABYRVALG - вынести в скиллз_константс
 
 // Sun state for Weather //
 const __uint8_t SUN_DARK = 0;
@@ -70,6 +71,7 @@ struct Weather {
 extern Weather weather_info;
 
 void weather_and_time(int mode);
+int complex_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int value);
 
 #endif // __WEATHER_HPP__
 

@@ -16,11 +16,11 @@ void go_block(CharacterData *ch) {
 }
 
 void do_block(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_BLOCK)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_BLOCK)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_BLOCK)) {
+	if (ch->haveCooldown(ESkill::SKILL_BLOCK)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

@@ -36,7 +36,7 @@ struct item_set {
 typedef std::shared_ptr<item_set> ItemSetPtr;
 typedef std::vector<ItemSetPtr> ItemSetListType;
 
-ShopListType &shop_list = GlobalObjects::shop_list();
+ShopListType &shop_list = GlobalObjects::Shops();
 
 void log_shop_load() {
 	for (const auto &shop : shop_list) {

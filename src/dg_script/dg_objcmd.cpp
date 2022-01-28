@@ -16,11 +16,10 @@
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "magic/magic_utils.h"
-#include "world_objects.h"
 #include "skills/townportal.h"
-#include "skills_info.h"
 #include "utils/id_converter.h"
 #include "entities/zone.h"
+#include "structs/global_objects.h"
 
 extern const char *dirs[];
 extern int up_obj_where(ObjectData *obj);
@@ -131,8 +130,10 @@ void do_oportal(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 //	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
 //	mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
+	act("Лазурная пентаграмма возникла в воздухе.",
+		false, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.",
+		false, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 // Object commands
 void do_oecho(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -482,14 +483,14 @@ void do_dgoload(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (is_abbrev(arg1, "mob")) {
+	if (utils::IsAbbrev(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			obj_log(obj, "oload: bad mob vnum");
 			return;
 		}
 		char_to_room(mob, room);
 		load_mtrigger(mob);
-	} else if (is_abbrev(arg1, "obj")) {
+	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			obj_log(obj, "oload: bad object vnum");
@@ -735,7 +736,7 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool isSkill = false;
 	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = SKILL_INVALID;
+	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -746,7 +747,7 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
+	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst && skillnum <= ESkill::kLast) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "oskillturn: %s skill/recipe not found", skillname);
@@ -769,7 +770,7 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isSkill) {
-		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == kKnowSkill) {
+		if (MUD::Classes()[ch->get_class()].Knows(skillnum) ) {
 			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");
@@ -784,7 +785,7 @@ void do_oskilladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 	bool isSkill = false;
 	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = SKILL_INVALID;
+	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -795,7 +796,7 @@ void do_oskilladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
+	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst && skillnum <= ESkill::kLast) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "oskilladd: %s skill/recipe not found", skillname);

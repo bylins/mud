@@ -53,6 +53,7 @@
 #include "world_objects.h"
 #include "skills_info.h"
 #include "game_mechanics/weather.h"
+#include "structs/global_objects.h"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -321,7 +322,7 @@ int char_humming(CharacterData *ch) {
 void do_sneak(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_SNEAK)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_SNEAK)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -345,8 +346,8 @@ void do_sneak(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 	send_to_char("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
-	percent = number(1, skill_info[SKILL_SNEAK].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_SNEAK, nullptr);
+	percent = number(1, MUD::Skills()[ESkill::SKILL_SNEAK].difficulty);
+	prob = CalcCurrentSkill(ch, ESkill::SKILL_SNEAK, nullptr);
 
 	Affect<EApplyLocation> af;
 	af.type = SPELL_SNEAK;
@@ -364,10 +365,10 @@ void do_sneak(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 }
 
 void do_camouflage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	struct Timed timed;
+	struct TimedSkill timed;
 	int prob, percent;
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_CAMOUFLAGE)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_CAMOUFLAGE)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -382,7 +383,7 @@ void do_camouflage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* su
 		return;
 	}
 
-	if (timed_by_skill(ch, SKILL_CAMOUFLAGE)) {
+	if (IsTimedBySkill(ch, ESkill::SKILL_CAMOUFLAGE)) {
 		send_to_char("У вас пока не хватает фантазии. Побудьте немного самим собой.\r\n", ch);
 		return;
 	}
@@ -398,8 +399,8 @@ void do_camouflage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* su
 
 	send_to_char("Вы начали усиленно маскироваться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	percent = number(1, skill_info[SKILL_CAMOUFLAGE].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_CAMOUFLAGE, nullptr);
+	percent = number(1, MUD::Skills()[ESkill::SKILL_CAMOUFLAGE].difficulty);
+	prob = CalcCurrentSkill(ch, ESkill::SKILL_CAMOUFLAGE, nullptr);
 
 	Affect<EApplyLocation> af;
 	af.type = SPELL_CAMOUFLAGE;
@@ -416,7 +417,7 @@ void do_camouflage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* su
 
 	affect_to_char(ch, af);
 	if (!IS_IMMORTAL(ch)) {
-		timed.skill = SKILL_CAMOUFLAGE;
+		timed.skill = ESkill::SKILL_CAMOUFLAGE;
 		timed.time = 2;
 		timed_to_char(ch, &timed);
 	}
@@ -425,7 +426,7 @@ void do_camouflage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* su
 void do_hide(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int prob, percent;
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDE)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_HIDE)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -454,8 +455,8 @@ void do_hide(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	send_to_char("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
-	percent = number(1, skill_info[SKILL_HIDE].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_HIDE, nullptr);
+	percent = number(1, MUD::Skills()[ESkill::SKILL_HIDE].difficulty);
+	prob = CalcCurrentSkill(ch, ESkill::SKILL_HIDE, nullptr);
 
 	Affect<EApplyLocation> af;
 	af.type = SPELL_HIDE;
@@ -477,8 +478,9 @@ void go_steal(CharacterData *ch, CharacterData *vict, char *obj_name) {
 	int percent, gold, eq_pos, ohoh = 0, success = 0, prob;
 	ObjectData *obj;
 
-	if (!vict)
+	if (!vict) {
 		return;
+	}
 
 	if (!WAITLESS(ch) && vict->get_fighting()) {
 		act("$N слишком быстро перемещается.", false, ch, nullptr, vict, TO_CHAR);
@@ -491,7 +493,7 @@ void go_steal(CharacterData *ch, CharacterData *vict, char *obj_name) {
 	}
 
 	// 101% is a complete failure
-	percent = number(1, skill_info[SKILL_STEAL].difficulty);
+	percent = number(1, MUD::Skills()[ESkill::SKILL_STEAL].difficulty);
 
 	if (WAITLESS(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
@@ -553,7 +555,7 @@ void go_steal(CharacterData *ch, CharacterData *vict, char *obj_name) {
 				return;
 			}
 			percent += GET_OBJ_WEIGHT(obj);    // Make heavy harder
-			prob = CalcCurrentSkill(ch, SKILL_STEAL, vict);
+			prob = CalcCurrentSkill(ch, ESkill::SKILL_STEAL, vict);
 
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 				prob += 5;
@@ -583,11 +585,11 @@ void go_steal(CharacterData *ch, CharacterData *vict, char *obj_name) {
 				}
 			}
 			if (CAN_SEE(vict, ch) && AWAKE(vict))
-				ImproveSkill(ch, SKILL_STEAL, 0, vict);
+				ImproveSkill(ch, ESkill::SKILL_STEAL, 0, vict);
 		}
 	} else        // Steal some coins
 	{
-		prob = CalcCurrentSkill(ch, SKILL_STEAL, vict);
+		prob = CalcCurrentSkill(ch, ESkill::SKILL_STEAL, vict);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 			prob += 5;
 		if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP))
@@ -609,7 +611,7 @@ void go_steal(CharacterData *ch, CharacterData *vict, char *obj_name) {
 				return;
 			} else {
 				// Считаем вероятность крит-воровства (воровства всех денег)
-				if ((number(1, 100) - ch->get_skill(SKILL_STEAL) -
+				if ((number(1, 100) - ch->get_skill(ESkill::SKILL_STEAL) -
 					ch->get_dex() + vict->get_wis() + vict->get_gold() / 500) < 0) {
 					act("Тугой кошелек $N1 перекочевал к вам.", true, ch, nullptr, vict, TO_CHAR);
 					gold = vict->get_gold();
@@ -639,20 +641,20 @@ void go_steal(CharacterData *ch, CharacterData *vict, char *obj_name) {
 			}
 		}
 		if (CAN_SEE(vict, ch) && AWAKE(vict))
-			ImproveSkill(ch, SKILL_STEAL, 0, vict);
+			ImproveSkill(ch, ESkill::SKILL_STEAL, 0, vict);
 	}
 	if (!WAITLESS(ch) && ohoh)
 		WAIT_STATE(ch, 3 * kPulseViolence);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && IS_NPC(vict) && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
-		hit(vict, ch, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+		hit(vict, ch, ESkill::kUndefined, FightSystem::MAIN_HAND);
 }
 
 void do_steal(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharacterData *vict;
 	char vict_name[kMaxInputLength], obj_name[kMaxInputLength];
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_STEAL)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_STEAL)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -689,7 +691,7 @@ void do_features(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (IS_NPC(ch))
 		return;
 	skip_spaces(&argument);
-	if (is_abbrev(argument, "все") || is_abbrev(argument, "all"))
+	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
 		list_feats(ch, ch, true);
 	else
 		list_feats(ch, ch, false);
@@ -726,7 +728,7 @@ void do_spells(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 	skip_spaces(&argument);
-	if (is_abbrev(argument, "все") || is_abbrev(argument, "all"))
+	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
 		list_spells(ch, ch, true);
 	else
 		list_spells(ch, ch, false);
@@ -751,26 +753,26 @@ void do_visible(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 void do_courage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	ObjectData *obj;
 	int prob, dur;
-	struct Timed timed;
+	struct TimedSkill timed;
 	int i;
 	if (IS_NPC(ch))        // Cannot use GET_COND() on mobs.
 		return;
 
-	if (!ch->get_skill(SKILL_COURAGE)) {
+	if (!ch->get_skill(ESkill::SKILL_COURAGE)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
 
-	if (timed_by_skill(ch, SKILL_COURAGE)) {
+	if (IsTimedBySkill(ch, ESkill::SKILL_COURAGE)) {
 		send_to_char("Вы не можете слишком часто впадать в ярость.\r\n", ch);
 		return;
 	}
 
-	timed.skill = SKILL_COURAGE;
+	timed.skill = ESkill::SKILL_COURAGE;
 	timed.time = 6;
 	timed_to_char(ch, &timed);
-	prob = CalcCurrentSkill(ch, SKILL_COURAGE, nullptr) / 20;
-	dur = 1 + MIN(5, ch->get_skill(SKILL_COURAGE) / 40);
+	prob = CalcCurrentSkill(ch, ESkill::SKILL_COURAGE, nullptr) / 20;
+	dur = 1 + MIN(5, ch->get_skill(ESkill::SKILL_COURAGE) / 40);
 	Affect<EApplyLocation> af[4];
 	af[0].type = SPELL_COURAGE;
 	af[0].duration = pc_duration(ch, dur, 0, 0, 0, 0);
@@ -813,9 +815,9 @@ void do_courage(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 int max_group_size(CharacterData *ch) {
 	int bonus_commander = 0;
 //	if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER))
-//		bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 120) / 10, 0, 8);
-	bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 200) / 8, 0, 8);
-	return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4) + bonus_commander;
+//		bonus_commander = VPOSI((ch->get_skill(ESkill::SKILL_LEADERSHIP) - 120) / 10, 0, 8);
+	bonus_commander = VPOSI((ch->get_skill(ESkill::SKILL_LEADERSHIP) - 200) / 8, 0, 8);
+	return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(ESkill::SKILL_LEADERSHIP) - 80) / 5, 0, 4) + bonus_commander;
 }
 
 bool is_group_member(CharacterData *ch, CharacterData *vict) {
@@ -868,7 +870,7 @@ void change_leader(CharacterData *ch, CharacterData *vict) {
 				continue;
 			if (!leader)
 				leader = l->ch;
-			else if (l->ch->get_skill(SKILL_LEADERSHIP) > leader->get_skill(SKILL_LEADERSHIP))
+			else if (l->ch->get_skill(ESkill::SKILL_LEADERSHIP) > leader->get_skill(ESkill::SKILL_LEADERSHIP))
 				leader = l->ch;
 		}
 	}
@@ -1883,15 +1885,15 @@ void set_autoloot_mode(CharacterData *ch, char *argument) {
 		} else {
 			send_to_char(message_off, ch);
 		}
-	} else if (is_abbrev(argument, "все")) {
+	} else if (utils::IsAbbrev(argument, "все")) {
 		PRF_FLAGS(ch).set(PRF_AUTOLOOT);
 		PRF_FLAGS(ch).unset(PRF_NOINGR_LOOT);
 		send_to_char(message_on, ch);
-	} else if (is_abbrev(argument, "ингредиенты")) {
+	} else if (utils::IsAbbrev(argument, "ингредиенты")) {
 		PRF_FLAGS(ch).set(PRF_AUTOLOOT);
 		PRF_FLAGS(ch).set(PRF_NOINGR_LOOT);
 		send_to_char(message_no_ingr, ch);
-	} else if (is_abbrev(argument, "нет")) {
+	} else if (utils::IsAbbrev(argument, "нет")) {
 		PRF_FLAGS(ch).unset(PRF_AUTOLOOT);
 		PRF_FLAGS(ch).unset(PRF_NOINGR_LOOT);
 		send_to_char(message_off, ch);
@@ -2219,7 +2221,7 @@ void do_gen_tog(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 void do_pray(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int metter = -1;
 	ObjectData *obj = nullptr;
-	struct Timed timed;
+	struct TimedSkill timed;
 
 	if (IS_NPC(ch)) {
 		return;
@@ -2295,13 +2297,13 @@ void do_pray(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else
 		return;
 
-	if (!IS_IMMORTAL(ch) && (timed_by_skill(ch, SKILL_RELIGION)
+	if (!IS_IMMORTAL(ch) && (IsTimedBySkill(ch, ESkill::SKILL_RELIGION)
 		|| affected_by_spell(ch, SPELL_RELIGION))) {
 		send_to_char("Вы не можете так часто взывать к Богам.\r\n", ch);
 		return;
 	}
 
-	timed.skill = SKILL_RELIGION;
+	timed.skill = ESkill::SKILL_RELIGION;
 	timed.time = 12;
 	timed_to_char(ch, &timed);
 

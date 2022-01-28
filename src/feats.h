@@ -217,6 +217,12 @@ const short MAX_FEAT_AFFECT = 5;
 #define FEAT_TIMER 1
 #define FEAT_SKILL 2
 
+struct TimedFeat {
+	int feat{INCORRECT_FEAT};	// Used feature //
+	ubyte time{0};				// Time for next using //
+	struct TimedFeat *next{nullptr};
+};
+
 extern struct FeatureInfoType feat_info[kMaxFeats];
 
 const char *feat_name(int num);

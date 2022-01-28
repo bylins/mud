@@ -12,7 +12,7 @@
 using namespace FightSystem;
 
 ESkill ExpedientWeaponSkill(CharacterData *ch) {
-	ESkill skill = SKILL_PUNCH;
+	ESkill skill = ESkill::SKILL_PUNCH;
 
 	if (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == CObjectPrototype::ITEM_WEAPON)) {
 		skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
@@ -26,17 +26,17 @@ ESkill ExpedientWeaponSkill(CharacterData *ch) {
 }
 int GetExpedientKeyParameter(CharacterData *ch, ESkill skill) {
 	switch (skill) {
-		case SKILL_PUNCH:
-		case SKILL_CLUBS:
-		case SKILL_AXES:
-		case SKILL_BOTHHANDS:
-		case SKILL_SPADES:return ch->get_str();
+		case ESkill::SKILL_PUNCH:
+		case ESkill::SKILL_CLUBS:
+		case ESkill::SKILL_AXES:
+		case ESkill::SKILL_BOTHHANDS:
+		case ESkill::SKILL_SPADES:return ch->get_str();
 			break;
-		case SKILL_LONGS:
-		case SKILL_SHORTS:
-		case SKILL_NONSTANDART:
-		case SKILL_BOWS:
-		case SKILL_PICK:return ch->get_dex();
+		case ESkill::SKILL_LONGS:
+		case ESkill::SKILL_SHORTS:
+		case ESkill::SKILL_NONSTANDART:
+		case ESkill::SKILL_BOWS:
+		case ESkill::SKILL_PICK:return ch->get_dex();
 			break;
 		default:return ch->get_str();
 	}
@@ -139,7 +139,7 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 
 	if (!CheckExpedientSuccess(ch, vict)) {
 		act("Ваши свистящие удары пропали втуне, не задев $N3.", false, ch, 0, vict, TO_CHAR);
-		Damage dmg(SkillDmg(SKILL_SHORTS), ZERO_DMG, PHYS_DMG);
+		Damage dmg(SkillDmg(ESkill::SKILL_SHORTS), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
 		return;
@@ -148,8 +148,8 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 	act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", false, ch, 0, vict, TO_VICT);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
-	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::OFF_HAND);
+	hit(ch, vict, ESkill::kUndefined, FightSystem::MAIN_HAND);
+	hit(ch, vict, ESkill::kUndefined, FightSystem::OFF_HAND);
 
 	Affect<EApplyLocation> AffectImmunPhysic;
 	AffectImmunPhysic.type = SPELL_EXPEDIENT;
@@ -207,24 +207,24 @@ void SetExtraAttackCutPick(CharacterData *ch, CharacterData *victim) {
 }
 
 ESkill GetExpedientCutSkill(CharacterData *ch) {
-	ESkill skill = SKILL_INVALID;
+	ESkill skill = ESkill::kIncorrect;
 
 	if (GET_EQ(ch, WEAR_WIELD) && GET_EQ(ch, WEAR_HOLD)) {
 		skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
-		if (skill != GET_OBJ_SKILL(GET_EQ(ch, WEAR_HOLD))) {
+		if (skill != static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_HOLD))) {
 			send_to_char("Для этого приема в обеих руках нужно держать оружие одого типа!\r\n", ch);
-			return SKILL_INVALID;
+			return ESkill::kIncorrect;
 		}
 	} else if (GET_EQ(ch, WEAR_BOTHS)) {
 		skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS));
 	} else {
 		send_to_char("Для этого приема вам надо использовать одинаковое оружие в обеих руках либо двуручное.\r\n", ch);
-		return SKILL_INVALID;
+		return ESkill::kIncorrect;
 	}
 
-	if (!can_use_feat(ch, FindWeaponMasterBySkill(skill)) && !IS_IMPL(ch)) {
+	if (!can_use_feat(ch, FindWeaponMasterFeat(skill)) && !IS_IMPL(ch)) {
 		send_to_char("Вы недостаточно искусны в обращении с этим видом оружия.\r\n", ch);
-		return SKILL_INVALID;
+		return ESkill::kIncorrect;
 	}
 
 	return skill;
@@ -280,16 +280,16 @@ void do_expedient_cut(CharacterData *ch, char *argument, int/* cmd*/, int /*subc
 		return;
 
 	skill = GetExpedientCutSkill(ch);
-	if (skill == SKILL_INVALID)
+	if (skill == ESkill::kIncorrect)
 		return;
 
 	switch (skill) {
-		case SKILL_SHORTS:SetExtraAttackCutShorts(ch, vict);
+		case ESkill::SKILL_SHORTS:SetExtraAttackCutShorts(ch, vict);
 			break;
-		case SKILL_SPADES:SetExtraAttackCutShorts(ch, vict);
+		case ESkill::SKILL_SPADES:SetExtraAttackCutShorts(ch, vict);
 			break;
-		case SKILL_LONGS:
-		case SKILL_BOTHHANDS:
+		case ESkill::SKILL_LONGS:
+		case ESkill::SKILL_BOTHHANDS:
 			send_to_char("Порез мечом (а тем более двуручником или копьем) - это сурьезно. Но пока невозможно.\r\n",
 						 ch);
 			break;

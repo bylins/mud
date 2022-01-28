@@ -233,7 +233,7 @@ class CObjectPrototype {
 										   m_destroyer(DEFAULT_DESTROYER),
 										   m_spell(SPELL_NO_SPELL),
 										   m_level(DEFAULT_LEVEL),
-										   m_skill(SKILL_INVALID),
+										   m_skill(-1),
 										   m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
 										   m_current_durability(DEFAULT_CURRENT_DURABILITY),
 										   m_material(DEFAULT_MATERIAL),
@@ -377,8 +377,8 @@ class CObjectPrototype {
 	void toggle_val_bit(const size_t index, const uint32_t bit);
 	void toggle_wear_flag(const uint32_t flag);
 	void unset_extraflag(const EExtraFlag packed_flag) { m_extra_flags.unset(packed_flag); }
-	void set_skill(int skill_num, int percent);
-	int get_skill(int skill_num) const;
+	void set_skill(ESkill skill_num, int percent);
+	int get_skill(ESkill skill_num) const;
 	void get_skills(skills_t &out_skills) const;
 	bool has_skills() const;
 	void set_timer(int timer);

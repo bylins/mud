@@ -7,7 +7,7 @@
 #include "utils/pugixml.h"
 #include "parse.h"
 #include "handler.h"
-#include "logger.h"
+//#include "logger.h"
 
 int find_eq_pos(CharacterData *ch, ObjectData *obj, char *arg);
 
@@ -51,8 +51,8 @@ void init() {
 		 obj_node; obj_node = obj_node.next_sibling("obj")) {
 		int vnum = Parse::attr_int(obj_node, "vnum");
 		if (Parse::valid_obj_vnum(vnum)) {
-			for (auto i = tmp_class_list.begin(); i != tmp_class_list.end(); ++i) {
-				i->push_back(vnum);
+			for (auto & i : tmp_class_list) {
+				i.push_back(vnum);
 			}
 		}
 	}
@@ -125,9 +125,9 @@ std::vector<int> get_start_outfit(CharacterData *ch) {
 						class_list.at(ch_class).begin(), class_list.at(ch_class).end());
 	}
 	// стаф из birthplaces.xml (карты родовых)
-	int birth_id = BirthPlace::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
+	int birth_id = Birthplaces::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
 	if (birth_id >= 0) {
-		std::vector<int> tmp = BirthPlace::GetItemList(birth_id);
+		std::vector<int> tmp = Birthplaces::GetItemList(birth_id);
 		out_list.insert(out_list.end(), tmp.begin(), tmp.end());
 	}
 	return out_list;
@@ -149,20 +149,20 @@ CharacterData *find_renter(int room_rnum) {
 ///
 /// Проверка при входе в игру чара на ренте, при необходимости выдача
 /// сообщения о возможности получить стартовую экипу у кладовщика.
-/// Сообщение берется из birthplaces.xml или дефолтное из BirthPlace::GetRentHelp
+/// Сообщение берется из birthplaces.xml или дефолтное из birthplaces::GetRentHelp
 ///
 void check_help_message(CharacterData *ch) {
 	if (Noob::is_noob(ch)
 		&& GET_HIT(ch) <= 1
 		&& IS_CARRYING_N(ch) <= 0
 		&& IS_CARRYING_W(ch) <= 0) {
-		int birth_id = BirthPlace::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
+		int birth_id = Birthplaces::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
 		if (birth_id >= 0) {
 			CharacterData *renter = find_renter(ch->in_room);
-			std::string text = BirthPlace::GetRentHelp(birth_id);
+			std::string text = Birthplaces::GetRentHelp(birth_id);
 			if (renter && !text.empty()) {
-				act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, 0, ch, TO_VICT);
-				act("$n посмотрел$g на $N3.", true, renter, 0, ch, TO_NOTVICT);
+				act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, nullptr, ch, TO_VICT);
+				act("$n посмотрел$g на $N3.", true, renter, nullptr, ch, TO_NOTVICT);
 				tell_to_char(renter, ch, text.c_str());
 			}
 		}
@@ -176,12 +176,12 @@ void check_help_message(CharacterData *ch) {
 ///
 void equip_start_outfit(CharacterData *ch, ObjectData *obj) {
 	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ARMOR) {
-		int where = find_eq_pos(ch, obj, 0);
+		int where = find_eq_pos(ch, obj, nullptr);
 		if (where >= 0) {
 			equip_char(ch, obj, where, CharEquipFlags());
 			// богатырям в перчатках сетим кулачный бой вместо пушек
 			if (where == WEAR_HANDS && GET_CLASS(ch) == CLASS_WARRIOR) {
-				ch->set_skill(SKILL_PUNCH, 10);
+				ch->set_skill(ESkill::SKILL_PUNCH, 10);
 			}
 		}
 	} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {

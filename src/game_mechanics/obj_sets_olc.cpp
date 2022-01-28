@@ -19,6 +19,7 @@
 #include "utils/utils.h"
 #include "classes/class_constants.h"
 #include "skills_info.h"
+#include "structs/global_objects.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -431,11 +432,11 @@ void sedit::show_activ_edit(CharacterData *ch) {
 		out += buf_;
 	}
 
-	if (activ.skill.first > 0 && activ.skill.first <= MAX_SKILL_NUM) {
+	if (activ.skill.first >= ESkill::kFirst && activ.skill.first <= ESkill::kLast) {
 		snprintf(buf_, sizeof(buf_),
 				 "%s%2d%s) Изменяемое умение : %s%+d to %s%s\r\n",
 				 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-				 activ.skill.second, skill_info[activ.skill.first].name,
+				 activ.skill.second, MUD::Skills()[activ.skill.first].GetName(),
 				 CCNRM(ch, C_NRM));
 	} else {
 		snprintf(buf_, sizeof(buf_), "%s%2d%s) Изменяемое умение : нет\r\n",
@@ -1192,13 +1193,14 @@ void sedit::show_activ_skill(CharacterData *ch) {
 	std::string out;
 	char buf_[128];
 
-	for (int i = 1; i <= MAX_SKILL_NUM; ++i) {
-		if (!skill_info[i].name || *skill_info[i].name == '!') {
+	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
+		auto skillname = MUD::Skills()[i].GetName();
+		if (!skillname || *skillname == '!') {
 			continue;
 		}
 		snprintf(buf_, sizeof(buf_), "%s%3d%s) %25s     %s",
-				 CCGRN(ch, C_NRM), i, CCNRM(ch, C_NRM),
-				 skill_info[i].name, !(++col % 2) ? "\r\n" : "");
+				 CCGRN(ch, C_NRM), to_underlying(i), CCNRM(ch, C_NRM),
+				 skillname, !(++col % 2) ? "\r\n" : "");
 		out += buf_;
 	}
 	send_to_char(out, ch);
@@ -1268,7 +1270,7 @@ void sedit::parse_activ_skill(CharacterData *ch, const char *arg) {
 	int num = atoi(arg), ssnum = 0, ssval = 0;
 
 	if (num == 0) {
-		skill.first = SKILL_INVALID;
+		skill.first = ESkill::kIncorrect;
 		skill.second = 0;
 		show_activ_edit(ch);
 		return;
@@ -1277,18 +1279,21 @@ void sedit::parse_activ_skill(CharacterData *ch, const char *arg) {
 	if (sscanf(arg, "%d %d", &ssnum, &ssval) < 2) {
 		send_to_char("Не указан уровень владения умением.\r\n", ch);
 		show_activ_skill(ch);
-	} else if (ssnum > MAX_SKILL_NUM || ssnum < 0
-		|| !skill_info[ssnum].name
-		|| *skill_info[ssnum].name == '!') {
+		return;
+	}
+	auto skill_id = static_cast<ESkill>(ssnum);
+	if (skill_id < ESkill::kFirst || skill_id > ESkill::kLast
+		|| !MUD::Skills()[skill_id].GetName()
+		|| *MUD::Skills()[skill_id].GetName() == '!') {
 		send_to_char("Неизвестное умение.\r\n", ch);
 		show_activ_skill(ch);
 	} else if (ssval == 0) {
-		skill.first = SKILL_INVALID;
+		skill.first = ESkill::kIncorrect;
 		skill.second = 0;
 		show_activ_edit(ch);
 	} else {
 		skill.first = static_cast<ESkill>(ssnum);
-		skill.second = std::max(-200, std::min(ssval, 200));
+		skill.second = std::clamp(ssval, -200, 200);
 		show_activ_edit(ch);
 	}
 }

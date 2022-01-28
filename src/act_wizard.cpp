@@ -126,7 +126,7 @@ void log_zone_count_reset();
 int level_exp(CharacterData *ch, int level);
 void appear(CharacterData *ch);
 void reset_zone(ZoneRnum zone);
-int parse_class(char arg);
+ECharClass ParseClass(char arg);
 extern CharacterData *find_char(long n);
 void rename_char(CharacterData *ch, char *oname);
 int _parse_name(char *arg, char *name);
@@ -377,8 +377,8 @@ void do_arena_restore(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
 		}
 		if (GET_CLASS(vict) == CLASS_WARRIOR) {
-			struct Timed wctimed;
-			wctimed.skill = SKILL_WARCRY;
+			struct TimedSkill wctimed;
+			wctimed.skill = ESkill::SKILL_WARCRY;
 			wctimed.time = 0;
 			timed_to_char(vict, &wctimed);
 		}
@@ -399,7 +399,7 @@ void do_arena_restore(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 		while (vict->timed)
 			timed_from_char(vict, vict->timed);
 		while (vict->timed_feat)
-			timed_feat_from_char(vict, vict->timed_feat);
+			ExpireTimedFeat(vict, vict->timed_feat);
 		reset_affects(vict);
 		for (int i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(vict, i)) {
@@ -1216,7 +1216,7 @@ void do_setall(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Данное действие совершить нельзя.\r\n", ch);
 		return;
 	}
-	if (is_abbrev(buf1, "frozen")) {
+	if (utils::IsAbbrev(buf1, "frozen")) {
 		skip_spaces(&argument);
 		if (!argument || !*argument) {
 			send_to_char("Необходимо указать причину такой немилости.\r\n", ch);
@@ -1226,7 +1226,7 @@ void do_setall(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		type_request = SETALL_FREEZE;
 		req->freeze_time = times;
 		req->reason = strdup(argument);
-	} else if (is_abbrev(buf1, "email")) {
+	} else if (utils::IsAbbrev(buf1, "email")) {
 		if (!*buf2) {
 			send_to_char("Укажите новый e-mail!\r\n", ch);
 			return;
@@ -1237,14 +1237,14 @@ void do_setall(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		req->newmail = strdup(buf2);
 		type_request = SETALL_EMAIL;
-	} else if (is_abbrev(buf1, "passwd")) {
+	} else if (utils::IsAbbrev(buf1, "passwd")) {
 		if (!*buf2) {
 			send_to_char("Укажите новый пароль!\r\n", ch);
 			return;
 		}
 		req->pwd = strdup(buf2);
 		type_request = SETALL_PSWD;
-	} else if (is_abbrev(buf1, "hell")) {
+	} else if (utils::IsAbbrev(buf1, "hell")) {
 		skip_spaces(&argument);
 		if (!argument || !*argument) {
 			send_to_char("Необходимо указать причину такой немилости.\r\n", ch);
@@ -1345,17 +1345,17 @@ void do_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mode = ADD_GLORY;
 	else if (*num == '-')
 		mode = SUB_GLORY;
-	else if (is_abbrev(num, "remove")) {
+	else if (utils::IsAbbrev(num, "remove")) {
 		// тут у нас в num получается remove, в arg1 кол-во и в reason причина
 		reason = one_argument(reason, arg1);
 		skip_spaces(&reason);
 		mode = SUB_STATS;
-	} else if (is_abbrev(num, "transfer")) {
+	} else if (utils::IsAbbrev(num, "transfer")) {
 		// а тут в num transfer, в arg1 имя принимающего славу и в reason причина
 		reason = one_argument(reason, arg1);
 		skip_spaces(&reason);
 		mode = SUB_TRANS;
-	} else if (is_abbrev(num, "hide")) {
+	} else if (utils::IsAbbrev(num, "hide")) {
 		// а тут в num hide, в arg1 on|off и в reason причина
 		reason = any_one_arg(reason, arg1);
 		skip_spaces(&reason);
@@ -1648,31 +1648,31 @@ void do_vnum(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	half_chop(argument, buf, buf2);
 
 	if (!*buf || !*buf2
-		|| (!is_abbrev(buf, "mob") && !is_abbrev(buf, "obj") && !is_abbrev(buf, "room") && !is_abbrev(buf, "flag")
-			&& !is_abbrev(buf, "существо") && !is_abbrev(buf, "предмет") && !is_abbrev(buf, "флаг")
-			&& !is_abbrev(buf, "комната")
-			&& !is_abbrev(buf, "trig") && !is_abbrev(buf, "триггер"))) {
+		|| (!utils::IsAbbrev(buf, "mob") && !utils::IsAbbrev(buf, "obj") && !utils::IsAbbrev(buf, "room") && !utils::IsAbbrev(buf, "flag")
+			&& !utils::IsAbbrev(buf, "существо") && !utils::IsAbbrev(buf, "предмет") && !utils::IsAbbrev(buf, "флаг")
+			&& !utils::IsAbbrev(buf, "комната")
+			&& !utils::IsAbbrev(buf, "trig") && !utils::IsAbbrev(buf, "триггер"))) {
 		send_to_char("Usage: vnum { obj | mob | flag | room | trig } <name>\r\n", ch);
 		return;
 	}
 
-	if ((is_abbrev(buf, "mob")) || (is_abbrev(buf, "существо")))
+	if ((utils::IsAbbrev(buf, "mob")) || (utils::IsAbbrev(buf, "существо")))
 		if (!vnum_mobile(buf2, ch))
 			send_to_char("Нет существа с таким именем.\r\n", ch);
 
-	if ((is_abbrev(buf, "obj")) || (is_abbrev(buf, "предмет")))
+	if ((utils::IsAbbrev(buf, "obj")) || (utils::IsAbbrev(buf, "предмет")))
 		if (!vnum_object(buf2, ch))
 			send_to_char("Нет предмета с таким названием.\r\n", ch);
 
-	if ((is_abbrev(buf, "flag")) || (is_abbrev(buf, "флаг")))
+	if ((utils::IsAbbrev(buf, "flag")) || (utils::IsAbbrev(buf, "флаг")))
 		if (!vnum_flag(buf2, ch))
 			send_to_char("Нет объектов с таким флагом.\r\n", ch);
 
-	if ((is_abbrev(buf, "room")) || (is_abbrev(buf, "комната")))
+	if ((utils::IsAbbrev(buf, "room")) || (utils::IsAbbrev(buf, "комната")))
 		if (!vnum_room(buf2, ch))
 			send_to_char("Нет объектов с таким флагом.\r\n", ch);
 
-	if (is_abbrev(buf, "trig") || is_abbrev(buf, "триггер"))
+	if (utils::IsAbbrev(buf, "trig") || utils::IsAbbrev(buf, "триггер"))
 		if (!vnum_obj_trig(buf2, ch))
 			send_to_char("Нет триггеров, загружаемых такой объект\r\n", ch);
 }
@@ -1834,7 +1834,7 @@ void do_load(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Отрицательный моб опасен для вашего здоровья!\r\n", ch);
 		return;
 	}
-	if (is_abbrev(buf, "mob")) {
+	if (utils::IsAbbrev(buf, "mob")) {
 		if ((r_num = real_mobile(number)) < 0) {
 			send_to_char("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
@@ -1850,7 +1850,7 @@ void do_load(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Вы создали $N3.", false, ch, 0, mob, TO_CHAR);
 		load_mtrigger(mob);
 		olc_log("%s load mob %s #%d", GET_NAME(ch), GET_NAME(mob), number);
-	} else if (is_abbrev(buf, "obj")) {
+	} else if (utils::IsAbbrev(buf, "obj")) {
 		if ((r_num = real_object(number)) < 0) {
 			send_to_char("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
@@ -1880,7 +1880,7 @@ void do_load(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		load_otrigger(obj.get());
 		obj_decay(obj.get());
 		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
-	} else if (is_abbrev(buf, "ing")) {
+	} else if (utils::IsAbbrev(buf, "ing")) {
 		int power, i;
 		power = atoi(buf2);
 		skip_spaces(&iname);
@@ -1933,7 +1933,7 @@ void do_vstat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Отрицательный номер? Оригинально!\r\n", ch);
 		return;
 	}
-	if (is_abbrev(buf, "mob")) {
+	if (utils::IsAbbrev(buf, "mob")) {
 		if ((r_num = real_mobile(number)) < 0) {
 			send_to_char("Обратитесь в Арктику - там ОН живет.\r\n", ch);
 			return;
@@ -1942,7 +1942,7 @@ void do_vstat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		char_to_room(mob, 1);
 		do_stat_character(ch, mob, 1);
 		extract_char(mob, false);
-	} else if (is_abbrev(buf, "obj")) {
+	} else if (utils::IsAbbrev(buf, "obj")) {
 		if ((r_num = real_object(number)) < 0) {
 			send_to_char("Этот предмет явно перенесли в РМУД.\r\n", ch);
 			return;
@@ -2295,7 +2295,7 @@ void do_inspect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		send_to_char("Слишком длинный запрос\r\n", ch);
 		return;
 	}
-	if (is_abbrev(buf, "char") && (GetUniqueByName(buf2) <= 0)) {
+	if (utils::IsAbbrev(buf, "char") && (GetUniqueByName(buf2) <= 0)) {
 		send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", buf2);
 		return;
 	}
@@ -2315,15 +2315,15 @@ void do_inspect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		if (isname(argument, "sendmail"))
 			req->sendmail = true;
 	}
-	if (is_abbrev(buf, "mail")) {
+	if (utils::IsAbbrev(buf, "mail")) {
 		req->sfor = IMAIL;
-	} else if (is_abbrev(buf, "ip")) {
+	} else if (utils::IsAbbrev(buf, "ip")) {
 		req->sfor = IIP;
 		if (req->fullsearch) {
 			const Logon logon = {str_dup(req->req), 0, 0, false};
 			req->ip_log.push_back(logon);
 		}
-	} else if (is_abbrev(buf, "char")) {
+	} else if (utils::IsAbbrev(buf, "char")) {
 		req->sfor = ICHAR;
 		req->unique = GetUniqueByName(req->req);
 		i = get_ptable_by_unique(req->unique);
@@ -2549,8 +2549,8 @@ void do_restore(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
 		}
 		if (GET_CLASS(vict) == CLASS_WARRIOR) {
-			struct Timed wctimed;
-			wctimed.skill = SKILL_WARCRY;
+			struct TimedSkill wctimed;
+			wctimed.skill = ESkill::SKILL_WARCRY;
 			wctimed.time = 0;
 			timed_to_char(vict, &wctimed);
 		}
@@ -2571,7 +2571,7 @@ void do_restore(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		while (vict->timed)
 			timed_from_char(vict, vict->timed);
 		while (vict->timed_feat)
-			timed_feat_from_char(vict, vict->timed_feat);
+			ExpireTimedFeat(vict, vict->timed_feat);
 
 		if (subcmd == SCMD_RESTORE_GOD) {
 			send_to_char(OK, ch);
@@ -4153,13 +4153,15 @@ int perform_set(CharacterData *ch, CharacterData *vict, int mode, char *val_arg)
 				}
 			}
 			break;
-		case 31:
-			if ((i = parse_class(*val_arg)) == CLASS_UNDEFINED) {
+		case 31: {
+			auto class_id = ParseClass(*val_arg);
+			if (class_id == ECharClass::CLASS_UNDEFINED) {
 				send_to_char("Нет такого класса в этой игре. Найдите себе другую.\r\n", ch);
 				return (0);
 			}
-			vict->set_class(i);
+			vict->set_class(class_id);
 			break;
+		}
 		case 32:
 			// Флаг для морталов с привилегиями
 			if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
@@ -4427,7 +4429,7 @@ int perform_set(CharacterData *ch, CharacterData *vict, int mode, char *val_arg)
 			break;
 		case 50:
 			if (IsValidEmail(val_arg)) {
-				lower_convert(val_arg);
+				utils::ConvertToLow(val_arg);
 				sprintf(buf, "Email changed from %s to %s", GET_EMAIL(vict), val_arg);
 				add_karma(vict, buf, GET_NAME(ch));
 				strncpy(GET_EMAIL(vict), val_arg, 127);
@@ -5303,41 +5305,41 @@ void do_print_armor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd
 	while (*argument) {
 		switch (*argument) {
 			case 'М': argument = one_argument(++argument, tmpbuf);
-				if (is_abbrev(tmpbuf, "булат")) {
+				if (utils::IsAbbrev(tmpbuf, "булат")) {
 					filter.material = ObjectData::MAT_BULAT;
-				} else if (is_abbrev(tmpbuf, "бронза")) {
+				} else if (utils::IsAbbrev(tmpbuf, "бронза")) {
 					filter.material = ObjectData::MAT_BRONZE;
-				} else if (is_abbrev(tmpbuf, "железо")) {
+				} else if (utils::IsAbbrev(tmpbuf, "железо")) {
 					filter.material = ObjectData::MAT_IRON;
-				} else if (is_abbrev(tmpbuf, "сталь")) {
+				} else if (utils::IsAbbrev(tmpbuf, "сталь")) {
 					filter.material = ObjectData::MAT_STEEL;
-				} else if (is_abbrev(tmpbuf, "кованая.сталь")) {
+				} else if (utils::IsAbbrev(tmpbuf, "кованая.сталь")) {
 					filter.material = ObjectData::MAT_SWORDSSTEEL;
-				} else if (is_abbrev(tmpbuf, "драг.металл")) {
+				} else if (utils::IsAbbrev(tmpbuf, "драг.металл")) {
 					filter.material = ObjectData::MAT_COLOR;
-				} else if (is_abbrev(tmpbuf, "кристалл")) {
+				} else if (utils::IsAbbrev(tmpbuf, "кристалл")) {
 					filter.material = ObjectData::MAT_CRYSTALL;
-				} else if (is_abbrev(tmpbuf, "дерево")) {
+				} else if (utils::IsAbbrev(tmpbuf, "дерево")) {
 					filter.material = ObjectData::MAT_WOOD;
-				} else if (is_abbrev(tmpbuf, "прочное.дерево")) {
+				} else if (utils::IsAbbrev(tmpbuf, "прочное.дерево")) {
 					filter.material = ObjectData::MAT_SUPERWOOD;
-				} else if (is_abbrev(tmpbuf, "керамика")) {
+				} else if (utils::IsAbbrev(tmpbuf, "керамика")) {
 					filter.material = ObjectData::MAT_FARFOR;
-				} else if (is_abbrev(tmpbuf, "стекло")) {
+				} else if (utils::IsAbbrev(tmpbuf, "стекло")) {
 					filter.material = ObjectData::MAT_GLASS;
-				} else if (is_abbrev(tmpbuf, "камень")) {
+				} else if (utils::IsAbbrev(tmpbuf, "камень")) {
 					filter.material = ObjectData::MAT_ROCK;
-				} else if (is_abbrev(tmpbuf, "кость")) {
+				} else if (utils::IsAbbrev(tmpbuf, "кость")) {
 					filter.material = ObjectData::MAT_BONE;
-				} else if (is_abbrev(tmpbuf, "ткань")) {
+				} else if (utils::IsAbbrev(tmpbuf, "ткань")) {
 					filter.material = ObjectData::MAT_MATERIA;
-				} else if (is_abbrev(tmpbuf, "кожа")) {
+				} else if (utils::IsAbbrev(tmpbuf, "кожа")) {
 					filter.material = ObjectData::MAT_SKIN;
-				} else if (is_abbrev(tmpbuf, "органика")) {
+				} else if (utils::IsAbbrev(tmpbuf, "органика")) {
 					filter.material = ObjectData::MAT_ORGANIC;
-				} else if (is_abbrev(tmpbuf, "береста")) {
+				} else if (utils::IsAbbrev(tmpbuf, "береста")) {
 					filter.material = ObjectData::MAT_PAPER;
-				} else if (is_abbrev(tmpbuf, "драг.камень")) {
+				} else if (utils::IsAbbrev(tmpbuf, "драг.камень")) {
 					filter.material = ObjectData::MAT_DIAMOND;
 				} else {
 					send_to_char("Неверный материал предмета.\r\n", ch);
@@ -5346,13 +5348,13 @@ void do_print_armor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd
 				find_param = true;
 				break;
 			case 'Т': argument = one_argument(++argument, tmpbuf);
-				if (is_abbrev(tmpbuf, "броня") || is_abbrev(tmpbuf, "armor")) {
+				if (utils::IsAbbrev(tmpbuf, "броня") || utils::IsAbbrev(tmpbuf, "armor")) {
 					filter.type = ObjectData::ITEM_ARMOR;
-				} else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая")) {
+				} else if (utils::IsAbbrev(tmpbuf, "легкие") || utils::IsAbbrev(tmpbuf, "легкая")) {
 					filter.type = ObjectData::ITEM_ARMOR_LIGHT;
-				} else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя")) {
+				} else if (utils::IsAbbrev(tmpbuf, "средние") || utils::IsAbbrev(tmpbuf, "средняя")) {
 					filter.type = ObjectData::ITEM_ARMOR_MEDIAN;
-				} else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая")) {
+				} else if (utils::IsAbbrev(tmpbuf, "тяжелые") || utils::IsAbbrev(tmpbuf, "тяжелая")) {
 					filter.type = ObjectData::ITEM_ARMOR_HEAVY;
 				} else {
 					send_to_char("Неверный тип предмета.\r\n", ch);
@@ -5361,22 +5363,22 @@ void do_print_armor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd
 				find_param = true;
 				break;
 			case 'О': argument = one_argument(++argument, tmpbuf);
-				if (is_abbrev(tmpbuf, "тело")) {
+				if (utils::IsAbbrev(tmpbuf, "тело")) {
 					filter.wear = EWearFlag::ITEM_WEAR_BODY;
 					filter.wear_message = 3;
-				} else if (is_abbrev(tmpbuf, "голова")) {
+				} else if (utils::IsAbbrev(tmpbuf, "голова")) {
 					filter.wear = EWearFlag::ITEM_WEAR_HEAD;
 					filter.wear_message = 4;
-				} else if (is_abbrev(tmpbuf, "ноги")) {
+				} else if (utils::IsAbbrev(tmpbuf, "ноги")) {
 					filter.wear = EWearFlag::ITEM_WEAR_LEGS;
 					filter.wear_message = 5;
-				} else if (is_abbrev(tmpbuf, "ступни")) {
+				} else if (utils::IsAbbrev(tmpbuf, "ступни")) {
 					filter.wear = EWearFlag::ITEM_WEAR_FEET;
 					filter.wear_message = 6;
-				} else if (is_abbrev(tmpbuf, "кисти")) {
+				} else if (utils::IsAbbrev(tmpbuf, "кисти")) {
 					filter.wear = EWearFlag::ITEM_WEAR_HANDS;
 					filter.wear_message = 7;
-				} else if (is_abbrev(tmpbuf, "руки")) {
+				} else if (utils::IsAbbrev(tmpbuf, "руки")) {
 					filter.wear = EWearFlag::ITEM_WEAR_ARMS;
 					filter.wear_message = 8;
 				} else {
@@ -5404,7 +5406,7 @@ void do_print_armor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd
 						break;
 					default: break;
 				}
-				lower_convert(tmpbuf);
+				utils::ConvertToLow(tmpbuf);
 				size_t len = strlen(tmpbuf);
 				int num = 0;
 

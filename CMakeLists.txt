@@ -236,7 +236,7 @@ set(SOURCES
         src/structs/extra_description.cpp
 		src/communication/insult.cpp
 		src/abilities/abilities_info.cpp
-		src/abilities/abilities_constants.cpp)
+		src/abilities/abilities_constants.cpp src/classes/classes_info.cpp src/utils/objects_filter.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -452,7 +452,7 @@ set(HEADERS
         src/structs/extra_description.h
 		src/communication/insult.h
 		src/communication/social.h
-		src/abilities/abilities_info.h)
+		src/abilities/abilities_info.h src/classes/classes_info.h src/utils/objects_filter.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

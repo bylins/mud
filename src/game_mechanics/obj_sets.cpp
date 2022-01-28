@@ -208,13 +208,13 @@ void verify_set(set_node &set) {
 			}
 		}
 		// можно просетить скилл в минус
-		if (i->second.skill.first > MAX_SKILL_NUM
-			|| i->second.skill.first < 0
+		if (i->second.skill.first > ESkill::kLast
+			|| i->second.skill.first < ESkill::kFirst
 			|| i->second.skill.second > 200
 			|| i->second.skill.second < -200) {
 			err_log(
 				"сет #%zu: некорректные номер или значение умения (num=%d, val=%d, activ=%d)",
-				num, i->second.skill.first, i->second.skill.second, i->first);
+				num, to_underlying(i->second.skill.first), i->second.skill.second, i->first);
 			set.enabled = false;
 		}
 		/*if (i->second.prof.none())
@@ -516,9 +516,9 @@ void save() {
 				}
 			}
 			// set/activ/skill
-			if (k->second.skill.first > 0) {
+			if (k->second.skill.first >= ESkill::kFirst) {
 				pugi::xml_node xml_skill = xml_activ.append_child("skill");
-				xml_skill.append_attribute("num") = k->second.skill.first;
+				xml_skill.append_attribute("num") = to_underlying(k->second.skill.first);
 				xml_skill.append_attribute("val") = k->second.skill.second;
 			}
 			// set/activ/enchant

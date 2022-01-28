@@ -23,6 +23,8 @@ struct GlobalObjectsStorage {
 	BloodyInfoMap bloody_map;
 
 	abilities::AbilitiesInfo abilities_info;
+	SkillsInfo skills_info;
+	classes::ClassesInfo classes_info;
 	WorldObjects world_objects;
 	ShopExt::ShopListType shop_list;
 	PlayersIndex player_table;
@@ -52,15 +54,23 @@ GlobalObjectsStorage &global_objects() {
 }
 }
 
-abilities::AbilitiesInfo &GlobalObjects::abilities_info() {
+abilities::AbilitiesInfo &GlobalObjects::Abilities() {
 	return global_objects().abilities_info;
+}
+
+SkillsInfo &GlobalObjects::Skills() {
+	return global_objects().skills_info;
+}
+
+classes::ClassesInfo &GlobalObjects::Classes() {
+	return global_objects().classes_info;
 }
 
 WorldObjects &GlobalObjects::world_objects() {
 	return global_objects().world_objects;
 }
 
-ShopExt::ShopListType &GlobalObjects::shop_list() {
+ShopExt::ShopListType &GlobalObjects::Shops() {
 	return global_objects().shop_list;
 }
 

@@ -21,12 +21,12 @@ struct RoomData;    // forward declaration to avoid inclusion of room.hpp and an
 
 #define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
 
-#define    MOB_TRIGGER   0
-#define    OBJ_TRIGGER   1
-#define    WLD_TRIGGER   2
+const int MOB_TRIGGER = 0;
+const int OBJ_TRIGGER = 1;
+const int WLD_TRIGGER = 2;
 
 extern const char *attach_name[];
-#define DG_NO_TRIG         256    // don't check act trigger   //
+const int DG_NO_TRIG = 256;    // don't check act trigger   //
 
 // mob trigger types //
 #define MTRIG_GLOBAL           (1 << 0)    // check even if zone empty   //

@@ -22,13 +22,13 @@ void go_iron_wind(CharacterData *ch, CharacterData *victim) {
 		return;
 	}
 	if (ch->get_fighting() && (ch->get_fighting() != victim)) {
-		act("$N не сражается с вами, не трогайте $S.", false, ch, 0, victim, TO_CHAR);
+		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, victim, TO_CHAR);
 		return;
 	}
 
 	parry_override(ch);
 
-	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", false, ch, 0, victim, TO_CHAR);
+	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", false, ch, nullptr, victim, TO_CHAR);
 	ObjectData *weapon;
 	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS))) {
 		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!");
@@ -43,10 +43,10 @@ void go_iron_wind(CharacterData *ch, CharacterData *victim) {
 	if (!ch->get_fighting()) {
 		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
-		hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+		hit(ch, victim, ESkill::kUndefined, FightSystem::MAIN_HAND);
 		set_wait(ch, 2, true);
-		//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
-		//ch->setSkillCooldown(SKILL_IRON_WIND, 2);
+		//ch->setSkillCooldown(ESkill::SKILL_GLOBAL_COOLDOWN, 2);
+		//ch->setSkillCooldown(ESkill::SKILL_IRON_WIND, 2);
 	} else {
 		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
@@ -54,11 +54,11 @@ void go_iron_wind(CharacterData *ch, CharacterData *victim) {
 }
 
 void do_iron_wind(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_IRON_WIND)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_IRON_WIND)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	};
-	if (ch->haveCooldown(SKILL_IRON_WIND)) {
+	if (ch->haveCooldown(ESkill::SKILL_IRON_WIND)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -66,7 +66,7 @@ void do_iron_wind(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		send_to_char("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};
-	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->get_skill(SKILL_IRON_WIND)) / 15);
+	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->get_skill(ESkill::SKILL_IRON_WIND)) / 15);
 	if (GET_MAX_MOVE(ch) < moves * 2) {
 		send_to_char("Вы слишком устали...\r\n", ch);
 		return;

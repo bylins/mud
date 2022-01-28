@@ -61,7 +61,7 @@ const char *skill_percent(Trigger *trig, CharacterData *ch, char *skill) {
 	int rid;
 
 	const ESkill skillnum = FixNameAndFindSkillNum(skill);
-	if (skillnum > 0) {
+	if (skillnum >= ESkill::kFirst && skillnum <= ESkill::kLast) {
 		sprintf(retval, "%d", ch->get_trained_skill(skillnum));
 		return retval;
 	}
@@ -73,7 +73,7 @@ const char *skill_percent(Trigger *trig, CharacterData *ch, char *skill) {
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-	if ((skillnum == 0) && (rid < 0)) {
+	if ((skillnum == ESkill::kIncorrect) && (rid < 0)) {
 		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
 		trig_log(trig, buf2);
 	}

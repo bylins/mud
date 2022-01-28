@@ -10,7 +10,7 @@
 #include "game_mechanics/sets_drop.h"
 #include "color.h"
 #include "entities/zone.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 #include <boost/format.hpp>
 #include <boost/range/algorithm/remove_if.hpp>
@@ -45,7 +45,7 @@ void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skil
 }
 
 void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t::value_type &add) {
-	if (add.first > 0 && add.second != 0) {
+	if (add.first >= ESkill::kFirst && add.second != 0) {
 		auto i = target.find(add.first);
 		if (i != target.end()) {
 			i->second += add.second;
@@ -77,7 +77,7 @@ std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, boo
 	if (skill.second != 0) {
 		out += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
 							  % (activ ? " +    " : "   ") % KCYN
-							  % skill_info[skill.first].name % KNRM
+							  % MUD::Skills()[skill.first].GetName() % KNRM
 							  % KCYN % (skill.second < 0 ? " ухудшает на " : " улучшает на ")
 							  % abs(skill.second) % KNRM);
 	}
@@ -427,7 +427,7 @@ struct help_node {
 	help_node(const std::string &key, const std::string &val)
 		: keyword(key), entry(val), min_level(0),
 		  sets_drop_page(false), no_immlog(false) {
-		lower_convert(keyword);
+		utils::ConvertToLow(keyword);
 	};
 
 	// ключ для поиска

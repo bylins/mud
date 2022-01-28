@@ -61,6 +61,7 @@ enum SetStuffMode {
 #define LIB_WORLD     "world/"
 #define LIB_TEXT      "text/"
 #define LIB_TEXT_HELP "text/help/"
+#define LIB_CFG       "cfg/"
 #define LIB_MISC      "misc/"
 #define LIB_ACCOUNTS  "plrs/accounts/"
 #define LIB_MISC_MOBRACES    "misc/mobraces/"

@@ -47,7 +47,7 @@ struct msg_node {
 
 /// сетовый активатор с аффектами и прочими бонусами
 struct activ_node {
-	activ_node() : skill(SKILL_INVALID, 0) {
+	activ_node() : skill(ESkill::kIncorrect, 0) {
 		affects = clear_flags;
 		prof.set();
 		enchant.first = 0;
@@ -86,7 +86,7 @@ struct activ_node {
 	}
 	bool empty() const {
 		if (!affects.empty()
-			|| skill.first > 0
+			|| skill.first >= ESkill::kFirst
 			|| !bonus.empty()
 			|| !enchant.second.empty()) {
 			return false;

@@ -950,7 +950,7 @@ void do_offtop(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(ch, "Раз нечего сказать, то лучше уж помолчать.");
 		return;
 	}
-	lower_convert(argument);
+	utils::ConvertToLow(argument);
 	if (!strcmp(ch->get_last_tell().c_str(), argument)) {
 		send_to_char("Но вы же недавно говорили тоже самое!?!\r\n", ch);
 		return;
@@ -1086,31 +1086,31 @@ void do_ignore(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (is_abbrev(arg2, "все"))
+	if (utils::IsAbbrev(arg2, "все"))
 		all = 1;
-	else if (is_abbrev(arg2, "сказать"))
+	else if (utils::IsAbbrev(arg2, "сказать"))
 		flag = IGNORE_TELL;
-	else if (is_abbrev(arg2, "говорить"))
+	else if (utils::IsAbbrev(arg2, "говорить"))
 		flag = IGNORE_SAY;
-	else if (is_abbrev(arg2, "шептать"))
+	else if (utils::IsAbbrev(arg2, "шептать"))
 		flag = IGNORE_WHISPER;
-	else if (is_abbrev(arg2, "спросить"))
+	else if (utils::IsAbbrev(arg2, "спросить"))
 		flag = IGNORE_ASK;
-	else if (is_abbrev(arg2, "эмоция"))
+	else if (utils::IsAbbrev(arg2, "эмоция"))
 		flag = IGNORE_EMOTE;
-	else if (is_abbrev(arg2, "кричать"))
+	else if (utils::IsAbbrev(arg2, "кричать"))
 		flag = IGNORE_SHOUT;
-	else if (is_abbrev(arg2, "болтать"))
+	else if (utils::IsAbbrev(arg2, "болтать"))
 		flag = IGNORE_GOSSIP;
-	else if (is_abbrev(arg2, "орать"))
+	else if (utils::IsAbbrev(arg2, "орать"))
 		flag = IGNORE_HOLLER;
-	else if (is_abbrev(arg2, "группа"))
+	else if (utils::IsAbbrev(arg2, "группа"))
 		flag = IGNORE_GROUP;
-	else if (is_abbrev(arg2, "дружина"))
+	else if (utils::IsAbbrev(arg2, "дружина"))
 		flag = IGNORE_CLAN;
-	else if (is_abbrev(arg2, "союзники"))
+	else if (utils::IsAbbrev(arg2, "союзники"))
 		flag = IGNORE_ALLIANCE;
-	else if (is_abbrev(arg2, "оффтоп"))
+	else if (utils::IsAbbrev(arg2, "оффтоп"))
 		flag = IGNORE_OFFTOP;
 	else {
 		ignore_usage(ch);
@@ -1118,7 +1118,7 @@ void do_ignore(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 // имени "все" соответствует id -1
-	if (is_abbrev(arg1, "все")) {
+	if (utils::IsAbbrev(arg1, "все")) {
 		vict_id = -1;
 	} else {
 		// убедимся, что добавляемый чар на данный момент существует
@@ -1140,7 +1140,7 @@ void do_ignore(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (is_abbrev(arg3, "добавить")) {
+	if (utils::IsAbbrev(arg3, "добавить")) {
 // создаем новый элемент списка в хвосте, если не нашли
 		if (!ignore) {
 			const auto cur = std::make_shared<ignore_data>();
@@ -1167,7 +1167,7 @@ void do_ignore(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SET_BIT(mode, flag);
 		}
 		ignore->mode = mode;
-	} else if (is_abbrev(arg3, "убрать")) {
+	} else if (utils::IsAbbrev(arg3, "убрать")) {
 		if (!ignore || ignore->id != vict_id) {
 			if (vict_id == -1) {
 				send_to_char("Вы и так не игнорируете всех сразу.\r\n", ch);

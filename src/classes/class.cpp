@@ -57,7 +57,7 @@ extern struct spell_create_type spell_create[];
 extern double exp_coefficients[];
 
 // local functions
-int parse_class(char arg);
+ECharClass ParseClass(char arg);
 long find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
@@ -229,7 +229,7 @@ int class_stats_limit[NUM_PLAYER_CLASSES][6];
  * new character is selecting a class and by 'set class' in act.wizard.c.
  */
 
-int parse_class(char arg) {
+ECharClass ParseClass(char arg) {
 	arg = LOWER(arg);
 
 	switch (arg) {
@@ -251,8 +251,7 @@ int parse_class(char arg) {
 	}
 }
 
-int
-parse_class_vik(char arg) {
+int parse_class_vik(char arg) {
 	arg = LOWER(arg);
 
 	switch (arg) {
@@ -274,8 +273,7 @@ parse_class_vik(char arg) {
 	}
 }
 
-int
-parse_class_step(char arg) {
+int parse_class_step(char arg) {
 	arg = LOWER(arg);
 
 	switch (arg) {
@@ -645,12 +643,9 @@ byte extend_saving_throws(int class_num, ESaving save, int level) {
 // THAC0 for classes and levels.  (To Hit Armor Class 0)
 int thaco(int class_num, int level) {
 	switch (class_num) {
-		case CLASS_BATTLEMAGE:
-			[[fallthrough]];
-		case CLASS_DEFENDERMAGE:
-			[[fallthrough]];
-		case CLASS_CHARMMAGE:
-			[[fallthrough]];
+		case CLASS_BATTLEMAGE: [[fallthrough]];
+		case CLASS_DEFENDERMAGE: [[fallthrough]];
+		case CLASS_CHARMMAGE: [[fallthrough]];
 		case CLASS_NECROMANCER: {
 			switch (level) {
 				case 0: return 100;
@@ -692,8 +687,7 @@ int thaco(int class_num, int level) {
 					break;
 			}
 		}
-		case CLASS_CLERIC:
-			[[fallthrough]];
+		case CLASS_CLERIC: [[fallthrough]];
 		case CLASS_DRUID: {
 			switch (level) {
 				case 0: return 100;
@@ -736,8 +730,7 @@ int thaco(int class_num, int level) {
 			}
 		}
 		case CLASS_ASSASINE:
-		case CLASS_THIEF:
-			[[fallthrough]];
+		case CLASS_THIEF: [[fallthrough]];
 		case CLASS_MERCHANT: {
 			switch (level) {
 				case 0: return 100;
@@ -779,8 +772,7 @@ int thaco(int class_num, int level) {
 					break;
 			}
 		}
-		case CLASS_WARRIOR:
-			[[fallthrough]];
+		case CLASS_WARRIOR: [[fallthrough]];
 		case CLASS_GUARD: {
 			switch (level) {
 				case 0: return 100;
@@ -823,8 +815,7 @@ int thaco(int class_num, int level) {
 			}
 		}
 		case CLASS_PALADINE:
-		case CLASS_RANGER:
-			[[fallthrough]];
+		case CLASS_RANGER: [[fallthrough]];
 		case CLASS_SMITH: {
 			switch (level) {
 				case 0: return 100;
@@ -862,14 +853,12 @@ int thaco(int class_num, int level) {
 				case 32: return 0;
 				case 33: return 0;
 				case 34: return 0;
-				default: 
-					log("SYSERR: Missing level for warrior thac0.");
-				break;
+				default: log("SYSERR: Missing level for warrior thac0.");
+					break;
 			}
 		}
-		default: 
-			log("SYSERR: Unknown class in thac0 chart.");
-		break;
+		default: log("SYSERR: Unknown class in thac0 chart.");
+			break;
 	}
 
 	// Will not get there unless something is wrong.
@@ -881,8 +870,7 @@ int extra_aco(int class_num, int level) {
 	switch (class_num) {
 		case CLASS_BATTLEMAGE:
 		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-			[[fallthrough]];
+		case CLASS_CHARMMAGE: [[fallthrough]];
 		case CLASS_NECROMANCER:
 			switch (level) {
 				case 0: return 0;
@@ -922,8 +910,7 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
-		case CLASS_CLERIC:
-			[[fallthrough]];
+		case CLASS_CLERIC: [[fallthrough]];
 		case CLASS_DRUID:
 			switch (level) {
 				case 0: return 0;
@@ -964,8 +951,7 @@ int extra_aco(int class_num, int level) {
 				default: return 0;
 			}
 		case CLASS_ASSASINE:
-		case CLASS_THIEF:
-			[[fallthrough]];
+		case CLASS_THIEF: [[fallthrough]];
 		case CLASS_MERCHANT:
 			switch (level) {
 				case 0: return 0;
@@ -1005,8 +991,7 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
-		case CLASS_WARRIOR:
-			[[fallthrough]];
+		case CLASS_WARRIOR: [[fallthrough]];
 		case CLASS_GUARD:
 			switch (level) {
 				case 0: return 0;
@@ -1047,8 +1032,7 @@ int extra_aco(int class_num, int level) {
 				default: return 0;
 			}
 		case CLASS_PALADINE:
-		case CLASS_RANGER:
-			[[fallthrough]];
+		case CLASS_RANGER: [[fallthrough]];
 		case CLASS_SMITH:
 			switch (level) {
 				case 0: return 0;
@@ -1097,8 +1081,7 @@ int extra_damroll(int class_num, int level) {
 	switch (class_num) {
 		case CLASS_BATTLEMAGE:
 		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-			[[fallthrough]];
+		case CLASS_CHARMMAGE: [[fallthrough]];
 		case CLASS_NECROMANCER:
 			switch (level) {
 				case 0: return 0;
@@ -1138,8 +1121,7 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 10;
 				default: return 0;
 			}
-		case CLASS_CLERIC:
-			[[fallthrough]];
+		case CLASS_CLERIC: [[fallthrough]];
 		case CLASS_DRUID:
 			switch (level) {
 				case 0: return 0;
@@ -1180,8 +1162,7 @@ int extra_damroll(int class_num, int level) {
 				default: return 0;
 			}
 		case CLASS_ASSASINE:
-		case CLASS_THIEF:
-			[[fallthrough]];
+		case CLASS_THIEF: [[fallthrough]];
 		case CLASS_MERCHANT:
 			switch (level) {
 				case 0: return 0;
@@ -1221,8 +1202,7 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 11;
 				default: return 0;
 			}
-		case CLASS_WARRIOR:
-			[[fallthrough]];
+		case CLASS_WARRIOR: [[fallthrough]];
 		case CLASS_GUARD:
 			switch (level) {
 				case 0: return 0;
@@ -1263,8 +1243,7 @@ int extra_damroll(int class_num, int level) {
 				default: return 0;
 			}
 		case CLASS_PALADINE:
-		case CLASS_RANGER:
-			[[fallthrough]];
+		case CLASS_RANGER: [[fallthrough]];
 		case CLASS_SMITH:
 			switch (level) {
 				case 0: return 0;
@@ -1333,7 +1312,7 @@ void do_start(CharacterData *ch, int newbie) {
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
 	if (newbie || (GET_REAL_REMORT(ch) >= 9 && GET_REAL_REMORT(ch) % 3 == 0)) {
-		ch->set_skill(SKILL_DRUNKOFF, 10);
+		ch->set_skill(ESkill::SKILL_DRUNKOFF, 10);
 	}
 
 	if (newbie && GET_CLASS(ch) == CLASS_DRUID) {
@@ -1363,24 +1342,24 @@ void do_start(CharacterData *ch, int newbie) {
 		case CLASS_DEFENDERMAGE:
 		case CLASS_CHARMMAGE:
 		case CLASS_NECROMANCER:
-		case CLASS_DRUID: ch->set_skill(SKILL_SATTACK, 10);
+		case CLASS_DRUID: ch->set_skill(ESkill::SKILL_SATTACK, 10);
 			break;
-		case CLASS_CLERIC: ch->set_skill(SKILL_SATTACK, 50);
+		case CLASS_CLERIC: ch->set_skill(ESkill::SKILL_SATTACK, 50);
 			break;
 		case CLASS_THIEF:
-		case CLASS_ASSASINE: ch->set_skill(SKILL_SATTACK, 75);
+		case CLASS_ASSASINE: ch->set_skill(ESkill::SKILL_SATTACK, 75);
 			break;
-		case CLASS_MERCHANT: ch->set_skill(SKILL_SATTACK, 85);
+		case CLASS_MERCHANT: ch->set_skill(ESkill::SKILL_SATTACK, 85);
 			break;
 		case CLASS_GUARD:
 		case CLASS_PALADINE:
 		case CLASS_WARRIOR:
 		case CLASS_RANGER:
-			if (ch->get_skill(SKILL_HORSE) == 0)
-				ch->set_skill(SKILL_HORSE, 10);
-			ch->set_skill(SKILL_SATTACK, 95);
+			if (ch->get_skill(ESkill::SKILL_HORSE) == 0)
+				ch->set_skill(ESkill::SKILL_HORSE, 10);
+			ch->set_skill(ESkill::SKILL_SATTACK, 95);
 			break;
-		case CLASS_SMITH: ch->set_skill(SKILL_SATTACK, 95);
+		case CLASS_SMITH: ch->set_skill(ESkill::SKILL_SATTACK, 95);
 			break;
 		default: break;
 	}
@@ -1457,6 +1436,7 @@ void advance_level(CharacterData *ch) {
 		case CLASS_PALADINE:
 		case CLASS_SMITH: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
 			break;
+		default: break;
 	}
 
 	check_max_hp(ch);
@@ -1500,6 +1480,7 @@ void decrease_level(CharacterData *ch) {
 		case CLASS_RANGER:
 		case CLASS_SMITH: add_move = ch->get_inborn_dex() / 5 + 1;
 			break;
+		default: break;
 	}
 
 	check_max_hp(ch);
@@ -1637,95 +1618,7 @@ int invalid_no_class(CharacterData *ch, const ObjectData *obj) {
 	return false;
 }
 
-void load_skills_definitions() {
-	char line1[256], line2[256], line3[256], line4[256], name[256];
-	int i[15], j, sp_num, l;
-	FILE *magic;
-
-	if (!(magic = fopen(LIB_MISC "skills.lst", "r"))) {
-		log("Cann't open skills list file...");
-		graceful_exit(1);
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4) != 7) {
-			log("Bad format for skill string!\r\n"
-				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improve (%%d)> !");
-			graceful_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = FixNameAndFindSkillNum(name)) < 0) {
-			log("Skill '%s' not found...", name);
-			graceful_exit(1);
-		}
-		if (PlayerRace::GetKinNameByNum(i[0], ESex::kMale) == RACE_NAME_UNDEFINED) {
-			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
-			graceful_exit(1);
-		}
-		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES) {
-			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
-			graceful_exit(1);
-		}
-		if (i[2] < 0 || i[2] >= kMaxRemort) {
-			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
-			graceful_exit(1);
-		}
-		if (i[4]) {
-			skill_info[sp_num].k_improve[i[1]][i[0]] = MAX(1, i[4]);
-			log("Improve set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[4]);
-		}
-		if (i[3]) {
-			skill_info[sp_num].min_level[i[1]][i[0]] = i[3];
-			log("Level set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[3]);
-		}
-		skill_info[sp_num].min_remort[i[1]][i[0]] = i[2];
-		log("Remort set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[2]);
-	}
-	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "classskill.lst", "r"))) {
-		log("Cann't open classskill list file...");
-		graceful_exit(1);
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %s %s", line1, line2, line3, line4) != 4) {
-			log("Bad format for skill string!\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
-			graceful_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = FixNameAndFindSkillNum(name)) < 0) {
-			log("Skill '%s' not found...", name);
-			graceful_exit(1);
-		}
-		for (l = 0; line3[l] && l < kNumKins; l++) {
-			if (!strchr("1xX!", line3[l]))
-				continue;
-			for (j = 0; line4[j] && j < NUM_PLAYER_CLASSES; j++) {
-				if (!strchr("1xX!", line4[j]))
-					continue;
-				skill_info[sp_num].classknow[j][l] = kKnowSkill;
-				log("Set skill '%s' kin %d classes %d is Know", skill_info[sp_num].name, l, j);
-			}
-		}
-	}
-	fclose(magic);
-}
-
-//Polud Читает данные из файла хранения параметров умений
+//Polud Читает данные из файла хранения параметров умений ABYRVALG - перенести в классес инфо
 void LoadClassSkills() {
 	const char *CLASS_SKILLS_FILE = LIB_MISC"class.skills.xml";
 
@@ -1746,47 +1639,44 @@ void LoadClassSkills() {
 	}
 
 	pugi::xml_node xNodeClass, xNodeSkill, race;
-	int PCkin, PCclass, level_decrement;
-	for (race = node_list.child("race"); race; race = race.next_sibling("race")) {
-		PCkin = race.attribute("num_kin").as_int();
-		for (xNodeClass = race.child("class"); xNodeClass; xNodeClass = xNodeClass.next_sibling("class")) {
-			PCclass = xNodeClass.attribute("class_num").as_int();
-			level_decrement = xNodeClass.attribute("level_decrement").as_int();
-			for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill")) {
-				int sk_num;
-				std::string name = std::string(xNodeSkill.attribute("name").value());
-				if ((sk_num = FixNameFndFindSkillNum(name)) < 0) {
-					log("Skill '%s' not found...", name.c_str());
-					graceful_exit(1);
-				}
-				skill_info[sk_num].classknow[PCclass][PCkin] = kKnowSkill;
-				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > kMaxRemort) {
-					log("ERROR: Недопустимый параметр level decrement класса %d.", PCclass);
-					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;
-				} else {
-					skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
-				}
-				int value = xNodeSkill.attribute("improve").as_int();
-				skill_info[sk_num].k_improve[PCclass][PCkin] = MAX(1, value);
-				value = xNodeSkill.attribute("level").as_int();
-				if (value > 0 && value < kLevelImmortal) {
-					skill_info[sk_num].min_level[PCclass][PCkin] = value;
-				} else {
-					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d",
-						skill_info[sk_num].name,
-						value);
-					graceful_exit(1);
-				}
-				value = xNodeSkill.attribute("remort").as_int();
-				if (value >= 0 && value < kMaxRemort) {
-					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
-				} else {
-					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d",
-						skill_info[sk_num].name,
-						value);
-					graceful_exit(1);
-				}
+	int pc_class, level_decrement;
+	for (xNodeClass = race.child("class"); xNodeClass; xNodeClass = xNodeClass.next_sibling("class")) {
+		pc_class = xNodeClass.attribute("class_num").as_int();
+		level_decrement = xNodeClass.attribute("level_decrement").as_int();
+		for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill")) {
+			std::string name = std::string(xNodeSkill.attribute("name").value());
+			auto sk_num = FixNameFndFindSkillNum(name);
+			if (sk_num < ESkill::kFirst) {
+				log("Skill '%s' not found...", name.c_str());
+				graceful_exit(1);
 			}
+/*			skill_info[sk_num].classknow[pc_class] = kKnowSkill;
+			if ((level_decrement < 1 && level_decrement != -1) || level_decrement > kMaxRemort) {
+				log("ERROR: Недопустимый параметр level decrement класса %d.", pc_class);
+				skill_info[sk_num].level_decrement[pc_class] = -1;
+			} else {
+				skill_info[sk_num].level_decrement[pc_class] = level_decrement;
+			}  */
+			auto value = xNodeSkill.attribute("improve").as_int();
+			//skill_info[sk_num].k_improve[pc_class] = MAX(1, value);
+			value = xNodeSkill.attribute("level").as_int();
+/*			if (value > 0 && value < kLevelImmortal) {
+				skill_info[sk_num].min_level[pc_class] = value;
+			} else {
+				log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d",
+					skill_info[sk_num].name,
+					value);
+				graceful_exit(1);
+			}*/
+			value = xNodeSkill.attribute("remort").as_int();
+/*			if (value >= 0 && value < kMaxRemort) {
+				skill_info[sk_num].min_remort[pc_class] = value;
+			} else {
+				log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d",
+					skill_info[sk_num].name,
+					value);
+				graceful_exit(1);
+			}*/
 		}
 	}
 }
@@ -2352,6 +2242,7 @@ int level_exp(CharacterData *ch, int level) {
 				case kLevelImmortal: return int(exp_modifier * 79000000);
 			}
 			break;
+		default: break;
 	}
 
 	/*
@@ -2371,15 +2262,15 @@ void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
 		return;
 	}
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
 		bad = 1;
 	}
 	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 	if (remort < 0 || remort > kMaxRemort) {
-		log("SYSERR: assigning '%s' to illegal remort %d/%d.", skill_name(spell), remort, kMaxRemort);
+		log("SYSERR: assigning '%s' to illegal remort %d/%d.", spell_info[spell].name, remort, kMaxRemort);
 		bad = 1;
 	}
 	if (!bad) {
@@ -2397,17 +2288,17 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
 		bad = 1;
 	}
 
 	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 
 	if (level < 1 || level > kLevelImplementator) {
-		log("SYSERR: assigning '%s' to illegal level %d/%d.", skill_name(spell), level, kLevelImplementator);
+		log("SYSERR: assigning '%s' to illegal level %d/%d.", spell_info[spell].name, level, kLevelImplementator);
 		bad = 1;
 	}
 
@@ -2426,12 +2317,12 @@ void mspell_change(char *name, int spell, int kin, int chclass, int class_change
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
 		bad = 1;
 	}
 
 	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, NUM_PLAYER_CLASSES - 1);
 		bad = 1;
 	}
 	if (!bad) {

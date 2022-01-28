@@ -13,7 +13,7 @@ void do_godtest(CharacterData *ch, char * /*argument*/, int /* cmd */, int /* su
 		   << std::endl;
 	page_string(ch->desc, buffer.str());*/
 
-	const abilities::AbilityInfo &ability = GlobalObjects::abilities_info()[abilities::EAbility::kKick];
+	const abilities::AbilityInfo &ability = GlobalObjects::Abilities()[abilities::EAbility::kKick];
 	page_string(ch->desc, ability.Print());
 }
 

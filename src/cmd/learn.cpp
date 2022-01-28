@@ -2,9 +2,9 @@
 
 #include "handler.h"
 #include "classes/class_spell_slots.h"
-#include "skills_info.h"
 #include "magic/spells_info.h"
-#include "entities/entity_constants.h"
+//#include "entities/entity_constants.h"
+#include "structs/global_objects.h"
 
 class ObjectData;
 
@@ -13,14 +13,14 @@ void book_upgrd_fail_message(CharacterData *ch, ObjectData *obj) {
 				 obj->get_PName(3).c_str());
 	act("$n с интересом принял$u читать $o3.\r\n"
 		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-		false, ch, obj, 0, TO_ROOM);
+		false, ch, obj, nullptr, TO_ROOM);
 }
 
 void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	using PlayerClass::slot_for_char;
 
 	ObjectData *obj;
-	int spellnum = 0, addchance = 10, rcpt = -1;
+	int addchance = 10, rcpt = -1;
 	im_rskill *rs = nullptr;
 	const char *spellname = "";
 
@@ -58,11 +58,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (!*arg) {
 		send_to_char("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
 		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.",
-			false,
-			ch,
-			0,
-			0,
-			TO_ROOM | TO_ARENA_LISTEN);
+			false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		return;
 	}
 
@@ -72,15 +68,18 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_BOOK) {
-		act("Вы уставились на $o3, как баран на новые ворота.", false, ch, obj, 0, TO_CHAR);
-		act("$n начал$g внимательно изучать устройство $o1.", false, ch, obj, 0, TO_ROOM);
+		act("Вы уставились на $o3, как баран на новые ворота.",
+			false, ch, obj, nullptr, TO_CHAR);
+		act("$n начал$g внимательно изучать устройство $o1.",
+			false, ch, obj, nullptr, TO_ROOM);
 		return;
 	}
 
 	if (GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_SKILL &&
 		GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT &&
 		GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
-		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!", false, ch, obj, 0, TO_CHAR);
+		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!",
+			false, ch, obj, nullptr, TO_CHAR);
 		return;
 	}
 
@@ -105,8 +104,8 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL
 		|| GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
-		&& GET_OBJ_VAL(obj, 1) < 1
-		&& GET_OBJ_VAL(obj, 1) > MAX_SKILL_NUM) {
+		&& GET_OBJ_VAL(obj, 1) < to_underlying(ESkill::kFirst)
+		&& GET_OBJ_VAL(obj, 1) > to_underlying(ESkill::kLast)) {
 		send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
 		return;
 	}
@@ -128,13 +127,12 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	//	skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == kKnowSkill)
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && can_get_skill_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2))) {
-		spellnum = GET_OBJ_VAL(obj, 1);
-		spellname = skill_info[spellnum].name;
-	} else if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_trained_skill(static_cast<ESkill>(GET_OBJ_VAL(obj, 1)))) {
-		spellnum = GET_OBJ_VAL(obj, 1);
-		spellname = skill_info[spellnum].name;
+	auto skill_id = ESkill::kIncorrect;
+	int spellnum = SPELL_NO_SPELL;
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2)))
+		|| (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_trained_skill(skill_id))) {
+		skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
+		spellname = MUD::Skills()[skill_id].GetName();
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
 		&& can_get_spell_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2))) {
 		spellnum = GET_OBJ_VAL(obj, 1);
@@ -155,7 +153,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		spellname = feat_info[spellnum].name;
 	}
 
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && ch->get_skill(static_cast<ESkill>(spellnum)))
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && ch->get_skill(skill_id))
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW)
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum))
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs)) {
@@ -170,21 +168,19 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		act("$n с интересом принял$u читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-			false, ch, obj, 0, TO_ROOM);
+			false, ch, obj, nullptr, TO_ROOM);
 		return;
 	}
 
 	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) {
 		// апгрейд скилла без учета макс.скилла плеера (до макс в книге)
-		if (GET_OBJ_VAL(obj, 3) > 0
-			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= GET_OBJ_VAL(obj, 3)) {
+		if (GET_OBJ_VAL(obj, 3) > 0 && ch->get_trained_skill(skill_id) >= GET_OBJ_VAL(obj, 3)) {
 			book_upgrd_fail_message(ch, obj);
 			return;
 		}
 
 		// апгрейд скилла до макс.скилла плеера (без макса в книге)
-		if (GET_OBJ_VAL(obj, 3) <= 0
-			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5) {
+		if (GET_OBJ_VAL(obj, 3) <= 0 && ch->get_trained_skill(skill_id) >= CalcSkillRemortCap(ch)) {
 			book_upgrd_fail_message(ch, obj);
 			return;
 		}
@@ -201,7 +197,8 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				"долга закрыли %s. До %s вы еще не доросли.\r\n",
 				where, what, obj->get_PName(3).c_str(), whom);
 		send_to_char(buf, ch);
-		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.", false, ch, obj, 0, TO_ROOM);
+		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.",
+			false, ch, obj, nullptr, TO_ROOM);
 		return;
 	}
 
@@ -245,16 +242,15 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			case BOOK_SPELL: GET_SPELL_TYPE(ch, spellnum) |= SPELL_KNOW;
 				break;
 
-			case BOOK_SKILL: ch->set_skill(static_cast<ESkill>(spellnum), 1);
+			case BOOK_SKILL: ch->set_skill(skill_id, 5);
 				break;
 
 			case BOOK_UPGRD: {
-				const ESkill skill = static_cast<ESkill>(spellnum);
-				const int left_skill_level = ch->get_trained_skill(static_cast<ESkill>(spellnum)) + GET_OBJ_VAL(obj, 2);
+				const int left_skill_level = ch->get_trained_skill(skill_id) + GET_OBJ_VAL(obj, 2);
 				if (GET_OBJ_VAL(obj, 3) > 0) {
-					ch->set_skill(skill, MIN(left_skill_level, GET_OBJ_VAL(obj, 3)));
+					ch->set_skill(skill_id, std::min(left_skill_level, GET_OBJ_VAL(obj, 3)));
 				} else {
-					ch->set_skill(skill, MIN(left_skill_level, kSkillCapOnZeroRemort + GET_REAL_REMORT(ch) * 5));
+					ch->set_skill(skill_id, std::min(left_skill_level, CalcSkillRemortCap(ch)));
 				}
 			}
 				break;

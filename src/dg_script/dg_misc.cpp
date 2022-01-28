@@ -8,9 +8,9 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-#include "constants.h"
+//#include "constants.h"
 #include "dg_scripts.h"
-#include "interpreter.h"
+//#include "interpreter.h"
 #include "handler.h"
 #include "dg_event.h"
 #include "magic/magic.h"

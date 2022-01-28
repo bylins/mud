@@ -37,12 +37,12 @@ enum EExtraAttack {
 };
 
 // PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
-enum ESkill : int {
-	SKILL_UNDEF = -1,
-	SKILL_INVALID = 0,
-	SKILL_GLOBAL_COOLDOWN = 0,    // Internal - ID for global ability cooldown //
-	SKILL_FIRST = 1,
-	SKILL_PROTECT = SKILL_FIRST,    // *** Protect groupers    //
+enum class ESkill : int {
+	kAny = -3,    // Нужен, чтобы указывать "произвольный" скилл в некоторых случаях //
+	kUndefined = -2,
+	kIncorrect = -1,			// То бишь, такого скилла нет.
+	SKILL_GLOBAL_COOLDOWN = 0,	// Internal - ID for global ability cooldown //
+	SKILL_PROTECT = 1,    // *** Protect groupers    //
 	SKILL_TOUCH = 2,    // *** Touch attacker       //
 	SKILL_SHIT = 3,
 	SKILL_MIGHTHIT = 4,
@@ -129,26 +129,33 @@ enum ESkill : int {
 	SKILL_LIFE_MAGIC = 189,
 	SKILL_STUN = 190,
 	SKILL_MAKE_AMULET = 191,
-	SKILL_INDEFINITE = 192,    // Reserved! Нужен, чтобы указывать "произвольный" скилл в некоторых случаях //
 
-	// не забываем указывать максимальный номер скилла
-	MAX_SKILL_NUM = SKILL_INDEFINITE
+	kFirst = SKILL_PROTECT,
+	kLast = SKILL_MAKE_AMULET	// не забываем указывать максимальный номер скилла
 };
 
-const int kKnowSkill = 1;
-
-struct SkillRollResult {
-	bool success = true;
-	bool critical = false;
-	short degree = 0;
-};
+const ESkill& operator++(ESkill &s);
 
 template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESkill>(ESkill item);
 
-extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
+const int kKnowSkill = 1;
+
+struct SkillRollResult {
+	bool success{true};
+	bool critical{false};
+	int degree{0};
+};
+
+struct TimedSkill {
+	ESkill skill{ESkill::kIncorrect};	// Used skill //
+	ubyte time{0};						// Time for next using //
+	struct TimedSkill *next{nullptr};
+};
+
+extern std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS;
 
 int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attacktype, std::string add = "");
 
@@ -156,17 +163,17 @@ int CalcCurrentSkill(CharacterData *ch, ESkill skill, CharacterData *vict);
 void ImproveSkill(CharacterData *ch, ESkill skill, int success, CharacterData *victim);
 void TrainSkill(CharacterData *ch, ESkill skill, bool success, CharacterData *vict);
 
-int min_skill_level(CharacterData *ch, int skill);
-int min_skill_level_with_req(CharacterData *ch, int skill, int req_lvl);
-bool IsAbleToGetSkill(CharacterData *ch, int skill);
-bool can_get_skill_with_req(CharacterData *ch, int skill, int req_lvl);
-int FindWeaponMasterBySkill(ESkill skill);
+int GetSkillMinLevel(CharacterData *ch, ESkill skill);
+int GetSkillMinLevel(CharacterData *ch, ESkill skill, int req_lvl);
+bool IsAbleToGetSkill(CharacterData *ch, ESkill skill);
+bool IsAbleToGetSkill(CharacterData *ch, ESkill skill, int req_lvl);
+int FindWeaponMasterFeat(ESkill skill);
 int CalcSkillRemortCap(const CharacterData *ch);
-int CalcSkillSoftCap(const CharacterData *ch);
+int CalcSkillWisdomCap(const CharacterData *ch);
 int CalcSkillHardCap(const CharacterData *ch, ESkill skill);
 int CalcSkillMinCap(const CharacterData *ch, ESkill skill);
 SkillRollResult MakeSkillTest(CharacterData *ch, ESkill skill_id, CharacterData *vict);
-void SendSkillBalanceMsg(CharacterData *ch, const char *skill_name, int percent, int prob, bool success);
+void SendSkillBalanceMsg(CharacterData *ch, const std::string &skill_name, int percent, int prob, bool success);
 int CalculateSkillAwakeModifier(CharacterData *killer, CharacterData *victim);
 
 #endif // SKILLS_H_

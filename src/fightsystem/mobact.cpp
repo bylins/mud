@@ -36,7 +36,7 @@
 #include "house.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
-#include "magic/magic_rooms.h"
+//#include "magic/magic_rooms.h"
 
 // external structs
 extern int no_specials;
@@ -143,41 +143,41 @@ int extra_aggressive(CharacterData *ch, CharacterData *victim) {
 int attack_best(CharacterData *ch, CharacterData *victim) {
 	ObjectData *wielded = GET_EQ(ch, WEAR_WIELD);
 	if (victim) {
-		if (ch->get_skill(SKILL_STRANGLE) && !timed_by_skill(ch, SKILL_STRANGLE)) {
+		if (ch->get_skill(ESkill::SKILL_STRANGLE) && !IsTimedBySkill(ch, ESkill::SKILL_STRANGLE)) {
 			go_strangle(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(SKILL_BACKSTAB) && !victim->get_fighting()) {
+		if (ch->get_skill(ESkill::SKILL_BACKSTAB) && !victim->get_fighting()) {
 			go_backstab(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(SKILL_MIGHTHIT)) {
+		if (ch->get_skill(ESkill::SKILL_MIGHTHIT)) {
 			go_mighthit(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(SKILL_STUPOR)) {
+		if (ch->get_skill(ESkill::SKILL_STUPOR)) {
 			go_stupor(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(SKILL_BASH)) {
+		if (ch->get_skill(ESkill::SKILL_BASH)) {
 			go_bash(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(SKILL_THROW)
+		if (ch->get_skill(ESkill::SKILL_THROW)
 			&& wielded
 			&& GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON
 			&& wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)) {
 			go_throw(ch, victim);
 		}
-		if (ch->get_skill(SKILL_DISARM)) {
+		if (ch->get_skill(ESkill::SKILL_DISARM)) {
 			go_disarm(ch, victim);
 		}
-		if (ch->get_skill(SKILL_CHOPOFF)) {
+		if (ch->get_skill(ESkill::SKILL_CHOPOFF)) {
 			go_chopoff(ch, victim);
 		}
 		if (!ch->get_fighting()) {
 			victim = try_protect(victim, ch);
-			hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+			hit(ch, victim, ESkill::kUndefined, FightSystem::MAIN_HAND);
 		}
 		return (true);
 	} else
@@ -217,12 +217,13 @@ int find_door(CharacterData *ch, const bool track_method) {
 						|| world[ch->in_room]->zone_rn == world[IN_ROOM(vict)]->zone_rn)) {
 					if (!msg) {
 						msg = true;
-						act("$n начал$g внимательно искать чьи-то следы.", false, ch, 0, 0, TO_ROOM);
+						act("$n начал$g внимательно искать чьи-то следы.",
+							false, ch, nullptr, nullptr, TO_ROOM);
 					}
 
 					const auto door = track_method
 									  ? check_room_tracks(ch->in_room, GET_IDNUM(vict))
-									  : go_track(ch, vict.get(), SKILL_TRACK);
+									  : go_track(ch, vict.get(), ESkill::SKILL_TRACK);
 
 					if (BFS_ERROR != door) {
 						return door;
@@ -279,13 +280,10 @@ CharacterData *selectVictimDependingOnGroupFormation(CharacterData *assaulter, C
 		return initialVictim;
 	}
 
-	act("Вы героически приняли удар $n1 на себя!", false, assaulter, nullptr, newVictim, TO_VICT | TO_NO_BRIEF_SHIELDS);
+	act("Вы героически приняли удар $n1 на себя!",
+		false, assaulter, nullptr, newVictim, TO_VICT | TO_NO_BRIEF_SHIELDS);
 	act("$n попытал$u ворваться в ваши ряды, но $N героически принял$G удар на себя!",
-		false,
-		assaulter,
-		nullptr,
-		newVictim,
-		TO_NOTVICT | TO_NO_BRIEF_SHIELDS);
+		false, assaulter, nullptr, newVictim, TO_NOTVICT | TO_NO_BRIEF_SHIELDS);
 	return newVictim;
 }
 
@@ -677,7 +675,7 @@ int perform_best_mob_attack(CharacterData *ch, int extmode) {
 				}
 		}
 		if (!attack_best(ch, best) && !ch->get_fighting())
-			hit(ch, best, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+			hit(ch, best, ESkill::kUndefined, FightSystem::MAIN_HAND);
 		return (true);
 	}
 	return (false);
@@ -700,7 +698,7 @@ int perform_best_horde_attack(CharacterData *ch, int extmode) {
 			}
 
 			if (!attack_best(ch, vict) && !ch->get_fighting()) {
-				hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+				hit(ch, vict, ESkill::kUndefined, FightSystem::MAIN_HAND);
 			}
 			return (true);
 		}
@@ -724,11 +722,11 @@ int perform_mob_switch(CharacterData *ch) {
 	set_fighting(ch, best);
 	set_wait(ch, 2, false);
 
-	if (ch->get_skill(SKILL_MIGHTHIT)
+	if (ch->get_skill(ESkill::SKILL_MIGHTHIT)
 		&& check_mighthit_weapon(ch)) {
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
-	} else if (ch->get_skill(SKILL_STUPOR)) {
-		SET_AF_BATTLE(ch, SKILL_STUPOR);
+	} else if (ch->get_skill(ESkill::SKILL_STUPOR)) {
+		SET_AF_BATTLE(ch, ESkill::SKILL_STUPOR);
 	}
 
 	return true;
@@ -824,7 +822,7 @@ void do_aggressive_mob(CharacterData *ch, int check_sneak) {
 					false, ch, nullptr, victim, TO_ROOM);
 			}
 			if (!attack_best(ch, victim)) {
-				hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+				hit(ch, victim, ESkill::kUndefined, FightSystem::MAIN_HAND);
 			}
 			return;
 		}
@@ -1160,7 +1158,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 
 		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, NPC_SNEAK)) {
-			if (CalcCurrentSkill(ch.get(), SKILL_SNEAK, 0) >= number(0, 100)) {
+			if (CalcCurrentSkill(ch.get(), ESkill::SKILL_SNEAK, 0) >= number(0, 100)) {
 				ch->set_affect(EAffectFlag::AFF_SNEAK);
 			} else {
 				ch->remove_affect(EAffectFlag::AFF_SNEAK);
@@ -1169,7 +1167,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 
 		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, NPC_CAMOUFLAGE)) {
-			if (CalcCurrentSkill(ch.get(), SKILL_CAMOUFLAGE, 0) >= number(0, 100)) {
+			if (CalcCurrentSkill(ch.get(), ESkill::SKILL_CAMOUFLAGE, 0) >= number(0, 100)) {
 				ch->set_affect(EAffectFlag::AFF_CAMOUFLAGE);
 			} else {
 				ch->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
@@ -1229,7 +1227,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			door = npc_walk(ch.get());
 		}
 
-		if (MEMORY(ch) && door == BFS_ERROR && GET_POS(ch) > EPosition::kFight && ch->get_skill(SKILL_TRACK))
+		if (MEMORY(ch) && door == BFS_ERROR && GET_POS(ch) > EPosition::kFight && ch->get_skill(ESkill::SKILL_TRACK))
 			door = npc_track(ch.get());
 
 		if (door == BFS_ALREADY_THERE) {
@@ -1304,7 +1302,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 // make ch remember victim
 void mobRemember(CharacterData *ch, CharacterData *victim) {
-	struct Timed timed{};
+	struct TimedSkill timed{};
 	MemoryRecord *tmp;
 	bool present = false;
 
@@ -1330,9 +1328,9 @@ void mobRemember(CharacterData *ch, CharacterData *victim) {
 		MEMORY(ch) = tmp;
 	}
 
-	if (!timed_by_skill(victim, SKILL_HIDETRACK)) {
-		timed.skill = SKILL_HIDETRACK;
-		timed.time = ch->get_skill(SKILL_TRACK) ? 6 : 3;
+	if (!IsTimedBySkill(victim, ESkill::SKILL_HIDETRACK)) {
+		timed.skill = ESkill::SKILL_HIDETRACK;
+		timed.time = ch->get_skill(ESkill::SKILL_TRACK) ? 6 : 3;
 		timed_to_char(victim, &timed);
 	}
 }

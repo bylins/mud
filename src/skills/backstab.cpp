@@ -7,17 +7,17 @@
 #include "fightsystem/fight_start.h"
 #include "handler.h"
 #include "protect.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 using namespace FightSystem;
 
 // делегат обработки команды заколоть
 void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(SKILL_BACKSTAB) < 1) {
+	if (ch->get_skill(ESkill::SKILL_BACKSTAB) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_BACKSTAB)) {
+	if (ch->haveCooldown(ESkill::SKILL_BACKSTAB)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -93,11 +93,11 @@ void go_backstab(CharacterData *ch, CharacterData *vict) {
 
 	bool success = false;
 	if (PRF_FLAGGED(ch, PRF_TESTER)) {
-		SkillRollResult result = MakeSkillTest(ch, SKILL_BACKSTAB, vict);
+		SkillRollResult result = MakeSkillTest(ch, ESkill::SKILL_BACKSTAB, vict);
 		success = result.success;
 	} else {
-		int percent = number(1, skill_info[SKILL_BACKSTAB].difficulty);
-		int prob = CalcCurrentSkill(ch, SKILL_BACKSTAB, vict);
+		int percent = number(1, MUD::Skills()[ESkill::SKILL_BACKSTAB].difficulty);
+		int prob = CalcCurrentSkill(ch, ESkill::SKILL_BACKSTAB, vict);
 
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT)) {
 			prob = prob + prob * 20 / 100;
@@ -120,19 +120,19 @@ void go_backstab(CharacterData *ch, CharacterData *vict) {
 			prob = 0;
 		}
 		success = percent <= prob;
-		SendSkillBalanceMsg(ch, skill_info[SKILL_BACKSTAB].name, percent, prob, success);
+		SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::SKILL_BACKSTAB].name, percent, prob, success);
 	}
 
-	TrainSkill(ch, SKILL_BACKSTAB, success, vict);
+	TrainSkill(ch, ESkill::SKILL_BACKSTAB, success, vict);
 	if (!success) {
-		Damage dmg(SkillDmg(SKILL_BACKSTAB), ZERO_DMG, PHYS_DMG);
+		Damage dmg(SkillDmg(ESkill::SKILL_BACKSTAB), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
 	} else {
-		hit(ch, vict, SKILL_BACKSTAB, FightSystem::MAIN_HAND);
+		hit(ch, vict, ESkill::SKILL_BACKSTAB, FightSystem::MAIN_HAND);
 	}
 	set_wait(ch, 1, true);
-	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
-	setSkillCooldownInFight(ch, SKILL_BACKSTAB, 2);
+	setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, ESkill::SKILL_BACKSTAB, 2);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

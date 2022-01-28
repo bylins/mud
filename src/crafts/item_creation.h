@@ -7,8 +7,8 @@
 *  $Revision$                                                      *
 **************************************************************************/
 
-#ifndef __ITEM_CREATION_HPP__
-#define __ITEM_CREATION_HPP__
+#ifndef ITEM_CREATION_HPP_
+#define ITEM_CREATION_HPP_
 
 #include "affects/affect_data.h"
 #include "conf.h"
@@ -16,42 +16,43 @@
 #include "features.h"
 #include "interpreter.h"
 #include "skills.h"
-//#include "structs/flag_data.h"
 
 #include <string>
 #include <list>
 #include <iostream>
 #include <fstream>
 
-#define MAX_ITEMS    9
+const int MAX_ITEMS = 9;
+const int MAX_PARTS = 3;
 
-#define MAX_PARTS    3
+const int MAX_PROTO = 3;
+const int COAL_PROTO = 311;
+const int WOOD_PROTO = 313;
+const int TETIVA_PROTO = 314;
 
-#define MAX_PROTO    3
-#define COAL_PROTO    311
-#define WOOD_PROTO      313
-#define TETIVA_PROTO    314
+const int MREDIT_MAIN_MENU = 0;
+const int MREDIT_OBJ_PROTO = 1;
+const int MREDIT_SKILL = 2;
+const int MREDIT_LOCK = 3;
+const int MREDIT_INGR_MENU = 4;
+const int MREDIT_INGR_PROTO = 5;
+const int MREDIT_INGR_WEIGHT = 6;
+const int MREDIT_INGR_POWER = 7;
+const int MREDIT_DEL = 8;
+const int MREDIT_CONFIRM_SAVE = 9;
 
-#define MREDIT_MAIN_MENU    0
-#define MREDIT_OBJ_PROTO    1
-#define MREDIT_SKILL        2
-#define MREDIT_LOCK        3
-#define MREDIT_INGR_MENU    4
-#define MREDIT_INGR_PROTO    5
-#define MREDIT_INGR_WEIGHT    6
-#define MREDIT_INGR_POWER    7
-#define MREDIT_DEL        8
-#define MREDIT_CONFIRM_SAVE     9
+const int MAKE_ANY = 0;
+const int MAKE_POTION = 1;
+const int MAKE_WEAR = 2;
+const int MAKE_METALL = 3;
+const int MAKE_CRAFT = 4;
+const int MAKE_AMULET = 5;
 
-#define MAKE_ANY    0
-#define MAKE_POTION    1
-#define MAKE_WEAR    2
-#define MAKE_METALL    3
-#define MAKE_CRAFT    4
-#define MAKE_AMULET 5
+const int SCMD_TRANSFORMWEAPON = 0;
+const int SCMD_CREATEBOW = 1;
 
 // определяем минимальное количество мувов для возможности что-то сделать.
-#define MIN_MAKE_MOVE   10
+const int MIN_MAKE_MOVE = 10;
 
 using std::string;
 using std::ifstream;
@@ -113,7 +114,7 @@ class MakeReceptList {
 	// сделать рецепт по названию его прототипа из листа.
 	MakeRecept *get_by_name(string &rname);
 
-	MakeReceptList *can_make(CharacterData *ch, MakeReceptList *canlist, int use_skill);
+	MakeReceptList *can_make(CharacterData *ch, MakeReceptList *canlist, ESkill use_skill);
 
 	// число элементов рецептов
 	size_t size();
@@ -176,6 +177,6 @@ class MakeRecept {
 	int save_to_str(string &rstr);
 };
 
-#endif
+#endif // ITEM_CREATION_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

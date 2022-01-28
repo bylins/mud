@@ -34,6 +34,7 @@
 #include "conf.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
+#include "structs/global_objects.h"
 
 #include <boost/format.hpp>
 #include <stack>
@@ -236,14 +237,14 @@ void medit_mobile_free(CharacterData *mob)
 
 		if (mob->mob_specials.Questor) {
 			free(mob->mob_specials.Questor);
-			mob->mob_specials.Questor = 0;
+			mob->mob_specials.Questor = nullptr;
 		}
 	} else {
 		// Есть прототип, удалять несовпадающее
 
 		if (mob->mob_specials.Questor && mob->mob_specials.Questor != mob_proto[i].mob_specials.Questor) {
 			free(mob->mob_specials.Questor);
-			mob->mob_specials.Questor = 0;
+			mob->mob_specials.Questor = nullptr;
 		}
 	}
 
@@ -688,8 +689,8 @@ void medit_save_to_disk(int zone_num) {
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
 			for (const auto c : AVAILABLE_SKILLS) {
-				if (mob->get_skill(c) && *skill_info[c].name != '!') {
-					fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
+				if (mob->get_skill(c) && *MUD::Skills()[c].GetName() != '!') {
+					fprintf(mob_file, "Skill: %d %d\n", to_underlying(c), mob->get_skill(c));
 				}
 			}
 			for (c = 1; c <= SPELLS_COUNT; c++) {
@@ -1074,8 +1075,7 @@ void medit_disp_skills(DescriptorData *d) {
 	send_to_char("[H[J", d->character);
 #endif
 	for (const auto counter : AVAILABLE_SKILLS) {
-		if (!skill_info[counter].name
-			|| *skill_info[counter].name == '!') {
+		if (!MUD::Skills()[counter].GetName() || *MUD::Skills()[counter].GetName() == '!') {
 			continue;
 		}
 
@@ -1085,8 +1085,8 @@ void medit_disp_skills(DescriptorData *d) {
 			strcpy(buf1, "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-				 skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(counter), nrm,
+				 MUD::Skills()[counter].GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
@@ -2175,24 +2175,20 @@ void medit_parse(DescriptorData *d, char *arg) {
 			medit_disp_helpers(d);
 			return;
 
-		case MEDIT_SKILLS: number = atoi(arg);
-			if (number == 0) {
-				break;
-			}
-			if (number > MAX_SKILL_NUM
-				|| number < 0
-				|| !skill_info[number].name
-				|| *skill_info[number].name == '!') {
+		case MEDIT_SKILLS: {
+			auto skill_id = static_cast<ESkill>(atoi(arg));
+			if (skill_id < ESkill::kFirst || skill_id > ESkill::kLast) {
 				send_to_char("Неизвестное умение.\r\n", d->character.get());
-			} else if (OLC_MOB(d)->get_skill(static_cast<ESkill>(number))) {
-				OLC_MOB(d)->set_skill(static_cast<ESkill>(number), 0);
+			} else if (OLC_MOB(d)->get_skill(skill_id)) {
+				OLC_MOB(d)->set_skill(skill_id, 0);
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
-				OLC_MOB(d)->set_skill(static_cast<ESkill>(number), (MIN(200, MAX(0, bit))));
+				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skills()[skill_id].cap));
 			}
 			medit_disp_skills(d);
 			return;
+		}
 
 		case MEDIT_SPELLS: number = atoi(arg);
 			if (number == 0) {

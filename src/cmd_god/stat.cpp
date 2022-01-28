@@ -19,8 +19,8 @@
 #include "mob_stat.h"
 #include "modify.h"
 #include "entities/zone.h"
-#include "skills_info.h"
 #include "magic/spells_info.h"
+#include "structs/global_objects.h"
 
 void do_statip(CharacterData *ch, CharacterData *k) {
 	log("Start logon list stat");
@@ -375,8 +375,8 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 					 CCNRM(ch, C_NRM));
 		send_to_char(ch, "Умения:&c");
 		for (const auto counter : AVAILABLE_SKILLS) {
-			if (*skill_info[counter].name != '!' && k->get_skill(counter)) {
-				send_to_char(ch, " %s:[%3d]", skill_info[counter].name, k->get_skill(counter));
+			if (*MUD::Skills()[counter].GetName() != '!' && k->get_skill(counter)) {
+				send_to_char(ch, " %s:[%3d]", MUD::Skills()[counter].GetName(), k->get_skill(counter));
 			}
 		}
 		send_to_char(ch, CCNRM(ch, C_NRM));
@@ -563,7 +563,8 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 			send_to_char(ch, "Выполнил квесты:\r\n%s\r\n", quested.c_str());
 
 		if (NORENTABLE(k)) {
-			sprintf(buf, "Не может уйти на постой %ld\r\n", static_cast<long int>(NORENTABLE(k) - time(0)));
+			sprintf(buf, "Не может уйти на постой %ld\r\n",
+					static_cast<long int>(NORENTABLE(k) - time(nullptr)));
 			send_to_char(buf, ch);
 		}
 		if (AGRO(k)) {
@@ -740,24 +741,24 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 					} else
 						sprintf(buf, "неверный номер заклинания");
 					break;
-				case BOOK_SKILL:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_SKILL_NUM) {
-						sprintf(buf, "содержит секрет умения     : \"%s\"", skill_info[GET_OBJ_VAL(j, 1)].name);
+				case BOOK_SKILL: {
+					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
+					if (skill_id >= ESkill::kFirst && skill_id <= ESkill::kLast) {
+						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills()[skill_id].GetName());
 					} else
 						sprintf(buf, "неверный номер умения");
 					break;
+				}
 				case BOOK_UPGRD: {
-					const auto skill_num = GET_OBJ_VAL(j, 1);
-					if (skill_num >= 1 && skill_num < MAX_SKILL_NUM) {
+					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
+					if (skill_id >= ESkill::kFirst && skill_id <= ESkill::kLast) {
 						if (GET_OBJ_VAL(j, 3) > 0) {
-							sprintf(buf,
-									"повышает умение \"%s\" (максимум %d)",
-									skill_info[skill_num].name,
+							sprintf(buf, "повышает умение \"%s\" (максимум %d)",
+									MUD::Skills()[skill_id].GetName(),
 									GET_OBJ_VAL(j, 3));
 						} else {
-							sprintf(buf,
-									"повышает умение \"%s\" (не больше максимума текущего перевоплощения)",
-									skill_info[skill_num].name);
+							sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)",
+									MUD::Skills()[skill_id].GetName());
 						}
 					} else
 						sprintf(buf, "неверный номер повышаемоего умения");
@@ -765,7 +766,8 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 					break;
 				case BOOK_FEAT:
 					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < kMaxFeats) {
-						sprintf(buf, "содержит секрет способности : \"%s\"", feat_info[GET_OBJ_VAL(j, 1)].name);
+						sprintf(buf, "содержит секрет способности : \"%s\"",
+								feat_info[GET_OBJ_VAL(j, 1)].name);
 					} else
 						sprintf(buf, "неверный номер способности");
 					break;
@@ -954,20 +956,13 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 	if (j->has_skills()) {
 		CObjectPrototype::skills_t skills;
 		j->get_skills(skills);
-		int skill_num;
-		int percent;
 
 		send_to_char("\r\nУмения :", ch);
 		for (const auto &it : skills) {
-			skill_num = it.first;
-			percent = it.second;
-
-			if (percent == 0) // TODO: такого не должно быть?
-			{
+			if (it.second == 0) {
 				continue;
 			}
-
-			sprintf(buf, " %+d%% to %s", percent, skill_info[skill_num].name);
+			sprintf(buf, " %+d%% to %s", it.second, MUD::Skills()[it.first].GetName());
 			send_to_char(buf, ch);
 		}
 	}
@@ -1135,7 +1130,7 @@ void do_stat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
 
-	if (is_abbrev(buf1, "room") && level >= kLevelBuilder) {
+	if (utils::IsAbbrev(buf1, "room") && level >= kLevelBuilder) {
 		int vnum, rnum = kNowhere;
 		if (*buf2 && (vnum = atoi(buf2))) {
 			if ((rnum = real_room(vnum)) != kNowhere)
@@ -1145,7 +1140,7 @@ void do_stat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (!*buf2)
 			do_stat_room(ch);
-	} else if (is_abbrev(buf1, "mob") && level >= kLevelBuilder) {
+	} else if (utils::IsAbbrev(buf1, "mob") && level >= kLevelBuilder) {
 		if (!*buf2)
 			send_to_char("Состояние какого создания?\r\n", ch);
 		else {
@@ -1154,7 +1149,7 @@ void do_stat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else
 				send_to_char("Нет такого создания в этом МАДе.\r\n", ch);
 		}
-	} else if (is_abbrev(buf1, "player")) {
+	} else if (utils::IsAbbrev(buf1, "player")) {
 		if (!*buf2) {
 			send_to_char("Состояние какого игрока?\r\n", ch);
 		} else {
@@ -1163,7 +1158,7 @@ void do_stat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else
 				send_to_char("Этого персонажа сейчас нет в игре.\r\n", ch);
 		}
-	} else if (is_abbrev(buf1, "ip")) {
+	} else if (utils::IsAbbrev(buf1, "ip")) {
 		if (!*buf2) {
 			send_to_char("Состояние ip какого игрока?\r\n", ch);
 		} else {
@@ -1182,7 +1177,7 @@ void do_stat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
 		}
-	} else if (is_abbrev(buf1, "file")) {
+	} else if (utils::IsAbbrev(buf1, "file")) {
 		if (!*buf2) {
 			send_to_char("Состояние какого игрока(из файла)?\r\n", ch);
 		} else {
@@ -1198,7 +1193,7 @@ void do_stat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
 		}
-	} else if (is_abbrev(buf1, "object") && level >= kLevelBuilder) {
+	} else if (utils::IsAbbrev(buf1, "object") && level >= kLevelBuilder) {
 		if (!*buf2)
 			send_to_char("Состояние какого предмета?\r\n", ch);
 		else {

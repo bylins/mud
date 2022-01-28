@@ -13,25 +13,19 @@
 ************************************************************************ */
 
 #include "cmd/hire.h"
-#include "world_objects.h"
 #include "obj_prototypes.h"
 #include "entities/char.h"
-//#include "entities/entity_constants.h"
 #include "depot.h"
 #include "fightsystem/fight.h"
 #include "handler.h"
 #include "house.h"
 #include "liquid.h"
 #include "game_mechanics/named_stuff.h"
-#include "obj_save.h"
 #include "fightsystem/pk.h"
 #include "skills/poison.h"
 #include "meat_maker.h"
 #include "utils/utils_char_obj.inl"
 #include "structs/global_objects.h"
-#include "skills_info.h"
-//#include "structs/extra_description_data.h"
-#include "game_mechanics/weather.h"
 
 // extern variables
 extern CharacterData *mob_proto;
@@ -1694,7 +1688,7 @@ void perform_wear(CharacterData *ch, ObjectData *obj, int where) {
 		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+	if (ch->haveCooldown(ESkill::SKILL_GLOBAL_COOLDOWN)) {
 		if (ch->get_fighting() && (where == WEAR_SHIELD || GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON)) {
 			send_to_char("Вам нужно набраться сил.\r\n", ch);
 			return;
@@ -1721,7 +1715,7 @@ void perform_wear(CharacterData *ch, ObjectData *obj, int where) {
 		(where == WEAR_QUIVER &&
 			!(GET_EQ(ch, WEAR_BOTHS) &&
 				(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == ObjectData::ITEM_WEAPON)
-					&& (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS))))) {
+					&& (static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == ESkill::SKILL_BOWS))))) {
 		send_to_char("А стрелять чем будете?\r\n", ch);
 		return;
 	}
@@ -2078,8 +2072,8 @@ void do_grab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
-				if (GET_OBJ_SKILL(obj) == SKILL_BOTHHANDS
-					|| GET_OBJ_SKILL(obj) == SKILL_BOWS) {
+				if (static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::SKILL_BOTHHANDS
+					|| static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::SKILL_BOWS) {
 					send_to_char("Данный тип оружия держать невозможно.", ch);
 					return;
 				}
@@ -2131,7 +2125,7 @@ void perform_remove(CharacterData *ch, int pos) {
 				return;
 			}
 			if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON || pos == WEAR_SHIELD)) {
-				ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
+				ch->setSkillCooldown(ESkill::SKILL_GLOBAL_COOLDOWN, 2);
 			}
 			act("Вы прекратили использовать $o3.", false, ch, obj, 0, TO_CHAR);
 			act("$n прекратил$g использовать $o3.", true, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -2222,7 +2216,7 @@ void do_upgrade(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	ObjectData *obj;
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
 	bool oldstate;
-	if (!ch->get_skill(SKILL_UPGRADE)) {
+	if (!ch->get_skill(ESkill::SKILL_UPGRADE)) {
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2244,7 +2238,7 @@ void do_upgrade(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (GET_OBJ_SKILL(obj) == SKILL_BOWS) {
+	if (static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::SKILL_BOWS) {
 		send_to_char("Невозможно заточить этот тип оружия.\r\n", ch);
 		return;
 	}
@@ -2291,21 +2285,21 @@ void do_upgrade(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			send_to_char(buf, ch);
 			return;
 	}
-	bool change_weight = 1;
+	bool change_weight = true;
 	//Заточить повторно можно, но это уменьшает таймер шмотки на 16%
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)) {
 		int timer = obj->get_timer()
 			- MAX(1000, obj->get_timer() / 6); // абуз, таймер меньше 6 вычитается 0 бесконечная прокачка умелки
 		obj->set_timer(timer);
-		change_weight = 0;
+		change_weight = false;
 	} else {
 		obj->set_extra_flag(EExtraFlag::ITEM_SHARPEN);
 		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
 	}
 
-	percent = number(1, skill_info[SKILL_UPGRADE].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_UPGRADE, nullptr);
-	TrainSkill(ch, SKILL_UPGRADE, percent <= prob, nullptr);
+	percent = number(1, MUD::Skills()[ESkill::SKILL_UPGRADE].difficulty);
+	prob = CalcCurrentSkill(ch, ESkill::SKILL_UPGRADE, nullptr);
+	TrainSkill(ch, ESkill::SKILL_UPGRADE, percent <= prob, nullptr);
 	if (obj->get_timer() == 0) // не ждем рассыпания на тике
 	{
 		act("$o не выдержал$G издевательств и рассыпал$U в мелкую пыль...", false, ch, obj, 0, TO_CHAR);
@@ -2313,7 +2307,7 @@ void do_upgrade(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 	//При 200% заточки шмотка будет точиться на 4-5 хитролов и 4-5 дамролов
-	min_mod = ch->get_trained_skill(SKILL_UPGRADE) / 50;
+	min_mod = ch->get_trained_skill(ESkill::SKILL_UPGRADE) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
 	max_mod = MAX(1, MIN(5, (GET_REAL_LEVEL(ch) + 5 + GET_REAL_REMORT(ch) / 4) / 6));
 	oldstate = check_unlimited_timer(obj); // запомним какая шмотка была до заточки
@@ -2352,7 +2346,7 @@ void do_armored(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	int add_ac, prob, percent, i, armorvalue;
 	const auto &strengthening = GlobalObjects::strengthening();
 
-	if (!ch->get_skill(SKILL_ARMORED)) {
+	if (!ch->get_skill(ESkill::SKILL_ARMORED)) {
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2399,7 +2393,7 @@ void do_armored(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		send_to_char(ch, "Укрепить можно только лично сделанный предмет.\r\n");
 		return;
 	}
-	if (!*arg2 && (GET_SKILL(ch, SKILL_ARMORED) >= 100)) {
+	if (!*arg2 && (GET_SKILL(ch, ESkill::SKILL_ARMORED) >= 100)) {
 		send_to_char(ch,
 					 "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
 		return;
@@ -2425,56 +2419,56 @@ void do_armored(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			return;
 	}
 
-	percent = number(1, skill_info[SKILL_ARMORED].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_ARMORED, nullptr);
-	TrainSkill(ch, SKILL_ARMORED, percent <= prob, nullptr);
+	percent = number(1, MUD::Skills()[ESkill::SKILL_ARMORED].difficulty);
+	prob = CalcCurrentSkill(ch, ESkill::SKILL_ARMORED, nullptr);
+	TrainSkill(ch, ESkill::SKILL_ARMORED, percent <= prob, nullptr);
 	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_REAL_LEVEL(ch) + 4) / 5);
 	if (percent > prob
 		|| GET_GOD_FLAG(ch, GF_GODSCURSE)) {
-		act("Но только испортили $S.", false, ch, obj, 0, TO_CHAR);
+		act("Но только испортили $S.", false, ch, obj, nullptr, TO_CHAR);
 		add_ac = -add_ac;
-	} else if (GET_SKILL(ch, SKILL_ARMORED) >= 100) {
+	} else if (GET_SKILL(ch, ESkill::SKILL_ARMORED) >= 100) {
 		if (CompareParam(arg2, "поглощение")) {
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ABSORBTION);
+			armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::ABSORBTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю поглот на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_ABSORBE, armorvalue);
 		} else if (CompareParam(arg2, "здоровье")) {
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::HEALTH);
+			armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::HEALTH);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_SAVING_CRITICAL, armorvalue);
 		} else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
 		{
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
+			armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
 			armorvalue = -MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_VITALITY, armorvalue);
 		} else if (CompareParam(arg2, "стойкость")) {
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::STAMINA);
+			armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::STAMINA);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_SAVING_STABILITY, armorvalue);
 		} else if (CompareParam(arg2, "воздуха")) {
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::AIR_PROTECTION);
+			armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::AIR_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_AIR, armorvalue);
 		} else if (CompareParam(arg2, "воды")) {
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::WATER_PROTECTION);
+			armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::WATER_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_WATER, armorvalue);
 		} else if (CompareParam(arg2, "огня")) {
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::FIRE_PROTECTION);
+			armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::FIRE_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_FIRE, armorvalue);
 		} else if (CompareParam(arg2, "земли")) {
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::EARTH_PROTECTION);
+			armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::EARTH_PROTECTION);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_EARTH, armorvalue);
@@ -2482,13 +2476,13 @@ void do_armored(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 			send_to_char(ch, "Но не поняли что улучшать.\r\n");
 			return;
 		}
-		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER);
+		armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::TIMER);
 		int timer =
-			obj->get_timer() * strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER) / 100;
+			obj->get_timer() * strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::TIMER) / 100;
 		obj->set_timer(timer);
 //		send_to_char(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
-		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
-//		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
+		armorvalue = strengthening((GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
+//		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, ESkill::SKILL_ARMORED), (GET_SKILL(ch, ESkill::SKILL_ARMORED) / 10 * 10) );
 		obj->set_affected(2, APPLY_ARMOUR, armorvalue);
 		obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
 		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
@@ -2498,7 +2492,7 @@ void do_armored(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 
 void do_fire(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int percent, prob;
-	if (!ch->get_skill(SKILL_FIRE)) {
+	if (!ch->get_skill(ESkill::SKILL_FIRE)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2531,8 +2525,8 @@ void do_fire(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	if (!check_moves(ch, FIRE_MOVES))
 		return;
 
-	percent = number(1, skill_info[SKILL_FIRE].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_FIRE, 0);
+	percent = number(1, MUD::Skills()[ESkill::SKILL_FIRE].difficulty);
+	prob = CalcCurrentSkill(ch, ESkill::SKILL_FIRE, 0);
 	if (percent > prob) {
 		send_to_char("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
 		return;
@@ -2540,7 +2534,7 @@ void do_fire(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		world[ch->in_room]->fires = MAX(0, (prob - percent) / 5) + 1;
 		send_to_char("Вы набрали хворосту и разожгли огонь.\n\r", ch);
 		act("$n развел$g огонь.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		ImproveSkill(ch, SKILL_FIRE, true, 0);
+		ImproveSkill(ch, ESkill::SKILL_FIRE, true, 0);
 	}
 }
 
@@ -2656,13 +2650,13 @@ void do_extinguish(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 
 void do_firstaid(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int success = false, need = false, spellnum = 0;
-	struct Timed timed;
+	struct TimedSkill timed;
 
-	if (!ch->get_skill(SKILL_AID)) {
+	if (!ch->get_skill(ESkill::SKILL_AID)) {
 		send_to_char("Вам следует этому научиться.\r\n", ch);
 		return;
 	}
-	if (!IS_GOD(ch) && timed_by_skill(ch, SKILL_AID)) {
+	if (!IS_GOD(ch) && IsTimedBySkill(ch, ESkill::SKILL_AID)) {
 		send_to_char("Так много лечить нельзя - больных не останется.\r\n", ch);
 		return;
 	}
@@ -2688,8 +2682,8 @@ void do_firstaid(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы не красный крест лечить всех подряд.\r\n", ch);
 		return;
 	}
-	int percent = number(1, skill_info[SKILL_AID].difficulty);
-	int prob = CalcCurrentSkill(ch, SKILL_AID, vict);
+	int percent = number(1, MUD::Skills()[ESkill::SKILL_AID].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::SKILL_AID, vict);
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE)) {
 		percent = prob;
@@ -2713,7 +2707,7 @@ void do_firstaid(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
 				GET_HIT(vict) += add;
 			} else {
-				percent = CalcCurrentSkill(ch, SKILL_AID, vict);
+				percent = CalcCurrentSkill(ch, ESkill::SKILL_AID, vict);
 				prob = GET_REAL_LEVEL(ch) * percent * 0.5;
 				send_to_char(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GET_REAL_LEVEL(vict), prob, percent);
 				GET_HIT(vict) += prob;
@@ -2725,7 +2719,7 @@ void do_firstaid(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	int count = 0;
 	if (PRF_FLAGGED(ch, PRF_TESTER)) {
-		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
+		count = (GET_SKILL(ch, ESkill::SKILL_AID) - 20) / 30;
 		send_to_char(ch, "Снимаю %d аффектов\r\n", count);
 
 		const auto remove_count = vict->remove_random_affects(count);
@@ -2753,11 +2747,11 @@ void do_firstaid(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	} else if (!prob) {
 		act("У вас не хватит умения вылечить $N3.", false, ch, 0, vict, TO_CHAR);
 	} else {
-		timed.skill = SKILL_AID;
+		timed.skill = ESkill::SKILL_AID;
 		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_CLERIC(ch) ? 2 : 6;
 		timed_to_char(ch, &timed);
 		if (vict != ch) {
-			ImproveSkill(ch, SKILL_AID, success, 0);
+			ImproveSkill(ch, ESkill::SKILL_AID, success, 0);
 			if (success) {
 				act("Вы оказали первую помощь $N2.", false, ch, 0, vict, TO_CHAR);
 				act("$N оказал$G вам первую помощь.", false, vict, 0, ch, TO_CHAR);
@@ -2789,7 +2783,7 @@ void do_firstaid(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 void do_poisoned(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(SKILL_POISONED)) {
+	if (!ch->get_skill(ESkill::SKILL_POISONED)) {
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2849,13 +2843,13 @@ void do_poisoned(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_repair(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjectData *obj;
 	int prob, percent = 0, decay;
-	struct Timed timed;
+	struct TimedSkill timed;
 
-	if (!ch->get_skill(SKILL_REPAIR)) {
+	if (!ch->get_skill(ESkill::SKILL_REPAIR)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
-	if (timed_by_skill(ch, SKILL_REPAIR)) {
+	if (IsTimedBySkill(ch, ESkill::SKILL_REPAIR)) {
 		send_to_char("У вас недостаточно сил для ремонта.\r\n", ch);
 		return;
 	}
@@ -2888,15 +2882,15 @@ void do_repair(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	prob = number(1, skill_info[SKILL_REPAIR].difficulty);
-	percent = CalcCurrentSkill(ch, SKILL_REPAIR, nullptr);
-	TrainSkill(ch, SKILL_REPAIR, prob <= percent, nullptr);
+	prob = number(1, MUD::Skills()[ESkill::SKILL_REPAIR].difficulty);
+	percent = CalcCurrentSkill(ch, ESkill::SKILL_REPAIR, nullptr);
+	TrainSkill(ch, ESkill::SKILL_REPAIR, prob <= percent, nullptr);
 	if (prob > percent) {
 //Polos.repair_bug
 //Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
 //состоянии шмотки <очень хорошо>
 		if (!percent) {
-			percent = ch->get_skill(SKILL_REPAIR) / 10;
+			percent = ch->get_skill(ESkill::SKILL_REPAIR) / 10;
 		}
 //-Polos.repair_bug
 		obj->set_current_durability(MAX(0, obj->get_current_durability() * percent / prob));
@@ -2916,9 +2910,9 @@ void do_repair(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			extract_obj(obj);
 		}
 	} else {
-		timed.skill = SKILL_REPAIR;
+		timed.skill = ESkill::SKILL_REPAIR;
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-		int modif = ch->get_skill(SKILL_REPAIR) / 7 + number(1, 5);
+		int modif = ch->get_skill(ESkill::SKILL_REPAIR) / 7 + number(1, 5);
 		timed.time = MAX(1, 25 - modif);
 		timed_to_char(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
@@ -2935,7 +2929,7 @@ bool skill_to_skin(CharacterData *mob, CharacterData *ch) {
 				return true;
 			break;
 		case 1:
-			if (ch->get_skill(SKILL_MAKEFOOD) >= 40) {
+			if (ch->get_skill(ESkill::SKILL_MAKEFOOD) >= 40) {
 				num = 20 * animals_levels[1] / 701;
 				if (number(1, 100) <= num)
 					return true;
@@ -2947,7 +2941,7 @@ bool skill_to_skin(CharacterData *mob, CharacterData *ch) {
 
 			break;
 		case 2:
-			if (ch->get_skill(SKILL_MAKEFOOD) >= 80) {
+			if (ch->get_skill(ESkill::SKILL_MAKEFOOD) >= 80) {
 				num = 10 * animals_levels[2] / 594;
 				if (number(1, 100) <= num)
 					return true;
@@ -2959,7 +2953,7 @@ bool skill_to_skin(CharacterData *mob, CharacterData *ch) {
 			break;
 
 		case 3:
-			if (ch->get_skill(SKILL_MAKEFOOD) >= 120) {
+			if (ch->get_skill(ESkill::SKILL_MAKEFOOD) >= 120) {
 				num = 8 * animals_levels[3] / 209;
 				if (number(1, 100) <= num)
 					return true;
@@ -2971,7 +2965,7 @@ bool skill_to_skin(CharacterData *mob, CharacterData *ch) {
 			break;
 
 		case 4:
-			if (ch->get_skill(SKILL_MAKEFOOD) >= 160) {
+			if (ch->get_skill(ESkill::SKILL_MAKEFOOD) >= 160) {
 				num = 25 * animals_levels[4] / 20;
 				if (number(1, 100) <= num)
 					return true;
@@ -2994,7 +2988,7 @@ bool skill_to_skin(CharacterData *mob, CharacterData *ch) {
 }
 
 void do_makefood(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(SKILL_MAKEFOOD)) {
+	if (!ch->get_skill(ESkill::SKILL_MAKEFOOD)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -3039,13 +3033,13 @@ void do_makefood(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	const auto prob = number(1, skill_info[SKILL_MAKEFOOD].difficulty);
-	const auto percent = CalcCurrentSkill(ch, SKILL_MAKEFOOD, mob)
+	const auto prob = number(1, MUD::Skills()[ESkill::SKILL_MAKEFOOD].difficulty);
+	const auto percent = CalcCurrentSkill(ch, ESkill::SKILL_MAKEFOOD, mob)
 		+ number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
-	TrainSkill(ch, SKILL_MAKEFOOD, percent <= prob, mob);
+	TrainSkill(ch, ESkill::SKILL_MAKEFOOD, percent <= prob, mob);
 
 	ObjectData::shared_ptr tobj;
-	if (GET_SKILL(ch, SKILL_MAKEFOOD) > 150 && number(1, 200) == 1) // артефакт
+	if (GET_SKILL(ch, ESkill::SKILL_MAKEFOOD) > 150 && number(1, 200) == 1) // артефакт
 	{
 		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get_artefact_key());
 	} else {
@@ -3071,7 +3065,7 @@ void do_makefood(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 
-		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2));  // ингры со всех
+		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(ESkill::SKILL_MAKEFOOD) * 2));  // ингры со всех
 
 		for (const auto &it : entrails) {
 			if (it) {

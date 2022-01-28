@@ -14,23 +14,23 @@ using namespace AbilitySystem;
 
 void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
-	if (!ch->get_skill(SKILL_TURN_UNDEAD)) {
+	if (!ch->get_skill(ESkill::SKILL_TURN_UNDEAD)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_TURN_UNDEAD)) {
+	if (ch->haveCooldown(ESkill::SKILL_TURN_UNDEAD)) {
 		send_to_char("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
 		return;
 	};
 
-	int skillTurnUndead = ch->get_skill(SKILL_TURN_UNDEAD);
-	Timed timed;
-	timed.skill = SKILL_TURN_UNDEAD;
+	int skillTurnUndead = ch->get_skill(ESkill::SKILL_TURN_UNDEAD);
+	TimedSkill timed;
+	timed.skill = ESkill::SKILL_TURN_UNDEAD;
 	if (can_use_feat(ch, EXORCIST_FEAT)) {
-		timed.time = timed_by_skill(ch, SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD - 2;
+		timed.time = IsTimedBySkill(ch, ESkill::SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD - 2;
 		skillTurnUndead += 10;
 	} else {
-		timed.time = timed_by_skill(ch, SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD;
+		timed.time = IsTimedBySkill(ch, ESkill::SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD;
 	}
 	if (timed.time > HOURS_PER_DAY) {
 		send_to_char("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
@@ -40,16 +40,12 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 
 	send_to_char(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n",
-		false,
-		ch,
-		0,
-		0,
-		TO_ROOM | TO_ARENA_LISTEN);
+		false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 
 // костылиии... и магик намберы
 	int victimsAmount = 20;
 	int victimssHPAmount = skillTurnUndead * 25 + MAX(0, skillTurnUndead - 80) * 50;
-	Damage turnUndeadDamage(SkillDmg(SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG);
+	Damage turnUndeadDamage(SkillDmg(ESkill::SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG);
 	turnUndeadDamage.magic_type = STYPE_LIGHT;
 	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;
@@ -66,13 +62,10 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 				victimssHPAmount -= turnUndeadDamage.dam;
 			};
 		} else if (turnUndeadRoll.isCriticalFail() && !IS_CHARMICE(target)) {
-			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n", false, target, 0, ch, TO_VICT);
+			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n",
+				false, target, nullptr, ch, TO_VICT);
 			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n",
-				false,
-				target,
-				0,
-				ch,
-				TO_NOTVICT | TO_ARENA_LISTEN);
+				false, target, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			Affect<EApplyLocation> af[2];
 			af[0].type = SPELL_COURAGE;
 			af[0].duration = pc_duration(target, 3, 0, 0, 0, 0);
@@ -100,6 +93,6 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 		};
 	};
 	//set_wait(ch, 1, true);
-	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
-	setSkillCooldownInFight(ch, SKILL_TURN_UNDEAD, 2);
+	setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, ESkill::SKILL_TURN_UNDEAD, 2);
 }

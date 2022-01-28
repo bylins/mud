@@ -15,7 +15,7 @@
 #include "handler.h"
 #include "magic/magic.h"
 #include "color.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 #include <cmath>
 
@@ -270,7 +270,6 @@ void do_drink_poison(CharacterData *ch, ObjectData *jar, int amount) {
 }
 
 int cast_potion(CharacterData *ch, ObjectData *jar) {
-	// Added by Adept - обкаст если в фонтане или емкости зелье
 	if (is_potion(jar) && jar->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
 		act("$n выпил$g зелья из $o1.", true, ch, jar, 0, TO_ROOM);
 		send_to_char(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, 1));
@@ -288,7 +287,7 @@ int cast_potion(CharacterData *ch, ObjectData *jar) {
 		if (GET_OBJ_VAL(jar, 1) <= 0
 			&& GET_OBJ_TYPE(jar) != ObjectData::ITEM_FOUNTAIN) {
 			name_from_drinkcon(jar);
-			jar->set_skill(SKILL_INVALID);
+			jar->set_skill(0);
 			reset_potion_values(jar);
 		}
 		do_drink_poison(ch, jar, 0);
@@ -407,7 +406,7 @@ int do_drink_check_conditions(CharacterData *ch, ObjectData *jar, int amount) {
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] > 0) {
 		// Если у чара бадун - пусть похмеляется, бухать нельзя
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)) {
-			if (GET_SKILL(ch, SKILL_DRUNKOFF) > 0) {//если опохмел есть
+			if (GET_SKILL(ch, ESkill::SKILL_DRUNKOFF) > 0) {//если опохмел есть
 				send_to_char(
 					"Вас передернуло от одной мысли о том что бы выпить.\r\nПохоже, вам стоит опохмелиться.\r\n",
 					ch);
@@ -593,7 +592,7 @@ void do_drink(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjectData *obj;
-	struct Timed timed;
+	struct TimedSkill timed;
 	int amount, weight, prob, percent, duration;
 	int on_ground = 0;
 
@@ -615,7 +614,7 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (timed_by_skill(ch, SKILL_DRUNKOFF)) {
+	if (IsTimedBySkill(ch, ESkill::SKILL_DRUNKOFF)) {
 		send_to_char("Вы не в состоянии так часто похмеляться.\r\n"
 					 "Попросите Богов закодировать вас.\r\n", ch);
 		return;
@@ -676,13 +675,13 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	timed.skill = SKILL_DRUNKOFF;
+	timed.skill = ESkill::SKILL_DRUNKOFF;
 	timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? getModifier(DRUNKARD_FEAT, FEAT_TIMER) : 12;
 	timed_to_char(ch, &timed);
 
-	percent = number(1, skill_info[SKILL_DRUNKOFF].difficulty);
-	prob = CalcCurrentSkill(ch, SKILL_DRUNKOFF, nullptr);
-	TrainSkill(ch, SKILL_DRUNKOFF, percent <= prob, nullptr);
+	percent = number(1, MUD::Skills()[ESkill::SKILL_DRUNKOFF].difficulty);
+	prob = CalcCurrentSkill(ch, ESkill::SKILL_DRUNKOFF, nullptr);
+	TrainSkill(ch, ESkill::SKILL_DRUNKOFF, percent <= prob, nullptr);
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
 	weight = MIN(amount, GET_OBJ_WEIGHT(obj));
 	weight_change_object(obj, -weight);    // Subtract amount //
@@ -718,7 +717,7 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		af[2].location = APPLY_AC;
 		af[2].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 		af[2].battleflag = 0;
-		switch (number(0, ch->get_skill(SKILL_DRUNKOFF) / 20)) {
+		switch (number(0, ch->get_skill(ESkill::SKILL_DRUNKOFF) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;
 				break;
@@ -986,7 +985,7 @@ void do_pour(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			from_obj->set_val(1, 0);
 			from_obj->set_val(2, 0);
 			from_obj->set_val(3, 0);
-			from_obj->set_skill(SKILL_INVALID);
+			from_obj->set_skill(0);
 			name_from_drinkcon(from_obj);
 			reset_potion_values(from_obj);
 

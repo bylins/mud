@@ -18,11 +18,11 @@ void go_multyparry(CharacterData *ch) {
 }
 
 void do_multyparry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_MULTYPARRY)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_MULTYPARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_MULTYPARRY)) {
+	if (ch->haveCooldown(ESkill::SKILL_MULTYPARRY)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -61,11 +61,11 @@ void go_parry(CharacterData *ch) {
 }
 
 void do_parry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_PARRY)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_PARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_PARRY)) {
+	if (ch->haveCooldown(ESkill::SKILL_PARRY)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

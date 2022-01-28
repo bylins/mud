@@ -72,6 +72,7 @@
 #include "exchange.h"
 #include "act_other.h"
 #include "crafts/mining.h"
+#include "structs/global_objects.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -141,7 +142,7 @@ void do_check(CharacterData *ch, char *argument, int cmd, int subcmd);
 void do_cities(CharacterData *ch, char *, int, int);
 void diag_char_to_char(CharacterData *i, CharacterData *ch);
 void look_at_char(CharacterData *i, CharacterData *ch);
-void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode);
+void ListOneChar(CharacterData *i, CharacterData *ch, ESkill mode);
 void list_char_to_char(const RoomData::people_t &list, CharacterData *ch);
 void do_auto_exits(CharacterData *ch);
 void do_exits(CharacterData *ch, char *argument, int cmd, int subcmd);
@@ -233,17 +234,6 @@ char *diag_obj_to_char(CharacterData *i, ObjectData *obj, int mode) {
 	return out_str;
 }
 
-const char *weapon_class[] = {"луки",
-							  "короткие лезвия",
-							  "длинные лезвия",
-							  "секиры",
-							  "палицы и дубины",
-							  "иное оружие",
-							  "двуручники",
-							  "проникающее оружие",
-							  "копья и рогатины"
-};
-
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 	static char out_str[kMaxStringLength];
 	int skill = 0;
@@ -251,24 +241,24 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 
 	*out_str = '\0';
 	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
-		switch (GET_OBJ_SKILL(obj)) {
-			case SKILL_BOWS: skill = 1;
+		switch (static_cast<ESkill>(obj->get_skill())) {
+			case ESkill::SKILL_BOWS: skill = 1;
 				break;
-			case SKILL_SHORTS: skill = 2;
+			case ESkill::SKILL_SHORTS: skill = 2;
 				break;
-			case SKILL_LONGS: skill = 3;
+			case ESkill::SKILL_LONGS: skill = 3;
 				break;
-			case SKILL_AXES: skill = 4;
+			case ESkill::SKILL_AXES: skill = 4;
 				break;
-			case SKILL_CLUBS: skill = 5;
+			case ESkill::SKILL_CLUBS: skill = 5;
 				break;
-			case SKILL_NONSTANDART: skill = 6;
+			case ESkill::SKILL_NONSTANDART: skill = 6;
 				break;
-			case SKILL_BOTHHANDS: skill = 7;
+			case ESkill::SKILL_BOTHHANDS: skill = 7;
 				break;
-			case SKILL_PICK: skill = 8;
+			case ESkill::SKILL_PICK: skill = 8;
 				break;
-			case SKILL_SPADES: skill = 9;
+			case ESkill::SKILL_SPADES: skill = 9;
 				break;
 			default: sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам !!\r\n");
 				break;
@@ -613,8 +603,8 @@ const char *show_obj_to_char(ObjectData *object, CharacterData *ch, int mode, in
 		// клан-сундук, выводим список разом постранично
 		if (show_state == 3) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n",
-					GET_OBJ_RENTEQ(object) * CLAN_STOREHOUSE_COEFF / 100,
-					desc_count(GET_OBJ_RENTEQ(object) * CLAN_STOREHOUSE_COEFF / 100, WHAT_MONEYa));
+					GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100,
+					desc_count(GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100, WHAT_MONEYa));
 			return buf;
 		}
 			// ингры
@@ -944,7 +934,7 @@ void look_at_char(CharacterData *i, CharacterData *ch) {
 		}
 	}
 
-	if (ch != i && (ch->get_skill(SKILL_LOOK_HIDE) || IS_IMMORTAL(ch))) {
+	if (ch != i && (ch->get_skill(ESkill::SKILL_LOOK_HIDE) || IS_IMMORTAL(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, TO_VICT);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -969,7 +959,7 @@ void look_at_char(CharacterData *i, CharacterData *ch) {
 	}
 }
 
-void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode) {
+void ListOneChar(CharacterData *i, CharacterData *ch, ESkill mode) {
 	int sector = kSectCity;
 	int n;
 	char aura_txt[200];
@@ -1012,7 +1002,7 @@ void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode) {
 		return;
 	}
 
-	if (skill_mode == SKILL_LOOKING) {
+	if (mode == ESkill::SKILL_LOOKING) {
 		if (HERE(i) && INVIS_OK(ch, i) && GET_REAL_LEVEL(ch) >= (IS_NPC(i) ? 0 : GET_INVIS_LEV(i))) {
 			if (GET_RACE(i) == NPC_RACE_THING && IS_IMMORTAL(ch)) {
 				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
@@ -1024,38 +1014,39 @@ void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode) {
 		return;
 	}
 
+	bitvector_t mode_flags{0};
 	if (!CAN_SEE(ch, i)) {
-		skill_mode =
+		mode_flags =
 			check_awake(i, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING | ACHECK_GLOWING | ACHECK_WEIGHT);
 		*buf = 0;
-		if (IS_SET(skill_mode, ACHECK_AFFECTS)) {
-			REMOVE_BIT(skill_mode, ACHECK_AFFECTS);
-			sprintf(buf + strlen(buf), "магический ореол%s", skill_mode ? ", " : " ");
+		if (IS_SET(mode_flags, ACHECK_AFFECTS)) {
+			REMOVE_BIT(mode_flags, ACHECK_AFFECTS);
+			sprintf(buf + strlen(buf), "магический ореол%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(skill_mode, ACHECK_LIGHT)) {
-			REMOVE_BIT(skill_mode, ACHECK_LIGHT);
-			sprintf(buf + strlen(buf), "яркий свет%s", skill_mode ? ", " : " ");
+		if (IS_SET(mode_flags, ACHECK_LIGHT)) {
+			REMOVE_BIT(mode_flags, ACHECK_LIGHT);
+			sprintf(buf + strlen(buf), "яркий свет%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(skill_mode, ACHECK_GLOWING)
-			&& IS_SET(skill_mode, ACHECK_HUMMING)
+		if (IS_SET(mode_flags, ACHECK_GLOWING)
+			&& IS_SET(mode_flags, ACHECK_HUMMING)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
-			REMOVE_BIT(skill_mode, ACHECK_GLOWING);
-			REMOVE_BIT(skill_mode, ACHECK_HUMMING);
-			sprintf(buf + strlen(buf), "шум и блеск экипировки%s", skill_mode ? ", " : " ");
+			REMOVE_BIT(mode_flags, ACHECK_GLOWING);
+			REMOVE_BIT(mode_flags, ACHECK_HUMMING);
+			sprintf(buf + strlen(buf), "шум и блеск экипировки%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(skill_mode, ACHECK_GLOWING)) {
-			REMOVE_BIT(skill_mode, ACHECK_GLOWING);
-			sprintf(buf + strlen(buf), "блеск экипировки%s", skill_mode ? ", " : " ");
+		if (IS_SET(mode_flags, ACHECK_GLOWING)) {
+			REMOVE_BIT(mode_flags, ACHECK_GLOWING);
+			sprintf(buf + strlen(buf), "блеск экипировки%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(skill_mode, ACHECK_HUMMING)
+		if (IS_SET(mode_flags, ACHECK_HUMMING)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
-			REMOVE_BIT(skill_mode, ACHECK_HUMMING);
-			sprintf(buf + strlen(buf), "шум экипировки%s", skill_mode ? ", " : " ");
+			REMOVE_BIT(mode_flags, ACHECK_HUMMING);
+			sprintf(buf + strlen(buf), "шум экипировки%s", mode_flags ? ", " : " ");
 		}
-		if (IS_SET(skill_mode, ACHECK_WEIGHT)
+		if (IS_SET(mode_flags, ACHECK_WEIGHT)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)) {
-			REMOVE_BIT(skill_mode, ACHECK_WEIGHT);
-			sprintf(buf + strlen(buf), "бряцание металла%s", skill_mode ? ", " : " ");
+			REMOVE_BIT(mode_flags, ACHECK_WEIGHT);
+			sprintf(buf + strlen(buf), "бряцание металла%s", mode_flags ? ", " : " ");
 		}
 		strcat(buf, "выдает чье-то присутствие.\r\n");
 		send_to_char(CAP(buf), ch);
@@ -1399,15 +1390,15 @@ void list_one_char(CharacterData *i, CharacterData *ch, int skill_mode) {
 		act(aura_txt, false, i, nullptr, ch, TO_VICT);
 	if (IS_MANA_CASTER(i)) {
 		*aura_txt = '\0';
-		if (i->get_trained_skill(SKILL_DARK_MAGIC) > 0)
+		if (i->get_trained_skill(ESkill::SKILL_DARK_MAGIC) > 0)
 			strcat(aura_txt, "...все сферы магии кружатся над головой");
-		else if (i->get_trained_skill(SKILL_AIR_MAGIC) > 0)
+		else if (i->get_trained_skill(ESkill::SKILL_AIR_MAGIC) > 0)
 			strcat(aura_txt, "...сферы четырех магий кружатся над головой");
-		else if (i->get_trained_skill(SKILL_EARTH_MAGIC) > 0)
+		else if (i->get_trained_skill(ESkill::SKILL_EARTH_MAGIC) > 0)
 			strcat(aura_txt, "...сферы трех магий кружатся над головой");
-		else if (i->get_trained_skill(SKILL_WATER_MAGIC) > 0)
+		else if (i->get_trained_skill(ESkill::SKILL_WATER_MAGIC) > 0)
 			strcat(aura_txt, "...сферы двух магий кружатся над головой");
-		else if (i->get_trained_skill(SKILL_FIRE_MAGIC) > 0)
+		else if (i->get_trained_skill(ESkill::SKILL_FIRE_MAGIC) > 0)
 			strcat(aura_txt, "...сфера огня кружит над головой");
 		if (*aura_txt)
 			act(aura_txt, false, i, nullptr, ch, TO_VICT);
@@ -1421,7 +1412,7 @@ void list_char_to_char(const RoomData::people_t &list, CharacterData *ch) {
 			if (HERE(i) && (GET_RACE(i) != NPC_RACE_THING)
 				&& (CAN_SEE(ch, i)
 					|| awaking(i, AW_HIDE | AW_INVIS | AW_CAMOUFLAGE))) {
-				list_one_char(i, ch, 0);
+				ListOneChar(i, ch, ESkill::kAny);
 			} else if (IS_DARK(i->in_room)
 				&& i->in_room == ch->in_room
 				&& !CAN_SEE_IN_DARK(ch)
@@ -1437,7 +1428,7 @@ void list_char_to_char_thing(const RoomData::people_t &list,
 	for (const auto i : list) {
 		if (ch != i) {
 			if (GET_RACE(i) == NPC_RACE_THING) {
-				list_one_char(i, ch, 0);
+				ListOneChar(i, ch, ESkill::kAny);
 			}
 		}
 	}
@@ -1947,7 +1938,7 @@ void look_at_room(CharacterData *ch, int ignore_brief) {
 		}
 	}
 	send_to_char("&Y&q", ch);
-	if (ch->get_skill(SKILL_TOWNPORTAL)) {
+	if (ch->get_skill(ESkill::SKILL_TOWNPORTAL)) {
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
 			send_to_char("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
 		}
@@ -1987,7 +1978,7 @@ void look_in_direction(CharacterData *ch, int dir, int info_is) {
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
 			}
 
-			const int skill_pick = ch->get_skill(SKILL_PICK_LOCK);
+			const int skill_pick = ch->get_skill(ESkill::SKILL_PICK_LOCK);
 			if (EXIT_FLAGGED(rdata, EX_LOCKED) && skill_pick) {
 				if (EXIT_FLAGGED(rdata, EX_PICKPROOF)) {
 					count += sprintf(buf + count - 2,
@@ -2013,14 +2004,14 @@ void look_in_direction(CharacterData *ch, int dir, int info_is) {
 				send_to_char("&R&q", ch);
 				count = 0;
 				for (const auto tch : world[rdata->to_room()]->people) {
-					percent = number(1, skill_info[SKILL_LOOKING].difficulty);
-					probe = CalcCurrentSkill(ch, SKILL_LOOKING, tch);
-					TrainSkill(ch, SKILL_LOOKING, probe >= percent, tch);
+					percent = number(1, MUD::Skills()[ESkill::SKILL_LOOKING].difficulty);
+					probe = CalcCurrentSkill(ch, ESkill::SKILL_LOOKING, tch);
+					TrainSkill(ch, ESkill::SKILL_LOOKING, probe >= percent, tch);
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
 						&& (percent < 100 || IS_IMMORTAL(ch))) {
 						// Если моб не вещь и смотрящий не им
 						if (GET_RACE(tch) != NPC_RACE_THING || IS_IMMORTAL(ch)) {
-							list_one_char(tch, ch, SKILL_LOOKING);
+							ListOneChar(tch, ch, ESkill::SKILL_LOOKING);
 							count++;
 						}
 					}
@@ -2065,9 +2056,9 @@ void hear_in_direction(CharacterData *ch, int dir, int info_is) {
 		send_to_char(buf, ch);
 		count = 0;
 		for (const auto tch : world[rdata->to_room()]->people) {
-			percent = number(1, skill_info[SKILL_HEARING].difficulty);
-			probe = CalcCurrentSkill(ch, SKILL_HEARING, tch);
-			TrainSkill(ch, SKILL_HEARING, probe >= percent, tch);
+			percent = number(1, MUD::Skills()[ESkill::SKILL_HEARING].difficulty);
+			probe = CalcCurrentSkill(ch, ESkill::SKILL_HEARING, tch);
+			TrainSkill(ch, ESkill::SKILL_HEARING, probe >= percent, tch);
 			// Если сражаются то слышем только борьбу.
 			if (tch->get_fighting()) {
 				if (IS_NPC(tch)) {
@@ -2177,7 +2168,7 @@ void look_in_obj(CharacterData *ch, char *arg) {
 		if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER) {
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED)) {
 				act("Закрыт$A.", false, ch, obj, nullptr, TO_CHAR);
-				const int skill_pick = ch->get_skill(SKILL_PICK_LOCK);
+				const int skill_pick = ch->get_skill(ESkill::SKILL_PICK_LOCK);
 				int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && skill_pick) {
 					if (OBJVAL_FLAGGED(obj, CONT_PICKPROOF))
@@ -2281,7 +2272,7 @@ const char *diag_liquid_timer(const ObjectData *obj) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharacterData *ch, ObjectData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT) || ch->get_skill(SKILL_INSERTGEM)) {
+	if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT) || ch->get_skill(ESkill::SKILL_INSERTGEM)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
@@ -2389,7 +2380,7 @@ bool look_at_target(CharacterData *ch, char *arg, int subcmd) {
 
 	// для townportal
 	if (isname(whatp, "камень") &&
-		ch->get_skill(SKILL_TOWNPORTAL) &&
+		ch->get_skill(ESkill::SKILL_TOWNPORTAL) &&
 		(port = get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, FIND_OBJ_ROOM)) {
 
 		if (has_char_portal(ch, GET_ROOM_VNUM(ch->in_room))) {
@@ -2444,10 +2435,10 @@ bool look_at_target(CharacterData *ch, char *arg, int subcmd) {
 			return false;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
-			if (subcmd == SCMD_LOOK_HIDE && ch->get_skill(SKILL_LOOK_HIDE) > 0) {
-				fnum = number(1, skill_info[SKILL_LOOK_HIDE].difficulty);
-				found = CalcCurrentSkill(ch, SKILL_LOOK_HIDE, found_char);
-				TrainSkill(ch, SKILL_LOOK_HIDE, found < fnum, found_char);
+			if (subcmd == SCMD_LOOK_HIDE && ch->get_skill(ESkill::SKILL_LOOK_HIDE) > 0) {
+				fnum = number(1, MUD::Skills()[ESkill::SKILL_LOOK_HIDE].difficulty);
+				found = CalcCurrentSkill(ch, ESkill::SKILL_LOOK_HIDE, found_char);
+				TrainSkill(ch, ESkill::SKILL_LOOK_HIDE, found < fnum, found_char);
 				if (!WAITLESS(ch))
 					WAIT_STATE(ch, 1 * kPulseViolence);
 				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
@@ -2506,9 +2497,9 @@ bool look_at_target(CharacterData *ch, char *arg, int subcmd) {
 
 void skip_hide_on_look(CharacterData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE) &&
-		((!ch->get_skill(SKILL_LOOK_HIDE) ||
+		((!ch->get_skill(ESkill::SKILL_LOOK_HIDE) ||
 			((number(1, 100) -
-				CalcCurrentSkill(ch, SKILL_LOOK_HIDE, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
+				CalcCurrentSkill(ch, ESkill::SKILL_LOOK_HIDE, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
 		affect_from_char(ch, SPELL_HIDE);
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
 			send_to_char("Вы прекратили прятаться.\r\n", ch);
@@ -2567,13 +2558,13 @@ void do_look(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 				ch->desc->msdp_report("ROOM");
 			}
 			look_at_room(ch, 1);
-		} else if (is_abbrev(arg, "in") || is_abbrev(arg, "внутрь"))
+		} else if (utils::IsAbbrev(arg, "in") || utils::IsAbbrev(arg, "внутрь"))
 			look_in_obj(ch, arg2);
 			// did the char type 'look <direction>?'
 		else if (((look_type = search_block(arg, dirs, false)) >= 0) ||
 			((look_type = search_block(arg, Dirs, false)) >= 0))
 			look_in_direction(ch, look_type, EXIT_SHOW_WALL);
-		else if (is_abbrev(arg, "at") || is_abbrev(arg, "на"))
+		else if (utils::IsAbbrev(arg, "at") || utils::IsAbbrev(arg, "на"))
 			look_at_target(ch, arg2, subcmd);
 		else
 			look_at_target(ch, argument, subcmd);
@@ -2611,7 +2602,7 @@ void do_looking(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 		send_to_char("Вы ослеплены!\r\n", ch);
-	else if (ch->get_skill(SKILL_LOOKING)) {
+	else if (ch->get_skill(ESkill::SKILL_LOOKING)) {
 		if (check_moves(ch, LOOKING_MOVES)) {
 			send_to_char("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < kDirMaxNumber; i++)
@@ -2638,7 +2629,7 @@ void do_hearing(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 		send_to_char("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
 	if (GET_POS(ch) == EPosition::kSleep)
 		send_to_char("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
-	else if (ch->get_skill(SKILL_HEARING)) {
+	else if (ch->get_skill(ESkill::SKILL_HEARING)) {
 		if (check_moves(ch, HEARING_MOVES)) {
 			send_to_char("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < kDirMaxNumber; i++)
@@ -2687,7 +2678,7 @@ void do_examine(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (isname(arg, "камень") &&
-		ch->get_skill(SKILL_TOWNPORTAL) &&
+		ch->get_skill(ESkill::SKILL_TOWNPORTAL) &&
 		(get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, FIND_OBJ_ROOM))
 		return;
 
@@ -2802,14 +2793,14 @@ const char *ac_text[] =
 		"&rВы полностью уязвимы",    // 10
 	};
 int calc_hr_info(CharacterData *ch) {
-	ESkill skill = SKILL_BOTHHANDS;
+	ESkill skill = ESkill::SKILL_BOTHHANDS;
 	int hr = 0;
 	int max_dam = 0;
 	ObjectData *weapon = GET_EQ(ch, WEAR_BOTHS);
 	if (weapon) {
 		if (GET_OBJ_TYPE(weapon) == ObjectData::ITEM_WEAPON) {
 			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-			if (ch->get_skill(skill) == SKILL_INVALID) {
+			if (ch->get_skill(skill) == 0) {
 				hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 			} else {
 				apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
@@ -2820,7 +2811,7 @@ int calc_hr_info(CharacterData *ch) {
 		if (weapon) {
 			if (GET_OBJ_TYPE(weapon) == ObjectData::ITEM_WEAPON) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == SKILL_INVALID) {
+				if (ch->get_skill(skill) == 0) {
 					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 				} else {
 					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
@@ -2831,7 +2822,7 @@ int calc_hr_info(CharacterData *ch) {
 		if (weapon) {
 			if (GET_OBJ_TYPE(weapon) == ObjectData::ITEM_WEAPON) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == SKILL_INVALID) {
+				if (ch->get_skill(skill) == 0) {
 					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 				} else {
 					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
@@ -2841,10 +2832,10 @@ int calc_hr_info(CharacterData *ch) {
 	}
 	if (weapon) {
 		int tmphr = 0;
-		HitData::check_weap_feats(ch, GET_OBJ_SKILL(weapon), tmphr, max_dam);
+		HitData::CheckWeapFeats(ch, static_cast<ESkill>(weapon->get_skill()), tmphr, max_dam);
 		hr -= tmphr;
 	} else {
-		HitData::check_weap_feats(ch, SKILL_PUNCH, hr, max_dam);
+		HitData::CheckWeapFeats(ch, ESkill::SKILL_PUNCH, hr, max_dam);
 	}
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT)) {
 		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
@@ -2864,7 +2855,7 @@ int calc_hr_info(CharacterData *ch) {
 	if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK)) {
 		hr += 4;
 	}
-	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0);
+	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, ESkill::SKILL_HORSE) / 20) : 0);
 	hr *= ch->get_cond_penalty(P_HITROLL);
 	return hr;
 }
@@ -3437,7 +3428,7 @@ void print_do_score_all(CharacterData *ch) {
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH)
-		&& (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON)))
+		&& (ch->get_skill(ESkill::SKILL_INSERTGEM) || ch->get_skill(ESkill::SKILL_REPAIR) || ch->get_skill(ESkill::SKILL_TRANSFORMWEAPON)))
 		sprintf(buf + strlen(buf),
 				" || %sЭто место отлично подходит для занятий кузнечным делом.                         %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3557,11 +3548,11 @@ void do_score(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 
-	if (is_abbrev(argument, "все") || is_abbrev(argument, "all")) {
+	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
 		print_do_score_all(ch);
 		return;
 	}
-	if (is_abbrev(argument, "список") || is_abbrev(argument, "list")) {
+	if (utils::IsAbbrev(argument, "список") || utils::IsAbbrev(argument, "list")) {
 		print_do_score_list(ch);
 		return;
 	}
@@ -3751,7 +3742,7 @@ void do_score(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH)
-		&& (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON))) {
+		&& (ch->get_skill(ESkill::SKILL_INSERTGEM) || ch->get_skill(ESkill::SKILL_REPAIR) || ch->get_skill(ESkill::SKILL_TRANSFORMWEAPON))) {
 		sprintf(buf,
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
 				CCIGRN(ch, C_NRM),
@@ -3873,7 +3864,7 @@ void do_score(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 // edited by WorM 2011.05.21
 void do_mystat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
-	if (is_abbrev(argument, "очистить") || is_abbrev(argument, "clear")) {
+	if (utils::IsAbbrev(argument, "очистить") || utils::IsAbbrev(argument, "clear")) {
 		GET_RIP_MOBTHIS(ch) = GET_EXP_MOBTHIS(ch) = GET_RIP_MOB(ch) = GET_EXP_MOB(ch) =
 		GET_RIP_PKTHIS(ch) = GET_EXP_PKTHIS(ch) = GET_RIP_PK(ch) = GET_EXP_PK(ch) =
 		GET_RIP_DTTHIS(ch) = GET_EXP_DTTHIS (ch) = GET_RIP_DT(ch) = GET_EXP_DT(ch) =
@@ -3937,13 +3928,13 @@ void do_equipment(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			}
 		} else        // added by Pereplut
 		{
-			if (is_abbrev(argument, "все") || is_abbrev(argument, "all")) {
+			if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
 				if (GET_EQ(ch, 18))
 					if ((i == 16) || (i == 17))
 						continue;
 				if ((i == 19) && (GET_EQ(ch, WEAR_BOTHS))) {
 					if (!(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == ObjectData::ITEM_WEAPON)
-						&& (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS)))
+						&& (static_cast<ESkill>(GET_EQ(ch, WEAR_BOTHS)->get_skill()) == ESkill::SKILL_BOWS)))
 						continue;
 				} else if (i == 19)
 					continue;
@@ -5066,7 +5057,7 @@ bool print_object_location(int num, const ObjectData *obj, CharacterData *ch) {
 			}
 		}
 
-		for (const auto &shop : GlobalObjects::shop_list()) {
+		for (const auto &shop : GlobalObjects::Shops()) {
 			const auto &item_list = shop->items_list();
 			for (size_t i = 0; i < item_list.size(); i++) {
 				if (item_list.node(i)->uid() == ShopExt::ItemNode::NO_UID) {
