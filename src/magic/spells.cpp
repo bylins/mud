@@ -35,7 +35,7 @@
 #include "stuff.h"
 #include "utils/utils_char_obj.inl"
 #include "world_objects.h"
-
+#include <cmath>
 #include <boost/format.hpp>
 /*#include <map>
 #include <utility>*/

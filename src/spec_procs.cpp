@@ -29,6 +29,7 @@
 #include "magic/magic_utils.h"
 #include "magic/magic_temp_spells.h"
 #include "skills_info.h"
+#include <cmath>
 
 //   external vars
 extern DescriptorData *descriptor_list;

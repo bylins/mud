@@ -8,7 +8,6 @@
 ************************************************************************ */
 
 #include "stuff.h"
-
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
@@ -16,6 +15,7 @@
 #include "screen.h"
 #include "game_mechanics/sets_drop.h"
 #include "entities/zone.h"
+#include <cmath>
 
 extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);

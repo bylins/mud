@@ -23,7 +23,7 @@
 #include "magic/magic_utils.h"
 #include "entities/zone.h"
 #include "entities/char_player.h"
-
+#include <cmath>
 #include <algorithm>
 
 // extern
@@ -522,7 +522,7 @@ void arena_kill(CharacterData *ch, CharacterData *killer) {
 		to_room = r_helled_start_room;
 	}
 	for (Follower *f = ch->followers; f; f = f->next) {
-		if (IS_CHARMICE(f->ch) && (IN_ROOM(f->ch) == ch->in_room)) {
+		if (IS_CHARMICE(f->ch)) {
 			char_from_room(f->ch);
 			char_to_room(f->ch, to_room);
 		}

@@ -12,6 +12,7 @@
 #include "screen.h"
 #include "utils/random.h"
 #include "skills_info.h"
+#include <cmath>
 
 const int kSkillCapOnZeroRemort = 80;
 const int kSkillCapBonusPerRemort = 5;;

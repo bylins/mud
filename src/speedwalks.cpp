@@ -1,6 +1,7 @@
 #include "speedwalks.h"
 
 #include "global_objects.h"
+#include <cmath>
 
 speedwalks_t &speedwalks = GlobalObjects::speedwalks();
 

@@ -29,6 +29,7 @@
 #include "skills/pick.h"
 #include "utils/random.h"
 #include "world_objects.h"
+#include <cmath>
 
 //#include <cmath>
 
