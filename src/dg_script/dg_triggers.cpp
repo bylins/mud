@@ -562,7 +562,7 @@ int fight_mtrigger(CharacterData *ch) {
 	return 1;
 }
 
-int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, const char* name_skillorspell, int is_skill, ObjectData* /*obj*/) {
+int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, const char* name_skillorspell, int is_skill, ObjectData *obj) {
 	if (!damager || damager->purged() || !victim  || victim->purged()) {
 		log("SYSERROR: damager = %s, victim = %s (%s:%d)",
 			damager ? (damager->purged() ? "purged" : "true") : "false",
@@ -584,8 +584,9 @@ int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, c
 			add_var_cntx(&GET_TRIG_VARS(t), "amount", std::to_string(amount).c_str(), 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "name", name_skillorspell, 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "is_skill", std::to_string(is_skill).c_str(), 0);
-			if(obj)
-					ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
+			if(obj) {
+				ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
+			}
 			return script_driver(victim, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}

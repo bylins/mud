@@ -2457,15 +2457,15 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	// обратка от зеркал/огненного щита
 	if (flags[FightSystem::MAGIC_REFLECT]) {
 		// ограничение для зеркал на 40% от макс хп кастера
-		dam = MIN(dam, GET_MAX_HIT(victim) * 4 / 10);
+		dam = std::min(dam, GET_MAX_HIT(victim) * 4 / 10);
 		// чтобы не убивало обраткой
-		dam = MIN(dam, GET_HIT(victim) - 1);
+		dam = std::min(dam, GET_HIT(victim) - 1);
 	}
 
-	dam = MAX(0, MIN(dam, kMaxHits));
+	dam = std::clamp(dam, 0, kMaxHits);
 	if (dam >= 0) {
 		if (dmg_type == FightSystem::PHYS_DMG) {
-			if (!damage_mtrigger(ch, victim, dam, skill_name(skill_num), 1, wielded))
+			if (!damage_mtrigger(ch, victim, dam, MUD::Skills()[skill_num].GetName(), 1, wielded))
 				return 0;
 		} else if (dmg_type == FightSystem::MAGE_DMG) {
 			if (!damage_mtrigger(ch, victim, dam, spell_name(spell_num), 0, wielded))
