@@ -25,112 +25,114 @@ extern const int kSkillCapBonusPerRemort;
 class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 enum EExtraAttack {
-	EXTRA_ATTACK_UNUSED,
-	EXTRA_ATTACK_THROW,
-	EXTRA_ATTACK_BASH,
-	EXTRA_ATTACK_KICK,
-	EXTRA_ATTACK_CHOPOFF,
-	EXTRA_ATTACK_DISARM,
-	EXTRA_ATTACK_CUT_SHORTS,
-	EXTRA_ATTACK_CUT_PICK
+	kExtraAttackUnused = 0,
+	kExtraAttackThrow,
+	kExtraAttackBash,
+	kExtraAttackKick,
+	kExtraAttackUndercut,
+	kExtraAttackDisarm,
+	kExtraAttackCutShorts,
+	kExtraAttackPick
 };
 
-// PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
 enum class ESkill : int {
-	kAny = -3,    // Нужен, чтобы указывать "произвольный" скилл в некоторых случаях //
-	kUndefined = -2,
-	kIncorrect = -1,			// То бишь, такого скилла нет.
-	SKILL_GLOBAL_COOLDOWN = 0,	// Internal - ID for global ability cooldown //
-	SKILL_PROTECT = 1,    // *** Protect groupers    //
-	SKILL_TOUCH = 2,    // *** Touch attacker       //
-	SKILL_SHIT = 3,
-	SKILL_MIGHTHIT = 4,
-	SKILL_STUPOR = 5,
-	SKILL_POISONED = 6,
-	SKILL_SENSE = 7,
-	SKILL_HORSE = 8,
-	SKILL_HIDETRACK = 9,
-	SKILL_RELIGION = 10,
-	SKILL_MAKEFOOD = 11,
-	SKILL_MULTYPARRY = 12,
-	SKILL_TRANSFORMWEAPON = 13,
-	SKILL_LEADERSHIP = 20,
-	SKILL_PUNCTUAL = 21,
-	SKILL_AWAKE = 22,
-	SKILL_IDENTIFY = 23,
-	SKILL_HEARING = 24,
-	SKILL_CREATE_POTION = 25,
-	SKILL_CREATE_SCROLL = 26,
-	SKILL_CREATE_WAND = 27,
-	SKILL_LOOK_HIDE = 28,
-	SKILL_ARMORED = 29,
-	SKILL_DRUNKOFF = 30,
-	SKILL_AID = 31,
-	SKILL_FIRE = 32,
-	SKILL_CREATEBOW = 33,
-	SKILL_THROW = 130,
-	SKILL_BACKSTAB = 131,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_BASH = 132,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_HIDE = 133,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_KICK = 134,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_PICK_LOCK = 135,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_PUNCH = 136,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_RESCUE = 137,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_SNEAK = 138,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_STEAL = 139,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_TRACK = 140,    // Reserved Skill[] DO NOT CHANGE //
-	SKILL_CLUBS = 141,    // *** Weapon is club, etc    //
-	SKILL_AXES = 142,    // *** Weapon is axe, etc     //
-	SKILL_LONGS = 143,    // *** Weapon is long blades  //
-	SKILL_SHORTS = 144,    // *** Weapon is short blades //
-	SKILL_NONSTANDART = 145,    // *** Weapon is non-standart //
-	SKILL_BOTHHANDS = 146,    // *** Weapon in both hands   //
-	SKILL_PICK = 147,    // *** Weapon is pick         //
-	SKILL_SPADES = 148,    // *** Weapon is spades       //
-	SKILL_SATTACK = 149,
-	SKILL_DISARM = 150,
-	SKILL_PARRY = 151,
-	SKILL_HEAL = 152,
-	SKILL_MORPH = 153,
-	SKILL_BOWS = 154,
-	SKILL_ADDSHOT = 155,
-	SKILL_CAMOUFLAGE = 156,
-	SKILL_DEVIATE = 157,
-	SKILL_BLOCK = 158,
-	SKILL_LOOKING = 159,
-	SKILL_CHOPOFF = 160,
-	SKILL_REPAIR = 161,
-	SKILL_UPGRADE = 164,
-	SKILL_COURAGE = 165,
-	SKILL_MANADRAIN = 166,
-	SKILL_NOPARRYHIT = 167,
-	SKILL_TOWNPORTAL = 168,
-	SKILL_MAKE_STAFF = 169,  //смастерить предмет
-	SKILL_MAKE_BOW = 170,
-	SKILL_MAKE_WEAPON = 171,
-	SKILL_MAKE_ARMOR = 172,
-	SKILL_MAKE_JEWEL = 173,
-	SKILL_MAKE_WEAR = 174,
-	SKILL_MAKE_POTION = 175,
-	SKILL_DIG = 176,
-	SKILL_INSERTGEM = 177,
-	SKILL_WARCRY = 178,
-	SKILL_TURN_UNDEAD = 179,
-	SKILL_IRON_WIND = 180,
-	SKILL_STRANGLE = 181,
-	SKILL_AIR_MAGIC = 182,
-	SKILL_FIRE_MAGIC = 183,
-	SKILL_WATER_MAGIC = 184,
-	SKILL_EARTH_MAGIC = 185,
-	SKILL_LIGHT_MAGIC = 186,
-	SKILL_DARK_MAGIC = 187,
-	SKILL_MIND_MAGIC = 188,
-	SKILL_LIFE_MAGIC = 189,
-	SKILL_STUN = 190,
-	SKILL_MAKE_AMULET = 191,
+	kAny = -3,    			// "Какой угодно" скилл. (Например, удар можно нанести любым видом оружия).  //
+	kUndefined = -2,		// Неопределенный скилл.
+	kIncorrect = -1,		// Неизвестный, но вероятно некорректный скилл.
+	kGlobalCooldown = 0,	// Internal - ID for global ability cooldown //
+	kProtect = 1,
+	kIntercept = 2,
+	kLeftAttack = 3,
+	kHammer = 4,
+	kOverwhelm = 5,
+	kPoisoning = 6,
+	kSense = 7,
+	kRiding = 8,
+	kHideTrack = 9,
+	SKILL_RELIGION = 10, // Нужно придумать, как от этого избавиться
+	kSkinning = 11,
+	kMultiparry = 12,
+	kReforging = 13,
+						/* просвет почему-то */
+	kLeadership = 20,
+	kPunctual = 21,
+	kAwake = 22,
+	kIdentify = 23,
+	kHearing = 24,
+	kCreatePotion = 25,
+	kCreateScroll = 26,
+	kCreateWand = 27,
+	kPry = 28,
+	kArmoring = 29,
+	kHangovering = 30,
+	kFirstAid = 31,
+	kCampfire = 32,
+	kCreateBow = 33,
+						/* снова просвет */
+	kThrow = 130,
+	kBackstab = 131,    // Reserved Skill[] DO NOT CHANGE //
+	kBash = 132,    // Reserved Skill[] DO NOT CHANGE //
+	kHide = 133,    // Reserved Skill[] DO NOT CHANGE //
+	kKick = 134,    // Reserved Skill[] DO NOT CHANGE //
+	kPickLock = 135,    // Reserved Skill[] DO NOT CHANGE //
+	kFistfight = 136,    // Reserved Skill[] DO NOT CHANGE //
+	kRescue = 137,    // Reserved Skill[] DO NOT CHANGE //
+	kSneak = 138,    // Reserved Skill[] DO NOT CHANGE //
+	kSteal = 139,    // Reserved Skill[] DO NOT CHANGE //
+	kTrack = 140,    // Reserved Skill[] DO NOT CHANGE //
+	kClubs = 141,    // *** Weapon is club, etc    //
+	kAxes = 142,    // *** Weapon is axe, etc     //
+	kLongBlades = 143,    // *** Weapon is long blades  //
+	kShortBlades = 144,    // *** Weapon is short blades //
+	kNonstandart = 145,    // *** Weapon is non-standart //
+	kTwohands = 146,    // *** Weapon in both hands   //
+	kPicks = 147,    // *** Weapon is pick         //
+	kSpades = 148,    // *** Weapon is spades       //
+	kSideAttack = 149,
+	kDisarm = 150,
+	kParry = 151,
+	SKILL_HEAL = 152,	// Кажется, оно нигде не используется, нужно вырезать
+	kMorph = 153,
+	kBows = 154,
+	kAddshot = 155,
+	kDisguise = 156,
+	kDodge = 157,
+	kShieldBlock = 158,
+	kLooking = 159,
+	kUndercut = 160,
+	kRepair = 161,
+					/* Снова просвет */
+	kSharpening = 164,
+	kCourage = 165,
+	kJinx = 166,
+	kNoParryHit = 167,
+	kTownportal = 168,
+	kMakeStaff = 169,
+	kMakeBow = 170,
+	kMakeWeapon = 171,
+	kMakeArmor = 172,
+	kMakeJewel = 173,
+	kMakeWear = 174,
+	kMakePotion = 175,
+	kDigging = 176,
+	kJewelry = 177,
+	kWarcry = 178,
+	kTurnUndead = 179,
+	kIronwind = 180,
+	kStrangle = 181,
+	kAirMagic = 182,
+	kFireMagic = 183,
+	kWaterMagic = 184,
+	kEarthMagic = 185,
+	kLightMagic = 186,
+	kDarkMagic = 187,
+	kMindMagic = 188,
+	kLifeMagic = 189,
+	kStun = 190,
+	kMakeAmulet = 191,
 
-	kFirst = SKILL_PROTECT,
-	kLast = SKILL_MAKE_AMULET	// не забываем указывать максимальный номер скилла
+	kFirst = kProtect,
+	kLast = kMakeAmulet	// не забываем указывать максимальный номер скилла
 };
 
 const ESkill& operator++(ESkill &s);
@@ -149,7 +151,7 @@ struct SkillRollResult {
 struct TimedSkill {
 	ESkill skill{ESkill::kIncorrect};	// Used skill //
 	ubyte time{0};						// Time for next using //
-	struct TimedSkill *next{nullptr};
+	TimedSkill *next{nullptr};
 };
 
 extern std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS;

@@ -193,9 +193,9 @@ int get_stat_mod(int stat) {
 
 void generate_book_upgrd(ObjectData *obj) {
 	const auto skill_list = make_array<ESkill>(
-		ESkill::SKILL_BACKSTAB, ESkill::SKILL_PUNCTUAL, ESkill::SKILL_BASH, ESkill::SKILL_MIGHTHIT,
-		ESkill::SKILL_STUPOR, ESkill::SKILL_ADDSHOT, ESkill::SKILL_AWAKE, ESkill::SKILL_NOPARRYHIT,
-		ESkill::SKILL_WARCRY, ESkill::SKILL_IRON_WIND, ESkill::SKILL_STRANGLE);
+		ESkill::kBackstab, ESkill::kPunctual, ESkill::kBash, ESkill::kHammer,
+		ESkill::kOverwhelm, ESkill::kAddshot, ESkill::kAwake, ESkill::kNoParryHit,
+		ESkill::kWarcry, ESkill::kIronwind, ESkill::kStrangle);
 
 	auto skill_id = skill_list[number(0, skill_list.size() - 1)];
 	std::string book_name = MUD::Skills()[skill_id].name;
@@ -425,7 +425,7 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 
 	switch (skill_id)
 	{
-	case ESkill::SKILL_CLUBS: // дубины
+	case ESkill::kClubs: // дубины
 		obj->set_val(3, 12);
 		obj->set_skill(141);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
@@ -434,15 +434,15 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case ESkill::SKILL_SPADES: // копья
+	case ESkill::kSpades: // копья
 		obj->set_val(3, 11);
 		obj->set_skill(148);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
-		create_charmice_stuff(ch, ESkill::SKILL_BLOCK, diff);
+		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case ESkill::SKILL_PICK: // стабер
+	case ESkill::kPicks: // стабер
 		obj->set_val(3, 11);
 		obj->set_skill(147);
 		obj->set_affected(0, APPLY_STR, floorf(diff/16.0));
@@ -450,18 +450,18 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case ESkill::SKILL_AXES: // секиры
+	case ESkill::kAxes: // секиры
 		obj->set_val(3, 8);
 		obj->set_skill(142);
 		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
 		obj->set_affected(2, APPLY_DAMROLL, floorf(diff/10.0));
 		obj->set_affected(3, APPLY_HIT, 5*(diff));
-		create_charmice_stuff(ch, ESkill::SKILL_BLOCK, diff);
+		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case ESkill::SKILL_BOWS: // луки
+	case ESkill::kBows: // луки
 		obj->set_val(3, 2);
 		obj->set_skill(154);
 		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
@@ -469,7 +469,7 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
-	case ESkill::SKILL_BOTHHANDS: // двуруч
+	case ESkill::kTwohands: // двуруч
 		obj->set_val(3, 1);
 		obj->set_skill(146);
 		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
@@ -478,13 +478,13 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
-	case ESkill::SKILL_PUNCH: // кулачка
+	case ESkill::kFistfight: // кулачка
 		obj->set_type(ObjectData::ITEM_ARMOR);
 		obj->set_affected(0, APPLY_DAMROLL, floorf(diff/10.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 9;
 		break;
-	case ESkill::SKILL_LONGS: // длинные
+	case ESkill::kLongBlades: // длинные
 		obj->set_val(3, 10);
 		obj->set_skill(143);
 		obj->set_affected(0, APPLY_STR, floorf(diff/15.0));
@@ -494,7 +494,7 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case ESkill::SKILL_BLOCK: // блок щитом ? делаем щит
+	case ESkill::kShieldBlock: // блок щитом ? делаем щит
 		obj->set_type(ObjectData::ITEM_ARMOR);
 		obj->set_description("Роговые пластины лежат здесь.");
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");

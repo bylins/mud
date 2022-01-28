@@ -28,7 +28,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 	uint32_t mobNoFlag = MOB_DELETE;
 
 	switch (static_cast<ESkill>(weapon->get_skill())) {
-		case ESkill::SKILL_SPADES:
+		case ESkill::kSpades:
 			mobNoFlag = MOB_NOBASH;
 			featureID = SHADOW_SPEAR_FEAT;
 			to_char = "Попадание копья повалило $n3 наземь.";
@@ -44,8 +44,8 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				}
 			});
 			break;
-		case ESkill::SKILL_SHORTS:
-		case ESkill::SKILL_PICK:
+		case ESkill::kShortBlades:
+		case ESkill::kPicks:
 			mobNoFlag = MOB_NOSIELENCE;
 			featureID = SHADOW_DAGGER_FEAT;
 			to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
@@ -60,7 +60,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				affect_join(technique.rival(), af, false, false, false, false);
 			});
 			break;
-		case ESkill::SKILL_CLUBS:mobNoFlag = MOB_NOSTUPOR;
+		case ESkill::kClubs:mobNoFlag = MOB_NOSTUPOR;
 			featureID = SHADOW_CLUB_FEAT;
 			to_char = "Попадание булавы ошеломило $n3.";
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
@@ -146,7 +146,7 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 		PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
 	}
 	TechniqueRollType weaponThrowRoll;
-	Damage throwDamage(SkillDmg(ESkill::SKILL_THROW), ZERO_DMG, throwDamageKind, nullptr); //х3 как тут с оружием
+	Damage throwDamage(SkillDmg(ESkill::kThrow), ZERO_DMG, throwDamageKind, nullptr); //х3 как тут с оружием
 	throwDamage.magic_type = STYPE_DARK;
 
 	ActionTargeting::FoesRosterType
@@ -165,19 +165,19 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 		};
 	};
 
-	setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 	if (techniqueID == THROW_WEAPON_FEAT) {
-		setSkillCooldownInFight(ch, ESkill::SKILL_THROW, 3);
+		setSkillCooldownInFight(ch, ESkill::kThrow, 3);
 	}
 }
 
 void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
-	if (!ch->get_skill(ESkill::SKILL_THROW)) {
+	if (!ch->get_skill(ESkill::kThrow)) {
 		send_to_char("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_THROW)) {
+	if (ch->haveCooldown(ESkill::kThrow)) {
 		send_to_char("Так и рука отвалится, нужно передохнуть.\r\n", ch);
 		return;
 	};
@@ -219,7 +219,7 @@ void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (isHaveNoExtraAttack(ch)) {
 			act("Хорошо. Вы попытаетесь метнуть оружие в $N3.",
 				false, ch, nullptr, victim, TO_CHAR);
-			ch->set_extra_attack(EXTRA_ATTACK_THROW, victim);
+			ch->set_extra_attack(kExtraAttackThrow, victim);
 		}
 	}
 }

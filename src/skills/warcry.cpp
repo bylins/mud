@@ -11,7 +11,7 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (!ch->get_skill(ESkill::SKILL_WARCRY)) {
+	if (!ch->get_skill(ESkill::kWarcry)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -38,7 +38,7 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (realname
 				&& IS_SET(spell_info[spellnum].routines, MAG_WARCRY)
-				&& ch->get_skill(ESkill::SKILL_WARCRY) >= spell_info[spellnum].mana_change) {
+				&& ch->get_skill(ESkill::kWarcry) >= spell_info[spellnum].mana_change) {
 				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
 					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
@@ -60,7 +60,7 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Unknown warcry
 	if (spellnum < 1 || spellnum > SPELLS_COUNT
-		|| (ch->get_skill(ESkill::SKILL_WARCRY) < spell_info[spellnum].mana_change)
+		|| (ch->get_skill(ESkill::kWarcry) < spell_info[spellnum].mana_change)
 		|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP)) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
@@ -80,8 +80,8 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	struct TimedSkill timed;
-	timed.skill = ESkill::SKILL_WARCRY;
-	timed.time = IsTimedBySkill(ch, ESkill::SKILL_WARCRY) + HOURS_PER_WARCRY;
+	timed.skill = ESkill::kWarcry;
+	timed.time = IsTimedBySkill(ch, ESkill::kWarcry) + HOURS_PER_WARCRY;
 
 	if (timed.time > HOURS_PER_DAY) {
 		send_to_char("Вы охрипли и не можете кричать.\r\n", ch);
@@ -102,7 +102,7 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			timed_to_char(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}
-		TrainSkill(ch, ESkill::SKILL_WARCRY, true, nullptr);
+		TrainSkill(ch, ESkill::kWarcry, true, nullptr);
 	}
 }
 

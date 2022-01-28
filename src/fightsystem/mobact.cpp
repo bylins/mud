@@ -142,36 +142,36 @@ int extra_aggressive(CharacterData *ch, CharacterData *victim) {
 int attack_best(CharacterData *ch, CharacterData *victim) {
 	ObjectData *wielded = GET_EQ(ch, WEAR_WIELD);
 	if (victim) {
-		if (ch->get_skill(ESkill::SKILL_STRANGLE) && !IsTimedBySkill(ch, ESkill::SKILL_STRANGLE)) {
+		if (ch->get_skill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
 			go_strangle(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::SKILL_BACKSTAB) && !victim->get_fighting()) {
+		if (ch->get_skill(ESkill::kBackstab) && !victim->get_fighting()) {
 			go_backstab(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::SKILL_MIGHTHIT)) {
+		if (ch->get_skill(ESkill::kHammer)) {
 			go_mighthit(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::SKILL_STUPOR)) {
+		if (ch->get_skill(ESkill::kOverwhelm)) {
 			go_stupor(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::SKILL_BASH)) {
+		if (ch->get_skill(ESkill::kBash)) {
 			go_bash(ch, victim);
 			return (true);
 		}
-		if (ch->get_skill(ESkill::SKILL_THROW)
+		if (ch->get_skill(ESkill::kThrow)
 			&& wielded
 			&& GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON
 			&& wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)) {
 			go_throw(ch, victim);
 		}
-		if (ch->get_skill(ESkill::SKILL_DISARM)) {
+		if (ch->get_skill(ESkill::kDisarm)) {
 			go_disarm(ch, victim);
 		}
-		if (ch->get_skill(ESkill::SKILL_CHOPOFF)) {
+		if (ch->get_skill(ESkill::kUndercut)) {
 			go_chopoff(ch, victim);
 		}
 		if (!ch->get_fighting()) {
@@ -222,7 +222,7 @@ int find_door(CharacterData *ch, const bool track_method) {
 
 					const auto door = track_method
 									  ? check_room_tracks(ch->in_room, GET_IDNUM(vict))
-									  : go_track(ch, vict.get(), ESkill::SKILL_TRACK);
+									  : go_track(ch, vict.get(), ESkill::kTrack);
 
 					if (BFS_ERROR != door) {
 						return door;
@@ -721,11 +721,11 @@ int perform_mob_switch(CharacterData *ch) {
 	set_fighting(ch, best);
 	set_wait(ch, 2, false);
 
-	if (ch->get_skill(ESkill::SKILL_MIGHTHIT)
+	if (ch->get_skill(ESkill::kHammer)
 		&& check_mighthit_weapon(ch)) {
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
-	} else if (ch->get_skill(ESkill::SKILL_STUPOR)) {
-		SET_AF_BATTLE(ch, ESkill::SKILL_STUPOR);
+	} else if (ch->get_skill(ESkill::kOverwhelm)) {
+		SET_AF_BATTLE(ch, ESkill::kOverwhelm);
 	}
 
 	return true;
@@ -1157,7 +1157,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 
 		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, NPC_SNEAK)) {
-			if (CalcCurrentSkill(ch.get(), ESkill::SKILL_SNEAK, 0) >= number(0, 100)) {
+			if (CalcCurrentSkill(ch.get(), ESkill::kSneak, 0) >= number(0, 100)) {
 				ch->set_affect(EAffectFlag::AFF_SNEAK);
 			} else {
 				ch->remove_affect(EAffectFlag::AFF_SNEAK);
@@ -1166,7 +1166,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 
 		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, NPC_CAMOUFLAGE)) {
-			if (CalcCurrentSkill(ch.get(), ESkill::SKILL_CAMOUFLAGE, 0) >= number(0, 100)) {
+			if (CalcCurrentSkill(ch.get(), ESkill::kDisguise, 0) >= number(0, 100)) {
 				ch->set_affect(EAffectFlag::AFF_CAMOUFLAGE);
 			} else {
 				ch->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
@@ -1226,7 +1226,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			door = npc_walk(ch.get());
 		}
 
-		if (MEMORY(ch) && door == BFS_ERROR && GET_POS(ch) > EPosition::kFight && ch->get_skill(ESkill::SKILL_TRACK))
+		if (MEMORY(ch) && door == BFS_ERROR && GET_POS(ch) > EPosition::kFight && ch->get_skill(ESkill::kTrack))
 			door = npc_track(ch.get());
 
 		if (door == BFS_ALREADY_THERE) {
@@ -1327,9 +1327,9 @@ void mobRemember(CharacterData *ch, CharacterData *victim) {
 		MEMORY(ch) = tmp;
 	}
 
-	if (!IsTimedBySkill(victim, ESkill::SKILL_HIDETRACK)) {
-		timed.skill = ESkill::SKILL_HIDETRACK;
-		timed.time = ch->get_skill(ESkill::SKILL_TRACK) ? 6 : 3;
+	if (!IsTimedBySkill(victim, ESkill::kHideTrack)) {
+		timed.skill = ESkill::kHideTrack;
+		timed.time = ch->get_skill(ESkill::kTrack) ? 6 : 3;
 		timed_to_char(victim, &timed);
 	}
 }

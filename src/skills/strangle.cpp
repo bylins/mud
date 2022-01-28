@@ -35,18 +35,18 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 
 	act("Вы попытались накинуть удавку на шею $N2.\r\n", false, ch, nullptr, vict, TO_CHAR);
 
-	int prob = CalcCurrentSkill(ch, ESkill::SKILL_STRANGLE, vict);
-	int delay = 6 - MIN(4, (ch->get_skill(ESkill::SKILL_STRANGLE) + 30) / 50);
-	int percent = number(1, MUD::Skills()[ESkill::SKILL_STRANGLE].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::kStrangle, vict);
+	int delay = 6 - MIN(4, (ch->get_skill(ESkill::kStrangle) + 30) / 50);
+	int percent = number(1, MUD::Skills()[ESkill::kStrangle].difficulty);
 
 	bool success = percent <= prob;
-	TrainSkill(ch, ESkill::SKILL_STRANGLE, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::SKILL_STRANGLE].name, percent, prob, success);
+	TrainSkill(ch, ESkill::kStrangle, success, vict);
+	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kStrangle].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::SKILL_STRANGLE), ZERO_DMG, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kStrangle), ZERO_DMG, PHYS_DMG, nullptr);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 3);
+		setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
 		Affect<EApplyLocation> af;
 		af.type = SPELL_STRANGLE;
@@ -58,9 +58,9 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 		affect_to_char(vict, af);
 
 		int dam =
-			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::SKILL_STRANGLE)) / 70, 7.0, 1, 30)) / 100;
+			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
 		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
-		Damage dmg(SkillDmg(ESkill::SKILL_STRANGLE), dam, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kStrangle), dam, PHYS_DMG, nullptr);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
@@ -76,26 +76,26 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 					TO_NOTVICT | TO_ARENA_LISTEN);
 				vict->drop_from_horse();
 			}
-			if (ch->get_skill(ESkill::SKILL_CHOPOFF) && ch->isInSameRoom(vict)) {
+			if (ch->get_skill(ESkill::kUndercut) && ch->isInSameRoom(vict)) {
 				go_chopoff(ch, vict);
 			}
-			setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 2);
+			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 		}
 	}
 
 	TimedSkill timed;
-	timed.skill = ESkill::SKILL_STRANGLE;
+	timed.skill = ESkill::kStrangle;
 	timed.time = delay;
 	timed_to_char(ch, &timed);
 }
 
 void do_strangle(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::SKILL_STRANGLE)) {
+	if (!ch->get_skill(ESkill::kStrangle)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::SKILL_STRANGLE) || ch->haveCooldown(ESkill::SKILL_STRANGLE)) {
+	if (IsTimedBySkill(ch, ESkill::kStrangle) || ch->haveCooldown(ESkill::kStrangle)) {
 		send_to_char("Так часто душить нельзя - человеки кончатся.\r\n", ch);
 		return;
 	}

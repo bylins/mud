@@ -63,7 +63,7 @@ void AnimalMorph::set_skill(const ESkill skill_num, int percent) {
 					CCICYN(ch_, C_NRM),
 					CCINRM(ch_, C_NRM));
 			send_to_char(buf, ch_);
-			skills_[ESkill::SKILL_MORPH] += diff;
+			skills_[ESkill::kMorph] += diff;
 		}
 	}
 }
@@ -125,7 +125,7 @@ void AnimalMorph::InitSkills(int value) {
 			it->second = value;
 		}
 	}
-	skills_[ESkill::SKILL_MORPH] = value;
+	skills_[ESkill::kMorph] = value;
 };
 
 void AnimalMorph::InitAbils() {
@@ -175,7 +175,7 @@ MorphPtr GetNormalMorphNew(CharacterData *ch) {
 void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
-	if (!ch->get_skill(ESkill::SKILL_MORPH)) {
+	if (!ch->get_skill(ESkill::kMorph)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}

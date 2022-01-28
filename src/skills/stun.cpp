@@ -10,11 +10,11 @@
 using namespace FightSystem;
 
 void do_stun(CharacterData *ch, char *argument, int, int) {
-	if (ch->get_skill(ESkill::SKILL_STUN) < 1) {
+	if (ch->get_skill(ESkill::kStun) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_STUN)) {
+	if (ch->haveCooldown(ESkill::kStun)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -23,11 +23,11 @@ void do_stun(CharacterData *ch, char *argument, int, int) {
 		send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
 		return;
 	}
-	if ((GET_SKILL(ch, ESkill::SKILL_HORSE) < 151) && (!IS_NPC(ch))) {
+	if ((GET_SKILL(ch, ESkill::kRiding) < 151) && (!IS_NPC(ch))) {
 		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
 		return;
 	}
-	if (IsTimedBySkill(ch, ESkill::SKILL_STUN) && (!IS_NPC(ch))) {
+	if (IsTimedBySkill(ch, ESkill::kStun) && (!IS_NPC(ch))) {
 		send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
@@ -56,9 +56,9 @@ void do_stun(CharacterData *ch, char *argument, int, int) {
 
 void go_stun(CharacterData *ch, CharacterData *vict) {
 	TimedSkill timed;
-	if (GET_SKILL(ch, ESkill::SKILL_STUN) < 150) {
-		ImproveSkill(ch, ESkill::SKILL_STUN, true, vict);
-		timed.skill = ESkill::SKILL_STUN;
+	if (GET_SKILL(ch, ESkill::kStun) < 150) {
+		ImproveSkill(ch, ESkill::kStun, true, vict);
+		timed.skill = ESkill::kStun;
 		timed.time = 7;
 		timed_to_char(ch, &timed);
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!",
@@ -71,18 +71,18 @@ void go_stun(CharacterData *ch, CharacterData *vict) {
 		return;
 	}
 
-	timed.skill = ESkill::SKILL_STUN;
-	timed.time = std::clamp(7 - (GET_SKILL(ch, ESkill::SKILL_STUN) - 150) / 10, 2, 7);
+	timed.skill = ESkill::kStun;
+	timed.time = std::clamp(7 - (GET_SKILL(ch, ESkill::kStun) - 150) / 10, 2, 7);
 	timed_to_char(ch, &timed);
 	//weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
-	//float num = MIN(95, (pow(GET_SKILL(ch, ESkill::SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
+	//float num = MIN(95, (pow(GET_SKILL(ch, ESkill::kStun), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 	//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, kStability)) * 30.0));
 
-	int percent = number(1, MUD::Skills()[ESkill::SKILL_STUN].difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::SKILL_STUN, vict);
+	int percent = number(1, MUD::Skills()[ESkill::kStun].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::kStun, vict);
 	bool success = percent <= prob;
-	TrainSkill(ch, ESkill::SKILL_STUN, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::SKILL_STUN].name, percent, prob, success);
+	TrainSkill(ch, ESkill::kStun, success, vict);
+	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kStun].name, percent, prob, success);
 	if (!success) {
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!",
 			false, ch, nullptr, vict, TO_CHAR);
@@ -93,7 +93,7 @@ void go_stun(CharacterData *ch, CharacterData *vict) {
 		set_hit(ch, vict);
 	} else {
 		if (GET_EQ(ch, WEAR_BOTHS)
-		&& static_cast<ESkill>((ch->equipment[WEAR_BOTHS])->get_skill()) == ESkill::SKILL_BOWS) {
+		&& static_cast<ESkill>((ch->equipment[WEAR_BOTHS])->get_skill()) == ESkill::kBows) {
 			act("Точным выстрелом вы ошеломили $N3!",
 				false, ch, nullptr, vict, TO_CHAR);
 			act("Точный выстрел $N1 повалил вас с ног и лишил сознания.",
@@ -110,7 +110,7 @@ void go_stun(CharacterData *ch, CharacterData *vict) {
 		}
 		GET_POS(vict) = EPosition::kIncap;
 		WAIT_STATE(vict, (2 + GET_REAL_REMORT(ch) / 5) * kPulseViolence);
-		ch->setSkillCooldown(ESkill::SKILL_STUN, 3 * kPulseViolence);
+		ch->setSkillCooldown(ESkill::kStun, 3 * kPulseViolence);
 		set_hit(ch, vict);
 	}
 }

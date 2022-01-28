@@ -45,8 +45,8 @@ void go_iron_wind(CharacterData *ch, CharacterData *victim) {
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
 		hit(ch, victim, ESkill::kUndefined, FightSystem::MAIN_HAND);
 		set_wait(ch, 2, true);
-		//ch->setSkillCooldown(ESkill::SKILL_GLOBAL_COOLDOWN, 2);
-		//ch->setSkillCooldown(ESkill::SKILL_IRON_WIND, 2);
+		//ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
+		//ch->setSkillCooldown(ESkill::kIronwind, 2);
 	} else {
 		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
@@ -54,11 +54,11 @@ void go_iron_wind(CharacterData *ch, CharacterData *victim) {
 }
 
 void do_iron_wind(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_IRON_WIND)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kIronwind)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	};
-	if (ch->haveCooldown(ESkill::SKILL_IRON_WIND)) {
+	if (ch->haveCooldown(ESkill::kIronwind)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -66,7 +66,7 @@ void do_iron_wind(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		send_to_char("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};
-	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->get_skill(ESkill::SKILL_IRON_WIND)) / 15);
+	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->get_skill(ESkill::kIronwind)) / 15);
 	if (GET_MAX_MOVE(ch) < moves * 2) {
 		send_to_char("Вы слишком устали...\r\n", ch);
 		return;

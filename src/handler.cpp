@@ -1110,7 +1110,7 @@ void equip_char(CharacterData *ch, ObjectData *obj, int pos, const CharEquipFlag
 	// Раз показываем сообщение, значит, предмет надевает сам персонаж
 	// А вообще эта порнография из-за того, что одна функция используется с кучей флагов в разных вариантах
 	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON || pos == WEAR_SHIELD)) {
-		setSkillCooldown(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 2);
+		setSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 	}
 }
 

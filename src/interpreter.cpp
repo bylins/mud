@@ -1117,8 +1117,8 @@ void check_hiding_cmd(CharacterData *ch, int percent) {
 	if (affected_by_spell(ch, SPELL_HIDE)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
-				remove_hide = number(1, MUD::Skills()[ESkill::SKILL_SNEAK].difficulty) >
-					CalcCurrentSkill(ch, ESkill::SKILL_SNEAK, nullptr);
+				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
+					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 			} else {
 				percent = 500;
 			}
@@ -1127,7 +1127,7 @@ void check_hiding_cmd(CharacterData *ch, int percent) {
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::SKILL_HIDE, 0);
+			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::kHide, 0);
 		}
 
 		if (remove_hide) {
@@ -2231,12 +2231,12 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_PUNCTUAL)
-		&& !d->character->get_skill(ESkill::SKILL_PUNCTUAL)) {
+		&& !d->character->get_skill(ESkill::kPunctual)) {
 		PRF_FLAGS(d->character).unset(PRF_PUNCTUAL);
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_AWAKE)
-		&& !d->character->get_skill(ESkill::SKILL_AWAKE)) {
+		&& !d->character->get_skill(ESkill::kAwake)) {
 		PRF_FLAGS(d->character).unset(PRF_AWAKE);
 	}
 

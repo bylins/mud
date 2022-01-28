@@ -12,7 +12,7 @@
 using namespace FightSystem;
 
 ESkill ExpedientWeaponSkill(CharacterData *ch) {
-	ESkill skill = ESkill::SKILL_PUNCH;
+	ESkill skill = ESkill::kFistfight;
 
 	if (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == CObjectPrototype::ITEM_WEAPON)) {
 		skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
@@ -26,17 +26,17 @@ ESkill ExpedientWeaponSkill(CharacterData *ch) {
 }
 int GetExpedientKeyParameter(CharacterData *ch, ESkill skill) {
 	switch (skill) {
-		case ESkill::SKILL_PUNCH:
-		case ESkill::SKILL_CLUBS:
-		case ESkill::SKILL_AXES:
-		case ESkill::SKILL_BOTHHANDS:
-		case ESkill::SKILL_SPADES:return ch->get_str();
+		case ESkill::kFistfight:
+		case ESkill::kClubs:
+		case ESkill::kAxes:
+		case ESkill::kTwohands:
+		case ESkill::kSpades:return ch->get_str();
 			break;
-		case ESkill::SKILL_LONGS:
-		case ESkill::SKILL_SHORTS:
-		case ESkill::SKILL_NONSTANDART:
-		case ESkill::SKILL_BOWS:
-		case ESkill::SKILL_PICK:return ch->get_dex();
+		case ESkill::kLongBlades:
+		case ESkill::kShortBlades:
+		case ESkill::kNonstandart:
+		case ESkill::kBows:
+		case ESkill::kPicks:return ch->get_dex();
 			break;
 		default:return ch->get_str();
 	}
@@ -139,7 +139,7 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 
 	if (!CheckExpedientSuccess(ch, vict)) {
 		act("Ваши свистящие удары пропали втуне, не задев $N3.", false, ch, 0, vict, TO_CHAR);
-		Damage dmg(SkillDmg(ESkill::SKILL_SHORTS), ZERO_DMG, PHYS_DMG, nullptr); //подумать как вычислить скилл оружия
+		Damage dmg(SkillDmg(ESkill::kShortBlades), ZERO_DMG, PHYS_DMG, nullptr); //подумать как вычислить скилл оружия
 		dmg.skill_num = ESkill::kUndefined;
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
@@ -182,10 +182,10 @@ void SetExtraAttackCutShorts(CharacterData *ch, CharacterData *victim) {
 	if (!ch->get_fighting()) {
 		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".", false, ch, 0, victim, TO_CHAR);
 		set_fighting(ch, victim);
-		ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
+		ch->set_extra_attack(kExtraAttackCutShorts, victim);
 	} else {
 		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, 0, victim, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
+		ch->set_extra_attack(kExtraAttackCutShorts, victim);
 	}
 }
 
@@ -200,10 +200,10 @@ void SetExtraAttackCutPick(CharacterData *ch, CharacterData *victim) {
 	if (!ch->get_fighting()) {
 		act("Вы перехватили оружие обратным хватом и проскользнули за спину $N1.", false, ch, 0, victim, TO_CHAR);
 		set_fighting(ch, victim);
-		ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
+		ch->set_extra_attack(kExtraAttackPick, victim);
 	} else {
 		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, 0, victim, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
+		ch->set_extra_attack(kExtraAttackPick, victim);
 	}
 }
 
@@ -285,12 +285,12 @@ void do_expedient_cut(CharacterData *ch, char *argument, int/* cmd*/, int /*subc
 		return;
 
 	switch (skill) {
-		case ESkill::SKILL_SHORTS:SetExtraAttackCutShorts(ch, vict);
+		case ESkill::kShortBlades:SetExtraAttackCutShorts(ch, vict);
 			break;
-		case ESkill::SKILL_SPADES:SetExtraAttackCutShorts(ch, vict);
+		case ESkill::kSpades:SetExtraAttackCutShorts(ch, vict);
 			break;
-		case ESkill::SKILL_LONGS:
-		case ESkill::SKILL_BOTHHANDS:
+		case ESkill::kLongBlades:
+		case ESkill::kTwohands:
 			send_to_char("Порез мечом (а тем более двуручником или копьем) - это сурьезно. Но пока невозможно.\r\n",
 						 ch);
 			break;

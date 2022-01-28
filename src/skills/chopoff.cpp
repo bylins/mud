@@ -26,9 +26,9 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 		return;
 
 	if ((GET_POS(vict) < EPosition::kFight)) {
-		if (number(1, 100) < ch->get_skill(ESkill::SKILL_CHOPOFF)) {
+		if (number(1, 100) < ch->get_skill(ESkill::kUndercut)) {
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
-			ch->setSkillCooldown(ESkill::SKILL_CHOPOFF, kPulseViolence / 6);
+			ch->setSkillCooldown(ESkill::kUndercut, kPulseViolence / 6);
 			return;
 		}
 	}
@@ -36,8 +36,8 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	int percent = number(1, MUD::Skills()[ESkill::SKILL_CHOPOFF].difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::SKILL_CHOPOFF, vict);
+	int percent = number(1, MUD::Skills()[ESkill::kUndercut].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::kUndercut, vict);
 
 	if (check_spell_on_player(ch, SPELL_WEB)) {
 		prob /= 3;
@@ -54,8 +54,8 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 		prob = 0;
 
 	bool success = percent <= prob;
-	TrainSkill(ch, ESkill::SKILL_CHOPOFF, success, vict);
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::SKILL_CHOPOFF].name, percent, prob, success);
+	TrainSkill(ch, ESkill::kUndercut, success, vict);
+	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kUndercut].name, percent, prob, success);
 	if (!success) {
 		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		act(buf, false, ch, nullptr, vict, TO_CHAR);
@@ -111,17 +111,17 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 	if (!success) {
 		set_wait(ch, prob, false);
 	} else {
-		setSkillCooldownInFight(ch, ESkill::SKILL_CHOPOFF, prob);
-		setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
+		setSkillCooldownInFight(ch, ESkill::kUndercut, prob);
+		setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 	}
 }
 
 void do_chopoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(ESkill::SKILL_CHOPOFF) < 1) {
+	if (ch->get_skill(ESkill::kUndercut) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_CHOPOFF)) {
+	if (ch->haveCooldown(ESkill::kUndercut)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -152,6 +152,6 @@ void do_chopoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	else if (isHaveNoExtraAttack(ch)) {
 		if (!IS_NPC(ch))
 			act("Хорошо. Вы попытаетесь подсечь $N3.", false, ch, nullptr, vict, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_CHOPOFF, vict);
+		ch->set_extra_attack(kExtraAttackUndercut, vict);
 	}
 }

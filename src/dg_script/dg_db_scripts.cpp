@@ -433,18 +433,18 @@ void trg_spellitem(CharacterData *ch, int spellnum, int spelldiff, int spell) {
 		SET_BIT(GET_SPELL_TYPE(ch, spellnum), spell);
 		switch (spell) {
 			case SPELL_SCROLL:
-				if (!ch->get_skill(ESkill::SKILL_CREATE_SCROLL))
-					ch->set_skill(ESkill::SKILL_CREATE_SCROLL, 5);
+				if (!ch->get_skill(ESkill::kCreateScroll))
+					ch->set_skill(ESkill::kCreateScroll, 5);
 				strcpy(type, "создания свитка");
 				break;
 			case SPELL_POTION:
-				if (!ch->get_skill(ESkill::SKILL_CREATE_POTION))
-					ch->set_skill(ESkill::SKILL_CREATE_POTION, 5);
+				if (!ch->get_skill(ESkill::kCreatePotion))
+					ch->set_skill(ESkill::kCreatePotion, 5);
 				strcpy(type, "приготовления напитка");
 				break;
 			case SPELL_WAND:
-				if (!ch->get_skill(ESkill::SKILL_CREATE_WAND))
-					ch->set_skill(ESkill::SKILL_CREATE_WAND, 5);
+				if (!ch->get_skill(ESkill::kCreateWand))
+					ch->set_skill(ESkill::kCreateWand, 5);
 				strcpy(type, "изготовления посоха");
 				break;
 			case SPELL_ITEMS: strcpy(type, "предметной магии");

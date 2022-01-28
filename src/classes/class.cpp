@@ -1312,7 +1312,7 @@ void do_start(CharacterData *ch, int newbie) {
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
 	if (newbie || (GET_REAL_REMORT(ch) >= 9 && GET_REAL_REMORT(ch) % 3 == 0)) {
-		ch->set_skill(ESkill::SKILL_DRUNKOFF, 10);
+		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
 	if (newbie && GET_CLASS(ch) == CLASS_DRUID) {
@@ -1342,24 +1342,24 @@ void do_start(CharacterData *ch, int newbie) {
 		case CLASS_DEFENDERMAGE:
 		case CLASS_CHARMMAGE:
 		case CLASS_NECROMANCER:
-		case CLASS_DRUID: ch->set_skill(ESkill::SKILL_SATTACK, 10);
+		case CLASS_DRUID: ch->set_skill(ESkill::kSideAttack, 10);
 			break;
-		case CLASS_CLERIC: ch->set_skill(ESkill::SKILL_SATTACK, 50);
+		case CLASS_CLERIC: ch->set_skill(ESkill::kSideAttack, 50);
 			break;
 		case CLASS_THIEF:
-		case CLASS_ASSASINE: ch->set_skill(ESkill::SKILL_SATTACK, 75);
+		case CLASS_ASSASINE: ch->set_skill(ESkill::kSideAttack, 75);
 			break;
-		case CLASS_MERCHANT: ch->set_skill(ESkill::SKILL_SATTACK, 85);
+		case CLASS_MERCHANT: ch->set_skill(ESkill::kSideAttack, 85);
 			break;
 		case CLASS_GUARD:
 		case CLASS_PALADINE:
 		case CLASS_WARRIOR:
 		case CLASS_RANGER:
-			if (ch->get_skill(ESkill::SKILL_HORSE) == 0)
-				ch->set_skill(ESkill::SKILL_HORSE, 10);
-			ch->set_skill(ESkill::SKILL_SATTACK, 95);
+			if (ch->get_skill(ESkill::kRiding) == 0)
+				ch->set_skill(ESkill::kRiding, 10);
+			ch->set_skill(ESkill::kSideAttack, 95);
 			break;
-		case CLASS_SMITH: ch->set_skill(ESkill::SKILL_SATTACK, 95);
+		case CLASS_SMITH: ch->set_skill(ESkill::kSideAttack, 95);
 			break;
 		default: break;
 	}

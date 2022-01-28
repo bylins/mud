@@ -32,9 +32,9 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 		return;
 	}
 
-	int percent = number(1, MUD::Skills()[ESkill::SKILL_RESCUE].difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::SKILL_RESCUE, tmp_ch);
-	ImproveSkill(ch, ESkill::SKILL_RESCUE, prob >= percent, tmp_ch);
+	int percent = number(1, MUD::Skills()[ESkill::kRescue].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::kRescue, tmp_ch);
+	ImproveSkill(ch, ESkill::kRescue, prob >= percent, tmp_ch);
 
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE))
 		prob = percent;
@@ -42,10 +42,10 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 		prob = 0;
 
 	bool success = percent <= prob;
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::SKILL_RESCUE].name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kRescue].name, percent, prob, success);
 	if (!success) {
 		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, TO_CHAR);
-		ch->setSkillCooldown(ESkill::SKILL_GLOBAL_COOLDOWN, kPulseViolence);
+		ch->setSkillCooldown(ESkill::kGlobalCooldown, kPulseViolence);
 		return;
 	}
 
@@ -68,17 +68,17 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 	} else {
 		fighting_rescue(ch, vict, tmp_ch);
 	}
-	setSkillCooldown(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
-	setSkillCooldown(ch, ESkill::SKILL_RESCUE, 1 + hostilesCounter);
+	setSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
+	setSkillCooldown(ch, ESkill::kRescue, 1 + hostilesCounter);
 	set_wait(vict, 2, false);
 }
 
 void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(ESkill::SKILL_RESCUE)) {
+	if (!ch->get_skill(ESkill::kRescue)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_RESCUE)) {
+	if (ch->haveCooldown(ESkill::kRescue)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

@@ -28,7 +28,7 @@ void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_GLOBAL_COOLDOWN)) {
+	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

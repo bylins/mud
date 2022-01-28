@@ -34,18 +34,18 @@ constexpr auto
 constexpr auto WEAR_TAKE_HOLD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HOLD);
 struct create_item_type created_item[] =
 	{
-		{300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD},
-		{301, 0x7E, 12, 40, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD},
-		{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_DUAL},
-		{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_HOLD},
-		{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_BOTHS_WIELD},
+		{300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BOTHS_WIELD},
+		{301, 0x7E, 12, 40, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BOTHS_WIELD},
+		{302, 0x7E, 8, 25, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_DUAL},
+		{303, 0x7E, 5, 13, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_HOLD},
+		{304, 0x7E, 10, 35, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BOTHS_WIELD},
 		{305, 0, 8, 15, {{0, 0, 0}}, ESkill::kIncorrect, WEAR_TAKE_BOTHS_WIELD},
 		{306, 0, 8, 20, {{0, 0, 0}}, ESkill::kIncorrect, WEAR_TAKE_BOTHS_WIELD},
-		{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_BODY},
-		{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_ARMS},
-		{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_LEGS},
-		{310, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, ESkill::SKILL_TRANSFORMWEAPON, WEAR_TAKE_HEAD},
-		{312, 0, 4, 40, {{WOOD_PROTO, TETIVA_PROTO, 0}}, ESkill::SKILL_CREATEBOW, WEAR_TAKE_BOTHS}
+		{307, 0x3A, 10, 20, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BODY},
+		{308, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_ARMS},
+		{309, 0x3A, 6, 12, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_LEGS},
+		{310, 0x3A, 4, 10, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_HEAD},
+		{312, 0, 4, 40, {{WOOD_PROTO, TETIVA_PROTO, 0}}, ESkill::kCreateBow, WEAR_TAKE_BOTHS}
 	};
 const char *create_item_name[] = {"шелепуга",
 								  "меч",
@@ -63,14 +63,14 @@ const char *create_item_name[] = {"шелепуга",
 };
 const struct make_skill_type make_skills[] =
 	{
-		{"смастерить предмет", "предметы", ESkill::SKILL_MAKE_STAFF},
-		{"смастерить лук", "луки", ESkill::SKILL_MAKE_BOW},
-		{"выковать оружие", "оружие", ESkill::SKILL_MAKE_WEAPON},
-		{"выковать доспех", "доспех", ESkill::SKILL_MAKE_ARMOR},
-		{"сшить одежду", "одежда", ESkill::SKILL_MAKE_WEAR},
-		{"смастерить диковину", "артеф.", ESkill::SKILL_MAKE_JEWEL},
-		{"смастерить оберег", "оберег", ESkill::SKILL_MAKE_AMULET},
-//  { "сварить отвар","варево", ESkill::SKILL_MAKE_POTION },
+		{"смастерить предмет", "предметы", ESkill::kMakeStaff},
+		{"смастерить лук", "луки", ESkill::kMakeBow},
+		{"выковать оружие", "оружие", ESkill::kMakeWeapon},
+		{"выковать доспех", "доспех", ESkill::kMakeArmor},
+		{"сшить одежду", "одежда", ESkill::kMakeWear},
+		{"смастерить диковину", "артеф.", ESkill::kMakeJewel},
+		{"смастерить оберег", "оберег", ESkill::kMakeAmulet},
+//  { "сварить отвар","варево", ESkill::kMakePotion },
 		{"\n", "\n", ESkill::kIncorrect}        // Терминатор
 	};
 const char *create_weapon_quality[] = {"RESERVED",
@@ -573,7 +573,7 @@ void do_make_item(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// Выковать можно клинок и доспех (щит) умения разные. название одно
 	// Сварить отвар
 	// Сшить одежду
-	if ((subcmd == MAKE_WEAR) && (!ch->get_skill(ESkill::SKILL_MAKE_WEAR))) {
+	if ((subcmd == MAKE_WEAR) && (!ch->get_skill(ESkill::kMakeWear))) {
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
@@ -588,22 +588,22 @@ void do_make_item(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		case (MAKE_POTION):
 			// Варим отвар.
 			tmpstr = "Вы можете сварить:\r\n";
-			make_recepts.can_make(ch, &canlist, ESkill::SKILL_MAKE_POTION);
+			make_recepts.can_make(ch, &canlist, ESkill::kMakePotion);
 			break;
 		case (MAKE_WEAR):
 			// Шьем одежку.
 			tmpstr = "Вы можете сшить:\r\n";
-			make_recepts.can_make(ch, &canlist, ESkill::SKILL_MAKE_WEAR);
+			make_recepts.can_make(ch, &canlist, ESkill::kMakeWear);
 			break;
 		case (MAKE_METALL): tmpstr = "Вы можете выковать:\r\n";
-			make_recepts.can_make(ch, &canlist, ESkill::SKILL_MAKE_WEAPON);
-			make_recepts.can_make(ch, &canlist, ESkill::SKILL_MAKE_ARMOR);
+			make_recepts.can_make(ch, &canlist, ESkill::kMakeWeapon);
+			make_recepts.can_make(ch, &canlist, ESkill::kMakeArmor);
 			break;
 		case (MAKE_CRAFT): tmpstr = "Вы можете смастерить:\r\n";
-			make_recepts.can_make(ch, &canlist, ESkill::SKILL_MAKE_STAFF);
-			make_recepts.can_make(ch, &canlist, ESkill::SKILL_MAKE_BOW);
-			make_recepts.can_make(ch, &canlist, ESkill::SKILL_MAKE_JEWEL);
-			make_recepts.can_make(ch, &canlist, ESkill::SKILL_MAKE_AMULET);
+			make_recepts.can_make(ch, &canlist, ESkill::kMakeStaff);
+			make_recepts.can_make(ch, &canlist, ESkill::kMakeBow);
+			make_recepts.can_make(ch, &canlist, ESkill::kMakeJewel);
+			make_recepts.can_make(ch, &canlist, ESkill::kMakeAmulet);
 			break;
 	}
 	if (canlist.size() == 0) {
@@ -677,7 +677,7 @@ void go_create_weapon(CharacterData *ch, ObjectData *obj, int obj_type, ESkill s
 			// для 2 слотов базовый шанс 5%, 1% за каждый морт
 			// для 1 слота базово 20% и 4% за каждый морт
 			// Карачун. Поправлено. Расчет не через морты а через скил.
-			if (skill == ESkill::SKILL_TRANSFORMWEAPON) {
+			if (skill == ESkill::kReforging) {
 				if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10) {
 					tobj->set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
 				} else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5) {
@@ -722,7 +722,7 @@ void go_create_weapon(CharacterData *ch, ObjectData *obj, int obj_type, ESkill s
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
 					//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
-					if (skill != ESkill::SKILL_CREATEBOW) {
+					if (skill != ESkill::kCreateBow) {
 						if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob) {
 							tobj->set_wear_flag(EWearFlag::ITEM_WEAR_HOLD);
 						}
@@ -832,10 +832,10 @@ void do_transform_weapon(CharacterData *ch, char *argument, int/* cmd*/, int sub
 	ESkill skill_id{ESkill::kIncorrect};
 	switch (subcmd) {
 		case SCMD_TRANSFORMWEAPON:
-			skill_id = ESkill::SKILL_TRANSFORMWEAPON;
+			skill_id = ESkill::kReforging;
 			break;
 		case SCMD_CREATEBOW:
-			skill_id = ESkill::SKILL_CREATEBOW;
+			skill_id = ESkill::kCreateBow;
 			break;
 		default:
 			break;
@@ -849,9 +849,9 @@ void do_transform_weapon(CharacterData *ch, char *argument, int/* cmd*/, int sub
 	argument = one_argument(argument, arg1);
 	if (!*arg1) {
 		switch (skill_id) {
-			case ESkill::SKILL_TRANSFORMWEAPON: send_to_char("Во что вы хотите перековать?\r\n", ch);
+			case ESkill::kReforging: send_to_char("Во что вы хотите перековать?\r\n", ch);
 				break;
-			case ESkill::SKILL_CREATEBOW: send_to_char("Что вы хотите смастерить?\r\n", ch);
+			case ESkill::kCreateBow: send_to_char("Что вы хотите смастерить?\r\n", ch);
 				break;
 			default: break;
 		}
@@ -860,9 +860,9 @@ void do_transform_weapon(CharacterData *ch, char *argument, int/* cmd*/, int sub
 	obj_type = search_block(arg1, create_item_name, false);
 	if (-1 == obj_type) {
 		switch (skill_id) {
-			case ESkill::SKILL_TRANSFORMWEAPON: send_to_char("Перековать можно в :\r\n", ch);
+			case ESkill::kReforging: send_to_char("Перековать можно в :\r\n", ch);
 				break;
-			case ESkill::SKILL_CREATEBOW: send_to_char("Смастерить можно :\r\n", ch);
+			case ESkill::kCreateBow: send_to_char("Смастерить можно :\r\n", ch);
 				break;
 			default: break;
 		}
@@ -876,9 +876,9 @@ void do_transform_weapon(CharacterData *ch, char *argument, int/* cmd*/, int sub
 	}
 	if (created_item[obj_type].skill != skill_id) {
 		switch (skill_id) {
-			case ESkill::SKILL_TRANSFORMWEAPON: send_to_char("Данный предмет выковать нельзя.\r\n", ch);
+			case ESkill::kReforging: send_to_char("Данный предмет выковать нельзя.\r\n", ch);
 				break;
-			case ESkill::SKILL_CREATEBOW: send_to_char("Данный предмет смастерить нельзя.\r\n", ch);
+			case ESkill::kCreateBow: send_to_char("Данный предмет смастерить нельзя.\r\n", ch);
 				break;
 			default: break;
 		}
@@ -927,7 +927,7 @@ void do_transform_weapon(CharacterData *ch, char *argument, int/* cmd*/, int sub
 		}
 	}
 	switch (skill_id) {
-		case ESkill::SKILL_TRANSFORMWEAPON:
+		case ESkill::kReforging:
 			// Проверяем повторно из чего сделан объект
 			// Чтобы не было абъюза с перековкой из угля.
 			if (created_item[obj_type].material_bits &&
@@ -976,9 +976,9 @@ void do_transform_weapon(CharacterData *ch, char *argument, int/* cmd*/, int sub
 					extract_obj(proto[i]);
 				}
 			}
-			go_create_weapon(ch, obj, obj_type, ESkill::SKILL_TRANSFORMWEAPON);
+			go_create_weapon(ch, obj, obj_type, ESkill::kReforging);
 			break;
-		case ESkill::SKILL_CREATEBOW:
+		case ESkill::kCreateBow:
 			for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
 				if (GET_OBJ_TYPE(coal) == ObjectData::ITEM_INGREDIENT) {
 					for (i = 0; i < MAX_PROTO; i++) {
@@ -1015,7 +1015,7 @@ void do_transform_weapon(CharacterData *ch, char *argument, int/* cmd*/, int sub
 					extract_obj(proto[i]);
 				}
 			}
-			go_create_weapon(ch, proto[0], obj_type, ESkill::SKILL_CREATEBOW);
+			go_create_weapon(ch, proto[0], obj_type, ESkill::kCreateBow);
 			break;
 		default: break;
 	}
@@ -1222,7 +1222,7 @@ int MakeRecept::can_make(CharacterData *ch) {
 		return (false);
 	}
 	// Делаем проверку может ли чар сделать предмет такого типа
-	if (skill == ESkill::SKILL_MAKE_STAFF) {
+	if (skill == ESkill::kMakeStaff) {
 		return 0;
 	}
 	for (i = 0; i < MAX_PARTS; i++) {
@@ -1305,7 +1305,7 @@ void MakeRecept::make_value_wear(CharacterData *ch, ObjectData *obj, ObjectData 
 		wearkoeff = 45;
 	}
 	obj->set_val(0,
-				 ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(ESkill::SKILL_MAKE_WEAR)) / 100
+				 ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(ESkill::kMakeWear)) / 100
 					 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
 					 / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
 	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
@@ -1337,7 +1337,7 @@ void MakeRecept::make_value_wear(CharacterData *ch, ObjectData *obj, ObjectData 
 		wearkoeff = 31;
 	}
 	obj->set_val(1,
-				 (ch->get_skill(ESkill::SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
+				 (ch->get_skill(ESkill::kMakeWear) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
 					 / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
 }
 float MakeRecept::count_mort_requred(ObjectData *obj) {
@@ -1525,7 +1525,7 @@ void MakeRecept::make_object(CharacterData *ch, ObjectData *obj, ObjectData *ing
 	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
 	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
 	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000
-					   + ch->get_skill(ESkill::SKILL_MAKE_WEAR) / 2 * number(160, 220)); // таймер зависит в основном от умелки
+					   + ch->get_skill(ESkill::kMakeWear) / 2 * number(160, 220)); // таймер зависит в основном от умелки
 	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
 	for (j = 1; j < ingr_cnt; j++) {
 		int i, raffect = 0;
@@ -1597,7 +1597,7 @@ int MakeRecept::make(CharacterData *ch) {
 		return 0;
 	}
 	// Проверяем возможность создания предмета
-	if (!IS_IMMORTAL(ch) && (skill == ESkill::SKILL_MAKE_STAFF)) {
+	if (!IS_IMMORTAL(ch) && (skill == ESkill::kMakeStaff)) {
 		const ObjectData obj(*tobj);
 		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, TO_CHAR);
 		return (false);
@@ -1627,8 +1627,8 @@ int MakeRecept::make(CharacterData *ch) {
 	//int stat_bonus;
 	// Делаем всякие доп проверки для различных умений.
 	switch (skill) {
-		case ESkill::SKILL_MAKE_WEAPON:
-		case ESkill::SKILL_MAKE_ARMOR:
+		case ESkill::kMakeWeapon:
+		case ESkill::kMakeArmor:
 			// Проверяем есть ли тут наковальня или комната кузня.
 			if ((!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) && (!IS_IMMORTAL(ch))) {
 				send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
@@ -1648,7 +1648,7 @@ int MakeRecept::make(CharacterData *ch) {
 			// Бонус сила
 			//stat_bonus = number(0, GET_REAL_STR(ch));
 			break;
-		case ESkill::SKILL_MAKE_BOW: charwork = "Вы начали мастерить $o3.";
+		case ESkill::kMakeBow: charwork = "Вы начали мастерить $o3.";
 			roomwork = "$n начал$g мастерить что-то очень напоминающее $o3.";
 			charfail = "С громким треском $o сломал$U в ваших неумелых руках.";
 			roomfail = "С громким треском $o сломал$U в неумелых руках $n1.";
@@ -1662,7 +1662,7 @@ int MakeRecept::make(CharacterData *ch) {
 			//stat_bonus = number(0, GET_REAL_DEX(ch));
 			dam = 40;
 			break;
-		case ESkill::SKILL_MAKE_WEAR: charwork = "Вы взяли в руку иголку и начали шить $o3.";
+		case ESkill::kMakeWear: charwork = "Вы взяли в руку иголку и начали шить $o3.";
 			roomwork = "$n взял$g в руку иголку и начал$g увлеченно шить.";
 			charfail = "У вас ничего не получилось сшить.";
 			roomfail = "$n пытал$u что-то сшить, но ничего не вышло.";
@@ -1676,7 +1676,7 @@ int MakeRecept::make(CharacterData *ch) {
 			//stat_bonus = number(0, GET_REAL_CON(ch));
 			dam = 30;
 			break;
-		case ESkill::SKILL_MAKE_AMULET: charwork = "Вы взяли в руки необходимые материалы и начали мастерить $o3.";
+		case ESkill::kMakeAmulet: charwork = "Вы взяли в руки необходимые материалы и начали мастерить $o3.";
 			roomwork = "$n взял$g в руки что-то и начал$g увлеченно пыхтеть над чем-то.";
 			charfail = "У вас ничего не получилось";
 			roomfail = "$n пытал$u что-то сделать, но ничего не вышло.";
@@ -1688,7 +1688,7 @@ int MakeRecept::make(CharacterData *ch) {
 			itemtag = "На обратной стороне $o1 вы заметили слово '$n', видимо, это имя создателя этой чудной вещицы.";
 			dam = 30;
 			break;
-		case ESkill::SKILL_MAKE_JEWEL: charwork = "Вы начали мастерить $o3.";
+		case ESkill::kMakeJewel: charwork = "Вы начали мастерить $o3.";
 			roomwork = "$n начал мастерить какую-то диковинку.";
 			charfail = "Ваше неудачное движение повредило $o5.";
 			roomfail = "Неудачное движение $n, сделало $s работу бессмысленной.";
@@ -1702,7 +1702,7 @@ int MakeRecept::make(CharacterData *ch) {
 			//stat_bonus = number(0, GET_REAL_CHA(ch));
 			dam = 30;
 			break;
-		case ESkill::SKILL_MAKE_STAFF: charwork = "Вы начали мастерить $o3.";
+		case ESkill::kMakeStaff: charwork = "Вы начали мастерить $o3.";
 			roomwork = "$n начал мастерить что-то, посылая всех к чертям.";
 			charfail = "$o3 осветил комнату магическим светом и истаял.";
 			roomfail = "Предмет в руках $n1 вспыхнул, озарив комнату магическим светом и истаял.";
@@ -1717,7 +1717,7 @@ int MakeRecept::make(CharacterData *ch) {
 			//stat_bonus = number(0, GET_REAL_INT(ch));
 			dam = 70;
 			break;
-		case ESkill::SKILL_MAKE_POTION: charwork = "Вы достали небольшой горшочек и развели под ним огонь, начав варить $o3.";
+		case ESkill::kMakePotion: charwork = "Вы достали небольшой горшочек и развели под ним огонь, начав варить $o3.";
 			roomwork = "$n достал горшочек и поставил его на огонь.";
 			charfail = "Вы не уследили как зелье закипело и пролилось в огонь.";
 			roomfail =
@@ -1786,7 +1786,7 @@ int MakeRecept::make(CharacterData *ch) {
 	// 4. Считаем сколько материала треба.
 	if (!make_fail) {
 		for (i = 0; i < ingr_cnt; i++) {
-			if (skill == ESkill::SKILL_MAKE_WEAR && i == 0) //для шитья всегда раскраиваем шкуру
+			if (skill == ESkill::kMakeWear && i == 0) //для шитья всегда раскраиваем шкуру
 			{
 				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[0]);
 				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
@@ -1907,8 +1907,8 @@ int MakeRecept::make(CharacterData *ch) {
 	// Для маг предметов надо в сторону облегчения.
 //	i = GET_OBJ_WEIGHT(obj);
 	switch (skill) {
-		case ESkill::SKILL_MAKE_BOW:;
-		case ESkill::SKILL_MAKE_WEAR:
+		case ESkill::kMakeBow:;
+		case ESkill::kMakeWear:
 			obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 			obj->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
 			break;
@@ -1983,7 +1983,7 @@ int MakeRecept::make(CharacterData *ch) {
 	// если от 25 до 50 то переноситься 1/3
 	// больше переноситься 0
 	// переносим доп аффекты ...+мудра +ловка и т.п.
-	if (skill == ESkill::SKILL_MAKE_WEAR) {
+	if (skill == ESkill::kMakeWear) {
 		make_object(ch, obj.get(), ingrs, ingr_cnt);
 		make_value_wear(ch, obj.get(), ingrs);
 	} else // если не шитье то никаких махинаций с падежами и копированием рандом аффекта

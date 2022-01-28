@@ -41,8 +41,8 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 
 	vict = try_protect(vict, ch);
 
-	int percent = number(1, MUD::Skills()[ESkill::SKILL_BASH].difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::SKILL_BASH, vict);
+	int percent = number(1, MUD::Skills()[ESkill::kBash].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
 
 	if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, GF_GODSCURSE)) {
 		prob = percent;
@@ -51,11 +51,11 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 		prob = 0;
 	}
 	bool success = percent <= prob;
-	TrainSkill(ch, ESkill::SKILL_BASH, success, vict);
+	TrainSkill(ch, ESkill::kBash, success, vict);
 
-	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::SKILL_BASH].name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kBash].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::SKILL_BASH), ZERO_DMG, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kBash), ZERO_DMG, PHYS_DMG, nullptr);
 		dmg.process(ch, vict);
 		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
@@ -63,20 +63,20 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
 		if (GET_POS(vict) <= EPosition::kStun && GET_WAIT(vict) > 0) {
 			send_to_char("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
-			ch->setSkillCooldown(ESkill::SKILL_GLOBAL_COOLDOWN, kPulseViolence);
+			ch->setSkillCooldown(ESkill::kGlobalCooldown, kPulseViolence);
 			return;
 		}
 
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) +
-			MAX(0, ch->get_skill(ESkill::SKILL_BASH) / 10 - 5) + GET_REAL_LEVEL(ch) / 5;
+			MAX(0, ch->get_skill(ESkill::kBash) / 10 - 5) + GET_REAL_LEVEL(ch) / 5;
 
 //делаем блокирование баша
 		if ((GET_AF_BATTLE(vict, EAF_BLOCK)
 			|| (can_use_feat(vict, DEFENDER_FEAT)
 				&& GET_EQ(vict, WEAR_SHIELD)
 				&& PRF_FLAGGED(vict, PRF_AWAKE)
-				&& vict->get_skill(ESkill::SKILL_AWAKE)
-				&& vict->get_skill(ESkill::SKILL_BLOCK)
+				&& vict->get_skill(ESkill::kAwake)
+				&& vict->get_skill(ESkill::kShieldBlock)
 				&& GET_POS(vict) > EPosition::kSit))
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
@@ -87,10 +87,10 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 				send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
-				range = number(1, MUD::Skills()[ESkill::SKILL_BLOCK].difficulty);
-				prob2 = CalcCurrentSkill(vict, ESkill::SKILL_BLOCK, ch);
+				range = number(1, MUD::Skills()[ESkill::kShieldBlock].difficulty);
+				prob2 = CalcCurrentSkill(vict, ESkill::kShieldBlock, ch);
 				bool success2 = prob2 >= range;
-				TrainSkill(vict, ESkill::SKILL_BLOCK, success2, ch);
+				TrainSkill(vict, ESkill::kShieldBlock, success2, ch);
 				if (!success2) {
 					act("Вы не смогли блокировать попытку $N1 сбить вас.",
 						false, vict, nullptr, ch, TO_CHAR);
@@ -109,7 +109,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 					if (!ch->get_fighting()) {
 						set_fighting(ch, vict);
 						set_wait(ch, 1, true);
-						//setSkillCooldownInFight(ch, ESkill::SKILL_BASH, 1);
+						//setSkillCooldownInFight(ch, ESkill::kBash, 1);
 					}
 					return;
 				}
@@ -117,7 +117,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 		}
 
 		prob = 0; // если башем убил - лага не будет
-		Damage dmg(SkillDmg(ESkill::SKILL_BASH), dam, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kBash), dam, PHYS_DMG, nullptr);
 		dmg.flags.set(NO_FLEE_DMG);
 		dam = dmg.process(ch, vict);
 
@@ -133,11 +133,11 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 }
 
 void do_bash(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(ESkill::SKILL_BASH)) {
+	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(ESkill::kBash)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_BASH)) {
+	if (ch->haveCooldown(ESkill::kBash)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -168,7 +168,7 @@ void do_bash(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (isHaveNoExtraAttack(ch)) {
 		if (!IS_NPC(ch))
 			act("Хорошо. Вы попытаетесь сбить $N3.", false, ch, nullptr, vict, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_BASH, vict);
+		ch->set_extra_attack(kExtraAttackBash, vict);
 	}
 }
 

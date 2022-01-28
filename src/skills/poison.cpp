@@ -90,15 +90,15 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 		Affect<EApplyLocation> af[3];
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
-		if (ch->get_skill(ESkill::SKILL_POISONED) >= 80) {
-			percent = (ch->get_skill(ESkill::SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
+		if (ch->get_skill(ESkill::kPoisoning) >= 80) {
+			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
 		}
 		// -дамаг физ.атак и скиллы
 		af[0].location = APPLY_BELENA_POISON;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-		percent = (ch->get_skill(ESkill::SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 10 : 5);
+		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (IS_NPC(vict) ? 10 : 5);
 		// -хитролы
 		int remove_hit = GET_REAL_HR(vict) * (percent / 100);
 		af[1].location = APPLY_HITROLL;
@@ -136,14 +136,14 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 		Affect<EApplyLocation> af[3];
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
-		if (ch->get_skill(ESkill::SKILL_POISONED) >= 80)
-			percent = (ch->get_skill(ESkill::SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
+		if (ch->get_skill(ESkill::kPoisoning) >= 80)
+			percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
 		// -дамаг заклов и скиллы
 		af[0].location = APPLY_DATURA_POISON;
 		af[0].modifier = percent;
 
 		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
-		percent = (ch->get_skill(ESkill::SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 10 : 5);
+		percent = (ch->get_skill(ESkill::kPoisoning) * 5 / 100) + (IS_NPC(vict) ? 10 : 5);
 		// -каст
 		int remove_cast = GET_CAST_SUCCESS(vict) * (percent / 100);
 		af[1].location = APPLY_CAST_SUCCESS;
@@ -180,8 +180,8 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 // * Крит при отравлении с пушек.
 void weap_crit_poison(CharacterData *ch, CharacterData *vict, int/* spell_num*/) {
 	Affect<EApplyLocation> af;
-	int percent = number(1, MUD::Skills()[ESkill::SKILL_POISONED].difficulty * 3);
-	int prob = CalcCurrentSkill(ch, ESkill::SKILL_POISONED, vict);
+	int percent = number(1, MUD::Skills()[ESkill::kPoisoning].difficulty * 3);
+	int prob = CalcCurrentSkill(ch, ESkill::kPoisoning, vict);
 	if (prob >= percent) {
 		switch (number(1, 5)) {
 			case 1:
@@ -328,7 +328,7 @@ void try_weap_poison(CharacterData *ch, CharacterData *vict, int spell_num) {
 
 	if (number(1, 200) <= 25
 		|| (!GET_AF_BATTLE(vict, EAF_FIRST_POISON) && !AFF_FLAGGED(vict, EAffectFlag::AFF_POISON))) {
-		ImproveSkill(ch, ESkill::SKILL_POISONED, true, vict);
+		ImproveSkill(ch, ESkill::kPoisoning, true, vict);
 		if (weap_poison_vict(ch, vict, spell_num)) {
 			if (spell_num == SPELL_ACONITUM_POISON) {
 				send_to_char(ch, "Кровоточащие язвы покрыли тело %s.\r\n",

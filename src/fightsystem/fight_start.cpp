@@ -83,7 +83,7 @@ int set_hit(CharacterData *ch, CharacterData *victim) {
 	hit(ch, victim, ESkill::kUndefined,
 		AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? FightSystem::OFF_HAND : FightSystem::MAIN_HAND);
 	set_wait(ch, 2, true);
-	//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
+	//ch->setSkillCooldown(kGlobalCooldown, 2);
 	return (true);
 };
 
@@ -129,7 +129,7 @@ void do_hit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		stop_fighting(ch, 2);
 		set_fighting(ch, vict);
 		set_wait(ch, 2, true);
-		//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
+		//ch->setSkillCooldown(kGlobalCooldown, 2);
 		return;
 	}
 	if ((GET_POS(ch) == EPosition::kStand) && (vict != ch->get_fighting())) {

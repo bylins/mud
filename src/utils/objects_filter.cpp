@@ -192,31 +192,31 @@ bool ParseFilter::init_remorts(const char *str) {
 
 bool ParseFilter::init_weap_class(const char *str) {
 	if (utils::IsAbbrev(str, "луки")) {
-		weap_class = ESkill::SKILL_BOWS;
+		weap_class = ESkill::kBows;
 		weap_message = 0;
 	} else if (utils::IsAbbrev(str, "короткие")) {
-		weap_class = ESkill::SKILL_SHORTS;
+		weap_class = ESkill::kShortBlades;
 		weap_message = 1;
 	} else if (utils::IsAbbrev(str, "длинные")) {
-		weap_class = ESkill::SKILL_LONGS;
+		weap_class = ESkill::kLongBlades;
 		weap_message = 2;
 	} else if (utils::IsAbbrev(str, "секиры")) {
-		weap_class = ESkill::SKILL_AXES;
+		weap_class = ESkill::kAxes;
 		weap_message = 3;
 	} else if (utils::IsAbbrev(str, "палицы")) {
-		weap_class = ESkill::SKILL_CLUBS;
+		weap_class = ESkill::kClubs;
 		weap_message = 4;
 	} else if (utils::IsAbbrev(str, "иное")) {
-		weap_class = ESkill::SKILL_NONSTANDART;
+		weap_class = ESkill::kNonstandart;
 		weap_message = 5;
 	} else if (utils::IsAbbrev(str, "двуручники")) {
-		weap_class = ESkill::SKILL_BOTHHANDS;
+		weap_class = ESkill::kTwohands;
 		weap_message = 6;
 	} else if (utils::IsAbbrev(str, "проникающее")) {
-		weap_class = ESkill::SKILL_PICK;
+		weap_class = ESkill::kPicks;
 		weap_message = 7;
 	} else if (utils::IsAbbrev(str, "копья")) {
-		weap_class = ESkill::SKILL_SPADES;
+		weap_class = ESkill::kSpades;
 		weap_message = 8;
 	} else {
 		return false;

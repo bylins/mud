@@ -492,11 +492,11 @@ void determineFeaturesSpecification() {
 	initializeFeature(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, true, feat_app);
 //133
 	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, true, feat_app,
-					  90, ESkill::SKILL_RESCUE, ESaving::kReflex);
+					  90, ESkill::kRescue, ESaving::kReflex);
 	feat_info[SKIRMISHER_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[SKIRMISHER_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //134
-	initializeFeature(TACTICIAN_FEAT, "десяцкий", ACTIVATED_FTYPE, true, feat_app, 90, ESkill::SKILL_LEADERSHIP, ESaving::kReflex);
+	initializeFeature(TACTICIAN_FEAT, "десяцкий", ACTIVATED_FTYPE, true, feat_app, 90, ESkill::kLeadership, ESaving::kReflex);
 	feat_info[TACTICIAN_FEAT].getBaseParameter = &GET_REAL_CHA;
 	feat_info[TACTICIAN_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //135
@@ -505,7 +505,7 @@ void determineFeaturesSpecification() {
 //138
 	initializeFeature(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, true, feat_app);
 //139
-	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", TECHNIQUE_FTYPE, true, feat_app, 100, ESkill::SKILL_PUNCH, ESaving::kReflex);
+	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", TECHNIQUE_FTYPE, true, feat_app, 100, ESkill::kFistfight, ESaving::kReflex);
 //140
 	initializeFeature(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, true, feat_app);
 //141
@@ -515,7 +515,7 @@ void determineFeaturesSpecification() {
 //143
 	initializeFeature(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, true, feat_app);
 //144
-	initializeFeature(THROW_WEAPON_FEAT, "метнуть", TECHNIQUE_FTYPE, true, feat_app, 100, ESkill::SKILL_THROW, ESaving::kReflex);
+	initializeFeature(THROW_WEAPON_FEAT, "метнуть", TECHNIQUE_FTYPE, true, feat_app, 100, ESkill::kThrow, ESaving::kReflex);
 	feat_info[THROW_WEAPON_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[THROW_WEAPON_FEAT].getEffectParameter = &GET_REAL_STR;
 	feat_info[THROW_WEAPON_FEAT].usesWeaponSkill = false;
@@ -553,7 +553,7 @@ void determineFeaturesSpecification() {
 	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 //145
 	initializeFeature(SHADOW_THROW_FEAT, "змеево оружие", TECHNIQUE_FTYPE, true, feat_app,
-					  100, ESkill::SKILL_DARK_MAGIC, ESaving::kWill);
+					  100, ESkill::kDarkMagic, ESaving::kWill);
 	feat_info[SHADOW_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[SHADOW_THROW_FEAT].getEffectParameter = &GET_REAL_INT;
 	feat_info[SHADOW_THROW_FEAT].baseDamageBonusPercent = -30;
@@ -580,37 +580,37 @@ void determineFeaturesSpecification() {
 	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 //146
 	initializeFeature(SHADOW_DAGGER_FEAT, "змеев кинжал", NORMAL_FTYPE, true, feat_app,
-					  80, ESkill::SKILL_DARK_MAGIC, ESaving::kStability);
+					  80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[SHADOW_DAGGER_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_DAGGER_FEAT].usesWeaponSkill = false;
 //147
 	initializeFeature(SHADOW_SPEAR_FEAT, "змеево копьё", NORMAL_FTYPE, true,
-					  feat_app, 80, ESkill::SKILL_DARK_MAGIC, ESaving::kStability);
+					  feat_app, 80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[SHADOW_SPEAR_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_SPEAR_FEAT].usesWeaponSkill = false;
 //148
 	initializeFeature(SHADOW_CLUB_FEAT, "змеева палица", NORMAL_FTYPE, true, feat_app,
-					  80, ESkill::SKILL_DARK_MAGIC, ESaving::kStability);
+					  80, ESkill::kDarkMagic, ESaving::kStability);
 	feat_info[SHADOW_CLUB_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[SHADOW_CLUB_FEAT].usesWeaponSkill = false;
 //149
 	initializeFeature(DOUBLE_THROW_FEAT, "двойной бросок", ACTIVATED_FTYPE, true, feat_app,
-					  100, ESkill::SKILL_PUNCH, ESaving::kReflex);
+					  100, ESkill::kFistfight, ESaving::kReflex);
 	feat_info[DOUBLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //150
 	initializeFeature(TRIPLE_THROW_FEAT, "тройной бросок", ACTIVATED_FTYPE, true, feat_app,
-					  100, ESkill::SKILL_PUNCH, ESaving::kReflex);
+					  100, ESkill::kFistfight, ESaving::kReflex);
 	feat_info[TRIPLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //1151
-	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, true, feat_app, 100, ESkill::SKILL_PUNCH, ESaving::kReflex);
+	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, true, feat_app, 100, ESkill::kFistfight, ESaving::kReflex);
 	feat_info[POWER_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //152
 	initializeFeature(DEADLY_THROW_FEAT, "широкий размах", NORMAL_FTYPE, true, feat_app,
-					  100, ESkill::SKILL_PUNCH, ESaving::kReflex);
+					  100, ESkill::kFistfight, ESaving::kReflex);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //153
 	initializeFeature(TURN_UNDEAD_FEAT, "turn undead", TECHNIQUE_FTYPE, true, feat_app,
-					  70, ESkill::SKILL_TURN_UNDEAD, ESaving::kStability);
+					  70, ESkill::kTurnUndead, ESaving::kStability);
 	feat_info[TURN_UNDEAD_FEAT].getBaseParameter = &GET_REAL_INT;
 	feat_info[TURN_UNDEAD_FEAT].getEffectParameter = &GET_REAL_WIS;
 	feat_info[TURN_UNDEAD_FEAT].usesWeaponSkill = false;
@@ -668,19 +668,19 @@ bool can_use_feat(const CharacterData *ch, int feat) {
 			break;
 		case GREAT_AIMING_ATTACK_FEAT: return (GET_REAL_DEX(ch) > 17);
 			break;
-		case DOUBLESHOT_FEAT: return (ch->get_skill(ESkill::SKILL_BOWS) > 39);
+		case DOUBLESHOT_FEAT: return (ch->get_skill(ESkill::kBows) > 39);
 			break;
-		case MASTER_JEWELER_FEAT: return (ch->get_skill(ESkill::SKILL_INSERTGEM) > 59);
+		case MASTER_JEWELER_FEAT: return (ch->get_skill(ESkill::kJewelry) > 59);
 			break;
 		case SKILLED_TRADER_FEAT: return ((ch->get_level() + GET_REAL_REMORT(ch) / 3) > 19);
 			break;
 		case MAGIC_USER_FEAT: return (GET_REAL_LEVEL(ch) < 25);
 			break;
-		case LIVE_SHIELD_FEAT: return (ch->get_skill(ESkill::SKILL_RESCUE) > 124);
+		case LIVE_SHIELD_FEAT: return (ch->get_skill(ESkill::kRescue) > 124);
 			break;
-		case SHADOW_THROW_FEAT: return (ch->get_skill(ESkill::SKILL_DARK_MAGIC) > 120);
+		case SHADOW_THROW_FEAT: return (ch->get_skill(ESkill::kDarkMagic) > 120);
 			break;
-		case ANIMAL_MASTER_FEAT: return (ch->get_skill(ESkill::SKILL_MIND_MAGIC) > 80);
+		case ANIMAL_MASTER_FEAT: return (ch->get_skill(ESkill::kMindMagic) > 80);
 			break;
 			// Костыльный блок работы скирмишера где не нужно
 			// Svent TODO Для абилок не забыть реализовать провкрку состояния персонажа
@@ -718,18 +718,18 @@ bool can_get_feat(CharacterData *ch, int feat) {
 	}
 
 	switch (feat) {
-		case PARRY_ARROW_FEAT: return (ch->get_skill(ESkill::SKILL_MULTYPARRY) || ch->get_skill(ESkill::SKILL_PARRY));
+		case PARRY_ARROW_FEAT: return (ch->get_skill(ESkill::kMultiparry) || ch->get_skill(ESkill::kParry));
 			break;
-		case CONNOISEUR_FEAT: return (ch->get_skill(ESkill::SKILL_IDENTIFY));
+		case CONNOISEUR_FEAT: return (ch->get_skill(ESkill::kIdentify));
 			break;
-		case EXORCIST_FEAT: return (ch->get_skill(ESkill::SKILL_TURN_UNDEAD));
+		case EXORCIST_FEAT: return (ch->get_skill(ESkill::kTurnUndead));
 			break;
-		case HEALER_FEAT: return (ch->get_skill(ESkill::SKILL_AID));
+		case HEALER_FEAT: return (ch->get_skill(ESkill::kFirstAid));
 			break;
 		case STEALTHY_FEAT:
-			return (ch->get_skill(ESkill::SKILL_HIDE) || ch->get_skill(ESkill::SKILL_SNEAK) || ch->get_skill(ESkill::SKILL_CAMOUFLAGE));
+			return (ch->get_skill(ESkill::kHide) || ch->get_skill(ESkill::kSneak) || ch->get_skill(ESkill::kDisguise));
 			break;
-		case TRACKER_FEAT: return (ch->get_skill(ESkill::SKILL_TRACK) || ch->get_skill(ESkill::SKILL_SENSE));
+		case TRACKER_FEAT: return (ch->get_skill(ESkill::kTrack) || ch->get_skill(ESkill::kSense));
 			break;
 		case PUNCH_MASTER_FEAT:
 		case CLUBS_MASTER_FEAT:
@@ -751,7 +751,7 @@ bool can_get_feat(CharacterData *ch, int feat) {
 			break;
 		case SPIRIT_WARRIOR_FEAT: return (HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT));
 			break;
-		case NIMBLE_FINGERS_FEAT: return (ch->get_skill(ESkill::SKILL_STEAL) || ch->get_skill(ESkill::SKILL_PICK_LOCK));
+		case NIMBLE_FINGERS_FEAT: return (ch->get_skill(ESkill::kSteal) || ch->get_skill(ESkill::kPickLock));
 			break;
 		case GREAT_POWER_ATTACK_FEAT: return (HAVE_FEAT(ch, POWER_ATTACK_FEAT));
 			break;
@@ -781,9 +781,9 @@ bool can_get_feat(CharacterData *ch, int feat) {
 			break;
 		case GREAT_AIMING_ATTACK_FEAT: return (HAVE_FEAT(ch, AIMING_ATTACK_FEAT));
 			break;
-		case DOUBLESHOT_FEAT: return (HAVE_FEAT(ch, BOWS_FOCUS_FEAT) && ch->get_skill(ESkill::SKILL_BOWS) > 39);
+		case DOUBLESHOT_FEAT: return (HAVE_FEAT(ch, BOWS_FOCUS_FEAT) && ch->get_skill(ESkill::kBows) > 39);
 			break;
-		case MASTER_JEWELER_FEAT: return (ch->get_skill(ESkill::SKILL_INSERTGEM) > 59);
+		case MASTER_JEWELER_FEAT: return (ch->get_skill(ESkill::kJewelry) > 59);
 			break;
 		case EXPEDIENT_CUT_FEAT:
 			return (HAVE_FEAT(ch, SHORTS_MASTER_FEAT)
@@ -792,23 +792,23 @@ bool can_get_feat(CharacterData *ch, int feat) {
 				|| HAVE_FEAT(ch, SPADES_MASTER_FEAT)
 				|| HAVE_FEAT(ch, BOTHHANDS_MASTER_FEAT));
 			break;
-		case SKIRMISHER_FEAT: return (ch->get_skill(ESkill::SKILL_RESCUE));
+		case SKIRMISHER_FEAT: return (ch->get_skill(ESkill::kRescue));
 			break;
-		case TACTICIAN_FEAT: return (ch->get_skill(ESkill::SKILL_LEADERSHIP) > 99);
+		case TACTICIAN_FEAT: return (ch->get_skill(ESkill::kLeadership) > 99);
 			break;
-		case SHADOW_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(ESkill::SKILL_DARK_MAGIC) > 120));
+		case SHADOW_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(ESkill::kDarkMagic) > 120));
 			break;
 		case SHADOW_DAGGER_FEAT:
 		case SHADOW_SPEAR_FEAT: [[fallthrough]];
-		case SHADOW_CLUB_FEAT: return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(ESkill::SKILL_DARK_MAGIC) > 130));
+		case SHADOW_CLUB_FEAT: return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(ESkill::kDarkMagic) > 130));
 			break;
-		case DOUBLE_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(ESkill::SKILL_THROW) > 100));
+		case DOUBLE_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(ESkill::kThrow) > 100));
 			break;
-		case TRIPLE_THROW_FEAT: return (HAVE_FEAT(ch, DEADLY_THROW_FEAT) && (ch->get_skill(ESkill::SKILL_THROW) > 130));
+		case TRIPLE_THROW_FEAT: return (HAVE_FEAT(ch, DEADLY_THROW_FEAT) && (ch->get_skill(ESkill::kThrow) > 130));
 			break;
-		case POWER_THROW_FEAT: return (ch->get_skill(ESkill::SKILL_THROW) > 90);
+		case POWER_THROW_FEAT: return (ch->get_skill(ESkill::kThrow) > 90);
 			break;
-		case DEADLY_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(ESkill::SKILL_THROW) > 110));
+		case DEADLY_THROW_FEAT: return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(ESkill::kThrow) > 110));
 			break;
 		default: return true;
 			break;
@@ -1275,7 +1275,7 @@ bool tryFlipActivatedFeature(CharacterData *ch, char *argument) {
 		activateFeature(ch, featureNum);
 	}
 
-	setSkillCooldown(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 2);
+	setSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 	return true;
 }
 

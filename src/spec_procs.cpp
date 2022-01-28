@@ -368,12 +368,12 @@ void list_skills(CharacterData *ch, CharacterData *vict, const char *filter/* = 
 				continue;
 			}
 			switch (sortpos) {
-				case ESkill::SKILL_WARCRY:
+				case ESkill::kWarcry:
 					sprintf(buf,
 							"[-%d-] ",
 							(HOURS_PER_DAY - IsTimedBySkill(ch, sortpos)) / HOURS_PER_WARCRY);
 					break;
-				case ESkill::SKILL_TURN_UNDEAD:
+				case ESkill::kTurnUndead:
 					if (can_use_feat(ch, EXORCIST_FEAT)) {
 						sprintf(buf,
 								"[-%d-] ",
@@ -382,16 +382,16 @@ void list_skills(CharacterData *ch, CharacterData *vict, const char *filter/* = 
 						sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - IsTimedBySkill(ch, sortpos)) / HOURS_PER_TURN_UNDEAD);
 					}
 					break;
-				case ESkill::SKILL_AID:
-				case ESkill::SKILL_DRUNKOFF:
-				case ESkill::SKILL_IDENTIFY:
-				case ESkill::SKILL_CAMOUFLAGE:
-				case ESkill::SKILL_COURAGE:
-				case ESkill::SKILL_MANADRAIN:
-				case ESkill::SKILL_TOWNPORTAL:
-				case ESkill::SKILL_STRANGLE:
-				case ESkill::SKILL_STUN:
-				case ESkill::SKILL_REPAIR:
+				case ESkill::kFirstAid:
+				case ESkill::kHangovering:
+				case ESkill::kIdentify:
+				case ESkill::kDisguise:
+				case ESkill::kCourage:
+				case ESkill::kJinx:
+				case ESkill::kTownportal:
+				case ESkill::kStrangle:
+				case ESkill::kStun:
+				case ESkill::kRepair:
 					if (IsTimedBySkill(ch, sortpos))
 						sprintf(buf, "[%3d] ", IsTimedBySkill(ch, sortpos));
 					else
@@ -946,15 +946,15 @@ int guild_mono(CharacterData *ch, void *me, int cmd, char *argument) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_RUNES);
 						if (IS_SET(bits, SPELL_POTION)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-							ch->set_skill(ESkill::SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_POTION)));
+							ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 						}
 						if (IS_SET(bits, SPELL_WAND)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-							ch->set_skill(ESkill::SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_WAND)));
+							ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
 						}
 						if (IS_SET(bits, SPELL_SCROLL)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-							ch->set_skill(ESkill::SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_SCROLL)));
+							ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 						}
 						found = true;
 					}
@@ -1101,15 +1101,15 @@ int guild_mono(CharacterData *ch, void *me, int cmd, char *argument) {
 							}
 							if (IS_SET(bits, SPELL_POTION)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-								ch->set_skill(ESkill::SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_POTION)));
+								ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 							}
 							if (IS_SET(bits, SPELL_WAND)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-								ch->set_skill(ESkill::SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_WAND)));
+								ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
 							}
 							if (IS_SET(bits, SPELL_SCROLL)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-								ch->set_skill(ESkill::SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_SCROLL)));
+								ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 							}
 						}
 						found = true;
@@ -1263,15 +1263,15 @@ int guild_poly(CharacterData *ch, void *me, int cmd, char *argument) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_RUNES);
 						if (IS_SET(bits, SPELL_POTION)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-							ch->set_skill(ESkill::SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_POTION)));
+							ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 						}
 						if (IS_SET(bits, SPELL_WAND)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-							ch->set_skill(ESkill::SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_WAND)));
+							ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
 						}
 						if (IS_SET(bits, SPELL_SCROLL)) {
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-							ch->set_skill(ESkill::SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_SCROLL)));
+							ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 						}
 						found = true;
 					}
@@ -1425,15 +1425,15 @@ int guild_poly(CharacterData *ch, void *me, int cmd, char *argument) {
 							}
 							if (IS_SET(bits, SPELL_POTION)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-								ch->set_skill(ESkill::SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_POTION)));
+								ch->set_skill(ESkill::kCreatePotion, MAX(10, ch->get_trained_skill(ESkill::kCreatePotion)));
 							}
 							if (IS_SET(bits, SPELL_WAND)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-								ch->set_skill(ESkill::SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_WAND)));
+								ch->set_skill(ESkill::kCreateWand, MAX(10, ch->get_trained_skill(ESkill::kCreateWand)));
 							}
 							if (IS_SET(bits, SPELL_SCROLL)) {
 								SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-								ch->set_skill(ESkill::SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(ESkill::SKILL_CREATE_SCROLL)));
+								ch->set_skill(ESkill::kCreateScroll, MAX(10, ch->get_trained_skill(ESkill::kCreateScroll)));
 							}
 						}
 						found = true;
@@ -1641,7 +1641,7 @@ int npc_scavenge(CharacterData *ch) {
 
 				// Заперто, взламываем, если умеем
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
-					&& ch->get_skill(ESkill::SKILL_PICK_LOCK)
+					&& ch->get_skill(ESkill::kPickLock)
 					&& ok_pick(ch, 0, obj, 0, SCMD_PICK)) {
 					do_doorcmd(ch, obj, 0, SCMD_PICK);
 				}
@@ -1775,7 +1775,7 @@ int npc_loot(CharacterData *ch) {
 
 						// ...или взломаем?
 						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
-							&& ch->get_skill(ESkill::SKILL_PICK_LOCK)
+							&& ch->get_skill(ESkill::kPickLock)
 							&& ok_pick(ch, 0, loot_obj, 0, SCMD_PICK)) {
 							loot_obj->toggle_val_bit(1, CONT_LOCKED);
 						}
@@ -1832,7 +1832,7 @@ int npc_move(CharacterData *ch, int dir, int/* need_specials_check*/) {
 			if (has_key(ch, rdata->key)
 				|| (!EXIT_FLAGGED(rdata, EX_PICKPROOF)
 					&& !EXIT_FLAGGED(rdata, EX_BROKEN)
-					&& CalcCurrentSkill(ch, ESkill::SKILL_PICK, 0) >= number(0, 100))) {
+					&& CalcCurrentSkill(ch, ESkill::kPicks, 0) >= number(0, 100))) {
 				do_doorcmd(ch, 0, dir, SCMD_UNLOCK);
 				need_lock = true;
 			} else {
@@ -1930,8 +1930,8 @@ void npc_wield(CharacterData *ch) {
 	if (!NPC_FLAGGED(ch, NPC_WIELDING))
 		return;
 
-	if (ch->get_skill(ESkill::SKILL_MIGHTHIT) > 0
-		&& ch->get_skill(ESkill::SKILL_STUPOR) < ch->get_skill(ESkill::SKILL_MIGHTHIT)) {
+	if (ch->get_skill(ESkill::kHammer) > 0
+		&& ch->get_skill(ESkill::kOverwhelm) < ch->get_skill(ESkill::kHammer)) {
 		return;
 	}
 
@@ -2250,7 +2250,7 @@ int do_npc_steal(CharacterData *ch, CharacterData *victim) {
 			victim->remove_gold(gold);
 		}
 		// Steal something from equipment
-		if (IS_CARRYING_N(ch) < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::SKILL_STEAL, victim)
+		if (IS_CARRYING_N(ch) < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::kSteal, victim)
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0)) {
 			for (obj = victim->carrying; obj; obj = obj->get_next_content())
 				if (CAN_SEE_OBJ(ch, obj) && IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)

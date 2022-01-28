@@ -14,23 +14,23 @@ using namespace AbilitySystem;
 
 void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
-	if (!ch->get_skill(ESkill::SKILL_TURN_UNDEAD)) {
+	if (!ch->get_skill(ESkill::kTurnUndead)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_TURN_UNDEAD)) {
+	if (ch->haveCooldown(ESkill::kTurnUndead)) {
 		send_to_char("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
 		return;
 	};
 
-	int skillTurnUndead = ch->get_skill(ESkill::SKILL_TURN_UNDEAD);
+	int skillTurnUndead = ch->get_skill(ESkill::kTurnUndead);
 	TimedSkill timed;
-	timed.skill = ESkill::SKILL_TURN_UNDEAD;
+	timed.skill = ESkill::kTurnUndead;
 	if (can_use_feat(ch, EXORCIST_FEAT)) {
-		timed.time = IsTimedBySkill(ch, ESkill::SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD - 2;
+		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + HOURS_PER_TURN_UNDEAD - 2;
 		skillTurnUndead += 10;
 	} else {
-		timed.time = IsTimedBySkill(ch, ESkill::SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD;
+		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + HOURS_PER_TURN_UNDEAD;
 	}
 	if (timed.time > HOURS_PER_DAY) {
 		send_to_char("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
@@ -45,7 +45,7 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 // костылиии... и магик намберы
 	int victimsAmount = 20;
 	int victimssHPAmount = skillTurnUndead * 25 + MAX(0, skillTurnUndead - 80) * 50;
-	Damage turnUndeadDamage(SkillDmg(ESkill::SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG, nullptr);
+	Damage turnUndeadDamage(SkillDmg(ESkill::kTurnUndead), ZERO_DMG, MAGE_DMG, nullptr);
 	turnUndeadDamage.magic_type = STYPE_LIGHT;
 	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;
@@ -93,6 +93,6 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 		};
 	};
 	//set_wait(ch, 1, true);
-	setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
-	setSkillCooldownInFight(ch, ESkill::SKILL_TURN_UNDEAD, 2);
+	setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+	setSkillCooldownInFight(ch, ESkill::kTurnUndead, 2);
 }

@@ -1709,8 +1709,8 @@ char *make_prompt(DescriptorData *d) {
 			// у кого руки дойдут - может переделать на метод класса...
 			count += sprintf(prompt + count,
 							 "%s:%d ",
-							 MUD::Skills()[ESkill::SKILL_GLOBAL_COOLDOWN].GetAbbr(),
-							 d->character->getSkillCooldownInPulses(ESkill::SKILL_GLOBAL_COOLDOWN));
+							 MUD::Skills()[ESkill::kGlobalCooldown].GetAbbr(),
+							 d->character->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
 			for (const auto skill : AVAILABLE_SKILLS) {
 				if (*MUD::Skills()[skill].GetName() != '!' && d->character->get_skill(skill)) {
 					int cooldown = d->character->getSkillCooldownInPulses(skill);
@@ -1722,43 +1722,43 @@ char *make_prompt(DescriptorData *d) {
 		}
 		// Заряды и таймеры умений
 		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED)) {
-			if (d->character->get_skill(ESkill::SKILL_IDENTIFY))
-				count += sprintf(prompt + count, "Пз:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_IDENTIFY));
-			if (d->character->get_skill(ESkill::SKILL_DRUNKOFF))
-				count += sprintf(prompt + count, "Пх:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_DRUNKOFF));
-			if (d->character->get_skill(ESkill::SKILL_AID))
-				count += sprintf(prompt + count, "Лч:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_AID));
-			if (d->character->get_skill(ESkill::SKILL_CAMOUFLAGE))
-				count += sprintf(prompt + count, "Мс:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_CAMOUFLAGE));
-			if (d->character->get_skill(ESkill::SKILL_REPAIR))
-				count += sprintf(prompt + count, "Рм:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_REPAIR));
-			if (d->character->get_skill(ESkill::SKILL_COURAGE))
-				count += sprintf(prompt + count, "Яр:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_COURAGE));
-			if (d->character->get_skill(ESkill::SKILL_MANADRAIN))
-				count += sprintf(prompt + count, "Сг:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_MANADRAIN));
-			if (d->character->get_skill(ESkill::SKILL_TOWNPORTAL))
-				count += sprintf(prompt + count, "Вр:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_TOWNPORTAL));
-			if (d->character->get_skill(ESkill::SKILL_WARCRY)) {
-				int wc_count = (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::SKILL_WARCRY)) / HOURS_PER_WARCRY;
+			if (d->character->get_skill(ESkill::kIdentify))
+				count += sprintf(prompt + count, "Пз:%d ", IsTimedBySkill(d->character.get(), ESkill::kIdentify));
+			if (d->character->get_skill(ESkill::kHangovering))
+				count += sprintf(prompt + count, "Пх:%d ", IsTimedBySkill(d->character.get(), ESkill::kHangovering));
+			if (d->character->get_skill(ESkill::kFirstAid))
+				count += sprintf(prompt + count, "Лч:%d ", IsTimedBySkill(d->character.get(), ESkill::kFirstAid));
+			if (d->character->get_skill(ESkill::kDisguise))
+				count += sprintf(prompt + count, "Мс:%d ", IsTimedBySkill(d->character.get(), ESkill::kDisguise));
+			if (d->character->get_skill(ESkill::kRepair))
+				count += sprintf(prompt + count, "Рм:%d ", IsTimedBySkill(d->character.get(), ESkill::kRepair));
+			if (d->character->get_skill(ESkill::kCourage))
+				count += sprintf(prompt + count, "Яр:%d ", IsTimedBySkill(d->character.get(), ESkill::kCourage));
+			if (d->character->get_skill(ESkill::kJinx))
+				count += sprintf(prompt + count, "Сг:%d ", IsTimedBySkill(d->character.get(), ESkill::kJinx));
+			if (d->character->get_skill(ESkill::kTownportal))
+				count += sprintf(prompt + count, "Вр:%d ", IsTimedBySkill(d->character.get(), ESkill::kTownportal));
+			if (d->character->get_skill(ESkill::kWarcry)) {
+				int wc_count = (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
-			if (d->character->get_skill(ESkill::SKILL_TURN_UNDEAD)) {
+			if (d->character->get_skill(ESkill::kTurnUndead)) {
 				if (can_use_feat(d->character.get(), EXORCIST_FEAT)) {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
-									 (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::SKILL_TURN_UNDEAD))
+									 (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
 										 / (HOURS_PER_TURN_UNDEAD - 2));
 				} else {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
-									 (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::SKILL_TURN_UNDEAD))
+									 (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
 										 / HOURS_PER_TURN_UNDEAD);
 				}
 			}
-			if (d->character->get_skill(ESkill::SKILL_STRANGLE))
-				count += sprintf(prompt + count, "Уд:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_STRANGLE));
-			if (d->character->get_skill(ESkill::SKILL_STUN))
-				count += sprintf(prompt + count, "Ош:%d ", IsTimedBySkill(d->character.get(), ESkill::SKILL_STUN));
+			if (d->character->get_skill(ESkill::kStrangle))
+				count += sprintf(prompt + count, "Уд:%d ", IsTimedBySkill(d->character.get(), ESkill::kStrangle));
+			if (d->character->get_skill(ESkill::kStun))
+				count += sprintf(prompt + count, "Ош:%d ", IsTimedBySkill(d->character.get(), ESkill::kStun));
 
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
 				count += sprintf(prompt + count, "Пр:%d ", IsTimed(d->character.get(), RELOCATE_FEAT));

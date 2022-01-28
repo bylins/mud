@@ -63,7 +63,7 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 
 	argument = two_arguments(argument, arg1, arg2);
 
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_INSERTGEM)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kJewelry)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -133,8 +133,8 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		return;
 	}
 
-	percent = number(1, MUD::Skills()[ESkill::SKILL_INSERTGEM].difficulty);
-	prob = ch->get_skill(ESkill::SKILL_INSERTGEM);
+	percent = number(1, MUD::Skills()[ESkill::kJewelry].difficulty);
+	prob = ch->get_skill(ESkill::kJewelry);
 
 	WAIT_STATE(ch, kPulseViolence);
 
@@ -154,7 +154,7 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 	argument = one_argument(argument, arg3);
 
 	if (!*arg3) {
-		ImproveSkill(ch, ESkill::SKILL_INSERTGEM, 0, nullptr);
+		ImproveSkill(ch, ESkill::kJewelry, 0, nullptr);
 
 		if (percent > prob / insgem_vars.prob_divide) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
@@ -176,13 +176,13 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 			return;
 		}
 	} else {
-		if (ch->get_skill(ESkill::SKILL_INSERTGEM) < 80) {
+		if (ch->get_skill(ESkill::kJewelry) < 80) {
 			sprintf(buf, "Вы должны достигнуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n");
 			send_to_char(buf, ch);
 			return;
 
 		}
-		if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch) && (ch->get_skill(ESkill::SKILL_INSERTGEM) < 130)) {
+		if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch) && (ch->get_skill(ESkill::kJewelry) < 130)) {
 			sprintf(buf, "Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n");
 			send_to_char(buf, ch);
 			return;
@@ -194,10 +194,10 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 			return;
 		}
 
-		ImproveSkill(ch, ESkill::SKILL_INSERTGEM, 0, nullptr);
+		ImproveSkill(ch, ESkill::kJewelry, 0, nullptr);
 
 		//успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
-		if (number(1, ch->get_skill(ESkill::SKILL_INSERTGEM)) > (ch->get_skill(ESkill::SKILL_INSERTGEM) - 50)) {
+		if (number(1, ch->get_skill(ESkill::kJewelry)) > (ch->get_skill(ESkill::kJewelry) - 50)) {
 			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n",
 					gemobj->get_short_description().c_str(),
 					itemobj->get_PName(3).c_str());

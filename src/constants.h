@@ -26,7 +26,7 @@ struct IntApplies {
 	int mana_per_tic;
 	int spell_success;        //  max count of spell on 1s level    //
 	int improve;        // drop_chance to improve skill           //
-	int observation;        // drop_chance to use SKILL_AWAKE/CRITICAL //
+	int observation;        // drop_chance to use kAwake/CRITICAL //
 };
 
 struct ChaApplies {

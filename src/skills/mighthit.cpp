@@ -25,9 +25,9 @@ void go_mighthit(CharacterData *ch, CharacterData *victim) {
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
-		hit(ch, victim, ESkill::SKILL_MIGHTHIT, FightSystem::MAIN_HAND);
-		if (ch->getSkillCooldown(ESkill::SKILL_MIGHTHIT) > 0) {
-			setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
+		hit(ch, victim, ESkill::kHammer, FightSystem::MAIN_HAND);
+		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
+			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
 		//set_wait(ch, 2, true);
 		return;
@@ -40,7 +40,7 @@ void go_mighthit(CharacterData *ch, CharacterData *victim) {
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, 2);
 			set_fighting(ch, victim);
-			setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 2);
+			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 			//set_wait(ch, 2, true);
 		}
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
@@ -48,11 +48,11 @@ void go_mighthit(CharacterData *ch, CharacterData *victim) {
 }
 
 void do_mighthit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(ESkill::SKILL_MIGHTHIT) < 1) {
+	if (ch->get_skill(ESkill::kHammer) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_MIGHTHIT)) {
+	if (ch->haveCooldown(ESkill::kHammer)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

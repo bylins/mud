@@ -406,7 +406,7 @@ int do_drink_check_conditions(CharacterData *ch, ObjectData *jar, int amount) {
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] > 0) {
 		// Если у чара бадун - пусть похмеляется, бухать нельзя
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)) {
-			if (GET_SKILL(ch, ESkill::SKILL_DRUNKOFF) > 0) {//если опохмел есть
+			if (GET_SKILL(ch, ESkill::kHangovering) > 0) {//если опохмел есть
 				send_to_char(
 					"Вас передернуло от одной мысли о том что бы выпить.\r\nПохоже, вам стоит опохмелиться.\r\n",
 					ch);
@@ -614,7 +614,7 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (IsTimedBySkill(ch, ESkill::SKILL_DRUNKOFF)) {
+	if (IsTimedBySkill(ch, ESkill::kHangovering)) {
 		send_to_char("Вы не в состоянии так часто похмеляться.\r\n"
 					 "Попросите Богов закодировать вас.\r\n", ch);
 		return;
@@ -675,13 +675,13 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	timed.skill = ESkill::SKILL_DRUNKOFF;
+	timed.skill = ESkill::kHangovering;
 	timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? getModifier(DRUNKARD_FEAT, FEAT_TIMER) : 12;
 	timed_to_char(ch, &timed);
 
-	percent = number(1, MUD::Skills()[ESkill::SKILL_DRUNKOFF].difficulty);
-	prob = CalcCurrentSkill(ch, ESkill::SKILL_DRUNKOFF, nullptr);
-	TrainSkill(ch, ESkill::SKILL_DRUNKOFF, percent <= prob, nullptr);
+	percent = number(1, MUD::Skills()[ESkill::kHangovering].difficulty);
+	prob = CalcCurrentSkill(ch, ESkill::kHangovering, nullptr);
+	TrainSkill(ch, ESkill::kHangovering, percent <= prob, nullptr);
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
 	weight = MIN(amount, GET_OBJ_WEIGHT(obj));
 	weight_change_object(obj, -weight);    // Subtract amount //
@@ -717,7 +717,7 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		af[2].location = APPLY_AC;
 		af[2].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 		af[2].battleflag = 0;
-		switch (number(0, ch->get_skill(ESkill::SKILL_DRUNKOFF) / 20)) {
+		switch (number(0, ch->get_skill(ESkill::kHangovering) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;
 				break;

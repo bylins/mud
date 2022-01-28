@@ -378,7 +378,7 @@ void do_arena_restore(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 		}
 		if (GET_CLASS(vict) == CLASS_WARRIOR) {
 			struct TimedSkill wctimed;
-			wctimed.skill = ESkill::SKILL_WARCRY;
+			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
 			timed_to_char(vict, &wctimed);
 		}
@@ -2550,7 +2550,7 @@ void do_restore(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		if (GET_CLASS(vict) == CLASS_WARRIOR) {
 			struct TimedSkill wctimed;
-			wctimed.skill = ESkill::SKILL_WARCRY;
+			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
 			timed_to_char(vict, &wctimed);
 		}

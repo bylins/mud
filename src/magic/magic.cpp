@@ -139,8 +139,8 @@ int calculateSaving(CharacterData *killer, CharacterData *victim, ESaving saving
 	// Учет осторожного стиля
 	if (PRF_FLAGGED(victim, PRF_AWAKE)) {
 		if (can_use_feat(victim, IMPREGNABLE_FEAT)) {
-			save -= MAX(0, victim->get_skill(ESkill::SKILL_AWAKE) - 80) / 2;
-			temp_awake_mod = MAX(0, victim->get_skill(ESkill::SKILL_AWAKE) - 80) / 2;
+			save -= MAX(0, victim->get_skill(ESkill::kAwake) - 80) / 2;
+			temp_awake_mod = MAX(0, victim->get_skill(ESkill::kAwake) - 80) / 2;
 		}
 		temp_awake_mod += CalculateSkillAwakeModifier(killer, victim);
 		save -= CalculateSkillAwakeModifier(killer, victim);
@@ -326,8 +326,8 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 		} 
 		// Блочим маг дамагу от директ спелов для Витязей : шанс (скил/20 + вес.щита/2) ~ 30% при 200 скила и 40вес щита (Кудояр)
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY) && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_AREAS) 
-			&& (victim->get_skill(ESkill::SKILL_BLOCK) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
-			&& ( number(1, 100) < ((victim->get_skill(ESkill::SKILL_BLOCK))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
+			&& (victim->get_skill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
+			&& ( number(1, 100) < ((victim->get_skill(ESkill::kShieldBlock))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
 			{
 				act("Ловким движением $N0 отразил щитом вашу магию.", false, ch, nullptr, victim, TO_CHAR);
 				act("Ловким движением $N0 отразил щитом магию $n1.", false, ch, nullptr, victim, TO_NOTVICT);
@@ -417,15 +417,15 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			ndice = 6;
 			sdice = 15;
 			adice = (level - 22) * 2;
-			// если наездник, то считаем не сейвисы, а ESkill::SKILL_HORSE
+			// если наездник, то считаем не сейвисы, а ESkill::kRiding
 			if (ch->ahorse()) {
 //		    5% шанс успеха,
 				rand = number(1, 100);
 				if (rand > 95)
 					break;
 				// провал - 5% шанс или скилл наездника vs скилл магии кастера на кубике d6
-				if (rand < 5 || (CalcCurrentSkill(victim, ESkill::SKILL_HORSE, nullptr) * number(1, 6))
-					< GET_SKILL(ch, ESkill::SKILL_EARTH_MAGIC) * number(1, 6)) {//фейл
+				if (rand < 5 || (CalcCurrentSkill(victim, ESkill::kRiding, nullptr) * number(1, 6))
+					< GET_SKILL(ch, ESkill::kEarthMagic) * number(1, 6)) {//фейл
 					ch->drop_from_horse();
 					break;
 				}
@@ -1123,8 +1123,8 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 	}
 	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  (Кудояр)
 	if (ch != victim && SpINFO.violent && !IS_SET(SpINFO.routines, MAG_WARCRY) && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_AREAS) 
-	&& (victim->get_skill(ESkill::SKILL_BLOCK) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
-			&& ( number(1, 100) < ((victim->get_skill(ESkill::SKILL_BLOCK))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
+	&& (victim->get_skill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
+			&& ( number(1, 100) < ((victim->get_skill(ESkill::kShieldBlock))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
 	{
 		act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, TO_CHAR);
 		act("Щит $N1 поглотил злые чары $n1.", false, ch, nullptr, victim, TO_NOTVICT);
@@ -2579,24 +2579,24 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 
 		case SPELL_WC_LUCK: {
 			af[0].location = APPLY_MORALE;
-			af[0].modifier = MAX(1, ch->get_skill(ESkill::SKILL_WARCRY) / 20.0);
-			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[0].modifier = MAX(1, ch->get_skill(ESkill::kWarcry) / 20.0);
+			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
 		}
 
 		case SPELL_WC_EXPERIENSE: {
 			af[0].location = APPLY_PERCENT_EXP;
-			af[0].modifier = MAX(1, ch->get_skill(ESkill::SKILL_WARCRY) / 20.0);
-			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[0].modifier = MAX(1, ch->get_skill(ESkill::kWarcry) / 20.0);
+			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
 		}
 
 		case SPELL_WC_PHYSDAMAGE: {
 			af[0].location = APPLY_PERCENT_DAM;
-			af[0].modifier = MAX(1, ch->get_skill(ESkill::SKILL_WARCRY) / 20.0);
-			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[0].modifier = MAX(1, ch->get_skill(ESkill::kWarcry) / 20.0);
+			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
 		}
@@ -2604,24 +2604,24 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 		case SPELL_WC_OF_BATTLE: {
 			af[0].location = APPLY_AC;
 			af[0].modifier = -(10 + MIN(20, 2 * GET_REAL_REMORT(ch)));
-			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
 			break;
 		}
 
 		case SPELL_WC_OF_DEFENSE: {
 			af[0].location = APPLY_SAVING_CRITICAL;
-			af[0].modifier -= ch->get_skill(ESkill::SKILL_WARCRY) / 10.0;
-			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[0].modifier -= ch->get_skill(ESkill::kWarcry) / 10.0;
+			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[1].location = APPLY_SAVING_REFLEX;
-			af[1].modifier -= ch->get_skill(ESkill::SKILL_WARCRY) / 10;
-			af[1].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[1].modifier -= ch->get_skill(ESkill::kWarcry) / 10;
+			af[1].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[2].location = APPLY_SAVING_STABILITY;
-			af[2].modifier -= ch->get_skill(ESkill::SKILL_WARCRY) / 10;
-			af[2].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[2].modifier -= ch->get_skill(ESkill::kWarcry) / 10;
+			af[2].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[3].location = APPLY_SAVING_WILL;
-			af[3].modifier -= ch->get_skill(ESkill::SKILL_WARCRY) / 10;
-			af[3].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[3].modifier -= ch->get_skill(ESkill::kWarcry) / 10;
+			af[3].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			//to_vict = nullptr;
 			to_room = nullptr;
 			break;
@@ -2629,8 +2629,8 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 
 		case SPELL_WC_OF_POWER: {
 			af[0].location = APPLY_HIT;
-			af[0].modifier = MIN(200, (4 * ch->get_con() + ch->get_skill(ESkill::SKILL_WARCRY)) / 2);
-			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[0].modifier = MIN(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
+			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_vict = nullptr;
 			to_room = nullptr;
 			break;
@@ -2638,8 +2638,8 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 
 		case SPELL_WC_OF_BLESS: {
 			af[0].location = APPLY_SAVING_STABILITY;
-			af[0].modifier = -(4 * ch->get_con() + ch->get_skill(ESkill::SKILL_WARCRY)) / 24;
-			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[0].modifier = -(4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 24;
+			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[1].location = APPLY_SAVING_WILL;
 			af[1].modifier = af[0].modifier;
 			af[1].duration = af[0].duration;
@@ -2650,10 +2650,10 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 
 		case SPELL_WC_OF_COURAGE: {
 			af[0].location = APPLY_HITROLL;
-			af[0].modifier = (44 + ch->get_skill(ESkill::SKILL_WARCRY)) / 45;
-			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::SKILL_WARCRY), 20, 10, 0) * koef_duration;
+			af[0].modifier = (44 + ch->get_skill(ESkill::kWarcry)) / 45;
+			af[0].duration = pc_duration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			af[1].location = APPLY_DAMROLL;
-			af[1].modifier = (29 + ch->get_skill(ESkill::SKILL_WARCRY)) / 30;
+			af[1].modifier = (29 + ch->get_skill(ESkill::kWarcry)) / 30;
 			af[1].duration = af[0].duration;
 			to_vict = nullptr;
 			to_room = nullptr;
@@ -3093,7 +3093,7 @@ int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int
 	if (keeper) {
 		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 		affect_to_char(mob, af);
-		mob->set_skill(ESkill::SKILL_RESCUE, 100);
+		mob->set_skill(ESkill::kRescue, 100);
 	}
 
 	MOB_FLAGS(mob).set(MOB_CORPSE);
@@ -3169,10 +3169,10 @@ int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int
 	if (spellnum == SPELL_ANIMATE_DEAD) {
 		MOB_FLAGS(mob).set(MOB_RESURRECTED);
 		if (mob_num == kMobSkeleton && can_use_feat(ch, LOYALASSIST_FEAT))
-			mob->set_skill(ESkill::SKILL_RESCUE, 100);
+			mob->set_skill(ESkill::kRescue, 100);
 
 		if (mob_num == kMobBonespirit && can_use_feat(ch, HAUNTINGSPIRIT_FEAT))
-			mob->set_skill(ESkill::SKILL_RESCUE, 120);
+			mob->set_skill(ESkill::kRescue, 120);
 
 		// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.
 		float eff_wis = get_effective_wis(ch, spellnum);
@@ -3197,10 +3197,10 @@ int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int
 	if (spellnum == SPELL_SUMMON_KEEPER) {
 		// Svent TODO: не забыть перенести это в ability
 		mob->set_level(ch->get_level());
-		int rating = (ch->get_skill(ESkill::SKILL_LIGHT_MAGIC) + GET_REAL_CHA(ch)) / 2;
+		int rating = (ch->get_skill(ESkill::kLightMagic) + GET_REAL_CHA(ch)) / 2;
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 50 + dice(10, 10) + rating * 6;
-		mob->set_skill(ESkill::SKILL_PUNCH, 10 + rating * 1.5);
-		mob->set_skill(ESkill::SKILL_RESCUE, 50 + rating);
+		mob->set_skill(ESkill::kFistfight, 10 + rating * 1.5);
+		mob->set_skill(ESkill::kRescue, 50 + rating);
 		mob->set_str(3 + rating / 5);
 		mob->set_dex(10 + rating / 5);
 		mob->set_con(10 + rating / 5);
@@ -3231,7 +3231,7 @@ int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int
 		mob->mob_specials.ExtraAttack = 0;
 
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 300 + number(modifier * 12, modifier * 16);
-		mob->set_skill(ESkill::SKILL_AWAKE, 50 + modifier * 2);
+		mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
 		PRF_FLAGS(mob).set(PRF_AWAKE);
 	}
 	MOB_FLAGS(mob).set(MOB_NOTRAIN);
@@ -3263,15 +3263,15 @@ int mag_points(int level, CharacterData *ch, CharacterData *victim, int spellnum
 
 	switch (spellnum) {
 		case SPELL_CURE_LIGHT: 
-			hit = GET_REAL_MAX_HIT(victim) / 100 * 20 + victim->get_skill(ESkill::SKILL_LIFE_MAGIC) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * 20 + victim->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case SPELL_CURE_SERIOUS: 
-			hit = GET_REAL_MAX_HIT(victim) / 100 * 40 + victim->get_skill(ESkill::SKILL_LIFE_MAGIC) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * 40 + victim->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
 		case SPELL_CURE_CRITIC: 
-			hit = GET_REAL_MAX_HIT(victim) / 100 * 60 + victim->get_skill(ESkill::SKILL_LIFE_MAGIC) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * 60 + victim->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
 		case SPELL_HEAL:
@@ -3283,7 +3283,7 @@ int mag_points(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			hit = (GET_REAL_LEVEL(victim) + GET_REAL_REMORT(victim)) * 2;
 			break;
 		case SPELL_WC_OF_POWER: 
-			hit = MIN(200, (4 * ch->get_con() + ch->get_skill(ESkill::SKILL_WARCRY)) / 2);
+			hit = MIN(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
 			send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
 		case SPELL_EXTRA_HITS: 
@@ -3576,10 +3576,10 @@ int mag_alter_objs(int/* level*/, CharacterData *ch, ObjectData *obj, int spelln
 					|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
 					|| get_obj_in_list_vnum(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
 				// у нас имеется доп символ для зачарования
-				obj->set_enchant(ch->get_skill(ESkill::SKILL_LIGHT_MAGIC), reagobj);
+				obj->set_enchant(ch->get_skill(ESkill::kLightMagic), reagobj);
 				material_component_processing(ch, reagobj->get_rnum(), spellnum); //может неправильный вызов
 			} else {
-				obj->set_enchant(ch->get_skill(ESkill::SKILL_LIGHT_MAGIC));
+				obj->set_enchant(ch->get_skill(ESkill::kLightMagic));
 			}
 			if (GET_RELIGION(ch) == kReligionMono) {
 				to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";

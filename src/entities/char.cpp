@@ -75,7 +75,7 @@ CharacterData::CharacterData() :
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.add(this);
-	this->set_skill(ESkill::SKILL_GLOBAL_COOLDOWN, 1);
+	this->set_skill(ESkill::kGlobalCooldown, 1);
 }
 
 CharacterData::~CharacterData() {
@@ -671,7 +671,7 @@ bool CharacterData::haveSkillCooldown(ESkill skillID) {
 };
 
 bool CharacterData::haveCooldown(ESkill skillID) {
-	if (skills[ESkill::SKILL_GLOBAL_COOLDOWN].cooldown > 0) {
+	if (skills[ESkill::kGlobalCooldown].cooldown > 0) {
 		return true;
 	}
 	return haveSkillCooldown(skillID);
@@ -861,7 +861,7 @@ void change_fighting(CharacterData *ch, int need_stop) {
 		}
 
 		if (k->get_extra_victim() == ch) {
-			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
+			k->set_extra_attack(kExtraAttackUnused, 0);
 		}
 
 		if (k->get_cast_char() == ch) {
@@ -1643,17 +1643,17 @@ std::string CharacterData::get_cover_desc() {
 
 void CharacterData::set_morph(MorphPtr morph) {
 	morph->SetChar(this);
-	morph->InitSkills(this->get_skill(ESkill::SKILL_MORPH));
+	morph->InitSkills(this->get_skill(ESkill::kMorph));
 	morph->InitAbils();
 	this->current_morph_ = morph;
 };
 
 void CharacterData::reset_morph() {
-	int value = this->get_trained_skill(ESkill::SKILL_MORPH);
+	int value = this->get_trained_skill(ESkill::kMorph);
 	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
 	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), true, this, 0, 0, TO_ROOM);
 	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(ESkill::SKILL_MORPH, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
+	this->set_morphed_skill(ESkill::kMorph, (MIN(kSkillCapOnZeroRemort + GET_REAL_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
 };
 

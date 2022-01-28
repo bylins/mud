@@ -25,10 +25,10 @@ void go_stupor(CharacterData *ch, CharacterData *victim) {
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_STUPOR);
-		hit(ch, victim, ESkill::SKILL_STUPOR, FightSystem::MAIN_HAND);
+		hit(ch, victim, ESkill::kOverwhelm, FightSystem::MAIN_HAND);
 		//set_wait(ch, 2, true);
-		if (ch->getSkillCooldown(ESkill::SKILL_STUPOR) > 0) {
-			setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 1);
+		if (ch->getSkillCooldown(ESkill::kOverwhelm) > 0) {
+			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
 	} else {
 		act("Вы попытаетесь оглушить $N3.", false, ch, nullptr, victim, TO_CHAR);
@@ -36,18 +36,18 @@ void go_stupor(CharacterData *ch, CharacterData *victim) {
 			stop_fighting(ch, false);
 			set_fighting(ch, victim);
 			//set_wait(ch, 2, true);
-			setSkillCooldownInFight(ch, ESkill::SKILL_GLOBAL_COOLDOWN, 2);
+			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 		}
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 	}
 }
 
 void do_stupor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_skill(ESkill::SKILL_STUPOR) < 1) {
+	if (ch->get_skill(ESkill::kOverwhelm) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_STUPOR)) {
+	if (ch->haveCooldown(ESkill::kOverwhelm)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};

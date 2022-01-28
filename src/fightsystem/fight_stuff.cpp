@@ -227,18 +227,18 @@ void update_leadership(CharacterData *ch, CharacterData *killer) {
 		if (!IS_NPC(killer) // Убил загрупленный чар
 			&& AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)
 			&& killer->has_master()
-			&& killer->get_master()->get_skill(ESkill::SKILL_LEADERSHIP) > 0
+			&& killer->get_master()->get_skill(ESkill::kLeadership) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
-			ImproveSkill(killer->get_master(), ESkill::SKILL_LEADERSHIP, number(0, 1), ch);
+			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
 		} else if (IS_NPC(killer) // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
 			&& killer->has_master()
 			&& AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->get_skill(ESkill::SKILL_LEADERSHIP) > 0
+				&& killer->get_master()->get_master()->get_skill(ESkill::kLeadership) > 0
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master())) {
-				ImproveSkill(killer->get_master()->get_master(), ESkill::SKILL_LEADERSHIP, number(0, 1), ch);
+				ImproveSkill(killer->get_master()->get_master(), ESkill::kLeadership, number(0, 1), ch);
 			}
 		}
 	}
@@ -250,9 +250,9 @@ void update_leadership(CharacterData *ch, CharacterData *killer) {
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
 		&& ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())
-		&& ch->get_master()->get_inborn_skill(ESkill::SKILL_LEADERSHIP) > 1) {
-		const auto current_skill = ch->get_master()->get_trained_skill(ESkill::SKILL_LEADERSHIP);
-		ch->get_master()->set_skill(ESkill::SKILL_LEADERSHIP, current_skill - 1);
+		&& ch->get_master()->get_inborn_skill(ESkill::kLeadership) > 1) {
+		const auto current_skill = ch->get_master()->get_trained_skill(ESkill::kLeadership);
+		ch->get_master()->set_skill(ESkill::kLeadership, current_skill - 1);
 	}
 }
 
@@ -1106,7 +1106,7 @@ void alterate_object(ObjectData *obj, int dam, int chance) {
 		MAX(1, GET_OBJ_MAX(obj) *
 			(obj->get_extra_flag(EExtraFlag::ITEM_NODROP) ? 5 :
 			 obj->get_extra_flag(EExtraFlag::ITEM_BLESS) ? 15 : 10)
-			 * (static_cast<ESkill>(GET_OBJ_SKILL(obj)) == ESkill::SKILL_BOWS ? 3 : 1)));
+			 * (static_cast<ESkill>(GET_OBJ_SKILL(obj)) == ESkill::kBows ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100)) {
 		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), WEAR_SHIELD) == obj) {

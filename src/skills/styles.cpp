@@ -21,11 +21,11 @@ void go_touch(CharacterData *ch, CharacterData *vict) {
 }
 
 void do_touch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_TOUCH)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kIntercept)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_TOUCH)) {
+	if (ch->haveCooldown(ESkill::kIntercept)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -93,11 +93,11 @@ void go_deviate(CharacterData *ch) {
 }
 
 void do_deviate(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(ESkill::SKILL_DEVIATE)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDodge)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(ESkill::SKILL_DEVIATE)) {
+	if (ch->haveCooldown(ESkill::kDodge)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -128,7 +128,7 @@ const char *cstyles[] = {"normal",
 };
 
 void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->haveCooldown(ESkill::SKILL_GLOBAL_COOLDOWN)) {
+	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -149,7 +149,7 @@ void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	tp >>= 1;
-	if ((tp == 1 && !ch->get_skill(ESkill::SKILL_PUNCTUAL)) || (tp == 2 && !ch->get_skill(ESkill::SKILL_AWAKE))) {
+	if ((tp == 1 && !ch->get_skill(ESkill::kPunctual)) || (tp == 2 && !ch->get_skill(ESkill::kAwake))) {
 		send_to_char("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}
@@ -181,5 +181,5 @@ void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 	}
 
-	ch->setSkillCooldown(ESkill::SKILL_GLOBAL_COOLDOWN, 2);
+	ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 }
