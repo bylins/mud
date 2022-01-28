@@ -3,8 +3,7 @@
 #include "magic/spells_info.h"
 #include "modify.h"
 #include "entities/char.h"
-//#include "entities/room.h" // посмотреть, мб разумней вынести тип списка аффектов из комнат
-#include "magic.h" //Включено ради material_component_processing, который надо, по-хлорошему, вообще в отдеьный модуль.
+#include "magic.h" //Включено ради material_component_processing
 
 #include <iomanip>
 

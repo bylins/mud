@@ -14,7 +14,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-//#include "sysdep.h"
 #include "structs/structs.h"
 
 #define CNRM  "\x1B[0;0m"

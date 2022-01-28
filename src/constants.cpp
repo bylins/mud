@@ -14,7 +14,6 @@
 
 #include "constants.h"
 #include "magic/spells.h"
-//#include "house.h"
 
 const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
 

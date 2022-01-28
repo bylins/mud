@@ -8,16 +8,11 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-//#include "constants.h"
 #include "dg_scripts.h"
-//#include "interpreter.h"
 #include "handler.h"
 #include "dg_event.h"
 #include "magic/magic.h"
 
-/*extern const char *item_types[];
-extern const char *apply_types[];
-extern const char *affected_bits[];*/
 extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];

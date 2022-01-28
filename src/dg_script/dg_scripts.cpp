@@ -18,19 +18,15 @@
 #include "color.h"
 #include "house.h"
 #include "entities/char_player.h"
-//#include "entities/entity_constants.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
 #include "magic/magic_utils.h"
 #include "noob.h"
 #include "dg_db_scripts.h"
 #include "game_mechanics/bonus.h"
-//#include "game_mechanics/weather.h"
 #include "olc/olc.h"
 #include "privilege.h"
 #include "fightsystem/fight_hit.h"
-
-//#include <string>
 
 constexpr long long kPulsesPerMudHour = SECS_PER_MUD_HOUR*kPassesPerSec;
 
@@ -52,7 +48,6 @@ extern CharacterData *combat_list;
 extern const char *item_types[];
 extern const char *genders[];
 extern const char *pc_class_types[];
-//extern const char *race_types[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;

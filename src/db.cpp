@@ -19,7 +19,6 @@
 
 #include "abilities/abilities_info.h"
 #include "cmd_god/ban.h"
-//#include "birthplaces.h"
 #include "boards/boards.h"
 #include "boot/boot_data_files.h"
 #include "boot/boot_index.h"
@@ -30,7 +29,6 @@
 #include "entities/char.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-//#include "entities/entity_constants.h"
 #include "classes/class.h"
 #include "cmd/follow.h"
 #include "corpse.h"
@@ -70,9 +68,6 @@
 #include "utils/id_converter.h"
 #include "title.h"
 #include "top.h"
-//#include "magic/magic_rooms.h"
-//#include "skills.h"
-//#include "skills_info.h"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>

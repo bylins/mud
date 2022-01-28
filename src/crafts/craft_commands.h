@@ -3,7 +3,6 @@
 
 #include "commands.h"
 #include "entities/entity_constants.h"
-//#include "structs/structs.h"
 
 #include <memory>
 

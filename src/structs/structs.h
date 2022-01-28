@@ -15,7 +15,6 @@
 #ifndef STRUCTS_STRUCTS_H_
 #define STRUCTS_STRUCTS_H_
 
-//#include "boards/boards_types.h"
 #include "sysdep.h"
 
 #include <vector>

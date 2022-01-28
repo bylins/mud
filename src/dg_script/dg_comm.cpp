@@ -10,7 +10,6 @@
 
 #include "entities/obj.h"
 #include "dg_scripts.h"
-//#include "comm.h"
 #include "handler.h"
 #include "utils/utils_char_obj.inl"
 

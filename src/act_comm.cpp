@@ -12,17 +12,14 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-//#include "interpreter.h"
 #include "handler.h"
 #include "color.h"
 #include "auction.h"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
-//#include "entities/entity_constants.h"
 #include "house.h"
 #include "spam.h"
 #include "utils/utils_char_obj.inl"
-
 
 // extern variables
 extern DescriptorData *descriptor_list;

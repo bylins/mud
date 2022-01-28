@@ -1,14 +1,7 @@
 #include "cast.h"
 
 #include "entities/char.h"
-/*#include "entities/obj.h"
-#include "entities/room.h"
-#include "structs/structs.h"
-#include "comm.h"
-#include "skills.h"
-#include "magic/spells.h"*/
 #include "magic/magic_utils.h"
-//#include "features.h"
 #include "classes/class_spell_slots.h"
 #include "magic/spells_info.h"
 #include "handler.h"

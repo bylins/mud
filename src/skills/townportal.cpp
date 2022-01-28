@@ -2,7 +2,6 @@
 
 #include "modify.h"
 #include "handler.h"
-//#include "magic/magic_rooms.h"
 #include "fightsystem/pk.h"
 
 namespace OneWayPortal {

@@ -1,4 +1,4 @@
-#include "heartbeat.h"
+//#include "heartbeat.h"
 
 #include "auction.h"
 #include "game_mechanics/deathtrap.h"
@@ -20,10 +20,7 @@
 #include "game_mechanics/sets_drop.h"
 #include "mail.h"
 #include "mob_stat.h"
-//#include "game_mechanics/weather.h"
 #include "magic/magic.h"
-//#include "magic/magic_rooms.h"
-//#include "obj_save.h"
 #include "game_limits.h"
 #include "fightsystem/mobact.h"
 #include "dg_script/dg_event.h"

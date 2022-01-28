@@ -16,7 +16,6 @@
 #define SKILLS_H_
 
 #include "structs/structs.h"
-//#include "utils/pugixml.h"
 
 #include <map>
 
@@ -140,8 +139,6 @@ template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESkill>(ESkill item);
-
-const int kKnowSkill = 1;
 
 struct SkillRollResult {
 	bool success{true};

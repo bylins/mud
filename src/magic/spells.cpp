@@ -14,14 +14,13 @@
 
 #include "magic/spells.h"
 
+#include <boost/format.hpp>
+
 #include "structs/global_objects.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "depot.h"
-/*#include "entities/world_characters.h"
-#include "entities/entity_constants.h"*/
 #include "fightsystem/mobact.h"
-//#include "fightsystem/pk.h"
 #include "handler.h"
 #include "house.h"
 #include "liquid.h"
@@ -31,42 +30,21 @@
 #include "privilege.h"
 #include "color.h"
 #include "skills/townportal.h"
-//#include "skills_info.h"
 #include "cmd/flee.h"
 #include "stuff.h"
 #include "utils/utils_char_obj.inl"
-#include "world_objects.h"
 
-#include <cmath>
-#include <boost/format.hpp>
-/*#include <map>
-#include <utility>*/
-
-
-/*extern RoomRnum r_mortal_start_room;
-extern DescriptorData *descriptor_list;
-extern const char *material_name[];
-extern const char *weapon_affects[];
-extern TimeInfoData time_info;
-extern int cmd_tell;*/
 extern char cast_argument[kMaxInputLength];
 extern im_type *imtypes;
 extern int top_imtypes;
 
-/*ESkill get_magic_skill_number_by_spell(int spellnum);
-bool can_get_spell(CharacterData *ch, int spellnum);
-bool can_get_spell_with_req(CharacterData *ch, int spellnum, int req_lvl);*/
 void weight_change_object(ObjectData *obj, int weight);
 int compute_armor_class(CharacterData *ch);
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int calc_anti_savings(CharacterData *ch);
-
 void do_tell(CharacterData *ch, char *argument, int cmd, int subcmd);
-
 void perform_remove(CharacterData *ch, int pos);
-
-
 int pk_action_type_summon(CharacterData *agressor, CharacterData *victim);
 int pk_increment_revenge(CharacterData *agressor, CharacterData *victim);
 

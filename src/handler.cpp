@@ -19,7 +19,6 @@
 #include "utils/utils_char_obj.inl"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
-//#include "entities/entity_constants.h"
 #include "cmd/follow.h"
 #include "exchange.h"
 #include "ext_money.h"
@@ -35,7 +34,6 @@
 #include "world_objects.h"
 #include "entities/zone.h"
 #include "classes/class_spell_slots.h"
-//#include "magic/magic_rooms.h"
 #include "depot.h"
 
 using PlayerClass::slot_for_char;

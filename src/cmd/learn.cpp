@@ -3,7 +3,6 @@
 #include "handler.h"
 #include "classes/class_spell_slots.h"
 #include "magic/spells_info.h"
-//#include "entities/entity_constants.h"
 #include "structs/global_objects.h"
 
 class ObjectData;

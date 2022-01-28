@@ -1,6 +1,5 @@
 #include "magic_items.h"
 
-//#include "obj.h"
 #include "entities/char.h"
 #include "handler.h"
 #include "obj_prototypes.h"

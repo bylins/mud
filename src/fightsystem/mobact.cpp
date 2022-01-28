@@ -36,7 +36,6 @@
 #include "house.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
-//#include "magic/magic_rooms.h"
 
 // external structs
 extern int no_specials;

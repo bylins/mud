@@ -1,10 +1,6 @@
 #include "employ.h"
 
-//#include "comm.h"
-//#include "structs/structs.h"
-//#include "features.h"
 #include "entities/char.h"
-//#include "interpreter.h"
 #include "handler.h"
 #include "magic/magic_items.h"
 

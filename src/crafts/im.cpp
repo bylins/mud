@@ -13,7 +13,6 @@
 #include "crafts/im.h"
 
 #include "entities/world_characters.h"
-//#include "entities/entity_constants.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"

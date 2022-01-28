@@ -11,10 +11,7 @@
 #include "handler.h"
 #include "mining.h"
 #include "utils/random.h"
-//#include <map>
 #include "structs/global_objects.h"
-
-#include <cmath>
 
 skillvariables_insgem insgem_vars;
 insert_wanted_gem iwg;

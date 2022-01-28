@@ -3,7 +3,6 @@
 #include "affects/affect_data.h"
 #include "mobact.h"
 #include "entities/obj.h"
-//#include "entities/entity_constants.h"
 #include "cmd/flee.h"
 #include "entities/world_characters.h"
 #include "fight.h"
@@ -23,9 +22,6 @@
 #include "magic/magic_utils.h"
 #include "entities/zone.h"
 #include "entities/char_player.h"
-
-#include <cmath>
-#include <algorithm>
 
 // extern
 void perform_drop_gold(CharacterData *ch, int amount);

@@ -16,7 +16,6 @@
 #define _INTERPRETER_H_
 
 #include "conf.h"
-//#include "structs/structs.h"
 #include "structs/descriptor_data.h"
 #include "entities/entity_constants.h"
 

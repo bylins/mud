@@ -17,7 +17,6 @@
 #include "corpse.h"
 #include "color.h"
 #include "game_mechanics/sets_drop.h"
-//#include "entities/zone.h"
 #include "structs/global_objects.h"
 
 

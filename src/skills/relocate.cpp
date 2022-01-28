@@ -1,8 +1,6 @@
 #include "relocate.h"
 
-//#include "features.h"
 #include "entities/char.h"
-//#include "entities/entity_constants.h"
 #include "house.h"
 #include "color.h"
 #include "handler.h"

@@ -5,15 +5,10 @@
 #include "house_exp.h"
 
 #include "entities/char.h"
-//#include "logger.h"
 #include "house.h"
-//#include "comm.h"
 #include "modify.h"
-//#include "utils/utils_string.h"
 
 #include <boost/algorithm/string.hpp>
-
-//#include <sstream>
 
 namespace {
 

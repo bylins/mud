@@ -11,7 +11,6 @@
 #include "mail.h"
 
 #include "world_objects.h"
-//#include "interpreter.h"
 #include "handler.h"
 #include "parcel.h"
 #include "entities/char_player.h"

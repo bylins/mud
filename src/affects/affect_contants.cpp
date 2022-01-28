@@ -8,8 +8,6 @@
 
 #include "magic/spells.h"
 
-//#include <map>
-
 const char *affected_bits[] = {"слепота",    // 0
 							   "невидимость",
 							   "определение наклонностей",
