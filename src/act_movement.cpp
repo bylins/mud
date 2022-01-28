@@ -28,6 +28,9 @@
 #include "utils/random.h"
 #include "structs/global_objects.h"
 
+#include <cmath>
+
+
 // external functs
 void set_wait(CharacterData *ch, int waittime, int victim_in_room);
 int find_eq_pos(CharacterData *ch, ObjectData *obj, char *arg);

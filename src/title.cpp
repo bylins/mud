@@ -4,14 +4,13 @@
 
 #include "title.h"
 
+#include <cmath>
+
 #include "entities/char_player.h"
 #include "fightsystem/pk.h"
-/*#include "handler.h"
-#include "interpreter.h"
-#include "logger.h"*/
 #include "privilege.h"
+#include "screen.h"
 #include "color.h"
-//#include "structs/descriptor_data.h"
 
 extern void send_to_gods(char *text, bool demigod);
 

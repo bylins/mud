@@ -30,6 +30,8 @@
 #include "magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
+#include <cmath>
+
 //   external vars
 extern DescriptorData *descriptor_list;
 extern IndexData *mob_index;

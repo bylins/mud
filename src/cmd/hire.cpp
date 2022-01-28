@@ -2,6 +2,7 @@
 
 #include "cmd/follow.h"
 #include "handler.h"
+#include <cmath>
 
 constexpr short MAX_HIRE_TIME = 10080 / 2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);

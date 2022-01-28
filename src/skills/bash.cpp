@@ -55,7 +55,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::SKILL_BASH].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::SKILL_BASH), ZERO_DMG, PHYS_DMG);
+		Damage dmg(SkillDmg(ESkill::SKILL_BASH), ZERO_DMG, PHYS_DMG, nullptr);
 		dmg.process(ch, vict);
 		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
@@ -117,7 +117,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 		}
 
 		prob = 0; // если башем убил - лага не будет
-		Damage dmg(SkillDmg(ESkill::SKILL_BASH), dam, PHYS_DMG);
+		Damage dmg(SkillDmg(ESkill::SKILL_BASH), dam, PHYS_DMG, nullptr);
 		dmg.flags.set(NO_FLEE_DMG);
 		dam = dmg.process(ch, vict);
 

@@ -47,7 +47,7 @@ void go_kick(CharacterData *ch, CharacterData *vict) {
 	TrainSkill(ch, ESkill::SKILL_KICK, success, vict);
 	int cooldown = 2;
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::SKILL_KICK), ZERO_DMG, PHYS_DMG);
+		Damage dmg(SkillDmg(ESkill::SKILL_KICK), ZERO_DMG, PHYS_DMG, nullptr);
 		dmg.process(ch, vict);
 		cooldown = 2;
 	} else {
@@ -143,7 +143,7 @@ void go_kick(CharacterData *ch, CharacterData *vict) {
 		if (GET_AF_BATTLE(vict, EAF_AWAKE)) {
 			dam >>= (2 - (ch->ahorse() ? 1 : 0));
 		}
-		Damage dmg(SkillDmg(ESkill::SKILL_KICK), dam, PHYS_DMG);
+		Damage dmg(SkillDmg(ESkill::SKILL_KICK), dam, PHYS_DMG, nullptr);
 		dmg.process(ch, vict);
 		cooldown = 2;
 	}

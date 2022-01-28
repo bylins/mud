@@ -45,7 +45,7 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 // костылиии... и магик намберы
 	int victimsAmount = 20;
 	int victimssHPAmount = skillTurnUndead * 25 + MAX(0, skillTurnUndead - 80) * 50;
-	Damage turnUndeadDamage(SkillDmg(ESkill::SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG);
+	Damage turnUndeadDamage(SkillDmg(ESkill::SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG, nullptr);
 	turnUndeadDamage.magic_type = STYPE_LIGHT;
 	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;

@@ -62,7 +62,7 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	prob = MAX(20, 90 - 5 * MAX(0, GET_REAL_LEVEL(vict) - GET_REAL_LEVEL(ch)));
 	ImproveSkill(ch, ESkill::SKILL_MANADRAIN, percent > prob, vict);
 
-	Damage manadrainDamage(SkillDmg(ESkill::SKILL_MANADRAIN), ZERO_DMG, MAGE_DMG);
+	Damage manadrainDamage(SkillDmg(ESkill::SKILL_MANADRAIN), ZERO_DMG, MAGE_DMG, nullptr);
 	manadrainDamage.magic_type = STYPE_DARK;
 	if (percent <= prob) {
 		skill = MAX(10, skill - 10 * MAX(0, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)));

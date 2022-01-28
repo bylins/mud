@@ -21,6 +21,7 @@
 #include "entities/zone.h"
 #include "magic/spells_info.h"
 #include "structs/global_objects.h"
+#include "depot.h"
 
 void do_statip(CharacterData *ch, CharacterData *k) {
 	log("Start logon list stat");
@@ -707,7 +708,11 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 		sprintf(buf2, "[%d] %s", GET_OBJ_VNUM(j->get_in_obj()), j->get_in_obj()->get_short_description().c_str());
 		strcat(buf, buf2);
 	} else {
-		strcat(buf, "Нет");
+		const auto param = Depot::look_obj_depot(j);
+		if ( param != nullptr)
+			strcat(buf, param);
+		else
+			strcat(buf, "Нет");
 	}
 
 	strcat(buf, ", В инвентаре: ");

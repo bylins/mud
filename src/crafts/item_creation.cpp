@@ -13,7 +13,10 @@
 #include "olc/olc.h"
 #include "modify.h"
 #include "fightsystem/fight.h"
+#include "entities/entity_constants.h"
 #include "structs/global_objects.h"
+
+#include <cmath>
 
 extern int material_value[];
 void die(CharacterData *ch, CharacterData *killer);

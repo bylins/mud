@@ -24,7 +24,8 @@
 #include "entities/zone.h"
 #include "entities/char_player.h"
 
-//#include <algorithm>
+#include <cmath>
+#include <algorithm>
 
 // extern
 void perform_drop_gold(CharacterData *ch, int amount);
@@ -522,7 +523,7 @@ void arena_kill(CharacterData *ch, CharacterData *killer) {
 		to_room = r_helled_start_room;
 	}
 	for (Follower *f = ch->followers; f; f = f->next) {
-		if (IS_CHARMICE(f->ch) && (IN_ROOM(f->ch) == ch->in_room)) {
+		if (IS_CHARMICE(f->ch)) {
 			char_from_room(f->ch);
 			char_to_room(f->ch, to_room);
 		}
@@ -1438,6 +1439,7 @@ void Damage::zero_init() {
 	msg_num = -1;
 	ch_start_pos = EPosition::kIncorrect;
 	victim_start_pos = EPosition::kIncorrect;
+	wielded = nullptr;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

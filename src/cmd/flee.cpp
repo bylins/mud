@@ -5,6 +5,7 @@
 #include "utils/random.h"
 #include "entities/char.h"
 #include "entities/entity_constants.h"
+#include <cmath>
 
 void reduce_exp_after_flee(CharacterData *ch, CharacterData *victim, RoomRnum room) {
 	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))

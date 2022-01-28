@@ -146,7 +146,7 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 		PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
 	}
 	TechniqueRollType weaponThrowRoll;
-	Damage throwDamage(SkillDmg(ESkill::SKILL_THROW), ZERO_DMG, throwDamageKind);
+	Damage throwDamage(SkillDmg(ESkill::SKILL_THROW), ZERO_DMG, throwDamageKind, nullptr); //х3 как тут с оружием
 	throwDamage.magic_type = STYPE_DARK;
 
 	ActionTargeting::FoesRosterType

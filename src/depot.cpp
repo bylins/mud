@@ -16,6 +16,7 @@
 #include "house.h"
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/named_stuff.h"
+#include <cmath>
 
 extern int bank(CharacterData *, void *, int, char *);
 extern int can_take_obj(CharacterData *ch, ObjectData *obj);
@@ -660,7 +661,7 @@ int delete_obj(int vnum) {
 bool CharNode::removal_period_cost() {
 	double i;
 	buffer_cost += static_cast<double>(cost_per_day) / SECS_PER_MUD_DAY;
-	std::modf(buffer_cost, &i);
+	modf(buffer_cost, &i);
 	if (i >= 1.0f) {
 		unsigned diff = static_cast<unsigned>(i);
 		money -= diff;
@@ -1453,6 +1454,32 @@ int print_imm_where_obj(CharacterData *ch, char *arg, int num) {
 		}
 	}
 	return num;
+}
+
+char *look_obj_depot(ObjectData *obj) {
+	for (auto it = depot_list.begin(); it != depot_list.end(); ++it) {
+		for (auto obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it) {
+			if (obj->get_id() == (*obj_it)->get_id()) {
+				sprintf(buf1, "В хранилище игрока %s", it->second.name.c_str());
+				return buf1;
+			}
+		}
+	}
+	return nullptr;
+}
+
+ObjectData *find_obj_from_depot_and_dec_number(char *arg, int &number) {
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
+		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
+			 ++obj_it) {
+			if (isname(arg, (*obj_it)->get_aliases())) {
+				if (--number == 0) {
+					return (*obj_it).get();
+				}
+			}
+		}
+	}
+	return nullptr;
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.

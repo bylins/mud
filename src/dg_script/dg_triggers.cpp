@@ -562,33 +562,35 @@ int fight_mtrigger(CharacterData *ch) {
 	return 1;
 }
 
-int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, const char* skillorspell, ObjectData */*obj*/) {
+int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, const char* name_skillorspell, int is_skill, ObjectData* /*obj*/) {
 	if (!damager || damager->purged() || !victim  || victim->purged()) {
 		log("SYSERROR: damager = %s, victim = %s (%s:%d)",
 			damager ? (damager->purged() ? "purged" : "true") : "false",
 			victim ? (victim->purged() ? "purged" : "true") : "false",
 			__FILE__, __LINE__);
-		return 0;
+		return 1;
 	}
 
 	char buf[kMaxInputLength];
 
 	if (!SCRIPT_CHECK(victim, MTRIG_DAMAGE)
 		|| !CAN_START_MTRIG(victim)) {
-		return 0;
+		return 1;
 	}
 
 	for (auto t : SCRIPT(victim)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_DAMAGE) && (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, damager, "damager", 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "amount", std::to_string(amount).c_str(), 0);
-			add_var_cntx(&GET_TRIG_VARS(t), "skillorspell", skillorspell, 0);
-//			ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "name", name_skillorspell, 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "is_skill", std::to_string(is_skill).c_str(), 0);
+			if(obj)
+					ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
 			return script_driver(victim, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 void hitprcnt_mtrigger(CharacterData *ch) {

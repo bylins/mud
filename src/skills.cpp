@@ -13,6 +13,8 @@
 #include "color.h"
 #include "utils/random.h"
 
+#include <cmath>
+
 const int kSkillCapOnZeroRemort = 80;
 const int kSkillCapBonusPerRemort = 5;;
 

@@ -218,15 +218,14 @@ ObjectData::shared_ptr WorldObjects::find_if(const predicate_f &predicate) const
 	return find_if(predicate, 0);
 }
 
-ObjectData::shared_ptr WorldObjects::find_if(const predicate_f &predicate, unsigned number) const {
+ObjectData::shared_ptr WorldObjects::find_if(const predicate_f &predicate, int number) const {
 	return find_if_and_dec_number(predicate, number);
 }
 
-ObjectData::shared_ptr WorldObjects::find_if_and_dec_number(const predicate_f &predicate, unsigned &number) const {
+ObjectData::shared_ptr WorldObjects::find_if_and_dec_number(const predicate_f &predicate, int &number) const {
 	auto result_i = std::find_if(m_objects_list.begin(), m_objects_list.end(), predicate);
 
-	while (result_i != m_objects_list.end()
-		&& 0 < number) {
+	while (result_i != m_objects_list.end() && number > 1) {
 		result_i = std::find_if(++result_i, m_objects_list.end(), predicate);
 		--number;
 	}

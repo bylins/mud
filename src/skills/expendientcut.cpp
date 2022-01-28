@@ -8,7 +8,7 @@
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"
 #include "skills/protect.h"
-
+#include <cmath>
 using namespace FightSystem;
 
 ESkill ExpedientWeaponSkill(CharacterData *ch) {
@@ -139,7 +139,8 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 
 	if (!CheckExpedientSuccess(ch, vict)) {
 		act("Ваши свистящие удары пропали втуне, не задев $N3.", false, ch, 0, vict, TO_CHAR);
-		Damage dmg(SkillDmg(ESkill::SKILL_SHORTS), ZERO_DMG, PHYS_DMG);
+		Damage dmg(SkillDmg(ESkill::SKILL_SHORTS), ZERO_DMG, PHYS_DMG, nullptr); //подумать как вычислить скилл оружия
+		dmg.skill_num = ESkill::kUndefined;
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
 		return;
