@@ -15,10 +15,9 @@ const SkillInfo &SkillsInfo::operator[](const ESkill id) const {
 
 void SkillsInfo::InitSkill(ESkill id, const std::string &name, const std::string &short_name,
 						   ESaving saving, int difficulty, int cap) {
-	auto skill = std::make_unique<SkillInfo>(name, short_name, saving, difficulty, cap);
-	auto it = items_->try_emplace(id, std::move(skill));
+	auto it = items_->try_emplace(id, std::make_unique<SkillInfo>(name, short_name, saving, difficulty, cap));
 	if (!it.second) {
-		err_log("Skill '%s' has already exist. Redundant definition had been ignored.\n",
+		err_log("Skill '%s' has already exist. Redundant definition had been ignored.",
 				NAME_BY_ITEM<ESkill>(id).c_str());
 	}
 }
@@ -35,16 +34,22 @@ bool SkillsInfo::IsInitizalized() {
 	return (items_->size() > 1);
 }
 
+void SkillsInfo::DefaultInit() {
+	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
+		items_->try_emplace(i, std::make_unique<SkillInfo>());
+	}
+}
+
 void SkillsInfo::Init() {
 	if (IsInitizalized()) {
 		err_log("This MUD already has an initialized %s. Use 'reload' for re-initialize.", typeid(this).name());
 		return;
 	}
 
-	InitSkill(ESkill::kReligion, "!молитва или жертва!", "Error", ESaving::kReflex, 1, 1);
-	InitSkill(ESkill::kAny, "!any", "Any", ESaving::kReflex, 1, 1);
-	InitSkill(ESkill::kIncorrect, "!INCORRECT!", "!Icr", ESaving::kReflex, 1, 1);
-	InitSkill(ESkill::kGlobalCooldown, "!cooldown", "ОЗ", ESaving::kReflex, 1, 1);
+	InitSkill(ESkill::kReligion, "!молитва или жертва!", "Error", ESaving::kFirst, 1, 1);
+	InitSkill(ESkill::kAny, "!any", "Any", ESaving::kFirst, 1, 1);
+	InitSkill(ESkill::kIncorrect, "!INCORRECT!", "!Icr", ESaving::kFirst, 1, 1);
+	InitSkill(ESkill::kGlobalCooldown, "!cooldown", "ОЗ", ESaving::kFirst, 1, 1);
 	InitSkill(ESkill::kBackstab, "заколоть", "Зк", ESaving::kReflex, 25, 1000);
 	InitSkill(ESkill::kBash, "сбить", "Сб", ESaving::kReflex, 200, 200);
 	InitSkill(ESkill::kHide, "спрятаться", "Сп", ESaving::kReflex, 100, 200);
@@ -124,13 +129,12 @@ void SkillsInfo::Init() {
 	InitSkill(ESkill::kLifeMagic, "магия жизни", "Мж", ESaving::kReflex, 1000, 1000);
 	InitSkill(ESkill::kStun, "ошеломить", "Ош", ESaving::kReflex, 200, 200);
 	InitSkill(ESkill::kMakeAmulet, "смастерить оберег", "Со", ESaving::kReflex, 200, 200);
-// Не должно быть неинициализированных скиллов. Либо инициализируем, либо вырезаем из кода вовсе.
-	InitSkill(ESkill::kCreatePotion, "!отключено", "!err", ESaving::kReflex, 200, 1);
-	InitSkill(ESkill::kCreateScroll, "!отключено", "!err", ESaving::kReflex, 200, 1);
-	InitSkill(ESkill::kCreateWand, "!отключено", "!err", ESaving::kReflex, 200, 1);
-	InitSkill(ESkill::kCreateBow, "!отключено", "!err", ESaving::kReflex, 200, 1);
-	InitSkill(ESkill::kMakeStaff, "!отключено", "!err", ESaving::kReflex, 200, 1);
-	InitSkill(ESkill::kMakePotion, "!отключено", "!err", ESaving::kReflex, 200, 1);
+
+/*
+ *  Инициализация "по умолчанию" пропущенных и не используемых элементов enum.
+ *  Должна быть в конце. чтобы можно было сообщать о попытках повторной инициализации одного элемента.
+ */
+	DefaultInit();
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -49,28 +49,33 @@ class SkillsInfo {
 		}
 	};
 	SkillsInfo(SkillsInfo &s) = delete;
-
 	void operator=(const SkillsInfo &s) = delete;
+
+	/*
+	 *  Доступ к элементу с указанным id или kUndefined элементу.
+	 */
 	const SkillInfo &operator[](ESkill id) const;
+
 	/*
 	 *  Инициализация. Для реинициализации используйте Reload();
 	 */
 	void Init();
+
 	/*
 	 *  Такой id известен. Не гарантируется, что он означает корректный элемент.
 	 */
 	bool IsKnown(ESkill id);
+
 	/*
 	 *  Такой id известен и он корректен, т.е. определен и лежит между первым и последним элементом.
+	 *  Не гарантируется, что он инициализирован не по умолчанию.
 	 */
 	bool IsValid(ESkill id);
+
 	/*
 	 *  Такой id некорректен, т.е. неопределен или лежит вне корректного диапазона.
 	 */
 	bool IsInvalid(ESkill id) { return !IsValid(id); };
-	/*
-	 *  Доступ к элементу с указанным id или kUndefined элементу.
-	 */
 
  private:
 	using ItemPtr = std::unique_ptr<SkillInfo>;
@@ -80,6 +85,8 @@ class SkillsInfo {
 	RegisterPtr items_;
 
 	bool IsInitizalized();
+
+	void DefaultInit();
 	void InitSkill(ESkill id, const std::string &name, const std::string &short_name,
 				   ESaving saving, int difficulty, int cap);
 };
