@@ -369,14 +369,14 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kGlobalCooldown] = "kGlobalCooldown";
 	ESkill_name_by_value[ESkill::kProtect] = "kProtect";
 	ESkill_name_by_value[ESkill::kIntercept] = "kIntercept";
-	ESkill_name_by_value[ESkill::kLeftAttack] = "kLeftAttack";
+	ESkill_name_by_value[ESkill::kLeftHit] = "kLeftHit";
 	ESkill_name_by_value[ESkill::kHammer] = "kHammer";
 	ESkill_name_by_value[ESkill::kOverwhelm] = "kOverwhelm";
 	ESkill_name_by_value[ESkill::kPoisoning] = "kPoisoning";
 	ESkill_name_by_value[ESkill::kSense] = "kSense";
 	ESkill_name_by_value[ESkill::kRiding] = "kRiding";
 	ESkill_name_by_value[ESkill::kHideTrack] = "kHideTrack";
-	ESkill_name_by_value[ESkill::SKILL_RELIGION] = "SKILL_RELIGION";
+	ESkill_name_by_value[ESkill::kReligion] = "kReligion";
 	ESkill_name_by_value[ESkill::kSkinning] = "kSkinning";
 	ESkill_name_by_value[ESkill::kMultiparry] = "kMultiparry";
 	ESkill_name_by_value[ESkill::kReforging] = "kReforging";
@@ -416,7 +416,6 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kSideAttack] = "kSideAttack";
 	ESkill_name_by_value[ESkill::kDisarm] = "kDisarm";
 	ESkill_name_by_value[ESkill::kParry] = "kParry";
-	ESkill_name_by_value[ESkill::SKILL_HEAL] = "SKILL_HEAL";
 	ESkill_name_by_value[ESkill::kMorph] = "kMorph";
 	ESkill_name_by_value[ESkill::kBows] = "kBows";
 	ESkill_name_by_value[ESkill::kAddshot] = "kAddshot";
@@ -480,14 +479,14 @@ std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS =
 		ESkill::kUndefined,
 		ESkill::kProtect,
 		ESkill::kIntercept,
-		ESkill::kLeftAttack,
+		ESkill::kLeftHit,
 		ESkill::kHammer,
 		ESkill::kOverwhelm,
 		ESkill::kPoisoning,
 		ESkill::kSense,
 		ESkill::kRiding,
 		ESkill::kHideTrack,
-		ESkill::SKILL_RELIGION,
+		ESkill::kReligion,
 		ESkill::kSkinning,
 		ESkill::kMultiparry,
 		ESkill::kReforging,
@@ -527,7 +526,6 @@ std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS =
 		ESkill::kSideAttack,
 		ESkill::kDisarm,
 		ESkill::kParry,
-		ESkill::SKILL_HEAL,
 		ESkill::kMorph,
 		ESkill::kBows,
 		ESkill::kAddshot,
@@ -1585,7 +1583,6 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case ESkill::SKILL_HEAL: break;
 		case ESkill::kAddshot: {
 			if (equip_in_metall(ch))
 				bonus -= 5;
@@ -1661,7 +1658,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 		case ESkill::kSharpening: break;
 		case ESkill::kWarcry: break;
 		case ESkill::kCourage: break;
-		case ESkill::kLeftAttack: break;
+		case ESkill::kLeftHit: break;
 		case ESkill::kHammer: {
 			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			bonus = size + dex_bonus(GET_REAL_STR(ch));

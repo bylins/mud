@@ -32,7 +32,7 @@
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="kLeftAttack">
+	<skill id="kLeftHit">
 	    <number val="3" />
         <name text="О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
@@ -68,7 +68,7 @@
         <max_percent val="120" />
     </skill>
     <!-- О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫? О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫... -->
-    <skill id="SKILL_RELIGION">
+    <skill id="kReligion">
 	    <number val="10" />
         <name text="!О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫!" />
         <max_percent val="100" />

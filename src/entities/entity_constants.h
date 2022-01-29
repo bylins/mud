@@ -22,8 +22,6 @@ enum class ESex : byte {
 	kLast
 };
 
-constexpr ESex kDefaultSex = ESex::kMale;
-
 template<>
 ESex ITEM_BY_NAME<ESex>(const std::string &name);
 template<>

@@ -2176,8 +2176,12 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case MEDIT_SKILLS: {
-			auto skill_id = static_cast<ESkill>(atoi(arg));
-			if (skill_id < ESkill::kFirst || skill_id > ESkill::kLast) {
+			number = atoi(arg);
+			if (number == 0) {
+				break;
+			}
+			auto skill_id = static_cast<ESkill>(number);
+			if (MUD::Skills().IsInvalid(skill_id)) {
 				send_to_char("Неизвестное умение.\r\n", d->character.get());
 			} else if (OLC_MOB(d)->get_skill(skill_id)) {
 				OLC_MOB(d)->set_skill(skill_id, 0);

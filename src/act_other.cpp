@@ -2297,13 +2297,13 @@ void do_pray(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else
 		return;
 
-	if (!IS_IMMORTAL(ch) && (IsTimedBySkill(ch, ESkill::SKILL_RELIGION)
+	if (!IS_IMMORTAL(ch) && (IsTimedBySkill(ch, ESkill::kReligion)
 		|| affected_by_spell(ch, SPELL_RELIGION))) {
 		send_to_char("Вы не можете так часто взывать к Богам.\r\n", ch);
 		return;
 	}
 
-	timed.skill = ESkill::SKILL_RELIGION;
+	timed.skill = ESkill::kReligion;
 	timed.time = 12;
 	timed_to_char(ch, &timed);
 

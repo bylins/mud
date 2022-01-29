@@ -608,7 +608,7 @@ void ObjectFile::parse_object(const int nr) {
 	// *** Add some initialization fields
 	tobj->set_maximum_durability(ObjectData::DEFAULT_MAXIMUM_DURABILITY);
 	tobj->set_current_durability(ObjectData::DEFAULT_CURRENT_DURABILITY);
-	tobj->set_sex(kDefaultSex);
+	tobj->set_sex(ESex::kMale);
 	tobj->set_timer(ObjectData::DEFAULT_TIMER);
 	tobj->set_level(1);
 	tobj->set_destroyer(ObjectData::DEFAULT_DESTROYER);

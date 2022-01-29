@@ -1952,7 +1952,7 @@ void process_player_attack(CharacterData *ch, int min_init) {
 	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !GET_EQ(ch, WEAR_HOLD)
 		&& !GET_EQ(ch, WEAR_LIGHT) && !GET_EQ(ch, WEAR_SHIELD) && !GET_EQ(ch, WEAR_BOTHS)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) && GET_AF_BATTLE(ch, EAF_SECOND)
-		&& ch->get_skill(ESkill::kLeftAttack)) {
+		&& ch->get_skill(ESkill::kLeftHit)) {
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT)) {
 			exthit(ch, ESkill::kUndefined, FightSystem::AttType::OFF_HAND);
 		}

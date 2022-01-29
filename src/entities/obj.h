@@ -237,7 +237,7 @@ class CObjectPrototype {
 										   m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
 										   m_current_durability(DEFAULT_CURRENT_DURABILITY),
 										   m_material(DEFAULT_MATERIAL),
-										   m_sex(kDefaultSex),
+										   m_sex(ESex::kMale),
 										   m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
 										   m_timer(DEFAULT_TIMER),
 										   m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта

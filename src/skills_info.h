@@ -3,13 +3,19 @@
 
 #include "skills.h"
 
-#include "entities/entity_constants.h"
-#include "classes/class_constants.h"
-
 #include <unordered_map>
 #include <utility>
 
+#include "entities/entity_constants.h"
+#include "classes/class_constants.h"
+
+/*template<class T>
+bool IsInRange(const T &t) {
+	return (t >= T::kFirst && t <= T::kLast);
+}*/
+
 struct SkillInfo {
+	SkillInfo() = default;
 	SkillInfo(const std::string &name, const std::string &short_name, const ESaving saving, int difficulty, int cap) :
 		name(name),
 		short_name(short_name),
@@ -18,12 +24,12 @@ struct SkillInfo {
 		cap(cap),
 		autosuccess(false) {};
 
-	std::string name;
-	std::string short_name;
-	ESaving save_type;
-	int difficulty;
-	int cap;
-	bool autosuccess;
+	std::string name{"!undefined!"};
+	std::string short_name{"!error"};
+	ESaving save_type{ESaving::kFirst};
+	int difficulty{1};
+	int cap{1};
+	bool autosuccess{false};
 
 	/**
 	 * Чтобы не писать все время c_str()
@@ -36,15 +42,44 @@ struct SkillInfo {
 
 class SkillsInfo {
  public:
-	void Init();
+	SkillsInfo() {
+		if (!items_) {
+			items_ = std::make_unique<Register>();
+			items_->emplace(ESkill::kUndefined, std::make_unique<SkillInfo>());
+		}
+	};
+	SkillsInfo(SkillsInfo &s) = delete;
+
+	void operator=(const SkillsInfo &s) = delete;
 	const SkillInfo &operator[](ESkill id) const;
+	/*
+	 *  Инициализация. Для реинициализации используйте Reload();
+	 */
+	void Init();
+	/*
+	 *  Такой id известен. Не гарантируется, что он означает корректный элемент.
+	 */
+	bool IsKnown(ESkill id);
+	/*
+	 *  Такой id известен и он корректен, т.е. определен и лежит между первым и последним элементом.
+	 */
+	bool IsValid(ESkill id);
+	/*
+	 *  Такой id некорректен, т.е. неопределен или лежит вне корректного диапазона.
+	 */
+	bool IsInvalid(ESkill id) { return !IsValid(id); };
+	/*
+	 *  Доступ к элементу с указанным id или kUndefined элементу.
+	 */
 
  private:
-	using SkillPtr = std::unique_ptr<SkillInfo>;
-	using SkillsRegister = std::unordered_map<ESkill, SkillPtr>;
+	using ItemPtr = std::unique_ptr<SkillInfo>;
+	using Register = std::unordered_map<ESkill, ItemPtr>;
+	using RegisterPtr = std::unique_ptr<Register>;
 
-	SkillsRegister skills_ ;
+	RegisterPtr items_;
 
+	bool IsInitizalized();
 	void InitSkill(ESkill id, const std::string &name, const std::string &short_name,
 				   ESaving saving, int difficulty, int cap);
 };

@@ -4921,7 +4921,8 @@ void recreate_saveinfo(const size_t number) {
 * потестить че-нить с возможностью покачать скилл во время игры иммом.
 */
 void set_god_skills(CharacterData *ch) {
-	for (const auto i : AVAILABLE_SKILLS) {
+//	for (const auto i : AVAILABLE_SKILLS) {
+	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		ch->set_skill(i, 200);
 	}
 }

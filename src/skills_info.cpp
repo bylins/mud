@@ -6,26 +6,43 @@ struct AttackMessages fight_messages[kMaxMessages];
 
 const SkillInfo &SkillsInfo::operator[](const ESkill id) const {
 	try {
-		return *skills_.at(id);
+		return *items_->at(id);
 	} catch (const std::out_of_range &) {
-		err_log("Incorrect skill id (%d) passed into MUD::Skills.", to_underlying(id));
-		return *skills_.at(ESkill::kUndefined);
+		err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name());
+		return *items_->at(ESkill::kUndefined);
 	}
 }
 
 void SkillsInfo::InitSkill(ESkill id, const std::string &name, const std::string &short_name,
 						   ESaving saving, int difficulty, int cap) {
 	auto skill = std::make_unique<SkillInfo>(name, short_name, saving, difficulty, cap);
-	auto it = skills_.try_emplace(id, std::move(skill));
+	auto it = items_->try_emplace(id, std::move(skill));
 	if (!it.second) {
 		err_log("Skill '%s' has already exist. Redundant definition had been ignored.\n",
 				NAME_BY_ITEM<ESkill>(id).c_str());
 	}
 }
 
+bool SkillsInfo::IsKnown(const ESkill id) {
+	return items_->contains(id);
+}
+
+bool SkillsInfo::IsValid(const ESkill id) {
+	return (IsKnown(id) && id >= ESkill::kFirst && id <= ESkill::kLast);
+}
+
+bool SkillsInfo::IsInitizalized() {
+	return (items_->size() > 1);
+}
+
 void SkillsInfo::Init() {
+	if (IsInitizalized()) {
+		err_log("This MUD already has an initialized %s. Use 'reload' for re-initialize.", typeid(this).name());
+		return;
+	}
+
+	InitSkill(ESkill::kReligion, "!молитва или жертва!", "Error", ESaving::kReflex, 1, 1);
 	InitSkill(ESkill::kAny, "!any", "Any", ESaving::kReflex, 1, 1);
-	InitSkill(ESkill::kUndefined, "!UNDEFINED!", "!Und", ESaving::kReflex, 1, 1);
 	InitSkill(ESkill::kIncorrect, "!INCORRECT!", "!Icr", ESaving::kReflex, 1, 1);
 	InitSkill(ESkill::kGlobalCooldown, "!cooldown", "ОЗ", ESaving::kReflex, 1, 1);
 	InitSkill(ESkill::kBackstab, "заколоть", "Зк", ESaving::kReflex, 25, 1000);
@@ -55,7 +72,6 @@ void SkillsInfo::Init() {
 	InitSkill(ESkill::kLooking, "приглядеться", "Прг", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kHearing, "прислушаться", "Прс", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kDisarm, "обезоружить", "Об", ESaving::kReflex, 100, 200);
-	InitSkill(ESkill::SKILL_HEAL, "!heal!", "Hl", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kMorph, "оборотничество", "Об", ESaving::kReflex, 150, 200);
 	InitSkill(ESkill::kAddshot, "дополнительный выстрел", "Доп", ESaving::kReflex, 200, 200);
 	InitSkill(ESkill::kDisguise, "маскировка", "Мск", ESaving::kReflex, 100, 200);
@@ -70,7 +86,7 @@ void SkillsInfo::Init() {
 	InitSkill(ESkill::kHangovering, "опохмелиться", "Опх", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kFirstAid, "лечить", "Лч", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kCampfire, "разжечь костер", "Рк", ESaving::kReflex, 160, 1000);
-	InitSkill(ESkill::kLeftAttack, "удар левой рукой", "Улр", ESaving::kReflex, 100, 200);
+	InitSkill(ESkill::kLeftHit, "удар левой рукой", "Улр", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kHammer, "богатырский молот", "Бм", ESaving::kStability, 200, 200);
 	InitSkill(ESkill::kOverwhelm, "оглушить", "Ог", ESaving::kStability, 200, 200);
 	InitSkill(ESkill::kPoisoning, "отравить", "Отр", ESaving::kReflex, 200, 200);
@@ -80,7 +96,6 @@ void SkillsInfo::Init() {
 	InitSkill(ESkill::kSense, "найти", "Нйт", ESaving::kReflex, 160, 200);
 	InitSkill(ESkill::kRiding, "сражение верхом", "Срв", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kHideTrack, "замести следы", "Зс", ESaving::kReflex, 120, 200);
-	InitSkill(ESkill::SKILL_RELIGION, "!молитва или жертва!", "Error", ESaving::kReflex, 1, 1);
 	InitSkill(ESkill::kSkinning, "освежевать", "Осв", ESaving::kReflex, 120, 200);
 	InitSkill(ESkill::kMultiparry, "веерная защита", "Вз", ESaving::kReflex, 140, 200);
 	InitSkill(ESkill::kReforging, "перековать", "Прк", ESaving::kReflex, 140, 200);
@@ -109,6 +124,13 @@ void SkillsInfo::Init() {
 	InitSkill(ESkill::kLifeMagic, "магия жизни", "Мж", ESaving::kReflex, 1000, 1000);
 	InitSkill(ESkill::kStun, "ошеломить", "Ош", ESaving::kReflex, 200, 200);
 	InitSkill(ESkill::kMakeAmulet, "смастерить оберег", "Со", ESaving::kReflex, 200, 200);
+// Не должно быть неинициализированных скиллов. Либо инициализируем, либо вырезаем из кода вовсе.
+	InitSkill(ESkill::kCreatePotion, "!отключено", "!err", ESaving::kReflex, 200, 1);
+	InitSkill(ESkill::kCreateScroll, "!отключено", "!err", ESaving::kReflex, 200, 1);
+	InitSkill(ESkill::kCreateWand, "!отключено", "!err", ESaving::kReflex, 200, 1);
+	InitSkill(ESkill::kCreateBow, "!отключено", "!err", ESaving::kReflex, 200, 1);
+	InitSkill(ESkill::kMakeStaff, "!отключено", "!err", ESaving::kReflex, 200, 1);
+	InitSkill(ESkill::kMakePotion, "!отключено", "!err", ESaving::kReflex, 200, 1);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

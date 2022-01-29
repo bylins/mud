@@ -15,9 +15,9 @@
 #ifndef SKILLS_H_
 #define SKILLS_H_
 
-#include "structs/structs.h"
-
 #include <map>
+
+#include "structs/structs.h"
 
 extern const int kSkillCapOnZeroRemort;
 extern const int kSkillCapBonusPerRemort;
@@ -36,24 +36,25 @@ enum EExtraAttack {
 };
 
 enum class ESkill : int {
+	kReligion = -4,			// Таймер молитвы тикает за счет TimedSkill. Нужно придумать, как от этого избавиться
 	kAny = -3,    			// "Какой угодно" скилл. (Например, удар можно нанести любым видом оружия).  //
 	kUndefined = -2,		// Неопределенный скилл.
-	kIncorrect = -1,		// Неизвестный, но вероятно некорректный скилл.
+	kIncorrect = -1,		// Неизвестный, но некорректный скилл.
 	kGlobalCooldown = 0,	// Internal - ID for global ability cooldown //
 	kProtect = 1,
 	kIntercept = 2,
-	kLeftAttack = 3,
+	kLeftHit = 3,
 	kHammer = 4,
 	kOverwhelm = 5,
 	kPoisoning = 6,
 	kSense = 7,
 	kRiding = 8,
 	kHideTrack = 9,
-	SKILL_RELIGION = 10, // Нужно придумать, как от этого избавиться
 	kSkinning = 11,
+						/* Просвет в 1 номер */
 	kMultiparry = 12,
 	kReforging = 13,
-						/* просвет почему-то */
+						/* Просвет почему-то */
 	kLeadership = 20,
 	kPunctual = 21,
 	kAwake = 22,
@@ -68,30 +69,30 @@ enum class ESkill : int {
 	kFirstAid = 31,
 	kCampfire = 32,
 	kCreateBow = 33,
-						/* снова просвет */
+						/* Снова просвет */
 	kThrow = 130,
-	kBackstab = 131,    // Reserved Skill[] DO NOT CHANGE //
-	kBash = 132,    // Reserved Skill[] DO NOT CHANGE //
-	kHide = 133,    // Reserved Skill[] DO NOT CHANGE //
-	kKick = 134,    // Reserved Skill[] DO NOT CHANGE //
-	kPickLock = 135,    // Reserved Skill[] DO NOT CHANGE //
-	kFistfight = 136,    // Reserved Skill[] DO NOT CHANGE //
-	kRescue = 137,    // Reserved Skill[] DO NOT CHANGE //
-	kSneak = 138,    // Reserved Skill[] DO NOT CHANGE //
-	kSteal = 139,    // Reserved Skill[] DO NOT CHANGE //
-	kTrack = 140,    // Reserved Skill[] DO NOT CHANGE //
-	kClubs = 141,    // *** Weapon is club, etc    //
-	kAxes = 142,    // *** Weapon is axe, etc     //
-	kLongBlades = 143,    // *** Weapon is long blades  //
-	kShortBlades = 144,    // *** Weapon is short blades //
-	kNonstandart = 145,    // *** Weapon is non-standart //
-	kTwohands = 146,    // *** Weapon in both hands   //
-	kPicks = 147,    // *** Weapon is pick         //
-	kSpades = 148,    // *** Weapon is spades       //
+	kBackstab = 131,
+	kBash = 132,
+	kHide = 133,
+	kKick = 134,
+	kPickLock = 135,
+	kFistfight = 136,
+	kRescue = 137,
+	kSneak = 138,
+	kSteal = 139,
+	kTrack = 140,
+	kClubs = 141,		// *** Weapon is club, etc    //
+	kAxes = 142,		// *** Weapon is axe, etc     //
+	kLongBlades = 143,	// *** Weapon is long blades  //
+	kShortBlades = 144,	// *** Weapon is short blades //
+	kNonstandart = 145,	// *** Weapon is non-standart //
+	kTwohands = 146,	// *** Weapon in both hands   //
+	kPicks = 147,		// *** Weapon is pick         //
+	kSpades = 148,		// *** Weapon is spades       //
 	kSideAttack = 149,
 	kDisarm = 150,
 	kParry = 151,
-	SKILL_HEAL = 152,	// Кажется, оно нигде не используется, нужно вырезать
+					/* Очередной просвет */
 	kMorph = 153,
 	kBows = 154,
 	kAddshot = 155,

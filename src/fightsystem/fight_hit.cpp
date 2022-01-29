@@ -2903,7 +2903,7 @@ void HitData::init(CharacterData *ch, CharacterData *victim) {
 		wielded = GET_EQ(ch, WEAR_HOLD);
 		weapon_pos = WEAR_HOLD;
 		if (!wielded) { // удар второй рукой
-			weap_skill = ESkill::kLeftAttack;
+			weap_skill = ESkill::kLeftHit;
 			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
 			TrainSkill(ch, weap_skill, true, victim);
 		}
@@ -3093,7 +3093,7 @@ void HitData::calc_rand_hr(CharacterData *ch, CharacterData *victim) {
 		&& skill_num != ESkill::kBackstab
 		&& !(wielded && GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON)
 		&& !IS_NPC(ch)) {
-			calc_thaco += std::max(0, (CalcSkillMinCap(victim, ESkill::kLeftAttack) - CalcCurrentSkill(ch, ESkill::kLeftAttack, victim)) / 10);
+			calc_thaco += std::max(0, (CalcSkillMinCap(victim, ESkill::kLeftHit) - CalcCurrentSkill(ch, ESkill::kLeftHit, victim)) / 10);
 	}
 
 	// courage
@@ -3173,7 +3173,7 @@ void HitData::calc_stat_hr(CharacterData *ch) {
 		&& skill_num != ESkill::kBackstab
 		&& !(wielded && GET_OBJ_TYPE(wielded) == ObjectData::ITEM_WEAPON)
 		&& !IS_NPC(ch)) {
-		calc_thaco += (MUD::Skills()[ESkill::kLeftAttack].difficulty - ch->get_skill(ESkill::kLeftAttack)) / 10;
+		calc_thaco += (MUD::Skills()[ESkill::kLeftHit].difficulty - ch->get_skill(ESkill::kLeftHit)) / 10;
 	}
 
 	// courage

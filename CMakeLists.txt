@@ -236,7 +236,9 @@ set(SOURCES
         src/structs/extra_description.cpp
 		src/communication/insult.cpp
 		src/abilities/abilities_info.cpp
-		src/abilities/abilities_constants.cpp src/classes/classes_info.cpp src/utils/objects_filter.cpp)
+		src/abilities/abilities_constants.cpp
+		src/classes/classes_info.cpp
+		src/utils/objects_filter.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -452,7 +454,9 @@ set(HEADERS
         src/structs/extra_description.h
 		src/communication/insult.h
 		src/communication/social.h
-		src/abilities/abilities_info.h src/classes/classes_info.h src/utils/objects_filter.h)
+		src/abilities/abilities_info.h
+		src/classes/classes_info.h
+		src/utils/objects_filter.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -643,7 +647,8 @@ set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
 if (UNIX OR CYGWIN)
-	add_definitions("--std=gnu++17")
+	#add_definitions("--std=gnu++17")
+	add_definitions("-std=c++2a")
 else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 endif ()
