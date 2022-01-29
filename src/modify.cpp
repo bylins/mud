@@ -1039,7 +1039,7 @@ void do_skillset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		value = MUD::Skills()[skill].cap;
 	}
 
-	// * FindSkillNum() guarantees a valid spell_info[] index, or -1, and we
+	// * FindSkillId() guarantees a valid spell_info[] index, or -1, and we
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : MUD::Skills()[skill].GetName(), value);

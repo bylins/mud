@@ -26,7 +26,7 @@
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "utils/random.h"
-#include "world_objects.h"
+#include "structs/global_objects.h"
 
 extern int what_sky;
 //extern DescriptorData *descriptor_list;
@@ -261,11 +261,10 @@ int magic_skill_damage_calc(CharacterData *ch, CharacterData *victim, int spelln
 		return (dam);
 	}
 
-	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
-
-	if (skill_number >= ESkill::kFirst) {
+	auto skill_id = GetMagicSkillId(spellnum);
+	if (MUD::Skills().IsValid(skill_id)) {
 		dam += dam
-			* (1 + static_cast<double>(std::min(CalcSkillMinCap(ch, skill_number), ch->get_skill(skill_number))) / 500);
+			* (1 + static_cast<double>(std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id))) / 500);
 	}
 
 	if (GET_REAL_WIS(ch) >= 23) {
@@ -358,7 +357,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
 		modi = modi - 50;
 	// вводим переменную-модификатор владения школы магии	
-	const int ms_mod = func_koef_modif(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum))); // к кубикам от % владения магии 
+	const int ms_mod = func_koef_modif(spellnum, ch->get_skill(GetMagicSkillId(spellnum))); // к кубикам от % владения магии
 
 //расчет на 30 морт 30 левел 90 мудры
 
@@ -1167,8 +1166,8 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 //  log("[MAG Affect] Modifier value for %s (caster %s) = %d(spell %d)",
 //      GET_NAME(victim), GET_NAME(ch), modi, spellnum);
 
-	const int koef_duration = func_koef_duration(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
-	const int koef_modifier = func_koef_modif(spellnum, ch->get_skill(get_magic_skill_number_by_spell(spellnum)));
+	const int koef_duration = func_koef_duration(spellnum, ch->get_skill(GetMagicSkillId(spellnum)));
+	const int koef_modifier = func_koef_modif(spellnum, ch->get_skill(GetMagicSkillId(spellnum)));
 
 	switch (spellnum) {
 		case SPELL_CHILL_TOUCH: savetype = ESaving::kStability;
@@ -3199,7 +3198,7 @@ int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, int
 		mob->set_level(ch->get_level());
 		int rating = (ch->get_skill(ESkill::kLightMagic) + GET_REAL_CHA(ch)) / 2;
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 50 + dice(10, 10) + rating * 6;
-		mob->set_skill(ESkill::kFistfight, 10 + rating * 1.5);
+		mob->set_skill(ESkill::kPunch, 10 + rating * 1.5);
 		mob->set_skill(ESkill::kRescue, 50 + rating);
 		mob->set_str(3 + rating / 5);
 		mob->set_dex(10 + rating / 5);
@@ -4321,7 +4320,7 @@ int trySendCastMessages(CharacterData *ch, CharacterData *victim, RoomData *room
 };
 
 int calculateAmountTargetsOfSpell(const CharacterData *ch, const int &msgIndex, const int &spellnum) {
-	int amount = ch->get_skill(get_magic_skill_number_by_spell(spellnum));
+	int amount = ch->get_skill(GetMagicSkillId(spellnum));
 	amount = dice(amount / mag_messages[msgIndex].skillDivisor, mag_messages[msgIndex].diceSize);
 	return mag_messages[msgIndex].minTargetsAmount + MIN(amount, mag_messages[msgIndex].maxTargetsAmount);
 }

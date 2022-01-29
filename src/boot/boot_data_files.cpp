@@ -1423,7 +1423,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		auto skill_id = static_cast<ESkill>(t[0]);
-		if (skill_id < ESkill::kFirst || skill_id > ESkill::kLast) {
+		if (MUD::Skills().IsInvalid(skill_id)) {
 			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], i);
 			return;
 		}

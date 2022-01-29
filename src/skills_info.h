@@ -45,7 +45,7 @@ class SkillsInfo {
 	SkillsInfo() {
 		if (!items_) {
 			items_ = std::make_unique<Register>();
-			items_->emplace(ESkill::kUndefined, std::make_unique<SkillInfo>());
+			items_->emplace(ESkill::kUndefined, std::make_unique<ItemPair>(std::make_pair(false, SkillInfo())));
 		}
 	};
 	SkillsInfo(SkillsInfo &s) = delete;
@@ -67,28 +67,29 @@ class SkillsInfo {
 	bool IsKnown(ESkill id);
 
 	/*
-	 *  Такой id известен и он корректен, т.е. определен и лежит между первым и последним элементом.
-	 *  Не гарантируется, что он инициализирован не по умолчанию.
+	 *  Такой id известен и он корректен, т.е. определен, лежит между первым и последним элементом
+	 *  и не откллючен.
 	 */
 	bool IsValid(ESkill id);
 
 	/*
-	 *  Такой id некорректен, т.е. неопределен или лежит вне корректного диапазона.
+	 *  Такой id некорректен, т.е. не определен, отключен или лежит вне корректного диапазона.
 	 */
 	bool IsInvalid(ESkill id) { return !IsValid(id); };
 
  private:
-	using ItemPtr = std::unique_ptr<SkillInfo>;
-	using Register = std::unordered_map<ESkill, ItemPtr>;
+	using ItemPair = std::pair<bool, SkillInfo>;
+	using ItemPairPtr = std::unique_ptr<ItemPair>;
+	using Register = std::unordered_map<ESkill, ItemPairPtr>;
 	using RegisterPtr = std::unique_ptr<Register>;
 
 	RegisterPtr items_;
 
 	bool IsInitizalized();
+	bool IsEnabled(ESkill id);
 
-	void DefaultInit();
 	void InitSkill(ESkill id, const std::string &name, const std::string &short_name,
-				   ESaving saving, int difficulty, int cap);
+				   ESaving saving, int difficulty, int cap, bool enabled = true);
 };
 
 // Этому место в структуре скилл_инфо (а еще точнее - абилок), но во-первых, в messages запихали и сообщения спеллов,

@@ -101,21 +101,20 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		rcpt = im_get_recipe(GET_OBJ_VAL(obj, 1));
 	}
 
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL
-		|| GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
-		&& GET_OBJ_VAL(obj, 1) < to_underlying(ESkill::kFirst)
-		&& GET_OBJ_VAL(obj, 1) > to_underlying(ESkill::kLast)) {
-		send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
-		return;
+	auto skill_id{ESkill::kIncorrect};
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)) {
+		skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
+		if (MUD::Skills().IsInvalid(skill_id)) {
+			send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
+			return;
+		}
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
-		&& rcpt < 0) {
+	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rcpt < 0) {
 		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
-		&& (GET_OBJ_VAL(obj, 1) < 1
-			|| GET_OBJ_VAL(obj, 1) > SPELLS_COUNT)) {
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1
+		|| GET_OBJ_VAL(obj, 1) > SPELLS_COUNT)) {
 		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
@@ -126,11 +125,9 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	auto skill_id = ESkill::kIncorrect;
 	int spellnum = SPELL_NO_SPELL;
 	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2)))
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_trained_skill(skill_id))) {
-		skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 		spellname = MUD::Skills()[skill_id].GetName();
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
 		&& can_get_spell_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2))) {

@@ -2835,7 +2835,7 @@ int calc_hr_info(CharacterData *ch) {
 		HitData::CheckWeapFeats(ch, static_cast<ESkill>(weapon->get_skill()), tmphr, max_dam);
 		hr -= tmphr;
 	} else {
-		HitData::CheckWeapFeats(ch, ESkill::kFistfight, hr, max_dam);
+		HitData::CheckWeapFeats(ch, ESkill::kPunch, hr, max_dam);
 	}
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT)) {
 		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);

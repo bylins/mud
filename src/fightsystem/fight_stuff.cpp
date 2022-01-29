@@ -22,6 +22,7 @@
 #include "magic/magic_utils.h"
 #include "entities/zone.h"
 #include "entities/char_player.h"
+#include "structs/global_objects.h"
 
 // extern
 void perform_drop_gold(CharacterData *ch, int amount);
@@ -1391,8 +1392,8 @@ void Damage::post_init_shields(CharacterData *victim) {
 void Damage::post_init(CharacterData *ch, CharacterData *victim) {
 	if (msg_num == -1) {
 		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
-		if (skill_num >= ESkill::kFirst) {
-			msg_num = to_underlying(skill_num) + kTypeHit;
+		if (MUD::Skills().IsValid(skill_id)) {
+			msg_num = to_underlying(skill_id) + kTypeHit;
 		} else if (spell_num >= 0) {
 			msg_num = spell_num;
 		} else if (hit_type >= 0) {
@@ -1429,7 +1430,7 @@ void Damage::zero_init() {
 	fs_damage = 0;
 	magic_type = 0;
 	dmg_type = -1;
-	skill_num = ESkill::kUndefined;
+	skill_id = ESkill::kUndefined;
 	spell_num = -1;
 	hit_type = -1;
 	msg_num = -1;

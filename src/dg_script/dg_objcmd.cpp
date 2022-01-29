@@ -736,7 +736,6 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool isSkill = false;
 	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -746,8 +745,8 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		obj_log(obj, "oskillturn: too few arguments");
 		return;
 	}
-
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst && skillnum <= ESkill::kLast) {
+	auto skill_id = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skill_id)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "oskillturn: %s skill/recipe not found", skillname);
@@ -770,8 +769,8 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isSkill) {
-		if (MUD::Classes()[ch->get_class()].Knows(skillnum) ) {
-			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
+		if (MUD::Classes()[ch->get_class()].Knows(skill_id) ) {
+			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");
 			obj_log(obj, buf);
@@ -785,7 +784,6 @@ void do_oskilladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 	bool isSkill = false;
 	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -795,8 +793,8 @@ void do_oskilladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 		obj_log(obj, "oskilladd: too few arguments");
 		return;
 	}
-
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst && skillnum <= ESkill::kLast) {
+	auto skillnum = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skillnum)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "oskilladd: %s skill/recipe not found", skillname);

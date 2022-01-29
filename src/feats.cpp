@@ -505,7 +505,7 @@ void determineFeaturesSpecification() {
 //138
 	initializeFeature(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, true, feat_app);
 //139
-	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", TECHNIQUE_FTYPE, true, feat_app, 100, ESkill::kFistfight, ESaving::kReflex);
+	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", TECHNIQUE_FTYPE, true, feat_app, 100, ESkill::kPunch, ESaving::kReflex);
 //140
 	initializeFeature(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, true, feat_app);
 //141
@@ -595,18 +595,18 @@ void determineFeaturesSpecification() {
 	feat_info[SHADOW_CLUB_FEAT].usesWeaponSkill = false;
 //149
 	initializeFeature(DOUBLE_THROW_FEAT, "двойной бросок", ACTIVATED_FTYPE, true, feat_app,
-					  100, ESkill::kFistfight, ESaving::kReflex);
+					  100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[DOUBLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //150
 	initializeFeature(TRIPLE_THROW_FEAT, "тройной бросок", ACTIVATED_FTYPE, true, feat_app,
-					  100, ESkill::kFistfight, ESaving::kReflex);
+					  100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[TRIPLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //1151
-	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, true, feat_app, 100, ESkill::kFistfight, ESaving::kReflex);
+	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, true, feat_app, 100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[POWER_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //152
 	initializeFeature(DEADLY_THROW_FEAT, "широкий размах", NORMAL_FTYPE, true, feat_app,
-					  100, ESkill::kFistfight, ESaving::kReflex);
+					  100, ESkill::kPunch, ESaving::kReflex);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //153
 	initializeFeature(TURN_UNDEAD_FEAT, "turn undead", TECHNIQUE_FTYPE, true, feat_app,

@@ -1300,7 +1300,7 @@ bool can_auto_block(CharacterData *ch) {
 // * Проверка на фит "любимое оружие".
 void HitData::CheckWeapFeats(const CharacterData *ch, ESkill weap_skill, int &calc_thaco, int &dam) {
 	switch (weap_skill) {
-		case ESkill::kFistfight:
+		case ESkill::kPunch:
 			if (HAVE_FEAT(ch, PUNCH_FOCUS_FEAT)) {
 				calc_thaco -= 2;
 				dam += 2;
@@ -1964,7 +1964,7 @@ void Damage::armor_dam_reduce(CharacterData *victim) {
  */
 bool Damage::dam_absorb(CharacterData *ch, CharacterData *victim) {
 	if (dmg_type == FightSystem::PHYS_DMG
-		&& skill_num < ESkill::kIncorrect
+		&& skill_id < ESkill::kIncorrect
 		&& spell_num < 0
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0) {
@@ -2293,7 +2293,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	// санка/призма для физ и маг урона
 	if (dam >= 2) {
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA)
-			&& !(skill_num == ESkill::kBackstab && can_use_feat(ch, THIEVES_STRIKE_FEAT))) {
+			&& !(skill_id == ESkill::kBackstab && can_use_feat(ch, THIEVES_STRIKE_FEAT))) {
 			if (dmg_type == FightSystem::PHYS_DMG) {
 				dam *= 2;
 			} else if (dmg_type == FightSystem::MAGE_DMG) {
@@ -2301,7 +2301,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 			}
 		}
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_SANCTUARY)
-			&& !(skill_num == ESkill::kBackstab && can_use_feat(ch, THIEVES_STRIKE_FEAT))) {
+			&& !(skill_id == ESkill::kBackstab && can_use_feat(ch, THIEVES_STRIKE_FEAT))) {
 			if (dmg_type == FightSystem::PHYS_DMG) {
 				dam /= 2;
 			} else if (dmg_type == FightSystem::MAGE_DMG) {
@@ -2388,7 +2388,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 
 	// ЗБ
 	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)) {
-		if (skill_num == ESkill::kBash) {
+		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, msg_num);
 		}
 		act("Магический кокон полностью поглотил удар $N1.", false, victim, 0, ch, TO_CHAR);
@@ -2434,7 +2434,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	}
 
 	// яд скополии
-	if (skill_num != ESkill::kBackstab
+	if (skill_id != ESkill::kBackstab
 		&& AFF_FLAGGED(victim, EAffectFlag::AFF_SCOPOLIA_POISON)) {
 		dam += dam * GET_POISON(victim) / 100;
 	}
@@ -2465,7 +2465,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	dam = std::clamp(dam, 0, kMaxHits);
 	if (dam >= 0) {
 		if (dmg_type == FightSystem::PHYS_DMG) {
-			if (!damage_mtrigger(ch, victim, dam, MUD::Skills()[skill_num].GetName(), 1, wielded))
+			if (!damage_mtrigger(ch, victim, dam, MUD::Skills()[skill_id].GetName(), 1, wielded))
 				return 0;
 		} else if (dmg_type == FightSystem::MAGE_DMG) {
 			if (!damage_mtrigger(ch, victim, dam, spell_name(spell_num), 0, wielded))
@@ -2573,7 +2573,7 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 	}
 
 	// сообщения об ударах //
-	if (skill_num >= ESkill::kFirst || spell_num >= 0 || hit_type < 0) {
+	if (MUD::Skills().IsValid(skill_id) || spell_num >= 0 || hit_type < 0) {
 		// скилл, спелл, необычный дамаг
 		SendSkillMessages(dam, ch, victim, msg_num, brief_shields_);
 	} else {
@@ -2586,7 +2586,6 @@ int Damage::process(CharacterData *ch, CharacterData *victim) {
 			dam_message(ch, victim);
 		}
 	}
-
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE_DMG]);
 
@@ -2915,7 +2914,7 @@ void HitData::init(CharacterData *ch, CharacterData *victim) {
 		weap_skill = static_cast<ESkill>(GET_OBJ_SKILL(wielded));
 	} else {
 		// удар голыми руками
-		weap_skill = ESkill::kFistfight;
+		weap_skill = ESkill::kPunch;
 	}
 	weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
 	TrainSkill(ch, weap_skill, true, victim);
@@ -3627,7 +3626,7 @@ void hit(CharacterData *ch, CharacterData *victim, ESkill type, FightSystem::Att
 		if (ch->purged() || victim->purged()) {
 			return;
 		}
-		auto skillnum = get_magic_skill_number_by_spell(SPELL_CLOUD_OF_ARROWS);
+		auto skillnum = GetMagicSkillId(SPELL_CLOUD_OF_ARROWS);
 		TrainSkill(ch, skillnum, true, victim);
 	}
 

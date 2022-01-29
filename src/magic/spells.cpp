@@ -51,7 +51,7 @@ int pk_increment_revenge(CharacterData *agressor, CharacterData *victim);
 int what_sky = kSkyCloudless;
 // * Special spells appear below.
 
-ESkill get_magic_skill_number_by_spell(int spellnum) {
+ESkill GetMagicSkillId(int spellnum) {
 	switch (spell_info[spellnum].spell_class) {
 		case STYPE_AIR: return ESkill::kAirMagic;
 			break;
@@ -976,7 +976,7 @@ void spell_charm(int/* level*/, CharacterData *ch, CharacterData *victim, Object
 			// начинаем модификации victim
 			// создаем переменные модификаторов
 			int r_cha = GET_REAL_CHA(ch);
-			int perc = ch->get_skill(get_magic_skill_number_by_spell(SPELL_CHARM));
+			int perc = ch->get_skill(GetMagicSkillId(SPELL_CHARM));
 			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
 			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
 			
@@ -1168,7 +1168,7 @@ void spell_charm(int/* level*/, CharacterData *ch, CharacterData *victim, Object
 					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
 				victim->set_skill(ESkill::kHammer, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.8);
-				victim->set_skill(ESkill::kFistfight, k_skills*0.9);
+				victim->set_skill(ESkill::kPunch, k_skills*0.9);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
 				victim->set_skill(ESkill::kIntercept, k_skills*0.75);
 				SET_FEAT(victim, PUNCH_MASTER_FEAT);
@@ -1180,7 +1180,7 @@ void spell_charm(int/* level*/, CharacterData *ch, CharacterData *victim, Object
 						false, ch, nullptr, victim, TO_CHAR);
 				}
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.3));
-				skill_id = ESkill::kFistfight;
+				skill_id = ESkill::kPunch;
 				break;
 			case 2:
 				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.",
@@ -1418,7 +1418,7 @@ void show_weapon(CharacterData *ch, ObjectData *obj) {
 
 void print_book_uprgd_skill(CharacterData *ch, const ObjectData *obj) {
 	const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
-	if (skill_id < ESkill::kFirst || skill_id > ESkill::kLast) {
+	if (MUD::Skills().IsInvalid(skill_id)) {
 		log("SYSERR: invalid skill_id: %d, ch_name=%s, ObjVnum=%d (%s %s %d)",
 			GET_OBJ_VAL(obj, 1), ch->get_name().c_str(), GET_OBJ_VNUM(obj), __FILE__, __func__, __LINE__);
 		return;
@@ -1577,7 +1577,7 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 
 				case BOOK_SKILL: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
-					if (skill_id >= ESkill::kFirst && skill_id < ESkill::kLast) {
+					if (MUD::Skills().IsValid(skill_id)) {
 						drndice = GET_OBJ_VAL(obj, 1);
 						if (MUD::Classes()[ch->get_class()].Knows(skill_id)) {
 							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
@@ -3398,7 +3398,7 @@ int check_recipe_items(CharacterData *ch, int spellnum, int spelltype, int extra
 	ObjectData *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
-	ESkill skillnum = ESkill::kIncorrect;
+	ESkill skill_id = ESkill::kIncorrect;
 	struct spell_create_item *items;
 
 	if (spellnum <= 0
@@ -3409,15 +3409,15 @@ int check_recipe_items(CharacterData *ch, int spellnum, int spelltype, int extra
 		items = &spell_create[spellnum].items;
 	} else if (spelltype == SPELL_POTION) {
 		items = &spell_create[spellnum].potion;
-		skillnum = ESkill::kCreatePotion;
+		skill_id = ESkill::kCreatePotion;
 		create = 1;
 	} else if (spelltype == SPELL_WAND) {
 		items = &spell_create[spellnum].wand;
-		skillnum = ESkill::kCreateWand;
+		skill_id = ESkill::kCreateWand;
 		create = 1;
 	} else if (spelltype == SPELL_SCROLL) {
 		items = &spell_create[spellnum].scroll;
-		skillnum = ESkill::kCreateScroll;
+		skill_id = ESkill::kCreateScroll;
 		create = 1;
 	} else if (spelltype == SPELL_RUNES) {
 		items = &spell_create[spellnum].runes;
@@ -3496,11 +3496,10 @@ int check_recipe_items(CharacterData *ch, int spellnum, int spelltype, int extra
 			if (!obj) {
 				return false;
 			} else {
-				percent = number(1, MUD::Skills()[skillnum].difficulty);
-				auto prob = CalcCurrentSkill(ch, skillnum, nullptr);
+				percent = number(1, MUD::Skills()[skill_id].difficulty);
+				auto prob = CalcCurrentSkill(ch, skill_id, nullptr);
 
-				if (skillnum >= ESkill::kFirst
-					&& percent > prob) {
+				if (MUD::Skills().IsValid(skill_id) && percent > prob) {
 					percent = -1;
 				}
 			}
@@ -3566,8 +3565,8 @@ int check_recipe_items(CharacterData *ch, int spellnum, int spelltype, int extra
 						(targ && targ != ch ? " на " : ""),
 						(targ && targ != ch ? GET_PAD(targ, 1) : ""));
 				act(buf, true, ch, nullptr, nullptr, TO_ARENA_LISTEN);
-				auto magic_skill = get_magic_skill_number_by_spell(spellnum);
-				if (magic_skill >= ESkill::kFirst) {
+				auto magic_skill = GetMagicSkillId(spellnum);
+				if (MUD::Skills().IsValid(magic_skill)) {
 					TrainSkill(ch, magic_skill, true, nullptr);
 				}
 			}

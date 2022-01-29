@@ -35,6 +35,11 @@ enum EExtraAttack {
 	kExtraAttackPick
 };
 
+/*
+ * ID'ы скиллов. Если добавляем id - его обязательно нужно инициализировать в SkillsInfo,
+ * даже если сам скилл отключён, иначе в сислоге будет спам об ошибках (система пытается проверять
+ * скилл с таким id и не находит его).
+ */
 enum class ESkill : int {
 	kReligion = -4,			// Таймер молитвы тикает за счет TimedSkill. Нужно придумать, как от этого избавиться
 	kAny = -3,    			// "Какой угодно" скилл. (Например, удар можно нанести любым видом оружия).  //
@@ -76,7 +81,7 @@ enum class ESkill : int {
 	kHide = 133,
 	kKick = 134,
 	kPickLock = 135,
-	kFistfight = 136,
+	kPunch = 136,		// *** Weapon is bare hands //
 	kRescue = 137,
 	kSneak = 138,
 	kSteal = 139,
@@ -159,7 +164,7 @@ extern std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS;
 
 int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attacktype, std::string add = "");
 
-int CalcCurrentSkill(CharacterData *ch, ESkill skill, CharacterData *vict);
+int CalcCurrentSkill(CharacterData *ch, ESkill skill_id, CharacterData *vict);
 void ImproveSkill(CharacterData *ch, ESkill skill, int success, CharacterData *victim);
 void TrainSkill(CharacterData *ch, ESkill skill, bool success, CharacterData *vict);
 

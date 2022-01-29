@@ -514,7 +514,7 @@ int general_savingthrow(CharacterData *killer, CharacterData *victim, ESaving ty
 bool can_get_spell(CharacterData *ch, int spellnum);
 int min_spell_lvl_with_req(CharacterData *ch, int spellnum, int req_lvl);
 bool can_get_spell_with_req(CharacterData *ch, int spellnum, int req_lvl);
-ESkill get_magic_skill_number_by_spell(int spellnum);
+ESkill GetMagicSkillId(int spellnum);
 int check_recipe_values(CharacterData *ch, int spellnum, int spelltype, int showrecipe);
 int check_recipe_items(CharacterData *ch, int spellnum, int spelltype, int extract, const CharacterData *targ = nullptr);
 

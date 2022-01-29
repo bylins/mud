@@ -432,7 +432,7 @@ void sedit::show_activ_edit(CharacterData *ch) {
 		out += buf_;
 	}
 
-	if (activ.skill.first >= ESkill::kFirst && activ.skill.first <= ESkill::kLast) {
+	if (MUD::Skills().IsValid(activ.skill.first)) {
 		snprintf(buf_, sizeof(buf_),
 				 "%s%2d%s) Изменяемое умение : %s%+d to %s%s\r\n",
 				 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
@@ -1194,13 +1194,12 @@ void sedit::show_activ_skill(CharacterData *ch) {
 	char buf_[128];
 
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
-		auto skillname = MUD::Skills()[i].GetName();
-		if (!skillname || *skillname == '!') {
+		if (MUD::Skills().IsInvalid(i)) {
 			continue;
 		}
 		snprintf(buf_, sizeof(buf_), "%s%3d%s) %25s     %s",
 				 CCGRN(ch, C_NRM), to_underlying(i), CCNRM(ch, C_NRM),
-				 skillname, !(++col % 2) ? "\r\n" : "");
+				 MUD::Skills()[i].GetName(), !(++col % 2) ? "\r\n" : "");
 		out += buf_;
 	}
 	send_to_char(out, ch);
@@ -1282,9 +1281,7 @@ void sedit::parse_activ_skill(CharacterData *ch, const char *arg) {
 		return;
 	}
 	auto skill_id = static_cast<ESkill>(ssnum);
-	if (skill_id < ESkill::kFirst || skill_id > ESkill::kLast
-		|| !MUD::Skills()[skill_id].GetName()
-		|| *MUD::Skills()[skill_id].GetName() == '!') {
+	if (MUD::Skills().IsInvalid(skill_id)) {
 		send_to_char("Неизвестное умение.\r\n", ch);
 		show_activ_skill(ch);
 	} else if (ssval == 0) {

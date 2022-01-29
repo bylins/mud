@@ -1030,7 +1030,6 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	bool isSkill = false;
 	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -1044,8 +1043,8 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		mob_log(ch, "mskillturn: too few arguments");
 		return;
 	}
-
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst  && skillnum <= ESkill::kLast) {
+	auto skill_id = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skill_id)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskillturn: %s skill/recipe not found", skillname);
@@ -1075,8 +1074,8 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	}
 
 	if (isSkill) {
-		if (MUD::Classes()[ch->get_class()].Knows(skillnum)) {
-			trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
+		if (MUD::Classes()[ch->get_class()].Knows(skill_id)) {
+			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
 			mob_log(ch, buf);
@@ -1090,7 +1089,6 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	bool isSkill = false;
 	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -1104,8 +1102,8 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		mob_log(ch, "mskilladd: too few arguments");
 		return;
 	}
-
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst  && skillnum <= ESkill::kLast) {
+	auto skill_id = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skill_id)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskilladd: %s skill/recipe not found", skillname);
@@ -1128,7 +1126,7 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	};
 
 	if (isSkill) {
-		trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
+		trg_skilladd(victim, skill_id, skilldiff, last_trig_vnum);
 	} else {
 		trg_recipeadd(victim, recipenum, skilldiff);
 	}

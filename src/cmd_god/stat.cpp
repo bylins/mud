@@ -748,7 +748,7 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 					break;
 				case BOOK_SKILL: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
-					if (skill_id >= ESkill::kFirst && skill_id <= ESkill::kLast) {
+					if (MUD::Skills().IsValid(skill_id)) {
 						sprintf(buf, "содержит секрет умения     : \"%s\"", MUD::Skills()[skill_id].GetName());
 					} else
 						sprintf(buf, "неверный номер умения");
@@ -756,17 +756,17 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 				}
 				case BOOK_UPGRD: {
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(j, 1));
-					if (skill_id >= ESkill::kFirst && skill_id <= ESkill::kLast) {
+					if (MUD::Skills().IsValid(skill_id)) {
 						if (GET_OBJ_VAL(j, 3) > 0) {
 							sprintf(buf, "повышает умение \"%s\" (максимум %d)",
-									MUD::Skills()[skill_id].GetName(),
-									GET_OBJ_VAL(j, 3));
+									MUD::Skills()[skill_id].GetName(), GET_OBJ_VAL(j, 3));
 						} else {
 							sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)",
 									MUD::Skills()[skill_id].GetName());
 						}
-					} else
+					} else {
 						sprintf(buf, "неверный номер повышаемоего умения");
+					}
 				}
 					break;
 				case BOOK_FEAT:

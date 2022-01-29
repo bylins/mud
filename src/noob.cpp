@@ -180,7 +180,7 @@ void equip_start_outfit(CharacterData *ch, ObjectData *obj) {
 			equip_char(ch, obj, where, CharEquipFlags());
 			// богатырям в перчатках сетим кулачный бой вместо пушек
 			if (where == WEAR_HANDS && GET_CLASS(ch) == CLASS_WARRIOR) {
-				ch->set_skill(ESkill::kFistfight, 10);
+				ch->set_skill(ESkill::kPunch, 10);
 			}
 		}
 	} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {

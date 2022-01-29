@@ -555,7 +555,7 @@ void oedit_disp_skills2_menu(DescriptorData *d) {
 	send_to_char("[H[J", d->character);
 #endif
 	for (auto skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (!MUD::Skills()[skill_id].GetName() || *MUD::Skills()[skill_id].GetName() == '!') {
+		if (MUD::Skills().IsInvalid(skill_id)) {
 			continue;
 		}
 
@@ -612,7 +612,7 @@ void oedit_disp_skills_mod_menu(DescriptorData *d) {
 #endif
 	int percent;
 	for (auto skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (!MUD::Skills()[skill_id].GetName() || *MUD::Skills()[skill_id].GetName() == '!') {
+		if (MUD::Skills().IsInvalid(skill_id)) {
 			continue;
 		}
 
@@ -2046,10 +2046,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			break;
 
 		case OEDIT_SKILLS:
-			skill_id = static_cast<ESkill>(atoi(arg));
-			if (skill_id < ESkill::kFirst || skill_id > ESkill::kLast
-				|| !MUD::Skills()[skill_id].GetName()
-				|| *MUD::Skills()[skill_id].GetName() == '!') {
+			number = atoi(arg);
+			if (number == 0) {
+				break;
+			}
+			skill_id = static_cast<ESkill>(number);
+			if (MUD::Skills().IsInvalid(skill_id)) {
 				send_to_char("Неизвестное умение.\r\n", d->character.get());
 			} else if (OLC_OBJ(d)->get_skill(skill_id) != 0) {
 				OLC_OBJ(d)->set_skill(skill_id, 0);

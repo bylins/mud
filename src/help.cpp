@@ -45,7 +45,7 @@ void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skil
 }
 
 void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t::value_type &add) {
-	if (add.first >= ESkill::kFirst && add.second != 0) {
+	if (MUD::Skills().IsValid(add.first) && add.second != 0) {
 		auto i = target.find(add.first);
 		if (i != target.end()) {
 			i->second += add.second;

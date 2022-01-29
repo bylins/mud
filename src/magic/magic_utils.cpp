@@ -175,7 +175,7 @@ void FixName(T &name) {
 	}
 }
 
-ESkill FindSkillNum(const char *name) {
+ESkill FindSkillId(const char *name) {
 	int ok;
 	char const *temp, *temp2;
 	char first[256], first2[256];
@@ -244,12 +244,12 @@ int FindSpellNum(const char *name) {
 
 ESkill FixNameAndFindSkillNum(char *name) {
 	FixName(name);
-	return FindSkillNum(name);
+	return FindSkillId(name);
 }
 
 ESkill FixNameFndFindSkillNum(std::string &name) {
 	FixName(name);
-	return FindSkillNum(name.c_str());
+	return FindSkillId(name.c_str());
 }
 
 int FixNameAndFindSpellNum(char *name) {
@@ -627,7 +627,7 @@ int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData 
 		}
 	}
 
-	ESkill skillnum = get_magic_skill_number_by_spell(spellnum);
+	ESkill skillnum = GetMagicSkillId(spellnum);
 	if (skillnum != ESkill::kIncorrect && skillnum != ESkill::kUndefined) {
 		TrainSkill(ch, skillnum, true, tch);
 	}
@@ -696,7 +696,7 @@ int CalcCastSuccess(CharacterData *ch, CharacterData *victim, ESaving saving, in
 		prob += GET_REAL_LEVEL(ch) - 20;
 	}
 
-	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
+	const ESkill skill_number = GetMagicSkillId(spellnum);
 	if (skill_number != ESkill::kIncorrect) {
 		prob += ch->get_skill(skill_number) / 20;
 	}

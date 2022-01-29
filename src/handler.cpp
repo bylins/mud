@@ -325,7 +325,8 @@ void room_affect_process_on_entry(CharacterData *ch, RoomRnum room) {
 			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего (Кудояр)
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
-			float mkof = func_koef_modif(SPELL_HYPNOTIC_PATTERN, caster->get_skill(get_magic_skill_number_by_spell(SPELL_HYPNOTIC_PATTERN)));
+			float mkof = func_koef_modif(SPELL_HYPNOTIC_PATTERN, caster->get_skill(GetMagicSkillId(
+				SPELL_HYPNOTIC_PATTERN)));
 			if (!IS_NPC(ch) && (number (1, 100) > (23 + 2*mkof))) { 
 				return;
 			}
@@ -2860,7 +2861,7 @@ int mag_manacost(const CharacterData *ch, int spellnum) {
 		}
 	}
 	if (result > 0)
-		return result * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100;
+		return result * koef_skill_magic(ch->get_skill(GetMagicSkillId(spellnum))) / 100;
 				// при скилле 200 + 25%, чем меньше тем лучше
 	else 
 		return 99999;

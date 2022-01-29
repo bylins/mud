@@ -7,13 +7,10 @@
 
 #include "objects_filter.h"
 
-#include "constants.h"
-#include "db.h"
 #include "exchange.h"
 #include "house.h"
-#include "logger.h"
 #include "obj_prototypes.h"
-#include "utils.h"
+#include "structs/global_objects.h"
 
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbrev(str, "свет")
@@ -466,7 +463,7 @@ bool ParseFilter::check_wear(ObjectData *obj) const {
 }
 
 bool ParseFilter::check_weap_class(ObjectData *obj) const {
-	if (weap_class < ESkill::kFirst || weap_class == static_cast<ESkill>(GET_OBJ_SKILL(obj))) {
+	if (MUD::Skills().IsInvalid(weap_class) || weap_class == static_cast<ESkill>(GET_OBJ_SKILL(obj))) {
 		return true;
 	}
 	return false;
@@ -684,7 +681,7 @@ std::string ParseFilter::print() const {
 		buffer += wear_bits[wear_message];
 		buffer += " ";
 	}
-	if (weap_class >= ESkill::kFirst) {
+	if (MUD::Skills().IsValid(weap_class)) {
 		buffer += weapon_class[weap_message];
 		buffer += " ";
 	}

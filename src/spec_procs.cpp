@@ -23,20 +23,18 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "house.h"
-#include "logger.h"
+//#include "logger.h"
 #include "magic/magic.h"
 #include "color.h"
 #include "magic/magic_utils.h"
 #include "magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
-#include <cmath>
-
 //   external vars
-extern DescriptorData *descriptor_list;
+/*extern DescriptorData *descriptor_list;
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
-extern struct spell_create_type spell_create[];
+extern struct spell_create_type spell_create[];*/
 extern int guild_info[][3];
 
 typedef int special_f(CharacterData *, void *, int, char *);
@@ -620,7 +618,7 @@ void init_guilds(void) {
 	char name[kMaxInputLength],
 		line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
 	int i, spellnum, featnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
-	ESkill skillnum = ESkill::kIncorrect;
+	ESkill skill_id = ESkill::kIncorrect;
 	std::unique_ptr<struct guild_poly_type, decltype(free) *> poly_guild(nullptr, free);
 	struct guild_mono_type mono_guild;
 	std::unique_ptr<struct guild_learn_type, decltype(free) *> mono_guild_learn(nullptr, free);
@@ -731,9 +729,10 @@ void init_guilds(void) {
 				spellnum = FixNameAndFindSpellNum(line);
 			}
 
-			skillnum = static_cast<ESkill>(atoi(line1));
-			if (skillnum < ESkill::kFirst || skillnum > ESkill::kLast) {
-				skillnum = FixNameAndFindSkillNum(line1);
+			skill_id = static_cast<ESkill>(atoi(line1));
+			if (MUD::Skills().IsInvalid(skill_id)) {
+				// По номеру не нашли, пробуем по имени
+				skill_id = FixNameAndFindSkillNum(line1);
 			}
 
 			if ((featnum = atoi(line1)) == 0 || featnum >= kMaxFeats) {
@@ -742,7 +741,7 @@ void init_guilds(void) {
 				featnum = find_feat_num(line1);
 			}
 
-			if (skillnum < ESkill::kFirst && spellnum <= 0 && featnum <= 0) {
+			if (MUD::Skills().IsInvalid(skill_id) && spellnum <= 0 && featnum <= 0) {
 				log("Unknown skill, spell or feat for monoguild");
 				graceful_exit(1);
 			}
@@ -762,10 +761,10 @@ void init_guilds(void) {
 
 			ptr += mgcount;
 			ptr->spell_no = MAX(0, spellnum);
-			ptr->skill_no = skillnum;
+			ptr->skill_no = skill_id;
 			ptr->feat_no = MAX(0, featnum);
 			ptr->level = level;
-			// log("->%d %d %d<-",spellnum,skillnum,level);
+			// log("->%d %d %d<-",spellnum,skill_id,level);
 			mgcount++;
 		} else if (type == 2) {
 			if (lines < 7) {
@@ -797,13 +796,14 @@ void init_guilds(void) {
 			for (i = 0; *(line3 + i); i++)
 				if (strchr("!1xX", *(line3 + i)))
 					SET_BIT(ptr->alignment, (1 << i));
+
 			if ((spellnum = atoi(line4)) == 0 || spellnum > SPELLS_COUNT) {
 				spellnum = FixNameAndFindSpellNum(line4);
 			}
 
-			skillnum = static_cast<ESkill>(atoi(line1));
-			if (skillnum < ESkill::kFirst || skillnum > ESkill::kLast) {
-				skillnum = FixNameAndFindSkillNum(line5);
+			skill_id = static_cast<ESkill>(atoi(line5));
+			if (MUD::Skills().IsInvalid(skill_id)) {
+				skill_id = FixNameAndFindSkillNum(line5);
 			}
 
 			if ((featnum = atoi(line5)) == 0 || featnum >= kMaxFeats) {
@@ -814,7 +814,7 @@ void init_guilds(void) {
 				sprintf(buf, "feature number 2: %d", featnum);
 				featnum = find_feat_num(line5);
 			}
-			if (skillnum < ESkill::kFirst && spellnum <= 0 && featnum <= 0) {
+			if (MUD::Skills().IsInvalid(skill_id) && spellnum <= 0 && featnum <= 0) {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
 				graceful_exit(1);
 			}
@@ -822,11 +822,11 @@ void init_guilds(void) {
 				log("Use 1-%d level for guilds", kLevelImmortal);
 				graceful_exit(1);
 			}
-			ptr->spell_no = MAX(0, spellnum);
-			ptr->skill_no = skillnum;
-			ptr->feat_no = MAX(0, featnum);
+			ptr->spell_no = std::max(0, spellnum);
+			ptr->skill_no = skill_id;
+			ptr->feat_no = std::max(0, featnum);
 			ptr->level = level;
-			// log("->%d %d %d<-",spellnum,skillnum,level);
+			// log("->%d %d %d<-",spellnum,skill_id,level);
 			pgcount++;
 		}
 	}

@@ -478,7 +478,7 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
-	case ESkill::kFistfight: // кулачка
+	case ESkill::kPunch: // кулачка
 		obj->set_type(ObjectData::ITEM_ARMOR);
 		obj->set_affected(0, APPLY_DAMROLL, floorf(diff/10.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);

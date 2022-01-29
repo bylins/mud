@@ -6,16 +6,17 @@ struct AttackMessages fight_messages[kMaxMessages];
 
 const SkillInfo &SkillsInfo::operator[](const ESkill id) const {
 	try {
-		return *items_->at(id);
+		return items_->at(id)->second;
 	} catch (const std::out_of_range &) {
 		err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name());
-		return *items_->at(ESkill::kUndefined);
+		return items_->at(ESkill::kUndefined)->second;
 	}
 }
 
 void SkillsInfo::InitSkill(ESkill id, const std::string &name, const std::string &short_name,
-						   ESaving saving, int difficulty, int cap) {
-	auto it = items_->try_emplace(id, std::make_unique<SkillInfo>(name, short_name, saving, difficulty, cap));
+						   ESaving saving, int difficulty, int cap, bool enabled) {
+	auto item = std::make_pair(enabled, SkillInfo(name, short_name, saving, difficulty, cap));
+	auto it = items_->try_emplace(id, std::make_unique<ItemPair>(item));
 	if (!it.second) {
 		err_log("Skill '%s' has already exist. Redundant definition had been ignored.",
 				NAME_BY_ITEM<ESkill>(id).c_str());
@@ -27,35 +28,37 @@ bool SkillsInfo::IsKnown(const ESkill id) {
 }
 
 bool SkillsInfo::IsValid(const ESkill id) {
-	return (IsKnown(id) && id >= ESkill::kFirst && id <= ESkill::kLast);
+	bool validity = IsKnown(id) && id >= ESkill::kFirst && id <= ESkill::kLast;
+	if (validity) {
+		validity &= IsEnabled(id);
+	}
+	return validity;
+}
+
+bool SkillsInfo::IsEnabled(const ESkill id) {
+	return items_->at(id)->first;
 }
 
 bool SkillsInfo::IsInitizalized() {
 	return (items_->size() > 1);
 }
 
-void SkillsInfo::DefaultInit() {
-	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
-		items_->try_emplace(i, std::make_unique<SkillInfo>());
-	}
-}
-
 void SkillsInfo::Init() {
 	if (IsInitizalized()) {
-		err_log("This MUD already has an initialized %s. Use 'reload' for re-initialize.", typeid(this).name());
+		err_log("This MUD already has an initialized %s. Use 'reload' for re-init.", typeid(this).name());
 		return;
 	}
 
-	InitSkill(ESkill::kReligion, "!молитва или жертва!", "Error", ESaving::kFirst, 1, 1);
-	InitSkill(ESkill::kAny, "!any", "Any", ESaving::kFirst, 1, 1);
-	InitSkill(ESkill::kIncorrect, "!INCORRECT!", "!Icr", ESaving::kFirst, 1, 1);
-	InitSkill(ESkill::kGlobalCooldown, "!cooldown", "ОЗ", ESaving::kFirst, 1, 1);
+	InitSkill(ESkill::kReligion, "!молитва или жертва!", "Error", ESaving::kFirst, 1, 1, false);
+	InitSkill(ESkill::kAny, "!any", "Any", ESaving::kFirst, 1, 1, false);
+	InitSkill(ESkill::kIncorrect, "!INCORRECT!", "!Icr", ESaving::kFirst, 1, 1, false);
+	InitSkill(ESkill::kGlobalCooldown, "!cooldown", "ОЗ", ESaving::kFirst, 1, 1, false);
 	InitSkill(ESkill::kBackstab, "заколоть", "Зк", ESaving::kReflex, 25, 1000);
 	InitSkill(ESkill::kBash, "сбить", "Сб", ESaving::kReflex, 200, 200);
 	InitSkill(ESkill::kHide, "спрятаться", "Сп", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kKick, "пнуть", "Пн", ESaving::kStability, 0, 200);
 	InitSkill(ESkill::kPickLock, "взломать", "Вз", ESaving::kReflex, 120, 200);
-	InitSkill(ESkill::kFistfight, "кулачный бой", "Кб", ESaving::kReflex, 100, 1000);
+	InitSkill(ESkill::kPunch, "кулачный бой", "Кб", ESaving::kReflex, 100, 1000);
 	InitSkill(ESkill::kRescue, "спасти", "Спс", ESaving::kReflex, 130, 1000);
 	InitSkill(ESkill::kSneak, "подкрасться", "Пд", ESaving::kReflex, 100, 200);
 	InitSkill(ESkill::kSteal, "украсть", "Ук", ESaving::kReflex, 100, 200);
@@ -129,12 +132,13 @@ void SkillsInfo::Init() {
 	InitSkill(ESkill::kLifeMagic, "магия жизни", "Мж", ESaving::kReflex, 1000, 1000);
 	InitSkill(ESkill::kStun, "ошеломить", "Ош", ESaving::kReflex, 200, 200);
 	InitSkill(ESkill::kMakeAmulet, "смастерить оберег", "Со", ESaving::kReflex, 200, 200);
+	InitSkill(ESkill::kCreateBow, "!отключено", "!error", ESaving::kFirst, 1, 1, false);
+	InitSkill(ESkill::kCreatePotion, "!отключено", "!error", ESaving::kFirst, 1, 1, false);
+	InitSkill(ESkill::kCreateScroll, "!отключено", "!error", ESaving::kFirst, 1, 1, false);
+	InitSkill(ESkill::kCreateWand, "!отключено", "!error", ESaving::kFirst, 1, 1, false);
+	InitSkill(ESkill::kMakeStaff, "!отключено", "!error", ESaving::kFirst, 1, 1, false);
+	InitSkill(ESkill::kMakePotion, "!отключено", "!error", ESaving::kFirst, 1, 1, false);
 
-/*
- *  Инициализация "по умолчанию" пропущенных и не используемых элементов enum.
- *  Должна быть в конце. чтобы можно было сообщать о попытках повторной инициализации одного элемента.
- */
-	DefaultInit();
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

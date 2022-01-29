@@ -400,7 +400,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kHide] = "kHide";
 	ESkill_name_by_value[ESkill::kKick] = "kKick";
 	ESkill_name_by_value[ESkill::kPickLock] = "kPickLock";
-	ESkill_name_by_value[ESkill::kFistfight] = "kFistfight";
+	ESkill_name_by_value[ESkill::kPunch] = "kPunch";
 	ESkill_name_by_value[ESkill::kRescue] = "kRescue";
 	ESkill_name_by_value[ESkill::kSneak] = "kSneak";
 	ESkill_name_by_value[ESkill::kSteal] = "kSteal";
@@ -510,7 +510,7 @@ std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS =
 		ESkill::kHide,
 		ESkill::kKick,
 		ESkill::kPickLock,
-		ESkill::kFistfight,
+		ESkill::kPunch,
 		ESkill::kRescue,
 		ESkill::kSneak,
 		ESkill::kSteal,
@@ -1287,12 +1287,12 @@ void SendSkillBalanceMsg(CharacterData *ch, const std::string &skill_name, int p
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
-int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict) {
-	if (skill < ESkill::kFirst || skill > ESkill::kLast) {
+int CalcCurrentSkill(CharacterData *ch, const ESkill skill_id, CharacterData *vict) {
+	if (MUD::Skills().IsInvalid(skill_id)) {
 		return 0;
 	}
 
-	int base_percent = ch->get_skill(skill);
+	int base_percent = ch->get_skill(skill_id);
 	int total_percent = 0;
 	int victim_sav = 0; // савис жертвы,
 	int victim_modi = 0; // другие модификаторы, влияющие на прохождение
@@ -1307,8 +1307,8 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 	if (!IS_NPC(ch) && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == APPLY_PLAQUE) {
-				base_percent -= number(ch->get_skill(skill) * 0.4,
-									   ch->get_skill(skill) * 0.05);
+				base_percent -= number(ch->get_skill(skill_id) * 0.4,
+									   ch->get_skill(skill_id) * 0.05);
 			}
 		}
 	}
@@ -1320,7 +1320,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
 	}
 
-	switch (skill) {
+	switch (skill_id) {
 
 		case ESkill::kHideTrack: {
 			bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
@@ -1417,7 +1417,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			break;
 		}
 
-		case ESkill::kFistfight: {
+		case ESkill::kPunch: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			break;
 		}
@@ -1817,20 +1817,20 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill, CharacterData *vict)
 			case ELuckTestResult::kLuckTestFail: base_percent = 0;
 				bonus = 0;
 				break;
-			case ELuckTestResult::kLuckTestCriticalSuccess: base_percent = CalcSkillHardCap(ch, skill);
+			case ELuckTestResult::kLuckTestCriticalSuccess: base_percent = CalcSkillHardCap(ch, skill_id);
 				break;
 		}
 	}
 
 	auto percent = base_percent + bonus + victim_sav + victim_modi/2;
-	total_percent = std::clamp(percent, 0, MUD::Skills()[skill].cap);
+	total_percent = std::clamp(percent, 0, MUD::Skills()[skill_id].cap);
 
-	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill == ESkill::kBash)) {
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill_id == ESkill::kBash)) {
 		total_percent /= 2;
 	}
 
 	if (IS_IMMORTAL(ch) || (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))) {
-		total_percent = MUD::Skills()[skill].cap;
+		total_percent = MUD::Skills()[skill_id].cap;
 	} else if (GET_GOD_FLAG(ch, GF_GODSCURSE)) {
 		total_percent = 0;
 	}
@@ -1952,7 +1952,7 @@ int CalculateSkillAwakeModifier(CharacterData *killer, CharacterData *victim) {
 
 int FindWeaponMasterFeat(ESkill skill) {
 	switch (skill) {
-		case ESkill::kFistfight: return PUNCH_MASTER_FEAT;
+		case ESkill::kPunch: return PUNCH_MASTER_FEAT;
 			break;
 		case ESkill::kClubs: return CLUBS_MASTER_FEAT;
 			break;

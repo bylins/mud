@@ -667,7 +667,8 @@ void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst && skillnum <= ESkill::kLast) {
+	skillnum = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skillnum)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "wskillturn: %s skill/recipe not found", skillname);

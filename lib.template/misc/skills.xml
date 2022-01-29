@@ -193,7 +193,7 @@
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="120" />
     </skill>
-	<skill id="kFistfight">
+	<skill id="kPunch">
         <number val="136" />
         <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫" />
         <max_percent val="100" />

@@ -379,7 +379,7 @@ class CharacterData : public ProtectedCharacterData {
 	friend void do_mtransform(CharacterData *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CharacterData *dst, CharacterData *src);
 
-	void set_skill(const ESkill skill_num, int percent);
+	void set_skill(const ESkill skill_id, int percent);
 	void set_skill(short remort);
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;

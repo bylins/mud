@@ -12,7 +12,7 @@
 using namespace FightSystem;
 
 ESkill ExpedientWeaponSkill(CharacterData *ch) {
-	ESkill skill = ESkill::kFistfight;
+	ESkill skill = ESkill::kPunch;
 
 	if (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == CObjectPrototype::ITEM_WEAPON)) {
 		skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
@@ -26,7 +26,7 @@ ESkill ExpedientWeaponSkill(CharacterData *ch) {
 }
 int GetExpedientKeyParameter(CharacterData *ch, ESkill skill) {
 	switch (skill) {
-		case ESkill::kFistfight:
+		case ESkill::kPunch:
 		case ESkill::kClubs:
 		case ESkill::kAxes:
 		case ESkill::kTwohands:
@@ -140,7 +140,7 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 	if (!CheckExpedientSuccess(ch, vict)) {
 		act("Ваши свистящие удары пропали втуне, не задев $N3.", false, ch, 0, vict, TO_CHAR);
 		Damage dmg(SkillDmg(ESkill::kShortBlades), ZERO_DMG, PHYS_DMG, nullptr); //подумать как вычислить скилл оружия
-		dmg.skill_num = ESkill::kUndefined;
+		dmg.skill_id = ESkill::kUndefined;
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
 		return;

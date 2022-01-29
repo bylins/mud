@@ -1,6 +1,8 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <boost/lexical_cast.hpp>
+
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
@@ -10,8 +12,7 @@
 #include "modify.h"
 #include "help.h"
 #include "game_mechanics/sets_drop.h"
-
-#include <boost/lexical_cast.hpp>
+#include "structs/global_objects.h"
 
 namespace obj_sets {
 
@@ -207,9 +208,8 @@ void verify_set(set_node &set) {
 				set.enabled = false;
 			}
 		}
-		// можно просетить скилл в минус
-		if (i->second.skill.first > ESkill::kLast
-			|| i->second.skill.first < ESkill::kFirst
+
+		if (MUD::Skills().IsInvalid(i->second.skill.first)
 			|| i->second.skill.second > 200
 			|| i->second.skill.second < -200) {
 			err_log(
@@ -516,7 +516,7 @@ void save() {
 				}
 			}
 			// set/activ/skill
-			if (k->second.skill.first >= ESkill::kFirst) {
+			if (MUD::Skills().IsValid(k->second.skill.first)) {
 				pugi::xml_node xml_skill = xml_activ.append_child("skill");
 				xml_skill.append_attribute("num") = to_underlying(k->second.skill.first);
 				xml_skill.append_attribute("val") = k->second.skill.second;

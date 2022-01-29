@@ -8,7 +8,7 @@ class CharacterData;
 class RoomData;
 class ObjectData;
 
-ESkill FindSkillNum(const char *name);
+ESkill FindSkillId(const char *name);
 ESkill FixNameAndFindSkillNum(char *name);
 ESkill FixNameFndFindSkillNum(std::string &name);
 int FindSpellNum(const char *name);

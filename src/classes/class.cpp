@@ -49,6 +49,7 @@
 #include "conf.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
+#include "structs/global_objects.h"
 
 #include <iostream>
 
@@ -1646,7 +1647,7 @@ void LoadClassSkills() {
 		for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill")) {
 			std::string name = std::string(xNodeSkill.attribute("name").value());
 			auto sk_num = FixNameFndFindSkillNum(name);
-			if (sk_num < ESkill::kFirst) {
+			if (MUD::Skills().IsInvalid(sk_num)) {
 				log("Skill '%s' not found...", name.c_str());
 				graceful_exit(1);
 			}

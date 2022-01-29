@@ -580,12 +580,12 @@ int CharacterData::get_trained_skill(const ESkill skill_num) const {
 }
 
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
-void CharacterData::set_skill(const ESkill skill_num, int percent) {
-	if (skill_num < ESkill::kFirst || skill_num > ESkill::kLast) {
-		log("SYSERROR: неизвесный номер скилла %d в set_skill.", to_underlying(skill_num));
+void CharacterData::set_skill(const ESkill skill_id, int percent) {
+	if (MUD::Skills().IsInvalid(skill_id)) {
+		log("SYSERROR: некорректный номер скилла %d в set_skill.", to_underlying(skill_id));
 		return;
 	}
-	auto it = skills.find(skill_num);
+	auto it = skills.find(skill_id);
 	if (it != skills.end()) {
 		if (percent) {
 			it->second.skillLevel = percent;
@@ -593,7 +593,7 @@ void CharacterData::set_skill(const ESkill skill_num, int percent) {
 			skills.erase(it);
 		}
 	} else if (percent) {
-		skills[skill_num].skillLevel = percent;
+		skills[skill_id].skillLevel = percent;
 	}
 }
 
