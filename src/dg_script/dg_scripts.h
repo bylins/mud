@@ -425,7 +425,7 @@ void do_dg_cast(void *go, Script *sc, Trigger *trig, int type, char *cmd);
 void do_dg_affect(void *go, Script *sc, Trigger *trig, int type, char *cmd);
 
 void add_var_cntx(struct TriggerVar **var_list, const char *name, const char *value, long id);
-struct TriggerVar *find_var_cntx(struct TriggerVar **var_list, char *name, long id);
+struct TriggerVar *find_var_cntx(struct TriggerVar **var_list, const char *name, long id);
 int remove_var_cntx(struct TriggerVar **var_list, char *name, long id);
 
 // Macros for scripts //
