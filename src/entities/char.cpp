@@ -64,7 +64,7 @@ ProtectedCharacterData &ProtectedCharacterData::operator=(const ProtectedCharact
 }
 
 CharacterData::CharacterData() :
-	chclass_(CLASS_UNDEFINED),
+	chclass_(ECharClass::kUndefined),
 	role_(MOB_ROLE_TOTAL_NUM),
 	in_room(Rooms::UNDEFINED_ROOM_VNUM),
 	m_wait(~0u),
@@ -305,7 +305,7 @@ void CharacterData::zero_init() {
 	serial_num_ = 0;
 	purged_ = false;
 	// на плеер-таблицу
-	chclass_ = ECharClass::CLASS_UNDEFINED;
+	chclass_ = ECharClass::kUndefined;
 	level_ = 0;
 	level_add_ = 0,
 	idnum_ = 0;
@@ -531,7 +531,7 @@ int CharacterData::get_skill(const ESkill skill_num) const {
 // всем остальным -- не более 5% с шмотки
 int CharacterData::get_equipped_skill(const ESkill skill_num) const {
 	int skill = 0;
-	bool is_native = IS_NPC(this) || MUD::Classes()[chclass_].Knows(skill_num);
+	bool is_native = IS_NPC(this) || MUD::Classes()[chclass_].IsKnown(skill_num);
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
@@ -568,7 +568,7 @@ int CharacterData::get_inborn_skill(const ESkill skill_num) {
 
 int CharacterData::get_trained_skill(const ESkill skill_num) const {
 	if (AFF_FLAGGED(this, EAffectFlag::AFF_DOMINATION)) {
-		if (MUD::Classes()[chclass_].Knows(skill_num)) {
+		if (MUD::Classes()[chclass_].IsKnown(skill_num)) {
 			return 100;
 		}
 	}
@@ -976,8 +976,8 @@ ECharClass CharacterData::get_class() const {
 void CharacterData::set_class(ECharClass chclass) {
 	// Range includes player classes and NPC classes (and does not consider gaps between them).
 	// Почему классы не пронумеровать подряд - загадка...
-	if ((chclass < ECharClass::PLAYER_CLASS_FIRST || chclass > ECharClass::PLAYER_CLASS_LAST)
-		&& chclass != ECharClass::NPC_CLASS_BASE && chclass != ECharClass::CLASS_MOB) {
+	if ((chclass < ECharClass::kFirst || chclass > ECharClass::kLast)
+		&& chclass != ECharClass::kNPCBase && chclass != ECharClass::kMob) {
 		log("WARNING: chclass=%d (%s:%d %s)", chclass, __FILE__, __LINE__, __func__);
 	}
 	chclass_ = chclass;

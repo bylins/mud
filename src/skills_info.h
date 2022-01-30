@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "entities/entity_constants.h"
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 
 /*template<class T>
 bool IsInRange(const T &t) {

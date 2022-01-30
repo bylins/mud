@@ -59,13 +59,13 @@
 #include "ext_money.h"
 #include "mob_stat.h"
 #include "utils/utils_char_obj.inl"
-#include "classes/class.h"
+#include "classes/classes.h"
 #include "entities/zone.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "game_mechanics/bonus.h"
 #include "conf.h"
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 #include "skills_info.h"
 #include "skills/pick.h"
 #include "magic/magic_rooms.h"
@@ -388,7 +388,7 @@ char *diag_uses_to_char(ObjectData *obj, CharacterData *ch) {
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT
 		&& IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
-		&& GET_CLASS(ch) == CLASS_DRUID) {
+		&& GET_CLASS(ch) == kMagus) {
 		int i = -1;
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
@@ -405,7 +405,7 @@ char *diag_shot_to_char(ObjectData *obj, CharacterData *ch) {
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_MAGIC_CONTAINER
-		&& (GET_CLASS(ch) == CLASS_RANGER || GET_CLASS(ch) == CLASS_CHARMMAGE || GET_CLASS(ch) == CLASS_DRUID)) {
+		&& (GET_CLASS(ch) == kRanger || GET_CLASS(ch) == kCharmer || GET_CLASS(ch) == kMagus)) {
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
@@ -1014,7 +1014,7 @@ void ListOneChar(CharacterData *i, CharacterData *ch, ESkill mode) {
 		return;
 	}
 
-	bitvector_t mode_flags{0};
+	Bitvector mode_flags{0};
 	if (!CAN_SEE(ch, i)) {
 		mode_flags =
 			check_awake(i, ACHECK_AFFECTS | ACHECK_LIGHT | ACHECK_HUMMING | ACHECK_GLOWING | ACHECK_WEIGHT);
@@ -1713,7 +1713,7 @@ void show_glow_objs(CharacterData *ch) {
 }
 
 void show_room_affects(CharacterData *ch, const char *name_affects[], const char *name_self_affects[]) {
-	bitvector_t bitvector = 0;
+	Bitvector bitvector = 0;
 	std::ostringstream buffer;
 
 	for (const auto &af : world[ch->in_room]->affected) {
@@ -4432,11 +4432,11 @@ std::string print_server_uptime() {
 }
 
 void do_statistic(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	int proff[NUM_PLAYER_CLASSES][2];
-	int ptot[NUM_PLAYER_CLASSES];
+	int proff[kNumPlayerClasses][2];
+	int ptot[kNumPlayerClasses];
 	int i, clan = 0, noclan = 0, hilvl = 0, lowlvl = 0, all = 0, rem = 0, norem = 0, pk = 0, nopk = 0;
 
-	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
+	for (i = 0; i < kNumPlayerClasses; i++) {
 		proff[i][0] = 0;
 		proff[i][1] = 0;
 		ptot[i] = 0;
@@ -4476,52 +4476,52 @@ void do_statistic(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* sub
 			CCICYN(ch, C_NRM),
 			CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Лекари        %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_CLERIC], proff[CLASS_CLERIC][0], proff[CLASS_CLERIC][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kSorcerer], proff[ECharClass::kSorcerer][0], proff[ECharClass::kSorcerer][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Колдуны     %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_BATTLEMAGE], proff[CLASS_BATTLEMAGE][0],
-			proff[CLASS_BATTLEMAGE][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kConjurer], proff[ECharClass::kConjurer][0],
+			proff[ECharClass::kConjurer][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Тати          %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_THIEF], proff[CLASS_THIEF][0], proff[CLASS_THIEF][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kThief], proff[ECharClass::kThief][0], proff[ECharClass::kThief][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Богатыри    %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_WARRIOR], proff[CLASS_WARRIOR][0], proff[CLASS_WARRIOR][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kWarrior], proff[ECharClass::kWarrior][0], proff[ECharClass::kWarrior][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Наемники      %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_ASSASINE], proff[CLASS_ASSASINE][0],
-			proff[CLASS_ASSASINE][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kAssasine], proff[ECharClass::kAssasine][0],
+			proff[ECharClass::kAssasine][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Дружинники  %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_GUARD], proff[CLASS_GUARD][0], proff[CLASS_GUARD][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kGuard], proff[ECharClass::kGuard][0], proff[ECharClass::kGuard][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Кудесники     %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_CHARMMAGE], proff[CLASS_CHARMMAGE][0],
-			proff[CLASS_CHARMMAGE][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kCharmer], proff[ECharClass::kCharmer][0],
+			proff[ECharClass::kCharmer][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Волшебники  %s[%s%2d/%2d/%2d%s]%s\r\n",
 			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM),
-			ptot[CLASS_DEFENDERMAGE], proff[CLASS_DEFENDERMAGE][0], proff[CLASS_DEFENDERMAGE][1],
+			ptot[ECharClass::kWizard], proff[ECharClass::kWizard][0], proff[ECharClass::kWizard][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Чернокнижники %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_NECROMANCER], proff[CLASS_NECROMANCER][0],
-			proff[CLASS_NECROMANCER][1], CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kNecromancer], proff[ECharClass::kNecromancer][0],
+			proff[ECharClass::kNecromancer][1], CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Витязи      %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_PALADINE], proff[CLASS_PALADINE][0],
-			proff[CLASS_PALADINE][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kPaladine], proff[ECharClass::kPaladine][0],
+			proff[ECharClass::kPaladine][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Охотники      %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_RANGER], proff[CLASS_RANGER][0], proff[CLASS_RANGER][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kRanger], proff[ECharClass::kRanger][0], proff[ECharClass::kRanger][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Кузнецы     %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_SMITH], proff[CLASS_SMITH][0], proff[CLASS_SMITH][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kVigilant], proff[ECharClass::kVigilant][0], proff[ECharClass::kVigilant][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Купцы         %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_MERCHANT], proff[CLASS_MERCHANT][0],
-			proff[CLASS_MERCHANT][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kMerchant], proff[ECharClass::kMerchant][0],
+			proff[ECharClass::kMerchant][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf), "Волхвы      %s[%s%2d/%2d/%2d%s]%s\r\n\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[CLASS_DRUID], proff[CLASS_DRUID][0], proff[CLASS_DRUID][1],
+			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kMagus], proff[ECharClass::kMagus][0], proff[ECharClass::kMagus][1],
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(buf + strlen(buf),
 			"Игроков выше|ниже 25 уровня     %s[%s%*d%s|%s%*d%s]%s\r\n",

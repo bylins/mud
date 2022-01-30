@@ -2748,7 +2748,7 @@ void do_firstaid(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("У вас не хватит умения вылечить $N3.", false, ch, 0, vict, TO_CHAR);
 	} else {
 		timed.skill = ESkill::kFirstAid;
-		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_CLERIC(ch) ? 2 : 6;
+		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
 		timed_to_char(ch, &timed);
 		if (vict != ch) {
 			ImproveSkill(ch, ESkill::kFirstAid, success, 0);

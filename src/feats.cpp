@@ -74,7 +74,7 @@ void initializeFeature(int featureNum, const char *name, int type, bool can_up_s
 					   short dicerollBonus = MAX_ABILITY_DICEROLL_BONUS, ESkill baseSkill = ESkill::kIncorrect,
 					   ESaving oppositeSaving = ESaving::kStability) {
 	int i, j;
-	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
+	for (i = 0; i < kNumPlayerClasses; i++) {
 		for (j = 0; j < kNumKins; j++) {
 			feat_info[featureNum].minRemort[i][j] = 0;
 			feat_info[featureNum].slot[i][j] = 0;
@@ -102,7 +102,7 @@ void initializeFeature(int featureNum, const char *name, int type, bool can_up_s
 void initializeFeatureByDefault(int featureNum) {
 	int i, j;
 
-	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
+	for (i = 0; i < kNumPlayerClasses; i++) {
 		for (j = 0; j < kNumKins; j++) {
 			feat_info[featureNum].minRemort[i][j] = 0;
 			feat_info[featureNum].slot[i][j] = 0;
@@ -1057,7 +1057,7 @@ void do_fit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 }
 
-#include "classes/class_spell_slots.h" // удалить после вырезания do_spell_capable
+#include "classes/classes_spell_slots.h" // удалить после вырезания do_spell_capable
 #include "magic/spells_info.h"
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона
@@ -1380,7 +1380,7 @@ int get_feature_num(char *featureName) {
 /*
  TODO: при переписывании способностей переделать на композицию или интерфейс
 */
-bitvector_t getPRFWithFeatureNumber(int featureNum) {
+Bitvector getPRFWithFeatureNumber(int featureNum) {
 	switch (featureNum) {
 		case POWER_ATTACK_FEAT: return PRF_POWERATTACK;
 			break;

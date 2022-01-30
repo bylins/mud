@@ -4,9 +4,9 @@
  \brief Константы классов персонажей.
 */
 
-#include "class_constants.h"
+#include "classes_constants.h"
 
-std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name =
+std::array<const char *, kNumPlayerClasses> pc_class_name =
 	{{
 		 "лекарь",
 		 "колдун",
@@ -24,27 +24,27 @@ std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name =
 		 "волхв"
 	 }};
 
-const class_app_type::extra_affects_list_t ClericAffects = {};
-const class_app_type::extra_affects_list_t MageAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
-const class_app_type::extra_affects_list_t ThiefAffects = {
+const ClassApplies::ExtraAffectsVector ClericAffects = {};
+const ClassApplies::ExtraAffectsVector MageAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
+const ClassApplies::ExtraAffectsVector ThiefAffects = {
 	{EAffectFlag::AFF_INFRAVISION, 1},
 	{EAffectFlag::AFF_SENSE_LIFE, 1},
 	{EAffectFlag::AFF_BLINK, 1}};
-const class_app_type::extra_affects_list_t WarriorAffects = {};
-const class_app_type::extra_affects_list_t AssasineAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
-const class_app_type::extra_affects_list_t GuardAffects = {};
-const class_app_type::extra_affects_list_t DefenderAffects = {};
-const class_app_type::extra_affects_list_t CharmerAffects = {};
-const class_app_type::extra_affects_list_t NecromancerAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
-const class_app_type::extra_affects_list_t PaladineAffects = {};
-const class_app_type::extra_affects_list_t RangerAffects = {
+const ClassApplies::ExtraAffectsVector WarriorAffects = {};
+const ClassApplies::ExtraAffectsVector AssasineAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
+const ClassApplies::ExtraAffectsVector GuardAffects = {};
+const ClassApplies::ExtraAffectsVector DefenderAffects = {};
+const ClassApplies::ExtraAffectsVector CharmerAffects = {};
+const ClassApplies::ExtraAffectsVector NecromancerAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
+const ClassApplies::ExtraAffectsVector PaladineAffects = {};
+const ClassApplies::ExtraAffectsVector RangerAffects = {
 	{EAffectFlag::AFF_INFRAVISION, 1},
 	{EAffectFlag::AFF_SENSE_LIFE, 1}};
-const class_app_type::extra_affects_list_t SmithAffects = {};
-const class_app_type::extra_affects_list_t MerchantAffects = {};
-const class_app_type::extra_affects_list_t DruidAffects = {};
+const ClassApplies::ExtraAffectsVector SmithAffects = {};
+const ClassApplies::ExtraAffectsVector MerchantAffects = {};
+const ClassApplies::ExtraAffectsVector DruidAffects = {};
 
-struct class_app_type class_app[NUM_PLAYER_CLASSES] =
+struct ClassApplies class_app[kNumPlayerClasses] =
 	{
 // unknown_weapon_fault koef_con base_con min_con max_con extra_affects
 		{5, 40, 10, 12, 50, &ClericAffects},

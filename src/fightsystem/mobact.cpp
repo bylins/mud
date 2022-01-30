@@ -538,19 +538,19 @@ CharacterData *find_best_mob_victim(CharacterData *ch, int extmode) {
 		if (!kill_this)
 			continue;
 		// волхв
-		if (GET_CLASS(vict) == CLASS_DRUID) {
+		if (GET_CLASS(vict) == ECharClass::kMagus) {
 			druid = vict;
 			caster = vict;
 			continue;
 		}
 		// лекарь
-		if (GET_CLASS(vict) == CLASS_CLERIC) {
+		if (GET_CLASS(vict) == ECharClass::kSorcerer) {
 			cler = vict;
 			caster = vict;
 			continue;
 		}
 		// кудес
-		if (GET_CLASS(vict) == CLASS_CHARMMAGE) {
+		if (GET_CLASS(vict) == ECharClass::kCharmer) {
 			charmmage = vict;
 			caster = vict;
 			continue;

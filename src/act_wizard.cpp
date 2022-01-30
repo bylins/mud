@@ -80,7 +80,7 @@
 #include "utils/id_converter.h"
 #include "world_objects.h"
 #include "entities/zone.h"
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 #include "magic/spells_info.h"
 #include "magic/magic_rooms.h"
 
@@ -376,7 +376,7 @@ void do_arena_restore(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 		} else {
 			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
 		}
-		if (GET_CLASS(vict) == CLASS_WARRIOR) {
+		if (GET_CLASS(vict) == kWarrior) {
 			struct TimedSkill wctimed;
 			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
@@ -2548,7 +2548,7 @@ void do_restore(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
 		}
-		if (GET_CLASS(vict) == CLASS_WARRIOR) {
+		if (GET_CLASS(vict) == kWarrior) {
 			struct TimedSkill wctimed;
 			wctimed.skill = ESkill::kWarcry;
 			wctimed.time = 0;
@@ -4155,7 +4155,7 @@ int perform_set(CharacterData *ch, CharacterData *vict, int mode, char *val_arg)
 			break;
 		case 31: {
 			auto class_id = ParseClass(*val_arg);
-			if (class_id == ECharClass::CLASS_UNDEFINED) {
+			if (class_id == ECharClass::kUndefined) {
 				send_to_char("Нет такого класса в этой игре. Найдите себе другую.\r\n", ch);
 				return (0);
 			}
@@ -5197,7 +5197,7 @@ void SpellUsage::save() {
 void SpellUsage::AddSpellStat(int charClass, int spellNum) {
 	if (!isActive)
 		return;
-	if (charClass > NUM_PLAYER_CLASSES || spellNum > SPELLS_COUNT)
+	if (charClass > kNumPlayerClasses || spellNum > SPELLS_COUNT)
 		return;
 	usage[charClass][spellNum]++;
 }

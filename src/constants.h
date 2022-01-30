@@ -12,7 +12,7 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -115,7 +115,7 @@ extern int mana_cost_cs[][9];
 extern const char *material_name[];
 extern struct attack_hit_type attack_hit_text[];
 extern const char *godslike_bits[];
-extern std::array<const char *, NUM_PLAYER_CLASSES> pc_class_name;
+extern std::array<const char *, kNumPlayerClasses> pc_class_name;
 extern const char *weapon_class[];
 
 //The number of changing coefficients (the others are unchanged)

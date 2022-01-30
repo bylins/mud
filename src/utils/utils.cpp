@@ -1946,11 +1946,11 @@ int CAN_CARRY_N(const CharacterData *ch) {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_REAL_LEVEL(ch) / 2;
 	if (HAVE_FEAT(ch, JUGGLER_FEAT)) {
 		n += GET_REAL_LEVEL(ch) / 2;
-		if (GET_CLASS(ch) == CLASS_DRUID) {
+		if (GET_CLASS(ch) == kMagus) {
 			n += 5;
 		}
 	}
-	if (GET_CLASS(ch) == CLASS_DRUID) {
+	if (GET_CLASS(ch) == kMagus) {
 		n += 5;
 	}
 	return std::max(n, 1);

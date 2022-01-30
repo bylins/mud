@@ -841,19 +841,19 @@ CharacterData *find_target(CharacterData *ch) {
 			continue;
 		}
 
-		if (GET_CLASS(vict) == CLASS_DRUID) {
+		if (GET_CLASS(vict) == ECharClass::kMagus) {
 			druid = vict;
 			caster = vict;
 			continue;
 		}
 
-		if (GET_CLASS(vict) == CLASS_CLERIC) {
+		if (GET_CLASS(vict) == ECharClass::kSorcerer) {
 			cler = vict;
 			caster = vict;
 			continue;
 		}
 
-		if (GET_CLASS(vict) == CLASS_CHARMMAGE) {
+		if (GET_CLASS(vict) == ECharClass::kCharmer) {
 			charmmage = vict;
 			caster = vict;
 			continue;
@@ -1765,7 +1765,7 @@ void process_npc_attack(CharacterData *ch) {
 		return;
 	}
 	// Срабатывание батл-триггеров амуниции
-	bitvector_t trigger_code = fight_otrigger(ch);
+	Bitvector trigger_code = fight_otrigger(ch);
 
 	// переключение
 	if (MAY_LIKES(ch)
@@ -1859,7 +1859,7 @@ void process_player_attack(CharacterData *ch, int min_init) {
 	}
 
 	// Срабатывание батл-триггеров амуниции
-	bitvector_t trigger_code = fight_otrigger(ch);
+	Bitvector trigger_code = fight_otrigger(ch);
 
 	//* каст заклинания
 	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {

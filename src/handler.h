@@ -169,7 +169,7 @@ int find_all_dots(char *arg);
 
 // Generic Find //
 
-int generic_find(char *arg, bitvector_t bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj);
+int generic_find(char *arg, Bitvector bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj);
 
 #define FIND_CHAR_ROOM     (1 << 0)
 #define FIND_CHAR_WORLD    (1 << 1)

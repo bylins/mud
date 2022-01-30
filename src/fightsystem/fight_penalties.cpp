@@ -50,7 +50,7 @@ bool GroupPenaltyCalculator::penalty_by_leader(const CharacterData *player, int 
 	}
 
 	if (0 > player_class
-		|| player_class > NUM_PLAYER_CLASSES) {
+		|| player_class > kNumPlayerClasses) {
 		log("LOGIC ERROR: wrong player class: %d for player [%s]",
 			player_class,
 			player->get_name().c_str());

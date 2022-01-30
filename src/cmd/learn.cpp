@@ -1,7 +1,7 @@
 #include "learn.h"
 
 #include "handler.h"
-#include "classes/class_spell_slots.h"
+#include "classes/classes_spell_slots.h"
 #include "magic/spells_info.h"
 #include "structs/global_objects.h"
 
@@ -198,7 +198,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	addchance = (IS_CLERIC(ch) && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC)) ||
+	addchance = (IS_SORCERER(ch) && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC)) ||
 		(IS_MAGE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_MAGE)) ||
 		(IS_PALADINE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE)) ||
 		(IS_THIEF(ch) && ROOM_FLAGGED(ch->in_room, ROOM_THIEF)) ||
@@ -206,8 +206,8 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		(IS_WARRIOR(ch) && ROOM_FLAGGED(ch->in_room, ROOM_WARRIOR)) ||
 		(IS_RANGER(ch) && ROOM_FLAGGED(ch->in_room, ROOM_RANGER)) ||
 		(IS_GUARD(ch) && ROOM_FLAGGED(ch->in_room, ROOM_GUARD)) ||
-		(IS_SMITH(ch) && ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) ||
-		(IS_DRUID(ch) && ROOM_FLAGGED(ch->in_room, ROOM_DRUID)) ||
+		(IS_VIGILANT(ch) && ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) ||
+		(IS_MAGUS(ch) && ROOM_FLAGGED(ch->in_room, ROOM_DRUID)) ||
 		(IS_MERCHANT(ch) && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT)) ? 10 : 0;
 	addchance += (GET_OBJ_VAL(obj, 0) == BOOK_SPELL) ? 0 : 10;
 

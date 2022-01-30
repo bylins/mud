@@ -29,18 +29,18 @@ const __uint8_t kSkyCloudy = 1;
 const __uint8_t kSkyRaining = 2;
 const __uint8_t kSkyLightning = 3;
 
-constexpr bitvector_t WEATHER_QUICKCOOL = 1 << 0;
-constexpr bitvector_t WEATHER_QUICKHOT = 1 << 1;
-constexpr bitvector_t WEATHER_LIGHTRAIN = 1 << 2;
-constexpr bitvector_t WEATHER_MEDIUMRAIN = 1 << 3;
-constexpr bitvector_t WEATHER_BIGRAIN = 1 << 4;
-constexpr bitvector_t WEATHER_GRAD = 1 << 5;
-constexpr bitvector_t WEATHER_LIGHTSNOW = 1 << 6;
-constexpr bitvector_t WEATHER_MEDIUMSNOW = 1 << 7;
-constexpr bitvector_t WEATHER_BIGSNOW = 1 << 8;
-constexpr bitvector_t WEATHER_LIGHTWIND = 1 << 9;
-constexpr bitvector_t WEATHER_MEDIUMWIND = 1 << 10;
-constexpr bitvector_t WEATHER_BIGWIND = 1 << 11;
+constexpr Bitvector WEATHER_QUICKCOOL = 1 << 0;
+constexpr Bitvector WEATHER_QUICKHOT = 1 << 1;
+constexpr Bitvector WEATHER_LIGHTRAIN = 1 << 2;
+constexpr Bitvector WEATHER_MEDIUMRAIN = 1 << 3;
+constexpr Bitvector WEATHER_BIGRAIN = 1 << 4;
+constexpr Bitvector WEATHER_GRAD = 1 << 5;
+constexpr Bitvector WEATHER_LIGHTSNOW = 1 << 6;
+constexpr Bitvector WEATHER_MEDIUMSNOW = 1 << 7;
+constexpr Bitvector WEATHER_BIGSNOW = 1 << 8;
+constexpr Bitvector WEATHER_LIGHTWIND = 1 << 9;
+constexpr Bitvector WEATHER_MEDIUMWIND = 1 << 10;
+constexpr Bitvector WEATHER_BIGWIND = 1 << 11;
 
 struct Weather {
 	int hours_go;        // Time life from reboot //

@@ -413,7 +413,7 @@ void die(CharacterData *ch, CharacterData *killer) {
 	raw_kill(ch, killer);
 }
 
-#include "classes/class_spell_slots.h"
+#include "classes/classes_spell_slots.h"
 void forget_all_spells(CharacterData *ch) {
 	using PlayerClass::slot_for_char;
 
@@ -940,7 +940,7 @@ void perform_group_gain(CharacterData *ch, CharacterData *victim, int members, i
 }
 
 int grouping_koef(int player_class, int player_remort) {
-	if ((player_class >= NUM_PLAYER_CLASSES) || (player_class < 0))
+	if ((player_class >= kNumPlayerClasses) || (player_class < 0))
 		return 1;
 	return grouping[player_class][player_remort];
 

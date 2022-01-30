@@ -92,10 +92,10 @@ int calculateSaving(CharacterData *killer, CharacterData *victim, ESaving saving
 	int class_sav = GET_CLASS(victim);
 
 	if (IS_NPC(victim)) {
-		class_sav = CLASS_MOB;    // неизвестный класс моба
+		class_sav = ECharClass::kMob;    // неизвестный класс моба
 	} else {
-		if (class_sav < 0 || class_sav >= NUM_PLAYER_CLASSES)
-			class_sav = CLASS_WARRIOR;    // неизвестный класс игрока
+		if (class_sav < 0 || class_sav >= kNumPlayerClasses)
+			class_sav = ECharClass::kWarrior;    // неизвестный класс игрока
 	}
 
 	// Базовые спасброски профессии/уровня
@@ -2233,7 +2233,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 					modi = CALC_SUCCESS(modi, 95);
 					break;
 				case SPELL_SHOCK: savetype = ESaving::kReflex;
-					if (GET_CLASS(ch) == CLASS_CLERIC) {
+					if (GET_CLASS(ch) == ECharClass::kSorcerer) {
 						modi = CALC_SUCCESS(modi, 75);
 					} else {
 						modi = CALC_SUCCESS(modi, 25);

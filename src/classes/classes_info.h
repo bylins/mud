@@ -15,27 +15,34 @@
 
 namespace classes {
 
-class CharClassInfo {
- private:
-/*	struct ClassSkillInfo;
-	using ClassSkillInfoPtr = std::unique_ptr<ClassSkillInfo>;*/
+struct ClassSkillInfo {
+	int min_level{kMaxPlayerLevel};
+	int min_remort{kMaxRemort};
+	long improve{1};
+};
 
- public:
-	/* Skill's mothods */
+struct CharClassInfo {
+	CharClassInfo() {
+		skillls_info_ = std::make_unique<ClassSkillInfoRegister>();
+	}
+	CharClassInfo(CharClassInfo &s) = delete;
+	void operator=(const CharClassInfo &s) = delete;
+
+	/* Skills methods */
+	bool IsKnown(const ESkill id) const;
+	bool IsUnknonw(const ESkill id) const { return !IsKnown(id); };
 	int GetMinRemort(const ESkill /*id*/) const { return 0; };
 	int GetMinLevel(const ESkill /*id*/) const { return 1; };
 	int GetImprove(const ESkill /*id*/) const { return 1; };
 	int GetLevelDecrement(const ESkill /*id*/) const { return 1; };
-	bool Knows(const ESkill /*id*/) const { return true; };
-	bool NotKnows(const ESkill /*id*/) const { return false; };
-};
 
-/*struct ClassSkillInfo {
-	int min_level{kMaxPlayerLevel};
-	int min_remort{kMaxRemort};
-	int level_decrement{0};
-	long improve{1};
-};*/
+	using ClassSkillInfoPtr = std::unique_ptr<ClassSkillInfo>;
+	using ClassSkillInfoRegister = std::unordered_map<ESkill, ClassSkillInfoPtr>;
+	using ClassSkillInfoRegisterPtr = std::unique_ptr<ClassSkillInfoRegister>;
+
+	ClassSkillInfoRegisterPtr skillls_info_;
+	int skills_level_decrement_{0};
+};
 
 class ClassesInfo {
  public:

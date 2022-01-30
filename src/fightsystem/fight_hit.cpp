@@ -29,24 +29,24 @@ int armor_class_limit(CharacterData *ch) {
 		return -300;
 	};
 	switch (GET_CLASS(ch)) {
-		case CLASS_PALADINE: return -270;
+		case ECharClass::kPaladine: return -270;
 			break;
-		case CLASS_ASSASINE:
-		case CLASS_THIEF:
-		case CLASS_GUARD: return -250;
+		case ECharClass::kAssasine:
+		case ECharClass::kThief:
+		case ECharClass::kGuard: return -250;
 			break;
-		case CLASS_MERCHANT:
-		case CLASS_WARRIOR:
-		case CLASS_RANGER:
-		case CLASS_SMITH: return -200;
+		case ECharClass::kMerchant:
+		case ECharClass::kWarrior:
+		case ECharClass::kRanger:
+		case ECharClass::kVigilant: return -200;
 			break;
-		case CLASS_CLERIC:
-		case CLASS_DRUID: return -170;
+		case ECharClass::kSorcerer:
+		case ECharClass::kMagus: return -170;
 			break;
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-		case CLASS_NECROMANCER: return -150;
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer:
+		case ECharClass::kNecromancer: return -150;
 			break;
 			default: return -300;
 	}
@@ -909,7 +909,7 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 	int calc_thaco = *hitroll;
 
 	switch (ch_class) {
-		case CLASS_CLERIC:
+		case ECharClass::kSorcerer:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
 					dam += 0;
@@ -943,10 +943,10 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			}
 			break;
 
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-		case CLASS_NECROMANCER:
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer:
+		case ECharClass::kNecromancer:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
 					dam += 0;
@@ -979,7 +979,7 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			}
 			break;
 
-		case CLASS_WARRIOR:
+		case ECharClass::kWarrior:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
 					dam += 0;
@@ -1012,7 +1012,7 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			}
 			break;
 
-		case CLASS_RANGER:
+		case ECharClass::kRanger:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
 					dam += 0;
@@ -1045,8 +1045,8 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			}
 			break;
 
-		case CLASS_GUARD:
-		case CLASS_THIEF:
+		case ECharClass::kGuard:
+		case ECharClass::kThief:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
 					dam += 0;
@@ -1079,7 +1079,7 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			}
 			break;
 
-		case CLASS_ASSASINE:
+		case ECharClass::kAssasine:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
 					dam += 0;
@@ -1111,8 +1111,8 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 				default: break;
 			}
 			break;
-			/*	case CLASS_PALADINE:
-			case CLASS_SMITH:
+			/*	case ECharClass::kClassPaladine:
+			case ECharClass::kClassSmith:
 				switch (skill) {
 					case ESkill::kClubs:	calc_thaco -= 0; dam += 0; break;
 					case ESkill::kAxes:	calc_thaco -= 0; dam += 0; break;
@@ -1125,7 +1125,7 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 					case ESkill::kBows:	calc_thaco -= 0; dam += 0; break;
 				}
 				break; */
-		case CLASS_MERCHANT:
+		case ECharClass::kMerchant:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
 					dam += 0;
@@ -1158,7 +1158,7 @@ void apply_weapon_bonus(int ch_class, const ESkill skill, int *damroll, int *hit
 			}
 			break;
 
-		case CLASS_DRUID:
+		case ECharClass::kMagus:
 			switch (skill) {
 				case ESkill::kClubs: calc_thaco -= 0;
 					dam += 0;
@@ -3355,7 +3355,7 @@ void HitData::calc_crit_chance(CharacterData *ch) {
 	int calc_critic = 0;
 
 	// Маги, волхвы и не-купеческие чармисы не умеют критать //
-	if ((!IS_NPC(ch) && !IS_MAGIC_USER(ch) && !IS_DRUID(ch))
+	if ((!IS_NPC(ch) && !IS_MAGIC_USER(ch) && !IS_MAGUS(ch))
 		|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)))) {
 		calc_critic = MIN(ch->get_skill(weap_skill), 70);
 		// Мастерские фиты по оружию удваивают шанс критического попадания //
@@ -3937,7 +3937,7 @@ int CalcPcDamrollBonus(CharacterData *ch) {
 	const short kRemortDamrollBonus[kMaxRemortForDamrollBonus + 1] =
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
 	int bonus = 0;
-	if (IS_SMITH(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {
+	if (IS_VIGILANT(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {
 		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GET_REAL_REMORT(ch))];
 	}
 	if (can_use_feat(ch, BOWS_FOCUS_FEAT) && ch->get_skill(ESkill::kAddshot)) {

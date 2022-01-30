@@ -27,7 +27,7 @@ const char *spell_name(int num) {
 
 void initUnusedSpell(int spl) {
 	int i, j;
-	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
+	for (i = 0; i < kNumPlayerClasses; i++) {
 		for (j = 0; j < kNumKins; j++) {
 			spell_info[spl].min_remort[i][j] = kMaxRemort;
 			spell_info[spl].min_level[i][j] = kLevelImplementator + 1;
@@ -67,7 +67,7 @@ void initSpell(int spl, const char *name, const char *syn,
 			   EPosition minpos, int targets, int violent, int routines, int danger, int spell_class) {
 
 	int i, j;
-	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
+	for (i = 0; i < kNumPlayerClasses; i++) {
 		for (j = 0; j < kNumKins; j++) {
 			spell_info[spl].min_remort[i][j] = kMaxRemort;
 			spell_info[spl].min_level[i][j] = kLevelImplementator;

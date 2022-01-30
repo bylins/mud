@@ -841,9 +841,9 @@ void random_otrigger(ObjectData *obj) {
 	}
 }
 
-bitvector_t try_run_fight_otriggers(CharacterData *actor, ObjectData *obj, int mode) {
+Bitvector try_run_fight_otriggers(CharacterData *actor, ObjectData *obj, int mode) {
 	char buf[kMaxInputLength];
-	bitvector_t result = kNormalRound;
+	Bitvector result = kNormalRound;
 	if (!SCRIPT_CHECK(obj, OTRIG_FIGHT) || GET_INVIS_LEV(actor)) {
 		return result;
 	}
@@ -859,8 +859,8 @@ bitvector_t try_run_fight_otriggers(CharacterData *actor, ObjectData *obj, int m
 	return result;
 }
 
-bitvector_t fight_otrigger(CharacterData *actor) {
-	bitvector_t result = kNormalRound;
+Bitvector fight_otrigger(CharacterData *actor) {
+	Bitvector result = kNormalRound;
 	for (auto item: actor->equipment) {
 		if (item) {
 			SET_BIT(result, try_run_fight_otriggers(actor, item, OCMD_EQUIP));

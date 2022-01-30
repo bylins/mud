@@ -587,7 +587,7 @@ void Player::save_char() {
 
 	// спелы
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
-	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != CLASS_DRUID) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != kMagus) {
 		fprintf(saved, "Spel:\n");
 		for (i = 1; i <= SPELLS_COUNT; i++)
 			if (GET_SPELL_TYPE(this, i))
@@ -595,7 +595,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != CLASS_DRUID) {
+	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != kMagus) {
 		fprintf(saved, "TSpl:\n");
 		for (auto it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it) {
 			fprintf(saved,
@@ -894,7 +894,7 @@ void Player::save_char() {
 	std::map<int, MERCDATA>::iterator it = this->charmeeHistory.begin();
 	// перечень чармисов кудеса и купца
 	if (this->charmeeHistory.size() > 0 &&
-		(this->get_class() == CLASS_CHARMMAGE || this->get_class() == CLASS_MERCHANT || IS_IMMORTAL(this))) {
+		(this->get_class() == kCharmer || this->get_class() == kMerchant || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -996,7 +996,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 
 	set_level(1);
-	set_class(ECharClass::PLAYER_CLASS_FIRST);
+	set_class(ECharClass::kFirst);
 	set_uid(0);
 	set_last_logon(time(0));
 	set_idnum(0);
@@ -1126,7 +1126,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	this->real_abils.Feats.reset();
 
 	// волхвам сетим все спеллы на рунах, остальные инит нулями
-	if (GET_CLASS(this) != CLASS_DRUID)
+	if (GET_CLASS(this) != kMagus)
 		for (i = 1; i <= SPELLS_COUNT; i++)
 			GET_SPELL_TYPE(this, i) = 0;
 	else
@@ -1762,7 +1762,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						sscanf(line, "%d %d", &num, &num2);
 						if (num != 0) {
 							auto skill_id = static_cast<ESkill>(num);
-							if (MUD::Classes()[this->get_class()].Knows(skill_id)) {
+							if (MUD::Classes()[this->get_class()].IsKnown(skill_id)) {
 								this->set_skill(skill_id, num2);
 							}
 						}

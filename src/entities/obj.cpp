@@ -814,7 +814,7 @@ void CObjectPrototype::set_ex_description(const char *keyword, const char *descr
 
 void set_obj_aff(ObjectData *itemobj, const EAffectFlag bitv) {
 	for (const auto &i : weapon_affect) {
-		if (i.aff_bitvector == static_cast<bitvector_t>(bitv)) {
+		if (i.aff_bitvector == static_cast<Bitvector>(bitv)) {
 			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));
 		}
 	}

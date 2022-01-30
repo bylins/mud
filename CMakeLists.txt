@@ -44,8 +44,8 @@ set(SOURCES
 		src/game_mechanics/celebrates.cpp
 		src/entities/char.cpp
 		src/entities/char_player.cpp
-		src/classes/class.cpp
-		src/classes/class_spell_slots.cpp
+		src/classes/classes.cpp
+		src/classes/classes_spell_slots.cpp
 		src/color.cpp
 		src/comm.cpp
 		src/cmd_god/shutdown.cpp
@@ -232,7 +232,7 @@ set(SOURCES
 		src/structs/flag_data.cpp
         src/crafts/jewelry.cpp
 		src/crafts/mining.cpp
-		src/classes/class_constants.cpp
+        src/classes/classes_constants.cpp
         src/structs/extra_description.cpp
 		src/communication/insult.cpp
 		src/abilities/abilities_info.cpp
@@ -327,8 +327,8 @@ set(HEADERS
 		src/entities/char.h
 		src/utils/utils_char_obj.inl
 		src/entities/char_player.h
-		src/classes/class.h
-		src/classes/class_spell_slots.h
+		src/classes/classes.h
+		src/classes/classes_spell_slots.h
 		src/comm.h
 		src/cmd_god/shutdown.h
 		src/commands.h

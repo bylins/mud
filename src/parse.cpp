@@ -32,20 +32,20 @@ std::array<TextIdNode, TEXT_ID_COUNT> text_id_list;
 /// Инит текстовых ИД классов для конфига.
 ///
 void init_char_class() {
-	text_id_list.at(CHAR_CLASS).add(CLASS_CLERIC, "CLASS_CLERIC");
-	text_id_list.at(CHAR_CLASS).add(CLASS_BATTLEMAGE, "CLASS_BATTLEMAGE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_THIEF, "CLASS_THIEF");
-	text_id_list.at(CHAR_CLASS).add(CLASS_WARRIOR, "CLASS_WARRIOR");
-	text_id_list.at(CHAR_CLASS).add(CLASS_ASSASINE, "CLASS_ASSASINE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_GUARD, "CLASS_GUARD");
-	text_id_list.at(CHAR_CLASS).add(CLASS_CHARMMAGE, "CLASS_CHARMMAGE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_DEFENDERMAGE, "CLASS_DEFENDERMAGE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_NECROMANCER, "CLASS_NECROMANCER");
-	text_id_list.at(CHAR_CLASS).add(CLASS_PALADINE, "CLASS_PALADINE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_RANGER, "CLASS_RANGER");
-	text_id_list.at(CHAR_CLASS).add(CLASS_SMITH, "CLASS_SMITH");
-	text_id_list.at(CHAR_CLASS).add(CLASS_MERCHANT, "CLASS_MERCHANT");
-	text_id_list.at(CHAR_CLASS).add(CLASS_DRUID, "CLASS_DRUID");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kSorcerer, "kClassSorcerer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kConjurer, "kClassConjurer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kThief, "kClassThief");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kWarrior, "kClassWarrior");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kAssasine, "kClassAssasine");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kGuard, "kClassGuard");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kCharmer, "kClassCharmer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kWizard, "kClassWizard");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kNecromancer, "kClassNecromancer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kPaladine, "kClassPaladine");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kRanger, "kCLassRanger");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kVigilant, "kClassSmith");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kMerchant, "kClassMerchant");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kMagus, "kClassMagus");
 }
 
 ///

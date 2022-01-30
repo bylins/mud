@@ -1579,7 +1579,7 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 					if (MUD::Skills().IsValid(skill_id)) {
 						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Classes()[ch->get_class()].Knows(skill_id)) {
+						if (MUD::Classes()[ch->get_class()].IsKnown(skill_id)) {
 							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
 						} else {
 							drsdice = kLevelImplementator;

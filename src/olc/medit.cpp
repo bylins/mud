@@ -112,7 +112,7 @@ void medit_mobile_init(CharacterData *mob) {
 	GET_WEIGHT(mob) = 200;
 	GET_HEIGHT(mob) = 198;
 	GET_SIZE(mob) = 30;
-	mob->set_class(NPC_CLASS_BASE);
+	mob->set_class(ECharClass::kNPCBase);
 	GET_RACE(mob) = NPC_RACE_BASIC;
 	GET_MR(mob) = GET_AR(mob) = GET_PR(mob) = 0;
 

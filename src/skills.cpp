@@ -1275,7 +1275,7 @@ void SendSkillRollMsg(CharacterData *ch, CharacterData *victim, ESkill skill_id,
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
-// \TODO Не забыть убрать после ребаланса умений ABYRVALG - переделать на стринг
+// \TODO Не забыть убрать после ребаланса умений
 void SendSkillBalanceMsg(CharacterData *ch, const std::string &skill_name, int percent, int prob, bool success) {
 	std::stringstream buffer;
 	buffer << KICYN
@@ -1882,7 +1882,7 @@ void ImproveSkill(CharacterData *ch, const ESkill skill, int success, CharacterD
 		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);
 
 	int div = int_app[INT_PLAYER].improve;
-	if ((ch)->get_class() >= ECharClass::PLAYER_CLASS_FIRST && (ch)->get_class() <= ECharClass::PLAYER_CLASS_LAST) {
+	if ((ch)->get_class() >= ECharClass::kFirst && (ch)->get_class() <= ECharClass::kLast) {
 		div += MUD::Classes()[(ch)->get_class()].GetImprove(skill) / 100;
 	}
 
@@ -1996,7 +1996,7 @@ int GetSkillMinLevel(CharacterData *ch, ESkill skill) {
 
 bool IsAbleToGetSkill(CharacterData *ch, ESkill skill, int req_lvl) {
 	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].GetMinRemort(skill)
-		|| MUD::Classes()[ch->get_class()].NotKnows(skill)) {
+		|| MUD::Classes()[ch->get_class()].IsUnknonw(skill)) {
 		return false;
 	}
 	if (ch->get_level() < GetSkillMinLevel(ch, skill, req_lvl)) {
@@ -2007,7 +2007,7 @@ bool IsAbleToGetSkill(CharacterData *ch, ESkill skill, int req_lvl) {
 
 bool IsAbleToGetSkill(CharacterData *ch, ESkill skill) {
 	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].GetMinRemort(skill)
-		|| MUD::Classes()[ch->get_class()].NotKnows(skill)) {
+		|| MUD::Classes()[ch->get_class()].IsUnknonw(skill)) {
 		return false;
 	}
 	if (ch->get_level() < GetSkillMinLevel(ch, skill)) {

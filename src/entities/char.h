@@ -441,7 +441,7 @@ class CharacterData : public ProtectedCharacterData {
 	ECharClass get_class() const;
 	void set_class(ECharClass chclass);
 
-	bool is_druid() const { return chclass_ == CLASS_DRUID; }
+	bool is_druid() const { return chclass_ == kMagus; }
 
 	short get_level() const;
 	short get_level_add() const;

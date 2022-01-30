@@ -4,7 +4,7 @@
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "fightsystem/fight_hit.h"
-#include "classes/class.h"
+#include "classes/classes.h"
 #include "cmd/follow.h"
 #include "game_mechanics/deathtrap.h"
 #include "magic/magic.h"
@@ -537,7 +537,7 @@ void affect_total(CharacterData *ch) {
 
 	// move race and class modifiers
 	if (!IS_NPC(ch)) {
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_PLAYER_CLASSES) {
+		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < kNumPlayerClasses) {
 			for (auto i : *class_app[(int) GET_CLASS(ch)].extra_affects) {
 				affect_modify(ch, APPLY_NONE, 0, i.affect, i.set_or_clear);
 			}

@@ -2372,7 +2372,7 @@ int process_output(DescriptorData *t) {
 		return (1);
 
 	/*
-	 * We blocked, restore the unwritten output. Known
+	 * We blocked, restore the unwritten output. IsKnown
 	 * bug in that the snooping immortal will see it twice
 	 * but details...
 	 */

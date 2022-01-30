@@ -29,7 +29,7 @@
 #include "entities/char.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "classes/class.h"
+#include "classes/classes.h"
 #include "cmd/follow.h"
 #include "corpse.h"
 #include "game_mechanics/deathtrap.h"
@@ -238,7 +238,7 @@ extern struct month_temperature_type year_temp[];
 extern const char *pc_class_types[];
 extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
-extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
+extern int class_stats_limit[kNumPlayerClasses][6];
 extern void LoadProxyList();
 extern void add_karma(CharacterData *ch, const char *punish, const char *reason);
 
@@ -1721,12 +1721,12 @@ void ObjectData::init_set_table() {
 						int i = 0;
 
 						while (isstream >> std::skipws >> i)
-							if (i < 0 || i > NUM_PLAYER_CLASSES * kNumKins)
+							if (i < 0 || i > kNumPlayerClasses * kNumKins)
 								break;
 							else
 								tmpclss.set(flag_data_by_num(i));
 
-						if (i < 0 || i > NUM_PLAYER_CLASSES * kNumKins) {
+						if (i < 0 || i > kNumPlayerClasses * kNumKins) {
 							cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
 							mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 							continue;
@@ -2310,7 +2310,7 @@ void boot_db(void) {
 	log("Assigning spell and skill levels.");
 	MUD::Classes().Init();
 	init_spell_levels();
-	LoadClassSkills(); // ABYRVALG - перенести логику парсинга в класс-инфо
+	//LoadClassSkills(); // ABYRVALG - перенести логику парсинга в класс-инфо
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");
@@ -5121,13 +5121,13 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
 		for (i = 1; i <= SPELLS_COUNT; i++) {
-			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
+			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == kMagus ? SPELL_RUNES : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
 		for (i = 1; i <= SPELLS_COUNT; i++) {
-			if (GET_CLASS(ch) == CLASS_DRUID) {
+			if (GET_CLASS(ch) == kMagus) {
 				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
 			} else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
 				GET_SPELL_TYPE(ch, i) = 0;
@@ -5827,7 +5827,7 @@ void load_class_limit() {
 	pugi::xml_document doc_sw;
 	pugi::xml_node child_, object_, file_sw;
 
-	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i) {
+	for (int i = 0; i < kNumPlayerClasses; ++i) {
 		for (int j = 0; j < 6; ++j) {
 			//Intiializing stats limit with default value
 			class_stats_limit[i][j] = 50;
@@ -5842,7 +5842,7 @@ void load_class_limit() {
 			continue;
 
 		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
-		if (id == CLASS_UNDEFINED) {
+		if (id == ECharClass::kUndefined) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
 			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			continue;

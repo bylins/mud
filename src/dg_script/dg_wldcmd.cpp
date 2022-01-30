@@ -641,7 +641,7 @@ void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	if (isSkill) {
-		if (MUD::Classes()[ch->get_class()].Knows(skillnum)) {
+		if (MUD::Classes()[ch->get_class()].IsKnown(skillnum)) {
 			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "wskillturn: несоответсвие устанавливаемого умения классу игрока");

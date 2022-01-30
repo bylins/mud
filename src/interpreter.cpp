@@ -2288,7 +2288,7 @@ void do_entergame(DescriptorData *d) {
 
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto i : AVAILABLE_SKILLS) {
-			if (MUD::Classes()[(d->character)->get_class()].NotKnows(i)) {
+			if (MUD::Classes()[(d->character)->get_class()].IsUnknonw(i)) {
 				d->character->set_skill(i, 0);
 			}
 		}
@@ -3317,7 +3317,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			auto class_id = ParseClass(*arg);
-			if (class_id == ECharClass::CLASS_UNDEFINED) {
+			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
 			} else {
@@ -3339,7 +3339,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			auto class_id = static_cast<ECharClass>(parse_class_step(*arg));
-			if (class_id == CLASS_UNDEFINED) {
+			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
 			} else {
@@ -3361,7 +3361,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			auto class_id = static_cast<ECharClass>(parse_class_vik(*arg));
-			if (class_id == CLASS_UNDEFINED) {
+			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
 			} else {

@@ -1,7 +1,7 @@
 #ifndef SPELLS_INFO_H_
 #define SPELLS_INFO_H_
 
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 #include "entities/entity_constants.h"
 #include "structs/structs.h"
 
@@ -12,12 +12,12 @@ struct spellInfo_t {
 	int mana_min;        // Min amount of mana used by a spell (highest lev) //
 	int mana_max;        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change;    // Change in mana used by spell from lev to lev //
-	int min_remort[NUM_PLAYER_CLASSES][kNumKins];
-	int min_level[NUM_PLAYER_CLASSES][kNumKins];
-	int slot_forc[NUM_PLAYER_CLASSES][kNumKins];
-	int class_change[NUM_PLAYER_CLASSES][kNumKins];
+	int min_remort[kNumPlayerClasses][kNumKins];
+	int min_level[kNumPlayerClasses][kNumKins];
+	int slot_forc[kNumPlayerClasses][kNumKins];
+	int class_change[kNumPlayerClasses][kNumKins];
 	long danger;
-	bitvector_t routines;
+	Bitvector routines;
 	int violent;
 	int targets;
 	int spell_class;

@@ -10,14 +10,14 @@
 #include "structs/structs.h"
 
 // Типы таймеров аффектов.
-constexpr bitvector_t AF_BATTLEDEC = 1 << 0;
-constexpr bitvector_t AF_DEADKEEP = 1 << 1;
-constexpr bitvector_t AF_PULSEDEC = 1 << 2;
-constexpr bitvector_t AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
+constexpr Bitvector AF_BATTLEDEC = 1 << 0;
+constexpr Bitvector AF_DEADKEEP = 1 << 1;
+constexpr Bitvector AF_PULSEDEC = 1 << 2;
+constexpr Bitvector AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
-enum class EAffectFlag : bitvector_t {
+enum class EAffectFlag : Bitvector {
 	AFF_BLIND = 1u << 0,                    ///< (R) Char is blind
 	AFF_INVISIBLE = 1u << 1,                ///< Char is invisible
 	AFF_DETECT_ALIGN = 1u << 2,                ///< Char is sensitive to align
@@ -113,7 +113,7 @@ EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string &name);
 typedef std::list<EAffectFlag> affects_list_t;
 
 
-enum class EWeaponAffectFlag : bitvector_t {
+enum class EWeaponAffectFlag : Bitvector {
 	WAFF_BLINDNESS = (1 << 0),
 	WAFF_INVISIBLE = (1 << 1),
 	WAFF_DETECT_ALIGN = (1 << 2),
@@ -173,7 +173,7 @@ const std::string &NAME_BY_ITEM(EWeaponAffectFlag item);
 
 struct WeaponAffect {
 	EWeaponAffectFlag aff_pos;
-	bitvector_t aff_bitvector;
+	Bitvector aff_bitvector;
 	int aff_spell;
 };
 

@@ -16,14 +16,14 @@ const char *CONFIG_FILE = LIB_MISC"noob_help.xml";
 // макс уровень чара, который считается нубом (is_noob в коде и тригах, из CONFIG_FILE)
 int MAX_LEVEL = 0;
 // список классов (по id) со списками шмоток (vnum) в каждом (из CONFIG_FILE)
-std::array<std::vector<int>, NUM_PLAYER_CLASSES> class_list;
+std::array<std::vector<int>, kNumPlayerClasses> class_list;
 
 ///
 /// чтение конфига из misc/noob_help.xml (CONFIG_FILE)
 ///
 void init() {
 	// для релоада на случай ошибок при чтении
-	std::array<std::vector<int>, NUM_PLAYER_CLASSES> tmp_class_list;
+	std::array<std::vector<int>, kNumPlayerClasses> tmp_class_list;
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
@@ -63,7 +63,7 @@ void init() {
 		if (id_str.empty()) return;
 
 		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
-		if (id == CLASS_UNDEFINED) {
+		if (id == ECharClass::kUndefined) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
 			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return;
@@ -119,7 +119,7 @@ std::vector<int> get_start_outfit(CharacterData *ch) {
 	// стаф из noob_help.xml
 	std::vector<int> out_list;
 	const int ch_class = ch->get_class();
-	if (ch_class < NUM_PLAYER_CLASSES) {
+	if (ch_class < kNumPlayerClasses) {
 		out_list.insert(out_list.end(),
 						class_list.at(ch_class).begin(), class_list.at(ch_class).end());
 	}
@@ -179,7 +179,7 @@ void equip_start_outfit(CharacterData *ch, ObjectData *obj) {
 		if (where >= 0) {
 			equip_char(ch, obj, where, CharEquipFlags());
 			// богатырям в перчатках сетим кулачный бой вместо пушек
-			if (where == WEAR_HANDS && GET_CLASS(ch) == CLASS_WARRIOR) {
+			if (where == WEAR_HANDS && GET_CLASS(ch) == kWarrior) {
 				ch->set_skill(ESkill::kPunch, 10);
 			}
 		}

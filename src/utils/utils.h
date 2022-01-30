@@ -14,7 +14,7 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 #include "conf.h"
 #include "config.h"
 #include "entities/entity_constants.h"
@@ -100,7 +100,7 @@ extern char KoiToWin[];
 extern char KoiToWin2[];
 extern char AltToLat[];
 
-extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
+extern int class_stats_limit[kNumPlayerClasses][6];
 
 // public functions in utils.cpp
 CharacterData *find_char(long n);
@@ -310,8 +310,8 @@ short GET_REAL_REMORT(const std::shared_ptr<CharacterData> &ch);
 #define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
-#define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
-#define IS_MAGE(ch)          (IS_BITS(MASK_MAGES, GET_CLASS(ch)))
+#define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
+#define IS_MAGE(ch)          (IS_BITS(kMaskMage, GET_CLASS(ch)))
 
 extern int receptionist(CharacterData *, void *, int, char *);
 extern int postmaster(CharacterData *, void *, int, char *);
@@ -509,7 +509,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
-#define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
+#define IS_MANA_CASTER(ch) (GET_CLASS(ch) == ECharClass::kMagus)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
@@ -1059,43 +1059,28 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define KIN_ABBR(ch) (IS_NPC(ch) ? "--" : kin_abbrevs[(int)GET_KIN(ch)])
 
-#define IS_MAGIC_USER(ch)  (!IS_NPC(ch) && \
-            (IS_BITS(MASK_MAGES, (int) GET_CLASS(ch))))
-#define IS_CLERIC(ch)      (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_CLERIC))
-#define IS_THIEF(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_THIEF))
-#define IS_ASSASINE(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_ASSASINE))
-#define IS_WARRIOR(ch)     (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_WARRIOR))
-#define IS_PALADINE(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_PALADINE))
-#define IS_RANGER(ch)      (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_RANGER))
-#define IS_GUARD(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_GUARD))
-#define IS_SMITH(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_SMITH))
-#define IS_MERCHANT(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_MERCHANT))
-#define IS_DRUID(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_DRUID))
-#define IS_BATTLEMAGE(ch)  (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_BATTLEMAGE))
-#define IS_CHARMMAGE(ch)   (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_CHARMMAGE))
-#define IS_DEFENDERMAGE(ch)   (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_DEFENDERMAGE))
-#define IS_NECROMANCER(ch) (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_NECROMANCER))
-#define IS_FIGHTER_USER(ch)  (!IS_NPC(ch) && \
-            (IS_BITS(MASK_FIGHTERS, (int) GET_CLASS(ch))))
+#define IS_SORCERER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kSorcerer))
+#define IS_THIEF(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kThief))
+#define IS_ASSASINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kAssasine))
+#define IS_WARRIOR(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kWarrior))
+#define IS_PALADINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kPaladine))
+#define IS_RANGER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kRanger))
+#define IS_GUARD(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kGuard))
+#define IS_VIGILANT(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kVigilant))
+#define IS_MERCHANT(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kMerchant))
+#define IS_MAGUS(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kMagus))
+#define IS_CONJURER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kConjurer))
+#define IS_CHARMER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kCharmer))
+#define IS_WIZARD(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kWizard))
+#define IS_NECROMANCER(ch)	(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kNecromancer))
+
+#define IS_FIGHTER_USER(ch)  (!IS_NPC(ch) && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
+#define IS_MAGIC_USER(ch)	(!IS_NPC(ch) && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
 
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
     (MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE) || (GET_RACE(ch) == NPC_RACE_GHOST)))
 
-#define LIKE_ROOM(ch) ((IS_CLERIC(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
+#define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
                        (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \
                        (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_WARRIOR)) || \
                        (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_THIEF)) || \
@@ -1103,9 +1088,9 @@ inline T VPOSI(const T val, const T min, const T max) {
                        (IS_GUARD(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_GUARD)) || \
                        (IS_PALADINE(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_PALADINE)) || \
                        (IS_RANGER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_RANGER)) || \
-                       (IS_SMITH(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_SMITH)) || \
+                       (IS_VIGILANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_SMITH)) || \
                        (IS_MERCHANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MERCHANT)) || \
-                       (IS_DRUID(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
+                       (IS_MAGUS(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
 

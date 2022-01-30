@@ -769,7 +769,7 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isSkill) {
-		if (MUD::Classes()[ch->get_class()].Knows(skill_id) ) {
+		if (MUD::Classes()[ch->get_class()].IsKnown(skill_id) ) {
 			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");

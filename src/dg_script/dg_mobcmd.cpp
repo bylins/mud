@@ -1074,7 +1074,7 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	}
 
 	if (isSkill) {
-		if (MUD::Classes()[ch->get_class()].Knows(skill_id)) {
+		if (MUD::Classes()[ch->get_class()].IsKnown(skill_id)) {
 			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");

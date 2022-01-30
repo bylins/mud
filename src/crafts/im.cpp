@@ -735,7 +735,7 @@ void init_im(void) {
 	// но уровни и реморты равные -1, т.о. если файл classrecipe.lst поврежден,
 	// рецепты не будут обнулятся, просто станут недоступны для изучения
 	for (i = 0; i <= top_imrecipes; i++) {
-		for (j = 0; j < NUM_PLAYER_CLASSES; j++)
+		for (j = 0; j < kNumPlayerClasses; j++)
 			imrecipes[i].classknow[j] = KNOW_RECIPE;
 		imrecipes[i].level = -1;
 		imrecipes[i].remort = -1;
@@ -781,7 +781,7 @@ void init_im(void) {
 
 // line1 - ограничения для рас еще не реализованы
 
-		for (j = 0; line2[j] && j < NUM_PLAYER_CLASSES; j++) {
+		for (j = 0; line2[j] && j < kNumPlayerClasses; j++) {
 			if (!strchr("1xX!", line2[j])) {
 				imrecipes[rcpt].classknow[j] = 0;
 			} else {

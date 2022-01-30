@@ -33,7 +33,7 @@
 #include "magic/magic_utils.h"
 #include "world_objects.h"
 #include "entities/zone.h"
-#include "classes/class_spell_slots.h"
+#include "classes/classes_spell_slots.h"
 #include "depot.h"
 
 using PlayerClass::slot_for_char;
@@ -798,8 +798,8 @@ int flag_data_by_char_class(const CharacterData *ch) {
 		return 0;
 	}
 
-	return flag_data_by_num(IS_NPC(ch) ? NUM_PLAYER_CLASSES * kNumKins : GET_CLASS(ch)
-		+ NUM_PLAYER_CLASSES * GET_KIN(ch));
+	return flag_data_by_num(IS_NPC(ch) ? kNumPlayerClasses * kNumKins : GET_CLASS(ch)
+		+ kNumPlayerClasses * GET_KIN(ch));
 }
 
 unsigned int activate_stuff(CharacterData *ch, ObjectData *obj, id_to_set_info_map::const_iterator it,
@@ -2495,7 +2495,7 @@ ObjectData::shared_ptr create_money(int amount) {
  * like the one_argument routine), but now it returns an integer that
  * describes what it filled in.
  */
-int generic_find(char *arg, bitvector_t bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj) {
+int generic_find(char *arg, Bitvector bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj) {
 	char name[256];
 
 	*tar_ch = nullptr;
@@ -2855,7 +2855,7 @@ int mag_manacost(const CharacterData *ch, int spellnum) {
 				result = result * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 			}
 //		Меняем мем на коэффициент скилла магии
-			if (GET_CLASS(ch) == CLASS_PALADINE || GET_CLASS(ch) == CLASS_MERCHANT) {
+			if (GET_CLASS(ch) == kPaladine || GET_CLASS(ch) == kMerchant) {
 				return result;
 			}
 		}

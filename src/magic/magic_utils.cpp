@@ -665,7 +665,7 @@ int CalcCastSuccess(CharacterData *ch, CharacterData *victim, ESaving saving, in
 		case ESaving::kStability:
 			prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
 			if ((IS_MAGE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MAGE))
-				|| (IS_CLERIC(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))
+				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_CLERIC))
 				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_PALADINE))
 				|| (IS_MERCHANT(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT))) {
 				prob += 10;

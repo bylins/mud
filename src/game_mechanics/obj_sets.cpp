@@ -187,7 +187,7 @@ void verify_set(set_node &set) {
 		}
 	}
 
-	std::bitset<NUM_PLAYER_CLASSES> prof_bits;
+	std::bitset<kNumPlayerClasses> prof_bits;
 	bool prof_restrict = false;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i) {
 		if (i->first < MIN_ACTIVE_SIZE || i->first > MAX_ACTIVE_SIZE) {
@@ -403,7 +403,7 @@ void load() {
 			// если нет атрибута prof - значит актив на все профы
 			pugi::xml_attribute xml_prof = xml_activ.attribute("prof");
 			if (xml_prof) {
-				std::bitset<NUM_PLAYER_CLASSES> tmp_p(std::string(xml_prof.value()));
+				std::bitset<kNumPlayerClasses> tmp_p(std::string(xml_prof.value()));
 				tmp_activ.prof = tmp_p;
 			}
 			// активится ли сет на мобах

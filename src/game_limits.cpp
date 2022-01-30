@@ -28,7 +28,7 @@
 #include "ext_money.h"
 #include "mob_stat.h"
 #include "entities/zone.h"
-#include "classes/class_spell_slots.h"
+#include "classes/classes_spell_slots.h"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>

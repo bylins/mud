@@ -211,7 +211,7 @@ bool CompareBits(const FlagData &flags, const char *names[], int affect) {
 	for (i = 0; i < 4; i++) {
 		int nr = 0;
 		int fail = i;
-		bitvector_t bitvector = flags.get_plane(i);
+		Bitvector bitvector = flags.get_plane(i);
 
 		while (fail) {
 			if (*names[nr] == '\n')
