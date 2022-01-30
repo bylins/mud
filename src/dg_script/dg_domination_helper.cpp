@@ -103,6 +103,12 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 		}
 		std::vector<MobVnum> mob_vnum_list;
 		array_argument(vd_mob->value, mob_vnum_list);
+		// т.к. мобы грузятся по раундам - количество мобов >= количествj раундов
+		if (mob_vnum_list.size() < expected_round_count) {
+			snprintf(buf2, kMaxStringLength, "Неверное количество мобов в группе %s: %zu", var_name_mob.first.c_str(), mob_vnum_list.size());
+			trig_log(trig, buf2);
+			return false;
+		}
 
 		TriggerVar *vd_room = find_var_cntx(&GET_TRIG_VARS(trig), var_name_mob.second.c_str(), sc->context);
 		if (!vd_room) {
@@ -128,7 +134,7 @@ void process_arena_round(Script *sc, Trigger *trig, char *cmd)
 	}
 
 	// загрузка мобов по комнатам
-	const int mob_counter = dd.mob_counter_per_round.at(dd.current_round);
+	const int mob_counter = dd.mob_counter_per_round.at(dd.current_round - 1);
 	if (dd.debug_mode) {
 		snprintf(buf2, kMaxStringLength, "Количество загружаемых мобов: %d", mob_counter);
 		trig_log(trig, buf2);
@@ -141,7 +147,7 @@ void process_arena_round(Script *sc, Trigger *trig, char *cmd)
 				continue;
 			}
 			const auto random_room_index = number(0, room_vnum_list.size() - 1);
-			const auto random_mob_index = number(0, mob_vnum_list.size() - 1);
+			const auto mob_index = dd.current_round - 1;
 
 			const auto random_room = real_room(room_vnum_list.at(random_room_index));
 			if (random_room < 0) {
@@ -150,15 +156,15 @@ void process_arena_round(Script *sc, Trigger *trig, char *cmd)
 				continue;
 			}
 
-			CharacterData *random_mob = read_mobile(mob_vnum_list.at(random_mob_index), VIRTUAL);
+			CharacterData *random_mob = read_mobile(mob_vnum_list.at(mob_index), VIRTUAL);
 			if (!random_mob) {
-				snprintf(buf2, kMaxStringLength, "Не могу найти моба: %d", mob_vnum_list.at(random_mob_index));
+				snprintf(buf2, kMaxStringLength, "Не могу найти моба: %d", mob_vnum_list.at(mob_index));
 				trig_log(trig, buf2);
 				continue;
 			}
 
 			if (dd.debug_mode) {
-				snprintf(buf2, kMaxStringLength, "load mob: %d to room: %d", mob_vnum_list.at(random_mob_index), room_vnum_list.at(random_room_index));
+				snprintf(buf2, kMaxStringLength, "load mob: %d to room: %d", mob_vnum_list.at(mob_index), room_vnum_list.at(random_room_index));
 				trig_log(trig, buf2);
 			}
 			char_to_room(random_mob, random_room);
