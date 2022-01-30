@@ -36,6 +36,7 @@
 #include "depot.h"
 #include "description.h"
 #include "dg_script/dg_scripts.h"
+#include "dg_script/dg_event.h"
 #include "ext_money.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
@@ -3411,6 +3412,7 @@ struct show_struct show_fields[] = {
 		{"remort", kLevelImplementator}, // 25
 		{"apply", kLevelGod}, // 26
 		{"worlds", kLevelImmortal},
+		{"triggers", kLevelImmortal},
 		{"\n", 0}
 };
 
@@ -3866,6 +3868,9 @@ void do_show(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				send_to_char("Формат команды: show worlds номер-контекста|all.\r\n", ch);
 			}
+			break;
+		case 28: // triggers
+			print_event_list(ch);
 			break;
 		default: send_to_char("Извините, неверная команда.\r\n", ch);
 			break;

@@ -21,6 +21,7 @@
 // * how often will heartbeat() call our event function?
 #define PULSE_DG_EVENT 1
 
+class CharacterData;
 
 // * macro used to prototype the callback function for an event
 #define EVENT(function) void (function)(void *info)
@@ -37,6 +38,9 @@ struct TriggerEvent {
 struct TriggerEvent *add_event(int time, EVENT(*func), void *info);
 void remove_event(struct TriggerEvent *event);
 void process_events(void);
+
+// список всех ивентов в очереди
+void print_event_list(CharacterData *ch);
 
 #endif
 
