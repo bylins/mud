@@ -16,10 +16,15 @@ extern pugi::xml_node XMLLoad(const std::string &PathToFile, const std::string &
 
 namespace classes {
 
+const bool kStrictParsing = true;
+constexpr bool kTolerantParsing = !kStrictParsing;
+
 const std::string CharClassInfo::cfg_file_name{LIB_CFG "pc_classes.xml"};
 const std::string CharClassInfo::xml_main_tag{"classes"};
 const std::string CharClassInfo::xml_entity_tag{"class"};
 const std::string CharClassInfo::load_fail_msg{"PC classes loading failed. The cfg file is missing or damaged."};
+
+bool ClassesInfo::RegisterBuilder::strict_pasring_{true};
 
 template<typename T>
 T FindConstantByAttributeValue(const char *attribute_name, const xml_node &node) {
@@ -32,15 +37,12 @@ T FindConstantByAttributeValue(const char *attribute_name, const xml_node &node)
 }
 
 void ClassesInfo::Init() {
-	// todo сделать строгий/нестрогий парсинг
-	//ClassesInfo::ClassesInfoBuilder builder;
-	// Для инициализации static полей
 	CharClassInfo CLassInfo;
-	items_ = std::move(RegisterBuilder::Build().value());
+	items_ = std::move(RegisterBuilder::Build(kTolerantParsing).value());
 }
 
-void ClassesInfo::Reload(std::string &arg) {
-	auto new_items = RegisterBuilder::Build();
+void ClassesInfo::Reload(const std::string &arg) {
+	auto new_items = RegisterBuilder::Build(kStrictParsing);
 	if (new_items) {
 		items_ = std::move(new_items.value());
 	} else {
@@ -48,34 +50,49 @@ void ClassesInfo::Reload(std::string &arg) {
 	}
 }
 
-ClassesInfo::Optional ClassesInfo::RegisterBuilder::Build() {
+ClassesInfo::Optional ClassesInfo::RegisterBuilder::Build(bool strict_parsing) {
+	strict_pasring_ = strict_parsing;
 	pugi::xml_document doc;
 	auto nodes = XMLLoad(CharClassInfo::cfg_file_name, CharClassInfo::xml_main_tag, CharClassInfo::load_fail_msg, doc);
 	if (nodes.empty()) {
 		return std::nullopt;
 	}
-	//throw std::exception();
 	return Parse(nodes, CharClassInfo::xml_entity_tag);
 }
 
 ClassesInfo::Optional ClassesInfo::RegisterBuilder::Parse(const xml_node &nodes, const std::string &tag) {
 	auto items = std::make_optional(std::make_unique<Register>());
+	CharClassInfo::Optional item;
 	for (auto &node : nodes.children(tag.c_str())) {
-		try {
-			EmplaceItem(items, node);
+/*		try {
+			item = ItemBuilder::Build(node);
 		} catch (std::exception &e) {
 			err_log("Incorrect value or id '%s' was detected.", e.what());
+			item.reset();
+		}
+		if (!item) {
+			if (strict_pasring_) {
+				return std::nullopt;
+			} else {
+				continue;
+			}
+		}
+		EmplaceItem(items, item);*/
+
+		item = ItemBuilder::Build(node);
+		if (item) {
+			EmplaceItem(items, item);
+		} else if (strict_pasring_) {
 			return std::nullopt;
 		}
-	}
 
-	items.value()->try_emplace(ECharClass::kUndefined, std::make_unique<CharClassInfo>());
+	}
+	EmplaceDefaultItems(items);
 
 	return items;
 }
 
-void ClassesInfo::RegisterBuilder::EmplaceItem(ClassesInfo::Optional &items, const xml_node &node) {
-	auto item = ItemBuilder::Build(node);
+void ClassesInfo::RegisterBuilder::EmplaceItem(ClassesInfo::Optional &items, CharClassInfo::Optional &item) {
 	auto it = items.value()->try_emplace(item.value().first, std::move(item.value().second));
 	if (!it.second) {
 		err_log("Item '%s' has already exist. Redundant definition had been ignored.\n",
@@ -83,6 +100,9 @@ void ClassesInfo::RegisterBuilder::EmplaceItem(ClassesInfo::Optional &items, con
 	}
 }
 
+void ClassesInfo::RegisterBuilder::EmplaceDefaultItems(ClassesInfo::Optional &items) {
+	items.value()->try_emplace(ECharClass::kUndefined, std::make_unique<CharClassInfo>());
+}
 
 const CharClassInfo &ClassesInfo::operator[](ECharClass id) const {
 	try {
@@ -126,9 +146,14 @@ long CharClassInfo::GetImprove(const ESkill id) const {
  */
 CharClassInfo::Optional CharClassInfoBuilder::Build(const xml_node &node) {
 	auto class_info = std::make_optional(CharClassInfo::Pair());
-	class_info.value().first = FindConstantByAttributeValue<ECharClass>("id", node);
-	class_info.value().second = std::make_unique<CharClassInfo>();
-	ParseSkills(class_info.value().second, node.child("skills"));
+	try {
+		class_info.value().first = FindConstantByAttributeValue<ECharClass>("id", node);
+		class_info.value().second = std::make_unique<CharClassInfo>();
+		ParseSkills(class_info.value().second, node.child("skills"));
+	} catch (std::exception &e) {
+		err_log("Incorrect value or id '%s' was detected.", e.what());
+		class_info = std::nullopt;
+	}
 	return class_info;
 }
 

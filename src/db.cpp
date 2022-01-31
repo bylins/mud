@@ -1077,9 +1077,11 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		DailyQuest::load_from_file();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
-	else if (!str_cmp(arg, "abilities"))
-		GlobalObjects::Abilities().Reload();
-	else if (!str_cmp(arg, "imagic"))
+	else if (!str_cmp(arg, "abilities")) {
+		MUD::Abilities().Reload();
+	} else if (!str_cmp(arg, "classes")) {
+		MUD::Classes().Reload("classes");
+	} else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
 		init_zone_types();

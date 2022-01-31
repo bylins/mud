@@ -73,7 +73,7 @@ class ClassesInfo {
 	void operator=(const ClassesInfo &c) = delete;
 
 	void Init();
-	void Reload(std::string &arg);
+	void Reload(const std::string &arg);
 	const CharClassInfo &operator[](ECharClass id) const;
 
  private:
@@ -84,11 +84,14 @@ class ClassesInfo {
 
 	class RegisterBuilder {
 	 public:
-		static ClassesInfo::Optional Build();
+		static Optional Build(bool strict_parsing = true);
 		static ClassesInfo::Optional Parse(const pugi::xml_node &nodes, const std::string &tag);
-		static void EmplaceItem(ClassesInfo::Optional &items, const pugi::xml_node &node);
+		static void EmplaceItem(ClassesInfo::Optional &items, CharClassInfo::Optional &item);
+		static void EmplaceDefaultItems(ClassesInfo::Optional &items);
 	 private:
 		using ItemBuilder = CharClassInfoBuilder;
+
+		static bool strict_pasring_;
 	};
 
 	RegisterPtr items_;
