@@ -12,9 +12,14 @@
 #include "utils/pugixml.h"
 
 using pugi::xml_node;
-extern xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document &Doc);
+extern pugi::xml_node XMLLoad(const std::string &PathToFile, const std::string &MainTag, const std::string &ErrorStr, pugi::xml_document &Doc);
 
 namespace classes {
+
+const std::string CharClassInfo::cfg_file_name{LIB_CFG "pc_classes.xml"};
+const std::string CharClassInfo::xml_main_tag{"classes"};
+const std::string CharClassInfo::xml_entity_tag{"class"};
+const std::string CharClassInfo::load_fail_msg{"PC classes loading failed. The cfg file is missing or damaged."};
 
 template<typename T>
 T FindConstantByAttributeValue(const char *attribute_name, const xml_node &node) {
@@ -29,6 +34,8 @@ T FindConstantByAttributeValue(const char *attribute_name, const xml_node &node)
 void ClassesInfo::Init() {
 	// todo сделать строгий/нестрогий парсинг
 	//ClassesInfo::ClassesInfoBuilder builder;
+	// Для инициализации static полей
+	CharClassInfo CLassInfo;
 	items_ = std::move(RegisterBuilder::Build().value());
 }
 
@@ -42,44 +49,40 @@ void ClassesInfo::Reload(std::string &arg) {
 }
 
 ClassesInfo::Optional ClassesInfo::RegisterBuilder::Build() {
-
-	const std::string kPath{LIB_CFG};
-	const std::string kFileName{"pc_classes.xml"};
-
-	const char *kMainTag = "classes";
-	const char *kItemTag = "class";
-	const char *kFailMsg = "PC classes loading failed. The cfg file is missing or damaged.";
-
-	std::string kFullFileName = kPath + kFileName;
 	pugi::xml_document doc;
-	xml_node nodes = XMLLoad(kFullFileName.c_str(), kMainTag, kFailMsg, doc);
+	auto nodes = XMLLoad(CharClassInfo::cfg_file_name, CharClassInfo::xml_main_tag, CharClassInfo::load_fail_msg, doc);
 	if (nodes.empty()) {
 		return std::nullopt;
 	}
+	//throw std::exception();
+	return Parse(nodes, CharClassInfo::xml_entity_tag);
+}
+
+ClassesInfo::Optional ClassesInfo::RegisterBuilder::Parse(const xml_node &nodes, const std::string &tag) {
 	auto items = std::make_optional(std::make_unique<Register>());
-	for (auto &node : nodes.children(kItemTag)) {
+	for (auto &node : nodes.children(tag.c_str())) {
 		try {
-			auto item = ItemBuilder::Build(node);
-			auto it = items.value()->try_emplace(item.value().first, std::move(item.value().second));
-			if (!it.second) {
-				err_log("Item '%s' has already exist. Redundant definition had been ignored.\n",
-						NAME_BY_ITEM<ECharClass>(item.value().first).c_str());
-			}
+			EmplaceItem(items, node);
 		} catch (std::exception &e) {
 			err_log("Incorrect value or id '%s' was detected.", e.what());
 			return std::nullopt;
 		}
 	}
-	items.value()->try_emplace(ECharClass::kUndefined, std::make_unique<CharClassInfo>());
-	items.value()->try_emplace(ECharClass::kMob, std::make_unique<CharClassInfo>());
-	items.value()->try_emplace(ECharClass::kNpcBase, std::make_unique<CharClassInfo>());
 
-	//throw std::exception();
-	//AddDefaultValues(abilities.value());
-	//strict_parsing_ = false;
-	//std::cout << "Crash here! #3\n";
+	items.value()->try_emplace(ECharClass::kUndefined, std::make_unique<CharClassInfo>());
+
 	return items;
 }
+
+void ClassesInfo::RegisterBuilder::EmplaceItem(ClassesInfo::Optional &items, const xml_node &node) {
+	auto item = ItemBuilder::Build(node);
+	auto it = items.value()->try_emplace(item.value().first, std::move(item.value().second));
+	if (!it.second) {
+		err_log("Item '%s' has already exist. Redundant definition had been ignored.\n",
+				NAME_BY_ITEM<ECharClass>(item.value().first).c_str());
+	}
+}
+
 
 const CharClassInfo &ClassesInfo::operator[](ECharClass id) const {
 	try {
@@ -119,7 +122,7 @@ long CharClassInfo::GetImprove(const ESkill id) const {
 };
 
 /*
- *  Билдер информации одного отдельного класса.
+ *  Строитель информации одного отдельного класса.
  */
 CharClassInfo::Optional CharClassInfoBuilder::Build(const xml_node &node) {
 	auto class_info = std::make_optional(CharClassInfo::Pair());

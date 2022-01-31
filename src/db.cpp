@@ -885,6 +885,10 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 	return NodeList;
 };
 
+pugi::xml_node XMLLoad(const std::string &PathToFile, const std::string &MainTag, const std::string &ErrorStr, pugi::xml_document &Doc) {
+	return XMLLoad(PathToFile.c_str(), MainTag.c_str(), ErrorStr.c_str(), Doc);
+}
+
 std::vector<TreasureCase> cases;
 // Заггрузка сундуков в мире
 void load_cases() {
@@ -2306,8 +2310,8 @@ void boot_db(void) {
 	log("Booting IM");
 	init_im();
 
-	boot_profiler.next_step("Assigning spells and skills levels");
-	log("Assigning spell and skill levels.");
+	boot_profiler.next_step("Assigning character classs info.");
+	log("Assigning character classs info.");
 	MUD::Classes().Init();
 	init_spell_levels();
 

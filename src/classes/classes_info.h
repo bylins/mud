@@ -28,6 +28,11 @@ struct ClassSkillInfo {
 };
 
 struct CharClassInfo {
+	static const std::string cfg_file_name;
+	static const std::string xml_main_tag;
+	static const std::string xml_entity_tag;
+	static const std::string load_fail_msg;
+
 	using Ptr = std::unique_ptr<CharClassInfo>;
 	using Pair = std::pair<ECharClass, Ptr>;
 	using Optional = std::optional<Pair>;
@@ -80,6 +85,8 @@ class ClassesInfo {
 	class RegisterBuilder {
 	 public:
 		static ClassesInfo::Optional Build();
+		static ClassesInfo::Optional Parse(const pugi::xml_node &nodes, const std::string &tag);
+		static void EmplaceItem(ClassesInfo::Optional &items, const pugi::xml_node &node);
 	 private:
 		using ItemBuilder = CharClassInfoBuilder;
 	};
