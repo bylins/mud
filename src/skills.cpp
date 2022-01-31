@@ -452,6 +452,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kMindMagic] = "kMindMagic";
 	ESkill_name_by_value[ESkill::kLifeMagic] = "kLifeMagic";
 	ESkill_name_by_value[ESkill::kMakeAmulet] = "kMakeAmulet";
+	ESkill_name_by_value[ESkill::kStun] = "kStun";
 
 	for (const auto &i: ESkill_name_by_value) {
 		ESkill_value_by_name[i.second] = i.first;
@@ -1980,7 +1981,7 @@ int FindWeaponMasterFeat(ESkill skill) {
 //req_lvl - требуемый уровень из книги
 int GetSkillMinLevel(CharacterData *ch, ESkill skill, int req_lvl) {
 	int min_lvl = MAX(req_lvl, MUD::Classes()[ch->get_class()].GetMinLevel(skill))
-		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetLevelDecrement(skill));
+		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetSkillLevelDecrement());
 	return MAX(1, min_lvl);
 };
 
@@ -1990,7 +1991,7 @@ int GetSkillMinLevel(CharacterData *ch, ESkill skill, int req_lvl) {
  */
 int GetSkillMinLevel(CharacterData *ch, ESkill skill) {
 	int min_lvl = MUD::Classes()[ch->get_class()].GetMinLevel(skill)
-		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetLevelDecrement(skill));
+		- std::max(0, GET_REAL_REMORT(ch) / MUD::Classes()[ch->get_class()].GetSkillLevelDecrement());
 	return MAX(1, min_lvl);
 };
 

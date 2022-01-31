@@ -7,115 +7,128 @@
 
 #include "classes_info.h"
 
+#include <iostream>
+
 #include "boot/boot_constants.h"
 #include "logger.h"
+#include "utils/pugixml.h"
+
+using pugi::xml_node;
+extern xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document &Doc);
 
 namespace classes {
 
-void ClassesInfo::InitCharClass(ECharClass class_id) {
-	auto class_info = std::make_unique<CharClassInfo>();
-	auto it = classes_.try_emplace(class_id, std::move(class_info));
-	if (!it.second) {
-/*		err_log("CLass '%s' has already exist. Redundant definition had been ignored.\n",
-				NAME_BY_ITEM<ECharClass>(class_id).c_str());*/
-		err_log("Class '%d' has already exist. Redundant definition had been ignored.\n", class_id);
+template<typename T>
+T FindConstantByAttributeValue(const char *attribute_name, const xml_node &node) {
+	auto constants_name = node.attribute(attribute_name).value();
+	try {
+		return ITEM_BY_NAME<T>(constants_name);
+	} catch (const std::out_of_range &) {
+		throw std::runtime_error(constants_name);
 	}
 }
 
 void ClassesInfo::Init() {
-	for (ECharClass id = ECharClass::kFirst; id <= ECharClass::kLast; ++id) {
-		InitCharClass(id);
-	}
-	InitCharClass(ECharClass::kUndefined);
-	InitCharClass(ECharClass::kMob);
-	InitCharClass(ECharClass::kNPCBase);
+	// todo сделать строгий/нестрогий парсинг
+	//ClassesInfo::ClassesInfoBuilder builder;
+	items_ = std::move(RegisterBuilder::Build().value());
 }
 
-const CharClassInfo &ClassesInfo::operator[](ECharClass class_id) const {
+void ClassesInfo::Reload(std::string &arg) {
+	auto new_items = RegisterBuilder::Build();
+	if (new_items) {
+		items_ = std::move(new_items.value());
+	} else {
+		err_log("%s reloading canceled: file damaged.", arg.c_str());
+	}
+}
+
+ClassesInfo::Optional ClassesInfo::RegisterBuilder::Build() {
+
+	const std::string kPath{LIB_CFG};
+	const std::string kFileName{"pc_classes.xml"};
+
+	const char *kMainTag = "classes";
+	const char *kItemTag = "class";
+	const char *kFailMsg = "PC classes loading failed. The cfg file is missing or damaged.";
+
+	std::string kFullFileName = kPath + kFileName;
+	pugi::xml_document doc;
+	xml_node nodes = XMLLoad(kFullFileName.c_str(), kMainTag, kFailMsg, doc);
+	if (nodes.empty()) {
+		return std::nullopt;
+	}
+	auto items = std::make_optional(std::make_unique<Register>());
+	// todo заменить на loop-range
+	//for (xml_node cur_node = node.child(kItemTag); cur_node; cur_node = cur_node.next_sibling(kItemTag)) {
+	for (auto &node : nodes.children(kItemTag)) {
+		try {
+			auto item = ItemBuilder::Build(node);
+			auto it = items.value()->try_emplace(item.value().first, std::move(item.value().second));
+			if (!it.second) {
+				err_log("Item '%s' has already exist. Redundant definition had been ignored.\n",
+						NAME_BY_ITEM<ECharClass>(item.value().first).c_str());
+			}
+		} catch (std::exception &e) {
+			err_log("Incorrect value or id '%s' was detected.", e.what());
+			return std::nullopt;
+		}
+	}
+	//std::cout << "Crash here! #2\n";
+	items.value()->try_emplace(ECharClass::kUndefined, std::make_unique<CharClassInfo>());
+	items.value()->try_emplace(ECharClass::kMob, std::make_unique<CharClassInfo>());
+	items.value()->try_emplace(ECharClass::kNpcBase, std::make_unique<CharClassInfo>());
+
+	//throw std::exception();
+	//AddDefaultValues(abilities.value());
+	//strict_parsing_ = false;
+	//std::cout << "Crash here! #3\n";
+	return items;
+}
+
+const CharClassInfo &ClassesInfo::operator[](ECharClass id) const {
 	try {
-		return *classes_.at(class_id);
+		return *items_->at(id);
 	} catch (const std::out_of_range &) {
-		err_log("Unknown class id (%d) passed into CharClassInfo", to_underlying(class_id));
-		return *classes_.at(ECharClass::kUndefined);
+		err_log("Unknown id (%d) passed into %s.", to_underlying(id), typeid(this).name());
+		return *items_->at(ECharClass::kUndefined);
 	}
 }
 
 bool CharClassInfo::IsKnown(const ESkill id) const {
-	//return skillls_info_->contains(id);
-	return true;
+	return skillls_->contains(id);
 };
+
+// Временное решение, ага... :)
+
 /*
-using pugi::xml_node;
-
-extern xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document &Doc);
-
-CharClassInfo::ClassSkillInfoRegisterPtr BuildClassesSkillsInfo() {
-	xml_node node = XMLLoad(LIB_MISC "class.skills.xml", "classes", "Classes skills loading failed.", doc);
+ *  Билдер информации одного отдельного класса.
+ */
+CharClassInfo::Optional CharClassInfoBuilder::Build(const xml_node &node) {
+	auto class_info = std::make_optional(CharClassInfo::Pair());
+	class_info.value().first = FindConstantByAttributeValue<ECharClass>("id", node);
+	class_info.value().second = std::make_unique<CharClassInfo>();
+	ParseSkills(class_info.value().second, node.child("skills"));
+	return class_info;
 }
 
-
-//Polud Читает данные из файла хранения параметров умений ABYRVALG - перенести в классес инфо
-void LoadClassSkills() {
-	const char *CLASS_SKILLS_FILE = LIB_MISC"class.skills.xml";
-
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
-		return;
+void CharClassInfoBuilder::ParseSkills(CharClassInfo::Ptr &info, const xml_node &nodes) {
+	info->skills_level_decrement_ = nodes.attribute("level_decrement").as_int();
+	//todo переделать на луп рейндж
+	//for (xml_node cur_node = node.child("skill"); cur_node; cur_node = cur_node.next_sibling("skill")) {
+	for (auto &node : nodes.children("skill")) {
+		auto skill_id = FindConstantByAttributeValue<ESkill>("id", node);
+		auto skill_info = std::make_unique<ClassSkillInfo>();
+		ParseSingleSkill(skill_info, node);
+		info->skillls_->try_emplace(skill_id, std::move(skill_info));
 	}
+}
 
-	pugi::xml_node node_list = doc.child("skills");
-
-	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...class.skills.xml read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
-		return;
-	}
-
-	pugi::xml_node xNodeClass, xNodeSkill, race;
-	int pc_class, level_decrement;
-	for (xNodeClass = race.child("class"); xNodeClass; xNodeClass = xNodeClass.next_sibling("class")) {
-		pc_class = xNodeClass.attribute("class_num").as_int();
-		level_decrement = xNodeClass.attribute("level_decrement").as_int();
-		for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill")) {
-			std::string name = std::string(xNodeSkill.attribute("name").value());
-			auto sk_num = FixNameFndFindSkillNum(name);
-			if (MUD::Skills().IsInvalid(sk_num)) {
-				log("Skill '%s' not found...", name.c_str());
-				graceful_exit(1);
-			}
-			skill_info[sk_num].classknow[pc_class] = kKnowSkill;
-			if ((level_decrement < 1 && level_decrement != -1) || level_decrement > kMaxRemort) {
-				log("ERROR: Недопустимый параметр level decrement класса %d.", pc_class);
-				skill_info[sk_num].level_decrement[pc_class] = -1;
-			} else {
-				skill_info[sk_num].level_decrement[pc_class] = level_decrement;
-			}
-			auto value = xNodeSkill.attribute("improve").as_int();
-			skill_info[sk_num].k_improve[pc_class] = MAX(1, value);
-			value = xNodeSkill.attribute("level").as_int();
-			if (value > 0 && value < kLevelImmortal) {
-				skill_info[sk_num].min_level[pc_class] = value;
-			} else {
-				log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d",
-					skill_info[sk_num].name,
-					value);
-				graceful_exit(1);
-			}
-			value = xNodeSkill.attribute("remort").as_int();
-			if (value >= 0 && value < kMaxRemort) {
-				skill_info[sk_num].min_remort[pc_class] = value;
-			} else {
-				log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d",
-					skill_info[sk_num].name,
-					value);
-				graceful_exit(1);
-			}
-		}
-	}
-}*/
+void CharClassInfoBuilder::ParseSingleSkill(ClassSkillInfo::Ptr &info, const xml_node &node) {
+	info->min_level = node.attribute("level").as_int();
+	info->min_remort = node.attribute("remort").as_int();
+	info->improve =  node.attribute("improve").as_int();
+};
 
 } // namespace clases
 

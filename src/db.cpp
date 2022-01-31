@@ -2310,7 +2310,6 @@ void boot_db(void) {
 	log("Assigning spell and skill levels.");
 	MUD::Classes().Init();
 	init_spell_levels();
-	//LoadClassSkills(); // ABYRVALG - перенести логику парсинга в класс-инфо
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");

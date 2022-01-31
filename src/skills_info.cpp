@@ -16,7 +16,7 @@ const SkillInfo &SkillsInfo::operator[](const ESkill id) const {
 void SkillsInfo::InitSkill(ESkill id, const std::string &name, const std::string &short_name,
 						   ESaving saving, int difficulty, int cap, bool enabled) {
 	auto item = std::make_pair(enabled, SkillInfo(name, short_name, saving, difficulty, cap));
-	auto it = items_->try_emplace(id, std::make_unique<ItemPair>(item));
+	auto it = items_->try_emplace(id, std::make_unique<Pair>(item));
 	if (!it.second) {
 		err_log("Skill '%s' has already exist. Redundant definition had been ignored.",
 				NAME_BY_ITEM<ESkill>(id).c_str());

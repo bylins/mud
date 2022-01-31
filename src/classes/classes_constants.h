@@ -26,13 +26,17 @@ enum ECharClass : int {
 	kFirst = kSorcerer,
 	kLast = kMagus, // Не забываем менять при изменении числа классов
 	kMob = 20,
-	kNPCBase = 100,
+	kNpcBase = 100, // От этого маразма надо избавиться
 	kNPCLast = 107
 };
 
 constexpr int kNumPlayerClasses = ECharClass::kLast + 1;
-
 ECharClass& operator++(ECharClass &c);
+
+template<>
+const std::string &NAME_BY_ITEM<ECharClass>(ECharClass item);
+template<>
+ECharClass ITEM_BY_NAME<ECharClass>(const std::string &name);
 
 constexpr Bitvector kMaskSorcerer = 1 << ECharClass::kSorcerer;
 constexpr Bitvector kMaskConjurer = 1 << ECharClass::kConjurer;

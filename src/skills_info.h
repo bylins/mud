@@ -45,7 +45,7 @@ class SkillsInfo {
 	SkillsInfo() {
 		if (!items_) {
 			items_ = std::make_unique<Register>();
-			items_->emplace(ESkill::kUndefined, std::make_unique<ItemPair>(std::make_pair(false, SkillInfo())));
+			items_->emplace(ESkill::kUndefined, std::make_unique<Pair>(std::make_pair(false, SkillInfo())));
 		}
 	};
 	SkillsInfo(SkillsInfo &s) = delete;
@@ -78,10 +78,11 @@ class SkillsInfo {
 	bool IsInvalid(ESkill id) { return !IsValid(id); };
 
  private:
-	using ItemPair = std::pair<bool, SkillInfo>;
-	using ItemPairPtr = std::unique_ptr<ItemPair>;
-	using Register = std::unordered_map<ESkill, ItemPairPtr>;
+	using Pair = std::pair<bool, SkillInfo>;
+	using PairPtr = std::unique_ptr<Pair>;
+	using Register = std::unordered_map<ESkill, PairPtr>;
 	using RegisterPtr = std::unique_ptr<Register>;
+//	using RegisterOptional = std::optional<RegisterPtr>;
 
 	RegisterPtr items_;
 
@@ -90,7 +91,9 @@ class SkillsInfo {
 
 	void InitSkill(ESkill id, const std::string &name, const std::string &short_name,
 				   ESaving saving, int difficulty, int cap, bool enabled = true);
+
 };
+
 
 // Этому место в структуре скилл_инфо (а еще точнее - абилок), но во-первых, в messages запихали и сообщения спеллов,
 // и еще черта лысого в ступе, во-вторых, это надо переделывать структуру и ее парсинг. Поэтому пока так.

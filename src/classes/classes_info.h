@@ -13,50 +13,80 @@
 
 #include <array>
 
+namespace pugi {
+class xml_node;
+}
+
 namespace classes {
 
 struct ClassSkillInfo {
-	int min_level{kMaxPlayerLevel};
-	int min_remort{kMaxRemort};
+	using Ptr = std::unique_ptr<ClassSkillInfo>;
+
+	int min_level{kLevelImplementator};
+	int min_remort{kMaxRemort + 1};
 	long improve{1};
 };
 
 struct CharClassInfo {
+	using Ptr = std::unique_ptr<CharClassInfo>;
+	using Pair = std::pair<ECharClass, Ptr>;
+	using Optional = std::optional<Pair>;
+
 	CharClassInfo() {
-		skillls_info_ = std::make_unique<ClassSkillInfoRegister>();
+		skillls_ = std::make_unique<Skills>();
 	}
 	CharClassInfo(CharClassInfo &s) = delete;
 	void operator=(const CharClassInfo &s) = delete;
 
-	/* Skills methods */
-	bool IsKnown(const ESkill id) const;
-	bool IsUnknonw(const ESkill id) const { return !IsKnown(id); };
-	int GetMinRemort(const ESkill /*id*/) const { return 0; };
-	int GetMinLevel(const ESkill /*id*/) const { return 1; };
-	int GetImprove(const ESkill /*id*/) const { return 1; };
-	int GetLevelDecrement(const ESkill /*id*/) const { return 1; };
+	/* Class skills */
+	using Skills = std::unordered_map<ESkill, ClassSkillInfo::Ptr>;
+	using SkillsPtr = std::unique_ptr<Skills>;
 
-	using ClassSkillInfoPtr = std::unique_ptr<ClassSkillInfo>;
-	using ClassSkillInfoRegister = std::unordered_map<ESkill, ClassSkillInfoPtr>;
-	using ClassSkillInfoRegisterPtr = std::unique_ptr<ClassSkillInfoRegister>;
+	SkillsPtr skillls_;
+	int skills_level_decrement_{1};
 
-	ClassSkillInfoRegisterPtr skillls_info_;
-	int skills_level_decrement_{0};
+	[[nodiscard]] bool IsKnown(const ESkill id) const;
+	[[nodiscard]] bool IsUnknonw(const ESkill id) const { return !IsKnown(id); };
+	[[nodiscard]] int GetMinRemort(const ESkill /*id*/) const { return 0; };
+	[[nodiscard]] int GetMinLevel(const ESkill /*id*/) const { return 1; };
+	[[nodiscard]] int GetImprove(const ESkill /*id*/) const { return 1; };
+	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement_; };
+
+};
+
+class CharClassInfoBuilder {
+ public:
+	[[nodiscard]] static CharClassInfo::Optional Build(const pugi::xml_node &node);
+	static void ParseSkills(CharClassInfo::Ptr &info, const pugi::xml_node &nodes);
+	static void ParseSingleSkill(ClassSkillInfo::Ptr &info, const pugi::xml_node &node);
 };
 
 class ClassesInfo {
  public:
+	ClassesInfo() = default;
+	ClassesInfo(ClassesInfo &c) = delete;
+	void operator=(const ClassesInfo &c) = delete;
+
 	void Init();
-	const CharClassInfo &operator[](ECharClass class_id) const;
+	void Reload(std::string &arg);
+	const CharClassInfo &operator[](ECharClass id) const;
 
  private:
-	using CharClassPtr = std::unique_ptr<CharClassInfo>;
-	using CharClassesRegister = std::unordered_map<ECharClass, CharClassPtr>;
+	using Ptr = std::unique_ptr<CharClassInfo>;
+	using Register = std::unordered_map<ECharClass, Ptr>;
+	using RegisterPtr = std::unique_ptr<Register>;
+	using Optional = std::optional<RegisterPtr>;
 
-	CharClassesRegister classes_;
+	class RegisterBuilder {
+	 public:
+		static ClassesInfo::Optional Build();
+	 private:
+		using ItemBuilder = CharClassInfoBuilder;
+	};
 
-	void InitCharClass(ECharClass class_id);
+	RegisterPtr items_;
 };
+
 
 } // namespace classes
 

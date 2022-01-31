@@ -977,7 +977,7 @@ void CharacterData::set_class(ECharClass chclass) {
 	// Range includes player classes and NPC classes (and does not consider gaps between them).
 	// Почему классы не пронумеровать подряд - загадка...
 	if ((chclass < ECharClass::kFirst || chclass > ECharClass::kLast)
-		&& chclass != ECharClass::kNPCBase && chclass != ECharClass::kMob) {
+		&& chclass != ECharClass::kNpcBase && chclass != ECharClass::kMob) {
 		log("WARNING: chclass=%d (%s:%d %s)", chclass, __FILE__, __LINE__, __func__);
 	}
 	chclass_ = chclass;

@@ -1181,7 +1181,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
-	mob_proto[i].set_class(ECharClass::kNPCBase);
+	mob_proto[i].set_class(ECharClass::kNpcBase);
 	mob_proto[i].player_data.weight = 200;
 	mob_proto[i].player_data.height = 198;
 
@@ -1386,7 +1386,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Class") {
-		mob_proto[i].set_class(std::clamp(static_cast<ECharClass>(num_arg), ECharClass::kNPCBase, ECharClass::kNPCLast));
+		mob_proto[i].set_class(std::clamp(static_cast<ECharClass>(num_arg), ECharClass::kNpcBase, ECharClass::kNPCLast));
 	}
 
 	CASE("Height") {
