@@ -13,8 +13,6 @@
 #include "color.h"
 #include "utils/random.h"
 
-#include <cmath>
-
 const int kSkillCapOnZeroRemort = 80;
 const int kSkillCapBonusPerRemort = 5;;
 
@@ -34,6 +32,8 @@ const double kSaveWeight = 1.0;
 const short kDummyKnight = 390;
 const short kDummyShield = 391;
 const short kDummyWeapon = 392;
+
+const long kMinImprove = 1L;
 
 enum class ELuckTestResult {
 	kLuckTestFail = 0,

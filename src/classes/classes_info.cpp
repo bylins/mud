@@ -7,8 +7,6 @@
 
 #include "classes_info.h"
 
-#include <iostream>
-
 #include "boot/boot_constants.h"
 #include "logger.h"
 #include "utils/pugixml.h"
@@ -59,8 +57,6 @@ ClassesInfo::Optional ClassesInfo::RegisterBuilder::Build() {
 		return std::nullopt;
 	}
 	auto items = std::make_optional(std::make_unique<Register>());
-	// todo заменить на loop-range
-	//for (xml_node cur_node = node.child(kItemTag); cur_node; cur_node = cur_node.next_sibling(kItemTag)) {
 	for (auto &node : nodes.children(kItemTag)) {
 		try {
 			auto item = ItemBuilder::Build(node);
@@ -74,7 +70,6 @@ ClassesInfo::Optional ClassesInfo::RegisterBuilder::Build() {
 			return std::nullopt;
 		}
 	}
-	//std::cout << "Crash here! #2\n";
 	items.value()->try_emplace(ECharClass::kUndefined, std::make_unique<CharClassInfo>());
 	items.value()->try_emplace(ECharClass::kMob, std::make_unique<CharClassInfo>());
 	items.value()->try_emplace(ECharClass::kNpcBase, std::make_unique<CharClassInfo>());
@@ -99,7 +94,29 @@ bool CharClassInfo::IsKnown(const ESkill id) const {
 	return skillls_->contains(id);
 };
 
-// Временное решение, ага... :)
+int CharClassInfo::GetMinRemort(const ESkill id) const {
+	try {
+		return skillls_->at(id)->min_remort;
+	} catch (const std::out_of_range &) {
+		return kMaxRemort + 1;
+	}
+};
+
+int CharClassInfo::GetMinLevel(const ESkill id) const {
+	try {
+		return skillls_->at(id)->min_level;
+	} catch (const std::out_of_range &) {
+		return kLevelImplementator;
+	}
+};
+
+long CharClassInfo::GetImprove(const ESkill id) const {
+	try {
+		return skillls_->at(id)->improve;
+	} catch (const std::out_of_range &) {
+		return kMinImprove;
+	}
+};
 
 /*
  *  Билдер информации одного отдельного класса.
@@ -114,8 +131,6 @@ CharClassInfo::Optional CharClassInfoBuilder::Build(const xml_node &node) {
 
 void CharClassInfoBuilder::ParseSkills(CharClassInfo::Ptr &info, const xml_node &nodes) {
 	info->skills_level_decrement_ = nodes.attribute("level_decrement").as_int();
-	//todo переделать на луп рейндж
-	//for (xml_node cur_node = node.child("skill"); cur_node; cur_node = cur_node.next_sibling("skill")) {
 	for (auto &node : nodes.children("skill")) {
 		auto skill_id = FindConstantByAttributeValue<ESkill>("id", node);
 		auto skill_info = std::make_unique<ClassSkillInfo>();

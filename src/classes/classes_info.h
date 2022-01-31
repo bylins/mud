@@ -2,7 +2,7 @@
 \authors Created by Sventovit
 \date 26.01.2022.
 \brief Модуль информации о классах персонажей.
-\details Вся информация о лимитах статов, доступных скиллах и спеллах должна лежать здесь.
+\details Вся информация о лимитах статов, доступных классам скиллах и спеллах должна лежать здесь.
 */
 
 #ifndef BYLINS_SRC_CLASSES_CLASSES_INFO_H_
@@ -45,12 +45,12 @@ struct CharClassInfo {
 	SkillsPtr skillls_;
 	int skills_level_decrement_{1};
 
-	[[nodiscard]] bool IsKnown(const ESkill id) const;
+	[[nodiscard]] bool IsKnown(ESkill id) const;
 	[[nodiscard]] bool IsUnknonw(const ESkill id) const { return !IsKnown(id); };
-	[[nodiscard]] int GetMinRemort(const ESkill /*id*/) const { return 0; };
-	[[nodiscard]] int GetMinLevel(const ESkill /*id*/) const { return 1; };
-	[[nodiscard]] int GetImprove(const ESkill /*id*/) const { return 1; };
+	[[nodiscard]] int GetMinRemort(ESkill id) const;
+	[[nodiscard]] int GetMinLevel(ESkill id) const;
 	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement_; };
+	[[nodiscard]] long GetImprove(ESkill id) const;
 
 };
 
