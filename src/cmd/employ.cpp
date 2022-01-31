@@ -76,9 +76,9 @@ void do_employ(CharacterData *ch, char *argument, int cmd, int subcmd) {
 				return;
 			}
 			// палочки с чармами/оживлялками юзают только кастеры и дружи до 25 левева
-			if (GET_OBJ_VAL(mag_item, 3) == SPELL_CHARM
-				|| GET_OBJ_VAL(mag_item, 3) == SPELL_ANIMATE_DEAD
-				|| GET_OBJ_VAL(mag_item, 3) == SPELL_RESSURECTION) {
+			if (GET_OBJ_VAL(mag_item, 3) == kSpellCharm
+				|| GET_OBJ_VAL(mag_item, 3) == kSpellAnimateDead
+				|| GET_OBJ_VAL(mag_item, 3) == kSpellResurrection) {
 				if (!can_use_feat(ch, MAGIC_USER_FEAT)) {
 					send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
 					return;
@@ -105,7 +105,7 @@ void do_employ(CharacterData *ch, char *argument, int cmd, int subcmd) {
 		equip_char(ch, mag_item, WEAR_HOLD, CharEquipFlags());
 	}
 	if ((do_hold && GET_EQ(ch, WEAR_HOLD) == mag_item) || (!do_hold))
-		employMagicItem(ch, mag_item, buf_temp);
+		EmployMagicItem(ch, mag_item, buf_temp);
 	free(buf_temp);
 
 }

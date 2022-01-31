@@ -418,9 +418,9 @@ void forget_all_spells(CharacterData *ch) {
 	using PlayerClass::slot_for_char;
 
 	GET_MEM_COMPLETED(ch) = 0;
-	int slots[MAX_SLOT];
+	int slots[kMaxSlot];
 	int max_slot = 0;
-	for (unsigned i = 0; i < MAX_SLOT; ++i) {
+	for (unsigned i = 0; i < kMaxSlot; ++i) {
 		slots[i] = slot_for_char(ch, i + 1);
 		if (slots[i]) max_slot = i + 1;
 	}
@@ -431,7 +431,7 @@ void forget_all_spells(CharacterData *ch) {
 	}
 	int slotn;
 
-	for (int i = 0; i <= SPELLS_COUNT; i++) {
+	for (int i = 0; i <= kSpellCount; i++) {
 		if (PRF_FLAGGED(ch, PRF_AUTOMEM) && ch->real_abils.SplMem[i]) {
 			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[i]); ++j, --slots[slotn]) {
@@ -447,7 +447,7 @@ void forget_all_spells(CharacterData *ch) {
 	}
 	if (max_slot) {
 		Affect<EApplyLocation> af;
-		af.type = SPELL_RECALL_SPELLS;
+		af.type = kSpellRecallSpells;
 		af.location = APPLY_NONE;
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
@@ -596,8 +596,8 @@ void check_spell_capable(CharacterData *ch, CharacterData *killer) {
 		&& killer != ch
 		&& MOB_FLAGGED(ch, MOB_CLONE)
 		&& ch->has_master()
-		&& affected_by_spell(ch, SPELL_CAPABLE)) {
-		affect_from_char(ch, SPELL_CAPABLE);
+		&& affected_by_spell(ch, kSpellCapable)) {
+		affect_from_char(ch, kSpellCapable);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		auto pos = GET_POS(ch);

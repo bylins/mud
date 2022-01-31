@@ -51,7 +51,7 @@ extern const char *pc_class_types[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
-const char *spell_name(int num);
+const char *GetSpellName(int num);
 
 extern int can_take_obj(CharacterData *ch, ObjectData *obj);
 extern void split_or_clan_tax(CharacterData *ch, long amount);
@@ -2425,7 +2425,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "can_get_spell")) {
 			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
-				if (can_get_spell(c, num)) {
+				if (IsAbleToGetSpell(c, num)) {
 					strcpy(str, "1");
 				} else {
 					strcpy(str, "0");

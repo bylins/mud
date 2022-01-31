@@ -114,7 +114,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1
-		|| GET_OBJ_VAL(obj, 1) > SPELLS_COUNT)) {
+		|| GET_OBJ_VAL(obj, 1) > kSpellCount)) {
 		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
@@ -125,12 +125,12 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	int spellnum = SPELL_NO_SPELL;
+	int spellnum = kSpellNoSpell;
 	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2)))
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_trained_skill(skill_id))) {
 		spellname = MUD::Skills()[skill_id].GetName();
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
-		&& can_get_spell_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2))) {
+		&& IsAbleToGetSpell(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2))) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = spell_info[spellnum].name;
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
@@ -150,7 +150,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && ch->get_skill(skill_id))
-		|| (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW)
+		|| (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & kSpellKnow)
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum))
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs)) {
 		sprintf(buf, "Вы открыли %s и принялись с интересом\r\n"
@@ -235,7 +235,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				spellname);
 		log("%s", buf);
 		switch (GET_OBJ_VAL(obj, 0)) {
-			case BOOK_SPELL: GET_SPELL_TYPE(ch, spellnum) |= SPELL_KNOW;
+			case BOOK_SPELL: GET_SPELL_TYPE(ch, spellnum) |= kSpellKnow;
 				break;
 
 			case BOOK_SKILL: ch->set_skill(skill_id, 5);

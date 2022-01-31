@@ -12,7 +12,7 @@
 MorphListType IdToMorphMap;
 
 short MIN_WIS_FOR_MORPH = 0;
-void perform_remove(CharacterData *ch, int pos);
+void RemoveEquipment(CharacterData *ch, int pos);
 
 std::string AnimalMorph::GetMorphDesc() const {
 	std::string desc = "Неведома зверушка";
@@ -212,15 +212,15 @@ void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->set_morph(newMorph);
 	if (ch->equipment[WEAR_BOTHS]) {
 		send_to_char("Вы не можете держать в лапах " + ch->equipment[WEAR_BOTHS]->get_PName(3) + ".\r\n", ch);
-		perform_remove(ch, WEAR_BOTHS);
+		RemoveEquipment(ch, WEAR_BOTHS);
 	}
 	if (ch->equipment[WEAR_WIELD]) {
 		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[WEAR_WIELD]->get_PName(3) + ".\r\n", ch);
-		perform_remove(ch, WEAR_WIELD);
+		RemoveEquipment(ch, WEAR_WIELD);
 	}
 	if (ch->equipment[WEAR_HOLD]) {
 		send_to_char("Ваша левая лапа не удержала " + ch->equipment[WEAR_HOLD]->get_PName(3) + ".\r\n", ch);
-		perform_remove(ch, WEAR_HOLD);
+		RemoveEquipment(ch, WEAR_HOLD);
 	}
 	WAIT_STATE(ch, 3 * kPulseViolence);
 }

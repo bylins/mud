@@ -32,7 +32,7 @@ int find_dg_cast_target(int spellnum, const char *t, CharacterData *ch, Characte
 	}
 	*troom = world[ch->in_room];
 
-	if (spellnum == SPELL_CONTROL_WEATHER) {
+	if (spellnum == kSpellControlWeather) {
 		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
 			sprintf(buf2, "dg_cast (Не указан тип погоды)");
 			script_log(buf2);
@@ -40,7 +40,7 @@ int find_dg_cast_target(int spellnum, const char *t, CharacterData *ch, Characte
 		} else
 			what_sky >>= 1;
 	}
-	if (spellnum == SPELL_CREATE_WEAPON) {
+	if (spellnum == kSpellCreateWeapon) {
 		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
 			sprintf(buf2, "dg_cast (Не указан тип оружия)");
 			script_log(buf2);
@@ -49,21 +49,21 @@ int find_dg_cast_target(int spellnum, const char *t, CharacterData *ch, Characte
 			what_sky = 5 + (what_sky >> 1);
 	}
 
-	if (IS_SET(spell_info[spellnum].targets, TAR_IGNORE))
+	if (IS_SET(spell_info[spellnum].targets, kTarIgnore))
 		return true;
 
-	if (IS_SET(spell_info[spellnum].targets, TAR_ROOM_THIS))
+	if (IS_SET(spell_info[spellnum].targets, kTarRoomThis))
 		return true;
 
 	if (*t) {
-		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_ROOM)) {
+		if (IS_SET(spell_info[spellnum].targets, kTarCharRoom)) {
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return false;
 				return true;
 			}
 		}
-		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_WORLD)) {
+		if (IS_SET(spell_info[spellnum].targets, kTarCharWorld)) {
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != nullptr) {
 //            if (spell_info[spellnum].violent && !check_pkill(ch,*tch,t))
 //                 return false;
@@ -71,13 +71,13 @@ int find_dg_cast_target(int spellnum, const char *t, CharacterData *ch, Characte
 			}
 		}
 
-		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_INV)) {
+		if (IS_SET(spell_info[spellnum].targets, kTarObjInv)) {
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr) {
 				return true;
 			}
 		}
 
-		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_EQUIP)) {
+		if (IS_SET(spell_info[spellnum].targets, kTarObjEquip)) {
 			int i;
 			for (i = 0; i < NUM_WEARS; i++) {
 				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases())) {
@@ -87,25 +87,25 @@ int find_dg_cast_target(int spellnum, const char *t, CharacterData *ch, Characte
 			}
 		}
 
-		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_ROOM))
+		if (IS_SET(spell_info[spellnum].targets, kTarObjRoom))
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
 
-		if (IS_SET(spell_info[spellnum].targets, TAR_OBJ_WORLD))
+		if (IS_SET(spell_info[spellnum].targets, kTarObjWorld))
 			if ((*tobj = get_obj_vis(ch, t)) != nullptr)
 				return true;
 	} else {
-		if (IS_SET(spell_info[spellnum].targets, TAR_FIGHT_SELF))
+		if (IS_SET(spell_info[spellnum].targets, kTarFightSelf))
 			if (ch->get_fighting() != nullptr) {
 				*tch = ch;
 				return true;
 			}
-		if (IS_SET(spell_info[spellnum].targets, TAR_FIGHT_VICT))
+		if (IS_SET(spell_info[spellnum].targets, kTarFightVict))
 			if (ch->get_fighting() != nullptr) {
 				*tch = ch->get_fighting();
 				return true;
 			}
-		if (IS_SET(spell_info[spellnum].targets, TAR_CHAR_ROOM) && !spell_info[spellnum].violent) {
+		if (IS_SET(spell_info[spellnum].targets, kTarCharRoom) && !spell_info[spellnum].violent) {
 			*tch = ch;
 			return true;
 		}
@@ -165,7 +165,7 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 
 	// spellnum = search_block(s, spells, 0);
 	spellnum = FixNameAndFindSpellNum(s);
-	if ((spellnum < 1) || (spellnum > SPELLS_COUNT)) {
+	if ((spellnum < 1) || (spellnum > kSpellCount)) {
 		sprintf(buf2, "dg_cast: invalid spell name (%s)", cmd);
 		trig_log(trig, buf2);
 		return;
@@ -249,7 +249,7 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spellnum, GET_REAL_LEVEL(caster));
-	} else if (spellnum != SPELL_RESSURECTION && spellnum != SPELL_ANIMATE_DEAD) {
+	} else if (spellnum != kSpellResurrection && spellnum != kSpellAnimateDead) {
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);
 	}
@@ -327,7 +327,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 
 	// spell not found
 	if (index_s <= 0) {
-		index_s = SPELL_QUEST;
+		index_s = kSpellQUest;
 		sprintf(buf2, "dg_affect: unknown spell '%s' ставим 'чары'!", spell);
 		trig_log(trig, buf2);
 		return;

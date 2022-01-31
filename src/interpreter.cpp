@@ -1114,7 +1114,7 @@ const char *reserved[] = {"a",
 
 void check_hiding_cmd(CharacterData *ch, int percent) {
 	int remove_hide = false;
-	if (affected_by_spell(ch, SPELL_HIDE)) {
+	if (affected_by_spell(ch, kSpellHide)) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)) {
 				remove_hide = number(1, MUD::Skills()[ESkill::kSneak].difficulty) >
@@ -1131,7 +1131,7 @@ void check_hiding_cmd(CharacterData *ch, int percent) {
 		}
 
 		if (remove_hide) {
-			affect_from_char(ch, SPELL_HIDE);
+			affect_from_char(ch, kSpellHide);
 			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, 0, 0, TO_ROOM);
@@ -2295,8 +2295,8 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	//Заменяем закл !переместиться! на способность
-	if (GET_SPELL_TYPE(d->character, SPELL_RELOCATE) == SPELL_KNOW && !IS_GOD(d->character)) {
-		GET_SPELL_TYPE(d->character, SPELL_RELOCATE) = 0;
+	if (GET_SPELL_TYPE(d->character, kSpellRelocate) == kSpellKnow && !IS_GOD(d->character)) {
+		GET_SPELL_TYPE(d->character, kSpellRelocate) = 0;
 		SET_FEAT(d->character, RELOCATE_FEAT);
 	}
 
@@ -2588,11 +2588,11 @@ void init_char(CharacterData *ch, PlayerIndexElement &element) {
 		set_god_morphs(ch);
 	}
 
-	for (i = 1; i <= SPELLS_COUNT; i++) {
+	for (i = 1; i <= kSpellCount; i++) {
 		if (GET_REAL_LEVEL(ch) < kLevelGreatGod)
 			GET_SPELL_TYPE(ch, i) = 0;
 		else
-			GET_SPELL_TYPE(ch, i) = SPELL_KNOW;
+			GET_SPELL_TYPE(ch, i) = kSpellKnow;
 	}
 
 	ch->char_specials.saved.affected_by = clear_flags;

@@ -485,7 +485,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // increases spells & skills //
-const char *spell_name(int num);
+const char *GetSpellName(int num);
 int FixNameAndFindSpellNum(char *name);
 
 void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -704,7 +704,7 @@ void do_wspellturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		wld_log(room, "wspellturn: spell not found");
 		return;
 	}
@@ -739,7 +739,7 @@ void do_wspellturntemp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		wld_log(room, "wspellturntemp: spell not found");
 		return;
 	}
@@ -771,7 +771,7 @@ void do_wspelladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		wld_log(room, "wspelladd: spell not found");
 		return;
 	}
@@ -798,21 +798,21 @@ void do_wspellitem(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		wld_log(room, "wspellitem: spell not found");
 		return;
 	}
 
 	if (!str_cmp(type, "potion")) {
-		spell = SPELL_POTION;
+		spell = kSpellPotion;
 	} else if (!str_cmp(type, "wand")) {
-		spell = SPELL_WAND;
+		spell = kSpellWand;
 	} else if (!str_cmp(type, "scroll")) {
-		spell = SPELL_SCROLL;
+		spell = kSpellScroll;
 	} else if (!str_cmp(type, "items")) {
-		spell = SPELL_ITEMS;
+		spell = kSpellItems;
 	} else if (!str_cmp(type, "runes")) {
-		spell = SPELL_RUNES;
+		spell = kSpellRunes;
 	} else {
 		wld_log(room, "wspellitem: type spell not found");
 		return;

@@ -103,7 +103,7 @@ void ApplyNoFleeAffect(CharacterData *ch, int duration) {
 	//Это жутко криво, но почемук-то при простановке сразу 2 флагов битвектора начинаются глюки, хотя все должно быть нормально
 	//По-видимому, где-то просто не учтено, что ненулевых битов может быть более 1
 	Affect<EApplyLocation> Noflee;
-	Noflee.type = SPELL_BATTLE;
+	Noflee.type = kSpellBattle;
 	Noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 	Noflee.location = EApplyLocation::APPLY_NONE;
 	Noflee.modifier = 0;
@@ -112,7 +112,7 @@ void ApplyNoFleeAffect(CharacterData *ch, int duration) {
 	affect_join(ch, Noflee, true, false, true, false);
 
 	Affect<EApplyLocation> Battle;
-	Battle.type = SPELL_BATTLE;
+	Battle.type = kSpellBattle;
 	Battle.bitvector = to_underlying(EAffectFlag::AFF_EXPEDIENT);
 	Battle.location = EApplyLocation::APPLY_NONE;
 	Battle.modifier = 0;
@@ -153,14 +153,14 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 	hit(ch, vict, ESkill::kUndefined, FightSystem::OFF_HAND);
 
 	Affect<EApplyLocation> AffectImmunPhysic;
-	AffectImmunPhysic.type = SPELL_EXPEDIENT;
+	AffectImmunPhysic.type = kSpellExpedient;
 	AffectImmunPhysic.location = EApplyLocation::APPLY_PR;
 	AffectImmunPhysic.modifier = 100;
 	AffectImmunPhysic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	AffectImmunPhysic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 	affect_join(ch, AffectImmunPhysic, false, false, false, false);
 	Affect<EApplyLocation> AffectImmunMagic;
-	AffectImmunMagic.type = SPELL_EXPEDIENT;
+	AffectImmunMagic.type = kSpellExpedient;
 	AffectImmunMagic.location = EApplyLocation::APPLY_MR;
 	AffectImmunMagic.modifier = 100;
 	AffectImmunMagic.duration = pc_duration(ch, 3, 0, 0, 0, 0);

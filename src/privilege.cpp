@@ -342,7 +342,7 @@ bool check_spells(const CharacterData *ch, int spellnum) {
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	// флаг arena_master - только на арене и только для призыва/пенты
-	if (spellnum == SPELL_PORTAL || spellnum == SPELL_SUMMON || spellnum == SPELL_WORD_OF_RECALL)
+	if (spellnum == kSpellPortal || spellnum == kSpellSummon || spellnum == kSpellWorldOfRecall)
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && check_flag(ch, ARENA_MASTER))
 			return true;
 	return false;

@@ -33,7 +33,7 @@ void do_identify(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 							 - ((GET_SKILL(ch, ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
 		timed_to_char(ch, &timed);
 	}
-	MANUAL_SPELL(skill_identify)
+	MANUAL_SPELL(SkillIdentify)
 }
 
 

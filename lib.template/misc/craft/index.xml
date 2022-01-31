@@ -309,7 +309,7 @@
 				<parameter>kClubs</parameter>
 			</item_parameters>
 			<material>MAT_SUPERWOOD</material>
-			<spell>SPELL_SLEEP</spell>
+			<spell>kSpellSleep</spell>
 
 			<extraflags>
 				<extraflag>ITEM_BLESS</extraflag>

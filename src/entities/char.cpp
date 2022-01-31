@@ -214,7 +214,7 @@ void CharacterData::set_abstinent() {
 	}
 
 	Affect<EApplyLocation> af;
-	af.type = SPELL_ABSTINENT;
+	af.type = kSpellAbstinent;
 	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 	af.duration = duration;
 
@@ -243,14 +243,14 @@ void CharacterData::affect_remove(const char_affects_list_t::iterator &affect_i)
 
 	const auto af = *affect_i;
 	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), false);
-	if (af->type == SPELL_ABSTINENT) {
+	if (af->type == kSpellAbstinent) {
 		if (player_specials) {
 			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
 		} else {
 			log("SYSERR: player_specials is not set.");
 		}
 	}
-	if (af->type == SPELL_DRUNKED && af->duration == 0) {
+	if (af->type == kSpellDrunked && af->duration == 0) {
 		set_abstinent();
 	}
 
@@ -852,12 +852,12 @@ void change_fighting(CharacterData *ch, int need_stop) {
 	for (const auto &k : character_list) {
 		if (k->get_protecting() == ch) {
 			k->set_protecting(0);
-			CLR_AF_BATTLE(k, EAF_PROTECT);
+			CLR_AF_BATTLE(k, kEafProtect);
 		}
 
 		if (k->get_touching() == ch) {
 			k->set_touching(0);
-			CLR_AF_BATTLE(k, EAF_PROTECT);
+			CLR_AF_BATTLE(k, kEafProtect);
 		}
 
 		if (k->get_extra_victim() == ch) {
@@ -1732,7 +1732,7 @@ CharacterData::followers_list_t CharacterData::get_followers_list() const {
 
 bool CharacterData::low_charm() const {
 	for (const auto &aff : affected) {
-		if (aff->type == SPELL_CHARM
+		if (aff->type == kSpellCharm
 			&& aff->duration <= 1) {
 			return true;
 		}
@@ -1853,7 +1853,7 @@ void CharacterData::restore_mob() {
 	GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
 	update_pos(this);
 
-	for (int i = 0; i <= SPELLS_COUNT; ++i) {
+	for (int i = 0; i <= kSpellCount; ++i) {
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], i);
 	}
 	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);
@@ -1914,7 +1914,7 @@ void CharacterData::restore_npc() {
 	this->set_con(GET_REAL_CON(proto));
 	this->set_cha(GET_REAL_CHA(proto));
 	// ресторим мем	
-	for (int i = 0; i <= SPELLS_COUNT; ++i) {
+	for (int i = 0; i <= kSpellCount; ++i) {
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(proto, i);
 	}
 	// рестор для скилов

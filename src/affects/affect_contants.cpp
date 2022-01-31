@@ -291,7 +291,7 @@ const std::string &NAME_BY_ITEM(const EWeaponAffectFlag item) {
 }
 
 weapon_affect_t weapon_affect = {
-	WeaponAffect{EWeaponAffectFlag::WAFF_BLINDNESS, 0, SPELL_BLINDNESS},
+	WeaponAffect{EWeaponAffectFlag::WAFF_BLINDNESS, 0, kSpellBlindness},
 	WeaponAffect{EWeaponAffectFlag::WAFF_INVISIBLE, to_underlying(EAffectFlag::AFF_INVISIBLE), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_DETECT_ALIGN, to_underlying(EAffectFlag::AFF_DETECT_ALIGN), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_DETECT_INVISIBLE, to_underlying(EAffectFlag::AFF_DETECT_INVIS), 0},
@@ -301,15 +301,15 @@ weapon_affect_t weapon_affect = {
 	WeaponAffect{EWeaponAffectFlag::WAFF_SANCTUARY, to_underlying(EAffectFlag::AFF_SANCTUARY), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_CURSE, to_underlying(EAffectFlag::AFF_CURSE), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_INFRAVISION, to_underlying(EAffectFlag::AFF_INFRAVISION), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_POISON, 0, SPELL_POISON},
+	WeaponAffect{EWeaponAffectFlag::WAFF_POISON, 0, kSpellPoison},
 	WeaponAffect{EWeaponAffectFlag::WAFF_PROTECT_EVIL, to_underlying(EAffectFlag::AFF_PROTECT_EVIL), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_PROTECT_GOOD, to_underlying(EAffectFlag::AFF_PROTECT_GOOD), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_SLEEP, 0, SPELL_SLEEP},
+	WeaponAffect{EWeaponAffectFlag::WAFF_SLEEP, 0, kSpellSleep},
 	WeaponAffect{EWeaponAffectFlag::WAFF_NOTRACK, to_underlying(EAffectFlag::AFF_NOTRACK), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_BLESS, to_underlying(EAffectFlag::AFF_BLESS), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_SNEAK, to_underlying(EAffectFlag::AFF_SNEAK), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_HIDE, to_underlying(EAffectFlag::AFF_HIDE), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_HOLD, 0, SPELL_HOLD},
+	WeaponAffect{EWeaponAffectFlag::WAFF_HOLD, 0, kSpellHold},
 	WeaponAffect{EWeaponAffectFlag::WAFF_FLY, to_underlying(EAffectFlag::AFF_FLY), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_SILENCE, to_underlying(EAffectFlag::AFF_SILENCE), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_AWARENESS, to_underlying(EAffectFlag::AFF_AWARNESS), 0},

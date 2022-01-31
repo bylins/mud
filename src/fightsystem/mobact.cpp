@@ -723,7 +723,7 @@ int perform_mob_switch(CharacterData *ch) {
 
 	if (ch->get_skill(ESkill::kHammer)
 		&& check_mighthit_weapon(ch)) {
-		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		SET_AF_BATTLE(ch, kEafHammer);
 	} else if (ch->get_skill(ESkill::kOverwhelm)) {
 		SET_AF_BATTLE(ch, ESkill::kOverwhelm);
 	}
@@ -748,7 +748,7 @@ void do_aggressive_mob(CharacterData *ch, int check_sneak) {
 	if (extra_aggressive(ch, nullptr)) {
 		const auto &room = world[ch->in_room];
 		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-			if (affect_it->get()->type == SPELL_RUNE_LABEL && (affect_it != room->affected.end())) {
+			if (affect_it->get()->type == kSpellRuneLabel && (affect_it != room->affected.end())) {
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false,
 					ch,
@@ -1269,17 +1269,17 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
 			&& !ch->get_fighting()) {
 			// Find memory in world
-			for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0
-				|| GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0); names = names->next) {
+			for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, kSpellSummon) > 0
+				|| GET_SPELL_MEM(ch, kSpellRelocate) > 0); names = names->next) {
 				for (const auto &vict : character_list) {
 					if (names->id == GET_IDNUM(vict)
 						&& CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE)) {
-						if (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0) {
-							CastSpell(ch.get(), vict.get(), 0, 0, SPELL_SUMMON, SPELL_SUMMON);
+						if (GET_SPELL_MEM(ch, kSpellSummon) > 0) {
+							CastSpell(ch.get(), vict.get(), 0, 0, kSpellSummon, kSpellSummon);
 
 							break;
-						} else if (GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0) {
-							CastSpell(ch.get(), vict.get(), 0, 0, SPELL_RELOCATE, SPELL_RELOCATE);
+						} else if (GET_SPELL_MEM(ch, kSpellRelocate) > 0) {
+							CastSpell(ch.get(), vict.get(), 0, 0, kSpellRelocate, kSpellRelocate);
 
 							break;
 						}

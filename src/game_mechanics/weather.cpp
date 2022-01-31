@@ -856,12 +856,12 @@ int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 		case GAPPLY_SPELL_EFFECT:
 			switch (spellnum)    // Огненные спеллы - лето, день, безоблачно
 			{
-				case SPELL_BURNING_HANDS:
-				case SPELL_SHOCKING_GRASP:
-				case SPELL_SHINEFLASH:
-				case SPELL_COLOR_SPRAY:
-				case SPELL_FIREBALL:
-				case SPELL_FIREBLAST:
+				case kSpellBurningHands:
+				case kSpellShockingGasp:
+				case kSpellShineflash:
+				case kSpellColorSpray:
+				case kSpellFireball:
+				case kSpellFireblast:
 					if (season == SEASON_SUMMER &&
 						(weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)) {
 						if (sky == kSkyLightning)
@@ -871,20 +871,20 @@ int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 					}
 					break;
 					// Молнийные спеллы - облачно или дождливо
-				case SPELL_CALL_LIGHTNING:
-				case SPELL_LIGHTNING_BOLT:
-				case SPELL_CHAIN_LIGHTNING:
-				case SPELL_ARMAGEDDON:
+				case kSpellCallLighting:
+				case kSpellLightingBolt:
+				case kSpellChainLighting:
+				case kSpellArmageddon:
 					if (sky == kSkyRaining)
 						modi += (modi * number(20, 50) / 100);
 					else if (sky == kSkyCloudy)
 						modi += (modi * number(10, 25) / 100);
 					break;
 					// Водно-ледяные спеллы - зима
-				case SPELL_CHILL_TOUCH:
-				case SPELL_ICESTORM:
-				case SPELL_CONE_OF_COLD:
-				case SPELL_IMPLOSION:
+				case kSpellChillTouch:
+				case kSpellIceStorm:
+				case kSpellConeOfCold:
+				case kSpellImplosion:
 					if (season == SEASON_WINTER) {
 						if (sky == kSkyRaining || sky == kSkyCloudy)
 							modi += (modi * number(20, 50) / 100);

@@ -7,7 +7,7 @@
 
 extern const char *unused_spellname;
 
-struct spellInfo_t {
+struct SpellInfo {
 	EPosition min_position;    // Position for caster   //
 	int mana_min;        // Min amount of mana used by a spell (highest lev) //
 	int mana_max;        // Max amount of mana used by a spell (lowest lev) //
@@ -25,24 +25,24 @@ struct spellInfo_t {
 	const char *syn;
 };
 
-struct spell_create_item {
+struct SpellCreateItem {
 	std::array<int, 3> items;
 	int rnumber;
 	int min_caster_level;
 };
 
-struct spell_create_type {
-	struct spell_create_item wand;
-	struct spell_create_item scroll;
-	struct spell_create_item potion;
-	struct spell_create_item items;
-	struct spell_create_item runes;
+struct SpellCreate {
+	struct SpellCreateItem wand;
+	struct SpellCreateItem scroll;
+	struct SpellCreateItem potion;
+	struct SpellCreateItem items;
+	struct SpellCreateItem runes;
 };
 
-extern struct spellInfo_t spell_info[];
-extern struct spell_create_type spell_create[];
+extern struct SpellInfo spell_info[];
+extern struct SpellCreate spell_create[];
 
-void initSpells();
-const char *spell_name(int num);
+void InitSpells();
+const char *GetSpellName(int num);
 
 #endif //SPELLS_INFO_H_

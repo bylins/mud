@@ -467,8 +467,8 @@ void roll_real_abils(CharacterData *ch) {
 			ch->set_int(ch->get_int() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
-			for (i = 1; i <= SPELLS_COUNT; i++)
-				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+			for (i = 1; i <= kSpellCount; i++)
+				GET_SPELL_TYPE(ch, i) = kSpellRunes;
 			break;
 
 		default: log("SYSERROR : ATTEMPT STORE ABILITIES FOR UNKNOWN CLASS (Player %s)", GET_NAME(ch));

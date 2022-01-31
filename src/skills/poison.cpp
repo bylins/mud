@@ -20,10 +20,10 @@ bool poison_affect_join(CharacterData *ch, Affect<EApplyLocation> &af) {
 
 	for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end() && af.location; ++affect_i) {
 		const auto affect = *affect_i;
-		if ((affect->type == SPELL_ACONITUM_POISON
-			|| affect->type == SPELL_SCOPOLIA_POISON
-			|| affect->type == SPELL_BELENA_POISON
-			|| affect->type == SPELL_DATURA_POISON)
+		if ((affect->type == kSpellAconitumPoison
+			|| affect->type == kSpellScopolaPoison
+			|| affect->type == kSpellBelenaPoison
+			|| affect->type == kSpellDaturaPoison)
 			&& af.type != affect->type) {
 			// если уже есть другой яд - борода
 			return false;
@@ -52,13 +52,13 @@ bool poison_affect_join(CharacterData *ch, Affect<EApplyLocation> &af) {
 
 // * Отравление с пушек.
 bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
-	if (GET_AF_BATTLE(ch, EAF_POISONED))
+	if (GET_AF_BATTLE(ch, kEafPoisoned))
 		return false;
 
-	if (spell_num == SPELL_ACONITUM_POISON) {
+	if (spell_num == kSpellAconitumPoison) {
 		// урон 5 + левел/2, от 5 до 20 за стак
 		Affect<EApplyLocation> af;
-		af.type = SPELL_ACONITUM_POISON;
+		af.type = kSpellAconitumPoison;
 		af.location = APPLY_ACONITUM_POISON;
 		af.duration = 7;
 		af.modifier = GET_REAL_LEVEL(ch) / 2 + 5;
@@ -66,13 +66,13 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 		af.battleflag = AF_SAME_TIME;
 		if (poison_affect_join(vict, af)) {
 			vict->Poisoner = GET_ID(ch);
-			SET_AF_BATTLE(ch, EAF_POISONED);
+			SET_AF_BATTLE(ch, kEafPoisoned);
 			return true;
 		}
-	} else if (spell_num == SPELL_SCOPOLIA_POISON) {
+	} else if (spell_num == kSpellScopolaPoison) {
 		// по +5% дамаги по целе за стак (кроме стаба)
 		Affect<EApplyLocation> af;
-		af.type = SPELL_SCOPOLIA_POISON;
+		af.type = kSpellScopolaPoison;
 		af.location = APPLY_SCOPOLIA_POISON;
 		af.duration = 7;
 		af.modifier = 5;
@@ -80,10 +80,10 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 		af.battleflag = AF_SAME_TIME;
 		if (poison_affect_join(vict, af)) {
 			vict->Poisoner = GET_ID(ch);
-			SET_AF_BATTLE(ch, EAF_POISONED);
+			SET_AF_BATTLE(ch, kEafPoisoned);
 			return true;
 		}
-	} else if (spell_num == SPELL_BELENA_POISON) {
+	} else if (spell_num == kSpellBelenaPoison) {
 		// не переключается (моб)
 		// -хитролы/хп-рег/дамаг-физ.атак/скилы
 
@@ -110,7 +110,7 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 
 		bool was_poisoned = true;
 		for (int i = 0; i < 3; i++) {
-			af[i].type = SPELL_BELENA_POISON;
+			af[i].type = kSpellBelenaPoison;
 			af[i].duration = 7;
 			af[i].bitvector = to_underlying(EAffectFlag::AFF_POISON)
 				| to_underlying(EAffectFlag::AFF_BELENA_POISON)
@@ -125,10 +125,10 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 
 		if (was_poisoned) {
 			vict->Poisoner = GET_ID(ch);
-			SET_AF_BATTLE(ch, EAF_POISONED);
+			SET_AF_BATTLE(ch, kEafPoisoned);
 			return true;
 		}
-	} else if (spell_num == SPELL_DATURA_POISON) {
+	} else if (spell_num == kSpellDaturaPoison) {
 		// не переключается (моб)
 		// -каст/мем-рег/дамаг-заклов/скилы
 		// AFF_DATURA_POISON - флаг на снижение дамага с заклов
@@ -155,7 +155,7 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 
 		bool was_poisoned = true;
 		for (int i = 0; i < 3; i++) {
-			af[i].type = SPELL_DATURA_POISON;
+			af[i].type = kSpellDaturaPoison;
 			af[i].duration = 7;
 			af[i].bitvector = to_underlying(EAffectFlag::AFF_POISON)
 				| to_underlying(EAffectFlag::AFF_DATURA_POISON)
@@ -170,7 +170,7 @@ bool weap_poison_vict(CharacterData *ch, CharacterData *vict, int spell_num) {
 
 		if (was_poisoned) {
 			vict->Poisoner = GET_ID(ch);
-			SET_AF_BATTLE(ch, EAF_POISONED);
+			SET_AF_BATTLE(ch, kEafPoisoned);
 			return true;
 		}
 	}
@@ -207,7 +207,7 @@ void weap_crit_poison(CharacterData *ch, CharacterData *vict, int/* spell_num*/)
 				break;
 			case 2: {
 				// минус статы (1..5)
-				af.type = SPELL_POISON;
+				af.type = kSpellPoison;
 				af.duration = 30;
 				af.modifier = -GET_REAL_LEVEL(ch) / 6;
 				af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
@@ -226,7 +226,7 @@ void weap_crit_poison(CharacterData *ch, CharacterData *vict, int/* spell_num*/)
 			} // case 2
 			case 3: {
 				// минус реакция (1..5)
-				af.type = SPELL_POISON;
+				af.type = kSpellPoison;
 				af.duration = 30;
 				af.location = APPLY_SAVING_REFLEX;
 				af.modifier = GET_REAL_LEVEL(ch) / 6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
@@ -241,7 +241,7 @@ void weap_crit_poison(CharacterData *ch, CharacterData *vict, int/* spell_num*/)
 			} // case 3
 			case 4: {
 				// минус инициатива (1..5)
-				af.type = SPELL_POISON;
+				af.type = kSpellPoison;
 				af.duration = 30;
 				af.location = APPLY_INITIATIVE;
 				af.modifier = -GET_REAL_LEVEL(ch) / 6;
@@ -256,7 +256,7 @@ void weap_crit_poison(CharacterData *ch, CharacterData *vict, int/* spell_num*/)
 			} // case 4
 			case 5: {
 				// минус живучесть (1..5)
-				af.type = SPELL_POISON;
+				af.type = kSpellPoison;
 				af.duration = 30;
 				af.location = APPLY_RESIST_VITALITY;
 				af.modifier = -GET_REAL_LEVEL(ch) / 6;
@@ -281,28 +281,28 @@ void poison_victim(CharacterData *ch, CharacterData *vict, int modifier) {
 	Affect<EApplyLocation> af[4];
 
 	// change strength
-	af[0].type = SPELL_POISON;
+	af[0].type = kSpellPoison;
 	af[0].location = APPLY_STR;
 	af[0].duration = pc_duration(vict, 0, MAX(2, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)), 2, 0, 1);
 	af[0].modifier = -MIN(2, (modifier + 29) / 40);
 	af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[0].battleflag = AF_SAME_TIME;
 	// change damroll
-	af[1].type = SPELL_POISON;
+	af[1].type = kSpellPoison;
 	af[1].location = APPLY_DAMROLL;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -MIN(2, (modifier + 29) / 30);
 	af[1].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[1].battleflag = AF_SAME_TIME;
 	// change hitroll
-	af[2].type = SPELL_POISON;
+	af[2].type = kSpellPoison;
 	af[2].location = APPLY_HITROLL;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -MIN(2, (modifier + 19) / 20);
 	af[2].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[2].battleflag = AF_SAME_TIME;
 	// change poison level
-	af[3].type = SPELL_POISON;
+	af[3].type = kSpellPoison;
 	af[3].location = APPLY_POISON;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GET_REAL_LEVEL(ch);
@@ -327,28 +327,28 @@ void try_weap_poison(CharacterData *ch, CharacterData *vict, int spell_num) {
 	}
 
 	if (number(1, 200) <= 25
-		|| (!GET_AF_BATTLE(vict, EAF_FIRST_POISON) && !AFF_FLAGGED(vict, EAffectFlag::AFF_POISON))) {
+		|| (!GET_AF_BATTLE(vict, kEafFirstPoison) && !AFF_FLAGGED(vict, EAffectFlag::AFF_POISON))) {
 		ImproveSkill(ch, ESkill::kPoisoning, true, vict);
 		if (weap_poison_vict(ch, vict, spell_num)) {
-			if (spell_num == SPELL_ACONITUM_POISON) {
+			if (spell_num == kSpellAconitumPoison) {
 				send_to_char(ch, "Кровоточащие язвы покрыли тело %s.\r\n",
 							 PERS(vict, ch, 1));
-			} else if (spell_num == SPELL_SCOPOLIA_POISON) {
+			} else if (spell_num == kSpellScopolaPoison) {
 				strcpy(buf1, PERS(vict, ch, 0));
 				CAP(buf1);
 				send_to_char(ch, "%s скрючил%s от нестерпимой боли.\r\n",
 							 buf1, GET_CH_VIS_SUF_2(vict, ch));
-				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
-			} else if (spell_num == SPELL_BELENA_POISON) {
+				SET_AF_BATTLE(vict, kEafFirstPoison);
+			} else if (spell_num == kSpellBelenaPoison) {
 				strcpy(buf1, PERS(vict, ch, 3));
 				CAP(buf1);
 				send_to_char(ch, "%s перестали слушаться руки.\r\n", buf1);
-				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
-			} else if (spell_num == SPELL_DATURA_POISON) {
+				SET_AF_BATTLE(vict, kEafFirstPoison);
+			} else if (spell_num == kSpellDaturaPoison) {
 				strcpy(buf1, PERS(vict, ch, 2));
 				CAP(buf1);
 				send_to_char(ch, "%s стало труднее плести заклинания.\r\n", buf1);
-				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
+				SET_AF_BATTLE(vict, kEafFirstPoison);
 			} else {
 				send_to_char(ch, "Вы отравили %s.\r\n", PERS(ch, vict, 3));
 			}
@@ -375,13 +375,13 @@ bool poison_in_vessel(int liquid_num) {
 void set_weap_poison(ObjectData *weapon, int liquid_num) {
 	const int poison_timer = 30;
 	if (liquid_num == LIQ_POISON_ACONITUM)
-		weapon->add_timed_spell(SPELL_ACONITUM_POISON, poison_timer);
+		weapon->add_timed_spell(kSpellAconitumPoison, poison_timer);
 	else if (liquid_num == LIQ_POISON_SCOPOLIA)
-		weapon->add_timed_spell(SPELL_SCOPOLIA_POISON, poison_timer);
+		weapon->add_timed_spell(kSpellScopolaPoison, poison_timer);
 	else if (liquid_num == LIQ_POISON_BELENA)
-		weapon->add_timed_spell(SPELL_BELENA_POISON, poison_timer);
+		weapon->add_timed_spell(kSpellBelenaPoison, poison_timer);
 	else if (liquid_num == LIQ_POISON_DATURA)
-		weapon->add_timed_spell(SPELL_DATURA_POISON, poison_timer);
+		weapon->add_timed_spell(kSpellDaturaPoison, poison_timer);
 	else
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }
@@ -389,10 +389,10 @@ void set_weap_poison(ObjectData *weapon, int liquid_num) {
 // * Вывод имени яда по номеру его заклинания (для осмотра пушек).
 std::string get_poison_by_spell(int spell) {
 	switch (spell) {
-		case SPELL_ACONITUM_POISON: return drinknames[LIQ_POISON_ACONITUM];
-		case SPELL_SCOPOLIA_POISON: return drinknames[LIQ_POISON_SCOPOLIA];
-		case SPELL_BELENA_POISON: return drinknames[LIQ_POISON_BELENA];
-		case SPELL_DATURA_POISON: return drinknames[LIQ_POISON_DATURA];
+		case kSpellAconitumPoison: return drinknames[LIQ_POISON_ACONITUM];
+		case kSpellScopolaPoison: return drinknames[LIQ_POISON_SCOPOLIA];
+		case kSpellBelenaPoison: return drinknames[LIQ_POISON_BELENA];
+		case kSpellDaturaPoison: return drinknames[LIQ_POISON_DATURA];
 	}
 	return "";
 }
@@ -400,10 +400,10 @@ std::string get_poison_by_spell(int spell) {
 // * Проверка, является ли заклинание ядом.
 bool check_poison(int spell) {
 	switch (spell) {
-		case SPELL_ACONITUM_POISON:
-		case SPELL_SCOPOLIA_POISON:
-		case SPELL_BELENA_POISON:
-		case SPELL_DATURA_POISON: return true;
+		case kSpellAconitumPoison:
+		case kSpellScopolaPoison:
+		case kSpellBelenaPoison:
+		case kSpellDaturaPoison: return true;
 	}
 	return false;
 }
@@ -421,11 +421,11 @@ int processPoisonDamage(CharacterData *ch, const Affect<EApplyLocation>::shared_
 		if (!IS_NPC(ch))
 			poison_dmg = poison_dmg / 30;
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
-		Damage dmg(SpellDmg(SPELL_POISON), poison_dmg, FightSystem::UNDEF_DMG);
+		Damage dmg(SpellDmg(kSpellPoison), poison_dmg, FightSystem::UNDEF_DMG);
 		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 		result = dmg.process(ch, ch);
 	} else if (af->location == APPLY_ACONITUM_POISON) {
-		Damage dmg(SpellDmg(SPELL_POISON), GET_POISON(ch), FightSystem::UNDEF_DMG);
+		Damage dmg(SpellDmg(kSpellPoison), GET_POISON(ch), FightSystem::UNDEF_DMG);
 		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 		result = dmg.process(ch, ch);
 	}

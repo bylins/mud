@@ -117,7 +117,7 @@ extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
 // for entities
 extern const char *pc_class_types[];
-extern struct spellInfo_t spell_info[];
+extern struct SpellInfo spell_info[];
 extern int check_dupes_host(DescriptorData *d, bool autocheck = 0);
 extern bool CompareBits(const FlagData &flags, const char *names[], int affect);    // to avoid inclusion of utils.h
 void do_recall(CharacterData *ch, char *argument, int cmd, int subcmd);
@@ -391,9 +391,9 @@ void do_arena_restore(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 			vict->set_cha(25);
 		}
 		update_pos(vict);
-		affect_from_char(vict, SPELL_DRUNKED);
+		affect_from_char(vict, kSpellDrunked);
 		GET_DRUNK_STATE(vict) = GET_COND(vict, DRUNK) = 0;
-		affect_from_char(vict, SPELL_ABSTINENT);
+		affect_from_char(vict, kSpellAbstinent);
 
 		//сброс таймеров скиллов и фитов
 		while (vict->timed)
@@ -874,7 +874,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharacterData *ch) {
 	int rnum_start, rnum_stop;
 	bool found = false;
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, kSpellRuneLabel)) {
 		send_to_char("В зоне имеется рунная метка.\r\n", ch);
 	}
 
@@ -2563,9 +2563,9 @@ void do_restore(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			vict->set_cha(25);
 		}
 		update_pos(vict);
-		affect_from_char(vict, SPELL_DRUNKED);
+		affect_from_char(vict, kSpellDrunked);
 		GET_DRUNK_STATE(vict) = GET_COND(vict, DRUNK) = 0;
-		affect_from_char(vict, SPELL_ABSTINENT);
+		affect_from_char(vict, kSpellAbstinent);
 
 		//сброс таймеров скиллов и фитов
 		while (vict->timed)
@@ -5154,7 +5154,7 @@ void do_forcetime(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 ///////////////////////////////////////////////////////////////////////////////
 //Polud статистика использования заклинаний
 namespace SpellUsage {
-bool isActive = false;
+bool is_active = false;
 std::map<int, SpellCountType> usage;
 const char *SPELL_STAT_FILE = LIB_STAT"spellstat.txt";
 time_t start;
@@ -5181,7 +5181,7 @@ std::string statToPrint() {
 }
 
 void SpellUsage::save() {
-	if (!isActive)
+	if (!is_active)
 		return;
 
 	std::ofstream file(SPELL_STAT_FILE, std::ios_base::app | std::ios_base::out);
@@ -5194,12 +5194,12 @@ void SpellUsage::save() {
 	file.close();
 }
 
-void SpellUsage::AddSpellStat(int charClass, int spellNum) {
-	if (!isActive)
+void SpellUsage::AddSpellStat(int char_class, int spellnum) {
+	if (!is_active)
 		return;
-	if (charClass > kNumPlayerClasses || spellNum > SPELLS_COUNT)
+	if (char_class > kNumPlayerClasses || spellnum > kSpellCount)
 		return;
-	usage[charClass][spellNum]++;
+	usage[char_class][spellnum]++;
 }
 
 void do_spellstat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -5211,20 +5211,20 @@ void do_spellstat(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 
 	if (!str_cmp(argument, "старт")) {
-		SpellUsage::isActive = true;
+		SpellUsage::is_active = true;
 		SpellUsage::start = time(0);
 		send_to_char("Сбор включен.\r\n", ch);
 		return;
 	}
 
-	if (!SpellUsage::isActive) {
+	if (!SpellUsage::is_active) {
 		send_to_char("Сбор выключен. Включите сбор 'заклстат старт'.\r\n", ch);
 		return;
 	}
 
 	if (!str_cmp(argument, "стоп")) {
 		SpellUsage::clear();
-		SpellUsage::isActive = false;
+		SpellUsage::is_active = false;
 		send_to_char("Сбор выключен.\r\n", ch);
 		return;
 	}

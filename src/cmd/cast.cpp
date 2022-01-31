@@ -69,13 +69,13 @@ void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	spell_subst = spellnum;
 
 	// Unknown spell
-	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
+	if (spellnum < 1 || spellnum > kSpellCount) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
 	// Caster is lower than spell level
-	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
+	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)) &&
 		(GET_REAL_LEVEL(ch) < kLevelGreatGod) && (!IS_NPC(ch))) {
 		if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
@@ -93,9 +93,9 @@ void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	// Caster havn't slot
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
 		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
-			&& (spellnum == SPELL_CURE_LIGHT || spellnum == SPELL_CURE_SERIOUS
-				|| spellnum == SPELL_CURE_CRITIC || spellnum == SPELL_HEAL)) {
-			for (i = 1; i <= SPELLS_COUNT; i++) {
+			&& (spellnum == kSpellCureLight || spellnum == kSpellCureSerious
+				|| spellnum == kSpellCureCritic || spellnum == kSpellHeal)) {
+			for (i = 1; i <= kSpellCount; i++) {
 				if (GET_SPELL_MEM(ch, i) &&
 					spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ==
 						spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
@@ -103,7 +103,7 @@ void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					break;
 				}
 			}
-			if (i > SPELLS_COUNT) {
+			if (i > kSpellCount) {
 				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
 			}
@@ -129,7 +129,7 @@ void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP) && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp) && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
 		send_to_char("На данной арене вы можете колдовать только временные заклинания!\r\n", ch);
 		return;
 	}

@@ -676,7 +676,7 @@ void ObjectFile::parse_object(const int nr) {
 		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 	}
 	tobj->set_timer(timer);
-	tobj->set_spell(t[2] < 1 || t[2] > SPELLS_COUNT ? SPELL_NO_SPELL : t[2]);
+	tobj->set_spell(t[2] < 1 || t[2] > kSpellCount ? kSpellNoSpell : t[2]);
 	tobj->set_level(t[3]);
 
 	if (!get_line(file(), m_line)) {
@@ -958,7 +958,7 @@ bool ObjectFile::check_object_spell_number(ObjectData *obj, unsigned val) {
 	if (GET_OBJ_VAL(obj, val) < 0) {
 		error = true;
 	}
-	if (GET_OBJ_VAL(obj, val) > SPELLS_COUNT) {
+	if (GET_OBJ_VAL(obj, val) > kSpellCount) {
 		error = true;
 	}
 	if (error) {
@@ -972,7 +972,7 @@ bool ObjectFile::check_object_spell_number(ObjectData *obj, unsigned val) {
 	}
 
 	// Now check for unnamed spells.
-	spellname = spell_name(GET_OBJ_VAL(obj, val));
+	spellname = GetSpellName(GET_OBJ_VAL(obj, val));
 
 	if (error
 		&& (spellname == unused_spellname
@@ -1436,7 +1436,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > SPELLS_COUNT || t[0] < 1) {
+		if (t[0] > kSpellCount || t[0] < 1) {
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}

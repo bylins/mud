@@ -113,7 +113,7 @@ extern int mana[];
 extern int mana_gain_cs[];
 extern int mana_cost_cs[][9];
 extern const char *material_name[];
-extern struct attack_hit_type attack_hit_text[];
+extern struct AttackHitType attack_hit_text[];
 extern const char *godslike_bits[];
 extern std::array<const char *, kNumPlayerClasses> pc_class_name;
 extern const char *weapon_class[];

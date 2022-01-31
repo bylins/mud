@@ -39,7 +39,7 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 	int percent = number(1, MUD::Skills()[ESkill::kUndercut].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kUndercut, vict);
 
-	if (check_spell_on_player(ch, SPELL_WEB)) {
+	if (check_spell_on_player(ch, kSpellWeb)) {
 		prob /= 3;
 	}
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE)
@@ -65,7 +65,7 @@ void go_chopoff(CharacterData *ch, CharacterData *vict) {
 		prob = 3;
 		if (can_use_feat(ch, EVASION_FEAT)) {
 			Affect<EApplyLocation> af;
-			af.type = SPELL_EXPEDIENT;
+			af.type = kSpellExpedient;
 			af.location = EApplyLocation::APPLY_PR;
 			af.modifier = 50;
 			af.duration = pc_duration(ch, 3, 0, 0, 0, 0);

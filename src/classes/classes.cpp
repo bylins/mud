@@ -54,7 +54,7 @@
 #include <iostream>
 
 extern int siteok_everyone;
-extern struct spell_create_type spell_create[];
+extern struct SpellCreate spell_create[];
 extern double exp_coefficients[];
 
 // local functions
@@ -1256,18 +1256,18 @@ int extra_damroll(int class_num, int level) {
 void init_warcry(CharacterData *ch) // проставление кличей в обход античита
 {
 	if (GET_CLASS(ch) == ECharClass::kGuard)
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfDefence), kSpellKnow); // клич призыв к обороне
 
 	if (GET_CLASS(ch) == ECharClass::kRanger) {
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_EXPERIENSE), SPELL_KNOW); // клич опыта
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_LUCK), SPELL_KNOW); // клич удачи
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_PHYSDAMAGE), SPELL_KNOW); // клич +дамага
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWatctyOfExpirence), kSpellKnow); // клич опыта
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfLuck), kSpellKnow); // клич удачи
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPhysdamage), kSpellKnow); // клич +дамага
 	}
 	if (GET_CLASS(ch) == ECharClass::kWarrior) {
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_POWER), SPELL_KNOW); // клич призыв мощи
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BLESS), SPELL_KNOW); // клич призывы доблести
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_COURAGE), SPELL_KNOW); // клич призыв отваги
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBattle), kSpellKnow); // клич призыв битвы
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPower), kSpellKnow); // клич призыв мощи
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBless), kSpellKnow); // клич призывы доблести
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfCourage), kSpellKnow); // клич призыв отваги
 	}
 
 }
@@ -1281,8 +1281,8 @@ void do_start(CharacterData *ch, int newbie) {
 	}
 
 	if (newbie && GET_CLASS(ch) == ECharClass::kMagus) {
-		for (int i = 1; i <= SPELLS_COUNT; i++) {
-			GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+		for (int i = 1; i <= kSpellCount; i++) {
+			GET_SPELL_TYPE(ch, i) = kSpellRunes;
 		}
 	}
 
@@ -1589,7 +1589,7 @@ int invalid_no_class(CharacterData *ch, const ObjectData *obj) {
  * the spell or skill.
  */
 #include "classes/classes_spell_slots.h"
-void init_spell_levels() {
+void InitSpellLevels() {
 	using PlayerClass::mspell_slot;
 
 	FILE *magic;
@@ -1679,35 +1679,35 @@ void init_spell_levels() {
 			spell_create[sp_num].potion.items[2] = i[2];
 			spell_create[sp_num].potion.rnumber = i[3];
 			spell_create[sp_num].potion.min_caster_level = i[4];
-			log("CREATE potion FOR MAGIC '%s'", spell_name(sp_num));
+			log("CREATE potion FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "wand", c)) {
 			spell_create[sp_num].wand.items[0] = i[0];
 			spell_create[sp_num].wand.items[1] = i[1];
 			spell_create[sp_num].wand.items[2] = i[2];
 			spell_create[sp_num].wand.rnumber = i[3];
 			spell_create[sp_num].wand.min_caster_level = i[4];
-			log("CREATE wand FOR MAGIC '%s'", spell_name(sp_num));
+			log("CREATE wand FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "scroll", c)) {
 			spell_create[sp_num].scroll.items[0] = i[0];
 			spell_create[sp_num].scroll.items[1] = i[1];
 			spell_create[sp_num].scroll.items[2] = i[2];
 			spell_create[sp_num].scroll.rnumber = i[3];
 			spell_create[sp_num].scroll.min_caster_level = i[4];
-			log("CREATE scroll FOR MAGIC '%s'", spell_name(sp_num));
+			log("CREATE scroll FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "items", c)) {
 			spell_create[sp_num].items.items[0] = i[0];
 			spell_create[sp_num].items.items[1] = i[1];
 			spell_create[sp_num].items.items[2] = i[2];
 			spell_create[sp_num].items.rnumber = i[3];
 			spell_create[sp_num].items.min_caster_level = i[4];
-			log("CREATE items FOR MAGIC '%s'", spell_name(sp_num));
+			log("CREATE items FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "runes", c)) {
 			spell_create[sp_num].runes.items[0] = i[0];
 			spell_create[sp_num].runes.items[1] = i[1];
 			spell_create[sp_num].runes.items[2] = i[2];
 			spell_create[sp_num].runes.rnumber = i[3];
 			spell_create[sp_num].runes.min_caster_level = i[4];
-			log("CREATE runes FOR MAGIC '%s'", spell_name(sp_num));
+			log("CREATE runes FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else {
 			log("Unknown items option : %s", line3);
 			graceful_exit(1);
@@ -2159,8 +2159,8 @@ int level_exp(CharacterData *ch, int level) {
 void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
 	int bad = 0;
 
-	if (spell < 0 || spell > SPELLS_COUNT) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
+	if (spell < 0 || spell > kSpellCount) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
 		return;
 	}
 	if (kin < 0 || kin >= kNumKins) {
@@ -2184,8 +2184,8 @@ void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
 void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 	int bad = 0;
 
-	if (spell < 0 || spell > SPELLS_COUNT) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
+	if (spell < 0 || spell > kSpellCount) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
 		return;
 	}
 
@@ -2213,8 +2213,8 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 void mspell_change(char *name, int spell, int kin, int chclass, int class_change) {
 	int bad = 0;
 
-	if (spell < 0 || spell > SPELLS_COUNT) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
+	if (spell < 0 || spell > kSpellCount) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
 		return;
 	}
 

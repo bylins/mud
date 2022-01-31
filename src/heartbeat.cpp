@@ -290,7 +290,7 @@ void UpdateClanExpCall::perform(int, int) {
 class SpellUsageCall : public AbstractPulseAction {
  public:
 	virtual void perform(int, int) override {
-		if (!SpellUsage::isActive) {
+		if (!SpellUsage::is_active) {
 			return;
 		}
 

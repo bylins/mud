@@ -206,7 +206,7 @@ void LoadGuardians();
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages();
-void initSpells(void);
+void InitSpells(void);
 void sort_commands();
 void Read_Invalid_List();
 int find_name(const char *name);
@@ -2298,7 +2298,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading spell definitions");
 	log("Loading spell definitions.");
-	initSpells();
+	InitSpells();
 
 	boot_profiler.next_step("Loading skills definitions");
 	log("Loading skills definitions.");
@@ -2315,7 +2315,7 @@ void boot_db(void) {
 	boot_profiler.next_step("Assigning character classs info.");
 	log("Assigning character classs info.");
 	MUD::Classes().Init();
-	init_spell_levels();
+	InitSpellLevels();
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");
@@ -4766,7 +4766,7 @@ bool is_empty(ZoneRnum zone_nr) {
 		return false;
 	}
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, kSpellRuneLabel)) {
 		return false;
 	}
 
@@ -5020,9 +5020,9 @@ int file_to_string(const char *name, char *buf) {
 void clear_char_skills(CharacterData *ch) {
 	int i;
 	ch->real_abils.Feats.reset();
-	for (i = 0; i <= SPELLS_COUNT; i++)
+	for (i = 0; i <= kSpellCount; i++)
 		ch->real_abils.SplKnw[i] = 0;
-	for (i = 0; i <= SPELLS_COUNT; i++)
+	for (i = 0; i <= kSpellCount; i++)
 		ch->real_abils.SplMem[i] = 0;
 	ch->clear_skills();
 }
@@ -5125,15 +5125,15 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
-		for (i = 1; i <= SPELLS_COUNT; i++) {
-			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == kMagus ? SPELL_RUNES : 0);
+		for (i = 1; i <= kSpellCount; i++) {
+			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == kMagus ? kSpellRunes : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
-		for (i = 1; i <= SPELLS_COUNT; i++) {
+		for (i = 1; i <= kSpellCount; i++) {
 			if (GET_CLASS(ch) == kMagus) {
-				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+				GET_SPELL_TYPE(ch, i) = kSpellRunes;
 			} else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
 				GET_SPELL_TYPE(ch, i) = 0;
 				GET_SPELL_MEM(ch, i) = 0;
@@ -5162,7 +5162,7 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	check_portals(ch);
 	if (ch->get_protecting()) {
 		ch->set_protecting(0);
-		ch->BattleAffects.unset(EAF_PROTECT);
+		ch->BattleAffects.unset(kEafProtect);
 	}
 
 	//Обновляем статистику рипов для текущего перевоплощения

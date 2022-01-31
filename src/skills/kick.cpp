@@ -37,7 +37,7 @@ void go_kick(CharacterData *ch, CharacterData *vict) {
 		if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (!ch->ahorse() && vict->ahorse())) {
 			prob = 0;
 		}
-		if (check_spell_on_player(ch, SPELL_WEB)) {
+		if (check_spell_on_player(ch, kSpellWeb)) {
 			prob /= 3;
 		}
 		success = percent <= prob;
@@ -61,7 +61,7 @@ void go_kick(CharacterData *ch, CharacterData *vict) {
 		if (ch->ahorse() && (ch->get_skill(ESkill::kRiding) >= 150) && (ch->get_skill(ESkill::kKick) >= 150)) {
 			Affect<EApplyLocation> af;
 			af.location = APPLY_NONE;
-			af.type = SPELL_BATTLE;
+			af.type = kSpellBattle;
 			af.modifier = 0;
 			af.battleflag = 0;
 			float modi = ((ch->get_skill(ESkill::kKick) + GET_REAL_STR(ch) * 5)
@@ -74,7 +74,7 @@ void go_kick(CharacterData *ch, CharacterData *vict) {
 							to_char = "Каблук вашего сапога надолго запомнится $N2, если конечно он выживет.";
 							to_vict = "Мощный удар ноги $n1 изуродовал вам правую руку.";
 							to_room = "След сапога $n1 надолго запомнится $N2, если конечно он$Q выживет.";
-							af.type = SPELL_BATTLE;
+							af.type = kSpellBattle;
 							af.bitvector = to_underlying(EAffectFlag::AFF_STOPRIGHT);
 							af.duration = pc_duration(vict, 3 + GET_REAL_REMORT(ch) / 4, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
@@ -99,7 +99,7 @@ void go_kick(CharacterData *ch, CharacterData *vict) {
 					case 3:to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
 						to_vict = "Мощный удар ноги $n1 попал вам точно в челюсть, заставив вас замолчать.";
 						to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
-						af.type = SPELL_BATTLE;
+						af.type = kSpellBattle;
 						af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 						af.duration = pc_duration(vict, 3 + GET_REAL_REMORT(ch) / 5, 0, 0, 0, 0);
 						af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
@@ -140,7 +140,7 @@ void go_kick(CharacterData *ch, CharacterData *vict) {
 			affect_join(vict, af, true, false, true, false);
 		}
 
-		if (GET_AF_BATTLE(vict, EAF_AWAKE)) {
+		if (GET_AF_BATTLE(vict, kEafAwake)) {
 			dam >>= (2 - (ch->ahorse() ? 1 : 0));
 		}
 		Damage dmg(SkillDmg(ESkill::kKick), dam, PHYS_DMG, nullptr);

@@ -71,7 +71,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 			MAX(0, ch->get_skill(ESkill::kBash) / 10 - 5) + GET_REAL_LEVEL(ch) / 5;
 
 //делаем блокирование баша
-		if ((GET_AF_BATTLE(vict, EAF_BLOCK)
+		if ((GET_AF_BATTLE(vict, kEafBlock)
 			|| (can_use_feat(vict, DEFENDER_FEAT)
 				&& GET_EQ(vict, WEAR_SHIELD)
 				&& PRF_FLAGGED(vict, PRF_AWAKE)

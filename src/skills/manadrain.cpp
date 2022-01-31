@@ -47,7 +47,7 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if (affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT)) {
+	if (affected_by_spell(vict, kSpellShield) || MOB_FLAGGED(vict, MOB_PROTECT)) {
 		send_to_char("Боги хранят вашу жертву.\r\n", ch);
 		return;
 	}
@@ -63,7 +63,7 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
 
 	Damage manadrainDamage(SkillDmg(ESkill::kJinx), ZERO_DMG, MAGE_DMG, nullptr);
-	manadrainDamage.magic_type = STYPE_DARK;
+	manadrainDamage.magic_type = kTypeDark;
 	if (percent <= prob) {
 		skill = MAX(10, skill - 10 * MAX(0, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;

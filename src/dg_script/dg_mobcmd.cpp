@@ -970,7 +970,7 @@ void do_mdoor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // increases spells & skills
-const char *spell_name(int num);
+const char *GetSpellName(int num);
 int FixNameAndFindSpellNum(char *name);
 
 void do_mfeatturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1149,7 +1149,7 @@ void do_mspellturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
+	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellCount) {
 		mob_log(ch, "mspellturn: spell not found");
 		return;
 	}
@@ -1198,7 +1198,7 @@ void do_mspellturntemp(CharacterData *ch, char *argument, int/* cmd*/, int/* sub
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		mob_log(ch, "mspellturntemp: spell not found");
 		return;
 	}
@@ -1240,7 +1240,7 @@ void do_mspelladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
+	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellCount) {
 		mob_log(ch, "mspelladd: skill not found");
 		return;
 	}
@@ -1278,21 +1278,21 @@ void do_mspellitem(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		mob_log(ch, "mspellitem: spell not found");
 		return;
 	}
 
 	if (!str_cmp(type, "potion")) {
-		spell = SPELL_POTION;
+		spell = kSpellPotion;
 	} else if (!str_cmp(type, "wand")) {
-		spell = SPELL_WAND;
+		spell = kSpellWand;
 	} else if (!str_cmp(type, "scroll")) {
-		spell = SPELL_SCROLL;
+		spell = kSpellScroll;
 	} else if (!str_cmp(type, "items")) {
-		spell = SPELL_ITEMS;
+		spell = kSpellItems;
 	} else if (!str_cmp(type, "runes")) {
-		spell = SPELL_RUNES;
+		spell = kSpellRunes;
 	} else {
 		mob_log(ch, "mspellitem: type spell not found");
 		return;

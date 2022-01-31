@@ -10,7 +10,7 @@ namespace PlayerClass {
 
 const short SPELL_SLOTS_FOR_IMMORTAL = 10;
 
-const int MAG_SLOTS[][MAX_SLOT] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int MAG_SLOTS[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 								   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 								   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -42,7 +42,7 @@ const int MAG_SLOTS[][MAX_SLOT] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {8, 8, 7, 6, 6, 5, 4, 2, 1, 0},    // lvl 30
 };
 
-const int NECROMANCER_SLOTS[][MAX_SLOT] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int NECROMANCER_SLOTS[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 										   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 										   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 										   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -1163,7 +1163,7 @@ MaxClassSlot max_slots;
 int slot_for_char(CharacterData *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
-	if (slot_num < 1 || slot_num > MAX_SLOT || GET_REAL_LEVEL(ch) < 1 || IS_NPC(ch)) {
+	if (slot_num < 1 || slot_num > kMaxSlot || GET_REAL_LEVEL(ch) < 1 || IS_NPC(ch)) {
 		return -1;
 	}
 
@@ -1221,23 +1221,23 @@ int slot_for_char(CharacterData *ch, int slot_num) {
 void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 	int bad = 0;
 
-	if (spell < 0 || spell > SPELLS_COUNT) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
+	if (spell < 0 || spell > kSpellCount) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
 		return;
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", GetSpellName(spell), chclass, kNumKins);
 		bad = 1;
 	}
 
 	if (chclass < 0 || chclass >= kNumPlayerClasses) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_name(spell), chclass, kNumPlayerClasses - 1);
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", GetSpellName(spell), chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 
-	if (slot < 1 || slot > MAX_SLOT) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", spell_name(spell), slot, kLevelImplementator);
+	if (slot < 1 || slot > kMaxSlot) {
+		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLevelImplementator);
 		bad = 1;
 	}
 

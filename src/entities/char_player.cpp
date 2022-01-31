@@ -432,9 +432,9 @@ void Player::save_char() {
 		for (i = 0; i < kMaxAffect; i++) {
 			if (aff_i != affected.end()) {
 				const auto &aff = *aff_i;
-				if (aff->type == SPELL_ARMAGEDDON
+				if (aff->type == kSpellArmageddon
 					|| aff->type < 1
-					|| aff->type > SPELLS_COUNT) {
+					|| aff->type > kSpellCount) {
 					i--;
 				} else {
 					tmp_aff[i] = *aff;
@@ -589,7 +589,7 @@ void Player::save_char() {
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
 	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != kMagus) {
 		fprintf(saved, "Spel:\n");
-		for (i = 1; i <= SPELLS_COUNT; i++)
+		for (i = 1; i <= kSpellCount; i++)
 			if (GET_SPELL_TYPE(this, i))
 				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(this, i), spell_info[i].name);
 		fprintf(saved, "0 0\n");
@@ -611,7 +611,7 @@ void Player::save_char() {
 	// Замемленые спелы
 	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
 		fprintf(saved, "SpMe:\n");
-		for (i = 1; i <= SPELLS_COUNT; i++) {
+		for (i = 1; i <= kSpellCount; i++) {
 			if (GET_SPELL_MEM(this, i))
 				fprintf(saved, "%d %d\n", i, GET_SPELL_MEM(this, i));
 		}
@@ -778,7 +778,7 @@ void Player::save_char() {
 			if (aff->type) {
 				fprintf(saved, "%d %d %d %d %d %d %s\n", aff->type, aff->duration,
 						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
-						static_cast<int>(aff->battleflag), spell_name(aff->type));
+						static_cast<int>(aff->battleflag), GetSpellName(aff->type));
 			}
 		}
 		fprintf(saved, "0 0 0 0 0 0\n");
@@ -852,7 +852,7 @@ void Player::save_char() {
 			&& k->ch
 			&& !k->ch->affected.empty()) {
 			for (const auto &aff : k->ch->affected) {
-				if (aff->type == SPELL_CHARM) {
+				if (aff->type == kSpellCharm) {
 					if (k->ch->mob_specials.hire_price == 0) {
 						break;
 					}
@@ -1127,13 +1127,13 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	// волхвам сетим все спеллы на рунах, остальные инит нулями
 	if (GET_CLASS(this) != kMagus)
-		for (i = 1; i <= SPELLS_COUNT; i++)
+		for (i = 1; i <= kSpellCount; i++)
 			GET_SPELL_TYPE(this, i) = 0;
 	else
-		for (i = 1; i <= SPELLS_COUNT; i++)
-			GET_SPELL_TYPE(this, i) = SPELL_RUNES;
+		for (i = 1; i <= kSpellCount; i++)
+			GET_SPELL_TYPE(this, i) = kSpellRunes;
 
-	for (i = 1; i <= SPELLS_COUNT; i++)
+	for (i = 1; i <= kSpellCount; i++)
 		GET_SPELL_MEM(this, i) = 0;
 	this->char_specials.saved.affected_by = clear_flags;
 	POOFIN(this) = nullptr;
@@ -1277,7 +1277,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							af.location = static_cast<EApplyLocation>(num4);
 							af.bitvector = num5;
 							af.battleflag = num6;
-							if (af.type == SPELL_LACKY) {
+							if (af.type == kSpellLucky) {
 								af.handler.reset(new LackyAffectHandler());
 							}
 							affect_to_char(this, af);
@@ -1891,13 +1891,13 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	setAllInbornFeatures(this);
 
 	if (IS_GRGOD(this)) {
-		for (i = 0; i <= SPELLS_COUNT; i++)
+		for (i = 0; i <= kSpellCount; i++)
 			GET_SPELL_TYPE(this, i) = GET_SPELL_TYPE(this, i) |
-				SPELL_ITEMS | SPELL_KNOW | SPELL_RUNES | SPELL_SCROLL | SPELL_POTION | SPELL_WAND;
+				kSpellItems | kSpellKnow | kSpellRunes | kSpellScroll | kSpellPotion | kSpellWand;
 	} else if (!IS_IMMORTAL(this)) {
-		for (i = 0; i <= SPELLS_COUNT; i++) {
-			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == MAX_SLOT)
-				REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP);
+		for (i = 0; i <= kSpellCount; i++) {
+			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == kMaxSlot)
+				REMOVE_BIT(GET_SPELL_TYPE(this, i), kSpellKnow | kSpellTemp);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
 // если мортов мало
 			if (GET_REAL_REMORT(this) < MIN_CAST_REM(spell_info[i], this))

@@ -148,12 +148,12 @@ void check_light(CharacterData *ch, int was_equip, int was_single, int was_holyl
  * false indicates not affected.
  */
 bool affected_by_spell(CharacterData *ch, int type) {
-	if (type == SPELL_POWER_HOLD) {
-		type = SPELL_HOLD;
-	} else if (type == SPELL_POWER_SILENCE) {
-		type = SPELL_SILENCE;
-	} else if (type == SPELL_POWER_BLINDNESS) {
-		type = SPELL_BLINDNESS;
+	if (type == kSpellPowerHold) {
+		type = kSpellHold;
+	} else if (type == kSpellPowerSilence) {
+		type = kSpellSllence;
+	} else if (type == kSpellPowerBlindness) {
+		type = kSpellBlindness;
 	}
 
 	for (const auto &affect : ch->affected) {
@@ -309,7 +309,7 @@ void room_affect_process_on_entry(CharacterData *ch, RoomRnum room) {
 		return;
 	}
 
-	const auto affect_on_room = room_spells::FindAffect(world[room], SPELL_HYPNOTIC_PATTERN);
+	const auto affect_on_room = room_spells::FindAffect(world[room], kSpellHypnoticPattern);
 	if (affect_on_room != world[room]->affected.end()) {
 		CharacterData *caster = find_char((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой
@@ -325,15 +325,15 @@ void room_affect_process_on_entry(CharacterData *ch, RoomRnum room) {
 			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего (Кудояр)
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
-			float mkof = func_koef_modif(SPELL_HYPNOTIC_PATTERN, caster->get_skill(GetMagicSkillId(
-				SPELL_HYPNOTIC_PATTERN)));
+			float mkof = func_koef_modif(kSpellHypnoticPattern, caster->get_skill(GetMagicSkillId(
+				kSpellHypnoticPattern)));
 			if (!IS_NPC(ch) && (number (1, 100) > (23 + 2*mkof))) { 
 				return;
 			}
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.", ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
 				true, ch, nullptr, ch, TO_ROOM | TO_ARENA_LISTEN);
-			CallMagic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_REAL_LEVEL(caster));
+			CallMagic(caster, ch, nullptr, nullptr, kSpellSleep, GET_REAL_LEVEL(caster));
 		}
 	}
 }
@@ -2738,7 +2738,7 @@ float get_effective_wis(CharacterData *ch, int spellnum) {
 
 	auto max_wis = class_stats_limit[ch->get_class()][3];
 
-	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD) {
+	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		key_value = ch->get_wis();
 		key_value_add = MIN(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
 	} else {
@@ -2787,7 +2787,7 @@ int get_player_charms(CharacterData *ch, int spellnum) {
 	float eff_cha = 0.0;
 	float max_cha;
 
-	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD) {
+	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		eff_cha = get_effective_wis(ch, spellnum);
 		max_cha = class_stats_limit[ch->get_class()][3];
 	} else {
@@ -2795,7 +2795,7 @@ int get_player_charms(CharacterData *ch, int spellnum) {
 		eff_cha = get_effective_cha(ch);
 	}
 
-	if (spellnum != SPELL_CHARM) {
+	if (spellnum != kSpellCharm) {
 		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
@@ -2961,15 +2961,15 @@ void MemQ_forget(CharacterData *ch, int num) {
 
 int *MemQ_slots(CharacterData *ch) {
 	struct SpellMemQueueItem **q, *qt;
-	static int slots[MAX_SLOT];
+	static int slots[kMaxSlot];
 	int i, n, sloti;
 
 	// инициализация
-	for (i = 0; i < MAX_SLOT; ++i)
+	for (i = 0; i < kMaxSlot; ++i)
 		slots[i] = slot_for_char(ch, i + 1);
 
-	for (i = SPELLS_COUNT; i >= 1; --i) {
-		if (!IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW | SPELL_TEMP))
+	for (i = kSpellCount; i >= 1; --i) {
+		if (!IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp))
 			continue;
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
 			continue;
@@ -3007,7 +3007,7 @@ int *MemQ_slots(CharacterData *ch) {
 		}
 	}
 
-	for (i = 0; i < MAX_SLOT; ++i)
+	for (i = 0; i < kMaxSlot; ++i)
 		slots[i] = slot_for_char(ch, i + 1) - slots[i];
 
 	return slots;
@@ -3070,23 +3070,23 @@ int calculate_resistance_coeff(CharacterData *ch, int resist_type, int effect) {
 
 int getResisTypeWithSpellClass(int spellClass) {
 	switch (spellClass) {
-		case STYPE_FIRE: return FIRE_RESISTANCE;
+		case kTypeFire: return FIRE_RESISTANCE;
 			break;
-		case STYPE_DARK: return DARK_RESISTANCE;
+		case kTypeDark: return DARK_RESISTANCE;
 			break;
-		case STYPE_AIR: return AIR_RESISTANCE;
+		case kTypeAir: return AIR_RESISTANCE;
 			break;
-		case STYPE_WATER: return WATER_RESISTANCE;
+		case kTypeWater: return WATER_RESISTANCE;
 			break;
-		case STYPE_EARTH: return EARTH_RESISTANCE;
+		case kTypeEarth: return EARTH_RESISTANCE;
 			break;
-		case STYPE_LIGHT: return VITALITY_RESISTANCE;
+		case kTypeLight: return VITALITY_RESISTANCE;
 			break;
-		case STYPE_MIND: return MIND_RESISTANCE;
+		case kTypeMind: return MIND_RESISTANCE;
 			break;
-		case STYPE_LIFE: return IMMUNITY_RESISTANCE;
+		case kTypeLife: return IMMUNITY_RESISTANCE;
 			break;
-		case STYPE_NEUTRAL: return VITALITY_RESISTANCE;
+		case kTypeNeutral: return VITALITY_RESISTANCE;
 			break;
 	}
 	return VITALITY_RESISTANCE;
@@ -3104,9 +3104,9 @@ int get_object_low_rent(ObjectData *obj) {
 
 // * Удаление рунной метки (при пропадании в пустоте и реморте).
 void remove_rune_label(CharacterData *ch) {
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
 	if (label_room) {
-		const auto aff = room_spells::FindAffect(label_room, SPELL_RUNE_LABEL);
+		const auto aff = room_spells::FindAffect(label_room, kSpellRuneLabel);
 		if (aff != label_room->affected.end()) {
 			room_spells::RemoveAffect(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);

@@ -16,14 +16,14 @@ void go_protect(CharacterData *ch, CharacterData *vict) {
 
 	ch->set_protecting(vict);
 	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, TO_CHAR);
-	SET_AF_BATTLE(ch, EAF_PROTECT);
+	SET_AF_BATTLE(ch, kEafProtect);
 }
 
 void do_protect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!*arg) {
 		if (ch->get_protecting()) {
-			CLR_AF_BATTLE(ch, EAF_PROTECT);
+			CLR_AF_BATTLE(ch, kEafProtect);
 			ch->set_protecting(0);
 			send_to_char("Вы перестали прикрывать своего товарища.\r\n", ch);
 		} else {
@@ -111,10 +111,10 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 					TO_CHAR);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, TO_CHAR);
 				vict->set_protecting(0);
-				vict->BattleAffects.unset(EAF_PROTECT);
+				vict->BattleAffects.unset(kEafProtect);
 				WAIT_STATE(vict, kPulseViolence);
 				Affect<EApplyLocation> af;
-				af.type = SPELL_BATTLE;
+				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af.location = EApplyLocation::APPLY_NONE;
 				af.modifier = 0;

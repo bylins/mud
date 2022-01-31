@@ -231,7 +231,7 @@ class CObjectPrototype {
 										   m_max_in_world(DEFAULT_MAX_IN_WORLD),
 										   m_vals({0, 0, 0, 0}),
 										   m_destroyer(DEFAULT_DESTROYER),
-										   m_spell(SPELL_NO_SPELL),
+										   m_spell(kSpellNoSpell),
 										   m_level(DEFAULT_LEVEL),
 										   m_skill(-1),
 										   m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),

@@ -1739,7 +1739,7 @@ char *make_prompt(DescriptorData *d) {
 			if (d->character->get_skill(ESkill::kTownportal))
 				count += sprintf(prompt + count, "Вр:%d ", IsTimedBySkill(d->character.get(), ESkill::kTownportal));
 			if (d->character->get_skill(ESkill::kWarcry)) {
-				int wc_count = (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / HOURS_PER_WARCRY;
+				int wc_count = (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / kHoursPerWarcry;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
 			if (d->character->get_skill(ESkill::kTurnUndead)) {
@@ -1747,12 +1747,12 @@ char *make_prompt(DescriptorData *d) {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
 									 (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
-										 / (HOURS_PER_TURN_UNDEAD - 2));
+										 / (kHoursPerTurnUndead - 2));
 				} else {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
 									 (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
-										 / HOURS_PER_TURN_UNDEAD);
+										 / kHoursPerTurnUndead);
 				}
 			}
 			if (d->character->get_skill(ESkill::kStrangle))

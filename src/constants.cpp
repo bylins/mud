@@ -1803,7 +1803,7 @@ int mana_cost_cs[][9] = {
 };
 
 // Weapon attack texts
-struct attack_hit_type attack_hit_text[] =
+struct AttackHitType attack_hit_text[] =
 	{
 		{"ударил", "ударить"},    // 0
 		{"ободрал", "ободрать"},

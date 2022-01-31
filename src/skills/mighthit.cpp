@@ -24,7 +24,7 @@ void go_mighthit(CharacterData *ch, CharacterData *victim) {
 	victim = try_protect(victim, ch);
 
 	if (!ch->get_fighting()) {
-		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		SET_AF_BATTLE(ch, kEafHammer);
 		hit(ch, victim, ESkill::kHammer, FightSystem::MAIN_HAND);
 		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
 			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
@@ -43,7 +43,7 @@ void go_mighthit(CharacterData *ch, CharacterData *victim) {
 			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 			//set_wait(ch, 2, true);
 		}
-		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		SET_AF_BATTLE(ch, kEafHammer);
 	}
 }
 
@@ -68,7 +68,7 @@ void do_mighthit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (GET_AF_BATTLE(ch, EAF_TOUCH)) {
+	if (GET_AF_BATTLE(ch, kEafTouch)) {
 		if (!IS_NPC(ch))
 			send_to_char("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;

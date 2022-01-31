@@ -880,9 +880,9 @@ void check_berserk(CharacterData *ch) {
 	struct TimedFeat timed;
 	int prob;
 
-	if (affected_by_spell(ch, SPELL_BERSERK) &&
+	if (affected_by_spell(ch, kSpellBerserk) &&
 		(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
-		affect_from_char(ch, SPELL_BERSERK);
+		affect_from_char(ch, kSpellBerserk);
 		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 
@@ -895,7 +895,7 @@ void check_berserk(CharacterData *ch) {
 		ImposeTimedFeat(ch, &timed);
 
 		Affect<EApplyLocation> af;
-		af.type = SPELL_BERSERK;
+		af.type = kSpellBerserk;
 		af.duration = pc_duration(ch, 1, 60, 30, 0, 0);
 		af.modifier = 0;
 		af.location = APPLY_NONE;
@@ -930,7 +930,7 @@ void do_lightwalk(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* sub
 		return;
 	}
 
-	if (affected_by_spell(ch, SPELL_LIGHT_WALK)) {
+	if (affected_by_spell(ch, kSpellLightWalk)) {
 		send_to_char("Вы уже двигаетесь легким шагом.\r\n", ch);
 		return;
 	}
@@ -939,7 +939,7 @@ void do_lightwalk(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* sub
 		return;
 	}
 
-	affect_from_char(ch, SPELL_LIGHT_WALK);
+	affect_from_char(ch, kSpellLightWalk);
 
 	timed.feat = LIGHT_WALK_FEAT;
 	timed.time = 24;
@@ -947,7 +947,7 @@ void do_lightwalk(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* sub
 
 	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	Affect<EApplyLocation> af;
-	af.type = SPELL_LIGHT_WALK;
+	af.type = kSpellLightWalk;
 	af.duration = pc_duration(ch, 2, GET_REAL_LEVEL(ch), 5, 2, 8);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
@@ -1100,12 +1100,12 @@ void do_spell_capable(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 	}
 
 	spellnum = FixNameAndFindSpellNum(s);
-	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
+	if (spellnum < 1 || spellnum > kSpellCount) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
-	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
+	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
 		(GET_REAL_LEVEL(ch) < kLevelGreatGod) && (!IS_NPC(ch))) {
 		if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
@@ -1130,7 +1130,7 @@ void do_spell_capable(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
 			&& k->ch->get_master() == ch
 			&& MOB_FLAGGED(k->ch, MOB_CLONE)
-			&& !affected_by_spell(k->ch, SPELL_CAPABLE)
+			&& !affected_by_spell(k->ch, kSpellCapable)
 			&& ch->in_room == IN_ROOM(k->ch)) {
 			follower = k->ch;
 			break;
@@ -1153,9 +1153,9 @@ void do_spell_capable(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
 		MemQ_remember(ch, spellnum);
 
-	if (!IS_SET(SpINFO.routines, MAG_DAMAGE) || !SpINFO.violent ||
-		IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS) ||
-		IS_SET(SpINFO.routines, MAG_AREAS)) {
+	if (!IS_SET(SpINFO.routines, kMagDamage) || !SpINFO.violent ||
+		IS_SET(SpINFO.routines, kMagMasses) || IS_SET(SpINFO.routines, kMagGroups) ||
+		IS_SET(SpINFO.routines, kMagAreas)) {
 		send_to_char("Вы конечно мастер, но не такой магии.\r\n", ch);
 		return;
 	}
@@ -1188,7 +1188,7 @@ void do_spell_capable(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 
 	GET_CAST_SUCCESS(follower) = GET_REAL_REMORT(ch) * 4;
 	Affect<EApplyLocation> af;
-	af.type = SPELL_CAPABLE;
+	af.type = kSpellCapable;
 	af.duration = 48;
 	if (GET_REAL_REMORT(ch) > 0) {
 		af.modifier = GET_REAL_REMORT(ch) * 4;//вешаецо аффект который дает +морт*4 касту

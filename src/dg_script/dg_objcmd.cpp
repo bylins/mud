@@ -574,7 +574,7 @@ void do_odamage(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			die(ch, nullptr);
 		}
-		Damage odamage(SimpleDmg(TYPE_TRIGGERDEATH), dam, type);
+		Damage odamage(SimpleDmg(kTypeTriggerdeath), dam, type);
 		odamage.process(damager, ch);
 	}
 }
@@ -828,7 +828,7 @@ void do_ospellturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		obj_log(obj, "ospellturn: spell not found");
 		return;
 	}
@@ -862,7 +862,7 @@ void do_ospellturntemp(ObjectData *obj, char *argument, int/* cmd*/, int/* subcm
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		obj_log(obj, "ospellturntemp: spell not found");
 		return;
 	}
@@ -894,7 +894,7 @@ void do_ospelladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		obj_log(obj, "ospelladd: spell not found");
 		return;
 	}
@@ -921,21 +921,21 @@ void do_ospellitem(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		obj_log(obj, "ospellitem: spell not found");
 		return;
 	}
 
 	if (!str_cmp(type, "potion")) {
-		spell = SPELL_POTION;
+		spell = kSpellPotion;
 	} else if (!str_cmp(type, "wand")) {
-		spell = SPELL_WAND;
+		spell = kSpellWand;
 	} else if (!str_cmp(type, "scroll")) {
-		spell = SPELL_SCROLL;
+		spell = kSpellScroll;
 	} else if (!str_cmp(type, "items")) {
-		spell = SPELL_ITEMS;
+		spell = kSpellItems;
 	} else if (!str_cmp(type, "runes")) {
-		spell = SPELL_RUNES;
+		spell = kSpellRunes;
 	} else {
 		obj_log(obj, "ospellitem: type spell not found");
 		return;

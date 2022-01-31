@@ -965,7 +965,7 @@ void do_skillset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		send_to_char("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
 		strcpy(help, "Возможные умения:\r\n");
-		for (qend = 0, i = 0; i <= SPELLS_COUNT; i++) {
+		for (qend = 0, i = 0; i <= kSpellCount; i++) {
 			if (spell_info[i].name == unused_spellname)    // This is valid.
 				continue;
 			sprintf(help + strlen(help), "%30s", spell_info[i].name);
@@ -1044,8 +1044,8 @@ void do_skillset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : MUD::Skills()[skill].GetName(), value);
 	mudlog(buf2, BRF, kLevelImmortal, SYSLOG, true);
-	if (spell >= 0 && spell <= SPELLS_COUNT) {
-		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), SPELL_TEMP)) {
+	if (spell >= 0 && spell <= kSpellCount) {
+		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), kSpellTemp)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
 				if (it->second.spell == spell) {
 					it = vict->temp_spells.erase(it);
@@ -1053,7 +1053,7 @@ void do_skillset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					++it;
 			}
 		}
-		if (IS_SET(value, SPELL_TEMP)) {
+		if (IS_SET(value, kSpellTemp)) {
 			Temporary_Spells::add_spell(vict, spell, time(nullptr), 3600);
 		}
 		GET_SPELL_TYPE(vict, spell) = value;

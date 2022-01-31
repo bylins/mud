@@ -251,7 +251,7 @@ void do_drink_poison(CharacterData *ch, ObjectData *jar, int amount) {
 		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, TO_ROOM);
 		Affect<EApplyLocation> af;
-		af.type = SPELL_POISON;
+		af.type = kSpellPoison;
 		//если объем 0 -
 		af.duration = pc_duration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
@@ -259,7 +259,7 @@ void do_drink_poison(CharacterData *ch, ObjectData *jar, int amount) {
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, af, false, false, false, false);
-		af.type = SPELL_POISON;
+		af.type = kSpellPoison;
 		af.modifier = amount == 0 ? GET_REAL_LEVEL(ch) * 3 : amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
@@ -466,7 +466,7 @@ void do_drink_drunk(CharacterData *ch, ObjectData *jar, int amount) {
 			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
 			// **** Decrease AC ***** //
 			Affect<EApplyLocation> af;
-			af.type = SPELL_DRUNKED;
+			af.type = kSpellDrunked;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
 			af.location = APPLY_AC;
@@ -474,7 +474,7 @@ void do_drink_drunk(CharacterData *ch, ObjectData *jar, int amount) {
 			af.battleflag = 0;
 			affect_join(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
-			af.type = SPELL_DRUNKED;
+			af.type = kSpellDrunked;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -2;
 			af.location = APPLY_HITROLL;
@@ -482,7 +482,7 @@ void do_drink_drunk(CharacterData *ch, ObjectData *jar, int amount) {
 			af.battleflag = 0;
 			affect_join(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
-			af.type = SPELL_DRUNKED;
+			af.type = kSpellDrunked;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = (GET_REAL_LEVEL(ch) + 4) / 5;
 			af.location = APPLY_DAMROLL;
@@ -699,19 +699,19 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", false, ch, 0, 0, TO_ROOM);
 		duration = MAX(1, amount / 3);
 		Affect<EApplyLocation> af[3];
-		af[0].type = SPELL_ABSTINENT;
+		af[0].type = kSpellAbstinent;
 		af[0].duration = pc_duration(ch, duration, 0, 0, 0, 0);
 		af[0].modifier = 0;
 		af[0].location = APPLY_DAMROLL;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 		af[0].battleflag = 0;
-		af[1].type = SPELL_ABSTINENT;
+		af[1].type = kSpellAbstinent;
 		af[1].duration = pc_duration(ch, duration, 0, 0, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = APPLY_HITROLL;
 		af[1].bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
 		af[1].battleflag = 0;
-		af[2].type = SPELL_ABSTINENT;
+		af[2].type = kSpellAbstinent;
 		af[2].duration = pc_duration(ch, duration, 0, 0, 0, 0);
 		af[2].modifier = 0;
 		af[2].location = APPLY_AC;
@@ -739,7 +739,7 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, TO_CHAR);
 		act("$n похмелил$u и расцвел$g прям на глазах.", false, ch, 0, 0, TO_ROOM);
-		affect_from_char(ch, SPELL_ABSTINENT);
+		affect_from_char(ch, kSpellAbstinent);
 	}
 
 	return;
@@ -748,78 +748,78 @@ void do_drunkoff(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void generate_drinkcon_name(ObjectData *to_obj, int spell) {
 	switch (spell) {
 		// восстановление (красное) //
-		case SPELL_REFRESH:
-		case SPELL_GROUP_REFRESH: to_obj->set_val(2, LIQ_POTION_RED);
+		case kSpellResfresh:
+		case kSpellGroupRefresh: to_obj->set_val(2, LIQ_POTION_RED);
 			name_to_drinkcon(to_obj, LIQ_POTION_RED);
 			break;
 			// насыщение (синее) //
-		case SPELL_FULL:
-		case SPELL_COMMON_MEAL: to_obj->set_val(2, LIQ_POTION_BLUE);
+		case kSpellFull:
+		case kSpellCommonMeal: to_obj->set_val(2, LIQ_POTION_BLUE);
 			name_to_drinkcon(to_obj, LIQ_POTION_BLUE);
 			break;
 			// детекты (белое) //
-		case SPELL_DETECT_INVIS:
-		case SPELL_ALL_SEEING_EYE:
-		case SPELL_DETECT_MAGIC:
-		case SPELL_MAGICAL_GAZE:
-		case SPELL_DETECT_POISON:
-		case SPELL_SNAKE_EYES:
-		case SPELL_DETECT_ALIGN:
-		case SPELL_GENERAL_SINCERITY:
-		case SPELL_SENSE_LIFE:
-		case SPELL_EYE_OF_GODS:
-		case SPELL_INFRAVISION:
-		case SPELL_SIGHT_OF_DARKNESS: to_obj->set_val(2, LIQ_POTION_WHITE);
+		case kSpellDetectInvis:
+		case kSpellAllSeeingEye:
+		case kSpellDetectMagic:
+		case kSpellMagicalGaze:
+		case kSpellDetectPoison:
+		case kSpellSnakeEyes:
+		case kSpellDetectAlign:
+		case kSpellGeneralSincerity:
+		case kSpellSenseLife:
+		case kSpellEyeOfGods:
+		case kSpellInfravision:
+		case kSpellSightOfDarkness: to_obj->set_val(2, LIQ_POTION_WHITE);
 			name_to_drinkcon(to_obj, LIQ_POTION_WHITE);
 			break;
 			// защитные (золотистое) //
-		case SPELL_ARMOR:
-		case SPELL_GROUP_ARMOR:
-		case SPELL_CLOUDLY: to_obj->set_val(2, LIQ_POTION_GOLD);
+		case kSpellArmor:
+		case kSpellGroupArmor:
+		case kSpellCloudly: to_obj->set_val(2, LIQ_POTION_GOLD);
 			name_to_drinkcon(to_obj, LIQ_POTION_GOLD);
 			break;
 			// восстанавливающие здоровье (черное) //
-		case SPELL_CURE_CRITIC:
-		case SPELL_CURE_LIGHT:
-		case SPELL_HEAL:
-		case SPELL_GROUP_HEAL:
-		case SPELL_CURE_SERIOUS: to_obj->set_val(2, LIQ_POTION_BLACK);
+		case kSpellCureCritic:
+		case kSpellCureLight:
+		case kSpellHeal:
+		case kSpellGroupHeal:
+		case kSpellCureSerious: to_obj->set_val(2, LIQ_POTION_BLACK);
 			name_to_drinkcon(to_obj, LIQ_POTION_BLACK);
 			break;
 			// снимающее вредные аффекты (серое) //
-		case SPELL_CURE_BLIND:
-		case SPELL_REMOVE_CURSE:
-		case SPELL_REMOVE_HOLD:
-		case SPELL_REMOVE_SILENCE:
-		case SPELL_CURE_PLAQUE:
-		case SPELL_REMOVE_DEAFNESS:
-		case SPELL_REMOVE_POISON: to_obj->set_val(2, LIQ_POTION_GREY);
+		case kSpellCureBlind:
+		case kSpellRemoveCurse:
+		case kSpellRemoveHold:
+		case kSpellRemoveSilence:
+		case kSpellCureFever:
+		case kSpellRemoveDeafness:
+		case kSpellRemovePoison: to_obj->set_val(2, LIQ_POTION_GREY);
 			name_to_drinkcon(to_obj, LIQ_POTION_GREY);
 			break;
 			// прочие полезности (фиолетовое) //
-		case SPELL_INVISIBLE:
-		case SPELL_GROUP_INVISIBLE:
-		case SPELL_STRENGTH:
-		case SPELL_GROUP_STRENGTH:
-		case SPELL_FLY:
-		case SPELL_GROUP_FLY:
-		case SPELL_BLESS:
-		case SPELL_GROUP_BLESS:
-		case SPELL_HASTE:
-		case SPELL_GROUP_HASTE:
-		case SPELL_STONESKIN:
-		case SPELL_STONE_WALL:
-		case SPELL_BLINK:
-		case SPELL_EXTRA_HITS:
-		case SPELL_WATERBREATH: to_obj->set_val(2, LIQ_POTION_FUCHSIA);
+		case kSpellInvisible:
+		case kSpellGroupInvisible:
+		case kSpellStrength:
+		case kSpellGroupStrength:
+		case kSpellFly:
+		case kSpellGroupFly:
+		case kSpellBless:
+		case kSpellGroupBless:
+		case kSpellHaste:
+		case kSpellGroupHaste:
+		case kSpellStoneSkin:
+		case kSpellStoneWall:
+		case kSpellBlink:
+		case kSpellExtraHits:
+		case kSpellWaterbreath: to_obj->set_val(2, LIQ_POTION_FUCHSIA);
 			name_to_drinkcon(to_obj, LIQ_POTION_FUCHSIA);
 			break;
-		case SPELL_PRISMATICAURA:
-		case SPELL_GROUP_PRISMATICAURA:
-		case SPELL_AIR_AURA:
-		case SPELL_EARTH_AURA:
-		case SPELL_FIRE_AURA:
-		case SPELL_ICE_AURA: to_obj->set_val(2, LIQ_POTION_PINK);
+		case kSpellPrismaticAura:
+		case kSpellGroupPrismaticAura:
+		case kSpellAirAura:
+		case kSpellEarthAura:
+		case kSpellFireAura:
+		case kSpellIceAura: to_obj->set_val(2, LIQ_POTION_PINK);
 			name_to_drinkcon(to_obj, LIQ_POTION_PINK);
 			break;
 		default: to_obj->set_val(2, LIQ_POTION);
@@ -1197,7 +1197,7 @@ std::string print_spell(CharacterData *ch, const ObjectData *obj, int num) {
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
 			 CCCYN(ch, C_NRM),
-			 spell_name(obj->get_value(spell)),
+			 GetSpellName(obj->get_value(spell)),
 			 obj->get_value(level),
 			 CCNRM(ch, C_NRM));
 

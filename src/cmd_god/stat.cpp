@@ -503,7 +503,7 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 			sprintf(buf, "Заклинания: (%3d%s|%s) %s%-21s%s ", aff->duration + 1,
 					(aff->battleflag & AF_PULSEDEC) || (aff->battleflag & AF_SAME_TIME) ? "плс" : "мин",
 					(aff->battleflag & AF_BATTLEDEC) || (aff->battleflag & AF_SAME_TIME) ? "рнд" : "мин",
-					CCCYN(ch, C_NRM), spell_name(aff->type), CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), GetSpellName(aff->type), CCNRM(ch, C_NRM));
 			if (aff->modifier) {
 				sprintf(buf2, "%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 				strcat(buf, buf2);
@@ -741,7 +741,7 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 
 			switch (GET_OBJ_VAL(j, 0)) {
 				case BOOK_SPELL:
-					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= SPELLS_COUNT) {
+					if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) <= kSpellCount) {
 						sprintf(buf, "содержит заклинание        : \"%s\"", spell_info[GET_OBJ_VAL(j, 1)].name);
 					} else
 						sprintf(buf, "неверный номер заклинания");
@@ -810,15 +810,15 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 		case ObjectData::ITEM_POTION:
 			sprintf(buf, "Заклинания: (Уровень %d) %s, %s, %s",
 					GET_OBJ_VAL(j, 0),
-					spell_name(GET_OBJ_VAL(j, 1)),
-					spell_name(GET_OBJ_VAL(j, 2)),
-					spell_name(GET_OBJ_VAL(j, 3)));
+					GetSpellName(GET_OBJ_VAL(j, 1)),
+					GetSpellName(GET_OBJ_VAL(j, 2)),
+					GetSpellName(GET_OBJ_VAL(j, 3)));
 			break;
 
 		case ObjectData::ITEM_WAND:
 		case ObjectData::ITEM_STAFF:
 			sprintf(buf, "Заклинание: %s уровень %d, %d (из %d) зарядов осталось",
-					spell_name(GET_OBJ_VAL(j, 3)),
+					GetSpellName(GET_OBJ_VAL(j, 3)),
 					GET_OBJ_VAL(j, 0),
 					GET_OBJ_VAL(j, 2),
 					GET_OBJ_VAL(j, 1));
@@ -886,11 +886,11 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 		case ObjectData::ITEM_INGREDIENT:sprintbit(GET_OBJ_SKILL(j), ingradient_bits, smallBuf);
 			sprintf(buf, "ingr bits %s", smallBuf);
 
-			if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_USES)) {
+			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckUses)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить %d раз", GET_OBJ_VAL(j, 2));
 			}
 
-			if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_LAG)) {
+			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckLag)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить 1 раз в %d сек", (i = GET_OBJ_VAL(j, 0) & 0xFF));
 				if (GET_OBJ_VAL(j, 3) == 0 || GET_OBJ_VAL(j, 3) + i < time(nullptr))
 					sprintf(buf + strlen(buf), "(можно применять).");
@@ -900,7 +900,7 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 				}
 			}
 
-			if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_LEVEL)) {
+			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckLevel)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить с %d уровня.", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
 			}
 
@@ -912,7 +912,7 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 		case ObjectData::ITEM_MAGIC_CONTAINER:
 		case ObjectData::ITEM_MAGIC_ARROW:
 			sprintf(buf, "Заклинание: [%s]. Объем [%d]. Осталось стрел[%d].",
-					spell_name(GET_OBJ_VAL(j, 0)), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
+					GetSpellName(GET_OBJ_VAL(j, 0)), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
 			break;
 
 		default:
@@ -1109,7 +1109,7 @@ void do_stat_room(CharacterData *ch, const int rnum = 0) {
 		sprintf(buf1, " Аффекты на комнате:\r\n");
 		for (const auto &aff : rm->affected) {
 			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
-					spell_name(aff->type),
+					GetSpellName(aff->type),
 					aff->duration,
 					((k = find_char(aff->caster_id))
 					 ? GET_NAME(k)

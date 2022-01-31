@@ -104,8 +104,8 @@ struct char_played_ability_data {
 
 // Char's abilities.
 struct char_ability_data {
-	std::array<ubyte, SPELLS_COUNT + 1> SplKnw; // array of SPELL_KNOW_TYPE
-	std::array<ubyte, SPELLS_COUNT + 1> SplMem; // array of MEMed SPELLS
+	std::array<ubyte, kSpellCount + 1> SplKnw; // array of SPELL_KNOW_TYPE
+	std::array<ubyte, kSpellCount + 1> SplMem; // array of MEMed SPELLS
 	std::bitset<kMaxFeats> Feats;
 	sbyte size;
 	int hitroll;
@@ -849,9 +849,9 @@ class CharacterData : public ProtectedCharacterData {
 };
 # define MAX_FIRSTAID_REMOVE 13
 inline int RemoveSpell(int num) {
-	int spell[MAX_FIRSTAID_REMOVE] = {SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
-									 SPELL_SILENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL,
-									 SPELL_CONE_OF_COLD, SPELL_DEAFNESS, SPELL_BATTLE};
+	int spell[MAX_FIRSTAID_REMOVE] = {kSpellSleep, kSpellPoison, kSpellWeaknes, kSpellCurse, kSpellFever,
+									  kSpellSllence, kSpellBlindness, kSpellHaemorragis, kSpellHold, kSpellPeaceful,
+									  kSpellConeOfCold, kSpellDeafness, kSpellBattle};
 	return spell[num];
 }
 

@@ -50,7 +50,7 @@ void get_from_container(CharacterData *ch, ObjectData *cont, char *arg, int mode
 void perform_wear(CharacterData *ch, ObjectData *obj, int where);
 int find_eq_pos(CharacterData *ch, ObjectData *obj, char *arg);
 bool perform_get_from_container(CharacterData *ch, ObjectData *obj, ObjectData *cont, int mode);
-void perform_remove(CharacterData *ch, int pos);
+void RemoveEquipment(CharacterData *ch, int pos);
 int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
 void feed_charmice(CharacterData *ch, char *arg);
 int get_player_charms(CharacterData *ch, int spellnum);
@@ -1581,7 +1581,7 @@ void do_eat(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
 			af.bitvector = 0;
-			af.type = SPELL_FULL;
+			af.type = kSpellFull;
 //			af.battleflag = 0;
 			af.duration = pc_duration(ch, 10 * 2, 0, 0, 0, 0);
 			affect_join_fspell(ch, af);
@@ -1595,14 +1595,14 @@ void do_eat(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		act("$n закашлял$u и начал$g отплевываться.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 		Affect<EApplyLocation> af;
-		af.type = SPELL_POISON;
+		af.type = kSpellPoison;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = 0;
 		af.location = APPLY_STR;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, af, false, false, false, false);
-		af.type = SPELL_POISON;
+		af.type = kSpellPoison;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
@@ -2107,11 +2107,11 @@ void do_grab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void perform_remove(CharacterData *ch, int pos) {
+void RemoveEquipment(CharacterData *ch, int pos) {
 	ObjectData *obj;
 
 	if (!(obj = GET_EQ(ch, pos))) {
-		log("SYSERR: perform_remove: bad pos %d passed.", pos);
+		log("SYSERR: RemoveEquipment: bad pos %d passed.", pos);
 	} else {
 		/*
 			   if (IS_OBJ_STAT(obj, ITEM_NODROP))
@@ -2150,7 +2150,7 @@ void do_remove(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		found = 0;
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(ch, i)) {
-				perform_remove(ch, i);
+				RemoveEquipment(ch, i);
 				found = 1;
 			}
 		}
@@ -2169,7 +2169,7 @@ void do_remove(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& CAN_SEE_OBJ(ch, GET_EQ(ch, i))
 					&& (isname(arg, GET_EQ(ch, i)->get_aliases())
 						|| CHECK_CUSTOM_LABEL(arg, GET_EQ(ch, i), ch))) {
-					perform_remove(ch, i);
+					RemoveEquipment(ch, i);
 					found = 1;
 				}
 			}
@@ -2187,20 +2187,20 @@ void do_remove(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (!GET_EQ(ch, WEAR_WIELD)) {
 					send_to_char("В правой руке ничего нет.\r\n", ch);
 				} else {
-					perform_remove(ch, WEAR_WIELD);
+					RemoveEquipment(ch, WEAR_WIELD);
 				}
 			} else if (!str_cmp("левая", arg)) {
 				if (!GET_EQ(ch, WEAR_HOLD))
 					send_to_char("В левой руке ничего нет.\r\n", ch);
 				else
-					perform_remove(ch, WEAR_HOLD);
+					RemoveEquipment(ch, WEAR_HOLD);
 			} else {
 				snprintf(buf, kMaxInputLength, "Вы не используете '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 				return;
 			}
 		} else {
-			perform_remove(ch, i);
+			RemoveEquipment(ch, i);
 		}
 	}
 	//мы что-то да снимали. значит проверю я доп слот
@@ -2592,7 +2592,7 @@ void do_extinguish(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 
 			//Find own rune label or first run label in room
 			for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
-				if (affect_it->get()->type == SPELL_RUNE_LABEL) {
+				if (affect_it->get()->type == kSpellRuneLabel) {
 					if (affect_it->get()->caster_id == GET_ID(ch)) {
 						aff_i = affect_it;
 						break;
@@ -3097,11 +3097,11 @@ void feed_charmice(CharacterData *ch, char *arg) {
 	for (k = ch->get_master()->followers; k; k = k->next) {
 		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
 			&& k->ch->get_master() == ch->get_master()) {
-			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->ch, SPELL_ANIMATE_DEAD);
+			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->ch, kSpellAnimateDead);
 		}
 	}
 
-	if (reformed_hp_summ >= get_player_charms(ch->get_master(), SPELL_ANIMATE_DEAD)) {
+	if (reformed_hp_summ >= get_player_charms(ch->get_master(), kSpellAnimateDead)) {
 		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
 		extract_char(ch, false);
 		return;
@@ -3115,7 +3115,7 @@ void feed_charmice(CharacterData *ch, char *arg) {
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
 	//Added by Ann
-	if (affected_by_spell(ch->get_master(), SPELL_FASCINATION)) {
+	if (affected_by_spell(ch->get_master(), kSpellFascination)) {
 		chance_to_eat -= 30;
 	}
 	//end Ann
@@ -3141,7 +3141,7 @@ void feed_charmice(CharacterData *ch, char *arg) {
 	}
 
 	Affect<EApplyLocation> af;
-	af.type = SPELL_CHARM;
+	af.type = kSpellCharm;
 	af.duration = MIN(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;

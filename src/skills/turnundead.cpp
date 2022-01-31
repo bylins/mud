@@ -27,10 +27,10 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 	TimedSkill timed;
 	timed.skill = ESkill::kTurnUndead;
 	if (can_use_feat(ch, EXORCIST_FEAT)) {
-		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + HOURS_PER_TURN_UNDEAD - 2;
+		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead - 2;
 		skillTurnUndead += 10;
 	} else {
-		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + HOURS_PER_TURN_UNDEAD;
+		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead;
 	}
 	if (timed.time > HOURS_PER_DAY) {
 		send_to_char("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
@@ -46,7 +46,7 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 	int victimsAmount = 20;
 	int victimssHPAmount = skillTurnUndead * 25 + MAX(0, skillTurnUndead - 80) * 50;
 	Damage turnUndeadDamage(SkillDmg(ESkill::kTurnUndead), ZERO_DMG, MAGE_DMG, nullptr);
-	turnUndeadDamage.magic_type = STYPE_LIGHT;
+	turnUndeadDamage.magic_type = kTypeLight;
 	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;
 	ActionTargeting::FoesRosterType roster{ch, [](CharacterData *, CharacterData *target) { return IS_UNDEAD(target); }};
@@ -67,13 +67,13 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n",
 				false, target, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			Affect<EApplyLocation> af[2];
-			af[0].type = SPELL_COURAGE;
+			af[0].type = kSpellCourage;
 			af[0].duration = pc_duration(target, 3, 0, 0, 0, 0);
 			af[0].modifier = MAX(1, turnUndeadRoll.getDegreeOfSuccess() * 2);
 			af[0].location = APPLY_DAMROLL;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			af[0].battleflag = 0;
-			af[1].type = SPELL_COURAGE;
+			af[1].type = kSpellCourage;
 			af[1].duration = pc_duration(target, 3, 0, 0, 0, 0);
 			af[1].modifier = MAX(1, 25 + turnUndeadRoll.getDegreeOfSuccess() * 5);
 			af[1].location = APPLY_HITREG;
@@ -84,7 +84,7 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 		};
 		turnUndeadDamage.process(ch, target);
 		if (!target->purged() && turnUndeadRoll.isSuccess() && !MOB_FLAGGED(target, MOB_NOFEAR)
-			&& !general_savingthrow(ch, target, ESaving::kWill, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
+			&& !CalcGeneralSaving(ch, target, ESaving::kWill, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
 			go_flee(target);
 		};
 		--victimsAmount;

@@ -1,20 +1,19 @@
 #include "magic/spells_info.h"
 
 #include "magic/spells.h"
-#include "utils/utils.h"
 
 const char *unused_spellname = "!UNUSED!";
 
-struct spellInfo_t spell_info[SPELLS_COUNT + 1];
-struct spell_create_type spell_create[SPELLS_COUNT + 1];
+struct SpellInfo spell_info[kSpellCount + 1];
+struct SpellCreate spell_create[kSpellCount + 1];
 
-void initUnusedSpell(int spl);
-void initSpell(int spl, const char *name, const char *syn,
+void InitUnusedSpell(int spl);
+void InitSpell(int spl, const char *name, const char *syn,
 			   int max_mana, int min_mana, int mana_change,
 			   int minpos, int targets, int violent, int routines, int danger, int spell_class);
 
-const char *spell_name(int num) {
-	if (num > 0 && num <= SPELLS_COUNT) {
+const char *GetSpellName(int num) {
+	if (num > 0 && num <= kSpellCount) {
 		return (spell_info[num].name);
 	} else {
 		if (num == -1) {
@@ -25,13 +24,13 @@ const char *spell_name(int num) {
 	}
 }
 
-void initUnusedSpell(int spl) {
+void InitUnusedSpell(int spl) {
 	int i, j;
 	for (i = 0; i < kNumPlayerClasses; i++) {
 		for (j = 0; j < kNumKins; j++) {
 			spell_info[spl].min_remort[i][j] = kMaxRemort;
 			spell_info[spl].min_level[i][j] = kLevelImplementator + 1;
-			spell_info[spl].slot_forc[i][j] = MAX_SLOT;
+			spell_info[spl].slot_forc[i][j] = kMaxSlot;
 			spell_info[spl].class_change[i][j] = 0;
 		}
 	}
@@ -71,7 +70,7 @@ void initSpell(int spl, const char *name, const char *syn,
 		for (j = 0; j < kNumKins; j++) {
 			spell_info[spl].min_remort[i][j] = kMaxRemort;
 			spell_info[spl].min_level[i][j] = kLevelImplementator;
-			spell_info[spl].slot_forc[i][j] = MAX_SLOT;
+			spell_info[spl].slot_forc[i][j] = kMaxSlot;
 			spell_info[spl].class_change[i][j] = 0;
 		}
 	}
@@ -133,785 +132,785 @@ void initSpell(int spl, const char *name, const char *syn,
  * fields.
  */
 
-void initSpells() {
+void InitSpells() {
 
-	for (int i = 0; i <= SPELLS_COUNT; i++) {
-		initUnusedSpell(i);
+	for (int i = 0; i <= kSpellCount; i++) {
+		InitUnusedSpell(i);
 	}
 
 
 //1
-	initSpell(SPELL_ARMOR, "защита", "armor", 40, 30, 1,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false, MAG_AFFECTS | NPC_AFFECT_NPC,
-			  0, STYPE_LIGHT);
+	initSpell(kSpellArmor, "защита", "armor", 40, 30, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false, kMagAffects | kNpcAffectNpc,
+			  0, kTypeLight);
 //2
-	initSpell(SPELL_TELEPORT, "прыжок", "teleport",
-			  140, 120, 2, EPosition::kStand, TAR_CHAR_ROOM, false,
-			  MAG_MANUAL | NPC_DAMAGE_PC, 1, STYPE_AIR);
+	initSpell(kSpellTeleport, "прыжок", "teleport",
+			  140, 120, 2, EPosition::kStand, kTarCharRoom, false,
+			  kMagManual | kNpcDamagePc, 1, kTypeAir);
 //3
-	initSpell(SPELL_BLESS, "доблесть", "bless", 55, 40, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_SELF | TAR_OBJ_INV | TAR_OBJ_EQUIP,
-			  false, MAG_AFFECTS | MAG_ALTER_OBJS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
+	initSpell(kSpellBless, "доблесть", "bless", 55, 40, 1, EPosition::kFight,
+			  kTarCharRoom | kTarFightSelf | kTarObjInv | kTarObjEquip,
+			  false, kMagAffects | kMagAlterObjs | kNpcAffectNpc, 0, kTypeLight);
 //4
-	initSpell(SPELL_BLINDNESS, "слепота", "blind",
-			  70, 40, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_DARK);
+	initSpell(kSpellBlindness, "слепота", "blind",
+			  70, 40, 2, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagAffects | kNpcAffectPc, 1, kTypeDark);
 //5
-	initSpell(SPELL_BURNING_HANDS, "горящие руки", "burning hands",
-			  40, 30, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_AGGRESSIVE, MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_FIRE);
+	initSpell(kSpellBurningHands, "горящие руки", "burning hands",
+			  40, 30, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeAggressive, kMagAreas | kMagDamage | kNpcDamagePc, 1, kTypeFire);
 //6
-	initSpell(SPELL_CALL_LIGHTNING, "шаровая молния", "call lightning", 85, 70,
-			  1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  NPC_AFFECT_PC | MAG_AFFECTS | MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_AIR);
+	initSpell(kSpellCallLighting, "шаровая молния", "call lightning", 85, 70,
+			  1, EPosition::kFight, kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kNpcAffectPc | kMagAffects | kMagDamage | kNpcDamagePc, 2, kTypeAir);
 //7
-	initSpell(SPELL_CHARM, "подчинить разум", "mind control",
+	initSpell(kSpellCharm, "подчинить разум", "mind control",
 			  55, 40, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf, kMtypeNeutral, kMagManual, 1, kTypeMind);
 //8
-	initSpell(SPELL_CHILL_TOUCH, "ледяное прикосновение", "chill touch",
+	initSpell(kSpellChillTouch, "ледяное прикосновение", "chill touch",
 			  55, 45, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 1, STYPE_WATER);
+			  kTarCharRoom | kTarFightVict, kMtypeNeutral,
+			  kMagDamage | kMagAffects | kNpcDamagePc, 1, kTypeWater);
 //9
-	initSpell(SPELL_CLONE, "клонирование", "clone",
-			  150, 130, 5, EPosition::kStand, TAR_CHAR_ROOM | TAR_SELF_ONLY,
-			  false, MAG_SUMMONS, 0, STYPE_DARK);
+	initSpell(kSpellClone, "клонирование", "clone",
+			  150, 130, 5, EPosition::kStand, kTarCharRoom | kTarSelfOnly,
+			  false, kMagSummons, 0, kTypeDark);
 //10
-	initSpell(SPELL_COLOR_SPRAY, "ледяные стрелы", "ice bolts", 90, 75,
-			  1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 3, STYPE_WATER);
+	initSpell(kSpellColorSpray, "ледяные стрелы", "ice bolts", 90, 75,
+			  1, EPosition::kFight, kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagAreas | kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 3, kTypeWater);
 //11
-	initSpell(SPELL_CONTROL_WEATHER, "контроль погоды", "weather control",
-			  100, 90, 1, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_MANUAL, 0, STYPE_AIR);
+	initSpell(kSpellControlWeather, "контроль погоды", "weather control",
+			  100, 90, 1, EPosition::kStand, kTarIgnore, false,
+			  kMagManual, 0, kTypeAir);
 //12
-	initSpell(SPELL_CREATE_FOOD, "создать пищу", "create food",
-			  40, 30, 1, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_CREATIONS, 0, STYPE_LIFE);
+	initSpell(kSpellCreateFood, "создать пищу", "create food",
+			  40, 30, 1, EPosition::kStand, kTarIgnore, false,
+			  kMagCreations, 0, kTypeLife);
 //13
-	initSpell(SPELL_CREATE_WATER, "создать воду", "create water", 40, 30,
-			  1, EPosition::kStand, TAR_OBJ_INV | TAR_OBJ_EQUIP | TAR_CHAR_ROOM, false,
-			  MAG_MANUAL, 0, STYPE_WATER);
+	initSpell(kSpellCreateWater, "создать воду", "create water", 40, 30,
+			  1, EPosition::kStand, kTarObjInv | kTarObjEquip | kTarCharRoom, false,
+			  kMagManual, 0, kTypeWater);
 //14
-	initSpell(SPELL_CURE_BLIND, "вылечить слепоту", "cure blind", 110, 90,
-			  2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false,
-			  MAG_UNAFFECTS | NPC_UNAFFECT_NPC, 0, STYPE_LIGHT);
+	initSpell(kSpellCureBlind, "вылечить слепоту", "cure blind", 110, 90,
+			  2, EPosition::kFight, kTarCharRoom | kTarFightSelf, false,
+			  kMagUnaffects | kNpcUnaffectNpc, 0, kTypeLight);
 //15
-	initSpell(SPELL_CURE_CRITIC, "критическое исцеление", "critical cure",
-			  100, 90, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_POINTS | NPC_DUMMY, 3, STYPE_LIFE);
+	initSpell(kSpellCureCritic, "критическое исцеление", "critical cure",
+			  100, 90, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagPoints | kNpcDummy, 3, kTypeLife);
 //16
-	initSpell(SPELL_CURE_LIGHT, "легкое исцеление", "light cure", 40, 30,
-			  1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false,
-			  MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
+	initSpell(kSpellCureLight, "легкое исцеление", "light cure", 40, 30,
+			  1, EPosition::kFight, kTarCharRoom | kTarFightSelf, false,
+			  kMagPoints | kNpcDummy, 1, kTypeLife);
 //17
-	initSpell(SPELL_CURSE, "проклятие", "curse",
+	initSpell(kSpellCurse, "проклятие", "curse",
 			  55, 40, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT | TAR_OBJ_INV, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | MAG_ALTER_OBJS | NPC_AFFECT_PC, 1, STYPE_DARK);
+			  kTarCharRoom | kTarFightVict | kTarObjInv, kMtypeNeutral,
+			  kMagAffects | kMagAlterObjs | kNpcAffectPc, 1, kTypeDark);
 //18
-	initSpell(SPELL_DETECT_ALIGN, "определение наклонностей", "detect alignment",
-			  40, 30, 1, EPosition::kStand, TAR_CHAR_ROOM, false,
-			  MAG_AFFECTS, 0, STYPE_MIND);
+	initSpell(kSpellDetectAlign, "определение наклонностей", "detect alignment",
+			  40, 30, 1, EPosition::kStand, kTarCharRoom, false,
+			  kMagAffects, 0, kTypeMind);
 //19
-	initSpell(SPELL_DETECT_INVIS, "видеть невидимое", "detect invisible",
-			  100, 55, 3, EPosition::kFight, TAR_CHAR_ROOM, false,
-			  MAG_AFFECTS, 0, STYPE_MIND);
+	initSpell(kSpellDetectInvis, "видеть невидимое", "detect invisible",
+			  100, 55, 3, EPosition::kFight, kTarCharRoom, false,
+			  kMagAffects, 0, kTypeMind);
 //20
-	initSpell(SPELL_DETECT_MAGIC, "определение магии", "detect magic",
-			  100, 55, 3, EPosition::kStand, TAR_CHAR_ROOM, false,
-			  MAG_AFFECTS, 0, STYPE_MIND);
+	initSpell(kSpellDetectMagic, "определение магии", "detect magic",
+			  100, 55, 3, EPosition::kStand, kTarCharRoom, false,
+			  kMagAffects, 0, kTypeMind);
 //21
-	initSpell(SPELL_DETECT_POISON, "определение яда", "detect poison",
-			  40, 30, 1, EPosition::kStand, TAR_CHAR_ROOM,
-			  false, MAG_AFFECTS, 0, STYPE_MIND);
+	initSpell(kSpellDetectPoison, "определение яда", "detect poison",
+			  40, 30, 1, EPosition::kStand, kTarCharRoom,
+			  false, kMagAffects, 0, kTypeMind);
 //22
-	initSpell(SPELL_DISPEL_EVIL, "изгнать зло", "dispel evil",
-			  100, 90, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_DAMAGE, 1, STYPE_LIGHT);
+	initSpell(kSpellDispelEvil, "изгнать зло", "dispel evil",
+			  100, 90, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagDamage, 1, kTypeLight);
 //23
-	initSpell(SPELL_EARTHQUAKE, "землетрясение", "earthquake",
-			  110, 90, 2, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_EARTH);
+	initSpell(kSpellEarthquake, "землетрясение", "earthquake",
+			  110, 90, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagMasses | kMagDamage | kNpcDamagePc, 2, kTypeEarth);
 //24
-	initSpell(SPELL_ENCHANT_WEAPON, "заколдовать оружие", "enchant weapon", 140,
-			  110, 2, EPosition::kStand, TAR_OBJ_INV, false, MAG_ALTER_OBJS,
-			  0, STYPE_LIGHT);
+	initSpell(kSpellEnchantWeapon, "заколдовать оружие", "enchant weapon", 140,
+			  110, 2, EPosition::kStand, kTarObjInv, false, kMagAlterObjs,
+			  0, kTypeLight);
 //25
-	initSpell(SPELL_ENERGY_DRAIN, "истощить энергию", "energy drain",
+	initSpell(kSpellEnergyDrain, "истощить энергию", "energy drain",
 			  150, 140, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_MANUAL | MAG_AFFECTS | NPC_DAMAGE_PC, 1, STYPE_DARK);
+			  kTarCharRoom | kTarFightVict, kMtypeNeutral,
+			  kMagManual | kMagAffects | kNpcDamagePc, 1, kTypeDark);
 //26
-	initSpell(SPELL_FIREBALL, "огненный шар", "fireball",
+	initSpell(kSpellFireball, "огненный шар", "fireball",
 			  110, 100, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_FIRE);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 2, kTypeFire);
 //27
-	initSpell(SPELL_HARM, "вред", "harm",
-			  110, 100, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_DARK);
+	initSpell(kSpellHarm, "вред", "harm",
+			  110, 100, 2, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagDamage | kNpcDamagePc, 5, kTypeDark);
 //28
-	initSpell(SPELL_HEAL, "исцеление", "heal",
-			  110, 100, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_POINTS | NPC_DUMMY, 10, STYPE_LIFE);
+	initSpell(kSpellHeal, "исцеление", "heal",
+			  110, 100, 2, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagPoints | kNpcDummy, 10, kTypeLife);
 //29
-	initSpell(SPELL_INVISIBLE, "невидимость", "invisible",
+	initSpell(kSpellInvisible, "невидимость", "invisible",
 			  50, 40, 3, EPosition::kStand,
-			  TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM, false,
-			  MAG_AFFECTS | MAG_ALTER_OBJS, 0, STYPE_MIND);
+			  kTarCharRoom | kTarObjInv | kTarObjRoom, false,
+			  kMagAffects | kMagAlterObjs, 0, kTypeMind);
 //30
-	initSpell(SPELL_LIGHTNING_BOLT, "молния", "lightning bolt",
-			  55, 40, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_AIR);
+	initSpell(kSpellLightingBolt, "молния", "lightning bolt",
+			  55, 40, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeAggressive, kMagDamage | kNpcDamagePc, 1, kTypeAir);
 //31
-	initSpell(SPELL_LOCATE_OBJECT, "разыскать предмет", "locate object",
-			  140, 110, 2, EPosition::kStand, TAR_OBJ_WORLD,
-			  false, MAG_MANUAL, 0, STYPE_MIND);
+	initSpell(kSpellLocateObject, "разыскать предмет", "locate object",
+			  140, 110, 2, EPosition::kStand, kTarObjWorld,
+			  false, kMagManual, 0, kTypeMind);
 //32
-	initSpell(SPELL_MAGIC_MISSILE, "магическая стрела", "magic missle",
+	initSpell(kSpellMagicMissile, "магическая стрела", "magic missle",
 			  40, 30, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_FIRE);
+			  kTarCharRoom | kTarFightVict, kMtypeNeutral,
+			  kMagDamage | kNpcDamagePc, 1, kTypeFire);
 //33
-	initSpell(SPELL_POISON, "яд", "poison", 70, 55, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_OBJ_INV | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_AFFECTS | MAG_ALTER_OBJS | NPC_AFFECT_PC, 2, STYPE_LIFE);
+	initSpell(kSpellPoison, "яд", "poison", 70, 55, 1, EPosition::kFight,
+			  kTarCharRoom | kTarNotSelf | kTarObjInv | kTarFightVict,
+			  kMtypeNeutral, kMagAffects | kMagAlterObjs | kNpcAffectPc, 2, kTypeLife);
 //34
-	initSpell(SPELL_PROT_FROM_EVIL, "защита от тьмы", "protect evil",
-			  60, 45, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
+	initSpell(kSpellProtectFromEvil, "защита от тьмы", "protect evil",
+			  60, 45, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeLight);
 //35
-	initSpell(SPELL_REMOVE_CURSE, "снять проклятие", "remove curse",
+	initSpell(kSpellRemoveCurse, "снять проклятие", "remove curse",
 			  50, 40, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_SELF | TAR_OBJ_INV | TAR_OBJ_EQUIP, false,
-			  MAG_UNAFFECTS | MAG_ALTER_OBJS | NPC_UNAFFECT_NPC, 0, STYPE_LIGHT);
+			  kTarCharRoom | kTarFightSelf | kTarObjInv | kTarObjEquip, false,
+			  kMagUnaffects | kMagAlterObjs | kNpcUnaffectNpc, 0, kTypeLight);
 //36
-	initSpell(SPELL_SANCTUARY, "освящение", "sanctuary",
-			  85, 70, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+	initSpell(kSpellSanctuary, "освящение", "sanctuary",
+			  85, 70, 2, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 1, kTypeLight);
 //37
-	initSpell(SPELL_SHOCKING_GRASP, "обжигающая хватка", "shocking grasp", 50, 40,
-			  1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_FIRE);
+	initSpell(kSpellShockingGasp, "обжигающая хватка", "shocking grasp", 50, 40,
+			  1, EPosition::kFight, kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcDamagePc, 1, kTypeFire);
 //38
-	initSpell(SPELL_SLEEP, "сон", "sleep",
+	initSpell(kSpellSleep, "сон", "sleep",
 			  70, 55, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC,
-			  0, STYPE_MIND);
+			  kTarCharRoom | kTarFightVict, kMtypeNeutral, kMagAffects | kNpcAffectPc,
+			  0, kTypeMind);
 //39
-	initSpell(SPELL_STRENGTH, "сила", "strength", 40, 30, 1,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false, MAG_AFFECTS | NPC_AFFECT_NPC,
-			  0, STYPE_LIFE);
+	initSpell(kSpellStrength, "сила", "strength", 40, 30, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false, kMagAffects | kNpcAffectNpc,
+			  0, kTypeLife);
 //40
-	initSpell(SPELL_SUMMON, "призвать", "summon",
-			  110, 100, 2, EPosition::kStand, TAR_CHAR_WORLD | TAR_NOT_SELF,
-			  false, MAG_MANUAL, 0, STYPE_MIND);
+	initSpell(kSpellSummon, "призвать", "summon",
+			  110, 100, 2, EPosition::kStand, kTarCharWorld | kTarNotSelf,
+			  false, kMagManual, 0, kTypeMind);
 //41
-	initSpell(SPELL_PATRONAGE, "покровительство", "patronage",
-			  85, 70, 2, EPosition::kFight, TAR_SELF_ONLY | TAR_CHAR_ROOM,
-			  false, MAG_POINTS | MAG_AFFECTS, 1, STYPE_LIGHT);
+	initSpell(kSpellPatronage, "покровительство", "patronage",
+			  85, 70, 2, EPosition::kFight, kTarSelfOnly | kTarCharRoom,
+			  false, kMagPoints | kMagAffects, 1, kTypeLight);
 //42
-	initSpell(SPELL_WORD_OF_RECALL, "слово возврата", "recall",
-			  140, 100, 4, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_MANUAL | NPC_DAMAGE_PC, 0, STYPE_MIND);
+	initSpell(kSpellWorldOfRecall, "слово возврата", "recall",
+			  140, 100, 4, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagManual | kNpcDamagePc, 0, kTypeMind);
 //43
-	initSpell(SPELL_REMOVE_POISON, "удалить яд", "remove poison",
+	initSpell(kSpellRemovePoison, "удалить яд", "remove poison",
 			  60, 45, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_SELF | TAR_OBJ_INV | TAR_OBJ_ROOM, false,
-			  MAG_UNAFFECTS | MAG_ALTER_OBJS | NPC_UNAFFECT_NPC, 0, STYPE_LIFE);
+			  kTarCharRoom | kTarFightSelf | kTarObjInv | kTarObjRoom, false,
+			  kMagUnaffects | kMagAlterObjs | kNpcUnaffectNpc, 0, kTypeLife);
 //44
-	initSpell(SPELL_SENSE_LIFE, "определение жизни", "sense life",
-			  85, 70, 1, EPosition::kStand, TAR_CHAR_ROOM,
-			  false, MAG_AFFECTS, 0, STYPE_LIFE);
+	initSpell(kSpellSenseLife, "определение жизни", "sense life",
+			  85, 70, 1, EPosition::kStand, kTarCharRoom,
+			  false, kMagAffects, 0, kTypeLife);
 //45
-	initSpell(SPELL_ANIMATE_DEAD, "поднять труп", "animate dead",
-			  50, 35, 3, EPosition::kStand, TAR_OBJ_ROOM,
-			  false, MAG_SUMMONS, 0, STYPE_DARK);
+	initSpell(kSpellAnimateDead, "поднять труп", "animate dead",
+			  50, 35, 3, EPosition::kStand, kTarObjRoom,
+			  false, kMagSummons, 0, kTypeDark);
 //46
-	initSpell(SPELL_DISPEL_GOOD, "рассеять свет", "dispel good",
-			  100, 90, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_DAMAGE, 1, STYPE_DARK);
+	initSpell(kSpellDispelGood, "рассеять свет", "dispel good",
+			  100, 90, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagDamage, 1, kTypeDark);
 //47
-	initSpell(SPELL_GROUP_ARMOR, "групповая защита", "group armor",
-			  110, 100, 2, EPosition::kFight, TAR_IGNORE,
-			  false, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
+	initSpell(kSpellGroupArmor, "групповая защита", "group armor",
+			  110, 100, 2, EPosition::kFight, kTarIgnore,
+			  false, kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeLight);
 //48
-	initSpell(SPELL_GROUP_HEAL, "групповое исцеление", "group heal",
-			  110, 100, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 30, STYPE_LIFE);
+	initSpell(kSpellGroupHeal, "групповое исцеление", "group heal",
+			  110, 100, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagPoints | kNpcDummy, 30, kTypeLife);
 //49
-	initSpell(SPELL_GROUP_RECALL, "групповой возврат", "group recall",
-			  125, 120, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_MANUAL, 0, STYPE_MIND);
+	initSpell(kSpellGroupRecall, "групповой возврат", "group recall",
+			  125, 120, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagManual, 0, kTypeMind);
 //50
-	initSpell(SPELL_INFRAVISION, "видение ночью", "infravision",
-			  50, 40, 2, EPosition::kStand, TAR_CHAR_ROOM, false,
-			  MAG_AFFECTS, 0, STYPE_LIGHT);
+	initSpell(kSpellInfravision, "видение ночью", "infravision",
+			  50, 40, 2, EPosition::kStand, kTarCharRoom, false,
+			  kMagAffects, 0, kTypeLight);
 //51
-	initSpell(SPELL_WATERWALK, "водохождение", "waterwalk",
-			  70, 55, 1, EPosition::kStand, TAR_CHAR_ROOM, false,
-			  MAG_AFFECTS, 0, STYPE_WATER);
+	initSpell(kSpellWaterwalk, "водохождение", "waterwalk",
+			  70, 55, 1, EPosition::kStand, kTarCharRoom, false,
+			  kMagAffects, 0, kTypeWater);
 //52
-	initSpell(SPELL_CURE_SERIOUS, "серьезное исцеление", "serious cure",
-			  85, 70, 4, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_POINTS | NPC_DUMMY, 2, STYPE_LIFE);
+	initSpell(kSpellCureSerious, "серьезное исцеление", "serious cure",
+			  85, 70, 4, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagPoints | kNpcDummy, 2, kTypeLife);
 //53
-	initSpell(SPELL_GROUP_STRENGTH, "групповая сила", "group strength",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE,
-			  false, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellGroupStrength, "групповая сила", "group strength",
+			  140, 120, 2, EPosition::kFight, kTarIgnore,
+			  false, kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //54
-	initSpell(SPELL_HOLD, "оцепенение", "hold",
+	initSpell(kSpellHold, "оцепенение", "hold",
 			  100, 40, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 3, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 3, kTypeMind);
 //55
-	initSpell(SPELL_POWER_HOLD, "длительное оцепенение", "power hold",
+	initSpell(kSpellPowerHold, "длительное оцепенение", "power hold",
 			  140, 90, 4, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 4, kTypeMind);
 //56
-	initSpell(SPELL_MASS_HOLD, "массовое оцепенение", "mass hold",
-			  150, 130, 5, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_MIND);
+	initSpell(kSpellMassHold, "массовое оцепенение", "mass hold",
+			  150, 130, 5, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 5, kTypeMind);
 //57
-	initSpell(SPELL_FLY, "полет", "fly", 50, 35, 1, EPosition::kStand,
-			  TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_EQUIP,
-			  false, MAG_AFFECTS | MAG_ALTER_OBJS, 0, STYPE_AIR);
+	initSpell(kSpellFly, "полет", "fly", 50, 35, 1, EPosition::kStand,
+			  kTarCharRoom | kTarObjInv | kTarObjEquip,
+			  false, kMagAffects | kMagAlterObjs, 0, kTypeAir);
 //58
-	initSpell(SPELL_BROKEN_CHAINS, "разбитые оковы", "broken chains",
-			  125, 110, 2, EPosition::kFight, TAR_SELF_ONLY | TAR_CHAR_ROOM,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 5, STYPE_MIND);
+	initSpell(kSpellBrokenChains, "разбитые оковы", "broken chains",
+			  125, 110, 2, EPosition::kFight, kTarSelfOnly | kTarCharRoom,
+			  false, kMagAffects | kNpcAffectNpc, 5, kTypeMind);
 //59
-	initSpell(SPELL_NOFLEE, "приковать противника", "noflee",
+	initSpell(kSpellNoflee, "приковать противника", "noflee",
 			  100, 90, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_MIND);
+			  kTarCharRoom | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 0, kTypeMind);
 //60
-	initSpell(SPELL_CREATE_LIGHT, "создать свет", "create light",
-			  40, 30, 1, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_CREATIONS, 0, STYPE_LIGHT);
+	initSpell(kSpellCreateLight, "создать свет", "create light",
+			  40, 30, 1, EPosition::kStand, kTarIgnore, false,
+			  kMagCreations, 0, kTypeLight);
 //61
-	initSpell(SPELL_DARKNESS, "тьма", "darkness",
+	initSpell(kSpellDarkness, "тьма", "darkness",
 			  100, 70, 2, EPosition::kStand,
-			  TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_EQUIP,
-			  false, MAG_AFFECTS | MAG_ALTER_OBJS, 0, STYPE_DARK);
+			  kTarCharRoom | kTarObjInv | kTarObjEquip,
+			  false, kMagAffects | kMagAlterObjs, 0, kTypeDark);
 //62
-	initSpell(SPELL_STONESKIN, "каменная кожа", "stoneskin", 55, 40, 1,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false, MAG_AFFECTS | NPC_AFFECT_NPC,
-			  0, STYPE_EARTH);
+	initSpell(kSpellStoneSkin, "каменная кожа", "stoneskin", 55, 40, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false, kMagAffects | kNpcAffectNpc,
+			  0, kTypeEarth);
 //63
-	initSpell(SPELL_CLOUDLY, "затуманивание", "cloudly", 55, 40, 1,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false, MAG_AFFECTS | NPC_AFFECT_NPC,
-			  0, STYPE_WATER);
+	initSpell(kSpellCloudly, "затуманивание", "cloudly", 55, 40, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false, kMagAffects | kNpcAffectNpc,
+			  0, kTypeWater);
 //64
-	initSpell(SPELL_SILENCE, "молчание", "sielence",
+	initSpell(kSpellSllence, "молчание", "sielence",
 			  100, 40, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 1, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc | kNpcAffectPcCaster, 1, kTypeMind);
 //65
-	initSpell(SPELL_LIGHT, "свет", "sun shine", 100, 70,
-			  2, EPosition::kFight, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_EQUIP,
-			  false, MAG_AFFECTS | MAG_ALTER_OBJS, 0, STYPE_LIGHT);
+	initSpell(kSpellLight, "свет", "sun shine", 100, 70,
+			  2, EPosition::kFight, kTarCharRoom | kTarObjInv | kTarObjEquip,
+			  false, kMagAffects | kMagAlterObjs, 0, kTypeLight);
 //66
-	initSpell(SPELL_CHAIN_LIGHTNING, "цепь молний", "chain lightning",
+	initSpell(kSpellChainLighting, "цепь молний", "chain lightning",
 			  120, 110, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_AIR);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagAreas | kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 1, kTypeAir);
 //67
-	initSpell(SPELL_FIREBLAST, "огненный поток", "fireblast",
-			  110, 90, 2, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_FIRE);
+	initSpell(kSpellFireblast, "огненный поток", "fireblast",
+			  110, 90, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagMasses | kMagDamage | kNpcDamagePc, 5, kTypeFire);
 //68
-	initSpell(SPELL_IMPLOSION, "гнев богов", "implosion",
+	initSpell(kSpellImplosion, "гнев богов", "implosion",
 			  140, 120, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 15, STYPE_FIRE);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 15, kTypeFire);
 //69
-	initSpell(SPELL_WEAKNESS, "слабость", "weakness",
-			  70, 55, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_LIFE);
+	initSpell(kSpellWeaknes, "слабость", "weakness",
+			  70, 55, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagAffects | kNpcAffectPc, 0, kTypeLife);
 //70
-	initSpell(SPELL_GROUP_INVISIBLE, "групповая невидимость", "group invisible",
-			  150, 130, 5, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS, 0, STYPE_MIND);
+	initSpell(kSpellGroupInvisible, "групповая невидимость", "group invisible",
+			  150, 130, 5, EPosition::kStand, kTarIgnore, false,
+			  kMagGroups | kMagAffects, 0, kTypeMind);
 //71
-	initSpell(SPELL_SHADOW_CLOAK, "мантия теней", "shadow cloak",
-			  100, 70, 3, EPosition::kFight, TAR_SELF_ONLY | TAR_CHAR_ROOM,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
+	initSpell(kSpellShadowCloak, "мантия теней", "shadow cloak",
+			  100, 70, 3, EPosition::kFight, kTarSelfOnly | kTarCharRoom,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeDark);
 //72
-	initSpell(SPELL_ACID, "кислота", "acid", 90, 65, 1,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_DAMAGE | MAG_ALTER_OBJS | NPC_DAMAGE_PC, 2, STYPE_WATER);
+	initSpell(kSpellAcid, "кислота", "acid", 90, 65, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightVict, kMtypeNeutral,
+			  kMagDamage | kMagAlterObjs | kNpcDamagePc, 2, kTypeWater);
 //73
-	initSpell(SPELL_REPAIR, "починка", "repair",
-			  110, 100, 1, EPosition::kStand, TAR_OBJ_INV | TAR_OBJ_EQUIP,
-			  false, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
+	initSpell(kSpellRepair, "починка", "repair",
+			  110, 100, 1, EPosition::kStand, kTarObjInv | kTarObjEquip,
+			  false, kMagAlterObjs, 0, kTypeLight);
 //74
-	initSpell(SPELL_ENLARGE, "увеличение", "enlarge",
-			  55, 40, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_SELF_ONLY,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+	initSpell(kSpellEnlarge, "увеличение", "enlarge",
+			  55, 40, 1, EPosition::kFight, kTarCharRoom | kTarSelfOnly,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeLife);
 //75
-	initSpell(SPELL_FEAR, "страх", "fear",
+	initSpell(kSpellFear, "страх", "fear",
 			  70, 55, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_MANUAL | NPC_DAMAGE_PC,
-			  1, STYPE_DARK);
+			  kTarCharRoom | kTarFightVict, kMtypeNeutral, kMagManual | kNpcDamagePc,
+			  1, kTypeDark);
 //76
-	initSpell(SPELL_SACRIFICE, "высосать жизнь", "sacrifice",
+	initSpell(kSpellSacrifice, "высосать жизнь", "sacrifice",
 			  140, 125, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_MANUAL | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 10, STYPE_DARK);
+			  kTarCharRoom | kTarFightVict, kMtypeNeutral,
+			  kMagManual | kNpcDamagePc | kNpcDamagePcMinhp, 10, kTypeDark);
 //77
-	initSpell(SPELL_WEB, "сеть", "web",
-			  70, 55, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
+	initSpell(kSpellWeb, "сеть", "web",
+			  70, 55, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagAffects | kNpcAffectPc, 1, kTypeMind);
 //78
-	initSpell(SPELL_BLINK, "мигание", "blink", 70, 55, 2,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false,
-			  MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
+	initSpell(kSpellBlink, "мигание", "blink", 70, 55, 2,
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false,
+			  kMagAffects | kNpcAffectNpc, 0, kTypeLight);
 //79
-	initSpell(SPELL_REMOVE_HOLD, "снять оцепенение", "remove hold",
-			  110, 90, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_UNAFFECTS | NPC_UNAFFECT_NPC, 1, STYPE_LIGHT);
+	initSpell(kSpellRemoveHold, "снять оцепенение", "remove hold",
+			  110, 90, 2, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagUnaffects | kNpcUnaffectNpc, 1, kTypeLight);
 //80
-	initSpell(SPELL_CAMOUFLAGE, "!маскировка!", "!set by skill!",
+	initSpell(kSpellCamouflage, "!маскировка!", "!set by skill!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 //81
-	initSpell(SPELL_POWER_BLINDNESS, "полная слепота", "power blind",
-			  110, 100, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
+	initSpell(kSpellPowerBlindness, "полная слепота", "power blind",
+			  110, 100, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagAffects | kNpcAffectPc, 2, kTypeDark);
 //82
-	initSpell(SPELL_MASS_BLINDNESS, "массовая слепота", "mass blind",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_DARK);
+	initSpell(kSpellMassBlindness, "массовая слепота", "mass blind",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 4, kTypeDark);
 //83
-	initSpell(SPELL_POWER_SILENCE, "длительное молчание", "power sielence",
+	initSpell(kSpellPowerSilence, "длительное молчание", "power sielence",
 			  120, 90, 4, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 2, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc | kNpcAffectPcCaster, 2, kTypeMind);
 //84
-	initSpell(SPELL_EXTRA_HITS, "увеличить жизнь", "extra hits",
-			  100, 85, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
+	initSpell(kSpellExtraHits, "увеличить жизнь", "extra hits",
+			  100, 85, 2, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagPoints | kNpcDummy, 1, kTypeLife);
 //85
-	initSpell(SPELL_RESSURECTION, "оживить труп", "ressurection",
-			  120, 100, 2, EPosition::kStand, TAR_OBJ_ROOM, false,
-			  MAG_SUMMONS, 0, STYPE_DARK);
+	initSpell(kSpellResurrection, "оживить труп", "ressurection",
+			  120, 100, 2, EPosition::kStand, kTarObjRoom, false,
+			  kMagSummons, 0, kTypeDark);
 //86
-	initSpell(SPELL_MAGICSHIELD, "волшебный щит", "magic shield",
-			  50, 30, 2, EPosition::kFight, TAR_SELF_ONLY | TAR_CHAR_ROOM,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
+	initSpell(kSpellMagicShield, "волшебный щит", "magic shield",
+			  50, 30, 2, EPosition::kFight, kTarSelfOnly | kTarCharRoom,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeLight);
 
 //87
-	initSpell(SPELL_FORBIDDEN, "запечатать комнату", "forbidden",
-			  125, 110, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_ROOM, 0, STYPE_MIND);
+	initSpell(kSpellForbidden, "запечатать комнату", "forbidden",
+			  125, 110, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagRoom, 0, kTypeMind);
 //88
-	initSpell(SPELL_MASS_SILENCE, "массовое молчание", "mass sielence", 140, 120,
-			  2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 3, STYPE_MIND);
+	initSpell(kSpellMassSilence, "массовое молчание", "mass sielence", 140, 120,
+			  2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 3, kTypeMind);
 //89
-	initSpell(SPELL_REMOVE_SILENCE, "снять молчание", "remove sielence",
+	initSpell(kSpellRemoveSilence, "снять молчание", "remove sielence",
 			  70, 55, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_SELF, false,
-			  MAG_UNAFFECTS | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER, 1, STYPE_LIGHT);
+			  kTarCharRoom | kTarFightSelf, false,
+			  kMagUnaffects | kNpcUnaffectNpc | kNpcUnaffectNpcCaster, 1, kTypeLight);
 //90
-	initSpell(SPELL_DAMAGE_LIGHT, "легкий вред", "light damage",
-			  40, 30, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_DARK);
+	initSpell(kSpellDamageLight, "легкий вред", "light damage",
+			  40, 30, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagDamage | kNpcDamagePc, 1, kTypeDark);
 //91
-	initSpell(SPELL_DAMAGE_SERIOUS, "серьезный вред", "serious damage",
-			  85, 55, 4, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_DARK);
+	initSpell(kSpellDamageSerious, "серьезный вред", "serious damage",
+			  85, 55, 4, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagDamage | kNpcDamagePc, 2, kTypeDark);
 //92
-	initSpell(SPELL_DAMAGE_CRITIC, "критический вред", "critical damage",
-			  100, 90, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 3, STYPE_DARK);
+	initSpell(kSpellDamageCritic, "критический вред", "critical damage",
+			  100, 90, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagDamage | kNpcDamagePc, 3, kTypeDark);
 //93
-	initSpell(SPELL_MASS_CURSE, "массовое проклятие", "mass curse",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
+	initSpell(kSpellMassCurse, "массовое проклятие", "mass curse",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 2, kTypeDark);
 //94
-	initSpell(SPELL_ARMAGEDDON, "суд богов", "armageddon",
-			  150, 130, 5, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 10, STYPE_AIR);
+	initSpell(kSpellArmageddon, "суд богов", "armageddon",
+			  150, 130, 5, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagMasses | kMagDamage | kNpcDamagePc, 10, kTypeAir);
 //95
-	initSpell(SPELL_GROUP_FLY, "групповой полет", "group fly",
-			  140, 120, 2, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS, 0, STYPE_AIR);
+	initSpell(kSpellGroupFly, "групповой полет", "group fly",
+			  140, 120, 2, EPosition::kStand, kTarIgnore, false,
+			  kMagGroups | kMagAffects, 0, kTypeAir);
 //96
-	initSpell(SPELL_GROUP_BLESS, "групповая доблесть", "group bless",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+	initSpell(kSpellGroupBless, "групповая доблесть", "group bless",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeLight);
 //97
-	initSpell(SPELL_REFRESH, "восстановление", "refresh",
-			  80, 60, 1, EPosition::kStand, TAR_CHAR_ROOM, false,
-			  MAG_POINTS, 0, STYPE_LIFE);
+	initSpell(kSpellResfresh, "восстановление", "refresh",
+			  80, 60, 1, EPosition::kStand, kTarCharRoom, false,
+			  kMagPoints, 0, kTypeLife);
 //98
-	initSpell(SPELL_STUNNING, "каменное проклятие", "stunning",
-			  150, 140, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_DAMAGE, 15, STYPE_EARTH);
+	initSpell(kSpellStunning, "каменное проклятие", "stunning",
+			  150, 140, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagDamage, 15, kTypeEarth);
 
 //99
-	initSpell(SPELL_HIDE, "!спрятался!", "!set by skill!",
+	initSpell(kSpellHide, "!спрятался!", "!set by skill!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 
 //100
-	initSpell(SPELL_SNEAK, "!крадется!", "!set by skill!",
+	initSpell(kSpellSneak, "!крадется!", "!set by skill!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 
 //101
-	initSpell(SPELL_DRUNKED, "!опьянение!", "!set by programm!",
+	initSpell(kSpellDrunked, "!опьянение!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 
 //102
-	initSpell(SPELL_ABSTINENT, "!абстиненция!", "!set by programm!",
+	initSpell(kSpellAbstinent, "!абстиненция!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 
 //103
-	initSpell(SPELL_FULL, "насыщение", "full", 70, 55, 1,
-			  EPosition::kStand, TAR_CHAR_ROOM, false, MAG_POINTS, 10, STYPE_LIFE);
+	initSpell(kSpellFull, "насыщение", "full", 70, 55, 1,
+			  EPosition::kStand, kTarCharRoom, false, kMagPoints, 10, kTypeLife);
 //104
-	initSpell(SPELL_CONE_OF_COLD, "ледяной ветер", "cold wind", 100, 90,
-			  1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_AFFECTS | MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 15, STYPE_WATER);
+	initSpell(kSpellConeOfCold, "ледяной ветер", "cold wind", 100, 90,
+			  1, EPosition::kFight, kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagAffects | kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 15, kTypeWater);
 //105
-	initSpell(SPELL_BATTLE, "!получил в бою!", "!set by programm!",
+	initSpell(kSpellBattle, "!получил в бою!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0, false,
-			  MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  kMagManual, 0, kTypeNeutral);
 
 //106
-	initSpell(SPELL_HAEMORRAGIA, "!кровотечение!", "!set by programm!",
+	initSpell(kSpellHaemorragis, "!кровотечение!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0, false,
-			  MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  kMagManual, 0, kTypeNeutral);
 //107
-	initSpell(SPELL_COURAGE, "!ярость!", "!set by programm!",
+	initSpell(kSpellCourage, "!ярость!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 
 //108
-	initSpell(SPELL_WATERBREATH, "дышать водой", "waterbreath",
-			  85, 70, 4, EPosition::kStand, TAR_CHAR_ROOM, false,
-			  MAG_AFFECTS, 0, STYPE_WATER);
+	initSpell(kSpellWaterbreath, "дышать водой", "waterbreath",
+			  85, 70, 4, EPosition::kStand, kTarCharRoom, false,
+			  kMagAffects, 0, kTypeWater);
 //109
-	initSpell(SPELL_SLOW, "медлительность", "slow",
+	initSpell(kSpellSlow, "медлительность", "slow",
 			  55, 40, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
+			  kTarCharRoom | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 1, kTypeMind);
 //110
-	initSpell(SPELL_HASTE, "ускорение", "haste", 55, 40, 1,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false,
-			  MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellHaste, "ускорение", "haste", 55, 40, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf, false,
+			  kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //111
-	initSpell(SPELL_MASS_SLOW, "массовая медлительность", "mass slow",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
+	initSpell(kSpellMassSlow, "массовая медлительность", "mass slow",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 2, kTypeMind);
 //112
-	initSpell(SPELL_GROUP_HASTE, "групповое ускорение", "group haste",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+	initSpell(kSpellGroupHaste, "групповое ускорение", "group haste",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeMind);
 //113
-	initSpell(SPELL_SHIELD, "защита богов", "gods shield",
-			  150, 140, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_SELF_ONLY,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 2, STYPE_LIGHT);
+	initSpell(kSpellShield, "защита богов", "gods shield",
+			  150, 140, 1, EPosition::kFight, kTarCharRoom | kTarSelfOnly,
+			  false, kMagAffects | kNpcAffectNpc, 2, kTypeLight);
 //114
-	initSpell(SPELL_PLAQUE, "лихорадка", "plaque",
+	initSpell(kSpellFever, "лихорадка", "plaque",
 			  70, 55, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_LIFE);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 2, kTypeLife);
 //115
-	initSpell(SPELL_CURE_PLAQUE, "вылечить лихорадку", "cure plaque",
-			  85, 70, 4, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_UNAFFECTS | NPC_UNAFFECT_NPC, 0, STYPE_LIFE);
+	initSpell(kSpellCureFever, "вылечить лихорадку", "cure plaque",
+			  85, 70, 4, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagUnaffects | kNpcUnaffectNpc, 0, kTypeLife);
 //116
-	initSpell(SPELL_AWARNESS, "внимательность", "awarness",
-			  100, 90, 1, EPosition::kStand, TAR_CHAR_ROOM | TAR_SELF_ONLY,
-			  false, MAG_AFFECTS, 0, STYPE_MIND);
+	initSpell(kSpellAwareness, "внимательность", "awarness",
+			  100, 90, 1, EPosition::kStand, kTarCharRoom | kTarSelfOnly,
+			  false, kMagAffects, 0, kTypeMind);
 //117
-	initSpell(SPELL_RELIGION, "!молитва или жертва!", "!pray or donate!",
+	initSpell(kSpellReligion, "!молитва или жертва!", "!pray or donate!",
 			  0, 0, 0, EPosition::kStand, 0, false,
-			  MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  kMagManual, 0, kTypeNeutral);
 //118
-	initSpell(SPELL_AIR_SHIELD, "воздушный щит", "air shield",
-			  140, 120, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_AIR);
+	initSpell(kSpellAirShield, "воздушный щит", "air shield",
+			  140, 120, 2, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeAir);
 //119
-	initSpell(SPELL_PORTAL, "переход", "portal", 200, 180, 4,
-			  EPosition::kStand, TAR_CHAR_WORLD, false, MAG_MANUAL, 0, STYPE_LIGHT);
+	initSpell(kSpellPortal, "переход", "portal", 200, 180, 4,
+			  EPosition::kStand, kTarCharWorld, false, kMagManual, 0, kTypeLight);
 //120
-	initSpell(SPELL_DISPELL_MAGIC, "развеять магию", "dispel magic",
-			  85, 70, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_UNAFFECTS, 0, STYPE_LIGHT);
+	initSpell(kSpellDispellMagic, "развеять магию", "dispel magic",
+			  85, 70, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagUnaffects, 0, kTypeLight);
 //121
-	initSpell(SPELL_SUMMON_KEEPER, "защитник", "keeper",
-			  100, 80, 2, EPosition::kStand, TAR_IGNORE,
-			  false, MAG_SUMMONS, 0, STYPE_LIGHT);
+	initSpell(kSpellSummonKeeper, "защитник", "keeper",
+			  100, 80, 2, EPosition::kStand, kTarIgnore,
+			  false, kMagSummons, 0, kTypeLight);
 //122
-	initSpell(SPELL_FAST_REGENERATION, "быстрое восстановление",
+	initSpell(kSpellFastRegeneration, "быстрое восстановление",
 			  "fast regeneration", 100, 90, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_SELF, false,
-			  MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+			  kTarCharRoom | kTarFightSelf, false,
+			  kMagAffects | kNpcAffectNpc, 0, kTypeLife);
 //123
-	initSpell(SPELL_CREATE_WEAPON, "создать оружие", "create weapon",
+	initSpell(kSpellCreateWeapon, "создать оружие", "create weapon",
 			  130, 110, 2, EPosition::kStand,
-			  TAR_IGNORE, false, MAG_MANUAL, 0, STYPE_LIGHT);
+			  kTarIgnore, false, kMagManual, 0, kTypeLight);
 //124
-	initSpell(SPELL_FIRE_SHIELD, "огненный щит", "fire shield",
+	initSpell(kSpellFireShield, "огненный щит", "fire shield",
 			  140, 120, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_SELF, false,
-			  MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_FIRE);
+			  kTarCharRoom | kTarFightSelf, false,
+			  kMagAffects | kNpcAffectNpc, 0, kTypeFire);
 //125
-	initSpell(SPELL_RELOCATE, "переместиться", "relocate",
-			  140, 120, 2, EPosition::kStand, TAR_CHAR_WORLD, false,
-			  MAG_MANUAL, 0, STYPE_AIR);
+	initSpell(kSpellRelocate, "переместиться", "relocate",
+			  140, 120, 2, EPosition::kStand, kTarCharWorld, false,
+			  kMagManual, 0, kTypeAir);
 //126
-	initSpell(SPELL_SUMMON_FIREKEEPER, "огненный защитник", "fire keeper",
-			  150, 140, 1, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_SUMMONS, 0, STYPE_FIRE);
+	initSpell(kSpellSummonFirekeeper, "огненный защитник", "fire keeper",
+			  150, 140, 1, EPosition::kStand, kTarIgnore, false,
+			  kMagSummons, 0, kTypeFire);
 //127
-	initSpell(SPELL_ICE_SHIELD, "ледяной щит", "ice protect",
-			  140, 120, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_WATER);
+	initSpell(kSpellIceShield, "ледяной щит", "ice protect",
+			  140, 120, 2, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeWater);
 //128
-	initSpell(SPELL_ICESTORM, "ледяной шторм", "ice storm",
-			  125, 110, 2, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_MASSES | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 5, STYPE_WATER);
+	initSpell(kSpellIceStorm, "ледяной шторм", "ice storm",
+			  125, 110, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagMasses | kMagDamage | kMagAffects | kNpcDamagePc, 5, kTypeWater);
 //129
-	initSpell(SPELL_ENLESS, "уменьшение", "enless",
-			  55, 40, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS, 0, STYPE_LIFE);
+	initSpell(kSpellEnless, "уменьшение", "enless",
+			  55, 40, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects, 0, kTypeLife);
 //130
-	initSpell(SPELL_SHINEFLASH, "яркий блик", "shine flash",
+	initSpell(kSpellShineflash, "яркий блик", "shine flash",
 			  60, 45, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_FIRE);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcAffectPc | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeFire);
 //131
-	initSpell(SPELL_MADNESS, "безумие", "madness",
+	initSpell(kSpellMadness, "безумие", "madness",
 			  130, 110, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 1, kTypeMind);
 //132
-	initSpell(SPELL_GROUP_MAGICGLASS, "магическое зеркало", "group magicglass",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 4, STYPE_AIR);
+	initSpell(kSpellGroupMagicGlass, "магическое зеркало", "group magicglass",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 4, kTypeAir);
 //133
-	initSpell(SPELL_CLOUD_OF_ARROWS, "облако стрел", "cloud of arrous",
-			  95, 80, 2, EPosition::kFight, TAR_SELF_ONLY | TAR_CHAR_ROOM,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 4, STYPE_FIRE);
+	initSpell(kSpellCloudOfArrows, "облако стрел", "cloud of arrous",
+			  95, 80, 2, EPosition::kFight, kTarSelfOnly | kTarCharRoom,
+			  false, kMagAffects | kNpcAffectNpc, 4, kTypeFire);
 //134
-	initSpell(SPELL_VACUUM, "круг пустоты", "vacuum sphere",
-			  150, 140, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 15, STYPE_DARK);
+	initSpell(kSpellVacuum, "круг пустоты", "vacuum sphere",
+			  150, 140, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagDamage | kNpcDamagePc, 15, kTypeDark);
 //135
-	initSpell(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm",
-			  125, 110, 2, EPosition::kFight, TAR_ROOM_THIS, false,
-			  MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_EARTH);
+	initSpell(kSpellMeteorStorm, "метеоритный дождь", "meteor storm",
+			  125, 110, 2, EPosition::kFight, kTarRoomThis, false,
+			  kMagNeedControl | kMagRoom | kMagCasterInroom, 0, kTypeEarth);
 //136
-	initSpell(SPELL_STONEHAND, "каменные руки", "stonehand",
-			  40, 30, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+	initSpell(kSpellStoneHands, "каменные руки", "stonehand",
+			  40, 30, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeEarth);
 //137
-	initSpell(SPELL_MINDLESS, "повреждение разума", "mindness",
-			  120, 110, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 0, STYPE_MIND);
+	initSpell(kSpellMindless, "повреждение разума", "mindness",
+			  120, 110, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeNeutral, kMagAffects | kNpcAffectPc | kNpcAffectPcCaster, 0, kTypeMind);
 //138
-	initSpell(SPELL_PRISMATICAURA, "призматическая аура", "prismatic aura",
-			  85, 70, 4, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+	initSpell(kSpellPrismaticAura, "призматическая аура", "prismatic aura",
+			  85, 70, 4, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 1, kTypeLight);
 //139
-	initSpell(SPELL_EVILESS, "силы зла", "eviless",
-			  150, 130, 5, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | MAG_POINTS, 3, STYPE_DARK);
+	initSpell(kSpellEviless, "силы зла", "eviless",
+			  150, 130, 5, EPosition::kStand, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kMagPoints, 3, kTypeDark);
 //140
-	initSpell(SPELL_AIR_AURA, "воздушная аура", "air aura",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_AIR);
+	initSpell(kSpellAirAura, "воздушная аура", "air aura",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeAir);
 //141
-	initSpell(SPELL_FIRE_AURA, "огненная аура", "fire aura",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_FIRE);
+	initSpell(kSpellFireAura, "огненная аура", "fire aura",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeFire);
 //142
-	initSpell(SPELL_ICE_AURA, "ледяная аура", "ice aura",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_WATER);
+	initSpell(kSpellIceAura, "ледяная аура", "ice aura",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeWater);
 //143
-	initSpell(SPELL_SHOCK, "шок", "shock",
+	initSpell(kSpellShock, "шок", "shock",
 			  100, 90, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  1, STYPE_DARK);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagAreas | kMagDamage | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  1, kTypeDark);
 //144
-	initSpell(SPELL_MAGICGLASS, "зеркало магии", "magic glassie",
-			  120, 110, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 2, STYPE_LIGHT);
+	initSpell(kSpellMagicGlass, "зеркало магии", "magic glassie",
+			  120, 110, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 2, kTypeLight);
 
 //145
-	initSpell(SPELL_GROUP_SANCTUARY, "групповое освящение", "group sanctuary",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+	initSpell(kSpellGroupSanctuary, "групповое освящение", "group sanctuary",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeLight);
 
 //146
-	initSpell(SPELL_GROUP_PRISMATICAURA, "групповая призматическая аура",
+	initSpell(kSpellGroupPrismaticAura, "групповая призматическая аура",
 			  "group prismatic aura", 110, 100, 1, EPosition::kFight,
-			  TAR_IGNORE, false, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC,
-			  1, STYPE_LIGHT);
+			  kTarIgnore, false, kMagGroups | kMagAffects | kNpcAffectNpc,
+			  1, kTypeLight);
 
 //147
-	initSpell(SPELL_DEAFNESS, "глухота", "deafness",
+	initSpell(kSpellDeafness, "глухота", "deafness",
 			  100, 40, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 1, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc | kNpcAffectPcCaster, 1, kTypeMind);
 
 //148
-	initSpell(SPELL_POWER_DEAFNESS, "длительная глухота", "power deafness",
+	initSpell(kSpellPowerDeafness, "длительная глухота", "power deafness",
 			  120, 90, 4, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 2, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc | kNpcAffectPcCaster, 2, kTypeMind);
 
 //149
-	initSpell(SPELL_REMOVE_DEAFNESS, "снять глухоту", "remove deafness",
-			  90, 80, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_UNAFFECTS | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER,
-			  1, STYPE_LIFE);
+	initSpell(kSpellRemoveDeafness, "снять глухоту", "remove deafness",
+			  90, 80, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagUnaffects | kNpcUnaffectNpc | kNpcUnaffectNpcCaster,
+			  1, kTypeLife);
 
 //150
-	initSpell(SPELL_MASS_DEAFNESS, "массовая глухота", "mass deafness",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
+	initSpell(kSpellMassDeafness, "массовая глухота", "mass deafness",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 2, kTypeMind);
 
 //151
-	initSpell(SPELL_DUSTSTORM, "пылевая буря", "dust storm",
-			  125, 110, 2, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_MASSES | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 5, STYPE_EARTH);
+	initSpell(kSpellDustStorm, "пылевая буря", "dust storm",
+			  125, 110, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagMasses | kMagDamage | kMagAffects | kNpcDamagePc, 5, kTypeEarth);
 
 //152
-	initSpell(SPELL_EARTHFALL, "камнепад", "earth fall",
+	initSpell(kSpellEarthfall, "камнепад", "earth fall",
 			  120, 110, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  1, STYPE_EARTH);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagAreas | kMagDamage | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  1, kTypeEarth);
 
 //153
-	initSpell(SPELL_SONICWAVE, "звуковая волна", "sonic wave",
-			  120, 110, 2, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_MASSES | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  1, STYPE_AIR);
+	initSpell(kSpellSonicWave, "звуковая волна", "sonic wave",
+			  120, 110, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagMasses | kMagDamage | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  1, kTypeAir);
 
 //154
-	initSpell(SPELL_HOLYSTRIKE, "силы света", "holystrike",
-			  150, 130, 5, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MANUAL | NPC_DAMAGE_PC, 10, STYPE_LIGHT);
+	initSpell(kSpellHolystrike, "силы света", "holystrike",
+			  150, 130, 5, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagManual | kNpcDamagePc, 10, kTypeLight);
 
 //155
-	initSpell(SPELL_ANGEL, "ангел-хранитель", "angel", 150, 130, 5,
-			  EPosition::kStand, TAR_IGNORE, false, MAG_MANUAL, 1, STYPE_LIGHT);
+	initSpell(kSpellSumonAngel, "ангел-хранитель", "angel", 150, 130, 5,
+			  EPosition::kStand, kTarIgnore, false, kMagManual, 1, kTypeLight);
 //156
-	initSpell(SPELL_MASS_FEAR, "массовый страх", "mass fear",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_MANUAL | NPC_AFFECT_PC, 4, STYPE_DARK);
+	initSpell(kSpellMassFear, "массовый страх", "mass fear",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagManual | kNpcAffectPc, 4, kTypeDark);
 //157
-	initSpell(SPELL_FASCINATION, "обаяние", "fascination",
+	initSpell(kSpellFascination, "обаяние", "fascination",
 			  480, 440, 20,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 2, STYPE_MIND);
+			  EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 2, kTypeMind);
 //158
-	initSpell(SPELL_CRYING, "плач", "crying",
+	initSpell(kSpellCrying, "плач", "crying",
 			  120, 55, 2, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 1, kTypeMind);
 //159
-	initSpell(SPELL_OBLIVION, "забвение", "oblivion",
+	initSpell(kSpellOblivion, "забвение", "oblivion",
 			  70, 55, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_DARK);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 1, kTypeDark);
 //160
-	initSpell(SPELL_BURDEN_OF_TIME, "бремя времени", "burden time",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_DARK);
+	initSpell(kSpellBurdenOfTime, "бремя времени", "burden time",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagAreas | kMagAffects | kNpcAffectPc, 4, kTypeDark);
 //161
-	initSpell(SPELL_GROUP_REFRESH, "групповое восстановление", "group refresh",
-			  160, 140, 1, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 30, STYPE_LIFE);
+	initSpell(kSpellGroupRefresh, "групповое восстановление", "group refresh",
+			  160, 140, 1, EPosition::kStand, kTarIgnore, false,
+			  kMagGroups | kMagPoints | kNpcDummy, 30, kTypeLife);
 
 //162
-	initSpell(SPELL_PEACEFUL, "смирение", "peaceful",
+	initSpell(kSpellPeaceful, "смирение", "peaceful",
 			  55, 40, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
-			  MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
+			  kTarCharRoom | kTarNotSelf | kTarFightVict, kMtypeNeutral,
+			  kMagAffects | kNpcAffectPc, 1, kTypeMind);
 //163
-	initSpell(SPELL_MAGICBATTLE, "!получил в бою!", "!set by programm!",
+	initSpell(kSpellMagicBattle, "!получил в бою!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 
 //164
-	initSpell(SPELL_BERSERK, "!предсмертная ярость!", "!set by programm!",
+	initSpell(kSpellBerserk, "!предсмертная ярость!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 //165
-	initSpell(SPELL_STONEBONES, "каменные кости", "stone bones",
+	initSpell(kSpellStoneBones, "каменные кости", "stone bones",
 			  80, 40, 1,
-			  EPosition::kStand, TAR_CHAR_ROOM | TAR_FIGHT_SELF, false,
-			  MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+			  EPosition::kStand, kTarCharRoom | kTarFightSelf, false,
+			  kMagAffects | kNpcAffectNpc, 0, kTypeEarth);
 
 //166 - SPELL_ROOM_LIGHT
-	initSpell(SPELL_ROOM_LIGHT, "осветить комнату", "room light",
-			  10, 10, 1, EPosition::kStand, TAR_ROOM_THIS, false,
-			  MAG_ROOM, 0, STYPE_LIGHT);
+	initSpell(kSpellRoomLight, "осветить комнату", "room light",
+			  10, 10, 1, EPosition::kStand, kTarRoomThis, false,
+			  kMagRoom, 0, kTypeLight);
 
 //167 - SPELL_POISONED_FOG
-	initSpell(SPELL_POISONED_FOG, "ядовитый туман", "poisoned fog",
-			  10, 10, 1, EPosition::kStand, TAR_ROOM_THIS, false,
-			  MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_LIFE);
+	initSpell(kSpellPoosinedFog, "ядовитый туман", "poisoned fog",
+			  10, 10, 1, EPosition::kStand, kTarRoomThis, false,
+			  kMagRoom | kMagCasterInroom, 0, kTypeLife);
 
 //168
-	initSpell(SPELL_THUNDERSTORM, "буря отмщения", "storm of vengeance",
-			  10, 10, 1, EPosition::kStand, TAR_ROOM_THIS, false,
-			  MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_AIR);
+	initSpell(kSpellThunderstorm, "буря отмщения", "storm of vengeance",
+			  10, 10, 1, EPosition::kStand, kTarRoomThis, false,
+			  kMagNeedControl | kMagRoom | kMagCasterInroom, 0, kTypeAir);
 //169
-	initSpell(SPELL_LIGHT_WALK, "!легкая поступь!", "!set by programm!",
-			  0, 0, 0, EPosition::kStand, 0, false, MAG_MANUAL,
-			  0, STYPE_NEUTRAL);
+	initSpell(kSpellLightWalk, "!легкая поступь!", "!set by programm!",
+			  0, 0, 0, EPosition::kStand, 0, false, kMagManual,
+			  0, kTypeNeutral);
 //170
-	initSpell(SPELL_FAILURE, "недоля", "failure",
-			  100, 85, 2, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_DARK);
+	initSpell(kSpellFailure, "недоля", "failure",
+			  100, 85, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 5, kTypeDark);
 
 //171
-	initSpell(SPELL_CLANPRAY, "!клановые чары!", "!clan affect!",
+	initSpell(kSpellClanPray, "!клановые чары!", "!clan affect!",
 			  0, 0, 0, EPosition::kStand, 0, false,
-			  MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  kMagManual, 0, kTypeNeutral);
 //172
-	initSpell(SPELL_GLITTERDUST, "блестящая пыль", "glitterdust",
-			  120, 100, 3, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_EARTH);
+	initSpell(kSpellGlitterDust, "блестящая пыль", "glitterdust",
+			  120, 100, 3, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 5, kTypeEarth);
 //173
-	initSpell(SPELL_SCREAM, "вопль", "scream",
+	initSpell(kSpellScream, "вопль", "scream",
 			  100, 85, 3, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagAreas | kMagDamage | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp, 2, kTypeAir);
 //174
-	initSpell(SPELL_CATS_GRACE, "кошачья ловкость", "cats grace",
-			  50, 40, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+	initSpell(kSpellCatGrace, "кошачья ловкость", "cats grace",
+			  50, 40, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeLife);
 //175
-	initSpell(SPELL_BULL_BODY, "бычье тело", "bull body",
-			  50, 40, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+	initSpell(kSpellBullBody, "бычье тело", "bull body",
+			  50, 40, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeLife);
 //176
-	initSpell(SPELL_SNAKE_WISDOM, "мудрость змеи", "snake wisdom",
-			  60, 50, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+	initSpell(kSpellSnakeWisdom, "мудрость змеи", "snake wisdom",
+			  60, 50, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeLife);
 //177
-	initSpell(SPELL_GIMMICKRY, "хитроумие", "gimmickry",
-			  60, 50, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+	initSpell(kSpellGimmicry, "хитроумие", "gimmickry",
+			  60, 50, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeLife);
 // ДЛЯ КЛИЧЕЙ ПОЛЕ mana_change ИСПОЛЬЗУЕТСЯ
 // ДЛЯ УКАЗАНИЯ МИНИМАЛЬНОГО ПРОЦЕНТА СКИЛЛА,
 // С КОТОРОГО ДОСТУПЕН УКАЗАННЫЙ КЛИЧ
@@ -938,270 +937,268 @@ void initSpells() {
 		   MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 0, STYPE_MIND);
 */
 //183
-	initSpell(SPELL_WC_OF_DEFENSE, "клич обороны", "warcry of defense",
-			  10, 10, 10, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellWarcryOfDefence, "клич обороны", "warcry of defense",
+			  10, 10, 10, EPosition::kFight, kTarIgnore, false,
+			  kMagWarcry | kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //184
-	initSpell(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle",
-			  20, 20, 50, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellWarcryOfBattle, "клич битвы", "warcry of battle",
+			  20, 20, 50, EPosition::kFight, kTarIgnore, false,
+			  kMagWarcry | kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //185
-	initSpell(SPELL_WC_OF_POWER, "клич мощи", "warcry of power",
-			  25, 25, 70, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_WARCRY | MAG_GROUPS | MAG_POINTS | MAG_AFFECTS | NPC_DUMMY | NPC_AFFECT_NPC,
-			  0, STYPE_MIND);
+	initSpell(kSpellWarcryOfPower, "клич мощи", "warcry of power",
+			  25, 25, 70, EPosition::kFight, kTarIgnore, false,
+			  kMagWarcry | kMagGroups | kMagPoints | kMagAffects | kNpcDummy | kNpcAffectNpc,
+			  0, kTypeMind);
 //186
-	initSpell(SPELL_WC_OF_BLESS, "клич доблести", "warcry of bless",
-			  15, 15, 30, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellWarcryOfBless, "клич доблести", "warcry of bless",
+			  15, 15, 30, EPosition::kFight, kTarIgnore, false,
+			  kMagWarcry | kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //187
-	initSpell(SPELL_WC_OF_COURAGE, "клич отваги", "warcry of courage",
-			  10, 10, 10, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellWarcryOfCourage, "клич отваги", "warcry of courage",
+			  10, 10, 10, EPosition::kFight, kTarIgnore, false,
+			  kMagWarcry | kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //188
-	initSpell(SPELL_RUNE_LABEL, "рунная метка", "rune label",
+	initSpell(kSpellRuneLabel, "рунная метка", "rune label",
 			  50, 35, 1,
-			  EPosition::kStand, TAR_ROOM_THIS, false, MAG_ROOM | MAG_CASTER_INWORLD_DELAY,
-			  0, STYPE_LIGHT);
+			  EPosition::kStand, kTarRoomThis, false, kMagRoom | kMagCasterInworldDelay,
+			  0, kTypeLight);
 
 
 	// NON-castable spells should appear below here.
 
 // 189
-	initSpell(SPELL_ACONITUM_POISON, "яд аконита", "aconitum poison",
-			  0, 0, 0, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_AFFECTS, 0, STYPE_LIFE);
+	initSpell(kSpellAconitumPoison, "яд аконита", "aconitum poison",
+			  0, 0, 0, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagAffects, 0, kTypeLife);
 // 190
-	initSpell(SPELL_SCOPOLIA_POISON, "яд скополии", "scopolia poison",
-			  0, 0, 0, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_AFFECTS, 0, STYPE_LIFE);
+	initSpell(kSpellScopolaPoison, "яд скополии", "scopolia poison",
+			  0, 0, 0, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagAffects, 0, kTypeLife);
 // 191
-	initSpell(SPELL_BELENA_POISON, "яд белены", "belena poison",
-			  0, 0, 0, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_AFFECTS, 0, STYPE_LIFE);
+	initSpell(kSpellBelenaPoison, "яд белены", "belena poison",
+			  0, 0, 0, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagAffects, 0, kTypeLife);
 // 192
-	initSpell(SPELL_DATURA_POISON, "яд дурмана", "datura poison",
-			  0, 0, 0, EPosition::kFight, TAR_IGNORE, MTYPE_AGGRESSIVE,
-			  MAG_AFFECTS, 0, STYPE_LIFE);
-
+	initSpell(kSpellDaturaPoison, "яд дурмана", "datura poison",
+			  0, 0, 0, EPosition::kFight, kTarIgnore, kMtypeAggressive,
+			  kMagAffects, 0, kTypeLife);
 
 // 193
-	initSpell(SPELL_TIMER_REPAIR, "обновление таймера", " timer repair",
-			  110, 100, 1, EPosition::kStand, TAR_OBJ_INV | TAR_OBJ_EQUIP,
-			  false, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
-
+	initSpell(kSpellTimerRestore, "обновление таймера", " timer repair",
+			  110, 100, 1, EPosition::kStand, kTarObjInv | kTarObjEquip,
+			  false, kMagAlterObjs, 0, kTypeLight);
 //194
-	initSpell(SPELL_LACKY, "боевое везение", "lacky",
-			  100, 90, 1, EPosition::kStand, TAR_CHAR_ROOM | TAR_SELF_ONLY,
-			  false, MAG_AFFECTS, 0, STYPE_MIND);
+	initSpell(kSpellLucky, "боевое везение", "lacky",
+			  100, 90, 1, EPosition::kStand, kTarCharRoom | kTarSelfOnly,
+			  false, kMagAffects, 0, kTypeMind);
 //195
-	initSpell(SPELL_BANDAGE, "перевязка", "!set by programm!",
+	initSpell(kSpellBandage, "перевязка", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0, false,
-			  MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  kMagManual, 0, kTypeNeutral);
 //196
-	initSpell(SPELL_NO_BANDAGE, "!нельзя перевязываться!", "!set by programm!",
+	initSpell(kSpellNoBandage, "!нельзя перевязываться!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0, false,
-			  MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  kMagManual, 0, kTypeNeutral);
 //197
-	initSpell(SPELL_CAPABLE, "!зачарован!", "!set by programm!",
+	initSpell(kSpellCapable, "!зачарован!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 //198
-	initSpell(SPELL_STRANGLE, "!удушье!", "!set by programm!",
+	initSpell(kSpellStrangle, "!удушье!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 //199
-	initSpell(SPELL_RECALL_SPELLS, "!вспоминает заклинания!", "!set by programm!",
+	initSpell(kSpellRecallSpells, "!вспоминает заклинания!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0, false,
-			  MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  kMagManual, 0, kTypeNeutral);
 //200
-	initSpell(SPELL_HYPNOTIC_PATTERN, "чарующий узор", "hypnotic pattern",
-			  120, 100, 2, EPosition::kStand, TAR_ROOM_THIS, false,
-			  MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_MIND);
+	initSpell(kSpellHypnoticPattern, "чарующий узор", "hypnotic pattern",
+			  120, 100, 2, EPosition::kStand, kTarRoomThis, false,
+			  kMagRoom | kMagCasterInroom, 0, kTypeMind);
 //201
-	initSpell(SPELL_SOLOBONUS, "награда", "bonus",
-			  55, 40, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_NOT_SELF,
-			  MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
+	initSpell(kSpellSolobonus, "награда", "bonus",
+			  55, 40, 1, EPosition::kFight, kTarCharRoom | kTarNotSelf,
+			  kMtypeNeutral, kMagManual, 1, kTypeNeutral);
 //202
-	initSpell(SPELL_VAMPIRE, "вампиризм", "vampire",
-			  150, 130, 5, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_MANUAL, 3, STYPE_DARK);
+	initSpell(kSpellVampirism, "вампиризм", "vampire",
+			  150, 130, 5, EPosition::kStand, kTarIgnore, false,
+			  kMagManual, 3, kTypeDark);
 //203
-	initSpell(SPELLS_RESTORATION, "реконструкция", "reconstruction",
+	initSpell(kSpellRestoration, "реконструкция", "reconstruction",
 			  110, 100, 1, EPosition::kStand,
-			  TAR_OBJ_INV | TAR_OBJ_EQUIP, false, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
+			  kTarObjInv | kTarObjEquip, false, kMagAlterObjs, 0, kTypeLight);
 //204
-	initSpell(SPELL_AURA_DEATH, "аура смерти", "aura death",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
+	initSpell(kSpellDeathAura, "аура смерти", "aura death",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeDark);
 //205
-	initSpell(SPELL_RECOVERY, "темное прикосновение", "recovery",
-			  110, 100, 1, EPosition::kStand, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
+	initSpell(kSpellRecovery, "темное прикосновение", "recovery",
+			  110, 100, 1, EPosition::kStand, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeDark);
 //206
-	initSpell(SPELL_MASS_RECOVERY, "прикосновение смерти", "mass recovery",
-			  110, 100, 1, EPosition::kStand, TAR_IGNORE,
-			  false, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 0, STYPE_DARK);
+	initSpell(kSpellMassRecovery, "прикосновение смерти", "mass recovery",
+			  110, 100, 1, EPosition::kStand, kTarIgnore,
+			  false, kMagGroups | kMagPoints | kNpcDummy, 0, kTypeDark);
 //207
-	initSpell(SPELL_AURA_EVIL, "аура зла", "aura evil",
-			  150, 130, 5, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_MANUAL, 3, STYPE_DARK);
+	initSpell(kSpellAuraOfEvil, "аура зла", "aura evil",
+			  150, 130, 5, EPosition::kStand, kTarIgnore, false,
+			  kMagManual, 3, kTypeDark);
 //208
-	initSpell(SPELL_MENTAL_SHADOW, "ментальная тень", "mental shadow",
-			  150, 130, 5, EPosition::kStand, TAR_IGNORE, false,
-			  MAG_MANUAL, 1, STYPE_MIND);
+	initSpell(kSpellMentalShadow, "ментальная тень", "mental shadow",
+			  150, 130, 5, EPosition::kStand, kTarIgnore, false,
+			  kMagManual, 1, kTypeMind);
 //209
-	initSpell(SPELL_EVARDS_BLACK_TENTACLES, "навьи руки", "evards black tentacles",
-			  120, 110, 2, EPosition::kFight, TAR_ROOM_THIS, false,
-			  MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_DARK);
+	initSpell(kSpellBlackTentacles, "навьи руки", "evards black tentacles",
+			  120, 110, 2, EPosition::kFight, kTarRoomThis, false,
+			  kMagNeedControl | kMagRoom | kMagCasterInroom, 0, kTypeDark);
 //210
-	initSpell(SPELL_WHIRLWIND, "вихрь", "whirlwind",
-			  110, 100, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_AIR);
+	initSpell(kSpellWhirlwind, "вихрь", "whirlwind",
+			  110, 100, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeAggressive, kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeAir);
 //211
-	initSpell(SPELL_INDRIKS_TEETH, "зубы индрика", "indriks teeth",
+	initSpell(kSpellIndriksTeeth, "зубы индрика", "indriks teeth",
 			  60, 45, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_EARTH);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcAffectPc | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeEarth);
 //212
-	initSpell(SPELL_MELFS_ACID_ARROW, "кислотная стрела", "acid arrow",
-			  110, 100, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_WATER);
+	initSpell(kSpellAcidArrow, "кислотная стрела", "acid arrow",
+			  110, 100, 1, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeAggressive, kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeWater);
 //213
-	initSpell(SPELL_THUNDERSTONE, "громовой камень", "thunderstone",
-			  110, 100, 2, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT,
-			  MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_EARTH);
+	initSpell(kSpellThunderStone, "громовой камень", "thunderstone",
+			  110, 100, 2, EPosition::kFight, kTarCharRoom | kTarFightVict,
+			  kMtypeAggressive, kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeEarth);
 //214
-	initSpell(SPELL_CLOD, "глыба", "clod", 110, 100, 1,
-			  EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
+	initSpell(kSpellClod, "глыба", "clod", 110, 100, 1,
+			  EPosition::kFight, kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 2, kTypeEarth);
 //215
-	initSpell(SPELL_EXPEDIENT, "!боевой прием!", "!set by programm!",
+	initSpell(kSpellExpedient, "!боевой прием!", "!set by programm!",
 			  0, 0, 0, EPosition::kStand, 0,
-			  false, MAG_MANUAL, 0, STYPE_NEUTRAL);
+			  false, kMagManual, 0, kTypeNeutral);
 //216
-	initSpell(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+	initSpell(kSpellSightOfDarkness, "зрение тьмы", "sight darkness",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeLight);
 //217
-	initSpell(SPELL_GENERAL_SINCERITY, "общая искренность", "general sincerity",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+	initSpell(kSpellGeneralSincerity, "общая искренность", "general sincerity",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeMind);
 //218
-	initSpell(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+	initSpell(kSpellMagicalGaze, "магический взор", "magical gaze",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeMind);
 //219
-	initSpell(SPELL_ALL_SEEING_EYE, "всевидящее око", "allseeing eye",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+	initSpell(kSpellAllSeeingEye, "всевидящее око", "allseeing eye",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeMind);
 //220
-	initSpell(SPELL_EYE_OF_GODS, "око богов", "eye gods",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+	initSpell(kSpellEyeOfGods, "око богов", "eye gods",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeLife);
 //221
-	initSpell(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
+	initSpell(kSpellBreathingAtDepth, "дыхание глубин", "breathing at depth",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeWater);
 //222
-	initSpell(SPELL_GENERAL_RECOVERY, "общее восстановление", "general recovery",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+	initSpell(kSpellGeneralRecovery, "общее восстановление", "general recovery",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeLife);
 //223
-	initSpell(SPELL_COMMON_MEAL, "общая трапеза", "common meal",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
+	initSpell(kSpellCommonMeal, "общая трапеза", "common meal",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagPoints | kNpcDummy, 1, kTypeLife);
 //224
-	initSpell(SPELL_STONE_WALL, "каменная стена", "stone wall",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_EARTH);
+	initSpell(kSpellStoneWall, "каменная стена", "stone wall",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeEarth);
 //225
-	initSpell(SPELL_SNAKE_EYES, "глаза змея", "snake eyes",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+	initSpell(kSpellSnakeEyes, "глаза змея", "snake eyes",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeMind);
 //226
-	initSpell(SPELL_EARTH_AURA, "земной поклон", "earth aura",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+	initSpell(kSpellEarthAura, "земной поклон", "earth aura",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeEarth);
 //227
-	initSpell(SPELL_GROUP_PROT_FROM_EVIL, "групповая защита от тьмы", "group protect evil",
-			  110, 100, 1, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+	initSpell(kSpellGroupProtectFromEvil, "групповая защита от тьмы", "group protect evil",
+			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeLight);
 
 //228
-	initSpell(SPELL_ARROWS_FIRE, "стрелы огня", "arrows of fire",
+	initSpell(kSpellArrowsFire, "стрелы огня", "arrows of fire",
 			  0, 0, 0, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_FIRE);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcAffectPc | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeFire);
 //229
-	initSpell(SPELL_ARROWS_WATER, "стрелы воды", "arrows of water",
+	initSpell(kSpellArrowsWater, "стрелы воды", "arrows of water",
 			  0, 0, 0, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_WATER);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcAffectPc | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeWater);
 //230
-	initSpell(SPELL_ARROWS_EARTH, "стрелы земли", "arrows of earth",
+	initSpell(kSpellArrowsEarth, "стрелы земли", "arrows of earth",
 			  0, 0, 0, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_AREAS | MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_EARTH);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagAreas | kMagDamage | kNpcAffectPc | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeEarth);
 //231
-	initSpell(SPELL_ARROWS_AIR, "стрелы воздуха", "arrows of air",
+	initSpell(kSpellArrowsAir, "стрелы воздуха", "arrows of air",
 			  0, 0, 0, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_AIR);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcAffectPc | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeAir);
 //232
-	initSpell(SPELL_ARROWS_DEATH, "стрелы смерти", "arrows of death",
+	initSpell(kSpellArrowsDeath, "стрелы смерти", "arrows of death",
 			  0, 0, 0, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-			  MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
-			  2, STYPE_DARK);
+			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
+			  kMagDamage | kNpcAffectPc | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
+			  2, kTypeDark);
 //233
-	initSpell(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
+	initSpell(kSpellPaladineInspiration, "воодушевление", "inspiration",
 			  0, 0, 0, EPosition::kStand, 0, false,
-			  MAG_GROUPS | MAG_AFFECTS, 0, STYPE_NEUTRAL);
+			  kMagGroups | kMagAffects, 0, kTypeNeutral);
 //234
-	initSpell(SPELL_DEXTERITY, "ловкость", "dexterity",
-			  40, 30, 1, EPosition::kFight, TAR_CHAR_ROOM | TAR_FIGHT_SELF,
-			  false, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+	initSpell(kSpellDexterity, "ловкость", "dexterity",
+			  40, 30, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
+			  false, kMagAffects | kNpcAffectNpc, 0, kTypeLife);
 //235
-	initSpell(SPELL_GROUP_BLINK, "групповое мигание", "group blink",
-			  110, 100, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_LIFE);
+	initSpell(kSpellGroupBlink, "групповое мигание", "group blink",
+			  110, 100, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 30, kTypeLife);
 //236
-	initSpell(SPELL_GROUP_CLOUDLY, "групповое затуманивание", "group cloudly",
-			  110, 100, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_WATER);
+	initSpell(kSpellGroupCloudly, "групповое затуманивание", "group cloudly",
+			  110, 100, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 30, kTypeWater);
 //237
-	initSpell(SPELL_GROUP_AWARNESS, "групповая внимательность", "group awarness",
-			  110, 100, 2, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_MIND);
+	initSpell(kSpellGroupAwareness, "групповая внимательность", "group awarness",
+			  110, 100, 2, EPosition::kFight, kTarIgnore, false,
+			  kMagGroups | kMagAffects | kNpcAffectNpc, 30, kTypeMind);
 //238
-	initSpell(SPELL_WC_EXPERIENSE, "клич обучения", "warcry of training",
-			  10, 10, 10, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellWatctyOfExpirence, "клич обучения", "warcry of training",
+			  10, 10, 10, EPosition::kFight, kTarIgnore, false,
+			  kMagWarcry | kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //239
-	initSpell(SPELL_WC_LUCK, "клич везения", "warcry of luck",
-			  10, 10, 10, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellWarcryOfLuck, "клич везения", "warcry of luck",
+			  10, 10, 10, EPosition::kFight, kTarIgnore, false,
+			  kMagWarcry | kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //240
-	initSpell(SPELL_WC_PHYSDAMAGE, "клич точности", "warcry of accuracy",
-			  10, 10, 10, EPosition::kFight, TAR_IGNORE, false,
-			  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+	initSpell(kSpellWarcryOfPhysdamage, "клич точности", "warcry of accuracy",
+			  10, 10, 10, EPosition::kFight, kTarIgnore, false,
+			  kMagWarcry | kMagGroups | kMagAffects | kNpcAffectNpc, 0, kTypeMind);
 //241
-	initSpell(SPELL_MASS_FAILURE, "взор Велеса", "gaze of Veles",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
+	initSpell(kSpellMassFailure, "взор Велеса", "gaze of Veles",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 2, kTypeDark);
 //242
-	initSpell(SPELL_MASS_NOFLEE, "западня", "snare",
-			  140, 120, 2, EPosition::kFight, TAR_IGNORE, MTYPE_NEUTRAL,
-			  MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
+	initSpell(kSpellMassNoflee, "западня", "snare",
+			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
+			  kMagMasses | kMagAffects | kNpcAffectPc, 2, kTypeMind);
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
@@ -1211,42 +1208,42 @@ void initSpells() {
 
 
 //243 - 247
-	initSpell(SPELL_FIRE_BREATH, "огненное дыхание", "fire breath",
-			  0, 0, 0, EPosition::kStand, TAR_IGNORE, true,
-			  MAG_DAMAGE, 3, STYPE_FIRE);
+	initSpell(kSpellFireBreath, "огненное дыхание", "fire breath",
+			  0, 0, 0, EPosition::kStand, kTarIgnore, true,
+			  kMagDamage, 3, kTypeFire);
 
-	initSpell(SPELL_GAS_BREATH, "зловонное дыхание", "gas breath",
-			  0, 0, 0, EPosition::kStand, TAR_IGNORE, true,
-			  MAG_DAMAGE, 3, STYPE_EARTH);
+	initSpell(kSpellGasBreath, "зловонное дыхание", "gas breath",
+			  0, 0, 0, EPosition::kStand, kTarIgnore, true,
+			  kMagDamage, 3, kTypeEarth);
 
-	initSpell(SPELL_FROST_BREATH, "ледяное дыхание", "frost breath",
-			  0, 0, 0, EPosition::kStand, TAR_IGNORE, true,
-			  MAG_DAMAGE, 3, STYPE_AIR);
+	initSpell(kSpellFrostBreath, "ледяное дыхание", "frost breath",
+			  0, 0, 0, EPosition::kStand, kTarIgnore, true,
+			  kMagDamage, 3, kTypeAir);
 
-	initSpell(SPELL_ACID_BREATH, "кислотное дыхание", "acid breath",
-			  0, 0, 0, EPosition::kStand, TAR_IGNORE, true,
-			  MAG_DAMAGE, 3, STYPE_WATER);
+	initSpell(kSpellAcidBreath, "кислотное дыхание", "acid breath",
+			  0, 0, 0, EPosition::kStand, kTarIgnore, true,
+			  kMagDamage, 3, kTypeWater);
 
-	initSpell(SPELL_LIGHTNING_BREATH, "опаляющее дыхание", "lightning breath",
-			  0, 0, 0, EPosition::kStand, TAR_IGNORE, true,
-			  MAG_DAMAGE, 3, STYPE_DARK);
+	initSpell(kSpellLightingBreath, "опаляющее дыхание", "lightning breath",
+			  0, 0, 0, EPosition::kStand, kTarIgnore, true,
+			  kMagDamage, 3, kTypeDark);
 //248
 
 //351
-	initSpell(SPELL_IDENTIFY, "идентификация", "identify",
+	initSpell(kSpellIdentify, "идентификация", "identify",
 			  0, 0, 0, EPosition::kSit,
-			  TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, false,
-			  MAG_MANUAL, 0, STYPE_MIND);
+			  kTarCharRoom | kTarObjInv | kTarObjRoom | kTarObjEquip, false,
+			  kMagManual, 0, kTypeMind);
 //352
-	initSpell(SPELL_FULL_IDENTIFY, "полная идентификация", "identify",
+	initSpell(kSpellFullIdentify, "полная идентификация", "identify",
 			  0, 0, 0, EPosition::kSit,
-			  TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, false,
-			  MAG_MANUAL, 0, STYPE_MIND);
+			  kTarCharRoom | kTarObjInv | kTarObjRoom | kTarObjEquip, false,
+			  kMagManual, 0, kTypeMind);
 //353 в dg_affect
-	initSpell(SPELL_QUEST, "!чары!", "!quest spell!",
+	initSpell(kSpellQUest, "!чары!", "!quest spell!",
 			  55, 40, 1, EPosition::kFight,
-			  TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL,
-			  1, STYPE_NEUTRAL);
+			  kTarCharRoom | kTarNotSelf, kMtypeNeutral, kMagManual,
+			  1, kTypeNeutral);
 
 }
 

@@ -693,7 +693,7 @@ void medit_save_to_disk(int zone_num) {
 					fprintf(mob_file, "Skill: %d %d\n", to_underlying(c), mob->get_skill(c));
 				}
 			}
-			for (c = 1; c <= SPELLS_COUNT; c++) {
+			for (c = 1; c <= kSpellCount; c++) {
 				for (j = 1; j <= GET_SPELL_MEM(mob, c); j++) {
 					fprintf(mob_file, "Spell: %d\n", c);
 				}
@@ -1099,7 +1099,7 @@ void medit_disp_spells(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 1; counter <= SPELLS_COUNT; counter++) {
+	for (counter = 1; counter <= kSpellCount; counter++) {
 		if (!spell_info[counter].name
 			|| *spell_info[counter].name == '!') {
 			continue;
@@ -2198,7 +2198,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (number < 0 || (number > SPELLS_COUNT || !spell_info[number].name || *spell_info[number].name == '!')) {
+			if (number < 0 || (number > kSpellCount || !spell_info[number].name || *spell_info[number].name == '!')) {
 				send_to_char("Неизвестное заклинание.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указано количество заклинаний.\r\n", d->character.get());

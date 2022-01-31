@@ -123,23 +123,23 @@ template<>
 bool Affect<EApplyLocation>::removable() const {
 	return !spell_info[type].name
 		|| *spell_info[type].name == '!'
-		|| type == SPELL_SLEEP
-		|| type == SPELL_POISON
-		|| type == SPELL_WEAKNESS
-		|| type == SPELL_CURSE
-		|| type == SPELL_PLAQUE
-		|| type == SPELL_SILENCE
-		|| type == SPELL_POWER_SILENCE
-		|| type == SPELL_BLINDNESS
-		|| type == SPELL_POWER_BLINDNESS
-		|| type == SPELL_HAEMORRAGIA
-		|| type == SPELL_HOLD
-		|| type == SPELL_POWER_HOLD
-		|| type == SPELL_PEACEFUL
-		|| type == SPELL_CONE_OF_COLD
-		|| type == SPELL_DEAFNESS
-		|| type == SPELL_POWER_DEAFNESS
-		|| type == SPELL_BATTLE;
+		|| type == kSpellSleep
+		|| type == kSpellPoison
+		|| type == kSpellWeaknes
+		|| type == kSpellCurse
+		|| type == kSpellFever
+		|| type == kSpellSllence
+		|| type == kSpellPowerSilence
+		|| type == kSpellBlindness
+		|| type == kSpellPowerBlindness
+		|| type == kSpellHaemorragis
+		|| type == kSpellHold
+		|| type == kSpellPowerHold
+		|| type == kSpellPeaceful
+		|| type == kSpellConeOfCold
+		|| type == kSpellDeafness
+		|| type == kSpellPowerDeafness
+		|| type == kSpellBattle;
 }
 
 // This file update pulse affects only
@@ -170,12 +170,12 @@ void pulse_affect_update(CharacterData *ch) {
 		{
 			affect->duration = -1;    // GODs only! unlimited //
 		} else {
-			if ((affect->type > 0) && (affect->type <= SPELLS_COUNT)) {
+			if ((affect->type > 0) && (affect->type <= kSpellCount)) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
 					if (affect->type > 0
-						&& affect->type <= SPELLS_COUNT) {
+						&& affect->type <= kSpellCount) {
 						show_spell_off(affect->type, ch);
 					}
 				}
@@ -219,17 +219,17 @@ void player_affect_update() {
 				}
 				affect->duration--;
 			} else if (affect->duration != -1) {
-				if ((affect->type > 0) && (affect->type <= SPELLS_COUNT)) {
+				if ((affect->type > 0) && (affect->type <= kSpellCount)) {
 					if (next_affect_i == i->affected.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
 						if (affect->type > 0
-							&& affect->type <= SPELLS_COUNT) {
+							&& affect->type <= kSpellCount) {
 							//чтобы не выдавалось, "что теперь вы можете сражаться",
 							//хотя на самом деле не можете :)
-							if (!(affect->type == SPELL_MAGICBATTLE
+							if (!(affect->type == kSpellMagicBattle
 								&& AFF_FLAGGED(i, EAffectFlag::AFF_STOPFIGHT))) {
-								if (!(affect->type == SPELL_BATTLE
+								if (!(affect->type == kSpellBattle
 									&& AFF_FLAGGED(i, EAffectFlag::AFF_MAGICSTOPFIGHT))) {
 									show_spell_off(affect->type, i.get());
 								}
@@ -279,11 +279,11 @@ void battle_affect_update(CharacterData *ch) {
 					affect->duration -= MIN(affect->duration, SECS_PER_MUD_HOUR / SECS_PER_PLAYER_AFFECT);
 			}
 		} else if (affect->duration != -1) {
-			if (affect->type > 0 && affect->type <= SPELLS_COUNT) {
+			if (affect->type > 0 && affect->type <= kSpellCount) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0) {
-					if (affect->type > 0 && affect->type <= SPELLS_COUNT)
+					if (affect->type > 0 && affect->type <= kSpellCount)
 						show_spell_off(affect->type, ch);
 				}
 			}
@@ -318,7 +318,7 @@ void mobile_affect_update() {
 					}
 
 					affect->duration--;
-					if (affect->type == SPELL_CHARM && !charmed_msg && affect->duration <= 1) {
+					if (affect->type == kSpellCharm && !charmed_msg && affect->duration <= 1) {
 						act("$n начал$g растерянно оглядываться по сторонам.",
 							false,
 							i.get(),
@@ -331,14 +331,14 @@ void mobile_affect_update() {
 					affect->duration = -1;    // GODS - unlimited
 				} else {
 					if (affect->type > 0
-						&& affect->type <= SPELLS_COUNT) {
+						&& affect->type <= kSpellCount) {
 						if (next_affect_i == i->affected.end()
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
 							if (affect->type > 0
-								&& affect->type <= SPELLS_COUNT) {
+								&& affect->type <= kSpellCount) {
 								show_spell_off(affect->type, i.get());
-								if (affect->type == SPELL_CHARM
+								if (affect->type == kSpellCharm
 									|| affect->bitvector == to_underlying(EAffectFlag::AFF_CHARM)) {
 									was_charmed = true;
 								}
@@ -396,7 +396,7 @@ void affect_from_char(CharacterData *ch, int type) {
 		}
 	}
 
-	if (IS_NPC(ch) && type == SPELL_CHARM) {
+	if (IS_NPC(ch) && type == kSpellCharm) {
 		EXTRACT_TIMER(ch) = 5;
 		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
 	}
@@ -647,8 +647,8 @@ void affect_total(CharacterData *ch) {
 	{
 		// Calculate CASTER value
 		int i = 1;
-		for (GET_CASTER(ch) = 0; !IS_NPC(ch) && i <= SPELLS_COUNT; i++) {
-			if (IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW | SPELL_TEMP)) {
+		for (GET_CASTER(ch) = 0; !IS_NPC(ch) && i <= kSpellCount; i++) {
+			if (IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp)) {
 				GET_CASTER(ch) += (spell_info[i].danger * GET_SPELL_MEM(ch, i));
 			}
 		}
@@ -664,7 +664,7 @@ void affect_total(CharacterData *ch) {
 		}
 	}
 	check_berserk(ch);
-	if (ch->get_fighting() || affected_by_spell(ch, SPELL_GLITTERDUST)) {
+	if (ch->get_fighting() || affected_by_spell(ch, kSpellGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);

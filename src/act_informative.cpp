@@ -387,7 +387,7 @@ char *diag_uses_to_char(ObjectData *obj, CharacterData *ch) {
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT
-		&& IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
+		&& IS_SET(GET_OBJ_SKILL(obj), kItemCheckUses)
 		&& GET_CLASS(ch) == kMagus) {
 		int i = -1;
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
@@ -878,7 +878,7 @@ void look_at_char(CharacterData *i, CharacterData *ch) {
 			act("$n скоро перестанет следовать за вами.", false, i, nullptr, ch, TO_VICT);
 		} else {
 			for (const auto &aff : i->affected) {
-				if (aff->type == SPELL_CHARM) {
+				if (aff->type == kSpellCharm) {
 					sprintf(buf,
 							IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.",
 							aff->duration / 2,
@@ -1238,7 +1238,7 @@ void ListOneChar(CharacterData *i, CharacterData *ch, ESkill mode) {
 		else
 			strcat(buf,
 				   IS_POLY(i) ? poly_positions[static_cast<int>(GET_POS(i))] : positions[static_cast<int>(GET_POS(i))]);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC) && IS_NPC(i) && affected_by_spell(i, SPELL_CAPABLE))
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC) && IS_NPC(i) && affected_by_spell(i, kSpellCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
 		if (i->get_fighting()) {
@@ -2500,7 +2500,7 @@ void skip_hide_on_look(CharacterData *ch) {
 		((!ch->get_skill(ESkill::kPry) ||
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
-		affect_from_char(ch, SPELL_HIDE);
+		affect_from_char(ch, kSpellHide);
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
 			send_to_char("Вы прекратили прятаться.\r\n", ch);
 			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, TO_ROOM);
@@ -2991,9 +2991,9 @@ void print_do_score_list(CharacterData *ch) {
 		send_to_char(ch, "Вы защищены от призыва.\r\n");
 	send_to_char(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > NORM_COND_VALUE)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
 			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
@@ -3281,7 +3281,7 @@ void print_do_score_all(CharacterData *ch) {
 			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM));
 
 	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED) {
-		if (affected_by_spell(ch, SPELL_ABSTINENT))
+		if (affected_by_spell(ch, kSpellAbstinent))
 			sprintf(buf + strlen(buf),
 					" || %sПохмелье.          %s|                       |",
 					CCIYEL(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3335,9 +3335,9 @@ void print_do_score_all(CharacterData *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
 		sprintf(buf + strlen(buf),
 				" %s|| &G&qВы поставили рунную метку в комнате %s%s||\r\n",
 				CCCYN(ch, C_NRM),
@@ -3666,7 +3666,7 @@ void do_score(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
@@ -3696,7 +3696,7 @@ void do_score(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(buf, CCIGRN(ch, C_NRM));
 	const auto value_drunked = GET_COND(ch, DRUNK);
 	if (value_drunked >= CHAR_DRUNKED) {
-		if (affected_by_spell(ch, SPELL_ABSTINENT))
+		if (affected_by_spell(ch, kSpellAbstinent))
 			strcat(buf, "Привет с большого бодуна!\r\n");
 		else {
 			if (value_drunked >= CHAR_MORTALLY_DRUNKED)
@@ -5523,12 +5523,12 @@ void do_affects(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i) {
 			const auto aff = *affect_i;
 
-			if (aff->type == SPELL_SOLOBONUS) {
+			if (aff->type == kSpellSolobonus) {
 				continue;
 			}
 
 			*buf2 = '\0';
-			strcpy(sp_name, spell_name(aff->type));
+			strcpy(sp_name, GetSpellName(aff->type));
 			int mod = 0;
 			if (aff->battleflag == AF_PULSEDEC) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
@@ -5575,7 +5575,7 @@ void do_affects(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 		}
 // отображение наград
 		for (const auto &aff : ch->affected) {
-			if (aff->type == SPELL_SOLOBONUS) {
+			if (aff->type == kSpellSolobonus) {
 				int mod;
 				if (aff->battleflag == AF_PULSEDEC) {
 					mod = aff->duration / 51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты

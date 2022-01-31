@@ -57,7 +57,7 @@ extern const char *weapon_affects[];
 extern const char *material_name[];
 extern const char *ingradient_bits[];
 extern const char *magic_container_bits[];
-extern struct spellInfo_t spell_info[];
+extern struct SpellInfo spell_info[];
 extern DescriptorData *descriptor_list;
 extern int top_imrecipes;
 extern void extract_obj(ObjectData *obj);
@@ -536,7 +536,7 @@ void oedit_disp_spells_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter <= SPELLS_COUNT; counter++) {
+	for (counter = 0; counter <= kSpellCount; counter++) {
 		if (!spell_info[counter].name || *spell_info[counter].name == '!' || *spell_info[counter].name == '*')
 			continue;
 		sprintf(buf, "%s%2d%s) %s%-30.30s %s", grn, counter, nrm, yel,
@@ -1051,7 +1051,7 @@ std::string print_spell_value(ObjectData *obj, const ObjVal::EValueKey key1, con
 		return "нет";
 	}
 	char buf_[kMaxInputLength];
-	snprintf(buf_, sizeof(buf_), "%s:%d", spell_name(obj->get_value(key1)), obj->get_value(key2));
+	snprintf(buf_, sizeof(buf_), "%s:%d", GetSpellName(obj->get_value(key1)), obj->get_value(key2));
 	return buf_;
 }
 
@@ -1263,7 +1263,7 @@ void check_potion_proto(ObjectData *obj) {
 
 bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val) {
 	if (val < 1
-		|| val > SPELLS_COUNT) {
+		|| val > kSpellCount) {
 		if (val != 0) {
 			send_to_char("Неверный выбор.\r\n", d->character.get());
 		}
@@ -1276,7 +1276,7 @@ bool parse_val_spell_num(DescriptorData *d, const ObjVal::EValueKey key, int val
 	OLC_OBJ(d)->set_value(key, val);
 	send_to_char(d->character.get(), "Выбранное заклинание: %s\r\n"
 									 "Ведите уровень заклинания от 1 до 50 (0 - выход) :",
-				 spell_name(val));
+				 GetSpellName(val));
 	return true;
 }
 
@@ -1800,7 +1800,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case ObjectData::ITEM_SCROLL:
 				case ObjectData::ITEM_POTION:
 					if (number < 1
-						|| number > SPELLS_COUNT) {
+						|| number > kSpellCount) {
 						oedit_disp_val2_menu(d);
 					} else {
 						OLC_OBJ(d)->set_val(1, number);
@@ -1831,7 +1831,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 								oedit_disp_menu(d);
 								return;
 							}
-							if (number < 0 || (number > SPELLS_COUNT || !spell_info[number].name
+							if (number < 0 || (number > kSpellCount || !spell_info[number].name
 								|| *spell_info[number].name == '!')) {
 								send_to_char("Неизвестное заклинание, повторите.\r\n", d->character.get());
 								oedit_disp_val2_menu(d);
@@ -1892,7 +1892,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case ObjectData::ITEM_SCROLL:
 				case ObjectData::ITEM_POTION: min_val = -1;
-					max_val = SPELLS_COUNT;
+					max_val = kSpellCount;
 					break;
 
 				case ObjectData::ITEM_WEAPON: min_val = 1;
@@ -1925,12 +1925,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case ObjectData::ITEM_SCROLL:
 				case ObjectData::ITEM_POTION: min_val = -1;
-					max_val = SPELLS_COUNT;
+					max_val = kSpellCount;
 					break;
 
 				case ObjectData::ITEM_WAND:
 				case ObjectData::ITEM_STAFF: min_val = 1;
-					max_val = SPELLS_COUNT;
+					max_val = kSpellCount;
 					break;
 
 				case ObjectData::ITEM_WEAPON: min_val = 0;

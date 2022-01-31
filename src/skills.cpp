@@ -584,8 +584,8 @@ int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attac
 
 			const auto weap = init_weap(ch, dam, attacktype);
 			brief_shields brief(ch, vict, weap, add);
-			if (attacktype == SPELL_FIRE_SHIELD
-				|| attacktype == SPELL_MAGICGLASS) {
+			if (attacktype == kSpellFireShield
+				|| attacktype == kSpellMagicGlass) {
 				brief.reflect = true;
 			}
 
@@ -985,7 +985,7 @@ int CalculateSkillRate(CharacterData *ch, const ESkill skill_id, CharacterData *
 		case ESkill::kMultiparry:
 		case ESkill::kParry: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
-			if (GET_AF_BATTLE(ch, EAF_AWAKE)) {
+			if (GET_AF_BATTLE(ch, kEafAwake)) {
 				bonus += ch->get_skill(ESkill::kAwake);
 			}
 			if (GET_EQ(ch, WEAR_HOLD)
@@ -1509,7 +1509,7 @@ int CalcCurrentSkill(CharacterData *ch, const ESkill skill_id, CharacterData *vi
 		case ESkill::kParry: {
 			victim_sav = dex_bonus(GET_REAL_DEX(vict));
 			bonus = dex_bonus(GET_REAL_DEX(ch));
-			if (GET_AF_BATTLE(ch, EAF_AWAKE)) {
+			if (GET_AF_BATTLE(ch, kEafAwake)) {
 				bonus += ch->get_skill(ESkill::kAwake);
 			}
 

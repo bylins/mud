@@ -18,7 +18,7 @@ void add_spell(CharacterData *ch, int spellnum, time_t set_time, time_t duration
 			it->second.duration = duration;
 		}
 	} else {
-		SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+		SET_BIT(GET_SPELL_TYPE(ch, spellnum), kSpellTemp);
 		ch->temp_spells[spellnum] = sp;
 	}
 }
@@ -49,10 +49,10 @@ void update_char_times(CharacterData *ch, time_t now) {
 
 	for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end();) {
 		if ((it->second.set_time + it->second.duration) < now) {
-			REMOVE_BIT(GET_SPELL_TYPE(ch, it->first), SPELL_TEMP);
+			REMOVE_BIT(GET_SPELL_TYPE(ch, it->first), kSpellTemp);
 
 			//Если заклинание за это время не стало постоянным, то удалим из мема
-			if (!IS_SET(GET_SPELL_TYPE(ch, it->first), SPELL_KNOW)) {
+			if (!IS_SET(GET_SPELL_TYPE(ch, it->first), kSpellKnow)) {
 				//Удаляем из мема
 				for (i = &ch->MemQueue.queue; *i;) {
 					if (i[0]->spellnum == it->first) {

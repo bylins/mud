@@ -53,7 +53,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
 			doSideAction = ([](TechniqueRollType &technique) {
 				Affect<EApplyLocation> af;
-				af.type = SPELL_BATTLE;
+				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 				af.duration = pc_duration(technique.rival(), 2, GET_REAL_LEVEL(technique.actor()), 9, 6, 2);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
@@ -67,7 +67,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
 			doSideAction = ([](TechniqueRollType &technique) {
 				Affect<EApplyLocation> af;
-				af.type = SPELL_BATTLE;
+				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
@@ -147,7 +147,7 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 	}
 	TechniqueRollType weaponThrowRoll;
 	Damage throwDamage(SkillDmg(ESkill::kThrow), ZERO_DMG, throwDamageKind, nullptr); //х3 как тут с оружием
-	throwDamage.magic_type = STYPE_DARK;
+	throwDamage.magic_type = kTypeDark;
 
 	ActionTargeting::FoesRosterType
 		roster{ch, victim, [](CharacterData *ch, CharacterData *victim) { return CAN_SEE(ch, victim); }};

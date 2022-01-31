@@ -6,7 +6,7 @@
 #include "handler.h"
 #include "fightsystem/pk.h"
 
-extern void check_auto_nosummon(CharacterData *ch);
+extern void CheckAutoNosummon(CharacterData *ch);
 
 void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
@@ -114,7 +114,7 @@ void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	ImposeTimedFeat(ch, &timed);
 	look_at_room(ch, 0);
-	check_auto_nosummon(victim);
+	CheckAutoNosummon(victim);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }

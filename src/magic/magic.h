@@ -49,8 +49,8 @@ void player_affect_update(void);
 void print_rune_log();
 void show_spell_off(int aff, CharacterData *ch);
 
-int callMagicToGroup(int level, CharacterData *ch, int spellnum);
-int callMagicToArea(CharacterData *ch, CharacterData *victim, RoomData *room, int spellnum, int level);
+int CallMagicToGroup(int level, CharacterData *ch, int spellnum);
+int CallMagicToArea(CharacterData *ch, CharacterData *victim, RoomData *room, int spellnum, int level);
 
 int CallMagic(CharacterData *caster, CharacterData *cvict, ObjectData *ovict, RoomData *rvict, int spellnum, int level);
 int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData *troom, int spellnum, int spell_subst);
@@ -58,11 +58,11 @@ int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData 
 int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum, ESaving savetype);
 int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnum, ESaving savetype);
 int mag_summons(int level, CharacterData *ch, ObjectData *obj, int spellnum, ESaving savetype);
-int mag_points(int level, CharacterData *ch, CharacterData *victim, int spellnum, ESaving savetype);
-int mag_unaffects(int level, CharacterData *ch, CharacterData *victim, int spellnum, ESaving type);
-int mag_alter_objs(int level, CharacterData *ch, ObjectData *obj, int spellnum, ESaving type);
-int mag_creations(int level, CharacterData *ch, int spellnum);
-int mag_single_target(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, ESaving saving);
+int CastToPoints(int level, CharacterData *ch, CharacterData *victim, int spellnum, ESaving);
+int CastUnaffects(int, CharacterData *ch, CharacterData *victim, int spellnum, ESaving);
+int CastToAlterObjs(int, CharacterData *ch, ObjectData *obj, int spellnum, ESaving);
+int CastCreation(int, CharacterData *ch, int spellnum);
+int CastToSingleTarget(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, ESaving saving);
 
 bool material_component_processing(CharacterData *caster, CharacterData *victim, int spellnum);
 float func_koef_duration(int spellnum, int percent); 
