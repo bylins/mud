@@ -24,7 +24,7 @@ struct ClassSkillInfo {
 
 	int min_level{kLevelImplementator};
 	int min_remort{kMaxRemort + 1};
-	long improve{1};
+	long improve{kMinImprove};
 };
 
 struct CharClassInfo {
@@ -62,6 +62,10 @@ struct CharClassInfo {
 class CharClassInfoBuilder {
  public:
 	[[nodiscard]] static CharClassInfo::Optional Build(const pugi::xml_node &node);
+ private:
+	static pugi::xml_node SelectXmlNode(const pugi::xml_node &node);
+	static std::optional<std::string> GetCfgFileName(const pugi::xml_node &node);
+	static void ParseXml(CharClassInfo::Optional &info, const pugi::xml_node &node);
 	static void ParseSkills(CharClassInfo::Ptr &info, const pugi::xml_node &nodes);
 	static void ParseSingleSkill(ClassSkillInfo::Ptr &info, const pugi::xml_node &node);
 };

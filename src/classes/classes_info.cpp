@@ -7,6 +7,8 @@
 
 #include "classes_info.h"
 
+#include <filesystem>
+
 #include "boot/boot_constants.h"
 #include "logger.h"
 #include "utils/pugixml.h"
@@ -129,16 +131,43 @@ long CharClassInfo::GetImprove(const ESkill id) const {
  *  Строитель информации одного отдельного класса.
  */
 CharClassInfo::Optional CharClassInfoBuilder::Build(const xml_node &node) {
+	auto class_node = SelectXmlNode(node);
 	auto class_info = std::make_optional(CharClassInfo::Pair());
 	try {
-		class_info.value().first = FindConstantByAttributeValue<ECharClass>("id", node);
-		class_info.value().second = std::make_unique<CharClassInfo>();
-		ParseSkills(class_info.value().second, node.child("skills"));
+		ParseXml(class_info, class_node);
 	} catch (std::exception &e) {
 		err_log("Incorrect value or id '%s' was detected.", e.what());
 		class_info = std::nullopt;
 	}
 	return class_info;
+}
+
+xml_node CharClassInfoBuilder::SelectXmlNode(const xml_node &node) {
+	auto file_name = GetCfgFileName(node);
+	if (file_name && std::filesystem::exists(file_name.value())) {
+		pugi::xml_document doc;
+		auto class_node = XMLLoad(file_name.value(), "class", "...fail.", doc);
+		if (!class_node.empty()) {
+			return class_node;
+		}
+	}
+	return node;
+}
+
+std::optional<std::string> CharClassInfoBuilder::GetCfgFileName(const xml_node &node) {
+	auto file_name = node.attribute("file").value();
+	log("Class cfg file name = %s", file_name);
+	if (!*file_name) {
+		return std::nullopt;
+	}
+	std::optional<std::string> full_file_name{LIB_CFG_CLASSES};
+	return (full_file_name.value() += file_name);
+}
+
+void CharClassInfoBuilder::ParseXml(CharClassInfo::Optional &info, const xml_node &node) {
+	info.value().first = FindConstantByAttributeValue<ECharClass>("id", node);
+	info.value().second = std::make_unique<CharClassInfo>();
+	ParseSkills(info.value().second, node.child("skills"));
 }
 
 void CharClassInfoBuilder::ParseSkills(CharClassInfo::Ptr &info, const xml_node &nodes) {

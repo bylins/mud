@@ -870,7 +870,7 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 	Result = Doc.load_file(PathToFile);
 	// Oops, файла нет
 	if (!Result) {
-		buffer << "..." << Result.description();
+		buffer << "..." << Result.description() << "(file: " << PathToFile << ")";
 		mudlog(std::string(buffer.str()).c_str(), CMP, kLevelImmortal, SYSLOG, true);
 		return NodeList;
 	}
@@ -5708,7 +5708,7 @@ void load_mobraces() {
 	for (auto & race : node_list.children("mob_race")) {
 		MobRacePtr tmp_mobrace(new MobRace);
 		auto race_num = race.attribute("id").as_int();
-		tmp_mobrace->race_name = race.child("name").attribute("val").value();
+		tmp_mobrace->race_name = race.attribute("name").value();
 
 		pugi::xml_node imList = race.child("imlist");
 
