@@ -307,14 +307,10 @@ class CObjectPrototype {
 	void dec_destroyer() { --m_destroyer; }
 	void dec_weight() { --m_weight; }
 	void gm_affect_flag(const char *subfield, const char **list, char *res) {
-		m_extra_flags.gm_flag(subfield,
-							  list,
-							  res);
+		m_extra_flags.gm_flag(subfield, list, res);
 	}
 	void gm_extra_flag(const char *subfield, const char **list, char *res) {
-		m_extra_flags.gm_flag(subfield,
-							  list,
-							  res);
+		m_extra_flags.gm_flag(subfield, list, res);
 	}
 	void inc_val(const size_t index) { ++m_vals[index]; }
 	void init_values_from_zone(const char *str) { m_values.init_from_zone(str); }
@@ -408,7 +404,6 @@ class CObjectPrototype {
 	void unsubscribe_from_vnum_changes(const VNumChangeObserver::shared_ptr &observer) {
 		m_vnum_change_observers.erase(observer);
 	}
-
 	void subscribe_for_rnum_changes(const ObjectRNum_ChangeObserver::shared_ptr &observer) {
 		m_rnum_change_observers.insert(observer);
 	}
@@ -808,7 +803,6 @@ class ObjectData : public CObjectPrototype {
 	void set_enchant(int skill);
 	void set_enchant(int skill, ObjectData *obj);
 	void unset_enchant();
-
 	void copy_name_from(const CObjectPrototype *src);
 
 	bool clone_olc_object_from_prototype(const ObjVnum vnum);
@@ -889,7 +883,7 @@ inline void CObjectPrototype::set_affected(const size_t index, const EApplyLocat
 	m_affected[index].location = location;
 	m_affected[index].modifier = modifier;
 }
-
+//void delete_item(const std::size_t pt_num, int vnum);
 inline bool CAN_WEAR(const CObjectPrototype *obj, const EWearFlag part) { return obj->has_wear_flag(part); }
 inline bool CAN_WEAR_ANY(const CObjectPrototype *obj) { return obj->can_wear_any(); }
 inline bool OBJ_FLAGGED(const CObjectPrototype *obj, const EExtraFlag flag) { return obj->get_extra_flag(flag); }

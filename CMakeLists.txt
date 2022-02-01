@@ -60,6 +60,7 @@ set(SOURCES
 		src/depot.cpp
 		src/description.cpp
 		src/dg_script/dg_comm.cpp
+		src/dg_script/dg_domination_helper.cpp
 		src/dg_script/dg_db_scripts.cpp
 		src/dg_script/dg_event.cpp
 		src/dg_script/dg_handler.cpp
@@ -344,6 +345,7 @@ set(HEADERS
 		src/depot.h
 		src/description.h
 		src/dg_script/dg_db_scripts.h
+		src/dg_script/dg_domination_helper.h
 		src/dg_script/dg_event.h
 		src/dg_script/dg_olc.h
 		src/dg_script/dg_scripts.h

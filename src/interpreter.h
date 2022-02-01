@@ -326,6 +326,11 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));
 }
 
+// читает все аргументы из arg в out
+void array_argument(const char *arg, std::vector<std::string> &out);
+void array_argument(const char *arg, std::vector<short> &out);
+void array_argument(const char *arg, std::vector<int> &out);
+
 // константы для спам-контроля команды кто
 // если кто захочет и сможет вынести их во внешний конфиг, то почет ему и слава
 

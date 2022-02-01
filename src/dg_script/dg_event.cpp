@@ -17,6 +17,7 @@
 #include "db.h"
 #include "dg_scripts.h"
 #include "utils/utils.h"
+#include "entities/char.h"
 #include "comm.h"
 
 // * define statics
@@ -104,6 +105,33 @@ void process_events(void) {
 		} else
 			e = e->next;
 	}
+}
+
+void print_event_list(CharacterData *ch)
+{
+	sprintf(buf, "В данный момент выполняются следующие триггеры:\r\n");
+	send_to_char(buf, ch);
+
+	short trig_counter = 1;
+	TriggerEvent *e = event_list;
+	while (e) {
+		const wait_event_data *wed = static_cast<wait_event_data*>(e->info);
+		if (!wed || !wed->trigger) {
+			e = e->next;
+			continue;
+		}
+		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%5d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
+		if (GET_TRIG_WAIT(wed->trigger) && wed->trigger->curr_state != nullptr) {
+			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s\r\n", GET_TRIG_WAIT(wed->trigger)->time_remaining, wed->trigger->curr_state->cmd.c_str());
+		}
+		send_to_char(buf, ch);
+
+		++trig_counter;
+		e = e->next;
+	}
+
+	sprintf(buf, "Итого триггеров %d.\r\n", trig_counter - 1);
+	send_to_char(buf, ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

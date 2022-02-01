@@ -1652,6 +1652,38 @@ const char *one_argument(const char *argument, char *first_arg) { return one_arg
 char *any_one_arg(char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
 const char *any_one_arg(const char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
 
+void array_argument(const char *arg, std::vector<std::string> &out)
+{
+	char local_buf[kMaxTrglineLength];
+	const char *current_arg = arg;
+	out.clear();
+	do {
+		current_arg = one_argument(current_arg, local_buf);
+		if (!*local_buf) {
+			break;
+		}
+		out.push_back(local_buf);
+	} while (*current_arg);
+}
+
+void array_argument(const char *arg, std::vector<short> &out)
+{
+	std::vector<std::string> tmp;
+	array_argument(arg, tmp);
+	for (const auto &value : tmp) {
+		out.push_back(atoi(value.c_str()));
+	}
+}
+
+void array_argument(const char *arg, std::vector<int> &out)
+{
+	std::vector<std::string> tmp;
+	array_argument(arg, tmp);
+	for (const auto &value : tmp) {
+		out.push_back(atoi(value.c_str()));
+	}
+}
+
 // return first space-delimited token in arg1; remainder of string in arg2 //
 void half_chop(const char *string, char *arg1, char *arg2) {
 	const char *temp = any_one_arg_template(string, arg1);

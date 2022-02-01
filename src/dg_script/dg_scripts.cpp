@@ -10,6 +10,8 @@
 
 #include "dg_scripts.h"
 
+#include <chrono>
+
 #include "structs/global_objects.h"
 #include "utils/utils_find_obj_id_by_vnum.h"
 #include "obj_prototypes.h"
@@ -23,10 +25,12 @@
 #include "magic/magic_utils.h"
 #include "noob.h"
 #include "dg_db_scripts.h"
+#include "dg_domination_helper.h"
 #include "game_mechanics/bonus.h"
 #include "olc/olc.h"
 #include "privilege.h"
 #include "fightsystem/fight_hit.h"
+//#include <string>
 
 constexpr long long kPulsesPerMudHour = SECS_PER_MUD_HOUR*kPassesPerSec;
 
@@ -1231,7 +1235,7 @@ void add_var_cntx(struct TriggerVar **var_list, const char *name, const char *va
 	strcpy(vd->value, value);
 }
 
-struct TriggerVar *find_var_cntx(struct TriggerVar **var_list, char *name, long id)
+struct TriggerVar *find_var_cntx(struct TriggerVar **var_list, const char *name, long id)
 /*++
 		Поиск переменной с учетом контекста (НЕСТРОГИЙ поиск).
 
@@ -1712,6 +1716,10 @@ void find_replacement(void *go,
 			time_t now_time = time(0);
 			if (!str_cmp(field, "unix")) {
 				sprintf(str, "%ld", static_cast<long>(now_time));
+			} else if (!str_cmp(field, "exact")) {
+				auto now = std::chrono::system_clock::now();
+				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+				sprintf(str, "%ld", now_ms.time_since_epoch().count());
 			} else if (!str_cmp(field, "yday")) {
 				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
@@ -5212,6 +5220,8 @@ int script_driver(void *go, Trigger * trig, int type, int mode)
 					cur_trig = prev_trig;
 					return ret_val;
 				}
+			} else if (!strn_cmp(cmd, "arena_round", 11)) {
+				process_arena_round(sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "version", 7)) {
 				mudlog(DG_SCRIPT_VERSION, BRF, kLevelBuilder, SYSLOG, true);
 			} else {

@@ -36,6 +36,7 @@
 #include "depot.h"
 #include "description.h"
 #include "dg_script/dg_scripts.h"
+#include "dg_script/dg_event.h"
 #include "ext_money.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
@@ -83,7 +84,6 @@
 #include "classes/classes_constants.h"
 #include "magic/spells_info.h"
 #include "magic/magic_rooms.h"
-
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -322,12 +322,40 @@ void do_delete_obj(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		k->set_timer(0);
 		++num;
 	});
-
+//	кланхран вещи в игре их не надо чистить, удалены выше.
+//	num += Clan::delete_obj(vnum);
 	num += Depot::delete_obj(vnum);
-	num += Clan::delete_obj(vnum);
 	num += Parcel::delete_obj(vnum);
-
-	sprintf(buf2, "Удалено всего предметов: %d", num);
+	sprintf(buf2, "Удалено всего предметов: %d, смотрим ренту.\r\n", num);
+	send_to_char(buf2, ch);
+	num = 0;
+	for (std::size_t pt_num = 0; pt_num< player_table.size(); pt_num++) {
+		bool need_save = false;
+	// рента
+		if (player_table[pt_num].timer) {
+			for (std::vector<SaveTimeInfo>::iterator i = player_table[pt_num].timer->time.begin(),
+					 iend = player_table[pt_num].timer->time.end(); i != iend; ++i) {
+				if (i->vnum == vnum) {
+					num++;
+					sprintf(buf2, "Player %s : item \[%d] deleted\r\n", player_table[pt_num].name(), i->vnum);;
+					send_to_char(buf2, ch);
+					i->timer = -1;
+					int rnum = real_object(i->vnum);
+					if (rnum >= 0) {
+						obj_proto.dec_stored(rnum);
+					}
+					need_save = true;
+				}
+			}
+		}
+		if (need_save) {
+			if (!Crash_write_timer(pt_num)) {
+				sprintf(buf, "SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name());
+				send_to_char(buf2, ch);
+			}
+		}
+	}
+	sprintf(buf2, "Удалено еще предметов: %d.\r\n", num);
 	send_to_char(buf2, ch);
 }
 
@@ -3384,6 +3412,7 @@ struct show_struct show_fields[] = {
 		{"remort", kLevelImplementator}, // 25
 		{"apply", kLevelGod}, // 26
 		{"worlds", kLevelImmortal},
+		{"triggers", kLevelImmortal},
 		{"\n", 0}
 };
 
@@ -3839,6 +3868,9 @@ void do_show(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				send_to_char("Формат команды: show worlds номер-контекста|all.\r\n", ch);
 			}
+			break;
+		case 28: // triggers
+			print_event_list(ch);
 			break;
 		default: send_to_char("Извините, неверная команда.\r\n", ch);
 			break;
