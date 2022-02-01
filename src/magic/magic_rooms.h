@@ -11,7 +11,7 @@ class CharacterData;
 namespace room_spells {
 
 // Битвекторы аффектов комнат - порождаются заклинаниями и не сохраняются в файле.
-enum ERoomAffect : bitvector_t {
+enum ERoomAffect : Bitvector {
 	kLight = 1 << 0,
 	kPoisonFog = 1 << 1,
 	kRuneLabel = 1 << 2,        // Комната помечена SPELL_MAGIC_LABEL //

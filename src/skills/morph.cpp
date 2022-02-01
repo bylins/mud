@@ -1,8 +1,7 @@
 #include "skills/morph.hpp"
 
 #include "entities/obj.h"
-#include "screen.h"
-#include "interpreter.h"
+#include "color.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
 #include "utils/pugixml.h"
@@ -13,7 +12,7 @@
 MorphListType IdToMorphMap;
 
 short MIN_WIS_FOR_MORPH = 0;
-void perform_remove(CharacterData *ch, int pos);
+void RemoveEquipment(CharacterData *ch, int pos);
 
 std::string AnimalMorph::GetMorphDesc() const {
 	std::string desc = "Неведома зверушка";
@@ -64,7 +63,7 @@ void AnimalMorph::set_skill(const ESkill skill_num, int percent) {
 					CCICYN(ch_, C_NRM),
 					CCINRM(ch_, C_NRM));
 			send_to_char(buf, ch_);
-			skills_[SKILL_MORPH] += diff;
+			skills_[ESkill::kMorph] += diff;
 		}
 	}
 }
@@ -102,8 +101,8 @@ void ShowKnownMorphs(CharacterData *ch) {
 std::string FindMorphId(CharacterData *ch, char *arg) {
 	std::list<std::string> morphsList = ch->get_morphs();
 	for (std::list<std::string>::const_iterator it = morphsList.begin(); it != morphsList.end(); ++it) {
-		if (is_abbrev(arg, IdToMorphMap[*it]->PadName().c_str())
-			|| is_abbrev(arg, IdToMorphMap[*it]->Name().c_str())) {
+		if (utils::IsAbbrev(arg, IdToMorphMap[*it]->PadName().c_str())
+			|| utils::IsAbbrev(arg, IdToMorphMap[*it]->Name().c_str())) {
 			return *it;
 		}
 	}
@@ -112,8 +111,8 @@ std::string FindMorphId(CharacterData *ch, char *arg) {
 
 std::string GetMorphIdByName(char *arg) {
 	for (MorphListType::const_iterator it = IdToMorphMap.begin(); it != IdToMorphMap.end(); ++it) {
-		if (is_abbrev(arg, it->second->PadName().c_str())
-			|| is_abbrev(arg, it->second->Name().c_str())) {
+		if (utils::IsAbbrev(arg, it->second->PadName().c_str())
+			|| utils::IsAbbrev(arg, it->second->Name().c_str())) {
 			return it->first;
 		}
 	}
@@ -126,7 +125,7 @@ void AnimalMorph::InitSkills(int value) {
 			it->second = value;
 		}
 	}
-	skills_[SKILL_MORPH] = value;
+	skills_[ESkill::kMorph] = value;
 };
 
 void AnimalMorph::InitAbils() {
@@ -176,7 +175,7 @@ MorphPtr GetNormalMorphNew(CharacterData *ch) {
 void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
-	if (!ch->get_skill(SKILL_MORPH)) {
+	if (!ch->get_skill(ESkill::kMorph)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -190,7 +189,7 @@ void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (ch->is_morphed()) {
-		if (is_abbrev(arg, "назад")) {
+		if (utils::IsAbbrev(arg, "назад")) {
 			ch->reset_morph();
 			WAIT_STATE(ch, kPulseViolence);
 			return;
@@ -213,15 +212,15 @@ void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->set_morph(newMorph);
 	if (ch->equipment[WEAR_BOTHS]) {
 		send_to_char("Вы не можете держать в лапах " + ch->equipment[WEAR_BOTHS]->get_PName(3) + ".\r\n", ch);
-		perform_remove(ch, WEAR_BOTHS);
+		RemoveEquipment(ch, WEAR_BOTHS);
 	}
 	if (ch->equipment[WEAR_WIELD]) {
 		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[WEAR_WIELD]->get_PName(3) + ".\r\n", ch);
-		perform_remove(ch, WEAR_WIELD);
+		RemoveEquipment(ch, WEAR_WIELD);
 	}
 	if (ch->equipment[WEAR_HOLD]) {
 		send_to_char("Ваша левая лапа не удержала " + ch->equipment[WEAR_HOLD]->get_PName(3) + ".\r\n", ch);
-		perform_remove(ch, WEAR_HOLD);
+		RemoveEquipment(ch, WEAR_HOLD);
 	}
 	WAIT_STATE(ch, 3 * kPulseViolence);
 }
@@ -327,7 +326,7 @@ void load_morphs() {
 		for (pugi::xml_node skill = skillsList.child("skill"); skill; skill = skill.next_sibling("skill")) {
 			std::string strt(skill.child_value());
 			const ESkill skillNum = FixNameFndFindSkillNum(strt);
-			if (skillNum != -SKILL_INVALID) {
+			if (skillNum != ESkill::kIncorrect) {
 				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
 			} else {
 				snprintf(buf, kMaxStringLength, "...skills read fail for morph %s", name.c_str());

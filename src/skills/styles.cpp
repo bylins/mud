@@ -3,7 +3,7 @@
 //
 
 #include "styles.h"
-#include "screen.h"
+#include "color.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/common.h"
@@ -15,17 +15,17 @@ void go_touch(CharacterData *ch, CharacterData *vict) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, 0, vict, TO_CHAR);
-	SET_AF_BATTLE(ch, EAF_TOUCH);
+	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, nullptr, vict, TO_CHAR);
+	SET_AF_BATTLE(ch, kEafTouch);
 	ch->set_touching(vict);
 }
 
 void do_touch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOUCH)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kIntercept)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_TOUCH)) {
+	if (ch->haveCooldown(ESkill::kIntercept)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -63,10 +63,10 @@ void do_touch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (vict->get_fighting() != ch && ch->get_fighting() != vict) {
-		act("Но вы не сражаетесь с $N4.", false, ch, 0, vict, TO_CHAR);
+		act("Но вы не сражаетесь с $N4.", false, ch, nullptr, vict, TO_CHAR);
 		return;
 	}
-	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT)) {
+	if (GET_AF_BATTLE(ch, kEafHammer)) {
 		send_to_char("Невозможно. Вы приготовились к богатырскому удару.\r\n", ch);
 		return;
 	}
@@ -88,16 +88,16 @@ void go_deviate(CharacterData *ch) {
 	if (ch->isHorsePrevents()) {
 		return;
 	};
-	SET_AF_BATTLE(ch, EAF_DEVIATE);
+	SET_AF_BATTLE(ch, kEafDodge);
 	send_to_char("Хорошо, вы попытаетесь уклониться от следующей атаки!\r\n", ch);
 }
 
 void do_deviate(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_DEVIATE)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDodge)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_DEVIATE)) {
+	if (ch->haveCooldown(ESkill::kDodge)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -111,7 +111,7 @@ void do_deviate(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcm
 		return;
 	}
 
-	if (GET_AF_BATTLE(ch, EAF_DEVIATE)) {
+	if (GET_AF_BATTLE(ch, kEafDodge)) {
 		send_to_char("Вы и так вертитесь, как волчок.\r\n", ch);
 		return;
 	};
@@ -128,7 +128,7 @@ const char *cstyles[] = {"normal",
 };
 
 void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -149,7 +149,7 @@ void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	tp >>= 1;
-	if ((tp == 1 && !ch->get_skill(SKILL_PUNCTUAL)) || (tp == 2 && !ch->get_skill(SKILL_AWAKE))) {
+	if ((tp == 1 && !ch->get_skill(ESkill::kPunctual)) || (tp == 2 && !ch->get_skill(ESkill::kAwake))) {
 		send_to_char("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}
@@ -169,17 +169,17 @@ void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) ||
 				AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED) || AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT))) {
-				CLR_AF_BATTLE(ch, EAF_PUNCTUAL);
-				CLR_AF_BATTLE(ch, EAF_AWAKE);
+				CLR_AF_BATTLE(ch, kEafPunctual);
+				CLR_AF_BATTLE(ch, kEafAwake);
 				if (tp == 1)
-					SET_AF_BATTLE(ch, EAF_PUNCTUAL);
+					SET_AF_BATTLE(ch, kEafPunctual);
 				else if (tp == 2)
-					SET_AF_BATTLE(ch, EAF_AWAKE);
+					SET_AF_BATTLE(ch, kEafAwake);
 			}
 			send_to_char(ch, "Вы выбрали %s%s%s стиль боя.\r\n",
 						 CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
 			break;
 	}
 
-	ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
+	ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 }

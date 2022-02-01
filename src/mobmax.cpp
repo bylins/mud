@@ -63,15 +63,15 @@ void MobMax::init() {
 	}
 
 	for (int i = 0; i <= kMaxMobLevel; ++i) {
-		log("Mob lev %d. Num of mobs %d", i, num_levels[i]);
-		log("Mob animals lev %d. Num of animals mobs %d", i, num_animals_levels[i]);
+		//log("Mob lev %d. Num of mobs %d", i, num_levels[i]);
+		//log("Mob animals lev %d. Num of animals mobs %d", i, num_animals_levels[i]);
 		num_levels[i] = num_levels[i] / MOBKILL_KOEFF;
 		if (num_levels[i] < MIN_MOB_IN_MOBKILL)
 			num_levels[i] = MIN_MOB_IN_MOBKILL;
 		if (num_levels[i] > MAX_MOB_IN_MOBKILL)
 			num_levels[i] = MAX_MOB_IN_MOBKILL;
 		animals_levels[i / 11] += num_animals_levels[i]; //составим список количества животных по уровню для освежевки
-		log("Mob lev %d. Max in MobKill file %d", i, num_levels[i]);
+		//log("Mob lev %d. Max in MobKill file %d", i, num_levels[i]);
 
 	}
 }

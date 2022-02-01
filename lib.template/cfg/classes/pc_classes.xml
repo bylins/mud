@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<classes>
+    <!-- Лекарь -->
+    <class file="pc_sorcerer.xml" id="kSorcerer">
+        <name>
+            <nominative val="лекарь" />
+            <genitive val="лекаря" />
+            <dative val="лекарю" />
+            <accusative val="лекаря" />
+            <instrumental val="лекарем" />
+            <prepositional val="лекаре" />
+            <plural val="лекари" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+            <skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Колдун -->
+    <class file="pc_conjurer.xml" id="kConjurer">
+        <name>
+            <nominative val="колдун" />
+            <genitive val="колдуна" />
+            <dative val="колдуну" />
+            <accusative val="колдуна" />
+            <instrumental val="колдуном" />
+            <prepositional val="колдуне" />
+            <plural val="колдуны" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Тать -->
+    <class file="pc_thief.xml" id="kThief">
+        <name>
+            <nominative val="тать" />
+            <genitive val="татя" />
+            <dative val="татю" />
+            <accusative val="татя" />
+            <instrumental val="татем" />
+            <prepositional val="тате" />
+            <plural val="тати" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Богатырь -->
+    <class file="pc_warrior.xml" id="kWarrior">
+        <name>
+            <nominative val="богатырь" />
+            <genitive val="богатыря" />
+            <dative val="богатырю" />
+            <accusative val="богатыря" />
+            <instrumental val="богатырем" />
+            <prepositional val="богатыре" />
+            <plural val="богатыри" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Наемник -->
+    <class file="pc_assasine.xml" id="kAssasine">
+        <name>
+            <nominative val="наемник" />
+            <genitive val="наемника" />
+            <dative val="наемнику" />
+            <accusative val="наемника" />
+            <instrumental val="наемником" />
+            <prepositional val="наемнике" />
+            <plural val="наемники" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Дружинник -->
+    <class file="pc_guard.xml" id="kGuard">
+        <name>
+            <nominative val="дружинник" />
+            <genitive val="дружинника" />
+            <dative val="дружиннику" />
+            <accusative val="дружинника" />
+            <instrumental val="дружинником" />
+            <prepositional val="дружиннике" />
+            <plural val="дружинники" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Кудесник -->
+    <class file="pc_charmer.xml" id="kCharmer">
+        <name>
+            <nominative val="кудесник" />
+            <genitive val="кудесника" />
+            <dative val="кудеснику" />
+            <accusative val="кудесника" />
+            <instrumental val="кудесником" />
+            <prepositional val="кудеснике" />
+            <plural val="кудесники" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Волшебник -->
+    <class file="pc_wizard.xml" id="kWizard">
+        <name>
+            <nominative val="волшебник" />
+            <genitive val="волшебника" />
+            <dative val="колшебнику" />
+            <accusative val="волшебника" />
+            <instrumental val="волшебником" />
+            <prepositional val="волшебнике" />
+            <plural val="волшебники" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Чернокнижник -->
+    <class file="pc_necromancer.xml" id="kNecromancer">
+        <name>
+            <nominative val="чернокнижник" />
+            <genitive val="чернокнижника" />
+            <dative val="чернокнижнику" />
+            <accusative val="чернокнижника" />
+            <instrumental val="чернокнижником" />
+            <prepositional val="чернокнижнике" />
+            <plural val="чернокнижники" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Витязь -->
+    <class file="pc_paladine.xml" id="kPaladine">
+        <name>
+            <nominative val="витязь" />
+            <genitive val="витязя" />
+            <dative val="витязю" />
+            <accusative val="витязя" />
+            <instrumental val="витязем" />
+            <prepositional val="витязе" />
+            <plural val="витязем" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Охотник -->
+    <class file="pc_ranger.xml" id="kRanger">
+        <name>
+            <nominative val="охотник" />
+            <genitive val="охотника" />
+            <dative val="охотнику" />
+            <accusative val="охотника" />
+            <instrumental val="охотником" />
+            <prepositional val="охотнике" />
+            <plural val="охотники" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Кузнец -->
+    <class file="pc_vigilant.xml" id="kVigilant">
+        <name>
+            <nominative val="кузнец" />
+            <genitive val="кузнеца" />
+            <dative val="кузнецу" />
+            <accusative val="кузнеца" />
+            <instrumental val="кузнецом" />
+            <prepositional val="кузнеце" />
+            <plural val="кузнецы" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Купец -->
+    <class file="pc_merchant.xml" id="kMerchant">
+        <name>
+            <nominative val="купец" />
+            <genitive val="купца" />
+            <dative val="купцу" />
+            <accusative val="купца" />
+            <instrumental val="купцом" />
+            <prepositional val="купце" />
+            <plural val="купцы" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!-- Волхв -->
+    <class file="pc_magus.xml" id="kMagus">
+        <name>
+            <nominative val="волхв" />
+            <genitive val="волхва" />
+            <dative val="волхву" />
+            <accusative val="волхва" />
+            <instrumental val="волхвом" />
+            <prepositional val="волхве" />
+            <plural val="волхвы" />
+        </name>
+        <stats>
+            <base_stats>
+                <stat id="kStr" cap="10" />
+                <stat id="kDex" cap="10" />
+                <stat id="kCon" cap="10" />
+                <stat id="kWis" cap="10" />
+                <stat id="kInt" cap="10" />
+                <stat id="kCha" cap="10" />
+            </base_stats>
+        </stats>
+        <skills level_decrement="1">
+			<skill id="kHangovering" remort="0" level="0" improve="1"/>
+        </skills>
+    </class>
+    <!--
+        Этому тут не место, но кто-то сунул классы мобов в то же поле,
+        что и классы игрока, а все корректные значения enum надо проинициализировать.
+        Если у меня не дойдут руки, нужно иметь в виду, что в идеале нужно иметь какой-то
+        общий интерфейс для параметра класса у мобов с игроками, но не помещать, разумеется, классы
+        плееров с мобами в один неймспейс.
+     -->
+    <class id="kMob">
+    </class>
+    <class id="kNpcBase">
+    </class>
+</classes>

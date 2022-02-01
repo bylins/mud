@@ -2,12 +2,8 @@
 
 #include "magic/spells_info.h"
 #include "handler.h"
-//#include "crafts/im.h"
-#include "screen.h"
-//#include "game_limits.h"
-#include "classes/class_spell_slots.h"
-//#include "magic/spells.h"
-
+#include "color.h"
+#include "classes/classes_spell_slots.h"
 #include "magic/magic_utils.h" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
 
 using PlayerClass::slot_for_char;
@@ -40,7 +36,7 @@ void do_memorize(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	spellnum = FixNameAndFindSpellNum(s);
 
-	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
+	if (spellnum < 1 || spellnum > kSpellCount) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -51,7 +47,7 @@ void do_memorize(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
 		send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 		return;
 	}
@@ -60,9 +56,9 @@ void do_memorize(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 void show_wizdom(CharacterData *ch, int bitset) {
-	char names[MAX_SLOT][kMaxStringLength];
-	int slots[MAX_SLOT], i, max_slot, count, slot_num, is_full, gcount = 0, imax_slot = 0;
-	for (i = 1; i <= MAX_SLOT; i++) {
+	char names[kMaxSlot][kMaxStringLength];
+	int slots[kMaxSlot], i, max_slot, count, slot_num, is_full, gcount = 0, imax_slot = 0;
+	for (i = 1; i <= kMaxSlot; i++) {
 		*names[i - 1] = '\0';
 		slots[i - 1] = 0;
 		if (slot_for_char(ch, i))
@@ -70,7 +66,7 @@ void show_wizdom(CharacterData *ch, int bitset) {
 	}
 	if (bitset & 0x01) {
 		is_full = 0;
-		for (i = 1, max_slot = 0; i <= SPELLS_COUNT; i++) {
+		for (i = 1, max_slot = 0; i <= kSpellCount; i++) {
 			if (!GET_SPELL_TYPE(ch, i))
 				continue;
 			if (!spell_info[i].name || *spell_info[i].name == '!')
@@ -107,14 +103,14 @@ void show_wizdom(CharacterData *ch, int bitset) {
 		struct SpellMemQueueItem *q;
 		char timestr[16];
 		is_full = 0;
-		for (i = 0; i < MAX_SLOT; i++) {
+		for (i = 0; i < kMaxSlot; i++) {
 			*names[i] = '\0';
 			slots[i] = 0;
 		}
 
 		if (!MEMQUEUE_EMPTY(ch)) {
-			unsigned char cnt[SPELLS_COUNT + 1];
-			memset(cnt, 0, SPELLS_COUNT + 1);
+			unsigned char cnt[kSpellCount + 1];
+			memset(cnt, 0, kSpellCount + 1);
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;

@@ -17,6 +17,7 @@
 #include "handler.h"
 #include "magic/magic_utils.h"
 #include "dg_event.h"
+#include "structs/global_objects.h"
 
 // remove a single trigger from a mob/obj/room
 void extract_trigger(Trigger *trig) {
@@ -60,9 +61,9 @@ const char *skill_percent(Trigger *trig, CharacterData *ch, char *skill) {
 	im_rskill *rs;
 	int rid;
 
-	const ESkill skillnum = FixNameAndFindSkillNum(skill);
-	if (skillnum > 0) {
-		sprintf(retval, "%d", ch->get_trained_skill(skillnum));
+	const ESkill skill_id = FixNameAndFindSkillNum(skill);
+	if (MUD::Skills().IsValid(skill_id)) {
+		sprintf(retval, "%d", ch->get_trained_skill(skill_id));
 		return retval;
 	}
 	rid = im_get_recipe_by_name(skill);
@@ -73,7 +74,7 @@ const char *skill_percent(Trigger *trig, CharacterData *ch, char *skill) {
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-	if ((skillnum == 0) && (rid < 0)) {
+	if ((skill_id == ESkill::kIncorrect) && (rid < 0)) {
 		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
 		trig_log(trig, buf2);
 	}

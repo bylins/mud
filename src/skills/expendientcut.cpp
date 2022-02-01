@@ -12,7 +12,7 @@
 using namespace FightSystem;
 
 ESkill ExpedientWeaponSkill(CharacterData *ch) {
-	ESkill skill = SKILL_PUNCH;
+	ESkill skill = ESkill::kPunch;
 
 	if (GET_EQ(ch, WEAR_WIELD) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == CObjectPrototype::ITEM_WEAPON)) {
 		skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
@@ -26,17 +26,17 @@ ESkill ExpedientWeaponSkill(CharacterData *ch) {
 }
 int GetExpedientKeyParameter(CharacterData *ch, ESkill skill) {
 	switch (skill) {
-		case SKILL_PUNCH:
-		case SKILL_CLUBS:
-		case SKILL_AXES:
-		case SKILL_BOTHHANDS:
-		case SKILL_SPADES:return ch->get_str();
+		case ESkill::kPunch:
+		case ESkill::kClubs:
+		case ESkill::kAxes:
+		case ESkill::kTwohands:
+		case ESkill::kSpades:return ch->get_str();
 			break;
-		case SKILL_LONGS:
-		case SKILL_SHORTS:
-		case SKILL_NONSTANDART:
-		case SKILL_BOWS:
-		case SKILL_PICK:return ch->get_dex();
+		case ESkill::kLongBlades:
+		case ESkill::kShortBlades:
+		case ESkill::kNonstandart:
+		case ESkill::kBows:
+		case ESkill::kPicks:return ch->get_dex();
 			break;
 		default:return ch->get_str();
 	}
@@ -103,7 +103,7 @@ void ApplyNoFleeAffect(CharacterData *ch, int duration) {
 	//Это жутко криво, но почемук-то при простановке сразу 2 флагов битвектора начинаются глюки, хотя все должно быть нормально
 	//По-видимому, где-то просто не учтено, что ненулевых битов может быть более 1
 	Affect<EApplyLocation> Noflee;
-	Noflee.type = SPELL_BATTLE;
+	Noflee.type = kSpellBattle;
 	Noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 	Noflee.location = EApplyLocation::APPLY_NONE;
 	Noflee.modifier = 0;
@@ -112,7 +112,7 @@ void ApplyNoFleeAffect(CharacterData *ch, int duration) {
 	affect_join(ch, Noflee, true, false, true, false);
 
 	Affect<EApplyLocation> Battle;
-	Battle.type = SPELL_BATTLE;
+	Battle.type = kSpellBattle;
 	Battle.bitvector = to_underlying(EAffectFlag::AFF_EXPEDIENT);
 	Battle.location = EApplyLocation::APPLY_NONE;
 	Battle.modifier = 0;
@@ -139,8 +139,8 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 
 	if (!CheckExpedientSuccess(ch, vict)) {
 		act("Ваши свистящие удары пропали втуне, не задев $N3.", false, ch, 0, vict, TO_CHAR);
-		Damage dmg(SkillDmg(SKILL_SHORTS), ZERO_DMG, PHYS_DMG, nullptr); //подумать как вычислить скилл оружия
-		dmg.skill_num = SKILL_UNDEF;
+		Damage dmg(SkillDmg(ESkill::kShortBlades), ZERO_DMG, PHYS_DMG, nullptr); //подумать как вычислить скилл оружия
+		dmg.skill_id = ESkill::kUndefined;
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
 		return;
@@ -149,18 +149,18 @@ void go_cut_shorts(CharacterData *ch, CharacterData *vict) {
 	act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", false, ch, 0, vict, TO_VICT);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
-	hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::OFF_HAND);
+	hit(ch, vict, ESkill::kUndefined, FightSystem::MAIN_HAND);
+	hit(ch, vict, ESkill::kUndefined, FightSystem::OFF_HAND);
 
 	Affect<EApplyLocation> AffectImmunPhysic;
-	AffectImmunPhysic.type = SPELL_EXPEDIENT;
+	AffectImmunPhysic.type = kSpellExpedient;
 	AffectImmunPhysic.location = EApplyLocation::APPLY_PR;
 	AffectImmunPhysic.modifier = 100;
 	AffectImmunPhysic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 	AffectImmunPhysic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 	affect_join(ch, AffectImmunPhysic, false, false, false, false);
 	Affect<EApplyLocation> AffectImmunMagic;
-	AffectImmunMagic.type = SPELL_EXPEDIENT;
+	AffectImmunMagic.type = kSpellExpedient;
 	AffectImmunMagic.location = EApplyLocation::APPLY_MR;
 	AffectImmunMagic.modifier = 100;
 	AffectImmunMagic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
@@ -182,10 +182,10 @@ void SetExtraAttackCutShorts(CharacterData *ch, CharacterData *victim) {
 	if (!ch->get_fighting()) {
 		act("Ваше оружие свистнуло, когда вы бросились на $N3, применив \"порез\".", false, ch, 0, victim, TO_CHAR);
 		set_fighting(ch, victim);
-		ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
+		ch->set_extra_attack(kExtraAttackCutShorts, victim);
 	} else {
 		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, 0, victim, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_CUT_SHORTS, victim);
+		ch->set_extra_attack(kExtraAttackCutShorts, victim);
 	}
 }
 
@@ -200,32 +200,32 @@ void SetExtraAttackCutPick(CharacterData *ch, CharacterData *victim) {
 	if (!ch->get_fighting()) {
 		act("Вы перехватили оружие обратным хватом и проскользнули за спину $N1.", false, ch, 0, victim, TO_CHAR);
 		set_fighting(ch, victim);
-		ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
+		ch->set_extra_attack(kExtraAttackPick, victim);
 	} else {
 		act("Хорошо. Вы попытаетесь порезать $N3.", false, ch, 0, victim, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_CUT_PICK, victim);
+		ch->set_extra_attack(kExtraAttackPick, victim);
 	}
 }
 
 ESkill GetExpedientCutSkill(CharacterData *ch) {
-	ESkill skill = SKILL_INVALID;
+	ESkill skill = ESkill::kIncorrect;
 
 	if (GET_EQ(ch, WEAR_WIELD) && GET_EQ(ch, WEAR_HOLD)) {
 		skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_WIELD));
-		if (skill != GET_OBJ_SKILL(GET_EQ(ch, WEAR_HOLD))) {
+		if (skill != static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_HOLD))) {
 			send_to_char("Для этого приема в обеих руках нужно держать оружие одого типа!\r\n", ch);
-			return SKILL_INVALID;
+			return ESkill::kIncorrect;
 		}
 	} else if (GET_EQ(ch, WEAR_BOTHS)) {
 		skill = static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS));
 	} else {
 		send_to_char("Для этого приема вам надо использовать одинаковое оружие в обеих руках либо двуручное.\r\n", ch);
-		return SKILL_INVALID;
+		return ESkill::kIncorrect;
 	}
 
-	if (!can_use_feat(ch, FindWeaponMasterBySkill(skill)) && !IS_IMPL(ch)) {
+	if (!can_use_feat(ch, FindWeaponMasterFeat(skill)) && !IS_IMPL(ch)) {
 		send_to_char("Вы недостаточно искусны в обращении с этим видом оружия.\r\n", ch);
-		return SKILL_INVALID;
+		return ESkill::kIncorrect;
 	}
 
 	return skill;
@@ -281,16 +281,16 @@ void do_expedient_cut(CharacterData *ch, char *argument, int/* cmd*/, int /*subc
 		return;
 
 	skill = GetExpedientCutSkill(ch);
-	if (skill == SKILL_INVALID)
+	if (skill == ESkill::kIncorrect)
 		return;
 
 	switch (skill) {
-		case SKILL_SHORTS:SetExtraAttackCutShorts(ch, vict);
+		case ESkill::kShortBlades:SetExtraAttackCutShorts(ch, vict);
 			break;
-		case SKILL_SPADES:SetExtraAttackCutShorts(ch, vict);
+		case ESkill::kSpades:SetExtraAttackCutShorts(ch, vict);
 			break;
-		case SKILL_LONGS:
-		case SKILL_BOTHHANDS:
+		case ESkill::kLongBlades:
+		case ESkill::kTwohands:
 			send_to_char("Порез мечом (а тем более двуручником или копьем) - это сурьезно. Но пока невозможно.\r\n",
 						 ch);
 			break;

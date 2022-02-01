@@ -11,7 +11,7 @@
 
 #include "interpreter.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char_player.h"
 
 #include "names.h"

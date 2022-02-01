@@ -20,7 +20,7 @@
 #include "dg_event.h"
 #include "magic/magic.h"
 #include "magic/magic_temp_spells.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 #include <stack>
 
@@ -311,91 +311,75 @@ void trg_featturn(CharacterData *ch, int featnum, int featdiff, int vnum) {
 }
 
 void trg_skillturn(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum) {
-	const int ch_kin = static_cast<int>(GET_KIN(ch));
-	const int ch_class = static_cast<int>(GET_CLASS(ch));
-
+	const auto ch_class = static_cast<ECharClass>(GET_CLASS(ch));
 	if (ch->get_trained_skill(skillnum)) {
 		if (skilldiff) {
 			return;
 		}
-
 		ch->set_skill(skillnum, 0);
-		send_to_char(ch, "Вас лишили умения '%s'.\r\n", skill_name(skillnum));
-		log("Remove %s from %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
-	} else if (skilldiff
-		&& skill_info[skillnum].classknow[ch_class][ch_kin] == kKnowSkill) {
+		send_to_char(ch, "Вас лишили умения '%s'.\r\n", MUD::Skills()[skillnum].GetName());
+		log("Remove %s from %s (trigskillturn)", MUD::Skills()[skillnum].GetName(), GET_NAME(ch));
+	} else if (skilldiff && MUD::Classes()[ch_class].IsKnown(skillnum)) {
 		ch->set_skill(skillnum, 5);
-		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
-		log("Add %s to %s (trigskillturn)trigvnum %d", skill_name(skillnum), GET_NAME(ch), vnum);
+		send_to_char(ch, "Вы изучили умение '%s'.\r\n", MUD::Skills()[skillnum].GetName());
+		log("Add %s to %s (trigskillturn)trigvnum %d", MUD::Skills()[skillnum].GetName(), GET_NAME(ch), vnum);
 	}
 }
 
 void trg_skilladd(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	int skill = ch->get_trained_skill(skillnum);
-	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_trained_skill(skillnum) + skilldiff, skill_info[skillnum].cap))));
+	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skills()[skillnum].cap));
 
 	if (skill > ch->get_trained_skill(skillnum)) {
-		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
+		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skills()[skillnum].GetName());
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			skill_name(skillnum),
-			GET_NAME(ch),
-			skill,
-			ch->get_trained_skill(skillnum),
-			skilldiff,
-			vnum);
+			MUD::Skills()[skillnum].GetName(), GET_NAME(ch), skill,
+			ch->get_trained_skill(skillnum), skilldiff, vnum);
 	} else if (skill < ch->get_trained_skill(skillnum)) {
-		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
+		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", MUD::Skills()[skillnum].GetName());
 		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			skill_name(skillnum),
-			GET_NAME(ch),
-			skill,
-			ch->get_trained_skill(skillnum),
-			skilldiff,
-			vnum);
+			MUD::Skills()[skillnum].GetName(), GET_NAME(ch), skill,
+			ch->get_trained_skill(skillnum), skilldiff, vnum);
 	} else {
-		send_to_char(ch, "Ваше умение осталось неизменным '%s '.\r\n", skill_name(skillnum));
+		send_to_char(ch, "Ваше умение '%s' не изменилось.\r\n", MUD::Skills()[skillnum].GetName());
 		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			skill_name(skillnum),
-			GET_NAME(ch),
-			skill,
-			ch->get_trained_skill(skillnum),
-			skilldiff,
-			vnum);
+			MUD::Skills()[skillnum].GetName(), GET_NAME(ch), skill,
+			ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 }
 
 void trg_spellturn(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
 	int spell = GET_SPELL_TYPE(ch, spellnum);
 
-	if (!can_get_spell(ch, spellnum)) {
-		log("Error trying to add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+	if (!IsAbleToGetSpell(ch, spellnum)) {
+		log("Error trying to add %s to %s (trigspell) trigvnum %d", GetSpellName(spellnum), GET_NAME(ch), vnum);
 		return;
 	}
 
-	if (spell & SPELL_KNOW) {
+	if (spell & kSpellKnow) {
 		if (spelldiff) return;
 
-		REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
-		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP))
+		REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), kSpellKnow);
+		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp))
 			GET_SPELL_MEM(ch, spellnum) = 0;
-		send_to_char(ch, "Вы начисто забыли заклинание '%s'.\r\n", spell_name(spellnum));
-		log("Remove %s from %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+		send_to_char(ch, "Вы начисто забыли заклинание '%s'.\r\n", GetSpellName(spellnum));
+		log("Remove %s from %s (trigspell) trigvnum %d", GetSpellName(spellnum), GET_NAME(ch), vnum);
 	} else if (spelldiff) {
-		SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
-		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
-		log("Add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+		SET_BIT(GET_SPELL_TYPE(ch, spellnum), kSpellKnow);
+		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", GetSpellName(spellnum));
+		log("Add %s to %s (trigspell) trigvnum %d", GetSpellName(spellnum), GET_NAME(ch), vnum);
 	}
 }
 
 void trg_spellturntemp(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
-	if (!can_get_spell(ch, spellnum)) {
-		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+	if (!IsAbleToGetSpell(ch, spellnum)) {
+		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d", GetSpellName(spellnum), GET_NAME(ch), vnum);
 		return;
 	}
 
-	Temporary_Spells::add_spell(ch, spellnum, time(0), spelldiff);
-	send_to_char(ch, "Вы дополнительно можете использовать заклинание '%s' некоторое время.\r\n", spell_name(spellnum));
-	log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d", spell_name(spellnum), spelldiff, GET_NAME(ch), vnum);
+	Temporary_Spells::add_spell(ch, spellnum, time(nullptr), spelldiff);
+	send_to_char(ch, "Вы дополнительно можете использовать заклинание '%s' некоторое время.\r\n", GetSpellName(spellnum));
+	log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d", GetSpellName(spellnum), spelldiff, GET_NAME(ch), vnum);
 }
 
 void trg_spelladd(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
@@ -404,19 +388,19 @@ void trg_spelladd(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
 
 	if (spell > GET_SPELL_MEM(ch, spellnum)) {
 		if (GET_SPELL_MEM(ch, spellnum)) {
-			log("Remove custom spell %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
-			sprintf(buf, "Вы забыли часть заклинаний '%s'.\r\n", spell_name(spellnum));
+			log("Remove custom spell %s to %s (trigspell) trigvnum %d", GetSpellName(spellnum), GET_NAME(ch), vnum);
+			sprintf(buf, "Вы забыли часть заклинаний '%s'.\r\n", GetSpellName(spellnum));
 		} else {
-			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", spell_name(spellnum));
+			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", GetSpellName(spellnum));
 			//REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
-			log("Remove all spells %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+			log("Remove all spells %s to %s (trigspell) trigvnum %d", GetSpellName(spellnum), GET_NAME(ch), vnum);
 		}
 		send_to_char(buf, ch);
 	} else if (spell < GET_SPELL_MEM(ch, spellnum)) {
 		/*if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);*/
-		send_to_char(ch, "Вы выучили несколько заклинаний '%s'.\r\n", spell_name(spellnum));
-		log("Add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+		send_to_char(ch, "Вы выучили несколько заклинаний '%s'.\r\n", GetSpellName(spellnum));
+		log("Add %s to %s (trigspell) trigvnum %d", GetSpellName(spellnum), GET_NAME(ch), vnum);
 	}
 }
 
@@ -429,50 +413,49 @@ void trg_spellitem(CharacterData *ch, int spellnum, int spelldiff, int spell) {
 	if (!spelldiff) {
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), spell);
 		switch (spell) {
-			case SPELL_SCROLL: strcpy(type, "создания свитка");
+			case kSpellScroll: strcpy(type, "создания свитка");
 				break;
-			case SPELL_POTION: strcpy(type, "приготовления напитка");
+			case kSpellPotion: strcpy(type, "приготовления напитка");
 				break;
-			case SPELL_WAND: strcpy(type, "изготовления посоха");
+			case kSpellWand: strcpy(type, "изготовления посоха");
 				break;
-			case SPELL_ITEMS: strcpy(type, "предметной магии");
+			case kSpellItems: strcpy(type, "предметной магии");
 				break;
-			case SPELL_RUNES: strcpy(type, "использования рун");
+			case kSpellRunes: strcpy(type, "использования рун");
 				break;
 		};
 		std::stringstream buffer;
 //		sprintf(buf, "Вы утратили умение %s '%s'", type, spell_name(spellnum));
-		buffer << "Вы утратили умение " << type << " '" << spell_name(spellnum) << "'";
+		buffer << "Вы утратили умение " << type << " '" << GetSpellName(spellnum) << "'";
 		send_to_char(buffer.str(), ch);
 
 	} else {
 		SET_BIT(GET_SPELL_TYPE(ch, spellnum), spell);
 		switch (spell) {
-			case SPELL_SCROLL:
-				if (!ch->get_skill(SKILL_CREATE_SCROLL))
-					ch->set_skill(SKILL_CREATE_SCROLL, 5);
+			case kSpellScroll:
+				if (!ch->get_skill(ESkill::kCreateScroll))
+					ch->set_skill(ESkill::kCreateScroll, 5);
 				strcpy(type, "создания свитка");
 				break;
-			case SPELL_POTION:
-				if (!ch->get_skill(SKILL_CREATE_POTION))
-					ch->set_skill(SKILL_CREATE_POTION, 5);
+			case kSpellPotion:
+				if (!ch->get_skill(ESkill::kCreatePotion))
+					ch->set_skill(ESkill::kCreatePotion, 5);
 				strcpy(type, "приготовления напитка");
 				break;
-			case SPELL_WAND:
-				if (!ch->get_skill(SKILL_CREATE_WAND))
-					ch->set_skill(SKILL_CREATE_WAND, 5);
+			case kSpellWand:
+				if (!ch->get_skill(ESkill::kCreateWand))
+					ch->set_skill(ESkill::kCreateWand, 5);
 				strcpy(type, "изготовления посоха");
 				break;
-			case SPELL_ITEMS: strcpy(type, "предметной магии");
+			case kSpellItems: strcpy(type, "предметной магии");
 				break;
-			case SPELL_RUNES: strcpy(type, "использования рун");
+			case kSpellRunes: strcpy(type, "использования рун");
 				break;
 		}
 		std::stringstream buffer;
-		buffer << "Вы приобрели умение " << type << " '" << spell_name(spellnum) << "'";
-//		sprintf(buf, "Вы приобрели умение %s '%s'", type, spell_name(spellnum));
+		buffer << "Вы приобрели умение " << type << " '" << GetSpellName(spellnum) << "'";
 		send_to_char(buffer.str(), ch);
-		check_recipe_items(ch, spellnum, spell, true);
+		CheckRecipeItems(ch, spellnum, spell, true);
 	}
 }
 

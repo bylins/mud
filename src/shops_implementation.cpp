@@ -516,61 +516,61 @@ void shop_node::print_shop_list(CharacterData *ch, const std::string &arg, int k
 }
 
 bool init_type(const std::string &str, int &type) {
-	if (is_abbrev(str, "свет")
-		|| is_abbrev(str, "light")) {
+	if (utils::IsAbbrev(str, "свет")
+		|| utils::IsAbbrev(str, "light")) {
 		type = ObjectData::ITEM_LIGHT;
-	} else if (is_abbrev(str, "свиток")
-		|| is_abbrev(str, "scroll")) {
+	} else if (utils::IsAbbrev(str, "свиток")
+		|| utils::IsAbbrev(str, "scroll")) {
 		type = ObjectData::ITEM_SCROLL;
-	} else if (is_abbrev(str, "палочка")
-		|| is_abbrev(str, "wand")) {
+	} else if (utils::IsAbbrev(str, "палочка")
+		|| utils::IsAbbrev(str, "wand")) {
 		type = ObjectData::ITEM_WAND;
-	} else if (is_abbrev(str, "посох")
-		|| is_abbrev(str, "staff")) {
+	} else if (utils::IsAbbrev(str, "посох")
+		|| utils::IsAbbrev(str, "staff")) {
 		type = ObjectData::ITEM_STAFF;
-	} else if (is_abbrev(str, "оружие")
-		|| is_abbrev(str, "weapon")) {
+	} else if (utils::IsAbbrev(str, "оружие")
+		|| utils::IsAbbrev(str, "weapon")) {
 		type = ObjectData::ITEM_WEAPON;
-	} else if (is_abbrev(str, "броня")
-		|| is_abbrev(str, "armor")) {
+	} else if (utils::IsAbbrev(str, "броня")
+		|| utils::IsAbbrev(str, "armor")) {
 		type = ObjectData::ITEM_ARMOR;
-	} else if (is_abbrev(str, "материал")
-		|| is_abbrev(str, "material")) {
+	} else if (utils::IsAbbrev(str, "материал")
+		|| utils::IsAbbrev(str, "material")) {
 		type = ObjectData::ITEM_MATERIAL;
-	} else if (is_abbrev(str, "напиток")
-		|| is_abbrev(str, "potion")) {
+	} else if (utils::IsAbbrev(str, "напиток")
+		|| utils::IsAbbrev(str, "potion")) {
 		type = ObjectData::ITEM_POTION;
-	} else if (is_abbrev(str, "прочее")
-		|| is_abbrev(str, "другое")
-		|| is_abbrev(str, "other")) {
+	} else if (utils::IsAbbrev(str, "прочее")
+		|| utils::IsAbbrev(str, "другое")
+		|| utils::IsAbbrev(str, "other")) {
 		type = ObjectData::ITEM_OTHER;
-	} else if (is_abbrev(str, "контейнер")
-		|| is_abbrev(str, "container")) {
+	} else if (utils::IsAbbrev(str, "контейнер")
+		|| utils::IsAbbrev(str, "container")) {
 		type = ObjectData::ITEM_CONTAINER;
-	} else if (is_abbrev(str, "емкость")
-		|| is_abbrev(str, "tank")) {
+	} else if (utils::IsAbbrev(str, "емкость")
+		|| utils::IsAbbrev(str, "tank")) {
 		type = ObjectData::ITEM_DRINKCON;
-	} else if (is_abbrev(str, "книга")
-		|| is_abbrev(str, "book")) {
+	} else if (utils::IsAbbrev(str, "книга")
+		|| utils::IsAbbrev(str, "book")) {
 		type = ObjectData::ITEM_BOOK;
-	} else if (is_abbrev(str, "руна")
-		|| is_abbrev(str, "rune")) {
+	} else if (utils::IsAbbrev(str, "руна")
+		|| utils::IsAbbrev(str, "rune")) {
 		type = ObjectData::ITEM_INGREDIENT;
-	} else if (is_abbrev(str, "ингредиент")
-		|| is_abbrev(str, "ingradient")) {
+	} else if (utils::IsAbbrev(str, "ингредиент")
+		|| utils::IsAbbrev(str, "ingradient")) {
 		type = ObjectData::ITEM_MING;
-	} else if (is_abbrev(str, "легкие")
-		|| is_abbrev(str, "легкая")) {
+	} else if (utils::IsAbbrev(str, "легкие")
+		|| utils::IsAbbrev(str, "легкая")) {
 		type = ObjectData::ITEM_ARMOR_LIGHT;
-	} else if (is_abbrev(str, "средние")
-		|| is_abbrev(str, "средняя")) {
+	} else if (utils::IsAbbrev(str, "средние")
+		|| utils::IsAbbrev(str, "средняя")) {
 		type = ObjectData::ITEM_ARMOR_MEDIAN;
-	} else if (is_abbrev(str, "тяжелые")
-		|| is_abbrev(str, "тяжелая")) {
+	} else if (utils::IsAbbrev(str, "тяжелые")
+		|| utils::IsAbbrev(str, "тяжелая")) {
 		type = ObjectData::ITEM_ARMOR_HEAVY;
-	} else if (is_abbrev(str, "колчан")) {
+	} else if (utils::IsAbbrev(str, "колчан")) {
 		type = ObjectData::ITEM_MAGIC_CONTAINER;
-	} else if (is_abbrev(str, "стрела")) {
+	} else if (utils::IsAbbrev(str, "стрела")) {
 		type = ObjectData::ITEM_MAGIC_ARROW;
 	} else {
 		return false;
@@ -580,37 +580,37 @@ bool init_type(const std::string &str, int &type) {
 }
 
 bool init_wear(const std::string &str, EWearFlag &wear) {
-	if (is_abbrev(str, "палец")) {
+	if (utils::IsAbbrev(str, "палец")) {
 		wear = EWearFlag::ITEM_WEAR_FINGER;
-	} else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь")) {
+	} else if (utils::IsAbbrev(str, "шея") || utils::IsAbbrev(str, "грудь")) {
 		wear = EWearFlag::ITEM_WEAR_NECK;
-	} else if (is_abbrev(str, "тело")) {
+	} else if (utils::IsAbbrev(str, "тело")) {
 		wear = EWearFlag::ITEM_WEAR_BODY;
-	} else if (is_abbrev(str, "голова")) {
+	} else if (utils::IsAbbrev(str, "голова")) {
 		wear = EWearFlag::ITEM_WEAR_HEAD;
-	} else if (is_abbrev(str, "ноги")) {
+	} else if (utils::IsAbbrev(str, "ноги")) {
 		wear = EWearFlag::ITEM_WEAR_LEGS;
-	} else if (is_abbrev(str, "ступни")) {
+	} else if (utils::IsAbbrev(str, "ступни")) {
 		wear = EWearFlag::ITEM_WEAR_FEET;
-	} else if (is_abbrev(str, "кисти")) {
+	} else if (utils::IsAbbrev(str, "кисти")) {
 		wear = EWearFlag::ITEM_WEAR_HANDS;
-	} else if (is_abbrev(str, "руки")) {
+	} else if (utils::IsAbbrev(str, "руки")) {
 		wear = EWearFlag::ITEM_WEAR_ARMS;
-	} else if (is_abbrev(str, "щит")) {
+	} else if (utils::IsAbbrev(str, "щит")) {
 		wear = EWearFlag::ITEM_WEAR_SHIELD;
-	} else if (is_abbrev(str, "плечи")) {
+	} else if (utils::IsAbbrev(str, "плечи")) {
 		wear = EWearFlag::ITEM_WEAR_ABOUT;
-	} else if (is_abbrev(str, "пояс")) {
+	} else if (utils::IsAbbrev(str, "пояс")) {
 		wear = EWearFlag::ITEM_WEAR_WAIST;
-	} else if (is_abbrev(str, "колчан")) {
+	} else if (utils::IsAbbrev(str, "колчан")) {
 		wear = EWearFlag::ITEM_WEAR_QUIVER;
-	} else if (is_abbrev(str, "запястья")) {
+	} else if (utils::IsAbbrev(str, "запястья")) {
 		wear = EWearFlag::ITEM_WEAR_WRIST;
-	} else if (is_abbrev(str, "правая")) {
+	} else if (utils::IsAbbrev(str, "правая")) {
 		wear = EWearFlag::ITEM_WEAR_WIELD;
-	} else if (is_abbrev(str, "левая")) {
+	} else if (utils::IsAbbrev(str, "левая")) {
 		wear = EWearFlag::ITEM_WEAR_HOLD;
-	} else if (is_abbrev(str, "обе")) {
+	} else if (utils::IsAbbrev(str, "обе")) {
 		wear = EWearFlag::ITEM_WEAR_BOTHS;
 	} else {
 		return false;
@@ -770,7 +770,7 @@ void shop_node::process_cmd(CharacterData *ch, CharacterData *keeper, char *argu
 				const auto obj = get_obj_in_list_vis(ch, buffer2, ch->carrying);
 
 				if (!obj) {
-					if (cmd == "Чинить" && is_abbrev(argument, "экипировка")) {
+					if (cmd == "Чинить" && utils::IsAbbrev(argument, "экипировка")) {
 						for (i = 0; i < NUM_WEARS; i++) {
 							if (ch->equipment[i]) {
 								do_shop_cmd(ch, keeper, ch->equipment[i], cmd);

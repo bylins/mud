@@ -8,7 +8,7 @@
 #include "handler.h"
 #include "utils/random.h"
 #include "protect.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 using namespace FightSystem;
 
@@ -35,22 +35,21 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 
 	act("Вы попытались накинуть удавку на шею $N2.\r\n", false, ch, nullptr, vict, TO_CHAR);
 
-	int prob = CalcCurrentSkill(ch, SKILL_STRANGLE, vict);
-	int delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
-	int percent = number(1, skill_info[SKILL_STRANGLE].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::kStrangle, vict);
+	int delay = 6 - MIN(4, (ch->get_skill(ESkill::kStrangle) + 30) / 50);
+	int percent = number(1, MUD::Skills()[ESkill::kStrangle].difficulty);
 
 	bool success = percent <= prob;
-	TrainSkill(ch, SKILL_STRANGLE, success, vict);
-	SendSkillBalanceMsg(ch, skill_info[SKILL_STRANGLE].name, percent, prob, success);
+	TrainSkill(ch, ESkill::kStrangle, success, vict);
+	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kStrangle].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(SKILL_STRANGLE), ZERO_DMG, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kStrangle), ZERO_DMG, PHYS_DMG, nullptr);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		//set_wait(ch, 3, true);
-		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 3);
+		setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
 		Affect<EApplyLocation> af;
-		af.type = SPELL_STRANGLE;
+		af.type = kSpellStrangle;
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
@@ -59,14 +58,13 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 		affect_to_char(vict, af);
 
 		int dam =
-			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(SKILL_STRANGLE)) / 70, 7.0, 1, 30)) / 100;
+			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
 		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
-		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kStrangle), dam, PHYS_DMG, nullptr);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
 			set_wait(vict, 2, true);
-			//vict->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 			if (vict->ahorse()) {
 				act("Рванув на себя, $N стащил$G Вас на землю.", false, vict, nullptr, ch, TO_CHAR);
 				act("Рванув на себя, Вы стащили $n3 на землю.", false, vict, nullptr, ch, TO_VICT);
@@ -78,26 +76,26 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 					TO_NOTVICT | TO_ARENA_LISTEN);
 				vict->drop_from_horse();
 			}
-			if (ch->get_skill(SKILL_CHOPOFF) && ch->isInSameRoom(vict)) {
+			if (ch->get_skill(ESkill::kUndercut) && ch->isInSameRoom(vict)) {
 				go_chopoff(ch, vict);
 			}
-			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 2);
+			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 		}
 	}
 
-	Timed timed;
-	timed.skill = SKILL_STRANGLE;
+	TimedSkill timed;
+	timed.skill = ESkill::kStrangle;
 	timed.time = delay;
 	timed_to_char(ch, &timed);
 }
 
 void do_strangle(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(SKILL_STRANGLE)) {
+	if (!ch->get_skill(ESkill::kStrangle)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
 
-	if (timed_by_skill(ch, SKILL_STRANGLE) || ch->haveCooldown(SKILL_STRANGLE)) {
+	if (IsTimedBySkill(ch, ESkill::kStrangle) || ch->haveCooldown(ESkill::kStrangle)) {
 		send_to_char("Так часто душить нельзя - человеки кончатся.\r\n", ch);
 		return;
 	}

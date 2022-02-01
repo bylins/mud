@@ -7,7 +7,7 @@
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "entities/obj.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char.h"
 #include "comm.h"
 #include "db.h"

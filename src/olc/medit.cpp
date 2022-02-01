@@ -34,6 +34,7 @@
 #include "conf.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
+#include "structs/global_objects.h"
 
 #include <boost/format.hpp>
 #include <stack>
@@ -111,7 +112,7 @@ void medit_mobile_init(CharacterData *mob) {
 	GET_WEIGHT(mob) = 200;
 	GET_HEIGHT(mob) = 198;
 	GET_SIZE(mob) = 30;
-	mob->set_class(NPC_CLASS_BASE);
+	mob->set_class(ECharClass::kNpcBase);
 	GET_RACE(mob) = NPC_RACE_BASIC;
 	GET_MR(mob) = GET_AR(mob) = GET_PR(mob) = 0;
 
@@ -236,14 +237,14 @@ void medit_mobile_free(CharacterData *mob)
 
 		if (mob->mob_specials.Questor) {
 			free(mob->mob_specials.Questor);
-			mob->mob_specials.Questor = 0;
+			mob->mob_specials.Questor = nullptr;
 		}
 	} else {
 		// Есть прототип, удалять несовпадающее
 
 		if (mob->mob_specials.Questor && mob->mob_specials.Questor != mob_proto[i].mob_specials.Questor) {
 			free(mob->mob_specials.Questor);
-			mob->mob_specials.Questor = 0;
+			mob->mob_specials.Questor = nullptr;
 		}
 	}
 
@@ -546,7 +547,7 @@ void medit_save_internally(DescriptorData *d) {
  */
 void medit_save_to_disk(int zone_num) {
 	struct Helper *helper;
-	int i, j, c, n, rmob_num, zone, top, sum;
+	int i, j, c, rmob_num, zone, top, sum;
 	FILE *mob_file;
 	char fname[64];
 	CharacterData *mob;
@@ -612,11 +613,13 @@ void medit_save_to_disk(int zone_num) {
 
 			// * Deal with Extra stats in case they are there.
 			sum = 0;
-			for (n = 0; n < SAVING_COUNT; n++)
-				sum += GET_SAVE(mob, n);
+			for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+				sum += GET_SAVE(mob, save);
+			}
 			if (sum != 0)
 				fprintf(mob_file, "Saves: %d %d %d %d\n",
-						GET_SAVE(mob, 0), GET_SAVE(mob, 1), GET_SAVE(mob, 2), GET_SAVE(mob, 3));
+						GET_SAVE(mob, ESaving::kWill), GET_SAVE(mob, ESaving::kCritical),
+						GET_SAVE(mob, ESaving::kStability), GET_SAVE(mob, ESaving::kReflex));
 			sum = 0;
 			fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
 					GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
@@ -686,11 +689,11 @@ void medit_save_to_disk(int zone_num) {
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
 			for (const auto c : AVAILABLE_SKILLS) {
-				if (mob->get_skill(c) && *skill_info[c].name != '!') {
-					fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
+				if (mob->get_skill(c) && *MUD::Skills()[c].GetName() != '!') {
+					fprintf(mob_file, "Skill: %d %d\n", to_underlying(c), mob->get_skill(c));
 				}
 			}
-			for (c = 1; c <= SPELLS_COUNT; c++) {
+			for (c = 1; c <= kSpellCount; c++) {
 				for (j = 1; j <= GET_SPELL_MEM(mob, c); j++) {
 					fprintf(mob_file, "Spell: %d\n", c);
 				}
@@ -819,17 +822,16 @@ void medit_disp_resistances(DescriptorData *d) {
 	send_to_char("Введите номер и величину сопротивления (-100..100\%) (0 - конец) : ", d->character.get());
 }
 
-// *  Display saves - added by Adept
+// *  Display saves
 void medit_disp_saves(DescriptorData *d) {
-	int i;
-
 	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 1; *apply_negative[i] != '\n'; i++) {
+	for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
+		auto i = to_underlying(s);
 		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
-				grn, i, nrm, apply_negative[i], cyn, GET_SAVE(OLC_MOB(d), i - 1), nrm);
+				grn, i+1, nrm, apply_negative[i+1], cyn, GET_SAVE(OLC_MOB(d), s), nrm);
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("Введите номер и величину спас-броска (0 - конец) : ", d->character.get());
@@ -1073,8 +1075,7 @@ void medit_disp_skills(DescriptorData *d) {
 	send_to_char("[H[J", d->character);
 #endif
 	for (const auto counter : AVAILABLE_SKILLS) {
-		if (!skill_info[counter].name
-			|| *skill_info[counter].name == '!') {
+		if (!MUD::Skills()[counter].GetName() || *MUD::Skills()[counter].GetName() == '!') {
 			continue;
 		}
 
@@ -1084,8 +1085,8 @@ void medit_disp_skills(DescriptorData *d) {
 			strcpy(buf1, "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-				 skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(counter), nrm,
+				 MUD::Skills()[counter].GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
@@ -1098,7 +1099,7 @@ void medit_disp_spells(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 1; counter <= SPELLS_COUNT; counter++) {
+	for (counter = 1; counter <= kSpellCount; counter++) {
 		if (!spell_info[counter].name
 			|| *spell_info[counter].name == '!') {
 			continue;
@@ -1843,21 +1844,22 @@ void medit_parse(DescriptorData *d, char *arg) {
 			medit_disp_add_parameters(d);
 			return;
 
-		case MEDIT_SAVES: number = atoi(arg);
+		case MEDIT_SAVES: {
+			number = atoi(arg);
 			if (number == 0) {
 				break;
-			}
-
-			if (number > SAVING_COUNT || number < 0) {
+			};
+			auto saving = static_cast<ESaving>(number - 1);
+			if (saving < ESaving::kFirst || saving > ESaving::kLast) {
 				send_to_char("Неверный номер.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указана величина спас-броска.\r\n", d->character.get());
 			} else {
-				GET_SAVE(OLC_MOB(d), number - 1) = MIN(kMaxSaving, MAX(-kMaxSaving, bit));
+				SET_SAVE(OLC_MOB(d), saving, std::clamp(bit, kMinSaving, kMaxSaving));
 			}
 			medit_disp_saves(d);
 			return;
-
+		}
 		case MEDIT_ALIAS: OLC_MOB(d)->set_pc_name(not_null(arg, "неопределен"));
 			break;
 
@@ -2173,30 +2175,30 @@ void medit_parse(DescriptorData *d, char *arg) {
 			medit_disp_helpers(d);
 			return;
 
-		case MEDIT_SKILLS: number = atoi(arg);
+		case MEDIT_SKILLS: {
+			number = atoi(arg);
 			if (number == 0) {
 				break;
 			}
-			if (number > MAX_SKILL_NUM
-				|| number < 0
-				|| !skill_info[number].name
-				|| *skill_info[number].name == '!') {
+			auto skill_id = static_cast<ESkill>(number);
+			if (MUD::Skills().IsInvalid(skill_id)) {
 				send_to_char("Неизвестное умение.\r\n", d->character.get());
-			} else if (OLC_MOB(d)->get_skill(static_cast<ESkill>(number))) {
-				OLC_MOB(d)->set_skill(static_cast<ESkill>(number), 0);
+			} else if (OLC_MOB(d)->get_skill(skill_id)) {
+				OLC_MOB(d)->set_skill(skill_id, 0);
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указан уровень владения умением.\r\n", d->character.get());
 			} else {
-				OLC_MOB(d)->set_skill(static_cast<ESkill>(number), (MIN(200, MAX(0, bit))));
+				OLC_MOB(d)->set_skill(skill_id, std::clamp(bit, 0, MUD::Skills()[skill_id].cap));
 			}
 			medit_disp_skills(d);
 			return;
+		}
 
 		case MEDIT_SPELLS: number = atoi(arg);
 			if (number == 0) {
 				break;
 			}
-			if (number < 0 || (number > SPELLS_COUNT || !spell_info[number].name || *spell_info[number].name == '!')) {
+			if (number < 0 || (number > kSpellCount || !spell_info[number].name || *spell_info[number].name == '!')) {
 				send_to_char("Неизвестное заклинание.\r\n", d->character.get());
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				send_to_char("Не указано количество заклинаний.\r\n", d->character.get());

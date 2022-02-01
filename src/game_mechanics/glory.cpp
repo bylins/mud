@@ -11,7 +11,7 @@
 #include "comm.h"
 #include "password.h"
 #include "genchar.h"
-#include "screen.h"
+#include "color.h"
 #include "top.h"
 #include "entities/char.h"
 #include "entities/char_player.h"

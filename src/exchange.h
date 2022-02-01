@@ -8,8 +8,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _EXCHANGE_HPP_
-#define _EXCHANGE_HPP_
+#ifndef EXCHANGE_HPP_
+#define EXCHANGE_HPP_
 
 #include <vector>
 #include <ctime>
@@ -52,13 +52,12 @@ const int EXCHANGE_MIN_CHAR_LEV = 8;
 #define GET_EXCHANGE_ITEM_COST(item)  ((item)->obj_cost)
 #define GET_EXCHANGE_ITEM_COMMENT(item)  ((item)->comment)
 #define GET_EXCHANGE_ITEM(item)  ((item)->obj)
-#define GET_EXCHANGE_ITEM_TIME(item)  ((item)->time)
 
 void extract_exchange_item(ExchangeItem *item);
 void check_exchange(ObjectData *obj);
 
 void exchange_database_save(bool backup = false);
 
-#endif
+#endif // EXCHANGE_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

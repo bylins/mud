@@ -8,12 +8,11 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "entities/obj.h"
-#include "entities/entity_constants.h"
-#include "screen.h"
-#include "interpreter.h"
-#include "handler.h"
 #include "auction.h"
+
+#include "entities/obj.h"
+#include "color.h"
+#include "handler.h"
 #include "game_mechanics/named_stuff.h"
 #include "fightsystem/pk.h"
 

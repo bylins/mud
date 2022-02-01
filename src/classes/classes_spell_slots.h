@@ -7,7 +7,7 @@
 */
 
 #include "entities/char.h"
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 
 namespace PlayerClass {
 
@@ -23,7 +23,7 @@ class MaxClassSlot {
 	int get(const CharacterData *ch) const;
 
  private:
-	int _max_class_slot[NUM_PLAYER_CLASSES][kNumKins];
+	int _max_class_slot[kNumPlayerClasses][kNumKins];
 };
 
 extern MaxClassSlot max_slots;

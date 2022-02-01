@@ -7,7 +7,7 @@
 #include "entities/char.h"
 #include "utils/pugixml.h"
 #include "house.h"
-#include "screen.h"
+#include "color.h"
 #include "help.h"
 #include "parse.h"
 #include "mob_stat.h"

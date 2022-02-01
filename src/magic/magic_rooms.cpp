@@ -3,8 +3,7 @@
 #include "magic/spells_info.h"
 #include "modify.h"
 #include "entities/char.h"
-//#include "entities/room.h" // посмотреть, мб разумней вынести тип списка аффектов из комнат
-#include "magic.h" //Включено ради material_component_processing, который надо, по-хлорошему, вообще в отдеьный модуль.
+#include "magic.h" //Включено ради material_component_processing
 
 #include <iomanip>
 
@@ -26,7 +25,7 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void RefreshRoomAffects(RoomData *room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
-void affect_room_modify(RoomData *room, byte loc, sbyte mod, bitvector_t bitv, bool add);
+void affect_room_modify(RoomData *room, byte loc, sbyte mod, Bitvector bitv, bool add);
 
 void RemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 	if (room->affected.empty()) {
@@ -138,7 +137,7 @@ int removeControlledRoomAffect(CharacterData *ch) {
 	long casterID = GET_ID(ch);
 	auto filter =
 		[&casterID](auto &af) {
-			return (af->caster_id == casterID && IS_SET(spell_info[af->type].routines, MAG_NEED_CONTROL));
+			return (af->caster_id == casterID && IS_SET(spell_info[af->type].routines, kMagNeedControl));
 		};
 	return RemoveAffectFromRooms(0, filter);
 }
@@ -146,7 +145,7 @@ int removeControlledRoomAffect(CharacterData *ch) {
 void sendAffectOffMessageToRoom(int affectType, RoomRnum room) {
 	// TODO:" refactor and replace int affectType by ESpell
 	const std::string &msg = get_wear_off_text(static_cast<ESpell>(affectType));
-	if (affectType > 0 && affectType <= SPELLS_COUNT && !msg.empty()) {
+	if (affectType > 0 && affectType <= kSpellCount && !msg.empty()) {
 		send_to_room(msg.c_str(), room, 0);
 	};
 }
@@ -169,14 +168,14 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 	int spellnum = aff->type;
 
 	switch (spellnum) {
-		case SPELL_FORBIDDEN:
-		case SPELL_ROOM_LIGHT: break;
+		case kSpellForbidden:
+		case kSpellRoomLight: break;
 
-		case SPELL_POISONED_FOG:
+		case kSpellPoosinedFog:
 			if (ch) {
 				const auto people_copy = room->people;
 				for (const auto tch : people_copy) {
-					if (!CallMagic(ch, tch, nullptr, nullptr, SPELL_POISON, GET_REAL_LEVEL(ch))) {
+					if (!CallMagic(ch, tch, nullptr, nullptr, kSpellPoison, GET_REAL_LEVEL(ch))) {
 						aff->duration = 0;
 						break;
 					}
@@ -185,20 +184,20 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 
 			break;
 
-		case SPELL_METEORSTORM: send_to_char("Раскаленные громовые камни рушатся с небес!\r\n", ch);
+		case kSpellMeteorStorm: send_to_char("Раскаленные громовые камни рушатся с небес!\r\n", ch);
 			act("Раскаленные громовые камни рушатся с небес!\r\n",
 				false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_THUNDERSTONE, ch->get_level());
+			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellThunderStone, ch->get_level());
 			break;
 
-		case SPELL_THUNDERSTORM:
+		case kSpellThunderstorm:
 			switch (aff->duration) {
 				case 8:
-					if (!CallMagic(ch, nullptr, nullptr, nullptr, SPELL_CONTROL_WEATHER, GET_REAL_LEVEL(ch))) {
+					if (!CallMagic(ch, nullptr, nullptr, nullptr, kSpellControlWeather, GET_REAL_LEVEL(ch))) {
 						aff->duration = 0;
 						break;
 					}
-					what_sky = SKY_CLOUDY;
+					what_sky = kSkyCloudy;
 					send_to_char("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
 					act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
 						false, 	ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
@@ -206,45 +205,45 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 				case 7: send_to_char("Раздался чудовищный раскат грома!\r\n", ch);
 					act("Раздался чудовищный удар грома!\r\n",
 						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_DEAFNESS, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDeafness, ch->get_level());
 					break;
 				case 6: send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
 						false, 	ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_CONE_OF_COLD, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellColdWind, ch->get_level());
 					break;
 				case 5: send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
 					act("Из туч хлынул дождь кислоты!\r\n",
 						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_ACID, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellAcid, ch->get_level());
 					break;
 				case 4: send_to_char("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n",
 						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_LIGHTNING_BOLT, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, ch->get_level());
 					break;
 				case 3: send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
 					act("Из тучи посыпались шаровые молнии!\r\n",
 						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_CALL_LIGHTNING, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellCallLighting, ch->get_level());
 					break;
 				case 2: send_to_char("Буря завыла, закручиваясь в вихри!\r\n", ch);
 					act("Буря завыла, закручиваясь в вихри!\r\n",
 						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_WHIRLWIND, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellWhirlwind, ch->get_level());
 					break;
-				case 1: what_sky = SKY_CLOUDLESS;
+				case 1: what_sky = kSkyCloudless;
 					break;
 				default: send_to_char("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_LIGHTNING_BOLT, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, ch->get_level());
 			}
 			break;
 
-		case SPELL_EVARDS_BLACK_TENTACLES: send_to_char("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
+		case kSpellBlackTentacles: send_to_char("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
 			act("Мертвые руки навей шарят в поисках добычи!\r\n",
 				false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_DAMAGE_SERIOUS, ch->get_level());
+			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDamageSerious, ch->get_level());
 			break;
 
 		default: log("ERROR: Try handle room affect for spell without handler!");
@@ -265,29 +264,29 @@ void UpdateRoomsAffects() {
 			spellnum = affect->type;
 			ch = nullptr;
 
-			if (IS_SET(spell_info[spellnum].routines, MAG_CASTER_INROOM)
-				|| IS_SET(spell_info[spellnum].routines, MAG_CASTER_INWORLD)) {
+			if (IS_SET(spell_info[spellnum].routines, kMagCasterInroom)
+				|| IS_SET(spell_info[spellnum].routines, kMagCasterInworld)) {
 				ch = find_char_in_room(affect->caster_id, *room);
 				if (!ch) {
 					affect->duration = 0;
 				}
-			} else if (IS_SET(spell_info[spellnum].routines, MAG_CASTER_INWORLD_DELAY)) {
+			} else if (IS_SET(spell_info[spellnum].routines, kMagCasterInworldDelay)) {
 				//Если спелл с задержкой таймера - то обнулять не надо, даже если чара нет, просто тикаем таймером как обычно
 				ch = find_char_in_room(affect->caster_id, *room);
 			}
 
-			if ((!ch) && IS_SET(spell_info[spellnum].routines, MAG_CASTER_INWORLD)) {
+			if ((!ch) && IS_SET(spell_info[spellnum].routines, kMagCasterInworld)) {
 				ch = find_char(affect->caster_id);
 				if (!ch) {
 					affect->duration = 0;
 				}
-			} else if (IS_SET(spell_info[spellnum].routines, MAG_CASTER_INWORLD_DELAY)) {
+			} else if (IS_SET(spell_info[spellnum].routines, kMagCasterInworldDelay)) {
 				ch = find_char(affect->caster_id);
 			}
 
-			if (!(ch && IS_SET(spell_info[spellnum].routines, MAG_CASTER_INWORLD_DELAY))) {
+			if (!(ch && IS_SET(spell_info[spellnum].routines, kMagCasterInworldDelay))) {
 				switch (spellnum) {
-					case SPELL_RUNE_LABEL: affect->duration--;
+					case kSpellRuneLabel: affect->duration--;
 				}
 			}
 
@@ -297,7 +296,7 @@ void UpdateRoomsAffects() {
 			} else if (affect->duration == -1) {
 				affect->duration = -1;
 			} else {
-				if (affect->type > 0 && affect->type <= SPELLS_COUNT) {
+				if (affect->type > 0 && affect->type <= kSpellCount) {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
@@ -354,7 +353,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 	}
 
 	switch (spellnum) {
-		case SPELL_FORBIDDEN: af[0].type = spellnum;
+		case kSpellForbidden: af[0].type = spellnum;
 			af[0].location = kNone;
 			af[0].duration = (1 + (GET_REAL_LEVEL(ch) + 14) / 15) * 30;
 			af[0].caster_id = GET_ID(ch);
@@ -378,7 +377,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 				to_room = "$n очень плохо запечатал$g магией все входы.";
 			}
 			break;
-		case SPELL_ROOM_LIGHT: af[0].type = spellnum;
+		case kSpellRoomLight: af[0].type = spellnum;
 			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
@@ -391,7 +390,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 			to_room = "Пространство вокруг начало светиться.";
 			break;
 
-		case SPELL_POISONED_FOG: af[0].type = spellnum;
+		case kSpellPoosinedFog: af[0].type = spellnum;
 			af[0].location = kPoison;
 			af[0].modifier = 50;
 			af[0].duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
@@ -402,7 +401,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 			to_room = "$n испортил$g воздух и плюнул$g в суп.";
 			break;
 
-		case SPELL_METEORSTORM: af[0].type = spellnum;
+		case kSpellMeteorStorm: af[0].type = spellnum;
 			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = 3;
@@ -415,7 +414,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 			to_room = "$n воздел$g руки и с небес посыпался град раскаленных громовых камней.";
 			break;
 
-		case SPELL_THUNDERSTORM: af[0].type = spellnum;
+		case kSpellThunderstorm: af[0].type = spellnum;
 			af[0].duration = 8;
 			af[0].must_handled = true;
 			af[0].caster_id = GET_ID(ch);
@@ -425,7 +424,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 			to_room = "$n проревел$g заклинание. Вы услышали раскаты далекой грозы.";
 			break;
 
-		case SPELL_RUNE_LABEL:
+		case kSpellRuneLabel:
 			if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 				|| ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)
 				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)) {
@@ -449,7 +448,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 			lag = 2;
 			break;
 
-		case SPELL_HYPNOTIC_PATTERN:
+		case kSpellHypnoticPattern:
 			if (material_component_processing(ch, ch, spellnum)) {
 				success = false;
 				break;
@@ -468,7 +467,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 			to_room = "$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор.";
 			break;
 
-		case SPELL_EVARDS_BLACK_TENTACLES:
+		case kSpellBlackTentacles:
 			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_MONO) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_POLY)) {
 				success = false;
 				break;
@@ -491,7 +490,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 			break;
 	}
 	if (success) {
-		if (IS_SET(SpINFO.routines, MAG_NEED_CONTROL)) {
+		if (IS_SET(SpINFO.routines, kMagNeedControl)) {
 			int SplFound = removeControlledRoomAffect(ch);
 			if (SplFound) {
 				send_to_char(ch,
@@ -646,7 +645,7 @@ void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 	RefreshRoomAffects(room);
 }
 
-void affect_room_modify(RoomData *room, byte loc, sbyte mod, bitvector_t bitv, bool add) {
+void affect_room_modify(RoomData *room, byte loc, sbyte mod, Bitvector bitv, bool add) {
 	if (add) {
 		ROOM_AFF_FLAGS(room).set(bitv);
 	} else {

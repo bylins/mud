@@ -13,12 +13,12 @@
 
 #include "pk.h"
 
-#include "global_objects.h"
-#include "screen.h"
+#include "structs/global_objects.h"
+#include "color.h"
 #include "house.h"
 #include "handler.h"
 #include "fightsystem/fight.h"
-#include "classes/class.h"
+#include "classes/classes.h"
 
 void set_wait(CharacterData *ch, int waittime, int victim_in_room);
 
@@ -653,11 +653,11 @@ void do_revenge(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	two_arguments(argument, arg, arg2);
 
 	// отображать только находящихся онлайн
-	bOnlineOnly = !(is_abbrev(arg2, "все") || is_abbrev(arg2, "all"));
+	bOnlineOnly = !(utils::IsAbbrev(arg2, "все") || utils::IsAbbrev(arg2, "all"));
 
 	// "месть мне [все]"
 	// кто может мне отомстить
-	if (is_abbrev(arg, "мне") || is_abbrev(arg, "me")) {
+	if (utils::IsAbbrev(arg, "мне") || utils::IsAbbrev(arg, "me")) {
 		if (bOnlineOnly) {
 			strcat(buf, "Вам имеют право отомстить (находятся сейчас онлайн):\r\n");
 		} else {

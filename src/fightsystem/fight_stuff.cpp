@@ -3,7 +3,6 @@
 #include "affects/affect_data.h"
 #include "mobact.h"
 #include "entities/obj.h"
-#include "entities/entity_constants.h"
 #include "cmd/flee.h"
 #include "entities/world_characters.h"
 #include "fight.h"
@@ -15,7 +14,7 @@
 #include "pk.h"
 #include "stuff.h"
 #include "top.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/magic.h"
 #include "mob_stat.h"
 #include "game_mechanics/bonus.h"
@@ -23,8 +22,7 @@
 #include "magic/magic_utils.h"
 #include "entities/zone.h"
 #include "entities/char_player.h"
-#include <cmath>
-#include <algorithm>
+#include "structs/global_objects.h"
 
 // extern
 void perform_drop_gold(CharacterData *ch, int amount);
@@ -230,18 +228,18 @@ void update_leadership(CharacterData *ch, CharacterData *killer) {
 		if (!IS_NPC(killer) // Убил загрупленный чар
 			&& AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)
 			&& killer->has_master()
-			&& killer->get_master()->get_skill(SKILL_LEADERSHIP) > 0
+			&& killer->get_master()->get_skill(ESkill::kLeadership) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
-			ImproveSkill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
+			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
 		} else if (IS_NPC(killer) // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
 			&& killer->has_master()
 			&& AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->get_skill(SKILL_LEADERSHIP) > 0
+				&& killer->get_master()->get_master()->get_skill(ESkill::kLeadership) > 0
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master())) {
-				ImproveSkill(killer->get_master()->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
+				ImproveSkill(killer->get_master()->get_master(), ESkill::kLeadership, number(0, 1), ch);
 			}
 		}
 	}
@@ -253,9 +251,9 @@ void update_leadership(CharacterData *ch, CharacterData *killer) {
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
 		&& ch->has_master()
 		&& ch->in_room == IN_ROOM(ch->get_master())
-		&& ch->get_master()->get_inborn_skill(SKILL_LEADERSHIP) > 1) {
-		const auto current_skill = ch->get_master()->get_trained_skill(SKILL_LEADERSHIP);
-		ch->get_master()->set_skill(SKILL_LEADERSHIP, current_skill - 1);
+		&& ch->get_master()->get_inborn_skill(ESkill::kLeadership) > 1) {
+		const auto current_skill = ch->get_master()->get_trained_skill(ESkill::kLeadership);
+		ch->get_master()->set_skill(ESkill::kLeadership, current_skill - 1);
 	}
 }
 
@@ -415,14 +413,14 @@ void die(CharacterData *ch, CharacterData *killer) {
 	raw_kill(ch, killer);
 }
 
-#include "classes/class_spell_slots.h"
+#include "classes/classes_spell_slots.h"
 void forget_all_spells(CharacterData *ch) {
 	using PlayerClass::slot_for_char;
 
 	GET_MEM_COMPLETED(ch) = 0;
-	int slots[MAX_SLOT];
+	int slots[kMaxSlot];
 	int max_slot = 0;
-	for (unsigned i = 0; i < MAX_SLOT; ++i) {
+	for (unsigned i = 0; i < kMaxSlot; ++i) {
 		slots[i] = slot_for_char(ch, i + 1);
 		if (slots[i]) max_slot = i + 1;
 	}
@@ -433,7 +431,7 @@ void forget_all_spells(CharacterData *ch) {
 	}
 	int slotn;
 
-	for (int i = 0; i <= SPELLS_COUNT; i++) {
+	for (int i = 0; i <= kSpellCount; i++) {
 		if (PRF_FLAGGED(ch, PRF_AUTOMEM) && ch->real_abils.SplMem[i]) {
 			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[i]); ++j, --slots[slotn]) {
@@ -449,7 +447,7 @@ void forget_all_spells(CharacterData *ch) {
 	}
 	if (max_slot) {
 		Affect<EApplyLocation> af;
-		af.type = SPELL_RECALL_SPELLS;
+		af.type = kSpellRecallSpells;
 		af.location = APPLY_NONE;
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
@@ -598,8 +596,8 @@ void check_spell_capable(CharacterData *ch, CharacterData *killer) {
 		&& killer != ch
 		&& MOB_FLAGGED(ch, MOB_CLONE)
 		&& ch->has_master()
-		&& affected_by_spell(ch, SPELL_CAPABLE)) {
-		affect_from_char(ch, SPELL_CAPABLE);
+		&& affected_by_spell(ch, kSpellCapable)) {
+		affect_from_char(ch, kSpellCapable);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		auto pos = GET_POS(ch);
@@ -942,7 +940,7 @@ void perform_group_gain(CharacterData *ch, CharacterData *victim, int members, i
 }
 
 int grouping_koef(int player_class, int player_remort) {
-	if ((player_class >= NUM_PLAYER_CLASSES) || (player_class < 0))
+	if ((player_class >= kNumPlayerClasses) || (player_class < 0))
 		return 1;
 	return grouping[player_class][player_remort];
 
@@ -1108,7 +1106,8 @@ void alterate_object(ObjectData *obj, int dam, int chance) {
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
 		MAX(1, GET_OBJ_MAX(obj) *
 			(obj->get_extra_flag(EExtraFlag::ITEM_NODROP) ? 5 :
-			 obj->get_extra_flag(EExtraFlag::ITEM_BLESS) ? 15 : 10) * (GET_OBJ_SKILL(obj) == SKILL_BOWS ? 3 : 1)));
+			 obj->get_extra_flag(EExtraFlag::ITEM_BLESS) ? 15 : 10)
+			 * (static_cast<ESkill>(GET_OBJ_SKILL(obj)) == ESkill::kBows ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100)) {
 		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), WEAR_SHIELD) == obj) {
@@ -1392,14 +1391,15 @@ void Damage::post_init_shields(CharacterData *victim) {
 
 void Damage::post_init(CharacterData *ch, CharacterData *victim) {
 	if (msg_num == -1) {
-		if (skill_num >= 0) {
-			msg_num = skill_num + TYPE_HIT;
+		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
+		if (MUD::Skills().IsValid(skill_id)) {
+			msg_num = to_underlying(skill_id) + kTypeHit;
 		} else if (spell_num >= 0) {
 			msg_num = spell_num;
 		} else if (hit_type >= 0) {
-			msg_num = hit_type + TYPE_HIT;
+			msg_num = hit_type + kTypeHit;
 		} else {
-			msg_num = TYPE_HIT;
+			msg_num = kTypeHit;
 		}
 	}
 
@@ -1430,7 +1430,7 @@ void Damage::zero_init() {
 	fs_damage = 0;
 	magic_type = 0;
 	dmg_type = -1;
-	skill_num = -1;
+	skill_id = ESkill::kUndefined;
 	spell_num = -1;
 	hit_type = -1;
 	msg_num = -1;

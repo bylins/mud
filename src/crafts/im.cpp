@@ -13,11 +13,10 @@
 #include "crafts/im.h"
 
 #include "entities/world_characters.h"
-//#include "entities/entity_constants.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "modify.h"
 #include "entities/zone.h"
 
@@ -85,14 +84,14 @@ int im_get_recipe_by_name(char *name) {
 		return -1;
 
 	for (rid = top_imrecipes; rid >= 0; --rid) {
-		if (is_abbrev(name, imrecipes[rid].name))
+		if (utils::IsAbbrev(name, imrecipes[rid].name))
 			break;
 
 		ok = true;
 		temp = any_one_arg(imrecipes[rid].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
-			if (!is_abbrev(first2, first))
+			if (!utils::IsAbbrev(first2, first))
 				ok = false;
 			temp = any_one_arg(temp, first);
 			temp2 = any_one_arg(temp2, first2);
@@ -736,7 +735,7 @@ void init_im(void) {
 	// но уровни и реморты равные -1, т.о. если файл classrecipe.lst поврежден,
 	// рецепты не будут обнулятся, просто станут недоступны для изучения
 	for (i = 0; i <= top_imrecipes; i++) {
-		for (j = 0; j < NUM_PLAYER_CLASSES; j++)
+		for (j = 0; j < kNumPlayerClasses; j++)
 			imrecipes[i].classknow[j] = KNOW_RECIPE;
 		imrecipes[i].level = -1;
 		imrecipes[i].remort = -1;
@@ -782,7 +781,7 @@ void init_im(void) {
 
 // line1 - ограничения для рас еще не реализованы
 
-		for (j = 0; line2[j] && j < NUM_PLAYER_CLASSES; j++) {
+		for (j = 0; line2[j] && j < kNumPlayerClasses; j++) {
 			if (!strchr("1xX!", line2[j])) {
 				imrecipes[rcpt].classknow[j] = 0;
 			} else {
@@ -1050,7 +1049,7 @@ void do_recipes(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	if (IS_NPC(ch))
 		return;
 	skip_spaces(&argument);
-	if (is_abbrev(argument, "все") || is_abbrev(argument, "all"))
+	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all"))
 		list_recipes(ch, true);
 	else
 		list_recipes(ch, false);
@@ -1158,7 +1157,7 @@ void im_improve_recipe(CharacterData *ch, im_rskill *rs, int success) {
 	if (IS_NPC(ch) || (rs->perc >= kMaxRecipeLevel))
 		return;
 
-	if (ch->in_room != kNowhere && (CalcSkillSoftCap(ch) - rs->perc > 0)) {
+	if (ch->in_room != kNowhere && (CalcSkillWisdomCap(ch) - rs->perc > 0)) {
 		int n = ch->get_skills_count();
 		n = (n + 1) >> 1;
 		n += im_get_char_rskill_count(ch);

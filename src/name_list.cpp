@@ -33,7 +33,7 @@ void add(CharacterData *ch) {
 
 	ch->set_serial_num(++char_serial_num);
 	std::string name(GET_NAME(ch)), word;
-	lower_convert(name);
+	utils::ConvertToLow(name);
 
 	while (!name.empty()) {
 		cut_one_word(name, word);
@@ -97,7 +97,7 @@ CharacterData *get_by_name(const char *str) {
 		return 0;
 	}
 	std::string name(str), word;
-	lower_convert(name);
+	utils::ConvertToLow(name);
 	cut_one_word(name, word);
 	if (word.empty()) {
 		return 0;
@@ -123,7 +123,7 @@ void add(ObjectData *obj) {
 	obj->set_serial_num(++obj_serial_num);
 	std::string name(obj->get_aliases());
 	std::string word;
-	lower_convert(name);
+	utils::ConvertToLow(name);
 
 	while (!name.empty()) {
 		cut_one_word(name, word);
@@ -193,7 +193,7 @@ ObjectData *get_by_name(const char *str) {
 		return 0;
 	}
 	std::string name(str), word;
-	lower_convert(name);
+	utils::ConvertToLow(name);
 	cut_one_word(name, word);
 	if (word.empty()) {
 		return 0;
@@ -211,7 +211,7 @@ ObjectData *locate_object(const char *str) {
 	}
 
 	std::string name(str), word;
-	lower_convert(name);
+	utils::ConvertToLow(name);
 	cut_one_word(name, word);
 	if (word.empty()) {
 		return 0;

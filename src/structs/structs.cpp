@@ -19,10 +19,10 @@ void tascii(const uint32_t *pointer, int num_planes, char *ascii) {
 
 const char* nothing_string = "ничего";
 
-bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag) {
+bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, const int print_flag) {
 
 	long nr = 0;
-	bitvector_t fail;
+	Bitvector fail;
 	int plane = 0;
 	char c = 'a';
 

@@ -10,15 +10,16 @@
 
 #include "dg_scripts.h"
 
-#include "global_objects.h"
+#include <chrono>
+
+#include "structs/global_objects.h"
 #include "utils/utils_find_obj_id_by_vnum.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "dg_event.h"
-#include "screen.h"
+#include "color.h"
 #include "house.h"
 #include "entities/char_player.h"
-//#include "entities/entity_constants.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
 #include "magic/magic_utils.h"
@@ -26,12 +27,10 @@
 #include "dg_db_scripts.h"
 #include "dg_domination_helper.h"
 #include "game_mechanics/bonus.h"
-//#include "game_mechanics/weather.h"
 #include "olc/olc.h"
 #include "privilege.h"
+#include "fightsystem/fight_hit.h"
 //#include <string>
-
-#include <chrono>
 
 constexpr long long kPulsesPerMudHour = SECS_PER_MUD_HOUR*kPassesPerSec;
 
@@ -53,11 +52,10 @@ extern CharacterData *combat_list;
 extern const char *item_types[];
 extern const char *genders[];
 extern const char *pc_class_types[];
-//extern const char *race_types[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
-const char *spell_name(int num);
+const char *GetSpellName(int num);
 
 extern int can_take_obj(CharacterData *ch, ObjectData *obj);
 extern void split_or_clan_tax(CharacterData *ch, long amount);
@@ -1019,10 +1017,10 @@ void do_attach(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	rn = real_trigger(tn);
 	if (rn >= 0
-		&& ((is_abbrev(arg, "mtr") && trig_index[rn]->proto->get_attach_type() != MOB_TRIGGER)
-			|| (is_abbrev(arg, "otr") && trig_index[rn]->proto->get_attach_type() != OBJ_TRIGGER)
-			|| (is_abbrev(arg, "wtr") && trig_index[rn]->proto->get_attach_type() != WLD_TRIGGER))) {
-		tn = (is_abbrev(arg, "mtr") ? 0 : is_abbrev(arg, "otr") ? 1 : is_abbrev(arg, "wtr") ? 2 : 3);
+		&& ((utils::IsAbbrev(arg, "mtr") && trig_index[rn]->proto->get_attach_type() != MOB_TRIGGER)
+			|| (utils::IsAbbrev(arg, "otr") && trig_index[rn]->proto->get_attach_type() != OBJ_TRIGGER)
+			|| (utils::IsAbbrev(arg, "wtr") && trig_index[rn]->proto->get_attach_type() != WLD_TRIGGER))) {
+		tn = (utils::IsAbbrev(arg, "mtr") ? 0 : utils::IsAbbrev(arg, "otr") ? 1 : utils::IsAbbrev(arg, "wtr") ? 2 : 3);
 		sprintf(buf,
 				"Trigger %d (%s) has wrong attach_type %s expected %s.\r\n",
 				tn,
@@ -1032,7 +1030,7 @@ void do_attach(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(buf, ch);
 		return;
 	}
-	if (is_abbrev(arg, "mtr")) {
+	if (utils::IsAbbrev(arg, "mtr")) {
 		if ((victim = get_char_vis(ch, targ_name, FIND_CHAR_WORLD))) {
 			if (IS_NPC(victim))    // have a valid mob, now get trigger
 			{
@@ -1052,7 +1050,7 @@ void do_attach(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			send_to_char("That mob does not exist.\r\n", ch);
 		}
-	} else if (is_abbrev(arg, "otr")) {
+	} else if (utils::IsAbbrev(arg, "otr")) {
 		if ((object = get_obj_vis(ch, targ_name)))    // have a valid obj, now get trigger
 		{
 			rn = real_trigger(tn);
@@ -1070,7 +1068,7 @@ void do_attach(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("That trigger does not exist.\r\n", ch);
 		} else
 			send_to_char("That object does not exist.\r\n", ch);
-	} else if (is_abbrev(arg, "wtr")) {
+	} else if (utils::IsAbbrev(arg, "wtr")) {
 		if (a_isdigit(*targ_name) && !strchr(targ_name, '.')) {
 			if ((room = find_target_room(ch, targ_name, 0)) != kNowhere)    // have a valid room, now get trigger
 			{
@@ -1125,14 +1123,14 @@ void do_detach(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char("That trigger was not found.\r\n", ch);
 		}
 	} else {
-		if (is_abbrev(arg1, "mob")) {
+		if (utils::IsAbbrev(arg1, "mob")) {
 			if (!(victim = get_char_vis(ch, arg2, FIND_CHAR_WORLD)))
 				send_to_char("No such mobile around.\r\n", ch);
 			else if (!*arg3)
 				send_to_char("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
-		} else if (is_abbrev(arg1, "object")) {
+		} else if (utils::IsAbbrev(arg1, "object")) {
 			if (!(object = get_obj_vis(ch, arg2)))
 				send_to_char("No such object around.\r\n", ch);
 			else if (!*arg3)
@@ -2421,8 +2419,9 @@ void find_replacement(void *go,
 				strcpy(str, "1");
 			}
 		} else if (!str_cmp(field, "can_get_skill")) {
-			if ((num = FixNameAndFindSkillNum(subfield)) > 0) {
-				if (IsAbleToGetSkill(c, num)) {
+			auto skill_id = FixNameAndFindSkillNum(subfield);
+			if (skill_id > ESkill::kIncorrect) {
+				if (IsAbleToGetSkill(c, skill_id)) {
 					strcpy(str, "1");
 				} else {
 					strcpy(str, "0");
@@ -2434,7 +2433,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "can_get_spell")) {
 			if ((num = FixNameAndFindSpellNum(subfield)) > 0) {
-				if (can_get_spell(c, num)) {
+				if (IsAbleToGetSpell(c, num)) {
 					strcpy(str, "1");
 				} else {
 					strcpy(str, "0");
@@ -2523,7 +2522,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "maxskill")) {
 			const ESkill skillnum = FixNameAndFindSkillNum(subfield);
-			if (skillnum > 0) {
+			if (skillnum > ESkill::kIncorrect) {
 				sprintf(str, "%d", CalcSkillHardCap(c, skillnum));
 			} else {
 				strcpy(str, "0");

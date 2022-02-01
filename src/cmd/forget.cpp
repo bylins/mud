@@ -2,8 +2,7 @@
 
 #include "magic/spells_info.h"
 #include "handler.h"
-#include "crafts/im.h"
-#include "screen.h"
+#include "color.h"
 
 inline bool in_mem(char *arg) {
 	return (strlen(arg) != 0) &&
@@ -37,7 +36,7 @@ void do_forget(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			MemQ_flush(ch);
 			send_to_char("Вы вычеркнули все заклинания из своего списка для запоминания.\r\n", ch);
 		} else {
-			for (i = 1; i <= SPELLS_COUNT; i++) {
+			for (i = 1; i <= kSpellCount; i++) {
 				GET_SPELL_MEM(ch, i) = 0;
 			}
 			sprintf(buf,
@@ -64,11 +63,11 @@ void do_forget(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	spellnum = FixNameAndFindSpellNum(s);
 	// Unknown spell
-	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
+	if (spellnum < 1 || spellnum > kSpellCount) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
 		send_to_char("Трудно забыть то, чего не знаешь...\r\n", ch);
 		return;
 	}

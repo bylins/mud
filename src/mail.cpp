@@ -11,13 +11,12 @@
 #include "mail.h"
 
 #include "world_objects.h"
-#include "interpreter.h"
 #include "handler.h"
 #include "parcel.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
 #include "parse.h"
-#include "screen.h"
+#include "color.h"
 #include "utils/pugixml.h"
 
 #include <boost/lexical_cast.hpp>
@@ -115,7 +114,7 @@ int postmaster(CharacterData *ch, void *me, int cmd, char *argument) {
 		return (1);
 	} else if (CMD_IS("receive") || CMD_IS("получить")) {
 		one_argument(argument, arg);
-		if (is_abbrev(arg, "вещи")) {
+		if (utils::IsAbbrev(arg, "вещи")) {
 			NamedStuff::receive_items(ch, (CharacterData *) me);
 		} else {
 			postmaster_receive_mail(ch, (CharacterData *) me, cmd, argument);

@@ -16,7 +16,6 @@
 #define _INTERPRETER_H_
 
 #include "conf.h"
-//#include "structs/structs.h"
 #include "structs/descriptor_data.h"
 #include "entities/entity_constants.h"
 
@@ -37,12 +36,6 @@ int fill_word(const char *argument);
 void half_chop(char const *string, char *arg1, char *arg2);
 void nanny(DescriptorData *d, char *arg);
 
-/**
-* returns 1 if arg1 is an abbreviation of arg2
-*/
-int is_abbrev(const char *arg1, const char *arg2);
-inline int is_abbrev(const std::string &arg1, const char *arg2) { return is_abbrev(arg1.c_str(), arg2); }
-
 int is_number(const char *str);
 int find_command(const char *command);
 // блок подобной же фигни для стрингов
@@ -56,8 +49,6 @@ std::string GetNameByUnique(long unique, bool god = false);
 bool IsActiveUser(long unique);
 void CreateFileName(std::string &name);
 std::string ExpFormat(long long exp);
-void lower_convert(std::string &text);
-void lower_convert(char *text);
 void name_convert(std::string &text);
 void god_work_invoice();
 int special(CharacterData *ch, int cmd, char *arg, int fnum);

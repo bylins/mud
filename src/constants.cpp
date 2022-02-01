@@ -14,7 +14,6 @@
 
 #include "constants.h"
 #include "magic/spells.h"
-//#include "house.h"
 
 const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
 
@@ -868,10 +867,10 @@ const char *anti_bits[] = {"!христиане",
 };
 
 const char *apply_negative[] = {"защита",
-								"воля",        // SAVING_WILL
-								"здоровье",    // SAVING_CRITICAL
-								"стойкость",    // SAVING_STABILITY
-								"реакция",    // SAVING_REFLEX
+								"воля",        // kWill
+								"здоровье",    // kCritical
+								"стойкость",    // kStability
+								"реакция",    // kReflex
 								"\n"
 };
 
@@ -1804,7 +1803,7 @@ int mana_cost_cs[][9] = {
 };
 
 // Weapon attack texts
-struct attack_hit_type attack_hit_text[] =
+struct AttackHitType attack_hit_text[] =
 	{
 		{"ударил", "ударить"},    // 0
 		{"ободрал", "ободрать"},
@@ -1839,5 +1838,16 @@ const char *godslike_bits[] =
 		"GF_TESTER",
 		"\n"
 	};
+
+const char *weapon_class[] = {"луки",
+							  "короткие лезвия",
+							  "длинные лезвия",
+							  "секиры",
+							  "палицы и дубины",
+							  "иное оружие",
+							  "двуручники",
+							  "проникающее оружие",
+							  "копья и рогатины"
+};
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

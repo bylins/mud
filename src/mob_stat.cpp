@@ -6,7 +6,7 @@
 #include "utils/pugixml.h"
 #include "parse.h"
 #include "entities/char.h"
-#include "screen.h"
+#include "color.h"
 
 #include <iomanip>
 
@@ -22,7 +22,7 @@ struct class_exp_node {
 	std::string class_name;
 };
 /// экспа за ребут с делением по профам - для 'статистика'
-std::array<class_exp_node, NUM_PLAYER_CLASSES> class_exp =
+std::array<class_exp_node, kNumPlayerClasses> class_exp =
 	{{
 		 {0, "Лекари"},
 		 {0, "Колдуны"},

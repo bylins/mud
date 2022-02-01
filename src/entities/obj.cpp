@@ -9,7 +9,7 @@
 #include "obj_prototypes.h"
 #include "parse.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "game_mechanics/celebrates.h"
 #include "fightsystem/pk.h"
 #include "cache.h"
@@ -258,12 +258,12 @@ void CObjectPrototype::toggle_wear_flag(const uint32_t flag) {
 	TOGGLE_BIT(m_wear_flags, flag);
 }
 
-void CObjectPrototype::set_skill(int skill_num, int percent) {
+void CObjectPrototype::set_skill(ESkill skill_num, int percent) {
 	if (!m_skills.empty()) {
-		const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
+		const auto skill = m_skills.find(skill_num);
 		if (skill == m_skills.end()) {
 			if (percent != 0) {
-				m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
+				m_skills.insert(std::make_pair(skill_num, percent));
 			}
 		} else {
 			if (percent != 0) {
@@ -275,7 +275,7 @@ void CObjectPrototype::set_skill(int skill_num, int percent) {
 	} else {
 		if (percent != 0) {
 			m_skills.clear();
-			m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
+			m_skills.insert(std::make_pair(skill_num, percent));
 		}
 	}
 }
@@ -374,12 +374,11 @@ CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
 	return *this;
 }
 
-int CObjectPrototype::get_skill(int skill_num) const {
-	const auto skill = m_skills.find(static_cast<ESkill>(skill_num));
+int CObjectPrototype::get_skill(ESkill skill_num) const {
+	const auto skill = m_skills.find(skill_num);
 	if (skill != m_skills.end()) {
 		return skill->second;
 	}
-
 	return 0;
 }
 
@@ -795,7 +794,7 @@ std::pair<bool, int> ObjectData::get_activator() const {
 }
 
 void ObjectData::add_timed_spell(const int spell, const int time) {
-	if (spell < 1 || spell >= SPELLS_COUNT) {
+	if (spell < 1 || spell >= kSpellCount) {
 		log("SYSERROR: func: %s, spell = %d, time = %d", __func__, spell, time);
 		return;
 	}
@@ -815,7 +814,7 @@ void CObjectPrototype::set_ex_description(const char *keyword, const char *descr
 
 void set_obj_aff(ObjectData *itemobj, const EAffectFlag bitv) {
 	for (const auto &i : weapon_affect) {
-		if (i.aff_bitvector == static_cast<bitvector_t>(bitv)) {
+		if (i.aff_bitvector == static_cast<Bitvector>(bitv)) {
 			SET_OBJ_AFF(itemobj, to_underlying(i.aff_pos));
 		}
 	}

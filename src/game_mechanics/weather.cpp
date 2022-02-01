@@ -16,7 +16,7 @@
 
 #include "magic/spells.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "utils/random.h"
 #include "game_mechanics/celebrates.h"
 
@@ -155,7 +155,7 @@ void another_hour(int/* mode*/) {
 
 	if ((weather_info.sunlight == SUN_SET ||
 		weather_info.sunlight == SUN_DARK) &&
-		weather_info.sky == SKY_LIGHTNING &&
+		weather_info.sky == kSkyLightning &&
 		weather_info.moon_day >= FULLMOONSTART && weather_info.moon_day <= FULLMOONSTOP) {
 		send_to_outdoor("Лунный свет заливает равнины тусклым светом.\r\n", SUN_CONTROL);
 	}
@@ -247,7 +247,7 @@ void calc_basic(int weather_type, int sky, int *rainlevel, int *snowlevel) {    
 	// Rains and snow decrease by time and weather
 	*rainlevel -= 1;
 	*snowlevel -= 1;
-	if (sky == SKY_LIGHTNING) {
+	if (sky == kSkyLightning) {
 		if (IS_SET(weather_info.weather_type, WEATHER_LIGHTWIND)) {
 			*rainlevel -= 1;
 		} else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMWIND)) {
@@ -259,7 +259,7 @@ void calc_basic(int weather_type, int sky, int *rainlevel, int *snowlevel) {    
 		} else {
 			*rainlevel -= 1;
 		}
-	} else if (sky == SKY_CLOUDLESS) {
+	} else if (sky == kSkyCloudless) {
 		if (IS_SET(weather_info.weather_type, WEATHER_LIGHTWIND)) {
 			*rainlevel -= 1;
 		} else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMWIND)) {
@@ -268,7 +268,7 @@ void calc_basic(int weather_type, int sky, int *rainlevel, int *snowlevel) {    
 			*rainlevel -= 2;
 			*snowlevel -= 1;
 		}
-	} else if (sky == SKY_CLOUDY) {
+	} else if (sky == kSkyCloudy) {
 		if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND)) {
 			*rainlevel -= 1;
 		}
@@ -443,14 +443,14 @@ void weather_change(void) {
 	temp_change = 0;
 
 	switch (weather_info.sky) {
-		case SKY_CLOUDLESS:
+		case kSkyCloudless:
 			if (weather_info.pressure < 990)
 				sky_change = 1;
 			else if (weather_info.pressure < 1010)
 				if (dice(1, 4) == 1)
 					sky_change = 1;
 			break;
-		case SKY_CLOUDY:
+		case kSkyCloudy:
 			if (weather_info.pressure < 970)
 				sky_change = 2;
 			else if (weather_info.pressure < 990) {
@@ -463,7 +463,7 @@ void weather_change(void) {
 					sky_change = 3;
 
 			break;
-		case SKY_RAINING:
+		case kSkyRaining:
 			if (weather_info.pressure < 970) {
 				if (dice(1, 4) == 1)
 					sky_change = 4;
@@ -476,7 +476,7 @@ void weather_change(void) {
 					sky_change = 5;
 
 			break;
-		case SKY_LIGHTNING:
+		case kSkyLightning:
 			if (weather_info.pressure > 1010)
 				sky_change = 6;
 			else if (weather_info.pressure > 990)
@@ -485,7 +485,7 @@ void weather_change(void) {
 
 			break;
 		default: sky_change = 0;
-			weather_info.sky = SKY_CLOUDLESS;
+			weather_info.sky = kSkyCloudless;
 			break;
 	}
 
@@ -589,7 +589,7 @@ void weather_change(void) {
 	switch (sky_change) {
 		case 1:        // CLOUDLESS -> CLOUDY
 			strcat(buf, "Небо затянуло тучами.\r\n");
-			weather_info.sky = SKY_CLOUDY;
+			weather_info.sky = kSkyCloudy;
 			break;
 		case 2:        // CLOUDY -> RAINING
 			switch (time_info.month) {
@@ -635,15 +635,15 @@ void weather_change(void) {
 					}
 					break;
 			}
-			weather_info.sky = SKY_RAINING;
+			weather_info.sky = kSkyRaining;
 			break;
 		case 3:        // CLOUDY -> CLOUDLESS
 			strcat(buf, "Начало проясняться.\r\n");
-			weather_info.sky = SKY_CLOUDLESS;
+			weather_info.sky = kSkyCloudless;
 			break;
 		case 4:        // RAINING -> LIGHTNING
 			strcat(buf, "Налетевший ветер разогнал тучи.\r\n");
-			weather_info.sky = SKY_LIGHTNING;
+			weather_info.sky = kSkyLightning;
 			break;
 		case 5:        // RAINING -> CLOUDY
 			if (IS_SET(weather_info.weather_type, WEATHER_LIGHTRAIN | WEATHER_MEDIUMRAIN | WEATHER_BIGRAIN))
@@ -652,7 +652,7 @@ void weather_change(void) {
 				strcat(buf, "Снегопад прекратился.\r\n");
 			else if (IS_SET(weather_info.weather_type, WEATHER_GRAD))
 				strcat(buf, "Град прекратился.\r\n");
-			weather_info.sky = SKY_CLOUDY;
+			weather_info.sky = kSkyCloudy;
 			break;
 		case 6:        // LIGHTNING -> RAINING
 			switch (time_info.month) {
@@ -704,7 +704,7 @@ void weather_change(void) {
 					}
 					break;
 			}
-			weather_info.sky = SKY_RAINING;
+			weather_info.sky = kSkyRaining;
 			break;
 		case 0:
 		default:
@@ -856,39 +856,39 @@ int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 		case GAPPLY_SPELL_EFFECT:
 			switch (spellnum)    // Огненные спеллы - лето, день, безоблачно
 			{
-				case SPELL_BURNING_HANDS:
-				case SPELL_SHOCKING_GRASP:
-				case SPELL_SHINEFLASH:
-				case SPELL_COLOR_SPRAY:
-				case SPELL_FIREBALL:
-				case SPELL_FIREBLAST:
+				case kSpellBurningHands:
+				case kSpellShockingGasp:
+				case kSpellShineFlash:
+				case kSpellIceBolts:
+				case kSpellFireball:
+				case kSpellFireBlast:
 					if (season == SEASON_SUMMER &&
 						(weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)) {
-						if (sky == SKY_LIGHTNING)
+						if (sky == kSkyLightning)
 							modi += (modi * number(20, 50) / 100);
-						else if (sky == SKY_CLOUDLESS)
+						else if (sky == kSkyCloudless)
 							modi += (modi * number(10, 25) / 100);
 					}
 					break;
 					// Молнийные спеллы - облачно или дождливо
-				case SPELL_CALL_LIGHTNING:
-				case SPELL_LIGHTNING_BOLT:
-				case SPELL_CHAIN_LIGHTNING:
-				case SPELL_ARMAGEDDON:
-					if (sky == SKY_RAINING)
+				case kSpellCallLighting:
+				case kSpellLightingBolt:
+				case kSpellChainLighting:
+				case kSpellArmageddon:
+					if (sky == kSkyRaining)
 						modi += (modi * number(20, 50) / 100);
-					else if (sky == SKY_CLOUDY)
+					else if (sky == kSkyCloudy)
 						modi += (modi * number(10, 25) / 100);
 					break;
 					// Водно-ледяные спеллы - зима
-				case SPELL_CHILL_TOUCH:
-				case SPELL_ICESTORM:
-				case SPELL_CONE_OF_COLD:
-				case SPELL_IMPLOSION:
+				case kSpellChillTouch:
+				case kSpellIceStorm:
+				case kSpellColdWind:
+				case kSpellGodsWrath:
 					if (season == SEASON_WINTER) {
-						if (sky == SKY_RAINING || sky == SKY_CLOUDY)
+						if (sky == kSkyRaining || sky == kSkyCloudy)
 							modi += (modi * number(20, 50) / 100);
-						else if (sky == SKY_CLOUDLESS || sky == SKY_LIGHTNING)
+						else if (sky == kSkyCloudless || sky == kSkyLightning)
 							modi += (modi * number(10, 25) / 100);
 					}
 					break;
@@ -907,11 +907,12 @@ int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 	return (modi);
 }
 
-int day_skill_modifier(CharacterData * /*ch*/, int/* skillnum*/, int/* type*/, int value) {
+// По идее все это скорее относится к скиллам, чем к погоде, и должно находиться в скиллпроцессоре.
+int day_skill_modifier(CharacterData * /*ch*/, ESkill/* skillnum*/, int/* type*/, int value) {
 	return value;
 }
 
-int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value) {
+int weather_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 
 	if (IS_NPC(ch) ||
@@ -925,25 +926,26 @@ int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value)
 	switch (type) {
 		case GAPPLY_SKILL_SUCCESS:
 			switch (skillnum) {
-				case SKILL_INDEFINITE:
+				case ESkill::kUndefined:
 					if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK) {
 						switch (sky) {
-							case SKY_CLOUDLESS: modi = modi * 90 / 100;
+							case kSkyCloudless: modi = modi * 90 / 100;
 								break;
-							case SKY_CLOUDY: modi = modi * 80 / 100;
+							case kSkyCloudy: modi = modi * 80 / 100;
 								break;
-							case SKY_RAINING: modi = modi * 70 / 30;
+							case kSkyRaining: modi = modi * 70 / 30;
 								break;
 						}
 					} else {
 						switch (sky) {
-							case SKY_CLOUDY: modi = modi * number(85, 95) / 100;
+							case kSkyCloudy: modi = modi * number(85, 95) / 100;
 								break;
-							case SKY_RAINING: modi = modi * number(75, 85) / 100;
+							case kSkyRaining: modi = modi * number(75, 85) / 100;
 								break;
 						}
 					}
 					break;
+				default: break;
 			}
 			break;
 	}
@@ -952,7 +954,7 @@ int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value)
 	return (modi);
 }
 
-int complex_skill_modifier(CharacterData *ch, int skillnum, int type, int value) {
+int complex_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int value) {
 	int modi = value;
 	modi = day_skill_modifier(ch, skillnum, type, modi);
 	modi = weather_skill_modifier(ch, skillnum, type, modi);

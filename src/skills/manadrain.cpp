@@ -5,23 +5,23 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/common.h"
 #include "fightsystem/fight_hit.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 using namespace FightSystem;
 
 void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-	struct Timed timed;
+	struct TimedSkill timed;
 	int drained_mana, prob, percent, skill;
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_MANADRAIN)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kJinx)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (timed_by_skill(ch, SKILL_MANADRAIN) || ch->haveCooldown(SKILL_MANADRAIN)) {
+	if (IsTimedBySkill(ch, ESkill::kJinx) || ch->haveCooldown(ESkill::kJinx)) {
 		send_to_char("Так часто не получится.\r\n", ch);
 		return;
 	}
@@ -47,7 +47,7 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if (affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT)) {
+	if (affected_by_spell(vict, kSpellGodsShield) || MOB_FLAGGED(vict, MOB_PROTECT)) {
 		send_to_char("Боги хранят вашу жертву.\r\n", ch);
 		return;
 	}
@@ -56,14 +56,14 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	skill = ch->get_skill(SKILL_MANADRAIN);
+	skill = ch->get_skill(ESkill::kJinx);
 
-	percent = number(1, skill_info[SKILL_MANADRAIN].difficulty);
+	percent = number(1, MUD::Skills()[ESkill::kJinx].difficulty);
 	prob = MAX(20, 90 - 5 * MAX(0, GET_REAL_LEVEL(vict) - GET_REAL_LEVEL(ch)));
-	ImproveSkill(ch, SKILL_MANADRAIN, percent > prob, vict);
+	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
 
-	Damage manadrainDamage(SkillDmg(SKILL_MANADRAIN), ZERO_DMG, MAGE_DMG, nullptr);
-	manadrainDamage.magic_type = STYPE_DARK;
+	Damage manadrainDamage(SkillDmg(ESkill::kJinx), ZERO_DMG, MAGE_DMG, nullptr);
+	manadrainDamage.magic_type = kTypeDark;
 	if (percent <= prob) {
 		skill = MAX(10, skill - 10 * MAX(0, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
@@ -73,8 +73,8 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	manadrainDamage.process(ch, vict);
 
 	if (!IS_IMMORTAL(ch)) {
-		timed.skill = SKILL_MANADRAIN;
-		timed.time = 6 - MIN(4, (ch->get_skill(SKILL_MANADRAIN) + 30) / 50);
+		timed.skill = ESkill::kJinx;
+		timed.time = 6 - MIN(4, (ch->get_skill(ESkill::kJinx) + 30) / 50);
 		timed_to_char(ch, &timed);
 	}
 

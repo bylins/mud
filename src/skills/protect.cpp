@@ -5,7 +5,7 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight_hit.h"
 #include "handler.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 // ************** PROTECT PROCEDURES
 void go_protect(CharacterData *ch, CharacterData *vict) {
@@ -16,14 +16,14 @@ void go_protect(CharacterData *ch, CharacterData *vict) {
 
 	ch->set_protecting(vict);
 	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, TO_CHAR);
-	SET_AF_BATTLE(ch, EAF_PROTECT);
+	SET_AF_BATTLE(ch, kEafProtect);
 }
 
 void do_protect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!*arg) {
 		if (ch->get_protecting()) {
-			CLR_AF_BATTLE(ch, EAF_PROTECT);
+			CLR_AF_BATTLE(ch, kEafProtect);
 			ch->set_protecting(0);
 			send_to_char("Вы перестали прикрывать своего товарища.\r\n", ch);
 		} else {
@@ -32,11 +32,11 @@ void do_protect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_PROTECT)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kProtect)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_PROTECT)) {
+	if (ch->haveCooldown(ESkill::kProtect)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -111,10 +111,10 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 					TO_CHAR);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, TO_CHAR);
 				vict->set_protecting(0);
-				vict->BattleAffects.unset(EAF_PROTECT);
+				vict->BattleAffects.unset(kEafProtect);
 				WAIT_STATE(vict, kPulseViolence);
 				Affect<EApplyLocation> af;
-				af.type = SPELL_BATTLE;
+				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af.location = EApplyLocation::APPLY_NONE;
 				af.modifier = 0;
@@ -132,18 +132,18 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 			}
 
 			protect = true;
-			percent = number(1, skill_info[SKILL_PROTECT].difficulty);
-			prob = CalcCurrentSkill(vict, SKILL_PROTECT, victim);
+			percent = number(1, MUD::Skills()[ESkill::kProtect].difficulty);
+			prob = CalcCurrentSkill(vict, ESkill::kProtect, victim);
 			prob = prob * 8 / 10;
-			if (vict->haveCooldown(SKILL_PROTECT)) {
+			if (vict->haveCooldown(ESkill::kProtect)) {
 				prob /= 2;
 			};
 			if (GET_GOD_FLAG(vict, GF_GODSCURSE)) {
 				prob = 0;
 			}
 			bool success = prob >= percent;
-			ImproveSkill(vict, SKILL_PROTECT, success, ch);
-			SendSkillBalanceMsg(ch, skill_info[SKILL_PROTECT].name, percent, prob, success);
+			ImproveSkill(vict, ESkill::kProtect, success, ch);
+			SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kProtect].name, percent, prob, success);
 
 			if ((vict->get_fighting() != ch) && (ch != victim)) {
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
@@ -161,7 +161,7 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 				act("$N не смог$Q прикрыть вас.", false, victim, 0, vict, TO_CHAR);
 				act("$n не смог$q прикрыть $N3.", true, vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				//set_wait(vict, 3, true);
-				setSkillCooldownInFight(vict, SKILL_GLOBAL_COOLDOWN, 3);
+				setSkillCooldownInFight(vict, ESkill::kGlobalCooldown, 3);
 			} else {
 				if (!pk_agro_action(vict, ch))
 					return victim; // по аналогии с реском прикрывая кого-то можно пофлагаться
@@ -174,8 +174,8 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 					victim,
 					TO_NOTVICT | TO_ARENA_LISTEN);
 				//set_wait(vict, 1, true);
-				setSkillCooldownInFight(vict, SKILL_GLOBAL_COOLDOWN, 1);
-				setSkillCooldownInFight(vict, SKILL_PROTECT, 1);
+				setSkillCooldownInFight(vict, ESkill::kGlobalCooldown, 1);
+				setSkillCooldownInFight(vict, ESkill::kProtect, 1);
 				return vict;
 			}
 		}

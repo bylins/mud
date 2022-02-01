@@ -216,7 +216,7 @@ void roll_real_abils(CharacterData *ch) {
 	int i;
 
 	switch (ch->get_class()) {
-		case CLASS_CLERIC: ch->set_cha(10);
+		case ECharClass::kSorcerer: ch->set_cha(10);
 			do {
 				ch->set_con(12 + number(0, 3));
 				ch->set_wis(18 + number(0, 5));
@@ -236,9 +236,9 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			break;
 
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer:
 			do {
 				ch->set_str(10 + number(0, 4));
 				ch->set_wis(17 + number(0, 5));
@@ -259,7 +259,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 			break;
 
-		case CLASS_NECROMANCER:
+		case ECharClass::kNecromancer:
 			do {
 				ch->set_cha(10 + number(0, 2));
 				ch->set_wis(20 + number(0, 3));
@@ -280,7 +280,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 			break;
 
-		case CLASS_THIEF:
+		case ECharClass::kThief:
 			do {
 				ch->set_str(16 + number(0, 3));
 				ch->set_con(14 + number(0, 3));
@@ -301,7 +301,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			break;
 
-		case CLASS_WARRIOR: ch->set_cha(10);
+		case ECharClass::kWarrior: ch->set_cha(10);
 			do {
 				ch->set_str(20 + number(0, 4));
 				ch->set_dex(8 + number(0, 3));
@@ -321,7 +321,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
 			break;
 
-		case CLASS_ASSASINE: ch->set_cha(12);
+		case ECharClass::kAssasine: ch->set_cha(12);
 			do {
 				ch->set_str(16 + number(0, 5));
 				ch->set_dex(18 + number(0, 5));
@@ -342,7 +342,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(150, 200);
 			break;
 
-		case CLASS_GUARD: ch->set_cha(12);
+		case ECharClass::kGuard: ch->set_cha(12);
 			do {
 				ch->set_str(19 + number(0, 3));
 				ch->set_dex(13 + number(0, 3));
@@ -363,7 +363,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 170) : number(160, 200);
 			break;
 
-		case CLASS_PALADINE:
+		case ECharClass::kPaladine:
 			do {
 				ch->set_str(18 + number(0, 3));
 				ch->set_wis(14 + number(0, 4));
@@ -385,7 +385,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 175) : number(140, 190);
 			break;
 
-		case CLASS_RANGER:
+		case ECharClass::kRanger:
 
 			do {
 				ch->set_str(18 + number(0, 6));
@@ -407,7 +407,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 			break;
 
-		case CLASS_SMITH:
+		case ECharClass::kVigilant:
 			do {
 				ch->set_str(18 + number(0, 5));
 				ch->set_dex(14 + number(0, 3));
@@ -428,7 +428,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(170, 200);
 			break;
 
-		case CLASS_MERCHANT:
+		case ECharClass::kMerchant:
 			do {
 				ch->set_str(18 + number(0, 3));
 				ch->set_con(12 + number(0, 6));
@@ -449,7 +449,7 @@ void roll_real_abils(CharacterData *ch) {
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 			break;
 
-		case CLASS_DRUID: ch->set_cha(12);
+		case ECharClass::kMagus: ch->set_cha(12);
 			do {
 				ch->set_con(12 + number(0, 3));
 				ch->set_wis(15 + number(0, 3));
@@ -467,8 +467,8 @@ void roll_real_abils(CharacterData *ch) {
 			ch->set_int(ch->get_int() + 2);
 			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
 			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
-			for (i = 1; i <= SPELLS_COUNT; i++)
-				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+			for (i = 1; i <= kSpellCount; i++)
+				GET_SPELL_TYPE(ch, i) = kSpellRunes;
 			break;
 
 		default: log("SYSERROR : ATTEMPT STORE ABILITIES FOR UNKNOWN CLASS (Player %s)", GET_NAME(ch));

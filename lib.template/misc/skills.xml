@@ -1,276 +1,276 @@
 <!--
-    В перспективе в этом файле должны описываться все параметры скиллов.
-    Это можно реализовать следующим образом:
-    1. В коде определяем обработчики _не привязанные_ к скиллу.
-    2. В самом скилле указываем, какой обработчик он должен вызвать и параметры для обработчика.
-    3. Елси применение скилла накладывает аффекты и флаги на персонажа или цель - тоже описываем через файл.
-    3.2. Собственно всякие флаги аля стопфайт тоже можно и даже логично представить в виде аффектов.
-    Так что в теории новый скилл можно даже сделать, просто дописав тут секцию.
-    Конечно, всякие "ручные" скиллы типа взлома все равно придется кодить, но
-    например оффенсивы вида "ударил на NbM+K урона с % шансом наложить аффект N"
-    добавляются через файл на счет "раз". А елси и аффекты из кода извлечь...
-    Но пока что скиллы у нас в коде и имеют фиксированный номер и здесь просто
-    устанавливается соответствие между идентифкаторами скиллов в конфигах
-    и номером скилла в коде.
-    Описание формата:
-    Начало блока описания скилла.
-    <skill id="уникальный идентификатор скилла">
-        <number val="уникальный номер скилла" />
-        <name text="название скилла на русском языке со строчной буквы" />
-        <max_perxent val="максимальный процент (используется в формуле прокачки" />
+    О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+    О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫:
+    1. О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ _О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫_ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
+    2. О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+    3. О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.
+    3.2. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+    О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
+    О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫О©╫О©╫О©╫" О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫
+    О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ NbM+K О©╫О©╫О©╫О©╫О©╫ О©╫ % О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ N"
+    О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫". О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫...
+    О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+    О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+    О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.
+    О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫:
+    О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
+    <skill id="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫">
+        <number val="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
+        <max_perxent val="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
     </skill>
 -->
 <?xml version="1.0" encoding="koi8-r"?>
 <skills>
-	<skill id="SKILL_PROTECT">
+	<skill id="kProtect">
         <number val="1" />
-        <name text="прикрыть" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="120" />
     </skill>
-	<skill id="SKILL_TOUCH">
+	<skill id="kIntercept">
         <number val="2" />
-        <name text="перехватить атаку" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_SHIT">
+	<skill id="kLeftHit">
 	    <number val="3" />
-        <name text="удар левой рукой" />
+        <name text="О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_MIGHTHIT">
+    <skill id="kHammer">
 	    <number val="4" />
-        <name text="богатырский молот" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_STUPOR">
+    <skill id="kOverwhelm">
 	    <number val="5" />
-        <name text="оглушить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="16" />
     </skill>
-    <skill id="SKILL_POISONED">
+    <skill id="kPoisoning">
 	    <number val="6" />
-        <name text="отравить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-    <skill id="SKILL_SENSE">
+    <skill id="kSense">
 	    <number val="7" />
-        <name text="найти" />
+        <name text="О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_HORSE">
+    <skill id="kRiding">
 	    <number val="8" />
-        <name text="сражение верхом" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_HIDETRACK">
+    <skill id="kHideTrack">
 	    <number val="9" />
-        <name text="замести следы" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="120" />
     </skill>
-    <!-- И щито это тут делает? Клевая реализация... -->
-    <skill id="SKILL_RELIGION">
+    <!-- О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫? О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫... -->
+    <skill id="kReligion">
 	    <number val="10" />
-        <name text="!молитва или жертва!" />
+        <name text="!О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫!" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_MAKEFOOD">
+    <skill id="kSkinning">
 	    <number val="11" />
-        <name text="освежевать" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="120" />
     </skill>
-	<skill id="SKILL_MULTYPARRY">
+	<skill id="kMultiparry">
 	    <number val="12" />
-        <name text="веерная защита" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-	<skill id="SKILL_TRANSFORMWEAPON">
+	<skill id="kReforging">
 	    <number val="13" />
-        <name text="перековать" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-    <!-- Тут почему то идет проскок номеров -->
-    <skill id="SKILL_LEADERSHIP">
+    <!-- О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
+    <skill id="kLeadership">
 	    <number val="20" />
-        <name text="лидерство" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_PUNCTUAL">
+	<skill id="kPunctual">
 	    <number val="21" />
-        <name text="точный стиль" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="110" />
     </skill>
-	<skill id="SKILL_AWAKE">
+	<skill id="kAwake">
 	    <number val="22" />
-        <name text="осторожный стиль" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_IDENTIFY">
+    <skill id="kIdentify">
 	    <number val="23" />
-        <name text="опознание" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_HEARING">
+    <skill id="kHearing">
 	    <number val="24" />
-        <name text="прислушаться" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <!-- Следующие три скилла на деле не реализованы, видимо остатки чьих-то прожектов -->
-    <skill id="SKILL_CREATE_POTION">
+    <!-- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
+    <skill id="kCreatePotion">
 	    <number val="25" />
-        <name text="создать зелье" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_CREATE_SCROLL">
+    <skill id="kCreateScroll">
 	    <number val="26" />
-        <name text="создать свиток" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_CREATE_WAND">
+    <skill id="kCreateWand">
 	    <number val="27" />
-        <name text="создать волшебную палочку" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <!--  Конец прожектов -->
-    <skill id="SKILL_LOOK_HIDE">
+    <!--  О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
+    <skill id="kPry">
 	    <number val="28" />
-        <name text="подсмотреть" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_ARMORED">
+	<skill id="kArmoring">
 	    <number val="29" />
-        <name text="укрепить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_DRUNKOFF">
+	<skill id="kHangovering">
 	    <number val="30" />
-        <name text="опохмелиться" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_AID">
+	<skill id="kFirstAid">
 	    <number val="31" />
-        <name text="лечить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_FIRE">
+	<skill id="kCampfire">
 	    <number val="32" />
-        <name text="разжечь костер" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <!-- Тоже не реализован, но из кода недовыдран -->
-	<skill id="SKILL_CREATEBOW">
+    <!-- О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -->
+	<skill id="kCreateBow">
         <number val="33" />
         <name text="create bow" />
         <max_percent val="140" />
     </skill>
-    <!-- Тут снова здоровенный проскок по нумерации непонятно почему -->
-    <skill id="SKILL_THROW">
+    <!-- О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ -->
+    <skill id="kThrow">
 	    <number val="130" />
-        <name text="метнуть" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="150" />
     </skill>
-	<skill id="SKILL_BACKSTAB">
+	<skill id="kBackstab">
         <number val="131" />
-        <name text="заколоть" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-	<skill id="SKILL_BASH">
+	<skill id="kBash">
         <number val="132" />
-        <name text="сбить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-	<skill id="SKILL_HIDE">
+	<skill id="kHide">
         <number val="133" />
-        <name text="спрятаться" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_KICK">
         <number val="134" />
-        <name text="пнуть" />
+        <name text="О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_PICK_LOCK">
+	<skill id="kPickLock">
         <number val="135" />
-        <name text="взломать" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="120" />
     </skill>
-	<skill id="SKILL_PUNCH">
+	<skill id="kPunch">
         <number val="136" />
-        <name text="кулачный бой" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_RESCUE">
+	<skill id="kRescue">
         <number val="137" />
-        <name text="спасти" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="130" />
     </skill>
-	<skill id="SKILL_SNEAK">
+	<skill id="kSneak">
         <number val="138" />
-        <name text="подкрасться" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_STEAL">
+	<skill id="kSteal">
         <number val="139" />
-        <name text="украсть" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_TRACK">
+	<skill id="kTrack">
         <number val="140" />
-        <name text="выследить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_CLUBS">
+    <skill id="kClubs">
 	    <number val="141" />
-        <name text="палицы и дубины" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-    <skill id="SKILL_AXES">
+    <skill id="kAxes">
 	    <number val="142" />
-        <name text="секиры" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-	<skill id="SKILL_LONGS">
+	<skill id="kLongBlades">
 	    <number val="143" />
-        <name text="длинные лезвия" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-	<skill id="SKILL_SHORTS">
+	<skill id="kShortBlades">
 	    <number val="144" />
-        <name text="короткие лезвия" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-    <skill id="SKILL_NONSTANDART">
+    <skill id="kNonstandart">
 	    <number val="145" />
-        <name text="иное оружие" />
+        <name text="О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-    <skill id="SKILL_BOTHHANDS">
+    <skill id="kTwohands">
 	    <number val="146" />
-        <name text="двуручники" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-    <skill id="SKILL_PICK">
+    <skill id="kPicks">
 	    <number val="147" />
-        <name text="проникающее оружие" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-    <skill id="SKILL_SPADES">
+    <skill id="kSpades">
 	    <number val="148" />
-        <name text="копья и рогатины" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-    <skill id="SKILL_SATTACK">
+    <skill id="kSideAttack">
 	    <number val="149" />
-        <name text="атака левой рукой" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_DISARM">
+    <skill id="kDisarm">
 	    <number val="150" />
-        <name text="обезоружить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_PARRY">
+    <skill id="kParry">
         <number val="151" />
-        <name text="парировать" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="120" />
     </skill>
 	<skill id="SKILL_HEAL">
@@ -283,177 +283,177 @@
         <name text="turn" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_BOWS">
+	<skill id="kBows">
 	    <number val="154" />
-        <name text="луки" />
+        <name text="О©╫О©╫О©╫О©╫" />
         <max_percent val="160" />
     </skill>
-    <skill id="SKILL_ADDSHOT">
+    <skill id="kAddshot">
 	    <number val="155" />
-        <name text="дополнительный выстрел" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_CAMOUFLAGE">
+	<skill id="kDisguise">
 	    <number val="156" />
-        <name text="маскировка" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_DEVIATE">
+	<skill id="kDodge">
 	    <number val="157" />
-        <name text="уклониться" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_BLOCK">
+	<skill id="kShieldBlock">
         <number val="158" />
-        <name text="блокировать щитом" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-    <skill id="SKILL_LOOKING">
+    <skill id="kLooking">
 	    <number val="159" />
-        <name text="приглядеться" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_CHOPOFF">
+	<skill id="kUndercut">
 	    <number val="160" />
-        <name text="подножка" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_REPAIR">
+	<skill id="kRepair">
 	    <number val="161" />
-        <name text="ремонт" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <!-- И снова проскок на два номера -->
-    <skill id="SKILL_UPGRADE">
+    <!-- О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ -->
+    <skill id="kSharpening">
 	    <number val="164" />
-        <name text="заточить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_COURAGE">
+    <skill id="kCourage">
 	    <number val="165" />
-        <name text="ярость" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_MANADRAIN">
+    <skill id="kJinx">
 	    <number val="166" />
-        <name text="сглазить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_NOPARRYHIT">
+	<skill id="kNoParryHit">
 	    <number val="167" />
-        <name text="скрытый удар" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_TOWNPORTAL">
+	<skill id="kTownportal">
 	    <number val="168" />
-        <name text="врата" />
+        <name text="О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <!-- Крафтовые скиллы, но реально из них реализован только крафт луков и сшить-->
-    <skill id="SKILL_MAKE_STAFF">
+    <!-- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫-->
+    <skill id="kMakeStaff">
 	    <number val="169" />
-        <name text="изготовить посох" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-    <skill id="SKILL_MAKE_BOW">
+    <skill id="kMakeBow">
 	    <number val="170" />
-        <name text="смастерить лук" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-	<skill id="SKILL_MAKE_WEAPON">
+	<skill id="kMakeWeapon">
 	    <number val="171" />
-        <name text="выковать оружие" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-	<skill id="SKILL_MAKE_ARMOR">
+	<skill id="kMakeArmor">
 	    <number val="172" />
-        <name text="выковать доспех" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-	<skill id="SKILL_MAKE_WEAR">
+	<skill id="kMakeWear">
 	    <number val="173" />
-        <name text="сшить одежду" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-	<skill id="SKILL_MAKE_JEWEL">
+	<skill id="kMakeJewel">
 	    <number val="174" />
-        <name text="смастерить диковинку" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-    <skill id="SKILL_MAKE_POTION">
+    <skill id="kMakePotion">
 	    <number val="175" />
-        <name text="смастерить диковинку" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="140" />
     </skill>
-    <!-- Дальше снова рабочие скиллы  -->
-    <skill id="SKILL_DIG">
+    <!-- О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫  -->
+    <skill id="kDigging">
 	    <number val="176" />
-        <name text="горное дело" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_INSERTGEM">
+	<skill id="kJewelry">
 	    <number val="177" />
-        <name text="ювелир" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-    <skill id="SKILL_WARCRY">
+    <skill id="kWarcry">
 	    <number val="178" />
-        <name text="боевой клич" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_TURN_UNDEAD">
+	<skill id="kTurnUndead">
 	    <number val="179" />
-        <name text="изгнать нежить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="100" />
     </skill>
-	<skill id="SKILL_IRON_WIND">
+	<skill id="kIronwind">
 	    <number val="180" />
-        <name text="железный ветер" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="150" />
     </skill>
-	<skill id="SKILL_STRANGLE">
+	<skill id="kStrangle">
 	    <number val="181" />
-        <name text="удавить" />
+        <name text="О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_AIR_MAGIC">
+	<skill id="kAirMagic">
 	    <number val="182" />
-        <name text="магия воздуха" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_FIRE_MAGIC">
+	<skill id="kFireMagic">
 	    <number val="183" />
-        <name text="магия огня" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_WATER_MAGIC">
+	<skill id="kWaterMagic">
 	    <number val="184" />
-        <name text="магия воды" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_EARTH_MAGIC">
+	<skill id="kEarthMagic">
 	    <number val="185" />
-        <name text="магия земли" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_LIGHT_MAGIC">
+	<skill id="kLightMagic">
 	    <number val="186" />
-        <name text="магия света" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_DARK_MAGIC">
+	<skill id="kDarkMagic">
 	    <number val="187" />
-        <name text="магия тьмы" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_MIND_MAGIC">
+	<skill id="kMindMagic">
 	    <number val="188" />
-        <name text="магия разума" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
-	<skill id="SKILL_LIFE_MAGIC">
+	<skill id="kLifeMagic">
 	    <number val="189" />
-        <name text="магия жизни" />
+        <name text="О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫" />
         <max_percent val="200" />
     </skill>
 </skills>

@@ -16,7 +16,7 @@
 #include "entities/world_characters.h"
 #include "skills/townportal.h"
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "house.h"
 #include "exchange.h"
 #include "game_mechanics/deathtrap.h"
@@ -24,13 +24,11 @@
 #include "depot.h"
 #include "game_mechanics/glory.h"
 #include "entities/char_player.h"
-//#include "entities/entity_constants.h"
-//#include "obj_save.h"
 #include "fightsystem/fight.h"
 #include "ext_money.h"
 #include "mob_stat.h"
 #include "entities/zone.h"
-#include "classes/class_spell_slots.h"
+#include "classes/classes_spell_slots.h"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>
@@ -50,7 +48,7 @@ extern RoomRnum r_mortal_start_room;
 extern RoomRnum r_immort_start_room;
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
-extern struct spell_create_type spell_create[];
+extern struct SpellCreate spell_create[];
 extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DescriptorData *ch);
 extern int check_death_ice(int room, CharacterData *ch);
@@ -91,7 +89,7 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6) {
 void handle_recall_spells(CharacterData *ch) {
 	Affect<EApplyLocation>::shared_ptr aff;
 	for (const auto &af : ch->affected) {
-		if (af->type == SPELL_RECALL_SPELLS) {
+		if (af->type == kSpellRecallSpells) {
 			aff = af;
 			break;
 		}
@@ -662,7 +660,7 @@ void beat_points_update(int pulse) {
 
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_BANDAGE)) {
 			for (const auto &aff : i->affected) {
-				if (aff->type == SPELL_BANDAGE) {
+				if (aff->type == kSpellBandage) {
 					restore += MIN(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
 					break;
 				}
@@ -975,7 +973,7 @@ void underwater_check() {
 			sprintf(buf, "Player %s died under water (room %d)",
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
-			Damage dmg(SimpleDmg(TYPE_WATERDEATH), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), FightSystem::UNDEF_DMG);
+			Damage dmg(SimpleDmg(kTypeWaterdeath), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(d->character.get(), d->character.get()) < 0) {
@@ -1092,10 +1090,10 @@ void room_point_update() {
 	for (int count = FIRST_ROOM; count <= top_of_world; count++) {
 		if (world[count]->fires) {
 			switch (get_room_sky(count)) {
-				case SKY_CLOUDY:
-				case SKY_CLOUDLESS: mana = number(1, 2);
+				case kSkyCloudy:
+				case kSkyCloudless: mana = number(1, 2);
 					break;
-				case SKY_RAINING: mana = 2;
+				case kSkyRaining: mana = 2;
 					break;
 				default: mana = 1;
 			}
@@ -1566,8 +1564,8 @@ void obj_point_update() {
 void point_update() {
 	MemoryRecord *mem, *nmem, *pmem;
 
-	std::vector<int> real_spell(SPELLS_COUNT + 1);
-	for (int count = 0; count <= SPELLS_COUNT; count++) {
+	std::vector<int> real_spell(kSpellCount + 1);
+	for (int count = 0; count <= kSpellCount; count++) {
 		real_spell[count] = count;
 	}
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
@@ -1697,7 +1695,7 @@ void point_update() {
 					int mana = 0;
 					int count = 0;
 					const auto max_mana = GET_REAL_INT(i) * 10;
-					while (count <= SPELLS_COUNT && mana < max_mana) {
+					while (count <= kSpellCount && mana < max_mana) {
 						const auto spellnum = real_spell[count];
 						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) > GET_SPELL_MEM(i, spellnum)) {
 							GET_SPELL_MEM(i, spellnum)++;
@@ -1723,14 +1721,14 @@ void point_update() {
 				update_pos(i);
 			}
 		} else if (GET_POS(i) == EPosition::kIncap) {
-			Damage dmg(SimpleDmg(TYPE_SUFFERING), 1, FightSystem::UNDEF_DMG);
+			Damage dmg(SimpleDmg(kTypeSuffering), 1, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) == -1) {
 				return;
 			}
 		} else if (GET_POS(i) == EPosition::kPerish) {
-			Damage dmg(SimpleDmg(TYPE_SUFFERING), 2, FightSystem::UNDEF_DMG);
+			Damage dmg(SimpleDmg(kTypeSuffering), 2, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) == -1) {

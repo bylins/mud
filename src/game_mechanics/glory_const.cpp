@@ -8,7 +8,7 @@
 #include "utils/utils.h"
 #include "utils/pugixml.h"
 #include "structs/structs.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char.h"
 #include "comm.h"
 #include "db.h"
@@ -373,7 +373,7 @@ void olc_add_stat(CharacterData *ch, int stat) {
 		case GLORY_CON:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_con])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kCon)])
 				ok = true;
 			else
 				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -381,7 +381,7 @@ void olc_add_stat(CharacterData *ch, int stat) {
 		case GLORY_STR:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_str])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kStr)])
 				ok = true;
 			else
 				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -389,7 +389,7 @@ void olc_add_stat(CharacterData *ch, int stat) {
 		case GLORY_DEX:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_dex])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kDex)])
 				ok = true;
 			else
 				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -397,7 +397,7 @@ void olc_add_stat(CharacterData *ch, int stat) {
 		case GLORY_INT:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_int])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kInt)])
 				ok = true;
 			else
 				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -405,7 +405,7 @@ void olc_add_stat(CharacterData *ch, int stat) {
 		case GLORY_WIS:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_wis])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kWis)])
 				ok = true;
 			else
 				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -413,7 +413,7 @@ void olc_add_stat(CharacterData *ch, int stat) {
 		case GLORY_CHA:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
-					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][char_stat_id::stat_cha])
+					+ ch->desc->glory_const->stat_add[stat] < class_stats_limit[ch->get_class()][to_underlying(EBaseStat::kCha)])
 				ok = true;
 			else
 				send_to_char(ch, "Не хватает славы или превышен кап по данному параметру для вашей профессии.\r\n");
@@ -748,7 +748,7 @@ void do_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mode = ADD_GLORY;
 	} else if (*num == '-') {
 		mode = SUB_GLORY;
-	} else if (is_abbrev(num, "reset")) {
+	} else if (utils::IsAbbrev(num, "reset")) {
 		mode = RESET_GLORY;
 	}
 	// точки убираем, чтобы карма всегда писалась

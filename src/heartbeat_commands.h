@@ -2,7 +2,6 @@
 #define __HEARTBEAT_COMMANDS_HPP__
 
 #include "entities/entity_constants.h"
-//#include "structs/structs.h"
 #include "commands.h"
 
 namespace heartbeat {

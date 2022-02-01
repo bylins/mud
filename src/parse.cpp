@@ -32,20 +32,20 @@ std::array<TextIdNode, TEXT_ID_COUNT> text_id_list;
 /// Инит текстовых ИД классов для конфига.
 ///
 void init_char_class() {
-	text_id_list.at(CHAR_CLASS).add(CLASS_CLERIC, "CLASS_CLERIC");
-	text_id_list.at(CHAR_CLASS).add(CLASS_BATTLEMAGE, "CLASS_BATTLEMAGE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_THIEF, "CLASS_THIEF");
-	text_id_list.at(CHAR_CLASS).add(CLASS_WARRIOR, "CLASS_WARRIOR");
-	text_id_list.at(CHAR_CLASS).add(CLASS_ASSASINE, "CLASS_ASSASINE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_GUARD, "CLASS_GUARD");
-	text_id_list.at(CHAR_CLASS).add(CLASS_CHARMMAGE, "CLASS_CHARMMAGE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_DEFENDERMAGE, "CLASS_DEFENDERMAGE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_NECROMANCER, "CLASS_NECROMANCER");
-	text_id_list.at(CHAR_CLASS).add(CLASS_PALADINE, "CLASS_PALADINE");
-	text_id_list.at(CHAR_CLASS).add(CLASS_RANGER, "CLASS_RANGER");
-	text_id_list.at(CHAR_CLASS).add(CLASS_SMITH, "CLASS_SMITH");
-	text_id_list.at(CHAR_CLASS).add(CLASS_MERCHANT, "CLASS_MERCHANT");
-	text_id_list.at(CHAR_CLASS).add(CLASS_DRUID, "CLASS_DRUID");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kSorcerer, "kSorcerer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kConjurer, "kConjurer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kThief, "kThief");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kWarrior, "kWarrior");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kAssasine, "kAssasine");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kGuard, "kGuard");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kCharmer, "kCharmer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kWizard, "kWizard");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kNecromancer, "kNecromancer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kPaladine, "kPaladine");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kRanger, "kRanger");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kMerchant, "kMerchant");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kMagus, "kMagus");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kVigilant, "kVigilant");
 }
 
 ///

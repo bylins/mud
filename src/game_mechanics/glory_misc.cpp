@@ -8,7 +8,7 @@
 #include "glory_const.h"
 #include "genchar.h"
 #include "entities/char.h"
-#include "screen.h"
+#include "color.h"
 #include "comm.h"
 #include "entities/char_player.h"
 #include "modify.h"

@@ -2,7 +2,7 @@
 #define __CLASS_HPP__
 
 #include "structs/structs.h"
-#include "class_constants.h"
+#include "classes_constants.h"
 
 #include <array>
 
@@ -13,7 +13,7 @@ void LoadClassSkills();
 class GroupPenalties {
  public:
 	using class_penalties_t = std::array<int, kMaxRemort + 1>;
-	using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
+	using penalties_t = std::array<class_penalties_t, kNumPlayerClasses>;
 
 	int init();
 	const auto &operator[](const size_t character_class) const { return m_grouping[character_class]; }

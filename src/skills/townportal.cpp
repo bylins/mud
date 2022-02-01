@@ -2,7 +2,6 @@
 
 #include "modify.h"
 #include "handler.h"
-#include "magic/magic_rooms.h"
 #include "fightsystem/pk.h"
 
 namespace OneWayPortal {
@@ -48,7 +47,7 @@ RoomData *get_from_room(RoomData *to_room) {
 void spell_townportal(CharacterData *ch, char *arg) {
 	int gcount = 0, cn = 0, ispr = 0;
 	bool has_label_portal = false;
-	struct Timed timed;
+	struct TimedSkill timed;
 	char *nm;
 	struct CharacterPortal *tmp;
 	struct Portal *port;
@@ -60,7 +59,7 @@ void spell_townportal(CharacterData *ch, char *arg) {
 	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
 	if (!port && name_cmp(ch, arg)) {
 
-		label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+		label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
 		if (label_room) {
 			label_port.vnum = label_room->room_vn;
 			label_port.level = 1;
@@ -69,7 +68,7 @@ void spell_townportal(CharacterData *ch, char *arg) {
 		}
 	}
 	if (port && (has_char_portal(ch, port->vnum) || has_label_portal)) {
-		if (timed_by_skill(ch, SKILL_TOWNPORTAL)) {
+		if (IsTimedBySkill(ch, ESkill::kTownportal)) {
 			send_to_char("У вас недостаточно сил для постановки врат.\r\n", ch);
 			return;
 		}
@@ -79,7 +78,7 @@ void spell_townportal(CharacterData *ch, char *arg) {
 			return;
 		}
 
-		if (room_spells::IsRoomAffected(world[ch->in_room], SPELL_RUNE_LABEL)) {
+		if (room_spells::IsRoomAffected(world[ch->in_room], kSpellRuneLabel)) {
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}
@@ -99,7 +98,7 @@ void spell_townportal(CharacterData *ch, char *arg) {
 		}
 
 		// Открываем пентаграмму в комнату rnum //
-		ImproveSkill(ch, SKILL_TOWNPORTAL, 1, nullptr);
+		ImproveSkill(ch, ESkill::kTownportal, 1, nullptr);
 		RoomData *from_room = world[ch->in_room];
 		from_room->portal_room = real_room(port->vnum);
 		from_room->portal_time = 1;
@@ -109,9 +108,9 @@ void spell_townportal(CharacterData *ch, char *arg) {
 		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, 0, 0, TO_ROOM);
 		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, TO_ROOM);
 		if (!IS_IMMORTAL(ch)) {
-			timed.skill = SKILL_TOWNPORTAL;
+			timed.skill = ESkill::kTownportal;
 			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-			int modif = ch->get_skill(SKILL_TOWNPORTAL) / 7 + number(1, 5);
+			int modif = ch->get_skill(ESkill::kTownportal) / 7 + number(1, 5);
 			timed.time = MAX(1, 25 - modif);
 			timed_to_char(ch, &timed);
 		}
@@ -150,7 +149,7 @@ void do_townportal(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	char arg2[kMaxInputLength];
 	int vnum = 0;
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOWNPORTAL)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kTownportal)) {
 		send_to_char("Прежде изучите секрет постановки врат.\r\n", ch);
 		return;
 	}

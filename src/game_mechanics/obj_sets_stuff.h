@@ -10,7 +10,7 @@
 #include "structs/structs.h"
 #include "interpreter.h"
 #include "entities/char_player.h"
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 
 #include <array>
 #include <string>
@@ -47,7 +47,7 @@ struct msg_node {
 
 /// сетовый активатор с аффектами и прочими бонусами
 struct activ_node {
-	activ_node() : skill(SKILL_INVALID, 0) {
+	activ_node() : skill(ESkill::kIncorrect, 0) {
 		affects = clear_flags;
 		prof.set();
 		enchant.first = 0;
@@ -63,7 +63,7 @@ struct activ_node {
 	// а не bonus::skills, которое юзается для справки и складывании на чаре
 	std::pair<CObjectPrototype::skills_t::key_type, CObjectPrototype::skills_t::mapped_type> skill;
 	// список проф, на которых этот активатор сработает (по дефолту - все)
-	std::bitset<NUM_PLAYER_CLASSES> prof;
+	std::bitset<kNumPlayerClasses> prof;
 	// числовые сетовые бонусы
 	bonus_type bonus;
 	// энчант на шмотку
@@ -86,7 +86,7 @@ struct activ_node {
 	}
 	bool empty() const {
 		if (!affects.empty()
-			|| skill.first > 0
+			|| skill.first >= ESkill::kFirst
 			|| !bonus.empty()
 			|| !enchant.second.empty()) {
 			return false;

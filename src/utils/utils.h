@@ -14,7 +14,7 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 #include "conf.h"
 #include "config.h"
 #include "entities/entity_constants.h"
@@ -100,7 +100,7 @@ extern char KoiToWin[];
 extern char KoiToWin2[];
 extern char AltToLat[];
 
-extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
+extern int class_stats_limit[kNumPlayerClasses][6];
 
 // public functions in utils.cpp
 CharacterData *find_char(long n);
@@ -147,8 +147,8 @@ const char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-int GetRealDamroll(CharacterData *ch);
-int GetAutoattackDamroll(CharacterData *ch, int weapon_skill);
+
+
 extern bool GetAffectNumByName(const std::string &affName, EAffectFlag &result);
 void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg);
 bool is_head(std::string name);
@@ -310,8 +310,8 @@ short GET_REAL_REMORT(const std::shared_ptr<CharacterData> &ch);
 #define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
-#define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
-#define IS_MAGE(ch)          (IS_BITS(MASK_MAGES, GET_CLASS(ch)))
+#define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
+#define IS_MAGE(ch)          (IS_BITS(kMaskMage, GET_CLASS(ch)))
 
 extern int receptionist(CharacterData *, void *, int, char *);
 extern int postmaster(CharacterData *, void *, int, char *);
@@ -509,7 +509,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
-#define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
+#define IS_MANA_CASTER(ch) (GET_CLASS(ch) == ECharClass::kMagus)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
@@ -644,7 +644,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AGE_ADD(ch)   ((ch)->add_abils.age_add)
 #define GET_HIT_ADD(ch)   ((ch)->add_abils.hit_add)
 #define GET_MOVE_ADD(ch)  ((ch)->add_abils.move_add)
-#define GET_SAVE(ch, i)    ((ch)->add_abils.apply_saving_throw[i])
 #define GET_RESIST(ch, i)  ((ch)->add_abils.apply_resistance_throw[i])
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
@@ -653,10 +652,10 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
-#define GET_REAL_SAVING_STABILITY(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)    + ((ch)->ahorse() ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)        (dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)        + ((ch)->ahorse() ? -20 : 0))
-#define GET_REAL_SAVING_CRITICAL(ch)    (dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_CRITICAL))
-#define GET_REAL_SAVING_WILL(ch)        (dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, SAVING_WILL))
+#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kStability) + ((ch)->ahorse() ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)	(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, ESaving::kReflex) + ((ch)->ahorse() ? -20 : 0))
+#define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, ESaving::kCritical))
+#define GET_REAL_SAVING_WILL(ch)	(dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, ESaving::kWill))
 
 #define GET_POS(ch)        ((ch)->char_specials.position)
 #define GET_IDNUM(ch)     ((ch)->get_idnum())
@@ -1060,43 +1059,28 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define KIN_ABBR(ch) (IS_NPC(ch) ? "--" : kin_abbrevs[(int)GET_KIN(ch)])
 
-#define IS_MAGIC_USER(ch)  (!IS_NPC(ch) && \
-            (IS_BITS(MASK_MAGES, (int) GET_CLASS(ch))))
-#define IS_CLERIC(ch)      (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_CLERIC))
-#define IS_THIEF(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_THIEF))
-#define IS_ASSASINE(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_ASSASINE))
-#define IS_WARRIOR(ch)     (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_WARRIOR))
-#define IS_PALADINE(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_PALADINE))
-#define IS_RANGER(ch)      (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_RANGER))
-#define IS_GUARD(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_GUARD))
-#define IS_SMITH(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_SMITH))
-#define IS_MERCHANT(ch)    (!IS_NPC(ch) && \
-            (GET_CLASS(ch) == CLASS_MERCHANT))
-#define IS_DRUID(ch)    (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_DRUID))
-#define IS_BATTLEMAGE(ch)  (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_BATTLEMAGE))
-#define IS_CHARMMAGE(ch)   (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_CHARMMAGE))
-#define IS_DEFENDERMAGE(ch)   (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_DEFENDERMAGE))
-#define IS_NECROMANCER(ch) (!IS_NPC(ch) && \
-            ((int) GET_CLASS(ch) == CLASS_NECROMANCER))
-#define IS_FIGHTER_USER(ch)  (!IS_NPC(ch) && \
-            (IS_BITS(MASK_FIGHTERS, (int) GET_CLASS(ch))))
+#define IS_SORCERER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kSorcerer))
+#define IS_THIEF(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kThief))
+#define IS_ASSASINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kAssasine))
+#define IS_WARRIOR(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kWarrior))
+#define IS_PALADINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kPaladine))
+#define IS_RANGER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kRanger))
+#define IS_GUARD(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kGuard))
+#define IS_VIGILANT(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kVigilant))
+#define IS_MERCHANT(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kMerchant))
+#define IS_MAGUS(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kMagus))
+#define IS_CONJURER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kConjurer))
+#define IS_CHARMER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kCharmer))
+#define IS_WIZARD(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kWizard))
+#define IS_NECROMANCER(ch)	(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kNecromancer))
+
+#define IS_FIGHTER_USER(ch)  (!IS_NPC(ch) && (IS_BITS(kMaskFighter, (int) GET_CLASS(ch))))
+#define IS_MAGIC_USER(ch)	(!IS_NPC(ch) && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
 
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
     (MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE) || (GET_RACE(ch) == NPC_RACE_GHOST)))
 
-#define LIKE_ROOM(ch) ((IS_CLERIC(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
+#define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
                        (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \
                        (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_WARRIOR)) || \
                        (IS_THIEF(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_THIEF)) || \
@@ -1104,9 +1088,9 @@ inline T VPOSI(const T val, const T min, const T max) {
                        (IS_GUARD(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_GUARD)) || \
                        (IS_PALADINE(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_PALADINE)) || \
                        (IS_RANGER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_RANGER)) || \
-                       (IS_SMITH(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_SMITH)) || \
+                       (IS_VIGILANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_SMITH)) || \
                        (IS_MERCHANT(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MERCHANT)) || \
-                       (IS_DRUID(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
+                       (IS_MAGUS(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
 
@@ -1129,9 +1113,6 @@ int day_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
 int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
 int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value);
 
-int day_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
-int weather_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
-int complex_skill_modifier(CharacterData *ch, int skillnum, int type, int value);
 void can_carry_obj(CharacterData *ch, ObjectData *obj);
 bool CAN_CARRY_OBJ(const CharacterData *ch, const ObjectData *obj);
 bool ignores(CharacterData *, CharacterData *, unsigned int);
@@ -1434,72 +1415,6 @@ void print_bitset(const N &bits, const T &names,
 }
 
 const char *print_obj_state(int tm_pct);
-
-struct ExchangeItem;
-// для парса строки с фильтрами в клан-хранах и базаре
-struct ParseFilter {
-	enum { CLAN, EXCHANGE };
-
-	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
-							weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
-							new_timesign('\0'), new_timedown(time(0)), new_timeup(time(0)),
-							filter_type(type) {};
-
-	bool init_type(const char *str);
-	bool init_state(const char *str);
-	bool init_wear(const char *str);
-	bool init_cost(const char *str);
-	bool init_rent(const char *str);
-    bool init_remorts(const char *str);
-	bool init_weap_class(const char *str);
-	bool init_affect(char *str, size_t str_len);
-	bool init_realtime(const char *str);
-	size_t affects_cnt() const;
-	bool check(ObjectData *obj, CharacterData *ch);
-	bool check(ExchangeItem *exch_obj);
-	std::string print() const;
-
-	std::string name;      // имя предмета
-	std::string owner;     // имя продавца (базар)
-	int type;              // тип оружия
-	int state;             // состояние
-	EWearFlag wear;              // куда одевается
-	int wear_message;      // для названия куда одеть
-	int weap_class;        // класс оружие
-	int weap_message;      // для названия оружия
-	int cost;              // для цены
-	char cost_sign;        // знак цены +/-
-	int rent;             // для стоимости ренты
-	char rent_sign;        // знак ренты +/-
-    int filter_remorts_count = -1;
-    int remorts[2] = {-1,-1}; //для количества ремортов
-    char remorts_sign[2] = "\0"; // знак ремортов
-	char new_timesign;       // знак времени < > =
-	time_t new_timedown;   // нижняя граница времени
-	time_t new_timeup;       // верхняя граница времени
-	int filter_type;       // CLAN/EXCHANGE
-
-	std::vector<int> affect_apply; // аффекты apply_types
-	std::vector<int> affect_weap;  // аффекты weapon_affects
-	std::vector<int> affect_extra; // аффекты extra_bits
-
-	std::string show_obj_aff(ObjectData *obj);
-
- private:
-	bool check_name(ObjectData *obj, CharacterData *ch = 0) const;
-	bool check_type(ObjectData *obj) const;
-	bool check_state(ObjectData *obj) const;
-	bool check_wear(ObjectData *obj) const;
-	bool check_weap_class(ObjectData *obj) const;
-	bool check_cost(int obj_price) const;
-	bool check_rent(int obj_price) const;
-    bool check_remorts(ObjectData *obj) const;
-	bool check_affect_weap(ObjectData *obj) const;
-	bool check_affect_apply(ObjectData *obj) const;
-	bool check_affect_extra(ObjectData *obj) const;
-	bool check_owner(ExchangeItem *exch_obj) const;
-	bool check_realtime(ExchangeItem *exch_obj) const;
-};
 
 int get_virtual_race(CharacterData *mob);
 

@@ -1,7 +1,7 @@
 #include "quests/daily_quest.h"
 
 #include "entities/char.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 
 namespace DailyQuest {
 
@@ -109,7 +109,7 @@ bool DailyQuestLoader::do_load()
 		m_daily_quest_list.try_emplace(id, desk, reward);
 	}
 
-	m_log_msg << "Файл с дейликами успешно загружен. Загружено квестов: " << m_daily_quest_list.size();
+	m_log_msg << "Daily quests file loading successful. Total quests: " << m_daily_quest_list.size();
 	m_load_status = true;
 	return m_load_status;
 }

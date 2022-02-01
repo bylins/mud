@@ -17,8 +17,8 @@
 
 //#include "db.h"
 
+#include "abilities/abilities_info.h"
 #include "cmd_god/ban.h"
-#include "birthplaces.h"
 #include "boards/boards.h"
 #include "boot/boot_data_files.h"
 #include "boot/boot_index.h"
@@ -29,8 +29,7 @@
 #include "entities/char.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-//#include "entities/entity_constants.h"
-#include "classes/class.h"
+#include "classes/classes.h"
 #include "cmd/follow.h"
 #include "corpse.h"
 #include "game_mechanics/deathtrap.h"
@@ -41,7 +40,7 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/mobact.h"
 #include "utils/file_crc.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
@@ -69,9 +68,6 @@
 #include "utils/id_converter.h"
 #include "title.h"
 #include "top.h"
-//#include "magic/magic_rooms.h"
-//#include "skills.h"
-#include "skills_info.h"
 #include "magic/spells_info.h"
 
 #include <boost/format.hpp>
@@ -173,47 +169,46 @@ GameLoader world_loader;
 QuestBodrich qb;
 
 // local functions
-void LoadGlobalUID(void);
+void LoadGlobalUID();
 void parse_room(FILE *fl, int virtual_nr, int virt);
 void parse_object(FILE *obj_f, const int nr);
 void load_help(FILE *fl);
-void assign_mobiles(void);
-void assign_objects(void);
-void assign_rooms(void);
-void init_spec_procs(void);
-void build_player_index(void);
+void assign_mobiles();
+void assign_objects();
+void assign_rooms();
+void init_spec_procs();
+void build_player_index();
 bool is_empty(ZoneRnum zone_nr);
 void reset_zone(ZoneRnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
 void do_reboot(CharacterData *ch, char *argument, int cmd, int subcmd);
-void check_start_rooms(void);
+void check_start_rooms();
 void add_vrooms_to_all_zones();
-void renum_world(void);
-void renum_zone_table(void);
+void renum_world();
+void renum_zone_table();
 void log_zone_error(ZoneRnum zone, int cmd_no, const char *message);
-void reset_time(void);
+void reset_time();
 int mobs_in_room(int m_num, int r_num);
-void new_build_player_index(void);
-void renum_obj_zone(void);
-void renum_mob_zone(void);
+void new_build_player_index();
+void renum_obj_zone();
+void renum_mob_zone();
 //int get_zone_rooms(int, int *, int *);
 //int get_zone_rooms1(int, int *, int *);
-void init_guilds(void);
-void init_basic_values(void);
-void init_portals(void);
-void init_im(void);
+void init_guilds();
+void init_basic_values();
+void init_portals();
+void init_im();
 void init_zone_types();
-void load_guardians();
+void LoadGuardians();
 
 // external functions
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
-void load_messages(void);
-void initSpells(void);
-void InitSkills(void);
-void sort_commands(void);
-void Read_Invalid_List(void);
+void load_messages();
+void InitSpells(void);
+void sort_commands();
+void Read_Invalid_List();
 int find_name(const char *name);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
@@ -243,7 +238,7 @@ extern struct month_temperature_type year_temp[];
 extern const char *pc_class_types[];
 extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
-extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
+extern int class_stats_limit[kNumPlayerClasses][6];
 extern void LoadProxyList();
 extern void add_karma(CharacterData *ch, const char *punish, const char *reason);
 
@@ -875,7 +870,7 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 	Result = Doc.load_file(PathToFile);
 	// Oops, файла нет
 	if (!Result) {
-		buffer << "..." << Result.description();
+		buffer << "..." << Result.description() << "(file: " << PathToFile << ")";
 		mudlog(std::string(buffer.str()).c_str(), CMP, kLevelImmortal, SYSLOG, true);
 		return NodeList;
 	}
@@ -889,6 +884,10 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 
 	return NodeList;
 };
+
+pugi::xml_node XMLLoad(const std::string &PathToFile, const std::string &MainTag, const std::string &ErrorStr, pugi::xml_document &Doc) {
+	return XMLLoad(PathToFile.c_str(), MainTag.c_str(), ErrorStr.c_str(), Doc);
+}
 
 std::vector<TreasureCase> cases;
 // Заггрузка сундуков в мире
@@ -1078,7 +1077,11 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		DailyQuest::load_from_file();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
-	else if (!str_cmp(arg, "imagic"))
+	else if (!str_cmp(arg, "abilities")) {
+		MUD::Abilities().Reload();
+	} else if (!str_cmp(arg, "classes")) {
+		MUD::Classes().Reload("classes");
+	} else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
 		init_zone_types();
@@ -1274,7 +1277,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 				}
 			}
 		}
-		obj->set_skill(SKILL_INVALID);
+		obj->set_skill(to_underlying(ESkill::kIncorrect));
 
 		return 1;
 	}
@@ -1724,12 +1727,12 @@ void ObjectData::init_set_table() {
 						int i = 0;
 
 						while (isstream >> std::skipws >> i)
-							if (i < 0 || i > NUM_PLAYER_CLASSES * kNumKins)
+							if (i < 0 || i > kNumPlayerClasses * kNumKins)
 								break;
 							else
 								tmpclss.set(flag_data_by_num(i));
 
-						if (i < 0 || i > NUM_PLAYER_CLASSES * kNumKins) {
+						if (i < 0 || i > kNumPlayerClasses * kNumKins) {
 							cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
 							mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 							continue;
@@ -2087,7 +2090,7 @@ void load_messages() {
 	for (i = 0; i < kMaxMessages; i++) {
 		fight_messages[i].attack_type = 0;
 		fight_messages[i].number_of_attacks = 0;
-		fight_messages[i].msg = nullptr;
+		fight_messages[i].msg_set = nullptr;
 	}
 
 	const char *dummyc = fgets(chk, 128, fl);
@@ -2107,12 +2110,12 @@ void load_messages() {
 			log("SYSERR: Too many combat messages.  Increase kMaxMessages and recompile.");
 			exit(1);
 		}
-		log("BATTLE MESSAGE %d(%d)", i, type);
+		//log("BATTLE MESSAGE %d(%d)", i, type); Лишний спам
 		CREATE(messages, 1);
 		fight_messages[i].number_of_attacks++;
 		fight_messages[i].attack_type = type;
-		messages->next = fight_messages[i].msg;
-		fight_messages[i].msg = messages;
+		messages->next = fight_messages[i].msg_set;
+		fight_messages[i].msg_set = messages;
 
 		messages->die_msg.attacker_msg = fread_action(fl, i);
 		messages->die_msg.victim_msg = fread_action(fl, i);
@@ -2242,12 +2245,12 @@ void boot_db(void) {
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
-	boot_profiler.next_step("Loading new skills definitions");
-	log("Loading NEW skills definitions");
+	boot_profiler.next_step("Loading abilities definitions");
+	log("Loading abilities.");
+	MUD::Abilities().Init();
+
 	pugi::xml_document doc;
 
-	//Svent TODO: Не забыть включить загрузку обратно после переписывания
-	//Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
 	load_dquest();
 	boot_profiler.next_step("Loading criterion");
 	log("Loading Criterion...");
@@ -2285,9 +2288,9 @@ void boot_db(void) {
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1),
 				   EWearFlag::ITEM_WEAR_HOLD);
 
-	boot_profiler.next_step("Loading birth places definitions");
-	log("Loading birth places definitions.");
-	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
+	boot_profiler.next_step("Loading birthplaces definitions");
+	log("Loading birthplaces definitions.");
+	Birthplaces::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
 	boot_profiler.next_step("Loading player races definitions");
 	log("Loading player races definitions.");
@@ -2295,11 +2298,11 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading spell definitions");
 	log("Loading spell definitions.");
-	initSpells();
+	InitSpells();
 
-	boot_profiler.next_step("Loading skill definitions");
-	log("Loading skill definitions.");
-	InitSkills();
+	boot_profiler.next_step("Loading skills definitions");
+	log("Loading skills definitions.");
+	MUD::Skills().Init();
 
 	boot_profiler.next_step("Loading feature definitions");
 	log("Loading feature definitions.");
@@ -2308,6 +2311,11 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
 	init_im();
+
+	boot_profiler.next_step("Assigning character classs info.");
+	log("Assigning character classs info.");
+	MUD::Classes().Init();
+	InitSpellLevels();
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");
@@ -2319,7 +2327,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading gurdians");
 	log("Load guardians.");
-	load_guardians();
+	LoadGuardians();
 
 	boot_profiler.next_step("Loading world");
 	world_loader.boot_world();
@@ -2367,11 +2375,6 @@ void boot_db(void) {
 		log("   Rooms.");
 		assign_rooms();
 	}
-
-	boot_profiler.next_step("Assigning spells and skills levels");
-	log("Assigning spell and skill levels.");
-	init_spell_levels();
-	LoadClassSkills();
 
 	boot_profiler.next_step("Reading skills variables.");
 	log("Reading skills variables.");
@@ -2653,9 +2656,9 @@ void reset_time(void) {
 		weather_info.season = SEASON_WINTER;
 
 	if (weather_info.pressure <= 980)
-		weather_info.sky = SKY_LIGHTNING;
+		weather_info.sky = kSkyLightning;
 	else if (weather_info.pressure <= 1000) {
-		weather_info.sky = SKY_RAINING;
+		weather_info.sky = kSkyRaining;
 		if (time_info.month >= MONTH_APRIL && time_info.month <= MONTH_OCTOBER)
 			create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTRAIN, 40, 40, 20);
 		else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY)
@@ -2667,9 +2670,9 @@ void reset_time(void) {
 				create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTSNOW, 80, 20, 0);
 		}
 	} else if (weather_info.pressure <= 1020)
-		weather_info.sky = SKY_CLOUDY;
+		weather_info.sky = kSkyCloudy;
 	else
-		weather_info.sky = SKY_CLOUDLESS;
+		weather_info.sky = kSkyCloudless;
 }
 
 // generate index table for the player file
@@ -3201,10 +3204,9 @@ void set_test_data(CharacterData *mob) {
 						int min_save = -(10 + 4 * (mob->get_level() - 31));
 						min_save = calc_boss_value(mob, min_save);
 
-						for (int i = 0; i < 4; ++i) {
-							if (GET_SAVE(mob, i) > min_save) {
-								//log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
-								GET_SAVE(mob, i) = min_save;
+						for (auto s = ESaving::kFirst; s <= ESaving::kLast; ++s) {
+							if (GET_SAVE(mob, s) > min_save) {
+								SET_SAVE(mob, s, min_save);
 							}
 						}
 						// 20..77
@@ -3290,7 +3292,7 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 			plane_offset = 0;
 			continue;
 		};
-		if (is_abbrev(searchname, extra_bits[counter])) {
+		if (utils::IsAbbrev(searchname, extra_bits[counter])) {
 			f = true;
 			break;
 		}
@@ -3309,7 +3311,7 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 	f = false;
 // ---------------------
 	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
-		if (is_abbrev(searchname, apply_types[counter])) {
+		if (utils::IsAbbrev(searchname, apply_types[counter])) {
 			f = true;
 			break;
 		}
@@ -3336,7 +3338,7 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 			plane_offset = 0;
 			continue;
 		};
-		if (is_abbrev(searchname, weapon_affects[counter])) {
+		if (utils::IsAbbrev(searchname, weapon_affects[counter])) {
 			f = true;
 			break;
 		}
@@ -3355,8 +3357,9 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 	}
 
 	f = false;
-	for (counter = 0; counter <= MAX_SKILL_NUM; ++counter) {
-		if (is_abbrev(searchname, skill_info[counter].name)) {
+	ESkill skill_id;
+	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
+		if (utils::IsAbbrev(searchname, MUD::Skills()[skill_id].GetName())) {
 			f = true;
 			break;
 		}
@@ -3364,12 +3367,12 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 	if (f) {
 		for (const auto &i : obj_proto) {
 			if (i->has_skills()) {
-				auto it = i->get_skills().find(static_cast<ESkill>(counter));
+				auto it = i->get_skills().find(skill_id);
 				if (it != i->get_skills().end()) {
 					snprintf(buf, kMaxStringLength, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 							 ++found, i->get_vnum(),
 							 i->get_short_description().c_str(),
-							 skill_info[counter].name, it->second);
+							 MUD::Skills()[skill_id].GetName(), it->second);
 					out += buf;
 				}
 			}
@@ -3530,9 +3533,9 @@ CharacterData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	mob->points.move = mob->points.max_move;
 	mob->add_gold(dice(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
-	mob->player_data.time.birth = time(0);
+	mob->player_data.time.birth = time(nullptr);
 	mob->player_data.time.played = 0;
-	mob->player_data.time.logon = time(0);
+	mob->player_data.time.logon = time(nullptr);
 
 	mob->id = max_id.allocate();
 
@@ -3576,7 +3579,7 @@ CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type) {
 	}
 
 	if (i > obj_proto.size()) {
-		return 0;
+		return nullptr;
 	}
 	return obj_proto[i];
 }
@@ -3626,7 +3629,7 @@ void zone_update(void) {
 
 				CREATE(update_u, 1);
 				update_u->zone_to_reset = static_cast<ZoneRnum>(i);
-				update_u->next = 0;
+				update_u->next = nullptr;
 
 				if (!reset_q.head)
 					reset_q.head = reset_q.tail = update_u;
@@ -4763,7 +4766,7 @@ bool is_empty(ZoneRnum zone_nr) {
 		return false;
 	}
 
-	if (room_spells::IsZoneRoomAffected(zone_nr, SPELL_RUNE_LABEL)) {
+	if (room_spells::IsZoneRoomAffected(zone_nr, kSpellRuneLabel)) {
 		return false;
 	}
 
@@ -4788,12 +4791,12 @@ int mobs_in_room(int m_num, int r_num) {
 *************************************************************************/
 
 long cmp_ptable_by_name(char *name, int len) {
-	len = MIN(len, static_cast<int>(strlen(name)));
+	len = std::min(len, static_cast<int>(strlen(name)));
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here. TODO: make map helper (MAPHELPER). */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		const char *pname = player_table[i].name();
-		if (!strn_cmp(pname, arg, MIN(len, static_cast<int>(strlen(pname))))) {
+		if (!strn_cmp(pname, arg, std::min(len, static_cast<int>(strlen(pname))))) {
 			return static_cast<long>(i);
 		}
 	}
@@ -4923,8 +4926,10 @@ void recreate_saveinfo(const size_t number) {
 * потестить че-нить с возможностью покачать скилл во время игры иммом.
 */
 void set_god_skills(CharacterData *ch) {
-	for (const auto i : AVAILABLE_SKILLS) {
-		ch->set_skill(i, 200);
+	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
+		if (MUD::Skills().IsValid(i)) {
+			ch->set_skill(i, 200);
+		}
 	}
 }
 
@@ -5015,9 +5020,9 @@ int file_to_string(const char *name, char *buf) {
 void clear_char_skills(CharacterData *ch) {
 	int i;
 	ch->real_abils.Feats.reset();
-	for (i = 0; i <= SPELLS_COUNT; i++)
+	for (i = 0; i <= kSpellCount; i++)
 		ch->real_abils.SplKnw[i] = 0;
-	for (i = 0; i <= SPELLS_COUNT; i++)
+	for (i = 0; i <= kSpellCount; i++)
 		ch->real_abils.SplMem[i] = 0;
 	ch->clear_skills();
 }
@@ -5057,16 +5062,16 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");
 		sprintf(buf + strlen(buf),
 				"%s",
-				string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch), GET_RACE(ch)))).c_str());
+				string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch), GET_RACE(ch)))).c_str());
 		send_to_char(buf, ch);
 		return;
 	} else {
 		// Сначала проверим по словам - может нам текстом сказали?
-		place_of_destination = BirthPlace::ParseSelect(arg);
+		place_of_destination = Birthplaces::ParseSelect(arg);
 		if (place_of_destination == BIRTH_PLACE_UNDEFINED) {
 			//Нет, значит или ерунда в аргументе, или цифирь, смотрим
 			place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
-			if (!BirthPlace::CheckId(place_of_destination)) {
+			if (!Birthplaces::CheckId(place_of_destination)) {
 				send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
 				return;
 			}
@@ -5075,7 +5080,7 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	log("Remort %s", GET_NAME(ch));
 	ch->remort();
-	act(remort_msg2, false, ch, 0, 0, TO_ROOM);
+	act(remort_msg2, false, ch, nullptr, nullptr, TO_ROOM);
 
 	if (ch->is_morphed()) ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
@@ -5112,7 +5117,7 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	while (ch->timed_feat) {
-		timed_feat_from_char(ch, ch->timed_feat);
+		ExpireTimedFeat(ch, ch->timed_feat);
 	}
 	for (i = 1; i < kMaxFeats; i++) {
 		UNSET_FEAT(ch, i);
@@ -5120,15 +5125,15 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
-		for (i = 1; i <= SPELLS_COUNT; i++) {
-			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
+		for (i = 1; i <= kSpellCount; i++) {
+			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == kMagus ? kSpellRunes : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
 	} else {
 		ch->set_skill(ch->get_remort());
-		for (i = 1; i <= SPELLS_COUNT; i++) {
-			if (GET_CLASS(ch) == CLASS_DRUID) {
-				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+		for (i = 1; i <= kSpellCount; i++) {
+			if (GET_CLASS(ch) == kMagus) {
+				GET_SPELL_TYPE(ch, i) = kSpellRunes;
 			} else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
 				GET_SPELL_TYPE(ch, i) = 0;
 				GET_SPELL_MEM(ch, i) = 0;
@@ -5157,7 +5162,7 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	check_portals(ch);
 	if (ch->get_protecting()) {
 		ch->set_protecting(0);
-		ch->BattleAffects.unset(EAF_PROTECT);
+		ch->BattleAffects.unset(kEafProtect);
 	}
 
 	//Обновляем статистику рипов для текущего перевоплощения
@@ -5338,8 +5343,8 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 				log("entry: char:%s level:%d mail:%s ip:%s", element.name(), element.level, element.mail, element.last_ip);
 #endif
 
-				top_idnum = MAX(top_idnum, GET_IDNUM(short_ch));
-				TopPlayer::Refresh(short_ch, 1);
+				top_idnum = std::max(top_idnum, GET_IDNUM(short_ch));
+				TopPlayer::Refresh(short_ch, true);
 
 				log("Adding new player %s", element.name());
 				player_table.append(element);
@@ -5369,10 +5374,9 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 			remove(filename);
 		}
 	}
-	return;
 }
 
-void new_build_player_index(void) {
+void new_build_player_index() {
 	FILE *players;
 	char name[kMaxInputLength], playername[kMaxInputLength];
 
@@ -5397,7 +5401,7 @@ void new_build_player_index(void) {
 	player_table.name_adviser().init();
 }
 
-void flush_player_index(void) {
+void flush_player_index() {
 	FILE *players;
 	char name[kMaxStringLength];
 
@@ -5592,7 +5596,7 @@ void room_free(RoomData *room)
 	room->affected.clear();
 }
 
-void LoadGlobalUID(void) {
+void LoadGlobalUID() {
 	FILE *guid;
 	char buffer[256];
 
@@ -5605,10 +5609,9 @@ void LoadGlobalUID(void) {
 	get_line(guid, buffer);
 	global_uid = atoi(buffer);
 	fclose(guid);
-	return;
 }
 
-void SaveGlobalUID(void) {
+void SaveGlobalUID() {
 	FILE *guid;
 
 	if (!(guid = fopen(LIB_MISC "globaluid", "w"))) {
@@ -5618,10 +5621,9 @@ void SaveGlobalUID(void) {
 
 	fprintf(guid, "%d\n", global_uid);
 	fclose(guid);
-	return;
 }
 
-void load_guardians() {
+void LoadGuardians() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"guards.xml");
 	if (!result) {
@@ -5681,7 +5683,7 @@ void load_guardians() {
 
 //Polud тестовый класс для хранения параметров различных рас мобов
 //Читает данные из файла
-const char *MOBRACE_FILE = LIB_MISC_MOBRACES "mobrace.xml";
+const char *MOBRACE_FILE = LIB_CFG "mob_races.xml";
 
 MobRaceListType mobraces_list;
 
@@ -5695,18 +5697,18 @@ void load_mobraces() {
 		return;
 	}
 
-	pugi::xml_node node_list = doc.child("mobraces");
+	pugi::xml_node node_list = doc.child("mob_races");
 
 	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...mobraces read fail");
+		snprintf(buf, kMaxStringLength, "...mob races read fail");
 		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
-	for (pugi::xml_node race = node_list.child("mobrace"); race; race = race.next_sibling("mobrace")) {
+	for (auto & race : node_list.children("mob_race")) {
 		MobRacePtr tmp_mobrace(new MobRace);
+		auto race_num = race.attribute("id").as_int();
 		tmp_mobrace->race_name = race.attribute("name").value();
-		int race_num = race.attribute("key").as_int();
 
 		pugi::xml_node imList = race.child("imlist");
 
@@ -5759,7 +5761,7 @@ std::vector<std::string> block_list;
 /// Проверка на наличие чара в стоп-списке и сет флага
 void set_flag(CharacterData *ch) {
 	std::string mail(GET_EMAIL(ch));
-	lower_convert(mail);
+	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end()) {
 		PRF_FLAGS(ch).set(PRF_IGVA_PRONA);
@@ -5778,7 +5780,7 @@ void init() {
 	}
 	std::string buffer;
 	while (file >> buffer) {
-		lower_convert(buffer);
+		utils::ConvertToLow(buffer);
 		block_list.push_back(buffer);
 	}
 
@@ -5830,7 +5832,7 @@ void load_class_limit() {
 	pugi::xml_document doc_sw;
 	pugi::xml_node child_, object_, file_sw;
 
-	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i) {
+	for (int i = 0; i < kNumPlayerClasses; ++i) {
 		for (int j = 0; j < 6; ++j) {
 			//Intiializing stats limit with default value
 			class_stats_limit[i][j] = 50;
@@ -5845,7 +5847,7 @@ void load_class_limit() {
 			continue;
 
 		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
-		if (id == CLASS_UNDEFINED) {
+		if (id == ECharClass::kUndefined) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
 			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			continue;

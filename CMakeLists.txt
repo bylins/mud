@@ -44,8 +44,8 @@ set(SOURCES
 		src/game_mechanics/celebrates.cpp
 		src/entities/char.cpp
 		src/entities/char_player.cpp
-		src/classes/class.cpp
-		src/classes/class_spell_slots.cpp
+		src/classes/classes.cpp
+		src/classes/classes_spell_slots.cpp
 		src/color.cpp
 		src/comm.cpp
 		src/cmd_god/shutdown.cpp
@@ -170,7 +170,7 @@ set(SOURCES
 		src/obj_prototypes.cpp
 		src/id.cpp
 		src/utils/utils_find_obj_id_by_vnum.cpp
-		src/global_objects.cpp
+        src/structs/global_objects.cpp
 		src/shops_implementation.cpp
 		src/entities/world_characters.cpp
 		src/utils/utils_debug.cpp
@@ -233,9 +233,13 @@ set(SOURCES
 		src/structs/flag_data.cpp
         src/crafts/jewelry.cpp
 		src/crafts/mining.cpp
-		src/classes/class_constants.cpp
+        src/classes/classes_constants.cpp
         src/structs/extra_description.cpp
-		src/communication/insult.cpp)
+		src/communication/insult.cpp
+		src/abilities/abilities_info.cpp
+		src/abilities/abilities_constants.cpp
+		src/classes/classes_info.cpp
+		src/utils/objects_filter.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -292,7 +296,7 @@ set(HEADERS
 		src/speedwalks.h
 		src/entities/world_characters.h
 		src/shops_implementation.h
-		src/global_objects.h
+        src/structs/global_objects.h
 		src/utils/id_converter.h
 		src/utils/utils_find_obj_id_by_vnum.h
 		src/id.h
@@ -324,8 +328,8 @@ set(HEADERS
 		src/entities/char.h
 		src/utils/utils_char_obj.inl
 		src/entities/char_player.h
-		src/classes/class.h
-		src/classes/class_spell_slots.h
+		src/classes/classes.h
+		src/classes/classes_spell_slots.h
 		src/comm.h
 		src/cmd_god/shutdown.h
 		src/commands.h
@@ -414,7 +418,7 @@ set(HEADERS
 		src/remember.h
 		src/reset_stats.h
 		src/entities/room.h
-		src/screen.h
+		src/color.h
 		src/game_mechanics/sets_drop.h
 		src/shop_ext.h
 		src/cmd_god/shutdown_parameters.h
@@ -451,7 +455,10 @@ set(HEADERS
 		src/affects/affect_contants.h
         src/structs/extra_description.h
 		src/communication/insult.h
-		src/communication/social.h)
+		src/communication/social.h
+		src/abilities/abilities_info.h
+		src/classes/classes_info.h
+		src/utils/objects_filter.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -642,7 +649,8 @@ set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
 if (UNIX OR CYGWIN)
-	add_definitions("--std=gnu++17")
+	#add_definitions("--std=gnu++17")
+	add_definitions("-std=c++2a")
 else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 endif ()

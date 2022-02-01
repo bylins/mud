@@ -15,8 +15,8 @@
  * obj.process(ch, victim);
  */
 struct SkillDmg {
-	SkillDmg(int num) : skill_num(num) {};
-	int skill_num;
+	SkillDmg(ESkill id) : skill_id(id) {};
+	ESkill skill_id;
 };
 
 /**
@@ -56,7 +56,7 @@ class Damage {
 	// скилы
 	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type, ObjectData *wielded_obj) {
 		zero_init();
-		skill_num = obj.skill_num;
+		skill_id = obj.skill_id;
 		dam = in_dam;
 		dmg_type = in_dmg_type;
 		wielded = wielded_obj;
@@ -88,7 +88,7 @@ class Damage {
 	// тип урона (физ/маг/обычный)
 	int dmg_type;
 	// см. описание в HitData
-	int skill_num;
+	ESkill skill_id;
 	// номер заклинания, если >= 0
 	int spell_num;
 	// Какой стихией магии наносится урон.

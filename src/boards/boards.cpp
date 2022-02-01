@@ -9,7 +9,7 @@
 #include "boards_constants.h"
 #include "boards_formatters.h"
 #include "house.h"
-#include "screen.h"
+#include "color.h"
 #include "privilege.h"
 #include "entities/char.h"
 #include "modify.h"
@@ -55,7 +55,7 @@ void message_no_read(CharacterData *ch, const Board &board) {
 	std::string out("У вас нет возможности читать этот раздел.\r\n");
 	if (board.is_special()) {
 		std::string name = board.get_name();
-		lower_convert(name);
+		utils::ConvertToLow(name);
 		out += "Для сообщения в формате обычной работы с доской используйте: " + name + " писать <заголовок>.\r\n";
 		if (!board.get_alias().empty()) {
 			out += "Команда для быстрого добавления сообщения: "
