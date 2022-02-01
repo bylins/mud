@@ -29,8 +29,9 @@
 //#include "game_mechanics/weather.h"
 #include "olc/olc.h"
 #include "privilege.h"
-
 //#include <string>
+
+#include <chrono>
 
 constexpr long long kPulsesPerMudHour = SECS_PER_MUD_HOUR*kPassesPerSec;
 
@@ -1717,6 +1718,10 @@ void find_replacement(void *go,
 			time_t now_time = time(0);
 			if (!str_cmp(field, "unix")) {
 				sprintf(str, "%ld", static_cast<long>(now_time));
+			} else if (!str_cmp(field, "exact")) {
+				auto now = std::chrono::system_clock::now();
+				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+				sprintf(str, "%ld", now_ms.time_since_epoch().count());
 			} else if (!str_cmp(field, "yday")) {
 				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
