@@ -1722,16 +1722,6 @@ void find_replacement(void *go,
 				auto now = std::chrono::system_clock::now();
 				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 				sprintf(str, "%ld", now_ms.time_since_epoch().count());
-			} else if (!str_cmp(field, "duration")) {
-				std::string tempstr = subfield;
-				std::string s1 = tempstr.substr(0, tempstr.find(','));
-				std::string s2 = tempstr.substr(tempstr.find(',') +1 );
-				int x = atoi(s1.c_str());
-				int y = atoi(s2.c_str());
-				std::chrono::milliseconds durX(x);
-				std::chrono::milliseconds durY(y);
-				 auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(durY - durX);
-				sprintf(str, "%ld", msec.count());
 			} else if (!str_cmp(field, "yday")) {
 				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
@@ -3904,7 +3894,8 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 				time *= kPassesPerSec;
 		}
 	}
-
+	if (time < 2)	//костыль пока не разберемся почему корректно не работает wait 1
+		time = 2;
 	CREATE(wait_event_obj, 1);
 	wait_event_obj->trigger = trig;
 	wait_event_obj->go = go;
