@@ -136,7 +136,7 @@ bool Affect<EApplyLocation>::removable() const {
 		|| type == kSpellHold
 		|| type == kSpellPowerHold
 		|| type == kSpellPeaceful
-		|| type == kSpellConeOfCold
+		|| type == kSpellColdWind
 		|| type == kSpellDeafness
 		|| type == kSpellPowerDeafness
 		|| type == kSpellBattle;

@@ -143,6 +143,7 @@ enum class ESkill : int {
 };
 
 const ESkill& operator++(ESkill &s);
+std::ostream& operator<<(std::ostream & os, ESkill &s);
 
 template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);

@@ -753,7 +753,7 @@ void generate_drinkcon_name(ObjectData *to_obj, int spell) {
 			name_to_drinkcon(to_obj, LIQ_POTION_RED);
 			break;
 			// насыщение (синее) //
-		case kSpellFull:
+		case kSpellFullFeed:
 		case kSpellCommonMeal: to_obj->set_val(2, LIQ_POTION_BLUE);
 			name_to_drinkcon(to_obj, LIQ_POTION_BLUE);
 			break;
@@ -765,7 +765,7 @@ void generate_drinkcon_name(ObjectData *to_obj, int spell) {
 		case kSpellDetectPoison:
 		case kSpellSnakeEyes:
 		case kSpellDetectAlign:
-		case kSpellGeneralSincerity:
+		case kSpellGroupSincerity:
 		case kSpellSenseLife:
 		case kSpellEyeOfGods:
 		case kSpellInfravision:

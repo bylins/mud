@@ -33,7 +33,7 @@ const short kDummyKnight = 390;
 const short kDummyShield = 391;
 const short kDummyWeapon = 392;
 
-const long kMinImprove = 1L;
+const long kMinImprove = 0L;
 
 enum class ELuckTestResult {
 	kLuckTestFail = 0,
@@ -2038,5 +2038,10 @@ const ESkill &operator++(ESkill &s) {
 	s = static_cast<ESkill>(to_underlying(s) + 1);
 	return s;
 }
+
+std::ostream& operator<<(std::ostream & os, ESkill &s){
+	os << to_underlying(s) << " (" << NAME_BY_ITEM<ESkill>(s) << ")";
+	return os;
+};
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

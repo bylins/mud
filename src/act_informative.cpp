@@ -102,7 +102,7 @@ extern void show_code_date(CharacterData *ch);
 extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
 // extern functions
-long find_class_bitvector(char arg);
+Bitvector find_class_bitvector(char arg);
 int level_exp(CharacterData *ch, int level);
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
 // local functions

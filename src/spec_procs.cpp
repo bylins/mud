@@ -613,7 +613,7 @@ int GUILDS_POLY_USED = 0;
 struct guild_mono_type *guild_mono_info = nullptr;
 struct guild_poly_type **guild_poly_info = nullptr;
 
-void init_guilds(void) {
+void init_guilds() {
 	FILE *magic;
 	char name[kMaxInputLength],
 		line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
@@ -717,7 +717,7 @@ void init_guilds(void) {
 					GUILDS_POLY_USED++;
 					type = 12;
 				}
-				log("Assign poly guild %d to mobile %s", GUILDS_POLY_USED, line1);
+				//log("Assign poly guild %d to mobile %s", GUILDS_POLY_USED, line1);
 				ASSIGNMASTER(num, guild_poly, GUILDS_POLY_USED);
 			}
 		} else if (type == 1) {
@@ -2624,7 +2624,7 @@ int magic_user(CharacterData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		case 14:
 		case 15:
 		case 16:
-		case 17: CastSpell(ch, target, nullptr, nullptr, kSpellColorSpray, kSpellColorSpray);
+		case 17: CastSpell(ch, target, nullptr, nullptr, kSpellIceBolts, kSpellIceBolts);
 			break;
 		default: CastSpell(ch, target, nullptr, nullptr, kSpellFireball, kSpellFireball);
 			break;

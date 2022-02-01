@@ -2110,7 +2110,7 @@ void load_messages() {
 			log("SYSERR: Too many combat messages.  Increase kMaxMessages and recompile.");
 			exit(1);
 		}
-		log("BATTLE MESSAGE %d(%d)", i, type);
+		//log("BATTLE MESSAGE %d(%d)", i, type); Лишний спам
 		CREATE(messages, 1);
 		fight_messages[i].number_of_attacks++;
 		fight_messages[i].attack_type = type;
@@ -2288,8 +2288,8 @@ void boot_db(void) {
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1),
 				   EWearFlag::ITEM_WEAR_HOLD);
 
-	boot_profiler.next_step("Loading birth places definitions");
-	log("Loading birth places definitions.");
+	boot_profiler.next_step("Loading birthplaces definitions");
+	log("Loading birthplaces definitions.");
 	Birthplaces::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
 	boot_profiler.next_step("Loading player races definitions");
@@ -5683,7 +5683,7 @@ void LoadGuardians() {
 
 //Polud тестовый класс для хранения параметров различных рас мобов
 //Читает данные из файла
-const char *MOBRACE_FILE = LIB_MISC_MOBRACES "mobrace.xml";
+const char *MOBRACE_FILE = LIB_CFG "mob_races.xml";
 
 MobRaceListType mobraces_list;
 
@@ -5697,18 +5697,18 @@ void load_mobraces() {
 		return;
 	}
 
-	pugi::xml_node node_list = doc.child("mobraces");
+	pugi::xml_node node_list = doc.child("mob_races");
 
 	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...mobraces read fail");
+		snprintf(buf, kMaxStringLength, "...mob races read fail");
 		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 		return;
 	}
 
-	for (pugi::xml_node race = node_list.child("mobrace"); race; race = race.next_sibling("mobrace")) {
+	for (auto & race : node_list.children("mob_race")) {
 		MobRacePtr tmp_mobrace(new MobRace);
-		tmp_mobrace->race_name = race.attribute("name").value();
-		int race_num = race.attribute("key").as_int();
+		auto race_num = race.attribute("id").as_int();
+		tmp_mobrace->race_name = race.child("name").attribute("val").value();
 
 		pugi::xml_node imList = race.child("imlist");
 

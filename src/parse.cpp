@@ -32,20 +32,20 @@ std::array<TextIdNode, TEXT_ID_COUNT> text_id_list;
 /// Инит текстовых ИД классов для конфига.
 ///
 void init_char_class() {
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kSorcerer, "kClassSorcerer");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kConjurer, "kClassConjurer");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kThief, "kClassThief");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kWarrior, "kClassWarrior");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kAssasine, "kClassAssasine");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kGuard, "kClassGuard");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kCharmer, "kClassCharmer");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kWizard, "kClassWizard");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kNecromancer, "kClassNecromancer");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kPaladine, "kClassPaladine");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kRanger, "kCLassRanger");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kVigilant, "kClassSmith");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kMerchant, "kClassMerchant");
-	text_id_list.at(CHAR_CLASS).add(ECharClass::kMagus, "kClassMagus");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kSorcerer, "kSorcerer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kConjurer, "kConjurer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kThief, "kThief");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kWarrior, "kWarrior");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kAssasine, "kAssasine");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kGuard, "kGuard");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kCharmer, "kCharmer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kWizard, "kWizard");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kNecromancer, "kNecromancer");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kPaladine, "kPaladine");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kRanger, "kRanger");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kMerchant, "kMerchant");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kMagus, "kMagus");
+	text_id_list.at(CHAR_CLASS).add(ECharClass::kVigilant, "kVigilant");
 }
 
 ///

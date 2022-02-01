@@ -120,8 +120,8 @@ void do_antigods(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subc
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD)) {
-		if (affected_by_spell(ch, kSpellShield))
-			affect_from_char(ch, kSpellShield);
+		if (affected_by_spell(ch, kSpellGodsShield))
+			affect_from_char(ch, kSpellGodsShield);
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_SHIELD);
 		send_to_char("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);

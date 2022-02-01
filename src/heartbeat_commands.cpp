@@ -38,7 +38,7 @@ class ClearStats : public commands::utils::CommonCommand {
 
 void ClearStats::execute(const CommandContext::shared_ptr &context,
 						 const arguments_t &path,
-						 const arguments_t &arguments) {
+						 const arguments_t &/*arguments*/) {
 	const auto heartbeat_context = std::dynamic_pointer_cast<HeartbeatCommandContext>(context);
 	if (!heartbeat_context) {
 		log("SYSERR: context of heartbeat command '%s' is not an instance of class 'HeartbeatCommandContext'.",

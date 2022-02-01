@@ -145,7 +145,7 @@ enum ESpell : int {
 	kSpellCharm = 7,
 	kSpellChillTouch = 8,
 	kSpellClone = 9,
-	kSpellColorSpray = 10,
+	kSpellIceBolts = 10,
 	kSpellControlWeather = 11,
 	kSpellCreateFood = 12,
 	kSpellCreateWater = 13,
@@ -202,8 +202,8 @@ enum ESpell : int {
 	kSpellSllence = 64,
 	kSpellLight = 65,
 	kSpellChainLighting = 66,
-	kSpellFireblast = 67,
-	kSpellImplosion = 68,
+	kSpellFireBlast = 67,
+	kSpellGodsWrath = 68,
 	kSpellWeaknes = 69,
 	kSpellGroupInvisible = 70,
 	kSpellShadowCloak = 71,
@@ -238,17 +238,17 @@ enum ESpell : int {
 	kSpellSneak = 100,
 	kSpellDrunked = 101,
 	kSpellAbstinent = 102,
-	kSpellFull = 103,
-	kSpellConeOfCold = 104,
+	kSpellFullFeed = 103,
+	kSpellColdWind = 104,
 	kSpellBattle = 105,
 	kSpellHaemorragis = 106,
 	kSpellCourage = 107,
 	kSpellWaterbreath = 108,
-	kSpellSlow = 109,
+	kSpellSlowdown = 109,
 	kSpellHaste = 110,
 	kSpellMassSlow = 111,
 	kSpellGroupHaste = 112,
-	kSpellShield = 113,
+	kSpellGodsShield = 113,
 	kSpellFever = 114,
 	kSpellCureFever = 115,
 	kSpellAwareness = 116,
@@ -264,8 +264,8 @@ enum ESpell : int {
 	kSpellSummonFirekeeper = 126,
 	kSpellIceShield = 127,
 	kSpellIceStorm = 128,
-	kSpellEnless = 129,
-	kSpellShineflash = 130,
+	kSpellLessening = 129,
+	kSpellShineFlash = 130,
 	kSpellMadness = 131,
 	kSpellGroupMagicGlass = 132,
 	kSpellCloudOfArrows = 133,
@@ -352,7 +352,7 @@ enum ESpell : int {
 	kSpellClod = 214,
 	kSpellExpedient = 215,
 	kSpellSightOfDarkness = 216,
-	kSpellGeneralSincerity = 217,
+	kSpellGroupSincerity = 217,
 	kSpellMagicalGaze = 218,
 	kSpellAllSeeingEye = 219,
 	kSpellEyeOfGods = 220,
@@ -377,7 +377,7 @@ enum ESpell : int {
 	kSpellWarcryOfLuck = 239,
 	kSpellWarcryOfPhysdamage = 240,
 	kSpellMassFailure = 241,
-	kSpellMassNoflee = 242,
+	kSpellSnare = 242,
 	kSpellFireBreath = 243,
 	kSpellGasBreath = 244,
 	kSpellFrostBreath = 245,
@@ -427,29 +427,29 @@ struct AttackHitType {
 
 #define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
-void SpellCreateWater(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellRecall(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellTeleport(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellSummon(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellRelocate(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellPortal(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellLocateObject(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellCharm(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void SpellCreateWater(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void SpellRecall(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/);
+void SpellTeleport(int /* level */, CharacterData *ch, CharacterData */*victim*/, ObjectData */*obj*/);
+void SpellSummon(int /*level*/, CharacterData *ch, CharacterData *victim, ObjectData */*obj*/);
+void SpellRelocate(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/);
+void SpellPortal(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/);
+void SpellLocateObject(int level, CharacterData *ch, CharacterData* /*victim*/, ObjectData *obj);
+void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/);
 void SpellInformation(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
 void SpellIdentify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
 void SpellFullIdentify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
 void SpellEnchantWeapon(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
 void SpellControlWeather(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellCreateWeapon(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellEnergydrain(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellFear(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellSacrifice(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void SpellCreateWeapon(int/* level*/, CharacterData* /*ch*/, CharacterData* /*victim*/, ObjectData* /* obj*/);
+void SpellEnergydrain(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/);
+void SpellFear(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/);
+void SpellSacrifice(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/);
 void SpellForbidden(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellHolystrike(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void SpellHolystrike(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/);
 void SkillIdentify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellSummonAngel(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellVampire(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellMentalShadow(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
+void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/);
+void SpellVampirism(int/* level*/, CharacterData* /*ch*/, CharacterData* /*victim*/, ObjectData* /*obj*/);
+void SpellMentalShadow(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/);
 
 // возращает текст выводимый при спадении скила
 std::string get_wear_off_text(ESpell spell);

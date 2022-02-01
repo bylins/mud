@@ -1284,8 +1284,9 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <# # # #> for SAVES in MOB #%d", i);
 			return;
 		}
-		for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save)
+		for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
 			SET_SAVE(mob_proto + i, save, std::clamp(t[to_underlying(save)], kMinSaving, kMaxSaving));
+		}
 	}
 // Svent: и что тут за коллекция магик намберов бесконечная? Вынести в настройки.
 	CASE("HPReg") {
@@ -1424,7 +1425,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 		auto skill_id = static_cast<ESkill>(t[0]);
 		if (MUD::Skills().IsInvalid(skill_id)) {
-			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], i);
+			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], nr);
 			return;
 		}
 		t[1] = std::clamp(t[1], 0, MUD::Skills()[skill_id].cap);
@@ -1865,7 +1866,8 @@ bool SocialsFile::load_socials() {
 		scan = one_word(line, next_key);
 		while (*next_key) {
 			key++;
-			log("Social %d '%s' - message %d", key, next_key, message);
+			// Не нужен лишний спам, только мешает искать ошибки
+			//log("Social %d '%s' - message %d", key, next_key, message);
 			soc_keys_list[key].keyword = str_dup(next_key);
 			soc_keys_list[key].social_message = message;
 			scan = one_word(scan, next_key);

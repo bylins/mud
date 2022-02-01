@@ -19,7 +19,7 @@ namespace classes {
 const bool kStrictParsing = true;
 constexpr bool kTolerantParsing = !kStrictParsing;
 
-const std::string CharClassInfo::cfg_file_name{LIB_CFG "pc_classes.xml"};
+const std::string CharClassInfo::cfg_file_name{LIB_CFG_CLASSES "pc_classes.xml"};
 const std::string CharClassInfo::xml_main_tag{"classes"};
 const std::string CharClassInfo::xml_entity_tag{"class"};
 const std::string CharClassInfo::load_fail_msg{"PC classes loading failed. The cfg file is missing or damaged."};
@@ -64,28 +64,12 @@ ClassesInfo::Optional ClassesInfo::RegisterBuilder::Parse(const xml_node &nodes,
 	auto items = std::make_optional(std::make_unique<Register>());
 	CharClassInfo::Optional item;
 	for (auto &node : nodes.children(tag.c_str())) {
-/*		try {
-			item = ItemBuilder::Build(node);
-		} catch (std::exception &e) {
-			err_log("Incorrect value or id '%s' was detected.", e.what());
-			item.reset();
-		}
-		if (!item) {
-			if (strict_pasring_) {
-				return std::nullopt;
-			} else {
-				continue;
-			}
-		}
-		EmplaceItem(items, item);*/
-
 		item = ItemBuilder::Build(node);
 		if (item) {
 			EmplaceItem(items, item);
 		} else if (strict_pasring_) {
 			return std::nullopt;
 		}
-
 	}
 	EmplaceDefaultItems(items);
 

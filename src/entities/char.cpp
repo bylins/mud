@@ -582,7 +582,8 @@ int CharacterData::get_trained_skill(const ESkill skill_num) const {
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
 void CharacterData::set_skill(const ESkill skill_id, int percent) {
 	if (MUD::Skills().IsInvalid(skill_id)) {
-		log("SYSERROR: некорректный номер скилла %d в set_skill.", to_underlying(skill_id));
+		// Только лишний спам в логе.
+		//log("SYSERROR: некорректный номер скилла %d в set_skill.", to_underlying(skill_id));
 		return;
 	}
 	auto it = skills.find(skill_id);
@@ -976,8 +977,8 @@ ECharClass CharacterData::get_class() const {
 void CharacterData::set_class(ECharClass chclass) {
 	// Range includes player classes and NPC classes (and does not consider gaps between them).
 	// Почему классы не пронумеровать подряд - загадка...
-	if ((chclass < ECharClass::kFirst || chclass > ECharClass::kLast)
-		&& chclass != ECharClass::kNpcBase && chclass != ECharClass::kMob) {
+	// && chclass != ECharClass::kNpcBase && chclass != ECharClass::kMob
+	if (chclass < ECharClass::kFirst || chclass > ECharClass::kNPCLast) {
 		log("WARNING: chclass=%d (%s:%d %s)", chclass, __FILE__, __LINE__, __func__);
 	}
 	chclass_ = chclass;

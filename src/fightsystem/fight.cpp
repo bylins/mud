@@ -621,7 +621,7 @@ CharacterData *find_affectee(CharacterData *caster, int spellnum) {
 		spellreal = kSpellPrismaticAura;
 	else if (spellreal == kSpellSightOfDarkness)
 		spellreal = kSpellInfravision;
-	else if (spellreal == kSpellGeneralSincerity)
+	else if (spellreal == kSpellGroupSincerity)
 		spellreal = kSpellDetectAlign;
 	else if (spellreal == kSpellMagicalGaze)
 		spellreal = kSpellDetectMagic;
@@ -634,7 +634,7 @@ CharacterData *find_affectee(CharacterData *caster, int spellnum) {
 	else if (spellreal == kSpellGeneralRecovery)
 		spellreal = kSpellFastRegeneration;
 	else if (spellreal == kSpellCommonMeal)
-		spellreal = kSpellFull;
+		spellreal = kSpellFullFeed;
 	else if (spellreal == kSpellStoneWall)
 		spellreal = kSpellStoneSkin;
 	else if (spellreal == kSpellSnakeEyes)
@@ -699,10 +699,10 @@ CharacterData *find_opp_affectee(CharacterData *caster, int spellnum) {
 	else if (spellreal == kSpellMassCurse)
 		spellreal = kSpellCurse;
 	else if (spellreal == kSpellMassSlow)
-		spellreal = kSpellSlow;
+		spellreal = kSpellSlowdown;
 	else if (spellreal == kSpellMassFailure)
 		spellreal = kSpellFailure;
-	else if (spellreal == kSpellMassNoflee)
+	else if (spellreal == kSpellSnare)
 		spellreal = kSpellNoflee;
 
 	if (GET_REAL_INT(caster) > number(10, 20)) {

@@ -858,10 +858,10 @@ int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 			{
 				case kSpellBurningHands:
 				case kSpellShockingGasp:
-				case kSpellShineflash:
-				case kSpellColorSpray:
+				case kSpellShineFlash:
+				case kSpellIceBolts:
 				case kSpellFireball:
-				case kSpellFireblast:
+				case kSpellFireBlast:
 					if (season == SEASON_SUMMER &&
 						(weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)) {
 						if (sky == kSkyLightning)
@@ -883,8 +883,8 @@ int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 					// Водно-ледяные спеллы - зима
 				case kSpellChillTouch:
 				case kSpellIceStorm:
-				case kSpellConeOfCold:
-				case kSpellImplosion:
+				case kSpellColdWind:
+				case kSpellGodsWrath:
 					if (season == SEASON_WINTER) {
 						if (sky == kSkyRaining || sky == kSkyCloudy)
 							modi += (modi * number(20, 50) / 100);

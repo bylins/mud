@@ -35,7 +35,7 @@ extern int interpolate(int min_value, int pulse);
 extern int attack_best(CharacterData *ch, CharacterData *victim);
 
 byte saving_throws(int class_num, ESaving saving, int level);    // class.cpp
-byte extend_saving_throws(int class_num, ESaving saving, int level);
+byte extend_saving_throws(int class_num, ESaving save, int level);
 int CheckCharmices(CharacterData *ch, CharacterData *victim, int spellnum);
 void ReactToCast(CharacterData *victim, CharacterData *caster, int spellnum);
 
@@ -231,7 +231,7 @@ float func_koef_modif(int spellnum, int percent) {
 			return 0;
 			break;
 		case kSpellMassSlow:
-		case kSpellSlow: {
+		case kSpellSlowdown: {
 			if (percent >= 80) {
 				return (percent - 80) / 20.00 + 1.00;
 			}
@@ -488,7 +488,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// яркий блик нет резиста
 			// мин 10+10 среднее 30+10 макс 50+10
 			// ОГОНЬ
-		case kSpellShineflash:
+		case kSpellShineFlash:
 			ndice = 10;
 			sdice = 5;
 			adice = (level + 2) / 3;
@@ -510,7 +510,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// ледяные стрелы
 			// мин 6+30 среднее 18+30 макс 30+30
 			// ОГОНЬ
-		case kSpellColorSpray: savetype = ESaving::kStability;
+		case kSpellIceBolts: savetype = ESaving::kStability;
 			ndice = 6;
 			sdice = 5;
 			adice = level;
@@ -519,7 +519,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// ледяной ветер
 			// мин 10+30 среднее 30+30 макс 50+30
 			// ВОДА
-		case kSpellConeOfCold: savetype = ESaving::kStability;
+		case kSpellColdWind: savetype = ESaving::kStability;
 			ndice = 10;
 			sdice = 5;
 			adice = level;
@@ -538,7 +538,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// массовое
 			// мин 40+30 среднее 80+30 макс 120*30
 			// ОГОНЬ, ареа
-		case kSpellFireblast: savetype = ESaving::kStability;
+		case kSpellFireBlast: savetype = ESaving::kStability;
 			ndice = 10 + GET_REAL_REMORT(ch);
 			sdice = 3;
 			adice = level;
@@ -567,7 +567,7 @@ int mag_damage(int level, CharacterData *ch, CharacterData *victim, int spellnum
 			// гнев богов)
 			// мин 10+180 среднее 70+180 макс 130+180
 			// ВОДА
-		case kSpellImplosion: savetype = ESaving::kWill;
+		case kSpellGodsWrath: savetype = ESaving::kWill;
 			ndice = 10;
 			sdice = 13;
 			adice = level * 6;
@@ -1398,7 +1398,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			to_vict = "Взрыв шаровой молнии $N1 отдался в вашей голове громким звоном.";
 			break;
 
-		case kSpellConeOfCold:
+		case kSpellColdWind:
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				send_to_char(NOEFFECT, ch);
 				success = false;
@@ -1423,7 +1423,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			spellnum = kSpellAwareness;
 			break;
 
-		case kSpellShield: af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0) * koef_duration;
+		case kSpellGodsShield: af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_SHIELD);
 			af[0].location = APPLY_SAVING_STABILITY;
 			af[0].modifier = -10;
@@ -1445,8 +1445,8 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 
 		case kSpellGroupHaste:
 		case kSpellHaste:
-			if (affected_by_spell(victim, kSpellSlow)) {
-				affect_from_char(victim, kSpellSlow);
+			if (affected_by_spell(victim, kSpellSlowdown)) {
+				affect_from_char(victim, kSpellSlowdown);
 				success = false;
 				break;
 			}
@@ -1469,8 +1469,8 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			break;
 
 		case kSpellEnlarge:
-			if (affected_by_spell(victim, kSpellEnless)) {
-				affect_from_char(victim, kSpellEnless);
+			if (affected_by_spell(victim, kSpellLessening)) {
+				affect_from_char(victim, kSpellLessening);
 				success = false;
 				break;
 			}
@@ -1482,7 +1482,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			to_vict = "Вы стали крупнее.";
 			break;
 
-		case kSpellEnless:
+		case kSpellLessening:
 			if (affected_by_spell(victim, kSpellEnlarge)) {
 				affect_from_char(victim, kSpellEnlarge);
 				success = false;
@@ -1573,7 +1573,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			break;
 
 		case kSpellDustStorm:
-		case kSpellShineflash:
+		case kSpellShineFlash:
 		case kSpellMassBlindness:
 		case kSpellPowerBlindness:
 		case kSpellBlindness: savetype = ESaving::kStability;
@@ -1590,7 +1590,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 																pc_duration(victim, 3, level, 6, 0, 0)) * koef_duration;
 					break;
-				case kSpellShineflash:
+				case kSpellShineFlash:
 					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 																pc_duration(victim, 2, level + 7, 8, 0, 0))
 						* koef_duration;
@@ -1690,7 +1690,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			break;
 
 		case kSpellMassSlow:
-		case kSpellSlow: savetype = ESaving::kStability;
+		case kSpellSlowdown: savetype = ESaving::kStability;
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi * number(1, koef_modifier / 2)))) {
 				send_to_char(NOEFFECT, ch);
@@ -1714,10 +1714,10 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 			af[1].modifier = -koef_modifier;
 			to_room = "Движения $n1 заметно замедлились.";
 			to_vict = "Ваши движения заметно замедлились.";
-			spellnum = kSpellSlow;
+			spellnum = kSpellSlowdown;
 			break;
 
-		case kSpellGeneralSincerity:
+		case kSpellGroupSincerity:
 		case kSpellDetectAlign:
 			af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REAL_REMORT(ch), 1, 0, 0) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
@@ -2140,7 +2140,7 @@ int mag_affects(int level, CharacterData *ch, CharacterData *victim, int spellnu
 
 		case kSpellNoflee: // "приковать противника"
 		case kSpellIndriksTeeth:
-		case kSpellMassNoflee: af[0].battleflag = AF_BATTLEDEC;
+		case kSpellSnare: af[0].battleflag = AF_BATTLEDEC;
 			savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
@@ -3307,7 +3307,7 @@ int CastToPoints(int level, CharacterData *ch, CharacterData *victim, int spelln
 		case kSpellGroupRefresh: move = GET_REAL_MAX_MOVE(victim) - GET_MOVE(victim);
 			send_to_char("Вы почувствовали себя полным сил.\r\n", victim);
 			break;
-		case kSpellFull:
+		case kSpellFullFeed:
 		case kSpellCommonMeal: {
 			if (GET_COND(victim, THIRST) > 0)
 				GET_COND(victim, THIRST) = 0;
@@ -3724,44 +3724,63 @@ int CastCreation(int/* level*/, CharacterData *ch, int spellnum) {
 int CastManual(int level, CharacterData *caster, CharacterData *cvict, ObjectData *ovict, int spellnum, ESaving /*saving*/) {
 	switch (spellnum) {
 		case kSpellGroupRecall:
-		case kSpellWorldOfRecall: MANUAL_SPELL(SpellRecall);
+		case kSpellWorldOfRecall:
+			SpellRecall(level, caster, cvict, ovict);
 			break;
-		case kSpellTeleport: MANUAL_SPELL(SpellTeleport);
+		case kSpellTeleport:
+			SpellTeleport(level, caster, cvict, ovict);
 			break;
-		case kSpellControlWeather: MANUAL_SPELL(SpellControlWeather);
+		case kSpellControlWeather:
+			SpellControlWeather(level, caster, cvict, ovict);
 			break;
-		case kSpellCreateWater: MANUAL_SPELL(SpellCreateWater);
+		case kSpellCreateWater:
+			SpellCreateWater(level, caster, cvict, ovict);
 			break;
-		case kSpellLocateObject: MANUAL_SPELL(SpellLocateObject);
+		case kSpellLocateObject:
+			SpellLocateObject(level, caster, cvict, ovict);
 			break;
-		case kSpellSummon: MANUAL_SPELL(SpellSummon);
+		case kSpellSummon:
+			SpellSummon(level, caster, cvict, ovict);
 			break;
-		case kSpellPortal: MANUAL_SPELL(SpellPortal);
+		case kSpellPortal:
+			SpellPortal(level, caster, cvict, ovict);
 			break;
-		case kSpellCreateWeapon: MANUAL_SPELL(SpellCreateWeapon);
+		case kSpellCreateWeapon:
+			SpellCreateWeapon(level, caster, cvict, ovict);
 			break;
-		case kSpellRelocate: MANUAL_SPELL(SpellRelocate);
+		case kSpellRelocate:
+			SpellRelocate(level, caster, cvict, ovict);
 			break;
-		case kSpellCharm: MANUAL_SPELL(SpellCharm);
+		case kSpellCharm:
+			SpellCharm(level, caster, cvict, ovict);
 			break;
-		case kSpellEnergyDrain: MANUAL_SPELL(SpellEnergydrain);
+		case kSpellEnergyDrain:
+			SpellEnergydrain(level, caster, cvict, ovict);
 			break;
 		case kSpellMassFear:
-		case kSpellFear: MANUAL_SPELL(SpellFear);
+		case kSpellFear:
+			SpellFear(level, caster, cvict, ovict);
 			break;
-		case kSpellSacrifice: MANUAL_SPELL(SpellSacrifice);
+		case kSpellSacrifice:
+			SpellSacrifice(level, caster, cvict, ovict);
 			break;
-		case kSpellIdentify: MANUAL_SPELL(SpellIdentify);
+		case kSpellIdentify:
+			SpellIdentify(level, caster, cvict, ovict);
 			break;
-		case kSpellFullIdentify: MANUAL_SPELL(SpellFullIdentify);
+		case kSpellFullIdentify:
+			SpellFullIdentify(level, caster, cvict, ovict);
 			break;
-		case kSpellHolystrike: MANUAL_SPELL(SpellHolystrike);
+		case kSpellHolystrike:
+			SpellHolystrike(level, caster, cvict, ovict);
 			break;
-		case kSpellSumonAngel: MANUAL_SPELL(SpellSummonAngel);
+		case kSpellSumonAngel:
+			SpellSummonAngel(level, caster, cvict, ovict);
 			break;
-		case kSpellVampirism: MANUAL_SPELL(SpellVampire);
+		case kSpellVampirism:
+			SpellVampirism(level, caster, cvict, ovict);
 			break;
-		case kSpellMentalShadow: MANUAL_SPELL(SpellMentalShadow);
+		case kSpellMentalShadow:
+			SpellMentalShadow(level, caster, cvict, ovict);
 			break;
 		default: return 0;
 			break;
@@ -3958,7 +3977,7 @@ const spl_message mag_messages[] =
 		 nullptr,
 		 nullptr,
 		 0.05, 25, 2, 3, 15, 3, 4},
-		{kSpellConeOfCold,
+		{kSpellColdWind,
 		 nullptr,
 		 nullptr,
 		 nullptr,
@@ -3988,7 +4007,7 @@ const spl_message mag_messages[] =
 		 nullptr,
 		 nullptr,
 		 0.05, 20, 3, 1, 6, 6, 4},
-		{kSpellFireblast,
+		{kSpellFireBlast,
 		 "Вы вызвали потоки подземного пламени!",
 		 "$n0 вызвал$g потоки пламени из глубин земли!",
 		 nullptr,
@@ -4053,7 +4072,7 @@ const spl_message mag_messages[] =
 		 "$n0 испустил$g поток жаркого багрового пламени!",
 		 nullptr,
 		 0.05, 20, 2, 5, 20, 3, 7},
-		{kSpellColorSpray,
+		{kSpellIceBolts,
 		 "Из ваших рук вылетел сноп ледяных стрел.",
 		 "$n0 метнул$g во врагов сноп ледяных стрел.",
 		 nullptr,
@@ -4193,7 +4212,7 @@ const spl_message mag_messages[] =
 		 nullptr,
 		 nullptr,
 		 0.0, 20, 2, 5, 20, 3, 0},
-		{kSpellGeneralSincerity,
+		{kSpellGroupSincerity,
 		 nullptr,
 		 nullptr,
 		 nullptr,
@@ -4283,7 +4302,7 @@ const spl_message mag_messages[] =
 		 nullptr,
 		 "$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги.",
 		 0.03, 25, 2, 3, 15, 4, 6},
-		{kSpellMassNoflee,
+		{kSpellSnare,
 		 "Вы соткали магические тенета, опутавшие ваших врагов.\r\n",
 		 nullptr,
 		 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас",

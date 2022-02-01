@@ -177,7 +177,7 @@ void InitSpells() {
 			  150, 130, 5, EPosition::kStand, kTarCharRoom | kTarSelfOnly,
 			  false, kMagSummons, 0, kTypeDark);
 //10
-	initSpell(kSpellColorSpray, "ледяные стрелы", "ice bolts", 90, 75,
+	initSpell(kSpellIceBolts, "ледяные стрелы", "ice bolts", 90, 75,
 			  1, EPosition::kFight, kTarCharRoom | kTarFightVict, kMtypeAggressive,
 			  kMagAreas | kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 3, kTypeWater);
 //11
@@ -419,11 +419,11 @@ void InitSpells() {
 			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
 			  kMagAreas | kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 1, kTypeAir);
 //67
-	initSpell(kSpellFireblast, "огненный поток", "fireblast",
+	initSpell(kSpellFireBlast, "огненный поток", "fireblast",
 			  110, 90, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
 			  kMagMasses | kMagDamage | kNpcDamagePc, 5, kTypeFire);
 //68
-	initSpell(kSpellImplosion, "гнев богов", "implosion",
+	initSpell(kSpellGodsWrath, "гнев богов", "gods wrath",
 			  140, 120, 1, EPosition::kFight,
 			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
 			  kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 15, kTypeFire);
@@ -574,10 +574,10 @@ void InitSpells() {
 			  false, kMagManual, 0, kTypeNeutral);
 
 //103
-	initSpell(kSpellFull, "насыщение", "full", 70, 55, 1,
+	initSpell(kSpellFullFeed, "насыщение", "full", 70, 55, 1,
 			  EPosition::kStand, kTarCharRoom, false, kMagPoints, 10, kTypeLife);
 //104
-	initSpell(kSpellConeOfCold, "ледяной ветер", "cold wind", 100, 90,
+	initSpell(kSpellColdWind, "ледяной ветер", "cold wind", 100, 90,
 			  1, EPosition::kFight, kTarCharRoom | kTarFightVict, kMtypeAggressive,
 			  kMagAffects | kMagDamage | kNpcDamagePc | kNpcDamagePcMinhp, 15, kTypeWater);
 //105
@@ -599,7 +599,7 @@ void InitSpells() {
 			  85, 70, 4, EPosition::kStand, kTarCharRoom, false,
 			  kMagAffects, 0, kTypeWater);
 //109
-	initSpell(kSpellSlow, "медлительность", "slow",
+	initSpell(kSpellSlowdown, "медлительность", "slow",
 			  55, 40, 1, EPosition::kFight,
 			  kTarCharRoom | kTarFightVict, kMtypeNeutral,
 			  kMagAffects | kNpcAffectPc, 1, kTypeMind);
@@ -616,7 +616,7 @@ void InitSpells() {
 			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
 			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeMind);
 //113
-	initSpell(kSpellShield, "защита богов", "gods shield",
+	initSpell(kSpellGodsShield, "защита богов", "gods shield",
 			  150, 140, 1, EPosition::kFight, kTarCharRoom | kTarSelfOnly,
 			  false, kMagAffects | kNpcAffectNpc, 2, kTypeLight);
 //114
@@ -682,11 +682,11 @@ void InitSpells() {
 			  125, 110, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
 			  kMagMasses | kMagDamage | kMagAffects | kNpcDamagePc, 5, kTypeWater);
 //129
-	initSpell(kSpellEnless, "уменьшение", "enless",
+	initSpell(kSpellLessening, "уменьшение", "enless",
 			  55, 40, 1, EPosition::kFight, kTarCharRoom | kTarFightSelf,
 			  false, kMagAffects, 0, kTypeLife);
 //130
-	initSpell(kSpellShineflash, "яркий блик", "shine flash",
+	initSpell(kSpellShineFlash, "яркий блик", "shine flash",
 			  60, 45, 1, EPosition::kFight,
 			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
 			  kMagDamage | kNpcAffectPc | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
@@ -784,30 +784,25 @@ void InitSpells() {
 	initSpell(kSpellMassDeafness, "массовая глухота", "mass deafness",
 			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
 			  kMagMasses | kMagAffects | kNpcAffectPc, 2, kTypeMind);
-
 //151
 	initSpell(kSpellDustStorm, "пылевая буря", "dust storm",
 			  125, 110, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
 			  kMagMasses | kMagDamage | kMagAffects | kNpcDamagePc, 5, kTypeEarth);
-
 //152
 	initSpell(kSpellEarthfall, "камнепад", "earth fall",
 			  120, 110, 2, EPosition::kFight,
 			  kTarCharRoom | kTarFightVict, kMtypeAggressive,
 			  kMagAreas | kMagDamage | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
 			  1, kTypeEarth);
-
 //153
 	initSpell(kSpellSonicWave, "звуковая волна", "sonic wave",
 			  120, 110, 2, EPosition::kFight, kTarIgnore, kMtypeAggressive,
 			  kMagMasses | kMagDamage | kMagAffects | kNpcDamagePc | kNpcDamagePcMinhp,
 			  1, kTypeAir);
-
 //154
 	initSpell(kSpellHolystrike, "силы света", "holystrike",
 			  150, 130, 5, EPosition::kFight, kTarIgnore, kMtypeNeutral,
 			  kMagManual | kNpcDamagePc, 10, kTypeLight);
-
 //155
 	initSpell(kSpellSumonAngel, "ангел-хранитель", "angel", 150, 130, 5,
 			  EPosition::kStand, kTarIgnore, false, kMagManual, 1, kTypeLight);
@@ -1085,7 +1080,7 @@ void InitSpells() {
 			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
 			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeLight);
 //217
-	initSpell(kSpellGeneralSincerity, "общая искренность", "general sincerity",
+	initSpell(kSpellGroupSincerity, "общая искренность", "general sincerity",
 			  110, 100, 1, EPosition::kFight, kTarIgnore, false,
 			  kMagGroups | kMagAffects | kNpcAffectNpc, 1, kTypeMind);
 //218
@@ -1196,7 +1191,7 @@ void InitSpells() {
 			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
 			  kMagMasses | kMagAffects | kNpcAffectPc, 2, kTypeDark);
 //242
-	initSpell(kSpellMassNoflee, "западня", "snare",
+	initSpell(kSpellSnare, "западня", "snare",
 			  140, 120, 2, EPosition::kFight, kTarIgnore, kMtypeNeutral,
 			  kMagMasses | kMagAffects | kNpcAffectPc, 2, kTypeMind);
 

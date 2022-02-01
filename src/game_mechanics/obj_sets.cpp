@@ -3,6 +3,8 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include <iostream>
+
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
@@ -339,8 +341,7 @@ void load() {
 		tmp_set->alias = xml_set.attribute("alias").value();
 		tmp_set->comment = xml_set.attribute("comment").value();
 		// enabled не обязателен, по дефолту сет включен
-		tmp_set->enabled =
-			(xml_set.attribute("enabled").as_int(1) == 1 ? true : false);
+		tmp_set->enabled = (xml_set.attribute("enabled").as_int(1) == 1 ? true : false);
 		// <obj>
 		for (pugi::xml_node xml_obj = xml_set.child("obj"); xml_obj;
 			 xml_obj = xml_obj.next_sibling("obj")) {
@@ -364,11 +365,10 @@ void load() {
 			for (pugi::xml_node xml_apply = xml_activ.child("apply"); xml_apply;
 				 xml_apply = xml_apply.next_sibling("apply")) {
 				// заполняются только первые kMaxObjAffect
-				for (auto i = tmp_activ.apply.begin();
-					 i != tmp_activ.apply.end(); ++i) {
-					if (i->location <= 0) {
-						i->location = static_cast<EApplyLocation>(Parse::attr_int(xml_apply, "loc"));
-						i->modifier = Parse::attr_int(xml_apply, "mod");
+				for (auto & i : tmp_activ.apply) {
+					if (i.location <= 0) {
+						i.location = static_cast<EApplyLocation>(Parse::attr_int(xml_apply, "loc"));
+						i.modifier = Parse::attr_int(xml_apply, "mod");
 						break;
 					}
 				}

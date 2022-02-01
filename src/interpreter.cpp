@@ -174,8 +174,6 @@ extern char *name_rules;
 // external functions
 void do_start(CharacterData *ch, int newbie);
 ECharClass ParseClass(char arg);
-int parse_class_vik(char arg);
-int parse_class_step(char arg);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
@@ -3338,7 +3336,7 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto class_id = static_cast<ECharClass>(parse_class_step(*arg));
+			auto class_id = static_cast<ECharClass>(ParseClass(*arg));
 			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
@@ -3360,7 +3358,7 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto class_id = static_cast<ECharClass>(parse_class_vik(*arg));
+			auto class_id = static_cast<ECharClass>(ParseClass(*arg));
 			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;

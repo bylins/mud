@@ -59,14 +59,13 @@ extern double exp_coefficients[];
 
 // local functions
 ECharClass ParseClass(char arg);
-long find_class_bitvector(char arg);
+Bitvector find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
 void do_start(CharacterData *ch, int newbie);
 int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
-int invalid_no_class(CharacterData *ch, const ObjectData *obj);
 int level_exp(CharacterData *ch, int level);
-byte extend_saving_throws(int class_num, ESaving saving, int level);
+byte extend_saving_throws(int class_num, ESaving save, int level);
 int invalid_unique(CharacterData *ch, const ObjectData *obj);
 void mspell_level(char *name, int spell, int kin, int chclass, int level);
 void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
@@ -252,22 +251,7 @@ ECharClass ParseClass(char arg) {
 	}
 }
 
-int parse_class_vik(char /* arg */) {
-	return ECharClass::kUndefined;
-}
-
-int parse_class_step(char /* arg */) {
-	return ECharClass::kUndefined;
-}
-
-/*
- * bitvectors (i.e., powers of two) for each class, mainly for use in
- * do_who and do_users.  Add new classes at the end so that all classes
- * use sequential powers of two (1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4,
- * 1 << 5, etc.
- */
-
-long find_class_bitvector(char arg) {
+Bitvector find_class_bitvector(char arg) {
 	arg = LOWER(arg);
 
 	switch (arg) {
@@ -286,52 +270,6 @@ long find_class_bitvector(char arg) {
 		case 'п': return (1 << ECharClass::kMerchant);
 		case 'х': return (1 << ECharClass::kMagus);
 		default: return 0;
-	}
-}
-
-long
-find_class_bitvector_vik(char arg) {
-	arg = LOWER(arg);
-
-	switch (arg) {
-		case 'ж': return (1 << ECharClass::kSorcerer);
-		case 'н': return (1 << ECharClass::kConjurer);
-		case 'т': return (1 << ECharClass::kThief);
-		case 'б': return (1 << ECharClass::kWarrior);
-		case 'а': return (1 << ECharClass::kAssasine);
-		case 'х': return (1 << ECharClass::kGuard);
-		case 'з': return (1 << ECharClass::kCharmer);
-		case 'о': return (1 << ECharClass::kWizard);
-		case 'р': return (1 << ECharClass::kNecromancer);
-		case 'к': return (1 << ECharClass::kPaladine);
-		case 'л': return (1 << ECharClass::kRanger);
-		case 'г': return (1 << ECharClass::kVigilant);
-		case 'п': return (1 << ECharClass::kMerchant);
-		case 'в': return (1 << ECharClass::kMagus);
-		default: return ECharClass::kUndefined;
-	}
-}
-
-long
-find_class_bitvector_step(char arg) {
-	arg = LOWER(arg);
-
-	switch (arg) {
-		case 'з': return (1 << ECharClass::kSorcerer);
-		case 'б': return (1 << ECharClass::kConjurer);
-		case 'к': return (1 << ECharClass::kThief);
-		case 'а': return (1 << ECharClass::kWarrior);
-		case 'т': return (1 << ECharClass::kAssasine);
-		case 'н': return (1 << ECharClass::kGuard);
-		case 'п': return (1 << ECharClass::kCharmer);
-		case 'ш': return (1 << ECharClass::kWizard);
-		case 'р': return (1 << ECharClass::kNecromancer);
-		case 'ч': return (1 << ECharClass::kPaladine);
-		case 'о': return (1 << ECharClass::kRanger);
-		case 'д': return (1 << ECharClass::kVigilant);
-		case 'с': return (1 << ECharClass::kMerchant);
-		case 'и': return (1 << ECharClass::kMagus);
-		default: return ECharClass::kUndefined;
 	}
 }
 
@@ -613,7 +551,7 @@ int thaco(int class_num, int level) {
 		case ECharClass::kCharmer: [[fallthrough]];
 		case ECharClass::kNecromancer: {
 			switch (level) {
-				case 0: return 100;
+				case 0: return 100; break;
 				case 1: return 20;
 				case 2: return 20;
 				case 3: return 20;
@@ -651,6 +589,7 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for mage thac0.");
 					break;
 			}
+			 break;
 		}
 		case ECharClass::kSorcerer: [[fallthrough]];
 		case ECharClass::kMagus: {
@@ -693,6 +632,7 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for cleric thac0.");
 					break;
 			}
+			 break;
 		}
 		case ECharClass::kAssasine:
 		case ECharClass::kThief: [[fallthrough]];
@@ -736,6 +676,7 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for thief thac0.");
 					break;
 			}
+			 break;
 		}
 		case ECharClass::kWarrior: [[fallthrough]];
 		case ECharClass::kGuard: {
@@ -778,6 +719,7 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for warrior thac0.");
 					break;
 			}
+			 break;
 		}
 		case ECharClass::kPaladine:
 		case ECharClass::kRanger: [[fallthrough]];
@@ -821,6 +763,7 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for warrior thac0.");
 					break;
 			}
+			 break;
 		}
 		default: log("SYSERR: Unknown class in thac0 chart.");
 			break;
@@ -836,7 +779,7 @@ int extra_aco(int class_num, int level) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer: [[fallthrough]];
-		case ECharClass::kNecromancer:
+		case ECharClass::kNecromancer: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -875,8 +818,10 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
+			 break;
+		}
 		case ECharClass::kSorcerer: [[fallthrough]];
-		case ECharClass::kMagus:
+		case ECharClass::kMagus: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -915,9 +860,11 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
+			break;
+		}
 		case ECharClass::kAssasine:
 		case ECharClass::kThief: [[fallthrough]];
-		case ECharClass::kMerchant:
+		case ECharClass::kMerchant: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -956,8 +903,10 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
+			 break;
+		}
 		case ECharClass::kWarrior: [[fallthrough]];
-		case ECharClass::kGuard:
+		case ECharClass::kGuard: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -996,9 +945,11 @@ int extra_aco(int class_num, int level) {
 				case 34: return -25;
 				default: return 0;
 			}
+			 break;
+			}
 		case ECharClass::kPaladine:
 		case ECharClass::kRanger: [[fallthrough]];
-		case ECharClass::kVigilant:
+		case ECharClass::kVigilant: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1037,6 +988,8 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
+			 break;
+			}
 	}
 	return 0;
 }
@@ -1047,7 +1000,7 @@ int extra_damroll(int class_num, int level) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer: [[fallthrough]];
-		case ECharClass::kNecromancer:
+		case ECharClass::kNecromancer: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1086,8 +1039,10 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 10;
 				default: return 0;
 			}
+			 break;
+			}
 		case ECharClass::kSorcerer: [[fallthrough]];
-		case ECharClass::kMagus:
+		case ECharClass::kMagus: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1126,9 +1081,11 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 10;
 				default: return 0;
 			}
+			 break;
+			}
 		case ECharClass::kAssasine:
 		case ECharClass::kThief: [[fallthrough]];
-		case ECharClass::kMerchant:
+		case ECharClass::kMerchant: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1167,8 +1124,10 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 11;
 				default: return 0;
 			}
+			 break;
+			}
 		case ECharClass::kWarrior: [[fallthrough]];
-		case ECharClass::kGuard:
+		case ECharClass::kGuard: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1207,9 +1166,11 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 25;
 				default: return 0;
 			}
+			 break;
+			}
 		case ECharClass::kPaladine:
 		case ECharClass::kRanger: [[fallthrough]];
-		case ECharClass::kVigilant:
+		case ECharClass::kVigilant: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1247,6 +1208,8 @@ int extra_damroll(int class_num, int level) {
 				case 33: return 15;
 				case 34: return 20;
 				default: return 0;
+			}
+			 break;
 			}
 	}
 	return 0;
@@ -1679,35 +1642,35 @@ void InitSpellLevels() {
 			spell_create[sp_num].potion.items[2] = i[2];
 			spell_create[sp_num].potion.rnumber = i[3];
 			spell_create[sp_num].potion.min_caster_level = i[4];
-			log("CREATE potion FOR MAGIC '%s'", GetSpellName(sp_num));
+			//log("CREATE potion FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "wand", c)) {
 			spell_create[sp_num].wand.items[0] = i[0];
 			spell_create[sp_num].wand.items[1] = i[1];
 			spell_create[sp_num].wand.items[2] = i[2];
 			spell_create[sp_num].wand.rnumber = i[3];
 			spell_create[sp_num].wand.min_caster_level = i[4];
-			log("CREATE wand FOR MAGIC '%s'", GetSpellName(sp_num));
+			//log("CREATE wand FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "scroll", c)) {
 			spell_create[sp_num].scroll.items[0] = i[0];
 			spell_create[sp_num].scroll.items[1] = i[1];
 			spell_create[sp_num].scroll.items[2] = i[2];
 			spell_create[sp_num].scroll.rnumber = i[3];
 			spell_create[sp_num].scroll.min_caster_level = i[4];
-			log("CREATE scroll FOR MAGIC '%s'", GetSpellName(sp_num));
+			//log("CREATE scroll FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "items", c)) {
 			spell_create[sp_num].items.items[0] = i[0];
 			spell_create[sp_num].items.items[1] = i[1];
 			spell_create[sp_num].items.items[2] = i[2];
 			spell_create[sp_num].items.rnumber = i[3];
 			spell_create[sp_num].items.min_caster_level = i[4];
-			log("CREATE items FOR MAGIC '%s'", GetSpellName(sp_num));
+			//log("CREATE items FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "runes", c)) {
 			spell_create[sp_num].runes.items[0] = i[0];
 			spell_create[sp_num].runes.items[1] = i[1];
 			spell_create[sp_num].runes.items[2] = i[2];
 			spell_create[sp_num].runes.rnumber = i[3];
 			spell_create[sp_num].runes.min_caster_level = i[4];
-			log("CREATE runes FOR MAGIC '%s'", GetSpellName(sp_num));
+			//log("CREATE runes FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else {
 			log("Unknown items option : %s", line3);
 			graceful_exit(1);
@@ -1759,14 +1722,8 @@ void InitSpellLevels() {
 			if (i[j] == 1) {
 				//log("Setting up feat '%s'", feat_info[sp_num].name);
 				feat_info[sp_num].classknow[i[3]][j] = true;
-				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
-					feat_info[sp_num].name,
-					sp_num,
-					j,
-					i[3],
-					i[4],
-					i[5],
-					i[6]);
+/*				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
+					feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);*/
 
 				feat_info[sp_num].minRemort[i[3]][j] = i[4];
 				feat_info[sp_num].slot[i[3]][j] = i[5];
@@ -2156,7 +2113,7 @@ int level_exp(CharacterData *ch, int level) {
 	return 123456;
 }
 
-void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
+void mspell_remort(char */*name*/, int spell, int kin, int chclass, int remort) {
 	int bad = 0;
 
 	if (spell < 0 || spell > kSpellCount) {
@@ -2177,11 +2134,11 @@ void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
 	}
 	if (!bad) {
 		spell_info[spell].min_remort[chclass][kin] = remort;
-		log("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
+		//log("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
 	}
 }
 
-void mspell_level(char *name, int spell, int kin, int chclass, int level) {
+void mspell_level(char */*name*/, int spell, int kin, int chclass, int level) {
 	int bad = 0;
 
 	if (spell < 0 || spell > kSpellCount) {
@@ -2206,11 +2163,11 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level) {
 
 	if (!bad) {
 		spell_info[spell].min_level[chclass][kin] = level;
-		log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
+		//log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
 	}
 }
 
-void mspell_change(char *name, int spell, int kin, int chclass, int class_change) {
+void mspell_change(char */*name*/, int spell, int kin, int chclass, int class_change) {
 	int bad = 0;
 
 	if (spell < 0 || spell > kSpellCount) {
@@ -2229,7 +2186,8 @@ void mspell_change(char *name, int spell, int kin, int chclass, int class_change
 	}
 	if (!bad) {
 		spell_info[spell].class_change[chclass][kin] = class_change;
-		log("MODIFIER set '%s' kin '%d' classes %d value %d", name, kin, chclass, class_change);
+		// И зачем этот спам в логе?
+		//log("MODIFIER set '%s' kin '%d' classes %d value %d", name, kin, chclass, class_change);
 
 	}
 }

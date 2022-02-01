@@ -1218,7 +1218,7 @@ int slot_for_char(CharacterData *ch, int slot_num) {
 													: 0);
 }
 
-void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
+void mspell_slot(char */*name*/, int spell, int kin, int chclass, int slot) {
 	int bad = 0;
 
 	if (spell < 0 || spell > kSpellCount) {
@@ -1244,7 +1244,7 @@ void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
 	if (!bad) {
 		spell_info[spell].slot_forc[chclass][kin] = slot;
 		max_slots.init(chclass, kin, slot);
-		log("SLOT set '%s' kin '%d' classes %d value %d", name, kin, chclass, slot);
+		//log("SLOT set '%s' kin '%d' classes %d value %d", name, kin, chclass, slot);
 	}
 
 }

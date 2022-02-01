@@ -136,7 +136,7 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
 	return EIngredientFlag_name_by_value.at(item);
 }
 
-void SpellCreateWater(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
+void SpellCreateWater(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
 	int water;
 	if (ch == nullptr || (obj == nullptr && victim == nullptr))
 		return;
@@ -218,7 +218,7 @@ int GetTeleportTargetRoom(CharacterData *ch, int rnum_start, int rnum_stop) {
 	return n ? fnd_room : kNowhere;
 }
 
-void SpellRecall(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj /* obj*/) {
+void SpellRecall(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -289,7 +289,7 @@ void SpellRecall(int/* level*/level, CharacterData *ch, CharacterData *victim, O
 }
 
 // ПРЫЖОК в рамках зоны
-void SpellTeleport(int/* level*/level, CharacterData *ch, CharacterData *victim /*victim*/, ObjectData *obj /* obj*/) {
+void SpellTeleport(int /* level */, CharacterData *ch, CharacterData */*victim*/, ObjectData */*obj*/) {
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -323,21 +323,18 @@ void CheckAutoNosummon(CharacterData *ch) {
 	}
 }
 
-// ПЕРЕМЕСТИТЬСЯ
-void SpellRelocate(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj /* obj*/) {
+void SpellRelocate(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
 		return;
-	// Для иммов обязательные для перемещения условия не существенны
+
 	if (!IS_GOD(ch)) {
-		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
 		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 
-		// Нельзя перемещаться после того, как попал под заклинание "приковать противника".
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -350,12 +347,12 @@ void SpellRelocate(int/* level*/level, CharacterData *ch, CharacterData *victim,
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-	// в случае, если жертва не может зайти в замок (по любой причине)
-	// прыжок в зону ближайшей ренты
-	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
+
+	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL)) {
 		fnd_room = Clan::CloseRent(to_room);
-	else
+	} else {
 		fnd_room = to_room;
+	}
 
 	if (fnd_room != to_room && !IS_GOD(ch)) {
 		send_to_char(SUMMON_FAIL, ch);
@@ -387,7 +384,7 @@ void SpellRelocate(int/* level*/level, CharacterData *ch, CharacterData *victim,
 	greet_otrigger(ch, -1);
 }
 
-void SpellPortal(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj /* obj*/) {
+void SpellPortal(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
@@ -498,7 +495,7 @@ void SpellPortal(int/* level*/level, CharacterData *ch, CharacterData *victim, O
 	}
 }
 
-void SpellSummon(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj /* obj*/) {
+void SpellSummon(int /*level*/, CharacterData *ch, CharacterData *victim, ObjectData */*obj*/) {
 	RoomRnum ch_room, vic_room;
 	struct Follower *k, *k_next;
 
@@ -634,7 +631,7 @@ void SpellSummon(int/* level*/level, CharacterData *ch, CharacterData *victim, O
 	greet_otrigger(victim, -1);
 }
 
-void SpellLocateObject(int level, CharacterData *ch, CharacterData *victim /*victim*/, ObjectData *obj) {
+void SpellLocateObject(int level, CharacterData *ch, CharacterData* /*victim*/, ObjectData *obj) {
 	/*
 	   * FIXME: This is broken.  The spell parser routines took the argument
 	   * the player gave to the spell and located an object with that keyword.
@@ -828,10 +825,8 @@ bool CatchBloodyCorpse(ObjectData *l) {
 	return false;
 }
 
-void SpellCreateWeapon(int/* level*/level,
-					   CharacterData *ch /*ch*/,
-					   CharacterData *victim /*victim*/,
-					   ObjectData *obj /* obj*/) {                //go_create_weapon(ch,nullptr,what_sky);
+void SpellCreateWeapon(int/* level*/, CharacterData* /*ch*/, CharacterData* /*victim*/, ObjectData* /* obj*/) {
+	//go_create_weapon(ch,nullptr,what_sky);
 // отключено, так как не реализовано
 }
 
@@ -888,7 +883,7 @@ int CheckCharmices(CharacterData *ch, CharacterData *victim, int spellnum) {
 	return (true);
 }
 
-void SpellCharm(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj /* obj*/) {
+void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
 	int k_skills = 0;
 	ESkill skill_id;
 	if (victim == nullptr || ch == nullptr)
@@ -1780,7 +1775,7 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 		}
 	}
 
-	id_to_set_info_map::iterator it = ObjectData::set_table.begin();
+	auto it = ObjectData::set_table.begin();
 	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
 		for (; it != ObjectData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
@@ -1790,8 +1785,8 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 						it->second.get_name().c_str(),
 						CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
-				for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum) {
-					const int r_num = real_object(vnum->first);
+				for (auto & vnum : it->second) {
+					const int r_num = real_object(vnum.first);
 					if (r_num < 0) {
 						send_to_char("Неизвестный объект!!!\r\n", ch);
 						continue;
@@ -1910,7 +1905,7 @@ void mort_show_char_values(CharacterData *victim, CharacterData *ch, int fullnes
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
 
-void SkillIdentify(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
+void SkillIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
 	bool full = false;
 	if (obj) {
 		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr), full);
@@ -1926,7 +1921,7 @@ void SkillIdentify(int/* level*/level, CharacterData *ch, CharacterData *victim,
 }
 
 
-void SpellFullIdentify(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
+void SpellFullIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
 	bool full = true;
 	if (obj)
 		mort_show_obj_values(obj, ch, 100, full);
@@ -1936,7 +1931,7 @@ void SpellFullIdentify(int/* level*/level, CharacterData *ch, CharacterData *vic
 	}
 }
 
-void SpellIdentify(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
+void SpellIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
 	bool full = false;
 	if (obj)
 		mort_show_obj_values(obj, ch, 100, full);
@@ -1953,7 +1948,7 @@ void SpellIdentify(int/* level*/level, CharacterData *ch, CharacterData *victim,
 	}
 }
 
-void SpellControlWeather(int/* level*/level, CharacterData *ch, CharacterData *victim /*victim*/, ObjectData *obj /*obj*/) {
+void SpellControlWeather(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/) {
 	const char *sky_info = nullptr;
 	int i, duration, zone, sky_type = 0;
 
@@ -2003,7 +1998,7 @@ void SpellControlWeather(int/* level*/level, CharacterData *ch, CharacterData *v
 	}
 }
 
-void SpellFear(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj /*obj*/) {
+void SpellFear(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/) {
 	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
@@ -2021,7 +2016,7 @@ void SpellFear(int/* level*/level, CharacterData *ch, CharacterData *victim, Obj
 		go_flee(victim);
 }
 
-void SpellEnergydrain(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj /*obj*/) {
+void SpellEnergydrain(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/) {
 	// истощить энергию - круг 28 уровень 9 (1)
 	// для всех
 	int modi = 0;
@@ -2053,7 +2048,7 @@ void do_sacrifice(CharacterData *ch, int dam) {
 	update_pos(ch);
 }
 
-void SpellSacrifice(int/* level*/level, CharacterData *ch, CharacterData *victim, ObjectData *obj /*obj*/) {
+void SpellSacrifice(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/) {
 	int dam, d0 = GET_HIT(victim);
 	struct Follower *f;
 
@@ -2088,7 +2083,7 @@ void SpellSacrifice(int/* level*/level, CharacterData *ch, CharacterData *victim
 	}
 }
 
-void SpellHolystrike(int/* level*/level, CharacterData *ch, CharacterData *victim /*victim*/, ObjectData *obj /*obj*/) {
+void SpellHolystrike(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/) {
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
 
@@ -2132,7 +2127,7 @@ void SpellHolystrike(int/* level*/level, CharacterData *ch, CharacterData *victi
 	} while (o);
 }
 
-void SpellSummonAngel(int/* level*/level, CharacterData *ch, CharacterData *victim /*victim*/, ObjectData *obj /*obj*/) {
+void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/) {
 	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CharacterData *mob = nullptr;
@@ -2165,10 +2160,9 @@ void SpellSummonAngel(int/* level*/level, CharacterData *ch, CharacterData *vict
 
 	int base_hp = 360;
 	int additional_hp_for_charisma = 40;
-	float base_shields = 0.0;
-	float
-		additional_shields_for_charisma =
-		0.0454; // 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
+	//float base_shields = 0.0;
+	// 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
+	//float additional_shields_for_charisma = 0.0454;
 	float base_awake = 2;
 	float additional_awake_for_charisma = 4; // 64 awake on 16 charisma, 202 awake at 50 charisma
 	float base_multiparry = 2;
@@ -2316,10 +2310,10 @@ void SpellSummonAngel(int/* level*/level, CharacterData *ch, CharacterData *vict
 	}
 }
 
-void SpellVampire(int/* level*/level, CharacterData *ch /*ch*/, CharacterData *victim /*victim*/, ObjectData *obj /*obj*/) {
+void SpellVampirism(int/* level*/, CharacterData* /*ch*/, CharacterData* /*victim*/, ObjectData* /*obj*/) {
 }
 
-void SpellMentalShadow(int/* level*/level, CharacterData *ch, CharacterData *victim /*victim*/, ObjectData *obj /*obj*/) {
+void SpellMentalShadow(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/) {
 	// подготовка контейнера для создания заклинания ментальная тень
 	// все предложения пишем мад почтой
 
@@ -2405,7 +2399,7 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellCharm, "Вы подчиняетесь теперь только себе."},
 		{kSpellChillTouch, "Вы отметили, что силы вернулись к вам."},
 		{kSpellClone, "!Clone!"},
-		{kSpellColorSpray, "!Color Spray!"},
+		{kSpellIceBolts, "!Color Spray!"},
 		{kSpellControlWeather, "!Control Weather!"},
 		{kSpellCreateFood, "!Create Food!"},
 		{kSpellCreateWater, "!Create Water!"},
@@ -2462,8 +2456,8 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellSllence, "Теперь вы можете болтать, все что думаете."},
 		{kSpellLight, "Ваше тело перестало светиться."},
 		{kSpellChainLighting, "!SPELL CHAIN LIGHTNING!"},
-		{kSpellFireblast, "!SPELL FIREBLAST!"},
-		{kSpellImplosion, "!SPELL IMPLOSION!"},
+		{kSpellFireBlast, "!SPELL FIREBLAST!"},
+		{kSpellGodsWrath, "!SPELL IMPLOSION!"},
 		{kSpellWeaknes, "Силы вернулись к вам."},
 		{kSpellGroupInvisible, "!SPELL GROUP INVISIBLE!"},
 		{kSpellShadowCloak, "Ваша теневая мантия замерцала и растаяла."},
@@ -2498,17 +2492,17 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellSneak, "Ваши передвижения стали заметны."},
 		{kSpellDrunked, "Кураж прошел. Мама, лучше бы я умер$q вчера."},
 		{kSpellAbstinent, "А головка ваша уже не болит."},
-		{kSpellFull, "Вам снова захотелось жареного, да с дымком."},
-		{kSpellConeOfCold, "Вы согрелись и подвижность вернулась к вам."},
+		{kSpellFullFeed, "Вам снова захотелось жареного, да с дымком."},
+		{kSpellColdWind, "Вы согрелись и подвижность вернулась к вам."},
 		{kSpellBattle, "К вам вернулась способность нормально сражаться."},
 		{kSpellHaemorragis, "Ваши кровоточащие раны затянулись."},
 		{kSpellCourage, "Вы успокоились."},
 		{kSpellWaterbreath, "Вы более не способны дышать водой."},
-		{kSpellSlow, "Медлительность исчезла."},
+		{kSpellSlowdown, "Медлительность исчезла."},
 		{kSpellHaste, "Вы стали более медлительны."},
 		{kSpellMassSlow, "!SPELL MASS SLOW!"},
 		{kSpellGroupHaste, "!SPELL MASS HASTE!"},
-		{kSpellShield, "Голубой кокон вокруг вашего тела угас."},
+		{kSpellGodsShield, "Голубой кокон вокруг вашего тела угас."},
 		{kSpellFever, "Лихорадка прекратилась."},
 		{kSpellCureFever, "!SPELL CURE PLAQUE!"},
 		{kSpellAwareness, "Вы стали менее внимательны."},
@@ -2524,8 +2518,8 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellSummonFirekeeper, "!SUMMON FIREKEEPER!"},
 		{kSpellIceShield, "Ледяной щит вокруг вашего тела исчез."},
 		{kSpellIceStorm, "Ваши мышцы оттаяли и вы снова можете двигаться."},
-		{kSpellEnless, "Ваши размеры вновь стали прежними."},
-		{kSpellShineflash, "!SHINE LIGHT!"},
+		{kSpellLessening, "Ваши размеры вновь стали прежними."},
+		{kSpellShineFlash, "!SHINE LIGHT!"},
 		{kSpellMadness, "Безумие боя отпустило вас."},
 		{kSpellGroupMagicGlass, "!GROUP MAGICGLASS!"},
 		{kSpellCloudOfArrows, "Облако стрел вокруг вас рассеялось."},
@@ -2612,7 +2606,7 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellClod, "!SPELL_CLOD!"},
 		{kSpellExpedient, "Эффект боевого приема завершился."},
 		{kSpellSightOfDarkness, "!SPELL SIGHT OF DARKNESS!"},
-		{kSpellGeneralSincerity, "!SPELL GENERAL SINCERITY!"},
+		{kSpellGroupSincerity, "!SPELL GENERAL SINCERITY!"},
 		{kSpellMagicalGaze, "!SPELL MAGICAL GAZE!"},
 		{kSpellAllSeeingEye, "!SPELL ALL SEEING EYE!"},
 		{kSpellEyeOfGods, "!SPELL EYE OF GODS!"},
@@ -2637,7 +2631,7 @@ std::string get_wear_off_text(ESpell spell)
 		{kSpellWarcryOfLuck, "Действие клича 'везение' закончилось."},
 		{kSpellWarcryOfPhysdamage, "Действие клича 'точность' закончилось."},
 		{kSpellMassFailure, "Удача снова повернулась к вам лицом... и залепила пощечину."},
-		{kSpellMassNoflee, "Покрывавшие вас сети колдовской западни растаяли."},
+		{kSpellSnare, "Покрывавшие вас сети колдовской западни растаяли."},
 		{kSpellQUest, "Наложенные на вас чары рассеялись."}
 	};
 
@@ -2665,7 +2659,7 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellCharm, {"умь полонить", "... слушай пастыря сваего, и уразумей."}},
 		{kSpellChillTouch, {"хладну персты воскладаше", "... которые черны от льда."}},
 		{kSpellClone, {"пусть будет много меня", "... и плодились, и весьма умножились."}},
-		{kSpellColorSpray, {"хлад и мраз исторгнути", "... и из воды делается лед."}},
+		{kSpellIceBolts, {"хлад и мраз исторгнути", "... и из воды делается лед."}},
 		{kSpellControlWeather, {"стихия подкоряшися", "... власть затворить небо, чтобы не шел дождь."}},
 		{kSpellCreateFood, {"будовати снедь", "... это хлеб, который Господь дал вам в пищу."}},
 		{kSpellCreateWater, {"напоиши влагой", "... и потекло много воды."}},
@@ -2722,8 +2716,8 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellSllence, {"типун тебе на язык!", "... да замкнутся уста твои."}},
 		{kSpellLight, {"буде аки светоч", "... и да воссияет над ним свет!"}},
 		{kSpellChainLighting, {"глаголят небеса", "... понесутся меткие стрелы молний из облаков."}},
-		{kSpellFireblast, {"створисте огненну струя", "... и ввергне их в озеро огненное."}},
-		{kSpellImplosion, {"гнев божиа не минути", "... и воспламенится гнев Господа, и Он скоро истребит тебя."}},
+		{kSpellFireBlast, {"створисте огненну струя", "... и ввергне их в озеро огненное."}},
+		{kSpellGodsWrath, {"гнев божиа не минути", "... и воспламенится гнев Господа, и Он скоро истребит тебя."}},
 		{kSpellWeaknes, {"буде чахнуть", "... и силу могучих ослабляет."}},
 		{kSpellGroupInvisible, {"други, низовати мечетны",
 								"... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы."}},
@@ -2759,17 +2753,17 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellSneak, {"", ""}},
 		{kSpellDrunked, {"", ""}},
 		{kSpellAbstinent, {"", ""}},
-		{kSpellFull, {"брюхо полно", "... душа больше пищи, и тело - одежды."}},
-		{kSpellConeOfCold, {"веют ветры", "... подует северный холодный ветер."}},
+		{kSpellFullFeed, {"брюхо полно", "... душа больше пищи, и тело - одежды."}},
+		{kSpellColdWind, {"веют ветры", "... подует северный холодный ветер."}},
 		{kSpellBattle, {"", ""}},
 		{kSpellHaemorragis, {"", ""}},
 		{kSpellCourage, {"", ""}},
 		{kSpellWaterbreath, {"не затвори темне березе", "... дух дышит, где хочет."}},
-		{kSpellSlow, {"немочь", "...и помедлил еще семь дней других."}},
+		{kSpellSlowdown, {"немочь", "...и помедлил еще семь дней других."}},
 		{kSpellHaste, {"скор аки ястреб", "... поднимет его ветер и понесет, и он быстро побежит от него."}},
 		{kSpellMassSlow, {"тернии им", "... загорожу путь их тернами."}},
 		{kSpellGroupHaste, {"быстры аки ястребов стая", "... и они быстры как серны на горах."}},
-		{kSpellShield, {"Живый в помощи Вышняго", "... благословен буде Грядый во имя Господне."}},
+		{kSpellGodsShield, {"Живый в помощи Вышняго", "... благословен буде Грядый во имя Господне."}},
 		{kSpellFever, {"нутро снеде", "... и сделаются жестокие и кровавые язвы."}},
 		{kSpellCureFever, {"Навь, очисти тело", "... хочу, очистись."}},
 		{kSpellAwareness, {"око недреманно", "... не дам сна очам моим и веждам моим - дремания."}},
@@ -2785,8 +2779,8 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellSummonFirekeeper, {"Дажьбог, даруй защитника", "... Ангел Мой с вами, и он защитник душ ваших."}},
 		{kSpellIceShield, {"Морена, даруй прибежище", "... а снег и лед выдерживали огонь и не таяли."}},
 		{kSpellIceStorm, {"торже, яко вихор", "... и град, величиною в талант, падет с неба."}},
-		{kSpellEnless, {"буде мал аки мышь", "... плоть на нем пропадает."}},
-		{kSpellShineflash, {"засти очи им", "... свет пламени из средины огня."}},
+		{kSpellLessening, {"буде мал аки мышь", "... плоть на нем пропадает."}},
+		{kSpellShineFlash, {"засти очи им", "... свет пламени из средины огня."}},
 		{kSpellMadness, {"згола яростен", "... и ярость его загорелась в нем."}},
 		{kSpellGroupMagicGlass, {"гладь воды отразит", "... воздай им по делам их, по злым поступкам их."}},
 		{kSpellCloudOfArrows, {"и будут стрелы молний, и зарницы в высях",
@@ -2897,8 +2891,8 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellExpedient, {"!Применил боевой прием!", "!use battle expedient!"}},
 		{kSpellSightOfDarkness, {"Что свет, что тьма - глазу одинаково.",
 								 "Станьте зрячи в тьме кромешной!"}},
-		{kSpellGeneralSincerity, {"...да не скроются намерения.",
-								  "И узрим братья намерения окружающих."}},
+		{kSpellGroupSincerity, {"...да не скроются намерения.",
+								"И узрим братья намерения окружающих."}},
 		{kSpellMagicalGaze, {"Узрим же все, что с магией навкруги нас.",
 							 "Покажи, Спаситель, магические силы братии."}},
 		{kSpellAllSeeingEye, {"Все тайное станет явным.",
@@ -2933,8 +2927,8 @@ std::optional<CastPhraseList> get_cast_phrase(int spell)
 		{kSpellWarcryOfPhysdamage, {"бей в глаз, не порти шкуру", "бей в глаз, не порти шкуру."}},
 		{kSpellMassFailure, {"...отче Велес, очи отвержеши!",
 							 "...надежда тщетна: не упадешь ли от одного взгляда его?"}},
-		{kSpellMassNoflee, {"Заклинати поврещение в сети заскопиены!",
-							"...будет трапеза их сетью им, и мирное пиршество их - западнею."}}
+		{kSpellSnare, {"Заклинати поврещение в сети заскопиены!",
+					   "...будет трапеза их сетью им, и мирное пиршество их - западнею."}}
 	};
 
 	if (!cast_to_text.count(static_cast<ESpell>(spell))) {
@@ -2962,7 +2956,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kSpellCharm] = "SPELL_CHARM";
 	ESpell_name_by_value[ESpell::kSpellChillTouch] = "SPELL_CHILL_TOUCH";
 	ESpell_name_by_value[ESpell::kSpellClone] = "SPELL_CLONE";
-	ESpell_name_by_value[ESpell::kSpellColorSpray] = "SPELL_COLOR_SPRAY";
+	ESpell_name_by_value[ESpell::kSpellIceBolts] = "SPELL_COLOR_SPRAY";
 	ESpell_name_by_value[ESpell::kSpellControlWeather] = "SPELL_CONTROL_WEATHER";
 	ESpell_name_by_value[ESpell::kSpellCreateFood] = "SPELL_CREATE_FOOD";
 	ESpell_name_by_value[ESpell::kSpellCreateWater] = "SPELL_CREATE_WATER";
@@ -3019,8 +3013,8 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kSpellSllence] = "SPELL_SILENCE";
 	ESpell_name_by_value[ESpell::kSpellLight] = "SPELL_LIGHT";
 	ESpell_name_by_value[ESpell::kSpellChainLighting] = "SPELL_CHAIN_LIGHTNING";
-	ESpell_name_by_value[ESpell::kSpellFireblast] = "SPELL_FIREBLAST";
-	ESpell_name_by_value[ESpell::kSpellImplosion] = "SPELL_IMPLOSION";
+	ESpell_name_by_value[ESpell::kSpellFireBlast] = "SPELL_FIREBLAST";
+	ESpell_name_by_value[ESpell::kSpellGodsWrath] = "SPELL_IMPLOSION";
 	ESpell_name_by_value[ESpell::kSpellWeaknes] = "SPELL_WEAKNESS";
 	ESpell_name_by_value[ESpell::kSpellGroupInvisible] = "SPELL_GROUP_INVISIBLE";
 	ESpell_name_by_value[ESpell::kSpellShadowCloak] = "SPELL_SHADOW_CLOAK";
@@ -3055,17 +3049,17 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kSpellSneak] = "SPELL_SNEAK";
 	ESpell_name_by_value[ESpell::kSpellDrunked] = "SPELL_DRUNKED";
 	ESpell_name_by_value[ESpell::kSpellAbstinent] = "SPELL_ABSTINENT";
-	ESpell_name_by_value[ESpell::kSpellFull] = "SPELL_FULL";
-	ESpell_name_by_value[ESpell::kSpellConeOfCold] = "SPELL_CONE_OF_COLD";
+	ESpell_name_by_value[ESpell::kSpellFullFeed] = "SPELL_FULL";
+	ESpell_name_by_value[ESpell::kSpellColdWind] = "SPELL_CONE_OF_COLD";
 	ESpell_name_by_value[ESpell::kSpellBattle] = "SPELL_BATTLE";
 	ESpell_name_by_value[ESpell::kSpellHaemorragis] = "SPELL_HAEMORRAGIA";
 	ESpell_name_by_value[ESpell::kSpellCourage] = "SPELL_COURAGE";
 	ESpell_name_by_value[ESpell::kSpellWaterbreath] = "SPELL_WATERBREATH";
-	ESpell_name_by_value[ESpell::kSpellSlow] = "SPELL_SLOW";
+	ESpell_name_by_value[ESpell::kSpellSlowdown] = "SPELL_SLOW";
 	ESpell_name_by_value[ESpell::kSpellHaste] = "SPELL_HASTE";
 	ESpell_name_by_value[ESpell::kSpellMassSlow] = "SPELL_MASS_SLOW";
 	ESpell_name_by_value[ESpell::kSpellGroupHaste] = "SPELL_GROUP_HASTE";
-	ESpell_name_by_value[ESpell::kSpellShield] = "SPELL_SHIELD";
+	ESpell_name_by_value[ESpell::kSpellGodsShield] = "SPELL_SHIELD";
 	ESpell_name_by_value[ESpell::kSpellFever] = "SPELL_PLAQUE";
 	ESpell_name_by_value[ESpell::kSpellCureFever] = "SPELL_CURE_PLAQUE";
 	ESpell_name_by_value[ESpell::kSpellAwareness] = "SPELL_AWARNESS";
@@ -3081,8 +3075,8 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kSpellSummonFirekeeper] = "SPELL_SUMMON_FIREKEEPER";
 	ESpell_name_by_value[ESpell::kSpellIceShield] = "SPELL_ICE_SHIELD";
 	ESpell_name_by_value[ESpell::kSpellIceStorm] = "SPELL_ICESTORM";
-	ESpell_name_by_value[ESpell::kSpellEnless] = "SPELL_ENLESS";
-	ESpell_name_by_value[ESpell::kSpellShineflash] = "SPELL_SHINEFLASH";
+	ESpell_name_by_value[ESpell::kSpellLessening] = "SPELL_ENLESS";
+	ESpell_name_by_value[ESpell::kSpellShineFlash] = "SPELL_SHINEFLASH";
 	ESpell_name_by_value[ESpell::kSpellMadness] = "SPELL_MADNESS";
 	ESpell_name_by_value[ESpell::kSpellGroupMagicGlass] = "SPELL_GROUP_MAGICGLASS";
 	ESpell_name_by_value[ESpell::kSpellCloudOfArrows] = "SPELL_CLOUD_OF_ARROWS";
@@ -3169,7 +3163,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kSpellClod] = "SPELL_CLOD";
 	ESpell_name_by_value[ESpell::kSpellExpedient] = "SPELL_EXPEDIENT";
 	ESpell_name_by_value[ESpell::kSpellSightOfDarkness] = "SPELL_SIGHT_OF_DARKNESS";
-	ESpell_name_by_value[ESpell::kSpellGeneralSincerity] = "SPELL_GENERAL_SINCERITY";
+	ESpell_name_by_value[ESpell::kSpellGroupSincerity] = "SPELL_GENERAL_SINCERITY";
 	ESpell_name_by_value[ESpell::kSpellMagicalGaze] = "SPELL_MAGICAL_GAZE";
 	ESpell_name_by_value[ESpell::kSpellAllSeeingEye] = "SPELL_ALL_SEEING_EYE";
 	ESpell_name_by_value[ESpell::kSpellEyeOfGods] = "SPELL_EYE_OF_GODS";
@@ -3191,7 +3185,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kSpellGroupCloudly] = "SPELL_GROUP_CLOUDLY";
 	ESpell_name_by_value[ESpell::kSpellGroupAwareness] = "SPELL_GROUP_AWARNESS";
 	ESpell_name_by_value[ESpell::kSpellMassFailure] = "SPELL_MASS_FAILURE";
-	ESpell_name_by_value[ESpell::kSpellMassNoflee] = "SPELL_MASS_NOFLEE";
+	ESpell_name_by_value[ESpell::kSpellSnare] = "SPELL_MASS_NOFLEE";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;

@@ -210,7 +210,7 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 				case 6: send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
 						false, 	ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellConeOfCold, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellColdWind, ch->get_level());
 					break;
 				case 5: send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
 					act("Из туч хлынул дождь кислоты!\r\n",

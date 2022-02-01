@@ -25,7 +25,7 @@ extern xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char 
 
 namespace abilities {
 
-const char *kAbilityCfgFile = LIB_MISC "abilities.xml";
+const char *kAbilityCfgFile = LIB_CFG "abilities.xml";
 const char *kAbilityMainTag = "abilities";
 const char *kAbilityLoadFailMsg = "Abilities loading failed.";
 
@@ -222,12 +222,12 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 
 	if (circumstance_handlers_register_.empty()) {
 		circumstance_handlers_register_[ECirumstance::kDarkRoom] =
-			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
+			[](CharacterData */*ch*/, CharacterData * /* victim */) -> bool {
 //				return IsDark(ch->in_room);
 				return false; //заглушка
 			};
 		circumstance_handlers_register_[ECirumstance::kMetalEquipment] =
-			[](CharacterData *ch, CharacterData * /* victim */ ) -> bool {
+			[](CharacterData */*ch*/, CharacterData * /* victim */ ) -> bool {
 //				return IsEquipInMetal(ch);
 				return false; //заглушка
 			};
@@ -318,9 +318,9 @@ std::string AbilityInfo::Print() const {
 		   << " Mob vs PC penalty: " << KGRN << GetMVPPenalty() << KNRM << "\n"
 		   << " PC vs PC penalty: " << KGRN << GetPVPPenalty() << KNRM << "\n"
 		   << " Circumstance modificators:\n";
-	for (auto &item : circumstance_handlers_) {
-//		buffer << "   " << NAME_BY_ITEM<ECirumstance>(item.id_) << ": " << KGRN << item.mod_ << KNRM << "\n";
-	}
+/*	for (auto &item : circumstance_handlers_) {
+		buffer << "   " << NAME_BY_ITEM<ECirumstance>(item.id_) << ": " << KGRN << item.mod_ << KNRM << "\n";
+	}*/
 /*		   << " Messages:" << "\n";
 	for (auto &it : messages_) {
 		buffer << "   " << NAME_BY_ITEM<EAbilityMsg>(it.first) << ": " << KGRN << it.second << KNRM << "\n";
