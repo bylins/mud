@@ -3894,7 +3894,8 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 				time *= kPassesPerSec;
 		}
 	}
-
+	if (time < 2)	//костыль пока не разберемся почему корректно не работает wait 1
+		time = 2;
 	CREATE(wait_event_obj, 1);
 	wait_event_obj->trigger = trig;
 	wait_event_obj->go = go;
