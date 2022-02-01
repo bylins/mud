@@ -1729,7 +1729,7 @@ void find_replacement(void *go,
 				int x = atoi(s1.c_str());
 				int y = atoi(s2.c_str());
 				std::chrono::milliseconds durX(x);
-				std::chrono::milliseconds durX(y);
+				std::chrono::milliseconds durY(y);
 				 auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(durY - durX);
 				sprintf(str, "%ld", msec.count());
 			} else if (!str_cmp(field, "yday")) {
