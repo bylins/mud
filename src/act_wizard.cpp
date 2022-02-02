@@ -4935,7 +4935,7 @@ void print(CharacterData *ch, int first, int last, const std::string &options) {
 				}
 			} else
 				out << " - нет скриптов";
-			sprintf(buf1, " Всего в мире: %d\r\n", mob_index[i].number);
+			sprintf(buf1, " Всего в мире: %d\r\n", mob_index[i].CountInWorld);
 			out << buf1;
 		}
 	}
@@ -4971,7 +4971,7 @@ int print_olist(const CharacterData *ch, const int first, const int last, std::s
 		if (GET_REAL_LEVEL(ch) >= kLevelGreatGod
 			|| PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
-					 obj_proto.number(rnum),
+					 obj_proto.CountInWorld(rnum),
 					 obj_proto.stored(rnum), GET_OBJ_MIW(obj_proto[rnum]));
 			ss << buf_;
 
