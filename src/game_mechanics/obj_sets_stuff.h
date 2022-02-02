@@ -22,7 +22,7 @@ namespace obj_sets {
 
 /// сообщения активации/деактивации для чара и комнаты
 /// могут быть глобальными на все сеты, на один сет, на один предмет
-struct msg_node {
+struct SetMsgNode {
 	// сообщения чару при активации/деактивации
 	std::string char_on_msg;
 	std::string char_off_msg;
@@ -31,7 +31,7 @@ struct msg_node {
 	std::string room_off_msg;
 
 	// для сравнения в sedit
-	bool operator!=(const msg_node &r) const {
+	bool operator!=(const SetMsgNode &r) const {
 		if (char_on_msg != r.char_on_msg
 			|| char_off_msg != r.char_off_msg
 			|| room_on_msg != r.room_on_msg
@@ -40,14 +40,14 @@ struct msg_node {
 		}
 		return false;
 	}
-	bool operator==(const msg_node &r) const {
+	bool operator==(const SetMsgNode &r) const {
 		return !(*this != r);
 	}
 };
 
 /// сетовый активатор с аффектами и прочими бонусами
-struct activ_node {
-	activ_node() : skill(ESkill::kIncorrect, 0) {
+struct ActivNode {
+	ActivNode() : skill(ESkill::kIncorrect, 0) {
 		affects = clear_flags;
 		prof.set();
 		enchant.first = 0;
@@ -70,7 +70,7 @@ struct activ_node {
 	std::pair<int, ench_type> enchant;
 
 	// для сравнения в sedit
-	bool operator!=(const activ_node &r) const {
+	bool operator!=(const ActivNode &r) const {
 		if (affects != r.affects
 			|| apply != r.apply
 			|| skill != r.skill
@@ -81,7 +81,7 @@ struct activ_node {
 		}
 		return false;
 	}
-	bool operator==(const activ_node &r) const {
+	bool operator==(const ActivNode &r) const {
 		return !(*this != r);
 	}
 	bool empty() const {
@@ -101,8 +101,8 @@ struct activ_node {
 };
 
 /// собственно структура сетов
-struct set_node {
-	set_node() : enabled(true), uid(uid_cnt++) {};
+struct SetNode {
+	SetNode() : enabled(true), uid(uid_cnt++) {};
 
 	// статус сета: вкл/выкл, при лоаде из конфига и после олц идет проверка
 	// валидности сета, в которой может быть принудительно просталено выкл
@@ -117,11 +117,11 @@ struct set_node {
 	// любая доп инфа, видимая только в slist
 	std::string comment;
 	// внумы предметов, активаций/деактиваций (опционально)
-	std::map<int, msg_node> obj_list;
+	std::map<int, SetMsgNode> obj_list;
 	// first - кол-во предметов для активации
-	std::map<unsigned, activ_node> activ_list;
+	std::map<unsigned, ActivNode> activ_list;
 	// сообщения активаций/деактиваций на весь сет (опционально)
-	msg_node messages;
+	SetMsgNode messages;
 	// уид сета для сохранений/обновлений в олц
 	int uid;
 
@@ -129,7 +129,7 @@ struct set_node {
 	static int uid_cnt;
 
 	// для сравнения в sedit
-	bool operator!=(const set_node &r) const {
+	bool operator!=(const SetNode &r) const {
 		if (enabled != r.enabled
 			|| name != r.name
 			|| alias != r.alias
@@ -142,13 +142,13 @@ struct set_node {
 		}
 		return false;
 	}
-	bool operator==(const set_node &r) const {
+	bool operator==(const SetNode &r) const {
 		return !(*this != r);
 	}
 };
 
-extern std::vector<std::shared_ptr<set_node>> sets_list;
-extern msg_node global_msg;
+extern std::vector<std::shared_ptr<SetNode>> sets_list;
+extern SetMsgNode global_msg;
 extern const unsigned MIN_ACTIVE_SIZE;
 extern const unsigned MAX_ACTIVE_SIZE;
 extern const unsigned MAX_OBJ_LIST;
@@ -159,9 +159,9 @@ std::string line_split_str(const std::string &str, const std::string &sep,
 						   size_t len, size_t base_offset = 0);
 void init_obj_index();
 bool verify_wear_flag(const CObjectPrototype::shared_ptr &);
-void verify_set(set_node &set);
+void VerifySet(SetNode &set);
 bool is_duplicate(int set_uid, int vnum);
-std::string print_total_activ(const set_node &set);
+std::string print_total_activ(const SetNode &set);
 
 } // namespace obj_sets
 
