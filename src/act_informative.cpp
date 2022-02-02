@@ -74,9 +74,10 @@
 #include "crafts/mining.h"
 #include "structs/global_objects.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+//#include <boost/lexical_cast.hpp>
+//#include <boost/algorithm/string.hpp>
+//#include <boost/format.hpp>
+#include <iomanip>
 
 #include <string>
 #include <sstream>
@@ -471,11 +472,13 @@ std::string char_get_custom_label(ObjectData *obj, CharacterData *ch) {
 		delim_r = ")";
 	}
 
+	std::stringstream buffer;
 	if (AUTH_CUSTOM_LABEL(obj, ch)) {
-		return boost::str(boost::format("%s%s%s") % delim_l % obj->get_custom_label()->label_text % delim_r);
+		buffer << delim_l << obj->get_custom_label()->label_text << delim_r;
+		//return boost::str(boost::format("%s%s%s") % delim_l % obj->get_custom_label()->label_text % delim_r);
 	}
 
-	return "";
+	return buffer.str();
 }
 
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
@@ -3416,12 +3419,9 @@ void print_do_score_all(CharacterData *ch) {
 		sprintf(buf + strlen(buf),
 				" || %sВ связи с боевыми действиями вы не можете уйти на постой еще %-18s%s ||\r\n",
 				CCIRED(ch, C_NRM),
-				minutes ? (boost::lexical_cast<std::string>(minutes) + string(" ")
-					+ string(desc_count(minutes, WHAT_MINu))
-					+ string(".")).substr(0, 18).c_str()
-						: (boost::lexical_cast<std::string>(rent_time) + string(" ")
-					+ string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(),
-				CCCYN(ch, C_NRM));
+				minutes ? (std::to_string(minutes) + string(" ") + string(desc_count(minutes, WHAT_MINu))
+					+ string(".")).substr(0, 18).c_str() : (std::to_string(rent_time) + string(" ")
+					+ string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(), CCCYN(ch, C_NRM));
 	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 		sprintf(buf + strlen(buf),
 				" || %sТут вы чувствуете себя в безопасности.                                          %s||\r\n",
@@ -4428,7 +4428,11 @@ std::string print_server_uptime() {
 	const int h = (diff / 3600) % 24;
 	const int m = (diff / 60) % 60;
 	const int s = diff % 60;
-	return boost::str(boost::format("Времени с перезагрузки: %dд %02d:%02d:%02d\r\n") % d % h % m % s);
+	//return boost::str(boost::format("Времени с перезагрузки: %dд %02d:%02d:%02d\r\n") % d % h % m % s);
+
+	std::stringstream buffer;
+	buffer << "Времени с перезагрузки: "  << std::setprecision(2) << d << "д " << h << ":" << m << ":" << s << std::endl;
+	return buffer.str();
 }
 
 void do_statistic(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {

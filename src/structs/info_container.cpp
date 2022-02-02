@@ -1,11 +1,12 @@
 /**
 \authors Created by Sventovit
 \date 2.02.2022.
-\brief Универсальный, елико возможно, контейнер для хранения информации об игровых сущнсотях типа скиллов и классов.
+\brief Универсальный, насколько возможно, контейнер для хранения информации об игровых сущностях типа скиллов и классов.
 */
 
 #include "info_container.h"
 
+template<class E, class I, class B>
 const I &InfoContainer::operator[](const E id) const {
 	try {
 		return items_->at(id)->second;

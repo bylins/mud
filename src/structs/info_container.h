@@ -1,7 +1,7 @@
 /**
 \authors Created by Sventovit
 \date 2.02.2022.
-\brief Универсальный, елико возможно, контейнер для хранения информации об игровых сущнсотях типа скиллов и классов.
+\brief Универсальный, насколько возможно, контейнер для хранения информации об игровых сущностях типа скиллов и классов.
 \details
 */
 
@@ -16,22 +16,26 @@ bool IsInRange(const T &t) {
 	return (t >= T::kFirst && t <= T::kLast);
 }*/
 
-template<class E, class I, class B>
+template<class E>
 class InfoContainer {
  public:
 	InfoContainer() {
 		if (!items_) {
 			items_ = std::make_unique<Register>();
-			items_->emplace(E::kUndefined, std::make_unique<Pair>(std::make_pair(false, I())));
+			items_->emplace(E::kUndefined, std::make_unique<Pair>(std::make_pair(false, Item())));
 		}
 	};
 	InfoContainer(InfoContainer &s) = delete;
 	void operator=(const InfoContainer &s) = delete;
 
+	class ContainerBuilder;
+	class Item;
+	class ItemBuilder;
+
 	/*
 	 *  Получить элемент с указанным id или с id kUndefined.
 	 */
-	const I &operator[](E id) const;
+	const Item &operator[](E id) const;
 
 	/*
 	 *  Инициализация. Для реинициализации используйте Reload();
@@ -40,7 +44,7 @@ class InfoContainer {
 
 	/*
 	 *  Горячая перезагрузка. Позволяет перегрузить данные контейнера.
-	 *  Разрешение конфликтов между новыми и старыми данными - на советси пользователя.
+	 *  Rонфликты между новыми и старыми данными не отслеживаются.
 	 */
 	void Reload();
 
@@ -50,22 +54,23 @@ class InfoContainer {
 	bool IsKnown(E id);
 
 	/*
-	 *  Id известен и окорректен, т.е. определен, лежит между первым и последним элементом
-	 *  и не откллючен.
+	 *  Id известен, определен, не отключен и лежит между kFirst и kLast.
 	 */
 	bool IsValid(E id);
 
 	/*
-	 *  Id не определен, отключен или лежит вне корректного диапазона.
+	 *  Id неизвестен, не определен, отключен или лежит между kFirst и kLast.
 	 */
 	bool IsInvalid(E id) { return !IsValid(id); };
 
  private:
-	using Pair = std::pair<bool, I>;
+	using Pair = std::pair<bool, Item>;
 	using PairPtr = std::unique_ptr<Pair>;
+	using Optional = std::optional<PairPtr>;
 	using Register = std::unordered_map<E, PairPtr>;
 	using RegisterPtr = std::unique_ptr<Register>;
-//	using RegisterOptional = std::optional<RegisterPtr>;
+
+	ContainerBuilder builder;
 
 	RegisterPtr items_;
 
