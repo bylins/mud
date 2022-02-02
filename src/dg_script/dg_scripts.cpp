@@ -2507,6 +2507,14 @@ void find_replacement(void *go,
 					char_to_room(c, real_room(p));
 				}
 			}
+		} else if (!str_cmp(field, "riding")) {
+			if (c->ahorse()) {
+				sprintf(str, "%c%ld", uid_type, GET_ID(c->get_horse()));
+			}
+		} else if (!str_cmp(field, "riden_by")) {
+			if (IS_HORSE(c) && c->get_master()->ahorse()) {
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
+			}
 		} else if (!str_cmp(field, "realroom"))
 			sprintf(str, "%d", world[IN_ROOM(c)]->room_vn);
 		else if (!str_cmp(field, "loadroom")) {
