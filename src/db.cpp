@@ -2304,8 +2304,8 @@ void boot_db(void) {
 	log("Loading skills definitions.");
 	MUD::Skills().Init();
 
-	boot_profiler.next_step("Loading feature definitions");
-	log("Loading feature definitions.");
+	boot_profiler.next_step("Loading features definitions");
+	log("Loading features definitions.");
 	determineFeaturesSpecification();
 
 	boot_profiler.next_step("Loading ingredients magic");

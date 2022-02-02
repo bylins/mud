@@ -156,7 +156,6 @@ xml_node CharClassInfoBuilder::SelectXmlNode(const xml_node &node) {
 
 std::optional<std::string> CharClassInfoBuilder::GetCfgFileName(const xml_node &node) {
 	auto file_name = node.attribute("file").value();
-	log("Class cfg file name = %s", file_name);
 	if (!*file_name) {
 		return std::nullopt;
 	}

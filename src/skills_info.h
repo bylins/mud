@@ -67,6 +67,11 @@ class SkillsInfo {
 	bool IsKnown(ESkill id);
 
 	/*
+	 *  Такой id неизвестен.
+	 */
+	bool IsUnknown(ESkill id) { return !IsKnown(id); };
+
+	/*
 	 *  Такой id известен и он корректен, т.е. определен, лежит между первым и последним элементом
 	 *  и не откллючен.
 	 */

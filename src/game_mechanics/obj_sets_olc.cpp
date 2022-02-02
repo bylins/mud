@@ -47,9 +47,9 @@ class sedit {
 	// стадия редактирования (в какой менюшке)
 	int state;
 	// правка глобальных сообщений
-	obj_sets::msg_node msg_edit;
+	obj_sets::SetMsgNode msg_edit;
 	// редактируемый сет
-	obj_sets::set_node olc_set;
+	obj_sets::SetNode olc_set;
 	// идет создание нового сета
 	bool new_entry;
 
@@ -173,7 +173,7 @@ const auto MISSING_OBJECT_NAME = "&R<объект с таким VNUM не сущ
 
 /// распечатка форматированного списка шмоток сета, форматирование идет как
 /// как по столбцам, так и по длине имени и внума шмоток, вобщем чтоб красиво
-std::string main_menu_objlist(CharacterData *ch, const set_node &set, int menu) {
+std::string main_menu_objlist(CharacterData *ch, const SetNode &set, int menu) {
 	std::string out;
 	char buf_[128];
 	char format[128];
@@ -230,7 +230,7 @@ std::string main_menu_objlist(CharacterData *ch, const set_node &set, int menu) 
 	return out;
 }
 
-const char *main_menu_str(CharacterData *ch, set_node &olc_set, int num) {
+const char *main_menu_str(CharacterData *ch, SetNode &olc_set, int num) {
 	static char buf_[1024];
 	switch (num) {
 		case MAIN_SET_REMOVE: return "Удалить набор";
@@ -350,7 +350,7 @@ void sedit::show_obj_edit(CharacterData *ch) {
 		show_main(ch);
 		return;
 	}
-	const msg_node &msg = obj->second;
+	const SetMsgNode &msg = obj->second;
 
 	const auto rnum = real_object(obj_edit);
 	const auto name = rnum < 0
@@ -388,7 +388,7 @@ void sedit::show_activ_edit(CharacterData *ch) {
 		show_main(ch);
 		return;
 	}
-	const activ_node &activ = i->second;
+	const ActivNode &activ = i->second;
 
 	char buf_aff[2048];
 	activ.affects.sprintbits(weapon_affects, buf_aff, ",");
@@ -505,9 +505,9 @@ bool sedit::changed() {
 
 void sedit::save_olc(CharacterData *ch) {
 	if (new_entry) {
-		std::shared_ptr<set_node> set_ptr = std::make_shared<set_node>(olc_set);
+		std::shared_ptr<SetNode> set_ptr = std::make_shared<SetNode>(olc_set);
 		sets_list.push_back(set_ptr);
-		verify_set(*set_ptr);
+		VerifySet(*set_ptr);
 		save();
 		init_obj_index();
 		return;
@@ -516,7 +516,7 @@ void sedit::save_olc(CharacterData *ch) {
 	const size_t idx = setidx_by_uid(olc_set.uid);
 	if (idx < sets_list.size()) {
 		*(sets_list.at(idx)) = olc_set;
-		verify_set(*(sets_list.at(idx)));
+		VerifySet(*(sets_list.at(idx)));
 		save();
 		init_obj_index();
 	} else {
@@ -922,7 +922,7 @@ void sedit::parse_setmsg(CharacterData *ch, const char *arg) {
 		default: break;
 	}
 
-	msg_node &msg = parse_type == PARSE_SET_MSG
+	SetMsgNode &msg = parse_type == PARSE_SET_MSG
 					? olc_set.messages : parse_type == PARSE_OBJ_MSG
 										 ? olc_set.obj_list.at(obj_edit) : msg_edit;
 
@@ -980,7 +980,7 @@ void sedit::parse_activ_add(CharacterData *ch, const char *arg) {
 	} else {
 		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
 					 num, desc_count(num, WHAT_OBJECT));
-		activ_node node;
+		ActivNode node;
 		// GCC 4.4
 		//olc_set.activ_list.emplace(num, node);
 		olc_set.activ_list.insert(std::make_pair(num, node));
@@ -1113,7 +1113,7 @@ void sedit::parse_obj_add(CharacterData *ch, const char *arg) {
 						 "Предмет '%s' имеет запрещенный слот для надевания.\r\n",
 						 obj_proto[rnum]->get_short_description().c_str());
 		} else {
-			msg_node empty_msg;
+			SetMsgNode empty_msg;
 			// GCC 4.4
 			//olc_set.obj_list.emplace(vnum, empty_msg);
 			olc_set.obj_list.insert(std::make_pair(vnum, empty_msg));
@@ -1330,7 +1330,7 @@ void sedit::parse_activ_edit(CharacterData *ch, const char *arg) {
 		show_main(ch);
 		return;
 	}
-	const activ_node &activ = i->second;
+	const ActivNode &activ = i->second;
 
 	skip_spaces(&arg);
 	if (!*arg) {
@@ -1476,7 +1476,7 @@ void sedit::parse_obj_change(CharacterData *ch, const char *arg) {
 	} else if (olc_set.obj_list.find(vnum) != olc_set.obj_list.end()) {
 		send_to_char(ch, "Предмет '%s' уже является частью данного набора.\r\n", name);
 	} else {
-		msg_node msg;
+		SetMsgNode msg;
 		auto i = olc_set.obj_list.find(obj_edit);
 		if (i != olc_set.obj_list.end()) {
 			msg = i->second;
@@ -1507,7 +1507,7 @@ void sedit::parse_activ_change(CharacterData *ch, const char *arg) {
 					 "Набор уже содержит активатор на %d %s.\r\n",
 					 num, desc_count(num, WHAT_OBJECT));
 	} else {
-		activ_node activ;
+		ActivNode activ;
 		auto i = olc_set.activ_list.find(activ_edit);
 		if (i != olc_set.activ_list.end()) {
 			activ = i->second;

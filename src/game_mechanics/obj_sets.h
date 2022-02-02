@@ -70,7 +70,7 @@ struct ench_type {
 	bool empty() const;
 };
 
-struct activ_node;
+struct ActivNode;
 
 struct activ_sum {
 	activ_sum() {
@@ -78,7 +78,7 @@ struct activ_sum {
 	};
 
 	// суммирование активаторов
-	activ_sum &operator+=(const activ_node *r);
+	activ_sum &operator+=(const ActivNode *r);
 
 	bool operator!=(const activ_sum &r) const;
 	bool operator==(const activ_sum &r) const;
