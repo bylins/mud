@@ -864,7 +864,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 # Main executable file.
-set(MAIN_EXECUTABLE src/main.cpp src/communication/insult.cpp src/communication/insult.h)
+set(MAIN_EXECUTABLE src/main.cpp)
 
 add_executable(circle ${MAIN_EXECUTABLE})
 if (NOT UNIX)
