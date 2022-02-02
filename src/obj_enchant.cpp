@@ -3,7 +3,7 @@
 
 #include "obj_enchant.h"
 #include "entities/obj.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char.h"
 
 namespace ObjectEnchant {

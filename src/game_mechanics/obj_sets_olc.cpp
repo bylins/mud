@@ -13,12 +13,13 @@
 #include "handler.h"
 #include "entities/char_player.h"
 #include "skills.h"
-#include "screen.h"
+#include "color.h"
 #include "modify.h"
 #include "magic/spells.h"
 #include "utils/utils.h"
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 #include "skills_info.h"
+#include "structs/global_objects.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -431,11 +432,11 @@ void sedit::show_activ_edit(CharacterData *ch) {
 		out += buf_;
 	}
 
-	if (activ.skill.first > 0 && activ.skill.first <= MAX_SKILL_NUM) {
+	if (MUD::Skills().IsValid(activ.skill.first)) {
 		snprintf(buf_, sizeof(buf_),
 				 "%s%2d%s) Изменяемое умение : %s%+d to %s%s\r\n",
 				 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-				 activ.skill.second, skill_info[activ.skill.first].name,
+				 activ.skill.second, MUD::Skills()[activ.skill.first].GetName(),
 				 CCNRM(ch, C_NRM));
 	} else {
 		snprintf(buf_, sizeof(buf_), "%s%2d%s) Изменяемое умение : нет\r\n",
@@ -1192,13 +1193,13 @@ void sedit::show_activ_skill(CharacterData *ch) {
 	std::string out;
 	char buf_[128];
 
-	for (int i = 1; i <= MAX_SKILL_NUM; ++i) {
-		if (!skill_info[i].name || *skill_info[i].name == '!') {
+	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
+		if (MUD::Skills().IsInvalid(i)) {
 			continue;
 		}
 		snprintf(buf_, sizeof(buf_), "%s%3d%s) %25s     %s",
-				 CCGRN(ch, C_NRM), i, CCNRM(ch, C_NRM),
-				 skill_info[i].name, !(++col % 2) ? "\r\n" : "");
+				 CCGRN(ch, C_NRM), to_underlying(i), CCNRM(ch, C_NRM),
+				 MUD::Skills()[i].GetName(), !(++col % 2) ? "\r\n" : "");
 		out += buf_;
 	}
 	send_to_char(out, ch);
@@ -1210,7 +1211,7 @@ void sedit::show_activ_prof(CharacterData *ch) {
 	state = STATE_ACTIV_PROF;
 	char buf_[128];
 	std::string out;
-	std::bitset<NUM_PLAYER_CLASSES> &bits = olc_set.activ_list.at(activ_edit).prof;
+	std::bitset<kNumPlayerClasses> &bits = olc_set.activ_list.at(activ_edit).prof;
 
 	for (size_t i = 0; i < bits.size(); ++i) {
 		snprintf(buf_, sizeof(buf_), "%s%2zu%s) %s\r\n",
@@ -1249,7 +1250,7 @@ void sedit::parse_activ_prof(CharacterData *ch, const char *arg) {
 		return;
 	}
 
-	std::bitset<NUM_PLAYER_CLASSES> &bits = olc_set.activ_list.at(activ_edit).prof;
+	std::bitset<kNumPlayerClasses> &bits = olc_set.activ_list.at(activ_edit).prof;
 	if (num > 0 && num <= bits.size()) {
 		bits.flip(num - 1);
 	} else if (num == bits.size() + 1) {
@@ -1268,7 +1269,7 @@ void sedit::parse_activ_skill(CharacterData *ch, const char *arg) {
 	int num = atoi(arg), ssnum = 0, ssval = 0;
 
 	if (num == 0) {
-		skill.first = SKILL_INVALID;
+		skill.first = ESkill::kIncorrect;
 		skill.second = 0;
 		show_activ_edit(ch);
 		return;
@@ -1277,18 +1278,19 @@ void sedit::parse_activ_skill(CharacterData *ch, const char *arg) {
 	if (sscanf(arg, "%d %d", &ssnum, &ssval) < 2) {
 		send_to_char("Не указан уровень владения умением.\r\n", ch);
 		show_activ_skill(ch);
-	} else if (ssnum > MAX_SKILL_NUM || ssnum < 0
-		|| !skill_info[ssnum].name
-		|| *skill_info[ssnum].name == '!') {
+		return;
+	}
+	auto skill_id = static_cast<ESkill>(ssnum);
+	if (MUD::Skills().IsInvalid(skill_id)) {
 		send_to_char("Неизвестное умение.\r\n", ch);
 		show_activ_skill(ch);
 	} else if (ssval == 0) {
-		skill.first = SKILL_INVALID;
+		skill.first = ESkill::kIncorrect;
 		skill.second = 0;
 		show_activ_edit(ch);
 	} else {
 		skill.first = static_cast<ESkill>(ssnum);
-		skill.second = std::max(-200, std::min(ssval, 200));
+		skill.second = std::clamp(ssval, -200, 200);
 		show_activ_edit(ch);
 	}
 }
@@ -1628,7 +1630,7 @@ const char *SEDIT_HELP =
 	"   sedit - создание нового сета\r\n"
 	"   sedit <прядковый номер сета из slist> - редактирование существующего сета\r\n"
 	"   sedit <vnum любого предмета из сета> - редактирование существующего сета\r\n"
-	"   sedit <msg|messages> - редактирование глобальных сообщений сетов\r\n";
+	"   sedit <msg_set|messages> - редактирование глобальных сообщений сетов\r\n";
 
 } // namespace
 
@@ -1666,7 +1668,7 @@ void do_sedit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							 "В сетах предметов с vnum %s не найдено.\r\n", argument);
 			}
 		}
-	} else if (!str_cmp(argument, "msg") || !str_cmp(argument, "messages")) {
+	} else if (!str_cmp(argument, "msg_set") || !str_cmp(argument, "messages")) {
 		// редактирование глобальных сообщений
 		STATE(ch->desc) = CON_SEDIT;
 		ch->desc->sedit = std::make_shared<obj_sets_olc::sedit>();

@@ -8,17 +8,19 @@
 ************************************************************************ */
 
 #include "stuff.h"
+
+#include <cmath>
+
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "corpse.h"
-#include "screen.h"
+#include "color.h"
 #include "game_mechanics/sets_drop.h"
-#include "entities/zone.h"
-#include <cmath>
+#include "structs/global_objects.h"
+
 
 extern std::vector<RandomObj> random_objs;
-extern const char *skill_name(int num);
 extern void set_obj_eff(ObjectData *itemobj, const EApplyLocation type, int mod);
 extern void set_obj_aff(ObjectData *itemobj, const EAffectFlag bitv);
 extern int planebit(const char *str, int *plane, int *bit);
@@ -190,14 +192,15 @@ int get_stat_mod(int stat) {
 }
 
 void generate_book_upgrd(ObjectData *obj) {
-	const auto skill_list = make_array<int>(
-		SKILL_BACKSTAB, SKILL_PUNCTUAL, SKILL_BASH, SKILL_MIGHTHIT,
-		SKILL_STUPOR, SKILL_ADDSHOT, SKILL_AWAKE, SKILL_NOPARRYHIT,
-		SKILL_WARCRY, SKILL_IRON_WIND, SKILL_STRANGLE);
+	const auto skill_list = make_array<ESkill>(
+		ESkill::kBackstab, ESkill::kPunctual, ESkill::kBash, ESkill::kHammer,
+		ESkill::kOverwhelm, ESkill::kAddshot, ESkill::kAwake, ESkill::kNoParryHit,
+		ESkill::kWarcry, ESkill::kIronwind, ESkill::kStrangle);
 
-	obj->set_val(1, skill_list[number(0, static_cast<int>(skill_list.size()) - 1)]);
-	std::string book_name = skill_name(GET_OBJ_VAL(obj, 1));
+	auto skill_id = skill_list[number(0, skill_list.size() - 1)];
+	std::string book_name = MUD::Skills()[skill_id].name;
 
+	obj->set_val(1, to_underlying(skill_id));
 	obj->set_aliases("книга секретов умения: " + book_name);
 	obj->set_short_description("книга секретов умения: " + book_name);
 	obj->set_description("Книга секретов умения: " + book_name + " лежит здесь.");
@@ -422,76 +425,76 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 
 	switch (skill_id)
 	{
-	case SKILL_CLUBS: // дубины
+	case ESkill::kClubs: // дубины
 		obj->set_val(3, 12);
 		obj->set_skill(141);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
 		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
 		obj->set_affected(1, APPLY_SAVING_STABILITY, -floorf(diff/4.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_SPADES: // копья
+	case ESkill::kSpades: // копья
 		obj->set_val(3, 11);
 		obj->set_skill(148);
 		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
-		create_charmice_stuff(ch, SKILL_BLOCK, diff);
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_PICK: // стабер
+	case ESkill::kPicks: // стабер
 		obj->set_val(3, 11);
 		obj->set_skill(147);
 		obj->set_affected(0, APPLY_STR, floorf(diff/16.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/10.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_AXES: // секиры
+	case ESkill::kAxes: // секиры
 		obj->set_val(3, 8);
 		obj->set_skill(142);
 		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
 		obj->set_affected(2, APPLY_DAMROLL, floorf(diff/10.0));
 		obj->set_affected(3, APPLY_HIT, 5*(diff));
-		create_charmice_stuff(ch, SKILL_BLOCK, diff);
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_BOWS: // луки
+	case ESkill::kBows: // луки
 		obj->set_val(3, 2);
 		obj->set_skill(154);
 		obj->set_affected(0, APPLY_STR, floorf(diff/20.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/15.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
-	case SKILL_BOTHHANDS: // двуруч
+	case ESkill::kTwohands: // двуруч
 		obj->set_val(3, 1);
 		obj->set_skill(146);
 		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
 		obj->set_affected(0, APPLY_STR, floorf(diff/15.0));
 		obj->set_affected(1, APPLY_DAMROLL, floorf(diff/13.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 18;
 		break;
-	case SKILL_PUNCH: // кулачка
+	case ESkill::kPunch: // кулачка
 		obj->set_type(ObjectData::ITEM_ARMOR);
 		obj->set_affected(0, APPLY_DAMROLL, floorf(diff/10.0));
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 9;
 		break;
-	case SKILL_LONGS: // длинные
+	case ESkill::kLongBlades: // длинные
 		obj->set_val(3, 10);
 		obj->set_skill(143);
 		obj->set_affected(0, APPLY_STR, floorf(diff/15.0));
 		obj->set_affected(1, APPLY_DEX, floorf(diff/12.0));
 		obj->set_affected(2, APPLY_SAVING_REFLEX, -floorf(diff/3.5));
-		create_charmice_stuff(ch, SKILL_INVALID, -1); // так изощренно создаем обувку(-1), итак кэйсов наплодил
-		create_charmice_stuff(ch, SKILL_INVALID, diff);
+		create_charmice_stuff(ch, ESkill::kIncorrect, -1); // так изощренно создаем обувку(-1), итак кэйсов наплодил
+		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;
 		break;
-	case SKILL_BLOCK: // блок щитом ? делаем щит
+	case ESkill::kShieldBlock: // блок щитом ? делаем щит
 		obj->set_type(ObjectData::ITEM_ARMOR);
 		obj->set_description("Роговые пластины лежат здесь.");
 		obj->set_ex_description(descr.c_str(), "Роговые пластины лежат здесь.");
@@ -511,7 +514,7 @@ void create_charmice_stuff(CharacterData *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(3, APPLY_SAVING_WILL, -floorf(diff/3.5));
 		position = 11; // слот щит
 		break;		
-	default: //SKILL_INVALID / тут шкура(армор)
+	default: //ESkill::kIncorrect / тут шкура(армор)
 		obj->set_sex(ESex::kFemale);
 		obj->set_description("Прочная шкура лежит здесь.");
 		obj->set_ex_description(descr.c_str(), "Прочная шкура лежит здесь.");

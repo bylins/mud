@@ -1,7 +1,6 @@
 #include "cmd_god/shutdown_parameters.h"
 
-#include "global_objects.h"
-#include "sysdep.h"
+#include "structs/global_objects.h"
 
 ShutdownParameters::ShutdownParameters() :
 	circle_shutdown(ES_DO_NOT_SHUTDOWN),

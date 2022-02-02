@@ -1,5 +1,5 @@
-#include "global_objects.h"
-#include "screen.h"
+#include "structs/global_objects.h"
+#include "color.h"
 
 #include <iostream>
 

@@ -1,6 +1,5 @@
 #include "magic_items.h"
 
-//#include "obj.h"
 #include "entities/char.h"
 #include "handler.h"
 #include "obj_prototypes.h"
@@ -12,7 +11,7 @@ const short DEFAULT_WAND_LVL = 12;
 
 extern char cast_argument[kMaxInputLength];
 
-void employMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
+void EmployMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 	int i, spellnum;
 	int level;
 	CharacterData *tch = nullptr;
@@ -52,7 +51,7 @@ void employMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 			} else {
 				obj->dec_val(2);
 				WAIT_STATE(ch, kPulseViolence);
-				if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS)) {
+				if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), kMagMasses | kMagAreas)) {
 					CallMagic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 				} else {
 					const auto people_copy = world[ch->in_room]->people;
@@ -74,7 +73,7 @@ void employMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 			}
 
 			if (!*argument) {
-				if (!IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES)) {
+				if (!IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, kMagAreas | kMagMasses)) {
 					tch = ch;
 				}
 			} else {
@@ -138,7 +137,7 @@ void employMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 			spellnum = GET_OBJ_VAL(obj, 1);
 			if (!*argument) {
 				for (int slot = 1; slot < 4; slot++) {
-					if (IS_SET(spell_info[GET_OBJ_VAL(obj, slot)].routines, MAG_AREAS | MAG_MASSES)) {
+					if (IS_SET(spell_info[GET_OBJ_VAL(obj, slot)].routines, kMagAreas | kMagMasses)) {
 						break;
 					}
 					tch = ch;
@@ -195,7 +194,7 @@ void employMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 			extract_obj(obj);
 			break;
 
-		default: log("SYSERR: Unknown object_type %d in employMagicItem.", GET_OBJ_TYPE(obj));
+		default: log("SYSERR: Unknown object_type %d in EmployMagicItem.", GET_OBJ_TYPE(obj));
 			break;
 	}
 }

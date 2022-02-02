@@ -584,8 +584,9 @@ int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, c
 			add_var_cntx(&GET_TRIG_VARS(t), "amount", std::to_string(amount).c_str(), 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "name", name_skillorspell, 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "is_skill", std::to_string(is_skill).c_str(), 0);
-			if(obj)
-					ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
+			if(obj) {
+				ADD_UID_OBJ_VAR(buf, t, obj, "weapon", 0);
+			}
 			return script_driver(victim, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}
@@ -840,9 +841,9 @@ void random_otrigger(ObjectData *obj) {
 	}
 }
 
-bitvector_t try_run_fight_otriggers(CharacterData *actor, ObjectData *obj, int mode) {
+Bitvector try_run_fight_otriggers(CharacterData *actor, ObjectData *obj, int mode) {
 	char buf[kMaxInputLength];
-	bitvector_t result = kNormalRound;
+	Bitvector result = kNormalRound;
 	if (!SCRIPT_CHECK(obj, OTRIG_FIGHT) || GET_INVIS_LEV(actor)) {
 		return result;
 	}
@@ -858,8 +859,8 @@ bitvector_t try_run_fight_otriggers(CharacterData *actor, ObjectData *obj, int m
 	return result;
 }
 
-bitvector_t fight_otrigger(CharacterData *actor) {
-	bitvector_t result = kNormalRound;
+Bitvector fight_otrigger(CharacterData *actor) {
+	Bitvector result = kNormalRound;
 	for (auto item: actor->equipment) {
 		if (item) {
 			SET_BIT(result, try_run_fight_otriggers(actor, item, OCMD_EQUIP));

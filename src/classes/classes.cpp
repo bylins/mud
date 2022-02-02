@@ -18,7 +18,7 @@
  * you should go through this entire file from beginning to end and add
  * the appropriate new special cases for your new class.
  */
-#include "class.h"
+#include "classes.h"
 
 #include "world_objects.h"
 #include "entities/obj.h"
@@ -36,7 +36,7 @@
 #include "crafts/im.h"
 #include "entities/char.h"
 #include "spam.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
 #include "entities/player_races.h"
@@ -49,23 +49,23 @@
 #include "conf.h"
 #include "skills_info.h"
 #include "magic/spells_info.h"
+#include "structs/global_objects.h"
 
 #include <iostream>
 
 extern int siteok_everyone;
-extern struct spell_create_type spell_create[];
+extern struct SpellCreate spell_create[];
 extern double exp_coefficients[];
 
 // local functions
-int parse_class(char arg);
-long find_class_bitvector(char arg);
+ECharClass ParseClass(char arg);
+Bitvector find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
 void do_start(CharacterData *ch, int newbie);
 int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
-int invalid_no_class(CharacterData *ch, const ObjectData *obj);
 int level_exp(CharacterData *ch, int level);
-byte extend_saving_throws(int class_num, int type, int level);
+byte extend_saving_throws(int class_num, ESaving save, int level);
 int invalid_unique(CharacterData *ch, const ObjectData *obj);
 void mspell_level(char *name, int spell, int kin, int chclass, int level);
 void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
@@ -222,153 +222,54 @@ const int class_religion[] = {RELIGION_ANY,        //Лекарь
 };
 
 //str dex con wis int cha
-int class_stats_limit[NUM_PLAYER_CLASSES][6];
+int class_stats_limit[kNumPlayerClasses][6];
 
 /*
  * The code to interpret a class letter -- used in interpreter.cpp when a
  * new character is selecting a class and by 'set class' in act.wizard.c.
  */
 
-int parse_class(char arg) {
+ECharClass ParseClass(char arg) {
 	arg = LOWER(arg);
 
 	switch (arg) {
-		case 'л': return CLASS_CLERIC;
-		case 'к': return CLASS_BATTLEMAGE;
-		case 'т': return CLASS_THIEF;
-		case 'б': return CLASS_WARRIOR;
-		case 'н': return CLASS_ASSASINE;
-		case 'д': return CLASS_GUARD;
-		case 'у': return CLASS_CHARMMAGE;
-		case 'в': return CLASS_DEFENDERMAGE;
-		case 'ч': return CLASS_NECROMANCER;
-		case 'и': return CLASS_PALADINE;
-		case 'о': return CLASS_RANGER;
-		case 'з': return CLASS_SMITH;
-		case 'п': return CLASS_MERCHANT;
-		case 'х': return CLASS_DRUID;
-		default: return CLASS_UNDEFINED;
+		case 'л': return ECharClass::kSorcerer;
+		case 'к': return ECharClass::kConjurer;
+		case 'т': return ECharClass::kThief;
+		case 'б': return ECharClass::kWarrior;
+		case 'н': return ECharClass::kAssasine;
+		case 'д': return ECharClass::kGuard;
+		case 'у': return ECharClass::kCharmer;
+		case 'в': return ECharClass::kWizard;
+		case 'ч': return ECharClass::kNecromancer;
+		case 'и': return ECharClass::kPaladine;
+		case 'о': return ECharClass::kRanger;
+		case 'з': return ECharClass::kVigilant;
+		case 'п': return ECharClass::kMerchant;
+		case 'х': return ECharClass::kMagus;
+		default: return ECharClass::kUndefined;
 	}
 }
 
-int
-parse_class_vik(char arg) {
+Bitvector find_class_bitvector(char arg) {
 	arg = LOWER(arg);
 
 	switch (arg) {
-		case 'ж': return CLASS_CLERIC;
-		case 'н': return CLASS_BATTLEMAGE;
-		case 'т': return CLASS_THIEF;
-		case 'б': return CLASS_WARRIOR;
-		case 'а': return CLASS_ASSASINE;
-		case 'х': return CLASS_GUARD;
-		case 'з': return CLASS_CHARMMAGE;
-		case 'о': return CLASS_DEFENDERMAGE;
-		case 'р': return CLASS_NECROMANCER;
-		case 'к': return CLASS_PALADINE;
-		case 'л': return CLASS_RANGER;
-		case 'г': return CLASS_SMITH;
-		case 'п': return CLASS_MERCHANT;
-		case 'с': return CLASS_DRUID;
-		default: return CLASS_UNDEFINED;
-	}
-}
-
-int
-parse_class_step(char arg) {
-	arg = LOWER(arg);
-
-	switch (arg) {
-		case 'з': return CLASS_CLERIC;
-		case 'б': return CLASS_BATTLEMAGE;
-		case 'к': return CLASS_THIEF;
-		case 'а': return CLASS_WARRIOR;
-		case 'т': return CLASS_ASSASINE;
-		case 'н': return CLASS_GUARD;
-		case 'п': return CLASS_CHARMMAGE;
-		case 'ш': return CLASS_DEFENDERMAGE;
-		case 'р': return CLASS_NECROMANCER;
-		case 'ч': return CLASS_PALADINE;
-		case 'о': return CLASS_RANGER;
-		case 'д': return CLASS_SMITH;
-		case 'с': return CLASS_MERCHANT;
-		case 'и': return CLASS_DRUID;
-		default: return CLASS_UNDEFINED;
-	}
-}
-
-/*
- * bitvectors (i.e., powers of two) for each class, mainly for use in
- * do_who and do_users.  Add new classes at the end so that all classes
- * use sequential powers of two (1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4,
- * 1 << 5, etc.
- */
-
-long find_class_bitvector(char arg) {
-	arg = LOWER(arg);
-
-	switch (arg) {
-		case 'л': return (1 << CLASS_CLERIC);
-		case 'к': return (1 << CLASS_BATTLEMAGE);
-		case 'т': return (1 << CLASS_THIEF);
-		case 'б': return (1 << CLASS_WARRIOR);
-		case 'н': return (1 << CLASS_ASSASINE);
-		case 'д': return (1 << CLASS_GUARD);
-		case 'у': return (1 << CLASS_CHARMMAGE);
-		case 'в': return (1 << CLASS_DEFENDERMAGE);
-		case 'ч': return (1 << CLASS_NECROMANCER);
-		case 'и': return (1 << CLASS_PALADINE);
-		case 'о': return (1 << CLASS_RANGER);
-		case 'з': return (1 << CLASS_SMITH);
-		case 'п': return (1 << CLASS_MERCHANT);
-		case 'х': return (1 << CLASS_DRUID);
+		case 'л': return (1 << ECharClass::kSorcerer);
+		case 'к': return (1 << ECharClass::kConjurer);
+		case 'т': return (1 << ECharClass::kThief);
+		case 'б': return (1 << ECharClass::kWarrior);
+		case 'н': return (1 << ECharClass::kAssasine);
+		case 'д': return (1 << ECharClass::kGuard);
+		case 'у': return (1 << ECharClass::kCharmer);
+		case 'в': return (1 << ECharClass::kWizard);
+		case 'ч': return (1 << ECharClass::kNecromancer);
+		case 'и': return (1 << ECharClass::kPaladine);
+		case 'о': return (1 << ECharClass::kRanger);
+		case 'з': return (1 << ECharClass::kVigilant);
+		case 'п': return (1 << ECharClass::kMerchant);
+		case 'х': return (1 << ECharClass::kMagus);
 		default: return 0;
-	}
-}
-
-long
-find_class_bitvector_vik(char arg) {
-	arg = LOWER(arg);
-
-	switch (arg) {
-		case 'ж': return (1 << CLASS_CLERIC);
-		case 'н': return (1 << CLASS_BATTLEMAGE);
-		case 'т': return (1 << CLASS_THIEF);
-		case 'б': return (1 << CLASS_WARRIOR);
-		case 'а': return (1 << CLASS_ASSASINE);
-		case 'х': return (1 << CLASS_GUARD);
-		case 'з': return (1 << CLASS_CHARMMAGE);
-		case 'о': return (1 << CLASS_DEFENDERMAGE);
-		case 'р': return (1 << CLASS_NECROMANCER);
-		case 'к': return (1 << CLASS_PALADINE);
-		case 'л': return (1 << CLASS_RANGER);
-		case 'г': return (1 << CLASS_SMITH);
-		case 'п': return (1 << CLASS_MERCHANT);
-		case 'в': return (1 << CLASS_DRUID);
-		default: return CLASS_UNDEFINED;
-	}
-}
-
-long
-find_class_bitvector_step(char arg) {
-	arg = LOWER(arg);
-
-	switch (arg) {
-		case 'з': return (1 << CLASS_CLERIC);
-		case 'б': return (1 << CLASS_BATTLEMAGE);
-		case 'к': return (1 << CLASS_THIEF);
-		case 'а': return (1 << CLASS_WARRIOR);
-		case 'т': return (1 << CLASS_ASSASINE);
-		case 'н': return (1 << CLASS_GUARD);
-		case 'п': return (1 << CLASS_CHARMMAGE);
-		case 'ш': return (1 << CLASS_DEFENDERMAGE);
-		case 'р': return (1 << CLASS_NECROMANCER);
-		case 'ч': return (1 << CLASS_PALADINE);
-		case 'о': return (1 << CLASS_RANGER);
-		case 'д': return (1 << CLASS_SMITH);
-		case 'с': return (1 << CLASS_MERCHANT);
-		case 'и': return (1 << CLASS_DRUID);
-		default: return CLASS_UNDEFINED;
 	}
 }
 
@@ -405,7 +306,7 @@ find_class_bitvector_step(char arg) {
 // #define MIN_PER_PRAC		2  min percent gain in skill per practice
 // #define PRAC_TYPE		3  should it say 'spell' or 'skill'?
 
-int prac_params[4][NUM_PLAYER_CLASSES] =    // MAG        CLE             THE             WAR
+int prac_params[4][kNumPlayerClasses] =    // MAG        CLE             THE             WAR
 	{
 		{95, 95, 85, 80},    // learned level
 		{100, 100, 12, 12},    // max per prac
@@ -428,10 +329,10 @@ int guild_info[][3] =
 	{
 
 		// Midgaard
-		{CLASS_BATTLEMAGE, 3017, SCMD_SOUTH},
-		{CLASS_CLERIC, 3004, SCMD_NORTH},
-		{CLASS_THIEF, 3027, SCMD_EAST},
-		{CLASS_WARRIOR, 3021, SCMD_EAST},
+		{ECharClass::kConjurer, 3017, SCMD_SOUTH},
+		{ECharClass::kSorcerer, 3004, SCMD_NORTH},
+		{ECharClass::kThief, 3027, SCMD_EAST},
+		{ECharClass::kWarrior, 3021, SCMD_EAST},
 
 		// Brass Dragon
 		{-999 /* all */ , 5065, SCMD_WEST},
@@ -483,7 +384,7 @@ const byte sav_05[50] =
 		35, 0, 0, 0, 0, 0, 0, 0, 0, 0,    // 30-39
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-//CLASS_MOB
+//kClassMob
 const byte sav_06[100] =
 	{
 		90, 90, 90, 90, 90, 90, 89, 89, 88, 88,    // 00-09
@@ -537,7 +438,7 @@ const byte sav_12[50] =
 		17, 16, 15, 14, 13, 12, 11, 10, 9, 8,    // 30-39
 		7, 6, 5, 4, 3, 2, 1, 0, 0, 0    // 40-49
 	};
-//CLASS_MOB
+//kClassMob
 const byte sav_13[100] =
 	{
 		90, 83, 81, 79, 77, 75, 72, 68, 65, 63,    // 00-09
@@ -583,7 +484,7 @@ const byte sav_17[50] =
 		45, 0, 0, 0, 0, 0, 0, 0, 0, 0,    // 30-39
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // 40-49
 	};
-//CLASS_MOB
+//kClassMob
 const byte sav_18[100] =
 	{
 		100, 100, 100, 100, 100, 99, 99, 99, 99, 99,    // 00-09
@@ -599,77 +500,58 @@ const byte sav_18[100] =
 	};
 
 // {CLASS,{PARA,ROD,AFFECT,BREATH,SPELL,BASIC}}
-struct std_saving_type {
+struct ClassSavings {
 	int chclass;
-	const byte *saves[SAVING_COUNT];
+	const byte *saves[to_underlying(ESaving::kLast) + 1];
 };
 
-std_saving_type std_saving[] =
-	{
-		{
-			CLASS_CLERIC, {
-			sav_01, sav_10, sav_08, sav_14}}, {
-			CLASS_BATTLEMAGE, {
-			sav_01, sav_09, sav_02, sav_14}}, {
-			CLASS_CHARMMAGE, {
-			sav_02, sav_09, sav_02, sav_14}}, {
-			CLASS_DEFENDERMAGE, {
-			sav_01, sav_09, sav_01, sav_14}}, {
-			CLASS_NECROMANCER, {
-			sav_01, sav_09, sav_01, sav_14}}, {
-			CLASS_DRUID, {
-			sav_03, sav_10, sav_03, sav_14}}, {
-			CLASS_THIEF, {
-			sav_08, sav_11, sav_08, sav_15}}, {
-			CLASS_ASSASINE, {
-			sav_08, sav_11, sav_08, sav_15}}, {
-			CLASS_MERCHANT, {
-			sav_08, sav_11, sav_08, sav_15}}, {
-			CLASS_WARRIOR, {
-			sav_04, sav_12, sav_04, sav_16}}, {
-			CLASS_GUARD, {
-			sav_04, sav_12, sav_04, sav_16}}, {
-			CLASS_SMITH, {
-			sav_04, sav_12, sav_04, sav_16}}, {
-			CLASS_PALADINE, {
-			sav_05, sav_12, sav_05, sav_17}}, {
-			CLASS_RANGER, {
-			sav_05, sav_12, sav_05, sav_17}}, {
-			CLASS_MOB, {
-			sav_06, sav_13, sav_06, sav_18}}, {
-			-1, {
-			sav_02, sav_12, sav_02, sav_16}}
-	};
+const ClassSavings std_saving[] = {
+	{ECharClass::kSorcerer, {sav_01, sav_10, sav_08, sav_14}},
+	{ECharClass::kConjurer, {sav_01, sav_09, sav_02, sav_14}},
+	{ECharClass::kCharmer, {sav_02, sav_09, sav_02, sav_14}},
+	{ECharClass::kWizard, {sav_01, sav_09, sav_01, sav_14}},
+	{ECharClass::kNecromancer, {sav_01, sav_09, sav_01, sav_14}},
+	{ECharClass::kMagus, {sav_03, sav_10, sav_03, sav_14}},
+	{ECharClass::kThief, {sav_08, sav_11, sav_08, sav_15}},
+	{ECharClass::kAssasine, {sav_08, sav_11, sav_08, sav_15}},
+	{ECharClass::kMerchant, {sav_08, sav_11, sav_08, sav_15}},
+	{ECharClass::kWarrior, {sav_04, sav_12, sav_04, sav_16}},
+	{ECharClass::kGuard, {sav_04, sav_12, sav_04, sav_16}},
+	{ECharClass::kVigilant, {sav_04, sav_12, sav_04, sav_16}},
+	{ECharClass::kPaladine, {sav_05, sav_12, sav_05, sav_17}},
+	{ECharClass::kRanger, {sav_05, sav_12, sav_05, sav_17}},
+	{ECharClass::kMob, {sav_06, sav_13, sav_06, sav_18}},
+	{-1, {sav_02, sav_12, sav_02, sav_16}}
+};
 
-byte saving_throws(int class_num, int type, int level) {
+byte saving_throws(int class_num, ESaving type, int level) {
 	return extend_saving_throws(class_num, type, level);
 }
 
-byte extend_saving_throws(int class_num, int type, int level) {
+byte extend_saving_throws(int class_num, ESaving save, int level) {
 	int i;
-	if (type < 0 || type >= SAVING_COUNT)
+	if (save < ESaving::kFirst || save > ESaving::kLast) {
+		return 100; // Что за 100? Почему 100? kMaxSaving равен 400. Идиотизм.
+	}
+	if (level <= 0 || level > 100) {
 		return 100;
-	if (level <= 0 || level > 100)
-		return 100;
+	}
 	--level;
 
 	for (i = 0; std_saving[i].chclass != -1 && std_saving[i].chclass != class_num; ++i);
 
-	return std_saving[i].saves[type][level];
+	return std_saving[i].saves[to_underlying(save)][level];
 }
 
 // THAC0 for classes and levels.  (To Hit Armor Class 0)
 int thaco(int class_num, int level) {
 	switch (class_num) {
-		case CLASS_BATTLEMAGE:
-			[[fallthrough]];
-		case CLASS_DEFENDERMAGE:
-			[[fallthrough]];
-		case CLASS_CHARMMAGE:
-			[[fallthrough]];
-		case CLASS_NECROMANCER: {
+		case ECharClass::kConjurer: [[fallthrough]];
+		case ECharClass::kWizard: [[fallthrough]];
+		case ECharClass::kCharmer: [[fallthrough]];
+		case ECharClass::kNecromancer: {
 			switch (level) {
-				case 0: return 100;
+				case 0: return 100; break;
 				case 1: return 20;
 				case 2: return 20;
 				case 3: return 20;
@@ -707,10 +589,10 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for mage thac0.");
 					break;
 			}
+			 break;
 		}
-		case CLASS_CLERIC:
-			[[fallthrough]];
-		case CLASS_DRUID: {
+		case ECharClass::kSorcerer: [[fallthrough]];
+		case ECharClass::kMagus: {
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -750,11 +632,11 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for cleric thac0.");
 					break;
 			}
+			 break;
 		}
-		case CLASS_ASSASINE:
-		case CLASS_THIEF:
-			[[fallthrough]];
-		case CLASS_MERCHANT: {
+		case ECharClass::kAssasine:
+		case ECharClass::kThief: [[fallthrough]];
+		case ECharClass::kMerchant: {
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -794,10 +676,10 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for thief thac0.");
 					break;
 			}
+			 break;
 		}
-		case CLASS_WARRIOR:
-			[[fallthrough]];
-		case CLASS_GUARD: {
+		case ECharClass::kWarrior: [[fallthrough]];
+		case ECharClass::kGuard: {
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -837,11 +719,11 @@ int thaco(int class_num, int level) {
 				default: log("SYSERR: Missing level for warrior thac0.");
 					break;
 			}
+			 break;
 		}
-		case CLASS_PALADINE:
-		case CLASS_RANGER:
-			[[fallthrough]];
-		case CLASS_SMITH: {
+		case ECharClass::kPaladine:
+		case ECharClass::kRanger: [[fallthrough]];
+		case ECharClass::kVigilant: {
 			switch (level) {
 				case 0: return 100;
 				case 1: return 20;
@@ -878,14 +760,13 @@ int thaco(int class_num, int level) {
 				case 32: return 0;
 				case 33: return 0;
 				case 34: return 0;
-				default: 
-					log("SYSERR: Missing level for warrior thac0.");
-				break;
+				default: log("SYSERR: Missing level for warrior thac0.");
+					break;
 			}
+			 break;
 		}
-		default: 
-			log("SYSERR: Unknown class in thac0 chart.");
-		break;
+		default: log("SYSERR: Unknown class in thac0 chart.");
+			break;
 	}
 
 	// Will not get there unless something is wrong.
@@ -895,11 +776,10 @@ int thaco(int class_num, int level) {
 // AC0 for classes and levels.
 int extra_aco(int class_num, int level) {
 	switch (class_num) {
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-			[[fallthrough]];
-		case CLASS_NECROMANCER:
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer: [[fallthrough]];
+		case ECharClass::kNecromancer: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -938,9 +818,10 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
-		case CLASS_CLERIC:
-			[[fallthrough]];
-		case CLASS_DRUID:
+			 break;
+		}
+		case ECharClass::kSorcerer: [[fallthrough]];
+		case ECharClass::kMagus: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -979,10 +860,11 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
-		case CLASS_ASSASINE:
-		case CLASS_THIEF:
-			[[fallthrough]];
-		case CLASS_MERCHANT:
+			break;
+		}
+		case ECharClass::kAssasine:
+		case ECharClass::kThief: [[fallthrough]];
+		case ECharClass::kMerchant: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1021,9 +903,10 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
-		case CLASS_WARRIOR:
-			[[fallthrough]];
-		case CLASS_GUARD:
+			 break;
+		}
+		case ECharClass::kWarrior: [[fallthrough]];
+		case ECharClass::kGuard: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1062,10 +945,11 @@ int extra_aco(int class_num, int level) {
 				case 34: return -25;
 				default: return 0;
 			}
-		case CLASS_PALADINE:
-		case CLASS_RANGER:
-			[[fallthrough]];
-		case CLASS_SMITH:
+			 break;
+			}
+		case ECharClass::kPaladine:
+		case ECharClass::kRanger: [[fallthrough]];
+		case ECharClass::kVigilant: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1104,6 +988,8 @@ int extra_aco(int class_num, int level) {
 				case 34: return -20;
 				default: return 0;
 			}
+			 break;
+			}
 	}
 	return 0;
 }
@@ -1111,11 +997,10 @@ int extra_aco(int class_num, int level) {
 // DAMROLL for classes and levels.
 int extra_damroll(int class_num, int level) {
 	switch (class_num) {
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-			[[fallthrough]];
-		case CLASS_NECROMANCER:
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer: [[fallthrough]];
+		case ECharClass::kNecromancer: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1154,9 +1039,10 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 10;
 				default: return 0;
 			}
-		case CLASS_CLERIC:
-			[[fallthrough]];
-		case CLASS_DRUID:
+			 break;
+			}
+		case ECharClass::kSorcerer: [[fallthrough]];
+		case ECharClass::kMagus: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1195,10 +1081,11 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 10;
 				default: return 0;
 			}
-		case CLASS_ASSASINE:
-		case CLASS_THIEF:
-			[[fallthrough]];
-		case CLASS_MERCHANT:
+			 break;
+			}
+		case ECharClass::kAssasine:
+		case ECharClass::kThief: [[fallthrough]];
+		case ECharClass::kMerchant: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1237,9 +1124,10 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 11;
 				default: return 0;
 			}
-		case CLASS_WARRIOR:
-			[[fallthrough]];
-		case CLASS_GUARD:
+			 break;
+			}
+		case ECharClass::kWarrior: [[fallthrough]];
+		case ECharClass::kGuard: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1278,10 +1166,11 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 25;
 				default: return 0;
 			}
-		case CLASS_PALADINE:
-		case CLASS_RANGER:
-			[[fallthrough]];
-		case CLASS_SMITH:
+			 break;
+			}
+		case ECharClass::kPaladine:
+		case ECharClass::kRanger: [[fallthrough]];
+		case ECharClass::kVigilant: {
 			switch (level) {
 				case 0: return 0;
 				case 1: return 0;
@@ -1320,6 +1209,8 @@ int extra_damroll(int class_num, int level) {
 				case 34: return 20;
 				default: return 0;
 			}
+			 break;
+			}
 	}
 	return 0;
 }
@@ -1327,19 +1218,19 @@ int extra_damroll(int class_num, int level) {
 // Some initializations for characters, including initial skills
 void init_warcry(CharacterData *ch) // проставление кличей в обход античита
 {
-	if (GET_CLASS(ch) == CLASS_GUARD)
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
+	if (GET_CLASS(ch) == ECharClass::kGuard)
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfDefence), kSpellKnow); // клич призыв к обороне
 
-	if (GET_CLASS(ch) == CLASS_RANGER) {
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_EXPERIENSE), SPELL_KNOW); // клич опыта
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_LUCK), SPELL_KNOW); // клич удачи
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_PHYSDAMAGE), SPELL_KNOW); // клич +дамага
+	if (GET_CLASS(ch) == ECharClass::kRanger) {
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWatctyOfExpirence), kSpellKnow); // клич опыта
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfLuck), kSpellKnow); // клич удачи
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPhysdamage), kSpellKnow); // клич +дамага
 	}
-	if (GET_CLASS(ch) == CLASS_WARRIOR) {
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_POWER), SPELL_KNOW); // клич призыв мощи
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BLESS), SPELL_KNOW); // клич призывы доблести
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_COURAGE), SPELL_KNOW); // клич призыв отваги
+	if (GET_CLASS(ch) == ECharClass::kWarrior) {
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBattle), kSpellKnow); // клич призыв битвы
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfPower), kSpellKnow); // клич призыв мощи
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfBless), kSpellKnow); // клич призывы доблести
+		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfCourage), kSpellKnow); // клич призыв отваги
 	}
 
 }
@@ -1349,12 +1240,12 @@ void do_start(CharacterData *ch, int newbie) {
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
 	if (newbie || (GET_REAL_REMORT(ch) >= 9 && GET_REAL_REMORT(ch) % 3 == 0)) {
-		ch->set_skill(SKILL_DRUNKOFF, 10);
+		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
-	if (newbie && GET_CLASS(ch) == CLASS_DRUID) {
-		for (int i = 1; i <= SPELLS_COUNT; i++) {
-			GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+	if (newbie && GET_CLASS(ch) == ECharClass::kMagus) {
+		for (int i = 1; i <= kSpellCount; i++) {
+			GET_SPELL_TYPE(ch, i) = kSpellRunes;
 		}
 	}
 
@@ -1375,28 +1266,28 @@ void do_start(CharacterData *ch, int newbie) {
 	}
 
 	switch (GET_CLASS(ch)) {
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-		case CLASS_NECROMANCER:
-		case CLASS_DRUID: ch->set_skill(SKILL_SATTACK, 10);
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer:
+		case ECharClass::kNecromancer:
+		case ECharClass::kMagus: ch->set_skill(ESkill::kSideAttack, 10);
 			break;
-		case CLASS_CLERIC: ch->set_skill(SKILL_SATTACK, 50);
+		case ECharClass::kSorcerer: ch->set_skill(ESkill::kSideAttack, 50);
 			break;
-		case CLASS_THIEF:
-		case CLASS_ASSASINE: ch->set_skill(SKILL_SATTACK, 75);
+		case ECharClass::kThief:
+		case ECharClass::kAssasine: ch->set_skill(ESkill::kSideAttack, 75);
 			break;
-		case CLASS_MERCHANT: ch->set_skill(SKILL_SATTACK, 85);
+		case ECharClass::kMerchant: ch->set_skill(ESkill::kSideAttack, 85);
 			break;
-		case CLASS_GUARD:
-		case CLASS_PALADINE:
-		case CLASS_WARRIOR:
-		case CLASS_RANGER:
-			if (ch->get_skill(SKILL_HORSE) == 0)
-				ch->set_skill(SKILL_HORSE, 10);
-			ch->set_skill(SKILL_SATTACK, 95);
+		case ECharClass::kGuard:
+		case ECharClass::kPaladine:
+		case ECharClass::kWarrior:
+		case ECharClass::kRanger:
+			if (ch->get_skill(ESkill::kRiding) == 0)
+				ch->set_skill(ESkill::kRiding, 10);
+			ch->set_skill(ESkill::kSideAttack, 95);
 			break;
-		case CLASS_SMITH: ch->set_skill(SKILL_SATTACK, 95);
+		case ECharClass::kVigilant: ch->set_skill(ESkill::kSideAttack, 95);
 			break;
 		default: break;
 	}
@@ -1450,29 +1341,30 @@ void advance_level(CharacterData *ch) {
 	int add_move = 0, i;
 
 	switch (GET_CLASS(ch)) {
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-		case CLASS_NECROMANCER: add_move = 2;
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer:
+		case ECharClass::kNecromancer: add_move = 2;
 			break;
 
-		case CLASS_CLERIC:
-		case CLASS_DRUID: add_move = 2;
+		case ECharClass::kSorcerer:
+		case ECharClass::kMagus: add_move = 2;
 			break;
 
-		case CLASS_THIEF:
-		case CLASS_ASSASINE:
-		case CLASS_MERCHANT: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
+		case ECharClass::kThief:
+		case ECharClass::kAssasine:
+		case ECharClass::kMerchant: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
 			break;
 
-		case CLASS_WARRIOR: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
+		case ECharClass::kWarrior: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
 			break;
 
-		case CLASS_GUARD:
-		case CLASS_RANGER:
-		case CLASS_PALADINE:
-		case CLASS_SMITH: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
+		case ECharClass::kGuard:
+		case ECharClass::kRanger:
+		case ECharClass::kPaladine:
+		case ECharClass::kVigilant: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
 			break;
+		default: break;
 	}
 
 	check_max_hp(ch);
@@ -1495,27 +1387,28 @@ void decrease_level(CharacterData *ch) {
 	int add_move = 0;
 
 	switch (GET_CLASS(ch)) {
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-		case CLASS_NECROMANCER: add_move = 2;
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer:
+		case ECharClass::kNecromancer: add_move = 2;
 			break;
 
-		case CLASS_CLERIC:
-		case CLASS_DRUID: add_move = 2;
+		case ECharClass::kSorcerer:
+		case ECharClass::kMagus: add_move = 2;
 			break;
 
-		case CLASS_THIEF:
-		case CLASS_ASSASINE:
-		case CLASS_MERCHANT: add_move = ch->get_inborn_dex() / 5 + 1;
+		case ECharClass::kThief:
+		case ECharClass::kAssasine:
+		case ECharClass::kMerchant: add_move = ch->get_inborn_dex() / 5 + 1;
 			break;
 
-		case CLASS_WARRIOR:
-		case CLASS_GUARD:
-		case CLASS_PALADINE:
-		case CLASS_RANGER:
-		case CLASS_SMITH: add_move = ch->get_inborn_dex() / 5 + 1;
+		case ECharClass::kWarrior:
+		case ECharClass::kGuard:
+		case ECharClass::kPaladine:
+		case ECharClass::kRanger:
+		case ECharClass::kVigilant: add_move = ch->get_inborn_dex() / 5 + 1;
 			break;
+		default: break;
 	}
 
 	check_max_hp(ch);
@@ -1586,23 +1479,23 @@ int invalid_anti_class(CharacterData *ch, const ObjectData *obj) {
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == kReligionMono)
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == kReligionPoly)
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE) && IS_DEFENDERMAGE(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BATTLEMAGE) && IS_CONJURER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CHARMMAGE) && IS_CHARMER(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DEFENDERMAGE) && IS_WIZARD(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FIGHTER_USER) && IS_FIGHTER_USER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE) && IS_MALE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_FEMALE) && IS_FEMALE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC) && IS_CLERIC(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_CLERIC) && IS_SORCERER(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_WARRIOR) && IS_WARRIOR(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_GUARD) && IS_GUARD(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_THIEF) && IS_THIEF(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_ASSASINE) && IS_ASSASINE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_PALADINE) && IS_PALADINE(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_RANGER) && IS_RANGER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH) && IS_SMITH(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_SMITH) && IS_VIGILANT(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MERCHANT) && IS_MERCHANT(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID) && IS_DRUID(ch))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_DRUID) && IS_MAGUS(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_BD) && check_agrobd(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_COLORED) && IS_COLORED(ch))) {
@@ -1626,26 +1519,26 @@ int invalid_no_class(CharacterData *ch, const ObjectData *obj) {
 	if ((IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO) && GET_RELIGION(ch) == kReligionMono)
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY) && GET_RELIGION(ch) == kReligionPoly)
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MAGIC_USER) && IS_MAGIC_USER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE) && IS_BATTLEMAGE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE) && IS_CHARMMAGE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DEFENDERMAGE) && IS_DEFENDERMAGE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE) && IS_CONJURER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE) && IS_CHARMER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DEFENDERMAGE) && IS_WIZARD(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_NECROMANCER) && IS_NECROMANCER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FIGHTER_USER) && IS_FIGHTER_USER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE) && IS_MALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE) && IS_FEMALE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC) && IS_CLERIC(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC) && IS_SORCERER(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_SMITH(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_VIGILANT(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_DRUID(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_MAGUS(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))
-		|| (!IS_SMITH(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
+		|| (!IS_VIGILANT(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch))) {
 		return true;
 	}
@@ -1653,167 +1546,13 @@ int invalid_no_class(CharacterData *ch, const ObjectData *obj) {
 	return false;
 }
 
-void load_skills_definitions() {
-	char line1[256], line2[256], line3[256], line4[256], name[256];
-	int i[15], j, sp_num, l;
-	FILE *magic;
-
-	if (!(magic = fopen(LIB_MISC "skills.lst", "r"))) {
-		log("Cann't open skills list file...");
-		graceful_exit(1);
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4) != 7) {
-			log("Bad format for skill string!\r\n"
-				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improve (%%d)> !");
-			graceful_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = FixNameAndFindSkillNum(name)) < 0) {
-			log("Skill '%s' not found...", name);
-			graceful_exit(1);
-		}
-		if (PlayerRace::GetKinNameByNum(i[0], ESex::kMale) == RACE_NAME_UNDEFINED) {
-			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
-			graceful_exit(1);
-		}
-		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES) {
-			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
-			graceful_exit(1);
-		}
-		if (i[2] < 0 || i[2] >= kMaxRemort) {
-			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
-			graceful_exit(1);
-		}
-		if (i[4]) {
-			skill_info[sp_num].k_improve[i[1]][i[0]] = MAX(1, i[4]);
-			log("Improve set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[4]);
-		}
-		if (i[3]) {
-			skill_info[sp_num].min_level[i[1]][i[0]] = i[3];
-			log("Level set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[3]);
-		}
-		skill_info[sp_num].min_remort[i[1]][i[0]] = i[2];
-		log("Remort set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[2]);
-	}
-	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "classskill.lst", "r"))) {
-		log("Cann't open classskill list file...");
-		graceful_exit(1);
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %s %s", line1, line2, line3, line4) != 4) {
-			log("Bad format for skill string!\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
-			graceful_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = FixNameAndFindSkillNum(name)) < 0) {
-			log("Skill '%s' not found...", name);
-			graceful_exit(1);
-		}
-		for (l = 0; line3[l] && l < kNumKins; l++) {
-			if (!strchr("1xX!", line3[l]))
-				continue;
-			for (j = 0; line4[j] && j < NUM_PLAYER_CLASSES; j++) {
-				if (!strchr("1xX!", line4[j]))
-					continue;
-				skill_info[sp_num].classknow[j][l] = kKnowSkill;
-				log("Set skill '%s' kin %d classes %d is Know", skill_info[sp_num].name, l, j);
-			}
-		}
-	}
-	fclose(magic);
-}
-
-//Polud Читает данные из файла хранения параметров умений
-void LoadClassSkills() {
-	const char *CLASS_SKILLS_FILE = LIB_MISC"class.skills.xml";
-
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
-		return;
-	}
-
-	pugi::xml_node node_list = doc.child("skills");
-
-	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...class.skills.xml read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
-		return;
-	}
-
-	pugi::xml_node xNodeClass, xNodeSkill, race;
-	int PCkin, PCclass, level_decrement;
-	for (race = node_list.child("race"); race; race = race.next_sibling("race")) {
-		PCkin = race.attribute("num_kin").as_int();
-		for (xNodeClass = race.child("class"); xNodeClass; xNodeClass = xNodeClass.next_sibling("class")) {
-			PCclass = xNodeClass.attribute("class_num").as_int();
-			level_decrement = xNodeClass.attribute("level_decrement").as_int();
-			for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill")) {
-				int sk_num;
-				std::string name = std::string(xNodeSkill.attribute("name").value());
-				if ((sk_num = FixNameFndFindSkillNum(name)) < 0) {
-					log("Skill '%s' not found...", name.c_str());
-					graceful_exit(1);
-				}
-				skill_info[sk_num].classknow[PCclass][PCkin] = kKnowSkill;
-				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > kMaxRemort) {
-					log("ERROR: Недопустимый параметр level decrement класса %d.", PCclass);
-					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;
-				} else {
-					skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
-				}
-				int value = xNodeSkill.attribute("improve").as_int();
-				skill_info[sk_num].k_improve[PCclass][PCkin] = MAX(1, value);
-				value = xNodeSkill.attribute("level").as_int();
-				if (value > 0 && value < kLevelImmortal) {
-					skill_info[sk_num].min_level[PCclass][PCkin] = value;
-				} else {
-					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d",
-						skill_info[sk_num].name,
-						value);
-					graceful_exit(1);
-				}
-				value = xNodeSkill.attribute("remort").as_int();
-				if (value >= 0 && value < kMaxRemort) {
-					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
-				} else {
-					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d",
-						skill_info[sk_num].name,
-						value);
-					graceful_exit(1);
-				}
-			}
-		}
-	}
-}
-
 /*
  * SPELLS AND SKILLS.  This area defines which spells are assigned to
  * which classes, and the minimum level the character must be to use
  * the spell or skill.
  */
-#include "classes/class_spell_slots.h"
-void init_spell_levels() {
+#include "classes/classes_spell_slots.h"
+void InitSpellLevels() {
 	using PlayerClass::mspell_slot;
 
 	FILE *magic;
@@ -1852,7 +1591,7 @@ void init_spell_levels() {
 			log("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
 			graceful_exit(1);
 		}
-		if (i[1] < 0 || i[1] >= NUM_PLAYER_CLASSES) {
+		if (i[1] < 0 || i[1] >= kNumPlayerClasses) {
 			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
 			graceful_exit(1);
 		}
@@ -1903,35 +1642,35 @@ void init_spell_levels() {
 			spell_create[sp_num].potion.items[2] = i[2];
 			spell_create[sp_num].potion.rnumber = i[3];
 			spell_create[sp_num].potion.min_caster_level = i[4];
-			log("CREATE potion FOR MAGIC '%s'", spell_name(sp_num));
+			//log("CREATE potion FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "wand", c)) {
 			spell_create[sp_num].wand.items[0] = i[0];
 			spell_create[sp_num].wand.items[1] = i[1];
 			spell_create[sp_num].wand.items[2] = i[2];
 			spell_create[sp_num].wand.rnumber = i[3];
 			spell_create[sp_num].wand.min_caster_level = i[4];
-			log("CREATE wand FOR MAGIC '%s'", spell_name(sp_num));
+			//log("CREATE wand FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "scroll", c)) {
 			spell_create[sp_num].scroll.items[0] = i[0];
 			spell_create[sp_num].scroll.items[1] = i[1];
 			spell_create[sp_num].scroll.items[2] = i[2];
 			spell_create[sp_num].scroll.rnumber = i[3];
 			spell_create[sp_num].scroll.min_caster_level = i[4];
-			log("CREATE scroll FOR MAGIC '%s'", spell_name(sp_num));
+			//log("CREATE scroll FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "items", c)) {
 			spell_create[sp_num].items.items[0] = i[0];
 			spell_create[sp_num].items.items[1] = i[1];
 			spell_create[sp_num].items.items[2] = i[2];
 			spell_create[sp_num].items.rnumber = i[3];
 			spell_create[sp_num].items.min_caster_level = i[4];
-			log("CREATE items FOR MAGIC '%s'", spell_name(sp_num));
+			//log("CREATE items FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else if (!strn_cmp(line3, "runes", c)) {
 			spell_create[sp_num].runes.items[0] = i[0];
 			spell_create[sp_num].runes.items[1] = i[1];
 			spell_create[sp_num].runes.items[2] = i[2];
 			spell_create[sp_num].runes.rnumber = i[3];
 			spell_create[sp_num].runes.min_caster_level = i[4];
-			log("CREATE runes FOR MAGIC '%s'", spell_name(sp_num));
+			//log("CREATE runes FOR MAGIC '%s'", GetSpellName(sp_num));
 		} else {
 			log("Unknown items option : %s", line3);
 			graceful_exit(1);
@@ -1967,7 +1706,7 @@ void init_spell_levels() {
 				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
 				graceful_exit(1);
 			}
-		if (i[3] < 0 || i[3] >= NUM_PLAYER_CLASSES) {
+		if (i[3] < 0 || i[3] >= kNumPlayerClasses) {
 			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
 			graceful_exit(1);
 		}
@@ -1983,14 +1722,8 @@ void init_spell_levels() {
 			if (i[j] == 1) {
 				//log("Setting up feat '%s'", feat_info[sp_num].name);
 				feat_info[sp_num].classknow[i[3]][j] = true;
-				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
-					feat_info[sp_num].name,
-					sp_num,
-					j,
-					i[3],
-					i[4],
-					i[5],
-					i[6]);
+/*				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
+					feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);*/
 
 				feat_info[sp_num].minRemort[i[3]][j] = i[4];
 				feat_info[sp_num].slot[i[3]][j] = i[5];
@@ -2067,14 +1800,14 @@ void init_basic_values() {
 	класса. На момент написания этого в конфиге присутствует 26 строк, макс.
 	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
 */
-int GroupPenalties::init(void) {
+int GroupPenalties::init() {
 	char buf[kMaxInputLength];
 	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = kMaxRemort + 1;
 
 	// пре-инициализация
 	for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
 	{
-		for (clss = 0; clss < NUM_PLAYER_CLASSES;
+		for (clss = 0; clss < kNumPlayerClasses;
 			 clss++) //Столбцов в массиве должно быть ровно столько же, сколько есть классов
 		{
 			m_grouping[clss][remorts] = -1;
@@ -2120,9 +1853,9 @@ int GroupPenalties::init(void) {
 				pos++; //Ищем следующее число в строке конфига
 			}
 		}
-		if (clss != NUM_PLAYER_CLASSES + 1) {
+		if (clss != kNumPlayerClasses + 1) {
 			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть %d "
-				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, NUM_PLAYER_CLASSES + 1, clss);
+				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, kNumPlayerClasses + 1, clss);
 			return 4;
 		}
 		rows_assigned++;
@@ -2131,7 +1864,7 @@ int GroupPenalties::init(void) {
 	if (rows_assigned < max_rows) {
 		for (levels = remorts; levels < max_rows; levels++) //Берем свободную переменную
 		{
-			for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++) {
+			for (clss = 0; clss < kNumPlayerClasses; clss++) {
 				m_grouping[clss][levels] =
 					m_grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк
 			}
@@ -2170,10 +1903,10 @@ int level_exp(CharacterData *ch, int level) {
 
 	switch (GET_CLASS(ch)) {
 
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-		case CLASS_NECROMANCER:
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer:
+		case ECharClass::kNecromancer:
 			switch (level) {
 				case 0: return 0;
 				case 1: return 1;
@@ -2211,8 +1944,8 @@ int level_exp(CharacterData *ch, int level) {
 			}
 			break;
 
-		case CLASS_CLERIC:
-		case CLASS_DRUID:
+		case ECharClass::kSorcerer:
+		case ECharClass::kMagus:
 			switch (level) {
 				case 0: return 0;
 				case 1: return 1;
@@ -2250,7 +1983,7 @@ int level_exp(CharacterData *ch, int level) {
 			}
 			break;
 
-		case CLASS_THIEF:
+		case ECharClass::kThief:
 			switch (level) {
 				case 0: return 0;
 				case 1: return 1;
@@ -2288,8 +2021,8 @@ int level_exp(CharacterData *ch, int level) {
 			}
 			break;
 
-		case CLASS_ASSASINE:
-		case CLASS_MERCHANT:
+		case ECharClass::kAssasine:
+		case ECharClass::kMerchant:
 			switch (level) {
 				case 0: return 0;
 				case 1: return 1;
@@ -2327,11 +2060,11 @@ int level_exp(CharacterData *ch, int level) {
 			}
 			break;
 
-		case CLASS_WARRIOR:
-		case CLASS_GUARD:
-		case CLASS_PALADINE:
-		case CLASS_RANGER:
-		case CLASS_SMITH:
+		case ECharClass::kWarrior:
+		case ECharClass::kGuard:
+		case ECharClass::kPaladine:
+		case ECharClass::kRanger:
+		case ECharClass::kVigilant:
 			switch (level) {
 				case 0: return 0;
 				case 1: return 1;
@@ -2368,6 +2101,7 @@ int level_exp(CharacterData *ch, int level) {
 				case kLevelImmortal: return int(exp_modifier * 79000000);
 			}
 			break;
+		default: break;
 	}
 
 	/*
@@ -2379,80 +2113,81 @@ int level_exp(CharacterData *ch, int level) {
 	return 123456;
 }
 
-void mspell_remort(char *name, int spell, int kin, int chclass, int remort) {
+void mspell_remort(char */*name*/, int spell, int kin, int chclass, int remort) {
 	int bad = 0;
 
-	if (spell < 0 || spell > SPELLS_COUNT) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
+	if (spell < 0 || spell > kSpellCount) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
 		return;
 	}
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
 		bad = 1;
 	}
-	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+	if (chclass < 0 || chclass >= kNumPlayerClasses) {
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 	if (remort < 0 || remort > kMaxRemort) {
-		log("SYSERR: assigning '%s' to illegal remort %d/%d.", skill_name(spell), remort, kMaxRemort);
+		log("SYSERR: assigning '%s' to illegal remort %d/%d.", spell_info[spell].name, remort, kMaxRemort);
 		bad = 1;
 	}
 	if (!bad) {
 		spell_info[spell].min_remort[chclass][kin] = remort;
-		log("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
+		//log("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
 	}
 }
 
-void mspell_level(char *name, int spell, int kin, int chclass, int level) {
+void mspell_level(char */*name*/, int spell, int kin, int chclass, int level) {
 	int bad = 0;
 
-	if (spell < 0 || spell > SPELLS_COUNT) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
+	if (spell < 0 || spell > kSpellCount) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
 		return;
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+	if (chclass < 0 || chclass >= kNumPlayerClasses) {
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 
 	if (level < 1 || level > kLevelImplementator) {
-		log("SYSERR: assigning '%s' to illegal level %d/%d.", skill_name(spell), level, kLevelImplementator);
+		log("SYSERR: assigning '%s' to illegal level %d/%d.", spell_info[spell].name, level, kLevelImplementator);
 		bad = 1;
 	}
 
 	if (!bad) {
 		spell_info[spell].min_level[chclass][kin] = level;
-		log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
+		//log("LEVEL set '%s' kin '%d' classes %d value %d", name, kin, chclass, level);
 	}
 }
 
-void mspell_change(char *name, int spell, int kin, int chclass, int class_change) {
+void mspell_change(char */*name*/, int spell, int kin, int chclass, int class_change) {
 	int bad = 0;
 
-	if (spell < 0 || spell > SPELLS_COUNT) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
+	if (spell < 0 || spell > kSpellCount) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
 		return;
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", spell_info[spell].name, chclass, kNumKins);
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+	if (chclass < 0 || chclass >= kNumPlayerClasses) {
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", spell_info[spell].name, chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 	if (!bad) {
 		spell_info[spell].class_change[chclass][kin] = class_change;
-		log("MODIFIER set '%s' kin '%d' classes %d value %d", name, kin, chclass, class_change);
+		// И зачем этот спам в логе?
+		//log("MODIFIER set '%s' kin '%d' classes %d value %d", name, kin, chclass, class_change);
 
 	}
 }

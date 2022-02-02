@@ -52,12 +52,12 @@ int getResisTypeWithSpellClass(int spellClass);
 int get_resist_type(int spellnum);
 
 // handling the affected-structures //
-void timed_feat_to_char(CharacterData *ch, struct Timed *timed);
-void timed_feat_from_char(CharacterData *ch, struct Timed *timed);
-int timed_by_feat(CharacterData *ch, int skill);
-void timed_to_char(CharacterData *ch, struct Timed *timed);
-void timed_from_char(CharacterData *ch, struct Timed *timed);
-int timed_by_skill(CharacterData *ch, int skill);
+void ImposeTimedFeat(CharacterData *ch, TimedFeat *timed);
+void ExpireTimedFeat(CharacterData *ch, TimedFeat *timed);
+int IsTimed(CharacterData *ch, int feat);
+void timed_to_char(CharacterData *ch, struct TimedSkill *timed);
+void timed_from_char(CharacterData *ch, struct TimedSkill *timed);
+int IsTimedBySkill(CharacterData *ch, ESkill id);
 void decreaseFeatTimer(CharacterData *ch, int featureID);
 
 // utility //
@@ -169,7 +169,7 @@ int find_all_dots(char *arg);
 
 // Generic Find //
 
-int generic_find(char *arg, bitvector_t bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj);
+int generic_find(char *arg, Bitvector bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj);
 
 #define FIND_CHAR_ROOM     (1 << 0)
 #define FIND_CHAR_WORLD    (1 << 1)

@@ -35,7 +35,7 @@ class Affect {
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
 	long battleflag;       //*** SUCH AS HOLD,SIELENCE etc
 	FlagData aff;
-	bitvector_t bitvector;        // Tells which bits to set (AFF_XXX) //
+	Bitvector bitvector;        // Tells which bits to set (AFF_XXX) //
 	long caster_id; //Unique caster ID //
 	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
 	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //

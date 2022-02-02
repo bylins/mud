@@ -86,8 +86,14 @@ void sum_apply(T &l, const N &r) {
 }
 
 template<class T>
+bool IsPositive(const T &t) {
+	decltype(t) zero{};
+	return (t > zero);
+}
+
+template<class T>
 void add_pair(T &target, const typename T::value_type &add) {
-	if (add.first > 0) {
+	if (IsPositive(add.first)) {
 		auto i = target.find(add.first);
 		if (i != target.end()) {
 			i->second += add.second;
@@ -100,7 +106,7 @@ void add_pair(T &target, const typename T::value_type &add) {
 template<class T>
 void add_map(T &target, const T &add) {
 	for (auto i = add.begin(), iend = add.end(); i != iend; ++i) {
-		if (i->first > 0) {
+		if (IsPositive(i->first)) {
 			auto ii = target.find(i->first);
 			if (ii != target.end()) {
 				ii->second += i->second;

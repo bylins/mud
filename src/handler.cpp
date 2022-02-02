@@ -19,7 +19,6 @@
 #include "utils/utils_char_obj.inl"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
-#include "entities/entity_constants.h"
 #include "cmd/follow.h"
 #include "exchange.h"
 #include "ext_money.h"
@@ -30,12 +29,11 @@
 #include "magic/magic.h"
 #include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/magic_utils.h"
 #include "world_objects.h"
 #include "entities/zone.h"
-#include "classes/class_spell_slots.h"
-#include "magic/magic_rooms.h"
+#include "classes/classes_spell_slots.h"
 #include "depot.h"
 
 using PlayerClass::slot_for_char;
@@ -150,12 +148,12 @@ void check_light(CharacterData *ch, int was_equip, int was_single, int was_holyl
  * false indicates not affected.
  */
 bool affected_by_spell(CharacterData *ch, int type) {
-	if (type == SPELL_POWER_HOLD) {
-		type = SPELL_HOLD;
-	} else if (type == SPELL_POWER_SILENCE) {
-		type = SPELL_SILENCE;
-	} else if (type == SPELL_POWER_BLINDNESS) {
-		type = SPELL_BLINDNESS;
+	if (type == kSpellPowerHold) {
+		type = kSpellHold;
+	} else if (type == kSpellPowerSilence) {
+		type = kSpellSllence;
+	} else if (type == kSpellPowerBlindness) {
+		type = kSpellBlindness;
 	}
 
 	for (const auto &affect : ch->affected) {
@@ -194,24 +192,23 @@ void affect_join_fspell(CharacterData *ch, const Affect<EApplyLocation> &af) {
 }
 
 void decreaseFeatTimer(CharacterData *ch, int featureID) {
-	for (struct Timed *skj = ch->timed_feat; skj; skj = skj->next) {
-		if (skj->skill == featureID) {
+	for (auto *skj = ch->timed_feat; skj; skj = skj->next) {
+		if (skj->feat == featureID) {
 			if (skj->time >= 1) {
 				skj->time--;
 			} else {
-				timed_feat_from_char(ch, skj);
+				ExpireTimedFeat(ch, skj);
 			}
 			return;
 		}
 	}
 };
 
-void timed_feat_to_char(CharacterData *ch, struct Timed *timed) {
-	struct Timed *timed_alloc, *skj;
+void ImposeTimedFeat(CharacterData *ch, TimedFeat *timed) {
+	struct TimedFeat *timed_alloc, *skj;
 
-	// Карачун. Правка бага. Если такой фит уже есть в списке, просто меняем таймер.
 	for (skj = ch->timed_feat; skj; skj = skj->next) {
-		if (skj->skill == timed->skill) {
+		if (skj->feat == timed->feat) {
 			skj->time = timed->time;
 			return;
 		}
@@ -224,7 +221,7 @@ void timed_feat_to_char(CharacterData *ch, struct Timed *timed) {
 	ch->timed_feat = timed_alloc;
 }
 
-void timed_feat_from_char(CharacterData *ch, struct Timed *timed) {
+void ExpireTimedFeat(CharacterData *ch, TimedFeat *timed) {
 	if (ch->timed_feat == nullptr) {
 		log("SYSERR: timed_feat_from_char(%s) when no timed...", GET_NAME(ch));
 		return;
@@ -234,19 +231,19 @@ void timed_feat_from_char(CharacterData *ch, struct Timed *timed) {
 	free(timed);
 }
 
-int timed_by_feat(CharacterData *ch, int feat) {
-	struct Timed *hjp;
+int IsTimed(CharacterData *ch, int feat) {
+	struct TimedFeat *hjp;
 
 	for (hjp = ch->timed_feat; hjp; hjp = hjp->next)
-		if (hjp->skill == feat)
+		if (hjp->feat == feat)
 			return (hjp->time);
 
 	return (0);
 }
 
-// Insert an Timed in a char_data structure
-void timed_to_char(CharacterData *ch, struct Timed *timed) {
-	struct Timed *timed_alloc, *skj;
+// Insert an TimedSkill in a char_data structure
+void timed_to_char(CharacterData *ch, struct TimedSkill *timed) {
+	struct TimedSkill *timed_alloc, *skj;
 
 	// Карачун. Правка бага. Если такой скилл уже есть в списке, просто меняем таймер.
 	for (skj = ch->timed; skj; skj = skj->next) {
@@ -263,7 +260,7 @@ void timed_to_char(CharacterData *ch, struct Timed *timed) {
 	ch->timed = timed_alloc;
 }
 
-void timed_from_char(CharacterData *ch, struct Timed *timed) {
+void timed_from_char(CharacterData *ch, struct TimedSkill *timed) {
 	if (ch->timed == nullptr) {
 		log("SYSERR: timed_from_char(%s) when no timed...", GET_NAME(ch));
 		// core_dump();
@@ -274,11 +271,11 @@ void timed_from_char(CharacterData *ch, struct Timed *timed) {
 	free(timed);
 }
 
-int timed_by_skill(CharacterData *ch, int skill) {
-	struct Timed *hjp;
+int IsTimedBySkill(CharacterData *ch, ESkill id) {
+	struct TimedSkill *hjp;
 
 	for (hjp = ch->timed; hjp; hjp = hjp->next)
-		if (hjp->skill == skill)
+		if (hjp->skill == id)
 			return (hjp->time);
 
 	return (0);
@@ -312,7 +309,7 @@ void room_affect_process_on_entry(CharacterData *ch, RoomRnum room) {
 		return;
 	}
 
-	const auto affect_on_room = room_spells::FindAffect(world[room], SPELL_HYPNOTIC_PATTERN);
+	const auto affect_on_room = room_spells::FindAffect(world[room], kSpellHypnoticPattern);
 	if (affect_on_room != world[room]->affected.end()) {
 		CharacterData *caster = find_char((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой
@@ -328,14 +325,15 @@ void room_affect_process_on_entry(CharacterData *ch, RoomRnum room) {
 			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего (Кудояр)
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
-			float mkof = func_koef_modif(SPELL_HYPNOTIC_PATTERN, caster->get_skill(get_magic_skill_number_by_spell(SPELL_HYPNOTIC_PATTERN)));
+			float mkof = func_koef_modif(kSpellHypnoticPattern, caster->get_skill(GetMagicSkillId(
+				kSpellHypnoticPattern)));
 			if (!IS_NPC(ch) && (number (1, 100) > (23 + 2*mkof))) { 
 				return;
 			}
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.", ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
 				true, ch, nullptr, ch, TO_ROOM | TO_ARENA_LISTEN);
-			CallMagic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_REAL_LEVEL(caster));
+			CallMagic(caster, ch, nullptr, nullptr, kSpellSleep, GET_REAL_LEVEL(caster));
 		}
 	}
 }
@@ -800,8 +798,8 @@ int flag_data_by_char_class(const CharacterData *ch) {
 		return 0;
 	}
 
-	return flag_data_by_num(IS_NPC(ch) ? NUM_PLAYER_CLASSES * kNumKins : GET_CLASS(ch)
-		+ NUM_PLAYER_CLASSES * GET_KIN(ch));
+	return flag_data_by_num(IS_NPC(ch) ? kNumPlayerClasses * kNumKins : GET_CLASS(ch)
+		+ kNumPlayerClasses * GET_KIN(ch));
 }
 
 unsigned int activate_stuff(CharacterData *ch, ObjectData *obj, id_to_set_info_map::const_iterator it,
@@ -878,7 +876,7 @@ unsigned int activate_stuff(CharacterData *ch, ObjectData *obj, id_to_set_info_m
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, TO_CHAR);
 								} else {
-									mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
+									mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, ESaving::kWill);
 								}
 							}
 						}
@@ -910,7 +908,7 @@ unsigned int activate_stuff(CharacterData *ch, ObjectData *obj, id_to_set_info_m
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, TO_CHAR);
 							} else {
-								mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, SAVING_WILL);
+								mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, ESaving::kWill);
 							}
 						}
 					}
@@ -1095,7 +1093,7 @@ void equip_char(CharacterData *ch, ObjectData *obj, int pos, const CharEquipFlag
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, TO_CHAR);
 					} else {
-						mag_affects(GET_REAL_LEVEL(ch), ch, ch, j.aff_spell, SAVING_WILL);
+						mag_affects(GET_REAL_LEVEL(ch), ch, ch, j.aff_spell, ESaving::kWill);
 					}
 				}
 			}
@@ -1113,7 +1111,7 @@ void equip_char(CharacterData *ch, ObjectData *obj, int pos, const CharEquipFlag
 	// Раз показываем сообщение, значит, предмет надевает сам персонаж
 	// А вообще эта порнография из-за того, что одна функция используется с кучей флагов в разных вариантах
 	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON || pos == WEAR_SHIELD)) {
-		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 2);
+		setSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 	}
 }
 
@@ -2497,7 +2495,7 @@ ObjectData::shared_ptr create_money(int amount) {
  * like the one_argument routine), but now it returns an integer that
  * describes what it filled in.
  */
-int generic_find(char *arg, bitvector_t bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj) {
+int generic_find(char *arg, Bitvector bitvector, CharacterData *ch, CharacterData **tar_ch, ObjectData **tar_obj) {
 	char name[256];
 
 	*tar_ch = nullptr;
@@ -2740,7 +2738,7 @@ float get_effective_wis(CharacterData *ch, int spellnum) {
 
 	auto max_wis = class_stats_limit[ch->get_class()][3];
 
-	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD) {
+	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		key_value = ch->get_wis();
 		key_value_add = MIN(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
 	} else {
@@ -2789,7 +2787,7 @@ int get_player_charms(CharacterData *ch, int spellnum) {
 	float eff_cha = 0.0;
 	float max_cha;
 
-	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD) {
+	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		eff_cha = get_effective_wis(ch, spellnum);
 		max_cha = class_stats_limit[ch->get_class()][3];
 	} else {
@@ -2797,7 +2795,7 @@ int get_player_charms(CharacterData *ch, int spellnum) {
 		eff_cha = get_effective_cha(ch);
 	}
 
-	if (spellnum != SPELL_CHARM) {
+	if (spellnum != kSpellCharm) {
 		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
@@ -2837,7 +2835,7 @@ int mag_manacost(const CharacterData *ch, int spellnum) {
 	}
 
 //	Мем рунных профессий(на сегодня только волхвы)
-	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= CalculateRequiredLevel(ch, spellnum)) {
+	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= CalcRequiredLevel(ch, spellnum)) {
 		result = static_cast<int>(DRUID_MANA_COST_MODIFIER
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
@@ -2857,13 +2855,13 @@ int mag_manacost(const CharacterData *ch, int spellnum) {
 				result = result * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
 			}
 //		Меняем мем на коэффициент скилла магии
-			if (GET_CLASS(ch) == CLASS_PALADINE || GET_CLASS(ch) == CLASS_MERCHANT) {
+			if (GET_CLASS(ch) == kPaladine || GET_CLASS(ch) == kMerchant) {
 				return result;
 			}
 		}
 	}
 	if (result > 0)
-		return result * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100;
+		return result * koef_skill_magic(ch->get_skill(GetMagicSkillId(spellnum))) / 100;
 				// при скилле 200 + 25%, чем меньше тем лучше
 	else 
 		return 99999;
@@ -2963,15 +2961,15 @@ void MemQ_forget(CharacterData *ch, int num) {
 
 int *MemQ_slots(CharacterData *ch) {
 	struct SpellMemQueueItem **q, *qt;
-	static int slots[MAX_SLOT];
+	static int slots[kMaxSlot];
 	int i, n, sloti;
 
 	// инициализация
-	for (i = 0; i < MAX_SLOT; ++i)
+	for (i = 0; i < kMaxSlot; ++i)
 		slots[i] = slot_for_char(ch, i + 1);
 
-	for (i = SPELLS_COUNT; i >= 1; --i) {
-		if (!IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW | SPELL_TEMP))
+	for (i = kSpellCount; i >= 1; --i) {
+		if (!IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow | kSpellTemp))
 			continue;
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
 			continue;
@@ -3009,7 +3007,7 @@ int *MemQ_slots(CharacterData *ch) {
 		}
 	}
 
-	for (i = 0; i < MAX_SLOT; ++i)
+	for (i = 0; i < kMaxSlot; ++i)
 		slots[i] = slot_for_char(ch, i + 1) - slots[i];
 
 	return slots;
@@ -3072,23 +3070,23 @@ int calculate_resistance_coeff(CharacterData *ch, int resist_type, int effect) {
 
 int getResisTypeWithSpellClass(int spellClass) {
 	switch (spellClass) {
-		case STYPE_FIRE: return FIRE_RESISTANCE;
+		case kTypeFire: return FIRE_RESISTANCE;
 			break;
-		case STYPE_DARK: return DARK_RESISTANCE;
+		case kTypeDark: return DARK_RESISTANCE;
 			break;
-		case STYPE_AIR: return AIR_RESISTANCE;
+		case kTypeAir: return AIR_RESISTANCE;
 			break;
-		case STYPE_WATER: return WATER_RESISTANCE;
+		case kTypeWater: return WATER_RESISTANCE;
 			break;
-		case STYPE_EARTH: return EARTH_RESISTANCE;
+		case kTypeEarth: return EARTH_RESISTANCE;
 			break;
-		case STYPE_LIGHT: return VITALITY_RESISTANCE;
+		case kTypeLight: return VITALITY_RESISTANCE;
 			break;
-		case STYPE_MIND: return MIND_RESISTANCE;
+		case kTypeMind: return MIND_RESISTANCE;
 			break;
-		case STYPE_LIFE: return IMMUNITY_RESISTANCE;
+		case kTypeLife: return IMMUNITY_RESISTANCE;
 			break;
-		case STYPE_NEUTRAL: return VITALITY_RESISTANCE;
+		case kTypeNeutral: return VITALITY_RESISTANCE;
 			break;
 	}
 	return VITALITY_RESISTANCE;
@@ -3106,9 +3104,9 @@ int get_object_low_rent(ObjectData *obj) {
 
 // * Удаление рунной метки (при пропадании в пустоте и реморте).
 void remove_rune_label(CharacterData *ch) {
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
 	if (label_room) {
-		const auto aff = room_spells::FindAffect(label_room, SPELL_RUNE_LABEL);
+		const auto aff = room_spells::FindAffect(label_room, kSpellRuneLabel);
 		if (aff != label_room->affected.end()) {
 			room_spells::RemoveAffect(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);

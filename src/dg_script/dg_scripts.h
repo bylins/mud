@@ -21,12 +21,12 @@ struct RoomData;    // forward declaration to avoid inclusion of room.hpp and an
 
 #define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
 
-#define    MOB_TRIGGER   0
-#define    OBJ_TRIGGER   1
-#define    WLD_TRIGGER   2
+const int MOB_TRIGGER = 0;
+const int OBJ_TRIGGER = 1;
+const int WLD_TRIGGER = 2;
 
 extern const char *attach_name[];
-#define DG_NO_TRIG         256    // don't check act trigger   //
+const int DG_NO_TRIG = 256;    // don't check act trigger   //
 
 // mob trigger types //
 #define MTRIG_GLOBAL           (1 << 0)    // check even if zone empty   //
@@ -104,11 +104,11 @@ extern const char *attach_name[];
 #define TRIG_NEW                0    // trigger starts from top  //
 #define TRIG_RESTART            1    // trigger restarting       //
 
-const bitvector_t kNormalRound = 0;
-const bitvector_t kNoCastMagic = 1 << 0;
-const bitvector_t kNoExtraAttack = 1 << 1;
-const bitvector_t kNoLeftHandAttack = 1 << 2;
-const bitvector_t kNoRightHandAttack = 1 << 3;
+const Bitvector kNormalRound = 0;
+const Bitvector kNoCastMagic = 1 << 0;
+const Bitvector kNoExtraAttack = 1 << 1;
+const Bitvector kNoLeftHandAttack = 1 << 2;
+const Bitvector kNoRightHandAttack = 1 << 3;
 
 /*
  * These are slightly off of kPulseMobile so
@@ -354,7 +354,7 @@ void hitprcnt_mtrigger(CharacterData *ch);
 int damage_mtrigger(CharacterData *damager, CharacterData *victim, int amount, const char* name_skillorspell, int is_skill, ObjectData *obj);
 void random_mtrigger(CharacterData *ch);
 void random_otrigger(ObjectData *obj);
-bitvector_t fight_otrigger(CharacterData *actor);
+Bitvector fight_otrigger(CharacterData *actor);
 void random_wtrigger(RoomData *room, int num, void *s, int types, const TriggersList &list);
 void reset_wtrigger(RoomData *ch);
 void load_mtrigger(CharacterData *ch);

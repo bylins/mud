@@ -23,9 +23,9 @@ void doList(CharacterData *ch, CharacterData *boss, bool isFavList) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	if (m->empty()) {
-		if (ch->get_class() == CLASS_MERCHANT)
+		if (ch->get_class() == kMerchant)
 			tell_to_char(boss, ch, "Ступай, поначалу заведи знакомства, потом ко мне приходи.");
-		else if (ch->get_class() == CLASS_CHARMMAGE)
+		else if (ch->get_class() == kCharmer)
 			tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
 		else if (IS_IMMORTAL(ch))
 			tell_to_char(boss, ch, "Не гневайся, боже, но не было у тебя последователей еще.");
@@ -34,10 +34,10 @@ void doList(CharacterData *ch, CharacterData *boss, bool isFavList) {
 	if (IS_IMMORTAL(ch)) {
 		sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел:",
 				isFavList ? "краткий список" : "полный список");
-	} else if (ch->get_class() == CLASS_MERCHANT) {
+	} else if (ch->get_class() == kMerchant) {
 		sprintf(buf, "%s тех, с кем знакомство ты водишь:",
 				isFavList ? "Краткий список" : "Полный список");
-	} else if (ch->get_class() == CLASS_CHARMMAGE) {
+	} else if (ch->get_class() == kCharmer) {
 		sprintf(buf, "Вот %s тварей земных, чьим разумом ты владел с помощью чар колдовских:",
 				isFavList ? "краткий список" : "полный список");
 	}
@@ -104,7 +104,7 @@ void doBring(CharacterData *ch, CharacterData *boss, unsigned int pos, char *ban
 		}
 		mob = read_mobile(rnum, REAL);
 		char_to_room(mob, ch->in_room);
-		if (ch->get_class() == CLASS_CHARMMAGE) {
+		if (ch->get_class() == kCharmer) {
 			act("$n окрикнул$g своих парней и скрыл$u из виду.", true, boss, 0, 0, TO_ROOM);
 			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", true, mob, 0, 0, TO_ROOM);
 		} else {
@@ -176,7 +176,7 @@ int mercenary(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
 	CharacterData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;
 
-	if (!IS_IMMORTAL(ch) && ch->get_class() != CLASS_MERCHANT && ch->get_class() != CLASS_CHARMMAGE) {
+	if (!IS_IMMORTAL(ch) && ch->get_class() != kMerchant && ch->get_class() != kCharmer) {
 		tell_to_char(boss, ch, "Эти знания тебе недоступны, ступай с миром");
 		return 0;
 	}
@@ -187,20 +187,20 @@ int mercenary(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
 	unsigned int pos;
 
 	three_arguments(argument, subCmd, cmdParam, bank);
-	if (is_abbrev(subCmd, "стат") || is_abbrev(subCmd, "stat")) {
+	if (utils::IsAbbrev(subCmd, "стат") || utils::IsAbbrev(subCmd, "stat")) {
 		return (1);
-	} else if (is_abbrev(subCmd, "список") || is_abbrev(subCmd, "list")) {
-		if (is_abbrev(cmdParam, "полный") || is_abbrev(cmdParam, "full"))
+	} else if (utils::IsAbbrev(subCmd, "список") || utils::IsAbbrev(subCmd, "list")) {
+		if (utils::IsAbbrev(cmdParam, "полный") || utils::IsAbbrev(cmdParam, "full"))
 			MERC::doList(ch, boss, false);
 		else
 			MERC::doList(ch, boss, true);
 		return (1);
-	} else if (is_abbrev(subCmd, "привести") || is_abbrev(subCmd, "bring")) {
+	} else if (utils::IsAbbrev(subCmd, "привести") || utils::IsAbbrev(subCmd, "bring")) {
 		pos = MERC::getPos(cmdParam, ch, boss);
 		if (pos == 0) return (1);
 		MERC::doBring(ch, boss, pos, bank);
 		return (1);
-	} else if (is_abbrev(subCmd, "фаворит") || is_abbrev(subCmd, "favorite")) {
+	} else if (utils::IsAbbrev(subCmd, "фаворит") || utils::IsAbbrev(subCmd, "favorite")) {
 		pos = MERC::getPos(cmdParam, ch, boss);
 		if (pos == 0) return (1);
 		MERC::doForget(ch, boss, pos);

@@ -8,9 +8,9 @@
 #include "modify.h"
 #include "house.h"
 #include "game_mechanics/sets_drop.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/zone.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 #include <boost/format.hpp>
 #include <boost/range/algorithm/remove_if.hpp>
@@ -45,7 +45,7 @@ void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skil
 }
 
 void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t::value_type &add) {
-	if (add.first > 0 && add.second != 0) {
+	if (MUD::Skills().IsValid(add.first) && add.second != 0) {
 		auto i = target.find(add.first);
 		if (i != target.end()) {
 			i->second += add.second;
@@ -77,7 +77,7 @@ std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, boo
 	if (skill.second != 0) {
 		out += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
 							  % (activ ? " +    " : "   ") % KCYN
-							  % skill_info[skill.first].name % KNRM
+							  % MUD::Skills()[skill.first].GetName() % KNRM
 							  % KCYN % (skill.second < 0 ? " ухудшает на " : " улучшает на ")
 							  % abs(skill.second) % KNRM);
 	}
@@ -152,9 +152,9 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	std::stringstream out;
 
 	out << " + Профессии :";
-	for (int i = 0; i <= NUM_PLAYER_CLASSES * kNumKins; ++i) {
+	for (int i = 0; i <= kNumPlayerClasses * kNumKins; ++i) {
 		if (check_num_in_unique_bit_flag_data(activ->first, i)) {
-			if (i < NUM_PLAYER_CLASSES * kNumKins) {
+			if (i < kNumPlayerClasses * kNumKins) {
 				out << " " << class_name[i];
 			} else {
 				out << " чармисы";
@@ -230,7 +230,7 @@ void activators_obj::fill_class(set_info::const_iterator k) {
 			 mend = k->second.end(); m != mend; ++m) {
 		for (class_to_act_map::const_iterator q = m->second.begin(),
 				 qend = m->second.end(); q != qend; ++q) {
-			for (int i = 0; i <= NUM_PLAYER_CLASSES * kNumKins; ++i) {
+			for (int i = 0; i <= kNumPlayerClasses * kNumKins; ++i) {
 				if (check_num_in_unique_bit_flag_data(q->first, i)) {
 					struct clss_activ_node tmp_node;
 					clss_list[i] = tmp_node;
@@ -280,7 +280,7 @@ std::string activators_obj::print() {
 			 cls_it_end = clss_list.end(); cls_it != cls_it_end; ++cls_it) {
 		// распечатка аффектов каждой профы
 		dup_node node;
-		node.clss += cls_it->first < NUM_PLAYER_CLASSES * kNumKins ? class_name[cls_it->first] : "чармисы";
+		node.clss += cls_it->first < kNumPlayerClasses * kNumKins ? class_name[cls_it->first] : "чармисы";
 		// affects
 		cls_it->second.total_affects += native_affects;
 		if (cls_it->second.total_affects.sprintbits(weapon_affects, buf2, ",")) {
@@ -427,7 +427,7 @@ struct help_node {
 	help_node(const std::string &key, const std::string &val)
 		: keyword(key), entry(val), min_level(0),
 		  sets_drop_page(false), no_immlog(false) {
-		lower_convert(keyword);
+		utils::ConvertToLow(keyword);
 	};
 
 	// ключ для поиска

@@ -16,11 +16,10 @@
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "magic/magic_utils.h"
-#include "world_objects.h"
 #include "skills/townportal.h"
-#include "skills_info.h"
 #include "utils/id_converter.h"
 #include "entities/zone.h"
+#include "structs/global_objects.h"
 
 extern const char *dirs[];
 extern int up_obj_where(ObjectData *obj);
@@ -48,7 +47,7 @@ struct obj_command_info {
 #define SCMD_OSEND         0
 #define SCMD_OECHOAROUND   1
 
-// attaches object name and vnum to msg and sends it to script_log
+// attaches object name and vnum to msg_set and sends it to script_log
 void obj_log(ObjectData *obj, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 
@@ -131,8 +130,10 @@ void do_oportal(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 //	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
 //	mudlog(buf, DEF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
+	act("Лазурная пентаграмма возникла в воздухе.",
+		false, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.",
+		false, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 // Object commands
 void do_oecho(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -482,14 +483,14 @@ void do_dgoload(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (is_abbrev(arg1, "mob")) {
+	if (utils::IsAbbrev(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			obj_log(obj, "oload: bad mob vnum");
 			return;
 		}
 		char_to_room(mob, room);
 		load_mtrigger(mob);
-	} else if (is_abbrev(arg1, "obj")) {
+	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			obj_log(obj, "oload: bad object vnum");
@@ -573,7 +574,7 @@ void do_odamage(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			die(ch, nullptr);
 		}
-		Damage odamage(SimpleDmg(TYPE_TRIGGERDEATH), dam, type);
+		Damage odamage(SimpleDmg(kTypeTriggerdeath), dam, type);
 		odamage.process(damager, ch);
 	}
 }
@@ -735,7 +736,6 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	bool isSkill = false;
 	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -745,8 +745,8 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		obj_log(obj, "oskillturn: too few arguments");
 		return;
 	}
-
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
+	auto skill_id = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skill_id)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "oskillturn: %s skill/recipe not found", skillname);
@@ -769,8 +769,8 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isSkill) {
-		if (skill_info[skillnum].classknow[GET_CLASS(ch)][GET_KIN(ch)] == kKnowSkill) {
-			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
+		if (MUD::Classes()[ch->get_class()].IsKnown(skill_id) ) {
+			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");
 			obj_log(obj, buf);
@@ -784,7 +784,6 @@ void do_oskilladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 	bool isSkill = false;
 	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -794,8 +793,8 @@ void do_oskilladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 		obj_log(obj, "oskilladd: too few arguments");
 		return;
 	}
-
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
+	auto skillnum = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skillnum)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "oskilladd: %s skill/recipe not found", skillname);
@@ -829,7 +828,7 @@ void do_ospellturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		obj_log(obj, "ospellturn: spell not found");
 		return;
 	}
@@ -863,7 +862,7 @@ void do_ospellturntemp(ObjectData *obj, char *argument, int/* cmd*/, int/* subcm
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		obj_log(obj, "ospellturntemp: spell not found");
 		return;
 	}
@@ -895,7 +894,7 @@ void do_ospelladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		obj_log(obj, "ospelladd: spell not found");
 		return;
 	}
@@ -922,21 +921,21 @@ void do_ospellitem(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		obj_log(obj, "ospellitem: spell not found");
 		return;
 	}
 
 	if (!str_cmp(type, "potion")) {
-		spell = SPELL_POTION;
+		spell = kSpellPotion;
 	} else if (!str_cmp(type, "wand")) {
-		spell = SPELL_WAND;
+		spell = kSpellWand;
 	} else if (!str_cmp(type, "scroll")) {
-		spell = SPELL_SCROLL;
+		spell = kSpellScroll;
 	} else if (!str_cmp(type, "items")) {
-		spell = SPELL_ITEMS;
+		spell = kSpellItems;
 	} else if (!str_cmp(type, "runes")) {
-		spell = SPELL_RUNES;
+		spell = kSpellRunes;
 	} else {
 		obj_log(obj, "ospellitem: type spell not found");
 		return;

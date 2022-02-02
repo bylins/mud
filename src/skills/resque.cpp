@@ -4,7 +4,7 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
-#include "skills_info.h"
+#include "structs/global_objects.h"
 
 using namespace FightSystem;
 
@@ -32,9 +32,9 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 		return;
 	}
 
-	int percent = number(1, skill_info[SKILL_RESCUE].difficulty);
-	int prob = CalcCurrentSkill(ch, SKILL_RESCUE, tmp_ch);
-	ImproveSkill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
+	int percent = number(1, MUD::Skills()[ESkill::kRescue].difficulty);
+	int prob = CalcCurrentSkill(ch, ESkill::kRescue, tmp_ch);
+	ImproveSkill(ch, ESkill::kRescue, prob >= percent, tmp_ch);
 
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE))
 		prob = percent;
@@ -42,10 +42,10 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 		prob = 0;
 
 	bool success = percent <= prob;
-	SendSkillBalanceMsg(ch, skill_info[SKILL_RESCUE].name, percent, prob, success);
+	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kRescue].name, percent, prob, success);
 	if (!success) {
 		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, TO_CHAR);
-		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, kPulseViolence);
+		ch->setSkillCooldown(ESkill::kGlobalCooldown, kPulseViolence);
 		return;
 	}
 
@@ -68,17 +68,17 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 	} else {
 		fighting_rescue(ch, vict, tmp_ch);
 	}
-	setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
-	setSkillCooldown(ch, SKILL_RESCUE, 1 + hostilesCounter);
+	setSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
+	setSkillCooldown(ch, ESkill::kRescue, 1 + hostilesCounter);
 	set_wait(vict, 2, false);
 }
 
 void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (!ch->get_skill(SKILL_RESCUE)) {
+	if (!ch->get_skill(ESkill::kRescue)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_RESCUE)) {
+	if (ch->haveCooldown(ESkill::kRescue)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -112,7 +112,6 @@ void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (IS_NPC(vict)
-		&& enemy
 		&& (!IS_NPC(enemy)
 			|| (AFF_FLAGGED(enemy, EAffectFlag::AFF_CHARM)
 				&& enemy->has_master()

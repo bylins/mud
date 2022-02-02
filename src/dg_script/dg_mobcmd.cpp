@@ -30,11 +30,10 @@
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "magic/magic_utils.h"
-#include "world_objects.h"
 #include "skills/townportal.h"
-#include "skills_info.h"
 #include "utils/id_converter.h"
 #include "entities/zone.h"
+#include "structs/global_objects.h"
 
 struct mob_command_info {
 	const char *command;
@@ -58,7 +57,7 @@ void mob_command_interpreter(CharacterData *ch, char *argument);
 bool mob_script_command_interpreter(CharacterData *ch, char *argument);
 void send_to_zone(char *messg, int zone_rnum);
 
-// attaches mob's name and vnum to msg and sends it to script_log
+// attaches mob's name and vnum to msg_set and sends it to script_log
 void mob_log(CharacterData *mob, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 
@@ -120,8 +119,10 @@ void do_mportal(CharacterData *mob, char *argument, int/* cmd*/, int/* subcmd*/)
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, TO_ROOM);
+	act("Лазурная пентаграмма возникла в воздухе.",
+		false, world[curroom]->first_character(), nullptr, nullptr, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.",
+		false, world[curroom]->first_character(), nullptr, nullptr, TO_ROOM);
 }
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -197,7 +198,7 @@ void do_mkill(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+	hit(ch, victim, ESkill::kUndefined, FightSystem::MAIN_HAND);
 }
 
 /*
@@ -370,7 +371,7 @@ void do_mload(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (is_abbrev(arg1, "mob")) {
+	if (utils::IsAbbrev(arg1, "mob")) {
 		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
 			mob_log(ch, "mload: bad mob vnum");
 			return;
@@ -378,7 +379,7 @@ void do_mload(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
 		char_to_room(mob, ch->in_room);
 		load_mtrigger(mob);
-	} else if (is_abbrev(arg1, "obj")) {
+	} else if (utils::IsAbbrev(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
 		if (!object) {
 			mob_log(ch, "mload: bad object vnum");
@@ -969,8 +970,7 @@ void do_mdoor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // increases spells & skills
-const char *skill_name(int num);
-const char *spell_name(int num);
+const char *GetSpellName(int num);
 int FixNameAndFindSpellNum(char *name);
 
 void do_mfeatturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1030,7 +1030,6 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	bool isSkill = false;
 	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -1044,9 +1043,9 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		mob_log(ch, "mskillturn: too few arguments");
 		return;
 	}
-
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
-		isSkill = 1;
+	auto skill_id = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skill_id)) {
+		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskillturn: %s skill/recipe not found", skillname);
 		mob_log(ch, buf);
@@ -1075,8 +1074,8 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	}
 
 	if (isSkill) {
-		if (skill_info[skillnum].classknow[GET_CLASS(victim)][GET_KIN(victim)] == kKnowSkill) {
-			trg_skillturn(victim, skillnum, skilldiff, last_trig_vnum);
+		if (MUD::Classes()[ch->get_class()].IsKnown(skill_id)) {
+			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
 			mob_log(ch, buf);
@@ -1090,7 +1089,6 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	bool isSkill = false;
 	CharacterData *victim;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -1104,8 +1102,8 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		mob_log(ch, "mskilladd: too few arguments");
 		return;
 	}
-
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) > 0 && skillnum <= MAX_SKILL_NUM) {
+	auto skill_id = FixNameAndFindSkillNum(skillname);
+	if (MUD::Skills().IsValid(skill_id)) {
 		isSkill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "mskilladd: %s skill/recipe not found", skillname);
@@ -1128,7 +1126,7 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	};
 
 	if (isSkill) {
-		trg_skilladd(victim, skillnum, skilldiff, last_trig_vnum);
+		trg_skilladd(victim, skill_id, skilldiff, last_trig_vnum);
 	} else {
 		trg_recipeadd(victim, recipenum, skilldiff);
 	}
@@ -1151,7 +1149,7 @@ void do_mspellturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
+	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellCount) {
 		mob_log(ch, "mspellturn: spell not found");
 		return;
 	}
@@ -1200,7 +1198,7 @@ void do_mspellturntemp(CharacterData *ch, char *argument, int/* cmd*/, int/* sub
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		mob_log(ch, "mspellturntemp: spell not found");
 		return;
 	}
@@ -1242,7 +1240,7 @@ void do_mspelladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > SPELLS_COUNT) {
+	if ((skillnum = FixNameAndFindSpellNum(skillname)) < 0 || skillnum == 0 || skillnum > kSpellCount) {
 		mob_log(ch, "mspelladd: skill not found");
 		return;
 	}
@@ -1280,21 +1278,21 @@ void do_mspellitem(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > SPELLS_COUNT) {
+	if ((spellnum = FixNameAndFindSpellNum(spellname)) < 0 || spellnum == 0 || spellnum > kSpellCount) {
 		mob_log(ch, "mspellitem: spell not found");
 		return;
 	}
 
 	if (!str_cmp(type, "potion")) {
-		spell = SPELL_POTION;
+		spell = kSpellPotion;
 	} else if (!str_cmp(type, "wand")) {
-		spell = SPELL_WAND;
+		spell = kSpellWand;
 	} else if (!str_cmp(type, "scroll")) {
-		spell = SPELL_SCROLL;
+		spell = kSpellScroll;
 	} else if (!str_cmp(type, "items")) {
-		spell = SPELL_ITEMS;
+		spell = kSpellItems;
 	} else if (!str_cmp(type, "runes")) {
-		spell = SPELL_RUNES;
+		spell = kSpellRunes;
 	} else {
 		mob_log(ch, "mspellitem: type spell not found");
 		return;

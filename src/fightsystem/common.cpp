@@ -8,18 +8,18 @@ int isHaveNoExtraAttack(CharacterData *ch) {
 	parry_override(ch);
 	if (ch->get_extra_victim()) {
 		switch (ch->get_extra_attack_mode()) {
-			case EXTRA_ATTACK_BASH:message = "Невозможно. Вы пытаетесь сбить $N3.";
+			case kExtraAttackBash:message = "Невозможно. Вы пытаетесь сбить $N3.";
 				break;
-			case EXTRA_ATTACK_KICK:message = "Невозможно. Вы пытаетесь пнуть $N3.";
+			case kExtraAttackKick:message = "Невозможно. Вы пытаетесь пнуть $N3.";
 				break;
-			case EXTRA_ATTACK_CHOPOFF:message = "Невозможно. Вы пытаетесь подсечь $N3.";
+			case kExtraAttackUndercut:message = "Невозможно. Вы пытаетесь подсечь $N3.";
 				break;
-			case EXTRA_ATTACK_DISARM:message = "Невозможно. Вы пытаетесь обезоружить $N3.";
+			case kExtraAttackDisarm:message = "Невозможно. Вы пытаетесь обезоружить $N3.";
 				break;
-			case EXTRA_ATTACK_THROW:message = "Невозможно. Вы пытаетесь метнуть оружие в $N3.";
+			case kExtraAttackThrow:message = "Невозможно. Вы пытаетесь метнуть оружие в $N3.";
 				break;
-			case EXTRA_ATTACK_CUT_PICK:
-			case EXTRA_ATTACK_CUT_SHORTS:message = "Невозможно. Вы пытаетесь провести боевой прием против $N1.";
+			case kExtraAttackPick:
+			case kExtraAttackCutShorts:message = "Невозможно. Вы пытаетесь провести боевой прием против $N1.";
 				break;
 			default:return false;
 		}

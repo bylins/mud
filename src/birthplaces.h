@@ -22,12 +22,12 @@ const int BIRTH_PLACE_UNDEFINED = -1;
 
 #include <vector>
 
-class BirthPlace;
+class Birthplaces;
 
-typedef std::shared_ptr<BirthPlace> BirthPlacePtr;
+typedef std::shared_ptr<Birthplaces> BirthPlacePtr;
 typedef std::vector<BirthPlacePtr> BirthPlaceListType;
 
-class BirthPlace {
+class Birthplaces {
  public:
 	//static void Load(const char *PathToFile);               // Загрузка файла настроек
 	static void Load(pugi::xml_node XMLBirthPlaceList);

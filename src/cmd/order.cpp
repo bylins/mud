@@ -24,9 +24,9 @@ void do_order(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*name || !*message)
 		send_to_char("Приказать что и кому?\r\n", ch);
 	else if (!(vict = get_char_vis(ch, name, FIND_CHAR_ROOM)) &&
-		!is_abbrev(name, "followers") && !is_abbrev(name, "все") && !is_abbrev(name, "всем"))
+		!utils::IsAbbrev(name, "followers") && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
 		send_to_char("Вы не видите такого персонажа.\r\n", ch);
-	else if (ch == vict && !is_abbrev(name, "все") && !is_abbrev(name, "всем"))
+	else if (ch == vict && !utils::IsAbbrev(name, "все") && !utils::IsAbbrev(name, "всем"))
 		send_to_char("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else {
 		if (vict && !IS_NPC(vict) && !IS_GOD(ch)) {
@@ -40,9 +40,9 @@ void do_order(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (vict
-			&& !is_abbrev(name, "все")
-			&& !is_abbrev(name, "всем")
-			&& !is_abbrev(name, "followers")) {
+			&& !utils::IsAbbrev(name, "все")
+			&& !utils::IsAbbrev(name, "всем")
+			&& !utils::IsAbbrev(name, "followers")) {
 			sprintf(buf, "$N приказал$g вам '%s'", message);
 			act(buf, false, vict, 0, ch, TO_CHAR | CHECK_DEAF);
 			act("$n отдал$g приказ $N2.", false, ch, 0, vict, TO_ROOM | CHECK_DEAF);

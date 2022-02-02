@@ -1,11 +1,9 @@
 #include "warcry.h"
 
 #include "handler.h"
-#include "screen.h"
+#include "color.h"
 #include "magic/magic_utils.h"
 #include "magic/spells_info.h"
-
-#include <boost/tokenizer.hpp>
 
 void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int spellnum, cnt;
@@ -13,7 +11,7 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (!ch->get_skill(SKILL_WARCRY)) {
+	if (!ch->get_skill(ESkill::kWarcry)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -30,7 +28,7 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (wc_name.empty()) {
 		sprintf(buf, "Вам доступны :\r\n");
-		for (cnt = spellnum = 1; spellnum <= SPELLS_COUNT; spellnum++) {
+		for (cnt = spellnum = 1; spellnum <= kSpellCount; spellnum++) {
 			const char *realname = spell_info[spellnum].name
 									   && *spell_info[spellnum].name ? spell_info[spellnum].name :
 								   spell_info[spellnum].syn
@@ -39,9 +37,9 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 								   : nullptr;
 
 			if (realname
-				&& IS_SET(spell_info[spellnum].routines, MAG_WARCRY)
-				&& ch->get_skill(SKILL_WARCRY) >= spell_info[spellnum].mana_change) {
-				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
+				&& IS_SET(spell_info[spellnum].routines, kMagWarcry)
+				&& ch->get_skill(ESkill::kWarcry) >= spell_info[spellnum].mana_change) {
+				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp))
 					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
 						KGRN, cnt++, KNRM,
@@ -61,9 +59,9 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	spellnum = FixNameAndFindSpellNum(wc_name);
 
 	// Unknown warcry
-	if (spellnum < 1 || spellnum > SPELLS_COUNT
-		|| (ch->get_skill(SKILL_WARCRY) < spell_info[spellnum].mana_change)
-		|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP)) {
+	if (spellnum < 1 || spellnum > kSpellCount
+		|| (ch->get_skill(ESkill::kWarcry) < spell_info[spellnum].mana_change)
+		|| !IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellKnow | kSpellTemp)) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -73,7 +71,7 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// например как сделано с заклинаниями - брать клич в !!
 	// либо гарантировать что все кличи будут всегда из 1 слова
 
-	if (spell_info[spellnum].targets != TAR_IGNORE) {
+	if (spell_info[spellnum].targets != kTarIgnore) {
 		std::stringstream str_log;
 		str_log << "Для клича #" << spellnum << ", установлены некорректные цели: " << spell_info[spellnum].targets;
 		mudlog(str_log.str(), BRF, kLevelGod, SYSLOG, true);
@@ -81,9 +79,9 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	struct Timed timed;
-	timed.skill = SKILL_WARCRY;
-	timed.time = timed_by_skill(ch, SKILL_WARCRY) + HOURS_PER_WARCRY;
+	struct TimedSkill timed;
+	timed.skill = ESkill::kWarcry;
+	timed.time = IsTimedBySkill(ch, ESkill::kWarcry) + kHoursPerWarcry;
 
 	if (timed.time > HOURS_PER_DAY) {
 		send_to_char("Вы охрипли и не можете кричать.\r\n", ch);
@@ -104,7 +102,7 @@ void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			timed_to_char(ch, &timed);
 			GET_MOVE(ch) -= spell_info[spellnum].mana_max;
 		}
-		TrainSkill(ch, SKILL_WARCRY, true, nullptr);
+		TrainSkill(ch, ESkill::kWarcry, true, nullptr);
 	}
 }
 

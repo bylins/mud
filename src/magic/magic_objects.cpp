@@ -5,7 +5,7 @@
 #include "magic/spells.h"
 
 #include "entities/obj.h"
-#include "screen.h"
+#include "color.h"
 #include "skills/poison.h"
 #include "entities/char.h"
 #include "utils/utils_char_obj.inl"
@@ -47,15 +47,15 @@ void check_spell_remove(ObjectData *obj, int spell, bool send_message) {
 
 	// если что-то надо сделать со шмоткой при снятии обкаста
 	switch (spell) {
-		case SPELL_ACONITUM_POISON:
-		case SPELL_SCOPOLIA_POISON:
-		case SPELL_BELENA_POISON:
-		case SPELL_DATURA_POISON: break;
+		case kSpellAconitumPoison:
+		case kSpellScopolaPoison:
+		case kSpellBelenaPoison:
+		case kSpellDaturaPoison: break;
 
-		case SPELL_FLY: remove_tmp_extra(obj, EExtraFlag::ITEM_FLYING);
+		case kSpellFly: remove_tmp_extra(obj, EExtraFlag::ITEM_FLYING);
 			break;
 
-		case SPELL_LIGHT: remove_tmp_extra(obj, EExtraFlag::ITEM_GLOW);
+		case kSpellLight: remove_tmp_extra(obj, EExtraFlag::ITEM_GLOW);
 			break;
 	} // switch
 
@@ -65,22 +65,22 @@ void check_spell_remove(ObjectData *obj, int spell, bool send_message) {
 			|| obj->get_worn_by())) {
 		CharacterData *ch = obj->get_carried_by() ? obj->get_carried_by() : obj->get_worn_by();
 		switch (spell) {
-			case SPELL_ACONITUM_POISON:
-			case SPELL_SCOPOLIA_POISON:
-			case SPELL_BELENA_POISON:
-			case SPELL_DATURA_POISON:
+			case kSpellAconitumPoison:
+			case kSpellScopolaPoison:
+			case kSpellBelenaPoison:
+			case kSpellDaturaPoison:
 				send_to_char(ch, "С %s испарились последние капельки яда.\r\n",
 							 GET_OBJ_PNAME(obj, 1).c_str());
 				break;
 
-			case SPELL_FLY:
+			case kSpellFly:
 				send_to_char(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
 							 GET_OBJ_VIS_SUF_7(obj, ch),
 							 GET_OBJ_PNAME(obj, 0).c_str(),
 							 GET_OBJ_VIS_SUF_1(obj, ch));
 				break;
 
-			case SPELL_LIGHT:
+			case kSpellLight:
 				send_to_char(ch, "Ваш%s %s перестал%s светиться.\r\n",
 							 GET_OBJ_VIS_SUF_7(obj, ch),
 							 GET_OBJ_PNAME(obj, 0).c_str(),
@@ -93,17 +93,17 @@ void check_spell_remove(ObjectData *obj, int spell, bool send_message) {
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
 std::string print_spell_str(CharacterData *ch, int spell, int timer) {
 	if (spell < 1
-		|| spell > SPELLS_COUNT) {
+		|| spell > kSpellCount) {
 		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell, timer);
 		return "";
 	}
 
 	std::string out;
 	switch (spell) {
-		case SPELL_ACONITUM_POISON:
-		case SPELL_SCOPOLIA_POISON:
-		case SPELL_BELENA_POISON:
-		case SPELL_DATURA_POISON:
+		case kSpellAconitumPoison:
+		case kSpellScopolaPoison:
+		case kSpellBelenaPoison:
+		case kSpellDaturaPoison:
 			out = boost::str(boost::format("%1%Отравлено %2% еще %3% %4%.%5%\r\n")
 								 % CCGRN(ch, C_NRM)
 								 % get_poison_by_spell(spell)
@@ -151,14 +151,14 @@ void TimedSpell::del(ObjectData *obj, int spell, bool message) {
 */
 void TimedSpell::add(ObjectData *obj, int spell, int time) {
 	// замещение ядов друг другом
-	if (spell == SPELL_ACONITUM_POISON
-		|| spell == SPELL_SCOPOLIA_POISON
-		|| spell == SPELL_BELENA_POISON
-		|| spell == SPELL_DATURA_POISON) {
-		del(obj, SPELL_ACONITUM_POISON, false);
-		del(obj, SPELL_SCOPOLIA_POISON, false);
-		del(obj, SPELL_BELENA_POISON, false);
-		del(obj, SPELL_DATURA_POISON, false);
+	if (spell == kSpellAconitumPoison
+		|| spell == kSpellScopolaPoison
+		|| spell == kSpellBelenaPoison
+		|| spell == kSpellDaturaPoison) {
+		del(obj, kSpellAconitumPoison, false);
+		del(obj, kSpellScopolaPoison, false);
+		del(obj, kSpellBelenaPoison, false);
+		del(obj, kSpellDaturaPoison, false);
 	}
 
 	spell_list_[spell] = time;

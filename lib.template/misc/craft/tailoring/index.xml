@@ -37,7 +37,7 @@
 			<weight>20</weight>
 			<timer>999999</timer>
 			<material>MAT_SKIN</material>
-			<spell>SPELL_NO_SPELL</spell>
+			<spell>kSpellNoSpell</spell>
 			<extraflags>
 				<extraflag>ITEM_BLESS</extraflag>
 			</extraflags>
@@ -91,7 +91,7 @@
 			<weight>7</weight>
 			<timer>10080</timer>
 			<material>MAT_BRONZE</material>
-			<spell>SPELL_BURNING_HANDS</spell>
+			<spell>kSpellBurningHands</spell>
 			<extraflags>
 				<extraflag>ITEM_NOSELL</extraflag>
 			</extraflags>
@@ -147,7 +147,7 @@
 			<weight>7</weight>
 			<timer>20160</timer>
 			<material>MAT_ORGANIC</material>
-			<spell>SPELL_NO_SPELL</spell>
+			<spell>kSpellNoSpell</spell>
 			<extraflags>
 				<extraflag>ITEM_SWIMMING</extraflag>
 			</extraflags>
@@ -203,7 +203,7 @@
 			<weight>7</weight>
 			<timer>10080</timer>
 			<material>MAT_SKIN</material>
-			<spell>SPELL_TELEPORT</spell>
+			<spell>kSpellTeleport</spell>
 			<val0>1</val0>
 			<val1>1661</val1>
 			<val2>100</val2>

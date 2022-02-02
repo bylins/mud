@@ -70,10 +70,10 @@
 					</apply>
 				</applies>
 				<skills>
-					<skill>SKILL_DISARM</skill>
+					<skill>kDisarm</skill>
 				</skills>
 				<affects>
-					<affect>SKILL_HIDE</affect>
+					<affect>kHide</affect>
 				</affects>
 				<extraflags>
 					<extraflag>ITEM_WITH2SLOTS</extraflag>
@@ -149,7 +149,7 @@
 				</applies>
 				
 				<skills>
-					<skill>SKILL_CAMOUFLAGE</skill>
+					<skill>kDisguise</skill>
 				</skills>
 				
 				<weapon_affects>

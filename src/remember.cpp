@@ -6,7 +6,7 @@
 
 #include "logger.h"
 #include "entities/char.h"
-#include "screen.h"
+#include "color.h"
 #include "house.h"
 
 #include <boost/format.hpp>
@@ -201,41 +201,41 @@ void do_remember_char(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 
 	argument = one_argument(argument, arg);
 
-	if (is_abbrev(arg, "воззвать")) {
+	if (utils::IsAbbrev(arg, "воззвать")) {
 		if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			send_to_char(ch->remember_get(Remember::PRAY), ch);
 		} else {
 			send_to_char(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
-	} else if ((GET_REAL_LEVEL(ch) < kLevelImmortal || IS_IMPL(ch)) && is_abbrev(arg, "оффтоп")) {
+	} else if ((GET_REAL_LEVEL(ch) < kLevelImmortal || IS_IMPL(ch)) && utils::IsAbbrev(arg, "оффтоп")) {
 		if (!PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
 			send_to_char(ch->remember_get(Remember::OFFTOP), ch);
 		} else {
 			send_to_char(ch, "Вам нечего вспомнить.\r\n");
 		}
-	} else if (is_abbrev(arg, "болтать") || is_abbrev(arg, "орать")) {
+	} else if (utils::IsAbbrev(arg, "болтать") || utils::IsAbbrev(arg, "орать")) {
 		send_to_char(ch->remember_get(Remember::GOSSIP), ch);
-	} else if (is_abbrev(arg, "группа") || is_abbrev(arg, "ггруппа"))// added by WorM  групптелы 2010.10.13
+	} else if (utils::IsAbbrev(arg, "группа") || utils::IsAbbrev(arg, "ггруппа"))
 	{
 		send_to_char(ch->remember_get(Remember::GROUP), ch);
-	} else if (is_abbrev(arg, "клан") || is_abbrev(arg, "гдругам")) {
+	} else if (utils::IsAbbrev(arg, "клан") || utils::IsAbbrev(arg, "гдругам")) {
 		if (CLAN(ch)) {
 			send_to_char(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::CLAN), ch);
 		} else {
 			send_to_char(ch, "Вам нечего вспомнить.\r\n");
 		}
 		return;
-	} else if (is_abbrev(arg, "союзники") || is_abbrev(arg, "альянс") || is_abbrev(arg, "гсоюзникам")) {
+	} else if (utils::IsAbbrev(arg, "союзники") || utils::IsAbbrev(arg, "альянс") || utils::IsAbbrev(arg, "гсоюзникам")) {
 		if (CLAN(ch)) {
 			send_to_char(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::ALLY), ch);
 		} else {
 			send_to_char(ch, "Вам нечего вспомнить.\r\n");
 		}
 		return;
-	} else if (is_abbrev(arg, "гбогам") && IS_IMMORTAL(ch)) {
+	} else if (utils::IsAbbrev(arg, "гбогам") && IS_IMMORTAL(ch)) {
 		send_to_char(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GET_REAL_LEVEL(ch)), ch);
 		return;
-	} else if (is_abbrev(arg, "все")) {
+	} else if (utils::IsAbbrev(arg, "все")) {
 		send_to_char(ch->remember_get(Remember::ALL), ch);
 		return;
 	} else {

@@ -13,7 +13,7 @@ float get_damage_per_round(CharacterData *victim) {
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffectFlag::AFF_CLOUD_OF_ARROWS) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.ExtraAttack
-		+ (victim->get_skill(SKILL_ADDSHOT) ? 2 : 0);
+		+ (victim->get_skill(ESkill::kAddshot) ? 2 : 0);
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
@@ -69,10 +69,10 @@ long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 
 	price += m_hit + m_lvl + m_ac + m_hr + m_armor + m_absorb;
 
-	int m_stab = GET_SAVE(victim, SAVING_STABILITY) * (-4);
-	int m_ref = GET_SAVE(victim, SAVING_REFLEX) * (-4);
-	int m_crit = GET_SAVE(victim, SAVING_CRITICAL) * (-4);
-	int m_wil = GET_SAVE(victim, SAVING_WILL) * (-4);
+	int m_stab = GET_SAVE(victim, ESaving::kStability) * (-4);
+	int m_ref = GET_SAVE(victim, ESaving::kReflex) * (-4);
+	int m_crit = GET_SAVE(victim, ESaving::kCritical) * (-4);
+	int m_wil = GET_SAVE(victim, ESaving::kWill) * (-4);
 	ch->send_to_TC(true, true, true, "Сейвы: STAB:%d REF:%d CRIT:%d WILL:%d\r\n",
 				   m_stab, m_ref, m_crit, m_wil);
 	price += m_stab + m_ref + m_crit + m_wil;
@@ -85,19 +85,9 @@ long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 	int m_mind = GET_RESIST(victim, MIND_RESISTANCE) * 4;
 	int m_immu = GET_RESIST(victim, IMMUNITY_RESISTANCE) * 4;
 	int m_dark = GET_RESIST(victim, DARK_RESISTANCE) * 4;
-	ch->send_to_TC(true,
-				   true,
-				   true,
+	ch->send_to_TC(true, true, true,
 				   "Маг.резисты: Fire:%d Air:%d Water:%d Earth:%d Vita:%d Mind:%d Immu:%d Dark:%d\r\n",
-				   m_fire,
-				   m_air,
-				   m_water,
-				   m_earth,
-				   m_vita,
-				   m_mind,
-				   m_immu,
-				   m_dark);
-
+				   m_fire, m_air, m_water, m_earth, m_vita, m_mind, m_immu, m_dark);
 	price += m_fire + m_air + m_water + m_earth + m_vita + m_mind + m_immu + m_dark;
 	// удача и инициатива
 	int m_luck = victim->calc_morale() * 10;
@@ -127,16 +117,9 @@ long calc_hire_price(CharacterData *ch, CharacterData *victim) {
 	min_price = MAX(min_price, mob_proto[GET_MOB_RNUM(victim)].get_gold());
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
-	ch->send_to_TC(true,
-				   true,
-				   true,
+	ch->send_to_TC(true, true, true,
 				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
-				   rem_hirePoints,
-				   cha_hirePoints,
-				   int_hirePoints,
-				   hirePoints,
-				   price,
-				   finalPrice);
+				   rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, price, finalPrice);
 	return std::min(finalPrice, MAX_HIRE_PRICE);
 }
 
@@ -145,7 +128,7 @@ int get_reformed_charmice_hp(CharacterData *ch, CharacterData *victim, int spell
 	float eff_cha = 0.0;
 	float max_cha;
 
-	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD) {
+	if (spellnum == kSpellResurrection || spellnum == kSpellAnimateDead) {
 		eff_cha = get_effective_wis(ch, spellnum);
 		max_cha = class_stats_limit[ch->get_class()][3];
 	} else {
@@ -153,7 +136,7 @@ int get_reformed_charmice_hp(CharacterData *ch, CharacterData *victim, int spell
 		eff_cha = get_effective_cha(ch);
 	}
 
-	if (spellnum != SPELL_CHARM) {
+	if (spellnum != kSpellCharm) {
 		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
@@ -281,7 +264,7 @@ void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		} else {
 			auto aff = k->ch->affected.begin();
 			for (; aff != k->ch->affected.end(); ++aff) {
-				if ((*aff)->type == SPELL_CHARM) {
+				if ((*aff)->type == kSpellCharm) {
 					break;
 				}
 			}
@@ -291,7 +274,7 @@ void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 			}
 		}
 
-		affect_from_char(helpee, SPELL_CHARM);
+		affect_from_char(helpee, kSpellCharm);
 
 		if (!WAITLESS(ch)) {
 			if (isname(isbank, "банк bank")) {
@@ -303,14 +286,14 @@ void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 			}
 		}
 
-		af.type = SPELL_CHARM;
+		af.type = kSpellCharm;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
-		af.type = SPELL_CHARM;
+		af.type = kSpellCharm;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
@@ -336,7 +319,7 @@ void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 			MOB_FLAGS(helpee).unset(MOB_SPEC);
 			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
-			helpee->set_skill(SKILL_PUNCTUAL, 0);
+			helpee->set_skill(ESkill::kPunctual, 0);
 			ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
 
 			Crash_crashsave(ch);
@@ -377,7 +360,7 @@ void do_freehelpee(CharacterData *ch, char * /* argument*/, int/* cmd*/, int/* s
 
 	if (!IS_IMMORTAL(ch)) {
 		for (const auto &aff : k->ch->affected) {
-			if (aff->type == SPELL_CHARM) {
+			if (aff->type == kSpellCharm) {
 				const auto
 					cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->ch->mob_specials.hire_price));
 				if (cost > 0) {
@@ -394,7 +377,7 @@ void do_freehelpee(CharacterData *ch, char * /* argument*/, int/* cmd*/, int/* s
 	}
 
 	act("Вы рассчитали $N3.", false, ch, 0, k->ch, TO_CHAR);
-	affect_from_char(k->ch, SPELL_CHARM);
+	affect_from_char(k->ch, kSpellCharm);
 	stop_follower(k->ch, SF_CHARMLOST);
 }
 

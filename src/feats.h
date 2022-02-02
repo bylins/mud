@@ -13,7 +13,7 @@
 #include "skills.h"
 #include "structs/structs.h"
 #include "conf.h"
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 
 #include <array>
 #include <bitset>
@@ -207,7 +207,7 @@
 
 //Раз в сколько ремортов появляется новый слот под способность
 
-const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = {5, 6, 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 5};
+const int feat_slot_for_remort[kNumPlayerClasses] = {5, 6, 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 5};
 // Количество пар "параметр-значение" у способности
 const short MAX_FEAT_AFFECT = 5;
 // Максимально доступное на морте количество не-врожденных способностей
@@ -216,6 +216,12 @@ const short MAX_FEAT_AFFECT = 5;
 // Поля изменений для способностей (кроме AFFECT_FTYPE, для них используются стардартные поля APPLY)
 #define FEAT_TIMER 1
 #define FEAT_SKILL 2
+
+struct TimedFeat {
+	int feat{INCORRECT_FEAT};	// Used feature //
+	ubyte time{0};				// Time for next using //
+	struct TimedFeat *next{nullptr};
+};
 
 extern struct FeatureInfoType feat_info[kMaxFeats];
 
@@ -230,7 +236,7 @@ void setAllInbornFeatures(CharacterData *ch);
 bool can_use_feat(const CharacterData *ch, int feat);
 bool can_get_feat(CharacterData *ch, int feat);
 bool tryFlipActivatedFeature(CharacterData *ch, char *argument);
-bitvector_t getPRFWithFeatureNumber(int featureNum);
+Bitvector getPRFWithFeatureNumber(int featureNum);
 
 /*
 	Класс для удобства вбивания значений в массив affected структуры способности
@@ -269,10 +275,10 @@ class CFeatArray {
 struct FeatureInfoType {
 	int ID;
 	int type;
-	int minRemort[NUM_PLAYER_CLASSES][kNumKins];
-	int slot[NUM_PLAYER_CLASSES][kNumKins];
-	bool classknow[NUM_PLAYER_CLASSES][kNumKins];
-	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][kNumKins];
+	int minRemort[kNumPlayerClasses][kNumKins];
+	int slot[kNumPlayerClasses][kNumKins];
+	bool classknow[kNumPlayerClasses][kNumKins];
+	bool inbornFeatureOfClass[kNumPlayerClasses][kNumKins];
 	bool up_slot;
 	bool usesWeaponSkill;
 	bool alwaysAvailable;
@@ -284,9 +290,9 @@ struct FeatureInfoType {
 	short baseDamageBonusPercent;
 	short degreeOfSuccessDamagePercent;
 	short dicerollBonus;
-	short oppositeSaving;
 	short criticalFailThreshold;
 	short criticalSuccessThreshold;
+	ESaving oppositeSaving;
 	ESkill baseSkill;
 
 	TechniqueItemKitsGroupType techniqueItemKitsGroup;

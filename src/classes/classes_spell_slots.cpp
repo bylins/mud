@@ -3,14 +3,14 @@
 	и прочий код для работы с ними.
 */
 
-#include "class_spell_slots.h"
+#include "classes_spell_slots.h"
 #include "magic/spells_info.h"
 
 namespace PlayerClass {
 
 const short SPELL_SLOTS_FOR_IMMORTAL = 10;
 
-const int MAG_SLOTS[][MAX_SLOT] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int MAG_SLOTS[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 								   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 								   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -42,7 +42,7 @@ const int MAG_SLOTS[][MAX_SLOT] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 								   {8, 8, 7, 6, 6, 5, 4, 2, 1, 0},    // lvl 30
 };
 
-const int NECROMANCER_SLOTS[][MAX_SLOT] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
+const int NECROMANCER_SLOTS[][kMaxSlot] = {{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 1
 										   {2, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 2
 										   {3, 0, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 3
 										   {3, 1, 0, 0, 0, 0, 0, 0, 0, 0},    // lvl 4
@@ -1163,7 +1163,7 @@ MaxClassSlot max_slots;
 int slot_for_char(CharacterData *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
-	if (slot_num < 1 || slot_num > MAX_SLOT || GET_REAL_LEVEL(ch) < 1 || IS_NPC(ch)) {
+	if (slot_num < 1 || slot_num > kMaxSlot || GET_REAL_LEVEL(ch) < 1 || IS_NPC(ch)) {
 		return -1;
 	}
 
@@ -1178,13 +1178,13 @@ int slot_for_char(CharacterData *ch, int slot_num) {
 	slot_num--;
 
 	switch (GET_CLASS(ch)) {
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE: wis_is = MAG_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
+		case ECharClass::kConjurer:
+		case ECharClass::kWizard:
+		case ECharClass::kCharmer: wis_is = MAG_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
 			break;
-		case CLASS_NECROMANCER: wis_is = NECROMANCER_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
+		case ECharClass::kNecromancer: wis_is = NECROMANCER_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
 			break;
-		case CLASS_CLERIC:
+		case ECharClass::kSorcerer:
 			if (GET_REAL_LEVEL(ch) >= MIN_CL_LEVEL && slot_num < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS) {
 				wis_block = MIN(MAX_CL_WIS, GET_REAL_WIS(ch)) - MIN_CL_WIS;
 				wis_block = wis_block / CL_WIS_DIV;
@@ -1193,7 +1193,7 @@ int slot_for_char(CharacterData *ch, int slot_num) {
 				wis_is = CLERIC_SLOTS[wis_block + wis_line][slot_num];
 			}
 			break;
-		case CLASS_PALADINE:
+		case ECharClass::kPaladine:
 			if (GET_REAL_LEVEL(ch) >= MIN_PA_LEVEL && slot_num < MAX_PA_SLOT && GET_REAL_WIS(ch) >= MIN_PA_WIS) {
 				wis_block = MIN(MAX_PA_WIS, GET_REAL_WIS(ch)) - MIN_PA_WIS;
 				wis_block = wis_block / PA_WIS_DIV;
@@ -1202,11 +1202,12 @@ int slot_for_char(CharacterData *ch, int slot_num) {
 				wis_is = PALADINE_SLOTS[wis_block + wis_line][slot_num];
 			}
 			break;
-		case CLASS_MERCHANT:
+		case ECharClass::kMerchant:
 			if (slot_num < MAX_ME_SLOT) {
 				wis_is = MERCHANT_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
 			}
 			break;
+		default: break;
 	}
 
 	if (wis_is == -1) {
@@ -1217,39 +1218,39 @@ int slot_for_char(CharacterData *ch, int slot_num) {
 													: 0);
 }
 
-void mspell_slot(char *name, int spell, int kin, int chclass, int slot) {
+void mspell_slot(char */*name*/, int spell, int kin, int chclass, int slot) {
 	int bad = 0;
 
-	if (spell < 0 || spell > SPELLS_COUNT) {
-		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, SPELLS_COUNT);
+	if (spell < 0 || spell > kSpellCount) {
+		log("SYSERR: attempting assign to illegal spellnum %d/%d", spell, kSpellCount);
 		return;
 	}
 
 	if (kin < 0 || kin >= kNumKins) {
-		log("SYSERR: assigning '%s' to illegal kin %d/%d.", skill_name(spell), chclass, kNumKins);
+		log("SYSERR: assigning '%s' to illegal kin %d/%d.", GetSpellName(spell), chclass, kNumKins);
 		bad = 1;
 	}
 
-	if (chclass < 0 || chclass >= NUM_PLAYER_CLASSES) {
-		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_PLAYER_CLASSES - 1);
+	if (chclass < 0 || chclass >= kNumPlayerClasses) {
+		log("SYSERR: assigning '%s' to illegal class %d/%d.", GetSpellName(spell), chclass, kNumPlayerClasses - 1);
 		bad = 1;
 	}
 
-	if (slot < 1 || slot > MAX_SLOT) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", skill_name(spell), slot, kLevelImplementator);
+	if (slot < 1 || slot > kMaxSlot) {
+		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLevelImplementator);
 		bad = 1;
 	}
 
 	if (!bad) {
 		spell_info[spell].slot_forc[chclass][kin] = slot;
 		max_slots.init(chclass, kin, slot);
-		log("SLOT set '%s' kin '%d' classes %d value %d", name, kin, chclass, slot);
+		//log("SLOT set '%s' kin '%d' classes %d value %d", name, kin, chclass, slot);
 	}
 
 }
 
 MaxClassSlot::MaxClassSlot() {
-	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i) {
+	for (int i = 0; i < kNumPlayerClasses; ++i) {
 		for (int k = 0; k < kNumKins; ++k) {
 			_max_class_slot[i][k] = 0;
 		}
@@ -1266,7 +1267,7 @@ int MaxClassSlot::get(int chclass, int kin) const {
 	if (kin < 0
 		|| kin >= kNumKins
 		|| chclass < 0
-		|| chclass >= NUM_PLAYER_CLASSES) {
+		|| chclass >= kNumPlayerClasses) {
 		return 0;
 	}
 	return _max_class_slot[chclass][kin];

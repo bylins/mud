@@ -4,16 +4,15 @@
 #include "dg_script/dg_scripts.h"
 #include "dg_script/dg_olc.h"
 #include "boards/boards.h"
-//#include "constants.h"
 #include "communication/social.h"
 #include "description.h"
 #include "crafts/im.h"
 #include "entities/char.h"
-//#include "entities/entity_constants.h"
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
 #include "entities/zone.h"
 #include "magic/spells_info.h"
+#include "structs/global_objects.h"
 
 #include <regex>
 
@@ -609,7 +608,7 @@ void ObjectFile::parse_object(const int nr) {
 	// *** Add some initialization fields
 	tobj->set_maximum_durability(ObjectData::DEFAULT_MAXIMUM_DURABILITY);
 	tobj->set_current_durability(ObjectData::DEFAULT_CURRENT_DURABILITY);
-	tobj->set_sex(kDefaultSex);
+	tobj->set_sex(ESex::kMale);
 	tobj->set_timer(ObjectData::DEFAULT_TIMER);
 	tobj->set_level(1);
 	tobj->set_destroyer(ObjectData::DEFAULT_DESTROYER);
@@ -677,7 +676,7 @@ void ObjectFile::parse_object(const int nr) {
 		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 	}
 	tobj->set_timer(timer);
-	tobj->set_spell(t[2] < 1 || t[2] > SPELLS_COUNT ? SPELL_NO_SPELL : t[2]);
+	tobj->set_spell(t[2] < 1 || t[2] > kSpellCount ? kSpellNoSpell : t[2]);
 	tobj->set_level(t[3]);
 
 	if (!get_line(file(), m_line)) {
@@ -833,7 +832,7 @@ void ObjectFile::parse_object(const int nr) {
 						"...offending line: '%s'", m_buffer, parsed_entries, m_line);
 					exit(1);
 				}
-				tobj->set_skill(t[0], t[1]);
+				tobj->set_skill(static_cast<ESkill>(t[0]), t[1]);
 				break;
 
 			case 'V': tobj->init_values_from_zone(m_line + 1);
@@ -959,7 +958,7 @@ bool ObjectFile::check_object_spell_number(ObjectData *obj, unsigned val) {
 	if (GET_OBJ_VAL(obj, val) < 0) {
 		error = true;
 	}
-	if (GET_OBJ_VAL(obj, val) > SPELLS_COUNT) {
+	if (GET_OBJ_VAL(obj, val) > kSpellCount) {
 		error = true;
 	}
 	if (error) {
@@ -973,7 +972,7 @@ bool ObjectFile::check_object_spell_number(ObjectData *obj, unsigned val) {
 	}
 
 	// Now check for unnamed spells.
-	spellname = spell_name(GET_OBJ_VAL(obj, val));
+	spellname = GetSpellName(GET_OBJ_VAL(obj, val));
 
 	if (error
 		&& (spellname == unused_spellname
@@ -1109,7 +1108,7 @@ void MobileFile::parse_mobile(const int nr) {
 }
 
 void MobileFile::parse_simple_mob(int i, int nr) {
-	int j, t[10];
+	int t[10];
 	char line[256];
 
 	mob_proto[i].set_str(11);
@@ -1182,7 +1181,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
-	mob_proto[i].set_class(NPC_CLASS_BASE);
+	mob_proto[i].set_class(ECharClass::kNpcBase);
 	mob_proto[i].player_data.weight = 200;
 	mob_proto[i].player_data.height = 198;
 
@@ -1190,8 +1189,9 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	* these are now save applies; base save numbers for MOBs are now from
 	* the warrior save table.
 	*/
-	for (j = 0; j < SAVING_COUNT; j++)
-		GET_SAVE(mob_proto + i, j) = 0;
+	for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+		SET_SAVE(mob_proto + i, save, 0);
+	}
 }
 
 void MobileFile::parse_enhanced_mob(int i, int nr) {
@@ -1253,12 +1253,11 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
  */
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr) {
 	struct Helper *helper;
-	int k, num_arg, matched = 0, t[4];
+	int num_arg, matched = 0, t[4];
 
 	num_arg = atoi(value);
 
 #define CASE(test) if (!matched && !str_cmp(keyword, test) && (matched = 1))
-#define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
 
 	CASE("Resistances") {
 		auto array_string = split_string(value);
@@ -1267,7 +1266,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (unsigned kk = 0; kk < array_string.size(); kk++) {
-			GET_RESIST(mob_proto + i, kk) = MIN(100, MAX(-100, atoi(array_string[kk].c_str())));
+			GET_RESIST(mob_proto + i, kk) = std::clamp(atoi(array_string[kk].c_str()), kMinResistance, kMaxResistance);
 		}
 
 
@@ -1285,62 +1284,51 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <# # # #> for SAVES in MOB #%d", i);
 			return;
 		}
-		for (k = 0; k < SAVING_COUNT; k++)
-			GET_SAVE(mob_proto + i, k) = MIN(kMaxSaving, MAX(-kMaxSaving, t[k]));
+		for (auto save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+			SET_SAVE(mob_proto + i, save, std::clamp(t[to_underlying(save)], kMinSaving, kMaxSaving));
+		}
 	}
-
+// Svent: и что тут за коллекция магик намберов бесконечная? Вынести в настройки.
 	CASE("HPReg") {
-		RANGE(-200, 200);
-		mob_proto[i].add_abils.hitreg = num_arg;
+		mob_proto[i].add_abils.hitreg = std::clamp(num_arg, -200, 200);
 	}
 
 	CASE("Armour") {
-		RANGE(0, 100);
-		mob_proto[i].add_abils.armour = num_arg;
+		mob_proto[i].add_abils.armour = std::clamp(num_arg, 0, 100);
 	}
 
 	CASE("PlusMem") {
-		RANGE(-200, 200);
-		mob_proto[i].add_abils.manareg = num_arg;
+		mob_proto[i].add_abils.manareg = std::clamp(num_arg, -200, 200);
 	}
 
 	CASE("CastSuccess") {
-		RANGE(-200, 300);
-		mob_proto[i].add_abils.cast_success = num_arg;
+		mob_proto[i].add_abils.cast_success = std::clamp(num_arg, -200, 300);
 	}
 
 	CASE("Success") {
-		RANGE(-200, 200);
-		mob_proto[i].add_abils.morale_add = num_arg;
+		mob_proto[i].add_abils.morale_add = std::clamp(num_arg, -200, 200);
 	}
 
 	CASE("Initiative") {
-		RANGE(-200, 200);
-		mob_proto[i].add_abils.initiative_add = num_arg;
+		mob_proto[i].add_abils.initiative_add = std::clamp(num_arg, -200, 200);
 	}
 
 	CASE("Absorbe") {
-		RANGE(-200, 200);
-		mob_proto[i].add_abils.absorb = num_arg;
+		mob_proto[i].add_abils.absorb = std::clamp(num_arg, -200, 200);
 	}
 	CASE("AResist") {
-		RANGE(0, 100);
-		mob_proto[i].add_abils.aresist = num_arg;
+		mob_proto[i].add_abils.aresist = std::clamp(num_arg, -0, 100);
 	}
 	CASE("MResist") {
-		RANGE(0, 100);
-		mob_proto[i].add_abils.mresist = num_arg;
+		mob_proto[i].add_abils.mresist = std::clamp(num_arg, -0, 100);
 	}
-	//End of changed
-	// added by WorM (Видолюб) поглощение физ.урона в %
+
 	CASE("PResist") {
-		RANGE(0, 100);
-		mob_proto[i].add_abils.presist = num_arg;
+		mob_proto[i].add_abils.presist = std::clamp(num_arg, 0, 100);
 	}
-	// end by WorM
+
 	CASE("BareHandAttack") {
-		RANGE(0, 99);
-		mob_proto[i].mob_specials.attack_type = num_arg;
+		mob_proto[i].mob_specials.attack_type = std::clamp(num_arg, 0, 99);
 	}
 
 	CASE("Destination") {
@@ -1379,54 +1367,43 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Size") {
-		RANGE(0, 100);
-		mob_proto[i].real_abils.size = num_arg;
+		mob_proto[i].real_abils.size = std::clamp<byte>(num_arg, 0, 100);
 	}
-	// *** Extended for Adamant
+
 	CASE("LikeWork") {
-		RANGE(0, 100);
-		mob_proto[i].mob_specials.LikeWork = num_arg;
+		mob_proto[i].mob_specials.LikeWork = std::clamp<byte>(num_arg, 0, 100);
 	}
 
 	CASE("MaxFactor") {
-		RANGE(0, 255);
-		mob_proto[i].mob_specials.MaxFactor = num_arg;
-
+		mob_proto[i].mob_specials.MaxFactor = std::clamp<byte>(num_arg, 0, 127);
 	}
 
 	CASE("ExtraAttack") {
-		RANGE(0, 255);
-		mob_proto[i].mob_specials.ExtraAttack = num_arg;
+		mob_proto[i].mob_specials.ExtraAttack = std::clamp<byte>(num_arg, 0, 127);
 	}
 
 	CASE("MobRemort") {
-		RANGE(0, 100);
-		mob_proto[i].set_remort(num_arg);
+		mob_proto[i].set_remort(std::clamp<byte>(num_arg, 0, 100));
 	}
 
 	CASE("Class") {
-		RANGE(NPC_CLASS_BASE, NPC_CLASS_LAST);
-		mob_proto[i].set_class(num_arg);
+		mob_proto[i].set_class(std::clamp(static_cast<ECharClass>(num_arg), ECharClass::kNpcBase, ECharClass::kNPCLast));
 	}
 
 	CASE("Height") {
-		RANGE(0, 200);
-		mob_proto[i].player_data.height = num_arg;
+		mob_proto[i].player_data.height = std::clamp(num_arg, 0, 200);
 	}
 
 	CASE("Weight") {
-		RANGE(0, 200);
-		mob_proto[i].player_data.weight = num_arg;
+		mob_proto[i].player_data.weight = std::clamp(num_arg, 0, 200);
 	}
 
 	CASE("Race") {
-		RANGE(NPC_RACE_BASIC, NPC_RACE_NEXT - 1);
-		mob_proto[i].player_data.Race = num_arg;
+		mob_proto[i].player_data.Race = std::clamp(num_arg, NPC_RACE_BASIC, NPC_RACE_NEXT - 1);
 	}
 
 	CASE("Special_Bitvector") {
 		mob_proto[i].mob_specials.npc_flags.from_string((char *) value);
-		// *** Empty now
 	}
 
 	CASE("Feat") {
@@ -1446,12 +1423,13 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <# #> for SKILL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > MAX_SKILL_NUM || t[0] < 1) {
-			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], i);
+		auto skill_id = static_cast<ESkill>(t[0]);
+		if (MUD::Skills().IsInvalid(skill_id)) {
+			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], nr);
 			return;
 		}
-		t[1] = MIN(200, MAX(0, t[1]));
-		(mob_proto + i)->set_skill(static_cast<ESkill>(t[0]), t[1]);
+		t[1] = std::clamp(t[1], 0, MUD::Skills()[skill_id].cap);
+		(mob_proto + i)->set_skill(skill_id, t[1]);
 	}
 
 	CASE("Spell") {
@@ -1459,7 +1437,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > SPELLS_COUNT || t[0] < 1) {
+		if (t[0] > kSpellCount || t[0] < 1) {
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}
@@ -1487,7 +1465,6 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		log("SYSERR: Warning: unrecognized espec keyword %s in mob #%d", keyword, nr);
 	}
 #undef CASE
-#undef RANGE
 }
 
 class ZoneFile : public DataFile {
@@ -1889,7 +1866,8 @@ bool SocialsFile::load_socials() {
 		scan = one_word(line, next_key);
 		while (*next_key) {
 			key++;
-			log("Social %d '%s' - message %d", key, next_key, message);
+			// Не нужен лишний спам, только мешает искать ошибки
+			//log("Social %d '%s' - message %d", key, next_key, message);
 			soc_keys_list[key].keyword = str_dup(next_key);
 			soc_keys_list[key].social_message = message;
 			scan = one_word(scan, next_key);

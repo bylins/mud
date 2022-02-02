@@ -12,8 +12,7 @@
 #define _IM_H_
 
 #include "entities/entity_constants.h"
-//#include "structs/structs.h"
-#include "classes/class_constants.h"
+#include "classes/classes_constants.h"
 
 class ObjectData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct RoomData;    //
@@ -90,7 +89,7 @@ struct _im_recipe_tag {
 	std::array<char *, 3> msg_room;    // сообщения OK,FAIL,DAM
 	int x, y;        // XdY - повреждения
 // +newbook.patch (Alisher)
-	std::array<int, NUM_PLAYER_CLASSES> classknow; // владеет ли класс данным рецептом
+	std::array<int, kNumPlayerClasses> classknow; // владеет ли класс данным рецептом
 	int level; // на каком уровне можно выучить рецепт
 	int remort; // сколько ремортов необходимо для рецепта
 // -newbook.patch (Alisher)

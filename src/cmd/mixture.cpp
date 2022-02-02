@@ -38,23 +38,23 @@ void do_mixture(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	spellnum = FixNameAndFindSpellNum(s);
 
-	if (spellnum < 1 || spellnum > SPELLS_COUNT) {
+	if (spellnum < 1 || spellnum > kSpellCount) {
 		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
-	if (((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_ITEMS)
+	if (((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellItems)
 		&& subcmd == SCMD_ITEMS)
-		|| (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_RUNES)
+		|| (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellRunes)
 			&& subcmd == SCMD_RUNES)) && !IS_GOD(ch)) {
 		send_to_char("Это блюдо вам явно не понравится.\r\n" "Научитесь его правильно готовить.\r\n", ch);
 		return;
 	}
 
-	if (!check_recipe_values(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, false))
+	if (!CheckRecipeValues(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, false))
 		return;
 
-	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, false)) {
+	if (!CheckRecipeItems(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, false)) {
 		if (subcmd == SCMD_ITEMS)
 			send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		else if (subcmd == SCMD_RUNES)
@@ -80,13 +80,13 @@ void do_mixture(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spellnum].targets, TAR_SELF_ONLY)) {
+	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(spell_info[spellnum].targets, kTarSelfOnly)) {
 		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
 		return;
 	}
 
 	if (IS_MANA_CASTER(ch)) {
-		if (GET_REAL_LEVEL(ch) < CalculateRequiredLevel(ch, spellnum)) {
+		if (GET_REAL_LEVEL(ch) < CalcRequiredLevel(ch, spellnum)) {
 			send_to_char("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
 			return;
 		}
@@ -99,8 +99,8 @@ void do_mixture(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, true, tch)) {
-		if (!CalculateCastSuccess(ch, tch, SAVING_NONE, spellnum)) {
+	if (CheckRecipeItems(ch, spellnum, subcmd == SCMD_ITEMS ? kSpellItems : kSpellRunes, true, tch)) {
+		if (!CalcCastSuccess(ch, tch, ESaving::kStability, spellnum)) {
 			WAIT_STATE(ch, kPulseViolence);
 			if (!tch || !SendSkillMessages(0, ch, tch, spellnum)) {
 				if (subcmd == SCMD_ITEMS)

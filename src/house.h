@@ -60,31 +60,30 @@ long do_gold_tax(CharacterData *ch, long gold);
 
 } // namespace ClanSystem
 
-#define POLITICS_NEUTRAL  0
-#define POLITICS_WAR      1
-#define POLITICS_ALLIANCE 2
+const int POLITICS_NEUTRAL = 0;
+const int POLITICS_WAR = 1;
+const int POLITICS_ALLIANCE = 2;
 
-#define HCE_ATRIUM 0
-#define    HCE_PORTAL 1
+const int HCE_ATRIUM = 0;
+const int HCE_PORTAL = 1;
 
 // период снятия за ренту (минут)
-#define CHEST_UPDATE_PERIOD 10
+const int kChestUpdatePeriod = 10;
 // период оповещения о скорой кончине денег (минут)
-#define CHEST_INVOICE_PERIOD 60
+const int kChestInvoicePeriod = 60;
 // период обновление статов экспы в топе кланов в режиме запрета обновления на лету (минут)
-#define CLAN_TOP_REFRESH_PERIOD 360
+const int kClanTopRefreshPeriod = 360;
 // клановый налог в день
-#define CLAN_TAX 1000
+const int kClanTax = 1000;
 // налог на выборку по параметрам из хранилища в день
-#define CLAN_STOREHOUSE_TAX 1000
-// процент стоимости ренты шмотки (одетой) для хранилища
-#define CLAN_STOREHOUSE_COEFF 50
+const int kClanStorehouseTax = 1000;
+// процент стоимости ренты шмотки (надетой) для хранилища
+const int kClanStorehouseCoeff = 50;
 
-#define MAX_CLANLEVEL 5
+const int MAX_CLANLEVEL = 5;
 // номер зоны с прототипами клан-стафа
-#define CLAN_STUFF_ZONE 18
-
-#define CHEST_IDENT_PAY 110
+const int CLAN_STUFF_ZONE = 18;
+const int CHEST_IDENT_PAY = 110;
 
 void fix_ingr_chest_rnum(const int room_rnum);//Нужно чтоб позиция короба не съехала
 

@@ -1,6 +1,6 @@
 #include "celebrates.h"
 
-#include "global_objects.h"
+#include "structs/global_objects.h"
 #include "handler.h"
 #include "utils/pugixml.h"
 #include "backtrace.h"

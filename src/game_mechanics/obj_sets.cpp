@@ -1,17 +1,20 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <boost/lexical_cast.hpp>
+
+#include <iostream>
+
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
 #include "utils/pugixml.h"
 #include "parse.h"
-#include "screen.h"
+#include "color.h"
 #include "modify.h"
 #include "help.h"
 #include "game_mechanics/sets_drop.h"
-
-#include <boost/lexical_cast.hpp>
+#include "structs/global_objects.h"
 
 namespace obj_sets {
 
@@ -186,7 +189,7 @@ void verify_set(set_node &set) {
 		}
 	}
 
-	std::bitset<NUM_PLAYER_CLASSES> prof_bits;
+	std::bitset<kNumPlayerClasses> prof_bits;
 	bool prof_restrict = false;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i) {
 		if (i->first < MIN_ACTIVE_SIZE || i->first > MAX_ACTIVE_SIZE) {
@@ -207,14 +210,13 @@ void verify_set(set_node &set) {
 				set.enabled = false;
 			}
 		}
-		// можно просетить скилл в минус
-		if (i->second.skill.first > MAX_SKILL_NUM
-			|| i->second.skill.first < 0
+
+		if (MUD::Skills().IsInvalid(i->second.skill.first)
 			|| i->second.skill.second > 200
 			|| i->second.skill.second < -200) {
 			err_log(
 				"сет #%zu: некорректные номер или значение умения (num=%d, val=%d, activ=%d)",
-				num, i->second.skill.first, i->second.skill.second, i->first);
+				num, to_underlying(i->second.skill.first), i->second.skill.second, i->first);
 			set.enabled = false;
 		}
 		/*if (i->second.prof.none())
@@ -339,8 +341,7 @@ void load() {
 		tmp_set->alias = xml_set.attribute("alias").value();
 		tmp_set->comment = xml_set.attribute("comment").value();
 		// enabled не обязателен, по дефолту сет включен
-		tmp_set->enabled =
-			(xml_set.attribute("enabled").as_int(1) == 1 ? true : false);
+		tmp_set->enabled = (xml_set.attribute("enabled").as_int(1) == 1 ? true : false);
 		// <obj>
 		for (pugi::xml_node xml_obj = xml_set.child("obj"); xml_obj;
 			 xml_obj = xml_obj.next_sibling("obj")) {
@@ -364,11 +365,10 @@ void load() {
 			for (pugi::xml_node xml_apply = xml_activ.child("apply"); xml_apply;
 				 xml_apply = xml_apply.next_sibling("apply")) {
 				// заполняются только первые kMaxObjAffect
-				for (auto i = tmp_activ.apply.begin();
-					 i != tmp_activ.apply.end(); ++i) {
-					if (i->location <= 0) {
-						i->location = static_cast<EApplyLocation>(Parse::attr_int(xml_apply, "loc"));
-						i->modifier = Parse::attr_int(xml_apply, "mod");
+				for (auto & i : tmp_activ.apply) {
+					if (i.location <= 0) {
+						i.location = static_cast<EApplyLocation>(Parse::attr_int(xml_apply, "loc"));
+						i.modifier = Parse::attr_int(xml_apply, "mod");
 						break;
 					}
 				}
@@ -403,7 +403,7 @@ void load() {
 			// если нет атрибута prof - значит актив на все профы
 			pugi::xml_attribute xml_prof = xml_activ.attribute("prof");
 			if (xml_prof) {
-				std::bitset<NUM_PLAYER_CLASSES> tmp_p(std::string(xml_prof.value()));
+				std::bitset<kNumPlayerClasses> tmp_p(std::string(xml_prof.value()));
 				tmp_activ.prof = tmp_p;
 			}
 			// активится ли сет на мобах
@@ -516,9 +516,9 @@ void save() {
 				}
 			}
 			// set/activ/skill
-			if (k->second.skill.first > 0) {
+			if (MUD::Skills().IsValid(k->second.skill.first)) {
 				pugi::xml_node xml_skill = xml_activ.append_child("skill");
-				xml_skill.append_attribute("num") = k->second.skill.first;
+				xml_skill.append_attribute("num") = to_underlying(k->second.skill.first);
 				xml_skill.append_attribute("val") = k->second.skill.second;
 			}
 			// set/activ/enchant

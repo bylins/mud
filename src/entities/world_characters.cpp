@@ -1,10 +1,10 @@
 #include "world_characters.h"
 
 #include "fightsystem/mobact.h"
-#include "config.h"
+/*#include "config.h"
 #include "logger.h"
-#include "utils/utils.h"
-#include "global_objects.h"
+#include "utils/utils.h"*/
+#include "structs/global_objects.h"
 
 Characters &character_list = GlobalObjects::characters();    // global container of entities
 

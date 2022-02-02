@@ -67,8 +67,8 @@ bool stop_follower(CharacterData *ch, int mode) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
 		|| IS_SET(mode, SF_CHARMLOST)) {
-		if (affected_by_spell(ch, SPELL_CHARM)) {
-			affect_from_char(ch, SPELL_CHARM);
+		if (affected_by_spell(ch, kSpellCharm)) {
+			affect_from_char(ch, kSpellCharm);
 		}
 		EXTRACT_TIMER(ch) = 5;
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CHARM);

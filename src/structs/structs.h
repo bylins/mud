@@ -15,7 +15,6 @@
 #ifndef STRUCTS_STRUCTS_H_
 #define STRUCTS_STRUCTS_H_
 
-//#include "boards/boards_types.h"
 #include "sysdep.h"
 
 #include <vector>
@@ -36,10 +35,10 @@ using sh_int = int16_t ;
 using ush_int = uint16_t;
 
 // This structure describe new bitvector structure
-using bitvector_t = uint32_t;
-constexpr bitvector_t kIntOne = 1u << 30;
-constexpr bitvector_t kIntTwo = 2u << 30;
-constexpr bitvector_t kIntThree = 3u << 30;
+using Bitvector = uint32_t;
+constexpr Bitvector kIntOne = 1u << 30;
+constexpr Bitvector kIntTwo = 2u << 30;
+constexpr Bitvector kIntThree = 3u << 30;
 
 using Vnum = int;
 using RoomVnum = Vnum;	// A room's vnum type //
@@ -64,6 +63,7 @@ typedef char byte;
 #endif
 
 const int kMaxRemort = 75;
+const int kMaxPlayerLevel = 30;
 
 // Структуры валют надо вынести в отдельный модуль с механикой валют ***************************************
 
@@ -151,8 +151,8 @@ constexpr typename std::underlying_type<E>::type to_underlying(E e) {
 	return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
-constexpr bitvector_t TRACK_NPC = 1 << 0;
-constexpr bitvector_t TRACK_HIDE = 1 << 1;
+constexpr Bitvector TRACK_NPC = 1 << 0;
+constexpr Bitvector TRACK_HIDE = 1 << 1;
 
 // other miscellaneous defines ****************************************** //
 
@@ -160,10 +160,10 @@ enum { DRUNK, FULL, THIRST };
 // pernalty types
 enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
-constexpr bitvector_t EXTRA_FAILHIDE = 1 << 0;
-constexpr bitvector_t EXTRA_FAILSNEAK = 1 << 1;
-constexpr bitvector_t EXTRA_FAILCAMOUFLAGE = 1 << 2;
-constexpr bitvector_t EXTRA_GRP_KILL_COUNT = 1 << 3; // для избежания повторных записей моба в списки SetsDrop
+constexpr Bitvector EXTRA_FAILHIDE = 1 << 0;
+constexpr Bitvector EXTRA_FAILSNEAK = 1 << 1;
+constexpr Bitvector EXTRA_FAILCAMOUFLAGE = 1 << 2;
+constexpr Bitvector EXTRA_GRP_KILL_COUNT = 1 << 3; // для избежания повторных записей моба в списки SetsDrop
 
 // other #defined constants ********************************************* //
 
@@ -221,13 +221,17 @@ const int kMaxFeats = 256;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
 const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 
+const short kMinCharLevel = 0;
 const short kMaxMobLevel = 100;
-const short kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
-const short kStrongMobLevel = 30;
+const int kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
+constexpr int kMinSaving = -kMaxSaving;
+const int kMaxResistance = 100;
+constexpr int kMinResistance = -kMaxResistance;
+const int kStrongMobLevel = 30;
 
-bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
+bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 
-inline bool sprintbit(bitvector_t bitvector, const char *names[], char *result, const int print_flag = 0) {
+inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, const int print_flag = 0) {
 	return sprintbitwd(bitvector, names, result, ",", print_flag);
 }
 
@@ -262,12 +266,6 @@ struct Punish {
 	char *reason = nullptr;
 	int level = 0;
 	long godid = 0;
-};
-
-struct Timed {
-	ubyte skill = 0;					// Number of used skill/spell //
-	ubyte time = 0;						// Time for next using        //
-	struct Timed *next = nullptr;
 };
 
 // Structure used for entities following other entities //

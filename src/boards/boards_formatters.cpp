@@ -1,7 +1,7 @@
 #include "boards_formatters.h"
 
 #include "entities/char.h"
-#include "screen.h"
+#include "color.h"
 
 namespace Boards {
 class CommonBoardFormatter : public Board::Formatter {

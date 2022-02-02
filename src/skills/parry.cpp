@@ -13,16 +13,16 @@ void go_multyparry(CharacterData *ch) {
 		return;
 	}
 
-	SET_AF_BATTLE(ch, EAF_MULTYPARRY);
+	SET_AF_BATTLE(ch, kEafMultyparry);
 	send_to_char("Вы попробуете использовать веерную защиту.\r\n", ch);
 }
 
 void do_multyparry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_MULTYPARRY)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kMultiparry)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_MULTYPARRY)) {
+	if (ch->haveCooldown(ESkill::kMultiparry)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -42,7 +42,7 @@ void do_multyparry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* su
 		send_to_char("Вы не можете отражать атаки безоружным.\r\n", ch);
 		return;
 	}
-	if (GET_AF_BATTLE(ch, EAF_STUPOR)) {
+	if (GET_AF_BATTLE(ch, kEafOverwhelm)) {
 		send_to_char("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
@@ -56,16 +56,16 @@ void go_parry(CharacterData *ch) {
 		return;
 	}
 
-	SET_AF_BATTLE(ch, EAF_PARRY);
+	SET_AF_BATTLE(ch, kEafParry);
 	send_to_char("Вы попробуете отклонить следующую атаку.\r\n", ch);
 }
 
 void do_parry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_PARRY)) {
+	if (IS_NPC(ch) || !ch->get_skill(ESkill::kParry)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->haveCooldown(SKILL_PARRY)) {
+	if (ch->haveCooldown(ESkill::kParry)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
@@ -98,7 +98,7 @@ void do_parry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		}
 	}
 
-	if (GET_AF_BATTLE(ch, EAF_STUPOR)) {
+	if (GET_AF_BATTLE(ch, kEafOverwhelm)) {
 		send_to_char("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
@@ -107,17 +107,17 @@ void do_parry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 void parry_override(CharacterData *ch) {
 	std::string message = "";
-	if (GET_AF_BATTLE(ch, EAF_BLOCK)) {
+	if (GET_AF_BATTLE(ch, kEafBlock)) {
 		message = "Вы прекратили прятаться за щит и бросились в бой.";
-		CLR_AF_BATTLE(ch, EAF_BLOCK);
+		CLR_AF_BATTLE(ch, kEafBlock);
 	}
-	if (GET_AF_BATTLE(ch, EAF_PARRY)) {
+	if (GET_AF_BATTLE(ch, kEafParry)) {
 		message = "Вы прекратили парировать атаки и бросились в бой.";
-		CLR_AF_BATTLE(ch, EAF_PARRY);
+		CLR_AF_BATTLE(ch, kEafParry);
 	}
-	if (GET_AF_BATTLE(ch, EAF_MULTYPARRY)) {
+	if (GET_AF_BATTLE(ch, kEafMultyparry)) {
 		message = "Вы забыли о защите и бросились в бой.";
-		CLR_AF_BATTLE(ch, EAF_MULTYPARRY);
+		CLR_AF_BATTLE(ch, kEafMultyparry);
 	}
 	act(message.c_str(), false, ch, 0, 0, TO_CHAR);
 }

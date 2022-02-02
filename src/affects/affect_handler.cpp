@@ -23,7 +23,7 @@ Affect<EApplyLocation>::shared_ptr find_affect(CharacterData *ch, int afftype) {
 }
 
 void LackyAffectHandler::Handle(BattleRoundParameters &params) {
-	auto af = find_affect(params.ch, SPELL_LACKY);
+	auto af = find_affect(params.ch, kSpellLucky);
 	if (damFromMe_ && !damToMe_) {
 		if (round_ < 5) {
 			++round_;
@@ -39,7 +39,7 @@ void LackyAffectHandler::Handle(BattleRoundParameters &params) {
 }
 // тест
 void LackyAffectHandler::Handle(StopFightParameters &params) {
-	auto af = find_affect(params.ch, SPELL_LACKY);
+	auto af = find_affect(params.ch, kSpellLucky);
 	if (af) {
 		af->modifier = 0;
 	}

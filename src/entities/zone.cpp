@@ -1,6 +1,6 @@
 #include "zone.h"
 
-#include "global_objects.h"
+#include "structs/global_objects.h"
 
 struct ZoneCategory *zone_types = nullptr;
 
@@ -59,6 +59,6 @@ ZoneData::~ZoneData() {
 		free(typeB_flag);
 }
 
-zone_table_t &zone_table = GlobalObjects::zone_table();    // zone table
+ZoneTable &zone_table = GlobalObjects::zone_table();    // zone table
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

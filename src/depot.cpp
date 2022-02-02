@@ -9,14 +9,12 @@
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "auction.h"
-#include "screen.h"
+#include "color.h"
 #include "entities/char_player.h"
 #include "modify.h"
-#include "obj_save.h"
 #include "house.h"
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/named_stuff.h"
-#include <cmath>
 
 extern int bank(CharacterData *, void *, int, char *);
 extern int can_take_obj(CharacterData *ch, ObjectData *obj);

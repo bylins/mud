@@ -1,4 +1,4 @@
-#include "heartbeat.h"
+//#include "heartbeat.h"
 
 #include "auction.h"
 #include "game_mechanics/deathtrap.h"
@@ -20,17 +20,14 @@
 #include "game_mechanics/sets_drop.h"
 #include "mail.h"
 #include "mob_stat.h"
-#include "game_mechanics/weather.h"
 #include "magic/magic.h"
-#include "magic/magic_rooms.h"
-#include "obj_save.h"
 #include "game_limits.h"
 #include "fightsystem/mobact.h"
 #include "dg_script/dg_event.h"
 #include "corpse.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "utils/utils_time.h"
-#include "global_objects.h"
+#include "structs/global_objects.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -293,7 +290,7 @@ void UpdateClanExpCall::perform(int, int) {
 class SpellUsageCall : public AbstractPulseAction {
  public:
 	virtual void perform(int, int) override {
-		if (!SpellUsage::isActive) {
+		if (!SpellUsage::is_active) {
 			return;
 		}
 
@@ -393,11 +390,11 @@ Heartbeat::steps_t &pulse_steps() {
 							 52,
 							 std::make_shared<SimpleCall>(SetsDrop::save_drop_table)),
 		Heartbeat::PulseStep("Clan system: chest log saving",
-							 60 * CHEST_UPDATE_PERIOD * kPassesPerSec,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 50,
 							 std::make_shared<SimpleCall>(ClanSystem::save_chest_log)),
 		Heartbeat::PulseStep("Clan system: ingredients chests saving",
-							 60 * CHEST_UPDATE_PERIOD * kPassesPerSec,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 48,
 							 std::make_shared<SimpleCall>(ClanSystem::save_ingr_chests)),
 		Heartbeat::PulseStep("Global drop: saving",
@@ -405,15 +402,15 @@ Heartbeat::steps_t &pulse_steps() {
 							 47,
 							 std::make_shared<SimpleCall>(GlobalDrop::save)),
 		Heartbeat::PulseStep("Clan: chest update",
-							 60 * CHEST_UPDATE_PERIOD * kPassesPerSec,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 46,
 							 std::make_shared<SimpleCall>(Clan::ChestUpdate)),
 		Heartbeat::PulseStep("Clan: save chest all",
-							 60 * CHEST_UPDATE_PERIOD * kPassesPerSec,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 44,
 							 std::make_shared<SimpleCall>(Clan::SaveChestAll)),
 		Heartbeat::PulseStep("Clan: clan save",
-							 60 * CHEST_UPDATE_PERIOD * kPassesPerSec,
+							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 40,
 							 std::make_shared<SimpleCall>(Clan::ClanSave)),
 		Heartbeat::PulseStep("Celebrates: sanitize",
@@ -537,7 +534,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 14,
 							 std::make_shared<UpdateClanExpCall>()),
 		Heartbeat::PulseStep("Clan: chest invoice",
-							 60 * CHEST_INVOICE_PERIOD * kPassesPerSec,
+							 60 * kChestInvoicePeriod * kPassesPerSec,
 							 15,
 							 std::make_shared<SimpleCall>(Clan::ChestInvoice)),
 //			Heartbeat::PulseStep("Gifts", 60 * 60 * kPassesPerSec, 18, std::make_shared<SimpleCall>(gifts)),
