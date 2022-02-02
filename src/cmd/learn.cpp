@@ -126,8 +126,9 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	int spellnum = kSpellNoSpell;
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2)))
-		|| (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_trained_skill(skill_id))) {
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL
+		&& IsAbleToGetSkill(ch, skill_id, GET_OBJ_VAL(obj, 2)))
+		|| GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) {
 		spellname = MUD::Skills()[skill_id].GetName();
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
 		&& IsAbleToGetSpell(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2))) {
@@ -157,7 +158,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					 "изучать. Каким же было разочарование, когда прочитав %s,\r\n"
 					 "Вы поняли, что это %s \"%s\".\r\n",
 				obj->get_PName(3).c_str(),
-				number(0, 1) ? "несколько абзацев" :
+				number(0, 1) ? "несколько страниц" :
 				number(0, 1) ? "пару строк" : "почти до конца",
 				stype1[GET_OBJ_VAL(obj, 0)],
 				spellname);
@@ -182,7 +183,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	if (!spellnum) {
+	if (!spellnum && MUD::Skills().IsInvalid(skill_id)) {
 		const char *where = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
 		const char *what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
 		const char
@@ -223,7 +224,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					 "незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
 					 "Буквально через несколько минут вы узнали %s %s \"%s\".\r\n",
 				obj->get_PName(3).c_str(),
-				(GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0],
+				ch->get_skill(skill_id) ? stype0[1] : stype0[0],
 				stype2[GET_OBJ_VAL(obj, 0)],
 				spellname);
 		send_to_char(buf, ch);
