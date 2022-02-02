@@ -415,7 +415,7 @@ void medit_save_internally(DescriptorData *d) {
 					fprintf(stderr, "Inserted: rmob_num: %d\n", rmob_num);
 #endif
 					new_index[rmob_num].vnum = OLC_NUM(d);
-					new_index[rmob_num].number = 0;
+					new_index[rmob_num].CountInWorld = 0;
 					new_index[rmob_num].func = nullptr;
 					new_mob_num = rmob_num;
 					OLC_MOB(d)->set_rnum(rmob_num);
@@ -448,7 +448,7 @@ void medit_save_internally(DescriptorData *d) {
 			fprintf(stderr, "Append.\n");
 #endif
 			new_index[rmob_num].vnum = OLC_NUM(d);
-			new_index[rmob_num].number = 0;
+			new_index[rmob_num].CountInWorld = 0;
 			new_index[rmob_num].func = nullptr;
 			new_mob_num = rmob_num;
 			OLC_MOB(d)->set_rnum(rmob_num);
