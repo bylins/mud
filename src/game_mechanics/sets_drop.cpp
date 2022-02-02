@@ -9,7 +9,7 @@
 #include "house.h"
 #include "color.h"
 #include "help.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "mob_stat.h"
 #include "entities/zone.h"
 

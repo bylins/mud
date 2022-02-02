@@ -14,7 +14,7 @@
 #include "entities/room.h"
 #include "help.h"
 #include "entities/zone.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"
 #include "sysdep.h"

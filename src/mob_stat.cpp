@@ -4,7 +4,7 @@
 #include "mob_stat.h"
 
 #include "utils/pugixml.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "entities/char.h"
 #include "color.h"
 

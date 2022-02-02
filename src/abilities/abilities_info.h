@@ -17,7 +17,7 @@
 #include "abilities_constants.h"
 #include "boot/boot_constants.h"
 #include "entities/entity_constants.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "skills.h"
 
 #include <string>

@@ -22,7 +22,7 @@
 #include "house.h"
 #include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
-#include "privilege.h"
+#include "administration/privilege.h"
 #include "color.h"
 #include "skills/pick.h"
 #include "utils/random.h"

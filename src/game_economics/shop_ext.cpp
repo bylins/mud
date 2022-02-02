@@ -8,7 +8,7 @@
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "house.h"
-#include "parse.h"
+#include "utils/parse.h"
 
 #include <boost/algorithm/string.hpp>
 

@@ -18,7 +18,7 @@
 #include "handler.h"
 #include "color.h"
 #include "depot.h"
-#include "parcel.h"
+#include "communication/parcel.h"
 #include "magic.h"
 
 char cast_argument[kMaxStringLength];

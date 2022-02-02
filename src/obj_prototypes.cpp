@@ -1,6 +1,6 @@
 #include "obj_prototypes.h"
 
-#include "logger.h"
+#include "utils/logger.h"
 
 size_t CObjectPrototypes::add(CObjectPrototype *prototype, const ObjVnum vnum) {
 	return add(CObjectPrototype::shared_ptr(prototype, [&](auto ptr) { delete (ObjectData *) ptr; }), vnum);

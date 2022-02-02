@@ -1,5 +1,5 @@
 #include "dictionary.h"
-#include "shop_ext.h"
+#include "game_economics/shop_ext.h"
 
 // комментарий на русском в надежде починить кодировки bitbucket
 

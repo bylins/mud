@@ -7,7 +7,7 @@
 #include "obj_save.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "handler.h"
 #include "color.h"
 #include "game_mechanics/celebrates.h"

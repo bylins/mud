@@ -5,11 +5,11 @@
 #include "glory.h"
 
 #include "conf.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 #include "db.h"
 #include "comm.h"
-#include "password.h"
+#include "administration/password.h"
 #include "genchar.h"
 #include "color.h"
 #include "top.h"

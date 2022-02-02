@@ -10,7 +10,7 @@
 #include <filesystem>
 
 #include "boot/boot_constants.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/pugixml.h"
 
 using pugi::xml_node;

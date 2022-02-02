@@ -18,7 +18,7 @@
 #include "sysdep.h"
 #include "structs/structs.h"
 #include "comm.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 #include "magic/spells.h"
 #include "entities/char.h"

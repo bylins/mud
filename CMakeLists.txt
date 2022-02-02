@@ -15,7 +15,7 @@ set(SOURCES
 		src/heartbeat.cpp
 		src/heartbeat_commands.cpp
 		src/abilities/abilities_rollsystem.cpp
-		src/accounts.cpp
+		src/administration/accounts.cpp
 		src/action_targeting.cpp
 		src/act_comm.cpp
 		src/act_informative.cpp
@@ -26,7 +26,7 @@ set(SOURCES
 		src/act_wizard.cpp
 		src/affects/affect_handler.cpp
 		src/alias.cpp
-		src/auction.cpp
+		src/game_economics/auction.cpp
 		src/backtrace.cpp
 		src/cmd_god/ban.cpp
 		src/birthplaces.cpp
@@ -75,8 +75,8 @@ set(SOURCES
 		src/diskio.cpp
 		src/dps.cpp
 		src/entities/entity_constants.cpp
-		src/exchange.cpp
-		src/ext_money.cpp
+		src/game_economics/exchange.cpp
+		src/game_economics/ext_money.cpp
 		src/external_trigger.cpp
 		src/feats.cpp
 		src/fightsystem/fight.cpp
@@ -93,15 +93,15 @@ set(SOURCES
 		src/help.cpp
 		src/house.cpp
 		src/house_exp.cpp
-		src/ignores.cpp
-		src/ignores_loader.cpp
+		src/communication/ignores.cpp
+		src/communication/ignores_loader.cpp
 		src/crafts/im.cpp
 		src/interpreter.cpp
 		src/crafts/item_creation.cpp
 		src/game_limits.cpp
 		src/utils/levenshtein.cpp
 		src/liquid.cpp
-		src/logger.cpp
+		src/utils/logger.cpp
 		src/magic/magic.cpp
 		src/magic/magic_items.cpp
 		src/magic/magic_rooms.cpp
@@ -109,7 +109,7 @@ set(SOURCES
 		src/magic/spells.cpp
 		src/magic/spells_info.cpp
 		src/magic/magic_temp_spells.cpp
-		src/mail.cpp
+		src/communication/mail.cpp
 		src/mapsystem.cpp
 		src/meat_maker.cpp
 		src/olc/medit.cpp
@@ -132,21 +132,21 @@ set(SOURCES
 		src/magic/magic_objects.cpp
 		src/olc/oedit.cpp
 		src/olc/olc.cpp
-		src/parcel.cpp
-		src/parse.cpp
-		src/password.cpp
+		src/communication/parcel.cpp
+		src/utils/parse.cpp
+		src/administration/password.cpp
 		src/fightsystem/pk.cpp
 		src/entities/player_races.cpp
-		src/privilege.cpp
+		src/administration/privilege.cpp
 		src/utils/pugixml.cpp
 		src/quests/quested.cpp
 		src/utils/random.cpp
 		src/olc/redit.cpp
-		src/remember.cpp
+		src/communication/remember.cpp
 		src/reset_stats.cpp
 		src/entities/room.cpp
 		src/game_mechanics/sets_drop.cpp
-		src/shop_ext.cpp
+		src/game_economics/shop_ext.cpp
 		src/cmd_god/shutdown_parameters.cpp
 		src/skills.cpp
 		src/skills_info.cpp
@@ -171,11 +171,11 @@ set(SOURCES
 		src/id.cpp
 		src/utils/utils_find_obj_id_by_vnum.cpp
         src/structs/global_objects.cpp
-		src/shops_implementation.cpp
+		src/game_economics/shops_implementation.cpp
 		src/entities/world_characters.cpp
 		src/utils/utils_debug.cpp
 		src/speedwalks.cpp
-		src/shops_implementation.cpp
+		src/game_economics/shops_implementation.cpp
         src/structs/radix_trie.cpp
         src/structs/compact_trie.cpp
 		src/id.cpp
@@ -285,7 +285,7 @@ set(HEADERS
 		src/abilities/abilities_constants.h
 		src/abilities/abilities_rollsystem.h
 		src/game_mechanics/mount.h
-		src/accounts.h
+		src/administration/accounts.h
 		src/action_targeting.h
 		src/blocking_queue.h
 		src/influxdb.h
@@ -296,7 +296,7 @@ set(HEADERS
 		src/heartbeat.h
 		src/speedwalks.h
 		src/entities/world_characters.h
-		src/shops_implementation.h
+		src/game_economics/shops_implementation.h
         src/structs/global_objects.h
 		src/utils/id_converter.h
 		src/utils/utils_find_obj_id_by_vnum.h
@@ -308,7 +308,7 @@ set(HEADERS
 		src/utils/utils_string.h
 		src/act_other.h
 		src/affects/affect_handler.h
-		src/auction.h
+		src/game_economics/auction.h
 		src/backtrace.h
 		src/cmd_god/ban.h
 		src/birthplaces.h
@@ -354,8 +354,8 @@ set(HEADERS
 		src/diskio.h
 		src/structs/structs_double_map.h
 		src/dps.h
-		src/exchange.h
-		src/ext_money.h
+		src/game_economics/exchange.h
+		src/game_economics/ext_money.h
 		src/external_trigger.h
 		src/abilities/abilities_items_set.h
 		src/feats.h
@@ -373,14 +373,14 @@ set(HEADERS
 		src/help.h
 		src/house_exp.h
 		src/house.h
-		src/ignores.h
-		src/ignores_loader.h
+		src/communication/ignores.h
+		src/communication/ignores_loader.h
 		src/crafts/im.h
 		src/interpreter.h
 		src/crafts/item_creation.h
 		src/utils/levenshtein.h
 		src/liquid.h
-		src/logger.h
+		src/utils/logger.h
 		src/magic/magic.h
 		src/magic/magic_items.h
 		src/magic/magic_rooms.h
@@ -388,7 +388,7 @@ set(HEADERS
 		src/magic/spells.h
 		src/magic/spells_info.h
 		src/magic/magic_temp_spells.h
-		src/mail.h
+		src/communication/mail.h
 		src/mapsystem.h
 		src/meat_maker.h
 		src/fightsystem/mobact.h
@@ -405,23 +405,23 @@ set(HEADERS
 		src/game_mechanics/obj_sets.h
 		src/game_mechanics/obj_sets_stuff.h
 		src/olc/olc.h
-		src/parcel.h
-		src/parse.h
-		src/password.h
+		src/communication/parcel.h
+		src/utils/parse.h
+		src/administration/password.h
 		src/fightsystem/pk.h
 		src/entities/player_i.h
 		src/entities/player_races.h
-		src/privilege.h
+		src/administration/privilege.h
 		src/utils/pugiconfig.h
 		src/utils/pugixml.h
 		src/quests/quested.h
 		src/utils/random.h
-		src/remember.h
+		src/communication/remember.h
 		src/reset_stats.h
 		src/entities/room.h
 		src/color.h
 		src/game_mechanics/sets_drop.h
-		src/shop_ext.h
+		src/game_economics/shop_ext.h
 		src/cmd_god/shutdown_parameters.h
 		src/skills.h
 		src/skills_info.h

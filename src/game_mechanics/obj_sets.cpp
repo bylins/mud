@@ -9,7 +9,7 @@
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
 #include "utils/pugixml.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "color.h"
 #include "modify.h"
 #include "help.h"
@@ -190,7 +190,7 @@ void VerifySet(SetNode &set) {
 			set.enabled = false;
 		}
 		if (i->first > set.obj_list.size()) {
-			err_log("Items set #%zu: ativator is greater then item list size (activ=%d).",
+			err_log("Items set #%zu: ativator is greater than item list size (activ=%d).",
 					num, i->first);
 			set.enabled = false;
 		}

@@ -9,7 +9,7 @@
 #include "handler.h"
 #include "utils/pugixml.h"
 #include "house.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "utils/random.h"
 
 #include <boost/algorithm/string.hpp>

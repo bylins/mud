@@ -6,7 +6,7 @@
 
 #include "info_container.h"
 
-template<class E, class I, class B>
+/*template<class E, class I, class B>
 const I &InfoContainer::operator[](const E id) const {
 	try {
 		return items_->at(id)->second;
@@ -37,6 +37,6 @@ bool InfoContainer::IsInitizalized() {
 }
 
 void InfoContainer::Init() {}
-void InfoContainer::Reload() {}
+void InfoContainer::Reload() {}*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

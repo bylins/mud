@@ -1,6 +1,6 @@
 #include "skills_info.h"
 
-#include "logger.h"
+#include "utils/logger.h"
 
 struct AttackMessages fight_messages[kMaxMessages];
 

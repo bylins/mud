@@ -26,7 +26,7 @@
 #include "game_mechanics/sets_drop.h"
 #include "fightsystem/fight.h"
 #include "entities/zone.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
 #include "structs/structs.h"

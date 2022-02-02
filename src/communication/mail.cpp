@@ -15,7 +15,7 @@
 #include "parcel.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "color.h"
 #include "utils/pugixml.h"
 

@@ -3,7 +3,7 @@
 
 #include "genchar.h"
 #include "color.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "entities/char.h"
 
 #include <boost/format.hpp>

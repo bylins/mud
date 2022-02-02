@@ -7,7 +7,7 @@
 #include "entities/char.h"
 #include "color.h"
 #include "utils/pugixml.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "entities/zone.h"
 
 #include <boost/format.hpp>

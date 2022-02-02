@@ -8,7 +8,7 @@
 #include "world_objects.h"
 #include "obj_prototypes.h"
 #include "handler.h"
-#include "auction.h"
+#include "game_economics/auction.h"
 #include "color.h"
 #include "entities/char_player.h"
 #include "modify.h"

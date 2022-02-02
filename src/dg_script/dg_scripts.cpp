@@ -28,7 +28,7 @@
 #include "dg_domination_helper.h"
 #include "game_mechanics/bonus.h"
 #include "olc/olc.h"
-#include "privilege.h"
+#include "administration/privilege.h"
 #include "fightsystem/fight_hit.h"
 //#include <string>
 

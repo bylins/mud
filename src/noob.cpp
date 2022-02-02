@@ -5,7 +5,7 @@
 
 #include "entities/char.h"
 #include "utils/pugixml.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "handler.h"
 
 int find_eq_pos(CharacterData *ch, ObjectData *obj, char *arg);

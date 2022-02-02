@@ -14,7 +14,7 @@
 
 #include "handler.h"
 #include "color.h"
-#include "auction.h"
+#include "game_economics/auction.h"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "house.h"

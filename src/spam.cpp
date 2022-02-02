@@ -4,7 +4,7 @@
 
 #include "spam.h"
 
-#include "logger.h"
+#include "utils/logger.h"
 #include "entities/char.h"
 
 using namespace SpamSystem;
