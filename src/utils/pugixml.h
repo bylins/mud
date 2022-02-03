@@ -24,6 +24,7 @@
 
 // Include stddef.h for size_t and ptrdiff_t
 #include <stddef.h>
+#include <optional>
 
 // Include exception header for XPath
 #if !defined(PUGIXML_NO_XPATH) && !defined(PUGIXML_NO_EXCEPTIONS)
