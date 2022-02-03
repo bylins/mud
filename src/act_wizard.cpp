@@ -4935,7 +4935,7 @@ void print(CharacterData *ch, int first, int last, const std::string &options) {
 				}
 			} else
 				out << " - нет скриптов";
-			sprintf(buf1, " Всего в мире: %d\r\n", mob_index[i].CountInWorld);
+			sprintf(buf1, " Всего в мире: %d\r\n", mob_index[i].total_online);
 			out << buf1;
 		}
 	}

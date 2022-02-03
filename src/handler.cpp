@@ -1964,7 +1964,7 @@ void extract_char(CharacterData *ch, int clear_objs, bool zone_reset) {
 		if ((GET_MOB_RNUM(ch) > -1)
 			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))    // if mobile и не умертвие
 		{
-			mob_index[GET_MOB_RNUM(ch)].CountInWorld--;
+			mob_index[GET_MOB_RNUM(ch)].total_online--;
 		}
 	}
 

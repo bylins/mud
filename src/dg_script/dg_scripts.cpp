@@ -350,7 +350,7 @@ int count_char_vnum(long n) {
 	int i;
 	if ((i = real_mobile(n)) < 0)
 		return 0;
-	return (mob_index[i].CountInWorld);
+	return (mob_index[i].total_online);
 }
 
 inline auto gcount_obj_vnum(long n) {

@@ -293,7 +293,7 @@ struct FeatureInfoType {
 	short criticalFailThreshold;
 	short criticalSuccessThreshold;
 	ESaving oppositeSaving;
-	ESkill baseSkill;
+	ESkill base_skill;
 
 	TechniqueItemKitsGroupType techniqueItemKitsGroup;
 

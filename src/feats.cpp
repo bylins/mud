@@ -89,7 +89,7 @@ void initializeFeature(int featureNum, const char *name, int type, bool can_up_s
 	}
 	feat_info[featureNum].ID = featureNum;
 	feat_info[featureNum].dicerollBonus = dicerollBonus;
-	feat_info[featureNum].baseSkill = baseSkill;
+	feat_info[featureNum].base_skill = baseSkill;
 	feat_info[featureNum].oppositeSaving = oppositeSaving;
 	feat_info[featureNum].type = type;
 	feat_info[featureNum].up_slot = can_up_slot;
@@ -121,7 +121,7 @@ void initializeFeatureByDefault(int featureNum) {
 	feat_info[featureNum].degreeOfSuccessDamagePercent = 5;
 	feat_info[featureNum].oppositeSaving = ESaving::kStability;
 	feat_info[featureNum].dicerollBonus = MAX_ABILITY_DICEROLL_BONUS;
-	feat_info[featureNum].baseSkill = ESkill::kIncorrect;
+	feat_info[featureNum].base_skill = ESkill::kIncorrect;
 	feat_info[featureNum].criticalFailThreshold = kDefaultCritfailThreshold;
 	feat_info[featureNum].criticalSuccessThreshold = kDefaultCritsuccessThreshold;
 
@@ -361,25 +361,35 @@ void determineFeaturesSpecification() {
 	initializeFeature(MAGICAL_INSTINCT_FEAT, "магическое чутье", AFFECT_FTYPE, true, feat_app);
 	feat_app.clear();
 //68
-	initializeFeature(PUNCH_FOCUS_FEAT, "любимое_оружие: голые руки", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(PUNCH_FOCUS_FEAT, "любимое_оружие: голые руки", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kPunch);
 //69
-	initializeFeature(CLUB_FOCUS_FEAT, "любимое_оружие: палица", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(CLUB_FOCUS_FEAT, "любимое_оружие: палица", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kClubs);
 //70
-	initializeFeature(AXES_FOCUS_FEAT, "любимое_оружие: секира", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(AXES_FOCUS_FEAT, "любимое_оружие: секира", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kAxes);
 //71
-	initializeFeature(LONGS_FOCUS_FEAT, "любимое_оружие: меч", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(LONGS_FOCUS_FEAT, "любимое_оружие: меч", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kLongBlades);
 //72
-	initializeFeature(SHORTS_FOCUS_FEAT, "любимое_оружие: нож", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(SHORTS_FOCUS_FEAT, "любимое_оружие: нож", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kShortBlades);
 //73
-	initializeFeature(NONSTANDART_FOCUS_FEAT, "любимое_оружие: необычное", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(NONSTANDART_FOCUS_FEAT, "любимое_оружие: необычное", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kNonstandart);
 //74
-	initializeFeature(BOTHHANDS_FOCUS_FEAT, "любимое_оружие: двуручник", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(BOTHHANDS_FOCUS_FEAT, "любимое_оружие: двуручник", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kTwohands);
 //75
-	initializeFeature(PICK_FOCUS_FEAT, "любимое_оружие: кинжал", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(PICK_FOCUS_FEAT, "любимое_оружие: кинжал", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kPicks);
 //76
-	initializeFeature(SPADES_FOCUS_FEAT, "любимое_оружие: копье", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(SPADES_FOCUS_FEAT, "любимое_оружие: копье", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kSpades);
 //77
-	initializeFeature(BOWS_FOCUS_FEAT, "любимое_оружие: лук", SKILL_MOD_FTYPE, true, feat_app);
+	initializeFeature(BOWS_FOCUS_FEAT, "любимое_оружие: лук", SKILL_MOD_FTYPE, true,
+					  feat_app, 0, ESkill::kBows);
 //78
 	initializeFeature(AIMING_ATTACK_FEAT, "прицельная атака", ACTIVATED_FTYPE, true, feat_app);
 //79
@@ -765,7 +775,7 @@ bool can_get_feat(CharacterData *ch, int feat) {
 		case PICK_FOCUS_FEAT:
 		case SPADES_FOCUS_FEAT:
 		case BOWS_FOCUS_FEAT:
-			if (!ch->get_skill(static_cast<ESkill>(feat_info[feat].affected[0].location))) {
+			if (!ch->get_skill(feat_info[feat].base_skill)) {
 				return false;
 			}
 
