@@ -479,7 +479,7 @@ int timechange_wtrigger(RoomData *room, const int time);
 
 void trg_featturn(CharacterData *ch, int featnum, int featdiff, int vnum);
 void trg_skillturn(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum);
-void trg_skilladd(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum);
+void AddSkill(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CharacterData *ch, int spellnum, int spelldiff, int vnum);
 void trg_spellturntemp(CharacterData *ch, int spellnum, int spelltime, int vnum);
 void trg_spelladd(CharacterData *ch, int spellnum, int spelldiff, int vnum);

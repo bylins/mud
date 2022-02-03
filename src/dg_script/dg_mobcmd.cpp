@@ -1027,9 +1027,8 @@ void do_mfeatturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 }
 
 void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	bool isSkill = false;
 	CharacterData *victim;
-	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
+	char name[kMaxInputLength], skill_name[kMaxInputLength], amount[kMaxInputLength];
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -1037,17 +1036,19 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	one_argument(two_arguments(argument, name, skillname), amount);
+	one_argument(two_arguments(argument, name, skill_name), amount);
 
-	if (!*name || !*skillname || !*amount) {
+	if (!*name || !*skill_name || !*amount) {
 		mob_log(ch, "mskillturn: too few arguments");
 		return;
 	}
-	auto skill_id = FixNameAndFindSkillNum(skillname);
+
+	auto skill_id = FixNameAndFindSkillNum(skill_name);
+	bool is_skill = false;
 	if (MUD::Skills().IsValid(skill_id)) {
-		isSkill = true;
-	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
-		sprintf(buf, "mskillturn: %s skill/recipe not found", skillname);
+		is_skill = true;
+	} else if ((recipenum = im_get_recipe_by_name(skill_name)) < 0) {
+		sprintf(buf, "mskillturn: %s skill not found", skill_name);
 		mob_log(ch, buf);
 		return;
 	}
@@ -1073,11 +1074,11 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (isSkill) {
-		if (MUD::Classes()[ch->get_class()].IsKnown(skill_id)) {
+	if (is_skill) {
+		if (MUD::Classes()[victim->get_class()].IsKnown(skill_id)) {
 			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
-			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
+			sprintf(buf, "mskillturn: skill and character class mismatch");
 			mob_log(ch, buf);
 		}
 	} else {
@@ -1126,9 +1127,9 @@ void do_mskilladd(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	};
 
 	if (isSkill) {
-		trg_skilladd(victim, skill_id, skilldiff, last_trig_vnum);
+		AddSkill(victim, skill_id, skilldiff, last_trig_vnum);
 	} else {
-		trg_recipeadd(victim, recipenum, skilldiff);
+		AddRecipe(victim, recipenum, skilldiff);
 	}
 }
 

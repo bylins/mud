@@ -322,11 +322,11 @@ void trg_skillturn(CharacterData *ch, const ESkill skillnum, int skilldiff, int 
 	} else if (skilldiff && MUD::Classes()[ch_class].IsKnown(skillnum)) {
 		ch->set_skill(skillnum, 5);
 		send_to_char(ch, "Вы изучили умение '%s'.\r\n", MUD::Skills()[skillnum].GetName());
-		log("Add %s to %s (trigskillturn)trigvnum %d", MUD::Skills()[skillnum].GetName(), GET_NAME(ch), vnum);
+		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skills()[skillnum].GetName(), GET_NAME(ch), vnum);
 	}
 }
 
-void trg_skilladd(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum) {
+void AddSkill(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	int skill = ch->get_trained_skill(skillnum);
 	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skills()[skillnum].cap));
 
