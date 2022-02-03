@@ -30,6 +30,8 @@
 #include "olc/olc.h"
 #include "privilege.h"
 #include "fightsystem/fight_hit.h"
+
+#include <chrono>
 //#include <string>
 
 constexpr long long kPulsesPerMudHour = SECS_PER_MUD_HOUR*kPassesPerSec;
@@ -693,19 +695,43 @@ ObjectData *get_obj_by_char(CharacterData *ch, char *name) {
 
 // checks every PLUSE_SCRIPT for random triggers
 void script_trigger_check() {
-	character_list.foreach_on_copy([](const CharacterData::shared_ptr &ch) {
+	std::stringstream buffer;
+		long amount, sum = 0;
+		long alarge_amount = amount;
+		CharacterData *who = nullptr;
+	character_list.foreach_on_copy([&amount, &alarge_amount, &sum, &who](const CharacterData::shared_ptr &ch) {
+		if (!who)
+			who = ch.get();
 		if (SCRIPT(ch)->has_triggers()) {
 			auto sc = SCRIPT(ch).get();
-
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM)
 				&& (!is_empty(world[ch->in_room]->zone_rn)
 					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL))) {
+				auto now = std::chrono::system_clock::now();
+				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+				auto start = now_ms.time_since_epoch();
 				random_mtrigger(ch.get());
+				now = std::chrono::system_clock::now();
+				now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+				auto end = now_ms.time_since_epoch();
+				amount = end.count() - start.count();
+				sum += amount;
+				if (amount > alarge_amount) {
+					alarge_amount = amount;
+					who = ch.get();
+				}
 			}
 		}
 	});
-
-	world_objects.foreach_on_copy([&](const ObjectData::shared_ptr &obj) {
+	buffer << "MOB random trigger: самый долгий у моба [" << GET_MOB_VNUM(who) << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms.";
+	log("%s", buffer.str().c_str());
+	buffer.str("");
+	alarge_amount = 0;
+	sum = 0;
+	ObjectData *what = nullptr;
+	world_objects.foreach_on_copy([&amount, &alarge_amount, &sum, &what](const ObjectData::shared_ptr &obj) {
+		if (!what)
+			what = obj.get();
 		if (OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED)) {
 			if (obj->get_worn_by() && number(1, 100) <= 5) {
 				NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
@@ -713,24 +739,55 @@ void script_trigger_check() {
 		} else if (obj->get_script()->has_triggers()) {
 			auto sc = obj->get_script().get();
 			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
+				auto now = std::chrono::system_clock::now();
+				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+				auto start = now_ms.time_since_epoch();
 				random_otrigger(obj.get());
+				now = std::chrono::system_clock::now();
+				now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+				auto end = now_ms.time_since_epoch();
+				amount = end.count() - start.count();
+				sum += amount;
+				if (amount > alarge_amount) {
+					alarge_amount = amount;
+					what = obj.get();
+				}
 			}
 		}
 	});
-
+	buffer << "OBJ random trigger: самый долгий у объекта [" << GET_OBJ_VNUM(what) << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms.";
+	log("%s", buffer.str().c_str());
+	buffer.str("");
+	alarge_amount = 0;
+	sum = 0;
+	RoomData *where = nullptr;
 	for (std::size_t nr = FIRST_ROOM; nr <= static_cast<std::size_t>(top_of_world); nr++) {
 		if (SCRIPT(world[nr])->has_triggers()) {
 			auto room = world[nr];
 			auto sc = SCRIPT(room).get();
-
+			if (!where)
+				where = room;
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM)
 				&& (!is_empty(room->zone_rn)
 					|| IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL))) {
-				// Если будет крэш (а он несомненно будет) можно будет посмотреть параметры в стеке
+				auto now = std::chrono::system_clock::now();
+				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+				auto start = now_ms.time_since_epoch();
 				random_wtrigger(room, room->room_vn, sc, sc->types, sc->trig_list);
+				now = std::chrono::system_clock::now();
+				now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+				auto end = now_ms.time_since_epoch();
+				amount = end.count() - start.count();
+				sum += amount;
+				if (amount > alarge_amount) {
+					alarge_amount = amount;
+					where = room;
+				}
 			}
 		}
 	}
+	buffer << "WLD random trigger: самый долгий у комнаты [" << where->room_vn << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms.";
+	log("%s", buffer.str().c_str());
 }
 
 // проверка каждый час на триги изменении времени

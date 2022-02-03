@@ -1725,7 +1725,7 @@ char *make_prompt(DescriptorData *d) {
 			if (d->character->get_skill(ESkill::kIdentify))
 				count += sprintf(prompt + count, "Пз:%d ", IsTimedBySkill(d->character.get(), ESkill::kIdentify));
 			if (d->character->get_skill(ESkill::kHangovering))
-				count += sprintf(prompt + count, "Пх:%d ", IsTimedBySkill(d->character.get(), ESkill::kHangovering));
+				count += sprintf(prompt + count, "Опх:%d ", IsTimedBySkill(d->character.get(), ESkill::kHangovering));
 			if (d->character->get_skill(ESkill::kFirstAid))
 				count += sprintf(prompt + count, "Лч:%d ", IsTimedBySkill(d->character.get(), ESkill::kFirstAid));
 			if (d->character->get_skill(ESkill::kDisguise))
