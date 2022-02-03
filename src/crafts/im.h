@@ -119,7 +119,7 @@ void im_inglist_copy(int **pdst, int *src);
 void im_extract_ing(int **pdst, int num);
 int im_get_char_rskill_count(CharacterData *ch);
 void trg_recipeturn(CharacterData *ch, int rid, int recipediff);
-void trg_recipeadd(CharacterData *ch, int rid, int recipediff);
+void AddRecipe(CharacterData *ch, int rid, int recipediff);
 int im_get_recipe_by_name(char *name);
 im_rskill *im_get_char_rskill(CharacterData *ch, int rid);
 void compose_recipe(CharacterData *ch, char *argument, int subcmd);

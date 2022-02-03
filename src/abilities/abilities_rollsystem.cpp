@@ -67,7 +67,7 @@ bool AbilityRollType::isActorCantUseAbility() {
 }
 
 void AbilityRollType::determineBaseSkill() {
-	_baseSkill = _ability->baseSkill;
+	_baseSkill = _ability->base_skill;
 }
 
 void AbilityRollType::sendDenyMessageToActor() {
@@ -154,7 +154,7 @@ short AgainstRivalRollType::calculateDicerollBonus() {
 void TechniqueRollType::determineBaseSkill() {
 	if (checkTechniqueKit()) {
 		if (_baseSkill == ESkill::kIncorrect) {
-			_baseSkill = _ability->baseSkill;
+			_baseSkill = _ability->base_skill;
 		}
 	} else {
 		_wrongConditions = true;

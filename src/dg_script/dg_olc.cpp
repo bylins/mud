@@ -378,7 +378,7 @@ void trigedit_save(DescriptorData *d) {
 					CREATE(new_index[trig_rnum], 1);
 					OLC_TRIG(d)->set_rnum(trig_rnum);
 					new_index[trig_rnum]->vnum = OLC_NUM(d);
-					new_index[trig_rnum]->number = 0;
+					new_index[trig_rnum]->total_online = 0;
 					new_index[trig_rnum]->func = nullptr;
 					new_index[trig_rnum]->proto = new Trigger(*trig);
 					--i;
@@ -399,7 +399,7 @@ void trigedit_save(DescriptorData *d) {
 			CREATE(new_index[trig_rnum], 1);
 			OLC_TRIG(d)->set_rnum(trig_rnum);
 			new_index[trig_rnum]->vnum = OLC_NUM(d);
-			new_index[trig_rnum]->number = 0;
+			new_index[trig_rnum]->total_online = 0;
 			new_index[trig_rnum]->func = nullptr;
 			new_index[trig_rnum]->proto = new Trigger(*trig);
 		}

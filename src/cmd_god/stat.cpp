@@ -246,7 +246,7 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 	} else {
 		sprintf(buf,
 				"Сейчас в мире : %d. ",
-				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].number - (virt ? 1 : 0) : -1);
+				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0) : -1);
 		send_to_char(buf, ch);
 		std::string stats;
 		mob_stat::last_kill_mob(k, stats);
@@ -986,7 +986,7 @@ void do_stat_object(CharacterData *ch, ObjectData *j, const int virt = 0) {
 	if (is_grgod) {
 		sprintf(buf,
 				"Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
-				rnum >= 0 ? obj_proto.number(rnum) - (virt ? 1 : 0) : -1,
+				rnum >= 0 ? obj_proto.CountInWorld(rnum) - (virt ? 1 : 0) : -1,
 				rnum >= 0 ? obj_proto.stored(rnum) : -1,
 				GET_OBJ_MIW(j));
 		send_to_char(buf, ch);

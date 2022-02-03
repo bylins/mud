@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<mobraces>
-  <mobrace id="100" name ="Обычный">
-  </mobrace>
-  <mobrace id="101" name ="Человек">
-  </mobrace>
-  <mobrace id="102" name ="Зверолюд">
-  </mobrace>
-  <mobrace id="103" name ="Птица">
-  </mobrace>
-  <mobrace id="104" name ="Животное">
-  </mobrace>
-  <mobrace id="105" name ="Пресмыкающееся">
-  </mobrace>
-  <mobrace id="106" name ="Рыба">
-  </mobrace>
-  <mobrace id="107" name ="Насекомое">
-  </mobrace>
-  <mobrace id="108" name ="Растение">
-  </mobrace>
-  <mobrace id="109" name ="Предмет">
-  </mobrace>
-  <mobrace id="110" name ="Живой труп">
-  </mobrace>
-  <mobrace id="111" name ="Призрак">
-  </mobrace>
-  <mobrace id="112" name ="Нечисть">
-  </mobrace>
-  <mobrace id="113" name ="Нематериальный дух">
-  </mobrace>
-  <mobrace id="114" name ="Магическое создание">
-  </mobrace>
-</mobraces>
+<mob_races>
+  <mob_race id="100" name ="Обычный">
+  </mob_race>
+  <mob_race id="101" name ="Человек">
+  </mob_race>
+  <mob_race id="102" name ="Зверолюд">
+  </mob_race>
+  <mob_race id="103" name ="Птица">
+  </mob_race>
+  <mob_race id="104" name ="Животное">
+  </mob_race>
+  <mob_race id="105" name ="Пресмыкающееся">
+  </mob_race>
+  <mob_race id="106" name ="Рыба">
+  </mob_race>
+  <mob_race id="107" name ="Насекомое">
+  </mob_race>
+  <mob_race id="108" name ="Растение">
+  </mob_race>
+  <mob_race id="109" name ="Предмет">
+  </mob_race>
+  <mob_race id="110" name ="Живой труп">
+  </mob_race>
+  <mob_race id="111" name ="Призрак">
+  </mob_race>
+  <mob_race id="112" name ="Нечисть">
+  </mob_race>
+  <mob_race id="113" name ="Нематериальный дух">
+  </mob_race>
+  <mob_race id="114" name ="Магическое создание">
+  </mob_race>
+</mob_races>

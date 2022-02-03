@@ -385,7 +385,7 @@ void do_named(CharacterData *ch, char *argument, int cmd, int subcmd) {
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
 								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
-										 obj_proto.number(r_num), obj_proto.stored(r_num),
+										 obj_proto.CountInWorld(r_num), obj_proto.stored(r_num),
 										 GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
 							} else {
 								snprintf(buf2, kMaxStringLength, "%s\r\n", buf1);

@@ -364,12 +364,12 @@ struct z_stream;
 // other miscellaneous structures **************************************
 
 struct IndexData {
-	IndexData() : vnum(0), number(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
+	IndexData() : vnum(0), total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
 	IndexData(int _vnum)
-		: vnum(_vnum), number(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
+		: vnum(_vnum), total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
 
-	int vnum;            // virtual number of this mob/obj       //
-	int number;        // number of existing units of this mob/obj //
+	Vnum vnum;            // virtual number of this mob/obj       //
+	int total_online;        // number of existing units of this mob/obj //
 	int stored;        // number of things in rent file            //
 	int (*func)(CharacterData *, void *, int, char *);
 	char *farg;        // string argument for special function     //

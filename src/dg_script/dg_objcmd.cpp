@@ -733,23 +733,24 @@ void do_ofeatturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 }
 
 void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
-	bool isSkill = false;
 	CharacterData *ch;
-	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
+	char name[kMaxInputLength], skill_name[kMaxInputLength], amount[kMaxInputLength];
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	one_argument(two_arguments(argument, name, skillname), amount);
+	one_argument(two_arguments(argument, name, skill_name), amount);
 
-	if (!*name || !*skillname || !*amount) {
+	if (!*name || !*skill_name || !*amount) {
 		obj_log(obj, "oskillturn: too few arguments");
 		return;
 	}
-	auto skill_id = FixNameAndFindSkillNum(skillname);
+
+	auto skill_id = FixNameAndFindSkillNum(skill_name);
+	bool is_skill = false;
 	if (MUD::Skills().IsValid(skill_id)) {
-		isSkill = true;
-	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
-		sprintf(buf, "oskillturn: %s skill/recipe not found", skillname);
+		is_skill = true;
+	} else if ((recipenum = im_get_recipe_by_name(skill_name)) < 0) {
+		sprintf(buf, "oskillturn: %s skill not found", skill_name);
 		obj_log(obj, buf);
 		return;
 	}
@@ -768,11 +769,11 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (isSkill) {
+	if (is_skill) {
 		if (MUD::Classes()[ch->get_class()].IsKnown(skill_id) ) {
 			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
-			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");
+			sprintf(buf, "oskillturn: skill and character class mismatch");
 			obj_log(obj, buf);
 		}
 	} else {
@@ -810,9 +811,9 @@ void do_oskilladd(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	if (isSkill) {
-		trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
+		AddSkill(ch, skillnum, skilldiff, last_trig_vnum);
 	} else {
-		trg_recipeadd(ch, recipenum, skilldiff);
+		AddRecipe(ch, recipenum, skilldiff);
 	}
 }
 

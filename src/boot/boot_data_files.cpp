@@ -1012,7 +1012,7 @@ void MobileFile::parse_mobile(const int nr) {
 	char line[256], letter;
 	char f1[128], f2[128];
 	mob_index[i].vnum = nr;
-	mob_index[i].number = 0;
+	mob_index[i].total_online = 0;
 	mob_index[i].func = nullptr;
 	mob_index[i].set_idx = -1;
 

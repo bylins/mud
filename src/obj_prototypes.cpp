@@ -16,11 +16,11 @@ size_t CObjectPrototypes::add(const CObjectPrototype::shared_ptr &prototype, con
 }
 
 void CObjectPrototypes::dec_number(const size_t rnum) {
-	if (0 == m_index[rnum].number) {
+	if (0 == m_index[rnum].CountInWorld) {
 		log("SYSERR: Attempt to decrement number of objects that does not exist at all (0 == number).");
 		return;
 	}
-	--m_index[rnum].number;
+	--m_index[rnum].CountInWorld;
 }
 
 int CObjectPrototypes::rnum(const ObjVnum vnum) const {

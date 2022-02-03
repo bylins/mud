@@ -28,7 +28,7 @@ void extract_trigger(Trigger *trig) {
 		GET_TRIG_WAIT(trig) = nullptr;
 	}
 
-	trig_index[trig->get_rnum()]->number--;
+	trig_index[trig->get_rnum()]->total_online--;
 
 	// walk the trigger list and remove this one
 	trigger_list.remove(trig);

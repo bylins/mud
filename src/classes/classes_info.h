@@ -12,6 +12,7 @@
 #include "structs/structs.h"
 
 #include <array>
+#include <optional>
 
 namespace pugi {
 class xml_node;
