@@ -731,7 +731,6 @@ void init_guilds() {
 
 			skill_id = static_cast<ESkill>(atoi(line1));
 			if (MUD::Skills().IsInvalid(skill_id)) {
-				// По номеру не нашли, пробуем по имени
 				skill_id = FixNameAndFindSkillNum(line1);
 			}
 

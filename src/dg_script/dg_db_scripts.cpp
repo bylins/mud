@@ -132,7 +132,7 @@ Trigger *read_trigger(int nr) {
 	}
 
 	Trigger *trig = new Trigger(*index->proto);
-	index->CountInWorld++;
+	index->total_online++;
 
 	return trig;
 }

@@ -101,7 +101,7 @@ void add_trig_index_entry(int nr, Trigger *trig) {
 	IndexData *index;
 	CREATE(index, 1);
 	index->vnum = nr;
-	index->CountInWorld = 0;
+	index->total_online = 0;
 	index->func = nullptr;
 	index->proto = trig;
 
@@ -3540,7 +3540,7 @@ CharacterData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	mob->id = max_id.allocate();
 
 	if (!is_corpse) {
-		mob_index[i].CountInWorld++;
+		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
 		MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
@@ -3969,7 +3969,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 				CharacterData *mob;
 				int i = real_mobile((*load)->vnum);
 				if (i > 0
-					&& mob_index[i].CountInWorld < (*load)->max) {
+					&& mob_index[i].total_online < (*load)->max) {
 					mob = read_mobile(i, REAL);
 					if (mob) {
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
@@ -4263,7 +4263,7 @@ void ZoneReset::reset_zone_essential() {
 					}
 
 					mob = nullptr;    //Добавлено Ладником
-					if (mob_index[ZCMD.arg1].CountInWorld < ZCMD.arg2 &&
+					if (mob_index[ZCMD.arg1].total_online < ZCMD.arg2 &&
 						(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4)) {
 						mob = read_mobile(ZCMD.arg1, REAL);
 						if (!mob) {

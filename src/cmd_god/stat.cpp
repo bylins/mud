@@ -246,7 +246,7 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 	} else {
 		sprintf(buf,
 				"Сейчас в мире : %d. ",
-				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].CountInWorld - (virt ? 1 : 0) : -1);
+				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0) : -1);
 		send_to_char(buf, ch);
 		std::string stats;
 		mob_stat::last_kill_mob(k, stats);
