@@ -1710,7 +1710,7 @@ void trg_recipeturn(CharacterData *ch, int rid, int recipediff) {
 	}
 }
 
-void trg_recipeadd(CharacterData *ch, int rid, int recipediff) {
+void AddRecipe(CharacterData *ch, int rid, int recipediff) {
 	im_rskill *rs;
 	int skill;
 

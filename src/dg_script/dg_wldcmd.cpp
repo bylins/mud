@@ -602,26 +602,29 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		trg_featturn(ch, featnum, featdiff, last_trig_vnum);
 	}
 }
-
+/*
+ *  Данная функция практически без изменения скопирована в команды мобов и предметов.
+ *  \todo Нужно избавиться от дублирования кода (вероятно, оно не только тут).
+ */
 void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
-	bool isSkill = false;
 	CharacterData *ch;
-	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = ESkill::kIncorrect;
+	char name[kMaxInputLength], skill_name[kMaxInputLength], amount[kMaxInputLength];
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	one_argument(two_arguments(argument, name, skillname), amount);
+	one_argument(two_arguments(argument, name, skill_name), amount);
 
-	if (!*name || !*skillname || !*amount) {
+	if (!*name || !*skill_name || !*amount) {
 		wld_log(room, "wskillturn: too few arguments");
 		return;
 	}
 
-	if ((skillnum = FixNameAndFindSkillNum(skillname)) >= ESkill::kFirst && skillnum <= ESkill::kLast) {
-		isSkill = true;
-	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
-		sprintf(buf, "wskillturn: %s skill/recipe not found", skillname);
+	auto skill_id = FixNameAndFindSkillNum(skill_name);
+	bool is_skill = false;
+	if (MUD::Skills().IsValid(skill_id)) {
+		is_skill = true;
+	} else if ((recipenum = im_get_recipe_by_name(skill_name)) < 0) {
+		sprintf(buf, "wskillturn: %s skill not found", skill_name);
 		wld_log(room, buf);
 		return;
 	}
@@ -640,11 +643,11 @@ void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (isSkill) {
-		if (MUD::Classes()[ch->get_class()].IsKnown(skillnum)) {
-			trg_skillturn(ch, skillnum, skilldiff, last_trig_vnum);
+	if (is_skill) {
+		if (MUD::Classes()[ch->get_class()].IsKnown(skill_id)) {
+			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
-			sprintf(buf, "wskillturn: несоответсвие устанавливаемого умения классу игрока");
+			sprintf(buf, "wskillturn: skill and character class mismatch");
 			wld_log(room, buf);
 		}
 	} else {
@@ -653,10 +656,8 @@ void do_wskillturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) 
 }
 
 void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
-	bool isSkill = false;
 	CharacterData *ch;
 	char name[kMaxInputLength], skillname[kMaxInputLength], amount[kMaxInputLength];
-	ESkill skillnum = ESkill::kIncorrect;
 	int recipenum = 0;
 	int skilldiff = 0;
 
@@ -667,9 +668,10 @@ void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	skillnum = FixNameAndFindSkillNum(skillname);
-	if (MUD::Skills().IsValid(skillnum)) {
-		isSkill = true;
+	auto skill_id = FixNameAndFindSkillNum(skillname);
+	bool is_skill = false;
+	if (MUD::Skills().IsValid(skill_id)) {
+		is_skill = true;
 	} else if ((recipenum = im_get_recipe_by_name(skillname)) < 0) {
 		sprintf(buf, "wskillturn: %s skill/recipe not found", skillname);
 		wld_log(room, buf);
@@ -683,10 +685,10 @@ void do_wskilladd(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (isSkill) {
-		trg_skilladd(ch, skillnum, skilldiff, last_trig_vnum);
+	if (is_skill) {
+		AddSkill(ch, skill_id, skilldiff, last_trig_vnum);
 	} else {
-		trg_recipeadd(ch, recipenum, skilldiff);
+		AddRecipe(ch, recipenum, skilldiff);
 	}
 }
 
