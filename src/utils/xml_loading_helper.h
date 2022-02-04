@@ -8,6 +8,7 @@
 
 namespace xml {
 namespace loading {
+
 class CHelper {
  private:
 	template<typename EnumType>

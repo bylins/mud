@@ -38,7 +38,7 @@ T FindConstantByAttributeValue(const char *attribute_name, const xml_node &node)
 }
 
 void ClassesInfo::Init() {
-	CharClassInfo CLassInfo;
+	CharClassInfo ClassInfo;
 	items_ = std::move(RegisterBuilder::Build(kTolerantParsing).value());
 }
 
