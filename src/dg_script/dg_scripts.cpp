@@ -4977,9 +4977,6 @@ void extract_value(Script * /*sc*/, Trigger *trig, char *cmd) {
 
 //  This is the core driver for scripts.
 //  define this if you want measure time of you scripts
-#define TIMED_SCRIPT
-
-#ifdef TIMED_SCRIPT
 int timed_script_driver(void *go, Trigger *trig, int type, int mode);
 
 int script_driver(void *go, Trigger *trig, int type, int mode) {
@@ -5052,11 +5049,7 @@ void do_dg_add_ice_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/*
 	ch->add_ice_currency(value);
 }
 
-int timed_script_driver(void *go, Trigger *trig, int type, int mode)
-#else
-int script_driver(void *go, Trigger * trig, int type, int mode)
-#endif
-{
+int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	static int depth = 0;
 	int ret_val = 1, stop = false;
 	char cmd[kMaxTrglineLength];
