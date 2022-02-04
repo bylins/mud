@@ -697,7 +697,7 @@ ObjectData *get_obj_by_char(CharacterData *ch, char *name) {
 void script_trigger_check() {
 	std::stringstream buffer;
 		long amount, sum = 0;
-		long alarge_amount = amount;
+		long alarge_amount = 0;
 		CharacterData *who = nullptr;
 	character_list.foreach_on_copy([&amount, &alarge_amount, &sum, &who](const CharacterData::shared_ptr &ch) {
 		if (!who)
