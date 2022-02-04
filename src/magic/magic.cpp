@@ -3265,15 +3265,15 @@ int CastToPoints(int level, CharacterData *ch, CharacterData *victim, int spelln
 
 	switch (spellnum) {
 		case kSpellCureLight:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * 20 + victim->get_skill(ESkill::kLifeMagic) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 3 + ch->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case kSpellCureSerious:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * 40 + victim->get_skill(ESkill::kLifeMagic) / 2;
+			hit = GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 2 + ch->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
 		case kSpellCureCritic:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * 60 + victim->get_skill(ESkill::kLifeMagic) / 2;
+			hit = int (GET_REAL_MAX_HIT(victim) / 100 * GET_REAL_INT(ch) / 1.5) + ch->get_skill(ESkill::kLifeMagic) / 2;
 			send_to_char("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
 		case kSpellHeal:

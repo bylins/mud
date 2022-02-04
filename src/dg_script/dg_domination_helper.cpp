@@ -94,7 +94,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 		}
 	}
 
-	for (const auto var_name_mob : var_name_mob_list) {
+	for (const auto &var_name_mob : var_name_mob_list) {
 		TriggerVar *vd_mob = find_var_cntx(&GET_TRIG_VARS(trig), var_name_mob.first.c_str(), sc->context);
 		if (!vd_mob) {
 			snprintf(buf2, kMaxStringLength, "local var '%s' not found", var_name_mob.first.c_str());

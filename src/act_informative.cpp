@@ -4570,7 +4570,7 @@ void do_statistic(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* sub
 #define MAX_LIST_LEN 200
 void do_users(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const char *format = "%3d %-7s %-12s %-14s %-3s %-8s ";
-	char line[200], line2[220], idletime[10], classname[20];
+	char line[200], line2[220], idletime[10], classname[128];
 	char state[30] = "\0", *timeptr, mode;
 	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
 // Хорс

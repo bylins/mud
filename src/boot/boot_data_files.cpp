@@ -860,13 +860,13 @@ bool ObjectFile::check_object(ObjectData *obj) {
 		log("SYSERR: Object #%d (%s) has negative weight (%d).",
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_WEIGHT(obj));
 	}
-
+/* спам от антуражных шмоток
 	if (GET_OBJ_RENT(obj) <= 0) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has negative cost/day (%d).",
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_RENT(obj));
 	}
-
+*/
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf);
 	if (strstr(buf, "UNDEFINED")) {
 		error = true;

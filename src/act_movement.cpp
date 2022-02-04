@@ -736,7 +736,7 @@ int do_simple_move(CharacterData *ch, int dir, int need_specials_check, Characte
 					&& EXIT(ch, i)->to_room() != kNowhere)) {
 				const auto &rdata = EXIT(ch, i);
 				if (ROOM_FLAGGED(rdata->to_room(), ROOM_DEATH)) {
-					send_to_char("\007", ch);
+					send_to_char("\007 Внимание, рядом гиблое место!\r\n", ch);
 				}
 			}
 		}

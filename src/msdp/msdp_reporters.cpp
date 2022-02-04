@@ -39,7 +39,7 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 				!= to_vnum)    // Anton Gorev (2016-05-01): Some rooms has exits that  lead to nowhere. It is a workaround.
 			{
 				exits->add(std::make_shared<Variable>(direction_commands[i],
-													  std::make_shared<StringValue>(std::to_string(to_vnum))));
+						std::make_shared<StringValue>(std::to_string(to_vnum))));
 			}
 		}
 	}
@@ -54,30 +54,26 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 		zone_name(new char[4 * strlen(zone_table[world[rnum]->zone_rn].name)], std::default_delete<char[]>());
 	descriptor()->string_to_client_encoding(zone_table[world[rnum]->zone_rn].name, zone_name.get());
 
-	room_descriptor->add(std::make_shared<Variable>("VNUM",
-													std::make_shared<StringValue>(std::to_string(vnum))));
-	room_descriptor->add(std::make_shared<Variable>("NAME",
-													std::make_shared<StringValue>(room_name.get())));
-	room_descriptor->add(std::make_shared<Variable>("AREA",
-													std::make_shared<StringValue>(zone_name.get())));
-	room_descriptor->add(std::make_shared<Variable>("ZONE",
-													std::make_shared<StringValue>(std::to_string(vnum / 100))));
+	room_descriptor->add(std::make_shared<Variable>("VNUM", std::make_shared<StringValue>(std::to_string(vnum))));
+	room_descriptor->add(std::make_shared<Variable>("NAME", std::make_shared<StringValue>(room_name.get())));
+	room_descriptor->add(std::make_shared<Variable>("AREA", std::make_shared<StringValue>(zone_name.get())));
+	room_descriptor->add(std::make_shared<Variable>("ZONE", std::make_shared<StringValue>(std::to_string(vnum / 100))));
 
 	const auto from_vnum = GET_ROOM_VNUM(from_rnum);
 	if (from_vnum != kNowhere) {
 		room_descriptor->add(std::make_shared<Variable>("FROM_ROOM",
-														std::make_shared<StringValue>(std::to_string(from_vnum))));
+				std::make_shared<StringValue>(std::to_string(from_vnum))));
 	}
 
 	if (from_direction != "-") {
 		room_descriptor->add(std::make_shared<Variable>("FROM_DIRECTION",
-														std::make_shared<StringValue>(from_direction)));
+				std::make_shared<StringValue>(from_direction)));
 	}
 
 	const auto stype = SECTOR_TYPE_BY_VALUE.find(world[rnum]->sector_type);
 	if (stype != SECTOR_TYPE_BY_VALUE.end()) {
 		room_descriptor->add(std::make_shared<Variable>("TERRAIN",
-														std::make_shared<StringValue>(stype->second)));
+				std::make_shared<StringValue>(stype->second)));
 	}
 
 	room_descriptor->add(std::make_shared<Variable>("EXITS", exits));
@@ -86,13 +82,15 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 }
 
 bool RoomReporter::blockReport() const {
+	bool nomapper = true;
 	const auto blind = (PRF_FLAGGED(descriptor()->character, PRF_BLIND)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND));  //Слепому карта не поможет!
-	const auto
-		cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
+	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
+	if (descriptor()->character->in_room != kNowhere)
+		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ROOM_NOMAPPER);
 	const auto scriptwriter = PLR_FLAGGED(descriptor()->character, PLR_SCRIPTWRITER); // скриптеру не шлем
 
-	return blind || cannot_see_in_dark || scriptwriter;
+	return blind || cannot_see_in_dark || scriptwriter || nomapper;
 }
 
 void GoldReporter::get(Variable::shared_ptr &response) {
@@ -100,7 +98,7 @@ void GoldReporter::get(Variable::shared_ptr &response) {
 
 	const auto pocket_money = std::to_string(descriptor()->character->get_gold());
 	gold->add(std::make_shared<Variable>("POCKET",
-										 std::make_shared<StringValue>(pocket_money)));
+			std::make_shared<StringValue>(pocket_money)));
 
 	const auto bank_money = std::to_string(descriptor()->character->get_bank());
 	gold->add(std::make_shared<Variable>("BANK",
