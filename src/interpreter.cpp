@@ -3484,7 +3484,7 @@ void nanny(DescriptorData *d, char *arg) {
 #ifdef TEST_BUILD
 			strncpy(GET_EMAIL(d->character), arg, 127);
 			*(GET_EMAIL(d->character) + 127) = '\0';
-			utils::lower_convert(GET_EMAIL(d->character));
+			utils::ConvertToLow(GET_EMAIL(d->character));
 			DoAfterEmailConfirm(d);
 			break;
 #endif

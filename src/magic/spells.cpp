@@ -885,7 +885,7 @@ int CheckCharmices(CharacterData *ch, CharacterData *victim, int spellnum) {
 
 void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
 	int k_skills = 0;
-	ESkill skill_id;
+	ESkill skill_id = ESkill::kIncorrect;
 	if (victim == nullptr || ch == nullptr)
 		return;
 
@@ -1387,7 +1387,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 		}
 	}
 	// тут обрабатываем, если виктим маг-зверь => передаем в фунцию создание маг шмоток (цель, базовый скил, процент владения)
-	if (MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) create_charmice_stuff(victim, skill_id, k_skills);
+	if (MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) {
+		create_charmice_stuff(victim, skill_id, k_skills);
+	}
 }
 
 void show_weapon(CharacterData *ch, ObjectData *obj) {
