@@ -241,25 +241,45 @@ void determineFeaturesSpecification() {
 //28
 	initializeFeature(COMBAT_CASTING_FEAT, "боевое колдовство", NORMAL_FTYPE, true, feat_app);
 //29
+	feat_app.insert(PUNCH_FOCUS_FEAT, 1);
 	initializeFeature(PUNCH_MASTER_FEAT, "мастер кулачного боя", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //30
+	feat_app.insert(CLUB_FOCUS_FEAT, 1);
 	initializeFeature(CLUBS_MASTER_FEAT, "мастер палицы", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //31
+	feat_app.insert(AXES_FOCUS_FEAT, 1);
 	initializeFeature(AXES_MASTER_FEAT, "мастер секиры", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //32
+	feat_app.insert(LONGS_FOCUS_FEAT, 1);
 	initializeFeature(LONGS_MASTER_FEAT, "мастер меча", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //33
+	feat_app.insert(SHORTS_FOCUS_FEAT, 1);
 	initializeFeature(SHORTS_MASTER_FEAT, "мастер ножа", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //34
+	feat_app.insert(NONSTANDART_FOCUS_FEAT, 1);
 	initializeFeature(NONSTANDART_MASTER_FEAT, "мастер необычного оружия", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //35
+	feat_app.insert(BOTHHANDS_FOCUS_FEAT, 1);
 	initializeFeature(BOTHHANDS_MASTER_FEAT, "мастер двуручника", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //36
+	feat_app.insert(PICK_FOCUS_FEAT, 1);
 	initializeFeature(PICK_MASTER_FEAT, "мастер кинжала", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //37
+	feat_app.insert(SPADES_FOCUS_FEAT, 1);
 	initializeFeature(SPADES_MASTER_FEAT, "мастер копья", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //38
+	feat_app.insert(BOWS_FOCUS_FEAT, 1);
 	initializeFeature(BOWS_MASTER_FEAT, "мастер лучник", NORMAL_FTYPE, true, feat_app);
+	feat_app.clear();
 //39
 	initializeFeature(FOREST_PATHS_FEAT, "лесные тропы", NORMAL_FTYPE, true, feat_app);
 //40
@@ -751,13 +771,17 @@ bool can_get_feat(CharacterData *ch, int feat) {
 		case PICK_MASTER_FEAT:
 		case SPADES_MASTER_FEAT:
 		case BOWS_MASTER_FEAT:
-			if (!HAVE_FEAT(ch, (ubyte) feat_info[feat].affected[1].location))
+			if (!HAVE_FEAT(ch, (ubyte) feat_info[feat].affected[0].location)) {
 				return false;
-			for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
-				if (HAVE_FEAT(ch, i))
+			}
+			for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++) {
+				if (HAVE_FEAT(ch, i)) {
 					count++;
-			if (count >= 1 + GET_REAL_REMORT(ch) / 7)
+				}
+			}
+			if (count >= 1 + GET_REAL_REMORT(ch) / 7) {
 				return false;
+			}
 			break;
 		case SPIRIT_WARRIOR_FEAT: return (HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT));
 			break;
