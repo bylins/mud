@@ -4980,44 +4980,29 @@ void extract_value(Script * /*sc*/, Trigger *trig, char *cmd) {
 int timed_script_driver(void *go, Trigger *trig, int type, int mode);
 
 int script_driver(void *go, Trigger *trig, int type, int mode) {
-	struct timeval start, stop, result;
-/*	std::string start_string_trig = "First Line";
-	std::string finish_string_trig = "<Last line is undefined because it is dangerous to obtain it>";
-	if (trig->curr_state)
-	{
-		start_string_trig = trig->curr_state->cmd;
-	}
-*/
+	int timewarning = 20; //  в текущий момент миллисекунды
+
 	CharacterLinkDrop = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
-	gettimeofday(&start, nullptr);
+
+	auto now = std::chrono::system_clock::now();
+	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+	auto start = now_ms.time_since_epoch();
+
 	const auto return_code = timed_script_driver(go, trig, type, mode);
 
-	gettimeofday(&stop, nullptr);
-	timediff(&result, &stop, &start);
+	now = std::chrono::system_clock::now();
+	now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+	auto end = now_ms.time_since_epoch();
 
-	if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC) {
-		/*
-		 * We cannot get access to trig fields here because the last command
-		 * might be "detach". In this case trigger will be deleted. Therefore
-		 * we will get the core dump here in the best case.
-		 *
-		if (trig->curr_state)
-		{
-			finish_string_trig = trig->curr_state->cmd;
-		}
-		*/
+	long timediff = end.count() - start.count();
+	if (timediff > timewarning) { 
 		snprintf(buf, kMaxStringLength, "[TrigVNum: %d] : ", vnum);
 		const auto current_buffer_length = strlen(buf);
-/*		snprintf(buf + current_buffer_length, kMaxStringLength - current_buffer_length,
-			"work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s",
-			result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
-*/
 		snprintf(buf + current_buffer_length, kMaxStringLength - current_buffer_length,
-				 "work time overflow %ld sec. %ld us.",
-				 result.tv_sec, result.tv_usec);
+				 "work time overflow %ld ms.", timediff);
 		mudlog(buf, BRF, -1, ERRLOG, true);
-	};
+	}
 	// Stop time
 	return return_code;
 }
