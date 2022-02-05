@@ -73,10 +73,12 @@ void remove_event(struct TriggerEvent *event) {
 void process_events(void) {
 	struct TriggerEvent *e = event_list;
 	struct TriggerEvent *del;
-	struct timeval start, stop, result;
 	int trig_vnum;
+	int timewarning = 50;
 
-	gettimeofday(&start, nullptr);
+	auto now = std::chrono::system_clock::now();
+	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+	auto start = now_ms.time_since_epoch();
 
 	while (e) {
 		if (--(e->time_remaining) == 0) {
@@ -90,16 +92,16 @@ void process_events(void) {
 			// На отработку отложенных тригов выделяем всего 50 мсекунд
 			// По исчерпанию лимита откладываем отработку на следующий тик.
 			// Делаем для более равномерного распределения времени процессора.
-			gettimeofday(&stop, nullptr);
-			timediff(&result, &stop, &start);
+			now = std::chrono::system_clock::now();
+			now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+			auto end = now_ms.time_since_epoch();
+			long timediff = end.count() - start.count();
 
-			if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC) {
+			if (timediff > timewarning) {
 				// Выводим номер триггера который переполнил время работы.
-				sprintf(buf,
-						"[TrigVNum: %d]: process_events overflow %ld sec. %ld us.",
-						trig_vnum, result.tv_sec, result.tv_usec);
+				sprintf(buf, "[TrigVNum: %d]: process_events overflow %ld ms.  warning  > %d ms",
+						trig_vnum, timediff, timewarning);
 				mudlog(buf, BRF, -1, ERRLOG, true);
-
 				break;
 			}
 		} else
