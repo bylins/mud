@@ -99,9 +99,8 @@ void process_events(void) {
 
 			if (timediff > timewarning) {
 				// Выводим номер триггера который переполнил время работы.
-				sprintf(buf,
-						"[TrigVNum: %d]: process_events overflow %ld ms.  warning  > 50ms",
-						trig_vnum, timediff );
+				sprintf(buf, "[TrigVNum: %d]: process_events overflow %ld ms.  warning  > %d ms",
+						trig_vnum, timediff, timewarning);
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}

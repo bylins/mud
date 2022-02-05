@@ -149,7 +149,8 @@ void script_log(const char *msg, LogMode type) {
  */
 void trig_log(Trigger *trig, const char *msg, LogMode type) {
 	char tmpbuf[kMaxStringLength];
-	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
+	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s, current line: %s", GET_TRIG_NAME(trig), 
+			GET_TRIG_VNUM(trig), msg, trig->curr_state ? trig->curr_state->cmd.c_str(): "");
 	script_log(tmpbuf, type);
 }
 
@@ -4980,7 +4981,7 @@ void extract_value(Script * /*sc*/, Trigger *trig, char *cmd) {
 int timed_script_driver(void *go, Trigger *trig, int type, int mode);
 
 int script_driver(void *go, Trigger *trig, int type, int mode) {
-	int timewarning = 20; //  в текущий момент миллисекунды
+	int timewarning = 50; //  в текущий момент миллисекунды
 
 	CharacterLinkDrop = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
@@ -4997,10 +4998,7 @@ int script_driver(void *go, Trigger *trig, int type, int mode) {
 
 	long timediff = end.count() - start.count();
 	if (timediff > timewarning) { 
-		snprintf(buf, kMaxStringLength, "[TrigVNum: %d] : ", vnum);
-		const auto current_buffer_length = strlen(buf);
-		snprintf(buf + current_buffer_length, kMaxStringLength - current_buffer_length,
-				 "work time overflow %ld ms.", timediff);
+		snprintf(buf, kMaxStringLength, "[TrigVNum: %d] : work time overflow %ld ms, warning > %d ms.", vnum, timediff, timewarning);
 		mudlog(buf, BRF, -1, ERRLOG, true);
 	}
 	// Stop time
