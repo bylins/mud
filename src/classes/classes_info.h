@@ -51,8 +51,8 @@ struct CharClassInfo {
 	SkillsPtr skillls_;
 	int skills_level_decrement_{1};
 
-	[[nodiscard]] bool IsKnown(ESkill id) const;
-	[[nodiscard]] bool IsUnknonw(const ESkill id) const { return !IsKnown(id); };
+	[[nodiscard]] bool HasSkill(ESkill id) const;
+	[[nodiscard]] bool HasntSkill(const ESkill id) const { return !HasSkill(id); };
 	[[nodiscard]] int GetMinRemort(ESkill id) const;
 	[[nodiscard]] int GetMinLevel(ESkill id) const;
 	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement_; };

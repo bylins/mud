@@ -1762,7 +1762,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						sscanf(line, "%d %d", &num, &num2);
 						if (num != 0) {
 							auto skill_id = static_cast<ESkill>(num);
-							if (MUD::Classes()[this->get_class()].IsKnown(skill_id)) {
+							if (MUD::Classes()[this->get_class()].HasSkill(skill_id)) {
 								this->set_skill(skill_id, num2);
 							}
 						}

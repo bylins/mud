@@ -531,7 +531,7 @@ int CharacterData::get_skill(const ESkill skill_num) const {
 // всем остальным -- не более 5% с шмотки
 int CharacterData::get_equipped_skill(const ESkill skill_num) const {
 	int skill = 0;
-	bool is_native = IS_NPC(this) || MUD::Classes()[chclass_].IsKnown(skill_num);
+	bool is_native = IS_NPC(this) || MUD::Classes()[chclass_].HasSkill(skill_num);
 	for (auto i : equipment) {
 		if (i) {
 			if (is_native) {
@@ -568,12 +568,11 @@ int CharacterData::get_inborn_skill(const ESkill skill_num) {
 
 int CharacterData::get_trained_skill(const ESkill skill_num) const {
 	if (AFF_FLAGGED(this, EAffectFlag::AFF_DOMINATION)) {
-		if (MUD::Classes()[chclass_].IsKnown(skill_num)) {
+		if (MUD::Classes()[chclass_].HasSkill(skill_num)) {
 			return 100;
 		}
 	}
 	if (Privilege::check_skills(this)) {
-		//return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
 		return std::clamp(current_morph_->get_trained_skill(skill_num), 0, MUD::Skills()[skill_num].cap);
 	}
 	return 0;

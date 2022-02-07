@@ -770,7 +770,7 @@ void do_oskillturn(ObjectData *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (is_skill) {
-		if (MUD::Classes()[ch->get_class()].IsKnown(skill_id) ) {
+		if (MUD::Classes()[ch->get_class()].HasSkill(skill_id) ) {
 			trg_skillturn(ch, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "oskillturn: skill and character class mismatch");
