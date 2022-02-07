@@ -98,7 +98,7 @@ const CharClassInfo &ClassesInfo::operator[](ECharClass id) const {
 	}
 }
 
-bool CharClassInfo::IsKnown(const ESkill id) const {
+bool CharClassInfo::HasSkill(ESkill id) const {
 	return skillls_->contains(id);
 };
 

@@ -183,7 +183,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	if (!spellnum && MUD::Skills().IsInvalid(skill_id)) {
+	if (!spellnum && MUD::Classes()[ch->get_class()].HasntSkill(skill_id)) {
 		const char *where = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
 		const char *what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
 		const char

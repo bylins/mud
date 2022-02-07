@@ -1997,7 +1997,7 @@ int GetSkillMinLevel(CharacterData *ch, ESkill skill) {
 
 bool IsAbleToGetSkill(CharacterData *ch, ESkill skill, int req_lvl) {
 	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].GetMinRemort(skill)
-		|| MUD::Classes()[ch->get_class()].IsUnknonw(skill)) {
+		|| MUD::Classes()[ch->get_class()].HasntSkill(skill)) {
 		return false;
 	}
 	if (ch->get_level() < GetSkillMinLevel(ch, skill, req_lvl)) {
@@ -2008,7 +2008,7 @@ bool IsAbleToGetSkill(CharacterData *ch, ESkill skill, int req_lvl) {
 
 bool IsAbleToGetSkill(CharacterData *ch, ESkill skill) {
 	if (GET_REAL_REMORT(ch) < MUD::Classes()[ch->get_class()].GetMinRemort(skill)
-		|| MUD::Classes()[ch->get_class()].IsUnknonw(skill)) {
+		|| MUD::Classes()[ch->get_class()].HasntSkill(skill)) {
 		return false;
 	}
 	if (ch->get_level() < GetSkillMinLevel(ch, skill)) {
