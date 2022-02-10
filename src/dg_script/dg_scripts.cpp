@@ -149,8 +149,8 @@ void script_log(const char *msg, LogMode type) {
  */
 void trig_log(Trigger *trig, const char *msg, LogMode type) {
 	char tmpbuf[kMaxStringLength];
-	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s, current line: %s", GET_TRIG_NAME(trig), 
-			GET_TRIG_VNUM(trig), msg, trig->curr_state ? trig->curr_state->cmd.c_str(): "");
+	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), 
+			GET_TRIG_VNUM(trig), msg);
 	script_log(tmpbuf, type);
 }
 

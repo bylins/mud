@@ -2070,6 +2070,8 @@ void try_angel_sacrifice(CharacterData *ch, CharacterData *victim) {
 					if (!pk_agro_action(keeper->get_master(), ch)) {
 						return;
 					}
+					log("angel_sacrifice: Nmae (ch): %s, Name(charmice): %s, name(victim): %s", GET_NAME(ch), GET_NAME(keeper), GET_NAME(victim));
+
 					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
 								 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
 					snprintf(buf, kMaxStringLength, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
