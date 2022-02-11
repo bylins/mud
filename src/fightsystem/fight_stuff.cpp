@@ -528,6 +528,12 @@ void arena_kill(CharacterData *ch, CharacterData *killer) {
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
 		affect_from_char(ch, RemoveSpell(i));
 	}
+	// наемовские яды
+	affect_from_char(ch, kSpellAconitumPoison);
+	affect_from_char(ch, kSpellDaturaPoison);
+	affect_from_char(ch, kSpellScopolaPoison);
+	affect_from_char(ch, kSpellBelenaPoison);
+
 	char_from_room(ch);
 	char_to_room(ch, to_room);
 	look_at_room(ch, to_room);
