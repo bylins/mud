@@ -1075,7 +1075,7 @@ void do_mskillturn(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*
 	}
 
 	if (is_skill) {
-		if (MUD::Classes()[victim->get_class()].IsKnown(skill_id)) {
+		if (MUD::Classes()[victim->get_class()].HasSkill(skill_id)) {
 			trg_skillturn(victim, skill_id, skilldiff, last_trig_vnum);
 		} else {
 			sprintf(buf, "mskillturn: skill and character class mismatch");
