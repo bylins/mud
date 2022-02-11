@@ -240,7 +240,8 @@ set(SOURCES
 		src/abilities/abilities_constants.cpp
 		src/classes/classes_info.cpp
 		src/utils/objects_filter.cpp
-		src/structs/info_container.cpp)
+		src/structs/info_container.cpp
+		src/utils/wrapper.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -460,7 +461,8 @@ set(HEADERS
 		src/abilities/abilities_info.h
 		src/classes/classes_info.h
 		src/utils/objects_filter.h
-		src/structs/info_container.h)
+		src/structs/info_container.h
+		src/utils/wrapper.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

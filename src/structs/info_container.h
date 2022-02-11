@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include "utils/logger.h"
+#include "utils/wrapper.h"
 
 namespace info_container {
 
