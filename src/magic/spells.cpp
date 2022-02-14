@@ -1834,7 +1834,7 @@ void mort_show_char_values(CharacterData *victim, CharacterData *ch, int fullnes
 	val0 = GET_HEIGHT(victim);
 	val1 = GET_WEIGHT(victim);
 	val2 = GET_SIZE(victim);
-	sprintf(buf, /*"Рост %d , */ " Вес %d, Размер %d\r\n", /*val0, */ val1,
+	sprintf(buf, "Вес %d, Размер %d\r\n", val1,
 			val2);
 	send_to_char(buf, ch);
 	if (fullness < 60 && ch != victim)
@@ -2200,7 +2200,9 @@ void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*
 	affect_to_char(mob, af);
 
 	//Set shields
-	int count_shields = 0; // временно base_shields + floorf(eff_cha * additional_shields_for_charisma);
+	float base_shields = 0.0;
+	float additional_shields_for_charisma = 0.0454; // 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
+	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
 		af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
 		affect_to_char(mob, af);
@@ -2250,7 +2252,7 @@ void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*
 	mob->set_str(1 + floorf(additional_str_for_charisma * eff_cha));
 	mob->set_dex(1 + floorf(additional_dex_for_charisma * eff_cha));
 	mob->set_con(1 + floorf(additional_con_for_charisma * eff_cha));
-	mob->set_int(1 + floorf(additional_int_for_charisma * eff_cha));
+	mob->set_int(MAX(50, 1 + floorf(additional_int_for_charisma * eff_cha))); //кап 50
 	mob->set_wis(1 + floorf(additional_wis_for_charisma * eff_cha));
 	mob->set_cha(1 + floorf(additional_cha_for_charisma * eff_cha));
 
@@ -2281,10 +2283,10 @@ void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*
 	mob->set_skill(ESkill::kRescue, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
-
-	SET_SPELL(mob, kSpellCureBlind, 1);
-	SET_SPELL(mob, kSpellRemoveHold, 1);
-	SET_SPELL(mob, kSpellRemovePoison, 1);
+	int base_spell = 2;
+	SET_SPELL(mob, kSpellCureBlind, base_spell);
+	SET_SPELL(mob, kSpellRemoveHold, base_spell);
+	SET_SPELL(mob, kSpellRemovePoison, base_spell);
 	SET_SPELL(mob, kSpellHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 
 	if (mob->get_skill(ESkill::kAwake)) {
