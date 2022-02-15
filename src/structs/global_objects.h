@@ -37,7 +37,6 @@ class GlobalObjects {
  public:
 	static abilities::AbilitiesInfo &Abilities();
 	static SkillsInfo &Skills();
-	static SkillsInfo_N &NewSkills();
 	static cfg_manager::CfgManager &CfgManager();
 	static classes::ClassesInfo &Classes();
 	static WorldObjects &world_objects();

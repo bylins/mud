@@ -2302,10 +2302,6 @@ void boot_db(void) {
 	log("Loading spell definitions.");
 	InitSpells();
 
-	boot_profiler.next_step("Loading skills definitions");
-	log("Loading skills definitions.");
-	MUD::Skills().Init();
-
 	boot_profiler.next_step("Loading features definitions");
 	log("Loading features definitions.");
 	determineFeaturesSpecification();

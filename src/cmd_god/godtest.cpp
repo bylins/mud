@@ -27,7 +27,7 @@ void do_godtest(CharacterData *ch, char *argument, int /* cmd */, int /* subcmd 
 	}*/
 
 	std::stringstream buffer;
-	MUD::NewSkills()[ESkill::kLongBlades].Print(buffer);
+	MUD::Skills()[ESkill::kLongBlades].Print(buffer);
 	page_string(ch->desc, buffer.str());
 
 /*	buffer << "В настоящий момент процiдурка пуста.\r\nЕсли вам хочется что-то godtest - придется ее реализовать."

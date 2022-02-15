@@ -20,7 +20,7 @@ class SkillsLoader : virtual public cfg_manager::ICfgLoader {
 };
 
 
-struct SkillInfo_N : public info_container::IItem<ESkill> {
+struct SkillInfo : public info_container::IItem<ESkill> {
 	ESkill id{ESkill::kFirst};
 	std::string name{"!undefined!"};
 	std::string short_name{"!error"};
@@ -33,44 +33,6 @@ struct SkillInfo_N : public info_container::IItem<ESkill> {
 	ESkill GetId() final { return id; };
 	EItemMode GetMode() final { return mode; };
 
-	[[nodiscard]] const char *GetName() const { return name.c_str(); };
-	[[nodiscard]] const char *GetAbbr() const { return short_name.c_str(); };
-	void Print(std::stringstream &buffer) const;
-};
-
-class SkillInfoBuilder : public info_container::IItemBuilder<SkillInfo_N> {
- public:
-	ItemOptional Build(parser_wrapper::DataNode &node) final;
- private:
-	static ItemOptional &ParseObligatoryValues(ItemOptional &optional, parser_wrapper::DataNode &node);
-	static ItemOptional &ParseDispensableValues(ItemOptional &optional, parser_wrapper::DataNode &node);
-};
-
-using SkillsInfo_N = info_container::InfoContainer<ESkill, SkillInfo_N, SkillInfoBuilder>;
-
-/*
- *  ===================================================================================================================
- *  ===================================================================================================================
- *  ===================================================================================================================
- */
-
-struct SkillInfo {
-	SkillInfo() = default;
-	SkillInfo(const std::string &name, const std::string &short_name, const ESaving saving, int difficulty, int cap) :
-		name(name),
-		short_name(short_name),
-		save_type(saving),
-		difficulty(difficulty),
-		cap(cap),
-		autosuccess(false) {};
-
-	std::string name{"!undefined!"};
-	std::string short_name{"!error"};
-	ESaving save_type{ESaving::kFirst};
-	int difficulty{1};
-	int cap{1};
-	bool autosuccess{false};
-
 	/**
 	 * Чтобы не писать все время c_str()
 	 * Если нужен именно std::string - можно получить напрямую.
@@ -78,66 +40,18 @@ struct SkillInfo {
 	 */
 	[[nodiscard]] const char *GetName() const { return name.c_str(); };
 	[[nodiscard]] const char *GetAbbr() const { return short_name.c_str(); };
+	void Print(std::stringstream &buffer) const;
 };
 
-class SkillsInfo {
+class SkillInfoBuilder : public info_container::IItemBuilder<SkillInfo> {
  public:
-	SkillsInfo() {
-		if (!items_) {
-			items_ = std::make_unique<Register>();
-			items_->emplace(ESkill::kUndefined, std::make_unique<Pair>(std::make_pair(false, SkillInfo())));
-		}
-	};
-	SkillsInfo(SkillsInfo &s) = delete;
-	void operator=(const SkillsInfo &s) = delete;
-
-	/*
-	 *  Доступ к элементу с указанным id или kUndefined элементу.
-	 */
-	const SkillInfo &operator[](ESkill id) const;
-
-	/*
-	 *  Инициализация. Для реинициализации используйте Reload();
-	 */
-	void Init();
-
-	/*
-	 *  Такой id известен. Не гарантируется, что он означает корректный элемент.
-	 */
-	bool IsKnown(ESkill id);
-
-	/*
-	 *  Такой id неизвестен.
-	 */
-	bool IsUnknown(ESkill id) { return !IsKnown(id); };
-
-	/*
-	 *  Такой id известен и он корректен, т.е. определен, лежит между первым и последним элементом
-	 *  и не откллючен.
-	 */
-	bool IsValid(ESkill id);
-
-	/*
-	 *  Такой id некорректен, т.е. не определен, отключен или лежит вне корректного диапазона.
-	 */
-	bool IsInvalid(ESkill id) { return !IsValid(id); };
-
+	ItemOptional Build(parser_wrapper::DataNode &node) final;
  private:
-	using Pair = std::pair<bool, SkillInfo>;
-	using PairPtr = std::unique_ptr<Pair>;
-	using Register = std::unordered_map<ESkill, PairPtr>;
-	using RegisterPtr = std::unique_ptr<Register>;
-//	using RegisterOptional = std::optional<RegisterPtr>;
-
-	RegisterPtr items_;
-
-	bool IsInitizalized();
-	bool IsEnabled(ESkill id);
-
-	void InitSkill(ESkill id, const std::string &name, const std::string &short_name,
-				   ESaving saving, int difficulty, int cap, bool enabled = true);
-
+	static ItemOptional &ParseObligatoryValues(ItemOptional &optional, parser_wrapper::DataNode &node);
+	static ItemOptional &ParseDispensableValues(ItemOptional &optional, parser_wrapper::DataNode &node);
 };
+
+using SkillsInfo = info_container::InfoContainer<ESkill, SkillInfo, SkillInfoBuilder>;
 
 // Этому место в структуре скилл_инфо (а еще точнее - абилок), но во-первых, в messages запихали и сообщения спеллов,
 // и еще черта лысого в ступе, во-вторых, это надо переделывать структуру и ее парсинг. Поэтому пока так.
