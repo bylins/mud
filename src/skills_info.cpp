@@ -1,10 +1,10 @@
 //#include "skills_info.h"
 
+#include "color.h"
 #include "structs/global_objects.h"
 #include "utils/parse.h"
-//#include "skills_info.h"
 
-//#include "utils/logger.h"
+//#include <iostream>
 
 struct AttackMessages fight_messages[kMaxMessages];
 
@@ -185,6 +185,17 @@ Optional &SkillInfoBuilder::ParseObligatoryValues(Optional &optional, DataNode &
 		optional = std::nullopt;
 	}
 	return optional;
+}
+
+void SkillInfo_N::Print(std::stringstream &buffer) const {
+	buffer << "Print skill:" << "\n"
+		   << " Id: " << KGRN << NAME_BY_ITEM<ESkill>(id) << KNRM << "\n"
+		   << " Name: " << KGRN << name << KNRM << "\n"
+		   << " Abbreviation: " << KGRN << short_name << KNRM << "\n"
+		   << " Save type: " << KGRN << NAME_BY_ITEM<ESaving>(save_type) << KNRM << "\n"
+		   << " Difficulty: " << KGRN << difficulty << KNRM << "\n"
+		   << " Skill cap: " << KGRN << cap << KNRM << "\n"
+		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

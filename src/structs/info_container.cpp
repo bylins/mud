@@ -8,13 +8,6 @@
 
 #include <map>
 
-/*namespace info_container {
-
-template<typename E, typename I, typename B> B InfoContainer<E, I, B>::RegisterBuilder::item_builder_;
-template<typename E, typename I, typename B> bool InfoContainer<E, I, B>::RegisterBuilder::strict_pasring_;
-
-}*/ // info_container
-
 typedef std::map<EItemMode, std::string> EItemMode_name_by_value_t;
 typedef std::map<const std::string, EItemMode> EItemMode_value_by_name_t;
 EItemMode_name_by_value_t EItemMode_name_by_value;

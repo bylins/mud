@@ -35,6 +35,7 @@ struct SkillInfo_N : public info_container::IItem<ESkill> {
 
 	[[nodiscard]] const char *GetName() const { return name.c_str(); };
 	[[nodiscard]] const char *GetAbbr() const { return short_name.c_str(); };
+	void Print(std::stringstream &buffer) const;
 };
 
 class SkillInfoBuilder : public info_container::IItemBuilder<SkillInfo_N> {

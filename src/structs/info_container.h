@@ -70,10 +70,10 @@ class InfoContainer {
 	 */
 	const I &operator[](E id) const {
 		try {
-			return items_->at(id);
+			return *(items_->at(id));
 		} catch (const std::out_of_range &) {
 			err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name());
-			return items_->at(E::kUndefined);
+			return *(items_->at(E::kUndefined));
 		}
 	};
 
@@ -86,7 +86,6 @@ class InfoContainer {
 			err_log("Don't try re-init containers. Use 'Reload()'.");
 			return;
 		}
-		RegisterBuilder builder;
 		items_ = std::move(RegisterBuilder::TolerantBuild(data).value());
 	};
 

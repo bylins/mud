@@ -16,7 +16,7 @@ CfgManager::CfgManager() {
 /*	loaders_.emplace("pcclasses", "lib/cfg/classes/pc_classes.xml");
 	loaders_.emplace("abilities", "lib/cfg/abilities.xml");
 	loaders_.emplace("mobraces", "lib/cfg/mob_races.xml");*/
-	loaders_.emplace("skills", LoaderInfo("lib/cfg/skills.xml", std::make_unique<SkillsLoader>(SkillsLoader())));
+	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml", std::make_unique<SkillsLoader>(SkillsLoader())));
 }
 
 void CfgManager::BootBaseCfgs() {
