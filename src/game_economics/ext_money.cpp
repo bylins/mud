@@ -645,34 +645,34 @@ void init() {
 		return;
 	}
 
-	WHERE_TO_REMORT_STR = Parse::child_value_str(main_node, "WHERE_TO_REMORT_STR");
-	TORC_EXCH_RATE = Parse::child_value_int(main_node, "TORC_EXCH_RATE");
+	WHERE_TO_REMORT_STR = parse::ReadChildValueAsStr(main_node, "WHERE_TO_REMORT_STR");
+	TORC_EXCH_RATE = parse::ReadChildValueAsInt(main_node, "TORC_EXCH_RATE");
 
-	type_list[kTorcGold].MORT_NUM = Parse::child_value_int(main_node, "GOLD_MORT_NUM");
-	type_list[kTorcGold].MORT_REQ = Parse::child_value_int(main_node, "GOLD_MORT_REQ");
-	type_list[kTorcGold].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "GOLD_MORT_REQ_ADD_PER_MORT");
-	type_list[kTorcGold].DROP_LVL = Parse::child_value_int(main_node, "GOLD_DROP_LVL");
-	type_list[kTorcGold].DROP_AMOUNT = Parse::child_value_int(main_node, "GOLD_DROP_AMOUNT");
-	type_list[kTorcGold].DROP_AMOUNT_ADD_PER_LVL = Parse::child_value_int(main_node, "GOLD_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[kTorcGold].MINIMUM_DAYS = Parse::child_value_int(main_node, "GOLD_MINIMUM_DAYS");
+	type_list[kTorcGold].MORT_NUM = parse::ReadChildValueAsInt(main_node, "GOLD_MORT_NUM");
+	type_list[kTorcGold].MORT_REQ = parse::ReadChildValueAsInt(main_node, "GOLD_MORT_REQ");
+	type_list[kTorcGold].MORT_REQ_ADD_PER_MORT = parse::ReadChildValueAsInt(main_node, "GOLD_MORT_REQ_ADD_PER_MORT");
+	type_list[kTorcGold].DROP_LVL = parse::ReadChildValueAsInt(main_node, "GOLD_DROP_LVL");
+	type_list[kTorcGold].DROP_AMOUNT = parse::ReadChildValueAsInt(main_node, "GOLD_DROP_AMOUNT");
+	type_list[kTorcGold].DROP_AMOUNT_ADD_PER_LVL = parse::ReadChildValueAsInt(main_node, "GOLD_DROP_AMOUNT_ADD_PER_LVL");
+	type_list[kTorcGold].MINIMUM_DAYS = parse::ReadChildValueAsInt(main_node, "GOLD_MINIMUM_DAYS");
 
-	type_list[kTorcSilver].MORT_NUM = Parse::child_value_int(main_node, "SILVER_MORT_NUM");
-	type_list[kTorcSilver].MORT_REQ = Parse::child_value_int(main_node, "SILVER_MORT_REQ");
-	type_list[kTorcSilver].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "SILVER_MORT_REQ_ADD_PER_MORT");
-	type_list[kTorcSilver].DROP_LVL = Parse::child_value_int(main_node, "SILVER_DROP_LVL");
-	type_list[kTorcSilver].DROP_AMOUNT = Parse::child_value_int(main_node, "SILVER_DROP_AMOUNT");
+	type_list[kTorcSilver].MORT_NUM = parse::ReadChildValueAsInt(main_node, "SILVER_MORT_NUM");
+	type_list[kTorcSilver].MORT_REQ = parse::ReadChildValueAsInt(main_node, "SILVER_MORT_REQ");
+	type_list[kTorcSilver].MORT_REQ_ADD_PER_MORT = parse::ReadChildValueAsInt(main_node, "SILVER_MORT_REQ_ADD_PER_MORT");
+	type_list[kTorcSilver].DROP_LVL = parse::ReadChildValueAsInt(main_node, "SILVER_DROP_LVL");
+	type_list[kTorcSilver].DROP_AMOUNT = parse::ReadChildValueAsInt(main_node, "SILVER_DROP_AMOUNT");
 	type_list[kTorcSilver].DROP_AMOUNT_ADD_PER_LVL =
-		Parse::child_value_int(main_node, "SILVER_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[kTorcSilver].MINIMUM_DAYS = Parse::child_value_int(main_node, "SILVER_MINIMUM_DAYS");
+		parse::ReadChildValueAsInt(main_node, "SILVER_DROP_AMOUNT_ADD_PER_LVL");
+	type_list[kTorcSilver].MINIMUM_DAYS = parse::ReadChildValueAsInt(main_node, "SILVER_MINIMUM_DAYS");
 
-	type_list[kTorcBronze].MORT_NUM = Parse::child_value_int(main_node, "BRONZE_MORT_NUM");
-	type_list[kTorcBronze].MORT_REQ = Parse::child_value_int(main_node, "BRONZE_MORT_REQ");
-	type_list[kTorcBronze].MORT_REQ_ADD_PER_MORT = Parse::child_value_int(main_node, "BRONZE_MORT_REQ_ADD_PER_MORT");
-	type_list[kTorcBronze].DROP_LVL = Parse::child_value_int(main_node, "BRONZE_DROP_LVL");
-	type_list[kTorcBronze].DROP_AMOUNT = Parse::child_value_int(main_node, "BRONZE_DROP_AMOUNT");
+	type_list[kTorcBronze].MORT_NUM = parse::ReadChildValueAsInt(main_node, "BRONZE_MORT_NUM");
+	type_list[kTorcBronze].MORT_REQ = parse::ReadChildValueAsInt(main_node, "BRONZE_MORT_REQ");
+	type_list[kTorcBronze].MORT_REQ_ADD_PER_MORT = parse::ReadChildValueAsInt(main_node, "BRONZE_MORT_REQ_ADD_PER_MORT");
+	type_list[kTorcBronze].DROP_LVL = parse::ReadChildValueAsInt(main_node, "BRONZE_DROP_LVL");
+	type_list[kTorcBronze].DROP_AMOUNT = parse::ReadChildValueAsInt(main_node, "BRONZE_DROP_AMOUNT");
 	type_list[kTorcBronze].DROP_AMOUNT_ADD_PER_LVL =
-		Parse::child_value_int(main_node, "BRONZE_DROP_AMOUNT_ADD_PER_LVL");
-	type_list[kTorcBronze].MINIMUM_DAYS = Parse::child_value_int(main_node, "BRONZE_MINIMUM_DAYS");
+		parse::ReadChildValueAsInt(main_node, "BRONZE_DROP_AMOUNT_ADD_PER_LVL");
+	type_list[kTorcBronze].MINIMUM_DAYS = parse::ReadChildValueAsInt(main_node, "BRONZE_MINIMUM_DAYS");
 
 	// не из конфига, но инится заодно со всеми
 	type_list[kTorcGold].DESC_MESSAGE_NUM = WHAT_TGOLD;

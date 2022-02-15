@@ -25,154 +25,177 @@
 
 namespace parser_wrapper {
 
-    class BaseDataNode : public std::iterator<
-            std::forward_iterator_tag,  // iterator_category
-            std::ptrdiff_t,             // difference
-            BaseDataNode,                   // value_type
-            BaseDataNode *,                 // pointer
-            BaseDataNode &                  // reference
-    > {
-    protected:
-        using DocPtr = std::shared_ptr<pugi::xml_document>;
+template<class N>
+class NodeRange {
+ public:
+	explicit NodeRange(N begin) :
+		begin_{begin},
+		end_{N()} {}
 
-        DocPtr xml_doc_;
-        // Получить указатель на ноду непосредственно штатными средстваим нельзя.
-        pugi::xml_node curren_xml_node_;
+	[[nodiscard]] auto begin() const { return begin_; };
+	[[nodiscard]] auto end() const { return end_; };
 
-    public:
-        BaseDataNode() :
-                xml_doc_{std::make_shared<pugi::xml_document>()} {};
+ private:
+	N begin_;
+	N end_;
+};
 
-        explicit BaseDataNode(std::filesystem::path &file_name);
+class DataNode : public std::iterator<
+	std::forward_iterator_tag,  // iterator_category
+	std::ptrdiff_t,             // difference
+	DataNode,                   // value_type
+	DataNode *,                 // pointer
+	DataNode &                  // reference
+> {
+ protected:
+	using DocPtr = std::shared_ptr<pugi::xml_document>;
 
-        BaseDataNode(const BaseDataNode &d);
+	DocPtr xml_doc_;
+	// Получить указатель на ноду непосредственно штатными средстваим нельзя.
+	pugi::xml_node curren_xml_node_;
 
-        ~BaseDataNode() = default;
+ public:
+	DataNode() :
+		xml_doc_{std::make_shared<pugi::xml_document>()},
+		curren_xml_node_{pugi::xml_node()} {};
 
-        BaseDataNode &operator=(const BaseDataNode &d) = default;
+	explicit DataNode(const std::filesystem::path &file_name);
 
-        explicit operator bool() const;
+	DataNode(const DataNode &d);
 
-        bool operator==(const BaseDataNode &d) const;
+	~DataNode() = default;
 
-        bool operator!=(const BaseDataNode &other) const;
+	class NameIterator {
+		using iterator_category = std::forward_iterator_tag;
+		using difference_type   = std::ptrdiff_t;
+		using value_type        = DataNode;
+		using pointer           = DataNode*;
+		using reference         = DataNode&;
 
-        reference operator*();
+		std::shared_ptr<DataNode> node_;
+	 public:
+		NameIterator() :
+			node_{std::make_shared<DataNode>()} {};
 
-        pointer operator->();
+		explicit NameIterator(DataNode &node) :
+			node_{std::make_shared<DataNode>(node)}
+		{};
 
-        /*
-         *  Имя текущего узла.
-         */
-        [[nodiscard]] const char *GetName() const;
+		NameIterator &operator++();
 
-        /*
-         *  Проверка, что текущий узел пуст.
-         */
-        [[nodiscard]] bool IsEmpty() const;
+		const NameIterator operator++(int);
 
-        /*
-         *  Проверка, что текущий узел не пуст.
-         */
-        [[maybe_unused]] [[nodiscard]] bool IsNotEmpty() const { return !IsEmpty(); };
+		bool operator==(const NameIterator &it) const { return node_->curren_xml_node_ == it.node_->curren_xml_node_; };
 
-        /*
-         * Значение пары с указанным ключом. Пустое значение соответствует
-         * паре с ключом, равным имени текущего узла.
-         */
-        [[nodiscard]] const char *GetValue(const std::string &key = "") const;
+		bool operator!=(const NameIterator &other) const { return !(*this == other); };
 
-        /*
-         *  Переместиться к коревому узлу.
-         */
-        [[maybe_unused]] void GoToRadix();
+		reference operator*() const { return *node_; }
 
-        /*
-         *  Переместиться к родительскому узлу, если текущий узел не корневой.
-         */
-        [[maybe_unused]] void GoToParent();
+		pointer operator->() { return node_.get(); }
 
-        /*
-         *  Имеется ли дочерний узел с таким ключом.
-         */
-        [[maybe_unused]] bool HaveChild(const std::string &key);
+	};
 
-        /*
-         * Переместиться к дочернему узлу key.
-         */
-        [[maybe_unused]] void GoToChild(const std::string &key);
+	DataNode &operator=(const DataNode &d) = default;
 
-        /*
-         * Переместиться к сестринскому узлу key, если такой узел есть.
-         * Результат - сестринский узел или пусто.
-         */
-        [[maybe_unused]] void GoToSibling(const std::string &key);
+	explicit operator bool() const;
 
-        /*
-         * Имеет предыдущий сестринский узел.
-         */
-        [[maybe_unused]] bool HavePrevious();
+	DataNode &operator++();
 
-        /*
-         * Переместиться к предыдущему сестринскому узлу.
-         */
-        [[maybe_unused]] void GoToPrevious();
+	const DataNode operator++(int);
 
-        /*
-         * Имеет следующий сестринский узел.
-         */
-        [[maybe_unused]] bool HaveNext();
+	DataNode &operator--();
 
-        /*
-         * Переместиться к следующему сестринскому узлу.
-         */
-        [[maybe_unused]] void GoToNext();
+	const DataNode operator--(int);
 
-        /*
-         * Имеет следующий одноименный сестринский узел.
-         */
-        //[[maybe_unused]] bool HaveNamesake();
+	bool operator==(const DataNode &d) const;
 
-        /*
-         * Переместиться к сестринскому узлу с таким же ключом.
-         * Результат - сестринский узел или пусто.
-         */
-        //[[maybe_unused]] void GoToNamesake();
+	bool operator!=(const DataNode &other) const;
 
-    };
+	reference operator*();
 
-    class NamedDataNode : public BaseDataNode {
-    public:
-        explicit NamedDataNode(std::filesystem::path &file_name) :
-                BaseDataNode(file_name) {};
+	pointer operator->();
 
-        class NamedRange {
-            friend class NamedDataNode;
-        public:
-            [[nodiscard]] auto begin() const { return *begin_; };
-            [[nodiscard]] auto end() const { return *end_; };
+	/*
+	 *  Имя текущего узла.
+	 */
+	[[nodiscard]] const char *GetName() const;
 
-        private:
-            std::shared_ptr<NamedDataNode> begin_;
-            std::shared_ptr<NamedDataNode> end_;
+	/*
+	 *  Проверка, что текущий узел пуст.
+	 */
+	[[nodiscard]] bool IsEmpty() const;
 
-            [[maybe_unused]] NamedRange(NamedDataNode *node, const std::string &name);
-        };
+	/*
+	 *  Проверка, что текущий узел не пуст.
+	 */
+	[[nodiscard]] bool IsNotEmpty() const { return !IsEmpty(); };
 
-        /*
-         * Список дочерних узлов с именем key для loop range based итерации,
-         */
-        [[nodiscard]] NamedRange Childen(const std::string &key);
+	/*
+	 * Значение пары с указанным ключом. Пустое значение соответствует
+	 * паре с ключом, равным имени текущего узла.
+	 */
+	[[nodiscard]] const char *GetValue(const std::string &key = "") const;
 
-        BaseDataNode &operator++();
+	/*
+	 *  Переместиться к коревому узлу.
+	 */
+	void GoToRadix();
 
-        const BaseDataNode operator++(int);
+	/*
+	 *  Переместиться к родительскому узлу, если текущий узел не корневой.
+	 */
+	void GoToParent();
 
-        BaseDataNode &operator--();
+	/*
+	 *  Имеется ли дочерний узел с таким ключом.
+	 */
+	bool HaveChild(const std::string &key);
 
-        const BaseDataNode operator--(int);
-    };
+	/*
+	 * Переместиться к дочернему узлу key.
+	 */
+	void GoToChild(const std::string &key);
+
+	/*
+	 * Переместиться к сестринскому узлу key, если такой узел есть.
+	 * Результат - сестринский узел или пусто.
+	 */
+	void GoToSibling(const std::string &key);
+
+	/*
+	 * Имеет предыдущий сестринский узел.
+	 */
+	bool HavePrevious();
+
+	/*
+	 * Переместиться к предыдущему сестринскому узлу.
+	 */
+	void GoToPrevious();
+
+	/*
+	 * Имеет следующий сестринский узел.
+	 */
+	bool HaveNext();
+
+	/*
+	 * Переместиться к следующему сестринскому узлу.
+	 */
+	void GoToNext();
+
+	/*
+	 * Диапазон всех дочерних узлов.
+	 */
+	[[nodiscard]] NodeRange<DataNode> Children();
+
+	/*
+	 * Диапазон дочерних узлов с именем key,
+	 */
+	[[nodiscard]] NodeRange<NameIterator> Children(const std::string &key);
+
+};
 
 } //parcer_wrapper
 
 #endif // PARSER_WRAPPER
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

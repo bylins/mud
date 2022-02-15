@@ -33,23 +33,23 @@ void init() {
 		return;
 	}
 
-	const pugi::xml_node root_node = Parse::get_child(doc, "noob_help");
+	const pugi::xml_node root_node = parse::GetChild(doc, "noob_help");
 	if (!root_node) return;
 
 	// <noob max_lvl="" max_money="" wait_period="" />
-	pugi::xml_node cur_node = Parse::get_child(root_node, "noob");
+	pugi::xml_node cur_node = parse::GetChild(root_node, "noob");
 	if (cur_node) {
-		MAX_LEVEL = Parse::attr_int(cur_node, "max_lvl");
+		MAX_LEVEL = parse::ReadAttrAsInt(cur_node, "max_lvl");
 	}
 
 	// <all_classes>
-	cur_node = Parse::get_child(root_node, "all_classes");
+	cur_node = parse::GetChild(root_node, "all_classes");
 	if (!cur_node) return;
 
 	for (pugi::xml_node obj_node = cur_node.child("obj");
 		 obj_node; obj_node = obj_node.next_sibling("obj")) {
-		int vnum = Parse::attr_int(obj_node, "vnum");
-		if (Parse::valid_obj_vnum(vnum)) {
+		int vnum = parse::ReadAttrAsInt(obj_node, "vnum");
+		if (parse::IsValidObjVnum(vnum)) {
 			for (auto & i : tmp_class_list) {
 				i.push_back(vnum);
 			}
@@ -59,10 +59,10 @@ void init() {
 	// <class id="">
 	for (cur_node = root_node.child("class");
 		 cur_node; cur_node = cur_node.next_sibling("class")) {
-		std::string id_str = Parse::attr_str(cur_node, "id");
+		std::string id_str = parse::ReadAattrAsStr(cur_node, "id");
 		if (id_str.empty()) return;
 
-		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
+		const int id = text_id::ToNum(text_id::kCharClass, id_str);
 		if (id == ECharClass::kUndefined) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
 			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
@@ -71,8 +71,8 @@ void init() {
 
 		for (pugi::xml_node obj_node = cur_node.child("obj");
 			 obj_node; obj_node = obj_node.next_sibling("obj")) {
-			int vnum = Parse::attr_int(obj_node, "vnum");
-			if (Parse::valid_obj_vnum(vnum)) {
+			int vnum = parse::ReadAttrAsInt(obj_node, "vnum");
+			if (parse::IsValidObjVnum(vnum)) {
 				tmp_class_list[id].push_back(vnum);
 			}
 		}

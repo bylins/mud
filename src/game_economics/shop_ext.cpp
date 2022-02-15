@@ -76,7 +76,7 @@ void load_item_desc() {
 		std::string templateId = item_template.attribute("id").value();
 		for (pugi::xml_node item = item_template.child("item"); item; item = item.next_sibling("item")) {
 
-			int item_vnum = Parse::attr_int(item, "vnum");
+			int item_vnum = parse::ReadAttrAsInt(item, "vnum");
 			if (item_vnum <= 0) {
 				snprintf(buf, kMaxStringLength,
 						 "...bad item description attributes (item_vnum=%d)", item_vnum);
@@ -182,8 +182,8 @@ void load(bool reload) {
 		tmp_set->_id = itemSetId;
 
 		for (pugi::xml_node item = itemSet.child("item"); item; item = item.next_sibling("item")) {
-			int item_vnum = Parse::attr_int(item, "vnum");
-			int price = Parse::attr_int(item, "price");
+			int item_vnum = parse::ReadAttrAsInt(item, "vnum");
+			int price = parse::ReadAttrAsInt(item, "price");
 			if (item_vnum < 0 || price < 0) {
 				snprintf(buf,
 						 kMaxStringLength,
@@ -225,7 +225,7 @@ void load(bool reload) {
 		std::map<int, std::string> mob_to_template;
 
 		for (pugi::xml_node mob = node.child("mob"); mob; mob = mob.next_sibling("mob")) {
-			int mob_vnum = Parse::attr_int(mob, "mob_vnum");
+			int mob_vnum = parse::ReadAttrAsInt(mob, "mob_vnum");
 			std::string templateId = mob.attribute("template").value();
 			if (mob_vnum < 0) {
 				snprintf(buf, kMaxStringLength,
@@ -259,8 +259,8 @@ void load(bool reload) {
 
 		// и список его продукции
 		for (pugi::xml_node item = node.child("item"); item; item = item.next_sibling("item")) {
-			int item_vnum = Parse::attr_int(item, "vnum");
-			int price = Parse::attr_int(item, "price");
+			int item_vnum = parse::ReadAttrAsInt(item, "vnum");
+			int price = parse::ReadAttrAsInt(item, "price");
 			if (item_vnum < 0
 				|| price < 0) {
 				snprintf(buf, kMaxStringLength,

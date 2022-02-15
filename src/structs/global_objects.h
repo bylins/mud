@@ -18,6 +18,7 @@
 #include "quests/daily_quest.h"
 #include "skills_info.h"
 #include "strengthening.h"
+#include "boot/cfg_manager.h"
 class BanList;    // to avoid inclusion of ban.hpp
 
 /**
@@ -36,6 +37,8 @@ class GlobalObjects {
  public:
 	static abilities::AbilitiesInfo &Abilities();
 	static SkillsInfo &Skills();
+	static SkillsInfo_N &NewSkills();
+	static cfg_manager::CfgManager &CfgManager();
 	static classes::ClassesInfo &Classes();
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();

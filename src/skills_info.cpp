@@ -1,6 +1,10 @@
-#include "skills_info.h"
+//#include "skills_info.h"
 
-#include "utils/logger.h"
+#include "structs/global_objects.h"
+#include "utils/parse.h"
+//#include "skills_info.h"
+
+//#include "utils/logger.h"
 
 struct AttackMessages fight_messages[kMaxMessages];
 
@@ -139,6 +143,48 @@ void SkillsInfo::Init() {
 	InitSkill(ESkill::kMakeStaff, "!отключено", "!error", ESaving::kFirst, 1, 1, false);
 	InitSkill(ESkill::kMakePotion, "!отключено", "!error", ESaving::kFirst, 1, 1, false);
 
+}
+
+using DataNode = parser_wrapper::DataNode;
+using Optional = SkillInfoBuilder::ItemOptional;
+
+void SkillsLoader::Load(DataNode data) {
+	MUD::NewSkills().Init(data.Children());
+}
+
+Optional SkillInfoBuilder::Build(DataNode &node) {
+	auto skill_info = MUD::NewSkills().MakeItemOptional();
+	skill_info = std::move(ParseDispensableValues(skill_info, node));
+	skill_info = std::move(ParseObligatoryValues(skill_info, node));
+	return skill_info;
+}
+
+Optional &SkillInfoBuilder::ParseDispensableValues(Optional &optional, DataNode &node) {
+	try {
+		optional.value()->difficulty = parse::ReadAsInt(node.GetValue("difficulty"));
+	} catch (std::exception &) {}
+	try {
+		optional.value()->save_type = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+	} catch (std::exception &) {}
+	try {
+		optional.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
+	} catch (std::exception &) {
+		optional.value()->mode = EItemMode::kEnabled;
+	}
+	return optional;
+}
+
+Optional &SkillInfoBuilder::ParseObligatoryValues(Optional &optional, DataNode &node) {
+	try {
+		optional.value()->id = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
+		optional.value()->name = parse::ReadAsStr(node.GetValue("name"));
+		optional.value()->short_name = parse::ReadAsStr(node.GetValue("abbr"));
+		optional.value()->cap = parse::ReadAsInt(node.GetValue("cap"));
+	} catch (std::exception &e) {
+		err_log("invalid skill description (incorrect value: %s).", e.what());
+		optional = std::nullopt;
+	}
+	return optional;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

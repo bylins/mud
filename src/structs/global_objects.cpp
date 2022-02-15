@@ -24,6 +24,8 @@ struct GlobalObjectsStorage {
 
 	abilities::AbilitiesInfo abilities_info;
 	SkillsInfo skills_info;
+	SkillsInfo_N skills_info_n;
+	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
 	WorldObjects world_objects;
 	ShopExt::ShopListType shop_list;
@@ -60,6 +62,14 @@ abilities::AbilitiesInfo &GlobalObjects::Abilities() {
 
 SkillsInfo &GlobalObjects::Skills() {
 	return global_objects().skills_info;
+}
+
+SkillsInfo_N &GlobalObjects::NewSkills() {
+	return global_objects().skills_info_n;
+}
+
+cfg_manager::CfgManager &GlobalObjects::CfgManager() {
+	return global_objects().cfg_mngr;
 }
 
 classes::ClassesInfo &GlobalObjects::Classes() {

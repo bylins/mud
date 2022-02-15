@@ -4,134 +4,140 @@
 
 namespace parser_wrapper {
 
-    BaseDataNode::BaseDataNode(std::filesystem::path &file_name) :
-            BaseDataNode()
-    {
-        if (auto result = xml_doc_->load_file(file_name.c_str()); !result) {
-            std::ostringstream buffer;
-            buffer << "..." << result.description() << std::endl << " (file: " << file_name << ")" << std::endl;
-            std::cout << buffer.str(); //ABYRVALG не забыть убрать
-        }
-        curren_xml_node_ = xml_doc_->document_element();
-    }
+DataNode::DataNode(const std::filesystem::path &file_name) :
+	DataNode()
+{
+	if (auto result = xml_doc_->load_file(file_name.c_str()); !result) {
+		std::ostringstream buffer;
+		buffer << "..." << result.description() << std::endl << " (file: " << file_name << ")" << std::endl;
+		std::cout << buffer.str(); //ABYRVALG не забыть убрать
+	}
+	curren_xml_node_ = xml_doc_->document_element();
+}
 
-    BaseDataNode::BaseDataNode(const BaseDataNode &d) :
-            BaseDataNode()
-    {
-        xml_doc_ = d.xml_doc_;
-        curren_xml_node_ = d.curren_xml_node_;
-    }
+DataNode::DataNode(const DataNode &d) :
+	DataNode()
+{
+	xml_doc_ = d.xml_doc_;
+	curren_xml_node_ = d.curren_xml_node_;
+}
 
-    bool BaseDataNode::IsEmpty() const {
-        return curren_xml_node_.empty();
-    }
+bool DataNode::IsEmpty() const {
+	return curren_xml_node_.empty();
+}
 
-    const char *BaseDataNode::GetName() const {
-        return curren_xml_node_.name();
-    }
+const char *DataNode::GetName() const {
+	return curren_xml_node_.name();
+}
 
-    const char *BaseDataNode::GetValue(const std::string &key) const {
-        if (key.empty()) {
-            return curren_xml_node_.child_value();
-        }
-        return curren_xml_node_.attribute(key.c_str()).value();
-    }
+const char *DataNode::GetValue(const std::string &key) const {
+	if (key.empty()) {
+		return curren_xml_node_.child_value();
+	}
+	return curren_xml_node_.attribute(key.c_str()).value();
+}
 
-    [[maybe_unused]] void BaseDataNode::GoToRadix() {
-        curren_xml_node_ = xml_doc_->document_element();
-    }
+void DataNode::GoToRadix() {
+	curren_xml_node_ = xml_doc_->document_element();
+}
 
-    [[maybe_unused]] void BaseDataNode::GoToParent() {
-        curren_xml_node_ = curren_xml_node_.parent();
-    }
+void DataNode::GoToParent() {
+	curren_xml_node_ = curren_xml_node_.parent();
+}
 
-    [[maybe_unused]] bool BaseDataNode::HaveChild(const std::string &key) {
-        return curren_xml_node_.child(key.c_str());
-    }
+bool DataNode::HaveChild(const std::string &key) {
+	return curren_xml_node_.child(key.c_str());
+}
 
-    [[maybe_unused]] void BaseDataNode::GoToChild(const std::string &key) {
-        curren_xml_node_ = curren_xml_node_.child(key.c_str());
-    }
+void DataNode::GoToChild(const std::string &key) {
+	curren_xml_node_ = curren_xml_node_.child(key.c_str());
+}
 
-    [[maybe_unused]] void BaseDataNode::GoToSibling(const std::string &key) {
-        curren_xml_node_ = curren_xml_node_.parent().child(key.c_str());
-    }
+void DataNode::GoToSibling(const std::string &key) {
+	curren_xml_node_ = curren_xml_node_.parent().child(key.c_str());
+}
 
-    [[maybe_unused]] bool BaseDataNode::HavePrevious() {
-        return curren_xml_node_.previous_sibling();
-    }
+bool DataNode::HavePrevious() {
+	return curren_xml_node_.previous_sibling();
+}
 
-    [[maybe_unused]] void BaseDataNode::GoToPrevious() {
-        curren_xml_node_ = curren_xml_node_.previous_sibling();
-    }
+void DataNode::GoToPrevious() {
+	curren_xml_node_ = curren_xml_node_.previous_sibling();
+}
 
-    [[maybe_unused]] bool BaseDataNode::HaveNext() {
-        return curren_xml_node_.next_sibling();
-    }
+bool DataNode::HaveNext() {
+	return curren_xml_node_.next_sibling();
+}
 
-    [[maybe_unused]] void BaseDataNode::GoToNext() {
-        curren_xml_node_ = curren_xml_node_.next_sibling();
-    }
+void DataNode::GoToNext() {
+	curren_xml_node_ = curren_xml_node_.next_sibling();
+}
 
-/*    [[maybe_unused]] bool DataNode::HaveNamesake() {
-        return curren_xml_node_.next_sibling(curren_xml_node_.name());
-    }
+DataNode::operator bool() const {
+	return !curren_xml_node_.empty();
+}
 
-    [[maybe_unused]] void DataNode::GoToNamesake() {
-        curren_xml_node_ = curren_xml_node_.next_sibling(curren_xml_node_.name());
-    }*/
+bool DataNode::operator==(const DataNode &d) const {
+	return curren_xml_node_ == d.curren_xml_node_;
+}
 
-    BaseDataNode::operator bool() const {
-        return !curren_xml_node_.empty();
-    }
+bool DataNode::operator!=(const DataNode &other) const {
+	return !(*this == other);
+}
 
-    bool BaseDataNode::operator==(const BaseDataNode &d) const {
-        return curren_xml_node_ == d.curren_xml_node_;
-    }
+DataNode::reference DataNode::operator*() {
+	return *this;
+}
 
-    bool BaseDataNode::operator!=(const BaseDataNode &other) const {
-        return !(*this == other);
-    }
+DataNode::pointer DataNode::operator->() {
+	return this;
+}
 
-    BaseDataNode::reference BaseDataNode::operator*() {
-        return *this;
-    }
+DataNode &DataNode::operator++() {
+	curren_xml_node_ = curren_xml_node_.next_sibling();
+	return *this;
+}
 
-    BaseDataNode::pointer BaseDataNode::operator->() {
-        return this;
-    }
+const DataNode DataNode::operator++(int) {
+	auto retval = *this;
+	++*this;
+	return retval;
+}
 
-    [[nodiscard]] NamedDataNode::NamedRange NamedDataNode::Childen(const std::string &key) {
-        return {this, key};
-    }
+DataNode &DataNode::operator--() {
+	curren_xml_node_ = curren_xml_node_.previous_sibling();
+	return *this;
+}
 
-    BaseDataNode &NamedDataNode::operator++() {
-        curren_xml_node_ = curren_xml_node_.next_sibling(curren_xml_node_.name());
-        return *this;
-    }
+const DataNode DataNode::operator--(int) {
+	auto retval = *this;
+	--*this;
+	return retval;
+}
 
-    const BaseDataNode NamedDataNode::operator++(int) {
-        auto retval = *this;
-        ++*this;
-        return retval;
-    }
+[[nodiscard]] NodeRange<DataNode> DataNode::Children() {
+	auto node = *this;
+	node->curren_xml_node_ = node->curren_xml_node_.first_child();
+	return NodeRange(node);
+}
 
-    BaseDataNode &NamedDataNode::operator--() {
-        curren_xml_node_ = curren_xml_node_.previous_sibling(curren_xml_node_.name());
-        return *this;
-    }
+[[nodiscard]] NodeRange<DataNode::NameIterator> DataNode::Children(const std::string &key) {
+	auto it = NameIterator(*this);
+	(*it)->GoToChild(key);
+	return NodeRange(it);
+}
 
-    const BaseDataNode NamedDataNode::operator--(int) {
-        auto retval = *this;
-        --*this;
-        return retval;
-    }
+DataNode::NameIterator &DataNode::NameIterator::operator++() {
+	node_->curren_xml_node_ = node_->curren_xml_node_.next_sibling(node_->curren_xml_node_.name());
+	return *this;
+}
 
-    [[maybe_unused]] NamedDataNode::NamedRange::NamedRange(NamedDataNode *node, const std::string &name) :
-            begin_{std::make_shared<NamedDataNode>(*node)},
-            end_{std::make_shared<NamedDataNode>(*node)} {
-        begin_->curren_xml_node_ = begin_->curren_xml_node_.child(name.c_str());
-        end_->curren_xml_node_ = pugi::xml_node();
-    }
+const DataNode::NameIterator DataNode::NameIterator::operator++(int) {
+	auto retval = *this;
+	++*this;
+	return retval;
+}
 
 } // namespace
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

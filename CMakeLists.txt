@@ -241,7 +241,7 @@ set(SOURCES
 		src/classes/classes_info.cpp
 		src/utils/objects_filter.cpp
 		src/structs/info_container.cpp
-		src/utils/wrapper.cpp)
+		src/utils/wrapper.cpp src/boot/cfg_manager.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -462,7 +462,7 @@ set(HEADERS
 		src/classes/classes_info.h
 		src/utils/objects_filter.h
 		src/structs/info_container.h
-		src/utils/wrapper.h)
+		src/utils/wrapper.h src/boot/cfg_manager.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

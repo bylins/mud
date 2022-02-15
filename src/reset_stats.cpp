@@ -40,9 +40,9 @@ std::array<price_node, Type::TOTAL_NUM> reset_prices =
 ///
 void parse_prices(const pugi::xml_node &cur_node, Type type) {
 	if (cur_node) {
-		reset_prices.at(type).base_price = Parse::attr_int(cur_node, "price");
-		reset_prices.at(type).add_price = Parse::attr_int(cur_node, "price_add");
-		reset_prices.at(type).max_price = Parse::attr_int(cur_node, "max_price");
+		reset_prices.at(type).base_price = parse::ReadAttrAsInt(cur_node, "price");
+		reset_prices.at(type).add_price = parse::ReadAttrAsInt(cur_node, "price_add");
+		reset_prices.at(type).max_price = parse::ReadAttrAsInt(cur_node, "max_price");
 	}
 }
 
@@ -65,15 +65,15 @@ void init() {
 		return;
 	}
 
-	pugi::xml_node cur_node = Parse::get_child(main_node, "main_stats");
+	pugi::xml_node cur_node = parse::GetChild(main_node, "main_stats");
 	parse_prices(cur_node, Type::MAIN_STATS);
 
-	cur_node = Parse::get_child(main_node, "race");
+	cur_node = parse::GetChild(main_node, "race");
 	parse_prices(cur_node, Type::RACE);
 
-	cur_node = Parse::get_child(main_node, "feats");
+	cur_node = parse::GetChild(main_node, "feats");
 	parse_prices(cur_node, Type::FEATS);
-	cur_node = Parse::get_child(main_node, "religion");
+	cur_node = parse::GetChild(main_node, "religion");
 	parse_prices(cur_node, Type::RELIGION);
 }
 

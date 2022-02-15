@@ -6,37 +6,47 @@
 
 #include "info_container.h"
 
-/*template<class E, class I, class B>
-const I &InfoContainer::operator[](const E id) const {
-	try {
-		return items_->at(id)->second;
-	} catch (const std::out_of_range &) {
-		err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name());
-		return items_->at(E::kUndefined)->second;
+#include <map>
+
+/*namespace info_container {
+
+template<typename E, typename I, typename B> B InfoContainer<E, I, B>::RegisterBuilder::item_builder_;
+template<typename E, typename I, typename B> bool InfoContainer<E, I, B>::RegisterBuilder::strict_pasring_;
+
+}*/ // info_container
+
+typedef std::map<EItemMode, std::string> EItemMode_name_by_value_t;
+typedef std::map<const std::string, EItemMode> EItemMode_value_by_name_t;
+EItemMode_name_by_value_t EItemMode_name_by_value;
+EItemMode_value_by_name_t EItemMode_value_by_name;
+
+void init_EItemMode_ITEM_NAMES() {
+	EItemMode_name_by_value.clear();
+	EItemMode_value_by_name.clear();
+
+	EItemMode_name_by_value[EItemMode::kDisabled] = "kDisabled";
+	EItemMode_name_by_value[EItemMode::kTesting] = "kTesting";
+	EItemMode_name_by_value[EItemMode::kEnabled] = "kEnabled";
+
+	for (const auto &i : EItemMode_name_by_value) {
+		EItemMode_value_by_name[i.second] = i.first;
 	}
 }
 
-bool InfoContainer::IsKnown(const E id) {
-	return items_->contains(id);
-}
-
-bool InfoContainer::IsValid(const E id) {
-	bool validity = IsKnown(id) && id >= ESkill::kFirst && id <= ESkill::kLast;
-	if (validity) {
-		validity &= IsEnabled(id);
+template<>
+const std::string &NAME_BY_ITEM<EItemMode>(const EItemMode item) {
+	if (EItemMode_name_by_value.empty()) {
+		init_EItemMode_ITEM_NAMES();
 	}
-	return validity;
+	return EItemMode_name_by_value.at(item);
 }
 
-bool InfoContainer::IsEnabled(const E id) {
-	return items_->at(id)->first;
+template<>
+EItemMode ITEM_BY_NAME<EItemMode>(const std::string &name) {
+	if (EItemMode_name_by_value.empty()) {
+		init_EItemMode_ITEM_NAMES();
+	}
+	return EItemMode_value_by_name.at(name);
 }
-
-bool InfoContainer::IsInitizalized() {
-	return (items_->size() > 1);
-}
-
-void InfoContainer::Init() {}
-void InfoContainer::Reload() {}*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

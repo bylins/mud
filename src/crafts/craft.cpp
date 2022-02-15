@@ -702,7 +702,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 
 		CHelper::save_pairs_list(*node, "extended_values", "entry", "key", "value", get_all_values(),
 								 [&](const auto &value) -> auto {
-									 return TextId::to_str(TextId::OBJ_VALS,
+									 return text_id::ToStr(text_id::kObjVals,
 														   static_cast<int>(value.first));
 								 },
 								 [&](const auto &value) -> auto { return std::to_string(value.second); },
@@ -815,7 +815,7 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 														this->get_vnum());
 												},
 												[&](const auto value) -> auto {
-													return static_cast<ObjVal::EValueKey>(TextId::to_num(TextId::OBJ_VALS,
+													return static_cast<ObjVal::EValueKey>(text_id::ToNum(text_id::kObjVals,
 																										 value));
 												},
 												[&](const auto key) {
@@ -836,7 +836,7 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 																			  this->set_value(key, int_value);
 																			  logger(
 																				  "Adding extended values pair (%s, %d) to object with VNUM %d.\n",
-																				  TextId::to_str(TextId::OBJ_VALS,
+																				  text_id::ToStr(text_id::kObjVals,
 																								 to_underlying(key)).c_str(),
 																				  int_value,
 																				  this->get_vnum());
@@ -844,7 +844,7 @@ void CObject::load_extended_values(const pugi::xml_node *node) {
 																		  [&]() {
 																			  logger(
 																				  "WARNIGN: Could not convert extended value of \"value\" tag to integer. Entry key value \"%s\". Object with VNUM %d",
-																				  TextId::to_str(TextId::OBJ_VALS,
+																				  text_id::ToStr(text_id::kObjVals,
 																								 to_underlying(key)).c_str(),
 																				  this->get_vnum());
 																		  });

@@ -145,27 +145,27 @@ void init() {
 		return;
 	}
 	for (pugi::xml_node node = node_list.child("tdrop"); node; node = node.next_sibling("tdrop")) {
-		int chance = Parse::attr_int(node, "drop_chance");
-		int count_mobs = Parse::attr_int(node, "count_mobs");
-		int vnum_obj = Parse::attr_int(node, "ObjVnum");
+		int chance = parse::ReadAttrAsInt(node, "drop_chance");
+		int count_mobs = parse::ReadAttrAsInt(node, "count_mobs");
+		int vnum_obj = parse::ReadAttrAsInt(node, "ObjVnum");
 		std::vector<int> list_mobs;
 		for (pugi::xml_node node_ = node.child("mobs"); node_; node_ = node_.next_sibling("mobs")) {
-			list_mobs.push_back(Parse::attr_int(node_, "vnum"));
+			list_mobs.push_back(parse::ReadAttrAsInt(node_, "vnum"));
 		}
 		table_drop tmp(list_mobs, chance, count_mobs, vnum_obj);
 		tables_drop.push_back(tmp);
 	}
 	for (pugi::xml_node node = node_list.child("freedrop_obj"); node; node = node.next_sibling("freedrop_obj")) {
 		global_drop_obj tmp;
-		int obj_vnum = Parse::attr_int(node, "ObjVnum");
-		int chance = Parse::attr_int(node, "drop_chance");
-		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
-		int day_end = Parse::attr_int_t(node, "day_end");
+		int obj_vnum = parse::ReadAttrAsInt(node, "ObjVnum");
+		int chance = parse::ReadAttrAsInt(node, "drop_chance");
+		int day_start = parse::ReadAttrAsIntT(node, "day_start"); // если не определено в файле возвращаем -1
+		int day_end = parse::ReadAttrAsIntT(node, "day_end");
 		if (day_start == -1) {
 			day_end = 360;
 			day_start = 0;
 		}
-		std::string tmp_str = Parse::attr_str(node, "sects");
+		std::string tmp_str = parse::ReadAattrAsStr(node, "sects");
 		std::list<std::string> strs;
 		boost::split(strs, tmp_str, boost::is_any_of(" "));
 		for (const auto &i : strs) {
@@ -178,14 +178,14 @@ void init() {
 		drop_list_obj.push_back(tmp);
 	}
 	for (pugi::xml_node node = node_list.child("drop"); node; node = node.next_sibling("drop")) {
-		int obj_vnum = Parse::attr_int(node, "ObjVnum");
-		int mob_lvl = Parse::attr_int(node, "mob_lvl");
-		int max_mob_lvl = Parse::attr_int(node, "max_mob_lvl");
-		int count_mob = Parse::attr_int(node, "count_mob");
-		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
-		int day_end = Parse::attr_int_t(node, "day_end");
-		int race_mob = Parse::attr_int_t(node, "race_mob");
-		int chance = Parse::attr_int_t(node, "drop_chance");
+		int obj_vnum = parse::ReadAttrAsInt(node, "ObjVnum");
+		int mob_lvl = parse::ReadAttrAsInt(node, "mob_lvl");
+		int max_mob_lvl = parse::ReadAttrAsInt(node, "max_mob_lvl");
+		int count_mob = parse::ReadAttrAsInt(node, "count_mob");
+		int day_start = parse::ReadAttrAsIntT(node, "day_start"); // если не определено в файле возвращаем -1
+		int day_end = parse::ReadAttrAsIntT(node, "day_end");
+		int race_mob = parse::ReadAttrAsIntT(node, "race_mob");
+		int chance = parse::ReadAttrAsIntT(node, "drop_chance");
 		if (chance == -1)
 			chance = 1000;
 		if (day_start == -1)
@@ -235,7 +235,7 @@ void init() {
 		} else {
 			// список шмоток с единым дропом
 			for (pugi::xml_node item = node.child("obj"); item; item = item.next_sibling("obj")) {
-				int item_vnum = Parse::attr_int(item, "vnum");
+				int item_vnum = parse::ReadAttrAsInt(item, "vnum");
 				if (item_vnum <= 0) {
 					snprintf(buf, kMaxStringLength,
 							 "...bad shop attributes (item_vnum=%d)", item_vnum);

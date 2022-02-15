@@ -12,34 +12,49 @@
 
 #include <string>
 
-namespace TextId {
+namespace text_id {
 
-enum IdType {
-	CHAR_CLASS,
-	OBJ_VALS,
-	TEXT_ID_COUNT
+enum EIdType {
+	kCharClass,
+	kObjVals,
+	kTextIdCount
 };
 
-void init();
+void Init();
 
-int to_num(IdType type, const std::string &str);
-std::string to_str(IdType type, int num);
+int ToNum(EIdType type, const std::string &str);
+std::string ToStr(EIdType type, int num);
 
 } // namespace TextId
 
-namespace Parse {
+namespace parse {
 
-bool valid_obj_vnum(int vnum);
+bool IsValidObjVnum(int vnum);
 
-int attr_int(const pugi::xml_node &node, const char *text);
-int attr_int_t(const pugi::xml_node &node, const char *text);
-int child_value_int(const pugi::xml_node &node, const char *text);
+int ReadAttrAsInt(const pugi::xml_node &node, const char *text);
+int ReadAttrAsIntT(const pugi::xml_node &node, const char *text);
+int ReadChildValueAsInt(const pugi::xml_node &node, const char *text);
 
-std::string attr_str(const pugi::xml_node &node, const char *text);
-std::string child_value_str(const pugi::xml_node &node, const char *text);
+std::string ReadAattrAsStr(const pugi::xml_node &node, const char *text);
+std::string ReadChildValueAsStr(const pugi::xml_node &node, const char *text);
 
-pugi::xml_node get_child(const pugi::xml_document &node, const char *name);
-pugi::xml_node get_child(const pugi::xml_node &node, const char *name);
+pugi::xml_node GetChild(const pugi::xml_document &node, const char *name);
+pugi::xml_node GetChild(const pugi::xml_node &node, const char *name);
+
+
+const char *ReadAsStr(const char *value);
+int ReadAsInt(const char *value);
+float ReadAsFloat(const char *value);
+double ReadAsDouble(const char *value);
+
+template<typename T>
+T ReadAsConstant(const char *value) {
+	try {
+		return ITEM_BY_NAME<T>(value);
+	} catch (const std::out_of_range &) {
+		throw std::runtime_error(value);
+	}
+}
 
 } // namespace Parse
 
