@@ -996,6 +996,7 @@ unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum) const 
 		const auto &item = m_items_list.node(i);
 		if (item->empty()) {
 			name_value = item->get_item_name(keeper_vnum);
+			utils::remove_colors(name_value);
 			const auto rnum = obj_proto.rnum(item->vnum());
 			if (GET_OBJ_TYPE(obj_proto[rnum]) == ObjectData::ITEM_DRINKCON) {
 				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
