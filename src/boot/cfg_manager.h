@@ -28,6 +28,7 @@ namespace cfg_manager {
 class ICfgLoader {
  public:
 	virtual void Load(parser_wrapper::DataNode data) = 0;
+	virtual void Reload(parser_wrapper::DataNode data) = 0;
 };
 
 using LoaderPtr = std::unique_ptr<ICfgLoader>;
@@ -69,6 +70,7 @@ class CfgManager {
 	 *  Загрузка отдельного файла
 	 */
 	void BootSIngleFile(const std::string &id);
+	void ReloadFile(const std::string &id);
 };
 
 } // namespace cfg manager

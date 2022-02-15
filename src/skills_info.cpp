@@ -11,6 +11,10 @@ void SkillsLoader::Load(DataNode data) {
 	MUD::Skills().Init(data.Children());
 }
 
+void SkillsLoader::Reload(DataNode data) {
+	MUD::Skills().Reload(data.Children());
+}
+
 Optional SkillInfoBuilder::Build(DataNode &node) {
 	auto skill_info = MUD::Skills().MakeItemOptional();
 	skill_info = std::move(ParseDispensableValues(skill_info, node));

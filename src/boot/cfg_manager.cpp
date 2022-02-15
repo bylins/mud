@@ -25,9 +25,10 @@ void CfgManager::BootBaseCfgs() {
 
 void CfgManager::ReloadCfgFile(const std::string &id) {
 	if (!loaders_.contains(id)) {
+		err_log("Неверный параметр перезагрузки файла конфигурации (%s)", id.c_str());
 		return;
 	}
-	BootSIngleFile(id);
+	ReloadFile(id);
 }
 
 void CfgManager::BootSIngleFile(const std::string &id) {
@@ -35,6 +36,13 @@ void CfgManager::BootSIngleFile(const std::string &id) {
 	auto data = parser_wrapper::DataNode(loader_info.file);
 	loader_info.loader->Load(data);
 }
+
+void CfgManager::ReloadFile(const std::string &id) {
+	const auto &loader_info = loaders_.at(id);
+	auto data = parser_wrapper::DataNode(loader_info.file);
+	loader_info.loader->Reload(data);
+}
+
 
 } // namespace cfg manager
 

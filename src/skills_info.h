@@ -8,18 +8,18 @@
 #include "classes/classes_constants.h"
 #include "structs/info_container.h"
 
-#include <unordered_map>
-#include <utility>
-
 /*
  * Загрузчик конфига умений.
  */
 class SkillsLoader : virtual public cfg_manager::ICfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
 };
 
-
+/*
+ * Класс-описание конкретного умения.
+ */
 struct SkillInfo : public info_container::IItem<ESkill> {
 	ESkill id{ESkill::kFirst};
 	std::string name{"!undefined!"};
@@ -33,16 +33,17 @@ struct SkillInfo : public info_container::IItem<ESkill> {
 	ESkill GetId() final { return id; };
 	EItemMode GetMode() final { return mode; };
 
-	/**
-	 * Чтобы не писать все время c_str()
-	 * Если нужен именно std::string - можно получить напрямую.
-	 * По мере избавления от сишных строк вызов функции следует заменять на .name
+	/*
+	 * Имя скилла в виде C-строки. По возможности используйте std::string
 	 */
 	[[nodiscard]] const char *GetName() const { return name.c_str(); };
 	[[nodiscard]] const char *GetAbbr() const { return short_name.c_str(); };
 	void Print(std::stringstream &buffer) const;
 };
 
+/*
+ * Класс-билдер описания отдельного умения.
+ */
 class SkillInfoBuilder : public info_container::IItemBuilder<SkillInfo> {
  public:
 	ItemOptional Build(parser_wrapper::DataNode &node) final;

@@ -366,6 +366,8 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_value_by_name.clear();
 
 	ESkill_name_by_value[ESkill::kUndefined] = "kUndefined";
+	ESkill_name_by_value[ESkill::kIncorrect] = "kIncorrect";
+	ESkill_name_by_value[ESkill::kAny] = "kAny";
 	ESkill_name_by_value[ESkill::kGlobalCooldown] = "kGlobalCooldown";
 	ESkill_name_by_value[ESkill::kProtect] = "kProtect";
 	ESkill_name_by_value[ESkill::kIntercept] = "kIntercept";

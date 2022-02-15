@@ -1079,6 +1079,8 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		init_portals();
 	else if (!str_cmp(arg, "abilities")) {
 		MUD::Abilities().Reload();
+	} else if (!str_cmp(arg, "skills")) {
+		MUD::CfgManager().ReloadCfgFile("skills");
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::Classes().Reload("classes");
 	} else if (!str_cmp(arg, "imagic"))
