@@ -8,41 +8,39 @@
 
 #include "cfg_manager.h"
 
+#include "game_classes/classes_info.h"
 #include "skills_info.h"
 
 namespace cfg_manager {
 
 CfgManager::CfgManager() {
-/*	loaders_.emplace("pcclasses", "lib/cfg/classes/pc_classes.xml");
-	loaders_.emplace("abilities", "lib/cfg/abilities.xml");
-	loaders_.emplace("mobraces", "lib/cfg/mob_races.xml");*/
-	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml", std::make_unique<SkillsLoader>(SkillsLoader())));
+/*	loaders_.emplace("abilities", "cfg/abilities.xml");
+	loaders_.emplace("mobraces", "cfg/mob_races.xml");*/
+	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",
+										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
+	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
+										  std::make_unique<SkillsLoader>(SkillsLoader())));
 }
 
-void CfgManager::BootBaseCfgs() {
-	BootSIngleFile("skills");
-}
-
-void CfgManager::ReloadCfgFile(const std::string &id) {
+void CfgManager::ReloadCfg(const std::string &id) {
 	if (!loaders_.contains(id)) {
 		err_log("Неверный параметр перезагрузки файла конфигурации (%s)", id.c_str());
 		return;
 	}
-	ReloadFile(id);
-}
-
-void CfgManager::BootSIngleFile(const std::string &id) {
-	const auto &loader_info = loaders_.at(id);
-	auto data = parser_wrapper::DataNode(loader_info.file);
-	loader_info.loader->Load(data);
-}
-
-void CfgManager::ReloadFile(const std::string &id) {
 	const auto &loader_info = loaders_.at(id);
 	auto data = parser_wrapper::DataNode(loader_info.file);
 	loader_info.loader->Reload(data);
 }
 
+void CfgManager::LoadCfg(const std::string &id) {
+	if (!loaders_.contains(id)) {
+		err_log("Неверный параметр загрузки файла конфигурации (%s)", id.c_str());
+		return;
+	}
+	const auto &loader_info = loaders_.at(id);
+	auto data = parser_wrapper::DataNode(loader_info.file);
+	loader_info.loader->Load(data);
+}
 
 } // namespace cfg manager
 

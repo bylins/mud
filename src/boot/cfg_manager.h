@@ -37,12 +37,8 @@ class CfgManager {
  public:
 	CfgManager();
 
-	/*
- 	*  Загрузка базовых конфигов - списов умений, аффектов и т.д.,
- 	*  без чего невозможна корректная загрузка прочих файлов.
- 	*/
-	void BootBaseCfgs();
-	void ReloadCfgFile(const std::string &id);
+	void LoadCfg(const std::string &id);
+	void ReloadCfg(const std::string &id);
  private:
 	struct LoaderInfo {
 		LoaderInfo(std::filesystem::path file, LoaderPtr loader) :
@@ -53,24 +49,6 @@ class CfgManager {
 
 	std::unordered_map<std::string, LoaderInfo> loaders_;
 
-	/*
-	 *  Загрузка дополнительных, но необходимых конфигов - описаний классов,
-	 *  родов персонажей и так далее. Без чего игре навозможна, но загружаться
-	 *  это должно после базовых конфигов.
-	 */
-	//void BootAdvancedCfg();
-
-	/*
-	 * Загрузка необязательных конфигов - ассортиментов магазинов, базы данных базара
-	 * и так далее, без чего игра запустится и будет работать (возможно, без части функций).
-	 */
-	//void BootOtherCfg();
-
-	/*
-	 *  Загрузка отдельного файла
-	 */
-	void BootSIngleFile(const std::string &id);
-	void ReloadFile(const std::string &id);
 };
 
 } // namespace cfg manager

@@ -71,7 +71,7 @@ set(SOURCES
 		src/dg_script/dg_scripts.cpp
 		src/dg_script/dg_triggers.cpp
 		src/dg_script/dg_wldcmd.cpp
-		src/dictionary.cpp
+		src/game_economics/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
 		src/entities/entity_constants.cpp
@@ -351,7 +351,7 @@ set(HEADERS
 		src/dg_script/dg_event.h
 		src/dg_script/dg_olc.h
 		src/dg_script/dg_scripts.h
-		src/dictionary.h
+		src/game_economics/dictionary.h
 		src/diskio.h
 		src/structs/structs_double_map.h
 		src/dps.h

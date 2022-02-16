@@ -8,100 +8,72 @@
 #ifndef BYLINS_SRC_CLASSES_CLASSES_INFO_H_
 #define BYLINS_SRC_CLASSES_CLASSES_INFO_H_
 
-#include "skills_info.h"
-#include "structs/structs.h"
+#include "boot/cfg_manager.h"
+#include "game_classes/classes_constants.h"
+#include "skills.h"
+#include "structs/info_container.h"
 
-#include <array>
 #include <optional>
 
-namespace pugi {
-class xml_node;
-}
-
 namespace classes {
+
+class ClassesLoader : virtual public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
 
 struct ClassSkillInfo {
 	using Ptr = std::unique_ptr<ClassSkillInfo>;
 
+	ESkill id{ESkill::kIncorrect};
 	int min_level{kLevelImplementator};
 	int min_remort{kMaxRemort + 1};
 	long improve{kMinImprove};
 };
 
-struct CharClassInfo {
-	static const std::string cfg_file_name;
-	static const std::string xml_main_tag;
-	static const std::string xml_entity_tag;
-	static const std::string load_fail_msg;
-
-	using Ptr = std::unique_ptr<CharClassInfo>;
-	using Pair = std::pair<ECharClass, Ptr>;
-	using Optional = std::optional<Pair>;
-
+struct CharClassInfo : public info_container::IItem<ECharClass>{
 	CharClassInfo() {
-		skillls_ = std::make_unique<Skills>();
+		skills = std::make_unique<Skills>();
 	}
-	CharClassInfo(CharClassInfo &s) = delete;
-	void operator=(const CharClassInfo &s) = delete;
 
-	/* Class skills */
+	/* Базовые поля */
+	ECharClass id{ECharClass::kFirst};
+	EItemMode mode{EItemMode::kEnabled};
+
+	[[nodiscard]] ECharClass GetId() const final { return id; };
+	[[nodiscard]] EItemMode GetMode() const final { return mode; };
+
+	/* Умения класса */
 	using Skills = std::unordered_map<ESkill, ClassSkillInfo::Ptr>;
 	using SkillsPtr = std::unique_ptr<Skills>;
 
-	SkillsPtr skillls_;
-	int skills_level_decrement_{1};
+	SkillsPtr skills;
+	int skills_level_decrement{1};
 
 	[[nodiscard]] bool HasSkill(ESkill id) const;
-	[[nodiscard]] bool HasntSkill(const ESkill id) const { return !HasSkill(id); };
+	[[nodiscard]] bool HasntSkill(const ESkill skill_id) const { return !HasSkill(skill_id); };
 	[[nodiscard]] int GetMinRemort(ESkill id) const;
 	[[nodiscard]] int GetMinLevel(ESkill id) const;
-	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement_; };
+	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement; };
 	[[nodiscard]] long GetImprove(ESkill id) const;
 
 };
 
-class CharClassInfoBuilder {
+class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> {
  public:
-	[[nodiscard]] static CharClassInfo::Optional Build(const pugi::xml_node &node);
+	ItemOptional Build(parser_wrapper::DataNode &node) final;
  private:
-	static pugi::xml_node SelectXmlNode(const pugi::xml_node &node);
-	static std::optional<std::string> GetCfgFileName(const pugi::xml_node &node);
-	static void ParseXml(CharClassInfo::Optional &info, const pugi::xml_node &node);
-	static void ParseSkills(CharClassInfo::Ptr &info, const pugi::xml_node &nodes);
-	static void ParseSingleSkill(ClassSkillInfo::Ptr &info, const pugi::xml_node &node);
+	static parser_wrapper::DataNode SelectDataNode(parser_wrapper::DataNode &node);
+	static std::optional<std::string> GetCfgFileName(parser_wrapper::DataNode &node);
+	static void ParseClass(ItemOptional &info, parser_wrapper::DataNode &node);
+	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
+	static void ParseSkillsLevelDecrement(ItemOptional &info, parser_wrapper::DataNode &node);
+	static void ParseSingleSkill(ItemOptional &info, parser_wrapper::DataNode &node);
+	static void ParseSkillVals(ClassSkillInfo::Ptr &info, parser_wrapper::DataNode &node);
 };
 
-class ClassesInfo {
- public:
-	ClassesInfo() = default;
-	ClassesInfo(ClassesInfo &c) = delete;
-	void operator=(const ClassesInfo &c) = delete;
-
-	void Init();
-	void Reload(const std::string &arg);
-	const CharClassInfo &operator[](ECharClass id) const;
-
- private:
-	using Ptr = std::unique_ptr<CharClassInfo>;
-	using Register = std::unordered_map<ECharClass, Ptr>;
-	using RegisterPtr = std::unique_ptr<Register>;
-	using Optional = std::optional<RegisterPtr>;
-
-	class RegisterBuilder {
-	 public:
-		static Optional Build(bool strict_parsing = true);
-		static ClassesInfo::Optional Parse(const pugi::xml_node &nodes, const std::string &tag);
-		static void EmplaceItem(ClassesInfo::Optional &items, CharClassInfo::Optional &item);
-		static void EmplaceDefaultItems(ClassesInfo::Optional &items);
-	 private:
-		using ItemBuilder = CharClassInfoBuilder;
-
-		static bool strict_pasring_;
-	};
-
-	RegisterPtr items_;
-};
-
+using ClassesInfo = info_container::InfoContainer<ECharClass, CharClassInfo, CharClassInfoBuilder>;
 
 } // namespace classes
 

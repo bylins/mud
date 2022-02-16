@@ -6,134 +6,56 @@
 */
 
 #include "classes_info.h"
-#include "boot/boot_constants.h"
-#include "utils/logger.h"
+#include "utils/parse.h"
 #include "utils/pugixml.h"
-
-#include <filesystem>
-
-using pugi::xml_node;
-extern pugi::xml_node XMLLoad(const std::string &PathToFile, const std::string &MainTag, const std::string &ErrorStr, pugi::xml_document &Doc);
+#include "structs/global_objects.h"
 
 namespace classes {
 
-const bool kStrictParsing = true;
-constexpr bool kTolerantParsing = !kStrictParsing;
+using DataNode = parser_wrapper::DataNode;
+using Optional = CharClassInfoBuilder::ItemOptional;
 
-const std::string CharClassInfo::cfg_file_name{LIB_CFG_CLASSES "pc_classes.xml"};
-const std::string CharClassInfo::xml_main_tag{"classes"};
-const std::string CharClassInfo::xml_entity_tag{"class"};
-const std::string CharClassInfo::load_fail_msg{"PC classes loading failed. The cfg file is missing or damaged."};
-
-bool ClassesInfo::RegisterBuilder::strict_pasring_{true};
-
-template<typename T>
-T FindConstantByAttributeValue(const char *attribute_name, const xml_node &node) {
-	auto constants_name = node.attribute(attribute_name).value();
-	try {
-		return ITEM_BY_NAME<T>(constants_name);
-	} catch (const std::out_of_range &) {
-		throw std::runtime_error(constants_name);
-	}
+void ClassesLoader::Load(DataNode data) {
+	MUD::Classes().Init(data.Children());
 }
 
-void ClassesInfo::Init() {
-	CharClassInfo ClassInfo;
-	items_ = std::move(RegisterBuilder::Build(kTolerantParsing).value());
+void ClassesLoader::Reload(DataNode data) {
+	MUD::Classes().Reload(data.Children());
 }
 
-void ClassesInfo::Reload(const std::string &arg) {
-	auto new_items = RegisterBuilder::Build(kStrictParsing);
-	if (new_items) {
-		items_ = std::move(new_items.value());
-	} else {
-		err_log("%s reloading canceled: file damaged.", arg.c_str());
-	}
-}
-
-ClassesInfo::Optional ClassesInfo::RegisterBuilder::Build(bool strict_parsing) {
-	strict_pasring_ = strict_parsing;
-	pugi::xml_document doc;
-	auto nodes = XMLLoad(CharClassInfo::cfg_file_name, CharClassInfo::xml_main_tag, CharClassInfo::load_fail_msg, doc);
-	if (nodes.empty()) {
-		return std::nullopt;
-	}
-	return Parse(nodes, CharClassInfo::xml_entity_tag);
-}
-
-ClassesInfo::Optional ClassesInfo::RegisterBuilder::Parse(const xml_node &nodes, const std::string &tag) {
-	auto items = std::make_optional(std::make_unique<Register>());
-	CharClassInfo::Optional item;
-	for (auto &node : nodes.children(tag.c_str())) {
-		item = ItemBuilder::Build(node);
-		if (item) {
-			EmplaceItem(items, item);
-		} else if (strict_pasring_) {
-			return std::nullopt;
-		}
-	}
-	EmplaceDefaultItems(items);
-
-	return items;
-}
-
-void ClassesInfo::RegisterBuilder::EmplaceItem(ClassesInfo::Optional &items, CharClassInfo::Optional &item) {
-	auto it = items.value()->try_emplace(item.value().first, std::move(item.value().second));
-	if (!it.second) {
-		err_log("Item '%s' has already exist. Redundant definition had been ignored.\n",
-				NAME_BY_ITEM<ECharClass>(item.value().first).c_str());
-	}
-}
-
-void ClassesInfo::RegisterBuilder::EmplaceDefaultItems(ClassesInfo::Optional &items) {
-	items.value()->try_emplace(ECharClass::kUndefined, std::make_unique<CharClassInfo>());
-}
-
-const CharClassInfo &ClassesInfo::operator[](ECharClass id) const {
-	try {
-		return *items_->at(id);
-	} catch (const std::out_of_range &) {
-		err_log("Unknown id (%d) passed into %s.", to_underlying(id), typeid(this).name());
-		return *items_->at(ECharClass::kUndefined);
-	}
-}
-
-bool CharClassInfo::HasSkill(ESkill id) const {
-	return skillls_->contains(id);
+bool CharClassInfo::HasSkill(ESkill skill_id) const {
+	return skills->contains(skill_id);
 };
 
-int CharClassInfo::GetMinRemort(const ESkill id) const {
+int CharClassInfo::GetMinRemort(const ESkill skill_id) const {
 	try {
-		return skillls_->at(id)->min_remort;
+		return skills->at(skill_id)->min_remort;
 	} catch (const std::out_of_range &) {
 		return kMaxRemort + 1;
 	}
 };
 
-int CharClassInfo::GetMinLevel(const ESkill id) const {
+int CharClassInfo::GetMinLevel(const ESkill skill_id) const {
 	try {
-		return skillls_->at(id)->min_level;
+		return skills->at(skill_id)->min_level;
 	} catch (const std::out_of_range &) {
 		return kLevelImplementator;
 	}
 };
 
-long CharClassInfo::GetImprove(const ESkill id) const {
+long CharClassInfo::GetImprove(const ESkill skill_id) const {
 	try {
-		return skillls_->at(id)->improve;
+		return skills->at(skill_id)->improve;
 	} catch (const std::out_of_range &) {
 		return kMinImprove;
 	}
 };
 
-/*
- *  Строитель информации одного отдельного класса.
- */
-CharClassInfo::Optional CharClassInfoBuilder::Build(const xml_node &node) {
-	auto class_node = SelectXmlNode(node);
-	auto class_info = std::make_optional(CharClassInfo::Pair());
+Optional CharClassInfoBuilder::Build(DataNode &node) {
+	auto class_info = MUD::Classes().MakeItemOptional();
+	auto class_node = SelectDataNode(node);
 	try {
-		ParseXml(class_info, class_node);
+		ParseClass(class_info, class_node);
 	} catch (std::exception &e) {
 		err_log("Incorrect value or id '%s' was detected.", e.what());
 		class_info = std::nullopt;
@@ -141,47 +63,79 @@ CharClassInfo::Optional CharClassInfoBuilder::Build(const xml_node &node) {
 	return class_info;
 }
 
-xml_node CharClassInfoBuilder::SelectXmlNode(const xml_node &node) {
+DataNode CharClassInfoBuilder::SelectDataNode(DataNode &node) {
 	auto file_name = GetCfgFileName(node);
 	if (file_name && std::filesystem::exists(file_name.value())) {
-		pugi::xml_document doc;
-		auto class_node = XMLLoad(file_name.value(), "class", "...fail.", doc);
-		if (!class_node.empty()) {
+		auto class_node = parser_wrapper::DataNode(file_name.value());
+		if (class_node.IsNotEmpty()) {
 			return class_node;
 		}
 	}
 	return node;
 }
 
-std::optional<std::string> CharClassInfoBuilder::GetCfgFileName(const xml_node &node) {
-	auto file_name = node.attribute("file").value();
-	if (!*file_name) {
+std::optional<std::string> CharClassInfoBuilder::GetCfgFileName(DataNode &node) {
+	const char *file_name;
+	try {
+		file_name = parse::ReadAsStr(node.GetValue("file"));
+	} catch (std::exception &) {
 		return std::nullopt;
 	}
-	std::optional<std::string> full_file_name{LIB_CFG_CLASSES};
-	return (full_file_name.value() += file_name);
+	std::optional<std::string> full_file_name{file_name};
+	return full_file_name;
 }
 
-void CharClassInfoBuilder::ParseXml(CharClassInfo::Optional &info, const xml_node &node) {
-	info.value().first = FindConstantByAttributeValue<ECharClass>("id", node);
-	info.value().second = std::make_unique<CharClassInfo>();
-	ParseSkills(info.value().second, node.child("skills"));
+void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
+	try {
+		info.value()->id = parse::ReadAsConstant<ECharClass>(node.GetValue("id"));
+	} catch (std::exception &e) {
+		err_log("Incorrect class id (%s).", e.what());
+		info = std::nullopt;
+		return;
+	}
+	node.GoToChild("skills");
+	ParseSkills(info, node);
 }
 
-void CharClassInfoBuilder::ParseSkills(CharClassInfo::Ptr &info, const xml_node &nodes) {
-	info->skills_level_decrement_ = nodes.attribute("level_decrement").as_int();
-	for (auto &node : nodes.children("skill")) {
-		auto skill_id = FindConstantByAttributeValue<ESkill>("id", node);
-		auto skill_info = std::make_unique<ClassSkillInfo>();
-		ParseSingleSkill(skill_info, node);
-		info->skillls_->try_emplace(skill_id, std::move(skill_info));
+void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
+	ParseSkillsLevelDecrement(info, node);
+
+	for (auto &skill_node : node.Children("skill")) {
+		ParseSingleSkill(info, skill_node);
 	}
 }
 
-void CharClassInfoBuilder::ParseSingleSkill(ClassSkillInfo::Ptr &info, const xml_node &node) {
-	info->min_level = node.attribute("level").as_int();
-	info->min_remort = node.attribute("remort").as_int();
-	info->improve =  node.attribute("improve").as_int();
+void CharClassInfoBuilder::ParseSkillsLevelDecrement(Optional &info, DataNode &node) {
+	try {
+		info.value()->skills_level_decrement = parse::ReadAsInt(node.GetValue("level_decrement"));
+	} catch (std::exception &e) {
+		err_log("Incorrect skill decrement (class %s), set default.",
+				NAME_BY_ITEM<ECharClass>(info.value()->id).c_str());
+	}
+}
+
+void CharClassInfoBuilder::ParseSingleSkill(Optional &info, DataNode &node) {
+	auto skill_info = std::make_unique<ClassSkillInfo>();
+	try {
+		skill_info->id = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
+	} catch (std::exception &e) {
+		err_log("Incorrect skill id (%s) in class %s.",
+				e.what(), NAME_BY_ITEM<ECharClass>(info.value()->id).c_str());
+		return;
+	}
+	ParseSkillVals(skill_info, node);
+	info.value()->skills->try_emplace(skill_info->id, std::move(skill_info));
+}
+
+void CharClassInfoBuilder::ParseSkillVals(ClassSkillInfo::Ptr &info, DataNode &node) {
+	try {
+		info->min_level = parse::ReadAsInt(node.GetValue("level"));
+		info->min_remort = parse::ReadAsInt(node.GetValue("remort"));
+		info->improve = parse::ReadAsInt(node.GetValue("improve"));
+	} catch (std::exception &) {
+		err_log("Incorrect skill min level, remort or improve (skill: %s). Set by default.",
+				NAME_BY_ITEM<ESkill>(info->id).c_str());
+	};
 };
 
 } // namespace clases

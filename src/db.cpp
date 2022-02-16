@@ -1080,9 +1080,9 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "abilities")) {
 		MUD::Abilities().Reload();
 	} else if (!str_cmp(arg, "skills")) {
-		MUD::CfgManager().ReloadCfgFile("skills");
+		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "classes")) {
-		MUD::Classes().Reload("classes");
+		MUD::CfgManager().ReloadCfg("classes");
 	} else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -2245,9 +2245,9 @@ void boot_db(void) {
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
-	boot_profiler.next_step("Loading base cfg files.");
-	log("Loading base cfg files.");
-	MUD::CfgManager().BootBaseCfgs();
+	boot_profiler.next_step("Loading skills cfg.");
+	log("Loading skills cfg.");
+	MUD::CfgManager().LoadCfg("skills");
 
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
@@ -2314,7 +2314,8 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Assigning character classs info.");
 	log("Assigning character classs info.");
-	MUD::Classes().Init();
+	MUD::CfgManager().LoadCfg("classes");
+
 	InitSpellLevels();
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");

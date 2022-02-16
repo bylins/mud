@@ -1,6 +1,6 @@
 #include "wrapper.h"
 
-#include <iostream>
+#include "utils/logger.h"
 
 namespace parser_wrapper {
 
@@ -10,7 +10,7 @@ DataNode::DataNode(const std::filesystem::path &file_name) :
 	if (auto result = xml_doc_->load_file(file_name.c_str()); !result) {
 		std::ostringstream buffer;
 		buffer << "..." << result.description() << std::endl << " (file: " << file_name << ")" << std::endl;
-		std::cout << buffer.str(); //ABYRVALG не забыть убрать
+		err_log("%s", buffer.str().c_str());
 	}
 	curren_xml_node_ = xml_doc_->document_element();
 }
