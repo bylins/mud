@@ -38,6 +38,8 @@ struct SkillInfo : public info_container::IItem<ESkill> {
 	 */
 	[[nodiscard]] const char *GetName() const { return name.c_str(); };
 	[[nodiscard]] const char *GetAbbr() const { return short_name.c_str(); };
+	[[nodiscard]] bool IsAvailable() const { return mode == EItemMode::kEnabled; };
+	bool IsUnavailable() const { return !IsAvailable(); };
 	void Print(std::stringstream &buffer) const;
 };
 

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
+#include <typeinfo>
 
 #include "utils/logger.h"
 #include "utils/wrapper.h"
@@ -25,6 +26,43 @@ template<>
 const std::string &NAME_BY_ITEM<EItemMode>(EItemMode item);
 template<>
 EItemMode ITEM_BY_NAME<EItemMode>(const std::string &name);
+
+template<typename T, typename I>
+struct PredicateIterator {
+ private:
+	T it_;
+	//using I = decltype(*it_->second);
+ public:
+	using iterator_category = std::input_iterator_tag;
+	using difference_type   = std::ptrdiff_t;
+	using value_type        = I;
+	using pointer           = const I*;
+	using reference         = const I&;
+
+	PredicateIterator() = default;
+	PredicateIterator(const PredicateIterator &p) = default;
+	explicit PredicateIterator(T it) :
+		it_{it} {};
+
+	PredicateIterator &operator++() {
+		++it_;
+		return *this;
+	};
+
+	const PredicateIterator operator++(int) {
+		auto retval = *this;
+		++*this;
+		return retval;
+	};
+
+	bool operator==(const PredicateIterator &it) const { return it_ == it.it_; };
+
+	bool operator!=(const PredicateIterator &other) const { return !(*this == other); };
+
+	reference operator*() const { return *(it_->second); }
+
+	pointer operator->() { return it_->second.get(); }
+};
 
 namespace info_container {
 
@@ -41,7 +79,7 @@ class IItem {
 template<typename I>
 class IItemBuilder {
  public:
-	using ItemPtr = std::unique_ptr<I>;
+	using ItemPtr = std::shared_ptr<I>;
 	using ItemOptional = std::optional<ItemPtr>;
 	virtual ItemOptional Build(parser_wrapper::DataNode &node) = 0;
 };
@@ -57,8 +95,9 @@ class InfoContainer {
 	InfoContainer(InfoContainer &s) = delete;
 	void operator=(const InfoContainer &s) = delete;
 
-	using ItemPtr = std::unique_ptr<I>;
+	using ItemPtr = std::shared_ptr<I>;
 	using ItemOptional = std::optional<ItemPtr>;
+	using Register = std::unordered_map<E, ItemPtr>;
 	using NodeRange = parser_wrapper::NodeRange<parser_wrapper::DataNode>;
 
 /* ----------------------------------------------------------------------
@@ -77,7 +116,6 @@ class InfoContainer {
 		}
 	};
 
-	// \todo Добавить выброс исключения при неудачной инициализации или перезагрузке
 	/*
 	 *  Инициализация. Для реинициализации используйте Reload();
 	 */
@@ -137,17 +175,6 @@ class InfoContainer {
 	bool IsUnavailable(E id) { return !IsAvailable(id); };
 
 	/*
-	 * Список элементов в режиме "подключен".
-	 * \todo Переделать на сохранение итератора при инициализации контейнера.
-	 */
-	auto Availables() {
-		auto it = std::partition(items_->begin(), items_->end(),
-								 [this](auto i){return IsEnabled(i.second->GetId());});
-		parser_wrapper::NodeRange<typename Register::const_iterator> range(items_->begin(), it);
-		return range;
-	}
-
-	/*
 	 *  Контейнер уже инициализирован.
 	 */
 	bool IsInitizalized() { return (items_->size() > 1); }
@@ -157,12 +184,21 @@ class InfoContainer {
 	 *  Создание опционала для парсера элементов.
 	 */
 	ItemOptional MakeItemOptional() {
-		return std::make_optional(std::make_unique<I>());
+		return std::make_optional(std::make_shared<I>());
+	}
+
+	auto begin() {
+		PredicateIterator<decltype(items_->begin()), I> it(items_->begin());
+		return it;
+	}
+
+	auto end() {
+		PredicateIterator<decltype(items_->end()), I> it(items_->end());
+		return it;
 	}
 
  private:
 	friend class RegisterBuilder;
-	using Register = std::unordered_map<E, ItemPtr>;
 	using RegisterPtr = std::unique_ptr<Register>;
 	using RegisterOptional = std::optional<RegisterPtr>;
 
@@ -218,7 +254,7 @@ class InfoContainer {
 		}
 
 		static void EmplaceDefaultItems(Register &items) {
-			items.try_emplace(E::kUndefined, std::make_unique<I>());
+			items.try_emplace(E::kUndefined, std::make_shared<I>());
 		}
 
 	};
