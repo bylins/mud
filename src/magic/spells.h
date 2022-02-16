@@ -14,7 +14,7 @@
 #include "entities/entity_constants.h"
 #include "skills.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
 
 #include <optional>
 

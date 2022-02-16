@@ -33,7 +33,7 @@
 #include "magic/magic_utils.h"
 #include "world_objects.h"
 #include "entities/zone.h"
-#include "classes/classes_spell_slots.h"
+#include "game_classes/classes_spell_slots.h"
 #include "depot.h"
 
 using PlayerClass::slot_for_char;

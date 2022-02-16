@@ -2,7 +2,7 @@
 
 #include "entities/char.h"
 #include "magic/magic_utils.h"
-#include "classes/classes_spell_slots.h"
+#include "game_classes/classes_spell_slots.h"
 #include "magic/spells_info.h"
 #include "handler.h"
 #include "color.h"

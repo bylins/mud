@@ -470,7 +470,7 @@ const char *spells_color(int spellnum) {
    смогли посмотреть заклинания которые они могут колдовать
    на своем уровне, но на которые у них нет необходимых предметов
    при параметре true */
-#include "classes/classes_spell_slots.h"
+#include "game_classes/classes_spell_slots.h"
 void list_spells(CharacterData *ch, CharacterData *vict, int all_spells) {
 	using PlayerClass::slot_for_char;
 

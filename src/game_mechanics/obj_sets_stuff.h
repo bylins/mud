@@ -10,7 +10,7 @@
 #include "structs/structs.h"
 #include "interpreter.h"
 #include "entities/char_player.h"
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
 
 #include <array>
 #include <string>

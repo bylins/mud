@@ -81,7 +81,7 @@
 #include "utils/id_converter.h"
 #include "world_objects.h"
 #include "entities/zone.h"
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
 #include "magic/spells_info.h"
 #include "magic/magic_rooms.h"
 #include <boost/format.hpp>

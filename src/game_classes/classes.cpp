@@ -1551,7 +1551,7 @@ int invalid_no_class(CharacterData *ch, const ObjectData *obj) {
  * which classes, and the minimum level the character must be to use
  * the spell or skill.
  */
-#include "classes/classes_spell_slots.h"
+#include "classes_spell_slots.h"
 void InitSpellLevels() {
 	using PlayerClass::mspell_slot;
 

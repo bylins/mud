@@ -2,7 +2,7 @@
 #define GLOBAL_OBJECTS_HPP_
 
 #include "abilities/abilities_info.h"
-#include "classes/classes_info.h"
+#include "game_classes/classes_info.h"
 #include "fightsystem/pk.h"
 #include "game_mechanics/celebrates.h"
 #include "utils/logger.h"

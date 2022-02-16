@@ -29,7 +29,7 @@
 #include "entities/char.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "classes/classes.h"
+#include "game_classes/classes.h"
 #include "cmd/follow.h"
 #include "corpse.h"
 #include "game_mechanics/deathtrap.h"

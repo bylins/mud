@@ -1,7 +1,7 @@
 #include "learn.h"
 
 #include "handler.h"
-#include "classes/classes_spell_slots.h"
+#include "game_classes/classes_spell_slots.h"
 #include "magic/spells_info.h"
 #include "structs/global_objects.h"
 

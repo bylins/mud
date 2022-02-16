@@ -17,7 +17,7 @@
 #include "modify.h"
 #include "magic/spells.h"
 #include "utils/utils.h"
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
 #include "skills_info.h"
 #include "structs/global_objects.h"
 
