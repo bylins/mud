@@ -563,11 +563,13 @@ void Player::save_char() {
 	// скилы
 	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
 		fprintf(saved, "Skil:\n");
-		int skill;
-		for (const auto i : AVAILABLE_SKILLS) {
-			skill = this->get_inborn_skill(i);
-			if (skill) {
-				fprintf(saved, "%d %d %s\n", to_underlying(i), skill, MUD::Skills()[i].GetName());
+		int skill_val;
+		for (const auto &skill : MUD::Skills()) {
+			if (skill.IsAvailable()) {
+				skill_val = this->get_inborn_skill(skill.GetId());
+				if (skill_val) {
+					fprintf(saved, "%d %d %s\n", to_underlying(skill.GetId()), skill_val, skill.GetName());
+				}
 			}
 		}
 		fprintf(saved, "0 0\n");

@@ -22,23 +22,9 @@
 #include <memory>
 
 #include "pugixml.h"
+#include "structs/iterators.h"
 
 namespace parser_wrapper {
-
-template<class N>
-class NodeRange {
- public:
-	explicit NodeRange(N begin) :
-		begin_{begin},
-		end_{N()} {}
-
-	[[nodiscard]] auto begin() const { return begin_; };
-	[[nodiscard]] auto end() const { return end_; };
-
- private:
-	N begin_;
-	N end_;
-};
 
 class DataNode : public std::iterator<
 	std::forward_iterator_tag,  // iterator_category
@@ -185,12 +171,12 @@ class DataNode : public std::iterator<
 	/*
 	 * Диапазон всех дочерних узлов.
 	 */
-	[[nodiscard]] NodeRange<DataNode> Children();
+	[[nodiscard]] iterators::Range<DataNode> Children();
 
 	/*
 	 * Диапазон дочерних узлов с именем key,
 	 */
-	[[nodiscard]] NodeRange<NameIterator> Children(const std::string &key);
+	[[nodiscard]] iterators::Range<NameIterator> Children(const std::string &key);
 
 };
 

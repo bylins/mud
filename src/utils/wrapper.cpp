@@ -115,16 +115,16 @@ const DataNode DataNode::operator--(int) {
 	return retval;
 }
 
-[[nodiscard]] NodeRange<DataNode> DataNode::Children() {
+[[nodiscard]] iterators::Range<DataNode> DataNode::Children() {
 	auto node = *this;
 	node->curren_xml_node_ = node->curren_xml_node_.first_child();
-	return NodeRange(node);
+	return iterators::Range(node);
 }
 
-[[nodiscard]] NodeRange<DataNode::NameIterator> DataNode::Children(const std::string &key) {
+[[nodiscard]] iterators::Range<DataNode::NameIterator> DataNode::Children(const std::string &key) {
 	auto it = NameIterator(*this);
 	(*it)->GoToChild(key);
-	return NodeRange(it);
+	return iterators::Range(it);
 }
 
 DataNode::NameIterator &DataNode::NameIterator::operator++() {

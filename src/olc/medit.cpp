@@ -688,9 +688,9 @@ void medit_save_to_disk(int zone_num) {
 				if (HAVE_FEAT(mob, c))
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
-			for (const auto c : AVAILABLE_SKILLS) {
-				if (mob->get_skill(c) && *MUD::Skills()[c].GetName() != '!') {
-					fprintf(mob_file, "Skill: %d %d\n", to_underlying(c), mob->get_skill(c));
+			for (const auto &skill : MUD::Skills()) {
+				if (mob->get_skill(skill.GetId()) && skill.IsValid()) {
+					fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), mob->get_skill(skill.GetId()));
 				}
 			}
 			for (c = 1; c <= kSpellCount; c++) {
@@ -1074,19 +1074,19 @@ void medit_disp_skills(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (const auto counter : AVAILABLE_SKILLS) {
-		if (!MUD::Skills()[counter].GetName() || *MUD::Skills()[counter].GetName() == '!') {
+	for (const auto &skill : MUD::Skills()) {
+		if (skill.IsInvalid()) {
 			continue;
 		}
 
-		if (OLC_MOB(d)->get_skill(counter)) {
-			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(counter), nrm);
+		if (OLC_MOB(d)->get_skill(skill.GetId())) {
+			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(skill.GetId()), nrm);
 		} else {
 			strcpy(buf1, "     ");
 		}
 
-		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(counter), nrm,
-				 MUD::Skills()[counter].GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill.GetId()), nrm,
+				 skill.GetName(), buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
 	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());

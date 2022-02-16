@@ -30,17 +30,19 @@ struct SkillInfo : public info_container::IItem<ESkill> {
 	bool autosuccess{false};
 	EItemMode mode{EItemMode::kDisabled};
 
-	ESkill GetId() final { return id; };
-	EItemMode GetMode() final { return mode; };
+	[[nodiscard]] ESkill GetId() const final { return id; };
+	[[nodiscard]] EItemMode GetMode() const final { return mode; };
 
 	/*
 	 * Имя скилла в виде C-строки. По возможности используйте std::string
 	 */
 	[[nodiscard]] const char *GetName() const { return name.c_str(); };
 	[[nodiscard]] const char *GetAbbr() const { return short_name.c_str(); };
-	[[nodiscard]] bool IsAvailable() const { return mode == EItemMode::kEnabled; };
-	bool IsUnavailable() const { return !IsAvailable(); };
 	void Print(std::stringstream &buffer) const;
+/*	bool IsValid() const final;
+	bool IsInvalid() const final;
+	bool IsAvailable() const final;
+	bool IsUnavailable() const final;*/
 };
 
 /*

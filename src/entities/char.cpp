@@ -1918,8 +1918,10 @@ void CharacterData::restore_npc() {
 		GET_SPELL_MEM(this, i) = GET_SPELL_MEM(proto, i);
 	}
 	// рестор для скилов
-	for (const auto i : AVAILABLE_SKILLS) { 
-		this->set_skill(i, GET_SKILL(proto, i));
+	for (const auto &skill : MUD::Skills()) {
+		if (skill.IsValid()) {
+			this->set_skill(skill.GetId(), GET_SKILL(proto, skill.GetId()));
+		}
 	}
 	// рестор для фитов
 	for (int i = 1; i < kMaxFeats; i++) {

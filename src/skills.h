@@ -162,8 +162,6 @@ struct TimedSkill {
 	TimedSkill *next{nullptr};
 };
 
-extern std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS;
-
 int SendSkillMessages(int dam, CharacterData *ch, CharacterData *vict, int attacktype, std::string add = "");
 
 int CalcCurrentSkill(CharacterData *ch, ESkill skill_id, CharacterData *vict);

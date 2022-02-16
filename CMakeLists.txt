@@ -462,7 +462,7 @@ set(HEADERS
 		src/classes/classes_info.h
 		src/utils/objects_filter.h
 		src/structs/info_container.h
-		src/utils/wrapper.h src/boot/cfg_manager.h)
+		src/utils/wrapper.h src/boot/cfg_manager.h src/structs/iterators.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

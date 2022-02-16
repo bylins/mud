@@ -1711,11 +1711,11 @@ char *make_prompt(DescriptorData *d) {
 							 "%s:%d ",
 							 MUD::Skills()[ESkill::kGlobalCooldown].GetAbbr(),
 							 d->character->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
-			for (const auto skill : AVAILABLE_SKILLS) {
-				if (*MUD::Skills()[skill].GetName() != '!' && d->character->get_skill(skill)) {
-					int cooldown = d->character->getSkillCooldownInPulses(skill);
+			for (const auto &skill : MUD::Skills()) {
+				if (skill.IsAvailable()) {
+					int cooldown = d->character->getSkillCooldownInPulses(skill.GetId());
 					if (cooldown > 0) {
-						count += sprintf(prompt + count, "%s:%d ", MUD::Skills()[skill].GetAbbr(), cooldown);
+						count += sprintf(prompt + count, "%s:%d ", skill.GetAbbr(), cooldown);
 					}
 				}
 			}

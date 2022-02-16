@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
-#include <typeinfo>
+//#include <typeinfo>
 
 #include "utils/logger.h"
 #include "utils/wrapper.h"
@@ -27,43 +27,6 @@ const std::string &NAME_BY_ITEM<EItemMode>(EItemMode item);
 template<>
 EItemMode ITEM_BY_NAME<EItemMode>(const std::string &name);
 
-template<typename T, typename I>
-struct PredicateIterator {
- private:
-	T it_;
-	//using I = decltype(*it_->second);
- public:
-	using iterator_category = std::input_iterator_tag;
-	using difference_type   = std::ptrdiff_t;
-	using value_type        = I;
-	using pointer           = const I*;
-	using reference         = const I&;
-
-	PredicateIterator() = default;
-	PredicateIterator(const PredicateIterator &p) = default;
-	explicit PredicateIterator(T it) :
-		it_{it} {};
-
-	PredicateIterator &operator++() {
-		++it_;
-		return *this;
-	};
-
-	const PredicateIterator operator++(int) {
-		auto retval = *this;
-		++*this;
-		return retval;
-	};
-
-	bool operator==(const PredicateIterator &it) const { return it_ == it.it_; };
-
-	bool operator!=(const PredicateIterator &other) const { return !(*this == other); };
-
-	reference operator*() const { return *(it_->second); }
-
-	pointer operator->() { return it_->second.get(); }
-};
-
 namespace info_container {
 
 /*
@@ -72,8 +35,27 @@ namespace info_container {
 template<typename E>
 class IItem {
  public:
-	virtual EItemMode GetMode() = 0;
-	virtual E GetId() = 0;
+	[[nodiscard]] virtual EItemMode GetMode() const = 0;
+	virtual E GetId() const = 0;
+	/*
+	 *  Элемент доступен либо тестируется.
+	 */
+	[[nodiscard]] bool IsValid() const { return (IsAvailable() || GetMode() == EItemMode::kTesting); };
+
+	/*
+	 *  Элемент отключен.
+	 */
+	[[nodiscard]] bool IsInvalid() const { return !IsValid(); };
+
+	/*
+	 *  Элемент доступен и не тестируется).
+	 */
+	[[nodiscard]] bool IsAvailable() const { return (GetMode() == EItemMode::kEnabled); };
+
+	/*
+	 *  Элемент недоступен или тестируется.
+	 */
+	[[nodiscard]] bool IsUnavailable() const { return !IsAvailable(); };
 };
 
 template<typename I>
@@ -98,7 +80,7 @@ class InfoContainer {
 	using ItemPtr = std::shared_ptr<I>;
 	using ItemOptional = std::optional<ItemPtr>;
 	using Register = std::unordered_map<E, ItemPtr>;
-	using NodeRange = parser_wrapper::NodeRange<parser_wrapper::DataNode>;
+	using NodeRange = iterators::Range<parser_wrapper::DataNode>;
 
 /* ----------------------------------------------------------------------
  * 	Интерфейс контейнера.
@@ -143,36 +125,32 @@ class InfoContainer {
 	/*
 	 *  Id известен. Не гарантируется, что он означает корректный элемент.
 	 */
-	bool IsKnown(E id) { return items_->contains(id); };
+	bool IsKnown(const E id) const { return items_->contains(id); };
 
 	/*
 	 *  Id неизвестен.
 	 */
-	bool IsUnknown(E id) { return !IsKnown(id); };
+	bool IsUnknown(const E id) const { return !IsKnown(id); };
 
 	/*
-	 *  Id известен и доступен либо тестируется.
+	 *  Id доступен либо тестируется.
 	 */
-	bool IsValid(E id) {
-		return (IsKnown(id) ? (IsEnabled(id) || IsBeingTesting(id)) : false);
-	};
+	bool IsValid(const E id) const { return (IsUnknown(id) ? false : IsEnabled(id) || IsBeingTesting(id)); };
 
 	/*
-	 *  Id неизвестен или отключен.
+	 *  Id отключен.
 	 */
-	bool IsInvalid(E id) { return !IsValid(id); };
+	bool IsInvalid(const E id) const { return !IsValid(id); };
 
 	/*
-	 *  Id известен, определен и доступен (не тестируется).
+	 *  Id доступен и не тестируется).
 	 */
-	bool IsAvailable(E id) {
-		return (IsKnown(id) ? IsEnabled(id) : false);
-	};
+	bool IsAvailable(const E id) const { return (IsUnknown(id) ? false : IsEnabled(id)); };
 
 	/*
-	 *  Id неизвестен, неопределен или тестируется.
+	 *  Id недоступен или тестируется.
 	 */
-	bool IsUnavailable(E id) { return !IsAvailable(id); };
+	bool IsUnavailable(const E id) const { return !IsAvailable(id); };
 
 	/*
 	 *  Контейнер уже инициализирован.
@@ -187,13 +165,18 @@ class InfoContainer {
 		return std::make_optional(std::make_shared<I>());
 	}
 
+	/*
+	 * Пара итераторов, возвращающих коннстантные ссылки.
+	 * Обычный const_iterator не блокирует возможность изменить значение,
+	 * на которое указывает указатель, поэтому была применена обертка.
+	 */
 	auto begin() {
-		PredicateIterator<decltype(items_->begin()), I> it(items_->begin());
+		iterators::ConstIterator<decltype(items_->begin()), I> it(items_->begin());
 		return it;
 	}
 
 	auto end() {
-		PredicateIterator<decltype(items_->end()), I> it(items_->end());
+		iterators::ConstIterator<decltype(items_->end()), I> it(items_->end());
 		return it;
 	}
 
@@ -265,17 +248,17 @@ class InfoContainer {
 	/*
 	 *  Такой id известен, но элемент отключен.
 	 */
-	bool IsDisabled(const E id) { return items_->at(id)->GetMode() == EItemMode::kDisabled; }
+	bool IsDisabled(const E id) const { return items_->at(id)->GetMode() == EItemMode::kDisabled; }
 
 	/*
 	 *  Такой id известен и находится в режиме тестирования.
 	 */
-	bool IsBeingTesting(const E id) { return items_->at(id)->GetMode() == EItemMode::kTesting; }
+	bool IsBeingTesting(const E id) const { return items_->at(id)->GetMode() == EItemMode::kTesting; }
 
 	/*
 	 *  Такой id известен и элемент доступен. Не гарантируется, что элемент корректен.
 	 */
-	bool IsEnabled(const E id) { return items_->at(id)->GetMode() == EItemMode::kEnabled; }
+	bool IsEnabled(const E id) const { return items_->at(id)->GetMode() == EItemMode::kEnabled; }
 
 };
 

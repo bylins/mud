@@ -2317,9 +2317,9 @@ void do_entergame(DescriptorData *d) {
 	setFeaturesOfRace(d->character.get());
 
 	if (!IS_IMMORTAL(d->character)) {
-		for (const auto i : AVAILABLE_SKILLS) {
-			if (MUD::Classes()[(d->character)->get_class()].HasntSkill(i)) {
-				d->character->set_skill(i, 0);
+		for (const auto &skill : MUD::Skills()) {
+			if (MUD::Classes()[(d->character)->get_class()].HasntSkill(skill.GetId())) {
+				d->character->set_skill(skill.GetId(), 0);
 			}
 		}
 	}

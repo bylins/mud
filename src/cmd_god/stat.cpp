@@ -375,9 +375,9 @@ void do_stat_character(CharacterData *ch, CharacterData *k, const int virt = 0) 
 					 k->mob_specials.MaxFactor,
 					 CCNRM(ch, C_NRM));
 		send_to_char(ch, "Умения:&c");
-		for (const auto counter : AVAILABLE_SKILLS) {
-			if (*MUD::Skills()[counter].GetName() != '!' && k->get_skill(counter)) {
-				send_to_char(ch, " %s:[%3d]", MUD::Skills()[counter].GetName(), k->get_skill(counter));
+		for (const auto &skill : MUD::Skills()) {
+			if (skill.IsValid() && k->get_skill(skill.GetId())) {
+				send_to_char(ch, " %s:[%3d]", skill.GetName(), k->get_skill(skill.GetId()));
 			}
 		}
 		send_to_char(ch, CCNRM(ch, C_NRM));
