@@ -24,20 +24,20 @@ void AbilityRoll::Init(CharData *actor, int ability_num) {
 //TODO добавить возможность прописывать автоуспех навыка
 void AbilityRoll::PerformAbilityTest() {
 	actor_rating_ = CalcActorRating();
-	int targetRating = CalcTargetRating();
-	int diceRoll = number(1, abilities::kMainDiceSize);
-	int difficulty = actor_rating_ - targetRating;
-	int rollResult = difficulty - diceRoll;
-	ProcessingResult(rollResult, diceRoll);
+	int target_rating = CalcTargetRating();
+	int roll = number(1, abilities::kMainDiceSize);
+	int difficulty = actor_rating_ - target_rating;
+	int roll_result = difficulty - roll;
+	ProcessingResult(roll_result, roll);
 	if (PRF_FLAGGED(actor_, PRF_TESTER)) {
 		send_to_char(actor_,
 					 "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
 					 ability_->name,
 					 actor_rating_,
-					 targetRating,
+					 target_rating,
 					 difficulty,
-					 diceRoll,
-					 rollResult,
+					 roll,
+					 roll_result,
 					 success_ ? "успех" : "провал");
 	}
 };

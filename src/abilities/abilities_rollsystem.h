@@ -65,8 +65,9 @@ class AbilityRoll {
 	[[nodiscard]] bool IsCriticalFail() const { return critical_fail_; };
 	[[nodiscard]] bool IsCriticalSuccess() const { return critical_success_; };
 	[[nodiscard]] bool IsWrongConditions() const { return wrong_conditions_; };
-	int GetAbilityId() { return ability_->id; };
+	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; };
 	[[nodiscard]] int GetSuccessDegree() const { return success_degree_; };
+	int GetAbilityId() { return ability_->id; };
 	CharData *GetActor() { return actor_; };
 	void SendDenyMsgToActor();
 };
@@ -85,7 +86,7 @@ class AgainstRivalRoll : public AbilityRoll {
 
  public:
 	void Init(CharData *actor, int ability, CharData *victim);
-	CharData *rival() { return rival_; };
+	CharData *GetRival() { return rival_; };
 
 	AgainstRivalRoll() :
 		rival_{nullptr} {};

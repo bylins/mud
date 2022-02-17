@@ -32,12 +32,11 @@ enum EExtraAttack {
 	kExtraAttackKick,
 	kExtraAttackUndercut,
 	kExtraAttackDisarm,
-	kExtraAttackCutShorts,
-	kExtraAttackPick
+	kExtraAttackCut,
 };
 
 /*
- * ID'ы скиллов. Если добавляем id - его обязательно нужно инициализировать в SkillsInfo,
+ * ID'ы скиллов. Если добавляем id - его обязательно нужно инициализировать в конфиге,
  * даже если сам скилл отключён, иначе в сислоге будет спам об ошибках (система пытается проверять
  * скилл с таким id и не находит его).
  */

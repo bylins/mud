@@ -3,6 +3,6 @@
 
 class CharData;
 
-void GoCutShorts(CharData *ch, CharData *vict);
+void GoExpedientCut(CharData *ch, CharData *vict);
 
 #endif //BYLINS_EXPENDIENTCUT_H

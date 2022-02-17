@@ -10,20 +10,18 @@
 #include "protect.h"
 #include "fightsystem/common.h"
 
-using namespace AbilitySystem;
-
 // ************* THROW PROCEDURES
 
 // Временная костыльная функция до реализации встроенного механизма работы сайдскиллов
 // TODO Не забыть реализовать постоянный механизм
-void PerformShadowThrowSideAbilities(TechniqueRoll &technique) {
+void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 	ObjData *weapon = GET_EQ(technique.GetActor(), technique.GetWeaponEquipPosition());
 	if (!weapon) {
 		return;
 	}
 	int feature_id = INCORRECT_FEAT;
 	std::string to_char, to_vict, to_room;
-	void (*DoSideAction)(TechniqueRoll &technique);
+	void (*DoSideAction)(AbilitySystem::TechniqueRoll &technique);
 	Bitvector mob_no_flag = MOB_DELETE;
 
 	switch (static_cast<ESkill>(weapon->get_skill())) {
@@ -34,12 +32,12 @@ void PerformShadowThrowSideAbilities(TechniqueRoll &technique) {
 			to_vict =
 				"Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
 			to_room = "Копье $N1 сбило $n3 наземь!";
-			DoSideAction = ([](TechniqueRoll &technique) {
-				if (technique.rival()->ahorse()) { //если на лошади - падение с лагом 3
-					technique.rival()->drop_from_horse();
+			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
+				if (technique.GetRival()->ahorse()) { //если на лошади - падение с лагом 3
+					technique.GetRival()->drop_from_horse();
 				} else { // иначе просто садится на попу с лагом 2
-					GET_POS(technique.rival()) = std::min(GET_POS(technique.rival()), EPosition::kSit);
-					SetWait(technique.rival(), 2, false);
+					GET_POS(technique.GetRival()) = std::min(GET_POS(technique.GetRival()), EPosition::kSit);
+					SetWait(technique.GetRival(), 2, false);
 				}
 			});
 			break;
@@ -50,13 +48,13 @@ void PerformShadowThrowSideAbilities(TechniqueRoll &technique) {
 			to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
 			to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
 			to_room = "Меткое попадание $N1 заставило $n3 умолкнуть!";
-			DoSideAction = ([](TechniqueRoll &technique) {
+			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
 				Affect<EApplyLocation> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
-				af.duration = CalcDuration(technique.rival(), 2, GET_REAL_LEVEL(technique.GetActor()), 9, 6, 2);
+				af.duration = CalcDuration(technique.GetRival(), 2, GET_REAL_LEVEL(technique.GetActor()), 9, 6, 2);
 				af.battleflag = kAfBattledec | kAfPulsedec;
-				affect_join(technique.rival(), af, false, false, false, false);
+				affect_join(technique.GetRival(), af, false, false, false, false);
 			});
 			break;
 		case ESkill::kClubs:mob_no_flag = MOB_NOSTUPOR;
@@ -64,14 +62,14 @@ void PerformShadowThrowSideAbilities(TechniqueRoll &technique) {
 			to_char = "Попадание булавы ошеломило $n3.";
 			to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
 			to_room = "Попадание булавы $N1 ошеломило $n3!";
-			DoSideAction = ([](TechniqueRoll &technique) {
+			DoSideAction = ([](AbilitySystem::TechniqueRoll &technique) {
 				Affect<EApplyLocation> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-				af.duration = CalcDuration(technique.rival(), 3, 0, 0, 0, 0);
+				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
-				affect_join(technique.rival(), af, false, false, false, false);
-				SetWait(technique.rival(), 3, false);
+				affect_join(technique.GetRival(), af, false, false, false, false);
+				SetWait(technique.GetRival(), 3, false);
 			});
 			break;
 		default:
@@ -82,18 +80,18 @@ void PerformShadowThrowSideAbilities(TechniqueRoll &technique) {
 	if (!can_use_feat(technique.GetActor(), feature_id)) {
 		return;
 	};
-	TechniqueRoll side_roll;
-	side_roll.Init(technique.GetActor(), feature_id, technique.rival());
-	if (side_roll.IsSuccess() && !MOB_FLAGGED(technique.rival(), mob_no_flag)) {
-		act(to_char.c_str(), false, technique.rival(), nullptr, technique.GetActor(), kToVict);
-		act(to_vict.c_str(), false, technique.rival(), nullptr, technique.GetActor(), kToChar);
-		act(to_room.c_str(), false, technique.rival(), nullptr, technique.GetActor(), kToNotVict | kToArenaListen);
+	AbilitySystem::TechniqueRoll side_roll;
+	side_roll.Init(technique.GetActor(), feature_id, technique.GetRival());
+	if (side_roll.IsSuccess() && !MOB_FLAGGED(technique.GetRival(), mob_no_flag)) {
+		act(to_char.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToVict);
+		act(to_vict.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToChar);
+		act(to_room.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToNotVict | kToArenaListen);
 		DoSideAction(technique);
 	}
 };
 
 // TODO: Перенести подобную логику в модуль абилок, разделить уровни
-void PerformWeaponThrow(TechniqueRoll &technique, Damage &damage) {
+void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage) {
 	damage.dam = fight::kZeroDmg;
 	if (technique.IsSuccess()) {
 		damage.dam = technique.CalcDamage();
@@ -117,7 +115,7 @@ void PerformWeaponThrow(TechniqueRoll &technique, Damage &damage) {
 			};
 		};
 	};
-	damage.Process(technique.GetActor(), technique.rival());
+	damage.Process(technique.GetActor(), technique.GetRival());
 };
 
 void go_throw(CharData *ch, CharData *victim) {
@@ -144,7 +142,7 @@ void go_throw(CharData *ch, CharData *victim) {
 		ImposeTimedFeat(ch, &timed);
 		PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
 	}
-	TechniqueRoll roll;
+	AbilitySystem::TechniqueRoll roll;
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
 	damage.magic_type = kTypeDark;
 

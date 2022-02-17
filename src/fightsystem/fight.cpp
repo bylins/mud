@@ -1744,8 +1744,7 @@ bool using_extra_attack(CharData *ch) {
 		case kExtraAttackDisarm: go_disarm(ch, ch->get_extra_victim());
 			used = true;
 			break;
-		case kExtraAttackCutShorts:
-		case kExtraAttackPick:GoCutShorts(ch, ch->get_extra_victim());
+		case kExtraAttackCut: GoExpedientCut(ch, ch->get_extra_victim());
 			used = true;
 			break;
 		default:used = false;

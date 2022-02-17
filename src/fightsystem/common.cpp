@@ -18,8 +18,7 @@ int IsHaveNoExtraAttack(CharData *ch) {
 				break;
 			case kExtraAttackThrow: message = "Невозможно. Вы пытаетесь метнуть оружие в $N3.";
 				break;
-			case kExtraAttackPick:
-			case kExtraAttackCutShorts: message = "Невозможно. Вы пытаетесь провести боевой прием против $N1.";
+			case kExtraAttackCut: message = "Невозможно. Вы пытаетесь провести боевой прием против $N1.";
 				break;
 			default: return false;
 		}

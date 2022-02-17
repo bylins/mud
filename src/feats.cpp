@@ -540,8 +540,8 @@ void InitFeatures() {
 	feat_info[EXPEDIENT_CUT_FEAT].GetEffectParameter = &GET_REAL_STR;
 	feat_info[EXPEDIENT_CUT_FEAT].uses_weapon_skill = true;
 	feat_info[EXPEDIENT_CUT_FEAT].always_available = false;
-	feat_info[EXPEDIENT_CUT_FEAT].damage_bonus = 7;
-	feat_info[EXPEDIENT_CUT_FEAT].success_degree_damage_bonus = 10;
+	feat_info[EXPEDIENT_CUT_FEAT].damage_bonus = 5;
+	feat_info[EXPEDIENT_CUT_FEAT].success_degree_damage_bonus = 8;
 	feat_info[EXPEDIENT_CUT_FEAT].CalcSituationalDamageFactor = ([](CharData */*ch*/) -> float { return 1.0; });
 	feat_info[EXPEDIENT_CUT_FEAT].CalcSituationalRollBonus =
 		([](CharData */*ch*/, CharData * enemy) -> int {
@@ -551,25 +551,31 @@ void InitFeatures() {
 			return 0;
 		});
 
-	feat_info[EXPEDIENT_CUT_FEAT].item_kits.reserve(3);
+	feat_info[EXPEDIENT_CUT_FEAT].item_kits.reserve(4);
 
-	auto techniqueItemKit = std::make_unique<TechniqueItemKit>();
-	techniqueItemKit->reserve(2);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON, ESkill::kShortBlades));
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON, ESkill::kShortBlades));
-	feat_info[EXPEDIENT_CUT_FEAT].item_kits.push_back(std::move(techniqueItemKit));
+	auto item_kit = std::make_unique<TechniqueItemKit>();
+	item_kit->reserve(2);
+	item_kit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON, ESkill::kShortBlades));
+	item_kit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON, ESkill::kShortBlades));
+	feat_info[EXPEDIENT_CUT_FEAT].item_kits.push_back(std::move(item_kit));
 
-	techniqueItemKit = std::make_unique<TechniqueItemKit>();
-	techniqueItemKit->reserve(2);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON, ESkill::kSpades));
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON, ESkill::kSpades));
-	feat_info[EXPEDIENT_CUT_FEAT].item_kits.push_back(std::move(techniqueItemKit));
+	item_kit = std::make_unique<TechniqueItemKit>();
+	item_kit->reserve(2);
+	item_kit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON, ESkill::kLongBlades));
+	item_kit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON, ESkill::kLongBlades));
+	feat_info[EXPEDIENT_CUT_FEAT].item_kits.push_back(std::move(item_kit));
 
-	techniqueItemKit = std::make_unique<TechniqueItemKit>();
-	techniqueItemKit->reserve(2);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON, ESkill::kPicks));
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON, ESkill::kPicks));
-	feat_info[EXPEDIENT_CUT_FEAT].item_kits.push_back(std::move(techniqueItemKit));
+	item_kit = std::make_unique<TechniqueItemKit>();
+	item_kit->reserve(2);
+	item_kit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON, ESkill::kSpades));
+	item_kit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON, ESkill::kSpades));
+	feat_info[EXPEDIENT_CUT_FEAT].item_kits.push_back(std::move(item_kit));
+
+	item_kit = std::make_unique<TechniqueItemKit>();
+	item_kit->reserve(2);
+	item_kit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON, ESkill::kPicks));
+	item_kit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON, ESkill::kPicks));
+	feat_info[EXPEDIENT_CUT_FEAT].item_kits.push_back(std::move(item_kit));
 
 //140
 	InitFeat(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, true, feat_app);
@@ -604,17 +610,17 @@ void InitFeatures() {
 	//TODO: Не забыть переписать этот бордель
 	feat_info[THROW_WEAPON_FEAT].item_kits.reserve(2);
 
-	techniqueItemKit = std::make_unique<TechniqueItemKit>();
-	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON,
-											  ESkill::kAny, EExtraFlag::ITEM_THROWING));
-	feat_info[THROW_WEAPON_FEAT].item_kits.push_back(std::move(techniqueItemKit));
+	item_kit = std::make_unique<TechniqueItemKit>();
+	item_kit->reserve(1);
+	item_kit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON,
+									  ESkill::kAny, EExtraFlag::ITEM_THROWING));
+	feat_info[THROW_WEAPON_FEAT].item_kits.push_back(std::move(item_kit));
 
-	techniqueItemKit = std::make_unique<TechniqueItemKit>();
-	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON,
-											  ESkill::kAny, EExtraFlag::ITEM_THROWING));
-	feat_info[THROW_WEAPON_FEAT].item_kits.push_back(std::move(techniqueItemKit));
+	item_kit = std::make_unique<TechniqueItemKit>();
+	item_kit->reserve(1);
+	item_kit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON,
+									  ESkill::kAny, EExtraFlag::ITEM_THROWING));
+	feat_info[THROW_WEAPON_FEAT].item_kits.push_back(std::move(item_kit));
 //145
 	InitFeat(SHADOW_THROW_FEAT, "змеево оружие", TECHNIQUE_FTYPE, true, feat_app,
 			 100, ESkill::kDarkMagic, ESaving::kWill);
@@ -632,16 +638,16 @@ void InitFeatures() {
 		});
 
 	feat_info[SHADOW_THROW_FEAT].item_kits.reserve(2);
-	techniqueItemKit = std::make_unique<TechniqueItemKit>();
-	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON,
-											  ESkill::kAny, EExtraFlag::ITEM_THROWING));
-	feat_info[SHADOW_THROW_FEAT].item_kits.push_back(std::move(techniqueItemKit));
-	techniqueItemKit = std::make_unique<TechniqueItemKit>();
-	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON,
-											  ESkill::kAny, EExtraFlag::ITEM_THROWING));
-	feat_info[SHADOW_THROW_FEAT].item_kits.push_back(std::move(techniqueItemKit));
+	item_kit = std::make_unique<TechniqueItemKit>();
+	item_kit->reserve(1);
+	item_kit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON,
+									  ESkill::kAny, EExtraFlag::ITEM_THROWING));
+	feat_info[SHADOW_THROW_FEAT].item_kits.push_back(std::move(item_kit));
+	item_kit = std::make_unique<TechniqueItemKit>();
+	item_kit->reserve(1);
+	item_kit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON,
+									  ESkill::kAny, EExtraFlag::ITEM_THROWING));
+	feat_info[SHADOW_THROW_FEAT].item_kits.push_back(std::move(item_kit));
 //146
 	InitFeat(SHADOW_DAGGER_FEAT, "змеев кинжал", NORMAL_FTYPE, true, feat_app,
 			 80, ESkill::kDarkMagic, ESaving::kStability);

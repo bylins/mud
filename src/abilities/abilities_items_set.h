@@ -22,7 +22,7 @@ struct TechniqueItem {
 		return (item
 			&& (type == GET_OBJ_TYPE(item))
 			&& ((skill == ESkill::kAny) || (skill == static_cast<ESkill>(item->get_skill())))
-			&& (flagged && OBJ_FLAGGED(item, flag)));
+			&& (flagged ? OBJ_FLAGGED(item, flag) : true));
 	};
 
 	TechniqueItem() :
