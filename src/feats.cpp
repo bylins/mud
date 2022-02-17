@@ -27,22 +27,22 @@ struct FeatureInfoType feat_info[kMaxFeats];
 
 /* Служебные функции */
 void initializeFeatureByDefault(int featureNum);
-bool checkVacantFeatureSlot(CharacterData *ch, int feat);
+bool checkVacantFeatureSlot(CharData *ch, int feat);
 
 /* Функции для работы с переключаемыми способностями */
-bool checkAccessActivatedFeature(CharacterData *ch, int featureNum);
-void activateFeature(CharacterData *ch, int featureNum);
-void deactivateFeature(CharacterData *ch, int featureNum);
+bool checkAccessActivatedFeature(CharData *ch, int featureNum);
+void activateFeature(CharData *ch, int featureNum);
+void deactivateFeature(CharData *ch, int featureNum);
 int get_feature_num(char *featureName);
 
 /* Ситуативные бонусы, пишутся для специфических способностей по потребности */
-short calculateSituationalRollBonusOfGroupFormation(CharacterData *ch, CharacterData * /* enemy */);
+short calculateSituationalRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */);
 
 /* Активные способности */
-void do_lightwalk(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_lightwalk(CharData *ch, char *argument, int cmd, int subcmd);
 
 /* Extern */
-extern void setSkillCooldown(CharacterData *ch, ESkill skill, int cooldownInPulses);
+extern void SetSkillCooldown(CharData *ch, ESkill skill, int cooldownInPulses);
 
 ///
 /// Поиск номера способности по имени
@@ -133,11 +133,11 @@ void initializeFeatureByDefault(int featureNum) {
 	feat_info[featureNum].getBaseParameter = &GET_REAL_INT;
 	feat_info[featureNum].getEffectParameter = &GET_REAL_STR;
 	feat_info[featureNum].calculateSituationalDamageFactor =
-		([](CharacterData *) -> float {
+		([](CharData *) -> float {
 			return 1.00;
 		});
 	feat_info[featureNum].calculateSituationalRollBonus =
-		([](CharacterData *, CharacterData *) -> short {
+		([](CharData *, CharData *) -> short {
 			return 0;
 		});
 }
@@ -553,11 +553,11 @@ void determineFeaturesSpecification() {
 	feat_info[THROW_WEAPON_FEAT].baseDamageBonusPercent = 5;
 	feat_info[THROW_WEAPON_FEAT].degreeOfSuccessDamagePercent = 5;
 	feat_info[THROW_WEAPON_FEAT].calculateSituationalDamageFactor =
-		([](CharacterData *ch) -> float {
+		([](CharData *ch) -> float {
 			return (0.1 * can_use_feat(ch, POWER_THROW_FEAT) + 0.1 * can_use_feat(ch, DEADLY_THROW_FEAT));
 		});
 	feat_info[THROW_WEAPON_FEAT].calculateSituationalRollBonus =
-		([](CharacterData *ch, CharacterData * /* enemy */) -> short {
+		([](CharData *ch, CharData * /* enemy */) -> short {
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 				return -60;
 			}
@@ -571,14 +571,14 @@ void determineFeaturesSpecification() {
 	//techniqueItemKit = new TechniqueItemKitType;
 	auto techniqueItemKit = std::make_unique<TechniqueItemKitType>();
 	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjectData::ITEM_WEAPON,
+	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON,
 											  ESkill::kAny, EExtraFlag::ITEM_THROWING));
 	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 
 	//techniqueItemKit = new TechniqueItemKitType;
 	techniqueItemKit = std::make_unique<TechniqueItemKitType>();
 	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjectData::ITEM_WEAPON,
+	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON,
 											  ESkill::kAny, EExtraFlag::ITEM_THROWING));
 	feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 //145
@@ -590,7 +590,7 @@ void determineFeaturesSpecification() {
 	feat_info[SHADOW_THROW_FEAT].degreeOfSuccessDamagePercent = 1;
 	feat_info[SHADOW_THROW_FEAT].usesWeaponSkill = false;
 	feat_info[SHADOW_THROW_FEAT].calculateSituationalRollBonus =
-		([](CharacterData *ch, CharacterData * /* enemy */) -> short {
+		([](CharData *ch, CharData * /* enemy */) -> short {
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 				return -60;
 			}
@@ -600,12 +600,12 @@ void determineFeaturesSpecification() {
 	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.reserve(2);
 	techniqueItemKit = std::make_unique<TechniqueItemKitType>();
 	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjectData::ITEM_WEAPON,
+	techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, ObjData::ITEM_WEAPON,
 											  ESkill::kAny, EExtraFlag::ITEM_THROWING));
 	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 	techniqueItemKit = std::make_unique<TechniqueItemKitType>();
 	techniqueItemKit->reserve(1);
-	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjectData::ITEM_WEAPON,
+	techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, ObjData::ITEM_WEAPON,
 											  ESkill::kAny, EExtraFlag::ITEM_THROWING));
 	feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(std::move(techniqueItemKit));
 //146
@@ -667,7 +667,7 @@ const char *feat_name(int num) {
 	}
 }
 
-bool can_use_feat(const CharacterData *ch, int feat) {
+bool can_use_feat(const CharData *ch, int feat) {
 	if (feat_info[feat].alwaysAvailable) {
 		return true;
 	};
@@ -725,7 +725,7 @@ bool can_use_feat(const CharacterData *ch, int feat) {
 	return true;
 }
 
-bool can_get_feat(CharacterData *ch, int feat) {
+bool can_get_feat(CharData *ch, int feat) {
 	int i, count = 0;
 	if (feat <= 0 || feat >= kMaxFeats) {
 		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
@@ -851,7 +851,7 @@ bool can_get_feat(CharacterData *ch, int feat) {
 	return true;
 }
 
-bool checkVacantFeatureSlot(CharacterData *ch, int feat) {
+bool checkVacantFeatureSlot(CharData *ch, int feat) {
 	int i, lowfeat, hifeat;
 
 	if (feat_info[feat].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
@@ -910,7 +910,7 @@ int getModifier(int feat, int location) {
 	return 0;
 }
 
-void check_berserk(CharacterData *ch) {
+void check_berserk(CharData *ch) {
 	struct TimedFeat timed;
 	int prob;
 
@@ -923,14 +923,14 @@ void check_berserk(CharacterData *ch) {
 	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
 		!IsTimed(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)
 		&& (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
-		CharacterData *vict = ch->get_fighting();
+		CharData *vict = ch->get_fighting();
 		timed.feat = BERSERK_FEAT;
 		timed.time = 4;
 		ImposeTimedFeat(ch, &timed);
 
 		Affect<EApplyLocation> af;
 		af.type = kSpellBerserk;
-		af.duration = pc_duration(ch, 1, 60, 30, 0, 0);
+		af.duration = CalcDuration(ch, 1, 60, 30, 0, 0);
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.battleflag = 0;
@@ -938,20 +938,20 @@ void check_berserk(CharacterData *ch) {
 		prob = IS_NPC(ch) ? 601 : (751 - GET_REAL_LEVEL(ch) * 5);
 		if (number(1, 1000) < prob) {
 			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
-			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, TO_CHAR);
-			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, nullptr, vict, TO_NOTVICT);
-			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, nullptr, vict, TO_VICT);
+			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, kToChar);
+			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, nullptr, vict, kToNotVict);
+			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, nullptr, vict, kToVict);
 		} else {
 			af.bitvector = 0;
-			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", false, ch, nullptr, nullptr, TO_CHAR);
-			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, nullptr, vict, TO_NOTVICT);
-			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, nullptr, vict, TO_VICT);
+			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", false, ch, nullptr, nullptr, kToChar);
+			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, nullptr, vict, kToNotVict);
+			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, nullptr, vict, kToVict);
 		}
 		affect_join(ch, af, true, false, true, false);
 	}
 }
 
-void do_lightwalk(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
 	if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT)) {
@@ -960,7 +960,7 @@ void do_lightwalk(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* sub
 	}
 
 	if (ch->ahorse()) {
-		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, ch->get_horse(), TO_CHAR);
+		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
 
@@ -982,7 +982,7 @@ void do_lightwalk(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* sub
 	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	Affect<EApplyLocation> af;
 	af.type = kSpellLightWalk;
-	af.duration = pc_duration(ch, 2, GET_REAL_LEVEL(ch), 5, 2, 8);
+	af.duration = CalcDuration(ch, 2, GET_REAL_LEVEL(ch), 5, 2, 8);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -996,9 +996,9 @@ void do_lightwalk(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* sub
 	affect_to_char(ch, af);
 }
 
-void do_fit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
-	ObjectData *obj;
-	CharacterData *vict;
+void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+	ObjData *obj;
+	CharData *vict;
 	char arg1[kMaxInputLength];
 	char arg2[kMaxInputLength];
 
@@ -1053,16 +1053,16 @@ void do_fit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	switch (subcmd) {
 		case SCMD_DO_ADAPT:
-			if (GET_OBJ_MATER(obj) != ObjectData::MAT_NONE
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_BULAT
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_BRONZE
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_IRON
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_STEEL
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_SWORDSSTEEL
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_COLOR
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_WOOD
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_SUPERWOOD
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_GLASS) {
+			if (GET_OBJ_MATER(obj) != ObjData::MAT_NONE
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_BULAT
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_BRONZE
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_IRON
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_STEEL
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_SWORDSSTEEL
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_COLOR
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_WOOD
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_SUPERWOOD
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_GLASS) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 				send_to_char(buf, ch);
@@ -1070,10 +1070,10 @@ void do_fit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 			break;
 		case SCMD_MAKE_OVER:
-			if (GET_OBJ_MATER(obj) != ObjectData::MAT_BONE
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_MATERIA
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_SKIN
-				&& GET_OBJ_MATER(obj) != ObjectData::MAT_ORGANIC) {
+			if (GET_OBJ_MATER(obj) != ObjData::MAT_BONE
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_MATERIA
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_SKIN
+				&& GET_OBJ_MATER(obj) != ObjData::MAT_ORGANIC) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
 						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 				send_to_char(buf, ch);
@@ -1095,7 +1095,7 @@ void do_fit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 #include "magic/spells_info.h"
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона
-void do_spell_capable(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	using PlayerClass::slot_for_char;
 
@@ -1159,7 +1159,7 @@ void do_spell_capable(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 	}
 
 	Follower *k;
-	CharacterData *follower = nullptr;
+	CharData *follower = nullptr;
 	for (k = ch->followers; k; k = k->next) {
 		if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)
 			&& k->ch->get_master() == ch
@@ -1180,8 +1180,8 @@ void do_spell_capable(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 		return;
 	}
 
-	act("Вы принялись зачаровывать $N3.", false, ch, nullptr, follower, TO_CHAR);
-	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, TO_ROOM);
+	act("Вы принялись зачаровывать $N3.", false, ch, nullptr, follower, kToChar);
+	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
 	GET_SPELL_MEM(ch, spellnum)--;
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
@@ -1237,7 +1237,7 @@ void do_spell_capable(CharacterData *ch, char *argument, int/* cmd*/, int/* subc
 	follower->mob_specials.capable_spell = spellnum;
 }
 
-void setFeaturesOfRace(CharacterData *ch) {
+void setFeaturesOfRace(CharData *ch) {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
 	for (int &i: feat_list) {
 		if (can_get_feat(ch, i)) {
@@ -1246,14 +1246,14 @@ void setFeaturesOfRace(CharacterData *ch) {
 	}
 }
 
-void unsetFeaturesOfRace(CharacterData *ch) {
+void unsetFeaturesOfRace(CharData *ch) {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
 	for (int &i: feat_list) {
 		UNSET_FEAT(ch, i);
 	}
 }
 
-void setInbornFeaturesOfClass(CharacterData *ch) {
+void setInbornFeaturesOfClass(CharData *ch) {
 	for (int i = 1; i < kMaxFeats; ++i) {
 		if (can_get_feat(ch, i) && feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 			SET_FEAT(ch, i);
@@ -1261,7 +1261,7 @@ void setInbornFeaturesOfClass(CharacterData *ch) {
 	}
 }
 
-void setAllInbornFeatures(CharacterData *ch) {
+void setAllInbornFeatures(CharData *ch) {
 	setInbornFeaturesOfClass(ch);
 	setFeaturesOfRace(ch);
 }
@@ -1295,7 +1295,7 @@ void CFeatArray::clear() {
 	}
 }
 
-bool tryFlipActivatedFeature(CharacterData *ch, char *argument) {
+bool tryFlipActivatedFeature(CharData *ch, char *argument) {
 	int featureNum = get_feature_num(argument);
 	if (featureNum <= INCORRECT_FEAT) {
 		return false;
@@ -1309,11 +1309,11 @@ bool tryFlipActivatedFeature(CharacterData *ch, char *argument) {
 		activateFeature(ch, featureNum);
 	}
 
-	setSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
+	SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 	return true;
 }
 
-void activateFeature(CharacterData *ch, int featureNum) {
+void activateFeature(CharData *ch, int featureNum) {
 	switch (featureNum) {
 		case POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
 			PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
@@ -1348,7 +1348,7 @@ void activateFeature(CharacterData *ch, int featureNum) {
 			}
 			PRF_FLAGS(ch).set(PRF_SKIRMISHER);
 			send_to_char("Вы протиснулись вперед и встали в строй.\r\n", ch);
-			act("$n0 протиснул$u вперед и встал$g в строй.", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n0 протиснул$u вперед и встал$g в строй.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			break;
 		case DOUBLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
 			PRF_FLAGS(ch).set(PRF_DOUBLE_THROW);
@@ -1365,7 +1365,7 @@ void activateFeature(CharacterData *ch, int featureNum) {
 				 CCNRM(ch, C_OFF));
 }
 
-void deactivateFeature(CharacterData *ch, int featureNum) {
+void deactivateFeature(CharData *ch, int featureNum) {
 	switch (featureNum) {
 		case POWER_ATTACK_FEAT: PRF_FLAGS(ch).unset(PRF_POWERATTACK);
 			break;
@@ -1378,7 +1378,7 @@ void deactivateFeature(CharacterData *ch, int featureNum) {
 		case SKIRMISHER_FEAT: PRF_FLAGS(ch).unset(PRF_SKIRMISHER);
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 				send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
-				act("$n0 тактически отступил$g в тыл отряда.", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n0 тактически отступил$g в тыл отряда.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			}
 			break;
 		case DOUBLE_THROW_FEAT: PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
@@ -1393,7 +1393,7 @@ void deactivateFeature(CharacterData *ch, int featureNum) {
 				 CCNRM(ch, C_OFF));
 }
 
-bool checkAccessActivatedFeature(CharacterData *ch, int featureNum) {
+bool checkAccessActivatedFeature(CharData *ch, int featureNum) {
 	if (!can_use_feat(ch, featureNum)) {
 		send_to_char("Вы не в состоянии использовать эту способность.\r\n", ch);
 		return false;
@@ -1441,9 +1441,9 @@ Bitvector getPRFWithFeatureNumber(int featureNum) {
 * Избыток "строевиков" повышает шанс на удачное срабатывание.
 * Svent TODO: Придумать более универсальный механизм бонусов/штрафов в зависимости от данных абилки
 */
-short calculateSituationalRollBonusOfGroupFormation(CharacterData *ch, CharacterData * /* enemy */) {
+short calculateSituationalRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	ActionTargeting::FriendsRosterType roster{ch};
-	int skirmishers = roster.count([](CharacterData *ch) { return PRF_FLAGGED(ch, PRF_SKIRMISHER); });
+	int skirmishers = roster.count([](CharData *ch) { return PRF_FLAGGED(ch, PRF_SKIRMISHER); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		return (skirmishers * 2 - uncoveredSquadMembers) * kCircumstanceFactor - 40;

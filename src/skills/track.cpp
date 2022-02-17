@@ -17,7 +17,7 @@ const char *track_when[] = {"совсем свежие",
 							"совсем старые"
 };
 
-int age_track(CharacterData * /*ch*/, int time, int calc_track) {
+int age_track(CharData * /*ch*/, int time, int calc_track) {
 	int when = 0;
 
 	if (calc_track >= number(1, 50)) {
@@ -41,7 +41,7 @@ int age_track(CharacterData * /*ch*/, int time, int calc_track) {
 }
 
 // * Functions and Commands which use the above functions. *
-int go_track(CharacterData *ch, CharacterData *victim, const ESkill skill_no) {
+int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	int percent, dir;
 	int if_sense;
 
@@ -71,8 +71,8 @@ int go_track(CharacterData *ch, CharacterData *victim, const ESkill skill_no) {
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-void do_track(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *vict = nullptr;
+void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *vict = nullptr;
 	struct TrackData *track;
 	int found = false, calc_track = 0, track_t, i;
 	char name[kMaxInputLength];
@@ -92,7 +92,7 @@ void do_track(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	calc_track = CalcCurrentSkill(ch, ESkill::kTrack, nullptr);
-	act("Похоже, $n кого-то выслеживает.", false, ch, nullptr, nullptr, TO_ROOM);
+	act("Похоже, $n кого-то выслеживает.", false, ch, nullptr, nullptr, kToRoom);
 	one_argument(argument, arg);
 
 	// No argument - show all
@@ -128,7 +128,7 @@ void do_track(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
-		act("Вы же в одной комнате с $N4!", false, ch, nullptr, vict, TO_CHAR);
+		act("Вы же в одной комнате с $N4!", false, ch, nullptr, vict, kToChar);
 		return;
 	}
 
@@ -191,7 +191,7 @@ void do_track(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char(buf, ch);
 }
 
-void do_hidetrack(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct TrackData *track[kDirMaxNumber + 1], *temp;
 	int percent, prob, i, croom, found = false, dir, rdir;
 

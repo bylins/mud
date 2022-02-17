@@ -28,7 +28,7 @@ char cast_argument[kMaxStringLength];
 extern int what_sky;
 
 
-int CalcRequiredLevel(const CharacterData *ch, int spellnum) {
+int CalcRequiredLevel(const CharData *ch, int spellnum) {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 
 	if (required_level >= kLevelGod)
@@ -42,7 +42,7 @@ int CalcRequiredLevel(const CharacterData *ch, int spellnum) {
 }
 
 // SaySpell erodes buf, buf1, buf2
-void SaySpell(CharacterData *ch, int spellnum, CharacterData *tch, ObjectData *tobj) {
+void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 	char lbuf[256];
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 		*helpee_vict, *damagee_vict, *format;
@@ -141,7 +141,7 @@ void SaySpell(CharacterData *ch, int spellnum, CharacterData *tch, ObjectData *t
 		}
 	}
 
-	act(buf1, 1, ch, tobj, tch, TO_ARENA_LISTEN);
+	act(buf1, 1, ch, tobj, tch, kToArenaListen);
 
 	if (tch != nullptr
 		&& tch != ch
@@ -154,7 +154,7 @@ void SaySpell(CharacterData *ch, int spellnum, CharacterData *tch, ObjectData *t
 			sprintf(buf1, helpee_vict,
 					IS_SET(GET_SPELL_TYPE(tch, spellnum), kSpellKnow | kSpellTemp) ? GetSpellName(spellnum) : buf);
 		}
-		act(buf1, false, ch, nullptr, tch, TO_VICT);
+		act(buf1, false, ch, nullptr, tch, kToVict);
 	}
 }
 
@@ -262,7 +262,7 @@ int FixNameAndFindSpellNum(std::string &name) {
 	return FindSpellNum(name.c_str());
 }
 
-bool MayCastInNomagic(CharacterData *caster, int spellnum) {
+bool MayCastInNomagic(CharData *caster, int spellnum) {
 	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, kMagWarcry)) {
 		return true;
 	}
@@ -270,7 +270,7 @@ bool MayCastInNomagic(CharacterData *caster, int spellnum) {
 	return false;
 }
 
-bool MayCastHere(CharacterData *caster, CharacterData *victim, int spellnum) {
+bool MayCastHere(CharData *caster, CharData *victim, int spellnum) {
 	int ignore;
 
 	if (IS_GRGOD(caster) || !ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL)) {
@@ -331,7 +331,7 @@ bool MayCastHere(CharacterData *caster, CharacterData *victim, int spellnum) {
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int CallMagic(CharacterData *caster, CharacterData *cvict, ObjectData *ovict, RoomData *rvict, int spellnum, int level) {
+int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, int spellnum, int level) {
 
 	if (spellnum < 1 || spellnum > kSpellCount)
 		return 0;
@@ -343,7 +343,7 @@ int CallMagic(CharacterData *caster, CharacterData *cvict, ObjectData *ovict, Ro
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !MayCastInNomagic(caster, spellnum)) {
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
 		act("Магия $n1 потерпела неудачу и развеялась по воздуху.",
-			false, caster, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+			false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		return 0;
 	}
 
@@ -351,11 +351,11 @@ int CallMagic(CharacterData *caster, CharacterData *cvict, ObjectData *ovict, Ro
 		if (IS_SET(SpINFO.routines, kMagWarcry)) {
 			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
 			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.",
-				false, caster, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		} else {
 			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
 			act("Яркая вспышка на миг осветила комнату, и тут же погасла.",
-				false, caster, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		return 0;
 	}
@@ -397,9 +397,9 @@ const char *what_weapon[] = {"плеть",
 * Поиск предмета для каста локейта (без учета видимости для чара и с поиском
 * как в основном списке, так и в личных хранилищах с почтой).
 */
-ObjectData *FindObjForLocate(CharacterData *ch, const char *name) {
+ObjData *FindObjForLocate(CharData *ch, const char *name) {
 //	ObjectData *obj = ObjectAlias::locate_object(name);
-	ObjectData *obj = get_obj_vis_for_locate(ch, name);
+	ObjData *obj = get_obj_vis_for_locate(ch, name);
 	if (!obj) {
 		obj = Depot::locate_object(name);
 		if (!obj) {
@@ -409,7 +409,7 @@ ObjectData *FindObjForLocate(CharacterData *ch, const char *name) {
 	return obj;
 }
 
-int FindCastTarget(int spellnum, const char *t, CharacterData *ch, CharacterData **tch, ObjectData **tobj, RoomData **troom) {
+int FindCastTarget(int spellnum, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom) {
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
@@ -536,7 +536,7 @@ int FindCastTarget(int spellnum, const char *t, CharacterData *ch, CharacterData
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData *troom, int spellnum, int spell_subst) {
+int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int spellnum, int spell_subst) {
 	int ignore;
 
 	if (spellnum < 0 || spellnum > kSpellCount) {
@@ -654,7 +654,7 @@ int CastSpell(CharacterData *ch, CharacterData *tch, ObjectData *tobj, RoomData 
 	return (CallMagic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)));
 }
 
-int CalcCastSuccess(CharacterData *ch, CharacterData *victim, ESaving saving, int spellnum) {
+int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum) {
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
 		return true;
 	}

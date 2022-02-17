@@ -23,7 +23,7 @@ class AnimalMorph;
 
 typedef std::shared_ptr<IMorph> MorphPtr;
 typedef std::shared_ptr<AnimalMorph> AnimalMorphPtr;
-MorphPtr GetNormalMorphNew(CharacterData *ch);
+MorphPtr GetNormalMorphNew(CharData *ch);
 typedef std::map<std::string, AnimalMorphPtr> MorphListType;
 
 typedef std::unordered_map<ESkill, int> MorphSkillsList;
@@ -41,7 +41,7 @@ class IMorph {
 	virtual void InitSkills(int/* value*/) {};
 	virtual void InitAbils() {};
 	virtual void SetAbilsParams(short/* toStr*/, short/* toDex*/, short/* toCon*/, short/* toInt*/, short/* toCha*/) {};
-	virtual void SetChar(CharacterData * /*ch*/) {};
+	virtual void SetChar(CharData * /*ch*/) {};
 	virtual std::string CoverDesc() { return ""; };
 	virtual bool isAffected(const EAffectFlag/* flag*/) const { return false; }
 	virtual const affects_list_t &GetAffects();
@@ -67,8 +67,8 @@ class IMorph {
 
 class NormalMorph : public IMorph {
  public:
-	NormalMorph(CharacterData *ch) { ch_ = ch; }
-	CharacterData *ch_;
+	NormalMorph(CharData *ch) { ch_ = ch; }
+	CharData *ch_;
 
 	~NormalMorph() {};
 
@@ -76,7 +76,7 @@ class NormalMorph : public IMorph {
 	std::string GetMorphTitle() const;
 	std::string Name() const { return "Обычная"; }
 	std::string PadName() const { return "Человеком"; }
-	void SetChar(CharacterData *ch) { ch_ = ch; };
+	void SetChar(CharData *ch) { ch_ = ch; };
 
 	void set_skill(const ESkill skill_num, int percent);
 	int get_trained_skill(const ESkill skill_num);
@@ -97,7 +97,7 @@ class NormalMorph : public IMorph {
 };
 
 class AnimalMorph : public IMorph {
-	CharacterData *ch_;
+	CharData *ch_;
 	std::string id_;
 	std::string name_;
 	std::string padName_;
@@ -139,7 +139,7 @@ class AnimalMorph : public IMorph {
 	std::string CoverDesc() { return coverDesc_; }
 	void InitSkills(int value);
 	void InitAbils();
-	void SetChar(CharacterData *ch);
+	void SetChar(CharData *ch);
 	void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha) {
 		toStr_ = toStr;
 		toDex_ = toDex;
@@ -176,9 +176,9 @@ class AnimalMorph : public IMorph {
 };
 
 void load_morphs();
-void set_god_morphs(CharacterData *ch);
-void morphs_save(CharacterData *, FILE *);
-void morphs_load(CharacterData *, std::string);
+void set_god_morphs(CharData *ch);
+void morphs_save(CharData *, FILE *);
+void morphs_load(CharData *, std::string);
 
 #endif // MORPH_HPP_INCLUDED
 

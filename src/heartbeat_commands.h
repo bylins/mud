@@ -1,7 +1,7 @@
 #ifndef __HEARTBEAT_COMMANDS_HPP__
 #define __HEARTBEAT_COMMANDS_HPP__
 
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 #include "commands.h"
 
 namespace heartbeat {
@@ -19,7 +19,7 @@ constexpr int MINIMAL_LEVEL = kLevelImplementator;
 // Probability to stop hide when using heartbeat command
 constexpr int UNHIDE_PROBABILITY = 0;    // -1 - always, 0 - never
 
-extern void do_heartbeat(CharacterData *ch, char *argument, int cmd, int subcmd);
+extern void do_heartbeat(CharData *ch, char *argument, int cmd, int subcmd);
 }
 }
 

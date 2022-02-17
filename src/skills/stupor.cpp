@@ -10,8 +10,8 @@
 using namespace FightSystem;
 
 // ************************* STUPOR PROCEDURES
-void go_stupor(CharacterData *ch, CharacterData *victim) {
-	if (dontCanAct(ch)) {
+void go_stupor(CharData *ch, CharData *victim) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -21,28 +21,28 @@ void go_stupor(CharacterData *ch, CharacterData *victim) {
 		return;
 	}
 
-	victim = try_protect(victim, ch);
+	victim = TryToFindProtector(victim, ch);
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, kEafOverwhelm);
-		hit(ch, victim, ESkill::kOverwhelm, FightSystem::MAIN_HAND);
+		hit(ch, victim, ESkill::kOverwhelm, FightSystem::kMainHand);
 		//set_wait(ch, 2, true);
 		if (ch->getSkillCooldown(ESkill::kOverwhelm) > 0) {
-			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
 	} else {
-		act("Вы попытаетесь оглушить $N3.", false, ch, nullptr, victim, TO_CHAR);
+		act("Вы попытаетесь оглушить $N3.", false, ch, nullptr, victim, kToChar);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, false);
 			set_fighting(ch, victim);
 			//set_wait(ch, 2, true);
-			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
+			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 		}
 		SET_AF_BATTLE(ch, kEafOverwhelm);
 	}
 }
 
-void do_stupor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_stupor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kOverwhelm) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -52,7 +52,7 @@ void do_stupor(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CharacterData *vict = findVictim(ch, argument);
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы хотите оглушить?\r\n", ch);
 		return;

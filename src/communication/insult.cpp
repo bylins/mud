@@ -4,11 +4,11 @@
  \brief Команда "оскорбить".
 */
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "handler.h"
 
-void do_insult(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *victim;
+void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *victim;
 
 	one_argument(argument, arg);
 
@@ -29,32 +29,32 @@ void do_insult(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						if (IS_MALE(ch)) {
 							if (IS_MALE(victim))
 								act("&K$n высмеял$g вашу манеру держать меч !&n",
-									false, ch, nullptr, victim, TO_VICT);
+									false, ch, nullptr, victim, kToVict);
 							else
 								act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n",
-									false, ch, nullptr, victim, TO_VICT);
+									false, ch, nullptr, victim, kToVict);
 						} else    // Ch == Woman
 						{
 							if (IS_MALE(victim))
 								act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n",
-									false, ch, nullptr, victim, TO_VICT);
+									false, ch, nullptr, victim, kToVict);
 							else
 								act("&K$n обьявил$g всем о вашем близком родстве с Бабой-Ягой.&n",
-									false, ch, nullptr, victim, TO_VICT);
+									false, ch, nullptr, victim, kToVict);
 						}
 						break;
 					case 1:
 						act("&K$n1 чем-то не удовлетворила ваша мама!&n", false,
-							ch, nullptr, victim, TO_VICT);
+							ch, nullptr, victim, kToVict);
 						break;
 					default:
 						act("&K$n предложил$g вам посетить ближайший хутор!\r\n"
 							"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
-							false, ch, nullptr, victim, TO_VICT);
+							false, ch, nullptr, victim, kToVict);
 						break;
 				}    // end switch
 
-				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", true, ch, nullptr, victim, TO_NOTVICT);
+				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", true, ch, nullptr, victim, kToNotVict);
 			} else    // ch == victim
 			{
 				send_to_char("&KВы почувствовали себя оскорбленным.&n\r\n", ch);

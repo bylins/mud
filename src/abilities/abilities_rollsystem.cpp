@@ -10,12 +10,12 @@ namespace AbilitySystem {
 
 using namespace abilities;
 
-void AgainstRivalRollType::initialize(CharacterData *abilityActor, int usedAbility, CharacterData *abilityVictim) {
+void AgainstRivalRollType::initialize(CharData *abilityActor, int usedAbility, CharData *abilityVictim) {
 	_rival = abilityVictim;
 	AbilityRollType::initialize(abilityActor, usedAbility);
 };
 
-void AbilityRollType::initialize(CharacterData *abilityActor, int usedAbility) {
+void AbilityRollType::initialize(CharData *abilityActor, int usedAbility) {
 	_actor = abilityActor;
 	_ability = &feat_info[usedAbility];
 	if (tryRevealWrongConditions()) {
@@ -184,9 +184,9 @@ bool TechniqueRollType::checkTechniqueKit() {
 };
 
 bool TechniqueRollType::isSuitableItem(const TechniqueItem &techniqueItem) {
-	ObjectData *characterItem = GET_EQ(_actor, techniqueItem._wearPosition);
+	ObjData *characterItem = GET_EQ(_actor, techniqueItem._wearPosition);
 	if (techniqueItem == characterItem) {
-		if (GET_OBJ_TYPE(characterItem) == ObjectData::ITEM_WEAPON) {
+		if (GET_OBJ_TYPE(characterItem) == ObjData::ITEM_WEAPON) {
 			_weaponEquipPosition = techniqueItem._wearPosition;
 			if (_ability->usesWeaponSkill) {
 				_baseSkill = static_cast<ESkill>GET_OBJ_SKILL(characterItem);
@@ -202,21 +202,21 @@ int AbilityRollType::calculateBaseDamage() {
 	short abilityBaseParameter = _ability->getBaseParameter(_actor);
 	short dicePool = GET_SKILL(_actor, _baseSkill) / kDmgDicepoolSkillDivider;
 	dicePool = MIN(dicePool, abilityBaseParameter);
-	return dice(MAX(1, dicePool), kDmgDiceSize);
+	return RollDices(MAX(1, dicePool), kDmgDiceSize);
 };
 
 int AbilityRollType::calculateAddDamage() {
 	short dicePool = _ability->getEffectParameter(_actor);
 	short diceSize = kDmgDiceSize;
-	return dice(dicePool, diceSize);
+	return RollDices(dicePool, diceSize);
 }
 
 int TechniqueRollType::calculateAddDamage() {
-	ObjectData *weapon = GET_EQ(_actor, _weaponEquipPosition);
+	ObjData *weapon = GET_EQ(_actor, _weaponEquipPosition);
 	if (weapon) {
 		short dicePool = _ability->getEffectParameter(_actor) + GET_OBJ_VAL(weapon, 1);
 		short diceSize = GET_OBJ_VAL(weapon, 2);
-		return dice(dicePool, diceSize);
+		return RollDices(dicePool, diceSize);
 	}
 
 	return AgainstRivalRollType::calculateAddDamage();

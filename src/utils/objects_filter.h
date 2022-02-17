@@ -10,15 +10,15 @@
 #ifndef BYLINS_SRC_UTILS_OBJECTS_FILTER_H_
 #define BYLINS_SRC_UTILS_OBJECTS_FILTER_H_
 
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 #include "skills.h"
 
 #include <string>
 #include <vector>
 
-class CharacterData;
+class CharData;
 struct ExchangeItem;
-class ObjectData;
+class ObjData;
 
 // для парса строки с фильтрами в клан-хранах и базаре
 struct ParseFilter {
@@ -39,7 +39,7 @@ struct ParseFilter {
 	bool init_affect(char *str, size_t str_len);
 	bool init_realtime(const char *str);
 	size_t affects_cnt() const;
-	bool check(ObjectData *obj, CharacterData *ch);
+	bool check(ObjData *obj, CharData *ch);
 	bool check(ExchangeItem *exch_obj);
 	std::string print() const;
 
@@ -67,20 +67,20 @@ struct ParseFilter {
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
 
-	std::string show_obj_aff(ObjectData *obj);
+	std::string show_obj_aff(ObjData *obj);
 
  private:
-	bool check_name(ObjectData *obj, CharacterData *ch = nullptr) const;
-	bool check_type(ObjectData *obj) const;
-	bool check_state(ObjectData *obj) const;
-	bool check_wear(ObjectData *obj) const;
-	bool check_weap_class(ObjectData *obj) const;
+	bool check_name(ObjData *obj, CharData *ch = nullptr) const;
+	bool check_type(ObjData *obj) const;
+	bool check_state(ObjData *obj) const;
+	bool check_wear(ObjData *obj) const;
+	bool check_weap_class(ObjData *obj) const;
 	bool check_cost(int obj_price) const;
 	bool check_rent(int obj_price) const;
-	bool check_remorts(ObjectData *obj) const;
-	bool check_affect_weap(ObjectData *obj) const;
-	bool check_affect_apply(ObjectData *obj) const;
-	bool check_affect_extra(ObjectData *obj) const;
+	bool check_remorts(ObjData *obj) const;
+	bool check_affect_weap(ObjData *obj) const;
+	bool check_affect_apply(ObjData *obj) const;
+	bool check_affect_extra(ObjData *obj) const;
 	bool check_owner(ExchangeItem *exch_obj) const;
 	bool check_realtime(ExchangeItem *exch_obj) const;
 };

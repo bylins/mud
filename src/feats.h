@@ -229,13 +229,13 @@ const char *feat_name(int num);
 int getModifier(int feat, int location);
 int find_feat_num(const char *name, bool alias = false);
 void determineFeaturesSpecification();
-void check_berserk(CharacterData *ch);
-void setFeaturesOfRace(CharacterData *ch);
-void unsetFeaturesOfRace(CharacterData *ch);
-void setAllInbornFeatures(CharacterData *ch);
-bool can_use_feat(const CharacterData *ch, int feat);
-bool can_get_feat(CharacterData *ch, int feat);
-bool tryFlipActivatedFeature(CharacterData *ch, char *argument);
+void check_berserk(CharData *ch);
+void setFeaturesOfRace(CharData *ch);
+void unsetFeaturesOfRace(CharData *ch);
+void setAllInbornFeatures(CharData *ch);
+bool can_use_feat(const CharData *ch, int feat);
+bool can_get_feat(CharData *ch, int feat);
+bool tryFlipActivatedFeature(CharData *ch, char *argument);
 Bitvector getPRFWithFeatureNumber(int featureNum);
 
 /*
@@ -297,10 +297,10 @@ struct FeatureInfoType {
 
 	TechniqueItemKitsGroupType techniqueItemKitsGroup;
 
-	int (*getBaseParameter)(const CharacterData *ch);
-	int (*getEffectParameter)(const CharacterData *ch);
-	float (*calculateSituationalDamageFactor)(CharacterData * /* ch */);
-	short (*calculateSituationalRollBonus)(CharacterData * /* ch */, CharacterData * /* enemy */);
+	int (*getBaseParameter)(const CharData *ch);
+	int (*getEffectParameter)(const CharData *ch);
+	float (*calculateSituationalDamageFactor)(CharData * /* ch */);
+	short (*calculateSituationalRollBonus)(CharData * /* ch */, CharData * /* enemy */);
 };
 
 #endif // __FEATURES_HPP__

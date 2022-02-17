@@ -10,17 +10,17 @@
 #include "structs/structs.h"
 #include <string>
 
-class CharacterData;
+class CharData;
 
 namespace ExtMoney {
 
-void torc_exch_menu(CharacterData *ch);
-void torc_exch_parse(CharacterData *ch, const char *arg);
+void torc_exch_menu(CharData *ch);
+void torc_exch_parse(CharData *ch, const char *arg);
 
-void drop_torc(CharacterData *mob);
-std::string draw_daily_limit(CharacterData *ch, bool imm_stat = false);
+void drop_torc(CharData *mob);
+std::string draw_daily_limit(CharData *ch, bool imm_stat = false);
 
-void player_drop_log(CharacterData *ch, unsigned type, int num);
+void player_drop_log(CharData *ch, unsigned type, int num);
 std::string name_currency_plural(std::string name);
 
 } // namespace ExtMoney
@@ -29,14 +29,14 @@ namespace Remort {
 
 extern std::string WHERE_TO_REMORT_STR;
 
-bool can_remort_now(CharacterData *ch);
+bool can_remort_now(CharData *ch);
 void init();
-void show_config(CharacterData *ch);
-bool need_torc(CharacterData *ch);
+void show_config(CharData *ch);
+bool need_torc(CharData *ch);
 
 } // namespace Remort
 
-int torc(CharacterData *ch, void *me, int cmd, char *argument);
+int torc(CharData *ch, void *me, int cmd, char *argument);
 
 #endif // EXT_MONEY_HPP_INCLUDED
 

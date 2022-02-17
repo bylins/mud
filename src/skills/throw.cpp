@@ -18,7 +18,7 @@ using namespace AbilitySystem;
 // Временная костыльная функция до реализации встроенного механизма работы сайдскиллов
 // TODO Не забыть реализовать постоянный механизм
 void performShadowThrowSideAbilities(TechniqueRollType &technique) {
-	ObjectData *weapon = GET_EQ(technique.actor(), technique.getWeaponEquipPosition());
+	ObjData *weapon = GET_EQ(technique.actor(), technique.getWeaponEquipPosition());
 	if (!weapon) {
 		return;
 	}
@@ -40,7 +40,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 					technique.rival()->drop_from_horse();
 				} else { // иначе просто садится на попу с лагом 2
 					GET_POS(technique.rival()) = std::min(GET_POS(technique.rival()), EPosition::kSit);
-					set_wait(technique.rival(), 2, false);
+					SetWait(technique.rival(), 2, false);
 				}
 			});
 			break;
@@ -55,8 +55,8 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				Affect<EApplyLocation> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
-				af.duration = pc_duration(technique.rival(), 2, GET_REAL_LEVEL(technique.actor()), 9, 6, 2);
-				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				af.duration = CalcDuration(technique.rival(), 2, GET_REAL_LEVEL(technique.actor()), 9, 6, 2);
+				af.battleflag = kAfBattledec | kAfPulsedec;
 				affect_join(technique.rival(), af, false, false, false, false);
 			});
 			break;
@@ -69,10 +69,10 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 				Affect<EApplyLocation> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
-				af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
-				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				af.duration = CalcDuration(technique.rival(), 3, 0, 0, 0, 0);
+				af.battleflag = kAfBattledec | kAfPulsedec;
 				affect_join(technique.rival(), af, false, false, false, false);
-				set_wait(technique.rival(), 3, false);
+				SetWait(technique.rival(), 3, false);
 			});
 			break;
 		default:
@@ -86,16 +86,16 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 	TechniqueRollType sideAbility;
 	sideAbility.initialize(technique.actor(), featureID, technique.rival());
 	if (sideAbility.isSuccess() && !MOB_FLAGGED(technique.rival(), mobNoFlag)) {
-		act(to_char.c_str(), false, technique.rival(), nullptr, technique.actor(), TO_VICT);
-		act(to_vict.c_str(), false, technique.rival(), nullptr, technique.actor(), TO_CHAR);
-		act(to_room.c_str(), false, technique.rival(), nullptr, technique.actor(), TO_NOTVICT | TO_ARENA_LISTEN);
+		act(to_char.c_str(), false, technique.rival(), nullptr, technique.actor(), kToVict);
+		act(to_vict.c_str(), false, technique.rival(), nullptr, technique.actor(), kToChar);
+		act(to_room.c_str(), false, technique.rival(), nullptr, technique.actor(), kToNotVict | kToArenaListen);
 		doSideAction(technique);
 	}
 };
 
 // TODO: Перенести подобную логику в модуль абилок, разделить уровни
 void performWeaponThrow(TechniqueRollType &technique, Damage &techniqueDamage) {
-	techniqueDamage.dam = ZERO_DMG;
+	techniqueDamage.dam = kZeroDmg;
 	if (technique.isSuccess()) {
 		techniqueDamage.dam = technique.calculateDamage();
 		if (technique.isCriticalSuccess()) {
@@ -111,7 +111,7 @@ void performWeaponThrow(TechniqueRollType &technique, Damage &techniqueDamage) {
 		};
 	} else {
 		if (technique.isCriticalFail()) {
-			ObjectData *weapon = unequip_char(technique.actor(), technique.getWeaponEquipPosition(), CharEquipFlags());
+			ObjData *weapon = unequip_char(technique.actor(), technique.getWeaponEquipPosition(), CharEquipFlags());
 			if (weapon) {
 				obj_to_char(weapon, technique.actor());
 				send_to_char(technique.actor(), "&BВы выронили %s!&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());
@@ -121,9 +121,9 @@ void performWeaponThrow(TechniqueRollType &technique, Damage &techniqueDamage) {
 	techniqueDamage.process(technique.actor(), technique.rival());
 };
 
-void go_throw(CharacterData *ch, CharacterData *victim) {
+void go_throw(CharData *ch, CharData *victim) {
 
-	if (dontCanAct(ch)) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -132,13 +132,13 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 	int victimsAmount = 1 + PRF_FLAGGED(ch, PRF_DOUBLE_THROW) + 2 * PRF_FLAGGED(ch, PRF_TRIPLE_THROW);
 
 	int techniqueID = THROW_WEAPON_FEAT;
-	DmgType throwDamageKind = PHYS_DMG;
+	DmgType throwDamageKind = kPhysDmg;
 	if (PRF_FLAGGED(ch, PRF_SHADOW_THROW)) {
 		send_to_char("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
 		act("Оружие в руках $n1 окружила призрачная дымка.",
-			true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		techniqueID = SHADOW_THROW_FEAT;
-		throwDamageKind = MAGE_DMG;
+		throwDamageKind = kMagicDmg;
 		struct TimedFeat shadowThrowTimed;
 		shadowThrowTimed.feat = SHADOW_THROW_FEAT;
 		shadowThrowTimed.time = 6;
@@ -146,13 +146,13 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 		PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
 	}
 	TechniqueRollType weaponThrowRoll;
-	Damage throwDamage(SkillDmg(ESkill::kThrow), ZERO_DMG, throwDamageKind, nullptr); //х3 как тут с оружием
+	Damage throwDamage(SkillDmg(ESkill::kThrow), kZeroDmg, throwDamageKind, nullptr); //х3 как тут с оружием
 	throwDamage.magic_type = kTypeDark;
 
 	ActionTargeting::FoesRosterType
-		roster{ch, victim, [](CharacterData *ch, CharacterData *victim) { return CAN_SEE(ch, victim); }};
+		roster{ch, victim, [](CharData *ch, CharData *victim) { return CAN_SEE(ch, victim); }};
 	for (auto target : roster) {
-		target = try_protect(target, ch);
+		target = TryToFindProtector(target, ch);
 		weaponThrowRoll.initialize(ch, techniqueID, target);
 		if (weaponThrowRoll.isWrongConditions()) {
 			weaponThrowRoll.sendDenyMessageToActor();
@@ -165,13 +165,13 @@ void go_throw(CharacterData *ch, CharacterData *victim) {
 		};
 	};
 
-	setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 	if (techniqueID == THROW_WEAPON_FEAT) {
-		setSkillCooldownInFight(ch, ESkill::kThrow, 3);
+		SetSkillCooldownInFight(ch, ESkill::kThrow, 3);
 	}
 }
 
-void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
 	if (!ch->get_skill(ESkill::kThrow)) {
 		send_to_char("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
@@ -187,7 +187,7 @@ void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 	}
 */
-	CharacterData *victim = findVictim(ch, argument);
+	CharData *victim = FindVictim(ch, argument);
 	if (!victim) {
 		send_to_char("В кого мечем?\r\n", ch);
 		return;
@@ -216,9 +216,9 @@ void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_throw(ch, victim);
 	} else {
-		if (isHaveNoExtraAttack(ch)) {
+		if (IsHaveNoExtraAttack(ch)) {
 			act("Хорошо. Вы попытаетесь метнуть оружие в $N3.",
-				false, ch, nullptr, victim, TO_CHAR);
+				false, ch, nullptr, victim, kToChar);
 			ch->set_extra_attack(kExtraAttackThrow, victim);
 		}
 	}

@@ -1,6 +1,6 @@
 #include "commands.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "utils/levenshtein.h"
 #include "structs/compact_trie.h"
 

@@ -17,27 +17,27 @@ int get_glory(long uid);
 void add_glory(long uid, int amount);
 int remove_glory(long uid, int amount);
 
-void do_spend_glory(CharacterData *ch, char *argument, int cmd, int subcmd);
-bool parse_spend_glory_menu(CharacterData *ch, char *arg);
-void spend_glory_menu(CharacterData *ch);
+void do_spend_glory(CharData *ch, char *argument, int cmd, int subcmd);
+bool parse_spend_glory_menu(CharData *ch, char *arg);
+void spend_glory_menu(CharData *ch);
 
 void load_glory();
 void save_glory();
 void timers_update();
-void set_stats(CharacterData *ch);
-int get_spend_glory(CharacterData *ch);
+void set_stats(CharData *ch);
+int get_spend_glory(CharData *ch);
 
-bool remove_stats(CharacterData *ch, CharacterData *god, int amount);
-void transfer_stats(CharacterData *ch, CharacterData *god, std::string name, char *reason);
-void show_glory(CharacterData *ch, CharacterData *god);
-void show_stats(CharacterData *ch);
+bool remove_stats(CharData *ch, CharData *god, int amount);
+void transfer_stats(CharData *ch, CharData *god, std::string name, char *reason);
+void show_glory(CharData *ch, CharData *god);
+void show_stats(CharData *ch);
 
-void print_glory_top(CharacterData *ch);
-void hide_char(CharacterData *vict, CharacterData *god, char const *const mode);
+void print_glory_top(CharData *ch);
+void hide_char(CharData *vict, CharData *god, char const *const mode);
 
 void set_freeze(long uid);
 void remove_freeze(long uid);
-void check_freeze(CharacterData *ch);
+void check_freeze(CharData *ch);
 
 } // namespace Glory
 

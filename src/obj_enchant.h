@@ -29,13 +29,13 @@ enum {
 struct enchant {
 	enchant();
 	// инит свои аффекты из указанного предмета (ENCHANT_FROM_OBJ)
-	enchant(ObjectData *obj);
+	enchant(ObjData *obj);
 	// распечатка аффектов для опознания
-	void print(CharacterData *ch) const;
+	void print(CharData *ch) const;
 	// генерация строки с энчантом для файла объекта
 	std::string print_to_file() const;
 	// добавить энчант на предмет
-	void apply_to_obj(ObjectData *obj) const;
+	void apply_to_obj(ObjData *obj) const;
 
 	// имя источника аффектов
 	std::string name_;
@@ -60,13 +60,13 @@ class Enchants {
  public:
 	bool empty() const;
 	std::string print_to_file() const;
-	void print(CharacterData *ch) const;
+	void print(CharData *ch) const;
 	bool check(int type) const;
 	void add(const enchant &ench);
 	// сеты используют только вес (который накопительный, а не флаг), поэтому
 	// их допускается менять, т.к. сколько прибавили, столько можно и отнять
-	void update_set_bonus(ObjectData *obj, const obj_sets::ench_type &ench);
-	void remove_set_bonus(ObjectData *obj);
+	void update_set_bonus(ObjData *obj, const obj_sets::ench_type &ench);
+	void remove_set_bonus(ObjData *obj);
 
  private:
 	std::vector<enchant> list_;

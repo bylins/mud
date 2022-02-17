@@ -17,7 +17,7 @@
 #ifndef _GENCHAR_H_
 #define _GENCHAR_H_
 
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 
 #define SUM_ALL_STATS 95
 #define SUM_STATS(ch) (ch->get_str() + ch->get_dex() + ch->get_int() +  ch->get_wis() + ch->get_con() +  ch->get_cha())
@@ -48,11 +48,11 @@
 
 extern const char *genchar_help;
 
-class CharacterData;    // to avoid inclusion of "char.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
 
-void genchar_disp_menu(CharacterData *ch);
-int genchar_parse(CharacterData *ch, char *arg);
-void roll_real_abils(CharacterData *ch);
+void genchar_disp_menu(CharData *ch);
+int genchar_parse(CharData *ch, char *arg);
+void roll_real_abils(CharData *ch);
 void GetCase(const char *name, const ESex sex, int caseNum, char *result);
 
 extern int max_stats[][6];

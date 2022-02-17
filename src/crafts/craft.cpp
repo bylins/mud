@@ -113,8 +113,8 @@ bool Cases::save_to_node(pugi::xml_node *node) const {
 	return true;
 }
 
-ObjectData::pnames_t Cases::build_pnames() const {
-	ObjectData::pnames_t result;
+ObjData::pnames_t Cases::build_pnames() const {
+	ObjData::pnames_t result;
 	for (size_t n = 0; n < CASES_COUNT; ++n) {
 		result[n] = str_dup(m_cases[n].c_str());
 	}
@@ -154,8 +154,8 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 
 	if (0 > cost_value) {
 		logger("WARNING: Wrong \"cost\" value of the object with VNUM %d. Setting to the default value %d.\n",
-			   get_vnum(), ObjectData::DEFAULT_COST);
-		cost_value = ObjectData::DEFAULT_COST;
+			   get_vnum(), ObjData::DEFAULT_COST);
+		cost_value = ObjData::DEFAULT_COST;
 	}
 	set_cost(cost_value);
 
@@ -194,21 +194,21 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 
 	if (0 > rent_on_value) {
 		logger("WARNING: Wrong \"rent/on\" value of the object with VNUM %d. Setting to the default value %d.\n",
-			   get_vnum(), ObjectData::DEFAULT_RENT_ON);
-		rent_on_value = ObjectData::DEFAULT_RENT_ON;
+			   get_vnum(), ObjData::DEFAULT_RENT_ON);
+		rent_on_value = ObjData::DEFAULT_RENT_ON;
 	}
 	set_rent_on(rent_on_value);
 
 	if (0 > rent_off_value) {
 		logger("WARNING: Wrong \"rent/off\" value of the object with VNUM %d. Setting to the default value %d.\n",
-			   get_vnum(), ObjectData::DEFAULT_RENT_OFF);
-		rent_off_value = ObjectData::DEFAULT_RENT_OFF;
+			   get_vnum(), ObjData::DEFAULT_RENT_OFF);
+		rent_off_value = ObjData::DEFAULT_RENT_OFF;
 	}
 	set_rent_off(rent_off_value);
 
 	const auto global_maximum = node->child("global_maximum");
 	if (global_maximum) {
-		int global_maximum_value = ObjectData::DEFAULT_MAX_IN_WORLD;
+		int global_maximum_value = ObjData::DEFAULT_MAX_IN_WORLD;
 		CHelper::load_integer(global_maximum.child_value(), global_maximum_value,
 							  [&]() {
 								  logger(
@@ -218,13 +218,13 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 							  });
 
 		if (0 >= global_maximum_value
-			&& ObjectData::DEFAULT_MAX_IN_WORLD != global_maximum_value) {
+			&& ObjData::DEFAULT_MAX_IN_WORLD != global_maximum_value) {
 			logger(
 				"WARNING: Wrong \"global_maximum\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
 				global_maximum_value,
 				get_vnum(),
-				ObjectData::DEFAULT_MAX_IN_WORLD);
-			global_maximum_value = ObjectData::DEFAULT_MAX_IN_WORLD;
+				ObjData::DEFAULT_MAX_IN_WORLD);
+			global_maximum_value = ObjData::DEFAULT_MAX_IN_WORLD;
 		}
 
 		set_max_in_world(global_maximum_value);
@@ -232,7 +232,7 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 
 	const auto minimum_remorts = node->child("minimal_remorts");
 	if (minimum_remorts) {
-		int minimum_remorts_value = ObjectData::DEFAULT_MINIMUM_REMORTS;
+		int minimum_remorts_value = ObjData::DEFAULT_MINIMUM_REMORTS;
 		CHelper::load_integer(minimum_remorts.child_value(), minimum_remorts_value,
 							  [&]() {
 								  logger(
@@ -246,8 +246,8 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 				"WARNING: Wrong \"minimal_remorts\" value %d of the object with VNUM %d. Setting to the default value %d.\n",
 				minimum_remorts_value,
 				get_vnum(),
-				ObjectData::DEFAULT_MINIMUM_REMORTS);
-			minimum_remorts_value = ObjectData::DEFAULT_MINIMUM_REMORTS;
+				ObjData::DEFAULT_MINIMUM_REMORTS);
+			minimum_remorts_value = ObjData::DEFAULT_MINIMUM_REMORTS;
 		}
 		set_minimum_remorts(minimum_remorts_value);
 	}
@@ -347,7 +347,7 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 	{
 		const std::string timer_value = timer.child_value();
 		if ("unlimited" == timer_value) {
-			set_timer(ObjectData::UNLIMITED_TIMER);
+			set_timer(ObjData::UNLIMITED_TIMER);
 		} else {
 			CHelper::load_integer(weight.child_value(),
 								  [&](const auto value) { this->set_timer(std::max(value, 0)); },
@@ -596,7 +596,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 		CHelper::save_string(*node, "weight", std::to_string(get_weight()).c_str(),
 							 [&]() { throw std::runtime_error("WARNING: Failed to save object weight"); });
 
-		if (ObjectData::UNLIMITED_TIMER != get_timer()) {
+		if (ObjData::UNLIMITED_TIMER != get_timer()) {
 			CHelper::save_string(*node, "timer", std::to_string(get_timer()).c_str(),
 								 [&]() { throw std::runtime_error("WARNING: Failed to save object timer"); });
 		} else {
@@ -608,7 +608,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 			// unpack item_parameters
 			std::list<std::string> item_parameters;
 			switch (get_type()) {
-				case ObjectData::ITEM_INGREDIENT: {
+				case ObjData::ITEM_INGREDIENT: {
 					int flag = 1;
 					while (flag <= get_skill()) {
 						if (IS_SET(get_skill(), flag)) {
@@ -619,7 +619,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 				}
 					break;
 
-				case ObjectData::ITEM_WEAPON: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
+				case ObjData::ITEM_WEAPON: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
 					break;
 
 				default: break;
@@ -719,13 +719,13 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 	return true;
 }
 
-ObjectData *CObject::build_object() const {
-	return new ObjectData(*this);
+ObjData *CObject::build_object() const {
+	return new ObjData(*this);
 }
 
 bool CObject::load_item_parameters(const pugi::xml_node *node) {
 	switch (get_type()) {
-		case ObjectData::ITEM_INGREDIENT:
+		case ObjData::ITEM_INGREDIENT:
 			for (const auto flags : node->children("parameter")) {
 				const char *flag = flags.child_value();
 				try {
@@ -743,7 +743,7 @@ bool CObject::load_item_parameters(const pugi::xml_node *node) {
 			}
 			break;
 
-		case ObjectData::ITEM_WEAPON: {
+		case ObjData::ITEM_WEAPON: {
 			const char *skill_value = node->child_value("parameter");
 			try {
 				set_skill(to_underlying(ITEM_BY_NAME<ESkill>(skill_value)));

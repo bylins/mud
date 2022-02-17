@@ -1,13 +1,13 @@
 #ifndef BYLINS_HIRE_H
 #define BYLINS_HIRE_H
 
-class CharacterData;
+class CharData;
 
 #define MAXPRICE 9999999
 
-void do_findhelpee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_freehelpee(CharacterData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/);
-int get_reformed_charmice_hp(CharacterData *ch, CharacterData *victim, int spellnum);
+void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/);
+int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum);
 
 #endif //BYLINS_HIRE_H
 

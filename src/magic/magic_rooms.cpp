@@ -2,7 +2,7 @@
 
 #include "magic/spells_info.h"
 #include "modify.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
 
 #include <iomanip>
@@ -18,7 +18,7 @@ const int kRuneLabelDuration = 300;
 std::list<RoomData *> affected_rooms;
 
 void RemoveSingleRoomAffect(long casterID, int spellnum);
-void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply>::shared_ptr &aff);
+void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
 void sendAffectOffMessageToRoom(int aff, RoomRnum room);
 void AddRoomToAffected(RoomData *room);
 void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
@@ -65,7 +65,7 @@ bool IsRoomAffected(RoomData *room, ESpell spell) {
 	return false;
 }
 
-void ShowAffectedRooms(CharacterData *ch) {
+void ShowAffectedRooms(CharData *ch) {
 	const int vnumCW = 7;
 	const int spellCW = 25;
 	const int casterCW = 21;
@@ -92,7 +92,7 @@ void ShowAffectedRooms(CharacterData *ch) {
 	page_string(ch->desc, buffer.str());
 }
 
-CharacterData *find_char_in_room(long char_id, RoomData *room) {
+CharData *find_char_in_room(long char_id, RoomData *room) {
 	assert(room);
 	for (const auto tch : room->people) {
 		if (GET_ID(tch) == char_id) {
@@ -133,7 +133,7 @@ void RemoveSingleRoomAffect(long casterID, int spellnum) {
 	RemoveAffectFromRooms(spellnum, filter);
 }
 
-int removeControlledRoomAffect(CharacterData *ch) {
+int removeControlledRoomAffect(CharData *ch) {
 	long casterID = GET_ID(ch);
 	auto filter =
 		[&casterID](auto &af) {
@@ -157,7 +157,7 @@ void AddRoomToAffected(RoomData *room) {
 }
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
-void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
+void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	// Аффект в комнате.
 	// Проверяем на то что нам передали бяку в параметрах.
 	assert(aff);
@@ -186,7 +186,7 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 
 		case kSpellMeteorStorm: send_to_char("Раскаленные громовые камни рушатся с небес!\r\n", ch);
 			act("Раскаленные громовые камни рушатся с небес!\r\n",
-				false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellThunderStone, ch->get_level());
 			break;
 
@@ -200,49 +200,49 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 					what_sky = kSkyCloudy;
 					send_to_char("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
 					act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
-						false, 	ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					break;
 				case 7: send_to_char("Раздался чудовищный раскат грома!\r\n", ch);
 					act("Раздался чудовищный удар грома!\r\n",
-						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDeafness, ch->get_level());
 					break;
 				case 6: send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
-						false, 	ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellColdWind, ch->get_level());
 					break;
 				case 5: send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
 					act("Из туч хлынул дождь кислоты!\r\n",
-						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellAcid, ch->get_level());
 					break;
 				case 4: send_to_char("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n",
-						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, ch->get_level());
 					break;
 				case 3: send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
 					act("Из тучи посыпались шаровые молнии!\r\n",
-						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellCallLighting, ch->get_level());
 					break;
 				case 2: send_to_char("Буря завыла, закручиваясь в вихри!\r\n", ch);
 					act("Буря завыла, закручиваясь в вихри!\r\n",
-						false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellWhirlwind, ch->get_level());
 					break;
 				case 1: what_sky = kSkyCloudless;
 					break;
 				default: send_to_char("Из туч ударили разряды молний!\r\n", ch);
-					act("Из туч ударили разряды молний!\r\n", false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					act("Из туч ударили разряды молний!\r\n", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, ch->get_level());
 			}
 			break;
 
 		case kSpellBlackTentacles: send_to_char("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
 			act("Мертвые руки навей шарят в поисках добычи!\r\n",
-				false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDamageSerious, ch->get_level());
 			break;
 
@@ -251,7 +251,7 @@ void HandleRoomAffect(RoomData *room, CharacterData *ch, const Affect<ERoomApply
 }
 
 void UpdateRoomsAffects() {
-	CharacterData *ch;
+	CharData *ch;
 	int spellnum;
 
 	for (auto room = affected_rooms.begin(); room != affected_rooms.end();) {
@@ -327,7 +327,7 @@ void UpdateRoomsAffects() {
 // =============================================================== //
 
 // Применение заклинания к комнате //
-int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spellnum) {
+int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	// Должен ли данный спелл быть только 1 в мире от этого кастера?
@@ -380,7 +380,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 		case kSpellRoomLight: af[0].type = spellnum;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
+			af[0].duration = CalcDuration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kLight;
 			af[0].must_handled = false;
@@ -393,7 +393,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 		case kSpellPoosinedFog: af[0].type = spellnum;
 			af[0].location = kPoison;
 			af[0].modifier = 50;
-			af[0].duration = pc_duration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
+			af[0].duration = CalcDuration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
 			af[0].bitvector = ERoomAffect::kPoisonFog;
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
@@ -456,7 +456,7 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 			af[0].type = spellnum;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = 30 + (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) * dice(1, 3);
+			af[0].duration = 30 + (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) * RollDices(1, 3);
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kHypnoticPattern;
 			af[0].must_handled = false;
@@ -529,9 +529,9 @@ int ImposeSpellToRoom(int/* level*/, CharacterData *ch, RoomData *room, int spel
 
 	if (success) {
 		if (to_room != nullptr)
-			act(to_room, true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+			act(to_room, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		if (to_char != nullptr)
-			act(to_char, true, ch, nullptr, nullptr, TO_CHAR);
+			act(to_char, true, ch, nullptr, nullptr, kToChar);
 		return 1;
 	} else
 		send_to_char(NOEFFECT, ch);

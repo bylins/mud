@@ -8,7 +8,7 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
@@ -17,9 +17,9 @@
 #include "crafts/im.h"
 #include "description.h"
 #include "game_mechanics/deathtrap.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "entities/char_player.h"
-#include "entities/room.h"
+#include "entities/room_data.h"
 #include "house.h"
 #include "entities/world_characters.h"
 #include "entities/zone.h"
@@ -32,7 +32,7 @@
 #include <vector>
 
 // * External data structures.
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 extern const char *room_bits[];
 extern const char *sector_types[];
 extern const char *exit_bits[];
@@ -98,7 +98,7 @@ void redit_setup(DescriptorData *d, int real_num)
 // * Сохранить новую комнату в памяти
 void redit_save_internally(DescriptorData *d) {
 	int j, room_num, cmd_no;
-	ObjectData *temp_obj;
+	ObjData *temp_obj;
 
 	room_num = real_room(OLC_ROOM(d)->room_vn);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число

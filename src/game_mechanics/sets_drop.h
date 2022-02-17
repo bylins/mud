@@ -27,7 +27,7 @@ void renumber_obj_rnum(const int mob_rnum = -1);
 void init_xhelp();
 void init_xhelp_full();
 // печать таймера резета таблицы дропа перед страницей справки
-void print_timer_str(CharacterData *ch);
+void print_timer_str(CharData *ch);
 // сейв текущей таблицы дропа и шансов
 void save_drop_table();
 void create_clone_miniset(int vnum);

@@ -8,8 +8,8 @@
 #include "affects/affect_data.h"
 #include "constants.h"
 #include "dg_script/dg_scripts.h"
-#include "entities/entity_constants.h"
-#include "entities/obj.h"
+#include "entities/entities_constants.h"
+#include "entities/obj_data.h"
 #include "magic/magic_rooms.h"
 #include "sysdep.h"
 
@@ -62,7 +62,7 @@ struct RoomState {
 
 struct RoomData {
 	using exit_data_ptr = std::shared_ptr<ExitData>;
-	using people_t = std::list<CharacterData *>;
+	using people_t = std::list<CharData *>;
 
 	RoomData();
 	~RoomData();
@@ -82,13 +82,13 @@ struct RoomData {
 	byte glight;        // Number of lightness person     //
 	byte gdark;        // Number of darkness  person     //
 	struct WeatherControl weather;        // Weather state for room //
-	int (*func)(CharacterData *, void *, int, char *);
+	int (*func)(CharData *, void *, int, char *);
 
-	ObjectData::triggers_list_ptr proto_script;    // list of default triggers  //
+	ObjData::triggers_list_ptr proto_script;    // list of default triggers  //
 	Script::shared_ptr script;    // script info for the object //
 	struct TrackData *track;
 
-	ObjectData *contents;    // List of items in room              //
+	ObjData *contents;    // List of items in room              //
 	people_t people;    // List of NPC / PC in room           //
 
 	room_spells::RoomAffects affected;    // affected by what spells       //
@@ -133,7 +133,7 @@ struct RoomData {
 							 res);
 	}
 
-	CharacterData *first_character() const;
+	CharData *first_character() const;
 
 	void cleanup_script();
 	void set_name(std::string const &name);

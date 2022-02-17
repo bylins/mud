@@ -12,7 +12,7 @@
 using namespace FightSystem;
 using namespace AbilitySystem;
 
-void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (!ch->get_skill(ESkill::kTurnUndead)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
@@ -40,21 +40,21 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 
 	send_to_char(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n",
-		false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+		false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
 // костылиии... и магик намберы
 	int victimsAmount = 20;
 	int victimssHPAmount = skillTurnUndead * 25 + MAX(0, skillTurnUndead - 80) * 50;
-	Damage turnUndeadDamage(SkillDmg(ESkill::kTurnUndead), ZERO_DMG, MAGE_DMG, nullptr);
+	Damage turnUndeadDamage(SkillDmg(ESkill::kTurnUndead), kZeroDmg, kMagicDmg, nullptr);
 	turnUndeadDamage.magic_type = kTypeLight;
 	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;
-	ActionTargeting::FoesRosterType roster{ch, [](CharacterData *, CharacterData *target) { return IS_UNDEAD(target); }};
+	ActionTargeting::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
 	for (const auto target : roster) {
-		turnUndeadDamage.dam = ZERO_DMG;
+		turnUndeadDamage.dam = kZeroDmg;
 		turnUndeadRoll.initialize(ch, TURN_UNDEAD_FEAT, target);
 		if (turnUndeadRoll.isSuccess()) {
-			if (turnUndeadRoll.isCriticalSuccess() && ch->get_level() > target->get_level() + dice(1, 5)) {
+			if (turnUndeadRoll.isCriticalSuccess() && ch->get_level() > target->get_level() + RollDices(1, 5)) {
 				send_to_char(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
 				turnUndeadDamage.dam = MAX(1, GET_HIT(target) + 11);
 			} else {
@@ -63,18 +63,18 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 			};
 		} else if (turnUndeadRoll.isCriticalFail() && !IS_CHARMICE(target)) {
 			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n",
-				false, target, nullptr, ch, TO_VICT);
+				false, target, nullptr, ch, kToVict);
 			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n",
-				false, target, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+				false, target, nullptr, ch, kToNotVict | kToArenaListen);
 			Affect<EApplyLocation> af[2];
 			af[0].type = kSpellCourage;
-			af[0].duration = pc_duration(target, 3, 0, 0, 0, 0);
+			af[0].duration = CalcDuration(target, 3, 0, 0, 0, 0);
 			af[0].modifier = MAX(1, turnUndeadRoll.getDegreeOfSuccess() * 2);
 			af[0].location = APPLY_DAMROLL;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			af[0].battleflag = 0;
 			af[1].type = kSpellCourage;
-			af[1].duration = pc_duration(target, 3, 0, 0, 0, 0);
+			af[1].duration = CalcDuration(target, 3, 0, 0, 0, 0);
 			af[1].modifier = MAX(1, 25 + turnUndeadRoll.getDegreeOfSuccess() * 5);
 			af[1].location = APPLY_HITREG;
 			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
@@ -93,6 +93,6 @@ void do_turn_undead(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* s
 		};
 	};
 	//set_wait(ch, 1, true);
-	setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
-	setSkillCooldownInFight(ch, ESkill::kTurnUndead, 2);
+	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+	SetSkillCooldownInFight(ch, ESkill::kTurnUndead, 2);
 }

@@ -12,7 +12,7 @@
 extern FILE *logfile;
 extern std::list<FILE *> opened_files;
 
-void pers_log(CharacterData *ch, const char *format, ...) __attribute__((format(printf, 2, 3)));
+void pers_log(CharData *ch, const char *format, ...) __attribute__((format(printf, 2, 3)));
 
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void vlog(const char *format, va_list args) __attribute__((format(printf, 1, 0)));

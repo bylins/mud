@@ -3,10 +3,10 @@
 
 #include "skills.h"
 
-class CharacterData;
+class CharData;
 
-int go_track(CharacterData *ch, CharacterData *victim, const ESkill skill_no);
-void do_track(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_hidetrack(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+int go_track(CharData *ch, CharData *victim, const ESkill skill_no);
+void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_TRACK_H

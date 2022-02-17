@@ -1,10 +1,10 @@
 #ifndef BYLINS_KICK_H
 #define BYLINS_KICK_H
 
-class CharacterData;
+class CharData;
 
-void go_kick(CharacterData *ch, CharacterData *vict);
-void do_kick(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_kick(CharData *ch, CharData *vict);
+void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_KICK_H
 

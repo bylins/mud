@@ -11,7 +11,7 @@
 #endif
 #include "password.h"
 #include "interpreter.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "entities/char_player.h"
 // для ручного отключения крипования (на локалке лучше собирайте через make test и не парьтесь)
 //#define NOCRYPT
@@ -58,7 +58,7 @@ std::string generate_md5_hash(const std::string &pwd) {
 * Генерируем новый хэш и пишем его чару
 * TODO: в принципе можно и совместить с методом плеера.
 */
-void set_password(CharacterData *ch, const std::string &pwd) {
+void set_password(CharData *ch, const std::string &pwd) {
 	ch->set_passwd(generate_md5_hash(pwd));
 }
 
@@ -78,7 +78,7 @@ void send_password(std::string email, std::string password) {
 }
 
 // Дубликат set_password, который отправляет пароль на мыло
-void set_password_to_email(CharacterData *ch, const std::string &pwd) {
+void set_password_to_email(CharData *ch, const std::string &pwd) {
 	ch->set_passwd(generate_md5_hash(pwd));
 	send_password(std::string(GET_EMAIL(ch)), pwd.c_str(), std::string(GET_NAME(ch)));
 }
@@ -93,7 +93,7 @@ void set_all_password_to_email(const char *email, const std::string &pwd, const 
 * Тип хэша у плеера
 * \return  0 - des, 1 - md5
 */
-bool get_password_type(const CharacterData *ch) {
+bool get_password_type(const CharData *ch) {
 	return CompareParam("$1$", ch->get_passwd());
 }
 
@@ -101,7 +101,7 @@ bool get_password_type(const CharacterData *ch) {
 * Сравнение хэшей и конверт при необходимости в мд5
 * \return 0 - не сошлось, 1 - сошлось
 */
-bool compare_password(CharacterData *ch, const std::string &pwd) {
+bool compare_password(CharData *ch, const std::string &pwd) {
 	bool result = 0;
 	if (get_password_type(ch))
 		result = CompareParam(ch->get_passwd(), CRYPT(pwd.c_str(), ch->get_passwd().c_str()), 1);
@@ -124,7 +124,7 @@ bool compare_password(CharacterData *ch, const std::string &pwd) {
 * Проверка пароля на длину и тупость
 * \return 0 - некорректный пароль, 1 - корректный
 */
-bool check_password(const CharacterData *ch, const char *pwd) {
+bool check_password(const CharData *ch, const char *pwd) {
 // при вырубленном криптовании на локалке пароль можно ставить любой
 #ifndef NOCRYPT
 	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)

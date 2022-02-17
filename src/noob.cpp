@@ -3,12 +3,12 @@
 
 #include "noob.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "utils/pugixml.h"
 #include "utils/parse.h"
 #include "handler.h"
 
-int find_eq_pos(CharacterData *ch, ObjectData *obj, char *arg);
+int find_eq_pos(CharData *ch, ObjData *obj, char *arg);
 
 namespace Noob {
 
@@ -84,7 +84,7 @@ void init() {
 ///
 /// \return true - если ch в коде считается нубом и соотв-но претендует на помощь
 ///
-bool is_noob(const CharacterData *ch) {
+bool is_noob(const CharData *ch) {
 	if (ch->get_level() > MAX_LEVEL || GET_REAL_REMORT(ch) > 0) {
 		return false;
 	}
@@ -94,7 +94,7 @@ bool is_noob(const CharacterData *ch) {
 ///
 /// Пустой спешиал, чтобы не морочить голову с перебором тригов в карте
 ///
-int outfit(CharacterData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
+int outfit(CharData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
 	return 0;
 }
 
@@ -102,7 +102,7 @@ int outfit(CharacterData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument
 /// \return строка с внумами стартовых предметов персонажа
 /// нужно для тригов (%actor.noob_outfit%)
 ///
-std::string print_start_outfit(CharacterData *ch) {
+std::string print_start_outfit(CharData *ch) {
 	std::stringstream out;
 	std::vector<int> tmp(get_start_outfit(ch));
 	for (const auto &item : tmp) {
@@ -115,7 +115,7 @@ std::string print_start_outfit(CharacterData *ch) {
 /// \return список внумов стартовых шмоток из noob_help.xml
 /// + шмоток, завясящих от местонахождения чара из birthplaces.xml
 ///
-std::vector<int> get_start_outfit(CharacterData *ch) {
+std::vector<int> get_start_outfit(CharData *ch) {
 	// стаф из noob_help.xml
 	std::vector<int> out_list;
 	const int ch_class = ch->get_class();
@@ -135,7 +135,7 @@ std::vector<int> get_start_outfit(CharacterData *ch) {
 ///
 /// \return указатель на моба-рентера в данной комнате или 0
 ///
-CharacterData *find_renter(int room_rnum) {
+CharData *find_renter(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people) {
 		if (GET_MOB_SPEC(tch) == receptionist) {
 			return tch;
@@ -150,18 +150,18 @@ CharacterData *find_renter(int room_rnum) {
 /// сообщения о возможности получить стартовую экипу у кладовщика.
 /// Сообщение берется из birthplaces.xml или дефолтное из birthplaces::GetRentHelp
 ///
-void check_help_message(CharacterData *ch) {
+void check_help_message(CharData *ch) {
 	if (Noob::is_noob(ch)
 		&& GET_HIT(ch) <= 1
 		&& IS_CARRYING_N(ch) <= 0
 		&& IS_CARRYING_W(ch) <= 0) {
 		int birth_id = Birthplaces::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
 		if (birth_id >= 0) {
-			CharacterData *renter = find_renter(ch->in_room);
+			CharData *renter = find_renter(ch->in_room);
 			std::string text = Birthplaces::GetRentHelp(birth_id);
 			if (renter && !text.empty()) {
-				act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, nullptr, ch, TO_VICT);
-				act("$n посмотрел$g на $N3.", true, renter, nullptr, ch, TO_NOTVICT);
+				act("\n\\u$n оглядел$g вас с головы до пят.", true, renter, nullptr, ch, kToVict);
+				act("$n посмотрел$g на $N3.", true, renter, nullptr, ch, kToNotVict);
 				tell_to_char(renter, ch, text.c_str());
 			}
 		}
@@ -173,8 +173,8 @@ void check_help_message(CharacterData *ch) {
 /// в игру со стартовой экипой. При вооржении пушки чару ставится ее скилл.
 /// Богатырям при надевании перчаток сетится кулачный бой.
 ///
-void equip_start_outfit(CharacterData *ch, ObjectData *obj) {
-	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ARMOR) {
+void equip_start_outfit(CharData *ch, ObjData *obj) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR) {
 		int where = find_eq_pos(ch, obj, nullptr);
 		if (where >= 0) {
 			equip_char(ch, obj, where, CharEquipFlags());
@@ -183,7 +183,7 @@ void equip_start_outfit(CharacterData *ch, ObjectData *obj) {
 				ch->set_skill(ESkill::kPunch, 10);
 			}
 		}
-	} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
+	} else if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)
 			&& !GET_EQ(ch, WEAR_WIELD)) {
 			equip_char(ch, obj, WEAR_WIELD, CharEquipFlags());

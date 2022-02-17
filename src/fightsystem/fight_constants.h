@@ -2,20 +2,20 @@
 #define __FIGHT_CONSTANTS_HPP__
 
 namespace FightSystem {
-enum AttType {
-	MAIN_HAND = 1, //Основная атака
-	OFF_HAND = 2,  //Доп.атака
-	MOB_ADD = 3    //Доп.атака моба
+enum AttackType {
+	kMainHand = 1, //Основная атака
+	kOffHand = 2,  //Доп.атака
+	kMobAdd = 3    //Доп.атака моба
 };
 
-const int ZERO_DMG = 0;
+const int kZeroDmg = 0;
 
 enum DmgType {
-	UNDEF_DMG,  // для совместимости, надо убирать
-	PHYS_DMG,   // физический урон
-	MAGE_DMG,   // магический урон, дальше смотрим тип
-	POISON_DMG, // чтобы использовать вместо UNDEF
-	PURE_DMG    // например, чистый урон SLOW DT
+	kUndefDmg,  // для совместимости, надо убирать
+	kPhysDmg,   // физический урон
+	kMagicDmg,   // магический урон, дальше смотрим тип
+	kPoisonDmg, // чтобы использовать вместо UNDEF
+	kPureDmg    // например, чистый урон SLOW DT
 };
 
 enum {

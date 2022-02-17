@@ -17,19 +17,19 @@
 
 #include "conf.h"
 #include "structs/descriptor_data.h"
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 
 #include <string>
 
-class CharacterData;    // to avoid inclusion of "char.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
 
-void do_move(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_move(CharData *ch, char *argument, int cmd, int subcmd);
 
 #define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
 #define IS_MOVE(cmdnum) (cmd_info[cmdnum].command_pointer == do_move)
 
-void command_interpreter(CharacterData *ch, char *argument);
+void command_interpreter(CharData *ch, char *argument);
 int search_block(const char *arg, const char **list, int exact);
 int search_block(const std::string &arg, const char **list, int exact);
 int fill_word(const char *argument);
@@ -51,10 +51,10 @@ void CreateFileName(std::string &name);
 std::string ExpFormat(long long exp);
 void name_convert(std::string &text);
 void god_work_invoice();
-int special(CharacterData *ch, int cmd, char *arg, int fnum);
+int special(CharData *ch, int cmd, char *arg, int fnum);
 int find_name(const char *name);
 
-void check_hiding_cmd(CharacterData *ch, int percent);
+void check_hiding_cmd(CharData *ch, int percent);
 
 char *delete_doubledollar(char *string);
 // Cоответствие классов и религий (Кард)
@@ -66,7 +66,7 @@ extern const int class_religion[];
 struct command_info {
 	const char *command;
 	EPosition minimum_position;
-	void (*command_pointer)(CharacterData *ch, char *argument, int cmd, int subcmd);
+	void (*command_pointer)(CharData *ch, char *argument, int cmd, int subcmd);
 	sh_int minimum_level;
 	int subcmd;                ///< Subcommand. See SCMD_* constants.
 	int unhide_percent;
@@ -349,8 +349,8 @@ void array_argument(const char *arg, std::vector<int> &out);
 #define WHO_LISTNAME 1
 #define WHO_LISTCLAN 2
 
-bool login_change_invoice(CharacterData *ch);
-bool who_spamcontrol(CharacterData *, unsigned short int);
+bool login_change_invoice(CharData *ch);
+bool who_spamcontrol(CharData *, unsigned short int);
 
 #endif // _INTERPRETER_H_
 

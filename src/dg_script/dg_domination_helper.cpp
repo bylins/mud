@@ -156,7 +156,7 @@ void process_arena_round(Script *sc, Trigger *trig, char *cmd)
 				continue;
 			}
 
-			CharacterData *random_mob = read_mobile(mob_vnum_list.at(mob_index), VIRTUAL);
+			CharData *random_mob = read_mobile(mob_vnum_list.at(mob_index), VIRTUAL);
 			if (!random_mob) {
 				snprintf(buf2, kMaxStringLength, "Не могу найти моба: %d", mob_vnum_list.at(mob_index));
 				trig_log(trig, buf2);

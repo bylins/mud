@@ -12,7 +12,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-extern int do_social(CharacterData *ch, char *argument);    // implemented in the act.social.cpp
+extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp
 // здесь хранятся все предметы из магазинов вида внум_предмета, цена
 //std::map<int, int> items_list_for_checks;
 namespace ShopExt {
@@ -358,7 +358,7 @@ int get_spent_today() {
 
 using namespace ShopExt;
 
-int shop_ext(CharacterData *ch, void *me, int cmd, char *argument) {
+int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
 	if (!ch->desc
 		|| IS_NPC(ch)) {
 		return 0;
@@ -386,7 +386,7 @@ int shop_ext(CharacterData *ch, void *me, int cmd, char *argument) {
 	}
 
 	char argm[kMaxInputLength];
-	CharacterData *const keeper = reinterpret_cast<CharacterData *>(me);
+	CharData *const keeper = reinterpret_cast<CharData *>(me);
 	shop_node::shared_ptr shop;
 	for (const auto &s : shop_list) {
 		const auto found =
@@ -409,7 +409,7 @@ int shop_ext(CharacterData *ch, void *me, int cmd, char *argument) {
 		sprintf(argm, "$N вскричал$G '%s'", MSG_NO_STEAL_HERE);
 		sprintf(buf, "ругать %s", GET_NAME(ch));
 		do_social(keeper, buf);
-		act(argm, false, ch, 0, keeper, TO_CHAR);
+		act(argm, false, ch, 0, keeper, kToChar);
 		return 1;
 	}
 
@@ -474,7 +474,7 @@ void town_shop_keepers() {
 			&& zone_list.find(world[ch->in_room]->zone_rn) == zone_list.end()) {
 			int rnum_start, rnum_end;
 			if (get_zone_rooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
-				CharacterData *mob = read_mobile(1901, VIRTUAL);
+				CharData *mob = read_mobile(1901, VIRTUAL);
 				if (mob) {
 					char_to_room(mob, number(rnum_start, rnum_end));
 				}
@@ -484,7 +484,7 @@ void town_shop_keepers() {
 	}
 }
 
-void do_shops_list(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_shops_list(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();
 	std::ostringstream out;

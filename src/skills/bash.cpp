@@ -9,8 +9,8 @@
 using namespace FightSystem;
 
 // ************************* BASH PROCEDURES
-void go_bash(CharacterData *ch, CharacterData *vict) {
-	if (dontCanAct(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
+void go_bash(CharData *ch, CharData *vict) {
+	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -39,7 +39,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 		return;
 	}
 
-	vict = try_protect(vict, ch);
+	vict = TryToFindProtector(vict, ch);
 
 	int percent = number(1, MUD::Skills()[ESkill::kBash].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
@@ -55,7 +55,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kBash].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBash), ZERO_DMG, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kBash), kZeroDmg, kPhysDmg, nullptr);
 		dmg.process(ch, vict);
 		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
@@ -93,22 +93,22 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 				TrainSkill(vict, ESkill::kShieldBlock, success2, ch);
 				if (!success2) {
 					act("Вы не смогли блокировать попытку $N1 сбить вас.",
-						false, vict, nullptr, ch, TO_CHAR);
+						false, vict, nullptr, ch, kToChar);
 					act("$N не смог$Q блокировать вашу попытку сбить $S.",
-						false, ch, nullptr, vict, TO_CHAR);
+						false, ch, nullptr, vict, kToChar);
 					act("$n не смог$q блокировать попытку $N1 сбить $s.",
-						true, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+						true, vict, nullptr, ch, kToNotVict | kToArenaListen);
 				} else {
 					act("Вы блокировали попытку $N1 сбить вас с ног.",
-						false, vict, nullptr, ch, TO_CHAR);
+						false, vict, nullptr, ch, kToChar);
 					act("Вы хотели сбить $N1, но он$G блокировал$G Вашу попытку.",
-						false, ch, nullptr, vict, TO_CHAR);
+						false, ch, nullptr, vict, kToChar);
 					act("$n блокировал$g попытку $N1 сбить $s.",
-						true, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+						true, vict, nullptr, ch, kToNotVict | kToArenaListen);
 					alt_equip(vict, WEAR_SHIELD, 30, 10);
 					if (!ch->get_fighting()) {
 						set_fighting(ch, vict);
-						set_wait(ch, 1, true);
+						SetWait(ch, 1, true);
 						//setSkillCooldownInFight(ch, ESkill::kBash, 1);
 					}
 					return;
@@ -117,7 +117,7 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 		}
 
 		prob = 0; // если башем убил - лага не будет
-		Damage dmg(SkillDmg(ESkill::kBash), dam, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kBash), dam, kPhysDmg, nullptr);
 		dmg.flags.set(NO_FLEE_DMG);
 		dam = dmg.process(ch, vict);
 
@@ -125,14 +125,14 @@ void go_bash(CharacterData *ch, CharacterData *vict) {
 			prob = 2;
 			if (!vict->drop_from_horse()) {
 				GET_POS(vict) = EPosition::kSit;
-				set_wait(vict, 3, false);
+				SetWait(vict, 3, false);
 			}
 		}
 	}
-	set_wait(ch, prob, true);
+	SetWait(ch, prob, true);
 }
 
-void do_bash(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(ESkill::kBash)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -147,7 +147,7 @@ void do_bash(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharacterData *vict = findVictim(ch, argument);
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого же вы так сильно желаете сбить?\r\n", ch);
 		return;
@@ -165,9 +165,9 @@ void do_bash(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_bash(ch, vict);
-	} else if (isHaveNoExtraAttack(ch)) {
+	} else if (IsHaveNoExtraAttack(ch)) {
 		if (!IS_NPC(ch))
-			act("Хорошо. Вы попытаетесь сбить $N3.", false, ch, nullptr, vict, TO_CHAR);
+			act("Хорошо. Вы попытаетесь сбить $N3.", false, ch, nullptr, vict, kToChar);
 		ch->set_extra_attack(kExtraAttackBash, vict);
 	}
 }

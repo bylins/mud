@@ -6,17 +6,17 @@
 
 #include <string>
 
-class CharacterData;    // to avoid inclusion of "char.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
 
 namespace Bonus {
 // используется для ограниченя получения любого (не только от общеегрового бонуса) бонусного опыта указанным чаром
 // для НПС - результат всегда false
-bool can_get_bonus_exp(CharacterData *ch);
+bool can_get_bonus_exp(CharData *ch);
 
 void setup_bonus(int duration_in_seconds, int multilpier, EBonusType type);
 
-void do_bonus_by_character(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_bonus_info(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_bonus_by_character(CharData *ch, char *argument, int cmd, int subcmd);
+void do_bonus_info(CharData *ch, char *argument, int cmd, int subcmd);
 
 // активен ли указанный тип бонуса
 bool is_bonus_active(EBonusType type);
@@ -34,6 +34,6 @@ std::string active_bonus_as_string();
 
 int get_mult_bonus();
 void bonus_log_load();
-void show_log(CharacterData *ch);
+void show_log(CharData *ch);
 void dg_do_bonus(char *cmd);
 }

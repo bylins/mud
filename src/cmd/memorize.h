@@ -1,8 +1,8 @@
 #ifndef BYLINS_MEMORIZE_H
 #define BYLINS_MEMORIZE_H
 
-class CharacterData;
+class CharData;
 
-void do_memorize(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_MEMORIZE_H

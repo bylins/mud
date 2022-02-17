@@ -5,8 +5,8 @@
 #ifndef BYLINS_EXPENDIENTCUT_H
 #define BYLINS_EXPENDIENTCUT_H
 
-class CharacterData;
+class CharData;
 
-void go_cut_shorts(CharacterData *ch, CharacterData *vict);
+void GoCutShorts(CharData *ch, CharData *vict);
 
 #endif //BYLINS_EXPENDIENTCUT_H

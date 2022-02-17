@@ -7,7 +7,7 @@
 #ifndef BYLINS_SRC_CRAFTS_MINING_H_
 #define BYLINS_SRC_CRAFTS_MINING_H_
 
-class CharacterData;
+class CharData;
 
 // Значения по умолчанию могут быть изменены при чтении файла
 struct skillvariables_dig {
@@ -48,7 +48,7 @@ const int kHolesTime = 1;
 extern skillvariables_dig dig_vars;
 
 void InitMiningVars();
-void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_SRC_CRAFTS_MINING_H_
 

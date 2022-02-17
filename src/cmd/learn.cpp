@@ -5,20 +5,20 @@
 #include "magic/spells_info.h"
 #include "structs/global_objects.h"
 
-class ObjectData;
+class ObjData;
 
-void book_upgrd_fail_message(CharacterData *ch, ObjectData *obj) {
+void book_upgrd_fail_message(CharData *ch, ObjData *obj) {
 	send_to_char(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
 				 obj->get_PName(3).c_str());
 	act("$n с интересом принял$u читать $o3.\r\n"
 		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-		false, ch, obj, nullptr, TO_ROOM);
+		false, ch, obj, nullptr, kToRoom);
 }
 
-void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	using PlayerClass::slot_for_char;
 
-	ObjectData *obj;
+	ObjData *obj;
 	int addchance = 10, rcpt = -1;
 	im_rskill *rs = nullptr;
 	const char *spellname = "";
@@ -57,7 +57,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (!*arg) {
 		send_to_char("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
 		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.",
-			false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		return;
 	}
 
@@ -66,11 +66,11 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) != ObjectData::ITEM_BOOK) {
+	if (GET_OBJ_TYPE(obj) != ObjData::ITEM_BOOK) {
 		act("Вы уставились на $o3, как баран на новые ворота.",
-			false, ch, obj, nullptr, TO_CHAR);
+			false, ch, obj, nullptr, kToChar);
 		act("$n начал$g внимательно изучать устройство $o1.",
-			false, ch, obj, nullptr, TO_ROOM);
+			false, ch, obj, nullptr, kToRoom);
 		return;
 	}
 
@@ -78,7 +78,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT &&
 		GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
 		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!",
-			false, ch, obj, nullptr, TO_CHAR);
+			false, ch, obj, nullptr, kToChar);
 		return;
 	}
 
@@ -165,7 +165,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char(buf, ch);
 		act("$n с интересом принял$u читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-			false, ch, obj, nullptr, TO_ROOM);
+			false, ch, obj, nullptr, kToRoom);
 		return;
 	}
 
@@ -195,7 +195,7 @@ void do_learn(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				where, what, obj->get_PName(3).c_str(), whom);
 		send_to_char(buf, ch);
 		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.",
-			false, ch, obj, nullptr, TO_ROOM);
+			false, ch, obj, nullptr, kToRoom);
 		return;
 	}
 

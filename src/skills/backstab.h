@@ -1,10 +1,10 @@
 #ifndef BYLINS_BACKSTAB_H
 #define BYLINS_BACKSTAB_H
 
-class CharacterData;
+class CharData;
 
-void go_backstab(CharacterData *ch, CharacterData *vict);
-void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_backstab(CharData *ch, CharData *vict);
+void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_BACKSTAB_H
 

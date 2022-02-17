@@ -17,7 +17,7 @@
 #include "db.h"
 #include "dg_scripts.h"
 #include "utils/utils.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "comm.h"
 
 // * define statics
@@ -109,7 +109,7 @@ void process_events(void) {
 	}
 }
 
-void print_event_list(CharacterData *ch)
+void print_event_list(CharData *ch)
 {
 	sprintf(buf, "В данный момент выполняются следующие триггеры:\r\n");
 	send_to_char(buf, ch);

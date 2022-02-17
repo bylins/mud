@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <entities/obj.h>
+#include <entities/obj_data.h>
 #include <dg_script/dg_scripts.h>
 
 constexpr obj_vnum OBJECT_VNUM = 100500;

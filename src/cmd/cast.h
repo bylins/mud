@@ -1,8 +1,8 @@
 #ifndef BYLINS_CAST_H
 #define BYLINS_CAST_H
 
-class CharacterData;
+class CharData;
 
-void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/);
+void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/);
 
 #endif //BYLINS_CAST_H

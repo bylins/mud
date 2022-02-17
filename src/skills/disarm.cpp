@@ -12,17 +12,17 @@
 using namespace FightSystem;
 
 // ************* DISARM PROCEDURES
-void go_disarm(CharacterData *ch, CharacterData *vict) {
-	ObjectData *wielded = GET_EQ(vict, WEAR_WIELD) ? GET_EQ(vict, WEAR_WIELD) :
-						  GET_EQ(vict, WEAR_BOTHS), *helded = GET_EQ(vict, WEAR_HOLD);
+void go_disarm(CharData *ch, CharData *vict) {
+	ObjData *wielded = GET_EQ(vict, WEAR_WIELD) ? GET_EQ(vict, WEAR_WIELD) :
+					   GET_EQ(vict, WEAR_BOTHS), *helded = GET_EQ(vict, WEAR_HOLD);
 
-	if (dontCanAct(ch)) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (!((wielded && GET_OBJ_TYPE(wielded) != ObjectData::ITEM_LIGHT)
-		|| (helded && GET_OBJ_TYPE(helded) != ObjectData::ITEM_LIGHT))) {
+	if (!((wielded && GET_OBJ_TYPE(wielded) != ObjData::ITEM_LIGHT)
+		|| (helded && GET_OBJ_TYPE(helded) != ObjData::ITEM_LIGHT))) {
 		return;
 	}
 	int pos = 0;
@@ -60,9 +60,9 @@ void go_disarm(CharacterData *ch, CharacterData *vict) {
 					 CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 		send_to_char(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
 					 GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
-		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
 		unequip_char(vict, pos, CharEquipFlags());
-		setSkillCooldown(ch, ESkill::kGlobalCooldown, IS_NPC(vict) ? 1 : 2);
+		SetSkillCooldown(ch, ESkill::kGlobalCooldown, IS_NPC(vict) ? 1 : 2);
 		prob = 2;
 
 		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA) || (!IS_MOB(vict)) || vict->has_master()) {
@@ -77,11 +77,11 @@ void go_disarm(CharacterData *ch, CharacterData *vict) {
 	if (IS_NPC(vict) && CAN_SEE(vict, ch) && vict->have_mind() && GET_WAIT(ch) <= 0) {
 		set_hit(vict, ch);
 	}
-	setSkillCooldown(ch, ESkill::kDisarm, prob);
-	setSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
+	SetSkillCooldown(ch, ESkill::kDisarm, prob);
+	SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
 }
 
-void do_disarm(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDisarm)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -91,7 +91,7 @@ void do_disarm(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CharacterData *vict = findVictim(ch, argument);
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого обезоруживаем?\r\n", ch);
 		return;
@@ -108,19 +108,19 @@ void do_disarm(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (!((GET_EQ(vict, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != ObjectData::ITEM_LIGHT)
+		&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != ObjData::ITEM_LIGHT)
 		|| (GET_EQ(vict, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != ObjectData::ITEM_LIGHT)
+			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != ObjData::ITEM_LIGHT)
 		|| (GET_EQ(vict, WEAR_BOTHS)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != ObjectData::ITEM_LIGHT))) {
+			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != ObjData::ITEM_LIGHT))) {
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
 	}
 
 	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_disarm(ch, vict);
-	} else if (isHaveNoExtraAttack(ch)) {
-		act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, TO_CHAR);
+	} else if (IsHaveNoExtraAttack(ch)) {
+		act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
 		ch->set_extra_attack(kExtraAttackDisarm, vict);
 	}
 }

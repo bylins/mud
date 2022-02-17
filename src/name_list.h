@@ -13,18 +13,18 @@
 
 namespace CharacterAlias {
 
-void add(CharacterData *ch);
-void remove(CharacterData *ch);
-CharacterData *get_by_name(const char *str);
+void add(CharData *ch);
+void remove(CharData *ch);
+CharData *get_by_name(const char *str);
 
 } // namespace CharacterAlias
 
 namespace ObjectAlias {
 
-void add(ObjectData *obj);
-void remove(ObjectData *obj);
-ObjectData *get_by_name(const char *str);
-ObjectData *locate_object(const char *str);
+void add(ObjData *obj);
+void remove(ObjData *obj);
+ObjData *get_by_name(const char *str);
+ObjData *locate_object(const char *str);
 
 } // namespace ObjectAlias
 

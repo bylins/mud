@@ -7,8 +7,8 @@
 #include "mobact.h"
 #include "common.h"
 
-int set_hit(CharacterData *ch, CharacterData *victim) {
-	if (dontCanAct(ch)) {
+int set_hit(CharData *ch, CharData *victim) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return (false);
 	}
@@ -16,7 +16,7 @@ int set_hit(CharacterData *ch, CharacterData *victim) {
 	if (ch->get_fighting() || GET_MOB_HOLD(ch)) {
 		return (false);
 	}
-	victim = try_protect(victim, ch);
+	victim = TryToFindProtector(victim, ch);
 
 	bool message = false;
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
@@ -81,14 +81,14 @@ int set_hit(CharacterData *ch, CharacterData *victim) {
 		return (false);
 	}
 	hit(ch, victim, ESkill::kUndefined,
-		AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? FightSystem::OFF_HAND : FightSystem::MAIN_HAND);
-	set_wait(ch, 2, true);
+		AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? FightSystem::kOffHand : FightSystem::kMainHand);
+	SetWait(ch, 2, true);
 	//ch->setSkillCooldown(kGlobalCooldown, 2);
 	return (true);
 };
 
-void do_hit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
-	CharacterData *vict = findVictim(ch, argument);
+void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Вы не видите цели.\r\n", ch);
 		return;
@@ -100,15 +100,15 @@ void do_hit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			ch,
 			0,
 			vict,
-			TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
-		act("$n ударил$g себя", false, ch, 0, vict, TO_ROOM | CHECK_NODEAF | TO_ARENA_LISTEN);
+			kToRoom | kToNotDeaf | kToArenaListen);
+		act("$n ударил$g себя", false, ch, 0, vict, kToRoom | kToDeaf | kToArenaListen);
 		return;
 	}
 	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->get_master() == vict)) {
-		act("$N слишком дорог для вас, чтобы бить $S.", false, ch, 0, vict, TO_CHAR);
+		act("$N слишком дорог для вас, чтобы бить $S.", false, ch, 0, vict, kToChar);
 		return;
 	}
 
@@ -118,17 +118,17 @@ void do_hit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (ch->get_fighting()) {
 		if (vict == ch->get_fighting()) {
-			act("Вы уже сражаетесь с $N4.", false, ch, 0, vict, TO_CHAR);
+			act("Вы уже сражаетесь с $N4.", false, ch, 0, vict, kToChar);
 			return;
 		}
 		if (ch != vict->get_fighting()) {
-			act("$N не сражается с вами, не трогайте $S.", false, ch, 0, vict, TO_CHAR);
+			act("$N не сражается с вами, не трогайте $S.", false, ch, 0, vict, kToChar);
 			return;
 		}
-		vict = try_protect(vict, ch);
+		vict = TryToFindProtector(vict, ch);
 		stop_fighting(ch, 2);
 		set_fighting(ch, vict);
-		set_wait(ch, 2, true);
+		SetWait(ch, 2, true);
 		//ch->setSkillCooldown(kGlobalCooldown, 2);
 		return;
 	}
@@ -139,12 +139,12 @@ void do_hit(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-void do_kill(CharacterData *ch, char *argument, int cmd, int subcmd) {
+void do_kill(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (!IS_GRGOD(ch)) {
 		do_hit(ch, argument, cmd, subcmd);
 		return;
 	};
-	CharacterData *vict = findVictim(ch, argument);
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы жизни лишить хотите-то?\r\n", ch);
 		return;
@@ -156,9 +156,9 @@ void do_kill(CharacterData *ch, char *argument, int cmd, int subcmd) {
 	if (IS_IMPL(vict) || PRF_FLAGGED(vict, PRF_CODERINFO)) {
 		send_to_char("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 	} else {
-		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, TO_CHAR);
-		act("$N обратил$g вас в прах своим ненавидящим взором!", false, vict, 0, ch, TO_CHAR);
-		act("$n просто испепелил$g взглядом $N3!", false, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, kToChar);
+		act("$N обратил$g вас в прах своим ненавидящим взором!", false, vict, 0, ch, kToChar);
+		act("$n просто испепелил$g взглядом $N3!", false, ch, 0, vict, kToNotVict | kToArenaListen);
 		raw_kill(vict, ch);
 	};
 };

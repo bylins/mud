@@ -3,15 +3,15 @@
 
 #include "db.h"
 #include "comm.h"
-#include "entities/room.h"
+#include "entities/room_data.h"
 
-class CharacterData;
+class CharData;
 
-void spell_townportal(CharacterData *ch, char *arg);
+void spell_townportal(CharData *ch, char *arg);
 
 inline void decay_portal(const int room_num) {
-	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, TO_ROOM);
-	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, TO_CHAR);
+	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, kToRoom);
+	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, kToChar);
 	world[room_num]->portal_time = 0;
 	world[room_num]->portal_room = 0;
 }

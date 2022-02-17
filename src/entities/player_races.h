@@ -83,7 +83,7 @@ class PlayerRace {
 	static PlayerKinPtr GetPlayerKin(int Kin);
 	static PlayerRacePtr GetPlayerRace(int Kin, int Race);
 	static std::vector<int> GetRaceFeatures(int Kin, int Race);
-	static void GetKinNamesList(CharacterData *ch);
+	static void GetKinNamesList(CharData *ch);
 	static bool FeatureCheck(int Kin, int Race, int Feat);
 	static int GetKinNumByName(const std::string &KinName);
 	static int GetRaceNumByName(int Kin, const std::string &RaceName);

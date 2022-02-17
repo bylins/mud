@@ -3,7 +3,7 @@
 
 #include "dictionary.h"
 #include "structs/structs.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 
 #include <vector>
 #include <memory>
@@ -24,14 +24,14 @@ class GoodsStorage {
 	const auto begin() const { return m_activities.begin(); }
 	const auto end() const { return m_activities.end(); }
 
-	void add(ObjectData *object);
-	void remove(ObjectData *object);
-	ObjectData *get_by_uid(const int uid) const;
+	void add(ObjData *object);
+	void remove(ObjData *object);
+	ObjData *get_by_uid(const int uid) const;
 	void clear();
 
  private:
-	using activities_t = std::unordered_map<ObjectData * /* object pointer */, int /* to last activity */>;
-	using objects_by_uid_t = std::unordered_map<int /* UID */, ObjectData * /* to object ponter */>;
+	using activities_t = std::unordered_map<ObjData * /* object pointer */, int /* to last activity */>;
+	using objects_by_uid_t = std::unordered_map<int /* UID */, ObjData * /* to object ponter */>;
 
 	friend class ObjectUIDChangeObserver;
 
@@ -39,7 +39,7 @@ class GoodsStorage {
 	 public:
 		ObjectUIDChangeObserver(GoodsStorage &storage) : m_parent(storage) {}
 
-		virtual void notify(ObjectData &object, const int old_uid) override;
+		virtual void notify(ObjData &object, const int old_uid) override;
 
 	 private:
 		GoodsStorage &m_parent;
@@ -75,7 +75,7 @@ class ItemNode {
 	const std::string &get_item_name(int keeper_vnum, int pad = 0) const;
 
 	void add_desc(const MobVnum vnum, const item_desc_node &desc) { m_descs[vnum] = desc; }
-	void replace_descs(ObjectData *obj, const int vnum) const;
+	void replace_descs(ObjData *obj, const int vnum) const;
 	bool has_desc(const ObjVnum vnum) const { return m_descs.find(vnum) != m_descs.end(); }
 
 	bool empty() const { return m_item_uids.empty(); }
@@ -142,26 +142,26 @@ class shop_node : public DictionaryItem {
 
 	const auto &mob_vnums() const { return m_mob_vnums; }
 
-	void process_buy(CharacterData *ch, CharacterData *keeper, char *argument);
-	void print_shop_list(CharacterData *ch, const std::string &arg, int keeper_vnum) const;
-	void filter_shop_list(CharacterData *ch, const std::string &arg, int keeper_vnum);
-	void process_cmd(CharacterData *ch, CharacterData *keeper, char *argument, const std::string &cmd);
-	void process_ident(CharacterData *ch,
-					   CharacterData *keeper,
+	void process_buy(CharData *ch, CharData *keeper, char *argument);
+	void print_shop_list(CharData *ch, const std::string &arg, int keeper_vnum) const;
+	void filter_shop_list(CharData *ch, const std::string &arg, int keeper_vnum);
+	void process_cmd(CharData *ch, CharData *keeper, char *argument, const std::string &cmd);
+	void process_ident(CharData *ch,
+					   CharData *keeper,
 					   char *argument,
 					   const std::string &cmd);    // it should be const
 	void clear_store();
 	bool empty() const { return m_items_list.empty(); }
 
  private:
-	void put_to_storage(ObjectData *object) { m_storage.add(object); }
+	void put_to_storage(ObjData *object) { m_storage.add(object); }
 
-	void remove_from_storage(ObjectData *obj);
-	ObjectData *get_from_shelve(const size_t index) const;
+	void remove_from_storage(ObjData *obj);
+	ObjData *get_from_shelve(const size_t index) const;
 	unsigned get_item_num(std::string &item_name, int keeper_vnum) const;
 	int can_sell_count(const int item_index) const;
-	void put_item_to_shop(ObjectData *obj);
-	void do_shop_cmd(CharacterData *ch, CharacterData *keeper, ObjectData *obj, std::string cmd);
+	void put_item_to_shop(ObjData *obj);
+	void do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::string cmd);
 
 	ItemsList m_items_list;
 	mob_vnums_t m_mob_vnums;

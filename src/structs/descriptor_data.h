@@ -57,8 +57,8 @@ struct DescriptorData {
 	struct TextBlock *large_outbuf;    // ptr to large buffer, if we need it //
 	struct TextBlocksQueue input;            // q of unprocessed input     //
 
-	std::shared_ptr<CharacterData> character;    // linked to char       //
-	std::shared_ptr<CharacterData> original;    // original char if switched     //
+	std::shared_ptr<CharData> character;    // linked to char       //
+	std::shared_ptr<CharData> original;    // original char if switched     //
 
 	DescriptorData *snooping;    // Who is this char snooping  //
 	DescriptorData *snoop_by;    // And who is snooping this char //

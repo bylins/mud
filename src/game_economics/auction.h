@@ -11,34 +11,34 @@
 #ifndef _AUCTION_HPP_
 #define _AUCTION_HPP_
 
-class ObjectData; // to avoid inclusion of obj.hpp
-class CharacterData; // to avoid inclusion of char.hpp
+class ObjData; // to avoid inclusion of obj.hpp
+class CharData; // to avoid inclusion of char.hpp
 
 struct AuctionItem {
 	int item_id;
-	ObjectData *item;
+	ObjData *item;
 	int seller_unique;
-	CharacterData *seller;
+	CharData *seller;
 	int buyer_unique;
-	CharacterData *buyer;
+	CharData *buyer;
 	int prefect_unique;
-	CharacterData *prefect;
+	CharData *prefect;
 	int cost;
 	int tact;
 };
 
 // Auction functions  ***************************************************
-void showlots(CharacterData *ch);
-bool auction_drive(CharacterData *ch, char *argument);
+void showlots(CharData *ch);
+bool auction_drive(CharData *ch, char *argument);
 
-void message_auction(char *message, CharacterData *ch);
+void message_auction(char *message, CharData *ch);
 void clear_auction(int lot);
 void sell_auction(int lot);
 void trans_auction(int lot);
-void check_auction(CharacterData *ch, ObjectData *obj);
+void check_auction(CharData *ch, ObjData *obj);
 void tact_auction(void);
 AuctionItem *free_auction(int *lotnum);
-int obj_on_auction(ObjectData *obj);
+int obj_on_auction(ObjData *obj);
 
 #define GET_LOT(value) ((auction_lots+value))
 #define AUCTION_IDENT_PAY 110    //цена за опознание

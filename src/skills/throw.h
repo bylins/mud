@@ -1,10 +1,10 @@
 #ifndef BYLINS_THROW_H
 #define BYLINS_THROW_H
 
-class CharacterData;
+class CharData;
 
-void go_throw(CharacterData *ch, CharacterData *victim);
-void do_throw(CharacterData *ch, char *argument, int/* cmd*/, int subcmd);
+void go_throw(CharData *ch, CharData *victim);
+void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd);
 
 #endif //BYLINS_THROW_H
 

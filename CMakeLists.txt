@@ -42,7 +42,7 @@ set(SOURCES
 		src/boot/boot_index.cpp
 		src/cache.cpp
 		src/game_mechanics/celebrates.cpp
-		src/entities/char.cpp
+        src/entities/char_data.cpp
 		src/entities/char_player.cpp
 		src/game_classes/classes.cpp
 		src/game_classes/classes_spell_slots.cpp
@@ -74,7 +74,7 @@ set(SOURCES
 		src/game_economics/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
-		src/entities/entity_constants.cpp
+        src/entities/entities_constants.cpp
 		src/game_economics/exchange.cpp
 		src/game_economics/ext_money.cpp
 		src/external_trigger.cpp
@@ -123,7 +123,7 @@ set(SOURCES
 		src/name_list.cpp
 		src/names.cpp
 		src/noob.cpp
-		src/entities/obj.cpp
+		src/entities/obj_data.cpp
 		src/obj_enchant.cpp
 		src/obj_save.cpp
 		src/game_mechanics/obj_save_ext.cpp
@@ -144,7 +144,7 @@ set(SOURCES
 		src/olc/redit.cpp
 		src/communication/remember.cpp
 		src/reset_stats.cpp
-		src/entities/room.cpp
+		src/entities/room_data.cpp
 		src/game_mechanics/sets_drop.cpp
 		src/game_economics/shop_ext.cpp
 		src/cmd_god/shutdown_parameters.cpp
@@ -327,7 +327,7 @@ set(HEADERS
 		src/boot/boot_index.h
 		src/cache.h
 		src/game_mechanics/celebrates.h
-		src/entities/char.h
+        src/entities/char_data.h
 		src/utils/utils_char_obj.inl
 		src/entities/char_player.h
 		src/game_classes/classes.h
@@ -401,7 +401,7 @@ set(HEADERS
 		src/name_list.h
 		src/noob.h
 		src/obj_enchant.h
-		src/entities/obj.h
+		src/entities/obj_data.h
 		src/obj_save.h
 		src/game_mechanics/obj_sets.h
 		src/game_mechanics/obj_sets_stuff.h
@@ -419,7 +419,7 @@ set(HEADERS
 		src/utils/random.h
 		src/communication/remember.h
 		src/reset_stats.h
-		src/entities/room.h
+		src/entities/room_data.h
 		src/color.h
 		src/game_mechanics/sets_drop.h
 		src/game_economics/shop_ext.h
@@ -451,7 +451,7 @@ set(HEADERS
 		src/skills/stupor.h
 		src/graph.h
 		src/structs/flag_data.h
-		src/entities/entity_constants.h
+        src/entities/entities_constants.h
 		src/crafts/jewelry.h
 		src/crafts/mining.h
 		src/affects/affect_contants.h

@@ -1,12 +1,12 @@
 #include "identify.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 #include "handler.h"
 
-void do_identify(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *cvict = nullptr, *caster = ch;
-	ObjectData *ovict = nullptr;
+void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *cvict = nullptr, *caster = ch;
+	ObjData *ovict = nullptr;
 	struct TimedSkill timed;
 	int k, level = 0;
 

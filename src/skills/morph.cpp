@@ -1,6 +1,6 @@
 #include "skills/morph.hpp"
 
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "color.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
@@ -12,7 +12,7 @@
 MorphListType IdToMorphMap;
 
 short MIN_WIS_FOR_MORPH = 0;
-void RemoveEquipment(CharacterData *ch, int pos);
+void RemoveEquipment(CharData *ch, int pos);
 
 std::string AnimalMorph::GetMorphDesc() const {
 	std::string desc = "Неведома зверушка";
@@ -81,12 +81,12 @@ void NormalMorph::SetCha(int cha) { ch_->set_cha(cha); }
 int NormalMorph::GetCon() const { return ch_->get_inborn_con(); }
 void NormalMorph::SetCon(int con) { ch_->set_con(con); }
 
-void ShowKnownMorphs(CharacterData *ch) {
+void ShowKnownMorphs(CharData *ch) {
 	if (ch->is_morphed()) {
 		send_to_char("Чтобы вернуть себе человеческий облик - нужно 'обернуться назад'\r\n", ch);
 		return;
 	}
-	const CharacterData::morphs_list_t &knownMorphs = ch->get_morphs();
+	const CharData::morphs_list_t &knownMorphs = ch->get_morphs();
 	if (knownMorphs.empty()) {
 		send_to_char("На сей момент никакие формы вам неизвестны...\r\n", ch);
 	} else {
@@ -98,7 +98,7 @@ void ShowKnownMorphs(CharacterData *ch) {
 	}
 }
 
-std::string FindMorphId(CharacterData *ch, char *arg) {
+std::string FindMorphId(CharData *ch, char *arg) {
 	std::list<std::string> morphsList = ch->get_morphs();
 	for (std::list<std::string>::const_iterator it = morphsList.begin(); it != morphsList.end(); ++it) {
 		if (utils::IsAbbrev(arg, IdToMorphMap[*it]->PadName().c_str())
@@ -146,7 +146,7 @@ void AnimalMorph::InitAbils() {
 	}
 }
 
-void AnimalMorph::SetChar(CharacterData *ch) {
+void AnimalMorph::SetChar(CharData *ch) {
 	ch_ = ch;
 };
 
@@ -168,11 +168,11 @@ void AnimalMorph::SetAffects(const affects_list_t &affs) {
 	affects_ = affs;
 }
 
-MorphPtr GetNormalMorphNew(CharacterData *ch) {
+MorphPtr GetNormalMorphNew(CharData *ch) {
 	return MorphPtr(new NormalMorph(ch));
 }
 
-void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 	if (!ch->get_skill(ESkill::kMorph)) {
@@ -207,7 +207,7 @@ void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	MorphPtr newMorph = MorphPtr(new AnimalMorph(*IdToMorphMap[morphId]));
 
 	send_to_char(str(boost::format(newMorph->GetMessageToChar()) % newMorph->PadName()) + "\r\n", ch);
-	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), true, ch, 0, 0, TO_ROOM);
+	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), true, ch, 0, 0, kToRoom);
 
 	ch->set_morph(newMorph);
 	if (ch->equipment[WEAR_BOTHS]) {
@@ -225,15 +225,15 @@ void do_morph(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	WAIT_STATE(ch, 3 * kPulseViolence);
 }
 
-void PrintAllMorphsList(CharacterData *ch) {
+void PrintAllMorphsList(CharData *ch) {
 	send_to_char("Существующие формы: \r\n", ch);
 	for (MorphListType::const_iterator it = IdToMorphMap.begin(); it != IdToMorphMap.end(); ++it) {
 		send_to_char("   " + it->second->Name() + "\r\n", ch);
 	}
 }
 
-void do_morphset(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *vict;
+void do_morphset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *vict;
 
 	argument = one_argument(argument, arg);
 
@@ -360,7 +360,7 @@ void load_morphs() {
 	}
 };
 
-void set_god_morphs(CharacterData *ch) {
+void set_god_morphs(CharData *ch) {
 	for (MorphListType::const_iterator it = IdToMorphMap.begin(); it != IdToMorphMap.end(); ++it) {
 		if (!ch->know_morph(it->first))
 			ch->add_morph(it->first);
@@ -371,7 +371,7 @@ bool ExistsMorph(const std::string &morphId) {
 	return IdToMorphMap.find(morphId) != IdToMorphMap.end();
 }
 
-void morphs_save(CharacterData *ch, FILE *saved) {
+void morphs_save(CharData *ch, FILE *saved) {
 	const auto &morphs = ch->get_morphs();
 	std::string line;
 	for (const auto &morph : morphs) {
@@ -380,7 +380,7 @@ void morphs_save(CharacterData *ch, FILE *saved) {
 	fprintf(saved, "Mrph: %s\n", line.c_str());
 };
 
-void morphs_load(CharacterData *ch, std::string line) {
+void morphs_load(CharData *ch, std::string line) {
 	std::list<std::string> morphs;
 	boost::split(morphs, line, boost::is_any_of(std::string("#")), boost::token_compress_on);
 	for (const auto &it : morphs) {

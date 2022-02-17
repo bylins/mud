@@ -11,10 +11,10 @@
 #ifndef _IM_H_
 #define _IM_H_
 
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 #include "game_classes/classes_constants.h"
 
-class ObjectData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct RoomData;    //
 
 // Определение основных классов ингредиентов: росль, живь, твердь
@@ -62,7 +62,7 @@ typedef struct _im_type_tag im_type;
 struct _im_addon_tag {
 	int id;            // тип ингредиента, индекс массива
 	int k0, k1, k2;        // распределение энергии
-	ObjectData *obj;        // подставляемый объект
+	ObjData *obj;        // подставляемый объект
 	struct _im_addon_tag *link;    // ссылка
 };
 typedef struct _im_addon_tag im_addon;
@@ -109,21 +109,21 @@ void im_parse(int **ing_list, char *line);
 //MZ.load
 void im_reset_room(RoomData *room, int level, int type);
 //-MZ.load
-ObjectData *try_make_ingr(CharacterData *mob, int prob_default);
-int im_assign_power(ObjectData *obj);
+ObjData *try_make_ingr(CharData *mob, int prob_default);
+int im_assign_power(ObjData *obj);
 int im_get_recipe(int id);
 int im_get_type_by_name(char *name, int mode);
-ObjectData *load_ingredient(int index, int power, int rnum);
+ObjData *load_ingredient(int index, int power, int rnum);
 int im_ing_dump(int *ping, char *s);
 void im_inglist_copy(int **pdst, int *src);
 void im_extract_ing(int **pdst, int num);
-int im_get_char_rskill_count(CharacterData *ch);
-void trg_recipeturn(CharacterData *ch, int rid, int recipediff);
-void AddRecipe(CharacterData *ch, int rid, int recipediff);
+int im_get_char_rskill_count(CharData *ch);
+void trg_recipeturn(CharData *ch, int rid, int recipediff);
+void AddRecipe(CharData *ch, int rid, int recipediff);
 int im_get_recipe_by_name(char *name);
-im_rskill *im_get_char_rskill(CharacterData *ch, int rid);
-void compose_recipe(CharacterData *ch, char *argument, int subcmd);
-void forget_recipe(CharacterData *ch, char *argument, int subcmd);
+im_rskill *im_get_char_rskill(CharData *ch, int rid);
+void compose_recipe(CharData *ch, char *argument, int subcmd);
+void forget_recipe(CharData *ch, char *argument, int subcmd);
 int im_get_idx_by_type(int type);
 
 #endif

@@ -10,7 +10,7 @@
 
 #include "abilities/abilities_info.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "color.h"
 #include "utils/pugixml.h"
 #include "game_mechanics/weather.h"
@@ -222,72 +222,72 @@ AbilitiesInfo::AbilitiesInfoBuilder::AbilitiesInfoBuilder() {
 
 	if (circumstance_handlers_register_.empty()) {
 		circumstance_handlers_register_[ECirumstance::kDarkRoom] =
-			[](CharacterData */*ch*/, CharacterData * /* victim */) -> bool {
+			[](CharData */*ch*/, CharData * /* victim */) -> bool {
 //				return IsDark(ch->in_room);
 				return false; //заглушка
 			};
 		circumstance_handlers_register_[ECirumstance::kMetalEquipment] =
-			[](CharacterData */*ch*/, CharacterData * /* victim */ ) -> bool {
+			[](CharData */*ch*/, CharData * /* victim */ ) -> bool {
 //				return IsEquipInMetal(ch);
 				return false; //заглушка
 			};
 		circumstance_handlers_register_[ECirumstance::kDrawingAttention] =
-			[](CharacterData *ch, CharacterData */* victim */) -> bool {
+			[](CharData *ch, CharData */* victim */) -> bool {
 				return (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS)
 					|| AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY)
 					|| AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT)
 					|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT));
 			};
 		circumstance_handlers_register_[ECirumstance::kAmbushAttack] =
-			[](CharacterData *ch, CharacterData *victim) -> bool {
+			[](CharData *ch, CharData *victim) -> bool {
 				return !CAN_SEE(victim, ch);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimSits] =
-			[](CharacterData * /* ch */, CharacterData *victim) -> bool {
+			[](CharData * /* ch */, CharData *victim) -> bool {
 				return (victim->char_specials.position ==  EPosition::kSit);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwareness] =
-			[](CharacterData * /* ch */, CharacterData *victim) -> bool {
+			[](CharData * /* ch */, CharData *victim) -> bool {
 				return AFF_FLAGGED(victim, EAffectFlag::AFF_AWARNESS);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimAwake] =
-			[](CharacterData * /* ch */, CharacterData *victim) -> bool {
+			[](CharData * /* ch */, CharData *victim) -> bool {
 				return PRF_FLAGGED(victim, PRF_AWAKE);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimHold] =
-			[](CharacterData * /* ch */, CharacterData *victim) -> bool {
+			[](CharData * /* ch */, CharData *victim) -> bool {
 				return AFF_FLAGGED(victim, EAffectFlag::AFF_HOLD);
 			};
 		circumstance_handlers_register_[ECirumstance::kVictimSleep] =
-			[](CharacterData * /* ch */, CharacterData *victim) -> bool {
+			[](CharData * /* ch */, CharData *victim) -> bool {
 				return (victim->char_specials.position ==  EPosition::kSleep);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomInside] =
-			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
+			[](CharData *ch, CharData * /* victim */) -> bool {
 				return (SECT(ch->in_room) == kSectInside);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomCity] =
-			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
+			[](CharData *ch, CharData * /* victim */) -> bool {
 				return (SECT(ch->in_room) == kSectCity);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomForest] =
-			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
+			[](CharData *ch, CharData * /* victim */) -> bool {
 				return (SECT(ch->in_room) == kSectForest);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomHills] =
-			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
+			[](CharData *ch, CharData * /* victim */) -> bool {
 				return (SECT(ch->in_room) == kSectHills);
 			};
 		circumstance_handlers_register_[ECirumstance::kRoomMountain] =
-			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
+			[](CharData *ch, CharData * /* victim */) -> bool {
 				return (SECT(ch->in_room) == kSectMountain);
 			};
 		circumstance_handlers_register_[ECirumstance::kWeatherRaining] =
-			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
+			[](CharData *ch, CharData * /* victim */) -> bool {
 				return (GET_ROOM_SKY(ch->in_room) == kSkyRaining);
 			};
 		circumstance_handlers_register_[ECirumstance::kWeatherLighting] =
-			[](CharacterData *ch, CharacterData * /* victim */) -> bool {
+			[](CharData *ch, CharData * /* victim */) -> bool {
 				return (GET_ROOM_SKY(ch->in_room) == kSkyLightning);
 			};
 	}
@@ -329,7 +329,7 @@ std::string AbilityInfo::Print() const {
 	return buffer.str();
 }
 
-int AbilityInfo::GetCircumstanceMod(CharacterData *ch, CharacterData *victim) const {
+int AbilityInfo::GetCircumstanceMod(CharData *ch, CharData *victim) const {
 	int modificator = 0;
 	for (auto &item : circumstance_handlers_) {
 		if (item.inverted_ != item.Handle(ch, victim)) {

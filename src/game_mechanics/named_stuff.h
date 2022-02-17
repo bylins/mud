@@ -16,9 +16,9 @@
 
 namespace NamedStuff {
 
-void do_named(CharacterData *ch, char *argument, int cmd, int subcmd);
-void nedit_menu(CharacterData *ch);
-bool parse_nedit_menu(CharacterData *ch, char *arg);
+void do_named(CharData *ch, char *argument, int cmd, int subcmd);
+void nedit_menu(CharData *ch);
+bool parse_nedit_menu(CharData *ch, char *arg);
 
 struct stuff_node {
 	int uid;        // uid персонажа
@@ -41,10 +41,10 @@ void save();
 void load();
 //Проверка доступен ли именной предмет чару, simple без проверки клана и союзов
 //Возвращаемое значение по аналогии с check_anti_classes false-доступен true-недоступен
-bool check_named(CharacterData *ch, const ObjectData *obj, const bool simple = false);
-bool wear_msg(CharacterData *ch, ObjectData *obj);
+bool check_named(CharData *ch, const ObjData *obj, const bool simple = false);
+bool wear_msg(CharData *ch, ObjData *obj);
 //Процедура получения именного стафа у ямщика
-void receive_items(CharacterData *ch, CharacterData *mailman);
+void receive_items(CharData *ch, CharData *mailman);
 
 } // namespace NamedStuff
 

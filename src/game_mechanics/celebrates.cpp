@@ -28,17 +28,17 @@ void make_CelebratedMobs_list_from_CelebrateMobs(const CelebrateMobs &input, Cel
 	}
 }
 
-void add_mob_to_attach_list(long uid, CharacterData *mob) {
+void add_mob_to_attach_list(long uid, CharData *mob) {
 	attached_mobs[uid] = mob;
 }
 
-void add_mob_to_load_list(long uid, CharacterData *mob) {
+void add_mob_to_load_list(long uid, CharData *mob) {
 	loaded_mobs[uid] = mob;
 }
-void add_obj_to_attach_list(long uid, ObjectData *obj) {
+void add_obj_to_attach_list(long uid, ObjData *obj) {
 	attached_objs[uid] = obj;
 }
-void add_obj_to_load_list(long uid, ObjectData *obj) {
+void add_obj_to_load_list(long uid, ObjData *obj) {
 	loaded_objs[uid] = obj;
 }
 

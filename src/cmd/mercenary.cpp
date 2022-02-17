@@ -6,11 +6,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-int do_social(CharacterData *ch, char *argument);
+int do_social(CharData *ch, char *argument);
 
 namespace MERC {
 const int BASE_COST = 1000;
-CharacterData *findMercboss(int room_rnum) {
+CharData *findMercboss(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people)
 		if (GET_MOB_SPEC(tch) == mercenary)
 			return tch;
@@ -19,7 +19,7 @@ CharacterData *findMercboss(int room_rnum) {
 	return nullptr;
 };
 
-void doList(CharacterData *ch, CharacterData *boss, bool isFavList) {
+void doList(CharData *ch, CharData *boss, bool isFavList) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	if (m->empty()) {
@@ -67,13 +67,13 @@ void doList(CharacterData *ch, CharacterData *boss, bool isFavList) {
 	do_social(boss, buf);
 };
 
-void doStat(CharacterData *ch) {
+void doStat(CharData *ch) {
 	if (!ch) return;
 	return;
 };
 
-void doBring(CharacterData *ch, CharacterData *boss, unsigned int pos, char *bank) {
-	CharacterData *mob;
+void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
+	CharData *mob;
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	const int cost = MERC::BASE_COST * (GET_REAL_REMORT(ch) + 1);
@@ -105,12 +105,12 @@ void doBring(CharacterData *ch, CharacterData *boss, unsigned int pos, char *ban
 		mob = read_mobile(rnum, REAL);
 		char_to_room(mob, ch->in_room);
 		if (ch->get_class() == kCharmer) {
-			act("$n окрикнул$g своих парней и скрыл$u из виду.", true, boss, 0, 0, TO_ROOM);
-			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", true, mob, 0, 0, TO_ROOM);
+			act("$n окрикнул$g своих парней и скрыл$u из виду.", true, boss, 0, 0, kToRoom);
+			act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", true, mob, 0, 0, kToRoom);
 		} else {
-			act("$n вскочил$g и скрыл$u из виду.", true, boss, 0, 0, TO_ROOM);
+			act("$n вскочил$g и скрыл$u из виду.", true, boss, 0, 0, kToRoom);
 			sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
-			act(buf, true, mob, 0, ch, TO_ROOM);
+			act(buf, true, mob, 0, ch, kToRoom);
 		}
 		if (!WAITLESS(ch)) {
 			if (isname(bank, "банк bank"))
@@ -122,7 +122,7 @@ void doBring(CharacterData *ch, CharacterData *boss, unsigned int pos, char *ban
 	return;
 };
 
-void doForget(CharacterData *ch, CharacterData *boss, unsigned int pos) {
+void doForget(CharData *ch, CharData *boss, unsigned int pos) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	std::map<int, MERCDATA>::iterator it = m->begin();
@@ -147,7 +147,7 @@ void doForget(CharacterData *ch, CharacterData *boss, unsigned int pos) {
 	return;
 };
 
-unsigned int getPos(char *arg, CharacterData *ch, CharacterData *boss) {
+unsigned int getPos(char *arg, CharData *ch, CharData *boss) {
 	unsigned int pos = 0;
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
@@ -167,13 +167,13 @@ unsigned int getPos(char *arg, CharacterData *ch, CharacterData *boss) {
 
 }
 
-int mercenary(CharacterData *ch, void * /*me*/, int cmd, char *argument) {
+int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (!ch || !ch->desc || IS_NPC(ch))
 		return 0;
 	if (!(CMD_IS("наемник") || CMD_IS("mercenary")))
 		return 0;
 
-	CharacterData *boss = MERC::findMercboss(ch->in_room);
+	CharData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;
 
 	if (!IS_IMMORTAL(ch) && ch->get_class() != kMerchant && ch->get_class() != kCharmer) {

@@ -44,7 +44,7 @@ RoomData *get_from_room(RoomData *to_room) {
 
 } // namespace OneWayPortal
 
-void spell_townportal(CharacterData *ch, char *arg) {
+void spell_townportal(CharData *ch, char *arg) {
 	int gcount = 0, cn = 0, ispr = 0;
 	bool has_label_portal = false;
 	struct TimedSkill timed;
@@ -85,7 +85,7 @@ void spell_townportal(CharacterData *ch, char *arg) {
 
 		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch)) {
 			send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
-			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, 0, 0, TO_ROOM);
+			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, 0, 0, kToRoom);
 			return;
 		}
 		//удаляем переходы
@@ -104,9 +104,9 @@ void spell_townportal(CharacterData *ch, char *arg) {
 		from_room->portal_time = 1;
 		from_room->pkPenterUnique = 0;
 		OneWayPortal::add(world[from_room->portal_room], from_room);
-		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, TO_CHAR);
-		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, 0, 0, TO_ROOM);
-		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, TO_ROOM);
+		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToChar);
+		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, 0, 0, kToRoom);
+		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToRoom);
 		if (!IS_IMMORTAL(ch)) {
 			timed.skill = ESkill::kTownportal;
 			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
@@ -143,7 +143,7 @@ void spell_townportal(CharacterData *ch, char *arg) {
 	page_string(ch->desc, buf2, 1);
 }
 
-void do_townportal(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_townportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct CharacterPortal *tmp, *dlt = nullptr;
 	char arg2[kMaxInputLength];

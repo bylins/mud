@@ -12,21 +12,21 @@
 namespace Parcel {
 
 int delete_obj(int vnum);
-void send(CharacterData *ch, CharacterData *mailman, long vict_uid, char *arg);
-void print_sending_stuff(CharacterData *ch);
-int print_spell_locate_object(CharacterData *ch, int count, std::string name);
-bool has_parcel(CharacterData *ch);
-void receive(CharacterData *ch, CharacterData *mailman);
+void send(CharData *ch, CharData *mailman, long vict_uid, char *arg);
+void print_sending_stuff(CharData *ch);
+int print_spell_locate_object(CharData *ch, int count, std::string name);
+bool has_parcel(CharData *ch);
+void receive(CharData *ch, CharData *mailman);
 void update_timers();
-void show_stats(CharacterData *ch);
+void show_stats(CharData *ch);
 void load();
 void save();
-void bring_back(CharacterData *ch, CharacterData *mailman);
+void bring_back(CharData *ch, CharData *mailman);
 
-int print_imm_where_obj(CharacterData *ch, char *arg, int num);
-ObjectData *locate_object(const char *str);
+int print_imm_where_obj(CharData *ch, char *arg, int num);
+ObjData *locate_object(const char *str);
 
-void olc_update_from_proto(int robj_num, ObjectData *olc_proto);
+void olc_update_from_proto(int robj_num, ObjData *olc_proto);
 
 } // namespace Parcel
 

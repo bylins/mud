@@ -7,7 +7,7 @@
 #ifndef BYLINS_SRC_COMMUNICATION_SOCIAL_H_
 #define BYLINS_SRC_COMMUNICATION_SOCIAL_H_
 
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 
 class CHAR_DATE;
 
@@ -37,6 +37,6 @@ extern struct SocialMessages *soc_mess_list;
 extern struct SocialKeyword *soc_keys_list;
 
 int find_action(char *cmd);
-int do_social(CharacterData *ch, char *argument);
+int do_social(CharData *ch, char *argument);
 
 #endif //BYLINS_SRC_COMMUNICATION_SOCIAL_H_

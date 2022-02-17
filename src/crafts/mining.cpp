@@ -6,13 +6,13 @@
 
 #include "mining.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"
 
 skillvariables_dig dig_vars;
-extern void split_or_clan_tax(CharacterData *ch, long amount);
+extern void split_or_clan_tax(CharData *ch, long amount);
 
 void InitMiningVars() {
 	char line[256];
@@ -60,7 +60,7 @@ void InitMiningVars() {
 	fclose(cfg_file);
 }
 
-int make_hole(CharacterData *ch) {
+int make_hole(CharData *ch) {
 	if (roundup(world[ch->in_room]->holes / kHolesTime) >= dig_vars.hole_max_deep) {
 		send_to_char("Тут и так все перекопано.\r\n", ch);
 		return 0;
@@ -69,7 +69,7 @@ int make_hole(CharacterData *ch) {
 	return 1;
 }
 
-void break_inst(CharacterData *ch) {
+void break_inst(CharData *ch) {
 	int i;
 	char buf[300];
 
@@ -94,7 +94,7 @@ void break_inst(CharacterData *ch) {
 
 }
 
-int check_for_dig(CharacterData *ch) {
+int check_for_dig(CharData *ch) {
 	int i;
 
 	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++) {
@@ -107,15 +107,15 @@ int check_for_dig(CharacterData *ch) {
 	return 0;
 }
 
-void dig_obj(CharacterData *ch, ObjectData *obj) {
+void dig_obj(CharData *ch, ObjData *obj) {
 	char textbuf[300];
 
 	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj->get_rnum())
-		|| GET_OBJ_MIW(obj) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM) {
+		|| GET_OBJ_MIW(obj) == ObjData::UNLIMITED_GLOBAL_MAXIMUM) {
 		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(3).c_str());
 		send_to_char(textbuf, ch);
 		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(3).c_str());
-		act(textbuf, false, ch, nullptr, nullptr, TO_ROOM);
+		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 			send_to_char("Вы не смогли унести столько предметов.\r\n", ch);
 			obj_to_room(obj, ch->in_room);
@@ -128,8 +128,8 @@ void dig_obj(CharacterData *ch, ObjectData *obj) {
 	}
 }
 
-void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *mob;
+void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	CharData *mob;
 	char textbuf[300];
 	int percent, prob;
 	int stone_num, random_stone;
@@ -176,7 +176,7 @@ void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	world[ch->in_room]->holes += kHolesTime;
 
 	send_to_char("Вы стали усердно ковырять каменистую почву...\r\n", ch);
-	act("$n стал$g усердно ковырять каменистую почву...", false, ch, nullptr, nullptr, TO_ROOM);
+	act("$n стал$g усердно ковырять каменистую почву...", false, ch, nullptr, nullptr, kToRoom);
 
 	break_inst(ch);
 
@@ -184,7 +184,7 @@ void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	if (number(1, dig_vars.treasure_chance) == 1) {
 		int gold = number(40000, 60000);
 		send_to_char("Вы нашли клад!\r\n", ch);
-		act("$n выкопал$g клад!", false, ch, nullptr, nullptr, TO_ROOM);
+		act("$n выкопал$g клад!", false, ch, nullptr, nullptr, kToRoom);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		send_to_char(textbuf, ch);
 		ch->add_gold(gold);
@@ -203,7 +203,7 @@ void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3].c_str());
 				send_to_char(textbuf, ch);
 				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3].c_str());
-				act(textbuf, false, ch, nullptr, nullptr, TO_ROOM);
+				act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 				char_to_room(mob, ch->in_room);
 				return;
 			}
@@ -211,7 +211,7 @@ void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Не найден прототип обжекта!", ch);
 	}
 	// копнули шкатулку пандоры
-	ObjectData::shared_ptr obj;
+	ObjData::shared_ptr obj;
 	if (number(1, dig_vars.pandora_chance) == 1) {
 		vnum = dig_vars.pandora_vnum;
 
@@ -252,7 +252,7 @@ void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	if (percent > prob / dig_vars.prob_divide) {
 		send_to_char("Вы только зря расковыряли землю и раскидали камни.\r\n", ch);
-		act("$n отрыл$g смешную ямку.", false, ch, nullptr, nullptr, TO_ROOM);
+		act("$n отрыл$g смешную ямку.", false, ch, nullptr, nullptr, kToRoom);
 		return;
 	}
 
@@ -282,7 +282,7 @@ void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	if (stone_num == 0) {
 		send_to_char("Вы долго копали, но так и не нашли ничего полезного.\r\n", ch);
-		act("$n долго копал$g землю, но все без толку.", false, ch, nullptr, nullptr, TO_ROOM);
+		act("$n долго копал$g землю, но все без толку.", false, ch, nullptr, nullptr, kToRoom);
 		return;
 	}
 
@@ -290,9 +290,9 @@ void do_dig(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	obj = world_objects.create_from_prototype_by_vnum(vnum);
 	if (obj) {
 		if (number(1, dig_vars.glass_chance) != 1) {
-			obj->set_material(ObjectData::MAT_GLASS);
+			obj->set_material(ObjData::MAT_GLASS);
 		} else {
-			obj->set_material(ObjectData::MAT_DIAMOND);
+			obj->set_material(ObjData::MAT_DIAMOND);
 		}
 
 		dig_obj(ch, obj.get());

@@ -13,7 +13,7 @@
 #include "genchar.h"
 #include "color.h"
 #include "top.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "modify.h"
 #include "glory_misc.h"
@@ -23,8 +23,8 @@
 
 #include <sstream>
 
-extern void add_karma(CharacterData *ch, const char *punish, const char *reason);
-extern void check_max_hp(CharacterData *ch);
+extern void add_karma(CharData *ch, const char *punish, const char *reason);
+extern void check_max_hp(CharData *ch);
 
 namespace Glory {
 
@@ -341,7 +341,7 @@ int remove_glory(long uid, int amount) {
 }
 
 // * Просто, чтобы не дублировать в разных местах одно и тоже.
-void print_denial_message(CharacterData *ch, int denial) {
+void print_denial_message(CharData *ch, int denial) {
 	send_to_char(ch, "Вы не сможете изменить уже вложенные очки славы (%s).\r\n", time_format(denial).c_str());
 }
 
@@ -349,7 +349,7 @@ void print_denial_message(CharacterData *ch, int denial) {
 * Проверка на запрет перекладывания статов при редактировании в олц.
 * \return 0 - запрещено, 1 - разрешено
 */
-bool parse_denial_check(CharacterData *ch, int stat) {
+bool parse_denial_check(CharData *ch, int stat) {
 	// при включенном таймере статы ниже уже вложенных не опускаются
 	if (ch->desc->glory->olc_node->denial) {
 		bool stop = 0;
@@ -395,7 +395,7 @@ bool parse_denial_check(CharacterData *ch, int stat) {
 * timer = 0 - новый вложенный стат при редактировании
 * timer > 0 - вложенный стат, который никто не трогал при редактировании
 */
-bool parse_remove_stat(CharacterData *ch, int stat) {
+bool parse_remove_stat(CharData *ch, int stat) {
 	if (!parse_denial_check(ch, stat)) return 0;
 
 	for (GloryTimeType::iterator it = ch->desc->glory->olc_node->timers.begin();
@@ -432,7 +432,7 @@ bool parse_remove_stat(CharacterData *ch, int stat) {
 }
 
 // * Добавление стата в олц, проверка на свободные записи с включенным таймером, чтобы учесть перекладывание первым.
-void parse_add_stat(CharacterData *ch, int stat) {
+void parse_add_stat(CharData *ch, int stat) {
 	// в любом случае стат добавится
 	ch->desc->glory->olc_add_spend_glory += 1;
 	ch->desc->glory->olc_node->free_glory -= 1000;
@@ -474,7 +474,7 @@ void parse_add_stat(CharacterData *ch, int stat) {
 }
 
 // * Парс олц меню 'слава'.
-bool parse_spend_glory_menu(CharacterData *ch, char *arg) {
+bool parse_spend_glory_menu(CharData *ch, char *arg) {
 	switch (*arg) {
 		case 'А':
 		case 'а':
@@ -651,7 +651,7 @@ bool parse_spend_glory_menu(CharacterData *ch, char *arg) {
 }
 
 // * Распечатка олц меню.
-void spend_glory_menu(CharacterData *ch) {
+void spend_glory_menu(CharData *ch) {
 	std::ostringstream out;
 	out << "\r\n                      -        +\r\n"
 		<< "  Сила     : ("
@@ -730,7 +730,7 @@ void spend_glory_menu(CharacterData *ch) {
 }
 
 // * Распечатка 'слава информация'.
-void print_glory(CharacterData *ch, GloryListType::iterator &it) {
+void print_glory(CharData *ch, GloryListType::iterator &it) {
 	std::ostringstream out;
 	for (GloryTimeType::const_iterator tm_it = it->second->timers.begin(); tm_it != it->second->timers.end(); ++tm_it) {
 		switch ((*tm_it)->stat) {
@@ -755,7 +755,7 @@ void print_glory(CharacterData *ch, GloryListType::iterator &it) {
 }
 
 // * Команда 'слава' - вложение имеющейся у игрока славы в статы без участия иммов.
-void do_spend_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end() || IS_IMMORTAL(ch)) {
 		send_to_char("Вам это не нужно...\r\n", ch);
@@ -905,7 +905,7 @@ void timers_update() {
 * Удаление иммом у чара славы, уже вложенной в статы (glory remove).
 * \return 0 - ничего не снято, 1 - снято сколько просили
 */
-bool remove_stats(CharacterData *ch, CharacterData *god, int amount) {
+bool remove_stats(CharData *ch, CharData *god, int amount) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end()) {
 		send_to_char(god, "У %s нет вложенной славы.\r\n", GET_PAD(ch, 1));
@@ -960,7 +960,7 @@ bool remove_stats(CharacterData *ch, CharacterData *god, int amount) {
 * Трансфер 'вчистую', т.е. у принимаюего чара все обнуляем (кроме свободной славы) и сетим все,
 * что было у передающего (свободная слава плюсуется).
 */
-void transfer_stats(CharacterData *ch, CharacterData *god, std::string name, char *reason) {
+void transfer_stats(CharData *ch, CharData *god, std::string name, char *reason) {
 	if (IS_IMMORTAL(ch)) {
 		send_to_char(god, "Трансфер славы с бессмертных на других персонажей запрещен.\r\n");
 		return;
@@ -984,12 +984,12 @@ void transfer_stats(CharacterData *ch, CharacterData *god, std::string name, cha
 	}
 
 	DescriptorData *d_vict = DescByUID(vict_uid);
-	CharacterData::shared_ptr vict;
+	CharData::shared_ptr vict;
 	if (d_vict) {
 		vict = d_vict->character;
 	} else {
 		// принимающий оффлайн
-		CharacterData::shared_ptr t_vict(new Player); // TODO: переделать на стек
+		CharData::shared_ptr t_vict(new Player); // TODO: переделать на стек
 		if (load_char(name.c_str(), t_vict.get()) < 0) {
 			send_to_char(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
 			return;
@@ -1073,7 +1073,7 @@ void transfer_stats(CharacterData *ch, CharacterData *god, std::string name, cha
 }
 
 // * Показ свободной и вложенной славы у чара (glory имя).
-void show_glory(CharacterData *ch, CharacterData *god) {
+void show_glory(CharData *ch, CharData *god) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end()) {
 		send_to_char(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
@@ -1086,7 +1086,7 @@ void show_glory(CharacterData *ch, CharacterData *god) {
 }
 
 // * Вывод инфы в show stats.
-void show_stats(CharacterData *ch) {
+void show_stats(CharData *ch) {
 	int free_glory = 0, spend_glory = 0;
 	for (GloryListType::iterator it = glory_list.begin(); it != glory_list.end(); ++it) {
 		free_glory += it->second->free_glory;
@@ -1100,7 +1100,7 @@ void show_stats(CharacterData *ch) {
 }
 
 // * Распечатка топа славы. У иммов дополнительно печатается список чаров, не вошедших в топ (hide).
-void print_glory_top(CharacterData *ch) {
+void print_glory_top(CharData *ch) {
 	std::stringstream out;
 	boost::format class_format("\t%-20s %-2d\r\n");
 	std::map<int, GloryNodePtr> temp_list;
@@ -1137,7 +1137,7 @@ void print_glory_top(CharacterData *ch) {
 }
 
 // * Вкдючение/выключение показа чара в топе славы (glory hide on|off).
-void hide_char(CharacterData *vict, CharacterData *god, char const *const mode) {
+void hide_char(CharData *vict, CharData *god, char const *const mode) {
 	if (!mode || !*mode) return;
 	bool ok = 1;
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(vict));
@@ -1174,13 +1174,13 @@ void remove_freeze(long uid) {
 }
 
 // * Во избежание разного рода недоразумений с фризом таймеров - проверяем эту тему при входе в игру.
-void check_freeze(CharacterData *ch) {
+void check_freeze(CharData *ch) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it != glory_list.end())
 		it->second->freeze = PLR_FLAGGED(ch, PLR_FROZEN) ? true : false;
 }
 
-void set_stats(CharacterData *ch) {
+void set_stats(CharData *ch) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (glory_list.end() == it) {
 		return;
@@ -1207,7 +1207,7 @@ void set_stats(CharacterData *ch) {
 	}
 }
 
-int get_spend_glory(CharacterData *ch) {
+int get_spend_glory(CharData *ch) {
 	GloryListType::iterator i = glory_list.find(GET_UNIQUE(ch));
 	if (glory_list.end() != i) {
 		return i->second->spend_glory;

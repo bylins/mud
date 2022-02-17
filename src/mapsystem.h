@@ -11,10 +11,10 @@
 
 #include "sysdep.h"
 #include "structs/structs.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "interpreter.h"
 
-void do_map(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_map(CharData *ch, char *argument, int cmd, int subcmd);
 
 namespace MapSystem {
 
@@ -43,13 +43,13 @@ enum {
 	TOTAL_MAP_OPTIONS
 };
 
-void print_map(CharacterData *ch, CharacterData *imm = 0);
-void do_command(CharacterData *ch, const std::string &arg);
+void print_map(CharData *ch, CharData *imm = 0);
+void do_command(CharData *ch, const std::string &arg);
 
 struct Options {
-	void olc_menu(CharacterData *ch);
-	void parse_menu(CharacterData *ch, const char *arg);
-	void text_olc(CharacterData *ch, const char *arg);
+	void olc_menu(CharData *ch);
+	void parse_menu(CharData *ch, const char *arg);
+	void text_olc(CharData *ch, const char *arg);
 
 	std::bitset<TOTAL_MAP_OPTIONS> bit_list_;
 };

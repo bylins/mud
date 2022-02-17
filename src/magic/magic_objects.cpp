@@ -4,10 +4,10 @@
 
 #include "magic/spells.h"
 
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "color.h"
 #include "skills/poison.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "utils/utils_char_obj.inl"
 #include "magic/spells_info.h"
 
@@ -28,7 +28,7 @@ namespace {
 /// Удаление временного флага со шмотки obj (с проверкой прототипа).
 /// \param flag - ITEM_XXX
 ///
-void remove_tmp_extra(ObjectData *obj, EExtraFlag flag) {
+void remove_tmp_extra(ObjData *obj, EExtraFlag flag) {
 	auto proto = get_object_prototype(GET_OBJ_VNUM(obj));
 	if (!proto->get_extra_flag(flag)) {
 		obj->unset_extraflag(flag);
@@ -39,7 +39,7 @@ void remove_tmp_extra(ObjectData *obj, EExtraFlag flag) {
  * Проверка надо ли что-то делать со шмоткой или писать чару
  * при снятии заклинания со шмотки.
  */
-void check_spell_remove(ObjectData *obj, int spell, bool send_message) {
+void check_spell_remove(ObjData *obj, int spell, bool send_message) {
 	if (!obj) {
 		log("SYSERROR: NULL object %s:%d, spell = %d", __FILE__, __LINE__, spell);
 		return;
@@ -63,7 +63,7 @@ void check_spell_remove(ObjectData *obj, int spell, bool send_message) {
 	if (send_message
 		&& (obj->get_carried_by()
 			|| obj->get_worn_by())) {
-		CharacterData *ch = obj->get_carried_by() ? obj->get_carried_by() : obj->get_worn_by();
+		CharData *ch = obj->get_carried_by() ? obj->get_carried_by() : obj->get_worn_by();
 		switch (spell) {
 			case kSpellAconitumPoison:
 			case kSpellScopolaPoison:
@@ -91,7 +91,7 @@ void check_spell_remove(ObjectData *obj, int spell, bool send_message) {
 }
 
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
-std::string print_spell_str(CharacterData *ch, int spell, int timer) {
+std::string print_spell_str(CharData *ch, int spell, int timer) {
 	if (spell < 1
 		|| spell > kSpellCount) {
 		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell, timer);
@@ -137,7 +137,7 @@ std::string print_spell_str(CharacterData *ch, int spell, int timer) {
  * Удаление заклинания со шмотки с проверкой на действия/сообщения
  * при снятии обкаста.
  */
-void TimedSpell::del(ObjectData *obj, int spell, bool message) {
+void TimedSpell::del(ObjData *obj, int spell, bool message) {
 	std::map<int, int>::iterator i = spell_list_.find(spell);
 	if (i != spell_list_.end()) {
 		check_spell_remove(obj, spell, message);
@@ -149,7 +149,7 @@ void TimedSpell::del(ObjectData *obj, int spell, bool message) {
 * Сет доп.спела с таймером на шмотку.
 * \param time = -1 для постоянного обкаста
 */
-void TimedSpell::add(ObjectData *obj, int spell, int time) {
+void TimedSpell::add(ObjData *obj, int spell, int time) {
 	// замещение ядов друг другом
 	if (spell == kSpellAconitumPoison
 		|| spell == kSpellScopolaPoison
@@ -165,7 +165,7 @@ void TimedSpell::add(ObjectData *obj, int spell, int time) {
 }
 
 // * Вывод оставшегося времени яда на пушке при осмотре.
-std::string TimedSpell::diag_to_char(CharacterData *ch) {
+std::string TimedSpell::diag_to_char(CharData *ch) {
 	if (spell_list_.empty()) {
 		return "";
 	}
@@ -224,7 +224,7 @@ bool TimedSpell::check_spell(int spell) const {
 * Тик доп.спеллов на шмотке (раз в минуту).
 * \param time по дефолту = 1.
 */
-void TimedSpell::dec_timer(ObjectData *obj, int time) {
+void TimedSpell::dec_timer(ObjData *obj, int time) {
 	for (std::map<int, int>::iterator i = spell_list_.begin();
 		 i != spell_list_.end(); /* empty */) {
 		if (i->second != -1) {

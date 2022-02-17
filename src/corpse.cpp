@@ -5,7 +5,7 @@
 
 #include "world_objects.h"
 #include "obj_prototypes.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "handler.h"
 #include "utils/pugixml.h"
 #include "house.h"
@@ -22,7 +22,7 @@
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
-extern void obj_to_corpse(ObjectData *corpse, CharacterData *ch, int rnum, bool setload);
+extern void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload);
 
 namespace GlobalDrop {
 std::vector<table_drop> tables_drop;
@@ -294,7 +294,7 @@ void save() {
 int get_obj_to_drop(DropListType::iterator &i) {
 	std::vector<int> tmp_list;
 	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k) {
-		if ((GET_OBJ_MIW(obj_proto[k->second]) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM)
+		if ((GET_OBJ_MIW(obj_proto[k->second]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM)
 			|| (k->second >= 0
 				&& obj_proto.actual_count(k->second) < GET_OBJ_MIW(obj_proto[k->second])))
 			tmp_list.push_back(k->second);
@@ -310,7 +310,7 @@ int get_obj_to_drop(DropListType::iterator &i) {
  * Глобальный дроп с мобов заданных параметров.
  * Если vnum отрицательный, то поиск идет по списку общего дропа.
  */
-bool check_mob(ObjectData *corpse, CharacterData *mob) {
+bool check_mob(ObjData *corpse, CharData *mob) {
 	if (MOB_FLAGGED(mob, MOB_MOUNTING))
 		return false;
 	for (size_t i = 0; i < tables_drop.size(); i++) {
@@ -320,7 +320,7 @@ bool check_mob(ObjectData *corpse, CharacterData *mob) {
 				log("Ошибка tdrop. Внум: %d", tables_drop[i].get_vnum());
 				return true;
 			}
-			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, TO_ROOM);
+			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, kToRoom);
 			log("Фридроп: упал предмет %s с VNUM: %d",
 				obj_proto[rnum]->get_short_description().c_str(),
 				obj_proto[rnum]->get_vnum());
@@ -350,10 +350,10 @@ bool check_mob(ObjectData *corpse, CharacterData *mob) {
 					continue;
 				}
 				if (number(1, 1000) <= i->chance
-					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM)
+					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM)
 						|| (obj_rnum >= 0
 							&& obj_proto.actual_count(obj_rnum) < GET_OBJ_MIW(obj_proto[obj_rnum])))) {
-					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, TO_ROOM);
+					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, kToRoom);
 					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d",
 							obj_proto[obj_rnum]->get_short_description().c_str(),
 							obj_proto[obj_rnum]->get_vnum(),
@@ -372,7 +372,7 @@ bool check_mob(ObjectData *corpse, CharacterData *mob) {
 
 } // namespace GlobalDrop
 
-void make_arena_corpse(CharacterData *ch, CharacterData *killer) {
+void make_arena_corpse(CharData *ch, CharData *killer) {
 	auto corpse = world_objects.create_blank();
 	corpse->set_sex(ESex::kPoly);
 
@@ -397,7 +397,7 @@ void make_arena_corpse(CharacterData *ch, CharacterData *killer) {
 	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
-	corpse->set_type(ObjectData::ITEM_CONTAINER);
+	corpse->set_type(ObjData::ITEM_CONTAINER);
 	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
@@ -424,8 +424,8 @@ void make_arena_corpse(CharacterData *ch, CharacterData *killer) {
 	obj_to_room(corpse.get(), ch->in_room);
 }
 
-ObjectData *make_corpse(CharacterData *ch, CharacterData *killer) {
-	ObjectData *o;
+ObjData *make_corpse(CharData *ch, CharData *killer) {
+	ObjData *o;
 	int i;
 
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
@@ -451,14 +451,14 @@ ObjectData *make_corpse(CharacterData *ch, CharacterData *killer) {
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
-	corpse->set_type(ObjectData::ITEM_CONTAINER);
+	corpse->set_type(ObjData::ITEM_CONTAINER);
 	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NORENT);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
 	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
-	corpse->set_val(3, ObjectData::CORPSE_INDICATOR);    // corpse identifier
+	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier
 	corpse->set_rent_off(100000);
 
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
@@ -495,7 +495,7 @@ ObjectData *make_corpse(CharacterData *ch, CharacterData *killer) {
 		} else {
 			const int amount = ch->get_gold();
 			const auto money = create_money(amount);
-			ObjectData *purse = 0;
+			ObjData *purse = 0;
 			if (amount >= 100) {
 				purse = system_obj::create_purse(ch, amount);
 				if (purse) {
@@ -518,7 +518,7 @@ ObjectData *make_corpse(CharacterData *ch, CharacterData *killer) {
 	//Polud привязываем загрузку ингров к расе (типу) моба
 	if (IS_NPC(ch) && GET_RACE(ch) > NPC_RACE_BASIC && !NPC_FLAGGED(ch, NPC_NOINGRDROP)
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
-		ObjectData *ingr = try_make_ingr(ch, 1000);
+		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {
 			obj_to_obj(ingr, corpse.get());
 		}

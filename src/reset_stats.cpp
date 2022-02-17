@@ -4,11 +4,11 @@
 #include "genchar.h"
 #include "color.h"
 #include "utils/parse.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 #include <boost/format.hpp>
 
-extern void add_karma(CharacterData *ch, const char *punish, const char *reason);
+extern void add_karma(CharData *ch, const char *punish, const char *reason);
 extern bool ValidateStats(DescriptorData *d);
 extern int check_dupes_email(DescriptorData *d);
 extern void do_entergame(DescriptorData *d);
@@ -80,7 +80,7 @@ void init() {
 ///
 /// \return стоимость очередного сброса характеристик type через меню
 ///
-int calc_price(CharacterData *ch, Type type) {
+int calc_price(CharData *ch, Type type) {
 	int price = reset_prices[type].base_price
 		+ ch->get_reset_stats_cnt(type) * reset_prices[type].add_price;
 	return std::min(price, reset_prices[type].max_price);
@@ -90,7 +90,7 @@ int calc_price(CharacterData *ch, Type type) {
 /// Подготовка чара на резет характеристик type:
 /// снятие денег, логирование, запись в карму
 ///
-void reset_stats(CharacterData *ch, Type type) {
+void reset_stats(CharData *ch, Type type) {
 	switch (type) {
 		case Type::MAIN_STATS: ch->set_start_stat(G_STR, 0);
 			break;

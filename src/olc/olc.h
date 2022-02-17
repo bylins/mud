@@ -58,7 +58,7 @@
 // * Utilities exported from olc.c.
 void strip_string(char *);
 void cleanup_olc(DescriptorData *d, byte cleanup_type);
-void get_char_cols(CharacterData *ch);
+void get_char_cols(CharData *ch);
 void disp_planes_values(DescriptorData *d, const char *names[], short num_column);
 void olc_add_to_save_list(int zone, byte type);
 void olc_remove_from_save_list(int zone, byte type);
@@ -87,9 +87,9 @@ struct olc_data {
 	int value;
 	int total_mprogs;
 	unsigned long bitmask;
-	CharacterData *mob;
+	CharData *mob;
 	RoomData *room;
-	ObjectData *obj;
+	ObjData *obj;
 	ZoneData *zone;
 	ExtraDescription::shared_ptr desc;
 
@@ -103,7 +103,7 @@ struct olc_data {
 	int script_mode;
 	int trigger_position;
 	int item_type;
-	ObjectData::triggers_list_t script;
+	ObjData::triggers_list_t script;
 	char *storage;        // for holding commands etc..
 };
 

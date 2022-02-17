@@ -559,7 +559,7 @@ std::set<int> vnum_list_add(int vnum) {
 /// \param activated - печатать активатор или деактиватор
 /// сообщение берется по первому найденному в цепочке:
 /// предмет -> набор -> глобальные сообщения
-void print_msg(CharacterData *ch, ObjectData *obj, size_t set_idx, bool activated) {
+void print_msg(CharData *ch, ObjData *obj, size_t set_idx, bool activated) {
 	if (set_idx >= sets_list.size()) return;
 
 	const char *char_on_msg = nullptr;
@@ -600,16 +600,16 @@ void print_msg(CharacterData *ch, ObjectData *obj, size_t set_idx, bool activate
 		room_off_msg = global_msg.room_off_msg.c_str();
 	// что-то в любом случае распечатаем
 	if (activated) {
-		act(char_on_msg, false, ch, obj, nullptr, TO_CHAR);
-		act(room_on_msg, true, ch, obj, nullptr, TO_ROOM);
+		act(char_on_msg, false, ch, obj, nullptr, kToChar);
+		act(room_on_msg, true, ch, obj, nullptr, kToRoom);
 	} else {
-		act(char_off_msg, false, ch, obj, nullptr, TO_CHAR);
-		act(room_off_msg, true, ch, obj, nullptr, TO_ROOM);
+		act(char_off_msg, false, ch, obj, nullptr, kToChar);
+		act(room_off_msg, true, ch, obj, nullptr, kToRoom);
 	}
 }
 
 /// сообщение деактивации предмета
-void print_off_msg(CharacterData *ch, ObjectData *obj) {
+void print_off_msg(CharData *ch, ObjData *obj) {
 	const auto set_idx = GET_OBJ_RNUM(obj) >= 0
 						 ? obj_proto.set_idx(GET_OBJ_RNUM(obj))
 						 : ~0ull;
@@ -626,10 +626,10 @@ void print_off_msg(CharacterData *ch, ObjectData *obj) {
 /// т.е. после прохода в affect_total() у всех сетовых шмоток в get_activator()
 /// содержится не только инфа о том, в активе она или нет, но и размер
 /// максимального работающего в данный момент активатора с ее сета
-void check_activated(CharacterData *ch, int activ, idx_node &node) {
+void check_activated(CharData *ch, int activ, idx_node &node) {
 	int need_msg = activ - node.activated_cnt;
 	for (auto i = node.obj_list.begin(); i != node.obj_list.end(); ++i) {
-		ObjectData *obj = *i;
+		ObjData *obj = *i;
 		if (need_msg > 0 && !obj->get_activator().first) {
 			if (obj->get_activator().second < activ) {
 				print_msg(ch, obj, node.set_idx, true);
@@ -646,10 +646,10 @@ void check_activated(CharacterData *ch, int activ, idx_node &node) {
 
 /// дергается после проверок активаторов сета, чтобы учесть шмотки, которые
 /// перестали работать и распечатать их сообщения о деактивации
-void check_deactivated(CharacterData *ch, int max_activ, idx_node &node) {
+void check_deactivated(CharData *ch, int max_activ, idx_node &node) {
 	int need_msg = node.activated_cnt - max_activ;
 	for (auto i = node.obj_list.begin(); i != node.obj_list.end(); ++i) {
-		ObjectData *obj = *i;
+		ObjData *obj = *i;
 		if (need_msg > 0 && obj->get_activator().first) {
 			print_msg(ch, obj, node.set_idx, false);
 			obj->set_activator(false, max_activ);
@@ -704,7 +704,7 @@ std::string print_obj_list(const SetNode &set) {
 }
 
 /// опознание сетового предмета
-void print_identify(CharacterData *ch, const ObjectData *obj) {
+void print_identify(CharData *ch, const ObjData *obj) {
 	const size_t set_idx = GET_OBJ_RNUM(obj) >= 0
 						   ? obj_proto.set_idx(GET_OBJ_RNUM(obj))
 						   : sets_list.size();
@@ -739,7 +739,7 @@ void print_identify(CharacterData *ch, const ObjectData *obj) {
 }
 
 /// список сетов имму с распечаткой номеров, по которым дергается sed и справка
-void do_slist(CharacterData *ch) {
+void do_slist(CharData *ch) {
 	std::string out("Зарегистрированные наборы предметов:\r\n");
 	char buf_[256];
 
@@ -1025,7 +1025,7 @@ void WornSets::clear() {
 
 /// добавление сетины (для игроков и чармисов) на последующую обработку
 /// одновременно сразу же считается кол-во активированных шмоток в каждом сете
-void WornSets::add(ObjectData *obj) {
+void WornSets::add(ObjData *obj) {
 	if (obj && is_set_item(obj)) {
 		const size_t cur_idx = obj_proto.set_idx(GET_OBJ_RNUM(obj));
 		for (auto & i : idx_list_) {
@@ -1044,7 +1044,7 @@ void WornSets::add(ObjectData *obj) {
 }
 
 /// проверка списка сетов на чаре и применение их активаторов
-void WornSets::check(CharacterData *ch) {
+void WornSets::check(CharData *ch) {
 	for (auto & i : idx_list_) {
 		if (i.set_idx >= sets_list.size()) return;
 
@@ -1175,8 +1175,8 @@ void activ_sum::clear() {
 
 WornSets worn_sets;
 
-void check_enchants(CharacterData *ch) {
-	ObjectData *obj;
+void check_enchants(CharData *ch) {
+	ObjData *obj;
 	for (int i = 0; i < NUM_WEARS; i++) {
 		obj = GET_EQ(ch, i);
 		if (obj) {
@@ -1190,7 +1190,7 @@ void check_enchants(CharacterData *ch) {
 	}
 }
 
-void activ_sum::update(CharacterData *ch) {
+void activ_sum::update(CharData *ch) {
 	this->clear();
 	worn_sets.clear();
 	for (int i = 0; i < NUM_WEARS; i++) {
@@ -1200,7 +1200,7 @@ void activ_sum::update(CharacterData *ch) {
 	check_enchants(ch);
 }
 
-void activ_sum::apply_affects(CharacterData *ch) const {
+void activ_sum::apply_affects(CharData *ch) const {
 	for (const auto &j : weapon_affect) {
 		if (j.aff_bitvector != 0
 			&& affects.get(j.aff_pos)) {
@@ -1228,7 +1228,7 @@ int activ_sum::get_skill(const ESkill num) const {
 	return 0;
 }
 
-bool is_set_item(ObjectData *obj) {
+bool is_set_item(ObjData *obj) {
 	if (GET_OBJ_RNUM(obj) >= 0
 		&& obj_proto.set_idx(GET_OBJ_RNUM(obj)) != static_cast<size_t>(-1)) {
 		return true;
@@ -1239,7 +1239,7 @@ bool is_set_item(ObjectData *obj) {
 } // namespace obj_sets
 
 /// иммский slist
-void do_slist(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_slist(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		return;
 	}

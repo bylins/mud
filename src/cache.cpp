@@ -6,13 +6,13 @@
 #include "cache.h"
 
 template
-class caching::Cache<CharacterData *>;
+class caching::Cache<CharData *>;
 template<class t>
 caching::id_t caching::Cache<t>::max_id = 0;
 caching::CharacterCache caching::character_cache;
 
 template
-class caching::Cache<ObjectData *>;
+class caching::Cache<ObjData *>;
 caching::ObjCache caching::obj_cache;
 
 

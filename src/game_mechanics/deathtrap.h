@@ -26,13 +26,13 @@ void remove(RoomData *room);
 // Проверка активности дт, дергается каждые 2 секунды в хеарбите
 void activity();
 // Обработка обычных дт
-int check_death_trap(CharacterData *ch);
+int check_death_trap(CharData *ch);
 // Проверка комнаты на принадлежность к медленным дт
 bool is_slow_dt(int rnum);
 // \return true - чара может сразу убить при входе в ванрум
-bool check_tunnel_death(CharacterData *ch, int room_rnum);
+bool check_tunnel_death(CharData *ch, int room_rnum);
 // Дамаг чаров с бд в ван-румах, \return true - чара убили
-bool tunnel_damage(CharacterData *ch);
+bool tunnel_damage(CharData *ch);
 
 } // namespace DeathTrap
 

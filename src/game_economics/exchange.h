@@ -14,10 +14,10 @@
 #include <vector>
 #include <ctime>
 
-class CharacterData;    // to avoid inclusion of "char.hpp"
-class ObjectData;        // to avoid inclusion of "obj.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
+class ObjData;        // to avoid inclusion of "obj.hpp"
 
-int exchange(CharacterData *ch, void *me, int cmd, char *argument);
+int exchange(CharData *ch, void *me, int cmd, char *argument);
 
 struct ExchangeItem {
 	int lot_id;        //Номер лота
@@ -25,7 +25,7 @@ struct ExchangeItem {
 	int obj_cost;        //цена лота
 	time_t time; // время
 	char *comment;        //коментарий
-	ObjectData *obj;        //собственно предмет
+	ObjData *obj;        //собственно предмет
 	ExchangeItem *next;    //для списка объектов базара
 };
 
@@ -54,7 +54,7 @@ const int EXCHANGE_MIN_CHAR_LEV = 8;
 #define GET_EXCHANGE_ITEM(item)  ((item)->obj)
 
 void extract_exchange_item(ExchangeItem *item);
-void check_exchange(ObjectData *obj);
+void check_exchange(ObjData *obj);
 
 void exchange_database_save(bool backup = false);
 

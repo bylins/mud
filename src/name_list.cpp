@@ -4,16 +4,16 @@
 
 #include "name_list.h"
 
-#include "entities/obj.h"
-#include "entities/char.h"
+#include "entities/obj_data.h"
+#include "entities/char_data.h"
 
 namespace {
 
-typedef std::map<int /* serial_num */, CharacterData *> CharNodeListType;
+typedef std::map<int /* serial_num */, CharData *> CharNodeListType;
 typedef std::map<std::string /* имя */, CharNodeListType> CharListType;
 CharListType char_list;
 
-typedef std::map<int /* serial_num */, ObjectData *> ObjNodeListType;
+typedef std::map<int /* serial_num */, ObjData *> ObjNodeListType;
 typedef std::map<std::string /* имя */, ObjNodeListType> ObjListType;
 ObjListType obj_list;
 
@@ -28,7 +28,7 @@ int obj_serial_num = 0;
 namespace CharacterAlias {
 
 // * См ObjectAlias::add()
-void add(CharacterData *ch) {
+void add(CharData *ch) {
 	if (!GET_NAME(ch)) return;
 
 	ch->set_serial_num(++char_serial_num);
@@ -52,7 +52,7 @@ void add(CharacterData *ch) {
 }
 
 // * См ObjectAlias::remove()
-void remove(CharacterData *ch) {
+void remove(CharData *ch) {
 	for (CharListType::iterator it = char_list.begin(); it != char_list.end(); /* empty */) {
 		CharNodeListType::iterator tmp_it = it->second.find(ch->get_serial_num());
 		if (tmp_it != it->second.end()) {
@@ -68,8 +68,8 @@ void remove(CharacterData *ch) {
 }
 
 // * См ObjectAlias::search_by_word()
-CharacterData *search_by_word(const char *name, const std::string &search_word) {
-	CharacterData *ch = 0;
+CharData *search_by_word(const char *name, const std::string &search_word) {
+	CharData *ch = 0;
 	CharListType::iterator i = char_list.lower_bound(search_word);
 
 	while (i != char_list.end()) {
@@ -92,7 +92,7 @@ CharacterData *search_by_word(const char *name, const std::string &search_word) 
 }
 
 // * См ObjectAlias::get_by_name()
-CharacterData *get_by_name(const char *str) {
+CharData *get_by_name(const char *str) {
 	if (!str || !*str) {
 		return 0;
 	}
@@ -115,7 +115,7 @@ namespace ObjectAlias {
 * Добавление предмета в мап с разделением по каждому из его алиасов
 * и сортировкой по порядковому номеру, который тут же и инится.
 */
-void add(ObjectData *obj) {
+void add(ObjData *obj) {
 	if (obj->get_aliases().empty()) {
 		return;
 	}
@@ -143,7 +143,7 @@ void add(ObjectData *obj) {
 }
 
 // * Удаление предмета из всех полей мапа.
-void remove(ObjectData *obj) {
+void remove(ObjData *obj) {
 	for (ObjListType::iterator it = obj_list.begin(); it != obj_list.end(); /* empty */) {
 		ObjNodeListType::iterator tmp_it = it->second.find(obj->get_serial_num());
 		if (tmp_it != it->second.end()) {
@@ -164,8 +164,8 @@ void remove(ObjectData *obj) {
 * поискового слова будет последним добавленным в глобальный список предметом,
 * в процессе прохода по словам просто выделяется предмет с наибольшим номером.
 */
-ObjectData *search_by_word(const char *name, const std::string &search_word) {
-	ObjectData *obj = 0;
+ObjData *search_by_word(const char *name, const std::string &search_word) {
+	ObjData *obj = 0;
 	ObjListType::iterator i = obj_list.lower_bound(search_word);
 
 	while (i != obj_list.end()) {
@@ -188,7 +188,7 @@ ObjectData *search_by_word(const char *name, const std::string &search_word) {
 }
 
 // * \return последний (технически первый в object_list) предмет или 0 по его алиасу.
-ObjectData *get_by_name(const char *str) {
+ObjData *get_by_name(const char *str) {
 	if (!str || !*str) {
 		return 0;
 	}
@@ -205,7 +205,7 @@ ObjectData *get_by_name(const char *str) {
 * Поиск цели для каста локейта, в данном случае нам не важен порядковый номер,
 * а просто нужен любой предмет с данным алиасом.
 */
-ObjectData *locate_object(const char *str) {
+ObjData *locate_object(const char *str) {
 	if (!str || !*str) {
 		return 0;
 	}

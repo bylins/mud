@@ -12,7 +12,7 @@
 using namespace FightSystem;
 
 // делегат обработки команды заколоть
-void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kBackstab) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -33,7 +33,7 @@ void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	one_argument(argument, arg);
-	CharacterData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 	if (!vict) {
 		send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;
@@ -54,7 +54,7 @@ void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || dontCanAct(ch)) {
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -73,20 +73,20 @@ void do_backstab(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // *********************** BACKSTAB VICTIM
 // Проверка на стаб в бою происходит до вызова этой функции
-void go_backstab(CharacterData *ch, CharacterData *vict) {
+void go_backstab(CharData *ch, CharData *vict) {
 
 	if (ch->isHorsePrevents())
 		return;
 
-	vict = try_protect(vict, ch);
+	vict = TryToFindProtector(vict, ch);
 
 	if (!pk_agro_action(ch, vict))
 		return;
 
 	if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch)) {
-		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, TO_CHAR);
-		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, TO_VICT);
-		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, kToChar);
+		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, kToVict);
+		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 		set_hit(vict, ch);
 		return;
 	}
@@ -125,14 +125,14 @@ void go_backstab(CharacterData *ch, CharacterData *vict) {
 
 	TrainSkill(ch, ESkill::kBackstab, success, vict);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBackstab), ZERO_DMG, PHYS_DMG, GET_EQ(ch, WEAR_WIELD));
+		Damage dmg(SkillDmg(ESkill::kBackstab), kZeroDmg, kPhysDmg, GET_EQ(ch, WEAR_WIELD));
 		dmg.process(ch, vict);
 	} else {
-		hit(ch, vict, ESkill::kBackstab, FightSystem::MAIN_HAND);
+		hit(ch, vict, ESkill::kBackstab, FightSystem::kMainHand);
 	}
-	set_wait(ch, 1, true);
-	setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
-	setSkillCooldownInFight(ch, ESkill::kBackstab, 2);
+	SetWait(ch, 1, true);
+	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+	SetSkillCooldownInFight(ch, ESkill::kBackstab, 2);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,9 +1,9 @@
 #include "cmd_god/shutdown.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 namespace commands {
-Shutdown::Shutdown(CharacterData *character, const char *argument, ShutdownParameters &shutdown_parameters) :
+Shutdown::Shutdown(CharData *character, const char *argument, ShutdownParameters &shutdown_parameters) :
 	m_character(character),
 	m_argument(argument),
 	m_timeout(0),

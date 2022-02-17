@@ -8,7 +8,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "dg_scripts.h"
 #include "handler.h"
 #include "utils/utils_char_obj.inl"
@@ -38,7 +38,7 @@ char *any_one_name(char *argument, char *first_arg) {
 	return argument;
 }
 
-void sub_write_to_char(CharacterData *ch, char *tokens[], void *otokens[], char type[]) {
+void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[]) {
 	char sb[kMaxStringLength];
 	int i;
 
@@ -50,54 +50,54 @@ void sub_write_to_char(CharacterData *ch, char *tokens[], void *otokens[], char 
 			case '~':
 				if (!otokens[i])
 					strcat(sb, "Кто-то");
-				else if ((CharacterData *) otokens[i] == ch)
+				else if ((CharData *) otokens[i] == ch)
 					strcat(sb, "Вы");
 				else
-					strcat(sb, PERS((CharacterData *) otokens[i], ch, 0));
+					strcat(sb, PERS((CharData *) otokens[i], ch, 0));
 				break;
 
 			case '@':
 				if (!otokens[i])
 					strcat(sb, "чей-то");
-				else if ((CharacterData *) otokens[i] == ch)
+				else if ((CharData *) otokens[i] == ch)
 					strcat(sb, "ваш");
 				else {
-					strcat(sb, PERS((CharacterData *) otokens[i], ch, 1));
+					strcat(sb, PERS((CharData *) otokens[i], ch, 1));
 				}
 				break;
 
 			case '^':
-				if (!otokens[i] || !CAN_SEE(ch, (CharacterData *) otokens[i]))
+				if (!otokens[i] || !CAN_SEE(ch, (CharData *) otokens[i]))
 					strcat(sb, "чей-то");
 				else if (otokens[i] == ch)
 					strcat(sb, "ваш");
 				else
-					strcat(sb, HSHR((CharacterData *) otokens[i]));
+					strcat(sb, HSHR((CharData *) otokens[i]));
 				break;
 
 			case '}':
-				if (!otokens[i] || !CAN_SEE(ch, (CharacterData *) otokens[i]))
+				if (!otokens[i] || !CAN_SEE(ch, (CharData *) otokens[i]))
 					strcat(sb, "Он");
 				else if (otokens[i] == ch)
 					strcat(sb, "Вы");
 				else
-					strcat(sb, HSSH((CharacterData *) otokens[i]));
+					strcat(sb, HSSH((CharData *) otokens[i]));
 				break;
 
 			case '*':
-				if (!otokens[i] || !CAN_SEE(ch, (CharacterData *) otokens[i]))
+				if (!otokens[i] || !CAN_SEE(ch, (CharData *) otokens[i]))
 					strcat(sb, "ему");
 				else if (otokens[i] == ch)
 					strcat(sb, "вам");
 				else
-					strcat(sb, HMHR((CharacterData *) otokens[i]));
+					strcat(sb, HMHR((CharData *) otokens[i]));
 				break;
 
 			case '`':
 				if (!otokens[i])
 					strcat(sb, "что-то");
 				else
-					strcat(sb, OBJS(((ObjectData *) otokens[i]), ch));
+					strcat(sb, OBJS(((ObjData *) otokens[i]), ch));
 				break;
 		}
 	}
@@ -109,12 +109,12 @@ void sub_write_to_char(CharacterData *ch, char *tokens[], void *otokens[], char 
 	send_to_char(sb, ch);
 }
 
-void sub_write(char *arg, CharacterData *ch, byte find_invis, int targets) {
+void sub_write(char *arg, CharData *ch, byte find_invis, int targets) {
 	char str[kMaxInputLength * 2];
 	char type[kMaxInputLength], name[kMaxInputLength];
 	char *tokens[kMaxInputLength], *s, *p;
 	void *otokens[kMaxInputLength];
-	ObjectData *obj;
+	ObjData *obj;
 	int i, tmp;
 	int to_sleeping = 0;    // mainly for windows compiles
 
@@ -162,11 +162,11 @@ void sub_write(char *arg, CharacterData *ch, byte find_invis, int targets) {
 	*s = '\0';
 	tokens[++i] = nullptr;
 
-	if (IS_SET(targets, TO_CHAR) && SENDOK(ch)) {
+	if (IS_SET(targets, kToChar) && SENDOK(ch)) {
 		sub_write_to_char(ch, tokens, otokens, type);
 	}
 
-	if (IS_SET(targets, TO_ROOM)) {
+	if (IS_SET(targets, kToRoom)) {
 		for (const auto to : world[ch->in_room]->people) {
 			if (to != ch
 				&& SENDOK(to)) {

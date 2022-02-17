@@ -1,9 +1,9 @@
 #ifndef BYLINS_BLOCK_H
 #define BYLINS_BLOCK_H
 
-class CharacterData;
+class CharData;
 
-void do_block(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_BLOCK_H
 

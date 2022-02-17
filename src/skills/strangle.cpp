@@ -12,8 +12,8 @@
 
 using namespace FightSystem;
 
-void go_strangle(CharacterData *ch, CharacterData *vict) {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || dontCanAct(ch)) {
+void go_strangle(CharData *ch, CharData *vict) {
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
 		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
 		return;
 	}
@@ -28,12 +28,12 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 		return;
 	}
 
-	vict = try_protect(vict, ch);
+	vict = TryToFindProtector(vict, ch);
 	if (!pk_agro_action(ch, vict)) {
 		return;
 	}
 
-	act("Вы попытались накинуть удавку на шею $N2.\r\n", false, ch, nullptr, vict, TO_CHAR);
+	act("Вы попытались накинуть удавку на шею $N2.\r\n", false, ch, nullptr, vict, kToChar);
 
 	int prob = CalcCurrentSkill(ch, ESkill::kStrangle, vict);
 	int delay = 6 - MIN(4, (ch->get_skill(ESkill::kStrangle) + 30) / 50);
@@ -43,43 +43,43 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kStrangle].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kStrangle), ZERO_DMG, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kStrangle), kZeroDmg, kPhysDmg, nullptr);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
+		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
 		Affect<EApplyLocation> af;
 		af.type = kSpellStrangle;
 		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
-		af.battleflag = AF_SAME_TIME;
+		af.battleflag = kAfSameTime;
 		af.bitvector = to_underlying(EAffectFlag::AFF_STRANGLED);
 		affect_to_char(vict, af);
 
 		int dam =
 			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
 		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
-		Damage dmg(SkillDmg(ESkill::kStrangle), dam, PHYS_DMG, nullptr);
+		Damage dmg(SkillDmg(ESkill::kStrangle), dam, kPhysDmg, nullptr);
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
-			set_wait(vict, 2, true);
+			SetWait(vict, 2, true);
 			if (vict->ahorse()) {
-				act("Рванув на себя, $N стащил$G Вас на землю.", false, vict, nullptr, ch, TO_CHAR);
-				act("Рванув на себя, Вы стащили $n3 на землю.", false, vict, nullptr, ch, TO_VICT);
+				act("Рванув на себя, $N стащил$G Вас на землю.", false, vict, nullptr, ch, kToChar);
+				act("Рванув на себя, Вы стащили $n3 на землю.", false, vict, nullptr, ch, kToVict);
 				act("Рванув на себя, $N стащил$G $n3 на землю.",
 					false,
 					vict,
 					nullptr,
 					ch,
-					TO_NOTVICT | TO_ARENA_LISTEN);
+					kToNotVict | kToArenaListen);
 				vict->drop_from_horse();
 			}
 			if (ch->get_skill(ESkill::kUndercut) && ch->isInSameRoom(vict)) {
 				go_chopoff(ch, vict);
 			}
-			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
+			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 		}
 	}
 
@@ -89,7 +89,7 @@ void go_strangle(CharacterData *ch, CharacterData *vict) {
 	timed_to_char(ch, &timed);
 }
 
-void do_strangle(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(ESkill::kStrangle)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
@@ -100,7 +100,7 @@ void do_strangle(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	CharacterData *vict = findVictim(ch, argument);
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы жаждете удавить?\r\n", ch);
 		return;

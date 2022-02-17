@@ -2,7 +2,7 @@
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 
-void do_telegram(CharacterData *ch, char *argument, int, int) {
+void do_telegram(CharData *ch, char *argument, int, int) {
 #if defined(HAVE_TG)
 	unsigned long int tgId = 0;
 	bool found = false;

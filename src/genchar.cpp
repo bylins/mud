@@ -21,7 +21,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "magic/spells.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "db.h"
 
@@ -105,7 +105,7 @@ const char *default_race[] = {
 	"Веляне" //волхв
 };
 
-void genchar_disp_menu(CharacterData *ch) {
+void genchar_disp_menu(CharData *ch) {
 	char buf[kMaxStringLength];
 
 	sprintf(buf,
@@ -133,7 +133,7 @@ void genchar_disp_menu(CharacterData *ch) {
 	send_to_char(" Ваш выбор: ", ch);
 }
 
-int genchar_parse(CharacterData *ch, char *arg) {
+int genchar_parse(CharData *ch, char *arg) {
 	int tmp_class;
 	switch (*arg) {
 		case 'А':
@@ -212,7 +212,7 @@ int genchar_parse(CharacterData *ch, char *arg) {
  * the best 3 out of 4 rolls of a 6-sided die.  Each class then decides
  * which priority will be given for the best to worst stats.
  */
-void roll_real_abils(CharacterData *ch) {
+void roll_real_abils(CharData *ch) {
 	int i;
 
 	switch (ch->get_class()) {

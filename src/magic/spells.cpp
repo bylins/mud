@@ -38,15 +38,15 @@ extern char cast_argument[kMaxInputLength];
 extern im_type *imtypes;
 extern int top_imtypes;
 
-void weight_change_object(ObjectData *obj, int weight);
-int compute_armor_class(CharacterData *ch);
+void weight_change_object(ObjData *obj, int weight);
+int compute_armor_class(CharData *ch);
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
-int CalcAntiSavings(CharacterData *ch);
-void do_tell(CharacterData *ch, char *argument, int cmd, int subcmd);
-void RemoveEquipment(CharacterData *ch, int pos);
-int pk_action_type_summon(CharacterData *agressor, CharacterData *victim);
-int pk_increment_revenge(CharacterData *agressor, CharacterData *victim);
+int CalcAntiSavings(CharData *ch);
+void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
+void RemoveEquipment(CharData *ch, int pos);
+int pk_action_type_summon(CharData *agressor, CharData *victim);
+int pk_increment_revenge(CharData *agressor, CharData *victim);
 
 int what_sky = kSkyCloudless;
 // * Special spells appear below.
@@ -76,14 +76,14 @@ ESkill GetMagicSkillId(int spellnum) {
 
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
-int CalcMinSpellLevel(CharacterData *ch, int spellnum, int req_lvl) {
+int CalcMinSpellLevel(CharData *ch, int spellnum, int req_lvl) {
 	int min_lvl = MAX(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch))
 		- (MAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
 
 	return MAX(1, min_lvl);
 }
 
-bool IsAbleToGetSpell(CharacterData *ch, int spellnum, int req_lvl) {
+bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
 	if (CalcMinSpellLevel(ch, spellnum, req_lvl) > GET_REAL_LEVEL(ch)
 		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
 		return false;
@@ -92,7 +92,7 @@ bool IsAbleToGetSpell(CharacterData *ch, int spellnum, int req_lvl) {
 };
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
-bool IsAbleToGetSpell(CharacterData *ch, int spellnum) {
+bool IsAbleToGetSpell(CharData *ch, int spellnum) {
 	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GET_REAL_LEVEL(ch)
 		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
 		return false;
@@ -136,14 +136,14 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
 	return EIngredientFlag_name_by_value.at(item);
 }
 
-void SpellCreateWater(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
+void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	int water;
 	if (ch == nullptr || (obj == nullptr && victim == nullptr))
 		return;
 	// level = MAX(MIN(level, kLevelImplementator), 1);       - not used
 
 	if (obj
-		&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_DRINKCON) {
+		&& GET_OBJ_TYPE(obj) == ObjData::ITEM_DRINKCON) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
 			send_to_char("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
@@ -155,7 +155,7 @@ void SpellCreateWater(int/* level*/, CharacterData *ch, CharacterData *victim, O
 				}
 				obj->set_val(2, LIQ_WATER);
 				obj->add_val(1, water);
-				act("Вы наполнили $o3 водой.", false, ch, obj, nullptr, TO_CHAR);
+				act("Вы наполнили $o3 водой.", false, ch, obj, nullptr, kToChar);
 				name_to_drinkcon(obj, LIQ_WATER);
 				weight_change_object(obj, water);
 			}
@@ -165,7 +165,7 @@ void SpellCreateWater(int/* level*/, CharacterData *ch, CharacterData *victim, O
 		GET_COND(victim, THIRST) = 0;
 		send_to_char("Вы полностью утолили жажду.\r\n", victim);
 		if (victim != ch) {
-			act("Вы напоили $N3.", false, ch, nullptr, victim, TO_CHAR);
+			act("Вы напоили $N3.", false, ch, nullptr, victim, kToChar);
 		}
 	}
 }
@@ -182,7 +182,7 @@ void SpellCreateWater(int/* level*/, CharacterData *ch, CharacterData *victim, O
 
 // Поиск комнаты для перемещающего заклинания
 // ch - кого перемещают, rnum_start - первая комната диапазона, rnum_stop - последняя комната диапазона
-int GetTeleportTargetRoom(CharacterData *ch, int rnum_start, int rnum_stop) {
+int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop) {
 	int *r_array;
 	int n, i, j;
 	int fnd_room = kNowhere;
@@ -218,7 +218,7 @@ int GetTeleportTargetRoom(CharacterData *ch, int rnum_start, int rnum_stop) {
 	return n ? fnd_room : kNowhere;
 }
 
-void SpellRecall(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
+void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -278,18 +278,18 @@ void SpellRecall(int/* level*/, CharacterData *ch, CharacterData *victim, Object
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
-	act("$n исчез$q.", true, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+	act("$n исчез$q.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	char_from_room(victim);
 	char_to_room(victim, fnd_room);
 	victim->dismount();
-	act("$n появил$u в центре комнаты.", true, victim, nullptr, nullptr, TO_ROOM);
+	act("$n появил$u в центре комнаты.", true, victim, nullptr, nullptr, kToRoom);
 	look_at_room(victim, 0);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
 }
 
 // ПРЫЖОК в рамках зоны
-void SpellTeleport(int /* level */, CharacterData *ch, CharacterData */*victim*/, ObjectData */*obj*/) {
+void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData */*obj*/) {
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -306,24 +306,24 @@ void SpellTeleport(int /* level */, CharacterData *ch, CharacterData */*victim*/
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
-	act("$n медленно исчез$q из виду.", false, ch, nullptr, nullptr, TO_ROOM);
+	act("$n медленно исчез$q из виду.", false, ch, nullptr, nullptr, kToRoom);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	ch->dismount();
-	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, TO_ROOM);
+	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }
 
-void CheckAutoNosummon(CharacterData *ch) {
+void CheckAutoNosummon(CharData *ch) {
 	if (PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON) && PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
 		PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
 		send_to_char("Режим автопризыв: вы защищены от призыва.\r\n", ch);
 	}
 }
 
-void SpellRelocate(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
+void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
@@ -372,19 +372,19 @@ void SpellRelocate(int/* level*/, CharacterData *ch, CharacterData *victim, Obje
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 //	check_auto_nosummon(victim);
-	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, TO_ROOM);
+	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	ch->dismount();
 	look_at_room(ch, 0);
-	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, TO_ROOM);
+	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
 	WAIT_STATE(ch, 2 * kPulseViolence);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }
 
-void SpellPortal(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
+void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
@@ -461,14 +461,14 @@ void SpellPortal(int/* level*/, CharacterData *ch, CharacterData *victim, Object
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, 	world[fnd_room]->first_character(), nullptr, nullptr, TO_CHAR);
+				false, world[fnd_room]->first_character(), nullptr, nullptr, kToChar);
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, 	world[fnd_room]->first_character(), nullptr, nullptr, TO_ROOM);
+				false, world[fnd_room]->first_character(), nullptr, nullptr, kToRoom);
 		} else {
 			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, TO_CHAR);
+				false, world[fnd_room]->first_character(), nullptr, nullptr, kToChar);
 			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, TO_ROOM);
+				false, world[fnd_room]->first_character(), nullptr, nullptr, kToRoom);
 		}
 		CheckAutoNosummon(victim);
 
@@ -483,19 +483,19 @@ void SpellPortal(int/* level*/, CharacterData *ch, CharacterData *victim, Object
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false,	world[to_room]->first_character(), nullptr, nullptr, TO_CHAR);
+				false, world[to_room]->first_character(), nullptr, nullptr, kToChar);
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, 	world[to_room]->first_character(), nullptr, nullptr, TO_ROOM);
+				false, world[to_room]->first_character(), nullptr, nullptr, kToRoom);
 		} else {
 			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[to_room]->first_character(), nullptr, nullptr, TO_CHAR);
+				false, world[to_room]->first_character(), nullptr, nullptr, kToChar);
 			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[to_room]->first_character(), nullptr, nullptr, TO_ROOM);
+				false, world[to_room]->first_character(), nullptr, nullptr, kToRoom);
 		}
 	}
 }
 
-void SpellSummon(int /*level*/, CharacterData *ch, CharacterData *victim, ObjectData */*obj*/) {
+void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/) {
 	RoomRnum ch_room, vic_room;
 	struct Follower *k, *k_next;
 
@@ -601,12 +601,12 @@ void SpellSummon(int /*level*/, CharacterData *ch, CharacterData *victim, Object
 	}
 	if (!enter_wtrigger(world[ch_room], ch, -1))
 		return;
-	act("$n растворил$u на ваших глазах.", true, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+	act("$n растворил$u на ваших глазах.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	char_from_room(victim);
 	char_to_room(victim, ch_room);
 	victim->dismount();
-	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-	act("$n призвал$g вас!", false, ch, nullptr, victim, TO_VICT);
+	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	act("$n призвал$g вас!", false, ch, nullptr, victim, kToVict);
 	CheckAutoNosummon(victim);
 	GET_POS(victim) = EPosition::kStand;
 	look_at_room(victim, 0);
@@ -617,12 +617,12 @@ void SpellSummon(int /*level*/, CharacterData *ch, CharacterData *victim, Object
 			if (AFF_FLAGGED(k->ch, EAffectFlag::AFF_CHARM)) {
 				if (!k->ch->get_fighting()) {
 					act("$n растворил$u на ваших глазах.",
-						true, k->ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					char_from_room(k->ch);
 					char_to_room(k->ch, ch_room);
 					act("$n прибыл$g за хозяином.",
-						true, k->ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					act("$n призвал$g вас!", false, ch, nullptr, k->ch, TO_VICT);
+						true, k->ch, nullptr, nullptr, kToRoom | kToArenaListen);
+					act("$n призвал$g вас!", false, ch, nullptr, k->ch, kToVict);
 				}
 			}
 		}
@@ -631,7 +631,7 @@ void SpellSummon(int /*level*/, CharacterData *ch, CharacterData *victim, Object
 	greet_otrigger(victim, -1);
 }
 
-void SpellLocateObject(int level, CharacterData *ch, CharacterData* /*victim*/, ObjectData *obj) {
+void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *obj) {
 	/*
 	   * FIXME: This is broken.  The spell parser routines took the argument
 	   * the player gave to the spell and located an object with that keyword.
@@ -648,7 +648,7 @@ void SpellLocateObject(int level, CharacterData *ch, CharacterData* /*victim*/, 
 
 	int tmp_lvl = (IS_GOD(ch)) ? 300 : level;
 	int count = tmp_lvl;
-	const auto result = world_objects.find_if_and_dec_number([&](const ObjectData::shared_ptr &i) {
+	const auto result = world_objects.find_if_and_dec_number([&](const ObjData::shared_ptr &i) {
 		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
 		if (!obj_ptr) {
 			sprintf(buf, "SYSERR: Illegal object iterator while locate");
@@ -790,9 +790,9 @@ void SpellLocateObject(int level, CharacterData *ch, CharacterData* /*victim*/, 
 	}
 }
 
-bool CatchBloodyCorpse(ObjectData *l) {
+bool CatchBloodyCorpse(ObjData *l) {
 	bool temp_bloody = false;
-	ObjectData *next_element;
+	ObjData *next_element;
 
 	if (!l->get_contains()) {
 		return false;
@@ -825,12 +825,12 @@ bool CatchBloodyCorpse(ObjectData *l) {
 	return false;
 }
 
-void SpellCreateWeapon(int/* level*/, CharacterData* /*ch*/, CharacterData* /*victim*/, ObjectData* /* obj*/) {
+void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /* obj*/) {
 	//go_create_weapon(ch,nullptr,what_sky);
 // отключено, так как не реализовано
 }
 
-int CheckCharmices(CharacterData *ch, CharacterData *victim, int spellnum) {
+int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 	struct Follower *k;
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;
@@ -883,7 +883,7 @@ int CheckCharmices(CharacterData *ch, CharacterData *victim, int spellnum) {
 	return (true);
 }
 
-void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/) {
+void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
 	int k_skills = 0;
 	ESkill skill_id = ESkill::kIncorrect;
 	if (victim == nullptr || ch == nullptr)
@@ -920,7 +920,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 	else if (IS_HORSE(victim))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
 	else if (victim->get_fighting() || GET_POS(victim) < EPosition::kRest)
-		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, TO_CHAR);
+		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, kToChar);
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch)
@@ -951,9 +951,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 		af.type = kSpellCharm;
 
 		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
-			af.duration = pc_duration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
 		} else {
-			af.duration = pc_duration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REAL_REMORT(ch) * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, GET_REAL_CHA(ch) + number(1, 10) + GET_REAL_REMORT(ch) * 2, 0, 0, 0, 0);
 		}
 
 		af.modifier = 0;
@@ -965,9 +965,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 		if (can_use_feat(ch, ANIMAL_MASTER_FEAT) && 
 		GET_RACE(victim) == 104) {
 			act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...",
-				false, ch, nullptr, victim, TO_CHAR);
+				false, ch, nullptr, victim, kToChar);
 			act("$N0 обрел$G часть магической силы $n1.",
-				false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+				false, ch, nullptr, victim, kToRoom | kToArenaListen);
 			// начинаем модификации victim
 			// создаем переменные модификаторов
 			int r_cha = GET_REAL_CHA(ch);
@@ -1158,9 +1158,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 			{ // готовим наборы скиллов / способностей
 			case 1:
 				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
-					false, ch, nullptr, victim, TO_CHAR); // тут потом заменим на валидные фразы
+					false, ch, nullptr, victim, kToChar); // тут потом заменим на валидные фразы
 				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
-					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kHammer, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.8);
 				victim->set_skill(ESkill::kPunch, k_skills*0.9);
@@ -1172,16 +1172,16 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 					victim->set_skill(ESkill::kStrangle, k_skills);
 					SET_FEAT(victim, BERSERK_FEAT);
 					act("&B$N0 теперь сможет просто удавить всех своих врагов.&n\n",
-						false, ch, nullptr, victim, TO_CHAR);
+						false, ch, nullptr, victim, kToChar);
 				}
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.3));
 				skill_id = ESkill::kPunch;
 				break;
 			case 2:
 				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.",
-					false, ch, nullptr, victim, TO_CHAR);
+					false, ch, nullptr, victim, kToChar);
 				act("Лапы $N1 удлинились и на них выросли гиганские острые когти.\nТуловище $N1 стало более мускулистым.",
-					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kOverwhelm, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.8);
 				victim->set_skill(ESkill::kTwohands, k_skills*0.95);
@@ -1191,7 +1191,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 				if (floorf(r_cha + perc/5.0) > number(1, 150)) {
 					SET_FEAT(victim, RELATED_TO_MAGIC_FEAT);
 					act("&G$N0 стал$G намного более опасным хищником.&n\n",
-						false, ch, nullptr, victim, TO_CHAR);
+						false, ch, nullptr, victim, kToChar);
 					victim->set_skill(ESkill::kFirstAid, k_skills*0.4);
 					victim->set_skill(ESkill::kParry, k_skills*0.7);
 				}
@@ -1200,9 +1200,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 				break;
 			case 3:
 				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.",
-					false, ch, nullptr, victim, TO_CHAR);
+					false, ch, nullptr, victim, kToChar);
 				act("Когти на лапах $N1 удлинились в размерах и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытими.",
-					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kBackstab, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
 				victim->set_skill(ESkill::kPicks, k_skills*0.75);
@@ -1212,7 +1212,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 				SET_FEAT(victim, THIEVES_STRIKE_FEAT);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					SET_FEAT(victim, SHADOW_STRIKE_FEAT);
-					act("&c$N0 затаил$U в вашей тени...&n\n", false, ch, nullptr, victim, TO_CHAR);
+					act("&c$N0 затаил$U в вашей тени...&n\n", false, ch, nullptr, victim, kToChar);
 					
 				}
 				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.3));		
@@ -1220,9 +1220,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 				break;
 			case 4:
 				act("Рефлексы $N1 обострились и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
-					false, ch, nullptr, victim, TO_CHAR);
+					false, ch, nullptr, victim, kToChar);
 				act("Рефлексы $N1 обострились и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
-					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kAwake, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.85);
 				victim->set_skill(ESkill::kShieldBlock, k_skills*0.75);
@@ -1231,7 +1231,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 				if (floorf(r_cha*0.9 + perc/5.0) > number(1, 140)) {
 					victim->set_skill(ESkill::kProtect, k_skills*0.75);
 					act("&WЧуткий взгяд $N1 остановился на вас и вы ощутили себя под защитой.&n\n",
-						false, ch, nullptr, victim, TO_CHAR);
+						false, ch, nullptr, victim, kToChar);
 					victim->set_protecting(ch);
 				}
 				SET_FEAT(victim, AXES_MASTER_FEAT);
@@ -1244,9 +1244,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 				break;
 			case 5:
 				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.",
-					false, ch, nullptr, victim, TO_CHAR);
+					false, ch, nullptr, victim, kToChar);
 				act("Движения $N1 сильно ускорились, из туловища выросло несколько новых лап.\nКоторые покрылись длинными когтями.",
-					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kUndercut, k_skills);
 				victim->set_skill(ESkill::kDodge, k_skills*0.7);
 				victim->set_skill(ESkill::kAddshot, k_skills*0.7);
@@ -1258,7 +1258,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
 					af.bitvector = to_underlying(EAffectFlag::AFF_CLOUD_OF_ARROWS);
 					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n",
-						false, ch, nullptr, victim, TO_CHAR);
+						false, ch, nullptr, victim, kToChar);
 					affect_to_char(victim, af);
 				}
 				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.2));
@@ -1268,9 +1268,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 				break;
 			case 6:
 				act("Туловище $N1 увеличилось, лапы сильно удлинились.\nНа них выросли острые когти-шипы.",
-					false, ch, nullptr, victim, TO_CHAR);
+					false, ch, nullptr, victim, kToChar);
 				act("Туловище $N1 увеличилось, лапы сильно удлинились.\nНа них выросли острые когти-шипы.",
-					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kClubs, k_skills);
 				victim->set_skill(ESkill::kThrow, k_skills*0.85);
 				victim->set_skill(ESkill::kDodge, k_skills*0.7);
@@ -1287,7 +1287,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 					SET_FEAT(victim, SHADOW_CLUB_FEAT);
 					victim->set_skill(ESkill::kDarkMagic, k_skills*0.7);
 					act("&cКогти $N1 преобрели &Kчерный цвет&c, будто смерть коснулась их.&n\n",
-						false, ch, nullptr, victim, TO_CHAR);
+						false, ch, nullptr, victim, kToChar);
 					victim->mob_specials.ExtraAttack = floorf((r_cha*1.2 + perc) / 100.0);
 				}
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.25));
@@ -1296,9 +1296,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 			break;
 			case 7:
 				act("Туловище $N1 увеличилось, мышцы налились дикой силой.\nА когти на лапах удлинились и заострились.",
-					false, ch, nullptr, victim, TO_CHAR);
+					false, ch, nullptr, victim, kToChar);
 				act("Туловище $N1 увеличилось, мышцы налились дикой силой.\nА когти на лапах удлинились и заострились.",
-					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kLongBlades, k_skills);
 				victim->set_skill(ESkill::kKick, k_skills*0.95);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
@@ -1309,7 +1309,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 					victim->set_skill(ESkill::kIronwind, k_skills*0.8);
 					SET_FEAT(victim, BERSERK_FEAT);
 					act("&mДвижения $N1 сильно ускорились, и в глазах появились &Rогоньки&m безумия.&n\n",
-						false, ch, nullptr, victim, TO_CHAR);
+						false, ch, nullptr, victim, kToChar);
 				}
 				victim->set_dex(floorf(GET_REAL_DEX(victim)*1.1));
 				victim->set_str(floorf(GET_REAL_STR(victim)*1.35));
@@ -1318,9 +1318,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 			break;		
 			default:
 				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.",
-					false, ch, nullptr, victim, TO_CHAR);
+					false, ch, nullptr, victim, kToChar);
 				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.",
-					false, ch, nullptr, victim, TO_ROOM | TO_ARENA_LISTEN);
+					false, ch, nullptr, victim, kToRoom | kToArenaListen);
 				victim->set_skill(ESkill::kParry, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.75);
 				victim->set_skill(ESkill::kThrow, k_skills*0.95);
@@ -1334,7 +1334,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 					SET_FEAT(victim, SHADOW_SPEAR_FEAT);
 					victim->set_skill(ESkill::kDarkMagic, k_skills*0.8);
 					act("&KКогти $N1 преобрели темный оттенок, будто сама тьма коснулась их.&n\n",
-						false, ch, nullptr, victim, TO_CHAR);
+						false, ch, nullptr, victim, kToChar);
 				}
 				
 				SET_FEAT(victim, THROW_WEAPON_FEAT);
@@ -1355,7 +1355,7 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 		}
 
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.",
-			false, ch, nullptr, victim, TO_VICT);
+			false, ch, nullptr, victim, kToVict);
 		if (IS_NPC(victim)) {
 //Eli. Раздеваемся.
 			if (IS_NPC(victim) && !MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) { // только если не маг зверьки (Кудояр)
@@ -1366,9 +1366,9 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 						}
 
 						act("Вы прекратили использовать $o3.",
-							false, victim, GET_EQ(victim, i), nullptr, TO_CHAR);
+							false, victim, GET_EQ(victim, i), nullptr, kToChar);
 						act("$n прекратил$g использовать $o3.",
-							true, victim, GET_EQ(victim, i), nullptr, TO_ROOM);
+							true, victim, GET_EQ(victim, i), nullptr, kToRoom);
 						obj_to_char(unequip_char(victim, i, CharEquipFlag::show_msg), victim);
 					}
 				}
@@ -1392,8 +1392,8 @@ void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectD
 	}
 }
 
-void show_weapon(CharacterData *ch, ObjectData *obj) {
-	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
+void show_weapon(CharData *ch, ObjData *obj) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
 			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
@@ -1413,7 +1413,7 @@ void show_weapon(CharacterData *ch, ObjectData *obj) {
 	}
 }
 
-void print_book_uprgd_skill(CharacterData *ch, const ObjectData *obj) {
+void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 	if (MUD::Skills().IsInvalid(skill_id)) {
 		log("SYSERR: invalid skill_id: %d, ch_name=%s, ObjVnum=%d (%s %s %d)",
@@ -1429,7 +1429,7 @@ void print_book_uprgd_skill(CharacterData *ch, const ObjectData *obj) {
 	}
 }
 
-void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness, bool enhansed_scroll) {
+void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll) {
 	int i, found, drndice = 0, drsdice = 0, j;
 	long int li;
 
@@ -1518,8 +1518,8 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 		return;
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjectData::ITEM_SCROLL:
-		case ObjectData::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
+		case ObjData::ITEM_SCROLL:
+		case ObjData::ITEM_POTION: sprintf(buf, "Содержит заклинание: ");
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount)
 				sprintf(buf + strlen(buf), " %s", GetSpellName(GET_OBJ_VAL(obj, 1)));
 			if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) <= kSpellCount)
@@ -1530,25 +1530,25 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 			send_to_char(buf, ch);
 			break;
 
-		case ObjectData::ITEM_WAND:
-		case ObjectData::ITEM_STAFF: sprintf(buf, "Вызывает заклинания: ");
+		case ObjData::ITEM_WAND:
+		case ObjData::ITEM_STAFF: sprintf(buf, "Вызывает заклинания: ");
 			if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) <= kSpellCount)
 				sprintf(buf + strlen(buf), " %s\r\n", GetSpellName(GET_OBJ_VAL(obj, 3)));
 			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
 			break;
 
-		case ObjectData::ITEM_WEAPON: drndice = GET_OBJ_VAL(obj, 1);
+		case ObjData::ITEM_WEAPON: drndice = GET_OBJ_VAL(obj, 1);
 			drsdice = GET_OBJ_VAL(obj, 2);
 			sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
 			sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
 			send_to_char(buf, ch);
 			break;
 
-		case ObjectData::ITEM_ARMOR:
-		case ObjectData::ITEM_ARMOR_LIGHT:
-		case ObjectData::ITEM_ARMOR_MEDIAN:
-		case ObjectData::ITEM_ARMOR_HEAVY: drndice = GET_OBJ_VAL(obj, 0);
+		case ObjData::ITEM_ARMOR:
+		case ObjData::ITEM_ARMOR_LIGHT:
+		case ObjData::ITEM_ARMOR_MEDIAN:
+		case ObjData::ITEM_ARMOR_HEAVY: drndice = GET_OBJ_VAL(obj, 0);
 			drsdice = GET_OBJ_VAL(obj, 1);
 			sprintf(buf, "защита (AC) : %d\r\n", drndice);
 			send_to_char(buf, ch);
@@ -1556,7 +1556,7 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 			send_to_char(buf, ch);
 			break;
 
-		case ObjectData::ITEM_BOOK:
+		case ObjData::ITEM_BOOK:
 			switch (GET_OBJ_VAL(obj, 0)) {
 				case BOOK_SPELL:
 					if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= kSpellCount) {
@@ -1635,7 +1635,7 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 			}
 			break;
 
-		case ObjectData::ITEM_INGREDIENT: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
+		case ObjData::ITEM_INGREDIENT: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
 			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 			send_to_char(buf, ch);
 
@@ -1667,7 +1667,7 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 			}
 			break;
 
-		case ObjectData::ITEM_MING:
+		case ObjData::ITEM_MING:
 			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 				j++;
 			}
@@ -1701,16 +1701,16 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 			break;
 
 			//Информация о контейнерах (Купала)
-		case ObjectData::ITEM_CONTAINER: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
+		case ObjData::ITEM_CONTAINER: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 			send_to_char(buf, ch);
 			break;
 
 			//Информация о емкостях (Купала)
-		case ObjectData::ITEM_DRINKCON: drinkcon::identify(ch, obj);
+		case ObjData::ITEM_DRINKCON: drinkcon::identify(ch, obj);
 			break;
 
-		case ObjectData::ITEM_MAGIC_ARROW:
-		case ObjectData::ITEM_MAGIC_CONTAINER: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		case ObjData::ITEM_MAGIC_ARROW:
+		case ObjData::ITEM_MAGIC_CONTAINER: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
 			sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
 					GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
@@ -1746,7 +1746,7 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 		}
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ENCHANT
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ENCHANT
 		&& GET_OBJ_VAL(obj, 0) != 0) {
 		if (!found) {
 			send_to_char("Дополнительные свойства :\r\n", ch);
@@ -1777,9 +1777,9 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 		}
 	}
 
-	auto it = ObjectData::set_table.begin();
+	auto it = ObjData::set_table.begin();
 	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
-		for (; it != ObjectData::set_table.end(); it++) {
+		for (; it != ObjData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				sprintf(buf,
 						"Часть набора предметов: %s%s%s\r\n",
@@ -1809,7 +1809,7 @@ void mort_show_obj_values(const ObjectData *obj, CharacterData *ch, int fullness
 
 #define IDENT_SELF_LEVEL 6
 
-void mort_show_char_values(CharacterData *victim, CharacterData *ch, int fullness) {
+void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	int val0, val1, val2;
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
@@ -1907,7 +1907,7 @@ void mort_show_char_values(CharacterData *victim, CharacterData *ch, int fullnes
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
 
-void SkillIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
+void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	bool full = false;
 	if (obj) {
 		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr), full);
@@ -1923,7 +1923,7 @@ void SkillIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, Obje
 }
 
 
-void SpellFullIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
+void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	bool full = true;
 	if (obj)
 		mort_show_obj_values(obj, ch, 100, full);
@@ -1933,7 +1933,7 @@ void SpellFullIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, 
 	}
 }
 
-void SpellIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj) {
+void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	bool full = false;
 	if (obj)
 		mort_show_obj_values(obj, ch, 100, full);
@@ -1950,7 +1950,7 @@ void SpellIdentify(int/* level*/, CharacterData *ch, CharacterData *victim, Obje
 	}
 }
 
-void SpellControlWeather(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/) {
+void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
 	const char *sky_info = nullptr;
 	int i, duration, zone, sky_type = 0;
 
@@ -1993,14 +1993,14 @@ void SpellControlWeather(int/* level*/, CharacterData *ch, CharacterData* /*vict
 				world[i]->weather.weather_type = sky_type;
 				world[i]->weather.duration = duration;
 				if (world[i]->first_character()) {
-					act(sky_info, false, world[i]->first_character(), nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
-					act(sky_info, false, world[i]->first_character(), nullptr, nullptr, TO_CHAR);
+					act(sky_info, false, world[i]->first_character(), nullptr, nullptr, kToRoom | kToArenaListen);
+					act(sky_info, false, world[i]->first_character(), nullptr, nullptr, kToChar);
 				}
 			}
 	}
 }
 
-void SpellFear(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/) {
+void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
 	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
@@ -2018,7 +2018,7 @@ void SpellFear(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectDa
 		go_flee(victim);
 }
 
-void SpellEnergydrain(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/) {
+void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
 	// истощить энергию - круг 28 уровень 9 (1)
 	// для всех
 	int modi = 0;
@@ -2042,7 +2042,7 @@ void SpellEnergydrain(int/* level*/, CharacterData *ch, CharacterData *victim, O
 }
 
 // накачка хитов
-void do_sacrifice(CharacterData *ch, int dam) {
+void do_sacrifice(CharData *ch, int dam) {
 //MZ.overflow_fix
 	GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam), GET_REAL_MAX_HIT(ch)
 		+ GET_REAL_MAX_HIT(ch) * GET_REAL_LEVEL(ch) / 10));
@@ -2050,7 +2050,7 @@ void do_sacrifice(CharacterData *ch, int dam) {
 	update_pos(ch);
 }
 
-void SpellSacrifice(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/) {
+void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
 	int dam, d0 = GET_HIT(victim);
 	struct Follower *f;
 
@@ -2085,12 +2085,12 @@ void SpellSacrifice(int/* level*/, CharacterData *ch, CharacterData *victim, Obj
 	}
 }
 
-void SpellHolystrike(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/) {
+void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
 
-	act(msg1, false, ch, nullptr, nullptr, TO_CHAR);
-	act(msg1, false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+	act(msg1, false, ch, nullptr, nullptr, kToChar);
+	act(msg1, false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
 	const auto people_copy = world[ch->in_room]->people;
 	for (const auto tch : people_copy) {
@@ -2112,10 +2112,10 @@ void SpellHolystrike(int/* level*/, CharacterData *ch, CharacterData* /*victim*/
 		mag_damage(GET_REAL_LEVEL(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
 	}
 
-	act(msg2, false, ch, nullptr, nullptr, TO_CHAR);
-	act(msg2, false, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+	act(msg2, false, ch, nullptr, nullptr, kToChar);
+	act(msg2, false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
-	ObjectData *o = nullptr;
+	ObjData *o = nullptr;
 	do {
 		for (o = world[ch->in_room]->contents; o; o = o->get_next_content()) {
 			if (!IS_CORPSE(o)) {
@@ -2129,10 +2129,10 @@ void SpellHolystrike(int/* level*/, CharacterData *ch, CharacterData* /*victim*/
 	} while (o);
 }
 
-void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/) {
+void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
 	MobVnum mob_num = 108;
 	//int modifier = 0;
-	CharacterData *mob = nullptr;
+	CharData *mob = nullptr;
 	struct Follower *k, *k_next;
 
 	auto eff_cha = get_effective_cha(ch);
@@ -2183,7 +2183,7 @@ void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*
 	clear_char_skills(mob);
 	Affect<EApplyLocation> af;
 	af.type = kSpellCharm;
-	af.duration = pc_duration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
+	af.duration = CalcDuration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;
 	af.battleflag = 0;
@@ -2307,23 +2307,23 @@ void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*
 	
 	if (IS_FEMALE(mob)) {
 		act("Небесная защитница появилась в яркой вспышке света!",
-			true, mob, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	} else {
 		act("Небесный защитник появился в яркой вспышке света!",
-			true, mob, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
 }
 
-void SpellVampirism(int/* level*/, CharacterData* /*ch*/, CharacterData* /*victim*/, ObjectData* /*obj*/) {
+void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/) {
 }
 
-void SpellMentalShadow(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/) {
+void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
 	// подготовка контейнера для создания заклинания ментальная тень
 	// все предложения пишем мад почтой
 
 	MobVnum mob_num = kMobMentalShadow;
 
-	CharacterData *mob = nullptr;
+	CharData *mob = nullptr;
 	struct Follower *k, *k_next;
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
@@ -2347,7 +2347,7 @@ void SpellMentalShadow(int/* level*/, CharacterData *ch, CharacterData* /*victim
 	}
 	Affect<EApplyLocation> af;
 	af.type = kSpellCharm;
-	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
@@ -2388,7 +2388,7 @@ void SpellMentalShadow(int/* level*/, CharacterData *ch, CharacterData* /*victim
 	mob->set_protecting(ch);
 	
 	act("Мимолётное наваждение воплотилось в призрачную тень.",
-		true, mob, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+		true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 }
 
 std::string get_wear_off_text(ESpell spell)
@@ -3214,7 +3214,7 @@ ESpell ITEM_BY_NAME(const std::string &name) {
 
 std::map<int /* vnum */, int /* count */> rune_list;
 
-void add_rune_stats(CharacterData *ch, int vnum, int spelltype) {
+void add_rune_stats(CharData *ch, int vnum, int spelltype) {
 	if (IS_NPC(ch) || kSpellRunes != spelltype) {
 		return;
 	}
@@ -3226,7 +3226,7 @@ void add_rune_stats(CharacterData *ch, int vnum, int spelltype) {
 	}
 }
 
-void extract_item(CharacterData *ch, ObjectData *obj, int spelltype) {
+void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 	int extract = false;
 	if (!obj) {
 		return;
@@ -3248,14 +3248,14 @@ void extract_item(CharacterData *ch, ObjectData *obj, int spelltype) {
 		if (spelltype == kSpellRunes) {
 			snprintf(buf, kMaxStringLength, "$o%s рассыпал$U у вас в руках.",
 					 char_get_custom_label(obj, ch).c_str());
-			act(buf, false, ch, obj, nullptr, TO_CHAR);
+			act(buf, false, ch, obj, nullptr, kToChar);
 		}
 		obj_from_char(obj);
 		extract_obj(obj);
 	}
 }
 
-int CheckRecipeValues(CharacterData *ch, int spellnum, int spelltype, int showrecipe) {
+int CheckRecipeValues(CharData *ch, int spellnum, int spelltype, int showrecipe) {
 	int item0 = -1, item1 = -1, item2 = -1, obj_num = -1;
 	struct SpellCreateItem *items;
 
@@ -3317,7 +3317,7 @@ int CheckRecipeValues(CharacterData *ch, int spellnum, int spelltype, int showre
 			strcat(buf, "для создания ");
 			strcat(buf, obj_proto[obj_num]->get_PName(1).c_str());
 		}
-		act(buf, false, ch, nullptr, nullptr, TO_CHAR);
+		act(buf, false, ch, nullptr, nullptr, kToChar);
 	}
 
 	return (true);
@@ -3331,15 +3331,15 @@ int CheckRecipeValues(CharacterData *ch, int spellnum, int spelltype, int showre
  * it to implement your own spells which require ingredients (i.e., some
  * heal spell which requires a rare herb or some such.)
  */
-bool mag_item_ok(CharacterData *ch, ObjectData *obj, int spelltype) {
+bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 	int num = 0;
 
 	if (spelltype == kSpellRunes
-		&& GET_OBJ_TYPE(obj) != ObjectData::ITEM_INGREDIENT) {
+		&& GET_OBJ_TYPE(obj) != ObjData::ITEM_INGREDIENT) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT) {
 		if ((!IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype == kSpellRunes)
 			|| (IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype != kSpellRunes)) {
 			return false;
@@ -3392,8 +3392,8 @@ bool mag_item_ok(CharacterData *ch, ObjectData *obj, int spelltype) {
 	return true;
 }
 
-int CheckRecipeItems(CharacterData *ch, int spellnum, int spelltype, int extract, const CharacterData *targ) {
-	ObjectData *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
+int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, const CharData *targ) {
+	ObjData *obj0 = nullptr, *obj1 = nullptr, *obj2 = nullptr, *obj3 = nullptr, *objo = nullptr;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
 	ESkill skill_id = ESkill::kIncorrect;
@@ -3488,7 +3488,7 @@ int CheckRecipeItems(CharacterData *ch, int spellnum, int spelltype, int extract
 			strcpy(buf, "Вы взяли ");
 		}
 
-		ObjectData::shared_ptr obj;
+		ObjData::shared_ptr obj;
 		if (create) {
 			obj = world_objects.create_from_prototype_by_vnum(obj_num);
 			if (!obj) {
@@ -3536,33 +3536,33 @@ int CheckRecipeItems(CharacterData *ch, int spellnum, int spelltype, int extract
 		if (create) {
 			if (percent >= 0) {
 				strcat(buf, " и создали $o3.");
-				act(buf, false, ch, obj.get(), nullptr, TO_CHAR);
-				act("$n создал$g $o3.", false, ch, obj.get(), nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act(buf, false, ch, obj.get(), nullptr, kToChar);
+				act("$n создал$g $o3.", false, ch, obj.get(), nullptr, kToRoom | kToArenaListen);
 				obj_to_char(obj.get(), ch);
 			} else {
 				strcat(buf, " и попытались создать $o3.\r\n" "Ничего не вышло.");
-				act(buf, false, ch, obj.get(), nullptr, TO_CHAR);
+				act(buf, false, ch, obj.get(), nullptr, kToChar);
 				extract_obj(obj.get());
 			}
 		} else {
 			if (spelltype == kSpellItems) {
 				strcat(buf, "и создали магическую смесь.\r\n");
-				act(buf, false, ch, nullptr, nullptr, TO_CHAR);
+				act(buf, false, ch, nullptr, nullptr, kToChar);
 				act("$n смешал$g что-то в своей ноше.\r\n"
-					"Вы почувствовали резкий запах.", true, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					"Вы почувствовали резкий запах.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			} else if (spelltype == kSpellRunes) {
 				sprintf(buf + strlen(buf),
 						"котор%s вспыхнул%s ярким светом.%s",
 						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
 						PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
-				act(buf, false, ch, nullptr, nullptr, TO_CHAR);
+				act(buf, false, ch, nullptr, nullptr, kToChar);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
-					true, ch, nullptr, nullptr, TO_ROOM);
+					true, ch, nullptr, nullptr, kToRoom);
 				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.",
 						GetSpellName(spellnum),
 						(targ && targ != ch ? " на " : ""),
 						(targ && targ != ch ? GET_PAD(targ, 1) : ""));
-				act(buf, true, ch, nullptr, nullptr, TO_ARENA_LISTEN);
+				act(buf, true, ch, nullptr, nullptr, kToArenaListen);
 				auto magic_skill = GetMagicSkillId(spellnum);
 				if (MUD::Skills().IsValid(magic_skill)) {
 					TrainSkill(ch, magic_skill, true, nullptr);
@@ -3577,7 +3577,7 @@ int CheckRecipeItems(CharacterData *ch, int spellnum, int spelltype, int extract
 	return (true);
 }
 
-void print_rune_stats(CharacterData *ch) {
+void print_rune_stats(CharData *ch) {
 	if (!IS_GRGOD(ch)) {
 		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;

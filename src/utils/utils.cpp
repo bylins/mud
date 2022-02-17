@@ -17,7 +17,7 @@
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "logger.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "db.h"
 #include "comm.h"
 #include "color.h"
@@ -29,8 +29,8 @@
 #include "dg_script/dg_scripts.h"
 #include "features.h"
 #include "administration/privilege.h"
-#include "entities/char.h"
-#include "entities/room.h"
+#include "entities/char_data.h"
+#include "entities/room_data.h"
 #include "modify.h"
 #include "house.h"
 #include "entities/player_races.h"
@@ -64,7 +64,7 @@
 #include <sstream>
 
 extern DescriptorData *descriptor_list;
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 extern const char *weapon_class[];
 // local functions
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
@@ -73,8 +73,8 @@ void prune_crlf(char *txt);
 bool IsValidEmail(const char *address);
 
 // external functions
-void perform_drop_gold(CharacterData *ch, int amount);
-void do_echo(CharacterData *ch, char *argument, int cmd, int subcmd);
+void perform_drop_gold(CharData *ch, int amount);
+void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 
 char AltToKoi[] = {
 		"АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡+++╣║╗╝+╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨++╙╘╒++╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁё╫╜╢╓╤╕╥╖·√??■ "
@@ -98,7 +98,7 @@ char AltToLat[] = {
 const char *ACTNULL = "<NULL>";
 
 // return char with UID n
-CharacterData *find_char(long n) {
+CharData *find_char(long n) {
 	for (const auto &ch : character_list) {
 		if (GET_ID(ch) == n) {
 			return ch.get();
@@ -108,7 +108,7 @@ CharacterData *find_char(long n) {
 	return nullptr;
 }
 
-bool check_spell_on_player(CharacterData *ch, int spell_num) {
+bool check_spell_on_player(CharData *ch, int spell_num) {
 	for (const auto &af : ch->affected) {
 		if (af->type == spell_num) {
 			return true;
@@ -232,7 +232,7 @@ bool is_head(std::string name) {
 	return false;
 }
 
-int get_virtual_race(CharacterData *mob) {
+int get_virtual_race(CharData *mob) {
 	if (mob->get_role(MOB_ROLE_BOSS)) {
 		return NPC_BOSS;
 	}
@@ -245,10 +245,10 @@ int get_virtual_race(CharacterData *mob) {
 	return -1;
 }
 
-CharacterData *get_random_pc_group(CharacterData *ch) {
-	std::vector<CharacterData *> tmp_list;
-	CharacterData *victim;
-	CharacterData *k;
+CharData *get_random_pc_group(CharData *ch) {
+	std::vector<CharData *> tmp_list;
+	CharData *victim;
+	CharData *k;
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		return nullptr;
 	if (ch->has_master()) {
@@ -499,7 +499,7 @@ TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 	return (&now);
 }
 
-TimeInfoData *age(const CharacterData *ch) {
+TimeInfoData *age(const CharData *ch) {
 	static TimeInfoData player_age;
 
 	player_age = *mud_time_passed(time(0), ch->player_data.time.birth);
@@ -872,7 +872,7 @@ const char *desc_count(long how_many, int of_what) {
 		return some_pads[2][of_what];
 }
 
-int check_moves(CharacterData *ch, int how_moves) {
+int check_moves(CharData *ch, int how_moves) {
 	if (IS_IMMORTAL(ch) || IS_NPC(ch))
 		return (true);
 	if (GET_MOVE(ch) < how_moves) {
@@ -943,7 +943,7 @@ int real_sector(int room) {
 	return kSectInside;
 }
 
-bool same_group(CharacterData *ch, CharacterData *tch) {
+bool same_group(CharData *ch, CharData *tch) {
 	if (!ch || !tch)
 		return false;
 
@@ -1022,7 +1022,7 @@ int is_post(RoomRnum room) {
 
 // Форматирование вывода в соответствии с форматом act-a
 // output act format//
-char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const void *vict_obj) {
+char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj) {
 	const char *i = nullptr;
 	char *buf, *lbuf;
 	ubyte padis;
@@ -1045,10 +1045,10 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'N':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, GET_PAD((const CharacterData *) vict_obj, 0));
+						CHECK_NULL(vict_obj, GET_PAD((const CharData *) vict_obj, 0));
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, GET_PAD((const CharacterData *) vict_obj, padis));
+						CHECK_NULL(vict_obj, GET_PAD((const CharData *) vict_obj, padis));
 					}
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1057,7 +1057,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'M':
 					if (vict_obj)
-						i = HMHR((const CharacterData *) vict_obj);
+						i = HMHR((const CharData *) vict_obj);
 					else CHECK_NULL(obj, OMHR(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1066,7 +1066,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'S':
 					if (vict_obj)
-						i = HSHR((const CharacterData *) vict_obj);
+						i = HSHR((const CharData *) vict_obj);
 					else CHECK_NULL(obj, OSHR(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1075,7 +1075,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'E':
 					if (vict_obj)
-						i = HSSH((const CharacterData *) vict_obj);
+						i = HSSH((const CharData *) vict_obj);
 					else CHECK_NULL(obj, OSSH(obj));
 					break;
 
@@ -1089,10 +1089,10 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'O':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, ((const ObjectData *) vict_obj)->get_PName(0).c_str());
+						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(0).c_str());
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, ((const ObjectData *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
+						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
 					}
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1113,7 +1113,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'A':
 					if (vict_obj)
-						i = GET_CH_SUF_6((const CharacterData *) vict_obj);
+						i = GET_CH_SUF_6((const CharData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_6(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1122,7 +1122,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'G':
 					if (vict_obj)
-						i = GET_CH_SUF_1((const CharacterData *) vict_obj);
+						i = GET_CH_SUF_1((const CharData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_1(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1131,7 +1131,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'Y':
 					if (vict_obj)
-						i = GET_CH_SUF_5((const CharacterData *) vict_obj);
+						i = GET_CH_SUF_5((const CharData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_5(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1140,7 +1140,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'U':
 					if (vict_obj)
-						i = GET_CH_SUF_2((const CharacterData *) vict_obj);
+						i = GET_CH_SUF_2((const CharData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_2(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1149,7 +1149,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'W':
 					if (vict_obj)
-						i = GET_CH_SUF_3((const CharacterData *) vict_obj);
+						i = GET_CH_SUF_3((const CharData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_3(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1158,7 +1158,7 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'Q':
 					if (vict_obj)
-						i = GET_CH_SUF_4((const CharacterData *) vict_obj);
+						i = GET_CH_SUF_4((const CharData *) vict_obj);
 					else CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
@@ -1170,8 +1170,8 @@ char *format_act(const char *orig, CharacterData *ch, ObjectData *obj, const voi
 					break;
 				case 'Z':
 					if (vict_obj)
-						i = HYOU((const CharacterData *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CharacterData *) vict_obj));
+						i = HYOU((const CharData *) vict_obj);
+					else CHECK_NULL(vict_obj, HYOU((const CharData *) vict_obj));
 					break;
 //-Polud
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
@@ -1229,7 +1229,7 @@ int roundup(float fl) {
 
 // Функция проверяет может ли ch нести предмет obj и загружает предмет
 // в инвентарь игрока или в комнату, где игрок находится
-void can_carry_obj(CharacterData *ch, ObjectData *obj) {
+void can_carry_obj(CharData *ch, ObjData *obj) {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не можете нести столько предметов.", ch);
 		obj_to_room(obj, ch->in_room);
@@ -1251,7 +1251,7 @@ void can_carry_obj(CharacterData *ch, ObjectData *obj) {
    (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
  */
-bool CAN_CARRY_OBJ(const CharacterData *ch, const ObjectData *obj) {
+bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 	// для анлимного лута мобами из трупов
 	if (IS_NPC(ch) && !IS_CHARMICE(ch)) {
 		return true;
@@ -1266,7 +1266,7 @@ bool CAN_CARRY_OBJ(const CharacterData *ch, const ObjectData *obj) {
 }
 
 // shapirus: проверка, игнорирет ли чар who чара whom
-bool ignores(CharacterData *who, CharacterData *whom, unsigned int flag) {
+bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 	if (IS_NPC(who)) return false;
 
 	long ign_id;
@@ -1535,7 +1535,7 @@ void add(int zone_vnum, long money) {
 	}
 }
 
-void print(CharacterData *ch) {
+void print(CharData *ch) {
 	if (!IS_GRGOD(ch)) {
 		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;
@@ -1614,7 +1614,7 @@ void add(int zone_vnum, long exp) {
 	}
 }
 
-void print_gain(CharacterData *ch) {
+void print_gain(CharData *ch) {
 	if (!PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		send_to_char(ch, "Пока в разработке.\r\n");
 		return;
@@ -1849,7 +1849,7 @@ int calc_str_req(int weight, int type) {
 	return str;
 }
 
-void message_str_need(CharacterData *ch, ObjectData *obj, int type) {
+void message_str_need(CharData *ch, ObjData *obj, int type) {
 	if (GET_POS(ch) == EPosition::kDead)
 		return;
 	int need_str = 0;
@@ -1929,7 +1929,7 @@ size_t strlen_no_colors(const char *str) {
 }
 
 // Симуляция телла от моба
-void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg) {
+void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	char local_buf[kMaxInputLength];
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
@@ -1942,7 +1942,7 @@ void tell_to_char(CharacterData *keeper, CharacterData *ch, const char *arg) {
 				 CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
-int CAN_CARRY_N(const CharacterData *ch) {
+int CAN_CARRY_N(const CharData *ch) {
 	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_REAL_LEVEL(ch) / 2;
 	if (HAVE_FEAT(ch, JUGGLER_FEAT)) {
 		n += GET_REAL_LEVEL(ch) / 2;
@@ -1997,7 +1997,7 @@ void sanity_check(void) {
 	}
 }
 
-short GET_REAL_LEVEL(const CharacterData *ch)
+short GET_REAL_LEVEL(const CharData *ch)
 {
 	// обрезаем максимальный уровень мобов
 	if (IS_NPC(ch)) {
@@ -2012,27 +2012,27 @@ short GET_REAL_LEVEL(const CharacterData *ch)
 	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLevelImmortal - 1);
 }
 
-short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> ch)
+short GET_REAL_LEVEL(const std::shared_ptr<CharData> ch)
 {
 	return GET_REAL_LEVEL(ch.get());
 }
 
-short GET_REAL_LEVEL(const std::shared_ptr<CharacterData> &ch)
+short GET_REAL_LEVEL(const std::shared_ptr<CharData> &ch)
 {
 	return GET_REAL_LEVEL(ch.get());
 }
 
-short GET_REAL_REMORT(const CharacterData *ch)
+short GET_REAL_REMORT(const CharData *ch)
 {
 	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CharacterData> ch)
+short GET_REAL_REMORT(const std::shared_ptr<CharData> ch)
 {
 	return GET_REAL_REMORT(ch.get());
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CharacterData> &ch)
+short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch)
 {
 	return GET_REAL_REMORT(ch.get());
 }

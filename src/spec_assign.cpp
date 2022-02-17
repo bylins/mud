@@ -19,18 +19,18 @@
 #include "house.h"
 #include "boards/boards_constants.h"
 #include "boards/boards.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "noob.h"
 
 extern int dts_are_dumps;
 
 extern IndexData *mob_index;
 
-int dump(CharacterData *ch, void *me, int cmd, char *argument);
-int puff(CharacterData *ch, void *me, int cmd, char *argument);
-int horse_keeper(CharacterData *ch, void *me, int cmd, char *argument);
-int exchange(CharacterData *ch, void *me, int cmd, char *argument);
-int torc(CharacterData *ch, void *me, int cmd, char *argument);
+int dump(CharData *ch, void *me, int cmd, char *argument);
+int puff(CharData *ch, void *me, int cmd, char *argument);
+int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
+int exchange(CharData *ch, void *me, int cmd, char *argument);
+int torc(CharData *ch, void *me, int cmd, char *argument);
 
 void assign_kings_castle(void);
 
@@ -39,16 +39,16 @@ void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
 
-typedef int special_f(CharacterData *, void *, int, char *);
+typedef int special_f(CharData *, void *, int, char *);
 
 void ASSIGNROOM(RoomVnum room, special_f);
 void ASSIGNMOB(MobVnum mob, special_f);
 void ASSIGNOBJ(ObjVnum obj, special_f);
-void clear_mob_charm(CharacterData *mob);
+void clear_mob_charm(CharData *mob);
 
 // functions to perform assignments
 
-void ASSIGNMOB(MobVnum mob, int fname(CharacterData *, void *, int, char *)) {
+void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
 	MobRnum rnum;
 
 	if ((rnum = real_mobile(mob)) >= 0) {
@@ -199,7 +199,7 @@ void init_spec_procs(void) {
 }
 
 // * Снятие нежелательных флагов у рентеров и продавцов.
-void clear_mob_charm(CharacterData *mob) {
+void clear_mob_charm(CharData *mob) {
 	if (mob && !mob->purged()) {
 		MOB_FLAGS(mob).unset(MOB_MOUNTING);
 		MOB_FLAGS(mob).set(MOB_NOCHARM);

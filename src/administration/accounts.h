@@ -13,7 +13,7 @@
 #include <ctime>
 #include <memory>
 #include <unordered_map>
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "structs/descriptor_data.h"
 
 struct DQuest {
@@ -50,7 +50,7 @@ class Account {
 	void read_from_file();
 	std::string get_email();
 	bool quest_is_available(int id);
-	int zero_hryvn(CharacterData *ch, int val);
+	int zero_hryvn(CharData *ch, int val);
 	void complete_quest(int id);
 	static const std::shared_ptr<Account> get_account(const std::string &email);
 	void show_list_players(DescriptorData *d);

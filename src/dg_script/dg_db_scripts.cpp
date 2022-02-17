@@ -154,7 +154,7 @@ void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum) {
 	}
 }
 
-void dg_obj_trigger(char *line, ObjectData *obj) {
+void dg_obj_trigger(char *line, ObjData *obj) {
 	char junk[8];
 	int vnum, rnum, count;
 
@@ -183,17 +183,17 @@ void dg_obj_trigger(char *line, ObjectData *obj) {
 	obj->add_proto_script(vnum);
 }
 
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 
 void assign_triggers(void *i, int type) {
-	CharacterData *mob;
-	ObjectData *obj;
+	CharData *mob;
+	ObjData *obj;
 	RoomData *room;
 	int rnum;
 	char buf[256];
 
 	switch (type) {
-		case MOB_TRIGGER: mob = (CharacterData *) i;
+		case MOB_TRIGGER: mob = (CharData *) i;
 			for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script) {
 				rnum = real_trigger(trigger_vnum);
 				if (rnum == -1) {
@@ -224,7 +224,7 @@ void assign_triggers(void *i, int type) {
 			}
 			break;
 
-		case OBJ_TRIGGER: obj = (ObjectData *) i;
+		case OBJ_TRIGGER: obj = (ObjData *) i;
 			for (const auto trigger_vnum : obj_proto.proto_script(GET_OBJ_RNUM(obj))) {
 				rnum = real_trigger(trigger_vnum);
 				if (rnum == -1) {
@@ -288,7 +288,7 @@ void assign_triggers(void *i, int type) {
 	}
 }
 
-void trg_featturn(CharacterData *ch, int featnum, int featdiff, int vnum) {
+void trg_featturn(CharData *ch, int featnum, int featdiff, int vnum) {
 	if (HAVE_FEAT(ch, featnum)) {
 		if (featdiff)
 			return;
@@ -310,7 +310,7 @@ void trg_featturn(CharacterData *ch, int featnum, int featdiff, int vnum) {
 	}
 }
 
-void trg_skillturn(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum) {
+void trg_skillturn(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	const auto ch_class = static_cast<ECharClass>(GET_CLASS(ch));
 	if (ch->get_trained_skill(skillnum)) {
 		if (skilldiff) {
@@ -326,7 +326,7 @@ void trg_skillturn(CharacterData *ch, const ESkill skillnum, int skilldiff, int 
 	}
 }
 
-void AddSkill(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum) {
+void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	int skill = ch->get_trained_skill(skillnum);
 	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skills()[skillnum].cap));
 
@@ -348,7 +348,7 @@ void AddSkill(CharacterData *ch, const ESkill skillnum, int skilldiff, int vnum)
 	}
 }
 
-void trg_spellturn(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
+void trg_spellturn(CharData *ch, int spellnum, int spelldiff, int vnum) {
 	int spell = GET_SPELL_TYPE(ch, spellnum);
 
 	if (!IsAbleToGetSpell(ch, spellnum)) {
@@ -371,7 +371,7 @@ void trg_spellturn(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
 	}
 }
 
-void trg_spellturntemp(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
+void trg_spellturntemp(CharData *ch, int spellnum, int spelldiff, int vnum) {
 	if (!IsAbleToGetSpell(ch, spellnum)) {
 		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d", GetSpellName(spellnum), GET_NAME(ch), vnum);
 		return;
@@ -382,7 +382,7 @@ void trg_spellturntemp(CharacterData *ch, int spellnum, int spelldiff, int vnum)
 	log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d", GetSpellName(spellnum), spelldiff, GET_NAME(ch), vnum);
 }
 
-void trg_spelladd(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
+void trg_spelladd(CharData *ch, int spellnum, int spelldiff, int vnum) {
 	int spell = GET_SPELL_MEM(ch, spellnum);
 	GET_SPELL_MEM(ch, spellnum) = MAX(0, MIN(spell + spelldiff, 50));
 
@@ -404,7 +404,7 @@ void trg_spelladd(CharacterData *ch, int spellnum, int spelldiff, int vnum) {
 	}
 }
 
-void trg_spellitem(CharacterData *ch, int spellnum, int spelldiff, int spell) {
+void trg_spellitem(CharData *ch, int spellnum, int spelldiff, int spell) {
 	char type[kMaxStringLength];
 
 	if ((spelldiff && IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)) ||

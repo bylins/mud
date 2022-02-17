@@ -2,7 +2,7 @@
 #define SPELLS_INFO_H_
 
 #include "game_classes/classes_constants.h"
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 #include "structs/structs.h"
 
 extern const char *unused_spellname;

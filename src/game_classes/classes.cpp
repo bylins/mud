@@ -21,7 +21,7 @@
 #include "classes.h"
 
 #include "world_objects.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "comm.h"
 #include "db.h"
 #include "magic/magic_utils.h"
@@ -34,7 +34,7 @@
 #include "top.h"
 #include "features.h"
 #include "crafts/im.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "spam.h"
 #include "color.h"
 #include "entities/char_player.h"
@@ -62,15 +62,15 @@ ECharClass ParseClass(char arg);
 Bitvector find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
-void do_start(CharacterData *ch, int newbie);
-int invalid_anti_class(CharacterData *ch, const ObjectData *obj);
-int level_exp(CharacterData *ch, int level);
+void do_start(CharData *ch, int newbie);
+int invalid_anti_class(CharData *ch, const ObjData *obj);
+int level_exp(CharData *ch, int level);
 byte extend_saving_throws(int class_num, ESaving save, int level);
-int invalid_unique(CharacterData *ch, const ObjectData *obj);
+int invalid_unique(CharData *ch, const ObjData *obj);
 void mspell_level(char *name, int spell, int kin, int chclass, int level);
 void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
 void mspell_change(char *name, int spell, int kin, int chclass, int class_change);
-extern bool char_to_pk_clan(CharacterData *ch);
+extern bool char_to_pk_clan(CharData *ch);
 // Names first
 
 const char *class_abbrevs[] = {"Ле",
@@ -1216,7 +1216,7 @@ int extra_damroll(int class_num, int level) {
 }
 
 // Some initializations for characters, including initial skills
-void init_warcry(CharacterData *ch) // проставление кличей в обход античита
+void init_warcry(CharData *ch) // проставление кличей в обход античита
 {
 	if (GET_CLASS(ch) == ECharClass::kGuard)
 		SET_BIT(GET_SPELL_TYPE(ch, kSpellWarcryOfDefence), kSpellKnow); // клич призыв к обороне
@@ -1235,7 +1235,7 @@ void init_warcry(CharacterData *ch) // проставление кличей в 
 
 }
 
-void do_start(CharacterData *ch, int newbie) {
+void do_start(CharData *ch, int newbie) {
 	ch->set_level(1);
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
@@ -1252,7 +1252,7 @@ void do_start(CharacterData *ch, int newbie) {
 	if (newbie) {
 		std::vector<int> outfit_list(Noob::get_start_outfit(ch));
 		for (auto i = outfit_list.begin(); i != outfit_list.end(); ++i) {
-			const ObjectData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(*i);
+			const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(*i);
 			if (obj) {
 				obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 				obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
@@ -1311,12 +1311,12 @@ void do_start(CharacterData *ch, int newbie) {
 
 // * Перерасчет максимальных родных хп персонажа.
 // * При входе в игру, левеле/делевеле, добавлении/удалении славы.
-void check_max_hp(CharacterData *ch) {
+void check_max_hp(CharData *ch) {
 	GET_MAX_HIT(ch) = PlayerSystem::con_natural_hp(ch);
 }
 
 // * Обработка событий при левел-апе.
-void levelup_events(CharacterData *ch) {
+void levelup_events(CharData *ch) {
 	if (SpamSystem::MIN_OFFTOP_LVL == GET_REAL_LEVEL(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
 		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
@@ -1337,7 +1337,7 @@ void levelup_events(CharacterData *ch) {
 	}
 }
 
-void advance_level(CharacterData *ch) {
+void advance_level(CharData *ch) {
 	int add_move = 0, i;
 
 	switch (GET_CLASS(ch)) {
@@ -1383,7 +1383,7 @@ void advance_level(CharacterData *ch) {
 	ch->save_char();
 }
 
-void decrease_level(CharacterData *ch) {
+void decrease_level(CharData *ch) {
 	int add_move = 0;
 
 	switch (GET_CLASS(ch)) {
@@ -1428,8 +1428,8 @@ void decrease_level(CharacterData *ch) {
  * usable by a particular class, based on the ITEM_ANTI_{class} bitvectors.
  */
 
-int invalid_unique(CharacterData *ch, const ObjectData *obj) {
-	ObjectData *object;
+int invalid_unique(CharData *ch, const ObjData *obj) {
+	ObjData *object;
 	if (!IS_CORPSE(obj)) {
 		for (object = obj->get_contains(); object; object = object->get_next_content()) {
 			if (invalid_unique(ch, object)) {
@@ -1449,7 +1449,7 @@ int invalid_unique(CharacterData *ch, const ObjectData *obj) {
 	return (true);
 }
 
-bool unique_stuff(const CharacterData *ch, const ObjectData *obj) {
+bool unique_stuff(const CharData *ch, const ObjData *obj) {
 	for (unsigned int i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i) && (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj))) {
 			return true;
@@ -1457,9 +1457,9 @@ bool unique_stuff(const CharacterData *ch, const ObjectData *obj) {
 	return false;
 }
 
-int invalid_anti_class(CharacterData *ch, const ObjectData *obj) {
+int invalid_anti_class(CharData *ch, const ObjData *obj) {
 	if (!IS_CORPSE(obj)) {
-		for (const ObjectData *object = obj->get_contains(); object; object = object->get_next_content()) {
+		for (const ObjData *object = obj->get_contains(); object; object = object->get_next_content()) {
 			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0)) {
 				return (true);
 			}
@@ -1504,7 +1504,7 @@ int invalid_anti_class(CharacterData *ch, const ObjectData *obj) {
 	return (false);
 }
 
-int invalid_no_class(CharacterData *ch, const ObjectData *obj) {
+int invalid_no_class(CharData *ch, const ObjData *obj) {
 	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		return true;
@@ -1880,7 +1880,7 @@ int GroupPenalties::init() {
  */
 
 // Function to return the exp required for each class/level
-int level_exp(CharacterData *ch, int level) {
+int level_exp(CharData *ch, int level) {
 	if (level > kLevelImplementator || level < 0) {
 		log("SYSERR: Requesting exp for invalid level %d!", level);
 		return 0;

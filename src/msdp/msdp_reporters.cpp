@@ -1,7 +1,7 @@
 #include "msdp_reporters.h"
 
-#include "entities/char.h"
-#include "entities/entity_constants.h"
+#include "entities/char_data.h"
+#include "entities/entities_constants.h"
 #include "magic/magic.h"
 #include "msdp_constants.h"
 #include "entities/zone.h"
@@ -157,8 +157,8 @@ void StateReporter::get(Variable::shared_ptr &response) {
 }
 
 void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
-								const CharacterData *ch,
-								const CharacterData *character,
+								const CharData *ch,
+								const CharData *character,
 								const bool leader) {
 	if (PRF_FLAGGED(ch, PRF_NOCLONES)
 		&& IS_NPC(character)
@@ -232,7 +232,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	group->add(member);
 }
 
-int GroupReporter::get_mem(const CharacterData *character) const {
+int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	int div = 0;
 	if (!IS_NPC(character)

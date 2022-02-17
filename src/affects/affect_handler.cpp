@@ -12,7 +12,7 @@ void LackyAffectHandler::Handle(DamageVictimParameters &params) {
 	}
 }
 
-Affect<EApplyLocation>::shared_ptr find_affect(CharacterData *ch, int afftype) {
+Affect<EApplyLocation>::shared_ptr find_affect(CharData *ch, int afftype) {
 	for (const auto &aff : ch->affected) {
 		if (aff->type == afftype) {
 			return aff;

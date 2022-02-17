@@ -7,7 +7,7 @@
 #include "communication/social.h"
 #include "description.h"
 #include "crafts/im.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
 #include "entities/zone.h"
@@ -18,7 +18,7 @@
 
 extern int scheck;                        // TODO: get rid of this line
 extern const char *unused_spellname;    // TODO: get rid of this line
-CharacterData *mob_proto;                    // TODO: get rid of this global variable
+CharData *mob_proto;                    // TODO: get rid of this global variable
 
 extern void extract_trigger(Trigger *trig);
 
@@ -200,7 +200,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 	char line[kMaxTrglineLength];
 	char junk[8];
 	int vnum, rnum, count;
-	CharacterData *mob;
+	CharData *mob;
 	RoomData *room;
 
 	get_line(file(), line);
@@ -220,7 +220,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 	}
 
 	switch (type) {
-		case MOB_TRIGGER: mob = (CharacterData *) proto;
+		case MOB_TRIGGER: mob = (CharData *) proto;
 			mob->proto_script->push_back(vnum);
 			if (owner_trig.find(vnum) == owner_trig.end()) {
 				owner_to_triggers_map_t tmp_map;
@@ -452,7 +452,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_nr]->fires = 0;
 	world[room_nr]->gdark = 0;
 	world[room_nr]->glight = 0;
-	world[room_nr]->proto_script.reset(new ObjectData::triggers_list_t());
+	world[room_nr]->proto_script.reset(new ObjData::triggers_list_t());
 
 	for (i = 0; i < kDirMaxNumber; i++) {
 		world[room_nr]->dir_option[i] = nullptr;
@@ -581,10 +581,10 @@ class ObjectFile : public DiscreteFile {
 	*
 	* TODO: Add checks for unknown bitvectors.
 	*/
-	bool check_object(ObjectData *obj);
+	bool check_object(ObjData *obj);
 
-	bool check_object_level(ObjectData *obj, int val);
-	bool check_object_spell_number(ObjectData *obj, unsigned val);
+	bool check_object_level(ObjData *obj, int val);
+	bool check_object_spell_number(ObjData *obj, unsigned val);
 
 	char m_buffer[kMaxStringLength];
 };
@@ -603,15 +603,15 @@ void ObjectFile::parse_object(const int nr) {
 	int t[10], j = 0;
 	char f0[256], f1[256], f2[256];
 
-	ObjectData *tobj = new ObjectData(nr);
+	ObjData *tobj = new ObjData(nr);
 
 	// *** Add some initialization fields
-	tobj->set_maximum_durability(ObjectData::DEFAULT_MAXIMUM_DURABILITY);
-	tobj->set_current_durability(ObjectData::DEFAULT_CURRENT_DURABILITY);
+	tobj->set_maximum_durability(ObjData::DEFAULT_MAXIMUM_DURABILITY);
+	tobj->set_current_durability(ObjData::DEFAULT_CURRENT_DURABILITY);
 	tobj->set_sex(ESex::kMale);
-	tobj->set_timer(ObjectData::DEFAULT_TIMER);
+	tobj->set_timer(ObjData::DEFAULT_TIMER);
 	tobj->set_level(1);
-	tobj->set_destroyer(ObjectData::DEFAULT_DESTROYER);
+	tobj->set_destroyer(ObjData::DEFAULT_DESTROYER);
 
 	sprintf(m_buffer, "object #%d", nr);
 
@@ -651,7 +651,7 @@ void ObjectFile::parse_object(const int nr) {
 
 	tobj->set_maximum_durability(t[1]);
 	tobj->set_current_durability(MIN(t[1], t[2]));
-	tobj->set_material(static_cast<ObjectData::EObjectMaterial>(t[3]));
+	tobj->set_material(static_cast<ObjData::EObjectMaterial>(t[3]));
 
 	if (tobj->get_current_durability() > tobj->get_maximum_durability()) {
 		log("SYSERR: Obj_cur > Obj_Max, vnum: %d", nr);
@@ -668,10 +668,10 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 	tobj->set_sex(static_cast<ESex>(t[0]));
-	int timer = t[1] > 0 ? t[1] : ObjectData::SEVEN_DAYS;
+	int timer = t[1] > 0 ? t[1] : ObjData::SEVEN_DAYS;
 	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
 	// не должно быть
-	if (timer == ObjectData::UNLIMITED_TIMER) {
+	if (timer == ObjData::UNLIMITED_TIMER) {
 		timer--;
 		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 	}
@@ -708,7 +708,7 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 
-	tobj->set_type(static_cast<ObjectData::EObjectType>(t[0]));        // ** What's a object
+	tobj->set_type(static_cast<ObjData::EObjectType>(t[0]));        // ** What's a object
 	tobj->load_extra_flags(f1);
 	// ** Its effects
 	int wear_flags = 0;
@@ -750,8 +750,8 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_rent_on(t[3]);
 
 	// check to make sure that weight of containers exceeds curr. quantity
-	if (tobj->get_type() == ObjectData::ITEM_DRINKCON
-		|| tobj->get_type() == ObjectData::ITEM_FOUNTAIN) {
+	if (tobj->get_type() == ObjData::ITEM_DRINKCON
+		|| tobj->get_type() == ObjData::ITEM_FOUNTAIN) {
 		if (tobj->get_weight() < tobj->get_val(1)) {
 			tobj->set_weight(tobj->get_val(1) + 5);
 		}
@@ -852,7 +852,7 @@ void ObjectFile::parse_object(const int nr) {
 	}
 }
 
-bool ObjectFile::check_object(ObjectData *obj) {
+bool ObjectFile::check_object(ObjData *obj) {
 	bool error = false;
 
 	if (GET_OBJ_WEIGHT(obj) < 0) {
@@ -891,8 +891,8 @@ bool ObjectFile::check_object(ObjectData *obj) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjectData::ITEM_DRINKCON:
-		case ObjectData::ITEM_FOUNTAIN:
+		case ObjData::ITEM_DRINKCON:
+		case ObjData::ITEM_FOUNTAIN:
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
 				error = true;
 				log("SYSERR: Object #%d (%s) contains (%d) more than maximum (%d).",
@@ -900,18 +900,18 @@ bool ObjectFile::check_object(ObjectData *obj) {
 			}
 			break;
 
-		case ObjectData::ITEM_SCROLL:
-		case ObjectData::ITEM_POTION: error = error || check_object_level(obj, 0);
+		case ObjData::ITEM_SCROLL:
+		case ObjData::ITEM_POTION: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 1);
 			error = error || check_object_spell_number(obj, 2);
 			error = error || check_object_spell_number(obj, 3);
 			break;
 
-		case ObjectData::ITEM_BOOK: error = error || check_object_spell_number(obj, 1);
+		case ObjData::ITEM_BOOK: error = error || check_object_spell_number(obj, 1);
 			break;
 
-		case ObjectData::ITEM_WAND:
-		case ObjectData::ITEM_STAFF: error = error || check_object_level(obj, 0);
+		case ObjData::ITEM_WAND:
+		case ObjData::ITEM_STAFF: error = error || check_object_level(obj, 0);
 			error = error || check_object_spell_number(obj, 3);
 			if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1)) {
 				error = true;
@@ -926,7 +926,7 @@ bool ObjectFile::check_object(ObjectData *obj) {
 	return error;
 }
 
-bool ObjectFile::check_object_level(ObjectData *obj, int val) {
+bool ObjectFile::check_object_level(ObjData *obj, int val) {
 	bool error = false;
 
 	if (GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > kLevelImplementator) {
@@ -939,8 +939,8 @@ bool ObjectFile::check_object_level(ObjectData *obj, int val) {
 	return error;
 }
 
-bool ObjectFile::check_object_spell_number(ObjectData *obj, unsigned val) {
-	if (val >= ObjectData::VALS_COUNT) {
+bool ObjectFile::check_object_spell_number(ObjData *obj, unsigned val) {
+	if (val >= ObjData::VALS_COUNT) {
 		log("SYSERROR : val=%d (%s:%d)", val, __FILE__, __LINE__);
 		return true;
 	}
@@ -1455,7 +1455,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	CASE("Role") {
 		if (value && *value) {
 			std::string str(value);
-			CharacterData::role_t tmp(str);
+			CharData::role_t tmp(str);
 			tmp.resize(mob_proto[i].get_role().size());
 			mob_proto[i].set_role(tmp);
 		}
