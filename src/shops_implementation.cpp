@@ -147,14 +147,14 @@ void GoodsStorage::clear() {
 const std::string &ItemNode::get_item_name(int keeper_vnum, int pad /*= 0*/) const {
 	const auto desc_i = m_descs.find(keeper_vnum);
 	if (desc_i != m_descs.end()) {
-		return utils::remove_colors(desc_i->second.PNames[pad]);
+		return desc_i->second.PNames[pad];
 	} else {
 		const auto rnum = obj_proto.rnum(m_vnum);
 		const static std::string wrong_vnum = "<unknown VNUM>";
 		if (-1 == rnum) {
 			return wrong_vnum;
 		}
-		return utils::remove_colors(GET_OBJ_PNAME(obj_proto[rnum], pad));
+		return GET_OBJ_PNAME(obj_proto[rnum], pad));
 	}
 }
 
