@@ -4,7 +4,7 @@
 
 namespace utils {
 template<typename T>
-void remove_colors_template(T string, int &new_length) {
+std::string remove_colors_template(T string, int &new_length) {
 	int pos = new_length = 0;
 	while (string[pos]) {
 		if ('&' == string[pos]
@@ -15,20 +15,23 @@ void remove_colors_template(T string, int &new_length) {
 		}
 		++pos;
 	}
+	return string;
 }
 
-void remove_colors(char *string) {
+std::string remove_colors(char *string) {
 	if (string) {
 		int new_length = 0;
 		remove_colors_template<char *>(string, new_length);
 		string[new_length] = '\0';
 	}
+	return string;
 }
 
-void remove_colors(std::string &string) {
+std::string remove_colors(std::string string) {
 	int new_length = 0;
 	remove_colors_template<std::string &>(string, new_length);
 	string.resize(new_length);
+	return string;
 }
 
 shared_string_ptr get_string_without_colors(const char *string) {
