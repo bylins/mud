@@ -156,17 +156,8 @@ void trig_log(Trigger *trig, const char *msg, LogMode type) {
 
 cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr cl);
 cmdlist_element::shared_ptr find_done(Trigger *trig, cmdlist_element::shared_ptr cl);
-cmdlist_element::shared_ptr find_case(Trigger *trig,
-									  cmdlist_element::shared_ptr cl,
-									  void *go,
-									  Script *sc,
-									  int type,
-									  char *cond);
-cmdlist_element::shared_ptr find_else_end(Trigger *trig,
-										  cmdlist_element::shared_ptr cl,
-										  void *go,
-										  Script *sc,
-										  int type);
+cmdlist_element::shared_ptr find_case(Trigger *trig, cmdlist_element::shared_ptr cl, void *go, Script *sc, int type, char *cond);
+cmdlist_element::shared_ptr find_else_end(Trigger *trig, cmdlist_element::shared_ptr cl, void *go, Script *sc, int type);
 
 struct TriggerVar *worlds_vars;
 
@@ -1668,6 +1659,46 @@ void find_replacement(void *go,
 					sprintf(str, "%d", num);
 			} else if (!str_cmp(field, "people") && num > 0) {
 				sprintf(str, "%d", trgvar_in_room(num));
+			} else if (!str_cmp(field, "zone_npc") && num > 0) {
+				int from, to;
+				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
+				for (const auto &tch : character_list) {
+					if ((IS_NPC(tch) && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
+					}
+				}
+			} else if (!str_cmp(field, "zone_char") && num > 0) {
+				int from, to;
+				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
+				for (const auto &tch : character_list) {
+					if (!tch->desc)
+						continue;
+					if ((IS_CHARMICE(tch) || !IS_NPC(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
+					}
+				}
+			} else if (!str_cmp(field, "zone_pc") && num > 0) {
+				int from, to;
+				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
+				for (const auto &tch : character_list) {
+					if (IS_NPC(tch))
+						continue;
+					if (!tch->desc)
+						continue;
+					if (tch->in_room >= from && tch->in_room <= to) {
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
+					}
+				}
+			} else if (!str_cmp(field, "zone_all") && num > 0) {
+				int from, to;
+				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
+				for (const auto &tch : character_list) {
+					if (!tch->desc)
+						continue;
+					if (tch->in_room >= from && tch->in_room <= to) {
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
+					}
+				}
 			} else if ((!str_cmp(field, "curmob") || !str_cmp(field, "curmobs")) && num > 0) {
 				num = count_char_vnum(num);
 				if (num >= 0)
