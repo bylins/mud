@@ -676,7 +676,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	timed.skill = ESkill::kHangovering;
-	timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? getModifier(DRUNKARD_FEAT, FEAT_TIMER) : 12;
+	timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? GetModifier(DRUNKARD_FEAT, FEAT_TIMER) : 12;
 	timed_to_char(ch, &timed);
 
 	percent = number(1, MUD::Skills()[ESkill::kHangovering].difficulty);

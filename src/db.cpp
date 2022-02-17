@@ -2306,7 +2306,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading features definitions");
 	log("Loading features definitions.");
-	determineFeaturesSpecification();
+	InitFeatures();
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");

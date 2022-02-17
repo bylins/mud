@@ -2270,7 +2270,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		return false;
 
 	if ((iplayer = GET_INDEX(ch)) < 0) {
-		sprintf(buf, "[SYSERR] Store file '%s' - INVALID ID %d", GET_NAME(ch), iplayer);
+		sprintf(buf, "[SYSERR] Store file '%s' - INVALID GetAbilityId %d", GET_NAME(ch), iplayer);
 		mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
 		return false;
 	}

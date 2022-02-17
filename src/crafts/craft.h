@@ -145,7 +145,7 @@ class CMaterial {
  private:
 	bool load(const pugi::xml_node *node);
 
-	const id_t m_id;                        ///< Material ID.
+	const id_t m_id;                        ///< Material GetAbilityId.
 	std::string m_name;                        ///< Material name.
 	std::list<CMaterialClass> m_classes;    ///< List of material classes for this material.
 
@@ -180,7 +180,7 @@ class CRecipe {
 		ObjVnum m_vnum;
 	};
 
-	id_t m_id;                          ///< Recipe ID.
+	id_t m_id;                          ///< Recipe GetAbilityId.
 	::std::string m_name;                ///< Recipe name.
 
 	// TODO: add field with requirements to learn: skills where one of them is primary skill
@@ -205,7 +205,7 @@ class CSkillBase {
  private:
 	bool load(const pugi::xml_node *node);
 
-	id_t m_id;                          ///< Skill ID.
+	id_t m_id;                          ///< Skill GetAbilityId.
 	std::string m_name;                 ///< Skill Name.
 	int m_threshold;                    ///< Threshold to increase skill.
 
@@ -224,7 +224,7 @@ class CCraft {
  private:
 	bool load(const pugi::xml_node *node);
 
-	id_t m_id;                              ///< Craft ID.
+	id_t m_id;                              ///< Craft GetAbilityId.
 	std::string m_name;                     ///< Craft name.
 	std::set<id_t> m_skills;                ///< List of required skills for this crafts.
 	std::set<id_t> m_recipes;               ///< List of available recipes for this crafts.
@@ -356,10 +356,10 @@ class CCraftModel {
 	std::list<std::string> m_recipe_files;        ///< List of files with recipe definitions.
 
 	// Helpers
-	std::map<id_t, id_set_t> m_skill2crafts;        ///< Maps skill ID to set of crafts which this skill belongs to.
-	std::map<id_t, const CCraft *> m_id2craft;        ///< Maps crafts ID to pointer to crafts descriptor.
-	std::map<id_t, const CSkillBase *> m_id2skill;    ///< Maps skill ID to pointer to skill descriptor.
-	std::map<id_t, const CRecipe *> m_id2recipe;        ///< Maps recipe ID to pointer to recipe descriptor.
+	std::map<id_t, id_set_t> m_skill2crafts;        ///< Maps skill GetAbilityId to set of crafts which this skill belongs to.
+	std::map<id_t, const CCraft *> m_id2craft;        ///< Maps crafts GetAbilityId to pointer to crafts descriptor.
+	std::map<id_t, const CSkillBase *> m_id2skill;    ///< Maps skill GetAbilityId to pointer to skill descriptor.
+	std::map<id_t, const CRecipe *> m_id2recipe;        ///< Maps recipe GetAbilityId to pointer to recipe descriptor.
 
 	std::set<CVNumRange> m_allowed_vnums;
 	std::set<ObjVnum> m_existing_vnums;

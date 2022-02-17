@@ -1847,7 +1847,7 @@ int perform_dupe_check(DescriptorData *d) {
 		if (k->original && (GET_IDNUM(k->original) == id))    // switched char
 		{
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Персонаж = %s Хост = %s(был %s)",
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! GetAbilityId = %ld Персонаж = %s Хост = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
@@ -1869,7 +1869,7 @@ int perform_dupe_check(DescriptorData *d) {
 			k->original = nullptr;
 		} else if (k->character && (GET_IDNUM(k->character) == id)) {
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Name = %s Host = %s(был %s)",
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! GetAbilityId = %ld Name = %s Host = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
@@ -2308,13 +2308,13 @@ void do_entergame(DescriptorData *d) {
 	for (int i = 1; i < kMaxFeats; i++) {
 		if (!HAVE_FEAT(d->character, i)
 			|| can_get_feat(d->character.get(), i)) {
-			if (feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
+			if (feat_info[i].is_inborn[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)]) {
 				SET_FEAT(d->character, i);
 			}
 		}
 	}
 
-	setFeaturesOfRace(d->character.get());
+	SetRaceFeats(d->character.get());
 
 	if (!IS_IMMORTAL(d->character)) {
 		for (const auto &skill : MUD::Skills()) {

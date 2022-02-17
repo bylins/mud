@@ -1,14 +1,9 @@
-//
-// Created by ubuntu on 03/09/20.
-//
-
 #include "expendientcut.h"
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"
 #include "skills/protect.h"
-//#include <cmath>
 
 ESkill GetExpedientWeaponSkill(CharData *ch) {
 	ESkill skill = ESkill::kPunch;
@@ -146,7 +141,7 @@ void GoCutShorts(CharData *ch, CharData *vict) {
 			false, ch, nullptr, vict, kToChar);
 		Damage dmg(SkillDmg(ESkill::kShortBlades), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.skill_id = ESkill::kUndefined;
-		dmg.process(ch, vict);
+		dmg.Process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
 		return;
 	}
@@ -243,8 +238,6 @@ ESkill GetExpedientCutSkill(CharData *ch) {
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
-	ESkill skill;
-
 	if (IS_NPC(ch) || (!can_use_feat(ch, EXPEDIENT_CUT_FEAT) && !IS_IMPL(ch))) {
 		send_to_char("Вы не владеете таким приемом.\r\n", ch);
 		return;
@@ -284,14 +277,14 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict, argument))
+	if (!may_kill_here(ch, vict, argument) || !check_pkill(ch, vict, arg)) {
 		return;
-	if (!check_pkill(ch, vict, arg))
-		return;
+	}
 
-	skill = GetExpedientCutSkill(ch);
-	if (skill == ESkill::kIncorrect)
+	auto skill = GetExpedientCutSkill(ch);
+	if (skill == ESkill::kIncorrect) {
 		return;
+	}
 
 	switch (skill) {
 		case ESkill::kShortBlades:
@@ -308,7 +301,9 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			send_to_char("Порез мечом (а тем паче - двуручником или копьем) - это сурьезно. Но пока невозможно.\r\n",
 						 ch);
 			break;
-		default:send_to_char("Ваше оружие не позволяет провести такой прием.\r\n", ch);
+		default:
+			send_to_char("Ваше оружие не позволяет провести такой прием.\r\n", ch);
+			break;
 	}
 
 }

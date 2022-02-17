@@ -204,7 +204,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						 " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						 " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
 		for (sortpos = 1; sortpos < kMaxFeats; sortpos++) {
-			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
+			if (!feat_info[sortpos].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 				&& !PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos))
 				continue;
 			if (clr(vict, C_NRM))
@@ -220,7 +220,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 						can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
 						feat_info[sortpos].name);
 
-			if (feat_info[sortpos].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
+			if (feat_info[sortpos].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 				|| PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos)) {
 				strcat(buf2, buf);
 				j++;
@@ -282,7 +282,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				case SKIRMISHER_FEAT:
 				case DOUBLE_THROW_FEAT:
 				case TRIPLE_THROW_FEAT:
-					if (PRF_FLAGGED(ch, getPRFWithFeatureNumber(sortpos)))
+					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(sortpos)))
 						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
 					else
 						sprintf(buf, "[-:-] ");
@@ -296,7 +296,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 				sprintf(buf + strlen(buf), "%s\r\n", feat_info[sortpos].name);
 			else
 				sprintf(buf, "[-Н-] %s\r\n", feat_info[sortpos].name);
-			if (feat_info[sortpos].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
+			if (feat_info[sortpos].is_inborn[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 				|| PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), sortpos)) {
 				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);
@@ -736,7 +736,7 @@ void init_guilds() {
 			if ((featnum = atoi(line1)) == 0 || featnum >= kMaxFeats) {
 				if ((pos = strchr(line1, '.')))
 					*pos = ' ';
-				featnum = find_feat_num(line1);
+				featnum = FindFeatNum(line1);
 			}
 
 			if (MUD::Skills().IsInvalid(skill_id) && spellnum <= 0 && featnum <= 0) {
@@ -808,9 +808,9 @@ void init_guilds() {
 				if ((pos = strchr(line5, '.')))
 					*pos = ' ';
 
-				featnum = find_feat_num(line1);
+				featnum = FindFeatNum(line1);
 				sprintf(buf, "feature number 2: %d", featnum);
-				featnum = find_feat_num(line5);
+				featnum = FindFeatNum(line5);
 			}
 			if (MUD::Skills().IsInvalid(skill_id) && spellnum <= 0 && featnum <= 0) {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
@@ -895,7 +895,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 					const auto feat_no = (guild_mono_info[info_num].learn_info + i)->feat_no;
 					if (feat_no > 0 && !HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
 						gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
-										  CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
+										  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 						found = true;
 					}
 				}
@@ -979,7 +979,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 				return (1);
 			}
 
-			const int feat_no = find_feat_num(argument);
+			const int feat_no = FindFeatNum(argument);
 			if ((feat_no > 0 && feat_no < kMaxFeats)) {
 				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
 					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
@@ -998,7 +998,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
-									CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
+									CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 							act(buf, false, ch, 0, victim, kToChar);
 							SET_FEAT(ch, feat_no);
 						}
@@ -1195,7 +1195,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 						&& feat_no < kMaxFeats) {
 						if (!HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no)) {
 							gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
-											  CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
+											  CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 							found = true;
 						}
 					}
@@ -1323,11 +1323,11 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 				}
 			}
 
-			int feat_no = find_feat_num(argument);
+			int feat_no = FindFeatNum(argument);
 			if (feat_no < 0 || feat_no >= kMaxFeats) {
 				std::string str(argument);
 				std::replace_if(str.begin(), str.end(), boost::is_any_of("_:"), ' ');
-				feat_no = find_feat_num(str.c_str(), true);
+				feat_no = FindFeatNum(str.c_str(), true);
 			}
 
 			if (feat_no > 0 && feat_no < kMaxFeats) {
@@ -1352,7 +1352,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", false, ch, 0, victim, kToChar);
 						} else {
 							sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
-									CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
+									CCCYN(ch, C_NRM), GetFeatName(feat_no), CCNRM(ch, C_NRM));
 							act(buf, false, ch, 0, victim, kToChar);
 							SET_FEAT(ch, feat_no);
 						}

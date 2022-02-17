@@ -141,7 +141,7 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 																							   : "обычным");
 		return;
 	}
-	if (tryFlipActivatedFeature(ch, argument)) {
+	if (TryFlipActivatedFeature(ch, argument)) {
 		return;
 	}
 	if ((tp = search_block(arg, cstyles, false)) == -1) {

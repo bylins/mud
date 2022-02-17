@@ -69,7 +69,7 @@ void DeathTrap::activity() {
 			Damage dmg(SimpleDmg(kTypeRoomdeath), MAX(1, GET_REAL_MAX_HIT(i) >> 2), fight::kUndefDmg);
 			dmg.flags.set(fight::NO_FLEE_DMG);
 
-			if (dmg.process(i, i) < 0) {
+			if (dmg.Process(i, i) < 0) {
 				char buf_[kMaxInputLength];
 				snprintf(buf_, sizeof(buf_),
 						 "Player %s died in slow DT (room %d)",
@@ -182,7 +182,7 @@ bool DeathTrap::tunnel_damage(CharData *ch) {
 		Damage dmg(SimpleDmg(kTypeTunnerldeath), dam, fight::kUndefDmg);
 		dmg.flags.set(fight::NO_FLEE_DMG);
 
-		if (dmg.process(ch, ch) < 0) {
+		if (dmg.Process(ch, ch) < 0) {
 			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_),
 					 "Player %s died in tunnel room (room %d)",

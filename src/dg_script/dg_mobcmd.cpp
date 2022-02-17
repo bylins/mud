@@ -994,7 +994,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	if ((featnum = find_feat_num(featname)) > 0 && featnum < kMaxFeats)
+	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats)
 		isFeat = 1;
 	else {
 		mob_log(ch, "mfeatturn: feature not found");

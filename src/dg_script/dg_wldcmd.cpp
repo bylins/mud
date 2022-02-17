@@ -577,7 +577,7 @@ void do_wfeatturn(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 		*pos = ' ';
 	}
 
-	if ((featnum = find_feat_num(featname)) > 0 && featnum < kMaxFeats) {
+	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats) {
 		isFeat = 1;
 	} else {
 		wld_log(room, "wfeatturn: feature not found");

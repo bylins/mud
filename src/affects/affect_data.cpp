@@ -489,7 +489,7 @@ void affect_total(CharData *ch) {
 	// move features modifiers - added by Gorrah
 	for (int i = 1; i < kMaxFeats; i++) {
 		if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE)) {
-			for (int j = 0; j < MAX_FEAT_AFFECT; j++) {
+			for (int j = 0; j < kMaxFeatAffect; j++) {
 				affect_modify(ch,
 							  feat_info[i].affected[j].location,
 							  feat_info[i].affected[j].modifier,
@@ -501,7 +501,7 @@ void affect_total(CharData *ch) {
 
 	// IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
 	if (can_use_feat(ch, IMPREGNABLE_FEAT)) {
-		for (int j = 0; j < MAX_FEAT_AFFECT; j++) {
+		for (int j = 0; j < kMaxFeatAffect; j++) {
 			affect_modify(ch,
 						  feat_info[IMPREGNABLE_FEAT].affected[j].location,
 						  MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier * GET_REAL_REMORT(ch)),
@@ -663,7 +663,7 @@ void affect_total(CharData *ch) {
 			}
 		}
 	}
-	check_berserk(ch);
+	CheckBerserk(ch);
 	if (ch->get_fighting() || affected_by_spell(ch, kSpellGlitterDust)) {
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);

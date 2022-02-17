@@ -575,7 +575,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			die(ch, nullptr);
 		}
 		Damage odamage(SimpleDmg(kTypeTriggerdeath), dam, type);
-		odamage.process(damager, ch);
+		odamage.Process(damager, ch);
 	}
 }
 
@@ -706,7 +706,7 @@ void do_ofeatturn(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while ((pos = strchr(featname, '_')))
 		*pos = ' ';
 
-	if ((featnum = find_feat_num(featname)) > 0 && featnum < kMaxFeats)
+	if ((featnum = FindFeatNum(featname)) > 0 && featnum < kMaxFeats)
 		isFeat = 1;
 	else {
 		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);

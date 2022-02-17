@@ -94,12 +94,12 @@ void reset_stats(CharData *ch, Type type) {
 	switch (type) {
 		case Type::MAIN_STATS: ch->set_start_stat(G_STR, 0);
 			break;
-		case Type::RACE: unsetFeaturesOfRace(ch);
+		case Type::RACE: UnsetRaceFeats(ch);
 			// выводим на ValidateStats
 			ch->set_race(99);
 			break;
 		case Type::FEATS: ch->real_abils.Feats.reset();
-			setAllInbornFeatures(ch);
+			SetInbornFeats(ch);
 			break;
 		case Type::RELIGION: ch->player_data.Religion = 2; //kReligionMono + 1
 			break;

@@ -906,7 +906,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if ((feat = find_feat_num(help)) <= 0) {
+	if ((feat = FindFeatNum(help)) <= 0) {
 		send_to_char("Неизвестная способность.\r\n", ch);
 		return;
 	}

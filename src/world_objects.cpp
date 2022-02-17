@@ -60,7 +60,7 @@ void WorldObjects::WO_IDChangeObserver::notify(ObjData &object, const object_id_
 		// find shared_ptr
 		auto i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
 		if (i == m_parent.m_object_raw_ptr_to_object_ptr.end()) {
-			log("LOGIC ERROR: object with ID %ld has not been found in world objects container. New ID is %ld.",
+			log("LOGIC ERROR: object with ID %ld has not been found in world objects container. New GetAbilityId is %ld.",
 				old_id, object.get_id());
 			return;
 		}

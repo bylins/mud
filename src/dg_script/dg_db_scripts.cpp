@@ -300,7 +300,7 @@ void trg_featturn(CharData *ch, int featnum, int featdiff, int vnum) {
 		}
 	} else {
 		if (featdiff) {
-			if (feat_info[featnum].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+			if (feat_info[featnum].is_known[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
 				send_to_char(buf, ch);
 				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);

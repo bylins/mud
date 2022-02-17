@@ -423,11 +423,11 @@ int processPoisonDamage(CharData *ch, const Affect<EApplyLocation>::shared_ptr &
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
 		Damage dmg(SpellDmg(kSpellPoison), poison_dmg, fight::kUndefDmg);
 		dmg.flags.set(fight::NO_FLEE_DMG);
-		result = dmg.process(ch, ch);
+		result = dmg.Process(ch, ch);
 	} else if (af->location == APPLY_ACONITUM_POISON) {
 		Damage dmg(SpellDmg(kSpellPoison), GET_POISON(ch), fight::kUndefDmg);
 		dmg.flags.set(fight::NO_FLEE_DMG);
-		result = dmg.process(ch, ch);
+		result = dmg.Process(ch, ch);
 	}
 	return result;
 }

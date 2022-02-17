@@ -78,7 +78,7 @@ class Damage {
 		dmg_type = in_dmg_type;
 	};
 
-	int process(CharData *ch, CharData *victim);
+	int Process(CharData *ch, CharData *victim);
 
 	// дамаг атакующего
 	int dam;

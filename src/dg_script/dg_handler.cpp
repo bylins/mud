@@ -84,7 +84,7 @@ const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 bool feat_owner(Trigger *trig, CharData *ch, char *feat) {
 	int featnum;
 
-	featnum = find_feat_num(feat);
+	featnum = FindFeatNum(feat);
 	if (featnum > 0) {
 		if (HAVE_FEAT(ch, featnum))
 			return 1;

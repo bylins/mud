@@ -1370,7 +1370,7 @@ void advance_level(CharData *ch) {
 	check_max_hp(ch);
 	ch->points.max_move += MAX(1, add_move);
 
-	setAllInbornFeatures(ch);
+	SetInbornFeats(ch);
 
 	if (IS_IMMORTAL(ch)) {
 		for (i = 0; i < 3; i++)
@@ -1697,7 +1697,7 @@ void InitSpellLevels() {
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = find_feat_num(name)) <= 0) {
+		if ((sp_num = FindFeatNum(name)) <= 0) {
 			log("Feat '%s' not found...", name);
 			graceful_exit(1);
 		}
@@ -1721,13 +1721,13 @@ void InitSpellLevels() {
 		for (j = 0; j < kNumKins; j++)
 			if (i[j] == 1) {
 				//log("Setting up feat '%s'", feat_info[sp_num].name);
-				feat_info[sp_num].classknow[i[3]][j] = true;
+				feat_info[sp_num].is_known[i[3]][j] = true;
 /*				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d",
 					feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);*/
 
-				feat_info[sp_num].minRemort[i[3]][j] = i[4];
+				feat_info[sp_num].min_remort[i[3]][j] = i[4];
 				feat_info[sp_num].slot[i[3]][j] = i[5];
-				feat_info[sp_num].inbornFeatureOfClass[i[3]][j] = i[6] ? true : false;
+				feat_info[sp_num].is_inborn[i[3]][j] = i[6] ? true : false;
 			}
 	}
 	fclose(magic);

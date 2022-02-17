@@ -1860,7 +1860,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 			Damage dmg(SpellDmg(kSpellMagicGlass), mg_damage, fight::kUndefDmg);
 			dmg.flags.set(fight::NO_FLEE_DMG);
 			dmg.flags.set(fight::MAGIC_REFLECT);
-			dmg.process(victim, ch);
+			dmg.Process(victim, ch);
 		}
 	}
 
@@ -2209,7 +2209,7 @@ ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
 
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
-int Damage::process(CharData *ch, CharData *victim) {
+int Damage::Process(CharData *ch, CharData *victim) {
 	post_init(ch, victim);
 
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
@@ -2624,7 +2624,7 @@ int Damage::process(CharData *ch, CharData *victim) {
 		Damage dmg(SpellDmg(kSpellFireShield), fs_damage, fight::kUndefDmg);
 		dmg.flags.set(fight::NO_FLEE_DMG);
 		dmg.flags.set(fight::MAGIC_REFLECT);
-		dmg.process(victim, ch);
+		dmg.Process(victim, ch);
 	}
 
 	return dam;
@@ -2885,7 +2885,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 	dmg.ch_start_pos = ch_start_pos;
 	dmg.victim_start_pos = victim_start_pos;
 
-	return dmg.process(ch, victim);
+	return dmg.Process(ch, victim);
 }
 
 /**

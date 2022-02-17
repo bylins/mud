@@ -945,7 +945,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			} else {
 				dmg.flags.set(fight::NO_FLEE_DMG);
 			}
-			rand = dmg.process(ch, victim);
+			rand = dmg.Process(ch, victim);
 		}
 	}
 	return rand;

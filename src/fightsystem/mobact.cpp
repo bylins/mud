@@ -271,11 +271,11 @@ CharData *selectVictimDependingOnGroupFormation(CharData *assaulter, CharData *i
 		return initialVictim;
 	}
 
-	AbilitySystem::AgainstRivalRollType abilityRoll;
-	abilityRoll.initialize(leader, TACTICIAN_FEAT, assaulter);
-	bool tacticianFail = !abilityRoll.isSuccess();
-	abilityRoll.initialize(newVictim, SKIRMISHER_FEAT, assaulter);
-	if (tacticianFail || !abilityRoll.isSuccess()) {
+	AbilitySystem::AgainstRivalRoll abilityRoll;
+	abilityRoll.Init(leader, TACTICIAN_FEAT, assaulter);
+	bool tacticianFail = !abilityRoll.IsSuccess();
+	abilityRoll.Init(newVictim, SKIRMISHER_FEAT, assaulter);
+	if (tacticianFail || !abilityRoll.IsSuccess()) {
 		return initialVictim;
 	}
 

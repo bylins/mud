@@ -68,7 +68,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
 		manadrainDamage.dam = 10;
 	}
-	manadrainDamage.process(ch, vict);
+	manadrainDamage.Process(ch, vict);
 
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kJinx;

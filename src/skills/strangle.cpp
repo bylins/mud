@@ -43,7 +43,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::IGNORE_ARMOR);
-		dmg.process(ch, vict);
+		dmg.Process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
 		Affect<EApplyLocation> af;
@@ -60,7 +60,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::IGNORE_ARMOR);
-		dmg.process(ch, vict);
+		dmg.Process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
 			SetWait(vict, 2, true);
 			if (vict->ahorse()) {

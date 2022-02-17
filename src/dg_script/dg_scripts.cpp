@@ -2502,7 +2502,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "can_get_feat")) {
-			if ((num = find_feat_num(subfield)) > 0) {
+			if ((num = FindFeatNum(subfield)) > 0) {
 				if (can_get_feat(c, num))
 					strcpy(str, "1");
 				else

@@ -13,8 +13,8 @@
 	<!-- TODO: make meaning to all fields below this line -->
 	<requirements>
 		<skills>
-			<skill key="yes">ID of the first required skill</skill>
-			<skill>ID of the second requried skill</skill>
+			<skill key="yes">id of the first required skill</skill>
+			<skill>id of the second requried skill</skill>
 		</skills>
 
 		<tools>
@@ -23,13 +23,13 @@
 		</tools>
 
 		<materials>
-			<material base="yes" min_quality="50" amount="1">ID of the first material type</material>
-			<material min_quality="50" amount="1">ID of the second material type</material>
+			<material base="yes" min_quality="50" amount="1">id of the first material type</material>
+			<material min_quality="50" amount="1">id of the second material type</material>
 		</materials>
 
 		<items>
 			<item>VNum of required item</item>
-			<recipe>ID of recipe used to craft item</recipe>
+			<recipe>id of recipe used to craft item</recipe>
 		</items>
 	</requirements>
 

@@ -46,7 +46,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	int cooldown = 2;
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kKick), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-		dmg.process(ch, vict);
+		dmg.Process(ch, vict);
 		cooldown = 2;
 	} else {
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GET_REAL_LEVEL(ch) / 6;
@@ -142,7 +142,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			dam >>= (2 - (ch->ahorse() ? 1 : 0));
 		}
 		Damage dmg(SkillDmg(ESkill::kKick), dam, fight::kPhysDmg, nullptr);
-		dmg.process(ch, vict);
+		dmg.Process(ch, vict);
 		cooldown = 2;
 	}
 	SetSkillCooldownInFight(ch, ESkill::kKick, cooldown);

@@ -240,7 +240,7 @@ void Player::dquest(const int id) {
 	const auto quest = MUD::daily_quests().find(id);
 
 	if (quest == MUD::daily_quests().end()) {
-		log("Quest ID: %d - не найден", id);
+		log("Quest GetAbilityId: %d - не найден", id);
 		return;
 	}
 
@@ -983,7 +983,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	if (!result) {
 		const std::size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
-		log("Can't load ascii. ID: %d; File name: \"%s\"; Current directory: \"%s\")",
+		log("Can't load ascii. GetAbilityId: %d; File name: \"%s\"; Current directory: \"%s\")",
 			id,
 			filename,
 			getcwd(buffer, BUFFER_SIZE));
@@ -1440,7 +1440,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						fbgetline(fl, line);
 						sscanf(line, "%d", &num);
 						if (num > 0 && num < kMaxFeats)
-							if (feat_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)]
+							if (feat_info[num].is_known[(int) GET_CLASS(this)][(int) GET_KIN(this)]
 								|| PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num))
 								SET_FEAT(this, num);
 					} while (num != 0);
@@ -1890,7 +1890,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		GET_LOADROOM(this) = kNowhere;
 	}
 
-	setAllInbornFeatures(this);
+	SetInbornFeats(this);
 
 	if (IS_GRGOD(this)) {
 		for (i = 0; i <= kSpellCount; i++)

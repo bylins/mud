@@ -976,7 +976,7 @@ void underwater_check() {
 			Damage dmg(SimpleDmg(kTypeWaterdeath), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), fight::kUndefDmg);
 			dmg.flags.set(fight::NO_FLEE_DMG);
 
-			if (dmg.process(d->character.get(), d->character.get()) < 0) {
+			if (dmg.Process(d->character.get(), d->character.get()) < 0) {
 				log("%s", buf);
 			}
 		}
@@ -1724,14 +1724,14 @@ void point_update() {
 			Damage dmg(SimpleDmg(kTypeSuffering), 1, fight::kUndefDmg);
 			dmg.flags.set(fight::NO_FLEE_DMG);
 
-			if (dmg.process(i, i) == -1) {
+			if (dmg.Process(i, i) == -1) {
 				return;
 			}
 		} else if (GET_POS(i) == EPosition::kPerish) {
 			Damage dmg(SimpleDmg(kTypeSuffering), 2, fight::kUndefDmg);
 			dmg.flags.set(fight::NO_FLEE_DMG);
 
-			if (dmg.process(i, i) == -1) {
+			if (dmg.Process(i, i) == -1) {
 				return;
 			}
 		}
