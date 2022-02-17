@@ -1831,7 +1831,7 @@ void process_npc_attack(CharData *ch) {
 
 	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) && !IS_SET(trigger_code, kNoRightHandAttack)) {
-		exthit(ch, ESkill::kUndefined, FightSystem::AttackType::kMainHand);
+		exthit(ch, ESkill::kUndefined, fight::AttackType::kMainHand);
 	}
 
 	//**** экстраатаки мобов. Первая - оффхэнд
@@ -1845,7 +1845,7 @@ void process_npc_attack(CharData *ch) {
 				return;
 			}
 		}
-		exthit(ch, ESkill::kUndefined, FightSystem::AttackType::kMobAdd);
+		exthit(ch, ESkill::kUndefined, fight::AttackType::kMobAdd);
 	}
 }
 
@@ -1916,14 +1916,14 @@ void process_player_attack(CharData *ch, int min_init) {
 			else if (GET_AF_BATTLE(ch, kEafHammer))
 				tmpSkilltype = ESkill::kHammer;
 			else tmpSkilltype = ESkill::kUndefined;
-			exthit(ch, tmpSkilltype, FightSystem::AttackType::kMainHand);
+			exthit(ch, tmpSkilltype, fight::AttackType::kMainHand);
 		}
 // допатака двуручем
 		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, WEAR_BOTHS) && can_use_feat(ch, BOTHHANDS_FOCUS_FEAT)
 			&& (static_cast<ESkill>(GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS))) == ESkill::kTwohands)
 			&& can_use_feat(ch, RELATED_TO_MAGIC_FEAT)) {
 			if (ch->get_skill(ESkill::kTwohands) > (number(1, 500)))
-				hit(ch, ch->get_fighting(), ESkill::kUndefined, FightSystem::AttackType::kMainHand);
+				hit(ch, ch->get_fighting(), ESkill::kUndefined, fight::AttackType::kMainHand);
 		}
 		CLR_AF_BATTLE(ch, kEafFirst);
 		SET_AF_BATTLE(ch, kEafSecond);
@@ -1944,7 +1944,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		if (IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| !GET_AF_BATTLE(ch, kEafUsedleft)) {
-			exthit(ch, ESkill::kUndefined, FightSystem::AttackType::kOffHand);
+			exthit(ch, ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
 		CLR_AF_BATTLE(ch, kEafSecond);
 	}
@@ -1954,7 +1954,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) && GET_AF_BATTLE(ch, kEafSecond)
 		&& ch->get_skill(ESkill::kLeftHit)) {
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, kEafUsedleft)) {
-			exthit(ch, ESkill::kUndefined, FightSystem::AttackType::kOffHand);
+			exthit(ch, ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
 		CLR_AF_BATTLE(ch, kEafSecond);
 	}

@@ -6,8 +6,6 @@
 #include "fightsystem/fight_hit.h"
 #include "skills/parry.h"
 
-using namespace FightSystem;
-
 void go_iron_wind(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -43,7 +41,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 	if (!ch->get_fighting()) {
 		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, kEafIronWind);
-		hit(ch, victim, ESkill::kUndefined, FightSystem::kMainHand);
+		hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 		SetWait(ch, 2, true);
 		//ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 		//ch->setSkillCooldown(ESkill::kIronwind, 2);

@@ -176,7 +176,7 @@ int attack_best(CharData *ch, CharData *victim) {
 		}
 		if (!ch->get_fighting()) {
 			victim = TryToFindProtector(victim, ch);
-			hit(ch, victim, ESkill::kUndefined, FightSystem::kMainHand);
+			hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 		}
 		return (true);
 	} else
@@ -674,7 +674,7 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 				}
 		}
 		if (!attack_best(ch, best) && !ch->get_fighting())
-			hit(ch, best, ESkill::kUndefined, FightSystem::kMainHand);
+			hit(ch, best, ESkill::kUndefined, fight::kMainHand);
 		return (true);
 	}
 	return (false);
@@ -697,7 +697,7 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 			}
 
 			if (!attack_best(ch, vict) && !ch->get_fighting()) {
-				hit(ch, vict, ESkill::kUndefined, FightSystem::kMainHand);
+				hit(ch, vict, ESkill::kUndefined, fight::kMainHand);
 			}
 			return (true);
 		}
@@ -821,7 +821,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 					false, ch, nullptr, victim, kToRoom);
 			}
 			if (!attack_best(ch, victim)) {
-				hit(ch, victim, ESkill::kUndefined, FightSystem::kMainHand);
+				hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 			}
 			return;
 		}

@@ -1026,7 +1026,7 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 #define DOOR_IS_OPENABLE(ch, obj, door)    ((obj) ? \
-            ((GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER) && \
+            ((GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER) && \
             OBJVAL_FLAGGED(obj, CONT_CLOSEABLE)) :\
             (EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))
 #define DOOR_IS(ch, door)    ((EXIT_FLAGGED(EXIT(ch, door), EX_ISDOOR)))

@@ -6,8 +6,6 @@
 #include "fightsystem/fight_hit.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 // ******************* RESCUE PROCEDURES
 void fighting_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	if (vict->get_fighting() == tmp_ch)

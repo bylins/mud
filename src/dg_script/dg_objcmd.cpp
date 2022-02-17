@@ -557,15 +557,15 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!damager || damager == ch) {
 		ApplyDamage(ch, dam);
 	} else {
-		const std::map<std::string, FightSystem::DmgType> kDamageTypes = {
-			{"physic", FightSystem::kPhysDmg},
-			{"magic", FightSystem::kMagicDmg},
-			{"poisonous", FightSystem::kPoisonDmg}
+		const std::map<std::string, fight::DmgType> kDamageTypes = {
+			{"physic", fight::kPhysDmg},
+			{"magic", fight::kMagicDmg},
+			{"poisonous", fight::kPoisonDmg}
 		};
 		if (!may_kill_here(damager, ch, name)) {
 			return;
 		}
-		FightSystem::DmgType type = FightSystem::kPureDmg;
+		fight::DmgType type = fight::kPureDmg;
 		if (*damage_type) {
 			try {
 				type = kDamageTypes.at(damage_type);

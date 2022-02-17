@@ -10,7 +10,6 @@
 #include "protect.h"
 #include "fightsystem/common.h"
 
-using namespace FightSystem;
 using namespace AbilitySystem;
 
 // ************* THROW PROCEDURES
@@ -95,13 +94,13 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 
 // TODO: Перенести подобную логику в модуль абилок, разделить уровни
 void performWeaponThrow(TechniqueRollType &technique, Damage &techniqueDamage) {
-	techniqueDamage.dam = kZeroDmg;
+	techniqueDamage.dam = fight::kZeroDmg;
 	if (technique.isSuccess()) {
 		techniqueDamage.dam = technique.calculateDamage();
 		if (technique.isCriticalSuccess()) {
 			send_to_char("&GВ яблочко!&n\r\n", technique.actor());
-			techniqueDamage.flags.set(IGNORE_ARMOR);
-			techniqueDamage.flags.set(CRIT_HIT);
+			techniqueDamage.flags.set(fight::IGNORE_ARMOR);
+			techniqueDamage.flags.set(fight::CRIT_HIT);
 		};
 		if (IsTimed(technique.actor(), SHADOW_THROW_FEAT)) {
 			decreaseFeatTimer(technique.actor(), SHADOW_THROW_FEAT);
@@ -132,13 +131,13 @@ void go_throw(CharData *ch, CharData *victim) {
 	int victimsAmount = 1 + PRF_FLAGGED(ch, PRF_DOUBLE_THROW) + 2 * PRF_FLAGGED(ch, PRF_TRIPLE_THROW);
 
 	int techniqueID = THROW_WEAPON_FEAT;
-	DmgType throwDamageKind = kPhysDmg;
+	fight::DmgType throwDamageKind = fight::kPhysDmg;
 	if (PRF_FLAGGED(ch, PRF_SHADOW_THROW)) {
 		send_to_char("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
 		act("Оружие в руках $n1 окружила призрачная дымка.",
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		techniqueID = SHADOW_THROW_FEAT;
-		throwDamageKind = kMagicDmg;
+		throwDamageKind = fight::kMagicDmg;
 		struct TimedFeat shadowThrowTimed;
 		shadowThrowTimed.feat = SHADOW_THROW_FEAT;
 		shadowThrowTimed.time = 6;
@@ -146,7 +145,7 @@ void go_throw(CharData *ch, CharData *victim) {
 		PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
 	}
 	TechniqueRollType weaponThrowRoll;
-	Damage throwDamage(SkillDmg(ESkill::kThrow), kZeroDmg, throwDamageKind, nullptr); //х3 как тут с оружием
+	Damage throwDamage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, throwDamageKind, nullptr); //х3 как тут с оружием
 	throwDamage.magic_type = kTypeDark;
 
 	ActionTargeting::FoesRosterType

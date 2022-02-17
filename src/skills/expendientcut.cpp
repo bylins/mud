@@ -104,25 +104,25 @@ bool CheckExpedientSuccess(CharData *ch, CharData *victim) {
 }
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
-	//Это жутко криво, но при простановке сразу 2 флагов битвектора начинаются глюки
-	//По-видимому, где-то просто не учтено, что ненулевых битов может быть более 1
-	Affect<EApplyLocation> Noflee;
-	Noflee.type = kSpellBattle;
-	Noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
-	Noflee.location = EApplyLocation::APPLY_NONE;
-	Noflee.modifier = 0;
-	Noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
-	Noflee.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(ch, Noflee, true, false, true, false);
+	//При простановке сразу 2 флагов битвектора начинаются глюки
+	//По-видимому, где-то не учтено, что ненулевых битов может быть более одного
+	Affect<EApplyLocation> noflee;
+	noflee.type = kSpellBattle;
+	noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+	noflee.location = EApplyLocation::APPLY_NONE;
+	noflee.modifier = 0;
+	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
+	noflee.battleflag = kAfBattledec | kAfPulsedec;
+	affect_join(ch, noflee, true, false, true, false);
 
-	Affect<EApplyLocation> Battle;
-	Battle.type = kSpellBattle;
-	Battle.bitvector = to_underlying(EAffectFlag::AFF_EXPEDIENT);
-	Battle.location = EApplyLocation::APPLY_NONE;
-	Battle.modifier = 0;
-	Battle.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
-	Battle.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(ch, Battle, true, false, true, false);
+	Affect<EApplyLocation> battle;
+	battle.type = kSpellBattle;
+	battle.bitvector = to_underlying(EAffectFlag::AFF_EXPEDIENT);
+	battle.location = EApplyLocation::APPLY_NONE;
+	battle.modifier = 0;
+	battle.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
+	battle.battleflag = kAfBattledec | kAfPulsedec;
+	affect_join(ch, battle, true, false, true, false);
 
 	send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
@@ -144,7 +144,7 @@ void GoCutShorts(CharData *ch, CharData *vict) {
 	if (!CheckExpedientSuccess(ch, vict)) {
 		act("Ваши свистящие удары пропали втуне, не задев $N3.",
 			false, ch, nullptr, vict, kToChar);
-		Damage dmg(SkillDmg(ESkill::kShortBlades), FightSystem::kZeroDmg, FightSystem::kPhysDmg, nullptr);
+		Damage dmg(SkillDmg(ESkill::kShortBlades), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.skill_id = ESkill::kUndefined;
 		dmg.process(ch, vict);
 		ApplyNoFleeAffect(ch, 2);
@@ -155,23 +155,24 @@ void GoCutShorts(CharData *ch, CharData *vict) {
 		false, ch, nullptr, vict, kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-	hit(ch, vict, ESkill::kUndefined, FightSystem::kMainHand);
-	hit(ch, vict, ESkill::kUndefined, FightSystem::kOffHand);
+	hit(ch, vict, ESkill::kUndefined, fight::kMainHand);
+	hit(ch, vict, ESkill::kUndefined, fight::kOffHand);
 
-	Affect<EApplyLocation> AffectImmunPhysic;
-	AffectImmunPhysic.type = kSpellExpedient;
-	AffectImmunPhysic.location = EApplyLocation::APPLY_PR;
-	AffectImmunPhysic.modifier = 100;
-	AffectImmunPhysic.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
-	AffectImmunPhysic.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(ch, AffectImmunPhysic, false, false, false, false);
-	Affect<EApplyLocation> AffectImmunMagic;
-	AffectImmunMagic.type = kSpellExpedient;
-	AffectImmunMagic.location = EApplyLocation::APPLY_MR;
-	AffectImmunMagic.modifier = 100;
-	AffectImmunMagic.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
-	AffectImmunMagic.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(ch, AffectImmunMagic, false, false, false, false);
+	Affect<EApplyLocation> immun_physic;
+	immun_physic.type = kSpellExpedient;
+	immun_physic.location = EApplyLocation::APPLY_PR;
+	immun_physic.modifier = 100;
+	immun_physic.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
+	immun_physic.battleflag = kAfBattledec | kAfPulsedec;
+	affect_join(ch, immun_physic, false, false, false, false);
+
+	Affect<EApplyLocation> immun_magic;
+	immun_magic.type = kSpellExpedient;
+	immun_magic.location = EApplyLocation::APPLY_MR;
+	immun_magic.modifier = 100;
+	immun_magic.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
+	immun_magic.battleflag = kAfBattledec | kAfPulsedec;
+	affect_join(ch, immun_magic, false, false, false, false);
 
 	ApplyNoFleeAffect(ch, 3);
 }

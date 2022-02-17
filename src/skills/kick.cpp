@@ -7,8 +7,6 @@
 #include "protect.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 // ******************  KICK PROCEDURES
 void go_kick(CharData *ch, CharData *vict) {
 	const char *to_char = nullptr, *to_vict = nullptr, *to_room = nullptr;
@@ -47,7 +45,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kKick, success, vict);
 	int cooldown = 2;
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kKick), kZeroDmg, kPhysDmg, nullptr);
+		Damage dmg(SkillDmg(ESkill::kKick), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.process(ch, vict);
 		cooldown = 2;
 	} else {
@@ -143,7 +141,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (GET_AF_BATTLE(vict, kEafAwake)) {
 			dam >>= (2 - (ch->ahorse() ? 1 : 0));
 		}
-		Damage dmg(SkillDmg(ESkill::kKick), dam, kPhysDmg, nullptr);
+		Damage dmg(SkillDmg(ESkill::kKick), dam, fight::kPhysDmg, nullptr);
 		dmg.process(ch, vict);
 		cooldown = 2;
 	}

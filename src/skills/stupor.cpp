@@ -7,8 +7,6 @@
 #include "skills/parry.h"
 #include "protect.h"
 
-using namespace FightSystem;
-
 // ************************* STUPOR PROCEDURES
 void go_stupor(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
@@ -25,7 +23,7 @@ void go_stupor(CharData *ch, CharData *victim) {
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, kEafOverwhelm);
-		hit(ch, victim, ESkill::kOverwhelm, FightSystem::kMainHand);
+		hit(ch, victim, ESkill::kOverwhelm, fight::kMainHand);
 		//set_wait(ch, 2, true);
 		if (ch->getSkillCooldown(ESkill::kOverwhelm) > 0) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);

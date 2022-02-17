@@ -9,8 +9,6 @@
 #include "protect.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 // делегат обработки команды заколоть
 void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kBackstab) < 1) {
@@ -49,7 +47,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((!IS_NPC(ch) || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != type_pierce) {
+	if ((!IS_NPC(ch) || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != fight::type_pierce) {
 		send_to_char("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
 		return;
 	}
@@ -125,10 +123,10 @@ void go_backstab(CharData *ch, CharData *vict) {
 
 	TrainSkill(ch, ESkill::kBackstab, success, vict);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBackstab), kZeroDmg, kPhysDmg, GET_EQ(ch, WEAR_WIELD));
+		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, GET_EQ(ch, WEAR_WIELD));
 		dmg.process(ch, vict);
 	} else {
-		hit(ch, vict, ESkill::kBackstab, FightSystem::kMainHand);
+		hit(ch, vict, ESkill::kBackstab, fight::kMainHand);
 	}
 	SetWait(ch, 1, true);
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);

@@ -6,8 +6,6 @@
 #include "protect.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 // ************************* BASH PROCEDURES
 void go_bash(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
@@ -55,7 +53,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kBash].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBash), kZeroDmg, kPhysDmg, nullptr);
+		Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.process(ch, vict);
 		GET_POS(ch) = EPosition::kSit;
 		prob = 3;
@@ -117,8 +115,8 @@ void go_bash(CharData *ch, CharData *vict) {
 		}
 
 		prob = 0; // если башем убил - лага не будет
-		Damage dmg(SkillDmg(ESkill::kBash), dam, kPhysDmg, nullptr);
-		dmg.flags.set(NO_FLEE_DMG);
+		Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
+		dmg.flags.set(fight::NO_FLEE_DMG);
 		dam = dmg.process(ch, vict);
 
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD))) {

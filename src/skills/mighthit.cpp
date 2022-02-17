@@ -7,8 +7,6 @@
 #include "skills/parry.h"
 #include "protect.h"
 
-using namespace FightSystem;
-
 // ************************* MIGHTHIT PROCEDURES
 void go_mighthit(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
@@ -25,7 +23,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, kEafHammer);
-		hit(ch, victim, ESkill::kHammer, FightSystem::kMainHand);
+		hit(ch, victim, ESkill::kHammer, fight::kMainHand);
 		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
@@ -34,9 +32,9 @@ void go_mighthit(CharData *ch, CharData *victim) {
 	}
 
 	if ((victim->get_fighting() != ch) && (ch->get_fighting() != victim)) {
-		act("$N не сражается с вами, не трогайте $S.", false, ch, 0, victim, kToChar);
+		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, victim, kToChar);
 	} else {
-		act("Вы попытаетесь нанести богатырский удар по $N2.", false, ch, 0, victim, kToChar);
+		act("Вы попытаетесь нанести богатырский удар по $N2.", false, ch, nullptr, victim, kToChar);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, 2);
 			set_fighting(ch, victim);

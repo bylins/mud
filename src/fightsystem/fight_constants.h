@@ -1,7 +1,7 @@
 #if !defined __FIGHT_CONSTANTS_HPP__
 #define __FIGHT_CONSTANTS_HPP__
 
-namespace FightSystem {
+namespace fight {
 enum AttackType {
 	kMainHand = 1, //Основная атака
 	kOffHand = 2,  //Доп.атака
@@ -19,10 +19,23 @@ enum DmgType {
 };
 
 enum {
-	type_hit, type_skin, type_whip, type_slash, type_bite,
-	type_bludgeon, type_crush, type_pound, type_claw, type_maul,
-	type_thrash, type_pierce, type_blast, type_punch, type_stab,
-	type_pick, type_sting
+	type_hit,
+	type_skin,
+	type_whip,
+	type_slash,
+	type_bite,
+	type_bludgeon,
+	type_crush,
+	type_pound,
+	type_claw,
+	type_maul,
+	type_thrash,
+	type_pierce,
+	type_blast,
+	type_punch,
+	type_stab,
+	type_pick,
+	type_sting
 };
 
 enum {
@@ -62,6 +75,6 @@ enum {
 	// кол-во флагов
 	HIT_TYPE_FLAGS_NUM
 };
-} // namespace FightSystem
+} // namespace fight
 
 #endif //__FIGHT_CONSTANTS_HPP__

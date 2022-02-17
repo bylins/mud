@@ -54,7 +54,7 @@ class Damage {
 	Damage() { zero_init(); };
 
 	// скилы
-	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type, ObjData *wielded_obj) {
+	Damage(SkillDmg obj, int in_dam, fight::DmgType in_dmg_type, ObjData *wielded_obj) {
 		zero_init();
 		skill_id = obj.skill_id;
 		dam = in_dam;
@@ -63,7 +63,7 @@ class Damage {
 	};
 
 	// заклинания
-	Damage(SpellDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SpellDmg obj, int in_dam, fight::DmgType in_dmg_type) {
 		zero_init();
 		spell_num = obj.spell_num;
 		dam = in_dam;
@@ -71,7 +71,7 @@ class Damage {
 	};
 
 	// прочий дамаг
-	Damage(SimpleDmg obj, int in_dam, FightSystem::DmgType in_dmg_type) {
+	Damage(SimpleDmg obj, int in_dam, fight::DmgType in_dmg_type) {
 		zero_init();
 		msg_num = obj.msg_num;
 		dam = in_dam;
@@ -101,7 +101,7 @@ class Damage {
 	// инится только начиная с вызова process
 	int msg_num;
 	// набор флагов из HitType
-	std::bitset<FightSystem::HIT_TYPE_FLAGS_NUM> flags;
+	std::bitset<fight::HIT_TYPE_FLAGS_NUM> flags;
 	// позиция атакующего на начало атаки (по дефолту будет = текущему положению)
 	EPosition ch_start_pos;
 	// позиция жертвы на начало атаки (по дефолту будет = текущему положению)

@@ -2936,7 +2936,7 @@ void print_do_score_list(CharData *ch) {
 		ch->get_cha(), GET_REAL_CHA(ch));
 
 	HitData hit_params;
-	hit_params.weapon = FightSystem::kMainHand;
+	hit_params.weapon = fight::kMainHand;
 	hit_params.init(ch, ch);
 	bool need_dice = false;
 	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
@@ -3090,7 +3090,7 @@ void print_do_score_all(CharData *ch) {
 			CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	HitData hit_params;
-	hit_params.weapon = FightSystem::kMainHand;
+	hit_params.weapon = fight::kMainHand;
 	hit_params.init(ch, ch);
 //	hit_params.calc_damage(ch);
 	bool need_dice = false;

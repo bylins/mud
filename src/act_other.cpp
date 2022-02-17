@@ -647,7 +647,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		WAIT_STATE(ch, 3 * kPulseViolence);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && IS_NPC(vict) && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
-		hit(vict, ch, ESkill::kUndefined, FightSystem::kMainHand);
+		hit(vict, ch, ESkill::kUndefined, fight::kMainHand);
 }
 
 void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

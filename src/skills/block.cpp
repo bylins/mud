@@ -3,8 +3,6 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight_hit.h"
 
-using namespace FightSystem;
-
 // ******************* BLOCK PROCEDURES
 void go_block(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {

@@ -8,8 +8,6 @@
 #include "color.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {

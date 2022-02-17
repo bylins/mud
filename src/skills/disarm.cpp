@@ -9,8 +9,6 @@
 #include "color.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 // ************* DISARM PROCEDURES
 void go_disarm(CharData *ch, CharData *vict) {
 	ObjData *wielded = GET_EQ(vict, WEAR_WIELD) ? GET_EQ(vict, WEAR_WIELD) :

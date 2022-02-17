@@ -198,7 +198,7 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	hit(ch, victim, ESkill::kUndefined, FightSystem::kMainHand);
+	hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 }
 
 /*

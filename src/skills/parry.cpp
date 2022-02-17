@@ -4,8 +4,6 @@
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/common.h"
 
-using namespace FightSystem;
-
 // **************** MULTYPARRY PROCEDURES
 void go_multyparry(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) || IsUnableToAct(ch)) {

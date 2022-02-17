@@ -929,21 +929,21 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			&& GET_POS(ch) > EPosition::kStun
 			&& GET_POS(victim) > EPosition::kDead) {
 			// инит полей для дамага
-			Damage dmg(SpellDmg(spellnum), dam, FightSystem::kMagicDmg);
+			Damage dmg(SpellDmg(spellnum), dam, fight::kMagicDmg);
 			dmg.ch_start_pos = ch_start_pos;
 			dmg.victim_start_pos = victim_start_pos;
 			// колдуны игнорят поглощение у мобов
 			if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
-				dmg.flags.set(FightSystem::IGNORE_ABSORBE);
+				dmg.flags.set(fight::IGNORE_ABSORBE);
 			}
 			// отражение магии в кастующего
 			if (ch == victim) {
-				dmg.flags.set(FightSystem::MAGIC_REFLECT);
+				dmg.flags.set(fight::MAGIC_REFLECT);
 			}
 			if (count <= 1) {
-				dmg.flags.reset(FightSystem::NO_FLEE_DMG);
+				dmg.flags.reset(fight::NO_FLEE_DMG);
 			} else {
-				dmg.flags.set(FightSystem::NO_FLEE_DMG);
+				dmg.flags.set(fight::NO_FLEE_DMG);
 			}
 			rand = dmg.process(ch, victim);
 		}
@@ -3875,7 +3875,7 @@ void ReactToCast(CharData *victim, CharData *caster, int spellnum) {
 		if (IS_NPC(victim))
 			attack_best(victim, caster);
 		else
-			hit(victim, caster, ESkill::kUndefined, FightSystem::kMainHand);
+			hit(victim, caster, ESkill::kUndefined, fight::kMainHand);
 	} else if (CAN_SEE(victim, caster) && !IS_NPC(caster) && IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY)) {
 		mobRemember(victim, caster);
 	}

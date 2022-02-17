@@ -7,8 +7,6 @@
 #include "fightsystem/fight_hit.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct TimedSkill timed;
@@ -62,7 +60,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	prob = MAX(20, 90 - 5 * MAX(0, GET_REAL_LEVEL(vict) - GET_REAL_LEVEL(ch)));
 	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
 
-	Damage manadrainDamage(SkillDmg(ESkill::kJinx), kZeroDmg, kMagicDmg, nullptr);
+	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
 	manadrainDamage.magic_type = kTypeDark;
 	if (percent <= prob) {
 		skill = MAX(10, skill - 10 * MAX(0, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)));

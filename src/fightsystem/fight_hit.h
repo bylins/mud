@@ -11,7 +11,7 @@
 #include "structs/structs.h"
 
 struct HitData {
-	HitData() : weapon(FightSystem::kMainHand), wielded(nullptr), weapon_pos(WEAR_WIELD), weap_skill(ESkill::kIncorrect),
+	HitData() : weapon(fight::kMainHand), wielded(nullptr), weapon_pos(WEAR_WIELD), weap_skill(ESkill::kIncorrect),
 				weap_skill_is(0), skill_num(ESkill::kUndefined), hit_type(0), hit_no_parry(false),
 				ch_start_pos(EPosition::kIncorrect), victim_start_pos(EPosition::kIncorrect), victim_ac(0), calc_thaco(0),
 				dam(0), dam_critic(0) {
@@ -40,7 +40,7 @@ struct HitData {
 	// init()
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),
 	// 2 - атака левой рукой (LEFT_WEAPON)
-	FightSystem::AttackType weapon;
+	fight::AttackType weapon;
 	// пушка, которой в данный момент производится удар
 	ObjData *wielded;
 	// номер позиции (NUM_WEARS) пушки
@@ -77,7 +77,7 @@ struct HitData {
 	int dam_critic;
 
  public:
-	using flags_t = std::bitset<FightSystem::HIT_TYPE_FLAGS_NUM>;
+	using flags_t = std::bitset<fight::HIT_TYPE_FLAGS_NUM>;
 
 	const flags_t &get_flags() const { return m_flags; }
 	void set_flag(const size_t flag) { m_flags.set(flag); }
@@ -100,8 +100,8 @@ void group_gain(CharData *ch, CharData *victim);
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
 bool check_valid_chars(CharData *ch, CharData *victim, const char *fname, int line);
 
-void exthit(CharData *ch, ESkill type, FightSystem::AttackType weapon);
-void hit(CharData *ch, CharData *victim, ESkill type, FightSystem::AttackType weapon);
+void exthit(CharData *ch, ESkill type, fight::AttackType weapon);
+void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 
 void appear(CharData *ch);
 

@@ -2729,7 +2729,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	for (const auto tch : world[ch->in_room]->people) {
 		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_KILLER)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", false, ch, 0, 0, kToRoom);
-			hit(ch, tch, ESkill::kUndefined, FightSystem::kMainHand);
+			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
 			return (true);
 		}
@@ -2738,7 +2738,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	for (const auto tch : world[ch->in_room]->people) {
 		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_THIEF)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", false, ch, 0, 0, kToRoom);
-			hit(ch, tch, ESkill::kUndefined, FightSystem::kMainHand);
+			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
 			return (true);
 		}
@@ -2756,7 +2756,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	if (evil
 		&& (GET_ALIGNMENT(evil->get_fighting()) >= 0)) {
 		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", false, ch, 0, 0, kToRoom);
-		hit(ch, evil, ESkill::kUndefined, FightSystem::kMainHand);
+		hit(ch, evil, ESkill::kUndefined, fight::kMainHand);
 
 		return (true);
 	}

@@ -1330,14 +1330,14 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 
 void test_self_hitroll(CharData *ch) {
 	HitData hit;
-	hit.weapon = FightSystem::AttackType::kMainHand;
+	hit.weapon = fight::AttackType::kMainHand;
 	hit.init(ch, ch);
 	hit.calc_base_hr(ch);
 	hit.calc_stat_hr(ch);
 	hit.calc_ac(ch);
 
 	HitData hit2;
-	hit2.weapon = FightSystem::AttackType::kOffHand;
+	hit2.weapon = fight::AttackType::kOffHand;
 	hit2.init(ch, ch);
 	hit2.calc_base_hr(ch);
 	hit2.calc_stat_hr(ch);
@@ -1353,15 +1353,15 @@ void test_self_hitroll(CharData *ch) {
 void Damage::post_init_shields(CharData *victim) {
 	if (IS_NPC(victim) && !IS_CHARMICE(victim)) {
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD)) {
-			flags.set(FightSystem::VICTIM_FIRE_SHIELD);
+			flags.set(fight::VICTIM_FIRE_SHIELD);
 		}
 
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD)) {
-			flags.set(FightSystem::VICTIM_ICE_SHIELD);
+			flags.set(fight::VICTIM_ICE_SHIELD);
 		}
 
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD)) {
-			flags.set(FightSystem::VICTIM_AIR_SHIELD);
+			flags.set(fight::VICTIM_AIR_SHIELD);
 		}
 	} else {
 		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
@@ -1386,11 +1386,11 @@ void Damage::post_init_shields(CharData *victim) {
 		int shield_num = number(0, static_cast<int>(shields.size() - 1));
 
 		if (shields[shield_num] == FIRESHIELD) {
-			flags.set(FightSystem::VICTIM_FIRE_SHIELD);
+			flags.set(fight::VICTIM_FIRE_SHIELD);
 		} else if (shields[shield_num] == AIRSHIELD) {
-			flags.set(FightSystem::VICTIM_AIR_SHIELD);
+			flags.set(fight::VICTIM_AIR_SHIELD);
 		} else if (shields[shield_num] == ICESHIELD) {
-			flags.set(FightSystem::VICTIM_ICE_SHIELD);
+			flags.set(fight::VICTIM_ICE_SHIELD);
 		}
 	}
 }

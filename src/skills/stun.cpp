@@ -7,8 +7,6 @@
 #include "handler.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 void do_stun(CharData *ch, char *argument, int, int) {
 	if (ch->get_skill(ESkill::kStun) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);

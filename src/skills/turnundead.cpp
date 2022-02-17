@@ -9,7 +9,6 @@
 #include "handler.h"
 #include "cmd/flee.h"
 
-using namespace FightSystem;
 using namespace AbilitySystem;
 
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -45,13 +44,13 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 // костылиии... и магик намберы
 	int victimsAmount = 20;
 	int victimssHPAmount = skillTurnUndead * 25 + MAX(0, skillTurnUndead - 80) * 50;
-	Damage turnUndeadDamage(SkillDmg(ESkill::kTurnUndead), kZeroDmg, kMagicDmg, nullptr);
+	Damage turnUndeadDamage(SkillDmg(ESkill::kTurnUndead), fight::kZeroDmg, fight::kMagicDmg, nullptr);
 	turnUndeadDamage.magic_type = kTypeLight;
-	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
+	turnUndeadDamage.flags.set(fight::IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;
 	ActionTargeting::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
 	for (const auto target : roster) {
-		turnUndeadDamage.dam = kZeroDmg;
+		turnUndeadDamage.dam = fight::kZeroDmg;
 		turnUndeadRoll.initialize(ch, TURN_UNDEAD_FEAT, target);
 		if (turnUndeadRoll.isSuccess()) {
 			if (turnUndeadRoll.isCriticalSuccess() && ch->get_level() > target->get_level() + RollDices(1, 5)) {

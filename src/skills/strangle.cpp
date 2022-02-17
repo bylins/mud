@@ -10,8 +10,6 @@
 #include "protect.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 void go_strangle(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || IsUnableToAct(ch)) {
 		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
@@ -43,8 +41,8 @@ void go_strangle(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kStrangle].name, percent, prob, success);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kStrangle), kZeroDmg, kPhysDmg, nullptr);
-		dmg.flags.set(IGNORE_ARMOR);
+		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+		dmg.flags.set(fight::IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
@@ -60,8 +58,8 @@ void go_strangle(CharData *ch, CharData *vict) {
 		int dam =
 			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
 		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
-		Damage dmg(SkillDmg(ESkill::kStrangle), dam, kPhysDmg, nullptr);
-		dmg.flags.set(IGNORE_ARMOR);
+		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
+		dmg.flags.set(fight::IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
 			SetWait(vict, 2, true);
