@@ -413,7 +413,7 @@ void die(CharacterData *ch, CharacterData *killer) {
 	raw_kill(ch, killer);
 }
 
-#include "classes/classes_spell_slots.h"
+#include "game_classes/classes_spell_slots.h"
 void forget_all_spells(CharacterData *ch) {
 	using PlayerClass::slot_for_char;
 

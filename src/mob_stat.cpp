@@ -4,7 +4,7 @@
 #include "mob_stat.h"
 
 #include "utils/pugixml.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "entities/char.h"
 #include "color.h"
 
@@ -159,7 +159,7 @@ void load() {
 	}
 	for (pugi::xml_node xml_mob = node_list.child("mob"); xml_mob;
 		 xml_mob = xml_mob.next_sibling("mob")) {
-		const int mob_vnum = Parse::attr_int(xml_mob, "vnum");
+		const int mob_vnum = parse::ReadAttrAsInt(xml_mob, "vnum");
 		if (real_mobile(mob_vnum) < 0) {
 			snprintf(buf_, sizeof(buf_),
 					 "...bad mob attributes (vnum=%d)", mob_vnum);
@@ -178,8 +178,8 @@ void load() {
 		for (pugi::xml_node xml_time = xml_mob.child("t"); xml_time;
 			 xml_time = xml_time.next_sibling("t")) {
 			struct mob_node tmp_mob;
-			tmp_mob.month = Parse::attr_int(xml_time, "m");
-			tmp_mob.year = Parse::attr_int(xml_time, "y");
+			tmp_mob.month = parse::ReadAttrAsInt(xml_time, "m");
+			tmp_mob.year = parse::ReadAttrAsInt(xml_time, "y");
 			if (tmp_mob.month <= 0 || tmp_mob.month > 12 || tmp_mob.year <= 0) {
 				snprintf(buf_, sizeof(buf_),
 						 "...bad mob attributes (month=%d, year=%d)",

@@ -18,7 +18,7 @@
 #include "handler.h"
 #include "color.h"
 #include "depot.h"
-#include "parcel.h"
+#include "communication/parcel.h"
 #include "magic.h"
 
 char cast_argument[kMaxStringLength];
@@ -180,14 +180,14 @@ ESkill FindSkillId(const char *name) {
 	char const *temp, *temp2;
 	char first[256], first2[256];
 
-	for (const auto index : AVAILABLE_SKILLS) {
-		if (utils::IsAbbrev(name, MUD::Skills()[index].GetName())) {
-			return (index);
+	for (const auto &skill : MUD::Skills()) {
+		if (utils::IsAbbrev(name, skill.GetName())) {
+			return (skill.GetId());
 		}
 
 		ok = true;
 		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(MUD::Skills()[index].GetName(), first);
+		temp = any_one_arg(skill.GetName(), first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
 			if (!utils::IsAbbrev(first2, first)) {
@@ -198,7 +198,7 @@ ESkill FindSkillId(const char *name) {
 		}
 
 		if (ok && !*first2) {
-			return (index);
+			return (skill.GetId());
 		}
 	}
 

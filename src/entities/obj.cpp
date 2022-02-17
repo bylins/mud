@@ -7,7 +7,7 @@
 #include "obj_save.h"
 #include "world_objects.h"
 #include "obj_prototypes.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "handler.h"
 #include "color.h"
 #include "game_mechanics/celebrates.h"
@@ -1127,7 +1127,7 @@ std::string ObjVal::print_to_file() const {
 	out << "Vals:\n";
 
 	for (auto i = m_values.begin(), iend = m_values.end(); i != iend; ++i) {
-		std::string key_str = TextId::to_str(TextId::OBJ_VALS, to_underlying(i->first));
+		std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(i->first));
 		if (!key_str.empty()) {
 			out << key_str << " " << i->second << "\n";
 		}
@@ -1145,7 +1145,7 @@ bool ObjVal::init_from_file(const char *str) {
 	int val = -1;
 
 	while (text >> key_str >> val) {
-		const int key = TextId::to_num(TextId::OBJ_VALS, key_str);
+		const int key = text_id::ToNum(text_id::kObjVals, key_str);
 		if (key >= 0 && val >= 0) {
 			m_values.emplace(static_cast<EValueKey>(key), val);
 			key_str.clear();
@@ -1170,7 +1170,7 @@ std::string ObjVal::print_to_zone() const {
 	std::vector<std::pair<std::string, int>> m_val_vec;
 
 	for (auto const i : m_values) {
-		std::string key_str = TextId::to_str(TextId::OBJ_VALS, to_underlying(i.first));
+		std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(i.first));
 		if (!key_str.empty()) {
 			m_val_vec.push_back(std::make_pair(key_str, i.second));
 		}
@@ -1194,7 +1194,7 @@ void ObjVal::init_from_zone(const char *str) {
 	int val = -1;
 
 	if (text >> key_str >> val) {
-		const int key = TextId::to_num(TextId::OBJ_VALS, key_str);
+		const int key = text_id::ToNum(text_id::kObjVals, key_str);
 		if (key >= 0 && val >= 0) {
 			m_values.emplace(static_cast<EValueKey>(key), val);
 		} else {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <skills>
-    <skill id="kReligion" name="!молитва или жертва!" abbr="Error" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
-    <skill id="kAny" name="!any" abbr="Any" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
-    <skill id="kIncorrect" name="!INCORRECT!" abbr="!Icr" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
-    <skill id="kGlobalCooldown" name="!cooldown" abbr="ОЗ" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
+    <skill id="kReligion" name="!молитва или жертва!" abbr="Error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kAny" name="!any" abbr="Any" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kIncorrect" name="!INCORRECT!" abbr="!Icr" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kGlobalCooldown" name="!cooldown" abbr="ОЗ" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
     <skill id="kBackstab" name="заколоть" abbr="Зк" saving="kReflex" difficulty="25" cap="1000"/>
     <skill id="kBash" name="сбить" abbr="Сб" saving="kReflex" difficulty="200" cap="200"/>
     <skill id="kHide" name="спрятаться" abbr="Сп" saving="kReflex" difficulty="100" cap="200"/>
@@ -31,7 +31,7 @@
     <skill id="kLooking" name="приглядеться" abbr="Прг" saving="kReflex" difficulty="100" cap="200"/>
     <skill id="kHearing" name="прислушаться" abbr="Прс" saving="kReflex" difficulty="100" cap="200"/>
     <skill id="kDisarm" name="обезоружить" abbr="Об" saving="kReflex" difficulty="100" cap="200"/>
-    <skill id="kMorph" name="оборотничество" abbr="Об" saving="kReflex" difficulty="150" cap="200"/>
+    <skill id="kMorph" name="оборотничество" abbr="Об" saving="kReflex" difficulty="150" cap="200" mode="kTesting"/>
     <skill id="kAddshot" name="дополнительный выстрел" abbr="Доп" saving="kReflex" difficulty="200" cap="200"/>
     <skill id="kDisguise" name="маскировка" abbr="Мск" saving="kReflex" difficulty="100" cap="200"/>
     <skill id="kDodge" name="уклониться" abbr="Укл" saving="kReflex" difficulty="100" cap="200"/>
@@ -83,10 +83,10 @@
     <skill id="kLifeMagic" name="магия жизни" abbr="Мж" saving="kReflex" difficulty="1000" cap="1000"/>
     <skill id="kStun" name="ошеломить" abbr="Ош" saving="kReflex" difficulty="200" cap="200"/>
     <skill id="kMakeAmulet" name="смастерить оберег" abbr="Со" saving="kReflex" difficulty="200" cap="200"/>
-    <skill id="kCreateBow" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
-    <skill id="kCreatePotion" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
-    <skill id="kCreateScroll" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
-    <skill id="kCreateWand" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
-    <skill id="kMakeStaff" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
-    <skill id="kMakePotion" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" disabled="true"/>
+    <skill id="kCreateBow" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kCreatePotion" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kCreateScroll" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kCreateWand" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kMakeStaff" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
+    <skill id="kMakePotion" name="!отключено" abbr="!error" saving="kFirst" difficulty="1" cap="1" mode="kDisabled"/>
 </skills>

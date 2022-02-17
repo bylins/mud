@@ -2,7 +2,7 @@
 #define __OBJECT_PROTOTYPES_HPP__
 
 #include "entities/obj.h"
-#include "logger.h"
+#include "utils/logger.h"
 
 #include <deque>
 

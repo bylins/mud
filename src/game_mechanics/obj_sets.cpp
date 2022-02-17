@@ -9,7 +9,7 @@
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
 #include "utils/pugixml.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "color.h"
 #include "modify.h"
 #include "help.h"
@@ -190,7 +190,7 @@ void VerifySet(SetNode &set) {
 			set.enabled = false;
 		}
 		if (i->first > set.obj_list.size()) {
-			err_log("Items set #%zu: ativator is greater then item list size (activ=%d).",
+			err_log("Items set #%zu: ativator is greater than item list size (activ=%d).",
 					num, i->first);
 			set.enabled = false;
 		}
@@ -335,7 +335,7 @@ void load() {
 				InitMsgNode(tmp_msg, xml_msg);
 			}
 			// GCC 4.4
-			tmp_set->obj_list.emplace(Parse::attr_int(obj_node, "vnum"), tmp_msg);
+			tmp_set->obj_list.emplace(parse::ReadAttrAsInt(obj_node, "vnum"), tmp_msg);
 			//tmp_set->obj_list.insert(std::make_pair(Parse::attr_int(obj_node, "vnum"), tmp_msg));
 		}
 
@@ -346,8 +346,8 @@ void load() {
 				// заполняются только первые kMaxObjAffect
 				for (auto & i : tmp_activ.apply) {
 					if (i.location <= 0) {
-						i.location = static_cast<EApplyLocation>(Parse::attr_int(apply_node, "loc"));
-						i.modifier = Parse::attr_int(apply_node, "mod");
+						i.location = static_cast<EApplyLocation>(parse::ReadAttrAsInt(apply_node, "loc"));
+						i.modifier = parse::ReadAttrAsInt(apply_node, "mod");
 						break;
 					}
 				}
@@ -355,13 +355,13 @@ void load() {
 
 			pugi::xml_node xml_cur = activ_node.child("skill");
 			if (!xml_cur.empty()) {
-				tmp_activ.skill.first = static_cast<ESkill>(Parse::attr_int(xml_cur, "num"));
-				tmp_activ.skill.second = Parse::attr_int(xml_cur, "val");
+				tmp_activ.skill.first = static_cast<ESkill>(parse::ReadAttrAsInt(xml_cur, "num"));
+				tmp_activ.skill.second = parse::ReadAttrAsInt(xml_cur, "val");
 			}
 
 			xml_cur = activ_node.child("enchant");
 			if (!xml_cur.empty()) {
-				tmp_activ.enchant.first = Parse::attr_int(xml_cur, "vnum");
+				tmp_activ.enchant.first = parse::ReadAttrAsInt(xml_cur, "vnum");
 				tmp_activ.enchant.second.weight =
 					xml_cur.attribute("weight").as_int(0);
 				tmp_activ.enchant.second.ndice =
@@ -372,12 +372,12 @@ void load() {
 			// <phys_dmg>
 			xml_cur = activ_node.child("phys_dmg");
 			if (!xml_cur.empty()) {
-				tmp_activ.bonus.phys_dmg = Parse::attr_int(xml_cur, "pct");
+				tmp_activ.bonus.phys_dmg = parse::ReadAttrAsInt(xml_cur, "pct");
 			}
 			// <mage_dmg>
 			xml_cur = activ_node.child("mage_dmg");
 			if (!xml_cur.empty()) {
-				tmp_activ.bonus.mage_dmg = Parse::attr_int(xml_cur, "pct");
+				tmp_activ.bonus.mage_dmg = parse::ReadAttrAsInt(xml_cur, "pct");
 			}
 			// если нет атрибута prof - значит актив на все профы
 			pugi::xml_attribute xml_prof = activ_node.attribute("prof");
@@ -390,7 +390,7 @@ void load() {
 			if (!xml_npc.empty()) {
 				tmp_activ.npc = xml_npc.as_bool();
 			}
-			tmp_set->activ_list[Parse::attr_int(activ_node, "size")] = tmp_activ;
+			tmp_set->activ_list[parse::ReadAttrAsInt(activ_node, "size")] = tmp_activ;
 		}
 		// <messages>
 		pugi::xml_node xml_msg = set_node.child("messages");

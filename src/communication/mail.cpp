@@ -15,7 +15,7 @@
 #include "parcel.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "color.h"
 #include "utils/pugixml.h"
 
@@ -586,8 +586,8 @@ void load() {
 	for (pugi::xml_node msg_n = mail_n.child("m");
 		 msg_n; msg_n = msg_n.next_sibling("m")) {
 		mail_node message;
-		message.header = Parse::attr_str(msg_n, "h");
-		message.text = Parse::attr_str(msg_n, "t");
+		message.header = parse::ReadAattrAsStr(msg_n, "h");
+		message.text = parse::ReadAattrAsStr(msg_n, "t");
 		// раскодируем строку хедера
 		std::string header = coder::base64_decode(message.header);
 		int to_uid = -1;

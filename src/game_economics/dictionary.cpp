@@ -1,7 +1,7 @@
-#include "dictionary.h"
-#include "shop_ext.h"
+//#include "dictionary.h"
 
-// комментарий на русском в надежде починить кодировки bitbucket
+//#include <memory>
+#include "game_economics/shop_ext.h"
 
 Dictionary::Dictionary(DictionaryMode mode) {
 	switch (mode) {
@@ -15,7 +15,7 @@ size_t Dictionary::Size() {
 }
 
 DictionaryItemPtr DictionaryItem::GetDictionaryItem() {
-	return DictionaryItemPtr(new DictionaryItem(this->GetDictionaryName(), this->GetDictionaryTID()));
+	return std::make_shared<DictionaryItem>(this->GetDictionaryName(), this->GetDictionaryTID());
 }
 
 std::string Dictionary::GetNameByNID(size_t nid) {
@@ -34,12 +34,12 @@ std::string Dictionary::GetTIDByNID(size_t nid) {
 	return result;
 };
 
-void Dictionary::AddToDictionary(DictionaryItemPtr item) {
+void Dictionary::AddToDictionary(const DictionaryItemPtr& item) {
 	this->dictionary_.push_back(item);
 };
 
-std::string Dictionary::GetNameByTID(std::string/* tid*/) {
-	std::string result = "";
+std::string Dictionary::GetNameByTID(const std::string&/* tid*/) {
+	std::string result;
 	return result;
 };
 

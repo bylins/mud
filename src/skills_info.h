@@ -3,109 +3,63 @@
 
 #include "skills.h"
 
-#include <unordered_map>
-#include <utility>
-
+#include "boot/cfg_manager.h"
 #include "entities/entity_constants.h"
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
+#include "structs/info_container.h"
 
-/*template<class T>
-bool IsInRange(const T &t) {
-	return (t >= T::kFirst && t <= T::kLast);
-}*/
+/*
+ * Загрузчик конфига умений.
+ */
+class SkillsLoader : virtual public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
 
-struct SkillInfo {
-	SkillInfo() = default;
-	SkillInfo(const std::string &name, const std::string &short_name, const ESaving saving, int difficulty, int cap) :
-		name(name),
-		short_name(short_name),
-		save_type(saving),
-		difficulty(difficulty),
-		cap(cap),
-		autosuccess(false) {};
-
+/*
+ * Класс-описание конкретного умения.
+ */
+struct SkillInfo : public info_container::IItem<ESkill> {
+	ESkill id{ESkill::kFirst};
 	std::string name{"!undefined!"};
 	std::string short_name{"!error"};
 	ESaving save_type{ESaving::kFirst};
-	int difficulty{1};
+	int difficulty{200};
 	int cap{1};
 	bool autosuccess{false};
+	EItemMode mode{EItemMode::kDisabled};
 
-	/**
-	 * Чтобы не писать все время c_str()
-	 * Если нужен именно std::string - можно получить напрямую.
-	 * По мере избавления от сишных строк вызов функции следует заменять на .name
+	[[nodiscard]] ESkill GetId() const final { return id; };
+	[[nodiscard]] EItemMode GetMode() const final { return mode; };
+
+	/*
+	 * Имя скилла в виде C-строки. По возможности используйте std::string
 	 */
-	[[nodiscard]] const char* GetName() const { return name.c_str(); };
-	[[nodiscard]] const char* GetAbbr() const { return short_name.c_str(); };
+	[[nodiscard]] const char *GetName() const { return name.c_str(); };
+	[[nodiscard]] const char *GetAbbr() const { return short_name.c_str(); };
+	void Print(std::stringstream &buffer) const;
 };
 
-class SkillsInfo {
+/*
+ * Класс-билдер описания отдельного умения.
+ */
+class SkillInfoBuilder : public info_container::IItemBuilder<SkillInfo> {
  public:
-	SkillsInfo() {
-		if (!items_) {
-			items_ = std::make_unique<Register>();
-			items_->emplace(ESkill::kUndefined, std::make_unique<Pair>(std::make_pair(false, SkillInfo())));
-		}
-	};
-	SkillsInfo(SkillsInfo &s) = delete;
-	void operator=(const SkillsInfo &s) = delete;
-
-	/*
-	 *  Доступ к элементу с указанным id или kUndefined элементу.
-	 */
-	const SkillInfo &operator[](ESkill id) const;
-
-	/*
-	 *  Инициализация. Для реинициализации используйте Reload();
-	 */
-	void Init();
-
-	/*
-	 *  Такой id известен. Не гарантируется, что он означает корректный элемент.
-	 */
-	bool IsKnown(ESkill id);
-
-	/*
-	 *  Такой id неизвестен.
-	 */
-	bool IsUnknown(ESkill id) { return !IsKnown(id); };
-
-	/*
-	 *  Такой id известен и он корректен, т.е. определен, лежит между первым и последним элементом
-	 *  и не откллючен.
-	 */
-	bool IsValid(ESkill id);
-
-	/*
-	 *  Такой id некорректен, т.е. не определен, отключен или лежит вне корректного диапазона.
-	 */
-	bool IsInvalid(ESkill id) { return !IsValid(id); };
-
+	ItemOptional Build(parser_wrapper::DataNode &node) final;
  private:
-	using Pair = std::pair<bool, SkillInfo>;
-	using PairPtr = std::unique_ptr<Pair>;
-	using Register = std::unordered_map<ESkill, PairPtr>;
-	using RegisterPtr = std::unique_ptr<Register>;
-//	using RegisterOptional = std::optional<RegisterPtr>;
-
-	RegisterPtr items_;
-
-	bool IsInitizalized();
-	bool IsEnabled(ESkill id);
-
-	void InitSkill(ESkill id, const std::string &name, const std::string &short_name,
-				   ESaving saving, int difficulty, int cap, bool enabled = true);
-
+	static ItemOptional &ParseObligatoryValues(ItemOptional &optional, parser_wrapper::DataNode &node);
+	static ItemOptional &ParseDispensableValues(ItemOptional &optional, parser_wrapper::DataNode &node);
 };
 
+using SkillsInfo = info_container::InfoContainer<ESkill, SkillInfo, SkillInfoBuilder>;
 
 // Этому место в структуре скилл_инфо (а еще точнее - абилок), но во-первых, в messages запихали и сообщения спеллов,
 // и еще черта лысого в ступе, во-вторых, это надо переделывать структуру и ее парсинг. Поэтому пока так.
 struct AttackMsg {
-	char *attacker_msg{nullptr};	// message to attacker //
-	char *victim_msg{nullptr};		// message to victim   //
-	char *room_msg{nullptr};		// message to room     //
+	char *attacker_msg{nullptr};    // message to attacker //
+	char *victim_msg{nullptr};        // message to victim   //
+	char *room_msg{nullptr};        // message to room     //
 };
 
 struct AttackMsgSet {
@@ -117,9 +71,9 @@ struct AttackMsgSet {
 };
 
 struct AttackMessages {
-	int attack_type{0};				// Attack type          //
-	int number_of_attacks{0};			// How many attack messages to chose from. //
-	AttackMsgSet *msg_set{nullptr};	// List of messages.       //
+	int attack_type{0};                // Attack type          //
+	int number_of_attacks{0};            // How many attack messages to chose from. //
+	AttackMsgSet *msg_set{nullptr};    // List of messages.       //
 };
 
 const int kMaxMessages = 600; // Эту похабень надо переделать на вектор или хотя бы std::array.

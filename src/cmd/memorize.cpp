@@ -3,7 +3,7 @@
 #include "magic/spells_info.h"
 #include "handler.h"
 #include "color.h"
-#include "classes/classes_spell_slots.h"
+#include "game_classes/classes_spell_slots.h"
 #include "magic/magic_utils.h" //включен ради функци поиска спеллов, которые по-хорошеиу должны быть где-то в утилитах.
 
 using PlayerClass::slot_for_char;

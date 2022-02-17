@@ -366,6 +366,8 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_value_by_name.clear();
 
 	ESkill_name_by_value[ESkill::kUndefined] = "kUndefined";
+	ESkill_name_by_value[ESkill::kIncorrect] = "kIncorrect";
+	ESkill_name_by_value[ESkill::kAny] = "kAny";
 	ESkill_name_by_value[ESkill::kGlobalCooldown] = "kGlobalCooldown";
 	ESkill_name_by_value[ESkill::kProtect] = "kProtect";
 	ESkill_name_by_value[ESkill::kIntercept] = "kIntercept";
@@ -474,97 +476,6 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item) {
 	}
 	return ESkill_name_by_value.at(item);
 }
-
-std::array<ESkill, to_underlying(ESkill::kLast) + 1> AVAILABLE_SKILLS =
-	{
-		ESkill::kUndefined,
-		ESkill::kProtect,
-		ESkill::kIntercept,
-		ESkill::kLeftHit,
-		ESkill::kHammer,
-		ESkill::kOverwhelm,
-		ESkill::kPoisoning,
-		ESkill::kSense,
-		ESkill::kRiding,
-		ESkill::kHideTrack,
-		ESkill::kReligion,
-		ESkill::kSkinning,
-		ESkill::kMultiparry,
-		ESkill::kReforging,
-		ESkill::kLeadership,
-		ESkill::kPunctual,
-		ESkill::kAwake,
-		ESkill::kIdentify,
-		ESkill::kHearing,
-		ESkill::kCreatePotion,
-		ESkill::kCreateScroll,
-		ESkill::kCreateWand,
-		ESkill::kPry,
-		ESkill::kArmoring,
-		ESkill::kHangovering,
-		ESkill::kFirstAid,
-		ESkill::kCampfire,
-		ESkill::kCreateBow,
-		ESkill::kThrow,
-		ESkill::kBackstab,
-		ESkill::kBash,
-		ESkill::kHide,
-		ESkill::kKick,
-		ESkill::kPickLock,
-		ESkill::kPunch,
-		ESkill::kRescue,
-		ESkill::kSneak,
-		ESkill::kSteal,
-		ESkill::kTrack,
-		ESkill::kClubs,
-		ESkill::kAxes,
-		ESkill::kLongBlades,
-		ESkill::kShortBlades,
-		ESkill::kNonstandart,
-		ESkill::kTwohands,
-		ESkill::kPicks,
-		ESkill::kSpades,
-		ESkill::kSideAttack,
-		ESkill::kDisarm,
-		ESkill::kParry,
-		ESkill::kMorph,
-		ESkill::kBows,
-		ESkill::kAddshot,
-		ESkill::kDisguise,
-		ESkill::kDodge,
-		ESkill::kShieldBlock,
-		ESkill::kLooking,
-		ESkill::kUndercut,
-		ESkill::kRepair,
-		ESkill::kSharpening,
-		ESkill::kCourage,
-		ESkill::kJinx,
-		ESkill::kNoParryHit,
-		ESkill::kTownportal,
-		ESkill::kMakeStaff,
-		ESkill::kMakeBow,
-		ESkill::kMakeWeapon,
-		ESkill::kMakeArmor,
-		ESkill::kMakeJewel,
-		ESkill::kMakeWear,
-		ESkill::kMakePotion,
-		ESkill::kDigging,
-		ESkill::kJewelry,
-		ESkill::kWarcry,
-		ESkill::kTurnUndead,
-		ESkill::kIronwind,
-		ESkill::kStrangle,
-		ESkill::kAirMagic,
-		ESkill::kFireMagic,
-		ESkill::kWaterMagic,
-		ESkill::kEarthMagic,
-		ESkill::kLightMagic,
-		ESkill::kDarkMagic,
-		ESkill::kMindMagic,
-		ESkill::kLifeMagic,
-		ESkill::kStun,
-		ESkill::kMakeAmulet
-	};
 
 ///
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)

@@ -14,14 +14,14 @@
 
 #include "handler.h"
 
-#include "auction.h"
+#include "game_economics/auction.h"
 #include "backtrace.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "cmd/follow.h"
-#include "exchange.h"
-#include "ext_money.h"
+#include "game_economics/exchange.h"
+#include "game_economics/ext_money.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
 #include "house.h"
@@ -33,7 +33,7 @@
 #include "magic/magic_utils.h"
 #include "world_objects.h"
 #include "entities/zone.h"
-#include "classes/classes_spell_slots.h"
+#include "game_classes/classes_spell_slots.h"
 #include "depot.h"
 
 using PlayerClass::slot_for_char;

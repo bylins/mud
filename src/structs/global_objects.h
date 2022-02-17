@@ -2,14 +2,14 @@
 #define GLOBAL_OBJECTS_HPP_
 
 #include "abilities/abilities_info.h"
-#include "classes/classes_info.h"
+#include "game_classes/classes_info.h"
 #include "fightsystem/pk.h"
 #include "game_mechanics/celebrates.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "heartbeat.h"
 #include "speedwalks.h"
 #include "cmd_god/shutdown_parameters.h"
-#include "shops_implementation.h"
+#include "game_economics/shops_implementation.h"
 #include "world_objects.h"
 #include "entities/world_characters.h"
 #include "act_wizard.h"
@@ -18,6 +18,7 @@
 #include "quests/daily_quest.h"
 #include "skills_info.h"
 #include "strengthening.h"
+#include "boot/cfg_manager.h"
 class BanList;    // to avoid inclusion of ban.hpp
 
 /**
@@ -36,6 +37,7 @@ class GlobalObjects {
  public:
 	static abilities::AbilitiesInfo &Abilities();
 	static SkillsInfo &Skills();
+	static cfg_manager::CfgManager &CfgManager();
 	static classes::ClassesInfo &Classes();
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();

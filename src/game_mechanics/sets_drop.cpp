@@ -9,7 +9,7 @@
 #include "house.h"
 #include "color.h"
 #include "help.h"
-#include "parse.h"
+#include "utils/parse.h"
 #include "mob_stat.h"
 #include "entities/zone.h"
 
@@ -225,14 +225,14 @@ void init_obj_list() {
 		 set_node; set_node = set_node.next_sibling("set")) {
 		HelpNode node;
 
-		node.alias_list = Parse::attr_str(set_node, "help_alias");
+		node.alias_list = parse::ReadAattrAsStr(set_node, "help_alias");
 		if (node.alias_list.empty()) {
 			mudlog("...bad set attributes (empty help_alias)",
 				   CMP, kLevelImmortal, SYSLOG, true);
 			continue;
 		}
 
-		std::string type = Parse::attr_str(set_node, "type");
+		std::string type = parse::ReadAattrAsStr(set_node, "type");
 		if (type.empty() || (type != "auto" && type != "manual")) {
 			snprintf(buf, sizeof(buf),
 					 "...bad set attributes (type=%s)", type.c_str());
@@ -245,7 +245,7 @@ void init_obj_list() {
 		if (type == "manual") {
 			for (pugi::xml_node obj_node = set_node.child("obj");
 				 obj_node; obj_node = obj_node.next_sibling("obj")) {
-				const int obj_vnum = Parse::attr_int(obj_node, "vnum");
+				const int obj_vnum = parse::ReadAttrAsInt(obj_node, "vnum");
 				const int obj_rnum = real_object(obj_vnum);
 				if (obj_rnum < 0) {
 					snprintf(buf, sizeof(buf),
@@ -254,7 +254,7 @@ void init_obj_list() {
 					continue;
 				}
 
-				std::string list_type = Parse::attr_str(obj_node, "list");
+				std::string list_type = parse::ReadAattrAsStr(obj_node, "list");
 				if (list_type.empty()
 					|| (list_type != "solo" && list_type != "group")) {
 					snprintf(buf, sizeof(buf),
@@ -294,7 +294,7 @@ void init_obj_list() {
 			std::multimap<int, int> set_sort_list;
 
 			for (pugi::xml_node obj_node = set_node.child("obj"); obj_node; obj_node = obj_node.next_sibling("obj")) {
-				const int obj_vnum = Parse::attr_int(obj_node, "vnum");
+				const int obj_vnum = parse::ReadAttrAsInt(obj_node, "vnum");
 				if (real_object(obj_vnum) < 0) {
 					snprintf(buf, sizeof(buf),
 							 "...bad obj_node attributes (vnum=%d)", obj_vnum);
@@ -873,8 +873,8 @@ bool load_unique_mobs() {
 	}
 
 	for (pugi::xml_node node = node_list.child("mob"); node; node = node.next_sibling("mob")) {
-		vnum = Parse::attr_int(node, "vnum");
-		level = Parse::attr_int(node, "level");
+		vnum = parse::ReadAttrAsInt(node, "vnum");
+		level = parse::ReadAttrAsInt(node, "level");
 		unique_mobs.insert(std::make_pair(vnum, level));
 	}
 	return true;
@@ -897,7 +897,7 @@ bool load_drop_table() {
 	}
 
 	pugi::xml_node time_node = node_list.child("time");
-	std::string timer = Parse::attr_str(time_node, "reset");
+	std::string timer = parse::ReadAattrAsStr(time_node, "reset");
 	if (!timer.empty()) {
 		try {
 			next_reset_time = std::stoull(timer, nullptr, 10);
@@ -914,7 +914,7 @@ bool load_drop_table() {
 
 	for (pugi::xml_node item_node = node_list.child("item"); item_node;
 		 item_node = item_node.next_sibling("item")) {
-		const int obj_vnum = Parse::attr_int(item_node, "vnum");
+		const int obj_vnum = parse::ReadAttrAsInt(item_node, "vnum");
 		const int obj_rnum = real_object(obj_vnum);
 		if (obj_vnum <= 0 || obj_rnum < 0) {
 			snprintf(buf, sizeof(buf),
@@ -923,7 +923,7 @@ bool load_drop_table() {
 			return false;
 		}
 
-		const int mob_vnum = Parse::attr_int(item_node, "mob");
+		const int mob_vnum = parse::ReadAttrAsInt(item_node, "mob");
 		const int mob_rnum = real_mobile(mob_vnum);
 		if (mob_vnum <= 0 || mob_rnum < 0) {
 			snprintf(buf, sizeof(buf),
@@ -932,7 +932,7 @@ bool load_drop_table() {
 			return false;
 		}
 
-		const int chance = Parse::attr_int(item_node, "drop_chance");
+		const int chance = parse::ReadAttrAsInt(item_node, "drop_chance");
 		if (chance < 0) {
 			snprintf(buf, sizeof(buf),
 					 "...bad item attributes (drop_chance=%d)", chance);
@@ -940,14 +940,14 @@ bool load_drop_table() {
 			return false;
 		}
 
-		std::string solo = Parse::attr_str(item_node, "solo");
+		std::string solo = parse::ReadAattrAsStr(item_node, "solo");
 		if (solo.empty()) {
 			snprintf(buf, sizeof(buf), "...bad item attributes (solo=empty)");
 			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			return false;
 		}
 
-		std::string can_drop = Parse::attr_str(item_node, "can_drop");
+		std::string can_drop = parse::ReadAattrAsStr(item_node, "can_drop");
 		if (can_drop.empty()) {
 			snprintf(buf, sizeof(buf), "...bad item attributes (can_drop=empty)");
 			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);

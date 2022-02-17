@@ -29,13 +29,13 @@
 #include "entities/char.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
-#include "classes/classes.h"
+#include "game_classes/classes.h"
 #include "cmd/follow.h"
 #include "corpse.h"
 #include "game_mechanics/deathtrap.h"
 #include "description.h"
 #include "depot.h"
-#include "ext_money.h"
+#include "game_economics/ext_money.h"
 #include "game_mechanics/bonus.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/mobact.h"
@@ -49,7 +49,7 @@
 #include "house.h"
 #include "crafts/item_creation.h"
 #include "liquid.h"
-#include "mail.h"
+#include "communication/mail.h"
 #include "mob_stat.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
@@ -57,11 +57,11 @@
 #include "noob.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
-#include "parcel.h"
-#include "parse.h"
-#include "privilege.h"
+#include "communication/parcel.h"
+#include "utils/parse.h"
+#include "administration/privilege.h"
 #include "game_mechanics/sets_drop.h"
-#include "shop_ext.h"
+#include "game_economics/shop_ext.h"
 #include "skills/townportal.h"
 #include "stuff.h"
 #include "utils/utils_time.h"
@@ -1079,8 +1079,10 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		init_portals();
 	else if (!str_cmp(arg, "abilities")) {
 		MUD::Abilities().Reload();
+	} else if (!str_cmp(arg, "skills")) {
+		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "classes")) {
-		MUD::Classes().Reload("classes");
+		MUD::CfgManager().ReloadCfg("classes");
 	} else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -1370,7 +1372,6 @@ void GameLoader::boot_world() {
 	log("Init global_drop_obj.");
 }
 
-//MZ.load
 void init_zone_types() {
 	FILE *zt_file;
 	char tmp[1024], dummy[128], name[128], itype_num[128];
@@ -1483,7 +1484,6 @@ void init_zone_types() {
 
 	fclose(zt_file);
 }
-//-MZ.load
 
 void ObjectData::init_set_table() {
 	std::string cppstr, tag;
@@ -2224,7 +2224,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Initialization of text IDs");
 	log("Init TextId list.");
-	TextId::init();
+	text_id::Init();
 
 	boot_profiler.next_step("Resetting the game time");
 	log("Resetting the game time:");
@@ -2244,6 +2244,10 @@ void boot_db(void) {
 	file_to_string_alloc(NAME_RULES_FILE, &name_rules);
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
+
+	boot_profiler.next_step("Loading skills cfg.");
+	log("Loading skills cfg.");
+	MUD::CfgManager().LoadCfg("skills");
 
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
@@ -2300,10 +2304,6 @@ void boot_db(void) {
 	log("Loading spell definitions.");
 	InitSpells();
 
-	boot_profiler.next_step("Loading skills definitions");
-	log("Loading skills definitions.");
-	MUD::Skills().Init();
-
 	boot_profiler.next_step("Loading features definitions");
 	log("Loading features definitions.");
 	determineFeaturesSpecification();
@@ -2314,7 +2314,8 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Assigning character classs info.");
 	log("Assigning character classs info.");
-	MUD::Classes().Init();
+	MUD::CfgManager().LoadCfg("classes");
+
 	InitSpellLevels();
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
@@ -5842,38 +5843,38 @@ void load_class_limit() {
 	file_sw = XMLLoad(LIB_MISC CLASS_LIMIT_FILE, "class_limit", "Error loading file: classlimit.xml", doc_sw);
 
 	for (child_ = file_sw.child("stats_limit").child("class"); child_; child_ = child_.next_sibling("class")) {
-		std::string id_str = Parse::attr_str(child_, "id");
+		std::string id_str = parse::ReadAattrAsStr(child_, "id");
 		if (id_str.empty())
 			continue;
 
-		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
+		const int id = text_id::ToNum(text_id::kCharClass, id_str);
 		if (id == ECharClass::kUndefined) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
 			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
 			continue;
 		}
 
-		int val = Parse::child_value_int(child_, "str");
+		int val = parse::ReadChildValueAsInt(child_, "str");
 		if (val > 0)
 			class_stats_limit[id][0] = val;
 
-		val = Parse::child_value_int(child_, "dex");
+		val = parse::ReadChildValueAsInt(child_, "dex");
 		if (val > 0)
 			class_stats_limit[id][1] = val;
 
-		val = Parse::child_value_int(child_, "con");
+		val = parse::ReadChildValueAsInt(child_, "con");
 		if (val > 0)
 			class_stats_limit[id][2] = val;
 
-		val = Parse::child_value_int(child_, "wis");
+		val = parse::ReadChildValueAsInt(child_, "wis");
 		if (val > 0)
 			class_stats_limit[id][3] = val;
 
-		val = Parse::child_value_int(child_, "int");
+		val = parse::ReadChildValueAsInt(child_, "int");
 		if (val > 0)
 			class_stats_limit[id][4] = val;
 
-		val = Parse::child_value_int(child_, "cha");
+		val = parse::ReadChildValueAsInt(child_, "cha");
 		if (val > 0)
 			class_stats_limit[id][5] = val;
 	}

@@ -12,7 +12,7 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"

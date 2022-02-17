@@ -23,7 +23,7 @@
 #include "house.h"
 #include "entities/world_characters.h"
 #include "entities/zone.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"
 #include "sysdep.h"

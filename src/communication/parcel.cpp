@@ -7,10 +7,10 @@
 #include "world_objects.h"
 #include "utils/utils_char_obj.inl"
 #include "handler.h"
-#include "auction.h"
+#include "game_economics/auction.h"
 #include "color.h"
 #include "entities/char_player.h"
-#include "mail.h"
+#include "communication/mail.h"
 #include "obj_save.h"
 
 #include <iomanip>

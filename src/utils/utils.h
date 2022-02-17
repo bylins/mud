@@ -14,7 +14,7 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
 #include "conf.h"
 #include "config.h"
 #include "entities/entity_constants.h"

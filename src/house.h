@@ -9,7 +9,7 @@
 
 #include "interpreter.h"
 #include "house_exp.h"
-#include "remember.h"
+#include "communication/remember.h"
 #include "db.h"
 #include "conf.h"
 #include "structs/structs.h"

@@ -7,7 +7,7 @@
 
 #include "objects_filter.h"
 
-#include "exchange.h"
+#include "game_economics/exchange.h"
 #include "house.h"
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"

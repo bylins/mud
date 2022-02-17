@@ -10,7 +10,7 @@
 #include "structs/structs.h"
 #include "quests/quested.h"
 #include "mobmax.h"
-#include "remember.h"
+#include "communication/remember.h"
 #include "char.h"
 #include "dps.h"
 #include "mapsystem.h"

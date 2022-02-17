@@ -4,7 +4,7 @@
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "fightsystem/fight_hit.h"
-#include "classes/classes.h"
+#include "game_classes/classes.h"
 #include "cmd/follow.h"
 #include "game_mechanics/deathtrap.h"
 #include "magic/magic.h"

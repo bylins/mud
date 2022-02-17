@@ -353,31 +353,30 @@ void list_skills(CharacterData *ch, CharacterData *vict, const char *filter/* = 
 	typedef std::list<std::string> skills_t;
 	skills_t skills;
 
-	for (const auto sortpos : AVAILABLE_SKILLS) {
-		if (ch->get_skill(sortpos)) {
+	for (const auto &skill : MUD::Skills()) {
+		if (ch->get_skill(skill.GetId())) {
 			// filter out skills without name or name beginning with '!' character
-			if (!MUD::Skills()[sortpos].GetName()
-				|| *MUD::Skills()[sortpos].GetName() == '!') {
+			if (skill.IsInvalid()) {
 				continue;
 			}
 			// filter out skill that does not correspond to filter condition
-			if (filter
-				&& nullptr == strstr(MUD::Skills()[sortpos].GetName(), filter)) {
+			if (filter && nullptr == strstr(skill.GetName(), filter)) {
 				continue;
 			}
-			switch (sortpos) {
+			auto skill_id = skill.GetId();
+			switch (skill_id) {
 				case ESkill::kWarcry:
 					sprintf(buf,
 							"[-%d-] ",
-							(HOURS_PER_DAY - IsTimedBySkill(ch, sortpos)) / kHoursPerWarcry);
+							(HOURS_PER_DAY - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
 					break;
 				case ESkill::kTurnUndead:
 					if (can_use_feat(ch, EXORCIST_FEAT)) {
 						sprintf(buf,
 								"[-%d-] ",
-								(HOURS_PER_DAY - IsTimedBySkill(ch, sortpos)) / (kHoursPerTurnUndead - 2));
+								(HOURS_PER_DAY - IsTimedBySkill(ch, skill_id)) / (kHoursPerTurnUndead - 2));
 					} else {
-						sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - IsTimedBySkill(ch, sortpos)) / kHoursPerTurnUndead);
+						sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - IsTimedBySkill(ch, skill_id)) / kHoursPerTurnUndead);
 					}
 					break;
 				case ESkill::kFirstAid:
@@ -390,8 +389,8 @@ void list_skills(CharacterData *ch, CharacterData *vict, const char *filter/* = 
 				case ESkill::kStrangle:
 				case ESkill::kStun:
 				case ESkill::kRepair:
-					if (IsTimedBySkill(ch, sortpos))
-						sprintf(buf, "[%3d] ", IsTimedBySkill(ch, sortpos));
+					if (IsTimedBySkill(ch, skill_id))
+						sprintf(buf, "[%3d] ", IsTimedBySkill(ch, skill_id));
 					else
 						sprintf(buf, "[-!-] ");
 					break;
@@ -399,9 +398,9 @@ void list_skills(CharacterData *ch, CharacterData *vict, const char *filter/* = 
 			}
 
 			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
-					MUD::Skills()[sortpos].GetName(),
-					how_good(ch->get_skill(sortpos), CalcSkillHardCap(ch, sortpos)),
-					CalcSkillMinCap(ch, sortpos),
+					skill.GetName(),
+					how_good(ch->get_skill(skill_id), CalcSkillHardCap(ch, skill_id)),
+					CalcSkillMinCap(ch, skill_id),
 					CCNRM(ch, C_NRM));
 
 			skills.push_back(buf);
@@ -471,7 +470,7 @@ const char *spells_color(int spellnum) {
    смогли посмотреть заклинания которые они могут колдовать
    на своем уровне, но на которые у них нет необходимых предметов
    при параметре true */
-#include "classes/classes_spell_slots.h"
+#include "game_classes/classes_spell_slots.h"
 void list_spells(CharacterData *ch, CharacterData *vict, int all_spells) {
 	using PlayerClass::slot_for_char;
 

@@ -12,7 +12,7 @@
 #define _IM_H_
 
 #include "entities/entity_constants.h"
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
 
 class ObjectData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct RoomData;    //

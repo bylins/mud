@@ -7,7 +7,7 @@
 */
 
 #include "entities/char.h"
-#include "classes/classes_constants.h"
+#include "classes_constants.h"
 
 namespace PlayerClass {
 

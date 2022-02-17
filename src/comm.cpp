@@ -44,7 +44,7 @@
 #include "olc/olc.h"
 #include "color.h"
 #include "cmd_god/ban.h"
-#include "exchange.h"
+#include "game_economics/exchange.h"
 #include "title.h"
 #include "depot.h"
 #include "game_mechanics/glory.h"
@@ -52,13 +52,13 @@
 #include "corpse.h"
 #include "game_mechanics/glory_misc.h"
 #include "game_mechanics/glory_const.h"
-#include "shop_ext.h"
+#include "game_economics/shop_ext.h"
 #include "game_mechanics/sets_drop.h"
-#include "mail.h"
+#include "communication/mail.h"
 #include "mob_stat.h"
 #include "utils/utils_char_obj.inl"
 #include "utils/id_converter.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "msdp/msdp.h"
 #include "msdp/msdp_constants.h"
 #include "heartbeat.h"
@@ -1711,11 +1711,11 @@ char *make_prompt(DescriptorData *d) {
 							 "%s:%d ",
 							 MUD::Skills()[ESkill::kGlobalCooldown].GetAbbr(),
 							 d->character->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
-			for (const auto skill : AVAILABLE_SKILLS) {
-				if (*MUD::Skills()[skill].GetName() != '!' && d->character->get_skill(skill)) {
-					int cooldown = d->character->getSkillCooldownInPulses(skill);
+			for (const auto &skill : MUD::Skills()) {
+				if (skill.IsAvailable()) {
+					int cooldown = d->character->getSkillCooldownInPulses(skill.GetId());
 					if (cooldown > 0) {
-						count += sprintf(prompt + count, "%s:%d ", MUD::Skills()[skill].GetAbbr(), cooldown);
+						count += sprintf(prompt + count, "%s:%d ", skill.GetAbbr(), cooldown);
 					}
 				}
 			}

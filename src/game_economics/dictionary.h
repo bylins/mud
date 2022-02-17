@@ -1,12 +1,13 @@
-#ifndef _DICTIONARY_H_
-#define _DICTIONARY_H_
+#ifndef DICTIONARY_H_
+#define DICTIONARY_H_
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <list>
 #include <memory>
 
-const std::string DICTIONARY_RESULT_UNDEFINED = "Не найдено";
+//const std::string DICTIONARY_RESULT_UNDEFINED = "Не найдено";
 
 enum DictionaryMode { SHOP };
 
@@ -16,7 +17,7 @@ typedef std::shared_ptr<DictionaryItem> DictionaryItemPtr;
 class DictionaryItem {
  public:
 	DictionaryItem() : DictionaryName(std::string()), DictionaryTID(std::string()) {}
-	DictionaryItem(std::string name, std::string tid) : DictionaryName(name), DictionaryTID(tid) {}
+	DictionaryItem(std::string name, std::string tid) : DictionaryName(std::move(name)), DictionaryTID(std::move(tid)) {}
 	void SetDictionaryName(const std::string &name) { DictionaryName = name; }
 	void SetDictionaryTID(const std::string &tid) { DictionaryTID = tid; }
 	const std::string &GetDictionaryName() { return DictionaryName; }
@@ -32,12 +33,12 @@ typedef std::vector<DictionaryItemPtr> DictionaryType;
 
 class Dictionary {
  public:
-	Dictionary() {};
-	Dictionary(DictionaryMode mode);
-	void AddToDictionary(DictionaryItemPtr item);
+	Dictionary() = default;;
+	explicit Dictionary(DictionaryMode mode);
+	void AddToDictionary(const DictionaryItemPtr& item);
 	size_t Size();
 
-	std::string GetNameByTID(std::string tid);
+	static std::string GetNameByTID(const std::string& tid);
 	std::string GetNameByNID(size_t nid);
 	std::string GetTIDByNID(size_t nid);
 
@@ -47,5 +48,6 @@ class Dictionary {
 
 typedef std::shared_ptr<Dictionary> DictionaryPtr;
 
-#endif
+#endif // DICTIONARY_H_
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

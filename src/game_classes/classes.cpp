@@ -41,8 +41,8 @@
 #include "game_mechanics/named_stuff.h"
 #include "entities/player_races.h"
 #include "noob.h"
-#include "exchange.h"
-#include "logger.h"
+#include "game_economics/exchange.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"
 #include "sysdep.h"
@@ -1551,7 +1551,7 @@ int invalid_no_class(CharacterData *ch, const ObjectData *obj) {
  * which classes, and the minimum level the character must be to use
  * the spell or skill.
  */
-#include "classes/classes_spell_slots.h"
+#include "classes_spell_slots.h"
 void InitSpellLevels() {
 	using PlayerClass::mspell_slot;
 

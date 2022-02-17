@@ -15,7 +15,7 @@
 #include "house.h"
 #include "dg_script/dg_scripts.h"
 #include "utils/pugixml.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"
 

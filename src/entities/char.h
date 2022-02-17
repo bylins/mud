@@ -10,7 +10,7 @@
 #include "db.h"
 #include "entities/entity_constants.h"
 #include "room.h"
-#include "ignores.h"
+#include "communication/ignores.h"
 #include "crafts/im.h"
 #include "skills.h"
 #include "utils/utils.h"

@@ -1,7 +1,7 @@
 #ifndef SPELLS_INFO_H_
 #define SPELLS_INFO_H_
 
-#include "classes/classes_constants.h"
+#include "game_classes/classes_constants.h"
 #include "entities/entity_constants.h"
 #include "structs/structs.h"
 
