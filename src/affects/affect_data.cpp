@@ -675,9 +675,9 @@ void affect_total(CharData *ch) {
 void affect_join(CharData *ch,
 				 Affect<EApplyLocation> &af,
 				 bool add_dur,
-				 bool avg_dur,
+				 bool max_dur,
 				 bool add_mod,
-				 bool avg_mod) {
+				 bool max_mod) {
 	bool found = false;
 
 	if (af.location) {
@@ -685,20 +685,17 @@ void affect_join(CharData *ch,
 			const auto &affect = *affect_i;
 			if (affect->type == af.type
 				&& affect->location == af.location) {
+
 				if (add_dur) {
 					af.duration += affect->duration;
-				}
-
-				if (avg_dur) {
-					af.duration /= 2;
+				} else if (max_dur) {
+					af.duration = std::max(af.duration, affect->duration);
 				}
 
 				if (add_mod) {
 					af.modifier += affect->modifier;
-				}
-
-				if (avg_mod) {
-					af.modifier /= 2;
+				} else if (max_mod) {
+					af.modifier = std::max(af.modifier, affect->modifier);
 				}
 
 				ch->affect_remove(affect_i);

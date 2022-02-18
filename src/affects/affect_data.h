@@ -75,7 +75,7 @@ void affect_to_char(CharData *ch, const Affect<EApplyLocation> &af);
 void affect_from_char(CharData *ch, int type);
 bool affected_by_spell(CharData *ch, int type);
 void affect_join_fspell(CharData *ch, const Affect<EApplyLocation> &af);
-void affect_join(CharData *ch, Affect<EApplyLocation> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+void affect_join(CharData *ch, Affect<EApplyLocation> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);
 bool no_bad_affects(ObjData *obj);
 

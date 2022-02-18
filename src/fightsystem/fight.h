@@ -101,7 +101,7 @@ class Damage {
 	// инится только начиная с вызова process
 	int msg_num;
 	// набор флагов из HitType
-	std::bitset<fight::HIT_TYPE_FLAGS_NUM> flags;
+	std::bitset<fight::kHitFlagsNum> flags;
 	// позиция атакующего на начало атаки (по дефолту будет = текущему положению)
 	EPosition ch_start_pos;
 	// позиция жертвы на начало атаки (по дефолту будет = текущему положению)

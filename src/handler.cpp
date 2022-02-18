@@ -56,7 +56,7 @@ extern std::vector<City> cities;
 extern int global_uid;
 extern void change_leader(CharData *ch, CharData *vict);
 char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
-extern void SetSkillCooldown(CharData *ch, ESkill skill, int cooldownInPulses);
+extern void SetSkillCooldown(CharData *ch, ESkill skill, int pulses);
 
 char *fname(const char *namelist) {
 	static char holder[30];
@@ -2818,7 +2818,7 @@ int get_player_charms(CharData *ch, int spellnum) {
 //********************************************************************
 // Работа с очередью мема (Svent TODO: вынести в отдельный модуль)
 
-#define DRUID_MANA_COST_MODIFIER 0.5
+const double kManaCostModifier = 0.5;
 
 //	Коэффициент изменения мема относительно скилла магии.
 int koef_skill_magic(int percent_skill) {
@@ -2836,7 +2836,7 @@ int mag_manacost(const CharData *ch, int spellnum) {
 
 //	Мем рунных профессий(на сегодня только волхвы)
 	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= CalcRequiredLevel(ch, spellnum)) {
-		result = static_cast<int>(DRUID_MANA_COST_MODIFIER
+		result = static_cast<int>(kManaCostModifier
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
 			* 60
@@ -3035,41 +3035,36 @@ int equip_in_metall(CharData *ch) {
 	return (false);
 }
 
-int awake_others(CharData *ch) {
-	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return (false);
+bool IsAwakeOthers(CharData *ch) {
+	if ((IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) || IS_GOD(ch)) {
+		return false;
+	}
 
-	if (IS_GOD(ch))
-		return (false);
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_GLITTERDUST)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT)) {
+		return true;
+	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STAIRS) ||
-		AFF_FLAGGED(ch, EAffectFlag::AFF_SANCTUARY) || AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT))
-		return (true);
-
-	return (false);
+	return false;
 }
 
-// Учет резиста - возвращается эффект от спелл или умения с учетом резиста
-
-int calculate_resistance_coeff(CharData *ch, int resist_type, int effect) {
-	int result, resistance;
-
-	resistance = GET_RESIST(ch, resist_type);
+int ApplyResist(CharData *ch, int resist_type, int effect) {
+	auto resistance = GET_RESIST(ch, resist_type);
 	if (resistance <= 0) {
-		return effect - resistance * effect / 100;
+		return effect - resistance*effect/100;
 	}
 	if (!IS_NPC(ch)) {
-		resistance = MIN(75, resistance);
+		resistance = std::min(75, resistance);
 	}
-	const float divisor = 200; 
-	result = effect - (resistance + number(0, resistance)) * effect / divisor;
-	result = MAX(0, result);
-	return result;
+	auto result = static_cast<int>(effect - (resistance + number(0, resistance))*effect/200.0);
+	return std::max(0, result);
 }
 
-int getResisTypeWithSpellClass(int spellClass) {
-	switch (spellClass) {
+int GetResisTypeWithSpellClass(int spell_class) {
+	switch (spell_class) {
 		case kTypeFire: return FIRE_RESISTANCE;
 			break;
 		case kTypeDark: return DARK_RESISTANCE;
@@ -3086,14 +3081,13 @@ int getResisTypeWithSpellClass(int spellClass) {
 			break;
 		case kTypeLife: return IMMUNITY_RESISTANCE;
 			break;
-		case kTypeNeutral: return VITALITY_RESISTANCE;
+		default: return VITALITY_RESISTANCE;
 			break;
 	}
-	return VITALITY_RESISTANCE;
 };
 
-int get_resist_type(int spellnum) {
-	return getResisTypeWithSpellClass(SpINFO.spell_class);
+int GetResistType(int spellnum) {
+	return GetResisTypeWithSpellClass(SpINFO.spell_class);
 }
 
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.

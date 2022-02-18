@@ -77,15 +77,15 @@ struct HitData {
 	int dam_critic;
 
  public:
-	using flags_t = std::bitset<fight::HIT_TYPE_FLAGS_NUM>;
+	using HitFlags = std::bitset<fight::kHitFlagsNum>;
 
-	const flags_t &get_flags() const { return m_flags; }
+	const HitFlags &get_flags() const { return m_flags; }
 	void set_flag(const size_t flag) { m_flags.set(flag); }
 	void reset_flag(const size_t flag) { m_flags.reset(flag); }
 	static void CheckWeapFeats(const CharData *ch, ESkill weap_skill, int &calc_thaco, int &dam);
  private:
 	// какой-никакой набор флагов, так же передается в damage()
-	flags_t m_flags;
+	HitFlags m_flags;
 };
 
 int compute_armor_class(CharData *ch);

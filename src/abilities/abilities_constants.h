@@ -99,8 +99,8 @@ const int kStatRatingDivider = 2;
 const int kCircumstanceFactor = 5;
 constexpr int kMinimalFailResult = kSuccessThreshold - 1;
 
-const int MIN_ABILITY_DICEROLL_BONUS = -150;
-const int MAX_ABILITY_DICEROLL_BONUS = 150;
+const int kMinRollBonus = -200;
+const int kMaxRollBonus = 200;
 
 }; // namespace abilities
 

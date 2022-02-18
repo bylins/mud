@@ -97,8 +97,8 @@ void PerformWeaponThrow(AbilitySystem::TechniqueRoll &technique, Damage &damage)
 		damage.dam = technique.CalcDamage();
 		if (technique.IsCriticalSuccess()) {
 			send_to_char("&GВ яблочко!&n\r\n", technique.GetActor());
-			damage.flags.set(fight::IGNORE_ARMOR);
-			damage.flags.set(fight::CRIT_HIT);
+			damage.flags.set(fight::kIgnoreArmor);
+			damage.flags.set(fight::kCritHit);
 		};
 		if (IsTimed(technique.GetActor(), SHADOW_THROW_FEAT)) {
 			decreaseFeatTimer(technique.GetActor(), SHADOW_THROW_FEAT);

@@ -744,7 +744,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 	if (!IS_NPC(victim)) {
 		dam /= 5;
 	}
-	dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
+	dam = ApplyResist(victim, VITALITY_RESISTANCE, dam);
 	for (int i = 0; i < 4; i++) {
 		if (af[i].type) {
 			if (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
@@ -1250,43 +1250,32 @@ int calculate_crit_backstab_percent(CharData *ch) {
 	return static_cast<int>(ch->get_skill(ESkill::kBackstab) / 11.0 + (GET_REAL_DEX(ch) - 20) / (GET_REAL_DEX(ch) / 30.0));
 }
 
-// * Расчет множителя крит.стаба (по игрокам только для татей).
+/*
+ *  Расчет множителя критстаба.
+ */
 double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 	double bs_coeff = 1.0;
 	if (IS_NPC(victim)) {
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
-			bs_coeff *= ch->get_skill(ESkill::kBackstab) / 20.0;
+			bs_coeff *= ch->get_skill(ESkill::kBackstab) / 15.0;
 		} else {
 			bs_coeff *= ch->get_skill(ESkill::kBackstab) / 25.0;
 		}
-
-		// Читаем справку по скрытому: Если нанести такой удар в спину противника (ака стаб), то почти
-		// всегда для жертвы такой удар будет смертельным. Однако, в коде скрытый нигде не дает
-		// бонусов для стаба. Решил это исправить
-		// Проверяем, наем ли наш игрок
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT)
-			&& (ch->get_skill(ESkill::kNoParryHit))) {
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && (ch->get_skill(ESkill::kNoParryHit))) {
 			bs_coeff *= (1 + (ch->get_skill(ESkill::kNoParryHit) * 0.00125));
 		}
 	} else if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
-		if (victim->get_fighting()) //если враг в бою коэфф 1.125
+		if (victim->get_fighting())
 		{
-			bs_coeff *= (1.0 + (ch->get_skill(ESkill::kBackstab) * 0.00125));
-			// если стоит 1.25
+			bs_coeff *= (1.0 + (ch->get_skill(ESkill::kBackstab) * 0.00225));
 		} else {
-			bs_coeff *= (1.0 + (ch->get_skill(ESkill::kBackstab) * 0.00250));
+			bs_coeff *= (1.0 + (ch->get_skill(ESkill::kBackstab) * 0.00350));
 		}
-		// санку и призму при крите игнорим,
-		// чтобы дамаг был более-менее предсказуемым
-		set_flag(fight::IGNORE_SANCT);
-		set_flag(fight::IGNORE_PRISM);
+		set_flag(fight::kIgnoreSanct);
+		set_flag(fight::kIgnorePrism);
 	}
 
-	if (bs_coeff < 1.0) {
-		bs_coeff = 1.0;
-	}
-
-	return bs_coeff;
+	return std::max(1.0, bs_coeff);
 }
 
 // * Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
@@ -1856,19 +1845,19 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 			&& victim->get_fighting()
 			&& GET_POS(victim) > EPosition::kStun
 			&& IN_ROOM(victim) != kNowhere) {
-			flags.set(fight::DRAW_BRIEF_MAG_MIRROR);
+			flags.set(fight::kDrawBriefMagMirror);
 			Damage dmg(SpellDmg(kSpellMagicGlass), mg_damage, fight::kUndefDmg);
-			dmg.flags.set(fight::NO_FLEE_DMG);
-			dmg.flags.set(fight::MAGIC_REFLECT);
+			dmg.flags.set(fight::kNoFleeDmg);
+			dmg.flags.set(fight::kMagicReflect);
 			dmg.Process(victim, ch);
 		}
 	}
 
 	// обработка щитов, см Damage::post_init_shields()
-	if (flags[fight::VICTIM_FIRE_SHIELD]
-		&& !flags[fight::CRIT_HIT]) {
+	if (flags[fight::kVictimFireShield]
+		&& !flags[fight::kCritHit]) {
 		if (dmg_type == fight::kPhysDmg
-			&& !flags[fight::IGNORE_FSHIELD]) {
+			&& !flags[fight::kIgnoreFireShield]) {
 			int pct = 15;
 			if (IS_NPC(victim) && !IS_CHARMICE(victim)) {
 				pct += 5;
@@ -1885,14 +1874,14 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 			act("Огненный щит вокруг $N1 ослабил атаку $n1.",
 				true, ch, 0, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
 		}
-		flags.set(fight::DRAW_BRIEF_FIRE_SHIELD);
+		flags.set(fight::kDrawBriefFireShield);
 		dam -= (dam * number(30, 50) / 100);
 	}
 
 	// если критический удар (не точка и стаб) и есть щит - 95% шанс в молоко
 	// критическим считается любой удар который вложиля в определенные границы
 	if (dam
-		&& flags[fight::CRIT_HIT] && flags[fight::VICTIM_ICE_SHIELD]
+		&& flags[fight::kCritHit] && flags[fight::kVictimIceShield]
 		&& !dam_critic
 		&& spell_num != kSpellPoison
 		&& number(0, 100) < 94) {
@@ -1903,14 +1892,14 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 		act("Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1.",
 			true, ch, 0, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
 
-		flags[fight::CRIT_HIT] = false; //вот это место очень тщательно проверить
+		flags[fight::kCritHit] = false; //вот это место очень тщательно проверить
 		if (dam > 0) dam -= (dam * number(30, 50) / 100);
 	}
 		//шоб небуло спама модернизировал условие
 	else if (dam > 0
-		&& flags[fight::VICTIM_ICE_SHIELD]
-		&& !flags[fight::CRIT_HIT]) {
-		flags.set(fight::DRAW_BRIEF_ICE_SHIELD);
+		&& flags[fight::kVictimIceShield]
+		&& !flags[fight::kCritHit]) {
+		flags.set(fight::kDrawBriefIceShield);
 		act("Ледяной щит вокруг $N1 смягчил ваш удар.",
 			false, ch, 0, victim, kToChar | kToNoBriefShields);
 		act("Ледяной щит принял часть удара на себя.",
@@ -1921,9 +1910,9 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 	}
 
 	if (dam > 0
-		&& flags[fight::VICTIM_AIR_SHIELD]
-		&& !flags[fight::CRIT_HIT]) {
-		flags.set(fight::DRAW_BRIEF_AIR_SHIELD);
+		&& flags[fight::kVictimAirShield]
+		&& !flags[fight::kCritHit]) {
+		flags.set(fight::kDrawBriefAirShield);
 		act("Воздушный щит вокруг $N1 ослабил ваш удар.",
 			false, ch, 0, victim, kToChar | kToNoBriefShields);
 		act("Воздушный щит смягчил удар $n1.",
@@ -1940,7 +1929,7 @@ void Damage::armor_dam_reduce(CharData *victim) {
 	// броня на физ дамаг
 	if (dam > 0 && dmg_type == fight::kPhysDmg) {
 		alt_equip(victim, kNowhere, dam, 50);
-		if (!flags[fight::CRIT_HIT] && !flags[fight::IGNORE_ARMOR]) {
+		if (!flags[fight::kCritHit] && !flags[fight::kIgnoreArmor]) {
 			// 50 брони = 50% снижение дамага
 			int max_armour = 50;
 			if (can_use_feat(victim, IMPREGNABLE_FEAT) && PRF_FLAGS(victim).get(PRF_AWAKE)) {
@@ -1949,7 +1938,7 @@ void Damage::armor_dam_reduce(CharData *victim) {
 			}
 			int tmp_dam = dam * MAX(0, MIN(max_armour, GET_ARMOUR(victim))) / 100;
 			// ополовинивание брони по флагу скила
-			if (tmp_dam >= 2 && flags[fight::HALF_IGNORE_ARMOR]) {
+			if (tmp_dam >= 2 && flags[fight::kHalfIgnoreArmor]) {
 				tmp_dam /= 2;
 			}
 			dam -= tmp_dam;
@@ -1994,7 +1983,7 @@ bool Damage::dam_absorb(CharData *ch, CharData *victim) {
 void Damage::send_critical_message(CharData *ch, CharData *victim) {
 	// Блочить мессагу крита при ледяном щите вроде нелогично,
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
-	if (!flags[fight::VICTIM_ICE_SHIELD]) {
+	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
 				PERS(victim, ch, 3));
 	} else {
@@ -2004,7 +1993,7 @@ void Damage::send_critical_message(CharData *ch, CharData *victim) {
 
 	send_to_char(buf, ch);
 
-	if (!flags[fight::VICTIM_ICE_SHIELD]) {
+	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
 				PERS(ch, victim, 1));
 	} else {
@@ -2319,9 +2308,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	//учет резистов для магического урона
 	if (dmg_type == fight::kMagicDmg) {
 		if (spell_num > 0) {
-			dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spell_num), dam));
+			dam = ApplyResist(victim, GetResistType(spell_num), dam);
 		} else {
-			dam = MAX(0, calculate_resistance_coeff(victim, getResisTypeWithSpellClass(magic_type), dam));
+			dam = ApplyResist(victim, GetResisTypeWithSpellClass(magic_type), dam);
 		};
 	};
 
@@ -2346,7 +2335,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// на жертве есть воздушный щит
 	// атака - каст моба (в mage_damage увеличение дамага от позиции было только у колдунов)
 	if (victim_start_pos < EPosition::kFight
-		&& !flags[fight::VICTIM_AIR_SHIELD]
+		&& !flags[fight::kVictimAirShield]
 		&& !(dmg_type == fight::kMagicDmg
 			&& IS_NPC(ch))) {
 		dam += dam * (EPosition::kFight - victim_start_pos) / 4;
@@ -2410,9 +2399,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		armor_dam_reduce(victim);
 		// потом абсорб
 		bool armor_full_absorb = dam_absorb(ch, victim);
-		if (flags[fight::CRIT_HIT] && (GET_REAL_LEVEL(victim) >= 5 || !IS_NPC(ch))
+		if (flags[fight::kCritHit] && (GET_REAL_LEVEL(victim) >= 5 || !IS_NPC(ch))
 			&& !AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA)
-			&& !flags[fight::VICTIM_ICE_SHIELD]) {
+			&& !flags[fight::kVictimIceShield]) {
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
 		}
 		// полное поглощение
@@ -2457,7 +2446,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// обратка от зеркал/огненного щита
-	if (flags[fight::MAGIC_REFLECT]) {
+	if (flags[fight::kMagicReflect]) {
 		// ограничение для зеркал на 40% от макс хп кастера
 		dam = std::min(dam, GET_MAX_HIT(victim) * 4 / 10);
 		// чтобы не убивало обраткой
@@ -2537,13 +2526,13 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// сбивание надува черноков //
 	if (spell_num != kSpellPoison
 		&& dam > 0
-		&& !flags[fight::MAGIC_REFLECT]) {
+		&& !flags[fight::kMagicReflect]) {
 		try_remove_extrahits(ch, victim);
 	}
 
 	// сообщения о крит ударах //
 	if (dam
-		&& flags[fight::CRIT_HIT]
+		&& flags[fight::kCritHit]
 		&& !dam_critic
 		&& spell_num != kSpellPoison) {
 		send_critical_message(ch, victim);
@@ -2561,16 +2550,16 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// log("[DAMAGE] Attack message...");
 
 	// инит Damage::brief_shields_
-	if (flags.test(fight::DRAW_BRIEF_FIRE_SHIELD)
-		|| flags.test(fight::DRAW_BRIEF_AIR_SHIELD)
-		|| flags.test(fight::DRAW_BRIEF_ICE_SHIELD)
-		|| flags.test(fight::DRAW_BRIEF_MAG_MIRROR)) {
+	if (flags.test(fight::kDrawBriefFireShield)
+		|| flags.test(fight::kDrawBriefAirShield)
+		|| flags.test(fight::kDrawBriefIceShield)
+		|| flags.test(fight::kDrawBriefMagMirror)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "&n (%s%s%s%s)",
-				 flags.test(fight::DRAW_BRIEF_FIRE_SHIELD) ? "&R*&n" : "",
-				 flags.test(fight::DRAW_BRIEF_AIR_SHIELD) ? "&C*&n" : "",
-				 flags.test(fight::DRAW_BRIEF_ICE_SHIELD) ? "&W*&n" : "",
-				 flags.test(fight::DRAW_BRIEF_MAG_MIRROR) ? "&M*&n" : "");
+				 flags.test(fight::kDrawBriefFireShield) ? "&R*&n" : "",
+				 flags.test(fight::kDrawBriefAirShield) ? "&C*&n" : "",
+				 flags.test(fight::kDrawBriefIceShield) ? "&W*&n" : "",
+				 flags.test(fight::kDrawBriefMagMirror) ? "&M*&n" : "");
 		brief_shields_ = buf_;
 	}
 
@@ -2589,7 +2578,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
-	char_dam_message(dam, ch, victim, flags[fight::NO_FLEE_DMG]);
+	char_dam_message(dam, ch, victim, flags[fight::kNoFleeDmg]);
 
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
 	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
@@ -2622,8 +2611,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		&& GET_POS(victim) > EPosition::kStun
 		&& IN_ROOM(victim) != kNowhere) {
 		Damage dmg(SpellDmg(kSpellFireShield), fs_damage, fight::kUndefDmg);
-		dmg.flags.set(fight::NO_FLEE_DMG);
-		dmg.flags.set(fight::MAGIC_REFLECT);
+		dmg.flags.set(fight::kNoFleeDmg);
+		dmg.flags.set(fight::kMagicReflect);
 		dmg.Process(victim, ch);
 	}
 
@@ -2870,7 +2859,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		poison_victim(ch, victim, MAX(1, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(victim)) * 10);
 	}
 		//* точный стиль //
-	else if (dam && get_flags()[fight::CRIT_HIT] && dam_critic) {
+	else if (dam && get_flags()[fight::kCritHit] && dam_critic) {
 		compute_critical(ch, victim);
 	}
 
@@ -3340,7 +3329,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 	// 15 200%
 	// НА МОЛОТ НЕ ВЛИЯЕТ
 	if (!GET_AF_BATTLE(ch, kEafHammer)
-		|| get_flags()[fight::CRIT_HIT]) //в метком молоте идет учет перчаток
+		|| get_flags()[fight::kCritHit]) //в метком молоте идет учет перчаток
 	{
 		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18)
 													 : 0)); //вес перчаток больше 18 не учитывается
@@ -3358,35 +3347,30 @@ void HitData::calc_crit_chance(CharData *ch) {
 
 	// Маги, волхвы и не-купеческие чармисы не умеют критать //
 	if ((!IS_NPC(ch) && !IS_MAGIC_USER(ch) && !IS_MAGUS(ch))
-		|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)))) {
-		calc_critic = MIN(ch->get_skill(weap_skill), 70);
-		// Мастерские фиты по оружию удваивают шанс критического попадания //
+		|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)))) {
+		calc_critic = std::min(ch->get_skill(weap_skill), 70);
 		if (can_use_feat(ch, FindWeaponMasterFeat(weap_skill))) {
-			calc_critic += MAX(0, ch->get_skill(weap_skill) - 70);
+			calc_critic += std::max(0, ch->get_skill(weap_skill) - 70);
 		}
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
 			calc_critic += ch->get_skill(ESkill::kBackstab);
 		}
-		//Нафига тут проверять класс?
-		//Скиллы уникальные, другим классам все равно недоступны.
-		//А чтоб мобы не лютовали -- есть проверка на игрока.
 		if (!IS_NPC(ch)) {
-			calc_critic += (int) (ch->get_skill(ESkill::kPunctual) / 2);
-			calc_critic += (int) (ch->get_skill(ESkill::kNoParryHit) / 3);
+			calc_critic += static_cast<int>(ch->get_skill(ESkill::kPunctual) / 2);
+			calc_critic += static_cast<int>(ch->get_skill(ESkill::kNoParryHit) / 3);
 		}
 		if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 			calc_critic += GET_REAL_LEVEL(ch);
 		}
 	} else {
-		//Polud не должны - так пусть и не критают
-		reset_flag(fight::CRIT_HIT);
+		reset_flag(fight::kCritHit);
 	}
 
-	//critical hit ignore magic_shields and armour
 	if (number(0, 2000) < calc_critic) {
-		set_flag(fight::CRIT_HIT);
+		set_flag(fight::kCritHit);
 	} else {
-		reset_flag(fight::CRIT_HIT);
+		reset_flag(fight::kCritHit);
 	}
 }
 int HitData::calc_damage(CharData *ch, bool need_dice) {
@@ -3682,10 +3666,11 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
 			&& (!(hit_params.skill_num == ESkill::kBackstab && can_use_feat(ch, THIEVES_STRIKE_FEAT)))) {
 			ubyte blink;
-			if (victim->is_npc())
+			if (victim->is_npc()) {
 				blink = 25;
-			else
+			} else {
 				blink = 5;
+			}
 			if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
 				blink = 10 + GET_REAL_REMORT(ch) * 2 / 3;
 			} else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
@@ -3717,17 +3702,13 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	}
 
 	if (hit_params.skill_num == ESkill::kBackstab) {
-		hit_params.reset_flag(fight::CRIT_HIT);
-		hit_params.set_flag(fight::IGNORE_FSHIELD);
+		hit_params.reset_flag(fight::kCritHit);
+		hit_params.set_flag(fight::kIgnoreFireShield);
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT) || can_use_feat(ch, SHADOW_STRIKE_FEAT)) {
-			// тати игнорят броню полностью
-			// и наемы тоже!
-			hit_params.set_flag(fight::IGNORE_ARMOR);
+			hit_params.set_flag(fight::kIgnoreArmor);
 		} else {
-			//мобы игнорят вполовину
-			hit_params.set_flag(fight::HALF_IGNORE_ARMOR);
+			hit_params.set_flag(fight::kHalfIgnoreArmor);
 		}
-		// Наемы фигачат больше
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim)) {
 			hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch)) * (1.0 + ch->get_skill(ESkill::kNoParryHit) / 200.0);
 		} else if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
@@ -3743,10 +3724,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 			&& IS_NPC(victim)
 			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) && !(MOB_FLAGGED(victim, MOB_PROTECT)))
-			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL)) //голодный наем снижаем скрытый удар
+			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
 			&& !victim->get_role(MOB_ROLE_BOSS)) {
 			GET_HIT(victim) = 1;
-			hit_params.dam = 2000; // для надежности
+			hit_params.dam = victim->points.hit + fight::kLethalDmg;
 			send_to_char(ch, "&GПрямо в сердце, насмерть!&n\r\n");
 			hit_params.extdamage(ch, victim);
 			return;
@@ -3762,29 +3743,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			}
 		}
 
-		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
-		// выводим временно влияние живучести
-/*		int initial_dam = hit_params.dam;
-  		ch->send_to_TC(false,
-					   true,
-					   true,
-					   "&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g количество хитов врага = %d&n\r\n",
-					   initial_dam,
-					   GET_RESIST(victim, VITALITY_RESISTANCE),
-					   float(hit_params.dam) / initial_dam,
-					   GET_MAX_HIT(victim));
-		victim->send_to_TC(false,
-						   true,
-						   true,
-						   "&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g количество хитов врага = %d&n\r\n",
-						   initial_dam,
-						   GET_RESIST(victim, VITALITY_RESISTANCE),
-						   float(hit_params.dam) / initial_dam,
-						   GET_MAX_HIT(victim));*/
-
+		hit_params.dam = ApplyResist(victim, VITALITY_RESISTANCE, hit_params.dam);
 		// режем стаб
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch)) {
-			hit_params.dam = MIN(8000 + GET_REAL_REMORT(ch) * 20 * GET_REAL_LEVEL(ch), hit_params.dam);
+			hit_params.dam = std::min(8000 + GET_REAL_REMORT(ch) * 20 * GET_REAL_LEVEL(ch), hit_params.dam);
 		}
 
 		ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
@@ -3794,12 +3756,12 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	}
 
 	if (hit_params.skill_num == ESkill::kThrow) {
-		hit_params.set_flag(fight::IGNORE_FSHIELD);
+		hit_params.set_flag(fight::kIgnoreFireShield);
 		hit_params.dam *= (CalcCurrentSkill(ch, ESkill::kThrow, victim) + 10) / 10;
 		if (IS_NPC(ch)) {
-			hit_params.dam = MIN(300, hit_params.dam);
+			hit_params.dam = std::min(300, hit_params.dam);
 		}
-		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
+		hit_params.dam = ApplyResist(victim, VITALITY_RESISTANCE, hit_params.dam);
 		hit_params.extdamage(ch, victim);
 		return;
 	}
@@ -3815,9 +3777,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (success && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
 				|| percent >= MUD::Skills()[ESkill::kPunctual].difficulty)) {
 			if (!MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL)) {
-				hit_params.set_flag(fight::CRIT_HIT);
+				hit_params.set_flag(fight::kCritHit);
 				// CRIT_HIT и так щиты игнорит, но для порядку
-				hit_params.set_flag(fight::IGNORE_FSHIELD);
+				hit_params.set_flag(fight::kIgnoreFireShield);
 				hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
 				ch->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 				victim->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);

@@ -454,7 +454,7 @@ void forget_all_spells(CharData *ch) {
 		af.duration = CalcDuration(ch, max_slot * RECALL_SPELLS_INTERVAL + SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_RECALL_SPELLS);
 		af.battleflag = kAfPulsedec | kAfDeadkeep;
-		affect_join(ch, af, 0, 0, 0, 0);
+		affect_join(ch, af, false, false, false, false);
 	}
 }
 
@@ -1353,15 +1353,15 @@ void test_self_hitroll(CharData *ch) {
 void Damage::post_init_shields(CharData *victim) {
 	if (IS_NPC(victim) && !IS_CHARMICE(victim)) {
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_FIRESHIELD)) {
-			flags.set(fight::VICTIM_FIRE_SHIELD);
+			flags.set(fight::kVictimFireShield);
 		}
 
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_ICESHIELD)) {
-			flags.set(fight::VICTIM_ICE_SHIELD);
+			flags.set(fight::kVictimIceShield);
 		}
 
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_AIRSHIELD)) {
-			flags.set(fight::VICTIM_AIR_SHIELD);
+			flags.set(fight::kVictimAirShield);
 		}
 	} else {
 		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
@@ -1386,11 +1386,11 @@ void Damage::post_init_shields(CharData *victim) {
 		int shield_num = number(0, static_cast<int>(shields.size() - 1));
 
 		if (shields[shield_num] == FIRESHIELD) {
-			flags.set(fight::VICTIM_FIRE_SHIELD);
+			flags.set(fight::kVictimFireShield);
 		} else if (shields[shield_num] == AIRSHIELD) {
-			flags.set(fight::VICTIM_AIR_SHIELD);
+			flags.set(fight::kVictimAirShield);
 		} else if (shields[shield_num] == ICESHIELD) {
-			flags.set(fight::VICTIM_ICE_SHIELD);
+			flags.set(fight::kVictimIceShield);
 		}
 	}
 }

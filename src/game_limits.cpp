@@ -974,7 +974,7 @@ void underwater_check() {
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
 			Damage dmg(SimpleDmg(kTypeWaterdeath), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), fight::kUndefDmg);
-			dmg.flags.set(fight::NO_FLEE_DMG);
+			dmg.flags.set(fight::kNoFleeDmg);
 
 			if (dmg.Process(d->character.get(), d->character.get()) < 0) {
 				log("%s", buf);
@@ -1722,14 +1722,14 @@ void point_update() {
 			}
 		} else if (GET_POS(i) == EPosition::kIncap) {
 			Damage dmg(SimpleDmg(kTypeSuffering), 1, fight::kUndefDmg);
-			dmg.flags.set(fight::NO_FLEE_DMG);
+			dmg.flags.set(fight::kNoFleeDmg);
 
 			if (dmg.Process(i, i) == -1) {
 				return;
 			}
 		} else if (GET_POS(i) == EPosition::kPerish) {
 			Damage dmg(SimpleDmg(kTypeSuffering), 2, fight::kUndefDmg);
-			dmg.flags.set(fight::NO_FLEE_DMG);
+			dmg.flags.set(fight::kNoFleeDmg);
 
 			if (dmg.Process(i, i) == -1) {
 				return;

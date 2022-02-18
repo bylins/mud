@@ -759,7 +759,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kBackstab: {
 			parameter_bonus += GET_REAL_DEX(ch);
-			if (awake_others(ch) || equip_in_metall(ch)) {
+			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
 				bonus += -50;
 			}
 			if (vict) {
@@ -786,7 +786,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kHide: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
 			bonus = size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
-			if (awake_others(ch) || equip_in_metall(ch)) {
+			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
 				bonus -= 50;
 			}
 			if (IS_DARK(ch->in_room)) {
@@ -831,7 +831,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kSneak: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			bonus += can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0;
-			if (awake_others(ch) || equip_in_metall(ch))
+			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
 			if (SECT(ch->in_room) == kSectCity)
 				bonus -= 10;
@@ -848,7 +848,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kSteal: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch));
 			bonus += (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
-			if (awake_others(ch) || equip_in_metall(ch))
+			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
 			if (IS_DARK(ch->in_room))
 				bonus += 20;
@@ -957,7 +957,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kDisguise: {
 			parameter_bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac;
 			bonus += (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
-			if (awake_others(ch))
+			if (IsAwakeOthers(ch))
 				bonus -= 100;
 			if (IS_DARK(ch->in_room))
 				bonus += 15;
@@ -1242,7 +1242,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kBackstab: {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
-			if (awake_others(ch)
+			if (IsAwakeOthers(ch)
 				|| equip_in_metall(ch)) {
 				bonus -= 50;
 			}
@@ -1284,7 +1284,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kHide: {
 			bonus =
 				dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
-			if (awake_others(ch) || equip_in_metall(ch)) {
+			if (IsAwakeOthers(ch) || equip_in_metall(ch)) {
 				bonus -= 50;
 			}
 
@@ -1343,7 +1343,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus = dex_bonus(GET_REAL_DEX(ch))
 				+ (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
-			if (awake_others(ch) || equip_in_metall(ch))
+			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
 
 			if (SECT(ch->in_room) == kSectCity)
@@ -1367,7 +1367,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus = dex_bonus(GET_REAL_DEX(ch))
 				+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
-			if (awake_others(ch) || equip_in_metall(ch))
+			if (IsAwakeOthers(ch) || equip_in_metall(ch))
 				bonus -= 50;
 			if (IS_DARK(ch->in_room))
 				bonus += 20;
@@ -1511,7 +1511,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
 				+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
-			if (awake_others(ch))
+			if (IsAwakeOthers(ch))
 				bonus -= 100;
 
 			if (IS_DARK(ch->in_room))

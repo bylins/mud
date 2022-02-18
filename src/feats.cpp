@@ -42,7 +42,7 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */);
 void do_lightwalk(CharData *ch, char *argument, int cmd, int subcmd);
 
 /* Extern */
-extern void SetSkillCooldown(CharData *ch, ESkill skill, int cooldownInPulses);
+extern void SetSkillCooldown(CharData *ch, ESkill skill, int pulses);
 
 ///
 /// Поиск номера способности по имени
@@ -71,7 +71,7 @@ int FindFeatNum(const char *name, bool alias) {
 }
 
 void InitFeat(int feat_num, const char *name, int type, bool can_up_slot, CFeatArray app,
-			  int roll_bonus = abilities::MAX_ABILITY_DICEROLL_BONUS, ESkill base_skill = ESkill::kIncorrect,
+			  int roll_bonus = abilities::kMaxRollBonus, ESkill base_skill = ESkill::kIncorrect,
 			  ESaving saving = ESaving::kStability) {
 	int i, j;
 	for (i = 0; i < kNumPlayerClasses; i++) {
@@ -120,7 +120,7 @@ void InitFeatByDefault(int feat_num) {
 	feat_info[feat_num].damage_bonus = 0;
 	feat_info[feat_num].success_degree_damage_bonus = 5;
 	feat_info[feat_num].saving = ESaving::kStability;
-	feat_info[feat_num].diceroll_bonus = abilities::MAX_ABILITY_DICEROLL_BONUS;
+	feat_info[feat_num].diceroll_bonus = abilities::kMaxRollBonus;
 	feat_info[feat_num].base_skill = ESkill::kIncorrect;
 	feat_info[feat_num].critfail_threshold = abilities::kDefaultCritfailThreshold;
 	feat_info[feat_num].critsuccess_threshold = abilities::kDefaultCritsuccessThreshold;
@@ -535,20 +535,24 @@ void InitFeatures() {
 	InitFeat(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, true, feat_app);
 //139
 	InitFeat(EXPEDIENT_CUT_FEAT, "порез", TECHNIQUE_FTYPE, true, feat_app,
-			 100, ESkill::kPunch, ESaving::kReflex);
+			 90, ESkill::kPunch, ESaving::kReflex);
 	feat_info[EXPEDIENT_CUT_FEAT].GetBaseParameter = &GET_REAL_DEX;
 	feat_info[EXPEDIENT_CUT_FEAT].GetEffectParameter = &GET_REAL_STR;
 	feat_info[EXPEDIENT_CUT_FEAT].uses_weapon_skill = true;
 	feat_info[EXPEDIENT_CUT_FEAT].always_available = false;
-	feat_info[EXPEDIENT_CUT_FEAT].damage_bonus = 5;
-	feat_info[EXPEDIENT_CUT_FEAT].success_degree_damage_bonus = 8;
+	feat_info[EXPEDIENT_CUT_FEAT].damage_bonus = 3;
+	feat_info[EXPEDIENT_CUT_FEAT].success_degree_damage_bonus = 7;
 	feat_info[EXPEDIENT_CUT_FEAT].CalcSituationalDamageFactor = ([](CharData */*ch*/) -> float { return 1.0; });
 	feat_info[EXPEDIENT_CUT_FEAT].CalcSituationalRollBonus =
 		([](CharData */*ch*/, CharData * enemy) -> int {
+			int bonus{0};
 			if (AFF_FLAGGED(enemy, EAffectFlag::AFF_BLIND)) {
-				return 60;
+				bonus += 40;
 			}
-			return 0;
+			if (GET_POS(enemy) < EPosition::kFight) {
+				bonus += 40;
+			}
+			return bonus;
 		});
 
 	feat_info[EXPEDIENT_CUT_FEAT].item_kits.reserve(4);
@@ -596,7 +600,7 @@ void InitFeatures() {
 	feat_info[THROW_WEAPON_FEAT].success_degree_damage_bonus = 5;
 	feat_info[THROW_WEAPON_FEAT].CalcSituationalDamageFactor =
 		([](CharData *ch) -> float {
-			return (0.1 * can_use_feat(ch, POWER_THROW_FEAT) + 0.1 * can_use_feat(ch, DEADLY_THROW_FEAT));
+			return static_cast<float>(0.1*can_use_feat(ch, POWER_THROW_FEAT) + 0.1*can_use_feat(ch, DEADLY_THROW_FEAT));
 		});
 	feat_info[THROW_WEAPON_FEAT].CalcSituationalRollBonus =
 		([](CharData *ch, CharData * /* enemy */) -> int {

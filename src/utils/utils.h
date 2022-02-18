@@ -644,7 +644,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AGE_ADD(ch)   ((ch)->add_abils.age_add)
 #define GET_HIT_ADD(ch)   ((ch)->add_abils.hit_add)
 #define GET_MOVE_ADD(ch)  ((ch)->add_abils.move_add)
-#define GET_RESIST(ch, i)  ((ch)->add_abils.apply_resistance_throw[i])
+#define GET_RESIST(ch, i)  ((ch)->add_abils.apply_resistance[i])
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %

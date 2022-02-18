@@ -116,7 +116,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 		prob = 0; // если башем убил - лага не будет
 		Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::NO_FLEE_DMG);
+		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);
 
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD))) {

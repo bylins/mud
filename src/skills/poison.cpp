@@ -109,16 +109,16 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		af[2].modifier = -remove_hp;
 
 		bool was_poisoned = true;
-		for (int i = 0; i < 3; i++) {
-			af[i].type = kSpellBelenaPoison;
-			af[i].duration = 7;
-			af[i].bitvector = to_underlying(EAffectFlag::AFF_POISON)
+		for (auto & i : af) {
+			i.type = kSpellBelenaPoison;
+			i.duration = 7;
+			i.bitvector = to_underlying(EAffectFlag::AFF_POISON)
 				| to_underlying(EAffectFlag::AFF_BELENA_POISON)
 				| to_underlying(EAffectFlag::AFF_SKILLS_REDUCE)
 				| to_underlying(EAffectFlag::AFF_NOT_SWITCH);
-			af[i].battleflag = kAfSameTime;
+			i.battleflag = kAfSameTime;
 
-			if (!poison_affect_join(vict, af[i])) {
+			if (!poison_affect_join(vict, i)) {
 				was_poisoned = false;
 			}
 		}
@@ -154,16 +154,16 @@ bool weap_poison_vict(CharData *ch, CharData *vict, int spell_num) {
 		af[2].modifier = -remove_mem;
 
 		bool was_poisoned = true;
-		for (int i = 0; i < 3; i++) {
-			af[i].type = kSpellDaturaPoison;
-			af[i].duration = 7;
-			af[i].bitvector = to_underlying(EAffectFlag::AFF_POISON)
+		for (auto & i : af) {
+			i.type = kSpellDaturaPoison;
+			i.duration = 7;
+			i.bitvector = to_underlying(EAffectFlag::AFF_POISON)
 				| to_underlying(EAffectFlag::AFF_DATURA_POISON)
 				| to_underlying(EAffectFlag::AFF_SKILLS_REDUCE)
 				| to_underlying(EAffectFlag::AFF_NOT_SWITCH);
-			af[i].battleflag = kAfSameTime;
+			i.battleflag = kAfSameTime;
 
-			if (!poison_affect_join(vict, af[i])) {
+			if (!poison_affect_join(vict, i)) {
 				was_poisoned = false;
 			}
 		}
@@ -192,13 +192,15 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 									 CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 						send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
 									 GET_PAD(vict->get_horse(), 5));
-						act("$n0 зашатал$u и не смог$q усидеть на $N5.", true, vict, 0, vict->get_horse(), kToNotVict);
+						act("$n0 зашатал$u и не смог$q усидеть на $N5.",
+							true, vict, nullptr, vict->get_horse(), kToNotVict);
 						vict->drop_from_horse();
 					} else {
 						send_to_char(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
 									 CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 						send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
-						act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, kToNotVict);
+						act("$N0 зашатал$U и не смог$Q устоять на ногах.",
+							true, ch, nullptr, vict, kToNotVict);
 						GET_POS(vict) = EPosition::kSit;
 						WAIT_STATE(vict, 3 * kPulseViolence);
 					}
@@ -221,7 +223,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				send_to_char(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
 							 CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 				send_to_char(vict, "Вы почувствовали слабость во всем теле!\r\n");
-				act("$N0 побледнел$G на ваших глазах.", true, ch, 0, vict, kToNotVict);
+				act("$N0 побледнел$G на ваших глазах.", true, ch, nullptr, vict, kToNotVict);
 				break;
 			} // case 2
 			case 3: {
@@ -236,7 +238,7 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
 							 CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 				send_to_char(vict, "Вам стало труднее реагировать на движения противников!\r\n");
-				act("$N0 стал$G хуже реагировать на ваши движения!", true, ch, 0, vict, kToNotVict);
+				act("$N0 стал$G хуже реагировать на ваши движения!", true, ch, nullptr, vict, kToNotVict);
 				break;
 			} // case 3
 			case 4: {
@@ -251,7 +253,8 @@ void weap_crit_poison(CharData *ch, CharData *vict, int/* spell_num*/) {
 				send_to_char(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 							 CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 				send_to_char(vict, "Вы стали заметно медленнее двигаться!\r\n");
-				act("$N0 стал$G заметно медленнее двигаться!", true, ch, 0, vict, kToNotVict);
+				act("$N0 стал$G заметно медленнее двигаться!",
+					true, ch, nullptr, vict, kToNotVict);
 				break;
 			} // case 4
 			case 5: {
@@ -283,22 +286,22 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	// change strength
 	af[0].type = kSpellPoison;
 	af[0].location = APPLY_STR;
-	af[0].duration = CalcDuration(vict, 0, MAX(2, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)), 2, 0, 1);
-	af[0].modifier = -MIN(2, (modifier + 29) / 40);
+	af[0].duration = CalcDuration(vict, 0, std::max(2, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)), 2, 0, 1);
+	af[0].modifier = -std::min(2, (modifier + 29) / 40);
 	af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[0].battleflag = kAfSameTime;
 	// change damroll
 	af[1].type = kSpellPoison;
 	af[1].location = APPLY_DAMROLL;
 	af[1].duration = af[0].duration;
-	af[1].modifier = -MIN(2, (modifier + 29) / 30);
+	af[1].modifier = -std::min(2, (modifier + 29) / 30);
 	af[1].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[1].battleflag = kAfSameTime;
 	// change hitroll
 	af[2].type = kSpellPoison;
 	af[2].location = APPLY_HITROLL;
 	af[2].duration = af[0].duration;
-	af[2].modifier = -MIN(2, (modifier + 19) / 20);
+	af[2].modifier = -std::min(2, (modifier + 19) / 20);
 	af[2].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[2].battleflag = kAfSameTime;
 	// change poison level
@@ -309,8 +312,8 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	af[3].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 	af[3].battleflag = kAfSameTime;
 
-	for (int i = 0; i < 4; i++) {
-		affect_join(vict, af[i], false, false, false, false);
+	for (auto & i : af) {
+		affect_join(vict, i, false, false, false, false);
 	}
 	vict->Poisoner = GET_ID(ch);
 
@@ -393,8 +396,9 @@ std::string get_poison_by_spell(int spell) {
 		case kSpellScopolaPoison: return drinknames[LIQ_POISON_SCOPOLIA];
 		case kSpellBelenaPoison: return drinknames[LIQ_POISON_BELENA];
 		case kSpellDaturaPoison: return drinknames[LIQ_POISON_DATURA];
+		default: return "";
 	}
-	return "";
+	//return "";
 }
 
 // * Проверка, является ли заклинание ядом.
@@ -404,8 +408,9 @@ bool check_poison(int spell) {
 		case kSpellScopolaPoison:
 		case kSpellBelenaPoison:
 		case kSpellDaturaPoison: return true;
+		default: return false;
 	}
-	return false;
+	//return false;
 }
 
 /**
@@ -422,11 +427,11 @@ int processPoisonDamage(CharData *ch, const Affect<EApplyLocation>::shared_ptr &
 			poison_dmg = poison_dmg / 30;
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
 		Damage dmg(SpellDmg(kSpellPoison), poison_dmg, fight::kUndefDmg);
-		dmg.flags.set(fight::NO_FLEE_DMG);
+		dmg.flags.set(fight::kNoFleeDmg);
 		result = dmg.Process(ch, ch);
 	} else if (af->location == APPLY_ACONITUM_POISON) {
 		Damage dmg(SpellDmg(kSpellPoison), GET_POISON(ch), fight::kUndefDmg);
-		dmg.flags.set(fight::NO_FLEE_DMG);
+		dmg.flags.set(fight::kNoFleeDmg);
 		result = dmg.Process(ch, ch);
 	}
 	return result;

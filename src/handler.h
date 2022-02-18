@@ -42,14 +42,14 @@ FLAGS_DECLARE_OPERATORS(CharEquipFlags, CharEquipFlag);
 
 int get_room_sky(int rnum);
 int equip_in_metall(CharData *ch);
-int awake_others(CharData *ch);
+bool IsAwakeOthers(CharData *ch);
 
 void check_light(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
 // Resistance calculate //
-int calculate_resistance_coeff(CharData *ch, int resist_type, int effect);
-int getResisTypeWithSpellClass(int spellClass);
-int get_resist_type(int spellnum);
+int ApplyResist(CharData *ch, int resist_type, int effect);
+int GetResisTypeWithSpellClass(int spell_class);
+int GetResistType(int spellnum);
 
 // handling the affected-structures //
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);

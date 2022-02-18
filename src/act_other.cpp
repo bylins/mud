@@ -2465,14 +2465,14 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af.duration = CalcDuration(ch, 10, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffectFlag::AFF_BANDAGE);
 	af.battleflag = kAfPulsedec;
-	affect_join(ch, af, false, false, 0, 0);
+	affect_join(ch, af, false, false, false, false);
 
 	af.type = kSpellNoBandage;
 	af.location = APPLY_NONE;
 	af.duration = CalcDuration(ch, 60, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffectFlag::AFF_NO_BANDAGE);
 	af.battleflag = kAfPulsedec;
-	affect_join(ch, af, false, false, 0, 0);
+	affect_join(ch, af, false, false, false, false);
 
 	bandage->set_weight(bandage->get_weight() - 1);
 	IS_CARRYING_W(ch) -= 1;

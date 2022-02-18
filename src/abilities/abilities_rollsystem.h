@@ -67,6 +67,7 @@ class AbilityRoll {
 	[[nodiscard]] bool IsWrongConditions() const { return wrong_conditions_; };
 	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; };
 	[[nodiscard]] int GetSuccessDegree() const { return success_degree_; };
+	[[nodiscard]] int GetActorRating() const { return actor_rating_; };
 	int GetAbilityId() { return ability_->id; };
 	CharData *GetActor() { return actor_; };
 	void SendDenyMsgToActor();

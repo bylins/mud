@@ -36,15 +36,15 @@ void SetWait(CharData *ch, int waittime, int victim_in_room) {
 	}
 }
 
-void SetSkillCooldown(CharData *ch, ESkill skill, int cooldownInPulses) {
-	if (ch->getSkillCooldownInPulses(skill) < cooldownInPulses) {
-		ch->setSkillCooldown(skill, cooldownInPulses * kPulseViolence);
+void SetSkillCooldown(CharData *ch, ESkill skill, int pulses) {
+	if (ch->getSkillCooldownInPulses(skill) < pulses) {
+		ch->setSkillCooldown(skill, pulses * kPulseViolence);
 	}
 }
 
-void SetSkillCooldownInFight(CharData *ch, ESkill skill, int cooldownInPulses) {
+void SetSkillCooldownInFight(CharData *ch, ESkill skill, int pulses) {
 	if (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
-		SetSkillCooldown(ch, skill, cooldownInPulses);
+		SetSkillCooldown(ch, skill, pulses);
 	} else {
 		WAIT_STATE(ch, kPulseViolence / 6);
 	}

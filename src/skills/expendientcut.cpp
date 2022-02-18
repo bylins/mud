@@ -8,9 +8,10 @@
 #include "fightsystem/pk.h"
 #include "skills/protect.h"
 
+#include <iostream>
+#include "skills.h"
+
 void ApplyNoFleeAffect(CharData *ch, int duration) {
-	//При простановке сразу 2 флагов битвектора начинаются глюки
-	//По-видимому, где-то не учтено, что ненулевых битов может быть более одного
 	Affect<EApplyLocation> noflee;
 	noflee.type = kSpellBattle;
 	noflee.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
@@ -19,16 +20,6 @@ void ApplyNoFleeAffect(CharData *ch, int duration) {
 	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
 	noflee.battleflag = kAfBattledec | kAfPulsedec;
 	affect_join(ch, noflee, true, false, true, false);
-
-	Affect<EApplyLocation> battle;
-	battle.type = kSpellBattle;
-	battle.bitvector = to_underlying(EAffectFlag::AFF_EXPEDIENT);
-	battle.location = EApplyLocation::APPLY_NONE;
-	battle.modifier = 0;
-	battle.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
-	battle.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(ch, battle, true, false, true, false);
-
 	send_to_char("Вы выпали из ритма боя.\r\n", ch);
 }
 
@@ -37,33 +28,27 @@ void PerformCutSuccess(AbilitySystem::TechniqueRoll &roll) {
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	Affect<EApplyLocation> immun_physic;
-	immun_physic.type = kSpellExpedient;
-	immun_physic.location = EApplyLocation::APPLY_PR;
-	immun_physic.modifier = 100;
-	immun_physic.duration = CalcDuration(roll.GetActor(), 3, 0, 0, 0, 0);
-	immun_physic.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(roll.GetActor(), immun_physic, false, false, false, false);
-	Affect<EApplyLocation> immun_magic;
-	immun_magic.type = kSpellExpedient;
-	immun_magic.location = EApplyLocation::APPLY_MR;
-	immun_magic.modifier = 100;
-	immun_magic.duration = CalcDuration(roll.GetActor(), 3, 0, 0, 0, 0);
-	immun_magic.battleflag = kAfBattledec | kAfPulsedec;
-	affect_join(roll.GetActor(), immun_magic, false, false, false, false);
+	Affect<EApplyLocation> cut;
+	cut.type = kSpellBattle;
+	cut.bitvector = to_underlying(EAffectFlag::AFF_HAEMORRAGIA);
+	cut.location = EApplyLocation::APPLY_RESIST_VITALITY;
+	cut.modifier = -std::min(25, number(1, roll.GetActorRating())/12) - (roll.IsCriticalSuccess() ? 10 : 0);
+	cut.duration = CalcDuration(roll.GetActor(), 3*number(2, 4), 0, 0, 0, 0);;
+	cut.battleflag = kAfBattledec | kAfPulsedec;
+	affect_join(roll.GetRival(), cut, false, true, false, true);
 }
 
 void PerformCutFail(AbilitySystem::TechniqueRoll &roll) {
 	act("Ваши свистящие удары пропали втуне, не задев $N3.",
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToChar);
-	// Уберем пока критфейл
-/*	if (roll.IsCriticalFail()) {
-		send_to_char(roll.GetActor(), "%sВы поскользнулись и упали упали!%s", BWHT, KNRM);
-		act(buf, false, roll.GetActor(), nullptr, roll.GetRival(), kToChar);
-		act("$n поскользнул$u и упал$g.", false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
-		act("$n поскользнул$u и упал$g.", true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-		GET_POS(roll.GetActor()) = EPosition::kSit;
-	};*/
+	if (roll.IsCriticalFail()) {
+		send_to_char(roll.GetActor(), "%sВы поскользнулись и потеряли равновесие.%s", BWHT, KNRM);
+		act("$n поскользнул$u и потерял$g равновесие.",
+			false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
+		act("$n поскользнул$u и потерял$g равновесие.",
+			true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
+		SetWait(roll.GetActor(), 2, false);
+	};
 }
 
 void GoExpedientCut(CharData *ch, CharData *vict) {
@@ -73,8 +58,8 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_EXPEDIENT)) {
-		send_to_char("Вы еще не восстановили силы после предыдущего приема.\r\n", ch);
+	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
+		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
 
@@ -89,23 +74,24 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	};
 
 	Damage damage(SkillDmg(roll.GetBaseSkill()), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+	std::cout << "Base skill: " << NAME_BY_ITEM<ESkill>(roll.GetBaseSkill()) << std::endl;
 	int no_flee_duration;
 	int dmg;
 	if (roll.IsSuccess()) {
 		PerformCutSuccess(roll);
 		dmg = roll.CalcDamage();
+		damage.flags.set(fight::kIgnoreFireShield);
 		if (roll.IsCriticalSuccess()) {
 			send_to_char("&GТочно в становую жилу!&n\r\n", roll.GetActor());
-			damage.flags.set(fight::IGNORE_ABSORBE);
-			damage.flags.set(fight::CRIT_HIT);
+			damage.flags.set(fight::kCritHit);
 		};
-		no_flee_duration = 3;
+		no_flee_duration = 2;
 	} else {
 		PerformCutFail(roll);
 		dmg = fight::kZeroDmg;
-		no_flee_duration = 2;
+		no_flee_duration = 3;
 	};
-
+	//damage.skill_id;
 	damage.dam = dmg;
 	damage.wielded = GET_EQ(ch, WEAR_WIELD);
 	damage.Process(roll.GetActor(), roll.GetRival());
@@ -113,12 +99,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	damage.wielded = GET_EQ(ch, WEAR_HOLD);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	ApplyNoFleeAffect(ch, no_flee_duration);
-	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
-
-/*
-	hit(ch, vict, ESkill::kUndefined, fight::kMainHand);
-	hit(ch, vict, ESkill::kUndefined, fight::kOffHand);
-*/
+	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 }
 
 void SetExtraAttackCut(CharData *ch, CharData *victim) {

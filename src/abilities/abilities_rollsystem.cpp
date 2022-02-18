@@ -142,9 +142,9 @@ int AgainstRivalRoll::CalcBaseSkillRating() {
 	return (CalcCurrentSkill(actor_, base_skill_, rival_) / abilities::kSkillRatingDivider);
 };
 
-//TODO: Избавиться от таргета в ситуационном бонусе, он там не нужен
 int AgainstRivalRoll::CalcRollBonus() {
-	return (ability_->diceroll_bonus + ability_->CalcSituationalRollBonus(actor_, rival_));
+	return std::clamp(ability_->diceroll_bonus + ability_->CalcSituationalRollBonus(actor_, rival_),
+					  abilities::kMinRollBonus, abilities::kMaxRollBonus);
 };
 
 void TechniqueRoll::DetermineBaseSkill() {

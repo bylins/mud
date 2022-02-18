@@ -42,7 +42,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kStrangle].name, percent, prob, success);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::IGNORE_ARMOR);
+		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.Process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
@@ -59,7 +59,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 			(GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->get_skill(ESkill::kStrangle)) / 70, 7.0, 1, 30)) / 100;
 		dam = (IS_NPC(vict) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::IGNORE_ARMOR);
+		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.Process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
 			SetWait(vict, 2, true);

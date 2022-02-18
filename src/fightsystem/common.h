@@ -10,8 +10,8 @@ inline bool IsUnableToAct(CharData *ch) {
 int IsHaveNoExtraAttack(CharData *ch);
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
-void SetSkillCooldown(CharData *ch, ESkill skill, int cooldownInPulses);
-void SetSkillCooldownInFight(CharData *ch, ESkill skill, int cooldownInPulses);
+void SetSkillCooldown(CharData *ch, ESkill skill, int pulses);
+void SetSkillCooldownInFight(CharData *ch, ESkill skill, int pulses);
 CharData *FindVictim(CharData *ch, char *argument);
 
 #endif //BYLINS_COMMON_H

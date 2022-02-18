@@ -934,16 +934,16 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			dmg.victim_start_pos = victim_start_pos;
 			// колдуны игнорят поглощение у мобов
 			if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
-				dmg.flags.set(fight::IGNORE_ABSORBE);
+				dmg.flags.set(fight::kIgnoreAbsorbe);
 			}
 			// отражение магии в кастующего
 			if (ch == victim) {
-				dmg.flags.set(fight::MAGIC_REFLECT);
+				dmg.flags.set(fight::kMagicReflect);
 			}
 			if (count <= 1) {
-				dmg.flags.reset(fight::NO_FLEE_DMG);
+				dmg.flags.reset(fight::kNoFleeDmg);
 			} else {
-				dmg.flags.set(fight::NO_FLEE_DMG);
+				dmg.flags.set(fight::kNoFleeDmg);
 			}
 			rand = dmg.Process(ch, victim);
 		}
@@ -1177,8 +1177,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 			af[0].location = APPLY_STR;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 2, level, 4, 6, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 2, level, 4, 6, 0)) * koef_duration;
 			af[0].modifier = -1 - GET_REAL_REMORT(ch) / 2;
 			af[0].battleflag = kAfBattledec;
 			accum_duration = true;
@@ -1203,8 +1203,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				success = false;
 				break;
 			}
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 4, level, 5, 4, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 4, level, 5, 4, 0)) * koef_duration;
 			af[0].location = APPLY_STR;
 			if (spellnum == kSpellWeaknes)
 				af[0].modifier = -1 * ((level / 6 + GET_REAL_REMORT(ch) / 2));
@@ -1398,8 +1398,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			}
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -RollDices(1 + level / 8 + GET_REAL_REMORT(ch) / 4, 4);
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 2, level + 7, 8, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 2, level + 7, 8, 0, 0)) * koef_duration;
 			af[1].location = APPLY_CAST_SUCCESS;
 			af[1].modifier = -RollDices(1 + level / 4 + GET_REAL_REMORT(ch) / 2, 4);
 			af[1].duration = af[0].duration;
@@ -1415,8 +1415,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			}
 			af[0].location = APPLY_DEX;
 			af[0].modifier = -RollDices(int(MAX(1, ((level - 14) / 7))), 3);
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 9, 0, 0, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 9, 0, 0, 0, 0)) * koef_duration;
 			to_vict = "Вы покрылись серебристым инеем.";
 			to_room = "$n покрыл$u красивым серебристым инеем.";
 			break;
@@ -1571,13 +1571,13 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 			af[0].location = APPLY_MANAREG;
 			af[0].modifier = -50;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim,
-																	 0,
-																	 GET_REAL_WIS(ch) + GET_REAL_INT(ch),
-																	 10,
-																	 0,
-																	 0))
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim,
+													  0,
+													  GET_REAL_WIS(ch) + GET_REAL_INT(ch),
+													  10,
+													  0,
+													  0))
 				* koef_duration;
 			af[1].location = APPLY_CAST_SUCCESS;
 			af[1].modifier = -50;
@@ -1605,22 +1605,22 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			}
 			switch (spellnum) {
 				case kSpellDustStorm:
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 3, level, 6, 0, 0)) * koef_duration;
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 3, level, 6, 0, 0)) * koef_duration;
 					break;
 				case kSpellShineFlash:
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 2, level + 7, 8, 0, 0))
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 2, level + 7, 8, 0, 0))
 						* koef_duration;
 					break;
 				case kSpellMassBlindness:
 				case kSpellBlindness:
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 2, level, 8, 0, 0)) * koef_duration;
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 2, level, 8, 0, 0)) * koef_duration;
 					break;
 				case kSpellPowerBlindness:
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 3, level, 6, 0, 0)) * koef_duration;
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 3, level, 6, 0, 0)) * koef_duration;
 					break;
 			}
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_BLIND);
@@ -1637,8 +1637,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 3, 0, 0, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 3, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			af[1].location = APPLY_MADNESS;
 			af[1].duration = af[0].duration;
@@ -1657,8 +1657,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2 - GET_REAL_REMORT(ch) / 5;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 3, level, 6, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 3, level, 6, 0, 0)) * koef_duration;
 			af[0].battleflag = kAfBattledec;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
 			af[1].location = APPLY_AC;
@@ -1682,8 +1682,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			if (can_use_feat(ch, DECLINE_FEAT))
 				decline_mod += GET_REAL_REMORT(ch);
 			af[0].location = APPLY_INITIATIVE;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 1, level, 2, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 1, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = -(5 + decline_mod);
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
 
@@ -1722,11 +1722,11 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 9, 0, 0, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 9, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_SLOW);
 			af[1].duration =
-				calculate_resistance_coeff(victim, get_resist_type(spellnum), CalcDuration(victim, 9, 0, 0, 0, 0))
+				ApplyResist(victim, GetResistType(spellnum), CalcDuration(victim, 9, 0, 0, 0, 0))
 					* koef_duration;
 			af[1].location = APPLY_DEX;
 			af[1].modifier = -koef_modifier;
@@ -1819,8 +1819,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			}
 
 			af[0].location = APPLY_HITREG;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 0, level, 2, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 0, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = -95;
 			af[1].location = APPLY_MANAREG;
 			af[1].duration = af[0].duration;
@@ -1858,8 +1858,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			}
 
 			af[0].location = APPLY_STR;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 0, level, 1, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 0, level, 1, 0, 0)) * koef_duration;
 			af[0].modifier = -2;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 			af[0].battleflag = kAfSameTime;
@@ -1931,8 +1931,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 			if (victim->get_fighting())
 				stop_fighting(victim, false);
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 1, level, 6, 1, 6)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 1, level, 6, 1, 6)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_SLEEP);
 			af[0].battleflag = kAfBattledec;
 			if (GET_POS(victim) > EPosition::kSleep && success) {
@@ -2048,19 +2048,19 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														spellnum == kSpellPowerHold ? CalcDuration(victim,
-																								   2,
-																								   level + 7,
-																								   8,
-																								   2,
-																								   5)
-																					: CalcDuration(victim,
-																								   1,
-																								   level + 9,
-																								   10,
-																								   1,
-																								   3)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 spellnum == kSpellPowerHold ? CalcDuration(victim,
+																					2,
+																					level + 7,
+																					8,
+																					2,
+																					5)
+																	 : CalcDuration(victim,
+																					1,
+																					level + 9,
+																					10,
+																					1,
+																					3)) * koef_duration;
 
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_HOLD);
 			af[0].battleflag = kAfBattledec;
@@ -2095,14 +2095,14 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				case kSpellWarcryOfRage:
 				case kSpellPowerDeafness:
 				case kSpellSonicWave:
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 2, level + 3, 4, 6, 0))
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 2, level + 3, 4, 6, 0))
 						* koef_duration;
 					break;
 				case kSpellMassDeafness:
 				case kSpellDeafness:
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 2, level + 7, 8, 3, 0))
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 2, level + 7, 8, 3, 0))
 						* koef_duration;
 					break;
 			}
@@ -2122,13 +2122,13 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				success = false;
 				break;
 			}
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), spellnum == kSpellPowerSilence ?
-																						   CalcDuration(victim,
-																										2,
-																										level + 3,
-																										4,
-																										6,
-																										0) : CalcDuration(
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum), spellnum == kSpellPowerSilence ?
+																		  CalcDuration(victim,
+																						 2,
+																						 level + 3,
+																						 4,
+																						 6,
+																						 0) : CalcDuration(
 					victim,
 					2,
 					level + 7,
@@ -2193,8 +2193,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				success = false;
 				break;
 			}
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 3, level, 4, 4, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 3, level, 4, 4, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 			to_room = "$n0 теперь прикован$a к $N2.";
 			to_vict = "Вы не сможете покинуть $N3.";
@@ -2293,8 +2293,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			}
 			switch (spellnum) {
 				case kSpellWarcryOfThunder: af[0].type = kSpellDeafness;
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 					af[0].duration = complex_spell_modifier(ch, kSpellDeafness, GAPPLY_SPELL_EFFECT, af[0].duration);
 					af[0].bitvector = to_underlying(EAffectFlag::AFF_DEAFNESS);
 					af[0].battleflag = kAfBattledec;
@@ -2316,8 +2316,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 				case kSpellIceStorm:
 				case kSpellEarthfall: WAIT_STATE(victim, 2 * kPulseViolence);
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					to_room = "$n3 оглушило.";
@@ -2326,8 +2326,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 					break;
 
 				case kSpellShock: WAIT_STATE(victim, 2 * kPulseViolence);
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					to_room = "$n3 оглушило.";
@@ -2348,8 +2348,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 			af[0].location = APPLY_HIT;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
 			af[0].modifier =
 				-1 * MAX(1,
 						 (MIN(29, GET_REAL_LEVEL(ch)) - MIN(24, GET_REAL_LEVEL(victim)) +
@@ -2357,8 +2357,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 			if (IS_NPC(victim)) {
 				af[1].location = APPLY_LIKES;
-				af[1].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-															CalcDuration(victim, 5, 0, 0, 0, 0));
+				af[1].duration = ApplyResist(victim, GetResistType(spellnum),
+											 CalcDuration(victim, 5, 0, 0, 0, 0));
 				af[1].modifier = -1 * MAX(1, ((level + 9) / 2 + 9 - GET_REAL_LEVEL(victim) / 2));
 				af[1].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 				af[1].battleflag = kAfBattledec;
@@ -2366,8 +2366,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 			af[1].location = APPLY_CAST_SUCCESS;
-			af[1].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 5, 0, 0, 0, 0));
+			af[1].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 5, 0, 0, 0, 0));
 			af[1].modifier = -1 * MAX(1, (level / 3 + GET_REAL_REMORT(ch) / 3 - GET_REAL_LEVEL(victim) / 10));
 			af[1].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 			af[1].battleflag = kAfBattledec;
@@ -2392,8 +2392,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 			WAIT_STATE(victim, (level / 10 + 1) * kPulseViolence);
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 3, 0, 0, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 3, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_SLOW);
 			af[0].battleflag = kAfBattledec;
 			to_room = "Облако забвения окружило $n3.";
@@ -2415,8 +2415,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				change_fighting(victim, true);
 				WAIT_STATE(victim, 2 * kPulseViolence);
 			}
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_PEACEFUL);
 			to_room = "Взгляд $n1 потускнел, а сам он успокоился.";
 			to_vict = "Ваша душа очистилась от зла и странно успокоилась.";
@@ -2449,8 +2449,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 			af[0].location = APPLY_MORALE;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 2, level, 2, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 2, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = -5 - (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 2;
 			af[1].location = static_cast<EApplyLocation>(number(1, 6));
 			af[1].duration = af[0].duration;
@@ -2478,8 +2478,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				affect_from_char(victim, kSpellHide);
 			}
 			af[0].location = APPLY_SAVING_REFLEX;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
 			af[0].modifier = (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 3;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_GLITTERDUST);
 			accum_duration = true;
@@ -2498,8 +2498,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			}
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_AFFRIGHT);
 			af[0].location = APPLY_SAVING_WILL;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 2, level, 2, 0, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 2, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = (2 * GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 4;
 
 			af[1].bitvector = to_underlying(EAffectFlag::AFF_AFFRIGHT);
@@ -2574,8 +2574,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				break;
 			}
 			af[0].location = APPLY_MORALE;
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-														CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
+			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+										 CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 			af[0].modifier = -RollDices((7 + level) / 8, 3);
 			to_vict = "Похоже, сегодня не ваш день.";
 			to_room = "Удача покинула $n3.";
@@ -2587,8 +2587,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			modi = GET_REAL_CON(ch) * 3 / 2;
 			if (ch == victim || !CalcGeneralSaving(ch, victim, savetype, modi)) {
 				af[0].location = APPLY_INT;
-				af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-															CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
+				af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+											 CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 				af[0].modifier = -RollDices((7 + level) / 8, 2);
 				to_vict = "Вы потеряли рассудок.";
 				to_room = "$n0 потерял$g рассудок.";
@@ -2611,8 +2611,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				modi = GET_REAL_CON(ch) * 2;
 				if (!CalcGeneralSaving(ch, victim, savetype, modi)) {
 					af[0].location = APPLY_CAST_SUCCESS;
-					af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-																CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
+					af[0].duration = ApplyResist(victim, GetResistType(spellnum),
+												 CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 					af[0].modifier = -(RollDices((2 + level) / 3, 4) + RollDices(GET_REAL_REMORT(ch) / 2, 5));
 
 					af[1].location = APPLY_MANAREG;
