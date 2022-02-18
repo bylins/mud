@@ -18,7 +18,7 @@
 
 namespace NewNames {
 static void save();
-static void cache_add(CharacterData *ch);
+static void cache_add(CharData *ch);
 }
 
 extern const char *genders[];
@@ -107,7 +107,7 @@ int was_disagree_name(DescriptorData *d) {
 	return (1);
 }
 
-void rm_agree_name(CharacterData *d) {
+void rm_agree_name(CharData *d) {
 	FILE *fin;
 	FILE *fout;
 	char temp[kMaxInputLength];
@@ -177,7 +177,7 @@ static void NewNames::save() {
 }
 
 // добавить в список без сохранения на диск
-static void NewNames::cache_add(CharacterData *ch) {
+static void NewNames::cache_add(CharData *ch) {
 	NewNamePtr name(new NewName);
 
 	name->name0 = ch->get_name();
@@ -193,13 +193,13 @@ static void NewNames::cache_add(CharacterData *ch) {
 }
 
 // добавление имени в список неодобренных для показа иммам
-void NewNames::add(CharacterData *ch) {
+void NewNames::add(CharData *ch) {
 	cache_add(ch);
 	save();
 }
 
 // поиск/удаление персонажа из списка неодобренных имен
-void NewNames::remove(CharacterData *ch) {
+void NewNames::remove(CharData *ch) {
 	NewNameListType::iterator it;
 	it = NewNameList.find(GET_NAME(ch));
 	if (it != NewNameList.end())
@@ -208,7 +208,7 @@ void NewNames::remove(CharacterData *ch) {
 }
 
 // для удаления через команду имма
-void NewNames::remove(const std::string &name, CharacterData *actor) {
+void NewNames::remove(const std::string &name, CharData *actor) {
 	NewNameListType::iterator it = NewNameList.find(name);
 	if (it != NewNameList.end()) {
 		NewNameList.erase(it);
@@ -243,7 +243,7 @@ void NewNames::load() {
 }
 
 // вывод списка неодобренных имму
-bool NewNames::show(CharacterData *actor) {
+bool NewNames::show(CharData *actor) {
 	if (NewNameList.empty())
 		return false;
 
@@ -274,7 +274,7 @@ int NewNames::auto_authorize(DescriptorData *d) {
 	return NO_DECISION;
 }
 
-static void rm_disagree_name(CharacterData *d) {
+static void rm_disagree_name(CharData *d) {
 	FILE *fin;
 	FILE *fout;
 	char temp[256];
@@ -307,7 +307,7 @@ static void rm_disagree_name(CharacterData *d) {
 
 }
 
-static void add_agree_name(CharacterData *d, const char *immname, int immlev) {
+static void add_agree_name(CharData *d, const char *immname, int immlev) {
 	FILE *fl;
 	if (!(fl = fopen(ANAME_FILE, "a"))) {
 		perror("SYSERR: Unable to open '" ANAME_FILE "' for writing");
@@ -329,7 +329,7 @@ static void add_agree_name(CharacterData *d, const char *immname, int immlev) {
 	return;
 }
 
-static void add_disagree_name(CharacterData *d, const char *immname, int immlev) {
+static void add_disagree_name(CharData *d, const char *immname, int immlev) {
 	FILE *fl;
 	if (!(fl = fopen(DNAME_FILE, "a"))) {
 		perror("SYSERR: Unable to open '" DNAME_FILE "' for writing");
@@ -341,7 +341,7 @@ static void add_disagree_name(CharacterData *d, const char *immname, int immlev)
 	return;
 }
 
-static void disagree_name(CharacterData *d, const char *immname, int immlev) {
+static void disagree_name(CharData *d, const char *immname, int immlev) {
 	// Clean record from agreed if present ...
 	rm_agree_name(d);
 	rm_disagree_name(d);
@@ -350,7 +350,7 @@ static void disagree_name(CharacterData *d, const char *immname, int immlev) {
 	add_disagree_name(d, immname, immlev);
 }
 
-void agree_name(CharacterData *d, const char *immname, int immlev) {
+void agree_name(CharData *d, const char *immname, int immlev) {
 	// Clean record from disgreed if present ...
 	rm_agree_name(d);
 	rm_disagree_name(d);
@@ -361,7 +361,7 @@ void agree_name(CharacterData *d, const char *immname, int immlev) {
 
 enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
-static void go_name(CharacterData *ch, CharacterData *vict, int action) {
+static void go_name(CharData *ch, CharData *vict, int action) {
 	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
 
 	if (GET_REAL_LEVEL(vict) > god_level) {
@@ -413,7 +413,7 @@ const char *MORTAL_DO_TITLE_FORMAT = "\r\n"
 									 "имя <игрок> запретить - запретить имя данного игрока\r\n"
 									 "имя <игрок> удалить - удалить данное имя из списка без запрета или одобрения\r\n";
 
-void do_name(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string name, command = argument;
 	GetOneParam(command, name);
 
@@ -445,7 +445,7 @@ void do_name(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharacterData *vict;
+	CharData *vict;
 	if ((vict = get_player_vis(ch, name, FIND_CHAR_WORLD)) != nullptr) {
 		if (!(vict = get_player_pun(ch, name, FIND_CHAR_WORLD))) {
 			send_to_char("Нет такого игрока.\r\n", ch);

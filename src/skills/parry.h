@@ -1,11 +1,11 @@
 #ifndef BYLINS_PARRY_H
 #define BYLINS_PARRY_H
 
-class CharacterData;
+class CharData;
 
-void do_multyparry(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
-void do_parry(CharacterData *ch, char *argument, int cmd, int subcmd);
-void parry_override(CharacterData *ch);
+void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+void do_parry(CharData *ch, char *argument, int cmd, int subcmd);
+void parry_override(CharData *ch);
 
 #endif //BYLINS_PARRY_H
 

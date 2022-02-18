@@ -71,7 +71,7 @@ struct Weather {
 extern Weather weather_info;
 
 void weather_and_time(int mode);
-int complex_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int value);
+int complex_skill_modifier(CharData *ch, ESkill skillnum, int type, int value);
 
 #endif // __WEATHER_HPP__
 

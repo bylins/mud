@@ -1,195 +1,191 @@
 /*
-	Файл содержит код функций-членов классов, реализующих
-	базовые проверки на успех и провал применения навыкоув умений.
-
+	Базовые проверки на успех и провал применения навыков.
 */
 
 #include "abilities_rollsystem.h"
 
 namespace AbilitySystem {
 
-using namespace abilities;
-
-void AgainstRivalRollType::initialize(CharacterData *abilityActor, int usedAbility, CharacterData *abilityVictim) {
-	_rival = abilityVictim;
-	AbilityRollType::initialize(abilityActor, usedAbility);
+void AgainstRivalRoll::Init(CharData *actor, int ability, CharData *victim) {
+	rival_ = victim;
+	AbilityRoll::Init(actor, ability);
 };
 
-void AbilityRollType::initialize(CharacterData *abilityActor, int usedAbility) {
-	_actor = abilityActor;
-	_ability = &feat_info[usedAbility];
-	if (tryRevealWrongConditions()) {
-		_success = false;
+void AbilityRoll::Init(CharData *actor, int ability_num) {
+	actor_ = actor;
+	ability_ = &feat_info[ability_num];
+	if (TryRevealWrongConditions()) {
+		success_ = false;
 		return;
 	}
-	performAbilityTest();
+	PerformAbilityTest();
 };
 
 //TODO добавить возможность прописывать автоуспех навыка
-void AbilityRollType::performAbilityTest() {
-	_actorRating = calculateActorRating();
-	short targetRating = calculateTargetRating();
-	short diceRoll = number(1, kMainDiceSize);
-	short difficulty = _actorRating - targetRating;
-	short rollResult = difficulty - diceRoll;
-	processingResult(rollResult, diceRoll);
-	if (PRF_FLAGGED(_actor, PRF_TESTER)) {
-		send_to_char(_actor,
+void AbilityRoll::PerformAbilityTest() {
+	actor_rating_ = CalcActorRating();
+	int target_rating = CalcTargetRating();
+	int roll = number(1, abilities::kMainDiceSize);
+	int difficulty = actor_rating_ - target_rating;
+	int roll_result = difficulty - roll;
+	ProcessingResult(roll_result, roll);
+	if (PRF_FLAGGED(actor_, PRF_TESTER)) {
+		send_to_char(actor_,
 					 "&CНавык: %s, Рейтинг навыка: %d, Рейтинг цели: %d, Сложность: %d Бросок d100: %d, Итог: %d (%s)&n\r\n",
-					 _ability->name,
-					 _actorRating,
-					 targetRating,
+					 ability_->name,
+					 actor_rating_,
+					 target_rating,
 					 difficulty,
-					 diceRoll,
-					 rollResult,
-					 _success ? "успех" : "провал");
+					 roll,
+					 roll_result,
+					 success_ ? "успех" : "провал");
 	}
 };
 
 // TODO Лобавить возмодность проверки вполнения "специальныз условимй" для конкретной абилки, а не только оружия
-bool AbilityRollType::tryRevealWrongConditions() {
-	if (isActorCantUseAbility()) {
+bool AbilityRoll::TryRevealWrongConditions() {
+	if (IsActorCantUseAbility()) {
 		return true;
 	};
-	determineBaseSkill();
-	if (_baseSkill == ESkill::kIncorrect) {
+	DetermineBaseSkill();
+	if (base_skill_ == ESkill::kIncorrect) {
 		return true;
 	};
 	return false;
 };
 
-bool AbilityRollType::isActorCantUseAbility() {
-	if (!IS_IMPL(_actor) && !can_use_feat(_actor, _ability->ID)) {
-		_denyMessage = "Вы не можете использовать этот навык.\r\n";
-		_wrongConditions = true;
+bool AbilityRoll::IsActorCantUseAbility() {
+	if (!IS_IMPL(actor_) && !can_use_feat(actor_, ability_->id)) {
+		deny_msg_ = "Вы не можете использовать этот навык.\r\n";
+		wrong_conditions_ = true;
 	};
-	return _wrongConditions;
+	return wrong_conditions_;
 }
 
-void AbilityRollType::determineBaseSkill() {
-	_baseSkill = _ability->base_skill;
+void AbilityRoll::DetermineBaseSkill() {
+	base_skill_ = ability_->base_skill;
 }
 
-void AbilityRollType::sendDenyMessageToActor() {
-	send_to_char(_denyMessage, _actor);
+void AbilityRoll::SendDenyMsgToActor() {
+	send_to_char(deny_msg_, actor_);
 };
 
-void AbilityRollType::processingResult(short result, short diceRoll) {
-	_success = (result >= kSuccessThreshold);
-	_degreeOfSuccess = result / kDegreeDivider;
-	_degreeOfSuccess = MIN(_degreeOfSuccess, kMaxSuccessDegree);
-	_degreeOfSuccess = MAX(_degreeOfSuccess, kMaxFailDegree);
-	if (_success) {
-		_criticalSuccess = revealCriticalSuccess(diceRoll);
+void AbilityRoll::ProcessingResult(int result, int roll) {
+	success_ = (result >= abilities::kSuccessThreshold);
+	success_degree_ = result / abilities::kDegreeDivider;
+	success_degree_ = std::min(success_degree_, abilities::kMaxSuccessDegree);
+	success_degree_ = std::max(success_degree_, abilities::kMaxFailDegree);
+	if (success_) {
+		critical_success_ = RevealCritsuccess(roll);
 	} else {
-		_criticalFail = revealCriticalFail(diceRoll);
+		critical_fail_ = RevealCritfail(roll);
 	}
 	// Идея была в том, чтобы прокачка шла только на провалах умения.
 	// Тогда она естественным образом замедлялась бы по мере роста умения, требуя находить другие источники улучшения.
 	// Но это требует выстоенного баланса которым и не пахнет, потому сделал прокачку в любом случае.
-	trainBaseSkill(_success);
+	TrainBaseSkill(success_);
 };
 
-bool AbilityRollType::revealCriticalSuccess(short diceRoll) {
-	if (diceRoll < _ability->criticalSuccessThreshold) {
+bool AbilityRoll::RevealCritsuccess(int roll) {
+	if (roll < ability_->critsuccess_threshold) {
 		return true;
 	}
 	return false;
 };
 
-bool AbilityRollType::revealCriticalFail(short diceRoll) {
-	if ((diceRoll > _ability->criticalFailThreshold) && isActorMoraleFailure()) {
+bool AbilityRoll::RevealCritfail(int roll) {
+	if ((roll > ability_->critfail_threshold) && IsActorMoraleFailure()) {
 		return true;
 	}
 	return false;
 };
 
-bool AbilityRollType::isActorMoraleFailure() {
+bool AbilityRoll::IsActorMoraleFailure() {
 	return true;
 };
 
 // Костыльно-черновой учет морали
-bool AgainstRivalRollType::isActorMoraleFailure() {
-	int actorMorale = _actor->calc_morale();
-	int rivalMorale = _rival->calc_morale();
-	if (actorMorale > 0 && rivalMorale > 0) {
-		return ((number(0, _actor->calc_morale()) - number(0, _rival->calc_morale())) < 0);
+bool AgainstRivalRoll::IsActorMoraleFailure() {
+	int actor_morale = actor_->calc_morale();
+	int rival_morale = rival_->calc_morale();
+	if (actor_morale > 0 && rival_morale > 0) {
+		return ((number(0, actor_->calc_morale()) - number(0, rival_->calc_morale())) < 0);
 	}
-	if (actorMorale <= 0 && rivalMorale <= 0) {
-		return (actorMorale < rivalMorale);
+	if (actor_morale <= 0 && rival_morale <= 0) {
+		return (actor_morale < rival_morale);
 	}
-	if (actorMorale <= 0 && rivalMorale >= 0) {
+	if (actor_morale <= 0 && rival_morale >= 0) {
 		return true;
 	}
 	return false;
 };
 
 // TODO: переделать на static, чтобы иметь возможность считать рейтинги, к примеру, при наложении аффектов
-short AbilityRollType::calculateActorRating() {
-	short baseSkillRating = calculatBaseSkillRating();
-	short baseParameterRating = _ability->getBaseParameter(_actor) / kStatRatingDivider;
-	short dicerollBonus = calculateDicerollBonus();
-	return (baseSkillRating + baseParameterRating + dicerollBonus);
+int AbilityRoll::CalcActorRating() {
+	int skill_rating = CalcBaseSkillRating();
+	int parameter_rating = ability_->GetBaseParameter(actor_) / abilities::kStatRatingDivider;
+	int roll_bonus = CalcRollBonus();
+	return (skill_rating + parameter_rating + roll_bonus);
 };
 
 //TODO: убрать обертку после изменения системы прокачки скиллов
-void AgainstRivalRollType::trainBaseSkill(bool success) {
-	TrainSkill(_actor, _baseSkill, success, _rival);
+void AgainstRivalRoll::TrainBaseSkill(bool success) {
+	TrainSkill(actor_, base_skill_, success, rival_);
 };
 
-short AgainstRivalRollType::calculateTargetRating() {
-	return std::max(0, CalculateSaving(_actor, _rival, _ability->oppositeSaving, 0));
+int AgainstRivalRoll::CalcTargetRating() {
+	return std::max(0, CalculateSaving(actor_, rival_, ability_->saving, 0));
 };
 
 //TODO: избавиться от target в calculate_skill и убрать обертку
-short AgainstRivalRollType::calculatBaseSkillRating() {
-	return (CalcCurrentSkill(_actor, _baseSkill, _rival) / kSkillRatingDivider);
+int AgainstRivalRoll::CalcBaseSkillRating() {
+	return (CalcCurrentSkill(actor_, base_skill_, rival_) / abilities::kSkillRatingDivider);
 };
 
-//TODO: Избавиться от таргета в ситуационном бонусе, он там не нужен
-short AgainstRivalRollType::calculateDicerollBonus() {
-	return (_ability->dicerollBonus + _ability->calculateSituationalRollBonus(_actor, _rival));
+int AgainstRivalRoll::CalcRollBonus() {
+	return std::clamp(ability_->diceroll_bonus + ability_->CalcSituationalRollBonus(actor_, rival_),
+					  abilities::kMinRollBonus, abilities::kMaxRollBonus);
 };
 
-void TechniqueRollType::determineBaseSkill() {
-	if (checkTechniqueKit()) {
-		if (_baseSkill == ESkill::kIncorrect) {
-			_baseSkill = _ability->base_skill;
+void TechniqueRoll::DetermineBaseSkill() {
+	if (CheckTechniqueKit()) {
+		if (base_skill_ == ESkill::kIncorrect) {
+			base_skill_ = ability_->base_skill;
 		}
 	} else {
-		_wrongConditions = true;
-		_denyMessage = "У вас нет подходящей экипировки.\r\n";
+		wrong_conditions_ = true;
+		deny_msg_ = "У вас нет подходящей экипировки.\r\n";
 	}
 }
 
-bool TechniqueRollType::checkTechniqueKit() {
+bool TechniqueRoll::CheckTechniqueKit() {
 	//const TechniqueItemKitsGroupType &kitsGroup = _ability->techniqueItemKitsGroup;
-	if (_ability->techniqueItemKitsGroup.empty()) {
+	if (ability_->item_kits.empty()) {
 		return true;
 	};
-	for (const auto &itemKit : _ability->techniqueItemKitsGroup) {
-		bool kitFit = true;
+	for (const auto &itemKit : ability_->item_kits) {
+		bool kit_fit = true;
 		for (const auto &item : *itemKit) {
-			if (isSuitableItem(item)) {
+			if (IsSuitableItem(item)) {
 				continue;
 			};
-			kitFit = false;
+			kit_fit = false;
 			break;
 		};
-		if (kitFit) {
+		if (kit_fit) {
 			return true;
 		};
 	};
 	return false;
 };
 
-bool TechniqueRollType::isSuitableItem(const TechniqueItem &techniqueItem) {
-	ObjectData *characterItem = GET_EQ(_actor, techniqueItem._wearPosition);
-	if (techniqueItem == characterItem) {
-		if (GET_OBJ_TYPE(characterItem) == ObjectData::ITEM_WEAPON) {
-			_weaponEquipPosition = techniqueItem._wearPosition;
-			if (_ability->usesWeaponSkill) {
-				_baseSkill = static_cast<ESkill>GET_OBJ_SKILL(characterItem);
+bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
+	ObjData *char_item = GET_EQ(actor_, item.wear_position);
+	if (item == char_item) {
+		if (GET_OBJ_TYPE(char_item) == ObjData::ITEM_WEAPON) {
+			weapon_equip_position_ = item.wear_position;
+			if (ability_->uses_weapon_skill) {
+				base_skill_ = static_cast<ESkill>GET_OBJ_SKILL(char_item);
 			};
 		};
 		return true;
@@ -198,48 +194,48 @@ bool TechniqueRollType::isSuitableItem(const TechniqueItem &techniqueItem) {
 };
 
 //	TODO: Привести подсчет дамага к одному знаменателю с несколькими возможными точками входа.
-int AbilityRollType::calculateBaseDamage() {
-	short abilityBaseParameter = _ability->getBaseParameter(_actor);
-	short dicePool = GET_SKILL(_actor, _baseSkill) / kDmgDicepoolSkillDivider;
-	dicePool = MIN(dicePool, abilityBaseParameter);
-	return dice(MAX(1, dicePool), kDmgDiceSize);
+int AbilityRoll::CalcBaseDamage() {
+	int base_parameter = ability_->GetBaseParameter(actor_);
+	int dice_num = GET_SKILL(actor_, base_skill_) / abilities::kDmgDicepoolSkillDivider;
+	dice_num = std::min(dice_num, base_parameter);
+	return RollDices(std::max(1, dice_num), abilities::kDmgDiceSize);
 };
 
-int AbilityRollType::calculateAddDamage() {
-	short dicePool = _ability->getEffectParameter(_actor);
-	short diceSize = kDmgDiceSize;
-	return dice(dicePool, diceSize);
+int AbilityRoll::CalcAddDamage() {
+	int dice_num = ability_->GetEffectParameter(actor_);
+	int dice_size = abilities::kDmgDiceSize;
+	return RollDices(dice_num, dice_size);
 }
 
-int TechniqueRollType::calculateAddDamage() {
-	ObjectData *weapon = GET_EQ(_actor, _weaponEquipPosition);
+int TechniqueRoll::CalcAddDamage() {
+	ObjData *weapon = GET_EQ(actor_, weapon_equip_position_);
 	if (weapon) {
-		short dicePool = _ability->getEffectParameter(_actor) + GET_OBJ_VAL(weapon, 1);
-		short diceSize = GET_OBJ_VAL(weapon, 2);
-		return dice(dicePool, diceSize);
+		int dice_num = ability_->GetEffectParameter(actor_) + GET_OBJ_VAL(weapon, 1);
+		int dice_size = GET_OBJ_VAL(weapon, 2);
+		return RollDices(dice_num, dice_size);
 	}
 
-	return AgainstRivalRollType::calculateAddDamage();
+	return AgainstRivalRoll::CalcAddDamage();
 };
 
-inline float AbilityRollType::calculateAbilityDamageFactor() {
-	return _ability->baseDamageBonusPercent / 100.0;
+float AbilityRoll::CalcAbilityDamageFactor() {
+	return static_cast<float>(ability_->damage_bonus/100.0);
 };
 
-inline float AbilityRollType::calculateDegreeOfSuccessDamageFactor() {
-	return _degreeOfSuccess * _ability->degreeOfSuccessDamagePercent / 100.0;
+float AbilityRoll::CalcSuccessDegreeDamageFactor() {
+	return static_cast<float>(success_degree_*ability_->success_degree_damage_bonus/ 100.0);
 };
 
-inline float AbilityRollType::calculateSituationalDamageFactor() {
-	return _ability->calculateSituationalDamageFactor(_actor);
+float AbilityRoll::CalcSituationalDamageFactor() {
+	return ability_->CalcSituationalDamageFactor(actor_);
 };
 
-int TechniqueRollType::calculateDamage() {
-	int damage = calculateBaseDamage() + calculateAddDamage();
-	float abilityFactor = calculateAbilityDamageFactor();
-	float degreeFactor = calculateDegreeOfSuccessDamageFactor();
-	float situationalFactor = calculateSituationalDamageFactor();
-	damage += damage * abilityFactor + damage * degreeFactor + damage * situationalFactor;
+int TechniqueRoll::CalcDamage() {
+	int damage = CalcBaseDamage() + CalcAddDamage();
+	float ability_factor = CalcAbilityDamageFactor();
+	float degree_factor = CalcSuccessDegreeDamageFactor();
+	float situational_factor = CalcSituationalDamageFactor();
+	damage += damage*ability_factor + damage*degree_factor + damage*situational_factor;
 	return damage;
 };
 

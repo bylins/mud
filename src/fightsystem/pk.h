@@ -14,11 +14,11 @@
 #ifndef _PVP_H_
 #define _PVP_H_
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 #include <string>
 
-class ObjectData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
 //*************************************************************************
 // Основные функци и разрешения конфликтных ситуаций между игроками
@@ -54,85 +54,85 @@ const short MAX_REVENGE = 2;    // Максимальное количество
 
 // agressor действует против victim
 // Результат - тип действий (см. выше)
-int pk_action_type(CharacterData *agressor, CharacterData *victim);
+int pk_action_type(CharData *agressor, CharData *victim);
 
 // Проверка может ли ch начать аргессивные действия против victim
 // true - может
 // false - не может
-int may_kill_here(CharacterData *ch, CharacterData *victim, char *argument);
+int may_kill_here(CharData *ch, CharData *victim, char *argument);
 
 // проверка на агробд для сетов
-bool check_agrobd(CharacterData *ch);
+bool check_agrobd(CharData *ch);
 
 // Определение необходимости вводить имя жертвы полностью
-bool need_full_alias(CharacterData *ch, CharacterData *opponent);
+bool need_full_alias(CharData *ch, CharData *opponent);
 
 //Определение, является ли строка arg полным именем ch
-int name_cmp(CharacterData *ch, const char *arg);
+int name_cmp(CharData *ch, const char *arg);
 
 // Определение возможности агродействий
-int check_pkill(CharacterData *ch, CharacterData *opponent, const char *arg);
-int check_pkill(CharacterData *ch, CharacterData *opponent, const std::string &arg);
+int check_pkill(CharData *ch, CharData *opponent, const char *arg);
+int check_pkill(CharData *ch, CharData *opponent, const std::string &arg);
 
 // agressor проводит действия против victim
-bool pk_agro_action(CharacterData *agressor, CharacterData *victim);
+bool pk_agro_action(CharData *agressor, CharData *victim);
 
 // thief проводит действия против victim, приводящие к скрытому флагу
-void pk_thiefs_action(CharacterData *thief, CharacterData *victim);
+void pk_thiefs_action(CharData *thief, CharData *victim);
 
 // killer убивает victim
-void pk_revenge_action(CharacterData *killer, CharacterData *victim);
+void pk_revenge_action(CharData *killer, CharData *victim);
 
 // удалить список ПК
-void pk_free_list(CharacterData *ch);
+void pk_free_list(CharData *ch);
 
 // посчитать количество флагов мести
-int pk_count(CharacterData *ch);
+int pk_count(CharData *ch);
 
 //Количество местей на игроков (уникальное мыло)
-int pk_player_count(CharacterData *ch);
+int pk_player_count(CharData *ch);
 
 //*************************************************************************
 // Информационные функции отображения статуса ПК
 
-void aura(CharacterData *ch, int lvl, CharacterData *victim, char *s);
-const char *CCPK(CharacterData *ch, int lvl, CharacterData *victim);
-inline const char *CCPK(CharacterData *ch, int lvl, const CharacterData::shared_ptr &victim) {
+void aura(CharData *ch, int lvl, CharData *victim, char *s);
+const char *CCPK(CharData *ch, int lvl, CharData *victim);
+inline const char *CCPK(CharData *ch, int lvl, const CharData::shared_ptr &victim) {
 	return CCPK(ch,
 				lvl,
 				victim.get());
 }
-void pk_list_sprintf(CharacterData *ch, char *buff);
-void do_revenge(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void pk_list_sprintf(CharData *ch, char *buff);
+void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 //*************************************************************************
 // Системные функции сохранения/загрузки ПК флагов
-void save_pkills(CharacterData *ch, FILE *saved);
+void save_pkills(CharData *ch, FILE *saved);
 
 //*************************************************************************
-bool has_clan_members_in_group(CharacterData *ch);
+bool has_clan_members_in_group(CharData *ch);
 
 //проверяем не чармис ли это наш или группы
 //bool check_charmise(CharacterData * ch, CharacterData * victim, char * argument);
 
 //Polud
-void pkPortal(CharacterData *ch);
+void pkPortal(CharData *ch);
 
 //Кровавый стаф
 namespace bloody {
 //обновляет флаг кровавости на стафе
 void update();
 //убирает флаг
-void remove_obj(const ObjectData *obj);
+void remove_obj(const ObjData *obj);
 
 //обработка передачи предмета obj от ch к victim
 //ch может быть NULL (лут)
 //victim может быть null (в случае с бросить, аук, продать..)
 //возвращает true, если передача может состояться, и false в противном случае
-bool handle_transfer(CharacterData *ch, CharacterData *victim, ObjectData *obj, ObjectData *container = nullptr);
+bool handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjData *container = nullptr);
 //Помечает стаф в трупе как кровавый
-void handle_corpse(ObjectData *corpse, CharacterData *ch, CharacterData *killer);
-bool is_bloody(const ObjectData *obj);
+void handle_corpse(ObjData *corpse, CharData *ch, CharData *killer);
+bool is_bloody(const ObjData *obj);
 }
 
 //Структура для хранения информации о кровавом стафе
@@ -140,15 +140,15 @@ bool is_bloody(const ObjectData *obj);
 struct BloodyInfo {
 	long owner_unique; //С кого сняли шмотку
 	long kill_at; //Когда произошло убийство
-	ObjectData *object; //сама шмотка
+	ObjData *object; //сама шмотка
 	//какой-либо ID вместо указателя хранить не получается, потому что тогда при апдейте таймера кровавости для каждой записи придется искать шмотку по id по списку шмоток
 	//А это O(n)
 	//По-этому в деструкторе ObjectData нужно удалять запись о шмотке из bloody_map. Такой вот костыль в отсутствие shared_ptr'ов и иже с ними
-	BloodyInfo(const long _owner_unique = 0, const long _kill_at = 0, ObjectData *_object = 0) :
+	BloodyInfo(const long _owner_unique = 0, const long _kill_at = 0, ObjData *_object = 0) :
 		owner_unique(_owner_unique), kill_at(_kill_at), object(_object) {}
 };
 
-typedef std::map<const ObjectData *, BloodyInfo> BloodyInfoMap;
+typedef std::map<const ObjData *, BloodyInfo> BloodyInfoMap;
 
 #endif // _PVP_H_
 

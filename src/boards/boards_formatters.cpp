@@ -1,12 +1,12 @@
 #include "boards_formatters.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "color.h"
 
 namespace Boards {
 class CommonBoardFormatter : public Board::Formatter {
  public:
-	CommonBoardFormatter(CharacterData *character, const time_t &date) : m_date(date), m_character(character) {}
+	CommonBoardFormatter(CharData *character, const time_t &date) : m_date(date), m_character(character) {}
 
  protected:
 	const auto &date() const { return m_date; }
@@ -14,12 +14,12 @@ class CommonBoardFormatter : public Board::Formatter {
 
  private:
 	const time_t m_date;
-	CharacterData *m_character;
+	CharData *m_character;
 };
 
 class StreamBoardFormatter : public CommonBoardFormatter {
  public:
-	StreamBoardFormatter(std::ostringstream &out, CharacterData *character, const time_t &date) :
+	StreamBoardFormatter(std::ostringstream &out, CharData *character, const time_t &date) :
 		CommonBoardFormatter(character, date), m_out(out) {}
 
  protected:
@@ -44,7 +44,7 @@ void StreamBoardFormatter::print_title(const Message::shared_ptr message) {
 
 class Coder_BoardFormatter : public StreamBoardFormatter {
  public:
-	Coder_BoardFormatter(std::ostringstream &out, CharacterData *character, const time_t &date) :
+	Coder_BoardFormatter(std::ostringstream &out, CharData *character, const time_t &date) :
 		StreamBoardFormatter(out, character, date) {}
 
  private:
@@ -63,7 +63,7 @@ bool Coder_BoardFormatter::format(const Message::shared_ptr message) {
 
 class News_And_GodNews_BoardFormatter : public StreamBoardFormatter {
  public:
-	News_And_GodNews_BoardFormatter(std::ostringstream &out, CharacterData *character, const time_t &date) :
+	News_And_GodNews_BoardFormatter(std::ostringstream &out, CharData *character, const time_t &date) :
 		StreamBoardFormatter(out, character, date) {}
 
  private:
@@ -80,7 +80,7 @@ bool News_And_GodNews_BoardFormatter::format(const Message::shared_ptr message) 
 
 class ClanNews_BoardFormatter : public StreamBoardFormatter {
  public:
-	ClanNews_BoardFormatter(std::ostringstream &out, CharacterData *character, const time_t &date) :
+	ClanNews_BoardFormatter(std::ostringstream &out, CharData *character, const time_t &date) :
 		StreamBoardFormatter(out, character, date) {}
 
  private:
@@ -99,7 +99,7 @@ bool ClanNews_BoardFormatter::format(const Message::shared_ptr message) {
 class SingleMessage_BoardFormatter : public StreamBoardFormatter {
  public:
 	SingleMessage_BoardFormatter(std::ostringstream &out,
-								 CharacterData *character,
+								 CharData *character,
 								 const time_t &date,
 								 BoardTypes type,
 								 time_t &last_date) :
@@ -126,7 +126,7 @@ bool SingleMessage_BoardFormatter::format(const Message::shared_ptr message) {
 
 class ListMessages_BoardFormatter : public StreamBoardFormatter {
  public:
-	ListMessages_BoardFormatter(std::ostringstream &out, CharacterData *character, const time_t &date) :
+	ListMessages_BoardFormatter(std::ostringstream &out, CharData *character, const time_t &date) :
 		StreamBoardFormatter(out, character, date) {}
 
  private:
@@ -148,25 +148,25 @@ bool ListMessages_BoardFormatter::format(const Message::shared_ptr message) {
 }
 
 Boards::Board::Formatter::shared_ptr FormattersBuilder::coder(std::ostringstream &out,
-															  CharacterData *character,
+															  CharData *character,
 															  const time_t &date) {
 	return std::make_shared<Coder_BoardFormatter>(out, character, date);
 }
 
 Boards::Board::Formatter::shared_ptr FormattersBuilder::news_and_godnews(std::ostringstream &out,
-																		 CharacterData *character,
+																		 CharData *character,
 																		 const time_t &date) {
 	return std::make_shared<News_And_GodNews_BoardFormatter>(out, character, date);
 }
 
 Boards::Board::Formatter::shared_ptr FormattersBuilder::clan_news(std::ostringstream &out,
-																  CharacterData *character,
+																  CharData *character,
 																  const time_t &date) {
 	return std::make_shared<ClanNews_BoardFormatter>(out, character, date);
 }
 
 Boards::Board::Formatter::shared_ptr FormattersBuilder::single_message(std::ostringstream &out,
-																	   CharacterData *character,
+																	   CharData *character,
 																	   const time_t &date,
 																	   const BoardTypes type,
 																	   time_t &last_date) {
@@ -174,14 +174,14 @@ Boards::Board::Formatter::shared_ptr FormattersBuilder::single_message(std::ostr
 }
 
 Boards::Board::Formatter::shared_ptr FormattersBuilder::messages_list(std::ostringstream &out,
-																	  CharacterData *character,
+																	  CharData *character,
 																	  const time_t &date) {
 	return std::make_shared<ListMessages_BoardFormatter>(out, character, date);
 }
 
 Boards::Board::Formatter::shared_ptr FormattersBuilder::create(const BoardTypes type,
 															   std::ostringstream &out,
-															   CharacterData *character,
+															   CharData *character,
 															   const time_t &date) {
 	switch (type) {
 		case CODER_BOARD: return coder(out, character, date);

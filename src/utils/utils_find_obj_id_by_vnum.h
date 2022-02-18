@@ -4,8 +4,8 @@
 #include "id.h"
 #include "structs/structs.h"
 
-class CharacterData;    // to avoid inclusion of "char.hpp"
-class ObjectData;        // to avoid inclusion of "obj.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
+class ObjData;        // to avoid inclusion of "obj.hpp"
 struct RoomData;    // to avoid inclusion of "room.hpp"
 
 class FindObjIDByVNUM {
@@ -15,10 +15,10 @@ class FindObjIDByVNUM {
 	FindObjIDByVNUM(const ObjVnum vnum, const unsigned number) : m_vnum(vnum), m_number(number), m_result(NOT_FOUND) {}
 
 	bool lookup_world_objects();
-	bool lookup_inventory(const CharacterData *character);
-	bool lookup_worn(const CharacterData *character);
+	bool lookup_inventory(const CharData *character);
+	bool lookup_worn(const CharData *character);
 	bool lookup_room(const RoomRnum character);
-	bool lookup_list(const ObjectData *list);
+	bool lookup_list(const ObjData *list);
 
 	int lookup_for_caluid(const int type, const void *go);
 

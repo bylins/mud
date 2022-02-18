@@ -5,7 +5,7 @@
 #include "magic/magic_utils.h"
 #include "magic/spells_info.h"
 
-void do_warcry(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int spellnum, cnt;
 
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))

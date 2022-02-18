@@ -62,7 +62,7 @@ class PlayerI {
 	virtual bool remember_set_num(unsigned int/* num*/) { return false; };
 	virtual unsigned int remember_get_num() const { return 0; };
 
-	virtual void quested_add(CharacterData * /*ch*/, int/* vnum*/, char * /*text*/) {};
+	virtual void quested_add(CharData * /*ch*/, int/* vnum*/, char * /*text*/) {};
 	virtual bool quested_remove(int/* vnum*/) { return false; };
 	virtual bool quested_get(int/* vnum*/) const { return false; };
 	virtual std::string quested_get_text(int/* vnum*/) const { return ""; };
@@ -70,18 +70,18 @@ class PlayerI {
 	virtual void quested_save(FILE * /*saved*/) const {};
 
 	virtual int mobmax_get(int/* vnum*/) const { return 0; };
-	virtual void mobmax_add(CharacterData * /*ch*/, int/* vnum*/, int/* count*/, int/* level*/) {};
-	virtual void mobmax_load(CharacterData * /*ch*/, int/* vnum*/, int/* count*/, int/* level*/) {};
+	virtual void mobmax_add(CharData * /*ch*/, int/* vnum*/, int/* count*/, int/* level*/) {};
+	virtual void mobmax_load(CharData * /*ch*/, int/* vnum*/, int/* count*/, int/* level*/) {};
 	virtual void mobmax_remove(int/* vnum*/) {};
 	virtual void mobmax_save(FILE * /*saved*/) const {};
 
-	virtual void dps_add_dmg(int/* type*/, int/* dmg*/, int/* over_dmg*/ = 0, CharacterData * /*ch*/ = 0) {};
+	virtual void dps_add_dmg(int/* type*/, int/* dmg*/, int/* over_dmg*/ = 0, CharData * /*ch*/ = 0) {};
 	virtual void dps_clear(int/* type*/) {};
-	virtual void dps_print_stats(CharacterData * /*coder*/ = 0) {};
-	virtual void dps_print_group_stats(CharacterData * /*ch*/, CharacterData * /*coder*/ = 0) {};
+	virtual void dps_print_stats(CharData * /*coder*/ = 0) {};
+	virtual void dps_print_group_stats(CharData * /*ch*/, CharData * /*coder*/ = 0) {};
 	virtual void dps_set(DpsSystem::Dps * /*dps*/) {};
-	virtual void dps_copy(CharacterData * /*ch*/) {};
-	virtual void dps_end_round(int/* type*/, CharacterData * /*ch*/ = 0) {};
+	virtual void dps_copy(CharData * /*ch*/) {};
+	virtual void dps_end_round(int/* type*/, CharData * /*ch*/ = 0) {};
 	virtual void dps_add_exp(int/* exp*/, bool/* battle*/ = false) {};
 
 	virtual void save_char() {};
@@ -99,7 +99,7 @@ class PlayerI {
 	virtual void map_olc_save() {};
 	virtual bool map_check_option(int/* num*/) const { return false; };
 	virtual void map_set_option(unsigned/* num*/) {};
-	virtual void map_print_to_snooper(CharacterData * /*imm*/) {};
+	virtual void map_print_to_snooper(CharData * /*imm*/) {};
 	virtual void map_text_olc(const char * /*arg*/) {};
 	virtual const MapSystem::Options *get_map_options() const { return &empty_map_options; };
 

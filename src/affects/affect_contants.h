@@ -10,10 +10,10 @@
 #include "structs/structs.h"
 
 // Типы таймеров аффектов.
-constexpr Bitvector AF_BATTLEDEC = 1 << 0;
-constexpr Bitvector AF_DEADKEEP = 1 << 1;
-constexpr Bitvector AF_PULSEDEC = 1 << 2;
-constexpr Bitvector AF_SAME_TIME = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
+constexpr Bitvector kAfBattledec = 1 << 0;
+constexpr Bitvector kAfDeadkeep = 1 << 1;
+constexpr Bitvector kAfPulsedec = 1 << 2;
+constexpr Bitvector kAfSameTime = 1 << 3; // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
@@ -99,7 +99,7 @@ enum class EAffectFlag : Bitvector {
 	AFF_RECALL_SPELLS = kIntTwo | (1u << 18),
 	AFF_NOOB_REGEN = kIntTwo | (1u << 19),
 	AFF_VAMPIRE = kIntTwo | (1u << 20),
-	AFF_EXPEDIENT = kIntTwo | (1u << 21),
+	AFF_EXPEDIENT = kIntTwo | (1u << 21), // не используется, можно переименовать и использовать
 	AFF_COMMANDER = kIntTwo | (1u << 22),
 	AFF_EARTHAURA = kIntTwo | (1u << 23),
 	AFF_DOMINATION = kIntTwo | (1u << 24)

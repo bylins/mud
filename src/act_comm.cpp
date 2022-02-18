@@ -26,29 +26,29 @@ extern DescriptorData *descriptor_list;
 extern TimeInfoData time_info;
 
 // local functions
-void perform_tell(CharacterData *ch, CharacterData *vict, char *arg);
-int is_tell_ok(CharacterData *ch, CharacterData *vict);
-bool tell_can_see(CharacterData *ch, CharacterData *vict);
+void perform_tell(CharData *ch, CharData *vict, char *arg);
+int is_tell_ok(CharData *ch, CharData *vict);
+bool tell_can_see(CharData *ch, CharData *vict);
 
 // external functions
-extern char *diag_timer_to_char(const ObjectData *obj);
-extern void set_wait(CharacterData *ch, int waittime, int victim_in_room);
+extern char *diag_timer_to_char(const ObjData *obj);
+extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 
-void do_say(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_gsay(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_tell(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_reply(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_spec_comm(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_write(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_page(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_gen_comm(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_pray_gods(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_ignore(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_say(CharData *ch, char *argument, int cmd, int subcmd);
+void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
+void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
+void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
+void do_spec_comm(CharData *ch, char *argument, int cmd, int subcmd);
+void do_write(CharData *ch, char *argument, int cmd, int subcmd);
+void do_page(CharData *ch, char *argument, int cmd, int subcmd);
+void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
+void do_pray_gods(CharData *ch, char *argument, int cmd, int subcmd);
+void do_ignore(CharData *ch, char *argument, int cmd, int subcmd);
 
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
-void do_say(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
@@ -72,7 +72,7 @@ void do_say(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (ch == to || ignores(to, ch, IGNORE_SAY)) {
 				continue;
 			}
-			act(buf, false, ch, 0, to, TO_VICT | DG_NO_TRIG | CHECK_DEAF);
+			act(buf, false, ch, 0, to, kToVict | DG_NO_TRIG | kToNotDeaf);
 		}
 
 		if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT)) {
@@ -87,8 +87,8 @@ void do_say(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_gsay(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *k;
+void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *k;
 	struct Follower *f;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
@@ -123,7 +123,7 @@ void do_gsay(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
 			&& k != ch
 			&& !ignores(k, ch, IGNORE_GROUP)) {
-			act(buf, false, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
+			act(buf, false, ch, 0, k, kToVict | kToSleep | kToNotDeaf);
 			// added by WorM  групптелы 2010.10.13
 			if (!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
 				&& GET_POS(k) > EPosition::kDead) {
@@ -141,7 +141,7 @@ void do_gsay(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (AFF_FLAGGED(f->ch, EAffectFlag::AFF_GROUP)
 				&& (f->ch != ch)
 				&& !ignores(f->ch, ch, IGNORE_GROUP)) {
-				act(buf, false, ch, 0, f->ch, TO_VICT | TO_SLEEP | CHECK_DEAF);
+				act(buf, false, ch, 0, f->ch, kToVict | kToSleep | kToNotDeaf);
 				// added by WorM  групптелы 2010.10.13
 				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_DEAFNESS)
 					&& GET_POS(f->ch) > EPosition::kDead) {
@@ -170,7 +170,7 @@ void do_gsay(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-bool tell_can_see(CharacterData *ch, CharacterData *vict) {
+bool tell_can_see(CharData *ch, CharData *vict) {
 	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) {
 		return true;
 	} else {
@@ -178,14 +178,14 @@ bool tell_can_see(CharacterData *ch, CharacterData *vict) {
 	}
 }
 
-void perform_tell(CharacterData *ch, CharacterData *vict, char *arg) {
+void perform_tell(CharData *ch, CharData *vict, char *arg) {
 // shapirus: не позволим телять, если жертва не видит и включила
 // соответствующий режим; имморталы могут телять всегда
 	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
 		&& !CAN_SEE(vict, ch)
 		&& GET_REAL_LEVEL(ch) < kLevelImmortal
 		&& !PRF_FLAGGED(ch, PRF_CODERINFO)) {
-		act("$N не любит разговаривать с теми, кого не видит.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N не любит разговаривать с теми, кого не видит.", false, ch, 0, vict, kToChar | kToSleep);
 		return;
 	}
 
@@ -223,7 +223,7 @@ void perform_tell(CharacterData *ch, CharacterData *vict, char *arg) {
 	}
 }
 
-int is_tell_ok(CharacterData *ch, CharacterData *vict) {
+int is_tell_ok(CharData *ch, CharData *vict) {
 	if (ch == vict) {
 		send_to_char("Вы начали потихоньку разговаривать с самим собой.\r\n", ch);
 		return (false);
@@ -232,10 +232,10 @@ int is_tell_ok(CharacterData *ch, CharacterData *vict) {
 		return (false);
 	} else if (!IS_NPC(vict) && !vict->desc)    // linkless
 	{
-		act("$N потерял$G связь в этот момент.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N потерял$G связь в этот момент.", false, ch, 0, vict, kToChar | kToSleep);
 		return (false);
 	} else if (PLR_FLAGGED(vict, PLR_WRITING)) {
-		act("$N пишет сообщение - повторите попозже.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N пишет сообщение - повторите попозже.", false, ch, 0, vict, kToChar | kToSleep);
 		return (false);
 	}
 
@@ -247,9 +247,9 @@ int is_tell_ok(CharacterData *ch, CharacterData *vict) {
 	else if ((!IS_NPC(vict) &&
 		(PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
 		ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
-		act("$N не сможет вас услышать.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N не сможет вас услышать.", false, ch, 0, vict, kToChar | kToSleep);
 	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
-		act("$N вас не услышит.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N вас не услышит.", false, ch, 0, vict, kToChar | kToSleep);
 	else
 		return (true);
 
@@ -260,8 +260,8 @@ int is_tell_ok(CharacterData *ch, CharacterData *vict) {
  * Yes, do_tell probably could be combined with whisper and ask, but
  * called frequently, and should IMHO be kept as tight as possible.
  */
-void do_tell(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *vict = nullptr;
+void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *vict = nullptr;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -294,7 +294,7 @@ void do_tell(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_reply(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 
@@ -347,8 +347,8 @@ void do_reply(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_spec_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
-	CharacterData *vict;
+void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+	CharData *vict;
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[kMaxInputLength];
 
@@ -397,7 +397,7 @@ void do_spec_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 		std::stringstream buffer;
 		buffer << "$n " << action_plur << "$g " << vict2 << " : " << buf2;
 //		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
-		act(buffer.str().c_str(), false, ch, 0, vict, TO_VICT | CHECK_DEAF);
+		act(buffer.str().c_str(), false, ch, 0, vict, kToVict | kToNotDeaf);
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
@@ -408,14 +408,14 @@ void do_spec_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 			send_to_char(buffer.str(), ch);
 		}
 
-		act(action_others, false, ch, 0, vict, TO_NOTVICT);
+		act(action_others, false, ch, 0, vict, kToNotVict);
 	}
 }
 
 #define MAX_NOTE_LENGTH 4096    // arbitrary
 
-void do_write(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	ObjectData *paper, *pen = nullptr;
+void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	ObjData *paper, *pen = nullptr;
 	char *papername, *penname;
 
 	papername = buf1;
@@ -450,11 +450,11 @@ void do_write(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(paper) == ObjectData::ITEM_PEN)    // oops, a pen..
+		if (GET_OBJ_TYPE(paper) == ObjData::ITEM_PEN)    // oops, a pen..
 		{
 			pen = paper;
 			paper = nullptr;
-		} else if (GET_OBJ_TYPE(paper) != ObjectData::ITEM_NOTE) {
+		} else if (GET_OBJ_TYPE(paper) != ObjData::ITEM_NOTE) {
 			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
 		}
@@ -476,10 +476,10 @@ void do_write(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 
 	// ok.. now let's see what kind of stuff we've found
-	if (GET_OBJ_TYPE(pen) != ObjectData::ITEM_PEN) {
-		act("Вы не умеете писать $o4.", false, ch, pen, 0, TO_CHAR);
-	} else if (GET_OBJ_TYPE(paper) != ObjectData::ITEM_NOTE) {
-		act("Вы не можете писать на $o5.", false, ch, paper, 0, TO_CHAR);
+	if (GET_OBJ_TYPE(pen) != ObjData::ITEM_PEN) {
+		act("Вы не умеете писать $o4.", false, ch, pen, 0, kToChar);
+	} else if (GET_OBJ_TYPE(paper) != ObjData::ITEM_NOTE) {
+		act("Вы не можете писать на $o5.", false, ch, paper, 0, kToChar);
 	} else if (!paper->get_action_description().empty()) {
 		send_to_char("Там уже что-то записано.\r\n", ch);
 	} else            // we can write - hooray!
@@ -498,7 +498,7 @@ void do_write(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// loaded into the editor)
 			send_to_char(paper->get_action_description().c_str(), ch);
 		}
-		act("$n начал$g писать.", true, ch, 0, 0, TO_ROOM);
+		act("$n начал$g писать.", true, ch, 0, 0, kToRoom);
 		// assign the descriptor's->str the value of the pointer to the text
 		// pointer so that we can reallocate as needed (hopefully that made
 		// sense :>)
@@ -507,9 +507,9 @@ void do_write(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_page(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;
-	CharacterData *vict;
+	CharData *vict;
 
 	half_chop(argument, arg, buf2);
 
@@ -525,7 +525,7 @@ void do_page(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (IS_GRGOD(ch)) {
 				for (d = descriptor_list; d; d = d->next) {
 					if (STATE(d) == CON_PLAYING && d->character) {
-						act(buf, false, ch, 0, d->character.get(), TO_VICT);
+						act(buf, false, ch, 0, d->character.get(), kToVict);
 					}
 				}
 			} else {
@@ -534,11 +534,11 @@ void do_page(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != nullptr) {
-			act(buffer.str().c_str(), false, ch, 0, vict, TO_VICT);
+			act(buffer.str().c_str(), false, ch, 0, vict, kToVict);
 			if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 				send_to_char(OK, ch);
 			else
-				act(buffer.str().c_str(), false, ch, 0, vict, TO_CHAR);
+				act(buffer.str().c_str(), false, ch, 0, vict, kToChar);
 		} else
 			send_to_char("Такой игрок отсутствует!\r\n", ch);
 	}
@@ -560,7 +560,7 @@ struct communication_type {
 	int noflag;
 };
 
-void do_gen_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	DescriptorData *i;
 	char color_on[24];
 	int ign_flag;
@@ -729,7 +729,7 @@ void do_gen_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 				snprintf(buf1, kMaxStringLength, "Вы %s : '%s'",
 						 com_msgs[subcmd].you_action, argument);
 			}
-			act(buf1, false, ch, 0, 0, TO_CHAR | TO_SLEEP);
+			act(buf1, false, ch, 0, 0, kToChar | kToSleep);
 
 			if (!IS_NPC(ch)) {
 				snprintf(buf1 + strlen(buf1), kMaxStringLength, "\r\n");
@@ -792,7 +792,7 @@ void do_gen_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 				send_to_char(color_on, i->character.get());
 			}
 
-			act(out_str, false, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
+			act(out_str, false, ch, 0, i->character.get(), kToVict | kToSleep | kToNotDeaf);
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				send_to_char(KNRM, i->character.get());
 			}
@@ -804,7 +804,7 @@ void do_gen_comm(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-void do_mobshout(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *i;
 
 	// to keep pets, etc from being ordered to shout
@@ -826,7 +826,7 @@ void do_mobshout(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				send_to_char(KIYEL, i->character.get());
 			}
 
-			act(buf, false, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
+			act(buf, false, ch, 0, i->character.get(), kToVict | kToSleep | kToNotDeaf);
 
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				send_to_char(KNRM, i->character.get());
@@ -835,10 +835,10 @@ void do_mobshout(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-void do_pray_gods(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength];
 	DescriptorData *i;
-	CharacterData *victim = nullptr;
+	CharData *victim = nullptr;
 
 	skip_spaces(&argument);
 
@@ -876,7 +876,7 @@ void do_pray_gods(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
 		} else {
 			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
-			set_wait(ch, 3, false);
+			SetWait(ch, 3, false);
 		}
 		send_to_char(buf, ch);
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);
@@ -918,7 +918,7 @@ void do_pray_gods(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 /**
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
-void do_offtop(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || GET_REAL_LEVEL(ch) >= kLevelImmortal || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
@@ -978,7 +978,7 @@ void do_offtop(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // shapirus
-void ignore_usage(CharacterData *ch) {
+void ignore_usage(CharData *ch) {
 	send_to_char("Формат команды: игнорировать <имя|все> <режим|все> <добавить|убрать>\r\n"
 				 "Доступные режимы:\r\n"
 				 "  сказать говорить шептать спросить эмоция кричать\r\n"
@@ -1039,7 +1039,7 @@ char *text_ignore_modes(unsigned long mode, char *buf) {
 	return buf;
 }
 
-void do_ignore(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg1[kMaxInputLength];
 	char arg2[kMaxInputLength];
 	char arg3[kMaxInputLength];

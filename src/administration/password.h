@@ -17,14 +17,14 @@
 */
 namespace Password {
 
-void set_password(CharacterData *ch, const std::string &pwd);
-void set_password_to_email(CharacterData *ch, const std::string &pwd);
+void set_password(CharData *ch, const std::string &pwd);
+void set_password_to_email(CharData *ch, const std::string &pwd);
 void send_password(std::string email, std::string password);
 void send_password(std::string email, std::string password, std::string name);
 void set_all_password_to_email(const char *email, const std::string &pwd, const std::string &name);
-bool compare_password(CharacterData *ch, const std::string &pwd);
+bool compare_password(CharData *ch, const std::string &pwd);
 bool compare_password(std::string const &hash, std::string const &pass);
-bool check_password(const CharacterData *ch, const char *pwd);
+bool check_password(const CharData *ch, const char *pwd);
 
 std::string generate_md5_hash(const std::string &pwd);
 

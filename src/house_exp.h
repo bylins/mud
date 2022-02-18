@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-class CharacterData;
+class CharData;
 
 void update_clan_exp();
 void save_clan_exp();
@@ -45,8 +45,8 @@ class ClanPkLog {
 
 	void load(const std::string &abbrev);
 	void save(const std::string &abbrev);
-	void print(CharacterData *ch) const;
-	static void check(CharacterData *ch, CharacterData *victim);
+	void print(CharData *ch) const;
+	static void check(CharData *ch, CharData *victim);
 
  private:
 	void add(const std::string &text);
@@ -63,7 +63,7 @@ class ClanExpHistory {
 	void save(const std::string &abbrev) const;
 	long long get(int month) const;
 	bool need_destroy() const;
-	void show(CharacterData *ch) const;
+	void show(CharData *ch) const;
 	void fulldelete();
 
  private:
@@ -81,7 +81,7 @@ class ClanChestLog {
 	ClanChestLog() : need_save_(false) {};
 
 	void add(const std::string &text);
-	void print(CharacterData *ch, std::string &text) const;
+	void print(CharData *ch, std::string &text) const;
 	void save(const std::string &abbrev);
 	void load(const std::string &abbrev);
 };

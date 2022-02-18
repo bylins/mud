@@ -27,15 +27,15 @@
 			<sockets required="4" additional="4" />
 
 			<skills>
-				<skill id="ID of first required skill" base="yes" train_threshold="500" /> <!-- override skill parameter -->
-				<skill id="ID of second required skill" base="yes" />
+				<skill id="id of first required skill" base="yes" train_threshold="500" /> <!-- override skill parameter -->
+				<skill id="id of second required skill" base="yes" />
 
-				<skill id="ID of first additional skill" train_threshold="1000" /> <!-- override skill parameter -->
-				<skill id="ID of second additional skill" />
+				<skill id="id of first additional skill" train_threshold="1000" /> <!-- override skill parameter -->
+				<skill id="id of second additional skill" />
 			</skills>
 
 			<recipes>
-				<recipe id="ID of available recipe" />
+				<recipe id="id of available recipe" />
 			</recipes>
 		</craft>
 	</crafts>

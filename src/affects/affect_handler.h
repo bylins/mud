@@ -1,50 +1,50 @@
 #ifndef _AFFECTHANDLER_HPP_
 #define _AFFECTHANDLER_HPP_
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 // класс новых аффектов
 class AffectParent {
 	// чар, который кастанул цель
-	CharacterData *ch;
+	CharData *ch;
 	// чар, на которого касстанули аффект
-	CharacterData *vict;
+	CharData *vict;
 	// сколько тиков осталось висеть на чаре
 	int time;
 	// частота, которая показывает, как часто за тик дергается данный аффект
 	const int freq;
 
  public:
-	AffectParent(CharacterData *character, CharacterData *victim, int time, int frequency);
+	AffectParent(CharData *character, CharData *victim, int time, int frequency);
 	void DoAffect();
 };
 
 //классы для конфигурирования обработчиков Handler()
 class DamageActorParameters {
  public:
-	DamageActorParameters(CharacterData *act, CharacterData *vict, int dam) : ch(act), opponent(vict), damage(dam) {};
-	CharacterData *ch;
-	CharacterData *opponent;
+	DamageActorParameters(CharData *act, CharData *vict, int dam) : ch(act), opponent(vict), damage(dam) {};
+	CharData *ch;
+	CharData *opponent;
 	int damage;
 };
 
 class DamageVictimParameters {
  public:
-	DamageVictimParameters(CharacterData *act, CharacterData *vict, int dam) : ch(vict), opponent(act), damage(dam) {};
-	CharacterData *ch;
-	CharacterData *opponent;
+	DamageVictimParameters(CharData *act, CharData *vict, int dam) : ch(vict), opponent(act), damage(dam) {};
+	CharData *ch;
+	CharData *opponent;
 	int damage;
 };
 
 class BattleRoundParameters {
  public:
-	BattleRoundParameters(CharacterData *actor) : ch(actor) {};
-	CharacterData *ch;
+	BattleRoundParameters(CharData *actor) : ch(actor) {};
+	CharData *ch;
 };
 
 class StopFightParameters {
  public:
-	StopFightParameters(CharacterData *actor) : ch(actor) {};
-	CharacterData *ch;
+	StopFightParameters(CharData *actor) : ch(actor) {};
+	CharData *ch;
 };
 //инфтерфейс для обработчиков аффектов
 class IAffectHandler {

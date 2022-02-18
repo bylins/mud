@@ -27,8 +27,8 @@ class TopPlayer {
 
 	static const char *TopFormat[];
 
-	static void Remove(CharacterData *ch);
-	static void Refresh(CharacterData *ch, bool reboot = false);
+	static void Remove(CharData *ch);
+	static void Refresh(CharData *ch, bool reboot = false);
 
  private:
 	long unique;      // уид
@@ -38,7 +38,7 @@ class TopPlayer {
 
 	static TopListType TopList; // собсна топ
 
-	friend void DoBest(CharacterData *ch, char *argument, int cmd, int subcmd);
+	friend void DoBest(CharData *ch, char *argument, int cmd, int subcmd);
 };
 
 #endif

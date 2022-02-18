@@ -1,10 +1,10 @@
 #ifndef BYLINS_STUN_H
 #define BYLINS_STUN_H
 
-class CharacterData;
+class CharData;
 
-void go_stun(CharacterData *ch, CharacterData *vict);
-void do_stun(CharacterData *ch, char *argument, int, int);
+void go_stun(CharData *ch, CharData *vict);
+void do_stun(CharData *ch, char *argument, int, int);
 
 #endif //BYLINS_STUN_H
 

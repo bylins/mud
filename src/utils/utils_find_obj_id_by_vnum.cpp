@@ -2,7 +2,7 @@
 
 #include "dg_script/dg_scripts.h"
 #include "world_objects.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 class TriggerLookup {
  public:
@@ -24,22 +24,22 @@ class TriggerLookup {
 
 class MobTriggerLookup : public TriggerLookup {
  public:
-	MobTriggerLookup(FindObjIDByVNUM &finder, const CharacterData *mob) : TriggerLookup(finder), m_mob(mob) {}
+	MobTriggerLookup(FindObjIDByVNUM &finder, const CharData *mob) : TriggerLookup(finder), m_mob(mob) {}
 
 	virtual int lookup() override;
 
  private:
-	const CharacterData *m_mob;
+	const CharData *m_mob;
 };
 
 class ObjTriggerLookup : public TriggerLookup {
  public:
-	ObjTriggerLookup(FindObjIDByVNUM &finder, const ObjectData *object) : TriggerLookup(finder), m_object(object) {}
+	ObjTriggerLookup(FindObjIDByVNUM &finder, const ObjData *object) : TriggerLookup(finder), m_object(object) {}
 
 	virtual int lookup() override;
 
  private:
-	const ObjectData *m_object;
+	const ObjData *m_object;
 };
 
 class WldTriggerLookup : public TriggerLookup {
@@ -101,7 +101,7 @@ int MobTriggerLookup::lookup() {
 
 // * Аналогично find_char_vnum, только для объектов.
 bool FindObjIDByVNUM::lookup_world_objects() {
-	ObjectData::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number, m_seen);
+	ObjData::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number, m_seen);
 
 	if (object) {
 		m_result = object->get_id();
@@ -111,7 +111,7 @@ bool FindObjIDByVNUM::lookup_world_objects() {
 	return false;
 }
 
-bool FindObjIDByVNUM::lookup_inventory(const CharacterData *character) {
+bool FindObjIDByVNUM::lookup_inventory(const CharData *character) {
 	if (!character) {
 		return false;
 	}
@@ -119,7 +119,7 @@ bool FindObjIDByVNUM::lookup_inventory(const CharacterData *character) {
 	return lookup_list(character->carrying);
 }
 
-bool FindObjIDByVNUM::lookup_worn(const CharacterData *character) {
+bool FindObjIDByVNUM::lookup_worn(const CharData *character) {
 	if (!character) {
 		return false;
 	}
@@ -150,7 +150,7 @@ bool FindObjIDByVNUM::lookup_room(const RoomRnum room) {
 	return lookup_list(room_contents);
 }
 
-bool FindObjIDByVNUM::lookup_list(const ObjectData *list) {
+bool FindObjIDByVNUM::lookup_list(const ObjData *list) {
 	while (list) {
 		if (list->get_vnum() == m_vnum) {
 			if (0 == m_number) {
@@ -182,9 +182,9 @@ TriggerLookup::shared_ptr TriggerLookup::create(FindObjIDByVNUM &finder, const i
 	switch (type) {
 		case WLD_TRIGGER: return std::make_shared<WldTriggerLookup>(finder, static_cast<const RoomData *>(go));
 
-		case OBJ_TRIGGER: return std::make_shared<ObjTriggerLookup>(finder, static_cast<const ObjectData *>(go));
+		case OBJ_TRIGGER: return std::make_shared<ObjTriggerLookup>(finder, static_cast<const ObjData *>(go));
 
-		case MOB_TRIGGER: return std::make_shared<MobTriggerLookup>(finder, static_cast<const CharacterData *>(go));
+		case MOB_TRIGGER: return std::make_shared<MobTriggerLookup>(finder, static_cast<const CharData *>(go));
 	}
 
 	log("SYSERR: Logic error trigger type %d is not valid. Valid values are %d, %d, %d",

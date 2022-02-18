@@ -3,11 +3,11 @@
 #include "act_movement.h"
 #include "features.h"
 #include "utils/random.h"
-#include "entities/char.h"
-#include "entities/entity_constants.h"
+#include "entities/char_data.h"
+#include "entities/entities_constants.h"
 #include <cmath>
 
-void reduce_exp_after_flee(CharacterData *ch, CharacterData *victim, RoomRnum room) {
+void reduce_exp_after_flee(CharData *ch, CharData *victim, RoomRnum room) {
 	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))
 		return;
 
@@ -16,7 +16,7 @@ void reduce_exp_after_flee(CharacterData *ch, CharacterData *victim, RoomRnum ro
 }
 
 // ********************* FLEE PROCEDURE
-void go_flee(CharacterData *ch) {
+void go_flee(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || GET_WAIT(ch) > 0) {
 		return;
 	}
@@ -57,26 +57,26 @@ void go_flee(CharacterData *ch) {
 		const auto was_in = ch->in_room;
 
 		if (do_simple_move(ch, direction, true, 0, true)) {
-			act("$n запаниковал$g и пытал$u сбежать!", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n запаниковал$g и пытал$u сбежать!", true, ch, 0, 0, kToRoom | kToArenaListen);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
 			if (ch->ahorse()) {
-				act("Верн$W $N вынес$Q вас из боя.", false, ch, 0, ch->get_horse(), TO_CHAR);
+				act("Верн$W $N вынес$Q вас из боя.", false, ch, 0, ch->get_horse(), kToChar);
 			}
 
 			if (was_fighting && !IS_NPC(ch)) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
 		} else {
-			act("$n запаниковал$g и попытал$u убежать, но не смог$q!", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n запаниковал$g и попытал$u убежать, но не смог$q!", false, ch, 0, 0, kToRoom | kToArenaListen);
 			send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 		}
 	} else {
-		act("$n запаниковал$g и попытал$u убежать, но не смог$q!", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("$n запаниковал$g и попытал$u убежать, но не смог$q!", false, ch, 0, 0, kToRoom | kToArenaListen);
 		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 	}
 }
 
-void go_dir_flee(CharacterData *ch, int direction) {
+void go_dir_flee(CharData *ch, int direction) {
 	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0) {
 		return;
 	}
@@ -98,7 +98,7 @@ void go_dir_flee(CharacterData *ch, int direction) {
 			const auto was_in = ch->in_room;
 			const auto was_fighting = ch->get_fighting();
 
-			act("$n запаниковал$g и попытал$u убежать.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n запаниковал$g и попытал$u убежать.", false, ch, 0, 0, kToRoom | kToArenaListen);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
 			if (was_fighting && !IS_NPC(ch)) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
@@ -121,7 +121,7 @@ const char *FleeDirs[] = {"север",
 						  "вниз",
 						  "\n"};
 
-void do_flee(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_flee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction = -1;
 	if (!ch->get_fighting()) {
 		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);

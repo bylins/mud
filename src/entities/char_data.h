@@ -8,8 +8,8 @@
 #include "skills/morph.hpp"
 #include "game_mechanics/obj_sets.h"
 #include "db.h"
-#include "entities/entity_constants.h"
-#include "room.h"
+#include "entities/entities_constants.h"
+#include "room_data.h"
 #include "communication/ignores.h"
 #include "crafts/im.h"
 #include "skills.h"
@@ -93,12 +93,11 @@ struct char_played_ability_data {
 	ubyte percent_exp_add;
 	ubyte percent_dam_add;
 	ubyte percent_spell_blink;
-	std::array<sh_int, 4> apply_saving_throw;        // Saving throw (Bonuses)
-	std::array<sh_int, MAX_NUMBER_RESISTANCE>
-		apply_resistance_throw;    // Сопротивление (резисты) к магии, ядам и крит. ударам
+	std::array<int, to_underlying(ESaving::kLast) + 1> apply_saving_throw;	// Saving throw (Bonuses)
+	std::array<int, MAX_NUMBER_RESISTANCE> apply_resistance;					// Сопротивления повреждениям
 	int mresist;
 	int aresist;
-	int presist;    // added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
+	int presist; // По просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
 
 };
 
@@ -187,14 +186,14 @@ struct spell_mem_queue {
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type {
 	EExtraAttack used_attack;
-	CharacterData *victim;
+	CharData *victim;
 };
 
 struct cast_attack_type {
 	int spellnum;
 	int spell_subst;
-	CharacterData *tch;
-	ObjectData *tobj;
+	CharData *tch;
+	ObjData *tobj;
 	RoomData *troom;
 };
 
@@ -328,7 +327,7 @@ struct CharacterSkillDataType {
 
 typedef std::map<ESkill, CharacterSkillDataType> CharSkillsType;
 
-class ProtectedCharacterData;    // to break up cyclic dependencies
+class ProtectedCharData;    // to break up cyclic dependencies
 
 class CharacterRNum_ChangeObserver {
  public:
@@ -337,14 +336,14 @@ class CharacterRNum_ChangeObserver {
 	CharacterRNum_ChangeObserver() {}
 	virtual ~CharacterRNum_ChangeObserver() {}
 
-	virtual void notify(ProtectedCharacterData &character, const MobRnum old_rnum) = 0;
+	virtual void notify(ProtectedCharData &character, const MobRnum old_rnum) = 0;
 };
 
-class ProtectedCharacterData : public PlayerI {
+class ProtectedCharData : public PlayerI {
  public:
-	ProtectedCharacterData();
-	ProtectedCharacterData(const ProtectedCharacterData &rhv);
-	ProtectedCharacterData &operator=(const ProtectedCharacterData &rhv);
+	ProtectedCharData();
+	ProtectedCharData(const ProtectedCharData &rhv);
+	ProtectedCharData &operator=(const ProtectedCharData &rhv);
 
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const MobRnum rnum);
@@ -363,21 +362,21 @@ class ProtectedCharacterData : public PlayerI {
 };
 
 // * Общий класс для игроков/мобов.
-class CharacterData : public ProtectedCharacterData {
+class CharData : public ProtectedCharData {
 // новое
  public:
-	using ptr_t = CharacterData *;
-	using shared_ptr = std::shared_ptr<CharacterData>;
+	using ptr_t = CharData *;
+	using shared_ptr = std::shared_ptr<CharData>;
 	using char_affects_list_t = std::list<Affect<EApplyLocation>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
 	using role_t = boost::dynamic_bitset<std::size_t>;
-	using followers_list_t = std::list<CharacterData *>;
+	using followers_list_t = std::list<CharData *>;
 
-	CharacterData();
-	virtual ~CharacterData();
+	CharData();
+	virtual ~CharData();
 
-	friend void do_mtransform(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void medit_mobile_copy(CharacterData *dst, CharacterData *src);
+	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void medit_mobile_copy(CharData *dst, CharData *src);
 
 	void set_skill(const ESkill skill_id, int percent);
 	void set_skill(short remort);
@@ -394,25 +393,25 @@ class CharacterData : public ProtectedCharacterData {
 	// ресет нпс
 	void restore_npc();
 	////////////////////////////////////////////////////////////////////////////
-	CharacterData *get_touching() const;
-	void set_touching(CharacterData *vict);
+	CharData *get_touching() const;
+	void set_touching(CharData *vict);
 
-	CharacterData *get_protecting() const;
-	void set_protecting(CharacterData *vict);
+	CharData *get_protecting() const;
+	void set_protecting(CharData *vict);
 
 	EExtraAttack get_extra_attack_mode() const;
-	CharacterData *get_extra_victim() const;
-	void set_extra_attack(EExtraAttack Attack, CharacterData *vict);
+	CharData *get_extra_victim() const;
+	void set_extra_attack(EExtraAttack Attack, CharData *vict);
 
-	CharacterData *get_fighting() const;
-	void set_fighting(CharacterData *vict);
+	CharData *get_fighting() const;
+	void set_fighting(CharData *vict);
 
 	// TODO: касты можно сделать и красивее (+ troom не используется, CastSpell/cast_subst/cast_obj только по разу)
-	void set_cast(int spellnum, int spell_subst, CharacterData *tch, ObjectData *tobj, RoomData *troom);
+	void set_cast(int spellnum, int spell_subst, CharData *tch, ObjData *tobj, RoomData *troom);
 	int get_cast_spell() const;
 	int get_cast_subst() const;
-	CharacterData *get_cast_char() const;
-	ObjectData *get_cast_obj() const;
+	CharData *get_cast_char() const;
+	ObjData *get_cast_obj() const;
 
 	////////////////////////////////////////////////////////////////////////////
 
@@ -598,10 +597,10 @@ class CharacterData : public ProtectedCharacterData {
 	/// роли (mob only)
 	bool get_role(unsigned num) const;
 	void set_role(unsigned num, bool flag);
-	const CharacterData::role_t &get_role_bits() const;
+	const CharData::role_t &get_role_bits() const;
 
-	void add_attacker(CharacterData *ch, unsigned type, int num);
-	int get_attacker(CharacterData *ch, unsigned type) const;
+	void add_attacker(CharData *ch, unsigned type, int num);
+	int get_attacker(CharData *ch, unsigned type) const;
 	std::pair<int /* uid */, int /* rounds */> get_max_damager_in_room() const;
 
 	void inc_restore_timer(int num);
@@ -639,12 +638,12 @@ class CharacterData : public ProtectedCharacterData {
 	void msdp_report(const std::string &name);
 
 	void removeGroupFlags();
-	void add_follower(CharacterData *ch);
+	void add_follower(CharData *ch);
 	/** Do NOT call this before having checked if a circle of followers
 	* will arise. CH will follow leader
 	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
 	*/
-	void add_follower_silently(CharacterData *ch);
+	void add_follower_silently(CharData *ch);
 	followers_list_t get_followers_list() const;
 	const player_special_data::ignores_t &get_ignores() const;
 	void add_ignore(const ignore_data::shared_ptr ignore);
@@ -679,9 +678,9 @@ class CharacterData : public ProtectedCharacterData {
 
 	CharSkillsType skills;    // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
-	CharacterData *protecting_; // цель для 'прикрыть'
-	CharacterData *touching_;   // цель для 'перехватить'
-	CharacterData *fighting_;   // противник
+	CharData *protecting_; // цель для 'прикрыть'
+	CharData *touching_;   // цель для 'перехватить'
+	CharData *fighting_;   // противник
 
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
 	struct cast_attack_type cast_attack_;   // каст заклинания
@@ -767,15 +766,15 @@ class CharacterData : public ProtectedCharacterData {
 	int skill_bonus_;
 
  public:
-	bool isInSameRoom(const CharacterData *ch) const { return (this->in_room == ch->in_room); };
+	bool isInSameRoom(const CharData *ch) const { return (this->in_room == ch->in_room); };
 	RoomRnum in_room;    // Location (real room number)
 
  private:
-	void report_loop_error(const CharacterData::ptr_t master) const;
+	void report_loop_error(const CharData::ptr_t master) const;
 	void print_leaders_chain(std::ostream &ss) const;
 
 	unsigned m_wait;            // wait for how many loops
-	CharacterData *m_master;        // Who is char following?
+	CharData *m_master;        // Who is char following?
 
  public:
 	int punctual_wait;        // wait for how many loops (punctual style)
@@ -793,15 +792,15 @@ class CharacterData : public ProtectedCharacterData {
 	char_affects_list_t affected;    // affected by what spells
 	struct TimedSkill *timed;    // use which timed skill/spells
 	struct TimedFeat *timed_feat;    // use which timed feats
-	ObjectData *equipment[NUM_WEARS];    // Equipment array
+	ObjData *equipment[NUM_WEARS];    // Equipment array
 
-	ObjectData *carrying;    // Head of list
+	ObjData *carrying;    // Head of list
 	DescriptorData *desc;    // NULL for mobiles
 	long id;            // used by DG triggers
-	ObjectData::triggers_list_ptr proto_script;    // list of default triggers
+	ObjData::triggers_list_ptr proto_script;    // list of default triggers
 	Script::shared_ptr script;    // script info for the object
 
-	CharacterData *next_fighting;    // For fighting list
+	CharData *next_fighting;    // For fighting list
 
 	//отладочные сообщения имморталу/тестеру/кодеру
 	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
@@ -835,14 +834,14 @@ class CharacterData : public ProtectedCharacterData {
  public:
 	// FOLLOWERS
 	struct Follower *followers;
-	CharacterData::ptr_t get_master() const { return m_master; }
-	void set_master(CharacterData::ptr_t master);
+	CharData::ptr_t get_master() const { return m_master; }
+	void set_master(CharData::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
-	bool makes_loop(const CharacterData::ptr_t master) const;
+	bool makes_loop(const CharData::ptr_t master) const;
 	// MOUNTS
 	bool ahorse() const;
 	bool has_horse(bool same_room) const;
-	CharacterData *get_horse();
+	CharData *get_horse();
 	bool drop_from_horse();
 	bool isHorsePrevents();
 	void dismount();
@@ -855,59 +854,59 @@ inline int RemoveSpell(int num) {
 	return spell[num];
 }
 
-inline const player_special_data::ignores_t &CharacterData::get_ignores() const {
+inline const player_special_data::ignores_t &CharData::get_ignores() const {
 	const auto &ps = get_player_specials();
 	return ps->ignores;
 }
 
-inline void CharacterData::add_ignore(const ignore_data::shared_ptr ignore) {
+inline void CharData::add_ignore(const ignore_data::shared_ptr ignore) {
 	const auto &ps = get_player_specials();
 	ps->ignores.push_back(ignore);
 }
 
-inline void CharacterData::clear_ignores() {
+inline void CharData::clear_ignores() {
 	get_player_specials()->ignores.clear();
 }
 
-inline int GET_INVIS_LEV(const CharacterData *ch) {
+inline int GET_INVIS_LEV(const CharData *ch) {
 	if (ch->player_specials->saved.invis_level)
 		return ch->player_specials->saved.invis_level;
 	else
 		return 0;
 }
-inline int GET_INVIS_LEV(const CharacterData::shared_ptr &ch) { return GET_INVIS_LEV(ch.get()); }
+inline int GET_INVIS_LEV(const CharData::shared_ptr &ch) { return GET_INVIS_LEV(ch.get()); }
 
-inline void SET_INVIS_LEV(const CharacterData *ch, const int level) { ch->player_specials->saved.invis_level = level; }
-inline void SET_INVIS_LEV(const CharacterData::shared_ptr &ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
+inline void SET_INVIS_LEV(const CharData *ch, const int level) { ch->player_specials->saved.invis_level = level; }
+inline void SET_INVIS_LEV(const CharData::shared_ptr &ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
-inline void WAIT_STATE(CharacterData *ch, const unsigned cycle) {
+inline void WAIT_STATE(CharData *ch, const unsigned cycle) {
 	if (ch->get_wait() < cycle) {
 		ch->set_wait(cycle);
 	}
 }
 
-inline FlagData &AFF_FLAGS(CharacterData *ch) { return ch->char_specials.saved.affected_by; }
-inline const FlagData &AFF_FLAGS(const CharacterData *ch) { return ch->char_specials.saved.affected_by; }
-inline const FlagData &AFF_FLAGS(const CharacterData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
+inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affected_by; }
+inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
+inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
 
-inline bool AFF_FLAGGED(const CharacterData *ch, const EAffectFlag flag) {
+inline bool AFF_FLAGGED(const CharData *ch, const EAffectFlag flag) {
 	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
 }
 
-inline bool AFF_FLAGGED(const CharacterData::shared_ptr &ch, const EAffectFlag flag) {
+inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffectFlag flag) {
 	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
 }
 
-bool IS_CHARMICE(const CharacterData *ch);
-inline bool IS_CHARMICE(const CharacterData::shared_ptr &ch) { return IS_CHARMICE(ch.get()); }
+bool IS_CHARMICE(const CharData *ch);
+inline bool IS_CHARMICE(const CharData::shared_ptr &ch) { return IS_CHARMICE(ch.get()); }
 
-inline bool IS_FLY(const CharacterData *ch) {
+inline bool IS_FLY(const CharData *ch) {
 	return AFF_FLAGGED(ch, EAffectFlag::AFF_FLY);
 }
 
-inline bool INVIS_OK(const CharacterData *sub, const CharacterData *obj) {
+inline bool INVIS_OK(const CharData *sub, const CharData *obj) {
 	return !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
 		&& ((!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
 			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS))
@@ -916,94 +915,94 @@ inline bool INVIS_OK(const CharacterData *sub, const CharacterData *obj) {
 				|| AFF_FLAGGED(sub, EAffectFlag::AFF_SENSE_LIFE)));
 }
 
-inline bool INVIS_OK(const CharacterData *sub, const CharacterData::shared_ptr &obj) { return INVIS_OK(sub, obj.get()); }
+inline bool INVIS_OK(const CharData *sub, const CharData::shared_ptr &obj) { return INVIS_OK(sub, obj.get()); }
 
-bool MORT_CAN_SEE(const CharacterData *sub, const CharacterData *obj);
-bool IMM_CAN_SEE(const CharacterData *sub, const CharacterData *obj);
+bool MORT_CAN_SEE(const CharData *sub, const CharData *obj);
+bool IMM_CAN_SEE(const CharData *sub, const CharData *obj);
 
-inline bool SELF(const CharacterData *sub, const CharacterData *obj) { return sub == obj; }
-inline bool SELF(const CharacterData *sub, const CharacterData::shared_ptr &obj) { return sub == obj.get(); }
+inline bool SELF(const CharData *sub, const CharData *obj) { return sub == obj; }
+inline bool SELF(const CharData *sub, const CharData::shared_ptr &obj) { return sub == obj.get(); }
 
 /// Can subject see character "obj"?
-bool CAN_SEE(const CharacterData *sub, const CharacterData *obj);
-inline bool CAN_SEE(const CharacterData *sub, const CharacterData::shared_ptr &obj) { return CAN_SEE(sub, obj.get()); }
-inline bool CAN_SEE(const CharacterData::shared_ptr &sub, const CharacterData *obj) { return CAN_SEE(sub.get(), obj); }
-inline bool CAN_SEE(const CharacterData::shared_ptr &sub, const CharacterData::shared_ptr &obj) {
+bool CAN_SEE(const CharData *sub, const CharData *obj);
+inline bool CAN_SEE(const CharData *sub, const CharData::shared_ptr &obj) { return CAN_SEE(sub, obj.get()); }
+inline bool CAN_SEE(const CharData::shared_ptr &sub, const CharData *obj) { return CAN_SEE(sub.get(), obj); }
+inline bool CAN_SEE(const CharData::shared_ptr &sub, const CharData::shared_ptr &obj) {
 	return CAN_SEE(sub.get(),
 				   obj.get());
 }
 
-bool MAY_SEE(const CharacterData *ch, const CharacterData *sub, const CharacterData *obj);
+bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj);
 
-bool IS_HORSE(const CharacterData *ch);
-inline bool IS_HORSE(const CharacterData::shared_ptr &ch) { return IS_HORSE(ch.get()); }
-bool IS_MORTIFIER(const CharacterData *ch);
+bool IS_HORSE(const CharData *ch);
+inline bool IS_HORSE(const CharData::shared_ptr &ch) { return IS_HORSE(ch.get()); }
+bool IS_MORTIFIER(const CharData *ch);
 
-bool MAY_ATTACK(const CharacterData *sub);
-inline bool MAY_ATTACK(const CharacterData::shared_ptr &sub) { return MAY_ATTACK(sub.get()); }
+bool MAY_ATTACK(const CharData *sub);
+inline bool MAY_ATTACK(const CharData::shared_ptr &sub) { return MAY_ATTACK(sub.get()); }
 
-inline bool GET_MOB_HOLD(const CharacterData *ch) {
+inline bool GET_MOB_HOLD(const CharData *ch) {
 	return AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD);
 }
 
-bool AWAKE(const CharacterData *ch);
-inline bool AWAKE(const CharacterData::shared_ptr &ch) { return AWAKE(ch.get()); }
+bool AWAKE(const CharData *ch);
+inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
-inline bool CAN_START_MTRIG(const CharacterData *ch) {
+inline bool CAN_START_MTRIG(const CharData *ch) {
 	return !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM);
 }
 //-Polud
 
-bool OK_GAIN_EXP(const CharacterData *ch, const CharacterData *victim);
+bool OK_GAIN_EXP(const CharData *ch, const CharData *victim);
 
-bool IS_MALE(const CharacterData *ch);
-inline bool IS_MALE(const CharacterData::shared_ptr &ch) { return IS_MALE(ch.get()); }
-bool IS_FEMALE(const CharacterData *ch);
-inline bool IS_FEMALE(const CharacterData::shared_ptr &ch) { return IS_FEMALE(ch.get()); }
-bool IS_NOSEXY(const CharacterData *ch);
-inline bool IS_NOSEXY(const CharacterData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
-bool IS_POLY(const CharacterData *ch);
+bool IS_MALE(const CharData *ch);
+inline bool IS_MALE(const CharData::shared_ptr &ch) { return IS_MALE(ch.get()); }
+bool IS_FEMALE(const CharData *ch);
+inline bool IS_FEMALE(const CharData::shared_ptr &ch) { return IS_FEMALE(ch.get()); }
+bool IS_NOSEXY(const CharData *ch);
+inline bool IS_NOSEXY(const CharData::shared_ptr &ch) { return IS_NOSEXY(ch.get()); }
+bool IS_POLY(const CharData *ch);
 
-inline int VPOSI_MOB(const CharacterData *ch, const EBaseStat stat_id, const int val) {
+inline int VPOSI_MOB(const CharData *ch, const EBaseStat stat_id, const int val) {
 	const int character_class = ch->get_class();
 	return ch->is_npc()
 		   ? VPOSI(val, 1, 100)
 		   : VPOSI(val, 1, class_stats_limit[character_class][to_underlying(stat_id)]);
 }
-inline int VPOSI_MOB(const CharacterData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
+inline int VPOSI_MOB(const CharData::shared_ptr &ch, const EBaseStat stat_id, const int val) {
 	return VPOSI_MOB(ch.get(), stat_id, val);
 }
 
-inline auto GET_REAL_STR(const CharacterData *ch) {
+inline auto GET_REAL_STR(const CharData *ch) {
 	return VPOSI_MOB(ch, EBaseStat::kStr, ch->get_str() + ch->get_str_add());
 };
-inline auto GET_REAL_DEX(const CharacterData *ch) {
+inline auto GET_REAL_DEX(const CharData *ch) {
 	return VPOSI_MOB(ch, EBaseStat::kDex, ch->get_dex() + ch->get_dex_add());
 }
-inline auto GET_REAL_CON(const CharacterData *ch) {
+inline auto GET_REAL_CON(const CharData *ch) {
 	return VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con() + ch->get_con_add());
 };
-inline auto GET_REAL_WIS(const CharacterData *ch) {
+inline auto GET_REAL_WIS(const CharData *ch) {
 	return VPOSI_MOB(ch, EBaseStat::kWis, ch->get_wis() + ch->get_wis_add());
 };
-inline auto GET_REAL_INT(const CharacterData *ch) {
+inline auto GET_REAL_INT(const CharData *ch) {
 	return VPOSI_MOB(ch, EBaseStat::kInt, ch->get_int() + ch->get_int_add());
 };
-inline auto GET_REAL_CHA(const CharacterData *ch) {
+inline auto GET_REAL_CHA(const CharData *ch) {
 	return VPOSI_MOB(ch, EBaseStat::kCha, ch->get_cha() + ch->get_cha_add());
 };
 
-inline auto GET_SAVE(CharacterData *ch, ESaving save) {
+inline auto GET_SAVE(CharData *ch, ESaving save) {
 	return ch->add_abils.apply_saving_throw[to_underlying(save)];
 }
 
-inline void SET_SAVE(CharacterData *ch, ESaving save, int mod) {
+inline void SET_SAVE(CharData *ch, ESaving save, int mod) {
 	ch->add_abils.apply_saving_throw[to_underlying(save)] = mod;
 }
 
-void change_fighting(CharacterData *ch, int need_stop);
+void change_fighting(CharData *ch, int need_stop);
 
 #endif // CHAR_HPP_INCLUDED
 

@@ -1,18 +1,18 @@
 #include "assist.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "handler.h"
 #include "pk.h"
 #include "fight_start.h"
 
-void do_assist(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_fighting()) {
 		send_to_char("Невозможно. Вы сражаетесь сами.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
-	CharacterData *helpee, *opponent;
+	CharData *helpee, *opponent;
 	if (!*arg) {
 		helpee = nullptr;
 		for (const auto i : world[ch->in_room]->people) {
@@ -55,18 +55,18 @@ void do_assist(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!opponent)
-		act("Но никто не сражается с $N4!", false, ch, 0, helpee, TO_CHAR);
+		act("Но никто не сражается с $N4!", false, ch, 0, helpee, kToChar);
 	else if (!CAN_SEE(ch, opponent))
-		act("Вы не видите противника $N1!", false, ch, 0, helpee, TO_CHAR);
+		act("Вы не видите противника $N1!", false, ch, 0, helpee, kToChar);
 	else if (opponent == ch)
-		act("Дык $E сражается с ВАМИ!", false, ch, 0, helpee, TO_CHAR);
+		act("Дык $E сражается с ВАМИ!", false, ch, 0, helpee, kToChar);
 	else if (!may_kill_here(ch, opponent, NoArgument))
 		return;
 	else if (need_full_alias(ch, opponent))
-		act("Используйте команду 'атаковать' для нападения на $N1.", false, ch, 0, opponent, TO_CHAR);
+		act("Используйте команду 'атаковать' для нападения на $N1.", false, ch, 0, opponent, kToChar);
 	else if (set_hit(ch, opponent)) {
-		act("Вы присоединились к битве, помогая $N2!", false, ch, 0, helpee, TO_CHAR);
-		act("$N решил$G помочь вам в битве!", 0, helpee, 0, ch, TO_CHAR);
-		act("$n вступил$g в бой на стороне $N1.", false, ch, 0, helpee, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы присоединились к битве, помогая $N2!", false, ch, 0, helpee, kToChar);
+		act("$N решил$G помочь вам в битве!", 0, helpee, 0, ch, kToChar);
+		act("$n вступил$g в бой на стороне $N1.", false, ch, 0, helpee, kToNotVict | kToArenaListen);
 	}
 }

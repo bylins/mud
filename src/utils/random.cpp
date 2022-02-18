@@ -57,7 +57,7 @@ int number(int from, int to) {
 }
 
 // * Аналог кидания кубиков.
-int dice(int number, int size) {
+int RollDices(int number, int size) {
 	if (size <= 0 || number <= 0)
 		return 0;
 

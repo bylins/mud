@@ -31,7 +31,7 @@ typedef std::list<std::string> RememberListType;
 extern RememberWiznetListType wiznet_;
 
 std::string time_format();
-std::string format_gossip(CharacterData *ch, CharacterData *vict, int cmd, const char *argument);
+std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *argument);
 
 void add_to_flaged_cont(RememberWiznetListType &cont, const std::string &text, const int level);
 std::string get_from_flaged_cont(const RememberWiznetListType &cont, unsigned int num_str, const int level);

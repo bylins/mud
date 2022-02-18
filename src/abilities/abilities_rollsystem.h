@@ -9,105 +9,107 @@
 */
 
 #include "abilities_constants.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 #include <string>
 
 namespace AbilitySystem {
 
-class AbilityRollType {
+class AbilityRoll {
  protected:
-	CharacterData *_actor;
-	short _actorRating;
-	short _degreeOfSuccess;
-	const FeatureInfoType *_ability;
-	bool _success;
-	bool _criticalFail;
-	bool _criticalSuccess;
-	bool _wrongConditions;
-	ESkill _baseSkill;
-	std::string _denyMessage;
+	CharData *actor_;
+	int actor_rating_;
+	int success_degree_;
+	const FeatureInfo *ability_;
+	bool success_;
+	bool critical_fail_;
+	bool critical_success_;
+	bool wrong_conditions_;
+	ESkill base_skill_;
+	std::string deny_msg_;
 
-	AbilityRollType() :
-		_actor{nullptr},
-		_actorRating{0},
-		_degreeOfSuccess{0},
-		_ability{nullptr},
-		_success{false},
-		_criticalFail{false},
-		_criticalSuccess{false},
-		_wrongConditions(false),
-		_baseSkill{ESkill::kIncorrect},
-		_denyMessage{"Если вы это прочитали, значит, у кодера проблема.\r\n"} {};
+	AbilityRoll() :
+		actor_{nullptr},
+		actor_rating_{0},
+		success_degree_{0},
+		ability_{nullptr},
+		success_{false},
+		critical_fail_{false},
+		critical_success_{false},
+		wrong_conditions_(false),
+		base_skill_{ESkill::kIncorrect},
+		deny_msg_{"Если вы это прочитали, значит, у кодера проблема.\r\n"} {};
 
-	virtual void initialize(CharacterData *abilityActor, int usedAbility);
-	virtual void processingResult(short result, short diceRoll);
-	virtual void performAbilityTest();
-	virtual void determineBaseSkill();
-	virtual bool tryRevealWrongConditions();
-	virtual bool revealCriticalSuccess(short diceRoll);
-	virtual bool revealCriticalFail(short diceRoll);
-	virtual bool isActorCantUseAbility();
-	virtual bool isActorMoraleFailure() = 0;
-	virtual short calculateTargetRating() = 0;
-	virtual short calculateDicerollBonus() = 0;
-	virtual short calculatBaseSkillRating() = 0;
-	virtual short calculateActorRating();
-	virtual int calculateBaseDamage();
-	virtual int calculateAddDamage();
-	virtual inline float calculateAbilityDamageFactor();
-	virtual inline float calculateDegreeOfSuccessDamageFactor();
-	virtual inline float calculateSituationalDamageFactor();
-	virtual void trainBaseSkill(bool success) = 0;
+	virtual void Init(CharData *actor, int ability_num);
+	virtual void ProcessingResult(int result, int roll);
+	virtual void PerformAbilityTest();
+	virtual void DetermineBaseSkill();
+	virtual bool TryRevealWrongConditions();
+	virtual bool RevealCritsuccess(int roll);
+	virtual bool RevealCritfail(int roll);
+	virtual bool IsActorCantUseAbility();
+	virtual bool IsActorMoraleFailure() = 0;
+	virtual int CalcTargetRating() = 0;
+	virtual int CalcRollBonus() = 0;
+	virtual int CalcBaseSkillRating() = 0;
+	virtual int CalcActorRating();
+	virtual int CalcBaseDamage();
+	virtual int CalcAddDamage();
+	virtual float CalcAbilityDamageFactor();
+	virtual float CalcSuccessDegreeDamageFactor();
+	virtual float CalcSituationalDamageFactor();
+	virtual void TrainBaseSkill(bool success) = 0;
 
  public:
-	bool isSuccess() { return _success; };
-	bool isCriticalFail() { return _criticalFail; };
-	bool isCriticalSuccess() { return _criticalSuccess; };
-	bool isWrongConditions() { return _wrongConditions; };
-	int ID() { return _ability->ID; };
-	int getDegreeOfSuccess() { return _degreeOfSuccess; };
-	CharacterData *actor() { return _actor; };
-	void sendDenyMessageToActor();
+	[[nodiscard]] bool IsSuccess() const { return success_; };
+	[[nodiscard]] bool IsCriticalFail() const { return critical_fail_; };
+	[[nodiscard]] bool IsCriticalSuccess() const { return critical_success_; };
+	[[nodiscard]] bool IsWrongConditions() const { return wrong_conditions_; };
+	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; };
+	[[nodiscard]] int GetSuccessDegree() const { return success_degree_; };
+	[[nodiscard]] int GetActorRating() const { return actor_rating_; };
+	int GetAbilityId() { return ability_->id; };
+	CharData *GetActor() { return actor_; };
+	void SendDenyMsgToActor();
 };
 
 //  -------------------------------------------------------
 
-class AgainstRivalRollType : public AbilityRollType {
+class AgainstRivalRoll : public AbilityRoll {
  protected:
-	CharacterData *_rival;
+	CharData *rival_;
 
-	void trainBaseSkill(bool success);
-	short calculateTargetRating();
-	short calculatBaseSkillRating();
-	short calculateDicerollBonus();
-	bool isActorMoraleFailure();
+	void TrainBaseSkill(bool success) override;
+	int CalcTargetRating() override;
+	int CalcBaseSkillRating() override;
+	int CalcRollBonus() override;
+	bool IsActorMoraleFailure() override;
 
  public:
-	void initialize(CharacterData *abilityActor, int usedAbility, CharacterData *abilityVictim);
-	CharacterData *rival() { return _rival; };
+	void Init(CharData *actor, int ability, CharData *victim);
+	CharData *GetRival() { return rival_; };
 
-	AgainstRivalRollType() :
-		_rival{nullptr} {};
+	AgainstRivalRoll() :
+		rival_{nullptr} {};
 };
 
 //  -------------------------------------------------------
 
-class TechniqueRollType : public AgainstRivalRollType {
+class TechniqueRoll : public AgainstRivalRoll {
  protected:
-	int _weaponEquipPosition;
+	int weapon_equip_position_;
 
-	int calculateAddDamage();
-	void determineBaseSkill();
-	bool checkTechniqueKit();
-	bool isSuitableItem(const TechniqueItem &techniqueItem);
+	int CalcAddDamage() override;
+	void DetermineBaseSkill() override;
+	bool CheckTechniqueKit();
+	bool IsSuitableItem(const TechniqueItem &item);
 
  public:
-	int getWeaponEquipPosition() { return _weaponEquipPosition; };
-	int calculateDamage();
+	[[nodiscard]] int GetWeaponEquipPosition() const { return weapon_equip_position_; };
+	int CalcDamage();
 
-	TechniqueRollType() :
-		_weaponEquipPosition{WEAR_WIELD} {};
+	TechniqueRoll() :
+		weapon_equip_position_{WEAR_WIELD} {};
 };
 
 }; //namespace AbilitySystem

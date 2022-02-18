@@ -9,18 +9,18 @@
 #include <string>
 #include <vector>
 
-class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 namespace Noob {
 
 void init();
-int outfit(CharacterData *ch, void *me, int cmd, char *argument);
+int outfit(CharData *ch, void *me, int cmd, char *argument);
 
-bool is_noob(const CharacterData *ch);
-std::string print_start_outfit(CharacterData *ch);
-std::vector<int> get_start_outfit(CharacterData *ch);
-void check_help_message(CharacterData *ch);
-void equip_start_outfit(CharacterData *ch, ObjectData *obj);
+bool is_noob(const CharData *ch);
+std::string print_start_outfit(CharData *ch);
+std::vector<int> get_start_outfit(CharData *ch);
+void check_help_message(CharData *ch);
+void equip_start_outfit(CharData *ch, ObjData *obj);
 
 } // namespace Noob
 

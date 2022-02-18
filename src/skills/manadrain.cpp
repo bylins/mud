@@ -7,9 +7,7 @@
 #include "fightsystem/fight_hit.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
-void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct TimedSkill timed;
 	int drained_mana, prob, percent, skill;
@@ -26,7 +24,7 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	CharacterData *vict = findVictim(ch, argument);
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы столь сильно ненавидите?\r\n", ch);
 		return;
@@ -62,7 +60,7 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	prob = MAX(20, 90 - 5 * MAX(0, GET_REAL_LEVEL(vict) - GET_REAL_LEVEL(ch)));
 	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
 
-	Damage manadrainDamage(SkillDmg(ESkill::kJinx), ZERO_DMG, MAGE_DMG, nullptr);
+	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
 	manadrainDamage.magic_type = kTypeDark;
 	if (percent <= prob) {
 		skill = MAX(10, skill - 10 * MAX(0, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)));
@@ -70,7 +68,7 @@ void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
 		manadrainDamage.dam = 10;
 	}
-	manadrainDamage.process(ch, vict);
+	manadrainDamage.Process(ch, vict);
 
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kJinx;

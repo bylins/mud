@@ -3,10 +3,8 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight_hit.h"
 
-using namespace FightSystem;
-
 // ******************* BLOCK PROCEDURES
-void go_block(CharacterData *ch) {
+void go_block(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
 		send_to_char("Ваша рука парализована.\r\n", ch);
 		return;
@@ -15,7 +13,7 @@ void go_block(CharacterData *ch) {
 	send_to_char("Хорошо, вы попробуете отразить щитом следующую атаку.\r\n", ch);
 }
 
-void do_block(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(ESkill::kShieldBlock)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;

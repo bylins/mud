@@ -5,8 +5,8 @@
 #ifndef BYLINS_MANADRAIN_H
 #define BYLINS_MANADRAIN_H
 
-class CharacterData;
+class CharData;
 
-void do_manadrain(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_MANADRAIN_H

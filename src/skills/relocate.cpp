@@ -1,14 +1,14 @@
 #include "relocate.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "house.h"
 #include "color.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
 
-extern void CheckAutoNosummon(CharacterData *ch);
+extern void CheckAutoNosummon(CharData *ch);
 
-void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedFeat timed;
 
 	if (!can_use_feat(ch, RELOCATE_FEAT)) {
@@ -32,7 +32,7 @@ void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	CharacterData *victim = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharData *victim = get_player_vis(ch, arg, FIND_CHAR_WORLD);
 
 	if (!victim) {
 		send_to_char(NOPERSON, ch);
@@ -90,12 +90,12 @@ void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	timed.feat = RELOCATE_FEAT;
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 			return;
-	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, TO_ROOM);
+	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	ch->dismount();
-	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, TO_ROOM);
+	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
 	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch)
 		|| ROOM_FLAGGED(fnd_room, ROOM_ARENA))) {
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
@@ -104,9 +104,9 @@ void do_relocate(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		timed.time = 18 - MIN(GET_REAL_REMORT(ch), 15);
 		WAIT_STATE(ch, 3 * kPulseViolence);
 		Affect<EApplyLocation> af;
-		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
-		af.battleflag = AF_PULSEDEC;
+		af.battleflag = kAfPulsedec;
 		affect_to_char(ch, af);
 	} else {
 		timed.time = 2;

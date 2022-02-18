@@ -3,14 +3,14 @@
 #include "fightsystem/fight.h"
 #include "handler.h"
 
-void perform_drop_gold(CharacterData *ch, int amount);
+void perform_drop_gold(CharData *ch, int amount);
 
 // Called when stop following persons, or stopping charm //
 // This will NOT do if a character quits/dies!!          //
 // При возврате 1 использовать ch нельзя, т.к. прошли через extract_char
 // TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
 // при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
-bool stop_follower(CharacterData *ch, int mode) {
+bool stop_follower(CharData *ch, int mode) {
 	struct Follower *j, *k;
 	int i;
 
@@ -24,15 +24,15 @@ bool stop_follower(CharacterData *ch, int mode) {
 
 	// для смены лидера без лишнего спама
 	if (!IS_SET(mode, SF_SILENCE)) {
-		act("Вы прекратили следовать за $N4.", false, ch, 0, ch->get_master(), TO_CHAR);
-		act("$n прекратил$g следовать за $N4.", true, ch, 0, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы прекратили следовать за $N4.", false, ch, 0, ch->get_master(), kToChar);
+		act("$n прекратил$g следовать за $N4.", true, ch, 0, ch->get_master(), kToNotVict | kToArenaListen);
 	}
 
 	//log("[Stop ch] Stop horse");
 	if (ch->get_master()->get_horse() == ch && ch->get_master()->ahorse()) {
 		ch->drop_from_horse();
 	} else {
-		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), TO_VICT);
+		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
 	}
 
 	//log("[Stop ch] Remove from followers list");
@@ -79,7 +79,7 @@ bool stop_follower(CharacterData *ch, int mode) {
 
 		if (IS_NPC(ch)) {
 			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
-				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				perform_drop_gold(ch, ch->get_gold());
 				ch->set_gold(0);
@@ -91,11 +91,11 @@ bool stop_follower(CharacterData *ch, int mode) {
 		}
 	}
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) { // фул рестор моба (Кудояр)
-		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее
 				while (ch->carrying) {
-						ObjectData *obj = ch->carrying;
+						ObjData *obj = ch->carrying;
 							obj_from_char(obj);
 							obj_to_room(obj, ch->in_room);
 					}
@@ -108,7 +108,7 @@ bool stop_follower(CharacterData *ch, int mode) {
 					obj_to_char(unequip_char(ch, i, CharEquipFlag::show_msg), ch);
 					//extract_obj(tmp);
 					while (ch->carrying) {
-						ObjectData *obj = ch->carrying;
+						ObjData *obj = ch->carrying;
 							extract_obj(obj);
 					}
 				}
@@ -127,7 +127,7 @@ bool stop_follower(CharacterData *ch, int mode) {
 }
 
 // * Called when a character that follows/is followed dies
-bool die_follower(CharacterData *ch) {
+bool die_follower(CharData *ch) {
 	struct Follower *j, *k = ch->followers;
 
 	if (ch->has_master() && stop_follower(ch, SF_FOLLOWERDIE)) {
@@ -148,7 +148,7 @@ bool die_follower(CharacterData *ch) {
 
 // Check if making CH follow VICTIM will create an illegal //
 // Follow "Loop/circle"                                    //
-bool circle_follow(CharacterData *ch, CharacterData *victim) {
+bool circle_follow(CharData *ch, CharData *victim) {
 	for (auto k = victim; k; k = k->get_master()) {
 		if (k->get_master() == k) {
 			k->set_master(nullptr);
@@ -161,8 +161,8 @@ bool circle_follow(CharacterData *ch, CharacterData *victim) {
 	return false;
 }
 
-void do_follow(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *leader;
+void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *leader;
 	struct Follower *f;
 	one_argument(argument, smallBuf);
 
@@ -187,13 +187,13 @@ void do_follow(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch->get_master() == leader) {
-		act("Вы уже следуете за $N4.", false, ch, 0, leader, TO_CHAR);
+		act("Вы уже следуете за $N4.", false, ch, 0, leader, kToChar);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& ch->has_master()) {
-		act("Но вы можете следовать только за $N4!", false, ch, 0, ch->get_master(), TO_CHAR);
+		act("Но вы можете следовать только за $N4!", false, ch, 0, ch->get_master(), kToChar);
 	} else        // Not Charmed follow person
 	{
 		if (leader == ch) {

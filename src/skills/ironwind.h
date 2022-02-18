@@ -1,10 +1,10 @@
 #ifndef BYLINS_IRONWIND_H
 #define BYLINS_IRONWIND_H
 
-class CharacterData;
+class CharData;
 
-void do_iron_wind(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void go_iron_wind(CharacterData *ch, CharacterData *victim);
+void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_iron_wind(CharData *ch, CharData *victim);
 
 #endif //BYLINS_IRONWIND_H
 

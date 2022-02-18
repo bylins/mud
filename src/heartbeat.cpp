@@ -81,7 +81,7 @@ namespace {
 void process_speedwalks() {
 	for (auto &sw : GlobalObjects::speedwalks()) {
 		if (sw.wait > sw.route[sw.cur_state].wait) {
-			for (CharacterData *ch : sw.mobs) {
+			for (CharData *ch : sw.mobs) {
 				if (ch && !ch->purged()) {
 					std::string direction = sw.route[sw.cur_state].direction;
 					int dir = 1;

@@ -38,7 +38,7 @@ using PlayerClass::max_slots;
 
 extern int check_dupes_host(DescriptorData *d, bool autocheck = 0);
 extern RoomRnum r_unreg_start_room;
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 
 extern DescriptorData *descriptor_list;
 extern int idle_rent_time;
@@ -51,19 +51,19 @@ extern RoomRnum r_named_start_room;
 extern struct SpellCreate spell_create[];
 extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DescriptorData *ch);
-extern int check_death_ice(int room, CharacterData *ch);
+extern int check_death_ice(int room, CharData *ch);
 
-void decrease_level(CharacterData *ch);
-int max_exp_gain_pc(CharacterData *ch);
-int max_exp_loss_pc(CharacterData *ch);
+void decrease_level(CharData *ch);
+int max_exp_gain_pc(CharData *ch);
+int max_exp_loss_pc(CharData *ch);
 int average_day_temp(void);
 
 // local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
-int level_exp(CharacterData *ch, int level);
-void update_char_objects(CharacterData *ch);    // handler.cpp
+int level_exp(CharData *ch, int level);
+void update_char_objects(CharData *ch);    // handler.cpp
 // Delete this, if you delete overflow fix in beat_points_update below.
-void die(CharacterData *ch, CharacterData *killer);
+void die(CharData *ch, CharData *killer);
 // When age < 20 return the value p0 //
 // When age in 20..29 calculate the line between p1 & p2 //
 // When age in 30..34 calculate the line between p2 & p3 //
@@ -86,7 +86,7 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6) {
 		return (p6);    // >= 80 //
 }
 
-void handle_recall_spells(CharacterData *ch) {
+void handle_recall_spells(CharData *ch) {
 	Affect<EApplyLocation>::shared_ptr aff;
 	for (const auto &af : ch->affected) {
 		if (af->type == kSpellRecallSpells) {
@@ -131,7 +131,7 @@ void handle_recall_spells(CharacterData *ch) {
 		}
 	}
 }
-void handle_recall_spells(CharacterData::shared_ptr &ch) { handle_recall_spells(ch.get()); }
+void handle_recall_spells(CharData::shared_ptr &ch) { handle_recall_spells(ch.get()); }
 
 /*
  * The hit_limit, mana_limit, and move_limit functions are gone.  They
@@ -143,7 +143,7 @@ void handle_recall_spells(CharacterData::shared_ptr &ch) { handle_recall_spells(
  */
 
 // manapoint gain pr. game hour
-int mana_gain(const CharacterData *ch) {
+int mana_gain(const CharData *ch) {
 	int gain = 0, restore = int_app[GET_REAL_INT(ch)].mana_per_tic, percent = 100;
 	int stopmem = false;
 
@@ -224,10 +224,10 @@ int mana_gain(const CharacterData *ch) {
 	gain = gain * percent / 100;
 	return (stopmem ? 0 : gain);
 }
-int mana_gain(const CharacterData::shared_ptr &ch) { return mana_gain(ch.get()); }
+int mana_gain(const CharData::shared_ptr &ch) { return mana_gain(ch.get()); }
 
 // Hitpoint gain pr. game hour
-int hit_gain(CharacterData *ch) {
+int hit_gain(CharData *ch) {
 	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
 
 	if (IS_NPC(ch))
@@ -288,10 +288,10 @@ int hit_gain(CharacterData *ch) {
 	}
 	return (gain);
 }
-int hit_gain(const CharacterData::shared_ptr &ch) { return hit_gain(ch.get()); }
+int hit_gain(const CharData::shared_ptr &ch) { return hit_gain(ch.get()); }
 
 // move gain pr. game hour //
-int move_gain(CharacterData *ch) {
+int move_gain(CharData *ch) {
 	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
 
 	if (IS_NPC(ch))
@@ -342,7 +342,7 @@ int move_gain(CharacterData *ch) {
 	gain = gain * percent / 100;
 	return (gain);
 }
-int move_gain(const CharacterData::shared_ptr &ch) { return move_gain(ch.get()); }
+int move_gain(const CharData::shared_ptr &ch) { return move_gain(ch.get()); }
 
 #define MINUTE            60
 #define UPDATE_PC_ON_BEAT true
@@ -371,7 +371,7 @@ int interpolate(int min_value, int pulse) {
 	}
 	return (sign * (int_p + carry));
 }
-void beat_punish(const CharacterData::shared_ptr &i) {
+void beat_punish(const CharData::shared_ptr &i) {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
 	if (PLR_FLAGGED(i, PLR_HELLED) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
@@ -395,7 +395,7 @@ void beat_punish(const CharacterData::shared_ptr &i) {
 		char_from_room(i);
 		char_to_room(i, restore);
 		look_at_room(i.get(), restore);
-		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, TO_ROOM);
+		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, kToRoom);
 	}
 
 	if (PLR_FLAGGED(i, PLR_NAMED)
@@ -428,7 +428,7 @@ void beat_punish(const CharacterData::shared_ptr &i) {
 		char_from_room(i);
 		char_to_room(i, restore);
 		look_at_room(i.get(), restore);
-		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, TO_ROOM);
+		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.", false, i.get(), 0, 0, kToRoom);
 	}
 
 	if (PLR_FLAGGED(i, PLR_MUTE)
@@ -489,7 +489,7 @@ void beat_punish(const CharacterData::shared_ptr &i) {
 			look_at_room(i.get(), restore);
 
 			act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!",
-				false, i.get(), 0, 0, TO_ROOM);
+				false, i.get(), 0, 0, kToRoom);
 		};
 
 	}
@@ -535,7 +535,7 @@ void beat_punish(const CharacterData::shared_ptr &i) {
 		char_to_room(i, restore);
 		look_at_room(i.get(), restore);
 		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.",
-			false, i.get(), 0, 0, TO_ROOM);
+			false, i.get(), 0, 0, kToRoom);
 	}
 
 	// Проверяем а там ли мы где должны быть по флагам.
@@ -551,7 +551,7 @@ void beat_punish(const CharacterData::shared_ptr &i) {
 				i->set_was_in_room(r_helled_start_room);
 			} else {
 				send_to_char("Чья-то злая воля вернула вас в темницу.\r\n", i.get());
-				act("$n возвращен$a в темницу.", false, i.get(), 0, 0, TO_ROOM);
+				act("$n возвращен$a в темницу.", false, i.get(), 0, 0, kToRoom);
 
 				char_from_room(i);
 				char_to_room(i, r_helled_start_room);
@@ -566,7 +566,7 @@ void beat_punish(const CharacterData::shared_ptr &i) {
 				i->set_was_in_room(r_named_start_room);
 			} else {
 				send_to_char("Чья-то злая воля вернула вас в комнату имени.\r\n", i.get());
-				act("$n возвращен$a в комнату имени.", false, i.get(), 0, 0, TO_ROOM);
+				act("$n возвращен$a в комнату имени.", false, i.get(), 0, 0, kToRoom);
 				char_from_room(i);
 				char_to_room(i, r_named_start_room);
 				look_at_room(i.get(), r_named_start_room);
@@ -583,7 +583,7 @@ void beat_punish(const CharacterData::shared_ptr &i) {
 				i->set_was_in_room(r_unreg_start_room);
 			} else {
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
-					false, i.get(), 0, 0, TO_ROOM);
+					false, i.get(), 0, 0, kToRoom);
 
 				char_from_room(i);
 				char_to_room(i, r_unreg_start_room);
@@ -594,7 +594,7 @@ void beat_punish(const CharacterData::shared_ptr &i) {
 		} else if (restore == r_unreg_start_room && check_dupes_host(i->desc, 1) && !IS_IMMORTAL(i)) {
 			send_to_char("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
 			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
-				false, i.get(), 0, 0, TO_ROOM);
+				false, i.get(), 0, 0, kToRoom);
 			restore = i->get_was_in_room();
 			if (restore == kNowhere
 				|| restore == r_unreg_start_room) {
@@ -697,10 +697,10 @@ void beat_points_update(int pulse) {
 			if (MEMQUEUE_EMPTY(i)) {
 				if (GET_RELIGION(i) == kReligionMono) {
 					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
-					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", false, i.get(), 0, 0, TO_ROOM);
+					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", false, i.get(), 0, 0, kToRoom);
 				} else {
 					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i.get());
-					act("Окончив занятия, $n с улыбкой убрал$g резы.", false, i.get(), 0, 0, TO_ROOM);
+					act("Окончив занятия, $n с улыбкой убрал$g резы.", false, i.get(), 0, 0, kToRoom);
 				}
 			}
 		}
@@ -735,7 +735,7 @@ void beat_points_update(int pulse) {
 	});
 }
 
-void update_clan_exp(CharacterData *ch, int gain) {
+void update_clan_exp(CharData *ch, int gain) {
 	if (CLAN(ch) && gain != 0) {
 		// экспа для уровня клана (+ только на праве, - любой, но /5)
 		if (gain < 0 || GET_GOD_FLAG(ch, GF_REMORT)) {
@@ -753,7 +753,7 @@ void update_clan_exp(CharacterData *ch, int gain) {
 	}
 }
 
-void gain_exp(CharacterData *ch, int gain) {
+void gain_exp(CharData *ch, int gain) {
 	int is_altered = false;
 	int num_levels = 0;
 	char buf[128];
@@ -835,7 +835,7 @@ void gain_exp(CharacterData *ch, int gain) {
 }
 
 // юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
-void gain_exp_regardless(CharacterData *ch, int gain) {
+void gain_exp_regardless(CharData *ch, int gain) {
 	int is_altered = false;
 	int num_levels = 0;
 
@@ -884,7 +884,7 @@ void gain_exp_regardless(CharacterData *ch, int gain) {
 	}
 }
 
-void gain_condition(CharacterData *ch, unsigned condition, int value) {
+void gain_condition(CharData *ch, unsigned condition, int value) {
 	int cond_state = GET_COND(ch, condition);
 
 	if (condition >= ch->player_specials->saved.conditions.size()) {
@@ -973,17 +973,17 @@ void underwater_check() {
 			sprintf(buf, "Player %s died under water (room %d)",
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
-			Damage dmg(SimpleDmg(kTypeWaterdeath), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE_DMG);
+			Damage dmg(SimpleDmg(kTypeWaterdeath), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), fight::kUndefDmg);
+			dmg.flags.set(fight::kNoFleeDmg);
 
-			if (dmg.process(d->character.get(), d->character.get()) < 0) {
+			if (dmg.Process(d->character.get(), d->character.get()) < 0) {
 				log("%s", buf);
 			}
 		}
 	}
 }
 
-void check_idling(CharacterData *ch) {
+void check_idling(CharData *ch) {
 	if (!NORENTABLE(ch)) {
 		if (++(ch->char_specials.timer) > idle_void) {
 			ch->set_motion(false);
@@ -997,7 +997,7 @@ void check_idling(CharacterData *ch) {
 					stop_fighting(ch->get_fighting(), false);
 					stop_fighting(ch, true);
 				}
-				act("$n растворил$u в пустоте.", true, ch, 0, 0, TO_ROOM);
+				act("$n растворил$u в пустоте.", true, ch, 0, 0, kToRoom);
 				send_to_char("Вы пропали в пустоте этого мира.\r\n", ch);
 
 				Crash_crashsave(ch);
@@ -1032,19 +1032,19 @@ void check_idling(CharacterData *ch) {
 }
 
 // Update PCs, NPCs, and objects
-inline bool NO_DESTROY(const ObjectData *obj) {
+inline bool NO_DESTROY(const ObjData *obj) {
 	return (obj->get_carried_by()
 		|| obj->get_worn_by()
 		|| obj->get_in_obj()
 //		|| (obj->get_script()->has_triggers())
-		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_FOUNTAIN
+		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN
 		|| obj->get_in_room() == kNowhere
 		|| (obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)
 			&& !ROOM_FLAGGED(obj->get_in_room(), ROOM_DEATH)));
 }
 
-inline bool NO_TIMER(const ObjectData *obj) {
-	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_FOUNTAIN)
+inline bool NO_TIMER(const ObjData *obj) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN)
 		return true;
 // так как таймер всего 30 шмот из тестовой зоны в своей зоне запретим тикать на земле
 // полный вариан
@@ -1066,7 +1066,7 @@ inline bool NO_TIMER(const ObjectData *obj) {
 	return false;
 }
 
-int up_obj_where(ObjectData *obj) {
+int up_obj_where(ObjData *obj) {
 	if (obj->get_in_obj()) {
 		return up_obj_where(obj->get_in_obj());
 	} else {
@@ -1099,8 +1099,8 @@ void room_point_update() {
 			}
 			world[count]->fires -= MIN(mana, world[count]->fires);
 			if (world[count]->fires <= 0) {
-				act("Костер затух.", false, world[count]->first_character(), 0, 0, TO_ROOM);
-				act("Костер затух.", false, world[count]->first_character(), 0, 0, TO_CHAR);
+				act("Костер затух.", false, world[count]->first_character(), 0, 0, kToRoom);
+				act("Костер затух.", false, world[count]->first_character(), 0, 0, kToChar);
 
 				world[count]->fires = 0;
 			}
@@ -1111,15 +1111,15 @@ void room_point_update() {
 			if (!world[count]->portal_time) {
 				OneWayPortal::remove(world[count]);
 				world[count]->pkPenterUnique = 0;
-				act("Пентаграмма медленно растаяла.", false, world[count]->first_character(), 0, 0, TO_ROOM);
-				act("Пентаграмма медленно растаяла.", false, world[count]->first_character(), 0, 0, TO_CHAR);
+				act("Пентаграмма медленно растаяла.", false, world[count]->first_character(), 0, 0, kToRoom);
+				act("Пентаграмма медленно растаяла.", false, world[count]->first_character(), 0, 0, kToChar);
 			}
 		}
 		if (world[count]->holes) {
 			world[count]->holes--;
 			if (!world[count]->holes || roundup(world[count]->holes) == world[count]->holes) {
-				act("Ямку присыпало землей...", false, world[count]->first_character(), 0, 0, TO_ROOM);
-				act("Ямку присыпало землей...", false, world[count]->first_character(), 0, 0, TO_CHAR);
+				act("Ямку присыпало землей...", false, world[count]->first_character(), 0, 0, kToRoom);
+				act("Ямку присыпало землей...", false, world[count]->first_character(), 0, 0, kToChar);
 			}
 		}
 		if (world[count]->ices)
@@ -1216,7 +1216,7 @@ void exchange_point_update() {
 }
 
 // * Оповещение о дикее шмотки из храна в клан-канал.
-void clan_chest_invoice(ObjectData *j) {
+void clan_chest_invoice(ObjData *j) {
 	const int room = GET_ROOM_VNUM(j->get_in_obj()->get_in_room());
 
 	if (room <= 0) {
@@ -1255,7 +1255,7 @@ void clan_chest_invoice(ObjectData *j) {
 }
 
 // * Дикей шмоток в клан-хране.
-void clan_chest_point_update(ObjectData *j) {
+void clan_chest_point_update(ObjData *j) {
 	// если это шмотка из большого набора предметов и она такая одна в хране, то таймер тикает в 2 раза быстрее
 	if (SetSystem::is_big_set(j, true)) {
 		SetSystem::init_vnum_list(GET_OBJ_VNUM(j));
@@ -1284,7 +1284,7 @@ void clan_chest_point_update(ObjectData *j) {
    1: экипа
    2: контейнер
 */
-void charmee_obj_decay_tell(CharacterData *charmee, ObjectData *obj, int where) {
+void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, int where) {
 	char buf[kMaxStringLength];
 	char buf1[128]; // ну не лепить же сюда malloc
 
@@ -1329,7 +1329,7 @@ void charmee_obj_decay_tell(CharacterData *charmee, ObjectData *obj, int where) 
 void obj_point_update() {
 	int count;
 
-	world_objects.foreach_on_copy([&](const ObjectData::shared_ptr &j) {
+	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
 		// смотрим клан-сундуки
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
 			clan_chest_point_update(j.get());
@@ -1373,7 +1373,7 @@ void obj_point_update() {
 			}
 
 			if (j->get_timer() <= 0) {
-				ObjectData *jj, *next_thing2;
+				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();    // Next in inventory
 					obj_from_obj(jj);
@@ -1393,7 +1393,7 @@ void obj_point_update() {
 
 				// Конец Ладник
 				if (j->get_carried_by()) {
-					act("$p рассыпал$U в ваших руках.", false, j->get_carried_by(), j.get(), 0, TO_CHAR);
+					act("$p рассыпал$U в ваших руках.", false, j->get_carried_by(), j.get(), 0, kToChar);
 					obj_from_char(j.get());
 				} else if (j->get_in_room() != kNowhere) {
 					if (!world[j->get_in_room()]->people.empty()) {
@@ -1402,13 +1402,13 @@ void obj_point_update() {
 							world[j->get_in_room()]->first_character(),
 							j.get(),
 							0,
-							TO_ROOM);
+							kToRoom);
 						act("Черви не оставили от $o1 и следа.",
 							true,
 							world[j->get_in_room()]->first_character(),
 							j.get(),
 							0,
-							TO_CHAR);
+							kToChar);
 					}
 
 					obj_from_room(j.get());
@@ -1440,7 +1440,7 @@ void obj_point_update() {
 					|| j->get_timer() <= 0
 					|| GET_OBJ_DESTROY(j) == 0)) {
 				// *** рассыпание объекта
-				ObjectData *jj, *next_thing2;
+				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();
 					obj_from_obj(jj);
@@ -1474,7 +1474,7 @@ void obj_point_update() {
 							} else {
 								snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
 										 char_get_custom_label(j.get(), j->get_worn_by()).c_str());
-								act(buf, false, j->get_worn_by(), j.get(), 0, TO_CHAR);
+								act(buf, false, j->get_worn_by(), j.get(), 0, kToChar);
 							}
 							break;
 
@@ -1484,7 +1484,7 @@ void obj_point_update() {
 							} else {
 								snprintf(buf, kMaxStringLength, "$o%s рассыпал$U прямо на вас...",
 										 char_get_custom_label(j.get(), j->get_worn_by()).c_str());
-								act(buf, false, j->get_worn_by(), j.get(), 0, TO_CHAR);
+								act(buf, false, j->get_worn_by(), j.get(), 0, kToChar);
 							}
 							break;
 					}
@@ -1495,7 +1495,7 @@ void obj_point_update() {
 					} else {
 						snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
 								 char_get_custom_label(j.get(), j->get_carried_by()).c_str());
-						act(buf, false, j->get_carried_by(), j.get(), 0, TO_CHAR);
+						act(buf, false, j->get_carried_by(), j.get(), 0, kToChar);
 					}
 					obj_from_char(j.get());
 				} else if (j->get_in_room() != kNowhere) {
@@ -1507,15 +1507,15 @@ void obj_point_update() {
 					}
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("$o рассыпал$U в прах, который был развеян ветром...",
-							false, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
+							false, world[j->get_in_room()]->first_character(), j.get(), 0, kToChar);
 						act("$o рассыпал$U в прах, который был развеян ветром...",
-							false, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
+							false, world[j->get_in_room()]->first_character(), j.get(), 0, kToRoom);
 					}
 
 					obj_from_room(j.get());
 				} else if (j->get_in_obj()) {
 					// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
-					CharacterData *cont_owner = nullptr;
+					CharData *cont_owner = nullptr;
 					if (j->get_in_obj()->get_carried_by()) {
 						cont_owner = j->get_in_obj()->get_carried_by();
 					} else if (j->get_in_obj()->get_worn_by()) {
@@ -1531,7 +1531,7 @@ void obj_point_update() {
 									 char_get_custom_label(j.get(), cont_owner).c_str(),
 									 j->get_in_obj()->get_PName(5).c_str(),
 									 char_get_custom_label(j->get_in_obj(), cont_owner).c_str());
-							act(buf, false, cont_owner, j.get(), 0, TO_CHAR);
+							act(buf, false, cont_owner, j.get(), 0, kToChar);
 						}
 					}
 					obj_from_obj(j.get());
@@ -1556,7 +1556,7 @@ void obj_point_update() {
 	});
 
 	// Тонущие, падающие, и сыпящиеся обьекты.
-	world_objects.foreach_on_copy([&](const ObjectData::shared_ptr &j) {
+	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
 		obj_decay(j.get());
 	});
 }
@@ -1583,7 +1583,7 @@ void point_update() {
 			&& GET_POS(i) > EPosition::kSleep) {
 			GET_POS(i) = EPosition::kSleep;
 			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
-			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", true, i, 0, 0, TO_ROOM);
+			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", true, i, 0, 0, kToRoom);
 		}
 
 		if (!IS_NPC(i)) {
@@ -1721,17 +1721,17 @@ void point_update() {
 				update_pos(i);
 			}
 		} else if (GET_POS(i) == EPosition::kIncap) {
-			Damage dmg(SimpleDmg(kTypeSuffering), 1, FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE_DMG);
+			Damage dmg(SimpleDmg(kTypeSuffering), 1, fight::kUndefDmg);
+			dmg.flags.set(fight::kNoFleeDmg);
 
-			if (dmg.process(i, i) == -1) {
+			if (dmg.Process(i, i) == -1) {
 				return;
 			}
 		} else if (GET_POS(i) == EPosition::kPerish) {
-			Damage dmg(SimpleDmg(kTypeSuffering), 2, FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE_DMG);
+			Damage dmg(SimpleDmg(kTypeSuffering), 2, fight::kUndefDmg);
+			dmg.flags.set(fight::kNoFleeDmg);
 
-			if (dmg.process(i, i) == -1) {
+			if (dmg.Process(i, i) == -1) {
 				return;
 			}
 		}
@@ -1749,25 +1749,25 @@ void point_update() {
 void repop_decay(ZoneRnum zone) {
 	const ZoneVnum zone_num = zone_table[zone].vnum;
 
-	world_objects.foreach_on_copy([&](const ObjectData::shared_ptr &j) {
+	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
 		const ZoneVnum obj_zone_num = j->get_vnum() / 100;
 
 		if (obj_zone_num == zone_num
 			&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {
 			if (j->get_worn_by()) {
-				act("$o рассыпал$U, вспыхнув ярким светом...", false, j->get_worn_by(), j.get(), 0, TO_CHAR);
+				act("$o рассыпал$U, вспыхнув ярким светом...", false, j->get_worn_by(), j.get(), 0, kToChar);
 			} else if (j->get_carried_by()) {
 				act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
-					false, j->get_carried_by(), j.get(), 0, TO_CHAR);
+					false, j->get_carried_by(), j.get(), 0, kToChar);
 			} else if (j->get_in_room() != kNowhere) {
 				if (!world[j->get_in_room()]->people.empty()) {
 					act("$o рассыпал$U, вспыхнув ярким светом...",
-						false, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
+						false, world[j->get_in_room()]->first_character(), j.get(), 0, kToChar);
 					act("$o рассыпал$U, вспыхнув ярким светом...",
-						false, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
+						false, world[j->get_in_room()]->first_character(), j.get(), 0, kToRoom);
 				}
 			} else if (j->get_in_obj()) {
-				CharacterData *owner = nullptr;
+				CharData *owner = nullptr;
 
 				if (j->get_in_obj()->get_carried_by()) {
 					owner = j->get_in_obj()->get_carried_by();
@@ -1778,7 +1778,7 @@ void repop_decay(ZoneRnum zone) {
 				if (owner) {
 					char buf[kMaxStringLength];
 					snprintf(buf, kMaxStringLength, "$o рассыпал$U в %s...", j->get_in_obj()->get_PName(5).c_str());
-					act(buf, false, owner, j.get(), 0, TO_CHAR);
+					act(buf, false, owner, j.get(), 0, kToChar);
 				}
 			}
 

@@ -15,7 +15,7 @@
 
 namespace DpsSystem {
 
-void check_round(CharacterData *ch);
+void check_round(CharData *ch);
 
 // режимы, чтобы не плодить оберток (себя, своих чармисов, чары из группы, чармисы чаров из группы)
 enum { PERS_DPS, PERS_CHARM_DPS, GROUP_DPS, GROUP_CHARM_DPS };
@@ -56,13 +56,13 @@ typedef std::list<DpsNode> CharmListType;
 // * Обертся на DpsNode со списком чармисов (для плеера).
 class PlayerDpsNode : public DpsNode {
  public:
-	void add_charm_dmg(CharacterData *ch, int dmg, int over_dmg);
+	void add_charm_dmg(CharData *ch, int dmg, int over_dmg);
 	std::string print_charm_stats() const;
-	void print_group_charm_stats(CharacterData *ch) const;
-	void end_charm_round(CharacterData *ch);
+	void print_group_charm_stats(CharData *ch) const;
+	void end_charm_round(CharData *ch);
 
  private:
-	CharmListType::iterator find_charmice(CharacterData *ch);
+	CharmListType::iterator find_charmice(CharData *ch);
 
 	// список чармисов (MAX_DPS_CHARMICE)
 	CharmListType charm_list_;
@@ -76,21 +76,21 @@ class Dps {
 	Dps() : exp_(0), battle_exp_(0), lost_exp_(0) {};
 	Dps &operator=(const Dps &copy);
 
-	void add_dmg(int type, CharacterData *ch, int dmg, int over_dmg);
+	void add_dmg(int type, CharData *ch, int dmg, int over_dmg);
 	void clear(int type);
-	void print_stats(CharacterData *ch, CharacterData *coder = 0);
-	void print_group_stats(CharacterData *ch, CharacterData *coder = 0);
-	void end_round(int type, CharacterData *ch);
+	void print_stats(CharData *ch, CharData *coder = 0);
+	void print_group_stats(CharData *ch, CharData *coder = 0);
+	void end_round(int type, CharData *ch);
 
 	void add_exp(int exp);
 	void add_battle_exp(int exp);
 
  private:
-	void add_tmp_group_list(CharacterData *ch);
-	void add_group_dmg(CharacterData *ch, int dmg, int over_dmg);
-	void end_group_round(CharacterData *ch);
-	void add_group_charm_dmg(CharacterData *ch, int dmg, int over_dmg);
-	void end_group_charm_round(CharacterData *ch);
+	void add_tmp_group_list(CharData *ch);
+	void add_group_dmg(CharData *ch, int dmg, int over_dmg);
+	void end_group_round(CharData *ch);
+	void add_group_charm_dmg(CharData *ch, int dmg, int over_dmg);
+	void end_group_charm_round(CharData *ch);
 
 	// групповая статистика
 	GroupListType group_dps_;

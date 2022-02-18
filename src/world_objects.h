@@ -2,7 +2,7 @@
 #define __WORLD_OBJECTS_HPP__
 
 #include "id.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 
 #include <list>
 #include <functional>
@@ -33,17 +33,17 @@ class WorldObjects {
 	 public:
 		WO_IDChangeObserver(WorldObjects &parent) : m_parent(parent) {}
 
-		virtual void notify(ObjectData &object, const object_id_t old_vnum) override;
+		virtual void notify(ObjData &object, const object_id_t old_vnum) override;
 
 	 private:
 		WorldObjects &m_parent;
 	};
 
  public:
-	using list_t = std::list<ObjectData::shared_ptr>;
-	using foreach_f = std::function<void(const ObjectData::shared_ptr &)>;
-	using foreach_while_f = std::function<bool(const ObjectData::shared_ptr &)>;
-	using predicate_f = std::function<bool(const ObjectData::shared_ptr &)>;
+	using list_t = std::list<ObjData::shared_ptr>;
+	using foreach_f = std::function<void(const ObjData::shared_ptr &)>;
+	using foreach_while_f = std::function<bool(const ObjData::shared_ptr &)>;
+	using predicate_f = std::function<bool(const ObjData::shared_ptr &)>;
 
 	WorldObjects();
 	WorldObjects(const WorldObjects &) = delete;
@@ -56,18 +56,18 @@ class WorldObjects {
 	* сразу идет добавление в ObjectAlias). На данный момент актуально
 	* для трупов, остальное вроде не особо и надо видеть.
 	*/
-	ObjectData::shared_ptr create_blank();
+	ObjData::shared_ptr create_blank();
 	// create a new object from a prototype
-	ObjectData::shared_ptr create_from_prototype_by_vnum(ObjVnum vnum);
+	ObjData::shared_ptr create_from_prototype_by_vnum(ObjVnum vnum);
 
 	// create a new object from a prototype
-	ObjectData::shared_ptr create_from_prototype_by_rnum(ObjRnum rnum);
+	ObjData::shared_ptr create_from_prototype_by_rnum(ObjRnum rnum);
 
-	ObjectData::shared_ptr create_raw_from_prototype_by_rnum(ObjRnum rnum);
+	ObjData::shared_ptr create_raw_from_prototype_by_rnum(ObjRnum rnum);
 
-	void add(const ObjectData::shared_ptr &object);
-	void remove(ObjectData *object);
-	void remove(const ObjectData::shared_ptr &object) { remove(object.get()); }
+	void add(const ObjData::shared_ptr &object);
+	void remove(ObjData *object);
+	void remove(const ObjData::shared_ptr &object) { remove(object.get()); }
 	const list_t &get_list() const { return m_objects_list; }
 	void foreach(const foreach_f &function) const;
 	void foreach_on_copy(const foreach_f &function) const;
@@ -75,24 +75,24 @@ class WorldObjects {
 	void foreach_with_vnum(const ObjVnum vnum, const foreach_f &function) const;
 	void foreach_with_rnum(const ObjRnum rnum, const foreach_f &function) const;
 	void foreach_with_id(const object_id_t id, const foreach_f &function) const;
-	ObjectData::shared_ptr find_if(const predicate_f &predicate) const;
-	ObjectData::shared_ptr find_if(const predicate_f &predicate, int number) const;
-	ObjectData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, int &number) const;
-	ObjectData::shared_ptr find_by_name(const char *name) const;
-	ObjectData::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
-	ObjectData::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 0); }
-	ObjectData::shared_ptr find_by_vnum(const ObjVnum vnum, unsigned number) const;
-	ObjectData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number) const;
-	ObjectData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number, const object_id_set_t &except) const;
-	ObjectData::shared_ptr find_first_by_vnum(const ObjVnum vnum) const { return find_by_vnum(vnum, 0); }
-	ObjectData::shared_ptr find_by_rnum(const ObjRnum rnum, unsigned number) const;
-	ObjectData::shared_ptr find_first_by_rnum(const ObjRnum rnum) const { return find_by_rnum(rnum, 0); }
-	ObjectData::shared_ptr get_by_raw_ptr(ObjectData *object) const;
+	ObjData::shared_ptr find_if(const predicate_f &predicate) const;
+	ObjData::shared_ptr find_if(const predicate_f &predicate, int number) const;
+	ObjData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, int &number) const;
+	ObjData::shared_ptr find_by_name(const char *name) const;
+	ObjData::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
+	ObjData::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 0); }
+	ObjData::shared_ptr find_by_vnum(const ObjVnum vnum, unsigned number) const;
+	ObjData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number) const;
+	ObjData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number, const object_id_set_t &except) const;
+	ObjData::shared_ptr find_first_by_vnum(const ObjVnum vnum) const { return find_by_vnum(vnum, 0); }
+	ObjData::shared_ptr find_by_rnum(const ObjRnum rnum, unsigned number) const;
+	ObjData::shared_ptr find_first_by_rnum(const ObjRnum rnum) const { return find_by_rnum(rnum, 0); }
+	ObjData::shared_ptr get_by_raw_ptr(ObjData *object) const;
 	auto size() const { return m_objects_list.size(); }
 	void purge() { m_purge_list.clear(); }
 
  private:
-	using objects_set_t = std::unordered_set<ObjectData::shared_ptr>;
+	using objects_set_t = std::unordered_set<ObjData::shared_ptr>;
 	using object_raw_ptr_to_object_ptr_t = std::unordered_map<void *, list_t::iterator>;
 	using vnum_to_object_ptr_t = std::unordered_map<ObjVnum, objects_set_t>;
 	using rnum_to_object_ptr_t = std::unordered_map<ObjRnum, objects_set_t>;

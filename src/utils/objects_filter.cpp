@@ -15,59 +15,59 @@
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbrev(str, "свет")
 		|| utils::IsAbbrev(str, "light")) {
-		type = ObjectData::ITEM_LIGHT;
+		type = ObjData::ITEM_LIGHT;
 	} else if (utils::IsAbbrev(str, "свиток")
 		|| utils::IsAbbrev(str, "scroll")) {
-		type = ObjectData::ITEM_SCROLL;
+		type = ObjData::ITEM_SCROLL;
 	} else if (utils::IsAbbrev(str, "палочка")
 		|| utils::IsAbbrev(str, "wand")) {
-		type = ObjectData::ITEM_WAND;
+		type = ObjData::ITEM_WAND;
 	} else if (utils::IsAbbrev(str, "посох")
 		|| utils::IsAbbrev(str, "staff")) {
-		type = ObjectData::ITEM_STAFF;
+		type = ObjData::ITEM_STAFF;
 	} else if (utils::IsAbbrev(str, "оружие")
 		|| utils::IsAbbrev(str, "weapon")) {
-		type = ObjectData::ITEM_WEAPON;
+		type = ObjData::ITEM_WEAPON;
 	} else if (utils::IsAbbrev(str, "броня")
 		|| utils::IsAbbrev(str, "armor")) {
-		type = ObjectData::ITEM_ARMOR;
+		type = ObjData::ITEM_ARMOR;
 	} else if (utils::IsAbbrev(str, "напиток")
 		|| utils::IsAbbrev(str, "potion")) {
-		type = ObjectData::ITEM_POTION;
+		type = ObjData::ITEM_POTION;
 	} else if (utils::IsAbbrev(str, "прочее")
 		|| utils::IsAbbrev(str, "другое")
 		|| utils::IsAbbrev(str, "other")) {
-		type = ObjectData::ITEM_OTHER;
+		type = ObjData::ITEM_OTHER;
 	} else if (utils::IsAbbrev(str, "контейнер")
 		|| utils::IsAbbrev(str, "container")) {
-		type = ObjectData::ITEM_CONTAINER;
+		type = ObjData::ITEM_CONTAINER;
 	} else if (utils::IsAbbrev(str, "материал")
 		|| utils::IsAbbrev(str, "material")) {
-		type = ObjectData::ITEM_MATERIAL;
+		type = ObjData::ITEM_MATERIAL;
 	} else if (utils::IsAbbrev(str, "зачарованный")
 		|| utils::IsAbbrev(str, "enchant")) {
-		type = ObjectData::ITEM_ENCHANT;
+		type = ObjData::ITEM_ENCHANT;
 	} else if (utils::IsAbbrev(str, "емкость")
 		|| utils::IsAbbrev(str, "tank")) {
-		type = ObjectData::ITEM_DRINKCON;
+		type = ObjData::ITEM_DRINKCON;
 	} else if (utils::IsAbbrev(str, "книга")
 		|| utils::IsAbbrev(str, "book")) {
-		type = ObjectData::ITEM_BOOK;
+		type = ObjData::ITEM_BOOK;
 	} else if (utils::IsAbbrev(str, "руна")
 		|| utils::IsAbbrev(str, "rune")) {
-		type = ObjectData::ITEM_INGREDIENT;
+		type = ObjData::ITEM_INGREDIENT;
 	} else if (utils::IsAbbrev(str, "ингредиент")
 		|| utils::IsAbbrev(str, "ingradient")) {
-		type = ObjectData::ITEM_MING;
+		type = ObjData::ITEM_MING;
 	} else if (utils::IsAbbrev(str, "легкие")
 		|| utils::IsAbbrev(str, "легкая")) {
-		type = ObjectData::ITEM_ARMOR_LIGHT;
+		type = ObjData::ITEM_ARMOR_LIGHT;
 	} else if (utils::IsAbbrev(str, "средние")
 		|| utils::IsAbbrev(str, "средняя")) {
-		type = ObjectData::ITEM_ARMOR_MEDIAN;
+		type = ObjData::ITEM_ARMOR_MEDIAN;
 	} else if (utils::IsAbbrev(str, "тяжелые")
 		|| utils::IsAbbrev(str, "тяжелая")) {
-		type = ObjectData::ITEM_ARMOR_HEAVY;
+		type = ObjData::ITEM_ARMOR_HEAVY;
 	} else {
 		return false;
 	}
@@ -219,7 +219,7 @@ bool ParseFilter::init_weap_class(const char *str) {
 		return false;
 	}
 
-	type = ObjectData::ITEM_WEAPON;
+	type = ObjData::ITEM_WEAPON;
 
 	return true;
 }
@@ -391,7 +391,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 }
 
 /// имя, метка для клан-хранов
-bool ParseFilter::check_name(ObjectData *obj, CharacterData *ch) const {
+bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 	bool result = false;
 	char name_obj[kMaxStringLength];
 	strcpy(name_obj, GET_OBJ_PNAME(obj, 0).c_str());
@@ -399,8 +399,8 @@ bool ParseFilter::check_name(ObjectData *obj, CharacterData *ch) const {
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;
-	} else if ((GET_OBJ_TYPE(obj) == ObjectData::ITEM_MING
-		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_INGREDIENT)
+	} else if ((GET_OBJ_TYPE(obj) == ObjData::ITEM_MING
+		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_INGREDIENT)
 		&& GET_OBJ_RNUM(obj) >= 0
 		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str())) {
 		result = true;
@@ -413,7 +413,7 @@ bool ParseFilter::check_name(ObjectData *obj, CharacterData *ch) const {
 	return result;
 }
 
-bool ParseFilter::check_type(ObjectData *obj) const {
+bool ParseFilter::check_type(ObjData *obj) const {
 	if (type < 0
 		|| type == GET_OBJ_TYPE(obj)) {
 		return true;
@@ -422,7 +422,7 @@ bool ParseFilter::check_type(ObjectData *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_state(ObjectData *obj) const {
+bool ParseFilter::check_state(ObjData *obj) const {
 	bool result = false;
 	if (state < 0) {
 		result = true;
@@ -454,7 +454,7 @@ bool ParseFilter::check_state(ObjectData *obj) const {
 	return result;
 }
 
-bool ParseFilter::check_wear(ObjectData *obj) const {
+bool ParseFilter::check_wear(ObjData *obj) const {
 	if (wear == EWearFlag::ITEM_WEAR_UNDEFINED
 		|| CAN_WEAR(obj, wear)) {
 		return true;
@@ -462,7 +462,7 @@ bool ParseFilter::check_wear(ObjectData *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_weap_class(ObjectData *obj) const {
+bool ParseFilter::check_weap_class(ObjData *obj) const {
 	if (MUD::Skills().IsInvalid(weap_class) || weap_class == static_cast<ESkill>(GET_OBJ_SKILL(obj))) {
 		return true;
 	}
@@ -495,7 +495,7 @@ bool ParseFilter::check_rent(int obj_price) const {
 	return result;
 }
 
-bool ParseFilter::check_remorts(ObjectData *obj) const {
+bool ParseFilter::check_remorts(ObjData *obj) const {
 	int result;
 	int obj_remorts = obj->get_auto_mort_req();
 
@@ -515,7 +515,7 @@ bool ParseFilter::check_remorts(ObjectData *obj) const {
 	return true;
 }
 
-bool ParseFilter::check_affect_weap(ObjectData *obj) const {
+bool ParseFilter::check_affect_weap(ObjData *obj) const {
 	if (!affect_weap.empty()) {
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it) {
 			if (!CompareBits(obj->get_affect_flags(), weapon_affects, *it)) {
@@ -526,7 +526,7 @@ bool ParseFilter::check_affect_weap(ObjectData *obj) const {
 	return true;
 }
 
-std::string ParseFilter::show_obj_aff(ObjectData *obj) {
+std::string ParseFilter::show_obj_aff(ObjData *obj) {
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it) {
 			for (int i = 0; i < kMaxObjAffect; ++i) {
@@ -553,7 +553,7 @@ std::string ParseFilter::show_obj_aff(ObjectData *obj) {
 	return " ";
 }
 
-bool ParseFilter::check_affect_apply(ObjectData *obj) const {
+bool ParseFilter::check_affect_apply(ObjData *obj) const {
 	bool result = true;
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end() && result; ++it) {
@@ -578,7 +578,7 @@ bool ParseFilter::check_affect_apply(ObjectData *obj) const {
 	return result;
 }
 
-bool ParseFilter::check_affect_extra(ObjectData *obj) const {
+bool ParseFilter::check_affect_extra(ObjData *obj) const {
 	if (!affect_extra.empty()) {
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it) {
 			if (!CompareBits(GET_OBJ_EXTRA(obj), extra_bits, *it)) {
@@ -613,7 +613,7 @@ bool ParseFilter::check_realtime(ExchangeItem *exch_obj) const {
 	return result;
 }
 
-bool ParseFilter::check(ObjectData *obj, CharacterData *ch) {
+bool ParseFilter::check(ObjData *obj, CharData *ch) {
 	if (check_name(obj, ch)
 		&& check_type(obj)
 		&& check_state(obj)
@@ -631,7 +631,7 @@ bool ParseFilter::check(ObjectData *obj, CharacterData *ch) {
 }
 
 bool ParseFilter::check(ExchangeItem *exch_obj) {
-	ObjectData *obj = GET_EXCHANGE_ITEM(exch_obj);
+	ObjData *obj = GET_EXCHANGE_ITEM(exch_obj);
 	if (check_name(obj)
 		&& check_owner(exch_obj)
 			//&& (owner_id == -1 || owner_id == GET_EXCHANGE_ITEM_SELLERID(exch_obj))

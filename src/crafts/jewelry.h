@@ -10,7 +10,7 @@
 #include <string>
 #include <unordered_map>
 
-class CharacterData;
+class CharData;
 
 // Значения по умолчанию могут быть изменены при чтении файла
 struct skillvariables_insgem {
@@ -36,7 +36,7 @@ class insert_wanted_gem {
 
  public:
 	void init();
-	void show(CharacterData *ch, int gem_vnum);
+	void show(CharData *ch, int gem_vnum);
 	int get_type(int gem_vnum, const std::string &str);
 	int get_bit(int gem_vnum, const std::string &str);
 	int get_qty(int gem_vnum, const std::string &str);

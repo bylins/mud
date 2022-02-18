@@ -2,7 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "room.h"
+#include "room_data.h"
 
 ExitData::ExitData() : keyword(nullptr),
 					   vkeyword(nullptr),
@@ -76,7 +76,7 @@ RoomData::RoomData() : room_vn(0),
 					   glight(0),
 					   gdark(0),
 					   func(nullptr),
-					   proto_script(new ObjectData::triggers_list_t()),
+					   proto_script(new ObjData::triggers_list_t()),
 					   script(new Script()),
 					   track(nullptr),
 					   contents(nullptr),
@@ -103,8 +103,8 @@ RoomData::~RoomData() {
 		free(name);
 }
 
-CharacterData *RoomData::first_character() const {
-	CharacterData *first = people.empty() ? nullptr : *people.begin();
+CharData *RoomData::first_character() const {
+	CharData *first = people.empty() ? nullptr : *people.begin();
 
 	return first;
 }

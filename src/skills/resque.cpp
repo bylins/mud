@@ -6,10 +6,8 @@
 #include "fightsystem/fight_hit.h"
 #include "structs/global_objects.h"
 
-using namespace FightSystem;
-
 // ******************* RESCUE PROCEDURES
-void fighting_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
+void fighting_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	if (vict->get_fighting() == tmp_ch)
 		stop_fighting(vict, false);
 	if (ch->get_fighting())
@@ -22,8 +20,8 @@ void fighting_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_
 		set_fighting(tmp_ch, ch);
 }
 
-void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
-	if (dontCanAct(ch)) {
+void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -44,7 +42,7 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 	bool success = percent <= prob;
 	SendSkillBalanceMsg(ch, MUD::Skills()[ESkill::kRescue].name, percent, prob, success);
 	if (!success) {
-		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, TO_CHAR);
+		act("Вы безуспешно пытались спасти $N3.", false, ch, 0, vict, kToChar);
 		ch->setSkillCooldown(ESkill::kGlobalCooldown, kPulseViolence);
 		return;
 	}
@@ -52,9 +50,9 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 	if (!pk_agro_action(ch, tmp_ch))
 		return;
 
-	act("Хвала Богам, вы героически спасли $N3!", false, ch, 0, vict, TO_CHAR);
-	act("Вы были спасены $N4. Вы чувствуете себя Иудой!", false, vict, 0, ch, TO_CHAR);
-	act("$n героически спас$q $N3!", true, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+	act("Хвала Богам, вы героически спасли $N3!", false, ch, 0, vict, kToChar);
+	act("Вы были спасены $N4. Вы чувствуете себя Иудой!", false, vict, 0, ch, kToChar);
+	act("$n героически спас$q $N3!", true, ch, 0, vict, kToNotVict | kToArenaListen);
 
 	int hostilesCounter = 0;
 	if (can_use_feat(ch, LIVE_SHIELD_FEAT)) {
@@ -68,12 +66,12 @@ void go_rescue(CharacterData *ch, CharacterData *vict, CharacterData *tmp_ch) {
 	} else {
 		fighting_rescue(ch, vict, tmp_ch);
 	}
-	setSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
-	setSkillCooldown(ch, ESkill::kRescue, 1 + hostilesCounter);
-	set_wait(vict, 2, false);
+	SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
+	SetSkillCooldown(ch, ESkill::kRescue, 1 + hostilesCounter);
+	SetWait(vict, 2, false);
 }
 
-void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->get_skill(ESkill::kRescue)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
@@ -83,7 +81,7 @@ void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CharacterData *vict = findVictim(ch, argument);
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кто это так сильно путается под вашими ногами?\r\n", ch);
 		return;
@@ -98,7 +96,7 @@ void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharacterData *enemy = nullptr;
+	CharData *enemy = nullptr;
 	for (const auto i : world[ch->in_room]->people) {
 		if (i->get_fighting() == vict) {
 			enemy = i;
@@ -107,7 +105,7 @@ void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!enemy) {
-		act("Но никто не сражается с $N4!", false, ch, 0, vict, TO_CHAR);
+		act("Но никто не сражается с $N4!", false, ch, 0, vict, kToChar);
 		return;
 	}
 
@@ -132,8 +130,8 @@ void do_rescue(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 			&& vict->has_master()
 			&& !same_group(vict->get_master(), ch->get_master())) {
-			act("Спасали бы вы лучше другов своих.", false, ch, 0, vict, TO_CHAR);
-			act("Вы не можете спасти весь мир.", false, ch->get_master(), 0, vict, TO_CHAR);
+			act("Спасали бы вы лучше другов своих.", false, ch, 0, vict, kToChar);
+			act("Вы не можете спасти весь мир.", false, ch->get_master(), 0, vict, kToChar);
 			return;
 		}
 	}

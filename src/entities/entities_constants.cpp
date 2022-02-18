@@ -5,7 +5,7 @@
  \details Код для парсинга названимй констант из конфигурационных файлов.
 */
 
-#include "entity_constants.h"
+#include "entities_constants.h"
 
 #include <map>
 

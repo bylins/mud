@@ -3,14 +3,14 @@
 
 #include "game_classes/classes.h"
 
-class CharacterData;    // to avoid inclusion of "char.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
 
 class GroupPenaltyCalculator {
  public:
 	constexpr static int DEFAULT_PENALTY = 100;
 
-	GroupPenaltyCalculator(const CharacterData *killer,
-						   const CharacterData *leader,
+	GroupPenaltyCalculator(const CharData *killer,
+						   const CharData *leader,
 						   const int max_level,
 						   const GroupPenalties &grouping) :
 		m_killer(killer),
@@ -22,12 +22,12 @@ class GroupPenaltyCalculator {
 	int get() const;
 
  private:
-	const CharacterData *m_killer;
-	const CharacterData *m_leader;
+	const CharData *m_killer;
+	const CharData *m_leader;
 	const int m_max_level;
 	const GroupPenalties &m_grouping;
 
-	bool penalty_by_leader(const CharacterData *player, int &penalty) const;
+	bool penalty_by_leader(const CharData *player, int &penalty) const;
 };
 
 #endif // __FIGHT_PENALTIES_HPP__

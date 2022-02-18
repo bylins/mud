@@ -56,7 +56,7 @@ void extract_script_mem(struct script_memory *sc) {
 }
 
 // perhaps not the best place for this, but I didn't want a new file
-const char *skill_percent(Trigger *trig, CharacterData *ch, char *skill) {
+const char *skill_percent(Trigger *trig, CharData *ch, char *skill) {
 	static char retval[256];
 	im_rskill *rs;
 	int rid;
@@ -81,10 +81,10 @@ const char *skill_percent(Trigger *trig, CharacterData *ch, char *skill) {
 	return ("0");
 }
 
-bool feat_owner(Trigger *trig, CharacterData *ch, char *feat) {
+bool feat_owner(Trigger *trig, CharData *ch, char *feat) {
 	int featnum;
 
-	featnum = find_feat_num(feat);
+	featnum = FindFeatNum(feat);
 	if (featnum > 0) {
 		if (HAVE_FEAT(ch, featnum))
 			return 1;
@@ -95,7 +95,7 @@ bool feat_owner(Trigger *trig, CharacterData *ch, char *feat) {
 	return 0;
 }
 
-const char *spell_count(Trigger *trig, CharacterData *ch, char *spell) {
+const char *spell_count(Trigger *trig, CharData *ch, char *spell) {
 	static char retval[256];
 	int spellnum;
 
@@ -113,7 +113,7 @@ const char *spell_count(Trigger *trig, CharacterData *ch, char *spell) {
 	return retval;
 }
 
-const char *spell_knowledge(Trigger *trig, CharacterData *ch, char *spell) {
+const char *spell_knowledge(Trigger *trig, CharData *ch, char *spell) {
 	static char retval[256];
 	int spellnum;
 

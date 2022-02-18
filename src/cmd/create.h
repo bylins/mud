@@ -3,8 +3,8 @@
 
 const short SCMD_RECIPE = 1;
 
-class CharacterData;
+class CharData;
 
-void do_create(CharacterData *ch, char *argument, int/* cmd*/, int subcmd);
+void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd);
 
 #endif //BYLINS_CREATE_H

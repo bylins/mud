@@ -19,7 +19,7 @@
 #include <string>
 #include <sys/types.h>
 
-class CharacterData;
+class CharData;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -93,9 +93,9 @@ class BanList {
 	time_t getBanDate(std::string Ip);
 	bool add_ban(std::string BannedIp, std::string BanReason, std::string BannerName, int UnbanDate, int BanType);
 	bool add_proxy_ban(std::string BannedIp, std::string BannerName);
-	bool unban(std::string Ip, CharacterData *ch);
-	bool unban_ip(std::string Ip, CharacterData *ch);
-	bool unban_proxy(std::string ProxyIp, CharacterData *ch);
+	bool unban(std::string Ip, CharData *ch);
+	bool unban_ip(std::string Ip, CharData *ch);
+	bool unban_proxy(std::string ProxyIp, CharData *ch);
 	int
 	is_banned(std::string Ip);
 	bool reload_ban();
@@ -116,11 +116,11 @@ class BanList {
 	disconnectBannedIp(std::string Ip);
 //////////////////////////////////////////////////////////////////////////////
 	void
-	ShowBannedIp(int sort_mode, CharacterData *ch);
+	ShowBannedIp(int sort_mode, CharData *ch);
 	void
-	ShowBannedProxy(int sort_mode, CharacterData *ch);
+	ShowBannedProxy(int sort_mode, CharData *ch);
 	void
-	ShowBannedIpByMask(int sort_mode, CharacterData *ch, const char *mask);
+	ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask);
 //////////////////////////////////////////////////////////////////////////////
  private:
 	std::list<BanNodePtr> Ban_List;
@@ -139,9 +139,9 @@ class BanList {
 
 namespace RegisterSystem {
 
-void add(CharacterData *ch, const char *text, const char *reason);
-void remove(CharacterData *ch);
-bool is_registered(CharacterData *ch);
+void add(CharData *ch, const char *text, const char *reason);
+void remove(CharData *ch);
+bool is_registered(CharData *ch);
 bool is_registered_email(const std::string &email);
 const std::string show_comment(const std::string &email);
 void load();

@@ -1,12 +1,12 @@
 #ifndef __OBJECT_PROTOTYPES_HPP__
 #define __OBJECT_PROTOTYPES_HPP__
 
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "utils/logger.h"
 
 #include <deque>
 
-class CharacterData;    // to avoid inclusion of the "char.hpp"
+class CharData;    // to avoid inclusion of the "char.hpp"
 class Trigger;    // to avoid inclusion of the "dg_script.h"
 
 class CObjectPrototypes {
@@ -16,7 +16,7 @@ class CObjectPrototypes {
 
 		int CountInWorld;        // number of existing units of this obj //
 		int stored;        // number of things in rent file            //
-		int (*func)(CharacterData *, void *, int, char *);
+		int (*func)(CharData *, void *, int, char *);
 		char *farg;        // string argument for special function     //
 		Trigger *proto;    // for triggers... the trigger     //
 		int zone;            // mob/obj zone rnum //

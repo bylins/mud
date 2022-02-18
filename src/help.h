@@ -119,7 +119,7 @@ void add_map(T &target, const T &add) {
 
 } // namespace PrintActivators
 
-void do_help(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_help(CharData *ch, char *argument, int cmd, int subcmd);
 
 #endif // HELP_HPP_INCLUDED
 

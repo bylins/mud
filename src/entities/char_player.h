@@ -11,7 +11,7 @@
 #include "quests/quested.h"
 #include "mobmax.h"
 #include "communication/remember.h"
-#include "char.h"
+#include "char_data.h"
 #include "dps.h"
 #include "mapsystem.h"
 #include "reset_stats.h"
@@ -35,7 +35,7 @@ enum {
 	DIS_TOTAL_NUM
 };
 
-class Player : public CharacterData {
+class Player : public CharData {
  public:
 	using cities_t = boost::dynamic_bitset<std::size_t>;
 
@@ -72,7 +72,7 @@ class Player : public CharacterData {
 	unsigned int remember_get_num() const;
 
 	// обертка на Quested
-	void quested_add(CharacterData *ch, int vnum, char *text);
+	void quested_add(CharData *ch, int vnum, char *text);
 	bool quested_remove(int vnum);
 	bool quested_get(int vnum) const;
 	std::string quested_get_text(int vnum) const;
@@ -81,20 +81,20 @@ class Player : public CharacterData {
 
 	// обертка на MobMax
 	int mobmax_get(int vnum) const;
-	void mobmax_add(CharacterData *ch, int vnum, int count, int level);
-	void mobmax_load(CharacterData *ch, int vnum, int count, int level);
+	void mobmax_add(CharData *ch, int vnum, int count, int level);
+	void mobmax_load(CharData *ch, int vnum, int count, int level);
 	void mobmax_remove(int vnum);
 	void mobmax_save(FILE *saved) const; ///< TODO мб убрать
 	void show_mobmax();
 
 	// обертка на Dps
-	void dps_add_dmg(int type, int dmg, int over_dmg, CharacterData *ch = 0);
+	void dps_add_dmg(int type, int dmg, int over_dmg, CharData *ch = 0);
 	void dps_clear(int type);
-	void dps_print_stats(CharacterData *coder = 0);
-	void dps_print_group_stats(CharacterData *ch, CharacterData *coder = 0);
+	void dps_print_stats(CharData *coder = 0);
+	void dps_print_group_stats(CharData *ch, CharData *coder = 0);
 	void dps_set(DpsSystem::Dps *dps);
-	void dps_copy(CharacterData *ch);
-	void dps_end_round(int type, CharacterData *ch = 0);
+	void dps_copy(CharData *ch);
+	void dps_end_round(int type, CharData *ch = 0);
 	void dps_add_exp(int exp, bool battle = false);
 
 	void save_char();
@@ -111,7 +111,7 @@ class Player : public CharacterData {
 	void map_olc_save();
 	bool map_check_option(int num) const;
 	void map_set_option(unsigned num);
-	void map_print_to_snooper(CharacterData *imm);
+	void map_print_to_snooper(CharData *imm);
 	void map_text_olc(const char *arg);
 	const MapSystem::Options *get_map_options() const;
 
@@ -249,10 +249,10 @@ class Player : public CharacterData {
 
 namespace PlayerSystem {
 
-int con_natural_hp(CharacterData *ch);
-int con_add_hp(CharacterData *ch);
-int con_total_hp(CharacterData *ch);
-unsigned weight_dex_penalty(CharacterData *ch);
+int con_natural_hp(CharData *ch);
+int con_add_hp(CharData *ch);
+int con_total_hp(CharData *ch);
+unsigned weight_dex_penalty(CharData *ch);
 
 } // namespace PlayerSystem
 

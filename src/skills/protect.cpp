@@ -8,18 +8,18 @@
 #include "structs/global_objects.h"
 
 // ************** PROTECT PROCEDURES
-void go_protect(CharacterData *ch, CharacterData *vict) {
-	if (dontCanAct(ch)) {
+void go_protect(CharData *ch, CharData *vict) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
 	ch->set_protecting(vict);
-	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, TO_CHAR);
+	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, kToChar);
 	SET_AF_BATTLE(ch, kEafProtect);
 }
 
-void do_protect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!*arg) {
 		if (ch->get_protecting()) {
@@ -41,7 +41,7 @@ void do_protect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	};
 
-	CharacterData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CharData *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 	if (!vict) {
 		send_to_char("И кто так сильно мил вашему сердцу?\r\n", ch);
 		return;
@@ -57,7 +57,7 @@ void do_protect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	CharacterData *tch = nullptr;
+	CharData *tch = nullptr;
 	for (const auto i : world[ch->in_room]->people) {
 		if (i->get_fighting() == vict) {
 			tch = i;
@@ -87,7 +87,7 @@ void do_protect(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	go_protect(ch, vict);
 }
 
-CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
+CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 	int percent = 0;
 	int prob = 0;
 	bool protect = false;
@@ -108,8 +108,8 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 					vict,
 					0,
 					victim,
-					TO_CHAR);
-				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, TO_CHAR);
+					kToChar);
+				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->set_protecting(0);
 				vict->BattleAffects.unset(kEafProtect);
 				WAIT_STATE(vict, kPulseViolence);
@@ -118,8 +118,8 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 				af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 				af.location = EApplyLocation::APPLY_NONE;
 				af.modifier = 0;
-				af.duration = pc_duration(vict, 1, 0, 0, 0, 0);
-				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
+				af.battleflag = kAfBattledec | kAfPulsedec;
 				affect_join(vict, af, true, false, true, false);
 				return victim;
 			}
@@ -157,25 +157,25 @@ CharacterData *try_protect(CharacterData *victim, CharacterData *ch) {
 			}
 
 			if (!success) {
-				act("Вы не смогли прикрыть $N3.", false, vict, 0, victim, TO_CHAR);
-				act("$N не смог$Q прикрыть вас.", false, victim, 0, vict, TO_CHAR);
-				act("$n не смог$q прикрыть $N3.", true, vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				act("Вы не смогли прикрыть $N3.", false, vict, 0, victim, kToChar);
+				act("$N не смог$Q прикрыть вас.", false, victim, 0, vict, kToChar);
+				act("$n не смог$q прикрыть $N3.", true, vict, 0, victim, kToNotVict | kToArenaListen);
 				//set_wait(vict, 3, true);
-				setSkillCooldownInFight(vict, ESkill::kGlobalCooldown, 3);
+				SetSkillCooldownInFight(vict, ESkill::kGlobalCooldown, 3);
 			} else {
 				if (!pk_agro_action(vict, ch))
 					return victim; // по аналогии с реском прикрывая кого-то можно пофлагаться
-				act("Вы героически прикрыли $N3, приняв удар на себя.", false, vict, 0, victim, TO_CHAR);
-				act("$N героически прикрыл$G вас, приняв удар на себя.", false, victim, 0, vict, TO_CHAR);
+				act("Вы героически прикрыли $N3, приняв удар на себя.", false, vict, 0, victim, kToChar);
+				act("$N героически прикрыл$G вас, приняв удар на себя.", false, victim, 0, vict, kToChar);
 				act("$n героически прикрыл$g $N3, приняв удар на себя.",
 					true,
 					vict,
 					0,
 					victim,
-					TO_NOTVICT | TO_ARENA_LISTEN);
+					kToNotVict | kToArenaListen);
 				//set_wait(vict, 1, true);
-				setSkillCooldownInFight(vict, ESkill::kGlobalCooldown, 1);
-				setSkillCooldownInFight(vict, ESkill::kProtect, 1);
+				SetSkillCooldownInFight(vict, ESkill::kGlobalCooldown, 1);
+				SetSkillCooldownInFight(vict, ESkill::kProtect, 1);
 				return vict;
 			}
 		}

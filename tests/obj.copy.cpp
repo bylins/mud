@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <entities/obj.h>
+#include <entities/obj_data.h>
 #include <dg_script/dg_scripts.h>
 
 constexpr obj_vnum OBJECT_VNUM = 100500;
@@ -189,7 +189,7 @@ TEST(Object_Copy, Swap)
 	EXPECT_EQ(VNUM2, object1->get_vnum());
 	EXPECT_NE(object1->get_script(), object2->get_script());
 	EXPECT_NE(object1->get_proto_script_ptr(), object2->get_proto_script_ptr());
-	EXPECT_EQ(ObjectData::triggers_list_t({ 5, 6, 7 }), object1->get_proto_script());
+	EXPECT_EQ(ObjData::triggers_list_t({ 5, 6, 7 }), object1->get_proto_script());
 }
 
 // Currently I don't know a way to test "clone" because it uses a lot of global structures.

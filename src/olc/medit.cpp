@@ -8,7 +8,7 @@
 ***************************************************************************/
 
 #include "entities/world_characters.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "comm.h"
 #include "magic/spells.h"
 #include "db.h"
@@ -18,10 +18,10 @@
 #include "constants.h"
 #include "features.h"
 #include "crafts/im.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "skills.h"
 #include "name_list.h"
-#include "entities/room.h"
+#include "entities/room_data.h"
 #include "corpse.h"
 #include "game_mechanics/sets_drop.h"
 #include "fightsystem/fight.h"
@@ -50,7 +50,7 @@
 // * External variable declarations.
 
 extern IndexData *mob_index;
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 extern MobRnum top_of_mobt;
 extern DescriptorData *descriptor_list;
 #if defined(OASIS_MPROG)
@@ -59,8 +59,8 @@ extern const char *mobprog_types[];
 
 int planebit(const char *str, int *plane, int *bit);
 
-int receptionist(CharacterData *ch, void *me, int cmd, char *argument);
-void clear_mob_charm(CharacterData *mob);
+int receptionist(CharData *ch, void *me, int cmd, char *argument);
+void clear_mob_charm(CharData *mob);
 
 //-------------------------------------------------------------------
 
@@ -81,9 +81,9 @@ void clear_mob_charm(CharacterData *mob);
 // * Function prototypes.
 void medit_setup(DescriptorData *d, int rmob_num);
 
-void medit_mobile_init(CharacterData *mob);
-void medit_mobile_copy(CharacterData *dst, CharacterData *src, bool partial_copy);
-void medit_mobile_free(CharacterData *mob);
+void medit_mobile_init(CharData *mob);
+void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy);
+void medit_mobile_free(CharData *mob);
 
 void medit_save_internally(DescriptorData *d);
 void medit_save_to_disk(int zone_num);
@@ -104,7 +104,7 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 #endif
 
 //   Инициализация моба по-умолчанию
-void medit_mobile_init(CharacterData *mob) {
+void medit_mobile_init(CharData *mob) {
 	GET_HIT(mob) = GET_MEM_TOTAL(mob) = 1;
 	GET_MANA_STORED(mob) = GET_MAX_MOVE(mob) = 100;
 	GET_NDD(mob) = GET_SDD(mob) = 1;
@@ -131,7 +131,7 @@ void medit_mobile_init(CharacterData *mob) {
 	}
 }
 
-void medit_mobile_copy(CharacterData *dst, CharacterData *src, bool partial_copy)
+void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy)
 /*++
    Функция делает создает копию ПРОТОТИПА моба.
    После вызова этой функции создается полностью независимая копия моба src.
@@ -158,7 +158,7 @@ void medit_mobile_copy(CharacterData *dst, CharacterData *src, bool partial_copy
 	struct Helper **pdhd, *shd;
 
 	// сохраняем старые значения
-	CharacterData tmp(*dst);
+	CharData tmp(*dst);
 
 	// Копирую все поверх
 	*dst = *src;
@@ -199,7 +199,7 @@ void medit_mobile_copy(CharacterData *dst, CharacterData *src, bool partial_copy
 	}
 	// Копирую скрипт и прототипы
 	SCRIPT(dst)->cleanup();
-	auto proto_script_old = new ObjectData::triggers_list_t(*src->proto_script);
+	auto proto_script_old = new ObjData::triggers_list_t(*src->proto_script);
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;
 	if (partial_copy && tmp.dl_list)
@@ -212,7 +212,7 @@ void medit_mobile_copy(CharacterData *dst, CharacterData *src, bool partial_copy
 	//	CharacterAlias::add(dst);
 }
 
-void medit_mobile_free(CharacterData *mob)
+void medit_mobile_free(CharData *mob)
 /*++
 	Функция полностью освобождает память, занимаемую данными моба.
 	ВНИМАНИЕ. Память самой структуры char_data не освобождается.
@@ -270,7 +270,7 @@ void medit_setup(DescriptorData *d, int real_num)
 	  real_num - RNUM исходного моба, новый -1
 --*/
 {
-	CharacterData *mob = new CharacterData;
+	CharData *mob = new CharData;
 
 	medit_mobile_init(mob);
 
@@ -348,7 +348,7 @@ void medit_setup(DescriptorData *d, int real_num)
 */
 void medit_save_internally(DescriptorData *d) {
 	int rmob_num, found = 0, new_mob_num = 0, cmd_no, j;
-	CharacterData *new_proto;
+	CharData *new_proto;
 	IndexData *new_index;
 	DescriptorData *dsc;
 
@@ -402,7 +402,7 @@ void medit_save_internally(DescriptorData *d) {
 		fprintf(stderr, "top_of_mobt: %d, new top_of_mobt: %d\n", top_of_mobt, top_of_mobt + 1);
 #endif
 
-		new_proto = new CharacterData[top_of_mobt + 2];
+		new_proto = new CharData[top_of_mobt + 2];
 		CREATE(new_index, top_of_mobt + 2);
 
 		for (rmob_num = 0; rmob_num <= top_of_mobt; rmob_num++) {
@@ -550,7 +550,7 @@ void medit_save_to_disk(int zone_num) {
 	int i, j, c, rmob_num, zone, top, sum;
 	FILE *mob_file;
 	char fname[64];
-	CharacterData *mob;
+	CharData *mob;
 #if defined(OASIS_MPROG)
 	MPROG_DATA *mob_prog = nullptr;
 #endif
@@ -1142,7 +1142,7 @@ void medit_disp_aff_flags(DescriptorData *d) {
 // * Display main menu.
 void medit_disp_menu(DescriptorData *d) {
 	int i;
-	CharacterData *mob;
+	CharData *mob;
 
 	mob = OLC_MOB(d);
 	get_char_cols(d->character.get());
@@ -1288,7 +1288,7 @@ void disp_dl_list(DescriptorData *d) {
 	// 1) ...
 	// 2) ...
 	int i;
-	CharacterData *mob;
+	CharData *mob;
 
 	mob = OLC_MOB(d);
 	get_char_cols(d->character.get());

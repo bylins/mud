@@ -16,7 +16,7 @@
 
 #include "abilities_constants.h"
 #include "boot/boot_constants.h"
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 #include "utils/logger.h"
 #include "skills.h"
 
@@ -54,8 +54,8 @@ class AbilitiesInfo {
 class AbilityInfo {
  private:
 	using MsgRegister = std::unordered_map<EAbilityMsg, std::string>;
-	using IntGetter = std::function<int (CharacterData *)>;
-	using CircumstanceHandler = std::function<bool (CharacterData *, CharacterData *)>;
+	using IntGetter = std::function<int (CharData *)>;
+	using CircumstanceHandler = std::function<bool (CharData *, CharData *)>;
 
 	friend class AbilitiesInfo::AbilitiesInfoBuilder;
 
@@ -127,13 +127,13 @@ class AbilityInfo {
 	EBaseStat GetBaseStatId() const {
 		return base_stat_id_;
 	};
-	int GetBaseStat(CharacterData *ch) const {
+	int GetBaseStat(CharData *ch) const {
 		return base_stat_getter_(ch);
 	};
 	ESaving GetSavingId() const {
 		return saving_id_;
 	}
-	int GetSaving(CharacterData *ch) const {
+	int GetSaving(CharData *ch) const {
 		return saving_getter_(ch);
 	}
 	int GetDifficulty() const {
@@ -151,7 +151,7 @@ class AbilityInfo {
 	int GetPVPPenalty() const {
 		return pc_vs_pc_penalty_;
 	}
-	int GetCircumstanceMod(CharacterData *ch, CharacterData *victim) const;
+	int GetCircumstanceMod(CharData *ch, CharData *victim) const;
 	const std::string &GetMsg(EAbilityMsg msg_id) const;
 	const std::string &GetDefaultMsg(EAbilityMsg msg_id) const;
 

@@ -4,7 +4,7 @@
 
 #include "ext_money.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "color.h"
 #include "utils/pugixml.h"
 #include "utils/parse.h"
@@ -20,7 +20,7 @@ using namespace Remort;
 
 namespace {
 
-void message_low_torc(CharacterData *ch, unsigned type, int amount, const char *add_text);
+void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_text);
 
 } // namespace
 
@@ -30,10 +30,10 @@ const char *CONFIG_FILE = LIB_MISC"remort.xml";
 std::string WHERE_TO_REMORT_STR;
 
 void init();
-bool can_remort_now(CharacterData *ch);
-void show_config(CharacterData *ch);
+bool can_remort_now(CharData *ch);
+void show_config(CharData *ch);
 int calc_torc_daily(int rmrt);
-bool need_torc(CharacterData *ch);
+bool need_torc(CharData *ch);
 
 } // namespace Remort
 
@@ -115,27 +115,27 @@ TorcReq::TorcReq(int rmrt) {
 }
 
 // обмен гривн
-void torc_exch_menu(CharacterData *ch);
-void parse_inc_exch(CharacterData *ch, int amount, int num);
-void parse_dec_exch(CharacterData *ch, int amount, int num);
-int check_input_amount(CharacterData *ch, int num1, int num2);
-bool check_equal_exch(CharacterData *ch);
-void torc_exch_parse(CharacterData *ch, const char *arg);
+void torc_exch_menu(CharData *ch);
+void parse_inc_exch(CharData *ch, int amount, int num);
+void parse_dec_exch(CharData *ch, int amount, int num);
+int check_input_amount(CharData *ch, int num1, int num2);
+bool check_equal_exch(CharData *ch);
+void torc_exch_parse(CharData *ch, const char *arg);
 // дроп гривн
-std::string create_message(CharacterData *ch, int gold, int silver, int bronze);
-bool has_connected_bosses(CharacterData *ch);
+std::string create_message(CharData *ch, int gold, int silver, int bronze);
+bool has_connected_bosses(CharData *ch);
 unsigned calc_type_by_zone_lvl(int zone_lvl);
 int calc_drop_torc(int zone_lvl, int members);
-int check_daily_limit(CharacterData *ch, int drop);
-void gain_torc(CharacterData *ch, int drop);
-void drop_torc(CharacterData *mob);
+int check_daily_limit(CharData *ch, int drop);
+void gain_torc(CharData *ch, int drop);
+void drop_torc(CharData *mob);
 
 } // namespace ExtMoney
 
 namespace ExtMoney {
 
 // распечатка меню обмена гривен ('менять' у глашатая)
-void torc_exch_menu(CharacterData *ch) {
+void torc_exch_menu(CharData *ch) {
 	boost::format menu("   %s%d) %s%-17s%s -> %s%-17s%s [%d -> %d]\r\n");
 	std::stringstream out;
 
@@ -185,7 +185,7 @@ void torc_exch_menu(CharacterData *ch) {
 }
 
 // обмен в сторону больших гривен
-void parse_inc_exch(CharacterData *ch, int amount, int num) {
+void parse_inc_exch(CharData *ch, int amount, int num) {
 	int torc_from = kTorcBronze;
 	int torc_to = kTorcSilver;
 	int torc_rate = TORC_EXCH_RATE;
@@ -217,7 +217,7 @@ void parse_inc_exch(CharacterData *ch, int amount, int num) {
 }
 
 // обмен в сторону меньших гривен
-void parse_dec_exch(CharacterData *ch, int amount, int num) {
+void parse_dec_exch(CharData *ch, int amount, int num) {
 	int torc_from = kTorcGold;
 	int torc_to = kTorcSilver;
 	int torc_rate = TORC_EXCH_RATE;
@@ -246,7 +246,7 @@ void parse_dec_exch(CharacterData *ch, int amount, int num) {
 }
 
 // кол-во меняемых гривен
-int check_input_amount(CharacterData * /*ch*/, int num1, int num2) {
+int check_input_amount(CharData * /*ch*/, int num1, int num2) {
 	if ((num1 == 1 || num1 == 2) && num2 < TORC_EXCH_RATE) {
 		return TORC_EXCH_RATE;
 	} else if ((num1 == 3 || num1 == 4) && num2 < 1) {
@@ -256,7 +256,7 @@ int check_input_amount(CharacterData * /*ch*/, int num1, int num2) {
 }
 
 // проверка после обмена, что ничего лишнего не сгенерили случайно
-bool check_equal_exch(CharacterData *ch) {
+bool check_equal_exch(CharData *ch) {
 	int before = 0, after = 0;
 	for (unsigned i = 0; i < kTotalTypes; ++i) {
 		if (i == kTorcBronze) {
@@ -281,7 +281,7 @@ bool check_equal_exch(CharacterData *ch) {
 }
 
 // парс ввода при обмене гривен
-void torc_exch_parse(CharacterData *ch, const char *arg) {
+void torc_exch_parse(CharData *ch, const char *arg) {
 	if (!*arg || !a_isdigit(*arg)) {
 		send_to_char("Неверный выбор!\r\n", ch);
 		torc_exch_menu(ch);
@@ -354,7 +354,7 @@ void torc_exch_parse(CharacterData *ch, const char *arg) {
 
 // формирование сообщения о награде гривнами при смерти босса
 // пишет в одну строку о нескольких видах гривен, если таковые были
-std::string create_message(CharacterData *ch, int gold, int silver, int bronze) {
+std::string create_message(CharData *ch, int gold, int silver, int bronze) {
 	std::stringstream out;
 	int cnt = 0;
 
@@ -401,7 +401,7 @@ std::string create_message(CharacterData *ch, int gold, int silver, int bronze) 
 
 // проверка на случай нескольких физических боссов,
 // которые логически являются одной группой, предотвращающая лишний дроп гривен
-bool has_connected_bosses(CharacterData *ch) {
+bool has_connected_bosses(CharData *ch) {
 	// если в комнате есть другие живые боссы
 	for (const auto i : world[ch->in_room]->people) {
 		if (i != ch
@@ -473,7 +473,7 @@ int calc_drop_torc(int zone_lvl, int members) {
 
 // по дефолту отрисовка * за каждую 1/5 от суточного лимита гривен
 // если imm_stat == true, то вместо звездочек конкретные цифры тек/макс
-std::string draw_daily_limit(CharacterData *ch, bool imm_stat) {
+std::string draw_daily_limit(CharData *ch, bool imm_stat) {
 	const int today_torc = ch->get_today_torc();
 	const int torc_req_daily = calc_torc_daily(GET_REAL_REMORT(ch));
 
@@ -501,7 +501,7 @@ std::string draw_daily_limit(CharacterData *ch, bool imm_stat) {
 }
 
 // проверка дропа гривен на суточный замакс
-int check_daily_limit(CharacterData *ch, int drop) {
+int check_daily_limit(CharData *ch, int drop) {
 	const int today_torc = ch->get_today_torc();
 	const int torc_req_daily = calc_torc_daily(GET_REAL_REMORT(ch));
 
@@ -528,7 +528,7 @@ int check_daily_limit(CharacterData *ch, int drop) {
 }
 
 // процесс дропа гривен конкретному чару
-void gain_torc(CharacterData *ch, int drop) {
+void gain_torc(CharData *ch, int drop) {
 	// проверка на индивидуальный суточный замакс гривн
 	int bronze = check_daily_limit(ch, drop);
 	if (bronze <= 0) {
@@ -557,7 +557,7 @@ void gain_torc(CharacterData *ch, int drop) {
 // в той же комнате, группе готорого и раскидываются гривны, если есть
 // кому раскидывать (флаг GF_REMORT, проверка на делимость гривен, проверка на
 // то, что чар находился в комнате с мобом не менее половины раундов дамагера)
-void drop_torc(CharacterData *mob) {
+void drop_torc(CharData *mob) {
 	if (!mob->get_role(MOB_ROLE_BOSS)
 		|| has_connected_bosses(mob)) {
 		return;
@@ -574,7 +574,7 @@ void drop_torc(CharacterData *mob) {
 		return;
 	}
 
-	CharacterData *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
+	CharData *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
 						? d->character->get_master()
 						: d->character.get();
 
@@ -611,7 +611,7 @@ void drop_torc(CharacterData *mob) {
 	}
 }
 
-void player_drop_log(CharacterData *ch, unsigned type, int diff) {
+void player_drop_log(CharData *ch, unsigned type, int diff) {
 	int total_bronze = ch->get_ext_money(kTorcBronze);
 	total_bronze += ch->get_ext_money(kTorcSilver) * TORC_EXCH_RATE;
 	total_bronze += ch->get_ext_money(kTorcGold) * TORC_EXCH_RATE * TORC_EXCH_RATE;
@@ -684,7 +684,7 @@ void init() {
 }
 
 // проверка, мешает ли что-то чару уйти в реморт
-bool can_remort_now(CharacterData *ch) {
+bool can_remort_now(CharData *ch) {
 	if (PRF_FLAGGED(ch, PRF_CAN_REMORT) || !need_torc(ch)) {
 		return true;
 	}
@@ -692,7 +692,7 @@ bool can_remort_now(CharacterData *ch) {
 }
 
 // распечатка переменных из конфига
-void show_config(CharacterData *ch) {
+void show_config(CharData *ch) {
 	std::stringstream out;
 	out << "&SТекущие значения основных параметров:\r\n"
 		<< "WHERE_TO_REMORT_STR = " << WHERE_TO_REMORT_STR << "\r\n"
@@ -747,7 +747,7 @@ int calc_torc_daily(int rmrt) {
 }
 
 // проверка, требуется ли от чара жертвовать для реморта
-bool need_torc(CharacterData *ch) {
+bool need_torc(CharData *ch) {
 	TorcReq torc_req(GET_REAL_REMORT(ch));
 
 	if (torc_req.type < kTotalTypes && torc_req.amount > 0) {
@@ -762,7 +762,7 @@ bool need_torc(CharacterData *ch) {
 namespace {
 
 // жертвование гривен
-void donat_torc(CharacterData *ch, const std::string &mob_name, unsigned type, int amount) {
+void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int amount) {
 	const int balance = ch->get_ext_money(type) - amount;
 	ch->set_ext_money(type, balance);
 	PRF_FLAGS(ch).set(PRF_CAN_REMORT);
@@ -790,7 +790,7 @@ void donat_torc(CharacterData *ch, const std::string &mob_name, unsigned type, i
 }
 
 // дергается как при нехватке гривен, так и при попытке реморта без пожертвований
-void message_low_torc(CharacterData *ch, unsigned type, int amount, const char *add_text) {
+void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_text) {
 	if (type < kTotalTypes) {
 		const int money = ch->get_ext_money(type);
 		send_to_char(ch,
@@ -809,7 +809,7 @@ void message_low_torc(CharacterData *ch, unsigned type, int amount, const char *
 } // namespace
 
 // глашатаи
-int torc(CharacterData *ch, void *me, int cmd, char * /*argument*/) {
+int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 	if (!ch->desc || IS_NPC(ch)) {
 		return 0;
 	}
@@ -852,7 +852,7 @@ int torc(CharacterData *ch, void *me, int cmd, char * /*argument*/) {
 			// пробуем пожертвовать
 			TorcReq torc_req(GET_REAL_REMORT(ch));
 			if (ch->get_ext_money(torc_req.type) >= torc_req.amount) {
-				const CharacterData *mob = reinterpret_cast<CharacterData *>(me);
+				const CharData *mob = reinterpret_cast<CharData *>(me);
 				donat_torc(ch, mob->get_name_str(), torc_req.type, torc_req.amount);
 			} else {
 				message_low_torc(ch, torc_req.type, torc_req.amount, ". Попробуйте позже.");

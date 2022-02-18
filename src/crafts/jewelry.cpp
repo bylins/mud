@@ -7,7 +7,7 @@
 #include "jewelry.h"
 
 #include "boot/boot_constants.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "handler.h"
 #include "mining.h"
 #include "utils/random.h"
@@ -41,7 +41,7 @@ void InitJewelryVars() {
 	fclose(cfg_file);
 }
 
-bool is_dig_stone(ObjectData *obj) {
+bool is_dig_stone(ObjData *obj) {
 	if ((obj->get_vnum() >= dig_vars.stone1_vnum
 		&& obj->get_vnum() <= dig_vars.last_stone_vnum)
 		|| obj->get_vnum() == dig_vars.glass_vnum
@@ -52,14 +52,14 @@ bool is_dig_stone(ObjectData *obj) {
 	return false;
 }
 
-void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	int percent, prob;
 	char arg1[kMaxInputLength];
 	char arg2[kMaxInputLength];
 	char arg3[kMaxInputLength];
 	char buf[300];
 	char *gem, *item;
-	ObjectData *gemobj, *itemobj;
+	ObjData *gemobj, *itemobj;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -119,8 +119,8 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		send_to_char(buf, ch);
 		return;
 	}
-	if (GET_OBJ_MATER(itemobj) == ObjectData::MAT_NONE || (GET_OBJ_MATER(itemobj) > ObjectData::MAT_COLOR)) {
-		if (!(GET_OBJ_MATER(itemobj) == ObjectData::MAT_BONE || GET_OBJ_MATER(itemobj) == ObjectData::MAT_ROCK)) {
+	if (GET_OBJ_MATER(itemobj) == ObjData::MAT_NONE || (GET_OBJ_MATER(itemobj) > ObjData::MAT_COLOR)) {
+		if (!(GET_OBJ_MATER(itemobj) == ObjData::MAT_BONE || GET_OBJ_MATER(itemobj) == ObjData::MAT_ROCK)) {
 			sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
 			send_to_char(buf, ch);
 			return;
@@ -164,13 +164,13 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
 					gemobj->get_PName(3).c_str(),
 					itemobj->get_PName(3).c_str());
-			act(buf, false, ch, nullptr, nullptr, TO_ROOM);
+			act(buf, false, ch, nullptr, nullptr, kToRoom);
 			extract_obj(gemobj);
 			if (number(1, 100) <= insgem_vars.dikey_percent) {
 				sprintf(buf, "...и испортив хорошую вещь!\r\n");
 				send_to_char(buf, ch);
 				sprintf(buf, "$n испортил$g %s!\r\n", itemobj->get_PName(3).c_str());
-				act(buf, false, ch, nullptr, nullptr, TO_ROOM);
+				act(buf, false, ch, nullptr, nullptr, kToRoom);
 				extract_obj(itemobj);
 			}
 			return;
@@ -205,7 +205,7 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n",
 					gemobj->get_PName(3).c_str(),
 					itemobj->get_PName(3).c_str());
-			act(buf, false, ch, nullptr, nullptr, TO_ROOM);
+			act(buf, false, ch, nullptr, nullptr, kToRoom);
 			extract_obj(gemobj);
 			return;
 		}
@@ -214,7 +214,7 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->get_PName(3).c_str(), itemobj->get_PName(3).c_str());
 	send_to_char(buf, ch);
 	sprintf(buf, "$n вплавил$g %s в %s.\r\n", gemobj->get_PName(3).c_str(), itemobj->get_PName(3).c_str());
-	act(buf, false, ch, nullptr, nullptr, TO_ROOM);
+	act(buf, false, ch, nullptr, nullptr, kToRoom);
 
 	if (GET_OBJ_OWNER(itemobj) == GET_UNIQUE(ch)) {
 		int timer = itemobj->get_timer() + itemobj->get_timer() / 100 * insgem_vars.timer_plus_percent;
@@ -224,7 +224,7 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		itemobj->set_timer(timer);
 	}
 
-	if (GET_OBJ_MATER(gemobj) == ObjectData::MAT_DIAMOND) {
+	if (GET_OBJ_MATER(gemobj) == ObjData::MAT_DIAMOND) {
 		std::string effect;
 		if (!*arg3) {
 			int gem_vnum = GET_OBJ_VNUM(gemobj);
@@ -268,7 +268,7 @@ void do_insertgem(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/
 	extract_obj(gemobj);
 }
 
-void insert_wanted_gem::show(CharacterData *ch, int gem_vnum) {
+void insert_wanted_gem::show(CharData *ch, int gem_vnum) {
 	alias_type::iterator alias_it;
 	char buf[kMaxInputLength];
 

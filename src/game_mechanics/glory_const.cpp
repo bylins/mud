@@ -9,7 +9,7 @@
 #include "utils/pugixml.h"
 #include "structs/structs.h"
 #include "color.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "comm.h"
 #include "db.h"
 #include "genchar.h"
@@ -28,8 +28,8 @@
 #include <iomanip>
 #include <vector>
 
-extern void add_karma(CharacterData *ch, const char *punish, const char *reason);
-extern void check_max_hp(CharacterData *ch);
+extern void add_karma(CharData *ch, const char *punish, const char *reason);
+extern void check_max_hp(CharData *ch);
 
 namespace GloryConst {
 
@@ -106,7 +106,7 @@ const char *olc_stat_name[] =
 		"Запоминание"
 	};
 
-void glory_hide(CharacterData *ch,
+void glory_hide(CharData *ch,
 				bool mode) {  //Говнокод от Стрибога не понимаю как это работает но факт, может ктонить срефакторит
 	std::list<GloryNodePtr> playerGloryList;
 	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it) {
@@ -210,7 +210,7 @@ int calculate_glory_in_stats(GloryListType::const_iterator &i) {
 }
 
 // * Распечатка 'слава информация'.
-void print_glory(CharacterData *ch, GloryListType::iterator &it) {
+void print_glory(CharData *ch, GloryListType::iterator &it) {
 	int spent = 0;
 	*buf = '\0';
 	for (auto i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i) {
@@ -229,7 +229,7 @@ void print_glory(CharacterData *ch, GloryListType::iterator &it) {
 }
 
 // * Показ свободной и вложенной славы у чара (glory имя).
-void print_to_god(CharacterData *ch, CharacterData *god) {
+void print_to_god(CharData *ch, CharData *god) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end()) {
 		send_to_char(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
@@ -301,7 +301,7 @@ const char *olc_add_name[] =
 		"Ю",
 	};
 
-std::string olc_print_stat(CharacterData *ch, int stat) {
+std::string olc_print_stat(CharData *ch, int stat) {
 	if (stat < 0 || stat >= GLORY_TOTAL) {
 		log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
 		return "";
@@ -324,7 +324,7 @@ std::string olc_print_stat(CharacterData *ch, int stat) {
 }
 
 // * Распечатка олц меню.
-void spend_glory_menu(CharacterData *ch) {
+void spend_glory_menu(CharData *ch) {
 	std::ostringstream out;
 	out << "\r\n                         -      +\r\n";
 
@@ -354,7 +354,7 @@ void spend_glory_menu(CharacterData *ch) {
 	send_to_char(out.str(), ch);
 }
 
-void olc_del_stat(CharacterData *ch, int stat) {
+void olc_del_stat(CharData *ch, int stat) {
 	if (stat < 0 || stat >= GLORY_TOTAL) {
 		log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
 		return;
@@ -366,7 +366,7 @@ void olc_del_stat(CharacterData *ch, int stat) {
 	}
 }
 
-void olc_add_stat(CharacterData *ch, int stat) {
+void olc_add_stat(CharData *ch, int stat) {
 	int need_glory = add_stat_cost(stat, ch->desc->glory_const);
 	bool ok = false;
 	switch (stat) {
@@ -441,12 +441,12 @@ void olc_add_stat(CharacterData *ch, int stat) {
 	}
 }
 
-int olc_real_stat(CharacterData *ch, int stat) {
+int olc_real_stat(CharData *ch, int stat) {
 	return ch->desc->glory_const->stat_cur[stat]
 		+ ch->desc->glory_const->stat_add[stat];
 }
 
-bool parse_spend_glory_menu(CharacterData *ch, char *arg) {
+bool parse_spend_glory_menu(CharData *ch, char *arg) {
 	switch (LOWER(*arg)) {
 		case 'а': olc_del_stat(ch, GLORY_STR);
 			break;
@@ -560,7 +560,7 @@ const char *GLORY_CONST_FORMAT =
 	"        слава2 информация\r\n"
 	"        слава2 перевести <имя> <кол-во>\r\n";
 
-void do_spend_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (glory_list.end() == it || IS_IMMORTAL(ch)) {
 		send_to_char("Вам это не нужно...\r\n", ch);
@@ -581,7 +581,7 @@ void do_spend_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd
 		boost::trim(buffer);
 
 		Player p_vict;
-		CharacterData *vict = &p_vict;
+		CharData *vict = &p_vict;
 		if (load_char(name.c_str(), vict) < 0) {
 			send_to_char(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
 			return;
@@ -712,7 +712,7 @@ int remove_glory(long uid, int amount) {
 	return real_removed;
 }
 
-bool reset_glory(CharacterData *ch) {
+bool reset_glory(CharData *ch) {
 	GloryListType::iterator i = glory_list.find(GET_UNIQUE(ch));
 	if (glory_list.end() != i) {
 		glory_list.erase(i);
@@ -725,7 +725,7 @@ bool reset_glory(CharacterData *ch) {
 	return false;
 }
 
-void do_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
 		send_to_char("Формат команды : \r\n"
 					 "   glory <имя> (информация по указанному персонажу)\r\n"
@@ -759,7 +759,7 @@ void do_glory(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharacterData *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CharData *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
 	if (vict && vict->desc && STATE(vict->desc) == CON_GLORY_CONST) {
 		send_to_char("Персонаж в данный момент редактирует свою славу.\r\n", ch);
 		return;
@@ -959,7 +959,7 @@ void load() {
 		save();
 }
 
-void set_stats(CharacterData *ch) {
+void set_stats(CharData *ch) {
 	GloryListType::iterator i = glory_list.find(GET_UNIQUE(ch));
 	if (glory_list.end() == i) {
 		return;
@@ -986,7 +986,7 @@ void set_stats(CharacterData *ch) {
 }
 
 // * Количество вложенных статов (только из числа 6 основных).
-int main_stats_count(CharacterData *ch) {
+int main_stats_count(CharData *ch) {
 	GloryListType::iterator i = glory_list.find(GET_UNIQUE(ch));
 	if (glory_list.end() == i) {
 		return 0;
@@ -1009,7 +1009,7 @@ int main_stats_count(CharacterData *ch) {
 }
 
 // * Вывод инфы в show stats.
-void show_stats(CharacterData *ch) {
+void show_stats(CharData *ch) {
 	int free_glory = 0, spend_glory = 0;
 	for (GloryListType::const_iterator i = glory_list.begin(), iend = glory_list.end(); i != iend; ++i) {
 		free_glory += i->second->free_glory;
@@ -1027,7 +1027,7 @@ void add_total_spent(int amount) {
 	}
 }
 
-void apply_modifiers(CharacterData *ch) {
+void apply_modifiers(CharData *ch) {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end())
 		return;
@@ -1061,7 +1061,7 @@ void apply_modifiers(CharacterData *ch) {
 	}
 }
 
-void print_glory_top(CharacterData *ch) {
+void print_glory_top(CharData *ch) {
 	std::stringstream out;
 	boost::format class_format("\t%-25s %-2d\r\n");
 	std::map<int, GloryNodePtr> temp_list;

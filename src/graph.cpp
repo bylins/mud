@@ -19,18 +19,18 @@
 #include "structs/global_objects.h"
 
 // Externals
-void do_say(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_sense(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_say(CharData *ch, char *argument, int cmd, int subcmd);
+void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 
 // local functions
 void bfs_enqueue(RoomRnum room, int dir);
 void bfs_dequeue(void);
 void bfs_clear_queue(void);
-int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch);
+int find_first_step(RoomRnum src, RoomRnum target, CharData *ch);
 
 struct bfs_queue_struct {
 	RoomRnum room;
@@ -76,7 +76,7 @@ int VALID_EDGE(RoomRnum x, int y, int edge_range, bool through_locked_doors, boo
  * Intended usage: in mobile_activity, give a mob a dir to go if they're
  * tracking another mob or a PC.  Or, a 'track' skill for PCs.
  */
-int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch) {
+int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	int curr_dir, edge;
 	bool through_locked_doors = false;
 	bool through_closed_doors = false;
@@ -160,7 +160,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharacterData *ch) {
 	return (BFS_NO_PATH);
 }
 
-int go_sense(CharacterData *ch, CharacterData *victim) {
+int go_sense(CharData *ch, CharData *victim) {
 	int percent, dir, skill = CalcCurrentSkill(ch, ESkill::kSense, victim);
 
 	skill = skill
@@ -180,8 +180,8 @@ int go_sense(CharacterData *ch, CharacterData *victim) {
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
-void do_sense(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *vict;
+void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *vict;
 	int dir;
 
 	// The character must have the track skill.
@@ -216,7 +216,7 @@ void do_sense(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
-	act("Похоже, $n кого-то ищет.", false, ch, 0, 0, TO_ROOM);
+	act("Похоже, $n кого-то ищет.", false, ch, 0, 0, kToRoom);
 
 	dir = go_sense(ch, vict);
 
@@ -232,7 +232,7 @@ void do_sense(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
 			break;
 	}
-	act(buf, false, ch, 0, vict, TO_CHAR);
+	act(buf, false, ch, 0, vict, kToChar);
 }
 
 

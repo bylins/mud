@@ -11,7 +11,7 @@
 #include "olc.h"
 
 #include "obj_prototypes.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "interpreter.h"
 #include "comm.h"
 #include "db.h"
@@ -20,8 +20,8 @@
 #include "crafts/item_creation.h"
 #include "crafts/im.h"
 #include "administration/privilege.h"
-#include "entities/char.h"
-#include "entities/room.h"
+#include "entities/char_data.h"
+#include "entities/room_data.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
@@ -33,14 +33,14 @@
 #include <vector>
 
 // * External data structures.
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 
 extern DescriptorData *descriptor_list;
 
 // * External functions.
 void zedit_setup(DescriptorData *d, int room_num);
 void zedit_save_to_disk(int zone);
-int zedit_new_zone(CharacterData *ch, int new_zone);
+int zedit_new_zone(CharData *ch, int new_zone);
 void medit_setup(DescriptorData *d, int rmob_num);
 void medit_save_to_disk(int zone);
 void redit_setup(DescriptorData *d, int rroom_num);
@@ -50,14 +50,14 @@ void oedit_save_to_disk(int zone);
 void sedit_setup_new(DescriptorData *d);
 void sedit_setup_existing(DescriptorData *d, int robj_num);
 void room_free(RoomData *room);
-void medit_mobile_free(CharacterData *mob);
+void medit_mobile_free(CharData *mob);
 void trigedit_setup_new(DescriptorData *d);
 void trigedit_setup_existing(DescriptorData *d, int rtrg_num);
 int real_trigger(int vnum);
 void dg_olc_script_free(DescriptorData *d);
 
 // Internal function prototypes.
-void olc_saveinfo(CharacterData *ch);
+void olc_saveinfo(CharData *ch);
 
 // global data
 const char *save_info_msg[5] = {"Rooms", "Objects", "Zone info", "Mobiles", "Shops"};
@@ -113,7 +113,7 @@ olc_data::olc_data()
  * generic OLC stuff, then passes control to the sub-olc sections.
  */
 
-void do_olc(CharacterData *ch, char *argument, int cmd, int subcmd) {
+void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	int number = -1, save = 0, real_num;
 	bool lock = 0, unlock = 0;
 	DescriptorData *d;
@@ -324,7 +324,7 @@ void do_olc(CharacterData *ch, char *argument, int cmd, int subcmd) {
 			break;
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
-		true, d->character.get(), 0, 0, TO_ROOM);
+		true, d->character.get(), 0, 0, kToRoom);
 	PLR_FLAGS(ch).set(PLR_WRITING);
 }
 
@@ -332,7 +332,7 @@ void do_olc(CharacterData *ch, char *argument, int cmd, int subcmd) {
 // Internal utilities
 // ------------------------------------------------------------
 
-void olc_saveinfo(CharacterData *ch) {
+void olc_saveinfo(CharData *ch) {
 	struct olc_save_info *entry;
 
 	if (olc_save_list) {
@@ -385,7 +385,7 @@ void olc_remove_from_save_list(int zone, byte type) {
 * Set the colour string pointers for that which this char will
 * see at color level NRM.  Changing the entries here will change
 * the colour scheme throughout the OLC. */
-void get_char_cols(CharacterData *ch) {
+void get_char_cols(CharData *ch) {
 	nrm = CCNRM(ch, C_NRM);
 	grn = CCGRN(ch, C_NRM);
 	cyn = CCCYN(ch, C_NRM);
@@ -499,7 +499,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 			PLR_FLAGS(d->character).unset(PLR_WRITING);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
-				true, d->character.get(), 0, 0, TO_ROOM);
+				true, d->character.get(), 0, 0, kToRoom);
 		}
 		delete d->olc;
 	}

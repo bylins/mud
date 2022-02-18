@@ -5,13 +5,13 @@
  ************************************************************************/
 
 #include "obj_prototypes.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
 #include "dg_script/dg_scripts.h"
-#include "entities/char.h"
-#include "entities/room.h"
+#include "entities/char_data.h"
+#include "entities/room_data.h"
 #include "help.h"
 #include "entities/zone.h"
 #include "utils/logger.h"
@@ -23,7 +23,7 @@
 #include <vector>
 
 // * External data structures.
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 extern IndexData *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
@@ -47,7 +47,7 @@ void zedit_disp_arg4(DescriptorData *d);
 void zedit_save_internally(DescriptorData *d);
 void zedit_save_to_disk(int zone_num);
 void zedit_create_index(int znum, char *type);
-void zedit_new_zone(CharacterData *ch, int vzone_num);
+void zedit_new_zone(CharData *ch, int vzone_num);
 
 void renum_single_table(int zone);
 int is_number(const char *str);

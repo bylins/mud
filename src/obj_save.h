@@ -8,7 +8,7 @@
 #define OBJSAVE_HPP_INCLUDED
 
 #include "obj_save.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -48,11 +48,11 @@ struct SaveInfo {
 	std::vector<SaveTimeInfo> time;
 };
 
-ObjectData::shared_ptr read_one_object_new(char **data, int *error);
-void write_one_object(std::stringstream &out, ObjectData *object, int location);
-int Crash_offer_rent(CharacterData *ch, CharacterData *receptionist, int display, int factor, int *totalcost);
-void Crash_rentsave(CharacterData *ch, int cost);
-void Crash_crashsave(CharacterData *ch);
+ObjData::shared_ptr read_one_object_new(char **data, int *error);
+void write_one_object(std::stringstream &out, ObjData *object, int location);
+int Crash_offer_rent(CharData *ch, CharData *receptionist, int display, int factor, int *totalcost);
+void Crash_rentsave(CharData *ch, int cost);
+void Crash_crashsave(CharData *ch);
 int Crash_write_timer(std::size_t index);
 void Crash_rent_time(int dectime);
 void Crash_save_all();

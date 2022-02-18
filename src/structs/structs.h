@@ -96,8 +96,8 @@ extern const char *nothing_string;
 
 const __uint8_t kMaxDest = 50;
 
-class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-class ObjectData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 class Trigger;
 
 // preamble ************************************************************
@@ -270,7 +270,7 @@ struct Punish {
 
 // Structure used for entities following other entities //
 struct Follower {
-	CharacterData *ch = nullptr;
+	CharData *ch = nullptr;
 	struct Follower *next = nullptr;
 };
 
@@ -371,7 +371,7 @@ struct IndexData {
 	Vnum vnum;            // virtual number of this mob/obj       //
 	int total_online;        // number of existing units of this mob/obj //
 	int stored;        // number of things in rent file            //
-	int (*func)(CharacterData *, void *, int, char *);
+	int (*func)(CharData *, void *, int, char *);
 	char *farg;        // string argument for special function     //
 	Trigger *proto;    // for triggers... the trigger     //
 	int zone;            // mob/obj zone rnum //

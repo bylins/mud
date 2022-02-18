@@ -26,7 +26,7 @@
 #include "crafts/jewelry.h"
 #include "crafts/mining.h"
 #include "game_mechanics/celebrates.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "entities/player_races.h"
 #include "entities/world_characters.h"
 #include "game_classes/classes.h"
@@ -182,7 +182,7 @@ bool is_empty(ZoneRnum zone_nr);
 void reset_zone(ZoneRnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
-void do_reboot(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
 void check_start_rooms();
 void add_vrooms_to_all_zones();
 void renum_world();
@@ -219,9 +219,9 @@ int exchange_database_load(void);
 
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void calc_easter(void);
-void do_start(CharacterData *ch, int newbie);
+void do_start(CharData *ch, int newbie);
 extern void repop_decay(ZoneRnum zone);    // рассыпание обьектов ITEM_REPOP_DECAY
-int level_exp(CharacterData *ch, int level);
+int level_exp(CharData *ch, int level);
 //extern char *fread_action(FILE *fl, int nr);
 void load_mobraces();
 
@@ -240,7 +240,7 @@ extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
 extern int class_stats_limit[kNumPlayerClasses][6];
 extern void LoadProxyList();
-extern void add_karma(CharacterData *ch, const char *punish, const char *reason);
+extern void add_karma(CharData *ch, const char *punish, const char *reason);
 
 char *fread_action(FILE *fl, int nr) {
 	char buf[kMaxStringLength];
@@ -335,10 +335,10 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	// куда одевается наш предмет
 	int item_wear = -1;
 	bool type_item = false;
-	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ARMOR
-		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_STAFF
-		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_WORN
-		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR
+		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF
+		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WORN
+		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		type_item = true;
 	}
 	// сумма для статов
@@ -540,10 +540,10 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 float count_unlimited_timer(const CObjectPrototype *obj) {
 	float result = 0.0;
 	bool type_item = false;
-	if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_ARMOR
-		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_STAFF
-		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_WORN
-		|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_ARMOR
+		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF
+		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WORN
+		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		type_item = true;
 	}
 	// сумма для статов
@@ -1040,7 +1040,7 @@ void load_dquest() {
  * 'reload' command even when the string was not replaced.
  * To fix later, if desired. -gg 6/24/99
  */
-void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
 
 	if (!str_cmp(arg, "all") || *arg == '*') {
@@ -1063,7 +1063,7 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		init_portals();
 		load_sheduled_reboot();
 		oload_table.init();
-		ObjectData::init_set_table();
+		ObjData::init_set_table();
 		load_mobraces();
 		load_morphs();
 		GlobalDrop::init();
@@ -1090,7 +1090,7 @@ void do_reboot(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
 	else if (!str_cmp(arg, "setstuff")) {
-		ObjectData::init_set_table();
+		ObjData::init_set_table();
 		HelpSystem::reload(HelpSystem::STATIC);
 	} else if (!str_cmp(arg, "immlist"))
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
@@ -1260,8 +1260,8 @@ void init_portals(void) {
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 	if (GET_OBJ_SKILL(obj) > 0
-		&& (GET_OBJ_TYPE(obj) == ObjectData::ITEM_DRINKCON
-			|| GET_OBJ_TYPE(obj) == ObjectData::ITEM_FOUNTAIN)) {
+		&& (GET_OBJ_TYPE(obj) == ObjData::ITEM_DRINKCON
+			|| GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN)) {
 		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
 			GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
@@ -1269,7 +1269,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
 			const auto potion = world_objects.create_from_prototype_by_vnum(GET_OBJ_SKILL(obj));
 			if (potion
-				&& GET_OBJ_TYPE(potion) == ObjectData::ITEM_POTION) {
+				&& GET_OBJ_TYPE(potion) == ObjData::ITEM_POTION) {
 				drinkcon::copy_potion_values(potion.get(), obj);
 				if (proto) {
 					// copy_potion_values сетит до кучи и внум из пошена,
@@ -1485,7 +1485,7 @@ void init_zone_types() {
 	fclose(zt_file);
 }
 
-void ObjectData::init_set_table() {
+void ObjData::init_set_table() {
 	std::string cppstr, tag;
 	int mode = SETSTUFF_SNUM;
 	id_to_set_info_map::iterator snum;
@@ -1494,7 +1494,7 @@ void ObjectData::init_set_table() {
 	class_to_act_map::iterator clss;
 	int appnum = 0;
 
-	ObjectData::set_table.clear();
+	ObjData::set_table.clear();
 
 	std::ifstream fp(LIB_MISC "setstuff.lst");
 
@@ -1567,7 +1567,7 @@ void ObjectData::init_set_table() {
 			}
 
 			std::pair<id_to_set_info_map::iterator, bool>
-				p = ObjectData::set_table.insert(std::make_pair(tmpsnum, set_info()));
+				p = ObjData::set_table.insert(std::make_pair(tmpsnum, set_info()));
 
 			if (!p.second) {
 				cppstr = "init_set_table:: Error in line '#" + cppstr + "', this set already exists";
@@ -1942,11 +1942,11 @@ void ObjectData::init_set_table() {
 
 					id_to_set_info_map::iterator it;
 
-					for (it = ObjectData::set_table.begin(); it != ObjectData::set_table.end(); it++)
+					for (it = ObjData::set_table.begin(); it != ObjData::set_table.end(); it++)
 						if (it->second.find(tmpvnum) != it->second.end())
 							break;
 
-					if (it != ObjectData::set_table.end()) {
+					if (it != ObjData::set_table.end()) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr
 							+ "', object can exist only in one set";
 						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
@@ -1993,7 +1993,7 @@ void ObjectData::init_set_table() {
 	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS
 		&& mode != SETSTUFF_AFCN) {
 		cppstr = "init_set_table:: Last set was deleted, because of unexpected end of file";
-		ObjectData::set_table.erase(snum);
+		ObjData::set_table.erase(snum);
 		mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
 	}
 }
@@ -2060,7 +2060,7 @@ ClanMailType clan_list;
 } // namespace
 
 // * Проверка возможности снупа виктима иммом (проверка кланов и их политики).
-bool can_snoop(CharacterData *imm, CharacterData *vict) {
+bool can_snoop(CharData *imm, CharData *vict) {
 	if (!CLAN(vict)) {
 		return true;
 	}
@@ -2306,7 +2306,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading features definitions");
 	log("Loading features definitions.");
-	determineFeaturesSpecification();
+	InitFeatures();
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
@@ -2339,7 +2339,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading setstuff table");
 	log("Booting setstuff table.");
-	ObjectData::init_set_table();
+	ObjData::init_set_table();
 
 	boot_profiler.next_step("Loading item levels");
 	log("Init item levels.");
@@ -2636,9 +2636,9 @@ void reset_time(void) {
 		number(year_temp[time_info.month].min, year_temp[time_info.month].max)) / 5;
 	weather_info.pressure = 960;
 	if ((time_info.month >= MONTH_MAY) && (time_info.month <= MONTH_NOVEMBER))
-		weather_info.pressure += dice(1, 50);
+		weather_info.pressure += RollDices(1, 50);
 	else
-		weather_info.pressure += dice(1, 80);
+		weather_info.pressure += RollDices(1, 80);
 
 	weather_info.change = 0;
 	weather_info.weather_type = 0;
@@ -2727,10 +2727,10 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 			break;
 
 		case DB_BOOT_MOB: {
-			mob_proto = new CharacterData[rec_count]; // TODO: переваять на вектор (+в medit)
+			mob_proto = new CharData[rec_count]; // TODO: переваять на вектор (+в medit)
 			CREATE(mob_index, rec_count);
 			const size_t index_size = sizeof(IndexData) * rec_count;
-			const size_t characters_size = sizeof(CharacterData) * rec_count;
+			const size_t characters_size = sizeof(CharData) * rec_count;
 			log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.", rec_count, index_size, characters_size);
 		}
 			break;
@@ -2853,7 +2853,7 @@ void add_vrooms_to_all_zones() {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
-		new_room->proto_script.reset(new ObjectData::triggers_list_t());
+		new_room->proto_script.reset(new ObjData::triggers_list_t());
 	}
 }
 
@@ -2956,7 +2956,7 @@ void renum_zone_table(void) {
 }
 
 // Make own name by process aliases
-int trans_obj_name(ObjectData *obj, CharacterData *ch) {
+int trans_obj_name(ObjData *obj, CharData *ch) {
 	// ищем метку @p , @p1 ... и заменяем на падежи.
 	int i, k;
 	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) {
@@ -2995,7 +2995,7 @@ void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src) {
 }
 
 // Dead load list object load
-int dl_load_obj(ObjectData *corpse, CharacterData *ch, CharacterData *chr, int DL_LOAD_TYPE) {
+int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) {
 	bool last_load = true;
 	bool load = false;
 	bool miw;
@@ -3029,7 +3029,7 @@ int dl_load_obj(ObjectData *corpse, CharacterData *ch, CharacterData *chr, int D
 			} else {
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
 				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj->get_rnum())
-					|| GET_OBJ_MIW(tobj) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM
+					|| GET_OBJ_MIW(tobj) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(tobj.get())) {
 					miw = true;
 				} else {
@@ -3068,7 +3068,7 @@ int dl_load_obj(ObjectData *corpse, CharacterData *ch, CharacterData *chr, int D
 					}
 					// Добавлена проверка на отсутствие трупа
 					if (MOB_FLAGGED(ch, MOB_CORPSE)) {
-						act("На земле остал$U лежать $o.", false, ch, tobj.get(), 0, TO_ROOM);
+						act("На земле остал$U лежать $o.", false, ch, tobj.get(), 0, kToRoom);
 						obj_to_room(tobj.get(), ch->in_room);
 					} else {
 						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->get_carried_by() == chr)) {
@@ -3174,14 +3174,14 @@ int test_levels[] = {
 
 } // namespace
 
-int calc_boss_value(CharacterData *mob, int num) {
+int calc_boss_value(CharData *mob, int num) {
 	if (mob->get_role(MOB_ROLE_BOSS)) {
 		num += num * 25 / 100;
 	}
 	return num;
 }
 
-void set_test_data(CharacterData *mob) {
+void set_test_data(CharData *mob) {
 	if (!mob) {
 		log("SYSERROR: null mob (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
@@ -3247,7 +3247,7 @@ int csort(const void *a, const void *b) {
 
 
 
-int vnum_mobile(char *searchname, CharacterData *ch) {
+int vnum_mobile(char *searchname, CharData *ch) {
 	int nr, found = 0;
 
 	for (nr = 0; nr <= top_of_mobt; nr++) {
@@ -3259,7 +3259,7 @@ int vnum_mobile(char *searchname, CharacterData *ch) {
 	return (found);
 }
 
-int vnum_object(char *searchname, CharacterData *ch) {
+int vnum_object(char *searchname, CharData *ch) {
 	int found = 0;
 
 	for (size_t nr = 0; nr < obj_proto.size(); nr++) {
@@ -3274,7 +3274,7 @@ int vnum_object(char *searchname, CharacterData *ch) {
 	return (found);
 }
 
-int vnum_flag(char *searchname, CharacterData *ch) {
+int vnum_flag(char *searchname, CharData *ch) {
 	int found = 0, plane = 0, counter = 0, plane_offset = 0;
 	bool f = false;
 // type:
@@ -3386,7 +3386,7 @@ int vnum_flag(char *searchname, CharacterData *ch) {
 	return found;
 }
 
-int vnum_room(char *searchname, CharacterData *ch) {
+int vnum_room(char *searchname, CharData *ch) {
 	int nr, found = 0;
 
 	for (nr = 0; nr <= top_of_world; nr++) {
@@ -3398,7 +3398,7 @@ int vnum_room(char *searchname, CharacterData *ch) {
 	return (found);
 }
 
-int vnum_obj_trig(char *searchname, CharacterData *ch) {
+int vnum_obj_trig(char *searchname, CharData *ch) {
 	int num;
 	if ((num = atoi(searchname)) == 0) {
 		return 0;
@@ -3484,7 +3484,7 @@ int get_test_hp(int lvl) {
 }
 
 // create a new mobile from a prototype
-CharacterData *read_mobile(MobVnum nr, int type) {                // and MobRnum
+CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	int is_corpse = 0;
 	MobRnum i;
 
@@ -3502,15 +3502,15 @@ CharacterData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		i = nr;
 	}
 
-	CharacterData *mob = new CharacterData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
+	CharData *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
-	mob->proto_script.reset(new ObjectData::triggers_list_t());
+	mob->proto_script.reset(new ObjData::triggers_list_t());
 	mob->script.reset(new Script());    //fill it in assign_triggers from proto_script
 	character_list.push_front(mob);
 
 	if (!mob->points.max_hit) {
 		mob->points.max_hit = std::max(1,
-									   dice(GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob)) + mob->points.hit);
+									   RollDices(GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob)) + mob->points.hit);
 	} else {
 		mob->points.max_hit = std::max(1,
 									   number(mob->points.hit, GET_MEM_TOTAL(mob)));
@@ -3532,7 +3532,7 @@ CharacterData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
 	EXTRACT_TIMER(mob) = 0;
 	mob->points.move = mob->points.max_move;
-	mob->add_gold(dice(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
+	mob->add_gold(RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
 	mob->player_data.time.birth = time(nullptr);
 	mob->player_data.time.played = 0;
@@ -3724,7 +3724,7 @@ bool can_be_reset(ZoneRnum zone) {
 	return true;
 }
 
-void paste_mob(CharacterData *ch, RoomRnum room) {
+void paste_mob(CharData *ch, RoomRnum room) {
 	if (!IS_NPC(ch) || ch->get_fighting() || GET_POS(ch) < EPosition::kStun)
 		return;
 	if (IS_CHARMICE(ch)
@@ -3818,7 +3818,7 @@ void paste_mob(CharacterData *ch, RoomRnum room) {
 	}
 }
 
-void paste_obj(ObjectData *obj, RoomRnum room) {
+void paste_obj(ObjData *obj, RoomRnum room) {
 	if (obj->get_carried_by()
 		|| obj->get_worn_by()
 		|| room == kNowhere) {
@@ -3914,11 +3914,11 @@ void paste_obj(ObjectData *obj, RoomRnum room) {
 }
 
 void paste_mobiles() {
-	character_list.foreach_on_copy([](const CharacterData::shared_ptr &character) {
+	character_list.foreach_on_copy([](const CharData::shared_ptr &character) {
 		paste_mob(character.get(), character->in_room);
 	});
 
-	world_objects.foreach_on_copy([](const ObjectData::shared_ptr &object) {
+	world_objects.foreach_on_copy([](const ObjData::shared_ptr &object) {
 		paste_obj(object.get(), object->get_in_room());
 	});
 }
@@ -3929,8 +3929,8 @@ void paste_on_reset(RoomData *to_room) {
 		paste_mob(ch, ch->in_room);
 	}
 
-	ObjectData *obj_next;
-	for (ObjectData *obj = to_room->contents; obj; obj = obj_next) {
+	ObjData *obj_next;
+	for (ObjData *obj = to_room->contents; obj; obj = obj_next) {
 		obj_next = obj->get_next_content();
 		paste_obj(obj, obj->get_in_room());
 	}
@@ -3967,7 +3967,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 			}
 
 			for (load = (*room)->mobs.begin(); load != (*room)->mobs.end(); ++load) {
-				CharacterData *mob;
+				CharData *mob;
 				int i = real_mobile((*load)->vnum);
 				if (i > 0
 					&& mob_index[i].total_online < (*load)->max) {
@@ -4017,7 +4017,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 				}
 			}
 			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load) {
-				ObjectData *obj_room;
+				ObjData *obj_room;
 				ObjRnum rnum = real_object((*load)->vnum);
 				if (rnum == -1) {
 					log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load)->vnum);
@@ -4053,7 +4053,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
 								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj_in
-									&& GET_OBJ_TYPE(obj) == ObjectData::ITEM_CONTAINER) {
+									&& GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER) {
 									obj_to_obj(obj_in.get(), obj.get());
 									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
 
@@ -4113,7 +4113,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 	if (celebrate->objsToAttach.find(zone_vnum) != celebrate->objsToAttach.end()) {
 		Celebrates::AttachList list = celebrate->objsToAttach[zone_vnum];
 
-		world_objects.foreach([&](const ObjectData::shared_ptr &o) {
+		world_objects.foreach([&](const ObjData::shared_ptr &o) {
 			if (o->get_rnum() > 0 && list.find(o->get_rnum()) != list.end()) {
 				for (Celebrates::TrigList::iterator it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end();
 					 ++it) {
@@ -4228,10 +4228,10 @@ bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) {
 void ZoneReset::reset_zone_essential() {
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
-	CharacterData *mob = nullptr, *leader = nullptr;
-	ObjectData *obj_to, *obj_room;
-	CharacterData *tmob = nullptr;    // for trigger assignment
-	ObjectData *tobj = nullptr;    // for trigger assignment
+	CharData *mob = nullptr, *leader = nullptr;
+	ObjData *obj_to, *obj_room;
+	CharData *tmob = nullptr;    // for trigger assignment
+	ObjData *tobj = nullptr;    // for trigger assignment
 	const auto zone = m_zone_rnum;    // for ZCMD macro
 
 	int last_state, curr_state;    // статус завершения последней и текущей команды
@@ -4354,7 +4354,7 @@ void ZoneReset::reset_zone_essential() {
 					}
 					// Теперь грузим обьект если надо
 					if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM
+						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)
@@ -4384,7 +4384,7 @@ void ZoneReset::reset_zone_essential() {
 					// object to object
 					// 'P' <flag> <ObjVnum> <max_in_world> <target_vnum> <load%|-1>
 					if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM
+						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
@@ -4392,7 +4392,7 @@ void ZoneReset::reset_zone_essential() {
 							ZONE_ERROR("target obj not found, command omited");
 							break;
 						}
-						if (GET_OBJ_TYPE(obj_to) != ObjectData::ITEM_CONTAINER) {
+						if (GET_OBJ_TYPE(obj_to) != ObjData::ITEM_CONTAINER) {
 							ZONE_ERROR("attempt put obj to non container, omited");
 							ZCMD.command = '*';
 							break;
@@ -4424,7 +4424,7 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 					if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM
+						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
@@ -4448,7 +4448,7 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 					if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->get_max_in_world()
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjectData::UNLIMITED_GLOBAL_MAXIMUM
+						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
@@ -4926,7 +4926,7 @@ void recreate_saveinfo(const size_t number) {
 * Можно канеш просто в get_skill иммам возвращать 100 или там 200, но тут зато можно
 * потестить че-нить с возможностью покачать скилл во время игры иммом.
 */
-void set_god_skills(CharacterData *ch) {
+void set_god_skills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsValid(i)) {
 			ch->set_skill(i, 200);
@@ -4937,7 +4937,7 @@ void set_god_skills(CharacterData *ch) {
 #define NUM_OF_SAVE_THROWS    5
 
 // по умолчанию reboot = 0 (пользуется только при ребуте)
-int load_char(const char *name, CharacterData *char_element, bool reboot, const bool find_id) {
+int load_char(const char *name, CharData *char_element, bool reboot, const bool find_id) {
 	const auto player_i = char_element->load_char_ascii(name, reboot, find_id);
 	if (player_i > -1) {
 		char_element->set_pfilepos(player_i);
@@ -5018,7 +5018,7 @@ int file_to_string(const char *name, char *buf) {
 	return (0);
 }
 
-void clear_char_skills(CharacterData *ch) {
+void clear_char_skills(CharData *ch) {
 	int i;
 	ch->real_abils.Feats.reset();
 	for (i = 0; i <= kSpellCount; i++)
@@ -5031,7 +5031,7 @@ void clear_char_skills(CharacterData *ch) {
 const char *remort_msg =
 	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
-void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
+void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int i, place_of_destination, load_room = kNowhere;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
@@ -5081,7 +5081,7 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	log("Remort %s", GET_NAME(ch));
 	ch->remort();
-	act(remort_msg2, false, ch, nullptr, nullptr, TO_ROOM);
+	act(remort_msg2, false, ch, nullptr, nullptr, kToRoom);
 
 	if (ch->is_morphed()) ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
@@ -5220,8 +5220,8 @@ void do_remort(CharacterData *ch, char *argument, int/* cmd*/, int subcmd) {
 	snprintf(buf2, sizeof(buf2), "dest=%d", place_of_destination);
 	add_karma(ch, buf, buf2);
 
-	act("$n вступил$g в игру.", true, ch, 0, 0, TO_ROOM);
-	act("Вы перевоплотились! Желаем удачи!", false, ch, 0, 0, TO_CHAR);
+	act("$n вступил$g в игру.", true, ch, 0, 0, kToRoom);
+	act("Вы перевоплотились! Желаем удачи!", false, ch, 0, 0, kToChar);
 }
 
 // returns the real number of the room with given virtual number
@@ -5269,7 +5269,7 @@ MobRnum real_mobile(MobVnum vnum) {
 
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-int must_be_deleted(CharacterData *short_ch) {
+int must_be_deleted(CharData *short_ch) {
 	int ci, timeout;
 
 	if (PLR_FLAGS(short_ch).get(PLR_NODELETE)) {
@@ -5428,7 +5428,7 @@ void flush_player_index() {
 	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
 }
 
-void rename_char(CharacterData *ch, char *oname) {
+void rename_char(CharData *ch, char *oname) {
 	char filename[kMaxInputLength], ofilename[kMaxInputLength];
 
 	// 1) Rename(if need) char and pkill file - directly
@@ -5513,7 +5513,7 @@ void room_copy(RoomData *dst, RoomData *src)
 	{
 		// Сохраняю track, contents, people, аффекты
 		struct TrackData *track = dst->track;
-		ObjectData *contents = dst->contents;
+		ObjData *contents = dst->contents;
 		const auto people_backup = dst->people;
 		auto affected = dst->affected;
 
@@ -5563,7 +5563,7 @@ void room_copy(RoomData *dst, RoomData *src)
 	// Копирую скрипт и прототипы
 	SCRIPT(dst).reset(new Script());
 
-	dst->proto_script.reset(new ObjectData::triggers_list_t());
+	dst->proto_script.reset(new ObjData::triggers_list_t());
 	*dst->proto_script = *src->proto_script;
 }
 
@@ -5760,7 +5760,7 @@ const char *BLOCK_FILE = LIB_MISC"offtop.lst";
 std::vector<std::string> block_list;
 
 /// Проверка на наличие чара в стоп-списке и сет флага
-void set_flag(CharacterData *ch) {
+void set_flag(CharData *ch) {
 	std::string mail(GET_EMAIL(ch));
 	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);

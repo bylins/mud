@@ -17,13 +17,13 @@ extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];
 
-extern int pc_duration(CharacterData *ch, int cnst, int level, int level_divisor, int min, int max);
+extern int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
 
 /*
  * Функция осуществляет поиск цели для DG_CAST
  * Облегченная версия FindCastTarget
  */
-int find_dg_cast_target(int spellnum, const char *t, CharacterData *ch, CharacterData **tch, ObjectData **tobj, RoomData **troom) {
+int find_dg_cast_target(int spellnum, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom) {
 	*tch = nullptr;
 	*tobj = nullptr;
 	//если чар есть но он по каким-то причинам в kNowhere крешает как минимум в mag_masses так как указатель на комнату nullptr
@@ -123,7 +123,7 @@ int find_dg_cast_target(int spellnum, const char *t, CharacterData *ch, Characte
 // set to TAR_IGNORE. Also, group spells are not permitted
 // code borrowed from do_cast()
 void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
-	CharacterData *caster = nullptr;
+	CharData *caster = nullptr;
 	RoomData *caster_room = nullptr;
 	char *s, *t;
 	int spellnum, target = 0;
@@ -132,13 +132,13 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 
 	// need to get the caster or the room of the temporary caster
 	switch (type) {
-		case MOB_TRIGGER: caster = (CharacterData *) go;
+		case MOB_TRIGGER: caster = (CharData *) go;
 			break;
 		case WLD_TRIGGER: caster_room = (RoomData *) go;
 			break;
 		case OBJ_TRIGGER:
-			caster_room = dg_room_of_obj((ObjectData *) go);
-			caster = dg_caster_owner_obj((ObjectData *) go);
+			caster_room = dg_room_of_obj((ObjData *) go);
+			caster = dg_caster_owner_obj((ObjData *) go);
 			if (!caster_room) {
 				trig_log(trig, "dg_do_cast: unknown room for object-caster!");
 				return;
@@ -181,19 +181,19 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 		// take select pieces from char_to_room();
 		dummy_mob = true;
 		if (type == OBJ_TRIGGER) {
-			sprintf(buf, "дух %s", ((ObjectData *) go)->get_PName(1).c_str());
+			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(1).c_str());
 			caster->set_npc_name(buf);
-			sprintf(buf, "дух %s", ((ObjectData *) go)->get_PName(1).c_str());
+			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[0] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjectData *) go)->get_PName(1).c_str());
+			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[1] = std::string(buf);
-			sprintf(buf, "духу %s", ((ObjectData *) go)->get_PName(1).c_str());
+			sprintf(buf, "духу %s", ((ObjData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[2] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjectData *) go)->get_PName(1).c_str());
+			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[3] = std::string(buf);
-			sprintf(buf, "духом %s", ((ObjectData *) go)->get_PName(1).c_str());
+			sprintf(buf, "духом %s", ((ObjData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[4] = std::string(buf);
-			sprintf(buf, "духе %s", ((ObjectData *) go)->get_PName(1).c_str());
+			sprintf(buf, "духе %s", ((ObjData *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[5] = std::string(buf);
 		} else if (type == WLD_TRIGGER) {
 			caster->set_npc_name("Боги");
@@ -222,8 +222,8 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 		*arg = '\0';
 
 	// в find_dg_cast_target можем и не попасть для инита нулями и в CallMagic пойдет мусор
-	CharacterData *tch = nullptr;
-	ObjectData *tobj = nullptr;
+	CharData *tch = nullptr;
+	ObjData *tobj = nullptr;
 	RoomData *troom = nullptr;
 
 	if (*arg == UID_CHAR) {
@@ -266,7 +266,7 @@ void do_dg_cast(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
 #define APPLY_TYPE    1
 #define AFFECT_TYPE    2
 void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_type*/, char *cmd) {
-	CharacterData *ch = nullptr;
+	CharData *ch = nullptr;
 	int value = 0, duration = 0, battle = 0;
 	char junk[kMaxInputLength];    // will be set to "dg_affect"
 	char charname[kMaxInputLength], property[kMaxInputLength];
@@ -348,10 +348,10 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		af.type = index_s;
 
 		af.battleflag = battle;
-		if (battle == AF_PULSEDEC) {
+		if (battle == kAfPulsedec) {
 			af.duration = duration;
 		} else {
-			af.duration = pc_duration(ch, duration * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, duration * 2, 0, 0, 0, 0);
 		}
 		if (type == AFFECT_TYPE) {
 			af.location = APPLY_NONE;

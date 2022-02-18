@@ -5,7 +5,7 @@
 #include "privilege.h"
 
 #include "utils/logger.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "boards/boards.h"
 
 #include <boost/tokenizer.hpp>
@@ -279,7 +279,7 @@ void load_god_boards() {
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool can_do_priv(CharacterData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
+bool can_do_priv(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLevelImmortal
 		&& GET_REAL_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
@@ -320,7 +320,7 @@ bool can_do_priv(CharacterData *ch, const std::string &cmd_name, int cmd_number,
 * \param flag - список флагов в начале файла, кол-во FLAGS_NUM
 * \return 0 - не нашли, 1 - нашли
 */
-bool check_flag(const CharacterData *ch, int flag) {
+bool check_flag(const CharData *ch, int flag) {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
@@ -337,7 +337,7 @@ bool check_flag(const CharacterData *ch, int flag) {
 * Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool check_spells(const CharacterData *ch, int spellnum) {
+bool check_spells(const CharData *ch, int spellnum) {
 	// флаг use_skills - везде и что угодно
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
@@ -353,7 +353,7 @@ bool check_spells(const CharacterData *ch, int spellnum) {
 * У морталов, мобов и 34х проверка не производится.
 * \return 0 - не может использовать скиллы, 1 - может
 */
-bool check_skills(const CharacterData *ch) {
+bool check_skills(const CharData *ch) {
 	if ((GET_REAL_LEVEL(ch) > kLevelGod) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
 //	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;

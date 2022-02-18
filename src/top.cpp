@@ -2,7 +2,7 @@
 #include "color.h"
 #include "top.h"
 #include "game_mechanics/glory_const.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
@@ -16,7 +16,7 @@ TopListType TopPlayer::TopList(kNumPlayerClasses);
 // отдельное удаление из списка (для ренеймов, делетов и т.п.)
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void TopPlayer::Remove(CharacterData *short_ch) {
+void TopPlayer::Remove(CharData *short_ch) {
 	std::list<TopPlayer> &tmp_list = TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))];
 
 	auto it = std::find_if(tmp_list.begin(), tmp_list.end(), [&short_ch](const TopPlayer &p) {
@@ -30,7 +30,7 @@ void TopPlayer::Remove(CharacterData *short_ch) {
 // проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void TopPlayer::Refresh(CharacterData *short_ch, bool reboot) {
+void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (IS_NPC(short_ch)
 		|| PLR_FLAGS(short_ch).get(PLR_FROZEN)
 		|| PLR_FLAGS(short_ch).get(PLR_DELETED)
@@ -80,7 +80,7 @@ const char *TopPlayer::TopFormat[kNumPlayerClasses + 1] =
 	};
 
 // команда 'лучшие'
-void DoBest(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch))
 		return;
 

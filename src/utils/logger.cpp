@@ -10,7 +10,7 @@
 // дескрипторы открытых файлов логов для сброса буфера при креше
 std::list<FILE *> opened_files;
 
-void pers_log(CharacterData *ch, const char *format, ...) {
+void pers_log(CharData *ch, const char *format, ...) {
 	if (!ch) {
 		log("NULL character resieved! (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;

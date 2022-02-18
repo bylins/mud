@@ -121,7 +121,7 @@ bool PlayerRace::FeatureCheck(int Kin, int Race, int Feat) {
 	return false;
 };
 
-void PlayerRace::GetKinNamesList(CharacterData * /*ch*/) {
+void PlayerRace::GetKinNamesList(CharData * /*ch*/) {
 	//char buf[kMaxInputLength];
 	//snprintf(buf, kMaxStringLength, " %d \r\n", PlayerKinList[0]->PlayerRaceList[0]->GetFeatNum());
 	//send_to_char(buf, ch);

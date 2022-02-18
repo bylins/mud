@@ -1,6 +1,6 @@
 #include "cast.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "magic/magic_utils.h"
 #include "game_classes/classes_spell_slots.h"
 #include "magic/spells_info.h"
@@ -13,9 +13,9 @@
  * the spell can be cast, checks for sufficient mana and subtracts it, and
  * passes control to CastSpell().
  */
-void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	CharacterData *tch;
-	ObjectData *tobj;
+void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+	CharData *tch;
+	ObjData *tobj;
 	RoomData *troom;
 
 	char *s, *t;
@@ -158,7 +158,7 @@ void do_cast(CharacterData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), spell_info[spellnum].name, CCNRM(ch, C_NRM),
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
-			act(buf, false, ch, tobj, tch, TO_CHAR);
+			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
 			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 				WAIT_STATE(ch, kPulseViolence);

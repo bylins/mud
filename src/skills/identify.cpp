@@ -1,12 +1,12 @@
 #include "identify.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 #include "handler.h"
 
-void do_identify(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharacterData *cvict = nullptr, *caster = ch;
-	ObjectData *ovict = nullptr;
+void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *cvict = nullptr, *caster = ch;
+	ObjData *ovict = nullptr;
 	struct TimedSkill timed;
 	int k, level = 0;
 
@@ -29,7 +29,7 @@ void do_identify(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kIdentify;
-		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? getModifier(CONNOISEUR_FEAT, FEAT_TIMER) : 12)
+		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? GetModifier(CONNOISEUR_FEAT, FEAT_TIMER) : 12)
 							 - ((GET_SKILL(ch, ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
 		timed_to_char(ch, &timed);
 	}

@@ -37,8 +37,8 @@ class oload_class : public oload_map {
 
 extern oload_class oload_table;
 
-void obj_load_on_death(ObjectData *corpse, CharacterData *ch);
-void create_charmice_stuff(CharacterData *ch, ESkill skill_id, int diff);
+void obj_load_on_death(ObjData *corpse, CharData *ch);
+void create_charmice_stuff(CharData *ch, ESkill skill_id, int diff);
 
 #endif
 

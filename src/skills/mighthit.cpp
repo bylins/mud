@@ -7,11 +7,9 @@
 #include "skills/parry.h"
 #include "protect.h"
 
-using namespace FightSystem;
-
 // ************************* MIGHTHIT PROCEDURES
-void go_mighthit(CharacterData *ch, CharacterData *victim) {
-	if (dontCanAct(ch)) {
+void go_mighthit(CharData *ch, CharData *victim) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -21,33 +19,33 @@ void go_mighthit(CharacterData *ch, CharacterData *victim) {
 		return;
 	}
 
-	victim = try_protect(victim, ch);
+	victim = TryToFindProtector(victim, ch);
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, kEafHammer);
-		hit(ch, victim, ESkill::kHammer, FightSystem::MAIN_HAND);
+		hit(ch, victim, ESkill::kHammer, fight::kMainHand);
 		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
-			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 		}
 		//set_wait(ch, 2, true);
 		return;
 	}
 
 	if ((victim->get_fighting() != ch) && (ch->get_fighting() != victim)) {
-		act("$N не сражается с вами, не трогайте $S.", false, ch, 0, victim, TO_CHAR);
+		act("$N не сражается с вами, не трогайте $S.", false, ch, nullptr, victim, kToChar);
 	} else {
-		act("Вы попытаетесь нанести богатырский удар по $N2.", false, ch, 0, victim, TO_CHAR);
+		act("Вы попытаетесь нанести богатырский удар по $N2.", false, ch, nullptr, victim, kToChar);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, 2);
 			set_fighting(ch, victim);
-			setSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
+			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 			//set_wait(ch, 2, true);
 		}
 		SET_AF_BATTLE(ch, kEafHammer);
 	}
 }
 
-void do_mighthit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_skill(ESkill::kHammer) < 1) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -57,7 +55,7 @@ void do_mighthit(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	};
 
-	CharacterData *vict = findVictim(ch, argument);
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кого вы хотите СИЛЬНО ударить?\r\n", ch);
 		return;

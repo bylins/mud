@@ -6,7 +6,7 @@
 #include <memory>
 #include <map>
 
-class CharacterData;    // to avoid inclusion of char.hpp
+class CharData;    // to avoid inclusion of char.hpp
 
 namespace commands {
 namespace utils {
@@ -26,12 +26,12 @@ class ReplyableContext : public AbstractReplyableContext {
  public:
 	using shared_ptr = std::shared_ptr<ReplyableContext>;
 
-	ReplyableContext(CharacterData *character) : m_character(character) {}
+	ReplyableContext(CharData *character) : m_character(character) {}
 
 	virtual void reply(const std::string &message) const override;
 
  private:
-	CharacterData *m_character;
+	CharData *m_character;
 };
 
 class AbstractCommand {
@@ -146,7 +146,7 @@ class AbstractCommandsHanler {
 	using shared_ptr = std::shared_ptr<AbstractCommandsHanler>;
 
 	virtual void initialize() = 0;
-	virtual void process(CharacterData *character, char *arguments) = 0;
+	virtual void process(CharData *character, char *arguments) = 0;
 };
 
 template<class T>

@@ -16,10 +16,10 @@
 
 #include "dg_olc.h"
 
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "olc/olc.h"
 #include "dg_event.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "entities/zone.h"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
@@ -34,7 +34,7 @@ void trigedit_save(DescriptorData *d);
 void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
 
-inline void fprint_script(FILE *fp, const ObjectData::triggers_list_t &scripts) {
+inline void fprint_script(FILE *fp, const ObjData::triggers_list_t &scripts) {
 	for (const auto vnum : scripts) {
 		fprintf(fp, "T %d\n", vnum);
 	}
@@ -44,7 +44,7 @@ inline void fprint_script(FILE *fp, const ObjectData::triggers_list_t &scripts) 
 // be saved
 void script_save_to_disk(FILE *fp, const void *item, int type) {
 	if (type == MOB_TRIGGER) {
-		fprint_script(fp, *static_cast<const CharacterData *>(item)->proto_script);
+		fprint_script(fp, *static_cast<const CharData *>(item)->proto_script);
 	} else if (type == OBJ_TRIGGER) {
 		fprint_script(fp, static_cast<const CObjectPrototype *>(item)->get_proto_script());
 	} else if (type == WLD_TRIGGER) {

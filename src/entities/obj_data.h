@@ -7,7 +7,7 @@
 
 #include "cmd/telegram.h"
 #include "conf.h"
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 #include "id.h"
 #include "obj_enchant.h"
 #include "magic/spells.h"
@@ -23,9 +23,9 @@
 #include <map>
 
 std::string print_obj_affects(const obj_affected_type &affect);
-void print_obj_affects(CharacterData *ch, const obj_affected_type &affect);
-void set_obj_eff(ObjectData *itemobj, EApplyLocation type, int mod);
-void set_obj_aff(ObjectData *itemobj, EAffectFlag bitv);
+void print_obj_affects(CharData *ch, const obj_affected_type &affect);
+void set_obj_eff(ObjData *itemobj, EApplyLocation type, int mod);
+void set_obj_aff(ObjData *itemobj, EAffectFlag bitv);
 
 /// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
 /// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()
@@ -102,7 +102,7 @@ class IDChangeObserver {
 
 	virtual ~IDChangeObserver() {}
 
-	virtual void notify(ObjectData &object, const object_id_t old_id) = 0;
+	virtual void notify(ObjData &object, const object_id_t old_id) = 0;
 };
 
 class ObjectRNum_ChangeObserver {
@@ -120,7 +120,7 @@ class UIDChangeObserver {
 
 	virtual ~UIDChangeObserver() {}
 
-	virtual void notify(ObjectData &object, const int old_uid) = 0;
+	virtual void notify(ObjData &object, const int old_uid) = 0;
 };
 
 class CObjectPrototype {
@@ -678,10 +678,10 @@ class TimedSpell {
 	int is_spell_poisoned() const;
 	bool empty() const;
 	std::string print() const;
-	void dec_timer(ObjectData *obj, int time = 1);
-	void add(ObjectData *obj, int spell, int time);
-	void del(ObjectData *obj, int spell, bool message);
-	std::string diag_to_char(CharacterData *ch);
+	void dec_timer(ObjData *obj, int time = 1);
+	void add(ObjData *obj, int spell, int time);
+	void del(ObjData *obj, int spell, bool message);
+	std::string diag_to_char(CharData *ch);
 
  private:
 	std::map<int /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
@@ -715,18 +715,18 @@ inline custom_label::~custom_label() {
 
 class Script;    // to avoid inclusion of "dg_scripts.h"
 
-class ObjectData : public CObjectPrototype {
+class ObjData : public CObjectPrototype {
  public:
-	using shared_ptr = std::shared_ptr<ObjectData>;
+	using shared_ptr = std::shared_ptr<ObjData>;
 
 	constexpr static const int DEFAULT_MAKER = 0;
 	constexpr static const int DEFAULT_OWNER = 0;
 	constexpr static const int DEFAULT_PARENT = 0;
 
-	ObjectData(const ObjVnum vnum);
-	ObjectData(const ObjectData &);
-	ObjectData(const CObjectPrototype &);
-	~ObjectData();
+	ObjData(const ObjVnum vnum);
+	ObjData(const ObjData &);
+	ObjData(const CObjectPrototype &);
+	~ObjData();
 
 	const std::string activate_obj(const activation &__act);
 	const std::string deactivate_obj(const activation &__act);
@@ -746,7 +746,7 @@ class ObjectData : public CObjectPrototype {
 
 	// wrappers to access to timed_spell
 	const TimedSpell &timed_spell() const { return m_timed_spell; }
-	std::string diag_ts_to_char(CharacterData *character) { return m_timed_spell.diag_to_char(character); }
+	std::string diag_ts_to_char(CharData *character) { return m_timed_spell.diag_to_char(character); }
 	bool has_timed_spell() const { return !m_timed_spell.empty(); }
 	void add_timed_spell(const int spell, const int time);
 	void del_timed_spell(const int spell, const bool message);
@@ -774,21 +774,21 @@ class ObjectData : public CObjectPrototype {
 	const auto &get_script() const { return m_script; }
 	void add_enchant(const ObjectEnchant::enchant &_) { m_enchants.add(_); }
 	void remove_custom_label() { m_custom_label.reset(); }
-	void remove_me_from_contains_list(ObjectData *&head);
-	void remove_me_from_objects_list(ObjectData *&head);
+	void remove_me_from_contains_list(ObjData *&head);
+	void remove_me_from_objects_list(ObjData *&head);
 	void remove_set_bonus() { m_enchants.remove_set_bonus(this); }
-	void set_carried_by(CharacterData *_) { m_carried_by = _; }
-	void set_contains(ObjectData *_) { m_contains = _; }
+	void set_carried_by(CharData *_) { m_carried_by = _; }
+	void set_contains(ObjData *_) { m_contains = _; }
 	void set_craft_timer(const int _) { m_craft_timer = _; }
 	void set_crafter_uid(const int _) { m_maker = _; }
 	void set_custom_label(const std::shared_ptr<custom_label> &_) { m_custom_label = _; }
 	void set_custom_label(custom_label *_) { m_custom_label.reset(_); }
 	void set_id(const long _);
-	void set_in_obj(ObjectData *_) { m_in_obj = _; }
+	void set_in_obj(ObjData *_) { m_in_obj = _; }
 	void set_in_room(const RoomRnum _) { m_in_room = _; }
 	void set_is_rename(const bool _) { m_is_rename = _; }
-	void set_next(ObjectData *_) { m_next = _; }
-	void set_next_content(ObjectData *_) { m_next_content = _; }
+	void set_next(ObjData *_) { m_next = _; }
+	void set_next_content(ObjData *_) { m_next_content = _; }
 	void set_owner(const int _) { m_owner = _; }
 	void set_parent(const int _) { m_parent = _; }
 	void set_room_was_in(const int _) { m_room_was_in = _; }
@@ -796,19 +796,19 @@ class ObjectData : public CObjectPrototype {
 	void set_script(Script *_);
 	void cleanup_script();
 	void set_uid(const unsigned _);
-	void set_worn_by(CharacterData *_) { m_worn_by = _; }
+	void set_worn_by(CharData *_) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
 	void set_vnum_zone_from(const int _) { m_zone_from = _; }
 	void update_enchants_set_bonus(const obj_sets::ench_type &_) { m_enchants.update_set_bonus(this, _); }
 	void set_enchant(int skill);
-	void set_enchant(int skill, ObjectData *obj);
+	void set_enchant(int skill, ObjData *obj);
 	void unset_enchant();
 	void copy_name_from(const CObjectPrototype *src);
 
 	bool clone_olc_object_from_prototype(const ObjVnum vnum);
 	void copy_from(const CObjectPrototype *src);
 
-	void swap(ObjectData &object);
+	void swap(ObjData &object);
 	void set_tag(const char *tag);
 
 	void subscribe_for_id_change(const IDChangeObserver::shared_ptr &observer) { m_id_change_observers.insert(observer); }
@@ -838,16 +838,16 @@ class ObjectData : public CObjectPrototype {
 	int m_parent;        // Vnum for object parent //
 	bool m_is_rename;
 
-	CharacterData *m_carried_by;    // Carried by :NULL in room/conta   //
-	CharacterData *m_worn_by;    // Worn by?              //
+	CharData *m_carried_by;    // Carried by :NULL in room/conta   //
+	CharData *m_worn_by;    // Worn by?              //
 	short int m_worn_on;        // Worn where?          //
 
 	std::shared_ptr<custom_label> m_custom_label;        // наносимая чаром метка //
 
-	ObjectData *m_in_obj;    // In what object NULL when none    //
-	ObjectData *m_contains;    // Contains objects                 //
-	ObjectData *m_next_content;    // For 'contains' lists             //
-	ObjectData *m_next;        // For the object list              //
+	ObjData *m_in_obj;    // In what object NULL when none    //
+	ObjData *m_contains;    // Contains objects                 //
+	ObjData *m_next_content;    // For 'contains' lists             //
+	ObjData *m_next;        // For the object list              //
 
 	ObjectEnchant::Enchants m_enchants;
 
@@ -870,14 +870,14 @@ class ObjectData : public CObjectPrototype {
 };
 
 template<>
-const std::string &NAME_BY_ITEM<ObjectData::EObjectType>(const ObjectData::EObjectType item);
+const std::string &NAME_BY_ITEM<ObjData::EObjectType>(const ObjData::EObjectType item);
 template<>
-ObjectData::EObjectType ITEM_BY_NAME<ObjectData::EObjectType>(const std::string &name);
+ObjData::EObjectType ITEM_BY_NAME<ObjData::EObjectType>(const std::string &name);
 
 template<>
-const std::string &NAME_BY_ITEM<ObjectData::EObjectMaterial>(const ObjectData::EObjectMaterial item);
+const std::string &NAME_BY_ITEM<ObjData::EObjectMaterial>(const ObjData::EObjectMaterial item);
 template<>
-ObjectData::EObjectMaterial ITEM_BY_NAME<ObjectData::EObjectMaterial>(const std::string &name);
+ObjData::EObjectMaterial ITEM_BY_NAME<ObjData::EObjectMaterial>(const std::string &name);
 
 inline void CObjectPrototype::set_affected(const size_t index, const EApplyLocation location, const int modifier) {
 	m_affected[index].location = location;
@@ -897,7 +897,7 @@ inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffectFlag weap
 
 class CActionDescriptionWriter : public utils::AbstractStringWriter {
  public:
-	CActionDescriptionWriter(ObjectData &object) : m_object(object) {}
+	CActionDescriptionWriter(ObjData &object) : m_object(object) {}
 
 	virtual const char *get_string() const { return m_object.get_action_description().c_str(); }
 	virtual void set_string(const char *data) { m_object.set_action_description(data); }
@@ -908,7 +908,7 @@ class CActionDescriptionWriter : public utils::AbstractStringWriter {
 	virtual void clear() { m_object.clear_action_description(); }
 
  private:
-	ObjectData &m_object;
+	ObjData &m_object;
 };
 
 namespace ObjSystem {
@@ -920,7 +920,7 @@ void init_ilvl(CObjectPrototype *obj);
 bool is_mob_item(const CObjectPrototype *obj);
 } // namespace ObjSystem
 
-std::string char_get_custom_label(ObjectData *obj, CharacterData *ch);
+std::string char_get_custom_label(ObjData *obj, CharData *ch);
 
 namespace system_obj {
 /// кошелек для кун с игрока
@@ -928,9 +928,9 @@ extern int PURSE_RNUM;
 /// персональное хранилище
 extern int PERS_CHEST_RNUM;
 void init();
-ObjectData *create_purse(CharacterData *ch, int gold);
-bool is_purse(ObjectData *obj);
-void process_open_purse(CharacterData *ch, ObjectData *obj);
+ObjData *create_purse(CharData *ch, int gold);
+bool is_purse(ObjData *obj);
+void process_open_purse(CharData *ch, ObjData *obj);
 // телеграм-бот
 extern TelegramBot *bot;
 } // namespace system_obj
@@ -939,9 +939,9 @@ namespace SetSystem {
 void check_item(int vnum);
 void check_rented();
 void init_vnum_list(int vnum);
-bool find_set_item(ObjectData *obj);
+bool find_set_item(ObjData *obj);
 bool is_big_set(const CObjectPrototype *obj, bool is_mini = false);
-bool is_norent_set(CharacterData *ch, ObjectData *obj, bool clan_chest = false);
+bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest = false);
 bool is_norent_set(int vnum, std::vector<int> objs);
 } // namespace SetSystem
 

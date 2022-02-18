@@ -29,24 +29,24 @@ int get_glory(long uid);
 void add_glory(long uid, int amount);
 int remove_glory(long uid, int amount);
 
-void do_glory(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_spend_glory(CharacterData *ch, char *argument, int cmd, int subcmd);
-void spend_glory_menu(CharacterData *ch);
-bool parse_spend_glory_menu(CharacterData *ch, char *arg);
-void glory_hide(CharacterData *ch, bool mode);
+void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
+void do_spend_glory(CharData *ch, char *argument, int cmd, int subcmd);
+void spend_glory_menu(CharData *ch);
+bool parse_spend_glory_menu(CharData *ch, char *arg);
+void glory_hide(CharData *ch, bool mode);
 
 void save();
 void load();
 
-void set_stats(CharacterData *ch);
-int main_stats_count(CharacterData *ch);
+void set_stats(CharData *ch);
+int main_stats_count(CharData *ch);
 
-void show_stats(CharacterData *ch);
+void show_stats(CharData *ch);
 
 void transfer_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void add_total_spent(int amount);
-void apply_modifiers(CharacterData *ch);
-void print_glory_top(CharacterData *ch);
+void apply_modifiers(CharData *ch);
+void print_glory_top(CharData *ch);
 
 } // namespace GloryConst
 

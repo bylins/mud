@@ -31,7 +31,7 @@ void calc_easter();
 int EasterMonth = 0;
 int EasterDay = 0;
 
-void gods_day_now(CharacterData *ch) {
+void gods_day_now(CharData *ch) {
 	char mono[kMaxInputLength], poly[kMaxInputLength], real[kMaxInputLength];
 	*mono = 0;
 	*poly = 0;
@@ -408,7 +408,7 @@ void weather_change(void) {
 	// else
 	//    diff = (weather_info.pressure > 1015 ? -2 : 2);
 
-	weather_info.change += (dice(1, 4) * diff + dice(2, 6) - dice(2, 6));
+	weather_info.change += (RollDices(1, 4) * diff + RollDices(2, 6) - RollDices(2, 6));
 
 	weather_info.change = MIN(weather_info.change, 12);
 	weather_info.change = MAX(weather_info.change, -12);
@@ -447,32 +447,32 @@ void weather_change(void) {
 			if (weather_info.pressure < 990)
 				sky_change = 1;
 			else if (weather_info.pressure < 1010)
-				if (dice(1, 4) == 1)
+				if (RollDices(1, 4) == 1)
 					sky_change = 1;
 			break;
 		case kSkyCloudy:
 			if (weather_info.pressure < 970)
 				sky_change = 2;
 			else if (weather_info.pressure < 990) {
-				if (dice(1, 4) == 1)
+				if (RollDices(1, 4) == 1)
 					sky_change = 2;
 				else
 					sky_change = 0;
 			} else if (weather_info.pressure > 1030)
-				if (dice(1, 4) == 1)
+				if (RollDices(1, 4) == 1)
 					sky_change = 3;
 
 			break;
 		case kSkyRaining:
 			if (weather_info.pressure < 970) {
-				if (dice(1, 4) == 1)
+				if (RollDices(1, 4) == 1)
 					sky_change = 4;
 				else
 					sky_change = 0;
 			} else if (weather_info.pressure > 1030)
 				sky_change = 5;
 			else if (weather_info.pressure > 1010)
-				if (dice(1, 4) == 1)
+				if (RollDices(1, 4) == 1)
 					sky_change = 5;
 
 			break;
@@ -480,7 +480,7 @@ void weather_change(void) {
 			if (weather_info.pressure > 1010)
 				sky_change = 6;
 			else if (weather_info.pressure > 990)
-				if (dice(1, 4) == 1)
+				if (RollDices(1, 4) == 1)
 					sky_change = 6;
 
 			break;
@@ -541,7 +541,7 @@ void weather_change(void) {
 			break;
 		case 0:
 		default:
-			if (dice(1, 4) == 1)
+			if (RollDices(1, 4) == 1)
 				temp_change += number(-1, +1);
 			break;
 	}
@@ -825,7 +825,7 @@ void calc_easter(void) {
 const int moon_modifiers[28] = {-10, -9, -7, -5, -3, 0, 0, 0, 0, 0, 0, 0, 1, 5, 10, 5, 1, 0, 0, 0, 0, 0,
 								0, 0, -2, -5, -7, -9};
 
-int day_spell_modifier(CharacterData *ch, int/* spellnum*/, int type, int value) {
+int day_spell_modifier(CharData *ch, int/* spellnum*/, int type, int value) {
 	int modi = value;
 	if (IS_NPC(ch) || ch->in_room == kNowhere)
 		return (modi);
@@ -839,7 +839,7 @@ int day_spell_modifier(CharacterData *ch, int/* spellnum*/, int type, int value)
 	return (modi);
 }
 
-int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value) {
+int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 	int modi = value, sky = weather_info.sky, season = weather_info.season;
 
 	if (IS_NPC(ch) ||
@@ -900,7 +900,7 @@ int weather_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 	return (modi);
 }
 
-int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value) {
+int complex_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 	int modi = value;
 	modi = day_spell_modifier(ch, spellnum, type, modi);
 	modi = weather_spell_modifier(ch, spellnum, type, modi);
@@ -908,11 +908,11 @@ int complex_spell_modifier(CharacterData *ch, int spellnum, int type, int value)
 }
 
 // По идее все это скорее относится к скиллам, чем к погоде, и должно находиться в скиллпроцессоре.
-int day_skill_modifier(CharacterData * /*ch*/, ESkill/* skillnum*/, int/* type*/, int value) {
+int day_skill_modifier(CharData * /*ch*/, ESkill/* skillnum*/, int/* type*/, int value) {
 	return value;
 }
 
-int weather_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int value) {
+int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 	int modi = value, sky = weather_info.sky;
 
 	if (IS_NPC(ch) ||
@@ -954,7 +954,7 @@ int weather_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int val
 	return (modi);
 }
 
-int complex_skill_modifier(CharacterData *ch, ESkill skillnum, int type, int value) {
+int complex_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 	int modi = value;
 	modi = day_skill_modifier(ch, skillnum, type, modi);
 	modi = weather_skill_modifier(ch, skillnum, type, modi);

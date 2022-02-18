@@ -4,7 +4,7 @@
 #ifndef OBJ_SETS_HPP_INCLUDED
 #define OBJ_SETS_HPP_INCLUDED
 
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "feats.h"
 #include "interpreter.h"
 #include "structs/structs.h"
@@ -23,7 +23,7 @@ struct idx_node {
 	// индекс сета
 	size_t set_idx;
 	// предметы на чаре из данного сета
-	std::vector<ObjectData *> obj_list;
+	std::vector<ObjData *> obj_list;
 	// кол-во уже активированных шмоток (для сообщений активации/деактиваций)
 	int activated_cnt;
 	// показывать или нет сообщения активации
@@ -37,9 +37,9 @@ class WornSets {
 	/// очистка перед каждым использованием
 	void clear();
 	/// заполнение списка сетов idx_list_ при обходе предметов на чаре
-	void add(ObjectData *obj);
+	void add(ObjData *obj);
 	/// проверка активаторов (вся магия здесь)
-	void check(CharacterData *ch);
+	void check(CharData *ch);
 
  private:
 	std::array<idx_node, NUM_WEARS> idx_list_;
@@ -85,8 +85,8 @@ struct activ_sum {
 	bool empty() const;
 	void clear();
 
-	void update(CharacterData *ch);
-	void apply_affects(CharacterData *ch) const;
+	void update(CharData *ch);
+	void apply_affects(CharData *ch) const;
 
 	int get_skill(const ESkill num) const;
 	int calc_phys_dmg(int dam) const;
@@ -106,23 +106,23 @@ struct activ_sum {
 
 void load();
 void save();
-void print_off_msg(CharacterData *ch, ObjectData *obj);
-void print_identify(CharacterData *ch, const ObjectData *obj);
+void print_off_msg(CharData *ch, ObjData *obj);
+void print_identify(CharData *ch, const ObjData *obj);
 void init_xhelp();
 std::set<int> vnum_list_add(int vnum);
 std::string get_name(size_t idx);
-bool is_set_item(ObjectData *obj);
+bool is_set_item(ObjData *obj);
 
 } // namespace obj_sets
 
 namespace obj_sets_olc {
 
-void parse_input(CharacterData *ch, const char *arg);
+void parse_input(CharData *ch, const char *arg);
 
 } // namespace obj_sets_olc
 
-void do_slist(CharacterData *ch, char *argument, int cmd, int subcmd);
-void do_sedit(CharacterData *ch, char *argument, int cmd, int subcmd);
+void do_slist(CharData *ch, char *argument, int cmd, int subcmd);
+void do_sedit(CharData *ch, char *argument, int cmd, int subcmd);
 
 #endif // OBJ_SETS_HPP_INCLUDED
 

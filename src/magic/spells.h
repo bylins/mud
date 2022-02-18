@@ -11,7 +11,7 @@
 #ifndef SPELLS_H_
 #define SPELLS_H_
 
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 #include "skills.h"
 #include "structs/structs.h"    // there was defined type "byte" if it had been missing
 #include "game_classes/classes_constants.h"
@@ -427,29 +427,29 @@ struct AttackHitType {
 
 #define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
-void SpellCreateWater(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellRecall(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/);
-void SpellTeleport(int /* level */, CharacterData *ch, CharacterData */*victim*/, ObjectData */*obj*/);
-void SpellSummon(int /*level*/, CharacterData *ch, CharacterData *victim, ObjectData */*obj*/);
-void SpellRelocate(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/);
-void SpellPortal(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/);
-void SpellLocateObject(int level, CharacterData *ch, CharacterData* /*victim*/, ObjectData *obj);
-void SpellCharm(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /* obj*/);
-void SpellInformation(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellIdentify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellFullIdentify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellEnchantWeapon(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellControlWeather(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellCreateWeapon(int/* level*/, CharacterData* /*ch*/, CharacterData* /*victim*/, ObjectData* /* obj*/);
-void SpellEnergydrain(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/);
-void SpellFear(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/);
-void SpellSacrifice(int/* level*/, CharacterData *ch, CharacterData *victim, ObjectData* /*obj*/);
-void SpellForbidden(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellHolystrike(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/);
-void SkillIdentify(int level, CharacterData *ch, CharacterData *victim, ObjectData *obj);
-void SpellSummonAngel(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/);
-void SpellVampirism(int/* level*/, CharacterData* /*ch*/, CharacterData* /*victim*/, ObjectData* /*obj*/);
-void SpellMentalShadow(int/* level*/, CharacterData *ch, CharacterData* /*victim*/, ObjectData* /*obj*/);
+void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *obj);
+void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
+void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData */*obj*/);
+void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/);
+void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
+void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
+void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *obj);
+void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
+void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);
+void SpellIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
+void SpellFullIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
+void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
+void SpellControlWeather(int level, CharData *ch, CharData *victim, ObjData *obj);
+void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /* obj*/);
+void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
+void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
+void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
+void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
+void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
+void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
+void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
+void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/);
+void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
 
 // возращает текст выводимый при спадении скила
 std::string get_wear_off_text(ESpell spell);
@@ -471,19 +471,19 @@ std::optional<CastPhraseList> get_cast_phrase(int spell);
 
 int FixNameAndFindSpellNum(char *name);
 
-bool CatchBloodyCorpse(ObjectData *l);
+bool CatchBloodyCorpse(ObjData *l);
 
 // other prototypes //
 void InitSpellLevels();
 const char *GetSpellName(int num);
-int CalculateSaving(CharacterData *killer, CharacterData *victim, ESaving saving, int ext_apply);
-int CalcGeneralSaving(CharacterData *killer, CharacterData *victim, ESaving type, int ext_apply);
-bool IsAbleToGetSpell(CharacterData *ch, int spellnum);
-int CalcMinSpellLevel(CharacterData *ch, int spellnum, int req_lvl);
-bool IsAbleToGetSpell(CharacterData *ch, int spellnum, int req_lvl);
+int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_apply);
+int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
+bool IsAbleToGetSpell(CharData *ch, int spellnum);
+int CalcMinSpellLevel(CharData *ch, int spellnum, int req_lvl);
+bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl);
 ESkill GetMagicSkillId(int spellnum);
-int CheckRecipeValues(CharacterData *ch, int spellnum, int spelltype, int showrecipe);
-int CheckRecipeItems(CharacterData *ch, int spellnum, int spelltype, int extract, const CharacterData *targ = nullptr);
+int CheckRecipeValues(CharData *ch, int spellnum, int spelltype, int showrecipe);
+int CheckRecipeItems(CharData *ch, int spellnum, int spelltype, int extract, const CharData *targ = nullptr);
 
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;

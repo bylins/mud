@@ -1,16 +1,16 @@
 #ifndef __IGNORES_LOADER_HPP__
 #define __IGNORES_LOADER_HPP__
 
-class CharacterData;    // to avoid inclusion of "char.hpp"
+class CharData;    // to avoid inclusion of "char.hpp"
 
 class IgnoresLoader {
  public:
-	IgnoresLoader(CharacterData *character) : m_character(character) {}
+	IgnoresLoader(CharData *character) : m_character(character) {}
 
 	void load_from_string(const char *line);
 
  private:
-	CharacterData *m_character;
+	CharData *m_character;
 };
 
 #endif // __IGNORES_LOADER_HPP__

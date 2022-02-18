@@ -16,7 +16,7 @@ enum { PLAYER, TEXTOBJS, TIMEOBJS, UPDATE_PLAYER, UPDATE_TEXTOBJS, UPDATE_TIMEOB
 
 void load();
 void save(bool force_save = false);
-void show(CharacterData *ch);
+void show(CharData *ch);
 void check_crc(const char *name, int mode, long uid);
 
 } // namespace FileCRC

@@ -23,20 +23,20 @@
 #define NUM_RESERVED_DESCS    8
 
 class CObjectPrototype;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
-class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 extern DescriptorData *descriptor_list;
 
 // comm.cpp
 void send_to_all(const char *messg);
-void send_to_char(const char *messg, const CharacterData *ch);
-void send_to_char(const CharacterData *ch, const char *messg, ...) __attribute__((format(printf, 2, 3)));
-void send_to_char(const std::string &buffer, const CharacterData *ch);
-void send_stat_char(const CharacterData *ch);
+void send_to_char(const char *messg, const CharData *ch);
+void send_to_char(const CharData *ch, const char *messg, ...) __attribute__((format(printf, 2, 3)));
+void send_to_char(const std::string &buffer, const CharData *ch);
+void send_stat_char(const CharData *ch);
 void send_to_room(const char *messg, RoomRnum room, int to_awake);
 void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
-void perform_to_all(const char *messg, CharacterData *ch);
+void perform_to_all(const char *messg, CharData *ch);
 #ifdef HAS_EPOLL
 void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev);
 #else
@@ -44,53 +44,53 @@ void close_socket(DescriptorData * d, int direct);
 #endif
 
 void perform_act(const char *orig,
-				 CharacterData *ch,
-				 const ObjectData *obj,
+				 CharData *ch,
+				 const ObjData *obj,
 				 const void *vict_obj,
-				 CharacterData *to,
+				 CharData *to,
 				 const int arena,
 				 const std::string &kick_type);
 
 inline void perform_act(const char *orig,
-						CharacterData *ch,
-						const ObjectData *obj,
+						CharData *ch,
+						const ObjData *obj,
 						const void *vict_obj,
-						CharacterData *to,
+						CharData *to,
 						const std::string &kick_type) {
 	perform_act(orig, ch, obj, vict_obj, to, 0, kick_type);
 }
 inline void perform_act(const char *orig,
-						CharacterData *ch,
-						const ObjectData *obj,
+						CharData *ch,
+						const ObjData *obj,
 						const void *vict_obj,
-						CharacterData *to,
+						CharData *to,
 						const int arena) {
 	perform_act(orig, ch, obj, vict_obj, to, arena, "");
 }
-inline void perform_act(const char *orig, CharacterData *ch, const ObjectData *obj, const void *vict_obj, CharacterData *to) {
+inline void perform_act(const char *orig, CharData *ch, const ObjData *obj, const void *vict_obj, CharData *to) {
 	perform_act(orig, ch, obj, vict_obj, to, 0, "");
 }
 
 void act(const char *str,
 		 int hide_invisible,
-		 CharacterData *ch,
-		 const ObjectData *obj,
+		 CharData *ch,
+		 const ObjData *obj,
 		 const void *vict_obj,
 		 int type,
 		 const std::string &kick_type);
 
 inline void act(const char *str,
 				int hide_invisible,
-				CharacterData *ch,
-				const ObjectData *obj,
+				CharData *ch,
+				const ObjData *obj,
 				const void *vict_obj,
 				int type) {
 	act(str, hide_invisible, ch, obj, vict_obj, type, "");
 }
 inline void act(const std::stringstream &str,
 				int hide_invisible,
-				CharacterData *ch,
-				const ObjectData *obj,
+				CharData *ch,
+				const ObjData *obj,
 				const void *vict_obj,
 				int type) {
 	act(str.str().c_str(), hide_invisible, ch, obj, vict_obj, type);
@@ -101,17 +101,17 @@ unsigned long get_ip(const char *addr);
 #define SUN_CONTROL     (1 << 0)
 #define WEATHER_CONTROL (1 << 1)
 
-#define TO_ROOM        1
-#define TO_VICT        2
-#define TO_NOTVICT    3
-#define TO_CHAR        4
-#define TO_ROOM_HIDE    5    // В комнату, но только тем, кто чувствует жизнь
-#define CHECK_NODEAF        32   // посылать только глухим
-#define CHECK_DEAF          64   // не посылать глухим
-#define TO_SLEEP            128  // to char, even if sleeping
-#define TO_ARENA_LISTEN     512  // не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
-#define TO_BRIEF_SHIELDS    1024 // отсылать только тем, у кого включен режим PRF_BRIEF_SHIELDS
-#define TO_NO_BRIEF_SHIELDS 2048 // отсылать только тем, у кого нет режима PRF_BRIEF_SHIELDS
+const int kToRoom = 1;
+const int kToVict = 2;
+const int kToNotVict = 3;
+const int kToChar = 4;
+const int kToRoomSensors = 5;		// В комнату, но только тем, кто чувствует жизнь
+const int kToDeaf = 32;				// посылать только глухим
+const int kToNotDeaf = 64;			// не посылать глухим
+const int kToSleep = 128;			// to char, even if sleeping
+const int kToArenaListen = 512;		// не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
+const int kToBriefShields = 1024;	// отсылать только тем, у кого включен режим PRF_BRIEF_SHIELDS
+const int kToNoBriefShields = 2048;	// отсылать только тем, у кого нет режима PRF_BRIEF_SHIELDS
 
 // I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);

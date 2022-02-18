@@ -24,8 +24,8 @@ class MobMax {
 	static int get_level_by_vnum(int vnum);
 
 	int get_kill_count(int vnum) const;
-	void add(CharacterData *ch, int vnum, int count, int level);
-	void load(CharacterData *ch, int vnum, int count, int level);
+	void add(CharData *ch, int vnum, int count, int level);
+	void load(CharData *ch, int vnum, int count, int level);
 	void remove(int vnum);
 	void save(FILE *saved) const;
 	void clear();

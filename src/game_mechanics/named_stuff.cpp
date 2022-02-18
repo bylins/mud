@@ -6,9 +6,9 @@
 
 #include "world_objects.h"
 #include "obj_prototypes.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "color.h"
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
@@ -29,7 +29,7 @@ extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
-extern void set_wait(CharacterData *ch, int waittime, int victim_in_room);
+extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 
 namespace NamedStuff {
 
@@ -63,7 +63,7 @@ void save() {
 	doc.save_file(LIB_PLRSTUFF"named_stuff_list.xml");
 }
 
-bool check_named(CharacterData *ch, const ObjectData *obj, const bool simple) {
+bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 	if (!obj->get_extra_flag(EExtraFlag::ITEM_NAMED)) {
 		return false; // если шмотка не именная - остальное и проверять не нужно
 	}
@@ -76,7 +76,7 @@ bool check_named(CharacterData *ch, const ObjectData *obj, const bool simple) {
 
 		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
 		{
-			CharacterData *master = ch->get_master();
+			CharData *master = ch->get_master();
 			if (WAITLESS(master)) // Чармис имма
 			{
 				return false;
@@ -126,14 +126,14 @@ bool check_named(CharacterData *ch, const ObjectData *obj, const bool simple) {
 		return false;
 }
 
-bool wear_msg(CharacterData *ch, ObjectData *obj) {
+bool wear_msg(CharData *ch, ObjData *obj) {
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end()) {
 		if (check_named(ch, obj, true)) {
 			if (!it->second->cant_msg_v.empty()) {
 				if (!it->second->cant_msg_a.empty())
-					act(it->second->cant_msg_a.c_str(), false, ch, obj, 0, TO_ROOM);
-				act(it->second->cant_msg_v.c_str(), false, ch, obj, 0, TO_CHAR);
+					act(it->second->cant_msg_a.c_str(), false, ch, obj, 0, kToRoom);
+				act(it->second->cant_msg_v.c_str(), false, ch, obj, 0, kToChar);
 				return true;
 			} else
 				return false;
@@ -141,8 +141,8 @@ bool wear_msg(CharacterData *ch, ObjectData *obj) {
 			if (!it->second->wear_msg_v.empty()) {
 				if (number(1, 100) <= 20) {
 					if (!it->second->wear_msg_a.empty())
-						act(it->second->wear_msg_a.c_str(), false, ch, obj, 0, TO_ROOM);
-					act(it->second->wear_msg_v.c_str(), false, ch, obj, 0, TO_CHAR);
+						act(it->second->wear_msg_a.c_str(), false, ch, obj, 0, kToRoom);
+					act(it->second->wear_msg_v.c_str(), false, ch, obj, 0, kToChar);
 				}
 				return true;
 			} else
@@ -152,7 +152,7 @@ bool wear_msg(CharacterData *ch, ObjectData *obj) {
 	return false;
 }
 
-bool parse_nedit_menu(CharacterData *ch, char *arg) {
+bool parse_nedit_menu(CharData *ch, char *arg) {
 	int num;
 	StuffNodePtr tmp_node(new stuff_node);
 	char i[256];
@@ -292,7 +292,7 @@ bool parse_nedit_menu(CharacterData *ch, char *arg) {
 	return false;
 }
 
-void nedit_menu(CharacterData *ch) {
+void nedit_menu(CharData *ch) {
 	std::ostringstream out;
 
 	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: "
@@ -320,7 +320,7 @@ void nedit_menu(CharacterData *ch) {
 	send_to_char(out.str().c_str(), ch);
 }
 
-void do_named(CharacterData *ch, char *argument, int cmd, int subcmd) {
+void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 	MobRnum r_num;
 	std::string out;
 	bool have_missed_items = false;
@@ -478,11 +478,11 @@ void do_named(CharacterData *ch, char *argument, int cmd, int subcmd) {
 	}
 }
 
-void receive_items(CharacterData *ch, CharacterData *mailman) {
+void receive_items(CharData *ch, CharData *mailman) {
 	if ((ch->in_room == r_helled_start_room) ||
 		(ch->in_room == r_named_start_room) ||
 		(ch->in_room == r_unreg_start_room)) {
-		act("$n сказал$g вам : 'Вот выйдешь - тогда и получишь!'", false, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Вот выйдешь - тогда и получишь!'", false, mailman, 0, ch, kToVict);
 		return;
 	}
 
@@ -511,8 +511,8 @@ void receive_items(CharacterData *ch, CharacterData *mailman) {
 				obj->cleanup_script();
 				obj_decay(obj.get());
 
-				act("$n дал$g вам $o3.", false, mailman, obj.get(), ch, TO_VICT);
-				act("$N дал$G $n2 $o3.", false, ch, obj.get(), mailman, TO_ROOM);
+				act("$n дал$g вам $o3.", false, mailman, obj.get(), ch, kToVict);
+				act("$N дал$G $n2 $o3.", false, ch, obj.get(), mailman, kToRoom);
 			} else {
 				snprintf(buf1, kMaxStringLength, "не выдаем именной предмет %s Max:%d <= Current:%d",
 						 obj_proto[r_num]->get_short_description().c_str(),
@@ -527,13 +527,13 @@ void receive_items(CharacterData *ch, CharacterData *mailman) {
 
 	if (!found) {
 		if (!in_world) {
-			act("$n сказал$g вам : 'Кажется для тебя ничего нет'", false, mailman, 0, ch, TO_VICT);
+			act("$n сказал$g вам : 'Кажется для тебя ничего нет'", false, mailman, 0, ch, kToVict);
 		} else {
-			act("$n сказал$g вам : 'Забрал кто-то твои вещи'", false, mailman, 0, ch, TO_VICT);
+			act("$n сказал$g вам : 'Забрал кто-то твои вещи'", false, mailman, 0, ch, kToVict);
 		}
 	}
 
-	set_wait(ch, 3, false);
+	SetWait(ch, 3, false);
 }
 
 void load() {

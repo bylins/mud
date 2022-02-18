@@ -6,8 +6,8 @@
 #include <map>
 #include <memory>
 
-class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-class ObjectData;        // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class ObjData;        // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
 namespace Celebrates {
 
@@ -61,8 +61,8 @@ struct CelebrateDay {
 
 typedef std::shared_ptr<CelebrateDay> CelebrateDayPtr;
 typedef std::map<int, CelebrateDayPtr> CelebrateList; //номер дня в году, праздник
-typedef std::map<long, CharacterData *> CelebrateMobs;
-typedef std::map<long, ObjectData *> CelebrateObjs;
+typedef std::map<long, CharData *> CelebrateMobs;
+typedef std::map<long, ObjData *> CelebrateObjs;
 
 CelebrateDataPtr get_mono_celebrate();
 CelebrateDataPtr get_poly_celebrate();
@@ -78,10 +78,10 @@ int get_real_day();
 void load();
 void sanitize();
 
-void add_mob_to_attach_list(long, CharacterData *);
-void add_mob_to_load_list(long, CharacterData *);
-void add_obj_to_attach_list(long, ObjectData *);
-void add_obj_to_load_list(long, ObjectData *);
+void add_mob_to_attach_list(long, CharData *);
+void add_mob_to_load_list(long, CharData *);
+void add_obj_to_attach_list(long, ObjData *);
+void add_obj_to_load_list(long, ObjData *);
 
 void remove_from_obj_lists(long uid);
 void remove_from_mob_lists(long uid);

@@ -13,12 +13,12 @@
 *  $Revision$                                                      *
 *********************************************************************** */
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 
-void write_aliases(CharacterData *ch);
-void read_aliases(CharacterData *ch);
+void write_aliases(CharData *ch);
+void read_aliases(CharData *ch);
 
-void write_aliases(CharacterData *ch) {
+void write_aliases(CharData *ch) {
 	FILE *file;
 	char fn[kMaxStringLength];
 	struct alias_data *temp;
@@ -53,7 +53,7 @@ void write_aliases(CharacterData *ch) {
 	fclose(file);
 }
 
-void read_aliases(CharacterData *ch) {
+void read_aliases(CharData *ch) {
 	FILE *file;
 	char xbuf[kMaxStringLength];
 	struct alias_data *t2;

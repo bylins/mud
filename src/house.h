@@ -44,19 +44,19 @@ enum Privileges : unsigned {
 };
 const unsigned MAX_GOLD_TAX_PCT = 50;
 const int MIN_GOLD_TAX_AMOUNT = 100;
-bool is_alliance(CharacterData *ch, char *clan_abbr);
+bool is_alliance(CharData *ch, char *clan_abbr);
 void check_player_in_house();
-bool is_ingr_chest(ObjectData *obj);
+bool is_ingr_chest(ObjData *obj);
 void save_ingr_chests();
-bool show_ingr_chest(ObjectData *obj, CharacterData *ch);
+bool show_ingr_chest(ObjData *obj, CharData *ch);
 void save_chest_log();
 // управление клан налогом
-void tax_manage(CharacterData *ch, std::string &buffer);
+void tax_manage(CharData *ch, std::string &buffer);
 // первичная генерация справки сайтов дружин
 void init_xhelp();
 /// высчитывает и снимает клан-налог с gold кун
 /// \return сумму получившегося налога, которую надо снять с чара
-long do_gold_tax(CharacterData *ch, long gold);
+long do_gold_tax(CharData *ch, long gold);
 
 } // namespace ClanSystem
 
@@ -171,44 +171,44 @@ class Clan {
 	static void ClanReload(const std::string& index);
 	static void ClanSave();
 	static void SaveChestAll();
-	static void HconShow(CharacterData *ch);
-	static void SetClanData(CharacterData *ch);
+	static void HconShow(CharData *ch);
+	static void SetClanData(CharData *ch);
 	static void ChestUpdate();
-	static bool MayEnter(CharacterData *ch, RoomRnum room, bool mode);
-	static bool InEnemyZone(CharacterData *ch);
-	static bool PutChest(CharacterData *ch, ObjectData *obj, ObjectData *chest);
-	static bool TakeChest(CharacterData *ch, ObjectData *obj, ObjectData *chest);
+	static bool MayEnter(CharData *ch, RoomRnum room, bool mode);
+	static bool InEnemyZone(CharData *ch);
+	static bool PutChest(CharData *ch, ObjData *obj, ObjData *chest);
+	static bool TakeChest(CharData *ch, ObjData *obj, ObjData *chest);
 	static void ChestInvoice();
-	static bool BankManage(CharacterData *ch, char *arg);
+	static bool BankManage(CharData *ch, char *arg);
 	static RoomRnum CloseRent(RoomRnum to_room);
 	static shared_ptr GetClanByRoom(RoomRnum room);
-	static void CheckPkList(CharacterData *ch);
+	static void CheckPkList(CharData *ch);
 	static void SyncTopExp();
-	static bool ChestShow(ObjectData *list, CharacterData *ch);
+	static bool ChestShow(ObjData *list, CharData *ch);
 	static void remove_from_clan(long unique);
-	static int print_spell_locate_object(CharacterData *ch, int count, std::string name);
-	static int print_imm_where_obj(CharacterData *ch, const char *name, int count);
-	static int GetClanWars(CharacterData *ch);
+	static int print_spell_locate_object(CharData *ch, int count, std::string name);
+	static int print_imm_where_obj(CharData *ch, const char *name, int count);
+	static int GetClanWars(CharData *ch);
 	static void init_chest_rnum();
-	static bool is_clan_chest(ObjectData *obj);
-	static bool is_ingr_chest(ObjectData *obj);
-	static void clan_invoice(CharacterData *ch, bool enter);
+	static bool is_clan_chest(ObjData *obj);
+	static bool is_ingr_chest(ObjData *obj);
+	static void clan_invoice(CharData *ch, bool enter);
 	static int delete_obj(int vnum);
 	static void save_pk_log();
-	static bool put_ingr_chest(CharacterData *ch, ObjectData *obj, ObjectData *chest);
-	static bool take_ingr_chest(CharacterData *ch, ObjectData *obj, ObjectData *chest);
+	static bool put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest);
+	static bool take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest);
 
 	bool is_clan_member(int unique);//Возвращает true если чар с данным unique в клане
 	bool is_alli_member(int unique);//Возвращает true если чар с данным unique в альянсе
 
 	void Manage(DescriptorData *d, const char *arg);
-	void AddTopExp(CharacterData *ch, int add_exp);
+	void AddTopExp(CharData *ch, int add_exp);
 
 	const char *GetAbbrev() { return this->abbrev.c_str(); };
 	int get_chest_room();
 	int GetRent();
 	int GetOutRent();
-	void SetClanExp(CharacterData *ch, int add);
+	void SetClanExp(CharData *ch, int add);
 	int GetClanLevel() { return this->clan_level; }
 	std::string GetClanTitle() { return this->title; }
 	std::string get_abbrev() const { return abbrev; }
@@ -220,7 +220,7 @@ class Clan {
 	std::string get_remember(unsigned int num, int flag) const;
 
 	void write_mod(const std::string &arg);
-	bool print_mod(CharacterData *ch) const;
+	bool print_mod(CharData *ch) const;
 	void load_mod();
 	int get_rep();
 	void set_rep(int rep);
@@ -231,8 +231,8 @@ class Clan {
 	void purge_ingr_chest();
 	int get_ingr_chest_objcount() const { return ingr_chest_objcount_; };
 	bool ingr_chest_active() const;
-	void set_ingr_chest(CharacterData *ch);
-	void disable_ingr_chest(CharacterData *ch);
+	void set_ingr_chest(CharData *ch);
+	void disable_ingr_chest(CharData *ch);
 	int calculate_clan_tax() const;
 	void add_offline_member(const std::string &name, int uid, int rank);
 	int ingr_chest_max_objects();
@@ -247,18 +247,18 @@ class Clan {
 	void set_gold_tax_pct(unsigned num);
 	unsigned get_gold_tax_pct() const;
 
-	friend void DoHouse(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void DoClanChannel(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void DoClanList(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void DoShowPolitics(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void DoHcontrol(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void DoWhoClan(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void DoClanPkList(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void DoStoreHouse(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void do_clanstuff(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void DoShowWars(CharacterData *ch, char *argument, int cmd, int subcmd);
-	friend void do_show_alliance(CharacterData *ch, char *argument, int cmd, int subcmd);
-	bool check_write_board(CharacterData *ch);
+	friend void DoHouse(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void DoClanChannel(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void DoClanList(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void DoShowPolitics(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void DoHcontrol(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void DoWhoClan(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void DoClanPkList(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void DoStoreHouse(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void do_clanstuff(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void DoShowWars(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void do_show_alliance(CharData *ch, char *argument, int cmd, int subcmd);
+	bool check_write_board(CharData *ch);
 	int out_rent;   // номер румы для отписанных, чтобы не тусовались в замке дальше
 
 	// клан пк
@@ -270,7 +270,7 @@ class Clan {
 	// лог клан-храна
 	ClanChestLog chest_log;
 
-	static void SetPk(CharacterData *ch, std::string buffer);
+	static void SetPk(CharData *ch, std::string buffer);
 	bool is_pk();
 	void change_pk_status();
 
@@ -322,35 +322,35 @@ class Clan {
 	int ingr_chest_objcount_;
 
 	void SetPolitics(int victim, int state);
-	void ManagePolitics(CharacterData *ch, std::string &buffer);
-	void HouseInfo(CharacterData *ch);
-	void HouseAdd(CharacterData *ch, std::string &buffer);
-	void HouseRemove(CharacterData *ch, std::string &buffer);
-	void ClanAddMember(CharacterData *ch, int rank);
-	void HouseOwner(CharacterData *ch, std::string &buffer);
-	void HouseLeave(CharacterData *ch);
-	void HouseStat(CharacterData *ch, std::string &buffer);
+	void ManagePolitics(CharData *ch, std::string &buffer);
+	void HouseInfo(CharData *ch);
+	void HouseAdd(CharData *ch, std::string &buffer);
+	void HouseRemove(CharData *ch, std::string &buffer);
+	void ClanAddMember(CharData *ch, int rank);
+	void HouseOwner(CharData *ch, std::string &buffer);
+	void HouseLeave(CharData *ch);
+	void HouseStat(CharData *ch, std::string &buffer);
 	void remove_member(const ClanMembersList::key_type &it);
 	void save_clan_file(const std::string &filename) const;
-	void house_web_url(CharacterData *ch, const std::string &buffer);
+	void house_web_url(CharData *ch, const std::string &buffer);
 
 	// house аля олц
 	void MainMenu(DescriptorData *d);
 	void PrivilegeMenu(DescriptorData *d, unsigned num);
 	void AllMenu(DescriptorData *d, unsigned flag);
-	void GodToChannel(CharacterData *ch, std::string text, int subcmd);
-	void CharToChannel(CharacterData *ch, std::string text, int subcmd);
+	void GodToChannel(CharData *ch, std::string text, int subcmd);
+	void CharToChannel(CharData *ch, std::string text, int subcmd);
 
-	static void HcontrolBuild(CharacterData *ch, std::string &buffer);
-	static void HcontrolDestroy(CharacterData *ch, std::string &buffer);
+	static void HcontrolBuild(CharData *ch, std::string &buffer);
+	static void HcontrolDestroy(CharData *ch, std::string &buffer);
 	static void DestroyClan(Clan::shared_ptr clan);
 	static void fix_clan_members_load_room(Clan::shared_ptr clan);
-	static void hcontrol_title(CharacterData *ch, std::string &text);
-	static void hcontrol_rank(CharacterData *ch, std::string &text);
-	static void hcontrol_exphistory(CharacterData *ch, std::string &text);
-	static void hcontrol_set_ingr_chest(CharacterData *ch, std::string &text);
-	static void hcon_outcast(CharacterData *ch, std::string &buffer);
-	static void hcon_owner(CharacterData *ch, std::string &text);
+	static void hcontrol_title(CharData *ch, std::string &text);
+	static void hcontrol_rank(CharData *ch, std::string &text);
+	static void hcontrol_exphistory(CharData *ch, std::string &text);
+	static void hcontrol_set_ingr_chest(CharData *ch, std::string &text);
+	static void hcon_outcast(CharData *ch, std::string &buffer);
+	static void hcon_owner(CharData *ch, std::string &text);
 
 	static void ChestLoad();
 	int ChestTax();
@@ -375,22 +375,22 @@ struct ClanInvite {
 	int rank;     // номер приписываемого ранга
 };
 
-void SetChestMode(CharacterData *ch, std::string &buffer);
-std::string GetChestMode(CharacterData *ch);
-std::string clan_get_custom_label(ObjectData *obj, Clan::shared_ptr clan);
+void SetChestMode(CharData *ch, std::string &buffer);
+std::string GetChestMode(CharData *ch);
+std::string clan_get_custom_label(ObjData *obj, Clan::shared_ptr clan);
 
-bool CHECK_CUSTOM_LABEL_CORE(const ObjectData *obj, const CharacterData *ch);
+bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch);
 
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать
-bool CHECK_CUSTOM_LABEL(const char *arg, const ObjectData *obj, const CharacterData *ch);
+bool CHECK_CUSTOM_LABEL(const char *arg, const ObjData *obj, const CharData *ch);
 
-inline bool CHECK_CUSTOM_LABEL(const std::string &arg, const ObjectData *obj, const CharacterData *ch) {
+inline bool CHECK_CUSTOM_LABEL(const std::string &arg, const ObjData *obj, const CharData *ch) {
 	return CHECK_CUSTOM_LABEL(arg.c_str(), obj, ch);
 }
 
 // видит ли ch метки obj
-bool AUTH_CUSTOM_LABEL(const ObjectData *obj, const CharacterData *ch);
+bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch);
 
 #endif
 

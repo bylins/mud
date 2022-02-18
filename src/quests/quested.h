@@ -13,7 +13,7 @@
 
 class Quested {
  public:
-	void add(CharacterData *ch, int vnum, char *text);
+	void add(CharData *ch, int vnum, char *text);
 	bool remove(int vnum);
 	void clear();
 

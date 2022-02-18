@@ -1,10 +1,10 @@
 #ifndef BYLINS_STRANGLE_H
 #define BYLINS_STRANGLE_H
 
-class CharacterData;
+class CharData;
 
-void go_strangle(CharacterData *ch, CharacterData *vict);
-void do_strangle(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_strangle(CharData *ch, CharData *vict);
+void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_STRANGLE_H
 

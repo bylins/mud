@@ -12,13 +12,13 @@
 
 namespace GloryMisc {
 
-bool check_stats(CharacterData *ch);
-void recalculate_stats(CharacterData *ch);
+bool check_stats(CharData *ch);
+void recalculate_stats(CharData *ch);
 
 void load_log();
 void save_log();
-void add_log(int type, int num, std::string punish, std::string reason, CharacterData *vict);
-void show_log(CharacterData *ch, char const *const value);
+void add_log(int type, int num, std::string punish, std::string reason, CharData *vict);
+void show_log(CharData *ch, char const *const value);
 
 enum { ADD_GLORY = 1, REMOVE_GLORY, REMOVE_STAT, TRANSFER_GLORY, HIDE_GLORY };
 

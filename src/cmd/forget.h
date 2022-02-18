@@ -1,8 +1,8 @@
 #ifndef BYLINS_FORGET_H
 #define BYLINS_FORGET_H
 
-class CharacterData;
+class CharData;
 
-void do_forget(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_FORGET_H

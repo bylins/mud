@@ -4,7 +4,7 @@
 
 #include "house_exp.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "house.h"
 #include "modify.h"
 
@@ -117,7 +117,7 @@ void ClanPkLog::add(const std::string &text) {
 	need_save = true;
 }
 
-void ClanPkLog::print(CharacterData *ch) const {
+void ClanPkLog::print(CharData *ch) const {
 	std::string text;
 	for (std::list<std::string>::const_iterator i = pk_log.begin(); i != pk_log.end(); ++i) {
 		text += *i;
@@ -173,13 +173,13 @@ void ClanPkLog::load(const std::string &abbrev) {
 	file.close();
 }
 
-void ClanPkLog::check(CharacterData *ch, CharacterData *victim) {
+void ClanPkLog::check(CharData *ch, CharData *victim) {
 	if (!ch || !victim || ch->purged() || victim->purged()
 		|| IS_NPC(victim) || !CLAN(victim) || ch == victim
 		|| (ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) && !NORENTABLE(victim))) {
 		return;
 	}
-	CharacterData *killer = ch;
+	CharData *killer = ch;
 	if (IS_NPC(killer)
 		&& killer->has_master()
 		&& !IS_NPC(killer->get_master())) {
@@ -303,7 +303,7 @@ bool ClanExpHistory::need_destroy() const {
 void ClanExpHistory::fulldelete() {
 	list_.clear();
 }
-void ClanExpHistory::show(CharacterData *ch) const {
+void ClanExpHistory::show(CharData *ch) const {
 	send_to_char(ch, "\r\nОпыт, набранный за три последних календарных месяца без учета минусов:\r\n");
 	size_t size = list_.size();
 	size_t count = 0;
@@ -333,7 +333,7 @@ void ClanChestLog::add(const std::string &text) {
 	need_save_ = true;
 }
 
-void ClanChestLog::print(CharacterData *ch, std::string &text) const {
+void ClanChestLog::print(CharData *ch, std::string &text) const {
 	boost::trim(text);
 	std::string out, bufer_out;
 	if (text.empty()) {

@@ -64,19 +64,19 @@ struct obj_affected_type {
 	}
 };
 
-void pulse_affect_update(CharacterData *ch);
+void pulse_affect_update(CharData *ch);
 void player_affect_update();
-void battle_affect_update(CharacterData *ch);
+void battle_affect_update(CharData *ch);
 void mobile_affect_update();
 
-void affect_total(CharacterData *ch);
-void affect_modify(CharacterData *ch, byte loc, int mod, EAffectFlag bitv, bool add);
-void affect_to_char(CharacterData *ch, const Affect<EApplyLocation> &af);
-void affect_from_char(CharacterData *ch, int type);
-bool affected_by_spell(CharacterData *ch, int type);
-void affect_join_fspell(CharacterData *ch, const Affect<EApplyLocation> &af);
-void affect_join(CharacterData *ch, Affect<EApplyLocation> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
-void reset_affects(CharacterData *ch);
-bool no_bad_affects(ObjectData *obj);
+void affect_total(CharData *ch);
+void affect_modify(CharData *ch, byte loc, int mod, EAffectFlag bitv, bool add);
+void affect_to_char(CharData *ch, const Affect<EApplyLocation> &af);
+void affect_from_char(CharData *ch, int type);
+bool affected_by_spell(CharData *ch, int type);
+void affect_join_fspell(CharData *ch, const Affect<EApplyLocation> &af);
+void affect_join(CharData *ch, Affect<EApplyLocation> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
+void reset_affects(CharData *ch);
+bool no_bad_affects(ObjData *obj);
 
 #endif //BYLINS_AFFECT_DATA_H

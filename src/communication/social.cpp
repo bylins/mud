@@ -52,11 +52,11 @@ int find_action(char *cmd) {
 
 const char *deaf_social = "&K$n попытал$u очень эмоционально выразить свою мысль.&n";
 
-int do_social(CharacterData *ch, char *argument) {
+int do_social(CharData *ch, char *argument) {
 	int act_nr;
 	char social[kMaxInputLength];
 	struct SocialMessages *action;
-	CharacterData *vict;
+	CharData *vict;
 
 	if (!argument || !*argument)
 		return (false);
@@ -91,8 +91,8 @@ int do_social(CharacterData *ch, char *argument) {
 				continue;
 			}
 
-			act(action->others_no_arg, false, ch, nullptr, to, TO_VICT | CHECK_DEAF);
-			act(deaf_social, false, ch, nullptr, to, TO_VICT | CHECK_NODEAF);
+			act(action->others_no_arg, false, ch, nullptr, to, kToVict | kToNotDeaf);
+			act(deaf_social, false, ch, nullptr, to, kToVict | kToDeaf);
 		}
 		return (true);
 	}
@@ -111,14 +111,14 @@ int do_social(CharacterData *ch, char *argument) {
 				continue;
 			}
 
-			act(action->others_no_arg, false, ch, nullptr, to, TO_VICT | CHECK_DEAF);
-			act(deaf_social, false, ch, nullptr, to, TO_VICT | CHECK_NODEAF);
+			act(action->others_no_arg, false, ch, nullptr, to, kToVict | kToNotDeaf);
+			act(deaf_social, false, ch, nullptr, to, kToVict | kToDeaf);
 		}
 	} else {
 		if (GET_POS(vict) < action->vict_min_pos || GET_POS(vict) > action->vict_max_pos)
-			act("$N2 сейчас, похоже, не до вас.", false, ch, nullptr, vict, TO_CHAR | TO_SLEEP);
+			act("$N2 сейчас, похоже, не до вас.", false, ch, nullptr, vict, kToChar | kToSleep);
 		else {
-			act(action->char_found, 0, ch, nullptr, vict, TO_CHAR | TO_SLEEP);
+			act(action->char_found, 0, ch, nullptr, vict, kToChar | kToSleep);
 // здесь зарылся баг, связанный с тем, что я не знаю,
 // как без грязных хаков сделать так, чтобы
 // можно было этот вызов делать в цикле для каждого чара в клетке и при этом
@@ -126,10 +126,10 @@ int do_social(CharacterData *ch, char *argument) {
 // в итоге даже если чар в клетке игнорирует чара ch, то все равно он
 // будет видеть его действия, имеющие цель, если при этом цель -- не он сам.
 // для глухих -- то же самое.
-			act(action->others_found, false, ch, nullptr, vict, TO_NOTVICT | CHECK_DEAF);
-			act(deaf_social, false, ch, nullptr, nullptr, TO_ROOM | CHECK_NODEAF);
+			act(action->others_found, false, ch, nullptr, vict, kToNotVict | kToNotDeaf);
+			act(deaf_social, false, ch, nullptr, nullptr, kToRoom | kToDeaf);
 			if (!ignores(vict, ch, IGNORE_EMOTE))
-				act(action->vict_found, false, ch, nullptr, vict, TO_VICT | CHECK_DEAF);
+				act(action->vict_found, false, ch, nullptr, vict, kToVict | kToNotDeaf);
 		}
 	}
 	return (true);

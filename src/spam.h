@@ -13,7 +13,7 @@ namespace SpamSystem {
 
 const int MIN_OFFTOP_LVL = 6;
 enum { OFFTOP_MODE };
-bool check(CharacterData *ch, int mode);
+bool check(CharData *ch, int mode);
 
 } // SpamSystem
 

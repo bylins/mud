@@ -4,7 +4,7 @@
 #include "skills.h"
 
 #include "boot/cfg_manager.h"
-#include "entities/entity_constants.h"
+#include "entities/entities_constants.h"
 #include "game_classes/classes_constants.h"
 #include "structs/info_container.h"
 

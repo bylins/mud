@@ -1,6 +1,6 @@
 #include "fight_extra_attack.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "magic/spells.h"
 #include "utils/utils.h"
 
@@ -28,7 +28,7 @@ bool WeaponMagicalAttack::set_count_attack(CharacterData *ch) {
 	//sprintf(buf, "Количество выстрелов %d", get_count());
 	//act(buf, true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	//выстрел из колчана
-	if ((GET_EQ(ch, WEAR_BOTHS) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == ObjectData::ITEM_WEAPON))
+	if ((GET_EQ(ch, WEAR_BOTHS) && (GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == ObjData::ITEM_WEAPON))
 		&& (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS)
 		&& (GET_EQ(ch, WEAR_QUIVER))) {
 		//если у нас в руках лук и носим колчан

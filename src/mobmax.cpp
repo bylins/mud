@@ -4,7 +4,7 @@
 
 #include "mobmax.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 
 std::array<int, kMaxMobLevel / 11 + 1> animals_levels = {{0}};
 namespace {
@@ -106,7 +106,7 @@ void MobMax::refresh(int level) {
 }
 
 // * Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
-void MobMax::add(CharacterData *ch, int vnum, int count, int level) {
+void MobMax::add(CharData *ch, int vnum, int count, int level) {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
@@ -124,7 +124,7 @@ void MobMax::add(CharacterData *ch, int vnum, int count, int level) {
 }
 
 // * Версия add без лишних расчетов для инита во время загрузки персонажа.
-void MobMax::load(CharacterData *ch, int vnum, int count, int level) {
+void MobMax::load(CharData *ch, int vnum, int count, int level) {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
 	mobmax_data tmp_data(vnum, count, level);

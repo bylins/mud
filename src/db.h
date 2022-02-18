@@ -19,7 +19,7 @@
 #include "conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 #include "name_adviser.h"
 #include "obj_save.h"
-#include "entities/obj.h"
+#include "entities/obj_data.h"
 #include "structs/descriptor_data.h"
 #include "structs/structs.h"
 
@@ -28,7 +28,7 @@
 #include <memory>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
-class CharacterData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
 // room manage functions
 void room_copy(RoomData *dst, RoomData *src);
@@ -52,11 +52,11 @@ long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 void zone_traffic_save();
 
-int load_char(const char *name, CharacterData *char_element, bool reboot = false, bool find_id = true);
-CharacterData *read_mobile(MobVnum nr, int type);
+int load_char(const char *name, CharData *char_element, bool reboot = false, bool find_id = true);
+CharData *read_mobile(MobVnum nr, int type);
 MobRnum real_mobile(MobVnum vnum);
-int vnum_mobile(char *searchname, CharacterData *ch);
-void clear_char_skills(CharacterData *ch);
+int vnum_mobile(char *searchname, CharData *ch);
+void clear_char_skills(CharData *ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype *obj);
 void SaveGlobalUID();
@@ -67,10 +67,10 @@ void flush_player_index();
 
 CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type = VIRTUAL);
 
-int vnum_object(char *searchname, CharacterData *ch);
-int vnum_flag(char *searchname, CharacterData *ch);
-int vnum_room(char *searchname, CharacterData *ch);
-int vnum_obj_trig(char *searchname, CharacterData *ch);
+int vnum_object(char *searchname, CharData *ch);
+int vnum_flag(char *searchname, CharData *ch);
+int vnum_room(char *searchname, CharData *ch);
+int vnum_obj_trig(char *searchname, CharData *ch);
 
 // structure for the reset commands
 struct reset_com {
@@ -270,7 +270,7 @@ extern const int sunrise[][2];
 extern const int Reverse[];
 
 // external vars
-extern CharacterData *combat_list;
+extern CharData *combat_list;
 
 #include <vector>
 #include <deque>
@@ -288,7 +288,7 @@ extern MobRnum top_of_mobt;
 
 inline ObjVnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(); }
 
-extern CharacterData *mob_proto;
+extern CharData *mob_proto;
 extern const char *MENU;
 
 extern struct Portal *portals_list;
@@ -297,8 +297,8 @@ extern TimeInfoData time_info;
 extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
 
 int dl_parse(OnDeadLoadList **dl_list, char *line);
-int dl_load_obj(ObjectData *corpse, CharacterData *ch, CharacterData *chr, int DL_LOAD_TYPE);
-int trans_obj_name(ObjectData *obj, CharacterData *ch);
+int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE);
+int trans_obj_name(ObjData *obj, CharData *ch);
 void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src);
 void paste_mobiles();
 
@@ -369,17 +369,17 @@ inline void clear_saveinfo(const size_t number) {
 
 void recreate_saveinfo(size_t number);
 
-void set_god_skills(CharacterData *ch);
+void set_god_skills(CharData *ch);
 void check_room_flags(int rnum);
 
 namespace OfftopSystem {
 void init();
-void set_flag(CharacterData *ch);
+void set_flag(CharData *ch);
 } // namespace OfftopSystem
 
 void delete_char(const char *name);
 
-void set_test_data(CharacterData *mob);
+void set_test_data(CharData *mob);
 
 void set_zone_mob_level();
 

@@ -10,17 +10,17 @@
 #include "skills/parry.h"
 
 // ************* TOUCH PROCEDURES
-void go_touch(CharacterData *ch, CharacterData *vict) {
-	if (dontCanAct(ch)) {
+void go_touch(CharData *ch, CharData *vict) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, nullptr, vict, TO_CHAR);
+	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, nullptr, vict, kToChar);
 	SET_AF_BATTLE(ch, kEafTouch);
 	ch->set_touching(vict);
 }
 
-void do_touch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(ESkill::kIntercept)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -30,14 +30,14 @@ void do_touch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	ObjectData *primary = GET_EQ(ch, WEAR_WIELD) ? GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch,
-																				   WEAR_BOTHS);
+	ObjData *primary = GET_EQ(ch, WEAR_WIELD) ? GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch,
+																				WEAR_BOTHS);
 	if (!(IS_IMMORTAL(ch) || IS_NPC(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || !primary)) {
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
 
-	CharacterData *vict = nullptr;
+	CharData *vict = nullptr;
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
 		for (const auto i : world[ch->in_room]->people) {
@@ -63,7 +63,7 @@ void do_touch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (vict->get_fighting() != ch && ch->get_fighting() != vict) {
-		act("Но вы не сражаетесь с $N4.", false, ch, nullptr, vict, TO_CHAR);
+		act("Но вы не сражаетесь с $N4.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
 	if (GET_AF_BATTLE(ch, kEafHammer)) {
@@ -80,8 +80,8 @@ void do_touch(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // ************* DEVIATE PROCEDURES
-void go_deviate(CharacterData *ch) {
-	if (dontCanAct(ch)) {
+void go_deviate(CharData *ch) {
+	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -92,7 +92,7 @@ void go_deviate(CharacterData *ch) {
 	send_to_char("Хорошо, вы попытаетесь уклониться от следующей атаки!\r\n", ch);
 }
 
-void do_deviate(CharacterData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(ESkill::kDodge)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -127,7 +127,7 @@ const char *cstyles[] = {"normal",
 						 "\n"
 };
 
-void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
@@ -141,7 +141,7 @@ void do_style(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 																							   : "обычным");
 		return;
 	}
-	if (tryFlipActivatedFeature(ch, argument)) {
+	if (TryFlipActivatedFeature(ch, argument)) {
 		return;
 	}
 	if ((tp = search_block(arg, cstyles, false)) == -1) {

@@ -6,7 +6,7 @@
 
 #include <array>
 
-int invalid_no_class(CharacterData *ch, const ObjectData *obj);
+int invalid_no_class(CharData *ch, const ObjData *obj);
 int extra_damroll(int class_num, int level);
 void LoadClassSkills();
 

@@ -1,6 +1,6 @@
 #include "magic_items.h"
 
-#include "entities/char.h"
+#include "entities/char_data.h"
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "magic/spells_info.h"
@@ -11,19 +11,19 @@ const short DEFAULT_WAND_LVL = 12;
 
 extern char cast_argument[kMaxInputLength];
 
-void EmployMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
+void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	int i, spellnum;
 	int level;
-	CharacterData *tch = nullptr;
-	ObjectData *tobj = nullptr;
+	CharData *tch = nullptr;
+	ObjData *tobj = nullptr;
 	RoomData *troom = nullptr;
 
 	one_argument(argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0) {
-		if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_STAFF) {
+		if (GET_OBJ_TYPE(obj) == ObjData::ITEM_STAFF) {
 			level = DEFAULT_STAFF_LVL;
-		} else if (GET_OBJ_TYPE(obj) == ObjectData::ITEM_WAND) {
+		} else if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WAND) {
 			level = DEFAULT_WAND_LVL;
 		}
 	}
@@ -36,18 +36,18 @@ void EmployMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ObjectData::ITEM_STAFF:
+		case ObjData::ITEM_STAFF:
 			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_CHAR);
-				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToChar);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			} else {
-				act("Вы ударили $o4 о землю.", false, ch, obj, nullptr, TO_CHAR);
-				act("$n ударил$g $o4 о землю.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("Вы ударили $o4 о землю.", false, ch, obj, nullptr, kToChar);
+				act("$n ударил$g $o4 о землю.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			}
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				send_to_char("Похоже, кончились заряды :)\r\n", ch);
-				act("И ничего не случилось.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("И ничего не случилось.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			} else {
 				obj->dec_val(2);
 				WAIT_STATE(ch, kPulseViolence);
@@ -65,7 +65,7 @@ void EmployMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 
 			break;
 
-		case ObjectData::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
+		case ObjData::ITEM_WAND: spellnum = GET_OBJ_VAL(obj, 3);
 
 			if (GET_OBJ_VAL(obj, 2) <= 0) {
 				send_to_char("Похоже, магия кончилась.\r\n", ch);
@@ -85,37 +85,37 @@ void EmployMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 			if (tch) {
 				if (tch == ch) {
 					if (!obj->get_action_description().empty()) {
-						act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_CHAR);
-						act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+						act(obj->get_action_description().c_str(), false, ch, obj, tch, kToChar);
+						act(obj->get_action_description().c_str(), false, ch, obj, tch, kToRoom | kToArenaListen);
 					} else {
-						act("Вы указали $o4 на себя.", false, ch, obj, nullptr, TO_CHAR);
-						act("$n указал$g $o4 на себя.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+						act("Вы указали $o4 на себя.", false, ch, obj, nullptr, kToChar);
+						act("$n указал$g $o4 на себя.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 					}
 				} else {
 					if (!obj->get_action_description().empty()) {
-						act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_CHAR);
-						act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+						act(obj->get_action_description().c_str(), false, ch, obj, tch, kToChar);
+						act(obj->get_action_description().c_str(), false, ch, obj, tch, kToRoom | kToArenaListen);
 					} else {
-						act("Вы ткнули $o4 в $N3.", false, ch, obj, tch, TO_CHAR);
-						act("$N указал$G $o4 на вас.", false, tch, obj, ch, TO_CHAR);
-						act("$n ткнул$g $o4 в $N3.", true, ch, obj, tch, TO_NOTVICT | TO_ARENA_LISTEN);
+						act("Вы ткнули $o4 в $N3.", false, ch, obj, tch, kToChar);
+						act("$N указал$G $o4 на вас.", false, tch, obj, ch, kToChar);
+						act("$n ткнул$g $o4 в $N3.", true, ch, obj, tch, kToNotVict | kToArenaListen);
 					}
 				}
 			} else if (tobj) {
 				if (!obj->get_action_description().empty()) {
-					act(obj->get_action_description().c_str(), false, ch, obj, tobj, TO_CHAR);
-					act(obj->get_action_description().c_str(), false, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+					act(obj->get_action_description().c_str(), false, ch, obj, tobj, kToChar);
+					act(obj->get_action_description().c_str(), false, ch, obj, tobj, kToRoom | kToArenaListen);
 				} else {
-					act("Вы прикоснулись $o4 к $O2.", false, ch, obj, tobj, TO_CHAR);
-					act("$n прикоснул$u $o4 к $O2.", true, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+					act("Вы прикоснулись $o4 к $O2.", false, ch, obj, tobj, kToChar);
+					act("$n прикоснул$u $o4 к $O2.", true, ch, obj, tobj, kToRoom | kToArenaListen);
 				}
 			} else {
 				if (!obj->get_action_description().empty()) {
-					act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_CHAR);
-					act(obj->get_action_description().c_str(), false, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+					act(obj->get_action_description().c_str(), false, ch, obj, tch, kToChar);
+					act(obj->get_action_description().c_str(), false, ch, obj, tch, kToRoom | kToArenaListen);
 				} else {
-					act("Вы обвели $o4 вокруг комнаты.", false, ch, obj, nullptr, TO_CHAR);
-					act("$n обвел$g $o4 вокруг комнаты.", true, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+					act("Вы обвели $o4 вокруг комнаты.", false, ch, obj, nullptr, kToChar);
+					act("$n обвел$g $o4 вокруг комнаты.", true, ch, obj, nullptr, kToRoom | kToArenaListen);
 				}
 			}
 
@@ -124,7 +124,7 @@ void EmployMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 			CallMagic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			break;
 
-		case ObjectData::ITEM_SCROLL:
+		case ObjData::ITEM_SCROLL:
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 				send_to_char("Вы немы, как рыба.\r\n", ch);
 				return;
@@ -147,11 +147,11 @@ void EmployMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 			}
 
 			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_CHAR);
-				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToChar);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			} else {
-				act("Вы зачитали $o3, котор$W рассыпался в прах.", true, ch, obj, nullptr, TO_CHAR);
-				act("$n зачитал$g $o3.", false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("Вы зачитали $o3, котор$W рассыпался в прах.", true, ch, obj, nullptr, kToChar);
+				act("$n зачитал$g $o3.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			}
 
 			WAIT_STATE(ch, kPulseViolence);
@@ -167,18 +167,18 @@ void EmployMagicItem(CharacterData *ch, ObjectData *obj, const char *argument) {
 			extract_obj(obj);
 			break;
 
-		case ObjectData::ITEM_POTION:
+		case ObjData::ITEM_POTION:
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 				send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;
 			}
 			tch = ch;
 			if (!obj->get_action_description().empty()) {
-				act(obj->get_action_description().c_str(), true, ch, obj, nullptr, TO_CHAR);
-				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act(obj->get_action_description().c_str(), true, ch, obj, nullptr, kToChar);
+				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToRoom | kToArenaListen);
 			} else {
-				act("Вы осушили $o3.", false, ch, obj, nullptr, TO_CHAR);
-				act("$n осушил$g $o3.", true, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+				act("Вы осушили $o3.", false, ch, obj, nullptr, kToChar);
+				act("$n осушил$g $o3.", true, ch, obj, nullptr, kToRoom | kToArenaListen);
 			}
 
 			WAIT_STATE(ch, kPulseViolence);
