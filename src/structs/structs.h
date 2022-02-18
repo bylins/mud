@@ -29,6 +29,8 @@
 #include <array>
 #include <memory>
 
+//#include "utils/wrapper.h"
+
 using sbyte = int8_t;
 using ubyte = uint8_t;
 using sh_int = int16_t ;
@@ -139,7 +141,7 @@ template<typename E>
 inline E ITEM_BY_NAME(const char *name) { return ITEM_BY_NAME<E>(std::string(name)); }
 
 // PC Kin - выпилить к чертям
-const __uint8_t kNumKins = 3;
+const int kNumKins = 3;
 
 // Descriptor flags //
 //constexpr bitvector_t DESC_CANZLIB = 1 << 0;    // Client says compression capable.   //
@@ -177,12 +179,12 @@ constexpr Bitvector EXTRA_GRP_KILL_COUNT = 1 << 3; // для избежания 
  * kLevelImmortal should always be the LOWEST immortal level.  The number of
  * mortal levels will always be kLevelImmortal - 1.
  */
-const short kLevelImplementator = 34;
-const short kLevelGreatGod = 33;
-const short kLevelBuilder = 33;
-const short kLevelGod = 32;
-const short kLevelImmortal = 31;
-const short kLevelFreeze = kLevelGreatGod; // Level of the 'freeze' command //
+const int kLevelImplementator = 34;
+const int kLevelGreatGod = 33;
+const int kLevelBuilder = 33;
+const int kLevelGod = 32;
+const int kLevelImmortal = 31;
+const int kLevelFreeze = kLevelGreatGod; // Level of the 'freeze' command //
 
 const __uint8_t kMagicNumber = 0x06;    // Arbitrary number that won't be in a string //
 
@@ -221,8 +223,8 @@ const int kMaxFeats = 256;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
 const long kMaxMoneyKept = 1000000000; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 
-const short kMinCharLevel = 0;
-const short kMaxMobLevel = 100;
+const int kMinCharLevel = 0;
+const int kMaxMobLevel = 100;
 const int kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
 constexpr int kMinSaving = -kMaxSaving;
 const int kMaxResistance = 100;
@@ -416,6 +418,45 @@ struct set_struct {
 	const char type = 0;
 };
 // ===============================================================
+
+namespace parser_wrapper {
+// forward declaration
+class DataNode;
+}
+
+enum ENameCase {
+	kNom = 0,
+	kGen,
+	kDat,
+	kAcc,
+	kInst,
+	kPrep,
+	kNumNameCases
+};
+
+namespace base_structs {
+
+class ItemName {
+ public:
+	using Ptr = std::unique_ptr<ItemName>;
+	using NameCases = std::array<std::string, ENameCase::kNumNameCases>;
+
+	ItemName(ItemName &&i) noexcept;
+	ItemName &operator=(ItemName &&i) noexcept;
+
+	[[nodiscard]] const std::string &GetSingular(ENameCase name_case) const;
+	[[nodiscard]] const std::string &GetPlural(ENameCase name_case) const;
+	static Ptr Build(parser_wrapper::DataNode &node);
+
+ private:
+	ItemName() = default;
+
+	NameCases singular_names_;
+	NameCases plural_names_;
+};
+
+}
+
 #endif // STRUCTS_STRUCTS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

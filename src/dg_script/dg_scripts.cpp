@@ -2077,7 +2077,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_UNIQUE(c));
 		} 
 		else if (!str_cmp(field, "level"))
-			sprintf(str, "%d", GET_REAL_LEVEL(c));
+			sprintf(str, "%d", GetRealLevel(c));
 		else if (!str_cmp(field, "remort")) {
 				sprintf(str, "%d", GET_REAL_REMORT(c));
 		} else if (!str_cmp(field, "hitp")) {
@@ -2126,7 +2126,7 @@ void find_replacement(void *go,
 				}
 				if (can_use == 2)//дрын
 				{
-					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * GET_REAL_LEVEL(c) / 10;
+					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * GetRealLevel(c) / 10;
 				} else if (can_use == 1)//ужи и покров
 				{
 					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * 33 / 100;

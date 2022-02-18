@@ -49,7 +49,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		cooldown = 2;
 	} else {
-		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GET_REAL_LEVEL(ch) / 6;
+		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
 		if (!IS_NPC(ch) || (IS_NPC(ch) && GET_EQ(ch, WEAR_FEET))) {
 			int modi = MAX(0, (ch->get_skill(ESkill::kKick) + 4) / 5);
 			dam += number(0, modi * 2);

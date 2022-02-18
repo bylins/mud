@@ -53,7 +53,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	struct Follower *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GetRealLevel(ch);
 	int k_room = -1;
 	if (!virt && (god_level == kLevelImplementator || (god_level == kLevelGreatGod && !IS_NPC(k)))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
@@ -205,7 +205,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 
 	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
-			CCYEL(ch, C_NRM), GET_REAL_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+			CCYEL(ch, C_NRM), GetRealLevel(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
 			GET_EXP(k), CCNRM(ch, C_NRM), tmp_buf, GET_ALIGNMENT(k));
 
 	send_to_char(buf, ch);
@@ -237,7 +237,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				k->get_hryvn(), k->get_nogata());
 
 		//. Display OLC zone for immorts .
-		if (GET_REAL_LEVEL(ch) >= kLevelImmortal) {
+		if (GetRealLevel(ch) >= kLevelImmortal) {
 			sprintf(buf1, ", %sOLC[%d]%s", CCGRN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
 			strcat(buf, buf1);
 		}
@@ -1133,7 +1133,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
+	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GetRealLevel(ch);
 
 	if (utils::IsAbbrev(buf1, "room") && level >= kLevelBuilder) {
 		int vnum, rnum = kNowhere;
@@ -1188,7 +1188,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			Player t_vict;
 			if (load_char(buf2, &t_vict) > -1) {
-				if (GET_REAL_LEVEL(&t_vict) > level) {
+				if (GetRealLevel(&t_vict) > level) {
 					send_to_char("Извините, вам это еще рано.\r\n", ch);
 				} else {
 					Clan::SetClanData(&t_vict);

@@ -15,6 +15,10 @@
 
 #include <optional>
 
+namespace base_structs {
+class ItemName;
+}
+
 namespace classes {
 
 class ClassesLoader : virtual public cfg_manager::ICfgLoader {
@@ -44,6 +48,10 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 	[[nodiscard]] ECharClass GetId() const final { return id; };
 	[[nodiscard]] EItemMode GetMode() const final { return mode; };
 
+	/* Имена */
+
+	std::unique_ptr<base_structs::ItemName> names;
+
 	/* Умения класса */
 	using Skills = std::unordered_map<ESkill, ClassSkillInfo::Ptr>;
 	using SkillsPtr = std::unique_ptr<Skills>;
@@ -58,6 +66,8 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement; };
 	[[nodiscard]] long GetImprove(ESkill id) const;
 
+	void Print(std::stringstream &buffer) const;
+
 };
 
 class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> {
@@ -67,6 +77,7 @@ class CharClassInfoBuilder : public info_container::IItemBuilder<CharClassInfo> 
 	static parser_wrapper::DataNode SelectDataNode(parser_wrapper::DataNode &node);
 	static std::optional<std::string> GetCfgFileName(parser_wrapper::DataNode &node);
 	static void ParseClass(ItemOptional &info, parser_wrapper::DataNode &node);
+	static void ParseName(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkills(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSkillsLevelDecrement(ItemOptional &info, parser_wrapper::DataNode &node);
 	static void ParseSingleSkill(ItemOptional &info, parser_wrapper::DataNode &node);

@@ -49,7 +49,7 @@ void MobMax::get_stats(mobmax_stats_t &result) const {
 void MobMax::init() {
 	std::array<int, kMaxMobLevel + 1> num_animals_levels = {{0}};
 	for (int i = 0; i <= top_of_mobt; ++i) {
-		int level = GET_REAL_LEVEL(mob_proto + i);
+		int level = GetRealLevel(mob_proto + i);
 		if (level > kMaxMobLevel)
 			log("Warning! Mob >MAXIMUN lev!");
 		else if (level < 0)

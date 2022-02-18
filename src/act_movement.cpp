@@ -232,10 +232,10 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 			percent = number(1,
 							 (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112)
 								 + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1))
-								 + (GET_REAL_LEVEL(vict) > 30 ? GET_REAL_LEVEL(vict) : 0));
+								 + (GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
 			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
 
-			int catch_level = (GET_REAL_LEVEL(vict) - GET_REAL_LEVEL(ch));
+			int catch_level = (GetRealLevel(vict) - GetRealLevel(ch));
 			if (catch_level > 5) {
 				//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
 				absolute_fail = ((200 - prob) / 20 + 5) * (vict->get_role(MOB_ROLE_BOSS) ? 5 : 1);
@@ -1547,7 +1547,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
 				if (!IS_IMMORTAL(ch)
 					&& ((!IS_NPC(ch)
-						&& (!Clan::MayEnter(ch, door, HCE_PORTAL) || (GET_REAL_LEVEL(ch) <= 10 && world[door]->portal_time && GET_REAL_REMORT(ch) < 9)))
+						&& (!Clan::MayEnter(ch, door, HCE_PORTAL) || (GetRealLevel(ch) <= 10 && world[door]->portal_time && GET_REAL_REMORT(ch) < 9)))
 						|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT) || ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
 						|| AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)
 						|| (world[door]->pkPenterUnique
@@ -1733,7 +1733,7 @@ void do_rest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal) {
+	if (GetRealLevel(ch) >= kLevelImmortal) {
 		send_to_char("Не время вам спать, родина в опасности!\r\n", ch);
 		return;
 	}

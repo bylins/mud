@@ -1293,7 +1293,7 @@ void do_start(CharData *ch, int newbie) {
 	}
 
 	advance_level(ch);
-	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_REAL_LEVEL(ch));
+	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GetRealLevel(ch));
 	mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
@@ -1317,7 +1317,7 @@ void check_max_hp(CharData *ch) {
 
 // * Обработка событий при левел-апе.
 void levelup_events(CharData *ch) {
-	if (SpamSystem::MIN_OFFTOP_LVL == GET_REAL_LEVEL(ch)
+	if (SpamSystem::MIN_OFFTOP_LVL == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
 		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
@@ -1325,7 +1325,7 @@ void levelup_events(CharData *ch) {
 					 "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
 					 CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}
-	if (EXCHANGE_MIN_CHAR_LEV == GET_REAL_LEVEL(ch)
+	if (EXCHANGE_MIN_CHAR_LEV == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
 		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
 		if (GET_REAL_REMORT(ch) <= 0) {

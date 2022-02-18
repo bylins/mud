@@ -748,7 +748,7 @@ bool can_use_feat(const CharData *ch, int feat) {
 			break;
 		case SKILLED_TRADER_FEAT: return ((ch->get_level() + GET_REAL_REMORT(ch) / 3) > 19);
 			break;
-		case MAGIC_USER_FEAT: return (GET_REAL_LEVEL(ch) < 25);
+		case MAGIC_USER_FEAT: return (GetRealLevel(ch) < 25);
 			break;
 		case LIVE_SHIELD_FEAT: return (ch->get_skill(ESkill::kRescue) > 124);
 			break;
@@ -979,7 +979,7 @@ void CheckBerserk(CharData *ch) {
 		af.location = APPLY_NONE;
 		af.battleflag = 0;
 
-		prob = IS_NPC(ch) ? 601 : (751 - GET_REAL_LEVEL(ch) * 5);
+		prob = IS_NPC(ch) ? 601 : (751 - GetRealLevel(ch) * 5);
 		if (number(1, 1000) < prob) {
 			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
 			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, kToChar);
@@ -1026,7 +1026,7 @@ void do_lightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	Affect<EApplyLocation> af;
 	af.type = kSpellLightWalk;
-	af.duration = CalcDuration(ch, 2, GET_REAL_LEVEL(ch), 5, 2, 8);
+	af.duration = CalcDuration(ch, 2, GetRealLevel(ch), 5, 2, 8);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -1047,7 +1047,7 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char arg2[kMaxInputLength];
 
 	//отключено пока для не-иммов
-	if (GET_REAL_LEVEL(ch) < kLevelImmortal) {
+	if (GetRealLevel(ch) < kLevelImmortal) {
 		send_to_char("Вы не можете этого.", ch);
 		return;
 	};
@@ -1189,8 +1189,8 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
-		(GET_REAL_LEVEL(ch) < kLevelGreatGod) && (!IS_NPC(ch))) {
-		if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
+		(GetRealLevel(ch) < kLevelGreatGod) && (!IS_NPC(ch))) {
+		if (GetRealLevel(ch) < MIN_CAST_LEV(SpINFO, ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			|| slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);

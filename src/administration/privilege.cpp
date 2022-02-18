@@ -281,7 +281,7 @@ void load_god_boards() {
 */
 bool can_do_priv(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLevelImmortal
-		&& GET_REAL_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
+		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
 	if (IS_NPC(ch)) return false;
 #ifdef TEST_BUILD
@@ -290,7 +290,7 @@ bool can_do_priv(CharData *ch, const std::string &cmd_name, int cmd_number, int 
 #endif
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
-		if (GET_REAL_LEVEL(ch) == kLevelImplementator)
+		if (GetRealLevel(ch) == kLevelImplementator)
 			return true;
 		switch (mode) {
 			case 0:
@@ -354,7 +354,7 @@ bool check_spells(const CharData *ch, int spellnum) {
 * \return 0 - не может использовать скиллы, 1 - может
 */
 bool check_skills(const CharData *ch) {
-	if ((GET_REAL_LEVEL(ch) > kLevelGod) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
+	if ((GetRealLevel(ch) > kLevelGod) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
 //	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;

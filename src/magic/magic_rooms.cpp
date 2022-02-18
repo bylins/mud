@@ -175,7 +175,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 			if (ch) {
 				const auto people_copy = room->people;
 				for (const auto tch : people_copy) {
-					if (!CallMagic(ch, tch, nullptr, nullptr, kSpellPoison, GET_REAL_LEVEL(ch))) {
+					if (!CallMagic(ch, tch, nullptr, nullptr, kSpellPoison, GetRealLevel(ch))) {
 						aff->duration = 0;
 						break;
 					}
@@ -193,7 +193,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 		case kSpellThunderstorm:
 			switch (aff->duration) {
 				case 8:
-					if (!CallMagic(ch, nullptr, nullptr, nullptr, kSpellControlWeather, GET_REAL_LEVEL(ch))) {
+					if (!CallMagic(ch, nullptr, nullptr, nullptr, kSpellControlWeather, GetRealLevel(ch))) {
 						aff->duration = 0;
 						break;
 					}
@@ -355,7 +355,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 	switch (spellnum) {
 		case kSpellForbidden: af[0].type = spellnum;
 			af[0].location = kNone;
-			af[0].duration = (1 + (GET_REAL_LEVEL(ch) + 14) / 15) * 30;
+			af[0].duration = (1 + (GetRealLevel(ch) + 14) / 15) * 30;
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kForbidden;
 			af[0].must_handled = false;
@@ -380,7 +380,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 		case kSpellRoomLight: af[0].type = spellnum;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = CalcDuration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
+			af[0].duration = CalcDuration(ch, 0, GetRealLevel(ch) + 5, 6, 0, 0);
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kLight;
 			af[0].must_handled = false;
@@ -393,7 +393,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 		case kSpellPoosinedFog: af[0].type = spellnum;
 			af[0].location = kPoison;
 			af[0].modifier = 50;
-			af[0].duration = CalcDuration(ch, 0, GET_REAL_LEVEL(ch) + 5, 6, 0, 0);
+			af[0].duration = CalcDuration(ch, 0, GetRealLevel(ch) + 5, 6, 0, 0);
 			af[0].bitvector = ERoomAffect::kPoisonFog;
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
@@ -456,7 +456,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 			af[0].type = spellnum;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = 30 + (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) * RollDices(1, 3);
+			af[0].duration = 30 + (GetRealLevel(ch) + GET_REAL_REMORT(ch)) * RollDices(1, 3);
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kHypnoticPattern;
 			af[0].must_handled = false;
@@ -475,7 +475,7 @@ int ImposeSpellToRoom(int/* level*/, CharData *ch, RoomData *room, int spellnum)
 			af[0].type = spellnum;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = 1 + GET_REAL_LEVEL(ch) / 7;
+			af[0].duration = 1 + GetRealLevel(ch) / 7;
 			af[0].caster_id = GET_ID(ch);
 			af[0].bitvector = ERoomAffect::kBlackTentacles;
 			af[0].must_handled = true;

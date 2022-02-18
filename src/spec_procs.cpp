@@ -147,7 +147,7 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	}
 	/*
 	  ВНИМАНИЕ: формула содрана с NUM_LEV_FEAT (utils.h)!
-	  ((int) 1+GET_REAL_LEVEL(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+	  ((int) 1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 	  сделано это потому, что "обратная" формула, использованная ранее в list_feats,
 	  выдавала неверные результаты ввиду нюансов округления
 	  */
@@ -488,7 +488,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 		if (!GET_SPELL_TYPE(ch, i) && !all_spells)
 			continue;
 
-		if ((MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch)
+		if ((MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch)
 			|| MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch)
 			|| slot_for_char(ch, spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 			&& all_spells && !GET_SPELL_TYPE(ch, i))
@@ -537,8 +537,8 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 														   / SECS_PER_MUD_HOUR)))));
 				time_str.append("]");
 			}
-		if (MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch) && IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow)) {
-			sprintf(buf1, "%d", MIN_CAST_LEV(spell_info[i], ch) - GET_REAL_LEVEL(ch));
+		if (MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow)) {
+			sprintf(buf1, "%d", MIN_CAST_LEV(spell_info[i], ch) - GetRealLevel(ch));
 		}
 		else {
 			sprintf(buf1, "%s", "K");
@@ -868,7 +868,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
 				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
@@ -912,7 +912,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 			if (!strn_cmp(argument, "все", strlen(argument)) || !strn_cmp(argument, "all", strlen(argument))) {
 				for (i = 0, found = false, sfound = true;
 					 (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch))
+					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch))
 						continue;
 
 					const ESkill skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
@@ -982,7 +982,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 			const int feat_no = FindFeatNum(argument);
 			if ((feat_no > 0 && feat_no < kMaxFeats)) {
 				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
@@ -1016,7 +1016,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 			const ESkill skill_no = FixNameAndFindSkillNum(argument);
 			if (skill_no >= ESkill::kLast && skill_no <= ESkill::kLast) {
 				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
@@ -1051,7 +1051,7 @@ int guild_mono(CharData *ch, void *me, int cmd, char *argument) {
 			if (spell_no > 0
 				&& spell_no <= kSpellCount) {
 				for (i = 0, found = false; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
-					if ((guild_mono_info[info_num].learn_info + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_mono_info[info_num].learn_info + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
@@ -1156,7 +1156,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 			if (!*argument) {
 				gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
 				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 
@@ -1213,7 +1213,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 			if (!strn_cmp(argument, "все", strlen(argument))
 				|| !strn_cmp(argument, "all", strlen(argument))) {
 				for (i = 0, found = false, sfound = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
@@ -1291,7 +1291,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 			const ESkill skill_no = FixNameAndFindSkillNum(argument);
 			if (ESkill::kIncorrect != skill_no && skill_no <= ESkill::kLast) {
 				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
@@ -1332,7 +1332,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 
 			if (feat_no > 0 && feat_no < kMaxFeats) {
 				for (i = 0, found = false; (guild_poly_info[info_num] + i)->feat_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 					if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
@@ -1371,7 +1371,7 @@ int guild_poly(CharData *ch, void *me, int cmd, char *argument) {
 			const int spell_no = FixNameAndFindSpellNum(argument);
 			if (spell_no > 0 && spell_no <= kSpellCount) {
 				for (i = 0, found = false; (guild_poly_info[info_num] + i)->spell_no >= 0; i++) {
-					if ((guild_poly_info[info_num] + i)->level > GET_REAL_LEVEL(ch)) {
+					if ((guild_poly_info[info_num] + i)->level > GetRealLevel(ch)) {
 						continue;
 					}
 					if (!(bits = -2 * to_underlying((guild_poly_info[info_num] + i)->skill_no))
@@ -2231,13 +2231,13 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || victim->get_fighting())
 		return (false);
 
-	if (GET_REAL_LEVEL(victim) >= kLevelImmortal)
+	if (GetRealLevel(victim) >= kLevelImmortal)
 		return (false);
 
 	if (!CAN_SEE(ch, victim))
 		return (false);
 
-	if (AWAKE(victim) && (number(0, MAX(0, GET_REAL_LEVEL(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0)) {
+	if (AWAKE(victim) && (number(0, MAX(0, GetRealLevel(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0)) {
 		act("Вы обнаружили руку $n1 в своем кармане.", false, ch, 0, victim, kToVict);
 		act("$n пытал$u обокрасть $N3.", true, ch, 0, victim, kToNotVict);
 	} else        // Steal some gold coins
@@ -2427,7 +2427,7 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (value) {
 		send_to_char("Боги оценили вашу жертву.\r\n", ch);
 		act("$n оценен$y Богами.", true, ch, 0, 0, kToRoom);
-		if (GET_REAL_LEVEL(ch) < 3)
+		if (GetRealLevel(ch) < 3)
 			gain_exp(ch, value);
 		else
 			ch->add_gold(value);
@@ -2544,7 +2544,7 @@ return (false);
 	for (const auto cons : world[ch->in_room]->people)
 	{
 		if (!IS_NPC(cons)
-			&& GET_REAL_LEVEL(cons) < kLevelImmortal
+			&& GetRealLevel(cons) < kLevelImmortal
 			&& !number(0, 4))
 		{
 			do_npc_steal(ch, cons);
@@ -2583,15 +2583,15 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		return (true);
 	}
 
-	if ((GET_REAL_LEVEL(ch) > 13) && (number(0, 10) == 0)) {
+	if ((GetRealLevel(ch) > 13) && (number(0, 10) == 0)) {
 		CastSpell(ch, target, nullptr, nullptr, kSpellSleep, kSpellSleep);
 	}
 
-	if ((GET_REAL_LEVEL(ch) > 7) && (number(0, 8) == 0)) {
+	if ((GetRealLevel(ch) > 7) && (number(0, 8) == 0)) {
 		CastSpell(ch, target, nullptr, nullptr, kSpellBlindness, kSpellBlindness);
 	}
 
-	if ((GET_REAL_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
+	if ((GetRealLevel(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch)) {
 			CastSpell(ch, target, nullptr, nullptr, kSpellEnergyDrain, kSpellEnergyDrain);
 		} else if (IS_GOOD(ch)) {
@@ -2603,7 +2603,7 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		return (true);
 	}
 
-	switch (GET_REAL_LEVEL(ch)) {
+	switch (GetRealLevel(ch)) {
 		case 4:
 		case 5: CastSpell(ch, target, nullptr, nullptr, kSpellMagicMissile, kSpellMagicMissile);
 			break;
@@ -2646,7 +2646,7 @@ int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
 		|| AFF_FLAGGED(guard, EAffectFlag::AFF_HOLD))
 		return (false);
 
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal)
+	if (GetRealLevel(ch) >= kLevelImmortal)
 		return (false);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
@@ -2764,7 +2764,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	return (false);
 }
 
-#define PET_PRICE(pet) (GET_REAL_LEVEL(pet) * 300)
+#define PET_PRICE(pet) (GetRealLevel(pet) * 300)
 
 int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	char buf[kMaxStringLength], pet_name[256];

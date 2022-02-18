@@ -99,7 +99,7 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 	}
 
 	// Базовые спасброски профессии/уровня
-	save = extend_saving_throws(class_sav, saving, GET_REAL_LEVEL(victim));
+	save = extend_saving_throws(class_sav, saving, GetRealLevel(victim));
 
 	switch (saving) {
 		case ESaving::kReflex:      //3 реакция
@@ -160,9 +160,9 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 			GET_NAME(killer),
 			GET_NAME(victim),
 			GET_MOB_VNUM(victim),
-			GET_REAL_LEVEL(victim),
+			GetRealLevel(victim),
 			to_underlying(saving), // Зачем это тут вообще?
-			extend_saving_throws(class_sav, saving, GET_REAL_LEVEL(victim)),
+			extend_saving_throws(class_sav, saving, GetRealLevel(victim)),
 			temp_save_stat,
 			temp_awake_mod,
 			GET_SAVE(victim, saving),
@@ -295,7 +295,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		|| ch == victim) {
 		if (!IS_SET(SpINFO.routines, kMagWarcry)) {
 			if (ch != victim && spellnum <= kSpellCount &&
-				((AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && number(1, 100) < (GET_REAL_LEVEL(victim) / 3)))) {
+				((AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && number(1, 100) < (GetRealLevel(victim) / 3)))) {
 				act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
 				act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
 				act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
@@ -307,7 +307,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			}
 		} else {
 			if (ch != victim && spellnum <= kSpellCount && IS_GOD(victim)
-				&& (IS_NPC(ch) || GET_REAL_LEVEL(victim) > GET_REAL_LEVEL(ch))) {
+				&& (IS_NPC(ch) || GetRealLevel(victim) > GetRealLevel(ch))) {
 				act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 				act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 				act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
@@ -350,8 +350,8 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		}
 	}
 
-	if (!IS_NPC(ch) && (GET_REAL_LEVEL(ch) > 10))
-		modi += (GET_REAL_LEVEL(ch) - 10);
+	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
+		modi += (GetRealLevel(ch) - 10);
 //  if (!IS_NPC(ch) && !IS_NPC(victim))
 //     modi = 0;
 	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
@@ -632,10 +632,10 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		case kSpellVacuum: savetype = ESaving::kStability;
 			ndice = MAX(1, (GET_REAL_WIS(ch) - 10) / 2);	//40
 			sdice = MAX(1, GET_REAL_WIS(ch) - 10);			//90
-			//	    adice = MAX(1, 2 + 30 - GET_REAL_LEVEL(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
+			//	    adice = MAX(1, 2 + 30 - GetRealLevel(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
 			//	    Ну явно кривота была. Отбалансил на свой вкус. В 50 мудры на 25м леве лаг на 3 на 30 лаг на 4 а не наоборот
 			//чтобы не обижать колдунов
-			adice = 4 + MAX(1, GET_REAL_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;	//17
+			adice = 4 + MAX(1, GetRealLevel(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;	//17
 			if (ch == victim ||
 				(!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
 					(number(1, 999) > GET_AR(victim) * 10) &&
@@ -1100,10 +1100,10 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			&& ((!IS_GOD(ch)
 				&& AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS)
 				&& (ch->in_room == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
-				&& number(1, 100) < (GET_REAL_LEVEL(victim) / 3))
+				&& number(1, 100) < (GetRealLevel(victim) / 3))
 				|| (IS_GOD(victim)
 					&& (IS_NPC(ch)
-						|| GET_REAL_LEVEL(victim) > (GET_REAL_LEVEL(ch)))))) {
+						|| GetRealLevel(victim) > (GetRealLevel(ch)))))) {
 			act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
 			act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
@@ -1112,7 +1112,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		}
 	} else {
 		if (ch != victim && SpINFO.violent && IS_GOD(victim)
-			&& (IS_NPC(ch) || GET_REAL_LEVEL(victim) > (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) / 2))) {
+			&& (IS_NPC(ch) || GetRealLevel(victim) > (GetRealLevel(ch) + GET_REAL_REMORT(ch) / 2))) {
 			act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 			act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
@@ -1473,7 +1473,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellShadowCloak: af[0].bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
 			af[0].location = APPLY_SAVING_STABILITY;
-			af[0].modifier = -(GET_REAL_LEVEL(ch) / 3 + GET_REAL_REMORT(ch)) / 4;
+			af[0].modifier = -(GetRealLevel(ch) / 3 + GET_REAL_REMORT(ch)) / 4;
 			af[0].duration =
 				CalcDuration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REAL_REMORT(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1989,7 +1989,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 
 		case kSpellPatronage: af[0].location = APPLY_HIT;
 			af[0].duration = CalcDuration(victim, 3, level, 10, 0, 0) * koef_duration;
-			af[0].modifier = GET_REAL_LEVEL(ch) * 2 + GET_REAL_REMORT(ch);
+			af[0].modifier = GetRealLevel(ch) * 2 + GET_REAL_REMORT(ch);
 			if (GET_ALIGNMENT(victim) >= 0) {
 				to_vict = "Исходящий с небес свет на мгновение озарил вас.";
 				to_room = "Исходящий с небес свет на мгновение озарил $n3.";
@@ -2169,14 +2169,14 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 
 		case kSpellMagicShield: af[0].location = APPLY_AC;
-			af[0].modifier = -GET_REAL_LEVEL(ch) * 10 / 6;
+			af[0].modifier = -GetRealLevel(ch) * 10 / 6;
 			af[0].duration =
 				CalcDuration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REAL_REMORT(ch), 1, 0, 0) * koef_duration;
 			af[1].location = APPLY_SAVING_REFLEX;
-			af[1].modifier = -GET_REAL_LEVEL(ch) / 5;
+			af[1].modifier = -GetRealLevel(ch) / 5;
 			af[1].duration = af[0].duration;
 			af[2].location = APPLY_SAVING_STABILITY;
-			af[2].modifier = -GET_REAL_LEVEL(ch) / 5;
+			af[2].modifier = -GetRealLevel(ch) / 5;
 			af[2].duration = af[0].duration;
 			accum_duration = true;
 			to_room = "Сверкающий щит вспыхнул вокруг $n1 и угас.";
@@ -2352,14 +2352,14 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 										 CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
 			af[0].modifier =
 				-1 * MAX(1,
-						 (MIN(29, GET_REAL_LEVEL(ch)) - MIN(24, GET_REAL_LEVEL(victim)) +
+						 (MIN(29, GetRealLevel(ch)) - MIN(24, GetRealLevel(victim)) +
 							 GET_REAL_REMORT(ch) / 3) * GET_MAX_HIT(victim) / 100);
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 			if (IS_NPC(victim)) {
 				af[1].location = APPLY_LIKES;
 				af[1].duration = ApplyResist(victim, GetResistType(spellnum),
 											 CalcDuration(victim, 5, 0, 0, 0, 0));
-				af[1].modifier = -1 * MAX(1, ((level + 9) / 2 + 9 - GET_REAL_LEVEL(victim) / 2));
+				af[1].modifier = -1 * MAX(1, ((level + 9) / 2 + 9 - GetRealLevel(victim) / 2));
 				af[1].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 				af[1].battleflag = kAfBattledec;
 				to_room = "$n0 издал$g протяжный стон.";
@@ -2368,12 +2368,12 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			af[1].location = APPLY_CAST_SUCCESS;
 			af[1].duration = ApplyResist(victim, GetResistType(spellnum),
 										 CalcDuration(victim, 5, 0, 0, 0, 0));
-			af[1].modifier = -1 * MAX(1, (level / 3 + GET_REAL_REMORT(ch) / 3 - GET_REAL_LEVEL(victim) / 10));
+			af[1].modifier = -1 * MAX(1, (level / 3 + GET_REAL_REMORT(ch) / 3 - GetRealLevel(victim) / 10));
 			af[1].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 			af[1].battleflag = kAfBattledec;
 			af[2].location = APPLY_MORALE;
 			af[2].duration = af[1].duration;
-			af[2].modifier = -1 * MAX(1, (level / 3 + GET_REAL_REMORT(ch) / 5 - GET_REAL_LEVEL(victim) / 5));
+			af[2].modifier = -1 * MAX(1, (level / 3 + GET_REAL_REMORT(ch) / 5 - GetRealLevel(victim) / 5));
 			af[2].bitvector = to_underlying(EAffectFlag::AFF_CRYING);
 			af[2].battleflag = kAfBattledec;
 			to_room = "$n0 издал$g протяжный стон.";
@@ -2451,10 +2451,10 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			af[0].location = APPLY_MORALE;
 			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
 										 CalcDuration(victim, 2, level, 2, 0, 0)) * koef_duration;
-			af[0].modifier = -5 - (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 2;
+			af[0].modifier = -5 - (GetRealLevel(ch) + GET_REAL_REMORT(ch)) / 2;
 			af[1].location = static_cast<EApplyLocation>(number(1, 6));
 			af[1].duration = af[0].duration;
-			af[1].modifier = -(GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) * 3) / 15;
+			af[1].modifier = -(GetRealLevel(ch) + GET_REAL_REMORT(ch) * 3) / 15;
 			to_room = "Тяжелое бурое облако сгустилось над $n4.";
 			to_vict = "Тяжелые тучи сгустились над вами, и вы почувствовали, что удача покинула вас.";
 			break;
@@ -2480,7 +2480,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			af[0].location = APPLY_SAVING_REFLEX;
 			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
 										 CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
-			af[0].modifier = (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 3;
+			af[0].modifier = (GetRealLevel(ch) + GET_REAL_REMORT(ch)) / 3;
 			af[0].bitvector = to_underlying(EAffectFlag::AFF_GLITTERDUST);
 			accum_duration = true;
 			accum_affect = true;
@@ -2500,12 +2500,12 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			af[0].location = APPLY_SAVING_WILL;
 			af[0].duration = ApplyResist(victim, GetResistType(spellnum),
 										 CalcDuration(victim, 2, level, 2, 0, 0)) * koef_duration;
-			af[0].modifier = (2 * GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 4;
+			af[0].modifier = (2 * GetRealLevel(ch) + GET_REAL_REMORT(ch)) / 4;
 
 			af[1].bitvector = to_underlying(EAffectFlag::AFF_AFFRIGHT);
 			af[1].location = APPLY_MORALE;
 			af[1].duration = af[0].duration;
-			af[1].modifier = -(GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch)) / 6;
+			af[1].modifier = -(GetRealLevel(ch) + GET_REAL_REMORT(ch)) / 6;
 
 			to_room = "$n0 побледнел$g и задрожал$g от страха.";
 			to_vict = "Страх сжал ваше сердце ледяными когтями.";
@@ -2793,7 +2793,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 					af[0].duration = CalcDuration(victim, 10, 0, 0, 0, 0);
 					af[0].modifier = GET_REAL_REMORT(ch) / 5 * 2 + GET_REAL_REMORT(ch) * 5;
 					break;
-				case 4:CallMagic(ch, ch, nullptr, nullptr, kSpellGroupHeal, GET_REAL_LEVEL(ch));
+				case 4:CallMagic(ch, ch, nullptr, nullptr, kSpellGroupHeal, GetRealLevel(ch));
 					break;
 				default:break;
 			}
@@ -2945,9 +2945,9 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 				tmp_mob = (mob_proto + real_mob_num);
 				tmp_mob->set_normal_morph();
 				pfail = 10 + tmp_mob->get_con() * 2
-					- number(1, GET_REAL_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REAL_REMORT(ch) * 5;
+					- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GET_REAL_REMORT(ch) * 5;
 
-				int corpse_mob_level = GET_REAL_LEVEL(mob_proto + real_mob_num);
+				int corpse_mob_level = GetRealLevel(mob_proto + real_mob_num);
 				if (corpse_mob_level <= 5) {
 					mob_num = kMobSkeleton;
 				} else if (corpse_mob_level <= 10) {
@@ -2970,11 +2970,11 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 
 				// kMobNecrocaster disabled, cant cast
 
-				if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 15 && mob_num > kMobZombie) {
+				if (GetRealLevel(ch) + GET_REAL_REMORT(ch) + 4 < 15 && mob_num > kMobZombie) {
 					mob_num = kMobZombie;
-				} else if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 25 && mob_num > kMobBonedog) {
+				} else if (GetRealLevel(ch) + GET_REAL_REMORT(ch) + 4 < 25 && mob_num > kMobBonedog) {
 					mob_num = kMobBonedog;
-				} else if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) + 4 < 32 && mob_num > kMobBonedragon) {
+				} else if (GetRealLevel(ch) + GET_REAL_REMORT(ch) + 4 < 32 && mob_num > kMobBonedragon) {
 					mob_num = kMobBonedragon;
 				}
 			}
@@ -3002,7 +3002,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 			tmp_mob->set_normal_morph();
 
 			pfail = 10 + tmp_mob->get_con() * 2
-				- number(1, GET_REAL_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REAL_REMORT(ch) * 5;
+				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GET_REAL_REMORT(ch) * 5;
 			break;
 
 		default: return 0;
@@ -3213,7 +3213,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 				cha_num++;
 			}
 		}
-		cha_num = MAX(1, (GET_REAL_LEVEL(ch) + 4) / 5 - 2) - cha_num;
+		cha_num = MAX(1, (GetRealLevel(ch) + 4) / 5 - 2) - cha_num;
 		if (cha_num < 1)
 			return 0;
 		mag_summons(level, ch, obj, spellnum, 0);
@@ -3332,7 +3332,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, int spellnum, ESavin
 			send_to_char("Вы почувствовали себя здоровым.\r\n", victim);
 			break;
 		case kSpellPatronage:
-			hit = (GET_REAL_LEVEL(victim) + GET_REAL_REMORT(victim)) * 2;
+			hit = (GetRealLevel(victim) + GET_REAL_REMORT(victim)) * 2;
 			break;
 		case kSpellWarcryOfPower:
 			hit = MIN(200, (4 * ch->get_con() + ch->get_skill(ESkill::kWarcry)) / 2);
@@ -3541,7 +3541,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 	switch (spellnum) {
 		case kSpellBless:
 			if (!obj->get_extra_flag(EExtraFlag::ITEM_BLESS)
-				&& (GET_OBJ_WEIGHT(obj) <= 5 * GET_REAL_LEVEL(ch))) {
+				&& (GET_OBJ_WEIGHT(obj) <= 5 * GetRealLevel(ch))) {
 				obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
 				if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 					obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
@@ -3671,7 +3671,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
 			break;
 
-		case kSpellAcid: alterate_object(obj, number(GET_REAL_LEVEL(ch) * 2, GET_REAL_LEVEL(ch) * 4), 100);
+		case kSpellAcid: alterate_object(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
 			break;
 
 		case kSpellRepair: obj->set_current_durability(GET_OBJ_MAX(obj));
@@ -3909,7 +3909,7 @@ int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ov
 	//туповато конечно, но подобные проверки тут как счупалцьа перепутаны
 	//и чтоб сделать по человечески надо треть пары модулей перелопатить
 	if (cvict && (caster != cvict))
-		if (IS_GOD(cvict) || (((GET_REAL_LEVEL(cvict) / 2) > (GET_REAL_LEVEL(caster) + (GET_REAL_REMORT(caster) / 2)))
+		if (IS_GOD(cvict) || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GET_REAL_REMORT(caster) / 2)))
 			&& !IS_NPC(caster))) // при разнице уровня более чем в 2 раза закл фэйл
 		{
 			send_to_char(NOEFFECT, caster);

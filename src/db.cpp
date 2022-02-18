@@ -3190,7 +3190,7 @@ void set_test_data(CharData *mob) {
 		return;
 	}
 
-	if (GET_REAL_LEVEL(mob) <= 50) {
+	if (GetRealLevel(mob) <= 50) {
 		if (GET_EXP(mob) > test_levels[49]) {
 			// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
 			mob->set_level(50);
@@ -3516,7 +3516,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 									   number(mob->points.hit, GET_MEM_TOTAL(mob)));
 	}
 
-	int test_hp = get_test_hp(GET_REAL_LEVEL(mob));
+	int test_hp = get_test_hp(GetRealLevel(mob));
 	if (GET_EXP(mob) > 0 && mob->points.max_hit < test_hp) {
 //		log("hp: (%s) %d -> %d", GET_NAME(mob), mob->points.max_hit, test_hp);
 		mob->points.max_hit = test_hp;
@@ -4733,7 +4733,7 @@ bool is_empty(ZoneRnum zone_nr) {
 			continue;
 		if (IN_ROOM(i->character) == kNowhere)
 			continue;
-		if (GET_REAL_LEVEL(i->character) >= kLevelImmortal)
+		if (GetRealLevel(i->character) >= kLevelImmortal)
 			continue;
 		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
@@ -4748,7 +4748,7 @@ bool is_empty(ZoneRnum zone_nr) {
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
-			if (!IS_NPC(c) && (GET_REAL_LEVEL(c) < kLevelImmortal)) {
+			if (!IS_NPC(c) && (GetRealLevel(c) < kLevelImmortal)) {
 				return false;
 			}
 		}
@@ -4759,7 +4759,7 @@ bool is_empty(ZoneRnum zone_nr) {
 		const int was = c->get_was_in_room();
 
 		if (was == kNowhere
-			|| GET_REAL_LEVEL(c) >= kLevelImmortal
+			|| GetRealLevel(c) >= kLevelImmortal
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}
@@ -5198,7 +5198,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		load_room = real_room(load_room);
 	}
 	if (load_room == kNowhere) {
-		if (GET_REAL_LEVEL(ch) >= kLevelImmortal)
+		if (GetRealLevel(ch) >= kLevelImmortal)
 			load_room = r_immort_start_room;
 		else
 			load_room = r_mortal_start_room;
@@ -5286,7 +5286,7 @@ int must_be_deleted(CharData *short_ch) {
 
 	timeout = -1;
 	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++) {
-		if (GET_REAL_LEVEL(short_ch) <= pclean_criteria[ci].level) {
+		if (GetRealLevel(short_ch) <= pclean_criteria[ci].level) {
 			timeout = pclean_criteria[ci].days;
 			break;
 		}
@@ -5328,7 +5328,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 
 				//end by WorM
 				element.unique = GET_UNIQUE(short_ch);
-				element.level = GET_REAL_LEVEL(short_ch);
+				element.level = GetRealLevel(short_ch);
 				element.remorts = short_ch->get_remort();
 				element.timer = nullptr;
 				element.plr_class = short_ch->get_class();

@@ -41,7 +41,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// Caster is lower than spell level
-	if (GET_REAL_LEVEL(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
+	if (GetRealLevel(ch) < MIN_CAST_LEV(spell_info[spellnum], ch)
 		|| GET_REAL_REMORT(ch) < MIN_CAST_REM(spell_info[spellnum], ch)
 		|| slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
 		send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);

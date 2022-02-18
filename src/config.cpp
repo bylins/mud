@@ -103,10 +103,10 @@ int free_rent = YES;
 
 // receptionist's surcharge on top of item costs
 int min_rent_cost(CharData *ch) {
-	if ((GET_REAL_LEVEL(ch) < 15) && (GET_REAL_REMORT(ch) == 0))
+	if ((GetRealLevel(ch) < 15) && (GET_REAL_REMORT(ch) == 0))
 		return (0);
 	else
-		return ((GET_REAL_LEVEL(ch) + 30 * GET_REAL_REMORT(ch)) * 2);
+		return ((GetRealLevel(ch) + 30 * GET_REAL_REMORT(ch)) * 2);
 }
 
 // Lifetime of crashfiles, forced-rent and idlesave files in days
@@ -283,14 +283,14 @@ int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!IS_NPC(ch)) {
 		int max_per_lev =
-			level_exp(ch, GET_REAL_LEVEL(ch) + 1) - level_exp(ch, GET_REAL_LEVEL(ch) + 0);
+			level_exp(ch, GetRealLevel(ch) + 1) - level_exp(ch, GetRealLevel(ch) + 0);
 		result = max_per_lev / (10 + GET_REAL_REMORT(ch));
 	}
 	return result;
 }
 
 int max_exp_loss_pc(CharData *ch) {
-	return (IS_NPC(ch) ? 1 : (level_exp(ch, GET_REAL_LEVEL(ch) + 1) - level_exp(ch, GET_REAL_LEVEL(ch) + 0)) / 3);
+	return (IS_NPC(ch) ? 1 : (level_exp(ch, GetRealLevel(ch) + 1) - level_exp(ch, GetRealLevel(ch) + 0)) / 3);
 }
 
 int calc_loadroom(const CharData *ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/) {

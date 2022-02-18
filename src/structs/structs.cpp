@@ -1,6 +1,9 @@
 #include "structs.h"
 
+#include "utils/logger.h"
+#include "utils/parse.h"
 #include "utils/utils.h"
+#include "utils/wrapper.h"
 
 void tascii(const uint32_t *pointer, int num_planes, char *ascii) {
 	bool found = false;
@@ -84,4 +87,58 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const c
 	return true;
 }
 
+namespace base_structs {
+
+void ParseValueToNameCase(auto node_val, std::string &name_case) {
+	try {
+		name_case = parse::ReadAsStr(node_val);
+	} catch (std::exception &e) {
+		err_log("invalid name case (value: %s).", e.what());
+	}
+}
+
+void ParseNodeToNameCases(parser_wrapper::DataNode &node, ItemName::NameCases &name_cases) {
+	ParseValueToNameCase(node.GetValue("nom"), name_cases[ENameCase::kNom]);
+	ParseValueToNameCase(node.GetValue("gen"), name_cases[ENameCase::kGen]);
+	ParseValueToNameCase(node.GetValue("dat"), name_cases[ENameCase::kDat]);
+	ParseValueToNameCase(node.GetValue("acc"), name_cases[ENameCase::kAcc]);
+	ParseValueToNameCase(node.GetValue("inst"), name_cases[ENameCase::kInst]);
+	ParseValueToNameCase(node.GetValue("prep"), name_cases[ENameCase::kPrep]);
+}
+
+ItemName::Ptr ItemName::Build(parser_wrapper::DataNode &node) {
+	Ptr ptr(new ItemName());
+	node.GoToChild("singular");
+	ParseNodeToNameCases(node, ptr->singular_names_);
+	node.GoToSibling("plural");
+	ParseNodeToNameCases(node, ptr->plural_names_);
+	node.GoToParent();
+	return ptr;
+}
+
+ItemName &ItemName::operator=(ItemName &&i) noexcept {
+	if (&i == this) {
+		return *this;
+	}
+	singular_names_ = std::move(i.singular_names_);
+	plural_names_ = std::move(i.plural_names_);
+	return *this;
+}
+
+ItemName::ItemName(ItemName &&i) noexcept {
+	singular_names_ = std::move(i.singular_names_);
+	plural_names_ = std::move(i.plural_names_);
+};
+
+const std::string &ItemName::GetSingular(ENameCase name_case) const {
+	return singular_names_.at(name_case);
+}
+
+const std::string &ItemName::GetPlural(ENameCase name_case) const {
+	return plural_names_.at(name_case);
+}
+
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+

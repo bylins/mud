@@ -6,6 +6,8 @@
 */
 
 #include "classes_info.h"
+
+#include "color.h"
 #include "utils/parse.h"
 #include "utils/pugixml.h"
 #include "structs/global_objects.h"
@@ -93,8 +95,14 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 		info = std::nullopt;
 		return;
 	}
-	node.GoToChild("skills");
+	node.GoToChild("name");
+	ParseName(info, node);
+	node.GoToSibling("skills");
 	ParseSkills(info, node);
+}
+
+void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
+	info.value()->names = base_structs::ItemName::Build(node);
 }
 
 void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
@@ -137,6 +145,25 @@ void CharClassInfoBuilder::ParseSkillVals(ClassSkillInfo::Ptr &info, DataNode &n
 				NAME_BY_ITEM<ESkill>(info->id).c_str());
 	};
 };
+
+void CharClassInfo::Print(std::stringstream &buffer) const {
+	buffer << "Print class:" << "\n"
+		   << "    Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << "\n"
+		   << "    Name: " << KGRN << names->GetPlural(ENameCase::kNom)
+						<< "/" << names->GetSingular(ENameCase::kGen)
+						<< "/" << names->GetSingular(ENameCase::kDat)
+						<< "/" << names->GetSingular(ENameCase::kAcc)
+						<< "/" << names->GetSingular(ENameCase::kInst)
+						<< "/" << names->GetSingular(ENameCase::kPrep) << KNRM << "\n";
+	buffer << "    Available skills (level decrement " << skills_level_decrement << "):\n";
+	for (const auto &skill : *skills) {
+		buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[skill.first].name
+		<< KNRM << " level: " << KGRN << skill.second->min_level << KNRM
+		<< KNRM << " remort: " << KGRN << skill.second->min_remort << KNRM
+		<< KNRM << " improve: " << KGRN << skill.second->improve << KNRM << "\n";
+	}
+	buffer << std::endl;
+}
 
 } // namespace clases
 

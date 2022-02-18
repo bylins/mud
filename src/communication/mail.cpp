@@ -163,7 +163,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 
 	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? cost = 0 : cost = STAMP_PRICE;
 
-	if (GET_REAL_LEVEL(ch) < MIN_MAIL_LEVEL) {
+	if (GetRealLevel(ch) < MIN_MAIL_LEVEL) {
 		sprintf(buf,
 				"$n сказал$g вам, 'Извините, вы должны достигнуть %d уровня, чтобы отправить письмо!'",
 				MIN_MAIL_LEVEL);
@@ -435,7 +435,7 @@ bool check_poster_cnt(CharData *ch) {
 	auto i = poster_list.find(ch->get_uid());
 	if (i != poster_list.end()) {
 		if (GET_REAL_REMORT(ch) <= 0
-			&& GET_REAL_LEVEL(ch) <= NAME_LEVEL
+			&& GetRealLevel(ch) <= NAME_LEVEL
 			&& i->second >= LOW_LVL_MAX_POST) {
 			return false;
 		}

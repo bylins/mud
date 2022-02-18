@@ -1182,7 +1182,7 @@ void command_interpreter(CharData *ch, char *argument) {
 			GlobalObjects::heartbeat().pulse_number(),
 			GET_ROOM_VNUM(ch->in_room),
 			argument);
-		if (GET_REAL_LEVEL(ch) >= kLevelImmortal || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
+		if (GetRealLevel(ch) >= kLevelImmortal || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
@@ -1258,7 +1258,7 @@ void command_interpreter(CharData *ch, char *argument) {
 	}
 
 	if (((!IS_NPC(ch)
-		&& (GET_FREEZE_LEV(ch) > GET_REAL_LEVEL(ch))
+		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
 		&& (PLR_FLAGGED(ch, PLR_FROZEN)))
 		|| GET_MOB_HOLD(ch)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
@@ -1847,7 +1847,7 @@ int perform_dupe_check(DescriptorData *d) {
 		if (k->original && (GET_IDNUM(k->original) == id))    // switched char
 		{
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! GetAbilityId = %ld Персонаж = %s Хост = %s(был %s)",
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Персонаж = %s Хост = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
@@ -1869,7 +1869,7 @@ int perform_dupe_check(DescriptorData *d) {
 			k->original = nullptr;
 		} else if (k->character && (GET_IDNUM(k->character) == id)) {
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! GetAbilityId = %ld Name = %s Host = %s(был %s)",
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Name = %s Host = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
@@ -2118,11 +2118,11 @@ void do_entergame(DescriptorData *d) {
 	d->character->reset();
 	read_aliases(d->character.get());
 
-	if (GET_REAL_LEVEL(d->character) == kLevelImmortal) {
+	if (GetRealLevel(d->character) == kLevelImmortal) {
 		d->character->set_level(kLevelGod);
 	}
 
-	if (GET_REAL_LEVEL(d->character) > kLevelImplementator) {
+	if (GetRealLevel(d->character) > kLevelImplementator) {
 		d->character->set_level(1);
 	}
 
@@ -2131,14 +2131,14 @@ void do_entergame(DescriptorData *d) {
 		SET_INVIS_LEV(d->character, 0);
 	}
 
-	if (GET_REAL_LEVEL(d->character) > kLevelImmortal
-		&& GET_REAL_LEVEL(d->character) < kLevelBuilder
+	if (GetRealLevel(d->character) > kLevelImmortal
+		&& GetRealLevel(d->character) < kLevelBuilder
 		&& (d->character->get_gold() > 0 || d->character->get_bank() > 0)) {
 		d->character->set_gold(0);
 		d->character->set_bank(0);
 	}
 
-	if (GET_REAL_LEVEL(d->character) >= kLevelImmortal && GET_REAL_LEVEL(d->character) < kLevelImplementator) {
+	if (GetRealLevel(d->character) >= kLevelImmortal && GetRealLevel(d->character) < kLevelImplementator) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog")) {
 				if (Privilege::can_do_priv(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
@@ -2153,23 +2153,23 @@ void do_entergame(DescriptorData *d) {
 		}
 	}
 
-	if (GET_REAL_LEVEL(d->character) < kLevelImplementator) {
+	if (GetRealLevel(d->character) < kLevelImplementator) {
 		if (PLR_FLAGGED(d->character, PLR_INVSTART)) {
 			SET_INVIS_LEV(d->character, kLevelImmortal);
 		}
-		if (GET_INVIS_LEV(d->character) > GET_REAL_LEVEL(d->character)) {
-			SET_INVIS_LEV(d->character, GET_REAL_LEVEL(d->character));
+		if (GET_INVIS_LEV(d->character) > GetRealLevel(d->character)) {
+			SET_INVIS_LEV(d->character, GetRealLevel(d->character));
 		}
 
 		if (PRF_FLAGGED(d->character, PRF_CODERINFO)) {
 			PRF_FLAGS(d->character).unset(PRF_CODERINFO);
 		}
-		if (GET_REAL_LEVEL(d->character) < kLevelGod) {
+		if (GetRealLevel(d->character) < kLevelGod) {
 			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT)) {
 				PRF_FLAGS(d->character).unset(PRF_HOLYLIGHT);
 			}
 		}
-		if (GET_REAL_LEVEL(d->character) < kLevelGod) {
+		if (GetRealLevel(d->character) < kLevelGod) {
 			if (PRF_FLAGGED(d->character, PRF_NOHASSLE)) {
 				PRF_FLAGS(d->character).unset(PRF_NOHASSLE);
 			}
@@ -2179,7 +2179,7 @@ void do_entergame(DescriptorData *d) {
 		}
 
 		if (GET_INVIS_LEV(d->character) > 0
-			&& GET_REAL_LEVEL(d->character) < kLevelImmortal) {
+			&& GetRealLevel(d->character) < kLevelImmortal) {
 			SET_INVIS_LEV(d->character, 0);
 		}
 	}
@@ -2219,7 +2219,7 @@ void do_entergame(DescriptorData *d) {
 
 	// If char was saved with kNowhere, or real_room above failed...
 	if (load_room == kNowhere) {
-		if (GET_REAL_LEVEL(d->character) >= kLevelImmortal)
+		if (GetRealLevel(d->character) >= kLevelImmortal)
 			load_room = r_immort_start_room;
 		else
 			load_room = r_mortal_start_room;
@@ -2246,7 +2246,7 @@ void do_entergame(DescriptorData *d) {
 	char_to_room(d->character, load_room);
 
 	// а потом уже вычитаем за ренту
-	if (GET_REAL_LEVEL(d->character) != 0) {
+	if (GetRealLevel(d->character) != 0) {
 		Crash_load(d->character.get());
 		d->character->obj_bonus().update(d->character.get());
 	}
@@ -2359,7 +2359,7 @@ void do_entergame(DescriptorData *d) {
 	STATE(d) = CON_PLAYING;
 	PRF_FLAGS(d->character).set(PRF_COLOR_2); // цвет всегда полный
 // режимы по дефолту у нового чара
-	const bool new_char = GET_REAL_LEVEL(d->character) <= 0 ? true : false;
+	const bool new_char = GetRealLevel(d->character) <= 0 ? true : false;
 	if (new_char) {
 		PRF_FLAGS(d->character).set(PRF_DRAW_MAP); //рисовать миникарту
 		PRF_FLAGS(d->character).set(PRF_GOAHEAD); //IAC GA
@@ -2384,11 +2384,11 @@ void do_entergame(DescriptorData *d) {
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
 	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character))
-		&& (GET_REAL_LEVEL(d->character) < kLevelGod)) {
+		&& (GetRealLevel(d->character) < kLevelGod)) {
 		SET_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
-	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_REAL_LEVEL(d->character) >= kLevelGod)) {
+	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GetRealLevel(d->character) >= kLevelGod)) {
 		CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 
@@ -2477,7 +2477,7 @@ void DoAfterPassword(DescriptorData *d) {
 		mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 		return;
 	}
-	if (GET_REAL_LEVEL(d->character) < circle_restrict) {
+	if (GetRealLevel(d->character) < circle_restrict) {
 		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
@@ -2613,13 +2613,13 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	element.mail = nullptr;//added by WorM mail
 	element.last_ip = nullptr;//added by WorM последний айпи
 
-	if (GET_REAL_LEVEL(ch) > kLevelGod) {
+	if (GetRealLevel(ch) > kLevelGod) {
 		set_god_skills(ch);
 		set_god_morphs(ch);
 	}
 
 	for (i = 1; i <= kSpellCount; i++) {
-		if (GET_REAL_LEVEL(ch) < kLevelGreatGod)
+		if (GetRealLevel(ch) < kLevelGreatGod)
 			GET_SPELL_TYPE(ch, i) = 0;
 		else
 			GET_SPELL_TYPE(ch, i) = kSpellKnow;
@@ -2632,7 +2632,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
 		GET_RESIST(ch, i) = 0;
 
-	if (GET_REAL_LEVEL(ch) == kLevelImplementator) {
+	if (GetRealLevel(ch) == kLevelImplementator) {
 		ch->set_str(25);
 		ch->set_int(25);
 		ch->set_wis(25);
@@ -2643,7 +2643,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->real_abils.size = 50;
 
 	for (i = 0; i < 3; i++) {
-		GET_COND(ch, i) = (GET_REAL_LEVEL(ch) == kLevelImplementator ? -1 : i == DRUNK ? 0 : 24);
+		GET_COND(ch, i) = (GetRealLevel(ch) == kLevelImplementator ? -1 : i == DRUNK ? 0 : 24);
 	}
 	GET_LASTIP(ch)[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;
@@ -3548,11 +3548,11 @@ void nanny(DescriptorData *d, char *arg) {
 				case '0': SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
 
 					if (GET_REAL_REMORT(d->character) == 0
-						&& GET_REAL_LEVEL(d->character) <= 25
+						&& GetRealLevel(d->character) <= 25
 						&& !PLR_FLAGS(d->character).get(PLR_NODELETE)) {
 						int timeout = -1;
-						for (int ci = 0; GET_REAL_LEVEL(d->character) > pclean_criteria[ci].level; ci++) {
-							//if (GET_REAL_LEVEL(d->character) == pclean_criteria[ci].level)
+						for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
+							//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
 							timeout = pclean_criteria[ci + 1].days;
 						}
 						if (timeout > 0) {
@@ -3707,12 +3707,12 @@ void nanny(DescriptorData *d, char *arg) {
 					STATE(d) = CON_CLOSE;
 					return;
 				}
-				if (GET_REAL_LEVEL(d->character) >= kLevelGreatGod)
+				if (GetRealLevel(d->character) >= kLevelGreatGod)
 					return;
 				delete_char(GET_NAME(d->character));
 				sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 				SEND_TO_Q(buf, d);
-				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_REAL_LEVEL(d->character));
+				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
 				mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 				d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
 				STATE(d) = CON_CLOSE;

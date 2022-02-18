@@ -148,7 +148,7 @@ int mana_gain(const CharData *ch) {
 	int stopmem = false;
 
 	if (IS_NPC(ch)) {
-		gain = GET_REAL_LEVEL(ch);
+		gain = GetRealLevel(ch);
 	} else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
@@ -231,7 +231,7 @@ int hit_gain(CharData *ch) {
 	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
 
 	if (IS_NPC(ch))
-		gain = GET_REAL_LEVEL(ch) + GET_REAL_CON(ch);
+		gain = GetRealLevel(ch) + GET_REAL_CON(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
@@ -241,7 +241,7 @@ int hit_gain(CharData *ch) {
 						restore - 3, restore - 5, restore - 7);
 		} else {
 			const double base_hp = std::max(1, PlayerSystem::con_total_hp(ch));
-			const double rest_time = 80 + 10 * GET_REAL_LEVEL(ch);
+			const double rest_time = 80 + 10 * GetRealLevel(ch);
 			gain = base_hp / rest_time * 60;
 		}
 
@@ -295,7 +295,7 @@ int move_gain(CharData *ch) {
 	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
 
 	if (IS_NPC(ch))
-		gain = GET_REAL_LEVEL(ch);
+		gain = GetRealLevel(ch);
 	else {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
@@ -387,7 +387,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 			restore = calc_loadroom(i.get());
 		restore = real_room(restore);
 		if (restore == kNowhere) {
-			if (GET_REAL_LEVEL(i) >= kLevelImmortal)
+			if (GetRealLevel(i) >= kLevelImmortal)
 				restore = r_immort_start_room;
 			else
 				restore = r_mortal_start_room;
@@ -418,7 +418,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		restore = real_room(restore);
 
 		if (restore == kNowhere) {
-			if (GET_REAL_LEVEL(i) >= kLevelImmortal) {
+			if (GetRealLevel(i) >= kLevelImmortal) {
 				restore = r_immort_start_room;
 			} else {
 				restore = r_mortal_start_room;
@@ -477,7 +477,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 			restore = real_room(restore);
 
 			if (restore == kNowhere) {
-				if (GET_REAL_LEVEL(i) >= kLevelImmortal) {
+				if (GetRealLevel(i) >= kLevelImmortal) {
 					restore = r_immort_start_room;
 				} else {
 					restore = r_mortal_start_room;
@@ -526,7 +526,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		}
 		restore = real_room(restore);
 		if (restore == kNowhere) {
-			if (GET_REAL_LEVEL(i) >= kLevelImmortal)
+			if (GetRealLevel(i) >= kLevelImmortal)
 				restore = r_immort_start_room;
 			else
 				restore = r_mortal_start_room;
@@ -766,10 +766,10 @@ void gain_exp(CharData *ch, int gain) {
 		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
-	if (!IS_NPC(ch) && ((GET_REAL_LEVEL(ch) < 1 || GET_REAL_LEVEL(ch) >= kLevelImmortal)))
+	if (!IS_NPC(ch) && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLevelImmortal)))
 		return;
 
-	if (gain > 0 && GET_REAL_LEVEL(ch) < kLevelImmortal) {
+	if (gain > 0 && GetRealLevel(ch) < kLevelImmortal) {
 		gain = MIN(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
 		if (GET_EXP(ch) >= level_exp(ch, kLevelImmortal)) {
@@ -786,7 +786,7 @@ void gain_exp(CharData *ch, int gain) {
 			}
 		}
 		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, kLevelImmortal) - 1));
-		while (GET_REAL_LEVEL(ch) < kLevelImmortal && GET_EXP(ch) >= level_exp(ch, GET_REAL_LEVEL(ch) + 1)) {
+		while (GetRealLevel(ch) < kLevelImmortal && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
 			ch->set_level(ch->get_level() + 1);
 			num_levels++;
 			sprintf(buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -797,13 +797,13 @@ void gain_exp(CharData *ch, int gain) {
 
 		if (is_altered) {
 			sprintf(buf, "%s advanced %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
+					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
 			mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 		}
-	} else if (gain < 0 && GET_REAL_LEVEL(ch) < kLevelImmortal) {
+	} else if (gain < 0 && GetRealLevel(ch) < kLevelImmortal) {
 		gain = MAX(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
-		while (GET_REAL_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_REAL_LEVEL(ch))) {
+		while (GetRealLevel(ch) > 1 && GET_EXP(ch) < level_exp(ch, GetRealLevel(ch))) {
 			ch->set_level(ch->get_level() - 1);
 			num_levels++;
 			sprintf(buf,
@@ -815,14 +815,14 @@ void gain_exp(CharData *ch, int gain) {
 		}
 		if (is_altered) {
 			sprintf(buf, "%s decreases %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
+					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
 			mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 		}
 	}
 	if ((GET_EXP(ch) < level_exp(ch, kLevelImmortal) - 1)
 		&& GET_GOD_FLAG(ch, GF_REMORT)
 		&& gain
-		&& (GET_REAL_LEVEL(ch) < kLevelImmortal)) {
+		&& (GetRealLevel(ch) < kLevelImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			send_to_char(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
 						 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -842,7 +842,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	ch->set_exp(ch->get_exp() + gain);
 	if (!IS_NPC(ch)) {
 		if (gain > 0) {
-			while (GET_REAL_LEVEL(ch) < kLevelImplementator && GET_EXP(ch) >= level_exp(ch, GET_REAL_LEVEL(ch) + 1)) {
+			while (GetRealLevel(ch) < kLevelImplementator && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->get_level() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
@@ -855,7 +855,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 
 			if (is_altered) {
 				sprintf(buf, "%s advanced %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
+						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
 				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 			}
 		} else if (gain < 0) {
@@ -864,7 +864,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			//			GET_EXP(ch) += gain;
 			//			if (GET_EXP(ch) < 0)
 			//				GET_EXP(ch) = 0;
-			while (GET_REAL_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_REAL_LEVEL(ch))) {
+			while (GetRealLevel(ch) > 1 && GET_EXP(ch) < level_exp(ch, GetRealLevel(ch))) {
 				ch->set_level(ch->get_level() - 1);
 				num_levels++;
 				sprintf(buf,
@@ -876,7 +876,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			}
 			if (is_altered) {
 				sprintf(buf, "%s decreases %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_REAL_LEVEL(ch));
+						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
 				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 			}
 		}
@@ -1739,7 +1739,7 @@ void point_update() {
 		update_char_objects(i);
 
 		if (!IS_NPC(i)
-			&& GET_REAL_LEVEL(i) < idle_max_level
+			&& GetRealLevel(i) < idle_max_level
 			&& !PRF_FLAGGED(i, PRF_CODERINFO)) {
 			check_idling(i);
 		}

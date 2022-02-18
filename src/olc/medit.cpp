@@ -606,7 +606,7 @@ void medit_save_to_disk(int zone_num) {
 			fprintf(mob_file,
 					"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 					buf2, GET_ALIGNMENT(mob),
-					GET_REAL_LEVEL(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, GET_MEM_TOTAL(mob),
+					GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, GET_MEM_TOTAL(mob),
 					GET_MEM_COMPLETED(mob), GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(GET_POS(mob)),
 					static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
@@ -1179,7 +1179,7 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, GET_PAD(mob, 5),
 			grn, GET_LDESC(mob).c_str(),
 			grn, GET_DDESC(mob).c_str(),
-			grn, nrm, cyn, GET_REAL_LEVEL(mob), nrm,
+			grn, nrm, cyn, GetRealLevel(mob), nrm,
 			grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
 			grn, nrm, cyn, GET_HR(mob), nrm,
 			grn, nrm, cyn, GET_DR(mob), nrm,

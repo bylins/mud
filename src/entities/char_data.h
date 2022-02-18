@@ -442,10 +442,10 @@ class CharData : public ProtectedCharData {
 
 	bool is_druid() const { return chclass_ == kMagus; }
 
-	short get_level() const;
-	short get_level_add() const;
-	void set_level(short level);
-	void set_level_add(short level);
+	int get_level() const;
+	int get_level_add() const;
+	void set_level(int level);
+	void set_level_add(int level);
 
 	long get_idnum() const;
 	void set_idnum(long idnum);
@@ -697,9 +697,9 @@ class CharData : public ProtectedCharData {
 	// профессия чара/класс моба
 	ECharClass chclass_;
 	// уровень
-	short level_;
+	int level_;
 	// плюс на уровень
-	short level_add_;
+	int level_add_;
 	// id чара (не тот, что для тригов), у мобов -1
 	long idnum_;
 	// uid (бывший unique) чара

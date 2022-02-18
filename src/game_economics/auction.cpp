@@ -371,7 +371,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				send_to_char("Лот пуст.\r\n", ch);
 				return false;
 			}
-			if (GET_REAL_LEVEL(GET_LOT(lot)->seller) >= kLevelImmortal) {
+			if (GetRealLevel(GET_LOT(lot)->seller) >= kLevelImmortal) {
 				send_to_char("Неисповедимы пути божественные.\r\n", ch);
 				return false;
 			}
@@ -431,18 +431,18 @@ bool auction_drive(CharData *ch, char *argument) {
 				return false;
 			}
 
-			if (GET_REAL_LEVEL(GET_LOT(lot)->seller) >= kLevelImmortal) {
+			if (GetRealLevel(GET_LOT(lot)->seller) >= kLevelImmortal) {
 				send_to_char("Неисповедимы пути божественные.\r\n", ch);
 				return false;
 			}
 
 			iobj = GET_LOT(lot)->item;
 
-			if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
+			if (GetRealLevel(ch) >= kLevelImmortal && GetRealLevel(ch) < kLevelImplementator) {
 				send_to_char("Господи, а ведь смертные за это деньги платят.\r\n", ch);
 				return false;
 			}
-			if ((ch->get_total_gold() < AUCTION_IDENT_PAY) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
+			if ((ch->get_total_gold() < AUCTION_IDENT_PAY) && (GetRealLevel(ch) < kLevelImplementator)) {
 				send_to_char("У вас не хватит на это денег!\r\n", ch);
 				return false;
 			}

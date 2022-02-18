@@ -136,7 +136,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		spellname = spell_info[spellnum].name;
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
 		&& imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE
-		&& MAX(GET_OBJ_VAL(obj, 2), imrecipes[rcpt].level) <= GET_REAL_LEVEL(ch)
+		&& MAX(GET_OBJ_VAL(obj, 2), imrecipes[rcpt].level) <= GetRealLevel(ch)
 		&& imrecipes[rcpt].remort <= GET_REAL_REMORT(ch)) {
 		spellnum = rcpt;
 		rs = im_get_char_rskill(ch, spellnum);

@@ -362,9 +362,9 @@ void agree_name(CharData *d, const char *immname, int immlev) {
 enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
 static void go_name(CharData *ch, CharData *vict, int action) {
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GetRealLevel(ch);
 
-	if (GET_REAL_LEVEL(vict) > god_level) {
+	if (GetRealLevel(vict) > god_level) {
 		send_to_char("А он ведь старше вас...\r\n", ch);
 		return;
 	}

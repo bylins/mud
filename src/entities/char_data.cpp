@@ -412,7 +412,7 @@ void CharData::purge() {
 	if (!IS_NPC(this) && !get_name().empty()) {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
-			player_table[id].level = GET_REAL_LEVEL(this);
+			player_table[id].level = GetRealLevel(this);
 			player_table[id].remorts = GET_REAL_REMORT(this);
 			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 		}
@@ -807,7 +807,7 @@ bool AWAKE(const CharData *ch) {
 bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 	return !NAME_BAD(ch)
 		&& (NAME_FINE(ch)
-			|| !(GET_REAL_LEVEL(ch) == NAME_LEVEL))
+			|| !(GetRealLevel(ch) == NAME_LEVEL))
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& IS_NPC(victim)
 		&& (GET_EXP(victim) > 0)
@@ -842,7 +842,7 @@ bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
 
 bool CAN_SEE(const CharData *sub, const CharData *obj) {
 	return SELF(sub, obj)
-		|| ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj)))
+		|| ((GetRealLevel(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj)))
 			&& IMM_CAN_SEE(sub, obj));
 }
 
@@ -983,15 +983,15 @@ void CharData::set_class(ECharClass chclass) {
 	chclass_ = chclass;
 }
 
-short CharData::get_level() const {
+int CharData::get_level() const {
 	return level_;
 }
 
-short CharData::get_level_add() const {
+int CharData::get_level_add() const {
 	return level_add_;
 }
 
-void CharData::set_level(short level) {
+void CharData::set_level(int level) {
 	if (IS_NPC(this)) {
 		level_ = std::clamp(level, kMinCharLevel, kMaxMobLevel);
 	} else {
@@ -999,10 +999,10 @@ void CharData::set_level(short level) {
 	}
 }
 
-void CharData::set_level_add(short level_add) {
+void CharData::set_level_add(int level) {
 	// level_ + level_add_ не должно быть больше максимального уровня
-	// все проверки находятся в GET_REAL_LEVEL()
-	level_add_ = level_add;
+	// все проверки находятся в GetRealLevel()
+	level_add_ = level;
 }
 
 long CharData::get_idnum() const {

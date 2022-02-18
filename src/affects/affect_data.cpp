@@ -512,19 +512,19 @@ void affect_total(CharData *ch) {
 
 	// Обработка изворотливости (с) Числобог
 	if (can_use_feat(ch, DODGER_FEAT)) {
-		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), true);
-		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), true);
-		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), true);
-		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GET_REAL_LEVEL(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_WILL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_STABILITY, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
+		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REAL_REMORT(ch) + GetRealLevel(ch)), static_cast<EAffectFlag>(0), true);
 	}
 
 	// Обработка "выносливости" и "богатырского здоровья
 	// Знаю, что кривовато, придумаете, как лучше - делайте
 	if (!IS_NPC(ch)) {
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), true);
+			affect_modify(ch, APPLY_MOVE, GetRealLevel(ch) * 2, static_cast<EAffectFlag>(0), true);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
-			affect_modify(ch, APPLY_HIT, GET_REAL_LEVEL(ch) * 2, static_cast<EAffectFlag>(0), true);
+			affect_modify(ch, APPLY_HIT, GetRealLevel(ch) * 2, static_cast<EAffectFlag>(0), true);
 		if (!domination) // мы на новой арене
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
@@ -548,9 +548,9 @@ void affect_total(CharData *ch) {
 		if (wdex != 0) {
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_REAL_LEVEL(ch));
+		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), GetRealLevel(ch));
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN)) {
-			GET_HITREG(ch) += ((int) GET_REAL_LEVEL(ch) + 4) / 5 * 10;
+			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
 		}
 		if (can_use_feat(ch, DARKREGEN_FEAT)) {
 			GET_HITREG(ch) += GET_HITREG(ch) * 0.2;

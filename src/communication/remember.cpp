@@ -207,7 +207,7 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		} else {
 			send_to_char(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
-	} else if ((GET_REAL_LEVEL(ch) < kLevelImmortal || IS_IMPL(ch)) && utils::IsAbbrev(arg, "оффтоп")) {
+	} else if ((GetRealLevel(ch) < kLevelImmortal || IS_IMPL(ch)) && utils::IsAbbrev(arg, "оффтоп")) {
 		if (!PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
 			send_to_char(ch->remember_get(Remember::OFFTOP), ch);
 		} else {
@@ -233,7 +233,7 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		return;
 	} else if (utils::IsAbbrev(arg, "гбогам") && IS_IMMORTAL(ch)) {
-		send_to_char(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GET_REAL_LEVEL(ch)), ch);
+		send_to_char(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GetRealLevel(ch)), ch);
 		return;
 	} else if (utils::IsAbbrev(arg, "все")) {
 		send_to_char(ch->remember_get(Remember::ALL), ch);

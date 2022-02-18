@@ -651,7 +651,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		affect_total(ch);
 	}
 
-	return (CallMagic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)));
+	return (CallMagic(ch, tch, tobj, troom, spellnum, GetRealLevel(ch)));
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum) {
@@ -692,8 +692,8 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 		prob += 50;
 	}
 
-	if (IS_NPC(ch) && (GET_REAL_LEVEL(ch) >= kStrongMobLevel)) {
-		prob += GET_REAL_LEVEL(ch) - 20;
+	if (IS_NPC(ch) && (GetRealLevel(ch) >= kStrongMobLevel)) {
+		prob += GetRealLevel(ch) - 20;
 	}
 
 	const ESkill skill_number = GetMagicSkillId(spellnum);
