@@ -74,7 +74,6 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	};
 
 	Damage damage(SkillDmg(roll.GetBaseSkill()), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-	std::cout << "Base skill: " << NAME_BY_ITEM<ESkill>(roll.GetBaseSkill()) << std::endl;
 	int no_flee_duration;
 	int dmg;
 	if (roll.IsSuccess()) {
