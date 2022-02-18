@@ -77,7 +77,7 @@ void do_order(CharacterData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				}
 
-				if ((AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(vict, EAffectFlag::AFF_HELPER))
+				if ((AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(follower, EAffectFlag::AFF_HELPER))
 					&& !AFF_FLAGGED(follower, EAffectFlag::AFF_DEAFNESS)) {
 					found = true;
 					if (follower->get_wait() <= 0) {
