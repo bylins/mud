@@ -41,7 +41,6 @@
 extern int no_specials;
 extern int guild_poly(CharData *, void *, int, char *);
 extern guardian_type guardian_list;
-extern struct ZoneData *zone_table;
 
 int npc_scavenge(CharData *ch);
 int npc_loot(CharData *ch);

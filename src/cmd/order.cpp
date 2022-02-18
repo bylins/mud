@@ -48,7 +48,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act("$n отдал$g приказ $N2.", false, ch, 0, vict, kToRoom | kToNotDeaf);
 
 			if (vict->get_master() != ch
-				|| !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| !(AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(vict, EAffectFlag::AFF_HELPER))
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS)) {
 				if (!IS_POLY(vict)) {
 					act("$n безразлично смотрит по сторонам.", false, vict, 0, 0, kToRoom);
@@ -77,7 +77,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				}
 
-				if (AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM)
+				if ((AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(follower, EAffectFlag::AFF_HELPER))
 					&& !AFF_FLAGGED(follower, EAffectFlag::AFF_DEAFNESS)) {
 					found = true;
 					if (follower->get_wait() <= 0) {

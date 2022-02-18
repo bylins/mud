@@ -99,8 +99,8 @@ class DelegatedStdStringWriter : public AbstractStringWriter {
 	std::string &m_string_;
 };
 
-void remove_colors(char *string);
-void remove_colors(std::string &string);
+std::string remove_colors(char *string);
+std::string remove_colors(std::string string);
 shared_string_ptr get_string_without_colors(const char *string);
 std::string get_string_without_colors(const std::string &string);
 
