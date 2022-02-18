@@ -1660,7 +1660,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "people") && num > 0) {
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zone_npc") && num > 0) {
-				int from, to;
+				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if ((IS_NPC(tch) && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
@@ -1668,17 +1668,17 @@ void find_replacement(void *go,
 					}
 				}
 			} else if (!str_cmp(field, "zone_char") && num > 0) {
-				int from, to;
+				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
-					if (!tch->desc)
+					if (!IS_NPC(tch) && !tch->desc)
 						continue;
 					if ((IS_CHARMICE(tch) || !IS_NPC(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
 			} else if (!str_cmp(field, "zone_pc") && num > 0) {
-				int from, to;
+				int from = 0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (IS_NPC(tch))
@@ -1690,10 +1690,10 @@ void find_replacement(void *go,
 					}
 				}
 			} else if (!str_cmp(field, "zone_all") && num > 0) {
-				int from, to;
+				int from =0, to = 0;
 				get_zone_rooms(zone_rnum_from_vnum(num), &from , &to);
 				for (const auto &tch : character_list) {
-					if (!tch->desc)
+					if (!IS_NPC(tch) && !tch->desc)
 						continue;
 					if (tch->in_room >= from && tch->in_room <= to) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
