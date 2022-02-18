@@ -22,7 +22,7 @@
 #include "structs/structs.h"
 #include "game_mechanics/weather.h"
 #include "utils_string.h"
-
+#include "entities/zone.h"
 #include <boost/dynamic_bitset.hpp>
 
 #include <string>
@@ -83,13 +83,20 @@ struct DescriptorData;
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
 }
+// поиск рнума зоны по внум, если не  найдено будет 0
+inline int zone_rnum_from_vnum(int zvn) {
+	ZoneRnum zrn;
+	for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		if (zone_table[zrn].vnum == zvn)
+			break;
+	}
+	if (zrn == static_cast<ZoneRnum>(zone_table.size()))
+		zrn = 0;
+	return zrn;
+}
 
 inline const char *not_empty(const std::string &s, const char *subst) {
-	return s.empty()
-		   ? (subst
-			  ? subst
-			  : "undefined")
-		   : s.c_str();
+	return s.empty() ? (subst ? subst : "undefined") : s.c_str();
 }
 
 //extern struct Weather weather_info;
