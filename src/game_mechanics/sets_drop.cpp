@@ -828,9 +828,8 @@ void init_xhelp() {
 	std::stringstream out;
 	out << "Наборы предметов, участвующие в системе автоматического выпадения:\r\n";
 
-	for (std::vector<HelpNode>::const_iterator i = help_list.begin(),
-			 iend = help_list.end(); i != iend; ++i) {
-		out << "\r\n" << print_current_set(*i);
+	for (const auto & i : help_list) {
+		out << "\r\n" << print_current_set(i);
 	}
 
 	HelpSystem::add_sets_drop("сетывсе", out.str());

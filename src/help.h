@@ -34,7 +34,7 @@ void add_static(const std::string &key, const std::string &entry,
 // в динамической справке все с включенным no_immlog и 0 min_level
 void add_dynamic(const std::string &key, const std::string &entry);
 // добавление сетов, идет в DYNAMIC массив с включенным sets_drop_page
-void add_sets_drop(const std::string key_str, const std::string entry_str);
+void add_sets_drop(const std::string &key_str, const std::string &entry_str);
 // лоад/релоад конкретного массива справки
 void reload(HelpSystem::Flags sort_flag);
 // лоад/релоад всей справки
