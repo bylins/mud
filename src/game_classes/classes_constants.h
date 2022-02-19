@@ -27,7 +27,7 @@ enum ECharClass : int {
 	kLast = kMagus, // Не забываем менять при изменении числа классов
 	kMob = 20,
 	kNpcBase = 100, // От этого маразма надо избавиться
-	kNPCLast = 107
+	kNpcLast = 107
 };
 
 constexpr int kNumPlayerClasses = ECharClass::kLast + 1;

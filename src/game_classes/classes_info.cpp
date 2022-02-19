@@ -95,6 +95,10 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 		info = std::nullopt;
 		return;
 	}
+	try {
+		info.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
+	} catch (std::exception &) {
+	}
 	node.GoToChild("name");
 	ParseName(info, node);
 	node.GoToSibling("skills");
@@ -148,21 +152,38 @@ void CharClassInfoBuilder::ParseSkillVals(ClassSkillInfo::Ptr &info, DataNode &n
 
 void CharClassInfo::Print(std::stringstream &buffer) const {
 	buffer << "Print class:" << "\n"
-		   << "    Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << "\n"
-		   << "    Name: " << KGRN << names->GetPlural(ENameCase::kNom)
-						<< "/" << names->GetSingular(ENameCase::kGen)
-						<< "/" << names->GetSingular(ENameCase::kDat)
-						<< "/" << names->GetSingular(ENameCase::kAcc)
-						<< "/" << names->GetSingular(ENameCase::kInst)
-						<< "/" << names->GetSingular(ENameCase::kPrep) << KNRM << "\n";
-	buffer << "    Available skills (level decrement " << skills_level_decrement << "):\n";
+		   << "    Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
+		   << "    Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
+		   << "    Name: " << KGRN << names->GetSingular(ECase::kNom)
+		   << "/" << names->GetSingular(ECase::kGen)
+		   << "/" << names->GetSingular(ECase::kDat)
+		   << "/" << names->GetSingular(ECase::kAcc)
+		   << "/" << names->GetSingular(ECase::kInst)
+		   << "/" << names->GetSingular(ECase::kPrep) << KNRM << std::endl
+			<< "    Available skills (level decrement " << skills_level_decrement << "):" << std::endl;
 	for (const auto &skill : *skills) {
 		buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[skill.first].name
 		<< KNRM << " level: " << KGRN << skill.second->min_level << KNRM
 		<< KNRM << " remort: " << KGRN << skill.second->min_remort << KNRM
-		<< KNRM << " improve: " << KGRN << skill.second->improve << KNRM << "\n";
+		<< KNRM << " improve: " << KGRN << skill.second->improve << KNRM << std::endl;
 	}
 	buffer << std::endl;
+}
+
+const std::string &CharClassInfo::GetName(ECase name_case) const {
+	return names->GetSingular(name_case);
+}
+
+const std::string &CharClassInfo::GetPluralName(ECase name_case) const {
+	return names->GetPlural(name_case);
+}
+
+const char *CharClassInfo::GetCName(ECase name_case) const {
+	return names->GetSingular(name_case).c_str();
+}
+
+const char *CharClassInfo::GetPluralCNameC(ECase name_case) const {
+	return names->GetPlural(name_case).c_str();
 }
 
 } // namespace clases

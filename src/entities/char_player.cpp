@@ -240,7 +240,7 @@ void Player::dquest(const int id) {
 	const auto quest = MUD::daily_quests().find(id);
 
 	if (quest == MUD::daily_quests().end()) {
-		log("Quest GetAbilityId: %d - не найден", id);
+		log("Quest Id: %d - не найден", id);
 		return;
 	}
 
@@ -983,7 +983,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	if (!result) {
 		const std::size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
-		log("Can't load ascii. GetAbilityId: %d; File name: \"%s\"; Current directory: \"%s\")",
+		log("Can't load ascii. Id: %d; File name: \"%s\"; Current directory: \"%s\")",
 			id,
 			filename,
 			getcwd(buffer, BUFFER_SIZE));

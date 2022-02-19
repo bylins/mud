@@ -16,8 +16,6 @@
 #include <boost/range/algorithm/remove_if.hpp>
 
 extern char *help;
-extern const char *weapon_affects[];
-extern const char *no_bits[];
 extern const char *class_name[];
 
 ////////////////////////////////////////////////////////////////////////////////

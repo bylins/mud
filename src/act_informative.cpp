@@ -2911,11 +2911,11 @@ void print_do_score_list(CharData *ch) {
 	buf1[0] = LOWER(buf1[0]);
 	send_to_char(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 				 buf,
-				 class_name[static_cast<int>(GET_CLASS(ch)) + 14 * GET_KIN(ch)],
+				 MUD::Classes()[ch->get_class()].GetCName(),
 				 buf1,
 				 GetRealLevel(ch),
 				 GET_REAL_REMORT(ch));
-	send_to_char(ch, "Ваша возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
+	send_to_char(ch, "Ваш возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
 		GET_AGE(ch),
 		GET_SIZE(ch), GET_REAL_SIZE(ch),
 		GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
@@ -3025,7 +3025,7 @@ void print_do_score_all(CharData *ch) {
 	int ac, max_dam = 0;
 
 	std::string sum = string("Вы ") + string(ch->get_name()) + string(", ")
-		+ string(class_name[static_cast<int>(GET_CLASS(ch)) + 14 * GET_KIN(ch)]) + string(".");
+		+ MUD::Classes()[ch->get_class()].GetName() + string(".");
 
 	sprintf(buf,
 			" %s-------------------------------------------------------------------------------------\r\n"
@@ -3562,7 +3562,7 @@ void do_score(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			string(PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch))).c_str(),
 			string(PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch))).c_str(),
 			religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))],
-			class_name[static_cast<int>(GET_CLASS(ch)) + 14 * GET_KIN(ch)], GetRealLevel(ch));
+			MUD::Classes()[ch->get_class()].GetCName(), GetRealLevel(ch));
 
 	if (!NAME_GOD(ch) && GetRealLevel(ch) <= NAME_LEVEL) {
 		sprintf(buf + strlen(buf), "\r\n&RВНИМАНИЕ!&n Ваше имя не одобрил никто из богов!\r\n");

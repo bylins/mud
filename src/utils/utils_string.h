@@ -109,6 +109,31 @@ inline int IsAbbrev(const std::string &arg1, const char *arg2) { return IsAbbrev
 void ConvertToLow(std::string &text);
 void ConvertToLow(char *text);
 
+/*
+ * Обрезать пробелы слева.
+ */
+void ltrim(std::string &s);
+/*
+ *  Обрезать пробелы справа.
+ */
+void rtrim(std::string &s)
+/*
+ * Обрезать пробелы справа и слева.
+ */;
+void trim(std::string &s);
+/*
+ * Обрезать пробелы слева, вернуть копию.
+ */
+std::string ltrim_copy(std::string s);
+/*
+ *  Обрезать пробелы справа, вернуть копию.
+ */
+std::string rtrim_copy(std::string s);
+/*
+ * Обрезать пробелы справа и слева, вернуть копию.
+ */;
+std::string trim_copy(std::string s);
+
 }
 
 #endif // UTILS_STRING_HPP_

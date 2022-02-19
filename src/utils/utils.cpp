@@ -502,7 +502,7 @@ TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 TimeInfoData *age(const CharData *ch) {
 	static TimeInfoData player_age;
 
-	player_age = *mud_time_passed(time(0), ch->player_data.time.birth);
+	player_age = *mud_time_passed(time(nullptr), ch->player_data.time.birth);
 
 	player_age.year += 17;    // All players start at 17 //
 

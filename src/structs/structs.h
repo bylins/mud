@@ -424,14 +424,14 @@ namespace parser_wrapper {
 class DataNode;
 }
 
-enum ENameCase {
+enum ECase {
 	kNom = 0,
 	kGen,
 	kDat,
 	kAcc,
 	kInst,
 	kPrep,
-	kNumNameCases
+	kNumGrammaticalCases
 };
 
 namespace base_structs {
@@ -439,18 +439,16 @@ namespace base_structs {
 class ItemName {
  public:
 	using Ptr = std::unique_ptr<ItemName>;
-	using NameCases = std::array<std::string, ENameCase::kNumNameCases>;
-
+	using NameCases = std::array<std::string, ECase::kNumGrammaticalCases>;
+	ItemName() = default;
 	ItemName(ItemName &&i) noexcept;
 	ItemName &operator=(ItemName &&i) noexcept;
 
-	[[nodiscard]] const std::string &GetSingular(ENameCase name_case) const;
-	[[nodiscard]] const std::string &GetPlural(ENameCase name_case) const;
+	[[nodiscard]] const std::string &GetSingular(ECase name_case) const;
+	[[nodiscard]] const std::string &GetPlural(ECase name_case) const;
 	static Ptr Build(parser_wrapper::DataNode &node);
 
  private:
-	ItemName() = default;
-
 	NameCases singular_names_;
 	NameCases plural_names_;
 };

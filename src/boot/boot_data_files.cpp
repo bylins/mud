@@ -1387,7 +1387,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Class") {
-		mob_proto[i].set_class(std::clamp(static_cast<ECharClass>(num_arg), ECharClass::kNpcBase, ECharClass::kNPCLast));
+		mob_proto[i].set_class(std::clamp(static_cast<ECharClass>(num_arg), ECharClass::kNpcBase, ECharClass::kNpcLast));
 	}
 
 	CASE("Height") {

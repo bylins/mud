@@ -27,21 +27,21 @@ std::array<const char *, kNumPlayerClasses> pc_class_name =
 	 }};
 
 const ClassApplies::ExtraAffectsVector ClericAffects = {};
-const ClassApplies::ExtraAffectsVector MageAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
+const ClassApplies::ExtraAffectsVector MageAffects = {{EAffectFlag::AFF_INFRAVISION, true}};
 const ClassApplies::ExtraAffectsVector ThiefAffects = {
-	{EAffectFlag::AFF_INFRAVISION, 1},
-	{EAffectFlag::AFF_SENSE_LIFE, 1},
-	{EAffectFlag::AFF_BLINK, 1}};
+	{EAffectFlag::AFF_INFRAVISION, true},
+	{EAffectFlag::AFF_SENSE_LIFE, true},
+	{EAffectFlag::AFF_BLINK, true}};
 const ClassApplies::ExtraAffectsVector WarriorAffects = {};
-const ClassApplies::ExtraAffectsVector AssasineAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
+const ClassApplies::ExtraAffectsVector AssasineAffects = {{EAffectFlag::AFF_INFRAVISION, true}};
 const ClassApplies::ExtraAffectsVector GuardAffects = {};
 const ClassApplies::ExtraAffectsVector DefenderAffects = {};
 const ClassApplies::ExtraAffectsVector CharmerAffects = {};
-const ClassApplies::ExtraAffectsVector NecromancerAffects = {{EAffectFlag::AFF_INFRAVISION, 1}};
+const ClassApplies::ExtraAffectsVector NecromancerAffects = {{EAffectFlag::AFF_INFRAVISION, true}};
 const ClassApplies::ExtraAffectsVector PaladineAffects = {};
 const ClassApplies::ExtraAffectsVector RangerAffects = {
-	{EAffectFlag::AFF_INFRAVISION, 1},
-	{EAffectFlag::AFF_SENSE_LIFE, 1}};
+	{EAffectFlag::AFF_INFRAVISION, true},
+	{EAffectFlag::AFF_SENSE_LIFE, true}};
 const ClassApplies::ExtraAffectsVector SmithAffects = {};
 const ClassApplies::ExtraAffectsVector MerchantAffects = {};
 const ClassApplies::ExtraAffectsVector DruidAffects = {};
@@ -96,6 +96,7 @@ void init_ECharClass_ITEM_NAMES() {
 	ECharClass_name_by_value[ECharClass::kWizard] = "kWizard";
 	ECharClass_name_by_value[ECharClass::kMob] = "kMob";
 	ECharClass_name_by_value[ECharClass::kNpcBase] = "kNpcBase";
+	ECharClass_name_by_value[ECharClass::kNpcLast] = "kNpcLast";
 
 	for (const auto &i : ECharClass_name_by_value) {
 		ECharClass_value_by_name[i.second] = i.first;

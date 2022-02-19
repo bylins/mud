@@ -38,6 +38,7 @@ struct ClassSkillInfo {
 
 struct CharClassInfo : public info_container::IItem<ECharClass>{
 	CharClassInfo() {
+		names = std::make_unique<base_structs::ItemName>();
 		skills = std::make_unique<Skills>();
 	}
 
@@ -49,16 +50,25 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 	[[nodiscard]] EItemMode GetMode() const final { return mode; };
 
 	/* Имена */
-
 	std::unique_ptr<base_structs::ItemName> names;
+	[[nodiscard]] const std::string &GetName(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
+
+	/*
+	 *  Строка в C-стиле. По возможности используйте std::string.
+	 */
+	[[nodiscard]] const char *GetCName(ECase name_case = ECase::kNom) const;
+
+	/*
+	 *  Строка в C-стиле. По возможности используйте std::string.
+	 */
+	[[nodiscard]] const char *GetPluralCNameC(ECase name_case = ECase::kNom) const;
 
 	/* Умения класса */
 	using Skills = std::unordered_map<ESkill, ClassSkillInfo::Ptr>;
 	using SkillsPtr = std::unique_ptr<Skills>;
-
 	SkillsPtr skills;
 	int skills_level_decrement{1};
-
 	[[nodiscard]] bool HasSkill(ESkill id) const;
 	[[nodiscard]] bool HasntSkill(const ESkill skill_id) const { return !HasSkill(skill_id); };
 	[[nodiscard]] int GetMinRemort(ESkill id) const;
@@ -66,6 +76,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 	[[nodiscard]] int GetSkillLevelDecrement() const { return skills_level_decrement; };
 	[[nodiscard]] long GetImprove(ESkill id) const;
 
+	/* Прочее */
 	void Print(std::stringstream &buffer) const;
 
 };

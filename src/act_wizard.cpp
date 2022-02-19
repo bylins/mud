@@ -3613,7 +3613,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					buf_overflows);
 			sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
 			sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
-			sprintf(buf + strlen(buf), "  Максимальный GetAbilityId - %ld\r\n", max_id.current());
+			sprintf(buf + strlen(buf), "  Максимальный Id - %ld\r\n", max_id.current());
 			sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n",
 					static_cast<unsigned long>((cmd_cnt * 60) / (time(0) - shutdown_parameters.get_boot_time())));
 			send_to_char(buf, ch);

@@ -89,21 +89,21 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const c
 
 namespace base_structs {
 
-void ParseValueToNameCase(auto node_val, std::string &name_case) {
+void ParseValueToNameCase(const char *value, std::string &name_case) {
 	try {
-		name_case = parse::ReadAsStr(node_val);
+		name_case = parse::ReadAsStr(value);
 	} catch (std::exception &e) {
 		err_log("invalid name case (value: %s).", e.what());
 	}
 }
 
 void ParseNodeToNameCases(parser_wrapper::DataNode &node, ItemName::NameCases &name_cases) {
-	ParseValueToNameCase(node.GetValue("nom"), name_cases[ENameCase::kNom]);
-	ParseValueToNameCase(node.GetValue("gen"), name_cases[ENameCase::kGen]);
-	ParseValueToNameCase(node.GetValue("dat"), name_cases[ENameCase::kDat]);
-	ParseValueToNameCase(node.GetValue("acc"), name_cases[ENameCase::kAcc]);
-	ParseValueToNameCase(node.GetValue("inst"), name_cases[ENameCase::kInst]);
-	ParseValueToNameCase(node.GetValue("prep"), name_cases[ENameCase::kPrep]);
+	ParseValueToNameCase(node.GetValue("nom"), name_cases[ECase::kNom]);
+	ParseValueToNameCase(node.GetValue("gen"), name_cases[ECase::kGen]);
+	ParseValueToNameCase(node.GetValue("dat"), name_cases[ECase::kDat]);
+	ParseValueToNameCase(node.GetValue("acc"), name_cases[ECase::kAcc]);
+	ParseValueToNameCase(node.GetValue("inst"), name_cases[ECase::kInst]);
+	ParseValueToNameCase(node.GetValue("prep"), name_cases[ECase::kPrep]);
 }
 
 ItemName::Ptr ItemName::Build(parser_wrapper::DataNode &node) {
@@ -130,11 +130,11 @@ ItemName::ItemName(ItemName &&i) noexcept {
 	plural_names_ = std::move(i.plural_names_);
 };
 
-const std::string &ItemName::GetSingular(ENameCase name_case) const {
+const std::string &ItemName::GetSingular(ECase name_case) const {
 	return singular_names_.at(name_case);
 }
 
-const std::string &ItemName::GetPlural(ENameCase name_case) const {
+const std::string &ItemName::GetPlural(ECase name_case) const {
 	return plural_names_.at(name_case);
 }
 

@@ -66,7 +66,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
-			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий GetAbilityId:[%ld]",
+			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий Id:[%ld]",
 			(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k),
 			GET_IDNUM(k),
@@ -612,7 +612,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		strcpy(buf2, "None");
 	}
 
-	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], GetAbilityId: [%ld]\r\n",
+	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], Id: [%ld]\r\n",
 				 CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
 
 	send_to_char(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());

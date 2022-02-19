@@ -907,7 +907,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 		if (number(1, 1000) <= (4 - level / 10) * 10) {
 			indx = im_type_rnum(zone_types[type].ingr_types[i]);
 			if (indx == -1) {
-				log("SYSERR: WRONG INGREDIENT TYPE GetAbilityId %d IN ZTYPES.LST", zone_types[type].ingr_types[i]);
+				log("SYSERR: WRONG INGREDIENT TYPE Id %d IN ZTYPES.LST", zone_types[type].ingr_types[i]);
 				continue;
 			}
 			after = nullptr;

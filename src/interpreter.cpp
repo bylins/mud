@@ -1125,14 +1125,14 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::kHide, 0);
+			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 		}
 
 		if (remove_hide) {
 			affect_from_char(ch, kSpellHide);
 			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
-				act("$n прекратил$g прятаться.", false, ch, 0, 0, kToRoom);
+				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			}
 		}
 	}
@@ -1947,7 +1947,8 @@ int perform_dupe_check(DescriptorData *d) {
 	switch (mode) {
 		case RECON: SEND_TO_Q("Пересоединяемся.\r\n", d);
 			check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
-			act("$n восстановил$g связь.", true, d->character.get(), 0, 0, kToRoom);
+			act("$n восстановил$g связь.",
+				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 			mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			login_change_invoice(d->character.get());
@@ -1955,7 +1956,8 @@ int perform_dupe_check(DescriptorData *d) {
 
 		case USURP: SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
 			act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
-				"Тело $s было захвачено новым духом!", true, d->character.get(), 0, 0, kToRoom);
+				"Тело $s было захвачено новым духом!",
+				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
 			mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
@@ -2084,11 +2086,11 @@ void add_logon_record(DescriptorData *d) {
 									});
 
 	if (logon == LOGON_LIST(d->character).end()) {
-		const Logon cur_log = {str_dup(d->host), 1, time(0), false};
+		const Logon cur_log = {str_dup(d->host), 1, time(nullptr), false};
 		LOGON_LIST(d->character).push_back(cur_log);
 	} else {
 		++logon->count;
-		logon->lasttime = time(0);
+		logon->lasttime = time(nullptr);
 	}
 
 	int pos = get_ptable_by_unique(GET_UNIQUE(d->character));
@@ -2331,7 +2333,7 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	//Проверим временные заклы пока нас не было
-	Temporary_Spells::update_char_times(d->character.get(), time(0));
+	Temporary_Spells::update_char_times(d->character.get(), time(nullptr));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	d->character->remove_affect(EAffectFlag::AFF_GROUP);
@@ -2343,14 +2345,14 @@ void do_entergame(DescriptorData *d) {
 	// with the copyover patch, this next line goes in enter_player_game()
 	GET_ID(d->character) = GET_IDNUM(d->character);
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
-	d->character->set_last_logon(time(0));
+	d->character->set_last_logon(time(nullptr));
 	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
 	add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
-	d->character->set_who_last(time(0));
+	d->character->set_who_last(time(nullptr));
 	d->character->save_char();
-	act("$n вступил$g в игру.", true, d->character.get(), 0, 0, kToRoom);
+	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character.get());
 	enter_wtrigger(world[d->character.get()->in_room], d->character.get(), -1);
@@ -2361,11 +2363,11 @@ void do_entergame(DescriptorData *d) {
 // режимы по дефолту у нового чара
 	const bool new_char = GetRealLevel(d->character) <= 0 ? true : false;
 	if (new_char) {
-		PRF_FLAGS(d->character).set(PRF_DRAW_MAP); //рисовать миникарту
+		PRF_FLAGS(d->character).set(PRF_DRAW_MAP);
 		PRF_FLAGS(d->character).set(PRF_GOAHEAD); //IAC GA
-		PRF_FLAGS(d->character).set(PRF_AUTOMEM); // автомем
-		PRF_FLAGS(d->character).set(PRF_AUTOLOOT); // автолут
-		PRF_FLAGS(d->character).set(PRF_PKL_MODE); // пклист
+		PRF_FLAGS(d->character).set(PRF_AUTOMEM);
+		PRF_FLAGS(d->character).set(PRF_AUTOLOOT);
+		PRF_FLAGS(d->character).set(PRF_PKL_MODE);
 		PRF_FLAGS(d->character).set(PRF_WORKMATE_MODE); // соклан
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
@@ -2374,7 +2376,7 @@ void do_entergame(DescriptorData *d) {
 		d->character->map_set_option(MapSystem::MAP_MODE_BIG);
 		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
 		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
-		d->character->set_last_exchange(time(0)); // когда последний раз базар
+		d->character->set_last_exchange(time(nullptr));
 		do_start(d->character.get(), true);
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character.get());
@@ -2558,7 +2560,7 @@ void CreateChar(DescriptorData *d) {
 	d->character->desc = d;
 }
 
-int create_unique(void) {
+int create_unique() {
 	int unique;
 
 	do {
@@ -2582,12 +2584,12 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 
 	GET_PORTALS(ch) = nullptr;
 	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
-	ch->set_npc_name(0);
+	ch->set_npc_name(nullptr);
 	ch->player_data.long_descr = "";
 	ch->player_data.description = "";
-	ch->player_data.time.birth = time(0);
+	ch->player_data.time.birth = time(nullptr);
 	ch->player_data.time.played = 0;
-	ch->player_data.time.logon = time(0);
+	ch->player_data.time.logon = time(nullptr);
 
 	// make favors for sex
 	if (ch->get_sex() == ESex::kMale) {
@@ -2707,7 +2709,7 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
 	d->character->set_who_mana(0);
-	d->character->set_who_last(time(0));
+	d->character->set_who_last(time(nullptr));
 
 }
 
@@ -3051,7 +3053,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 			} else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н') {
 				SEND_TO_Q("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
-				d->character->set_pc_name(0);
+				d->character->set_pc_name(nullptr);
 				STATE(d) = CON_GET_NAME;
 			} else {
 				SEND_TO_Q("Ответьте Yes(Да) or No(Нет) : ", d);
@@ -4024,40 +4026,48 @@ void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
 
 // регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
 bool CompareParam(const std::string &buffer, const char *arg, bool full) {
-	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
-		return 0;
+	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg))) {
+		return false;
+	}
 
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && *arg; ++i, ++arg)
-		if (LOWER(buffer[i]) != LOWER(*arg))
-			return (0);
+	for (i = 0; i != buffer.length() && *arg; ++i, ++arg) {
+		if (LOWER(buffer[i]) != LOWER(*arg)) {
+			return false;
+		}
+	}
 
-	if (i == buffer.length())
-		return (1);
-	else
-		return (0);
+	if (i == buffer.length()) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // тоже самое с обоими аргументами стринг
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full) {
 	if (buffer.empty() || buffer2.empty()
-		|| (full && buffer.length() != buffer2.length()))
-		return 0;
+		|| (full && buffer.length() != buffer2.length())) {
+		return false;
+	}
 
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i)
-		if (LOWER(buffer[i]) != LOWER(buffer2[i]))
-			return (0);
+	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i) {
+		if (LOWER(buffer[i]) != LOWER(buffer2[i])) {
+			return false;
+		}
+	}
 
-	if (i == buffer.length())
-		return (1);
-	else
-		return (0);
+	if (i == buffer.length()) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // ищет дескриптор игрока(онлайн состояние) по его УИДу
 DescriptorData *DescByUID(int uid) {
-	DescriptorData *d = 0;
+	DescriptorData *d = nullptr;
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->character && GET_UNIQUE(d->character) == uid)
@@ -4071,7 +4081,7 @@ DescriptorData *DescByUID(int uid) {
 * \param playing - 0 если ищем игрока в любом состоянии, 1 (дефолт) если ищем только незанятых
 */
 DescriptorData *get_desc_by_id(long id, bool playing) {
-	DescriptorData *d = 0;
+	DescriptorData *d = nullptr;
 
 	if (playing) {
 		for (d = descriptor_list; d; d = d->next)
@@ -4111,7 +4121,7 @@ long GetUniqueByName(const std::string &name, bool god) {
 }
 
 bool IsActiveUser(long unique) {
-	time_t currTime = time(0);
+	time_t currTime = time(nullptr);
 	time_t charLogon;
 	int inactivityDelay = /* day*/ (3600 * 24) * /*days count*/ 60;
 	for (std::size_t i = 0; i < player_table.size(); ++i) {
@@ -4231,7 +4241,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 	if (IS_IMMORTAL(ch))
 		return false;
 
-	ctime = time(0);
+	ctime = time(nullptr);
 
 	switch (mode) {
 		case WHO_LISTALL: cost = WHO_COST;

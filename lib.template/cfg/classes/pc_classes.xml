@@ -287,8 +287,36 @@
         общий интерфейс для параметра класса у мобов с игроками, но не помещать, разумеется, классы
         плееров с мобами в один неймспейс.
      -->
-    <class id="kMob">
+    <class id="kUndefined" mode="kDisabled">
+        <name>
+            <singular nom="undefined" gen="undefined" dat="undefined" acc="undefined" inst="undefined" prep="undefined"/>
+            <plural nom="undefined" gen="undefined" dat="undefined" acc="undefined" inst="undefined" prep="undefined"/>
+        </name>
+        <skills level_decrement="5">
+        </skills>>
     </class>
-    <class id="kNpcBase">
+    <class id="kMob" mode="kDisabled">
+        <name>
+            <singular nom="моб" gen="моба" dat="мобу" acc="моба" inst="мобом" prep="мобе"/>
+            <plural nom="мобы" gen="мобов" dat="мобам" acc="мобов" inst="мобами" prep="мобах"/>
+        </name>
+        <skills level_decrement="5">
+        </skills>>
+    </class>
+    <class id="kNpcBase" mode="kDisabled">
+        <name>
+            <singular nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" inst="base_npc" prep="base_npc"/>
+            <plural nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" inst="base_npc" prep="base_npc"/>
+        </name>
+        <skills level_decrement="5">
+        </skills>>
+    </class>
+    <class id="kNpcLast" mode="kDisabled">
+        <name>
+            <singular nom="npc" gen="npc" dat="npc" acc="npc" inst="npc" prep="npc"/>
+            <plural nom="npc" gen="npc" dat="npc" acc="npc" inst="npc" prep="npc"/>
+        </name>
+        <skills level_decrement="5">
+        </skills>>
     </class>
 </classes>
