@@ -103,7 +103,7 @@ extern void show_code_date(CharData *ch);
 extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
 // extern functions
-Bitvector find_class_bitvector(char arg);
+Bitvector FindCharClassMask(char name);
 int level_exp(CharData *ch, int level);
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
 // local functions
@@ -4165,7 +4165,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
 						const size_t len = strlen(arg);
 						for (size_t i = 0; i < len; i++) {
-							showclass |= find_class_bitvector(arg[i]);
+							showclass |= FindCharClassMask(arg[i]);
 						}
 					}
 					break;
@@ -4383,7 +4383,7 @@ void PrintUptime(std::ostringstream &out) {
 	auto m = (uptime / 60) % 60;
 	auto s = uptime % 60;
 
-	out << " Времени с перезагрузки: " << std::setprecision(2) << d << "д " << h << ":" << m << ":" << s << std::endl;
+	out << std::setprecision(2) << d << "д " << h << ":" << m << ":" << s << std::endl;
 }
 
 void PrintPair(std::ostringstream &out, int column_width, int val1, int val2) {
@@ -4475,6 +4475,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	char_stat::PrintClassesExpStat(out);
 
+	out << " Времени с перезагрузки: ";
 	PrintUptime(out);
 
 	send_to_char(out.str(), ch);
@@ -4548,7 +4549,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					half_chop(buf1, arg, buf);
 					const size_t len = strlen(arg);
 					for (size_t i = 0; i < len; i++) {
-						showclass |= find_class_bitvector(arg[i]);
+						showclass |= FindCharClassMask(arg[i]);
 					}
 					break;
 				}

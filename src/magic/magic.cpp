@@ -630,12 +630,9 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			// мин 40+17 среднее 1820+17 макс 3600 +17
 			// для всех
 		case kSpellVacuum: savetype = ESaving::kStability;
-			ndice = MAX(1, (GET_REAL_WIS(ch) - 10) / 2);	//40
-			sdice = MAX(1, GET_REAL_WIS(ch) - 10);			//90
-			//	    adice = MAX(1, 2 + 30 - GetRealLevel(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
-			//	    Ну явно кривота была. Отбалансил на свой вкус. В 50 мудры на 25м леве лаг на 3 на 30 лаг на 4 а не наоборот
-			//чтобы не обижать колдунов
-			adice = 4 + MAX(1, GetRealLevel(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;	//17
+			ndice = std::max(1, (GET_REAL_WIS(ch) - 10) / 2);	//40
+			sdice = std::max(1, GET_REAL_WIS(ch) - 10);			//90
+			adice = 4 + std::max(1, GetRealLevel(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;	//17
 			if (ch == victim ||
 				(!CalcGeneralSaving(ch, victim, ESaving::kCritical, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
 					(number(1, 999) > GET_AR(victim) * 10) &&
@@ -894,7 +891,6 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		dam = RollDices(ndice, sdice) + adice;
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
 
-		// колдуны в 2 раза сильнее фрагают по мобам
 		if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
 			dam += (int) dam * 0.5;
 		}
@@ -932,7 +928,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			Damage dmg(SpellDmg(spellnum), dam, fight::kMagicDmg);
 			dmg.ch_start_pos = ch_start_pos;
 			dmg.victim_start_pos = victim_start_pos;
-			// колдуны игнорят поглощение у мобов
+
 			if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
 				dmg.flags.set(fight::kIgnoreAbsorbe);
 			}

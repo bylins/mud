@@ -126,7 +126,7 @@ void log_zone_count_reset();
 int level_exp(CharData *ch, int level);
 void appear(CharData *ch);
 void reset_zone(ZoneRnum zone);
-ECharClass ParseClass(char arg);
+ECharClass FindCharClass(char name);
 extern CharData *find_char(long n);
 void rename_char(CharData *ch, char *oname);
 int _parse_name(char *arg, char *name);
@@ -2815,33 +2815,27 @@ void do_wizlock(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	send_to_char(buf, ch);
 }
 
-void do_date(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
-	char *tmstr;
-	time_t mytime;
-	int d, h, m, s;
+extern void PrintUptime(std::ostringstream &out);
 
+void do_date(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
+	time_t mytime;
 	if (subcmd == SCMD_DATE) {
 		mytime = time(nullptr);
 	} else {
 		mytime = shutdown_parameters.get_boot_time();
 	}
 
-	tmstr = (char *) asctime(localtime(&mytime));
-	*(tmstr + strlen(tmstr) - 1) = '\0';
-
+	std::ostringstream out;
 	if (subcmd == SCMD_DATE) {
-		sprintf(buf, "Текущее время сервера : %s\r\n", tmstr);
+		out << "Текущее время сервера: " << asctime(localtime(&mytime)) << std::endl;
 	} else {
-		mytime = time(0) - shutdown_parameters.get_boot_time();
-		d = mytime / 86400;
-		h = (mytime / 3600) % 24;
-		m = (mytime / 60) % 60;
-		s = mytime % 60;
-
-		sprintf(buf, "Up since %s: %d day%s, %d:%02d.%02d\r\n", tmstr, d, ((d == 1) ? "" : "s"), h, m, s);
+		out << " Up since: " << asctime(localtime(&mytime));
+		out.seekp(-1, std::ios_base::end);
+		out << " ";
+		PrintUptime(out);
 	}
 
-	send_to_char(buf, ch);
+	send_to_char(out.str(), ch);
 }
 
 void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -4186,7 +4180,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			break;
 		case 31: {
-			auto class_id = ParseClass(*val_arg);
+			auto class_id = FindCharClass(*val_arg);
 			if (class_id == ECharClass::kUndefined) {
 				send_to_char("Нет такого класса в этой игре. Найдите себе другую.\r\n", ch);
 				return (0);

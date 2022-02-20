@@ -58,8 +58,8 @@ extern struct SpellCreate spell_create[];
 extern double exp_coefficients[];
 
 // local functions
-ECharClass ParseClass(char arg);
-Bitvector find_class_bitvector(char arg);
+ECharClass FindCharClass(char name);
+Bitvector FindCharClassMask(char name);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
 void do_start(CharData *ch, int newbie);
@@ -160,47 +160,11 @@ const char *class_menu =
 	"  Ку[п]ец\r\n"
 	"  Вол[x]в\r\n";
 
-const char *class_menu_vik =
-	"\r\n"
-	"Выберите профессию :\r\n"
-	"  [Ж]рец\r\n"
-	"  [Н]ойда\r\n"
-	"  [Т]иуве\r\n"
-	"  [Б]ерсерк\r\n"
-	"  Н[а]емник\r\n"
-	"  [Х]ирдман\r\n"
-	"  [З]аарин\r\n"
-	"  Б[о]соркун\r\n"
-	"  [Р]авк\r\n"
-	"  [К]ампе\r\n"
-	"  [Л]учник\r\n"
-	"  Ар[г]ун\r\n"
-	"  Ке[п]мен\r\n"
-	"  [С]кальд\r\n";
-
-const char *class_menu_step =
-	"\r\n"
-	"Выберите профессию :\r\n"
-	"  [З]нахарь\r\n"
-	"  [Б]акша\r\n"
-	"  [К]арак\r\n"
-	"  Б[а]тыр\r\n"
-	"  [Т]ургауд\r\n"
-	"  [Н]уке\r\n"
-	"  Ка[п]нобатай\r\n"
-	"  Ак[ш]аман\r\n"
-	"  Ка[р]ашаман\r\n"
-	"  [Ч]ериг\r\n"
-	"  Шик[о]рхо\r\n"
-	"  [Д]архан\r\n"
-	"  [С]атучы\r\n"
-	"  Се[и]д\r\n";
-
 // The menu for choosing a religion in interpreter.c:
 const char *religion_menu =
 	"\r\n" "Какой религии вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
 
-#define RELIGION_ANY 100
+const int RELIGION_ANY = 100;
 
 /* Соответствие классов и религий. kReligionPoly-класс не может быть христианином
                                    kReligionMono-класс не может быть язычником  (Кард)
@@ -229,10 +193,10 @@ int class_stats_limit[kNumPlayerClasses][6];
  * new character is selecting a class and by 'set class' in act.wizard.c.
  */
 
-ECharClass ParseClass(char arg) {
-	arg = LOWER(arg);
+ECharClass FindCharClass(char name) {
+	name = LOWER(name);
 
-	switch (arg) {
+	switch (name) {
 		case 'л': return ECharClass::kSorcerer;
 		case 'к': return ECharClass::kConjurer;
 		case 'т': return ECharClass::kThief;
@@ -251,10 +215,10 @@ ECharClass ParseClass(char arg) {
 	}
 }
 
-Bitvector find_class_bitvector(char arg) {
-	arg = LOWER(arg);
+Bitvector FindCharClassMask(char name) {
+	name = LOWER(name);
 
-	switch (arg) {
+	switch (name) {
 		case 'л': return (1 << ECharClass::kSorcerer);
 		case 'к': return (1 << ECharClass::kConjurer);
 		case 'т': return (1 << ECharClass::kThief);

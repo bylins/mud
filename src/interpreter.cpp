@@ -140,8 +140,6 @@ extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 extern const char *class_menu;
-extern const char *class_menu_vik;
-extern const char *class_menu_step;
 extern const char *religion_menu;
 extern char *motd;
 extern char *rules;
@@ -173,7 +171,7 @@ extern char *name_rules;
 
 // external functions
 void do_start(CharData *ch, int newbie);
-ECharClass ParseClass(char arg);
+ECharClass FindCharClass(char name);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
@@ -3348,7 +3346,7 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto class_id = ParseClass(*arg);
+			auto class_id = FindCharClass(*arg);
 			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
@@ -3361,51 +3359,7 @@ void nanny(DescriptorData *d, char *arg) {
 			STATE(d) = CON_RELIGION;
 			break;
 		}
-		// ABYRVALG - вырезать
-		case CON_QCLASSS: {
-			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu_step, d);
-				SEND_TO_Q("\r\nВаша профессия : ", d);
-				STATE(d) = CON_QCLASSS;
-				return;
-			}
 
-			auto class_id = static_cast<ECharClass>(ParseClass(*arg));
-			if (class_id == ECharClass::kUndefined) {
-				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
-				return;
-			} else {
-				d->character->set_class(class_id);
-			}
-
-			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия :", d);
-			STATE(d) = CON_RELIGION;
-
-			break;
-		}
-		case CON_QCLASSV: {
-			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu_vik, d);
-				SEND_TO_Q("\r\nВаша профессия : ", d);
-				STATE(d) = CON_QCLASSV;
-				return;
-			}
-
-			auto class_id = static_cast<ECharClass>(ParseClass(*arg));
-			if (class_id == ECharClass::kUndefined) {
-				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
-				return;
-			} else {
-				d->character->set_class(class_id);
-			}
-
-			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия:", d);
-			STATE(d) = CON_RELIGION;
-
-			break;
-		}
 		case CON_RACE:        // query race
 			if (pre_help(d->character.get(), arg)) {
 				SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
