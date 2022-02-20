@@ -830,7 +830,7 @@ void gain_exp(CharData *ch, int gain) {
 		CLR_GOD_FLAG(ch, GF_REMORT);
 	}
 
-	char_stat::add_class_exp(GET_CLASS(ch), gain);
+	char_stat::AddClassExp(GET_CLASS(ch), gain);
 	update_clan_exp(ch, gain);
 }
 

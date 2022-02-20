@@ -62,7 +62,7 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 	/*
 	 *  Строка в C-стиле. По возможности используйте std::string.
 	 */
-	[[nodiscard]] const char *GetPluralCNameC(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const char *GetPluralCName(ECase name_case = ECase::kNom) const;
 
 	/* Умения класса */
 	using Skills = std::unordered_map<ESkill, ClassSkillInfo::Ptr>;

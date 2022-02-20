@@ -182,7 +182,7 @@ const char *CharClassInfo::GetCName(ECase name_case) const {
 	return names->GetSingular(name_case).c_str();
 }
 
-const char *CharClassInfo::GetPluralCNameC(ECase name_case) const {
+const char *CharClassInfo::GetPluralCName(ECase name_case) const {
 	return names->GetPlural(name_case).c_str();
 }
 

@@ -249,7 +249,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0) : -1);
 		send_to_char(buf, ch);
 		std::string stats;
-		mob_stat::last_kill_mob(k, stats);
+		mob_stat::GetLastMobKill(k, stats);
 		sprintf(buf, "Последний раз убит: %s", stats.c_str());
 		send_to_char(buf, ch);
 	}

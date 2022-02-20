@@ -855,10 +855,10 @@ void stop_game(ush_int port) {
 #if defined WITH_SCRIPTING
 	//scripting::terminate();
 #endif
-	mob_stat::save();
+	mob_stat::Save();
 	SetsDrop::save_drop_table();
 	mail::save();
-	char_stat::log_class_exp();
+	char_stat::LogClassesExpStat();
 
 	log("Closing all sockets.");
 #ifdef HAS_EPOLL

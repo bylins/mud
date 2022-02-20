@@ -3624,7 +3624,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			send_to_char(ch, "  Сообщений на почте: %zu\r\n", mail::get_msg_count());
 			send_to_char(ch, "  Передвижения: %d\r\n", motion);
 			send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d\r\n", ShopExt::get_spent_today());
-			mob_stat::show_stats(ch);
+			mob_stat::ShowStats(ch);
 			break;
 		}
 		case 5: {
@@ -3828,9 +3828,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 23: { // mobstat 
 			if (*value && is_number(value)) {
 				if (*value1 && is_number(value1)) {
-					mob_stat::show_zone(ch, atoi(value), atoi(value1));
+					mob_stat::ShowZoneMobKillsStat(ch, atoi(value), atoi(value1));
 				} else {
-					mob_stat::show_zone(ch, atoi(value), 0);
+					mob_stat::ShowZoneMobKillsStat(ch, atoi(value), 0);
 				}
 			} else {
 				send_to_char("Формат команды: show mobstat внум-зоны <месяцев>.\r\n", ch);

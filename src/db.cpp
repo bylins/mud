@@ -2565,7 +2565,7 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading object sets/mob_stat/drop_sets lists");
 	obj_sets::load();
 	log("Load mob_stat.xml");
-	mob_stat::load();
+	mob_stat::Load();
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
 

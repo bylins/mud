@@ -61,7 +61,7 @@ const PlayerChart &TopPlayer::Chart() {
 };
 
 /* ширина столбцов */
-const int name_cw{21};
+const int name_cw{kMaxNameLength + 1};
 const int remort_cw{3};
 const int remort_txt_cw{15};
 const int class_cw{20};

@@ -54,7 +54,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 			continue;
 		if (isFavList && it->second.isFavorite == 0)
 			continue;
-		mobname = mob_stat::print_mob_name(it->first, 54);
+		mobname = mob_stat::PrintMobName(it->first, 54);
 		out << boost::str(boost::format(format_str) % num % mobname);
 	}
 	page_string(ch->desc, out.str());
@@ -136,9 +136,9 @@ void doForget(CharData *ch, CharData *boss, unsigned int pos) {
 		}
 		it->second.isFavorite = !it->second.isFavorite;
 		if (it->second.isFavorite)
-			sprintf(buf, "Персонаж %s добавлен в список любимчиков.", mob_stat::print_mob_name(it->first, 54).c_str());
+			sprintf(buf, "Персонаж %s добавлен в список любимчиков.", mob_stat::PrintMobName(it->first, 54).c_str());
 		else
-			sprintf(buf, "Персонаж %s попал в опалу.", mob_stat::print_mob_name(it->first, 54).c_str());
+			sprintf(buf, "Персонаж %s попал в опалу.", mob_stat::PrintMobName(it->first, 54).c_str());
 		tell_to_char(boss, ch, buf);
 		return;
 	}

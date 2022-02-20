@@ -2706,7 +2706,6 @@ void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-/// см pc_class_name
 const char *ac_text[] =
 	{
 		"&WВы защищены как БОГ",    //  -30
@@ -4377,148 +4376,108 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	page_string(ch->desc, out);
 }
 
-std::string print_server_uptime() {
-	const auto boot_time = shutdown_parameters.get_boot_time();
-	const time_t diff = time(nullptr) - boot_time;
-	const int d = diff / 86400;
-	const int h = (diff / 3600) % 24;
-	const int m = (diff / 60) % 60;
-	const int s = diff % 60;
-	//return boost::str(boost::format("Времени с перезагрузки: %dд %02d:%02d:%02d\r\n") % d % h % m % s);
+void PrintUptime(std::ostringstream &out) {
+	auto uptime = time(nullptr) - shutdown_parameters.get_boot_time();
+	auto d = uptime / 86400;
+	auto h = (uptime / 3600) % 24;
+	auto m = (uptime / 60) % 60;
+	auto s = uptime % 60;
 
-	std::stringstream buffer;
-	buffer << "Времени с перезагрузки: "  << std::setprecision(2) << d << "д " << h << ":" << m << ":" << s << std::endl;
-	return buffer.str();
+	out << " Времени с перезагрузки: " << std::setprecision(2) << d << "д " << h << ":" << m << ":" << s << std::endl;
+}
+
+void PrintPair(std::ostringstream &out, int column_width, int val1, int val2) {
+		out << KIRED << "[" << KICYN << std::right << std::setw(column_width) << val1
+		<< KIRED << "|" << KICYN << std::setw(column_width) << val2 << KIRED << "]" << KNRM << std::endl;
+}
+
+void PrintValue(std::ostringstream &out, int column_width, int val) {
+	out << KIRED << "[" << KICYN << std::right << std::setw(column_width) << val << KIRED << "]" << KNRM << std::endl;
 }
 
 void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	int proff[kNumPlayerClasses][2];
-	int ptot[kNumPlayerClasses];
-	int i, clan = 0, noclan = 0, hilvl = 0, lowlvl = 0, all = 0, rem = 0, norem = 0, pk = 0, nopk = 0;
-
-	for (i = 0; i < kNumPlayerClasses; i++) {
-		proff[i][0] = 0;
-		proff[i][1] = 0;
-		ptot[i] = 0;
-	}
-
-	for (const auto &tch : character_list) {
-		if (IS_NPC(tch) || GetRealLevel(tch) >= kLevelImmortal || !HERE(tch))
-			continue;
-
-		if (CLAN(tch))
-			clan++;
-		else
-			noclan++;
-		if (GetRealLevel(tch) >= 25)
-			hilvl++;
-		else
-			lowlvl++;
-		if (GET_REAL_REMORT(tch) >= 1)
-			rem++;
-		else
-			norem++;
-		all++;
-		if (pk_count(tch.get()) >= 1) {
-			pk++;
-		} else {
-			nopk++;
+	static std::unordered_map<ECharClass, std::pair<int, int>> players;
+	if (players.empty()) {
+		for (const auto &char_class: MUD::Classes()) {
+			if (char_class.IsAvailable()) {
+				players.emplace(char_class.GetId(), std::pair<int, int>());
+			}
 		}
-
-		if (GetRealLevel(tch) >= 25)
-			proff[static_cast<int>(GET_CLASS(tch))][0]++;
-		else
-			proff[static_cast<int>(GET_CLASS(tch))][1]++;
-		ptot[static_cast<int>(GET_CLASS(tch))]++;
+	} else {
+		for (auto &it : players) {
+			it.second.first = 0;
+			it.second.second = 0;
+		}
 	}
-	sprintf(buf,
-			"%sСтатистика по игрокам, находящимся в игре (всего / 25 и выше / ниже 25):%s\r\n",
-			CCICYN(ch, C_NRM),
-			CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Лекари        %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kSorcerer], proff[ECharClass::kSorcerer][0], proff[ECharClass::kSorcerer][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Колдуны     %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kConjurer], proff[ECharClass::kConjurer][0],
-			proff[ECharClass::kConjurer][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Тати          %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kThief], proff[ECharClass::kThief][0], proff[ECharClass::kThief][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Богатыри    %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kWarrior], proff[ECharClass::kWarrior][0], proff[ECharClass::kWarrior][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Наемники      %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kAssasine], proff[ECharClass::kAssasine][0],
-			proff[ECharClass::kAssasine][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Дружинники  %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kGuard], proff[ECharClass::kGuard][0], proff[ECharClass::kGuard][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Кудесники     %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kCharmer], proff[ECharClass::kCharmer][0],
-			proff[ECharClass::kCharmer][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Волшебники  %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM),
-			ptot[ECharClass::kWizard], proff[ECharClass::kWizard][0], proff[ECharClass::kWizard][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Чернокнижники %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kNecromancer], proff[ECharClass::kNecromancer][0],
-			proff[ECharClass::kNecromancer][1], CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Витязи      %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kPaladine], proff[ECharClass::kPaladine][0],
-			proff[ECharClass::kPaladine][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Охотники      %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kRanger], proff[ECharClass::kRanger][0], proff[ECharClass::kRanger][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Кузнецы     %s[%s%2d/%2d/%2d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kVigilant], proff[ECharClass::kVigilant][0], proff[ECharClass::kVigilant][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Купцы         %s[%s%2d/%2d/%2d%s]%s       ",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kMerchant], proff[ECharClass::kMerchant][0],
-			proff[ECharClass::kMerchant][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Волхвы      %s[%s%2d/%2d/%2d%s]%s\r\n\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), ptot[ECharClass::kMagus], proff[ECharClass::kMagus][0], proff[ECharClass::kMagus][1],
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf),
-			"Игроков выше|ниже 25 уровня     %s[%s%*d%s|%s%*d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), 3, hilvl, CCIRED(ch,
-																   C_NRM),
-			CCICYN(ch, C_NRM), 3, lowlvl, CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf),
-			"Игроков с перевоплощениями|без  %s[%s%*d%s|%s%*d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), 3, rem, CCIRED(ch, C_NRM),
-			CCICYN(ch, C_NRM), 3, norem, CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf),
-			"Клановых|внеклановых игроков    %s[%s%*d%s|%s%*d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), 3, clan, CCIRED(ch,
-																  C_NRM),
-			CCICYN(ch, C_NRM), 3, noclan, CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf),
-			"Игроков с флагами ПК|без ПК     %s[%s%*d%s|%s%*d%s]%s\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), 3, pk, CCIRED(ch,
-																C_NRM),
-			CCICYN(ch, C_NRM), 3, nopk, CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf + strlen(buf), "Всего игроков %s[%s%*d%s]%s\r\n\r\n",
-			CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), 3, all, CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 
-	char buf_[kMaxInputLength];
-	std::string out;
+	int clan{0}, noclan{0}, hilvl{0}, lowlvl{0}, rem{0}, norem{0}, pk{0}, nopk{0}, total{0};
+	for (const auto &tch : character_list) {
+		if (tch->is_npc() || GetRealLevel(tch) >= kLevelImmortal || !HERE(tch)) {
+			continue;
+		}
+		CLAN(tch) ? ++clan : ++noclan;
+		GetRealLevel(tch) >= 25 ? ++hilvl : ++lowlvl;
+		GET_REAL_REMORT(tch) >= 1 ? ++rem : ++norem;
+		pk_count(tch.get()) >= 1 ? ++pk : ++nopk;
+		GetRealLevel(tch) >= 25 ? ++players[(tch->get_class())].first : ++players[(tch->get_class())].second;
+		++total;
+	}
+	/*
+	 * Тут нужно использовать форматирование таблицы
+	 * \todo table format
+	 */
+	std::ostringstream out;
+	out << KICYN << " Статистика по игрокам в игре (всего / 25 ур. и выше / ниже 25 ур.):"
+	<< KNRM << std::endl << std::endl << " ";
+	int count{1};
+	const int columns{2};
+	const int class_name_col_width{15};
+	const int number_col_width{3};
+	for (const auto &it : players) {
+		out << std::left << std::setw(class_name_col_width) << MUD::Classes()[it.first].GetPluralName() << " "
+			<< KIRED << "[" << KICYN
+			<< std::setw(number_col_width) << std::right << it.second.first + it.second.second
+			<< KIRED << "|" << KICYN
+			<< std::setw(number_col_width) << std::right << it.second.first
+			<< KIRED << "|" << KICYN
+			<< std::setw(number_col_width) << std::right << it.second.second
+			<< KIRED << "]" << KNRM;
+		if (count % columns == 0) {
+			out << std::endl << " ";
+		} else {
+			out << "  ";
+		}
+		++count;
+	}
+	out << std::endl;
 
-	out += print_server_uptime();
-	snprintf(buf_, sizeof(buf_),
-			 "Героев (без ПК) | Тварей убито  %s[%s%3d%s|%s %2d%s]%s\r\n",
-			 CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), char_stat::pkilled,
-			 CCIRED(ch, C_NRM), CCICYN(ch, C_NRM), char_stat::mkilled,
-			 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	out += buf_;
-	out += char_stat::print_class_exp(ch);
+	const int headline_width{33};
 
-	send_to_char(out, ch);
+	out << std::left << std::setw(headline_width) << " Всего игроков:";
+	PrintValue(out, number_col_width, total);
+
+	out << std::left << std::setw(headline_width) << " Игроков выше|ниже 25 уровня:";
+	PrintPair(out, number_col_width, hilvl, lowlvl);
+
+	out << std::left << std::setw(headline_width) << " Игроков с перевоплощениями|без:";
+	PrintPair(out, number_col_width, rem, norem);
+
+	out << std::left << std::setw(headline_width) << " Клановых|внеклановых игроков:";
+	PrintPair(out, number_col_width, clan, noclan);
+
+	out << std::left << std::setw(headline_width) << " Игроков с флагами ПК|без ПК:";
+	PrintPair(out, number_col_width, pk, nopk);
+
+	out << std::left << std::setw(headline_width) << " Героев (без ПК) | Тварей убито:";
+	const int kills_col_width{5};
+	PrintPair(out, kills_col_width, char_stat::players_killed, char_stat::mobs_killed);
+	out << std::endl;
+
+	char_stat::PrintClassesExpStat(out);
+
+	PrintUptime(out);
+
+	send_to_char(out.str(), ch);
 }
 
 #define USERS_FORMAT \
