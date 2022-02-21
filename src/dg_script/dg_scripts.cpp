@@ -894,6 +894,41 @@ void find_uid_name(char *uid, char *name) {
 	}
 }
 
+const auto FOREACH_LIST_GUID = "{18B3D8D1-240E-4D60-AEAB-6748580CA460}";
+const auto FOREACH_LIST_POS_GUID = "{4CC4E031-7376-4EED-AD4F-2FD0DC8D4E2D}";
+
+// некоторые dg-функции (например foreach) создают внутренние переменные для работы
+// выводим их в удобочитаемой форме, чтоб никого не смущали непонятные переменные в выводе
+static std::string print_variable_name(const std::string &name) {
+	static std::map<std::string, std::string> text_mapping_list = {
+		{FOREACH_LIST_GUID, "[list] "},
+		{FOREACH_LIST_POS_GUID, "[position] "}
+	};
+
+	// включение/отключение вывода внутреннего состояния foreach
+	const bool display_state_vars = true;
+
+	std::string result = name;
+
+	for (const auto &text_mapping : text_mapping_list) {
+		const std::string &guid_name = text_mapping.first;
+		const std::string &print_text = text_mapping.second;
+
+		const int guid_start_offcet = name.length() - guid_name.length();
+		if (guid_start_offcet > 0 && guid_name == name.substr(guid_start_offcet)) {
+			if (display_state_vars) {
+				result = print_text;
+				result.append(name.substr(0, guid_start_offcet));
+			} else {
+				result = std::string();
+			}
+			break;
+		}
+	}
+
+	return result;
+}
+
 // general function to display stats on script sc
 void script_stat(CharData *ch, Script *sc) {
 	struct TriggerVar *tv;
@@ -955,13 +990,16 @@ void script_stat(CharData *ch, Script *sc) {
 			send_to_char(buf, ch);
 
 			for (tv = GET_TRIG_VARS(t); tv; tv = tv->next) {
-				if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHAR_ALL) {
-					find_uid_name(tv->value, name);
-					sprintf(buf, "    %15s:  %s\r\n", tv->name, name);
-				} else {
-					sprintf(buf, "    %15s:  %s\r\n", tv->name, tv->value);
+				const std::string var_name = print_variable_name(tv->name);
+				if (!var_name.empty()) {
+					if (*(tv->value) == UID_CHAR || *(tv->value) == UID_ROOM || *(tv->value) == UID_OBJ || *(tv->value) == UID_CHAR_ALL) {
+						find_uid_name(tv->value, name);
+						sprintf(buf, "    %15s:  %s\r\n", var_name.c_str(), name);
+					} else {
+						sprintf(buf, "    %15s:  %s\r\n", var_name.c_str(), tv->value);
+					}
+					send_to_char(buf, ch);
 				}
-				send_to_char(buf, ch);
 			}
 		}
 	}
@@ -3648,9 +3686,6 @@ int eval_lhs_op_rhs(const char *expr, char *result, void *go, Script *sc, Trigge
 
 	return 0;
 }
-
-const auto FOREACH_LIST_GUID = "{18B3D8D1-240E-4D60-AEAB-6748580CA460}";
-const auto FOREACH_LIST_POS_GUID = "{4CC4E031-7376-4EED-AD4F-2FD0DC8D4E2D}";
 
 /*++
 cond - строка параметров цикла. Для комнады "foreach i .." cond = "i .."
