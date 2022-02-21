@@ -18,7 +18,7 @@ void add_glory(long uid, int amount);
 int remove_glory(long uid, int amount);
 
 void do_spend_glory(CharData *ch, char *argument, int cmd, int subcmd);
-bool parse_spend_glory_menu(CharData *ch, char *arg);
+bool parse_spend_glory_menu(CharData *ch, const char *arg);
 void spend_glory_menu(CharData *ch);
 
 void load_glory();
@@ -28,7 +28,7 @@ void set_stats(CharData *ch);
 int get_spend_glory(CharData *ch);
 
 bool remove_stats(CharData *ch, CharData *god, int amount);
-void transfer_stats(CharData *ch, CharData *god, std::string name, char *reason);
+void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *reason);
 void show_glory(CharData *ch, CharData *god);
 void show_stats(CharData *ch);
 

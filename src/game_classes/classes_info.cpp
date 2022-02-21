@@ -6,6 +6,8 @@
 */
 
 #include "classes_info.h"
+
+#include "color.h"
 #include "utils/parse.h"
 #include "utils/pugixml.h"
 #include "structs/global_objects.h"
@@ -93,8 +95,23 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 		info = std::nullopt;
 		return;
 	}
-	node.GoToChild("skills");
+	try {
+		info.value()->mode = parse::ReadAsConstant<EItemMode>(node.GetValue("mode"));
+	} catch (std::exception &) {
+	}
+	node.GoToChild("name");
+	ParseName(info, node);
+	node.GoToSibling("skills");
 	ParseSkills(info, node);
+}
+
+void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
+	try {
+		info.value()->abbr = parse::ReadAsStr(node.GetValue("abbr"));
+	} catch (std::exception &) {
+		info.value()->abbr = "--";
+	}
+	info.value()->names = base_structs::ItemName::Build(node);
 }
 
 void CharClassInfoBuilder::ParseSkills(Optional &info, DataNode &node) {
@@ -137,6 +154,47 @@ void CharClassInfoBuilder::ParseSkillVals(ClassSkillInfo::Ptr &info, DataNode &n
 				NAME_BY_ITEM<ESkill>(info->id).c_str());
 	};
 };
+
+void CharClassInfo::Print(std::stringstream &buffer) const {
+	buffer << "Print class:" << "\n"
+		   << "    Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
+		   << "    Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
+		   << "    Abbr: " << KGRN << GetAbbr()
+		   << "    Name: " << KGRN << GetName()
+		   << "/" << names->GetSingular(ECase::kGen)
+		   << "/" << names->GetSingular(ECase::kDat)
+		   << "/" << names->GetSingular(ECase::kAcc)
+		   << "/" << names->GetSingular(ECase::kIns)
+		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl
+			<< "    Available skills (level decrement " << skills_level_decrement << "):" << std::endl;
+	for (const auto &skill : *skills) {
+		buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[skill.first].name
+		<< KNRM << " level: " << KGRN << skill.second->min_level << KNRM
+		<< KNRM << " remort: " << KGRN << skill.second->min_remort << KNRM
+		<< KNRM << " improve: " << KGRN << skill.second->improve << KNRM << std::endl;
+	}
+	buffer << std::endl;
+}
+
+const std::string &CharClassInfo::GetAbbr() const {
+	return abbr;
+};
+
+const std::string &CharClassInfo::GetName(ECase name_case) const {
+	return names->GetSingular(name_case);
+}
+
+const std::string &CharClassInfo::GetPluralName(ECase name_case) const {
+	return names->GetPlural(name_case);
+}
+
+const char *CharClassInfo::GetCName(ECase name_case) const {
+	return names->GetSingular(name_case).c_str();
+}
+
+const char *CharClassInfo::GetPluralCName(ECase name_case) const {
+	return names->GetPlural(name_case).c_str();
+}
 
 } // namespace clases
 

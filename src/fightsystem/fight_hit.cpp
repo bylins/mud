@@ -63,7 +63,7 @@ int compute_armor_class(CharData *ch) {
 			high_stat = std::max(high_stat, GET_REAL_INT(ch) * 3 / 4);
 		}
 		armorclass -= dex_ac_bonus(high_stat) * 10;
-		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_REAL_LEVEL(ch));
+		armorclass += extra_aco((int) GET_CLASS(ch), GetRealLevel(ch));
 	};
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)) {
@@ -785,7 +785,7 @@ int calculate_strconc_damage(CharData *ch, ObjData * /*wielded*/, int damage) {
 		return damage;
 	}
 	float str_mod = (GET_REAL_STR(ch) - 25) * 0.4;
-	float lvl_mod = GET_REAL_LEVEL(ch) * 0.2;
+	float lvl_mod = GetRealLevel(ch) * 0.2;
 	float rmt_mod = MIN(5, GET_REAL_REMORT(ch)) / 5.0;
 	float res_mod = 1 + (str_mod + lvl_mod) / 10.0 * rmt_mod;
 
@@ -801,7 +801,7 @@ int calculate_noparryhit_dmg(CharData *ch, ObjData *wielded) {
 
 	float weap_dmg = (((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1));
 	float weap_mod = weap_dmg / (10 + weap_dmg / 2);
-	float level_mod = static_cast<float>(GET_REAL_LEVEL(ch)) / 30;
+	float level_mod = static_cast<float>(GetRealLevel(ch)) / 30;
 	float skill_mod = static_cast<float>(ch->get_skill(ESkill::kNoParryHit)) / 5;
 
 	return static_cast<int>((skill_mod + GET_REAL_REMORT(ch) * 3) * weap_mod * level_mod);
@@ -1608,7 +1608,7 @@ void appear(CharData *ch) {
 
 	if (appear_msg) {
 		if (IS_NPC(ch)
-			|| GET_REAL_LEVEL(ch) < kLevelImmortal) {
+			|| GetRealLevel(ch) < kLevelImmortal) {
 			act("$n медленно появил$u из пустоты.", false, ch, 0, 0, kToRoom);
 		} else {
 			act("Вы почувствовали странное присутствие $n1.", false, ch, 0, 0, kToRoom);
@@ -2013,7 +2013,7 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 			GET_NAME(ch),
 			GET_CLASS(ch),
 			GET_REAL_REMORT(ch),
-			GET_REAL_LEVEL(ch),
+			GetRealLevel(ch),
 			real_dam,
 			over_dam);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
@@ -2026,7 +2026,7 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 		if (!IS_NPC(ch->get_master())) {
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
 				GET_NAME(ch), GET_NAME(ch->get_master()), GET_CLASS(ch->get_master()), GET_REAL_REMORT(ch->get_master()),
-				GET_REAL_LEVEL(ch->get_master()), real_dam, over_dam);
+				GetRealLevel(ch->get_master()), real_dam, over_dam);
 		}
 
 		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)) {
@@ -2399,7 +2399,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		armor_dam_reduce(victim);
 		// потом абсорб
 		bool armor_full_absorb = dam_absorb(ch, victim);
-		if (flags[fight::kCritHit] && (GET_REAL_LEVEL(victim) >= 5 || !IS_NPC(ch))
+		if (flags[fight::kCritHit] && (GetRealLevel(victim) >= 5 || !IS_NPC(ch))
 			&& !AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA)
 			&& !flags[fight::kVictimIceShield]) {
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
@@ -2480,7 +2480,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// если на чармисе вампир
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_VAMPIRE)) {
 		GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam * 0.1), GET_REAL_MAX_HIT(ch)
-			+ GET_REAL_MAX_HIT(ch) * GET_REAL_LEVEL(ch) / 10));
+			+ GET_REAL_MAX_HIT(ch) * GetRealLevel(ch) / 10));
 		// если есть родство душ, то чару отходит по 5% от дамаги к хп
 		if (ch->has_master()) {
 			if (can_use_feat(ch->get_master(), SOULLINK_FEAT)) {
@@ -2488,7 +2488,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 												MIN(GET_HIT(ch->get_master()) + MAX(1, dam * 0.05),
 													GET_REAL_MAX_HIT(ch->get_master())
 														+ GET_REAL_MAX_HIT(ch->get_master())
-															* GET_REAL_LEVEL(ch->get_master())
+															* GetRealLevel(ch->get_master())
 															/ 10));
 			}
 		}
@@ -2854,9 +2854,9 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& GET_WAIT(ch) <= 0
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_POISON)
-		&& number(0, 100) < GET_LIKES(ch) + GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(victim)
+		&& number(0, 100) < GET_LIKES(ch) + GetRealLevel(ch) - GetRealLevel(victim)
 		&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, -GET_REAL_CON(victim))) {
-		poison_victim(ch, victim, MAX(1, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(victim)) * 10);
+		poison_victim(ch, victim, MAX(1, GetRealLevel(ch) - GetRealLevel(victim)) * 10);
 	}
 		//* точный стиль //
 	else if (dam && get_flags()[fight::kCritHit] && dam_critic) {
@@ -3000,8 +3000,8 @@ void HitData::calc_base_hr(CharData *ch) {
 				     complex_skill_modifier (ch, kAny, GAPPLY_ESkill::SKILL_SUCCESS,
 							     10));
 			*/
-			calc_thaco -= (int) ((GET_REAL_INT(ch) - 13) / GET_REAL_LEVEL(ch));
-			calc_thaco -= (int) ((GET_REAL_WIS(ch) - 13) / GET_REAL_LEVEL(ch));
+			calc_thaco -= (int) ((GET_REAL_INT(ch) - 13) / GetRealLevel(ch));
+			calc_thaco -= (int) ((GET_REAL_WIS(ch) - 13) / GetRealLevel(ch));
 		}
 	}
 
@@ -3028,10 +3028,10 @@ void HitData::calc_base_hr(CharData *ch) {
 
 	// Calculate the THAC0 of the attacker
 	if (!IS_NPC(ch)) {
-		calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_REAL_LEVEL(ch));
+		calc_thaco += thaco((int) GET_CLASS(ch), GetRealLevel(ch));
 	} else {
 		// штраф мобам по рекомендации Триглава
-		calc_thaco += (25 - GET_REAL_LEVEL(ch) / 3);
+		calc_thaco += (25 - GetRealLevel(ch) / 3);
 	}
 
 	//Вычисляем штраф за голод
@@ -3244,7 +3244,7 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& GET_MOB_HOLD(victim) == 0
-		&& BATTLECNTR(victim) < (GET_REAL_LEVEL(victim) + 7) / 8) {
+		&& BATTLECNTR(victim) < (GetRealLevel(victim) + 7) / 8) {
 		// Обработаем команду   УКЛОНИТЬСЯ
 		hit_deviate(ch, victim, &dam);
 	} else if (dam > 0
@@ -3265,7 +3265,7 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICSTOPFIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPRIGHT)
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT)
-		&& BATTLECNTR(victim) < (GET_REAL_LEVEL(victim) + 4) / 5
+		&& BATTLECNTR(victim) < (GetRealLevel(victim) + 4) / 5
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0) {
 		// обработаем команду  ВЕЕРНАЯ ЗАЩИТА
@@ -3278,7 +3278,7 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_STOPLEFT)
 		&& GET_WAIT(victim) <= 0
 		&& GET_MOB_HOLD(victim) == 0
-		&& BATTLECNTR(victim) < (GET_REAL_LEVEL(victim) + 8) / 9) {
+		&& BATTLECNTR(victim) < (GetRealLevel(victim) + 8) / 9) {
 		// Обработаем команду   БЛОКИРОВАТЬ
 		hit_block(ch, victim, &dam);
 	}
@@ -3315,7 +3315,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STONEHAND)) {
 		dam += need_dice ? RollDices(2, 4) : 5;
 		if (can_use_feat(ch, BULLY_FEAT)) {
-			dam += GET_REAL_LEVEL(ch) / 5;
+			dam += GetRealLevel(ch) / 5;
 			dam += MAX(0, GET_REAL_STR(ch) - 25);
 		}
 	}
@@ -3361,7 +3361,7 @@ void HitData::calc_crit_chance(CharData *ch) {
 			calc_critic += static_cast<int>(ch->get_skill(ESkill::kNoParryHit) / 3);
 		}
 		if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
-			calc_critic += GET_REAL_LEVEL(ch);
+			calc_critic += GetRealLevel(ch);
 		}
 	} else {
 		reset_flag(fight::kCritHit);
@@ -3477,7 +3477,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 
 	if (affected_by_spell(ch, kSpellBerserk)) {
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)) {
-			dam = (dam * MAX(150, 150 + GET_REAL_LEVEL(ch) + RollDices(0, GET_REAL_REMORT(ch)) * 2)) / 100;
+			dam = (dam * MAX(150, 150 + GetRealLevel(ch) + RollDices(0, GET_REAL_REMORT(ch)) * 2)) / 100;
 			if (PRF_FLAGGED(ch, PRF_EXECUTOR))
 				send_to_char(ch, "&YДамага с учетом берсерка== %d&n\r\n", dam);
 		}
@@ -3577,13 +3577,13 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || IN_ROOM(tch) == kNowhere)
 						continue;
 					if (tch != ch && !same_group(ch, tch)) {
-						mag_damage(GET_REAL_LEVEL(ch), ch, tch, spellnum, ESaving::kStability);
+						mag_damage(GetRealLevel(ch), ch, tch, spellnum, ESaving::kStability);
 					}
 				}
 				return;
 			}
 			// а теперь просто дышащие
-			mag_damage(GET_REAL_LEVEL(ch), ch, victim, spellnum, ESaving::kStability);
+			mag_damage(GetRealLevel(ch), ch, victim, spellnum, ESaving::kStability);
 			return;
 		}
 	}
@@ -3605,7 +3605,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
     if (IS_NPC(ch)) {
-		mag_damage(std::min(kLevelImplementator, GET_REAL_LEVEL(ch)), ch, victim, kSpellMagicMissile, ESaving::kReflex);
+		mag_damage(std::min(kLevelImplementator, GetRealLevel(ch)), ch, victim, kSpellMagicMissile, ESaving::kReflex);
 	} else {
 		mag_damage(1, ch, victim, kSpellMagicMissile, ESaving::kReflex);
     }
@@ -3631,7 +3631,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	}
 
 	const int victim_lvl_miss = victim->get_level() + GET_REAL_REMORT(victim);
-	const int ch_lvl_miss = GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch);
+	const int ch_lvl_miss = GetRealLevel(ch) + GET_REAL_REMORT(ch);
 
 	// собсно выяснение попали или нет
 	if (victim_lvl_miss - ch_lvl_miss <= 5 || (!IS_NPC(ch) && !IS_NPC(victim))) {
@@ -3710,15 +3710,15 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.set_flag(fight::kHalfIgnoreArmor);
 		}
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim)) {
-			hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch)) * (1.0 + ch->get_skill(ESkill::kNoParryHit) / 200.0);
+			hit_params.dam *= backstab_mult(GetRealLevel(ch)) * (1.0 + ch->get_skill(ESkill::kNoParryHit) / 200.0);
 		} else if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
 			if (victim->get_fighting()) {
-				hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch));
+				hit_params.dam *= backstab_mult(GetRealLevel(ch));
 			} else {
-				hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch)) * 1.3;
+				hit_params.dam *= backstab_mult(GetRealLevel(ch)) * 1.3;
 			}
 		} else {
-			hit_params.dam *= backstab_mult(GET_REAL_LEVEL(ch));
+			hit_params.dam *= backstab_mult(GetRealLevel(ch));
 		}
 
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
@@ -3746,7 +3746,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		hit_params.dam = ApplyResist(victim, VITALITY_RESISTANCE, hit_params.dam);
 		// режем стаб
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch)) {
-			hit_params.dam = std::min(8000 + GET_REAL_REMORT(ch) * 20 * GET_REAL_LEVEL(ch), hit_params.dam);
+			hit_params.dam = std::min(8000 + GET_REAL_REMORT(ch) * 20 * GetRealLevel(ch), hit_params.dam);
 		}
 
 		ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
@@ -3912,8 +3912,8 @@ int CalcPcDamrollBonus(CharData *ch) {
 
 int CalcNpcDamrollBonus(CharData *ch) {
 	int bonus = 0;
-	if (GET_REAL_LEVEL(ch) > kStrongMobLevel) {
-		bonus += GET_REAL_LEVEL(ch) * number(100, 200) / 100.0;
+	if (GetRealLevel(ch) > kStrongMobLevel) {
+		bonus += GetRealLevel(ch) * number(100, 200) / 100.0;
 	}
 	return bonus;
 }

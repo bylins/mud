@@ -84,7 +84,7 @@ int CalcMinSpellLevel(CharData *ch, int spellnum, int req_lvl) {
 }
 
 bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
-	if (CalcMinSpellLevel(ch, spellnum, req_lvl) > GET_REAL_LEVEL(ch)
+	if (CalcMinSpellLevel(ch, spellnum, req_lvl) > GetRealLevel(ch)
 		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
 		return false;
 
@@ -93,7 +93,7 @@ bool IsAbleToGetSpell(CharData *ch, int spellnum, int req_lvl) {
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool IsAbleToGetSpell(CharData *ch, int spellnum) {
-	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GET_REAL_LEVEL(ch)
+	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GetRealLevel(ch)
 		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REAL_REMORT(ch))
 		return false;
 
@@ -222,7 +222,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_REAL_LEVEL(victim) >= kLevelImmortal) {
+	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLevelImmortal) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -389,13 +389,13 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 
 	if (victim == nullptr)
 		return;
-	if (GET_REAL_LEVEL(victim) > GET_REAL_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+	if (GetRealLevel(victim) > GetRealLevel(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!IS_GOD(ch)) {
-		if ((!IS_NPC(victim) && GET_REAL_LEVEL(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
+		if ((!IS_NPC(victim) && GetRealLevel(victim) <= 10 && GET_REAL_REMORT(ch) < 9) || IS_IMMORTAL(victim)
 			|| AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -517,7 +517,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	}
 
 	if (IS_IMMORTAL(victim)) {
-		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_REAL_LEVEL(ch) < GET_REAL_LEVEL(victim))) {
+		if (IS_NPC(ch) || (!IS_NPC(ch) && GetRealLevel(ch) < GetRealLevel(victim))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -555,7 +555,7 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		if (!IS_NPC(ch) && !IS_NPC(victim) && GET_REAL_LEVEL(victim) <= 10) {
+		if (!IS_NPC(ch) && !IS_NPC(victim) && GetRealLevel(victim) <= 10) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -865,12 +865,12 @@ int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 		return (false);
 	}
 
-	if (spellnum == kSpellClone && cha_summ >= MAX(1, (GET_REAL_LEVEL(ch) + 4) / 5 - 2)) {
+	if (spellnum == kSpellClone && cha_summ >= MAX(1, (GetRealLevel(ch) + 4) / 5 - 2)) {
 		send_to_char("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
 
-	if (spellnum != kSpellClone && cha_summ >= (GET_REAL_LEVEL(ch) + 9) / 10) {
+	if (spellnum != kSpellClone && cha_summ >= (GetRealLevel(ch) + 9) / 10) {
 		send_to_char("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (false);
 	}
@@ -1078,7 +1078,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			victim->player_data.PNames[5] = std::string(descr);
 				
 			// прибавка хитов по формуле: 1/3 хп_хозяина + 12*лвл_хоз + 4*обая_хоз + 1.5*%магии_хоз
-			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GET_REAL_LEVEL(ch)*12 + r_cha*4 + perc*1.5);
+			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GetRealLevel(ch)*12 + r_cha*4 + perc*1.5);
 			GET_HIT(victim) = GET_MAX_HIT(victim);
 			// статы
 			victim->set_int(floorf((r_cha*0.2 + perc*0.15)));
@@ -1840,7 +1840,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	if (fullness < 60 && ch != victim)
 		return;
 
-	val0 = GET_REAL_LEVEL(victim);
+	val0 = GetRealLevel(victim);
 	val1 = GET_HIT(victim);
 	val2 = GET_REAL_MAX_HIT(victim);
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
@@ -1913,7 +1913,7 @@ void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr), full);
 		TrainSkill(ch, ESkill::kIdentify, true, nullptr);
 	} else if (victim) {
-		if (GET_REAL_LEVEL(victim) < 3) {
+		if (GetRealLevel(victim) < 3) {
 			send_to_char("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
 			return;
 		}
@@ -1942,7 +1942,7 @@ void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);
 			return;
 		}
-		if (GET_REAL_LEVEL(victim) < 3) {
+		if (GetRealLevel(victim) < 3) {
 			send_to_char("Вы можете опознать себя только достигнув третьего уровня.\r\n", ch);
 			return;
 		}
@@ -1985,7 +1985,7 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 	}
 
 	if (sky_info) {
-		duration = MAX(GET_REAL_LEVEL(ch) / 8, 2);
+		duration = MAX(GetRealLevel(ch) / 8, 2);
 		zone = world[ch->in_room]->zone_rn;
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
 			if (world[i]->zone_rn == zone && SECT(i) != kSectInside && SECT(i) != kSectCity) {
@@ -2007,8 +2007,8 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
-	if (!IS_NPC(ch) && (GET_REAL_LEVEL(ch) > 10))
-		modi += (GET_REAL_LEVEL(ch) - 10);
+	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
+		modi += (GetRealLevel(ch) - 10);
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLESS))
@@ -2027,8 +2027,8 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		if (!pk_agro_action(ch, victim))
 			return;
 	}
-	if (!IS_NPC(ch) && (GET_REAL_LEVEL(ch) > 10))
-		modi += (GET_REAL_LEVEL(ch) - 10);
+	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
+		modi += (GetRealLevel(ch) - 10);
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
 
@@ -2045,7 +2045,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 void do_sacrifice(CharData *ch, int dam) {
 //MZ.overflow_fix
 	GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam), GET_REAL_MAX_HIT(ch)
-		+ GET_REAL_MAX_HIT(ch) * GET_REAL_LEVEL(ch) / 10));
+		+ GET_REAL_MAX_HIT(ch) * GetRealLevel(ch) / 10));
 //-MZ.overflow_fix
 	update_pos(ch);
 }
@@ -2062,7 +2062,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 	}
 
-	dam = mag_damage(GET_REAL_LEVEL(ch), ch, victim, kSpellSacrifice, ESaving::kStability);
+	dam = mag_damage(GetRealLevel(ch), ch, victim, kSpellSacrifice, ESaving::kStability);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -2108,8 +2108,8 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 			}
 		}
 
-		mag_affects(GET_REAL_LEVEL(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
-		mag_damage(GET_REAL_LEVEL(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
+		mag_affects(GetRealLevel(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
+		mag_damage(GetRealLevel(ch), ch, tch, kSpellHolystrike, ESaving::kStability);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);
@@ -3385,7 +3385,7 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 			num += 8;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLevel16))
 			num += 16;
-		if (GET_REAL_LEVEL(ch) + GET_REAL_REMORT(ch) < num)
+		if (GetRealLevel(ch) + GET_REAL_REMORT(ch) < num)
 			return false;
 	}
 

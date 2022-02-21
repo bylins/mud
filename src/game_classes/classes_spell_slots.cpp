@@ -1163,7 +1163,7 @@ MaxClassSlot max_slots;
 int slot_for_char(CharData *ch, int slot_num) {
 	int wis_is = -1, wis_line, wis_block;
 
-	if (slot_num < 1 || slot_num > kMaxSlot || GET_REAL_LEVEL(ch) < 1 || IS_NPC(ch)) {
+	if (slot_num < 1 || slot_num > kMaxSlot || GetRealLevel(ch) < 1 || IS_NPC(ch)) {
 		return -1;
 	}
 
@@ -1180,31 +1180,31 @@ int slot_for_char(CharData *ch, int slot_num) {
 	switch (GET_CLASS(ch)) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
-		case ECharClass::kCharmer: wis_is = MAG_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
+		case ECharClass::kCharmer: wis_is = MAG_SLOTS[GetRealLevel(ch) - 1][slot_num];
 			break;
-		case ECharClass::kNecromancer: wis_is = NECROMANCER_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
+		case ECharClass::kNecromancer: wis_is = NECROMANCER_SLOTS[GetRealLevel(ch) - 1][slot_num];
 			break;
 		case ECharClass::kSorcerer:
-			if (GET_REAL_LEVEL(ch) >= MIN_CL_LEVEL && slot_num < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS) {
+			if (GetRealLevel(ch) >= MIN_CL_LEVEL && slot_num < MAX_CL_SLOT && GET_REAL_WIS(ch) >= MIN_CL_WIS) {
 				wis_block = MIN(MAX_CL_WIS, GET_REAL_WIS(ch)) - MIN_CL_WIS;
 				wis_block = wis_block / CL_WIS_DIV;
 				wis_block = wis_block * (MAX_CL_LEVEL - MIN_CL_LEVEL + 1);
-				wis_line = GET_REAL_LEVEL(ch) - MIN_CL_LEVEL;
+				wis_line = GetRealLevel(ch) - MIN_CL_LEVEL;
 				wis_is = CLERIC_SLOTS[wis_block + wis_line][slot_num];
 			}
 			break;
 		case ECharClass::kPaladine:
-			if (GET_REAL_LEVEL(ch) >= MIN_PA_LEVEL && slot_num < MAX_PA_SLOT && GET_REAL_WIS(ch) >= MIN_PA_WIS) {
+			if (GetRealLevel(ch) >= MIN_PA_LEVEL && slot_num < MAX_PA_SLOT && GET_REAL_WIS(ch) >= MIN_PA_WIS) {
 				wis_block = MIN(MAX_PA_WIS, GET_REAL_WIS(ch)) - MIN_PA_WIS;
 				wis_block = wis_block / PA_WIS_DIV;
 				wis_block = wis_block * (MAX_PA_LEVEL - MIN_PA_LEVEL + 1);
-				wis_line = GET_REAL_LEVEL(ch) - MIN_PA_LEVEL;
+				wis_line = GetRealLevel(ch) - MIN_PA_LEVEL;
 				wis_is = PALADINE_SLOTS[wis_block + wis_line][slot_num];
 			}
 			break;
 		case ECharClass::kMerchant:
 			if (slot_num < MAX_ME_SLOT) {
-				wis_is = MERCHANT_SLOTS[(int) GET_REAL_LEVEL(ch) - 1][slot_num];
+				wis_is = MERCHANT_SLOTS[GetRealLevel(ch) - 1][slot_num];
 			}
 			break;
 		default: break;

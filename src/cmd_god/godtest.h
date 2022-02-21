@@ -3,6 +3,6 @@
 
 class CharData;
 
-void do_godtest(CharData *ch, char * /*argument*/, int /* cmd */, int /* subcmd */);
+void do_godtest(CharData *ch, char *argument, int /* cmd */, int /* subcmd */);
 
 #endif //BYLINS_GODTEST_H

@@ -4,43 +4,48 @@
 * (c) 2006 Krodo                                                              *
 ******************************************************************************/
 
-#ifndef _TOP_H_
-#define _TOP_H_
+#ifndef TOP_H_
+#define TOP_H_
 
-#include "conf.h"
 #include <string>
 #include <list>
 #include <vector>
 
+#include "conf.h"
+#include "game_classes/classes_constants.h"
+
 // кол-во отображаемых в топе игроков по профессии
-#define MAX_TOP_CLASS 10
+const int kPlayerChartSize = 10;
 
 class TopPlayer;
-typedef std::vector<std::list<TopPlayer>> TopListType;
+using PlayerChart = std::unordered_map<ECharClass, std::list<TopPlayer>>;
 
 class TopPlayer {
  public:
-	TopPlayer(long _unique, const char *_name, long _exp, int _remort)
-		: unique(_unique), name(_name), exp(_exp), remort(_remort) {};
+	TopPlayer(long unique, const char *name, long exp, int remort)
+		: unique_(unique), name_(name), exp_(exp), remort_(remort) {};
 
 	~TopPlayer() = default;
 
-	static const char *TopFormat[];
-
+	static const PlayerChart &Chart();
 	static void Remove(CharData *ch);
 	static void Refresh(CharData *ch, bool reboot = false);
 
  private:
-	long unique;      // уид
-	std::string name; // имя
-	long exp;         // опыта
-	int remort;       // ремортов
+	long unique_;			// уид
+	std::string name_;
+	long exp_;
+	int remort_;
 
-	static TopListType TopList; // собсна топ
+	static PlayerChart chart_;
+
+	static void PrintHelp(CharData *ch);
+	static void PrintPlayersChart(CharData *ch);
+	static void PrintClassChart(CharData *ch, ECharClass id);
 
 	friend void DoBest(CharData *ch, char *argument, int cmd, int subcmd);
 };
 
-#endif
+#endif // TOP_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -358,10 +358,10 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		// Mobile aggresive
 		if (!kill_this && extra_aggr) {
 			if (can_use_feat(vict, SILVER_TONGUED_FEAT)) {
-				const int number1 = number(1, GET_REAL_LEVEL(vict) * GET_REAL_CHA(vict));
-				const int range = ((GET_REAL_LEVEL(ch) > 30)
-								   ? (GET_REAL_LEVEL(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20)
-								   : (GET_REAL_LEVEL(ch) * GET_REAL_INT(ch)));
+				const int number1 = number(1, GetRealLevel(vict) * GET_REAL_CHA(vict));
+				const int range = ((GetRealLevel(ch) > 30)
+								   ? (GetRealLevel(ch) * 2 * GET_REAL_INT(ch) + GET_REAL_INT(ch) * 20)
+								   : (GetRealLevel(ch) * GET_REAL_INT(ch)));
 				const int number2 = number(1, range);
 				const bool do_continue = number1 > number2;
 				if (do_continue) {
@@ -395,8 +395,8 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		}
 
 		if (!min_lvl
-			|| GET_REAL_LEVEL(vict) + number(1, GET_REAL_CHA(vict))
-				< GET_REAL_LEVEL(min_lvl) + number(1, GET_REAL_CHA(min_lvl))) {
+			|| GetRealLevel(vict) + number(1, GET_REAL_CHA(vict))
+				< GetRealLevel(min_lvl) + number(1, GET_REAL_CHA(min_lvl))) {
 			min_lvl = vict;
 		}
 
@@ -528,7 +528,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 
 		if (!kill_this && extra_aggr) {
 			if (can_use_feat(vict, SILVER_TONGUED_FEAT)
-				&& number(1, GET_REAL_LEVEL(vict) * GET_REAL_CHA(vict)) > number(1, GET_REAL_LEVEL(ch) * GET_REAL_INT(ch))) {
+				&& number(1, GetRealLevel(vict) * GET_REAL_CHA(vict)) > number(1, GetRealLevel(ch) * GET_REAL_INT(ch))) {
 				continue;
 			}
 			kill_this = true;

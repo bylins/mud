@@ -1,5 +1,5 @@
-#ifndef __CLASS_CONSTANTS_HPP__
-#define __CLASS_CONSTANTS_HPP__
+#ifndef CLASS_CONSTANTS_HPP_
+#define CLASS_CONSTANTS_HPP_
 
 /*
 	Константы классов персонажей
@@ -27,7 +27,7 @@ enum ECharClass : int {
 	kLast = kMagus, // Не забываем менять при изменении числа классов
 	kMob = 20,
 	kNpcBase = 100, // От этого маразма надо избавиться
-	kNPCLast = 107
+	kNpcLast = 107
 };
 
 constexpr int kNumPlayerClasses = ECharClass::kLast + 1;
@@ -50,11 +50,11 @@ constexpr Bitvector kMaskNecromancer = 1 << ECharClass::kNecromancer;
 constexpr Bitvector kMaskPaladine = 1 << ECharClass::kPaladine;
 constexpr Bitvector kMaskRanger = 1 << ECharClass::kRanger;
 constexpr Bitvector kMaskVigilant = 1 << ECharClass::kVigilant;
-constexpr Bitvector kMaskMerchant = 1 << ECharClass::kMerchant;
+//constexpr Bitvector kMaskMerchant = 1 << ECharClass::kMerchant;
 constexpr Bitvector kMaskMagus = 1 << ECharClass::kMagus;
 
 constexpr Bitvector kMaskMage = kMaskConjurer | kMaskWizard | kMaskCharmer | kMaskNecromancer;
-constexpr Bitvector kMaskCaster = kMaskConjurer | kMaskWizard | kMaskCharmer | kMaskNecromancer | kMaskSorcerer | kMaskMagus;
+constexpr Bitvector kMaskCaster = kMaskMage | kMaskSorcerer | kMaskMagus;
 constexpr Bitvector kMaskFighter = kMaskThief | kMaskWarrior | kMaskAssasine | kMaskGuard | kMaskPaladine | kMaskRanger | kMaskVigilant;
 
 struct CLassExtraAffects {
@@ -76,6 +76,6 @@ struct ClassApplies {
 
 extern ClassApplies class_app[];
 
-#endif // __CLASS_CONSTANTS_HPP__
+#endif // CLASS_CONSTANTS_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

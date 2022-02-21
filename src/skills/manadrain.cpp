@@ -57,13 +57,13 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skill = ch->get_skill(ESkill::kJinx);
 
 	percent = number(1, MUD::Skills()[ESkill::kJinx].difficulty);
-	prob = MAX(20, 90 - 5 * MAX(0, GET_REAL_LEVEL(vict) - GET_REAL_LEVEL(ch)));
+	prob = MAX(20, 90 - 5 * MAX(0, GetRealLevel(vict) - GetRealLevel(ch)));
 	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
 
 	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
 	manadrainDamage.magic_type = kTypeDark;
 	if (percent <= prob) {
-		skill = MAX(10, skill - 10 * MAX(0, GET_REAL_LEVEL(ch) - GET_REAL_LEVEL(vict)));
+		skill = MAX(10, skill - 10 * MAX(0, GetRealLevel(ch) - GetRealLevel(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
 		manadrainDamage.dam = 10;

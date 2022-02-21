@@ -9,6 +9,7 @@
 #include <array>
 #include <list>
 #include <string>
+#include <game_classes/classes_constants.h>
 
 #include "sysdep.h"
 #include "structs/structs.h"
@@ -17,73 +18,70 @@
 namespace mob_stat {
 
 /// макс. кол-во участников в группе учитываемое в статистике
-const int MAX_GROUP_SIZE = 20;
+const int kMaxGroupSize = 20;
 /// период сохранения mob_stat.xml (минуты)
-const int SAVE_PERIOD = 27;
+const int kSavePeriod = 27;
 /// 0 - убиства мобом игроков, 1..MAX_GROUP_SIZE - убиства моба игроками
-typedef std::array<int, MAX_GROUP_SIZE + 1> KillStatType;
+using KillStat = std::array<int, kMaxGroupSize + 1>;
 
-struct mob_node {
-	mob_node() : month(0), year(0) {
+struct MobMonthKillStat {
+	MobMonthKillStat() : month(0), year(0) {
 		kills.fill(0);
 	};
-	// месяц (1..12)
-	int month;
-	// год (хххх)
-	int year;
-	// стата по убийствам за данный месяц
-	KillStatType kills;
+	int month;			// месяц (1..12)
+	int year;			// год (хххх)
+	KillStat kills{};	// стата по убийствам за данный месяц
 };
 
-struct MobNode {
-	static const time_t DEFAULT_DATE;
+struct MobKillStat {
+	static const time_t default_date;
 
-	MobNode() : date(0) {}
-	MobNode(const time_t d) : date(d) {}
+	MobKillStat() : date(0) {}
+	explicit MobKillStat(const time_t d) : date(d) {}
 
 	time_t date;
-	std::list<mob_node> stats;
+	std::list<MobMonthKillStat> stats;
 };
 
-using mob_list_t = std::unordered_map<int, MobNode>;
+using MobStatRegister = std::unordered_map<MobVnum, MobKillStat>;
 
-extern mob_list_t mob_list;
+extern MobStatRegister mob_stat_register;
 
 /// лоад mob_stat.xml
-void load();
+void Load();
 /// сейв mob_stat.xml
-void save();
+void Save();
 /// вывод инфы имму по show stats
-void show_stats(CharData *ch);
+void ShowStats(CharData *ch);
 /// добавление статы по мобу
 /// \param members если = 0 - см. KillStatType
-void add_mob(CharData *mob, int members);
+void AddMob(CharData *mob, int members);
 // когда последний раз убили моба
-void last_kill_mob(CharData *mob, std::string &result);
-int last_time_killed_mob(int vnum);
+void GetLastMobKill(CharData *mob, std::string &result);
+time_t GetMobKilllastTime(MobVnum vnum);
 /// печать статистики имму по конкретной зоне (show mobstat ZoneVnum)
-void show_zone(CharData *ch, int zone_vnum, int months);
+void ShowZoneMobKillsStat(CharData *ch, ZoneVnum zone_vnum, int months);
 /// очистка статы по всем мобам из зоны ZoneVnum
-void clear_zone(int zone_vnum);
+void ClearZoneStat(ZoneVnum zone_vnum);
 /// выборка моб-статистики за последние months месяцев (0 = все)
-mob_node sum_stat(const std::list<mob_node> &mob_stat, int months);
+MobMonthKillStat SumStat(const std::list<MobMonthKillStat> &mob_stat, int months);
 // имя моба по его vnum
-std::string print_mob_name(int mob_vnum, unsigned int len);
+std::string PrintMobName(int mob_vnum, unsigned int len);
 
 } // namespace mob_stat
 
 namespace char_stat {
 
 /// мобов убито - для 'статистика'
-extern int mkilled;
+extern int mobs_killed;
 /// игроков убито - для 'статистика'
-extern int pkilled;
+extern int players_killed;
 /// добавление экспы по профам - для 'статистика'
-void add_class_exp(unsigned class_num, int exp);
+void AddClassExp(ECharClass class_id, int exp);
 /// распечатка экспы по профам - для 'статистика'
-std::string print_class_exp(CharData *ch);
+void PrintClassesExpStat(std::ostringstream &out);
 /// распечатка перед ребутом набранной статистики экспы по профам
-void log_class_exp();
+void LogClassesExpStat();
 
 } // namespace char_stat
 

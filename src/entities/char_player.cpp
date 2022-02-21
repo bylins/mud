@@ -240,7 +240,7 @@ void Player::dquest(const int id) {
 	const auto quest = MUD::daily_quests().find(id);
 
 	if (quest == MUD::daily_quests().end()) {
-		log("Quest GetAbilityId: %d - не найден", id);
+		log("Quest Id: %d - не найден", id);
 		return;
 	}
 
@@ -252,7 +252,7 @@ void Player::dquest(const int id) {
 	const int zone_lvl = zone_table[world[this->in_room]->zone_rn].mob_level;
 	value = this->account->zero_hryvn(this, value);
 	if (zone_lvl < 25
-		&& zone_lvl <= (GET_REAL_LEVEL(this) + GET_REAL_REMORT(this) / 5)) {
+		&& zone_lvl <= (GetRealLevel(this) + GET_REAL_REMORT(this) / 5)) {
 		value /= 2;
 	}
 
@@ -542,7 +542,7 @@ void Player::save_char() {
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
 	// способности - added by Gorrah
-	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
+	if (GetRealLevel(this) < kLevelImmortal) {
 		fprintf(saved, "Feat:\n");
 		for (i = 1; i < kMaxFeats; i++) {
 			if (HAVE_FEAT(this, i))
@@ -552,7 +552,7 @@ void Player::save_char() {
 	}
 
 	// Задержки на cпособности
-	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
+	if (GetRealLevel(this) < kLevelImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf = this->timed_feat; tf; tf = tf->next) {
 			fprintf(saved, "%d %d %s\n", tf->feat, tf->time, feat_info[tf->feat].name);
@@ -561,7 +561,7 @@ void Player::save_char() {
 	}
 
 	// скилы
-	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
+	if (GetRealLevel(this) < kLevelImmortal) {
 		fprintf(saved, "Skil:\n");
 		int skill_val;
 		for (const auto &skill : MUD::Skills()) {
@@ -579,7 +579,7 @@ void Player::save_char() {
 	fprintf(saved, "Cits: %s\n", this->cities_to_str().c_str());
 
 	// Задержки на скилы
-	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
+	if (GetRealLevel(this) < kLevelImmortal) {
 		fprintf(saved, "SkTm:\n");
 		for (skj = this->timed; skj; skj = skj->next) {
 			fprintf(saved, "%d %d\n", to_underlying(skj->skill), skj->time);
@@ -589,7 +589,7 @@ void Player::save_char() {
 
 	// спелы
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
-	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != kMagus) {
+	if (GetRealLevel(this) < kLevelImmortal && GET_CLASS(this) != kMagus) {
 		fprintf(saved, "Spel:\n");
 		for (i = 1; i <= kSpellCount; i++)
 			if (GET_SPELL_TYPE(this, i))
@@ -597,7 +597,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GET_REAL_LEVEL(this) < kLevelImmortal && GET_CLASS(this) != kMagus) {
+	if (GetRealLevel(this) < kLevelImmortal && GET_CLASS(this) != kMagus) {
 		fprintf(saved, "TSpl:\n");
 		for (auto it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it) {
 			fprintf(saved,
@@ -611,7 +611,7 @@ void Player::save_char() {
 	}
 
 	// Замемленые спелы
-	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
+	if (GetRealLevel(this) < kLevelImmortal) {
 		fprintf(saved, "SpMe:\n");
 		for (i = 1; i <= kSpellCount; i++) {
 			if (GET_SPELL_MEM(this, i))
@@ -621,7 +621,7 @@ void Player::save_char() {
 	}
 
 	// Мемящиеся спелы
-	if (GET_REAL_LEVEL(this) < kLevelImmortal) {
+	if (GetRealLevel(this) < kLevelImmortal) {
 		fprintf(saved, "SpTM:\n");
 		for (struct SpellMemQueueItem *qi = this->MemQueue.queue; qi != nullptr; qi = qi->link)
 			fprintf(saved, "%d\n", qi->spellnum);
@@ -629,7 +629,7 @@ void Player::save_char() {
 	}
 
 	// Рецепты
-//    if (GET_REAL_LEVEL(this) < kLevelImmortal)
+//    if (GetRealLevel(this) < kLevelImmortal)
 	{
 		im_rskill *rs;
 		im_recipe *r;
@@ -671,11 +671,11 @@ void Player::save_char() {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		fprintf(saved, "St%02d: %i\n", i, this->get_start_stat(i));
 
-	if (GET_REAL_LEVEL(this) < kLevelImmortal)
+	if (GetRealLevel(this) < kLevelImmortal)
 		fprintf(saved, "Hung: %d\n", GET_COND(this, FULL));
-	if (GET_REAL_LEVEL(this) < kLevelImmortal)
+	if (GetRealLevel(this) < kLevelImmortal)
 		fprintf(saved, "Thir: %d\n", GET_COND(this, THIRST));
-	if (GET_REAL_LEVEL(this) < kLevelImmortal)
+	if (GetRealLevel(this) < kLevelImmortal)
 		fprintf(saved, "Drnk: %d\n", GET_COND(this, DRUNK));
 
 	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) GET_SEX(this)]);
@@ -939,7 +939,7 @@ void Player::save_char() {
 	i = get_ptable_by_name(GET_NAME(this));
 	if (i >= 0) {
 		player_table[i].last_logon = LAST_LOGON(this);
-		player_table[i].level = GET_REAL_LEVEL(this);
+		player_table[i].level = GetRealLevel(this);
 		player_table[i].remorts = GET_REAL_REMORT(this);
 		//added by WorM 2010.08.27 в индексе добавляем мыло
 		if (player_table[i].mail)
@@ -957,7 +957,7 @@ void Player::save_char() {
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_REAL_LEVEL, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
+// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GET_REAL_REMORT, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
@@ -983,7 +983,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	if (!result) {
 		const std::size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
-		log("Can't load ascii. GetAbilityId: %d; File name: \"%s\"; Current directory: \"%s\")",
+		log("Can't load ascii. Id: %d; File name: \"%s\"; Current directory: \"%s\")",
 			id,
 			filename,
 			getcwd(buffer, BUFFER_SIZE));
@@ -1105,8 +1105,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
-	if (GET_EXP(this) < level_exp(this, GET_REAL_LEVEL(this))) {
-		set_exp(level_exp(this, GET_REAL_LEVEL(this)));
+	if (GET_EXP(this) < level_exp(this, GetRealLevel(this))) {
+		set_exp(level_exp(this, GetRealLevel(this)));
 	}
 
 	if (reboot) {
@@ -1881,7 +1881,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 	PRF_FLAGS(this).set(PRF_COLOR_2); //всегда цвет полный
 	// initialization for imms
-	if (GET_REAL_LEVEL(this) >= kLevelImmortal) {
+	if (GetRealLevel(this) >= kLevelImmortal) {
 		set_god_skills(this);
 		set_god_morphs(this);
 		GET_COND(this, FULL) = -1;
@@ -2152,7 +2152,7 @@ int con_natural_hp(CharData *ch) {
 	double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
 		+ (VPOSI_MOB(ch, EBaseStat::kCon, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
 			* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
-	return 10 + static_cast<int>(add_hp_per_level * GET_REAL_LEVEL(ch));
+	return 10 + static_cast<int>(add_hp_per_level * GetRealLevel(ch));
 }
 
 ///
@@ -2160,7 +2160,7 @@ int con_natural_hp(CharData *ch) {
 ///
 int con_add_hp(CharData *ch) {
 	int con_add = MAX(0, GET_REAL_CON(ch) - ch->get_con());
-	return class_app[(int) GET_CLASS(ch)].koef_con * con_add * GET_REAL_LEVEL(ch) / 100;
+	return class_app[(int) GET_CLASS(ch)].koef_con * con_add * GetRealLevel(ch) / 100;
 }
 
 ///

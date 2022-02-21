@@ -111,9 +111,9 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	float int_hirePoints = GET_REAL_INT(ch) * 1.8;
 	float cha_hirePoints = GET_REAL_CHA(ch) * 1.8;
 	hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
-	hirePoints = hirePoints * 5 * GET_REAL_LEVEL(ch);
+	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 
-	int min_price = MAX((m_dr / 300 * GET_REAL_LEVEL(victim)), (GET_REAL_LEVEL(victim) * 5));
+	int min_price = MAX((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
 	min_price = MAX(min_price, mob_proto[GET_MOB_RNUM(victim)].get_gold());
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 

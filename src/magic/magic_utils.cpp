@@ -360,17 +360,21 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		return 0;
 	}
 
-	if (SpellUsage::is_active)
-		SpellUsage::AddSpellStat(GET_CLASS(caster), spellnum);
+	if (SpellUsage::is_active) {
+		SpellUsage::AddSpellStat(caster->get_class(), spellnum);
+	}
 
-	if (IS_SET(SpINFO.routines, kMagAreas) || IS_SET(SpINFO.routines, kMagMasses))
+	if (IS_SET(SpINFO.routines, kMagAreas) || IS_SET(SpINFO.routines, kMagMasses)) {
 		return CallMagicToArea(caster, cvict, rvict, spellnum, level);
+	}
 
-	if (IS_SET(SpINFO.routines, kMagGroups))
+	if (IS_SET(SpINFO.routines, kMagGroups)) {
 		return CallMagicToGroup(level, caster, spellnum);
+	}
 
-	if (IS_SET(SpINFO.routines, kMagRoom))
+	if (IS_SET(SpINFO.routines, kMagRoom)) {
 		return room_spells::ImposeSpellToRoom(level, caster, rvict, spellnum);
+	}
 
 	return CastToSingleTarget(level, caster, cvict, ovict, spellnum, ESaving::kStability);
 }
@@ -651,7 +655,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, int s
 		affect_total(ch);
 	}
 
-	return (CallMagic(ch, tch, tobj, troom, spellnum, GET_REAL_LEVEL(ch)));
+	return (CallMagic(ch, tch, tobj, troom, spellnum, GetRealLevel(ch)));
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum) {
@@ -692,8 +696,8 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, int spellnum
 		prob += 50;
 	}
 
-	if (IS_NPC(ch) && (GET_REAL_LEVEL(ch) >= kStrongMobLevel)) {
-		prob += GET_REAL_LEVEL(ch) - 20;
+	if (IS_NPC(ch) && (GetRealLevel(ch) >= kStrongMobLevel)) {
+		prob += GetRealLevel(ch) - 20;
 	}
 
 	const ESkill skill_number = GetMagicSkillId(spellnum);

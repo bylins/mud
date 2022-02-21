@@ -66,12 +66,7 @@
 #include <iomanip>
 
 // extern variables
-/*extern DescriptorData *descriptor_list;
-extern IndexData *mob_index;*/
-extern char const *class_abbrevs[];
-//extern int max_filesize;
 extern int nameserver_is_slow;
-
 // extern procedures
 void list_feats(CharData *ch, CharData *vict, bool all_feats);
 void list_skills(CharData *ch, CharData *vict, const char *filter = nullptr);
@@ -351,7 +346,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	Affect<EApplyLocation> af;
 	af.type = kSpellSneak;
-	af.duration = CalcDuration(ch, 0, GET_REAL_LEVEL(ch), 8, 0, 1);
+	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -404,7 +399,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 	Affect<EApplyLocation> af;
 	af.type = kSpellCamouflage;
-	af.duration = CalcDuration(ch, 0, GET_REAL_LEVEL(ch), 6, 0, 2);
+	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 6, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -460,7 +455,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	Affect<EApplyLocation> af;
 	af.type = kSpellHide;
-	af.duration = CalcDuration(ch, 0, GET_REAL_LEVEL(ch), 8, 0, 1);
+	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
@@ -1815,7 +1810,7 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		showhelp = true;
 	} else if ((i = search_block(arg, gen_tog_type, false)) < 0) {
 		showhelp = true;
-	} else if ((GET_REAL_LEVEL(ch) < gen_tog_param[i >> 1].level)
+	} else if ((GetRealLevel(ch) < gen_tog_param[i >> 1].level)
 		|| (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester)) {
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
 		//showhelp = true;
@@ -1827,7 +1822,7 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::stringstream buffer;
 		buffer << "Вы можете установить следующее.\r\n" << std::endl;
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++) {
-			if ((GET_REAL_LEVEL(ch) >= gen_tog_param[i].level)
+			if ((GetRealLevel(ch) >= gen_tog_param[i].level)
 				&& (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester)) {
 				buffer << std::setw(20) << gen_tog_type[i << 1] << " (" << gen_tog_type[(i << 1) + 1] << ")"
 					   << std::endl;
@@ -1837,7 +1832,7 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 /*
 		strcpy(buf, "Вы можете установить следующее.\r\n");
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
-			if ((GET_REAL_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
+			if ((GetRealLevel(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
 				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);*/

@@ -11,7 +11,7 @@ void reduce_exp_after_flee(CharData *ch, CharData *victim, RoomRnum room) {
 	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))
 		return;
 
-	const auto loss = MAX(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GET_REAL_LEVEL(victim);
+	const auto loss = MAX(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GetRealLevel(victim);
 	gain_exp(ch, -loss);
 }
 

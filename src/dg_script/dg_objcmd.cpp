@@ -199,7 +199,7 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (const auto ch : people_copy)
 			{
 				if (IS_NPC(ch)
-					|| GET_REAL_LEVEL(ch) < kLevelImmortal)
+					|| GetRealLevel(ch) < kLevelImmortal)
 				{
 					command_interpreter(ch, line);
 				}
@@ -221,7 +221,7 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				command_interpreter(ch, line);
-			} else if (GET_REAL_LEVEL(ch) < kLevelImmortal) {
+			} else if (GetRealLevel(ch) < kLevelImmortal) {
 				command_interpreter(ch, line);
 			}
 		} else {

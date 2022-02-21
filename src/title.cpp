@@ -90,7 +90,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			if (GET_REAL_LEVEL(vict) >= kLevelImmortal || PRF_FLAGGED(vict, PRF_CODERINFO)) {
+			if (GetRealLevel(vict) >= kLevelImmortal || PRF_FLAGGED(vict, PRF_CODERINFO)) {
 				send_to_char("Вы не можете сделать этого.\r\n", ch);
 				return;
 			}
@@ -205,7 +205,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return 0;
 
-	if (GET_REAL_LEVEL(ch) < 25 && !GET_REAL_REMORT(ch) && !IS_GOD(ch) && !Privilege::check_flag(ch, Privilege::TITLE)) {
+	if (GetRealLevel(ch) < 25 && !GET_REAL_REMORT(ch) && !IS_GOD(ch) && !Privilege::check_flag(ch, Privilege::TITLE)) {
 		send_to_char(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return 0;
 	}

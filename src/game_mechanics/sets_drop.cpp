@@ -65,7 +65,7 @@ struct MobNode {
 	// груп/соло моб
 	int type;
 	// статистика убиств по размеру группы
-	mob_stat::KillStatType kill_stat;
+	mob_stat::KillStat kill_stat;
 };
 
 struct ZoneNode {
@@ -415,8 +415,8 @@ void init_mob_name_list() {
 		}
 	}
 
-	for (auto i = mob_stat::mob_list.cbegin(),
-			 iend = mob_stat::mob_list.cend(); i != iend; ++i) {
+	for (auto i = mob_stat::mob_stat_register.cbegin(),
+			 iend = mob_stat::mob_stat_register.cend(); i != iend; ++i) {
 		const int rnum = real_mobile(i->first);
 		const int zone = i->first / 100;
 		std::set<int>::const_iterator k = bad_zones.find(zone);
@@ -431,7 +431,7 @@ void init_mob_name_list() {
 		node.vnum = i->first;
 		node.rnum = rnum;
 		node.name = mob_proto[rnum].get_name();
-		auto stat = mob_stat::sum_stat(i->second.stats, 4);
+		auto stat = mob_stat::SumStat(i->second.stats, 4);
 		node.kill_stat = stat.kills;
 
 		add_to_zone_list(mob_name_list, node);
@@ -828,9 +828,8 @@ void init_xhelp() {
 	std::stringstream out;
 	out << "Наборы предметов, участвующие в системе автоматического выпадения:\r\n";
 
-	for (std::vector<HelpNode>::const_iterator i = help_list.begin(),
-			 iend = help_list.end(); i != iend; ++i) {
-		out << "\r\n" << print_current_set(*i);
+	for (const auto & i : help_list) {
+		out << "\r\n" << print_current_set(i);
 	}
 
 	HelpSystem::add_sets_drop("сетывсе", out.str());
@@ -1053,7 +1052,7 @@ void reload(int zone_vnum) {
 	help_list.clear();
 
 	if (zone_vnum > 0) {
-		mob_stat::clear_zone(zone_vnum);
+		mob_stat::ClearZoneStat(zone_vnum);
 	}
 
 	init_obj_list();

@@ -52,7 +52,7 @@ void PerformShadowThrowSideAbilities(AbilitySystem::TechniqueRoll &technique) {
 				Affect<EApplyLocation> af;
 				af.type = kSpellBattle;
 				af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
-				af.duration = CalcDuration(technique.GetRival(), 2, GET_REAL_LEVEL(technique.GetActor()), 9, 6, 2);
+				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				affect_join(technique.GetRival(), af, false, false, false, false);
 			});

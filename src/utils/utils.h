@@ -303,9 +303,9 @@ bool check_spell_on_player(CharData *ch, int spell_num);
 #define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
 
-short GET_REAL_LEVEL(const CharData *ch);
-short GET_REAL_LEVEL(const std::shared_ptr<CharData> *ch);
-short GET_REAL_LEVEL(const std::shared_ptr<CharData> &ch);
+int GetRealLevel(const CharData *ch);
+int GetRealLevel(const std::shared_ptr<CharData> *ch);
+int GetRealLevel(const std::shared_ptr<CharData> &ch);
 
 short GET_REAL_REMORT(const CharData *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
@@ -539,9 +539,9 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define IS_CODER(ch)    (GET_REAL_LEVEL(ch) < kLevelImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
+#define IS_CODER(ch)    (GetRealLevel(ch) < kLevelImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
-#define MAX_PORTALS(ch)  ((GET_REAL_LEVEL(ch)/3)+GET_REAL_REMORT(ch))
+#define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->BattleAffects.get(flag))
 #define SET_AF_BATTLE(ch, flag) ((ch)->BattleAffects.set(flag))
@@ -754,7 +754,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
 #define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
 #define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
-#define    NUM_LEV_FEAT(ch) ((int) 1+GET_REAL_LEVEL(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+#define    NUM_LEV_FEAT(ch) ((int) 1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 #define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 
 #define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
@@ -1019,7 +1019,7 @@ inline T VPOSI(const T val, const T min, const T max) {
         (MORT_CAN_SEE_CHAR(sub, obj) || (!IS_NPC(sub) && PRF_FLAGGED(sub, PRF_HOLYLIGHT)))
 
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
-        ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
+        ((GetRealLevel(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE
 
@@ -1061,10 +1061,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define CAN_GO(ch, door) (ch?((EXIT(ch,door) && \
           (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
-
-#define CLASS_ABBR(ch) (IS_NPC(ch) ? "--" : class_abbrevs[(int)GET_CLASS(ch)])
-
-#define KIN_ABBR(ch) (IS_NPC(ch) ? "--" : kin_abbrevs[(int)GET_KIN(ch)])
 
 #define IS_SORCERER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kSorcerer))
 #define IS_THIEF(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kThief))

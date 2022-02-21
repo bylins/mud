@@ -180,7 +180,7 @@ bool bad_start_stats(CharData *ch) {
 		|| ch->get_start_stat(G_CON) < MIN_CON(ch)
 		|| ch->get_start_stat(G_CHA) > MAX_CHA(ch)
 		|| ch->get_start_stat(G_CHA) < MIN_CHA(ch)
-		|| start_stats_count(ch) != SUM_ALL_STATS) {
+		|| start_stats_count(ch) != kBaseStatsSum) {
 		return 1;
 	}
 	return 0;
@@ -191,7 +191,7 @@ bool bad_start_stats(CharData *ch) {
 * \return 0 - все ок, любое другое число - все плохо
 */
 int bad_real_stats(CharData *ch, int check) {
-	check -= SUM_ALL_STATS; // стартовые статы у всех по 95
+	check -= kBaseStatsSum; // стартовые статы у всех по 95
 	check -= 6 * GET_REAL_REMORT(ch); // реморты
 	// влитая слава
 	check -= Glory::get_spend_glory(ch);

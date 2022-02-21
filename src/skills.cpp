@@ -500,7 +500,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 				brief.reflect = true;
 			}
 
-			if (!IS_NPC(vict) && (GET_REAL_LEVEL(vict) >= kLevelImmortal) && !PLR_FLAGGED((ch), PLR_WRITING)) {
+			if (!IS_NPC(vict) && (GetRealLevel(vict) >= kLevelImmortal) && !PLR_FLAGGED((ch), PLR_WRITING)) {
 				switch (attacktype) {
 					case to_underlying(ESkill::kBackstab) + kTypeHit:
 					case to_underlying(ESkill::kThrow) + kTypeHit:
@@ -1352,7 +1352,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += 20;
 
 			if (vict) {
-				if (GET_REAL_LEVEL(vict) > 35)
+				if (GetRealLevel(vict) > 35)
 					bonus -= 50;
 				if (!CAN_SEE(vict, ch))
 					bonus += 25;
@@ -1706,7 +1706,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (!IS_NPC(vict))
 				victim_sav *= 2;
 			else
-				victim_sav -= GET_REAL_LEVEL(vict);
+				victim_sav -= GetRealLevel(vict);
 
 			bonus = dex_bonus(GET_REAL_STR(ch));
 			if (GET_EQ(ch, WEAR_WIELD))
@@ -1804,7 +1804,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	prob += number(1, trained_skill * 5);
 
 	int skill_is = number(1, MAX(1, prob));
-	if ((victim && skill_is <= GET_REAL_INT(ch) * GET_REAL_LEVEL(victim) / GET_REAL_LEVEL(ch))
+	if ((victim && skill_is <= GET_REAL_INT(ch) * GetRealLevel(victim) / GetRealLevel(ch))
 		|| (!victim && skill_is <= GET_REAL_INT(ch))) {
 		if (success) {
 			sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
@@ -1934,7 +1934,7 @@ int CalcSkillRemortCap(const CharData *ch) {
 }
 
 int CalcSkillWisdomCap(const CharData *ch) {
-	return std::min(CalcSkillRemortCap(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_REAL_LEVEL(ch) / 20);
+	return std::min(CalcSkillRemortCap(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GetRealLevel(ch) / 20);
 }
 
 int CalcSkillHardCap(const CharData *ch, const ESkill skill) {

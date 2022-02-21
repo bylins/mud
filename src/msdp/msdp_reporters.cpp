@@ -126,7 +126,7 @@ void MaxManaReporter::get(Variable::shared_ptr &response) {
 }
 
 void LevelReporter::get(Variable::shared_ptr &response) {
-	const auto level = std::to_string(GET_REAL_LEVEL(descriptor()->character));
+	const auto level = std::to_string(GetRealLevel(descriptor()->character));
 	response = std::make_shared<Variable>(constants::LEVEL,
 										  std::make_shared<StringValue>(level));
 }

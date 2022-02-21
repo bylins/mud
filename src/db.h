@@ -185,14 +185,12 @@ class PlayerIndexElement {
  public:
 	PlayerIndexElement(int id, const char *name);
 
-	//added by WorM индексируюца еще мыло и последний айпи
 	char *mail;
 	char *last_ip;
-	//end by WorM
 	int unique;
 	int level;
 	int remorts;
-	int plr_class;
+	ECharClass plr_class;
 	int last_logon;
 	int activity;        // When player be saved and checked
 	SaveInfo *timer;

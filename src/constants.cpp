@@ -113,7 +113,7 @@ const char *room_bits[] =
 		"для охотников",
 		"жертвенник",
 		"молельня",
-		"для кузнецов",
+		"кузница",
 		"для купцов",
 		"для волхвов",
 		"арена",
@@ -547,8 +547,8 @@ const char *connected_types[] =
 		"Roll stats",
 		"Recept edit",
 		"Select kin",
-		"Select class vik",
-		"Select class step",
+		"ERROR",		// удалено, можно использовать
+		"ERROR",		// удалено, можно использовать
 		"map olc",
 		"Select color",
 		// 40-49

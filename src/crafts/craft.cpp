@@ -776,7 +776,7 @@ void CObject::load_skills(const pugi::xml_node *node) {
 									 [&](const auto value) -> auto { return ITEM_BY_NAME<ESkill>(value); },
 									 [&](const auto key) {
 										 logger(
-											 "WARNING: Could not convert value \"%s\" to skill GetAbilityId. Object with VNUM %d.\n Skipping entry.\n",
+											 "WARNING: Could not convert value \"%s\" to skill Id. Object with VNUM %d.\n Skipping entry.\n",
 											 key,
 											 this->get_vnum());
 									 },
@@ -924,19 +924,19 @@ bool CObject::check_object_consistency() const {
 }
 
 bool CMaterialClass::load(const pugi::xml_node *node) {
-	logger("Loading material class with GetAbilityId '%s'...\n", m_id.c_str());
+	logger("Loading material class with Id '%s'...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	const auto desc_node = node->child("description");
 	if (!desc_node) {
-		logger("ERROR: material class with GetAbilityId '%s' does not contain required \"description\" tag.\n",
+		logger("ERROR: material class with Id '%s' does not contain required \"description\" tag.\n",
 			   m_id.c_str());
 		return false;
 	}
 
 	const auto short_desc = desc_node.child("short");
 	if (!short_desc) {
-		logger("ERROR: material class with GetAbilityId '%s' does not contain required \"description/short\" tag.\n",
+		logger("ERROR: material class with Id '%s' does not contain required \"description/short\" tag.\n",
 			   m_id.c_str());
 		return false;
 	}
@@ -944,7 +944,7 @@ bool CMaterialClass::load(const pugi::xml_node *node) {
 
 	const auto long_desc = desc_node.child("long");
 	if (!long_desc) {
-		logger("ERROR: material class with GetAbilityId '%s' does not contain required \"description/long\" tag.\n",
+		logger("ERROR: material class with Id '%s' does not contain required \"description/long\" tag.\n",
 			   m_id.c_str());
 		return false;
 	}
@@ -952,7 +952,7 @@ bool CMaterialClass::load(const pugi::xml_node *node) {
 
 	const auto item = node->child("item");
 	if (!item) {
-		logger("ERROR: material class with GetAbilityId '%s' does not contain required \"item\" tag.\n", m_id.c_str());
+		logger("ERROR: material class with Id '%s' does not contain required \"item\" tag.\n", m_id.c_str());
 		return false;
 	}
 	if (!m_item_cases.load_from_node(&item)) {
@@ -969,7 +969,7 @@ bool CMaterialClass::load(const pugi::xml_node *node) {
 	}
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading material class with GetAbilityId '%s'.\n", m_id.c_str());
+	logger("End of loading material class with Id '%s'.\n", m_id.c_str());
 
 	return true;
 }
@@ -1006,13 +1006,13 @@ bool CMaterialClass::load_adjectives(const pugi::xml_node *node) {
 }
 
 bool CMaterial::load(const pugi::xml_node *node) {
-	logger("Loading material with GetAbilityId %s...\n", m_id.c_str());
+	logger("Loading material with Id %s...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	// load material name
 	const auto node_name = node->child("name");
 	if (!node_name) {
-		logger("ERROR: could not find required node 'name' for material with GetAbilityId '%s'.\n", m_id.c_str());
+		logger("ERROR: could not find required node 'name' for material with id '%s'.\n", m_id.c_str());
 		return false;
 	}
 	const std::string name = node_name.child_value();
@@ -1021,50 +1021,50 @@ bool CMaterial::load(const pugi::xml_node *node) {
 	// load material classes
 	for (const auto node_class: node->children("class")) {
 		if (node_class.attribute("id").empty()) {
-			logger("WARNING: class tag of material with GetAbilityId '%s' does not contain ID of class. Class will be skipped.\n",
+			logger("WARNING: class tag of material with id '%s' does not contain ID of class. Class will be skipped.\n",
 				   m_id.c_str());
 			continue;
 		}
 		const std::string class_id = node_class.attribute("id").value();
 		CMaterialClass mc(class_id);
 		if (!mc.load(&node_class)) {
-			logger("WARNING: class with GetAbilityId '%s' has not been loaded. Class will be skipped.\n", class_id.c_str());
+			logger("WARNING: class with id '%s' has not been loaded. Class will be skipped.\n", class_id.c_str());
 		}
 		m_classes.push_back(mc);
 	}
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading material with GetAbilityId '%s'.\n", m_id.c_str());
+	logger("End of loading material with id '%s'.\n", m_id.c_str());
 
 	return true;
 }
 
 bool CRecipe::load(const pugi::xml_node * /*node*/) {
-	logger("Loading recipe with GetAbilityId %s...\n", m_id.c_str());
+	logger("Loading recipe with id %s...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading recipe with GetAbilityId %s\n", m_id.c_str());
+	logger("End of loading recipe with id %s\n", m_id.c_str());
 
 	return true;
 }
 
 bool CSkillBase::load(const pugi::xml_node * /*node*/) {
-	logger("Loading skill with GetAbilityId %s...\n", m_id.c_str());
+	logger("Loading skill with id %s...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading skill with GetAbilityId %s\n", m_id.c_str());
+	logger("End of loading skill with id %s\n", m_id.c_str());
 
 	return true;
 }
 
 bool CCraft::load(const pugi::xml_node * /*node*/) {
-	logger("Loading crafts with GetAbilityId %s...\n", m_id.c_str());
+	logger("Loading crafts with id %s...\n", m_id.c_str());
 	Logger::CPrefix prefix(logger, BODY_PREFIX);
 
 	prefix.change_prefix(END_PREFIX);
-	logger("End of loading crafts with GetAbilityId %s\n", m_id.c_str());
+	logger("End of loading crafts with id %s\n", m_id.c_str());
 
 	return true;
 }
@@ -1223,7 +1223,7 @@ bool CCraftModel::load_prototype(const pugi::xml_node *prototype, const size_t n
 		pugi::xml_document pdoc;
 		const auto presult = pdoc.load_file(filename.c_str());
 		if (!presult) {
-			logger("WARNING: could not load external file '%s' with %zd-%s prototype (GetAbilityId: %d): '%s' "
+			logger("WARNING: could not load external file '%s' with %zd-%s prototype (id: %d): '%s' "
 				   "at offset %zu. Prototype will be skipped.\n",
 				   filename.c_str(),
 				   number,
@@ -1266,7 +1266,7 @@ bool CCraftModel::load_prototype(const pugi::xml_node *prototype, const size_t n
 
 bool CCraftModel::load_material(const pugi::xml_node *material, const size_t number) {
 	if (material->attribute("id").empty()) {
-		logger("%zd-%s material tag does not have GetAbilityId attribute. Will be skipped.\n",
+		logger("%zd-%s material tag does not have id attribute. Will be skipped.\n",
 			   number, suffix(number));
 		return false;
 	}
@@ -1275,7 +1275,7 @@ bool CCraftModel::load_material(const pugi::xml_node *material, const size_t num
 	const auto m = std::make_shared<CMaterial>(id);
 	if (material->attribute("filename").empty()) {
 		if (!m->load(material)) {
-			logger("WARNING: Skipping material with GetAbilityId '%s'.\n", id.c_str());
+			logger("WARNING: Skipping material with id '%s'.\n", id.c_str());
 			return false;
 		}
 	} else {
@@ -1297,19 +1297,19 @@ bool CCraftModel::load_material(const pugi::xml_node *material, const size_t num
 
 		const auto mroot = mdoc.child("material");
 		if (!mroot) {
-			logger("WARNING: could not find root \"material\" tag for material with GetAbilityId "
+			logger("WARNING: could not find root \"material\" tag for material with id "
 				   "'%s' in the external file '%s'. Material will be skipped.\n",
 				   id.c_str(),
 				   filename.c_str());
 			return false;
 		}
 
-		logger("Using external file '%s' for material with GetAbilityId '%s'.\n",
+		logger("Using external file '%s' for material with id '%s'.\n",
 			   filename.c_str(),
 			   id.c_str());
 
 		if (!m->load(&mroot)) {
-			logger("WARNING: Skipping material with GetAbilityId '%s'.\n",
+			logger("WARNING: Skipping material with id '%s'.\n",
 				   id.c_str());
 			return false;
 		}
@@ -1321,7 +1321,7 @@ bool CCraftModel::load_material(const pugi::xml_node *material, const size_t num
 
 bool CCraftModel::load_recipe(const pugi::xml_node *recipe, const size_t number) {
 	if (recipe->attribute("id").empty()) {
-		logger("%zd-%s recipe tag does not have GetAbilityId attribute. Will be skipped.\n",
+		logger("%zd-%s recipe tag does not have id attribute. Will be skipped.\n",
 			   number, suffix(number));
 		return false;
 	}
@@ -1330,7 +1330,7 @@ bool CCraftModel::load_recipe(const pugi::xml_node *recipe, const size_t number)
 	const auto r = std::make_shared<CRecipe>(id);
 	if (recipe->attribute("filename").empty()) {
 		if (!r->load(recipe)) {
-			logger("WARNING: Skipping recipe with GetAbilityId '%s'.\n", id.c_str());
+			logger("WARNING: Skipping recipe with id '%s'.\n", id.c_str());
 			return false;
 		}
 	} else {
@@ -1352,19 +1352,19 @@ bool CCraftModel::load_recipe(const pugi::xml_node *recipe, const size_t number)
 
 		const auto rroot = rdoc.child("recipe");
 		if (!rroot) {
-			logger("WARNING: could not find root \"recipe\" tag for recipe with GetAbilityId "
+			logger("WARNING: could not find root \"recipe\" tag for recipe with id "
 				   "'%s' in the external file '%s'. Recipe will be skipped.\n",
 				   id.c_str(),
 				   filename.c_str());
 			return false;
 		}
 
-		logger("Using external file '%s' for recipe with GetAbilityId '%s'.\n",
+		logger("Using external file '%s' for recipe with id '%s'.\n",
 			   filename.c_str(),
 			   id.c_str());
 
 		if (!r->load(&rroot)) {
-			logger("WARNING: Skipping recipe with GetAbilityId '%s'.\n",
+			logger("WARNING: Skipping recipe with id '%s'.\n",
 				   id.c_str());
 			return false;
 		}

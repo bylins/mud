@@ -124,7 +124,7 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 					return 1;
 				}
 		*/
-		if (GET_REAL_LEVEL(ch) < EXCHANGE_MIN_CHAR_LEV && !GET_REAL_REMORT(ch)) {
+		if (GetRealLevel(ch) < EXCHANGE_MIN_CHAR_LEV && !GET_REAL_REMORT(ch)) {
 			sprintf(buf1,
 					"Вам стоит достичь хотя бы %d уровня, чтобы пользоваться базаром.\r\n",
 					EXCHANGE_MIN_CHAR_LEV);
@@ -154,13 +154,13 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			exchange_offers(ch, argument);
 		else if (utils::IsAbbrev(arg1, "фильтрация") || utils::IsAbbrev(arg1, "filter"))
 			exchange_setfilter(ch, argument);
-		else if (utils::IsAbbrev(arg1, "save") && (GET_REAL_LEVEL(ch) >= kLevelImplementator))
+		else if (utils::IsAbbrev(arg1, "save") && (GetRealLevel(ch) >= kLevelImplementator))
 			exchange_database_save();
-		else if (utils::IsAbbrev(arg1, "savebackup") && (GET_REAL_LEVEL(ch) >= kLevelImplementator))
+		else if (utils::IsAbbrev(arg1, "savebackup") && (GetRealLevel(ch) >= kLevelImplementator))
 			exchange_database_save(true);
-		else if (utils::IsAbbrev(arg1, "reload") && (GET_REAL_LEVEL(ch) >= kLevelImplementator))
+		else if (utils::IsAbbrev(arg1, "reload") && (GetRealLevel(ch) >= kLevelImplementator))
 			exchange_database_reload(false);
-		else if (utils::IsAbbrev(arg1, "reloadbackup") && (GET_REAL_LEVEL(ch) >= kLevelImplementator))
+		else if (utils::IsAbbrev(arg1, "reloadbackup") && (GetRealLevel(ch) >= kLevelImplementator))
 			exchange_database_reload(true);
 		else
 			send_to_char(info_message, ch);
@@ -187,7 +187,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
+	if (GetRealLevel(ch) >= kLevelImmortal && GetRealLevel(ch) < kLevelImplementator) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -250,7 +250,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		  ? EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
-		&& (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
+		&& (GetRealLevel(ch) < kLevelImplementator)) {
 		send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 		return false;
 	}
@@ -319,7 +319,7 @@ int exchange_change_cost(CharData *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
+	if (GetRealLevel(ch) >= kLevelImmortal && GetRealLevel(ch) < kLevelImplementator) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -336,7 +336,7 @@ int exchange_change_cost(CharData *ch, char *arg) {
 		send_to_char("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GetRealLevel(ch) < kLevelImplementator)) {
 		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
@@ -350,7 +350,7 @@ int exchange_change_cost(CharData *ch, char *arg) {
 	}
 	pay = newcost - GET_EXCHANGE_ITEM_COST(item);
 	if (pay > 0)
-		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
+		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GetRealLevel(ch) < kLevelImplementator)) {
 			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 			return false;
 		}
@@ -388,7 +388,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
+	if (GetRealLevel(ch) >= kLevelImmortal && GetRealLevel(ch) < kLevelImplementator) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -406,7 +406,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 		send_to_char("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GetRealLevel(ch) < kLevelImplementator)) {
 		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
@@ -526,11 +526,11 @@ int exchange_identify(CharData *ch, char *arg) {
 		return false;
 	}
 
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
+	if (GetRealLevel(ch) >= kLevelImmortal && GetRealLevel(ch) < kLevelImplementator) {
 		send_to_char("Господи, а ведь смертные за это деньги платят.\r\n", ch);
 		return false;
 	}
-	if ((ch->get_total_gold() < (EXCHANGE_IDENT_PAY)) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
+	if ((ch->get_total_gold() < (EXCHANGE_IDENT_PAY)) && (GetRealLevel(ch) < kLevelImplementator)) {
 		send_to_char("У вас не хватит на это денег!\r\n", ch);
 		return false;
 	}
@@ -562,7 +562,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		send_to_char(info_message, ch);
 		return false;
 	}
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal && GET_REAL_LEVEL(ch) < kLevelImplementator) {
+	if (GetRealLevel(ch) >= kLevelImmortal && GetRealLevel(ch) < kLevelImplementator) {
 		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
@@ -584,7 +584,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		send_to_char("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
 		return false;
 	}
-	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
+	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GetRealLevel(ch) < kLevelImplementator)) {
 		send_to_char("У вас в банке не хватает денег на этот лот!\r\n", ch);
 		return false;
 	}
@@ -830,7 +830,7 @@ int exchange_offers(CharData *ch, char *arg) {
 	}
 */
 	else if (utils::IsAbbrev(arg1, "аффект") || utils::IsAbbrev(arg1, "affect")) {
-		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GET_REAL_LEVEL(ch) < kLevelImplementator) {
+		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GetRealLevel(ch) < kLevelImplementator) {
 			send_to_char("У вас не хватит на это денег!\r\n", ch);
 			return 0;
 		}

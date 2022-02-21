@@ -6,6 +6,18 @@
 
 #include "house.h"
 
+#include <sys/stat.h>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+#include <iomanip>
+#include <limits>
+
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include "world_objects.h"
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
@@ -29,20 +41,8 @@
 #include "game_mechanics/named_stuff.h"
 #include "help.h"
 #include "conf.h"
+#include "structs/global_objects.h"
 #include "utils/objects_filter.h"
-
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
-#include <sys/stat.h>
-
-#include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <iomanip>
-#include <limits>
 
 using namespace ClanSystem;
 
@@ -53,7 +53,6 @@ extern int file_to_string_alloc(const char *name, char **buf);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 extern const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
-extern char const *class_abbrevs[];
 extern bool char_to_pk_clan(CharData *ch);
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
 {
@@ -1219,7 +1218,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 		return;
 	}
 
-	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GET_REAL_LEVEL(d->character) >= kLevelGod)) {
+	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GetRealLevel(d->character) >= kLevelGod)) {
 		send_to_char("Вы не можете приписать этого игрока.\r\n", ch);
 		return;
 	}
@@ -3273,7 +3272,7 @@ void Clan::load_mod() {
 // казна дружины... команды теже самые с приставкой 'казна' в начале
 // смотреть/вкладывать могут все, снимать по привилегии, висит на стандартных банкирах
 bool Clan::BankManage(CharData *ch, char *arg) {
-	if (IS_NPC(ch) || !CLAN(ch) || GET_REAL_LEVEL(ch) >= kLevelImmortal)
+	if (IS_NPC(ch) || !CLAN(ch) || GetRealLevel(ch) >= kLevelImmortal)
 		return false;
 
 	std::string buffer = arg, buffer2;
@@ -4271,7 +4270,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&stufina);
 
 	if (utils::IsAbbrev(arg, "характеристики") || utils::IsAbbrev(arg, "identify") || utils::IsAbbrev(arg, "опознать")) {
-		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GET_REAL_LEVEL(ch) < kLevelImplementator)) {
+		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GetRealLevel(ch) < kLevelImplementator)) {
 			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
@@ -4504,8 +4503,8 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			if (!d) {
 				continue;
 			} else if (!IS_IMMORTAL(d->character)) {
-				it.second->level = GET_REAL_LEVEL(d->character);
-				it.second->class_abbr = CLASS_ABBR(d->character);
+				it.second->level = GetRealLevel(d->character);
+				it.second->class_abbr = MUD::Classes()[d->character->get_class()].GetAbbr();
 				it.second->remort = GET_GOD_FLAG(d->character, GF_REMORT) ? true : false;
 			}
 		} else if (name) {
@@ -4515,7 +4514,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 		}
 		char timeBuf[17];
 		time_t tmp_time = get_lastlogon_by_unique(it.first);
-		if (tmp_time <= 0) tmp_time = time(0);
+		if (tmp_time <= 0) tmp_time = time(nullptr);
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&tmp_time));
 
 		// сортировка по...
@@ -4639,7 +4638,7 @@ bool Clan::ChestShow(ObjData *obj, CharData *ch) {
 // +/- клан-экспы
 void Clan::SetClanExp(CharData *ch, int add) {
 	// шоб не читили
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal) {
+	if (GetRealLevel(ch) >= kLevelImmortal) {
 		return;
 	}
 
@@ -4684,7 +4683,7 @@ void Clan::SetClanExp(CharData *ch, int add) {
 // добавление экспы для топа кланов и мемберу в зачетку
 void Clan::AddTopExp(CharData *ch, int add_exp) {
 	// шоб не читили
-	if (GET_REAL_LEVEL(ch) >= kLevelImmortal)
+	if (GetRealLevel(ch) >= kLevelImmortal)
 		return;
 
 	CLAN_MEMBER(ch)->exp += add_exp;

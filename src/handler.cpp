@@ -136,7 +136,7 @@ void check_light(CharData *ch, int was_equip, int was_single, int was_holylight,
 			world[ch->in_room]->gdark = MAX(0, world[ch->in_room]->gdark - koef);
 	}
 
-/*	if (GET_REAL_LEVEL(ch) >= kLevelGod)
+/*	if (GetRealLevel(ch) >= kLevelGod)
 	{
 		sprintf(buf,"Light:%d Glight:%d gdark%d koef:%d\r\n",world[ch->in_room]->light,world[ch->in_room]->glight,world[ch->in_room]->gdark,koef);
 		send_to_char(buf,ch);
@@ -333,7 +333,7 @@ void room_affect_process_on_entry(CharData *ch, RoomRnum room) {
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.", ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
 				true, ch, nullptr, ch, kToRoom | kToArenaListen);
-			CallMagic(caster, ch, nullptr, nullptr, kSpellSleep, GET_REAL_LEVEL(caster));
+			CallMagic(caster, ch, nullptr, nullptr, kSpellSleep, GetRealLevel(caster));
 		}
 	}
 }
@@ -876,7 +876,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								} else {
-									mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, ESaving::kWill);
+									mag_affects(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
 								}
 							}
 						}
@@ -908,7 +908,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, kToChar);
 							} else {
-								mag_affects(GET_REAL_LEVEL(ch), ch, ch, i.aff_spell, ESaving::kWill);
+								mag_affects(GetRealLevel(ch), ch, ch, i.aff_spell, ESaving::kWill);
 							}
 						}
 					}
@@ -1093,7 +1093,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToChar);
 					} else {
-						mag_affects(GET_REAL_LEVEL(ch), ch, ch, j.aff_spell, ESaving::kWill);
+						mag_affects(GetRealLevel(ch), ch, ch, j.aff_spell, ESaving::kWill);
 					}
 				}
 			}
@@ -2692,7 +2692,7 @@ void check_portals(CharData *ch) {
 	// Пробегаем max_p порталы
 	for (tmp = GET_PORTALS(ch); tmp;) {
 		port = get_portal(tmp->vnum, nullptr);
-		if (!port || (portals >= max_p) || (MAX(1, port->level - GET_REAL_REMORT(ch) / 2) > GET_REAL_LEVEL(ch))) {
+		if (!port || (portals >= max_p) || (MAX(1, port->level - GET_REAL_REMORT(ch) / 2) > GetRealLevel(ch))) {
 			if (dlt) {
 				dlt->next = tmp->next;
 			} else {
@@ -2720,12 +2720,12 @@ float get_effective_cha(CharData *ch) {
 	key_value_add = MIN(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
 
 	float eff_cha = 0.0;
-	if (GET_REAL_LEVEL(ch) <= 14) {
+	if (GetRealLevel(ch) <= 14) {
 		eff_cha = key_value
-			- 6 * (float) (14 - GET_REAL_LEVEL(ch)) / 13.0 + key_value_add
-			* (0.2 + 0.3 * (float) (GET_REAL_LEVEL(ch) - 1) / 13.0);
-	} else if (GET_REAL_LEVEL(ch) <= 26) {
-		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_REAL_LEVEL(ch) - 14) / 12.0);
+			- 6 * (float) (14 - GetRealLevel(ch)) / 13.0 + key_value_add
+			* (0.2 + 0.3 * (float) (GetRealLevel(ch) - 1) / 13.0);
+	} else if (GetRealLevel(ch) <= 26) {
+		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float) (GetRealLevel(ch) - 14) / 12.0);
 	} else {
 		eff_cha = key_value + key_value_add;
 	}
@@ -2748,12 +2748,12 @@ float get_effective_wis(CharData *ch, int spellnum) {
 	}
 
 	float eff_wis = 0.0;
-	if (GET_REAL_LEVEL(ch) <= 14) {
+	if (GetRealLevel(ch) <= 14) {
 		eff_wis = key_value
-			- 6 * (float) (14 - GET_REAL_LEVEL(ch)) / 13.0 + key_value_add
-			* (0.4 + 0.6 * (float) (GET_REAL_LEVEL(ch) - 1) / 13.0);
-	} else if (GET_REAL_LEVEL(ch) <= 26) {
-		eff_wis = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_REAL_LEVEL(ch) - 14) / 12.0);
+			- 6 * (float) (14 - GetRealLevel(ch)) / 13.0 + key_value_add
+			* (0.4 + 0.6 * (float) (GetRealLevel(ch) - 1) / 13.0);
+	} else if (GetRealLevel(ch) <= 26) {
+		eff_wis = key_value + key_value_add * (0.5 + 0.5 * (float) (GetRealLevel(ch) - 14) / 12.0);
 	} else {
 		eff_wis = key_value + key_value_add;
 	}
@@ -2769,12 +2769,12 @@ float get_effective_int(CharData *ch) {
 	key_value_add = MIN(max_int - ch->get_int(), GET_INT_ADD(ch));
 
 	float eff_int = 0.0;
-	if (GET_REAL_LEVEL(ch) <= 14) {
+	if (GetRealLevel(ch) <= 14) {
 		eff_int = key_value
-			- 6 * (float) (14 - GET_REAL_LEVEL(ch)) / 13.0 + key_value_add
-			* (0.2 + 0.3 * (float) (GET_REAL_LEVEL(ch) - 1) / 13.0);
-	} else if (GET_REAL_LEVEL(ch) <= 26) {
-		eff_int = key_value + key_value_add * (0.5 + 0.5 * (float) (GET_REAL_LEVEL(ch) - 14) / 12.0);
+			- 6 * (float) (14 - GetRealLevel(ch)) / 13.0 + key_value_add
+			* (0.2 + 0.3 * (float) (GetRealLevel(ch) - 1) / 13.0);
+	} else if (GetRealLevel(ch) <= 26) {
+		eff_int = key_value + key_value_add * (0.5 + 0.5 * (float) (GetRealLevel(ch) - 14) / 12.0);
 	} else {
 		eff_int = key_value + key_value_add;
 	}
@@ -2835,20 +2835,20 @@ int mag_manacost(const CharData *ch, int spellnum) {
 	}
 
 //	Мем рунных профессий(на сегодня только волхвы)
-	if (IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= CalcRequiredLevel(ch, spellnum)) {
+	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= CalcRequiredLevel(ch, spellnum)) {
 		result = static_cast<int>(kManaCostModifier
 			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
 			* 60
 			* MAX(SpINFO.mana_max
 					  - (SpINFO.mana_change
-						  * (GET_REAL_LEVEL(ch)
+						  * (GetRealLevel(ch)
 							  - spell_create[spellnum].runes.min_caster_level)),
 				  SpINFO.mana_min));
 	} else {
-		if (!IS_MANA_CASTER(ch) && GET_REAL_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
+		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MIN_CAST_LEV(SpINFO, ch)
 			&& GET_REAL_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch)) {
-			result = MAX(SpINFO.mana_max - (SpINFO.mana_change * (GET_REAL_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))), SpINFO.mana_min);
+			result = MAX(SpINFO.mana_max - (SpINFO.mana_change * (GetRealLevel(ch) - MIN_CAST_LEV(SpINFO, ch))), SpINFO.mana_min);
 			if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0) {
 				result = result * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
 			} else {
@@ -2974,7 +2974,7 @@ int *MemQ_slots(CharData *ch) {
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
 			continue;
 		sloti = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		if (MIN_CAST_LEV(spell_info[i], ch) > GET_REAL_LEVEL(ch)
+		if (MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch)
 			|| MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch)) {
 			GET_SPELL_MEM(ch, i) = 0;
 			continue;
@@ -2992,7 +2992,7 @@ int *MemQ_slots(CharData *ch) {
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 &&
-				MIN_CAST_LEV(spell_info[q[0]->spellnum], ch) <= GET_REAL_LEVEL(ch)
+				MIN_CAST_LEV(spell_info[q[0]->spellnum], ch) <= GetRealLevel(ch)
 				&& MIN_CAST_REM(spell_info[q[0]->spellnum], ch) <= GET_REAL_REMORT(ch)) {
 				q = &(q[0]->link);
 			} else {

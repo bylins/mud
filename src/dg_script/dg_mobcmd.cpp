@@ -685,7 +685,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		command_interpreter(victim, argument);
-	} else if (GET_REAL_LEVEL(victim) < kLevelImmortal) {
+	} else if (GetRealLevel(victim) < kLevelImmortal) {
 		command_interpreter(victim, argument);
 	}
 }
@@ -700,7 +700,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (ch->desc && (GET_REAL_LEVEL(ch->desc->original) < kLevelImplementator))
+	if (ch->desc && (GetRealLevel(ch->desc->original) < kLevelImplementator))
 		return;
 
 	two_arguments(argument, name, amount);

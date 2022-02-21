@@ -53,7 +53,6 @@ extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 extern CharData *combat_list;
 extern const char *item_types[];
 extern const char *genders[];
-extern const char *pc_class_types[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
@@ -2115,7 +2114,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_UNIQUE(c));
 		} 
 		else if (!str_cmp(field, "level"))
-			sprintf(str, "%d", GET_REAL_LEVEL(c));
+			sprintf(str, "%d", GetRealLevel(c));
 		else if (!str_cmp(field, "remort")) {
 				sprintf(str, "%d", GET_REAL_REMORT(c));
 		} else if (!str_cmp(field, "hitp")) {
@@ -2164,7 +2163,7 @@ void find_replacement(void *go,
 				}
 				if (can_use == 2)//дрын
 				{
-					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * GET_REAL_LEVEL(c) / 10;
+					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * GetRealLevel(c) / 10;
 				} else if (can_use == 1)//ужи и покров
 				{
 					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * 33 / 100;

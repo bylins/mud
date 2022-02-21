@@ -1061,7 +1061,7 @@ void apply_modifiers(CharData *ch) {
 	}
 }
 
-void print_glory_top(CharData *ch) {
+void PrintGloryChart(CharData *ch) {
 	std::stringstream out;
 	boost::format class_format("\t%-25s %-2d\r\n");
 	std::map<int, GloryNodePtr> temp_list;
@@ -1090,7 +1090,7 @@ void print_glory_top(CharData *ch) {
 	int i = 0;
 
 	for (std::list<GloryNodePtr>::const_iterator t_it = playerGloryList.begin();
-		 t_it != playerGloryList.end() && i < MAX_TOP_CLASS; ++t_it, ++i) {
+		 t_it != playerGloryList.end() && i < kPlayerChartSize; ++t_it, ++i) {
 
 		std::string name = GetNameByUnique(t_it->get()->uid);
 		name[0] = UPPER(name[0]);

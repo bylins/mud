@@ -20,46 +20,23 @@
  */
 #include "classes.h"
 
-#include "world_objects.h"
-#include "entities/obj_data.h"
-#include "comm.h"
-#include "db.h"
 #include "magic/magic_utils.h"
-#include "magic/spells.h"
-#include "skills.h"
-#include "interpreter.h"
 #include "handler.h"
-#include "constants.h"
 #include "fightsystem/pk.h"
 #include "top.h"
-#include "features.h"
-#include "crafts/im.h"
-#include "entities/char_data.h"
 #include "spam.h"
 #include "color.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
-#include "entities/player_races.h"
 #include "noob.h"
 #include "game_economics/exchange.h"
-#include "utils/logger.h"
-#include "utils/utils.h"
-#include "structs/structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "skills_info.h"
 #include "magic/spells_info.h"
 #include "structs/global_objects.h"
 
-#include <iostream>
-
 extern int siteok_everyone;
-extern struct SpellCreate spell_create[];
 extern double exp_coefficients[];
 
 // local functions
-ECharClass ParseClass(char arg);
-Bitvector find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
 void do_start(CharData *ch, int newbie);
@@ -73,206 +50,47 @@ void mspell_change(char *name, int spell, int kin, int chclass, int class_change
 extern bool char_to_pk_clan(CharData *ch);
 // Names first
 
-const char *class_abbrevs[] = {"Ле",
-							   "Ко",
-							   "Та",
-							   "Бо",
-							   "На",
-							   "Др",
-							   "Ку",
-							   "Во",
-							   "Че",
-							   "Ви",
-							   "Ох",
-							   "Кз",
-							   "Кп",
-							   "Вл",
-							   "\n"
-};
-
-const char *kin_abbrevs[] = {"Ру",
-							 "Ви",
-							 "Ст",
-							 "\n"
-};
-
-const char *pc_class_types[] = {"Лекарь",
-								"Колдун",
-								"Тать",
-								"Богатырь",
-								"Наемник",
-								"Дружинник",
-								"Кудесник",
-								"Волшебник",
-								"Чернокнижник",
-								"Витязь",
-								"Охотник",
-								"Кузнец",
-								"Купец",
-								"Волхв",
-								"Жрец",
-								"Нойда",
-								"Тиуве",
-								"Берсерк",
-								"Наемник",
-								"Хирдман",
-								"Заарин",
-								"Босоркун",
-								"Равк",
-								"Кампе",
-								"Лучник",
-								"Аргун",
-								"Кепмен",
-								"Скальд",
-								"Знахарь",
-								"Бакша",
-								"Карак",
-								"Батыр",
-								"Тургауд",
-								"Нуке",
-								"Капнобатай",
-								"Акшаман",
-								"Карашаман",
-								"Чериг",
-								"Шикорхо",
-								"Дархан",
-								"Сатучы",
-								"Сеид",
-								"\n"
-};
-
-// The menu for choosing a class in interpreter.c:
-const char *class_menu =
-	"\r\n"
-	"Выберите профессию :\r\n"
-	"  [Л]екарь\r\n"
-	"  [К]олдун\r\n"
-	"  [Т]ать\r\n"
-	"  [Б]огатырь\r\n"
-	"  [Н]аемник\r\n"
-	"  [Д]ружинник\r\n"
-	"  К[у]десник\r\n"
-	"  [В]олшебник\r\n"
-	"  [Ч]ернокнижник\r\n"
-	"  В[и]тязь\r\n"
-	"  [О]хотник\r\n"
-	"  Ку[з]нец\r\n"
-	"  Ку[п]ец\r\n"
-	"  Вол[x]в\r\n";
-
-const char *class_menu_vik =
-	"\r\n"
-	"Выберите профессию :\r\n"
-	"  [Ж]рец\r\n"
-	"  [Н]ойда\r\n"
-	"  [Т]иуве\r\n"
-	"  [Б]ерсерк\r\n"
-	"  Н[а]емник\r\n"
-	"  [Х]ирдман\r\n"
-	"  [З]аарин\r\n"
-	"  Б[о]соркун\r\n"
-	"  [Р]авк\r\n"
-	"  [К]ампе\r\n"
-	"  [Л]учник\r\n"
-	"  Ар[г]ун\r\n"
-	"  Ке[п]мен\r\n"
-	"  [С]кальд\r\n";
-
-const char *class_menu_step =
-	"\r\n"
-	"Выберите профессию :\r\n"
-	"  [З]нахарь\r\n"
-	"  [Б]акша\r\n"
-	"  [К]арак\r\n"
-	"  Б[а]тыр\r\n"
-	"  [Т]ургауд\r\n"
-	"  [Н]уке\r\n"
-	"  Ка[п]нобатай\r\n"
-	"  Ак[ш]аман\r\n"
-	"  Ка[р]ашаман\r\n"
-	"  [Ч]ериг\r\n"
-	"  Шик[о]рхо\r\n"
-	"  [Д]архан\r\n"
-	"  [С]атучы\r\n"
-	"  Се[и]д\r\n";
-
 // The menu for choosing a religion in interpreter.c:
 const char *religion_menu =
 	"\r\n" "Какой религии вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
 
-#define RELIGION_ANY 100
+const int kReligionAny = 100;
 
 /* Соответствие классов и религий. kReligionPoly-класс не может быть христианином
-                                   kReligionMono-класс не может быть язычником  (Кард)
+                                   kReligionMono-класс не может быть язычником
 				   RELIGION_ANY - класс может быть кем угодно */
-const int class_religion[] = {RELIGION_ANY,        //Лекарь
-							  RELIGION_ANY,        //Колдун
-							  RELIGION_ANY,        //Тать
-							  RELIGION_ANY,        //Богатырь
-							  RELIGION_ANY,        //Наемник
-							  RELIGION_ANY,        //Дружинник
-							  RELIGION_ANY,        //Кудесник
-							  RELIGION_ANY,        //Волшебник
-							  RELIGION_ANY,        //Чернокнижник
-							  RELIGION_ANY,        //Витязь
-							  RELIGION_ANY,        //Охотник
-							  RELIGION_ANY,        //Кузнец
-							  RELIGION_ANY,        //Купец
+const int class_religion[] = {kReligionAny,        //Лекарь
+							  kReligionAny,        //Колдун
+							  kReligionAny,        //Тать
+							  kReligionAny,        //Богатырь
+							  kReligionAny,        //Наемник
+							  kReligionAny,        //Дружинник
+							  kReligionAny,        //Кудесник
+							  kReligionAny,        //Волшебник
+							  kReligionAny,        //Чернокнижник
+							  kReligionAny,        //Витязь
+							  kReligionAny,        //Охотник
+							  kReligionAny,        //Кузнец
+							  kReligionAny,        //Купец
 							  kReligionPoly        //Волхв
 };
 
 //str dex con wis int cha
 int class_stats_limit[kNumPlayerClasses][6];
 
-/*
- * The code to interpret a class letter -- used in interpreter.cpp when a
- * new character is selecting a class and by 'set class' in act.wizard.c.
- */
-
-ECharClass ParseClass(char arg) {
-	arg = LOWER(arg);
-
-	switch (arg) {
-		case 'л': return ECharClass::kSorcerer;
-		case 'к': return ECharClass::kConjurer;
-		case 'т': return ECharClass::kThief;
-		case 'б': return ECharClass::kWarrior;
-		case 'н': return ECharClass::kAssasine;
-		case 'д': return ECharClass::kGuard;
-		case 'у': return ECharClass::kCharmer;
-		case 'в': return ECharClass::kWizard;
-		case 'ч': return ECharClass::kNecromancer;
-		case 'и': return ECharClass::kPaladine;
-		case 'о': return ECharClass::kRanger;
-		case 'з': return ECharClass::kVigilant;
-		case 'п': return ECharClass::kMerchant;
-		case 'х': return ECharClass::kMagus;
-		default: return ECharClass::kUndefined;
+/* Вообще то такие вещи должен сам контейнер делать, но пока не реализован
+ * какой-нибудь нормальный быстрый поиск по имени, а привинчивать костыль,
+ * чтобы потом его убирать, не хочется. Не забыть переделать - ABYRVALG */
+ECharClass FindAvailableCharClassId(const std::string &class_name) {
+	for (const auto &it: MUD::Classes()) {
+		if (it.IsAvailable()) {
+		 	if (CompareParam(class_name, it.GetPluralName()) || CompareParam(class_name, it.GetName())) {
+				return it.id;
+		 	}
+		}
 	}
-}
-
-Bitvector find_class_bitvector(char arg) {
-	arg = LOWER(arg);
-
-	switch (arg) {
-		case 'л': return (1 << ECharClass::kSorcerer);
-		case 'к': return (1 << ECharClass::kConjurer);
-		case 'т': return (1 << ECharClass::kThief);
-		case 'б': return (1 << ECharClass::kWarrior);
-		case 'н': return (1 << ECharClass::kAssasine);
-		case 'д': return (1 << ECharClass::kGuard);
-		case 'у': return (1 << ECharClass::kCharmer);
-		case 'в': return (1 << ECharClass::kWizard);
-		case 'ч': return (1 << ECharClass::kNecromancer);
-		case 'и': return (1 << ECharClass::kPaladine);
-		case 'о': return (1 << ECharClass::kRanger);
-		case 'з': return (1 << ECharClass::kVigilant);
-		case 'п': return (1 << ECharClass::kMerchant);
-		case 'х': return (1 << ECharClass::kMagus);
-		default: return 0;
-	}
-}
-
+	return ECharClass::kUndefined;
+};
 
 /*
  * These are definitions which control the guildmasters for each class.
@@ -298,8 +116,8 @@ Bitvector find_class_bitvector(char arg) {
  * following spells" vs. "You know of the following skills"
  */
 
-#define SPELL    0
-#define SKILL    1
+const int SPELL = 0;
+const int SKILL = 1;
 
 // #define LEARNED_LEVEL	0  % known which is considered "learned"
 // #define MAX_PER_PRAC		1  max percent gain in skill per practice
@@ -990,6 +808,7 @@ int extra_aco(int class_num, int level) {
 			}
 			 break;
 			}
+		default: return 0;
 	}
 	return 0;
 }
@@ -1211,6 +1030,7 @@ int extra_damroll(int class_num, int level) {
 			}
 			 break;
 			}
+		default: return 0;
 	}
 	return 0;
 }
@@ -1251,8 +1071,8 @@ void do_start(CharData *ch, int newbie) {
 
 	if (newbie) {
 		std::vector<int> outfit_list(Noob::get_start_outfit(ch));
-		for (auto i = outfit_list.begin(); i != outfit_list.end(); ++i) {
-			const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(*i);
+		for (int & i : outfit_list) {
+			const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(i);
 			if (obj) {
 				obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 				obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
@@ -1293,7 +1113,7 @@ void do_start(CharData *ch, int newbie) {
 	}
 
 	advance_level(ch);
-	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_REAL_LEVEL(ch));
+	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GetRealLevel(ch));
 	mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
 
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
@@ -1317,7 +1137,7 @@ void check_max_hp(CharData *ch) {
 
 // * Обработка событий при левел-апе.
 void levelup_events(CharData *ch) {
-	if (SpamSystem::MIN_OFFTOP_LVL == GET_REAL_LEVEL(ch)
+	if (SpamSystem::MIN_OFFTOP_LVL == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
 		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
@@ -1325,7 +1145,7 @@ void levelup_events(CharData *ch) {
 					 "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
 					 CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}
-	if (EXCHANGE_MIN_CHAR_LEV == GET_REAL_LEVEL(ch)
+	if (EXCHANGE_MIN_CHAR_LEV == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
 		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
 		if (GET_REAL_REMORT(ch) <= 0) {
@@ -1344,37 +1164,32 @@ void advance_level(CharData *ch) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
-		case ECharClass::kNecromancer: add_move = 2;
-			break;
-
-		case ECharClass::kSorcerer:
+		case ECharClass::kNecromancer:
+		case ECharClass::kSorcerer: [[fallthrough]];
 		case ECharClass::kMagus: add_move = 2;
 			break;
 
 		case ECharClass::kThief:
 		case ECharClass::kAssasine:
-		case ECharClass::kMerchant: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
-			break;
-
-		case ECharClass::kWarrior: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
-			break;
-
+		case ECharClass::kMerchant:
+		case ECharClass::kWarrior:
 		case ECharClass::kGuard:
 		case ECharClass::kRanger:
-		case ECharClass::kPaladine:
-		case ECharClass::kVigilant: add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
+		case ECharClass::kPaladine: [[fallthrough]];
+		case ECharClass::kVigilant: add_move = number(ch->get_inborn_dex()/6 + 1, ch->get_inborn_dex()/5 + 1);
 			break;
 		default: break;
 	}
 
 	check_max_hp(ch);
-	ch->points.max_move += MAX(1, add_move);
+	ch->points.max_move += std::max(1, add_move);
 
 	SetInbornFeats(ch);
 
 	if (IS_IMMORTAL(ch)) {
-		for (i = 0; i < 3; i++)
+		for (i = 0; i < 3; i++) {
 			GET_COND(ch, i) = (char) -1;
+		}
 		PRF_FLAGS(ch).set(PRF_HOLYLIGHT);
 	}
 
@@ -1390,22 +1205,18 @@ void decrease_level(CharData *ch) {
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
-		case ECharClass::kNecromancer: add_move = 2;
-			break;
-
-		case ECharClass::kSorcerer:
+		case ECharClass::kNecromancer:
+		case ECharClass::kSorcerer: [[fallthrough]];
 		case ECharClass::kMagus: add_move = 2;
 			break;
 
 		case ECharClass::kThief:
 		case ECharClass::kAssasine:
-		case ECharClass::kMerchant: add_move = ch->get_inborn_dex() / 5 + 1;
-			break;
-
+		case ECharClass::kMerchant:
 		case ECharClass::kWarrior:
 		case ECharClass::kGuard:
 		case ECharClass::kPaladine:
-		case ECharClass::kRanger:
+		case ECharClass::kRanger: [[fallthrough]];
 		case ECharClass::kVigilant: add_move = ch->get_inborn_dex() / 5 + 1;
 			break;
 		default: break;
@@ -1460,7 +1271,7 @@ bool unique_stuff(const CharData *ch, const ObjData *obj) {
 int invalid_anti_class(CharData *ch, const ObjData *obj) {
 	if (!IS_CORPSE(obj)) {
 		for (const ObjData *object = obj->get_contains(); object; object = object->get_next_content()) {
-			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0)) {
+			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, false)) {
 				return (true);
 			}
 		}
@@ -1791,7 +1602,6 @@ void init_basic_values() {
 		}
 	}
 	fclose(magic);
-	return;
 }
 
 /*
@@ -1896,10 +1706,11 @@ int level_exp(CharData *ch, int level) {
 
 	// Exp required for normal mortals is below
 	float exp_modifier;
-	if (GET_REAL_REMORT(ch) < MAX_EXP_COEFFICIENTS_USED)
-		exp_modifier = exp_coefficients[GET_REAL_REMORT(ch)];
-	else
-		exp_modifier = exp_coefficients[MAX_EXP_COEFFICIENTS_USED];
+	if (GET_REAL_REMORT(ch) < MAX_EXP_COEFFICIENTS_USED) {
+		exp_modifier = static_cast<float>(exp_coefficients[GET_REAL_REMORT(ch)]);
+	} else {
+		exp_modifier = static_cast<float>(exp_coefficients[MAX_EXP_COEFFICIENTS_USED]);
+	}
 
 	switch (GET_CLASS(ch)) {
 
@@ -1940,7 +1751,7 @@ int level_exp(CharData *ch, int level) {
 				case 29: return int(exp_modifier * 47000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case kLevelImmortal: return int(exp_modifier * 94000000);
+				default: return int(exp_modifier * 94000000);
 			}
 			break;
 
@@ -1979,7 +1790,7 @@ int level_exp(CharData *ch, int level) {
 				case 29: return int(exp_modifier * 47000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case kLevelImmortal: return int(exp_modifier * 87000000);
+				default: return int(exp_modifier * 87000000);
 			}
 			break;
 
@@ -2017,7 +1828,7 @@ int level_exp(CharData *ch, int level) {
 				case 29: return int(exp_modifier * 28667000);
 				case 30: return int(exp_modifier * 40000000);
 					// add new levels here
-				case kLevelImmortal: return int(exp_modifier * 53000000);
+				default: return int(exp_modifier * 53000000);
 			}
 			break;
 
@@ -2056,7 +1867,7 @@ int level_exp(CharData *ch, int level) {
 				case 29: return int(exp_modifier * 43000000);
 				case 30: return int(exp_modifier * 59000000);
 					// add new levels here
-				case kLevelImmortal: return int(exp_modifier * 79000000);
+				default: return int(exp_modifier * 79000000);
 			}
 			break;
 
@@ -2098,7 +1909,7 @@ int level_exp(CharData *ch, int level) {
 				case 29: return int(exp_modifier * 44000000);
 				case 30: return int(exp_modifier * 64000000);
 					// add new levels here
-				case kLevelImmortal: return int(exp_modifier * 79000000);
+				default: return int(exp_modifier * 79000000);
 			}
 			break;
 		default: break;
@@ -2186,9 +1997,6 @@ void mspell_change(char */*name*/, int spell, int kin, int chclass, int class_ch
 	}
 	if (!bad) {
 		spell_info[spell].class_change[chclass][kin] = class_change;
-		// И зачем этот спам в логе?
-		//log("MODIFIER set '%s' kin '%d' classes %d value %d", name, kin, chclass, class_change);
-
 	}
 }
 

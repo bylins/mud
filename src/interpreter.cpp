@@ -51,6 +51,7 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight_start.h"
 #include "genchar.h"
+#include "game_classes/classes.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
@@ -139,9 +140,6 @@ extern RoomRnum r_frozen_start_room;
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
-extern const char *class_menu;
-extern const char *class_menu_vik;
-extern const char *class_menu_step;
 extern const char *religion_menu;
 extern char *motd;
 extern char *rules;
@@ -160,12 +158,6 @@ extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
 extern char *GREETINGS;
-extern const char *pc_class_types[];
-extern const char *pc_class_types_vik[];
-extern const char *pc_class_types_step[];
-//extern const char *race_types[];
-extern const char *race_types_step[];
-extern const char *race_types_vik[];
 extern const char *kin_types[];
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
@@ -173,7 +165,6 @@ extern char *name_rules;
 
 // external functions
 void do_start(CharData *ch, int newbie);
-ECharClass ParseClass(char arg);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
@@ -417,7 +408,6 @@ void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
 void do_cities(CharData *ch, char *, int, int);
 void do_send_text_to_char(CharData *ch, char *, int, int);
-void do_add_wizard(CharData *ch, char *, int, int);
 void do_touch_stigma(CharData *ch, char *, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 
@@ -545,7 +535,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"дрновости", EPosition::kDead, Boards::DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
 		{"дрвече", EPosition::kDead, Boards::DoBoard, 1, Boards::CLAN_BOARD, -1},
 		{"дрлист", EPosition::kDead, DoClanPkList, 0, 1, 0},
-		//{"добавить", EPosition::kDead, do_add_wizard, kLevelImplementator, 0, 0 },
 		{"есть", EPosition::kRest, do_eat, 0, SCMD_EAT, 500},
 
 		{"жертвовать", EPosition::kStand, do_pray, 1, SCMD_DONATE, -1},
@@ -1125,14 +1114,14 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::kHide, 0);
+			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 		}
 
 		if (remove_hide) {
 			affect_from_char(ch, kSpellHide);
 			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE)) {
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
-				act("$n прекратил$g прятаться.", false, ch, 0, 0, kToRoom);
+				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			}
 		}
 	}
@@ -1182,7 +1171,7 @@ void command_interpreter(CharData *ch, char *argument) {
 			GlobalObjects::heartbeat().pulse_number(),
 			GET_ROOM_VNUM(ch->in_room),
 			argument);
-		if (GET_REAL_LEVEL(ch) >= kLevelImmortal || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
+		if (GetRealLevel(ch) >= kLevelImmortal || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
@@ -1258,7 +1247,7 @@ void command_interpreter(CharData *ch, char *argument) {
 	}
 
 	if (((!IS_NPC(ch)
-		&& (GET_FREEZE_LEV(ch) > GET_REAL_LEVEL(ch))
+		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
 		&& (PLR_FLAGGED(ch, PLR_FROZEN)))
 		|| GET_MOB_HOLD(ch)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
@@ -1847,7 +1836,7 @@ int perform_dupe_check(DescriptorData *d) {
 		if (k->original && (GET_IDNUM(k->original) == id))    // switched char
 		{
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! GetAbilityId = %ld Персонаж = %s Хост = %s(был %s)",
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Персонаж = %s Хост = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
@@ -1869,7 +1858,7 @@ int perform_dupe_check(DescriptorData *d) {
 			k->original = nullptr;
 		} else if (k->character && (GET_IDNUM(k->character) == id)) {
 			if (str_cmp(d->host, k->host)) {
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! GetAbilityId = %ld Name = %s Host = %s(был %s)",
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Name = %s Host = %s(был %s)",
 						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
@@ -1947,7 +1936,8 @@ int perform_dupe_check(DescriptorData *d) {
 	switch (mode) {
 		case RECON: SEND_TO_Q("Пересоединяемся.\r\n", d);
 			check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
-			act("$n восстановил$g связь.", true, d->character.get(), 0, 0, kToRoom);
+			act("$n восстановил$g связь.",
+				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 			mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			login_change_invoice(d->character.get());
@@ -1955,7 +1945,8 @@ int perform_dupe_check(DescriptorData *d) {
 
 		case USURP: SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
 			act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
-				"Тело $s было захвачено новым духом!", true, d->character.get(), 0, 0, kToRoom);
+				"Тело $s было захвачено новым духом!",
+				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
 			mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
@@ -2084,11 +2075,11 @@ void add_logon_record(DescriptorData *d) {
 									});
 
 	if (logon == LOGON_LIST(d->character).end()) {
-		const Logon cur_log = {str_dup(d->host), 1, time(0), false};
+		const Logon cur_log = {str_dup(d->host), 1, time(nullptr), false};
 		LOGON_LIST(d->character).push_back(cur_log);
 	} else {
 		++logon->count;
-		logon->lasttime = time(0);
+		logon->lasttime = time(nullptr);
 	}
 
 	int pos = get_ptable_by_unique(GET_UNIQUE(d->character));
@@ -2118,11 +2109,11 @@ void do_entergame(DescriptorData *d) {
 	d->character->reset();
 	read_aliases(d->character.get());
 
-	if (GET_REAL_LEVEL(d->character) == kLevelImmortal) {
+	if (GetRealLevel(d->character) == kLevelImmortal) {
 		d->character->set_level(kLevelGod);
 	}
 
-	if (GET_REAL_LEVEL(d->character) > kLevelImplementator) {
+	if (GetRealLevel(d->character) > kLevelImplementator) {
 		d->character->set_level(1);
 	}
 
@@ -2131,14 +2122,14 @@ void do_entergame(DescriptorData *d) {
 		SET_INVIS_LEV(d->character, 0);
 	}
 
-	if (GET_REAL_LEVEL(d->character) > kLevelImmortal
-		&& GET_REAL_LEVEL(d->character) < kLevelBuilder
+	if (GetRealLevel(d->character) > kLevelImmortal
+		&& GetRealLevel(d->character) < kLevelBuilder
 		&& (d->character->get_gold() > 0 || d->character->get_bank() > 0)) {
 		d->character->set_gold(0);
 		d->character->set_bank(0);
 	}
 
-	if (GET_REAL_LEVEL(d->character) >= kLevelImmortal && GET_REAL_LEVEL(d->character) < kLevelImplementator) {
+	if (GetRealLevel(d->character) >= kLevelImmortal && GetRealLevel(d->character) < kLevelImplementator) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog")) {
 				if (Privilege::can_do_priv(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
@@ -2153,23 +2144,23 @@ void do_entergame(DescriptorData *d) {
 		}
 	}
 
-	if (GET_REAL_LEVEL(d->character) < kLevelImplementator) {
+	if (GetRealLevel(d->character) < kLevelImplementator) {
 		if (PLR_FLAGGED(d->character, PLR_INVSTART)) {
 			SET_INVIS_LEV(d->character, kLevelImmortal);
 		}
-		if (GET_INVIS_LEV(d->character) > GET_REAL_LEVEL(d->character)) {
-			SET_INVIS_LEV(d->character, GET_REAL_LEVEL(d->character));
+		if (GET_INVIS_LEV(d->character) > GetRealLevel(d->character)) {
+			SET_INVIS_LEV(d->character, GetRealLevel(d->character));
 		}
 
 		if (PRF_FLAGGED(d->character, PRF_CODERINFO)) {
 			PRF_FLAGS(d->character).unset(PRF_CODERINFO);
 		}
-		if (GET_REAL_LEVEL(d->character) < kLevelGod) {
+		if (GetRealLevel(d->character) < kLevelGod) {
 			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT)) {
 				PRF_FLAGS(d->character).unset(PRF_HOLYLIGHT);
 			}
 		}
-		if (GET_REAL_LEVEL(d->character) < kLevelGod) {
+		if (GetRealLevel(d->character) < kLevelGod) {
 			if (PRF_FLAGGED(d->character, PRF_NOHASSLE)) {
 				PRF_FLAGS(d->character).unset(PRF_NOHASSLE);
 			}
@@ -2179,7 +2170,7 @@ void do_entergame(DescriptorData *d) {
 		}
 
 		if (GET_INVIS_LEV(d->character) > 0
-			&& GET_REAL_LEVEL(d->character) < kLevelImmortal) {
+			&& GetRealLevel(d->character) < kLevelImmortal) {
 			SET_INVIS_LEV(d->character, 0);
 		}
 	}
@@ -2219,7 +2210,7 @@ void do_entergame(DescriptorData *d) {
 
 	// If char was saved with kNowhere, or real_room above failed...
 	if (load_room == kNowhere) {
-		if (GET_REAL_LEVEL(d->character) >= kLevelImmortal)
+		if (GetRealLevel(d->character) >= kLevelImmortal)
 			load_room = r_immort_start_room;
 		else
 			load_room = r_mortal_start_room;
@@ -2246,7 +2237,7 @@ void do_entergame(DescriptorData *d) {
 	char_to_room(d->character, load_room);
 
 	// а потом уже вычитаем за ренту
-	if (GET_REAL_LEVEL(d->character) != 0) {
+	if (GetRealLevel(d->character) != 0) {
 		Crash_load(d->character.get());
 		d->character->obj_bonus().update(d->character.get());
 	}
@@ -2331,7 +2322,7 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	//Проверим временные заклы пока нас не было
-	Temporary_Spells::update_char_times(d->character.get(), time(0));
+	Temporary_Spells::update_char_times(d->character.get(), time(nullptr));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	d->character->remove_affect(EAffectFlag::AFF_GROUP);
@@ -2343,14 +2334,14 @@ void do_entergame(DescriptorData *d) {
 	// with the copyover patch, this next line goes in enter_player_game()
 	GET_ID(d->character) = GET_IDNUM(d->character);
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
-	d->character->set_last_logon(time(0));
+	d->character->set_last_logon(time(nullptr));
 	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
 	add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
-	d->character->set_who_last(time(0));
+	d->character->set_who_last(time(nullptr));
 	d->character->save_char();
-	act("$n вступил$g в игру.", true, d->character.get(), 0, 0, kToRoom);
+	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character.get());
 	enter_wtrigger(world[d->character.get()->in_room], d->character.get(), -1);
@@ -2359,13 +2350,13 @@ void do_entergame(DescriptorData *d) {
 	STATE(d) = CON_PLAYING;
 	PRF_FLAGS(d->character).set(PRF_COLOR_2); // цвет всегда полный
 // режимы по дефолту у нового чара
-	const bool new_char = GET_REAL_LEVEL(d->character) <= 0 ? true : false;
+	const bool new_char = GetRealLevel(d->character) <= 0 ? true : false;
 	if (new_char) {
-		PRF_FLAGS(d->character).set(PRF_DRAW_MAP); //рисовать миникарту
+		PRF_FLAGS(d->character).set(PRF_DRAW_MAP);
 		PRF_FLAGS(d->character).set(PRF_GOAHEAD); //IAC GA
-		PRF_FLAGS(d->character).set(PRF_AUTOMEM); // автомем
-		PRF_FLAGS(d->character).set(PRF_AUTOLOOT); // автолут
-		PRF_FLAGS(d->character).set(PRF_PKL_MODE); // пклист
+		PRF_FLAGS(d->character).set(PRF_AUTOMEM);
+		PRF_FLAGS(d->character).set(PRF_AUTOLOOT);
+		PRF_FLAGS(d->character).set(PRF_PKL_MODE);
 		PRF_FLAGS(d->character).set(PRF_WORKMATE_MODE); // соклан
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
@@ -2374,7 +2365,7 @@ void do_entergame(DescriptorData *d) {
 		d->character->map_set_option(MapSystem::MAP_MODE_BIG);
 		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
 		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
-		d->character->set_last_exchange(time(0)); // когда последний раз базар
+		d->character->set_last_exchange(time(nullptr));
 		do_start(d->character.get(), true);
 		GET_MANA_STORED(d->character) = 0;
 		send_to_char(START_MESSG, d->character.get());
@@ -2384,11 +2375,11 @@ void do_entergame(DescriptorData *d) {
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
 	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character))
-		&& (GET_REAL_LEVEL(d->character) < kLevelGod)) {
+		&& (GetRealLevel(d->character) < kLevelGod)) {
 		SET_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
-	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GET_REAL_LEVEL(d->character) >= kLevelGod)) {
+	if ((GET_GOD_FLAG(d->character, GF_DEMIGOD) && GetRealLevel(d->character) >= kLevelGod)) {
 		CLR_GOD_FLAG(d->character, GF_DEMIGOD);
 	}
 
@@ -2477,7 +2468,7 @@ void DoAfterPassword(DescriptorData *d) {
 		mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 		return;
 	}
-	if (GET_REAL_LEVEL(d->character) < circle_restrict) {
+	if (GetRealLevel(d->character) < circle_restrict) {
 		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
@@ -2558,7 +2549,7 @@ void CreateChar(DescriptorData *d) {
 	d->character->desc = d;
 }
 
-int create_unique(void) {
+int create_unique() {
 	int unique;
 
 	do {
@@ -2582,12 +2573,12 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 
 	GET_PORTALS(ch) = nullptr;
 	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
-	ch->set_npc_name(0);
+	ch->set_npc_name(nullptr);
 	ch->player_data.long_descr = "";
 	ch->player_data.description = "";
-	ch->player_data.time.birth = time(0);
+	ch->player_data.time.birth = time(nullptr);
 	ch->player_data.time.played = 0;
-	ch->player_data.time.logon = time(0);
+	ch->player_data.time.logon = time(nullptr);
 
 	// make favors for sex
 	if (ch->get_sex() == ESex::kMale) {
@@ -2613,13 +2604,13 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	element.mail = nullptr;//added by WorM mail
 	element.last_ip = nullptr;//added by WorM последний айпи
 
-	if (GET_REAL_LEVEL(ch) > kLevelGod) {
+	if (GetRealLevel(ch) > kLevelGod) {
 		set_god_skills(ch);
 		set_god_morphs(ch);
 	}
 
 	for (i = 1; i <= kSpellCount; i++) {
-		if (GET_REAL_LEVEL(ch) < kLevelGreatGod)
+		if (GetRealLevel(ch) < kLevelGreatGod)
 			GET_SPELL_TYPE(ch, i) = 0;
 		else
 			GET_SPELL_TYPE(ch, i) = kSpellKnow;
@@ -2632,7 +2623,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
 		GET_RESIST(ch, i) = 0;
 
-	if (GET_REAL_LEVEL(ch) == kLevelImplementator) {
+	if (GetRealLevel(ch) == kLevelImplementator) {
 		ch->set_str(25);
 		ch->set_int(25);
 		ch->set_wis(25);
@@ -2643,7 +2634,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->real_abils.size = 50;
 
 	for (i = 0; i < 3; i++) {
-		GET_COND(ch, i) = (GET_REAL_LEVEL(ch) == kLevelImplementator ? -1 : i == DRUNK ? 0 : 24);
+		GET_COND(ch, i) = (GetRealLevel(ch) == kLevelImplementator ? -1 : i == DRUNK ? 0 : 24);
 	}
 	GET_LASTIP(ch)[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;
@@ -2707,7 +2698,7 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
 	d->character->set_who_mana(0);
-	d->character->set_who_last(time(0));
+	d->character->set_who_last(time(nullptr));
 
 }
 
@@ -2755,6 +2746,24 @@ static void ShowEncodingPrompt(DescriptorData *d, bool withHints = false) {
 			"  9) TECT...\r\n"
 			"Select one : ", d);
 	}
+}
+
+void DisplaySelectCharClassMenu(DescriptorData *d) {
+	std::ostringstream out;
+	out << std::endl << "Выберите профессию:" << std::endl;
+	std::vector<ECharClass> char_classes;
+	char_classes.reserve(kNumPlayerClasses);
+	for (const auto &it : MUD::Classes()) {
+		if (it.IsAvailable()) {
+			char_classes.push_back(it.GetId());
+		}
+	}
+	std::sort(char_classes.begin(), char_classes.end());
+	for (const auto &it : char_classes) {
+		out << "  " << KCYN << std::right << std::setw(3) << it + 1 << KNRM << ") "
+		<< KGRN << std::left << MUD::Classes()[it].GetName() << std::endl << KNRM;
+	}
+	write_to_output(out.str().c_str(), d);
 }
 
 // deal with newcomers and other non-playing sockets
@@ -3051,7 +3060,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 			} else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н') {
 				SEND_TO_Q("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
-				d->character->set_pc_name(0);
+				d->character->set_pc_name(nullptr);
 				STATE(d) = CON_GET_NAME;
 			} else {
 				SEND_TO_Q("Ответьте Yes(Да) or No(Нет) : ", d);
@@ -3216,10 +3225,9 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			if (STATE(d) == CON_CNFPASSWD) {
-				GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
-				SEND_TO_Q(class_menu, d);
-				SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-						  " \r\nсправка <интересующая профессия>): ", d);
+				GET_KIN(d->character) = 0;
+				DisplaySelectCharClassMenu(d);
+				SEND_TO_Q("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 				STATE(d) = CON_QCLASS;
 			} else {
 				sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
@@ -3275,21 +3283,8 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			GET_KIN(d->character) = load_result;
-			/*
-			Ахтунг-партизанен!
-			Пока что убраны все вызовы парсилок _классов_ для отличных от русичей _рас_.
-			Сами парсилки и списки классов оставлены для потомков.
-			Проверка тоже убрана, так что при создании перса другой расы ему предложат выбрать "русские" классы.
-			Теоретически это конечно неправильно, но я сомневаюсь, что в ближайшем будущем кто-то станет доделывать расы.
-			Если же такой садомазо найдется, то для него это всеи пишется.
-			В таком варианте надо в описания _рас_ в файле playerraces.xml
-			Ввести список доступных расе классов. И уже от этого списка плясать с названиями и парсом, а не городить все в 3 экземплярах
-			Сами классы при этом из кода можно и не выносить ж)
-			Sventovit
-			 */
-			SEND_TO_Q(class_menu, d);
-			SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-					  " \r\nсправка <интересующая профессия>): ", d);
+			DisplaySelectCharClassMenu(d);
+			SEND_TO_Q("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 			STATE(d) = CON_QCLASS;
 			break;
 
@@ -3340,13 +3335,23 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_QCLASS: {
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu, d);
+				DisplaySelectCharClassMenu(d);
 				SEND_TO_Q("\r\nВаша профессия : ", d);
 				STATE(d) = CON_QCLASS;
 				return;
 			}
 
-			auto class_id = ParseClass(*arg);
+			int class_num{-1};
+			ECharClass class_id{ECharClass::kUndefined};
+			try {
+				class_num = std::stoi(arg);
+			} catch (std::exception &) {
+				class_id = FindAvailableCharClassId(arg);
+			}
+			if (class_num != -1) {
+				class_id = MUD::Classes().FindAvailableItem(class_num - 1).GetId();
+			}
+
 			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
@@ -3359,51 +3364,7 @@ void nanny(DescriptorData *d, char *arg) {
 			STATE(d) = CON_RELIGION;
 			break;
 		}
-		// ABYRVALG - вырезать
-		case CON_QCLASSS: {
-			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu_step, d);
-				SEND_TO_Q("\r\nВаша профессия : ", d);
-				STATE(d) = CON_QCLASSS;
-				return;
-			}
 
-			auto class_id = static_cast<ECharClass>(ParseClass(*arg));
-			if (class_id == ECharClass::kUndefined) {
-				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
-				return;
-			} else {
-				d->character->set_class(class_id);
-			}
-
-			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия :", d);
-			STATE(d) = CON_RELIGION;
-
-			break;
-		}
-		case CON_QCLASSV: {
-			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu_vik, d);
-				SEND_TO_Q("\r\nВаша профессия : ", d);
-				STATE(d) = CON_QCLASSV;
-				return;
-			}
-
-			auto class_id = static_cast<ECharClass>(ParseClass(*arg));
-			if (class_id == ECharClass::kUndefined) {
-				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
-				return;
-			} else {
-				d->character->set_class(class_id);
-			}
-
-			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия:", d);
-			STATE(d) = CON_RELIGION;
-
-			break;
-		}
 		case CON_RACE:        // query race
 			if (pre_help(d->character.get(), arg)) {
 				SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
@@ -3463,7 +3424,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			switch (genchar_parse(d->character.get(), arg)) {
-				case GENCHAR_CONTINUE: genchar_disp_menu(d->character.get());
+				case kGencharContinue: genchar_disp_menu(d->character.get());
 					break;
 				default: SEND_TO_Q("\r\nВведите ваш E-mail"
 								   "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
@@ -3548,11 +3509,11 @@ void nanny(DescriptorData *d, char *arg) {
 				case '0': SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
 
 					if (GET_REAL_REMORT(d->character) == 0
-						&& GET_REAL_LEVEL(d->character) <= 25
+						&& GetRealLevel(d->character) <= 25
 						&& !PLR_FLAGS(d->character).get(PLR_NODELETE)) {
 						int timeout = -1;
-						for (int ci = 0; GET_REAL_LEVEL(d->character) > pclean_criteria[ci].level; ci++) {
-							//if (GET_REAL_LEVEL(d->character) == pclean_criteria[ci].level)
+						for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
+							//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
 							timeout = pclean_criteria[ci + 1].days;
 						}
 						if (timeout > 0) {
@@ -3707,12 +3668,12 @@ void nanny(DescriptorData *d, char *arg) {
 					STATE(d) = CON_CLOSE;
 					return;
 				}
-				if (GET_REAL_LEVEL(d->character) >= kLevelGreatGod)
+				if (GetRealLevel(d->character) >= kLevelGreatGod)
 					return;
 				delete_char(GET_NAME(d->character));
 				sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 				SEND_TO_Q(buf, d);
-				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_REAL_LEVEL(d->character));
+				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
 				mudlog(buf, NRM, kLevelGod, SYSLOG, true);
 				d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
 				STATE(d) = CON_CLOSE;
@@ -3851,7 +3812,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			switch (genchar_parse(d->character.get(), arg)) {
-				case GENCHAR_CONTINUE: genchar_disp_menu(d->character.get());
+				case kGencharContinue: genchar_disp_menu(d->character.get());
 					break;
 
 				default:
@@ -4024,40 +3985,48 @@ void GetOneParam(std::string &in_buffer, std::string &out_buffer) {
 
 // регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
 bool CompareParam(const std::string &buffer, const char *arg, bool full) {
-	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
-		return 0;
+	if (!arg || !*arg || buffer.empty() || (full && buffer.length() != strlen(arg))) {
+		return false;
+	}
 
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && *arg; ++i, ++arg)
-		if (LOWER(buffer[i]) != LOWER(*arg))
-			return (0);
+	for (i = 0; i != buffer.length() && *arg; ++i, ++arg) {
+		if (LOWER(buffer[i]) != LOWER(*arg)) {
+			return false;
+		}
+	}
 
-	if (i == buffer.length())
-		return (1);
-	else
-		return (0);
+	if (i == buffer.length()) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // тоже самое с обоими аргументами стринг
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full) {
 	if (buffer.empty() || buffer2.empty()
-		|| (full && buffer.length() != buffer2.length()))
-		return 0;
+		|| (full && buffer.length() != buffer2.length())) {
+		return false;
+	}
 
 	std::string::size_type i;
-	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i)
-		if (LOWER(buffer[i]) != LOWER(buffer2[i]))
-			return (0);
+	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i) {
+		if (LOWER(buffer[i]) != LOWER(buffer2[i])) {
+			return false;
+		}
+	}
 
-	if (i == buffer.length())
-		return (1);
-	else
-		return (0);
+	if (i == buffer.length()) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // ищет дескриптор игрока(онлайн состояние) по его УИДу
 DescriptorData *DescByUID(int uid) {
-	DescriptorData *d = 0;
+	DescriptorData *d = nullptr;
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->character && GET_UNIQUE(d->character) == uid)
@@ -4071,7 +4040,7 @@ DescriptorData *DescByUID(int uid) {
 * \param playing - 0 если ищем игрока в любом состоянии, 1 (дефолт) если ищем только незанятых
 */
 DescriptorData *get_desc_by_id(long id, bool playing) {
-	DescriptorData *d = 0;
+	DescriptorData *d = nullptr;
 
 	if (playing) {
 		for (d = descriptor_list; d; d = d->next)
@@ -4111,7 +4080,7 @@ long GetUniqueByName(const std::string &name, bool god) {
 }
 
 bool IsActiveUser(long unique) {
-	time_t currTime = time(0);
+	time_t currTime = time(nullptr);
 	time_t charLogon;
 	int inactivityDelay = /* day*/ (3600 * 24) * /*days count*/ 60;
 	for (std::size_t i = 0; i < player_table.size(); ++i) {
@@ -4231,7 +4200,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 	if (IS_IMMORTAL(ch))
 		return false;
 
-	ctime = time(0);
+	ctime = time(nullptr);
 
 	switch (mode) {
 		case WHO_LISTALL: cost = WHO_COST;

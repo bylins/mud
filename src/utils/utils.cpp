@@ -502,7 +502,7 @@ TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 TimeInfoData *age(const CharData *ch) {
 	static TimeInfoData player_age;
 
-	player_age = *mud_time_passed(time(0), ch->player_data.time.birth);
+	player_age = *mud_time_passed(time(nullptr), ch->player_data.time.birth);
 
 	player_age.year += 17;    // All players start at 17 //
 
@@ -1943,9 +1943,9 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 }
 
 int CAN_CARRY_N(const CharData *ch) {
-	int n = 5 + GET_REAL_DEX(ch) / 2 + GET_REAL_LEVEL(ch) / 2;
+	int n = 5 + GET_REAL_DEX(ch) / 2 + GetRealLevel(ch) / 2;
 	if (HAVE_FEAT(ch, JUGGLER_FEAT)) {
-		n += GET_REAL_LEVEL(ch) / 2;
+		n += GetRealLevel(ch) / 2;
 		if (GET_CLASS(ch) == kMagus) {
 			n += 5;
 		}
@@ -1997,14 +1997,12 @@ void sanity_check(void) {
 	}
 }
 
-short GET_REAL_LEVEL(const CharData *ch)
-{
-	// обрезаем максимальный уровень мобов
+int GetRealLevel(const CharData *ch) {
+
 	if (IS_NPC(ch)) {
-		return std::clamp(ch->get_level() + ch->get_level_add(), 1, static_cast<int>(kMaxMobLevel));
+		return std::clamp(ch->get_level() + ch->get_level_add(), 1, kMaxMobLevel);
 	}
 
-	// игнорируем get_level_add для иммов
 	if (IS_IMMORTAL(ch)) {
 		return ch->get_level();
 	}
@@ -2012,30 +2010,21 @@ short GET_REAL_LEVEL(const CharData *ch)
 	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLevelImmortal - 1);
 }
 
-short GET_REAL_LEVEL(const std::shared_ptr<CharData> ch)
-{
-	return GET_REAL_LEVEL(ch.get());
+int GetRealLevel(const std::shared_ptr<CharData> &ch) {
+	return GetRealLevel(ch.get());
 }
 
-short GET_REAL_LEVEL(const std::shared_ptr<CharData> &ch)
-{
-	return GET_REAL_LEVEL(ch.get());
-}
-
-short GET_REAL_REMORT(const CharData *ch)
-{
+short GET_REAL_REMORT(const CharData *ch) {
 	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CharData> ch)
-{
+short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch) {
 	return GET_REAL_REMORT(ch.get());
 }
 
-short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch)
-{
+/*short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch) {
 	return GET_REAL_REMORT(ch.get());
-}
+}*/
 
 bool isname(const char *str, const char *namelist) {
 	bool once_ok = false;

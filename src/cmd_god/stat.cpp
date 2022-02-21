@@ -18,7 +18,7 @@
 #include "color.h"
 #include "mob_stat.h"
 #include "modify.h"
-#include "entities/zone.h"
+//#include "entities/zone.h"
 #include "magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "depot.h"
@@ -53,7 +53,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	struct Follower *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GetRealLevel(ch);
 	int k_room = -1;
 	if (!virt && (god_level == kLevelImplementator || (god_level == kLevelGreatGod && !IS_NPC(k)))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
@@ -66,7 +66,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
-			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий GetAbilityId:[%ld]",
+			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий Id:[%ld]",
 			(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 			GET_NAME(k),
 			GET_IDNUM(k),
@@ -180,7 +180,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	send_to_char(buf, ch);
 
 	if (!IS_NPC(k)) {
-		sprinttype(k->get_class(), pc_class_types, smallBuf);
+		strcpy(smallBuf, MUD::Classes()[k->get_class()].GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
 				k->get_race_name().c_str(),
@@ -205,7 +205,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 
 	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
-			CCYEL(ch, C_NRM), GET_REAL_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+			CCYEL(ch, C_NRM), GetRealLevel(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
 			GET_EXP(k), CCNRM(ch, C_NRM), tmp_buf, GET_ALIGNMENT(k));
 
 	send_to_char(buf, ch);
@@ -237,7 +237,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				k->get_hryvn(), k->get_nogata());
 
 		//. Display OLC zone for immorts .
-		if (GET_REAL_LEVEL(ch) >= kLevelImmortal) {
+		if (GetRealLevel(ch) >= kLevelImmortal) {
 			sprintf(buf1, ", %sOLC[%d]%s", CCGRN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
 			strcat(buf, buf1);
 		}
@@ -249,7 +249,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0) : -1);
 		send_to_char(buf, ch);
 		std::string stats;
-		mob_stat::last_kill_mob(k, stats);
+		mob_stat::GetLastMobKill(k, stats);
 		sprintf(buf, "Последний раз убит: %s", stats.c_str());
 		send_to_char(buf, ch);
 	}
@@ -612,7 +612,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		strcpy(buf2, "None");
 	}
 
-	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], GetAbilityId: [%ld]\r\n",
+	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], Id: [%ld]\r\n",
 				 CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
 
 	send_to_char(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
@@ -1133,7 +1133,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GET_REAL_LEVEL(ch);
+	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GetRealLevel(ch);
 
 	if (utils::IsAbbrev(buf1, "room") && level >= kLevelBuilder) {
 		int vnum, rnum = kNowhere;
@@ -1188,7 +1188,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			Player t_vict;
 			if (load_char(buf2, &t_vict) > -1) {
-				if (GET_REAL_LEVEL(&t_vict) > level) {
+				if (GetRealLevel(&t_vict) > level) {
 					send_to_char("Извините, вам это еще рано.\r\n", ch);
 				} else {
 					Clan::SetClanData(&t_vict);

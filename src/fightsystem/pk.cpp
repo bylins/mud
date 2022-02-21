@@ -891,8 +891,8 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		return (false);
 	}
 	// не агрим чарами <=10 на чаров >=20
-	if (!IS_NPC(victim) && !IS_NPC(ch) && GET_REAL_LEVEL(ch) <= 10
-		&& GET_REAL_LEVEL(victim) >= 20 && !(pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))) {
+	if (!IS_NPC(victim) && !IS_NPC(ch) && GetRealLevel(ch) <= 10
+		&& GetRealLevel(victim) >= 20 && !(pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))) {
 		act("Вы еще слишком слабы, чтобы напасть на $N3.", false, ch, 0, victim, kToChar);
 		return (false);
 	}
