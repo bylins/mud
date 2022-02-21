@@ -43,6 +43,7 @@
 #include "utils/file_crc.h"
 #include "genchar.h"
 #include "structs/global_objects.h"
+#include "game_classes/classes.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
@@ -102,8 +103,6 @@ extern FILE *player_fl;
 
 extern DescriptorData *descriptor_list;
 extern IndexData *mob_index;
-extern char const *class_abbrevs[];
-extern char const *kin_abbrevs[];
 extern const char *weapon_affects[];
 extern int circle_restrict;
 extern int load_into_inventory;
@@ -126,7 +125,6 @@ void log_zone_count_reset();
 int level_exp(CharData *ch, int level);
 void appear(CharData *ch);
 void reset_zone(ZoneRnum zone);
-ECharClass FindCharClass(char name);
 extern CharData *find_char(long n);
 void rename_char(CharData *ch, char *oname);
 int _parse_name(char *arg, char *name);
@@ -2819,18 +2817,15 @@ extern void PrintUptime(std::ostringstream &out);
 
 void do_date(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	time_t mytime;
+	std::ostringstream out;
+
 	if (subcmd == SCMD_DATE) {
 		mytime = time(nullptr);
-	} else {
-		mytime = shutdown_parameters.get_boot_time();
-	}
-
-	std::ostringstream out;
-	if (subcmd == SCMD_DATE) {
 		out << "Текущее время сервера: " << asctime(localtime(&mytime)) << std::endl;
 	} else {
+		mytime = shutdown_parameters.get_boot_time();
 		out << " Up since: " << asctime(localtime(&mytime));
-		out.seekp(-1, std::ios_base::end);
+		out.seekp(-1, std::ios_base::end); // Удаляем \0 из конца строки.
 		out << " ";
 		PrintUptime(out);
 	}
@@ -2855,10 +2850,9 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вы не столь уж и божественны для этого.\r\n", ch);
 	} else {
 		time_t tmp_time = LAST_LOGON(chdata);
-		sprintf(buf, "[%5ld] [%2d %s %s] %-12s : %-18s : %-20s\r\n",
+		sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s\r\n",
 				GET_IDNUM(chdata), GetRealLevel(chdata),
-				kin_abbrevs[(int) GET_KIN(chdata)],
-				class_abbrevs[(int) GET_CLASS(chdata)], GET_NAME(chdata),
+				MUD::Classes()[chdata->get_class()].GetAbbr().c_str(), GET_NAME(chdata),
 				GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&tmp_time));
 		send_to_char(buf, ch);
 	}
@@ -4180,7 +4174,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			break;
 		case 31: {
-			auto class_id = FindCharClass(*val_arg);
+			auto class_id = FindAvailableCharClassId(val_arg);
 			if (class_id == ECharClass::kUndefined) {
 				send_to_char("Нет такого класса в этой игре. Найдите себе другую.\r\n", ch);
 				return (0);

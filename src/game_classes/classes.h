@@ -1,5 +1,5 @@
-#ifndef __CLASS_HPP__
-#define __CLASS_HPP__
+#ifndef CLASS_HPP_
+#define CLASS_HPP_
 
 #include "structs/structs.h"
 #include "classes_constants.h"
@@ -8,7 +8,7 @@
 
 int invalid_no_class(CharData *ch, const ObjData *obj);
 int extra_damroll(int class_num, int level);
-void LoadClassSkills();
+ECharClass FindAvailableCharClassId(const std::string &class_name);
 
 class GroupPenalties {
  public:
@@ -24,6 +24,6 @@ class GroupPenalties {
 
 extern GroupPenalties grouping;
 
-#endif // __CLASS_HPP__
+#endif // CLASS_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

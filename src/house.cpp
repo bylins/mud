@@ -6,6 +6,18 @@
 
 #include "house.h"
 
+#include <sys/stat.h>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+#include <iomanip>
+#include <limits>
+
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include "world_objects.h"
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
@@ -29,20 +41,8 @@
 #include "game_mechanics/named_stuff.h"
 #include "help.h"
 #include "conf.h"
+#include "structs/global_objects.h"
 #include "utils/objects_filter.h"
-
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
-#include <sys/stat.h>
-
-#include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <iomanip>
-#include <limits>
 
 using namespace ClanSystem;
 
@@ -53,7 +53,6 @@ extern int file_to_string_alloc(const char *name, char **buf);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 extern const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
-extern char const *class_abbrevs[];
 extern bool char_to_pk_clan(CharData *ch);
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
 {
@@ -4505,7 +4504,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 				continue;
 			} else if (!IS_IMMORTAL(d->character)) {
 				it.second->level = GetRealLevel(d->character);
-				it.second->class_abbr = CLASS_ABBR(d->character);
+				it.second->class_abbr = MUD::Classes()[d->character->get_class()].GetAbbr();
 				it.second->remort = GET_GOD_FLAG(d->character, GF_REMORT) ? true : false;
 			}
 		} else if (name) {
@@ -4515,7 +4514,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 		}
 		char timeBuf[17];
 		time_t tmp_time = get_lastlogon_by_unique(it.first);
-		if (tmp_time <= 0) tmp_time = time(0);
+		if (tmp_time <= 0) tmp_time = time(nullptr);
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&tmp_time));
 
 		// сортировка по...

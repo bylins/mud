@@ -46,7 +46,7 @@ void show_stats(CharData *ch);
 void transfer_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void add_total_spent(int amount);
 void apply_modifiers(CharData *ch);
-void PrintGloryTop(CharData *ch);
+void PrintGloryChart(CharData *ch);
 
 } // namespace GloryConst
 

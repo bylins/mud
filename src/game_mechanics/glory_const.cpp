@@ -1061,7 +1061,7 @@ void apply_modifiers(CharData *ch) {
 	}
 }
 
-void PrintGloryTop(CharData *ch) {
+void PrintGloryChart(CharData *ch) {
 	std::stringstream out;
 	boost::format class_format("\t%-25s %-2d\r\n");
 	std::map<int, GloryNodePtr> temp_list;

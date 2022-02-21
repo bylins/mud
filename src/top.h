@@ -42,7 +42,6 @@ class TopPlayer {
 	static void PrintHelp(CharData *ch);
 	static void PrintPlayersChart(CharData *ch);
 	static void PrintClassChart(CharData *ch, ECharClass id);
-	static ECharClass FindClass(std::string &class_name);
 
 	friend void DoBest(CharData *ch, char *argument, int cmd, int subcmd);
 };

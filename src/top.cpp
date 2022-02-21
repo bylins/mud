@@ -1,5 +1,6 @@
 #include "top.h"
 
+#include "game_classes/classes.h"
 #include "color.h"
 #include "game_mechanics/glory_const.h"
 #include "entities/char_data.h"
@@ -82,16 +83,6 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 	send_to_char(out.str().c_str(), ch);
 }
 
-/* Вообще то такие вещи должен сам контейнер делать, но пока не реализовано ABYRVALG */
-ECharClass TopPlayer::FindClass(std::string &class_name) {
-	for (const auto &it: MUD::Classes()) {
-		if (it.IsAvailable() && CompareParam(class_name, it.GetPluralName())) {
-			return it.id;
-		}
-	}
-	return ECharClass::kUndefined;
-};
-
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	std::ostringstream out;
 	out << KWHT << "Лучшие " << MUD::Classes()[id].GetPluralName() << ":" << KNRM << std::endl;
@@ -149,7 +140,7 @@ void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	utils::trim(buffer);
 
 	if (CompareParam(buffer, "прославленные")) {
-		GloryConst::PrintGloryTop(ch);
+		GloryConst::PrintGloryChart(ch);
 		return;
 	}
 
@@ -158,7 +149,7 @@ void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	auto class_id = TopPlayer::FindClass(buffer);
+	auto class_id = FindAvailableCharClassId(buffer);
 	if (class_id != ECharClass::kUndefined) {
 		TopPlayer::PrintClassChart(ch, class_id);
 		return;

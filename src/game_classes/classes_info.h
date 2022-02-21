@@ -51,8 +51,10 @@ struct CharClassInfo : public info_container::IItem<ECharClass>{
 
 	/* Имена */
 	std::unique_ptr<base_structs::ItemName> names;
+	std::string abbr;
 	[[nodiscard]] const std::string &GetName(ECase name_case = ECase::kNom) const;
 	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const std::string &GetAbbr() const;
 
 	/*
 	 *  Строка в C-стиле. По возможности используйте std::string.

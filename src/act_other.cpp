@@ -66,12 +66,7 @@
 #include <iomanip>
 
 // extern variables
-/*extern DescriptorData *descriptor_list;
-extern IndexData *mob_index;*/
-extern char const *class_abbrevs[];
-//extern int max_filesize;
 extern int nameserver_is_slow;
-
 // extern procedures
 void list_feats(CharData *ch, CharData *vict, bool all_feats);
 void list_skills(CharData *ch, CharData *vict, const char *filter = nullptr);

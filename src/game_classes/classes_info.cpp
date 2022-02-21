@@ -106,6 +106,11 @@ void CharClassInfoBuilder::ParseClass(Optional &info, DataNode &node) {
 }
 
 void CharClassInfoBuilder::ParseName(Optional &info, DataNode &node) {
+	try {
+		info.value()->abbr = parse::ReadAsStr(node.GetValue("abbr"));
+	} catch (std::exception &) {
+		info.value()->abbr = "--";
+	}
 	info.value()->names = base_structs::ItemName::Build(node);
 }
 
@@ -154,7 +159,8 @@ void CharClassInfo::Print(std::stringstream &buffer) const {
 	buffer << "Print class:" << "\n"
 		   << "    Id: " << KGRN << NAME_BY_ITEM<ECharClass>(id) << KNRM << std::endl
 		   << "    Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(mode) << KNRM << std::endl
-		   << "    Name: " << KGRN << names->GetSingular(ECase::kNom)
+		   << "    Abbr: " << KGRN << GetAbbr()
+		   << "    Name: " << KGRN << GetName()
 		   << "/" << names->GetSingular(ECase::kGen)
 		   << "/" << names->GetSingular(ECase::kDat)
 		   << "/" << names->GetSingular(ECase::kAcc)
@@ -169,6 +175,10 @@ void CharClassInfo::Print(std::stringstream &buffer) const {
 	}
 	buffer << std::endl;
 }
+
+const std::string &CharClassInfo::GetAbbr() const {
+	return abbr;
+};
 
 const std::string &CharClassInfo::GetName(ECase name_case) const {
 	return names->GetSingular(name_case);

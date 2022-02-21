@@ -132,8 +132,9 @@ bool IsAbbrev(const char *arg1, const char *arg2) {
 
 // * Конвертация входной строки в нижний регистр
 void ConvertToLow(std::string &text) {
-	for (std::string::iterator it = text.begin(); it != text.end(); ++it)
-		*it = LOWER(*it);
+	for (char & it : text) {
+		it = LOWER(it);
+	}
 }
 
 // * Конвертация входной строки в нижний регистр

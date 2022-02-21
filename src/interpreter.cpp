@@ -51,6 +51,7 @@
 #include "fightsystem/pk.h"
 #include "fightsystem/fight_start.h"
 #include "genchar.h"
+#include "game_classes/classes.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
@@ -139,7 +140,6 @@ extern RoomRnum r_frozen_start_room;
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
-extern const char *class_menu;
 extern const char *religion_menu;
 extern char *motd;
 extern char *rules;
@@ -171,7 +171,6 @@ extern char *name_rules;
 
 // external functions
 void do_start(CharData *ch, int newbie);
-ECharClass FindCharClass(char name);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
@@ -2757,6 +2756,24 @@ static void ShowEncodingPrompt(DescriptorData *d, bool withHints = false) {
 	}
 }
 
+void DisplaySelectCharClassMenu(DescriptorData *d) {
+	std::ostringstream out;
+	out << std::endl << "Выберите профессию:" << std::endl;
+	std::vector<ECharClass> char_classes;
+	char_classes.reserve(kNumPlayerClasses);
+	for (const auto &it : MUD::Classes()) {
+		if (it.IsAvailable()) {
+			char_classes.push_back(it.GetId());
+		}
+	}
+	std::sort(char_classes.begin(), char_classes.end());
+	for (const auto &it : char_classes) {
+		out << "  " << KCYN << std::right << std::setw(3) << it + 1 << KNRM << ") "
+		<< KGRN << std::left << MUD::Classes()[it].GetName() << std::endl << KNRM;
+	}
+	write_to_output(out.str().c_str(), d);
+}
+
 // deal with newcomers and other non-playing sockets
 void nanny(DescriptorData *d, char *arg) {
 	char buf[kMaxStringLength];
@@ -3216,10 +3233,9 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			if (STATE(d) == CON_CNFPASSWD) {
-				GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
-				SEND_TO_Q(class_menu, d);
-				SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-						  " \r\nсправка <интересующая профессия>): ", d);
+				GET_KIN(d->character) = 0;
+				DisplaySelectCharClassMenu(d);
+				SEND_TO_Q("\r\nВаша профессия. (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 				STATE(d) = CON_QCLASS;
 			} else {
 				sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
@@ -3275,19 +3291,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			GET_KIN(d->character) = load_result;
-			/*
-			Ахтунг-партизанен!
-			Пока что убраны все вызовы парсилок _классов_ для отличных от русичей _рас_.
-			Сами парсилки и списки классов оставлены для потомков.
-			Проверка тоже убрана, так что при создании перса другой расы ему предложат выбрать "русские" классы.
-			Теоретически это конечно неправильно, но я сомневаюсь, что в ближайшем будущем кто-то станет доделывать расы.
-			Если же такой садомазо найдется, то для него это всеи пишется.
-			В таком варианте надо в описания _рас_ в файле playerraces.xml
-			Ввести список доступных расе классов. И уже от этого списка плясать с названиями и парсом, а не городить все в 3 экземплярах
-			Сами классы при этом из кода можно и не выносить ж)
-			Sventovit
-			 */
-			SEND_TO_Q(class_menu, d);
+			DisplaySelectCharClassMenu(d);
 			SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
 					  " \r\nсправка <интересующая профессия>): ", d);
 			STATE(d) = CON_QCLASS;
@@ -3340,13 +3344,27 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_QCLASS: {
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(class_menu, d);
+				//SEND_TO_Q(class_menu, d);
+				DisplaySelectCharClassMenu(d);
 				SEND_TO_Q("\r\nВаша профессия : ", d);
 				STATE(d) = CON_QCLASS;
 				return;
 			}
 
-			auto class_id = FindCharClass(*arg);
+			int class_num{-1};
+			ECharClass class_id{ECharClass::kUndefined};
+			try {
+				class_num = std::stoi(arg);
+			} catch (std::exception &) {
+				class_id = FindAvailableCharClassId(arg);
+			}
+			if (class_num != -1) {
+				class_id = static_cast<ECharClass>(class_num - 1);
+				if (MUD::Classes().IsUnavailable(class_id)) {
+					class_id = ECharClass::kUndefined;
+				}
+			}
+
 			if (class_id == ECharClass::kUndefined) {
 				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;

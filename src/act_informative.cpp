@@ -94,16 +94,12 @@ extern char *rules;
 extern char *immlist;
 extern char *policies;
 extern char *handbook;
-extern char const *class_abbrevs[];
-extern char const *kin_abbrevs[];
-//extern const char *material_name[];
 extern im_type *imtypes;
 extern int top_imtypes;
 extern void show_code_date(CharData *ch);
 extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
 // extern functions
-Bitvector FindCharClassMask(char name);
 int level_exp(CharData *ch, int level);
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
 // local functions
@@ -428,8 +424,8 @@ std::string space_before_string(char const *text) {
 	return "";
 }
 
-std::string space_before_string(std::string text) {
-	if (text != "") {
+std::string space_before_string(const std::string& text) {
+	if (!text.empty()) {
 		std::string tmp(" ");
 		tmp += text;
 		boost::replace_all(tmp, "\n", "\n ");
@@ -2196,6 +2192,8 @@ void look_in_obj(CharData *ch, char *arg) {
 						break;
 					case FIND_OBJ_EQUIP: send_to_char("(в амуниции)\r\n", ch);
 						break;
+					default: send_to_char("(неведомо где)\r\n", ch);
+						break;
 				}
 				if (!obj->get_contains())
 					send_to_char(" Внутри ничего нет.\r\n", ch);
@@ -2205,17 +2203,15 @@ void look_in_obj(CharData *ch, char *arg) {
 						   с помощью нехитрых мат. преобразований мы получаем соотношение веса и максимального объема контейнера,
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
 						*/
-						amt = MAX(0, MIN(5, (GET_OBJ_WEIGHT(obj) * 100) / (GET_OBJ_VAL(obj, 0) * 20)));
-						//sprintf(buf, "DEBUG 1: %d 2: %d 3: %d.\r\n", GET_OBJ_WEIGHT(obj), GET_OBJ_VAL(obj, 0), amt);
-						//send_to_char(buf, ch);
+						amt = std::clamp((GET_OBJ_WEIGHT(obj) * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
 						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
 						send_to_char(buf, ch);
 					}
 					list_obj_to_char(obj->get_contains(), ch, 1, bits != FIND_OBJ_ROOM);
 				}
 			}
-		} else    // item must be a fountain or drink container
-		{
+		} else {
+			// item must be a fountain or drink container
 			send_to_char(ch, "%s.\r\n", daig_filling_drink(obj, ch));
 
 		}
@@ -3881,8 +3877,7 @@ void do_equipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("что-то.\r\n", ch);
 				found = true;
 			}
-		} else        // added by Pereplut
-		{
+		} else {
 			if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
 				if (GET_EQ(ch, 18))
 					if ((i == 16) || (i == 17))
@@ -4112,10 +4107,11 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Флаги для опций
 	int low = 0, high = kLevelImplementator;
-	int showclass = 0, num_can_see = 0;
+	int num_can_see = 0;
 	int imms_num = 0, morts_num = 0, demigods_num = 0;
 	bool localwho = false, short_list = false;
 	bool who_room = false, showname = false;
+	ECharClass showclass{ECharClass::kUndefined};
 
 	skip_spaces(&argument);
 	strcpy(buf, argument);
@@ -4163,10 +4159,11 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					break;
 				case 'c': half_chop(buf1, arg, buf);
 					if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
-						const size_t len = strlen(arg);
+/*						const size_t len = strlen(arg);
 						for (size_t i = 0; i < len; i++) {
 							showclass |= FindCharClassMask(arg[i]);
-						}
+						}*/
+						showclass = FindAvailableCharClassId(arg);
 					}
 					break;
 				case 'h':
@@ -4202,42 +4199,52 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int all = 0;
 
 	for (const auto &tch: character_list) {
-		if (IS_NPC(tch))
+		if (tch->is_npc()) {
 			continue;
+		}
 
-		if (!HERE(tch))
+		if (!HERE(tch)) {
 			continue;
+		}
 
-		if (!*argument && GetRealLevel(tch) < kLevelImmortal)
+		if (!*argument && GetRealLevel(tch) < kLevelImmortal) {
 			++all;
+		}
 
-		if (*name_search && !(isname(name_search, GET_NAME(tch))))
+		if (*name_search && !(isname(name_search, GET_NAME(tch)))) {
 			continue;
+		}
 
-		if (!CAN_SEE_CHAR(ch, tch) || GetRealLevel(tch) < low || GetRealLevel(tch) > high)
+		if (!CAN_SEE_CHAR(ch, tch) || GetRealLevel(tch) < low || GetRealLevel(tch) > high) {
 			continue;
-		if (localwho && world[ch->in_room]->zone_rn != world[tch->in_room]->zone_rn)
+		}
+		if (localwho && world[ch->in_room]->zone_rn != world[tch->in_room]->zone_rn) {
 			continue;
-		if (who_room && (tch->in_room != ch->in_room))
+		}
+		if (who_room && (tch->in_room != ch->in_room)) {
 			continue;
-		if (showclass && !(showclass & (1 << GET_CLASS(tch))))
+		}
+		if (showclass != ECharClass::kUndefined && showclass != tch->get_class()) {
 			continue;
-		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= NAME_LEVEL))
+		}
+		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= NAME_LEVEL)) {
 			continue;
-		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)
-			&& ch != tch.get())
+		}
+		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch)
+			&& !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)
+			&& ch != tch.get()) {
 			continue;
+		}
 
 		*buf = '\0';
 		num_can_see++;
-
 		if (short_list) {
 			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
 			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) {
-				sprintf(buf, "%s[%2d %s %s] %-30s%s",
+				sprintf(buf, "%s[%2d %s] %-30s%s",
 						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
-						GetRealLevel(tch), KIN_ABBR(tch), CLASS_ABBR(tch),
+						GetRealLevel(tch), MUD::Classes()[tch->get_class()].GetCName(),
 						tmp, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
 			} else {
 				sprintf(buf, "%s%-30s%s",
@@ -4251,7 +4258,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch),
 						GET_REAL_REMORT(tch),
-						CLASS_ABBR(tch),
+						MUD::Classes()[tch->get_class()].GetAbbr().c_str(),
 						tch->get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
@@ -4416,10 +4423,16 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			continue;
 		}
 		CLAN(tch) ? ++clan : ++noclan;
-		GetRealLevel(tch) >= 25 ? ++hilvl : ++lowlvl;
 		GET_REAL_REMORT(tch) >= 1 ? ++rem : ++norem;
 		pk_count(tch.get()) >= 1 ? ++pk : ++nopk;
-		GetRealLevel(tch) >= 25 ? ++players[(tch->get_class())].first : ++players[(tch->get_class())].second;
+
+		if (GetRealLevel(tch) >= 25) {
+			++players[(tch->get_class())].first;
+			++hilvl;
+		} else {
+			++players[(tch->get_class())].second;
+			++lowlvl;
+		}
 		++total;
 	}
 	/*
@@ -4427,7 +4440,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	 * \todo table format
 	 */
 	std::ostringstream out;
-	out << KICYN << " Статистика по игрокам в игре (всего / 25 ур. и выше / ниже 25 ур.):"
+	out << KICYN << " Статистика по персонажам в игре (всего / 25 ур. и выше / ниже 25 ур.):"
 	<< KNRM << std::endl << std::endl << " ";
 	int count{1};
 	const int columns{2};
@@ -4483,15 +4496,13 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 #define USERS_FORMAT \
 "Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
-#define MAX_LIST_LEN 200
+const int kMaxListLen = 200;
 void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	const char *format = "%3d %-7s %-12s %-14s %-3s %-8s ";
 	char line[200], line2[220], idletime[10], classname[128];
 	char state[30] = "\0", *timeptr, mode;
 	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
-// Хорс
 	char host_by_name[kMaxInputLength] = "\0";
-	DescriptorData *list_players[MAX_LIST_LEN];
+	DescriptorData *list_players[kMaxListLen];
 	DescriptorData *d_tmp;
 	int count_pl;
 	int cycle_i, is, flag_change;
@@ -4500,7 +4511,8 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char sorting = '!';
 	DescriptorData *d;
 	int low = 0, high = kLevelImplementator, num_can_see = 0;
-	int showclass = 0, outlaws = 0, playing = 0, deadweight = 0;
+	int outlaws = 0, playing = 0, deadweight = 0;
+	ECharClass showclass{ECharClass::kUndefined};
 
 	host_search[0] = name_search[0] = '\0';
 
@@ -4547,10 +4559,11 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case 'c': {
 					playing = 1;
 					half_chop(buf1, arg, buf);
-					const size_t len = strlen(arg);
+/*					const size_t len = strlen(arg);
 					for (size_t i = 0; i < len; i++) {
 						showclass |= FindCharClassMask(arg[i]);
-					}
+					}*/
+					showclass = FindAvailableCharClassId(arg);
 					break;
 				}
 				case 'e': showemail = 1;
@@ -4561,7 +4574,6 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					break;
 
 				case 's':
-					//sorting = 'i';
 					sorting = *(arg + 2);
 					strcpy(buf, buf1);
 					break;
@@ -4569,28 +4581,28 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 			}    // end of switch
 
-		} else    // endif
-		{
+		} else {
 			strcpy(name_search, arg);
 			strcpy(buf, buf1);
 		}
 	}            // end while (parser)
+
+	const char *format = "%3d %-7s %-20s %-17s %-3s %-8s ";
 	if (showemail) {
-		strcpy(line, "Ном Професс       Имя         Состояние       Idl Логин    Сайт       E-mail\r\n");
+		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт       E-mail\r\n");
 	} else {
-		strcpy(line, "Ном Професс       Имя         Состояние       Idl Логин    Сайт\r\n");
+		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт\r\n");
 	}
-	strcat(line, "--- ---------- ------------ ----------------- --- -------- ----------------------------\r\n");
+	strcat(line, "--- ---------- -------------------- ----------------- --- -------- ----------------------------\r\n");
 	send_to_char(line, ch);
 
 	one_argument(argument, arg);
 
-// Хорс
 	if (strlen(host_by_name) != 0) {
 		strcpy(host_search, "!");
 	}
 
-	for (d = descriptor_list, count_pl = 0; d && count_pl < MAX_LIST_LEN; d = d->next, count_pl++) {
+	for (d = descriptor_list, count_pl = 0; d && count_pl < kMaxListLen; d = d->next, count_pl++) {
 		list_players[count_pl] = d;
 
 		const auto character = d->get_character();
@@ -4645,7 +4657,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	for (cycle_i = 0; cycle_i < count_pl; cycle_i++) {
 		d = list_players[cycle_i];
-// ---
+
 		if (STATE(d) != CON_PLAYING && playing)
 			continue;
 		if (STATE(d) == CON_PLAYING && deadweight)
@@ -4656,46 +4668,50 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			if (*host_search && !strstr(d->host, host_search))
+			if (*host_search && !strstr(d->host, host_search)) {
 				continue;
-			if (*name_search && !isname(name_search, GET_NAME(character)))
+			}
+			if (*name_search && !isname(name_search, GET_NAME(character))) {
 				continue;
-			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high)
+			}
+			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
 				continue;
-			if (outlaws && !PLR_FLAGGED((ch), PLR_KILLER))
+			}
+			if (outlaws && !PLR_FLAGGED((ch), PLR_KILLER)) {
 				continue;
-			if (showclass && !(showclass & (1 << GET_CLASS(character))))
+			}
+			if (showclass != ECharClass::kUndefined && showclass != character->get_class()) {
 				continue;
-			if (GET_INVIS_LEV(character) > GetRealLevel(ch))
+			}
+			if (GET_INVIS_LEV(character) > GetRealLevel(ch)) {
 				continue;
+			}
 
-			if (d->original)
-				if (showremorts)
+			if (d->original) {
+				if (showremorts) {
 					sprintf(classname,
-							"[%2d %2d %s %s]",
+							"[%2d %2d %s]",
 							GetRealLevel(d->original),
 							GET_REAL_REMORT(d->original),
-							KIN_ABBR(d->original),
-							CLASS_ABBR(d->original));
-				else
+							MUD::Classes()[d->original->get_class()].GetAbbr().c_str());
+				} else {
 					sprintf(classname,
-							"[%2d %s %s]   ",
+							"[%2d %s]   ",
 							GetRealLevel(d->original),
-							KIN_ABBR(d->original),
-							CLASS_ABBR(d->original));
-			else if (showremorts)
+							MUD::Classes()[d->original->get_class()].GetAbbr().c_str());
+				}
+			} else if (showremorts) {
 				sprintf(classname,
-						"[%2d %2d %s %s]",
+						"[%2d %2d %s]",
 						GetRealLevel(d->character),
 						GET_REAL_REMORT(d->character),
-						KIN_ABBR(d->character),
-						CLASS_ABBR(d->character));
-			else
+						MUD::Classes()[d->character->get_class()].GetAbbr().c_str());
+			} else {
 				sprintf(classname,
-						"[%2d %s %s]   ",
+						"[%2d %s]   ",
 						GetRealLevel(d->character),
-						KIN_ABBR(d->character),
-						CLASS_ABBR(d->character));
+						MUD::Classes()[d->character->get_class()].GetAbbr().c_str());
+			}
 		} else {
 			strcpy(classname, "      -      ");
 		}
@@ -4708,18 +4724,19 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		timeptr += 11;
 		*(timeptr + 8) = '\0';
 
-		if (STATE(d) == CON_PLAYING && d->original)
+		if (STATE(d) == CON_PLAYING && d->original) {
 			strcpy(state, "Switched");
-		else
+		} else {
 			sprinttype(STATE(d), connected_types, state);
+		}
 
 		if (d->character
 			&& STATE(d) == CON_PLAYING
 			&& !IS_GOD(d->character)) {
-			sprintf(idletime, "%3d", d->character->char_specials.timer *
+			sprintf(idletime, "%-3d", d->character->char_specials.timer *
 				SECS_PER_MUD_HOUR / SECS_PER_REAL_MIN);
 		} else {
-			strcpy(idletime, "");
+			strcpy(idletime, "   ");
 		}
 
 		if (d->character
@@ -4747,7 +4764,6 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
 		}
 
-// Хорс
 		if (d && *d->host) {
 			sprintf(line2, "[%s]", d->host);
 			strcat(line, line2);
@@ -4781,7 +4797,6 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-//--
 		strcat(line, "\r\n");
 		if (STATE(d) != CON_PLAYING) {
 			sprintf(line2, "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
@@ -4970,8 +4985,7 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 	} else {
 		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 			if (GET_EXCHANGE_ITEM(j)->get_uid() == obj->get_uid()) {
-				sprintf(buf + strlen(buf), "на базаре однако, лот #%d\r\n", GET_EXCHANGE_ITEM_LOT(j));
-//				strcat(buf, buf1);
+				sprintf(buf + strlen(buf), "продается на базаре, лот #%d\r\n", GET_EXCHANGE_ITEM_LOT(j));
 				send_to_char(buf, ch);
 				return true;
 			}
@@ -5008,8 +5022,8 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 	bool found = false;
 
-	world_objects.foreach([&](const ObjData::shared_ptr object)    /* maybe it is possible to create some index instead of linear search */
-						  {
+	/* maybe it is possible to create some index instead of linear search */
+	world_objects.foreach([&](const ObjData::shared_ptr& object) {
 							  if (isname(arg, object->get_aliases())) {
 								if (print_object_location(num, object.get(), ch)) {
 									found = true;
@@ -5423,7 +5437,9 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	send_to_char(buf, ch);
 }
 
-std::array<EAffectFlag, 3> hiding = {EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_HIDE, EAffectFlag::AFF_CAMOUFLAGE};
+std::array<EAffectFlag, 3> hiding = {EAffectFlag::AFF_SNEAK,
+									 EAffectFlag::AFF_HIDE,
+									 EAffectFlag::AFF_CAMOUFLAGE};
 
 void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	char sp_name[kMaxStringLength];
@@ -5530,7 +5546,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		*buf2 = '\0';
 		send_to_char("Автоаффекты звериной формы: ", ch);
 		const IMorph::affects_list_t &affs = ch->GetMorphAffects();
-		for (IMorph::affects_list_t::const_iterator it = affs.begin(); it != affs.end();) {
+		for (auto it = affs.cbegin(); it != affs.cend();) {
 			sprintbit(to_underlying(*it), affected_bits, buf2);
 			send_to_char(string(CCIYEL(ch, C_NRM)) + string(buf2) + string(CCNRM(ch, C_NRM)), ch);
 			if (++it != affs.end()) {
@@ -5541,7 +5557,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 }
 
 // Create web-page with users list
-void make_who2html(void) {
+void make_who2html() {
 	FILE *opf;
 	DescriptorData *d;
 

@@ -1062,10 +1062,6 @@ inline T VPOSI(const T val, const T min, const T max) {
           (EXIT(ch,door)->to_room() != kNowhere) && \
           !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
 
-#define CLASS_ABBR(ch) (IS_NPC(ch) ? "--" : class_abbrevs[(int)GET_CLASS(ch)])
-
-#define KIN_ABBR(ch) (IS_NPC(ch) ? "--" : kin_abbrevs[(int)GET_KIN(ch)])
-
 #define IS_SORCERER(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kSorcerer))
 #define IS_THIEF(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kThief))
 #define IS_ASSASINE(ch)		(!IS_NPC(ch) && (GET_CLASS(ch) == ECharClass::kAssasine))
