@@ -102,8 +102,8 @@ void ParseNodeToNameCases(parser_wrapper::DataNode &node, ItemName::NameCases &n
 	ParseValueToNameCase(node.GetValue("gen"), name_cases[ECase::kGen]);
 	ParseValueToNameCase(node.GetValue("dat"), name_cases[ECase::kDat]);
 	ParseValueToNameCase(node.GetValue("acc"), name_cases[ECase::kAcc]);
-	ParseValueToNameCase(node.GetValue("inst"), name_cases[ECase::kInst]);
-	ParseValueToNameCase(node.GetValue("prep"), name_cases[ECase::kPrep]);
+	ParseValueToNameCase(node.GetValue("ins"), name_cases[ECase::kIns]);
+	ParseValueToNameCase(node.GetValue("pre"), name_cases[ECase::kPre]);
 }
 
 ItemName::ItemName() {

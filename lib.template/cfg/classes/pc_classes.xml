@@ -3,8 +3,8 @@
     <!-- Лекарь -->
     <class file="pc_sorcerer.xml" id="kSorcerer">
         <name>
-            <singular nom="лекарь" gen="лекаря" dat="лекарю" acc="лекаря" inst="лекарем" prep="лекаре"/>
-            <plural nom="лекари" gen="лекарей" dat="лекарям" acc="лекарей" inst="лекарями" prep="лекарях"/>
+            <singular nom="лекарь" gen="лекаря" dat="лекарю" acc="лекаря" ins="лекарем" pre="лекаре"/>
+            <plural nom="лекари" gen="лекарей" dat="лекарям" acc="лекарей" ins="лекарями" pre="лекарях"/>
         </name>
         <stats>
             <base_stats>
@@ -23,8 +23,8 @@
     <!-- Колдун -->
     <class file="pc_conjurer.xml" id="kConjurer">
         <name>
-            <singular nom="колдун" gen="колдуна" dat="колдуну" acc="колдуна" inst="колдуном" prep="колдуне"/>
-            <plural nom="колдуны" gen="колдунов" dat="колдунам" acc="колдунов" inst="колдунами" prep="колдунах"/>
+            <singular nom="колдун" gen="колдуна" dat="колдуну" acc="колдуна" ins="колдуном" pre="колдуне"/>
+            <plural nom="колдуны" gen="колдунов" dat="колдунам" acc="колдунов" ins="колдунами" pre="колдунах"/>
         </name>
         <stats>
             <base_stats>
@@ -43,8 +43,8 @@
     <!-- Тать -->
     <class file="pc_thief.xml" id="kThief">
         <name>
-            <singular nom="тать" gen="татя" dat="татю" acc="татя" inst="татем" prep="тате"/>
-            <plural nom="тати" gen="татей" dat="татям" acc="татей" inst="татями" prep="татях"/>
+            <singular nom="тать" gen="татя" dat="татю" acc="татя" ins="татем" pre="тате"/>
+            <plural nom="тати" gen="татей" dat="татям" acc="татей" ins="татями" pre="татях"/>
         </name>
         <stats>
             <base_stats>
@@ -63,8 +63,8 @@
     <!-- Богатырь -->
     <class file="pc_warrior.xml" id="kWarrior">
         <name>
-            <singular nom="богатырь" gen="богатыря" dat="богатырю" acc="богатыря" inst="богатырём" prep="богатыре"/>
-            <plural nom="богатыри" gen="богатырей" dat="богатырям" acc="богатырей" inst="богатырями" prep="богатырях"/>
+            <singular nom="богатырь" gen="богатыря" dat="богатырю" acc="богатыря" ins="богатырём" pre="богатыре"/>
+            <plural nom="богатыри" gen="богатырей" dat="богатырям" acc="богатырей" ins="богатырями" pre="богатырях"/>
         </name>
         <stats>
             <base_stats>
@@ -83,8 +83,8 @@
     <!-- Наемник -->
     <class file="pc_assasine.xml" id="kAssasine">
         <name>
-            <singular nom="наемник" gen="наемника" dat="наемнику" acc="наемника" inst="наемником" prep="наемнике"/>
-            <plural nom="наемники" gen="наемников" dat="наемникам" acc="наемников" inst="наемниками" prep="наемниках"/>
+            <singular nom="наемник" gen="наемника" dat="наемнику" acc="наемника" ins="наемником" pre="наемнике"/>
+            <plural nom="наемники" gen="наемников" dat="наемникам" acc="наемников" ins="наемниками" pre="наемниках"/>
         </name>
         <stats>
             <base_stats>
@@ -103,8 +103,8 @@
     <!-- Дружинник -->
     <class file="pc_guard.xml" id="kGuard">
         <name>
-            <singular nom="дружинник" gen="дружинника" dat="дружиннику" acc="дружинника" inst="дружинником" prep="дружиннике"/>
-            <plural nom="дружинники" gen="дружинников" dat="дружинникам" acc="дружинников" inst="дружинниками" prep="дружинниках"/>
+            <singular nom="дружинник" gen="дружинника" dat="дружиннику" acc="дружинника" ins="дружинником" pre="дружиннике"/>
+            <plural nom="дружинники" gen="дружинников" dat="дружинникам" acc="дружинников" ins="дружинниками" pre="дружинниках"/>
         </name>
         <stats>
             <base_stats>
@@ -123,8 +123,8 @@
     <!-- Кудесник -->
     <class file="pc_charmer.xml" id="kCharmer">
         <name>
-            <singular nom="кудесник" gen="кудесника" dat="кудеснику" acc="кудесника" inst="кудесником" prep="кудеснике"/>
-            <plural nom="кудесники" gen="кудесников" dat="кудесникам" acc="кудесников" inst="кудесниками" prep="кудесниках"/>
+            <singular nom="кудесник" gen="кудесника" dat="кудеснику" acc="кудесника" ins="кудесником" pre="кудеснике"/>
+            <plural nom="кудесники" gen="кудесников" dat="кудесникам" acc="кудесников" ins="кудесниками" pre="кудесниках"/>
         </name>
         <stats>
             <base_stats>
@@ -143,8 +143,8 @@
     <!-- Волшебник -->
     <class file="pc_wizard.xml" id="kWizard">
         <name>
-            <singular nom="волшебник" gen="волшебника" dat="волшебнику" acc="волшебника" inst="волшебником" prep="волшебнике"/>
-            <plural nom="волшебники" gen="волшебников" dat="волшебникам" acc="волшебников" inst="волшебниками" prep="волшебниках"/>
+            <singular nom="волшебник" gen="волшебника" dat="волшебнику" acc="волшебника" ins="волшебником" pre="волшебнике"/>
+            <plural nom="волшебники" gen="волшебников" dat="волшебникам" acc="волшебников" ins="волшебниками" pre="волшебниках"/>
         </name>
         <stats>
             <base_stats>
@@ -163,8 +163,8 @@
     <!-- Чернокнижник -->
     <class file="pc_necromancer.xml" id="kNecromancer">
         <name>
-            <singular nom="чернокнижник" gen="чернокнижника" dat="чернокнижнику" acc="чернокнижника" inst="чернокнижником" prep="чернокнижнике"/>
-            <plural nom="чернокнижники" gen="чернокнижников" dat="чернокнижникам" acc="чернокнижников" inst="чернокнижниками" prep="чернокнижниках"/>
+            <singular nom="чернокнижник" gen="чернокнижника" dat="чернокнижнику" acc="чернокнижника" ins="чернокнижником" pre="чернокнижнике"/>
+            <plural nom="чернокнижники" gen="чернокнижников" dat="чернокнижникам" acc="чернокнижников" ins="чернокнижниками" pre="чернокнижниках"/>
         </name>
         <stats>
             <base_stats>
@@ -183,8 +183,8 @@
     <!-- Витязь -->
     <class file="pc_paladine.xml" id="kPaladine">
         <name>
-            <singular nom="витязь" gen="витязя" dat="витязю" acc="витязя" inst="витязем" prep="витязе"/>
-            <plural nom="витязи" gen="витязей" dat="витязям" acc="витязей" inst="витязями" prep="витязях"/>
+            <singular nom="витязь" gen="витязя" dat="витязю" acc="витязя" ins="витязем" pre="витязе"/>
+            <plural nom="витязи" gen="витязей" dat="витязям" acc="витязей" ins="витязями" pre="витязях"/>
         </name>
         <stats>
             <base_stats>
@@ -203,8 +203,8 @@
     <!-- Охотник -->
     <class file="pc_ranger.xml" id="kRanger">
         <name>
-            <singular nom="охотник" gen="охотника" dat="охотнику" acc="охотника" inst="охотником" prep="охотнике"/>
-            <plural nom="охотники" gen="охотников" dat="охотникам" acc="охотников" inst="охотниками" prep="охотниках"/>
+            <singular nom="охотник" gen="охотника" dat="охотнику" acc="охотника" ins="охотником" pre="охотнике"/>
+            <plural nom="охотники" gen="охотников" dat="охотникам" acc="охотников" ins="охотниками" pre="охотниках"/>
         </name>
         <stats>
             <base_stats>
@@ -223,8 +223,8 @@
     <!-- Кузнец -->
     <class file="pc_vigilant.xml" id="kVigilant">
         <name>
-            <singular nom="кузнец" gen="кузнеца" dat="кузнецу" acc="кузнеца" inst="кузнецом" prep="кузнеце"/>
-            <plural nom="кузнецы" gen="кузнецов" dat="кузнецам" acc="кузнецов" inst="кузнецами" prep="кузнецах"/>
+            <singular nom="кузнец" gen="кузнеца" dat="кузнецу" acc="кузнеца" ins="кузнецом" pre="кузнеце"/>
+            <plural nom="кузнецы" gen="кузнецов" dat="кузнецам" acc="кузнецов" ins="кузнецами" pre="кузнецах"/>
         </name>
         <stats>
             <base_stats>
@@ -243,8 +243,8 @@
     <!-- Купец -->
     <class file="pc_merchant.xml" id="kMerchant">
         <name>
-            <singular nom="купец" gen="купца" dat="купцу" acc="купца" inst="купцом" prep="купце"/>
-            <plural nom="купцы" gen="купцов" dat="купцам" acc="купцов" inst="купцами" prep="купцах"/>
+            <singular nom="купец" gen="купца" dat="купцу" acc="купца" ins="купцом" pre="купце"/>
+            <plural nom="купцы" gen="купцов" dat="купцам" acc="купцов" ins="купцами" pre="купцах"/>
         </name>
         <stats>
             <base_stats>
@@ -263,8 +263,8 @@
     <!-- Волхв -->
     <class file="pc_magus.xml" id="kMagus">
         <name>
-            <singular nom="волхв" gen="волхва" dat="волхву" acc="волхва" inst="волхвом" prep="волхве"/>
-            <plural nom="волхвы" gen="волхвов" dat="волхвам" acc="волхвов" inst="волхвами" prep="волхвах"/>
+            <singular nom="волхв" gen="волхва" dat="волхву" acc="волхва" ins="волхвом" pre="волхве"/>
+            <plural nom="волхвы" gen="волхвов" dat="волхвам" acc="волхвов" ins="волхвами" pre="волхвах"/>
         </name>
         <stats>
             <base_stats>
@@ -289,32 +289,32 @@
      -->
     <class id="kUndefined" mode="kDisabled">
         <name>
-            <singular nom="undefined" gen="undefined" dat="undefined" acc="undefined" inst="undefined" prep="undefined"/>
-            <plural nom="undefined" gen="undefined" dat="undefined" acc="undefined" inst="undefined" prep="undefined"/>
+            <singular nom="undefined" gen="undefined" dat="undefined" acc="undefined" ins="undefined" pre="undefined"/>
+            <plural nom="undefined" gen="undefined" dat="undefined" acc="undefined" ins="undefined" pre="undefined"/>
         </name>
         <skills level_decrement="5">
         </skills>>
     </class>
     <class id="kMob" mode="kDisabled">
         <name>
-            <singular nom="моб" gen="моба" dat="мобу" acc="моба" inst="мобом" prep="мобе"/>
-            <plural nom="мобы" gen="мобов" dat="мобам" acc="мобов" inst="мобами" prep="мобах"/>
+            <singular nom="моб" gen="моба" dat="мобу" acc="моба" ins="мобом" pre="мобе"/>
+            <plural nom="мобы" gen="мобов" dat="мобам" acc="мобов" ins="мобами" pre="мобах"/>
         </name>
         <skills level_decrement="5">
         </skills>>
     </class>
     <class id="kNpcBase" mode="kDisabled">
         <name>
-            <singular nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" inst="base_npc" prep="base_npc"/>
-            <plural nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" inst="base_npc" prep="base_npc"/>
+            <singular nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" ins="base_npc" pre="base_npc"/>
+            <plural nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" ins="base_npc" pre="base_npc"/>
         </name>
         <skills level_decrement="5">
         </skills>>
     </class>
     <class id="kNpcLast" mode="kDisabled">
         <name>
-            <singular nom="npc" gen="npc" dat="npc" acc="npc" inst="npc" prep="npc"/>
-            <plural nom="npc" gen="npc" dat="npc" acc="npc" inst="npc" prep="npc"/>
+            <singular nom="npc" gen="npc" dat="npc" acc="npc" ins="npc" pre="npc"/>
+            <plural nom="npc" gen="npc" dat="npc" acc="npc" ins="npc" pre="npc"/>
         </name>
         <skills level_decrement="5">
         </skills>>

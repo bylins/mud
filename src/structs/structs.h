@@ -429,8 +429,8 @@ enum ECase {
 	kGen,
 	kDat,
 	kAcc,
-	kInst,
-	kPrep,
+	kIns,
+	kPre,
 	kNumGrammaticalCases
 };
 

@@ -164,8 +164,8 @@ void CharClassInfo::Print(std::stringstream &buffer) const {
 		   << "/" << names->GetSingular(ECase::kGen)
 		   << "/" << names->GetSingular(ECase::kDat)
 		   << "/" << names->GetSingular(ECase::kAcc)
-		   << "/" << names->GetSingular(ECase::kInst)
-		   << "/" << names->GetSingular(ECase::kPrep) << KNRM << std::endl
+		   << "/" << names->GetSingular(ECase::kIns)
+		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl
 			<< "    Available skills (level decrement " << skills_level_decrement << "):" << std::endl;
 	for (const auto &skill : *skills) {
 		buffer << KNRM << "        Skill: " << KCYN << MUD::Skills()[skill.first].name
