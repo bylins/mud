@@ -53,7 +53,6 @@ extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 extern CharData *combat_list;
 extern const char *item_types[];
 extern const char *genders[];
-extern const char *pc_class_types[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;

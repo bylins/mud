@@ -1,5 +1,5 @@
-#ifndef __CLASS_CONSTANTS_HPP__
-#define __CLASS_CONSTANTS_HPP__
+#ifndef CLASS_CONSTANTS_HPP_
+#define CLASS_CONSTANTS_HPP_
 
 /*
 	Константы классов персонажей
@@ -76,6 +76,6 @@ struct ClassApplies {
 
 extern ClassApplies class_app[];
 
-#endif // __CLASS_CONSTANTS_HPP__
+#endif // CLASS_CONSTANTS_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

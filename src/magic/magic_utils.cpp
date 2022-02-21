@@ -360,17 +360,21 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		return 0;
 	}
 
-	if (SpellUsage::is_active)
-		SpellUsage::AddSpellStat(GET_CLASS(caster), spellnum);
+	if (SpellUsage::is_active) {
+		SpellUsage::AddSpellStat(caster->get_class(), spellnum);
+	}
 
-	if (IS_SET(SpINFO.routines, kMagAreas) || IS_SET(SpINFO.routines, kMagMasses))
+	if (IS_SET(SpINFO.routines, kMagAreas) || IS_SET(SpINFO.routines, kMagMasses)) {
 		return CallMagicToArea(caster, cvict, rvict, spellnum, level);
+	}
 
-	if (IS_SET(SpINFO.routines, kMagGroups))
+	if (IS_SET(SpINFO.routines, kMagGroups)) {
 		return CallMagicToGroup(level, caster, spellnum);
+	}
 
-	if (IS_SET(SpINFO.routines, kMagRoom))
+	if (IS_SET(SpINFO.routines, kMagRoom)) {
 		return room_spells::ImposeSpellToRoom(level, caster, rvict, spellnum);
+	}
 
 	return CastToSingleTarget(level, caster, cvict, ovict, spellnum, ESaving::kStability);
 }

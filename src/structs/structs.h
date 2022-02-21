@@ -438,14 +438,15 @@ namespace base_structs {
 
 class ItemName {
  public:
+	ItemName();
+
 	using Ptr = std::unique_ptr<ItemName>;
 	using NameCases = std::array<std::string, ECase::kNumGrammaticalCases>;
-	ItemName() = default;
 	ItemName(ItemName &&i) noexcept;
 	ItemName &operator=(ItemName &&i) noexcept;
 
-	[[nodiscard]] const std::string &GetSingular(ECase name_case) const;
-	[[nodiscard]] const std::string &GetPlural(ECase name_case) const;
+	[[nodiscard]] const std::string &GetSingular(ECase name_case = ECase::kNom) const;
+	[[nodiscard]] const std::string &GetPlural(ECase name_case = ECase::kNom) const;
 	static Ptr Build(parser_wrapper::DataNode &node);
 
  private:

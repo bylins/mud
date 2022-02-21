@@ -20,7 +20,6 @@
  */
 #include "classes.h"
 
-
 #include "magic/magic_utils.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
@@ -33,27 +32,8 @@
 #include "game_economics/exchange.h"
 #include "magic/spells_info.h"
 #include "structs/global_objects.h"
-/*#include "utils/logger.h"
-#include "features.h"
-#include "crafts/im.h"
-#include "entities/char_data.h"
-#include "entities/player_races.h"
-#include "world_objects.h"
-#include "entities/obj_data.h"
-#include "comm.h"
-#include "db.h"
-#include "magic/spells.h"
-#include "skills.h"
-#include "interpreter.h"
-#include "constants.h"
-#include "utils/utils.h"
-#include "structs/structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "skills_info.h"*/
 
 extern int siteok_everyone;
-//extern struct SpellCreate spell_create[];
 extern double exp_coefficients[];
 
 // local functions
@@ -69,51 +49,6 @@ void mspell_remort(char *name, int spell, int kin, int chclass, int remort);
 void mspell_change(char *name, int spell, int kin, int chclass, int class_change);
 extern bool char_to_pk_clan(CharData *ch);
 // Names first
-
-const char *pc_class_types[] = {"Лекарь",
-								"Колдун",
-								"Тать",
-								"Богатырь",
-								"Наемник",
-								"Дружинник",
-								"Кудесник",
-								"Волшебник",
-								"Чернокнижник",
-								"Витязь",
-								"Охотник",
-								"Кузнец",
-								"Купец",
-								"Волхв",
-								"Жрец",
-								"Нойда",
-								"Тиуве",
-								"Берсерк",
-								"Наемник",
-								"Хирдман",
-								"Заарин",
-								"Босоркун",
-								"Равк",
-								"Кампе",
-								"Лучник",
-								"Аргун",
-								"Кепмен",
-								"Скальд",
-								"Знахарь",
-								"Бакша",
-								"Карак",
-								"Батыр",
-								"Тургауд",
-								"Нуке",
-								"Капнобатай",
-								"Акшаман",
-								"Карашаман",
-								"Чериг",
-								"Шикорхо",
-								"Дархан",
-								"Сатучы",
-								"Сеид",
-								"\n"
-};
 
 // The menu for choosing a religion in interpreter.c:
 const char *religion_menu =

@@ -18,7 +18,7 @@
 #include "color.h"
 #include "mob_stat.h"
 #include "modify.h"
-#include "entities/zone.h"
+//#include "entities/zone.h"
 #include "magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "depot.h"
@@ -180,7 +180,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	send_to_char(buf, ch);
 
 	if (!IS_NPC(k)) {
-		sprinttype(k->get_class(), pc_class_types, smallBuf);
+		strcpy(smallBuf, MUD::Classes()[k->get_class()].GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
 				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
 				k->get_race_name().c_str(),

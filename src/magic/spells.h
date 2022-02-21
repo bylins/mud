@@ -491,7 +491,7 @@ typedef std::map<int, int> SpellCountType;
 namespace SpellUsage {
 	extern bool is_active;
 	extern time_t start;
-	void AddSpellStat(int char_class, int spellnum);
+	void AddSpellStat(ECharClass char_class, int spellnum);
 	void save();
 	void clear();
 };

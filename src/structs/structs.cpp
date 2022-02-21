@@ -106,6 +106,11 @@ void ParseNodeToNameCases(parser_wrapper::DataNode &node, ItemName::NameCases &n
 	ParseValueToNameCase(node.GetValue("prep"), name_cases[ECase::kPrep]);
 }
 
+ItemName::ItemName() {
+	std::fill(plural_names_.begin(), plural_names_.end(), "UNDEF");
+	std::fill(singular_names_.begin(), singular_names_.end(), "UNDEF");
+}
+
 ItemName::Ptr ItemName::Build(parser_wrapper::DataNode &node) {
 	Ptr ptr(new ItemName());
 	node.GoToChild("singular");

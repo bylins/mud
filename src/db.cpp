@@ -235,7 +235,6 @@ extern RoomVnum named_start_room;
 extern RoomVnum unreg_start_room;
 extern DescriptorData *descriptor_list;
 extern struct month_temperature_type year_temp[];
-extern const char *pc_class_types[];
 extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
 extern int class_stats_limit[kNumPlayerClasses][6];
@@ -5319,14 +5318,13 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 
 				PlayerIndexElement element(GET_IDNUM(short_ch), GET_NAME(short_ch));
 
-				//added by WorM 2010.08.27 в индексе чистим мыло и ip
+
 				CREATE(element.mail, strlen(GET_EMAIL(short_ch)) + 1);
 				for (int i = 0; (element.mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
 
 				CREATE(element.last_ip, strlen(GET_LASTIP(short_ch)) + 1);
 				for (int i = 0; (element.last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
 
-				//end by WorM
 				element.unique = GET_UNIQUE(short_ch);
 				element.level = GetRealLevel(short_ch);
 				element.remorts = short_ch->get_remort();
@@ -5933,7 +5931,7 @@ PlayerIndexElement::PlayerIndexElement(const int id, const char *name) :
 	unique(0),
 	level(0),
 	remorts(0),
-	plr_class(0),
+	plr_class(ECharClass::kUndefined),
 	last_logon(0),
 	activity(0),
 	timer(nullptr),

@@ -9,8 +9,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#ifndef _CONSTANTS_H_
-#define _CONSTANTS_H_
+#ifndef CONSTANTS_H_
+#define CONSTANTS_H_
 
 #include "game_classes/classes_constants.h"
 #include "structs/structs.h"
@@ -145,6 +145,6 @@ extern int HORSE_COST;
 extern int START_BREAD;
 extern int CREATE_LIGHT;
 
-#endif
+#endif // CONSTANTS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

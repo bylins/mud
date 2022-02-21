@@ -158,12 +158,6 @@ extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
 extern char *GREETINGS;
-extern const char *pc_class_types[];
-extern const char *pc_class_types_vik[];
-extern const char *pc_class_types_step[];
-//extern const char *race_types[];
-extern const char *race_types_step[];
-extern const char *race_types_vik[];
 extern const char *kin_types[];
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
@@ -414,7 +408,6 @@ void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
 void do_cities(CharData *ch, char *, int, int);
 void do_send_text_to_char(CharData *ch, char *, int, int);
-void do_add_wizard(CharData *ch, char *, int, int);
 void do_touch_stigma(CharData *ch, char *, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 
@@ -542,7 +535,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"дрновости", EPosition::kDead, Boards::DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
 		{"дрвече", EPosition::kDead, Boards::DoBoard, 1, Boards::CLAN_BOARD, -1},
 		{"дрлист", EPosition::kDead, DoClanPkList, 0, 1, 0},
-		//{"добавить", EPosition::kDead, do_add_wizard, kLevelImplementator, 0, 0 },
 		{"есть", EPosition::kRest, do_eat, 0, SCMD_EAT, 500},
 
 		{"жертвовать", EPosition::kStand, do_pray, 1, SCMD_DONATE, -1},
@@ -3235,7 +3227,7 @@ void nanny(DescriptorData *d, char *arg) {
 			if (STATE(d) == CON_CNFPASSWD) {
 				GET_KIN(d->character) = 0;
 				DisplaySelectCharClassMenu(d);
-				SEND_TO_Q("\r\nВаша профессия. (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
+				SEND_TO_Q("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 				STATE(d) = CON_QCLASS;
 			} else {
 				sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
@@ -3292,8 +3284,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 			GET_KIN(d->character) = load_result;
 			DisplaySelectCharClassMenu(d);
-			SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
-					  " \r\nсправка <интересующая профессия>): ", d);
+			SEND_TO_Q("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 			STATE(d) = CON_QCLASS;
 			break;
 
