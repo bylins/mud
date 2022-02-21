@@ -112,6 +112,7 @@ void init_xhelp();
 std::set<int> vnum_list_add(int vnum);
 std::string get_name(size_t idx);
 bool is_set_item(ObjData *obj);
+void PrinSetClasses(const std::bitset<kNumPlayerClasses> &bits, std::string &str, bool print_num = false);
 
 } // namespace obj_sets
 

@@ -157,7 +157,6 @@ class InfoContainer {
 	 */
 	bool IsInitizalized() { return (items_->size() > 1); }
 
-
 	/*
 	 *  Создание опционала для парсера элементов.
 	 */
@@ -178,6 +177,32 @@ class InfoContainer {
 	auto end() {
 		iterators::ConstIterator<decltype(items_->end()), I> it(items_->end());
 		return it;
+	}
+
+	/*
+	 * Найти элемент, соответствующий числу, скастованному в индекс элемента.
+	 * Результат - элемент или элемент kUndefined.
+	 */
+	const I &FindItem(const int num) const {
+		E id  = static_cast<E>(num);
+		if (IsKnown(id)) {
+			return *(items_->at(id));
+		} else {
+			return *(items_->at(E::kUndefined));
+		}
+	}
+
+	/*
+	 * Найти подключенный элемент, соответствующий числу, скастованному в индекс элемента.
+	 * Результат - элемент или элемент kUndefined.
+	 */
+	const I &FindAvailableItem(const int num) const {
+		E id  = static_cast<E>(num);
+		if (IsAvailable(id)) {
+			return *(items_->at(id));
+		} else {
+			return *(items_->at(E::kUndefined));
+		}
 	}
 
  private:

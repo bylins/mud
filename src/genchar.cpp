@@ -105,6 +105,10 @@ const char *default_race[] = {
 	"Веляне" //волхв
 };
 
+int CalcBasseStatsSum(CharData *ch) {
+	return ch->get_str() + ch->get_dex() + ch->get_int() + ch->get_wis() + ch->get_con() + ch->get_cha();
+}
+
 void genchar_disp_menu(CharData *ch) {
 	char buf[kMaxStringLength];
 
@@ -126,9 +130,9 @@ void genchar_disp_menu(CharData *ch) {
 			ch->get_inborn_int(), MIN_INT(ch), MAX_INT(ch),
 			ch->get_inborn_wis(), MIN_WIS(ch), MAX_WIS(ch),
 			ch->get_inborn_con(), MIN_CON(ch), MAX_CON(ch),
-			ch->get_inborn_cha(), MIN_CHA(ch), MAX_CHA(ch), SUM_ALL_STATS - SUM_STATS(ch));
+			ch->get_inborn_cha(), MIN_CHA(ch), MAX_CHA(ch), kBaseStatsSum - CalcBasseStatsSum(ch));
 	send_to_char(buf, ch);
-	if (SUM_ALL_STATS == SUM_STATS(ch))
+	if (kBaseStatsSum == CalcBasseStatsSum(ch))
 		send_to_char("  В) Закончить генерацию\r\n", ch);
 	send_to_char(" Ваш выбор: ", ch);
 }
@@ -137,47 +141,47 @@ int genchar_parse(CharData *ch, char *arg) {
 	int tmp_class;
 	switch (*arg) {
 		case 'А':
-		case 'а': ch->set_str(MAX(ch->get_inborn_str() - 1, MIN_STR(ch)));
+		case 'а': ch->set_str(std::max(ch->get_inborn_str() - 1, MIN_STR(ch)));
 			break;
 		case 'Б':
-		case 'б': ch->set_dex(MAX(ch->get_inborn_dex() - 1, MIN_DEX(ch)));
+		case 'б': ch->set_dex(std::max(ch->get_inborn_dex() - 1, MIN_DEX(ch)));
 			break;
 		case 'Г':
-		case 'г': ch->set_int(MAX(ch->get_inborn_int() - 1, MIN_INT(ch)));
+		case 'г': ch->set_int(std::max(ch->get_inborn_int() - 1, MIN_INT(ch)));
 			break;
 		case 'Д':
-		case 'д': ch->set_wis(MAX(ch->get_inborn_wis() - 1, MIN_WIS(ch)));
+		case 'д': ch->set_wis(std::max(ch->get_inborn_wis() - 1, MIN_WIS(ch)));
 			break;
 		case 'Е':
-		case 'е': ch->set_con(MAX(ch->get_inborn_con() - 1, MIN_CON(ch)));
+		case 'е': ch->set_con(std::max(ch->get_inborn_con() - 1, MIN_CON(ch)));
 			break;
 		case 'Ж':
-		case 'ж': ch->set_cha(MAX(ch->get_inborn_cha() - 1, MIN_CHA(ch)));
+		case 'ж': ch->set_cha(std::max(ch->get_inborn_cha() - 1, MIN_CHA(ch)));
 			break;
 		case 'З':
-		case 'з': ch->set_str(MIN(ch->get_inborn_str() + 1, MAX_STR(ch)));
+		case 'з': ch->set_str(std::min(ch->get_inborn_str() + 1, MAX_STR(ch)));
 			break;
 		case 'И':
-		case 'и': ch->set_dex(MIN(ch->get_inborn_dex() + 1, MAX_DEX(ch)));
+		case 'и': ch->set_dex(std::min(ch->get_inborn_dex() + 1, MAX_DEX(ch)));
 			break;
 		case 'К':
-		case 'к': ch->set_int(MIN(ch->get_inborn_int() + 1, MAX_INT(ch)));
+		case 'к': ch->set_int(std::min(ch->get_inborn_int() + 1, MAX_INT(ch)));
 			break;
 		case 'Л':
-		case 'л': ch->set_wis(MIN(ch->get_inborn_wis() + 1, MAX_WIS(ch)));
+		case 'л': ch->set_wis(std::min(ch->get_inborn_wis() + 1, MAX_WIS(ch)));
 			break;
 		case 'М':
-		case 'м': ch->set_con(MIN(ch->get_inborn_con() + 1, MAX_CON(ch)));
+		case 'м': ch->set_con(std::min(ch->get_inborn_con() + 1, MAX_CON(ch)));
 			break;
 		case 'Н':
-		case 'н': ch->set_cha(MIN(ch->get_inborn_cha() + 1, MAX_CHA(ch)));
+		case 'н': ch->set_cha(std::min(ch->get_inborn_cha() + 1, MAX_CHA(ch)));
 			break;
 		case 'П':
 		case 'п': send_to_char(genchar_help, ch);
 			break;
 		case 'В':
 		case 'в':
-			if (SUM_STATS(ch) != SUM_ALL_STATS)
+			if (CalcBasseStatsSum(ch) != kBaseStatsSum)
 				break;
 			// по случаю успешной генерации сохраняем стартовые статы
 			ch->set_start_stat(G_STR, ch->get_inborn_str());
@@ -186,7 +190,7 @@ int genchar_parse(CharData *ch, char *arg) {
 			ch->set_start_stat(G_WIS, ch->get_inborn_wis());
 			ch->set_start_stat(G_CON, ch->get_inborn_con());
 			ch->set_start_stat(G_CHA, ch->get_inborn_cha());
-			return GENCHAR_EXIT;
+			return kGencharExit;
 		case 'О':
 		case 'о': tmp_class = GET_CLASS(ch);
 			ch->set_str(auto_stats[tmp_class][0]);
@@ -201,10 +205,10 @@ int genchar_parse(CharData *ch, char *arg) {
 			ch->set_start_stat(G_WIS, ch->get_inborn_wis());
 			ch->set_start_stat(G_CON, ch->get_inborn_con());
 			ch->set_start_stat(G_CHA, ch->get_inborn_cha());
-			return GENCHAR_EXIT;
+			return kGencharExit;
 		default: break;
 	}
-	return GENCHAR_CONTINUE;
+	return kGencharContinue;
 }
 
 /*
@@ -560,7 +564,6 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result) {
 		strcpy(result, name);
 	}
 	CAP(result);
-	return;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

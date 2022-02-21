@@ -3,7 +3,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <iostream>
+//#include <iostream>
 
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
@@ -33,6 +33,35 @@ const unsigned MAX_OBJ_LIST = 20;
 std::vector<std::shared_ptr<SetNode>> sets_list;
 /// дефолтные сообщения всех сетов, инятся в init_global_msg()
 SetMsgNode global_msg;
+
+/*
+ * Распечатка списка классов, на которых активируется сет.
+ * Временный костыль до изменения формата сетов.
+ * (Не дело, что классы лежат в битвекторе и любое изменение
+ * числа или порядка класов будет ломать все сеты разом.)
+ * ABYRVALG
+ */
+void PrinSetClasses(const std::bitset<kNumPlayerClasses> &bits, std::string &str, bool print_num) {
+	static char tmp_buf[10];
+	bool first = true;
+
+	for (unsigned i = 0; i < bits.size(); ++i) {
+		if (bits.test(i) == true) {
+			if (!first) {
+				str += ",";
+			} else {
+				first = false;
+			}
+
+			if (print_num) {
+				snprintf(tmp_buf, sizeof(tmp_buf), "%d:", i + 1);
+				str += tmp_buf;
+			}
+
+			str += MUD::Classes().FindAvailableItem(static_cast<int>(i)).GetName();
+		}
+	}
+}
 
 /// форматирование строки с разбиением на строки не длиннее \param len,
 /// строка разбивается полными словами по разделителю \param sep
@@ -906,7 +935,7 @@ std::string print_activ_help(const SetNode &set) {
 			// активатор на ограниченный список проф (распечатка закладывается
 			// на то, что у валидных сетов списки проф должны быть одинаковые)
 			if (prof_list.empty()) {
-				print_bitset(i.second.prof, pc_class_name, ",", prof_list);
+				PrinSetClasses(i.second.prof, prof_list);
 			}
 			snprintf(buf_, sizeof(buf_), "%d %s (%s)\r\n",
 					 i.first, desc_count(i.first, WHAT_OBJECT), prof_list.c_str());
@@ -938,7 +967,7 @@ std::string print_total_activ(const SetNode &set) {
 			// активатор на ограниченный список проф (распечатка закладывается
 			// на то, что у валидных сетов списки проф должны быть одинаковые)
 			if (prof_list.empty()) {
-				print_bitset(i.second.prof, pc_class_name, ",", prof_list);
+				PrinSetClasses(i.second.prof, prof_list);
 				if (i.second.npc) {
 					prof_list += prof_list.empty() ? "npc" : ", npc";
 				}

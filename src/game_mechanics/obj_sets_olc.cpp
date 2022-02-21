@@ -3,6 +3,14 @@
 
 #include "obj_sets.h"
 
+#include <string>
+#include <vector>
+#include <map>
+#include <array>
+#include <algorithm>
+
+#include <boost/algorithm/string.hpp>
+
 #include "obj_prototypes.h"
 #include "conf.h"
 #include "obj_sets_stuff.h"
@@ -20,14 +28,6 @@
 #include "game_classes/classes_constants.h"
 #include "skills_info.h"
 #include "structs/global_objects.h"
-
-#include <boost/algorithm/string.hpp>
-
-#include <string>
-#include <vector>
-#include <map>
-#include <array>
-#include <algorithm>
 
 void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags);
 void show_apply_olc(DescriptorData *d);
@@ -315,7 +315,7 @@ void sedit::show_main(CharData *ch) {
 	for (auto & k : olc_set.activ_list) {
 		if (!k.second.prof.all()) {
 			std::string prof;
-			print_bitset(k.second.prof, pc_class_name, ",", prof);
+			PrinSetClasses(k.second.prof, prof);
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Редактировать активатор: %s%d (%s)%s\r\n",
 					 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
@@ -395,7 +395,7 @@ void sedit::show_activ_edit(CharData *ch) {
 	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
 	std::string prof_str;
 	if (!activ.prof.all()) {
-		print_bitset(activ.prof, pc_class_name, ",", prof_str);
+		PrinSetClasses(activ.prof, prof_str);
 	} else {
 		prof_str = "все";
 	}
@@ -1216,7 +1216,7 @@ void sedit::show_activ_prof(CharData *ch) {
 	for (size_t i = 0; i < bits.size(); ++i) {
 		snprintf(buf_, sizeof(buf_), "%s%2zu%s) %s\r\n",
 				 CCGRN(ch, C_NRM), i + 1, CCNRM(ch, C_NRM),
-				 i < pc_class_name.size() ? pc_class_name.at(i) : "UNDEF");
+				 MUD::Classes().FindAvailableItem(static_cast<int>(i)).GetCName());
 		out += buf_;
 	}
 
@@ -1229,7 +1229,7 @@ void sedit::show_activ_prof(CharData *ch) {
 
 	snprintf(buf_, sizeof(buf_), "Текущие профессии : %s", CCCYN(ch, C_NRM));
 	out += buf_;
-	print_bitset(bits, pc_class_name, ",", out, true);
+	PrinSetClasses(bits, out, true);
 	out += CCNRM(ch, C_NRM);
 	out += "\r\nВыберите профессии для данного активатора (0 - выход) : ";
 

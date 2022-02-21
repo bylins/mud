@@ -14,23 +14,21 @@
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
-#ifndef _GENCHAR_H_
-#define _GENCHAR_H_
+#ifndef GENCHAR_H_
+#define GENCHAR_H_
 
 #include "entities/entities_constants.h"
 
-#define SUM_ALL_STATS 95
-#define SUM_STATS(ch) (ch->get_str() + ch->get_dex() + ch->get_int() +  ch->get_wis() + ch->get_con() +  ch->get_cha())
+const int kBaseStatsSum = 95;
+const int kGencharContinue = 1;
+const int kGencharExit = 0;
 
-#define GENCHAR_CONTINUE 1
-#define GENCHAR_EXIT 0
-
-#define G_STR 0
-#define G_DEX 1
-#define G_INT 2
-#define G_WIS 3
-#define G_CON 4
-#define G_CHA 5
+const int G_STR = 0;
+const int G_DEX = 1;
+const int G_INT = 2;
+const int G_WIS = 3;
+const int G_CON = 4;
+const int G_CHA = 5;
 
 #define MIN_STR(ch) min_stats[(int) GET_CLASS(ch)][G_STR]
 #define MIN_DEX(ch) min_stats[(int) GET_CLASS(ch)][G_DEX]
@@ -48,16 +46,16 @@
 
 extern const char *genchar_help;
 
-class CharData;    // to avoid inclusion of "char.hpp"
+class CharData;
 
-void genchar_disp_menu(CharData *ch);
 int genchar_parse(CharData *ch, char *arg);
+void genchar_disp_menu(CharData *ch);
 void roll_real_abils(CharData *ch);
-void GetCase(const char *name, const ESex sex, int caseNum, char *result);
+void GetCase(const char *name, ESex sex, int caseNum, char *result);
 
 extern int max_stats[][6];
 extern int min_stats[][6];
 
-#endif
+#endif // GENCHAR_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

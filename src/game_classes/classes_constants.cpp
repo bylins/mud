@@ -8,24 +8,6 @@
 
 #include "classes_constants.h"
 
-std::array<const char *, kNumPlayerClasses> pc_class_name =
-	{{
-		 "лекарь",
-		 "колдун",
-		 "тать",
-		 "богатырь",
-		 "наемник",
-		 "дружинник",
-		 "кудесник",
-		 "волшебник",
-		 "чернокнижник",
-		 "витязь",
-		 "охотник",
-		 "кузнец",
-		 "купец",
-		 "волхв"
-	 }};
-
 const ClassApplies::ExtraAffectsVector ClericAffects = {};
 const ClassApplies::ExtraAffectsVector MageAffects = {{EAffectFlag::AFF_INFRAVISION, true}};
 const ClassApplies::ExtraAffectsVector ThiefAffects = {

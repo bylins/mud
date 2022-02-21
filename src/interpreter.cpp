@@ -3335,7 +3335,6 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_QCLASS: {
 			if (pre_help(d->character.get(), arg)) {
-				//SEND_TO_Q(class_menu, d);
 				DisplaySelectCharClassMenu(d);
 				SEND_TO_Q("\r\nВаша профессия : ", d);
 				STATE(d) = CON_QCLASS;
@@ -3350,10 +3349,7 @@ void nanny(DescriptorData *d, char *arg) {
 				class_id = FindAvailableCharClassId(arg);
 			}
 			if (class_num != -1) {
-				class_id = static_cast<ECharClass>(class_num - 1);
-				if (MUD::Classes().IsUnavailable(class_id)) {
-					class_id = ECharClass::kUndefined;
-				}
+				class_id = MUD::Classes().FindAvailableItem(class_num - 1).GetId();
 			}
 
 			if (class_id == ECharClass::kUndefined) {
@@ -3428,7 +3424,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			switch (genchar_parse(d->character.get(), arg)) {
-				case GENCHAR_CONTINUE: genchar_disp_menu(d->character.get());
+				case kGencharContinue: genchar_disp_menu(d->character.get());
 					break;
 				default: SEND_TO_Q("\r\nВведите ваш E-mail"
 								   "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
@@ -3816,7 +3812,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			switch (genchar_parse(d->character.get(), arg)) {
-				case GENCHAR_CONTINUE: genchar_disp_menu(d->character.get());
+				case kGencharContinue: genchar_disp_menu(d->character.get());
 					break;
 
 				default:
