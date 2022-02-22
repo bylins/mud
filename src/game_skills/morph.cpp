@@ -1,9 +1,9 @@
-#include "skills/morph.hpp"
+#include "game_skills/morph.hpp"
 
 #include "entities/obj_data.h"
 #include "color.h"
 #include "handler.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "utils/pugixml/pugixml.h"
 
 #include <boost/algorithm/string.hpp>

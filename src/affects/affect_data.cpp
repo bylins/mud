@@ -7,8 +7,8 @@
 #include "game_classes/classes.h"
 #include "cmd/follow.h"
 #include "game_mechanics/deathtrap.h"
-#include "magic/magic.h"
-#include "skills/poison.h"
+#include "game_magic/magic.h"
+#include "game_skills/poison.h"
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffectFlag> bad_waffects =

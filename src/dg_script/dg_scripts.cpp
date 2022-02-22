@@ -22,7 +22,7 @@
 #include "entities/char_player.h"
 #include "modify.h"
 #include "game_mechanics/named_stuff.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "noob.h"
 #include "dg_db_scripts.h"
 #include "dg_domination_helper.h"

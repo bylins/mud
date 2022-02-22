@@ -4,7 +4,7 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
-#include "skills/parry.h"
+#include "game_skills/parry.h"
 
 void go_iron_wind(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {

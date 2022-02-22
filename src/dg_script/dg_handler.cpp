@@ -15,7 +15,7 @@
 
 #include "dg_scripts.h"
 #include "handler.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "dg_event.h"
 #include "structs/global_objects.h"
 

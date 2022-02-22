@@ -15,7 +15,7 @@
 #include "entities/entities_constants.h"
 #include "features.h"
 #include "interpreter.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 
 #include <string>
 #include <list>

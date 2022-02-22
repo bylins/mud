@@ -11,7 +11,7 @@
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
 #include "entities/zone.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 #include <regex>

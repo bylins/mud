@@ -14,10 +14,10 @@
 #include "affects/affect_handler.h"
 #include "player_races.h"
 #include "game_economics/ext_money.h"
-#include "magic/magic_temp_spells.h"
+#include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
 
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 
 #include <boost/lexical_cast.hpp>
 

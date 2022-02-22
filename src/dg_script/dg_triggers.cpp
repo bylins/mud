@@ -16,7 +16,7 @@
 #include "dg_scripts.h"
 #include "handler.h"
 #include "interpreter.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 #include "entities/obj_data.h"
 #include "entities/entities_constants.h"
 #include "olc/olc.h"

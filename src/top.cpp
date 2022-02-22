@@ -5,6 +5,7 @@
 #include "game_mechanics/glory_const.h"
 #include "entities/char_data.h"
 #include "structs/global_objects.h"
+#include "utils/libfort/fort.hpp"
 
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);
 
@@ -61,39 +62,41 @@ const PlayerChart &TopPlayer::Chart() {
 	return chart_;
 };
 
-/* ширина столбцов */
-const int name_cw{kMaxNameLength + 1};
-const int remort_cw{3};
-const int remort_txt_cw{15};
-const int class_cw{20};
-
 void TopPlayer::PrintPlayersChart(CharData *ch) {
 	std::ostringstream out;
 	out << KWHT << "Лучшие персонажи игроков:" << KNRM << std::endl;
+
+	fort::char_table table;
+	table.set_border_style(FT_EMPTY_STYLE);
+	table.column(0).set_cell_content_fg_color(fort::color::light_gray);
+	table.set_left_margin(2);
+
 	for (const auto &it: TopPlayer::Chart()) {
-		if (!it.second.empty()) {
-			out
-				<< std::left << "  " << std::setw(name_cw) << it.second.begin()->name_
-				<< std::right << "  " << std::setw(remort_cw) << it.second.begin()->remort_
-				<< std::left << "  " << std::setw(remort_txt_cw) << desc_count(it.second.begin()->remort_, WHAT_REMORT)
-				<< std::left << "  " << std::setw(class_cw) << MUD::Classes()[it.first].GetName()
-				<< std::endl;
-		}
+		table
+			<< it.second.begin()->name_
+			<< desc_count(it.second.begin()->remort_, WHAT_REMORT)
+			<< it.second.begin()->remort_
+			<< MUD::Classes()[it.first].GetName()
+			<< fort::endr;
 	}
+
+	out << table.to_string() << std::endl;
 	send_to_char(out.str().c_str(), ch);
 }
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	std::ostringstream out;
-	out << KWHT << "Лучшие " << MUD::Classes()[id].GetPluralName() << ":" << KNRM << std::endl;
+	out << KWHT << " Лучшие " << MUD::Classes()[id].GetPluralName() << ":" << KNRM << std::endl;
+
+	fort::char_table table;
+	table.set_border_style(FT_EMPTY_STYLE);
+	table.set_left_margin(2);
 	for (const auto &it: TopPlayer::chart_[id]) {
-		out
-			<< std::left << "  " << std::setw(name_cw) << it.name_
-			<< std::right << "  " << std::setw(remort_cw) << it.remort_
-			<< std::left << "  " << std::setw(remort_txt_cw) << desc_count(it.remort_, WHAT_REMORT)
-			<< std::endl;
+		table << it.name_ << it.remort_ << desc_count(it.remort_, WHAT_REMORT) << fort::endr;
 
 	}
+	out << table.to_string() << std::endl;
+
 	// если игрок участвует в данном топе - покажем ему, какой он неудачник
 	int count = 1;
 	for (const auto &it: TopPlayer::chart_[id]) {
@@ -107,27 +110,31 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 }
 
 void TopPlayer::PrintHelp(CharData *ch) {
+	std::ostringstream out;
+	out << " Лучшими могут быть:" << std::endl << std::left;
+
+	fort::char_table table;
+	table.set_border_style(FT_BASIC_STYLE);
 	const int columns_num = 4;
 	int count = 1;
-	std::ostringstream out;
-	out << " Лучшими могут быть:" << std::endl << std::left << "  ";
 	for (const auto &it: MUD::Classes()) {
 		if (it.IsAvailable()) {
-			out << std::setw(class_cw) << it.GetPluralName();
+			table << it.GetPluralName();
 			if (count % columns_num == 0) {
-				out << std::endl << std::left << "  ";
+				table << fort::endr;
 			}
 			++count;
 		}
 	}
 	for (const auto &str: {"игроки", "прославленные"}) {
-		out << std::setw(class_cw) << str;
+		table << str;
 		if (count % columns_num == 0) {
-			out << std::endl << std::left << "  ";
+			table << fort::endr;
 		}
 		++count;
 	}
-	out << std::endl;
+	out << table.to_string() << std::endl;
+
 	send_to_char(out.str().c_str(), ch);
 }
 

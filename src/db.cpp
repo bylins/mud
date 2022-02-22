@@ -62,13 +62,13 @@
 #include "administration/privilege.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_economics/shop_ext.h"
-#include "skills/townportal.h"
+#include "game_skills/townportal.h"
 #include "stuff.h"
 #include "utils/utils_time.h"
 #include "utils/id_converter.h"
 #include "title.h"
 #include "top.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 
 #include <boost/format.hpp>
 #include <sys/stat.h>

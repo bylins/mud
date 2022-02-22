@@ -24,7 +24,7 @@
 #include "obj_prototypes.h"
 #include "administration/privilege.h"
 #include "color.h"
-#include "skills/pick.h"
+#include "game_skills/pick.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
 

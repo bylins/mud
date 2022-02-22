@@ -4,7 +4,7 @@
 #include "fightsystem/common.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
-#include "skills/parry.h"
+#include "game_skills/parry.h"
 #include "protect.h"
 
 // ************************* STUPOR PROCEDURES

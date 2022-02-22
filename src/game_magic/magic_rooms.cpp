@@ -1,11 +1,12 @@
 #include "magic_rooms.h"
 
-#include "magic/spells_info.h"
+#include "spells_info.h"
 #include "modify.h"
 #include "entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
+#include "utils/libfort/fort.hpp"
 
-#include <iomanip>
+//#include <iomanip>
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 
@@ -66,30 +67,26 @@ bool IsRoomAffected(RoomData *room, ESpell spell) {
 }
 
 void ShowAffectedRooms(CharData *ch) {
-	const int vnumCW = 7;
-	const int spellCW = 25;
-	const int casterCW = 21;
-	const int timeCW = 10;
-	constexpr int tableW = vnumCW + spellCW + casterCW + timeCW;
-	std::stringstream buffer;
-	buffer << " Список комнат под аффектами:" << std::endl
-		   << " " << std::setfill('-') << std::setw(tableW) << "" << std::endl << std::setfill(' ')
-		   << std::left << " " << std::setw(vnumCW) << "Vnum"
-		   << std::setw(spellCW) << "Spell"
-		   << std::setw(casterCW) << "Caster name"
-		   << std::right << std::setw(timeCW) << "Time (s)"
-		   << std::endl
-		   << " " << std::setfill('-') << std::setw(tableW) << "" << std::endl << std::setfill(' ');
-	for (const auto room : affected_rooms) {
-		for (const auto &af : room->affected) {
-			buffer << std::left << " " << std::setw(vnumCW) << room->room_vn
-				   << std::setw(spellCW) << spell_info[af->type].name
-				   << std::setw(casterCW) << get_name_by_id(af->caster_id)
-				   << std::right << std::setw(timeCW) << af->duration * 2
-				   << std::endl;
+	std::stringstream out;
+	out << " Список комнат под аффектами:" << std::endl;
+
+	fort::char_table table;
+	table.set_border_style(FT_SIMPLE_STYLE);
+	table.column(4).set_cell_text_align(fort::text_align::right);
+
+	table << fort::header << "#" << "Vnum" << "Spell" << "Caster name" << "Time (s)" << fort::endr;
+	int count = 1;
+	for (const auto r : affected_rooms) {
+		for (const auto &af : r->affected) {
+			table << count << r->room_vn << spell_info[af->type].name
+				<< get_name_by_id(af->caster_id) << af->duration * 2 << fort::endr;
+			++count;
 		}
 	}
-	page_string(ch->desc, buffer.str());
+
+	out << table.to_string() << std::endl;
+
+	page_string(ch->desc, out.str());
 }
 
 CharData *find_char_in_room(long char_id, RoomData *room) {

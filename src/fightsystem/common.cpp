@@ -1,6 +1,6 @@
 #include "common.h"
 
-#include "skills/parry.h"
+#include "game_skills/parry.h"
 #include "handler.h"
 
 int IsHaveNoExtraAttack(CharData *ch) {

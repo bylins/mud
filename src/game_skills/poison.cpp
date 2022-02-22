@@ -2,7 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "skills/poison.h"
+#include "game_skills/poison.h"
 
 #include "entities/obj_data.h"
 #include "entities/char_data.h"

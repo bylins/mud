@@ -2,7 +2,7 @@
 #define SPELL_PARSER_HPP_
 
 #include "entities/entities_constants.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 
 class CharData;
 class RoomData;

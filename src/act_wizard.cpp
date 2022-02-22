@@ -70,8 +70,8 @@
 #include "color.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_economics/shop_ext.h"
-#include "skills.h"
-#include "magic/spells.h"
+#include "game_skills/skills.h"
+#include "game_magic/spells.h"
 #include "structs/descriptor_data.h"
 #include "structs/structs.h"
 #include "sysdep.h"
@@ -83,8 +83,8 @@
 #include "world_objects.h"
 #include "entities/zone.h"
 #include "game_classes/classes_constants.h"
-#include "magic/spells_info.h"
-#include "magic/magic_rooms.h"
+#include "game_magic/spells_info.h"
+#include "game_magic/magic_rooms.h"
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>

@@ -7,7 +7,7 @@
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/common.h"
-#include "skills/parry.h"
+#include "game_skills/parry.h"
 
 // ************* TOUCH PROCEDURES
 void go_touch(CharData *ch, CharData *vict) {

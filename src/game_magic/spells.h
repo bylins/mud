@@ -12,9 +12,9 @@
 #define SPELLS_H_
 
 #include "entities/entities_constants.h"
-#include "skills.h"
-#include "structs/structs.h"    // there was defined type "byte" if it had been missing
+#include "game_skills/skills.h"
 #include "game_classes/classes_constants.h"
+#include "structs/structs.h"    // there was defined type "byte" if it had been missing
 
 #include <optional>
 

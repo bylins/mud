@@ -1,9 +1,9 @@
 #include "create.h"
 
 #include "crafts/im.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "comm.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "handler.h"
 
 void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {

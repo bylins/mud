@@ -2,11 +2,11 @@
 
 #include "handler.h"
 #include "color.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "pk.h"
 #include "dps.h"
 #include "house_exp.h"
-#include "skills/poison.h"
+#include "game_skills/poison.h"
 #include "game_mechanics/bonus.h"
 #include "mobact.h"
 #include "fightsystem/common.h"

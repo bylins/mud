@@ -14,7 +14,7 @@
 
 #include "weather.h"
 
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "handler.h"
 #include "color.h"
 #include "utils/random.h"

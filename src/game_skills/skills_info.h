@@ -1,7 +1,7 @@
 #ifndef SKILLS_INFO_
 #define SKILLS_INFO_
 
-#include "skills.h"
+#include "game_skills/skills.h"
 
 #include "boot/cfg_manager.h"
 #include "entities/entities_constants.h"

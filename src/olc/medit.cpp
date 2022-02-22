@@ -10,7 +10,7 @@
 #include "entities/world_characters.h"
 #include "entities/obj_data.h"
 #include "comm.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "db.h"
 #include "olc.h"
 #include "handler.h"
@@ -19,7 +19,7 @@
 #include "features.h"
 #include "crafts/im.h"
 #include "entities/char_data.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "name_list.h"
 #include "entities/room_data.h"
 #include "corpse.h"
@@ -32,8 +32,8 @@
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "skills_info.h"
-#include "magic/spells_info.h"
+#include "game_skills/skills_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 #include <boost/format.hpp>

@@ -6,7 +6,7 @@
 
 #include "affect_contants.h"
 
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 
 const char *affected_bits[] = {"слепота",    // 0
 							   "невидимость",

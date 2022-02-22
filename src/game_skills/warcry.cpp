@@ -2,8 +2,8 @@
 
 #include "handler.h"
 #include "color.h"
-#include "magic/magic_utils.h"
-#include "magic/spells_info.h"
+#include "game_magic/magic_utils.h"
+#include "game_magic/spells_info.h"
 
 void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int spellnum, cnt;

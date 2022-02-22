@@ -1,6 +1,6 @@
-#include "magic/spells_info.h"
+#include "spells_info.h"
 
-#include "magic/spells.h"
+#include "spells.h"
 
 const char *unused_spellname = "!UNUSED!";
 

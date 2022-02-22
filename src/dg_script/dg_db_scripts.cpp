@@ -18,8 +18,8 @@
 #include "dg_scripts.h"
 #include "handler.h"
 #include "dg_event.h"
-#include "magic/magic.h"
-#include "magic/magic_temp_spells.h"
+#include "game_magic/magic.h"
+#include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
 #include <stack>

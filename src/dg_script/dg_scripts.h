@@ -12,7 +12,7 @@
 #ifndef _DG_SCRIPTS_H_
 #define _DG_SCRIPTS_H_
 
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "structs/structs.h"
 #include "utils/logger.h"
 #include <optional>

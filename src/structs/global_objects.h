@@ -16,7 +16,7 @@
 #include "influxdb.h"
 #include "entities/zone.h"
 #include "quests/daily_quest.h"
-#include "skills_info.h"
+#include "game_skills/skills_info.h"
 #include "strengthening.h"
 #include "boot/cfg_manager.h"
 class BanList;    // to avoid inclusion of ban.hpp

@@ -17,11 +17,11 @@
 #include <random>
 #include "top.h"
 #include "color.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "mob_stat.h"
 #include "game_mechanics/bonus.h"
 #include "backtrace.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 //#include "entities/zone.h"
 #include "entities/char_player.h"
 #include "structs/global_objects.h"

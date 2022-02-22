@@ -2,7 +2,7 @@
 #define MAGIC_ROOMS_HPP_
 
 #include "affects/affect_data.h"
-#include "magic/spells.h"
+#include "spells.h"
 
 #include <list>
 

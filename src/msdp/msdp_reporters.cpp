@@ -2,7 +2,7 @@
 
 #include "entities/char_data.h"
 #include "entities/entities_constants.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "msdp_constants.h"
 #include "entities/zone.h"
 

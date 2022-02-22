@@ -3,7 +3,7 @@
 #include "fight.h"
 #include "pk.h"
 #include "fight_hit.h"
-#include "skills/protect.h"
+#include "game_skills/protect.h"
 #include "mobact.h"
 #include "common.h"
 

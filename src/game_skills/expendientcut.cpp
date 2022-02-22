@@ -6,10 +6,7 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/pk.h"
-#include "skills/protect.h"
-
-#include <iostream>
-#include "skills.h"
+#include "game_skills/protect.h"
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApplyLocation> noflee;
@@ -90,7 +87,6 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		dmg = fight::kZeroDmg;
 		no_flee_duration = 3;
 	};
-	//damage.skill_id;
 	damage.dam = dmg;
 	damage.wielded = GET_EQ(ch, WEAR_WIELD);
 	damage.Process(roll.GetActor(), roll.GetRival());

@@ -4,7 +4,7 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "fightsystem/common.h"
-#include "skills/parry.h"
+#include "game_skills/parry.h"
 #include "protect.h"
 
 // ************************* MIGHTHIT PROCEDURES

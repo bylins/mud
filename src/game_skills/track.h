@@ -1,7 +1,7 @@
 #ifndef BYLINS_TRACK_H
 #define BYLINS_TRACK_H
 
-#include "skills.h"
+#include "game_skills/skills.h"
 
 class CharData;
 

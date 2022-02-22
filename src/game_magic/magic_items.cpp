@@ -3,7 +3,7 @@
 #include "entities/char_data.h"
 #include "handler.h"
 #include "obj_prototypes.h"
-#include "magic/spells_info.h"
+#include "spells_info.h"
 #include "magic_utils.h"
 
 const short DEFAULT_STAFF_LVL = 12;

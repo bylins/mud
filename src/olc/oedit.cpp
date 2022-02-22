@@ -14,7 +14,7 @@
 #include "sysdep.h"
 #include "structs/structs.h"
 #include "comm.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
@@ -26,7 +26,7 @@
 #include "depot.h"
 #include "entities/char_data.h"
 #include "house.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "communication/parcel.h"
 #include "liquid.h"
 #include "name_list.h"
@@ -36,8 +36,8 @@
 #include "game_mechanics/sets_drop.h"
 #include "entities/obj_data.h"
 #include "entities/zone.h"
-#include "skills_info.h"
-#include "magic/spells_info.h"
+#include "game_skills/skills_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 #include <array>

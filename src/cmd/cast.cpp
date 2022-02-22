@@ -1,9 +1,9 @@
 #include "cast.h"
 
 #include "entities/char_data.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "game_classes/classes_spell_slots.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 #include "handler.h"
 #include "color.h"
 

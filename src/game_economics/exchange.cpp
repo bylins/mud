@@ -21,7 +21,7 @@
 #include "color.h"
 #include "crafts/im.h"
 #include "constants.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"

@@ -10,7 +10,7 @@
 #define FILE_FEATURES_H_INCLUDED
 
 #include "abilities/abilities_items_set.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "structs/structs.h"
 #include "conf.h"
 #include "game_classes/classes_constants.h"

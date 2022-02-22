@@ -20,7 +20,7 @@
  */
 #include "classes.h"
 
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "top.h"
@@ -30,7 +30,7 @@
 #include "game_mechanics/named_stuff.h"
 #include "noob.h"
 #include "game_economics/exchange.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 extern int siteok_everyone;

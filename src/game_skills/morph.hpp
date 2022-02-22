@@ -3,7 +3,7 @@
 
 #include "affects/affect_contants.h"
 #include "comm.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 
 #include <list>
 #include <set>

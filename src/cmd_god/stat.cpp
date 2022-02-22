@@ -19,7 +19,7 @@
 #include "mob_stat.h"
 #include "modify.h"
 //#include "entities/zone.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 #include "depot.h"
 

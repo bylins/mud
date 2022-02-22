@@ -22,7 +22,7 @@
 #include "liquid.h"
 #include "game_mechanics/named_stuff.h"
 #include "fightsystem/pk.h"
-#include "skills/poison.h"
+#include "game_skills/poison.h"
 #include "meat_maker.h"
 #include "utils/utils_char_obj.inl"
 #include "structs/global_objects.h"
@@ -2538,7 +2538,7 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-#include "magic/magic_rooms.h"
+#include "game_magic/magic_rooms.h"
 void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *caster;
 	int tp, lag = 0;

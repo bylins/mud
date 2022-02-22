@@ -2,14 +2,14 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "magic/spells.h"
+#include "spells.h"
 
 #include "entities/obj_data.h"
 #include "color.h"
-#include "skills/poison.h"
+#include "game_skills/poison.h"
 #include "entities/char_data.h"
 #include "utils/utils_char_obj.inl"
-#include "magic/spells_info.h"
+#include "spells_info.h"
 
 #include <boost/format.hpp>
 

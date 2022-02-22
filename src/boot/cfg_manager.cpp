@@ -9,7 +9,7 @@
 #include "cfg_manager.h"
 
 #include "game_classes/classes_info.h"
-#include "skills_info.h"
+#include "game_skills/skills_info.h"
 
 namespace cfg_manager {
 

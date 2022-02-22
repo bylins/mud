@@ -15,8 +15,8 @@
 #include "handler.h"
 #include "utils/id_converter.h"
 #include "obj_prototypes.h"
-#include "skills/townportal.h"
-#include "magic/magic_utils.h"
+#include "game_skills/townportal.h"
+#include "game_magic/magic_utils.h"
 #include "entities/zone.h"
 #include "structs/global_objects.h"
 

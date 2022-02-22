@@ -14,7 +14,7 @@
 
 #include "world_objects.h"
 #include "entities/world_characters.h"
-#include "skills/townportal.h"
+#include "game_skills/townportal.h"
 #include "handler.h"
 #include "color.h"
 #include "house.h"
@@ -29,7 +29,7 @@
 #include "mob_stat.h"
 #include "entities/zone.h"
 #include "game_classes/classes_spell_slots.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 
 #include <boost/format.hpp>
 #include <random>

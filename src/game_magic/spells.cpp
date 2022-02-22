@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "magic/spells.h"
+#include "spells.h"
 
 #include <boost/format.hpp>
 
@@ -24,12 +24,12 @@
 #include "handler.h"
 #include "house.h"
 #include "liquid.h"
-#include "magic/magic.h"
+#include "magic.h"
 #include "obj_prototypes.h"
 #include "communication/parcel.h"
 #include "administration/privilege.h"
 #include "color.h"
-#include "skills/townportal.h"
+#include "game_skills/townportal.h"
 #include "cmd/flee.h"
 #include "stuff.h"
 #include "utils/utils_char_obj.inl"

@@ -13,7 +13,7 @@
 #include "structs/structs_double_map.h"
 #include "structs/structs.h"
 #include "conf.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 
 #include <vector>
 #include <fstream>

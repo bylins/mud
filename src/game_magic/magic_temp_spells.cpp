@@ -1,9 +1,9 @@
-#include "magic/magic_temp_spells.h"
+#include "game_magic/magic_temp_spells.h"
 
 #include "entities/world_characters.h"
 #include "color.h"
 #include "handler.h"
-#include "magic/spells_info.h"
+#include "spells_info.h"
 
 namespace Temporary_Spells {
 void add_spell(CharData *ch, int spellnum, time_t set_time, time_t duration) {

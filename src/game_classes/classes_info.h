@@ -10,7 +10,7 @@
 
 #include "boot/cfg_manager.h"
 #include "game_classes/classes_constants.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "structs/info_container.h"
 
 #include <optional>
