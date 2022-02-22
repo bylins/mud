@@ -242,13 +242,23 @@ bool IsValidObjVnum(int vnum) {
 	return true;
 }
 
+// =====================================================================================================================
+
+/*
+ * Прочитать значение value как строку.
+ * Ecxeption: если строка пуста, сообщение "string is empty";
+ */
 const char *ReadAsStr(const char *value) {
 	if (strcmp(value, "") == 0) {
-		throw std::runtime_error("empty str");
+		throw std::runtime_error("string is empty");
 	}
 	return value;
 }
 
+/*
+ * Прочитать значение value как int.
+ * Ecxeption: при неудаче, сообщение - содержимое value.
+ */
 int ReadAsInt(const char *value) {
 	try {
 		return std::stoi(value, nullptr);
@@ -257,6 +267,10 @@ int ReadAsInt(const char *value) {
 	}
 }
 
+/*
+ * Прочитать значение value как float.
+ * Ecxeption: при неудаче, сообщение - содержимое value.
+ */
 float ReadAsFloat(const char *value) {
 	try {
 		return std::stof(value, nullptr);
@@ -265,12 +279,29 @@ float ReadAsFloat(const char *value) {
 	}
 }
 
+/*
+ * Прочитать значение value как double.
+ * Ecxeption: при неудаче, сообщение - содержимое value.
+ */
 double ReadAsDouble(const char *value) {
 	try {
 		return std::stod(value, nullptr);
 	} catch (std::exception &) {
 		throw std::runtime_error(value);
 	}
+}
+
+/*
+ * Прочитать значение value как bool.
+ * Возвращает true, если значение "1", "true", "T", "t", "Y" или "y" и false в ином случае.
+ * Ecxeption: если value пусто, сообщение - "value is empty".
+ */
+bool ReadAsBool(const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("value is empty");
+	}
+	return (strcmp(value, "1") == 0 || strcmp(value, "true") == 0 || strcmp(value, "t") == 0
+				|| strcmp(value, "T") == 0 || strcmp(value, "y") == 0 || strcmp(value, "Y") == 0);
 }
 
 } // namespace parse

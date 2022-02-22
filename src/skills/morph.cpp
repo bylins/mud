@@ -4,7 +4,7 @@
 #include "color.h"
 #include "handler.h"
 #include "magic/magic_utils.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>

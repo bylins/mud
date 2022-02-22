@@ -7,7 +7,7 @@
 #include "obj_prototypes.h"
 #include "entities/char_data.h"
 #include "handler.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "house.h"
 #include "utils/parse.h"
 #include "utils/random.h"

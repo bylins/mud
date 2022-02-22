@@ -138,7 +138,7 @@ set(SOURCES
 		src/fightsystem/pk.cpp
 		src/entities/player_races.cpp
 		src/administration/privilege.cpp
-		src/utils/pugixml.cpp
+		src/utils/pugixml/pugixml.cpp
 		src/quests/quested.cpp
 		src/utils/random.cpp
 		src/olc/redit.cpp
@@ -241,7 +241,9 @@ set(SOURCES
 		src/game_classes/classes_info.cpp
 		src/utils/objects_filter.cpp
 		src/structs/info_container.cpp
-		src/utils/wrapper.cpp src/boot/cfg_manager.cpp)
+		src/utils/parser_wrapper.cpp
+		src/boot/cfg_manager.cpp
+		src/affects/affect_contants.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -413,8 +415,8 @@ set(HEADERS
 		src/entities/player_i.h
 		src/entities/player_races.h
 		src/administration/privilege.h
-		src/utils/pugiconfig.h
-		src/utils/pugixml.h
+		src/utils/pugixml/pugiconfig.h
+		src/utils/pugixml/pugixml.h
 		src/quests/quested.h
 		src/utils/random.h
 		src/communication/remember.h
@@ -462,7 +464,9 @@ set(HEADERS
 		src/game_classes/classes_info.h
 		src/utils/objects_filter.h
 		src/structs/info_container.h
-		src/utils/wrapper.h src/boot/cfg_manager.h src/structs/iterators.h)
+		src/utils/parser_wrapper.h
+		src/boot/cfg_manager.h
+		src/structs/iterators.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -559,9 +563,10 @@ else()
 	set(PYTHON_LIBRARIES)
 endif ()
 
+# MSDP
 set(MSDP_FILES
 		src/msdp/msdp.h
-	src/msdp/msdp.cpp
+		src/msdp/msdp.cpp
 		src/msdp/msdp_parser.cpp
 		src/msdp/msdp_parser.h
 		src/msdp/msdp_constants.h
@@ -639,7 +644,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/affects/affect_contants.cpp)
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES})
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
@@ -659,6 +664,12 @@ else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 endif ()
 add_dependencies(circle.library versioning changelog)
+
+# Linfort integration
+# Disable building tests and examples in libfort project
+set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
+add_subdirectory(src/utils/libfort)
+target_link_libraries(circle.library fort)
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)

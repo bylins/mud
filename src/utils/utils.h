@@ -18,7 +18,7 @@
 #include "conf.h"
 #include "config.h"
 #include "entities/entities_constants.h"
-#include "pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "structs/structs.h"
 #include "game_mechanics/weather.h"
 #include "utils_string.h"

@@ -9,7 +9,7 @@
 
 #include "color.h"
 #include "utils/parse.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "structs/global_objects.h"
 
 namespace classes {

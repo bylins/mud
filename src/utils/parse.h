@@ -5,7 +5,7 @@
 #define PARSE_HPP_INCLUDED
 
 #include "conf.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "sysdep.h"
 #include "structs/structs.h"
 #include "comm.h"

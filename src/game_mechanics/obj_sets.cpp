@@ -8,7 +8,7 @@
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "color.h"
 #include "modify.h"

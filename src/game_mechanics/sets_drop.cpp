@@ -5,7 +5,7 @@
 
 #include "obj_prototypes.h"
 #include "entities/char_data.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "house.h"
 #include "color.h"
 #include "help.h"

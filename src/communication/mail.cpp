@@ -17,7 +17,7 @@
 #include "game_mechanics/named_stuff.h"
 #include "utils/parse.h"
 #include "color.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 
 #include <boost/lexical_cast.hpp>
 

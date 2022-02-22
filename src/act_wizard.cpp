@@ -65,7 +65,7 @@
 #include "communication/parcel.h"
 #include "administration/password.h"
 #include "administration/privilege.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "entities/room_data.h"
 #include "color.h"
 #include "game_mechanics/sets_drop.h"

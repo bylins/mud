@@ -3,7 +3,7 @@
 
 #include "mob_stat.h"
 
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "entities/char_data.h"
 #include "color.h"
