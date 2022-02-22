@@ -899,6 +899,7 @@ int ft_set_cell_prop(ft_table_t *table, size_t row, size_t col, uint32_t propert
 #define FT_TPROP_RIGHT_MARGIN    (0x01U << 2)
 #define FT_TPROP_BOTTOM_MARGIN   (0x01U << 3)
 #define FT_TPROP_ADDING_STRATEGY (0x01U << 4)
+#define FT_BORDER_COLOR          (0x01U << 5)		// Add by Sventovit
 /** @} */
 
 /**

@@ -2030,6 +2030,7 @@ extern struct fort_border_style FORT_BOLD2_STYLE;
 extern struct fort_border_style FORT_FRAME_STYLE;
 
 struct fort_entire_table_properties {
+	unsigned int border_color_number;
     unsigned int left_margin;
     unsigned int top_margin;
     unsigned int right_margin;
@@ -4258,6 +4259,7 @@ int u8nprint_n_strings(void *buf, size_t length, size_t n, const void *str)
 
 #define FT_RESET_COLOR "\033[0m"
 
+// Add by Sventovit
 /*static const char *fg_colors[] = {
     "",
     "\033[30m",
@@ -4337,6 +4339,7 @@ static const char *fg_colors[] = {
 	"\x1B[1;36m",
 	"\x1B[1;37m",
 };
+// Add by Sventovit - changes end
 
 static const char *text_styles[] = {
     "",
