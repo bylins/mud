@@ -120,7 +120,7 @@ void do_equipment(CharData *ch, char *argument, int cmd, int subcmd);
 void do_time(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
 void do_who(CharData *ch, char *argument, int cmd, int subcmd);
-void do_users(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
 void perform_mortal_where(CharData *ch, char *arg);
 void perform_immort_where(CharData *ch, char *arg);
@@ -1955,7 +1955,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
 			if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
 				print_zone_info(ch);
-			if ((ch->get_level() < kLevelImmortal) && !ch->get_master())
+			if ((ch->get_level() < kLvlImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
 		}
 	}
@@ -3352,7 +3352,7 @@ void print_do_score_all(CharData *ch) {
 		sprintf(buf + strlen(buf),
 				" || &RВНИМАНИЕ!&n ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.   &c||\r\n");
 	}
-	if (GetRealLevel(ch) < kLevelImmortal)
+	if (GetRealLevel(ch) < kLvlImmortal)
 		sprintf(buf + strlen(buf),
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
 				" || %sв %2d %-75s%s||\r\n",
@@ -3586,7 +3586,7 @@ void do_score(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT));
-	if (GetRealLevel(ch) < kLevelImmortal) {
+	if (GetRealLevel(ch) < kLvlImmortal) {
 		if (PRF_FLAGGED(ch, PRF_BLIND)) {
 			sprintf(buf + strlen(buf), "\r\n");
 		}
@@ -3609,7 +3609,7 @@ void do_score(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		strcat(buf, ".\r\n");
 
-	if (GetRealLevel(ch) < kLevelImmortal) {
+	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
 				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
@@ -4106,7 +4106,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	name_search[0] = '\0';
 
 	// Флаги для опций
-	int low = 0, high = kLevelImplementator;
+	int low = 0, high = kLvlImplementator;
 	int num_can_see = 0;
 	int imms_num = 0, morts_num = 0, demigods_num = 0;
 	bool localwho = false, short_list = false;
@@ -4120,8 +4120,8 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while (*buf) {
 		half_chop(buf, arg, buf1);
 		if (!str_cmp(arg, "боги") && strlen(arg) == 4) {
-			low = kLevelImmortal;
-			high = kLevelImplementator;
+			low = kLvlImmortal;
+			high = kLvlImplementator;
 			strcpy(buf, buf1);
 		} else if (a_isdigit(*arg)) {
 			if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -4207,7 +4207,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 
-		if (!*argument && GetRealLevel(tch) < kLevelImmortal) {
+		if (!*argument && GetRealLevel(tch) < kLvlImmortal) {
 			++all;
 		}
 
@@ -4304,7 +4304,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							genders[static_cast<int>(GET_SEX(tch))]);
 				}
 			}
-			if ((GetRealLevel(ch) == kLevelImplementator) && (NORENTABLE(tch)))
+			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
@@ -4419,7 +4419,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	int clan{0}, noclan{0}, hilvl{0}, lowlvl{0}, rem{0}, norem{0}, pk{0}, nopk{0}, total{0};
 	for (const auto &tch : character_list) {
-		if (tch->is_npc() || GetRealLevel(tch) >= kLevelImmortal || !HERE(tch)) {
+		if (tch->is_npc() || GetRealLevel(tch) >= kLvlImmortal || !HERE(tch)) {
 			continue;
 		}
 		CLAN(tch) ? ++clan : ++noclan;
@@ -4494,325 +4494,6 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	send_to_char(out.str(), ch);
 }
 
-#define USERS_FORMAT \
-"Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
-const int kMaxListLen = 200;
-void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char line[200], line2[220], idletime[10], classname[128];
-	char state[30] = "\0", *timeptr, mode;
-	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
-	char host_by_name[kMaxInputLength] = "\0";
-	DescriptorData *list_players[kMaxListLen];
-	DescriptorData *d_tmp;
-	int count_pl;
-	int cycle_i, is, flag_change;
-	unsigned long a1, a2;
-	int showremorts = 0, showemail = 0, locating = 0;
-	char sorting = '!';
-	DescriptorData *d;
-	int low = 0, high = kLevelImplementator, num_can_see = 0;
-	int outlaws = 0, playing = 0, deadweight = 0;
-	ECharClass showclass{ECharClass::kUndefined};
-
-	host_search[0] = name_search[0] = '\0';
-
-	strcpy(buf, argument);
-	while (*buf) {
-		half_chop(buf, arg, buf1);
-		if (*arg == '-') {
-			mode = *(arg + 1);    // just in case; we destroy arg in the switch
-			switch (mode) {
-				case 'o':
-				case 'k': outlaws = 1;
-					playing = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'p': playing = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'd': deadweight = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'l':
-					if (!IS_GOD(ch))
-						return;
-					playing = 1;
-					half_chop(buf1, arg, buf);
-					sscanf(arg, "%d-%d", &low, &high);
-					break;
-				case 'n': playing = 1;
-					half_chop(buf1, name_search, buf);
-					break;
-				case 'h': playing = 1;
-					half_chop(buf1, host_search, buf);
-					break;
-				case 'u': playing = 1;
-					half_chop(buf1, host_by_name, buf);
-					break;
-				case 'w':
-					if (!IS_GRGOD(ch))
-						return;
-					playing = 1;
-					locating = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'c': {
-					playing = 1;
-					half_chop(buf1, arg, buf);
-/*					const size_t len = strlen(arg);
-					for (size_t i = 0; i < len; i++) {
-						showclass |= FindCharClassMask(arg[i]);
-					}*/
-					showclass = FindAvailableCharClassId(arg);
-					break;
-				}
-				case 'e': showemail = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'r': showremorts = 1;
-					strcpy(buf, buf1);
-					break;
-
-				case 's':
-					sorting = *(arg + 2);
-					strcpy(buf, buf1);
-					break;
-				default: send_to_char(USERS_FORMAT, ch);
-					return;
-			}    // end of switch
-
-		} else {
-			strcpy(name_search, arg);
-			strcpy(buf, buf1);
-		}
-	}            // end while (parser)
-
-	const char *format = "%3d %-7s %-20s %-17s %-3s %-8s ";
-	if (showemail) {
-		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт       E-mail\r\n");
-	} else {
-		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт\r\n");
-	}
-	strcat(line, "--- ---------- -------------------- ----------------- --- -------- ----------------------------\r\n");
-	send_to_char(line, ch);
-
-	one_argument(argument, arg);
-
-	if (strlen(host_by_name) != 0) {
-		strcpy(host_search, "!");
-	}
-
-	for (d = descriptor_list, count_pl = 0; d && count_pl < kMaxListLen; d = d->next, count_pl++) {
-		list_players[count_pl] = d;
-
-		const auto character = d->get_character();
-		if (!character) {
-			continue;
-		}
-
-		if (isname(host_by_name, GET_NAME(character))) {
-			strcpy(host_search, d->host);
-		}
-	}
-
-	if (sorting != '!') {
-		is = 1;
-		while (is) {
-			is = 0;
-			for (cycle_i = 1; cycle_i < count_pl; cycle_i++) {
-				flag_change = 0;
-				d = list_players[cycle_i - 1];
-
-				const auto t = d->get_character();
-
-				d_tmp = list_players[cycle_i];
-
-				const auto t_tmp = d_tmp->get_character();
-
-				switch (sorting) {
-					case 'n':
-						if (0 < strcoll(t ? t->get_pc_name().c_str() : "", t_tmp ? t_tmp->get_pc_name().c_str() : "")) {
-							flag_change = 1;
-						}
-						break;
-
-					case 'e':
-						if (strcoll(t ? GET_EMAIL(t) : "", t_tmp ? GET_EMAIL(t_tmp) : "") > 0)
-							flag_change = 1;
-						break;
-
-					default: a1 = get_ip(const_cast<char *>(d->host));
-						a2 = get_ip(const_cast<char *>(d_tmp->host));
-						if (a1 > a2)
-							flag_change = 1;
-				}
-				if (flag_change) {
-					list_players[cycle_i - 1] = d_tmp;
-					list_players[cycle_i] = d;
-					is = 1;
-				}
-			}
-		}
-	}
-
-	for (cycle_i = 0; cycle_i < count_pl; cycle_i++) {
-		d = list_players[cycle_i];
-
-		if (STATE(d) != CON_PLAYING && playing)
-			continue;
-		if (STATE(d) == CON_PLAYING && deadweight)
-			continue;
-		if (STATE(d) == CON_PLAYING) {
-			const auto character = d->get_character();
-			if (!character) {
-				continue;
-			}
-
-			if (*host_search && !strstr(d->host, host_search)) {
-				continue;
-			}
-			if (*name_search && !isname(name_search, GET_NAME(character))) {
-				continue;
-			}
-			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
-				continue;
-			}
-			if (outlaws && !PLR_FLAGGED((ch), PLR_KILLER)) {
-				continue;
-			}
-			if (showclass != ECharClass::kUndefined && showclass != character->get_class()) {
-				continue;
-			}
-			if (GET_INVIS_LEV(character) > GetRealLevel(ch)) {
-				continue;
-			}
-
-			if (d->original) {
-				if (showremorts) {
-					sprintf(classname,
-							"[%2d %2d %s]",
-							GetRealLevel(d->original),
-							GET_REAL_REMORT(d->original),
-							MUD::Classes()[d->original->get_class()].GetAbbr().c_str());
-				} else {
-					sprintf(classname,
-							"[%2d %s]   ",
-							GetRealLevel(d->original),
-							MUD::Classes()[d->original->get_class()].GetAbbr().c_str());
-				}
-			} else if (showremorts) {
-				sprintf(classname,
-						"[%2d %2d %s]",
-						GetRealLevel(d->character),
-						GET_REAL_REMORT(d->character),
-						MUD::Classes()[d->character->get_class()].GetAbbr().c_str());
-			} else {
-				sprintf(classname,
-						"[%2d %s]   ",
-						GetRealLevel(d->character),
-						MUD::Classes()[d->character->get_class()].GetAbbr().c_str());
-			}
-		} else {
-			strcpy(classname, "      -      ");
-		}
-
-		if (GetRealLevel(ch) < kLevelImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
-			strcpy(classname, "      -      ");
-		}
-
-		timeptr = asctime(localtime(&d->login_time));
-		timeptr += 11;
-		*(timeptr + 8) = '\0';
-
-		if (STATE(d) == CON_PLAYING && d->original) {
-			strcpy(state, "Switched");
-		} else {
-			sprinttype(STATE(d), connected_types, state);
-		}
-
-		if (d->character
-			&& STATE(d) == CON_PLAYING
-			&& !IS_GOD(d->character)) {
-			sprintf(idletime, "%-3d", d->character->char_specials.timer *
-				SECS_PER_MUD_HOUR / SECS_PER_REAL_MIN);
-		} else {
-			strcpy(idletime, "   ");
-		}
-
-		if (d->character
-			&& d->character->get_pc_name().c_str()) {
-			if (d->original) {
-				sprintf(line,
-						format,
-						d->desc_num,
-						classname,
-						d->original->get_pc_name().c_str(),
-						state,
-						idletime,
-						timeptr);
-			} else {
-				sprintf(line,
-						format,
-						d->desc_num,
-						classname,
-						d->character->get_pc_name().c_str(),
-						state,
-						idletime,
-						timeptr);
-			}
-		} else {
-			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
-		}
-
-		if (d && *d->host) {
-			sprintf(line2, "[%s]", d->host);
-			strcat(line, line2);
-		} else {
-			strcat(line, "[Неизвестный хост]");
-		}
-
-		if (showemail) {
-			sprintf(line2, "[&S%s&s]",
-					d->original ? GET_EMAIL(d->original) : d->character ? GET_EMAIL(d->character) : "");
-			strcat(line, line2);
-		}
-
-		if (locating && (*name_search || *host_by_name)) {
-			if (STATE(d) == CON_PLAYING) {
-				const auto ci = d->get_character();
-				if (ci
-					&& CAN_SEE(ch, ci)
-					&& ci->in_room != kNowhere) {
-					if (d->original && d->character) {
-						sprintf(line2, " [%5d] %s (in %s)",
-								GET_ROOM_VNUM(IN_ROOM(d->character)),
-								world[d->character->in_room]->name, GET_NAME(d->character));
-					} else {
-						sprintf(line2, " [%5d] %s",
-								GET_ROOM_VNUM(IN_ROOM(ci)), world[ci->in_room]->name);
-					}
-				}
-
-				strcat(line, line2);
-			}
-		}
-
-		strcat(line, "\r\n");
-		if (STATE(d) != CON_PLAYING) {
-			sprintf(line2, "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
-			strcpy(line, line2);
-		}
-
-		if (STATE(d) != CON_PLAYING || (STATE(d) == CON_PLAYING && d->character && CAN_SEE(ch, d->character))) {
-			send_to_char(line, ch);
-			num_can_see++;
-		}
-	}
-
-	sprintf(line, "\r\n%d видимых соединений.\r\n", num_can_see);
-	page_string(ch->desc, line, true);
-}
-
 void sendWhoami(CharData *ch) {
 	sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
 	sprintf(buf + strlen(buf),
@@ -4835,7 +4516,7 @@ void sendWhoami(CharData *ch) {
 
 		static const char *by_rank_god = "Богом";
 		static const char *by_rank_privileged = "привилегированным игроком";
-		const char *by_rank = god_level < kLevelImmortal ? by_rank_privileged : by_rank_god;
+		const char *by_rank = god_level < kLvlImmortal ? by_rank_privileged : by_rank_god;
 
 		if (NAME_GOD(ch) < 1000)
 			snprintf(buf, kMaxStringLength, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
@@ -5054,7 +4735,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 	int num = 1, found = 0;
 
 	if (!*arg) {
-		if (GetRealLevel(ch) < kLevelImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			send_to_char("Где КТО конкретно?", ch);
 		} else {
 			send_to_char("ИГРОКИ\r\n------\r\n", ch);
@@ -5123,7 +4804,7 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	*ptr = '\0';
 
 	ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
-	for (i = 1; i < kLevelImmortal; i++) {
+	for (i = 1; i < kLvlImmortal; i++) {
 		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (ch->get_level() == i) ? CCICYN(ch, C_NRM) : "", i,
 					   thousands_sep(level_exp(ch, i)).c_str(),
 					   thousands_sep(level_exp(ch, i + 1) - 1).c_str(),
@@ -5132,9 +4813,9 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	ptr += sprintf(ptr, "%s[%2d] %13s               (БЕССМЕРТИЕ)%s\r\n",
-				   (ch->get_level() >= kLevelImmortal) ? CCICYN(ch, C_NRM) : "", kLevelImmortal,
-				   thousands_sep(level_exp(ch, kLevelImmortal)).c_str(),
-				   (ch->get_level() >= kLevelImmortal) ? CCNRM(ch, C_NRM) : "");
+				   (ch->get_level() >= kLvlImmortal) ? CCICYN(ch, C_NRM) : "", kLvlImmortal,
+				   thousands_sep(level_exp(ch, kLvlImmortal)).c_str(),
+				   (ch->get_level() >= kLvlImmortal) ? CCNRM(ch, C_NRM) : "");
 	page_string(ch->desc, buf, 1);
 }
 
@@ -5211,7 +4892,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
-	if (GetRealLevel(ch) >= kLevelImmortal || PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (GetRealLevel(ch) >= kLvlImmortal || PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		snprintf(buf, kMaxStringLength,
 				 " Нет агров     : %-3s     "
 				 " Супервидение  : %-3s     "
@@ -5424,7 +5105,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (cmd_info[i].minimum_level >= 0
 				&& (Privilege::can_do_priv(vict, std::string(cmd_info[i].command), i, 0))
-				&& (cmd_info[i].minimum_level >= kLevelImmortal) == wizhelp
+				&& (cmd_info[i].minimum_level >= kLvlImmortal) == wizhelp
 				&& (wizhelp || socials == cmd_sort_info[i].is_social)) {
 				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
 				if (!(no % 5))

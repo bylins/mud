@@ -5,7 +5,7 @@
 #include "game_mechanics/glory_const.h"
 #include "entities/char_data.h"
 #include "structs/global_objects.h"
-#include "utils/libfort/fort.hpp"
+#include "utils/table_wrapper.h"
 
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);
 
@@ -63,25 +63,18 @@ const PlayerChart &TopPlayer::Chart() {
 };
 
 void TopPlayer::PrintPlayersChart(CharData *ch) {
-	std::ostringstream out;
-	out << KWHT << "Лучшие персонажи игроков:" << KNRM << std::endl;
+	send_to_char(" Лучшие персонажи игроков:\r\n", ch);
 
 	fort::char_table table;
-	table.set_border_style(FT_EMPTY_STYLE);
-	table.column(0).set_cell_content_fg_color(fort::color::light_gray);
-	table.set_left_margin(2);
-
 	for (const auto &it: TopPlayer::Chart()) {
 		table
 			<< it.second.begin()->name_
-			<< desc_count(it.second.begin()->remort_, WHAT_REMORT)
 			<< it.second.begin()->remort_
-			<< MUD::Classes()[it.first].GetName()
-			<< fort::endr;
+			<< desc_count(it.second.begin()->remort_, WHAT_REMORT)
+			<< MUD::Classes()[it.first].GetName() << fort::endr;
 	}
-
-	out << table.to_string() << std::endl;
-	send_to_char(out.str().c_str(), ch);
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToChar(ch, table);
 }
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
@@ -89,33 +82,34 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	out << KWHT << " Лучшие " << MUD::Classes()[id].GetPluralName() << ":" << KNRM << std::endl;
 
 	fort::char_table table;
-	table.set_border_style(FT_EMPTY_STYLE);
-	table.set_left_margin(2);
 	for (const auto &it: TopPlayer::chart_[id]) {
-		table << it.name_ << it.remort_ << desc_count(it.remort_, WHAT_REMORT) << fort::endr;
+		table
+			<< it.name_
+			<< it.remort_
+			<< desc_count(it.remort_, WHAT_REMORT) << fort::endr;
 
 	}
-	out << table.to_string() << std::endl;
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToStream(out, table);
 
 	// если игрок участвует в данном топе - покажем ему, какой он неудачник
 	int count = 1;
 	for (const auto &it: TopPlayer::chart_[id]) {
 		if (it.unique_ == ch->get_uid()) {
+			out.clear();
 			out << std::endl << "  Ваш текущий рейтинг: " << count << std::endl;
 			break;
 		}
 		++count;
 	}
-	send_to_char(out.str().c_str(), ch);
+	send_to_char(out.str(), ch);
 }
 
 void TopPlayer::PrintHelp(CharData *ch) {
-	std::ostringstream out;
-	out << " Лучшими могут быть:" << std::endl << std::left;
+	send_to_char(" Лучшими могут быть:\n", ch);
 
 	fort::char_table table;
-	table.set_border_style(FT_BASIC_STYLE);
-	const int columns_num = 4;
+	const int columns_num{2};
 	int count = 1;
 	for (const auto &it: MUD::Classes()) {
 		if (it.IsAvailable()) {
@@ -133,9 +127,9 @@ void TopPlayer::PrintHelp(CharData *ch) {
 		}
 		++count;
 	}
-	out << table.to_string() << std::endl;
 
-	send_to_char(out.str().c_str(), ch);
+	table_wrapper::DecorateSimpleTable(ch, table);
+	table_wrapper::PrintTableToChar(ch, table);
 }
 
 void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -144,7 +138,7 @@ void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	std::string buffer = argument;
-	utils::trim(buffer);
+	utils::Trim(buffer);
 
 	if (CompareParam(buffer, "прославленные")) {
 		GloryConst::PrintGloryChart(ch);

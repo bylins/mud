@@ -179,12 +179,12 @@ constexpr Bitvector EXTRA_GRP_KILL_COUNT = 1 << 3; // для избежания 
  * kLevelImmortal should always be the LOWEST immortal level.  The number of
  * mortal levels will always be kLevelImmortal - 1.
  */
-const int kLevelImplementator = 34;
-const int kLevelGreatGod = 33;
-const int kLevelBuilder = 33;
-const int kLevelGod = 32;
-const int kLevelImmortal = 31;
-const int kLevelFreeze = kLevelGreatGod; // Level of the 'freeze' command //
+const int kLvlImplementator = 34;
+const int kLvlGreatGod = 33;
+const int kLvlBuilder = 33;
+const int kLvlGod = 32;
+const int kLvlImmortal = 31;
+const int kLvlFreeze = kLvlGreatGod; // Level of the 'freeze' command //
 
 const __uint8_t kMagicNumber = 0x06;    // Arbitrary number that won't be in a string //
 

@@ -1238,7 +1238,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, DOOR_SCMD scmd) {
 						ch->get_name().c_str(),
 						GET_ROOM_VNUM(ch->in_room),
 						get_name_by_unique(GET_OBJ_VAL(obj, 3)));
-				mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 				system_obj::process_open_purse(ch, obj);
 				return;
 			} else {
@@ -1285,7 +1285,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, DOOR_SCMD scmd) {
 							sprintf(local_buf,
 									"[ERROR] do_doorcmd: ошибка при открытии контейнера %d, неизвестное содержимое!",
 									obj->get_vnum());
-							mudlog(local_buf, LogMode::CMP, kLevelGreatGod, MONEY_LOG, true);
+							mudlog(local_buf, LogMode::CMP, kLvlGreatGod, MONEY_LOG, true);
 							return;
 						}
 						// сначала удалим ключ из инвентаря
@@ -1733,7 +1733,7 @@ void do_rest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (GetRealLevel(ch) >= kLevelImmortal) {
+	if (GetRealLevel(ch) >= kLvlImmortal) {
 		send_to_char("Не время вам спать, родина в опасности!\r\n", ch);
 		return;
 	}

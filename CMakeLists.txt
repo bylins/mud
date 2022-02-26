@@ -243,7 +243,9 @@ set(SOURCES
 		src/structs/info_container.cpp
 		src/utils/parser_wrapper.cpp
 		src/boot/cfg_manager.cpp
-		src/affects/affect_contants.cpp)
+		src/affects/affect_contants.cpp
+		src/cmd_god/users.cpp
+		src/utils/table_wrapper.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -466,7 +468,9 @@ set(HEADERS
 		src/structs/info_container.h
 		src/utils/parser_wrapper.h
 		src/boot/cfg_manager.h
-		src/structs/iterators.h)
+		src/structs/iterators.h
+		src/cmd_god/users.h
+		src/utils/table_wrapper.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

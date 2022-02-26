@@ -1206,8 +1206,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				af[0].modifier = -1 * ((level / 6 + GET_REAL_REMORT(ch) / 2));
 			else
 				af[0].modifier = -2 * ((level / 6 + GET_REAL_REMORT(ch) / 2));
-			if (IS_NPC(ch) && level >= (kLevelImmortal))
-				af[0].modifier += (kLevelImmortal - level - 1);    //1 str per mob level above 30
+			if (IS_NPC(ch) && level >= (kLvlImmortal))
+				af[0].modifier += (kLvlImmortal - level - 1);    //1 str per mob level above 30
 			af[0].battleflag = kAfBattledec;
 			accum_duration = true;
 			to_room = "$n стал$g немного слабее.";
@@ -1692,8 +1692,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 				af[2].location = APPLY_CAST_SUCCESS;
 				af[2].duration = af[0].duration;
 				af[2].modifier = -(level / 3 + GET_REAL_REMORT(ch));
-				if (IS_NPC(ch) && level >= (kLevelImmortal))
-					af[2].modifier += (kLevelImmortal - level - 1);    //1 cast per mob level above 30
+				if (IS_NPC(ch) && level >= (kLvlImmortal))
+					af[2].modifier += (kLvlImmortal - level - 1);    //1 cast per mob level above 30
 				af[2].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
 			}
 			accum_duration = true;
@@ -3646,7 +3646,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 						"неизвестный прототип объекта : %s (VNUM=%d)",
 						GET_OBJ_PNAME(obj, 0).c_str(),
 						obj->get_vnum());
-				mudlog(message, BRF, kLevelBuilder, SYSLOG, 1);
+				mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
 				break;
 			}
 			if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
@@ -4370,7 +4370,7 @@ int TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, int spel
 	int msgIndex = FindIndexOfMsg(spellnum);
 	if (mag_messages[msgIndex].spell < 0) {
 		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания с номером %d.", spellnum);
-		mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
+		mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 		return msgIndex;
 	}
 	if (room && world[ch->in_room] == room) {

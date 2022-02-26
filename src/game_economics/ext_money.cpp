@@ -274,7 +274,7 @@ bool check_equal_exch(CharData *ch) {
 	if (before != after) {
 		sprintf(buf, "SYSERROR: Torc exch by %s not equal: %d -> %d",
 				GET_NAME(ch), before, after);
-		mudlog(buf, DEF, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, DEF, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
 	return true;
@@ -634,14 +634,14 @@ void init() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
 	pugi::xml_node main_node = doc.child("remort");
 	if (!main_node) {
 		snprintf(buf, kMaxStringLength, "...<remort> read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 

@@ -774,7 +774,7 @@ bool can_get_feat(CharData *ch, int feat) {
 	if (feat <= 0 || feat >= kMaxFeats) {
 		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
 				feat, ch->get_name().c_str());
-		mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
 	// Если фит доступен всем и всегда - неачем его куда-то "заучиввать".
@@ -1047,7 +1047,7 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char arg2[kMaxInputLength];
 
 	//отключено пока для не-иммов
-	if (GetRealLevel(ch) < kLevelImmortal) {
+	if (GetRealLevel(ch) < kLvlImmortal) {
 		send_to_char("Вы не можете этого.", ch);
 		return;
 	};
@@ -1189,7 +1189,7 @@ void do_spell_capable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp | kSpellKnow) ||
 		GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
-		(GetRealLevel(ch) < kLevelGreatGod) && (!IS_NPC(ch))) {
+		(GetRealLevel(ch) < kLvlGreatGod) && (!IS_NPC(ch))) {
 		if (GetRealLevel(ch) < MIN_CAST_LEV(SpINFO, ch)
 			|| GET_REAL_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			|| slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) {
@@ -1322,7 +1322,7 @@ int CFeatArray::pos(int pos /*= -1*/) {
 		return pos_;
 	}
 	sprintf(buf, "SYSERR: invalid argument (%d) was sended to features::aff_aray.pos!", pos);
-	mudlog(buf, BRF, kLevelGod, SYSLOG, true);
+	mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 	return pos_;
 }
 

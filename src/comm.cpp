@@ -2320,7 +2320,7 @@ int process_output(DescriptorData *t) {
 				(pos < 0 ? (pos == -1 ? "NULL buffer" : "zero length buffer") : "go out of buffer"),
 				pos,
 				GET_NAME(t->character));
-		mudlog(buf, BRF, kLevelGod, SYSLOG, true);
+		mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 	}
 
 	/*
@@ -2782,7 +2782,7 @@ int process_input(DescriptorData *t) {
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
 				// Иммам или морталам с GF_DEMIGOD разрешено использовать ";".
-				if (GetRealLevel(t->character) < kLevelImmortal && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
+				if (GetRealLevel(t->character) < kLvlImmortal && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
 			if (*ptr == '&'
@@ -2790,7 +2790,7 @@ int process_input(DescriptorData *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GetRealLevel(t->character) < kLevelImplementator)
+				if (GetRealLevel(t->character) < kLvlImplementator)
 					*ptr = '8';
 			}
 			if (*ptr == '$'
@@ -2798,7 +2798,7 @@ int process_input(DescriptorData *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GetRealLevel(t->character) < kLevelImplementator)
+				if (GetRealLevel(t->character) < kLvlImplementator)
 					*ptr = '4';
 			}
 			if (*ptr == '\\'
@@ -2806,7 +2806,7 @@ int process_input(DescriptorData *t) {
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
-				if (GetRealLevel(t->character) < kLevelGreatGod)
+				if (GetRealLevel(t->character) < kLvlGreatGod)
 					*ptr = '/';
 			}
 			if (*ptr == '\b' || *ptr == 127)    // handle backspacing or delete key
@@ -3113,7 +3113,7 @@ void close_socket(DescriptorData * d, int direct)
 				Crash_ldsave(d->character.get());
 
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
-				mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			}
 			d->character->desc = nullptr;
 		} else {
@@ -3240,7 +3240,7 @@ void nonblock(socket_t s) {
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
 RETSIGTYPE unrestrict_game(int/* sig*/) {
-	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, kLevelImmortal, SYSLOG, true);
+	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, kLvlImmortal, SYSLOG, true);
 	ban->clear_all();
 	circle_restrict = 0;
 	num_invalid = 0;

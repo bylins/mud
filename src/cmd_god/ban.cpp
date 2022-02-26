@@ -598,7 +598,7 @@ bool BanList::add_ban(std::string BannedIp, std::string BanReason, std::string B
 
 	sprintf(buf, "%s has banned %s for %s players(%s) (%dh).",
 			BannerName.c_str(), BannedIp.c_str(), ban_types[BanType], temp_node_ptr->BanReason.c_str(), UnbanDate);
-	mudlog(buf, BRF, kLevelGod, SYSLOG, true);
+	mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 	imm_log("%s has banned %s for %s players(%s) (%dh).", BannerName.c_str(),
 			BannedIp.c_str(), ban_types[BanType], temp_node_ptr->BanReason.c_str(), UnbanDate);
 
@@ -643,7 +643,7 @@ bool BanList::add_proxy_ban(std::string BannedIp, std::string BannerName) {
 ///////////////////////////////////////////////////////////////////////
 	disconnectBannedIp(BannedIp);
 	sprintf(buf, "%s has banned proxy %s", BannerName.c_str(), BannedIp.c_str());
-	mudlog(buf, BRF, kLevelGod, SYSLOG, true);
+	mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 	imm_log("%s has banned proxy %s", BannerName.c_str(), BannedIp.c_str());
 ///////////////////////////////////////////////////////////////////////
 	return true;
@@ -951,7 +951,7 @@ int BanList::is_banned(std::string ip) {
 	if (j != Ban_List.end()) {
 		if ((*j)->UnbanDate <= time(0)) {
 			sprintf(buf, "Site %s is unbaned (time expired).", (*j)->BannedIp.c_str());
-			mudlog(buf, NRM, kLevelGod, SYSLOG, true);
+			mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 			Ban_List.erase(j);
 			save_ip();
 			return BAN_NO;
@@ -972,7 +972,7 @@ bool BanList::unban_ip(std::string ip, CharData *ch) {
 		send_to_char("Site unbanned.\r\n", ch);
 		sprintf(buf, "%s removed the %s-player ban on %s.",
 				GET_NAME(ch), ban_types[(*i)->BanType], (*i)->BannedIp.c_str());
-		mudlog(buf, BRF, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, BRF, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s removed the %s-player ban on %s.", GET_NAME(ch),
 				ban_types[(*i)->BanType], (*i)->BannedIp.c_str());
 ////////////////////////////////////////////////////////////////////////
@@ -993,7 +993,7 @@ bool BanList::unban_proxy(std::string ip, CharData *ch) {
 ////////////////////////////////////////////////////////////////////////
 		send_to_char("Proxy unbanned.\r\n", ch);
 		sprintf(buf, "%s removed the proxy ban on %s.", GET_NAME(ch), (*i)->BannedIp.c_str());
-		mudlog(buf, BRF, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, BRF, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s removed the proxy ban on %s.", GET_NAME(ch), (*i)->BannedIp.c_str());
 ////////////////////////////////////////////////////////////////////////
 		Proxy_Ban_List.erase(i);

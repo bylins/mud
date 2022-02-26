@@ -1237,7 +1237,7 @@ void mspell_slot(char */*name*/, int spell, int kin, int chclass, int slot) {
 	}
 
 	if (slot < 1 || slot > kMaxSlot) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLevelImplementator);
+		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLvlImplementator);
 		bad = 1;
 	}
 

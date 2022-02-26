@@ -183,7 +183,7 @@ void CheckTriggeredRebootCall::perform(int, int) {
 
 	if (m_external_trigger_checker
 		&& m_external_trigger_checker->check()) {
-		mudlog("Сработал внешний триггер перезагрузки.", DEF, kLevelImplementator, SYSLOG, true);
+		mudlog("Сработал внешний триггер перезагрузки.", DEF, kLvlImplementator, SYSLOG, true);
 		shutdown_parameters.reboot();
 	}
 }

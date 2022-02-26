@@ -31,7 +31,7 @@ extern int what_sky;
 int CalcRequiredLevel(const CharData *ch, int spellnum) {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 
-	if (required_level >= kLevelGod)
+	if (required_level >= kLvlGod)
 		return required_level;
 	if (can_use_feat(ch, SECRET_RUNES_FEAT)) {
 		int remort = GET_REAL_REMORT(ch);
@@ -53,7 +53,7 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 	const auto &cast_phrase_list = get_cast_phrase(spellnum);
 	if (!cast_phrase_list) {
 		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", spellnum);
-		mudlog(buf, CMP, kLevelGod, SYSLOG, true);
+		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (IS_NPC(ch)) {

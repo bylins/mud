@@ -21,7 +21,7 @@
 #include "entities/zone.h"
 
 #define        VAR_CHAR    '@'
-#define imlog(lvl, str)    mudlog(str, lvl, kLevelBuilder, IMLOG, true)
+#define imlog(lvl, str)    mudlog(str, lvl, kLvlBuilder, IMLOG, true)
 
 const short kMaxRecipeLevel = 200;
 

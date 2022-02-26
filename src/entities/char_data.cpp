@@ -995,7 +995,7 @@ void CharData::set_level(int level) {
 	if (IS_NPC(this)) {
 		level_ = std::clamp(level, kMinCharLevel, kMaxMobLevel);
 	} else {
-		level_ = std::clamp(level, kMinCharLevel, kLevelImplementator);
+		level_ = std::clamp(level, kMinCharLevel, kLvlImplementator);
 	}
 }
 
@@ -1960,7 +1960,7 @@ void CharData::report_loop_error(const CharData::ptr_t master) const {
 
 	ss << "\nТекущий стек будет распечатан в ERRLOG.";
 	debug::backtrace(runtime_config.logs(ERRLOG).handle());
-	mudlog(ss.str().c_str(), DEF, kLevelImplementator, ERRLOG, false);
+	mudlog(ss.str().c_str(), DEF, kLvlImplementator, ERRLOG, false);
 }
 
 void CharData::print_leaders_chain(std::ostream &ss) const {
@@ -2015,7 +2015,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
 	if (IS_CHARMICE(this) && !this->has_master()) {
 		sprintf(buf, "[WARNING] CharacterData::send_to_TC. Чармис без хозяина: %s", this->get_name().c_str());
-		mudlog(buf, CMP, kLevelGod, SYSLOG, true);
+		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if ((IS_CHARMICE(this) && this->get_master()->is_npc()) //если это чармис у нпц
@@ -2043,7 +2043,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 
 	if (!tmpbuf) {
 		sprintf(buf, "[WARNING] CharacterData::send_to_TC. Передано пустое сообщение");
-		mudlog(buf, BRF, kLevelGod, SYSLOG, true);
+		mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 		return;
 	}
 	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру

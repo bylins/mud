@@ -139,7 +139,7 @@ void script_log(const char *msg, LogMode type) {
 	}
 
 	log("%s", tmpbuf);
-	mudlog(tmpbuf, type ? type : NRM, kLevelBuilder, ERRLOG, true);
+	mudlog(tmpbuf, type ? type : NRM, kLvlBuilder, ERRLOG, true);
 }
 
 /*
@@ -2321,7 +2321,7 @@ void find_replacement(void *go,
 					desc_count(value, WHAT_TORCu),
 					GET_TRIG_NAME(trig),
 					GET_TRIG_VNUM(trig));
-				mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			} else
 				sprintf(str, "%d", c->get_hryvn());
 		} else if (!str_cmp(field, "point_nogata")) {
@@ -2396,7 +2396,7 @@ void find_replacement(void *go,
 					desc_count(value, WHAT_MONEYu),
 					GET_TRIG_NAME(trig),
 					GET_TRIG_VNUM(trig));
-				mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 				// клан-налог
 				const long diff = c->get_gold() - before;
 				split_or_clan_tax(c, diff);
@@ -2439,7 +2439,7 @@ void find_replacement(void *go,
 								GET_NAME(c),
 								MAX(1, atoi(subfield + 1)),
 								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, kLevelGreatGod, ERRLOG, 1);
+						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
 						gain_exp(c, +MAX(1, atoi(subfield + 1)));
 						sprintf(buf,
@@ -2447,14 +2447,14 @@ void find_replacement(void *go,
 								GET_NAME(c),
 								MAX(1, atoi(subfield + 1)),
 								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, kLevelGreatGod, ERRLOG, 1);
+						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else {
 						sprintf(buf,
 								"SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d",
 								GET_NAME(c),
 								atoi(subfield + 1),
 								GET_TRIG_VNUM(trig));
-						mudlog(buf, BRF, kLevelGreatGod, ERRLOG, 1);
+						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					}
 				} else
 					sprintf(str, "%ld", GET_EXP(c));
@@ -3987,9 +3987,9 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 		||(trig->get_attach_type() == WLD_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), WTRIG_KILL_PC))) {
 		sprintf(buf, "&YВНИМАНИЕ&G Используется wait в триггере '%s' (VNUM=%d).",
 				GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
-		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 		sprintf(buf, "&GКод триггера после wait выполнен НЕ БУДЕТ!");
-		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 	}
 
 	arg = any_one_arg(cmd, buf);
@@ -5330,7 +5330,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "arena_round", 11)) {
 				process_arena_round(sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "version", 7)) {
-				mudlog(DG_SCRIPT_VERSION, BRF, kLevelBuilder, SYSLOG, true);
+				mudlog(DG_SCRIPT_VERSION, BRF, kLvlBuilder, SYSLOG, true);
 			} else {
 				switch (type) {
 					case MOB_TRIGGER:

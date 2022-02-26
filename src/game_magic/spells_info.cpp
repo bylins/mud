@@ -29,7 +29,7 @@ void InitUnusedSpell(int spl) {
 	for (i = 0; i < kNumPlayerClasses; i++) {
 		for (j = 0; j < kNumKins; j++) {
 			spell_info[spl].min_remort[i][j] = kMaxRemort;
-			spell_info[spl].min_level[i][j] = kLevelImplementator + 1;
+			spell_info[spl].min_level[i][j] = kLvlImplementator + 1;
 			spell_info[spl].slot_forc[i][j] = kMaxSlot;
 			spell_info[spl].class_change[i][j] = 0;
 		}
@@ -69,17 +69,17 @@ void initSpell(int spl, const char *name, const char *syn,
 	for (i = 0; i < kNumPlayerClasses; i++) {
 		for (j = 0; j < kNumKins; j++) {
 			spell_info[spl].min_remort[i][j] = kMaxRemort;
-			spell_info[spl].min_level[i][j] = kLevelImplementator;
+			spell_info[spl].min_level[i][j] = kLvlImplementator;
 			spell_info[spl].slot_forc[i][j] = kMaxSlot;
 			spell_info[spl].class_change[i][j] = 0;
 		}
 	}
 
-	spell_create[spl].wand.min_caster_level = kLevelGreatGod;
-	spell_create[spl].scroll.min_caster_level = kLevelGreatGod;
-	spell_create[spl].potion.min_caster_level = kLevelGreatGod;
-	spell_create[spl].items.min_caster_level = kLevelGreatGod;
-	spell_create[spl].runes.min_caster_level = kLevelGreatGod;
+	spell_create[spl].wand.min_caster_level = kLvlGreatGod;
+	spell_create[spl].scroll.min_caster_level = kLvlGreatGod;
+	spell_create[spl].potion.min_caster_level = kLvlGreatGod;
+	spell_create[spl].items.min_caster_level = kLvlGreatGod;
+	spell_create[spl].runes.min_caster_level = kLvlGreatGod;
 
 	spell_info[spl].mana_max = max_mana;
 	spell_info[spl].mana_min = min_mana;

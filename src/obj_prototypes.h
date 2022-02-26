@@ -46,7 +46,7 @@ class CObjectPrototypes {
 
 	const auto &operator[](size_t index) const {
 		if (index >= m_prototypes.size()) {
-			mudlog("неизвестный прототип объекта", BRF, kLevelBuilder, SYSLOG, 1);
+			mudlog("неизвестный прототип объекта", BRF, kLvlBuilder, SYSLOG, 1);
 			return m_prototypes[0];
 		}
 		return m_prototypes[index];

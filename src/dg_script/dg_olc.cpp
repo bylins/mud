@@ -234,7 +234,7 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 				case 'y': trigedit_save(d);
 					sprintf(buf, "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// fall through
 
 				case 'n': cleanup_olc(d, CLEANUP_ALL);
@@ -438,7 +438,7 @@ void trigedit_save(DescriptorData *d) {
 
 	if (!(trig_file = fopen(fname, "w"))) {
 		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
-		mudlog(logbuf, BRF, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+		mudlog(logbuf, BRF, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 		return;
 	}
 
@@ -448,7 +448,7 @@ void trigedit_save(DescriptorData *d) {
 
 			if (fprintf(trig_file, "#%d\n", i) < 0) {
 				sprintf(logbuf, "SYSERR: OLC: Can't write trig file!");
-				mudlog(logbuf, BRF, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(logbuf, BRF, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				fclose(trig_file);
 				return;
 			}
@@ -519,11 +519,11 @@ void trigedit_create_index(int znum, const char *type) {
 
 	if (!(oldfile = fopen(old_name, "r"))) {
 		snprintf(buf1, kMaxStringLength, "SYSERR: TRIGEDIT: Failed to open %s", buf);
-		mudlog(buf1, BRF, kLevelImplementator, SYSLOG, true);
+		mudlog(buf1, BRF, kLvlImplementator, SYSLOG, true);
 		return;
 	} else if (!(newfile = fopen(new_name, "w"))) {
 		snprintf(buf1, kMaxStringLength, "SYSERR: TRIGEDIT: Failed to open %s", buf);
-		mudlog(buf1, BRF, kLevelImplementator, SYSLOG, true);
+		mudlog(buf1, BRF, kLvlImplementator, SYSLOG, true);
 		return;
 	}
 

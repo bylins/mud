@@ -4,14 +4,15 @@
 #ifndef PLAYER_I_HPP_INCLUDED
 #define PLAYER_I_HPP_INCLUDED
 
-#include "reset_stats.h"
-#include "boards/boards_types.h"
-#include "structs/structs.h"
-#include "conf.h"
-#include "sysdep.h"
 #include <map>
 #include <string>
-#include <cmd/mercenary.h>
+
+#include "boards/boards_types.h"
+#include "cmd/mercenary.h"
+#include "conf.h"
+#include "structs/structs.h"
+#include "sysdep.h"
+#include "reset_stats.h"
 
 struct MERCDATA;
 
@@ -75,18 +76,18 @@ class PlayerI {
 	virtual void mobmax_remove(int/* vnum*/) {};
 	virtual void mobmax_save(FILE * /*saved*/) const {};
 
-	virtual void dps_add_dmg(int/* type*/, int/* dmg*/, int/* over_dmg*/ = 0, CharData * /*ch*/ = 0) {};
+	virtual void dps_add_dmg(int/* type*/, int/* dmg*/, int/* over_dmg*/ = 0, CharData * /*ch*/ = nullptr) {};
 	virtual void dps_clear(int/* type*/) {};
-	virtual void dps_print_stats(CharData * /*coder*/ = 0) {};
-	virtual void dps_print_group_stats(CharData * /*ch*/, CharData * /*coder*/ = 0) {};
+	virtual void dps_print_stats(CharData * /*coder*/ = nullptr) {};
+	virtual void dps_print_group_stats(CharData * /*ch*/, CharData * /*coder*/ = nullptr) {};
 	virtual void dps_set(DpsSystem::Dps * /*dps*/) {};
 	virtual void dps_copy(CharData * /*ch*/) {};
-	virtual void dps_end_round(int/* type*/, CharData * /*ch*/ = 0) {};
+	virtual void dps_end_round(int/* type*/, CharData * /*ch*/ = nullptr) {};
 	virtual void dps_add_exp(int/* exp*/, bool/* battle*/ = false) {};
 
 	virtual void save_char() {};
 	virtual int load_char_ascii(const char * /*name*/,
-								bool/* reboot*/ = 0,
+								bool/* reboot*/ = false,
 								const bool /*find_id*/ = true) { return -1; };
 
 	virtual bool get_disposable_flag(int/* num*/) { return false; };

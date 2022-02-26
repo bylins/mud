@@ -4,7 +4,7 @@
 #include <cstring>
 #include <memory>
 #include <string>
-
+#include <vector>
 
 namespace utils {
 using shared_string_ptr = std::shared_ptr<char>;
@@ -109,30 +109,43 @@ inline int IsAbbrev(const std::string &arg1, const char *arg2) { return IsAbbrev
 void ConvertToLow(std::string &text);
 void ConvertToLow(char *text);
 
-/*
+/**
+ * Разделить строку на элементы по разделителю.
+ * @param s - разделяемая строка.
+ * @param delimiter - символ-разделитель.
+ */
+std::vector<std::string> SplitString(const std::string& s, char delimiter);
+
+/**
  * Обрезать пробелы слева.
  */
-void ltrim(std::string &s);
-/*
+void Ltrim(std::string &s);
+
+/**
  *  Обрезать пробелы справа.
  */
-void rtrim(std::string &s)
-/*
+void Rtrim(std::string &s)
+
+/**
  * Обрезать пробелы справа и слева.
  */;
-void trim(std::string &s);
-/*
+void Trim(std::string &s);
+
+/**
  * Обрезать пробелы слева, вернуть копию.
  */
-std::string ltrim_copy(std::string s);
-/*
+std::string LtrimCopy(std::string s);
+
+/**
  *  Обрезать пробелы справа, вернуть копию.
  */
-std::string rtrim_copy(std::string s);
-/*
+
+std::string RtrimCopy(std::string s);
+
+/**
  * Обрезать пробелы справа и слева, вернуть копию.
  */;
-std::string trim_copy(std::string s);
+std::string TrimCopy(std::string s);
 
 }
 

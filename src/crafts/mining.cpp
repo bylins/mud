@@ -189,7 +189,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(textbuf, ch);
 		ch->add_gold(gold);
 		sprintf(buf, "<%s> {%d} нарыл %d кун.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), gold);
-		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		split_or_clan_tax(ch, gold);
 		return;
 	}

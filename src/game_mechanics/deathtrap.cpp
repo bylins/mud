@@ -74,7 +74,7 @@ void DeathTrap::activity() {
 				snprintf(buf_, sizeof(buf_),
 						 "Player %s died in slow DT (room %d)",
 						 name.c_str(), (*it)->room_vn);
-				mudlog(buf_, LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(buf_, LGH, kLvlImmortal, SYSLOG, true);
 			}
 		}
 	}
@@ -116,12 +116,12 @@ int DeathTrap::check_death_trap(CharData *ch) {
 						"Player %s died in DT (room %d) but zone is under construction.",
 						GET_NAME(ch),
 						GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf1, LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
 				return false;
 			}
 
 			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
-			mudlog(buf1, LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
 			death_cry(ch, nullptr);
 			//29.11.09 Для счета количество рипов (с) Василиса
 			GET_RIP_DT(ch) = GET_RIP_DT(ch) + 1;
@@ -187,7 +187,7 @@ bool DeathTrap::tunnel_damage(CharData *ch) {
 			snprintf(buf_, sizeof(buf_),
 					 "Player %s died in tunnel room (room %d)",
 					 name.c_str(), GET_ROOM_VNUM(room_rnum));
-			mudlog(buf_, NRM, kLevelImmortal, SYSLOG, true);
+			mudlog(buf_, NRM, kLvlImmortal, SYSLOG, true);
 			return true;
 		}
 	}

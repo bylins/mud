@@ -685,7 +685,7 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 		} else if (get_in_obj()) {
 			buffer << ", находится в сумке: " << GET_OBJ_PNAME(get_in_obj(), 0) << " в комнате: [" << world[get_in_obj()->get_in_room()]->room_vn << "]";
 		}
-		mudlog(buffer.str(), BRF, kLevelGod, SYSLOG, true);
+		mudlog(buffer.str(), BRF, kLvlGod, SYSLOG, true);
 	}
 	if (time > 0) {
 		set_timer(get_timer() - time);

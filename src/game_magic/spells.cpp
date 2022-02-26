@@ -222,7 +222,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLevelImmortal) {
+	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -652,7 +652,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
 		if (!obj_ptr) {
 			sprintf(buf, "SYSERR: Illegal object iterator while locate");
-			mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
+			mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 
 			return false;
 		}
@@ -686,7 +686,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 
 			if (!carried_by_ptr) {
 				sprintf(buf, "SYSERR: Illegal carried_by ptr. Создана кора для исследований");
-				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
+				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 				return false;
 			}
 
@@ -695,7 +695,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 						"SYSERR: Illegal room %d, char %s. Создана кора для исследований",
 						IN_ROOM(carried_by),
 						carried_by->get_name().c_str());
-				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
+				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 				return false;
 			}
 
@@ -851,7 +851,7 @@ int CheckCharmices(CharData *ch, CharData *victim, int spellnum) {
 	}
 
 	if (undead_in_group && living_in_group) {
-		mudlog("SYSERR: Undead and living in group simultaniously", NRM, kLevelGod, ERRLOG, true);
+		mudlog("SYSERR: Undead and living in group simultaniously", NRM, kLvlGod, ERRLOG, true);
 		return (false);
 	}
 
@@ -1579,7 +1579,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						if (MUD::Classes()[ch->get_class()].HasSkill(skill_id)) {
 							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
 						} else {
-							drsdice = kLevelImplementator;
+							drsdice = kLvlImplementator;
 						}
 						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skills()[skill_id].GetName());
 						send_to_char(buf, ch);
@@ -1596,14 +1596,14 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 						int count = imrecipes[drndice].remort;
 						if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
-							drsdice = kLevelImplementator;
+							drsdice = kLvlImplementator;
 						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 						send_to_char(buf, ch);
 						if (drsdice == -1 || count == -1) {
 							send_to_char(CCIRED(ch, C_NRM), ch);
 							send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 							send_to_char(CCNRM(ch, C_NRM), ch);
-						} else if (drsdice == kLevelImplementator) {
+						} else if (drsdice == kLvlImplementator) {
 							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
 							send_to_char(buf, ch);
 						} else {
@@ -1619,7 +1619,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						if (can_get_feat(ch, drndice)) {
 							drsdice = feat_info[drndice].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
 						} else {
-							drsdice = kLevelImplementator;
+							drsdice = kLvlImplementator;
 						}
 						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", feat_info[drndice].name);
 						send_to_char(buf, ch);

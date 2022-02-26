@@ -59,14 +59,14 @@ void load_item_desc() {
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/item_desc.xml");
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
 	pugi::xml_node node_list = doc.child("templates");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...templates list read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	item_descriptions.clear();
@@ -80,7 +80,7 @@ void load_item_desc() {
 			if (item_vnum <= 0) {
 				snprintf(buf, kMaxStringLength,
 						 "...bad item description attributes (item_vnum=%d)", item_vnum);
-				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				return;
 			}
 			item_desc_node desc_node;
@@ -121,7 +121,7 @@ void load_item_desc() {
 							 "...error while casting to num (item_vnum=%d, casting value=%s)",
 							 item_vnum,
 							 tmp_value.c_str());
-					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 					continue;
 				}
 
@@ -131,7 +131,7 @@ void load_item_desc() {
 							 "...error while parsing triggers (item_vnum=%d, parsed value=%s)",
 							 item_vnum,
 							 tmp_value.c_str());
-					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 					return;
 				}
 				trig_vnums.push_back(trig_vnum);
@@ -163,13 +163,13 @@ void load(bool reload) {
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/shops.xml");
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("shop_list");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...shop_list read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	//наборы предметов - "заготовки" для реальных предметов в магазинах. живут только на время лоада
@@ -191,7 +191,7 @@ void load(bool reload) {
 						 itemSetId.c_str(),
 						 item_vnum,
 						 price);
-				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				return;
 			}
 			struct item_set_node tmp_node;
@@ -230,7 +230,7 @@ void load(bool reload) {
 			if (mob_vnum < 0) {
 				snprintf(buf, kMaxStringLength,
 						 "...bad shop attributes (mob_vnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
-				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				return;
 			}
 
@@ -247,13 +247,13 @@ void load(bool reload) {
 					&& mob_index[mob_rnum].func != shop_ext) {
 					snprintf(buf, kMaxStringLength,
 							 "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
-					mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				} else {
 					mob_index[mob_rnum].func = shop_ext;
 				}
 			} else {
 				snprintf(buf, kMaxStringLength, "...incorrect mob_vnum=%d", mob_vnum);
-				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			}
 		}
 
@@ -265,7 +265,7 @@ void load(bool reload) {
 				|| price < 0) {
 				snprintf(buf, kMaxStringLength,
 						 "...bad shop attributes (item_vnum=%d, price=%d)", item_vnum, price);
-				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				return;
 			}
 
@@ -273,7 +273,7 @@ void load(bool reload) {
 			int item_rnum = real_object(item_vnum);
 			if (item_rnum < 0) {
 				snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
-				mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				return;
 			}
 
@@ -297,7 +297,7 @@ void load(bool reload) {
 									 "...incorrect item_vnum=%d in item_set=%s",
 									 (int) (*it)->item_list[i].item_vnum,
 									 (*it)->_id.c_str());
-							mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+							mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 							return;
 						}
 						// иним ее в магазе
@@ -324,7 +324,7 @@ void load(bool reload) {
 
 		if (tmp_shop->empty()) {
 			snprintf(buf, kMaxStringLength, "...item list empty (shop_id=%s)", shop_id.c_str());
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 

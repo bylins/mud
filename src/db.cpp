@@ -870,7 +870,7 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 	// Oops, файла нет
 	if (!Result) {
 		buffer << "..." << Result.description() << "(file: " << PathToFile << ")";
-		mudlog(std::string(buffer.str()).c_str(), CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(std::string(buffer.str()).c_str(), CMP, kLvlImmortal, SYSLOG, true);
 		return NodeList;
 	}
 
@@ -878,7 +878,7 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 	NodeList = Doc.child(MainTag);
 	// Тэга нет - кляузничаем в сислоге
 	if (!NodeList) {
-		mudlog(ErrorStr, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(ErrorStr, CMP, kLvlImmortal, SYSLOG, true);
 	}
 
 	return NodeList;
@@ -1198,7 +1198,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	std::string str = boost::str(boost::format("%s reload %s.")
 									 % ch->get_name() % arg);
-	mudlog(str.c_str(), NRM, kLevelImmortal, SYSLOG, true);
+	mudlog(str.c_str(), NRM, kLvlImmortal, SYSLOG, true);
 
 	send_to_char(OK, ch);
 }
@@ -1499,7 +1499,7 @@ void ObjData::init_set_table() {
 
 	if (!fp) {
 		cppstr = "init_set_table:: Unable open input file 'lib/misc/setstuff.lst'";
-		mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+		mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -1542,7 +1542,7 @@ void ObjData::init_set_table() {
 			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS
 				&& mode != SETSTUFF_AFCN) {
 				cppstr = "init_set_table:: Wrong position of line '" + cppstr + "'";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 
@@ -1550,7 +1550,7 @@ void ObjData::init_set_table() {
 
 			if (cppstr.empty() || !a_isdigit(cppstr[0])) {
 				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected set id after #";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 
@@ -1561,7 +1561,7 @@ void ObjData::init_set_table() {
 
 			if (!isstream.eof()) {
 				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected only set id after #";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 
@@ -1570,7 +1570,7 @@ void ObjData::init_set_table() {
 
 			if (!p.second) {
 				cppstr = "init_set_table:: Error in line '#" + cppstr + "', this set already exists";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 
@@ -1581,7 +1581,7 @@ void ObjData::init_set_table() {
 
 		if (cppstr.size() < 5 || cppstr[4] != ':') {
 			cppstr = "init_set_table:: Format error in line '" + cppstr + "'";
-			mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 
@@ -1600,7 +1600,7 @@ void ObjData::init_set_table() {
 
 		if (cppstr.empty()) {
 			cppstr = "init_set_table:: Empty parameter field in line '" + tag + ":" + cppstr + "'";
-			mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 
@@ -1609,7 +1609,7 @@ void ObjData::init_set_table() {
 				if (tag == "Amsg") {
 					if (mode != SETSTUFF_AMSG) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1618,7 +1618,7 @@ void ObjData::init_set_table() {
 				} else if (tag == "Affs") {
 					if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1632,7 +1632,7 @@ void ObjData::init_set_table() {
 						cppstr += suffix;
 						cppstr =
 							"init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only object affects";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1645,7 +1645,7 @@ void ObjData::init_set_table() {
 				} else if (tag == "Afcn") {
 					if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1656,7 +1656,7 @@ void ObjData::init_set_table() {
 					if (!(isstream >> std::skipws >> tmploc >> std::skipws >> tmpmodi)) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr
 							+ "', expected apply location and modifier";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1665,19 +1665,19 @@ void ObjData::init_set_table() {
 					if (!isstream.eof()) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr
 							+ "', expected only apply location and modifier";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
 					if (tmpafcn.location <= APPLY_NONE || tmpafcn.location >= NUM_APPLIES) {
 						cppstr = "init_set_table:: Wrong apply location in line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
 					if (!tmpafcn.modifier) {
 						cppstr = "init_set_table:: Wrong apply modifier in line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1686,7 +1686,7 @@ void ObjData::init_set_table() {
 
 					if (appnum >= kMaxObjAffect) {
 						cppstr = "init_set_table:: Too many applies - line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					} else
 						clss->second.set_affected_i(appnum++, tmpafcn);
@@ -1695,7 +1695,7 @@ void ObjData::init_set_table() {
 				} else if (tag == "Alis") {
 					if (mode != SETSTUFF_ALIS) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1703,7 +1703,7 @@ void ObjData::init_set_table() {
 					mode = SETSTUFF_VNUM;
 				} else {
 					cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 
@@ -1712,7 +1712,7 @@ void ObjData::init_set_table() {
 					if (mode != SETSTUFF_CLSS && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS
 						&& mode != SETSTUFF_AFCN) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1733,14 +1733,14 @@ void ObjData::init_set_table() {
 
 						if (i < 0 || i > kNumPlayerClasses * kNumKins) {
 							cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
-							mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+							mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 							continue;
 						}
 
 						if (!isstream.eof()) {
 							cppstr =
 								"init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only class ids";
-							mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+							mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 							continue;
 						}
 					}
@@ -1751,7 +1751,7 @@ void ObjData::init_set_table() {
 					if (!p.second) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr +
 							"', each class number can occur only once for each object number";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1759,7 +1759,7 @@ void ObjData::init_set_table() {
 					mode = SETSTUFF_AMSG;
 				} else {
 					cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 
@@ -1767,7 +1767,7 @@ void ObjData::init_set_table() {
 				if (tag == "Dmsg") {
 					if (mode != SETSTUFF_DMSG) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1776,7 +1776,7 @@ void ObjData::init_set_table() {
 				} else if (tag == "Dice") {
 					if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1787,14 +1787,14 @@ void ObjData::init_set_table() {
 					if (!(isstream >> std::skipws >> ndices >> std::skipws >> nsides)) {
 						cppstr =
 							"init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected ndices and nsides";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
 					clss->second.set_dices(ndices, nsides);
 				} else {
 					cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 
@@ -1802,7 +1802,7 @@ void ObjData::init_set_table() {
 				if (tag == "Name") {
 					if (mode != SETSTUFF_NAME) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1810,7 +1810,7 @@ void ObjData::init_set_table() {
 					mode = SETSTUFF_ALIS;
 				} else {
 					cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 
@@ -1819,7 +1819,7 @@ void ObjData::init_set_table() {
 					if (mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS
 						&& mode != SETSTUFF_AFCN) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1830,13 +1830,13 @@ void ObjData::init_set_table() {
 					if (!isstream.eof()) {
 						cppstr =
 							"init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only object number";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
 					if (!tmpoqty || tmpoqty > NUM_WEARS) {
 						cppstr = "init_set_table:: Wrong object number in line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1846,7 +1846,7 @@ void ObjData::init_set_table() {
 					if (!p.second) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr +
 							"', each object number can occur only once for each object";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1854,7 +1854,7 @@ void ObjData::init_set_table() {
 					mode = SETSTUFF_CLSS;
 				} else {
 					cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 
@@ -1862,7 +1862,7 @@ void ObjData::init_set_table() {
 				if (tag == "Ramg") {
 					if (mode != SETSTUFF_RAMG) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1871,7 +1871,7 @@ void ObjData::init_set_table() {
 				} else if (tag == "Rdmg") {
 					if (mode != SETSTUFF_RDMG) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1879,7 +1879,7 @@ void ObjData::init_set_table() {
 					mode = SETSTUFF_AFFS;
 				} else {
 					cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 
@@ -1887,7 +1887,7 @@ void ObjData::init_set_table() {
 				if (tag == "Skll") {
 					if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1898,14 +1898,14 @@ void ObjData::init_set_table() {
 					if (!(isstream >> std::skipws >> skillnum >> std::skipws >> percent)) {
 						cppstr =
 							"init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected ndices and nsides";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
 					clss->second.set_skill(static_cast<ESkill>(skillnum), percent);
 				} else {
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 
@@ -1918,7 +1918,7 @@ void ObjData::init_set_table() {
 						&& mode != SETSTUFF_AFFS
 						&& mode != SETSTUFF_AFCN) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1929,13 +1929,13 @@ void ObjData::init_set_table() {
 					if (!isstream.eof()) {
 						cppstr =
 							"init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only object vnum";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
 					if (real_object(tmpvnum) < 0) {
 						cppstr = "init_set_table:: Wrong object vnum in line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1948,7 +1948,7 @@ void ObjData::init_set_table() {
 					if (it != ObjData::set_table.end()) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr
 							+ "', object can exist only in one set";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1956,14 +1956,14 @@ void ObjData::init_set_table() {
 					mode = SETSTUFF_OQTY;
 				} else {
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 			case 'W':
 				if (tag == "Wght") {
 					if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
 						cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
@@ -1973,19 +1973,19 @@ void ObjData::init_set_table() {
 
 					if (!(isstream >> std::skipws >> weight)) {
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected item weight";
-						mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
 					}
 
 					clss->second.set_weight(weight);
 				} else {
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+					mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				}
 				break;
 
 			default: cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 		}
 	}
 
@@ -1993,7 +1993,7 @@ void ObjData::init_set_table() {
 		&& mode != SETSTUFF_AFCN) {
 		cppstr = "init_set_table:: Last set was deleted, because of unexpected end of file";
 		ObjData::set_table.erase(snum);
-		mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+		mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 	}
 }
 
@@ -2159,7 +2159,7 @@ void zone_traffic_load() {
 	pugi::xml_parse_result result = doc.load_file(ZONE_TRAFFIC_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("zone_traffic");
@@ -2181,7 +2181,7 @@ void zone_traffic_load() {
 					 "zone_traffic: несуществующий номер зоны %d ее траффик %d ",
 					 zone_vnum,
 					 num);
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 		zone_table[zrn].traffic = atoi(node.attribute("traffic").value());
@@ -3024,7 +3024,7 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 			if (!tobj) {
 				sprintf(buf, "Попытка загрузки в труп (VNUM:%d) несуществующего объекта (VNUM:%d).",
 						GET_MOB_VNUM(ch), (*p)->obj_vnum);
-				mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+				mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 			} else {
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
 				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj->get_rnum())
@@ -3672,7 +3672,7 @@ void zone_update(void) {
 					}
 				}
 			}
-			mudlog(out.c_str(), LGH, kLevelGod, SYSLOG, false);
+			mudlog(out.c_str(), LGH, kLvlGod, SYSLOG, false);
 			// dequeue
 			if (update_u == reset_q.head)
 				reset_q.head = reset_q.head->next;
@@ -3939,11 +3939,11 @@ void log_zone_error(ZoneRnum zone, int cmd_no, const char *message) {
 	char buf[256];
 
 	sprintf(buf, "SYSERR: zone file %d.zon: %s", zone_table[zone].vnum, message);
-	mudlog(buf, NRM, kLevelGod, SYSLOG, true);
+	mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 
 	sprintf(buf, "SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
 			ZCMD.command, zone_table[zone].vnum, ZCMD.line);
-	mudlog(buf, NRM, kLevelGod, SYSLOG, true);
+	mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 }
 
 void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
@@ -4258,7 +4258,7 @@ void ZoneReset::reset_zone_essential() {
 					if (ZCMD.arg3 < FIRST_ROOM) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
 								mob_index[ZCMD.arg1].vnum, zone_table[m_zone_rnum].vnum);
-						mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
+						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 
@@ -4271,7 +4271,7 @@ void ZoneReset::reset_zone_essential() {
 									"ZRESET: ошибка! моб %d  в зоне %d не существует",
 									ZCMD.arg1,
 									zone_table[m_zone_rnum].vnum);
-							mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
+							mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 							return;
 						}
 						if (!mob_proto[mob->get_rnum()].get_role_bits().any()) {
@@ -4335,7 +4335,7 @@ void ZoneReset::reset_zone_essential() {
 					if (ZCMD.arg3 < FIRST_ROOM) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
 								obj_proto[ZCMD.arg1]->get_vnum(), zone_table[m_zone_rnum].vnum);
-						mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
+						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 
@@ -4373,7 +4373,7 @@ void ZoneReset::reset_zone_essential() {
 						if (!obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
 							sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
 									GET_OBJ_PNAME(obj, 0).c_str(), obj->get_vnum());
-							mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+							mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 						}
 					}
 					tmob = nullptr;
@@ -4485,7 +4485,7 @@ void ZoneReset::reset_zone_essential() {
 					if (ZCMD.arg1 < FIRST_ROOM) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
 								obj_proto[ZCMD.arg2]->get_vnum(), zone_table[m_zone_rnum].vnum);
-						mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
+						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 
@@ -4505,7 +4505,7 @@ void ZoneReset::reset_zone_essential() {
 					if (ZCMD.arg1 < FIRST_ROOM) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
 								zone_table[m_zone_rnum].vnum);
-						mudlog(buf, BRF, kLevelBuilder, SYSLOG, true);
+						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 
@@ -4732,7 +4732,7 @@ bool is_empty(ZoneRnum zone_nr) {
 			continue;
 		if (IN_ROOM(i->character) == kNowhere)
 			continue;
-		if (GetRealLevel(i->character) >= kLevelImmortal)
+		if (GetRealLevel(i->character) >= kLvlImmortal)
 			continue;
 		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
@@ -4747,7 +4747,7 @@ bool is_empty(ZoneRnum zone_nr) {
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
-			if (!IS_NPC(c) && (GetRealLevel(c) < kLevelImmortal)) {
+			if (!IS_NPC(c) && (GetRealLevel(c) < kLvlImmortal)) {
 				return false;
 			}
 		}
@@ -4758,7 +4758,7 @@ bool is_empty(ZoneRnum zone_nr) {
 		const int was = c->get_was_in_room();
 
 		if (was == kNowhere
-			|| GetRealLevel(c) >= kLevelImmortal
+			|| GetRealLevel(c) >= kLvlImmortal
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}
@@ -4815,7 +4815,7 @@ long get_ptable_by_name(const char *name) {
 	std::stringstream buffer;
 	buffer << "Char " << name << "(" << arg << ") not found !!!";
 //	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
-	mudlog(buffer.str().c_str(), LGH, kLevelImmortal, SYSLOG, false);
+	mudlog(buffer.str().c_str(), LGH, kLvlImmortal, SYSLOG, false);
 	return (-1);
 }
 
@@ -5038,7 +5038,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
-	if (GET_EXP(ch) < level_exp(ch, kLevelImmortal) - 1) {
+	if (GET_EXP(ch) < level_exp(ch, kLvlImmortal) - 1) {
 		send_to_char("ЧАВО???\r\n", ch);
 		return;
 	}
@@ -5197,7 +5197,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		load_room = real_room(load_room);
 	}
 	if (load_room == kNowhere) {
-		if (GetRealLevel(ch) >= kLevelImmortal)
+		if (GetRealLevel(ch) >= kLvlImmortal)
 			load_room = r_immort_start_room;
 		else
 			load_room = r_mortal_start_room;
@@ -5627,7 +5627,7 @@ void LoadGuardians() {
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"guards.xml");
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -5635,7 +5635,7 @@ void LoadGuardians() {
 
 	if (!xMainNode) {
 		snprintf(buf, kMaxStringLength, "...guards.xml read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -5692,7 +5692,7 @@ void load_mobraces() {
 	pugi::xml_parse_result result = doc.load_file(MOBRACE_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -5700,7 +5700,7 @@ void load_mobraces() {
 
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...mob races read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -5848,7 +5848,7 @@ void load_class_limit() {
 		const int id = text_id::ToNum(text_id::kCharClass, id_str);
 		if (id == ECharClass::kUndefined) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 

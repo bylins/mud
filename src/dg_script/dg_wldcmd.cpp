@@ -126,7 +126,7 @@ void do_wsend(RoomData *room, char *argument, int/* cmd*/, int subcmd) {
 			sprintf(buf,
 					"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 					GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-			mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+			mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 		}
 		if (subcmd == SCMD_WSEND)
 			sub_write(msg, ch, true, kToChar);
@@ -375,7 +375,7 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				command_interpreter(ch, line);
-			} else if (GetRealLevel(ch) < kLevelImmortal) {
+			} else if (GetRealLevel(ch) < kLvlImmortal) {
 				command_interpreter(ch, line);
 			}
 		} else {
@@ -523,7 +523,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!IS_NPC(ch)) {
 				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
 						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf2, BRF, kLevelBuilder, SYSLOG, true);
+				mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
 			}
 			die(ch, nullptr);
 		}

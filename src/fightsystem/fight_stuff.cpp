@@ -155,7 +155,7 @@ void update_die_counts(CharData *ch, CharData *killer, int dec_exp) {
 			snprintf(buf, kMaxStringLength,
 					 "die: %s killed by %s (without master)",
 					 GET_PAD(ch, 0), GET_PAD(rkiller, 0));
-			mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 			rkiller = nullptr;
 		}
 	}
@@ -716,7 +716,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		mudlog("SYSERR: Опять где-то кто-то спуржился не в то в время, не в том месте. Сброшен текущий стек и кора.",
 			   NRM,
-			   kLevelGod,
+			   kLvlGod,
 			   ERRLOG,
 			   true);
 		return;
@@ -912,7 +912,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 				std::stringstream str_log;
 				str_log << "[INFO] " << ch_with_bonus->get_name() << " получил(а) x" << long_live_exp_bounus_miltiplier << " опыта за убийство моба: [";
 				str_log << GET_MOB_VNUM(victim) << "] " << victim->get_name();
-				mudlog(str_log.str(), NRM, kLevelImmortal, SYSLOG, true);
+				mudlog(str_log.str(), NRM, kLvlImmortal, SYSLOG, true);
 			}
 		}
 

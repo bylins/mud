@@ -281,7 +281,7 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 	}
 
 	sub_write(p, victim, true, kToRoom);
@@ -320,7 +320,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 	}
 
 	sub_write(p, victim, true, kToChar);
@@ -344,7 +344,7 @@ void do_mecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 	}
 
 	sub_write(p, ch, true, kToRoom);
@@ -685,7 +685,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		command_interpreter(victim, argument);
-	} else if (GetRealLevel(victim) < kLevelImmortal) {
+	} else if (GetRealLevel(victim) < kLvlImmortal) {
 		command_interpreter(victim, argument);
 	}
 }
@@ -700,7 +700,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (ch->desc && (GetRealLevel(ch->desc->original) < kLevelImplementator))
+	if (ch->desc && (GetRealLevel(ch->desc->original) < kLvlImplementator))
 		return;
 
 	two_arguments(argument, name, amount);

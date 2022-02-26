@@ -117,10 +117,10 @@ void glory_hide(CharData *ch,
 		if (ch->get_uid() == t_it->get()->uid) {
 			if (mode == true) {
 				sprintf(buf, "Проставляю hide славы для %s", GET_NAME(ch));
-				mudlog(buf, CMP, kLevelGreatGod, SYSLOG, true);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			} else {
 				sprintf(buf, "Убираю hide славы для %s", GET_NAME(ch));
-				mudlog(buf, CMP, kLevelGreatGod, SYSLOG, true);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			}
 			t_it->get()->hide = mode;
 		}
@@ -781,7 +781,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						 GET_PAD(vict, 2), amount, get_glory(GET_UNIQUE(vict)));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s", buf);
 			sprintf(buf, "Change const glory +%d by %s", amount, GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -798,7 +798,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						 GET_PAD(vict, 1), amount, get_glory(GET_UNIQUE(vict)));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s", buf);
 			sprintf(buf, "Change const glory -%d by %s", amount, GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -810,7 +810,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name().c_str());
 				// запись в карму, логи
 				sprintf(buf, "(GC) %s reset const glory to %s.", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Reset stats and const glory by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);

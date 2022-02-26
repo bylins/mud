@@ -66,6 +66,7 @@ enum {
 	DARK_RESISTANCE,
 	MAX_NUMBER_RESISTANCE
 };
+const int kMaxPlayerResist = 75;
 
 // Char's additional abilities. Used only while work
 struct char_played_ability_data {

@@ -432,7 +432,7 @@ bool ParseFilter::check_state(ObjData *obj) const {
 			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
 					 proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
-			mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		} else {
 			int tm_pct;
 			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо

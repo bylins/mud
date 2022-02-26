@@ -53,9 +53,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	struct Follower *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
-	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GetRealLevel(ch);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLvlImplementator : GetRealLevel(ch);
 	int k_room = -1;
-	if (!virt && (god_level == kLevelImplementator || (god_level == kLevelGreatGod && !IS_NPC(k)))) {
+	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !IS_NPC(k)))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
 	}
 	// пишем пол  (мужчина)
@@ -237,7 +237,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				k->get_hryvn(), k->get_nogata());
 
 		//. Display OLC zone for immorts .
-		if (GetRealLevel(ch) >= kLevelImmortal) {
+		if (GetRealLevel(ch) >= kLvlImmortal) {
 			sprintf(buf1, ", %sOLC[%d]%s", CCGRN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
 			strcat(buf, buf1);
 		}
@@ -472,7 +472,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		send_to_char(buf, ch);
 	}
 
-	if (god_level >= kLevelGreatGod) {
+	if (god_level >= kLvlGreatGod) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next) {
@@ -522,7 +522,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 
 	// check mobiles for a script
-	if (IS_NPC(k) && god_level >= kLevelBuilder) {
+	if (IS_NPC(k) && god_level >= kLvlBuilder) {
 		do_sstat_character(ch, k);
 		if (MEMORY(k)) {
 			struct MemoryRecord *memchar;
@@ -1133,9 +1133,9 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLevelImplementator : GetRealLevel(ch);
+	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? kLvlImplementator : GetRealLevel(ch);
 
-	if (utils::IsAbbrev(buf1, "room") && level >= kLevelBuilder) {
+	if (utils::IsAbbrev(buf1, "room") && level >= kLvlBuilder) {
 		int vnum, rnum = kNowhere;
 		if (*buf2 && (vnum = atoi(buf2))) {
 			if ((rnum = real_room(vnum)) != kNowhere)
@@ -1145,7 +1145,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (!*buf2)
 			do_stat_room(ch);
-	} else if (utils::IsAbbrev(buf1, "mob") && level >= kLevelBuilder) {
+	} else if (utils::IsAbbrev(buf1, "mob") && level >= kLvlBuilder) {
 		if (!*buf2)
 			send_to_char("Состояние какого создания?\r\n", ch);
 		else {
@@ -1198,7 +1198,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
 			}
 		}
-	} else if (utils::IsAbbrev(buf1, "object") && level >= kLevelBuilder) {
+	} else if (utils::IsAbbrev(buf1, "object") && level >= kLvlBuilder) {
 		if (!*buf2)
 			send_to_char("Состояние какого предмета?\r\n", ch);
 		else {
@@ -1208,7 +1208,7 @@ void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Нет такого предмета в игре.\r\n", ch);
 		}
 	} else {
-		if (level >= kLevelBuilder) {
+		if (level >= kLvlBuilder) {
 			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr)
 				do_stat_object(ch, object);
 			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != nullptr)

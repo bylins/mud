@@ -14,6 +14,16 @@
 
 #include "act_other.h"
 
+#include <sys/stat.h>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <map>
+#include <iterator>
+#include <set>
+#include <utility>
+#include <iomanip>
+
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
@@ -54,16 +64,7 @@
 #include "game_skills/skills_info.h"
 #include "game_mechanics/weather.h"
 #include "structs/global_objects.h"
-
-#include <sys/stat.h>
-#include <sstream>
-#include <fstream>
-#include <string>
-#include <map>
-#include <iterator>
-#include <set>
-#include <utility>
-#include <iomanip>
+#include "utils/table_wrapper.h"
 
 // extern variables
 extern int nameserver_is_slow;
@@ -150,7 +151,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (!GET_INVIS_LEV(ch))
 			act("$n покинул$g игру.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		send_to_char("До свидания, странник... Мы ждем тебя снова!\r\n", ch);
 
 		long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
@@ -628,7 +629,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 							GET_ROOM_VNUM(ch->in_room),
 							gold,
 							GET_PAD(vict, 0));
-					mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+					mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 					split_or_clan_tax(ch, gold);
 					vict->remove_gold(gold);
 				} else
@@ -1754,14 +1755,14 @@ struct gen_tog_param_type {
 			0, SCMD_NOEXCHANGE, false}, {
 			0, SCMD_QUEST, false}, {
 			0, SCMD_AUTOMEM, false}, {
-			kLevelGreatGod, SCMD_NOHASSLE, false}, {
+			kLvlGreatGod, SCMD_NOHASSLE, false}, {
 			0, SCMD_NOSUMMON, false}, {
-			kLevelGod, SCMD_NOWIZ, false}, {
-			kLevelGreatGod, SCMD_ROOMFLAGS, false}, {
-			kLevelImplementator, SCMD_SLOWNS, false}, {
-			kLevelGod, SCMD_TRACK, false}, {
-			kLevelGod, SCMD_HOLYLIGHT, false}, {
-			kLevelImplementator, SCMD_CODERINFO, false}, {
+			kLvlGod, SCMD_NOWIZ, false}, {
+			kLvlGreatGod, SCMD_ROOMFLAGS, false}, {
+			kLvlImplementator, SCMD_SLOWNS, false}, {
+			kLvlGod, SCMD_TRACK, false}, {
+			kLvlGod, SCMD_HOLYLIGHT, false}, {
+			kLvlImplementator, SCMD_CODERINFO, false}, {
 			0, SCMD_GOAHEAD, false}, {
 			0, SCMD_SHOWGROUP, false}, {
 			0, SCMD_NOCLONES, false}, {
@@ -1787,10 +1788,10 @@ struct gen_tog_param_type {
 			0, SCMD_NOTIFY_EXCH, false}, {
 			0, SCMD_DRAW_MAP, false}, {
 			0, SCMD_ENTER_ZONE, false}, {
-			kLevelGod, SCMD_MISPRINT, false}, {
+			kLvlGod, SCMD_MISPRINT, false}, {
 			0, SCMD_BRIEF_SHIELDS, false}, {
 			0, SCMD_AUTO_NOSUMMON, false}, {
-			kLevelImplementator, SCMD_SDEMIGOD, false}, {
+			kLvlImplementator, SCMD_SDEMIGOD, false}, {
 			0, SCMD_BLIND, false}, {
 			0, SCMD_MAPPER, false}, {
 			0, SCMD_TESTER, true}, {
@@ -1798,11 +1799,14 @@ struct gen_tog_param_type {
 	};
 
 void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int i, showhelp = false;
-	if (IS_NPC(ch))
+	if (ch->is_npc()) {
 		return;
+	}
 
 	argument = one_argument(argument, arg);
+
+	int i{0};
+	bool showhelp{false};
 	if (!*arg) {
 		do_toggle(ch, argument, 0, 0);
 		return;
@@ -1813,29 +1817,22 @@ void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if ((GetRealLevel(ch) < gen_tog_param[i >> 1].level)
 		|| (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester)) {
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
-		//showhelp = true;
+		return;
 	} else {
 		do_gen_tog(ch, argument, 0, gen_tog_param[i >> 1].subcmd);
 	}
 
 	if (showhelp) {
-		std::stringstream buffer;
-		buffer << "Вы можете установить следующее.\r\n" << std::endl;
+		send_to_char(" Можно установить:\r\n", ch);
+		fort::char_table table;
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++) {
 			if ((GetRealLevel(ch) >= gen_tog_param[i].level)
 				&& (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester)) {
-				buffer << std::setw(20) << gen_tog_type[i << 1] << " (" << gen_tog_type[(i << 1) + 1] << ")"
-					   << std::endl;
+				table << gen_tog_type[i << 1] << gen_tog_type[(i << 1) + 1] << fort::endr;
 			}
 		}
-		send_to_char(buffer.str(), ch);
-/*
-		strcpy(buf, "Вы можете установить следующее.\r\n");
-		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
-			if ((GetRealLevel(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
-				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
-		strcat(buf, "\r\n");
-		send_to_char(buf, ch);*/
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		table_wrapper::PrintTableToChar(ch, table);
 	}
 }
 

@@ -4301,23 +4301,23 @@ static const char *bg_colors[] = {
 };*/
 
 static const char *bg_colors[] = {
-	"",
-	"\x1B[1;30m",
-	"\x1B[0;31m",
-	"\x1B[0;32m",
-	"\x1B[0;33m",
-	"\x1B[0;34m",
-	"\x1B[0;35m",
-	"\x1B[0;36m",
-	"\x1B[1;37m",
-	"\x1B[0;37m",
-	"\x1B[1;31m",
-	"\x1B[1;32m",
-	"\x1B[1;33m",
-	"\x1B[1;34m",
-	"\x1B[1;35m",
-	"\x1B[1;36m",
-	"\x1B[1;37m",
+	"",           // default
+	"\x1B[0;40m", // black
+	"\x1B[0;41m", // red
+	"\x1B[0;42m", // green
+	"\x1B[0;43m", // yellow
+	"\x1B[0;44m", // blue
+	"\x1B[0;45m", // magenta
+	"\x1B[0;46m", // cyan
+	"\x1B[0;47m", // light gray
+	"\x1B[1;40m", // dark grey
+	"\x1B[1;41m", // "light" red
+	"\x1B[1;42m", // "light" green
+	"\x1B[1;43m", // "light" yellow
+	"\x1B[0;44m", // "light" blue
+	"\x1B[0;45m", // "light" magenta
+	"\x1B[1;46m", // "light" cyan
+	"\x1B[1;40m", // "light white"
 };
 
 static const char *fg_colors[] = {
@@ -4929,7 +4929,7 @@ f_status set_default_cell_property(uint32_t property, int value)
     /* border_chars */            \
     {                             \
      " ", " ", " ", " ",          \
-     " ", " ", " ",               \
+     " ", ":", " ",               \
      "\0", "\0", "\0", "\0",      \
      " ", " ", " ", " ",          \
      " ", " ", " ", " ",          \
@@ -4937,7 +4937,7 @@ f_status set_default_cell_property(uint32_t property, int value)
     /* header_border_chars */     \
     {                             \
     " ", " ", " ", " ",           \
-    " ", " ", " ",                \
+    " ", ":", " ",                \
     "\0", "\0", "\0", "\0",       \
     " ", " ", " ", " ",           \
     " ", " ", " ", " ",           \

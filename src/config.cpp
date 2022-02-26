@@ -63,7 +63,7 @@ int idle_void = 10;
 int idle_rent_time = 40;
 
 // This level and up is immune to idling, kLevelImplementator+1 will disable it.
-int idle_max_level = kLevelImmortal;
+int idle_max_level = kLvlImmortal;
 
 // should items in death traps automatically be junked?
 int dts_are_dumps = YES;
@@ -156,7 +156,7 @@ struct PCCleanCriteria pclean_criteria[] =
 		{23, 161},
 		{24, 168},
 		{25, 360},
-		{kLevelImplementator, -1},        // c 25го и дальше живут вечно
+		{kLvlImplementator, -1},        // c 25го и дальше живут вечно
 		{-2, 0}            // Последняя обязательная строка
 	};
 

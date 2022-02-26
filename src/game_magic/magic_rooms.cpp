@@ -4,7 +4,7 @@
 #include "modify.h"
 #include "entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
-#include "utils/libfort/fort.hpp"
+#include "utils/table_wrapper.h"
 
 //#include <iomanip>
 
@@ -71,9 +71,6 @@ void ShowAffectedRooms(CharData *ch) {
 	out << " Список комнат под аффектами:" << std::endl;
 
 	fort::char_table table;
-	table.set_border_style(FT_SIMPLE_STYLE);
-	table.column(4).set_cell_text_align(fort::text_align::right);
-
 	table << fort::header << "#" << "Vnum" << "Spell" << "Caster name" << "Time (s)" << fort::endr;
 	int count = 1;
 	for (const auto r : affected_rooms) {
@@ -83,7 +80,7 @@ void ShowAffectedRooms(CharData *ch) {
 			++count;
 		}
 	}
-
+	table_wrapper::DecorateServiceTable(ch, table);
 	out << table.to_string() << std::endl;
 
 	page_string(ch->desc, out.str());

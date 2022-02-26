@@ -74,7 +74,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (spell_info[spellnum].targets != kTarIgnore) {
 		std::stringstream str_log;
 		str_log << "Для клича #" << spellnum << ", установлены некорректные цели: " << spell_info[spellnum].targets;
-		mudlog(str_log.str(), BRF, kLevelGod, SYSLOG, true);
+		mudlog(str_log.str(), BRF, kLvlGod, SYSLOG, true);
 		send_to_char("Вы ничего не смогли выкрикнуть. Обратитесь к богам.\r\n", ch);
 		return;
 	}

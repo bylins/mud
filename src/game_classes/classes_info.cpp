@@ -41,7 +41,7 @@ int CharClassInfo::GetMinLevel(const ESkill skill_id) const {
 	try {
 		return skills->at(skill_id)->min_level;
 	} catch (const std::out_of_range &) {
-		return kLevelImplementator;
+		return kLvlImplementator;
 	}
 };
 

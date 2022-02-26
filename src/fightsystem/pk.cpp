@@ -318,7 +318,7 @@ int pk_increment_revenge(CharData *agressor, CharData *victim) {
 		}
 	}
 	if (!pk) {
-		mudlog("Инкремент реализации без флага мести!", CMP, kLevelGod, SYSLOG, true);
+		mudlog("Инкремент реализации без флага мести!", CMP, kLvlGod, SYSLOG, true);
 		return 0;
 	}
 	if (CLAN(agressor) && (CLAN(victim) || pk->clan_exp > time(nullptr))) {

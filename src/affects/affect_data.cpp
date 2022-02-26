@@ -268,7 +268,7 @@ void battle_affect_update(CharData *ch) {
 				if (processPoisonDamage(ch, affect) == -1) // жертва умерла
 					return;
 				if (ch->purged()) {
-					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, kLevelImplementator, SYSLOG, true);
+					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, kLvlImplementator, SYSLOG, true);
 					return;
 				}
 				affect->duration--;

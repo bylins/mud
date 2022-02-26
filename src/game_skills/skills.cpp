@@ -292,7 +292,7 @@ void brief_shields::act_with_exception_handling(const char *msg, const int type)
 		}
 	}
 	catch (const WeapForAct::WeaponTypeException &e) {
-		mudlog(e.what(), BRF, kLevelBuilder, ERRLOG, true);
+		mudlog(e.what(), BRF, kLvlBuilder, ERRLOG, true);
 	}
 }
 
@@ -500,7 +500,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std
 				brief.reflect = true;
 			}
 
-			if (!IS_NPC(vict) && (GetRealLevel(vict) >= kLevelImmortal) && !PLR_FLAGGED((ch), PLR_WRITING)) {
+			if (!IS_NPC(vict) && (GetRealLevel(vict) >= kLvlImmortal) && !PLR_FLAGGED((ch), PLR_WRITING)) {
 				switch (attacktype) {
 					case to_underlying(ESkill::kBackstab) + kTypeHit:
 					case to_underlying(ESkill::kThrow) + kTypeHit:

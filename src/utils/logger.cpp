@@ -211,7 +211,7 @@ void err_log(const char *format, ...) {
 	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
 	va_end(args);
 
-	mudlog(buf_, DEF, kLevelImmortal, SYSLOG, true);
+	mudlog(buf_, DEF, kLvlImmortal, SYSLOG, true);
 }
 
 void ip_log(const char *ip) {
@@ -267,7 +267,7 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int
 			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
 			continue;
-		if (type == DEF && GetRealLevel(i->character) < kLevelImmortal && !PRF_FLAGGED(i->character, PRF_CODERINFO))
+		if (type == DEF && GetRealLevel(i->character) < kLvlImmortal && !PRF_FLAGGED(i->character, PRF_CODERINFO))
 			continue;
 		if (GetRealLevel(i->character) < level && !PRF_FLAGGED(i->character, PRF_CODERINFO))
 			continue;

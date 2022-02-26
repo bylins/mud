@@ -1218,7 +1218,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 		return;
 	}
 
-	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GetRealLevel(d->character) >= kLevelGod)) {
+	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GetRealLevel(d->character) >= kLvlGod)) {
 		send_to_char("Вы не можете приписать этого игрока.\r\n", ch);
 		return;
 	}
@@ -3272,7 +3272,7 @@ void Clan::load_mod() {
 // казна дружины... команды теже самые с приставкой 'казна' в начале
 // смотреть/вкладывать могут все, снимать по привилегии, висит на стандартных банкирах
 bool Clan::BankManage(CharData *ch, char *arg) {
-	if (IS_NPC(ch) || !CLAN(ch) || GetRealLevel(ch) >= kLevelImmortal)
+	if (IS_NPC(ch) || !CLAN(ch) || GetRealLevel(ch) >= kLvlImmortal)
 		return false;
 
 	std::string buffer = arg, buffer2;
@@ -4270,7 +4270,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&stufina);
 
 	if (utils::IsAbbrev(arg, "характеристики") || utils::IsAbbrev(arg, "identify") || utils::IsAbbrev(arg, "опознать")) {
-		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GetRealLevel(ch) < kLevelImplementator)) {
+		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GetRealLevel(ch) < kLvlImplementator)) {
 			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
@@ -4638,7 +4638,7 @@ bool Clan::ChestShow(ObjData *obj, CharData *ch) {
 // +/- клан-экспы
 void Clan::SetClanExp(CharData *ch, int add) {
 	// шоб не читили
-	if (GetRealLevel(ch) >= kLevelImmortal) {
+	if (GetRealLevel(ch) >= kLvlImmortal) {
 		return;
 	}
 
@@ -4683,7 +4683,7 @@ void Clan::SetClanExp(CharData *ch, int add) {
 // добавление экспы для топа кланов и мемберу в зачетку
 void Clan::AddTopExp(CharData *ch, int add_exp) {
 	// шоб не читили
-	if (GetRealLevel(ch) >= kLevelImmortal)
+	if (GetRealLevel(ch) >= kLvlImmortal)
 		return;
 
 	CLAN_MEMBER(ch)->exp += add_exp;
@@ -5539,7 +5539,7 @@ void Clan::house_web_url(CharData *ch, const std::string &buffer) {
 					 "Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
 
 		snprintf(buf, sizeof(buf), "%s sets new clan website: %s", GET_NAME(ch), url.c_str());
-		mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 
 	HelpSystem::need_update = true;
