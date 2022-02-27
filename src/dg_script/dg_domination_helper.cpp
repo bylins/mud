@@ -86,7 +86,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 	}
 	// валидация количества мобов по раундам
 	const int mob_count_minimum = 0;
-	const int mob_count_mamimum = 30;
+	const int mob_count_mamimum = 3200;
 	for (const auto &counter : dd.mob_counter_per_round) {
 		if (counter < mob_count_minimum || counter > mob_count_mamimum) {
 			snprintf(buf2, kMaxStringLength, "Неверный счетчик мобов в переменной mobs_count: %d", counter);
