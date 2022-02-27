@@ -245,7 +245,8 @@ set(SOURCES
 		src/boot/cfg_manager.cpp
 		src/affects/affect_contants.cpp
 		src/cmd_god/users.cpp
-		src/utils/table_wrapper.cpp)
+		src/utils/table_wrapper.cpp
+		src/cmd/score.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -470,7 +471,8 @@ set(HEADERS
 		src/boot/cfg_manager.h
 		src/structs/iterators.h
 		src/cmd_god/users.h
-		src/utils/table_wrapper.h)
+		src/utils/table_wrapper.h
+		src/cmd/score.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

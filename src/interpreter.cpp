@@ -300,7 +300,7 @@ void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_return(CharData *ch, char *argument, int cmd, int subcmd);
 void do_save(CharData *ch, char *argument, int cmd, int subcmd);
 void do_say(CharData *ch, char *argument, int cmd, int subcmd);
-void do_score(CharData *ch, char *argument, int cmd, int subcmd);
+void DoScore(CharData *ch, char *argument, int, int);
 void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
 void do_send(CharData *ch, char *argument, int cmd, int subcmd);
 void do_set(CharData *ch, char *argument, int cmd, int subcmd);
@@ -653,7 +653,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"оффтоп", EPosition::kDead, do_offtop, 0, 0, -1},
 		{"ошеломить", EPosition::kStand, do_stun, 1, 0, -1},
 		{"оценить", EPosition::kStand, do_not_here, 0, 0, 500},
-		{"очки", EPosition::kDead, do_score, 0, 0, 0},
+		{"очки", EPosition::kDead, DoScore, 0, 0, 0},
 		{"очепятки", EPosition::kDead, Boards::DoBoard, 1, Boards::MISPRINT_BOARD, 0},
 		{"очистить", EPosition::kDead, do_not_here, 0, SCMD_CLEAR, -1},
 		{"ошибк", EPosition::kDead, do_quit, 0, 0, 0},
@@ -768,7 +768,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"стереть", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
 		{"стиль", EPosition::kRest, do_style, 0, 0, 0},
 		{"строка", EPosition::kDead, do_display, 0, 0, 0},
-		{"счет", EPosition::kDead, do_score, 0, 0, 0},
+		{"счет", EPosition::kDead, DoScore, 0, 0, 0},
 		{"телега", EPosition::kDead, do_telegram, 0, 0, -1},
 		{"тень", EPosition::kFight, do_throw, 0, SCMD_SHADOW_THROW, -1},
 		{"титул", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
@@ -782,7 +782,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"украсть", EPosition::kStand, do_steal, 1, 0, 0},
 		{"укрепить", EPosition::kRest, do_armored, 0, 0, -1},
 		{"умения", EPosition::kSleep, do_skills, 0, 0, 0},
-		{"уровень", EPosition::kDead, do_score, 0, 0, 0},
+		{"уровень", EPosition::kDead, DoScore, 0, 0, 0},
 		{"уровни", EPosition::kDead, do_levels, 0, 0, 0},
 		{"учить", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"хранилище", EPosition::kDead, DoStoreHouse, 0, 0, 0},
@@ -965,7 +965,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"save", EPosition::kSleep, do_save, 0, 0, 0},
 		{"say", EPosition::kRest, do_say, 0, 0, -1},
 		{"scan", EPosition::kRest, do_sides, 0, 0, 500},
-		{"score", EPosition::kDead, do_score, 0, 0, 0},
+		{"score", EPosition::kDead, DoScore, 0, 0, 0},
 		{"sell", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"send", EPosition::kSleep, do_send, kLvlGreatGod, 0, 0},
 		{"sense", EPosition::kStand, do_sense, 0, 0, 500},

@@ -88,6 +88,9 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 			<< it.remort_
 			<< desc_count(it.remort_, WHAT_REMORT) << fort::endr;
 
+		if (table.row_count() >= kPlayerChartSize) {
+			break;
+		}
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(out, table);

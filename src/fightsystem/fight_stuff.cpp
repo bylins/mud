@@ -1295,24 +1295,6 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 	}
 }
 
-void test_self_hitroll(CharData *ch) {
-	HitData hit;
-	hit.weapon = fight::AttackType::kMainHand;
-	hit.init(ch, ch);
-	hit.calc_base_hr(ch);
-	hit.calc_stat_hr(ch);
-	hit.calc_ac(ch);
-
-	HitData hit2;
-	hit2.weapon = fight::AttackType::kOffHand;
-	hit2.init(ch, ch);
-	hit2.calc_base_hr(ch);
-	hit2.calc_stat_hr(ch);
-
-	send_to_char(ch, "RIGHT_WEAPON: hitroll=%d, LEFT_WEAPON: hitroll=%d, AC=%d\r\n",
-				 hit.calc_thaco * -1, hit2.calc_thaco * -1, hit.victim_ac);
-}
-
 /**
  * Разный инит щитов у мобов и чаров.
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.

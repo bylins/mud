@@ -2942,7 +2942,7 @@ void HitData::init(CharData *ch, CharData *victim) {
  * Подсчет статичных хитролов у чара, не меняющихся от рандома типа train_skill
  * (в том числе weap_skill_is) или параметров противника.
  * Предполагается, что в итоге это пойдет в 'счет все' через что-то вроде
- * test_self_hitroll() в данный момент.
+ * TestSelfHitroll() в данный момент.
  */
 void HitData::calc_base_hr(CharData *ch) {
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
