@@ -2,7 +2,7 @@
 #define __FIGHT_EXTRA_ATTACK_HPP__
 
 #include "utils/utils.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 
 class CharacterData;    // to avoid inclusion of "char.hpp"
 

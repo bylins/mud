@@ -2,7 +2,7 @@
 #define __WEATHER_HPP__
 
 #include "structs/structs.h"
-#include "skills.h" // ABYRVALG - вынести в скиллз_константс
+#include "game_skills/skills.h" // ABYRVALG - вынести в скиллз_константс
 
 // Sun state for Weather //
 const __uint8_t SUN_DARK = 0;

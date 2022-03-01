@@ -15,8 +15,8 @@
 #include "fightsystem/pk.h"
 #include "handler.h"
 #include "obj_prototypes.h"
-#include "magic/magic_utils.h"
-#include "skills/townportal.h"
+#include "game_magic/magic_utils.h"
+#include "game_skills/townportal.h"
 #include "utils/id_converter.h"
 #include "entities/zone.h"
 #include "structs/global_objects.h"
@@ -221,7 +221,7 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 
 				command_interpreter(ch, line);
-			} else if (GetRealLevel(ch) < kLevelImmortal) {
+			} else if (GetRealLevel(ch) < kLvlImmortal) {
 				command_interpreter(ch, line);
 			}
 		} else {
@@ -523,7 +523,7 @@ void ApplyDamage(CharData* target, int damage) {
 		if (!IS_NPC(target)) {
 			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
 					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
-			mudlog(buf2, BRF, kLevelBuilder, SYSLOG, true);
+			mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
 		}
 		die(target, nullptr);
 	}

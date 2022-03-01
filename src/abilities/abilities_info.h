@@ -18,7 +18,7 @@
 #include "boot/boot_constants.h"
 #include "entities/entities_constants.h"
 #include "utils/logger.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 
 #include <string>
 #include <unordered_map>

@@ -8,7 +8,7 @@
 #include "entities/world_characters.h"
 #include "obj_prototypes.h"
 #include "obj_sets_stuff.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "color.h"
 #include "modify.h"
@@ -571,7 +571,7 @@ std::set<int> vnum_list_add(int vnum) {
 	size_t idx = setidx_by_objvnum(vnum);
 
 	if (static_cast<size_t>(-1) == idx) {
-		mudlog("setidx_by_objvnum returned -1", BRF, kLevelBuilder, ERRLOG, true);
+		mudlog("setidx_by_objvnum returned -1", BRF, kLvlBuilder, ERRLOG, true);
 		return list_vnum;
 	}
 
@@ -1011,7 +1011,7 @@ std::string print_total_activ(const SetNode &set) {
 void init_xhelp() {
 	char buf_[128];
 	for (size_t i = 0; i < sets_list.size(); ++i) {
-		const int lvl = (sets_list.at(i)->enabled ? 0 : kLevelImmortal);
+		const int lvl = (sets_list.at(i)->enabled ? 0 : kLvlImmortal);
 		if (sets_list.at(i)->alias.empty()) {
 			snprintf(buf_, sizeof(buf_), "актив%02d", static_cast<int>(i + 1));
 			HelpSystem::add_static(buf_,

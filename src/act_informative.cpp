@@ -24,8 +24,8 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-#include "magic/spells.h"
-#include "skills.h"
+#include "game_magic/spells.h"
+#include "game_skills/skills.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 #include "color.h"
@@ -66,9 +66,9 @@
 #include "game_mechanics/bonus.h"
 #include "conf.h"
 #include "game_classes/classes_constants.h"
-#include "skills_info.h"
-#include "skills/pick.h"
-#include "magic/magic_rooms.h"
+#include "game_skills/skills_info.h"
+#include "game_skills/pick.h"
+#include "game_magic/magic_rooms.h"
 #include "game_economics/exchange.h"
 #include "act_other.h"
 #include "crafts/mining.h"
@@ -101,7 +101,6 @@ extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
 // extern functions
 int level_exp(CharData *ch, int level);
-TimeInfoData *real_time_passed(time_t t2, time_t t1);
 // local functions
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show);
@@ -114,13 +113,13 @@ void do_affects(CharData *ch, char *argument, int cmd, int subcmd);
 void do_look(CharData *ch, char *argument, int cmd, int subcmd);
 void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gold(CharData *ch, char *argument, int cmd, int subcmd);
-void do_score(CharData *ch, char *argument, int cmd, int subcmd);
+void DoScore(CharData *ch, char *argument, int, int);
 void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_equipment(CharData *ch, char *argument, int cmd, int subcmd);
 void do_time(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
 void do_who(CharData *ch, char *argument, int cmd, int subcmd);
-void do_users(CharData *ch, char *argument, int cmd, int subcmd);
+//void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
 void perform_mortal_where(CharData *ch, char *arg);
 void perform_immort_where(CharData *ch, char *arg);
@@ -1955,7 +1954,7 @@ void look_at_room(CharData *ch, int ignore_brief) {
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
 			if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
 				print_zone_info(ch);
-			if ((ch->get_level() < kLevelImmortal) && !ch->get_master())
+			if ((ch->get_level() < kLvlImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
 		}
 	}
@@ -2702,1159 +2701,63 @@ void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-const char *ac_text[] =
-	{
-		"&WВы защищены как БОГ",    //  -30
-		"&WВы защищены как БОГ",    //  -29
-		"&WВы защищены как БОГ",    //  -28
-		"&gВы защищены почти как БОГ",    //  -27
-		"&gВы защищены почти как БОГ",    //  -26
-		"&gВы защищены почти как БОГ",    //  -25
-		"&gНаилучшая защита",    //  -24
-		"&gНаилучшая защита",    //  -23
-		"&gНаилучшая защита",    //  -22
-		"&gВеликолепная защита",    //  -21
-		"&gВеликолепная защита",    //  -20
-		"&gВеликолепная защита",    //  -19
-		"&gОтличная защита",    //  -18
-		"&gОтличная защита",    //  -17
-		"&gОтличная защита",    //  -16
-		"&GОчень хорошая защита",    //  -15
-		"&GОчень хорошая защита",    //  -14
-		"&GОчень хорошая защита",    //  -13
-		"&GВесьма хорошая защита",    //  -12
-		"&GВесьма хорошая защита",    //  -11
-		"&GВесьма хорошая защита",    //  -10
-		"&GХорошая защита",    //   -9
-		"&GХорошая защита",    //   -8
-		"&GХорошая защита",    //   -7
-		"&GНеплохая защита",    //   -6
-		"&GНеплохая защита",    //   -5
-		"&GНеплохая защита",    //   -4
-		"&YЗащита чуть выше среднего",    //   -3
-		"&YЗащита чуть выше среднего",    //   -2
-		"&YЗащита чуть выше среднего",    //   -1
-		"&YСредняя защита",    //    0
-		"&YЗащита чуть ниже среднего",
-		"&YСлабая защита",
-		"&RСлабая защита",
-		"&RОчень слабая защита",
-		"&RВы немного защищены",    // 5
-		"&RВы совсем немного защищены",
-		"&rВы чуть-чуть защищены",
-		"&rВы легко уязвимы",
-		"&rВы почти полностью уязвимы",
-		"&rВы полностью уязвимы",    // 10
-	};
-int calc_hr_info(CharData *ch) {
-	ESkill skill = ESkill::kTwohands;
-	int hr = 0;
-	int max_dam = 0;
-	ObjData *weapon = GET_EQ(ch, WEAR_BOTHS);
-	if (weapon) {
-		if (GET_OBJ_TYPE(weapon) == ObjData::ITEM_WEAPON) {
-			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-			if (ch->get_skill(skill) == 0) {
-				hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-			} else {
-				apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-			}
-		}
-	} else {
-		weapon = GET_EQ(ch, WEAR_HOLD);
-		if (weapon) {
-			if (GET_OBJ_TYPE(weapon) == ObjData::ITEM_WEAPON) {
-				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == 0) {
-					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-				}
-			}
-		}
-		weapon = GET_EQ(ch, WEAR_WIELD);
-		if (weapon) {
-			if (GET_OBJ_TYPE(weapon) == ObjData::ITEM_WEAPON) {
-				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == 0) {
-					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-				} else {
-					apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-				}
-			}
-		}
-	}
-	if (weapon) {
-		int tmphr = 0;
-		HitData::CheckWeapFeats(ch, static_cast<ESkill>(weapon->get_skill()), tmphr, max_dam);
-		hr -= tmphr;
-	} else {
-		HitData::CheckWeapFeats(ch, ESkill::kPunch, hr, max_dam);
-	}
-	if (can_use_feat(ch, WEAPON_FINESSE_FEAT)) {
-		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
-	} else {
-		hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
-	}
-	hr += GET_REAL_HR(ch) - thaco(static_cast<int>(GET_CLASS(ch)), GetRealLevel(ch));
-	if (PRF_FLAGGED(ch, PRF_POWERATTACK)) {
-		hr -= 2;
-	}
-	if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK)) {
-		hr -= 4;
-	}
-	if (PRF_FLAGGED(ch, PRF_AIMINGATTACK)) {
-		hr += 2;
-	}
-	if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK)) {
-		hr += 4;
-	}
-	hr -= (ch->ahorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);
-	hr *= ch->get_cond_penalty(P_HITROLL);
-	return hr;
+void ClearMyStat(CharData *ch) {
+	GET_RIP_MOBTHIS(ch) = GET_EXP_MOBTHIS(ch) = GET_RIP_MOB(ch) = GET_EXP_MOB(ch) =
+	GET_RIP_PKTHIS(ch) = GET_EXP_PKTHIS(ch) = GET_RIP_PK(ch) = GET_EXP_PK(ch) =
+	GET_RIP_DTTHIS(ch) = GET_EXP_DTTHIS (ch) = GET_RIP_DT(ch) = GET_EXP_DT(ch) =
+	GET_RIP_OTHERTHIS(ch) = GET_EXP_OTHERTHIS(ch) = GET_RIP_OTHER(ch) = GET_EXP_OTHER(ch) =
+	GET_WIN_ARENA(ch) = GET_RIP_ARENA(ch) = GET_EXP_ARENA(ch) = 0;
+	send_to_char("Статистика очищена.\r\n", ch);
 }
 
-const char *list_score_pos(CharData *ch) {
-	switch (GET_POS(ch)) {
-		case EPosition::kDead:
-			return "Вы МЕРТВЫ!\r\n";
-			break;
-		case EPosition::kPerish:
-			return "Вы смертельно ранены и нуждаетесь в помощи!\r\n";
-			break;
-		case EPosition::kIncap:
-			return "Вы без сознания и медленно умираете...\r\n";
-			break;
-		case EPosition::kStun:
-			return "Вы в обмороке!\r\n";
-			break;
-		case EPosition::kSleep:
-			return "Вы спите.\r\n";
-			break;
-		case EPosition::kRest:
-			return "Вы отдыхаете.\r\n";
-			break;
-		case EPosition::kSit:
-			return "Вы сидите.\r\n";
-			break;
-		case EPosition::kFight:
-			if (ch->get_fighting()) {
-				sprintf(buf1, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
-				return buf1;
-				}
-			else
-				return "Вы машете кулаками по воздуху.\r\n";
-			break;
-		case EPosition::kStand:
-			return "Вы стоите.\r\n";
-			break;
-		default:
-			break;
-	}
-return "Вы незнамо что делаете!!!\r\n";
+void PrintMyStat(CharData *ch) {
+	fort::char_table table;
+	table << fort::header
+		<< "Статистика ваших смертей\r\n(количество, потерянного опыта)"
+		<< "Текущее\r\nперевоплощение:"
+		<< "\r\nВсего:" << fort::endr;
+	table << "В неравном бою с тварями:"
+		<< std::to_string(GET_RIP_MOBTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOBTHIS(ch)) + ")"
+		<< std::to_string(GET_RIP_MOB(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOB(ch)) + ")" << fort::endr;
+	table << "В неравном бою с врагами:"
+		<< std::to_string(GET_RIP_PKTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_PKTHIS(ch)) + ")"
+		<< std::to_string(GET_RIP_PK(ch)) + " (" + PrintNumberByDigits(GET_EXP_PK(ch)) + ")" << fort::endr;
+	table << "В гиблых местах:"
+		<< std::to_string(GET_RIP_DTTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_DTTHIS (ch))	+ ")"
+		<< std::to_string(GET_RIP_DT(ch)) + " (" + PrintNumberByDigits(GET_EXP_DT(ch)) + ")" << fort::endr;
+	table << "По стечению обстоятельств:"
+		<< std::to_string(GET_RIP_OTHERTHIS(ch)) + " ("	+ PrintNumberByDigits(GET_EXP_OTHERTHIS(ch)) + ")"
+		<< std::to_string(GET_RIP_OTHER(ch)) + " (" + PrintNumberByDigits(GET_EXP_OTHER(ch)) + ")" << fort::endr;
+	table << fort::separator << fort::endr;
+	table << "ИТОГО:"
+		<< std::to_string(GET_RIP_MOBTHIS(ch) + GET_RIP_PKTHIS(ch) + GET_RIP_DTTHIS(ch) + GET_RIP_OTHERTHIS(ch))
+		+ " (" + PrintNumberByDigits(GET_EXP_MOBTHIS(ch) + GET_EXP_PKTHIS(ch) + GET_EXP_DTTHIS(ch)
+		+ GET_EXP_OTHERTHIS(ch) + GET_EXP_ARENA(ch)) + ")"
+		<< std::to_string(GET_RIP_MOB(ch) + GET_RIP_PK(ch) + GET_RIP_DT(ch) + GET_RIP_OTHER(ch))
+		+ " (" + PrintNumberByDigits(GET_EXP_MOB(ch) + GET_EXP_PK(ch) + GET_EXP_DT(ch)
+		+ GET_EXP_OTHER(ch) + GET_EXP_ARENA(ch)) +")" << fort::endr;
+	table << fort::separator << fort::endr;
+	table << "На арене:" << " " << " " << fort::endr;
+	table << "Убито игроков: " + std::to_string(GET_WIN_ARENA(ch))
+		<< "Смертей: " + std::to_string(GET_RIP_ARENA(ch))
+		<< "Потеряно опыта: " + std::to_string(GET_EXP_ARENA(ch)) << fort::endr;
+	table << fort::separator << fort::endr;
+	table << "Арена доминирования:" << "Убито противников:" << "Смерти на арене:" << fort::endr;
+	table << " " << ch->player_specials->saved.kill_arena_dom << ch->player_specials->saved.rip_arena_dom;
+
+	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::kLightCyan);
+	table_wrapper::PrintTableToChar(ch, table);
 }
 
-void print_do_score_list(CharData *ch) {
-
-	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)).c_str());
-	buf[0] = LOWER(buf[0]);
-	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]);
-	buf1[0] = LOWER(buf1[0]);
-	send_to_char(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
-				 buf,
-				 MUD::Classes()[ch->get_class()].GetCName(),
-				 buf1,
-				 GetRealLevel(ch),
-				 GET_REAL_REMORT(ch));
-	send_to_char(ch, "Ваш возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
-		GET_AGE(ch),
-		GET_SIZE(ch), GET_REAL_SIZE(ch),
-		GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
-		GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
-		send_to_char(ch, "Вы можете выдержать %d(%d) %s повреждений, и пройти %d(%d) %s по ровной местности.\r\n",
-			GET_HIT(ch), GET_REAL_MAX_HIT(ch), desc_count(GET_HIT(ch),  WHAT_ONEu),
-			GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), desc_count(GET_MOVE(ch), WHAT_MOVEu));
-		if (IS_MANA_CASTER(ch)) {
-			send_to_char(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
-		}
-	send_to_char(ch, "Ваша сила: %d(%d), ловкость: %d(%d), телосложение: %d(%d), ум: %d(%d), мудрость: %d(%d), обаяние: %d(%d).\r\n",
-		ch->get_str(), GET_REAL_STR(ch),
-		ch->get_dex(), GET_REAL_DEX(ch),
-		ch->get_con(), GET_REAL_CON(ch),
-		ch->get_int(), GET_REAL_INT(ch),
-		ch->get_wis(), GET_REAL_WIS(ch),
-		ch->get_cha(), GET_REAL_CHA(ch));
-
-	HitData hit_params;
-	hit_params.weapon = fight::kMainHand;
-	hit_params.init(ch, ch);
-	bool need_dice = false;
-	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
-
-	send_to_char(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d.\r\n",
-		calc_hr_info(ch),
-		max_dam,
-		int (GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
-		int (GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST)),
-		ch->calc_morale());
-	send_to_char(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
-		MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75),
-		MIN(GET_RESIST(ch, AIR_RESISTANCE), 75),
-		MIN(GET_RESIST(ch, WATER_RESISTANCE), 75),
-		MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75),
-		MIN(GET_RESIST(ch, DARK_RESISTANCE), 75),
-		MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75),
-		MIN(GET_RESIST(ch, MIND_RESISTANCE), 75),
-		MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75));
-	send_to_char(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
-		GET_REAL_SAVING_WILL(ch),
-		GET_REAL_SAVING_CRITICAL(ch),
-		GET_REAL_SAVING_STABILITY(ch),
-		GET_REAL_SAVING_REFLEX(ch),
-		GET_MR(ch),
-		GET_PR(ch),
-		GET_AR(ch));
-	send_to_char(ch, "Восстановление: жизни: +%d%% (+%d), сил: +%d%% (+%d).\r\n",
-		GET_HITREG(ch),
-		hit_gain(ch),
-		GET_MOVEREG(ch),
-		move_gain(ch));
-	int ac = compute_armor_class(ch) / 10;
-	if (ac < 5) {
-		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
-		ac = ac + mod > 5 ? 5 : ac + mod;
-	}
-	send_to_char(ch, "Броня: %d, защита: %d, поглощение %d.\r\n",
-		GET_ARMOUR(ch),
-		ac,
-		GET_ABSORBE(ch));
-	send_to_char(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
-		ch->get_gold(),
-		ch->get_bank(),
-		ch->get_hryvn(),
-		GET_EXP(ch),
-		IS_IMMORTAL(ch) ? 1: level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
-	if (!ch->ahorse())
-		send_to_char(ch, "Ваша позиция: %s", list_score_pos(ch));
-	else 
-		send_to_char(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
-	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
-		send_to_char(ch, "Вы можете быть призваны.\r\n");
-	else
-		send_to_char(ch, "Вы защищены от призыва.\r\n");
-	send_to_char(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > NORM_COND_VALUE)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
-	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
-	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
-		if (timer_room_label > 0) {
-			*buf2 = '\0';
-			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
-					desc_count((timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа.");
-			send_to_char(ch, "Вы поставили рунную метку в комнате: '%s', она продержится еще %s\r\n", label_room->name, buf2);
-			*buf2 = '\0';
-		}
-	}
-	if (!NAME_GOD(ch) && GetRealLevel(ch) <= NAME_LEVEL) {
-		send_to_char(ch, "ВНИМАНИЕ! ваше имя не одобрил никто из богов!\r\n");
-		send_to_char(ch, "Cкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени.\r\n");
-	} else if (NAME_BAD(ch)) {
-		send_to_char(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
-	}
-	send_to_char(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
-			grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-			(string(desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],  WHAT_LEVEL)
-				+ string(" без потерь для опыта.")).substr(0, 76).c_str()));
-
-	send_to_char(ch,"Вы можете принять в группу максимум %d соратников.\r\n", max_group_size(ch));
-
-
-}
-
-void print_do_score_all(CharData *ch) {
-	int ac, max_dam = 0;
-
-	std::string sum = string("Вы ") + string(ch->get_name()) + string(", ")
-		+ MUD::Classes()[ch->get_class()].GetName() + string(".");
-
-	sprintf(buf,
-			" %s-------------------------------------------------------------------------------------\r\n"
-			" || %s%-80s%s||\r\n"
-			" -------------------------------------------------------------------------------------\r\n",
-			CCCYN(ch, C_NRM),
-			CCNRM(ch, C_NRM), sum.substr(0, 80).c_str(), CCCYN(ch, C_NRM));
-
-	sprintf(buf + strlen(buf),
-			" || %sПлемя: %-11s %s|"
-			" %sРост:        %-3d(%-3d) %s|"
-			" %sБроня:       %4d %s|"
-			" %sСопротивление: %s||\r\n",
-			CCNRM(ch, C_NRM),
-			string(PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch))).substr(0, 14).c_str(),
-			CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), GET_ARMOUR(ch), CCCYN(ch, C_NRM),
-			CCIYEL(ch, C_NRM), CCCYN(ch, C_NRM));
-
-	ac = compute_armor_class(ch) / 10;
-	if (ac < 5) {
-		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
-		ac = ac + mod > 5 ? 5 : ac + mod;
-	}
-
-	int resist = MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75);
-	sprintf(buf + strlen(buf),
-			" || %sРод: %-13s %s|"
-			" %sВес:         %3d(%3d) %s|"
-			" %sЗащита:       %3d %s|"
-			" %sОгню:      %3d %s||\r\n",
-			CCNRM(ch, C_NRM),
-			string(PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch))).substr(0, 14).c_str(),
-			CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), ac, CCCYN(ch, C_NRM),
-			CCIRED(ch, C_NRM), resist, CCCYN(ch, C_NRM));
-
-	resist = MIN(GET_RESIST(ch, AIR_RESISTANCE), 75);
-	sprintf(buf + strlen(buf),
-			" || %sВера: %-13s%s|"
-			" %sРазмер:      %3d(%3d) %s|"
-			" %sПоглощение:   %3d %s|"
-			" %sВоздуху:   %3d %s||\r\n",
-			CCNRM(ch, C_NRM),
-			string(religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]).substr(0, 13).c_str(),
-			CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), GET_SIZE(ch), GET_REAL_SIZE(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
-			CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
-
-	resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);
-	sprintf(buf + strlen(buf),
-			" || %sУровень: %s%-2d        %s|"
-			" %sСила:          %2d(%2d) %s|"
-			" %sАтака:        %3d %s|"
-			" %sВоде:      %3d %s||\r\n",
-			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GetRealLevel(ch), CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), calc_hr_info(ch), CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
-
-	HitData hit_params;
-	hit_params.weapon = fight::kMainHand;
-	hit_params.init(ch, ch);
-//	hit_params.calc_damage(ch);
-	bool need_dice = false;
-	max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
-
-
-	resist = MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75);
-	sprintf(buf + strlen(buf),
-			" || %sПеревоплощений: %s%-2d %s|"
-			" %sЛовкость:      %2d(%2d) %s|"
-			" %sУрон:        %4d %s|"
-			" %sЗемле:     %3d %s||\r\n",
-			CCNRM(ch, C_NRM),
-			CCWHT(ch, C_NRM),
-			GET_REAL_REMORT(ch),
-			CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM),
-			ch->get_dex(),
-			GET_REAL_DEX(ch),
-			CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM),
-			max_dam,
-			CCCYN(ch, C_NRM),
-			CCYEL(ch, C_NRM),
-			resist,
-			CCCYN(ch, C_NRM));
-
-	resist = MIN(GET_RESIST(ch, DARK_RESISTANCE), 75);
-	sprintf(buf + strlen(buf),
-			" || %sВозраст: %s%-3d       %s|"
-			" %sТелосложение:  %2d(%2d) %s|-------------------| &KТьме:      %3d&c ||\r\n",
-			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_AGE(ch), CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), ch->get_con(), GET_REAL_CON(ch), CCCYN(ch, C_NRM),
-			resist);
-	resist = MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75);
-	const int rcast = GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST);
-	sprintf(buf + strlen(buf),
-			" || %sОпыт: %s%-10ld   %s|"
-			" %sМудрость:      %2d(%2d) %s|"
-			" %sКолдовство:   %3d %s|"
-			"&c----------------||\r\n",
-			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_EXP(ch), CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), ch->get_wis(), GET_REAL_WIS(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), rcast, CCCYN(ch, C_NRM));
-
-	resist = MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75);
-
-	if (IS_IMMORTAL(ch))
-		sprintf(buf + strlen(buf), " || %sДСУ: %s1%s             |",
-				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), CCCYN(ch, C_NRM));
-	else
-		sprintf(buf + strlen(buf),
-				" || %sДСУ: %s%-10ld    %s|",
-				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch), CCCYN(ch, C_NRM));
-	int itmp = GET_MANAREG(ch);
-	itmp *= ch->get_cond_penalty(P_CAST);
-	sprintf(buf + strlen(buf),
-			" %sУм:            %2d(%2d) %s|"
-			" %sЗапоминание: %4d %s|"
-			" %sЖивучесть: %3d %s||\r\n",
-
-			CCICYN(ch, C_NRM), ch->get_int(), GET_REAL_INT(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), itmp, CCCYN(ch, C_NRM),
-			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
-	resist = MIN(GET_RESIST(ch, MIND_RESISTANCE), 75);
-
-	sprintf(buf + strlen(buf),
-			" || %sДенег: %s%-8ld    %s|"
-			" %sОбаяние:       %2d(%2d) %s|-------------------|"
-			" %sРазум:     %3d %s||\r\n",
-
-			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_gold(), CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), ch->get_cha(), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
-			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
-	resist = MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75);
-	sprintf(buf + strlen(buf),
-			" || %sНа счету: %s%-8ld %s|"
-			" %sЖизнь:     %4d(%4d) %s|"
-			" %sВоля:         %3d%s |"
-			" %sИммунитет: %3d %s||\r\n",
-
-			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_bank(), CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), GET_HIT(ch), GET_REAL_MAX_HIT(ch), CCCYN(ch, C_NRM),
-			CCGRN(ch, C_NRM), GET_REAL_SAVING_WILL(ch), CCCYN(ch, C_NRM),
-			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
-
-	if (!ch->ahorse())
-		switch (GET_POS(ch)) {
-			case EPosition::kDead:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCIRED(ch, C_NRM), string("Вы МЕРТВЫ!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			case EPosition::kPerish:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCIRED(ch, C_NRM), string("Вы умираете!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			case EPosition::kIncap:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCRED(ch, C_NRM), string("Вы без сознания.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			case EPosition::kStun:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCIYEL(ch, C_NRM), string("Вы в обмороке!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			case EPosition::kSleep:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCIGRN(ch, C_NRM), string("Вы спите.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			case EPosition::kRest:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCGRN(ch, C_NRM), string("Вы отдыхаете.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			case EPosition::kSit:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCIGRN(ch, C_NRM), string("Вы сидите.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			case EPosition::kFight:
-				if (ch->get_fighting())
-					sprintf(buf + strlen(buf), " || %s%-19s%s|",
-							CCIRED(ch, C_NRM), string("Вы сражаетесь!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				else
-					sprintf(buf + strlen(buf), " || %s%-19s%s|",
-							CCRED(ch, C_NRM), string("Вы машете кулаками.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			case EPosition::kStand:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCNRM(ch, C_NRM), string("Вы стоите.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-			default:
-				sprintf(buf + strlen(buf), " || %s%-19s%s|",
-						CCNRM(ch, C_NRM), string("You are floating..").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-				break;
-		}
-	else
-		sprintf(buf + strlen(buf), " || %s%-19s%s|",
-				CCNRM(ch, C_NRM), string("Вы сидите верхом.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-
-	sprintf(buf + strlen(buf),
-			" %sВыносл.:     %3d(%3d) %s|"
-			" %sЗдоровье:     %3d %s|"
-			"----------------||\r\n",
-
-			CCICYN(ch, C_NRM), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), CCCYN(ch, C_NRM),
-			CCGRN(ch, C_NRM), GET_REAL_SAVING_CRITICAL(ch), CCCYN(ch, C_NRM));
-
-	if (GET_COND(ch, FULL) > NORM_COND_VALUE)
-		sprintf(buf + strlen(buf),
-				" || %sГолоден: %sугу :(%s    |",
-				CCNRM(ch, C_NRM),
-				CCIRED(ch, C_NRM),
-				CCCYN(ch, C_NRM));
-	else
-		sprintf(buf + strlen(buf),
-				" || %sГолоден: %sнет%s       |",
-				CCNRM(ch, C_NRM),
-				CCGRN(ch, C_NRM),
-				CCCYN(ch, C_NRM));
-
-	if (IS_MANA_CASTER(ch))
-		sprintf(buf + strlen(buf),
-				" %sМанна:   %5d(%5d) %s|",
-				CCICYN(ch, C_NRM), GET_MANA_STORED(ch), GET_MAX_MANA(ch), CCCYN(ch, C_NRM));
-	else
-		strcat(buf, "                       |");
-
-	sprintf(buf + strlen(buf),
-			" %sСтойкость:    %3d %s|"
-			" &rВосст. жизни:  &c||\r\n",
-			CCGRN(ch, C_NRM), GET_REAL_SAVING_STABILITY(ch), CCCYN(ch, C_NRM));
-
-	if (GET_COND_M(ch, THIRST))
-		sprintf(buf + strlen(buf),
-				" || %sЖажда: %sналивай!%s    |",
-				CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
-	else
-		sprintf(buf + strlen(buf),
-				" || %sЖажда: %sнет%s         |",
-				CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-
-	if (IS_MANA_CASTER(ch))
-		sprintf(buf + strlen(buf),
-				" %sВосстан.:    %3d сек. %s|",
-				CCICYN(ch, C_NRM), mana_gain(ch), CCCYN(ch, C_NRM));
-	else
-		strcat(buf, "                       |");
-
-	sprintf(buf + strlen(buf),
-			" %sРеакция:      %3d %s|"
-			" %s  %+4d%% (%+4d) %s||\r\n",
-			CCGRN(ch, C_NRM), GET_REAL_SAVING_REFLEX(ch), CCCYN(ch, C_NRM),
-			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM));
-
-	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED) {
-		if (affected_by_spell(ch, kSpellAbstinent))
-			sprintf(buf + strlen(buf),
-					" || %sПохмелье.          %s|                       |",
-					CCIYEL(ch, C_NRM), CCCYN(ch, C_NRM));
-		else
-			sprintf(buf + strlen(buf),
-					" || %sВы пьяны.          %s|                       |",
-					CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-	} else {
-		strcat(buf, " ||                    |                       |");
-	}
-	sprintf(buf + strlen(buf),
-			" %sУдача:       %4d %s|"
-			" &rВосст. сил:    &c||\r\n",
-			CCGRN(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM));
-
-	const unsigned wdex = PlayerSystem::weight_dex_penalty(ch);
-	if (wdex == 0) {
-		strcat(buf, " ||                    |                       |");
-	} else {
-		sprintf(buf + strlen(buf),
-				" || %sПерегруз!%s          |                       |",
-				wdex == 1 ? CCIYEL(ch, C_NRM) : CCIRED(ch, C_NRM),
-				CCCYN(ch, C_NRM));
-	}
-	sprintf(buf + strlen(buf),
-			" %sИнициатива:  %4d %s|"
-			" %s  %+4d%% (%+4d) %s||\r\n",
-			CCGRN(ch, C_NRM), calc_initiative(ch, false), CCCYN(ch, C_NRM),
-			CCRED(ch, C_NRM), GET_MOVEREG(ch), move_gain(ch), CCCYN(ch, C_NRM));
-	sprintf(buf + strlen(buf),
-			"&c ||&n                    &c|                       &c| &gМаг. резист: %4d&c |&n                &c||\r\n",
-			GET_MR(ch));
-	sprintf(buf + strlen(buf),
-			"&c ||&n                    &c|                       &c| &gФиз. резист: %4d&c |&n                &c||&n\r\n",
-			GET_PR(ch));
-	sprintf(buf + strlen(buf),
-			" -------------------------------------------------------------------------------------\r\n");
-	if (ch->has_horse(false)) {
-		if (ch->ahorse())
-			sprintf(buf + strlen(buf),
-					" %s|| %sВы верхом на %-67s%s||\r\n"
-					" -------------------------------------------------------------------------------------\r\n",
-					CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM),
-					(string(GET_PAD(ch->get_horse(), 5)) + string(".")).substr(0, 67).c_str(), CCCYN(ch, C_NRM));
-		else
-			sprintf(buf + strlen(buf),
-					" %s|| %sУ вас есть %-69s%s||\r\n"
-					" -------------------------------------------------------------------------------------\r\n",
-					CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM),
-					(string(GET_NAME(ch->get_horse())) + string(".")).substr(0, 69).c_str(), CCCYN(ch, C_NRM));
-	}
-
-	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
-	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
-		sprintf(buf + strlen(buf),
-				" %s|| &G&qВы поставили рунную метку в комнате %s%s||\r\n",
-				CCCYN(ch, C_NRM),
-				colored_name(string(string("'") + label_room->name + string("&n&Q'.")).c_str(), 44),
-				CCCYN(ch, C_NRM));
-		if (timer_room_label > 0) {
-			*buf2 = '\0';
-			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2,
-																 "%d %s.",
-																 (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
-																 desc_count(
-																	 (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
-																	 WHAT_HOUR)) : sprintf(buf2, "менее часа.");
-			snprintf(buf + strlen(buf), kMaxStringLength, " || Метка продержится еще %-58s||\r\n", buf2);
-			*buf2 = '\0';
-		}
-	}
-
-	int glory = Glory::get_glory(GET_UNIQUE(ch));
-/*	if (glory)
-		sprintf(buf + strlen(buf),
-				" %s|| %sВы заслужили %5d %-61s%s||\r\n",
-				CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
-				(string(desc_count(glory, WHAT_POINT)) + string(" славы для временного улучшения характеристик.")).substr(0, 61).c_str(),
-				CCCYN(ch, C_NRM));
-*/
-	glory = GloryConst::get_glory(GET_UNIQUE(ch));
-	if (glory)
-		sprintf(buf + strlen(buf),
-				" %s|| %sВы заслужили %5d %-61s%s||\r\n",
-				CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
-				(string(desc_count(glory, WHAT_POINT)) + string(" постоянной славы.")).substr(0, 61).c_str(),
-				CCCYN(ch, C_NRM));
-
-	if (GET_GOD_FLAG(ch, GF_REMORT) && CLAN(ch)) {
-		sprintf(buf + strlen(buf),
-				" || Вы самоотверженно отдаете весь получаемый опыт своей дружине.                   ||\r\n");
-	}
-
-	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
-		sprintf(buf + strlen(buf),
-				" || Вы можете быть призваны.                                                        ||\r\n");
-	else
-		sprintf(buf + strlen(buf),
-				" || Вы защищены от призыва.                                                         ||\r\n");
-	if (PRF_FLAGGED(ch, PRF_BLIND))
-		sprintf(buf + strlen(buf),
-				" || Режим слепого игрока включен.                                                   ||\r\n");
-	if (Bonus::is_bonus_active())
-		sprintf(buf + strlen(buf),
-				" || %-79s ||\r\n || %-79s ||\r\n", Bonus::active_bonus_as_string().c_str(), Bonus::time_to_bonus_end_as_string().c_str());
-	if (!NAME_GOD(ch) && GetRealLevel(ch) <= NAME_LEVEL) {
-		sprintf(buf + strlen(buf),
-				" &c|| &RВНИМАНИЕ!&n ваше имя не одобрил никто из богов!&c                                   ||\r\n");
-		sprintf(buf + strlen(buf),
-				" || &nCкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени.      &c||\r\n");
-	} else if (NAME_BAD(ch)) {
-		sprintf(buf + strlen(buf),
-				" || &RВНИМАНИЕ!&n ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.   &c||\r\n");
-	}
-	if (GetRealLevel(ch) < kLevelImmortal)
-		sprintf(buf + strlen(buf),
-				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
-				" || %sв %2d %-75s%s||\r\n",
-				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-				(string(desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-								   WHAT_LEVEL))
-					+ string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
-	sprintf(buf + strlen(buf),
-				" ||&n &nВы можете принять в группу максимум %2d соратников.                              &c||\r\n", max_group_size(ch));
-
-	if (NORENTABLE(ch)) {
-		const time_t rent_time = NORENTABLE(ch) - time(nullptr);
-		const int minutes = rent_time > 60 ? rent_time / 60 : 0;
-		sprintf(buf + strlen(buf),
-				" || %sВ связи с боевыми действиями вы не можете уйти на постой еще %-18s%s ||\r\n",
-				CCIRED(ch, C_NRM),
-				minutes ? (std::to_string(minutes) + string(" ") + string(desc_count(minutes, WHAT_MINu))
-					+ string(".")).substr(0, 18).c_str() : (std::to_string(rent_time) + string(" ")
-					+ string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(), CCCYN(ch, C_NRM));
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
-		sprintf(buf + strlen(buf),
-				" || %sТут вы чувствуете себя в безопасности.                                          %s||\r\n",
-				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH)
-		&& (ch->get_skill(ESkill::kJewelry) || ch->get_skill(ESkill::kRepair) || ch->get_skill(ESkill::kReforging)))
-		sprintf(buf + strlen(buf),
-				" || %sЭто место отлично подходит для занятий кузнечным делом.                         %s||\r\n",
-				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-
-	if (mail::has_mail(ch->get_uid()))
-		sprintf(buf + strlen(buf),
-				" || %sВас ожидает новое письмо, зайдите на почту.                                     %s||\r\n",
-				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-
-	if (Parcel::has_parcel(ch))
-		sprintf(buf + strlen(buf),
-				" || %sВас ожидает посылка, зайдите на почту.                                          %s||\r\n",
-				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-
-	if (ch->get_protecting())
-		sprintf(buf + strlen(buf),
-				" || %sВы прикрываете %-65s%s||\r\n",
-				CCIGRN(ch, C_NRM),
-				string(GET_PAD(ch->get_protecting(), 3) + string(" от нападения.")).substr(0, 65).c_str(),
-				CCCYN(ch, C_NRM));
-
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GCURSE_DURATION(ch)) {
-		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf + strlen(buf),
-				" || %sВы прокляты Богами на %3d %-5s %2d %-45s%s||\r\n",
-				CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
-				mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 45).c_str(), CCCYN(ch, C_NRM));
-	}
-
-	if (PLR_FLAGGED(ch, PLR_HELLED) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
-		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf + strlen(buf),
-				" || %sВам предстоит провести в темнице еще %6d %-5s %2d %-27s%s||\r\n"
-				" || %s[%-79s%s||\r\n",
-				CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
-				mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 27).c_str(),
-				CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
-				(string(HELL_REASON(ch) ? HELL_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
-				CCCYN(ch, C_NRM));
-	}
-
-	if (PLR_FLAGGED(ch, PLR_MUTE) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf + strlen(buf),
-				" || %sВы не сможете кричать еще %6d %-5s %2d %-38s%s||\r\n"
-				" || %s[%-79s%s||\r\n",
-				CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
-				mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 38).c_str(),
-				CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
-				(string(MUTE_REASON(ch) ? MUTE_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
-				CCCYN(ch, C_NRM));
-	}
-
-	if (!PLR_FLAGGED(ch, PLR_REGISTERED) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
-		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf + strlen(buf),
-				" || %sВы не сможете входить с одного IP еще %6d %-5s %2d %-26s%s||\r\n"
-				" || %s[%-79s%s||\r\n",
-				CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
-				mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 38).c_str(),
-				CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
-				(string(UNREG_REASON(ch) ? UNREG_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
-				CCCYN(ch, C_NRM));
-	}
-
-	if (PLR_FLAGGED(ch, PLR_DUMB) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
-		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf + strlen(buf),
-				" || %sВы будете молчать еще %6d %-5s %2d %-42s%s||\r\n"
-				" || %s[%-79s%s||\r\n",
-				CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
-				mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 42).c_str(),
-				CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
-				(string(DUMB_REASON(ch) ? DUMB_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
-				CCCYN(ch, C_NRM));
-	}
-
-	if (PLR_FLAGGED(ch, PLR_FROZEN) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf + strlen(buf),
-				" || %sВы будете заморожены еще %6d %-5s %2d %-39s%s||\r\n"
-				" || %s[%-79s%s||\r\n",
-				CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
-				mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 42).c_str(),
-				CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
-				(string(FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
-				CCCYN(ch, C_NRM));
-	}
-
-	if (ch->is_morphed()) {
-		sprintf(buf + strlen(buf),
-				" || %sВы находитесь в звериной форме - %-47s%s||\r\n",
-				CCYEL(ch, C_NRM),
-				ch->get_morph_desc().substr(0, 47).c_str(),
-				CCCYN(ch, C_NRM));
-	}
-	strcat(buf, " ||                                                                                 ||\r\n");
-	strcat(buf, " -------------------------------------------------------------------------------------\r\n");
-	strcat(buf, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
-	if (PRF_FLAGGED(ch, PRF_TESTER))
-		test_self_hitroll(ch);
-}
-
-void do_score(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	TimeInfoData playing_time;
-	int ac, ac_t;
-
-	skip_spaces(&argument);
-
-	if (IS_NPC(ch))
-		return;
-
-	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
-		print_do_score_all(ch);
-		return;
-	}
-	if (utils::IsAbbrev(argument, "список") || utils::IsAbbrev(argument, "list")) {
-		print_do_score_list(ch);
-		return;
-	}
-
-	sprintf(buf, "Вы %s (%s, %s, %s, %s %d уровня).\r\n",
-			ch->only_title().c_str(),
-			string(PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch))).c_str(),
-			string(PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch))).c_str(),
-			religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))],
-			MUD::Classes()[ch->get_class()].GetCName(), GetRealLevel(ch));
-
-	if (!NAME_GOD(ch) && GetRealLevel(ch) <= NAME_LEVEL) {
-		sprintf(buf + strlen(buf), "\r\n&RВНИМАНИЕ!&n Ваше имя не одобрил никто из богов!\r\n");
-		sprintf(buf + strlen(buf), "Очень скоро вы прекратите получать опыт,\r\n");
-		sprintf(buf + strlen(buf), "обратитесь к богам для одобрения имени.\r\n\r\n");
-	} else if (NAME_BAD(ch)) {
-		sprintf(buf + strlen(buf), "\r\n&RВНИМАНИЕ!&n Ваше имя запрещено богами.\r\n");
-		sprintf(buf + strlen(buf), "Очень скоро вы прекратите получать опыт.\r\n\r\n");
-	}
-
-	sprintf(buf + strlen(buf), "Сейчас вам %d %s. ", GET_REAL_AGE(ch), desc_count(GET_REAL_AGE(ch), WHAT_YEAR));
-
-	if (age(ch)->month == 0 && age(ch)->day == 0) {
-		sprintf(buf2, "%sУ вас сегодня День Варенья!%s\r\n", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
-	} else
-		strcat(buf, "\r\n");
-
-	sprintf(buf + strlen(buf),
-			"Вы можете выдержать %d(%d) %s повреждения, и пройти %d(%d) %s по ровной местности.\r\n",
-			GET_HIT(ch), GET_REAL_MAX_HIT(ch), desc_count(GET_HIT(ch),
-														  WHAT_ONEu),
-			GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), desc_count(GET_MOVE(ch), WHAT_MOVEu));
-
-	if (IS_MANA_CASTER(ch)) {
-		sprintf(buf + strlen(buf),
-				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
-	}
-
-	sprintf(buf + strlen(buf),
-			"%sВаши характеристики :\r\n"
-			"  Сила : %2d(%2d)"
-			"  Подв : %2d(%2d)"
-			"  Тело : %2d(%2d)"
-			"  Мудр : %2d(%2d)"
-			"  Ум   : %2d(%2d)"
-			"  Обаян: %2d(%2d)\r\n"
-			"  Размер %3d(%3d)"
-			"  Рост   %3d(%3d)"
-			"  Вес    %3d(%3d)%s\r\n",
-			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch),
-			ch->get_dex(), GET_REAL_DEX(ch),
-			ch->get_con(), GET_REAL_CON(ch),
-			ch->get_wis(), GET_REAL_WIS(ch),
-			ch->get_int(), GET_REAL_INT(ch),
-			ch->get_cha(), GET_REAL_CHA(ch),
-			GET_SIZE(ch), GET_REAL_SIZE(ch),
-			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCNRM(ch, C_NRM));
-
-	if (IS_IMMORTAL(ch)) {
-		sprintf(buf + strlen(buf),
-				"%sВаши боевые качества :\r\n"
-				"  AC   : %4d(%4d)"
-				"  DR   : %4d(%4d)%s\r\n",
-				CCIGRN(ch, C_NRM), GET_AC(ch), compute_armor_class(ch),
-				GET_DR(ch), GetRealDamroll(ch), CCNRM(ch, C_NRM));
-	} else {
-		ac = compute_armor_class(ch) / 10;
-
-		if (ac < 5) {
-			const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
-			ac = ac + mod > 5 ? 5 : ac + mod;
-		}
-
-		ac_t = MAX(MIN(ac + 30, 40), 0);
-		sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
-								   "  Защита  (AC)     : %4d - %s&G\r\n"
-								   "  Броня/Поглощение : %4d/%d&n\r\n",
-				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
-	}
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT));
-	if (GetRealLevel(ch) < kLevelImmortal) {
-		if (PRF_FLAGGED(ch, PRF_BLIND)) {
-			sprintf(buf + strlen(buf), "\r\n");
-		}
-		sprintf(buf + strlen(buf),
-				"Вам осталось набрать %ld %s до следующего уровня.\r\n",
-				level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch),
-				desc_count(level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch), WHAT_POINT));
-	} else
-		sprintf(buf + strlen(buf), "\r\n");
-
-	sprintf(buf + strlen(buf),
-			"У вас на руках %ld %s и %d %s",
-			ch->get_gold(),
-			desc_count(ch->get_gold(), WHAT_MONEYa),
-			ch->get_hryvn(),
-			desc_count(ch->get_hryvn(), WHAT_TORC));
-	if (ch->get_bank() > 0)
-		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
-				ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
-	else
-		strcat(buf, ".\r\n");
-
-	if (GetRealLevel(ch) < kLevelImmortal) {
-		sprintf(buf + strlen(buf),
-				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-				desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))], WHAT_LEVEL));
-	}
-
-	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
-	if (label_room) {
-		sprintf(buf + strlen(buf),
-				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
-				string(label_room->name).c_str());
-	}
-
-	int glory = Glory::get_glory(GET_UNIQUE(ch));
-	if (glory) {
-		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
-				glory, desc_count(glory, WHAT_POINT));
-	}
-	glory = GloryConst::get_glory(GET_UNIQUE(ch));
-	if (glory) {
-		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
-				glory, desc_count(glory, WHAT_POINT));
-	}
-
-	playing_time = *real_time_passed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
-	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
-			playing_time.day, desc_count(playing_time.day, WHAT_DAY),
-			playing_time.hours, desc_count(playing_time.hours, WHAT_HOUR));
-	send_to_char(buf, ch);
-
-	if (!ch->ahorse())
-		send_to_char(ch, "%s", list_score_pos(ch));
-
-	strcpy(buf, CCIGRN(ch, C_NRM));
-	const auto value_drunked = GET_COND(ch, DRUNK);
-	if (value_drunked >= CHAR_DRUNKED) {
-		if (affected_by_spell(ch, kSpellAbstinent))
-			strcat(buf, "Привет с большого бодуна!\r\n");
-		else {
-			if (value_drunked >= CHAR_MORTALLY_DRUNKED)
-				strcat(buf, "Вы так пьяны, что ваши ноги не хотят слушаться вас...\r\n");
-			else if (value_drunked >= 10)
-				strcat(buf, "Вы так пьяны, что вам хочется петь песни.\r\n");
-			else if (value_drunked >= 5)
-				strcat(buf, "Вы пьяны.\r\n");
-			else
-				strcat(buf, "Вы немного пьяны.\r\n");
-		}
-
-	}
-	if (GET_COND_M(ch, FULL))
-		strcat(buf, "Вы голодны.\r\n");
-	if (GET_COND_M(ch, THIRST))
-		strcat(buf, "Вас мучает жажда.\r\n");
-	/*
-	   strcat(buf, CCICYN(ch, C_NRM));
-	   strcat(buf,"Аффекты :\r\n");
-	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
-	   strcat(buf,buf2);
-	 */
-	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
-		strcat(buf, "Вы можете быть призваны.\r\n");
-
-	if (ch->has_horse(false)) {
-		if (ch->ahorse())
-			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
-		else
-			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
-	}
-	strcat(buf, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
-	if (NORENTABLE(ch)) {
-		sprintf(buf,
-				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
-				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
-		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	}
-
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH)
-		&& (ch->get_skill(ESkill::kJewelry) || ch->get_skill(ESkill::kRepair) || ch->get_skill(ESkill::kReforging))) {
-		sprintf(buf,
-				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
-				CCIGRN(ch, C_NRM),
-				CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	}
-
-	if (mail::has_mail(ch->get_uid())) {
-		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	}
-
-	if (Parcel::has_parcel(ch)) {
-		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	}
-
-	if (PLR_FLAGGED(ch, PLR_HELLED) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
-		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf,
-				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR), mins, desc_count(mins,
-																  WHAT_MINu),
-				HELL_REASON(ch) ? HELL_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-	if (PLR_FLAGGED(ch, PLR_MUTE) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR),
-				mins, desc_count(mins, WHAT_MINu), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-	if (PLR_FLAGGED(ch, PLR_DUMB) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
-		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR),
-				mins, desc_count(mins, WHAT_MINu), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-	if (PLR_FLAGGED(ch, PLR_FROZEN) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR),
-				mins, desc_count(mins, WHAT_MINu), FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-
-	if (!PLR_FLAGGED(ch, PLR_REGISTERED) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
-		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR),
-				mins, desc_count(mins, WHAT_MINu), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GCURSE_DURATION(ch)) {
-		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы прокляты Богами на %d %s %d %s.\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR), mins, desc_count(mins, WHAT_MINu));
-		send_to_char(buf, ch);
-	}
-
-	if (ch->is_morphed()) {
-		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
-		send_to_char(buf, ch);
-	}
-	if (can_use_feat(ch, COLLECTORSOULS_FEAT)) {
-		const int souls = ch->get_souls();
-		if (souls == 0) {
-			sprintf(buf, "Вы не имеете чужих душ.\r\n");
-			send_to_char(buf, ch);
-		} else {
-			if (souls == 1) {
-				sprintf(buf, "Вы имеете всего одну душу в запасе.\r\n");
-				send_to_char(buf, ch);
-			}
-			if (souls > 1 && souls < 5) {
-				sprintf(buf, "Вы имеете %d души в запасе.\r\n", souls);
-				send_to_char(buf, ch);
-			}
-			if (souls >= 5) {
-				sprintf(buf, "Вы имеете %d чужих душ в запасе.\r\n", souls);
-				send_to_char(buf, ch);
-			}
-		}
-	}
-	if (ch->get_ice_currency() > 0) {
-		if (ch->get_ice_currency() == 1) {
-			sprintf(buf, "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
-			send_to_char(buf, ch);
-		} else if (ch->get_ice_currency() < 5) {
-			sprintf(buf, "У вас в наличии есть жалкие %d искристые снежинки.\r\n", ch->get_ice_currency());
-			send_to_char(buf, ch);
-		} else {
-			sprintf(buf, "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
-			send_to_char(buf, ch);
-		}
-	}
-	if (ch->get_nogata() > 0 && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
-		int value = ch->get_nogata();
-		if (ch->get_nogata() == 1) {
-			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");
-		}
-		else {
-			sprintf(buf, "У вас в наличии есть %d %s.\r\n", value, desc_count(value, WHAT_NOGATAu));
-		}
-		send_to_char(buf, ch);
-	}
-}
-
-//29.11.09 Отображение количества рипов (с) Василиса
-// edited by WorM 2011.05.21
+// Отображение количества рипов
 void do_mystat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 	if (utils::IsAbbrev(argument, "очистить") || utils::IsAbbrev(argument, "clear")) {
-		GET_RIP_MOBTHIS(ch) = GET_EXP_MOBTHIS(ch) = GET_RIP_MOB(ch) = GET_EXP_MOB(ch) =
-		GET_RIP_PKTHIS(ch) = GET_EXP_PKTHIS(ch) = GET_RIP_PK(ch) = GET_EXP_PK(ch) =
-		GET_RIP_DTTHIS(ch) = GET_EXP_DTTHIS (ch) = GET_RIP_DT(ch) = GET_EXP_DT(ch) =
-		GET_RIP_OTHERTHIS(ch) = GET_EXP_OTHERTHIS(ch) = GET_RIP_OTHER(ch) = GET_EXP_OTHER(ch) =
-		GET_WIN_ARENA(ch) = GET_RIP_ARENA(ch) = GET_EXP_ARENA(ch) = 0;
-		send_to_char("Статистика очищена.\r\n", ch);
+		ClearMyStat(ch);
 	} else {
-		sprintf(buf, " &C--------------------------------------------------------------------------------------&n\r\n"
-					 " &C||&n   Статистика ваших смертей   &C|&n         &WТекущее&n         &C|&n                         &C||&n\r\n"
-					 " &C||&n (количество, потеряно опыта) &C|&n      &Wперевоплощение&n     &C|&n           &KВсего&n         &C||&n\r\n"
-					 " &C--------------------------------------------------------------------------------------&n\r\n"
-					 " &C||&n    В неравном бою с тварями: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
-					 " &C||&n    В неравном бою с врагами: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
-					 " &C||&n             В гиблых местах: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
-					 " &C||&n   По стечению обстоятельств: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
-					 " &C--------------------------------------------------------------------------------------&n\r\n"
-					 " &C||&n                       &yИТОГО:&n &C|&n &W%4d (%16llu)&n &C| &K%4d (%16llu)&n &n&C||&n\r\n"
-					 " &C--------------------------------------------------------------------------------------&n\r\n"
-					 " &C||&n &WНа арене (всего):                                                                &n&C||&n\r\n"
-					 " &C||&n   &wУбито игроков:&n&r%4d&n     &wСмертей:&n&r%4d&n           &wПотеряно опыта:&n &r%16llu&n &C||&n\r\n"
-					 " &C--------------------------------------------------------------------------------------&n\r\n",
-				GET_RIP_MOBTHIS(ch), GET_EXP_MOBTHIS(ch), GET_RIP_MOB(ch), GET_EXP_MOB(ch),
-				GET_RIP_PKTHIS(ch), GET_EXP_PKTHIS(ch), GET_RIP_PK(ch), GET_EXP_PK(ch),
-				GET_RIP_DTTHIS(ch), GET_EXP_DTTHIS (ch), GET_RIP_DT(ch), GET_EXP_DT(ch),
-				GET_RIP_OTHERTHIS(ch), GET_EXP_OTHERTHIS(ch), GET_RIP_OTHER(ch), GET_EXP_OTHER(ch),
-				GET_RIP_MOBTHIS(ch) + GET_RIP_PKTHIS(ch) + GET_RIP_DTTHIS(ch) + GET_RIP_OTHERTHIS(ch),
-				GET_EXP_MOBTHIS(ch) + GET_EXP_PKTHIS(ch) + GET_EXP_DTTHIS(ch) + GET_EXP_OTHERTHIS(ch)
-					+ GET_EXP_ARENA(ch),
-				GET_RIP_MOB(ch) + GET_RIP_PK(ch) + GET_RIP_DT(ch) + GET_RIP_OTHER(ch),
-				GET_EXP_MOB(ch) + GET_EXP_PK(ch) + GET_EXP_DT(ch) + GET_EXP_OTHER(ch) + GET_EXP_ARENA(ch),
-				GET_WIN_ARENA(ch), GET_RIP_ARENA(ch), GET_EXP_ARENA(ch));
-		send_to_char(buf, ch);
-
-		send_to_char(ch, " &C|| Киллы на арене доминирования %3d, смерти на арене %3d&C                            ||&n\r\n", ch->player_specials->saved.kill_arena_dom, ch->player_specials->saved.rip_arena_dom);
-		send_to_char(ch, " &C--------------------------------------------------------------------------------------&n\r\n");
+		PrintMyStat(ch);
 	}
 }
-// end by WorM
-// конец правки (с) Василиса
 
 void do_inventory(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("Вы несете:\r\n", ch);
@@ -4106,7 +3009,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	name_search[0] = '\0';
 
 	// Флаги для опций
-	int low = 0, high = kLevelImplementator;
+	int low = 0, high = kLvlImplementator;
 	int num_can_see = 0;
 	int imms_num = 0, morts_num = 0, demigods_num = 0;
 	bool localwho = false, short_list = false;
@@ -4120,8 +3023,8 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	while (*buf) {
 		half_chop(buf, arg, buf1);
 		if (!str_cmp(arg, "боги") && strlen(arg) == 4) {
-			low = kLevelImmortal;
-			high = kLevelImplementator;
+			low = kLvlImmortal;
+			high = kLvlImplementator;
 			strcpy(buf, buf1);
 		} else if (a_isdigit(*arg)) {
 			if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -4207,7 +3110,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 
-		if (!*argument && GetRealLevel(tch) < kLevelImmortal) {
+		if (!*argument && GetRealLevel(tch) < kLvlImmortal) {
 			++all;
 		}
 
@@ -4304,7 +3207,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							genders[static_cast<int>(GET_SEX(tch))]);
 				}
 			}
-			if ((GetRealLevel(ch) == kLevelImplementator) && (NORENTABLE(tch)))
+			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
@@ -4419,7 +3322,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	int clan{0}, noclan{0}, hilvl{0}, lowlvl{0}, rem{0}, norem{0}, pk{0}, nopk{0}, total{0};
 	for (const auto &tch : character_list) {
-		if (tch->is_npc() || GetRealLevel(tch) >= kLevelImmortal || !HERE(tch)) {
+		if (tch->is_npc() || GetRealLevel(tch) >= kLvlImmortal || !HERE(tch)) {
 			continue;
 		}
 		CLAN(tch) ? ++clan : ++noclan;
@@ -4494,325 +3397,6 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	send_to_char(out.str(), ch);
 }
 
-#define USERS_FORMAT \
-"Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
-const int kMaxListLen = 200;
-void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char line[200], line2[220], idletime[10], classname[128];
-	char state[30] = "\0", *timeptr, mode;
-	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
-	char host_by_name[kMaxInputLength] = "\0";
-	DescriptorData *list_players[kMaxListLen];
-	DescriptorData *d_tmp;
-	int count_pl;
-	int cycle_i, is, flag_change;
-	unsigned long a1, a2;
-	int showremorts = 0, showemail = 0, locating = 0;
-	char sorting = '!';
-	DescriptorData *d;
-	int low = 0, high = kLevelImplementator, num_can_see = 0;
-	int outlaws = 0, playing = 0, deadweight = 0;
-	ECharClass showclass{ECharClass::kUndefined};
-
-	host_search[0] = name_search[0] = '\0';
-
-	strcpy(buf, argument);
-	while (*buf) {
-		half_chop(buf, arg, buf1);
-		if (*arg == '-') {
-			mode = *(arg + 1);    // just in case; we destroy arg in the switch
-			switch (mode) {
-				case 'o':
-				case 'k': outlaws = 1;
-					playing = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'p': playing = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'd': deadweight = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'l':
-					if (!IS_GOD(ch))
-						return;
-					playing = 1;
-					half_chop(buf1, arg, buf);
-					sscanf(arg, "%d-%d", &low, &high);
-					break;
-				case 'n': playing = 1;
-					half_chop(buf1, name_search, buf);
-					break;
-				case 'h': playing = 1;
-					half_chop(buf1, host_search, buf);
-					break;
-				case 'u': playing = 1;
-					half_chop(buf1, host_by_name, buf);
-					break;
-				case 'w':
-					if (!IS_GRGOD(ch))
-						return;
-					playing = 1;
-					locating = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'c': {
-					playing = 1;
-					half_chop(buf1, arg, buf);
-/*					const size_t len = strlen(arg);
-					for (size_t i = 0; i < len; i++) {
-						showclass |= FindCharClassMask(arg[i]);
-					}*/
-					showclass = FindAvailableCharClassId(arg);
-					break;
-				}
-				case 'e': showemail = 1;
-					strcpy(buf, buf1);
-					break;
-				case 'r': showremorts = 1;
-					strcpy(buf, buf1);
-					break;
-
-				case 's':
-					sorting = *(arg + 2);
-					strcpy(buf, buf1);
-					break;
-				default: send_to_char(USERS_FORMAT, ch);
-					return;
-			}    // end of switch
-
-		} else {
-			strcpy(name_search, arg);
-			strcpy(buf, buf1);
-		}
-	}            // end while (parser)
-
-	const char *format = "%3d %-7s %-20s %-17s %-3s %-8s ";
-	if (showemail) {
-		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт       E-mail\r\n");
-	} else {
-		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт\r\n");
-	}
-	strcat(line, "--- ---------- -------------------- ----------------- --- -------- ----------------------------\r\n");
-	send_to_char(line, ch);
-
-	one_argument(argument, arg);
-
-	if (strlen(host_by_name) != 0) {
-		strcpy(host_search, "!");
-	}
-
-	for (d = descriptor_list, count_pl = 0; d && count_pl < kMaxListLen; d = d->next, count_pl++) {
-		list_players[count_pl] = d;
-
-		const auto character = d->get_character();
-		if (!character) {
-			continue;
-		}
-
-		if (isname(host_by_name, GET_NAME(character))) {
-			strcpy(host_search, d->host);
-		}
-	}
-
-	if (sorting != '!') {
-		is = 1;
-		while (is) {
-			is = 0;
-			for (cycle_i = 1; cycle_i < count_pl; cycle_i++) {
-				flag_change = 0;
-				d = list_players[cycle_i - 1];
-
-				const auto t = d->get_character();
-
-				d_tmp = list_players[cycle_i];
-
-				const auto t_tmp = d_tmp->get_character();
-
-				switch (sorting) {
-					case 'n':
-						if (0 < strcoll(t ? t->get_pc_name().c_str() : "", t_tmp ? t_tmp->get_pc_name().c_str() : "")) {
-							flag_change = 1;
-						}
-						break;
-
-					case 'e':
-						if (strcoll(t ? GET_EMAIL(t) : "", t_tmp ? GET_EMAIL(t_tmp) : "") > 0)
-							flag_change = 1;
-						break;
-
-					default: a1 = get_ip(const_cast<char *>(d->host));
-						a2 = get_ip(const_cast<char *>(d_tmp->host));
-						if (a1 > a2)
-							flag_change = 1;
-				}
-				if (flag_change) {
-					list_players[cycle_i - 1] = d_tmp;
-					list_players[cycle_i] = d;
-					is = 1;
-				}
-			}
-		}
-	}
-
-	for (cycle_i = 0; cycle_i < count_pl; cycle_i++) {
-		d = list_players[cycle_i];
-
-		if (STATE(d) != CON_PLAYING && playing)
-			continue;
-		if (STATE(d) == CON_PLAYING && deadweight)
-			continue;
-		if (STATE(d) == CON_PLAYING) {
-			const auto character = d->get_character();
-			if (!character) {
-				continue;
-			}
-
-			if (*host_search && !strstr(d->host, host_search)) {
-				continue;
-			}
-			if (*name_search && !isname(name_search, GET_NAME(character))) {
-				continue;
-			}
-			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
-				continue;
-			}
-			if (outlaws && !PLR_FLAGGED((ch), PLR_KILLER)) {
-				continue;
-			}
-			if (showclass != ECharClass::kUndefined && showclass != character->get_class()) {
-				continue;
-			}
-			if (GET_INVIS_LEV(character) > GetRealLevel(ch)) {
-				continue;
-			}
-
-			if (d->original) {
-				if (showremorts) {
-					sprintf(classname,
-							"[%2d %2d %s]",
-							GetRealLevel(d->original),
-							GET_REAL_REMORT(d->original),
-							MUD::Classes()[d->original->get_class()].GetAbbr().c_str());
-				} else {
-					sprintf(classname,
-							"[%2d %s]   ",
-							GetRealLevel(d->original),
-							MUD::Classes()[d->original->get_class()].GetAbbr().c_str());
-				}
-			} else if (showremorts) {
-				sprintf(classname,
-						"[%2d %2d %s]",
-						GetRealLevel(d->character),
-						GET_REAL_REMORT(d->character),
-						MUD::Classes()[d->character->get_class()].GetAbbr().c_str());
-			} else {
-				sprintf(classname,
-						"[%2d %s]   ",
-						GetRealLevel(d->character),
-						MUD::Classes()[d->character->get_class()].GetAbbr().c_str());
-			}
-		} else {
-			strcpy(classname, "      -      ");
-		}
-
-		if (GetRealLevel(ch) < kLevelImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
-			strcpy(classname, "      -      ");
-		}
-
-		timeptr = asctime(localtime(&d->login_time));
-		timeptr += 11;
-		*(timeptr + 8) = '\0';
-
-		if (STATE(d) == CON_PLAYING && d->original) {
-			strcpy(state, "Switched");
-		} else {
-			sprinttype(STATE(d), connected_types, state);
-		}
-
-		if (d->character
-			&& STATE(d) == CON_PLAYING
-			&& !IS_GOD(d->character)) {
-			sprintf(idletime, "%-3d", d->character->char_specials.timer *
-				SECS_PER_MUD_HOUR / SECS_PER_REAL_MIN);
-		} else {
-			strcpy(idletime, "   ");
-		}
-
-		if (d->character
-			&& d->character->get_pc_name().c_str()) {
-			if (d->original) {
-				sprintf(line,
-						format,
-						d->desc_num,
-						classname,
-						d->original->get_pc_name().c_str(),
-						state,
-						idletime,
-						timeptr);
-			} else {
-				sprintf(line,
-						format,
-						d->desc_num,
-						classname,
-						d->character->get_pc_name().c_str(),
-						state,
-						idletime,
-						timeptr);
-			}
-		} else {
-			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
-		}
-
-		if (d && *d->host) {
-			sprintf(line2, "[%s]", d->host);
-			strcat(line, line2);
-		} else {
-			strcat(line, "[Неизвестный хост]");
-		}
-
-		if (showemail) {
-			sprintf(line2, "[&S%s&s]",
-					d->original ? GET_EMAIL(d->original) : d->character ? GET_EMAIL(d->character) : "");
-			strcat(line, line2);
-		}
-
-		if (locating && (*name_search || *host_by_name)) {
-			if (STATE(d) == CON_PLAYING) {
-				const auto ci = d->get_character();
-				if (ci
-					&& CAN_SEE(ch, ci)
-					&& ci->in_room != kNowhere) {
-					if (d->original && d->character) {
-						sprintf(line2, " [%5d] %s (in %s)",
-								GET_ROOM_VNUM(IN_ROOM(d->character)),
-								world[d->character->in_room]->name, GET_NAME(d->character));
-					} else {
-						sprintf(line2, " [%5d] %s",
-								GET_ROOM_VNUM(IN_ROOM(ci)), world[ci->in_room]->name);
-					}
-				}
-
-				strcat(line, line2);
-			}
-		}
-
-		strcat(line, "\r\n");
-		if (STATE(d) != CON_PLAYING) {
-			sprintf(line2, "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
-			strcpy(line, line2);
-		}
-
-		if (STATE(d) != CON_PLAYING || (STATE(d) == CON_PLAYING && d->character && CAN_SEE(ch, d->character))) {
-			send_to_char(line, ch);
-			num_can_see++;
-		}
-	}
-
-	sprintf(line, "\r\n%d видимых соединений.\r\n", num_can_see);
-	page_string(ch->desc, line, true);
-}
-
 void sendWhoami(CharData *ch) {
 	sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
 	sprintf(buf + strlen(buf),
@@ -4835,7 +3419,7 @@ void sendWhoami(CharData *ch) {
 
 		static const char *by_rank_god = "Богом";
 		static const char *by_rank_privileged = "привилегированным игроком";
-		const char *by_rank = god_level < kLevelImmortal ? by_rank_privileged : by_rank_god;
+		const char *by_rank = god_level < kLvlImmortal ? by_rank_privileged : by_rank_god;
 
 		if (NAME_GOD(ch) < 1000)
 			snprintf(buf, kMaxStringLength, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
@@ -5054,7 +3638,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 	int num = 1, found = 0;
 
 	if (!*arg) {
-		if (GetRealLevel(ch) < kLevelImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
+		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			send_to_char("Где КТО конкретно?", ch);
 		} else {
 			send_to_char("ИГРОКИ\r\n------\r\n", ch);
@@ -5123,7 +3707,7 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	*ptr = '\0';
 
 	ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
-	for (i = 1; i < kLevelImmortal; i++) {
+	for (i = 1; i < kLvlImmortal; i++) {
 		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (ch->get_level() == i) ? CCICYN(ch, C_NRM) : "", i,
 					   thousands_sep(level_exp(ch, i)).c_str(),
 					   thousands_sep(level_exp(ch, i + 1) - 1).c_str(),
@@ -5132,9 +3716,9 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	ptr += sprintf(ptr, "%s[%2d] %13s               (БЕССМЕРТИЕ)%s\r\n",
-				   (ch->get_level() >= kLevelImmortal) ? CCICYN(ch, C_NRM) : "", kLevelImmortal,
-				   thousands_sep(level_exp(ch, kLevelImmortal)).c_str(),
-				   (ch->get_level() >= kLevelImmortal) ? CCNRM(ch, C_NRM) : "");
+				   (ch->get_level() >= kLvlImmortal) ? CCICYN(ch, C_NRM) : "", kLvlImmortal,
+				   thousands_sep(level_exp(ch, kLvlImmortal)).c_str(),
+				   (ch->get_level() >= kLvlImmortal) ? CCNRM(ch, C_NRM) : "");
 	page_string(ch->desc, buf, 1);
 }
 
@@ -5211,7 +3795,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
-	if (GetRealLevel(ch) >= kLevelImmortal || PRF_FLAGGED(ch, PRF_CODERINFO)) {
+	if (GetRealLevel(ch) >= kLvlImmortal || PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		snprintf(buf, kMaxStringLength,
 				 " Нет агров     : %-3s     "
 				 " Супервидение  : %-3s     "
@@ -5424,7 +4008,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (cmd_info[i].minimum_level >= 0
 				&& (Privilege::can_do_priv(vict, std::string(cmd_info[i].command), i, 0))
-				&& (cmd_info[i].minimum_level >= kLevelImmortal) == wizhelp
+				&& (cmd_info[i].minimum_level >= kLvlImmortal) == wizhelp
 				&& (wizhelp || socials == cmd_sort_info[i].is_social)) {
 				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
 				if (!(no % 5))

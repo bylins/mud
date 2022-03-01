@@ -4,7 +4,7 @@
 */
 
 #include "classes_spell_slots.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 
 namespace PlayerClass {
 
@@ -1237,7 +1237,7 @@ void mspell_slot(char */*name*/, int spell, int kin, int chclass, int slot) {
 	}
 
 	if (slot < 1 || slot > kMaxSlot) {
-		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLevelImplementator);
+		log("SYSERR: assigning '%s' to illegal slot %d/%d.", GetSpellName(spell), slot, kLvlImplementator);
 		bad = 1;
 	}
 

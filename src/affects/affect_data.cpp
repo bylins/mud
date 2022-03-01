@@ -7,8 +7,8 @@
 #include "game_classes/classes.h"
 #include "cmd/follow.h"
 #include "game_mechanics/deathtrap.h"
-#include "magic/magic.h"
-#include "skills/poison.h"
+#include "game_magic/magic.h"
+#include "game_skills/poison.h"
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffectFlag> bad_waffects =
@@ -268,7 +268,7 @@ void battle_affect_update(CharData *ch) {
 				if (processPoisonDamage(ch, affect) == -1) // жертва умерла
 					return;
 				if (ch->purged()) {
-					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, kLevelImplementator, SYSLOG, true);
+					mudlog("Некому обновлять аффект, чар уже спуржен.", BRF, kLvlImplementator, SYSLOG, true);
 					return;
 				}
 				affect->duration--;

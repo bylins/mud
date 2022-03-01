@@ -77,7 +77,7 @@ void oload_class::init() {
 
 	if (!fp) {
 		cppstr = "oload_class:: Unable open input file !!!";
-		mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+		mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -91,7 +91,7 @@ void oload_class::init() {
 
 			if (cppstr.empty()) {
 				cppstr = "oload_class:: Error in line '#' expected '#<RIGHT_obj_vnum>' !!!";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				in_block = false;
 				continue;
 			}
@@ -102,7 +102,7 @@ void oload_class::init() {
 			if (!isstream.eof() || real_object(ovnum) < 0) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '#" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				in_block = false;
 				continue;
 			}
@@ -119,10 +119,10 @@ void oload_class::init() {
 			if (lprob < 0 || lprob > MAX_LOAD_PROB || oqty < 0 || real_mobile(mvnum) < 0 || !isstream.eof()) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '" + cppstr + "'";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				cppstr =
 					"oload_class:: \texpected '<RIGHT_mob_vnum>\t<0 <= obj_qty>\t<0 <= load_prob <= MAX_LOAD_PROB>' !!!";
-				mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 
@@ -131,7 +131,7 @@ void oload_class::init() {
 			add_elem(mvnum, ovnum, obj_load_info(oqty, lprob));
 		} else {
 			cppstr = "oload_class:: Error in line '" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
-			mudlog(cppstr.c_str(), LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 		}
 	}
 }
@@ -245,7 +245,7 @@ void generate_warrior_enchant(ObjData *obj) {
 			break;
 		}
 		default: sprintf(buf2, "SYSERR: Unknown vnum warrior enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, kLevelImmortal, SYSLOG, true);
+			mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
 			break;
 	}
 }
@@ -292,7 +292,7 @@ void generate_magic_enchant(ObjData *obj) {
 			break;
 		}
 		default: sprintf(buf2, "SYSERR: Unknown vnum magic enchant object: %d", GET_OBJ_VNUM(obj));
-			mudlog(buf2, BRF, kLevelImmortal, SYSLOG, true);
+			mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
 			break;
 	}
 }

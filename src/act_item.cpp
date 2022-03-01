@@ -22,7 +22,7 @@
 #include "liquid.h"
 #include "game_mechanics/named_stuff.h"
 #include "fightsystem/pk.h"
-#include "skills/poison.h"
+#include "game_skills/poison.h"
 #include "meat_maker.h"
 #include "utils/utils_char_obj.inl"
 #include "structs/global_objects.h"
@@ -344,7 +344,7 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 	const auto skin = world_objects.create_from_prototype_by_vnum(vnum);
 	if (!skin) {
 		mudlog("Неверно задан номер прототипа для освежевания в act.item.cpp::create_skin!",
-			   NRM, kLevelGreatGod, ERRLOG, true);
+			   NRM, kLvlGreatGod, ERRLOG, true);
 		return nullptr;
 	}
 
@@ -712,7 +712,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				GET_ROOM_VNUM(ch->in_room),
 				value,
 				desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
 		do_split(ch, local_buf, 0, 0);
@@ -721,13 +721,13 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		// налогом не облагается, т.к. уже все уплочено
 		// на данном этапе cont уже не содержит владельца
 		sprintf(buf, "%s взял деньги из кошелька: %d  %s.", ch->get_name().c_str(), value, desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	} else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1) {
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
 		sprintf(buf, "%s заработал %d  %s.", ch->get_name().c_str(), value, desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value, true, true);
 	} else {
 		sprintf(buf,
@@ -736,7 +736,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 				GET_ROOM_VNUM(ch->in_room),
 				value,
 				desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	}
 
@@ -1115,7 +1115,7 @@ void perform_drop_gold(CharData *ch, int amount) {
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
 					desc_count(amount, WHAT_MONEYu));
-			mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 			act(buf, true, ch, 0, 0, kToRoom | kToArenaListen);
 		}
@@ -1312,7 +1312,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 				GET_ROOM_VNUM(ch->in_room),
 				amount,
 				GET_PAD(vict, 4));
-		mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
 	if (IS_NPC(ch) || !IS_IMPL(ch)) {
 		ch->remove_gold(amount);
@@ -1490,7 +1490,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		extract_obj(meet);
 		WAIT_STATE(ch, 1 * kPulseViolence);
 	} else {
-		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, kLevelGreatGod, ERRLOG, true);
+		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, kLvlGreatGod, ERRLOG, true);
 	}
 }
 
@@ -2538,7 +2538,7 @@ void do_fire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-#include "magic/magic_rooms.h"
+#include "game_magic/magic_rooms.h"
 void do_extinguish(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *caster;
 	int tp, lag = 0;

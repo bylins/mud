@@ -142,7 +142,7 @@ CharData *&operator<<(CharData *&ch, string p) {
 void init_make_items() {
 	char tmpbuf[kMaxInputLength];
 	sprintf(tmpbuf, "Loading making recepts.");
-	mudlog(tmpbuf, LGH, kLevelImmortal, SYSLOG, true);
+	mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 	make_recepts.load();
 }
 // Парсим ввод пользователя в меню правки рецепта
@@ -1040,7 +1040,7 @@ MakeReceptList::load() {
 	ifstream bifs(LIB_MISC "makeitems.lst");
 	if (!bifs) {
 		sprintf(tmpbuf, "MakeReceptList:: Unable open input file !!!");
-		mudlog(tmpbuf, LGH, kLevelImmortal, SYSLOG, true);
+		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 		return (false);
 	}
 	while (!bifs.eof()) {
@@ -1059,7 +1059,7 @@ MakeReceptList::load() {
 			delete trec;
 			// ошибка вытаскивания из строки написать
 			sprintf(tmpbuf, "MakeReceptList:: Fail get recept from line.");
-			mudlog(tmpbuf, LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 		}
 	}
 	return true;
@@ -1074,7 +1074,7 @@ int MakeReceptList::save() {
 	if (!bofs) {
 		// cout << "Unable input stream to create !!!" << endl;
 		sprintf(tmpbuf, "MakeReceptList:: Unable create output file !!!");
-		mudlog(tmpbuf, LGH, kLevelImmortal, SYSLOG, true);
+		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 		return (false);
 	}
 	sort();
@@ -1869,7 +1869,7 @@ int MakeRecept::make(CharData *ch) {
 			act(roomdam.c_str(), false, ch, &obj, 0, kToRoom);
 			dam = number(0, dam);
 			// Наносим дамаг.
-			if (GetRealLevel(ch) >= kLevelImmortal && dam > 0) {
+			if (GetRealLevel(ch) >= kLvlImmortal && dam > 0) {
 				send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
 				return (false);
 			}
@@ -1882,7 +1882,7 @@ int MakeRecept::make(CharData *ch) {
 					sprintf(tmpbuf, "%s killed by a crafting at %s",
 							GET_NAME(ch),
 							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name);
-					mudlog(tmpbuf, BRF, kLevelBuilder, SYSLOG, true);
+					mudlog(tmpbuf, BRF, kLvlBuilder, SYSLOG, true);
 				}
 				die(ch, nullptr);
 			}
@@ -2078,7 +2078,7 @@ int MakeRecept::load_from_str(string &rstr) {
 	if (real_object(obj_proto) < 0) {
 		// Обнаружен несуществующий прототип объекта.
 		sprintf(tmpbuf, "MakeRecept::Unfound object proto %d", obj_proto);
-		mudlog(tmpbuf, LGH, kLevelImmortal, SYSLOG, true);
+		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 		// блокируем рецепты без ингров.
 		locked = true;
 	}
@@ -2094,7 +2094,7 @@ int MakeRecept::load_from_str(string &rstr) {
 		if (real_object(parts[i].proto) < 0) {
 			// Обнаружен несуществующий прототип компонента.
 			sprintf(tmpbuf, "MakeRecept::Unfound item part %d for %d", obj_proto, parts[i].proto);
-			mudlog(tmpbuf, LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 			// блокируем рецепты без ингров.
 			locked = true;
 		}

@@ -276,7 +276,7 @@ void redit_save_to_disk(int zone_num) {
 
 	sprintf(buf, "%s/%d.new", WLD_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
-		mudlog("SYSERR: OLC: Cannot open room file!", BRF, kLevelBuilder, SYSLOG, true);
+		mudlog("SYSERR: OLC: Cannot open room file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
 	}
 	for (counter = zone_table[zone_num].vnum * 100; counter < zone_table[zone_num].top; counter++) {
@@ -562,7 +562,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case 'Д': redit_save_internally(d);
 					sprintf(buf, "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit room %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the room structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					send_to_char("Room saved to memory.\r\n", d->character.get());
@@ -683,7 +683,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 
 		case REDIT_DESC:
 			// * We will NEVER get here, we hope.
-			mudlog("SYSERR: Reached REDIT_DESC case in parse_redit", BRF, kLevelBuilder, SYSLOG, true);
+			mudlog("SYSERR: Reached REDIT_DESC case in parse_redit", BRF, kLvlBuilder, SYSLOG, true);
 			break;
 
 		case REDIT_FLAGS: number = planebit(arg, &plane, &bit);
@@ -843,7 +843,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 
 		default:
 			// * We should never get here.
-			mudlog("SYSERR: Reached default case in parse_redit", BRF, kLevelBuilder, SYSLOG, true);
+			mudlog("SYSERR: Reached default case in parse_redit", BRF, kLvlBuilder, SYSLOG, true);
 			break;
 	}
 	// * If we get this far, something has been changed.

@@ -10,7 +10,7 @@
 
 #include "boot/cfg_manager.h"
 #include "game_classes/classes_constants.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "structs/info_container.h"
 
 #include <optional>
@@ -31,7 +31,7 @@ struct ClassSkillInfo {
 	using Ptr = std::unique_ptr<ClassSkillInfo>;
 
 	ESkill id{ESkill::kIncorrect};
-	int min_level{kLevelImplementator};
+	int min_level{kLvlImplementator};
 	int min_remort{kMaxRemort + 1};
 	long improve{kMinImprove};
 };

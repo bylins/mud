@@ -4,7 +4,7 @@
 #include "noob.h"
 
 #include "entities/char_data.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "handler.h"
 
@@ -29,7 +29,7 @@ void init() {
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -65,7 +65,7 @@ void init() {
 		const int id = text_id::ToNum(text_id::kCharClass, id_str);
 		if (id == ECharClass::kUndefined) {
 			snprintf(buf, kMaxStringLength, "...<class id='%s'> convert fail", id_str.c_str());
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 

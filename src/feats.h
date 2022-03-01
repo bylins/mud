@@ -10,7 +10,7 @@
 #define FILE_FEATURES_H_INCLUDED
 
 #include "abilities/abilities_items_set.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "structs/structs.h"
 #include "conf.h"
 #include "game_classes/classes_constants.h"
@@ -209,7 +209,7 @@ const int feat_slot_for_remort[kNumPlayerClasses] = {5, 6, 4, 4, 4, 4, 6, 6, 6, 
 // Количество пар "параметр-значение" у способности
 const int kMaxFeatAffect = 5;
 // Максимально доступное на морте количество не-врожденных способностей
-#define MAX_ACC_FEAT(ch)    ((int) 1+(kLevelImmortal-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+#define MAX_ACC_FEAT(ch)    ((int) 1+(kLvlImmortal-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 
 // Поля изменений для способностей (кроме AFFECT_FTYPE, для них используются стардартные поля APPLY)
 const int FEAT_TIMER = 1;

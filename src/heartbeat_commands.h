@@ -14,7 +14,7 @@ extern const char *HEARTBEAT_COMMAND;
 constexpr EPosition MINIMAL_POSITION = EPosition::kSit;
 
 // Minimal level for heartbeat command
-constexpr int MINIMAL_LEVEL = kLevelImplementator;
+constexpr int MINIMAL_LEVEL = kLvlImplementator;
 
 // Probability to stop hide when using heartbeat command
 constexpr int UNHIDE_PROBABILITY = 0;    // -1 - always, 0 - never

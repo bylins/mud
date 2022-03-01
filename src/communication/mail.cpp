@@ -17,7 +17,7 @@
 #include "game_mechanics/named_stuff.h"
 #include "utils/parse.h"
 #include "color.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -573,13 +573,13 @@ void load() {
 	pugi::xml_parse_result result = doc.load_file(MAIL_XML_FILE);
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node mail_n = doc.child("mail");
 	if (!mail_n) {
 		snprintf(buf, kMaxStringLength, "...<mail> read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 

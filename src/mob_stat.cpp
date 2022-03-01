@@ -3,7 +3,7 @@
 
 #include "mob_stat.h"
 
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "entities/char_data.h"
 #include "color.h"
@@ -146,13 +146,13 @@ void Load() {
 	pugi::xml_parse_result result = doc.load_file(kMobStatFileNew);
 	if (!result) {
 		snprintf(buf_, sizeof(buf_), "...%s", result.description());
-		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("mob_list");
 	if (!node_list) {
 		snprintf(buf_, sizeof(buf_), "...<mob_stat_new> read fail");
-		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	for (pugi::xml_node xml_mob = node_list.child("mob"); xml_mob;
@@ -161,7 +161,7 @@ void Load() {
 		if (real_mobile(mob_vnum) < 0) {
 			snprintf(buf_, sizeof(buf_),
 					 "...bad mob attributes (vnum=%d)", mob_vnum);
-			mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
 
@@ -182,7 +182,7 @@ void Load() {
 				snprintf(buf_, sizeof(buf_),
 						 "...bad mob attributes (month=%d, year=%d)",
 						 tmp_mob.month, tmp_mob.year);
-				mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
+				mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 			auto date = GetDate();
@@ -311,7 +311,7 @@ void AddMob(CharData *mob, int members) {
 		snprintf(buf_, sizeof(buf_),
 				 "SYSERROR: MobVnum=%d, members=%d (%s:%d)",
 				 GET_MOB_VNUM(mob), members, __FILE__, __LINE__);
-		mudlog(buf_, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	auto i = mob_stat_register.find(GET_MOB_VNUM(mob));

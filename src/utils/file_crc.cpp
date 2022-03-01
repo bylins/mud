@@ -46,7 +46,7 @@ void add_message(const char *text, ...) {
 	vsprintf(out, text, args);
 	va_end(args);
 
-	mudlog(out, DEF, kLevelImmortal, SYSLOG, true);
+	mudlog(out, DEF, kLvlImmortal, SYSLOG, true);
 	message += out + std::string("\r\n");
 }
 

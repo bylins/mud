@@ -21,7 +21,7 @@
 #include "db.h"
 #include "comm.h"
 #include "color.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "handler.h"
 #include "interpreter.h"
 #include "constants.h"
@@ -37,7 +37,7 @@
 #include "depot.h"
 #include "obj_save.h"
 #include "fightsystem/fight.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "game_economics/exchange.h"
 #include "game_mechanics/sets_drop.h"
 #include "structs/structs.h"
@@ -1655,6 +1655,49 @@ void print_log() {
 } // ZoneExpStat
 ////////////////////////////////////////////////////////////////////////////////
 
+std::string PrintNumberByDigits(long long num) {
+	const char digits_separator = ' ';
+	const int digits_num = 3;
+
+	bool negative{false};
+	if (num < 0) {
+		num = -num;
+		negative = true;
+	}
+
+	std::string buffer;
+	try {
+		buffer = std::to_string(num);
+	} catch (std::bad_alloc &) {
+		log("SYSERROR : string.at() (%s:%d)", __FILE__, __LINE__);
+		return "<Out Of Range>";
+	}
+
+	std::ostringstream out;
+	if (negative) {
+		out << "-";
+	}
+
+	if (digits_num >= buffer.size()) {
+		out << buffer;
+	} else {
+		auto modulo = buffer.size() % digits_num;
+		if (modulo != 0) {
+			out << buffer.substr(0, modulo) << digits_separator;
+		}
+
+		unsigned pos = modulo;
+		while (pos < buffer.size() - digits_num) {
+			out << buffer.substr(pos, digits_num) << digits_separator;
+			pos += digits_num;
+		}
+
+		out << buffer.substr(pos, digits_num);
+	}
+
+	return out.str();
+}
+
 std::string thousands_sep(long long n) {
 	bool negative = false;
 	if (n < 0) {
@@ -2007,7 +2050,7 @@ int GetRealLevel(const CharData *ch) {
 		return ch->get_level();
 	}
 
-	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLevelImmortal - 1);
+	return std::clamp(ch->get_level() + ch->get_level_add(), 0, kLvlImmortal - 1);
 }
 
 int GetRealLevel(const std::shared_ptr<CharData> &ch) {

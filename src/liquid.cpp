@@ -13,7 +13,7 @@
 #include "entities/char_data.h"
 #include "utils/utils_char_obj.inl"
 #include "handler.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "color.h"
 #include "structs/global_objects.h"
 

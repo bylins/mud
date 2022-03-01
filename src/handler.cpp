@@ -26,11 +26,11 @@
 #include "fightsystem/pk.h"
 #include "house.h"
 #include "liquid.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
 #include "color.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "world_objects.h"
 #include "entities/zone.h"
 #include "game_classes/classes_spell_slots.h"
@@ -483,7 +483,7 @@ void restore_object(ObjData *obj, CharData *ch) {
 		&& ch
 		&& GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)) {
 		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
-		mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 	}
 }
 
@@ -603,7 +603,7 @@ void obj_to_char(ObjData *object, CharData *ch) {
 		ss << "SYSERR: Object at address 0x" << object
 		   << " is not in the world but we have attempt to put it into character '" << ch->get_name()
 		   << "'. Object won't be placed into character's inventory.";
-		mudlog(ss.str().c_str(), NRM, kLevelImplementator, SYSLOG, true);
+		mudlog(ss.str().c_str(), NRM, kLvlImplementator, SYSLOG, true);
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 
 		return;
@@ -645,7 +645,7 @@ void obj_to_char(ObjData *object, CharData *ch) {
 							GET_OBJ_VNUM(object),
 							GET_NAME(ch),
 							inworld);
-					mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+					mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 					// Удаление предмета
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", false, ch, object, nullptr, kToChar);
 					object->set_timer(0); // Хана предмету
@@ -3057,7 +3057,7 @@ int ApplyResist(CharData *ch, int resist_type, int effect) {
 		return effect - resistance*effect/100;
 	}
 	if (!IS_NPC(ch)) {
-		resistance = std::min(75, resistance);
+		resistance = std::min(kMaxPlayerResist, resistance);
 	}
 	auto result = static_cast<int>(effect - (resistance + number(0, resistance))*effect/200.0);
 	return std::max(0, result);

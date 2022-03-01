@@ -10,7 +10,7 @@
 #include "entities/world_characters.h"
 #include "entities/obj_data.h"
 #include "comm.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "db.h"
 #include "olc.h"
 #include "handler.h"
@@ -19,7 +19,7 @@
 #include "features.h"
 #include "crafts/im.h"
 #include "entities/char_data.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "name_list.h"
 #include "entities/room_data.h"
 #include "corpse.h"
@@ -32,8 +32,8 @@
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "skills_info.h"
-#include "magic/spells_info.h"
+#include "game_skills/skills_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 #include <boost/format.hpp>
@@ -560,7 +560,7 @@ void medit_save_to_disk(int zone_num) {
 
 	sprintf(fname, "%s/%d.new", MOB_PREFIX, zone);
 	if (!(mob_file = fopen(fname, "w"))) {
-		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, kLevelBuilder, SYSLOG, true);
+		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
 	}
 
@@ -568,7 +568,7 @@ void medit_save_to_disk(int zone_num) {
 	for (i = zone * 100; i <= top; i++) {
 		if ((rmob_num = real_mobile(i)) != -1) {
 			if (fprintf(mob_file, "#%d\n", i) < 0) {
-				mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLevelBuilder, SYSLOG, true);
+				mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLvlBuilder, SYSLOG, true);
 				fclose(mob_file);
 				return;
 			}
@@ -1387,7 +1387,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					medit_save_internally(d);
 					sprintf(buf, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the mob structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					send_to_char("Mob saved to memory.\r\n", d->character.get());
@@ -1895,7 +1895,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_D_DESC:
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, kLevelBuilder, SYSLOG, true);
+			mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, kLvlBuilder, SYSLOG, true);
 			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 
@@ -2400,7 +2400,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		default:
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
-			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, kLevelBuilder, SYSLOG, true);
+			mudlog("SYSERR: OLC: medit_parse(): Reached default case!", BRF, kLvlBuilder, SYSLOG, true);
 			send_to_char("Oops...\r\n", d->character.get());
 			break;
 	}

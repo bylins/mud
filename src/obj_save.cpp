@@ -492,7 +492,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			} else {
 				snprintf(buf, kMaxStringLength, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
 						 read_line, buffer);
-				mudlog(buf, NRM, kLevelGreatGod, ERRLOG, true);
+				mudlog(buf, NRM, kLvlGreatGod, ERRLOG, true);
 			}
 		}
 	}
@@ -1338,7 +1338,7 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 			{
 				char aeq[128];
 				sprintf(aeq, "SYSERR: autoeq: '%s' already equipped in position %d.", GET_NAME(ch), location);
-				mudlog(aeq, BRF, kLevelImmortal, SYSLOG, true);
+				mudlog(aeq, BRF, kLvlImmortal, SYSLOG, true);
 				location = LOC_INVENTORY;
 			}
 		}
@@ -1537,7 +1537,7 @@ void Crash_reload_timer(int index) {
 
 	if (!Crash_read_timer(index, false)) {
 		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name());
-		mudlog(buf, BRF, MAX(kLevelImmortal, kLevelGod), SYSLOG, true);
+		mudlog(buf, BRF, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
 	}
 }
 
@@ -1642,7 +1642,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	if (idelete) {
 		if (!Crash_write_timer(index)) {
 			sprintf(buf, "SYSERR: [TO] Error writing timer file for %s.", name);
-			mudlog(buf, CMP, MAX(kLevelImmortal, kLevelGod), SYSLOG, true);
+			mudlog(buf, CMP, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
 		}
 	}
 }
@@ -1758,7 +1758,7 @@ int Crash_load(CharData *ch) {
 
 	if (!SAVEINFO(index)) {
 		sprintf(buf, "%s entering game with no equipment.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		return (1);
 	}
 
@@ -1774,7 +1774,7 @@ int Crash_load(CharData *ch) {
 		case RENT_TIMEDOUT: sprintf(buf, "%s retrieving auto-saved items and entering game.", GET_NAME(ch));
 			break;
 		default: sprintf(buf, "SYSERR: %s entering game with undefined rent code %d.", GET_NAME(ch), RENTCODE(index));
-			mudlog(buf, BRF, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 			send_to_char("\r\n** Неизвестный код ренты **\r\n"
 						 "Проблемы с восстановлением ваших вещей из файла.\r\n"
 						 "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1782,12 +1782,12 @@ int Crash_load(CharData *ch) {
 			return (1);
 			break;
 	}
-	mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 	//Деньги за постой
 	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / SECS_PER_REAL_DAY;
 	sprintf(buf, "%s was %1.2f days in rent.", GET_NAME(ch), num_of_days);
-	mudlog(buf, LGH, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 	cost = (int) (SAVEINFO(index)->rent.net_cost_per_diem * num_of_days);
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
@@ -1807,7 +1807,7 @@ int Crash_load(CharData *ch) {
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	} else if (cost > ch->get_gold() + ch->get_bank()) {
 		sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 					 "%s"
@@ -1825,7 +1825,7 @@ int Crash_load(CharData *ch) {
 				desc_count(ch->get_gold() + ch->get_bank(), WHAT_MONEYa), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
-		mudlog(buf, LGH, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		ch->set_bank(0);
 		ch->set_gold(0);
 		Crash_clear_objects(index);
@@ -1905,7 +1905,7 @@ int Crash_load(CharData *ch) {
 				//send_to_char ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 				send_to_char("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
-				mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 
 				continue;    //Ann
 			}
@@ -1917,7 +1917,7 @@ int Crash_load(CharData *ch) {
 				send_to_char("Ошибка при чтении файла объектов.\r\n", ch);
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 						GET_NAME(ch), error);
-				mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 				//break;
 				continue;    //Ann
 			}
@@ -1931,13 +1931,13 @@ int Crash_load(CharData *ch) {
 					 obj->get_vnum(),
 					 i,
 					 fname);
-			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 		}
 
 		if (obj->get_vnum() != SAVEINFO(index)->time[fsize].vnum) {
 			send_to_char("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
 			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
-			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			extract_obj(obj.get());
 			break;
 		}
@@ -2271,7 +2271,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	if ((iplayer = GET_INDEX(ch)) < 0) {
 		sprintf(buf, "[SYSERR] Store file '%s' - INVALID Id %d", GET_NAME(ch), iplayer);
-		mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
 
@@ -2390,7 +2390,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		std::ofstream file(fname);
 		if (!file.is_open()) {
 			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
-			mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			Crash_delete_files(iplayer);
 			return false;
 		}
@@ -2806,7 +2806,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 			PLR_FLAGS(ch).set(PLR_CRYO);
 		}
 
-		mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		if ((save_room == r_helled_start_room)
 			|| (save_room == r_named_start_room)
@@ -2841,7 +2841,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 					GET_LOADROOM(ch),
 					GET_ROOM_VNUM(save_room));
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
-			mudlog(buf, NRM, MAX(kLevelGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			WAIT_STATE(ch, 1 * kPulseViolence);
 			ch->save_char();
 		}

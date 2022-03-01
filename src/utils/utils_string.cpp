@@ -130,14 +130,23 @@ bool IsAbbrev(const char *arg1, const char *arg2) {
 	}
 }
 
-// * Конвертация входной строки в нижний регистр
+std::vector<std::string> SplitString(const std::string& s, char delimiter) {
+	std::vector<std::string> tokens;
+	std::string token;
+	std::istringstream tokens_stream(s);
+	while (std::getline(tokens_stream, token, delimiter)) {
+		utils::Trim(token);
+		tokens.push_back(token);
+	}
+	return tokens;
+}
+
 void ConvertToLow(std::string &text) {
 	for (char & it : text) {
 		it = LOWER(it);
 	}
 }
 
-// * Конвертация входной строки в нижний регистр
 void ConvertToLow(char *text) {
 	while (*text) {
 		*text = LOWER(*text);
@@ -145,37 +154,35 @@ void ConvertToLow(char *text) {
 	}
 }
 
-void ltrim(std::string &s) {
+void Ltrim(std::string &s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
 		return !std::isspace(ch);
 	}));
 }
 
-
-void rtrim(std::string &s) {
+void Rtrim(std::string &s) {
 	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
 		return !std::isspace(ch);
 	}).base(), s.end());
 }
 
-
-void trim(std::string &s) {
-	ltrim(s);
-	rtrim(s);
+void Trim(std::string &s) {
+	Ltrim(s);
+	Rtrim(s);
 }
 
-std::string ltrim_copy(std::string s) {
-	ltrim(s);
+std::string LtrimCopy(std::string s) {
+	Ltrim(s);
 	return s;
 }
 
-std::string rtrim_copy(std::string s) {
-	rtrim(s);
+std::string RtrimCopy(std::string s) {
+	Rtrim(s);
 	return s;
 }
 
-std::string trim_copy(std::string s) {
-	trim(s);
+std::string TrimCopy(std::string s) {
+	Trim(s);
 	return s;
 }
 

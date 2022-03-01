@@ -5,14 +5,14 @@
 #define CHAR_HPP_INCLUDED
 
 #include "player_i.h"
-#include "skills/morph.hpp"
+#include "game_skills/morph.hpp"
 #include "game_mechanics/obj_sets.h"
 #include "db.h"
 #include "entities/entities_constants.h"
 #include "room_data.h"
 #include "communication/ignores.h"
 #include "crafts/im.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "utils/utils.h"
 #include "conf.h"
 #include "affects/affect_data.h"
@@ -66,6 +66,7 @@ enum {
 	DARK_RESISTANCE,
 	MAX_NUMBER_RESISTANCE
 };
+const int kMaxPlayerResist = 75;
 
 // Char's additional abilities. Used only while work
 struct char_played_ability_data {

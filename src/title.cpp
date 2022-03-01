@@ -90,7 +90,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			if (GetRealLevel(vict) >= kLevelImmortal || PRF_FLAGGED(vict, PRF_CODERINFO)) {
+			if (GetRealLevel(vict) >= kLvlImmortal || PRF_FLAGGED(vict, PRF_CODERINFO)) {
 				send_to_char("Вы не можете сделать этого.\r\n", ch);
 				return;
 			}

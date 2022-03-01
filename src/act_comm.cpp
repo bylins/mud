@@ -183,7 +183,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 // соответствующий режим; имморталы могут телять всегда
 	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
 		&& !CAN_SEE(vict, ch)
-		&& GetRealLevel(ch) < kLevelImmortal
+		&& GetRealLevel(ch) < kLvlImmortal
 		&& !PRF_FLAGGED(ch, PRF_CODERINFO)) {
 		act("$N не любит разговаривать с теми, кого не видит.", false, ch, 0, vict, kToChar | kToSleep);
 		return;
@@ -919,7 +919,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
 void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch) || GetRealLevel(ch) >= kLevelImmortal || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
+	if (IS_NPC(ch) || GetRealLevel(ch) >= kLvlImmortal || PRF_FLAGGED(ch, PRF_IGVA_PRONA)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -966,7 +966,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
 		if (STATE(i) == CON_PLAYING
 			&& i->character
-			&& (GetRealLevel(i->character) < kLevelImmortal || IS_IMPL(i->character))
+			&& (GetRealLevel(i->character) < kLvlImmortal || IS_IMPL(i->character))
 			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE)
 			&& !PRF_FLAGGED(i->character, PRF_IGVA_PRONA)
 			&& !ignores(i->character.get(), ch, IGNORE_OFFTOP)) {
@@ -988,7 +988,7 @@ void ignore_usage(CharData *ch) {
 int ign_find_id(char *name, long *id) {
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		if (!str_cmp(name, player_table[i].name())) {
-			if (player_table[i].level >= kLevelImmortal) {
+			if (player_table[i].level >= kLvlImmortal) {
 				return 0;
 			}
 

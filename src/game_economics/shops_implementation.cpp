@@ -452,7 +452,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 					 total_money,
 					 GET_OBJ_COST(obj),
 					 price);
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		}
 		send_to_char(ch, "Теперь вы стали %s %s.\r\n",
 					 IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
@@ -963,7 +963,7 @@ ObjData *shop_node::get_from_shelve(const size_t index) const {
 	const auto uid = node->uid();
 	if (ItemNode::NO_UID == uid) {
 		sprintf(buf, "ERROR: get_from_shelve: вернул NULL, index: %zu", index);
-		mudlog(buf, LogMode::BRF, kLevelImplementator, SYSLOG, true);
+		mudlog(buf, LogMode::BRF, kLvlImplementator, SYSLOG, true);
 		return nullptr;
 	}
 

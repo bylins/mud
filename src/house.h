@@ -4,8 +4,8 @@
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
-#ifndef _HOUSE_H_
-#define _HOUSE_H_
+#ifndef HOUSE_H_
+#define HOUSE_H_
 
 #include "interpreter.h"
 #include "house_exp.h"
@@ -91,13 +91,8 @@ class ClanMember {
  public:
 	using shared_ptr = std::shared_ptr<ClanMember>;
 
-	ClanMember() :
-		rank_num(0),
-		money(0),
-		exp(0),
-		clan_exp(0),
-		level(0),
-		remort(false) {};
+	ClanMember()
+		: rank_num{0}, money{0}, exp{0}, clan_exp{0}, level{0}, remort{false}, remorts_amount{0} {};
 
 	std::string name;   // имя игрока
 	int rank_num;       // номер ранга
@@ -112,6 +107,7 @@ class ClanMember {
 	std::string class_abbr;
 	// на праве или нет
 	bool remort;
+	int remorts_amount;
 };
 
 struct ClanPk {
@@ -392,6 +388,6 @@ inline bool CHECK_CUSTOM_LABEL(const std::string &arg, const ObjData *obj, const
 // видит ли ch метки obj
 bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch);
 
-#endif
+#endif // HOUSE_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

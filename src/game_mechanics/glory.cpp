@@ -1029,7 +1029,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 			 GET_NAME(god), GET_NAME(ch), GET_NAME(vict), it->second->free_glory,
 			 vict_it->second->spend_glory - was_stats);
 	imm_log("%s", buf);
-	mudlog(buf, DEF, kLevelImmortal, SYSLOG, true);
+	mudlog(buf, DEF, kLvlImmortal, SYSLOG, true);
 	add_karma(ch, buf, reason);
 	GloryMisc::add_log(GloryMisc::TRANSFER_GLORY, 0, buf, std::string(reason), vict.get());
 

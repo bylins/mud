@@ -3,7 +3,7 @@
 #include "utils/logger.h"
 #include "utils/parse.h"
 #include "utils/utils.h"
-#include "utils/wrapper.h"
+#include "utils/parser_wrapper.h"
 
 void tascii(const uint32_t *pointer, int num_planes, char *ascii) {
 	bool found = false;

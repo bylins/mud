@@ -8,7 +8,7 @@
 #include "fightsystem/fight.h"
 #include "help.h"
 #include "game_mechanics/bonus.h"
-#include "magic/magic_temp_spells.h"
+#include "game_magic/magic_temp_spells.h"
 #include "external_trigger.h"
 #include "house.h"
 #include "cmd_god/ban.h"
@@ -20,7 +20,7 @@
 #include "game_mechanics/sets_drop.h"
 #include "communication/mail.h"
 #include "mob_stat.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "game_limits.h"
 #include "fightsystem/mobact.h"
 #include "dg_script/dg_event.h"
@@ -183,7 +183,7 @@ void CheckTriggeredRebootCall::perform(int, int) {
 
 	if (m_external_trigger_checker
 		&& m_external_trigger_checker->check()) {
-		mudlog("Сработал внешний триггер перезагрузки.", DEF, kLevelImplementator, SYSLOG, true);
+		mudlog("Сработал внешний триггер перезагрузки.", DEF, kLvlImplementator, SYSLOG, true);
 		shutdown_parameters.reboot();
 	}
 }

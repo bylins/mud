@@ -17,11 +17,11 @@
 #include <random>
 #include "top.h"
 #include "color.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "mob_stat.h"
 #include "game_mechanics/bonus.h"
 #include "backtrace.h"
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 //#include "entities/zone.h"
 #include "entities/char_player.h"
 #include "structs/global_objects.h"
@@ -155,7 +155,7 @@ void update_die_counts(CharData *ch, CharData *killer, int dec_exp) {
 			snprintf(buf, kMaxStringLength,
 					 "die: %s killed by %s (without master)",
 					 GET_PAD(ch, 0), GET_PAD(rkiller, 0));
-			mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 			rkiller = nullptr;
 		}
 	}
@@ -716,7 +716,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		mudlog("SYSERR: Опять где-то кто-то спуржился не в то в время, не в том месте. Сброшен текущий стек и кора.",
 			   NRM,
-			   kLevelGod,
+			   kLvlGod,
 			   ERRLOG,
 			   true);
 		return;
@@ -912,7 +912,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 				std::stringstream str_log;
 				str_log << "[INFO] " << ch_with_bonus->get_name() << " получил(а) x" << long_live_exp_bounus_miltiplier << " опыта за убийство моба: [";
 				str_log << GET_MOB_VNUM(victim) << "] " << victim->get_name();
-				mudlog(str_log.str(), NRM, kLevelImmortal, SYSLOG, true);
+				mudlog(str_log.str(), NRM, kLvlImmortal, SYSLOG, true);
 			}
 		}
 
@@ -1293,24 +1293,6 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 
 			break;
 	}
-}
-
-void test_self_hitroll(CharData *ch) {
-	HitData hit;
-	hit.weapon = fight::AttackType::kMainHand;
-	hit.init(ch, ch);
-	hit.calc_base_hr(ch);
-	hit.calc_stat_hr(ch);
-	hit.calc_ac(ch);
-
-	HitData hit2;
-	hit2.weapon = fight::AttackType::kOffHand;
-	hit2.init(ch, ch);
-	hit2.calc_base_hr(ch);
-	hit2.calc_stat_hr(ch);
-
-	send_to_char(ch, "RIGHT_WEAPON: hitroll=%d, LEFT_WEAPON: hitroll=%d, AC=%d\r\n",
-				 hit.calc_thaco * -1, hit2.calc_thaco * -1, hit.victim_ac);
 }
 
 /**

@@ -14,14 +14,14 @@
 
 #include "fight.h"
 
-#include "skills/bash.h"
-#include "skills/kick.h"
-#include "skills/chopoff.h"
-#include "skills/disarm.h"
-#include "skills/throw.h"
-#include "skills/expendientcut.h"
-#include "skills/protect.h"
-#include "skills/ironwind.h"
+#include "game_skills/bash.h"
+#include "game_skills/kick.h"
+#include "game_skills/chopoff.h"
+#include "game_skills/disarm.h"
+#include "game_skills/throw.h"
+#include "game_skills/expendientcut.h"
+#include "game_skills/protect.h"
+#include "game_skills/ironwind.h"
 
 #include "assist.h"
 #include "entities/world_characters.h"
@@ -31,10 +31,10 @@
 #include "color.h"
 #include "utils/random.h"
 #include "entities/char_player.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "olc/olc.h"
 #include "msdp/msdp_constants.h"
-#include "magic/magic_items.h"
+#include "game_magic/magic_items.h"
 
 // Structures
 CharData *combat_list = nullptr;    // head of l-list of fighting entities

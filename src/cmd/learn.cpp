@@ -2,7 +2,7 @@
 
 #include "handler.h"
 #include "game_classes/classes_spell_slots.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 class ObjData;

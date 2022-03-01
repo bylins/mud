@@ -11,7 +11,7 @@
 #define BYLINS_SRC_UTILS_OBJECTS_FILTER_H_
 
 #include "entities/entities_constants.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 
 #include <string>
 #include <vector>

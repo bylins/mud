@@ -18,7 +18,7 @@
 #include "conf.h"
 #include "config.h"
 #include "entities/entities_constants.h"
-#include "pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "structs/structs.h"
 #include "game_mechanics/weather.h"
 #include "utils_string.h"
@@ -311,10 +311,10 @@ short GET_REAL_REMORT(const CharData *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
 
-#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImmortal)
-#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelGod)
-#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelGreatGod)
-#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLevelImplementator)
+#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlImmortal)
+#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlGod)
+#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlGreatGod)
+#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
 #define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
@@ -539,7 +539,7 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-#define IS_CODER(ch)    (GetRealLevel(ch) < kLevelImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
+#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GET_REAL_REMORT(ch))
 
@@ -1580,6 +1580,12 @@ class StreamFlagsHolder {
 	std::ostream &m_stream;
 	std::ios::fmtflags m_flags;
 };
+
+/**
+ *  Напечатать число в виде строки с разделителем разрядов - запятой.
+ *  @param num  - обрабатываемоле число.
+ */
+std::string PrintNumberByDigits(long long num);
 
 #endif // _UTILS_H_
 

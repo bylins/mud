@@ -14,7 +14,7 @@
 #include "sysdep.h"
 #include "structs/structs.h"
 #include "comm.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
@@ -26,7 +26,7 @@
 #include "depot.h"
 #include "entities/char_data.h"
 #include "house.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "communication/parcel.h"
 #include "liquid.h"
 #include "name_list.h"
@@ -36,8 +36,8 @@
 #include "game_mechanics/sets_drop.h"
 #include "entities/obj_data.h"
 #include "entities/zone.h"
-#include "skills_info.h"
-#include "magic/spells_info.h"
+#include "game_skills/skills_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 #include <array>
@@ -286,7 +286,7 @@ void oedit_save_to_disk(int zone_num) {
 
 	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
-		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, kLevelBuilder, SYSLOG, true);
+		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
 	}
 	// * Start running through all objects in this zone.
@@ -360,7 +360,7 @@ void oedit_save_to_disk(int zone_num) {
 					if (!ex_desc->keyword
 						|| !ex_desc->description) {
 						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
-							   BRF, kLevelBuilder, SYSLOG, true);
+							   BRF, kLvlBuilder, SYSLOG, true);
 						continue;
 					}
 					strcpy(buf1, ex_desc->description);
@@ -1345,7 +1345,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					oedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLevelBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					break;
 
@@ -1628,7 +1628,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			} else {
 				OLC_OBJ(d)->set_type(static_cast<ObjData::EObjectType>(number));
 				sprintf(buf, "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
-				mudlog(buf, BRF, kLevelGod, SYSLOG, true);
+				mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 				if (number != ObjData::ITEM_WEAPON && number != ObjData::ITEM_INGREDIENT) {
 					OLC_OBJ(d)->set_skill(0);
 				}
@@ -2147,7 +2147,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			OLC_OBJ(d)->set_proto_script(proto_script_old);
 			break;
 		}
-		default: mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, kLevelBuilder, SYSLOG, true);
+		default: mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, kLvlBuilder, SYSLOG, true);
 			send_to_char("Oops...\r\n", d->character.get());
 			break;
 	}

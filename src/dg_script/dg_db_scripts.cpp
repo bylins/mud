@@ -18,8 +18,8 @@
 #include "dg_scripts.h"
 #include "handler.h"
 #include "dg_event.h"
-#include "magic/magic.h"
-#include "magic/magic_temp_spells.h"
+#include "game_magic/magic.h"
+#include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
 #include <stack>
@@ -207,7 +207,7 @@ void assign_triggers(void *i, int type) {
 								trigger_vnum,
 								static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 								mob_index[rnum].vnum);
-						mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+						mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 					} else {
 						auto trig = read_trigger(rnum);
 						if (add_trigger(SCRIPT(mob).get(), trig, -1)) {
@@ -237,7 +237,7 @@ void assign_triggers(void *i, int type) {
 								trigger_vnum,
 								static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 								obj->get_vnum());
-						mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+						mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 					} else {
 						auto trig = read_trigger(rnum);
 						if (add_trigger(obj->get_script().get(), trig, -1)) {
@@ -266,7 +266,7 @@ void assign_triggers(void *i, int type) {
 						sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for room #%d",
 								trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
 								room->room_vn);
-						mudlog(buf, BRF, kLevelBuilder, ERRLOG, true);
+						mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 					} else {
 						auto trig = read_trigger(rnum);
 						if (add_trigger(SCRIPT(room).get(), trig, -1)) {

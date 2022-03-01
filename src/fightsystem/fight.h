@@ -155,7 +155,7 @@ void alterate_object(ObjData *obj, int dam, int chance);
 void alt_equip(CharData *ch, int pos, int dam, int chance);
 
 void char_dam_message(int dam, CharData *ch, CharData *victim, bool mayflee);
-void test_self_hitroll(CharData *ch);
+void TestSelfHitroll(CharData *ch);
 
 int calc_leadership(CharData *ch);
 

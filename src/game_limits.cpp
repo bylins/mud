@@ -14,7 +14,7 @@
 
 #include "world_objects.h"
 #include "entities/world_characters.h"
-#include "skills/townportal.h"
+#include "game_skills/townportal.h"
 #include "handler.h"
 #include "color.h"
 #include "house.h"
@@ -29,7 +29,7 @@
 #include "mob_stat.h"
 #include "entities/zone.h"
 #include "game_classes/classes_spell_slots.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 
 #include <boost/format.hpp>
 #include <random>
@@ -387,7 +387,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 			restore = calc_loadroom(i.get());
 		restore = real_room(restore);
 		if (restore == kNowhere) {
-			if (GetRealLevel(i) >= kLevelImmortal)
+			if (GetRealLevel(i) >= kLvlImmortal)
 				restore = r_immort_start_room;
 			else
 				restore = r_mortal_start_room;
@@ -418,7 +418,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		restore = real_room(restore);
 
 		if (restore == kNowhere) {
-			if (GetRealLevel(i) >= kLevelImmortal) {
+			if (GetRealLevel(i) >= kLvlImmortal) {
 				restore = r_immort_start_room;
 			} else {
 				restore = r_mortal_start_room;
@@ -477,7 +477,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 			restore = real_room(restore);
 
 			if (restore == kNowhere) {
-				if (GetRealLevel(i) >= kLevelImmortal) {
+				if (GetRealLevel(i) >= kLvlImmortal) {
 					restore = r_immort_start_room;
 				} else {
 					restore = r_mortal_start_room;
@@ -526,7 +526,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		}
 		restore = real_room(restore);
 		if (restore == kNowhere) {
-			if (GetRealLevel(i) >= kLevelImmortal)
+			if (GetRealLevel(i) >= kLvlImmortal)
 				restore = r_immort_start_room;
 			else
 				restore = r_mortal_start_room;
@@ -766,13 +766,13 @@ void gain_exp(CharData *ch, int gain) {
 		ZoneExpStat::add(zone_table[world[ch->in_room]->zone_rn].vnum, gain);
 	}
 
-	if (!IS_NPC(ch) && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLevelImmortal)))
+	if (!IS_NPC(ch) && ((GetRealLevel(ch) < 1 || GetRealLevel(ch) >= kLvlImmortal)))
 		return;
 
-	if (gain > 0 && GetRealLevel(ch) < kLevelImmortal) {
+	if (gain > 0 && GetRealLevel(ch) < kLvlImmortal) {
 		gain = MIN(max_exp_gain_pc(ch), gain);    // put a cap on the max gain per kill
 		ch->set_exp(ch->get_exp() + gain);
-		if (GET_EXP(ch) >= level_exp(ch, kLevelImmortal)) {
+		if (GET_EXP(ch) >= level_exp(ch, kLvlImmortal)) {
 			if (!GET_GOD_FLAG(ch, GF_REMORT) && GET_REAL_REMORT(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					send_to_char(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
@@ -785,8 +785,8 @@ void gain_exp(CharData *ch, int gain) {
 				SET_GOD_FLAG(ch, GF_REMORT);
 			}
 		}
-		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, kLevelImmortal) - 1));
-		while (GetRealLevel(ch) < kLevelImmortal && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
+		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, kLvlImmortal) - 1));
+		while (GetRealLevel(ch) < kLvlImmortal && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
 			ch->set_level(ch->get_level() + 1);
 			num_levels++;
 			sprintf(buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -798,9 +798,9 @@ void gain_exp(CharData *ch, int gain) {
 		if (is_altered) {
 			sprintf(buf, "%s advanced %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-			mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
+			mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 		}
-	} else if (gain < 0 && GetRealLevel(ch) < kLevelImmortal) {
+	} else if (gain < 0 && GetRealLevel(ch) < kLvlImmortal) {
 		gain = MAX(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
 		while (GetRealLevel(ch) > 1 && GET_EXP(ch) < level_exp(ch, GetRealLevel(ch))) {
@@ -816,13 +816,13 @@ void gain_exp(CharData *ch, int gain) {
 		if (is_altered) {
 			sprintf(buf, "%s decreases %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-			mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
+			mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 		}
 	}
-	if ((GET_EXP(ch) < level_exp(ch, kLevelImmortal) - 1)
+	if ((GET_EXP(ch) < level_exp(ch, kLvlImmortal) - 1)
 		&& GET_GOD_FLAG(ch, GF_REMORT)
 		&& gain
-		&& (GetRealLevel(ch) < kLevelImmortal)) {
+		&& (GetRealLevel(ch) < kLvlImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			send_to_char(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
 						 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -842,7 +842,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	ch->set_exp(ch->get_exp() + gain);
 	if (!IS_NPC(ch)) {
 		if (gain > 0) {
-			while (GetRealLevel(ch) < kLevelImplementator && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
+			while (GetRealLevel(ch) < kLvlImplementator && GET_EXP(ch) >= level_exp(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->get_level() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
@@ -856,7 +856,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			if (is_altered) {
 				sprintf(buf, "%s advanced %d level%s to level %d.",
 						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
+				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 			}
 		} else if (gain < 0) {
 			// Pereplut: глупый участок кода.
@@ -877,7 +877,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			if (is_altered) {
 				sprintf(buf, "%s decreases %d level%s to level %d.",
 						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GetRealLevel(ch));
-				mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
+				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 			}
 		}
 
@@ -1012,7 +1012,7 @@ void check_idling(CharData *ch) {
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
-				mudlog(buf, NRM, kLevelGod, SYSLOG, true);
+				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 				extract_char(ch, false);
 
 				// чара в лд уже посейвило при обрыве коннекта
@@ -1222,7 +1222,7 @@ void clan_chest_invoice(ObjData *j) {
 	if (room <= 0) {
 		snprintf(buf, sizeof(buf), "clan_chest_invoice: room=%d, ObjVnum=%d",
 				 room, GET_OBJ_VNUM(j));
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -1502,7 +1502,7 @@ void obj_point_update() {
 					if (j->get_timer() <= 0 && j->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
 								 GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->room_vn);
-						mudlog(buf, CMP, kLevelGreatGod, ERRLOG, true);
+						mudlog(buf, CMP, kLvlGreatGod, ERRLOG, true);
 
 					}
 					if (!world[j->get_in_room()]->people.empty()) {

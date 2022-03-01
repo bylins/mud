@@ -10,8 +10,8 @@
 #include "entities/char_data.h"
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
-#include "entities/zone.h"
-#include "magic/spells_info.h"
+//#include "entities/zone.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 #include <regex>
@@ -52,7 +52,7 @@ void DataFile::close() {
 
 void DataFile::get_one_line(char *buf) {
 	if (fgets(buf, READ_SIZE, file()) == nullptr) {
-		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, kLevelImmortal, SYSLOG, true);
+		mudlog("SYSERR: error reading help file: not terminated with $?", DEF, kLvlImmortal, SYSLOG, true);
 		buf[0] = '$';
 		buf[1] = 0;
 		return;
@@ -929,7 +929,7 @@ bool ObjectFile::check_object(ObjData *obj) {
 bool ObjectFile::check_object_level(ObjData *obj, int val) {
 	bool error = false;
 
-	if (GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > kLevelImplementator) {
+	if (GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > kLvlImplementator) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has out of range level #%d.",
 			GET_OBJ_VNUM(obj),
@@ -1812,7 +1812,7 @@ bool HelpFile::load_help() {
 			if ((*line == '$') && (*(line + 1) == 0)) {
 				std::stringstream str_log;
 				str_log << "SYSERR: unexpected EOF in help file: \"" << file_name() << "\"";
-				mudlog(str_log.str().c_str(), DEF, kLevelImmortal, SYSLOG, true);
+				mudlog(str_log.str().c_str(), DEF, kLvlImmortal, SYSLOG, true);
 				break;
 			}
 			strcat(entry, strcat(line, "\r\n"));
@@ -1823,7 +1823,7 @@ bool HelpFile::load_help() {
 		if ((*line == '#') && (*(line + 1) != 0)) {
 			min_level = atoi((line + 1));
 		}
-		min_level = MAX(0, MIN(min_level, kLevelImplementator));
+		min_level = MAX(0, MIN(min_level, kLvlImplementator));
 		// now, add the entry to the index with each keyword on the keyword line
 		std::string entry_str(entry);
 		scan = one_word(key, next_key);

@@ -625,7 +625,7 @@ void UserSearch::process(int flag) {
 
 void UserSearch::print_not_found() const {
 	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (not found)", GET_NAME(ch), arg_str.c_str());
-	mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
+	mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	snprintf(buf, sizeof(buf),
 			 "&WПо вашему запросу '&w%s&W' ничего не было найдено.&n\r\n"
 			 "\r\n&cИнформация:&n\r\n"
@@ -646,7 +646,7 @@ void UserSearch::print_curr_topic(const help_node &node) const {
 	if (!node.no_immlog) {
 		snprintf(buf, sizeof(buf), "%s uses command HELP: %s (read)",
 				 GET_NAME(ch), arg_str.c_str());
-		mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 	page_string(ch->desc, node.entry);
 }
@@ -675,7 +675,7 @@ void UserSearch::print_key_list() const {
 		<< HELP_USE_EXMAPLES;
 
 	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (list)", GET_NAME(ch), arg_str.c_str());
-	mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
+	mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	page_string(ch->desc, out.str());
 }
 
@@ -742,7 +742,7 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	UserSearch user_search(ch);
 	// trust_level справки для демигодов - kLevelImmortal
-	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? kLevelImmortal : GetRealLevel(ch);
+	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? kLvlImmortal : GetRealLevel(ch);
 	// первый аргумент без пробелов, заодно в нижний регистр
 	one_argument(argument, arg);
 	// Получаем topic_num для индексации топика

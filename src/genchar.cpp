@@ -20,7 +20,7 @@
 #include "comm.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "db.h"

@@ -12,7 +12,7 @@
 
 #include "entities/char_data.h"
 #include "color.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "game_mechanics/weather.h"
 
 #include <functional>

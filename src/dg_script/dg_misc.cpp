@@ -11,7 +11,7 @@
 #include "dg_scripts.h"
 #include "handler.h"
 #include "dg_event.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 
 extern const char *what_sky_type[];
 extern int what_sky;

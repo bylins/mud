@@ -20,13 +20,13 @@
 #include "constants.h"
 #include "handler.h"
 #include "entities/char_player.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "color.h"
 #include "modify.h"
-#include "magic/spells.h"
+#include "game_magic/spells.h"
 #include "utils/utils.h"
 #include "game_classes/classes_constants.h"
-#include "skills_info.h"
+#include "game_skills/skills_info.h"
 #include "structs/global_objects.h"
 
 void show_weapon_affects_olc(DescriptorData *d, const FlagData &flags);

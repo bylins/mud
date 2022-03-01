@@ -16,7 +16,7 @@
 #include "dg_scripts.h"
 #include "handler.h"
 #include "interpreter.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 #include "entities/obj_data.h"
 #include "entities/entities_constants.h"
 #include "olc/olc.h"
@@ -409,7 +409,7 @@ int command_mtrigger(CharData *actor, char *cmd, const char *argument) {
 							 attach_name[MOB_TRIGGER],
 							 ch->get_name().c_str(),
 							 GET_MOB_VNUM(ch));
-					mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+					mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 					snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
 					SCRIPT(ch)->remove_trigger(buf);
 
@@ -425,7 +425,7 @@ int command_mtrigger(CharData *actor, char *cmd, const char *argument) {
 							 kMaxInputLength,
 							 "SYSERR: Command Trigger #%d has no text argument!",
 							 GET_TRIG_VNUM(t));
-					mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+					mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 					continue;
 				}
 
@@ -478,7 +478,7 @@ void speech_mtrigger(CharData *actor, char *str) {
 							 kMaxInputLength,
 							 "SYSERR: Speech Trigger #%d has no text argument!",
 							 GET_TRIG_VNUM(t));
-					mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+					mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 					continue;
 				}
 
@@ -508,7 +508,7 @@ void act_mtrigger(CharData *ch, char *str, CharData *actor, CharData *victim,
 
 			if (t->arglist.empty()) {
 				snprintf(buf, kMaxInputLength, "SYSERR: Act Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
-				mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+				mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 				continue;
 			}
 
@@ -918,7 +918,7 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 						 attach_name[OBJ_TRIGGER],
 						 obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "undefined",
 						 GET_OBJ_VNUM(obj));
-				mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+				mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 				snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
 				obj->get_script()->remove_trigger(buf);
 				break;
@@ -933,7 +933,7 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 						 kMaxInputLength,
 						 "SYSERR: O-Command Trigger #%d has no text argument!",
 						 GET_TRIG_VNUM(t));
-				mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+				mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 				continue;
 			}
 
@@ -1289,7 +1289,7 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 					 attach_name[WLD_TRIGGER],
 					 room->name,
 					 room->room_vn);
-			mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+			mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 			snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
 			SCRIPT(room)->remove_trigger(buf);
 
@@ -1302,7 +1302,7 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 
 		if (t->arglist.empty()) {
 			snprintf(buf, kMaxInputLength, "SYSERR: W-Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
-			mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+			mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 			continue;
 		}
 
@@ -1360,7 +1360,7 @@ void speech_wtrigger(CharData *actor, char *str) {
 
 		if (t->arglist.empty()) {
 			snprintf(buf, kMaxInputLength, "SYSERR: W-Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
-			mudlog(buf, NRM, kLevelBuilder, ERRLOG, true);
+			mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 
 			continue;
 		}

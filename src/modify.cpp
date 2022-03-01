@@ -18,8 +18,8 @@
 #include "handler.h"
 #include "db.h"
 #include "comm.h"
-#include "magic/magic_utils.h"
-#include "magic/spells.h"
+#include "game_magic/magic_utils.h"
+#include "game_magic/spells.h"
 #include "communication/mail.h"
 #include "boards/boards.h"
 #include "color.h"
@@ -28,16 +28,16 @@
 #include "house.h"
 #include "administration/privilege.h"
 #include "entities/char_data.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "genchar.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "skills_info.h"
-#include "magic/spells_info.h"
-#include "magic/magic_temp_spells.h"
+#include "game_skills/skills_info.h"
+#include "game_magic/spells_info.h"
+#include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
 #include <boost/algorithm/string.hpp>
@@ -122,7 +122,7 @@ void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_p
 	}
 
 	if (data) {
-		mudlog("SYSERR: string_write: I don't understand special data.", BRF, kLevelImmortal, SYSLOG, true);
+		mudlog("SYSERR: string_write: I don't understand special data.", BRF, kLvlImmortal, SYSLOG, true);
 	}
 
 	d->writer = writer;
@@ -527,7 +527,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 			break;
 
 		default: SEND_TO_Q("Неверная опция.\r\n", d);
-			mudlog("SYSERR: invalid command passed to parse_action", BRF, kLevelImplementator, SYSLOG, true);
+			mudlog("SYSERR: invalid command passed to parse_action", BRF, kLvlImplementator, SYSLOG, true);
 			return;
 	}
 	//log("[PA] Stop");
@@ -1043,7 +1043,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// * checked for the -1 above so we are safe here.
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
 			spell >= 0 ? spell_info[spell].name : MUD::Skills()[skill].GetName(), value);
-	mudlog(buf2, BRF, kLevelImmortal, SYSLOG, true);
+	mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
 	if (spell >= 0 && spell <= kSpellCount) {
 		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell), kSpellTemp)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {

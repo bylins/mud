@@ -6,7 +6,7 @@
 */
 
 #include "entities/obj_data.h"
-#include "skills.h"
+#include "game_skills/skills.h"
 #include "structs/structs.h"
 #include "utils/utils.h"
 

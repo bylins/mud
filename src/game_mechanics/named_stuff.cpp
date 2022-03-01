@@ -14,7 +14,7 @@
 #include "handler.h"
 #include "house.h"
 #include "dg_script/dg_scripts.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "structs/structs.h"
@@ -521,7 +521,7 @@ void receive_items(CharData *ch, CharData *mailman) {
 				in_world++;
 			}
 			snprintf(buf, kMaxStringLength, "NamedStuff: %s vnum:%ld %s", GET_PAD(ch, 0), it->first, buf1);
-			mudlog(buf, LGH, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 		}
 	}
 
@@ -550,14 +550,14 @@ void load() {
 			std::string name;
 			if (stuff_list.find(vnum) != stuff_list.end()) {
 				snprintf(buf, kMaxStringLength, "NamedStuff: дубликат записи vnum=%ld пропущен", vnum);
-				mudlog(buf, NRM, kLevelBuilder, SYSLOG, true);
+				mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);
 				continue;
 			}
 
 			if (real_object(vnum) < 0) {
 				snprintf(buf, kMaxStringLength,
 						 "NamedStuff: предмет vnum=%ld не существует.", vnum);
-				mudlog(buf, NRM, kLevelBuilder, SYSLOG, true);
+				mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);
 			}
 			if (node.attribute("uid")) {
 				tmp_node->uid = std::stol(node.attribute("uid").value(), nullptr, 10);
@@ -568,7 +568,7 @@ void load() {
 							 "NamedStuff: Unique=%d - персонажа не существует(владелец предмета vnum=%ld).",
 							 tmp_node->uid,
 							 vnum);
-					mudlog(buf, NRM, kLevelBuilder, SYSLOG, true);
+					mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);
 				}
 			}
 			if (node.attribute("mail")) {
@@ -600,7 +600,7 @@ void load() {
 						 tmp_node->mail.c_str(),
 						 vnum,
 						 (name.empty() ? "неизвестен" : name.c_str()));
-				mudlog(buf, NRM, kLevelBuilder, SYSLOG, true);
+				mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);
 			}
 			if (node.attribute("can_clan"))
 				tmp_node->can_clan = std::stoi(node.attribute("can_clan").value(), nullptr, 10);
@@ -619,7 +619,7 @@ void load() {
 	snprintf(buf, kMaxStringLength,
 			 "NamedStuff: список именных вещей загружен, всего объектов: %lu.",
 			 static_cast<unsigned long>(stuff_list.size()));
-	mudlog(buf, CMP, kLevelBuilder, SYSLOG, true);
+	mudlog(buf, CMP, kLvlBuilder, SYSLOG, true);
 }
 
 } // namespace NamedStuff

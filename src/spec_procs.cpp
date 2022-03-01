@@ -24,10 +24,10 @@
 #include "fightsystem/fight_hit.h"
 #include "house.h"
 //#include "logger.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "color.h"
-#include "magic/magic_utils.h"
-#include "magic/magic_temp_spells.h"
+#include "game_magic/magic_utils.h"
+#include "game_magic/magic_temp_spells.h"
 #include "structs/global_objects.h"
 
 //   external vars
@@ -140,7 +140,7 @@ extern int prac_params[4][kNumPlayerClasses];
 
 int feat_slot_lvl(int remort, int slot_for_remort, int slot) {
 	int result = 0;
-	for (result = 1; result < kLevelImmortal; result++) {
+	for (result = 1; result < kLvlImmortal; result++) {
 		if (result * (5 + remort / slot_for_remort) / 28 == slot) {
 			break;
 		}
@@ -319,7 +319,7 @@ void list_feats(CharData *ch, CharData *vict, bool all_feats) {
 					//	чтобы можно было менять слоты на лету и чтобы не читерили :)
 					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
 							feat_info[sortpos].name, GET_NAME(ch));
-					mudlog(msg, BRF, kLevelImplementator, SYSLOG, true);
+					mudlog(msg, BRF, kLvlImplementator, SYSLOG, true);
 					UNSET_FEAT(ch, sortpos);
 				}
 			}
@@ -744,8 +744,8 @@ void init_guilds() {
 				graceful_exit(1);
 			}
 
-			if ((level = atoi(line2)) == 0 || level >= kLevelImmortal) {
-				log("Use 1-%d level for guilds", kLevelImmortal);
+			if ((level = atoi(line2)) == 0 || level >= kLvlImmortal) {
+				log("Use 1-%d level for guilds", kLvlImmortal);
 				graceful_exit(1);
 			}
 
@@ -816,8 +816,8 @@ void init_guilds() {
 				log("Unknown skill, spell or feat for polyguild - \'%s\'", line5);
 				graceful_exit(1);
 			}
-			if ((level = atoi(line6)) == 0 || level >= kLevelImmortal) {
-				log("Use 1-%d level for guilds", kLevelImmortal);
+			if ((level = atoi(line6)) == 0 || level >= kLvlImmortal) {
+				log("Use 1-%d level for guilds", kLvlImmortal);
 				graceful_exit(1);
 			}
 			ptr->spell_no = std::max(0, spellnum);
@@ -2231,7 +2231,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || victim->get_fighting())
 		return (false);
 
-	if (GetRealLevel(victim) >= kLevelImmortal)
+	if (GetRealLevel(victim) >= kLvlImmortal)
 		return (false);
 
 	if (!CAN_SEE(ch, victim))
@@ -2646,7 +2646,7 @@ int guild_guard(CharData *ch, void *me, int cmd, char * /*argument*/) {
 		|| AFF_FLAGGED(guard, EAffectFlag::AFF_HOLD))
 		return (false);
 
-	if (GetRealLevel(ch) >= kLevelImmortal)
+	if (GetRealLevel(ch) >= kLvlImmortal)
 		return (false);
 
 	for (i = 0; guild_info[i][0] != -1; i++) {
@@ -2937,7 +2937,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
 					GET_PAD(vict, 2));
-			mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			return (1);
 
 		} else {
@@ -2960,7 +2960,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
 					GET_PAD(vict, 2));
-			mudlog(buf, NRM, kLevelGreatGod, MONEY_LOG, true);
+			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			vict->add_bank(amount);
 			Depot::add_offline_money(GET_UNIQUE(vict), amount);
 			vict->save_char();

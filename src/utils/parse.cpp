@@ -139,7 +139,7 @@ int CastToInt(const char *text) {
 		result = std::stoi(text, nullptr, 10);
 	} catch (...) {
 		snprintf(buf, kMaxStringLength, "...lexical_cast<int> fail (value='%s')", text);
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 	}
 
 	return result;
@@ -154,7 +154,7 @@ int ReadAttrAsInt(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
 	if (!attr) {
 		snprintf(buf, kMaxStringLength, "...%s read fail", text);
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 	}
 	return CastToInt(attr.value());
 }
@@ -176,7 +176,7 @@ int ReadChildValueAsInt(const pugi::xml_node &node, const char *text) {
 	pugi::xml_node child_node = node.child(text);
 	if (!child_node) {
 		snprintf(buf, kMaxStringLength, "...%s read fail", text);
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 	}
 	return CastToInt(child_node.child_value());
 }
@@ -188,7 +188,7 @@ std::string ReadAattrAsStr(const pugi::xml_node &node, const char *text) {
 	pugi::xml_attribute attr = node.attribute(text);
 	if (!attr) {
 		snprintf(buf, kMaxStringLength, "...%s read fail", text);
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 	} else {
 		return attr.value();
 	}
@@ -202,7 +202,7 @@ std::string ReadChildValueAsStr(const pugi::xml_node &node, const char *text) {
 	pugi::xml_node child_node = node.child(text);
 	if (!child_node) {
 		snprintf(buf, kMaxStringLength, "...%s read fail", text);
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 	} else {
 		return child_node.child_value();
 	}
@@ -215,7 +215,7 @@ pugi::xml_node GetChildTemplate(const T &node, const char *name) {
 	if (!tmp_node) {
 		char tmp[100];
 		snprintf(tmp, sizeof(tmp), "...<%s> read fail", name);
-		mudlog(tmp, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(tmp, CMP, kLvlImmortal, SYSLOG, true);
 	}
 	return tmp_node;
 }
@@ -235,20 +235,30 @@ pugi::xml_node GetChild(const pugi::xml_node &node, const char *name) {
 bool IsValidObjVnum(int vnum) {
 	if (real_object(vnum) < 0) {
 		snprintf(buf, sizeof(buf), "...bad obj vnum (%d)", vnum);
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
 
 	return true;
 }
 
+// =====================================================================================================================
+
+/*
+ * Прочитать значение value как строку.
+ * Ecxeption: если строка пуста, сообщение "string is empty";
+ */
 const char *ReadAsStr(const char *value) {
 	if (strcmp(value, "") == 0) {
-		throw std::runtime_error("empty str");
+		throw std::runtime_error("string is empty");
 	}
 	return value;
 }
 
+/*
+ * Прочитать значение value как int.
+ * Ecxeption: при неудаче, сообщение - содержимое value.
+ */
 int ReadAsInt(const char *value) {
 	try {
 		return std::stoi(value, nullptr);
@@ -257,6 +267,10 @@ int ReadAsInt(const char *value) {
 	}
 }
 
+/*
+ * Прочитать значение value как float.
+ * Ecxeption: при неудаче, сообщение - содержимое value.
+ */
 float ReadAsFloat(const char *value) {
 	try {
 		return std::stof(value, nullptr);
@@ -265,12 +279,29 @@ float ReadAsFloat(const char *value) {
 	}
 }
 
+/*
+ * Прочитать значение value как double.
+ * Ecxeption: при неудаче, сообщение - содержимое value.
+ */
 double ReadAsDouble(const char *value) {
 	try {
 		return std::stod(value, nullptr);
 	} catch (std::exception &) {
 		throw std::runtime_error(value);
 	}
+}
+
+/*
+ * Прочитать значение value как bool.
+ * Возвращает true, если значение "1", "true", "T", "t", "Y" или "y" и false в ином случае.
+ * Ecxeption: если value пусто, сообщение - "value is empty".
+ */
+bool ReadAsBool(const char *value) {
+	if (strcmp(value, "") == 0) {
+		throw std::runtime_error("value is empty");
+	}
+	return (strcmp(value, "1") == 0 || strcmp(value, "true") == 0 || strcmp(value, "t") == 0
+				|| strcmp(value, "T") == 0 || strcmp(value, "y") == 0 || strcmp(value, "Y") == 0);
 }
 
 } // namespace parse

@@ -3,7 +3,7 @@
 
 #include "utils/utils.h"
 #include "player_races.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 
 PlayerKinListType PlayerRace::PlayerKinList;
 

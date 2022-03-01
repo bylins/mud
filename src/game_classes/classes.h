@@ -8,6 +8,7 @@
 
 int invalid_no_class(CharData *ch, const ObjData *obj);
 int extra_damroll(int class_num, int level);
+int level_exp(CharData *ch, int level);
 ECharClass FindAvailableCharClassId(const std::string &class_name);
 
 class GroupPenalties {
@@ -23,6 +24,7 @@ class GroupPenalties {
 };
 
 extern GroupPenalties grouping;
+int thaco(int class_num, int level);
 
 #endif // CLASS_HPP_
 

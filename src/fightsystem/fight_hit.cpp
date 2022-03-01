@@ -2,11 +2,11 @@
 
 #include "handler.h"
 #include "color.h"
-#include "magic/magic.h"
+#include "game_magic/magic.h"
 #include "pk.h"
 #include "dps.h"
 #include "house_exp.h"
-#include "skills/poison.h"
+#include "game_skills/poison.h"
 #include "game_mechanics/bonus.h"
 #include "mobact.h"
 #include "fightsystem/common.h"
@@ -1608,7 +1608,7 @@ void appear(CharData *ch) {
 
 	if (appear_msg) {
 		if (IS_NPC(ch)
-			|| GetRealLevel(ch) < kLevelImmortal) {
+			|| GetRealLevel(ch) < kLvlImmortal) {
 			act("$n медленно появил$u из пустоты.", false, ch, 0, 0, kToRoom);
 		} else {
 			act("Вы почувствовали странное присутствие $n1.", false, ch, 0, 0, kToRoom);
@@ -2086,13 +2086,13 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 			&& !IS_NPC(ch->get_master())))
 		&& NORENTABLE(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)) {
-		mudlog(buf2, BRF, kLevelImplementator, SYSLOG, 0);
+		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, 0);
 		if (IS_NPC(ch)
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || IS_HORSE(ch))
 			&& ch->has_master()
 			&& !IS_NPC(ch->get_master())) {
 			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));
-			mudlog(buf2, BRF, kLevelImplementator, SYSLOG, true);
+			mudlog(buf2, BRF, kLvlImplementator, SYSLOG, true);
 		}
 	}
 }
@@ -2942,7 +2942,7 @@ void HitData::init(CharData *ch, CharData *victim) {
  * Подсчет статичных хитролов у чара, не меняющихся от рандома типа train_skill
  * (в том числе weap_skill_is) или параметров противника.
  * Предполагается, что в итоге это пойдет в 'счет все' через что-то вроде
- * test_self_hitroll() в данный момент.
+ * TestSelfHitroll() в данный момент.
  */
 void HitData::calc_base_hr(CharData *ch) {
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
@@ -3605,7 +3605,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
     if (IS_NPC(ch)) {
-		mag_damage(std::min(kLevelImplementator, GetRealLevel(ch)), ch, victim, kSpellMagicMissile, ESaving::kReflex);
+		mag_damage(std::min(kLvlImplementator, GetRealLevel(ch)), ch, victim, kSpellMagicMissile, ESaving::kReflex);
 	} else {
 		mag_damage(1, ch, victim, kSpellMagicMissile, ESaving::kReflex);
     }

@@ -20,7 +20,7 @@
  */
 #include "classes.h"
 
-#include "magic/magic_utils.h"
+#include "game_magic/magic_utils.h"
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "top.h"
@@ -30,7 +30,7 @@
 #include "game_mechanics/named_stuff.h"
 #include "noob.h"
 #include "game_economics/exchange.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 extern int siteok_everyone;
@@ -1114,7 +1114,7 @@ void do_start(CharData *ch, int newbie) {
 
 	advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GetRealLevel(ch));
-	mudlog(buf, BRF, kLevelImplementator, SYSLOG, true);
+	mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
 	GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
@@ -1691,7 +1691,7 @@ int GroupPenalties::init() {
 
 // Function to return the exp required for each class/level
 int level_exp(CharData *ch, int level) {
-	if (level > kLevelImplementator || level < 0) {
+	if (level > kLvlImplementator || level < 0) {
 		log("SYSERR: Requesting exp for invalid level %d!", level);
 		return 0;
 	}
@@ -1700,8 +1700,8 @@ int level_exp(CharData *ch, int level) {
 	 * Gods have exp close to EXP_MAX.  This statement should never have to
 	 * changed, regardless of how many mortal or immortal levels exist.
 	 */
-	if (level > kLevelImmortal) {
-		return EXP_IMPL - ((kLevelImplementator - level) * 1000);
+	if (level > kLvlImmortal) {
+		return EXP_IMPL - ((kLvlImplementator - level) * 1000);
 	}
 
 	// Exp required for normal mortals is below
@@ -1967,8 +1967,8 @@ void mspell_level(char */*name*/, int spell, int kin, int chclass, int level) {
 		bad = 1;
 	}
 
-	if (level < 1 || level > kLevelImplementator) {
-		log("SYSERR: assigning '%s' to illegal level %d/%d.", spell_info[spell].name, level, kLevelImplementator);
+	if (level < 1 || level > kLvlImplementator) {
+		log("SYSERR: assigning '%s' to illegal level %d/%d.", spell_info[spell].name, level, kLvlImplementator);
 		bad = 1;
 	}
 

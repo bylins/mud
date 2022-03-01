@@ -102,13 +102,13 @@ set(SOURCES
 		src/utils/levenshtein.cpp
 		src/liquid.cpp
 		src/utils/logger.cpp
-		src/magic/magic.cpp
-		src/magic/magic_items.cpp
-		src/magic/magic_rooms.cpp
-		src/magic/magic_utils.cpp
-		src/magic/spells.cpp
-		src/magic/spells_info.cpp
-		src/magic/magic_temp_spells.cpp
+		src/game_magic/magic.cpp
+		src/game_magic/magic_items.cpp
+		src/game_magic/magic_rooms.cpp
+		src/game_magic/magic_utils.cpp
+		src/game_magic/spells.cpp
+		src/game_magic/spells_info.cpp
+		src/game_magic/magic_temp_spells.cpp
 		src/communication/mail.cpp
 		src/mapsystem.cpp
 		src/meat_maker.cpp
@@ -117,7 +117,7 @@ set(SOURCES
 		src/mobmax.cpp
 		src/mob_stat.cpp
 		src/modify.cpp
-		src/skills/morph.cpp
+		src/game_skills/morph.cpp
 		src/name_adviser.cpp
 		src/game_mechanics/named_stuff.cpp
 		src/name_list.cpp
@@ -129,7 +129,7 @@ set(SOURCES
 		src/game_mechanics/obj_save_ext.cpp
 		src/game_mechanics/obj_sets.cpp
 		src/game_mechanics/obj_sets_olc.cpp
-		src/magic/magic_objects.cpp
+		src/game_magic/magic_objects.cpp
 		src/olc/oedit.cpp
 		src/olc/olc.cpp
 		src/communication/parcel.cpp
@@ -138,7 +138,7 @@ set(SOURCES
 		src/fightsystem/pk.cpp
 		src/entities/player_races.cpp
 		src/administration/privilege.cpp
-		src/utils/pugixml.cpp
+		src/utils/pugixml/pugixml.cpp
 		src/quests/quested.cpp
 		src/utils/random.cpp
 		src/olc/redit.cpp
@@ -148,8 +148,8 @@ set(SOURCES
 		src/game_mechanics/sets_drop.cpp
 		src/game_economics/shop_ext.cpp
 		src/cmd_god/shutdown_parameters.cpp
-		src/skills.cpp
-		src/skills_info.cpp
+		src/game_skills/skills.cpp
+		src/game_skills/skills_info.cpp
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
@@ -182,41 +182,41 @@ set(SOURCES
 		src/stigmas.cpp
 		src/entities/zone.cpp
 		src/strengthening.cpp
-		src/skills/backstab.cpp
-		src/skills/bash.cpp
-		src/skills/stun.cpp
-		src/skills/resque.cpp
-		src/skills/kick.cpp
-		src/skills/strangle.cpp
-		src/skills/chopoff.cpp
-		src/skills/disarm.cpp
-		src/skills/stupor.cpp
-		src/skills/ironwind.cpp
-		src/skills/throw.cpp
-		src/skills/mighthit.cpp
-		src/skills/morph.cpp
-		src/skills/block.cpp
-		src/skills/parry.cpp
-		src/skills/pick.cpp
-		src/skills/poison.cpp
-		src/skills/protect.cpp
-		src/skills/expendientcut.cpp
-		src/skills/turnundead.cpp
-		src/skills/townportal.cpp
-		src/skills/manadrain.cpp
-		src/skills/warcry.cpp
-		src/skills/identify.cpp
-		src/skills/relocate.cpp
+		src/game_skills/backstab.cpp
+		src/game_skills/bash.cpp
+		src/game_skills/stun.cpp
+		src/game_skills/resque.cpp
+		src/game_skills/kick.cpp
+		src/game_skills/strangle.cpp
+		src/game_skills/chopoff.cpp
+		src/game_skills/disarm.cpp
+		src/game_skills/stupor.cpp
+		src/game_skills/ironwind.cpp
+		src/game_skills/throw.cpp
+		src/game_skills/mighthit.cpp
+		src/game_skills/morph.cpp
+		src/game_skills/block.cpp
+		src/game_skills/parry.cpp
+		src/game_skills/pick.cpp
+		src/game_skills/poison.cpp
+		src/game_skills/protect.cpp
+		src/game_skills/expendientcut.cpp
+		src/game_skills/turnundead.cpp
+		src/game_skills/townportal.cpp
+		src/game_skills/manadrain.cpp
+		src/game_skills/warcry.cpp
+		src/game_skills/identify.cpp
+		src/game_skills/relocate.cpp
 		src/game_mechanics/mount.cpp
 		src/fightsystem/assist.cpp
 		src/fightsystem/fight_start.cpp
-		src/skills/styles.cpp
+		src/game_skills/styles.cpp
 		src/fightsystem/common.cpp
 		src/cmd/retreat.cpp
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
 		src/affects/affect_data.cpp
-		src/skills/track.cpp
+		src/game_skills/track.cpp
 		src/cmd/flee.cpp
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
@@ -241,7 +241,12 @@ set(SOURCES
 		src/game_classes/classes_info.cpp
 		src/utils/objects_filter.cpp
 		src/structs/info_container.cpp
-		src/utils/wrapper.cpp src/boot/cfg_manager.cpp)
+		src/utils/parser_wrapper.cpp
+		src/boot/cfg_manager.cpp
+		src/affects/affect_contants.cpp
+		src/cmd_god/users.cpp
+		src/utils/table_wrapper.cpp
+		src/cmd/score.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -258,29 +263,29 @@ set(HEADERS
 		src/cmd/cast.h
 		src/cmd/employ.h
 		src/affects/affect_data.h
-		src/skills/track.h
+		src/game_skills/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
 		src/fightsystem/fight_start.h
 		src/cmd/retreat.h
 		src/cmd/order.h
 		src/cmd/mercenary.h
-		src/skills/styles.h
-		src/skills/manadrain.h
-		src/skills/townportal.h
-		src/skills/turnundead.h
-		src/skills/mighthit.h
-		src/skills/expendientcut.h
-		src/skills/block.h
-		src/skills/protect.h
-		src/skills/parry.h
-		src/skills/pick.h
-		src/skills/throw.h
-		src/skills/ironwind.h
-		src/skills/disarm.h
-		src/skills/warcry.h
-		src/skills/identify.h
-		src/skills/relocate.h
+		src/game_skills/styles.h
+		src/game_skills/manadrain.h
+		src/game_skills/townportal.h
+		src/game_skills/turnundead.h
+		src/game_skills/mighthit.h
+		src/game_skills/expendientcut.h
+		src/game_skills/block.h
+		src/game_skills/protect.h
+		src/game_skills/parry.h
+		src/game_skills/pick.h
+		src/game_skills/throw.h
+		src/game_skills/ironwind.h
+		src/game_skills/disarm.h
+		src/game_skills/warcry.h
+		src/game_skills/identify.h
+		src/game_skills/relocate.h
 		src/act_movement.h
 		src/strengthening.h
 		src/abilities/abilities_constants.h
@@ -382,13 +387,13 @@ set(HEADERS
 		src/utils/levenshtein.h
 		src/liquid.h
 		src/utils/logger.h
-		src/magic/magic.h
-		src/magic/magic_items.h
-		src/magic/magic_rooms.h
-		src/magic/magic_utils.h
-		src/magic/spells.h
-		src/magic/spells_info.h
-		src/magic/magic_temp_spells.h
+		src/game_magic/magic.h
+		src/game_magic/magic_items.h
+		src/game_magic/magic_rooms.h
+		src/game_magic/magic_utils.h
+		src/game_magic/spells.h
+		src/game_magic/spells_info.h
+		src/game_magic/magic_temp_spells.h
 		src/communication/mail.h
 		src/mapsystem.h
 		src/meat_maker.h
@@ -413,8 +418,8 @@ set(HEADERS
 		src/entities/player_i.h
 		src/entities/player_races.h
 		src/administration/privilege.h
-		src/utils/pugiconfig.h
-		src/utils/pugixml.h
+		src/utils/pugixml/pugiconfig.h
+		src/utils/pugixml/pugixml.h
 		src/quests/quested.h
 		src/utils/random.h
 		src/communication/remember.h
@@ -424,8 +429,8 @@ set(HEADERS
 		src/game_mechanics/sets_drop.h
 		src/game_economics/shop_ext.h
 		src/cmd_god/shutdown_parameters.h
-		src/skills.h
-		src/skills_info.h
+		src/game_skills/skills.h
+		src/game_skills/skills_info.h
 		src/spam.h
 		src/structs/descriptor_data.h
         src/structs/structs.h
@@ -440,15 +445,15 @@ set(HEADERS
 		src/utils/utils_debug.h
 		src/stigmas.h
 		src/entities/zone.h
-		src/skills/backstab.h
-		src/skills/bash.h
-		src/skills/stun.h
-		src/skills/poison.h
-		src/skills/resque.h
-		src/skills/kick.h
-		src/skills/strangle.h
-		src/skills/chopoff.h
-		src/skills/stupor.h
+		src/game_skills/backstab.h
+		src/game_skills/bash.h
+		src/game_skills/stun.h
+		src/game_skills/poison.h
+		src/game_skills/resque.h
+		src/game_skills/kick.h
+		src/game_skills/strangle.h
+		src/game_skills/chopoff.h
+		src/game_skills/stupor.h
 		src/graph.h
 		src/structs/flag_data.h
         src/entities/entities_constants.h
@@ -462,7 +467,12 @@ set(HEADERS
 		src/game_classes/classes_info.h
 		src/utils/objects_filter.h
 		src/structs/info_container.h
-		src/utils/wrapper.h src/boot/cfg_manager.h src/structs/iterators.h)
+		src/utils/parser_wrapper.h
+		src/boot/cfg_manager.h
+		src/structs/iterators.h
+		src/cmd_god/users.h
+		src/utils/table_wrapper.h
+		src/cmd/score.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -559,9 +569,10 @@ else()
 	set(PYTHON_LIBRARIES)
 endif ()
 
+# MSDP
 set(MSDP_FILES
 		src/msdp/msdp.h
-	src/msdp/msdp.cpp
+		src/msdp/msdp.cpp
 		src/msdp/msdp_parser.cpp
 		src/msdp/msdp_parser.h
 		src/msdp/msdp_constants.h
@@ -639,7 +650,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/affects/affect_contants.cpp)
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES})
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
@@ -659,6 +670,12 @@ else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 endif ()
 add_dependencies(circle.library versioning changelog)
+
+# Linfort integration
+# Disable building tests and examples in libfort project
+set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
+add_subdirectory(src/utils/libfort)
+target_link_libraries(circle.library fort)
 
 # Boost
 set(BOOST_MODULES ${BOOST_PYTHON_MODULE} system filesystem)

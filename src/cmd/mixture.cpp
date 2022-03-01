@@ -1,10 +1,10 @@
 #include "mixture.h"
 
-#include "magic/spells.h"
-#include "magic/magic_utils.h"
+#include "game_magic/spells.h"
+#include "game_magic/magic_utils.h"
 #include "handler.h"
 #include "administration/privilege.h"
-#include "magic/spells_info.h"
+#include "game_magic/spells_info.h"
 
 void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (IS_NPC(ch))

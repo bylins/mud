@@ -2,7 +2,7 @@
 
 #include "entities/char_data.h"
 #include "handler.h"
-#include "magic/magic_items.h"
+#include "game_magic/magic_items.h"
 
 void apply_enchant(CharData *ch, ObjData *obj, std::string text);
 

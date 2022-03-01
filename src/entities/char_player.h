@@ -5,6 +5,11 @@
 #ifndef CHAR_PLAYER_HPP_INCLUDED
 #define CHAR_PLAYER_HPP_INCLUDED
 
+#include <string>
+#include <array>
+#include <vector>
+#include <bitset>
+
 #include "conf.h"
 #include "sysdep.h"
 #include "structs/structs.h"
@@ -19,11 +24,6 @@
 #include "quests/quest.h"
 #include "stigmas.h"
 #include "cmd/mercenary.h"
-
-#include <string>
-#include <array>
-#include <vector>
-#include <bitset>
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -88,13 +88,13 @@ class Player : public CharData {
 	void show_mobmax();
 
 	// обертка на Dps
-	void dps_add_dmg(int type, int dmg, int over_dmg, CharData *ch = 0);
+	void dps_add_dmg(int type, int dmg, int over_dmg, CharData *ch = nullptr);
 	void dps_clear(int type);
-	void dps_print_stats(CharData *coder = 0);
-	void dps_print_group_stats(CharData *ch, CharData *coder = 0);
+	void dps_print_stats(CharData *coder = nullptr);
+	void dps_print_group_stats(CharData *ch, CharData *coder = nullptr);
 	void dps_set(DpsSystem::Dps *dps);
 	void dps_copy(CharData *ch);
-	void dps_end_round(int type, CharData *ch = 0);
+	void dps_end_round(int type, CharData *ch = nullptr);
 	void dps_add_exp(int exp, bool battle = false);
 
 	void save_char();

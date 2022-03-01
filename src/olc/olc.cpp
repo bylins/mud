@@ -157,7 +157,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				save = 1;
 				number = atoi(buf2) * 100;
 			}
-		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLevelBuilder || PRF_FLAGGED(ch, PRF_CODERINFO))) {
+		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || PRF_FLAGGED(ch, PRF_CODERINFO))) {
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
 			/*
@@ -211,7 +211,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		send_to_char("Защищаю зону от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, kLevelImplementator, SYSLOG, true);
+		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
 		zedit_save_to_disk(OLC_ZNUM(d));
 		delete d->olc;
 		return;
@@ -222,7 +222,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		send_to_char("Снимаю защиту от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, kLevelImplementator, SYSLOG, true);
+		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
 		zedit_save_to_disk(OLC_ZNUM(d));
 		delete d->olc;
 		return;
@@ -235,7 +235,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 
 	// * Everyone but IMPLs can only edit zones they have been assigned.
-	if (GetRealLevel(ch) < kLevelImplementator) {
+	if (GetRealLevel(ch) < kLvlImplementator) {
 		if (!Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0, false)) {
 			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].vnum != GET_OLC_ZONE(ch))) {
 				send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
@@ -265,7 +265,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		send_to_char(buf, ch);
 		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
-		mudlog(buf, LGH, MAX(kLevelBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, LGH, MAX(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		switch (subcmd) {
 			case SCMD_OLC_REDIT: redit_save_to_disk(OLC_ZNUM(d));

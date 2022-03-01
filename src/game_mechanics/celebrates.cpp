@@ -2,7 +2,7 @@
 
 #include "structs/global_objects.h"
 #include "handler.h"
-#include "utils/pugixml.h"
+#include "utils/pugixml/pugixml.h"
 #include "backtrace.h"
 
 #include <boost/lexical_cast.hpp>
@@ -99,7 +99,7 @@ void parse_trig_list(pugi::xml_node node, TrigList *triggers) {
 		int vnum = trig.attribute("vnum").as_int();
 		if (!vnum) {
 			snprintf(buf, kMaxStringLength, "...celebrates - bad trig (node = %s)", node.name());
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		triggers->push_back(vnum);
@@ -111,7 +111,7 @@ void parse_load_data(pugi::xml_node node, LoadPtr node_data) {
 	int max = node.attribute("max").as_int();
 	if (!vnum || !max) {
 		snprintf(buf, kMaxStringLength, "...celebrates - bad data (node = %s)", node.name());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	node_data->vnum = vnum;
@@ -126,7 +126,7 @@ void parse_load_section(pugi::xml_node node, CelebrateDataPtr holiday) {
 					 kMaxStringLength,
 					 "...celebrates - bad room (celebrate = %s)",
 					 node.attribute("name").value());
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		CelebrateRoomPtr tmp_room(new CelebrateRoom);
@@ -166,7 +166,7 @@ void parse_attach_section(pugi::xml_node node, CelebrateDataPtr holiday) {
 		vnum = mob.attribute("vnum").as_int();
 		if (!vnum) {
 			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.name());
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		parse_trig_list(mob, &holiday->mobsToAttach[vnum / 100][vnum]);
@@ -175,7 +175,7 @@ void parse_attach_section(pugi::xml_node node, CelebrateDataPtr holiday) {
 		vnum = obj.attribute("vnum").as_int();
 		if (!vnum) {
 			snprintf(buf, kMaxStringLength, "...celebrates - bad attach data (node = %s)", node.name());
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		parse_trig_list(obj, &holiday->objsToAttach[vnum / 100][vnum]);
@@ -213,7 +213,7 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 		int baseDay;
 		if (!day || !month || name.empty()) {
 			snprintf(buf, kMaxStringLength, "...celebrates - bad node struct");
-			mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return;
 		}
 		CelebrateDataPtr tmp_holiday(new CelebrateData);
@@ -264,13 +264,13 @@ void load() {
 	pugi::xml_parse_result result = doc.load_file(LIB_MISC"celebrates.xml");
 	if (!result) {
 		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node node_list = doc.child("celebrates");
 	if (!node_list) {
 		snprintf(buf, kMaxStringLength, "...celebrates read fail");
-		mudlog(buf, CMP, kLevelImmortal, SYSLOG, true);
+		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 	pugi::xml_node mono_node_list = node_list.child("celebratesMono");//православные праздники
@@ -386,7 +386,7 @@ void sc_Checker::report_null_sc() const {
 	mudlog(ss.str().c_str(), DEF, -1, ERRLOG, true);
 	ss << "\nТекущий стек будет распечатан в ERRLOG, выполнение функции будет прервано.";
 	debug::backtrace(runtime_config.logs(ERRLOG).handle());
-	mudlog(ss.str().c_str(), DEF, kLevelImplementator, ERRLOG, false);
+	mudlog(ss.str().c_str(), DEF, kLvlImplementator, ERRLOG, false);
 }
 
 void remove_triggers(TrigList trigs, Script *sc) {
