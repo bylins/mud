@@ -92,6 +92,20 @@ void DecorateZebraTable(CharData *ch, fort::char_table &table, fort::color color
 	}
 }
 
+void DecorateZebraTextTable(CharData *ch, fort::char_table &table, fort::color color) {
+	if (PRF_FLAGGED(ch, PRF_BLIND)) {
+		table.set_border_style(FT_EMPTY2_STYLE);
+	} else {
+		table.set_border_style(FT_SIMPLE_STYLE);
+		for (unsigned i = 1; i < table.row_count(); ++i) {
+			if ((i + 1) % 2 == 0) {
+				table.row(i).set_cell_content_fg_color(color);
+			}
+		}
+		table.set_left_margin(kDefaultLeftTableMargin);
+	}
+}
+
 void PrintTableToChar(CharData *ch, fort::char_table &table) {
 	try {
 		send_to_char(table.to_string(), ch);

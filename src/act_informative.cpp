@@ -2701,50 +2701,63 @@ void do_gold(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-//29.11.09 Отображение количества рипов (с) Василиса
-// edited by WorM 2011.05.21
+void ClearMyStat(CharData *ch) {
+	GET_RIP_MOBTHIS(ch) = GET_EXP_MOBTHIS(ch) = GET_RIP_MOB(ch) = GET_EXP_MOB(ch) =
+	GET_RIP_PKTHIS(ch) = GET_EXP_PKTHIS(ch) = GET_RIP_PK(ch) = GET_EXP_PK(ch) =
+	GET_RIP_DTTHIS(ch) = GET_EXP_DTTHIS (ch) = GET_RIP_DT(ch) = GET_EXP_DT(ch) =
+	GET_RIP_OTHERTHIS(ch) = GET_EXP_OTHERTHIS(ch) = GET_RIP_OTHER(ch) = GET_EXP_OTHER(ch) =
+	GET_WIN_ARENA(ch) = GET_RIP_ARENA(ch) = GET_EXP_ARENA(ch) = 0;
+	send_to_char("Статистика очищена.\r\n", ch);
+}
+
+void PrintMyStat(CharData *ch) {
+	fort::char_table table;
+	table << fort::header
+		<< "Статистика ваших смертей\r\n(количество, потерянного опыта)"
+		<< "Текущее\r\nперевоплощение:"
+		<< "\r\nВсего:" << fort::endr;
+	table << "В неравном бою с тварями:"
+		<< std::to_string(GET_RIP_MOBTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOBTHIS(ch)) + ")"
+		<< std::to_string(GET_RIP_MOB(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOB(ch)) + ")" << fort::endr;
+	table << "В неравном бою с врагами:"
+		<< std::to_string(GET_RIP_PKTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_PKTHIS(ch)) + ")"
+		<< std::to_string(GET_RIP_PK(ch)) + " (" + PrintNumberByDigits(GET_EXP_PK(ch)) + ")" << fort::endr;
+	table << "В гиблых местах:"
+		<< std::to_string(GET_RIP_DTTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_DTTHIS (ch))	+ ")"
+		<< std::to_string(GET_RIP_DT(ch)) + " (" + PrintNumberByDigits(GET_EXP_DT(ch)) + ")" << fort::endr;
+	table << "По стечению обстоятельств:"
+		<< std::to_string(GET_RIP_OTHERTHIS(ch)) + " ("	+ PrintNumberByDigits(GET_EXP_OTHERTHIS(ch)) + ")"
+		<< std::to_string(GET_RIP_OTHER(ch)) + " (" + PrintNumberByDigits(GET_EXP_OTHER(ch)) + ")" << fort::endr;
+	table << fort::separator << fort::endr;
+	table << "ИТОГО:"
+		<< std::to_string(GET_RIP_MOBTHIS(ch) + GET_RIP_PKTHIS(ch) + GET_RIP_DTTHIS(ch) + GET_RIP_OTHERTHIS(ch))
+		+ " (" + PrintNumberByDigits(GET_EXP_MOBTHIS(ch) + GET_EXP_PKTHIS(ch) + GET_EXP_DTTHIS(ch)
+		+ GET_EXP_OTHERTHIS(ch) + GET_EXP_ARENA(ch)) + ")"
+		<< std::to_string(GET_RIP_MOB(ch) + GET_RIP_PK(ch) + GET_RIP_DT(ch) + GET_RIP_OTHER(ch))
+		+ " (" + PrintNumberByDigits(GET_EXP_MOB(ch) + GET_EXP_PK(ch) + GET_EXP_DT(ch)
+		+ GET_EXP_OTHER(ch) + GET_EXP_ARENA(ch)) +")" << fort::endr;
+	table << fort::separator << fort::endr;
+	table << "На арене:" << " " << " " << fort::endr;
+	table << "Убито игроков: " + std::to_string(GET_WIN_ARENA(ch))
+		<< "Смертей: " + std::to_string(GET_RIP_ARENA(ch))
+		<< "Потеряно опыта: " + std::to_string(GET_EXP_ARENA(ch)) << fort::endr;
+	table << fort::separator << fort::endr;
+	table << "Арена доминирования:" << "Убито противников:" << "Смерти на арене:" << fort::endr;
+	table << " " << ch->player_specials->saved.kill_arena_dom << ch->player_specials->saved.rip_arena_dom;
+
+	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::kLightCyan);
+	table_wrapper::PrintTableToChar(ch, table);
+}
+
+// Отображение количества рипов
 void do_mystat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 	if (utils::IsAbbrev(argument, "очистить") || utils::IsAbbrev(argument, "clear")) {
-		GET_RIP_MOBTHIS(ch) = GET_EXP_MOBTHIS(ch) = GET_RIP_MOB(ch) = GET_EXP_MOB(ch) =
-		GET_RIP_PKTHIS(ch) = GET_EXP_PKTHIS(ch) = GET_RIP_PK(ch) = GET_EXP_PK(ch) =
-		GET_RIP_DTTHIS(ch) = GET_EXP_DTTHIS (ch) = GET_RIP_DT(ch) = GET_EXP_DT(ch) =
-		GET_RIP_OTHERTHIS(ch) = GET_EXP_OTHERTHIS(ch) = GET_RIP_OTHER(ch) = GET_EXP_OTHER(ch) =
-		GET_WIN_ARENA(ch) = GET_RIP_ARENA(ch) = GET_EXP_ARENA(ch) = 0;
-		send_to_char("Статистика очищена.\r\n", ch);
+		ClearMyStat(ch);
 	} else {
-		sprintf(buf, " &C--------------------------------------------------------------------------------------&n\r\n"
-					 " &C||&n   Статистика ваших смертей   &C|&n         &WТекущее&n         &C|&n                         &C||&n\r\n"
-					 " &C||&n (количество, потеряно опыта) &C|&n      &Wперевоплощение&n     &C|&n           &KВсего&n         &C||&n\r\n"
-					 " &C--------------------------------------------------------------------------------------&n\r\n"
-					 " &C||&n    В неравном бою с тварями: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
-					 " &C||&n    В неравном бою с врагами: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
-					 " &C||&n             В гиблых местах: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
-					 " &C||&n   По стечению обстоятельств: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
-					 " &C--------------------------------------------------------------------------------------&n\r\n"
-					 " &C||&n                       &yИТОГО:&n &C|&n &W%4d (%16llu)&n &C| &K%4d (%16llu)&n &n&C||&n\r\n"
-					 " &C--------------------------------------------------------------------------------------&n\r\n"
-					 " &C||&n &WНа арене (всего):                                                                &n&C||&n\r\n"
-					 " &C||&n   &wУбито игроков:&n&r%4d&n     &wСмертей:&n&r%4d&n           &wПотеряно опыта:&n &r%16llu&n &C||&n\r\n"
-					 " &C--------------------------------------------------------------------------------------&n\r\n",
-				GET_RIP_MOBTHIS(ch), GET_EXP_MOBTHIS(ch), GET_RIP_MOB(ch), GET_EXP_MOB(ch),
-				GET_RIP_PKTHIS(ch), GET_EXP_PKTHIS(ch), GET_RIP_PK(ch), GET_EXP_PK(ch),
-				GET_RIP_DTTHIS(ch), GET_EXP_DTTHIS (ch), GET_RIP_DT(ch), GET_EXP_DT(ch),
-				GET_RIP_OTHERTHIS(ch), GET_EXP_OTHERTHIS(ch), GET_RIP_OTHER(ch), GET_EXP_OTHER(ch),
-				GET_RIP_MOBTHIS(ch) + GET_RIP_PKTHIS(ch) + GET_RIP_DTTHIS(ch) + GET_RIP_OTHERTHIS(ch),
-				GET_EXP_MOBTHIS(ch) + GET_EXP_PKTHIS(ch) + GET_EXP_DTTHIS(ch) + GET_EXP_OTHERTHIS(ch)
-					+ GET_EXP_ARENA(ch),
-				GET_RIP_MOB(ch) + GET_RIP_PK(ch) + GET_RIP_DT(ch) + GET_RIP_OTHER(ch),
-				GET_EXP_MOB(ch) + GET_EXP_PK(ch) + GET_EXP_DT(ch) + GET_EXP_OTHER(ch) + GET_EXP_ARENA(ch),
-				GET_WIN_ARENA(ch), GET_RIP_ARENA(ch), GET_EXP_ARENA(ch));
-		send_to_char(buf, ch);
-
-		send_to_char(ch, " &C|| Киллы на арене доминирования %3d, смерти на арене %3d&C                            ||&n\r\n", ch->player_specials->saved.kill_arena_dom, ch->player_specials->saved.rip_arena_dom);
-		send_to_char(ch, " &C--------------------------------------------------------------------------------------&n\r\n");
+		PrintMyStat(ch);
 	}
 }
-// end by WorM
-// конец правки (с) Василиса
 
 void do_inventory(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	send_to_char("Вы несете:\r\n", ch);

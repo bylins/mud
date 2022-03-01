@@ -96,314 +96,6 @@ void DoScore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // \todo Переписать на вывод в поток с использованием общих со "счет все" функций
-void PrintScoreBase(CharData *ch) {
-	TimeInfoData playing_time;
-	int ac, ac_t;
-
-	sprintf(buf, "Вы %s (%s, %s, %s, %s %d уровня).\r\n",
-			ch->only_title().c_str(),
-			std::string(PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch))).c_str(),
-			std::string(PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch))).c_str(),
-			religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))],
-			MUD::Classes()[ch->get_class()].GetCName(), GetRealLevel(ch));
-
-	if (!NAME_GOD(ch) && GetRealLevel(ch) <= NAME_LEVEL) {
-		sprintf(buf + strlen(buf), "\r\n&RВНИМАНИЕ!&n Ваше имя не одобрил никто из богов!\r\n");
-		sprintf(buf + strlen(buf), "Очень скоро вы прекратите получать опыт,\r\n");
-		sprintf(buf + strlen(buf), "обратитесь к богам для одобрения имени.\r\n\r\n");
-	} else if (NAME_BAD(ch)) {
-		sprintf(buf + strlen(buf), "\r\n&RВНИМАНИЕ!&n Ваше имя запрещено богами.\r\n");
-		sprintf(buf + strlen(buf), "Очень скоро вы прекратите получать опыт.\r\n\r\n");
-	}
-
-	sprintf(buf + strlen(buf), "Сейчас вам %d %s. ", GET_REAL_AGE(ch), desc_count(GET_REAL_AGE(ch), WHAT_YEAR));
-
-	if (age(ch)->month == 0 && age(ch)->day == 0) {
-		sprintf(buf2, "%sУ вас сегодня День Варенья!%s\r\n", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		strcat(buf, buf2);
-	} else
-		strcat(buf, "\r\n");
-
-	sprintf(buf + strlen(buf),
-			"Вы можете выдержать %d(%d) %s повреждения, и пройти %d(%d) %s по ровной местности.\r\n",
-			GET_HIT(ch), GET_REAL_MAX_HIT(ch), desc_count(GET_HIT(ch),
-														  WHAT_ONEu),
-			GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), desc_count(GET_MOVE(ch), WHAT_MOVEu));
-
-	if (IS_MANA_CASTER(ch)) {
-		sprintf(buf + strlen(buf),
-				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
-				GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
-	}
-
-	sprintf(buf + strlen(buf),
-			"%sВаши характеристики :\r\n"
-			"  Сила : %2d(%2d)"
-			"  Подв : %2d(%2d)"
-			"  Тело : %2d(%2d)"
-			"  Мудр : %2d(%2d)"
-			"  Ум   : %2d(%2d)"
-			"  Обаян: %2d(%2d)\r\n"
-			"  Размер %3d(%3d)"
-			"  Рост   %3d(%3d)"
-			"  Вес    %3d(%3d)%s\r\n",
-			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch),
-			ch->get_dex(), GET_REAL_DEX(ch),
-			ch->get_con(), GET_REAL_CON(ch),
-			ch->get_wis(), GET_REAL_WIS(ch),
-			ch->get_int(), GET_REAL_INT(ch),
-			ch->get_cha(), GET_REAL_CHA(ch),
-			GET_SIZE(ch), GET_REAL_SIZE(ch),
-			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCNRM(ch, C_NRM));
-
-	if (IS_IMMORTAL(ch)) {
-		sprintf(buf + strlen(buf),
-				"%sВаши боевые качества :\r\n"
-				"  AC   : %4d(%4d)"
-				"  DR   : %4d(%4d)%s\r\n",
-				CCIGRN(ch, C_NRM), GET_AC(ch), compute_armor_class(ch),
-				GET_DR(ch), GetRealDamroll(ch), CCNRM(ch, C_NRM));
-	} else {
-		ac = compute_armor_class(ch) / 10;
-
-		if (ac < 5) {
-			const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
-			ac = ac + mod > 5 ? 5 : ac + mod;
-		}
-
-		ac_t = MAX(MIN(ac + 30, 40), 0);
-		sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
-								   "  Защита  (AC)     : %4d - %s&G\r\n"
-								   "  Броня/Поглощение : %4d/%d&n\r\n",
-				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
-	}
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT));
-	if (GetRealLevel(ch) < kLvlImmortal) {
-		if (PRF_FLAGGED(ch, PRF_BLIND)) {
-			sprintf(buf + strlen(buf), "\r\n");
-		}
-		sprintf(buf + strlen(buf),
-				"Вам осталось набрать %ld %s до следующего уровня.\r\n",
-				level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch),
-				desc_count(level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch), WHAT_POINT));
-	} else
-		sprintf(buf + strlen(buf), "\r\n");
-
-	sprintf(buf + strlen(buf),
-			"У вас на руках %ld %s и %d %s",
-			ch->get_gold(),
-			desc_count(ch->get_gold(), WHAT_MONEYa),
-			ch->get_hryvn(),
-			desc_count(ch->get_hryvn(), WHAT_TORC));
-	if (ch->get_bank() > 0)
-		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
-				ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
-	else
-		strcat(buf, ".\r\n");
-
-	if (GetRealLevel(ch) < kLvlImmortal) {
-		sprintf(buf + strlen(buf),
-				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
-				desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))], WHAT_LEVEL));
-	}
-
-	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
-	if (label_room) {
-		sprintf(buf + strlen(buf),
-				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
-				std::string(label_room->name).c_str());
-	}
-
-	int glory = Glory::get_glory(GET_UNIQUE(ch));
-	if (glory) {
-		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
-				glory, desc_count(glory, WHAT_POINT));
-	}
-	glory = GloryConst::get_glory(GET_UNIQUE(ch));
-	if (glory) {
-		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
-				glory, desc_count(glory, WHAT_POINT));
-	}
-
-	playing_time = *real_time_passed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
-	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
-			playing_time.day, desc_count(playing_time.day, WHAT_DAY),
-			playing_time.hours, desc_count(playing_time.hours, WHAT_HOUR));
-	send_to_char(buf, ch);
-
-	if (!ch->ahorse())
-		send_to_char(ch, "%s", GetPositionStr(ch));
-
-	strcpy(buf, CCIGRN(ch, C_NRM));
-	const auto value_drunked = GET_COND(ch, DRUNK);
-	if (value_drunked >= CHAR_DRUNKED) {
-		if (affected_by_spell(ch, kSpellAbstinent))
-			strcat(buf, "Привет с большого бодуна!\r\n");
-		else {
-			if (value_drunked >= CHAR_MORTALLY_DRUNKED)
-				strcat(buf, "Вы так пьяны, что ваши ноги не хотят слушаться вас...\r\n");
-			else if (value_drunked >= 10)
-				strcat(buf, "Вы так пьяны, что вам хочется петь песни.\r\n");
-			else if (value_drunked >= 5)
-				strcat(buf, "Вы пьяны.\r\n");
-			else
-				strcat(buf, "Вы немного пьяны.\r\n");
-		}
-
-	}
-	if (GET_COND_M(ch, FULL))
-		strcat(buf, "Вы голодны.\r\n");
-	if (GET_COND_M(ch, THIRST))
-		strcat(buf, "Вас мучает жажда.\r\n");
-	/*
-	   strcat(buf, CCICYN(ch, C_NRM));
-	   strcat(buf,"Аффекты :\r\n");
-	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
-	   strcat(buf,buf2);
-	 */
-	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
-		strcat(buf, "Вы можете быть призваны.\r\n");
-
-	if (ch->has_horse(false)) {
-		if (ch->ahorse())
-			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
-		else
-			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
-	}
-	strcat(buf, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
-	if (NORENTABLE(ch)) {
-		sprintf(buf,
-				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
-				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
-		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	}
-
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH)
-		&& (ch->get_skill(ESkill::kJewelry) || ch->get_skill(ESkill::kRepair) || ch->get_skill(ESkill::kReforging))) {
-		sprintf(buf,
-				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
-				CCIGRN(ch, C_NRM),
-				CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	}
-
-	if (mail::has_mail(ch->get_uid())) {
-		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	}
-
-	if (Parcel::has_parcel(ch)) {
-		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-	}
-
-	if (PLR_FLAGGED(ch, PLR_HELLED) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
-		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf,
-				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR), mins, desc_count(mins,
-																  WHAT_MINu),
-				HELL_REASON(ch) ? HELL_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-	if (PLR_FLAGGED(ch, PLR_MUTE) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR),
-				mins, desc_count(mins, WHAT_MINu), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-	if (PLR_FLAGGED(ch, PLR_DUMB) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
-		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR),
-				mins, desc_count(mins, WHAT_MINu), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-	if (PLR_FLAGGED(ch, PLR_FROZEN) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR),
-				mins, desc_count(mins, WHAT_MINu), FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-
-	if (!PLR_FLAGGED(ch, PLR_REGISTERED) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
-		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR),
-				mins, desc_count(mins, WHAT_MINu), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");
-		send_to_char(buf, ch);
-	}
-
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GCURSE_DURATION(ch)) {
-		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы прокляты Богами на %d %s %d %s.\r\n",
-				hrs, desc_count(hrs, WHAT_HOUR), mins, desc_count(mins, WHAT_MINu));
-		send_to_char(buf, ch);
-	}
-
-	if (ch->is_morphed()) {
-		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
-		send_to_char(buf, ch);
-	}
-	if (can_use_feat(ch, COLLECTORSOULS_FEAT)) {
-		const int souls = ch->get_souls();
-		if (souls == 0) {
-			sprintf(buf, "Вы не имеете чужих душ.\r\n");
-			send_to_char(buf, ch);
-		} else {
-			if (souls == 1) {
-				sprintf(buf, "Вы имеете всего одну душу в запасе.\r\n");
-				send_to_char(buf, ch);
-			}
-			if (souls > 1 && souls < 5) {
-				sprintf(buf, "Вы имеете %d души в запасе.\r\n", souls);
-				send_to_char(buf, ch);
-			}
-			if (souls >= 5) {
-				sprintf(buf, "Вы имеете %d чужих душ в запасе.\r\n", souls);
-				send_to_char(buf, ch);
-			}
-		}
-	}
-	if (ch->get_ice_currency() > 0) {
-		if (ch->get_ice_currency() == 1) {
-			sprintf(buf, "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
-			send_to_char(buf, ch);
-		} else if (ch->get_ice_currency() < 5) {
-			sprintf(buf, "У вас в наличии есть жалкие %d искристые снежинки.\r\n", ch->get_ice_currency());
-			send_to_char(buf, ch);
-		} else {
-			sprintf(buf, "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
-			send_to_char(buf, ch);
-		}
-	}
-	if (ch->get_nogata() > 0 && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
-		int value = ch->get_nogata();
-		if (ch->get_nogata() == 1) {
-			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");
-		}
-		else {
-			sprintf(buf, "У вас в наличии есть %d %s.\r\n", value, desc_count(value, WHAT_NOGATAu));
-		}
-		send_to_char(buf, ch);
-	}
-}
-
-// \todo Переписать на вывод в поток с использованием общих со "счет все" функций
 void PrintScoreList(CharData *ch) {
 	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)).c_str());
 	buf[0] = LOWER(buf[0]);
@@ -960,6 +652,307 @@ void PrintScoreAll(CharData *ch) {
 	PrintAdditionalInfo(ch, out);
 
 	send_to_char(out.str(), ch);
+}
+
+// \todo Переписать на вывод в поток с использованием общих со "счет все" функций
+void PrintScoreBase(CharData *ch) {
+	std::ostringstream out;
+
+	out << "Вы " << ch->only_title() << " ("
+		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)) << ", "
+		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch)) << ", "
+		<< religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))] << ", "
+		<< MUD::Classes()[ch->get_class()].GetCName() <<  " "
+		<< GetRealLevel(ch) << " уровня)." << std::endl;
+
+	PrintNameStatusInfo(ch, out);
+
+	out << "Сейчас вам "  <<   GET_REAL_AGE(ch) << " " << desc_count(GET_REAL_AGE(ch), WHAT_YEAR) << ".";
+	if (age(ch)->month == 0 && age(ch)->day == 0) {
+		out << KIRED << " У вас сегодня День Варенья!" << KNRM;
+	}
+	out << std::endl;
+
+	send_to_char(out.str(), ch);
+	// Продолжить с этого места
+
+	sprintf(buf,
+			"Вы можете выдержать %d(%d) %s повреждения, и пройти %d(%d) %s по ровной местности.\r\n",
+			GET_HIT(ch), GET_REAL_MAX_HIT(ch), desc_count(GET_HIT(ch),
+														  WHAT_ONEu),
+			GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), desc_count(GET_MOVE(ch), WHAT_MOVEu));
+
+	if (IS_MANA_CASTER(ch)) {
+		sprintf(buf + strlen(buf),
+				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
+				GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
+	}
+
+	sprintf(buf + strlen(buf),
+			"%sВаши характеристики :\r\n"
+			"  Сила : %2d(%2d)"
+			"  Подв : %2d(%2d)"
+			"  Тело : %2d(%2d)"
+			"  Мудр : %2d(%2d)"
+			"  Ум   : %2d(%2d)"
+			"  Обаян: %2d(%2d)\r\n"
+			"  Размер %3d(%3d)"
+			"  Рост   %3d(%3d)"
+			"  Вес    %3d(%3d)%s\r\n",
+			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch),
+			ch->get_dex(), GET_REAL_DEX(ch),
+			ch->get_con(), GET_REAL_CON(ch),
+			ch->get_wis(), GET_REAL_WIS(ch),
+			ch->get_int(), GET_REAL_INT(ch),
+			ch->get_cha(), GET_REAL_CHA(ch),
+			GET_SIZE(ch), GET_REAL_SIZE(ch),
+			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCNRM(ch, C_NRM));
+
+	if (IS_IMMORTAL(ch)) {
+		sprintf(buf + strlen(buf),
+				"%sВаши боевые качества :\r\n"
+				"  AC   : %4d(%4d)"
+				"  DR   : %4d(%4d)%s\r\n",
+				CCIGRN(ch, C_NRM), GET_AC(ch), compute_armor_class(ch),
+				GET_DR(ch), GetRealDamroll(ch), CCNRM(ch, C_NRM));
+	} else {
+		int ac = compute_armor_class(ch) / 10;
+
+		if (ac < 5) {
+			const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+			ac = ac + mod > 5 ? 5 : ac + mod;
+		}
+
+		int ac_t = std::clamp(ac + 30, 0, 40);
+		sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
+								   "  Защита  (AC)     : %4d - %s&G\r\n"
+								   "  Броня/Поглощение : %4d/%d&n\r\n",
+				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
+	}
+	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT));
+	if (GetRealLevel(ch) < kLvlImmortal) {
+		if (PRF_FLAGGED(ch, PRF_BLIND)) {
+			sprintf(buf + strlen(buf), "\r\n");
+		}
+		sprintf(buf + strlen(buf),
+				"Вам осталось набрать %ld %s до следующего уровня.\r\n",
+				level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch),
+				desc_count(level_exp(ch, GetRealLevel(ch) + 1) - GET_EXP(ch), WHAT_POINT));
+	} else
+		sprintf(buf + strlen(buf), "\r\n");
+
+	sprintf(buf + strlen(buf),
+			"У вас на руках %ld %s и %d %s",
+			ch->get_gold(),
+			desc_count(ch->get_gold(), WHAT_MONEYa),
+			ch->get_hryvn(),
+			desc_count(ch->get_hryvn(), WHAT_TORC));
+	if (ch->get_bank() > 0)
+		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
+				ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
+	else
+		strcat(buf, ".\r\n");
+
+	if (GetRealLevel(ch) < kLvlImmortal) {
+		sprintf(buf + strlen(buf),
+				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
+				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))],
+				desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REAL_REMORT(ch))], WHAT_LEVEL));
+	}
+
+	//Напоминаем о метке, если она есть.
+	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
+	if (label_room) {
+		sprintf(buf + strlen(buf),
+				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
+				std::string(label_room->name).c_str());
+	}
+
+	int glory = Glory::get_glory(GET_UNIQUE(ch));
+	if (glory) {
+		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
+				glory, desc_count(glory, WHAT_POINT));
+	}
+	glory = GloryConst::get_glory(GET_UNIQUE(ch));
+	if (glory) {
+		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
+				glory, desc_count(glory, WHAT_POINT));
+	}
+
+	TimeInfoData playing_time = *real_time_passed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
+	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
+			playing_time.day, desc_count(playing_time.day, WHAT_DAY),
+			playing_time.hours, desc_count(playing_time.hours, WHAT_HOUR));
+	send_to_char(buf, ch);
+
+	if (!ch->ahorse())
+		send_to_char(ch, "%s", GetPositionStr(ch));
+
+	strcpy(buf, CCIGRN(ch, C_NRM));
+	const auto value_drunked = GET_COND(ch, DRUNK);
+	if (value_drunked >= CHAR_DRUNKED) {
+		if (affected_by_spell(ch, kSpellAbstinent))
+			strcat(buf, "Привет с большого бодуна!\r\n");
+		else {
+			if (value_drunked >= CHAR_MORTALLY_DRUNKED)
+				strcat(buf, "Вы так пьяны, что ваши ноги не хотят слушаться вас...\r\n");
+			else if (value_drunked >= 10)
+				strcat(buf, "Вы так пьяны, что вам хочется петь песни.\r\n");
+			else if (value_drunked >= 5)
+				strcat(buf, "Вы пьяны.\r\n");
+			else
+				strcat(buf, "Вы немного пьяны.\r\n");
+		}
+
+	}
+	if (GET_COND_M(ch, FULL))
+		strcat(buf, "Вы голодны.\r\n");
+	if (GET_COND_M(ch, THIRST))
+		strcat(buf, "Вас мучает жажда.\r\n");
+	/*
+	   strcat(buf, CCICYN(ch, C_NRM));
+	   strcat(buf,"Аффекты :\r\n");
+	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
+	   strcat(buf,buf2);
+	 */
+	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
+		strcat(buf, "Вы можете быть призваны.\r\n");
+
+	if (ch->has_horse(false)) {
+		if (ch->ahorse())
+			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+		else
+			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
+	}
+	strcat(buf, CCNRM(ch, C_NRM));
+	send_to_char(buf, ch);
+	if (NORENTABLE(ch)) {
+		sprintf(buf,
+				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
+				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
+		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SMITH)
+		&& (ch->get_skill(ESkill::kJewelry) || ch->get_skill(ESkill::kRepair) || ch->get_skill(ESkill::kReforging))) {
+		sprintf(buf,
+				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
+				CCIGRN(ch, C_NRM),
+				CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+
+	if (mail::has_mail(ch->get_uid())) {
+		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+
+	if (Parcel::has_parcel(ch)) {
+		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+
+	if (PLR_FLAGGED(ch, PLR_HELLED) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
+		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
+		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+		sprintf(buf,
+				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
+				hrs, desc_count(hrs, WHAT_HOUR), mins, desc_count(mins,
+																  WHAT_MINu),
+				HELL_REASON(ch) ? HELL_REASON(ch) : "-");
+		send_to_char(buf, ch);
+	}
+	if (PLR_FLAGGED(ch, PLR_MUTE) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
+		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
+		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+		sprintf(buf, "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
+				hrs, desc_count(hrs, WHAT_HOUR),
+				mins, desc_count(mins, WHAT_MINu), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
+		send_to_char(buf, ch);
+	}
+	if (PLR_FLAGGED(ch, PLR_DUMB) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
+		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
+		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
+				hrs, desc_count(hrs, WHAT_HOUR),
+				mins, desc_count(mins, WHAT_MINu), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
+		send_to_char(buf, ch);
+	}
+	if (PLR_FLAGGED(ch, PLR_FROZEN) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
+		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
+		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+		sprintf(buf, "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
+				hrs, desc_count(hrs, WHAT_HOUR),
+				mins, desc_count(mins, WHAT_MINu), FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-");
+		send_to_char(buf, ch);
+	}
+
+	if (!PLR_FLAGGED(ch, PLR_REGISTERED) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
+		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
+		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
+				hrs, desc_count(hrs, WHAT_HOUR),
+				mins, desc_count(mins, WHAT_MINu), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");
+		send_to_char(buf, ch);
+	}
+
+	if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GCURSE_DURATION(ch)) {
+		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
+		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+		sprintf(buf, "Вы прокляты Богами на %d %s %d %s.\r\n",
+				hrs, desc_count(hrs, WHAT_HOUR), mins, desc_count(mins, WHAT_MINu));
+		send_to_char(buf, ch);
+	}
+
+	if (ch->is_morphed()) {
+		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
+		send_to_char(buf, ch);
+	}
+	if (can_use_feat(ch, COLLECTORSOULS_FEAT)) {
+		const int souls = ch->get_souls();
+		if (souls == 0) {
+			sprintf(buf, "Вы не имеете чужих душ.\r\n");
+			send_to_char(buf, ch);
+		} else {
+			if (souls == 1) {
+				sprintf(buf, "Вы имеете всего одну душу в запасе.\r\n");
+				send_to_char(buf, ch);
+			}
+			if (souls > 1 && souls < 5) {
+				sprintf(buf, "Вы имеете %d души в запасе.\r\n", souls);
+				send_to_char(buf, ch);
+			}
+			if (souls >= 5) {
+				sprintf(buf, "Вы имеете %d чужих душ в запасе.\r\n", souls);
+				send_to_char(buf, ch);
+			}
+		}
+	}
+	if (ch->get_ice_currency() > 0) {
+		if (ch->get_ice_currency() == 1) {
+			sprintf(buf, "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
+			send_to_char(buf, ch);
+		} else if (ch->get_ice_currency() < 5) {
+			sprintf(buf, "У вас в наличии есть жалкие %d искристые снежинки.\r\n", ch->get_ice_currency());
+			send_to_char(buf, ch);
+		} else {
+			sprintf(buf, "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
+			send_to_char(buf, ch);
+		}
+	}
+	if (ch->get_nogata() > 0 && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+		int value = ch->get_nogata();
+		if (ch->get_nogata() == 1) {
+			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");
+		}
+		else {
+			sprintf(buf, "У вас в наличии есть %d %s.\r\n", value, desc_count(value, WHAT_NOGATAu));
+		}
+		send_to_char(buf, ch);
+	}
 }
 
 int CalcHitroll(CharData *ch) {

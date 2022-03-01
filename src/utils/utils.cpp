@@ -1656,7 +1656,7 @@ void print_log() {
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string PrintNumberByDigits(long long num) {
-	const char digits_separator = ',';
+	const char digits_separator = ' ';
 	const int digits_num = 3;
 
 	bool negative{false};

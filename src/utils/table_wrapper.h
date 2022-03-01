@@ -85,6 +85,15 @@ void DecorateCuteTable(CharData *ch, fort::char_table &table);
 void DecorateZebraTable(CharData *ch, fort::char_table &table, fort::color color);
 
 /**
+ * Оформить таблицу в стиле текстовой "зебры".
+ * Каждая вторая строка, не считая заголовка, имеет текст указанного цвета.
+ * @param ch - персонаж, для которого формируется таблица.
+ * @param table - оформляемая таблица.
+ * @param color - фоновый цвет строки.
+ */
+void DecorateZebraTextTable(CharData *ch, fort::char_table &table, fort::color color);
+
+/**
  *  Вывести таблицу персонажу. Возможное исключение перехватывается и обрабатывается.
  *  @param ch - персонаж, которому выводится таблица.
  *  @param table - распечатываемая таблица.

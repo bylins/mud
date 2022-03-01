@@ -2,229 +2,183 @@
 // Created by Sventovit on 22.02.2022.
 //
 
-#include <regex>
-
 #include "color.h"
 #include "game_classes/classes.h"
 #include "entities/char_data.h"
 #include "modify.h"
 #include "structs/global_objects.h"
-#include "utils/utils_string.h"
+/*#include "utils/utils_string.h"
 #include "utils/table_wrapper.h"
-#include "utils/utils.h"
+#include "utils/utils.h"*/
 
-struct UsersOpt {
-	int minlevel{0};
-	int maxlevel{kLvlImplementator};
-	bool showoutlaws{false};
-	bool showplaying{false};
-	bool locating{false};
-	bool showemail{false};
-	bool showlinkdrop{false};
-	bool showremorts{false};
-	ECharClass char_class{ECharClass::kUndefined};
-	std::string name;
-	std::string host;
-	std::string host_name;
-	std::string sorting;
-};
-
-using UserOptOptional = std::optional<UsersOpt>;
-
-UserOptOptional ParseCommandOptions(const std::string &input, CharData *ch) {
-	auto users_opt = std::make_optional<UsersOpt>();
-	auto tokens = utils::SplitString(input, ' ');
-	for (unsigned i = 0; i < tokens.size(); ++i) {
-		if (tokens[i][0] != '-' || tokens[i].size() < 2) {
-			continue;
-		}
-
-		switch (tokens[i][1]) {
-			case 'o': [[fallthrough]];
-			case 'k':
-				users_opt.value().showoutlaws = true;
-				users_opt.value().showplaying = true;
-			break;
-			case 'p':
-				users_opt.value().showplaying = true;
-			break;
-			case 'd':
-				users_opt.value().showlinkdrop = true;
-			break;
-			case 'l':
-				if (!IS_GOD(ch)) {
-					send_to_char("Вы не столь божественны!", ch);
-					return std::nullopt;
-				}
-
-				users_opt.value().showplaying = true;
-
-				try  {
-					users_opt->minlevel = std::stoi(tokens[i + 1]);
-				} catch (std::exception &) {
-					return std::nullopt;
-				}
-				try  {
-					users_opt->minlevel = std::stoi(tokens[i + 1]);
-				} catch (std::exception &) {
-				}
-
-				break;
-			case 'n':
-				users_opt.value().showplaying = true;
-				try  {
-					users_opt.value().name = tokens[i + 1];
-				} catch (std::exception &) {
-					return std::nullopt;
-				}
-				break;
-			case 'h':
-				users_opt.value().showplaying = true;
-				try  {
-					users_opt.value().host = tokens[i + 1];
-				} catch (std::exception &) {
-					return std::nullopt;
-				}
-				break;
-			case 'u':
-				users_opt.value().showplaying = true;
-				users_opt.value().showplaying = true;
-				try  {
-					users_opt.value().host_name = tokens[i + 1];
-				} catch (std::exception &) {
-					return std::nullopt;
-				}
-				break;
-			case 'w':
-				if (!IS_GRGOD(ch)) {
-					send_to_char("Вы не столь божественны!", ch);
-					return std::nullopt;
-				}
-				users_opt.value().showplaying = true;
-				users_opt.value().locating = true;
-				break;
-			case 'c': {
-				users_opt.value().showplaying = true;
-				users_opt.value().showplaying = true;
-				try  {
-					users_opt.value().char_class = FindAvailableCharClassId(tokens[i + 1]);
-				} catch (std::exception &) {
-					return std::nullopt;
-				}
-				break;
-			}
-			case 'e':
-				users_opt.value().showemail = true;
-				break;
-			case 'r':
-				users_opt.value().showremorts = true;
-				break;
-			case 's':
-				try  {
-					users_opt.value().sorting = tokens[i + 1];
-				} catch (std::exception &) {
-					return std::nullopt;
-				}
-				break;
-			default:
-				return std::nullopt;
-		}
-	}
-
-	return users_opt;
-}
-
-std::vector<DescriptorData *> &BuildPlayersRoster(std::vector<DescriptorData *> &roster) {
-	const int kReserveAmount = 200;
-	std::vector<DescriptorData *> ld_players_roster;
-	roster.reserve(kReserveAmount);
-	for (auto d = descriptor_list; d; d = d->next) {
-		const auto character = d->get_character();
-		if (!character) {
-			ld_players_roster.push_back(d);
-			continue;
-		} else {
-			roster.push_back(d);
-		}
-	}
-	roster.insert(roster.end(), ld_players_roster.begin(), ld_players_roster.end());
-
-	return roster;
-}
-
-void SortPlayersRoster(std::vector<DescriptorData *> &roster, UsersOpt &options) {
-	if (options.sorting == "name") {
-		std::sort(roster.begin(), roster.end(), [] (auto &c1, auto &c2) {
-			if (!c1->get_character()) {
-				return false;
-			}
-			return c1->get_character()->get_name() > c2->get_character()->get_name();
-		});
-	} else if (options.sorting == "email") {
-		std::sort(roster.begin(), roster.end(), [] (auto &c1, auto &c2) {
-			if (!c1->get_character()) {
-				return false;
-			}
-			return GET_EMAIL(c1->get_character()) > GET_EMAIL(c2->get_character());
-		});
-	} else {
-		std::sort(roster.begin(), roster.end(), [] (auto &c1, auto &c2) {
-			return get_ip(const_cast<char *>(c1->host)) > get_ip(const_cast<char *>(c2->host));
-		});
-	}
-}
-
+#define USERS_FORMAT \
+"Формат: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c classlist] [-o] [-p]\r\n"
+const int kMaxListLen = 200;
 void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	static const std::string kUsersFormat{"Формат: users [-l minlvl[-maxlvl]] [-n name] [-h host] [-c class] [-h host] [-u hostname] [-s name|email] [-d] [-e] [-k] [-o] [-p] [-r] [-w]\r\n"};
-
-	auto parse_options_result = ParseCommandOptions(argument, ch);
-	if (!parse_options_result) {
-		send_to_char(kUsersFormat, ch);
-		return;
-	}
-	auto &options = parse_options_result.value();
-
 	char line[200], line2[220], idletime[10], classname[128];
 	char state[30] = "\0", *timeptr, mode;
 	char name_search[kMaxInputLength] = "\0", host_search[kMaxInputLength];
 	char host_by_name[kMaxInputLength] = "\0";
+	DescriptorData *list_players[kMaxListLen];
+	DescriptorData *d_tmp;
+	int count_pl;
 	int cycle_i, is, flag_change;
 	unsigned long a1, a2;
-	int num_can_see = 0;
+	int showremorts = 0, showemail = 0, locating = 0;
+	char sorting = '!';
+	DescriptorData *d;
+	int low = 0, high = kLvlImplementator, num_can_see = 0;
+	int outlaws = 0, playing = 0, deadweight = 0;
+	ECharClass showclass{ECharClass::kUndefined};
+
+	host_search[0] = name_search[0] = '\0';
+
+	strcpy(buf, argument);
+	while (*buf) {
+		half_chop(buf, arg, buf1);
+		if (*arg == '-') {
+			mode = *(arg + 1);    // just in case; we destroy arg in the switch
+			switch (mode) {
+				case 'o':
+				case 'k': outlaws = 1;
+					playing = 1;
+					strcpy(buf, buf1);
+					break;
+				case 'p': playing = 1;
+					strcpy(buf, buf1);
+					break;
+				case 'd': deadweight = 1;
+					strcpy(buf, buf1);
+					break;
+				case 'l':
+					if (!IS_GOD(ch))
+						return;
+					playing = 1;
+					half_chop(buf1, arg, buf);
+					sscanf(arg, "%d-%d", &low, &high);
+					break;
+				case 'n': playing = 1;
+					half_chop(buf1, name_search, buf);
+					break;
+				case 'h': playing = 1;
+					half_chop(buf1, host_search, buf);
+					break;
+				case 'u': playing = 1;
+					half_chop(buf1, host_by_name, buf);
+					break;
+				case 'w':
+					if (!IS_GRGOD(ch))
+						return;
+					playing = 1;
+					locating = 1;
+					strcpy(buf, buf1);
+					break;
+				case 'c': {
+					playing = 1;
+					half_chop(buf1, arg, buf);
+/*					const size_t len = strlen(arg);
+					for (size_t i = 0; i < len; i++) {
+						showclass |= FindCharClassMask(arg[i]);
+					}*/
+					showclass = FindAvailableCharClassId(arg);
+					break;
+				}
+				case 'e': showemail = 1;
+					strcpy(buf, buf1);
+					break;
+				case 'r': showremorts = 1;
+					strcpy(buf, buf1);
+					break;
+
+				case 's':
+					sorting = *(arg + 2);
+					strcpy(buf, buf1);
+					break;
+				default: send_to_char(USERS_FORMAT, ch);
+					return;
+			}    // end of switch
+
+		} else {
+			strcpy(name_search, arg);
+			strcpy(buf, buf1);
+		}
+	}            // end while (parser)
+
 	const char *format = "%3d %-7s %-20s %-17s %-3s %-8s ";
-	// ========================================
+	if (showemail) {
+		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт       E-mail\r\n");
+	} else {
+		strcpy(line, "Ном Професс    Имя                  Состояние         Idl Логин    Сайт\r\n");
+	}
+	strcat(line, "--- ---------- -------------------- ----------------- --- -------- ----------------------------\r\n");
+	send_to_char(line, ch);
+
+	one_argument(argument, arg);
 
 	if (strlen(host_by_name) != 0) {
 		strcpy(host_search, "!");
 	}
 
-	std::vector<DescriptorData *> players_roster;
-	players_roster = BuildPlayersRoster(players_roster);
+	for (d = descriptor_list, count_pl = 0; d && count_pl < kMaxListLen; d = d->next, count_pl++) {
+		list_players[count_pl] = d;
 
-	if (isname(host_by_name, GET_NAME(players_roster[0]->character))) {
-		strcpy(host_search, players_roster[0]->host);
-	}
-
-	if (!options.sorting.empty()) {
-		SortPlayersRoster(players_roster, options);
-	}
-
-	fort::char_table table;
-	table << fort::header << "#" << "Class" << "Name" << "Connection state" << "Idle" << "Login" << "Host";
-	if (options.showemail) {
-		table << "E-mail" << fort::endr;
-	} else {
-		table << fort::endr;
-	}
-
-	for (auto d : players_roster) {
-
-		if (STATE(d) != CON_PLAYING && options.showplaying) {
+		const auto character = d->get_character();
+		if (!character) {
 			continue;
 		}
-		if (STATE(d) == CON_PLAYING && options.showlinkdrop) {
-			continue;
+
+		if (isname(host_by_name, GET_NAME(character))) {
+			strcpy(host_search, d->host);
 		}
+	}
+
+	if (sorting != '!') {
+		is = 1;
+		while (is) {
+			is = 0;
+			for (cycle_i = 1; cycle_i < count_pl; cycle_i++) {
+				flag_change = 0;
+				d = list_players[cycle_i - 1];
+
+				const auto t = d->get_character();
+
+				d_tmp = list_players[cycle_i];
+
+				const auto t_tmp = d_tmp->get_character();
+
+				switch (sorting) {
+					case 'n':
+						if (0 < strcoll(t ? t->get_pc_name().c_str() : "", t_tmp ? t_tmp->get_pc_name().c_str() : "")) {
+							flag_change = 1;
+						}
+						break;
+
+					case 'e':
+						if (strcoll(t ? GET_EMAIL(t) : "", t_tmp ? GET_EMAIL(t_tmp) : "") > 0)
+							flag_change = 1;
+						break;
+
+					default: a1 = get_ip(const_cast<char *>(d->host));
+						a2 = get_ip(const_cast<char *>(d_tmp->host));
+						if (a1 > a2)
+							flag_change = 1;
+				}
+				if (flag_change) {
+					list_players[cycle_i - 1] = d_tmp;
+					list_players[cycle_i] = d;
+					is = 1;
+				}
+			}
+		}
+	}
+
+	for (cycle_i = 0; cycle_i < count_pl; cycle_i++) {
+		d = list_players[cycle_i];
+
+		if (STATE(d) != CON_PLAYING && playing)
+			continue;
+		if (STATE(d) == CON_PLAYING && deadweight)
+			continue;
 		if (STATE(d) == CON_PLAYING) {
 			const auto character = d->get_character();
 			if (!character) {
@@ -237,15 +191,13 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (*name_search && !isname(name_search, GET_NAME(character))) {
 				continue;
 			}
-			if (!CAN_SEE(ch, character)
-				|| GetRealLevel(character) < options.minlevel
-				|| GetRealLevel(character) > options.maxlevel) {
+			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
 				continue;
 			}
-			if (options.showoutlaws && !PLR_FLAGGED((ch), PLR_KILLER)) {
+			if (outlaws && !PLR_FLAGGED((ch), PLR_KILLER)) {
 				continue;
 			}
-			if (options.char_class != ECharClass::kUndefined && options.char_class != character->get_class()) {
+			if (showclass != ECharClass::kUndefined && showclass != character->get_class()) {
 				continue;
 			}
 			if (GET_INVIS_LEV(character) > GetRealLevel(ch)) {
@@ -253,7 +205,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (d->original) {
-				if (options.showremorts) {
+				if (showremorts) {
 					sprintf(classname,
 							"[%2d %2d %s]",
 							GetRealLevel(d->original),
@@ -265,7 +217,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							GetRealLevel(d->original),
 							MUD::Classes()[d->original->get_class()].GetAbbr().c_str());
 				}
-			} else if (options.showremorts) {
+			} else if (showremorts) {
 				sprintf(classname,
 						"[%2d %2d %s]",
 						GetRealLevel(d->character),
@@ -336,14 +288,13 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcat(line, "[Неизвестный хост]");
 		}
 
-		if (options.showemail) {
+		if (showemail) {
 			sprintf(line2, "[&S%s&s]",
 					d->original ? GET_EMAIL(d->original) : d->character ? GET_EMAIL(d->character) : "");
 			strcat(line, line2);
 		}
 
-		options.host_name;
-		if (options.locating && (*name_search || *host_by_name)) {
+		if (locating && (*name_search || *host_by_name)) {
 			if (STATE(d) == CON_PLAYING) {
 				const auto ci = d->get_character();
 				if (ci
@@ -378,5 +329,3 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	sprintf(line, "\r\n%d видимых соединений.\r\n", num_can_see);
 	page_string(ch->desc, line, true);
 }
-
-// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

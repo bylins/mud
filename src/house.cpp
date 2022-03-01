@@ -43,6 +43,7 @@
 #include "conf.h"
 #include "structs/global_objects.h"
 #include "utils/objects_filter.h"
+#include "utils/table_wrapper.h"
 
 using namespace ClanSystem;
 
@@ -1005,7 +1006,7 @@ void Clan::HouseInfo(CharData *ch) {
 	}
 
 	std::sort(temp_list.begin(), temp_list.end(),
-			  [](const ClanMember::shared_ptr lrs, const ClanMember::shared_ptr rhs) {
+			  [](const ClanMember::shared_ptr &lrs, const ClanMember::shared_ptr &rhs) {
 				  return lrs->rank_num < rhs->rank_num;
 			  });
 
@@ -4400,8 +4401,8 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void Clan::HouseStat(CharData *ch, std::string &buffer) {
 	std::string buffer2;
 	GetOneParam(buffer, buffer2);
-	bool all = 0, name = 0;
-	std::ostringstream out;
+	bool all{false}, name{false};
+
 	// параметр сортировки
 	enum ESortParam {
 		SORT_STAT_BY_EXP,
@@ -4436,6 +4437,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 		if (buffer2[0] == '!') GetOneParam(buffer, buffer2);
 	}
 
+	std::ostringstream out;
 	out << CCWHT(ch, C_NRM);
 	if (CompareParam(buffer2, "очистить") || CompareParam(buffer2, "удалить")) {
 		if (CLAN_MEMBER(ch)->rank_num) {
@@ -4444,9 +4446,9 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 		}
 		// можно почистить тока деньги для удобства сбора с мемберов налога
 		GetOneParam(buffer, buffer2);
-		bool money = 0;
+		bool money = false;
 		if (CompareParam(buffer2, "деньги") || CompareParam(buffer2, "money"))
-			money = 1;
+			money = true;
 
 		for (const auto &it : m_members) {
 			it.second->money = 0;
@@ -4457,19 +4459,21 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			it.second->clan_exp = 0;
 		}
 
-		if (money)
+		if (money) {
 			send_to_char("Статистика доходов вашей дружины очищена.\r\n", ch);
-		else
+		} else {
 			send_to_char("Статистика вашей дружины полностью очищена.\r\n", ch);
+		}
 		return;
 	} else if (CompareParam(buffer2, "все")) {
-		all = 1;
+		all = true;
 		out << "Статистика вашей дружины ";
 	} else if (!buffer2.empty()) {
-		name = 1;
+		name = true;
 		out << "Статистика вашей дружины (поиск по имени '" << buffer2 << "') ";
-	} else
+	} else {
 		out << "Статистика вашей дружины (находящиеся онлайн) ";
+	}
 
 	// вывод режима сортировки
 	out << "(сортировка по: ";
@@ -4488,14 +4492,10 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			// этого быть не должно
 		default: out << "чему БОГ пошлет";
 	}
-	out << "):\r\n";
-	out << CCNRM(ch, C_NRM)
-		<< "          Имя | Ур |Проф| Рейт.очков |Опыта дружины|Внесено кун|Был в игре\r\n"
-		<< "--------------------------------------------------------------------------\r\n";
+	out << "):" << std::endl;
 
 	// multimap ибо могут быть совпадения
 	std::multimap<long long, std::pair<std::string, ClanMember::shared_ptr> > temp_list;
-
 	for (const auto &it : m_members) {
 		it.second->level = 0;
 		if (!all && !name) {
@@ -4506,6 +4506,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 				it.second->level = GetRealLevel(d->character);
 				it.second->class_abbr = MUD::Classes()[d->character->get_class()].GetAbbr();
 				it.second->remort = GET_GOD_FLAG(d->character, GF_REMORT) ? true : false;
+				it.second->remorts_amount = GET_REMORT(d->character);
 			}
 		} else if (name) {
 			if (!CompareParam(buffer2, it.second->name)) {
@@ -4542,18 +4543,25 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 		temp_list.insert(std::make_pair(lSortParam, std::make_pair(std::string(timeBuf), it.second)));
 	}
 
+	fort::char_table table;
+	table << fort::header << "Имя" << "Ур" << "Прв" << "Класс" << "Рейт. очков"
+		  << "Опыта дружины" << "Внесено кун" << "Был в игре" << fort::endr;
+	std::string lvl_str;
 	for (auto it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
-		out << std::setw(13) << it->second.second->name << " | "
-			<< std::setw(2) << (it->second.second->level > 0 ?
-								boost::lexical_cast<std::string>(it->second.second->level) :
-								"--")
-			<< (it->second.second->remort ? "+| " : " | ")
-			<< std::setw(2) << it->second.second->class_abbr << " |"
-			<< std::setw(12) << it->second.second->exp << "|"
-			<< std::setw(13) << it->second.second->clan_exp << "| "
-			<< std::setw(9) << it->second.second->money << " |"
-			<< it->second.first << "\r\n";
+		table << it->second.second->name;
+		lvl_str = (it->second.second->level > 0 ? std::to_string(it->second.second->level) : "--");
+		lvl_str += (it->second.second->remort ? "+" : " ");
+		table << lvl_str
+			<< it->second.second->remorts_amount
+			<< it->second.second->class_abbr
+			<< PrintNumberByDigits(it->second.second->exp)
+			<< PrintNumberByDigits(it->second.second->clan_exp)
+			<< PrintNumberByDigits(it->second.second->money)
+			<< it->second.first << fort::endr;
 	}
+	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::kLightGreen);
+	table_wrapper::PrintTableToStream(out, table);
+
 	page_string(ch->desc, out.str());
 }
 
