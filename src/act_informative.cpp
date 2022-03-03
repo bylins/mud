@@ -2712,38 +2712,59 @@ void ClearMyStat(CharData *ch) {
 
 void PrintMyStat(CharData *ch) {
 	fort::char_table table;
-	table << fort::header
-		<< "Статистика ваших смертей\r\n(количество, потерянного опыта)"
-		<< "Текущее\r\nперевоплощение:"
-		<< "\r\nВсего:" << fort::endr;
-	table << "В неравном бою с тварями:"
-		<< std::to_string(GET_RIP_MOBTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOBTHIS(ch)) + ")"
-		<< std::to_string(GET_RIP_MOB(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOB(ch)) + ")" << fort::endr;
-	table << "В неравном бою с врагами:"
-		<< std::to_string(GET_RIP_PKTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_PKTHIS(ch)) + ")"
-		<< std::to_string(GET_RIP_PK(ch)) + " (" + PrintNumberByDigits(GET_EXP_PK(ch)) + ")" << fort::endr;
-	table << "В гиблых местах:"
-		<< std::to_string(GET_RIP_DTTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_DTTHIS (ch))	+ ")"
-		<< std::to_string(GET_RIP_DT(ch)) + " (" + PrintNumberByDigits(GET_EXP_DT(ch)) + ")" << fort::endr;
-	table << "По стечению обстоятельств:"
-		<< std::to_string(GET_RIP_OTHERTHIS(ch)) + " ("	+ PrintNumberByDigits(GET_EXP_OTHERTHIS(ch)) + ")"
-		<< std::to_string(GET_RIP_OTHER(ch)) + " (" + PrintNumberByDigits(GET_EXP_OTHER(ch)) + ")" << fort::endr;
-	table << fort::separator << fort::endr;
-	table << "ИТОГО:"
-		<< std::to_string(GET_RIP_MOBTHIS(ch) + GET_RIP_PKTHIS(ch) + GET_RIP_DTTHIS(ch) + GET_RIP_OTHERTHIS(ch))
-		+ " (" + PrintNumberByDigits(GET_EXP_MOBTHIS(ch) + GET_EXP_PKTHIS(ch) + GET_EXP_DTTHIS(ch)
-		+ GET_EXP_OTHERTHIS(ch) + GET_EXP_ARENA(ch)) + ")"
-		<< std::to_string(GET_RIP_MOB(ch) + GET_RIP_PK(ch) + GET_RIP_DT(ch) + GET_RIP_OTHER(ch))
-		+ " (" + PrintNumberByDigits(GET_EXP_MOB(ch) + GET_EXP_PK(ch) + GET_EXP_DT(ch)
-		+ GET_EXP_OTHER(ch) + GET_EXP_ARENA(ch)) +")" << fort::endr;
-	table << fort::separator << fort::endr;
-	table << "На арене:" << " " << " " << fort::endr;
-	table << "Убито игроков: " + std::to_string(GET_WIN_ARENA(ch))
-		<< "Смертей: " + std::to_string(GET_RIP_ARENA(ch))
-		<< "Потеряно опыта: " + std::to_string(GET_EXP_ARENA(ch)) << fort::endr;
-	table << fort::separator << fort::endr;
-	table << "Арена доминирования:" << "Убито противников:" << "Смерти на арене:" << fort::endr;
-	table << " " << ch->player_specials->saved.kill_arena_dom << ch->player_specials->saved.rip_arena_dom;
+	std::size_t row{0};
+	std::size_t col{0};
+
+	table << fort::header;
+	table[row][col]	= "Статистика ваших смертей\r\n(количество, потерянного опыта)";
+	table[row][++col]	= "Текущее\r\nперевоплощение:";
+	table[row][++col]	= "\r\nВсего:";
+
+	col = 0;
+	table[++row][col] = "В неравном бою с тварями:";
+	table[row][++col] = std::to_string(GET_RIP_MOBTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOBTHIS(ch)) + ")";
+	table[row][++col] = std::to_string(GET_RIP_MOB(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOB(ch)) + ")";
+
+	col = 0;
+	table[++row][col] = "В неравном бою с врагами:";
+	table[row][++col] = std::to_string(GET_RIP_PKTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_PKTHIS(ch)) + ")";
+	table[row][++col] = std::to_string(GET_RIP_PK(ch)) + " (" + PrintNumberByDigits(GET_EXP_PK(ch)) + ")";
+
+	col = 0;
+	table[++row][col] = "В гиблых местах:";
+	table[row][++col]	= std::to_string(GET_RIP_DTTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_DTTHIS (ch))	+ ")";
+	table[row][++col] = std::to_string(GET_RIP_DT(ch)) + " (" + PrintNumberByDigits(GET_EXP_DT(ch)) + ")";
+
+	col = 0;
+	table[++row][col] = "По стечению обстоятельств:";
+	table[row][++col]	= std::to_string(GET_RIP_OTHERTHIS(ch)) + " ("	+ PrintNumberByDigits(GET_EXP_OTHERTHIS(ch)) + ")";
+	table[row][++col]	= std::to_string(GET_RIP_OTHER(ch)) + " (" + PrintNumberByDigits(GET_EXP_OTHER(ch)) + ")";
+
+	col = 0;
+	table[++row][col] = "ИТОГО:";
+	table[row][++col]	= std::to_string(GET_RIP_MOBTHIS(ch) + GET_RIP_PKTHIS(ch) + GET_RIP_DTTHIS(ch)
+		+ GET_RIP_OTHERTHIS(ch)) + " (" + PrintNumberByDigits(GET_EXP_MOBTHIS(ch) + GET_EXP_PKTHIS(ch)
+		+ GET_EXP_DTTHIS(ch) + GET_EXP_OTHERTHIS(ch) + GET_EXP_ARENA(ch)) + ")";
+	table[row][++col] = std::to_string(GET_RIP_MOB(ch) + GET_RIP_PK(ch) + GET_RIP_DT(ch) + GET_RIP_OTHER(ch))
+		+ " (" + PrintNumberByDigits(GET_EXP_MOB(ch) + GET_EXP_PK(ch) + GET_EXP_DT(ch) + GET_EXP_OTHER(ch)
+		+ GET_EXP_ARENA(ch)) +")";
+	table << fort::endr << fort::separator << fort::endr;
+
+	col = 0;
+	table[++row][col] = "На арене:";
+	table[row][++col] = " ";
+	table[row][++col] = " ";
+
+	col = 0;
+	table[++row][col] = "Убито игроков: " + std::to_string(GET_WIN_ARENA(ch));
+	table[row][++col] = "Смертей: " + std::to_string(GET_RIP_ARENA(ch));
+	table[row][++col] = "Потеряно опыта: " + std::to_string(GET_EXP_ARENA(ch));
+	table << fort::endr << fort::separator << fort::endr;
+
+	col = 0;
+	table[++row][col] = "Арена доминирования:";
+	table[row][++col] = "Убито: " + std::to_string(ch->player_specials->saved.kill_arena_dom);
+	table[row][++col] = "Смерти: " + std::to_string(ch->player_specials->saved.rip_arena_dom);
 
 	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::kLightCyan);
 	table_wrapper::PrintTableToChar(ch, table);

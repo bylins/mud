@@ -4559,7 +4559,11 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			<< PrintNumberByDigits(it->second.second->money)
 			<< it->second.first << fort::endr;
 	}
-	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::kLightGreen);
+	table.column(4).set_cell_text_align(fort::text_align::right);
+	table.column(5).set_cell_text_align(fort::text_align::right);
+	table.column(6).set_cell_text_align(fort::text_align::right);
+
+	table_wrapper::DecorateZebraTextTable(ch, table, table_wrapper::kGreen);
 	table_wrapper::PrintTableToStream(out, table);
 
 	page_string(ch->desc, out.str());

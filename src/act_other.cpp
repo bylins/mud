@@ -897,7 +897,7 @@ void change_leader(CharData *ch, CharData *vict) {
 	// вся эта фигня только для того, чтобы при реследовании пройтись по списку в обратном
 	// направлении и сохранить относительный порядок следования в группе
 	if (!temp_list.empty()) {
-		for (std::vector<CharData *>::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
+		for (auto it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
 			leader->add_follower_silently(*it);
 		}
 	}

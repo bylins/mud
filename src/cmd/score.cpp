@@ -562,7 +562,7 @@ int PrintProtectiveStatsToTable(CharData *ch, fort::char_table &table, std::size
 	std::size_t row{0};
 
 	table[row][col] = "Броня";				table[row][col + 1] = std::to_string(GET_ARMOUR(ch));
-	table[++row][col] = "Защита";			table[row][col + 1] = std::to_string(GET_AC(ch));
+	table[++row][col] = "Защита";			table[row][col + 1] = std::to_string(GET_REAL_AC(ch));
 	table[++row][col] = "Поглощение";		table[row][col + 1] = std::to_string(GET_ABSORBE(ch));
 	table[++row][col] = "Сопротивления: ";	table[row][col + 1] = " ";
 	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(GET_MR(ch));
