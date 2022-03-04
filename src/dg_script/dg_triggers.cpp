@@ -721,6 +721,7 @@ void load_mtrigger(CharData *ch) {
 
 int start_fight_mtrigger(CharData *ch, CharData *actor) {
 	send_to_char(actor, "зашли в файт триггер!!!!!!!!\r\n");
+	return 0;
 	if (!ch || ch->purged() || !actor || actor->purged()) {
 		log("SYSERROR: start_fight_mtrigger: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 				actor ? (actor->purged() ? "purged" : "true") : "false",__FILE__, __LINE__);
