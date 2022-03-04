@@ -360,7 +360,7 @@ void reset_wtrigger(RoomData *ch);
 void load_mtrigger(CharData *ch);
 void load_otrigger(ObjData *obj);
 void purge_otrigger(ObjData *obj);
-void start_fight_mtrigger(CharData *ch, CharData *actor);
+int start_fight_mtrigger(CharData *ch, CharData *actor);
 void round_num_mtrigger(CharData *ch, CharData *actor);
 int cast_mtrigger(CharData *ch, CharData *actor, int spellnum);
 void kill_pc_wtrigger(CharData *killer, CharData *victim);
