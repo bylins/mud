@@ -168,7 +168,6 @@ void restore_battle_pos(CharData *ch) {
 void set_fighting(CharData *ch, CharData *vict) {
 	if (ch == vict)
 		return;
-
 	if (ch->get_fighting()) {
 		log("SYSERR: set_fighting(%s->%s) when already fighting(%s)...",
 			GET_NAME(ch), GET_NAME(vict), GET_NAME(ch->get_fighting()));
@@ -241,7 +240,7 @@ void set_fighting(CharData *ch, CharData *vict) {
 		SET_AF_BATTLE(ch, kEafAutoblock);
 	}
 
-	start_fight_mtrigger(ch, vict);
+
 //  check_killer(ch, vict);
 }
 

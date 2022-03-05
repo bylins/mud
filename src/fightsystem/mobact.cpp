@@ -637,17 +637,9 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 
 		if (IS_SET(extmode, GUARD_ATTACK)) {
 			act("'$N - за грехи свои ты заслуживаешь смерти!', сурово проговорил$g $n.",
-				false,
-				ch,
-				nullptr,
-				best,
-				kToRoom);
+				false, ch, nullptr, best, kToRoom);
 			act("'Как страж этого города, я намерен$g привести приговор в исполнение немедленно. Защищайся!'",
-				false,
-				ch,
-				nullptr,
-				best,
-				kToRoom);
+				false, ch, nullptr, best, kToRoom);
 		}
 
 		if (!IS_NPC(best)) {
@@ -672,6 +664,9 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 					break;
 				}
 		}
+		if (!start_fight_mtrigger(ch, best)) {
+			return false;
+		}
 		if (!attack_best(ch, best) && !ch->get_fighting())
 			hit(ch, best, ESkill::kUndefined, fight::kMainHand);
 		return (true);
@@ -694,7 +689,9 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
 				GET_POS(ch) = EPosition::kStand;
 			}
-
+			if (!start_fight_mtrigger(ch, vict)) {
+				return false;
+			}
 			if (!attack_best(ch, vict) && !ch->get_fighting()) {
 				hit(ch, vict, ESkill::kUndefined, fight::kMainHand);
 			}
@@ -818,6 +815,9 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 			} else {
 				act("'$N - ты пытал$U убить меня ! Попал$U ! Умри !!!', воскликнул$g $n.",
 					false, ch, nullptr, victim, kToRoom);
+			}
+			if (!start_fight_mtrigger(ch, victim)) {
+				return;
 			}
 			if (!attack_best(ch, victim)) {
 				hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
@@ -999,16 +999,10 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& !ch->has_master()) // если скакун, под седлом но нет хозяина
 		{
 			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
-				false,
-				ch.get(),
-				nullptr,
-				nullptr,
-				kToRoom);
+				false, ch.get(), nullptr, nullptr, kToRoom);
 			extract_char(ch.get(), false);
-
 			return;
 		}
-
 		// Extract uncharmed mobs
 		if (EXTRACT_TIMER(ch) > 0) {
 			if (ch->has_master()) {
@@ -1017,12 +1011,10 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				EXTRACT_TIMER(ch)--;
 				if (!EXTRACT_TIMER(ch)) {
 					extract_charmice(ch.get());
-
 					return;
 				}
 			}
 		}
-
 		// If the mob has no specproc, do the default actions
 		if (ch->get_fighting() ||
 			GET_POS(ch) <= EPosition::kStun ||
