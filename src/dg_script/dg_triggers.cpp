@@ -720,27 +720,20 @@ void load_mtrigger(CharData *ch) {
 }
 
 int start_fight_mtrigger(CharData *ch, CharData *actor) {
-	send_to_char(actor, "зашли в файт триггер!!!!!!!!\r\n");
-	return 0;
 	if (!ch || ch->purged() || !actor || actor->purged()) {
 		log("SYSERROR: start_fight_mtrigger: ch = %s, actor = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false",
 				actor ? (actor->purged() ? "purged" : "true") : "false",__FILE__, __LINE__);
 		return 1;
 	}
-//			return 0;
 	if (!SCRIPT_CHECK(ch, MTRIG_START_FIGHT)) {
 		return 1;
 	}
-			send_to_char(actor, "зашли в файт триггер 22222222222\r\n");
-			return 0;
 	char buf[kMaxInputLength];
 	for (auto t : SCRIPT(ch)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_START_FIGHT)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			send_to_char(actor, "зашли в файт триггер 22222222222\r\n");
-			return 0;
-//script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 		}
 	}
 	return 1;
