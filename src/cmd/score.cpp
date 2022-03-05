@@ -560,9 +560,14 @@ int PrintSecondaryStatsToTable(CharData *ch, fort::char_table &table, std::size_
  */
 int PrintProtectiveStatsToTable(CharData *ch, fort::char_table &table, std::size_t col) {
 	std::size_t row{0};
+	int ac = compute_armor_class(ch) / 10;
+	if (ac < 5) {
+		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+		ac = ac + mod > 5 ? 5 : ac + mod;
+	}
 
 	table[row][col] = "Броня";				table[row][col + 1] = std::to_string(GET_ARMOUR(ch));
-	table[++row][col] = "Защита";			table[row][col + 1] = std::to_string(GET_REAL_AC(ch));
+	table[++row][col] = "Защита";			table[row][col + 1] = std::to_string(ac);
 	table[++row][col] = "Поглощение";		table[row][col + 1] = std::to_string(GET_ABSORBE(ch));
 	table[++row][col] = "Сопротивления: ";	table[row][col + 1] = " ";
 	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(GET_MR(ch));
