@@ -487,7 +487,10 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 	for (i = 1; i <= kSpellCount; i++) {
 		if (!GET_SPELL_TYPE(ch, i) && !all_spells)
 			continue;
-
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+			if (!IS_SET(GET_SPELL_TYPE(ch, i), kSpellTemp) && !all_spells)
+				continue;
+		}
 		if ((MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch)
 			|| MIN_CAST_REM(spell_info[i], ch) > GET_REAL_REMORT(ch)
 			|| slot_for_char(ch, spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
