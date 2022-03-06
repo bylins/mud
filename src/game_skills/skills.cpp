@@ -1741,14 +1741,14 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		total_percent /= 2;
 	}
 
-	if (IS_IMMORTAL(ch) || (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))) {
+	if (GET_GOD_FLAG(ch, GF_GODSLIKE) || (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))) {
 		total_percent = MUD::Skills()[skill_id].cap;
 	} else if (GET_GOD_FLAG(ch, GF_GODSCURSE)) {
 		total_percent = 0;
 	}
 
 	ch->send_to_TC(false, true, true,
-				   "&CTarget: %s, BaseSkill: %d, Bonus: %d, TargetSave = %d, TargetMod: %d, TotalSkill: %d&n\r\n",
+				   "&CTarget: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d&n\r\n",
 				   vict ? GET_NAME(vict) : "NULL",
 				   base_percent,
 				   bonus,
