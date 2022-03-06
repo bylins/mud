@@ -1170,7 +1170,7 @@ SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict) {
 }
 
 void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
-					  int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result) {
+	int actor_rate, int victim_rate, int threshold, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
 	buffer << KICYN
 		   << "Skill: '" << MUD::Skills()[skill_id].name << "'"
@@ -1219,8 +1219,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!IS_NPC(ch) && !ch->affected.empty()) {
 		for (const auto &aff: ch->affected) {
 			if (aff->location == APPLY_PLAQUE) {
-				base_percent -= number(ch->get_skill(skill_id) * 0.4,
-									   ch->get_skill(skill_id) * 0.05);
+				base_percent -= number(ch->get_skill(skill_id) * 0.4, ch->get_skill(skill_id) * 0.05);
 			}
 		}
 	}
@@ -1748,9 +1747,9 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	ch->send_to_TC(false, true, true,
-			"&CTarget: %s, skill_id: %d, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d&n\r\n",
+			"&CTarget: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d&n\r\n",
 			vict ? GET_NAME(vict) : "NULL",
-			skill_id,
+			MUD::Skills()[skill_id].GetName(),
 			base_percent,
 			bonus,
 			victim_sav,

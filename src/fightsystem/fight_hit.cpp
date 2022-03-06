@@ -3374,8 +3374,9 @@ void HitData::calc_crit_chance(CharData *ch) {
 	}
 }
 int HitData::calc_damage(CharData *ch, bool need_dice) {
-	if (PRF_FLAGGED(ch, PRF_EXECUTOR))
-		send_to_char(ch, "&YДамага без бонусов == %d&n\r\n", dam);
+	if (PRF_FLAGGED(ch, PRF_EXECUTOR)) {
+		send_to_char(ch, "&YСкилл: %s. Дамага без бонусов == %d&n\r\n", MUD::Skills()[weap_skill].GetName(), dam);
+	}
 	if (ch->get_skill(weap_skill) == 0) {
 		calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 		dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
