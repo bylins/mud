@@ -1748,13 +1748,14 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 	}
 
 	ch->send_to_TC(false, true, true,
-				   "&CTarget: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d&n\r\n",
-				   vict ? GET_NAME(vict) : "NULL",
-				   base_percent,
-				   bonus,
-				   victim_sav,
-				   victim_modi / 2,
-				   total_percent);
+			"&CTarget: %s, skill_id: %d, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d&n\r\n",
+			vict ? GET_NAME(vict) : "NULL",
+			skill_id,
+			base_percent,
+			bonus,
+			victim_sav,
+			victim_modi / 2,
+			total_percent);
 	return (total_percent);
 }
 
