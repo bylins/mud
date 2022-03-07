@@ -834,7 +834,7 @@ void medit_disp_saves(DescriptorData *d) {
 				grn, i+1, nrm, apply_negative[i+1], cyn, GET_SAVE(OLC_MOB(d), s), nrm);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Введите номер и величину спас-броска (0 - конец) : ", d->character.get());
+	send_to_char("Введите номер и величину спас-броска, отрицательное улучшает (0 - конец) : ", d->character.get());
 }
 
 #if defined(OASIS_MPROG)
