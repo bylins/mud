@@ -1911,7 +1911,7 @@ bool IsAbleToGetSkill(CharData *ch, ESkill skill, int req_lvl) {
 		|| MUD::Classes()[ch->get_class()].HasntSkill(skill)) {
 		return false;
 	}
-	if (ch->get_level() < GetSkillMinLevel(ch, skill, req_lvl)) {
+	if (GetRealLevel(ch) < GetSkillMinLevel(ch, skill, req_lvl)) {
 		return false;
 	}
 	return true;
@@ -1922,7 +1922,7 @@ bool IsAbleToGetSkill(CharData *ch, ESkill skill) {
 		|| MUD::Classes()[ch->get_class()].HasntSkill(skill)) {
 		return false;
 	}
-	if (ch->get_level() < GetSkillMinLevel(ch, skill)) {
+	if (GetRealLevel(ch) < GetSkillMinLevel(ch, skill)) {
 		return false;
 	}
 

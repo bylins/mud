@@ -232,7 +232,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	void set_level(const short v) {
 		Ensurer ch(*this);
-		ch->set_level(v);
+		GetRealLevel(ch);
 	}
 
 	long get_exp() const {

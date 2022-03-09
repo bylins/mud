@@ -3171,7 +3171,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 		mob->set_int(ch->get_int());
 		mob->set_cha(ch->get_cha());
 
-		mob->set_level(ch->get_level());
+		mob->set_level(GetRealLevel(ch));
 		GET_HR(mob) = -20;
 		GET_AC(mob) = GET_AC(ch);
 		GET_DR(mob) = GET_DR(ch);
@@ -3244,7 +3244,7 @@ int mag_summons(int level, CharData *ch, ObjData *obj, int spellnum, int savetyp
 
 	if (spellnum == kSpellSummonKeeper) {
 		// Svent TODO: не забыть перенести это в ability
-		mob->set_level(ch->get_level());
+		mob->set_level(GetRealLevel(ch));
 		int rating = (ch->get_skill(ESkill::kLightMagic) + GET_REAL_CHA(ch)) / 2;
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 50 + RollDices(10, 10) + rating * 6;
 		mob->set_skill(ESkill::kPunch, 10 + rating * 1.5);

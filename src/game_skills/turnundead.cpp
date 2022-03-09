@@ -53,7 +53,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		damage.dam = fight::kZeroDmg;
 		roll.Init(ch, TURN_UNDEAD_FEAT, target);
 		if (roll.IsSuccess()) {
-			if (roll.IsCriticalSuccess() && ch->get_level() > target->get_level() + RollDices(1, 5)) {
+			if (roll.IsCriticalSuccess() && GetRealLevel(ch) > target->get_level() + RollDices(1, 5)) {
 				send_to_char(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
 				damage.dam = std::max(1, GET_HIT(target) + 11);
 			} else {
