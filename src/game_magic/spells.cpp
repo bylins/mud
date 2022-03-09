@@ -2301,7 +2301,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
-	mob->set_level(ch->get_level());
+	mob->set_level(GetRealLevel(ch));
 	char_to_room(mob, ch->in_room);
 	ch->add_follower(mob);
 	
@@ -2380,7 +2380,7 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	if (mob->get_skill(ESkill::kAwake)) {
 		PRF_FLAGS(mob).set(PRF_AWAKE);
 	}
-	mob->set_level(ch->get_level());
+	mob->set_level(GetRealLevel(ch));
 	MOB_FLAGS(mob).set(MOB_CORPSE);
 	MOB_FLAGS(mob).set(MOB_GHOST);
 	char_to_room(mob, IN_ROOM(ch));

@@ -3729,17 +3729,17 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
 	for (i = 1; i < kLvlImmortal; i++) {
-		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (ch->get_level() == i) ? CCICYN(ch, C_NRM) : "", i,
+		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (GetRealLevel(ch) == i) ? CCICYN(ch, C_NRM) : "", i,
 					   thousands_sep(level_exp(ch, i)).c_str(),
 					   thousands_sep(level_exp(ch, i + 1) - 1).c_str(),
 					   thousands_sep((int) (level_exp(ch, i + 1) - level_exp(ch, i)) / (10 + GET_REAL_REMORT(ch))).c_str(),
-					   (ch->get_level() == i) ? CCNRM(ch, C_NRM) : "");
+					   (GetRealLevel(ch) == i) ? CCNRM(ch, C_NRM) : "");
 	}
 
 	ptr += sprintf(ptr, "%s[%2d] %13s               (БЕССМЕРТИЕ)%s\r\n",
-				   (ch->get_level() >= kLvlImmortal) ? CCICYN(ch, C_NRM) : "", kLvlImmortal,
+				   (GetRealLevel(ch) >= kLvlImmortal) ? CCICYN(ch, C_NRM) : "", kLvlImmortal,
 				   thousands_sep(level_exp(ch, kLvlImmortal)).c_str(),
-				   (ch->get_level() >= kLvlImmortal) ? CCNRM(ch, C_NRM) : "");
+				   (GetRealLevel(ch) >= kLvlImmortal) ? CCNRM(ch, C_NRM) : "");
 	page_string(ch->desc, buf, 1);
 }
 

@@ -181,7 +181,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 		case kSpellMeteorStorm: send_to_char("Раскаленные громовые камни рушатся с небес!\r\n", ch);
 			act("Раскаленные громовые камни рушатся с небес!\r\n",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellThunderStone, ch->get_level());
+			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellThunderStone, GetRealLevel(ch));
 			break;
 
 		case kSpellThunderstorm:
@@ -199,45 +199,45 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 				case 7: send_to_char("Раздался чудовищный раскат грома!\r\n", ch);
 					act("Раздался чудовищный удар грома!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDeafness, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDeafness, GetRealLevel(ch));
 					break;
 				case 6: send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellColdWind, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellColdWind, GetRealLevel(ch));
 					break;
 				case 5: send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
 					act("Из туч хлынул дождь кислоты!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellAcid, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellAcid, GetRealLevel(ch));
 					break;
 				case 4: send_to_char("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, GetRealLevel(ch));
 					break;
 				case 3: send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
 					act("Из тучи посыпались шаровые молнии!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellCallLighting, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellCallLighting, GetRealLevel(ch));
 					break;
 				case 2: send_to_char("Буря завыла, закручиваясь в вихри!\r\n", ch);
 					act("Буря завыла, закручиваясь в вихри!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellWhirlwind, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellWhirlwind, GetRealLevel(ch));
 					break;
 				case 1: what_sky = kSkyCloudless;
 					break;
 				default: send_to_char("Из туч ударили разряды молний!\r\n", ch);
 					act("Из туч ударили разряды молний!\r\n", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, ch->get_level());
+					CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellLightingBolt, GetRealLevel(ch));
 			}
 			break;
 
 		case kSpellBlackTentacles: send_to_char("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
 			act("Мертвые руки навей шарят в поисках добычи!\r\n",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDamageSerious, ch->get_level());
+			CallMagicToArea(ch, nullptr, world[ch->in_room], kSpellDamageSerious, GetRealLevel(ch));
 			break;
 
 		default: log("ERROR: Try handle room affect for spell without handler!");

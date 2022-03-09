@@ -746,7 +746,7 @@ bool can_use_feat(const CharData *ch, int feat) {
 			break;
 		case MASTER_JEWELER_FEAT: return (ch->get_skill(ESkill::kJewelry) > 59);
 			break;
-		case SKILLED_TRADER_FEAT: return ((ch->get_level() + GET_REAL_REMORT(ch) / 3) > 19);
+		case SKILLED_TRADER_FEAT: return ((GetRealLevel(ch) + GET_REAL_REMORT(ch) / 3) > 19);
 			break;
 		case MAGIC_USER_FEAT: return (GetRealLevel(ch) < 25);
 			break;

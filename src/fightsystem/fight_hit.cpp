@@ -3631,7 +3631,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
 	}
 
-	const int victim_lvl_miss = victim->get_level() + GET_REAL_REMORT(victim);
+	const int victim_lvl_miss = GetRealLevel(victim) + GET_REAL_REMORT(victim);
 	const int ch_lvl_miss = GetRealLevel(ch) + GET_REAL_REMORT(ch);
 
 	// собсно выяснение попали или нет
@@ -3787,7 +3787,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				if (!PUNCTUAL_WAITLESS(ch)) {
 					PUNCTUAL_WAIT_STATE(ch, 2 * kPulseViolence);
 				}
-				CallMagic(ch, victim, nullptr, nullptr, ESpell::kSpellPaladineInspiration, ch->get_level());
+				CallMagic(ch, victim, nullptr, nullptr, ESpell::kSpellPaladineInspiration, GetRealLevel(ch));
 			}
 		}
 	}

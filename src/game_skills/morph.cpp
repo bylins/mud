@@ -17,7 +17,7 @@ void RemoveEquipment(CharData *ch, int pos);
 std::string AnimalMorph::GetMorphDesc() const {
 	std::string desc = "Неведома зверушка";
 	for (DescListType::const_iterator it = descList_.begin(); it != descList_.end(); ++it) {
-		if (it->fromLevel <= ch_->get_level() + ch_->get_remort()) {
+		if (it->fromLevel <= GetRealLevel(ch_) + ch_->get_remort()) {
 			desc = it->desc;
 		} else {
 			break;
