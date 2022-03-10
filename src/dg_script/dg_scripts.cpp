@@ -721,27 +721,29 @@ void script_trigger_check() {
 	sum = 0;
 	ObjData *what = nullptr;
 	world_objects.foreach_on_copy([&amount, &alarge_amount, &sum, &what](const ObjData::shared_ptr &obj) {
-		if (!what)
-			what = obj.get();
-		if (OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED)) {
-			if (obj->get_worn_by() && number(1, 100) <= 5) {
-				NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
-			}
-		} else if (obj->get_script()->has_triggers()) {
-			auto sc = obj->get_script().get();
-			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
-				auto now = std::chrono::system_clock::now();
-				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-				auto start = now_ms.time_since_epoch();
-				random_otrigger(obj.get());
-				now = std::chrono::system_clock::now();
-				now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-				auto end = now_ms.time_since_epoch();
-				amount = end.count() - start.count();
-				sum += amount;
-				if (amount > alarge_amount) {
-					alarge_amount = amount;
-					what = obj.get();
+		if (!obj->get_in_obj()) {
+			if (!what)
+				what = obj.get();
+			if (OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED)) {
+				if (obj->get_worn_by() && number(1, 100) <= 5) {
+					NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
+				}
+			} else if (obj->get_script()->has_triggers()) {
+				auto sc = obj->get_script().get();
+				if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
+					auto now = std::chrono::system_clock::now();
+					auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+					auto start = now_ms.time_since_epoch();
+					random_otrigger(obj.get());
+					now = std::chrono::system_clock::now();
+					now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+					auto end = now_ms.time_since_epoch();
+					amount = end.count() - start.count();
+					sum += amount;
+					if (amount > alarge_amount) {
+						alarge_amount = amount;
+						what = obj.get();
+					}
 				}
 			}
 		}
