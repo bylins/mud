@@ -721,7 +721,7 @@ void script_trigger_check() {
 	sum = 0;
 	ObjData *what = nullptr;
 	world_objects.foreach_on_copy([&amount, &alarge_amount, &sum, &what](const ObjData::shared_ptr &obj) {
-		if (!obj->get_in_obj()) {
+		if (!obj->get_in_obj() && (obj->get_in_room() != kNowhere)) {
 			if (!what)
 				what = obj.get();
 			if (OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED)) {
