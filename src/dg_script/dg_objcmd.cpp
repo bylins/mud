@@ -224,6 +224,8 @@ void do_oforce(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else if (GetRealLevel(ch) < kLvlImmortal) {
 				command_interpreter(ch, line);
 			}
+			else
+				obj_log(obj, "oforce: попытка принудить бессмертного.");
 		} else {
 			obj_log(obj, "oforce: no target found");
 		}

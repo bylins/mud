@@ -378,6 +378,8 @@ void do_wforce(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else if (GetRealLevel(ch) < kLvlImmortal) {
 				command_interpreter(ch, line);
 			}
+			else
+				wld_log(room, "wforce: попытка принудить бессмертного.");
 		} else {
 			wld_log(room, "wforce: no target found");
 		}

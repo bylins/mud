@@ -2635,7 +2635,7 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "riding")) {
-			if (c->ahorse()) {
+			if (c->has_horse(false)) {
 				sprintf(str, "%c%ld", uid_type, GET_ID(c->get_horse()));
 			}
 		} else if (!str_cmp(field, "riden_by")) {
