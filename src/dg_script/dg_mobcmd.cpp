@@ -688,6 +688,8 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (GetRealLevel(victim) < kLvlImmortal) {
 		command_interpreter(victim, argument);
 	}
+	else
+		mob_log(ch, "mforce: попытка принудить бессмертного.");
 }
 
 // increases the target's exp
