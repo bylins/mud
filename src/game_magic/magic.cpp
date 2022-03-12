@@ -272,7 +272,7 @@ int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int da
 	}
 
 	if (!IS_NPC(ch)) {
-		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
+		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_REAL_MAX_HIT(ch)) : MIN(dam, 2 * GET_REAL_MAX_HIT(ch)));
 	}
 
 	return (dam);
