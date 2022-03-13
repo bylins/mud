@@ -138,6 +138,13 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else if (GET_POS(ch) < EPosition::kStun) {
 		send_to_char("Вас пригласила к себе владелица косы...\r\n", ch);
 		die(ch, nullptr);
+	}
+	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+		if (GET_SEX(ch) == ESex::kMale)
+			send_to_char("Сдался салага? Не выйдет...", ch);
+		else
+			send_to_char("Сдалась салага? Не выйдет...", ch);
+		return;
 	} else if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP)) {
 		return;
 	} else if (*argument) {
