@@ -3009,6 +3009,13 @@ void find_replacement(void *go,
 			sprintf(str, "%d", (int) GET_OBJ_TYPE(o));
 		} else if (!str_cmp(field, "timer")) {
 			sprintf(str, "%d", o->get_timer());
+		} else if (!str_cmp(field, "cost")) {
+			if (*subfield) {
+				skip_spaces(&subfield);
+				o->set_cost(atoi(subfield));
+			} else {
+				sprintf(str, "%d", GET_OBJ_COST(o));
+			}
 		} else if (!str_cmp(field, "val0")) {
 			if (*subfield) {
 				skip_spaces(&subfield);
