@@ -3012,7 +3012,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "current_durability")) {
 			if (*subfield) {
 				skip_spaces(&subfield);
-				o->set_current_durability()(atoi(subfield));
+				o->set_current_durability(atoi(subfield));
 			} else {
 				sprintf(str, "%d", GET_OBJ_CUR(o));
 			}
