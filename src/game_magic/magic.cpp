@@ -263,12 +263,11 @@ int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int da
 
 	auto skill_id = GetMagicSkillId(spellnum);
 	if (MUD::Skills().IsValid(skill_id)) {
-		dam += dam
-			* (1 + static_cast<double>(std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id))) / 500);
+		dam = (int) dam * (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id)) / 500.0);
 	}
 
 	if (GET_REAL_WIS(ch) >= 23) {
-		dam += dam * (1 + static_cast<double>((GET_REAL_WIS(ch) - 22)) / 200);
+		dam = (int) dam * (1 + (GET_REAL_WIS(ch) - 22) / 200.0);
 	}
 
 	if (!IS_NPC(ch)) {
@@ -343,19 +342,17 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !IS_NPC(victim)) {
-			modi -= 80; //бонуса на непись нету
+			modi -= 80; // на игрока бонуса + каст нет
 		}
 		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim)) {
-			modi -= 30; //бонуса на непись нету
+			modi -= 30; // на игрока бонуса + каст нет
 		}
+		if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
+			modi = modi - 50; // на игрока бонуса + каст нет
 	}
-
 	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
-//  if (!IS_NPC(ch) && !IS_NPC(victim))
-//     modi = 0;
-	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
-		modi = modi - 50;
+
 	// вводим переменную-модификатор владения школы магии	
 	const int ms_mod = func_koef_modif(spellnum, ch->get_skill(GetMagicSkillId(spellnum))); // к кубикам от % владения магии
 
@@ -892,7 +889,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
 
 		if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
-			dam += (int) dam * 0.5;
+			dam += (int) dam; // * 0.5;
 		}
 
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DATURA_POISON))
