@@ -133,12 +133,14 @@ void PrintScoreList(CharData *ch) {
 	bool need_dice = false;
 	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
 
-	send_to_char(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d.\r\n",
-				 CalcHitroll(ch),
-				 max_dam,
-				 int (GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
-				 int (GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST)),
-				 ch->calc_morale());
+	send_to_char(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, маг.урон: %d, физ. урон: %d.\r\n",
+				CalcHitroll(ch),
+				max_dam,
+				int (GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
+				int (GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST)),
+				ch->calc_morale(),
+				ch->add_abils.percent_magdam_add,
+				ch->add_abils.percent_physdam_add);
 	send_to_char(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
 				 MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75),
 				 MIN(GET_RESIST(ch, AIR_RESISTANCE), 75),
@@ -541,6 +543,8 @@ int PrintSecondaryStatsToTable(CharData *ch, fort::char_table &table, std::size_
 	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(std::lround(GET_CAST_SUCCESS(ch)*ch->get_cond_penalty(P_CAST)));
 	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*ch->get_cond_penalty(P_CAST)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
+	table[++row][col] = "Маг. урон %";		table[row][col + 1] = std::to_string(ch->add_abils.percent_magdam_add);
+	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add);
 	table[++row][col] = "Инициатива";	table[row][col + 1] = std::to_string(calc_initiative(ch, false));
 	table[++row][col] = "Спас-броски:";	table[row][col + 1] = " ";
 	table[++row][col] = "Воля";			table[row][col + 1] = std::to_string(GET_REAL_SAVING_WILL(ch));

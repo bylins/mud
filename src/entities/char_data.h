@@ -91,9 +91,10 @@ struct char_played_ability_data {
 	int initiative_add;
 	int poison_add;
 	int pray_add;
-	ubyte percent_exp_add;
-	ubyte percent_dam_add;
-	ubyte percent_spell_blink;
+	int percent_exp_add;
+	int percent_physdam_add;
+	int percent_magdam_add;
+	int percent_spell_blink;
 	std::array<int, to_underlying(ESaving::kLast) + 1> apply_saving_throw;	// Saving throw (Bonuses)
 	std::array<int, MAX_NUMBER_RESISTANCE> apply_resistance;					// Сопротивления повреждениям
 	int mresist;
