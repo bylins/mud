@@ -3668,18 +3668,19 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			&& (!(hit_params.skill_num == ESkill::kBackstab && can_use_feat(ch, THIEVES_STRIKE_FEAT)))) {
 			ubyte blink;
 			if (victim->is_npc()) {
-				blink = 25;
+				blink = 50;
 			} else {
-				blink = 5;
+				blink = 10;
 			}
 			if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
 				blink = 10 + GET_REAL_REMORT(ch) * 2 / 3;
 			} else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
 				blink = victim->add_abils.percent_spell_blink;
-				ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-				victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
 			}
-			if (blink >= number(1, 100)) {
+			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+
+			if (number(1, blink) >= number(1, 100)) {
 				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
 						CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
 				send_to_char(buf, victim);
