@@ -2437,7 +2437,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	DamageVictimParameters params1(ch, victim, dam);
 	handle_affects(params1);
 	dam = params1.damage;
-
 	// костыль для сетовых бонусов
 	if (dmg_type == fight::kPhysDmg) {
 		dam += ch->obj_bonus().calc_phys_dmg(dam);
@@ -2463,7 +2462,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 				return 0;
 		}
 	}
-
 	// расчет бэтл-экспы для чаров
 	gain_battle_exp(ch, victim, dam);
 
@@ -3493,13 +3491,13 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 			send_to_char(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
 	}
 
-	if (ch->add_abils.percent_dam_add > 0) {
+	if (ch->add_abils.percent_physdam_add > 0) {
 		int tmp;
 		if (need_dice) {
-			tmp = dam * (number(1, ch->add_abils.percent_dam_add) / 100.0); 
+			tmp = dam * (number(1, ch->add_abils.percent_physdam_add) / 100.0); 
 			dam += tmp;
 		} else {
-			tmp = dam * (ch->add_abils.percent_dam_add / 2.0 / 100.0);
+			tmp = dam * (ch->add_abils.percent_physdam_add / 2.0 / 100.0);
 			dam += tmp;
 		}
 		if (PRF_FLAGGED(ch, PRF_EXECUTOR))

@@ -845,7 +845,9 @@ void affect_modify(CharData *ch, byte loc, int mod, const EAffectFlag bitv, bool
 			break;
 		case APPLY_PR:GET_PR(ch) += mod; //скиллрезист
 			break;
-		case APPLY_PERCENT_DAM:ch->add_abils.percent_dam_add += mod;
+		case APPLY_PERCENT_PHYSDAM:ch->add_abils.percent_physdam_add += mod;
+			break;
+		case APPLY_PERCENT_MAGDAM:ch->add_abils.percent_magdam_add += mod;
 			break;
 		case APPLY_PERCENT_EXP:ch->add_abils.percent_exp_add += mod;
 			break;

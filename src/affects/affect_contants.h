@@ -247,8 +247,9 @@ enum EApplyLocation {
 	APPLY_RESIST_DARK = 63,
 	APPLY_VIEW_DT = 64,
 	APPLY_PERCENT_EXP = 65, //бонус +экспа
-	APPLY_PERCENT_DAM = 66, // бонус +повреждение
+	APPLY_PERCENT_PHYSDAM = 66, // бонус + физповреждение
 	APPLY_SPELL_BLINK = 67, // мигание заклом
+	APPLY_PERCENT_MAGDAM = 68,
 	NUM_APPLIES
 };
 

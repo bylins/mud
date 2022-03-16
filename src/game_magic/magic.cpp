@@ -263,12 +263,15 @@ int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int da
 
 	auto skill_id = GetMagicSkillId(spellnum);
 	if (MUD::Skills().IsValid(skill_id)) {
-		dam += dam
-			* (1 + static_cast<double>(std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id))) / 500);
+		float tmp = (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id)) / 500.0);
+		dam = (int) dam * tmp;
+//	send_to_char(ch, "&CМагДамага магии со скилом %d, бонус %f &n\r\n", dam, tmp);
 	}
 
 	if (GET_REAL_WIS(ch) >= 23) {
-		dam += dam * (1 + static_cast<double>((GET_REAL_WIS(ch) - 22)) / 200);
+		float tmp = (1 + (GET_REAL_WIS(ch) - 22) / 200.0);
+		dam = (int) dam * tmp;
+//		send_to_char(ch, "&CМагДамага магии с мудростью %d, бонус %f &n\r\n", dam, tmp);
 	}
 
 	if (!IS_NPC(ch)) {
@@ -343,19 +346,17 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !IS_NPC(victim)) {
-			modi -= 80; //бонуса на непись нету
+			modi -= 80; // на игрока бонуса + каст нет
 		}
 		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim)) {
-			modi -= 30; //бонуса на непись нету
+			modi -= 30; // на игрока бонуса + каст нет
 		}
+		if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
+			modi = modi - 50; // на игрока бонуса + каст нет
 	}
-
 	if (!IS_NPC(ch) && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
-//  if (!IS_NPC(ch) && !IS_NPC(victim))
-//     modi = 0;
-	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
-		modi = modi - 50;
+
 	// вводим переменную-модификатор владения школы магии	
 	const int ms_mod = func_koef_modif(spellnum, ch->get_skill(GetMagicSkillId(spellnum))); // к кубикам от % владения магии
 
@@ -894,18 +895,23 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
 			dam += (int) dam * 0.5;
 		}
-
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DATURA_POISON))
 			dam -= dam * GET_POISON(ch) / 100;
-
 		if (!IS_SET(SpINFO.routines, kMagWarcry)) {
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))
 				koeff /= 2;
 		}
-
+/* // и зачем эта хрень только путает
 		if (dam > 0) {
 			koeff *= 1000;
-			dam = (int) MMAX(1.0, (dam * MMAX(300.0, MMIN(koeff, 2500.0)) / 1000.0));
+			dam = (int) MMAX(1.0, (dam * MMAX(300.0, MMIN(koeff, 2500.0)) / 1000.0)); //капаем максимальный бонус не более х4
+		}
+*/
+		if (ch->add_abils.percent_magdam_add > 0) {
+//			send_to_char(ch, "&CМагДамага магии %d &n\r\n", dam);
+			auto tmp = ch->add_abils.percent_magdam_add / 100.0;
+			dam += (int) dam * tmp;
+//			send_to_char(ch, "&CМагДамага c + процентами дамаги== %d, добавили = %d процентов &n\r\n", dam, (int) (tmp * 100));
 		}
 		//вместо старого учета мудры добавлена обработка с учетом скиллов
 		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
@@ -2642,7 +2648,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 		}
 
 		case kSpellWarcryOfPhysdamage: {
-			af[0].location = APPLY_PERCENT_DAM;
+			af[0].location = APPLY_PERCENT_PHYSDAM;
 			af[0].modifier = MAX(1, ch->get_skill(ESkill::kWarcry) / 20.0);
 			af[0].duration = CalcDuration(victim, 2, ch->get_skill(ESkill::kWarcry), 20, 10, 0) * koef_duration;
 			to_room = nullptr;
@@ -2771,13 +2777,13 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
          * */
 
 			if (ch == victim && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
-				rnd = number(1, 4);
+				rnd = number(1, 5);
 			else
-				rnd = number(1, 3);
+				rnd = number(1, 4);
 			af[0].type = kSpellPaladineInspiration;
 			af[0].battleflag = kAfBattledec | kAfPulsedec;
 			switch (rnd) {
-				case 1:af[0].location = APPLY_PERCENT_DAM;
+				case 1:af[0].location = APPLY_PERCENT_PHYSDAM;
 					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
 					af[0].modifier = GET_REAL_REMORT(ch) / 5 * 2 + GET_REAL_REMORT(ch);
 					break;
@@ -2789,7 +2795,11 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 					af[0].duration = CalcDuration(victim, 10, 0, 0, 0, 0);
 					af[0].modifier = GET_REAL_REMORT(ch) / 5 * 2 + GET_REAL_REMORT(ch) * 5;
 					break;
-				case 4:CallMagic(ch, ch, nullptr, nullptr, kSpellGroupHeal, GetRealLevel(ch));
+				case 4:af[0].location = APPLY_PERCENT_MAGDAM;
+					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
+					af[0].modifier = GET_REAL_REMORT(ch) / 5 * 2 + GET_REAL_REMORT(ch);
+					break;
+				case 5:CallMagic(ch, ch, nullptr, nullptr, kSpellGroupHeal, GetRealLevel(ch));
 					break;
 				default:break;
 			}
