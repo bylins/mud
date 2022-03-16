@@ -2162,7 +2162,7 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 			break;
 		case kSpellGroupBlink:
 		case kSpellBlink: af[0].location = APPLY_SPELL_BLINK;
-			af[0].modifier = 5 + GET_REAL_REMORT(ch) * 2 / 3.0;
+			af[0].modifier = 10 + GET_REAL_REMORT(ch);
 			af[0].duration =
 				CalcDuration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REAL_REMORT(ch), 1, 0, 0) * koef_duration;
 			to_room = "$n начал$g мигать.";
