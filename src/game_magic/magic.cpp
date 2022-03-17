@@ -155,13 +155,12 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 		save -= 50;
 	else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
 		save += 50;
-	if (IS_NPC(victim) && !IS_NPC(killer))
-		log("SAVING: Caster==%s  Mob==%s vnum==%d Level==%d saving==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d cast_apply==%d result==%d new_random==%d",
+	if (IS_NPC(victim) && !IS_NPC(killer)) {
+		killer->send_to_TC(false, true, true, "SAVING: Caster==%s  Mob==%s vnum==%d Level==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d +cast==%d result==%d new_random==%d",
 			GET_NAME(killer),
 			GET_NAME(victim),
 			GET_MOB_VNUM(victim),
 			GetRealLevel(victim),
-			to_underlying(saving), // Зачем это тут вообще?
 			extend_saving_throws(class_sav, saving, GetRealLevel(victim)),
 			temp_save_stat,
 			temp_awake_mod,
@@ -169,6 +168,19 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 			ext_apply,
 			save,
 			number(1, 200));
+		victim->send_to_TC(false, true, true, "SAVING: Caster==%s  Mob==%s vnum==%d Level==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d +cast==%d result==%d new_random==%d",
+			GET_NAME(killer),
+			GET_NAME(victim),
+			GET_MOB_VNUM(victim),
+			GetRealLevel(victim),
+			extend_saving_throws(class_sav, saving, GetRealLevel(victim)),
+			temp_save_stat,
+			temp_awake_mod,
+			GET_SAVE(victim, saving),
+			ext_apply,
+			save,
+			number(1, 200));
+	}
 	// Throwing a 0 is always a failure.
 	return save;
 }
