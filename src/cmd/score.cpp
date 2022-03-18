@@ -29,6 +29,7 @@ const char *GetShortPositionStr(CharData *ch);
 int CalcHitroll(CharData *ch);
 
 /* extern */
+int CalcAntiSavings(CharData *ch);
 int calc_initiative(CharData *ch, bool mode);
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
 void apply_weapon_bonus(int ch_class, ESkill skill, int *damroll, int *hitroll);
@@ -137,7 +138,7 @@ void PrintScoreList(CharData *ch) {
 				CalcHitroll(ch),
 				max_dam,
 				int (GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
-				int (GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST)),
+				CalcAntiSavings(ch),
 				ch->calc_morale(),
 				ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100),
 				ch->add_abils.percent_physdam_add + ch->obj_bonus().calc_phys_dmg(100));
@@ -540,7 +541,7 @@ int PrintSecondaryStatsToTable(CharData *ch, fort::char_table &table, std::size_
 	std::size_t row{0};
 	table[row][col] = "Атака";			table[row][col + 1] = std::to_string(CalcHitroll(ch));
 	table[++row][col] = "Урон";			table[row][col + 1] = std::to_string(max_dam);
-	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(std::lround(GET_CAST_SUCCESS(ch)*ch->get_cond_penalty(P_CAST)));
+	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
 	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*ch->get_cond_penalty(P_CAST)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
 	table[++row][col] = "Маг. урон %";		table[row][col + 1] = std::to_string(ch->add_abils.percent_magdam_add + ch->obj_bonus().calc_mage_dmg(100));

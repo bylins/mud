@@ -553,6 +553,8 @@ int fight_mtrigger(CharData *ch) {
 
 	for (auto t : SCRIPT(ch)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_FIGHT) && (number(1, 100) <= GET_TRIG_NARG(t))) {
+			snprintf(buf, kMaxInputLength, "%d", ch->round_counter);
+			add_var_cntx(&GET_TRIG_VARS(t), "round", buf, 0);
 			ADD_UID_CHAR_VAR(buf, t, ch->get_fighting(), "actor", 0);
 			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;
