@@ -238,18 +238,21 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), effect);
 		tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), effect);
 		switch (tmp_type) {
-			case 1: set_obj_eff(itemobj, static_cast<EApplyLocation>(tmp_bit), tmp_qty);
+			case 1: 
+				set_obj_eff(itemobj, static_cast<EApplyLocation>(tmp_bit), tmp_qty);
 				break;
-
-			case 2: set_obj_aff(itemobj, static_cast<EAffectFlag>(tmp_bit));
+			case 2: 
+				set_obj_aff(itemobj, static_cast<EAffectFlag>(tmp_bit));
 				break;
-
-			case 3: itemobj->set_extra_flag(static_cast<EExtraFlag>(tmp_bit));
+			case 3: 
+				itemobj->set_extra_flag(static_cast<EExtraFlag>(tmp_bit));
 				break;
-
-			default: break;
-
-		};
+			case 4:
+				itemobj->set_skill(static_cast<ESkill>(tmp_bit), tmp_qty);
+				break;
+			default: 
+				break;
+		}
 	}
 
 	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS)) {
@@ -328,26 +331,26 @@ void insert_wanted_gem::init() {
 			if (!(file >> str)) break;
 			if (str.size() > kMaxAliasLehgt - 1) break;
 			if (!(file >> val)) break;
-			if (curr_val == 0) break;
 
 			switch (val) {
 				case 1: if (!(file >> val >> val2)) break;
-
 					arr.type = 1;
 					arr.bit = val;
 					arr.qty = val2;
 					temp.insert(std::make_pair(str, arr));
-
 					break;
-
 				case 2:
 				case 3: if (!(file >> val2)) break;
-
 					arr.type = val;
 					arr.bit = val2;
 					arr.qty = 0;
 					temp.insert(std::make_pair(str, arr));
-
+					break;
+				case 4: if (!(file >> val >> val2)) break;
+					arr.type = 4;
+					arr.bit = val;
+					arr.qty = val2;
+					temp.insert(std::make_pair(str, arr));
 					break;
 				default: {
 					log("something goes wrong\r\nclosed insert_wanted.lst.");
