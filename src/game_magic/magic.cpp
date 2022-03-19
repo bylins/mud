@@ -156,7 +156,7 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 	else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
 		save += 50;
 	if (IS_NPC(victim) && !IS_NPC(killer)) {
-		killer->send_to_TC(false, true, true, "SAVING: Caster==%s  Mob==%s vnum==%d Level==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d +cast==%d result==%d new_random==%d",
+		killer->send_to_TC(false, true, true, "SAVING: Caster==%s  Mob==%s vnum==%d Level==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d +cast==%d result==%d new_random==%d\r\n",
 			GET_NAME(killer),
 			GET_NAME(victim),
 			GET_MOB_VNUM(victim),
@@ -168,7 +168,7 @@ int CalculateSaving(CharData *killer, CharData *victim, ESaving saving, int ext_
 			ext_apply,
 			save,
 			number(1, 200));
-		victim->send_to_TC(false, true, true, "SAVING: Caster==%s  Mob==%s vnum==%d Level==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d +cast==%d result==%d new_random==%d",
+		victim->send_to_TC(false, true, true, "SAVING: Caster==%s  Mob==%s vnum==%d Level==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d +cast==%d result==%d new_random==%d\r\n",
 			GET_NAME(killer),
 			GET_NAME(victim),
 			GET_MOB_VNUM(victim),
