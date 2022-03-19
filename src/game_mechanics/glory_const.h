@@ -24,6 +24,8 @@ const int SUCCESS_FACTOR = 7;
 const int SAVE_FACTOR = 15;
 const int RESIST_FACTOR = 7;
 const int MANAREG_FACTOR = 50;
+const int BONUSPSYS_FACTOR = 3;
+const int BONUSMAG_FACTOR = 3;
 
 int get_glory(long uid);
 void add_glory(long uid, int amount);

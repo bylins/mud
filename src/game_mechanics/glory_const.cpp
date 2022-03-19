@@ -47,6 +47,8 @@ enum {
 	GLORY_REFLEX, //реакция
 	GLORY_MIND, //разум
 	GLORY_MANAREG,
+	GLORY_BONUSPSYS,
+	GLORY_BONUSMAG,
 	GLORY_TOTAL
 };
 
@@ -103,7 +105,9 @@ const char *olc_stat_name[] =
 		"Стойкость",
 		"Реакция",
 		"Разум",
-		"Запоминание"
+		"Запоминание",
+		"+ к физурону %",
+		"+ к магурону %"
 	};
 
 void glory_hide(CharData *ch,
@@ -197,6 +201,10 @@ int stat_multi(int stat) {
 		multi = RESIST_FACTOR;
 	if (stat == GLORY_MANAREG)
 		multi = MANAREG_FACTOR;
+	if (stat == GLORY_BONUSPSYS)
+		multi = BONUSPSYS_FACTOR;
+	if (stat == GLORY_BONUSMAG)
+		multi = BONUSMAG_FACTOR;
 	return multi;
 }
 
@@ -282,6 +290,8 @@ const char *olc_del_name[] =
 		"М",
 		"Н",
 		"Э",
+		"v",
+		"f",
 	};
 
 const char *olc_add_name[] =
@@ -299,6 +309,8 @@ const char *olc_add_name[] =
 		"Ш",
 		"Щ",
 		"Ю",
+		"z",
+		"f",
 	};
 
 std::string olc_print_stat(CharData *ch, int stat) {
@@ -340,8 +352,9 @@ void spend_glory_menu(CharData *ch) {
 		<< olc_print_stat(ch, GLORY_STABILITY)
 		<< olc_print_stat(ch, GLORY_REFLEX)
 		<< olc_print_stat(ch, GLORY_MIND)
-		<< olc_print_stat(ch, GLORY_MANAREG);
-
+		<< olc_print_stat(ch, GLORY_MANAREG)
+		<< olc_print_stat(ch, GLORY_BONUSPSYS)
+		<< olc_print_stat(ch, GLORY_BONUSMAG);
 	out << "\r\n  Свободной славы: " << ch->desc->glory_const->olc_free_glory << "\r\n\r\n";
 
 	if (ch->desc->glory_const->olc_free_glory != ch->desc->glory_const->olc_was_free_glory) {
@@ -424,6 +437,8 @@ void olc_add_stat(CharData *ch, int stat) {
 		case GLORY_STABILITY:
 		case GLORY_REFLEX:
 		case GLORY_MANAREG:
+		case GLORY_BONUSPSYS:
+		case GLORY_BONUSMAG:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory)
 				ok = true;
 			break;
@@ -473,6 +488,14 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 		case 'н': olc_del_stat(ch, GLORY_MIND);
 			break;
 		case 'э': olc_del_stat(ch, GLORY_MANAREG);
+			break;
+		case 'v': olc_add_stat(ch, GLORY_BONUSPSYS);
+			break;
+		case 'z': olc_del_stat(ch, GLORY_BONUSPSYS);
+			break;
+		case 'd': olc_add_stat(ch, GLORY_BONUSMAG);
+			break;
+		case 'f': olc_del_stat(ch, GLORY_BONUSMAG);
 			break;
 		case 'о': olc_add_stat(ch, GLORY_STR);
 			break;
@@ -660,6 +683,8 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
 		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
 		tmp_glory_olc->stat_cur[GLORY_MANAREG] = it->second->stats[GLORY_MANAREG];
+		tmp_glory_olc->stat_cur[GLORY_BONUSPSYS] = it->second->stats[GLORY_BONUSPSYS];  
+		tmp_glory_olc->stat_cur[GLORY_BONUSMAG] = it->second->stats[GLORY_BONUSPSYS];
 
 		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end();
 			 i != iend; ++i) {
@@ -1052,6 +1077,10 @@ void apply_modifiers(CharData *ch) {
 			case GLORY_MIND: location = APPLY_RESIST_MIND;
 				break;
 			case GLORY_MANAREG: location = APPLY_MANAREG;
+				break;
+			case GLORY_BONUSPSYS: location = APPLY_PERCENT_PHYSDAM;
+				break;
+			case GLORY_BONUSMAG: location = APPLY_PERCENT_MAGDAM;
 				break;
 			default: break;
 		}
