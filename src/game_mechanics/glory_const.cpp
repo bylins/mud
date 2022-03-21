@@ -106,8 +106,8 @@ const char *olc_stat_name[] =
 		"Реакция",
 		"Разум",
 		"Запоминание",
-		"фмз. урон %",
-		"маг. урон %"
+		"Маг. урон %",
+		"Физ. урон %"
 	};
 
 void glory_hide(CharData *ch,
@@ -290,8 +290,8 @@ const char *olc_del_name[] =
 		"М",
 		"Н",
 		"Э",
-		"v",
-		"f",
+		"Z",
+		"D",
 	};
 
 const char *olc_add_name[] =
@@ -309,8 +309,8 @@ const char *olc_add_name[] =
 		"Ш",
 		"Щ",
 		"Ю",
-		"z",
-		"f",
+		"X",
+		"F",
 	};
 
 std::string olc_print_stat(CharData *ch, int stat) {
@@ -489,13 +489,13 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 			break;
 		case 'э': olc_del_stat(ch, GLORY_MANAREG);
 			break;
-		case 'v': olc_add_stat(ch, GLORY_BONUSPSYS);
+		case 'x': olc_add_stat(ch, GLORY_BONUSPSYS);
 			break;
 		case 'z': olc_del_stat(ch, GLORY_BONUSPSYS);
 			break;
-		case 'd': olc_add_stat(ch, GLORY_BONUSMAG);
+		case 'f': olc_add_stat(ch, GLORY_BONUSMAG);
 			break;
-		case 'f': olc_del_stat(ch, GLORY_BONUSMAG);
+		case 'd': olc_del_stat(ch, GLORY_BONUSMAG);
 			break;
 		case 'о': olc_add_stat(ch, GLORY_STR);
 			break;
@@ -684,7 +684,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
 		tmp_glory_olc->stat_cur[GLORY_MANAREG] = it->second->stats[GLORY_MANAREG];
 		tmp_glory_olc->stat_cur[GLORY_BONUSPSYS] = it->second->stats[GLORY_BONUSPSYS];  
-		tmp_glory_olc->stat_cur[GLORY_BONUSMAG] = it->second->stats[GLORY_BONUSPSYS];
+		tmp_glory_olc->stat_cur[GLORY_BONUSMAG] = it->second->stats[GLORY_BONUSMAG];
 
 		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end();
 			 i != iend; ++i) {

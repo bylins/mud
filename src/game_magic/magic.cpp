@@ -272,24 +272,20 @@ int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int da
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
 		return (dam);
 	}
-
 	auto skill_id = GetMagicSkillId(spellnum);
 	if (MUD::Skills().IsValid(skill_id)) {
-		float tmp = (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id)) / 500.0);
+		float tmp = (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id)) / 300.0);
 		dam = (int) dam * tmp;
-//	send_to_char(ch, "&CМагДамага магии со скилом %d, бонус %f &n\r\n", dam, tmp);
+//	send_to_char(ch, "&CМагДамага магии со скилом %d, скилл %d, бонус %f&n\r\n", dam, ch->get_skill(skill_id), tmp);
 	}
-
 	if (GET_REAL_WIS(ch) >= 23) {
 		float tmp = (1 + (GET_REAL_WIS(ch) - 22) / 200.0);
 		dam = (int) dam * tmp;
 //		send_to_char(ch, "&CМагДамага магии с мудростью %d, бонус %f &n\r\n", dam, tmp);
 	}
-
 	if (!IS_NPC(ch)) {
 		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_REAL_MAX_HIT(ch)) : MIN(dam, 2 * GET_REAL_MAX_HIT(ch)));
 	}
-
 	return (dam);
 }
 
@@ -903,6 +899,7 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		}
 		dam = RollDices(ndice, sdice) + adice;
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
+//		send_to_char(ch, "&CМагДамага магии %d &n\r\n", dam);
 
 		if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
 			dam += (int) dam * 0.5;

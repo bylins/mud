@@ -86,7 +86,7 @@ struct char_played_ability_data {
 	int hr_add;
 	int dr_add;
 	int absorb;
-	int morale_add;
+	int morale;
 	int cast_success;
 	int initiative_add;
 	int poison_add;

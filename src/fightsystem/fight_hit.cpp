@@ -3675,10 +3675,12 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			} else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
 				blink = victim->add_abils.percent_spell_blink;
 			}
-			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-
-			if (number(1, blink) >= number(1, 100)) {
+//			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+			int bottom = 1;
+			if (ch->calc_morale() > number(1, 100)) // удача
+				bottom = 10;
+			if (number(bottom, blink) >= number(1, 100)) {
 				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
 						CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
 				send_to_char(buf, victim);

@@ -1306,7 +1306,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Success") {
-		mob_proto[i].add_abils.morale_add = std::clamp(num_arg, -200, 200);
+		mob_proto[i].add_abils.morale = std::clamp(num_arg, 0, 100);
 	}
 
 	CASE("Initiative") {
@@ -1317,10 +1317,10 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		mob_proto[i].add_abils.absorb = std::clamp(num_arg, -200, 200);
 	}
 	CASE("AResist") {
-		mob_proto[i].add_abils.aresist = std::clamp(num_arg, -0, 100);
+		mob_proto[i].add_abils.aresist = std::clamp(num_arg, 0, 100);
 	}
 	CASE("MResist") {
-		mob_proto[i].add_abils.mresist = std::clamp(num_arg, -0, 100);
+		mob_proto[i].add_abils.mresist = std::clamp(num_arg, 0, 100);
 	}
 
 	CASE("PResist") {

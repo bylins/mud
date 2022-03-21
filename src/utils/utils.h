@@ -629,7 +629,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_AC(ch)         ((ch)->real_abils.armor)
 #define GET_AC_ADD(ch)    ((ch)->add_abils.ac_add)
 #define GET_REAL_AC(ch)      (GET_AC(ch)+GET_AC_ADD(ch))
-#define GET_MORALE(ch)       ((ch)->add_abils.morale_add)
+#define GET_MORALE(ch)       ((ch)->add_abils.morale)
 #define GET_INITIATIVE(ch)   ((ch)->add_abils.initiative_add)
 #define GET_POISON(ch)      ((ch)->add_abils.poison_add)
 #define GET_CAST_SUCCESS(ch) ((ch)->add_abils.cast_success)
