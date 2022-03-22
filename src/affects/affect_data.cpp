@@ -525,7 +525,7 @@ void affect_total(CharData *ch) {
 			affect_modify(ch, APPLY_MOVE, GetRealLevel(ch) * 2, static_cast<EAffectFlag>(0), true);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
 			affect_modify(ch, APPLY_HIT, GetRealLevel(ch) * 2, static_cast<EAffectFlag>(0), true);
-		if (!domination || !NORENTABLE(ch)) // мы на новой арене
+		if (NORENTABLE(ch) == 0 && !domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
 	}
