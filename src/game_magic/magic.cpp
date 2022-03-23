@@ -268,12 +268,16 @@ float func_koef_modif(int spellnum, int percent) {
 }
 
 int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int dam) {
-	if (IS_NPC(ch)) {
-		dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
-		return (dam);
-	}
 	auto skill_id = GetMagicSkillId(spellnum);
 	if (MUD::Skills().IsValid(skill_id)) {
+		if (IS_NPC(ch)) {
+//			send_to_char(victim, "&CМагДамага магии %d&n\r\n", dam);
+			dam += (int) dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100.0;
+//			send_to_char(victim, "&CМагДамага магии с мудростью %d&n\r\n", dam);
+			dam += (int) dam * ch->get_skill(skill_id) / 300.0;
+			victim->send_to_TC(false, true, true,"&CВраг: %s. МагДамага магии с умением  и мудростью %d&n\r\n", GET_NAME(ch), dam);
+			return (dam);
+		}
 		float tmp = (1 + std::min(CalcSkillMinCap(ch, skill_id), ch->get_skill(skill_id)) / 300.0);
 		dam = (int) dam * tmp;
 //	send_to_char(ch, "&CМагДамага магии со скилом %d, скилл %d, бонус %f&n\r\n", dam, ch->get_skill(skill_id), tmp);
@@ -286,6 +290,7 @@ int magic_skill_damage_calc(CharData *ch, CharData *victim, int spellnum, int da
 	if (!IS_NPC(ch)) {
 		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_REAL_MAX_HIT(ch)) : MIN(dam, 2 * GET_REAL_MAX_HIT(ch)));
 	}
+	ch->send_to_TC(false, true, true,"&CЦель: %s. МагДамага магии с умением  и мудростью %d&n\r\n", GET_NAME(victim), dam);
 	return (dam);
 }
 
