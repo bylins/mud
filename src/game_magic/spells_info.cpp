@@ -1219,7 +1219,7 @@ void InitSpells() {
 			  0, 0, 0, EPosition::kStand, kTarIgnore, true,
 			  kMagDamage, 3, kTypeWater);
 
-	initSpell(kSpellLightingBreath, "опаляющее дыхание", "lightning breath",
+	initSpell(kSpellLightingBreath, "ослепляющее дыхание", "lightning breath",
 			  0, 0, 0, EPosition::kStand, kTarIgnore, true,
 			  kMagDamage, 3, kTypeDark);
 //248
