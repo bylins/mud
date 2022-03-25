@@ -2639,8 +2639,8 @@ void find_replacement(void *go,
 				sprintf(str, "%c%ld", uid_type, GET_ID(c->get_horse()));
 			}
 		} else if (!str_cmp(field, "riden_by")) {
-			if (IS_HORSE(c) && c->get_master()->ahorse()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
+			if (IS_HORSE(c) && c->get_master()->ahorse() && (GET_ID(c->get_master()->get_horse()) == GET_ID(c))) {
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
 			}
 		} else if (!str_cmp(field, "realroom"))
 			sprintf(str, "%d", world[IN_ROOM(c)]->room_vn);
