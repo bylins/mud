@@ -754,7 +754,7 @@ bool can_use_feat(const CharData *ch, int feat) {
 			break;
 		case SHADOW_THROW_FEAT: return (ch->get_skill(ESkill::kDarkMagic) > 120);
 			break;
-		case ANIMAL_MASTER_FEAT: return (ch->get_skill(ESkill::kMindMagic) > 80);
+		case ANIMAL_MASTER_FEAT: return (ch->get_skill(ESkill::kMindMagic) > 79);
 			break;
 			// Костыльный блок работы скирмишера где не нужно
 			// Svent TODO Для абилок не забыть реализовать провкрку состояния персонажа
