@@ -1228,11 +1228,11 @@ void command_interpreter(CharData *ch, char *argument) {
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 		if (hardcopy) {
 			if (!strcmp(cmd_info[cmd].command, arg))
-				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0))
+				if (privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0))
 					break;
 		} else {
 			if (!strncmp(cmd_info[cmd].command, arg, length))
-				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0))
+				if (privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), cmd, 0))
 					break;
 		}
 	}
@@ -2132,7 +2132,7 @@ void do_entergame(DescriptorData *d) {
 	if (GetRealLevel(d->character) >= kLvlImmortal && GetRealLevel(d->character) < kLvlImplementator) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog")) {
-				if (Privilege::can_do_priv(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
+				if (privilege::IsAbleToDoPrivilege(d->character.get(), std::string(cmd_info[cmd].command), cmd, 0)) {
 					flag = 1;
 					break;
 				}
@@ -2374,7 +2374,7 @@ void do_entergame(DescriptorData *d) {
 	init_warcry(d->character.get());
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
-	if (Privilege::god_list_check(GET_NAME(d->character), GET_UNIQUE(d->character))
+	if (privilege::IsContainedInGodsList(GET_NAME(d->character), GET_UNIQUE(d->character))
 		&& (GetRealLevel(d->character) < kLvlGod)) {
 		SET_GOD_FLAG(d->character, GF_DEMIGOD);
 	}

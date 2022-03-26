@@ -164,7 +164,7 @@ void pulse_affect_update(CharData *ch) {
 			if (IS_NPC(ch)) {
 				affect->duration--;
 			} else {
-				affect->duration -= MIN(affect->duration, SECS_PER_PLAYER_AFFECT * kPassesPerSec);
+				affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
 			}
 		} else if (affect->duration == -1)    // No action //
 		{
@@ -276,7 +276,7 @@ void battle_affect_update(CharData *ch) {
 				if (IS_NPC(ch))
 					affect->duration--;
 				else
-					affect->duration -= MIN(affect->duration, SECS_PER_MUD_HOUR / SECS_PER_PLAYER_AFFECT);
+					affect->duration -= MIN(affect->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
 			}
 		} else if (affect->duration != -1) {
 			if (affect->type > 0 && affect->type <= kSpellCount) {
@@ -379,7 +379,7 @@ void mobile_affect_update() {
 			}
 
 			if (was_charmed) {
-				stop_follower(i.get(), SF_CHARMLOST);
+				stop_follower(i.get(), kSfCharmlost);
 			}
 		}
 	});

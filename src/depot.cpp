@@ -160,7 +160,7 @@ std::string generate_purged_filename(long uid) {
 		return "";
 
 	char filename[kMaxStringLength];
-	if (!get_filename(name.c_str(), filename, PURGE_DEPOT_FILE))
+	if (!get_filename(name.c_str(), filename, kPurgeDepotFile))
 		return "";
 
 	return filename;
@@ -180,7 +180,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 		return out.str();
 
 	char filename[kMaxStringLength];
-	if (!get_filename(name.c_str(), filename, PERS_DEPOT_FILE)) {
+	if (!get_filename(name.c_str(), filename, kPersDepotFile)) {
 		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
 		return out.str();
@@ -328,7 +328,7 @@ void remove_pers_file(const std::string &name) {
 	if (name.empty()) return;
 
 	char filename[kMaxStringLength];
-	if (get_filename(name.c_str(), filename, PERS_DEPOT_FILE))
+	if (get_filename(name.c_str(), filename, kPersDepotFile))
 		remove(filename);
 }
 
@@ -576,7 +576,7 @@ void CharNode::save_online_objs() {
 		log("Save obj: %s depot", ch->get_name().c_str());
 		ObjSaveSync::check(ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
-		write_obj_file(name, PERS_DEPOT_FILE, pers_online);
+		write_obj_file(name, kPersDepotFile, pers_online);
 		need_save = false;
 	}
 }
@@ -658,7 +658,7 @@ int delete_obj(int vnum) {
 */
 bool CharNode::removal_period_cost() {
 	double i;
-	buffer_cost += static_cast<double>(cost_per_day) / SECS_PER_MUD_DAY;
+	buffer_cost += static_cast<double>(cost_per_day) / kSecsPerMudDay;
 	modf(buffer_cost, &i);
 	if (i >= 1.0f) {
 		unsigned diff = static_cast<unsigned>(i);
@@ -1306,7 +1306,7 @@ void enter_char(CharData *ch) {
 			}
 		}
 		// грузим хранилище, сохранять его тут вроде как смысла нет
-		it->second.load_online_objs(PERS_DEPOT_FILE);
+		it->second.load_online_objs(kPersDepotFile);
 		// обнуление оффлайновых полей и проставление ch для снятия бабла онлайн
 		it->second.money = 0;
 		it->second.money_spend = 0;
@@ -1389,7 +1389,7 @@ void reload_char(long uid, CharData *ch) {
 	if (vict) {
 		// вобщем тут мысль такая: кодить доп. обработку для релоада оффлайн чара мне стало лень,
 		// поэтому мы штатно грузим ему сначала онлайн список, после чего отправляем его в оффлайн
-		it->second.load_online_objs(PERS_DEPOT_FILE, 1);
+		it->second.load_online_objs(kPersDepotFile, 1);
 		// если чара грузили с оффлайна
 		if (!d) {
 			exit_char(vict.get());

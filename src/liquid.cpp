@@ -17,7 +17,10 @@
 #include "color.h"
 #include "structs/global_objects.h"
 
-#include <cmath>
+const int kDrunked = 10;
+const int kMortallyDrunked = 18;
+const int kMaxCondition = 48;
+const int kNormCondition = 22;
 
 extern void weight_change_object(ObjData *obj, int weight);
 
@@ -355,11 +358,11 @@ int do_drink_get_amount(CharData *ch, ObjData *jar, int subcmd) {
 
 	// Если жидкость с градусом
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] > 0) {
-		if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED) {
+		if (GET_COND(ch, DRUNK) >= kMortallyDrunked) {
 			amount = -1; //мимо будет
 		} else {
 			//Тут магия из-за /4
-			amount = (2 * CHAR_MORTALLY_DRUNKED - GET_COND(ch, DRUNK)) / drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK];
+			amount = (2 * kMortallyDrunked - GET_COND(ch, DRUNK)) / drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK];
 			amount = MAX(1, amount); // ну еще чуть-чуть
 		}
 	}
@@ -375,7 +378,7 @@ int do_drink_get_amount(CharData *ch, ObjData *jar, int subcmd) {
 	}
 		// Если жидоксть вызывает сушняк
 	else if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] > 0) {
-		V = (float) (MAX_COND_VALUE - GET_COND(ch, THIRST)) / drink_aff[GET_OBJ_VAL(jar, 2)][THIRST];
+		V = (float) (kMaxCondition - GET_COND(ch, THIRST)) / drink_aff[GET_OBJ_VAL(jar, 2)][THIRST];
 	} else {
 		V = 999.0;
 	}
@@ -416,9 +419,9 @@ int do_drink_check_conditions(CharData *ch, ObjData *jar, int amount) {
 			return 0;
 		}
 		// Если чар уже пьяный
-		if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED) {
+		if (GET_COND(ch, DRUNK) >= kDrunked) {
 			// Если допился до кондиции или уже начал трезветь
-			if (GET_DRUNK_STATE(ch) == CHAR_MORTALLY_DRUNKED || GET_COND(ch, DRUNK) < GET_DRUNK_STATE(ch)) {
+			if (GET_DRUNK_STATE(ch) == kMortallyDrunked || GET_COND(ch, DRUNK) < GET_DRUNK_STATE(ch)) {
 				send_to_char("На сегодня вам достаточно, крошки уже плавают...\r\n", ch);
 				return 0;
 			}
@@ -448,20 +451,20 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 	if (amount == 0)
 		return;
 
-	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED) {
-		if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED) {
+	if (GET_COND(ch, DRUNK) >= kDrunked) {
+		if (GET_COND(ch, DRUNK) >= kMortallyDrunked) {
 			send_to_char("Напилися вы пьяны, не дойти вам до дому....\r\n", ch);
 		} else {
 			send_to_char("Приятное тепло разлилось по вашему телу.\r\n", ch);
 		}
 
-		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
+		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - kDrunked);
 
 		if (can_use_feat(ch, DRUNKARD_FEAT))
 			duration += duration / 2;
 
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)
-			&& GET_DRUNK_STATE(ch) < MAX_COND_VALUE
+			&& GET_DRUNK_STATE(ch) < kMaxCondition
 			&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) {
 			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
 			// **** Decrease AC ***** //
@@ -548,9 +551,9 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		(drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] > 0) && //Если жидкость с градусом
 			(
 				// Чар все еще не смертельно пьян и не начал трезветь
-				(GET_DRUNK_STATE(ch) < CHAR_MORTALLY_DRUNKED && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) ||
+				(GET_DRUNK_STATE(ch) < kMortallyDrunked && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) ||
 					// Или Чар еще не пьян
-					(GET_COND(ch, DRUNK) < CHAR_DRUNKED)
+					(GET_COND(ch, DRUNK) < kDrunked)
 			)
 		) {
 		// Не понимаю зачем делить на 4, но оставим для пьянки 2
@@ -560,13 +563,13 @@ void do_drink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] != 0) {
 		gain_condition(ch, FULL, drink_aff[GET_OBJ_VAL(jar, 2)][FULL] * amount);
-		if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] < 0 && GET_COND(ch, FULL) <= NORM_COND_VALUE)
+		if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] < 0 && GET_COND(ch, FULL) <= kNormCondition)
 			send_to_char("Вы чувствуете приятную тяжесть в желудке.\r\n", ch);
 	}
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] != 0) {
 		gain_condition(ch, THIRST, drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] * amount);
-		if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] < 0 && GET_COND(ch, THIRST) <= NORM_COND_VALUE)
+		if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] < 0 && GET_COND(ch, THIRST) <= kNormCondition)
 			send_to_char("Вы не чувствуете жажды.\r\n", ch);
 	}
 
@@ -609,7 +612,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT) && GET_COND(ch, DRUNK) < CHAR_DRUNKED) {
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT) && GET_COND(ch, DRUNK) < kDrunked) {
 		send_to_char("Не стоит делать этого на трезвую голову.\r\n", ch);
 		return;
 	}

@@ -1616,36 +1616,36 @@ void show_extend_room(const char *const description, CharData *ch) {
 
 	found = found || paste_description(string, TAG_WINTERNIGHT,
 									   (weather_info.season == SEASON_WINTER
-										   && (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
+										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
 	found = found || paste_description(string, TAG_WINTERDAY,
 									   (weather_info.season == SEASON_WINTER
-										   && (weather_info.sunlight == SUN_RISE
-											   || weather_info.sunlight == SUN_LIGHT)));
+										   && (weather_info.sunlight == kSunRise
+											   || weather_info.sunlight == kSunLight)));
 	found = found || paste_description(string, TAG_SPRINGNIGHT,
 									   (weather_info.season == SEASON_SPRING
-										   && (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
+										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
 	found = found || paste_description(string, TAG_SPRINGDAY,
 									   (weather_info.season == SEASON_SPRING
-										   && (weather_info.sunlight == SUN_RISE
-											   || weather_info.sunlight == SUN_LIGHT)));
+										   && (weather_info.sunlight == kSunRise
+											   || weather_info.sunlight == kSunLight)));
 	found = found || paste_description(string, TAG_SUMMERNIGHT,
 									   (weather_info.season == SEASON_SUMMER
-										   && (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
+										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
 	found = found || paste_description(string, TAG_SUMMERDAY,
 									   (weather_info.season == SEASON_SUMMER
-										   && (weather_info.sunlight == SUN_RISE
-											   || weather_info.sunlight == SUN_LIGHT)));
+										   && (weather_info.sunlight == kSunRise
+											   || weather_info.sunlight == kSunLight)));
 	found = found || paste_description(string, TAG_AUTUMNNIGHT,
 									   (weather_info.season == SEASON_AUTUMN
-										   && (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
+										   && (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)));
 	found = found || paste_description(string, TAG_AUTUMNDAY,
 									   (weather_info.season == SEASON_AUTUMN
-										   && (weather_info.sunlight == SUN_RISE
-											   || weather_info.sunlight == SUN_LIGHT)));
+										   && (weather_info.sunlight == kSunRise
+											   || weather_info.sunlight == kSunLight)));
 	found = found || paste_description(string, TAG_NIGHT,
-									   (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK));
+									   (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark));
 	found = found || paste_description(string, TAG_DAY,
-									   (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT));
+									   (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight));
 
 	// Trim any LF/CRLF at the end of description
 	pos = buf + strlen(buf);
@@ -2879,13 +2879,13 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else
 		strcat(buf, weekdays[weather_info.week_day_mono]);
 	switch (weather_info.sunlight) {
-		case SUN_DARK: strcat(buf, ", ночь");
+		case kSunDark: strcat(buf, ", ночь");
 			break;
-		case SUN_SET: strcat(buf, ", закат");
+		case kSunSet: strcat(buf, ", закат");
 			break;
-		case SUN_LIGHT: strcat(buf, ", день");
+		case kSunLight: strcat(buf, ", день");
 			break;
-		case SUN_RISE: strcat(buf, ", рассвет");
+		case kSunRise: strcat(buf, ", рассвет");
 			break;
 	}
 	strcat(buf, ".\r\n");
@@ -2894,7 +2894,7 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	day = time_info.day + 1;    // day in [1..30]
 	*buf = '\0';
 	if (GET_RELIGION(ch) == kReligionPoly || IS_IMMORTAL(ch)) {
-		days_go = time_info.month * DAYS_PER_MONTH + time_info.day;
+		days_go = time_info.month * kDaysPerMonth + time_info.day;
 		month = days_go / 40;
 		days_go = (days_go % 40) + 1;
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d%s",
@@ -2909,7 +2909,7 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				day,
 				time_info.month + 1,
 				time_info.year,
-				(time_info.month * DAYS_PER_MONTH) + day);
+				(time_info.month * kDaysPerMonth) + day);
 	switch (weather_info.season) {
 		case SEASON_WINTER: strcat(buf, ", зима");
 			break;
@@ -2926,17 +2926,17 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 int get_moon(int sky) {
-	if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT || sky == kSkyRaining)
+	if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight || sky == kSkyRaining)
 		return (0);
-	else if (weather_info.moon_day <= NEWMOONSTOP || weather_info.moon_day >= NEWMOONSTART)
+	else if (weather_info.moon_day <= kNewMoonStop || weather_info.moon_day >= kNewMoonStart)
 		return (1);
-	else if (weather_info.moon_day < HALFMOONSTART)
+	else if (weather_info.moon_day < kHalfMoonStart)
 		return (2);
-	else if (weather_info.moon_day < FULLMOONSTART)
+	else if (weather_info.moon_day < kFullMoonStart)
 		return (3);
-	else if (weather_info.moon_day <= FULLMOONSTOP)
+	else if (weather_info.moon_day <= kFullMoonStop)
 		return (4);
-	else if (weather_info.moon_day < LASTHALFMOONSTART)
+	else if (weather_info.moon_day < kLastHalfMoonStart)
 		return (5);
 	else
 		return (6);
@@ -2971,27 +2971,27 @@ void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		sprintf(buf + strlen(buf), "На дворе %d %s.\r\n",
 				weather_info.temperature, desc_count(weather_info.temperature, WHAT_DEGREE));
 
-		if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND))
+		if (IS_SET(weather_info.weather_type, kWeatherBigwind))
 			strcat(buf, "Сильный ветер.\r\n");
-		else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMWIND))
+		else if (IS_SET(weather_info.weather_type, kWeatherMediumwind))
 			strcat(buf, "Умеренный ветер.\r\n");
-		else if (IS_SET(weather_info.weather_type, WEATHER_LIGHTWIND))
+		else if (IS_SET(weather_info.weather_type, kWeatherLightwind))
 			strcat(buf, "Легкий ветерок.\r\n");
 
-		if (IS_SET(weather_type, WEATHER_BIGSNOW))
+		if (IS_SET(weather_type, kWeatherBigsnow))
 			strcat(buf, "Валит снег.\r\n");
-		else if (IS_SET(weather_type, WEATHER_MEDIUMSNOW))
+		else if (IS_SET(weather_type, kWeatherMediumsnow))
 			strcat(buf, "Снегопад.\r\n");
-		else if (IS_SET(weather_type, WEATHER_LIGHTSNOW))
+		else if (IS_SET(weather_type, kWeatherLightsnow))
 			strcat(buf, "Легкий снежок.\r\n");
 
-		if (IS_SET(weather_type, WEATHER_GRAD))
+		if (IS_SET(weather_type, kWeatherHail))
 			strcat(buf, "Дождь с градом.\r\n");
-		else if (IS_SET(weather_type, WEATHER_BIGRAIN))
+		else if (IS_SET(weather_type, kWeatherBigrain))
 			strcat(buf, "Льет, как из ведра.\r\n");
-		else if (IS_SET(weather_type, WEATHER_MEDIUMRAIN))
+		else if (IS_SET(weather_type, kWeatherMediumrain))
 			strcat(buf, "Идет дождь.\r\n");
-		else if (IS_SET(weather_type, WEATHER_LIGHTRAIN))
+		else if (IS_SET(weather_type, kWeatherLightrain))
 			strcat(buf, "Моросит дождик.\r\n");
 
 		send_to_char(buf, ch);
@@ -4028,7 +4028,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (cmd_info[i].minimum_level >= 0
-				&& (Privilege::can_do_priv(vict, std::string(cmd_info[i].command), i, 0))
+				&& (privilege::IsAbleToDoPrivilege(vict, std::string(cmd_info[i].command), i, 0))
 				&& (cmd_info[i].minimum_level >= kLvlImmortal) == wizhelp
 				&& (wizhelp || socials == cmd_sort_info[i].is_social)) {
 				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
@@ -4076,11 +4076,11 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			} else {
 				mod = aff->duration;
 			}
-			(mod + 1) / SECS_PER_MUD_HOUR
+			(mod + 1) / kSecsPerMudHour
 			? sprintf(buf2,
 					  "(%d %s)",
-					  (mod + 1) / SECS_PER_MUD_HOUR + 1,
-					  desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
+					  (mod + 1) / kSecsPerMudHour + 1,
+					  desc_count((mod + 1) / kSecsPerMudHour + 1, WHAT_HOUR))
 			: sprintf(buf2, "(менее часа)");
 			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
@@ -4123,11 +4123,11 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 				} else {
 					mod = aff->duration;
 				}
-				(mod + 1) / SECS_PER_MUD_HOUR
+				(mod + 1) / kSecsPerMudHour
 				? sprintf(buf2,
 						  "(%d %s)",
-						  (mod + 1) / SECS_PER_MUD_HOUR + 1,
-						  desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
+						  (mod + 1) / kSecsPerMudHour + 1,
+						  desc_count((mod + 1) / kSecsPerMudHour + 1, WHAT_HOUR))
 				: sprintf(buf2, "(менее часа)");
 				snprintf(buf,
 						 kMaxStringLength,

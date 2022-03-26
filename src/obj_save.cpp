@@ -1362,7 +1362,7 @@ int Crash_delete_files(const std::size_t index) {
 	strcpy(name, player_table[index].name());
 
 	//удаляем файл описания объектов
-	if (!get_filename(name, filename, TEXT_CRASH_FILE)) {
+	if (!get_filename(name, filename, kTextCrashFile)) {
 		log("SYSERR: Error deleting objects file for %s - unable to resolve file name.", name);
 		retcode = false;
 	} else {
@@ -1382,7 +1382,7 @@ int Crash_delete_files(const std::size_t index) {
 	}
 
 	//удаляем файл таймеров
-	if (!get_filename(name, filename, TIME_CRASH_FILE)) {
+	if (!get_filename(name, filename, kTimeCrashFile)) {
 		log("SYSERR: Error deleting timer file for %s - unable to resolve file name.", name);
 		retcode = false;
 	} else {
@@ -1444,7 +1444,7 @@ int Crash_read_timer(const std::size_t index, int temp) {
 	struct SaveTimeInfo info;
 
 	strcpy(name, player_table[index].name());
-	if (!get_filename(name, fname, TIME_CRASH_FILE)) {
+	if (!get_filename(name, fname, kTimeCrashFile)) {
 		log("[ReadTimer] Error reading %s timer file - unable to resolve file name.", name);
 		return false;
 	}
@@ -1551,7 +1551,7 @@ int Crash_write_timer(const std::size_t index) {
 		log("SYSERR: Error writing %s timer file - no data.", name);
 		return false;
 	}
-	if (!get_filename(name, fname, TIME_CRASH_FILE)) {
+	if (!get_filename(name, fname, kTimeCrashFile)) {
 		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name);
 		return false;
 	}
@@ -1607,7 +1607,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 		return;
 	}
 
-	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
+	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
 	//уменьшаем таймеры
 	nitems = player_table[index].timer->rent.nitems;
@@ -1658,7 +1658,7 @@ void Crash_list_objects(CharData *ch, int index) {
 
 	timer_dec = time(0) - SAVEINFO(index)->rent.time;
 	num_of_days = (float) timer_dec / SECS_PER_REAL_DAY;
-	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
+	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
 	strcpy(buf, "Код ренты - ");
 	switch (SAVEINFO(index)->rent.rentcode) {
@@ -1849,7 +1849,7 @@ int Crash_load(CharData *ch) {
 	}
 
 	//Чтение описаний объектов в буфер
-	if (!get_filename(GET_NAME(ch), fname, TEXT_CRASH_FILE) || !(fl = fopen(fname, "r+b"))) {
+	if (!get_filename(GET_NAME(ch), fname, kTextCrashFile) || !(fl = fopen(fname, "r+b"))) {
 		send_to_char("\r\n** Нет файла описания вещей **\r\n"
 					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					 "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1892,7 +1892,7 @@ int Crash_load(CharData *ch) {
 
 	//Создание объектов
 	long timer_dec = time(0) - SAVEINFO(index)->rent.time;
-	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
+	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
 	for (fsize = 0, reccount = SAVEINFO(index)->rent.nitems;
 		 reccount > 0 && *data && *data != END_CHAR; reccount--, fsize++) {
@@ -2386,7 +2386,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		Crash_extract_objs(ch->carrying);
 	}
 
-	if (get_filename(GET_NAME(ch), fname, TEXT_CRASH_FILE)) {
+	if (get_filename(GET_NAME(ch), fname, kTextCrashFile)) {
 		std::ofstream file(fname);
 		if (!file.is_open()) {
 			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);

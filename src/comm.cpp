@@ -1739,19 +1739,19 @@ char *make_prompt(DescriptorData *d) {
 			if (d->character->get_skill(ESkill::kTownportal))
 				count += sprintf(prompt + count, "Вр:%d ", IsTimedBySkill(d->character.get(), ESkill::kTownportal));
 			if (d->character->get_skill(ESkill::kWarcry)) {
-				int wc_count = (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / kHoursPerWarcry;
+				int wc_count = (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kWarcry)) / kHoursPerWarcry;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
 			if (d->character->get_skill(ESkill::kTurnUndead)) {
 				if (can_use_feat(d->character.get(), EXORCIST_FEAT)) {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
-									 (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
+									 (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
 										 / (kHoursPerTurnUndead - 2));
 				} else {
 					count += sprintf(prompt + count,
 									 "Из:%d ",
-									 (HOURS_PER_DAY - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
+									 (kHoursPerDay - IsTimedBySkill(d->character.get(), ESkill::kTurnUndead))
 										 / kHoursPerTurnUndead);
 				}
 			}

@@ -191,13 +191,13 @@ int find_real_day_number(int day, int month) {
 
 int get_previous_day(int day, bool is_real) {
 	if (day == 1)
-		return is_real ? 365 : DAYS_PER_MONTH * 12;
+		return is_real ? 365 : kDaysPerMonth * 12;
 	else
 		return day - 1;
 }
 
 int get_next_day(int day, bool is_real) {
-	if ((is_real && day == 365) || (!is_real && day == DAYS_PER_MONTH * 12))
+	if ((is_real && day == 365) || (!is_real && day == kDaysPerMonth * 12))
 		return 1;
 	else
 		return day + 1;
@@ -224,7 +224,7 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 		if (is_real)
 			baseDay = find_real_day_number(day, month);
 		else
-			baseDay = DAYS_PER_MONTH * (month - 1) + day;
+			baseDay = kDaysPerMonth * (month - 1) + day;
 		CelebrateDayPtr tmp_day(new CelebrateDay);
 		tmp_day->celebrate = tmp_holiday;
 		celebrates[baseDay] = tmp_day;
@@ -282,7 +282,7 @@ void load() {
 }
 
 int get_mud_day() {
-	return time_info.month * DAYS_PER_MONTH + time_info.day + 1;
+	return time_info.month * kDaysPerMonth + time_info.day + 1;
 }
 
 int get_real_day() {

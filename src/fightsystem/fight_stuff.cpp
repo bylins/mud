@@ -448,7 +448,7 @@ void forget_all_spells(CharData *ch) {
 		af.location = APPLY_NONE;
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
-		af.duration = CalcDuration(ch, max_slot * RECALL_SPELLS_INTERVAL + SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, max_slot * RECALL_SPELLS_INTERVAL + kSecsPerPlayerAffect, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_RECALL_SPELLS);
 		af.battleflag = kAfPulsedec | kAfDeadkeep;
 		affect_join(ch, af, false, false, false, false);

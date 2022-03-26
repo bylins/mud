@@ -16,6 +16,7 @@
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
+#include "liquid.h"
 
 #include "game_magic/spells_info.h"
 
@@ -409,7 +410,7 @@ void Player::save_char() {
 	save_char_vars(this);
 
 	// Запись чара в новом формате
-	get_filename(GET_NAME(this), filename, PLAYERS_FILE);
+	get_filename(GET_NAME(this), filename, kPlayersFile);
 	if (!(saved = fopen(filename, "w"))) {
 		perror("Unable open charfile");
 		return;
@@ -978,7 +979,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 
 	bool result = id >= 0;
-	result = result && get_filename(name, filename, PLAYERS_FILE);
+	result = result && get_filename(name, filename, kPlayersFile);
 	result = result && (fl = fbopen(filename, FB_READ));
 	if (!result) {
 		const std::size_t BUFFER_SIZE = 1024;
@@ -1229,7 +1230,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
 	this->set_sex(ESex::kNeutral);
-	GET_COND(this, THIRST) = NORM_COND_VALUE;
+	GET_COND(this, THIRST) = kNormCondition;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
 	PRF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.

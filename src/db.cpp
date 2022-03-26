@@ -1145,7 +1145,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "emails"))
 		RegisterSystem::load();
 	else if (!str_cmp(arg, "privilege"))
-		Privilege::load();
+		privilege::Load();
 	else if (!str_cmp(arg, "mobraces"))
 		load_mobraces();
 	else if (!str_cmp(arg, "morphs"))
@@ -2472,7 +2472,7 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading privileges and gods list");
 	log("Load privilege and god list.");
-	Privilege::load();
+	privilege::Load();
 
 	// должен идти до резета зон
 	boot_profiler.next_step("Initializing depot system");
@@ -2610,24 +2610,24 @@ void reset_time(void) {
 	time_info = *mud_time_passed(time(0), beginning_of_time);
 	// Calculate moon day
 	weather_info.moon_day =
-		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % MOON_CYCLE;
+		((time_info.year * kMonthsPerYear + time_info.month) * kDaysPerMonth + time_info.day) % kMoonCycle;
 	weather_info.week_day_mono =
-		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % WEEK_CYCLE;
+		((time_info.year * kMonthsPerYear + time_info.month) * kDaysPerMonth + time_info.day) % kWeekCycle;
 	weather_info.week_day_poly =
-		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % POLY_WEEK_CYCLE;
+		((time_info.year * kMonthsPerYear + time_info.month) * kDaysPerMonth + time_info.day) % kPolyWeekCycle;
 	// Calculate Easter
 	calc_easter();
 
 	if (time_info.hours < sunrise[time_info.month][0])
-		weather_info.sunlight = SUN_DARK;
+		weather_info.sunlight = kSunDark;
 	else if (time_info.hours == sunrise[time_info.month][0])
-		weather_info.sunlight = SUN_RISE;
+		weather_info.sunlight = kSunRise;
 	else if (time_info.hours < sunrise[time_info.month][1])
-		weather_info.sunlight = SUN_LIGHT;
+		weather_info.sunlight = kSunLight;
 	else if (time_info.hours == sunrise[time_info.month][1])
-		weather_info.sunlight = SUN_SET;
+		weather_info.sunlight = kSunSet;
 	else
-		weather_info.sunlight = SUN_DARK;
+		weather_info.sunlight = kSunDark;
 
 	log("   Current Gametime: %dH %dD %dM %dY.", time_info.hours, time_info.day, time_info.month, time_info.year);
 
@@ -2660,14 +2660,14 @@ void reset_time(void) {
 	else if (weather_info.pressure <= 1000) {
 		weather_info.sky = kSkyRaining;
 		if (time_info.month >= MONTH_APRIL && time_info.month <= MONTH_OCTOBER)
-			create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTRAIN, 40, 40, 20);
+			create_rainsnow(&weather_info.weather_type, kWeatherLightrain, 40, 40, 20);
 		else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY)
-			create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTSNOW, 50, 40, 10);
+			create_rainsnow(&weather_info.weather_type, kWeatherLightsnow, 50, 40, 10);
 		else if (time_info.month == MONTH_NOVEMBER || time_info.month == MONTH_MART) {
 			if (weather_info.temperature >= 3)
-				create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTRAIN, 70, 30, 0);
+				create_rainsnow(&weather_info.weather_type, kWeatherLightrain, 70, 30, 0);
 			else
-				create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTSNOW, 80, 20, 0);
+				create_rainsnow(&weather_info.weather_type, kWeatherLightsnow, 80, 20, 0);
 		}
 	} else if (weather_info.pressure <= 1020)
 		weather_info.sky = kSkyCloudy;
@@ -3744,20 +3744,20 @@ void paste_mob(CharData *ch, RoomRnum room) {
 	bool no_time = true;
 
 	if (MOB_FLAGGED(ch, MOB_LIKE_DAY)) {
-		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
+		if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)
 			time_ok = true;
 		need_move = true;
 		no_time = false;
 	}
 	if (MOB_FLAGGED(ch, MOB_LIKE_NIGHT)) {
-		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
+		if (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark)
 			time_ok = true;
 		need_move = true;
 		no_time = false;
 	}
 	if (MOB_FLAGGED(ch, MOB_LIKE_FULLMOON)) {
-		if ((weather_info.sunlight == SUN_SET ||
-			weather_info.sunlight == SUN_DARK) &&
+		if ((weather_info.sunlight == kSunSet ||
+			weather_info.sunlight == kSunDark) &&
 			(weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
 			time_ok = true;
 		need_move = true;
@@ -3831,24 +3831,24 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 	bool no_month = true;
 
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DAY)) {
-		if (weather_info.sunlight == SUN_RISE
-			|| weather_info.sunlight == SUN_LIGHT) {
+		if (weather_info.sunlight == kSunRise
+			|| weather_info.sunlight == kSunLight) {
 			time_ok = true;
 		}
 		need_move = true;
 		no_time = false;
 	}
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NIGHT)) {
-		if (weather_info.sunlight == SUN_SET
-			|| weather_info.sunlight == SUN_DARK) {
+		if (weather_info.sunlight == kSunSet
+			|| weather_info.sunlight == kSunDark) {
 			time_ok = true;
 		}
 		need_move = true;
 		no_time = false;
 	}
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_FULLMOON)) {
-		if ((weather_info.sunlight == SUN_SET
-			|| weather_info.sunlight == SUN_DARK)
+		if ((weather_info.sunlight == kSunSet
+			|| weather_info.sunlight == kSunDark)
 			&& weather_info.moon_day >= 12
 			&& weather_info.moon_day <= 15) {
 			time_ok = true;
@@ -4306,7 +4306,7 @@ void ZoneReset::reset_zone_essential() {
 									&& leader != ch
 									&& !ch->makes_loop(leader)) {
 									if (ch->has_master()) {
-										stop_follower(ch, SF_EMPTY);
+										stop_follower(ch, kSfEmpty);
 									}
 
 									leader->add_follower(ch);
@@ -5306,7 +5306,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 	int deleted;
 	char filename[kMaxStringLength];
 
-	if (get_filename(name, filename, PLAYERS_FILE)) {
+	if (get_filename(name, filename, kPlayersFile)) {
 		Player t_short_ch;
 		Player *short_ch = &t_short_ch;
 		deleted = 1;
@@ -5357,19 +5357,19 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 			log("Player %s already deleted - kill player file", name);
 			remove(filename);
 			// 2) Remove all other files
-			get_filename(name, filename, ALIAS_FILE);
+			get_filename(name, filename, kAliasFile);
 			remove(filename);
-			get_filename(name, filename, SCRIPT_VARS_FILE);
+			get_filename(name, filename, kScriptVarsFile);
 			remove(filename);
-			get_filename(name, filename, PERS_DEPOT_FILE);
+			get_filename(name, filename, kPersDepotFile);
 			remove(filename);
-			get_filename(name, filename, SHARE_DEPOT_FILE);
+			get_filename(name, filename, kShareDepotFile);
 			remove(filename);
-			get_filename(name, filename, PURGE_DEPOT_FILE);
+			get_filename(name, filename, kPurgeDepotFile);
 			remove(filename);
-			get_filename(name, filename, TEXT_CRASH_FILE);
+			get_filename(name, filename, kTextCrashFile);
 			remove(filename);
-			get_filename(name, filename, TIME_CRASH_FILE);
+			get_filename(name, filename, kTimeCrashFile);
 			remove(filename);
 		}
 	}
@@ -5431,36 +5431,36 @@ void rename_char(CharData *ch, char *oname) {
 
 	// 1) Rename(if need) char and pkill file - directly
 	log("Rename char %s->%s", GET_NAME(ch), oname);
-	get_filename(oname, ofilename, PLAYERS_FILE);
-	get_filename(GET_NAME(ch), filename, PLAYERS_FILE);
+	get_filename(oname, ofilename, kPlayersFile);
+	get_filename(GET_NAME(ch), filename, kPlayersFile);
 	rename(ofilename, filename);
 
 	ch->save_char();
 
 	// 2) Rename all other files
-	get_filename(oname, ofilename, TEXT_CRASH_FILE);
-	get_filename(GET_NAME(ch), filename, TEXT_CRASH_FILE);
+	get_filename(oname, ofilename, kTextCrashFile);
+	get_filename(GET_NAME(ch), filename, kTextCrashFile);
 	rename(ofilename, filename);
 
-	get_filename(oname, ofilename, TIME_CRASH_FILE);
-	get_filename(GET_NAME(ch), filename, TIME_CRASH_FILE);
+	get_filename(oname, ofilename, kTimeCrashFile);
+	get_filename(GET_NAME(ch), filename, kTimeCrashFile);
 	rename(ofilename, filename);
 
-	get_filename(oname, ofilename, ALIAS_FILE);
-	get_filename(GET_NAME(ch), filename, ALIAS_FILE);
+	get_filename(oname, ofilename, kAliasFile);
+	get_filename(GET_NAME(ch), filename, kAliasFile);
 	rename(ofilename, filename);
 
-	get_filename(oname, ofilename, SCRIPT_VARS_FILE);
-	get_filename(GET_NAME(ch), filename, SCRIPT_VARS_FILE);
+	get_filename(oname, ofilename, kScriptVarsFile);
+	get_filename(GET_NAME(ch), filename, kScriptVarsFile);
 	rename(ofilename, filename);
 
 	// хранилища
 	Depot::rename_char(ch);
-	get_filename(oname, ofilename, PERS_DEPOT_FILE);
-	get_filename(GET_NAME(ch), filename, PERS_DEPOT_FILE);
+	get_filename(oname, ofilename, kPersDepotFile);
+	get_filename(GET_NAME(ch), filename, kPersDepotFile);
 	rename(ofilename, filename);
-	get_filename(oname, ofilename, PURGE_DEPOT_FILE);
-	get_filename(GET_NAME(ch), filename, PURGE_DEPOT_FILE);
+	get_filename(oname, ofilename, kPurgeDepotFile);
+	get_filename(GET_NAME(ch), filename, kPurgeDepotFile);
 	rename(ofilename, filename);
 }
 

@@ -23,7 +23,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 
 	// для смены лидера без лишнего спама
-	if (!IS_SET(mode, SF_SILENCE)) {
+	if (!IS_SET(mode, kSfSilence)) {
 		act("Вы прекратили следовать за $N4.", false, ch, 0, ch->get_master(), kToChar);
 		act("$n прекратил$g следовать за $N4.", true, ch, 0, ch->get_master(), kToNotVict | kToArenaListen);
 	}
@@ -66,7 +66,7 @@ bool stop_follower(CharData *ch, int mode) {
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-		|| IS_SET(mode, SF_CHARMLOST)) {
+		|| IS_SET(mode, kSfCharmlost)) {
 		if (affected_by_spell(ch, kSpellCharm)) {
 			affect_from_char(ch, kSpellCharm);
 		}
@@ -130,7 +130,7 @@ bool stop_follower(CharData *ch, int mode) {
 bool die_follower(CharData *ch) {
 	struct Follower *j, *k = ch->followers;
 
-	if (ch->has_master() && stop_follower(ch, SF_FOLLOWERDIE)) {
+	if (ch->has_master() && stop_follower(ch, kSfFollowerdie)) {
 		//  чармиса спуржили в stop_follower
 		return true;
 	}
@@ -141,7 +141,7 @@ bool die_follower(CharData *ch) {
 
 	for (k = ch->followers; k; k = j) {
 		j = k->next;
-		stop_follower(k->ch, SF_MASTERDIE);
+		stop_follower(k->ch, kSfMasterdie);
 	}
 	return false;
 }
@@ -173,7 +173,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!ch->has_master()) {
 				send_to_char("Но вы ведь ни за кем не следуете...\r\n", ch);
 			} else {
-				stop_follower(ch, SF_EMPTY);
+				stop_follower(ch, kSfEmpty);
 			}
 			return;
 		}
@@ -201,7 +201,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				send_to_char("Вы уже следуете за собой.\r\n", ch);
 				return;
 			}
-			stop_follower(ch, SF_EMPTY);
+			stop_follower(ch, kSfEmpty);
 		} else {
 			if (circle_follow(ch, leader)) {
 				send_to_char("Так у вас целый хоровод получится.\r\n", ch);
@@ -209,7 +209,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (ch->has_master()) {
-				stop_follower(ch, SF_EMPTY);
+				stop_follower(ch, kSfEmpty);
 			}
 			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			ch->removeGroupFlags();

@@ -873,7 +873,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (SECT(ch->in_room) == kSectUnderwater) {
 				bonus -= 30;
 			}
-			bonus = complex_skill_modifier(ch, ESkill::kUndefined, GAPPLY_SKILL_SUCCESS, bonus);
+			bonus = GetComplexSkillModifier(ch, ESkill::kUndefined, GAPPLY_SKILL_SUCCESS, bonus);
 			if (SECT(ch->in_room) == kSectWaterSwim
 				|| SECT(ch->in_room) == kSectWaterNoswim
 				|| SECT(ch->in_room) == kSectOnlyFlying
@@ -1393,7 +1393,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				total_percent += 10;
 			}
 
-			total_percent = complex_skill_modifier(ch, ESkill::kUndefined, GAPPLY_SKILL_SUCCESS, total_percent);
+			total_percent = GetComplexSkillModifier(ch, ESkill::kUndefined, GAPPLY_SKILL_SUCCESS, total_percent);
 
 			if (SECT(ch->in_room) == kSectWaterSwim
 				|| SECT(ch->in_room) == kSectWaterNoswim

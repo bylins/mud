@@ -39,18 +39,18 @@
 * </gods>
 * Формат файла временный, zone.ru там грозится своим форматом на lua, а xml в очередной раз решено не воротить, хотя и хотелось...
 */
-namespace Privilege {
+namespace privilege {
 
-const int BOARDS = 0;
-const int USE_SKILLS = 1;
-const int ARENA_MASTER = 2;
-const int KRODER = 3;
-const int FULLZEDIT = 4;
-const int TITLE = 5;
+const int kBoards = 0;
+const int kUseSkills = 1;
+const int kArenaMaster = 2;
+const int kKroder = 3;
+const int kFullzedit = 4;
+const int kTitle = 5;
 // чтение/удаление доски опечаток, ставился по наличию группы olc
-const int MISPRINT = 6;
+const int kMisprint = 6;
 // чтение/удаление доски придумок
-const int SUGGEST = 7;
+const int kSuggest = 7;
 // количество флагов
 const int FLAGS_NUM = 8;
 
@@ -88,21 +88,21 @@ void parse_command_line(const std::string &command, int other_flags = 0); // п�
 */
 void parse_flags(const std::string &command) {
 	if (command == "boards")
-		tmp_god.flags.set(BOARDS);
+		tmp_god.flags.set(kBoards);
 	else if (command == "skills")
-		tmp_god.flags.set(USE_SKILLS);
+		tmp_god.flags.set(kUseSkills);
 	else if (command == "arena")
-		tmp_god.flags.set(ARENA_MASTER);
+		tmp_god.flags.set(kArenaMaster);
 	else if (command == "kroder")
-		tmp_god.flags.set(KRODER);
+		tmp_god.flags.set(kKroder);
 	else if (command == "fullzedit")
-		tmp_god.flags.set(FULLZEDIT);
+		tmp_god.flags.set(kFullzedit);
 	else if (command == "title")
-		tmp_god.flags.set(TITLE);
+		tmp_god.flags.set(kTitle);
 	else if (command == "olc")
-		tmp_god.flags.set(MISPRINT);
+		tmp_god.flags.set(kMisprint);
 	else if (command == "suggest")
-		tmp_god.flags.set(SUGGEST);
+		tmp_god.flags.set(kSuggest);
 }
 
 /**
@@ -125,7 +125,7 @@ void insert_command(const std::string &command, int fill_mode, int other_flags) 
 		case 2: tmp_god.show.insert(command);
 			break;
 		case 3: {
-			std::map<std::string, std::string>::const_iterator it = group_list.find(command);
+			const auto it = group_list.find(command);
 			if (it != group_list.end()) {
 				if (command == "arena")
 					parse_command_line(it->second, 1);
@@ -186,7 +186,7 @@ void parse_command_line(const std::string &commands, int other_flags) {
 }
 
 // * Лоад и релоад файла привилегий (reload privilege) с последующим проставлением блокнотов иммам.
-void load() {
+void Load() {
 	std::ifstream file(PRIVILEGE_FILE);
 	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", PRIVILEGE_FILE, __FILE__, __func__, __LINE__);
@@ -215,7 +215,6 @@ void load() {
 				std::getline(file, commands);
 				boost::trim(commands);
 				group_list[name] = commands;
-				continue;
 			}
 			continue;
 		} else if (name == "<gods>") {
@@ -239,7 +238,7 @@ void load() {
 		}
 	}
 	// генерим блокноты
-	load_god_boards();
+	LoadGodBoards();
 	group_list.clear();
 }
 
@@ -251,25 +250,24 @@ void load() {
 * \return 0 - не нашли, 1 - нашли
 */
 
-bool god_list_check(const std::string &name, long unique) {
+bool IsContainedInGodsList(const std::string &name, long unique) {
 #ifdef TEST_BUILD
-	return 1;
+	return true;
 #endif
-	GodListType::const_iterator it = god_list.find(unique);
+	auto it = god_list.find(unique);
 	if (it != god_list.end())
 		if (it->second.name == name)
-			return 1;
-	return 0;
+			return true;
+	return false;
 }
 
 // * Создание и лоад/релоад блокнотов иммам.
-void load_god_boards() {
+void LoadGodBoards() {
 	Boards::Static::clear_god_boards();
-	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god) {
-		int level = get_level_by_unique(god->first);
+	for (auto & god : god_list) {
+		int level = get_level_by_unique(god.first);
 		if (level < kLvlImmortal) continue;
-		// если это имм - делаем блокнот
-		Boards::Static::init_god_board(god->first, god->second.name);
+		Boards::Static::init_god_board(god.first, god.second.name);
 	}
 }
 
@@ -279,7 +277,7 @@ void load_god_boards() {
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool can_do_priv(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
+bool IsAbleToDoPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLvlImmortal
 		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
@@ -288,8 +286,8 @@ bool can_do_priv(CharData *ch, const std::string &cmd_name, int cmd_number, int 
 	if (IS_IMMORTAL(ch))
 		return true;
 #endif
-	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
-	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
+	const auto it = god_list.find(GET_UNIQUE(ch));
+	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true)) {
 		if (GetRealLevel(ch) == kLvlImplementator)
 			return true;
 		switch (mode) {
@@ -320,14 +318,14 @@ bool can_do_priv(CharData *ch, const std::string &cmd_name, int cmd_number, int 
 * \param flag - список флагов в начале файла, кол-во FLAGS_NUM
 * \return 0 - не нашли, 1 - нашли
 */
-bool check_flag(const CharData *ch, int flag) {
+bool CheckFlag(const CharData *ch, int flag) {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
-	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
-	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1))
+	const auto it = god_list.find(GET_UNIQUE(ch));
+	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true))
 		if (it->second.flags[flag])
 			result = true;
-	if (flag == USE_SKILLS && (IS_IMPL(ch)))
+	if (flag == kUseSkills && (IS_IMPL(ch)))
 		result = true;
 	return result;
 }
@@ -337,13 +335,13 @@ bool check_flag(const CharData *ch, int flag) {
 * Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool check_spells(const CharData *ch, int spellnum) {
+bool CheckSpells(const CharData *ch, int spellnum) {
 	// флаг use_skills - везде и что угодно
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
+	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || CheckFlag(ch, kUseSkills))
 		return true;
 	// флаг arena_master - только на арене и только для призыва/пенты
 	if (spellnum == kSpellPortal || spellnum == kSpellSummon || spellnum == kSpellWorldOfRecall)
-		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && check_flag(ch, ARENA_MASTER))
+		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && CheckFlag(ch, kArenaMaster))
 			return true;
 	return false;
 }
@@ -353,8 +351,8 @@ bool check_spells(const CharData *ch, int spellnum) {
 * У морталов, мобов и 34х проверка не производится.
 * \return 0 - не может использовать скиллы, 1 - может
 */
-bool check_skills(const CharData *ch) {
-	if ((GetRealLevel(ch) > kLvlGod) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
+bool CheckSkills(const CharData *ch) {
+	if ((GetRealLevel(ch) > kLvlGod) || !IS_IMMORTAL(ch) || CheckFlag(ch, kUseSkills))
 //	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;

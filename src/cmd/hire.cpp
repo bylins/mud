@@ -137,7 +137,7 @@ int get_reformed_charmice_hp(CharData *ch, CharData *victim, int spellnum) {
 	}
 
 	if (spellnum != kSpellCharm) {
-		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
 	// Интерполяция между значениями для целых значений обаяния
@@ -250,7 +250,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (helpee->has_master() && helpee->get_master() != ch) {
-			if (stop_follower(helpee, SF_MASTERDIE)) {
+			if (stop_follower(helpee, kSfMasterdie)) {
 				return;
 			}
 		}
@@ -260,7 +260,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Affect<EApplyLocation> af;
 		if (!(k && k->ch == helpee)) {
 			ch->add_follower(helpee);
-			af.duration = CalcDuration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+			af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
 		} else {
 			auto aff = k->ch->affected.begin();
 			for (; aff != k->ch->affected.end(); ++aff) {
@@ -270,7 +270,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (aff != k->ch->affected.end()) {
-				af.duration = (*aff)->duration + CalcDuration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+				af.duration = (*aff)->duration + CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
 			}
 		}
 
@@ -378,7 +378,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 
 	act("Вы рассчитали $N3.", false, ch, 0, k->ch, kToChar);
 	affect_from_char(k->ch, kSpellCharm);
-	stop_follower(k->ch, SF_CHARMLOST);
+	stop_follower(k->ch, kSfCharmlost);
 }
 
 

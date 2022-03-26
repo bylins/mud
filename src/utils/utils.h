@@ -11,8 +11,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#ifndef UTILS_H_
+#define UTILS_H_
 
 #include "game_classes/classes_constants.h"
 #include "conf.h"
@@ -196,31 +196,14 @@ extern const char *ACTNULL;
 #undef MIN
 #endif
 
-#define SF_EMPTY       (1 << 0)
-#define SF_FOLLOWERDIE (1 << 1)
-#define SF_MASTERDIE   (1 << 2)
-#define SF_CHARMLOST   (1 << 3)
-#define SF_SILENCE     (1 << 4)
-
-#define EXP_IMPL 2000000000
-#define MAX_AUCTION_LOT            3
-#define MAX_AUCTION_TACT_BUY       5
-#define MAX_AUCTION_TACT_PRESENT   (MAX_AUCTION_TACT_BUY + 3)
-#define AUCTION_PULSES             30
-#define CHAR_DRUNKED               10
-#define CHAR_MORTALLY_DRUNKED      18
-
-#define MAX_COND_VALUE               48
-#define NORM_COND_VALUE               22
-#define GET_COND_M(ch, cond) ((GET_COND(ch,cond)<=NORM_COND_VALUE)?0:GET_COND(ch,cond)-NORM_COND_VALUE)
-#define GET_COND_K(ch, cond) (((GET_COND_M(ch,cond)*100)/(MAX_COND_VALUE-NORM_COND_VALUE)))
+constexpr int kSfEmpty = 1 << 0;
+constexpr int kSfFollowerdie = 1 << 1;
+constexpr int kSfMasterdie = 1 << 2;
+constexpr int kSfCharmlost = 1 << 3;
+constexpr int kSfSilence = 1 << 4;
 
 int MAX(int a, int b);
 int MIN(int a, int b);
-
-// all argument min/max macros definition
-#define MMIN(a, b) ((a<b)?a:b)
-#define MMAX(a, b) ((a<b)?b:a)
 
 char *colorLOW(char *txt);
 std::string &colorLOW(std::string &txt);
@@ -253,7 +236,7 @@ void gain_exp(CharData *ch, int gain);
 void gain_exp_regardless(CharData *ch, int gain);
 void gain_condition(CharData *ch, unsigned condition, int value);
 void check_idling(CharData *ch);
-void point_update(void);
+void point_update();
 void room_point_update();
 void exchange_point_update();
 void obj_point_update();
@@ -264,38 +247,20 @@ void update_pos(CharData *victim);
 // проверяет, висит ли заданный спелл на чаре
 bool check_spell_on_player(CharData *ch, int spell_num);
 
-
 // get_filename() //
-#define ALIAS_FILE        1
-#define SCRIPT_VARS_FILE  2
-#define PLAYERS_FILE      3
-#define TEXT_CRASH_FILE   4
-#define TIME_CRASH_FILE   5
-#define PERS_DEPOT_FILE   6
-#define SHARE_DEPOT_FILE  7
-#define PURGE_DEPOT_FILE  8
+const int kAliasFile = 1;
+const int kScriptVarsFile = 2;
+const int kPlayersFile = 3;
+const int kTextCrashFile = 4;
+const int kTimeCrashFile = 5;
+const int kPersDepotFile = 6;
+const int kShareDepotFile = 7;
+const int kPurgeDepotFile = 8;
 
 // breadth-first searching //
 #define BFS_ERROR        (-1)
 #define BFS_ALREADY_THERE  (-2)
 #define BFS_NO_PATH         (-3)
-
-/*
- * XXX: These constants should be configurable. See act.informative.c
- * and utils.cpp for other places to change.
- */
-// mud-life time
-#define HOURS_PER_DAY          24
-#define DAYS_PER_MONTH         30
-#define MONTHS_PER_YEAR        12
-#define SECS_PER_PLAYER_AFFECT 2
-#define SECS_PER_ROOM_AFFECT 2
-#define TIME_KOEFF             2
-#define MOB_MEM_KOEFF          SECS_PER_MUD_HOUR
-#define SECS_PER_MUD_HOUR     60
-#define SECS_PER_MUD_DAY      (HOURS_PER_DAY*SECS_PER_MUD_HOUR)
-#define SECS_PER_MUD_MONTH    (DAYS_PER_MONTH*SECS_PER_MUD_DAY)
-#define SECS_PER_MUD_YEAR     (MONTHS_PER_YEAR*SECS_PER_MUD_MONTH)
 
 // real-life time (remember Real Life?)
 #define SECS_PER_REAL_MIN  60
@@ -505,8 +470,8 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ROOM_DARK) || \
                               (SECT(room) != kSectInside && \
                                SECT(room) != kSectCity   && \
-                               ( weather_info.sunlight == SUN_SET || \
-                                 weather_info.sunlight == SUN_DARK )) )
+                               ( weather_info.sunlight == kSunSet || \
+                                 weather_info.sunlight == kSunDark )) )
 
 #define IS_DARK(room) is_dark(room)
 #define IS_LIGHT(room)  (!IS_DARK(room))
@@ -750,17 +715,17 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])
-#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = pct)
+#define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = (pct))
 #define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
 #define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
 #define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
 #define    NUM_LEV_FEAT(ch) ((int) 1+GetRealLevel(ch)*(5+GET_REAL_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 #define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 
-#define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
+#define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (std::max(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
 
 // Min cast level getting
-#define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))
+#define MIN_CAST_LEV(sp, ch) (std::max(0,MOD_CAST_LEV(sp,ch)))
 #define BASE_CAST_LEV(sp, ch) ((sp).min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
 
 #define MIN_CAST_REM(sp, ch) ((sp).min_remort[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
@@ -1581,11 +1546,11 @@ class StreamFlagsHolder {
 };
 
 /**
- *  Напечатать число в виде строки с разделителем разрядов - запятой.
+ *  Напечатать число в виде строки с разделителем разрядов.
  *  @param num  - обрабатываемоле число.
  */
 std::string PrintNumberByDigits(long long num);
 
-#endif // _UTILS_H_
+#endif // UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

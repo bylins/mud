@@ -368,15 +368,15 @@ void list_skills(CharData *ch, CharData *vict, const char *filter/* = nullptr*/)
 				case ESkill::kWarcry:
 					sprintf(buf,
 							"[-%d-] ",
-							(HOURS_PER_DAY - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
+							(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerWarcry);
 					break;
 				case ESkill::kTurnUndead:
 					if (can_use_feat(ch, EXORCIST_FEAT)) {
 						sprintf(buf,
 								"[-%d-] ",
-								(HOURS_PER_DAY - IsTimedBySkill(ch, skill_id)) / (kHoursPerTurnUndead - 2));
+								(kHoursPerDay - IsTimedBySkill(ch, skill_id)) / (kHoursPerTurnUndead - 2));
 					} else {
-						sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - IsTimedBySkill(ch, skill_id)) / kHoursPerTurnUndead);
+						sprintf(buf, "[-%d-] ", (kHoursPerDay - IsTimedBySkill(ch, skill_id)) / kHoursPerTurnUndead);
 					}
 					break;
 				case ESkill::kFirstAid:
@@ -537,7 +537,7 @@ void list_spells(CharData *ch, CharData *vict, int all_spells) {
 				time_str.append(std::to_string(MAX(1,
 												   static_cast<int>(std::ceil(
 													   static_cast<double>(Temporary_Spells::spell_left_time(ch, i))
-														   / SECS_PER_MUD_HOUR)))));
+														   / kSecsPerMudHour)))));
 				time_str.append("]");
 			}
 		if (MIN_CAST_LEV(spell_info[i], ch) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, i), kSpellKnow)) {
@@ -2343,14 +2343,14 @@ void npc_group(CharData *ch) {
 
 	if (members <= 1) {
 		if (ch->has_master()) {
-			stop_follower(ch, SF_EMPTY);
+			stop_follower(ch, kSfEmpty);
 		}
 
 		return;
 	}
 
 	if (leader->has_master()) {
-		stop_follower(leader, SF_EMPTY);
+		stop_follower(leader, kSfEmpty);
 	}
 
 	// Assign leader
@@ -2372,7 +2372,7 @@ void npc_group(CharData *ch) {
 		if (!vict->has_master()) {
 			leader->add_follower(vict);
 		} else if (vict->get_master() != leader) {
-			stop_follower(vict, SF_EMPTY);
+			stop_follower(vict, kSfEmpty);
 			leader->add_follower(vict);
 		}
 		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);

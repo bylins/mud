@@ -27,6 +27,7 @@
 #include "game_skills/pick.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
+#include "liquid.h"
 
 #include <cmath>
 
@@ -569,9 +570,9 @@ int calcDrunkDirection(CharData *ch, int direction, bool need_specials_check) {
 	int drunk_move = direction;
 	//пересчет направления, в зависимости от степени опьянения
 	if (!IS_NPC(ch)
-		&& GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED
+		&& GET_COND(ch, DRUNK) >= kMortallyDrunked
 		&& !ch->ahorse()
-		&& GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50)) {
+		&& GET_COND(ch, DRUNK) >= number(kDrunked, 50)) {
 		int possibleDirs[kDirMaxNumber];
 		int correct_dirs = 0;
 
@@ -1483,10 +1484,10 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 			send_to_char("Да отперли уже все...\r\n", ch);
 		else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED))
 			send_to_char("Угу, заперто.\r\n", ch);
-		else if (!has_key(ch, keynum) && !Privilege::check_flag(ch, Privilege::USE_SKILLS)
+		else if (!has_key(ch, keynum) && !privilege::CheckFlag(ch, privilege::kUseSkills)
 			&& ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
 			send_to_char("У вас нет ключа.\r\n", ch);
-		else if (DOOR_IS_BROKEN(ch, obj, door) && !Privilege::check_flag(ch, Privilege::USE_SKILLS)
+		else if (DOOR_IS_BROKEN(ch, obj, door) && !privilege::CheckFlag(ch, privilege::kUseSkills)
 			&& ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
 			send_to_char("Замок сломан.\r\n", ch);
 		else if (ok_pick(ch, keynum, obj, door, subcmd))

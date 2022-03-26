@@ -16,6 +16,7 @@
 #include "backtrace.h"
 #include "zone.h"
 #include "structs/global_objects.h"
+#include "liquid.h"
 
 #include <boost/format.hpp>
 #include <random>
@@ -207,7 +208,7 @@ void CharData::reset() {
 }
 
 void CharData::set_abstinent() {
-	int duration = CalcDuration(this, 2, MAX(0, GET_DRUNK_STATE(this) - CHAR_DRUNKED), 4, 2, 5);
+	int duration = CalcDuration(this, 2, MAX(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
 
 	if (can_use_feat(this, DRUNKARD_FEAT)) {
 		duration /= 2;
@@ -245,7 +246,7 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), false);
 	if (af->type == kSpellAbstinent) {
 		if (player_specials) {
-			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
+			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), kDrunked - 1);
 		} else {
 			log("SYSERR: player_specials is not set.");
 		}
@@ -556,7 +557,7 @@ int CharData::get_equipped_skill(const ESkill skill_num) const {
 
 // * Родной тренированный скилл чара.
 int CharData::get_inborn_skill(const ESkill skill_num) {
-	if (Privilege::check_skills(this)) {
+	if (privilege::CheckSkills(this)) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
 			//return normalize_skill(it->second.skillLevel, skill_num);
@@ -572,7 +573,7 @@ int CharData::get_trained_skill(const ESkill skill_num) const {
 			return 100;
 		}
 	}
-	if (Privilege::check_skills(this)) {
+	if (privilege::CheckSkills(this)) {
 		return std::clamp(current_morph_->get_trained_skill(skill_num), 0, MUD::Skills()[skill_num].cap);
 	}
 	return 0;

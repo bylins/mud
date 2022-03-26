@@ -31,7 +31,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	} else {
 		timed.time = IsTimedBySkill(ch, ESkill::kTurnUndead) + kHoursPerTurnUndead;
 	}
-	if (timed.time > HOURS_PER_DAY) {
+	if (timed.time > kHoursPerDay) {
 		send_to_char("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
 		return;
 	}

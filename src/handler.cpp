@@ -1829,7 +1829,7 @@ void change_npc_leader(CharData *ch) {
 
 	CharData *leader = nullptr;
 	for (auto i : tmp_list) {
-		if (stop_follower(i, SF_SILENCE)) {
+		if (stop_follower(i, kSfSilence)) {
 			continue;
 		}
 		if (!leader) {
@@ -2796,7 +2796,7 @@ int get_player_charms(CharData *ch, int spellnum) {
 	}
 
 	if (spellnum != kSpellCharm) {
-		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+		eff_cha = std::min(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
 	if (eff_cha < max_cha) {

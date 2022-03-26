@@ -30,6 +30,7 @@
 #include "entities/zone.h"
 #include "game_classes/classes_spell_slots.h"
 #include "game_magic/spells_info.h"
+#include "liquid.h"
 
 #include <boost/format.hpp>
 #include <random>
@@ -102,7 +103,7 @@ void handle_recall_spells(CharData *ch) {
 	//максимальный доступный чару круг
 	unsigned max_slot = max_slots.get(ch);
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
-	int secs_left = (SECS_PER_PLAYER_AFFECT * aff->duration) / SECS_PER_MUD_HOUR - SECS_PER_PLAYER_AFFECT;
+	int secs_left = (kSecsPerPlayerAffect * aff->duration) / kSecsPerMudHour - kSecsPerPlayerAffect;
 	if (secs_left / RECALL_SPELLS_INTERVAL < max_slot - aff->modifier || secs_left <= 2) {
 		int slot_to_restore = aff->modifier++;
 
@@ -902,18 +903,18 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 	}
 
 	GET_COND(ch, condition) += value;
-	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
+	GET_COND(ch, condition) = std::max(0, GET_COND(ch, condition));
 
 	// обработка после увеличения
 	switch (condition) {
-		case DRUNK: GET_COND(ch, condition) = MIN(CHAR_MORTALLY_DRUNKED + 1, GET_COND(ch, condition));
+		case DRUNK: GET_COND(ch, condition) = std::min(kMortallyDrunked + 1, GET_COND(ch, condition));
 			break;
 
-		default: GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
+		default: GET_COND(ch, condition) = std::min(kMaxCondition, GET_COND(ch, condition));
 			break;
 	}
 
-	if (cond_state >= CHAR_DRUNKED && GET_COND(ch, DRUNK) < CHAR_DRUNKED) {
+	if (cond_state >= kDrunked && GET_COND(ch, DRUNK) < kDrunked) {
 		GET_DRUNK_STATE(ch) = 0;
 	}
 
@@ -954,7 +955,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 
 		case DRUNK:
 			//Если чара прекратило штормить, шлем сообщение
-			if (cond_state >= CHAR_MORTALLY_DRUNKED && GET_COND(ch, DRUNK) < CHAR_MORTALLY_DRUNKED) {
+			if (cond_state >= kMortallyDrunked && GET_COND(ch, DRUNK) < kMortallyDrunked) {
 				send_to_char("Наконец-то вы протрезвели.\r\n", ch);
 			}
 			return;
@@ -1574,7 +1575,7 @@ void point_update() {
 		const auto i = character.get();
 
 		if (IS_NPC(i)) {
-			i->inc_restore_timer(SECS_PER_MUD_HOUR);
+			i->inc_restore_timer(kSecsPerMudHour);
 		}
 
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
@@ -1664,7 +1665,7 @@ void point_update() {
 						mana /= 2;
 					}
 
-					GET_HORSESTATE(i) = MIN(800, GET_HORSESTATE(i) + mana);
+					GET_HORSESTATE(i) = std::min(800, GET_HORSESTATE(i) + mana);
 				}
 
 				// Forget PC's

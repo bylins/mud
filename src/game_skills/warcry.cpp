@@ -83,7 +83,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	timed.skill = ESkill::kWarcry;
 	timed.time = IsTimedBySkill(ch, ESkill::kWarcry) + kHoursPerWarcry;
 
-	if (timed.time > HOURS_PER_DAY) {
+	if (timed.time > kHoursPerDay) {
 		send_to_char("Вы охрипли и не можете кричать.\r\n", ch);
 		return;
 	}

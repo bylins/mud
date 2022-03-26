@@ -18,6 +18,7 @@
 #include "game_mechanics/bonus.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
+#include "liquid.h"
 #include "structs/global_objects.h"
 //#include "utils/table_wrapper.h"
 
@@ -187,15 +188,15 @@ void PrintScoreList(CharData *ch) {
 		send_to_char(ch, "Вы можете быть призваны.\r\n");
 	else
 		send_to_char(ch, "Вы защищены от призыва.\r\n");
-	send_to_char(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > NORM_COND_VALUE)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
+	send_to_char(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
 	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), kSpellRuneLabel);
 	if (label_room) {
 		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), kSpellRuneLabel);
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
-			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1,
-																 desc_count((timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа.");
+			(timer_room_label + 1) / kSecsPerMudHour ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / kSecsPerMudHour + 1,
+															   desc_count((timer_room_label + 1) / kSecsPerMudHour + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа.");
 			send_to_char(ch, "Вы поставили рунную метку в комнате: '%s', она продержится еще %s\r\n", label_room->name, buf2);
 			*buf2 = '\0';
 		}
@@ -246,7 +247,7 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
 			out << "[продержится еще ";
-			timer_room_label = (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1;
+			timer_room_label = (timer_room_label + 1) / kSecsPerMudHour + 1;
 			if (timer_room_label > 0) {
 				out << timer_room_label << " " << desc_count(timer_room_label, WHAT_HOUR) << "]." << std::endl;
 			} else {
@@ -483,9 +484,9 @@ int PrintBaseInfoToTable(CharData *ch, fort::char_table &table, std::size_t col)
 	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(ch->get_gold());
 	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(ch->get_bank());
 	table[++row][col] = GetShortPositionStr(ch);
-	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, FULL) > NORM_COND_VALUE ? "Угу :(" : "Нет");
+	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, FULL) > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (GET_COND_M(ch, THIRST) ? "Наливай!" : "Нет");
-	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED) {
+	if (GET_COND(ch, DRUNK) >= kDrunked) {
 		table[++row][col] = (affected_by_spell(ch, kSpellAbstinent) ? "Похмелье." : "Вы пьяны.");
 	}
 	if (PlayerSystem::weight_dex_penalty(ch)) {
@@ -800,11 +801,11 @@ void PrintScoreBase(CharData *ch) {
 
 	strcpy(buf, CCIGRN(ch, C_NRM));
 	const auto value_drunked = GET_COND(ch, DRUNK);
-	if (value_drunked >= CHAR_DRUNKED) {
+	if (value_drunked >= kDrunked) {
 		if (affected_by_spell(ch, kSpellAbstinent))
 			strcat(buf, "Привет с большого бодуна!\r\n");
 		else {
-			if (value_drunked >= CHAR_MORTALLY_DRUNKED)
+			if (value_drunked >= kMortallyDrunked)
 				strcat(buf, "Вы так пьяны, что ваши ноги не хотят слушаться вас...\r\n");
 			else if (value_drunked >= 10)
 				strcat(buf, "Вы так пьяны, что вам хочется петь песни.\r\n");

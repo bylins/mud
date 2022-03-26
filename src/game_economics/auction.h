@@ -8,8 +8,10 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _AUCTION_HPP_
-#define _AUCTION_HPP_
+#ifndef AUCTION_HPP_
+#define AUCTION_HPP_
+
+extern const int kAuctionPulses;
 
 class ObjData; // to avoid inclusion of obj.hpp
 class CharData; // to avoid inclusion of char.hpp
@@ -36,11 +38,11 @@ void clear_auction(int lot);
 void sell_auction(int lot);
 void trans_auction(int lot);
 void check_auction(CharData *ch, ObjData *obj);
-void tact_auction(void);
+void tact_auction();
 AuctionItem *free_auction(int *lotnum);
 int obj_on_auction(ObjData *obj);
 
-#define GET_LOT(value) ((auction_lots+value))
+#define GET_LOT(value) ((auction_lots+(value)))
 #define AUCTION_IDENT_PAY 110    //цена за опознание
 
 #endif

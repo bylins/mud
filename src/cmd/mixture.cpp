@@ -9,7 +9,7 @@
 void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (IS_NPC(ch))
 		return;
-	if (IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::USE_SKILLS)) {
+	if (IS_IMMORTAL(ch) && !privilege::CheckFlag(ch, privilege::kUseSkills)) {
 		send_to_char("Не положено...\r\n", ch);
 		return;
 	}

@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "weather.h"
+//#include "weather.h"
 
 #include "game_magic/spells.h"
 #include "handler.h"
@@ -104,7 +104,7 @@ void another_hour(int/* mode*/) {
 	time_info.hours++;
 
 	if (time_info.hours == sunrise[time_info.month][0]) {
-		weather_info.sunlight = SUN_RISE;
+		weather_info.sunlight = kSunRise;
 		send_to_outdoor("На востоке показались первые солнечные лучи.\r\n", SUN_CONTROL);
 		// Gorrah: Закомментил вызов тут и далее по коду, пока не будет приведено в нормальный виж.
 		// Вы с дуба рухнули - каждый тик бегать по ~100-150к объектов в мире?
@@ -112,38 +112,38 @@ void another_hour(int/* mode*/) {
 		// См. как сделаны slow DT например.
 		//script_timechange_trigger_check(25);//рассвет
 	} else if (time_info.hours == sunrise[time_info.month][0] + 1) {
-		weather_info.sunlight = SUN_LIGHT;
+		weather_info.sunlight = kSunLight;
 		send_to_outdoor("Начался день.\r\n", SUN_CONTROL);
 		//script_timechange_trigger_check(26);//день
 	} else if (time_info.hours == sunrise[time_info.month][1]) {
-		weather_info.sunlight = SUN_SET;
+		weather_info.sunlight = kSunSet;
 		send_to_outdoor("Солнце медленно исчезло за горизонтом.\r\n", SUN_CONTROL);
 		//script_timechange_trigger_check(27);//закат
 	} else if (time_info.hours == sunrise[time_info.month][1] + 1) {
-		weather_info.sunlight = SUN_DARK;
+		weather_info.sunlight = kSunDark;
 		send_to_outdoor("Началась ночь.\r\n", SUN_CONTROL);
 		//script_timechange_trigger_check(28);//ночь
 	}
 
-	if (time_info.hours >= HOURS_PER_DAY)    // Changed by HHS due to bug ???
+	if (time_info.hours >= kHoursPerDay)    // Changed by HHS due to bug ???
 	{
 		time_info.hours = 0;
 		time_info.day++;
 
 		weather_info.moon_day++;
-		if (weather_info.moon_day >= MOON_CYCLE)
+		if (weather_info.moon_day >= kMoonCycle)
 			weather_info.moon_day = 0;
 		weather_info.week_day_mono++;
-		if (weather_info.week_day_mono >= WEEK_CYCLE)
+		if (weather_info.week_day_mono >= kWeekCycle)
 			weather_info.week_day_mono = 0;
 		weather_info.week_day_poly++;
-		if (weather_info.week_day_poly >= POLY_WEEK_CYCLE)
+		if (weather_info.week_day_poly >= kPolyWeekCycle)
 			weather_info.week_day_poly = 0;
 
-		if (time_info.day >= DAYS_PER_MONTH) {
+		if (time_info.day >= kDaysPerMonth) {
 			time_info.day = 0;
 			time_info.month++;
-			if (time_info.month >= MONTHS_PER_YEAR) {
+			if (time_info.month >= kMonthsPerYear) {
 				time_info.month = 0;
 				time_info.year++;
 				calc_easter();
@@ -153,15 +153,15 @@ void another_hour(int/* mode*/) {
 	//script_timechange_trigger_check(24);//просто смена часа
 	//script_timechange_trigger_check(time_info.hours);//выполняется для конкретного часа
 
-	if ((weather_info.sunlight == SUN_SET ||
-		weather_info.sunlight == SUN_DARK) &&
+	if ((weather_info.sunlight == kSunSet ||
+		weather_info.sunlight == kSunDark) &&
 		weather_info.sky == kSkyLightning &&
-		weather_info.moon_day >= FULLMOONSTART && weather_info.moon_day <= FULLMOONSTOP) {
+		weather_info.moon_day >= kFullMoonStart && weather_info.moon_day <= kFullMoonStop) {
 		send_to_outdoor("Лунный свет заливает равнины тусклым светом.\r\n", SUN_CONTROL);
 	}
 }
 
-struct month_temperature_type year_temp[MONTHS_PER_YEAR] = {{-32, +4, -18},    //Jan
+struct month_temperature_type year_temp[kMonthsPerYear] = {{-32, +4, -18},    //Jan
 															{-28, +5, -15},            //Feb
 															{-12, +12, -6},            //Mar
 															{-10, +15, +8},            //Apr
@@ -175,7 +175,7 @@ struct month_temperature_type year_temp[MONTHS_PER_YEAR] = {{-32, +4, -18},    /
 															{-27, +5, -10}            //Dec
 };
 
-int day_temp_change[HOURS_PER_DAY][4] = {{0, -1, 0, -1},    // From 23 -> 00
+int day_temp_change[kHoursPerDay][4] = {{0, -1, 0, -1},    // From 23 -> 00
 										 {-1, 0, -1, -1},        // From 00 -> 01
 										 {0, -1, 0, 0},            // From 01 -> 02
 										 {0, -1, 0, -1},            // From 02 -> 03
@@ -201,19 +201,19 @@ int day_temp_change[HOURS_PER_DAY][4] = {{0, -1, 0, -1},    // From 23 -> 00
 };
 
 int average_day_temp(void) {
-	return (weather_info.temp_last_day / MAX(1, MIN(HOURS_PER_DAY, weather_info.hours_go)));
+	return (weather_info.temp_last_day / MAX(1, MIN(kHoursPerDay, weather_info.hours_go)));
 }
 
 int average_week_temp(void) {
-	return (weather_info.temp_last_week / MAX(1, MIN(DAYS_PER_WEEK * HOURS_PER_DAY, weather_info.hours_go)));
+	return (weather_info.temp_last_week / MAX(1, MIN(DAYS_PER_WEEK * kHoursPerDay, weather_info.hours_go)));
 }
 
 int average_day_press(void) {
-	return (weather_info.press_last_day / MAX(1, MIN(HOURS_PER_DAY, weather_info.hours_go)));
+	return (weather_info.press_last_day / MAX(1, MIN(kHoursPerDay, weather_info.hours_go)));
 }
 
 int average_week_press(void) {
-	return (weather_info.press_last_week / MAX(1, MIN(DAYS_PER_WEEK * HOURS_PER_DAY, weather_info.hours_go)));
+	return (weather_info.press_last_week / MAX(1, MIN(DAYS_PER_WEEK * kHoursPerDay, weather_info.hours_go)));
 }
 
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3) {
@@ -229,47 +229,47 @@ void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int c
 int avg_day_temp, avg_week_temp;
 
 void calc_basic(int weather_type, int sky, int *rainlevel, int *snowlevel) {                // Rain's increase
-	if (IS_SET(weather_type, WEATHER_LIGHTRAIN))
+	if (IS_SET(weather_type, kWeatherLightrain))
 		*rainlevel += 2;
-	if (IS_SET(weather_type, WEATHER_MEDIUMRAIN))
+	if (IS_SET(weather_type, kWeatherMediumrain))
 		*rainlevel += 3;
-	if (IS_SET(weather_type, WEATHER_BIGRAIN | WEATHER_GRAD))
+	if (IS_SET(weather_type, kWeatherBigrain | kWeatherHail))
 		*rainlevel += 5;
 
 	// Snow's increase
-	if (IS_SET(weather_type, WEATHER_LIGHTSNOW))
+	if (IS_SET(weather_type, kWeatherLightsnow))
 		*snowlevel += 1;
-	if (IS_SET(weather_type, WEATHER_MEDIUMSNOW))
+	if (IS_SET(weather_type, kWeatherMediumsnow))
 		*snowlevel += 2;
-	if (IS_SET(weather_type, WEATHER_BIGSNOW))
+	if (IS_SET(weather_type, kWeatherBigsnow))
 		*snowlevel += 4;
 
 	// Rains and snow decrease by time and weather
 	*rainlevel -= 1;
 	*snowlevel -= 1;
 	if (sky == kSkyLightning) {
-		if (IS_SET(weather_info.weather_type, WEATHER_LIGHTWIND)) {
+		if (IS_SET(weather_info.weather_type, kWeatherLightwind)) {
 			*rainlevel -= 1;
-		} else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMWIND)) {
+		} else if (IS_SET(weather_info.weather_type, kWeatherMediumwind)) {
 			*rainlevel -= 2;
 			*snowlevel -= 1;
-		} else if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND)) {
+		} else if (IS_SET(weather_info.weather_type, kWeatherBigwind)) {
 			*rainlevel -= 3;
 			*snowlevel -= 1;
 		} else {
 			*rainlevel -= 1;
 		}
 	} else if (sky == kSkyCloudless) {
-		if (IS_SET(weather_info.weather_type, WEATHER_LIGHTWIND)) {
+		if (IS_SET(weather_info.weather_type, kWeatherLightwind)) {
 			*rainlevel -= 1;
-		} else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMWIND)) {
+		} else if (IS_SET(weather_info.weather_type, kWeatherMediumwind)) {
 			*rainlevel -= 1;
-		} else if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND)) {
+		} else if (IS_SET(weather_info.weather_type, kWeatherBigwind)) {
 			*rainlevel -= 2;
 			*snowlevel -= 1;
 		}
 	} else if (sky == kSkyCloudy) {
-		if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND)) {
+		if (IS_SET(weather_info.weather_type, kWeatherBigwind)) {
 			*rainlevel -= 1;
 		}
 	}
@@ -281,19 +281,19 @@ void weather_change(void) {
 		raincast = 0, snowcast = 0, avg_day_temp, avg_week_temp, cweather_type = 0, temp;
 
 	weather_info.hours_go++;
-	if (weather_info.hours_go > HOURS_PER_DAY) {
-		weather_info.press_last_day = weather_info.press_last_day * (HOURS_PER_DAY - 1) / HOURS_PER_DAY;
-		weather_info.temp_last_day = weather_info.temp_last_day * (HOURS_PER_DAY - 1) / HOURS_PER_DAY;
+	if (weather_info.hours_go > kHoursPerDay) {
+		weather_info.press_last_day = weather_info.press_last_day * (kHoursPerDay - 1) / kHoursPerDay;
+		weather_info.temp_last_day = weather_info.temp_last_day * (kHoursPerDay - 1) / kHoursPerDay;
 	}
 	// Average pressure and temperature per 24 hours
 	weather_info.press_last_day += weather_info.pressure;
 	weather_info.temp_last_day += weather_info.temperature;
-	if (weather_info.hours_go > (DAYS_PER_WEEK * HOURS_PER_DAY)) {
+	if (weather_info.hours_go > (DAYS_PER_WEEK * kHoursPerDay)) {
 		weather_info.press_last_week =
-			weather_info.press_last_week * (DAYS_PER_WEEK * HOURS_PER_DAY -
-				1) / (DAYS_PER_WEEK * HOURS_PER_DAY);
+			weather_info.press_last_week * (DAYS_PER_WEEK * kHoursPerDay -
+				1) / (DAYS_PER_WEEK * kHoursPerDay);
 		weather_info.temp_last_week =
-			weather_info.temp_last_week * (DAYS_PER_WEEK * HOURS_PER_DAY - 1) / (DAYS_PER_WEEK * HOURS_PER_DAY);
+			weather_info.temp_last_week * (DAYS_PER_WEEK * kHoursPerDay - 1) / (DAYS_PER_WEEK * kHoursPerDay);
 	}
 	// Average pressure and temperature per week
 	weather_info.press_last_week += weather_info.pressure;
@@ -562,28 +562,28 @@ void weather_change(void) {
 	*buf = '\0';
 	if (weather_info.temperature - temp > 6) {
 		strcat(buf, "Резкое похолодание.\r\n");
-		SET_BIT(cweather_type, WEATHER_QUICKCOOL);
+		SET_BIT(cweather_type, kWeatherQuickcool);
 	} else if (weather_info.temperature - temp < -6) {
 		strcat(buf, "Резкое потепление.\r\n");
-		SET_BIT(cweather_type, WEATHER_QUICKHOT);
+		SET_BIT(cweather_type, kWeatherQuickhot);
 	}
 	weather_info.temperature = MIN(year_temp[time_info.month].max, MAX(year_temp[time_info.month].min, temp));
 
 	if (weather_info.change >= 10 || weather_info.change <= -10) {
 		strcat(buf, "Сильный ветер.\r\n");
-		SET_BIT(cweather_type, WEATHER_BIGWIND);
+		SET_BIT(cweather_type, kWeatherBigwind);
 	} else if (weather_info.change >= 6 || weather_info.change <= -6) {
 		strcat(buf, "Умеренный ветер.\r\n");
-		SET_BIT(cweather_type, WEATHER_MEDIUMWIND);
+		SET_BIT(cweather_type, kWeatherMediumwind);
 	} else if (weather_info.change >= 2 || weather_info.change <= -2) {
 		strcat(buf, "Слабый ветер.\r\n");
-		SET_BIT(cweather_type, WEATHER_LIGHTWIND);
-	} else if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND | WEATHER_MEDIUMWIND | WEATHER_LIGHTWIND)) {
+		SET_BIT(cweather_type, kWeatherLightwind);
+	} else if (IS_SET(weather_info.weather_type, kWeatherBigwind | kWeatherMediumwind | kWeatherLightwind)) {
 		strcat(buf, "Ветер утих.\r\n");
-		if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND))
-			SET_BIT(cweather_type, WEATHER_MEDIUMWIND);
-		else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMWIND))
-			SET_BIT(cweather_type, WEATHER_LIGHTWIND);
+		if (IS_SET(weather_info.weather_type, kWeatherBigwind))
+			SET_BIT(cweather_type, kWeatherMediumwind);
+		else if (IS_SET(weather_info.weather_type, kWeatherMediumwind))
+			SET_BIT(cweather_type, kWeatherLightwind);
 	}
 
 	switch (sky_change) {
@@ -598,40 +598,40 @@ void weather_change(void) {
 				case MONTH_JULY:
 				case MONTH_AUGUST:
 				case MONTH_SEPTEMBER: strcat(buf, "Начался дождь.\r\n");
-					create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 30, 40, 30);
+					create_rainsnow(&cweather_type, kWeatherLightrain, 30, 40, 30);
 					break;
 				case MONTH_DECEMBER:
 				case MONTH_JANUARY:
 				case MONTH_FEBRUARY: strcat(buf, "Пошел снег.\r\n");
-					create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 30, 40, 30);
+					create_rainsnow(&cweather_type, kWeatherLightsnow, 30, 40, 30);
 					break;
 				case MONTH_OCTOBER:
 				case MONTH_APRIL:
-					if (IS_SET(cweather_type, WEATHER_QUICKCOOL)
+					if (IS_SET(cweather_type, kWeatherQuickcool)
 						&& weather_info.temperature <= 5) {
 						strcat(buf, "Пошел снег.\r\n");
-						SET_BIT(cweather_type, WEATHER_LIGHTSNOW);
+						SET_BIT(cweather_type, kWeatherLightsnow);
 					} else {
 						strcat(buf, "Начался дождь.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 40, 60, 0);
+						create_rainsnow(&cweather_type, kWeatherLightrain, 40, 60, 0);
 					}
 					break;
 				case MONTH_NOVEMBER:
-					if (avg_day_temp <= 3 || IS_SET(cweather_type, WEATHER_QUICKCOOL)) {
+					if (avg_day_temp <= 3 || IS_SET(cweather_type, kWeatherQuickcool)) {
 						strcat(buf, "Пошел снег.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 40, 60, 0);
+						create_rainsnow(&cweather_type, kWeatherLightsnow, 40, 60, 0);
 					} else {
 						strcat(buf, "Начался дождь.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 40, 60, 0);
+						create_rainsnow(&cweather_type, kWeatherLightrain, 40, 60, 0);
 					}
 					break;
 				case MONTH_MART:
-					if (avg_day_temp >= 3 || IS_SET(cweather_type, WEATHER_QUICKHOT)) {
+					if (avg_day_temp >= 3 || IS_SET(cweather_type, kWeatherQuickhot)) {
 						strcat(buf, "Начался дождь.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 80, 20, 0);
+						create_rainsnow(&cweather_type, kWeatherLightrain, 80, 20, 0);
 					} else {
 						strcat(buf, "Пошел снег.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 60, 30, 10);
+						create_rainsnow(&cweather_type, kWeatherLightsnow, 60, 30, 10);
 					}
 					break;
 			}
@@ -646,11 +646,11 @@ void weather_change(void) {
 			weather_info.sky = kSkyLightning;
 			break;
 		case 5:        // RAINING -> CLOUDY
-			if (IS_SET(weather_info.weather_type, WEATHER_LIGHTRAIN | WEATHER_MEDIUMRAIN | WEATHER_BIGRAIN))
+			if (IS_SET(weather_info.weather_type, kWeatherLightrain | kWeatherMediumrain | kWeatherBigrain))
 				strcat(buf, "Дождь прекратился.\r\n");
-			else if (IS_SET(weather_info.weather_type, WEATHER_LIGHTSNOW | WEATHER_MEDIUMSNOW | WEATHER_BIGSNOW))
+			else if (IS_SET(weather_info.weather_type, kWeatherLightsnow | kWeatherMediumsnow | kWeatherBigsnow))
 				strcat(buf, "Снегопад прекратился.\r\n");
-			else if (IS_SET(weather_info.weather_type, WEATHER_GRAD))
+			else if (IS_SET(weather_info.weather_type, kWeatherHail))
 				strcat(buf, "Град прекратился.\r\n");
 			weather_info.sky = kSkyCloudy;
 			break;
@@ -661,46 +661,46 @@ void weather_change(void) {
 				case MONTH_JULY:
 				case MONTH_AUGUST:
 				case MONTH_SEPTEMBER:
-					if (IS_SET(cweather_type, WEATHER_QUICKCOOL)) {
+					if (IS_SET(cweather_type, kWeatherQuickcool)) {
 						strcat(buf, "Начался град.\r\n");
-						SET_BIT(cweather_type, WEATHER_GRAD);
+						SET_BIT(cweather_type, kWeatherHail);
 					} else {
 						strcat(buf, "Полил дождь.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 10, 40, 50);
+						create_rainsnow(&cweather_type, kWeatherLightrain, 10, 40, 50);
 					}
 					break;
 				case MONTH_DECEMBER:
 				case MONTH_JANUARY:
 				case MONTH_FEBRUARY: strcat(buf, "Повалил снег.\r\n");
-					create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 10, 40, 50);
+					create_rainsnow(&cweather_type, kWeatherLightsnow, 10, 40, 50);
 					break;
 				case MONTH_OCTOBER:
 				case MONTH_APRIL:
-					if (IS_SET(cweather_type, WEATHER_QUICKCOOL)
+					if (IS_SET(cweather_type, kWeatherQuickcool)
 						&& weather_info.temperature <= 5) {
 						strcat(buf, "Повалил снег.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 40, 60, 0);
+						create_rainsnow(&cweather_type, kWeatherLightsnow, 40, 60, 0);
 					} else {
 						strcat(buf, "Начался дождь.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 40, 60, 0);
+						create_rainsnow(&cweather_type, kWeatherLightrain, 40, 60, 0);
 					}
 					break;
 				case MONTH_NOVEMBER:
-					if (avg_day_temp <= 3 || IS_SET(cweather_type, WEATHER_QUICKCOOL)) {
+					if (avg_day_temp <= 3 || IS_SET(cweather_type, kWeatherQuickcool)) {
 						strcat(buf, "Повалил снег.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 40, 60, 0);
+						create_rainsnow(&cweather_type, kWeatherLightsnow, 40, 60, 0);
 					} else {
 						strcat(buf, "Начался дождь.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 40, 60, 0);
+						create_rainsnow(&cweather_type, kWeatherLightrain, 40, 60, 0);
 					}
 					break;
 				case MONTH_MART:
-					if (avg_day_temp >= 3 || IS_SET(cweather_type, WEATHER_QUICKHOT)) {
+					if (avg_day_temp >= 3 || IS_SET(cweather_type, kWeatherQuickhot)) {
 						strcat(buf, "Начался дождь.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 80, 20, 0);
+						create_rainsnow(&cweather_type, kWeatherLightrain, 80, 20, 0);
 					} else {
 						strcat(buf, "Пошел снег.\r\n");
-						create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 60, 30, 10);
+						create_rainsnow(&cweather_type, kWeatherLightsnow, 60, 30, 10);
 					}
 					break;
 			}
@@ -708,51 +708,51 @@ void weather_change(void) {
 			break;
 		case 0:
 		default:
-			if (IS_SET(weather_info.weather_type, WEATHER_GRAD)) {
+			if (IS_SET(weather_info.weather_type, kWeatherHail)) {
 				strcat(buf, "Град прекратился.\r\n");
-				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 10, 40, 50);
-			} else if (IS_SET(weather_info.weather_type, WEATHER_BIGRAIN)) {
+				create_rainsnow(&cweather_type, kWeatherLightrain, 10, 40, 50);
+			} else if (IS_SET(weather_info.weather_type, kWeatherBigrain)) {
 				if (weather_info.change >= 5) {
 					strcat(buf, "Дождь утих.\r\n");
-					create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 20, 80, 0);
+					create_rainsnow(&cweather_type, kWeatherLightrain, 20, 80, 0);
 				} else
-					SET_BIT(cweather_type, WEATHER_BIGRAIN);
-			} else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMRAIN)) {
+					SET_BIT(cweather_type, kWeatherBigrain);
+			} else if (IS_SET(weather_info.weather_type, kWeatherMediumrain)) {
 				if (weather_info.change <= -5) {
 					strcat(buf, "Дождь усилился.\r\n");
-					SET_BIT(cweather_type, WEATHER_BIGRAIN);
+					SET_BIT(cweather_type, kWeatherBigrain);
 				} else if (weather_info.change >= 5) {
 					strcat(buf, "Дождь утих.\r\n");
-					SET_BIT(cweather_type, WEATHER_LIGHTRAIN);
+					SET_BIT(cweather_type, kWeatherLightrain);
 				} else
-					SET_BIT(cweather_type, WEATHER_MEDIUMRAIN);
-			} else if (IS_SET(weather_info.weather_type, WEATHER_LIGHTRAIN)) {
+					SET_BIT(cweather_type, kWeatherMediumrain);
+			} else if (IS_SET(weather_info.weather_type, kWeatherLightrain)) {
 				if (weather_info.change <= -5) {
 					strcat(buf, "Дождь усилился.\r\n");
-					create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 0, 70, 30);
+					create_rainsnow(&cweather_type, kWeatherLightrain, 0, 70, 30);
 				} else
-					SET_BIT(cweather_type, WEATHER_LIGHTRAIN);
-			} else if (IS_SET(weather_info.weather_type, WEATHER_BIGSNOW)) {
+					SET_BIT(cweather_type, kWeatherLightrain);
+			} else if (IS_SET(weather_info.weather_type, kWeatherBigsnow)) {
 				if (weather_info.change >= 5) {
 					strcat(buf, "Снегопад утих.\r\n");
-					create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 20, 80, 0);
+					create_rainsnow(&cweather_type, kWeatherLightsnow, 20, 80, 0);
 				} else
-					SET_BIT(cweather_type, WEATHER_BIGSNOW);
-			} else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMSNOW)) {
+					SET_BIT(cweather_type, kWeatherBigsnow);
+			} else if (IS_SET(weather_info.weather_type, kWeatherMediumsnow)) {
 				if (weather_info.change <= -5) {
 					strcat(buf, "Снегопад усилился.\r\n");
-					SET_BIT(cweather_type, WEATHER_BIGSNOW);
+					SET_BIT(cweather_type, kWeatherBigsnow);
 				} else if (weather_info.change >= 5) {
 					strcat(buf, "Снегопад утих.\r\n");
-					SET_BIT(cweather_type, WEATHER_LIGHTSNOW);
+					SET_BIT(cweather_type, kWeatherLightsnow);
 				} else
-					SET_BIT(cweather_type, WEATHER_MEDIUMSNOW);
-			} else if (IS_SET(weather_info.weather_type, WEATHER_LIGHTSNOW)) {
+					SET_BIT(cweather_type, kWeatherMediumsnow);
+			} else if (IS_SET(weather_info.weather_type, kWeatherLightsnow)) {
 				if (weather_info.change <= -5) {
 					strcat(buf, "Снегопад усилился.\r\n");
-					create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 0, 70, 30);
+					create_rainsnow(&cweather_type, kWeatherLightsnow, 0, 70, 30);
 				} else
-					SET_BIT(cweather_type, WEATHER_LIGHTSNOW);
+					SET_BIT(cweather_type, kWeatherLightsnow);
 			}
 			break;
 	}
@@ -771,21 +771,21 @@ void calc_easter(void) {
 	if (t.month > 2 || (t.month == 2 && t.day > 20)) {
 		while (t.month != 2 || t.day != 20) {
 			if (--moon_day < 0)
-				moon_day = MOON_CYCLE - 1;
+				moon_day = kMoonCycle - 1;
 			if (--week_day < 0)
-				week_day = WEEK_CYCLE - 1;
+				week_day = kWeekCycle - 1;
 			if (--t.day < 0) {
-				t.day = DAYS_PER_MONTH - 1;
+				t.day = kDaysPerMonth - 1;
 				t.month--;
 			}
 		}
 	} else if (t.month < 2 || (t.month == 2 && t.day < 20)) {
 		while (t.month != 2 || t.day != 20) {
-			if (++moon_day >= MOON_CYCLE)
+			if (++moon_day >= kMoonCycle)
 				moon_day = 0;
-			if (++week_day >= WEEK_CYCLE)
+			if (++week_day >= kWeekCycle)
 				week_day = 0;
-			if (++t.day >= DAYS_PER_MONTH) {
+			if (++t.day >= kDaysPerMonth) {
 				t.day = 0;
 				t.month++;
 			}
@@ -794,12 +794,12 @@ void calc_easter(void) {
 	log("Равноденствие>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
 
 	// Найдем ближайшее полнолуние
-	while (moon_day != MOON_CYCLE / 2) {
-		if (++moon_day >= MOON_CYCLE)
+	while (moon_day != kMoonCycle / 2) {
+		if (++moon_day >= kMoonCycle)
 			moon_day = 0;
-		if (++week_day >= WEEK_CYCLE)
+		if (++week_day >= kWeekCycle)
 			week_day = 0;
-		if (++t.day >= DAYS_PER_MONTH) {
+		if (++t.day >= kDaysPerMonth) {
 			t.day = 0;
 			t.month++;
 		}
@@ -807,12 +807,12 @@ void calc_easter(void) {
 	log("Полнолуние>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
 
 	// Найдем воскресенье
-	while (week_day != WEEK_CYCLE - 1) {
-		if (++moon_day >= MOON_CYCLE)
+	while (week_day != kWeekCycle - 1) {
+		if (++moon_day >= kMoonCycle)
 			moon_day = 0;
-		if (++week_day >= WEEK_CYCLE)
+		if (++week_day >= kWeekCycle)
 			week_day = 0;
-		if (++t.day >= DAYS_PER_MONTH) {
+		if (++t.day >= kDaysPerMonth) {
 			t.day = 0;
 			t.month++;
 		}
@@ -863,7 +863,7 @@ int weather_spell_modifier(CharData *ch, int spellnum, int type, int value) {
 				case kSpellFireball:
 				case kSpellFireBlast:
 					if (season == SEASON_SUMMER &&
-						(weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)) {
+						(weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)) {
 						if (sky == kSkyLightning)
 							modi += (modi * number(20, 50) / 100);
 						else if (sky == kSkyCloudless)
@@ -927,7 +927,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 		case GAPPLY_SKILL_SUCCESS:
 			switch (skillnum) {
 				case ESkill::kUndefined:
-					if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK) {
+					if (weather_info.sunlight == kSunSet || weather_info.sunlight == kSunDark) {
 						switch (sky) {
 							case kSkyCloudless: modi = modi * 90 / 100;
 								break;
@@ -954,7 +954,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 	return (modi);
 }
 
-int complex_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
+int GetComplexSkillModifier(CharData *ch, ESkill skillnum, int type, int value) {
 	int modi = value;
 	modi = day_skill_modifier(ch, skillnum, type, modi);
 	modi = weather_skill_modifier(ch, skillnum, type, modi);

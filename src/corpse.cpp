@@ -329,7 +329,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 		}
 	}
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i) {
-		int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
+		int day = time_info.month * kDaysPerMonth + time_info.day + 1;
 		if (GetRealLevel(mob) >= i->mob_lvl
 			&& (!i->max_mob_lvl
 				|| GetRealLevel(mob) <= i->max_mob_lvl)        // моб в диапазоне уровней

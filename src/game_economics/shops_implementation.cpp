@@ -1083,7 +1083,7 @@ long get_sell_price(ObjData *obj) {
 		cost = cost_obj;
 	}
 
-	return MMAX(1, cost);
+	return std::max(1L, cost);
 }
 
 void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::string cmd) {
@@ -1123,7 +1123,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 
 	// если не купцы, то учитываем прибыль магазина, если купцы, то назначаем цену, при которой объект был куплен
 	if (!can_use_feat(ch, SKILLED_TRADER_FEAT)) {
-		buy_price = MMAX(1, (buy_price * profit) / 100); //учтем прибыль магазина
+		buy_price = std::max(1L, (buy_price * profit) / 100); //учтем прибыль магазина
 	} else {
 		buy_price = get_sell_price(obj);
 	}

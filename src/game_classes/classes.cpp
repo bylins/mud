@@ -33,6 +33,8 @@
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
+const int kExpImpl = 2000000000;
+
 extern int siteok_everyone;
 extern double exp_coefficients[];
 
@@ -1701,7 +1703,7 @@ int level_exp(CharData *ch, int level) {
 	 * changed, regardless of how many mortal or immortal levels exist.
 	 */
 	if (level > kLvlImmortal) {
-		return EXP_IMPL - ((kLvlImplementator - level) * 1000);
+		return kExpImpl - ((kLvlImplementator - level) * 1000);
 	}
 
 	// Exp required for normal mortals is below

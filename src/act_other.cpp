@@ -891,7 +891,7 @@ void change_leader(CharData *ch, CharData *vict) {
 		} else {
 			CharData *temp_vict = l->ch;
 			if (temp_vict->has_master()
-				&& stop_follower(temp_vict, SF_SILENCE)) {
+				&& stop_follower(temp_vict, kSfSilence)) {
 				continue;
 			}
 
@@ -1341,7 +1341,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (!AFF_FLAGGED(f->ch, EAffectFlag::AFF_CHARM)
 					&& !(IS_NPC(f->ch)
 						&& AFF_FLAGGED(f->ch, EAffectFlag::AFF_HORSE))) {
-					stop_follower(f->ch, SF_EMPTY);
+					stop_follower(f->ch, kSfEmpty);
 				}
 			}
 		}
@@ -1361,7 +1361,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act("$N более не член вашей группы.", false, ch, nullptr, tch, kToChar);
 			act("Вы исключены из группы $n1!", false, ch, nullptr, tch, kToVict);
 			act("$N был$G изгнан$A из группы $n1!", false, ch, nullptr, tch, kToNotVict | kToArenaListen);
-			stop_follower(tch, SF_EMPTY);
+			stop_follower(tch, kSfEmpty);
 			return;
 		}
 	}
@@ -2491,13 +2491,13 @@ bool is_dark(RoomRnum room) {
 	// если светит луна и комната !помещение и !город
 	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity)
 		&& (GET_ROOM_SKY(room) == kSkyLightning
-			&& weather_info.moon_day >= FULLMOONSTART
-			&& weather_info.moon_day <= FULLMOONSTOP))
+			&& weather_info.moon_day >= kFullMoonStart
+			&& weather_info.moon_day <= kFullMoonStop))
 		coef += 1.0;
 
 	// если ночь и мы не внутри и не в городе
 	if ((SECT(room) != kSectInside) && (SECT(room) != kSectCity)
-		&& ((weather_info.sunlight == SUN_SET) || (weather_info.sunlight == SUN_DARK)))
+		&& ((weather_info.sunlight == kSunSet) || (weather_info.sunlight == kSunDark)))
 		coef -= 1.0;
 	// если на комнате флаг темно
 	if (ROOM_FLAGGED(room, ROOM_DARK))

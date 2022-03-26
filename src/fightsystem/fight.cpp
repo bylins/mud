@@ -2221,12 +2221,12 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	}
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
 		|| cleader == victim) {
-		stop_follower(ch, SF_EMPTY);
+		stop_follower(ch, kSfEmpty);
 		return_value |= 1;
 	}
 	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP)
 		|| vleader == ch) {
-		stop_follower(victim, SF_EMPTY);
+		stop_follower(victim, kSfEmpty);
 		return_value |= 2;
 	}
 	return return_value;

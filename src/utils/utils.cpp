@@ -485,16 +485,16 @@ TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 
 	secs = (long) (t2 - t1);
 
-	now.hours = (secs / (SECS_PER_MUD_HOUR * TIME_KOEFF)) % HOURS_PER_DAY;    // 0..23 hours //
-	secs -= SECS_PER_MUD_HOUR * TIME_KOEFF * now.hours;
+	now.hours = (secs / (kSecsPerMudHour * kTimeKoeff)) % kHoursPerDay;    // 0..23 hours //
+	secs -= kSecsPerMudHour * kTimeKoeff * now.hours;
 
-	now.day = (secs / (SECS_PER_MUD_DAY * TIME_KOEFF)) % DAYS_PER_MONTH;    // 0..29 days  //
-	secs -= SECS_PER_MUD_DAY * TIME_KOEFF * now.day;
+	now.day = (secs / (kSecsPerMudDay * kTimeKoeff)) % kDaysPerMonth;    // 0..29 days  //
+	secs -= kSecsPerMudDay * kTimeKoeff * now.day;
 
-	now.month = (secs / (SECS_PER_MUD_MONTH * TIME_KOEFF)) % MONTHS_PER_YEAR;    // 0..11 months //
-	secs -= SECS_PER_MUD_MONTH * TIME_KOEFF * now.month;
+	now.month = (secs / (kSecsPerMudMonth * kTimeKoeff)) % kMonthsPerYear;    // 0..11 months //
+	secs -= kSecsPerMudMonth * kTimeKoeff * now.month;
 
-	now.year = (secs / (SECS_PER_MUD_YEAR * TIME_KOEFF));    // 0..XX? years //
+	now.year = (secs / (kSecsPerMudYear * kTimeKoeff));    // 0..XX? years //
 
 	return (&now);
 }
@@ -545,28 +545,28 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 	}
 
 	switch (mode) {
-		case ALIAS_FILE: prefix = LIB_PLRALIAS;
+		case kAliasFile: prefix = LIB_PLRALIAS;
 			suffix = SUF_ALIAS;
 			break;
-		case SCRIPT_VARS_FILE: prefix = LIB_PLRVARS;
+		case kScriptVarsFile: prefix = LIB_PLRVARS;
 			suffix = SUF_MEM;
 			break;
-		case PLAYERS_FILE: prefix = LIB_PLRS;
+		case kPlayersFile: prefix = LIB_PLRS;
 			suffix = SUF_PLAYER;
 			break;
-		case TEXT_CRASH_FILE: prefix = LIB_PLROBJS;
+		case kTextCrashFile: prefix = LIB_PLROBJS;
 			suffix = TEXT_SUF_OBJS;
 			break;
-		case TIME_CRASH_FILE: prefix = LIB_PLROBJS;
+		case kTimeCrashFile: prefix = LIB_PLROBJS;
 			suffix = TIME_SUF_OBJS;
 			break;
-		case PERS_DEPOT_FILE: prefix = LIB_DEPOT;
+		case kPersDepotFile: prefix = LIB_DEPOT;
 			suffix = SUF_PERS_DEPOT;
 			break;
-		case SHARE_DEPOT_FILE: prefix = LIB_DEPOT;
+		case kShareDepotFile: prefix = LIB_DEPOT;
 			suffix = SUF_SHARE_DEPOT;
 			break;
-		case PURGE_DEPOT_FILE: prefix = LIB_DEPOT;
+		case kPurgeDepotFile: prefix = LIB_DEPOT;
 			suffix = SUF_PURGE_DEPOT;
 			break;
 		default: return (0);

@@ -37,6 +37,8 @@
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.h"
 
+const int kMobMemKoeff = kSecsPerMudHour;
+
 // external structs
 extern int no_specials;
 extern int guild_poly(CharData *, void *, int, char *);
@@ -92,13 +94,13 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 
 	if (MOB_FLAGGED(ch, MOB_AGGR_DAY)) {
 		no_time = false;
-		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
+		if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)
 			time_ok = true;
 	}
 
 	if (MOB_FLAGGED(ch, MOB_AGGR_NIGHT)) {
 		no_time = false;
-		if (weather_info.sunlight == SUN_DARK || weather_info.sunlight == SUN_SET)
+		if (weather_info.sunlight == kSunDark || weather_info.sunlight == kSunSet)
 			time_ok = true;
 	}
 
@@ -129,7 +131,7 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 	if (MOB_FLAGGED(ch, MOB_AGGR_FULLMOON)) {
 		no_time = false;
 		if (weather_info.moon_day >= 12 && weather_info.moon_day <= 15 &&
-			(weather_info.sunlight == SUN_DARK || weather_info.sunlight == SUN_SET))
+			(weather_info.sunlight == kSunDark || weather_info.sunlight == kSunSet))
 			time_ok = true;
 	}
 	if (agro || !no_time || !no_month)
@@ -1306,7 +1308,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
 		if (tmp->id == GET_IDNUM(victim)) {
 			if (tmp->time > 0)
-				tmp->time = time(nullptr) + MOB_MEM_KOEFF * GET_REAL_INT(ch);
+				tmp->time = time(nullptr) + kMobMemKoeff * GET_REAL_INT(ch);
 			present = true;
 		}
 
@@ -1314,7 +1316,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 		CREATE(tmp, 1);
 		tmp->next = MEMORY(ch);
 		tmp->id = GET_IDNUM(victim);
-		tmp->time = time(nullptr) + MOB_MEM_KOEFF * GET_REAL_INT(ch);
+		tmp->time = time(nullptr) + kMobMemKoeff * GET_REAL_INT(ch);
 		MEMORY(ch) = tmp;
 	}
 

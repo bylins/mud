@@ -34,7 +34,7 @@
 #include <chrono>
 //#include <string>
 
-constexpr long long kPulsesPerMudHour = SECS_PER_MUD_HOUR*kPassesPerSec;
+constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
 inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));};
 
@@ -1807,13 +1807,13 @@ void find_replacement(void *go,
 						sprintf(str + strlen(str), "%c", c);
 			} else if (!str_cmp(field, "sunlight")) {
 				switch (weather_info.sunlight) {
-					case SUN_DARK: strcpy(str, "ночь");
+					case kSunDark: strcpy(str, "ночь");
 						break;
-					case SUN_SET: strcpy(str, "закат");
+					case kSunSet: strcpy(str, "закат");
 						break;
-					case SUN_LIGHT: strcpy(str, "день");
+					case kSunLight: strcpy(str, "день");
 						break;
-					case SUN_RISE: strcpy(str, "рассвет");
+					case kSunRise: strcpy(str, "рассвет");
 						break;
 				}
 
@@ -4023,14 +4023,14 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 			min = (hr % 100) + ((hr / 100) * 60);
 
 		// calculate the pulse of the day of "until" time
-		ntime = (min * SECS_PER_MUD_HOUR * kPassesPerSec) / 60;
+		ntime = (min * kSecsPerMudHour * kPassesPerSec) / 60;
 
 		// calculate pulse of day of current time
-		time = (GlobalObjects::heartbeat().global_pulse_number() % (SECS_PER_MUD_HOUR * kPassesPerSec))
-			+ (time_info.hours * SECS_PER_MUD_HOUR * kPassesPerSec);
+		time = (GlobalObjects::heartbeat().global_pulse_number() % (kSecsPerMudHour * kPassesPerSec))
+			+ (time_info.hours * kSecsPerMudHour * kPassesPerSec);
 
 		if (time >= ntime)    // adjust for next day
-			time = (SECS_PER_MUD_DAY * kPassesPerSec) - time + ntime;
+			time = (kSecsPerMudDay * kPassesPerSec) - time + ntime;
 		else
 			time = ntime - time;
 	} else {
@@ -5396,7 +5396,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	first = atoi(buf);
 
-	if (!(Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -5503,7 +5503,7 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	half_chop(argument, str, argument);
 
 	auto first = atoi(str);
-	if (!(Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
@@ -5549,7 +5549,7 @@ void read_saved_vars(CharData *ch) {
 	char context_str[16], *c;
 
 	// find the file that holds the saved variables and open it
-	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);
+	get_filename(GET_NAME(ch), fn, kScriptVarsFile);
 	file = fopen(fn, "r");
 
 	// if we failed to open the file, return
@@ -5592,7 +5592,7 @@ void save_char_vars(CharData *ch) {
 	if (IS_NPC(ch))
 		return;
 
-	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);
+	get_filename(GET_NAME(ch), fn, kScriptVarsFile);
 	std::remove(fn);
 
 	// make sure this char has global variables to save

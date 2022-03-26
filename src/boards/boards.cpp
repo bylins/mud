@@ -124,7 +124,7 @@ void changelog_message() {
 }
 
 bool is_spamer(CharData *ch, const Board &board) {
-	if (IS_IMMORTAL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+	if (IS_IMMORTAL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 		return false;
 	}
 	if (board.get_lastwrite() != GET_UNIQUE(ch)) {
@@ -696,7 +696,7 @@ void Static::init_god_board(long uid, std::string name) {
 // * Релоад всех досок разом.
 void Static::reload_all() {
 	BoardInit();
-	Privilege::load_god_boards();
+	privilege::LoadGodBoards();
 	ClanInit();
 }
 
@@ -733,7 +733,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GENERAL_BOARD:
 		case IDEA_BOARD:
 			// все читают, пишут с мин.левела, 32 и по привилегии полный
-			if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -745,8 +745,8 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case MISPRINT_BOARD:
 			// все пишут с мин.левела, 34 и по привилегии полный
 			if (IS_IMPL(ch)
-				|| Privilege::check_flag(ch, Privilege::BOARDS)
-				|| Privilege::check_flag(ch, Privilege::MISPRINT)) {
+				|| privilege::CheckFlag(ch, privilege::kBoards)
+				|| privilege::CheckFlag(ch, privilege::kMisprint)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -756,7 +756,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case NEWS_BOARD:
 			// все читают, 34 и по привилегии полный
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -765,7 +765,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case GODNEWS_BOARD:
 			// 32 читают, 34 и по привилегии полный
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
@@ -775,7 +775,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GODGENERAL_BOARD:
 		case GODPUNISH_BOARD:
 			// 32 читают/пишут, 34 полный
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
@@ -786,7 +786,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GODBUILD_BOARD:
 		case GODCODE_BOARD:
 			// 33 читают/пишут, 34 и по привилегии полный
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else if (IS_GRGOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
@@ -826,7 +826,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case NOTICE_BOARD:
 			// 34+ и по привилегии полный, 32+ пишут/читают, остальные только читают
-			if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
@@ -840,8 +840,8 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case SUGGEST_BOARD:
 			// по привилегии boards/suggest и 34 полный, остальным только запись с мин левела/морта
 			if (IS_IMPL(ch)
-				|| Privilege::check_flag(ch, Privilege::BOARDS)
-				|| Privilege::check_flag(ch, Privilege::SUGGEST)) {
+				|| privilege::CheckFlag(ch, privilege::kBoards)
+				|| privilege::CheckFlag(ch, privilege::kSuggest)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);

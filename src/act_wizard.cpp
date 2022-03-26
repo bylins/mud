@@ -2534,7 +2534,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
 		// плюс исключается ситуация, когда они в одной зоне, но чар не в клетке арены
-		if (Privilege::check_flag(ch, Privilege::ARENA_MASTER)) {
+		if (privilege::CheckFlag(ch, privilege::kArenaMaster)) {
 			if (!ROOM_FLAGGED(vict->in_room, ROOM_ARENA) || world[ch->in_room]->zone_rn != world[vict->in_room]->zone_rn) {
 				send_to_char("Не положено...\r\n", ch);
 				return;
@@ -3397,7 +3397,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
 		strcpy(buf, "Опции для показа:\r\n");
 		for (j = 0, i = 1; show_fields[i].level; i++)
-			if (Privilege::can_do_priv(ch, std::string(show_fields[i].cmd), 0, 2))
+			if (privilege::IsAbleToDoPrivilege(ch, std::string(show_fields[i].cmd), 0, 2))
 				sprintf(buf + strlen(buf), "%-15s%s", show_fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
@@ -3410,7 +3410,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!strncmp(field, show_fields[l].cmd, strlen(field)))
 			break;
 
-	if (!Privilege::can_do_priv(ch, std::string(show_fields[l].cmd), 0, 2)) {
+	if (!privilege::IsAbleToDoPrivilege(ch, std::string(show_fields[l].cmd), 0, 2)) {
 		send_to_char("Вы не столь могущественны, чтобы узнать это.\r\n", ch);
 		return;
 	}
@@ -3966,7 +3966,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 		}
 	}
-	if (!Privilege::can_do_priv(ch, std::string(set_fields[mode].cmd), 0, 1)) {
+	if (!privilege::IsAbleToDoPrivilege(ch, std::string(set_fields[mode].cmd), 0, 1)) {
 		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return (0);
 	}
@@ -4101,7 +4101,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				sprintf(output, "Для %s %s сейчас отключен.", GET_PAD(vict, 1), set_fields[mode].cmd);
 			} else if (is_number(val_arg)) {
 				value = atoi(val_arg);
-				RANGE(0, MAX_COND_VALUE);
+				RANGE(0, kMaxCondition);
 				GET_COND(vict, num) = value;
 				sprintf(output, "Для %s %s установлен в %d.", GET_PAD(vict, 1), set_fields[mode].cmd, value);
 			} else {
@@ -4237,7 +4237,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		 * division used elsewhere in the code.  Seems to only happen for
 		 * some values below the starting age (17) anyway. -gg 5/27/98
 		 */
-			vict->player_data.time.birth = time(nullptr) - ((value - 17) * SECS_PER_MUD_YEAR);
+			vict->player_data.time.birth = time(nullptr) - ((value - 17) * kSecsPerMudYear);
 			break;
 
 		case 40:        // Blame/Thank Rick Glover. :)
@@ -4639,7 +4639,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*name) {
 		strcpy(buf, "Возможные поля для изменения:\r\n");
 		for (int i = 0; set_fields[i].level; i++)
-			if (Privilege::can_do_priv(ch, std::string(set_fields[i].cmd), 0, 1))
+			if (privilege::IsAbleToDoPrivilege(ch, std::string(set_fields[i].cmd), 0, 1))
 				sprintf(buf + strlen(buf), "%-15s%s", set_fields[i].cmd, (!((i + 1) % 5) ? "\r\n" : ""));
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
@@ -4962,7 +4962,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	argument = two_arguments(argument, buf, buf2);
 	first = atoi(buf);
-	if (!(Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::IsAbleToDoPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
 		send_to_char("Чаво?\r\n", ch);
 		return;
 	}

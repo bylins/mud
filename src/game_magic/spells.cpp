@@ -473,7 +473,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 		CheckAutoNosummon(victim);
 
 		// если пенту ставит имм с привилегией arena (и находясь на арене), то пента получается односторонняя
-		if (Privilege::check_flag(ch, Privilege::ARENA_MASTER) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
 			return;
 		}
 
@@ -933,7 +933,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 		// Левая проверка
 		if (victim->has_master()) {
-			if (stop_follower(victim, SF_MASTERDIE)) {
+			if (stop_follower(victim, kSfMasterdie)) {
 				return;
 			}
 		}
@@ -1965,17 +1965,17 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 		case kSkyRaining:
 			if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_OCTOBER) {
 				sky_info = "Начался проливной дождь.";
-				create_rainsnow(&sky_type, WEATHER_LIGHTRAIN, 0, 50, 50);
+				create_rainsnow(&sky_type, kWeatherLightrain, 0, 50, 50);
 			} else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY) {
 				sky_info = "Повалил снег.";
-				create_rainsnow(&sky_type, WEATHER_LIGHTSNOW, 0, 50, 50);
+				create_rainsnow(&sky_type, kWeatherLightsnow, 0, 50, 50);
 			} else if (time_info.month == MONTH_MART || time_info.month == MONTH_NOVEMBER) {
 				if (weather_info.temperature > 2) {
 					sky_info = "Начался проливной дождь.";
-					create_rainsnow(&sky_type, WEATHER_LIGHTRAIN, 0, 50, 50);
+					create_rainsnow(&sky_type, kWeatherLightrain, 0, 50, 50);
 				} else {
 					sky_info = "Повалил снег.";
-					create_rainsnow(&sky_type, WEATHER_LIGHTSNOW, 0, 50, 50);
+					create_rainsnow(&sky_type, kWeatherLightsnow, 0, 50, 50);
 				}
 			}
 			break;
@@ -2144,7 +2144,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 		{
 			//return;
 			//пуржим старого ангела
-			stop_follower(k->ch, SF_CHARMLOST);
+			stop_follower(k->ch, kSfCharmlost);
 		}
 	}
 
