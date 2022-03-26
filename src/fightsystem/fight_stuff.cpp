@@ -159,13 +159,13 @@ void update_die_counts(CharData *ch, CharData *killer, int dec_exp) {
 			rkiller = nullptr;
 		}
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
 		ch->player_specials->saved.rip_arena_dom++;
 	}
 	if (!IS_NPC(ch)) {
 		if (rkiller && rkiller != ch) {
 			if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
-				if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+				if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
 					rkiller->player_specials->saved.kill_arena_dom = rkiller->player_specials->saved.kill_arena_dom + 1;
 				}
 				else {

@@ -139,7 +139,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Вас пригласила к себе владелица косы...\r\n", ch);
 		die(ch, nullptr);
 	}
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+	else if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
 		if (GET_SEX(ch) == ESex::kMale)
 			send_to_char("Сдался салага? Не выйдет...", ch);
 		else
