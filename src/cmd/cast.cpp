@@ -129,7 +129,7 @@ void do_cast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		send_to_char("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp) && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), kSpellTemp) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
 		send_to_char("На данной арене вы можете колдовать только временные заклинания!\r\n", ch);
 		return;
 	}

@@ -953,7 +953,7 @@ void PrintScoreBase(CharData *ch) {
 			send_to_char(buf, ch);
 		}
 	}
-	if (ch->get_nogata() > 0 && AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+	if (ch->get_nogata() > 0 && ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
 		int value = ch->get_nogata();
 		if (ch->get_nogata() == 1) {
 			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");

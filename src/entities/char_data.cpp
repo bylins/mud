@@ -567,7 +567,7 @@ int CharData::get_inborn_skill(const ESkill skill_num) {
 }
 
 int CharData::get_trained_skill(const ESkill skill_num) const {
-	if (AFF_FLAGGED(this, EAffectFlag::AFF_DOMINATION)) {
+	if (ROOM_FLAGGED(this->in_room, ROOM_ARENA_DOMINATION)) {
 		if (MUD::Classes()[chclass_].HasSkill(skill_num)) {
 			return 100;
 		}
@@ -815,7 +815,7 @@ bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 			|| !IS_NPC(ch)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		&& !IS_HORSE(victim)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION);
+		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION);
 }
 
 bool IS_MALE(const CharData *ch) {

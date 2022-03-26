@@ -452,7 +452,9 @@ constexpr Bitvector ROOM_QUEST = kIntOne | (1 << 10);
 constexpr Bitvector ROOM_LIGHT = kIntOne | (1 << 11);
 constexpr Bitvector ROOM_NOMAPPER = kIntOne | (1 << 12);  //нет внумов комнат
 
+
 constexpr Bitvector ROOM_NOITEM = kIntTwo | (1 << 0);    // Передача вещей в комнате запрещена
+constexpr Bitvector ROOM_ARENA_DOMINATION = kIntTwo | (1 << 1); // комната арены доминирования
 
 // Exit info: used in room_data.dir_option.exit_info //
 constexpr Bitvector EX_ISDOOR = 1 << 0;    	// Exit is a door     //

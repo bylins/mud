@@ -102,7 +102,6 @@ enum class EAffectFlag : Bitvector {
 	AFF_EXPEDIENT = kIntTwo | (1u << 21), // не используется, можно переименовать и использовать
 	AFF_COMMANDER = kIntTwo | (1u << 22),
 	AFF_EARTHAURA = kIntTwo | (1u << 23),
-	AFF_DOMINATION = kIntTwo | (1u << 24)
 };
 
 template<>
@@ -160,7 +159,6 @@ enum class EWeaponAffectFlag : Bitvector {
 	WAFF_DEAFNESS = kIntOne | (1 << 13),
 	WAFF_COMMANDER = kIntOne | (1 << 14),
 	WAFF_EARTHAURA = kIntOne | (1 << 15),
-	WAFF_DOMINATION = kIntOne | (1 << 16),
 // не забудьте поправить WAFF_COUNT
 };
 

@@ -191,7 +191,6 @@ void init_EAffectFlag_ITEM_NAMES() {
 	//EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_COMMANDER] = "AFF_COMMANDER";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EARTHAURA] = "AFF_EARTHAURA";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_DOMINATION] = "AFF_DOMINATION";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -268,7 +267,6 @@ void init_EWeaponAffectFlag_ITEM_NAMES() {
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DEAFNESS] = "WAFF_DEAFNESS";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_COMMANDER] = "WAFF_COMMANDER";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_EARTHAURA] = "WAFF_EARTHAURA";
-	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DOMINATION] = "WAFF_DOMINATION";
 	for (const auto &i : EWeaponAffectFlag_name_by_value) {
 		EWeaponAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -337,7 +335,6 @@ weapon_affect_t weapon_affect = {
 	WeaponAffect{EWeaponAffectFlag::WAFF_DEAFNESS, to_underlying(EAffectFlag::AFF_DEAFNESS), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_COMMANDER, to_underlying(EAffectFlag::AFF_COMMANDER), 0},
 	WeaponAffect{EWeaponAffectFlag::WAFF_EARTHAURA, to_underlying(EAffectFlag::AFF_EARTHAURA), 0},
-	WeaponAffect{EWeaponAffectFlag::WAFF_DOMINATION, to_underlying(EAffectFlag::AFF_DOMINATION), 0}
 };
 
 

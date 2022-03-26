@@ -411,7 +411,7 @@ void affect_total(CharData *ch) {
 	}
 	bool domination = false;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)) {
+	if (!IS_NPC(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA_DOMINATION)) {
 		domination = true;
 	}
 	ObjData *obj;
@@ -867,8 +867,7 @@ void reset_affects(CharData *ch) {
 	for (auto af = naf; af != ch->affected.end(); af = naf) {
 		++naf;
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION))
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
 			continue;
 		const auto &affect = *af;
 		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {

@@ -760,7 +760,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REAL_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
 
 // Min cast level getting
-//#define MIN_CAST_LEV(sp, ch) (AFF_FLAGGED(ch, EAffectFlag::AFF_DOMINATION)? 31 : MMAX(0,MOD_CAST_LEV(sp,ch)))
 #define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))
 #define BASE_CAST_LEV(sp, ch) ((sp).min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
 
