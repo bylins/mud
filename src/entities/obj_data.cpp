@@ -910,38 +910,37 @@ bool is_armor_type(const CObjectPrototype *obj) {
 }
 
 bool is_mob_item(const CObjectPrototype *obj) {
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kMale)
+		&& IS_OBJ_NO(obj, ENoFlag::kFemale)
+		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MONO)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_POLY)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kMono)
+		&& IS_OBJ_NO(obj, ENoFlag::kPoly)
+		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RUSICHI)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BATTLEMAGE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMMAGE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DEFENDERMAGE)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_NECROMANCER)
-		&& IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kSorcerer)
+		&& IS_OBJ_NO(obj, ENoFlag::kThief)
+		&& IS_OBJ_NO(obj, ENoFlag::kWarrior)
+		&& IS_OBJ_NO(obj, ENoFlag::kAssasine)
+		&& IS_OBJ_NO(obj, ENoFlag::kGuard)
+		&& IS_OBJ_NO(obj, ENoFlag::kPaladine)
+		&& IS_OBJ_NO(obj, ENoFlag::kRanger)
+		&& IS_OBJ_NO(obj, ENoFlag::kVigilant)
+		&& IS_OBJ_NO(obj, ENoFlag::kMerchant)
+		&& IS_OBJ_NO(obj, ENoFlag::kMagus)
+		&& IS_OBJ_NO(obj, ENoFlag::kConjurer)
+		&& IS_OBJ_NO(obj, ENoFlag::kCharmer)
+		&& IS_OBJ_NO(obj, ENoFlag::kWIzard)
+		&& IS_OBJ_NO(obj, ENoFlag::kNecromancer)
+		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)) {
+	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
 		return true;
 	}
 	if (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MALE)
