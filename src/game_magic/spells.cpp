@@ -1395,15 +1395,15 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 void show_weapon(CharData *ch, ObjData *obj) {
 	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		*buf = '\0';
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
+		if (CAN_WEAR(obj, EWearFlag::kWield)) {
 			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)) {
+		if (CAN_WEAR(obj, EWearFlag::kHold)) {
 			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, 3));
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
+		if (CAN_WEAR(obj, EWearFlag::kBoth)) {
 			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, 3));
 		}
 

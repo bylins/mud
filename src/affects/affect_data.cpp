@@ -590,7 +590,7 @@ void affect_total(CharData *ch) {
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			obj_to_char(unequip_char(ch, EEquipPos::kWield, CharEquipFlags()), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
+			if (CAN_WEAR(obj, EWearFlag::kBoth)
 				&& OK_BOTH(ch, obj)
 				&& !GET_EQ(ch, EEquipPos::kHold)
 				&& !GET_EQ(ch, EEquipPos::kLight)

@@ -1962,13 +1962,13 @@ void npc_wield(CharData *ch) {
 			continue;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)
+		if (CAN_WEAR(obj, EWearFlag::kHold)
 			&& OK_HELD(ch, obj)) {
 			best_weapon(ch, obj, &left);
-		} else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)
+		} else if (CAN_WEAR(obj, EWearFlag::kWield)
 			&& OK_WIELD(ch, obj)) {
 			best_weapon(ch, obj, &right);
-		} else if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
+		} else if (CAN_WEAR(obj, EWearFlag::kBoth)
 			&& OK_BOTH(ch, obj)) {
 			best_weapon(ch, obj, &both);
 		}
@@ -2051,51 +2051,51 @@ void npc_armor(CharData *ch) {
 			where = EEquipPos::kFingerR;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
+		if (CAN_WEAR(obj, EWearFlag::kNeck)) {
 			where = EEquipPos::kNeck;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
+		if (CAN_WEAR(obj, EWearFlag::kBody)) {
 			where = EEquipPos::kBody;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
+		if (CAN_WEAR(obj, EWearFlag::kHead)) {
 			where = EEquipPos::kHead;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
+		if (CAN_WEAR(obj, EWearFlag::kLegs)) {
 			where = EEquipPos::kLegs;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
+		if (CAN_WEAR(obj, EWearFlag::kFeet)) {
 			where = EEquipPos::kFeet;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
+		if (CAN_WEAR(obj, EWearFlag::kHands)) {
 			where = EEquipPos::kHands;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
+		if (CAN_WEAR(obj, EWearFlag::kArms)) {
 			where = EEquipPos::kArms;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
+		if (CAN_WEAR(obj, EWearFlag::kShield)) {
 			where = EEquipPos::kShield;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
+		if (CAN_WEAR(obj, EWearFlag::kShoulders)) {
 			where = EEquipPos::kShoulders;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
+		if (CAN_WEAR(obj, EWearFlag::kWaist)) {
 			where = EEquipPos::kWaist;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
+		if (CAN_WEAR(obj, EWearFlag::kQuiver)) {
 			where = EEquipPos::kQuiver;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
+		if (CAN_WEAR(obj, EWearFlag::kWrist)) {
 			where = EEquipPos::kWristR;
 		}
 

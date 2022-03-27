@@ -1229,92 +1229,92 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 
 			case EEquipPos::kNeck:
 			case EEquipPos::kChest:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
+				if (!CAN_WEAR(obj, EWearFlag::kNeck)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kBody:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
+				if (!CAN_WEAR(obj, EWearFlag::kBody)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kHead:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
+				if (!CAN_WEAR(obj, EWearFlag::kHead)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kLegs:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
+				if (!CAN_WEAR(obj, EWearFlag::kLegs)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kFeet:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
+				if (!CAN_WEAR(obj, EWearFlag::kFeet)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kHands:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
+				if (!CAN_WEAR(obj, EWearFlag::kHands)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kArms:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
+				if (!CAN_WEAR(obj, EWearFlag::kArms)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kShield:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
+				if (!CAN_WEAR(obj, EWearFlag::kShield)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kShoulders:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
+				if (!CAN_WEAR(obj, EWearFlag::kShoulders)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kWaist:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
+				if (!CAN_WEAR(obj, EWearFlag::kWaist)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kQuiver:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
+				if (!CAN_WEAR(obj, EWearFlag::kQuiver)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kWristR:
 			case EEquipPos::kWristL:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
+				if (!CAN_WEAR(obj, EWearFlag::kWrist)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kWield:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
+				if (!CAN_WEAR(obj, EWearFlag::kWield)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kHold:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)) {
+				if (!CAN_WEAR(obj, EWearFlag::kHold)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
 			case EEquipPos::kBoths:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
+				if (!CAN_WEAR(obj, EWearFlag::kBoth)) {
 					location = LOC_INVENTORY;
 				}
 				break;

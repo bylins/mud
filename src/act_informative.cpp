@@ -267,62 +267,62 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 		if (CAN_WEAR(obj, EWearFlag::kFinger)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на палец.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
+		if (CAN_WEAR(obj, EWearFlag::kNeck)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на шею.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
+		if (CAN_WEAR(obj, EWearFlag::kBody)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на туловище.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
+		if (CAN_WEAR(obj, EWearFlag::kHead)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на голову.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
+		if (CAN_WEAR(obj, EWearFlag::kLegs)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на ноги.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
+		if (CAN_WEAR(obj, EWearFlag::kFeet)) {
 			sprintf(out_str + strlen(out_str), "Можно обуть.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
+		if (CAN_WEAR(obj, EWearFlag::kHands)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на кисти.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
+		if (CAN_WEAR(obj, EWearFlag::kArms)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на руки.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
+		if (CAN_WEAR(obj, EWearFlag::kShoulders)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на плечи.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
+		if (CAN_WEAR(obj, EWearFlag::kWaist)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на пояс.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
+		if (CAN_WEAR(obj, EWearFlag::kQuiver)) {
 			sprintf(out_str + strlen(out_str), "Можно использовать как колчан.\r\n");
 		}
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
+		if (CAN_WEAR(obj, EWearFlag::kWrist)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на запястья.\r\n");
 		}
 		if (show_wear > 1) {
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
+			if (CAN_WEAR(obj, EWearFlag::kShield)) {
 				need_str = MAX(0, calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно использовать как щит (требуется %d %s).\r\n",
 						need_str,
 						desc_count(need_str, WHAT_STR));
 			}
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
+			if (CAN_WEAR(obj, EWearFlag::kWield)) {
 				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в правую руку (требуется %d %s).\r\n",
 						need_str,
 						desc_count(need_str, WHAT_STR));
 			}
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)) {
+			if (CAN_WEAR(obj, EWearFlag::kHold)) {
 				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в левую руку (требуется %d %s).\r\n",
 						need_str,
 						desc_count(need_str, WHAT_STR));
 			}
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
+			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
 				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в обе руки (требуется %d %s).\r\n",
@@ -330,16 +330,16 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 						desc_count(need_str, WHAT_STR));
 			}
 		} else {
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
+			if (CAN_WEAR(obj, EWearFlag::kShield)) {
 				sprintf(out_str + strlen(out_str), "Можно использовать как щит.\r\n");
 			}
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
+			if (CAN_WEAR(obj, EWearFlag::kWield)) {
 				sprintf(out_str + strlen(out_str), "Можно взять в правую руку.\r\n");
 			}
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)) {
+			if (CAN_WEAR(obj, EWearFlag::kHold)) {
 				sprintf(out_str + strlen(out_str), "Можно взять в левую руку.\r\n");
 			}
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
+			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
 				sprintf(out_str + strlen(out_str), "Можно взять в обе руки.\r\n");
 			}
 		}

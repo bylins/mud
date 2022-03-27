@@ -98,49 +98,49 @@ bool ParseFilter::init_wear(const char *str) {
 		wear = EWearFlag::kFinger;
 		wear_message = 1;
 	} else if (utils::IsAbbrev(str, "шея") || utils::IsAbbrev(str, "грудь")) {
-		wear = EWearFlag::ITEM_WEAR_NECK;
+		wear = EWearFlag::kNeck;
 		wear_message = 2;
 	} else if (utils::IsAbbrev(str, "тело")) {
-		wear = EWearFlag::ITEM_WEAR_BODY;
+		wear = EWearFlag::kBody;
 		wear_message = 3;
 	} else if (utils::IsAbbrev(str, "голова")) {
-		wear = EWearFlag::ITEM_WEAR_HEAD;
+		wear = EWearFlag::kHead;
 		wear_message = 4;
 	} else if (utils::IsAbbrev(str, "ноги")) {
-		wear = EWearFlag::ITEM_WEAR_LEGS;
+		wear = EWearFlag::kLegs;
 		wear_message = 5;
 	} else if (utils::IsAbbrev(str, "ступни")) {
-		wear = EWearFlag::ITEM_WEAR_FEET;
+		wear = EWearFlag::kFeet;
 		wear_message = 6;
 	} else if (utils::IsAbbrev(str, "кисти")) {
-		wear = EWearFlag::ITEM_WEAR_HANDS;
+		wear = EWearFlag::kHands;
 		wear_message = 7;
 	} else if (utils::IsAbbrev(str, "руки")) {
-		wear = EWearFlag::ITEM_WEAR_ARMS;
+		wear = EWearFlag::kArms;
 		wear_message = 8;
 	} else if (utils::IsAbbrev(str, "щит")) {
-		wear = EWearFlag::ITEM_WEAR_SHIELD;
+		wear = EWearFlag::kShield;
 		wear_message = 9;
 	} else if (utils::IsAbbrev(str, "плечи")) {
-		wear = EWearFlag::ITEM_WEAR_ABOUT;
+		wear = EWearFlag::kShoulders;
 		wear_message = 10;
 	} else if (utils::IsAbbrev(str, "пояс")) {
-		wear = EWearFlag::ITEM_WEAR_WAIST;
+		wear = EWearFlag::kWaist;
 		wear_message = 11;
 	} else if (utils::IsAbbrev(str, "запястья")) {
-		wear = EWearFlag::ITEM_WEAR_WRIST;
+		wear = EWearFlag::kWrist;
 		wear_message = 12;
 	} else if (utils::IsAbbrev(str, "правая")) {
-		wear = EWearFlag::ITEM_WEAR_WIELD;
+		wear = EWearFlag::kWield;
 		wear_message = 13;
 	} else if (utils::IsAbbrev(str, "левая")) {
-		wear = EWearFlag::ITEM_WEAR_HOLD;
+		wear = EWearFlag::kHold;
 		wear_message = 14;
 	} else if (utils::IsAbbrev(str, "обе")) {
-		wear = EWearFlag::ITEM_WEAR_BOTHS;
+		wear = EWearFlag::kBoth;
 		wear_message = 15;
 	} else if (utils::IsAbbrev(str, "колчан")) {
-		wear = EWearFlag::ITEM_WEAR_QUIVER;
+		wear = EWearFlag::kQuiver;
 		wear_message = 16;
 	} else {
 		return false;

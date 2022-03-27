@@ -113,8 +113,8 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 	}
 
 	if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON
-		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)
-		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
+		|| CAN_WEAR(obj, EWearFlag::kShield)
+		|| CAN_WEAR(obj, EWearFlag::kHands)) {
 		out << "Вес : " << GET_OBJ_WEIGHT(obj) << "\r\n";
 	}
 

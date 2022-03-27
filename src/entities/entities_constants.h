@@ -512,22 +512,22 @@ const __uint8_t BOOK_FEAT = 4;        // Книга способности (feat
 enum class EWearFlag : Bitvector {
 	kUndefined = 0,    // Special value
 	kTake = 1 << 0,    // Item can be takes      //
-	kFinger = 1 << 1,    // Can be worn on finger  //
-	ITEM_WEAR_NECK = 1 << 2,    // Can be worn around neck   //
-	ITEM_WEAR_BODY = 1 << 3,    // Can be worn on body    //
-	ITEM_WEAR_HEAD = 1 << 4,    // Can be worn on head    //
-	ITEM_WEAR_LEGS = 1 << 5,    // Can be worn on legs //
-	ITEM_WEAR_FEET = 1 << 6,    // Can be worn on feet //
-	ITEM_WEAR_HANDS = 1 << 7,    // Can be worn on hands   //
-	ITEM_WEAR_ARMS = 1 << 8,    // Can be worn on arms //
-	ITEM_WEAR_SHIELD = 1 << 9,    // Can be used as a shield   //
-	ITEM_WEAR_ABOUT = 1 << 10,    // Can be worn about body    //
-	ITEM_WEAR_WAIST = 1 << 11,    // Can be worn around waist  //
-	ITEM_WEAR_WRIST = 1 << 12,    // Can be worn on wrist   //
-	ITEM_WEAR_WIELD = 1 << 13,    // Can be wielded      //
-	ITEM_WEAR_HOLD = 1 << 14,    // Can be held      //
-	ITEM_WEAR_BOTHS = 1 << 15,
-	ITEM_WEAR_QUIVER = 1 << 16      // колчан
+	kFinger = 1 << 1,
+	kNeck = 1 << 2,
+	kBody = 1 << 3,
+	kHead = 1 << 4,
+	kLegs = 1 << 5,
+	kFeet = 1 << 6,
+	kHands = 1 << 7,
+	kArms = 1 << 8,
+	kShield = 1 << 9,
+	kShoulders = 1 << 10,
+	kWaist = 1 << 11,
+	kWrist = 1 << 12,
+	kWield = 1 << 13,
+	kHold = 1 << 14,
+	kBoth = 1 << 15,
+	kQuiver = 1 << 16
 };
 
 template<>

@@ -5362,22 +5362,22 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				break;
 			case 'О': argument = one_argument(++argument, tmpbuf);
 				if (utils::IsAbbrev(tmpbuf, "тело")) {
-					filter.wear = EWearFlag::ITEM_WEAR_BODY;
+					filter.wear = EWearFlag::kBody;
 					filter.wear_message = 3;
 				} else if (utils::IsAbbrev(tmpbuf, "голова")) {
-					filter.wear = EWearFlag::ITEM_WEAR_HEAD;
+					filter.wear = EWearFlag::kHead;
 					filter.wear_message = 4;
 				} else if (utils::IsAbbrev(tmpbuf, "ноги")) {
-					filter.wear = EWearFlag::ITEM_WEAR_LEGS;
+					filter.wear = EWearFlag::kLegs;
 					filter.wear_message = 5;
 				} else if (utils::IsAbbrev(tmpbuf, "ступни")) {
-					filter.wear = EWearFlag::ITEM_WEAR_FEET;
+					filter.wear = EWearFlag::kFeet;
 					filter.wear_message = 6;
 				} else if (utils::IsAbbrev(tmpbuf, "кисти")) {
-					filter.wear = EWearFlag::ITEM_WEAR_HANDS;
+					filter.wear = EWearFlag::kHands;
 					filter.wear_message = 7;
 				} else if (utils::IsAbbrev(tmpbuf, "руки")) {
-					filter.wear = EWearFlag::ITEM_WEAR_ARMS;
+					filter.wear = EWearFlag::kArms;
 					filter.wear_message = 8;
 				} else {
 					send_to_char("Неверное место одевания предмета.\r\n", ch);

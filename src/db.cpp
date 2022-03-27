@@ -349,64 +349,64 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 		item_wear = exp_two(EWearFlag::kFinger);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_NECK)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_NECK);
+	if (obj->has_wear_flag(EWearFlag::kNeck)) {
+		item_wear = exp_two(EWearFlag::kNeck);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BODY)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_BODY);
+	if (obj->has_wear_flag(EWearFlag::kBody)) {
+		item_wear = exp_two(EWearFlag::kBody);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HEAD)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_HEAD);
+	if (obj->has_wear_flag(EWearFlag::kHead)) {
+		item_wear = exp_two(EWearFlag::kHead);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_LEGS)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_LEGS);
+	if (obj->has_wear_flag(EWearFlag::kLegs)) {
+		item_wear = exp_two(EWearFlag::kLegs);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_FEET)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_FEET);
+	if (obj->has_wear_flag(EWearFlag::kFeet)) {
+		item_wear = exp_two(EWearFlag::kFeet);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HANDS)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_HANDS);
+	if (obj->has_wear_flag(EWearFlag::kHands)) {
+		item_wear = exp_two(EWearFlag::kHands);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_ARMS)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_ARMS);
+	if (obj->has_wear_flag(EWearFlag::kArms)) {
+		item_wear = exp_two(EWearFlag::kArms);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_SHIELD)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_SHIELD);
+	if (obj->has_wear_flag(EWearFlag::kShield)) {
+		item_wear = exp_two(EWearFlag::kShield);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_ABOUT)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_ABOUT);
+	if (obj->has_wear_flag(EWearFlag::kShoulders)) {
+		item_wear = exp_two(EWearFlag::kShoulders);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WAIST)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_WAIST);
+	if (obj->has_wear_flag(EWearFlag::kWaist)) {
+		item_wear = exp_two(EWearFlag::kWaist);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_QUIVER)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_QUIVER);
+	if (obj->has_wear_flag(EWearFlag::kQuiver)) {
+		item_wear = exp_two(EWearFlag::kQuiver);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WRIST)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
+	if (obj->has_wear_flag(EWearFlag::kWrist)) {
+		item_wear = exp_two(EWearFlag::kWrist);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BOTHS)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
+	if (obj->has_wear_flag(EWearFlag::kBoth)) {
+		item_wear = exp_two(EWearFlag::kBoth);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WIELD)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_WIELD);
+	if (obj->has_wear_flag(EWearFlag::kWield)) {
+		item_wear = exp_two(EWearFlag::kWield);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_HOLD)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_HOLD);
+	if (obj->has_wear_flag(EWearFlag::kHold)) {
+		item_wear = exp_two(EWearFlag::kHold);
 	}
 
 	if (!type_item) {
@@ -553,64 +553,64 @@ float count_unlimited_timer(const CObjectPrototype *obj) {
 		result += count_koef_obj(obj, exp_two(EWearFlag::kFinger));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_NECK));
+	if (CAN_WEAR(obj, EWearFlag::kNeck)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kNeck));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_BODY));
+	if (CAN_WEAR(obj, EWearFlag::kBody)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kBody));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HEAD));
+	if (CAN_WEAR(obj, EWearFlag::kHead)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kHead));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_LEGS));
+	if (CAN_WEAR(obj, EWearFlag::kLegs)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kLegs));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FEET));
+	if (CAN_WEAR(obj, EWearFlag::kFeet)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kFeet));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HANDS));
+	if (CAN_WEAR(obj, EWearFlag::kHands)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kHands));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_ARMS));
+	if (CAN_WEAR(obj, EWearFlag::kArms)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kArms));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_SHIELD));
+	if (CAN_WEAR(obj, EWearFlag::kShield)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kShield));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_ABOUT));
+	if (CAN_WEAR(obj, EWearFlag::kShoulders)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kShoulders));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WAIST));
+	if (CAN_WEAR(obj, EWearFlag::kWaist)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kWaist));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_QUIVER));
+	if (CAN_WEAR(obj, EWearFlag::kQuiver)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kQuiver));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WRIST));
+	if (CAN_WEAR(obj, EWearFlag::kWrist)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kWrist));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WIELD));
+	if (CAN_WEAR(obj, EWearFlag::kWield)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kWield));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_HOLD));
+	if (CAN_WEAR(obj, EWearFlag::kHold)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kHold));
 	}
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_BOTHS));
+	if (CAN_WEAR(obj, EWearFlag::kBoth)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kBoth));
 	}
 
 	if (!type_item) {
@@ -2260,35 +2260,35 @@ void boot_db(void) {
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1),
 				   EWearFlag::kFinger);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1),
-				   EWearFlag::ITEM_WEAR_NECK);
+				   EWearFlag::kNeck);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1),
-				   EWearFlag::ITEM_WEAR_BODY);
+				   EWearFlag::kBody);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1),
-				   EWearFlag::ITEM_WEAR_HEAD);
+				   EWearFlag::kHead);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1),
-				   EWearFlag::ITEM_WEAR_LEGS);
+				   EWearFlag::kLegs);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1),
-				   EWearFlag::ITEM_WEAR_FEET);
+				   EWearFlag::kFeet);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1),
-				   EWearFlag::ITEM_WEAR_HANDS);
+				   EWearFlag::kHands);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1),
-				   EWearFlag::ITEM_WEAR_ARMS);
+				   EWearFlag::kArms);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1),
-				   EWearFlag::ITEM_WEAR_SHIELD);
+				   EWearFlag::kShield);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1),
-				   EWearFlag::ITEM_WEAR_ABOUT);
+				   EWearFlag::kShoulders);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1),
-				   EWearFlag::ITEM_WEAR_WAIST);
+				   EWearFlag::kWaist);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1),
-				   EWearFlag::ITEM_WEAR_QUIVER);
+				   EWearFlag::kQuiver);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1),
-				   EWearFlag::ITEM_WEAR_WRIST);
+				   EWearFlag::kWrist);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1),
-				   EWearFlag::ITEM_WEAR_BOTHS);
+				   EWearFlag::kBoth);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1),
-				   EWearFlag::ITEM_WEAR_WIELD);
+				   EWearFlag::kWield);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1),
-				   EWearFlag::ITEM_WEAR_HOLD);
+				   EWearFlag::kHold);
 
 	boot_profiler.next_step("Loading birthplaces definitions");
 	log("Loading birthplaces definitions.");

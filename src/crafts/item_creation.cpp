@@ -23,15 +23,15 @@ void die(CharData *ch, CharData *killer);
 
 constexpr auto WEAR_TAKE = to_underlying(EWearFlag::kTake);
 constexpr auto WEAR_TAKE_BOTHS_WIELD =
-	WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
-constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BODY);
-constexpr auto WEAR_TAKE_ARMS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_ARMS);
-constexpr auto WEAR_TAKE_LEGS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_LEGS);
-constexpr auto WEAR_TAKE_HEAD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HEAD);
-constexpr auto WEAR_TAKE_BOTHS = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS);
+	WEAR_TAKE | to_underlying(EWearFlag::kBoth) | to_underlying(EWearFlag::kWield);
+constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::kBody);
+constexpr auto WEAR_TAKE_ARMS = WEAR_TAKE | to_underlying(EWearFlag::kArms);
+constexpr auto WEAR_TAKE_LEGS = WEAR_TAKE | to_underlying(EWearFlag::kLegs);
+constexpr auto WEAR_TAKE_HEAD = WEAR_TAKE | to_underlying(EWearFlag::kHead);
+constexpr auto WEAR_TAKE_BOTHS = WEAR_TAKE | to_underlying(EWearFlag::kBoth);
 constexpr auto
-	WEAR_TAKE_DUAL = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HOLD) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
-constexpr auto WEAR_TAKE_HOLD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_HOLD);
+	WEAR_TAKE_DUAL = WEAR_TAKE | to_underlying(EWearFlag::kHold) | to_underlying(EWearFlag::kWield);
+constexpr auto WEAR_TAKE_HOLD = WEAR_TAKE | to_underlying(EWearFlag::kHold);
 struct create_item_type created_item[] =
 	{
 		{300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, ESkill::kReforging, WEAR_TAKE_BOTHS_WIELD},
@@ -724,7 +724,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
 					if (skill != ESkill::kCreateBow) {
 						if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob) {
-							tobj->set_wear_flag(EWearFlag::ITEM_WEAR_HOLD);
+							tobj->set_wear_flag(EWearFlag::kHold);
 						}
 						to_room = "$n выковал$g $o3.";
 						average = (((float) sdice + 1) * (float) ndice / 2.0);
@@ -1276,31 +1276,31 @@ int MakeRecept::get_ingr_pow(ObjData *ingrobj) {
 }
 void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PARTS]) {
 	int wearkoeff = 50;
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) // 1.1
+	if (CAN_WEAR(obj, EWearFlag::kBody)) // 1.1
 	{
 		wearkoeff = 110;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.8
+	if (CAN_WEAR(obj, EWearFlag::kHead)) //0.8
 	{
 		wearkoeff = 80;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.5
+	if (CAN_WEAR(obj, EWearFlag::kLegs)) //0.5
 	{
 		wearkoeff = 50;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.6
+	if (CAN_WEAR(obj, EWearFlag::kFeet)) //0.6
 	{
 		wearkoeff = 60;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.5
+	if (CAN_WEAR(obj, EWearFlag::kArms)) //0.5
 	{
 		wearkoeff = 50;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.9
+	if (CAN_WEAR(obj, EWearFlag::kShoulders))//0.9
 	{
 		wearkoeff = 90;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.45
+	if (CAN_WEAR(obj, EWearFlag::kHands))//0.45
 	{
 		wearkoeff = 45;
 	}
@@ -1308,31 +1308,31 @@ void MakeRecept::make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_
 				 ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(ESkill::kMakeWear)) / 100
 					 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff
 					 / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
+	if (CAN_WEAR(obj, EWearFlag::kBody)) //0.9
 	{
 		wearkoeff = 90;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.7
+	if (CAN_WEAR(obj, EWearFlag::kHead)) //0.7
 	{
 		wearkoeff = 70;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.4
+	if (CAN_WEAR(obj, EWearFlag::kLegs)) //0.4
 	{
 		wearkoeff = 40;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.5
+	if (CAN_WEAR(obj, EWearFlag::kFeet)) //0.5
 	{
 		wearkoeff = 50;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.4
+	if (CAN_WEAR(obj, EWearFlag::kArms)) //0.4
 	{
 		wearkoeff = 40;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.8
+	if (CAN_WEAR(obj, EWearFlag::kShoulders))//0.8
 	{
 		wearkoeff = 80;
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.31
+	if (CAN_WEAR(obj, EWearFlag::kHands))//0.31
 	{
 		wearkoeff = 31;
 	}

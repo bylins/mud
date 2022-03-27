@@ -336,9 +336,9 @@
 
 			<wearflags>
 				<wearflag>kTake</wearflag>
-				<wearflag>ITEM_WEAR_WIELD</wearflag>
-				<wearflag>ITEM_WEAR_HOLD</wearflag>
-				<wearflag>ITEM_WEAR_BOTHS</wearflag>
+				<wearflag>kWield</wearflag>
+				<wearflag>kHold</wearflag>
+				<wearflag>kBoth</wearflag>
 			</wearflags>
 
 			<skills>

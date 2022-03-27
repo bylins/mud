@@ -583,35 +583,35 @@ bool init_wear(const std::string &str, EWearFlag &wear) {
 	if (utils::IsAbbrev(str, "палец")) {
 		wear = EWearFlag::kFinger;
 	} else if (utils::IsAbbrev(str, "шея") || utils::IsAbbrev(str, "грудь")) {
-		wear = EWearFlag::ITEM_WEAR_NECK;
+		wear = EWearFlag::kNeck;
 	} else if (utils::IsAbbrev(str, "тело")) {
-		wear = EWearFlag::ITEM_WEAR_BODY;
+		wear = EWearFlag::kBody;
 	} else if (utils::IsAbbrev(str, "голова")) {
-		wear = EWearFlag::ITEM_WEAR_HEAD;
+		wear = EWearFlag::kHead;
 	} else if (utils::IsAbbrev(str, "ноги")) {
-		wear = EWearFlag::ITEM_WEAR_LEGS;
+		wear = EWearFlag::kLegs;
 	} else if (utils::IsAbbrev(str, "ступни")) {
-		wear = EWearFlag::ITEM_WEAR_FEET;
+		wear = EWearFlag::kFeet;
 	} else if (utils::IsAbbrev(str, "кисти")) {
-		wear = EWearFlag::ITEM_WEAR_HANDS;
+		wear = EWearFlag::kHands;
 	} else if (utils::IsAbbrev(str, "руки")) {
-		wear = EWearFlag::ITEM_WEAR_ARMS;
+		wear = EWearFlag::kArms;
 	} else if (utils::IsAbbrev(str, "щит")) {
-		wear = EWearFlag::ITEM_WEAR_SHIELD;
+		wear = EWearFlag::kShield;
 	} else if (utils::IsAbbrev(str, "плечи")) {
-		wear = EWearFlag::ITEM_WEAR_ABOUT;
+		wear = EWearFlag::kShoulders;
 	} else if (utils::IsAbbrev(str, "пояс")) {
-		wear = EWearFlag::ITEM_WEAR_WAIST;
+		wear = EWearFlag::kWaist;
 	} else if (utils::IsAbbrev(str, "колчан")) {
-		wear = EWearFlag::ITEM_WEAR_QUIVER;
+		wear = EWearFlag::kQuiver;
 	} else if (utils::IsAbbrev(str, "запястья")) {
-		wear = EWearFlag::ITEM_WEAR_WRIST;
+		wear = EWearFlag::kWrist;
 	} else if (utils::IsAbbrev(str, "правая")) {
-		wear = EWearFlag::ITEM_WEAR_WIELD;
+		wear = EWearFlag::kWield;
 	} else if (utils::IsAbbrev(str, "левая")) {
-		wear = EWearFlag::ITEM_WEAR_HOLD;
+		wear = EWearFlag::kHold;
 	} else if (utils::IsAbbrev(str, "обе")) {
-		wear = EWearFlag::ITEM_WEAR_BOTHS;
+		wear = EWearFlag::kBoth;
 	} else {
 		return false;
 	}

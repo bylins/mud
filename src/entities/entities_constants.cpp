@@ -80,23 +80,23 @@ void init_EWearFlag_ITEM_NAMES() {
 	EWearFlag_name_by_value.clear();
 	EWearFlag_value_by_name.clear();
 
-	EWearFlag_name_by_value[EWearFlag::kTake] = "ITEM_WEAR_TAKE";
-	EWearFlag_name_by_value[EWearFlag::kFinger] = "ITEM_WEAR_FINGER";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_NECK] = "ITEM_WEAR_NECK";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BODY] = "ITEM_WEAR_BODY";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HEAD] = "ITEM_WEAR_HEAD";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_LEGS] = "ITEM_WEAR_LEGS";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_FEET] = "ITEM_WEAR_FEET";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HANDS] = "ITEM_WEAR_HANDS";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_ARMS] = "ITEM_WEAR_ARMS";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_SHIELD] = "ITEM_WEAR_SHIELD";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_ABOUT] = "ITEM_WEAR_ABOUT";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WAIST] = "ITEM_WEAR_WAIST";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WRIST] = "ITEM_WEAR_WRIST";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WIELD] = "ITEM_WEAR_WIELD";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HOLD] = "ITEM_WEAR_HOLD";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BOTHS] = "ITEM_WEAR_BOTHS";
-	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_QUIVER] = "ITEM_WEAR_QUIVER";
+	EWearFlag_name_by_value[EWearFlag::kTake] = "kTake";
+	EWearFlag_name_by_value[EWearFlag::kFinger] = "kFinger";
+	EWearFlag_name_by_value[EWearFlag::kNeck] = "kNeck";
+	EWearFlag_name_by_value[EWearFlag::kBody] = "kBody";
+	EWearFlag_name_by_value[EWearFlag::kHead] = "kHead";
+	EWearFlag_name_by_value[EWearFlag::kLegs] = "kLegs";
+	EWearFlag_name_by_value[EWearFlag::kFeet] = "kFeet";
+	EWearFlag_name_by_value[EWearFlag::kHands] = "kHands";
+	EWearFlag_name_by_value[EWearFlag::kArms] = "kArms";
+	EWearFlag_name_by_value[EWearFlag::kShield] = "kShield";
+	EWearFlag_name_by_value[EWearFlag::kShoulders] = "kShoulders";
+	EWearFlag_name_by_value[EWearFlag::kWaist] = "kWaist";
+	EWearFlag_name_by_value[EWearFlag::kWrist] = "kWrist";
+	EWearFlag_name_by_value[EWearFlag::kWield] = "kWield";
+	EWearFlag_name_by_value[EWearFlag::kHold] = "kHold";
+	EWearFlag_name_by_value[EWearFlag::kBoth] = "kBoth";
+	EWearFlag_name_by_value[EWearFlag::kQuiver] = "kQuiver";
 
 	for (const auto &i : EWearFlag_name_by_value) {
 		EWearFlag_value_by_name[i.second] = i.first;
