@@ -109,7 +109,7 @@ class TechniqueRoll : public AgainstRivalRoll {
 	int CalcDamage();
 
 	TechniqueRoll() :
-		weapon_equip_position_{WEAR_WIELD} {};
+		weapon_equip_position_{EEquipPos::kWield} {};
 };
 
 }; //namespace AbilitySystem

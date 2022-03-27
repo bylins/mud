@@ -390,7 +390,7 @@ void Player::save_char() {
 	char filename[kMaxStringLength];
 	int i;
 	time_t li;
-	ObjData *char_eq[NUM_WEARS];
+	ObjData *char_eq[EEquipPos::kNumEquipPos];
 	struct TimedSkill *skj;
 	struct CharacterPortal *prt;
 	int tmp = time(0) - this->player_data.time.logon;
@@ -417,7 +417,7 @@ void Player::save_char() {
 	}
 	// подготовка
 	// снимаем все возможные аффекты
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(this, i)) {
 			char_eq[i] = unequip_char(this, i, CharEquipFlag::skip_total);
 #ifndef NO_EXTRANEOUS_TRIGGERS
@@ -923,7 +923,7 @@ void Player::save_char() {
 		}
 	}
 
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (char_eq[i]) {
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			if (wear_otrigger(char_eq[i], this, i))

@@ -962,7 +962,7 @@ int command_otrigger(CharData *actor, char *cmd, const char *argument) {
 	if (GET_INVIS_LEV(actor))
 		return 0;
 
-	for (int i = 0; i < NUM_WEARS; i++) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (cmd_otrig(GET_EQ(actor, i), actor, cmd, argument, OCMD_EQUIP)) {
 			return 1;
 		}

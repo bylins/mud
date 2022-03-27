@@ -113,7 +113,7 @@ void medit_mobile_init(CharData *mob) {
 	GET_HEIGHT(mob) = 198;
 	GET_SIZE(mob) = 30;
 	mob->set_class(ECharClass::kNpcBase);
-	GET_RACE(mob) = NPC_RACE_BASIC;
+	GET_RACE(mob) = ENpcRace::kBasic;
 	GET_MR(mob) = GET_AR(mob) = GET_PR(mob) = 0;
 
 	mob->set_str(11);
@@ -1023,7 +1023,7 @@ void medit_disp_race(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; i < NPC_RACE_NEXT - NPC_RACE_BASIC; i++) {
+	for (i = 0; i < ENpcRace::kLastNpcRace - ENpcRace::kBasic + 1; i++) {
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
 		send_to_char(buf, d->character.get());
 	}
@@ -1270,7 +1270,7 @@ void medit_disp_menu(DescriptorData *d) {
 			 grn, nrm,
 			 grn, nrm,
 			 grn, nrm,
-			 grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
+			 grn, nrm, cyn, npc_race_types[GET_RACE(mob) - ENpcRace::kBasic],
 			 grn, nrm, cyn,
 			 grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm, cyn, mob->mob_specials.MaxFactor, nrm,
@@ -1756,7 +1756,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			break;
 
-		case MEDIT_RACE: GET_RACE(OLC_MOB(d)) = MAX(NPC_RACE_BASIC, MIN(NPC_RACE_NEXT - 1, atoi(arg) + NPC_RACE_BASIC));
+		case MEDIT_RACE: GET_RACE(OLC_MOB(d)) = MAX(ENpcRace::kBasic, MIN(ENpcRace::kLastNpcRace, atoi(arg) + ENpcRace::kBasic));
 			break;
 
 		case MEDIT_ROLE: {

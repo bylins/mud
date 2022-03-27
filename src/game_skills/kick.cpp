@@ -50,10 +50,10 @@ void go_kick(CharData *ch, CharData *vict) {
 		cooldown = 2;
 	} else {
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch) + GetRealLevel(ch) / 6;
-		if (!IS_NPC(ch) || (IS_NPC(ch) && GET_EQ(ch, WEAR_FEET))) {
+		if (!IS_NPC(ch) || (IS_NPC(ch) && GET_EQ(ch, EEquipPos::kFeet))) {
 			int modi = MAX(0, (ch->get_skill(ESkill::kKick) + 4) / 5);
 			dam += number(0, modi * 2);
-			modi = 5 * (10 + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0));
+			modi = 5 * (10 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0));
 			dam = modi * dam / 100;
 		}
 		if (ch->ahorse() && (ch->get_skill(ESkill::kRiding) >= 150) && (ch->get_skill(ESkill::kKick) >= 150)) {
@@ -63,7 +63,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			af.modifier = 0;
 			af.battleflag = 0;
 			float modi = ((ch->get_skill(ESkill::kKick) + GET_REAL_STR(ch) * 5)
-				+ (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0) * 3) / float(GET_SIZE(vict));
+				+ (GET_EQ(ch, EEquipPos::kFeet) ? GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kFeet)) : 0) * 3) / float(GET_SIZE(vict));
 			if (number(1, 1000) < modi * 10) {
 				switch (number(0, (ch->get_skill(ESkill::kKick) - 150) / 10)) {
 					case 0:

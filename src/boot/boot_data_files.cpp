@@ -1095,7 +1095,7 @@ void MobileFile::parse_mobile(const int nr) {
 		}
 	} while (letter != 0);
 
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		mob_proto[i].equipment[j] = nullptr;
 	}
 
@@ -1180,7 +1180,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	mob_proto[i].mob_specials.default_pos = static_cast<EPosition>(t[1]);
 	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
 
-	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
+	mob_proto[i].player_data.Race = ENpcRace::kBasic;
 	mob_proto[i].set_class(ECharClass::kNpcBase);
 	mob_proto[i].player_data.weight = 200;
 	mob_proto[i].player_data.height = 198;
@@ -1399,7 +1399,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	}
 
 	CASE("Race") {
-		mob_proto[i].player_data.Race = std::clamp(num_arg, NPC_RACE_BASIC, NPC_RACE_NEXT - 1);
+		mob_proto[i].player_data.Race = std::clamp(static_cast<ENpcRace>(num_arg), ENpcRace::kBasic, ENpcRace::kLastNpcRace);
 	}
 
 	CASE("Special_Bitvector") {

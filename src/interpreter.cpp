@@ -1712,7 +1712,7 @@ int special(CharData *ch, int cmd, char *arg, int fnum) {
 	}
 
 	// special in equipment list? //
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != nullptr) {
 			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, arg)) {
 				check_hiding_cmd(ch, -1);

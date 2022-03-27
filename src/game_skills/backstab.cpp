@@ -42,12 +42,12 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!GET_EQ(ch, WEAR_WIELD) && (!IS_NPC(ch) || IS_CHARMICE(ch))) {
+	if (!GET_EQ(ch, EEquipPos::kWield) && (!IS_NPC(ch) || IS_CHARMICE(ch))) {
 		send_to_char("Требуется держать оружие в правой руке.\r\n", ch);
 		return;
 	}
 
-	if ((!IS_NPC(ch) || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != fight::type_pierce) {
+	if ((!IS_NPC(ch) || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
 		send_to_char("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
 		return;
 	}
@@ -125,7 +125,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 
 	TrainSkill(ch, ESkill::kBackstab, success, vict);
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, GET_EQ(ch, WEAR_WIELD));
+		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, GET_EQ(ch, EEquipPos::kWield));
 		dmg.Process(ch, vict);
 	} else {
 		hit(ch, vict, ESkill::kBackstab, fight::kMainHand);

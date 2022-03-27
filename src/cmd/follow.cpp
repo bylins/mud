@@ -100,7 +100,7 @@ bool stop_follower(CharData *ch, int mode) {
 							obj_to_room(obj, ch->in_room);
 					}
 			
-			for (int i = 0; i < NUM_WEARS; i++) { // убираем что одето
+			for (int i = 0; i < EEquipPos::kNumEquipPos; i++) { // убираем что одето
 				if (GET_EQ(ch, i)) {
 					if (!remove_otrigger(GET_EQ(ch, i), ch)) {
 						continue;

@@ -79,7 +79,7 @@ int find_dg_cast_target(int spellnum, const char *t, CharData *ch, CharData **tc
 
 		if (IS_SET(spell_info[spellnum].targets, kTarObjEquip)) {
 			int i;
-			for (i = 0; i < NUM_WEARS; i++) {
+			for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases())) {
 					*tobj = GET_EQ(ch, i);
 					return true;

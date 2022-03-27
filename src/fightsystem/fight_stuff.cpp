@@ -1110,7 +1110,7 @@ void alterate_object(ObjData *obj, int dam, int chance) {
 			 * (static_cast<ESkill>(GET_OBJ_SKILL(obj)) == ESkill::kBows ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100)) {
-		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), WEAR_SHIELD) == obj) {
+		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), EEquipPos::kShield) == obj) {
 			dam /= 2;
 		}
 
@@ -1135,34 +1135,34 @@ void alt_equip(CharData *ch, int pos, int dam, int chance) {
 	if (pos == kNowhere) {
 		pos = number(0, 100);
 		if (pos < 3)
-			pos = WEAR_FINGER_R + number(0, 1);
+			pos = EEquipPos::kFingerR + number(0, 1);
 		else if (pos < 6)
-			pos = WEAR_NECK_1 + number(0, 1);
+			pos = EEquipPos::kNeck + number(0, 1);
 		else if (pos < 20)
-			pos = WEAR_BODY;
+			pos = EEquipPos::kBody;
 		else if (pos < 30)
-			pos = WEAR_HEAD;
+			pos = EEquipPos::kHead;
 		else if (pos < 45)
-			pos = WEAR_LEGS;
+			pos = EEquipPos::kLegs;
 		else if (pos < 50)
-			pos = WEAR_FEET;
+			pos = EEquipPos::kFeet;
 		else if (pos < 58)
-			pos = WEAR_HANDS;
+			pos = EEquipPos::kHands;
 		else if (pos < 66)
-			pos = WEAR_ARMS;
+			pos = EEquipPos::kArms;
 		else if (pos < 76)
-			pos = WEAR_SHIELD;
+			pos = EEquipPos::kShield;
 		else if (pos < 86)
-			pos = WEAR_ABOUT;
+			pos = EEquipPos::kShoulders;
 		else if (pos < 90)
-			pos = WEAR_WAIST;
+			pos = EEquipPos::kWaist;
 		else if (pos < 94)
-			pos = WEAR_WRIST_R + number(0, 1);
+			pos = EEquipPos::kWristR + number(0, 1);
 		else
-			pos = WEAR_HOLD;
+			pos = EEquipPos::kHold;
 	}
 
-	if (pos <= 0 || pos > WEAR_BOTHS || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
+	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
 		return; // Добавил: под "зб" не убивается стаф (Купала)
 	alterate_object(GET_EQ(ch, pos), dam, chance);
 }

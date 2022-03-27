@@ -970,7 +970,7 @@ int CalcHitroll(CharData *ch) {
 	ESkill skill = ESkill::kTwohands;
 	int hr = 0;
 	int max_dam = 0;
-	ObjData *weapon = GET_EQ(ch, WEAR_BOTHS);
+	ObjData *weapon = GET_EQ(ch, kBoths);
 	if (weapon) {
 		if (GET_OBJ_TYPE(weapon) == ObjData::ITEM_WEAPON) {
 			skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
@@ -981,7 +981,7 @@ int CalcHitroll(CharData *ch) {
 			}
 		}
 	} else {
-		weapon = GET_EQ(ch, WEAR_HOLD);
+		weapon = GET_EQ(ch, kHold);
 		if (weapon) {
 			if (GET_OBJ_TYPE(weapon) == ObjData::ITEM_WEAPON) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
@@ -992,7 +992,7 @@ int CalcHitroll(CharData *ch) {
 				}
 			}
 		}
-		weapon = GET_EQ(ch, WEAR_WIELD);
+		weapon = GET_EQ(ch, kWield);
 		if (weapon) {
 			if (GET_OBJ_TYPE(weapon) == ObjData::ITEM_WEAPON) {
 				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));

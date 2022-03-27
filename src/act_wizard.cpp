@@ -391,7 +391,7 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		while (vict->timed_feat)
 			ExpireTimedFeat(vict, vict->timed_feat);
 		reset_affects(vict);
-		for (int i = 0; i < NUM_WEARS; i++) {
+		for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 			if (GET_EQ(vict, i)) {
 				remove_otrigger(GET_EQ(vict, i), vict);
 				extract_obj(unequip_char(vict, i, CharEquipFlags()));
@@ -3332,7 +3332,7 @@ void print_mob_bosses(CharData *ch, bool lvl_sort) {
 
 void show_apply(CharData *ch, CharData *vict) {
 	ObjData *obj = nullptr;
-	for (int i = 0; i < NUM_WEARS; i++) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if ((obj = GET_EQ(vict, i))) {
 			send_to_char(ch, "Предмет: %s (%d)\r\n", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 			// Update weapon applies
@@ -4767,8 +4767,8 @@ namespace Mlist {
 
 std::string print_race(CharData *mob) {
 	std::string out;
-	if (GET_RACE(mob) < NPC_RACE_NEXT) {
-		out += npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC];
+	if (GET_RACE(mob) <= ENpcRace::kLastNpcRace) {
+		out += npc_race_types[GET_RACE(mob) - ENpcRace::kBasic];
 	} else {
 		out += "UNDEF";
 	}

@@ -254,7 +254,7 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 	pk_update_revenge(agressor, victim, BATTLE_DURATION, rent ? KILLER_UNRENTABLE : 0);
 	pk_update_revenge(victim, agressor, BATTLE_DURATION, rent ? REVENGE_UNRENTABLE : 0);
 	//Костыль cнимаем цацки недоступные и кладем в чара.
-	for (int i = 0; i < NUM_WEARS; i++) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		ObjData *p_item;
 		if (GET_EQ(agressor, i)) {
 			p_item = GET_EQ(agressor, i);

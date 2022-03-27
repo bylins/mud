@@ -198,11 +198,11 @@ int multi_cast_say(CharData *ch) {
 	if (!IS_NPC(ch))
 		return 1;
 	switch (GET_RACE(ch)) {
-		case NPC_RACE_EVIL_SPIRIT:
-		case NPC_RACE_GHOST:
-		case NPC_RACE_HUMAN:
-		case NPC_RACE_ZOMBIE:
-		case NPC_RACE_SPIRIT: return 1;
+		case ENpcRace::kBoggart:
+		case ENpcRace::kGhost:
+		case ENpcRace::kHuman:
+		case ENpcRace::kZombie:
+		case ENpcRace::kSpirit: return 1;
 	}
 	return 0;
 }
@@ -341,8 +341,8 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 		} 
 		// Блочим маг дамагу от директ спелов для Витязей : шанс (скил/20 + вес.щита/2) ~ 30% при 200 скила и 40вес щита (Кудояр)
 		if (!IS_SET(SpINFO.routines, kMagWarcry) && !IS_SET(SpINFO.routines, kMagMasses) && !IS_SET(SpINFO.routines, kMagAreas)
-			&& (victim->get_skill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
-			&& ( number(1, 100) < ((victim->get_skill(ESkill::kShieldBlock))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
+			&& (victim->get_skill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
+			&& ( number(1, 100) < ((victim->get_skill(ESkill::kShieldBlock))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield))/2)))
 			{
 				act("Ловким движением $N0 отразил щитом вашу магию.", false, ch, nullptr, victim, kToChar);
 				act("Ловким движением $N0 отразил щитом магию $n1.", false, ch, nullptr, victim, kToNotVict);
@@ -404,10 +404,10 @@ int mag_damage(int level, CharData *ch, CharData *victim, int spellnum, ESaving 
 			obj = nullptr;
 			if (IS_NPC(victim)) {
 				rand = number(1, 50);
-				if (rand <= WEAR_BOTHS) {
+				if (rand <= EEquipPos::kBoths) {
 					obj = GET_EQ(victim, rand);
 				} else {
-					for (rand -= WEAR_BOTHS, obj = victim->carrying; rand && obj;
+					for (rand -= EEquipPos::kBoths, obj = victim->carrying; rand && obj;
 						 rand--, obj = obj->get_next_content());
 				}
 			}
@@ -1061,7 +1061,7 @@ bool material_component_processing(CharData *caster, int /*vnum*/, int spellnum)
 		default: log("WARNING: wrong spellnum %d in %s:%d", spellnum, __FILE__, __LINE__);
 			return false;
 	}
-	ObjData *tobj = GET_EQ(caster, WEAR_HOLD);
+	ObjData *tobj = GET_EQ(caster, EEquipPos::kHold);
 	if (!tobj) {
 		act(missing, false, caster, nullptr, caster, kToChar);
 		return (true);
@@ -1138,8 +1138,8 @@ int mag_affects(int level, CharData *ch, CharData *victim, int spellnum, ESaving
 	}
 	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  (Кудояр)
 	if (ch != victim && SpINFO.violent && !IS_SET(SpINFO.routines, kMagWarcry) && !IS_SET(SpINFO.routines, kMagMasses) && !IS_SET(SpINFO.routines, kMagAreas)
-	&& (victim->get_skill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, WEAR_SHIELD) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
-			&& ( number(1, 100) < ((victim->get_skill(ESkill::kShieldBlock))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, WEAR_SHIELD))/2)))
+	&& (victim->get_skill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield) && can_use_feat(victim, MAGICAL_SHIELD_FEAT)
+			&& ( number(1, 100) < ((victim->get_skill(ESkill::kShieldBlock))/20 + GET_OBJ_WEIGHT(GET_EQ(victim, EEquipPos::kShield))/2)))
 	{
 		act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
 		act("Щит $N1 поглотил злые чары $n1.", false, ch, nullptr, victim, kToNotVict);
@@ -3642,7 +3642,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 				break;
 			}
 
-			auto reagobj = GET_EQ(ch, WEAR_HOLD);
+			auto reagobj = GET_EQ(ch, EEquipPos::kHold);
 			if (reagobj
 				&& (get_obj_in_list_vnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
 					|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)

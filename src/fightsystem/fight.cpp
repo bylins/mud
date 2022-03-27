@@ -996,7 +996,7 @@ void mob_casting(CharData *ch) {
 	item = ch->carrying;
 	while (spells < kMaxStringLength
 		&& item
-		&& GET_RACE(ch) == NPC_RACE_HUMAN
+		&& GET_RACE(ch) == ENpcRace::kHuman
 		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))) {
 		switch (GET_OBJ_TYPE(item)) {
 			case ObjData::ITEM_WAND:
@@ -1105,7 +1105,7 @@ void mob_casting(CharData *ch) {
 		while (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 			&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
 			&& item
-			&& GET_RACE(ch) == NPC_RACE_HUMAN) {
+			&& GET_RACE(ch) == ENpcRace::kHuman) {
 			switch (GET_OBJ_TYPE(item)) {
 				case ObjData::ITEM_WAND:
 				case ObjData::ITEM_STAFF:
@@ -1174,7 +1174,7 @@ void summon_mob_helpers(CharData *ch) {
 				|| vict->get_fighting()) {
 				return;
 			}
-			if (GET_RACE(ch) == NPC_RACE_HUMAN) {
+			if (GET_RACE(ch) == ENpcRace::kHuman) {
 				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
 					false, ch, 0, 0, kToRoom | kToArenaListen);
 			}
@@ -1352,10 +1352,10 @@ int calc_initiative(CharData *ch, bool mode) {
 void using_charmice_skills(CharData *ch) {
 	// если чармис вооружен и может глушить - будем глушить
 	// если нет оружия но есть молот - будем молотить
-	const bool charmice_wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
-	const bool charmice_not_wielded = !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD));
-	ObjData *wielded = GET_EQ(ch, WEAR_WIELD);
-	const bool charmice_wielded_for_throw = (GET_EQ(ch, WEAR_WIELD) && wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)); // Кудояр
+	const bool charmice_wielded_for_stupor = GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths);
+	const bool charmice_not_wielded = !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold));
+	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
+	const bool charmice_wielded_for_throw = (GET_EQ(ch, EEquipPos::kWield) && wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)); // Кудояр
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CharData *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : nullptr;
@@ -1659,9 +1659,9 @@ void using_mob_skills(CharData *ch) {
 						go_chopoff(ch, damager);
 					}
 				} else if (sk_num == ESkill::kDisarm
-					&& (GET_EQ(damager, WEAR_WIELD)
-						|| GET_EQ(damager, WEAR_BOTHS)
-						|| (GET_EQ(damager, WEAR_HOLD)))) {
+					&& (GET_EQ(damager, EEquipPos::kWield)
+						|| GET_EQ(damager, EEquipPos::kBoths)
+						|| (GET_EQ(damager, EEquipPos::kHold)))) {
 					sk_use = 0;
 					go_disarm(ch, damager);
 				}
@@ -1917,8 +1917,8 @@ void process_player_attack(CharData *ch, int min_init) {
 			exthit(ch, tmpSkilltype, fight::AttackType::kMainHand);
 		}
 // допатака двуручем
-		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, WEAR_BOTHS) && can_use_feat(ch, BOTHHANDS_FOCUS_FEAT)
-			&& (static_cast<ESkill>(GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS))) == ESkill::kTwohands)
+		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) && can_use_feat(ch, BOTHHANDS_FOCUS_FEAT)
+			&& (static_cast<ESkill>(GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths))) == ESkill::kTwohands)
 			&& can_use_feat(ch, RELATED_TO_MAGIC_FEAT)) {
 			if (ch->get_skill(ESkill::kTwohands) > (number(1, 500)))
 				hit(ch, ch->get_fighting(), ESkill::kUndefined, fight::AttackType::kMainHand);
@@ -1932,8 +1932,8 @@ void process_player_attack(CharData *ch, int min_init) {
 	}
 
 	//**** удар вторым оружием если оно есть и умение позволяет
-	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjData::ITEM_WEAPON
+	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
+		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == ObjData::ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)
 		&& (IS_IMMORTAL(ch)
@@ -1947,8 +1947,8 @@ void process_player_attack(CharData *ch, int min_init) {
 		CLR_AF_BATTLE(ch, kEafSecond);
 	}
 		//**** удар второй рукой если она свободна и умение позволяет
-	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !GET_EQ(ch, WEAR_HOLD)
-		&& !GET_EQ(ch, WEAR_LIGHT) && !GET_EQ(ch, WEAR_SHIELD) && !GET_EQ(ch, WEAR_BOTHS)
+	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !GET_EQ(ch, EEquipPos::kHold)
+		&& !GET_EQ(ch, EEquipPos::kLight) && !GET_EQ(ch, EEquipPos::kShield) && !GET_EQ(ch, EEquipPos::kBoths)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT) && GET_AF_BATTLE(ch, kEafSecond)
 		&& ch->get_skill(ESkill::kLeftHit)) {
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, kEafUsedleft)) {

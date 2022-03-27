@@ -73,7 +73,7 @@ void break_inst(CharData *ch) {
 	int i;
 	char buf[300];
 
-	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++) {
+	for (i = EEquipPos::kWield; i <= EEquipPos::kBoths; i++) {
 		if (GET_EQ(ch, i)
 			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
 				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {
@@ -97,7 +97,7 @@ void break_inst(CharData *ch) {
 int check_for_dig(CharData *ch) {
 	int i;
 
-	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++) {
+	for (i = EEquipPos::kWield; i <= EEquipPos::kBoths; i++) {
 		if (GET_EQ(ch, i)
 			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
 				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {

@@ -32,7 +32,7 @@ const std::string &NAME_BY_ITEM(ESex item);
  */
 
 enum class EPosition {
-	kIncorrect = -1, // Это неправильно, но за каким-то псом в классах Hit и Damage есть позиция -1, надо переделывать.
+	kIncorrect = -1, // Это неправильно, но в классах Hit и Damage есть позиция -1, надо переделывать.
 	kDead = 0,
 	kPerish = 1,	// mortally wounded  //
 	kIncap = 2,
@@ -80,27 +80,29 @@ ESaving ITEM_BY_NAME<ESaving>(const std::string &name);
 // Character equipment positions: used as index for char_data.equipment[] //
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors
 //       which control the valid places you can wear a piece of equipment
-const __uint8_t WEAR_LIGHT = 0;
-const __uint8_t WEAR_FINGER_R = 1;
-const __uint8_t WEAR_FINGER_L = 2;
-const __uint8_t WEAR_NECK_1 = 3;
-const __uint8_t WEAR_NECK_2 = 4;
-const __uint8_t WEAR_BODY = 5;
-const __uint8_t WEAR_HEAD = 6;
-const __uint8_t WEAR_LEGS = 7;
-const __uint8_t WEAR_FEET = 8;
-const __uint8_t WEAR_HANDS = 9;
-const __uint8_t WEAR_ARMS = 10;
-const __uint8_t WEAR_SHIELD = 11;
-const __uint8_t WEAR_ABOUT = 12;
-const __uint8_t WEAR_WAIST = 13;
-const __uint8_t WEAR_WRIST_R = 14;
-const __uint8_t WEAR_WRIST_L = 15;
-const __uint8_t WEAR_WIELD = 16;      // правая рука
-const __uint8_t WEAR_HOLD = 17;      // левая рука
-const __uint8_t WEAR_BOTHS = 18;      // обе руки
-const __uint8_t WEAR_QUIVER = 19;      // под лук (колчан)
-const __uint8_t NUM_WEARS = 20;    // This must be the # of eq positions!! //
+enum EEquipPos : int {
+	kLight = 0,
+	kFingerR = 1,
+	kFingerL = 2,
+	kNeck = 3,
+	kChest = 4,
+	kBody = 5,
+	kHead = 6,
+	kLegs = 7,
+	kFeet = 8,
+	kHands = 9,
+	kArms = 10,
+	kShield = 11,
+	kShoulders = 12,
+	kWaist = 13,
+	kWristR = 14,
+	kWristL = 15,
+	kWield = 16,      // правая рука
+	kHold = 17,      // левая рука
+	kBoths = 18,      // обе руки
+	kQuiver = 19,      // под лук (колчан)
+	kNumEquipPos = 20    // This must be the # of eq positions!! //
+};
 
 // Preference flags: used by char_data.player_specials.pref //
 constexpr Bitvector PRF_BRIEF = 1 << 0;        // Room descs won't normally be shown //
@@ -256,22 +258,24 @@ constexpr Bitvector IGNORE_OFFTOP = 1 << 11;
  */
 
 // NPC races
-const int NPC_RACE_BASIC = 100;
-const int NPC_RACE_HUMAN = 101;
-const int NPC_RACE_HUMAN_ANIMAL = 102;
-const int NPC_RACE_BIRD = 103;
-const int NPC_RACE_ANIMAL = 104;
-const int NPC_RACE_REPTILE = 105;
-const int NPC_RACE_FISH = 106;
-const int NPC_RACE_INSECT = 107;
-const int NPC_RACE_PLANT = 108;
-const int NPC_RACE_THING = 109;
-const int NPC_RACE_ZOMBIE = 110;
-const int NPC_RACE_GHOST = 111;
-const int NPC_RACE_EVIL_SPIRIT = 112;
-const int NPC_RACE_SPIRIT = 113;
-const int NPC_RACE_MAGIC_CREATURE = 114;
-const int NPC_RACE_NEXT = 115;
+enum ENpcRace : int {
+	kBasic = 100,
+	kHuman = 101,
+	kBeastman = 102,
+	kBird = 103,
+	kAnimal = 104,
+	kReptile = 105,
+	kFish = 106,
+	kInsect = 107,
+	kPlant = 108,
+	kConstruct = 109,
+	kZombie = 110,
+	kGhost = 111,
+	kBoggart = 112,
+	kSpirit = 113,
+	kMagicCreature = 114,
+	kLastNpcRace = kMagicCreature // Не забываем менять при добавлении новых
+};
 
 // Virtual NPC races
 const int NPC_BOSS = 200;

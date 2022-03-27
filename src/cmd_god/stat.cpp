@@ -62,7 +62,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	sprinttype(to_underlying(GET_SEX(k)), genders, tmpbuf);
 	// пишем расу (Человек)
 	if (IS_NPC(k)) {
-		sprinttype(GET_RACE(k) - NPC_RACE_BASIC, npc_race_types, smallBuf);
+		sprinttype(GET_RACE(k) - ENpcRace::kBasic, npc_race_types, smallBuf);
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
@@ -457,7 +457,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	for (i = 0, j = k->carrying; j; j = j->get_next_content(), i++) { ; }
 	sprintf(buf + strlen(buf), "(в инвентаре) : %d, ", i);
 
-	for (i = 0, i2 = 0; i < NUM_WEARS; i++) {
+	for (i = 0, i2 = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(k, i)) {
 			i2++;
 		}

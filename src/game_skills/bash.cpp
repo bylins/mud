@@ -13,7 +13,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (!(IS_NPC(ch) || GET_EQ(ch, WEAR_SHIELD) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict)
+	if (!(IS_NPC(ch) || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict)
 		|| GET_GOD_FLAG(vict, GF_GODSCURSE))) {
 		send_to_char("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
@@ -71,7 +71,7 @@ void go_bash(CharData *ch, CharData *vict) {
 //делаем блокирование баша
 		if ((GET_AF_BATTLE(vict, kEafBlock)
 			|| (can_use_feat(vict, DEFENDER_FEAT)
-				&& GET_EQ(vict, WEAR_SHIELD)
+				&& GET_EQ(vict, kShield)
 				&& PRF_FLAGGED(vict, PRF_AWAKE)
 				&& vict->get_skill(ESkill::kAwake)
 				&& vict->get_skill(ESkill::kShieldBlock)
@@ -81,7 +81,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
 			&& GET_WAIT(vict) <= 0
 			&& GET_MOB_HOLD(vict) == 0) {
-			if (!(GET_EQ(vict, WEAR_SHIELD) || IS_NPC(vict) || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
+			if (!(GET_EQ(vict, kShield) || IS_NPC(vict) || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
 				send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
@@ -103,7 +103,7 @@ void go_bash(CharData *ch, CharData *vict) {
 						false, ch, nullptr, vict, kToChar);
 					act("$n блокировал$g попытку $N1 сбить $s.",
 						true, vict, nullptr, ch, kToNotVict | kToArenaListen);
-					alt_equip(vict, WEAR_SHIELD, 30, 10);
+					alt_equip(vict, kShield, 30, 10);
 					if (!ch->get_fighting()) {
 						set_fighting(ch, vict);
 						SetWait(ch, 1, true);

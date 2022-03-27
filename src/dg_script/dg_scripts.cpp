@@ -285,7 +285,7 @@ ObjData *get_object_in_equip(CharData *ch, char *name) {
 	if (*name == UID_OBJ) {
 		id = atoi(name + 1);
 
-		for (j = 0; j < NUM_WEARS; j++)
+		for (j = 0; j < EEquipPos::kNumEquipPos; j++)
 			if ((obj = GET_EQ(ch, j)))
 				if (id == obj->get_id())
 					return (obj);
@@ -294,7 +294,7 @@ ObjData *get_object_in_equip(CharData *ch, char *name) {
 		if (!(number = get_number(&tmp)))
 			return nullptr;
 
-		for (j = 0; (j < NUM_WEARS) && (n <= number); j++) {
+		for (j = 0; (j < EEquipPos::kNumEquipPos) && (n <= number); j++) {
 			obj = GET_EQ(ch, j);
 			if (!obj) {
 				continue;
@@ -2717,7 +2717,7 @@ void find_replacement(void *go,
 				pos = atoi(subfield);
 			else if (*subfield)
 				pos = find_eq_pos(c, nullptr, subfield);
-			if (!*subfield || pos < 0 || pos >= NUM_WEARS)
+			if (!*subfield || pos < 0 || pos >= EEquipPos::kNumEquipPos)
 				strcpy(str, "");
 			else {
 				if (!GET_EQ(c, pos))

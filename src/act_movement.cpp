@@ -119,7 +119,7 @@ int has_boat(CharData *ch) {
 	}
 
 	// and any boat you're wearing will do it too
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)
 			&& GET_OBJ_TYPE(GET_EQ(ch, i)) == ObjData::ITEM_BOAT) {
 			return true;
@@ -1123,8 +1123,8 @@ int has_key(CharData *ch, ObjVnum key) {
 		}
 	}
 
-	if (GET_EQ(ch, WEAR_HOLD)) {
-		if (GET_OBJ_VNUM(GET_EQ(ch, WEAR_HOLD)) == key && key != -1) {
+	if (GET_EQ(ch, kHold)) {
+		if (GET_OBJ_VNUM(GET_EQ(ch, kHold)) == key && key != -1) {
 			return (true);
 		}
 	}

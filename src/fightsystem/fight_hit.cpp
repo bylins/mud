@@ -77,17 +77,17 @@ int compute_armor_class(CharData *ch) {
 	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
 
 	if (GET_AF_BATTLE(ch, kEafPunctual)) {
-		if (GET_EQ(ch, WEAR_WIELD)) {
-			if (GET_EQ(ch, WEAR_HOLD))
+		if (GET_EQ(ch, EEquipPos::kWield)) {
+			if (GET_EQ(ch, EEquipPos::kHold))
 				armorclass +=
 					10 * MAX(-1,
-							 (GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) +
-								 GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) / 5 - 6);
+							 (GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield)) +
+								 GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) / 5 - 6);
 			else
-				armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) / 5 - 6);
+				armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield)) / 5 - 6);
 		}
-		if (GET_EQ(ch, WEAR_BOTHS))
-			armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) / 5 - 6);
+		if (GET_EQ(ch, EEquipPos::kBoths))
+			armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths)) / 5 - 6);
 	}
 
 	// Bonus for leadership
@@ -177,8 +177,8 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 7:
 				case 9:    // armor damaged else foot damaged, speed/4
-					if (GET_EQ(victim, WEAR_LEGS))
-						alt_equip(victim, WEAR_LEGS, 100, 100);
+					if (GET_EQ(victim, EEquipPos::kLegs))
+						alt_equip(victim, EEquipPos::kLegs, 100, 100);
 					else {
 						dam *= (ch->get_skill(ESkill::kPunctual) / 8);
 						to_char = "замедлило движения $N1";
@@ -260,8 +260,8 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 6:    // armor damaged else dam*3, waits 1d6
 					WAIT_STATE(victim, number(2, 6) * kPulseViolence);
-					if (GET_EQ(victim, WEAR_WAIST))
-						alt_equip(victim, WEAR_WAIST, 100, 100);
+					if (GET_EQ(victim, EEquipPos::kWaist))
+						alt_equip(victim, EEquipPos::kWaist, 100, 100);
 					else
 						dam *= (ch->get_skill(ESkill::kPunctual) / 7);
 					to_char = "повредило $N2 живот";
@@ -280,7 +280,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 9:    // armor damaged, abdomin damaged, speed/2, HR-2
 					dam *= (ch->get_skill(ESkill::kPunctual) / 5);
-					alt_equip(victim, WEAR_BODY, 100, 100);
+					alt_equip(victim, EEquipPos::kBody, 100, 100);
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
 					af[0].type = kSpellBattle;
@@ -350,7 +350,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					SET_AF_BATTLE(victim, kEafSlow);
 					break;
 				case 6:    // shield damaged, chest damaged, speed/2
-					alt_equip(victim, WEAR_SHIELD, 100, 100);
+					alt_equip(victim, EEquipPos::kShield, 100, 100);
 					dam *= (ch->get_skill(ESkill::kPunctual) / 6);
 					to_char = "повредило $N2 туловище";
 					to_vict = "повредило вам туловище";
@@ -359,7 +359,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					SET_AF_BATTLE(victim, kEafSlow);
 					break;
 				case 7:    // srmor damaged, chest damaged, speed/2, HR-2
-					alt_equip(victim, WEAR_BODY, 100, 100);
+					alt_equip(victim, EEquipPos::kBody, 100, 100);
 					dam *= (ch->get_skill(ESkill::kPunctual) / 5);
 					to_char = "повредило $N2 туловище";
 					to_vict = "повредило вам туловище";
@@ -438,49 +438,49 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				case 4:    // hands damaged, weapon/shield putdown
 					to_char = "ослабило натиск $N1";
 					to_vict = "ранило вам руку";
-					if (GET_EQ(victim, WEAR_BOTHS))
-						unequip_pos = WEAR_BOTHS;
-					else if (GET_EQ(victim, WEAR_WIELD))
-						unequip_pos = WEAR_WIELD;
-					else if (GET_EQ(victim, WEAR_HOLD))
-						unequip_pos = WEAR_HOLD;
-					else if (GET_EQ(victim, WEAR_SHIELD))
-						unequip_pos = WEAR_SHIELD;
+					if (GET_EQ(victim, EEquipPos::kBoths))
+						unequip_pos = EEquipPos::kBoths;
+					else if (GET_EQ(victim, EEquipPos::kWield))
+						unequip_pos = EEquipPos::kWield;
+					else if (GET_EQ(victim, EEquipPos::kHold))
+						unequip_pos = EEquipPos::kHold;
+					else if (GET_EQ(victim, EEquipPos::kShield))
+						unequip_pos = EEquipPos::kShield;
 					break;
 				case 5:    // hands damaged, shield damaged/weapon putdown
 					to_char = "ослабило натиск $N1";
 					to_vict = "ранило вас в руку";
-					if (GET_EQ(victim, WEAR_SHIELD))
-						alt_equip(victim, WEAR_SHIELD, 100, 100);
-					else if (GET_EQ(victim, WEAR_BOTHS))
-						unequip_pos = WEAR_BOTHS;
-					else if (GET_EQ(victim, WEAR_WIELD))
-						unequip_pos = WEAR_WIELD;
-					else if (GET_EQ(victim, WEAR_HOLD))
-						unequip_pos = WEAR_HOLD;
+					if (GET_EQ(victim, EEquipPos::kShield))
+						alt_equip(victim, EEquipPos::kShield, 100, 100);
+					else if (GET_EQ(victim, EEquipPos::kBoths))
+						unequip_pos = EEquipPos::kBoths;
+					else if (GET_EQ(victim, EEquipPos::kWield))
+						unequip_pos = EEquipPos::kWield;
+					else if (GET_EQ(victim, EEquipPos::kHold))
+						unequip_pos = EEquipPos::kHold;
 					break;
 
 				case 6:    // hands damaged, HR-2, shield putdown
 					to_char = "ослабило натиск $N1";
 					to_vict = "сломало вам руку";
-					if (GET_EQ(victim, WEAR_SHIELD))
-						unequip_pos = WEAR_SHIELD;
+					if (GET_EQ(victim, EEquipPos::kShield))
+						unequip_pos = EEquipPos::kShield;
 					af[0].type = kSpellBattle;
 					af[0].location = APPLY_HITROLL;
 					af[0].modifier = -2;
 					break;
 				case 7:    // armor damaged, hand damaged if no armour
-					if (GET_EQ(victim, WEAR_ARMS))
-						alt_equip(victim, WEAR_ARMS, 100, 100);
+					if (GET_EQ(victim, EEquipPos::kArms))
+						alt_equip(victim, EEquipPos::kArms, 100, 100);
 					else
-						alt_equip(victim, WEAR_HANDS, 100, 100);
-					if (!GET_EQ(victim, WEAR_ARMS) && !GET_EQ(victim, WEAR_HANDS))
+						alt_equip(victim, EEquipPos::kHands, 100, 100);
+					if (!GET_EQ(victim, EEquipPos::kArms) && !GET_EQ(victim, EEquipPos::kHands))
 						dam *= (ch->get_skill(ESkill::kPunctual) / 7);
 					to_char = "ослабило атаку $N1";
 					to_vict = "повредило вам руку";
 					break;
 				case 8:    // shield damaged, hands damaged, waits 1
-					alt_equip(victim, WEAR_SHIELD, 100, 100);
+					alt_equip(victim, EEquipPos::kShield, 100, 100);
 					WAIT_STATE(victim, 2 * kPulseViolence);
 					dam *= (ch->get_skill(ESkill::kPunctual) / 7);
 					to_char = "придержало $N3";
@@ -488,12 +488,12 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 9:    // weapon putdown, hands damaged, waits 1d4
 					WAIT_STATE(victim, number(2, 4) * kPulseViolence);
-					if (GET_EQ(victim, WEAR_BOTHS))
-						unequip_pos = WEAR_BOTHS;
-					else if (GET_EQ(victim, WEAR_WIELD))
-						unequip_pos = WEAR_WIELD;
-					else if (GET_EQ(victim, WEAR_HOLD))
-						unequip_pos = WEAR_HOLD;
+					if (GET_EQ(victim, EEquipPos::kBoths))
+						unequip_pos = EEquipPos::kBoths;
+					else if (GET_EQ(victim, EEquipPos::kWield))
+						unequip_pos = EEquipPos::kWield;
+					else if (GET_EQ(victim, EEquipPos::kHold))
+						unequip_pos = EEquipPos::kHold;
 					dam *= (ch->get_skill(ESkill::kPunctual) / 6);
 					to_char = "придержало $N3";
 					to_vict = "повредило вам руку";
@@ -570,8 +570,8 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 
 				case 5:    // head damaged, cap putdown, waits 1, HR-2 if no cap
 					WAIT_STATE(victim, 2 * kPulseViolence);
-					if (GET_EQ(victim, WEAR_HEAD))
-						unequip_pos = WEAR_HEAD;
+					if (GET_EQ(victim, EEquipPos::kHead))
+						unequip_pos = EEquipPos::kHead;
 					else {
 						af[0].type = kSpellBattle;
 						af[0].location = APPLY_HITROLL;
@@ -591,7 +591,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 7:    // cap damaged, waits 1d6, speed/2, HR-4
 					WAIT_STATE(victim, 2 * kPulseViolence);
-					alt_equip(victim, WEAR_HEAD, 100, 100);
+					alt_equip(victim, EEquipPos::kHead, 100, 100);
 					af[0].type = kSpellBattle;
 					af[0].location = APPLY_HITROLL;
 					af[0].modifier = -4;
@@ -601,7 +601,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					break;
 				case 8:    // cap damaged, hits 0
 					WAIT_STATE(victim, 4 * kPulseViolence);
-					alt_equip(victim, WEAR_HEAD, 100, 100);
+					alt_equip(victim, EEquipPos::kHead, 100, 100);
 					//dam = GET_HIT(victim);
 					dam *= ch->get_skill(ESkill::kPunctual) / 2;
 					to_char = "отбило у $N1 сознание";
@@ -754,8 +754,8 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[i].duration /= 5;
 					// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
 					sh_int extra_duration = 0;
-					ObjData *both = GET_EQ(ch, WEAR_BOTHS);
-					ObjData *wield = GET_EQ(ch, WEAR_WIELD);
+					ObjData *both = GET_EQ(ch, EEquipPos::kBoths);
+					ObjData *wield = GET_EQ(ch, EEquipPos::kWield);
 					if (both) {
 						extra_duration = GET_OBJ_WEIGHT(both) / 5;
 					} else if (wield) {
@@ -822,11 +822,11 @@ void might_hit_bash(CharData *ch, CharData *victim) {
 }
 
 bool check_mighthit_weapon(CharData *ch) {
-	if (!GET_EQ(ch, WEAR_BOTHS)
-		&& !GET_EQ(ch, WEAR_WIELD)
-		&& !GET_EQ(ch, WEAR_HOLD)
-		&& !GET_EQ(ch, WEAR_LIGHT)
-		&& !GET_EQ(ch, WEAR_SHIELD)) {
+	if (!GET_EQ(ch, EEquipPos::kBoths)
+		&& !GET_EQ(ch, EEquipPos::kWield)
+		&& !GET_EQ(ch, EEquipPos::kHold)
+		&& !GET_EQ(ch, EEquipPos::kLight)
+		&& !GET_EQ(ch, EEquipPos::kShield)) {
 		return true;
 	}
 	return false;
@@ -1200,7 +1200,7 @@ int do_punctual(CharData *ch, CharData * /*victim*/, ObjData *wielded) {
 	int dam_critic = 0, wapp = 0;
 
 	if (wielded) {
-		wapp = (int) ((static_cast<ESkill>GET_OBJ_SKILL(wielded) == ESkill::kBows) && GET_EQ(ch, WEAR_BOTHS)) ?
+		wapp = (int) ((static_cast<ESkill>GET_OBJ_SKILL(wielded) == ESkill::kBows) && GET_EQ(ch, EEquipPos::kBoths)) ?
 			GET_OBJ_WEIGHT(wielded) * 1 / 3 : GET_OBJ_WEIGHT(wielded);
 	}
 	if (wapp < 10)
@@ -1280,7 +1280,7 @@ double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 
 // * Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
 bool can_auto_block(CharData *ch) {
-	if (GET_EQ(ch, WEAR_SHIELD) && GET_AF_BATTLE(ch, kEafAwake) && GET_AF_BATTLE(ch, kEafAutoblock))
+	if (GET_EQ(ch, EEquipPos::kShield) && GET_AF_BATTLE(ch, kEafAwake) && GET_AF_BATTLE(ch, kEafAutoblock))
 		return true;
 	else
 		return false;
@@ -1362,7 +1362,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 		&& GET_WAIT(vict) <= 0
 		&& !GET_MOB_HOLD(vict)
 		&& (IS_IMMORTAL(vict) || IS_NPC(vict)
-			|| !(GET_EQ(vict, WEAR_WIELD) || GET_EQ(vict, WEAR_BOTHS)))
+			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
 		&& GET_POS(vict) > EPosition::kSleep) {
 		int percent = number(1, MUD::Skills()[ESkill::kIntercept].difficulty);
 		int prob = CalcCurrentSkill(vict, ESkill::kIntercept, ch);
@@ -1438,10 +1438,10 @@ void hit_deviate(CharData *ch, CharData *victim, int *dam) {
 }
 
 void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
-	if (!((GET_EQ(victim, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == ObjData::ITEM_WEAPON
-		&& GET_EQ(victim, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == ObjData::ITEM_WEAPON)
+	if (!((GET_EQ(victim, EEquipPos::kWield)
+		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == ObjData::ITEM_WEAPON
+		&& GET_EQ(victim, EEquipPos::kHold)
+		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == ObjData::ITEM_WEAPON)
 		|| IS_NPC(victim)
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонить атаку противника\r\n", victim);
@@ -1466,7 +1466,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 			act("Вы немного отклонили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N немного отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n немного отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 10);
+			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 10);
 			prob = 1;
 			*dam = *dam * 10 / 15;
 			SET_AF_BATTLE(victim, kEafUsedleft);
@@ -1474,7 +1474,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 			act("Вы частично отклонили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N частично отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n частично отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 15);
+			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 15);
 			prob = 0;
 			*dam = *dam / 2;
 			SET_AF_BATTLE(victim, kEafUsedleft);
@@ -1482,7 +1482,7 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 			act("Вы полностью отклонили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N полностью отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n полностью отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 25);
+			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 25);
 			prob = 0;
 			*dam = -1;
 		}
@@ -1499,10 +1499,10 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 }
 
 void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
-	if (!((GET_EQ(victim, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == ObjData::ITEM_WEAPON
-		&& GET_EQ(victim, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == ObjData::ITEM_WEAPON)
+	if (!((GET_EQ(victim, EEquipPos::kWield)
+		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == ObjData::ITEM_WEAPON
+		&& GET_EQ(victim, EEquipPos::kHold)
+		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == ObjData::ITEM_WEAPON)
 		|| IS_NPC(victim)
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отклонять атаки противников\r\n", victim);
@@ -1531,26 +1531,26 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 			act("Вы немного отклонили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N немного отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n немного отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 10);
+			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 10);
 			*dam = *dam * 10 / 15;
 		} else if (prob < 180) {
 			act("Вы частично отклонили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N частично отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n частично отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 15);
+			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 15);
 			*dam = *dam / 2;
 		} else {
 			act("Вы полностью отклонили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N полностью отклонил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n полностью отклонил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 25);
+			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *dam, 25);
 			*dam = -1;
 		}
 	}
 }
 
 void hit_block(CharData *ch, CharData *victim, int *dam) {
-	if (!(GET_EQ(victim, WEAR_SHIELD)
+	if (!(GET_EQ(victim, EEquipPos::kShield)
 		|| IS_NPC(victim)
 		|| IS_IMMORTAL(victim))) {
 		send_to_char("У вас нечем отразить атаку противника\r\n", victim);
@@ -1569,19 +1569,19 @@ void hit_block(CharData *ch, CharData *victim, int *dam) {
 			act("Вы немного отразили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N немного отразил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n немного отразил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, WEAR_SHIELD, *dam, 10);
+			alt_equip(victim, EEquipPos::kShield, *dam, 10);
 			*dam = *dam * 10 / 15;
 		} else if (prob < 250) {
 			act("Вы частично отразили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N частично отразил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n частично отразил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, WEAR_SHIELD, *dam, 15);
+			alt_equip(victim, EEquipPos::kShield, *dam, 15);
 			*dam = *dam / 2;
 		} else {
 			act("Вы полностью отразили атаку $N1", false, victim, 0, ch, kToChar);
 			act("$N полностью отразил$G вашу атаку", false, ch, 0, victim, kToChar);
 			act("$n полностью отразил$g атаку $N1", true, victim, 0, ch, kToNotVict | kToArenaListen);
-			alt_equip(victim, WEAR_SHIELD, *dam, 25);
+			alt_equip(victim, EEquipPos::kShield, *dam, 25);
 			*dam = -1;
 		}
 	}
@@ -2188,10 +2188,10 @@ ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
 	ObjData *UsedWeapon = nullptr;
 
 	if (AttackType == fight::AttackType::kMainHand) {
-		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
-			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
+		if (!(UsedWeapon = GET_EQ(ch, EEquipPos::kWield)))
+			UsedWeapon = GET_EQ(ch, EEquipPos::kBoths);
 	} else if (AttackType == fight::AttackType::kOffHand)
-		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
+		UsedWeapon = GET_EQ(ch, EEquipPos::kHold);
 
 	return UsedWeapon;
 }
@@ -2808,7 +2808,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 			const bool wielded_with_bow = wielded && (static_cast<ESkill>(wielded->get_skill()) == ESkill::kBows);
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
 				// проверка оружия для глуша чармисов
-				const bool wielded_for_stupor = GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS);
+				const bool wielded_for_stupor = GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths);
 				const bool weapon_weigth_ok = wielded && (GET_OBJ_WEIGHT(wielded) >= minimum_weapon_weigth);
 				if (wielded_for_stupor && !wielded_with_bow && weapon_weigth_ok) {
 					try_stupor_dam(ch, victim);
@@ -2883,13 +2883,13 @@ void HitData::init(CharData *ch, CharData *victim) {
 	// Find weapon for attack number weapon //
 
 	if (weapon == fight::AttackType::kMainHand) {
-		if (!(wielded = GET_EQ(ch, WEAR_WIELD))) {
-			wielded = GET_EQ(ch, WEAR_BOTHS);
-			weapon_pos = WEAR_BOTHS;
+		if (!(wielded = GET_EQ(ch, EEquipPos::kWield))) {
+			wielded = GET_EQ(ch, EEquipPos::kBoths);
+			weapon_pos = EEquipPos::kBoths;
 		}
 	} else if (weapon == fight::AttackType::kOffHand) {
-		wielded = GET_EQ(ch, WEAR_HOLD);
-		weapon_pos = WEAR_HOLD;
+		wielded = GET_EQ(ch, EEquipPos::kHold);
+		weapon_pos = EEquipPos::kHold;
 		if (!wielded) { // удар второй рукой
 			weap_skill = ESkill::kLeftHit;
 			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
@@ -2950,11 +2950,11 @@ void HitData::calc_base_hr(CharData *ch) {
 			// Apply HR for light weapon
 			int percent = 0;
 			switch (weapon_pos) {
-				case WEAR_WIELD: percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				case EEquipPos::kWield: percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 					break;
-				case WEAR_HOLD: percent = (str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				case EEquipPos::kHold: percent = (str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 					break;
-				case WEAR_BOTHS:
+				case EEquipPos::kBoths:
 					percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) +
 						str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 					break;
@@ -3329,8 +3329,8 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 	if (!GET_AF_BATTLE(ch, kEafHammer)
 		|| get_flags()[fight::kCritHit]) //в метком молоте идет учет перчаток
 	{
-		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18)
-													 : 0)); //вес перчаток больше 18 не учитывается
+		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHands)), 18)
+															: 0)); //вес перчаток больше 18 не учитывается
 		if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT)) {
 			modi = MAX(100, modi);
 		}
@@ -3437,7 +3437,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		add_weapon_damage(ch, need_dice);
 		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
 			send_to_char(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam, GET_OBJ_PNAME(wielded,1).c_str(), GET_OBJ_VNUM(wielded));
-		if (GET_EQ(ch, WEAR_BOTHS) && weap_skill != ESkill::kBows) { //двуруч множим на 2
+		if (GET_EQ(ch, EEquipPos::kBoths) && weap_skill != ESkill::kBows) { //двуруч множим на 2
 			dam *= 2;
 		if (PRF_FLAGGED(ch, PRF_EXECUTOR))
 			send_to_char(ch, "&YДамага двуручем множим на 2 == %d&n\r\n", dam);
@@ -3883,9 +3883,9 @@ void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
 
 	wielded = GetUsedWeapon(ch, weapon);
 	if (wielded
-		&& !GET_EQ(ch, WEAR_SHIELD)
+		&& !GET_EQ(ch, EEquipPos::kShield)
 		&& static_cast<ESkill>(wielded->get_skill()) == ESkill::kBows
-		&& GET_EQ(ch, WEAR_BOTHS)) {
+		&& GET_EQ(ch, EEquipPos::kBoths)) {
 		// Лук в обеих руках - юзаем доп. или двойной выстрел
 		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !ch->get_skill(ESkill::kAddshot)
 			&& MIN(850, 200 + ch->get_skill(ESkill::kBows) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {

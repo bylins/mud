@@ -11,7 +11,7 @@
 #include "structs/structs.h"
 
 struct HitData {
-	HitData() : weapon(fight::kMainHand), wielded(nullptr), weapon_pos(WEAR_WIELD), weap_skill(ESkill::kIncorrect),
+	HitData() : weapon(fight::kMainHand), wielded(nullptr), weapon_pos(EEquipPos::kWield), weap_skill(ESkill::kIncorrect),
 				weap_skill_is(0), skill_num(ESkill::kUndefined), hit_type(0), hit_no_parry(false),
 				ch_start_pos(EPosition::kIncorrect), victim_start_pos(EPosition::kIncorrect), victim_ac(0), calc_thaco(0),
 				dam(0), dam_critic(0) {

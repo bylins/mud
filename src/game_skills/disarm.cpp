@@ -11,8 +11,8 @@
 
 // ************* DISARM PROCEDURES
 void go_disarm(CharData *ch, CharData *vict) {
-	ObjData *wielded = GET_EQ(vict, WEAR_WIELD) ? GET_EQ(vict, WEAR_WIELD) :
-					   GET_EQ(vict, WEAR_BOTHS), *helded = GET_EQ(vict, WEAR_HOLD);
+	ObjData *wielded = GET_EQ(vict, EEquipPos::kWield) ? GET_EQ(vict, EEquipPos::kWield) :
+					   GET_EQ(vict, EEquipPos::kBoths), *helded = GET_EQ(vict, EEquipPos::kHold);
 
 	if (IsUnableToAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -25,9 +25,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 	}
 	int pos = 0;
 	if (number(1, 100) > 30) {
-		pos = wielded ? (GET_EQ(vict, WEAR_BOTHS) ? WEAR_BOTHS : WEAR_WIELD) : WEAR_HOLD;
+		pos = wielded ? (GET_EQ(vict, EEquipPos::kBoths) ? EEquipPos::kBoths : EEquipPos::kWield) : EEquipPos::kHold;
 	} else {
-		pos = helded ? WEAR_HOLD : (GET_EQ(vict, WEAR_BOTHS) ? WEAR_BOTHS : WEAR_WIELD);
+		pos = helded ? EEquipPos::kHold : (GET_EQ(vict, EEquipPos::kBoths) ? EEquipPos::kBoths : EEquipPos::kWield);
 	}
 
 	if (!pos || !GET_EQ(vict, pos))
@@ -105,12 +105,12 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (!((GET_EQ(vict, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != ObjData::ITEM_LIGHT)
-		|| (GET_EQ(vict, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != ObjData::ITEM_LIGHT)
-		|| (GET_EQ(vict, WEAR_BOTHS)
-			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != ObjData::ITEM_LIGHT))) {
+	if (!((GET_EQ(vict, EEquipPos::kWield)
+		&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != ObjData::ITEM_LIGHT)
+		|| (GET_EQ(vict, EEquipPos::kHold)
+			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != ObjData::ITEM_LIGHT)
+		|| (GET_EQ(vict, EEquipPos::kBoths)
+			&& GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != ObjData::ITEM_LIGHT))) {
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
 	}

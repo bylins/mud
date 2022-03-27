@@ -1263,7 +1263,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 }
 
 bool unique_stuff(const CharData *ch, const ObjData *obj) {
-	for (unsigned int i = 0; i < NUM_WEARS; i++)
+	for (unsigned int i = 0; i < EEquipPos::kNumEquipPos; i++)
 		if (GET_EQ(ch, i) && (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj))) {
 			return true;
 		}

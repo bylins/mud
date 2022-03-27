@@ -88,10 +88,10 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		no_flee_duration = 3;
 	};
 	damage.dam = dmg;
-	damage.wielded = GET_EQ(ch, WEAR_WIELD);
+	damage.wielded = GET_EQ(ch, EEquipPos::kWield);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	damage.dam = dmg;
-	damage.wielded = GET_EQ(ch, WEAR_HOLD);
+	damage.wielded = GET_EQ(ch, kHold);
 	damage.Process(roll.GetActor(), roll.GetRival());
 	ApplyNoFleeAffect(ch, no_flee_duration);
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);

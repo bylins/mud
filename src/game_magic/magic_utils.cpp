@@ -58,11 +58,11 @@ void SaySpell(CharData *ch, int spellnum, CharData *tch, ObjData *tobj) {
 	}
 	if (IS_NPC(ch)) {
 		switch (GET_RACE(ch)) {
-			case NPC_RACE_EVIL_SPIRIT:
-			case NPC_RACE_GHOST:
-			case NPC_RACE_HUMAN:
-			case NPC_RACE_ZOMBIE:
-			case NPC_RACE_SPIRIT:
+			case ENpcRace::kBoggart:
+			case ENpcRace::kGhost:
+			case ENpcRace::kHuman:
+			case ENpcRace::kZombie:
+			case ENpcRace::kSpirit:
 			{
 				const int religion = number(kReligionPoly, kReligionMono);
 				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;

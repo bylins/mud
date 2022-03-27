@@ -22,7 +22,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 		return;
 	}
 
-	mag_item = GET_EQ(ch, WEAR_HOLD);
+	mag_item = GET_EQ(ch, kHold);
 	if (!mag_item
 		|| !isname(arg, mag_item->get_aliases())) {
 		switch (subcmd) {
@@ -86,25 +86,25 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 			}
 			break;
 	}
-	if (do_hold && GET_EQ(ch, WEAR_HOLD) != mag_item) {
-		if (GET_EQ(ch, WEAR_BOTHS))
-			do_hold = WEAR_BOTHS;
-		else if (GET_EQ(ch, WEAR_SHIELD))
-			do_hold = WEAR_SHIELD;
+	if (do_hold && GET_EQ(ch, EEquipPos::kHold) != mag_item) {
+		if (GET_EQ(ch, EEquipPos::kBoths))
+			do_hold = EEquipPos::kBoths;
+		else if (GET_EQ(ch, EEquipPos::kShield))
+			do_hold = EEquipPos::kShield;
 		else
-			do_hold = WEAR_HOLD;
+			do_hold = EEquipPos::kHold;
 
 		if (GET_EQ(ch, do_hold)) {
 			act("Вы прекратили использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, kToChar);
 			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, kToRoom | kToArenaListen);
 			obj_to_char(unequip_char(ch, do_hold, CharEquipFlags()), ch);
 		}
-		if (GET_EQ(ch, WEAR_HOLD))
-			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlags()), ch);
+		if (GET_EQ(ch, EEquipPos::kHold))
+			obj_to_char(unequip_char(ch, EEquipPos::kHold, CharEquipFlags()), ch);
 		//obj_from_char(mag_item);
-		equip_char(ch, mag_item, WEAR_HOLD, CharEquipFlags());
+		equip_char(ch, mag_item, EEquipPos::kHold, CharEquipFlags());
 	}
-	if ((do_hold && GET_EQ(ch, WEAR_HOLD) == mag_item) || (!do_hold))
+	if ((do_hold && GET_EQ(ch, EEquipPos::kHold) == mag_item) || (!do_hold))
 		EmployMagicItem(ch, mag_item, buf_temp);
 	free(buf_temp);
 

@@ -72,7 +72,7 @@ char *fname(const char *namelist) {
 
 bool is_wear_light(CharData *ch) {
 	bool wear_light = false;
-	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++) {
+	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos)
 			&& GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ObjData::ITEM_LIGHT
 			&& GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2)) {
@@ -808,7 +808,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 	std::string::size_type delim;
 
-	if (pos < NUM_WEARS) {
+	if (pos < EEquipPos::kNumEquipPos) {
 		set_info::const_iterator set_obj_info;
 
 		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlag::ITEM_SETSTUFF) &&
@@ -959,7 +959,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 	const bool skip_total = equip_flags.test(CharEquipFlag::skip_total);
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 
-	if (pos < 0 || pos >= NUM_WEARS) {
+	if (pos < 0 || pos >= EEquipPos::kNumEquipPos) {
 		log("SYSERR: equip_char(%s,%d) in unknown pos...", GET_NAME(ch), pos);
 		return;
 	}
@@ -1110,7 +1110,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 
 	// Раз показываем сообщение, значит, предмет надевает сам персонаж
 	// А вообще эта порнография из-за того, что одна функция используется с кучей флагов в разных вариантах
-	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON || pos == WEAR_SHIELD)) {
+	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON || pos == kShield)) {
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 	}
 }
@@ -1120,7 +1120,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 	std::string::size_type delim;
 
-	if (pos < NUM_WEARS) {
+	if (pos < EEquipPos::kNumEquipPos) {
 		set_info::const_iterator set_obj_info;
 
 		if (GET_EQ(ch, pos)
@@ -1283,7 +1283,7 @@ ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags) 
 	const bool skip_total = equip_flags.test(CharEquipFlag::skip_total);
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 
-	if (pos < 0 || pos >= NUM_WEARS) {
+	if (pos < 0 || pos >= EEquipPos::kNumEquipPos) {
 		log("SYSERR: unequip_char(%s,%d) - unused pos...", GET_NAME(ch), pos);
 		return nullptr;
 	}
@@ -1734,7 +1734,7 @@ void update_object(ObjData *obj, int use) {
 
 void update_char_objects(CharData *ch) {
 //Polud раз уж светит любой источник света, то и гаснуть тоже должны все
-	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++) {
+	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos) != nullptr) {
 			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ObjData::ITEM_LIGHT) {
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0) {
@@ -1762,7 +1762,7 @@ void update_char_objects(CharData *ch) {
 	}
 	//-Polud
 
-	for (int i = 0; i < NUM_WEARS; i++) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			update_object(GET_EQ(ch, i), 1);
 		}
@@ -1888,7 +1888,7 @@ void extract_char(CharData *ch, int clear_objs, bool zone_reset) {
 
 	// transfer equipment to room, if any
 //	log("[Extract char] Drop equipment");
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			ObjData *obj_eq = unequip_char(ch, i, CharEquipFlags());
 			if (!obj_eq) {
@@ -2155,7 +2155,7 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 ObjData *equip[],
 								 std::unordered_set<unsigned int> &id_obj_set,
 								 int &number) {
-	for (auto i = 0; i < NUM_WEARS; ++i) {
+	for (auto i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		auto item = equip[i];
 		if (item && CAN_SEE_OBJ(ch, item)) {
 			if (isname(name, item->get_aliases())
@@ -2357,7 +2357,7 @@ ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipme
 	if (!(number = get_number(&tmp)))
 		return (nullptr);
 
-	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++) {
+	for ((*j) = 0, l = 0; (*j) < EEquipPos::kNumEquipPos; (*j)++) {
 		if (equipment[(*j)]) {
 			if (CAN_SEE_OBJ(ch, equipment[(*j)])) {
 				if (isname(tmp, equipment[(*j)]->get_aliases())
@@ -2537,7 +2537,7 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 		return 0;
 
 	if (IS_SET(bitvector, FIND_OBJ_EQUIP)) {
-		for (l = 0; l < NUM_WEARS; l++) {
+		for (l = 0; l < EEquipPos::kNumEquipPos; l++) {
 			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l))) {
 				if (isname(tmp, GET_EQ(ch, l)->get_aliases())
 					|| CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
@@ -3021,7 +3021,7 @@ int equip_in_metall(CharData *ch) {
 	if (IS_GOD(ch))
 		return (false);
 
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)
 			&& ObjSystem::is_armor_type(GET_EQ(ch, i))
 			&& GET_OBJ_MATER(GET_EQ(ch, i)) <= ObjData::MAT_COLOR) {

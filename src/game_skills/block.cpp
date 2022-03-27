@@ -27,7 +27,7 @@ void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 	if (!(IS_NPC(ch)
-		|| GET_EQ(ch, WEAR_SHIELD)
+		|| GET_EQ(ch, kShield)
 		|| IS_IMMORTAL(ch)
 		|| GET_GOD_FLAG(ch, GF_GODSLIKE))) {
 		send_to_char("Вы не можете сделать это без щита.\r\n", ch);

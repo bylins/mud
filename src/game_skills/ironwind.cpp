@@ -28,7 +28,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 
 	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", false, ch, nullptr, victim, kToChar);
 	ObjData *weapon;
-	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS))) {
+	if ((weapon = GET_EQ(ch, EEquipPos::kWield)) || (weapon = GET_EQ(ch, EEquipPos::kBoths))) {
 		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!");
 		strcpy(buf2, "$N взревел$G и ринул$U на вас, бешено размахивая $o4!");
 	} else {

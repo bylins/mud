@@ -772,7 +772,7 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[kMaxInputLength];
 	CharData *m;
-	ObjData *obj[NUM_WEARS];
+	ObjData *obj[EEquipPos::kNumEquipPos];
 	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
 	int pos;
 
@@ -810,7 +810,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //            c) удаляю m (на самом деле это данные ch в другой оболочке)
 
 
-		for (pos = 0; pos < NUM_WEARS; pos++) {
+		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
 			if (GET_EQ(ch, pos))
 				obj[pos] = unequip_char(ch, pos, CharEquipFlags());
 			else
@@ -868,7 +868,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ch->set_serial_num(m->get_serial_num());
 		m->set_serial_num(tmpmob.get_serial_num());
 
-		for (pos = 0; pos < NUM_WEARS; pos++) {
+		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
 			if (obj[pos])
 				equip_char(ch, obj[pos], pos, CharEquipFlag::no_cast);
 		}

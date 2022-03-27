@@ -174,7 +174,7 @@ float CharData::get_cond_penalty(int type) const {
 void CharData::reset() {
 	int i;
 
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		GET_EQ(this, i) = nullptr;
 	}
 	memset((void *) &add_abils, 0, sizeof(add_abils));

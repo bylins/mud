@@ -1465,11 +1465,11 @@ void obj_point_update() {
 				// Конец Ладник
 				if (j->get_worn_by()) {
 					switch (j->get_worn_on()) {
-						case WEAR_LIGHT:
-						case WEAR_SHIELD:
-						case WEAR_WIELD:
-						case WEAR_HOLD:
-						case WEAR_BOTHS:
+						case EEquipPos::kLight:
+						case EEquipPos::kShield:
+						case EEquipPos::kWield:
+						case EEquipPos::kHold:
+						case EEquipPos::kBoths:
 							if (IS_CHARMICE(j->get_worn_by())) {
 								charmee_obj_decay_tell(j->get_worn_by(), j.get(), 0);
 							} else {

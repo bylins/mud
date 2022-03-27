@@ -313,7 +313,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 	int weap_i = 0;
 
 	switch (attacktype) {
-		case to_underlying(ESkill::kBackstab) + kTypeHit: weap = GET_EQ(ch, WEAR_WIELD);
+		case to_underlying(ESkill::kBackstab) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kWield);
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = real_object(kDummyKnight);
 				if (0 <= weap_i) {
@@ -322,7 +322,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case to_underlying(ESkill::kThrow) + kTypeHit: weap = GET_EQ(ch, WEAR_WIELD);
+		case to_underlying(ESkill::kThrow) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kWield);
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = real_object(kDummyKnight);
 				if (0 <= weap_i) {
@@ -331,7 +331,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case to_underlying(ESkill::kBash) + kTypeHit: weap = GET_EQ(ch, WEAR_SHIELD);
+		case to_underlying(ESkill::kBash) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kShield);
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = real_object(kDummyShield);
 				if (0 <= weap_i) {
@@ -640,7 +640,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kDisarm: {
 			rate -= dex_bonus(GET_REAL_STR(ch));
-			if (GET_EQ(vict, WEAR_BOTHS))
+			if (GET_EQ(vict, EEquipPos::kBoths))
 				rate -= 10;
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
@@ -775,8 +775,8 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kBash: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
-			bonus = size + (GET_EQ(ch, WEAR_SHIELD) ?
-							weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing : 0);
+			bonus = size + (GET_EQ(ch, EEquipPos::kShield) ?
+							weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))))].bashing : 0);
 			if (PRF_FLAGGED(ch, PRF_AWAKE)) {
 				bonus = -50;
 			}
@@ -899,17 +899,17 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (GET_AF_BATTLE(ch, kEafAwake)) {
 				bonus += ch->get_skill(ESkill::kAwake);
 			}
-			if (GET_EQ(ch, WEAR_HOLD)
-				&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjData::ITEM_WEAPON) {
-				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].parrying;
+			if (GET_EQ(ch, EEquipPos::kHold)
+				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == ObjData::ITEM_WEAPON) {
+				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))))].parrying;
 			}
 			break;
 		}
 
 		case ESkill::kShieldBlock: {
 			parameter_bonus += dex_bonus(GET_REAL_DEX(ch));
-			bonus += GET_EQ(ch, WEAR_SHIELD) ?
-					 MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
+			bonus += GET_EQ(ch, EEquipPos::kShield) ?
+					 MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)) - 20)) : 0;
 			break;
 		}
 
@@ -1002,11 +1002,11 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kOverwhelm: {
 			bonus = dex_bonus(GET_REAL_STR(ch));
-			if (GET_EQ(ch, WEAR_WIELD)) {
-				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
+			if (GET_EQ(ch, EEquipPos::kWield)) {
+				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))].shocking;
 			} else {
-				if (GET_EQ(ch, WEAR_BOTHS)) {
-					bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+				if (GET_EQ(ch, EEquipPos::kBoths)) {
+					bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))].shocking;
 				}
 			}
 			break;
@@ -1021,17 +1021,17 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kPunctual: {
 			parameter_bonus = dex_bonus(GET_REAL_INT(ch));
-			if (GET_EQ(ch, WEAR_WIELD))
-				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
-					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
-			if (GET_EQ(ch, WEAR_HOLD))
-				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 18
-					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
-			if (GET_EQ(ch, WEAR_BOTHS))
-				bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
+			if (GET_EQ(ch, EEquipPos::kWield))
+				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 18
+					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 30;
+			if (GET_EQ(ch, EEquipPos::kHold))
+				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 18
+					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 30;
+			if (GET_EQ(ch, EEquipPos::kBoths))
+				bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 30;
 			break;
 		}
 
@@ -1100,10 +1100,10 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kStun: {
 			parameter_bonus = dex_bonus(GET_REAL_STR(ch));
-			if (GET_EQ(ch, WEAR_WIELD))
-				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
-			else if (GET_EQ(ch, WEAR_BOTHS))
-				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+			if (GET_EQ(ch, EEquipPos::kWield))
+				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))].shocking;
+			else if (GET_EQ(ch, EEquipPos::kBoths))
+				bonus += weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))].shocking;
 			break;
 		}
 		default: break;
@@ -1266,8 +1266,8 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 			bonus = size
 				+ dex_bonus(GET_REAL_DEX(ch))
-				+ (GET_EQ(ch, WEAR_SHIELD)
-				   ? weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing
+				+ (GET_EQ(ch, EEquipPos::kShield)
+				   ? weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))))].bashing
 				   : 0);
 			if (vict) {
 				if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) > EPosition::kSleep) {
@@ -1423,9 +1423,9 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += ch->get_skill(ESkill::kAwake);
 			}
 
-			if (GET_EQ(ch, WEAR_HOLD)
-				&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjData::ITEM_WEAPON) {
-				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].parrying;
+			if (GET_EQ(ch, EEquipPos::kHold)
+				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == ObjData::ITEM_WEAPON) {
+				bonus += weapon_app[MAX(0, MIN(50, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))))].parrying;
 			}
 			victim_modi = 100;
 			break;
@@ -1433,7 +1433,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kShieldBlock: {
 			int shield_mod =
-				GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
+				GET_EQ(ch, EEquipPos::kShield) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)) - 20)) : 0;
 			int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20) / 3);
 			bonus = dex_mod + shield_mod;
 			break;
@@ -1486,7 +1486,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 			bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
 			if (vict) {
 				victim_modi -= dex_bonus(GET_REAL_STR(ch));
-				if (GET_EQ(vict, WEAR_BOTHS))
+				if (GET_EQ(vict, EEquipPos::kBoths))
 					victim_modi -= 10;
 				if (PRF_FLAGGED(vict, PRF_AWAKE))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
@@ -1584,12 +1584,12 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kOverwhelm: {
 			victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 			bonus = dex_bonus(GET_REAL_STR(ch));
-			if (GET_EQ(ch, WEAR_WIELD))
+			if (GET_EQ(ch, EEquipPos::kWield))
 				bonus +=
-					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
-			else if (GET_EQ(ch, WEAR_BOTHS))
+					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))].shocking;
+			else if (GET_EQ(ch, EEquipPos::kBoths))
 				bonus +=
-					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))].shocking;
 
 			if (vict) {
 				victim_modi -= GET_REAL_CON(vict);
@@ -1606,17 +1606,17 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kPunctual: {
 			victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
 			bonus = dex_bonus(GET_REAL_INT(ch));
-			if (GET_EQ(ch, WEAR_WIELD))
-				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
-					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
-			if (GET_EQ(ch, WEAR_HOLD))
-				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 18
-					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
-			if (GET_EQ(ch, WEAR_BOTHS))
-				bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 25
-					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
+			if (GET_EQ(ch, EEquipPos::kWield))
+				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 18
+					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))) - 30;
+			if (GET_EQ(ch, EEquipPos::kHold))
+				bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 18
+					+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) - 30;
+			if (GET_EQ(ch, EEquipPos::kBoths))
+				bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 25
+					+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))) - 30;
 			if (vict) {
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 			}
@@ -1708,12 +1708,12 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict) {
 				victim_sav -= GetRealLevel(vict);
 
 			bonus = dex_bonus(GET_REAL_STR(ch));
-			if (GET_EQ(ch, WEAR_WIELD))
+			if (GET_EQ(ch, EEquipPos::kWield))
 				bonus +=
-					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
-			else if (GET_EQ(ch, WEAR_BOTHS))
+					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield))].shocking;
+			else if (GET_EQ(ch, EEquipPos::kBoths))
 				bonus +=
-					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))].shocking;
 
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
 				victim_modi -= CalculateSkillAwakeModifier(ch, vict);

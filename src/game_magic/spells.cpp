@@ -1359,7 +1359,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (IS_NPC(victim)) {
 //Eli. Раздеваемся.
 			if (IS_NPC(victim) && !MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)) { // только если не маг зверьки (Кудояр)
-				for (int i = 0; i < NUM_WEARS; i++) {
+				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
 							continue;
@@ -2096,8 +2096,8 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 	for (const auto tch : people_copy) {
 		if (IS_NPC(tch)) {
 			if (!MOB_FLAGGED(tch, MOB_CORPSE)
-				&& GET_RACE(tch) != NPC_RACE_ZOMBIE
-				&& GET_RACE(tch) != NPC_RACE_EVIL_SPIRIT) {
+				&& GET_RACE(tch) != ENpcRace::kZombie
+				&& GET_RACE(tch) != ENpcRace::kBoggart) {
 				continue;
 			}
 		} else {

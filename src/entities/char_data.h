@@ -794,7 +794,7 @@ class CharData : public ProtectedCharData {
 	char_affects_list_t affected;    // affected by what spells
 	struct TimedSkill *timed;    // use which timed skill/spells
 	struct TimedFeat *timed_feat;    // use which timed feats
-	ObjData *equipment[NUM_WEARS];    // Equipment array
+	ObjData *equipment[EEquipPos::kNumEquipPos];    // Equipment array
 
 	ObjData *carrying;    // Head of list
 	DescriptorData *desc;    // NULL for mobiles

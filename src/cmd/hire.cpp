@@ -304,7 +304,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 
 		if (IS_NPC(helpee)) {
-			for (auto i = 0; i < NUM_WEARS; i++) {
+			for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
 				if (GET_EQ(helpee, i)) {
 					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
 						continue;

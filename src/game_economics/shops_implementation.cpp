@@ -771,7 +771,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 
 				if (!obj) {
 					if (cmd == "Чинить" && utils::IsAbbrev(argument, "экипировка")) {
-						for (i = 0; i < NUM_WEARS; i++) {
+						for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 							if (ch->equipment[i]) {
 								do_shop_cmd(ch, keeper, ch->equipment[i], cmd);
 							}

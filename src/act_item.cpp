@@ -1689,7 +1689,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 		return;
 	}
 	if (ch->haveCooldown(ESkill::kGlobalCooldown)) {
-		if (ch->get_fighting() && (where == WEAR_SHIELD || GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON)) {
+		if (ch->get_fighting() && (where == EEquipPos::kShield || GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON)) {
 			send_to_char("Вам нужно набраться сил.\r\n", ch);
 			return;
 		}
@@ -1697,33 +1697,33 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 
 	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
 	if (   // не может держать если есть свет или двуручник
-		(where == WEAR_HOLD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_LIGHT)
-			|| GET_EQ(ch, WEAR_SHIELD))) ||
+		(where == EEquipPos::kHold && (GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kLight)
+			|| GET_EQ(ch, EEquipPos::kShield))) ||
 			// не может вооружиться если есть двуручник
-			(where == WEAR_WIELD && GET_EQ(ch, WEAR_BOTHS)) ||
+			(where == EEquipPos::kWield && GET_EQ(ch, EEquipPos::kBoths)) ||
 			// не может держать щит если что-то держит или двуручник
-			(where == WEAR_SHIELD && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS))) ||
+			(where == EEquipPos::kShield && (GET_EQ(ch, EEquipPos::kHold) || GET_EQ(ch, EEquipPos::kBoths))) ||
 			// не может двуручник если есть щит, свет, вооружен или держит
-			(where == WEAR_BOTHS && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_LIGHT)
-				|| GET_EQ(ch, WEAR_SHIELD) || GET_EQ(ch, WEAR_WIELD))) ||
+			(where == EEquipPos::kBoths && (GET_EQ(ch, EEquipPos::kHold) || GET_EQ(ch, EEquipPos::kLight)
+				|| GET_EQ(ch, EEquipPos::kShield) || GET_EQ(ch, EEquipPos::kWield))) ||
 			// не может держать свет если двуручник или держит
-			(where == WEAR_LIGHT && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS)))) {
+			(where == EEquipPos::kLight && (GET_EQ(ch, EEquipPos::kHold) || GET_EQ(ch, EEquipPos::kBoths)))) {
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
 	if (   // не может одеть колчан если одет не лук
-		(where == WEAR_QUIVER &&
-			!(GET_EQ(ch, WEAR_BOTHS) &&
-				(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == ObjData::ITEM_WEAPON)
-					&& (static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == ESkill::kBows))))) {
+		(where == EEquipPos::kQuiver &&
+			!(GET_EQ(ch, EEquipPos::kBoths) &&
+				(((GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths))) == ObjData::ITEM_WEAPON)
+					&& (static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths)) == ESkill::kBows))))) {
 		send_to_char("А стрелять чем будете?\r\n", ch);
 		return;
 	}
 	// нельзя надеть щит, если недостаточно силы
-	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj)) {
+	if (!IS_IMMORTAL(ch) && (where == EEquipPos::kShield) && !OK_SHIELD(ch, obj)) {
 	}
 
-	if ((where == WEAR_FINGER_R) || (where == WEAR_NECK_1) || (where == WEAR_WRIST_R))
+	if ((where == EEquipPos::kFingerR) || (where == EEquipPos::kNeck) || (where == EEquipPos::kWristR))
 		if (GET_EQ(ch, where))
 			where++;
 
@@ -1768,111 +1768,111 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *arg) {
 	if (!arg || !*arg) {
 		int tmp_where = -1;
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER)) {
-			if (!GET_EQ(ch, WEAR_FINGER_R)) {
-				where = WEAR_FINGER_R;
-			} else if (!GET_EQ(ch, WEAR_FINGER_L)) {
-				where = WEAR_FINGER_L;
+			if (!GET_EQ(ch, EEquipPos::kFingerR)) {
+				where = EEquipPos::kFingerR;
+			} else if (!GET_EQ(ch, EEquipPos::kFingerL)) {
+				where = EEquipPos::kFingerL;
 			} else {
-				tmp_where = WEAR_FINGER_R;
+				tmp_where = EEquipPos::kFingerR;
 			}
 		}
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
-			if (!GET_EQ(ch, WEAR_NECK_1)) {
-				where = WEAR_NECK_1;
-			} else if (!GET_EQ(ch, WEAR_NECK_2)) {
-				where = WEAR_NECK_2;
+			if (!GET_EQ(ch, EEquipPos::kNeck)) {
+				where = EEquipPos::kNeck;
+			} else if (!GET_EQ(ch, EEquipPos::kChest)) {
+				where = EEquipPos::kChest;
 			} else {
-				tmp_where = WEAR_NECK_1;
+				tmp_where = EEquipPos::kNeck;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
-			if (!GET_EQ(ch, WEAR_BODY)) {
-				where = WEAR_BODY;
+			if (!GET_EQ(ch, EEquipPos::kBody)) {
+				where = EEquipPos::kBody;
 			} else {
-				tmp_where = WEAR_BODY;
+				tmp_where = EEquipPos::kBody;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
-			if (!GET_EQ(ch, WEAR_HEAD)) {
-				where = WEAR_HEAD;
+			if (!GET_EQ(ch, EEquipPos::kHead)) {
+				where = EEquipPos::kHead;
 			} else {
-				tmp_where = WEAR_HEAD;
+				tmp_where = EEquipPos::kHead;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
-			if (!GET_EQ(ch, WEAR_LEGS)) {
-				where = WEAR_LEGS;
+			if (!GET_EQ(ch, EEquipPos::kLegs)) {
+				where = EEquipPos::kLegs;
 			} else {
-				tmp_where = WEAR_LEGS;
+				tmp_where = EEquipPos::kLegs;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
-			if (!GET_EQ(ch, WEAR_FEET)) {
-				where = WEAR_FEET;
+			if (!GET_EQ(ch, EEquipPos::kFeet)) {
+				where = EEquipPos::kFeet;
 			} else {
-				tmp_where = WEAR_FEET;
+				tmp_where = EEquipPos::kFeet;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
-			if (!GET_EQ(ch, WEAR_HANDS)) {
-				where = WEAR_HANDS;
+			if (!GET_EQ(ch, EEquipPos::kHands)) {
+				where = EEquipPos::kHands;
 			} else {
-				tmp_where = WEAR_HANDS;
+				tmp_where = EEquipPos::kHands;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
-			if (!GET_EQ(ch, WEAR_ARMS)) {
-				where = WEAR_ARMS;
+			if (!GET_EQ(ch, EEquipPos::kArms)) {
+				where = EEquipPos::kArms;
 			} else {
-				tmp_where = WEAR_ARMS;
+				tmp_where = EEquipPos::kArms;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
-			if (!GET_EQ(ch, WEAR_SHIELD)) {
-				where = WEAR_SHIELD;
+			if (!GET_EQ(ch, EEquipPos::kShield)) {
+				where = EEquipPos::kShield;
 			} else {
-				tmp_where = WEAR_SHIELD;
+				tmp_where = EEquipPos::kShield;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
-			if (!GET_EQ(ch, WEAR_ABOUT)) {
-				where = WEAR_ABOUT;
+			if (!GET_EQ(ch, EEquipPos::kShoulders)) {
+				where = EEquipPos::kShoulders;
 			} else {
-				tmp_where = WEAR_ABOUT;
+				tmp_where = EEquipPos::kShoulders;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
-			if (!GET_EQ(ch, WEAR_WAIST)) {
-				where = WEAR_WAIST;
+			if (!GET_EQ(ch, EEquipPos::kWaist)) {
+				where = EEquipPos::kWaist;
 			} else {
-				tmp_where = WEAR_WAIST;
+				tmp_where = EEquipPos::kWaist;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
-			if (!GET_EQ(ch, WEAR_QUIVER)) {
-				where = WEAR_QUIVER;
+			if (!GET_EQ(ch, EEquipPos::kQuiver)) {
+				where = EEquipPos::kQuiver;
 			} else {
-				tmp_where = WEAR_QUIVER;
+				tmp_where = EEquipPos::kQuiver;
 			}
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
-			if (!GET_EQ(ch, WEAR_WRIST_R)) {
-				where = WEAR_WRIST_R;
-			} else if (!GET_EQ(ch, WEAR_WRIST_L)) {
-				where = WEAR_WRIST_L;
+			if (!GET_EQ(ch, EEquipPos::kWristR)) {
+				where = EEquipPos::kWristR;
+			} else if (!GET_EQ(ch, EEquipPos::kWristL)) {
+				where = EEquipPos::kWristL;
 			} else {
-				tmp_where = WEAR_WRIST_R;
+				tmp_where = EEquipPos::kWristR;
 			}
 		}
 
@@ -1999,28 +1999,28 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					message_str_need(ch, obj, STR_BOTH_W);
 					return;
 				};
-				perform_wear(ch, obj, WEAR_BOTHS);
+				perform_wear(ch, obj, EEquipPos::kBoths);
 				return;
 			}
 
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
-				wear = WEAR_WIELD;
+				wear = EEquipPos::kWield;
 			} else {
-				wear = WEAR_BOTHS;
+				wear = EEquipPos::kBoths;
 			}
 
-			if (wear == WEAR_WIELD && !IS_IMMORTAL(ch) && !OK_WIELD(ch, obj)) {
+			if (wear == EEquipPos::kWield && !IS_IMMORTAL(ch) && !OK_WIELD(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в правой руке.", false, ch, obj, 0, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
 
 				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
-					wear = WEAR_BOTHS;
+					wear = EEquipPos::kBoths;
 				} else {
 					return;
 				}
 			}
 
-			if (wear == WEAR_BOTHS && !IS_IMMORTAL(ch) && !OK_BOTH(ch, obj)) {
+			if (wear == EEquipPos::kBoths && !IS_IMMORTAL(ch) && !OK_BOTH(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 двумя руками.", false, ch, obj, 0, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
 				return;
@@ -2041,7 +2041,7 @@ std::string readFile1(const std::string &fileName) {
 }
 
 void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int where = WEAR_HOLD;
+	int where = EEquipPos::kHold;
 	ObjData *obj;
 	one_argument(argument, arg);
 
@@ -2060,7 +2060,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char(buf, ch);
 	} else {
 		if (GET_OBJ_TYPE(obj) == ObjData::ITEM_LIGHT) {
-			perform_wear(ch, obj, WEAR_LIGHT);
+			perform_wear(ch, obj, EEquipPos::kLight);
 		} else {
 			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)
 				&& GET_OBJ_TYPE(obj) != ObjData::ITEM_WAND
@@ -2096,7 +2096,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						message_str_need(ch, obj, STR_BOTH_W);
 						return;
 					} else {
-						where = WEAR_BOTHS;
+						where = EEquipPos::kBoths;
 					}
 				} else {
 					return;
@@ -2124,7 +2124,7 @@ void RemoveEquipment(CharData *ch, int pos) {
 			if (!remove_otrigger(obj, ch)) {
 				return;
 			}
-			if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON || pos == WEAR_SHIELD)) {
+			if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON || pos == EEquipPos::kShield)) {
 				ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 			}
 			act("Вы прекратили использовать $o3.", false, ch, obj, 0, kToChar);
@@ -2148,7 +2148,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (dotmode == FIND_ALL) {
 		found = 0;
-		for (i = 0; i < NUM_WEARS; i++) {
+		for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 			if (GET_EQ(ch, i)) {
 				RemoveEquipment(ch, i);
 				found = 1;
@@ -2164,7 +2164,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		} else {
 			found = 0;
-			for (i = 0; i < NUM_WEARS; i++) {
+			for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 				if (GET_EQ(ch, i)
 					&& CAN_SEE_OBJ(ch, GET_EQ(ch, i))
 					&& (isname(arg, GET_EQ(ch, i)->get_aliases())
@@ -2184,16 +2184,16 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!get_object_in_equip_vis(ch, arg, ch->equipment, &i)) {
 			// если предмет не найден, то возможно игрок ввел "левая" или "правая"
 			if (!str_cmp("правая", arg)) {
-				if (!GET_EQ(ch, WEAR_WIELD)) {
+				if (!GET_EQ(ch, EEquipPos::kWield)) {
 					send_to_char("В правой руке ничего нет.\r\n", ch);
 				} else {
-					RemoveEquipment(ch, WEAR_WIELD);
+					RemoveEquipment(ch, EEquipPos::kWield);
 				}
 			} else if (!str_cmp("левая", arg)) {
-				if (!GET_EQ(ch, WEAR_HOLD))
+				if (!GET_EQ(ch, EEquipPos::kHold))
 					send_to_char("В левой руке ничего нет.\r\n", ch);
 				else
-					RemoveEquipment(ch, WEAR_HOLD);
+					RemoveEquipment(ch, EEquipPos::kHold);
 			} else {
 				snprintf(buf, kMaxInputLength, "Вы не используете '%s'.\r\n", arg);
 				send_to_char(buf, ch);
@@ -2204,10 +2204,10 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	//мы что-то да снимали. значит проверю я доп слот
-	if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS)) {
+	if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
 		send_to_char("Нету лука, нет и стрел.\r\n", ch);
 		act("$n прекратил$g использовать $o3.", false, ch, obj, 0, kToRoom);
-		obj_to_char(unequip_char(ch, WEAR_QUIVER, CharEquipFlags()), ch);
+		obj_to_char(unequip_char(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
 		return;
 	}
 }
@@ -3019,11 +3019,11 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	mob->set_normal_morph();
 
 	if (!IS_IMMORTAL(ch)
-		&& GET_RACE(mob) != NPC_RACE_ANIMAL
-		&& GET_RACE(mob) != NPC_RACE_REPTILE
-		&& GET_RACE(mob) != NPC_RACE_FISH
-		&& GET_RACE(mob) != NPC_RACE_BIRD
-		&& GET_RACE(mob) != NPC_RACE_HUMAN_ANIMAL) {
+		&& GET_RACE(mob) != ENpcRace::kAnimal
+		&& GET_RACE(mob) != ENpcRace::kReptile
+		&& GET_RACE(mob) != ENpcRace::kFish
+		&& GET_RACE(mob) != ENpcRace::kBird
+		&& GET_RACE(mob) != ENpcRace::kBeastman) {
 		send_to_char("Этот труп невозможно освежевать.\r\n", ch);
 		return;
 	}
@@ -3058,7 +3058,7 @@ void do_makefood(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::vector<ObjData *> entrails;
 		entrails.push_back(tobj.get());
 
-		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
+		if (GET_RACE(mob) == ENpcRace::kAnimal) // шкуры только с животных
 		{
 			if (WAITLESS(ch) || skill_to_skin(mob, ch)) {
 				entrails.push_back(create_skin(mob, ch));

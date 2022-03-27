@@ -29,7 +29,7 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	ObjData *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
+	ObjData *primary = GET_EQ(ch, EEquipPos::kWield), *offhand = GET_EQ(ch, EEquipPos::kHold);
 	if (!(IS_NPC(ch)
 		|| (primary
 			&& GET_OBJ_TYPE(primary) == ObjData::ITEM_WEAPON
@@ -74,16 +74,16 @@ void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, GF_GODSLIKE)) {
-		if (GET_EQ(ch, WEAR_BOTHS)) {
+		if (GET_EQ(ch, EEquipPos::kBoths)) {
 			send_to_char("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
 			return;
 		}
 
 		bool prim = 0, offh = 0;
-		if (GET_EQ(ch, WEAR_WIELD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ObjData::ITEM_WEAPON) {
+		if (GET_EQ(ch, EEquipPos::kWield) && GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kWield)) == ObjData::ITEM_WEAPON) {
 			prim = 1;
 		}
-		if (GET_EQ(ch, WEAR_HOLD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjData::ITEM_WEAPON) {
+		if (GET_EQ(ch, EEquipPos::kHold) && GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == ObjData::ITEM_WEAPON) {
 			offh = 1;
 		}
 

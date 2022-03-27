@@ -459,19 +459,19 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		// One object was found.. now for the other one.
-		if (!GET_EQ(ch, WEAR_HOLD)) {
+		if (!GET_EQ(ch, kHold)) {
 			sprintf(buf, "Вы нечем писать!\r\n");
 			send_to_char(buf, ch);
 			return;
 		}
-		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, WEAR_HOLD))) {
+		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, kHold))) {
 			send_to_char("Вы держите что-то невидимое!  Жаль, но писать этим трудно!!\r\n", ch);
 			return;
 		}
 		if (pen)
-			paper = GET_EQ(ch, WEAR_HOLD);
+			paper = GET_EQ(ch, kHold);
 		else
-			pen = GET_EQ(ch, WEAR_HOLD);
+			pen = GET_EQ(ch, kHold);
 	}
 
 

@@ -72,11 +72,11 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch)
-		&& (GET_EQ(ch, WEAR_BOTHS)
-			|| GET_EQ(ch, WEAR_WIELD)
-			|| GET_EQ(ch, WEAR_HOLD)
-			|| GET_EQ(ch, WEAR_SHIELD)
-			|| GET_EQ(ch, WEAR_LIGHT))) {
+		&& (GET_EQ(ch, EEquipPos::kBoths)
+			|| GET_EQ(ch, EEquipPos::kWield)
+			|| GET_EQ(ch, EEquipPos::kHold)
+			|| GET_EQ(ch, EEquipPos::kShield)
+			|| GET_EQ(ch, EEquipPos::kLight))) {
 		send_to_char("Ваша экипировка мешает вам нанести удар.\r\n", ch);
 		return;
 	}

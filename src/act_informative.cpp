@@ -911,14 +911,14 @@ void look_at_char(CharData *i, CharData *ch) {
 		send_to_char("\r\n", ch);
 	} else {
 		found = false;
-		for (j = 0; !found && j < NUM_WEARS; j++)
+		for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++)
 			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
 				found = true;
 
 		if (found) {
 			send_to_char("\r\n", ch);
 			act("$n одет$a :", false, i, nullptr, ch, kToVict);
-			for (j = 0; j < NUM_WEARS; j++) {
+			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 				if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
 					send_to_char(where[j], ch);
 					if (i->has_master()
@@ -1002,7 +1002,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (mode == ESkill::kLooking) {
 		if (HERE(i) && INVIS_OK(ch, i) && GetRealLevel(ch) >= (IS_NPC(i) ? 0 : GET_INVIS_LEV(i))) {
-			if (GET_RACE(i) == NPC_RACE_THING && IS_IMMORTAL(ch)) {
+			if (GET_RACE(i) == ENpcRace::kConstruct && IS_IMMORTAL(ch)) {
 				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
 			} else {
 				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
@@ -1407,7 +1407,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 	for (const auto i : list) {
 		if (ch != i) {
-			if (HERE(i) && (GET_RACE(i) != NPC_RACE_THING)
+			if (HERE(i) && (GET_RACE(i) != ENpcRace::kConstruct)
 				&& (CAN_SEE(ch, i)
 					|| awaking(i, AW_HIDE | AW_INVIS | AW_CAMOUFLAGE))) {
 				ListOneChar(i, ch, ESkill::kAny);
@@ -1425,7 +1425,7 @@ void list_char_to_char_thing(const RoomData::people_t &list,
 {
 	for (const auto i : list) {
 		if (ch != i) {
-			if (GET_RACE(i) == NPC_RACE_THING) {
+			if (GET_RACE(i) == ENpcRace::kConstruct) {
 				ListOneChar(i, ch, ESkill::kAny);
 			}
 		}
@@ -2008,7 +2008,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
 						&& (percent < 100 || IS_IMMORTAL(ch))) {
 						// Если моб не вещь и смотрящий не им
-						if (GET_RACE(tch) != NPC_RACE_THING || IS_IMMORTAL(ch)) {
+						if (GET_RACE(tch) != ENpcRace::kConstruct || IS_IMMORTAL(ch)) {
 							ListOneChar(tch, ch, ESkill::kLooking);
 							count++;
 						}
@@ -2074,7 +2074,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 				&& (percent < 100 || IS_IMMORTAL(ch))
 				&& !fight_count) {
 				if (IS_NPC(tch)) {
-					if (GET_RACE(tch) == NPC_RACE_THING) {
+					if (GET_RACE(tch) == ENpcRace::kConstruct) {
 						if (GetRealLevel(tch) < 5)
 							tmpstr += " Вы слышите чье-то тихое поскрипывание.\r\n";
 						else if (GetRealLevel(tch) < 15)
@@ -2790,7 +2790,7 @@ void do_equipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	send_to_char("На вас надето:\r\n", ch);
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			if (CAN_SEE_OBJ(ch, GET_EQ(ch, i))) {
 				send_to_char(where[i], ch);
@@ -2806,9 +2806,9 @@ void do_equipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (GET_EQ(ch, 18))
 					if ((i == 16) || (i == 17))
 						continue;
-				if ((i == 19) && (GET_EQ(ch, WEAR_BOTHS))) {
-					if (!(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == ObjData::ITEM_WEAPON)
-						&& (static_cast<ESkill>(GET_EQ(ch, WEAR_BOTHS)->get_skill()) == ESkill::kBows)))
+				if ((i == 19) && (GET_EQ(ch, EEquipPos::kBoths))) {
+					if (!(((GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths))) == ObjData::ITEM_WEAPON)
+						&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_skill()) == ESkill::kBows)))
 						continue;
 				} else if (i == 19)
 					continue;

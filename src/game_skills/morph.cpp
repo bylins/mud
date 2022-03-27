@@ -210,17 +210,17 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), true, ch, 0, 0, kToRoom);
 
 	ch->set_morph(newMorph);
-	if (ch->equipment[WEAR_BOTHS]) {
-		send_to_char("Вы не можете держать в лапах " + ch->equipment[WEAR_BOTHS]->get_PName(3) + ".\r\n", ch);
-		RemoveEquipment(ch, WEAR_BOTHS);
+	if (ch->equipment[EEquipPos::kBoths]) {
+		send_to_char("Вы не можете держать в лапах " + ch->equipment[EEquipPos::kBoths]->get_PName(3) + ".\r\n", ch);
+		RemoveEquipment(ch, EEquipPos::kBoths);
 	}
-	if (ch->equipment[WEAR_WIELD]) {
-		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[WEAR_WIELD]->get_PName(3) + ".\r\n", ch);
-		RemoveEquipment(ch, WEAR_WIELD);
+	if (ch->equipment[EEquipPos::kWield]) {
+		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[EEquipPos::kWield]->get_PName(3) + ".\r\n", ch);
+		RemoveEquipment(ch, EEquipPos::kWield);
 	}
-	if (ch->equipment[WEAR_HOLD]) {
-		send_to_char("Ваша левая лапа не удержала " + ch->equipment[WEAR_HOLD]->get_PName(3) + ".\r\n", ch);
-		RemoveEquipment(ch, WEAR_HOLD);
+	if (ch->equipment[EEquipPos::kHold]) {
+		send_to_char("Ваша левая лапа не удержала " + ch->equipment[EEquipPos::kHold]->get_PName(3) + ".\r\n", ch);
+		RemoveEquipment(ch, EEquipPos::kHold);
 	}
 	WAIT_STATE(ch, 3 * kPulseViolence);
 }

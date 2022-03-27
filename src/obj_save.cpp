@@ -1217,103 +1217,103 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 	{
 		const int j = location - 1;
 		switch (j) {
-			case WEAR_LIGHT: break;
+			case EEquipPos::kLight: break;
 
-			case WEAR_FINGER_R:
-			case WEAR_FINGER_L:
+			case EEquipPos::kFingerR:
+			case EEquipPos::kFingerL:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))    // not fitting
 				{
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_NECK_1:
-			case WEAR_NECK_2:
+			case EEquipPos::kNeck:
+			case EEquipPos::kChest:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_BODY:
+			case EEquipPos::kBody:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_HEAD:
+			case EEquipPos::kHead:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_LEGS:
+			case EEquipPos::kLegs:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_FEET:
+			case EEquipPos::kFeet:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_HANDS:
+			case EEquipPos::kHands:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_ARMS:
+			case EEquipPos::kArms:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_SHIELD:
+			case EEquipPos::kShield:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_ABOUT:
+			case EEquipPos::kShoulders:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_WAIST:
+			case EEquipPos::kWaist:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_QUIVER:
+			case EEquipPos::kQuiver:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_WRIST_R:
-			case WEAR_WRIST_L:
+			case EEquipPos::kWristR:
+			case EEquipPos::kWristL:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_WIELD:
+			case EEquipPos::kWield:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_HOLD:
+			case EEquipPos::kHold:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD)) {
 					location = LOC_INVENTORY;
 				}
 				break;
 
-			case WEAR_BOTHS:
+			case EEquipPos::kBoths:
 				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)) {
 					location = LOC_INVENTORY;
 				}
@@ -2135,7 +2135,7 @@ void Crash_extract_norents(CharData *ch, ObjData *obj) {
 }
 
 void Crash_extract_norent_eq(CharData *ch) {
-	for (int j = 0; j < NUM_WEARS; j++) {
+	for (int j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		if (GET_EQ(ch, j) == nullptr) {
 			continue;
 		}
@@ -2155,7 +2155,7 @@ void Crash_extract_norent_charmee(CharData *ch) {
 				|| !k->ch->has_master()) {
 				continue;
 			}
-			for (int j = 0; j < NUM_WEARS; ++j) {
+			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
 				if (!GET_EQ(k->ch, j)) {
 					continue;
 				}
@@ -2199,7 +2199,7 @@ int Crash_calculate_charmee_rent(CharData *ch) {
 			}
 
 			cost = Crash_calculate_rent(k->ch->carrying);
-			for (int j = 0; j < NUM_WEARS; ++j) {
+			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
 				cost += Crash_calculate_rent_eq(GET_EQ(k->ch, j));
 			}
 		}
@@ -2222,7 +2222,7 @@ int Crash_calc_charmee_items(CharData *ch) {
 			if (!IS_CHARMICE(k->ch)
 				|| !k->ch->has_master())
 				continue;
-			for (int j = 0; j < NUM_WEARS; j++)
+			for (int j = 0; j < EEquipPos::kNumEquipPos; j++)
 				num += Crash_calcitems(GET_EQ(k->ch, j));
 			num += Crash_calcitems(k->ch->carrying);
 		}
@@ -2286,7 +2286,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	}
 
 	// подсчет количества предметов
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		num += Crash_calcitems(GET_EQ(ch, j));
 	}
 	num += Crash_calcitems(ch->carrying);
@@ -2307,7 +2307,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	// цена ренты
 	cost = Crash_calculate_rent(ch->carrying);
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		cost += Crash_calculate_rent_eq(GET_EQ(ch, j));
 	}
 	if (savetype == RENT_CRASH || savetype == RENT_FORCED) {
@@ -2349,7 +2349,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	std::stringstream write_buffer;
 	write_buffer << "@ Items file\n";
 
-	for (j = 0; j < NUM_WEARS; j++) {
+	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 		if (GET_EQ(ch, j)) {
 			crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(ch, j), j + 1, savetype);
 		}
@@ -2366,7 +2366,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 				continue;
 			}
 
-			for (j = 0; j < NUM_WEARS; j++) {
+			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 				if (GET_EQ(k->ch, j)) {
 					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k->ch, j), 0, savetype);
 				}
@@ -2378,7 +2378,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	// в принципе экстрактить здесь чармисовый шмот в случае ребута - смысла ноль
 	if (savetype != RENT_CRASH) {
-		for (j = 0; j < NUM_WEARS; j++) {
+		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
 			if (GET_EQ(ch, j)) {
 				Crash_extract_objs(GET_EQ(ch, j));
 			}
@@ -2627,7 +2627,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 
 	*totalcost = 0;
 	norent = Crash_report_unrentables(ch, receptionist, ch->carrying);
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
 		norent += Crash_report_unrentables(ch, receptionist, GET_EQ(ch, i));
 	norent += Depot::report_unrentables(ch, receptionist);
 
@@ -2636,7 +2636,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 
 	*totalcost = min_rent_cost(ch) * factor;
 
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
 		Crash_report_rent(ch, receptionist, GET_EQ(ch, i), totalcost, &numitems, rentshow, factor, true, false);
 
 	numitems_weared = numitems;
@@ -2644,7 +2644,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 
 	Crash_report_rent(ch, receptionist, ch->carrying, totalcost, &numitems, rentshow, factor, false, true);
 
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
 		if (GET_EQ(ch, i)) {
 			Crash_report_rent(ch,
 							  receptionist,

@@ -47,10 +47,10 @@ int apply_ac(CharData *ch, int eq_pos) {
 	}
 
 	switch (eq_pos) {
-		case WEAR_BODY:factor = 3;
+		case EEquipPos::kBody:factor = 3;
 			break;        // 30% //
-		case WEAR_HEAD:
-		case WEAR_LEGS:factor = 2;
+		case EEquipPos::kHead:
+		case EEquipPos::kLegs:factor = 2;
 			break;        // 20% //
 		default:factor = 1;
 			break;        // all others 10% //
@@ -76,12 +76,12 @@ int apply_armour(CharData *ch, int eq_pos) {
 		return (0);
 
 	switch (eq_pos) {
-		case WEAR_BODY:factor = 3;
+		case EEquipPos::kBody: factor = 3;
 			break;        // 30% //
-		case WEAR_HEAD:
-		case WEAR_LEGS:factor = 2;
+		case EEquipPos::kHead:
+		case EEquipPos::kLegs: factor = 2;
 			break;        // 20% //
-		default:factor = 1;
+		default: factor = 1;
 			break;        // all others 10% //
 	}
 
@@ -460,7 +460,7 @@ void affect_total(CharData *ch) {
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
 	// move object modifiers
-	for (int i = 0; i < NUM_WEARS; i++) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if ((obj = GET_EQ(ch, i))) {
 			if (ObjSystem::is_armor_type(obj)) {
 				GET_AC_ADD(ch) -= apply_ac(ch, i);
@@ -573,72 +573,72 @@ void affect_total(CharData *ch) {
 
 	// correctize all weapon
 	if (!IS_IMMORTAL(ch)) {
-		if ((obj = GET_EQ(ch, WEAR_BOTHS)) && !OK_BOTH(ch, obj)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !OK_BOTH(ch, obj)) {
 			if (!IS_NPC(ch)) {
 				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlags()), ch);
+			obj_to_char(unequip_char(ch, EEquipPos::kBoths, CharEquipFlags()), ch);
 			return;
 		}
-		if ((obj = GET_EQ(ch, WEAR_WIELD)) && !OK_WIELD(ch, obj)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kWield)) && !OK_WIELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
 				act("Вам слишком тяжело держать $o3 в правой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlags()), ch);
+			obj_to_char(unequip_char(ch, EEquipPos::kWield, CharEquipFlags()), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
 				&& OK_BOTH(ch, obj)
-				&& !GET_EQ(ch, WEAR_HOLD)
-				&& !GET_EQ(ch, WEAR_LIGHT)
-				&& !GET_EQ(ch, WEAR_SHIELD)
-				&& !GET_EQ(ch, WEAR_WIELD)
-				&& !GET_EQ(ch, WEAR_BOTHS)) {
-				equip_char(ch, obj, WEAR_BOTHS, CharEquipFlag::show_msg);
+				&& !GET_EQ(ch, EEquipPos::kHold)
+				&& !GET_EQ(ch, EEquipPos::kLight)
+				&& !GET_EQ(ch, EEquipPos::kShield)
+				&& !GET_EQ(ch, EEquipPos::kWield)
+				&& !GET_EQ(ch, EEquipPos::kBoths)) {
+				equip_char(ch, obj, EEquipPos::kBoths, CharEquipFlag::show_msg);
 			}
 			return;
 		}
-		if ((obj = GET_EQ(ch, WEAR_HOLD)) && !OK_HELD(ch, obj)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kHold)) && !OK_HELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
 				act("Вам слишком тяжело держать $o3 в левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlags()), ch);
+			obj_to_char(unequip_char(ch, EEquipPos::kHold, CharEquipFlags()), ch);
 			return;
 		}
-		if ((obj = GET_EQ(ch, WEAR_SHIELD)) && !OK_SHIELD(ch, obj)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kShield)) && !OK_SHIELD(ch, obj)) {
 			if (!IS_NPC(ch)) {
 				act("Вам слишком тяжело держать $o3 на левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlags()), ch);
+			obj_to_char(unequip_char(ch, EEquipPos::kShield, CharEquipFlags()), ch);
 			return;
 		}
-		if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
 			send_to_char("Нету лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_QUIVER, CharEquipFlags()), ch);
+			obj_to_char(unequip_char(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
 			return;
 		}
 	}
 
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
-	if ((obj = GET_EQ(ch, WEAR_BOTHS))
+	if ((obj = GET_EQ(ch, EEquipPos::kBoths))
 		&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
 			>> 1; // правильный расчет среднего у оружия
 	} else {
-		if ((obj = GET_EQ(ch, WEAR_WIELD))
+		if ((obj = GET_EQ(ch, EEquipPos::kWield))
 			&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
-		if ((obj = GET_EQ(ch, WEAR_HOLD))
+		if ((obj = GET_EQ(ch, EEquipPos::kHold))
 			&& GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 			GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}

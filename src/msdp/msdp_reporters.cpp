@@ -200,8 +200,8 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 
 	if (AFF_FLAGGED(character, EAffectFlag::AFF_SINGLELIGHT)
 		|| AFF_FLAGGED(character, EAffectFlag::AFF_HOLYLIGHT)
-		|| (GET_EQ(character, WEAR_LIGHT)
-			&& GET_OBJ_VAL(GET_EQ(character, WEAR_LIGHT), 2))) {
+		|| (GET_EQ(character, EEquipPos::kLight)
+			&& GET_OBJ_VAL(GET_EQ(character, EEquipPos::kLight), 2))) {
 		affects += "С";
 	}
 

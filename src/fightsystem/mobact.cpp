@@ -141,7 +141,7 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 }
 
 int attack_best(CharData *ch, CharData *victim) {
-	ObjData *wielded = GET_EQ(ch, WEAR_WIELD);
+	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 	if (victim) {
 		if (ch->get_skill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
 			go_strangle(ch, victim);
@@ -812,7 +812,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
 				GET_POS(ch) = EPosition::kStand;
 			}
-			if (GET_RACE(ch) != NPC_RACE_HUMAN) {
+			if (GET_RACE(ch) != ENpcRace::kHuman) {
 				act("$n вспомнил$g $N3.", false, ch, nullptr, victim, kToRoom);
 			} else {
 				act("'$N - ты пытал$U убить меня ! Попал$U ! Умри !!!', воскликнул$g $n.",
@@ -909,7 +909,7 @@ ObjData *create_charmice_box(CharData *ch) {
 
 void extract_charmice(CharData *ch) {
 	std::vector<ObjData *> objects;
-	for (int i = 0; i < NUM_WEARS; ++i) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		if (GET_EQ(ch, i)) {
 			ObjData *obj = unequip_char(ch, i, CharEquipFlags());
 			if (obj) {

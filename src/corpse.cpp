@@ -52,22 +52,6 @@ struct global_drop {
 	int chance; // процент выпадения (1..1000)
 	// список внумов с общим дропом (дропается первый возможный)
 	// для внумов из списка учитывается поле максимума в мире
-/*#define NPC_RACE_BASIC			100   - номера рас
-#define NPC_RACE_HUMAN			101
-#define NPC_RACE_HUMAN_ANIMAL	102
-#define NPC_RACE_BIRD			103
-#define NPC_RACE_ANIMAL			104
-#define NPC_RACE_REPTILE		105
-#define NPC_RACE_FISH			106
-#define NPC_RACE_INSECT			107
-#define NPC_RACE_PLANT			108
-#define NPC_RACE_THING			109
-#define NPC_RACE_ZOMBIE			110
-#define NPC_RACE_GHOST			111
-#define NPC_RACE_EVIL_SPIRIT	112
-#define NPC_RACE_SPIRIT			113
-#define NPC_RACE_MAGIC_CREATURE	114
-*/
 	OlistType olist;
 };
 
@@ -468,7 +452,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	}
 
 	// transfer character's equipment to the corpse
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			remove_otrigger(GET_EQ(ch, i), ch);
 
@@ -516,7 +500,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	IS_CARRYING_W(ch) = 0;
 
 	//Polud привязываем загрузку ингров к расе (типу) моба
-	if (IS_NPC(ch) && GET_RACE(ch) > NPC_RACE_BASIC && !NPC_FLAGGED(ch, NPC_NOINGRDROP)
+	if (IS_NPC(ch) && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, NPC_NOINGRDROP)
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {

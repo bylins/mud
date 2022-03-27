@@ -1834,7 +1834,7 @@ void ObjData::init_set_table() {
 						continue;
 					}
 
-					if (!tmpoqty || tmpoqty > NUM_WEARS) {
+					if (!tmpoqty || tmpoqty > EEquipPos::kNumEquipPos) {
 						cppstr = "init_set_table:: Wrong object number in line '" + tag + ":" + cppstr + "'";
 						mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 						continue;
@@ -4452,7 +4452,7 @@ void ZoneReset::reset_zone_essential() {
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
 						if (ZCMD.arg3 < 0
-							|| ZCMD.arg3 >= NUM_WEARS) {
+							|| ZCMD.arg3 >= EEquipPos::kNumEquipPos) {
 							ZONE_ERROR("invalid equipment pos number");
 						} else {
 							const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
@@ -5106,7 +5106,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 // Снимаем весь стафф
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {
 			obj_to_char(unequip_char(ch, i, CharEquipFlags()), ch);
 		}

@@ -1939,17 +1939,17 @@ void npc_wield(CharData *ch) {
 	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 
-	if (GET_EQ(ch, WEAR_HOLD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ObjData::ITEM_WEAPON) {
-		left = GET_EQ(ch, WEAR_HOLD);
+	if (GET_EQ(ch, EEquipPos::kHold)
+		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == ObjData::ITEM_WEAPON) {
+		left = GET_EQ(ch, EEquipPos::kHold);
 	}
-	if (GET_EQ(ch, WEAR_WIELD)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ObjData::ITEM_WEAPON) {
-		right = GET_EQ(ch, WEAR_WIELD);
+	if (GET_EQ(ch, EEquipPos::kWield)
+		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kWield)) == ObjData::ITEM_WEAPON) {
+		right = GET_EQ(ch, EEquipPos::kWield);
 	}
-	if (GET_EQ(ch, WEAR_BOTHS)
-		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS)) == ObjData::ITEM_WEAPON) {
-		both = GET_EQ(ch, WEAR_BOTHS);
+	if (GET_EQ(ch, EEquipPos::kBoths)
+		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths)) == ObjData::ITEM_WEAPON) {
+		both = GET_EQ(ch, EEquipPos::kBoths);
 	}
 
 	if (GET_REAL_INT(ch) < 15 && ((left && right) || (both)))
@@ -1976,55 +1976,55 @@ void npc_wield(CharData *ch) {
 
 	if (both
 		&& calculate_weapon_class(ch, both) > calculate_weapon_class(ch, left) + calculate_weapon_class(ch, right)) {
-		if (both == GET_EQ(ch, WEAR_BOTHS)) {
+		if (both == GET_EQ(ch, EEquipPos::kBoths)) {
 			return;
 		}
-		if (GET_EQ(ch, WEAR_BOTHS)) {
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_BOTHS), 0, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
+		if (GET_EQ(ch, EEquipPos::kBoths)) {
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
+			obj_to_char(unequip_char(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 		}
-		if (GET_EQ(ch, WEAR_WIELD)) {
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_WIELD), 0, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlag::show_msg), ch);
+		if (GET_EQ(ch, EEquipPos::kWield)) {
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kWield), 0, kToRoom);
+			obj_to_char(unequip_char(ch, EEquipPos::kWield, CharEquipFlag::show_msg), ch);
 		}
-		if (GET_EQ(ch, WEAR_SHIELD)) {
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_SHIELD), 0, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlag::show_msg), ch);
+		if (GET_EQ(ch, EEquipPos::kShield)) {
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kShield), 0, kToRoom);
+			obj_to_char(unequip_char(ch, EEquipPos::kShield, CharEquipFlag::show_msg), ch);
 		}
-		if (GET_EQ(ch, WEAR_HOLD)) {
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_HOLD), 0, kToRoom);
-			obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlag::show_msg), ch);
+		if (GET_EQ(ch, EEquipPos::kHold)) {
+			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kHold), 0, kToRoom);
+			obj_to_char(unequip_char(ch, EEquipPos::kHold, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(both);
-		equip_char(ch, both, WEAR_BOTHS, CharEquipFlag::show_msg);
+		equip_char(ch, both, EEquipPos::kBoths, CharEquipFlag::show_msg);
 	} else {
-		if (left && GET_EQ(ch, WEAR_HOLD) != left) {
-			if (GET_EQ(ch, WEAR_BOTHS)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_BOTHS), 0, kToRoom);
-				obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
+		if (left && GET_EQ(ch, EEquipPos::kHold) != left) {
+			if (GET_EQ(ch, EEquipPos::kBoths)) {
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
+				obj_to_char(unequip_char(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 			}
-			if (GET_EQ(ch, WEAR_SHIELD)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_SHIELD), 0, kToRoom);
-				obj_to_char(unequip_char(ch, WEAR_SHIELD, CharEquipFlag::show_msg), ch);
+			if (GET_EQ(ch, EEquipPos::kShield)) {
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kShield), 0, kToRoom);
+				obj_to_char(unequip_char(ch, EEquipPos::kShield, CharEquipFlag::show_msg), ch);
 			}
-			if (GET_EQ(ch, WEAR_HOLD)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_HOLD), 0, kToRoom);
-				obj_to_char(unequip_char(ch, WEAR_HOLD, CharEquipFlag::show_msg), ch);
+			if (GET_EQ(ch, EEquipPos::kHold)) {
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kHold), 0, kToRoom);
+				obj_to_char(unequip_char(ch, EEquipPos::kHold, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(left);
-			equip_char(ch, left, WEAR_HOLD, CharEquipFlag::show_msg);
+			equip_char(ch, left, EEquipPos::kHold, CharEquipFlag::show_msg);
 		}
-		if (right && GET_EQ(ch, WEAR_WIELD) != right) {
-			if (GET_EQ(ch, WEAR_BOTHS)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_BOTHS), 0, kToRoom);
-				obj_to_char(unequip_char(ch, WEAR_BOTHS, CharEquipFlag::show_msg), ch);
+		if (right && GET_EQ(ch, EEquipPos::kWield) != right) {
+			if (GET_EQ(ch, EEquipPos::kBoths)) {
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
+				obj_to_char(unequip_char(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 			}
-			if (GET_EQ(ch, WEAR_WIELD)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, WEAR_WIELD), 0, kToRoom);
-				obj_to_char(unequip_char(ch, WEAR_WIELD, CharEquipFlag::show_msg), ch);
+			if (GET_EQ(ch, EEquipPos::kWield)) {
+				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kWield), 0, kToRoom);
+				obj_to_char(unequip_char(ch, EEquipPos::kWield, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(right);
-			equip_char(ch, right, WEAR_WIELD, CharEquipFlag::show_msg);
+			equip_char(ch, right, EEquipPos::kWield, CharEquipFlag::show_msg);
 		}
 	}
 }
@@ -2048,68 +2048,68 @@ void npc_armor(CharData *ch) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER)) {
-			where = WEAR_FINGER_R;
+			where = EEquipPos::kFingerR;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
-			where = WEAR_NECK_1;
+			where = EEquipPos::kNeck;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) {
-			where = WEAR_BODY;
+			where = EEquipPos::kBody;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) {
-			where = WEAR_HEAD;
+			where = EEquipPos::kHead;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) {
-			where = WEAR_LEGS;
+			where = EEquipPos::kLegs;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) {
-			where = WEAR_FEET;
+			where = EEquipPos::kFeet;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS)) {
-			where = WEAR_HANDS;
+			where = EEquipPos::kHands;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) {
-			where = WEAR_ARMS;
+			where = EEquipPos::kArms;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)) {
-			where = WEAR_SHIELD;
+			where = EEquipPos::kShield;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT)) {
-			where = WEAR_ABOUT;
+			where = EEquipPos::kShoulders;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST)) {
-			where = WEAR_WAIST;
+			where = EEquipPos::kWaist;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER)) {
-			where = WEAR_QUIVER;
+			where = EEquipPos::kQuiver;
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST)) {
-			where = WEAR_WRIST_R;
+			where = EEquipPos::kWristR;
 		}
 
 		if (!where) {
 			continue;
 		}
 
-		if ((where == WEAR_FINGER_R) || (where == WEAR_NECK_1) || (where == WEAR_WRIST_R)) {
+		if ((where == EEquipPos::kFingerR) || (where == EEquipPos::kNeck) || (where == EEquipPos::kWristR)) {
 			if (GET_EQ(ch, where)) {
 				where++;
 			}
 		}
 
-		if (where == WEAR_SHIELD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_HOLD))) {
+		if (where == EEquipPos::kShield && (GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold))) {
 			continue;
 		}
 
@@ -2141,12 +2141,12 @@ void npc_light(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_INFRAVISION))
 		return;
 
-	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(ch->in_room))) {
+	if ((obj = GET_EQ(ch, EEquipPos::kLight)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(ch->in_room))) {
 		act("$n прекратил$g использовать $o3.", false, ch, obj, 0, kToRoom);
-		obj_to_char(unequip_char(ch, WEAR_LIGHT, CharEquipFlag::show_msg), ch);
+		obj_to_char(unequip_char(ch, EEquipPos::kLight, CharEquipFlag::show_msg), ch);
 	}
 
-	if (!GET_EQ(ch, WEAR_LIGHT) && IS_DARK(ch->in_room)) {
+	if (!GET_EQ(ch, EEquipPos::kLight) && IS_DARK(ch->in_room)) {
 		for (obj = ch->carrying; obj; obj = next) {
 			next = obj->get_next_content();
 			if (GET_OBJ_TYPE(obj) != ObjData::ITEM_LIGHT) {
@@ -2159,7 +2159,7 @@ void npc_light(CharData *ch) {
 				continue;
 			}
 			//obj_from_char(obj);
-			equip_char(ch, obj, WEAR_LIGHT, CharEquipFlag::show_msg);
+			equip_char(ch, obj, EEquipPos::kLight, CharEquipFlag::show_msg);
 			return;
 		}
 	}

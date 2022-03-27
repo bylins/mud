@@ -276,10 +276,10 @@ short GET_REAL_REMORT(const CharData *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> *ch);
 short GET_REAL_REMORT(const std::shared_ptr<CharData> &ch);
 
-#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlImmortal)
-#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlGod)
-#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlGreatGod)
-#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= kLvlImplementator)
+#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && (ch)->get_level() >= kLvlImmortal)
+#define IS_GOD(ch)          (!IS_NPC(ch) && (ch)->get_level() >= kLvlGod)
+#define IS_GRGOD(ch)        (!IS_NPC(ch) && (ch)->get_level() >= kLvlGreatGod)
+#define IS_IMPL(ch)         (!IS_NPC(ch) && (ch)->get_level() >= kLvlImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
 #define IS_CASTER(ch)        (IS_BITS(kMaskCaster,GET_CLASS(ch)))
@@ -489,7 +489,6 @@ inline void TOGGLE_BIT(T &var, const uint32_t bit) {
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_HELPER(ch)  ((ch)->helpers)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
-#define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
 #define GET_MANA_COST(ch, spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
@@ -1045,7 +1044,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define IS_MAGIC_USER(ch)	(!IS_NPC(ch) && (IS_BITS(kMaskMage, (int) GET_CLASS(ch))))
 
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
-    (MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE) || (GET_RACE(ch) == NPC_RACE_GHOST)))
+    (MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == ENpcRace::kZombie) || (GET_RACE(ch) == ENpcRace::kGhost)))
 
 #define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
                        (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \

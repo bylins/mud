@@ -1608,7 +1608,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 	}
 
 	// экипировка
-	for (int i = 0; i < NUM_WEARS; ++i) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		if (find_set_item(GET_EQ(ch, i))) {
 			return false;
 		}
@@ -1626,7 +1626,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 				continue;
 			}
 
-			for (int j = 0; j < NUM_WEARS; j++) {
+			for (int j = 0; j < EEquipPos::kNumEquipPos; j++) {
 				if (find_set_item(GET_EQ(k->ch, j))) {
 					return false;
 				}

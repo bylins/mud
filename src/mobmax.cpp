@@ -56,7 +56,7 @@ void MobMax::init() {
 			log("Warning! Mob <0 lev!");
 		else {
 			++num_levels[level];
-			if (GET_RACE(mob_proto + i) == NPC_RACE_ANIMAL)
+			if (GET_RACE(mob_proto + i) == ENpcRace::kAnimal)
 				++num_animals_levels[level];
 			vnum_to_level[mob_index[i].vnum] = level;
 		}

@@ -110,9 +110,9 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (IS_UNDEAD(vict)
-		|| GET_RACE(vict) == NPC_RACE_FISH
-		|| GET_RACE(vict) == NPC_RACE_PLANT
-		|| GET_RACE(vict) == NPC_RACE_THING) {
+		|| GET_RACE(vict) == ENpcRace::kFish
+		|| GET_RACE(vict) == ENpcRace::kPlant
+		|| GET_RACE(vict) == ENpcRace::kConstruct) {
 		send_to_char("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}

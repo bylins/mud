@@ -244,7 +244,7 @@ int check_awake(CharData *ch, int what) {
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT)))
 			SET_BIT(retval, ACHECK_LIGHT);
 
-		for (i = 0; i < NUM_WEARS; i++) {
+		for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 			if (!GET_EQ(ch, i))
 				continue;
 
@@ -315,7 +315,7 @@ int char_humming(CharData *ch) {
 	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return (false);
 
-	for (i = 0; i < NUM_WEARS; i++) {
+	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlag::ITEM_HUM))
 			return (true);
 	}
@@ -516,7 +516,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		&& str_cmp(obj_name, "кун")
 		&& str_cmp(obj_name, "деньги")) {
 		if (!(obj = get_obj_in_list_vis(ch, obj_name, vict->carrying))) {
-			for (eq_pos = 0; eq_pos < NUM_WEARS; eq_pos++) {
+			for (eq_pos = 0; eq_pos < EEquipPos::kNumEquipPos; eq_pos++) {
 				if (GET_EQ(vict, eq_pos)
 					&& (isname(obj_name, GET_EQ(vict, eq_pos)->get_aliases()))
 					&& CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos))) {
@@ -808,7 +808,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 
 	send_to_char("Вы пришли в ярость.\r\n", ch);
 
-	if ((obj = GET_EQ(ch, WEAR_WIELD)) || (obj = GET_EQ(ch, WEAR_BOTHS)))
+	if ((obj = GET_EQ(ch, EEquipPos::kWield)) || (obj = GET_EQ(ch, EEquipPos::kBoths)))
 		strcpy(buf, "Глаза $n1 налились кровью и $e яростно сжал$g в руках $o3.");
 	else
 		strcpy(buf, "Глаза $n1 налились кровью.");
@@ -999,8 +999,8 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 				AFF_FLAGGED(k, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM),
 				(AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
 					|| AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
-					|| (GET_EQ(k, WEAR_LIGHT)
-						&& GET_OBJ_VAL(GET_EQ(k, WEAR_LIGHT), 2))) ? "С" : " ",
+					|| (GET_EQ(k, EEquipPos::kLight)
+						&& GET_OBJ_VAL(GET_EQ(k, EEquipPos::kLight), 2))) ? "С" : " ",
 				CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
 				k->low_charm() ? "Т" : " ", CCNRM(ch, C_NRM));
 
@@ -1065,10 +1065,10 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 				CCIYEL(ch, C_NRM),
 				(AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
 					|| AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
-					|| (GET_EQ(k, WEAR_LIGHT)
+					|| (GET_EQ(k, EEquipPos::kLight)
 						&&
 							GET_OBJ_VAL(GET_EQ
-										(k, WEAR_LIGHT),
+										(k, EEquipPos::kLight),
 										2))) ? "С" : " ",
 				CCIBLU(ch, C_NRM),
 				AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ",
