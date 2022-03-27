@@ -121,7 +121,7 @@ void oedit_setup(DescriptorData *d, int real_num)
 		obj->set_PName(3, "взять что");
 		obj->set_PName(4, "вооружиться чем");
 		obj->set_PName(5, "говорить о чем");
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+		obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	} else {
 		obj->clone_olc_object_from_prototype(vnum);
 		obj->set_rnum(real_num);
@@ -152,7 +152,7 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		fullUpdate = false;*/
 
 	//если объект изменен кодом
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED))
+	if (obj->has_flag(EObjFlag::kTransformed))
 		fullUpdate = false;
 
 	if (!fullUpdate) {
@@ -210,13 +210,13 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 			obj->set_values(tmp.get_all_values());
 		}
 	}
-	if (tmp.get_extra_flag(EExtraFlag::ITEM_TICKTIMER))//если у старого объекта запущен таймер
+	if (tmp.has_flag(EObjFlag::kTicktimer))//если у старого объекта запущен таймер
 	{
-		obj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);//ставим флаг таймер запущен
+		obj->set_extra_flag(EObjFlag::kTicktimer);//ставим флаг таймер запущен
 	}
-	if (tmp.get_extra_flag(EExtraFlag::ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
+	if (tmp.has_flag(EObjFlag::kNamed))//если у старого объекта стоит флаг именной предмет
 	{
-		obj->set_extra_flag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
+		obj->set_extra_flag(EObjFlag::kNamed);//ставим флаг именной предмет
 	}
 	//восстанавливаем метки, если они были
 	if (tmp.get_custom_label()) {

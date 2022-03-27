@@ -345,8 +345,8 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	// сумма для аффектов
 	double sum_aff = 0;
 	// по другому чот не получилось
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_FINGER)) {
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_FINGER);
+	if (obj->has_wear_flag(EWearFlag::kFinger)) {
+		item_wear = exp_two(EWearFlag::kFinger);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_NECK)) {
@@ -421,23 +421,23 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 		return false;
 	}
 	// если шмотка магическая или энчантнута таймер обычный
-	if (obj->get_extra_flag(EExtraFlag::ITEM_MAGIC)) {
+	if (obj->has_flag(EObjFlag::kMagic)) {
 		return false;
 	}
 	// если это сетовый предмет
-	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
+	if (obj->has_flag(EObjFlag::KSetItem)) {
 		return false;
 	}
 	// !нерушима
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER)) {
+	if (obj->has_flag(EObjFlag::KLimitedTimer)) {
 		return false;
 	}
 	// рассыпется вне зоны
-	if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)) {
+	if (obj->has_flag(EObjFlag::kZonedacay)) {
 		return false;
 	}
 	// рассыпется на репоп зоны
-	if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {
+	if (obj->has_flag(EObjFlag::kRepopDecay)) {
 		return false;
 	}
 
@@ -447,9 +447,9 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	if (obj->get_minimum_remorts() > 0)
 		return false;
 	// проверяем дырки в предмете
-	if (obj->get_extra_flag(EExtraFlag::ITEM_WITH1SLOT)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_WITH2SLOTS)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_WITH3SLOTS)) {
+	if (obj->has_flag(EObjFlag::kHasOneSlot)
+		|| obj->has_flag(EObjFlag::kHasTwoSlots)
+		|| obj->has_flag(EObjFlag::kHasThreeSlots)) {
 		return false;
 	}
 	// если у объекта таймер ноль, то облом.
@@ -549,8 +549,8 @@ float count_unlimited_timer(const CObjectPrototype *obj) {
 
 	result = 0.0;
 
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FINGER));
+	if (CAN_WEAR(obj, EWearFlag::kFinger)) {
+		result += count_koef_obj(obj, exp_two(EWearFlag::kFinger));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
@@ -629,8 +629,7 @@ float count_mort_requred(const CObjectPrototype *obj) {
 
 	result = 0.0;
 
-	if (ObjSystem::is_mob_item(obj)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
+	if (ObjSystem::is_mob_item(obj) || obj->has_flag(EObjFlag::KSetItem)) {
 		return result;
 	}
 
@@ -1290,16 +1289,16 @@ void convert_obj_values() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, convert_drinkcon_skill(i.get(), true));
-		if (i->get_extra_flag(EExtraFlag::ITEM_1INLAID)) {
-			i->unset_extraflag(EExtraFlag::ITEM_1INLAID);
+		if (i->has_flag(EObjFlag::k1inlaid)) {
+			i->unset_extraflag(EObjFlag::k1inlaid);
 			save = 1;
 		}
-		if (i->get_extra_flag(EExtraFlag::ITEM_2INLAID)) {
-			i->unset_extraflag(EExtraFlag::ITEM_2INLAID);
+		if (i->has_flag(EObjFlag::k2inlaid)) {
+			i->unset_extraflag(EObjFlag::k2inlaid);
 			save = 1;
 		}
-		if (i->get_extra_flag(EExtraFlag::ITEM_3INLAID)) {
-			i->unset_extraflag(EExtraFlag::ITEM_3INLAID);
+		if (i->has_flag(EObjFlag::k3inlaid)) {
+			i->unset_extraflag(EObjFlag::k3inlaid);
 			save = 1;
 		}
 		// ...
@@ -2259,7 +2258,7 @@ void boot_db(void) {
 	log("Loading Criterion...");
 	pugi::xml_document doc1;
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1),
-				   EWearFlag::ITEM_WEAR_FINGER);
+				   EWearFlag::kFinger);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1),
 				   EWearFlag::ITEM_WEAR_NECK);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1),
@@ -3301,7 +3300,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 
 	if (f) {
 		for (const auto &i : obj_proto) {
-			if (i->get_extra_flag(plane, 1 << plane_offset)) {
+			if (i->has_flag(plane, 1 << plane_offset)) {
 				snprintf(buf, kMaxStringLength, "%3d. [%5d] %s :   %s\r\n",
 						 ++found, i->get_vnum(), i->get_short_description().c_str(), extra_bits[counter]);
 				out += buf;
@@ -3830,7 +3829,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 	bool no_time = true;
 	bool no_month = true;
 
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DAY)) {
+	if (obj->has_flag(EObjFlag::kAppearsDay)) {
 		if (weather_info.sunlight == kSunRise
 			|| weather_info.sunlight == kSunLight) {
 			time_ok = true;
@@ -3838,7 +3837,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 		need_move = true;
 		no_time = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NIGHT)) {
+	if (obj->has_flag(EObjFlag::kAppearsNight)) {
 		if (weather_info.sunlight == kSunSet
 			|| weather_info.sunlight == kSunDark) {
 			time_ok = true;
@@ -3846,7 +3845,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 		need_move = true;
 		no_time = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_FULLMOON)) {
+	if (obj->has_flag(EObjFlag::kAppearsFullmoon)) {
 		if ((weather_info.sunlight == kSunSet
 			|| weather_info.sunlight == kSunDark)
 			&& weather_info.moon_day >= 12
@@ -3856,28 +3855,28 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 		need_move = true;
 		no_time = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WINTER)) {
+	if (obj->has_flag(EObjFlag::kAppearsWinter)) {
 		if (weather_info.season == SEASON_WINTER) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SPRING)) {
+	if (obj->has_flag(EObjFlag::kAppearsSpring)) {
 		if (weather_info.season == SEASON_SPRING) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SUMMER)) {
+	if (obj->has_flag(EObjFlag::kAppearsSummer)) {
 		if (weather_info.season == SEASON_SUMMER) {
 			month_ok = true;
 		}
 		need_move = true;
 		no_month = false;
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_AUTUMN)) {
+	if (obj->has_flag(EObjFlag::kAppearsAutumn)) {
 		if (weather_info.season == SEASON_AUTUMN) {
 			month_ok = true;
 		}
@@ -4370,7 +4369,7 @@ void ZoneReset::reset_zone_essential() {
 						tobj = obj.get();
 						curr_state = 1;
 
-						if (!obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
+						if (!obj->has_flag(EObjFlag::kNodecay)) {
 							sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
 									GET_OBJ_PNAME(obj, 0).c_str(), obj->get_vnum());
 							mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);

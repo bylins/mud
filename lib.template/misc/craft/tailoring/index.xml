@@ -39,10 +39,10 @@
 			<material>MAT_SKIN</material>
 			<spell>kSpellNoSpell</spell>
 			<extraflags>
-				<extraflag>ITEM_BLESS</extraflag>
+				<extraflag>kBless</extraflag>
 			</extraflags>
 			<wearflags>
-				<wearflag>ITEM_WEAR_TAKE</wearflag>
+				<wearflag>kTake</wearflag>
 				<wearflag>ITEM_WEAR_BODY</wearflag>
 			</wearflags>
 			<val0>0</val0>
@@ -93,7 +93,7 @@
 			<material>MAT_BRONZE</material>
 			<spell>kSpellBurningHands</spell>
 			<extraflags>
-				<extraflag>ITEM_NOSELL</extraflag>
+				<extraflag>kNosell</extraflag>
 			</extraflags>
 			<applies>
 				<apply>
@@ -149,7 +149,7 @@
 			<material>MAT_ORGANIC</material>
 			<spell>kSpellNoSpell</spell>
 			<extraflags>
-				<extraflag>ITEM_SWIMMING</extraflag>
+				<extraflag>kSwimming</extraflag>
 			</extraflags>
 			<applies>
 				<apply>

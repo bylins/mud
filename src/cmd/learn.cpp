@@ -212,7 +212,7 @@ void do_learn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		(IS_MERCHANT(ch) && ROOM_FLAGGED(ch->in_room, ROOM_MERCHANT)) ? 10 : 0;
 	addchance += (GET_OBJ_VAL(obj, 0) == BOOK_SPELL) ? 0 : 10;
 
-	if (!obj->get_extra_flag(EExtraFlag::ITEM_NO_FAIL)
+	if (!obj->has_flag(EObjFlag::KNofail)
 		&& number(1, 100) > int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance) {
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Непослушные\r\n"
 					 "буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"

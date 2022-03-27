@@ -125,10 +125,10 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 	else if (GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER && obj->get_contains()) {
 		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 	} 
-	else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
+	else if (obj->has_flag(EObjFlag::kNodrop)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	} 
-	else if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY) || obj->get_type() == ObjData::ITEM_KEY) {
+	else if (obj->has_flag(EObjFlag::kZonedacay) || obj->get_type() == ObjData::ITEM_KEY) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	} 
 	else {
@@ -160,8 +160,8 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		act("$n положил$g $o3 в $O3.", true, ch, obj.get(), cont, kToRoom | kToArenaListen);
 
 		// Yes, I realize this is strange until we have auto-equip on rent. -gg
-		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP) && !cont->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
-			cont->set_extra_flag(EExtraFlag::ITEM_NODROP);
+		if (obj->has_flag(EObjFlag::kNodrop) && !cont->has_flag(EObjFlag::kNodrop)) {
+			cont->set_extra_flag(EObjFlag::kNodrop);
 			act("Вы почувствовали что-то странное, когда положили $o3 в $O3.",
 				false, ch, obj.get(), cont, kToChar);
 		} else
@@ -393,7 +393,7 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 	act("Вы умело срезали $o3.", false, ch, skin.get(), 0, kToChar);
 
 	//ставим флажок "не зависит от прототипа"
-	skin->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	skin->set_extra_flag(EObjFlag::kTransformed);
 	return skin.get();
 }
 
@@ -622,7 +622,7 @@ int can_take_obj(CharData *ch, ObjData *obj) {
 		&& GET_OBJ_TYPE(obj) != ObjData::ITEM_MONEY) {
 		act("$p: Вы не в состоянии нести еще и $S.", false, ch, obj, 0, kToChar);
 		return (0);
-	} else if (!(CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE))) {
+	} else if (!(CAN_WEAR(obj, EWearFlag::kTake))) {
 		act("$p: Вы не можете взять $S.", false, ch, obj, 0, kToChar);
 		return (0);
 	} else if (invalid_anti_class(ch, obj)) {
@@ -1138,7 +1138,7 @@ void perform_drop(CharData *ch, ObjData *obj) {
 	if (!drop_wtrigger(obj, ch))
 		return;
 
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
+	if (obj->has_flag(EObjFlag::kNodrop)) {
 		sprintf(buf, "Вы не можете %s $o3!", drop_op[0]);
 		act(buf, false, ch, obj, 0, kToChar);
 		return;
@@ -1229,7 +1229,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 		act("$N не нуждается в ваших подачках, своего барахла навалом.", false, ch, 0, vict, kToChar);
 		return;
 	}
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
+	if (obj->has_flag(EObjFlag::kNodrop)) {
 		act("Вы не можете передать $o3!", false, ch, obj, 0, kToChar);
 		return;
 	}
@@ -1633,9 +1633,9 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 
 	const EWearFlag wear_bitvectors[] =
 		{
-			EWearFlag::ITEM_WEAR_TAKE,
-			EWearFlag::ITEM_WEAR_FINGER,
-			EWearFlag::ITEM_WEAR_FINGER,
+			EWearFlag::kTake,
+			EWearFlag::kFinger,
+			EWearFlag::kFinger,
 			EWearFlag::ITEM_WEAR_NECK,
 			EWearFlag::ITEM_WEAR_NECK,
 			EWearFlag::ITEM_WEAR_BODY,
@@ -1650,7 +1650,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 			EWearFlag::ITEM_WEAR_WRIST,
 			EWearFlag::ITEM_WEAR_WRIST,
 			EWearFlag::ITEM_WEAR_WIELD,
-			EWearFlag::ITEM_WEAR_TAKE,
+			EWearFlag::kTake,
 			EWearFlag::ITEM_WEAR_BOTHS,
 			EWearFlag::ITEM_WEAR_QUIVER
 		};
@@ -1684,7 +1684,7 @@ void perform_wear(CharData *ch, ObjData *obj, int where) {
 		act("Вы не можете надеть $o3 на эту часть тела.", false, ch, obj, 0, kToChar);
 		return;
 	}
-	if (unique_stuff(ch, obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE)) {
+	if (unique_stuff(ch, obj) && obj->has_flag(EObjFlag::kUnique)) {
 		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
@@ -1767,7 +1767,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *arg) {
 
 	if (!arg || !*arg) {
 		int tmp_where = -1;
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER)) {
+		if (CAN_WEAR(obj, EWearFlag::kFinger)) {
 			if (!GET_EQ(ch, EEquipPos::kFingerR)) {
 				where = EEquipPos::kFingerR;
 			} else if (!GET_EQ(ch, EEquipPos::kFingerL)) {
@@ -2243,7 +2243,7 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)) {
+	if (obj->has_flag(EObjFlag::kMagic)) {
 		send_to_char("Вы не можете заточить заколдованный предмет.\r\n", ch);
 		return;
 	}
@@ -2287,14 +2287,14 @@ void do_upgrade(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	bool change_weight = true;
 	//Заточить повторно можно, но это уменьшает таймер шмотки на 16%
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)) {
+	if (obj->has_flag(EObjFlag::kSharpen)) {
 		int timer = obj->get_timer()
 			- MAX(1000, obj->get_timer() / 6); // абуз, таймер меньше 6 вычитается 0 бесконечная прокачка умелки
 		obj->set_timer(timer);
 		change_weight = false;
 	} else {
-		obj->set_extra_flag(EExtraFlag::ITEM_SHARPEN);
-		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+		obj->set_extra_flag(EObjFlag::kSharpen);
+		obj->set_extra_flag(EObjFlag::kTransformed); // установили флажок трансформации кодом
 	}
 
 	percent = number(1, MUD::Skills()[ESkill::kSharpening].difficulty);
@@ -2367,8 +2367,7 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)) {
+	if (obj->has_flag(EObjFlag::kMagic) || obj->has_flag(EObjFlag::kArmored)) {
 		send_to_char("Вы не можете укрепить этот предмет.\r\n", ch);
 		return;
 	}
@@ -2484,8 +2483,8 @@ void do_armored(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		armorvalue = strengthening((GET_SKILL(ch, ESkill::kArmoring) / 10 * 10), Strengthening::ARMOR);
 //		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, ESkill::kArmoring), (GET_SKILL(ch, ESkill::kArmoring) / 10 * 10) );
 		obj->set_affected(2, APPLY_ARMOUR, armorvalue);
-		obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
-		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+		obj->set_extra_flag(EObjFlag::kArmored);
+		obj->set_extra_flag(EObjFlag::kTransformed); // установили флажок трансформации кодом
 	}
 	obj->set_affected(0, APPLY_AC, add_ac);
 }

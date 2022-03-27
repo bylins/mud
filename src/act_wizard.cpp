@@ -5271,7 +5271,7 @@ void do_loadstat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 namespace {
 
 struct filter_type {
-	filter_type() : type(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1), material(-1) {};
+	filter_type() : type(-1), wear(EWearFlag::kUndefined), wear_message(-1), material(-1) {};
 
 	// тип
 	int type;
@@ -5479,7 +5479,7 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		buffer += item_types[filter.type];
 		buffer += " ";
 	}
-	if (filter.wear != EWearFlag::ITEM_WEAR_UNDEFINED) {
+	if (filter.wear != EWearFlag::kUndefined) {
 		buffer += wear_bits[filter.wear_message];
 		buffer += " ";
 	}
@@ -5515,7 +5515,7 @@ void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 		// куда можно одеть
-		if (filter.wear != EWearFlag::ITEM_WEAR_UNDEFINED
+		if (filter.wear != EWearFlag::kUndefined
 			&& !i->has_wear_flag(filter.wear)) {
 			continue;
 		}

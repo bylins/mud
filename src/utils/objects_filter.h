@@ -24,7 +24,7 @@ class ObjData;
 struct ParseFilter {
 	enum { CLAN, EXCHANGE };
 
-	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
+	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::kUndefined), wear_message(-1),
 							weap_class{}, weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
 							new_timesign('\0'), new_timedown(time(nullptr)), new_timeup(time(nullptr)),
 							filter_type(type) {};

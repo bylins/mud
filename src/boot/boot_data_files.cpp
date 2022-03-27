@@ -673,7 +673,7 @@ void ObjectFile::parse_object(const int nr) {
 	// не должно быть
 	if (timer == ObjData::UNLIMITED_TIMER) {
 		timer--;
-		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
+		tobj->set_extra_flag(EObjFlag::kTicktimer);
 	}
 	tobj->set_timer(timer);
 	tobj->set_spell(t[2] < 1 || t[2] > kSpellCount ? kSpellNoSpell : t[2]);
@@ -840,8 +840,8 @@ void ObjectFile::parse_object(const int nr) {
 
 			case '$':
 			case '#': check_object(tobj);        // Anton Gorev (2015/12/29): do we need the result of this check?
-				if (tobj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-					|| tobj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
+				if (tobj->has_flag(EObjFlag::kZonedacay)
+					|| tobj->has_flag(EObjFlag::kRepopDecay))
 					tobj->set_max_in_world(-1);
 				obj_proto.add(tobj, nr);
 				return;

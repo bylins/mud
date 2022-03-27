@@ -447,8 +447,8 @@ void ObjData::set_enchant(int skill) {
 		set_affected_modifier(1, 1 + number(-4, 5));
 	}
 
-	set_extra_flag(EExtraFlag::ITEM_MAGIC);
-	set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	set_extra_flag(EObjFlag::kMagic);
+	set_extra_flag(EObjFlag::kTransformed);
 }
 
 void ObjData::set_enchant(int skill, ObjData *obj) {
@@ -503,15 +503,15 @@ void ObjData::unset_enchant() {
 	// Возврат эфектов
 	set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
 	// поскольку все обнулилось можно втыкать слоты для ковки
-	if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH3SLOTS)) {
-		set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
-	} else if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH2SLOTS)) {
-		set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
-	} else if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH1SLOT)) {
-		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
+	if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasThreeSlots)) {
+		set_extra_flag(EObjFlag::kHasThreeSlots);
+	} else if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasTwoSlots)) {
+		set_extra_flag(EObjFlag::kHasTwoSlots);
+	} else if (obj_proto.at(get_rnum()).get()->has_flag(EObjFlag::kHasOneSlot)) {
+		set_extra_flag(EObjFlag::kHasOneSlot);
 	}
-	unset_extraflag(EExtraFlag::ITEM_MAGIC);
-	unset_extraflag(EExtraFlag::ITEM_TRANSFORMED);
+	unset_extraflag(EObjFlag::kMagic);
+	unset_extraflag(EObjFlag::kTransformed);
 }
 
 bool ObjData::clone_olc_object_from_prototype(const ObjVnum vnum) {
@@ -990,7 +990,7 @@ bool is_mob_item(const CObjectPrototype *obj) {
 
 void init_ilvl(CObjectPrototype *obj) {
 	if (is_mob_item(obj)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)
+		|| obj->has_flag(EObjFlag::KSetItem)
 		|| obj->get_minimum_remorts() > 0) {
 		obj->set_ilevel(0);
 		return;
@@ -1049,7 +1049,7 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 	obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
 
 	obj->set_type(ObjData::ITEM_CONTAINER);
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 
 	obj->set_val(0, 0);
 	// CLOSEABLE + CLOSED
@@ -1061,8 +1061,8 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 	obj->set_rent_on(0);
 	// чтобы скавенж мобов не трогать
 	obj->set_cost(2);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EObjFlag::kNodonate);
+	obj->set_extra_flag(EObjFlag::kNosell);
 
 	return obj.get();
 }
@@ -1509,7 +1509,7 @@ void check_rented() {
 */
 bool is_big_set(const CObjectPrototype *obj, bool is_mini) {
 	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
-	if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
+	if (!obj->has_flag(EObjFlag::KSetItem)) {
 		return false;
 	}
 	for (id_to_set_info_map::const_iterator i = ObjData::set_table.begin(),
@@ -1597,7 +1597,7 @@ bool house_find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 * Перс. хран, рента.
 */
 bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
-	if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
+	if (!obj->has_flag(EObjFlag::KSetItem)) {
 		return false;
 	}
 

@@ -325,8 +325,8 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		obj->swap(*o);
 
-		if (o->get_extra_flag(EExtraFlag::ITEM_TICKTIMER)) {
-			obj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
+		if (o->has_flag(EObjFlag::kTicktimer)) {
+			obj->set_extra_flag(EObjFlag::kTicktimer);
 		}
 
 		if (wearer) {

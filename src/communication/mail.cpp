@@ -512,16 +512,16 @@ void receive(CharData *ch, CharData *mailman) {
 		obj->set_PName(5, "письме");
 		obj->set_sex(ESex::kNeutral);
 		obj->set_type(ObjData::ITEM_NOTE);
-		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
+		obj->set_wear_flags(to_underlying(EWearFlag::kTake) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
 		obj->set_weight(1);
 		obj->set_material(ObjData::MAT_PAPER);
 		obj->set_cost(0);
 		obj->set_rent_off(10);
 		obj->set_rent_on(10);
 		obj->set_timer(24 * 60);
-		obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-		obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-		obj->set_extra_flag(EExtraFlag::ITEM_NORENT);
+		obj->set_extra_flag(EObjFlag::kNodonate);
+		obj->set_extra_flag(EObjFlag::kNosell);
+		obj->set_extra_flag(EObjFlag::kNorent);
 
 		char buf_date[kMaxInputLength];
 		strftime(buf_date, sizeof(buf_date), "%H:%M %d-%m-%Y", localtime(&i->second.date));

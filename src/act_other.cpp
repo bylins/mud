@@ -248,10 +248,10 @@ int check_awake(CharData *ch, int what) {
 			if (!GET_EQ(ch, i))
 				continue;
 
-			if (IS_SET(what, ACHECK_HUMMING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlag::ITEM_HUM))
+			if (IS_SET(what, ACHECK_HUMMING) && GET_EQ(ch, i)->has_flag(EObjFlag::kHum))
 				SET_BIT(retval, ACHECK_HUMMING);
 
-			if (IS_SET(what, ACHECK_GLOWING) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlag::ITEM_GLOW))
+			if (IS_SET(what, ACHECK_GLOWING) && GET_EQ(ch, i)->has_flag(EObjFlag::kGlow))
 				SET_BIT(retval, ACHECK_GLOWING);
 
 			if (IS_SET(what, ACHECK_LIGHT)
@@ -316,7 +316,7 @@ int char_humming(CharData *ch) {
 		return (false);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i) && OBJ_FLAGGED(GET_EQ(ch, i), EExtraFlag::ITEM_HUM))
+		if (GET_EQ(ch, i) && GET_EQ(ch, i)->has_flag(EObjFlag::kHum))
 			return (true);
 	}
 	return (false);
@@ -538,7 +538,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 					send_to_char("Вы не сможете унести такой вес.\r\n", ch);
 					return;
-				} else if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)) {
+				} else if (obj->has_flag(EObjFlag::kBloody)) {
 					send_to_char(
 						"\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n",
 						ch);
@@ -551,7 +551,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			}
 		} else    // obj found in inventory
 		{
-			if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)) {
+			if (obj->has_flag(EObjFlag::kBloody)) {
 				send_to_char(
 					"\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n",
 					ch);

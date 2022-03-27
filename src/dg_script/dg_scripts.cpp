@@ -724,7 +724,7 @@ void script_trigger_check() {
 		if (!obj->get_in_obj()) {
 			if (!what)
 				what = obj.get();
-			if (OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED)) {
+			if (obj.get()->has_flag(EObjFlag::kNamed)) {
 				if (obj->get_worn_by() && number(1, 100) <= 5) {
 					NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
 				}

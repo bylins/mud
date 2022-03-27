@@ -264,7 +264,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 		}
 	}
 	if (show_wear) {
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER)) {
+		if (CAN_WEAR(obj, EWearFlag::kFinger)) {
 			sprintf(out_str + strlen(out_str), "Можно надеть на палец.\r\n");
 		}
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK)) {
@@ -570,28 +570,28 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		sprintf(buf + strlen(buf), " [%d]", how);
 	}
 	if (mode != 3 && how <= 1) {
-		if (object->get_extra_flag(EExtraFlag::ITEM_INVISIBLE)) {
+		if (object->has_flag(EObjFlag::kInvisible)) {
 			sprintf(buf2, " (невидим%s)", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
-		if (object->get_extra_flag(EExtraFlag::ITEM_BLESS)
+		if (object->has_flag(EObjFlag::kBless)
 			&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
 			strcat(buf, " ..голубая аура!");
-		if (object->get_extra_flag(EExtraFlag::ITEM_MAGIC)
+		if (object->has_flag(EObjFlag::kMagic)
 			&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC))
 			strcat(buf, " ..желтая аура!");
-		if (object->get_extra_flag(EExtraFlag::ITEM_POISONED)
+		if (object->has_flag(EObjFlag::kPoisoned)
 			&& AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON)) {
 			sprintf(buf2, "..отравлен%s!", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
-		if (object->get_extra_flag(EExtraFlag::ITEM_GLOW))
+		if (object->has_flag(EObjFlag::kGlow))
 			strcat(buf, " ..блестит!");
-		if (object->get_extra_flag(EExtraFlag::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+		if (object->has_flag(EObjFlag::kHum) && !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			strcat(buf, " ..шумит!");
-		if (object->get_extra_flag(EExtraFlag::ITEM_FIRE))
+		if (object->has_flag(EObjFlag::kFire))
 			strcat(buf, " ..горит!");
-		if (object->get_extra_flag(EExtraFlag::ITEM_BLOODY)) {
+		if (object->has_flag(EObjFlag::kBloody)) {
 			sprintf(buf2, " %s..покрыт%s кровью!%s", CCIRED(ch, C_NRM), GET_OBJ_SUF_6(object), CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
@@ -644,7 +644,7 @@ void do_cities(CharData *ch, char *, int, int) {
 }
 
 bool quest_item(ObjData *obj) {
-	if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY)) && (!(CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE)))) {
+	if ((obj->has_flag(EObjFlag::kNodecay)) && (!(CAN_WEAR(obj, EWearFlag::kTake)))) {
 		return true;
 	}
 	return false;
@@ -1695,7 +1695,7 @@ void show_glow_objs(CharData *ch) {
 	unsigned cnt = 0;
 	for (ObjData *obj = world[ch->in_room]->contents;
 		 obj; obj = obj->get_next_content()) {
-		if (obj->get_extra_flag(EExtraFlag::ITEM_GLOW)) {
+		if (obj->has_flag(EObjFlag::kGlow)) {
 			++cnt;
 			if (cnt > 1) {
 				break;
@@ -2306,11 +2306,11 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	//|| PRF_FLAGGED(ch, PRF_HOLYLIGHT)
 	if (can_use_feat(ch, MASTER_JEWELER_FEAT)) {
 		sprintf(buf + strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
-		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH3SLOTS)) {
+		if (obj->has_flag(EObjFlag::kHasThreeSlots)) {
 			strcat(buf, "доступно 3 слота\r\n");
-		} else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH2SLOTS)) {
+		} else if (obj->has_flag(EObjFlag::kHasTwoSlots)) {
 			strcat(buf, "доступно 2 слота\r\n");
-		} else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_WITH1SLOT)) {
+		} else if (obj->has_flag(EObjFlag::kHasOneSlot)) {
 			strcat(buf, "доступен 1 слот\r\n");
 		} else {
 			strcat(buf, "нет слотов\r\n");

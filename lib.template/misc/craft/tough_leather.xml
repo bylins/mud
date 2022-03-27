@@ -58,7 +58,7 @@
 		</adjectives>
 		
 		<extraflags>
-			<extraflag>ITEM_FIRE</extraflag>
+			<extraflag>kFire</extraflag>
 		</extraflags>
 		
 		<weapon_affects>

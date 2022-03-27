@@ -935,11 +935,11 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 */
 bool can_put_chest(CharData *ch, ObjData *obj) {
 	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
-		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_KEY
+	if (obj->has_flag(EObjFlag::kZonedacay)
+		|| obj->has_flag(EObjFlag::kRepopDecay)
+		|| obj->has_flag(EObjFlag::kDecay)
+		|| obj->has_flag(EObjFlag::kNorent)
+		|| obj->get_type() == ObjData::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
@@ -1413,7 +1413,7 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 				if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0))) {
 					continue;
 				}
-				if ((*obj_it)->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
+				if ((*obj_it)->has_flag(EObjFlag::kNolocate)
 					&& !IS_GOD(ch)) {
 					continue;
 				}

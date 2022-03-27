@@ -28,7 +28,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 		}
 	}
 
-	if (obj->get_extra_flag(EExtraFlag::ITEM_TIMEDLVL)) {
+	if (obj->has_flag(EObjFlag::kTimedLvl)) {
 		int proto_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		if (proto_timer != 0) {
 			level -= level * (proto_timer - obj->get_timer()) / proto_timer;

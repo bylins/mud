@@ -143,16 +143,16 @@
 						
 						<extraflags>
 							<!-- For possible values see material/class/extraflags -->
-							<extraflag>ITEM_NORENT</extraflag>
-							<extraflag>ITEM_WITH1SLOT</extraflag>
+							<extraflag>kNorent</extraflag>
+							<extraflag>kHasOneSlot</extraflag>
 						</extraflags>
 						
 						<val1 /> <!-- has bonus to the first number value -->
 					</meta>
 				</bonuses>
 				<extraflags>
-					<extraflag>ITEM_NORENT</extraflag>
-					<extraflag>ITEM_WITH1SLOT</extraflag>
+					<extraflag>kNorent</extraflag>
+					<extraflag>kHasOneSlot</extraflag>
 				</extraflags>
 				<weapon_affects>
 					<weapon_affect>WAFF_SANCTUARY</weapon_affect>
@@ -213,7 +213,7 @@
 					</neuter>
 				</adjectives>
 				<extraflags>
-					<extraflag>ITEM_BLESS</extraflag>
+					<extraflag>kBless</extraflag>
 				</extraflags>
 				<bonuses>
 					<durability>100</durability>
@@ -239,7 +239,7 @@
 							<weapon_affect>WAFF_FLY</weapon_affect>
 						</weapon_affects>
 						<extraflags>
-							<extraflag>ITEM_NORENT</extraflag>
+							<extraflag>kNorent</extraflag>
 						</extraflags>
 						<val0 />
 						<val1 />
@@ -312,14 +312,14 @@
 			<spell>kSpellSleep</spell>
 
 			<extraflags>
-				<extraflag>ITEM_BLESS</extraflag>
-				<extraflag>ITEM_NOSELL</extraflag>
-				<extraflag>ITEM_NODISARM</extraflag>
-				<extraflag>ITEM_NODONATE</extraflag>
-				<extraflag>ITEM_SWIMMING</extraflag>
-				<extraflag>ITEM_FLYING</extraflag>
-				<extraflag>ITEM_WITH3SLOTS</extraflag>
-				<extraflag>ITEM_NODECAY</extraflag>
+				<extraflag>kBless</extraflag>
+				<extraflag>kNosell</extraflag>
+				<extraflag>kNodisarm</extraflag>
+				<extraflag>kNodonate</extraflag>
+				<extraflag>kSwimming</extraflag>
+				<extraflag>kFlying</extraflag>
+				<extraflag>kHasThreeSlots</extraflag>
+				<extraflag>kNodecay</extraflag>
 			</extraflags>
 
 			<weapon_affects>
@@ -335,7 +335,7 @@
 			</weapon_affects>
 
 			<wearflags>
-				<wearflag>ITEM_WEAR_TAKE</wearflag>
+				<wearflag>kTake</wearflag>
 				<wearflag>ITEM_WEAR_WIELD</wearflag>
 				<wearflag>ITEM_WEAR_HOLD</wearflag>
 				<wearflag>ITEM_WEAR_BOTHS</wearflag>

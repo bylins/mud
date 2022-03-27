@@ -28,9 +28,9 @@ namespace {
 /// Удаление временного флага со шмотки obj (с проверкой прототипа).
 /// \param flag - ITEM_XXX
 ///
-void remove_tmp_extra(ObjData *obj, EExtraFlag flag) {
+void remove_tmp_extra(ObjData *obj, EObjFlag flag) {
 	auto proto = get_object_prototype(GET_OBJ_VNUM(obj));
-	if (!proto->get_extra_flag(flag)) {
+	if (!proto->has_flag(flag)) {
 		obj->unset_extraflag(flag);
 	}
 }
@@ -52,10 +52,10 @@ void check_spell_remove(ObjData *obj, int spell, bool send_message) {
 		case kSpellBelenaPoison:
 		case kSpellDaturaPoison: break;
 
-		case kSpellFly: remove_tmp_extra(obj, EExtraFlag::ITEM_FLYING);
+		case kSpellFly: remove_tmp_extra(obj, EObjFlag::kFlying);
 			break;
 
-		case kSpellLight: remove_tmp_extra(obj, EExtraFlag::ITEM_GLOW);
+		case kSpellLight: remove_tmp_extra(obj, EObjFlag::kGlow);
 			break;
 	} // switch
 

@@ -21,7 +21,7 @@
 extern int material_value[];
 void die(CharData *ch, CharData *killer);
 
-constexpr auto WEAR_TAKE = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
+constexpr auto WEAR_TAKE = to_underlying(EWearFlag::kTake);
 constexpr auto WEAR_TAKE_BOTHS_WIELD =
 	WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
 constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BODY);
@@ -671,7 +671,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
 			tobj->set_cost(2 * GET_OBJ_COST(obj) / 3);
 			tobj->set_owner(GET_UNIQUE(ch));
-			tobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+			tobj->set_extra_flag(EObjFlag::kTransformed);
 			// ковка объектов со слотами.
 			// для 5+ мортов имеем шанс сковать стаф с 3 слотами: базовый 2% и по 0.5% за морт
 			// для 2 слотов базовый шанс 5%, 1% за каждый морт
@@ -679,11 +679,11 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			// Карачун. Поправлено. Расчет не через морты а через скил.
 			if (skill == ESkill::kReforging) {
 				if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10) {
-					tobj->set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
+					tobj->set_extra_flag(EObjFlag::kHasThreeSlots);
 				} else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5) {
-					tobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
+					tobj->set_extra_flag(EObjFlag::kHasTwoSlots);
 				} else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4) {
-					tobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
+					tobj->set_extra_flag(EObjFlag::kHasOneSlot);
 				}
 			}
 			switch (obj_type) {
@@ -752,9 +752,9 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					sdice += (GET_OBJ_WEIGHT(tobj) / 10);
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
-					tobj->set_extra_flag(EExtraFlag::ITEM_NORENT);
-					tobj->set_extra_flag(EExtraFlag::ITEM_DECAY);
-					tobj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+					tobj->set_extra_flag(EObjFlag::kNorent);
+					tobj->set_extra_flag(EObjFlag::kDecay);
+					tobj->set_extra_flag(EObjFlag::kNosell);
 					tobj->set_wear_flags(created_item[obj_type].wear);
 					to_room = "$n создал$g $o3.";
 					to_char = "Вы создали $o3.";
@@ -1523,7 +1523,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	add_affects(ch, temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
 	obj->set_all_affected(temp_affected);
 	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
-	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
+	obj->set_extra_flag(EObjFlag::kNoalter);  // нельзя сфрешить черным свитком
 	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000
 					   + ch->get_skill(ESkill::kMakeWear) / 2 * number(160, 220)); // таймер зависит в основном от умелки
 	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
@@ -1909,8 +1909,8 @@ int MakeRecept::make(CharData *ch) {
 	switch (skill) {
 		case ESkill::kMakeBow:;
 		case ESkill::kMakeWear:
-			obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
-			obj->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
+			obj->set_extra_flag(EObjFlag::kTransformed);
+			obj->set_extra_flag(EObjFlag::KLimitedTimer);
 			break;
 		default: 
 		break;

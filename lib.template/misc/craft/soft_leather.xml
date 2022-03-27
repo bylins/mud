@@ -57,7 +57,7 @@
 			</neuter>
 		</adjectives>
 		<extraflags>
-			<extraflag>ITEM_NODECAY</extraflag>
+			<extraflag>kNodecay</extraflag>
 		</extraflags>
 		<bonuses>
 			<durability>33</durability>
@@ -76,7 +76,7 @@
 					<affect>kHide</affect>
 				</affects>
 				<extraflags>
-					<extraflag>ITEM_WITH2SLOTS</extraflag>
+					<extraflag>kHasTwoSlots</extraflag>
 				</extraflags>
 				<val1 />
 			</meta>

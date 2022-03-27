@@ -124,7 +124,7 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 		return;
 	}
 
-	if (OBJ_FLAGGED(target, EExtraFlag::ITEM_SETSTUFF)) {
+	if (target->has_flag(EObjFlag::KSetItem)) {
 		send_to_char(ch, "Сетовый предмет не может быть зачарован.\r\n");
 		return;
 	}
@@ -141,14 +141,14 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 
 	auto check_slots = GET_OBJ_WEAR(obj) & GET_OBJ_WEAR(target);
 	if (check_slots > 0
-		&& check_slots != to_underlying(EWearFlag::ITEM_WEAR_TAKE)) {
+		&& check_slots != to_underlying(EWearFlag::kTake)) {
 		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0).c_str());
 		ObjectEnchant::enchant ench(obj);
 		ench.apply_to_obj(target);
 		extract_obj(obj);
 	} else {
 		int slots = obj->get_wear_flags();
-		REMOVE_BIT(slots, EWearFlag::ITEM_WEAR_TAKE);
+		REMOVE_BIT(slots, EWearFlag::kTake);
 		if (sprintbit(slots, wear_bits, buf2)) {
 			send_to_char(ch, "Это зачарование применяется к предметам со слотами надевания: %s\r\n", buf2);
 		} else {

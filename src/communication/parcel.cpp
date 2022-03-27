@@ -141,12 +141,12 @@ int total_sended(CharData *ch) {
 
 // * Проверка возможности отправить шмотку почтой.
 bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_DECAY)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
+	if (obj->has_flag(EObjFlag::kNodrop)
+		|| obj->has_flag(EObjFlag::kNorent)
+		|| obj->has_flag(EObjFlag::kZonedacay)
+		|| obj->has_flag(EObjFlag::kRepopDecay)
+		|| obj->has_flag(EObjFlag::kDecay)
+		|| obj->has_flag(EObjFlag::kNorent)
 		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_KEY
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
@@ -394,7 +394,7 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 					}
 				}
 
-				if (it3->obj_->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
+				if (it3->obj_->has_flag(EObjFlag::kNolocate)
 					&& !IS_GOD(ch)) {
 					continue;
 				}
@@ -489,14 +489,14 @@ ObjData *create_parcel() {
 	obj->set_PName(5, "посылке");
 	obj->set_sex(ESex::kFemale);
 	obj->set_type(ObjData::ITEM_CONTAINER);
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	obj->set_weight(1);
 	obj->set_cost(1);
 	obj->set_rent_off(1);
 	obj->set_rent_on(1);
 	obj->set_timer(24 * 60);
-	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-	obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
+	obj->set_extra_flag(EObjFlag::kNosell);
+	obj->set_extra_flag(EObjFlag::kDecay);
 
 	return obj.get();
 }

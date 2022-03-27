@@ -671,7 +671,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			}
 		}
 
-		if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE) && i->get_carried_by() != ch) {
+		if (i->has_flag(EObjFlag::kNolocate) && i->get_carried_by() != ch) {
 			// !локейт стаф может локейтить только имм или тот кто его держит
 			return false;
 		}
@@ -731,19 +731,19 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			} else {
 				if (!IS_GOD(ch)) {
 					if (i->get_in_obj()->get_carried_by()) {
-						if (IS_NPC(i->get_in_obj()->get_carried_by()) && i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)) {
+						if (IS_NPC(i->get_in_obj()->get_carried_by()) && i->has_flag(EObjFlag::kNolocate)) {
 							return false;
 						}
 					}
 					if (i->get_in_obj()->get_in_room() != kNowhere
 						&& i->get_in_obj()->get_in_room()) {
-						if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE) && !bloody_corpse) {
+						if (i->has_flag(EObjFlag::kNolocate) && !bloody_corpse) {
 							return false;
 						}
 					}
 					if (i->get_in_obj()->get_worn_by()) {
 						const auto worn_by = i->get_in_obj()->get_worn_by();
-						if (IS_NPC(worn_by) && i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE) && !bloody_corpse) {
+						if (IS_NPC(worn_by) && i->has_flag(EObjFlag::kNolocate) && !bloody_corpse) {
 							return false;
 						}
 					}
@@ -1778,7 +1778,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	}
 
 	auto it = ObjData::set_table.begin();
-	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)) {
+	if (obj->has_flag(EObjFlag::KSetItem)) {
 		for (; it != ObjData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				sprintf(buf,

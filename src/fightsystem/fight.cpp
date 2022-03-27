@@ -1355,7 +1355,7 @@ void using_charmice_skills(CharData *ch) {
 	const bool charmice_wielded_for_stupor = GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths);
 	const bool charmice_not_wielded = !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold));
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
-	const bool charmice_wielded_for_throw = (GET_EQ(ch, EEquipPos::kWield) && wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)); // Кудояр
+	const bool charmice_wielded_for_throw = (GET_EQ(ch, EEquipPos::kWield) && wielded->has_flag(EObjFlag::kThrowing)); // Кудояр
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CharData *master = (ch->get_master() && !IS_NPC(ch->get_master())) ? ch->get_master() : nullptr;

@@ -1105,8 +1105,8 @@ void alterate_object(ObjData *obj, int dam, int chance) {
 		return;
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
 		MAX(1, GET_OBJ_MAX(obj) *
-			(obj->get_extra_flag(EExtraFlag::ITEM_NODROP) ? 5 :
-			 obj->get_extra_flag(EExtraFlag::ITEM_BLESS) ? 15 : 10)
+			(obj->has_flag(EObjFlag::kNodrop) ? 5 :
+			 obj->has_flag(EObjFlag::kBless) ? 15 : 10)
 			 * (static_cast<ESkill>(GET_OBJ_SKILL(obj)) == ESkill::kBows ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100)) {

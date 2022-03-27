@@ -210,22 +210,21 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	}
 	if (!bloody::handle_transfer(ch, nullptr, obj))
 		return false;
-	if (item_cost > 400000 && OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
+	if (item_cost > 400000 && obj->has_flag(EObjFlag::KSetItem)) {
 		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
 		return false;
 	}
 	if (GET_OBJ_TYPE(obj) != ObjData::ITEM_BOOK) {
-		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOSELL)
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
+		if (obj->has_flag(EObjFlag::kNorent)
+			|| obj->has_flag(EObjFlag::kNosell)
+			|| obj->has_flag(EObjFlag::kZonedacay)
+			|| obj->has_flag(EObjFlag::kRepopDecay)
 			|| GET_OBJ_RNUM(obj) < 0) {
 			send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
 			return false;
 		}
 	}
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_DECAY)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODROP)
+	if (obj->has_flag(EObjFlag::kDecay) || obj->has_flag(EObjFlag::kNodrop)
 		|| GET_OBJ_COST(obj) <= 0
 		|| obj->get_owner() > 0) {
 		send_to_char("Этот предмет не предназначен для базара.\r\n", ch);

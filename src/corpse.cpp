@@ -382,9 +382,9 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	corpse->set_PName(5, buf2);
 
 	corpse->set_type(ObjData::ITEM_CONTAINER);
-	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	corpse->set_wear_flag(EWearFlag::kTake);
+	corpse->set_extra_flag(EObjFlag::kNodonate);
+	corpse->set_extra_flag(EObjFlag::kNosell);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
 	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, 1);    // corpse identifier
@@ -436,10 +436,10 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	corpse->set_PName(5, buf2);
 
 	corpse->set_type(ObjData::ITEM_CONTAINER);
-	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-	corpse->set_extra_flag(EExtraFlag::ITEM_NORENT);
+	corpse->set_wear_flag(EWearFlag::kTake);
+	corpse->set_extra_flag(EObjFlag::kNodonate);
+	corpse->set_extra_flag(EObjFlag::kNosell);
+	corpse->set_extra_flag(EObjFlag::kNorent);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
 	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier

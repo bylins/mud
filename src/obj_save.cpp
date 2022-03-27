@@ -519,7 +519,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			*error = 100 + err;
 		}
 	}
-	if (object->get_extra_flag(EExtraFlag::ITEM_NAMED))//Именной предмет
+	if (object->has_flag(EObjFlag::kNamed))//Именной предмет
 	{
 		object->cleanup_script();
 	}
@@ -929,15 +929,15 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		*buf = '\0';
 		*buf2 = '\0';
 		//Временно убираем флаг !окровавлен! с вещи, чтобы он не сохранялся
-		bool blooded = object->get_extra_flag(EExtraFlag::ITEM_BLOODY);
+		bool blooded = object->has_flag(EObjFlag::kBloody);
 		if (blooded) {
-			object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
+			object->unset_extraflag(EObjFlag::kBloody);
 		}
 		GET_OBJ_EXTRA(object).tascii(4, buf);
 		GET_OBJ_EXTRA(proto).tascii(4, buf2);
 		if (blooded) //Возвращаем флаг назад
 		{
-			object->set_extra_flag(EExtraFlag::ITEM_BLOODY);
+			object->set_extra_flag(EObjFlag::kBloody);
 		}
 		if (str_cmp(buf, buf2)) {
 			out << "Extr: " << buf << "~\n";
@@ -1221,7 +1221,7 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 
 			case EEquipPos::kFingerR:
 			case EEquipPos::kFingerL:
-				if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))    // not fitting
+				if (!CAN_WEAR(obj, EWearFlag::kFinger))    // not fitting
 				{
 					location = LOC_INVENTORY;
 				}
@@ -1971,14 +1971,14 @@ int Crash_load(CharData *ch) {
 		}
 
 		//очищаем ZoneDecay объедки
-		if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)) {
+		if (obj->has_flag(EObjFlag::kZonedacay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
 			extract_obj(obj.get());
 			continue;
 		}
 		//очищаем RepopDecay объедки
-		if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {
+		if (obj->has_flag(EObjFlag::kRepopDecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
 			extract_obj(obj.get());
@@ -1997,8 +1997,8 @@ int Crash_load(CharData *ch) {
 		}
 
 		//очищаем от крови
-		if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)) {
-			obj->unset_extraflag(EExtraFlag::ITEM_BLOODY);
+		if (obj->has_flag(EObjFlag::kBloody)) {
+			obj->unset_extraflag(EObjFlag::kBloody);
 		}
 
 		obj->set_next_content(obj_list);
@@ -2109,10 +2109,10 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 		return false;
 	}
 
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
+	if (obj->has_flag(EObjFlag::kNorent)
 		|| GET_OBJ_RENT(obj) < 0
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
+		|| obj->has_flag(EObjFlag::kRepopDecay)
+		|| obj->has_flag(EObjFlag::kZonedacay)
 		|| (GET_OBJ_RNUM(obj) <= kNothing
 			&& GET_OBJ_TYPE(obj) != ObjData::ITEM_MONEY)
 		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_KEY

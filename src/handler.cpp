@@ -479,7 +479,7 @@ void restore_object(ObjData *obj, CharData *ch) {
 	}
 
 	if (GET_OBJ_OWNER(obj)
-		&& OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODONATE)
+		&& obj->has_flag(EObjFlag::kNodonate)
 		&& ch
 		&& GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)) {
 		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
@@ -649,7 +649,7 @@ void obj_to_char(ObjData *object, CharData *ch) {
 					// Удаление предмета
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", false, ch, object, nullptr, kToChar);
 					object->set_timer(0); // Хана предмету
-					object->set_extra_flag(EExtraFlag::ITEM_NOSELL); // Ибо нефиг
+					object->set_extra_flag(EObjFlag::kNosell); // Ибо нефиг
 				}
 			} // Назначаем UID
 			else {
@@ -665,7 +665,7 @@ void obj_to_char(ObjData *object, CharData *ch) {
 		if (!IS_NPC(ch)
 			|| (ch->has_master()
 				&& !IS_NPC(ch->get_master()))) {
-			object->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);    // start timer unconditionally when character picks item up.
+			object->set_extra_flag(EObjFlag::kTicktimer);    // start timer unconditionally when character picks item up.
 			insert_obj_and_group(object, &ch->carrying);
 		} else {
 			// Вот эта муть, чтобы временно обойти завязку магазинов на порядке предметов в инве моба // Krodo
@@ -811,7 +811,7 @@ unsigned int activate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::cons
 	if (pos < EEquipPos::kNumEquipPos) {
 		set_info::const_iterator set_obj_info;
 
-		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlag::ITEM_SETSTUFF) &&
+		if (GET_EQ(ch, pos) && GET_EQ(ch, pos)->has_flag(EObjFlag::KSetItem) &&
 			(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
 			unsigned int oqty = activate_stuff(ch, obj, it, pos + 1,
 											   (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()) | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()),
@@ -986,7 +986,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
 		return;
-	} else if ((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED)
+	} else if ((!IS_NPC(ch) || IS_CHARMICE(ch)) && obj->has_flag(EObjFlag::kNamed)
 		&& NamedStuff::check_named(ch, obj, true)) {
 		if (!NamedStuff::wear_msg(ch, obj))
 			send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
@@ -999,8 +999,8 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 	if ((!IS_NPC(ch) && invalid_align(ch, obj))
 		|| invalid_no_class(ch, obj)
 		|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			&& (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)
-				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))) {
+			&& (obj->has_flag(EObjFlag::kSharpen)
+				|| obj->has_flag(EObjFlag::kArmored)))) {
 		act("$o0 явно не предназначен$A для вас.", false, ch, obj, nullptr, kToChar);
 		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", false, ch, obj, nullptr, kToRoom);
 		if (!obj->get_carried_by()) {
@@ -1050,7 +1050,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 
 	if (show_msg) {
 		wear_message(ch, obj, pos);
-		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED)) {
+		if (obj->has_flag(EObjFlag::kNamed)) {
 			NamedStuff::wear_msg(ch, obj);
 		}
 	}
@@ -1060,7 +1060,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 	}
 
 	auto it = ObjData::set_table.begin();
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
+	if (obj->has_flag(EObjFlag::KSetItem)) {
 		for (; it != ObjData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				activate_stuff(ch, obj, it, 0,
@@ -1070,7 +1070,7 @@ void equip_char(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip
 		}
 	}
 
-	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == ObjData::set_table.end()) {
+	if (!obj->has_flag(EObjFlag::KSetItem) || it == ObjData::set_table.end()) {
 		for (int j = 0; j < kMaxObjAffect; j++) {
 			affect_modify(ch,
 						  obj->get_affected(j).location,
@@ -1124,7 +1124,7 @@ unsigned int deactivate_stuff(CharData *ch, ObjData *obj, id_to_set_info_map::co
 		set_info::const_iterator set_obj_info;
 
 		if (GET_EQ(ch, pos)
-			&& OBJ_FLAGGED(GET_EQ(ch, pos), EExtraFlag::ITEM_SETSTUFF)
+			&& GET_EQ(ch, pos)->has_flag(EObjFlag::KSetItem)
 			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
 			unsigned int oqty = deactivate_stuff(ch, obj, it, pos + 1, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()),
 												 set_obj_qty + 1);
@@ -1300,14 +1300,14 @@ ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags) 
 		log("SYSERR: ch->in_room = kNowhere when unequipping char %s.", GET_NAME(ch));
 
 	auto it = ObjData::set_table.begin();
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
+	if (obj->has_flag(EObjFlag::KSetItem))
 		for (; it != ObjData::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				deactivate_stuff(ch, obj, it, 0, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()), 0);
 				break;
 			}
 
-	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == ObjData::set_table.end()) {
+	if (!obj->has_flag(EObjFlag::KSetItem) || it == ObjData::set_table.end()) {
 		for (int j = 0; j < kMaxObjAffect; j++) {
 			affect_modify(ch,
 						  obj->get_affected(j).location,
@@ -1329,7 +1329,7 @@ ObjData *unequip_char(CharData *ch, int pos, const CharEquipFlags& equip_flags) 
 			}
 		}
 
-		if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) && (SetSystem::is_big_set(obj)))
+		if ((obj->has_flag(EObjFlag::KSetItem)) && (SetSystem::is_big_set(obj)))
 			obj->deactivate_obj(activation());
 	}
 
@@ -1482,12 +1482,12 @@ bool obj_to_room(ObjData *object, RoomRnum room) {
 		object->set_carried_by(nullptr);
 		object->set_worn_by(nullptr);
 		if (ROOM_FLAGGED(room, ROOM_NOITEM)) {
-			object->set_extra_flag(EExtraFlag::ITEM_DECAY);
+			object->set_extra_flag(EObjFlag::kDecay);
 		}
 
 		if (object->get_script()->has_triggers()) {
 			object->set_destroyer(script_destroy_timer);
-		} else if (OBJ_FLAGGED(object, EExtraFlag::ITEM_NODECAY)) {
+		} else if (object->has_flag(EObjFlag::kNodecay)) {
 			object->set_destroyer(room_nodestroy_timer);
 		} else if (GET_OBJ_TYPE(object) == ObjData::ITEM_MONEY) {
 			object->set_destroyer(money_destroy_timer);
@@ -1512,8 +1512,8 @@ int obj_decay(ObjData *object) {
 	sect = real_sector(room);
 
 	if (((sect == kSectWaterSwim || sect == kSectWaterNoswim) &&
-		!OBJ_FLAGGED(object, EExtraFlag::ITEM_SWIMMING) &&
-		!OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING) &&
+		!object->has_flag(EObjFlag::kSwimming) &&
+		!object->has_flag(EObjFlag::kFlying) &&
 		!IS_CORPSE(object))) {
 
 		act("$o0 медленно утонул$G.", false, world[room]->first_character(), object, nullptr, kToRoom);
@@ -1522,7 +1522,7 @@ int obj_decay(ObjData *object) {
 		return (1);
 	}
 
-	if (((sect == kSectOnlyFlying) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING))) {
+	if (((sect == kSectOnlyFlying) && !IS_CORPSE(object) && !object->has_flag(EObjFlag::kFlying))) {
 
 		act("$o0 упал$G вниз.", false, world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 упал$G вниз.", false, world[room]->first_character(), object, nullptr, kToChar);
@@ -1530,8 +1530,8 @@ int obj_decay(ObjData *object) {
 		return (1);
 	}
 
-	if (OBJ_FLAGGED(object, EExtraFlag::ITEM_DECAY) ||
-		(OBJ_FLAGGED(object, EExtraFlag::ITEM_ZONEDECAY) && GET_OBJ_VNUM_ZONE_FROM(object) != zone_table[world[room]->zone_rn].vnum)) {
+	if (object->has_flag(EObjFlag::kDecay) ||
+		(object->has_flag(EObjFlag::kZonedacay) && GET_OBJ_VNUM_ZONE_FROM(object) != zone_table[world[room]->zone_rn].vnum)) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
@@ -1718,7 +1718,7 @@ void update_object(ObjData *obj, int use) {
 		// don't update objects with a timer trigger
 		const bool trig_timer = SCRIPT_CHECK(obj_it, OTRIG_TIMER);
 		const bool has_timer = obj_it->get_timer() > 0;
-		const bool tick_timer = 0 != OBJ_FLAGGED(obj_it, EExtraFlag::ITEM_TICKTIMER);
+		const bool tick_timer = 0 != obj_it->has_flag(EObjFlag::kTicktimer);
 
 		if (!trig_timer && has_timer && tick_timer) {
 			obj_it->dec_timer(use);
@@ -1752,7 +1752,7 @@ void update_char_objects(CharData *ch) {
 								world[ch->in_room]->light -= 1;
 						}
 
-						if (OBJ_FLAGGED(GET_EQ(ch, wear_pos), EExtraFlag::ITEM_DECAY)) {
+						if (GET_EQ(ch, wear_pos)->has_flag(EObjFlag::kDecay)) {
 							extract_obj(GET_EQ(ch, wear_pos));
 						}
 					}
@@ -1782,7 +1782,7 @@ void update_char_objects(CharData *ch) {
 * \param zone_reset - 1 - пуржим стаф без включенных таймеров, 0 - не пуржим ничего
 */
 void drop_obj_on_zreset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
-	if (zone_reset && !OBJ_FLAGGED(obj, EExtraFlag::ITEM_TICKTIMER))
+	if (zone_reset && !obj->has_flag(EObjFlag::kTicktimer))
 		extract_obj(obj);
 	else {
 		if (inv)
@@ -2281,8 +2281,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 	if (IS_CORPSE(i) || IS_GOD(ch)) //имм может локейтить и можно локейтить трупы
 	{
 		return true;
-	} else if (OBJ_FLAGGED(i,
-						   EExtraFlag::ITEM_NOLOCATE)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
+	} else if (i->has_flag(EObjFlag::kNolocate)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
 	{
 		return false;
 	} else if (i->get_carried_by() && IS_NPC(i->get_carried_by())) {
@@ -2465,7 +2464,7 @@ ObjData::shared_ptr create_money(int amount) {
 	obj->set_ex_description(new_descr);
 
 	obj->set_type(ObjData::ITEM_MONEY);
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	obj->set_sex(ESex::kFemale);
 	obj->set_val(0, amount);
 	obj->set_cost(amount);
@@ -2473,8 +2472,8 @@ ObjData::shared_ptr create_money(int amount) {
 	obj->set_current_durability(ObjData::DEFAULT_CURRENT_DURABILITY);
 	obj->set_timer(24 * 60 * 7);
 	obj->set_weight(1);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	obj->set_extra_flag(EObjFlag::kNodonate);
+	obj->set_extra_flag(EObjFlag::kNosell);
 
 	return obj;
 }

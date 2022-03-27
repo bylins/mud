@@ -397,14 +397,14 @@ bool CObject::load_from_node(const pugi::xml_node *node) {
 											 [&]() {});
 
 	// loading of object extraflags
-	CHelper::load_flags<EExtraFlag>(*node, "extraflags", "extraflag",
-									[&](const auto flag) { this->set_extra_flag(flag); },
-									[&](const auto value) {
+	CHelper::load_flags<EObjFlag>(*node, "extraflags", "extraflag",
+								  [&](const auto flag) { this->set_extra_flag(flag); },
+								  [&](const auto value) {
 										logger("Setting extra flag '%s' for object with VNUM %d.\n",
 											   NAME_BY_ITEM(value).c_str(),
 											   this->get_vnum());
 									},
-									[&](const auto flag) {
+								  [&](const auto flag) {
 										logger(
 											"WARNING: Skipping extra flag '%s' of object with VNUM %d, because this value is not valid.\n",
 											flag,
@@ -638,11 +638,11 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 		CHelper::save_string(*node, "spell", NAME_BY_ITEM(get_spell()).c_str(),
 							 [&]() { throw std::runtime_error("WARNING: Failed to save object spell"); });
 
-		CHelper::save_list<EExtraFlag>(*node, "extraflags", "extraflag", get_extra_flags(),
-									   [&]() {
+		CHelper::save_list<EObjFlag>(*node, "extraflags", "extraflag", get_extra_flags(),
+									 [&]() {
 										   throw std::runtime_error("WARNING: Failed to create node \"extraflags\".\n");
 									   },
-									   [&](const auto value) {
+									 [&](const auto value) {
 										   throw std::runtime_error(
 											   "WARNING: Could not save extraflag " + NAME_BY_ITEM(value));
 									   });

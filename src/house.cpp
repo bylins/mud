@@ -2950,20 +2950,20 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		extract_obj(obj);
 		send_to_char(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 
-	} else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
+	} else if (obj->has_flag(EObjFlag::kNodrop)
+		|| obj->has_flag(EObjFlag::kZonedacay)
+		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_KEY
-		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
+		|| obj->has_flag(EObjFlag::kNorent)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
-		|| obj->get_extra_flag(EExtraFlag::ITEM_NAMED)
+		|| obj->has_flag(EObjFlag::kNamed)
 		|| GET_OBJ_OWNER(obj)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);
 	} else if (GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER
 		&& obj->get_contains()) {
 		act("В $o5 что-то лежит.", false, ch, obj, nullptr, kToChar);
-	} else if (SetSystem::is_norent_set(ch, obj, true) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_ONE_CLANCHEST)) {
+	} else if (SetSystem::is_norent_set(ch, obj, true) && obj->has_flag(EObjFlag::kNotOneInClanChest)) {
 		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return false;
@@ -4995,7 +4995,7 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 						if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0))) {
 							continue;
 						}
-						if (OBJ_FLAGGED(temp, EExtraFlag::ITEM_NOLOCATE)) {
+						if (temp->has_flag(EObjFlag::kNolocate)) {
 							continue;
 						}
 					}
@@ -5246,10 +5246,10 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 			ch->add_gold(howmany);
 			send_to_char(ch, "Вы вновь обрели %d %s.\r\n", howmany, desc_count(howmany, WHAT_MONEYu));
 		}
-	} else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
+	} else if (obj->has_flag(EObjFlag::kNodrop)
+		|| obj->has_flag(EObjFlag::kZonedacay)
+		|| obj->has_flag(EObjFlag::kRepopDecay)
+		|| obj->has_flag(EObjFlag::kNorent)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);

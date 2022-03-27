@@ -126,9 +126,9 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			return;
 		}
 	}
-	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT)
-		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)
-		&& !OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS)) {
+	if (!itemobj->has_flag(EObjFlag::kHasOneSlot)
+		&& !itemobj->has_flag(EObjFlag::kHasTwoSlots)
+		&& !itemobj->has_flag(EObjFlag::kHasThreeSlots)) {
 		send_to_char("Вы не видите куда здесь можно вплавить камень.\r\n", ch);
 		return;
 	}
@@ -245,7 +245,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 				set_obj_aff(itemobj, static_cast<EAffectFlag>(tmp_bit));
 				break;
 			case 3: 
-				itemobj->set_extra_flag(static_cast<EExtraFlag>(tmp_bit));
+				itemobj->set_extra_flag(static_cast<EObjFlag>(tmp_bit));
 				break;
 			case 4:
 				itemobj->set_skill(static_cast<ESkill>(tmp_bit), tmp_qty);
@@ -255,18 +255,18 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		}
 	}
 
-	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS)) {
-		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
-		itemobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
-	} else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH2SLOTS)) {
-		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH2SLOTS);
-		itemobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
-	} else if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH1SLOT)) {
-		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH1SLOT);
+	if (itemobj->has_flag(EObjFlag::kHasThreeSlots)) {
+		itemobj->unset_extraflag(EObjFlag::kHasThreeSlots);
+		itemobj->set_extra_flag(EObjFlag::kHasTwoSlots);
+	} else if (itemobj->has_flag(EObjFlag::kHasTwoSlots)) {
+		itemobj->unset_extraflag(EObjFlag::kHasTwoSlots);
+		itemobj->set_extra_flag(EObjFlag::kHasOneSlot);
+	} else if (itemobj->has_flag(EObjFlag::kHasOneSlot)) {
+		itemobj->unset_extraflag(EObjFlag::kHasOneSlot);
 	}
 
-	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_TRANSFORMED)) {
-		itemobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	if (!itemobj->has_flag(EObjFlag::kTransformed)) {
+		itemobj->set_extra_flag(EObjFlag::kTransformed);
 	}
 	extract_obj(gemobj);
 }

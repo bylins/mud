@@ -64,7 +64,7 @@ void save() {
 }
 
 bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
-	if (!obj->get_extra_flag(EExtraFlag::ITEM_NAMED)) {
+	if (!obj->has_flag(EObjFlag::kNamed)) {
 		return false; // если шмотка не именная - остальное и проверять не нужно
 	}
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
@@ -506,7 +506,7 @@ void receive_items(CharData *ch, CharData *mailman) {
 						 GET_OBJ_MIW(obj_proto[r_num]),
 						 obj_proto.actual_count(r_num));
 				const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
-				obj->set_extra_flag(EExtraFlag::ITEM_NAMED);
+				obj->set_extra_flag(EObjFlag::kNamed);
 				obj_to_char(obj.get(), ch);
 				obj->cleanup_script();
 				obj_decay(obj.get());

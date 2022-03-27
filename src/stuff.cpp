@@ -406,16 +406,16 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_rent_on(1);
 	obj->set_timer(9999);
 	//ставим флаги на шмотки
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)); // в теории никак не взять одежку
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+	obj->set_wear_flags(to_underlying(EWearFlag::kUndefined)); // в теории никак не взять одежку
 	// obj->set_no_flag(ENoFlag::ITEM_NO_MONO); // пресекаем всяких абузеров
 	// obj->set_no_flag(ENoFlag::ITEM_NO_POLY); // 
-	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-	obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
-	obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODROP);
+	obj->set_extra_flag(EObjFlag::kNosell);
+	obj->set_extra_flag(EObjFlag::kNolocate);
+	obj->set_extra_flag(EObjFlag::kDecay);
+	obj->set_extra_flag(EObjFlag::kNodisarm);
+	obj->set_extra_flag(EObjFlag::kBless);
+	obj->set_extra_flag(EObjFlag::kNodrop);
 
 	obj->set_maximum_durability(5000);
 	obj->set_current_durability(5000);
@@ -428,7 +428,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kClubs: // дубины
 		obj->set_val(3, 12);
 		obj->set_skill(141);
-		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
+		obj->set_extra_flag(EObjFlag::kThrowing);
 		obj->set_affected(0, APPLY_STR, floorf(diff/12.0));
 		obj->set_affected(1, APPLY_SAVING_STABILITY, -floorf(diff/4.0));
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
@@ -437,7 +437,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kSpades: // копья
 		obj->set_val(3, 11);
 		obj->set_skill(148);
-		obj->set_extra_flag(EExtraFlag::ITEM_THROWING);
+		obj->set_extra_flag(EObjFlag::kThrowing);
 		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
 		create_charmice_stuff(ch, ESkill::kIncorrect, diff);
 		position = 16;

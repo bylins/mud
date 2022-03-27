@@ -1040,7 +1040,7 @@ inline bool NO_DESTROY(const ObjData *obj) {
 //		|| (obj->get_script()->has_triggers())
 		|| GET_OBJ_TYPE(obj) == ObjData::ITEM_FOUNTAIN
 		|| obj->get_in_room() == kNowhere
-		|| (obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)
+		|| (obj->has_flag(EObjFlag::kNodecay)
 			&& !ROOM_FLAGGED(obj->get_in_room(), ROOM_DEATH)));
 }
 
@@ -1062,7 +1062,7 @@ inline bool NO_TIMER(const ObjData *obj) {
 	}
 */
 // а почему бы не так?
-	if (zone_table[world[obj->get_in_room()]->zone_rn].under_construction && !OBJ_FLAGGED(obj, EExtraFlag::ITEM_TICKTIMER))
+	if (zone_table[world[obj->get_in_room()]->zone_rn].under_construction && !obj->has_flag(EObjFlag::kTicktimer))
 		return true;
 	return false;
 }
@@ -1269,7 +1269,7 @@ void clan_chest_point_update(ObjData *j) {
 	}
 
 	if (j->get_timer() <= 0
-		|| (j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
+		|| (j->has_flag(EObjFlag::kZonedacay)
 			&& GET_OBJ_VNUM_ZONE_FROM(j)
 			&& up_obj_where(j->get_in_obj()) != kNowhere
 			&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j->get_in_obj())]->zone_rn].vnum)) {
@@ -1344,7 +1344,7 @@ void obj_point_update() {
 		if (j->get_in_obj()
 			&& !j->get_in_obj()->get_carried_by()
 			&& !j->get_in_obj()->get_worn_by()
-			&& j->get_in_obj()->get_extra_flag(EExtraFlag::ITEM_NODECAY)
+			&& j->get_in_obj()->has_flag(EObjFlag::kNodecay)
 			&& GET_ROOM_VNUM(j->get_in_obj()->get_in_room()) % 100 != 99) {
 			int zone = world[j->get_in_obj()->get_in_room()]->zone_rn;
 			bool find = 0;
@@ -1420,7 +1420,7 @@ void obj_point_update() {
 			}
 		} else {
 			if (SCRIPT_CHECK(j.get(), OTRIG_TIMER)) {
-				if (j->get_timer() > 0 && j->get_extra_flag(EExtraFlag::ITEM_TICKTIMER)) {
+				if (j->get_timer() > 0 && j->has_flag(EObjFlag::kTicktimer)) {
 					j->dec_timer();
 				}
 				if (!j->get_timer()) {
@@ -1434,7 +1434,7 @@ void obj_point_update() {
 			if (j && (j->get_in_room() != kNowhere) && j->get_timer() > 0 && !NO_TIMER(j.get())) {
 				j->dec_timer();
 			}
-			if (j && ((j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
+			if (j && ((j->has_flag(EObjFlag::kZonedacay)
 					&& GET_OBJ_VNUM_ZONE_FROM(j)
 					&& up_obj_where(j.get()) != kNowhere
 					&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)
@@ -1500,7 +1500,7 @@ void obj_point_update() {
 					}
 					obj_from_char(j.get());
 				} else if (j->get_in_room() != kNowhere) {
-					if (j->get_timer() <= 0 && j->get_extra_flag(EExtraFlag::ITEM_NODECAY)) {
+					if (j->get_timer() <= 0 && j->has_flag(EObjFlag::kNodecay)) {
 						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
 								 GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->room_vn);
 						mudlog(buf, CMP, kLvlGreatGod, ERRLOG, true);
@@ -1754,7 +1754,7 @@ void repop_decay(ZoneRnum zone) {
 		const ZoneVnum obj_zone_num = j->get_vnum() / 100;
 
 		if (obj_zone_num == zone_num
-			&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)) {
+			&& j->has_flag(EObjFlag::kRepopDecay)) {
 			if (j->get_worn_by()) {
 				act("$o рассыпал$U, вспыхнув ярким светом...", false, j->get_worn_by(), j.get(), 0, kToChar);
 			} else if (j->get_carried_by()) {

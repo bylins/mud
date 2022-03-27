@@ -1049,7 +1049,7 @@ void set_bloody_flag(ObjData *list, const CharData *ch) {
 	set_bloody_flag(list->get_contains(), ch);
 	set_bloody_flag(list->get_next_content(), ch);
 	const int t = GET_OBJ_TYPE(list);
-	if (!list->get_extra_flag(EExtraFlag::ITEM_BLOODY)
+	if (!list->has_flag(EObjFlag::kBloody)
 		&& (t == ObjData::ITEM_LIGHT
 			|| t == ObjData::ITEM_WAND
 			|| t == ObjData::ITEM_STAFF
@@ -1062,7 +1062,7 @@ void set_bloody_flag(ObjData *list, const CharData *ch) {
 			|| t == ObjData::ITEM_ARMOR_HEAVY
 			|| t == ObjData::ITEM_INGREDIENT
 			|| t == ObjData::ITEM_WORN)) {
-		list->set_extra_flag(EExtraFlag::ITEM_BLOODY);
+		list->set_extra_flag(EObjFlag::kBloody);
 		bloody_map[list].owner_unique = GET_UNIQUE(ch);
 		bloody_map[list].kill_at = time(nullptr);
 		bloody_map[list].object = list;
@@ -1075,7 +1075,7 @@ void bloody::update() {
 	while (it != bloody_map.end()) {
 		BloodyInfoMap::iterator cur = it++;
 		if (t - cur->second.kill_at >= BLOODY_DURATION * 60) {
-			cur->second.object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
+			cur->second.object->unset_extraflag(EObjFlag::kBloody);
 			bloody_map.erase(cur);
 		}
 	}
@@ -1084,7 +1084,7 @@ void bloody::update() {
 void bloody::remove_obj(const ObjData *obj) {
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
 	if (it != bloody_map.end()) {
-		it->second.object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
+		it->second.object->unset_extraflag(EObjFlag::kBloody);
 		bloody_map.erase(it);
 	}
 }
@@ -1096,7 +1096,7 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
-	if (!obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)
+	if (!obj->has_flag(EObjFlag::kBloody)
 		|| it == bloody_map.end()) {
 		result = true;
 	} else {
@@ -1166,7 +1166,7 @@ void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
 }
 
 bool bloody::is_bloody(const ObjData *obj) {
-	if (obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)) {
+	if (obj->has_flag(EObjFlag::kBloody)) {
 		return true;
 	}
 	bool result = false;

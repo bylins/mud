@@ -359,14 +359,14 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		if (obj) {
 			load_otrigger(obj);
 			obj->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
-			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE)) {
+			if (obj->has_flag(EObjFlag::kBindOnPurchase)) {
 				obj->set_owner(GET_UNIQUE(ch));
 			}
 			obj_to_char(obj, ch);
 			if (currency == "слава") {
 				// книги за славу не фейлим
 				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
-					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
+					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 
 				// снятие и логирование славы
@@ -378,18 +378,18 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			} else if (currency == "лед") {
 				// книги за лед, как и за славу, не фейлим
 				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
-					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
+					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_ice_currency(price);
 			} else if (currency == "ногаты") {
 				// книги за лед, как и за славу, не фейлим
 				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
-					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
+					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_nogata(price);
 			} else if (currency == "гривны") {
 				if (ObjData::ITEM_BOOK == GET_OBJ_TYPE(obj)) {
-					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
+					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_hryvn(price);
 				ch->spent_hryvn_sub(price);
@@ -581,7 +581,7 @@ bool init_type(const std::string &str, int &type) {
 
 bool init_wear(const std::string &str, EWearFlag &wear) {
 	if (utils::IsAbbrev(str, "палец")) {
-		wear = EWearFlag::ITEM_WEAR_FINGER;
+		wear = EWearFlag::kFinger;
 	} else if (utils::IsAbbrev(str, "шея") || utils::IsAbbrev(str, "грудь")) {
 		wear = EWearFlag::ITEM_WEAR_NECK;
 	} else if (utils::IsAbbrev(str, "тело")) {
@@ -621,7 +621,7 @@ bool init_wear(const std::string &str, EWearFlag &wear) {
 
 void shop_node::filter_shop_list(CharData *ch, const std::string &arg, int keeper_vnum) {
 	int num = 1;
-	EWearFlag wear = EWearFlag::ITEM_WEAR_UNDEFINED;
+	EWearFlag wear = EWearFlag::kUndefined;
 	int type = -10;
 
 	std::string print_value = "";
@@ -679,14 +679,14 @@ void shop_node::filter_shop_list(CharData *ch, const std::string &arg, int keepe
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 
-			if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED && obj_proto[rnum]->has_wear_flag(wear))
+			if (!((wear != EWearFlag::kUndefined && obj_proto[rnum]->has_wear_flag(wear))
 				|| (type > 0 && type == GET_OBJ_TYPE(obj_proto[rnum])))) {
 				show_name = false;
 			}
 		} else {
 			ObjData *tmp_obj = get_from_shelve(k);
 			if (tmp_obj) {
-				if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED && CAN_WEAR(tmp_obj, wear))
+				if (!((wear != EWearFlag::kUndefined && CAN_WEAR(tmp_obj, wear))
 					|| (type > 0 && type == GET_OBJ_TYPE(tmp_obj)))) {
 					show_name = false;
 				}
@@ -1093,9 +1093,9 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 
 	int rnum = GET_OBJ_RNUM(obj);
 	if (rnum < 0
-		|| obj->get_extra_flag(EExtraFlag::ITEM_ARMORED)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_SHARPEN)
-		|| obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
+		|| obj->has_flag(EObjFlag::kArmored)
+		|| obj->has_flag(EObjFlag::kSharpen)
+		|| obj->has_flag(EObjFlag::kNodrop)) {
 		tell_to_char(keeper, ch, std::string("Я не собираюсь иметь дела с этой вещью.").c_str());
 		return;
 	}
@@ -1142,10 +1142,10 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			return;
 		}
 
-		if (obj->get_extra_flag(EExtraFlag::ITEM_NOSELL)
-			|| obj->get_extra_flag(EExtraFlag::ITEM_NAMED)
-			|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
-			|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)) {
+		if (obj->has_flag(EObjFlag::kNosell)
+			|| obj->has_flag(EObjFlag::kNamed)
+			|| obj->has_flag(EObjFlag::kRepopDecay)
+			|| obj->has_flag(EObjFlag::kZonedacay)) {
 			tell_to_char(keeper, ch, "Такое я не покупаю.");
 			return;
 		} else {
@@ -1157,11 +1157,11 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 	}
 
 	if (cmd == "Продать") {
-		if (obj->get_extra_flag(EExtraFlag::ITEM_NOSELL)
-			|| obj->get_extra_flag(EExtraFlag::ITEM_NAMED)
-			|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
+		if (obj->has_flag(EObjFlag::kNosell)
+			|| obj->has_flag(EObjFlag::kNamed)
+			|| obj->has_flag(EObjFlag::kRepopDecay)
 			|| (buy_price <= 1)
-			|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
+			|| obj->has_flag(EObjFlag::kZonedacay)
 			|| bloody::is_bloody(obj)) {
 			if (bloody::is_bloody(obj)) {
 				tell_to_char(keeper, ch, "Пшел вон убивец, и руки от крови отмой!");
@@ -1219,9 +1219,9 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		}
 
 		if (repair_price <= 0
-			|| obj->get_extra_flag(EExtraFlag::ITEM_DECAY)
-			|| obj->get_extra_flag(EExtraFlag::ITEM_NOSELL)
-			|| obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
+			|| obj->has_flag(EObjFlag::kDecay)
+			|| obj->has_flag(EObjFlag::kNosell)
+			|| obj->has_flag(EObjFlag::kNodrop)) {
 			tell_to_char(keeper,
 						 ch,
 						 ("Я не буду тратить свое драгоценное время на " + GET_OBJ_PNAME(obj, 3) + ".").c_str());

@@ -510,9 +510,9 @@ const __uint8_t BOOK_FEAT = 4;        // Книга способности (feat
 
 // Take/Wear flags: used by obj_data.obj_flags.wear_flags //
 enum class EWearFlag : Bitvector {
-	ITEM_WEAR_UNDEFINED = 0,    // Special value
-	ITEM_WEAR_TAKE = 1 << 0,    // Item can be takes      //
-	ITEM_WEAR_FINGER = 1 << 1,    // Can be worn on finger  //
+	kUndefined = 0,    // Special value
+	kTake = 1 << 0,    // Item can be takes      //
+	kFinger = 1 << 1,    // Can be worn on finger  //
 	ITEM_WEAR_NECK = 1 << 2,    // Can be worn around neck   //
 	ITEM_WEAR_BODY = 1 << 3,    // Can be worn on body    //
 	ITEM_WEAR_HEAD = 1 << 4,    // Can be worn on head    //
@@ -536,65 +536,63 @@ template<>
 EWearFlag ITEM_BY_NAME<EWearFlag>(const std::string &name);
 
 // Extra object flags: used by obj_data.obj_flags.extra_flags //
-enum class EExtraFlag : Bitvector {
-	ITEM_GLOW = 1 << 0,                        ///< Item is glowing
-	ITEM_HUM = 1 << 1,                        ///< Item is humming
-	ITEM_NORENT = 1 << 2,                    ///< Item cannot be rented
-	ITEM_NODONATE = 1 << 3,                    ///< Item cannot be donated
-	ITEM_NOINVIS = 1 << 4,                    ///< Item cannot be made invis
-	ITEM_INVISIBLE = 1 << 5,                ///< Item is invisible
-	ITEM_MAGIC = 1 << 6,                    ///< Item is magical
-	ITEM_NODROP = 1 << 7,                    ///< Item is cursed: can't drop
-	ITEM_BLESS = 1 << 8,                    ///< Item is blessed
-	ITEM_NOSELL = 1 << 9,                    ///< Not usable by good people
-	ITEM_DECAY = 1 << 10,                    ///< Not usable by evil people
-	ITEM_ZONEDECAY = 1 << 11,                ///< Not usable by neutral people
-	ITEM_NODISARM = 1 << 12,                ///< Not usable by mages
-	ITEM_NODECAY = 1 << 13,
-	ITEM_POISONED = 1 << 14,
-	ITEM_SHARPEN = 1 << 15,
-	ITEM_ARMORED = 1 << 16,
-	ITEM_DAY = 1 << 17,
-	ITEM_NIGHT = 1 << 18,
-	ITEM_FULLMOON = 1 << 19,
-	ITEM_WINTER = 1 << 20,
-	ITEM_SPRING = 1 << 21,
-	ITEM_SUMMER = 1 << 22,
-	ITEM_AUTUMN = 1 << 23,
-	ITEM_SWIMMING = 1 << 24,
-	ITEM_FLYING = 1 << 25,
-	ITEM_THROWING = 1 << 26,
-	ITEM_TICKTIMER = 1 << 27,
-	ITEM_FIRE = 1 << 28,                    ///< ...горит
-	ITEM_REPOP_DECAY = 1 << 29,                ///< рассыпется при репопе зоны
-	ITEM_NOLOCATE = kIntOne | (1 << 0),        ///< нельзя отлокейтить
-	ITEM_TIMEDLVL = kIntOne | (1 << 1),        ///< для маг.предметов уровень уменьшается со временем
-	ITEM_NOALTER = kIntOne | (1 << 2),        ///< свойства предмета не могут быть изменены магией
-	ITEM_WITH1SLOT = kIntOne | (1 << 3),    ///< в предмет можно вплавить 1 камень
-	ITEM_WITH2SLOTS = kIntOne | (1 << 4),    ///< в предмет можно вплавить 2 камня
-	ITEM_WITH3SLOTS = kIntOne | (1 << 5),    ///< в предмет можно вплавить 3 камня (овер)
-	ITEM_SETSTUFF = kIntOne | (1 << 6),        ///< Item is set object
-	ITEM_NO_FAIL = kIntOne | (1 << 7),        ///< не фейлится при изучении (в случае книги)
-	ITEM_NAMED = kIntOne | (1 << 8),        ///< именной предмет
-	ITEM_BLOODY = kIntOne | (1 << 9),        ///< окровавленная вещь (снятая с трупа)
-	ITEM_1INLAID = kIntOne | (1 << 10),        ///< TODO: не используется, см convert_obj_values()
-	ITEM_2INLAID = kIntOne | (1 << 11),
-	ITEM_3INLAID = kIntOne | (1 << 12),
-	ITEM_NOPOUR = kIntOne | (1 << 13),        ///< нельзя перелить
-	ITEM_UNIQUE = kIntOne | (1
-		<< 14),        // объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
-	// на разные слоты, то чар может одеть на себя только одну шмотку
-	ITEM_TRANSFORMED = kIntOne | (1 << 15),        // Наложено заклинание заколдовать оружие
-	ITEM_FREE_FOR_USE = kIntOne | (1 << 16),    // пока свободно, можно использовать
-	ITEM_NOT_UNLIMIT_TIMER = kIntOne | (1 << 17), // Не может быть нерушимой
-	ITEM_UNIQUE_WHEN_PURCHASE = kIntOne | (1 << 18), // станет именной при покупке в магазе
-	ITEM_NOT_ONE_CLANCHEST = kIntOne | (1 << 19) //1 штука из набора не лезет в хран
+enum class EObjFlag : Bitvector {
+	kGlow = 1 << 0,
+	kHum = 1 << 1,
+	kNorent = 1 << 2,
+	kNodonate = 1 << 3,
+	kNoinvis = 1 << 4,
+	kInvisible = 1 << 5,
+	kMagic = 1 << 6,
+	kNodrop = 1 << 7,
+	kBless = 1 << 8,
+	kNosell = 1 << 9,
+	kDecay = 1 << 10,
+	kZonedacay = 1 << 11,
+	kNodisarm = 1 << 12,
+	kNodecay = 1 << 13,
+	kPoisoned = 1 << 14,
+	kSharpen = 1 << 15,
+	kArmored = 1 << 16,
+	kAppearsDay = 1 << 17,
+	kAppearsNight = 1 << 18,
+	kAppearsFullmoon = 1 << 19,
+	kAppearsWinter = 1 << 20,
+	kAppearsSpring = 1 << 21,
+	kAppearsSummer = 1 << 22,
+	kAppearsAutumn = 1 << 23,
+	kSwimming = 1 << 24,
+	kFlying = 1 << 25,
+	kThrowing = 1 << 26,
+	kTicktimer = 1 << 27,
+	kFire = 1 << 28,									//< ...горит
+	kRepopDecay = 1 << 29,
+	kNolocate = kIntOne | (1 << 0),
+	kTimedLvl = kIntOne | (1 << 1),						//< для маг.предметов уровень уменьшается со временем
+	kNoalter = kIntOne | (1 << 2),						//< свойства предмета не могут быть изменены магией
+	kHasOneSlot = kIntOne | (1 << 3),
+	kHasTwoSlots = kIntOne | (1 << 4),
+	kHasThreeSlots = kIntOne | (1 << 5),
+	KSetItem = kIntOne | (1 << 6),
+	KNofail = kIntOne | (1 << 7),						//< не фейлится при изучении (в случае книги)
+	kNamed = kIntOne | (1 << 8),
+	kBloody = kIntOne | (1 << 9),
+	k1inlaid = kIntOne | (1 << 10),						//< TODO: не используется, см convert_obj_values()
+	k2inlaid = kIntOne | (1 << 11),
+	k3inlaid = kIntOne | (1 << 12),
+	kNopour = kIntOne | (1 << 13),						//< нельзя перелить
+	kUnique = kIntOne | (1 << 14),						// объект уникальный, т.е. только один в экипировке
+	kTransformed = kIntOne | (1 << 15),					// Наложено заклинание заколдовать оружие
+	kFreeForUse = kIntOne | (1 << 16),					// пока свободно, можно использовать
+	KLimitedTimer = kIntOne | (1 << 17),				// Не может быть нерушимой
+	kBindOnPurchase = kIntOne | (1 << 18),				// станет именной при покупке в магазе
+	kNotOneInClanChest = kIntOne | (1 << 19)			//1 штука из набора не лезет в хран
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EExtraFlag>(EExtraFlag item);
+const std::string &NAME_BY_ITEM<EObjFlag>(EObjFlag item);
 template<>
-EExtraFlag ITEM_BY_NAME<EExtraFlag>(const std::string &name);
+EObjFlag ITEM_BY_NAME<EObjFlag>(const std::string &name);
 
 enum class ENoFlag : Bitvector {
 	ITEM_NO_MONO = 1 << 0,

@@ -617,13 +617,13 @@ void InitFeatures() {
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
 	item_kit->push_back(TechniqueItem(EEquipPos::kWield, ObjData::ITEM_WEAPON,
-									  ESkill::kAny, EExtraFlag::ITEM_THROWING));
+									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[THROW_WEAPON_FEAT].item_kits.push_back(std::move(item_kit));
 
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
 	item_kit->push_back(TechniqueItem(EEquipPos::kHold, ObjData::ITEM_WEAPON,
-									  ESkill::kAny, EExtraFlag::ITEM_THROWING));
+									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[THROW_WEAPON_FEAT].item_kits.push_back(std::move(item_kit));
 //145
 	InitFeat(SHADOW_THROW_FEAT, "змеево оружие", TECHNIQUE_FTYPE, true, feat_app,
@@ -645,12 +645,12 @@ void InitFeatures() {
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
 	item_kit->push_back(TechniqueItem(EEquipPos::kWield, ObjData::ITEM_WEAPON,
-									  ESkill::kAny, EExtraFlag::ITEM_THROWING));
+									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[SHADOW_THROW_FEAT].item_kits.push_back(std::move(item_kit));
 	item_kit = std::make_unique<TechniqueItemKit>();
 	item_kit->reserve(1);
 	item_kit->push_back(TechniqueItem(EEquipPos::kHold, ObjData::ITEM_WEAPON,
-									  ESkill::kAny, EExtraFlag::ITEM_THROWING));
+									  ESkill::kAny, EObjFlag::kThrowing));
 	feat_info[SHADOW_THROW_FEAT].item_kits.push_back(std::move(item_kit));
 //146
 	InitFeat(SHADOW_DAGGER_FEAT, "змеев кинжал", NORMAL_FTYPE, true, feat_app,
@@ -1090,7 +1090,7 @@ void do_fit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	};
 
-	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
+	if ((GET_OBJ_WEAR(obj) <= 1) || obj->has_flag(EObjFlag::KSetItem)) {
 		send_to_char("Этот предмет невозможно переделать.\r\n", ch);
 		return;
 	}

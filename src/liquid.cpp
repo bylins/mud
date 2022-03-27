@@ -1019,7 +1019,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		send_to_char("Там нет места.\r\n", ch);
 		return;
 	}
-	if (OBJ_FLAGGED(from_obj, EExtraFlag::ITEM_NOPOUR)) {
+	if (from_obj->has_flag(EObjFlag::kNopour)) {
 		send_to_char(ch, "Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n",
 					 GET_OBJ_PNAME(from_obj, 3).c_str());
 		return;

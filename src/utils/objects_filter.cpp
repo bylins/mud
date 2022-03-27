@@ -95,7 +95,7 @@ bool ParseFilter::init_state(const char *str) {
 
 bool ParseFilter::init_wear(const char *str) {
 	if (utils::IsAbbrev(str, "палец")) {
-		wear = EWearFlag::ITEM_WEAR_FINGER;
+		wear = EWearFlag::kFinger;
 		wear_message = 1;
 	} else if (utils::IsAbbrev(str, "шея") || utils::IsAbbrev(str, "грудь")) {
 		wear = EWearFlag::ITEM_WEAR_NECK;
@@ -455,7 +455,7 @@ bool ParseFilter::check_state(ObjData *obj) const {
 }
 
 bool ParseFilter::check_wear(ObjData *obj) const {
-	if (wear == EWearFlag::ITEM_WEAR_UNDEFINED
+	if (wear == EWearFlag::kUndefined
 		|| CAN_WEAR(obj, wear)) {
 		return true;
 	}
@@ -677,7 +677,7 @@ std::string ParseFilter::print() const {
 		buffer += print_obj_state(state);
 		buffer += " ";
 	}
-	if (wear != EWearFlag::ITEM_WEAR_UNDEFINED) {
+	if (wear != EWearFlag::kUndefined) {
 		buffer += wear_bits[wear_message];
 		buffer += " ";
 	}

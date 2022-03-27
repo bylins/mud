@@ -2047,7 +2047,7 @@ void npc_armor(CharData *ch) {
 			continue;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER)) {
+		if (CAN_WEAR(obj, EWearFlag::kFinger)) {
 			where = EEquipPos::kFingerR;
 		}
 
@@ -2697,7 +2697,7 @@ int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		return (false);
 
 	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
-		if (!CAN_WEAR(i, EWearFlag::ITEM_WEAR_TAKE)) {
+		if (!CAN_WEAR(i, EWearFlag::kTake)) {
 			continue;
 		}
 

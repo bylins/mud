@@ -3553,18 +3553,18 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 		return 0;
 	}
 
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NOALTER)) {
+	if (obj->has_flag(EObjFlag::kNoalter)) {
 		act("$o устойчив$A к вашей магии.", true, ch, obj, nullptr, kToChar);
 		return 0;
 	}
 
 	switch (spellnum) {
 		case kSpellBless:
-			if (!obj->get_extra_flag(EExtraFlag::ITEM_BLESS)
+			if (!obj->has_flag(EObjFlag::kBless)
 				&& (GET_OBJ_WEIGHT(obj) <= 5 * GetRealLevel(ch))) {
-				obj->set_extra_flag(EExtraFlag::ITEM_BLESS);
-				if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
-					obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
+				obj->set_extra_flag(EObjFlag::kBless);
+				if (obj->has_flag(EObjFlag::kNodrop)) {
+					obj->unset_extraflag(EObjFlag::kNodrop);
 					if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 						obj->inc_val(2);
 					}
@@ -3577,8 +3577,8 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			break;
 
 		case kSpellCurse:
-			if (!obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
-				obj->set_extra_flag(EExtraFlag::ITEM_NODROP);
+			if (!obj->has_flag(EObjFlag::kNodrop)) {
+				obj->set_extra_flag(EObjFlag::kNodrop);
 				if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 					if (GET_OBJ_VAL(obj, 2) > 0) {
 						obj->dec_val(2);
@@ -3596,9 +3596,9 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			break;
 
 		case kSpellInvisible:
-			if (!obj->get_extra_flag(EExtraFlag::ITEM_NOINVIS)
-				&& !obj->get_extra_flag(EExtraFlag::ITEM_INVISIBLE)) {
-				obj->set_extra_flag(EExtraFlag::ITEM_INVISIBLE);
+			if (!obj->has_flag(EObjFlag::kNoinvis)
+				&& !obj->has_flag(EObjFlag::kInvisible)) {
+				obj->set_extra_flag(EObjFlag::kInvisible);
 				to_char = "$o растворил$U в пустоте.";
 			}
 			break;
@@ -3614,8 +3614,8 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			break;
 
 		case kSpellRemoveCurse:
-			if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
-				obj->unset_extraflag(EExtraFlag::ITEM_NODROP);
+			if (obj->has_flag(EObjFlag::kNodrop)) {
+				obj->unset_extraflag(EObjFlag::kNodrop);
 				if (GET_OBJ_TYPE(obj) == ObjData::ITEM_WEAPON) {
 					obj->inc_val(2);
 				}
@@ -3632,12 +3632,12 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			if (GET_OBJ_TYPE(obj) != ObjData::ITEM_WEAPON) {
 				to_char = "Еще раз ударьтесь головой об стену, авось зрение вернется...";
 				break;
-			} else if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)) {
+			} else if (obj->has_flag(EObjFlag::kMagic)) {
 				to_char = "Вам не под силу зачаровать магическую вещь.";
 				break;
 			}
 
-			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF)) {
+			if (obj->has_flag(EObjFlag::KSetItem)) {
 				send_to_char(ch, "Сетовый предмет не может быть заколдован.\r\n");
 				break;
 			}
@@ -3687,7 +3687,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			break;
 
 		case kSpellFly: obj->add_timed_spell(kSpellFly, -1);
-			obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
+			obj->set_extra_flag(EObjFlag::kFlying);
 			to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
 			break;
 
@@ -3710,9 +3710,9 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			break;
 
 		case kSpellRestoration: {
-			if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_MAGIC)
+			if (obj->has_flag(EObjFlag::kMagic)
 				&& (GET_OBJ_RNUM(obj) != kNothing)) {
-				if (obj_proto.at(GET_OBJ_RNUM(obj))->get_extra_flag(EExtraFlag::ITEM_MAGIC)) {
+				if (obj_proto.at(GET_OBJ_RNUM(obj))->has_flag(EObjFlag::kMagic)) {
 					return 0;
 				}
 				obj->unset_enchant();
@@ -3724,7 +3724,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, int spellnum, ESa
 			break;
 
 		case kSpellLight: obj->add_timed_spell(kSpellLight, -1);
-			obj->set_extra_flag(EExtraFlag::ITEM_GLOW);
+			obj->set_extra_flag(EObjFlag::kGlow);
 			to_char = "$o засветил$U ровным зеленоватым светом.";
 			break;
 

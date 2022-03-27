@@ -166,7 +166,7 @@ int attack_best(CharData *ch, CharData *victim) {
 		if (ch->get_skill(ESkill::kThrow)
 			&& wielded
 			&& GET_OBJ_TYPE(wielded) == ObjData::ITEM_WEAPON
-			&& wielded->get_extra_flag(EExtraFlag::ITEM_THROWING)) {
+			&& wielded->has_flag(EObjFlag::kThrowing)) {
 			go_throw(ch, victim);
 		}
 		if (ch->get_skill(ESkill::kDisarm)) {
@@ -891,18 +891,18 @@ ObjData *create_charmice_box(CharData *ch) {
 	obj->set_PName(5, "узелке");
 	obj->set_sex(ESex::kMale);
 	obj->set_type(ObjData::ITEM_CONTAINER);
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	obj->set_weight(1);
 	obj->set_cost(1);
 	obj->set_rent_off(1);
 	obj->set_rent_on(1);
 	obj->set_timer(9999);
 
-	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
-	obj->set_extra_flag(EExtraFlag::ITEM_SWIMMING);
-	obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
+	obj->set_extra_flag(EObjFlag::kNosell);
+	obj->set_extra_flag(EObjFlag::kNolocate);
+	obj->set_extra_flag(EObjFlag::kNodecay);
+	obj->set_extra_flag(EObjFlag::kSwimming);
+	obj->set_extra_flag(EObjFlag::kFlying);
 
 	return obj.get();
 }

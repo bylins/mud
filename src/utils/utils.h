@@ -944,8 +944,8 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
 #define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM(obj->get_worn_by()) : \
                         (obj)->get_carried_by() ? IN_ROOM(obj->get_carried_by()) : (obj)->get_in_room())
-#define IS_OBJ_ANTI(obj, stat) ((obj)->get_anti_flag(stat))
-#define IS_OBJ_NO(obj, stat) ((obj)->get_no_flag(stat))
+#define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
+#define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
 #define IS_OBJ_AFF(obj, stat) (obj->get_affect(stat))
 
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == ObjData::ITEM_CONTAINER && \

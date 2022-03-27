@@ -1076,8 +1076,8 @@ void do_start(CharData *ch, int newbie) {
 		for (int & i : outfit_list) {
 			const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(i);
 			if (obj) {
-				obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-				obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
+				obj->set_extra_flag(EObjFlag::kNosell);
+				obj->set_extra_flag(EObjFlag::kDecay);
 				obj->set_cost(0);
 				obj->set_rent_off(0);
 				obj->set_rent_on(0);
@@ -1351,7 +1351,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_MAGUS(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))
-		|| (!IS_VIGILANT(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
+		|| (!IS_VIGILANT(ch) && (obj->has_flag(EObjFlag::kSharpen) || obj->has_flag(EObjFlag::kArmored)))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch))) {
 		return true;
 	}

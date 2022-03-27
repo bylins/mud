@@ -399,7 +399,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		object->set_vnum_zone_from(zone_table[world[ch->in_room]->zone_rn].vnum);
 
-		if (CAN_WEAR(object.get(), EWearFlag::ITEM_WEAR_TAKE)) {
+		if (CAN_WEAR(object.get(), EWearFlag::kTake)) {
 			obj_to_char(object.get(), ch);
 		} else {
 			obj_to_room(object.get(), ch->in_room);
